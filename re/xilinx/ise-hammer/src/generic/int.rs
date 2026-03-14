@@ -913,6 +913,9 @@ fn skip_permabuf(
             if wires_v7::HROW_O.contains(dst.wire) {
                 return true;
             }
+            if tcid == tcls_v7::BRAM {
+                return true;
+            }
         }
         _ => (),
     }
@@ -1025,7 +1028,8 @@ fn skip_mux(
             }
             if matches!(
                 tcid,
-                tcls_v7::CMT
+                tcls_v7::BRAM
+                    | tcls_v7::CMT
                     | tcls_v7::CLK_HROW
                     | tcls_v7::CLK_BUFG_S
                     | tcls_v7::CLK_BUFG_N

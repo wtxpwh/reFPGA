@@ -1740,6 +1740,30 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx, devdata_only: bool) {
             xlat_enum_attr_ocd(diffs, OcdMode::FixedOrder(&bits)),
         );
 
+        ctx.insert_bel_attr_bitvec(
+            tcid,
+            bslot,
+            ILOGIC::INIT_BITSLIP,
+            [
+                [
+                    TileBit::new(0, 29, 30).pos(),
+                    TileBit::new(0, 29, 26).pos(),
+                    TileBit::new(0, 28, 22).pos(),
+                    TileBit::new(0, 28, 18).pos(),
+                    TileBit::new(0, 29, 15).pos(),
+                    TileBit::new(0, 29, 12).pos(),
+                ],
+                [
+                    TileBit::new(0, 29, 33).pos(),
+                    TileBit::new(0, 29, 37).pos(),
+                    TileBit::new(0, 28, 41).pos(),
+                    TileBit::new(0, 28, 45).pos(),
+                    TileBit::new(0, 29, 48).pos(),
+                    TileBit::new(0, 29, 51).pos(),
+                ],
+            ][i],
+        );
+
         ctx.get_diff_attr_special_bit_bi(
             tcid,
             bslot,
@@ -1758,7 +1782,7 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx, devdata_only: bool) {
             false,
         )
         .assert_empty();
-        let diff_async = ctx.get_diff_attr_special_bit_bi(
+        let mut diff_async = ctx.get_diff_attr_special_bit_bi(
             tcid,
             bslot,
             ILOGIC::BITSLIP_ENABLE,
@@ -1775,13 +1799,13 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx, devdata_only: bool) {
             true,
         );
         let diff_sync = diff_sync.combine(&!&diff_async);
-        ctx.insert_bel_attr_bitvec(
-            tcid,
-            bslot,
-            ILOGIC::BITSLIP_ENABLE,
-            xlat_bit_wide(diff_async),
+        diff_async.apply_bitvec_diff_int(
+            ctx.bel_attr_bitvec(tcid, bslot, ILOGIC::INIT_BITSLIP),
+            0x3f,
+            0,
         );
-        ctx.insert_bel_attr_bool(tcid, bslot, ILOGIC::BITSLIP_SYNC, xlat_bit(diff_sync));
+        ctx.insert_bel_attr_bool(tcid, bslot, ILOGIC::BITSLIP_ENABLE, xlat_bit(diff_async));
+        ctx.insert_bel_attr_bool(tcid, bslot, ILOGIC::BITSLIP_SR_SYNC, xlat_bit(diff_sync));
 
         ctx.collect_bel_attr(tcid, bslot, ILOGIC::DDR_CLK_EDGE);
         ctx.collect_bel_attr(tcid, bslot, ILOGIC::FFI_REV_ENABLE);

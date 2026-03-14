@@ -6,11 +6,12 @@ use prjcombine_interconnect::{
 };
 use prjcombine_re_xilinx_naming_virtex4::ExpandedNamedDevice;
 use prjcombine_re_xilinx_rawdump::Part;
-use prjcombine_re_xilinx_rdverify::{RawWireCoord, SitePinDir, Verifier};
+use prjcombine_re_xilinx_rdverify::{RawWireCoord, Verifier};
 use prjcombine_virtex4::{
     chip::ColumnKind,
     defs::{
-        bcls, bslots,
+        bcls::{self, BRAM_V5 as BRAM},
+        bslots,
         virtex6::{tcls, wires},
     },
     expanded::ExpandedDevice,
@@ -69,49 +70,256 @@ fn verify_dsp(edev: &ExpandedDevice, vrf: &mut Verifier, bcrd: BelCoord) {
     bel.commit();
 }
 
-fn verify_bram_f(vrf: &mut Verifier, bcrd: BelCoord) {
-    let bel = &mut vrf.get_legacy_bel(bcrd);
-    let pins = [
-        ("CASCADEINA", SitePinDir::In),
-        ("CASCADEINB", SitePinDir::In),
-        ("CASCADEOUTA", SitePinDir::Out),
-        ("CASCADEOUTB", SitePinDir::Out),
-        ("TSTOUT1", SitePinDir::Out),
-        ("TSTOUT2", SitePinDir::Out),
-        ("TSTOUT3", SitePinDir::Out),
-        ("TSTOUT4", SitePinDir::Out),
-    ];
-    vrf.verify_legacy_bel(bel, "RAMBFIFO36E1", &pins, &[]);
-    for (pin, _) in pins {
-        vrf.claim_net(&[bel.wire(pin)]);
+fn verify_bram(edev: &ExpandedDevice, vrf: &mut Verifier, bcrd: BelCoord) {
+    let mut bel = vrf
+        .verify_bel(bcrd)
+        .kind("RAMBFIFO36E1")
+        .extra_in_claim("CASCADEINA")
+        .extra_in_claim("CASCADEINB")
+        .extra_out_claim("CASCADEOUTA")
+        .extra_out_claim("CASCADEOUTB")
+        .extra_out_claim("TSTOUT1")
+        .extra_out_claim("TSTOUT2")
+        .extra_out_claim("TSTOUT3")
+        .extra_out_claim("TSTOUT4")
+        .rename_in(BRAM::CLKAL, "CLKARDCLKL")
+        .rename_in(BRAM::CLKAU, "CLKARDCLKU")
+        .rename_in(BRAM::CLKBL, "CLKBWRCLKL")
+        .rename_in(BRAM::CLKBU, "CLKBWRCLKU")
+        .rename_in(BRAM::ENAL, "ENARDENL")
+        .rename_in(BRAM::ENAU, "ENARDENU")
+        .rename_in(BRAM::ENBL, "ENBWRENL")
+        .rename_in(BRAM::ENBU, "ENBWRENU")
+        .rename_in(BRAM::REGCEAL, "REGCEAREGCEL")
+        .rename_in(BRAM::REGCEAU, "REGCEAREGCEU")
+        .rename_in(BRAM::REGCLKAL, "REGCLKARDRCLKL")
+        .rename_in(BRAM::REGCLKAU, "REGCLKARDRCLKU")
+        .rename_in(BRAM::RSTRAMAL, "RSTRAMARSTRAMLRST")
+        .rename_in(BRAM::RSTRAMAU, "RSTRAMARSTRAMU")
+        .rename_in(BRAM::RSTREGAL, "RSTREGARSTREGL")
+        .rename_in(BRAM::RSTREGAU, "RSTREGARSTREGU");
+    for i in 0..16 {
+        bel = bel
+            .rename_in(BRAM::ADDRAL[i], format!("ADDRARDADDRL{i}"))
+            .rename_in(BRAM::ADDRBL[i], format!("ADDRBWRADDRL{i}"));
     }
-    if let Some(obel) = vrf.find_bel_delta(bel, 0, -5, bel.slot) {
+    for i in 0..15 {
+        bel = bel
+            .rename_in(BRAM::ADDRAU[i], format!("ADDRARDADDRU{i}"))
+            .rename_in(BRAM::ADDRBU[i], format!("ADDRBWRADDRU{i}"));
+    }
+    for i in 0..8 {
+        bel = bel
+            .rename_in(BRAM::WEBL[i], format!("WEBWEL{i}"))
+            .rename_in(BRAM::WEBU[i], format!("WEBWEU{i}"));
+    }
+    for i in 0..32 {
+        bel = bel
+            .rename_in([BRAM::DIAL, BRAM::DIAU][i % 2][i / 2], format!("DIADI{i}"))
+            .rename_in([BRAM::DIBL, BRAM::DIBU][i % 2][i / 2], format!("DIBDI{i}"))
+            .rename_out([BRAM::DOAL, BRAM::DOAU][i % 2][i / 2], format!("DOADO{i}"))
+            .rename_out([BRAM::DOBL, BRAM::DOBU][i % 2][i / 2], format!("DOBDO{i}"));
+    }
+    for i in 0..4 {
+        bel = bel
+            .rename_in(
+                [BRAM::DIPAL, BRAM::DIPAU][i % 2][i / 2],
+                format!("DIPADIP{i}"),
+            )
+            .rename_in(
+                [BRAM::DIPBL, BRAM::DIPBU][i % 2][i / 2],
+                format!("DIPBDIP{i}"),
+            )
+            .rename_out(
+                [BRAM::DOPAL, BRAM::DOPAU][i % 2][i / 2],
+                format!("DOPADOP{i}"),
+            )
+            .rename_out(
+                [BRAM::DOPBL, BRAM::DOPBU][i % 2][i / 2],
+                format!("DOPBDOP{i}"),
+            );
+    }
+    if let Some(obel) = edev.bel_carry_prev(bcrd) {
         for (ipin, opin) in [("CASCADEINA", "CASCADEOUTA"), ("CASCADEINB", "CASCADEOUTB")] {
-            vrf.verify_net(&[bel.wire(ipin), obel.wire_far(opin)]);
-            vrf.claim_pip(obel.wire_far(opin), obel.wire(opin));
+            bel.verify_net(&[bel.wire(ipin), bel.bel_wire_far(obel, opin)]);
+            bel.claim_pip(bel.bel_wire_far(obel, opin), bel.bel_wire(obel, opin));
         }
     }
-}
+    bel.commit();
 
-fn verify_bram_h1(vrf: &mut Verifier, bcrd: BelCoord) {
-    let bel = &mut vrf.get_legacy_bel(bcrd);
-    let mut pins = vec![
-        "FULL".to_string(),
-        "EMPTY".to_string(),
-        "ALMOSTFULL".to_string(),
-        "ALMOSTEMPTY".to_string(),
-        "WRERR".to_string(),
-        "RDERR".to_string(),
-    ];
+    let mut bel = vrf.verify_bel(bcrd).sub(1).skip_auto().kind("FIFO18E1");
+    for (hpin, fpin) in [
+        ("RDCLK", "CLKAL"),
+        ("WRCLK", "CLKBL"),
+        ("RDEN", "ENAL"),
+        ("WREN", "ENBL"),
+        ("RDRCLK", "REGCLKAL"),
+        ("REGCLKB", "REGCLKBL"),
+        ("RSTREG", "RSTREGAL"),
+        ("RSTREGB", "RSTREGBL"),
+        ("RST", "RSTRAMAL"),
+        ("RSTRAMB", "RSTRAMBL"),
+        ("REGCE", "REGCEAL"),
+        ("REGCEB", "REGCEBL"),
+        ("ADDRATIEHIGH0", "ADDRAL0"),
+        ("ADDRBTIEHIGH0", "ADDRBL0"),
+        ("ADDRATIEHIGH1", "ADDRAL15"),
+        ("ADDRBTIEHIGH1", "ADDRBL15"),
+    ] {
+        bel = bel.extra_in_claim_rename(hpin, format!("H0_{hpin}"));
+        bel.claim_pip(bel.wire(&format!("H0_{hpin}")), bel.wire_far(fpin));
+    }
+    for pin in [
+        "FULL",
+        "EMPTY",
+        "ALMOSTFULL",
+        "ALMOSTEMPTY",
+        "RDERR",
+        "WRERR",
+    ] {
+        bel = bel.extra_out_claim_rename(pin, format!("H0_{pin}"));
+        bel.claim_pip(bel.wire_far(pin), bel.wire(&format!("H0_{pin}")));
+    }
+    for (hpin, fpin, width) in [
+        ("WEA", "WEAL", 4),
+        ("WEBWE", "WEBL", 8),
+        ("DIADI", "DIAL", 16),
+        ("DIPADIP", "DIPAL", 2),
+        ("DIBDI", "DIBL", 16),
+        ("DIPBDIP", "DIPBL", 2),
+    ] {
+        for i in 0..width {
+            bel = bel.extra_in_claim_rename(format!("{hpin}{i}"), format!("H0_{hpin}{i}"));
+            bel.claim_pip(
+                bel.wire(&format!("H0_{hpin}{i}")),
+                bel.wire_far(&format!("{fpin}{i}")),
+            );
+        }
+    }
+    for (hpin, fpin, width, delta) in [
+        ("DO", "DOAL", 16, 0),
+        ("DOP", "DOPAL", 2, 0),
+        ("DO", "DOBL", 16, 16),
+        ("DOP", "DOPBL", 2, 2),
+    ] {
+        for i in 0..width {
+            let ii = i + delta;
+            bel = bel.extra_out_claim_rename(format!("{hpin}{ii}"), format!("H0_{hpin}{ii}"));
+            bel.claim_pip(
+                bel.wire_far(&format!("{fpin}{i}")),
+                bel.wire(&format!("H0_{hpin}{ii}")),
+            );
+        }
+    }
     for i in 0..12 {
-        pins.push(format!("RDCOUNT{i}"));
-        pins.push(format!("WRCOUNT{i}"));
+        bel = bel
+            .extra_out_claim_rename(format!("RDCOUNT{i}"), format!("H0_RDCOUNT{i}"))
+            .extra_out_claim_rename(format!("WRCOUNT{i}"), format!("H0_WRCOUNT{i}"));
+        bel.claim_pip(
+            bel.wire_far(&format!("RDCOUNT{i}")),
+            bel.wire(&format!("H0_RDCOUNT{i}")),
+        );
+        bel.claim_pip(
+            bel.wire_far(&format!("WRCOUNT{i}")),
+            bel.wire(&format!("H0_WRCOUNT{i}")),
+        );
     }
-    let pin_refs: Vec<_> = pins.iter().map(|x| (&x[..], SitePinDir::Out)).collect();
-    vrf.verify_legacy_bel(bel, "RAMB18E1", &pin_refs, &[]);
-    for pin in pins {
-        vrf.claim_net(&[bel.wire(&pin)]);
+    for i in 0..14 {
+        bel = bel
+            .extra_in_claim_rename(format!("ADDRARDADDR{i}"), format!("H0_ADDRARDADDR{i}"))
+            .extra_in_claim_rename(format!("ADDRBWRADDR{i}"), format!("H0_ADDRBWRADDR{i}"));
+        bel.claim_pip(
+            bel.wire(&format!("H0_ADDRARDADDR{i}")),
+            bel.wire_far(&format!("ADDRAL{ii}", ii = i + 1)),
+        );
+        bel.claim_pip(
+            bel.wire(&format!("H0_ADDRBWRADDR{i}")),
+            bel.wire_far(&format!("ADDRBL{ii}", ii = i + 1)),
+        );
     }
+    bel.commit();
+
+    let mut bel = vrf
+        .verify_bel(bcrd)
+        .sub(2)
+        .skip_auto()
+        .kind("RAMB18E1")
+        .extra_out_claim_rename("FULL", "H1_FULL")
+        .extra_out_claim_rename("EMPTY", "H1_EMPTY")
+        .extra_out_claim_rename("ALMOSTFULL", "H1_ALMOSTFULL")
+        .extra_out_claim_rename("ALMOSTEMPTY", "H1_ALMOSTEMPTY")
+        .extra_out_claim_rename("RDERR", "H1_RDERR")
+        .extra_out_claim_rename("WRERR", "H1_WRERR");
+    for (hpin, fpin) in [
+        ("CLKARDCLK", "CLKAU"),
+        ("CLKBWRCLK", "CLKBU"),
+        ("ENARDEN", "ENAU"),
+        ("ENBWREN", "ENBU"),
+        ("REGCLKARDRCLK", "REGCLKAU"),
+        ("REGCLKB", "REGCLKBU"),
+        ("RSTREGARSTREG", "RSTREGAU"),
+        ("RSTREGB", "RSTREGBU"),
+        ("RSTRAMARSTRAM", "RSTRAMAU"),
+        ("RSTRAMB", "RSTRAMBU"),
+        ("REGCEAREGCE", "REGCEAU"),
+        ("REGCEB", "REGCEBU"),
+        ("ADDRATIEHIGH0", "ADDRAU0"),
+        ("ADDRBTIEHIGH0", "ADDRBU0"),
+        ("ADDRATIEHIGH1", "ADDRAL15"),
+        ("ADDRBTIEHIGH1", "ADDRBL15"),
+    ] {
+        bel = bel.extra_in_claim_rename(hpin, format!("H1_{hpin}"));
+        bel.claim_pip(bel.wire(&format!("H1_{hpin}")), bel.wire_far(fpin));
+    }
+    for (hpin, fpin, width) in [
+        ("WEA", "WEAU", 4),
+        ("WEBWE", "WEBU", 8),
+        ("DIADI", "DIAU", 16),
+        ("DIPADIP", "DIPAU", 2),
+        ("DIBDI", "DIBU", 16),
+        ("DIPBDIP", "DIPBU", 2),
+    ] {
+        for i in 0..width {
+            bel = bel.extra_in_claim_rename(format!("{hpin}{i}"), format!("H1_{hpin}{i}"));
+            bel.claim_pip(
+                bel.wire(&format!("H1_{hpin}{i}")),
+                bel.wire_far(&format!("{fpin}{i}")),
+            );
+        }
+    }
+    for (hpin, fpin, width) in [
+        ("DOADO", "DOAU", 16),
+        ("DOPADOP", "DOPAU", 2),
+        ("DOBDO", "DOBU", 16),
+        ("DOPBDOP", "DOPBU", 2),
+    ] {
+        for i in 0..width {
+            bel = bel.extra_out_claim_rename(format!("{hpin}{i}"), format!("H1_{hpin}{i}"));
+            bel.claim_pip(
+                bel.wire_far(&format!("{fpin}{i}")),
+                bel.wire(&format!("H1_{hpin}{i}")),
+            );
+        }
+    }
+    for i in 0..14 {
+        bel = bel
+            .extra_in_claim_rename(format!("ADDRARDADDR{i}"), format!("H1_ADDRARDADDR{i}"))
+            .extra_in_claim_rename(format!("ADDRBWRADDR{i}"), format!("H1_ADDRBWRADDR{i}"));
+        bel.claim_pip(
+            bel.wire(&format!("H1_ADDRARDADDR{i}")),
+            bel.wire_far(&format!("ADDRAU{ii}", ii = i + 1)),
+        );
+        bel.claim_pip(
+            bel.wire(&format!("H1_ADDRBWRADDR{i}")),
+            bel.wire_far(&format!("ADDRBU{ii}", ii = i + 1)),
+        );
+    }
+    for i in 0..12 {
+        bel = bel
+            .extra_out_claim_rename(format!("RDCOUNT{i}"), format!("H1_RDCOUNT{i}"))
+            .extra_out_claim_rename(format!("WRCOUNT{i}"), format!("H1_WRCOUNT{i}"));
+    }
+    bel.commit();
 }
 
 fn verify_hclk_io_int(vrf: &mut Verifier, bcrd: BelCoord) {
@@ -516,12 +724,7 @@ fn verify_bel(edev: &ExpandedDevice, vrf: &mut Verifier, bcrd: BelCoord) {
         _ if bslots::HCLK_DRP.contains(bcrd.slot) => (),
         _ if bslots::SLICE.contains(bcrd.slot) => verify_slice(edev, vrf, bcrd),
         _ if bslots::DSP.contains(bcrd.slot) => verify_dsp(edev, vrf, bcrd),
-        bslots::BRAM_F => verify_bram_f(vrf, bcrd),
-        _ if bcrd.slot == bslots::BRAM_H[0] => {
-            let bel = &mut vrf.get_legacy_bel(bcrd);
-            vrf.verify_legacy_bel(bel, "FIFO18E1", &[], &[])
-        }
-        _ if bcrd.slot == bslots::BRAM_H[1] => verify_bram_h1(vrf, bcrd),
+        bslots::BRAM => verify_bram(edev, vrf, bcrd),
         bslots::EMAC => vrf.verify_bel(bcrd).kind("TEMAC_SINGLE").commit(),
         bslots::PCIE => vrf.verify_bel(bcrd).kind("PCIE_2_0").commit(),
 

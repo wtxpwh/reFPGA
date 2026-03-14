@@ -219,10 +219,15 @@ target_defs! {
 
     enum BRAM_V5_DATA_WIDTH { _1, _2, _4, _9, _18 }
     enum BRAM_V5_FIFO_WIDTH { _2, _4, _9, _18, _36 }
+    enum BRAM_V5_RSTREG_PRIORITY { RSTREG, REGCE }
+    enum BRAM_V5_RDADDR_COLLISION_HWCONFIG { DELAYED_WRITE, PERFORMANCE }
+    enum BRAM_V5_EN_PWRGATE { NONE, LEFT, RIGHT, BOTH }
     bel_class BRAM_V5 {
         input CLKAL, CLKAU, CLKBL, CLKBU;
         input ENAL, ENAU, ENBU, ENBL;
-        input SSRAL, SSRAU, SSRBL, SSRBU;
+        input RSTRAMAL, RSTRAMAU, RSTRAMBL, RSTRAMBU;
+        // RSTREG* is virtex6+ only
+        input RSTREGAL, RSTREGAU, RSTREGBL, RSTREGBU;
         input WEAL[4], WEAU[4], WEBL[8], WEBU[8];
         input REGCEAL, REGCEAU, REGCEBL, REGCEBU;
         input REGCLKAL, REGCLKAU, REGCLKBL, REGCLKBU;
@@ -243,6 +248,9 @@ target_defs! {
         output WRCOUNT[13];
         output WRERR;
 
+        // virtex6+ only
+        input INJECTSBITERR, INJECTDBITERR;
+
         input TSTFLAGIN;
         input TSTOFF;
         input TSTRDCNTOFF;
@@ -250,6 +258,11 @@ target_defs! {
         input TSTCNT[13];
         input TSTRDOS[13];
         input TSTWROS[13];
+
+        // virtex6+ only
+        input TSTBRAMRST;
+        input TSTIN[5];
+        output TSTOUT[5];
 
         attribute DATA_L, DATA_U: bitvec[0x4000];
         attribute DATAP_L, DATAP_U: bitvec[0x800];
@@ -288,14 +301,49 @@ target_defs! {
         attribute SWAP_CFGPORT: bool;
         attribute TRD_DLY_L, TRD_DLY_U: bitvec[3];
         attribute TSCRUB_DLY_L, TSCRUB_DLY_U: bitvec[1];
-        attribute TWR_DLY_L, TWR_DLY_U: bitvec[4];
+        attribute V5_TWR_DLY_L, V5_TWR_DLY_U: bitvec[4];
+        attribute V6_TWR_DLY_L, V6_TWR_DLY_U: bitvec[3];
+        attribute V7_TWR_DLY_A_L, V7_TWR_DLY_A_U, V7_TWR_DLY_B_L, V7_TWR_DLY_B_U: bitvec[4];
 
         attribute TEST_FIFO_CNT: bool;
         attribute TEST_FIFO_FLAG: bool;
         attribute TEST_FIFO_OFFSET: bool;
-    }
 
-    // TODO BRAM_V6
+        // virtex6 and up
+        attribute RSTREG_PRIORITY_A_L, RSTREG_PRIORITY_A_U, RSTREG_PRIORITY_B_L, RSTREG_PRIORITY_B_U: BRAM_V5_RSTREG_PRIORITY;
+        attribute RDADDR_COLLISION_HWCONFIG_L, RDADDR_COLLISION_HWCONFIG_U: BRAM_V5_RDADDR_COLLISION_HWCONFIG;
+        attribute EN_TSTBRAMRST: bool;
+        attribute DIS_TSTFIFORST: bool;
+
+        // virtex6 only
+        attribute V6_TEST_ATTRIBUTES: bitvec[20];
+        attribute EN_TSTREFBL: bitvec[2];
+        attribute EN_TSTRSRW: bitvec[2];
+        attribute EN_TSTBLCLAMP: bitvec[1];
+
+        // virtex7 only
+        attribute EN_PWRGATE_L, EN_PWRGATE_U: BRAM_V5_EN_PWRGATE;
+        attribute EN_SDBITERR_INIT_V6: bool;
+        attribute V7_TEST_ATTRIBUTES: bitvec[19];
+        attribute TSTREFBL_CTRL: bitvec[2];
+        attribute TSTRSR_RWCTRL: bitvec[2];
+        attribute EN_TSTRFMODE_DLY: bitvec[2];
+        attribute EN_TSTPULSEPU_DLY: bitvec[2];
+        attribute EN_TSTEXTCLK: bitvec[2];
+        attribute EN_TSTRSTC_PW: bitvec[2];
+        attribute EN_TSTBLPC_DLY: bitvec[2];
+        attribute EN_TST_REGOUT_DLY_SEL: bitvec[2];
+        attribute TST_RNG_OSC: bitvec[2];
+        attribute DIS_TSTBLCLAMP: bitvec[1];
+        attribute TST_SSRLAT_WF: bitvec[1];
+        attribute EN_TSTBLCLMP_WW: bool;
+        attribute EN_TSTSNM: bool;
+        attribute LAT_RST_DLYEN: bool;
+        attribute STUCK_DET_EN: bool;
+        attribute TST_PULSEPU_SFT: bool;
+        attribute EN_TSTBLCLAMP_RD: bool;
+        attribute TST_BIST_CTL: bool;
+    }
 
     bel_class PMVBRAM_V5 {
         input DISABLE0;
@@ -514,6 +562,7 @@ target_defs! {
     enum ILOGIC_IDELAYMUX { NONE, D, OFB }
     enum ILOGIC_IOBDELAY_TYPE { DEFAULT, FIXED, VARIABLE }
     enum ILOGIC_NUM_CE { _1, _2 }
+    enum ILOGIC_D_EMU_OPTION { DLY0, DLY1, DLY2, DLY3, MATCH_DLY0, MATCH_DLY2 }
     bel_class ILOGIC {
         // CLKB is virtex5 and up only; CLKDIVP is virtex7 only
         input CLK, CLKB, CLKDIV, CLKDIVP;
@@ -538,6 +587,13 @@ target_defs! {
         attribute CLK_INV: bitvec[3];
         attribute OCLK1_INV: bool;
         attribute OCLK2_INV: bool;
+        // virtex6+ only
+        attribute D_INV: bool;
+        attribute DYN_CLK_INV_EN: bool;
+        attribute DYN_CLKDIV_INV_EN: bool;
+        attribute DYN_OCLK_INV_EN: bitvec[2];
+        // virtex7 only
+        attribute DYN_CLKDIVP_INV_EN: bool;
 
         attribute FFI1_INIT: bitvec[1];
         attribute FFI2_INIT: bitvec[1];
@@ -560,6 +616,7 @@ target_defs! {
         attribute INIT_RANK1_PARTIAL: bitvec[5];
         attribute INIT_RANK2: bitvec[6];
         attribute INIT_RANK3: bitvec[6];
+        attribute INIT_BITSLIP: bitvec[6];
 
         attribute I_DELAY_ENABLE: bool;
         attribute I_DELAY_DEFAULT: bool;
@@ -574,9 +631,8 @@ target_defs! {
         attribute DATA_WIDTH: IO_DATA_WIDTH;
         attribute INTERFACE_TYPE: ILOGIC_INTERFACE_TYPE;
         attribute NUM_CE: ILOGIC_NUM_CE;
-        // ???
-        attribute BITSLIP_ENABLE: bitvec[7];
-        attribute BITSLIP_SYNC: bool;
+        attribute BITSLIP_ENABLE: bool;
+        attribute BITSLIP_SR_SYNC: bool;
         attribute DDR_CLK_EDGE: ILOGIC_DDR_CLK_EDGE;
 
         // these four not present on virtex5 and up (moved into the IODELAY bel)
@@ -584,6 +640,24 @@ target_defs! {
         attribute IOBDELAY_TYPE: ILOGIC_IOBDELAY_TYPE;
         attribute IOBDELAY_VALUE_CUR: bitvec[6];
         attribute IOBDELAY_VALUE_INIT: bitvec[6];
+
+        // virtex6+ only
+        attribute RANK12_DLY: bool;
+        attribute RANK23_DLY: bool;
+        attribute D_EMU: bool;
+        attribute D_EMU_OPTION: ILOGIC_D_EMU_OPTION;
+
+        // virtex7 only
+        attribute D_EMU1: bool;
+        attribute D_EMU2: bool;
+        // virtex7 HR only
+        attribute ZHOLD_ENABLE: bool;
+        attribute I_ZHOLD: bool;
+        attribute I_ZHOLD_INV: bool;
+        attribute FFI_ZHOLD: bool;
+        attribute FFI_ZHOLD_INV: bool;
+        attribute I_DELAY: bitvec[5];
+        attribute FFI_DELAY: bitvec[5];
 
         attribute READBACK_I: bitvec[1];
     }
@@ -6393,7 +6467,7 @@ target_defs! {
     //      - likewise associated with `PCIE` bels; 7v* have several `PCIE` per device
     //    - some 7v*: GTH
     //      - as opposed to virtex6, does *not* appear together with GTX on the same device
-    //      - essentially a minor upgrade of GTX; the bels are `GTH_CHANNEL` and `GTH_COMMON`
+    //      - essentially a minor upgrade of GTX; reuses the same bels
     //      - associated with `PCIE3` bels instead of `PCIE`
     //    - 7vh*: GTZ
     //      - is located *on a separate die*, communicates with the FPGA via the cross-SLR channels
@@ -10292,6 +10366,304 @@ target_defs! {
         pad DDRVRP, DDRVRN: analog;
     }
 
+    enum GTZ_FIB_LOOPBACK_SEL { NORMAL, NEAR_END, FAR_END }
+    enum GTZ_FIB_NEAREND_LPBK_CLK_SEL { TXOUTCLKPMA, REFCLK }
+    enum GTZ_RXTX_MODE_SEL { RAW, GB_100GBASE_R4, GB_64B66B }
+    enum GTZ_LANE_SEL { LANE0, LANE1, LANE2, LANE3, LANE4, LANE5, LANE6, LANE7 }
+    enum GTZ_RXOUTCLK_SEL { RXRECCLKPMA_DIV4, REFCLK_DIV1, REFCLK_DIV2 }
+    enum GTZ_TXOUTCLK_SEL { TXOUTCLKPMA_DIV4, REFCLK_DIV1, REFCLK_DIV2 }
+    enum GTZ_RXUSRCLK_SEL { RXUSRCLK0, RXUSRCLK1, RXUSRCLK2, RXUSRCLK3, RXUSRCLK4, RXUSRCLK5, RXUSRCLK6, RXUSRCLK7 }
+    enum GTZ_TXUSRCLK_SEL { TXUSRCLK0, TXUSRCLK1, TXUSRCLK2, TXUSRCLK3, TXUSRCLK4, TXUSRCLK5, TXUSRCLK6, TXUSRCLK7 }
+    bel_class GTZ_OCTAL {
+        input CFGCLK;
+        input CFGDATA[32];
+        input CFGDATAVALID;
+        input CFGREADBACKB;
+        input CFGDEBUGMODEB[3];
+        input CFGFORCESEUERRB[2];
+        output CFGGTZDONEB;
+        output CFGBADVERSIONB;
+        output CFGCRCERRB[2];
+        output CFGSEUERRB[2];
+
+        input GTZINIT;
+        output GTZINITDONEB;
+
+        input DRPCLK0;
+        input DRPCLK1;
+        input DRPCLKSEL;
+        input DRPEN;
+        input DRPWE;
+        input DRPADDR[16];
+        input DRPDI[32];
+        output DRPDO[32];
+        output DRPRDY;
+        output DRPSTATUS[3];
+        output DRPWDTERR;
+
+        input SBUSCLKSEL;
+        input SBUSRESETB;
+        input SPARESBUSCOMMAND[8];
+        input SPARESBUSDATA[32];
+        input SPARESBUSDATAADDR[8];
+        output SPARESBUSDATAOUT[32];
+        output SPARESBUSDONE;
+        input SPARESBUSEXECUTEB;
+        output SPARESBUSRCVDATAVALID;
+        input SPARESBUSRCVDATAVALIDSEL;
+        input SPARESBUSRECADDR[8];
+        output SPARESBUSRESULTCODE[3];
+
+        input RXUSRCLK0;
+        input RXUSRCLK1;
+        input RXUSRCLK2;
+        input RXUSRCLK3;
+        input RXUSRCLK4;
+        input RXUSRCLK5;
+        input RXUSRCLK6;
+        input RXUSRCLK7;
+        input TXUSRCLK0;
+        input TXUSRCLK1;
+        input TXUSRCLK2;
+        input TXUSRCLK3;
+        input TXUSRCLK4;
+        input TXUSRCLK5;
+        input TXUSRCLK6;
+        input TXUSRCLK7;
+        output RXOUTCLK0;
+        output RXOUTCLK1;
+        output RXOUTCLK2;
+        output RXOUTCLK3;
+        output TXOUTCLK0;
+        output TXOUTCLK1;
+
+        input RXLATCLK;
+        input TXLATCLK;
+
+        for ch in 0..8 {
+            input "CORECNTL{ch}"[16];
+
+            input "NEARLOOPBACKEN{ch}";
+            input "FARLOOPBACKEN{ch}";
+
+            input "FIBRSVDIN{ch}"[3];
+            output "FIBRSVDOUT{ch}"[4];
+
+            input "GTZRXRESET{ch}";
+            input "GTZTXRESET{ch}";
+
+            input "PLLRECALEN{ch}";
+            input "REFCLKSEL{ch}";
+            input "REFSEL{ch}"[8];
+
+            input "RXBITSLIP{ch}";
+            output "RXDATA{ch}"[160];
+            output "RXDATAVALID{ch}"[5];
+            input "RXDATAWIDTH{ch}"[2];
+            input "RXEN{ch}";
+            input "RXFIBRESET{ch}";
+            output "RXFIFOSTATUS{ch}"[2];
+            input "RXGEARBOXSLIP{ch}"[5];
+            output "RXHEADER{ch}"[10];
+            output "RXHEADERVALID{ch}"[5];
+            input "RXPOLARITY{ch}";
+            input "RXPRBSEN{ch}";
+            output "RXPRBSPASS{ch}";
+            input "RXPRBSSEL{ch}"[3];
+            input "RXRATESEL{ch}"[9];
+            output "RXRDY{ch}";
+            output "RXRESETDONE{ch}";
+            output "RXSIGNALOK{ch}";
+
+            input "TXATTNCTRL{ch}"[8];
+            input "TXDATA{ch}"[160];
+            input "TXDATAWIDTH{ch}"[2];
+            input "TXEN{ch}";
+            input "TXEQPOSTCTRL{ch}"[8];
+            input "TXEQPRECTRL{ch}"[4];
+            input "TXFIBRESET{ch}";
+            output "TXFIFOSTATUS{ch}"[2];
+            input "TXHEADER{ch}"[10];
+            input "TXOUTPUTEN{ch}";
+            input "TXOVERRIDEEN{ch}";
+            input "TXOVERRIDEIN{ch}";
+            input "TXPHASECALEN{ch}";
+            output "TXPHASEOUT{ch}"[5];
+            input "TXPHASESLIP{ch}";
+            input "TXPOLARITY{ch}";
+            input "TXPRBSEN{ch}";
+            input "TXPRBSSEL{ch}"[3];
+            input "TXRATESEL{ch}"[9];
+            output "TXRDY{ch}";
+            output "TXRESETDONE{ch}";
+            input "TXSEQUENCE{ch}"[7];
+            input "TXSLEWCTRL{ch}"[2];
+        }
+
+        input RSVDIN[15];
+        output RSVDOUT[16];
+        output TSTJTAGSOUT;
+        input TSTRSVD[4];
+        input TSTRSVD4[10];
+        output TSTSCANOUT[2];
+        output TSTTRSOUT;
+
+        pad RXP[8], RXN[8]: input;
+        pad TXP[8], TXN[8]: output;
+        pad CLKP[2], CLKN[2]: input;
+        pad AGND, AVCC, VCCH, VCCL: power;
+        pad OBS_CLKP, OBS_CLKN: output;
+        pad THERM_IN, THERM_OUT: analog;
+        pad SENSE_GND, SENSE_GNDL, SENSE_AGND, SENSE_VCC, SENSE_AVCC, SENSE_VCCL, SENSE_VCCH: analog;
+
+        attribute RXOUTCLK0_LANE_SEL: GTZ_LANE_SEL;
+        attribute RXOUTCLK1_LANE_SEL: GTZ_LANE_SEL;
+        attribute RXOUTCLK2_LANE_SEL: GTZ_LANE_SEL;
+        attribute RXOUTCLK3_LANE_SEL: GTZ_LANE_SEL;
+        attribute TXOUTCLK0_LANE_SEL: GTZ_LANE_SEL;
+        attribute TXOUTCLK1_LANE_SEL: GTZ_LANE_SEL;
+
+        attribute ACCLK_HYST_EN_0: bitvec[1];
+        attribute ACCLK_HYST_EN_1: bitvec[1];
+        attribute ACCLK_MUX_DIV2_SEL_0: bitvec[1];
+        attribute ACCLK_MUX_DIV2_SEL_1: bitvec[1];
+        attribute ACCLK_TERM_EN_0: bitvec[1];
+        attribute ACCLK_TERM_EN_1: bitvec[1];
+        attribute BLOCK_TRANSFER_REG: bitvec[9];
+        attribute BYPASS_FIRMWARE_CRC_CHECK: bitvec[1];
+        attribute BYPASS_SERDES_CONFIG: bitvec[2];
+        attribute CFG_DRV_IMP_CONFIG: bitvec[2];
+        attribute CLKOBS_CK_DIV: bitvec[2];
+        attribute CLKOBS_CK_SEL: bitvec[4];
+        attribute CLK_DRV_IMP_CONFIG: bitvec[2];
+        attribute CONFIG_MEM_WRITE_EN: bitvec[1];
+        attribute DRP_DRV_IMP_CONFIG: bitvec[2];
+        attribute F_GTZDONE: bitvec[1];
+        attribute F_GTZINITDONE: bitvec[1];
+        attribute F_UAXFSM_RESTART: bitvec[1];
+        attribute F_USE_THIS_YOSEMITE: bitvec[1];
+        attribute GLOB_DRV_IMP_CONFIG: bitvec[2];
+        attribute IGNORE_DOUBLE_SEU_ERR: bitvec[1];
+        attribute IGNORE_FIRMWARE_CRC: bitvec[1];
+        attribute IGNORE_SINGLE_SEU_ERR: bitvec[1];
+        attribute MULTI_LANE_MODE: bitvec[5];
+        attribute SBUS_CLK_DIV_NON_2N_EN: bitvec[1];
+        attribute SBUS_DRV_IMP_CONFIG: bitvec[2];
+        attribute ODIO_DONE_DRV_IMP_CONFIG: bitvec[2];
+        attribute ODIO_INIT_B_DRV_IMP_CONFIG: bitvec[2];
+        attribute YCSS_TYP2: bitvec[1];
+        attribute RSVD_REG_1: bitvec[32];
+        attribute RSVD_REG_2: bitvec[32];
+        attribute SBUS_CLK_DIV: bitvec[4];
+        attribute SBUS_CLK_DIV_NON_2N_RESET_VAL: bitvec[12];
+        attribute WATCH_DOG_TIMER: bitvec[32];
+        attribute TST_CLK_MUX_SEL0: bitvec[3];
+        attribute TST_CLK_MUX_SEL1: bitvec[3];
+        attribute TST_CLK_MUX_SEL2: bitvec[3];
+        attribute TST_CLK_MUX_SEL3: bitvec[3];
+        attribute TST_CLK_MUX_SEL4: bitvec[3];
+        attribute TST_CLK_MUX_SEL5: bitvec[3];
+
+        for ch in 0..8 {
+            attribute "FIB_IGNORE_BROADCAST_LANE{ch}": bool;
+            attribute "RX_CLK_GATING_EN_LANE{ch}": bool;
+            attribute "RXFIFO_EN_LANE{ch}": bool;
+            attribute "RXFIFO_RESET_ON_BITSLIP_LANE{ch}": bool;
+            attribute "TX_CLK_GATING_EN_LANE{ch}": bool;
+            attribute "TXFIFO_EN_LANE{ch}": bool;
+
+            attribute "FIB_LOOPBACK_SEL_LANE{ch}": GTZ_FIB_LOOPBACK_SEL;
+            attribute "FIB_NEAREND_LPBK_CLK_SEL_LANE{ch}": GTZ_FIB_NEAREND_LPBK_CLK_SEL;
+            attribute "RX_MODE_SEL_LANE{ch}": GTZ_RXTX_MODE_SEL;
+            attribute "RXOUTCLK_SEL_LANE{ch}": GTZ_RXOUTCLK_SEL;
+            attribute "RXUSRCLK_SEL_LANE{ch}": GTZ_RXUSRCLK_SEL;
+            attribute "TX_MODE_SEL_LANE{ch}": GTZ_RXTX_MODE_SEL;
+            attribute "TXOUTCLK_SEL_LANE{ch}": GTZ_TXOUTCLK_SEL;
+            attribute "TXUSRCLK_SEL_LANE{ch}": GTZ_TXUSRCLK_SEL;
+
+            attribute "AEN_MASTER_LANE{ch}": bitvec[1];
+            attribute "AEN_RESET_LANE{ch}": bitvec[1];
+            attribute "A_GTZRXRESET_LANE{ch}": bitvec[1];
+            attribute "A_GTZTXRESET_LANE{ch}": bitvec[1];
+            attribute "A_RXFIBRESET_LANE{ch}": bitvec[1];
+            attribute "A_TXFIBRESET_LANE{ch}": bitvec[1];
+            attribute "DRV_IMP_CONFIG_LANE{ch}": bitvec[2];
+            attribute "FIB_RSVD_LANE{ch}": bitvec[1];
+            attribute "GTZ_POWER_UP_LANE{ch}": bitvec[1];
+            attribute "RESETDONE_IGNORE_RDY_LANE{ch}": bitvec[2];
+            attribute "RESET_IGNORE_FIBINITDONE_LANE{ch}": bitvec[2];
+            attribute "RESET_IGNORE_GTZINITDONE_LANE{ch}": bitvec[2];
+            attribute "RESET_MODE_LANE{ch}": bitvec[2];
+            attribute "RX_SAMPLE_PERIOD_LANE{ch}": bitvec[3];
+            attribute "TX_SAMPLE_PERIOD_LANE{ch}": bitvec[3];
+
+            attribute "BROADCAST_CTRL_LANE{ch}": bitvec[32];
+            attribute "FIB_ASYNC_CTRL_LANE{ch}": bitvec[17];
+            attribute "FIB_MULTICAST_GROUP_ID_LANE{ch}": bitvec[8];
+            attribute "FIB_RSVD_REG_LANE{ch}": bitvec[32];
+            attribute "PMA_CTRL_1_LANE{ch}": bitvec[32];
+            attribute "PMA_CTRL_2_LANE{ch}": bitvec[32];
+            attribute "PMA_WIDTH_CTRL_LANE{ch}": bitvec[32];
+            attribute "RXFIFO_BITSLIP_RESET_TIME_LANE{ch}": bitvec[6];
+            attribute "RXPMARESET_TIME_LANE{ch}": bitvec[8];
+            attribute "RXRESETDONE_TIME_LANE{ch}": bitvec[11];
+            attribute "RX_ALT_PATTERN_CTRL_LANE{ch}": bitvec[32];
+            attribute "RX_DFE_PHASE_CTRL_LANE{ch}": bitvec[32];
+            attribute "RX_ERR_MON_CTRL_LANE{ch}": bitvec[32];
+            attribute "RX_FAR_LPBK_CTRL_LANE{ch}": bitvec[32];
+            attribute "RX_GAIN_CTRL_LANE{ch}": bitvec[32];
+            attribute "RX_PATTERN_CTRL_LANE{ch}": bitvec[32];
+            attribute "RX_PHASE_INT_CTRL_LANE{ch}": bitvec[32];
+            attribute "RX_SIGNAL_OK_CTRL_LANE{ch}": bitvec[32];
+            attribute "RX_USER_REG_CTRL_LANE{ch}": bitvec[32];
+            attribute "SBUS_OVRD_ANALOG_CTRL_LANE{ch}": bitvec[32];
+            attribute "SBUS_OVRD_CORE_CTRL_LANE{ch}": bitvec[32];
+            attribute "SBUS_TEST_RW_LANE{ch}": bitvec[32];
+            attribute "SERDES_CONTROL_REG_LANE{ch}": bitvec[32];
+            attribute "TXPMARESET_TIME_LANE{ch}": bitvec[8];
+            attribute "TXRESETDONE_TIME_LANE{ch}": bitvec[11];
+            attribute "TX_GAIN_CTRL_LANE{ch}": bitvec[32];
+            attribute "TX_HALT_CTRL_LANE{ch}": bitvec[32];
+            attribute "TX_OUTPUT_CTRL_LANE{ch}": bitvec[32];
+            attribute "TX_OUTPUT_EQ_CTRL_LANE{ch}": bitvec[32];
+            attribute "TX_OUT_LPBK_CTRL_LANE{ch}": bitvec[32];
+            attribute "TX_OVERRIDE_CTRL_LANE{ch}": bitvec[32];
+            attribute "TX_PATTERN_CTRL_LANE{ch}": bitvec[32];
+            attribute "TX_PHASE_CTRL_LANE{ch}": bitvec[32];
+            attribute "TX_REFCLK_SYNC_CTRL_LANE{ch}": bitvec[32];
+            attribute "TX_USER_REG_CTRL_LANE{ch}": bitvec[32];
+
+            attribute "RSVD_ADDR2_LANE{ch}": bitvec[32];
+            attribute "RSVD_ADDR4_LANE{ch}": bitvec[32];
+            attribute "RSVD_ADDR5_LANE{ch}": bitvec[32];
+            attribute "RSVD_ADDR10_LANE{ch}": bitvec[32];
+            for a in 12..60 {
+                attribute "RSVD_ADDR{a}_LANE{ch}": bitvec[32];
+            }
+            for a in 65..80 {
+                attribute "RSVD_ADDR{a}_LANE{ch}": bitvec[32];
+            }
+            for a in 84..91 {
+                attribute "RSVD_ADDR{a}_LANE{ch}": bitvec[32];
+            }
+            for a in 92..100 {
+                attribute "RSVD_ADDR{a}_LANE{ch}": bitvec[32];
+            }
+            for a in 102..140 {
+                attribute "RSVD_ADDR{a}_LANE{ch}": bitvec[32];
+            }
+            attribute "RSVD_ADDR141_LANE{ch}": bitvec[32];
+            for a in 144..149 {
+                attribute "RSVD_ADDR{a}_LANE{ch}": bitvec[32];
+            }
+            for a in 150..252 {
+                attribute "RSVD_ADDR{a}_LANE{ch}": bitvec[32];
+            }
+            attribute "RSVD_ADDR254_LANE{ch}": bitvec[32];
+            attribute "RSVD_ADDR255_LANE{ch}": bitvec[32];
+        }
+    }
+
     if variant virtex4 {
         region_slot GLOBAL;
         region_slot GIOB;
@@ -11349,6 +11721,9 @@ target_defs! {
         bitrect HCLK_CLK = vertical (30, rev 32);
         bitrect HCLK_IO = vertical (42, rev 32);
         bitrect BRAM_DATA = vertical (128, rev 320);
+
+        bitrect GTZ_CHANNEL = horizontal (264, rev 32);
+        bitrect GTZ_COMMON = horizontal (12, rev 32);
     }
 
     tile_slot INT {
@@ -11402,15 +11777,9 @@ target_defs! {
 
         if variant virtex4 {
             bel_slot BRAM: BRAM_V4;
-        } else if variant virtex5 {
-            bel_slot BRAM: BRAM_V5;
         } else {
-            bel_slot BRAM: legacy;
+            bel_slot BRAM: BRAM_V5;
         }
-
-        bel_slot BRAM_F: legacy;
-        bel_slot BRAM_H[2]: legacy;
-        bel_slot BRAM_ADDR: legacy;
 
         if variant virtex4 {
             tile_class BRAM {
@@ -12053,6 +12422,20 @@ target_defs! {
                         progbuf MGT_ROW[i] = MGT_CLK_OUT[i];
                     }
                 }
+            }
+        }
+    }
+
+    tile_slot GTZ {
+        bel_slot GTZ_OCTAL: GTZ_OCTAL;
+        if variant virtex7 {
+            tile_class GTZ_S, GTZ_N {
+                cell CLK;
+                for i in 0..86 {
+                    cell "COL{i}"[49];
+                }
+                bitrect CHANNEL[8]: GTZ_CHANNEL;
+                bitrect COMMON: GTZ_COMMON;
             }
         }
     }

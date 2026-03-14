@@ -2,7 +2,6 @@ use prjcombine_interconnect::{
     db::{BelInfo, BelInput, BelInputId, BelKind, BelSlotId},
     grid::TileCoord,
 };
-use prjcombine_re_collector::diff::DiffKey;
 use prjcombine_re_fpga_hammer::FuzzerProp;
 use prjcombine_re_hammer::Fuzzer;
 
@@ -867,27 +866,5 @@ impl<'b> FuzzerProp<'b, IseBackend<'b>> for FuzzMultiGlobalXy {
         let opt = resolve_global_xy(backend, tcrd, self.bel, &self.opt);
         fuzzer.bits = self.width;
         Some((fuzzer.fuzz_multi(Key::GlobalOpt(opt), self.val), false))
-    }
-}
-
-#[derive(Clone, Debug)]
-pub struct ForceBelName(pub String);
-
-impl<'b> FuzzerProp<'b, IseBackend<'b>> for ForceBelName {
-    fn dyn_clone(&self) -> Box<DynProp<'b>> {
-        Box::new(Clone::clone(self))
-    }
-
-    fn apply<'a>(
-        &self,
-        _backend: &IseBackend<'a>,
-        _tcrd: TileCoord,
-        mut fuzzer: Fuzzer<IseBackend<'a>>,
-    ) -> Option<(Fuzzer<IseBackend<'a>>, bool)> {
-        let DiffKey::Legacy(ref mut id) = fuzzer.info.features[0].key else {
-            unreachable!()
-        };
-        id.bel = self.0.clone();
-        Some((fuzzer, false))
     }
 }

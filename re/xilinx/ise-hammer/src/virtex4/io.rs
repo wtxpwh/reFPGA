@@ -1631,6 +1631,30 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
         }
         ctx.insert_bel_attr_enum(tcid, bslot, ILOGIC::DATA_RATE, xlat_enum_attr(diffs));
 
+        ctx.insert_bel_attr_bitvec(
+            tcid,
+            bslot,
+            ILOGIC::INIT_BITSLIP,
+            [
+                [
+                    TileBit::new(0, 20, 8).pos(),
+                    TileBit::new(0, 20, 20).pos(),
+                    TileBit::new(0, 19, 7).pos(),
+                    TileBit::new(0, 20, 7).pos(),
+                    TileBit::new(0, 19, 18).pos(),
+                    TileBit::new(0, 20, 19).pos(),
+                ],
+                [
+                    TileBit::new(0, 20, 71).pos(),
+                    TileBit::new(0, 20, 59).pos(),
+                    TileBit::new(0, 19, 72).pos(),
+                    TileBit::new(0, 20, 72).pos(),
+                    TileBit::new(0, 19, 61).pos(),
+                    TileBit::new(0, 20, 60).pos(),
+                ],
+            ][i],
+        );
+
         ctx.get_diff_attr_special_bit_bi(
             tcid,
             bslot,
@@ -1649,7 +1673,7 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
             false,
         )
         .assert_empty();
-        let diff_async = ctx.get_diff_attr_special_bit_bi(
+        let mut diff_async = ctx.get_diff_attr_special_bit_bi(
             tcid,
             bslot,
             ILOGIC::BITSLIP_ENABLE,
@@ -1666,13 +1690,13 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
             true,
         );
         let diff_sync = diff_sync.combine(&!&diff_async);
-        ctx.insert_bel_attr_bitvec(
-            tcid,
-            bslot,
-            ILOGIC::BITSLIP_ENABLE,
-            xlat_bit_wide(diff_async),
+        diff_async.apply_bitvec_diff_int(
+            ctx.bel_attr_bitvec(tcid, bslot, ILOGIC::INIT_BITSLIP),
+            0x3f,
+            0,
         );
-        ctx.insert_bel_attr_bool(tcid, bslot, ILOGIC::BITSLIP_SYNC, xlat_bit(diff_sync));
+        ctx.insert_bel_attr_bool(tcid, bslot, ILOGIC::BITSLIP_ENABLE, xlat_bit(diff_async));
+        ctx.insert_bel_attr_bool(tcid, bslot, ILOGIC::BITSLIP_SR_SYNC, xlat_bit(diff_sync));
 
         let mut diffs_a = vec![];
         let mut diffs_b = vec![];

@@ -457,13 +457,13 @@ impl DieExpander<'_, '_, '_> {
             self.site_holes
                 .extend([cell_s.rect(1, 5), cell_n.rect(1, 5)]);
         }
-        let mut prev = None;
         for (col, &cd) in &self.chip.columns {
             let tcid = match cd {
                 ColumnKind::Bram => tcls::BRAM,
                 ColumnKind::Dsp => tcls::DSP,
                 _ => continue,
             };
+            let mut prev = None;
             for cell in self.egrid.column(self.die, col) {
                 if !cell.row.to_idx().is_multiple_of(5) {
                     continue;

@@ -16,7 +16,7 @@ use crate::{
     generic::{
         props::extra::{
             ExtraKeyBelAttrBits, ExtraKeyBelAttrU32, ExtraKeyBelAttrValue, ExtraKeyBelSpecial,
-            ExtraKeyBelSpecialRow, ExtraKeyLegacy, ExtraKeyRouting, ExtraKeyRoutingSpecial,
+            ExtraKeyBelSpecialRow, ExtraKeyRouting, ExtraKeyRoutingSpecial,
         },
         utils::get_input_name,
     },
@@ -26,7 +26,7 @@ use super::props::{
     BaseRaw, DynProp, FuzzRaw, FuzzRawMulti, NullBits,
     bel::{
         BaseBelAttr, BaseBelMode, BaseBelNoPin, BaseBelPin, BaseBelPinFrom, BaseGlobalXy, BelMutex,
-        ForceBelName, FuzzBelAttr, FuzzBelMode, FuzzBelMultiAttr, FuzzBelPin, FuzzBelPinFrom,
+        FuzzBelAttr, FuzzBelMode, FuzzBelMultiAttr, FuzzBelPin, FuzzBelPinFrom,
         FuzzBelPinIntPipsInput, FuzzBelPinPair, FuzzBelPinPips, FuzzGlobalXy, FuzzMultiGlobalXy,
         GlobalMutexHere, RowMutexHere,
     },
@@ -197,10 +197,6 @@ pub trait FuzzBuilderBase<'b>: Sized {
             tcid,
             ExtraKeyBelAttrBits::new(bslot, attr, 0, true),
         ))
-    }
-
-    fn extra_tiles_by_bel_legacy(self, slot: BelSlotId, bel: impl Into<String>) -> Self {
-        self.prop(ExtraTilesByBel::new(slot, ExtraKeyLegacy::new(bel.into())))
     }
 
     fn extra_tiles_by_bel_special(self, slot: BelSlotId, spec: SpecialId) -> Self {
@@ -646,10 +642,6 @@ impl<'sm, 'b> FuzzBuilderBel<'sm, 'b> {
         self
     }
 
-    pub fn force_bel_name(self, bel_name: impl Into<String>) -> Self {
-        self.prop(ForceBelName(bel_name.into()))
-    }
-
     pub fn global_xy(self, opt: impl Into<String>, val: impl Into<String>) -> Self {
         let prop = BaseGlobalXy::new(self.bel, opt.into(), val.into());
         self.prop(prop)
@@ -776,61 +768,6 @@ impl<'sm, 'b> FuzzBuilderBel<'sm, 'b> {
         self.prop(prop)
     }
 
-    pub fn test_enum_legacy(mut self, attr: impl AsRef<str>, vals: &[impl AsRef<str>]) {
-        let attr = attr.as_ref();
-        for val in vals {
-            let val = val.as_ref();
-            self.clone()
-                .test_manual_legacy(attr, val)
-                .attr(attr, val)
-                .commit();
-        }
-    }
-
-    pub fn test_enum_suffix_legacy(
-        mut self,
-        attr: impl AsRef<str>,
-        suffix: impl AsRef<str>,
-        vals: &[impl AsRef<str>],
-    ) {
-        let attr = attr.as_ref();
-        let suffix = suffix.as_ref();
-        for val in vals {
-            let val = val.as_ref();
-            self.clone()
-                .test_manual_legacy(format!("{attr}.{suffix}"), val)
-                .attr(attr, val)
-                .commit();
-        }
-    }
-
-    pub fn test_inv_legacy(self, pin: impl Into<String>) {
-        let pin = pin.into();
-        let pininv = format!("{pin}INV");
-        let pin_b = format!("{pin}_B");
-        self.pin(&pin).test_enum_legacy(pininv, &[pin, pin_b]);
-    }
-
-    pub fn test_multi_attr_bin_legacy(self, attr: impl Into<String>, width: usize) {
-        let attr = attr.into();
-        let prop = FuzzBelMultiAttr::new(self.bel, self.sub, attr.clone(), MultiValue::Bin, width);
-        self.test_manual_legacy(attr, "").prop(prop).commit();
-    }
-
-    pub fn test_multi_attr_dec_legacy(self, attr: impl Into<String>, width: usize) {
-        let attr = attr.into();
-        let prop =
-            FuzzBelMultiAttr::new(self.bel, self.sub, attr.clone(), MultiValue::Dec(0), width);
-        self.test_manual_legacy(attr, "").prop(prop).commit();
-    }
-
-    pub fn test_multi_attr_hex_legacy(self, attr: impl Into<String>, width: usize) {
-        let attr = attr.into();
-        let prop =
-            FuzzBelMultiAttr::new(self.bel, self.sub, attr.clone(), MultiValue::Hex(0), width);
-        self.test_manual_legacy(attr, "").prop(prop).commit();
-    }
-
     pub fn test_bel_attr_multi(self, attr: BelAttributeId, value: MultiValue) {
         let BelKind::Class(bcid) = self.backend.edev.db.bel_slots[self.test_bel].kind else {
             unreachable!()
@@ -877,28 +814,6 @@ impl<'sm, 'b> FuzzBuilderBel<'sm, 'b> {
             props: self.props,
             key,
         }
-    }
-
-    pub fn test_manual_legacy(
-        self,
-        attr: impl AsRef<str>,
-        val: impl AsRef<str>,
-    ) -> FuzzBuilderBelTestManual<'sm, 'b> {
-        let attr = attr.as_ref();
-        let val = val.as_ref();
-        let key = DiffKey::Legacy(FeatureId {
-            tile: self
-                .backend
-                .edev
-                .db
-                .tile_classes
-                .key(self.tile_class)
-                .clone(),
-            bel: self.backend.edev.db.bel_slots.key(self.test_bel).clone(),
-            attr: attr.into(),
-            val: val.into(),
-        });
-        self.test_raw(key)
     }
 
     pub fn test_routing(

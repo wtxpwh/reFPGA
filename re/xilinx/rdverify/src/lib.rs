@@ -86,7 +86,7 @@ pub struct BelVerifier<'a, 'b> {
     pub bcrd: BelCoord,
     kind: String,
     extra_ins: Vec<(String, Option<String>)>,
-    extra_outs: Vec<(String, String)>,
+    extra_outs: Vec<(String, Option<String>)>,
     extra_inouts: Vec<(String, String)>,
     bidir_dirs: EntityPartVec<BelBidirId, SitePinDir>,
     skip_ins: HashSet<BelInputId>,
@@ -122,6 +122,12 @@ impl<'a, 'b> BelVerifier<'a, 'b> {
         self
     }
 
+    pub fn extra_out_dummy(mut self, name: impl Into<String>) -> Self {
+        let name = name.into();
+        self.extra_outs.push((name, None));
+        self
+    }
+
     pub fn extra_in_claim_rename(
         mut self,
         pin: impl Into<String>,
@@ -136,14 +142,14 @@ impl<'a, 'b> BelVerifier<'a, 'b> {
 
     pub fn extra_out(mut self, name: impl Into<String>) -> Self {
         let name = name.into();
-        self.extra_outs.push((name.clone(), name));
+        self.extra_outs.push((name.clone(), Some(name)));
         self
     }
 
     pub fn extra_out_claim(mut self, name: impl Into<String>) -> Self {
         let name = name.into();
         self.claim_net(&[self.wire(&name)]);
-        self.extra_outs.push((name.clone(), name));
+        self.extra_outs.push((name.clone(), Some(name)));
         self
     }
 
@@ -152,7 +158,7 @@ impl<'a, 'b> BelVerifier<'a, 'b> {
         self.claim_net(&[self.wire(&name)]);
         self.claim_net(&[self.wire_far(&name)]);
         self.claim_pip(self.wire_far(&name), self.wire(&name));
-        self.extra_outs.push((name.clone(), name));
+        self.extra_outs.push((name.clone(), Some(name)));
         self
     }
 
@@ -166,7 +172,7 @@ impl<'a, 'b> BelVerifier<'a, 'b> {
     pub fn extra_out_rename(mut self, pin: impl Into<String>, name: impl Into<String>) -> Self {
         let pin = pin.into();
         let name = name.into();
-        self.extra_outs.push((pin, name));
+        self.extra_outs.push((pin, Some(name)));
         self
     }
 
@@ -178,7 +184,7 @@ impl<'a, 'b> BelVerifier<'a, 'b> {
         let pin = pin.into();
         let name = name.into();
         self.claim_net(&[self.wire(&name)]);
-        self.extra_outs.push((pin, name));
+        self.extra_outs.push((pin, Some(name)));
         self
     }
 
@@ -413,7 +419,9 @@ impl<'a, 'b> BelVerifier<'a, 'b> {
             });
         }
         for (pin, name) in &self.extra_outs {
-            let wire = Some(self.naming.pins[name].name.as_ref());
+            let wire = name
+                .as_ref()
+                .map(|name| self.naming.pins[name].name.as_ref());
             pins.push(SitePin {
                 dir: SitePinDir::Out,
                 pin: pin.into(),

@@ -38,31 +38,6 @@ impl KeyMaker for ExtraKeyFixed {
 }
 
 #[derive(Clone, Debug)]
-pub struct ExtraKeyLegacy {
-    pub bel: String,
-}
-
-impl ExtraKeyLegacy {
-    pub fn new(bel: String) -> Self {
-        Self { bel }
-    }
-}
-
-impl KeyMaker for ExtraKeyLegacy {
-    fn make_key(&self, backend: &IseBackend, main_key: &DiffKey, tcid: TileClassId) -> DiffKey {
-        let DiffKey::Legacy(main_id) = main_key else {
-            unreachable!()
-        };
-        DiffKey::Legacy(FeatureId {
-            tile: backend.edev.db.tile_classes.key(tcid).to_string(),
-            bel: self.bel.clone(),
-            attr: main_id.attr.clone(),
-            val: main_id.val.clone(),
-        })
-    }
-}
-
-#[derive(Clone, Debug)]
 pub struct ExtraKeyBelAttrValue {
     pub bel: BelSlotId,
     pub attr: BelAttributeId,

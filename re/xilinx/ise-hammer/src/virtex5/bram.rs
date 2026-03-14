@@ -75,7 +75,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
         bctx.build()
             .global_mutex("BRAM_OPT", "TWR_DLY")
             .global("TWR_DLY", vname)
-            .test_bel_attr_u32(BRAM::TWR_DLY_L, val as u32)
+            .test_bel_attr_u32(BRAM::V5_TWR_DLY_L, val as u32)
             .mode("FIFO36_EXP")
             .commit();
     }
@@ -101,10 +101,10 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
         (BRAM::REGCLKAU, "REGCLKAU"),
         (BRAM::REGCLKBL, "REGCLKBL"),
         (BRAM::REGCLKBU, "REGCLKBU"),
-        (BRAM::SSRAL, "SSRAL"),
-        (BRAM::SSRAU, "SSRAU"),
-        (BRAM::SSRBL, "SSRBL"),
-        (BRAM::SSRBU, "SSRBU"),
+        (BRAM::RSTRAMAL, "SSRAL"),
+        (BRAM::RSTRAMAU, "SSRAU"),
+        (BRAM::RSTRAMBL, "SSRBL"),
+        (BRAM::RSTRAMBU, "SSRBU"),
     ] {
         bctx.mode("RAMB18X2")
             .attr("DOA_REG_L", "1")
@@ -123,8 +123,8 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
         (BRAM::ENBU, "WRENU"),
         (BRAM::REGCLKAL, "RDRCLKL"),
         (BRAM::REGCLKAU, "RDRCLKU"),
-        (BRAM::SSRAL, "SSRL"),
-        (BRAM::SSRAU, "SSRU"),
+        (BRAM::RSTRAMAL, "SSRL"),
+        (BRAM::RSTRAMAU, "SSRU"),
     ] {
         bctx.mode("RAMB18X2SDP")
             .attr("DO_REG_L", "1")
@@ -146,10 +146,10 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
         (BRAM::REGCLKAU, "RAMB36_EXP", "REGCLKAU"),
         (BRAM::REGCLKBL, "RAMB36_EXP", "REGCLKBL"),
         (BRAM::REGCLKBU, "RAMB36_EXP", "REGCLKBU"),
-        (BRAM::SSRAL, "RAMB36_EXP", "SSRAL"),
-        (BRAM::SSRAU, "RAMB36_EXP", "SSRAU"),
-        (BRAM::SSRBL, "RAMB36_EXP", "SSRBL"),
-        (BRAM::SSRBU, "RAMB36_EXP", "SSRBU"),
+        (BRAM::RSTRAMAL, "RAMB36_EXP", "SSRAL"),
+        (BRAM::RSTRAMAU, "RAMB36_EXP", "SSRAU"),
+        (BRAM::RSTRAMBL, "RAMB36_EXP", "SSRBL"),
+        (BRAM::RSTRAMBU, "RAMB36_EXP", "SSRBU"),
         (BRAM::CLKAL, "RAMB36SDP_EXP", "RDCLKL"),
         (BRAM::CLKAU, "RAMB36SDP_EXP", "RDCLKU"),
         (BRAM::CLKBL, "RAMB36SDP_EXP", "WRCLKL"),
@@ -160,8 +160,8 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
         (BRAM::ENBU, "RAMB36SDP_EXP", "WRENU"),
         (BRAM::REGCLKAL, "RAMB36SDP_EXP", "RDRCLKL"),
         (BRAM::REGCLKAU, "RAMB36SDP_EXP", "RDRCLKU"),
-        (BRAM::SSRAL, "RAMB36SDP_EXP", "SSRL"),
-        (BRAM::SSRAU, "RAMB36SDP_EXP", "SSRU"),
+        (BRAM::RSTRAMAL, "RAMB36SDP_EXP", "SSRL"),
+        (BRAM::RSTRAMAU, "RAMB36SDP_EXP", "SSRU"),
         (BRAM::CLKAL, "FIFO36_EXP", "RDCLKL"),
         (BRAM::CLKAU, "FIFO36_EXP", "RDCLKU"),
         (BRAM::CLKBL, "FIFO36_EXP", "WRCLKL"),
@@ -170,7 +170,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
         (BRAM::ENBL, "FIFO36_EXP", "WREN"),
         (BRAM::REGCLKAL, "FIFO36_EXP", "RDRCLKL"),
         (BRAM::REGCLKAU, "FIFO36_EXP", "RDRCLKU"),
-        (BRAM::SSRAL, "FIFO36_EXP", "RST"),
+        (BRAM::RSTRAMAL, "FIFO36_EXP", "RST"),
         (BRAM::CLKAL, "FIFO36_72_EXP", "RDCLKL"),
         (BRAM::CLKAU, "FIFO36_72_EXP", "RDCLKU"),
         (BRAM::CLKBL, "FIFO36_72_EXP", "WRCLKL"),
@@ -179,7 +179,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
         (BRAM::ENBL, "FIFO36_72_EXP", "WREN"),
         (BRAM::REGCLKAL, "FIFO36_72_EXP", "RDRCLKL"),
         (BRAM::REGCLKAU, "FIFO36_72_EXP", "RDRCLKU"),
-        (BRAM::SSRAL, "FIFO36_72_EXP", "RST"),
+        (BRAM::RSTRAMAL, "FIFO36_72_EXP", "RST"),
     ] {
         bctx.mode(mode).pin(name).test_bel_input_inv_enum(
             format!("{name}INV"),
@@ -197,9 +197,9 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
         (BRAM::REGCLKAL, "RDRCLK"),
         (BRAM::REGCLKAU, "REGCLKA"),
         (BRAM::REGCLKBU, "REGCLKB"),
-        (BRAM::SSRAL, "RST"),
-        (BRAM::SSRAU, "SSRA"),
-        (BRAM::SSRBU, "SSRB"),
+        (BRAM::RSTRAMAL, "RST"),
+        (BRAM::RSTRAMAU, "SSRA"),
+        (BRAM::RSTRAMBU, "SSRB"),
         (BRAM::ENAL, "RDEN"),
         (BRAM::ENAU, "ENA"),
         (BRAM::ENBL, "WREN"),
@@ -219,8 +219,8 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
         (BRAM::CLKBU, "WRCLKU"),
         (BRAM::REGCLKAL, "RDRCLK"),
         (BRAM::REGCLKAU, "RDRCLKU"),
-        (BRAM::SSRAL, "RST"),
-        (BRAM::SSRAU, "SSRU"),
+        (BRAM::RSTRAMAL, "RST"),
+        (BRAM::RSTRAMAU, "SSRU"),
         (BRAM::ENAL, "RDEN"),
         (BRAM::ENAU, "RDENU"),
         (BRAM::ENBL, "WREN"),
@@ -847,10 +847,10 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
     );
 
     let diff_3 = ctx
-        .peek_diff_attr_u32(tcid, bslot, BRAM::TWR_DLY_L, 3)
+        .peek_diff_attr_u32(tcid, bslot, BRAM::V5_TWR_DLY_L, 3)
         .clone();
     let diff_5 = ctx
-        .peek_diff_attr_u32(tcid, bslot, BRAM::TWR_DLY_L, 5)
+        .peek_diff_attr_u32(tcid, bslot, BRAM::V5_TWR_DLY_L, 5)
         .clone();
     let (_, _, mut diff_1) = Diff::split(diff_3, diff_5);
     diff_1 = diff_1.combine(&!&present_fifo36);
@@ -858,7 +858,7 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
     let mut diffs_l = vec![(1, diff_l)];
     let mut diffs_u = vec![(1, diff_u)];
     for val in [0, 3, 5, 8] {
-        let mut diff = ctx.get_diff_attr_u32(tcid, bslot, BRAM::TWR_DLY_L, val);
+        let mut diff = ctx.get_diff_attr_u32(tcid, bslot, BRAM::V5_TWR_DLY_L, val);
         diff = diff.combine(&!&present_fifo36);
         if val == 0 {
             diff.assert_empty();
@@ -870,13 +870,13 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
     ctx.insert_bel_attr_bitvec(
         tcid,
         bslot,
-        BRAM::TWR_DLY_L,
+        BRAM::V5_TWR_DLY_L,
         xlat_bitvec_sparse_u32(diffs_l),
     );
     ctx.insert_bel_attr_bitvec(
         tcid,
         bslot,
-        BRAM::TWR_DLY_U,
+        BRAM::V5_TWR_DLY_U,
         xlat_bitvec_sparse_u32(diffs_u),
     );
 
@@ -884,8 +884,8 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
         let mut diff = ctx.get_diff_attr_u32(tcid, bslot, BRAM::TSCRUB_DLY_L, val);
         diff = diff.combine(&!&present_fifo36);
         if matches!(val, 5 | 15) {
-            diff.apply_bitvec_diff_int(ctx.bel_attr_bitvec(tcid, bslot, BRAM::TWR_DLY_L), 8, 0);
-            diff.apply_bitvec_diff_int(ctx.bel_attr_bitvec(tcid, bslot, BRAM::TWR_DLY_U), 8, 0);
+            diff.apply_bitvec_diff_int(ctx.bel_attr_bitvec(tcid, bslot, BRAM::V5_TWR_DLY_L), 8, 0);
+            diff.apply_bitvec_diff_int(ctx.bel_attr_bitvec(tcid, bslot, BRAM::V5_TWR_DLY_U), 8, 0);
         }
         if matches!(val, 10 | 15) {
             let (diff_l, diff_u) = split_diff_ul(diff);
@@ -909,10 +909,10 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
         BRAM::REGCLKAU,
         BRAM::REGCLKBL,
         BRAM::REGCLKBU,
-        BRAM::SSRAL,
-        BRAM::SSRAU,
-        BRAM::SSRBL,
-        BRAM::SSRBU,
+        BRAM::RSTRAMAL,
+        BRAM::RSTRAMAU,
+        BRAM::RSTRAMBL,
+        BRAM::RSTRAMBU,
     ] {
         ctx.collect_bel_input_inv_bi(tcid, bslot, pin);
         let bit = ctx.bel_input_inv(tcid, bslot, pin);
@@ -959,8 +959,8 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
         true,
         false,
     );
-    diff.apply_bitvec_diff_int(ctx.bel_attr_bitvec(tcid, bslot, BRAM::TWR_DLY_L), 8, 0);
-    diff.apply_bitvec_diff_int(ctx.bel_attr_bitvec(tcid, bslot, BRAM::TWR_DLY_U), 8, 0);
+    diff.apply_bitvec_diff_int(ctx.bel_attr_bitvec(tcid, bslot, BRAM::V5_TWR_DLY_L), 8, 0);
+    diff.apply_bitvec_diff_int(ctx.bel_attr_bitvec(tcid, bslot, BRAM::V5_TWR_DLY_U), 8, 0);
     diff.assert_empty();
 
     ctx.collect_bel_attr_bi(tcid, bslot, BRAM::FIFO_ENABLE_L);

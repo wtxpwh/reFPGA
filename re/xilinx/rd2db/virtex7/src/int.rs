@@ -1,8 +1,8 @@
-use std::collections::BTreeSet;
+use std::collections::{BTreeSet, HashSet};
 
 use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
-    db::{IntDb, ProgInv, SwitchBoxItem, WireSlotIdExt, WireSupport},
+    db::{IntDb, ProgInv, SwitchBoxItem, TileWireCoord, WireSlotIdExt, WireSupport},
     dir::{Dir, DirMap},
 };
 use prjcombine_re_xilinx_rawdump::{Coord, Part};
@@ -18,6 +18,8 @@ use prjcombine_virtex4::defs::{
 struct IntMaker<'a> {
     rd: &'a Part,
     builder: IntBuilder<'a>,
+    bram_permabuf: HashSet<TileWireCoord>,
+    bram_skip: HashSet<(&'a str, &'a str)>,
 }
 
 impl IntMaker<'_> {
@@ -1370,28 +1372,80 @@ impl IntMaker<'_> {
         for i in 0..15 {
             self.builder.wire_names(
                 wires::BRAM_ADDRA_CASC[i],
-                &[format!("BRAM_CASCOUT_ADDRAADDRU{i}")],
+                &[format!("BRAM_CASCOUT_ADDRARDADDRU{i}")],
             );
             self.builder.wire_names(
                 wires::BRAM_ADDRB_CASC[i],
-                &[format!("BRAM_CASCOUT_ADDRBADDRU{i}")],
+                &[format!("BRAM_CASCOUT_ADDRBWRADDRU{i}")],
             );
             self.builder.wire_names(
                 wires::BRAM_ADDRA_CASC_S[i],
-                &[format!("BRAM_CASCINTOP_ADDRAADDRU{i}")],
+                &[format!("BRAM_CASCINTOP_ADDRARDADDRU{i}")],
             );
             self.builder.wire_names(
                 wires::BRAM_ADDRB_CASC_S[i],
-                &[format!("BRAM_CASCINTOP_ADDRBADDRU{i}")],
+                &[format!("BRAM_CASCINTOP_ADDRBWRADDRU{i}")],
             );
             self.builder.wire_names(
                 wires::BRAM_ADDRA_CASC_N[i],
-                &[format!("BRAM_CASCINBOT_ADDRAADDRU{i}")],
+                &[format!("BRAM_CASCINBOT_ADDRARDADDRU{i}")],
             );
             self.builder.wire_names(
                 wires::BRAM_ADDRB_CASC_N[i],
-                &[format!("BRAM_CASCINBOT_ADDRBADDRU{i}")],
+                &[format!("BRAM_CASCINBOT_ADDRBWRADDRU{i}")],
             );
+        }
+        for tkn in ["BRAM_L", "BRAM_R"] {
+            let Some((_, tk)) = self.rd.tile_kinds.get(tkn) else {
+                continue;
+            };
+            for &(wf, wt) in tk.pips.keys() {
+                let wf = self.rd.wires[wf].as_str();
+                let wt = self.rd.wires[wt].as_str();
+                if let Some(suf) = wt.strip_prefix("BRAM_IMUX") {
+                    let Some((idx, cell)) = suf.split_once("_UTURN_") else {
+                        continue;
+                    };
+                    let idx: usize = idx.parse().unwrap();
+                    let cell: usize = cell.parse().unwrap();
+                    if let Some(suf) = wf.strip_prefix("BRAM_UTURN_") {
+                        self.bram_skip.insert((wt, wf));
+                        if suf.ends_with("ADDRL15") {
+                            self.builder.extra_name_sub(wf, cell, wires::IMUX_BRAM[idx]);
+                            self.bram_permabuf.insert(wires::IMUX_BRAM[idx].cell(cell));
+                        } else {
+                            self.builder.extra_name_sub(
+                                format!("BRAM_{suf}"),
+                                cell,
+                                wires::IMUX_BRAM[idx],
+                            );
+                        }
+                        self.builder.extra_name_sub(
+                            format!("BRAM_IMUX_R_{suf}"),
+                            cell,
+                            wires::IMUX_IMUX[idx],
+                        );
+                        self.builder.extra_name_sub(
+                            format!("BRAM_R_IMUX_{suf}"),
+                            cell,
+                            wires::IMUX_IMUX[idx],
+                        );
+                        self.builder.extra_name_sub(
+                            format!("BRAM_IMUX_{suf}"),
+                            cell,
+                            wires::IMUX_IMUX[idx],
+                        );
+                    } else {
+                        self.builder.extra_name_sub(wt, cell, wires::IMUX_BRAM[idx]);
+                        self.builder.extra_name_sub(
+                            format!("BRAM_IMUX{idx}_{cell}"),
+                            cell,
+                            wires::IMUX_IMUX[idx],
+                        );
+                        self.bram_permabuf.insert(wires::IMUX_BRAM[idx].cell(cell));
+                    }
+                }
+            }
         }
     }
 
@@ -1627,125 +1681,172 @@ impl IntMaker<'_> {
                         ));
                     }
                 }
-                let mut bel_bram_f = self
+                let mut bel = self
                     .builder
-                    .bel_xy(bslots::BRAM_F, "RAMB36", 0, 0)
+                    .bel_xy(bslots::BRAM, "RAMB36", 0, 0)
                     .pins_name_only(&["CASCADEINA", "CASCADEINB"])
                     .pin_name_only("CASCADEOUTA", 1)
-                    .pin_name_only("CASCADEOUTB", 1);
-                for ab in ["ARD", "BWR"] {
-                    for ul in ['U', 'L'] {
-                        for i in 0..16 {
-                            if i == 15 && ul == 'U' {
-                                continue;
-                            }
-                            bel_bram_f =
-                                bel_bram_f.pin_name_only(&format!("ADDR{ab}ADDR{ul}{i}"), 0);
-                        }
+                    .pin_name_only("CASCADEOUTB", 1)
+                    .pin_rename("CLKARDCLKL", "CLKAL")
+                    .pin_rename("CLKARDCLKU", "CLKAU")
+                    .pin_rename("CLKBWRCLKL", "CLKBL")
+                    .pin_rename("CLKBWRCLKU", "CLKBU")
+                    .pin_rename("ENARDENL", "ENAL")
+                    .pin_rename("ENARDENU", "ENAU")
+                    .pin_rename("ENBWRENL", "ENBL")
+                    .pin_rename("ENBWRENU", "ENBU")
+                    .pin_rename("REGCEAREGCEL", "REGCEAL")
+                    .pin_rename("REGCEAREGCEU", "REGCEAU")
+                    .pin_rename("REGCLKARDRCLKL", "REGCLKAL")
+                    .pin_rename("REGCLKARDRCLKU", "REGCLKAU")
+                    .pin_rename("RSTRAMARSTRAMLRST", "RSTRAMAL")
+                    .pin_rename("RSTRAMARSTRAMU", "RSTRAMAU")
+                    .pin_rename("RSTREGARSTREGL", "RSTREGAL")
+                    .pin_rename("RSTREGARSTREGU", "RSTREGAU");
+                for (ul, n) in [('L', 16), ('U', 15)] {
+                    for i in 0..n {
+                        bel =
+                            bel.pin_rename(format!("ADDRARDADDR{ul}{i}"), format!("ADDRA{ul}{i}"));
+                        bel =
+                            bel.pin_rename(format!("ADDRBWRADDR{ul}{i}"), format!("ADDRB{ul}{i}"));
+                    }
+                    for i in 0..8 {
+                        bel = bel.pin_rename(format!("WEBWE{ul}{i}"), format!("WEB{ul}{i}"));
                     }
                 }
-                let mut bel_bram_h0 = self.builder.bel_xy(bslots::BRAM_H[0], "RAMB18", 0, 0);
-                let mut bel_bram_h1 = self
-                    .builder
-                    .bel_xy(bslots::BRAM_H[1], "RAMB18", 0, 1)
-                    .pins_name_only(&[
+                for ab in ['A', 'B'] {
+                    for i in 0..16 {
+                        let il = 2 * i;
+                        let iu = 2 * i + 1;
+                        bel = bel.pin_rename(format!("DI{ab}DI{il}"), format!("DI{ab}L{i}"));
+                        bel = bel.pin_rename(format!("DO{ab}DO{il}"), format!("DO{ab}L{i}"));
+                        bel = bel.pin_rename(format!("DI{ab}DI{iu}"), format!("DI{ab}U{i}"));
+                        bel = bel.pin_rename(format!("DO{ab}DO{iu}"), format!("DO{ab}U{i}"));
+                    }
+                    for i in 0..2 {
+                        let il = 2 * i;
+                        let iu = 2 * i + 1;
+                        bel = bel.pin_rename(format!("DIP{ab}DIP{il}"), format!("DIP{ab}L{i}"));
+                        bel = bel.pin_rename(format!("DOP{ab}DOP{il}"), format!("DOP{ab}L{i}"));
+                        bel = bel.pin_rename(format!("DIP{ab}DIP{iu}"), format!("DIP{ab}U{i}"));
+                        bel = bel.pin_rename(format!("DOP{ab}DOP{iu}"), format!("DOP{ab}U{i}"));
+                    }
+                }
+                for i in 0..2 {
+                    bel = bel.sub_xy(self.rd, "RAMB18", 0, i);
+                    if i == 0 {
+                        for pin in [
+                            "RDCLK", "WRCLK", "RDEN", "WREN", "RDRCLK", "REGCE", "REGCEB",
+                            "REGCLKB", "RST", "RSTRAMB", "RSTREG", "RSTREGB",
+                        ] {
+                            bel = bel
+                                .pin_rename(pin, format!("H{i}_{pin}"))
+                                .pin_name_only(&format!("H{i}_{pin}"), 0);
+                        }
+                    } else {
+                        for pin in [
+                            "CLKARDCLK",
+                            "CLKBWRCLK",
+                            "ENARDEN",
+                            "ENBWREN",
+                            "REGCEAREGCE",
+                            "REGCEB",
+                            "REGCLKARDRCLK",
+                            "REGCLKB",
+                            "RSTRAMARSTRAM",
+                            "RSTRAMB",
+                            "RSTREGARSTREG",
+                            "RSTREGB",
+                        ] {
+                            bel = bel
+                                .pin_rename(pin, format!("H{i}_{pin}"))
+                                .pin_name_only(&format!("H{i}_{pin}"), 0);
+                        }
+                    }
+                    for pin in [
+                        "RDERR",
+                        "WRERR",
                         "FULL",
                         "EMPTY",
                         "ALMOSTFULL",
                         "ALMOSTEMPTY",
-                        "WRERR",
-                        "RDERR",
-                    ]);
-                for ab in ["ARD", "BWR"] {
-                    for i in 0..14 {
-                        bel_bram_h0 = bel_bram_h0.pin_name_only(&format!("ADDR{ab}ADDR{i}"), 0);
-                        bel_bram_h1 = bel_bram_h1.pin_name_only(&format!("ADDR{ab}ADDR{i}"), 0);
+                        "ADDRATIEHIGH0",
+                        "ADDRATIEHIGH1",
+                        "ADDRBTIEHIGH0",
+                        "ADDRBTIEHIGH1",
+                    ] {
+                        bel = bel
+                            .pin_rename(pin, format!("H{i}_{pin}"))
+                            .pin_name_only(&format!("H{i}_{pin}"), 0);
                     }
-                }
-                for ab in ['A', 'B'] {
-                    for i in 0..2 {
-                        bel_bram_h0 = bel_bram_h0.pin_name_only(&format!("ADDR{ab}TIEHIGH{i}"), 0);
-                        bel_bram_h1 = bel_bram_h1.pin_name_only(&format!("ADDR{ab}TIEHIGH{i}"), 0);
-                    }
-                }
-                for i in 0..12 {
-                    bel_bram_h1 = bel_bram_h1.pin_name_only(&format!("RDCOUNT{i}"), 0);
-                    bel_bram_h1 = bel_bram_h1.pin_name_only(&format!("WRCOUNT{i}"), 0);
-                }
-                let mut bel_bram_addr = self.builder.bel_virtual(bslots::BRAM_ADDR);
-                for i in 0..5 {
-                    for j in 0..48 {
-                        bel_bram_addr = bel_bram_addr
-                            .extra_int_in(format!("IMUX_{i}_{j}"), &[&format!("BRAM_IMUX{j}_{i}")])
-                            .extra_int_out(
-                                format!("IMUX_UTURN_{i}_{j}"),
-                                &[&format!("BRAM_IMUX{j}_UTURN_{i}")],
-                            );
-                    }
-                }
-                for ab in ["ARD", "BWR"] {
-                    for ul in ['U', 'L'] {
-                        for i in 0..15 {
-                            bel_bram_addr = bel_bram_addr
-                                .extra_int_in(
-                                    format!("IMUX_ADDR{ab}ADDR{ul}{i}"),
-                                    &[
-                                        &format!("BRAM_IMUX_ADDR{ab}ADDR{ul}{i}"),
-                                        &format!("BRAM_R_IMUX_ADDR{ab}ADDR{ul}{i}"),
-                                    ],
-                                )
-                                .extra_wire(
-                                    format!("UTURN_ADDR{ab}ADDR{ul}{i}"),
-                                    &[&format!("BRAM_UTURN_ADDR{ab}ADDR{ul}{i}")],
-                                )
-                                .extra_wire(
-                                    format!("ADDR{ab}ADDR{ul}{i}"),
-                                    &[&format!("BRAM_ADDR{ab}ADDR{ul}{i}")],
-                                );
-                            if ul == 'U' {
-                                bel_bram_addr = bel_bram_addr
-                                    .extra_wire(
-                                        format!("CASCINBOT_ADDR{ab}ADDR{ul}{i}"),
-                                        &[&format!("BRAM_CASCINBOT_ADDR{ab}ADDR{ul}{i}")],
-                                    )
-                                    .extra_wire(
-                                        format!("CASCINTOP_ADDR{ab}ADDR{ul}{i}"),
-                                        &[&format!("BRAM_CASCINTOP_ADDR{ab}ADDR{ul}{i}")],
-                                    )
-                                    .extra_wire(
-                                        format!("CASCOUT_ADDR{ab}ADDR{ul}{i}"),
-                                        &[&format!("BRAM_CASCOUT_ADDR{ab}ADDR{ul}{i}")],
-                                    );
-                            }
+                    for (pin, width) in [
+                        ("ADDRARDADDR", 14),
+                        ("ADDRBWRADDR", 14),
+                        ("ADDRATIEHIGH", 2),
+                        ("ADDRBTIEHIGH", 2),
+                        ("DIADI", 16),
+                        ("DIBDI", 16),
+                        ("DIPADIP", 2),
+                        ("DIPBDIP", 2),
+                        ("DOADO", 16),
+                        ("DOBDO", 16),
+                        ("DOPADOP", 2),
+                        ("DOPBDOP", 2),
+                        ("RDCOUNT", 12),
+                        ("WRCOUNT", 12),
+                        ("DO", 32),
+                        ("DOP", 4),
+                        ("WEA", 4),
+                        ("WEBWE", 8),
+                    ] {
+                        for j in 0..width {
+                            bel = bel
+                                .pin_rename(format!("{pin}{j}"), format!("H{i}_{pin}{j}"))
+                                .pin_name_only(&format!("H{i}_{pin}{j}"), 0);
                         }
                     }
-                    bel_bram_addr = bel_bram_addr
-                        .extra_int_in(
-                            format!("IMUX_ADDR{ab}ADDRL15"),
-                            &[
-                                &format!("BRAM_IMUX_ADDR{ab}ADDRL15"),
-                                &format!("BRAM_IMUX_R_ADDR{ab}ADDRL15"),
-                            ],
-                        )
-                        .extra_wire(
-                            format!("UTURN_ADDR{ab}ADDRL15"),
-                            &[&format!("BRAM_UTURN_ADDR{ab}ADDRL15")],
-                        );
                 }
                 let mut x = self
                     .builder
                     .xtile_id(tcls::BRAM, tkn, xy)
                     .num_cells(5)
-                    .bels([bel_bram_f, bel_bram_h0, bel_bram_h1, bel_bram_addr]);
+                    .switchbox(bslots::SPEC_INT)
+                    .optin_muxes(&wires::IMUX_BRAM[..])
+                    .optin_muxes(&wires::BRAM_ADDRA_CASC[..])
+                    .optin_muxes(&wires::BRAM_ADDRB_CASC[..])
+                    .bel(bel);
                 for (i, &xy) in int_xy.iter().enumerate() {
                     x = x.ref_int(xy, i);
                 }
                 for (i, &(xy, naming)) in intf_xy.iter().enumerate() {
                     x = x.ref_single(xy, i, naming);
                 }
+                for &(wt, wf) in &self.bram_skip {
+                    x = x.skip_edge(wt, wf);
+                }
                 x.extract();
             }
         }
+        let pips = self
+            .builder
+            .pips
+            .get_mut(&(tcls::BRAM, bslots::SPEC_INT))
+            .unwrap();
+        for ((wt, _wf), mode) in pips.pips.iter_mut() {
+            if !wires::IMUX_BRAM.contains(wt.wire) || self.bram_permabuf.contains(wt) {
+                *mode = PipMode::PermaBuf;
+            }
+        }
+        pips.specials.extend([
+            SwitchBoxItem::WireSupport(WireSupport {
+                wires: BTreeSet::from_iter(wires::BRAM_ADDRA_CASC.into_iter().map(|x| x.cell(0))),
+                bits: vec![],
+            }),
+            SwitchBoxItem::WireSupport(WireSupport {
+                wires: BTreeSet::from_iter(wires::BRAM_ADDRB_CASC.into_iter().map(|x| x.cell(0))),
+                bits: vec![],
+            }),
+        ]);
         if let Some(&xy) = self.rd.tiles_by_kind_name("HCLK_BRAM").iter().next() {
             let mut bram_xy = Vec::new();
             for dy in [1, 6, 11] {
@@ -4073,6 +4174,8 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
                 .unwrap()
                 .0,
         ),
+        bram_permabuf: Default::default(),
+        bram_skip: Default::default(),
     };
     maker.fill_int_wires();
     maker.fill_hclk_wires();

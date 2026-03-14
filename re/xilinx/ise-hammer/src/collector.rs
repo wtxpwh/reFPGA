@@ -6,7 +6,7 @@ use prjcombine_interconnect::db::{
 };
 use prjcombine_re_collector::{collect::Collector, diff::xlat_bit_bi};
 use prjcombine_re_xilinx_geom::{Device, ExpandedDevice, GeomDb};
-use prjcombine_types::bsdata::{BitRectId, DbValue, PolTileBit, TileItem};
+use prjcombine_types::bsdata::{BitRectId, DbValue, PolTileBit};
 use prjcombine_xilinx_bitstream::Bitstream;
 
 pub struct CollectorCtx<'a, 'b>
@@ -35,36 +35,11 @@ impl DerefMut for CollectorCtx<'_, '_> {
 }
 
 impl<'a, 'b: 'a> CollectorCtx<'a, 'b> {
-    pub fn insert_legacy(
-        &mut self,
-        tile: impl Into<String>,
-        bel: impl Into<String>,
-        attr: impl Into<String>,
-        item: TileItem,
-    ) {
-        self.data.bsdata.insert(tile, bel, attr, item);
-    }
-
-    pub fn item_legacy(&self, tile: &str, bel: &str, attr: &str) -> &TileItem {
-        self.data.bsdata.item(tile, bel, attr)
-    }
-
     pub fn insert_device_data_legacy(&mut self, key: impl Into<String>, val: impl Into<DbValue>) {
         self.collector
             .data
             .bsdata
             .insert_device_data(&self.device.name, key, val);
-    }
-
-    pub fn extract_inv_legacy(&mut self, tile: &str, bel: &str, pin: &str) -> TileItem {
-        let pininv = format!("{pin}INV");
-        let pin_b = format!("{pin}_B");
-        self.extract_bit_bi_legacy(tile, bel, &pininv, pin, &pin_b)
-    }
-
-    pub fn collect_inv_legacy(&mut self, tile: &str, bel: &str, pin: &str) {
-        let item = self.extract_inv_legacy(tile, bel, pin);
-        self.insert_legacy(tile, bel, format!("INV.{pin}"), item);
     }
 
     pub fn has_tcls(&self, tcid: TileClassId) -> bool {

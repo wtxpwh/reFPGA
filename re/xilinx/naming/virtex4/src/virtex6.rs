@@ -180,11 +180,13 @@ pub fn name_device<'a>(edev: &'a ExpandedDevice<'a>, ndb: &'a NamingDb) -> Expan
                     .name_tile(tcrd, kind, [format!("BRAM_X{x}Y{y}")]);
                 let bx = bram_grid.xlut[col];
                 let by = bram_grid.ylut[row];
-                ntile.add_bel(bslots::BRAM_F, format!("RAMB36_X{bx}Y{by}"));
-                ntile.add_bel(bslots::BRAM_H[0], format!("RAMB18_X{bx}Y{y}", y = by * 2));
-                ntile.add_bel(
-                    bslots::BRAM_H[1],
-                    format!("RAMB18_X{bx}Y{y}", y = by * 2 + 1),
+                ntile.add_bel_multi(
+                    bslots::BRAM,
+                    [
+                        format!("RAMB36_X{bx}Y{by}"),
+                        format!("RAMB18_X{bx}Y{y}", y = by * 2),
+                        format!("RAMB18_X{bx}Y{y}", y = by * 2 + 1),
+                    ],
                 );
             }
             tcls::PMVBRAM => {

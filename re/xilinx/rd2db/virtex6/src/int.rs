@@ -1088,9 +1088,9 @@ impl IntMaker<'_> {
                     n,
                 ));
             }
-            let bel_bram_f = self
+            let mut bel = self
                 .builder
-                .bel_xy(bslots::BRAM_F, "RAMB36", 0, 0)
+                .bel_xy(bslots::BRAM, "RAMB36", 0, 0)
                 .pins_name_only(&[
                     "CASCADEINA",
                     "CASCADEINB",
@@ -1100,29 +1100,129 @@ impl IntMaker<'_> {
                     "TSTOUT4",
                 ])
                 .pin_name_only("CASCADEOUTA", 1)
-                .pin_name_only("CASCADEOUTB", 1);
-            let bel_bram_h0 = self.builder.bel_xy(bslots::BRAM_H[0], "RAMB18", 0, 0);
-            let mut bel_bram_h1 = self
-                .builder
-                .bel_xy(bslots::BRAM_H[1], "RAMB18", 0, 1)
-                .pins_name_only(&[
+                .pin_name_only("CASCADEOUTB", 1)
+                .pin_rename("CLKARDCLKL", "CLKAL")
+                .pin_rename("CLKARDCLKU", "CLKAU")
+                .pin_rename("CLKBWRCLKL", "CLKBL")
+                .pin_rename("CLKBWRCLKU", "CLKBU")
+                .pin_rename("ENARDENL", "ENAL")
+                .pin_rename("ENARDENU", "ENAU")
+                .pin_rename("ENBWRENL", "ENBL")
+                .pin_rename("ENBWRENU", "ENBU")
+                .pin_rename("REGCEAREGCEL", "REGCEAL")
+                .pin_rename("REGCEAREGCEU", "REGCEAU")
+                .pin_rename("REGCLKARDRCLKL", "REGCLKAL")
+                .pin_rename("REGCLKARDRCLKU", "REGCLKAU")
+                .pin_rename("RSTRAMARSTRAMLRST", "RSTRAMAL")
+                .pin_rename("RSTRAMARSTRAMU", "RSTRAMAU")
+                .pin_rename("RSTREGARSTREGL", "RSTREGAL")
+                .pin_rename("RSTREGARSTREGU", "RSTREGAU");
+            for (ul, n) in [('L', 16), ('U', 15)] {
+                for i in 0..n {
+                    bel = bel.pin_rename(format!("ADDRARDADDR{ul}{i}"), format!("ADDRA{ul}{i}"));
+                    bel = bel.pin_rename(format!("ADDRBWRADDR{ul}{i}"), format!("ADDRB{ul}{i}"));
+                }
+                for i in 0..8 {
+                    bel = bel.pin_rename(format!("WEBWE{ul}{i}"), format!("WEB{ul}{i}"));
+                }
+            }
+            for ab in ['A', 'B'] {
+                for i in 0..16 {
+                    let il = 2 * i;
+                    let iu = 2 * i + 1;
+                    bel = bel.pin_rename(format!("DI{ab}DI{il}"), format!("DI{ab}L{i}"));
+                    bel = bel.pin_rename(format!("DO{ab}DO{il}"), format!("DO{ab}L{i}"));
+                    bel = bel.pin_rename(format!("DI{ab}DI{iu}"), format!("DI{ab}U{i}"));
+                    bel = bel.pin_rename(format!("DO{ab}DO{iu}"), format!("DO{ab}U{i}"));
+                }
+                for i in 0..2 {
+                    let il = 2 * i;
+                    let iu = 2 * i + 1;
+                    bel = bel.pin_rename(format!("DIP{ab}DIP{il}"), format!("DIP{ab}L{i}"));
+                    bel = bel.pin_rename(format!("DOP{ab}DOP{il}"), format!("DOP{ab}L{i}"));
+                    bel = bel.pin_rename(format!("DIP{ab}DIP{iu}"), format!("DIP{ab}U{i}"));
+                    bel = bel.pin_rename(format!("DOP{ab}DOP{iu}"), format!("DOP{ab}U{i}"));
+                }
+            }
+            for i in 0..2 {
+                bel = bel.sub_xy(self.rd, "RAMB18", 0, i);
+                if i == 0 {
+                    for pin in [
+                        "RDCLK", "WRCLK", "RDEN", "WREN", "RDRCLK", "REGCE", "REGCEB", "REGCLKB",
+                        "RST", "RSTRAMB", "RSTREG", "RSTREGB",
+                    ] {
+                        bel = bel
+                            .pin_rename(pin, format!("H{i}_{pin}"))
+                            .pin_name_only(&format!("H{i}_{pin}"), 0);
+                    }
+                } else {
+                    for pin in [
+                        "CLKARDCLK",
+                        "CLKBWRCLK",
+                        "ENARDEN",
+                        "ENBWREN",
+                        "REGCEAREGCE",
+                        "REGCEB",
+                        "REGCLKARDRCLK",
+                        "REGCLKB",
+                        "RSTRAMARSTRAM",
+                        "RSTRAMB",
+                        "RSTREGARSTREG",
+                        "RSTREGB",
+                    ] {
+                        bel = bel
+                            .pin_rename(pin, format!("H{i}_{pin}"))
+                            .pin_name_only(&format!("H{i}_{pin}"), 0);
+                    }
+                }
+                for pin in [
+                    "RDERR",
+                    "WRERR",
                     "FULL",
                     "EMPTY",
                     "ALMOSTFULL",
                     "ALMOSTEMPTY",
-                    "WRERR",
-                    "RDERR",
-                ]);
-            for i in 0..12 {
-                bel_bram_h1 = bel_bram_h1.pin_name_only(&format!("RDCOUNT{i}"), 0);
-                bel_bram_h1 = bel_bram_h1.pin_name_only(&format!("WRCOUNT{i}"), 0);
+                    "ADDRATIEHIGH0",
+                    "ADDRATIEHIGH1",
+                    "ADDRBTIEHIGH0",
+                    "ADDRBTIEHIGH1",
+                ] {
+                    bel = bel
+                        .pin_rename(pin, format!("H{i}_{pin}"))
+                        .pin_name_only(&format!("H{i}_{pin}"), 0);
+                }
+                for (pin, width) in [
+                    ("ADDRARDADDR", 14),
+                    ("ADDRBWRADDR", 14),
+                    ("ADDRATIEHIGH", 2),
+                    ("ADDRBTIEHIGH", 2),
+                    ("DIADI", 16),
+                    ("DIBDI", 16),
+                    ("DIPADIP", 2),
+                    ("DIPBDIP", 2),
+                    ("DOADO", 16),
+                    ("DOBDO", 16),
+                    ("DOPADOP", 2),
+                    ("DOPBDOP", 2),
+                    ("RDCOUNT", 12),
+                    ("WRCOUNT", 12),
+                    ("DO", 32),
+                    ("DOP", 4),
+                    ("WEA", 4),
+                    ("WEBWE", 8),
+                ] {
+                    for j in 0..width {
+                        bel = bel
+                            .pin_rename(format!("{pin}{j}"), format!("H{i}_{pin}{j}"))
+                            .pin_name_only(&format!("H{i}_{pin}{j}"), 0);
+                    }
+                }
             }
-            let bels = [bel_bram_f, bel_bram_h0, bel_bram_h1];
             let mut x = self
                 .builder
                 .xtile_id(tcls::BRAM, "BRAM", xy)
                 .num_cells(5)
-                .bels(bels);
+                .bel(bel);
             for (i, &xy) in int_xy.iter().enumerate() {
                 x = x.ref_int(xy, i);
             }
