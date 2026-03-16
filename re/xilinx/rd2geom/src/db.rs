@@ -8,7 +8,6 @@ use prjcombine_re_xilinx_geom::{
 use prjcombine_re_xilinx_naming::db::NamingDb;
 use prjcombine_re_xilinx_rawdump::Part;
 use prjcombine_types::db::{BondId, ChipId, DevBondId, DevSpeedId, InterposerId};
-use prjcombine_virtex4::gtz::GtzDb;
 use std::collections::{BTreeMap, BTreeSet, btree_map};
 
 pub struct PreDevice {
@@ -24,7 +23,6 @@ pub struct PreDevice {
     pub intdb_init: IntDb,
     pub intdb: IntDb,
     pub ndb: NamingDb,
-    pub gtz: GtzDb,
 }
 
 #[allow(clippy::too_many_arguments)]
@@ -32,7 +30,6 @@ pub fn make_device_multi(
     rd: &Part,
     grids: EntityVec<DieId, Chip>,
     interposer: Interposer,
-    gtz: GtzDb,
     mut bonds: Vec<(String, Bond)>,
     disabled: BTreeSet<DisabledPart>,
     naming: DeviceNaming,
@@ -58,7 +55,6 @@ pub fn make_device_multi(
         name: rd.part.clone(),
         grids,
         interposer,
-        gtz,
         bonds: bonds.into_vec(),
         speeds: speeds.into_vec(),
         combos,
@@ -88,7 +84,6 @@ pub fn make_device(
         rd,
         grids,
         Interposer::None,
-        GtzDb::default(),
         bonds,
         disabled,
         DeviceNaming::Dummy,
@@ -107,7 +102,6 @@ pub struct DbBuilder {
     pub devices: Vec<Device>,
     pub ints: BTreeMap<String, IntDb>,
     pub namings: BTreeMap<String, NamingDb>,
-    pub gtz: GtzDb,
 }
 
 impl DbBuilder {
@@ -120,7 +114,6 @@ impl DbBuilder {
             devices: Vec::new(),
             ints: BTreeMap::new(),
             namings: BTreeMap::new(),
-            gtz: GtzDb::default(),
         }
     }
 
@@ -178,13 +171,6 @@ impl DbBuilder {
             disabled: pre.disabled,
             naming,
         });
-        for (_, name, gtz) in pre.gtz.gtz {
-            if let Some(ogtz) = self.gtz.gtz.get(&name) {
-                assert_eq!(ogtz.1, &gtz);
-            } else {
-                self.gtz.gtz.insert(name, gtz);
-            }
-        }
         self.ingest_int(pre.intdb_name, pre.intdb_init, pre.intdb, pre.ndb);
     }
 
@@ -307,7 +293,6 @@ impl DbBuilder {
             devices: self.devices,
             ints: self.ints,
             namings: self.namings,
-            gtz: self.gtz,
         }
     }
 }

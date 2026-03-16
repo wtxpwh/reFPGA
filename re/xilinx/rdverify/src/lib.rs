@@ -498,6 +498,7 @@ pub struct Verifier<'a> {
     cond_stub_outs: HashSet<rawdump::WireId>,
     cond_stub_ins: HashSet<rawdump::WireId>,
     cond_stub_ins_tk: HashSet<(rawdump::TileKindId, rawdump::WireId)>,
+    cond_stubs: HashSet<rawdump::WireId>,
     skip_bel_pins: HashSet<(BelCoord, &'static str)>,
     skip_bslot: HashSet<BelSlotId>,
     skip_alt_pip: HashSet<(TileClassId, TileWireCoord)>,
@@ -599,6 +600,7 @@ impl<'a> Verifier<'a> {
             cond_stub_outs: HashSet::new(),
             cond_stub_ins: HashSet::new(),
             cond_stub_ins_tk: HashSet::new(),
+            cond_stubs: HashSet::new(),
             skip_bel_pins: HashSet::new(),
             skip_bslot: HashSet::new(),
             skip_alt_pip: HashSet::new(),
@@ -2577,6 +2579,12 @@ impl<'a> Verifier<'a> {
         }
     }
 
+    pub fn kill_stub_cond(&mut self, name: &str) {
+        if let Some(wi) = self.rd.wires.get(name) {
+            self.cond_stubs.insert(wi);
+        }
+    }
+
     pub fn skip_bel_pin(&mut self, bel: BelCoord, pin: &'static str) {
         self.skip_bel_pins.insert((bel, pin));
     }
@@ -2592,6 +2600,7 @@ impl<'a> Verifier<'a> {
     pub fn finish(mut self) {
         let mut cond_stub_outs = HashMap::new();
         let mut cond_stub_ins = HashMap::new();
+        let mut cond_stubs = HashMap::new();
         for (&crd, tile) in &self.rd.tiles {
             let tk = &self.rd.tile_kinds[tile.kind];
             for &w in tk.wires.keys() {
@@ -2611,6 +2620,9 @@ impl<'a> Verifier<'a> {
                     {
                         cond_stub_ins.insert(nw, (crd, w));
                     }
+                    if self.cond_stubs.contains(&w) && !self.is_claimed_raw(crd, w) {
+                        cond_stubs.insert(nw, (crd, w));
+                    }
                 }
             }
         }
@@ -2624,6 +2636,15 @@ impl<'a> Verifier<'a> {
             );
         }
         for (&nw, &(crd, w)) in &cond_stub_ins {
+            self.claim_raw_node(
+                nw,
+                RawWireCoord {
+                    crd,
+                    wire: &self.rd.wires[w],
+                },
+            );
+        }
+        for (&nw, &(crd, w)) in &cond_stubs {
             self.claim_raw_node(
                 nw,
                 RawWireCoord {

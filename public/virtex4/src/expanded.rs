@@ -2,13 +2,12 @@ use crate::bond::{PsPad, SharedCfgPad};
 use crate::chip::{Chip, ChipKind, DisabledPart, GtKind, Interposer, IoKind, RegId, XadcIoLoc};
 use crate::defs::tslots;
 use crate::defs::{self, bslots};
-use crate::gtz::{GtzBelId, GtzDb, GtzIntColId, GtzIntRowId};
 use bimap::BiHashMap;
 use prjcombine_entity::{EntityId, EntityPartVec, EntityVec};
-use prjcombine_interconnect::dir::Dir;
+use prjcombine_interconnect::dir::{Dir, DirV};
 use prjcombine_interconnect::grid::{BelCoord, DieIdExt};
 use prjcombine_interconnect::{
-    dir::{DirH, DirPartMap},
+    dir::DirH,
     grid::{CellCoord, ColId, DieId, ExpandedGrid, Rect, RowId, TileCoord, TileIobId},
 };
 use prjcombine_types::bsdata::BitRectId;
@@ -27,7 +26,6 @@ pub struct ExpandedDevice<'a> {
     pub kind: ChipKind,
     pub chips: EntityVec<DieId, &'a Chip>,
     pub egrid: ExpandedGrid<'a>,
-    pub gdb: &'a GtzDb,
     pub disabled: BTreeSet<DisabledPart>,
     pub interposer: Option<&'a Interposer>,
     pub int_holes: Vec<Rect>,
@@ -46,8 +44,7 @@ pub struct ExpandedDevice<'a> {
     pub row_dcmiob: Option<RowId>,
     pub row_iobdcm: Option<RowId>,
     pub io: Vec<IoCoord>,
-    pub gt: Vec<CellCoord>,
-    pub gtz: DirPartMap<ExpandedGtz>,
+    pub gt: Vec<BelCoord>,
     pub cfg_io: BiHashMap<SharedCfgPad, IoCoord>,
     pub banklut: EntityVec<DieId, u32>,
 }
@@ -94,21 +91,6 @@ pub struct GtInfo {
 pub struct IoCoord {
     pub cell: CellCoord,
     pub iob: TileIobId,
-}
-
-#[derive(Clone, Debug)]
-pub struct PsIo {
-    pub bank: u32,
-    pub name: String,
-}
-
-#[derive(Debug)]
-pub struct ExpandedGtz {
-    pub kind: GtzBelId,
-    pub bank: u32,
-    pub die: DieId,
-    pub cols: EntityVec<GtzIntColId, ColId>,
-    pub rows: EntityVec<GtzIntRowId, RowId>,
 }
 
 impl ExpandedDevice<'_> {
@@ -471,8 +453,14 @@ impl ExpandedDevice<'_> {
         }
     }
 
-    pub fn get_gt_info(&self, cell: CellCoord) -> GtInfo {
-        let CellCoord { die, col, row } = cell;
+    pub fn get_gt_info(&self, bcrd: BelCoord) -> GtInfo {
+        if bcrd.slot == bslots::GTZ_OCTAL {
+            return GtInfo {
+                bank: if bcrd.row.to_idx() == 0 { 400 } else { 300 },
+                kind: GtKind::Gtz,
+            };
+        }
+        let CellCoord { die, col, row } = bcrd.cell;
         let chip = self.chips[die];
         let reg = chip.row_to_reg(row);
         let gtcol = chip.cols_gt.iter().find(|gtcol| gtcol.col == col).unwrap();
@@ -966,6 +954,18 @@ impl ExpandedDevice<'_> {
                     BitRect::Reg(die, Reg::Bspi),
                 ]),
             }
+        } else if tcrd.slot == tslots::GTZ {
+            let side = if tcrd.row.to_idx() == 0 {
+                DirV::S
+            } else {
+                DirV::N
+            };
+            let mut res = EntityVec::new();
+            for i in 0..8 {
+                res.push(BitRect::Gtz(side, i * 264, 264));
+            }
+            res.push(BitRect::Gtz(side, 8 * 264, 12));
+            res
         } else if self.kind == ChipKind::Virtex4 && tile.class == defs::virtex4::tcls::BRAM {
             EntityVec::from_iter([
                 self.btile_main(cell),

@@ -1,16 +1,17 @@
 use prjcombine_entity::{EntityId, EntityPartVec, EntityVec};
 use prjcombine_interconnect::db::IntDb;
 use prjcombine_interconnect::grid::builder::GridBuilder;
-use prjcombine_interconnect::grid::{CellCoord, ColId, DieId, DieIdExt, Rect, RowId, TileIobId};
+use prjcombine_interconnect::grid::{
+    BelCoord, CellCoord, ColId, DieId, DieIdExt, Rect, RowId, TileIobId,
+};
 use prjcombine_xilinx_bitstream::{
     BitstreamGeom, DeviceKind, DieBitstreamGeom, FrameAddr, FrameInfo, FrameMaskMode,
 };
 
 use crate::bond::SharedCfgPad;
 use crate::chip::{CfgRowKind, Chip, ColumnKind, DisabledPart};
-use crate::defs::tslots;
+use crate::defs::{bslots, tslots};
 use crate::expanded::{DieFrameGeom, ExpandedDevice, IoCoord};
-use crate::gtz::GtzDb;
 use crate::{
     defs,
     defs::virtex4::{ccls, rslots, tcls},
@@ -32,7 +33,7 @@ struct Expander<'a, 'b> {
     row_dcmiob: Option<RowId>,
     row_iobdcm: Option<RowId>,
     io: Vec<IoCoord>,
-    gt: Vec<CellCoord>,
+    gt: Vec<BelCoord>,
 }
 
 impl Expander<'_, '_> {
@@ -495,7 +496,7 @@ impl Expander<'_, '_> {
                     .add_tile_single_id(cell.delta(0, 8), tcls::HCLK_MGT);
                 self.egrid
                     .add_tile_single_id(cell.delta(0, 24), tcls::HCLK_MGT);
-                self.gt.push(cell);
+                self.gt.push(cell.bel(bslots::GT11CLK));
                 let cell = cell.delta(0, 16);
                 if let Some(prev) = prev {
                     self.egrid
@@ -691,7 +692,6 @@ pub fn expand_grid<'a>(
     chips: &EntityVec<DieId, &'a Chip>,
     disabled: &BTreeSet<DisabledPart>,
     db: &'a IntDb,
-    gdb: &'a GtzDb,
 ) -> ExpandedDevice<'a> {
     let mut egrid = GridBuilder::new(db);
     assert_eq!(chips.len(), 1);
@@ -836,9 +836,7 @@ pub fn expand_grid<'a>(
         row_iobdcm,
         io,
         gt,
-        gtz: Default::default(),
         cfg_io,
         banklut: EntityVec::new(),
-        gdb,
     }
 }

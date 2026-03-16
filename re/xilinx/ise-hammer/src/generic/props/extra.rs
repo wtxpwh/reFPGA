@@ -1,16 +1,13 @@
-use prjcombine_entity::EntityVec;
 use prjcombine_interconnect::{
     db::{
         BelAttributeId, BelSlotId, EnumValueId, PolTileWireCoord, TableRowId, TileClassId,
         TileWireCoord,
     },
-    dir::DirV,
     grid::TileCoord,
 };
-use prjcombine_re_collector::diff::{DiffKey, FeatureId, SpecialId};
+use prjcombine_re_collector::diff::{DiffKey, SpecialId};
 use prjcombine_re_fpga_hammer::{FuzzerFeature, FuzzerProp};
 use prjcombine_re_hammer::Fuzzer;
-use prjcombine_xilinx_bitstream::BitRect;
 
 use crate::backend::IseBackend;
 
@@ -333,37 +330,6 @@ impl<'b, K: KeyMaker + 'b> FuzzerProp<'b, IseBackend<'b>> for ExtraTilesByBel<K>
                 });
             }
         }
-        Some((fuzzer, false))
-    }
-}
-
-#[derive(Clone, Debug)]
-pub struct ExtraGtz(pub DirV);
-
-impl<'b> FuzzerProp<'b, IseBackend<'b>> for ExtraGtz {
-    fn dyn_clone(&self) -> Box<DynProp<'b>> {
-        Box::new(Clone::clone(self))
-    }
-
-    fn apply<'a>(
-        &self,
-        _backend: &IseBackend<'a>,
-        _tcrd: TileCoord,
-        mut fuzzer: Fuzzer<IseBackend<'a>>,
-    ) -> Option<(Fuzzer<IseBackend<'a>>, bool)> {
-        let DiffKey::Legacy(ref main_id) = fuzzer.info.features[0].key else {
-            unreachable!()
-        };
-        let id = FeatureId {
-            tile: "GTZ".into(),
-            bel: "GTZ".into(),
-            attr: main_id.attr.clone(),
-            val: main_id.val.clone(),
-        };
-        fuzzer.info.features.push(FuzzerFeature {
-            key: DiffKey::Legacy(id),
-            rects: EntityVec::from_iter([BitRect::Gtz(self.0)]),
-        });
         Some((fuzzer, false))
     }
 }

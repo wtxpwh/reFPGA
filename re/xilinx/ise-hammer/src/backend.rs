@@ -269,11 +269,6 @@ impl<'a> Backend for IseBackend<'a> {
                 }
             }
         }
-        if let ExpandedNamedDevice::Virtex4(endev) = self.endev {
-            for ngt in endev.gtz.values() {
-                site_to_tile.insert(ngt.bel.clone(), ngt.tile.clone());
-            }
-        }
 
         let mut site_to_place = HashMap::new();
         let bond = &self.db.bonds[self.device.bonds[combo.devbond_idx].bond];

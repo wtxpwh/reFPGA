@@ -37,23 +37,8 @@ macro_rules! specials {
     };
 }
 
-#[derive(Clone, Eq, PartialEq, Hash, Ord, PartialOrd)]
-pub struct FeatureId {
-    pub tile: String,
-    pub bel: String,
-    pub attr: String,
-    pub val: String,
-}
-
-impl std::fmt::Debug for FeatureId {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}:{}:{}:{}", self.tile, self.bel, self.attr, self.val)
-    }
-}
-
 #[derive(Debug, Clone, Eq, PartialEq, Hash, Ord, PartialOrd)]
 pub enum DiffKey {
-    Legacy(FeatureId),
     BelAttrBit(TileClassId, BelSlotId, BelAttributeId, usize, bool),
     BelAttrValue(TileClassId, BelSlotId, BelAttributeId, EnumValueId),
     BelAttrBitVec(TileClassId, BelSlotId, BelAttributeId, BitVec),

@@ -2966,8 +2966,12 @@ target_defs! {
         // TRIM2
         attribute VGG_TRIM_BOT: bitvec[12];
         attribute VGG_TRIM_TOP: bitvec[12];
-
     }
+    // one IDCODE per die, up to 4 die
+    device_data IDCODE0: bitvec[32];
+    device_data IDCODE1: bitvec[32];
+    device_data IDCODE2: bitvec[32];
+    device_data IDCODE3: bitvec[32];
 
     bel_class PPC405 {
         input CPMC405CLOCK;
@@ -10663,6 +10667,8 @@ target_defs! {
             attribute "RSVD_ADDR255_LANE{ch}": bitvec[32];
         }
     }
+    device_data IDCODE_GTZ_S: bitvec[32];
+    device_data IDCODE_GTZ_N: bitvec[32];
 
     if variant virtex4 {
         region_slot GLOBAL;

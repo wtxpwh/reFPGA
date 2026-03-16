@@ -4163,6 +4163,76 @@ impl IntMaker<'_> {
             }
         }
     }
+
+    fn fill_gtz_tiles(&mut self) {
+        for i in 0..32 {
+            self.builder
+                .extra_name(format!("GTZ_VBRK_INTF_GCLK{i}"), wires::GCLK[i]);
+        }
+        for (tcid, naming, tkn) in [
+            (tcls::GTZ_N, "GTZ_N", "GTZ_TOP"),
+            (tcls::GTZ_S, "GTZ_S", "GTZ_BOT"),
+        ] {
+            for c in 0..86 {
+                for r in 0..49 {
+                    let rr = if tcid == tcls::GTZ_N { 48 - r } else { r };
+                    self.builder.extra_name_tile_sub(
+                        tkn,
+                        format!("GTZ_VBRK_INTF_SLV_{c}_{rr}"),
+                        1 + 49 * c + r,
+                        wires::LVB[6],
+                    );
+                }
+            }
+            let Some(&xy) = self.rd.tiles_by_kind_name(tkn).iter().next() else {
+                continue;
+            };
+            let mut bel = self.builder.bel_xy(bslots::GTZ_OCTAL, "GTZE2_OCTAL", 0, 0);
+            for i in 0..2 {
+                bel = bel.pins_name_only(&[format!("GTREFCLK{i}P"), format!("GTREFCLK{i}N")])
+            }
+            for i in 0..8 {
+                bel = bel.pins_name_only(&[
+                    format!("GTZRXP{i}"),
+                    format!("GTZRXN{i}"),
+                    format!("GTZTXP{i}"),
+                    format!("GTZTXN{i}"),
+                ])
+            }
+            for i in 0..2 {
+                bel = bel
+                    .sub_xy(self.rd, "IPAD", 0, 2 * i + 1)
+                    .pin_rename("O", format!("IPAD_GTREFCLK{i}P_O"))
+                    .pins_name_only(&[format!("IPAD_GTREFCLK{i}P_O")])
+                    .sub_xy(self.rd, "IPAD", 0, 2 * i)
+                    .pin_rename("O", format!("IPAD_GTREFCLK{i}N_O"))
+                    .pins_name_only(&[format!("IPAD_GTREFCLK{i}N_O")]);
+            }
+            for i in 0..8 {
+                bel = bel
+                    .sub_xy(self.rd, "IPAD", 0, 2 * i + 5)
+                    .pin_rename("O", format!("IPAD_GTZRXP{i}_O"))
+                    .pins_name_only(&[format!("IPAD_GTZRXP{i}_O")])
+                    .sub_xy(self.rd, "IPAD", 0, 2 * i + 4)
+                    .pin_rename("O", format!("IPAD_GTZRXN{i}_O"))
+                    .pins_name_only(&[format!("IPAD_GTZRXN{i}_O")]);
+            }
+            for i in 0..8 {
+                bel = bel
+                    .sub_xy(self.rd, "OPAD", 0, 2 * i + 1)
+                    .pin_rename("I", format!("OPAD_GTZTXP{i}_I"))
+                    .pins_name_only(&[format!("OPAD_GTZTXP{i}_I")])
+                    .sub_xy(self.rd, "OPAD", 0, 2 * i)
+                    .pin_rename("I", format!("OPAD_GTZTXN{i}_I"))
+                    .pins_name_only(&[format!("OPAD_GTZTXN{i}_I")]);
+            }
+            self.builder
+                .xtile_id(tcid, naming, xy)
+                .num_cells(49 * 86 + 1)
+                .bel(bel)
+                .extract();
+        }
+    }
 }
 
 pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
@@ -4208,6 +4278,7 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
     maker.fill_gtp_common_tiles();
     maker.fill_gtx_channel_tiles();
     maker.fill_gtx_common_tiles();
+    maker.fill_gtz_tiles();
 
     maker.builder.build()
 }

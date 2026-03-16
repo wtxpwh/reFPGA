@@ -3,36 +3,10 @@ use prjcombine_virtex4::defs::devdata;
 
 use crate::{
     DocgenContext,
-    bsdata::{FrameDirection, TileOrientation, gen_bstiles},
     interconnect::{gen_devdata, gen_intdb},
 };
 
 pub fn gen_virtex4(ctx: &mut DocgenContext) {
-    let reg_orientation = TileOrientation {
-        frame_direction: FrameDirection::Vertical,
-        flip_frame: false,
-        flip_bit: false,
-    };
-    let tile_orientation = TileOrientation {
-        frame_direction: FrameDirection::Vertical,
-        flip_frame: false,
-        flip_bit: true,
-    };
-    let gtz_orientation = TileOrientation {
-        frame_direction: FrameDirection::Horizontal,
-        flip_frame: false,
-        flip_bit: true,
-    };
-    let orientation = |tname: &str| {
-        if tname.starts_with("REG.") {
-            reg_orientation
-        } else if tname == "GTZ" {
-            gtz_orientation
-        } else {
-            tile_orientation
-        }
-    };
-
     for kind in ["virtex4", "virtex5", "virtex6", "virtex7"] {
         let db = prjcombine_virtex4::db::Database::from_file(
             ctx.ctx.root.join(format!("../databases/{kind}.zstd")),
@@ -44,7 +18,6 @@ pub fn gen_virtex4(ctx: &mut DocgenContext) {
             devdata.insert(device.name.as_str(), &device.data);
         }
 
-        gen_bstiles(ctx, kind, &db.bsdata, orientation);
         match kind {
             "virtex4" => {}
             "virtex5" => {

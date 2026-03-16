@@ -30,7 +30,6 @@ fn main() -> Result<(), Box<dyn Error>> {
             println!("NAMINGDB {name}");
             ndb.print(&geom.ints[name], &mut std::io::stdout())?;
         }
-        geom.gtz.dump(&mut std::io::stdout())?;
     }
     if args.chips || args.devices {
         for (gid, chip) in &geom.chips {

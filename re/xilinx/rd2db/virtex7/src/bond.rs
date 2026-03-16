@@ -20,85 +20,85 @@ pub fn make_bond(rd: &Part, pkg: &str, endev: &ExpandedNamedDevice, pins: &[PkgP
         .map(|io| (endev.get_io_name(io), io))
         .collect();
     let mut gt_lookup: HashMap<&str, (String, u32, GtPad)> = HashMap::new();
+    let mut gtz_lookup: HashMap<&str, (String, u32, GtzPad)> = HashMap::new();
     for gt in endev.get_gts() {
         let bank = gt.bank;
-        let t = match gt.kind {
-            GtKind::Gtp => "GTP",
-            GtKind::Gtx => "GTX",
-            GtKind::Gth => "GTH",
-        };
-        for (i, (pp, pn)) in gt.pads_clk.iter().enumerate() {
-            gt_lookup.insert(
-                pp,
-                (format!("MGTREFCLK{i}P_{bank}"), bank, GtPad::ClkP(i as u8)),
-            );
-            gt_lookup.insert(
-                pn,
-                (format!("MGTREFCLK{i}N_{bank}"), bank, GtPad::ClkN(i as u8)),
-            );
-        }
-        for (i, (pp, pn)) in gt.pads_rx.iter().enumerate() {
-            gt_lookup.insert(
-                pp,
-                (format!("M{t}RXP{i}_{bank}"), bank, GtPad::RxP(i as u8)),
-            );
-            gt_lookup.insert(
-                pn,
-                (format!("M{t}RXN{i}_{bank}"), bank, GtPad::RxN(i as u8)),
-            );
-        }
-        for (i, (pp, pn)) in gt.pads_tx.iter().enumerate() {
-            gt_lookup.insert(
-                pp,
-                (format!("M{t}TXP{i}_{bank}"), bank, GtPad::TxP(i as u8)),
-            );
-            gt_lookup.insert(
-                pn,
-                (format!("M{t}TXN{i}_{bank}"), bank, GtPad::TxN(i as u8)),
-            );
-        }
-    }
-    let mut gtz_lookup: HashMap<String, (String, u32, GtzPad)> = HashMap::new();
-    for (dir, egt) in &endev.edev.gtz {
-        let ngt = &endev.gtz[dir];
-        let bank = egt.bank;
-        for (i, (pp, pn)) in ngt.pads_clk.iter().enumerate() {
-            gtz_lookup.insert(
-                pp.clone(),
-                (
-                    format!("MGTZREFCLK{i}P_{bank}"),
-                    bank,
-                    GtzPad::ClkP(i as u8),
-                ),
-            );
-            gtz_lookup.insert(
-                pn.clone(),
-                (
-                    format!("MGTZREFCLK{i}N_{bank}"),
-                    bank,
-                    GtzPad::ClkN(i as u8),
-                ),
-            );
-        }
-        for (i, (pp, pn)) in ngt.pads_rx.iter().enumerate() {
-            gtz_lookup.insert(
-                pp.clone(),
-                (format!("MGTZRXP{i}_{bank}"), bank, GtzPad::RxP(i as u8)),
-            );
-            gtz_lookup.insert(
-                pn.clone(),
-                (format!("MGTZRXN{i}_{bank}"), bank, GtzPad::RxN(i as u8)),
-            );
-        }
-        for (i, (pp, pn)) in ngt.pads_tx.iter().enumerate() {
-            gtz_lookup.insert(
-                pp.clone(),
-                (format!("MGTZTXP{i}_{bank}"), bank, GtzPad::TxP(i as u8)),
-            );
-            gtz_lookup.insert(
-                pn.clone(),
-                (format!("MGTZTXN{i}_{bank}"), bank, GtzPad::TxN(i as u8)),
-            );
+        if gt.kind == GtKind::Gtz {
+            for (i, (pp, pn)) in gt.pads_clk.iter().enumerate() {
+                gtz_lookup.insert(
+                    pp,
+                    (
+                        format!("MGTZREFCLK{i}P_{bank}"),
+                        bank,
+                        GtzPad::ClkP(i as u8),
+                    ),
+                );
+                gtz_lookup.insert(
+                    pn,
+                    (
+                        format!("MGTZREFCLK{i}N_{bank}"),
+                        bank,
+                        GtzPad::ClkN(i as u8),
+                    ),
+                );
+            }
+            for (i, (pp, pn)) in gt.pads_rx.iter().enumerate() {
+                gtz_lookup.insert(
+                    pp,
+                    (format!("MGTZRXP{i}_{bank}"), bank, GtzPad::RxP(i as u8)),
+                );
+                gtz_lookup.insert(
+                    pn,
+                    (format!("MGTZRXN{i}_{bank}"), bank, GtzPad::RxN(i as u8)),
+                );
+            }
+            for (i, (pp, pn)) in gt.pads_tx.iter().enumerate() {
+                gtz_lookup.insert(
+                    pp,
+                    (format!("MGTZTXP{i}_{bank}"), bank, GtzPad::TxP(i as u8)),
+                );
+                gtz_lookup.insert(
+                    pn,
+                    (format!("MGTZTXN{i}_{bank}"), bank, GtzPad::TxN(i as u8)),
+                );
+            }
+        } else {
+            let t = match gt.kind {
+                GtKind::Gtp => "GTP",
+                GtKind::Gtx => "GTX",
+                GtKind::Gth => "GTH",
+                _ => unreachable!(),
+            };
+            for (i, (pp, pn)) in gt.pads_clk.iter().enumerate() {
+                gt_lookup.insert(
+                    pp,
+                    (format!("MGTREFCLK{i}P_{bank}"), bank, GtPad::ClkP(i as u8)),
+                );
+                gt_lookup.insert(
+                    pn,
+                    (format!("MGTREFCLK{i}N_{bank}"), bank, GtPad::ClkN(i as u8)),
+                );
+            }
+            for (i, (pp, pn)) in gt.pads_rx.iter().enumerate() {
+                gt_lookup.insert(
+                    pp,
+                    (format!("M{t}RXP{i}_{bank}"), bank, GtPad::RxP(i as u8)),
+                );
+                gt_lookup.insert(
+                    pn,
+                    (format!("M{t}RXN{i}_{bank}"), bank, GtPad::RxN(i as u8)),
+                );
+            }
+            for (i, (pp, pn)) in gt.pads_tx.iter().enumerate() {
+                gt_lookup.insert(
+                    pp,
+                    (format!("M{t}TXP{i}_{bank}"), bank, GtPad::TxP(i as u8)),
+                );
+                gt_lookup.insert(
+                    pn,
+                    (format!("M{t}TXN{i}_{bank}"), bank, GtPad::TxN(i as u8)),
+                );
+            }
         }
     }
     let mut sm_lookup: HashMap<&str, (u32, SysMonPad)> = HashMap::new();
@@ -227,12 +227,12 @@ pub fn make_bond(rd: &Part, pkg: &str, endev: &ExpandedNamedDevice, pins: &[PkgP
                 assert_eq!(pin.vref_bank, Some(io_info.bank));
                 assert_eq!(pin.vcco_bank, Some(io_info.bank));
                 BondPad::Io(io_info.bank, io_info.biob)
-            } else if let Some(&(ref exp_func, bank, gpin)) = gt_lookup.get(&**pad) {
+            } else if let Some(&(ref exp_func, bank, gpin)) = gt_lookup.get(&pad.as_str()) {
                 if *exp_func != pin.func {
                     println!("pad {pad} got {f} exp {exp_func}", f = pin.func);
                 }
                 BondPad::Gt(bank, gpin)
-            } else if let Some(&(ref exp_func, bank, gpin)) = gtz_lookup.get(pad) {
+            } else if let Some(&(ref exp_func, bank, gpin)) = gtz_lookup.get(&pad.as_str()) {
                 if *exp_func != pin.func {
                     println!("pad {pad} got {f} exp {exp_func}", f = pin.func);
                 }

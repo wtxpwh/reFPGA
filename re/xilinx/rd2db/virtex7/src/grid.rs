@@ -354,8 +354,8 @@ pub fn make_grids(rd: &Part) -> (EntityVec<DieId, Chip>, Interposer, BTreeSet<Di
     let primary = primary.unwrap();
     let interposer = Interposer {
         primary,
-        gtz_bot: find_row(rd, &["GTZ_BOT"]).is_some(),
-        gtz_top: find_row(rd, &["GTZ_TOP"]).is_some(),
+        gtz_s: find_row(rd, &["GTZ_BOT"]).is_some(),
+        gtz_n: find_row(rd, &["GTZ_TOP"]).is_some(),
     };
     let mut disabled = BTreeSet::new();
     if (rd.part.starts_with("xc7s") || rd.part.starts_with("xa7s"))

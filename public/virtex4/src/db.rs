@@ -7,15 +7,13 @@ use prjcombine_interconnect::{
     db::{DeviceDataId, IntDb, TableValue},
     grid::DieId,
 };
-use prjcombine_types::{
-    bsdata::BsData,
-    db::{BondId, ChipId, DevBondId, DevSpeedId, DeviceCombo, DumpFlags, InterposerId},
+use prjcombine_types::db::{
+    BondId, ChipId, DevBondId, DevSpeedId, DeviceCombo, DumpFlags, InterposerId,
 };
 
 use crate::{
     bond::Bond,
     chip::{Chip, DisabledPart, Interposer},
-    gtz::GtzDb,
 };
 
 #[derive(Debug, Clone, Eq, PartialEq, Encode, Decode)]
@@ -37,8 +35,6 @@ pub struct Database {
     pub bonds: EntityVec<BondId, Bond>,
     pub devices: Vec<Device>,
     pub int: IntDb,
-    pub bsdata: BsData,
-    pub gtz: GtzDb,
 }
 
 impl Database {
@@ -180,14 +176,8 @@ impl Database {
         if flags.intdb {
             self.int.dump(o)?;
             writeln!(o)?;
-
-            self.gtz.dump(o)?;
-            writeln!(o)?;
         }
 
-        if flags.bsdata {
-            self.bsdata.dump(o)?;
-        }
         Ok(())
     }
 }

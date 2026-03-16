@@ -26,7 +26,6 @@ pub fn ingest(rd: &Part, verify: bool) -> PreDevice {
         rd,
         grids,
         Interposer::Versal(interposer),
-        Default::default(),
         bonds,
         disabled,
         DeviceNaming::Versal(naming),

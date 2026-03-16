@@ -517,6 +517,7 @@ pub fn draw_device(name: &str, edev: ExpandedDevice) -> Drawer {
                         GtKind::Gtp => "gtp",
                         GtKind::Gtx => "gtx",
                         GtKind::Gth => "gth",
+                        _ => unreachable!(),
                     };
                     drawer.bel_rect(
                         xl,

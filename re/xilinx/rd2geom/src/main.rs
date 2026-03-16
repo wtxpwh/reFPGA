@@ -224,13 +224,6 @@ fn main() -> Result<(), Box<dyn Error>> {
                     builder.ingest_int(key, init, intdb, naming);
                 }
                 assert!(dbin.namings.is_empty());
-                for (_, name, gtz) in dbin.gtz.gtz {
-                    if let Some(ogtz) = builder.gtz.gtz.get(&name) {
-                        assert_eq!(ogtz.1, &gtz);
-                    } else {
-                        builder.gtz.gtz.insert(name, gtz);
-                    }
-                }
             }
             let db = builder.finish();
             db.to_file(dst)?;

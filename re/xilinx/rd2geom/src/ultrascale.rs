@@ -41,7 +41,6 @@ pub fn ingest(rd: &Part, verify: bool) -> PreDevice {
         rd,
         grids,
         Interposer::Ultrascale(interposer),
-        Default::default(),
         bonds,
         disabled,
         DeviceNaming::Ultrascale(naming),

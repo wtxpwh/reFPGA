@@ -22041,6 +22041,7 @@ device xc6vlx760 {
 	combo ff1760 -2;
 	device_data IODELAY_V6_IDELAY_DEFAULT = 0b11011;
 	device_data PLL_V6_IN_DLY_SET = 0b11111;
+	device_data IDCODE0 = 0b00000100001000111010000010010011;
 }
 
 device xc6vlx760l {
@@ -22050,6 +22051,7 @@ device xc6vlx760l {
 	combo ff1760 -1L;
 	device_data IODELAY_V6_IDELAY_DEFAULT = 0b11011;
 	device_data PLL_V6_IN_DLY_SET = 0b11111;
+	device_data IDCODE0 = 0b00000100001000111010000010010011;
 }
 
 device xc6vlx75t {
@@ -22067,6 +22069,7 @@ device xc6vlx75t {
 	combo ff784 -3;
 	device_data IODELAY_V6_IDELAY_DEFAULT = 0b10011;
 	device_data PLL_V6_IN_DLY_SET = 0b11000;
+	device_data IDCODE0 = 0b00000100001001000100000010010011;
 }
 
 device xc6vlx75tl {
@@ -22078,6 +22081,7 @@ device xc6vlx75tl {
 	combo ff784 -1L;
 	device_data IODELAY_V6_IDELAY_DEFAULT = 0b10011;
 	device_data PLL_V6_IN_DLY_SET = 0b11000;
+	device_data IDCODE0 = 0b00000100001001000100000010010011;
 }
 
 device xc6vcx75t {
@@ -22096,6 +22100,7 @@ device xc6vcx75t {
 	disabled sysmon;
 	device_data IODELAY_V6_IDELAY_DEFAULT = 0b10011;
 	device_data PLL_V6_IN_DLY_SET = 0b11000;
+	device_data IDCODE0 = 0b00000100001011000100000010010011;
 }
 
 device xc6vlx130t {
@@ -22117,6 +22122,7 @@ device xc6vlx130t {
 	combo ff784 -3;
 	device_data IODELAY_V6_IDELAY_DEFAULT = 0b10110;
 	device_data PLL_V6_IN_DLY_SET = 0b11000;
+	device_data IDCODE0 = 0b00000100001001001010000010010011;
 }
 
 device xq6vlx130t {
@@ -22137,6 +22143,7 @@ device xq6vlx130t {
 	combo rf784 -2;
 	device_data IODELAY_V6_IDELAY_DEFAULT = 0b10110;
 	device_data PLL_V6_IN_DLY_SET = 0b11000;
+	device_data IDCODE0 = 0b00000100001001001010000010010011;
 }
 
 device xc6vlx130tl {
@@ -22150,6 +22157,7 @@ device xc6vlx130tl {
 	combo ff784 -1L;
 	device_data IODELAY_V6_IDELAY_DEFAULT = 0b10110;
 	device_data PLL_V6_IN_DLY_SET = 0b11000;
+	device_data IDCODE0 = 0b00000100001001001010000010010011;
 }
 
 device xq6vlx130tl {
@@ -22163,6 +22171,7 @@ device xq6vlx130tl {
 	combo rf784 -1L;
 	device_data IODELAY_V6_IDELAY_DEFAULT = 0b10110;
 	device_data PLL_V6_IN_DLY_SET = 0b11000;
+	device_data IDCODE0 = 0b00000100001001001010000010010011;
 }
 
 device xc6vcx130t {
@@ -22185,6 +22194,7 @@ device xc6vcx130t {
 	disabled sysmon;
 	device_data IODELAY_V6_IDELAY_DEFAULT = 0b10110;
 	device_data PLL_V6_IN_DLY_SET = 0b11000;
+	device_data IDCODE0 = 0b00000100001011001010000010010011;
 }
 
 device xc6vlx195t {
@@ -22202,6 +22212,7 @@ device xc6vlx195t {
 	combo ff784 -3;
 	device_data IODELAY_V6_IDELAY_DEFAULT = 0b11011;
 	device_data PLL_V6_IN_DLY_SET = 0b11000;
+	device_data IDCODE0 = 0b00000100001001001100000010010011;
 }
 
 device xc6vlx195tl {
@@ -22213,6 +22224,7 @@ device xc6vlx195tl {
 	combo ff784 -1L;
 	device_data IODELAY_V6_IDELAY_DEFAULT = 0b11011;
 	device_data PLL_V6_IN_DLY_SET = 0b11000;
+	device_data IDCODE0 = 0b00000100001001001100000010010011;
 }
 
 device xc6vcx195t {
@@ -22232,6 +22244,7 @@ device xc6vcx195t {
 	disabled sysmon;
 	device_data IODELAY_V6_IDELAY_DEFAULT = 0b11011;
 	device_data PLL_V6_IN_DLY_SET = 0b11000;
+	device_data IDCODE0 = 0b00000100001011001100000010010011;
 }
 
 device xc6vlx240t {
@@ -22253,6 +22266,7 @@ device xc6vlx240t {
 	combo ff784 -3;
 	device_data IODELAY_V6_IDELAY_DEFAULT = 0b11011;
 	device_data PLL_V6_IN_DLY_SET = 0b11000;
+	device_data IDCODE0 = 0b00000100001001010000000010010011;
 }
 
 device xq6vlx240t {
@@ -22277,6 +22291,7 @@ device xq6vlx240t {
 	combo rf784 -2;
 	device_data IODELAY_V6_IDELAY_DEFAULT = 0b11011;
 	device_data PLL_V6_IN_DLY_SET = 0b11000;
+	device_data IDCODE0 = 0b00000100001001010000000010010011;
 }
 
 device xc6vlx240tl {
@@ -22290,6 +22305,7 @@ device xc6vlx240tl {
 	combo ff784 -1L;
 	device_data IODELAY_V6_IDELAY_DEFAULT = 0b11011;
 	device_data PLL_V6_IN_DLY_SET = 0b11000;
+	device_data IDCODE0 = 0b00000100001001010000000010010011;
 }
 
 device xq6vlx240tl {
@@ -22305,6 +22321,7 @@ device xq6vlx240tl {
 	combo rf784 -1L;
 	device_data IODELAY_V6_IDELAY_DEFAULT = 0b11011;
 	device_data PLL_V6_IN_DLY_SET = 0b11000;
+	device_data IDCODE0 = 0b00000100001001010000000010010011;
 }
 
 device xc6vcx240t {
@@ -22325,6 +22342,7 @@ device xc6vcx240t {
 	disabled sysmon;
 	device_data IODELAY_V6_IDELAY_DEFAULT = 0b11011;
 	device_data PLL_V6_IN_DLY_SET = 0b11000;
+	device_data IDCODE0 = 0b00000100001011010000000010010011;
 }
 
 device xc6vlx365t {
@@ -22342,6 +22360,7 @@ device xc6vlx365t {
 	combo ff1759 -3;
 	device_data IODELAY_V6_IDELAY_DEFAULT = 0b01100;
 	device_data PLL_V6_IN_DLY_SET = 0b11000;
+	device_data IDCODE0 = 0b00000100001001010010000010010011;
 }
 
 device xc6vlx365tl {
@@ -22353,6 +22372,7 @@ device xc6vlx365tl {
 	combo ff1759 -1L;
 	device_data IODELAY_V6_IDELAY_DEFAULT = 0b01100;
 	device_data PLL_V6_IN_DLY_SET = 0b11000;
+	device_data IDCODE0 = 0b00000100001001010010000010010011;
 }
 
 device xc6vlx550t {
@@ -22367,6 +22387,7 @@ device xc6vlx550t {
 	combo ff1760 -2;
 	device_data IODELAY_V6_IDELAY_DEFAULT = 0b10110;
 	device_data PLL_V6_IN_DLY_SET = 0b11000;
+	device_data IDCODE0 = 0b00000100001001010110000010010011;
 }
 
 device xq6vlx550t {
@@ -22376,6 +22397,7 @@ device xq6vlx550t {
 	combo rf1759 -1;
 	device_data IODELAY_V6_IDELAY_DEFAULT = 0b10110;
 	device_data PLL_V6_IN_DLY_SET = 0b11000;
+	device_data IDCODE0 = 0b00000100001001010110000010010011;
 }
 
 device xc6vlx550tl {
@@ -22387,6 +22409,7 @@ device xc6vlx550tl {
 	combo ff1760 -1L;
 	device_data IODELAY_V6_IDELAY_DEFAULT = 0b10110;
 	device_data PLL_V6_IN_DLY_SET = 0b11000;
+	device_data IDCODE0 = 0b00000100001001010110000010010011;
 }
 
 device xq6vlx550tl {
@@ -22396,6 +22419,7 @@ device xq6vlx550tl {
 	combo rf1759 -1L;
 	device_data IODELAY_V6_IDELAY_DEFAULT = 0b10110;
 	device_data PLL_V6_IN_DLY_SET = 0b11000;
+	device_data IDCODE0 = 0b00000100001001010110000010010011;
 }
 
 device xc6vsx315t {
@@ -22413,6 +22437,7 @@ device xc6vsx315t {
 	combo ff1759 -3;
 	device_data IODELAY_V6_IDELAY_DEFAULT = 0b10010;
 	device_data PLL_V6_IN_DLY_SET = 0b11000;
+	device_data IDCODE0 = 0b00000100001010000110000010010011;
 }
 
 device xq6vsx315t {
@@ -22433,6 +22458,7 @@ device xq6vsx315t {
 	combo rf1759 -2;
 	device_data IODELAY_V6_IDELAY_DEFAULT = 0b10010;
 	device_data PLL_V6_IN_DLY_SET = 0b11000;
+	device_data IDCODE0 = 0b00000100001010000110000010010011;
 }
 
 device xc6vsx315tl {
@@ -22444,6 +22470,7 @@ device xc6vsx315tl {
 	combo ff1759 -1L;
 	device_data IODELAY_V6_IDELAY_DEFAULT = 0b10010;
 	device_data PLL_V6_IN_DLY_SET = 0b11000;
+	device_data IDCODE0 = 0b00000100001010000110000010010011;
 }
 
 device xq6vsx315tl {
@@ -22457,6 +22484,7 @@ device xq6vsx315tl {
 	combo rf1759 -1L;
 	device_data IODELAY_V6_IDELAY_DEFAULT = 0b10010;
 	device_data PLL_V6_IN_DLY_SET = 0b11000;
+	device_data IDCODE0 = 0b00000100001010000110000010010011;
 }
 
 device xc6vsx475t {
@@ -22471,6 +22499,7 @@ device xc6vsx475t {
 	combo ff1759 -2;
 	device_data IODELAY_V6_IDELAY_DEFAULT = 0b11000;
 	device_data PLL_V6_IN_DLY_SET = 0b11000;
+	device_data IDCODE0 = 0b00000100001010001000000010010011;
 }
 
 device xq6vsx475t {
@@ -22484,6 +22513,7 @@ device xq6vsx475t {
 	combo rf1759 -1;
 	device_data IODELAY_V6_IDELAY_DEFAULT = 0b11000;
 	device_data PLL_V6_IN_DLY_SET = 0b11000;
+	device_data IDCODE0 = 0b00000100001010001000000010010011;
 }
 
 device xc6vsx475tl {
@@ -22495,6 +22525,7 @@ device xc6vsx475tl {
 	combo ff1759 -1L;
 	device_data IODELAY_V6_IDELAY_DEFAULT = 0b11000;
 	device_data PLL_V6_IN_DLY_SET = 0b11000;
+	device_data IDCODE0 = 0b00000100001010001000000010010011;
 }
 
 device xq6vsx475tl {
@@ -22508,6 +22539,7 @@ device xq6vsx475tl {
 	combo rf1759 -1L;
 	device_data IODELAY_V6_IDELAY_DEFAULT = 0b11000;
 	device_data PLL_V6_IN_DLY_SET = 0b11000;
+	device_data IDCODE0 = 0b00000100001010001000000010010011;
 }
 
 device xc6vhx250t {
@@ -22521,6 +22553,7 @@ device xc6vhx250t {
 	combo ff1154 -3;
 	device_data IODELAY_V6_IDELAY_DEFAULT = 0b10010;
 	device_data PLL_V6_IN_DLY_SET = 0b11000;
+	device_data IDCODE0 = 0b00000100001010100010000010010011;
 }
 
 device xc6vhx255t {
@@ -22538,6 +22571,7 @@ device xc6vhx255t {
 	combo ff1923 -3;
 	device_data IODELAY_V6_IDELAY_DEFAULT = 0b01100;
 	device_data PLL_V6_IN_DLY_SET = 0b11000;
+	device_data IDCODE0 = 0b00000100001010100100000010010011;
 }
 
 device xc6vhx380t {
@@ -22563,6 +22597,7 @@ device xc6vhx380t {
 	combo ff1924 -3;
 	device_data IODELAY_V6_IDELAY_DEFAULT = 0b10010;
 	device_data PLL_V6_IN_DLY_SET = 0b11000;
+	device_data IDCODE0 = 0b00000100001010101000000010010011;
 }
 
 device xc6vhx565t {
@@ -22577,6 +22612,7 @@ device xc6vhx565t {
 	combo ff1924 -2;
 	device_data IODELAY_V6_IDELAY_DEFAULT = 0b11000;
 	device_data PLL_V6_IN_DLY_SET = 0b11000;
+	device_data IDCODE0 = 0b00000100001010101100000010010011;
 }
 
 intdb {
@@ -75500,151 +75536,12 @@ intdb {
 	device_data IODELAY_V6_IDELAY_DEFAULT: bitvec[5];
 	device_data PLL_V5_IN_DLY_SET: bitvec[9];
 	device_data PLL_V6_IN_DLY_SET: bitvec[5];
+	device_data IDCODE0: bitvec[32];
+	device_data IDCODE1: bitvec[32];
+	device_data IDCODE2: bitvec[32];
+	device_data IDCODE3: bitvec[32];
 	device_data PPC440_CLOCK_DELAY: bitvec[5];
-}
-
-
-device_data xc6vcx130t {
-	IDCODE:D0 = 0b00000100001011001010000010010011;
-}
-
-device_data xc6vcx195t {
-	IDCODE:D0 = 0b00000100001011001100000010010011;
-}
-
-device_data xc6vcx240t {
-	IDCODE:D0 = 0b00000100001011010000000010010011;
-}
-
-device_data xc6vcx75t {
-	IDCODE:D0 = 0b00000100001011000100000010010011;
-}
-
-device_data xc6vhx250t {
-	IDCODE:D0 = 0b00000100001010100010000010010011;
-}
-
-device_data xc6vhx255t {
-	IDCODE:D0 = 0b00000100001010100100000010010011;
-}
-
-device_data xc6vhx380t {
-	IDCODE:D0 = 0b00000100001010101000000010010011;
-}
-
-device_data xc6vhx565t {
-	IDCODE:D0 = 0b00000100001010101100000010010011;
-}
-
-device_data xc6vlx130t {
-	IDCODE:D0 = 0b00000100001001001010000010010011;
-}
-
-device_data xc6vlx130tl {
-	IDCODE:D0 = 0b00000100001001001010000010010011;
-}
-
-device_data xc6vlx195t {
-	IDCODE:D0 = 0b00000100001001001100000010010011;
-}
-
-device_data xc6vlx195tl {
-	IDCODE:D0 = 0b00000100001001001100000010010011;
-}
-
-device_data xc6vlx240t {
-	IDCODE:D0 = 0b00000100001001010000000010010011;
-}
-
-device_data xc6vlx240tl {
-	IDCODE:D0 = 0b00000100001001010000000010010011;
-}
-
-device_data xc6vlx365t {
-	IDCODE:D0 = 0b00000100001001010010000010010011;
-}
-
-device_data xc6vlx365tl {
-	IDCODE:D0 = 0b00000100001001010010000010010011;
-}
-
-device_data xc6vlx550t {
-	IDCODE:D0 = 0b00000100001001010110000010010011;
-}
-
-device_data xc6vlx550tl {
-	IDCODE:D0 = 0b00000100001001010110000010010011;
-}
-
-device_data xc6vlx75t {
-	IDCODE:D0 = 0b00000100001001000100000010010011;
-}
-
-device_data xc6vlx75tl {
-	IDCODE:D0 = 0b00000100001001000100000010010011;
-}
-
-device_data xc6vlx760 {
-	IDCODE:D0 = 0b00000100001000111010000010010011;
-}
-
-device_data xc6vlx760l {
-	IDCODE:D0 = 0b00000100001000111010000010010011;
-}
-
-device_data xc6vsx315t {
-	IDCODE:D0 = 0b00000100001010000110000010010011;
-}
-
-device_data xc6vsx315tl {
-	IDCODE:D0 = 0b00000100001010000110000010010011;
-}
-
-device_data xc6vsx475t {
-	IDCODE:D0 = 0b00000100001010001000000010010011;
-}
-
-device_data xc6vsx475tl {
-	IDCODE:D0 = 0b00000100001010001000000010010011;
-}
-
-device_data xq6vlx130t {
-	IDCODE:D0 = 0b00000100001001001010000010010011;
-}
-
-device_data xq6vlx130tl {
-	IDCODE:D0 = 0b00000100001001001010000010010011;
-}
-
-device_data xq6vlx240t {
-	IDCODE:D0 = 0b00000100001001010000000010010011;
-}
-
-device_data xq6vlx240tl {
-	IDCODE:D0 = 0b00000100001001010000000010010011;
-}
-
-device_data xq6vlx550t {
-	IDCODE:D0 = 0b00000100001001010110000010010011;
-}
-
-device_data xq6vlx550tl {
-	IDCODE:D0 = 0b00000100001001010110000010010011;
-}
-
-device_data xq6vsx315t {
-	IDCODE:D0 = 0b00000100001010000110000010010011;
-}
-
-device_data xq6vsx315tl {
-	IDCODE:D0 = 0b00000100001010000110000010010011;
-}
-
-device_data xq6vsx475t {
-	IDCODE:D0 = 0b00000100001010001000000010010011;
-}
-
-device_data xq6vsx475tl {
-	IDCODE:D0 = 0b00000100001010001000000010010011;
+	device_data IDCODE_GTZ_S: bitvec[32];
+	device_data IDCODE_GTZ_N: bitvec[32];
 }
 

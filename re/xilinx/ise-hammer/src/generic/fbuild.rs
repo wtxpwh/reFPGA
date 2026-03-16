@@ -3,10 +3,9 @@ use prjcombine_interconnect::{
         BelAttributeId, BelAttributeType, BelInputId, BelKind, BelSlotId, EnumValueId,
         PolTileWireCoord, TableRowId, TileClassId, TileWireCoord,
     },
-    dir::DirV,
     grid::TileCoord,
 };
-use prjcombine_re_collector::diff::{DiffKey, FeatureId, SpecialId};
+use prjcombine_re_collector::diff::{DiffKey, SpecialId};
 use prjcombine_re_fpga_hammer::{FpgaFuzzerGen, FuzzerProp};
 use prjcombine_re_hammer::Session;
 use prjcombine_types::bitvec::BitVec;
@@ -30,7 +29,7 @@ use super::props::{
         FuzzBelPinIntPipsInput, FuzzBelPinPair, FuzzBelPinPips, FuzzGlobalXy, FuzzMultiGlobalXy,
         GlobalMutexHere, RowMutexHere,
     },
-    extra::{ExtraGtz, ExtraTile, ExtraTilesByBel, ExtraTilesByClass},
+    extra::{ExtraTile, ExtraTilesByBel, ExtraTilesByClass},
     mutex::{IntMutex, RowMutex, TileMutex, TileMutexExclusive},
     pip::{BasePip, BelIntoPipWire, FuzzPip},
     relation::{FixedRelation, HasRelated, NoopRelation, Related, TileRelation},
@@ -94,7 +93,6 @@ impl<'sm, 'b> FuzzCtx<'sm, 'b> {
     pub fn build<'nsm>(&'nsm mut self) -> FuzzBuilder<'nsm, 'b> {
         FuzzBuilder {
             session: &mut *self.session,
-            backend: self.backend,
             tile_class: self.tile_class,
             props: vec![],
         }
@@ -415,7 +413,6 @@ pub trait FuzzBuilderBase<'b>: Sized {
 
 pub struct FuzzBuilder<'sm, 'b> {
     pub session: &'sm mut Session<'b, IseBackend<'b>>,
-    pub backend: &'b IseBackend<'b>,
     pub tile_class: Option<TileClassId>,
     pub props: Vec<Box<DynProp<'b>>>,
 }
@@ -440,27 +437,6 @@ impl<'sm, 'b> FuzzBuilder<'sm, 'b> {
             props: self.props,
             key,
         }
-    }
-
-    pub fn test_manual_legacy(
-        self,
-        bel: &'static str,
-        attr: impl AsRef<str>,
-        val: impl AsRef<str>,
-    ) -> FuzzBuilderTestManual<'sm, 'b> {
-        let attr = attr.as_ref();
-        let val = val.as_ref();
-        let key = DiffKey::Legacy(FeatureId {
-            tile: if let Some(tile_class) = self.tile_class {
-                self.backend.edev.db.tile_classes.key(tile_class).clone()
-            } else {
-                "NULL".into()
-            },
-            bel: bel.into(),
-            attr: attr.into(),
-            val: val.into(),
-        });
-        self.test_raw(key)
     }
 
     pub fn test_routing(
@@ -493,16 +469,6 @@ impl<'sm, 'b> FuzzBuilder<'sm, 'b> {
 
     pub fn test_global_special(self, spec: SpecialId) -> FuzzBuilderTestManual<'sm, 'b> {
         self.test_raw(DiffKey::GlobalSpecial(spec))
-    }
-
-    pub fn test_gtz(
-        self,
-        dir: DirV,
-        attr: impl AsRef<str>,
-        val: impl AsRef<str>,
-    ) -> FuzzBuilderTestManual<'sm, 'b> {
-        self.prop(ExtraGtz(dir))
-            .test_manual_legacy("GTZ", attr, val)
     }
 }
 

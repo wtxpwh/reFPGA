@@ -22113,6 +22113,7 @@ device xc4vlx15 {
 	combo sf363 -10;
 	combo sf363 -11;
 	combo sf363 -12;
+	device_data IDCODE0 = 0b00000001011001011000000010010011;
 }
 
 device xc4vlx25 {
@@ -22132,6 +22133,7 @@ device xc4vlx25 {
 	combo sf363 -10;
 	combo sf363 -11;
 	combo sf363 -12;
+	device_data IDCODE0 = 0b00000001011001111100000010010011;
 }
 
 device xq4vlx25 {
@@ -22141,6 +22143,7 @@ device xq4vlx25 {
 	speed -10;
 	combo ff668 -10;
 	combo sf363 -10;
+	device_data IDCODE0 = 0b00000001011001111100000010010011;
 }
 
 device xc4vlx40 {
@@ -22156,6 +22159,7 @@ device xc4vlx40 {
 	combo ff668 -10;
 	combo ff668 -11;
 	combo ff668 -12;
+	device_data IDCODE0 = 0b00000001011010100100000010010011;
 }
 
 device xq4vlx40 {
@@ -22165,6 +22169,7 @@ device xq4vlx40 {
 	speed -10I;
 	combo ff668 -10;
 	combo ff668 -10I;
+	device_data IDCODE0 = 0b00000001011010100100000010010011;
 }
 
 device xc4vlx60 {
@@ -22180,6 +22185,7 @@ device xc4vlx60 {
 	combo ff668 -10;
 	combo ff668 -11;
 	combo ff668 -12;
+	device_data IDCODE0 = 0b00000001011010110100000010010011;
 }
 
 device xq4vlx60 {
@@ -22191,6 +22197,7 @@ device xq4vlx60 {
 	combo ef668 -10;
 	combo ff1148 -10;
 	combo ff668 -10;
+	device_data IDCODE0 = 0b00000001011010110100000010010011;
 }
 
 device xc4vlx80 {
@@ -22202,6 +22209,7 @@ device xc4vlx80 {
 	combo ff1148 -10;
 	combo ff1148 -11;
 	combo ff1148 -12;
+	device_data IDCODE0 = 0b00000001011011011000000010010011;
 }
 
 device xc4vlx100 {
@@ -22217,6 +22225,7 @@ device xc4vlx100 {
 	combo ff1513 -10;
 	combo ff1513 -11;
 	combo ff1513 -12;
+	device_data IDCODE0 = 0b00000001011100000000000010010011;
 }
 
 device xq4vlx100 {
@@ -22224,6 +22233,7 @@ device xq4vlx100 {
 	bond ff1148 = BOND7;
 	speed -10I;
 	combo ff1148 -10I;
+	device_data IDCODE0 = 0b00000001011100000000000010010011;
 }
 
 device xc4vlx160 {
@@ -22239,6 +22249,7 @@ device xc4vlx160 {
 	combo ff1513 -10;
 	combo ff1513 -11;
 	combo ff1513 -12;
+	device_data IDCODE0 = 0b00000001011100011000000010010011;
 }
 
 device xq4vlx160 {
@@ -22246,6 +22257,7 @@ device xq4vlx160 {
 	bond ff1148 = BOND7;
 	speed -10I;
 	combo ff1148 -10I;
+	device_data IDCODE0 = 0b00000001011100011000000010010011;
 }
 
 device xc4vlx200 {
@@ -22255,6 +22267,7 @@ device xc4vlx200 {
 	speed -11;
 	combo ff1513 -10;
 	combo ff1513 -11;
+	device_data IDCODE0 = 0b00000001011100110100000010010011;
 }
 
 device xqr4vlx200 {
@@ -22262,6 +22275,7 @@ device xqr4vlx200 {
 	bond cf1509 = BOND9;
 	speed -10;
 	combo cf1509 -10;
+	device_data IDCODE0 = 0b00000001011100110100000010010011;
 }
 
 device xc4vsx25 {
@@ -22273,6 +22287,7 @@ device xc4vsx25 {
 	combo ff668 -10;
 	combo ff668 -11;
 	combo ff668 -12;
+	device_data IDCODE0 = 0b00000010000001101000000010010011;
 }
 
 device xc4vsx35 {
@@ -22284,6 +22299,7 @@ device xc4vsx35 {
 	combo ff668 -10;
 	combo ff668 -11;
 	combo ff668 -12;
+	device_data IDCODE0 = 0b00000010000010001000000010010011;
 }
 
 device xc4vsx55 {
@@ -22295,6 +22311,7 @@ device xc4vsx55 {
 	combo ff1148 -10;
 	combo ff1148 -11;
 	combo ff1148 -12;
+	device_data IDCODE0 = 0b00000010000010110000000010010011;
 }
 
 device xq4vsx55 {
@@ -22302,6 +22319,7 @@ device xq4vsx55 {
 	bond ff1148 = BOND6;
 	speed -10;
 	combo ff1148 -10;
+	device_data IDCODE0 = 0b00000010000010110000000010010011;
 }
 
 device xqr4vsx55 {
@@ -22309,6 +22327,7 @@ device xqr4vsx55 {
 	bond cf1140 = BOND10;
 	speed -10;
 	combo cf1140 -10;
+	device_data IDCODE0 = 0b00000010000010110000000010010011;
 }
 
 device xc4vfx12 {
@@ -22324,6 +22343,7 @@ device xc4vfx12 {
 	combo sf363 -10;
 	combo sf363 -11;
 	combo sf363 -12;
+	device_data IDCODE0 = 0b00000001111001011000000010010011;
 }
 
 device xc4vfx20 {
@@ -22335,6 +22355,7 @@ device xc4vfx20 {
 	combo ff672 -10;
 	combo ff672 -11;
 	combo ff672 -12;
+	device_data IDCODE0 = 0b00000001111001100100000010010011;
 }
 
 device xc4vfx40 {
@@ -22350,6 +22371,7 @@ device xc4vfx40 {
 	combo ff672 -10;
 	combo ff672 -11;
 	combo ff672 -12;
+	device_data IDCODE0 = 0b00000001111010001100000010010011;
 }
 
 device xc4vfx60 {
@@ -22365,6 +22387,7 @@ device xc4vfx60 {
 	combo ff672 -10;
 	combo ff672 -11;
 	combo ff672 -12;
+	device_data IDCODE0 = 0b00000001111010110100000010010011;
 }
 
 device xq4vfx60 {
@@ -22374,6 +22397,7 @@ device xq4vfx60 {
 	speed -10I;
 	combo ef672 -10;
 	combo ef672 -10I;
+	device_data IDCODE0 = 0b00000001111010110100000010010011;
 }
 
 device xqr4vfx60 {
@@ -22381,6 +22405,7 @@ device xqr4vfx60 {
 	bond cf1144 = BOND15;
 	speed -10;
 	combo cf1144 -10;
+	device_data IDCODE0 = 0b00000001111010110100000010010011;
 }
 
 device xc4vfx100 {
@@ -22396,6 +22421,7 @@ device xc4vfx100 {
 	combo ff1517 -10;
 	combo ff1517 -11;
 	combo ff1517 -12;
+	device_data IDCODE0 = 0b00000001111011100100000010010011;
 }
 
 device xq4vfx100 {
@@ -22403,6 +22429,7 @@ device xq4vfx100 {
 	bond ff1152 = BOND16;
 	speed -10I;
 	combo ff1152 -10I;
+	device_data IDCODE0 = 0b00000001111011100100000010010011;
 }
 
 device xc4vfx140 {
@@ -22412,6 +22439,7 @@ device xc4vfx140 {
 	speed -11;
 	combo ff1517 -10;
 	combo ff1517 -11;
+	device_data IDCODE0 = 0b00000001111100010100000010010011;
 }
 
 device xqr4vfx140 {
@@ -22419,6 +22447,7 @@ device xqr4vfx140 {
 	bond cf1509 = BOND19;
 	speed -10;
 	combo cf1509 -10;
+	device_data IDCODE0 = 0b00000001111100010100000010010011;
 }
 
 intdb {
@@ -68818,123 +68847,12 @@ intdb {
 	device_data IODELAY_V6_IDELAY_DEFAULT: bitvec[5];
 	device_data PLL_V5_IN_DLY_SET: bitvec[9];
 	device_data PLL_V6_IN_DLY_SET: bitvec[5];
+	device_data IDCODE0: bitvec[32];
+	device_data IDCODE1: bitvec[32];
+	device_data IDCODE2: bitvec[32];
+	device_data IDCODE3: bitvec[32];
 	device_data PPC440_CLOCK_DELAY: bitvec[5];
-}
-
-
-device_data xc4vfx100 {
-	IDCODE:D0 = 0b00000001111011100100000010010011;
-}
-
-device_data xc4vfx12 {
-	IDCODE:D0 = 0b00000001111001011000000010010011;
-}
-
-device_data xc4vfx140 {
-	IDCODE:D0 = 0b00000001111100010100000010010011;
-}
-
-device_data xc4vfx20 {
-	IDCODE:D0 = 0b00000001111001100100000010010011;
-}
-
-device_data xc4vfx40 {
-	IDCODE:D0 = 0b00000001111010001100000010010011;
-}
-
-device_data xc4vfx60 {
-	IDCODE:D0 = 0b00000001111010110100000010010011;
-}
-
-device_data xc4vlx100 {
-	IDCODE:D0 = 0b00000001011100000000000010010011;
-}
-
-device_data xc4vlx15 {
-	IDCODE:D0 = 0b00000001011001011000000010010011;
-}
-
-device_data xc4vlx160 {
-	IDCODE:D0 = 0b00000001011100011000000010010011;
-}
-
-device_data xc4vlx200 {
-	IDCODE:D0 = 0b00000001011100110100000010010011;
-}
-
-device_data xc4vlx25 {
-	IDCODE:D0 = 0b00000001011001111100000010010011;
-}
-
-device_data xc4vlx40 {
-	IDCODE:D0 = 0b00000001011010100100000010010011;
-}
-
-device_data xc4vlx60 {
-	IDCODE:D0 = 0b00000001011010110100000010010011;
-}
-
-device_data xc4vlx80 {
-	IDCODE:D0 = 0b00000001011011011000000010010011;
-}
-
-device_data xc4vsx25 {
-	IDCODE:D0 = 0b00000010000001101000000010010011;
-}
-
-device_data xc4vsx35 {
-	IDCODE:D0 = 0b00000010000010001000000010010011;
-}
-
-device_data xc4vsx55 {
-	IDCODE:D0 = 0b00000010000010110000000010010011;
-}
-
-device_data xq4vfx100 {
-	IDCODE:D0 = 0b00000001111011100100000010010011;
-}
-
-device_data xq4vfx60 {
-	IDCODE:D0 = 0b00000001111010110100000010010011;
-}
-
-device_data xq4vlx100 {
-	IDCODE:D0 = 0b00000001011100000000000010010011;
-}
-
-device_data xq4vlx160 {
-	IDCODE:D0 = 0b00000001011100011000000010010011;
-}
-
-device_data xq4vlx25 {
-	IDCODE:D0 = 0b00000001011001111100000010010011;
-}
-
-device_data xq4vlx40 {
-	IDCODE:D0 = 0b00000001011010100100000010010011;
-}
-
-device_data xq4vlx60 {
-	IDCODE:D0 = 0b00000001011010110100000010010011;
-}
-
-device_data xq4vsx55 {
-	IDCODE:D0 = 0b00000010000010110000000010010011;
-}
-
-device_data xqr4vfx140 {
-	IDCODE:D0 = 0b00000001111100010100000010010011;
-}
-
-device_data xqr4vfx60 {
-	IDCODE:D0 = 0b00000001111010110100000010010011;
-}
-
-device_data xqr4vlx200 {
-	IDCODE:D0 = 0b00000001011100110100000010010011;
-}
-
-device_data xqr4vsx55 {
-	IDCODE:D0 = 0b00000010000010110000000010010011;
+	device_data IDCODE_GTZ_S: bitvec[32];
+	device_data IDCODE_GTZ_N: bitvec[32];
 }
 

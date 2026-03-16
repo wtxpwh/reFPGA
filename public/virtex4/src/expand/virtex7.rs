@@ -1,9 +1,11 @@
 use bimap::BiHashMap;
 use prjcombine_entity::{EntityId, EntityPartVec, EntityVec};
 use prjcombine_interconnect::db::IntDb;
-use prjcombine_interconnect::dir::{Dir, DirH, DirPartMap};
+use prjcombine_interconnect::dir::DirH;
 use prjcombine_interconnect::grid::builder::GridBuilder;
-use prjcombine_interconnect::grid::{CellCoord, ColId, DieId, DieIdExt, Rect, RowId, TileIobId};
+use prjcombine_interconnect::grid::{
+    BelCoord, CellCoord, ColId, DieId, DieIdExt, Rect, RowId, TileIobId,
+};
 use prjcombine_xilinx_bitstream::{
     BitstreamGeom, DeviceKind, DieBitstreamGeom, FrameAddr, FrameInfo, FrameMaskMode,
 };
@@ -11,9 +13,8 @@ use std::collections::BTreeSet;
 
 use crate::bond::SharedCfgPad;
 use crate::chip::{Chip, ColumnKind, DisabledPart, GtKind, Interposer, IoKind};
-use crate::defs::tslots;
-use crate::expanded::{DieFrameGeom, ExpandedDevice, ExpandedGtz, IoCoord};
-use crate::gtz::{GtzDb, GtzIntColId};
+use crate::defs::{bslots, tslots};
+use crate::expanded::{DieFrameGeom, ExpandedDevice, IoCoord};
 use crate::{
     defs,
     defs::virtex7::{ccls, rslots, tcls, wires},
@@ -30,7 +31,7 @@ struct DieExpander<'a, 'b, 'c> {
     col_cfg: ColId,
     col_clk: ColId,
     io: &'c mut Vec<IoCoord>,
-    gt: &'c mut Vec<CellCoord>,
+    gt: &'c mut Vec<BelCoord>,
     last_slr: bool,
 }
 
@@ -305,6 +306,7 @@ impl DieExpander<'_, '_, '_> {
                                 }
                                 GtKind::Gtx => tcls::GTX_CHANNEL,
                                 GtKind::Gth => tcls::GTH_CHANNEL,
+                                _ => unreachable!(),
                             },
                             11,
                         );
@@ -328,11 +330,16 @@ impl DieExpander<'_, '_, '_> {
                             }
                             GtKind::Gtx => tcls::GTX_COMMON,
                             GtKind::Gth => tcls::GTH_COMMON,
+                            _ => unreachable!(),
                         },
                         &tcells,
                     );
 
-                    self.gt.push(cell.delta(0, 25));
+                    self.gt.push(cell.delta(0, 25).bel(if kind == GtKind::Gtp {
+                        bslots::GTP_COMMON
+                    } else {
+                        bslots::GTX_COMMON
+                    }));
                 }
             }
         }
@@ -984,7 +991,7 @@ impl DieExpander<'_, '_, '_> {
     }
 }
 
-fn get_gtz_cols(chip: &Chip, num_l: usize, num_r: usize) -> EntityVec<GtzIntColId, ColId> {
+fn get_gtz_cols(chip: &Chip, num_l: usize, num_r: usize) -> Vec<ColId> {
     let mut res_l = vec![];
     let mut res_r = vec![];
     let col_clk = chip
@@ -1025,7 +1032,6 @@ pub fn expand_grid<'a>(
     interposer: &'a Interposer,
     disabled: &BTreeSet<DisabledPart>,
     db: &'a IntDb,
-    gdb: &'a GtzDb,
 ) -> ExpandedDevice<'a> {
     let mut egrid = GridBuilder::new(db);
     let pchip = &chips[interposer.primary];
@@ -1208,8 +1214,8 @@ pub fn expand_grid<'a>(
         kind: DeviceKind::Virtex7,
         die: die_bs_geom,
         die_order,
-        has_gtz_bot: interposer.gtz_bot,
-        has_gtz_top: interposer.gtz_top,
+        has_gtz_bot: interposer.gtz_s,
+        has_gtz_top: interposer.gtz_n,
     };
 
     let mut cfg_io = BiHashMap::new();
@@ -1302,33 +1308,30 @@ pub fn expand_grid<'a>(
         );
     }
 
-    let mut gtz = DirPartMap::new();
-    if interposer.gtz_bot {
+    if interposer.gtz_s {
         let die = chips.first_id().unwrap();
-        gtz.insert(
-            Dir::S,
-            ExpandedGtz {
-                kind: gdb.gtz.get("GTZ_BOT").unwrap().0,
-                bank: 400,
-                die,
-                cols: get_gtz_cols(chips[die], 46, 40),
-                rows: (0..49).map(|i| RowId::from_idx(1 + i)).collect(),
-            },
-        );
+        let cell = die.cell(col_clk, RowId::from_idx(0));
+        let mut tcells = vec![cell];
+        for col in get_gtz_cols(chips[die], 46, 40) {
+            for row in RowId::from_idx(1).range(RowId::from_idx(50)) {
+                tcells.push(die.cell(col, row));
+            }
+        }
+        egrid.add_tile_id(cell, tcls::GTZ_S, &tcells);
+        gt.push(cell.bel(bslots::GTZ_OCTAL));
     }
-    if interposer.gtz_top {
+    if interposer.gtz_n {
         let die = chips.last_id().unwrap();
         let row_base = RowId::from_idx(chips[die].regs * 50 - 50);
-        gtz.insert(
-            Dir::N,
-            ExpandedGtz {
-                kind: gdb.gtz.get("GTZ_TOP").unwrap().0,
-                bank: 300,
-                die,
-                cols: get_gtz_cols(chips[die], 40, 46),
-                rows: (0..49).map(|i| row_base + i).collect(),
-            },
-        );
+        let cell = die.cell(col_clk, row_base + 49);
+        let mut tcells = vec![cell];
+        for col in get_gtz_cols(chips[die], 40, 46) {
+            for row in row_base.range(row_base + 49) {
+                tcells.push(die.cell(col, row));
+            }
+        }
+        egrid.add_tile_id(cell, tcls::GTZ_N, &tcells);
+        gt.push(cell.bel(bslots::GTZ_OCTAL));
     }
 
     let egrid = egrid.finish();
@@ -1336,7 +1339,6 @@ pub fn expand_grid<'a>(
         kind: pchip.kind,
         chips: chips.clone(),
         egrid,
-        gdb,
         interposer: Some(interposer),
         disabled: disabled.clone(),
         int_holes,
@@ -1356,7 +1358,6 @@ pub fn expand_grid<'a>(
         row_iobdcm: None,
         io,
         gt,
-        gtz,
         cfg_io,
         banklut,
     }

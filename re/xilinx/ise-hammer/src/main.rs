@@ -1,6 +1,7 @@
 #![recursion_limit = "1024"]
 
 use clap::Parser;
+use prjcombine_entity::EntityId;
 use prjcombine_interconnect::db::TileWireCoord;
 use prjcombine_interconnect::dir::DirV;
 use prjcombine_re_collector::{bitdata::CollectorData, collect::Collector};
@@ -701,22 +702,31 @@ fn run(tc: &Toolchain, db: &GeomDb, part: &Device, data: &mut CollectorData, opt
                 ExpandedDevice::Spartan6(_) => {
                     ctx.insert_devdata_bitvec(prjcombine_spartan6::defs::devdata::IDCODE, idcode);
                 }
-                _ => {
-                    ctx.insert_device_data_legacy(format!("IDCODE:{die}"), idcode);
+                ExpandedDevice::Virtex4(_) => {
+                    ctx.insert_devdata_bitvec(
+                        [
+                            prjcombine_virtex4::defs::devdata::IDCODE0,
+                            prjcombine_virtex4::defs::devdata::IDCODE1,
+                            prjcombine_virtex4::defs::devdata::IDCODE2,
+                            prjcombine_virtex4::defs::devdata::IDCODE3,
+                        ][die.to_idx()],
+                        idcode,
+                    );
                 }
+                _ => unreachable!(),
             }
         }
     }
     for (&dir, gtzbs) in &ctx.empty_bs.gtz {
         let which = match dir {
-            DirV::S => "GTZ_BOT",
-            DirV::N => "GTZ_TOP",
+            DirV::S => prjcombine_virtex4::defs::devdata::IDCODE_GTZ_S,
+            DirV::N => prjcombine_virtex4::defs::devdata::IDCODE_GTZ_N,
         };
         let mut idcode = BitVec::new();
         for i in 0..32 {
             idcode.push((gtzbs.idcode & 1 << i) != 0);
         }
-        ctx.insert_device_data_legacy(format!("IDCODE:{which}"), idcode);
+        ctx.insert_devdata_bitvec(which, idcode);
     }
 
     for (key, data) in diffs {

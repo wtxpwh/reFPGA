@@ -1,7 +1,8 @@
 use prjcombine_entity::{EntityId, EntityPartVec, EntityVec};
 use prjcombine_interconnect::{
-    dir::{Dir, DirH, DirPartMap},
-    grid::{CellCoord, RowId},
+    db::CellSlotId,
+    dir::DirH,
+    grid::{CellCoord, DieIdExt},
 };
 use prjcombine_re_xilinx_naming::{
     db::NamingDb,
@@ -10,13 +11,13 @@ use prjcombine_re_xilinx_naming::{
 use prjcombine_virtex4::{
     chip::{ColumnKind, GtKind, XadcIoLoc},
     defs::{
-        bslots,
+        bslots, tslots,
         virtex7::{ccls, tcls},
     },
     expanded::ExpandedDevice,
 };
 
-use crate::{ExpandedNamedDevice, ExpandedNamedGtz};
+use crate::ExpandedNamedDevice;
 
 fn make_int_tie_grid(
     edev: &ExpandedDevice,
@@ -24,7 +25,7 @@ fn make_int_tie_grid(
 ) -> (BelMultiGrid, BelMultiGrid) {
     let mut int_grid = ngrid.bel_multi_grid(|tcid, _, _| tcid == tcls::INT);
     let mut tie_grid = int_grid.clone();
-    if edev.interposer.unwrap().gtz_bot {
+    if edev.interposer.unwrap().gtz_s {
         for die in int_grid.ylut.values_mut() {
             for y in die.values_mut() {
                 *y += 1;
@@ -81,7 +82,7 @@ fn make_raw_grid(edev: &ExpandedDevice) -> BelMultiGrid {
 
     let mut ylut: EntityVec<_, _> = edev.die.ids().map(|_| EntityPartVec::new()).collect();
     let mut ry = 0;
-    if edev.interposer.unwrap().gtz_bot {
+    if edev.interposer.unwrap().gtz_s {
         ry += 2;
     }
     for (die, dylut) in &mut ylut {
@@ -128,7 +129,7 @@ fn make_ipad_grid(edev: &ExpandedDevice) -> BelMultiGrid {
             }
         }
         if kind == ColumnKind::Clk
-            && (edev.interposer.unwrap().gtz_bot || edev.interposer.unwrap().gtz_top)
+            && (edev.interposer.unwrap().gtz_s || edev.interposer.unwrap().gtz_n)
         {
             xlut.insert(col, ipx);
             ipx += 1;
@@ -137,7 +138,7 @@ fn make_ipad_grid(edev: &ExpandedDevice) -> BelMultiGrid {
 
     let mut ylut: EntityVec<_, _> = edev.die.ids().map(|_| EntityPartVec::new()).collect();
     let mut ipy = 0;
-    if edev.interposer.unwrap().gtz_bot {
+    if edev.interposer.unwrap().gtz_s {
         ipy += 6;
     }
     for (die, dylut) in &mut ylut {
@@ -182,7 +183,7 @@ fn make_opad_grid(edev: &ExpandedDevice) -> BelMultiGrid {
             }
         }
         if kind == ColumnKind::Clk
-            && (edev.interposer.unwrap().gtz_bot || edev.interposer.unwrap().gtz_top)
+            && (edev.interposer.unwrap().gtz_s || edev.interposer.unwrap().gtz_n)
         {
             xlut.insert(col, opx);
             opx += 1;
@@ -191,7 +192,7 @@ fn make_opad_grid(edev: &ExpandedDevice) -> BelMultiGrid {
 
     let mut ylut: EntityVec<_, _> = edev.die.ids().map(|_| EntityPartVec::new()).collect();
     let mut opy = 0;
-    if edev.interposer.unwrap().gtz_bot {
+    if edev.interposer.unwrap().gtz_s {
         opy += 2;
     }
     for (die, dylut) in &mut ylut {
@@ -265,98 +266,14 @@ pub fn name_device<'a>(edev: &'a ExpandedDevice<'a>, ndb: &'a NamingDb) -> Expan
             }
         }
     }
-    let mut gtz = DirPartMap::default();
-    for (dir, egt) in &edev.gtz {
-        let gtzx = 0;
-        let (gtzy, ipy, opy) = if dir == Dir::N && edev.gtz.contains_key(Dir::S) {
-            (1, 20, 16)
-        } else {
-            (0, 0, 0)
-        };
-        gtz.insert(
-            dir,
-            ExpandedNamedGtz {
-                int_tiles: egt.cols.map_values(|&col| {
-                    let lr = match edev.col_side(col) {
-                        DirH::W => 'L',
-                        DirH::E => 'R',
-                    };
-                    let x = int_grid.xlut[col];
-                    let y = if dir == Dir::S {
-                        int_grid.ylut[egt.die][RowId::from_idx(0)] - 1
-                    } else {
-                        int_grid.ylut[egt.die][RowId::from_idx(edev.chips[egt.die].regs * 50 - 1)]
-                            + 1
-                    };
-                    let tkn = if dir == Dir::S {
-                        format!("GTZ_INT_{lr}B")
-                    } else {
-                        format!("GTZ_INT_{lr}")
-                    };
-                    format!("{tkn}_X{x}Y{y}")
-                }),
-                clk_tile: {
-                    let tkn = if dir == Dir::S {
-                        "GTZ_CLK_B"
-                    } else {
-                        "GTZ_CLK"
-                    };
-                    let x = raw_grid.xlut[edev.col_clk] + 2;
-                    let y = if dir == Dir::S {
-                        0
-                    } else {
-                        raw_grid.ylut[egt.die][RowId::from_idx(edev.chips[egt.die].regs * 50 - 1)]
-                            + 3
-                    };
-                    format!("{tkn}_X{x}Y{y}")
-                },
-                tile: {
-                    let tkn = if dir == Dir::S { "GTZ_BOT" } else { "GTZ_TOP" };
-                    let x = raw_grid.xlut[*edev.gtz[Dir::N].cols.last().unwrap() + 1];
-                    let y = if dir == Dir::S {
-                        0
-                    } else {
-                        raw_grid.ylut[egt.die][RowId::from_idx(edev.chips[egt.die].regs * 50 - 1)]
-                            + 3
-                    };
-                    format!("{tkn}_X{x}Y{y}")
-                },
-                bel: format!("GTZE2_OCTAL_X{gtzx}Y{gtzy}"),
-                pads_clk: (0..2)
-                    .map(|i| {
-                        (
-                            format!("IPAD_X2Y{}", ipy + 1 + 2 * i),
-                            format!("IPAD_X2Y{}", ipy + 2 * i),
-                        )
-                    })
-                    .collect(),
-                pads_rx: (0..8)
-                    .map(|i| {
-                        (
-                            format!("IPAD_X2Y{}", ipy + 5 + 2 * i),
-                            format!("IPAD_X2Y{}", ipy + 4 + 2 * i),
-                        )
-                    })
-                    .collect(),
-                pads_tx: (0..8)
-                    .map(|i| {
-                        (
-                            format!("OPAD_X1Y{}", opy + 1 + 2 * i),
-                            format!("OPAD_X1Y{}", opy + 2 * i),
-                        )
-                    })
-                    .collect(),
-            },
-        );
-    }
     for (tcrd, tile) in edev.tiles() {
         let cell = tcrd.cell;
         let CellCoord { col, row, die } = cell;
         let chip = edev.chips[die];
         let has_slr_d = die != edev.chips.first_id().unwrap();
         let has_slr_u = die != edev.chips.last_id().unwrap();
-        let has_gtz_d = die == edev.chips.first_id().unwrap() && edev.interposer.unwrap().gtz_bot;
-        let has_gtz_u = die == edev.chips.last_id().unwrap() && edev.interposer.unwrap().gtz_top;
+        let has_gtz_d = die == edev.chips.first_id().unwrap() && edev.interposer.unwrap().gtz_s;
+        let has_gtz_u = die == edev.chips.last_id().unwrap() && edev.interposer.unwrap().gtz_n;
 
         let reg = chip.row_to_reg(row);
         let kind = edev.db.tile_classes.key(tile.class);
@@ -433,6 +350,7 @@ pub fn name_device<'a>(edev: &'a ExpandedDevice<'a>, ndb: &'a NamingDb) -> Expan
                                 GtKind::Gtp => "GTP",
                                 GtKind::Gtx => "GTX",
                                 GtKind::Gth => "GTH",
+                                _ => unreachable!(),
                             };
                             if col.to_idx() == 0 {
                                 ngrid.name_tile(
@@ -932,7 +850,7 @@ pub fn name_device<'a>(edev: &'a ExpandedDevice<'a>, ndb: &'a NamingDb) -> Expan
                 let ntile = ngrid.name_tile(tcrd, kind, [name]);
                 let ctb_y =
                     tie_grid.ylut[die][row] / 50 * 48 + if row.to_idx() % 50 < 25 { 0 } else { 32 };
-                let bglb_y = if edev.interposer.unwrap().gtz_bot && reg.to_idx() != 0 {
+                let bglb_y = if edev.interposer.unwrap().gtz_s && reg.to_idx() != 0 {
                     16
                 } else {
                     0
@@ -1220,6 +1138,7 @@ pub fn name_device<'a>(edev: &'a ExpandedDevice<'a>, ndb: &'a NamingDb) -> Expan
                     GtKind::Gtp => (bslots::GTP_CHANNEL, "GTP"),
                     GtKind::Gtx => (bslots::GTX_CHANNEL, "GTX"),
                     GtKind::Gth => (bslots::GTX_CHANNEL, "GTH"),
+                    _ => unreachable!(),
                 };
                 let rx = if gtcol.is_middle {
                     if col < edev.col_clk {
@@ -1269,6 +1188,7 @@ pub fn name_device<'a>(edev: &'a ExpandedDevice<'a>, ndb: &'a NamingDb) -> Expan
                     GtKind::Gtp => (bslots::GTP_COMMON, "GTP"),
                     GtKind::Gtx => (bslots::GTX_COMMON, "GTX"),
                     GtKind::Gth => (bslots::GTX_COMMON, "GTH"),
+                    _ => unreachable!(),
                 };
                 let rx = if gtcol.is_middle {
                     if col < edev.col_clk {
@@ -1354,6 +1274,93 @@ pub fn name_device<'a>(edev: &'a ExpandedDevice<'a>, ndb: &'a NamingDb) -> Expan
                     ],
                 );
             }
+            tcls::GTZ_S | tcls::GTZ_N => {
+                let gtzx = 0;
+                let (gtzy, ipy, opy) =
+                    if tile.class == tcls::GTZ_N && edev.interposer.as_ref().unwrap().gtz_s {
+                        (1, 20, 16)
+                    } else {
+                        (0, 0, 0)
+                    };
+                let mut names = vec![
+                    {
+                        let tkn = if tile.class == tcls::GTZ_S {
+                            "GTZ_BOT"
+                        } else {
+                            "GTZ_TOP"
+                        };
+                        let die_n = edev.chips.last_id().unwrap();
+                        let tcrd_n = die_n
+                            .cell(edev.col_clk, edev.rows(die_n).last().unwrap())
+                            .tile(tslots::GTZ);
+                        let lcol = edev[tcrd_n].cells.last().unwrap().col;
+                        let x = raw_grid.xlut[lcol + 1];
+                        let y = if tile.class == tcls::GTZ_S {
+                            0
+                        } else {
+                            raw_grid.ylut[tcrd.die][tcrd.row] + 3
+                        };
+                        format!("{tkn}_X{x}Y{y}")
+                    },
+                    {
+                        let tkn = if tile.class == tcls::GTZ_S {
+                            "GTZ_CLK_B"
+                        } else {
+                            "GTZ_CLK"
+                        };
+                        let x = raw_grid.xlut[edev.col_clk] + 2;
+                        let y = if tile.class == tcls::GTZ_S {
+                            0
+                        } else {
+                            raw_grid.ylut[tcrd.die][tcrd.row] + 3
+                        };
+                        format!("{tkn}_X{x}Y{y}")
+                    },
+                ];
+                for i in 0..86 {
+                    let col = edev[tcrd].cells[CellSlotId::from_idx(1 + i * 49)].col;
+                    let lr = match edev.col_side(col) {
+                        DirH::W => 'L',
+                        DirH::E => 'R',
+                    };
+                    let x = int_grid.xlut[col];
+                    let y = if tile.class == tcls::GTZ_S {
+                        int_grid.ylut[tcrd.die][tcrd.row] - 1
+                    } else {
+                        int_grid.ylut[tcrd.die][tcrd.row] + 1
+                    };
+                    let tkn = if tile.class == tcls::GTZ_S {
+                        format!("GTZ_INT_{lr}B")
+                    } else {
+                        format!("GTZ_INT_{lr}")
+                    };
+                    names.push(format!("{tkn}_X{x}Y{y}"));
+                }
+                let ntile = ngrid.name_tile(tcrd, kind, names);
+                let mut bel_names = vec![format!("GTZE2_OCTAL_X{gtzx}Y{gtzy}")];
+                // pads clk
+                for i in 0..2 {
+                    bel_names.extend([
+                        format!("IPAD_X2Y{}", ipy + 1 + 2 * i),
+                        format!("IPAD_X2Y{}", ipy + 2 * i),
+                    ]);
+                }
+                // pads rx
+                for i in 0..8 {
+                    bel_names.extend([
+                        format!("IPAD_X2Y{}", ipy + 5 + 2 * i),
+                        format!("IPAD_X2Y{}", ipy + 4 + 2 * i),
+                    ]);
+                }
+                // pads tx
+                for i in 0..8 {
+                    bel_names.extend([
+                        format!("OPAD_X1Y{}", opy + 1 + 2 * i),
+                        format!("OPAD_X1Y{}", opy + 2 * i),
+                    ]);
+                }
+                ntile.add_bel_multi(bslots::GTZ_OCTAL, bel_names);
+            }
             tcls::GLOBAL => (),
             _ => panic!("how to {kind}"),
         }
@@ -1378,5 +1385,5 @@ pub fn name_device<'a>(edev: &'a ExpandedDevice<'a>, ndb: &'a NamingDb) -> Expan
         }
     }
 
-    ExpandedNamedDevice { edev, ngrid, gtz }
+    ExpandedNamedDevice { edev, ngrid }
 }

@@ -13,7 +13,7 @@ use prjcombine_virtex4::{
 };
 
 use crate::db::{PreDevice, make_device_multi};
-use prjcombine_re_xilinx_rd2db_virtex7::{bond, grid, gtz, int};
+use prjcombine_re_xilinx_rd2db_virtex7::{bond, grid, int};
 use prjcombine_re_xilinx_rdverify_virtex7::verify_device;
 
 fn adjust_vivado(edev: &mut ExpandedDevice) {
@@ -41,9 +41,8 @@ fn adjust_vivado(edev: &mut ExpandedDevice) {
 pub fn ingest(rd: &Part, verify: bool) -> PreDevice {
     let (grids, interposer, disabled) = grid::make_grids(rd);
     let (intdb, ndb) = int::make_int_db(rd);
-    let gdb = gtz::extract_gtz(rd);
     let grid_refs = grids.map_values(|x| x);
-    let mut edev = expand_grid(&grid_refs, Some(&interposer), &disabled, &intdb, &gdb);
+    let mut edev = expand_grid(&grid_refs, Some(&interposer), &disabled, &intdb);
     if rd.source == Source::Vivado {
         adjust_vivado(&mut edev);
     }
@@ -62,7 +61,6 @@ pub fn ingest(rd: &Part, verify: bool) -> PreDevice {
         rd,
         grids,
         Interposer::Virtex4(interposer),
-        gdb,
         bonds,
         disabled,
         DeviceNaming::Dummy,

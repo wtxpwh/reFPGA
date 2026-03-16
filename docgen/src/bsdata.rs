@@ -12,6 +12,7 @@ use crate::DocgenContext;
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub enum FrameDirection {
     Horizontal,
+    #[allow(unused)]
     Vertical,
 }
 

@@ -6,7 +6,7 @@ use prjcombine_interconnect::db::{
 };
 use prjcombine_re_collector::{collect::Collector, diff::xlat_bit_bi};
 use prjcombine_re_xilinx_geom::{Device, ExpandedDevice, GeomDb};
-use prjcombine_types::bsdata::{BitRectId, DbValue, PolTileBit};
+use prjcombine_types::bsdata::{BitRectId, PolTileBit};
 use prjcombine_xilinx_bitstream::Bitstream;
 
 pub struct CollectorCtx<'a, 'b>
@@ -35,13 +35,6 @@ impl DerefMut for CollectorCtx<'_, '_> {
 }
 
 impl<'a, 'b: 'a> CollectorCtx<'a, 'b> {
-    pub fn insert_device_data_legacy(&mut self, key: impl Into<String>, val: impl Into<DbValue>) {
-        self.collector
-            .data
-            .bsdata
-            .insert_device_data(&self.device.name, key, val);
-    }
-
     pub fn has_tcls(&self, tcid: TileClassId) -> bool {
         !self.edev.tile_index[tcid].is_empty()
     }

@@ -2,7 +2,9 @@ use assert_matches::assert_matches;
 use prjcombine_entity::{EntityId, EntityPartVec, EntityVec};
 use prjcombine_interconnect::db::{IntDb, TileClassId};
 use prjcombine_interconnect::grid::builder::GridBuilder;
-use prjcombine_interconnect::grid::{CellCoord, ColId, DieId, DieIdExt, Rect, RowId, TileIobId};
+use prjcombine_interconnect::grid::{
+    BelCoord, CellCoord, ColId, DieId, DieIdExt, Rect, RowId, TileIobId,
+};
 use prjcombine_xilinx_bitstream::{
     BitstreamGeom, DeviceKind, DieBitstreamGeom, FrameAddr, FrameInfo, FrameMaskMode,
 };
@@ -11,9 +13,8 @@ use std::collections::BTreeSet;
 use crate::bond::SharedCfgPad;
 use crate::chip::{Chip, ColumnKind, DisabledPart, GtKind};
 
-use crate::defs::tslots;
+use crate::defs::{bslots, tslots};
 use crate::expanded::{DieFrameGeom, ExpandedDevice, IoCoord};
-use crate::gtz::GtzDb;
 use crate::{
     defs,
     defs::virtex5::{ccls, rslots, tcls},
@@ -29,7 +30,7 @@ struct Expander<'a, 'b> {
     frames: DieFrameGeom,
     col_cfg: ColId,
     io: Vec<IoCoord>,
-    gt: Vec<CellCoord>,
+    gt: Vec<BelCoord>,
 }
 
 impl Expander<'_, '_> {
@@ -397,13 +398,13 @@ impl Expander<'_, '_> {
                     continue;
                 }
                 let reg = self.chip.row_to_reg(cell.row);
-                let tcid = match gtc.regs[reg] {
-                    Some(GtKind::Gtp) => tcls::GTP,
-                    Some(GtKind::Gtx) => tcls::GTX,
+                let (tcid, bslot) = match gtc.regs[reg] {
+                    Some(GtKind::Gtp) => (tcls::GTP, bslots::GTP_DUAL),
+                    Some(GtKind::Gtx) => (tcls::GTX, bslots::GTX_DUAL),
                     _ => continue,
                 };
                 self.egrid.add_tile_n_id(cell, tcid, 20);
-                self.gt.push(cell);
+                self.gt.push(cell.bel(bslot));
             }
         }
     }
@@ -654,7 +655,6 @@ pub fn expand_grid<'a>(
     chips: &EntityVec<DieId, &'a Chip>,
     disabled: &BTreeSet<DisabledPart>,
     db: &'a IntDb,
-    gdb: &'a GtzDb,
 ) -> ExpandedDevice<'a> {
     let mut egrid = GridBuilder::new(db);
     assert_eq!(chips.len(), 1);
@@ -824,7 +824,6 @@ pub fn expand_grid<'a>(
         interposer: None,
         disabled: disabled.clone(),
         egrid,
-        gdb,
         int_holes,
         site_holes,
         bs_geom,
@@ -842,7 +841,6 @@ pub fn expand_grid<'a>(
         row_iobdcm: None,
         io,
         gt,
-        gtz: Default::default(),
         cfg_io,
         banklut: EntityVec::new(),
     }

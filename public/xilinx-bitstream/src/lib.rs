@@ -373,7 +373,8 @@ pub enum BitRect {
     Bram(DieId, usize),
     // Spartan 6 horrible; bit, width
     Iob(DieId, usize, usize),
-    Gtz(DirV),
+    // start word, num words
+    Gtz(DirV, usize, usize),
 }
 
 impl prjcombine_types::bitrect::BitRect for BitRect {
@@ -437,7 +438,11 @@ impl prjcombine_types::bitrect::BitRect for BitRect {
             {
                 (0, bbit - bit)
             }
-            (BitRect::Gtz(dir), BitPos::Gtz(bdir, frame, bit)) if dir == bdir => (frame, bit),
+            (BitRect::Gtz(dir, start, len), BitPos::Gtz(bdir, frame, bit))
+                if dir == bdir && frame >= start && frame < start + len =>
+            {
+                (frame - start, bit)
+            }
             _ => return None,
         };
         Some((RectFrameId::from_idx(rframe), RectBitId::from_idx(rbit)))
@@ -492,7 +497,10 @@ impl prjcombine_types::bitrect::BitRect for BitRect {
                 assert!(rbit < height);
                 BitPos::Iob(die, bit + rbit)
             }
-            BitRect::Gtz(dir) => BitPos::Gtz(dir, rframe, rbit),
+            BitRect::Gtz(dir, start, len) => {
+                assert!(rframe < len);
+                BitPos::Gtz(dir, start + rframe, rbit)
+            }
         }
     }
 }

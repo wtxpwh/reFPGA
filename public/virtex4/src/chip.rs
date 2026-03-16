@@ -110,6 +110,7 @@ pub enum GtKind {
     Gtp,
     Gtx,
     Gth,
+    Gtz,
 }
 
 impl std::fmt::Display for GtKind {
@@ -118,6 +119,7 @@ impl std::fmt::Display for GtKind {
             GtKind::Gtp => write!(f, "gtp"),
             GtKind::Gtx => write!(f, "gtx"),
             GtKind::Gth => write!(f, "gth"),
+            GtKind::Gtz => write!(f, "gtz"),
         }
     }
 }
@@ -186,8 +188,8 @@ impl std::fmt::Display for DisabledPart {
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Encode, Decode)]
 pub struct Interposer {
     pub primary: DieId,
-    pub gtz_bot: bool,
-    pub gtz_top: bool,
+    pub gtz_s: bool,
+    pub gtz_n: bool,
 }
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Encode, Decode)]
@@ -422,11 +424,11 @@ impl Chip {
 impl Interposer {
     pub fn dump(&self, o: &mut dyn std::io::Write) -> std::io::Result<()> {
         writeln!(o, "\tprimary {};", self.primary)?;
-        if self.gtz_bot {
-            writeln!(o, "\tgtz_bot;")?;
+        if self.gtz_s {
+            writeln!(o, "\tgtz_s;")?;
         }
-        if self.gtz_top {
-            writeln!(o, "\tgtz_top;")?;
+        if self.gtz_n {
+            writeln!(o, "\tgtz_n;")?;
         }
         Ok(())
     }

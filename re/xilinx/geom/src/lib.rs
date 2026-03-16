@@ -7,7 +7,6 @@ use prjcombine_re_xilinx_naming::db::NamingDb;
 use prjcombine_re_xilinx_naming::grid::ExpandedGridNaming;
 use prjcombine_types::bsdata::BitRectId;
 use prjcombine_types::db::{BondId, ChipId, DevBondId, DevSpeedId, InterposerId};
-use prjcombine_virtex4::gtz::GtzDb;
 use prjcombine_xilinx_bitstream::{BitRect, BitstreamGeom};
 use std::collections::{BTreeMap, BTreeSet};
 use std::error::Error;
@@ -168,7 +167,6 @@ pub struct GeomDb {
     pub devices: Vec<Device>,
     pub ints: BTreeMap<String, IntDb>,
     pub namings: BTreeMap<String, NamingDb>,
-    pub gtz: GtzDb,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Encode, Decode)]
@@ -348,7 +346,7 @@ impl GeomDb {
                     _ => unreachable!(),
                 });
                 ExpandedDevice::Virtex4(prjcombine_virtex4::expand_grid(
-                    &chips, interposer, &disabled, intdb, &self.gtz,
+                    &chips, interposer, &disabled, intdb,
                 ))
             }
             Chip::Ultrascale(chip) => {

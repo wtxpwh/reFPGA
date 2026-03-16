@@ -1,7 +1,9 @@
 use prjcombine_entity::{EntityId, EntityPartVec, EntityVec};
 use prjcombine_interconnect::db::IntDb;
 use prjcombine_interconnect::grid::builder::GridBuilder;
-use prjcombine_interconnect::grid::{CellCoord, ColId, DieId, DieIdExt, Rect, RowId, TileIobId};
+use prjcombine_interconnect::grid::{
+    BelCoord, CellCoord, ColId, DieId, DieIdExt, Rect, RowId, TileIobId,
+};
 use prjcombine_xilinx_bitstream::{
     BitstreamGeom, DeviceKind, DieBitstreamGeom, FrameAddr, FrameInfo, FrameMaskMode,
 };
@@ -9,8 +11,8 @@ use std::collections::{BTreeSet, HashSet};
 
 use crate::bond::SharedCfgPad;
 use crate::chip::{Chip, ColumnKind, DisabledPart, GtKind};
+use crate::defs::bslots;
 use crate::expanded::{DieFrameGeom, ExpandedDevice, IoCoord};
-use crate::gtz::GtzDb;
 use crate::{
     defs,
     defs::virtex6::{ccls, rslots, tcls},
@@ -34,7 +36,7 @@ struct Expander<'a, 'b> {
     col_gt_w: Option<ColId>,
     col_gt_e: Option<ColId>,
     io: Vec<IoCoord>,
-    gt: Vec<CellCoord>,
+    gt: Vec<BelCoord>,
 }
 
 impl Expander<'_, '_> {
@@ -396,7 +398,11 @@ impl Expander<'_, '_> {
                     }
                     _ => unreachable!(),
                 }
-                self.gt.push(cell);
+                self.gt.push(cell.bel(match kind {
+                    GtKind::Gtx => bslots::HCLK_GTX,
+                    GtKind::Gth => bslots::GTH_QUAD,
+                    _ => unreachable!(),
+                }));
             }
         }
     }
@@ -555,7 +561,6 @@ pub fn expand_grid<'a>(
     chips: &EntityVec<DieId, &'a Chip>,
     disabled: &BTreeSet<DisabledPart>,
     db: &'a IntDb,
-    gdb: &'a GtzDb,
 ) -> ExpandedDevice<'a> {
     let mut egrid = GridBuilder::new(db);
     assert_eq!(chips.len(), 1);
@@ -755,7 +760,6 @@ pub fn expand_grid<'a>(
         int_holes,
         site_holes,
         egrid,
-        gdb,
         bs_geom,
         frames: [frames].into_iter().collect(),
         col_cfg,
@@ -771,7 +775,6 @@ pub fn expand_grid<'a>(
         row_iobdcm: None,
         io,
         gt,
-        gtz: Default::default(),
         cfg_io,
         banklut: EntityVec::new(),
     }
