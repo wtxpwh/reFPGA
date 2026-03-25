@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use prjcombine_entity::EntityVec;
 use prjcombine_interconnect::{
-    db::{BelInfo, PolTileWireCoord, SwitchBoxItem, TileWireCoord},
+    db::{BelInfo, PolTileWireCoord, SwitchBoxItem, TileWireCoord, WireSlotIdExt},
     grid::{BelCoord, TileCoord, WireCoord},
 };
 use prjcombine_re_collector::diff::{Diff, DiffKey, OcdMode, xlat_bit, xlat_enum_raw};
@@ -115,7 +115,10 @@ fn drive_wire<'a>(
         let tcrd = cell.tile(tslots::MAIN);
         let nwt = backend
             .edev
-            .resolve_tile_wire(tcrd, TileWireCoord::new_idx(0, wires::IMUX_GIN))
+            .resolve_tile_wire(tcrd, {
+                let wire = wires::IMUX_GIN;
+                wire.cell(0)
+            })
             .unwrap();
         let (fuzzer, block, pin) = drive_wire(backend, fuzzer, nwt, wire_avoid);
         let fuzzer = fuzzer.base(Key::WireMutex(wire_target), nwt);
@@ -136,26 +139,50 @@ fn drive_wire<'a>(
     } else if wire_target.slot == wires::IMUX_GIN {
         (
             cell.tile(tslots::MAIN),
-            TileWireCoord::new_idx(0, wire_target.slot),
-            TileWireCoord::new_idx(0, wires::TIE_0),
+            {
+                let wire = wire_target.slot;
+                wire.cell(0)
+            },
+            {
+                let wire = wires::TIE_0;
+                wire.cell(0)
+            },
         )
     } else if let Some(idx) = wires::IO_M_BUF.index_of(wire_target.slot) {
         (
             cell.tile(tslots::MAIN),
-            TileWireCoord::new_idx(0, wire_target.slot),
-            TileWireCoord::new_idx(0, wires::IO_M[idx]),
+            {
+                let wire = wire_target.slot;
+                wire.cell(0)
+            },
+            {
+                let wire = wires::IO_M[idx];
+                wire.cell(0)
+            },
         )
     } else if let Some(idx) = wires::CLB_M_BUF.index_of(wire_target.slot) {
         (
             cell.tile(tslots::MAIN),
-            TileWireCoord::new_idx(0, wire_target.slot),
-            TileWireCoord::new_idx(0, wires::CLB_M[idx]),
+            {
+                let wire = wire_target.slot;
+                wire.cell(0)
+            },
+            {
+                let wire = wires::CLB_M[idx];
+                wire.cell(0)
+            },
         )
     } else if let Some(idx) = wires::OMUX_BUF.index_of(wire_target.slot) {
         (
             cell.tile(tslots::MAIN),
-            TileWireCoord::new_idx(0, wire_target.slot),
-            TileWireCoord::new_idx(0, wires::OMUX[idx]),
+            {
+                let wire = wire_target.slot;
+                wire.cell(0)
+            },
+            {
+                let wire = wires::OMUX[idx];
+                wire.cell(0)
+            },
         )
     } else if wires::OMUX.contains(wire_target.slot) {
         let nwt = if cell.col == grid.col_w()
@@ -169,8 +196,11 @@ fn drive_wire<'a>(
         };
         (
             cell.tile(tslots::MAIN),
-            TileWireCoord::new_idx(0, wire_target.slot),
-            TileWireCoord::new_idx(0, nwt),
+            {
+                let wire = wire_target.slot;
+                wire.cell(0)
+            },
+            nwt.cell(0),
         )
     } else if wires::LONG_H.contains(wire_target.slot) || wires::LONG_V.contains(wire_target.slot) {
         if wires::LONG_H.contains(wire_target.slot) {
@@ -191,19 +221,35 @@ fn drive_wire<'a>(
             .unwrap_or_else(|| wires::LONG_V.index_of(wire_target.slot).unwrap());
         (
             cell.tile(tslots::MAIN),
-            TileWireCoord::new_idx(0, wire_target.slot),
-            TileWireCoord::new_idx(0, wires::OUT_TBUF[idx % 4]),
+            {
+                let wire = wire_target.slot;
+                wire.cell(0)
+            },
+            {
+                let wire = wires::OUT_TBUF[idx % 4];
+                wire.cell(0)
+            },
         )
     } else if wires::CLB_M.contains(wire_target.slot) || wires::IO_M.contains(wire_target.slot) {
         let tcrd = cell.tile(tslots::MAIN);
         let tile = &backend.edev[tcrd];
         let tcls_index = &backend.edev.db_index[tile.class];
         'a: {
-            for &inp in &tcls_index.pips_bwd[&TileWireCoord::new_idx(0, wire_target.slot)] {
+            for &inp in &tcls_index.pips_bwd[&{
+                let wire = wire_target.slot;
+                wire.cell(0)
+            }] {
                 if backend.edev.db.wires.key(inp.wire).starts_with("LONG")
                     || backend.edev.db.wires.key(inp.wire).starts_with("GCLK")
                 {
-                    break 'a (tcrd, TileWireCoord::new_idx(0, wire_target.slot), inp.tw);
+                    break 'a (
+                        tcrd,
+                        {
+                            let wire = wire_target.slot;
+                            wire.cell(0)
+                        },
+                        inp.tw,
+                    );
                 }
             }
             panic!("ummm no long?")
@@ -214,14 +260,24 @@ fn drive_wire<'a>(
                 let tcrd = w.cell.tile(tslots::MAIN);
                 let tile = &backend.edev[tcrd];
                 let tcls_index = &backend.edev.db_index[tile.class];
-                if let Some(ins) = tcls_index.pips_bwd.get(&TileWireCoord::new_idx(0, w.slot)) {
+                if let Some(ins) = tcls_index.pips_bwd.get(&{
+                    let wire = w.slot;
+                    wire.cell(0)
+                }) {
                     for &inp in ins {
                         if backend.edev.db.wires.key(inp.wire).starts_with("CLB_M")
                             || backend.edev.db.wires.key(inp.wire).starts_with("IO_M")
                         {
                             let rwf = backend.edev.resolve_tile_wire(tcrd, inp.tw).unwrap();
                             if rwf != wire_avoid {
-                                break 'a (tcrd, TileWireCoord::new_idx(0, w.slot), inp.tw);
+                                break 'a (
+                                    tcrd,
+                                    {
+                                        let wire = w.slot;
+                                        wire.cell(0)
+                                    },
+                                    inp.tw,
+                                );
                             }
                         }
                     }

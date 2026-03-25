@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use prjcombine_entity::{EntityBundleItemIndex, EntityId};
 use prjcombine_interconnect::{
-    db::{BelInfo, SwitchBoxItem, TileWireCoord},
+    db::{BelInfo, SwitchBoxItem, WireSlotIdExt},
     grid::BelCoord,
 };
 use prjcombine_re_xilinx_naming::db::RawTileId;
@@ -94,18 +94,7 @@ fn verify_bram(endev: &ExpandedNamedDevice<'_>, vrf: &mut Verifier, bcrd: BelCoo
         ChipKind::Spartan3ADsp => "RAMB16BWER",
         _ => "RAMB16",
     };
-    let mut bel = vrf.verify_bel(bcrd).kind(kind);
-    if endev.chip.kind != ChipKind::Spartan3ADsp {
-        bel = bel
-            .rename_in(bcls::BRAM::RSTA, "SSRA")
-            .rename_in(bcls::BRAM::RSTB, "SSRB");
-    }
-    if !endev.chip.kind.is_spartan3a() {
-        bel = bel
-            .rename_in(bcls::BRAM::WEA[0], "WEA")
-            .rename_in(bcls::BRAM::WEB[0], "WEB");
-    }
-    bel.commit();
+    vrf.verify_bel(bcrd).kind(kind).commit();
 }
 
 fn verify_mult(endev: &ExpandedNamedDevice<'_>, vrf: &mut Verifier, bcrd: BelCoord) {
@@ -136,10 +125,7 @@ fn verify_mult(endev: &ExpandedNamedDevice<'_>, vrf: &mut Verifier, bcrd: BelCoo
         }
         bel.kind("MULT18X18SIO").commit();
     } else {
-        bel.rename_in(bcls::MULT::CEP, "CE")
-            .rename_in(bcls::MULT::RSTP, "RST")
-            .kind("MULT18X18")
-            .commit();
+        bel.kind("MULT18X18").commit();
     }
 }
 
@@ -423,11 +409,10 @@ pub fn verify_device(endev: &ExpandedNamedDevice, rd: &Part) {
             defs::virtex2::wires::IMUX_TS[0],
             defs::virtex2::wires::IMUX_TS[1],
         ] {
-            vrf.inject_tcls_pip(
-                defs::virtex2::tcls::INT_GT_CLKPAD,
-                TileWireCoord::new_idx(0, wt),
-                TileWireCoord::new_idx(0, defs::virtex2::wires::PULLUP),
-            );
+            vrf.inject_tcls_pip(defs::virtex2::tcls::INT_GT_CLKPAD, wt.cell(0), {
+                let wire = defs::virtex2::wires::PULLUP;
+                wire.cell(0).pos()
+            });
         }
     } else {
         for i in 0..8 {
@@ -549,8 +534,14 @@ pub fn verify_device(endev: &ExpandedNamedDevice, rd: &Part) {
                 for c in [3, 4] {
                     vrf.inject_tcls_pip(
                         tcid,
-                        TileWireCoord::new_idx(c, wires_s3::IMUX_DATA[3 + i * 4]),
-                        TileWireCoord::new_idx(4, wires_s3::PULLUP),
+                        {
+                            let wire = wires_s3::IMUX_DATA[3 + i * 4];
+                            wire.cell(c)
+                        },
+                        {
+                            let wire = wires_s3::PULLUP;
+                            wire.cell(4).pos()
+                        },
                     );
                 }
             }
@@ -564,7 +555,7 @@ pub fn verify_device(endev: &ExpandedNamedDevice, rd: &Part) {
                     };
                     let dst = endev.edev.tile_wire(tcrd, buf.dst);
                     let src = endev.edev.tile_wire(tcrd, buf.src.tw);
-                    vrf.skip_tcls_pip(tcid, buf.dst, buf.src.tw);
+                    vrf.skip_tcls_pip(tcid, buf.dst, buf.src);
                     vrf.alias_wire(dst, src);
                 }
                 for i in 0..8 {
@@ -589,20 +580,43 @@ pub fn verify_device(endev: &ExpandedNamedDevice, rd: &Part) {
                 for i in 0..8 {
                     let wire_s = RawWireCoord {
                         crd,
-                        wire: &naming.wires[&TileWireCoord::new_idx(0, wires_s3::GCLK[i])].name,
+                        wire: &naming.wires[&{
+                            let wire = wires_s3::GCLK[i];
+                            wire.cell(0)
+                        }]
+                            .name,
                     };
                     let wire_n = RawWireCoord {
                         crd,
-                        wire: &naming.wires[&TileWireCoord::new_idx(1, wires_s3::GCLK[i])].name,
+                        wire: &naming.wires[&{
+                            let wire = wires_s3::GCLK[i];
+                            wire.cell(1)
+                        }]
+                            .name,
                     };
                     let wire_row = RawWireCoord {
                         crd,
-                        wire: &naming.wires[&TileWireCoord::new_idx(1, wires_s3::GCLK_QUAD[i])]
+                        wire: &naming.wires[&{
+                            let wire = wires_s3::GCLK_QUAD[i];
+                            wire.cell(1)
+                        }]
                             .name,
                     };
                     vrf.claim_pip(wire_s, wire_row);
                     vrf.merge_node(wire_s, wire_n);
                 }
+            }
+        }
+    }
+    if !endev.edev.chip.kind.is_virtex2() {
+        for tcid in [tcls_s3::INT_DCM, tcls_s3::INT_DCM_S3E_DUMMY] {
+            for (wt, wf) in [
+                (wires_s3::OUT_SEC[12], wires_s3::IMUX_CLK_OPTINV[3]),
+                (wires_s3::OUT_SEC[13], wires_s3::IMUX_CLK_OPTINV[2]),
+                (wires_s3::OUT_SEC[14], wires_s3::IMUX_CLK_OPTINV[1]),
+            ] {
+                vrf.skip_tcls_pip(tcid, wt.cell(0), wf.cell(0).neg());
+                vrf.inject_tcls_pip(tcid, wt.cell(0), wf.cell(0).pos());
             }
         }
     }

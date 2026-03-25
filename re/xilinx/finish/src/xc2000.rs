@@ -5,7 +5,7 @@ use std::{
 
 use itertools::Itertools;
 use prjcombine_entity::{EntityMap, EntitySet, EntityVec};
-use prjcombine_interconnect::db::{BelInfo, SwitchBoxItem, TileWireCoord};
+use prjcombine_interconnect::db::{BelInfo, SwitchBoxItem, WireSlotIdExt};
 use prjcombine_re_collector::bitdata::CollectorData;
 use prjcombine_types::db::DeviceCombo;
 use prjcombine_xc2000::{
@@ -258,7 +258,7 @@ pub fn finish(
             let (key_i, int_i) = geom.ints.into_iter().next().unwrap();
             assert_eq!(key_x, "xc5200");
             assert_eq!(key_i, "xc5200");
-            let key = TileWireCoord::new_idx(0, xc5200::wires::IMUX_BYPOSC_PUMP);
+            let key = xc5200::wires::IMUX_BYPOSC_PUMP.cell(0);
             let BelInfo::SwitchBox(ref src_cnr_tr) =
                 int_i.tile_classes[xc5200::tcls::CNR_NE].bels[xc5200::bslots::INT]
             else {

@@ -2,7 +2,7 @@ use std::collections::{BTreeMap, BTreeSet};
 
 use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
-    db::{BelInfo, IntDb, Mux, SwitchBoxItem, TileWireCoord},
+    db::{BelInfo, IntDb, Mux, SwitchBoxItem, WireSlotIdExt},
     dir::Dir,
     grid::{CellCoord, DieId, DieIdExt, EdgeIoCoord},
 };
@@ -646,7 +646,7 @@ pub fn dump_chip(die: &Die) -> (Chip, IntDb, NamingDb) {
                 continue;
             };
             let mut new_mux = Mux {
-                dst: TileWireCoord::new_idx(0, wires::IMUX_IO_O_SN[idx]),
+                dst: wires::IMUX_IO_O_SN[idx].cell(0),
                 bits: Default::default(),
                 src: BTreeMap::new(),
                 bits_off: None,

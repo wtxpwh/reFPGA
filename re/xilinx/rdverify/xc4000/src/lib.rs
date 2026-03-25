@@ -1,7 +1,7 @@
 use std::collections::BTreeSet;
 
 use prjcombine_interconnect::{
-    db::{BelInfo, SwitchBoxItem, TileWireCoord},
+    db::{BelInfo, SwitchBoxItem, WireSlotIdExt},
     dir::DirHV,
     grid::BelCoord,
 };
@@ -69,10 +69,7 @@ fn verify_iob(endev: &ExpandedNamedDevice, vrf: &mut Verifier, bcrd: BelCoord) {
     let BelInfo::Bel(ref bel_info) = tcls.bels[bcrd.slot] else {
         unreachable!()
     };
-    let mut bel = vrf
-        .verify_bel(bcrd)
-        .rename_in(bcls::IO::O1, "EC")
-        .rename_in(bcls::IO::O2, "O");
+    let mut bel = vrf.verify_bel(bcrd);
     if !bel_info.outputs.contains_id(bcls::IO::I1) {
         bel = bel.kind("FCLKIOB");
     } else if bel_info.outputs.contains_id(bcls::IO::CLKIN) {
@@ -98,7 +95,10 @@ fn verify_tbuf(endev: &ExpandedNamedDevice, vrf: &mut Verifier, bcrd: BelCoord) 
         let tcls_index = &endev.edev.db_index[endev.edev[tcrd].class];
         let naming = &endev.ngrid.db.tile_class_namings[bel.ntile.naming];
         let wire = endev.edev.get_bel_input(bcrd, bcls::TBUF::I).wire;
-        let ins = &tcls_index.pips_bwd[&TileWireCoord::new_idx(0, wire.slot)];
+        let ins = &tcls_index.pips_bwd[&{
+            let wire = wire.slot;
+            wire.cell(0)
+        }];
         for &inp in ins {
             if inp.wire == wires::TIE_0 {
                 continue;
@@ -168,7 +168,6 @@ fn verify_bufg(endev: &ExpandedNamedDevice, vrf: &mut Verifier, bcrd: BelCoord) 
             .kind("BUFGE")
             .skip_in(bcls::BUFG::I)
             .skip_out(bcls::BUFG::O)
-            .rename_out(bcls::BUFG::O_BUFGE, "O")
             .extra_in_rename("I", "I_BUFGE")
             .commit();
         vrf.verify_bel(bcrd)
@@ -313,21 +312,26 @@ pub fn verify_device(endev: &ExpandedNamedDevice, rd: &Part) {
                     let SwitchBoxItem::Mux(mux) = item else {
                         continue;
                     };
-                    for src in mux.src.keys() {
+                    for &src in mux.src.keys() {
                         let idx = wires::BUFGLS_H.index_of(src.wire).unwrap();
-                        vrf.skip_tcls_pip(tcid, mux.dst, src.tw);
-                        vrf.inject_tcls_pip(
-                            tcid,
-                            mux.dst,
-                            TileWireCoord::new_idx(0, wires::BUFGLS[idx]),
-                        );
+                        vrf.skip_tcls_pip(tcid, mux.dst, src);
+                        vrf.inject_tcls_pip(tcid, mux.dst, {
+                            let wire = wires::BUFGLS[idx];
+                            wire.cell(0).pos()
+                        });
                     }
                 }
                 for idx in 0..8 {
                     vrf.skip_tcls_pip(
                         tcid,
-                        TileWireCoord::new_idx(0, wires::BUFGLS_H[idx]),
-                        TileWireCoord::new_idx(0, wires::BUFGLS[idx]),
+                        {
+                            let wire = wires::BUFGLS_H[idx];
+                            wire.cell(0)
+                        },
+                        {
+                            let wire = wires::BUFGLS[idx];
+                            wire.cell(0).pos()
+                        },
                     );
                 }
             }
@@ -348,32 +352,44 @@ pub fn verify_device(endev: &ExpandedNamedDevice, rd: &Part) {
                     };
                     if buf.src.wire == wires::OBUF {
                         obuf_outs.insert(buf.dst);
-                        vrf.skip_tcls_pip(tcid, buf.dst, buf.src.tw);
+                        vrf.skip_tcls_pip(tcid, buf.dst, buf.src);
                     }
                     if buf.dst.wire == wires::OBUF {
                         obuf_ins.insert(buf.src);
-                        vrf.skip_tcls_pip(tcid, buf.dst, buf.src.tw);
+                        vrf.skip_tcls_pip(tcid, buf.dst, buf.src);
                     }
                 }
                 for &dst in &obuf_outs {
                     for &src in &obuf_ins {
                         if src.tw != dst {
-                            vrf.inject_tcls_pip(tcid, dst, src.tw);
+                            vrf.inject_tcls_pip(tcid, dst, src);
                         }
                     }
                 }
                 if tcname.starts_with("IO_W") {
                     vrf.inject_tcls_pip(
                         tcid,
-                        TileWireCoord::new_idx(0, wires::OCTAL_H[7]),
-                        TileWireCoord::new_idx(0, wires::TIE_0),
+                        {
+                            let wire = wires::OCTAL_H[7];
+                            wire.cell(0)
+                        },
+                        {
+                            let wire = wires::TIE_0;
+                            wire.cell(0).pos()
+                        },
                     );
                 }
                 if tcname.starts_with("IO_N") {
                     vrf.inject_tcls_pip(
                         tcid,
-                        TileWireCoord::new_idx(0, wires::OCTAL_V[7]),
-                        TileWireCoord::new_idx(0, wires::TIE_0),
+                        {
+                            let wire = wires::OCTAL_V[7];
+                            wire.cell(0)
+                        },
+                        {
+                            let wire = wires::TIE_0;
+                            wire.cell(0).pos()
+                        },
                     );
                 }
             }
@@ -393,7 +409,7 @@ pub fn verify_device(endev: &ExpandedNamedDevice, rd: &Part) {
                 {
                     for &src in mux.src.keys() {
                         if matches!(src.wire, wires::TIE_0 | wires::TIE_1) {
-                            vrf.skip_tcls_pip(tcid, mux.dst, src.tw);
+                            vrf.skip_tcls_pip(tcid, mux.dst, src);
                         }
                     }
                 }

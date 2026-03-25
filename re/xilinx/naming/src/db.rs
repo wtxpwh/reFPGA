@@ -6,7 +6,7 @@ use prjcombine_entity::{
     EntityId, EntityMap, EntityPartVec,
     id::{EntityIdU16, EntityTag},
 };
-use prjcombine_interconnect::db::{BelSlotId, IntDb, TileWireCoord, WireSlotId};
+use prjcombine_interconnect::db::{BelSlotId, IntDb, PinDir, TileWireCoord, WireSlotId};
 
 pub struct RawTileTag;
 impl EntityTag for RawTileTag {
@@ -94,6 +94,7 @@ pub struct BelNaming {
 #[derive(Clone, Debug, Eq, PartialEq, Encode, Decode)]
 pub struct BelPinNaming {
     pub tile: RawTileId,
+    pub orig_pin: Option<(String, PinDir)>,
     pub name: String,
     pub name_far: String,
     pub pips: Vec<PipNaming>,

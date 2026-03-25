@@ -7,6 +7,7 @@ use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
     db::{
         BelInfo, BelSlotId, IntDb, ProgBuf, SwitchBoxItem, TileClassId, TileWireCoord, WireSlotId,
+        WireSlotIdExt,
     },
     dir::Dir,
 };
@@ -391,7 +392,7 @@ fn fill_long_wires(builder: &mut IntBuilder) {
                 (format!("RVRBRK_VLL{ii}_EXCL"), 1),
                 (format!("RVRBRK_VLL{ii}B_EXCL"), 0),
             ] {
-                builder.alt_name_sub(n, sub, wires::LONG_V[i]);
+                builder.alt_name_cell(n, sub, wires::LONG_V[i]);
             }
         }
     }
@@ -645,7 +646,7 @@ fn fill_clk_wires(builder: &mut IntBuilder) {
                 format!("RHVBRK_BUFGLS_{ii}"),
                 format!("RVRBRK_BUFGLS_{ii}"),
             ] {
-                builder.extra_name_sub(n, 1, wires::BUFGLS_H[i]);
+                builder.extra_name_cell(n, 1, wires::BUFGLS_H[i]);
             }
         }
     }
@@ -661,7 +662,7 @@ fn fill_imux_wires(builder: &mut IntBuilder) -> (Vec<WireSlotId>, Vec<TileWireCo
     ] {
         builder.wire_names(w, &[format!("CENTER_{pin}")]);
         imux_wires.push(w);
-        imux_nw.push(TileWireCoord::new_idx(0, w));
+        imux_nw.push(w.cell(0));
         for &k in &RT_KINDS {
             builder.extra_name(format!("{k}_{opin}"), w);
         }
@@ -674,7 +675,7 @@ fn fill_imux_wires(builder: &mut IntBuilder) -> (Vec<WireSlotId>, Vec<TileWireCo
         builder.wire_names(w, &[format!("CENTER_{pin}T")]);
         builder.wire_names(ww, &[format!("CENTER_{pin}")]);
         imux_wires.push(w);
-        imux_nw.push(TileWireCoord::new_idx(0, w));
+        imux_nw.push(w.cell(0));
         imux_wires.push(ww);
         for k in LEFT_KINDS {
             builder.extra_name(format!("{k}_{pin}R"), w);
@@ -695,7 +696,7 @@ fn fill_imux_wires(builder: &mut IntBuilder) -> (Vec<WireSlotId>, Vec<TileWireCo
         builder.wire_names(w, &[format!("CENTER_{pin}L")]);
         builder.wire_names(ww, &[format!("CENTER_{pin}")]);
         imux_wires.push(w);
-        imux_nw.push(TileWireCoord::new_idx(0, w));
+        imux_nw.push(w.cell(0));
         imux_wires.push(ww);
         for &k in &RT_KINDS {
             builder.extra_name(format!("{k}_{pin}L"), w);
@@ -711,7 +712,7 @@ fn fill_imux_wires(builder: &mut IntBuilder) -> (Vec<WireSlotId>, Vec<TileWireCo
     ] {
         builder.wire_names(w, &[format!("CENTER_{pin}")]);
         imux_wires.push(w);
-        imux_nw.push(TileWireCoord::new_idx(0, w));
+        imux_nw.push(w.cell(0));
         for k in RT_KINDS {
             builder.extra_name(format!("{k}_{pin}"), w);
         }
@@ -723,7 +724,7 @@ fn fill_imux_wires(builder: &mut IntBuilder) -> (Vec<WireSlotId>, Vec<TileWireCo
     {
         builder.wire_names(wires::IMUX_CLB_K, &["CENTER_K"]);
         imux_wires.push(wires::IMUX_CLB_K);
-        imux_nw.push(TileWireCoord::new_idx(0, wires::IMUX_CLB_K));
+        imux_nw.push(wires::IMUX_CLB_K.cell(0));
     }
 
     for i in 0..2 {
@@ -734,7 +735,7 @@ fn fill_imux_wires(builder: &mut IntBuilder) -> (Vec<WireSlotId>, Vec<TileWireCo
                 builder.extra_name(format!("{k}_TBUF{ii}{pin}"), w);
             }
             imux_wires.push(w);
-            imux_nw.push(TileWireCoord::new_idx(0, w));
+            imux_nw.push(w.cell(0));
         }
     }
 
@@ -762,7 +763,7 @@ fn fill_imux_wires(builder: &mut IntBuilder) -> (Vec<WireSlotId>, Vec<TileWireCo
             }
 
             imux_wires.push(w);
-            imux_nw.push(TileWireCoord::new_idx(0, w));
+            imux_nw.push(w.cell(0));
         }
     }
 
@@ -771,7 +772,7 @@ fn fill_imux_wires(builder: &mut IntBuilder) -> (Vec<WireSlotId>, Vec<TileWireCo
             builder.extra_name(format!("{k}_COUT"), wires::IMUX_CIN);
         }
         imux_wires.push(wires::IMUX_CIN);
-        imux_nw.push(TileWireCoord::new_idx(0, wires::IMUX_CIN));
+        imux_nw.push(wires::IMUX_CIN.cell(0));
     }
 
     for (w, pin) in [
@@ -801,7 +802,7 @@ fn fill_imux_wires(builder: &mut IntBuilder) -> (Vec<WireSlotId>, Vec<TileWireCo
     ] {
         builder.wire_names(w, &[xn]);
         imux_wires.push(w);
-        imux_nw.push(TileWireCoord::new_idx(0, w));
+        imux_nw.push(w.cell(0));
     }
 
     (imux_wires, imux_nw)
@@ -1044,7 +1045,7 @@ fn fill_out_wires(builder: &mut IntBuilder) {
             "RHVBRK_FCLK_OUT",
             "RVRBRK_FCLK_OUT",
         ] {
-            builder.extra_name_sub(n, 1, wires::OUT_BUFF);
+            builder.extra_name_cell(n, 1, wires::OUT_BUFF);
         }
     }
 }
@@ -1121,17 +1122,16 @@ fn extract_clb(
         if builder.rd.family == "spartanxl"
             && matches!(tcid, tcls::CLB_N | tcls::CLB_NW | tcls::CLB_NE)
         {
-            cur_imux_nw.remove(&TileWireCoord::new_idx(0, wires::IMUX_CLB_C2));
+            cur_imux_nw.remove(&wires::IMUX_CLB_C2.cell(0));
         }
         if builder.rd.family == "spartanxl"
             && matches!(tcid, tcls::CLB_W | tcls::CLB_SW | tcls::CLB_NW)
         {
-            cur_imux_nw.remove(&TileWireCoord::new_idx(0, wires::IMUX_CLB_C3));
+            cur_imux_nw.remove(&wires::IMUX_CLB_C3.cell(0));
         }
 
         let mut xn = builder
             .xtile_id(tcid, &naming, crd)
-            .num_cells(3)
             .raw_tile_single(xy_n, 1)
             .raw_tile_single(xy_e, 2)
             .extract_muxes(bslots::INT)
@@ -1140,14 +1140,14 @@ fn extract_clb(
             .skip_muxes(&[wires::LONG_H[2], wires::LONG_H[3]])
             .bels(bels);
         for &(rti, ref name, wire) in force_names {
-            xn = xn.force_name(rti, name, TileWireCoord::new_idx(0, wire));
+            xn = xn.force_name(rti, name, wire.cell(0));
         }
         for (wt, wf) in [
             (wires::IMUX_CLB_F2, wires::IMUX_IO_O1[0]),
             (wires::IMUX_CLB_G2, wires::IMUX_IO_O1[1]),
         ] {
-            let wt = TileWireCoord::new_idx(0, wt);
-            let wf = TileWireCoord::new_idx(1, wf);
+            let wt = wt.cell(0);
+            let wf = wf.cell(1);
             xn = xn.force_skip_pip(wt, wf);
         }
         if is_xv {
@@ -1211,7 +1211,6 @@ fn extract_bot(
             }
             let mut xn = builder
                 .xtile_id(tcid, &naming, crd)
-                .num_cells(4)
                 .raw_tile_single(xy_n, 1)
                 .raw_tile_single(xy_e, 2)
                 .raw_tile_single(xy_w, 3)
@@ -1220,34 +1219,22 @@ fn extract_bot(
                 .skip_muxes(imux_wires)
                 .bels(bels);
             for &(rti, ref name, wire) in force_names {
-                xn = xn.force_name(rti, name, TileWireCoord::new_idx(0, wire));
+                xn = xn.force_name(rti, name, wire.cell(0));
             }
             if is_xl && tkn == "BOTSL" {
                 xn = xn
-                    .force_name(3, "LL_FCLK", TileWireCoord::new_idx(0, wires::ECLK_H))
-                    .force_name(
-                        3,
-                        "LL_BHLL1",
-                        TileWireCoord::new_idx(0, wires::LONG_IO_H[0]),
-                    )
-                    .force_name(
-                        3,
-                        "LL_BHLL2",
-                        TileWireCoord::new_idx(0, wires::LONG_IO_H[1]),
-                    )
-                    .force_name(
-                        3,
-                        "LL_BHLL4",
-                        TileWireCoord::new_idx(0, wires::LONG_IO_H[3]),
-                    )
-                    .optin_muxes_tile(&[TileWireCoord::new_idx(0, wires::ECLK_H)]);
+                    .force_name(3, "LL_FCLK", wires::ECLK_H.cell(0))
+                    .force_name(3, "LL_BHLL1", wires::LONG_IO_H[0].cell(0))
+                    .force_name(3, "LL_BHLL2", wires::LONG_IO_H[1].cell(0))
+                    .force_name(3, "LL_BHLL4", wires::LONG_IO_H[3].cell(0))
+                    .optin_muxes_tile(&[wires::ECLK_H.cell(0)]);
             }
             for (wt, wf) in [
                 (wires::IMUX_CLB_F4, wires::IMUX_IO_O1[0]),
                 (wires::IMUX_CLB_G4, wires::IMUX_IO_O1[1]),
             ] {
-                let wt = TileWireCoord::new_idx(0, wt);
-                let wf = TileWireCoord::new_idx(0, wf);
+                let wt = wt.cell(0);
+                let wf = wf.cell(0);
                 xn = xn.force_skip_pip(wt, wf);
             }
             if is_xv {
@@ -1306,7 +1293,6 @@ fn extract_top(builder: &mut IntBuilder, imux_wires: &[WireSlotId], imux_nw: &[T
             }
             let mut xn = builder
                 .xtile_id(tcid, &naming, crd)
-                .num_cells(3)
                 .raw_tile_single(xy_e, 1)
                 .raw_tile_single(xy_w, 2)
                 .extract_muxes(bslots::INT)
@@ -1320,23 +1306,11 @@ fn extract_top(builder: &mut IntBuilder, imux_wires: &[WireSlotId], imux_nw: &[T
             }
             if is_xl && tkn == "TOPSL" {
                 xn = xn
-                    .force_name(2, "UL_FCLK", TileWireCoord::new_idx(0, wires::ECLK_H))
-                    .force_name(
-                        2,
-                        "UL_THLL1",
-                        TileWireCoord::new_idx(0, wires::LONG_IO_H[0]),
-                    )
-                    .force_name(
-                        2,
-                        "UL_THLL2",
-                        TileWireCoord::new_idx(0, wires::LONG_IO_H[1]),
-                    )
-                    .force_name(
-                        2,
-                        "UL_THLL4",
-                        TileWireCoord::new_idx(0, wires::LONG_IO_H[3]),
-                    )
-                    .optin_muxes_tile(&[TileWireCoord::new_idx(0, wires::ECLK_H)]);
+                    .force_name(2, "UL_FCLK", wires::ECLK_H.cell(0))
+                    .force_name(2, "UL_THLL1", wires::LONG_IO_H[0].cell(0))
+                    .force_name(2, "UL_THLL2", wires::LONG_IO_H[1].cell(0))
+                    .force_name(2, "UL_THLL4", wires::LONG_IO_H[3].cell(0))
+                    .optin_muxes_tile(&[wires::ECLK_H.cell(0)]);
             }
             xn.extract();
             found_naming = Some(naming);
@@ -1394,7 +1368,6 @@ fn extract_rt(builder: &mut IntBuilder, imux_wires: &[WireSlotId], imux_nw: &[Ti
 
             let mut xn = builder
                 .xtile_id(tcid, &naming, crd)
-                .num_cells(3)
                 .raw_tile_single(xy_s, 1)
                 .raw_tile_single(xy_n, 2)
                 .extract_muxes(bslots::INT)
@@ -1404,21 +1377,15 @@ fn extract_rt(builder: &mut IntBuilder, imux_wires: &[WireSlotId], imux_nw: &[Ti
             if is_e {
                 xn = xn
                     .skip_muxes(&[wires::LONG_H[2], wires::LONG_H[3]])
-                    .force_pip(
-                        TileWireCoord::new_idx(0, wires::LONG_H[2]),
-                        TileWireCoord::new_idx(0, wires::SINGLE_V[3]).pos(),
-                    )
-                    .force_pip(
-                        TileWireCoord::new_idx(0, wires::LONG_H[3]),
-                        TileWireCoord::new_idx(0, wires::SINGLE_V[4]).pos(),
-                    );
+                    .force_pip(wires::LONG_H[2].cell(0), wires::SINGLE_V[3].cell(0).pos())
+                    .force_pip(wires::LONG_H[3].cell(0), wires::SINGLE_V[4].cell(0).pos());
             }
             for (wt, wf) in [
                 (wires::IMUX_CLB_G1, wires::IMUX_IO_O1[0]),
                 (wires::IMUX_CLB_F1, wires::IMUX_IO_O1[1]),
             ] {
-                let wt = TileWireCoord::new_idx(0, wt);
-                let wf = TileWireCoord::new_idx(0, wf);
+                let wt = wt.cell(0);
+                let wf = wf.cell(0);
                 xn = xn.force_skip_pip(wt, wf);
             }
             if is_xv {
@@ -1428,8 +1395,8 @@ fn extract_rt(builder: &mut IntBuilder, imux_wires: &[WireSlotId], imux_nw: &[Ti
             }
             if is_xl && tkn == "RTT" {
                 xn = xn
-                    .force_name(2, "UR_URKX", TileWireCoord::new_idx(0, wires::ECLK_V))
-                    .optin_muxes_tile(&[TileWireCoord::new_idx(0, wires::ECLK_V)]);
+                    .force_name(2, "UR_URKX", wires::ECLK_V.cell(0))
+                    .optin_muxes_tile(&[wires::ECLK_V.cell(0)]);
             }
             xn.extract();
             found_naming = Some(naming);
@@ -1493,7 +1460,6 @@ fn extract_left(builder: &mut IntBuilder, imux_wires: &[WireSlotId], imux_nw: &[
 
             let mut xn = builder
                 .xtile_id(tcid, &naming, crd)
-                .num_cells(4)
                 .raw_tile_single(xy_s, 1)
                 .raw_tile_single(xy_e, 2)
                 .raw_tile_single(xy_n, 3)
@@ -1509,8 +1475,8 @@ fn extract_left(builder: &mut IntBuilder, imux_wires: &[WireSlotId], imux_nw: &[
             }
             if is_xl && tkn == "LEFTT" {
                 xn = xn
-                    .force_name(3, "UL_KX", TileWireCoord::new_idx(0, wires::ECLK_V))
-                    .optin_muxes_tile(&[TileWireCoord::new_idx(0, wires::ECLK_V)]);
+                    .force_name(3, "UL_KX", wires::ECLK_V.cell(0))
+                    .optin_muxes_tile(&[wires::ECLK_V.cell(0)]);
             }
             xn.extract();
             found_naming = Some(naming);
@@ -1626,7 +1592,6 @@ fn extract_ur(builder: &mut IntBuilder, imux_wires: &[WireSlotId], imux_nw: &[Ti
 
         let mut xn = builder
             .xtile_id(tcls::CNR_NE, "CNR_NE", crd)
-            .num_cells(2)
             .raw_tile_single(xy_s, 1)
             .raw_tile(clkc)
             .extract_muxes(bslots::INT)
@@ -1679,7 +1644,6 @@ fn extract_ll(builder: &mut IntBuilder, imux_wires: &[WireSlotId], imux_nw: &[Ti
 
         let mut xn = builder
             .xtile_id(tcls::CNR_SW, "CNR_SW", crd)
-            .num_cells(2)
             .raw_tile_single(xy_e, 1)
             .raw_tile(clkc)
             .extract_muxes(bslots::INT)
@@ -1723,7 +1687,6 @@ fn extract_ul(builder: &mut IntBuilder, imux_wires: &[WireSlotId], imux_nw: &[Ti
 
         let mut xn = builder
             .xtile_id(tcls::CNR_NW, "CNR_NW", crd)
-            .num_cells(4)
             .raw_tile_single(xy_e, 1)
             .raw_tile_single(xy_s, 2)
             .raw_tile_single(xy_se, 3)
@@ -1820,7 +1783,6 @@ fn extract_llh(builder: &mut IntBuilder) {
 
             let mut xn = builder
                 .xtile_id(tcid, naming, crd)
-                .num_cells(2)
                 .ref_single(xy_w, 0, naming_w)
                 .ref_single(xy_e, 1, naming_e)
                 .extract_muxes(bslots::LLH)
@@ -1852,7 +1814,6 @@ fn extract_llv(builder: &mut IntBuilder) {
             let naming_n = get_tile_naming(builder, xy_n);
             let mut xt = builder
                 .xtile_id(tcid, naming, crd)
-                .num_cells(2)
                 .ref_single(xy_s, 0, naming_s)
                 .ref_single(xy_n, 1, naming_n)
                 .extract_muxes(bslots::LLV)
@@ -1889,21 +1850,20 @@ fn extract_llhq(builder: &mut IntBuilder) {
                 bels.extend([
                     builder
                         .bel_indexed(bslots::PULLUP_TBUF_W[0], "PULLUP", 4)
-                        .pin_int_nudge("O", TileWireCoord::new_idx(0, wires::LONG_H[2])),
+                        .pin_int_nudge("O", wires::LONG_H[2].cell(0)),
                     builder
                         .bel_indexed(bslots::PULLUP_TBUF_E[0], "PULLUP", 2)
-                        .pin_int_nudge("O", TileWireCoord::new_idx(1, wires::LONG_H[2])),
+                        .pin_int_nudge("O", wires::LONG_H[2].cell(1)),
                     builder
                         .bel_indexed(bslots::PULLUP_TBUF_W[1], "PULLUP", 3)
-                        .pin_int_nudge("O", TileWireCoord::new_idx(0, wires::LONG_H[3])),
+                        .pin_int_nudge("O", wires::LONG_H[3].cell(0)),
                     builder
                         .bel_indexed(bslots::PULLUP_TBUF_E[1], "PULLUP", 1)
-                        .pin_int_nudge("O", TileWireCoord::new_idx(1, wires::LONG_H[3])),
+                        .pin_int_nudge("O", wires::LONG_H[3].cell(1)),
                 ]);
             }
             builder
                 .xtile_id(tcid, naming, crd)
-                .num_cells(2)
                 .ref_single(xy_w, 0, naming_w)
                 .ref_single(xy_e, 1, naming_e)
                 .extract_muxes(bslots::LLH)
@@ -1976,7 +1936,6 @@ fn extract_llhc(builder: &mut IntBuilder) {
             }
             let mut xn = builder
                 .xtile_id(tcid, naming, crd)
-                .num_cells(2)
                 .ref_single(xy_w, 0, naming_w)
                 .ref_single(xy_e, 1, naming_e)
                 .extract_muxes(bslots::LLH)
@@ -2018,7 +1977,6 @@ fn extract_llvc(builder: &mut IntBuilder) {
             }
             let mut xt = builder
                 .xtile_id(tcid, naming, crd)
-                .num_cells(2)
                 .ref_single(xy_s, 0, naming_s)
                 .ref_single(xy_n, 1, naming_n)
                 .extract_muxes(bslots::LLV)
@@ -2057,7 +2015,6 @@ fn extract_llvq(builder: &mut IntBuilder) {
             }
             builder
                 .xtile_id(tcid, naming, crd)
-                .num_cells(2)
                 .ref_single(xy_s, 0, naming_s)
                 .ref_single(xy_n, 1, naming_n)
                 .extract_muxes(bslots::LLV)
@@ -2086,7 +2043,6 @@ fn extract_clkq(builder: &mut IntBuilder) {
         if let Some(&crd) = builder.rd.tiles_by_kind_name(tkn).first() {
             builder
                 .xtile_id(tcls::CLKQ, naming, crd)
-                .num_cells(2)
                 .ref_xlat(crd.delta(-1, 0), &[None, Some(0)], hvbrk)
                 .ref_xlat(crd.delta(2, 0), &[None, Some(1)], hvbrk)
                 .extract_muxes(bslots::CLKQ)
@@ -2265,8 +2221,8 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
             }
             for idx in 0..8 {
                 sb.items.push(SwitchBoxItem::ProgBuf(ProgBuf {
-                    dst: TileWireCoord::new_idx(0, wires::BUFGLS_H[idx]),
-                    src: TileWireCoord::new_idx(0, wires::BUFGLS[idx]).pos(),
+                    dst: wires::BUFGLS_H[idx].cell(0),
+                    src: wires::BUFGLS[idx].cell(0).pos(),
                     bit: PolTileBit::DUMMY,
                 }));
             }
@@ -2275,10 +2231,8 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
         for key in ["LLV_CLB", "LLV_IO_W", "LLV_IO_E"] {
             let ntcls = naming.tile_class_namings.get_mut(key).unwrap().1;
             for i in 0..8 {
-                let name = ntcls.wires[&TileWireCoord::new_idx(0, wires::BUFGLS[i])].clone();
-                ntcls
-                    .wires
-                    .insert(TileWireCoord::new_idx(0, wires::BUFGLS_H[i]), name);
+                let name = ntcls.wires[&wires::BUFGLS[i].cell(0)].clone();
+                ntcls.wires.insert(wires::BUFGLS_H[i].cell(0), name);
             }
         }
     }
@@ -2314,7 +2268,7 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
                     true
                 }
             });
-            let obuf = TileWireCoord::new_idx(0, wires::OBUF);
+            let obuf = wires::OBUF.cell(0);
             for dst in obuf_outs {
                 sb.items.push(SwitchBoxItem::ProgBuf(ProgBuf {
                     dst,
@@ -2346,9 +2300,9 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
         tcls::CLB_NE,
     ] {
         injected_specials
-            .entry((tcid, TileWireCoord::new_idx(0, wires::IMUX_CLB_F4)))
+            .entry((tcid, wires::IMUX_CLB_F4.cell(0)))
             .or_default()
-            .push(TileWireCoord::new_idx(0, wires::SPECIAL_CLB_CIN).pos());
+            .push(wires::SPECIAL_CLB_CIN.cell(0).pos());
     }
     for tcid in [
         tcls::CLB,
@@ -2367,9 +2321,9 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
         tcls::IO_E1_F1,
     ] {
         injected_specials
-            .entry((tcid, TileWireCoord::new_idx(0, wires::IMUX_CLB_G3)))
+            .entry((tcid, wires::IMUX_CLB_G3.cell(0)))
             .or_default()
-            .push(TileWireCoord::new_idx(0, wires::SPECIAL_CLB_CIN).pos());
+            .push(wires::SPECIAL_CLB_CIN.cell(0).pos());
     }
     for tcid in [
         tcls::CLB,
@@ -2384,37 +2338,37 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
         tcls::IO_S1_W,
     ] {
         injected_specials
-            .entry((tcid, TileWireCoord::new_idx(0, wires::IMUX_CLB_G2)))
+            .entry((tcid, wires::IMUX_CLB_G2.cell(0)))
             .or_default()
-            .push(TileWireCoord::new_idx(0, wires::SPECIAL_CLB_COUT0).pos());
+            .push(wires::SPECIAL_CLB_COUT0.cell(0).pos());
     }
     for (tcid, _, tcls) in &intdb.tile_classes {
         for idx in 0..2 {
             if tcls.bels.contains_id(bslots::TBUF[idx]) {
                 injected_specials
-                    .entry((tcid, TileWireCoord::new_idx(0, wires::IMUX_TBUF_I[idx])))
+                    .entry((tcid, wires::IMUX_TBUF_I[idx].cell(0)))
                     .or_default()
-                    .push(TileWireCoord::new_idx(0, wires::TIE_0).pos());
+                    .push(wires::TIE_0.cell(0).pos());
                 injected_specials
-                    .entry((tcid, TileWireCoord::new_idx(0, wires::IMUX_TBUF_T[idx])))
+                    .entry((tcid, wires::IMUX_TBUF_T[idx].cell(0)))
                     .or_default()
-                    .push(TileWireCoord::new_idx(0, wires::TIE_0).pos());
+                    .push(wires::TIE_0.cell(0).pos());
                 injected_specials
-                    .entry((tcid, TileWireCoord::new_idx(0, wires::IMUX_TBUF_T[idx])))
+                    .entry((tcid, wires::IMUX_TBUF_T[idx].cell(0)))
                     .or_default()
-                    .push(TileWireCoord::new_idx(0, wires::TIE_1).pos());
+                    .push(wires::TIE_1.cell(0).pos());
             }
         }
         if tcls.bels.contains_id(bslots::IO[0]) {
             for idx in 0..2 {
                 injected_specials
-                    .entry((tcid, TileWireCoord::new_idx(0, wires::IMUX_IO_O1[idx])))
+                    .entry((tcid, wires::IMUX_IO_O1[idx].cell(0)))
                     .or_default()
-                    .push(TileWireCoord::new_idx(0, wires::TIE_0).pos());
+                    .push(wires::TIE_0.cell(0).pos());
                 injected_specials
-                    .entry((tcid, TileWireCoord::new_idx(0, wires::IMUX_IO_T[idx])))
+                    .entry((tcid, wires::IMUX_IO_T[idx].cell(0)))
                     .or_default()
-                    .push(TileWireCoord::new_idx(0, wires::TIE_0).pos());
+                    .push(wires::TIE_0.cell(0).pos());
             }
         }
     }

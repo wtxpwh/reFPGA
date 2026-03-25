@@ -1,5 +1,5 @@
 use prjcombine_interconnect::{
-    db::{BelInfo, SwitchBoxItem, TileWireCoord},
+    db::{BelInfo, SwitchBoxItem, WireSlotIdExt},
     grid::TileCoord,
 };
 use prjcombine_re_collector::diff::{Diff, OcdMode, xlat_bit, xlat_enum_raw};
@@ -50,8 +50,8 @@ impl<'b> FuzzerProp<'b, IseBackend<'b>> for StabilizeGclkc {
             for &tcrd in &backend.edev.tile_index[tcid] {
                 for dc in 0..2 {
                     for i in 0..8 {
-                        let dst = TileWireCoord::new_idx(dc, wires_v2::GCLK_ROW[i]);
-                        let src = TileWireCoord::new_idx(0, wires_v2::GCLK_S[i]);
+                        let dst = wires_v2::GCLK_ROW[i].cell(dc);
+                        let src = wires_v2::GCLK_S[i].cell(0);
                         (fuzzer, _) =
                             BasePip::new(NoopRelation, PipWire::Int(dst), PipWire::Int(src))
                                 .apply(backend, tcrd, fuzzer)?;

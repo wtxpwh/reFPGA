@@ -6,7 +6,7 @@ use prjcombine_ultrascale::bond::{
     Bond, BondPad, CfgPad, GtPad, GtRegion, GtRegionPad, HbmPad, PsPad, RfAdcPad, RfDacPad,
     SharedCfgPad, SysMonPad,
 };
-use prjcombine_ultrascale::chip::{Chip, ChipKind, DisabledPart, IoRowKind};
+use prjcombine_ultrascale::chip::{Chip, ChipKind, ColumnKind, DisabledPart, IoRowKind};
 use prjcombine_ultrascale::expanded::{IoCoord, IoDiffKind, IoKind};
 use std::collections::{BTreeMap, HashMap};
 use std::fmt::Write;
@@ -240,7 +240,9 @@ pub fn make_bond(rd: &Part, pkg: &str, endev: &ExpandedNamedDevice, pins: &[PkgP
                     }
                     IoCoord::HdioLc(crd) => {
                         let chip = endev.edev.chips[crd.cell.die];
-                        let idx = if crd.cell.row == chip.row_rclk(crd.cell.row) {
+                        let idx = if crd.cell.row == chip.row_rclk(crd.cell.row)
+                            && chip.columns[crd.cell.col].kind != ColumnKind::HdioS
+                        {
                             42 + crd.iob.to_idx()
                         } else {
                             crd.iob.to_idx()

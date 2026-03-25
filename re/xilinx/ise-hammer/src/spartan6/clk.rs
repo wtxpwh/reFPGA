@@ -2,7 +2,7 @@ use std::collections::HashSet;
 
 use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
-    db::{BelInfo, PolTileWireCoord, SwitchBoxItem, TileClassId, TileWireCoord},
+    db::{BelInfo, PolTileWireCoord, SwitchBoxItem, TileClassId, TileWireCoord, WireSlotIdExt},
     dir::DirV,
     grid::TileCoord,
 };
@@ -162,8 +162,8 @@ pub fn add_fuzzers<'a>(
                     builder = builder.prop(BufpllPll(
                         DirV::S,
                         tt,
-                        TileWireCoord::new_idx(0, wires::CMT_BUFPLL_V_CLKOUT_S[idx]),
-                        TileWireCoord::new_idx(0, wires::CMT_BUFPLL_V_CLKOUT_N[idx]).pos(),
+                        wires::CMT_BUFPLL_V_CLKOUT_S[idx].cell(0),
+                        wires::CMT_BUFPLL_V_CLKOUT_N[idx].cell(0).pos(),
                     ));
                 }
                 builder.commit();
@@ -266,12 +266,8 @@ pub fn add_fuzzers<'a>(
                         DirV::S => (wires::CMT_BUFPLL_V_CLKOUT_S, wires::CMT_BUFPLL_V_CLKOUT_N),
                         DirV::N => (wires::CMT_BUFPLL_V_CLKOUT_N, wires::CMT_BUFPLL_V_CLKOUT_S),
                     };
-                    builder = builder.prop(BufpllPll(
-                        dir,
-                        buf,
-                        TileWireCoord::new_idx(0, wt[idx]),
-                        TileWireCoord::new_idx(0, wf[idx]).pos(),
-                    ));
+                    builder =
+                        builder.prop(BufpllPll(dir, buf, wt[idx].cell(0), wf[idx].cell(0).pos()));
                 }
             }
             builder.commit();
@@ -524,8 +520,8 @@ pub fn add_fuzzers<'a>(
                             format!("PLLIN_SN{j}"),
                         )
                         .test_routing(
-                            TileWireCoord::new_idx(ci, wires::IMUX_BUFPLL_PLLIN[i]),
-                            TileWireCoord::new_idx(ci, w_pllin[j]).pos(),
+                            wires::IMUX_BUFPLL_PLLIN[i].cell(ci),
+                            w_pllin[j].cell(ci).pos(),
                         )
                         .pip(format!("BUFPLL{i}_PLLIN"), format!("PLLIN_SN{j}"))
                         .commit();
@@ -535,8 +531,8 @@ pub fn add_fuzzers<'a>(
                         .tile_mutex("BUFPLL", "PLAIN")
                         .mutex("LOCKED", format!("LOCKED{j}"))
                         .test_routing(
-                            TileWireCoord::new_idx(ci, wires::IMUX_BUFPLL_LOCKED[i]),
-                            TileWireCoord::new_idx(ci, w_locked[j]).pos(),
+                            wires::IMUX_BUFPLL_LOCKED[i].cell(ci),
+                            w_locked[j].cell(ci).pos(),
                         )
                         .pin("LOCKED")
                         .pip(format!("BUFPLL{i}_LOCKED"), format!("LOCKED_SN{j}"))
@@ -1011,18 +1007,18 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx, devdata_only: bool) {
                         )
                     };
 
-                    let dst = TileWireCoord::new_idx(ci, wires::IMUX_BUFPLL_PLLIN[i]);
+                    let dst = wires::IMUX_BUFPLL_PLLIN[i].cell(ci);
                     let mut diffs = vec![];
                     for j in 0..6 {
-                        let src = TileWireCoord::new_idx(ci, w_pllin[j]).pos();
+                        let src = w_pllin[j].cell(ci).pos();
                         diffs.push((Some(src), ctx.get_diff_routing(tcid, dst, src)));
                     }
                     ctx.insert_mux(tcid, dst, xlat_enum_raw(diffs, OcdMode::BitOrder));
 
-                    let dst = TileWireCoord::new_idx(ci, wires::IMUX_BUFPLL_LOCKED[i]);
+                    let dst = wires::IMUX_BUFPLL_LOCKED[i].cell(ci);
                     let mut diffs = vec![];
                     for j in 0..3 {
-                        let src = TileWireCoord::new_idx(ci, w_locked[j]).pos();
+                        let src = w_locked[j].cell(ci).pos();
                         diffs.push((Some(src), ctx.get_diff_routing(tcid, dst, src)));
                     }
                     ctx.insert_mux(tcid, dst, xlat_enum_raw(diffs, OcdMode::BitOrder));

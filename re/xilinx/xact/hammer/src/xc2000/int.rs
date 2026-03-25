@@ -2,7 +2,7 @@ use prjcombine_entity::{EntityId, EntityVec};
 use prjcombine_interconnect::{
     db::{
         BelInfo, BelKind, BelSlotId, CellSlotId, ConnectorWire, SwitchBoxItem, TileWireCoord,
-        WireKind, WireSlotId,
+        WireKind, WireSlotId, WireSlotIdExt,
     },
     dir::Dir,
     grid::{BelCoord, TileCoord, WireCoord},
@@ -93,12 +93,12 @@ fn drive_wire<'a>(
                 let tcrd = w.cell.tile(tslots::MAIN);
                 let tile = &backend.edev[tcrd];
                 let tcls_index = &backend.edev.db_index[tile.class];
-                if let Some(ins) = tcls_index.pips_bwd.get(&TileWireCoord::new_idx(0, w.slot)) {
+                if let Some(ins) = tcls_index.pips_bwd.get(&w.slot.cell(0)) {
                     for &inp in ins {
                         if backend.edev.db.wires.key(inp.wire).starts_with("OUT") {
                             let rwf = backend.edev.resolve_tile_wire(tcrd, inp.tw).unwrap();
                             if rwf != wire_avoid {
-                                break 'a (tcrd, TileWireCoord::new_idx(0, w.slot), inp.tw);
+                                break 'a (tcrd, w.slot.cell(0), inp.tw);
                             }
                         }
                     }
@@ -108,12 +108,12 @@ fn drive_wire<'a>(
                 let tcrd = w.cell.tile(tslots::MAIN);
                 let tile = &backend.edev[tcrd];
                 let tcls_index = &backend.edev.db_index[tile.class];
-                if let Some(ins) = tcls_index.pips_bwd.get(&TileWireCoord::new_idx(0, w.slot)) {
+                if let Some(ins) = tcls_index.pips_bwd.get(&w.slot.cell(0)) {
                     for &inp in ins {
                         if backend.edev.db.wires.key(inp.wire).starts_with("SINGLE_V") {
                             let rwf = backend.edev.resolve_tile_wire(tcrd, inp.tw).unwrap();
                             if rwf != wire_avoid {
-                                break 'a (tcrd, TileWireCoord::new_idx(0, w.slot), inp.tw);
+                                break 'a (tcrd, w.slot.cell(0), inp.tw);
                             }
                         }
                     }
@@ -132,12 +132,12 @@ fn drive_wire<'a>(
                 let tcrd = w.cell.tile(tslots::MAIN);
                 let tile = &backend.edev[tcrd];
                 let tcls_index = &backend.edev.db_index[tile.class];
-                if let Some(ins) = tcls_index.pips_bwd.get(&TileWireCoord::new_idx(0, w.slot)) {
+                if let Some(ins) = tcls_index.pips_bwd.get(&w.slot.cell(0)) {
                     for &inp in ins {
                         if backend.edev.db.wires.key(inp.wire).starts_with("SINGLE_V") {
                             let rwf = backend.edev.resolve_tile_wire(tcrd, inp.tw).unwrap();
                             if rwf != wire_avoid {
-                                break 'a (tcrd, TileWireCoord::new_idx(0, w.slot), inp.tw);
+                                break 'a (tcrd, w.slot.cell(0), inp.tw);
                             }
                         }
                     }
@@ -301,7 +301,7 @@ impl<'b> FuzzerProp<'b, XactBackend<'b>> for SingleBidi {
         } else {
             unreachable!()
         };
-        let wire = TileWireCoord::new_idx(0, wire);
+        let wire = wire.cell(0);
         let bidi_tcid = match self.dir {
             Dir::W | Dir::E => {
                 if tcrd.row == backend.edev.chip.row_s() {
@@ -531,7 +531,7 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
             };
             if bidi.wire.wire == wires::SINGLE_VE_S[0] {
                 let stcls = &ctx.edev.db_index[tcls::CLB_E];
-                let wire_to = TileWireCoord::new_idx(0, wires::SINGLE_VE[0]);
+                let wire_to = wires::SINGLE_VE[0].cell(0);
                 let ins = &stcls.pips_bwd[&wire_to];
                 let mut diff_s = None;
                 for &wire_from in ins {
@@ -599,23 +599,20 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
                         }
                         if let Some(slot) = wire_as_imux_io_t(mux.dst.wire) {
                             assert!(!got_empty);
+                            inps.push((Some(wires::TIE_1.cell(0).pos()), Diff::default()));
                             inps.push((
-                                Some(TileWireCoord::new_idx(0, wires::TIE_1).pos()),
-                                Diff::default(),
-                            ));
-                            inps.push((
-                                Some(TileWireCoord::new_idx(0, wires::TIE_0).pos()),
+                                Some(wires::TIE_0.cell(0).pos()),
                                 ctx.get_diff_bel_special(tcid, slot, specials::IO_BUF_ON),
                             ));
                         } else if mux.dst.wire == wires::IMUX_CLB_K {
                             assert!(!got_empty);
                             inps.push((None, Diff::default()));
                             inps.push((
-                                Some(TileWireCoord::new_idx(0, wires::SPECIAL_CLB_C).pos()),
+                                Some(wires::SPECIAL_CLB_C.cell(0).pos()),
                                 ctx.get_diff_bel_special(tcid, bslots::CLB, specials::CLB_CLK_C),
                             ));
                             inps.push((
-                                Some(TileWireCoord::new_idx(0, wires::SPECIAL_CLB_G).neg()),
+                                Some(wires::SPECIAL_CLB_G.cell(0).neg()),
                                 ctx.get_diff_bel_special(tcid, bslots::CLB, specials::CLB_CLK_G)
                                     .combine(&!ctx.peek_diff_raw(&DiffKey::BelInputInv(
                                         tcid,

@@ -4,7 +4,7 @@ use prjcombine_entity::{EntityBundleIndices, EntityBundleItemIndex, EntityId};
 use prjcombine_interconnect::{
     db::{
         BelAttributeType, BelInfo, BelInput, BelKind, SwitchBoxItem, TileClassId, TileWireCoord,
-        WireSlotId,
+        WireSlotId, WireSlotIdExt,
     },
     dir::{Dir, DirH, DirV},
     grid::{ColId, DieIdExt, RowId, WireCoord},
@@ -14,7 +14,7 @@ use prjcombine_re_harvester::Sample;
 use prjcombine_siliconblue::{
     bitstream::Bitstream,
     chip::{Chip, ChipKind, SpecialIoKey, SpecialTileKey},
-    defs::{self, bslots as bels, tslots},
+    defs::{self, bslots as bels, tslots, wires},
     expanded::{BitOwner, ExpandedDevice},
 };
 use prjcombine_types::{bitrect::BitRect as _, bitvec::BitVec};
@@ -81,18 +81,18 @@ pub fn make_sample(
         ] {
             let crd = *edev.chip.special_tiles[&key].cells.first().unwrap();
             for wire in edev.get_bel_output(crd.bel(bslot), pin) {
-                let Some(ioi) = defs::wires::IOB_DIN.index_of(wire.slot) else {
+                let Some(ioi) = wires::IOB_DIN.index_of(wire.slot) else {
                     unreachable!();
                 };
-                io_hardip_outs.insert(wire.wire(defs::wires::OUT_LC[2 * ioi]));
-                io_hardip_outs.insert(wire.wire(defs::wires::OUT_LC[2 * ioi + 4]));
+                io_hardip_outs.insert(wire.wire(wires::OUT_LC[2 * ioi]));
+                io_hardip_outs.insert(wire.wire(wires::OUT_LC[2 * ioi + 4]));
             }
         }
     }
     let unoptinv: HashMap<_, _> = HashMap::from_iter([
-        (defs::wires::IMUX_CLK_OPTINV, defs::wires::IMUX_CLK),
-        (defs::wires::IMUX_IO_ICLK_OPTINV, defs::wires::IMUX_IO_ICLK),
-        (defs::wires::IMUX_IO_OCLK_OPTINV, defs::wires::IMUX_IO_OCLK),
+        (wires::IMUX_CLK_OPTINV, wires::IMUX_CLK),
+        (wires::IMUX_IO_ICLK_OPTINV, wires::IMUX_IO_ICLK),
+        (wires::IMUX_IO_OCLK_OPTINV, wires::IMUX_IO_OCLK),
     ]);
     let mut int_source: HashMap<WireCoord, (InstId, InstPin)> = HashMap::new();
     let mut ibuf_used = HashSet::new();
@@ -124,11 +124,11 @@ pub fn make_sample(
                         let tile = &edev[cell.tile(tslots::MAIN)];
                         let wan = edev.db.wires.key(wa);
                         let wbn = edev.db.wires.key(wb);
-                        if let Some(idx) = defs::wires::GLOBAL.index_of(wb) {
-                            let root = TileWireCoord::new_idx(0, defs::wires::GLOBAL_ROOT[idx]);
+                        if let Some(idx) = wires::GLOBAL.index_of(wb) {
+                            let root = wires::GLOBAL_ROOT[idx].cell(0);
                             let tcid = edev.chip.kind.tile_class_gb_root();
                             let tcrd = edev.chip.special_tile(SpecialTileKey::GbRoot);
-                            if wa == defs::wires::IMUX_IO_EXTRA {
+                            if wa == wires::IMUX_IO_EXTRA {
                                 let cslot = edev[tcrd]
                                     .cells
                                     .iter()
@@ -148,15 +148,15 @@ pub fn make_sample(
                                     ),
                                 );
                             } else {
-                                let lc_idx = defs::wires::OUT_LC.index_of(wa).unwrap();
+                                let lc_idx = wires::OUT_LC.index_of(wa).unwrap();
                                 let wa_xlat = if edev.chip.kind == ChipKind::Ice40R04 {
                                     match lc_idx {
-                                        0 | 4 => defs::wires::IOB_DIN[0],
-                                        2 | 6 => defs::wires::IOB_DIN[1],
+                                        0 | 4 => wires::IOB_DIN[0],
+                                        2 | 6 => wires::IOB_DIN[1],
                                         _ => unreachable!(),
                                     }
                                 } else {
-                                    defs::wires::LC_LTIN[lc_idx]
+                                    wires::LC_LTIN[lc_idx]
                                 };
 
                                 let mut found = false;
@@ -165,25 +165,25 @@ pub fn make_sample(
                                         SpecialTileKey::LsOsc,
                                         defs::bslots::LSOSC,
                                         defs::bcls::LSOSC::CLKK,
-                                        defs::wires::LSOSC_GLOBAL,
+                                        wires::LSOSC_GLOBAL,
                                     ),
                                     (
                                         SpecialTileKey::HsOsc,
                                         defs::bslots::HSOSC,
                                         defs::bcls::HSOSC::CLKM,
-                                        defs::wires::HSOSC_GLOBAL,
+                                        wires::HSOSC_GLOBAL,
                                     ),
                                     (
                                         SpecialTileKey::Misc,
                                         defs::bslots::LFOSC,
                                         defs::bcls::LFOSC::CLKLF,
-                                        defs::wires::LSOSC_GLOBAL,
+                                        wires::LSOSC_GLOBAL,
                                     ),
                                     (
                                         SpecialTileKey::Misc,
                                         defs::bslots::HFOSC,
                                         defs::bcls::HFOSC::CLKHF,
-                                        defs::wires::HSOSC_GLOBAL,
+                                        wires::HSOSC_GLOBAL,
                                     ),
                                 ] {
                                     if !edev.chip.special_tiles.contains_key(&key) {
@@ -196,11 +196,7 @@ pub fn make_sample(
                                     {
                                         sample.add_tiled_pattern(
                                             &[BitOwner::Clock(0), BitOwner::Clock(1)],
-                                            DiffKey::Routing(
-                                                tcid,
-                                                root,
-                                                TileWireCoord::new_idx(0, src).pos(),
-                                            ),
+                                            DiffKey::Routing(tcid, root, src.cell(0).pos()),
                                         );
                                         found = true;
                                         break;
@@ -211,11 +207,7 @@ pub fn make_sample(
                             continue;
                         }
                         pips.insert((tile.class, wb, wa));
-                        let key = DiffKey::Routing(
-                            tile.class,
-                            TileWireCoord::new_idx(0, wb),
-                            TileWireCoord::new_idx(0, wa).pos(),
-                        );
+                        let key = DiffKey::Routing(tile.class, wb.cell(0), wa.cell(0).pos());
                         if (wbn.starts_with("QUAD") || wbn.starts_with("LONG"))
                             && wan.starts_with("OUT")
                         {
@@ -226,7 +218,7 @@ pub fn make_sample(
                         } else {
                             sample.add_tiled_pattern(&[BitOwner::Main(cell.col, cell.row)], key);
                         }
-                        if let Some(idx) = defs::wires::GLOBAL.index_of(wa)
+                        if let Some(idx) = wires::GLOBAL.index_of(wa)
                             && edev.chip.kind.tile_class_colbuf().is_some()
                         {
                             if !rows_colbuf.is_empty() {
@@ -249,22 +241,22 @@ pub fn make_sample(
                                     row_colbuf
                                 };
                                 let tcid = get_colbuf_tile_kind(edev, cell.col);
-                                let wt = TileWireCoord::new_idx(0, defs::wires::GLOBAL[idx]);
-                                let wf = TileWireCoord::new_idx(0, defs::wires::GLOBAL_ROOT[idx]);
+                                let wt = wires::GLOBAL[idx].cell(0);
+                                let wf = wires::GLOBAL_ROOT[idx].cell(0);
                                 sample.add_tiled_pattern(
                                     &[BitOwner::Main(cell.col, trow)],
                                     DiffKey::Routing(tcid, wt, wf.pos()),
                                 );
                             } else {
                                 sample.add_global_pattern_single(DiffKey::GlobalRouting(
-                                    cell.wire(defs::wires::GLOBAL[idx]),
-                                    cell.wire(defs::wires::GLOBAL_ROOT[idx]).pos(),
+                                    cell.wire(wires::GLOBAL[idx]),
+                                    cell.wire(wires::GLOBAL_ROOT[idx]).pos(),
                                 ));
                             };
                         }
                         if io_hardip_outs.contains(&iwa) {
                             let crd = iwa.cell;
-                            let io = match defs::wires::OUT_LC.index_of(iwa.slot).unwrap() {
+                            let io = match wires::OUT_LC.index_of(iwa.slot).unwrap() {
                                 0 | 4 => 0,
                                 2 | 6 => 1,
                                 _ => unreachable!(),
@@ -312,13 +304,13 @@ pub fn make_sample(
                         let dst_lc = lc + 1;
                         assert_eq!(iwb.slot, defs::wires::IMUX_LC_I3[dst_lc]);
                         let tcid = edev.chip.kind.tile_class_plb();
-                        pips.insert((tcid, iwb.slot, defs::wires::SPECIAL_CI));
+                        pips.insert((tcid, iwb.slot, wires::SPECIAL_CI));
                         sample.add_tiled_pattern(
                             &[BitOwner::Main(iwb.cell.col, iwb.cell.row)],
                             DiffKey::Routing(
                                 tcid,
-                                TileWireCoord::new_idx(0, iwb.slot),
-                                TileWireCoord::new_idx(0, defs::wires::SPECIAL_CI).pos(),
+                                iwb.slot.cell(0),
+                                wires::SPECIAL_CI.cell(0).pos(),
                             ),
                         );
                         int_source.insert(iwb, (src_inst, src_pin.clone()));
@@ -332,9 +324,9 @@ pub fn make_sample(
                         };
                         let lc = xi % 8;
                         let wires = if xi >= 8 {
-                            &defs::wires::IMUX_LC_I2
+                            &wires::IMUX_LC_I2
                         } else {
-                            &defs::wires::IMUX_LC_I0
+                            &wires::IMUX_LC_I0
                         };
                         assert_eq!(iwa.slot, wires[lc]);
                         let (row, which) = if cell.row.to_idx() % 2 == 1 {
@@ -375,9 +367,9 @@ pub fn make_sample(
                         };
                         let lc = xi % 8;
                         let wires = if xi >= 8 {
-                            &defs::wires::IMUX_LC_I2
+                            &wires::IMUX_LC_I2
                         } else {
-                            &defs::wires::IMUX_LC_I0
+                            &wires::IMUX_LC_I0
                         };
                         assert_eq!(iwb.slot, wires[lc]);
                         let (row, which) = if cell.row.to_idx() % 2 == 1 {
@@ -423,8 +415,8 @@ pub fn make_sample(
                     ) => {
                         let tcid = edev.chip.kind.tile_class_gb_root();
                         let tcrd = edev.chip.special_tile(SpecialTileKey::GbRoot);
-                        let idx = defs::wires::GLOBAL.index_of(iw.slot).unwrap();
-                        let root = TileWireCoord::new_idx(0, defs::wires::GLOBAL_ROOT[idx]);
+                        let idx = wires::GLOBAL.index_of(iw.slot).unwrap();
+                        let root = wires::GLOBAL_ROOT[idx].cell(0);
                         let src = match na {
                             GenericNet::GlobalPadIn(cell) => {
                                 let cslot = edev[tcrd]
@@ -435,15 +427,11 @@ pub fn make_sample(
                                     .0;
                                 TileWireCoord {
                                     cell: cslot,
-                                    wire: defs::wires::IO_GLOBAL,
+                                    wire: wires::IO_GLOBAL,
                                 }
                             }
-                            GenericNet::GlobalClkh => {
-                                TileWireCoord::new_idx(0, defs::wires::HSOSC_GLOBAL)
-                            }
-                            GenericNet::GlobalClkl => {
-                                TileWireCoord::new_idx(0, defs::wires::LSOSC_GLOBAL)
-                            }
+                            GenericNet::GlobalClkh => wires::HSOSC_GLOBAL.cell(0),
+                            GenericNet::GlobalClkl => wires::LSOSC_GLOBAL.cell(0),
                             _ => unreachable!(),
                         };
                         sample.add_tiled_pattern(
@@ -500,10 +488,10 @@ pub fn make_sample(
                         let swz_to_orig = Vec::from_iter((0..4).map(|idx| {
                             if let Some(src) = int_source.get(&crd.wire(
                                 [
-                                    &defs::wires::IMUX_LC_I0,
-                                    &defs::wires::IMUX_LC_I1,
-                                    &defs::wires::IMUX_LC_I2,
-                                    &defs::wires::IMUX_LC_I3,
+                                    &wires::IMUX_LC_I0,
+                                    &wires::IMUX_LC_I1,
+                                    &wires::IMUX_LC_I2,
+                                    &wires::IMUX_LC_I3,
                                 ][idx][lc],
                             )) {
                                 pin_to_orig[src]
@@ -514,17 +502,13 @@ pub fn make_sample(
                                     unreachable!();
                                 };
                                 assert_eq!(*cpin, InstPin::Simple("CO".into()));
-                                pips.insert((
-                                    tcid,
-                                    defs::wires::IMUX_LC_I3[lc],
-                                    defs::wires::SPECIAL_CI,
-                                ));
+                                pips.insert((tcid, wires::IMUX_LC_I3[lc], wires::SPECIAL_CI));
                                 sample.add_tiled_pattern(
                                     &[btile],
                                     DiffKey::Routing(
                                         tcid,
-                                        TileWireCoord::new_idx(0, defs::wires::IMUX_LC_I3[lc]),
-                                        TileWireCoord::new_idx(0, defs::wires::SPECIAL_CI).pos(),
+                                        wires::IMUX_LC_I3[lc].cell(0),
+                                        wires::SPECIAL_CI.cell(0).pos(),
                                     ),
                                 );
                                 if lc == 0 {
@@ -789,19 +773,11 @@ pub fn make_sample(
                     {
                         sample.add_tiled_pattern(
                             &[btile],
-                            DiffKey::RoutingInv(
-                                tcid_ioi,
-                                TileWireCoord::new_idx(0, defs::wires::IMUX_IO_ICLK_OPTINV),
-                                true,
-                            ),
+                            DiffKey::RoutingInv(tcid_ioi, wires::IMUX_IO_ICLK_OPTINV.cell(0), true),
                         );
                         sample.add_tiled_pattern(
                             &[btile],
-                            DiffKey::RoutingInv(
-                                tcid_ioi,
-                                TileWireCoord::new_idx(0, defs::wires::IMUX_IO_OCLK_OPTINV),
-                                true,
-                            ),
+                            DiffKey::RoutingInv(tcid_ioi, wires::IMUX_IO_OCLK_OPTINV.cell(0), true),
                         );
                     }
 
@@ -1023,11 +999,7 @@ pub fn make_sample(
                     if let Some(rest) = kind.strip_prefix('N') {
                         sample.add_tiled_pattern_single(
                             &[BitOwner::Main(col, row)],
-                            DiffKey::RoutingInv(
-                                tcid,
-                                TileWireCoord::new_idx(0, defs::wires::IMUX_CLK_OPTINV),
-                                true,
-                            ),
+                            DiffKey::RoutingInv(tcid, wires::IMUX_CLK_OPTINV.cell(0), true),
                         );
                         kind = rest;
                     }
@@ -1113,7 +1085,7 @@ pub fn make_sample(
                                 &[BitOwner::Main(wire.cell.col, wire.cell.row)],
                                 DiffKey::RoutingInv(
                                     defs::tcls::INT_BRAM,
-                                    TileWireCoord::new_idx(0, defs::wires::IMUX_CLK_OPTINV),
+                                    wires::IMUX_CLK_OPTINV.cell(0),
                                     true,
                                 ),
                             );
@@ -1681,7 +1653,7 @@ pub fn make_sample(
                                         &tiles[2..3],
                                         DiffKey::RoutingInv(
                                             tcid_plb,
-                                            TileWireCoord::new_idx(0, defs::wires::IMUX_CLK_OPTINV),
+                                            wires::IMUX_CLK_OPTINV.cell(0),
                                             true,
                                         ),
                                     );
@@ -2244,8 +2216,7 @@ pub fn make_sample(
                                     let pin_crd = special.cells[pin_wire.cell];
                                     let pin_tile = &edev[pin_crd.tile(defs::tslots::MAIN)];
                                     let pin_btile = BitOwner::Main(pin_crd.col, pin_crd.row);
-                                    let ioi =
-                                        defs::wires::IOB_DOUT.index_of(pin_wire.wire).unwrap();
+                                    let ioi = wires::IOB_DOUT.index_of(pin_wire.wire).unwrap();
                                     sample.add_tiled_pattern_single(
                                         &[pin_btile],
                                         DiffKey::BelAttrBit(
@@ -2297,7 +2268,7 @@ pub fn make_sample(
                                     let pin_crd = special.cells[pin_wire.cell];
                                     let pin_tile = &edev[pin_crd.tile(defs::tslots::MAIN)];
                                     let pin_btile = BitOwner::Main(pin_crd.col, pin_crd.row);
-                                    let ioi = defs::wires::IOB_DIN.index_of(pin_wire.wire).unwrap();
+                                    let ioi = wires::IOB_DIN.index_of(pin_wire.wire).unwrap();
                                     sample.add_tiled_pattern_single(
                                         &[pin_btile],
                                         DiffKey::BelAttrBit(
@@ -2471,13 +2442,13 @@ pub fn wanted_keys_tiled(edev: &ExpandedDevice) -> Vec<DiffKey> {
     }
     result.push(DiffKey::RoutingInv(
         tcid,
-        TileWireCoord::new_idx(0, defs::wires::IMUX_CLK_OPTINV),
+        wires::IMUX_CLK_OPTINV.cell(0),
         true,
     ));
     if let Some(tcid) = edev.chip.kind.tile_class_colbuf() {
         for i in 0..8 {
-            let wt = TileWireCoord::new_idx(0, defs::wires::GLOBAL[i]);
-            let wf = TileWireCoord::new_idx(0, defs::wires::GLOBAL_ROOT[i]).pos();
+            let wt = wires::GLOBAL[i].cell(0);
+            let wf = wires::GLOBAL_ROOT[i].cell(0).pos();
             result.push(DiffKey::Routing(tcid, wt, wf));
             if edev.chip.kind.has_ioi_we() {
                 result.push(DiffKey::Routing(defs::tcls::COLBUF_IO_W, wt, wf));
@@ -2584,7 +2555,7 @@ pub fn wanted_keys_tiled(edev: &ExpandedDevice) -> Vec<DiffKey> {
         }
         result.push(DiffKey::RoutingInv(
             defs::tcls::INT_BRAM,
-            TileWireCoord::new_idx(0, defs::wires::IMUX_CLK_OPTINV),
+            wires::IMUX_CLK_OPTINV.cell(0),
             true,
         ));
     }
@@ -2595,12 +2566,12 @@ pub fn wanted_keys_tiled(edev: &ExpandedDevice) -> Vec<DiffKey> {
         };
         result.push(DiffKey::RoutingInv(
             tcid,
-            TileWireCoord::new_idx(0, defs::wires::IMUX_IO_ICLK_OPTINV),
+            wires::IMUX_IO_ICLK_OPTINV.cell(0),
             true,
         ));
         result.push(DiffKey::RoutingInv(
             tcid,
-            TileWireCoord::new_idx(0, defs::wires::IMUX_IO_OCLK_OPTINV),
+            wires::IMUX_IO_OCLK_OPTINV.cell(0),
             true,
         ));
         for io in 0..2 {

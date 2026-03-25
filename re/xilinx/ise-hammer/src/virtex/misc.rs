@@ -1,4 +1,4 @@
-use prjcombine_interconnect::db::{BelAttributeId, TileWireCoord};
+use prjcombine_interconnect::db::{BelAttributeId, WireSlotIdExt};
 use prjcombine_re_collector::diff::{OcdMode, xlat_bitvec_sparse_u32};
 use prjcombine_re_hammer::Session;
 use prjcombine_re_xilinx_geom::ExpandedDevice;
@@ -175,9 +175,9 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
                     .commit();
             }
         }
-        let wire_gwe = TileWireCoord::new_idx(0, wires::IMUX_STARTUP_GWE);
-        let wire_gts = TileWireCoord::new_idx(0, wires::IMUX_STARTUP_GTS);
-        let wire_gsr = TileWireCoord::new_idx(0, wires::IMUX_STARTUP_GSR);
+        let wire_gwe = wires::IMUX_STARTUP_GWE.cell(0);
+        let wire_gts = wires::IMUX_STARTUP_GTS.cell(0);
+        let wire_gsr = wires::IMUX_STARTUP_GSR.cell(0);
         bctx.mode("STARTUP")
             .no_pin("GTS")
             .no_pin("GWE")

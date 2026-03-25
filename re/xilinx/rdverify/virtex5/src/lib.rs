@@ -43,45 +43,7 @@ fn verify_slice(edev: &ExpandedDevice, vrf: &mut Verifier, bcrd: BelCoord) {
 }
 
 fn verify_bram(edev: &ExpandedDevice, vrf: &mut Verifier, bcrd: BelCoord) {
-    let mut bel = vrf
-        .verify_bel(bcrd)
-        .kind("RAMBFIFO36")
-        .rename_in(bcls::BRAM_V5::CLKAL, "CLKARDCLKL")
-        .rename_in(bcls::BRAM_V5::CLKAU, "CLKARDCLKU")
-        .rename_in(bcls::BRAM_V5::CLKBL, "CLKBWRCLKL")
-        .rename_in(bcls::BRAM_V5::CLKBU, "CLKBWRCLKU")
-        .rename_in(bcls::BRAM_V5::ENAL, "ENARDENL")
-        .rename_in(bcls::BRAM_V5::ENBL, "ENBWRENL")
-        .rename_in(bcls::BRAM_V5::RSTRAMAL, "SSRARSTL")
-        .rename_in(bcls::BRAM_V5::RSTRAMAU, "SSRAU")
-        .rename_in(bcls::BRAM_V5::RSTRAMBL, "SSRBL")
-        .rename_in(bcls::BRAM_V5::RSTRAMBU, "SSRBU")
-        .rename_in(bcls::BRAM_V5::REGCLKAL, "REGCLKARDRCLKL")
-        .rename_in(bcls::BRAM_V5::REGCLKAU, "REGCLKARDRCLKU")
-        .rename_in(bcls::BRAM_V5::REGCLKBL, "REGCLKBWRRCLKL")
-        .rename_in(bcls::BRAM_V5::REGCLKBU, "REGCLKBWRRCLKU");
-    for i in 0..16 {
-        bel = bel
-            .rename_in(bcls::BRAM_V5::DIAL[i], format!("DIADIL{i}"))
-            .rename_in(bcls::BRAM_V5::DIAU[i], format!("DIADIU{i}"))
-            .rename_in(bcls::BRAM_V5::DIBL[i], format!("DIBDIL{i}"))
-            .rename_in(bcls::BRAM_V5::DIBU[i], format!("DIBDIU{i}"))
-            .rename_out(bcls::BRAM_V5::DOAL[i], format!("DOADOL{i}"))
-            .rename_out(bcls::BRAM_V5::DOAU[i], format!("DOADOU{i}"))
-            .rename_out(bcls::BRAM_V5::DOBL[i], format!("DOBDOL{i}"))
-            .rename_out(bcls::BRAM_V5::DOBU[i], format!("DOBDOU{i}"));
-    }
-    for i in 0..2 {
-        bel = bel
-            .rename_in(bcls::BRAM_V5::DIPAL[i], format!("DIPADIPL{i}"))
-            .rename_in(bcls::BRAM_V5::DIPAU[i], format!("DIPADIPU{i}"))
-            .rename_in(bcls::BRAM_V5::DIPBL[i], format!("DIPBDIPL{i}"))
-            .rename_in(bcls::BRAM_V5::DIPBU[i], format!("DIPBDIPU{i}"))
-            .rename_out(bcls::BRAM_V5::DOPAL[i], format!("DOPADOPL{i}"))
-            .rename_out(bcls::BRAM_V5::DOPAU[i], format!("DOPADOPU{i}"))
-            .rename_out(bcls::BRAM_V5::DOPBL[i], format!("DOPBDOPL{i}"))
-            .rename_out(bcls::BRAM_V5::DOPBU[i], format!("DOPBDOPU{i}"));
-    }
+    let mut bel = vrf.verify_bel(bcrd).kind("RAMBFIFO36");
     for (ipin, opin) in [
         ("CASCADEINLATA", "CASCADEOUTLATA"),
         ("CASCADEINLATB", "CASCADEOUTLATB"),
@@ -592,12 +554,12 @@ pub fn verify_device(endev: &ExpandedNamedDevice, rd: &Part) {
                 vrf.skip_tcls_pip(
                     tcls::CLK_HROW,
                     wires::HCLK_ROW[o].cell(co),
-                    wires::GCLK_BUF[i].cell(0),
+                    wires::GCLK_BUF[i].cell(0).pos(),
                 );
                 vrf.inject_tcls_pip(
                     tcls::CLK_HROW,
                     wires::HCLK_ROW[o].cell(co),
-                    wires::GCLK[i].cell(0),
+                    wires::GCLK[i].cell(0).pos(),
                 );
             }
         }
@@ -606,7 +568,7 @@ pub fn verify_device(endev: &ExpandedNamedDevice, rd: &Part) {
         vrf.skip_tcls_pip(
             tcls::CLK_HROW,
             wires::GCLK_BUF[i].cell(0),
-            wires::GCLK[i].cell(0),
+            wires::GCLK[i].cell(0).pos(),
         );
     }
 
@@ -623,21 +585,25 @@ pub fn verify_device(endev: &ExpandedNamedDevice, rd: &Part) {
                 vrf.skip_tcls_pip(
                     tcid,
                     wires::IMUX_BUFG_O[i].cell(0),
-                    wires::MGT_BUF[j].cell(0),
+                    wires::MGT_BUF[j].cell(0).pos(),
                 );
                 vrf.inject_tcls_pip(
                     tcid,
                     wires::IMUX_BUFG_O[i].cell(0),
-                    wires::MGT_ROW_I[j % 5].cell((j / 5) * 10),
+                    wires::MGT_ROW_I[j % 5].cell((j / 5) * 10).pos(),
                 );
             }
         }
         for i in 0..5 {
-            vrf.skip_tcls_pip(tcid, wires::MGT_BUF[i].cell(0), wires::MGT_ROW_I[i].cell(0));
+            vrf.skip_tcls_pip(
+                tcid,
+                wires::MGT_BUF[i].cell(0),
+                wires::MGT_ROW_I[i].cell(0).pos(),
+            );
             vrf.skip_tcls_pip(
                 tcid,
                 wires::MGT_BUF[i + 5].cell(0),
-                wires::MGT_ROW_I[i].cell(10),
+                wires::MGT_ROW_I[i].cell(10).pos(),
             );
         }
     }
@@ -647,23 +613,23 @@ pub fn verify_device(endev: &ExpandedNamedDevice, rd: &Part) {
         vrf.inject_tcls_pip(
             tcls::CMT,
             wires::IMUX_PLL_CLKIN1.cell(0),
-            wires::HCLK_CMT[i].cell(0),
+            wires::HCLK_CMT[i].cell(0).pos(),
         );
         vrf.inject_tcls_pip(
             tcls::CMT,
             wires::IMUX_PLL_CLKIN1.cell(0),
-            wires::GIOB_CMT[i].cell(0),
+            wires::GIOB_CMT[i].cell(0).pos(),
         );
     }
     vrf.inject_tcls_pip(
         tcls::CMT,
         wires::IMUX_PLL_CLKIN1.cell(0),
-        wires::OUT_PLL_CLKFBDCM.cell(0),
+        wires::OUT_PLL_CLKFBDCM.cell(0).pos(),
     );
     vrf.skip_tcls_pip(
         tcls::CMT,
         wires::IMUX_PLL_CLKIN2.cell(0),
-        wires::OUT_PLL_CLKFBDCM.cell(0),
+        wires::OUT_PLL_CLKFBDCM.cell(0).pos(),
     );
 
     for i in 0..2 {

@@ -2,8 +2,8 @@ use prjcombine_ecp::{bels, chip::ChipKind, cslots, regions, tslots};
 use prjcombine_interconnect::{
     db::{
         BelInfo, BelPin, BelSlotId, ConnectorClass, ConnectorSlotId, ConnectorWire, IntDb,
-        LegacyBel, PermaBuf, ProgBuf, SwitchBox, SwitchBoxItem, TileClass, TileSlotId,
-        TileWireCoord, WireKind,
+        LegacyBel, PermaBuf, ProgBuf, SwitchBox, SwitchBoxItem, TileClass, TileSlotId, WireKind,
+        WireSlotIdExt,
     },
     dir::{Dir, DirH, DirMap},
 };
@@ -44,14 +44,14 @@ impl BelBuilder<'_, '_> {
     fn add_input(&mut self, name: &str, cell: usize, wire: &str) {
         self.bel.pins.insert(
             name.into(),
-            BelPin::new_in(TileWireCoord::new_idx(cell, self.tcls.db.db.get_wire(wire))),
+            BelPin::new_in(self.tcls.db.db.get_wire(wire).cell(cell)),
         );
     }
 
     fn add_output(&mut self, name: &str, cell: usize, wire: &str) {
         self.bel.pins.insert(
             name.into(),
-            BelPin::new_out(TileWireCoord::new_idx(cell, self.tcls.db.db.get_wire(wire))),
+            BelPin::new_out(self.tcls.db.db.get_wire(wire).cell(cell)),
         );
     }
 }
@@ -886,9 +886,8 @@ impl IntDbBuilder {
                 let mut sb = SwitchBox::default();
                 for (si, vsdi) in clocks {
                     sb.items.push(SwitchBoxItem::PermaBuf(PermaBuf {
-                        dst: TileWireCoord::new_idx(0, self.db.get_wire(&format!("SCLK{si}"))),
-                        src: TileWireCoord::new_idx(0, self.db.get_wire(&format!("VSDCLK{vsdi}")))
-                            .pos(),
+                        dst: self.db.get_wire(&format!("SCLK{si}")).cell(0),
+                        src: self.db.get_wire(&format!("VSDCLK{vsdi}")).cell(0).pos(),
                     }));
                 }
                 let mut tcls = self.tile_class(name, tslots::SCLK_SOURCE, 1);
@@ -907,13 +906,13 @@ impl IntDbBuilder {
                 let wire = self.db.get_wire(&format!("HSDCLK{ii}", ii = i * 4));
                 for j in 0..4 {
                     sb.items.push(SwitchBoxItem::ProgBuf(ProgBuf {
-                        dst: TileWireCoord::new_idx(j, wire),
-                        src: TileWireCoord::new_idx(4 + j, wire).pos(),
+                        dst: wire.cell(j),
+                        src: wire.cell(4 + j).pos(),
                         bit: PolTileBit::DUMMY,
                     }));
                     sb.items.push(SwitchBoxItem::ProgBuf(ProgBuf {
-                        dst: TileWireCoord::new_idx(4 + j, wire),
-                        src: TileWireCoord::new_idx(j, wire).pos(),
+                        dst: wire.cell(4 + j),
+                        src: wire.cell(j).pos(),
                         bit: PolTileBit::DUMMY,
                     }));
                 }

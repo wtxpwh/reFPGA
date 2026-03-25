@@ -2,7 +2,7 @@ use std::collections::{HashMap, HashSet};
 
 use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
-    db::{BelInfo, TileWireCoord, WireSlotId},
+    db::{BelInfo, TileWireCoord, WireSlotId, WireSlotIdExt},
     grid::TileCoord,
 };
 use prjcombine_re_collector::diff::{Diff, OcdMode, xlat_enum_raw};
@@ -204,10 +204,7 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
                             && (wires_s3::IMUX_SR_OPTINV.contains(src.wire)
                                 || wires_s3::IMUX_CE_OPTINV.contains(src.wire))
                         {
-                            let mut bit = ctx.sb_inv(
-                                tcls_s3::INT_BRAM_S3ADSP,
-                                TileWireCoord::new_idx(0, src.wire),
-                            );
+                            let mut bit = ctx.sb_inv(tcls_s3::INT_BRAM_S3ADSP, src.wire.cell(0));
                             bit.bit.rect = BitRectId::from_idx(src.cell.to_idx());
                             diff.discard_bits(&[bit.bit]);
                         }

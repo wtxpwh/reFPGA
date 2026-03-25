@@ -2,7 +2,7 @@ use std::collections::{BTreeMap, BTreeSet, btree_map};
 
 use prjcombine_ecp::{bels, chip::ChipKind};
 use prjcombine_interconnect::{
-    db::{BelInfo, BelPin, LegacyBel, Mux, PinDir, SwitchBox, SwitchBoxItem, TileWireCoord},
+    db::{BelInfo, BelPin, LegacyBel, Mux, PinDir, SwitchBox, SwitchBoxItem, WireSlotIdExt},
     dir::DirH,
 };
 
@@ -53,10 +53,8 @@ impl ChipContext<'_> {
                     _ => unreachable!(),
                 };
                 for i in 0..num {
-                    let iwire_i = self.intdb.get_wire(&format!("EBR_{dir}{i}_1"));
-                    let iwire_o = self.intdb.get_wire(&format!("EBR_{dir}{i}_0"));
-                    let iwire_i = TileWireCoord::new_idx(0, iwire_i);
-                    let iwire_o = TileWireCoord::new_idx(0, iwire_o);
+                    let iwire_i = self.intdb.get_wire(&format!("EBR_{dir}{i}_1")).cell(0);
+                    let iwire_o = self.intdb.get_wire(&format!("EBR_{dir}{i}_0")).cell(0);
                     x10_from_x10.insert(iwire_o, iwire_i);
                 }
             }
@@ -112,10 +110,7 @@ impl ChipContext<'_> {
                     }
 
                     if !pin.starts_with("EXTRA") {
-                        let out_wire = TileWireCoord::new_idx(
-                            0,
-                            self.intdb.get_wire(&format!("OUT_EBR_{pin}")),
-                        );
+                        let out_wire = self.intdb.get_wire(&format!("OUT_EBR_{pin}")).cell(0);
                         bel.pins.insert(pin.into(), BelPin::new_out(out_wire));
                         match ebr_to_int.entry(out_wire) {
                             btree_map::Entry::Vacant(e) => {
@@ -157,8 +152,7 @@ impl ChipContext<'_> {
                         }
                     }
 
-                    let imux_wire =
-                        TileWireCoord::new_idx(0, self.intdb.get_wire(&format!("IMUX_EBR_{pin}")));
+                    let imux_wire = self.intdb.get_wire(&format!("IMUX_EBR_{pin}")).cell(0);
                     bel.pins.insert(pin.into(), BelPin::new_out(imux_wire));
                     match ebr_from_int.entry(imux_wire) {
                         btree_map::Entry::Vacant(e) => {

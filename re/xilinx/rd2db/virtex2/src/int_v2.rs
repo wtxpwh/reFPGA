@@ -1,5 +1,5 @@
 use prjcombine_interconnect::{
-    db::{BelInfo, BelInput, IntDb, TileWireCoord},
+    db::{BelInfo, BelInput, IntDb, WireSlotIdExt},
     dir::{Dir, DirMap},
 };
 use prjcombine_re_xilinx_rawdump::{Coord, Part};
@@ -59,20 +59,20 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
     }
     for i in 0..8 {
         for tkn in ["CLKB", "CLKT"] {
-            builder.extra_name_sub(format!("{tkn}_DLLOUTL{i}"), 0, wires::DCM_BUS[i]);
-            builder.extra_name_sub(format!("{tkn}_DLLOUTR{i}"), 1, wires::DCM_BUS[i]);
-            builder.extra_name_sub(format!("{tkn}_DLL_CLKPADL{i}"), 0, wires::DCM_CLKPAD[i]);
-            builder.extra_name_sub(format!("{tkn}_DLL_CLKPADR{i}"), 1, wires::DCM_CLKPAD[i]);
+            builder.extra_name_cell(format!("{tkn}_DLLOUTL{i}"), 0, wires::DCM_BUS[i]);
+            builder.extra_name_cell(format!("{tkn}_DLLOUTR{i}"), 1, wires::DCM_BUS[i]);
+            builder.extra_name_cell(format!("{tkn}_DLL_CLKPADL{i}"), 0, wires::DCM_CLKPAD[i]);
+            builder.extra_name_cell(format!("{tkn}_DLL_CLKPADR{i}"), 1, wires::DCM_CLKPAD[i]);
         }
         builder.extra_name(format!("BBTERM_CKMUX{i}"), wires::DCM_BUS[i]);
         builder.extra_name(format!("TTERM_CKMUX{i}"), wires::DCM_BUS[i]);
     }
     for i in 0..4 {
         for tkn in ["CLKB", "CLKT"] {
-            builder.extra_name_sub(format!("{tkn}_CKIL{i}"), 0, wires::OUT_CLKPAD[i]);
-            builder.extra_name_sub(format!("{tkn}_CKIR{i}"), 1, wires::OUT_CLKPAD[i]);
-            builder.extra_name_sub(format!("ML_{tkn}_CKIL{i}"), 0, wires::OUT_CLKPAD[i]);
-            builder.extra_name_sub(format!("ML_{tkn}_CKIR{i}"), 1, wires::OUT_CLKPAD[i]);
+            builder.extra_name_cell(format!("{tkn}_CKIL{i}"), 0, wires::OUT_CLKPAD[i]);
+            builder.extra_name_cell(format!("{tkn}_CKIR{i}"), 1, wires::OUT_CLKPAD[i]);
+            builder.extra_name_cell(format!("ML_{tkn}_CKIL{i}"), 0, wires::OUT_CLKPAD[i]);
+            builder.extra_name_cell(format!("ML_{tkn}_CKIR{i}"), 1, wires::OUT_CLKPAD[i]);
         }
     }
 
@@ -106,12 +106,12 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
         match (xname, da1) {
             (None, _) => (),
             (Some(i), Dir::N) => {
-                builder.extra_name_sub(format!("CLKB_TO_OMUXL{i}"), 0, omux_da1);
-                builder.extra_name_sub(format!("CLKB_TO_OMUXR{i}"), 1, omux_da1);
+                builder.extra_name_cell(format!("CLKB_TO_OMUXL{i}"), 0, omux_da1);
+                builder.extra_name_cell(format!("CLKB_TO_OMUXR{i}"), 1, omux_da1);
             }
             (Some(i), Dir::S) => {
-                builder.extra_name_sub(format!("CLKT_TO_OMUXL{i}"), 0, omux_da1);
-                builder.extra_name_sub(format!("CLKT_TO_OMUXR{i}"), 1, omux_da1);
+                builder.extra_name_cell(format!("CLKT_TO_OMUXL{i}"), 0, omux_da1);
+                builder.extra_name_cell(format!("CLKT_TO_OMUXR{i}"), 1, omux_da1);
             }
             _ => unreachable!(),
         }
@@ -475,22 +475,22 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
                         );
                         let idx = i + (4 - j) * 4;
                         if ab == 'A' && idx < 14 {
-                            builder.extra_name_sub(format!("PPC_ADR_T00_{idx}"), 40, last);
-                            builder.extra_name_sub(format!("PPC_ADR_T01_{idx}"), 47, last);
+                            builder.extra_name_cell(format!("PPC_ADR_T00_{idx}"), 40, last);
+                            builder.extra_name_cell(format!("PPC_ADR_T01_{idx}"), 47, last);
                         }
                     } else {
                         let idx = i + (j - 1) * 4;
                         if ab == 'A' && idx < 14 {
-                            builder.extra_name_sub(format!("PPC_ADR_B00_{idx}"), 32, last);
-                            builder.extra_name_sub(format!("PPC_ADR_B01_{idx}"), 39, last);
+                            builder.extra_name_cell(format!("PPC_ADR_B00_{idx}"), 32, last);
+                            builder.extra_name_cell(format!("PPC_ADR_B01_{idx}"), 39, last);
                         }
                         if ab == 'B' && idx < 14 {
-                            builder.extra_name_sub(
+                            builder.extra_name_cell(
                                 format!("PPC_ADR_B00_{idx}", idx = idx + 14),
                                 32,
                                 last,
                             );
-                            builder.extra_name_sub(
+                            builder.extra_name_cell(
                                 format!("PPC_ADR_B01_{idx}", idx = idx + 14),
                                 39,
                                 last,
@@ -710,10 +710,10 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
             "RTERM_PCI_OUT_U0",
         ],
     );
-    builder.extra_name_sub("REG_R_PCI_OUT_D2", 0, w);
-    builder.extra_name_sub("REG_R_PCI_OUT_D0", 1, w);
-    builder.extra_name_sub("REG_R_PCI_OUT_U0", 2, w);
-    builder.extra_name_sub("REG_R_PCI_OUT_U2", 3, w);
+    builder.extra_name_cell("REG_R_PCI_OUT_D2", 0, w);
+    builder.extra_name_cell("REG_R_PCI_OUT_D0", 1, w);
+    builder.extra_name_cell("REG_R_PCI_OUT_U0", 2, w);
+    builder.extra_name_cell("REG_R_PCI_OUT_U2", 3, w);
     let w = wires::OUT_PCI[1];
     builder.wire_names(
         w,
@@ -724,28 +724,28 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
             "RTERM_PCI_OUT_U1",
         ],
     );
-    builder.extra_name_sub("REG_R_PCI_OUT_D1", 1, w);
-    builder.extra_name_sub("REG_R_PCI_OUT_U1", 2, w);
+    builder.extra_name_cell("REG_R_PCI_OUT_D1", 1, w);
+    builder.extra_name_cell("REG_R_PCI_OUT_U1", 2, w);
 
     for i in 0..8 {
         for tkn in ["CLKB", "CLKT"] {
-            builder.extra_name_sub(format!("{tkn}_SELDUB{i}"), 1, wires::IMUX_BUFG_SEL[i]);
+            builder.extra_name_cell(format!("{tkn}_SELDUB{i}"), 1, wires::IMUX_BUFG_SEL[i]);
             let ii = i % 4;
             let lr = if i < 4 { 'R' } else { 'L' };
-            builder.extra_name_sub(
+            builder.extra_name_cell(
                 format!("{tkn}_CLKDUB{lr}{ii}"),
                 1,
                 wires::IMUX_BUFG_CLK_INT[i],
             );
-            builder.extra_name_sub(format!("{tkn}_GCLK0{i}"), 1, wires::IMUX_BUFG_CLK[i]);
+            builder.extra_name_cell(format!("{tkn}_GCLK0{i}"), 1, wires::IMUX_BUFG_CLK[i]);
         }
-        builder.extra_name_sub(format!("CLKB_GCLK_ROOT{i}"), 1, wires::GCLK_S[i]);
-        builder.extra_name_sub(format!("CLKT_GCLK_ROOT{i}"), 1, wires::GCLK_N[i]);
+        builder.extra_name_cell(format!("CLKB_GCLK_ROOT{i}"), 1, wires::GCLK_S[i]);
+        builder.extra_name_cell(format!("CLKT_GCLK_ROOT{i}"), 1, wires::GCLK_N[i]);
         builder.extra_name(format!("GCLKC_GCLKB{i}"), wires::GCLK_S[i]);
         builder.extra_name(format!("GCLKC_GCLKT{i}"), wires::GCLK_N[i]);
-        builder.extra_name_sub(format!("GCLKC_GCLKL{i}"), 0, wires::GCLK_ROW[i]);
-        builder.extra_name_sub(format!("GCLKC_GCLKR{i}"), 1, wires::GCLK_ROW[i]);
-        builder.extra_name_sub(format!("GCLKH_GCLK_B{i}"), 1, wires::GCLK_ROW[i]);
+        builder.extra_name_cell(format!("GCLKC_GCLKL{i}"), 0, wires::GCLK_ROW[i]);
+        builder.extra_name_cell(format!("GCLKC_GCLKR{i}"), 1, wires::GCLK_ROW[i]);
+        builder.extra_name_cell(format!("GCLKH_GCLK_B{i}"), 1, wires::GCLK_ROW[i]);
     }
 
     builder.extract_int_id(tcls::INT_CLB, bslots::INT, "CENTER", "INT_CLB", &[]);
@@ -941,10 +941,7 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
             wires::IMUX_TS[0],
             wires::IMUX_TS[1],
         ] {
-            pips.pips.remove(&(
-                TileWireCoord::new_idx(0, w),
-                TileWireCoord::new_idx(0, wires::PULLUP).pos(),
-            ));
+            pips.pips.remove(&(w.cell(0), wires::PULLUP.cell(0).pos()));
         }
     }
 
@@ -1001,7 +998,7 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
             .pins_name_only(&ioi_name_only)
             .extra_int_out_force(
                 "CLKPAD",
-                TileWireCoord::new_idx(0, wires::OUT_CLKPAD[i]),
+                wires::OUT_CLKPAD[i].cell(0),
                 format!("IOIS_IBUF{i}"),
             )
     });
@@ -1422,7 +1419,6 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
             }
             builder
                 .xtile_id(tcls::CLK_S, naming, xy)
-                .num_cells(2)
                 .extract_muxes(bslots::CLK_INT)
                 .skip_muxes(&wires::GCLK_S[..])
                 .ref_int(xy_l, 0)
@@ -1468,7 +1464,6 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
             }
             builder
                 .xtile_id(tcls::CLK_N, naming, xy)
-                .num_cells(2)
                 .extract_muxes(bslots::CLK_INT)
                 .skip_muxes(&wires::GCLK_N[..])
                 .ref_int(xy_l, 0)
@@ -1482,7 +1477,6 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
         for tcid in [tcls::HROW, tcls::HROW_S, tcls::HROW_N] {
             builder
                 .xtile_id(tcid, "GCLKC", xy)
-                .num_cells(2)
                 .switchbox(bslots::HROW)
                 .optin_muxes(&wires::GCLK_ROW[..])
                 .extract();
@@ -1496,7 +1490,6 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
             let bel = builder.bel_virtual(bslots::GLOBALSIG_HCLK);
             builder
                 .xtile_id(tcls::HCLK, "HCLK", xy)
-                .num_cells(2)
                 .ref_int(int_s_xy, 0)
                 .ref_int(int_n_xy, 1)
                 .switchbox(bslots::HCLK)

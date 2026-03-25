@@ -2,7 +2,7 @@ use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
     db::{
         BelInfo, BelInput, BelSlotId, ProgDelay, SwitchBoxItem, TileClassId, TileWireCoord,
-        WireSlotId,
+        WireSlotId, WireSlotIdExt,
     },
     grid::TileCoord,
 };
@@ -154,7 +154,7 @@ impl<'b> FuzzerProp<'b, IseBackend<'b>> for WireIntDstFilter {
                                     BelInput::Fixed(ptwc) => ptwc.tw,
                                     BelInput::Invertible(twc, _) => twc,
                                 };
-                                if wire == TileWireCoord::new_idx(idx, wire_oi) {
+                                if wire == wire_oi.cell(idx) {
                                     found = true;
                                     break;
                                 }
@@ -487,7 +487,7 @@ impl<'b> FuzzerProp<'b, IseBackend<'b>> for DriveLLH {
                         .with_col(src_col)
                         .tile(prjcombine_xc2000::xc4000::tslots::MAIN);
                     if let Some(src_tile) = backend.edev.get_tile(int_tcrd) {
-                        let dwire = TileWireCoord::new_idx(0, self.wire.wire);
+                        let dwire = self.wire.wire.cell(0);
                         if let Some(ins) =
                             backend.edev.db_index[src_tile.class].pips_bwd.get(&dwire)
                         {
@@ -599,7 +599,7 @@ impl<'b> FuzzerProp<'b, IseBackend<'b>> for DriveLLV {
                         .with_row(src_row)
                         .tile(prjcombine_xc2000::xc4000::tslots::MAIN);
                     if let Some(src_tile) = backend.edev.get_tile(int_tcrd) {
-                        let dwire = TileWireCoord::new_idx(0, self.wire.wire);
+                        let dwire = self.wire.wire.cell(0);
                         if let Some(ins) =
                             backend.edev.db_index[src_tile.class].pips_bwd.get(&dwire)
                         {

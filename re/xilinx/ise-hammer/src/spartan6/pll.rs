@@ -1,4 +1,4 @@
-use prjcombine_interconnect::db::{BelAttributeType, BelInfo, SwitchBoxItem, TileWireCoord};
+use prjcombine_interconnect::db::{BelAttributeType, BelInfo, SwitchBoxItem, WireSlotIdExt};
 use prjcombine_re_collector::diff::{
     OcdMode, extract_bitvec_val_part, extract_common_diff, xlat_bit, xlat_enum_raw,
 };
@@ -269,7 +269,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
         .commit();
 
     {
-        let mux = &muxes[&TileWireCoord::new_idx(1, wires::IMUX_PLL_CLKFB)];
+        let mux = &muxes[&wires::IMUX_PLL_CLKFB.cell(1)];
         for &src in mux.src.keys() {
             let mut builder = bctx
                 .mode(mode)
@@ -308,16 +308,12 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
         (wires::OMUX_PLL_SKEWCLKIN1, wires::OMUX_PLL_SKEWCLKIN1_BUF),
         (wires::OMUX_PLL_SKEWCLKIN2, wires::OMUX_PLL_SKEWCLKIN2_BUF),
     ] {
-        let mux = &muxes[&TileWireCoord::new_idx(1, w)];
+        let mux = &muxes[&w.cell(1)];
         for &src in mux.src.keys() {
             bctx.build()
                 .global_mutex("CMT", "MUX_PLL")
                 .mode(mode)
-                .extra_tile_routing(
-                    relation_dcm.clone(),
-                    TileWireCoord::new_idx(1, w_buf),
-                    TileWireCoord::new_idx(2, w).pos(),
-                )
+                .extra_tile_routing(relation_dcm.clone(), w_buf.cell(1), w.cell(2).pos())
                 .prop(WireMutexShared::new(src.tw))
                 .prop(WireMutexExclusive::new(mux.dst))
                 .test_routing(mux.dst, src)
@@ -327,7 +323,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
     }
 
     {
-        let mux = &muxes[&TileWireCoord::new_idx(1, wires::CMT_TEST_CLK)];
+        let mux = &muxes[&wires::CMT_TEST_CLK.cell(1)];
         for &src in mux.src.keys() {
             bctx.build()
                 .global_mutex("CMT", "MUX_PLL")
@@ -484,7 +480,7 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx, skip_dcm: bool) {
         wires::CMT_TEST_CLK,
         wires::IMUX_PLL_CLKFB,
     ] {
-        let mux = &muxes[&TileWireCoord::new_idx(1, w)];
+        let mux = &muxes[&w.cell(1)];
         let mut diffs = vec![];
         let mut got_empty = false;
         for &src in mux.src.keys() {
@@ -591,25 +587,25 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx, skip_dcm: bool) {
 
     // um?
     present.apply_enum_diff_raw(
-        ctx.sb_mux(tcid, TileWireCoord::new_idx(1, wires::IMUX_PLL_CLKFB)),
-        &Some(TileWireCoord::new_idx(1, wires::IOFBCLK_CMT_W[3]).pos()),
-        &Some(TileWireCoord::new_idx(1, wires::IOFBCLK_CMT_V[0]).pos()),
+        ctx.sb_mux(tcid, wires::IMUX_PLL_CLKFB.cell(1)),
+        &Some(wires::IOFBCLK_CMT_W[3].cell(1).pos()),
+        &Some(wires::IOFBCLK_CMT_V[0].cell(1).pos()),
     );
     present.apply_enum_diff_raw(
         ctx.sb_pairmux(
             tcid,
             [
-                TileWireCoord::new_idx(1, wires::IMUX_PLL_CLKIN1),
-                TileWireCoord::new_idx(1, wires::IMUX_PLL_CLKIN2),
+                wires::IMUX_PLL_CLKIN1.cell(1),
+                wires::IMUX_PLL_CLKIN2.cell(1),
             ],
         ),
         &[
-            Some(TileWireCoord::new_idx(1, wires::DIVCLK_CMT_E[3]).pos()),
-            Some(TileWireCoord::new_idx(1, wires::DIVCLK_CMT_W[3]).pos()),
+            Some(wires::DIVCLK_CMT_E[3].cell(1).pos()),
+            Some(wires::DIVCLK_CMT_W[3].cell(1).pos()),
         ],
         &[
-            Some(TileWireCoord::new_idx(1, wires::DIVCLK_CMT_V[0]).pos()),
-            Some(TileWireCoord::new_idx(1, wires::DIVCLK_CMT_V[4]).pos()),
+            Some(wires::DIVCLK_CMT_V[0].cell(1).pos()),
+            Some(wires::DIVCLK_CMT_V[4].cell(1).pos()),
         ],
     );
     present.apply_bit_diff(
@@ -618,14 +614,14 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx, skip_dcm: bool) {
         false,
     );
     present.apply_enum_diff_raw(
-        ctx.sb_mux(tcid, TileWireCoord::new_idx(1, wires::OMUX_PLL_SKEWCLKIN2)),
+        ctx.sb_mux(tcid, wires::OMUX_PLL_SKEWCLKIN2.cell(1)),
         &None,
-        &Some(TileWireCoord::new_idx(1, wires::OUT_PLL_CLKOUTDCM[0]).pos()),
+        &Some(wires::OUT_PLL_CLKOUTDCM[0].cell(1).pos()),
     );
     present.apply_enum_diff_raw(
-        ctx.sb_mux(tcid, TileWireCoord::new_idx(1, wires::OMUX_PLL_SKEWCLKIN1)),
+        ctx.sb_mux(tcid, wires::OMUX_PLL_SKEWCLKIN1.cell(1)),
         &None,
-        &Some(TileWireCoord::new_idx(1, wires::OUT_PLL_CLKOUTDCM[0]).pos()),
+        &Some(wires::OUT_PLL_CLKOUTDCM[0].cell(1).pos()),
     );
     present.apply_bit_diff(
         ctx.bel_attr_bit(tcid, bslot, bcls::PLL::PLL_CLKOUT0_NOCOUNT),
@@ -976,8 +972,8 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx, skip_dcm: bool) {
         (wires::OMUX_PLL_SKEWCLKIN2_BUF, wires::OMUX_PLL_SKEWCLKIN2),
         (wires::OMUX_PLL_SKEWCLKIN1_BUF, wires::OMUX_PLL_SKEWCLKIN1),
     ] {
-        let dst = TileWireCoord::new_idx(1, wt);
-        let src = TileWireCoord::new_idx(2, wf).pos();
+        let dst = wt.cell(1);
+        let src = wf.cell(2).pos();
 
         ctx.collect_progbuf(tcid, dst, src);
     }

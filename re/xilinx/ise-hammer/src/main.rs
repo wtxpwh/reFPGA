@@ -2,7 +2,7 @@
 
 use clap::Parser;
 use prjcombine_entity::EntityId;
-use prjcombine_interconnect::db::TileWireCoord;
+use prjcombine_interconnect::db::WireSlotIdExt;
 use prjcombine_interconnect::dir::DirV;
 use prjcombine_re_collector::{bitdata::CollectorData, collect::Collector};
 use prjcombine_re_hammer::{Backend, Session};
@@ -987,7 +987,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         && chip.kind.is_virtex2()
     {
         for &wire in &wires_v2::IMUX_DCM_CLK_OPTINV[..3] {
-            let wire = TileWireCoord::new_idx(0, wire);
+            let wire = wire.cell(0);
             if let Some(&bit) = data.sb_inv.get(&(tcls_v2::INT_GT_CLKPAD, wire)) {
                 for tcid in [tcls_v2::INT_DCM_V2, tcls_v2::INT_DCM_V2P] {
                     match data.sb_inv.entry((tcid, wire)) {

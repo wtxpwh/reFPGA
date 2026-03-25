@@ -5,7 +5,7 @@ use prjcombine_ecp::{
     chip::{Chip, SpecialIoKey, SpecialLocKey},
 };
 use prjcombine_interconnect::{
-    db::{BelPin, LegacyBel, TileWireCoord},
+    db::{BelPin, LegacyBel, WireSlotIdExt},
     dir::{Dir, DirHV},
     grid::DieIdExt,
 };
@@ -103,7 +103,7 @@ impl ChipContext<'_> {
             .enumerate()
         {
             for wname in ["PCLK0", "PCLK1", "SCLK0", "SCLK1", "SCLK2", "SCLK3"] {
-                let wire = TileWireCoord::new_idx(cell_idx, self.intdb.get_wire(wname));
+                let wire = self.intdb.get_wire(wname).cell(cell_idx);
                 bel.pins
                     .insert(format!("{wname}_{hv}"), BelPin::new_in(wire));
                 let wire = self.edev.tile_wire(tcrd, wire);
@@ -175,8 +175,10 @@ impl ChipContext<'_> {
             let out = self.rc_wire(cell, &format!("{ll}DCSOUT{i}_DCS"));
             self.add_bel_wire(bcrd, "OUT", out);
 
-            let wire =
-                TileWireCoord::new_idx(bidx / 2, self.intdb.get_wire(&format!("PCLK{}", i + 2)));
+            let wire = self
+                .intdb
+                .get_wire(&format!("PCLK{}", i + 2))
+                .cell(bidx / 2);
             bel.pins.insert("OUT".into(), BelPin::new_in(wire));
             let pclk = self.edev.tile_wire(tcrd, wire);
             self.claim_pip_int_out(pclk, out);

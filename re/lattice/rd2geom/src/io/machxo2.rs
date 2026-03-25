@@ -6,7 +6,7 @@ use prjcombine_ecp::{
 };
 use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
-    db::{BelPin, LegacyBel, TileWireCoord},
+    db::{BelPin, LegacyBel, WireSlotIdExt},
     dir::{Dir, DirHV, DirV},
     grid::{BelCoord, CellCoord, ColId, DieIdExt, EdgeIoCoord, RowId, TileIobId},
 };
@@ -461,7 +461,7 @@ impl ChipContext<'_> {
         self.claim_pip(di, paddi_pio);
         if self.is_machnx_io(io) {
             let wire = self.intdb.get_wire(&format!("OUT_Q{idx}"));
-            let wire = TileWireCoord::new_idx(0, wire);
+            let wire = wire.cell(0);
             bel.pins.insert("DI".into(), BelPin::new_out(wire));
         } else {
             bel.pins.insert("DI".into(), self.xlat_int_wire(bcrd, di));

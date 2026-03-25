@@ -8,7 +8,7 @@ use prjcombine_interconnect::{
         Bel, BelInfo, BelInput, BelKind, BelPin, BelSlotId, BiPass, CellSlotId, ConnectorClass,
         ConnectorClassId, ConnectorSlotId, ConnectorWire, IntDb, LegacyBel, Mux, Pass, PermaBuf,
         PinDir, PolTileWireCoord, ProgBuf, ProgDelay, ProgInv, SwitchBox, SwitchBoxItem, TestMux,
-        TestMuxWire, TileClassId, TileWireCoord, WireKind, WireSlotId,
+        TestMuxWire, TileClassId, TileWireCoord, WireKind, WireSlotId, WireSlotIdExt,
     },
     dir::{Dir, DirMap},
 };
@@ -17,7 +17,7 @@ use prjcombine_re_xilinx_naming::db::{
     ConnectorWireOutNaming, IntfWireInNaming, NamingDb, PipNaming, RawTileId, TileClassNaming,
     TileClassNamingId, WireNaming,
 };
-use prjcombine_re_xilinx_rawdump::{self as rawdump, Coord, NodeOrWire, Part};
+use prjcombine_re_xilinx_rawdump::{self as rawdump, Coord, NodeOrWire, Part, TkPipInversion};
 
 use assert_matches::assert_matches;
 
@@ -77,7 +77,6 @@ pub struct XTileInfo<'a, 'b> {
     pub tcid: TileClassId,
     pub naming: String,
     pub raw_tiles: Vec<XTileRawTile>,
-    pub num_tiles: usize,
     pub refs: Vec<XTileRef>,
     pub tmux_bel: Option<BelSlotId>,
     pub intf_sb: Option<BelSlotId>,
@@ -460,11 +459,6 @@ impl XTileInfo<'_, '_> {
         self
     }
 
-    pub fn num_cells(mut self, num: usize) -> Self {
-        self.num_tiles = num;
-        self
-    }
-
     pub fn force_name(mut self, rti: usize, name: &str, wire: TileWireCoord) -> Self {
         if let Some(w) = self.builder.rd.wires.get(name) {
             self.force_names.insert((rti, w), (IntConnKind::Raw, wire));
@@ -518,7 +512,7 @@ impl XTileInfo<'_, '_> {
                     let mut w = w;
                     if let Some(ref tile_map) = rt.tile_map {
                         w.cell = tile_map[w.cell];
-                    } else if self.num_tiles == 1 {
+                    } else if self.builder.db[self.tcid].cells.len() == 1 {
                         w.cell = CellSlotId::from_idx(0);
                     }
                     names.entry(nw).or_insert((IntConnKind::Raw, w));
@@ -995,15 +989,15 @@ impl XTileExtractor<'_, '_, '_> {
         let tk = &self.rd.tile_kinds[tile.kind];
         if let Some(slot) = sub.slot {
             let tks = tk.sites.get(&slot).expect("missing site slot in tk").1;
-            for (name, tksp) in &tks.pins {
-                let name = sub.pin_renames.get(name).unwrap_or(name);
+            for (orig_pin, tksp) in &tks.pins {
+                let name = sub.pin_renames.get(orig_pin).unwrap_or(orig_pin);
+                let dir = match tksp.dir {
+                    rawdump::TkSitePinDir::Input => PinDir::Input,
+                    rawdump::TkSitePinDir::Output => PinDir::Output,
+                    rawdump::TkSitePinDir::Bidir => PinDir::Inout,
+                };
                 match sub.pins.get(name).unwrap_or(&BelPinInfo::Int) {
                     &BelPinInfo::Int => {
-                        let dir = match tksp.dir {
-                            rawdump::TkSitePinDir::Input => PinDir::Input,
-                            rawdump::TkSitePinDir::Output => PinDir::Output,
-                            _ => panic!("bidir pin {name}"),
-                        };
                         if tksp.wire.is_none() {
                             panic!(
                                 "missing site wire for pin {name} tile {tile}",
@@ -1016,6 +1010,7 @@ impl XTileExtractor<'_, '_, '_> {
                             name.clone(),
                             BelPinNaming {
                                 tile: rt,
+                                orig_pin: Some((orig_pin.clone(), dir)),
                                 name: self.rd.wires[tksp.wire.unwrap()].clone(),
                                 name_far: self.rd.wires[wnf].clone(),
                                 pips,
@@ -1026,11 +1021,6 @@ impl XTileExtractor<'_, '_, '_> {
                         bel.pins.insert(name.clone(), BelPin { wires, dir });
                     }
                     &BelPinInfo::IntNudge(wire) => {
-                        let dir = match tksp.dir {
-                            rawdump::TkSitePinDir::Input => PinDir::Input,
-                            rawdump::TkSitePinDir::Output => PinDir::Output,
-                            _ => panic!("bidir pin {name}"),
-                        };
                         if tksp.wire.is_none() {
                             panic!(
                                 "missing site wire for pin {name} tile {tile}",
@@ -1043,6 +1033,7 @@ impl XTileExtractor<'_, '_, '_> {
                             name.clone(),
                             BelPinNaming {
                                 tile: rt,
+                                orig_pin: Some((orig_pin.clone(), dir)),
                                 name: self.rd.wires[tksp.wire.unwrap()].clone(),
                                 name_far: self.rd.wires[wnf].clone(),
                                 pips,
@@ -1059,15 +1050,11 @@ impl XTileExtractor<'_, '_, '_> {
                         );
                     }
                     &BelPinInfo::ForceInt(wire, ref wname) => {
-                        let dir = match tksp.dir {
-                            rawdump::TkSitePinDir::Input => PinDir::Input,
-                            rawdump::TkSitePinDir::Output => PinDir::Output,
-                            _ => panic!("bidir pin {name}"),
-                        };
                         naming.pins.insert(
                             name.clone(),
                             BelPinNaming {
                                 tile: rt,
+                                orig_pin: Some((orig_pin.clone(), dir)),
                                 name: self.rd.wires[tksp.wire.unwrap()].clone(),
                                 name_far: wname.clone(),
                                 pips: Vec::new(),
@@ -1095,6 +1082,7 @@ impl XTileExtractor<'_, '_, '_> {
                                 name.clone(),
                                 BelPinNaming {
                                     tile: rt,
+                                    orig_pin: Some((orig_pin.clone(), dir)),
                                     name: self.rd.wires[tksp.wire.unwrap()].clone(),
                                     name_far: self.rd.wires[tksp.wire.unwrap()].clone(),
                                     pips: Vec::new(),
@@ -1103,11 +1091,6 @@ impl XTileExtractor<'_, '_, '_> {
                                 },
                             );
                         } else {
-                            let dir = match tksp.dir {
-                                rawdump::TkSitePinDir::Input => PinDir::Input,
-                                rawdump::TkSitePinDir::Output => PinDir::Output,
-                                _ => panic!("bidir pin {name}"),
-                            };
                             let (wn, pips) = self.walk_count(
                                 name,
                                 dir,
@@ -1119,6 +1102,7 @@ impl XTileExtractor<'_, '_, '_> {
                                 name.clone(),
                                 BelPinNaming {
                                     tile: rt,
+                                    orig_pin: Some((orig_pin.clone(), dir)),
                                     name: self.rd.wires[tksp.wire.unwrap()].clone(),
                                     name_far: self.rd.wires[wn].clone(),
                                     pips,
@@ -1158,6 +1142,7 @@ impl XTileExtractor<'_, '_, '_> {
                         name.clone(),
                         BelPinNaming {
                             tile: rt,
+                            orig_pin: None,
                             name: self.rd.wires[wn].clone(),
                             name_far: self.rd.wires[wnf].clone(),
                             pips,
@@ -1172,6 +1157,7 @@ impl XTileExtractor<'_, '_, '_> {
                         name.clone(),
                         BelPinNaming {
                             tile: rt,
+                            orig_pin: None,
                             name: wname.clone(),
                             name_far: wname.clone(),
                             pips: vec![],
@@ -1212,6 +1198,7 @@ impl XTileExtractor<'_, '_, '_> {
                         name.clone(),
                         BelPinNaming {
                             tile: rt,
+                            orig_pin: None,
                             name: self.rd.wires[wn].clone(),
                             name_far: self.rd.wires[wn].clone(),
                             pips: Vec::new(),
@@ -1225,6 +1212,7 @@ impl XTileExtractor<'_, '_, '_> {
                         name.clone(),
                         BelPinNaming {
                             tile: rt,
+                            orig_pin: None,
                             name: wname.clone(),
                             name_far: wname.clone(),
                             pips: pips.clone(),
@@ -1307,7 +1295,8 @@ impl XTileExtractor<'_, '_, '_> {
             let tile = &self.rd.tiles[&rt.xy];
             let tk = &self.rd.tile_kinds[tile.kind];
 
-            for &(wfi, wti) in tk.pips.keys() {
+            for (_, &(wfi, wti), pip) in &tk.pips {
+                let inv = pip.inversion == TkPipInversion::Always;
                 if self.xtile.skip_edges.contains(&(wti, wfi)) {
                     continue;
                 }
@@ -1325,7 +1314,8 @@ impl XTileExtractor<'_, '_, '_> {
                         continue;
                     }
                     if let Some(wf) = self.get_wire_by_name(i, wfi) {
-                        if self.xtile.force_skip_pips.contains(&(wt, wf)) {
+                        let wf = PolTileWireCoord { tw: wf, inv };
+                        if self.xtile.force_skip_pips.contains(&(wt, wf.tw)) {
                             continue;
                         }
                         if i == 0 && !self.xtile.force_ext_pips {
@@ -1339,7 +1329,7 @@ impl XTileExtractor<'_, '_, '_> {
                                 },
                             );
                             self.tcls_naming.wires.insert(
-                                wf,
+                                wf.tw,
                                 WireNaming {
                                     name: self.rd.wires[wfi].to_string(),
                                     alt_name: None,
@@ -1349,7 +1339,7 @@ impl XTileExtractor<'_, '_, '_> {
                             );
                         } else {
                             self.tcls_naming.ext_pips.insert(
-                                (wt, wf),
+                                (wt, wf.tw),
                                 PipNaming {
                                     tile: RawTileId::from_idx(i),
                                     wire_to: self.rd.wires[wti].to_string(),
@@ -1358,10 +1348,11 @@ impl XTileExtractor<'_, '_, '_> {
                             );
                         }
                         let mode = self.xtile.builder.pip_mode(wt.wire);
-                        pips.pips.insert((wt, wf.pos()), mode);
+                        pips.pips.insert((wt, wf), mode);
                     } else if i == 0
                         && let Some(wf) = self.get_alt_by_name(i, wfi)
                     {
+                        let wf = PolTileWireCoord { tw: wf, inv };
                         self.tcls_naming.wires.insert(
                             wt,
                             WireNaming {
@@ -1371,16 +1362,16 @@ impl XTileExtractor<'_, '_, '_> {
                                 alt_pips_from: Default::default(),
                             },
                         );
-                        self.alt_names.insert(wf, self.rd.wires[wfi].to_string());
-                        if wt == wf {
+                        self.alt_names.insert(wf.tw, self.rd.wires[wfi].to_string());
+                        if wt == wf.tw {
                             continue;
                         }
-                        if self.xtile.force_skip_pips.contains(&(wt, wf)) {
+                        if self.xtile.force_skip_pips.contains(&(wt, wf.tw)) {
                             continue;
                         }
-                        self.alt_pips_from.entry(wf).or_default().insert(wt);
+                        self.alt_pips_from.entry(wf.tw).or_default().insert(wt);
                         let mode = self.xtile.builder.pip_mode(wt.wire);
-                        pips.pips.insert((wt, wf.pos()), mode);
+                        pips.pips.insert((wt, wf), mode);
                     } else if self.xtile.builder.stub_outs.contains(&self.rd.wires[wfi]) {
                         // ignore
                     } else {
@@ -1408,8 +1399,9 @@ impl XTileExtractor<'_, '_, '_> {
                         continue;
                     }
                     if let Some(wf) = self.get_wire_by_name(i, wfi) {
+                        let wf = PolTileWireCoord { tw: wf, inv };
                         self.tcls_naming.wires.insert(
-                            wf,
+                            wf.tw,
                             WireNaming {
                                 name: self.rd.wires[wfi].to_string(),
                                 alt_name: None,
@@ -1418,15 +1410,15 @@ impl XTileExtractor<'_, '_, '_> {
                             },
                         );
                         self.alt_names.insert(wt, self.rd.wires[wti].to_string());
-                        if wt == wf {
+                        if wt == wf.tw {
                             continue;
                         }
-                        if self.xtile.force_skip_pips.contains(&(wt, wf)) {
+                        if self.xtile.force_skip_pips.contains(&(wt, wf.tw)) {
                             continue;
                         }
-                        self.alt_pips_to.entry(wt).or_default().insert(wf);
+                        self.alt_pips_to.entry(wt).or_default().insert(wf.tw);
                         let mode = self.xtile.builder.pip_mode(wt.wire);
-                        pips.pips.insert((wt, wf.pos()), mode);
+                        pips.pips.insert((wt, wf), mode);
                     }
                 }
             }
@@ -1677,7 +1669,7 @@ pub struct IntBuilder<'a> {
     alt_names: HashMap<String, TileWireCoord>,
     alt_names_tile: HashMap<rawdump::TileKindId, HashMap<String, TileWireCoord>>,
     extra_names: HashMap<String, TileWireCoord>,
-    extra_names_tile: HashMap<rawdump::TileKindId, HashMap<String, TileWireCoord>>,
+    pub extra_names_tile: HashMap<rawdump::TileKindId, HashMap<String, TileWireCoord>>,
     test_mux_pass: HashSet<WireSlotId>,
     test_mux_ins: HashMap<WireSlotId, WireSlotId>,
     test_mux_ins_test: HashMap<WireSlotId, WireSlotId>,
@@ -1986,23 +1978,19 @@ impl<'a> IntBuilder<'a> {
     }
 
     pub fn extra_name(&mut self, name: impl Into<String>, wire: WireSlotId) {
-        self.extra_names
-            .insert(name.into(), TileWireCoord::new_idx(0, wire));
+        self.extra_names.insert(name.into(), wire.cell(0));
     }
 
-    pub fn extra_name_sub(&mut self, name: impl Into<String>, sub: usize, wire: WireSlotId) {
-        self.extra_names
-            .insert(name.into(), TileWireCoord::new_idx(sub, wire));
+    pub fn extra_name_cell(&mut self, name: impl Into<String>, sub: usize, wire: WireSlotId) {
+        self.extra_names.insert(name.into(), wire.cell(sub));
     }
 
     pub fn alt_name(&mut self, name: impl Into<String>, wire: WireSlotId) {
-        self.alt_names
-            .insert(name.into(), TileWireCoord::new_idx(0, wire));
+        self.alt_names.insert(name.into(), wire.cell(0));
     }
 
-    pub fn alt_name_sub(&mut self, name: impl Into<String>, sub: usize, wire: WireSlotId) {
-        self.alt_names
-            .insert(name.into(), TileWireCoord::new_idx(sub, wire));
+    pub fn alt_name_cell(&mut self, name: impl Into<String>, sub: usize, wire: WireSlotId) {
+        self.alt_names.insert(name.into(), wire.cell(sub));
     }
 
     pub fn extra_name_tile(
@@ -2015,11 +2003,11 @@ impl<'a> IntBuilder<'a> {
             self.extra_names_tile
                 .entry(tki)
                 .or_default()
-                .insert(name.into(), TileWireCoord::new_idx(0, wire));
+                .insert(name.into(), wire.cell(0));
         }
     }
 
-    pub fn extra_name_tile_sub(
+    pub fn extra_name_tile_cell(
         &mut self,
         tile: impl AsRef<str>,
         name: impl Into<String>,
@@ -2030,23 +2018,39 @@ impl<'a> IntBuilder<'a> {
             self.extra_names_tile
                 .entry(tki)
                 .or_default()
-                .insert(name.into(), TileWireCoord::new_idx(sub, wire));
+                .insert(name.into(), wire.cell(sub));
         }
     }
 
-    pub fn alt_name_tile_sub(
+    pub fn extra_name_pin_xy(
         &mut self,
         tile: impl AsRef<str>,
-        name: impl Into<String>,
-        sub: usize,
-        wire: WireSlotId,
+        slot_name: impl AsRef<str>,
+        slot_x: usize,
+        slot_y: usize,
+        pin: impl AsRef<str>,
+        wire: TileWireCoord,
+        strip_pin: bool,
     ) {
-        if let Some((tki, _)) = self.rd.tile_kinds.get(tile.as_ref()) {
-            self.alt_names_tile
-                .entry(tki)
-                .or_default()
-                .insert(name.into(), TileWireCoord::new_idx(sub, wire));
+        let Some((tki, tk)) = self.rd.tile_kinds.get(tile.as_ref()) else {
+            return;
+        };
+        let Some(slot) = self.rd.slot_kinds.get(slot_name.as_ref()) else {
+            return;
+        };
+        let slot = rawdump::TkSiteSlot::Xy(slot, slot_x as u8, slot_y as u8);
+        let Some((_, site)) = tk.sites.get(&slot) else {
+            return;
+        };
+        let wid = site.pins[pin.as_ref()].wire.unwrap();
+        let mut wn = self.rd.wires[wid].as_str();
+        if strip_pin && let Some(swn) = wn.strip_suffix("_PIN") {
+            wn = swn;
         }
+        self.extra_names_tile
+            .entry(tki)
+            .or_default()
+            .insert(wn.into(), wire);
     }
 
     pub fn get_wire_by_name(&self, tki: TileKindId, name: &str) -> Option<TileWireCoord> {
@@ -2262,21 +2266,22 @@ impl<'a> IntBuilder<'a> {
                 bnaming.tiles.push(rt);
                 if let Some(slot) = sub.slot {
                     let tks = tk.sites.get(&slot).unwrap().1;
-                    for (name, tksp) in &tks.pins {
-                        let name = sub.pin_renames.get(name).unwrap_or(name);
+                    for (orig_pin, tksp) in &tks.pins {
+                        let name = sub.pin_renames.get(orig_pin).unwrap_or(orig_pin);
+                        let dir = match tksp.dir {
+                            rawdump::TkSitePinDir::Input => PinDir::Input,
+                            rawdump::TkSitePinDir::Output => PinDir::Output,
+                            rawdump::TkSitePinDir::Bidir => PinDir::Inout,
+                        };
                         match sub.pins.get(name).unwrap_or(&BelPinInfo::Int) {
                             &BelPinInfo::Int => {
-                                let dir = match tksp.dir {
-                                    rawdump::TkSitePinDir::Input => PinDir::Input,
-                                    rawdump::TkSitePinDir::Output => PinDir::Output,
-                                    _ => panic!("bidir pin {name}"),
-                                };
                                 let (ick, wires, wnf, pips, int_pips) =
                                     walk_to_int(dir, tksp.wire.unwrap());
                                 bnaming.pins.insert(
                                     name.clone(),
                                     BelPinNaming {
                                         tile: rt,
+                                        orig_pin: Some((orig_pin.clone(), dir)),
                                         name: self.rd.wires[tksp.wire.unwrap()].clone(),
                                         name_far: self.rd.wires[wnf].clone(),
                                         pips,
@@ -2287,17 +2292,13 @@ impl<'a> IntBuilder<'a> {
                                 bel.pins.insert(name.clone(), BelPin { wires, dir });
                             }
                             &BelPinInfo::IntNudge(wire) => {
-                                let dir = match tksp.dir {
-                                    rawdump::TkSitePinDir::Input => PinDir::Input,
-                                    rawdump::TkSitePinDir::Output => PinDir::Output,
-                                    _ => panic!("bidir pin {name}"),
-                                };
                                 let (ick, _wires, wnf, pips, int_pips) =
                                     walk_to_int(dir, tksp.wire.unwrap());
                                 bnaming.pins.insert(
                                     name.clone(),
                                     BelPinNaming {
                                         tile: rt,
+                                        orig_pin: Some((orig_pin.clone(), dir)),
                                         name: self.rd.wires[tksp.wire.unwrap()].clone(),
                                         name_far: self.rd.wires[wnf].clone(),
                                         pips,
@@ -2314,15 +2315,11 @@ impl<'a> IntBuilder<'a> {
                                 );
                             }
                             &BelPinInfo::ForceInt(wire, ref wname) => {
-                                let dir = match tksp.dir {
-                                    rawdump::TkSitePinDir::Input => PinDir::Input,
-                                    rawdump::TkSitePinDir::Output => PinDir::Output,
-                                    _ => panic!("bidir pin {name}"),
-                                };
                                 bnaming.pins.insert(
                                     name.clone(),
                                     BelPinNaming {
                                         tile: rt,
+                                        orig_pin: Some((orig_pin.clone(), dir)),
                                         name: self.rd.wires[tksp.wire.unwrap()].clone(),
                                         name_far: wname.clone(),
                                         pips: Vec::new(),
@@ -2344,6 +2341,7 @@ impl<'a> IntBuilder<'a> {
                                         name.clone(),
                                         BelPinNaming {
                                             tile: rt,
+                                            orig_pin: Some((orig_pin.clone(), dir)),
                                             name: self.rd.wires[tksp.wire.unwrap()].clone(),
                                             name_far: self.rd.wires[tksp.wire.unwrap()].clone(),
                                             pips: Vec::new(),
@@ -2362,6 +2360,7 @@ impl<'a> IntBuilder<'a> {
                                         name.clone(),
                                         BelPinNaming {
                                             tile: rt,
+                                            orig_pin: Some((orig_pin.clone(), dir)),
                                             name: self.rd.wires[tksp.wire.unwrap()].clone(),
                                             name_far: self.rd.wires[wn].clone(),
                                             pips,
@@ -2397,6 +2396,7 @@ impl<'a> IntBuilder<'a> {
                                 name.clone(),
                                 BelPinNaming {
                                     tile: rt,
+                                    orig_pin: None,
                                     name: self.rd.wires[wn].clone(),
                                     name_far: self.rd.wires[wnf].clone(),
                                     pips,
@@ -2411,6 +2411,7 @@ impl<'a> IntBuilder<'a> {
                                 name.clone(),
                                 BelPinNaming {
                                     tile: rt,
+                                    orig_pin: None,
                                     name: wname.clone(),
                                     name_far: wname.clone(),
                                     pips: vec![],
@@ -2444,6 +2445,7 @@ impl<'a> IntBuilder<'a> {
                                 name.clone(),
                                 BelPinNaming {
                                     tile: rt,
+                                    orig_pin: None,
                                     name: self.rd.wires[wn].clone(),
                                     name_far: self.rd.wires[wn].clone(),
                                     pips: Vec::new(),
@@ -2457,6 +2459,7 @@ impl<'a> IntBuilder<'a> {
                                 name.clone(),
                                 BelPinNaming {
                                     tile: rt,
+                                    orig_pin: None,
                                     name: wname.clone(),
                                     name_far: wname.clone(),
                                     pips: pips.clone(),
@@ -2740,10 +2743,8 @@ impl<'a> IntBuilder<'a> {
                     BelInfo::Legacy(bel) => bel,
                     _ => unreachable!(),
                 };
-                let is_ultra = matches!(
-                    self.rd.family.as_str(),
-                    "ultrascale" | "ultrascaleplus" | "versal"
-                );
+                let is_ultra = self.rd.family.starts_with("ultra");
+                let is_versal = self.rd.family == "versal";
                 fn convert_input(pin: BelPin) -> BelInput {
                     assert_eq!(pin.dir, PinDir::Input);
                     assert_eq!(pin.wires.len(), 1);
@@ -2758,9 +2759,11 @@ impl<'a> IntBuilder<'a> {
                     assert_eq!(pin.wires.len(), 1);
                     pin.wires.into_iter().next().unwrap()
                 }
-                let name_index = |name, idx| {
-                    if is_ultra {
+                let name_index = |name: &str, idx| {
+                    if is_versal {
                         format!("{name}_{idx}_")
+                    } else if is_ultra && name.ends_with(|c: char| c.is_ascii_digit()) {
+                        format!("{name}_{idx}")
                     } else {
                         format!("{name}{idx}")
                     }
@@ -3090,7 +3093,7 @@ impl<'a> IntBuilder<'a> {
             } else {
                 let def_t = CellSlotId::from_idx(0);
                 node_names.insert(
-                    TileWireCoord::new_idx(0, k),
+                    k.cell(0),
                     WireNaming {
                         name: tnames[k].to_string(),
                         alt_name: None,
@@ -3100,7 +3103,7 @@ impl<'a> IntBuilder<'a> {
                 );
                 for &x in &v {
                     node_names.insert(
-                        TileWireCoord::new_idx(0, x),
+                        x.cell(0),
                         WireNaming {
                             name: tnames[x].to_string(),
                             alt_name: None,
@@ -3392,7 +3395,7 @@ impl<'a> IntBuilder<'a> {
             }
         }
         for wn in self.main_passes[dir].ids() {
-            if let Some(wnn) = int_naming.wires.get(&TileWireCoord::new_idx(0, wn)) {
+            if let Some(wnn) = int_naming.wires.get(&wn.cell(0)) {
                 let wni = self.rd.wires.get(&wnn.name).unwrap();
                 if let Some(nidx) = self.get_node(int_tile, int_tk, wni)
                     && let Some(w) = src_node2wires.get(&nidx)
@@ -3882,7 +3885,7 @@ impl<'a> IntBuilder<'a> {
         bels: &[ExtrBelInfo],
         force_test_mux_in: bool,
     ) {
-        let mut x = self.xtile_id(tcid, naming, xy).num_cells(int_xy.len());
+        let mut x = self.xtile_id(tcid, naming, xy);
         for &xy in buf_xy {
             x = x.raw_tile(xy);
         }
@@ -3908,9 +3911,7 @@ impl<'a> IntBuilder<'a> {
         naming: &str,
         bels: &[ExtrBelInfo],
     ) {
-        let mut x = self
-            .xtile_id(tcid, naming, xy)
-            .num_cells(Ord::max(int_xy.len(), intf_xy.len()));
+        let mut x = self.xtile_id(tcid, naming, xy);
         for &xy in buf_xy {
             x = x.raw_tile(xy);
         }
@@ -3941,7 +3942,6 @@ impl<'a> IntBuilder<'a> {
                 tile_map: None,
                 extract_muxes: false,
             }],
-            num_tiles: 1,
             refs: vec![],
             tmux_bel: None,
             intf_sb: None,

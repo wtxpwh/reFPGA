@@ -758,8 +758,16 @@ pub fn verify_device(endev: &ExpandedNamedDevice, rd: &Part) {
         tcls::HCLK_IO_DCM_S,
         tcls::HCLK_IO_DCM_N,
     ] {
-        vrf.inject_tcls_pip(tcid, wires::IOCLK[0].cell(2), wires::OUT_CLKPAD.cell(2));
-        vrf.inject_tcls_pip(tcid, wires::IOCLK[1].cell(2), wires::OUT_CLKPAD.cell(1));
+        vrf.inject_tcls_pip(
+            tcid,
+            wires::IOCLK[0].cell(2),
+            wires::OUT_CLKPAD.cell(2).pos(),
+        );
+        vrf.inject_tcls_pip(
+            tcid,
+            wires::IOCLK[1].cell(2),
+            wires::OUT_CLKPAD.cell(1).pos(),
+        );
     }
 
     for tkn in ["CLK_IOB_B", "CLK_IOB_T"] {
@@ -859,7 +867,7 @@ pub fn verify_device(endev: &ExpandedNamedDevice, rd: &Part) {
             (wires::MGT_DCM[2].cell(1), wires::MGT_ROW[0].cell(4)),
             (wires::MGT_DCM[3].cell(1), wires::MGT_ROW[1].cell(4)),
         ] {
-            vrf.skip_tcls_pip(tcls::HCLK_DCM, wt, wf);
+            vrf.skip_tcls_pip(tcls::HCLK_DCM, wt, wf.pos());
         }
         vrf.kill_stub_in_cond("HCLK_DCM_MGT0");
         vrf.kill_stub_in_cond("HCLK_DCM_MGT1");
@@ -971,14 +979,14 @@ pub fn verify_device(endev: &ExpandedNamedDevice, rd: &Part) {
         vrf.skip_tcls_pip(
             tcls::HCLK_MGT,
             wires::MGT_ROW[i].cell(0),
-            wires::MGT_CLK_OUT[i].cell(0),
+            wires::MGT_CLK_OUT[i].cell(0).pos(),
         );
     }
     for i in 0..8 {
         vrf.skip_tcls_pip(
             tcls::HCLK_MGT,
             wires::HCLK_MGT[i].cell(0),
-            wires::HCLK_ROW[i].cell(0),
+            wires::HCLK_ROW[i].cell(0).pos(),
         );
     }
 
@@ -1007,12 +1015,12 @@ pub fn verify_device(endev: &ExpandedNamedDevice, rd: &Part) {
                 vrf.skip_tcls_pip(
                     tcls::CLK_HROW,
                     wires::HCLK_ROW[o].cell(co),
-                    wires::GCLK_BUF[i].cell(0),
+                    wires::GCLK_BUF[i].cell(0).pos(),
                 );
                 vrf.inject_tcls_pip(
                     tcls::CLK_HROW,
                     wires::HCLK_ROW[o].cell(co),
-                    wires::GCLK[i].cell(0),
+                    wires::GCLK[i].cell(0).pos(),
                 );
             }
         }
@@ -1021,7 +1029,7 @@ pub fn verify_device(endev: &ExpandedNamedDevice, rd: &Part) {
         vrf.skip_tcls_pip(
             tcls::CLK_HROW,
             wires::GCLK_BUF[i].cell(0),
-            wires::GCLK[i].cell(0),
+            wires::GCLK[i].cell(0).pos(),
         );
     }
 
@@ -1031,9 +1039,9 @@ pub fn verify_device(endev: &ExpandedNamedDevice, rd: &Part) {
             (wires::IMUX_CCM_REL[0].cell(0), wires::IMUX_SPEC[3].cell(0)),
             (wires::IMUX_CCM_REL[1].cell(0), wires::IMUX_SPEC[2].cell(0)),
         ] {
-            vrf.skip_tcls_pip(tcls::CCM, rel, rel_test);
+            vrf.skip_tcls_pip(tcls::CCM, rel, rel_test.pos());
             for &src in muxes[&rel_test].src.keys() {
-                vrf.inject_tcls_pip(tcls::CCM, rel, src.tw);
+                vrf.inject_tcls_pip(tcls::CCM, rel, src);
             }
         }
     }

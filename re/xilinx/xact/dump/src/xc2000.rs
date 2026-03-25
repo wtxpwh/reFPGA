@@ -2,7 +2,7 @@ use std::collections::{BTreeMap, BTreeSet};
 
 use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
-    db::{BelInfo, IntDb, SwitchBoxItem, TileWireCoord, WireKind},
+    db::{BelInfo, IntDb, SwitchBoxItem, WireKind, WireSlotIdExt},
     grid::{ColId, DieId, DieIdExt, EdgeIoCoord, RowId},
 };
 use prjcombine_re_xilinx_xact_data::die::Die;
@@ -384,10 +384,10 @@ pub fn dump_chip(die: &Die) -> (Chip, IntDb, NamingDb) {
     for (tcid, _, tcls) in &intdb.tile_classes {
         if tcls.bels.contains_id(defs::bslots::CLB) {
             for w in [
-                TileWireCoord::new_idx(0, wires::SPECIAL_CLB_C).pos(),
-                TileWireCoord::new_idx(0, wires::SPECIAL_CLB_G).neg(),
+                wires::SPECIAL_CLB_C.cell(0).pos(),
+                wires::SPECIAL_CLB_G.cell(0).neg(),
             ] {
-                extractor.inject_pip(tcid, TileWireCoord::new_idx(0, wires::IMUX_CLB_K), w);
+                extractor.inject_pip(tcid, wires::IMUX_CLB_K.cell(0), w);
             }
         }
         for (slots, imux) in [
@@ -398,16 +398,8 @@ pub fn dump_chip(die: &Die) -> (Chip, IntDb, NamingDb) {
         ] {
             for i in 0..2 {
                 if tcls.bels.contains_id(slots[i]) {
-                    extractor.inject_pip(
-                        tcid,
-                        TileWireCoord::new_idx(0, imux[i]),
-                        TileWireCoord::new_idx(0, wires::TIE_0).pos(),
-                    );
-                    extractor.inject_pip(
-                        tcid,
-                        TileWireCoord::new_idx(0, imux[i]),
-                        TileWireCoord::new_idx(0, wires::TIE_1).pos(),
-                    );
+                    extractor.inject_pip(tcid, imux[i].cell(0), wires::TIE_0.cell(0).pos());
+                    extractor.inject_pip(tcid, imux[i].cell(0), wires::TIE_1.cell(0).pos());
                 }
             }
         }

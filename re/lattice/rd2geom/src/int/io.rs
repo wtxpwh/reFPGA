@@ -7,7 +7,7 @@ use prjcombine_ecp::{
 };
 use prjcombine_entity::{EntityId, EntityVec};
 use prjcombine_interconnect::{
-    db::{BelInfo, ConnectorWire, Mux, SwitchBox, SwitchBoxItem, TileWireCoord},
+    db::{BelInfo, ConnectorWire, Mux, SwitchBox, SwitchBoxItem, TileWireCoord, WireSlotIdExt},
     dir::DirH,
     grid::{DieId, DieIdExt},
 };
@@ -313,8 +313,8 @@ impl ChipContext<'_> {
                     continue;
                 }
 
-                let wt = TileWireCoord::new_idx(0, wt.slot);
-                let wf = TileWireCoord::new_idx(0, wf.slot);
+                let wt = wt.slot.cell(0);
+                let wf = wf.slot.cell(0);
                 sb_pips.entry(wt).or_default().insert(wf);
             }
             let mut missing_dst = BTreeSet::new();

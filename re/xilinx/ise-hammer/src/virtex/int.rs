@@ -93,9 +93,9 @@ impl<'b> FuzzerProp<'b, IseBackend<'b>> for VirtexPinBramLv {
         tcrd.row = RowId::from_idx(1);
         tcrd.slot = defs::tslots::MAIN;
         for i in 0..12 {
-            let wire_pin = TileWireCoord::new_idx(0, wires::LV[i]);
+            let wire_pin = wires::LV[i].cell(0);
             let resolved_pin = backend.edev.resolve_wire(tcrd.wire(wire_pin.wire)).unwrap();
-            let wire_clk = TileWireCoord::new_idx(0, wires::IMUX_BRAM_CLKA);
+            let wire_clk = wires::IMUX_BRAM_CLKA.cell(0);
             let resolved_clk = backend.edev.resolve_wire(tcrd.wire(wire_clk.wire)).unwrap();
             if resolved_pin == wire {
                 let (tile, wt, wf) = resolve_int_pip(backend, tcrd, wire_clk, wire_pin).unwrap();
@@ -132,7 +132,7 @@ impl<'b> FuzzerProp<'b, IseBackend<'b>> for VirtexPinLh {
             .tile(defs::tslots::MAIN);
         let tile = &backend.edev[tcrd];
         for i in 0..12 {
-            let wire_pin = TileWireCoord::new_idx(0, wires::LH[i]);
+            let wire_pin = wires::LH[i].cell(0);
             let resolved_pin = backend.edev.resolve_wire(tcrd.wire(wire_pin.wire)).unwrap();
             if resolved_pin != resolved_wire {
                 continue;
@@ -230,10 +230,11 @@ impl<'b> FuzzerProp<'b, IseBackend<'b>> for VirtexPinHexH {
                 )
             {
                 for j in 0..=6 {
-                    let wire_pin = TileWireCoord::new_idx(
-                        0,
-                        backend.edev.db.get_wire(&format!("HEX_{h}{j}[{i}]")),
-                    );
+                    let wire_pin = backend
+                        .edev
+                        .db
+                        .get_wire(&format!("HEX_{h}{j}[{i}]"))
+                        .cell(0);
                     let resolved_pin = backend.edev.resolve_wire(tcrd.wire(wire_pin.wire)).unwrap();
                     if resolved_pin != resolved_wire {
                         continue;
@@ -299,10 +300,11 @@ impl<'b> FuzzerProp<'b, IseBackend<'b>> for VirtexPinHexV {
                 )
             {
                 for j in 0..=6 {
-                    let wire_pin = TileWireCoord::new_idx(
-                        0,
-                        backend.edev.db.get_wire(&format!("HEX_{v}{j}[{i}]")),
-                    );
+                    let wire_pin = backend
+                        .edev
+                        .db
+                        .get_wire(&format!("HEX_{v}{j}[{i}]"))
+                        .cell(0);
                     let resolved_pin = backend.edev.resolve_wire(tcrd.wire(wire_pin.wire)).unwrap();
                     if resolved_pin != resolved_wire {
                         continue;
@@ -367,10 +369,11 @@ impl<'b> FuzzerProp<'b, IseBackend<'b>> for VirtexDriveHexH {
                 )
             {
                 for j in 0..=6 {
-                    let wire_pin = TileWireCoord::new_idx(
-                        0,
-                        backend.edev.db.get_wire(&format!("HEX_{h}{j}[{i}]")),
-                    );
+                    let wire_pin = backend
+                        .edev
+                        .db
+                        .get_wire(&format!("HEX_{h}{j}[{i}]"))
+                        .cell(0);
                     let resolved_pin = backend.edev.resolve_wire(tcrd.wire(wire_pin.wire)).unwrap();
                     if resolved_pin != resolved_wire {
                         continue;
@@ -438,10 +441,11 @@ impl<'b> FuzzerProp<'b, IseBackend<'b>> for VirtexDriveHexV {
                 )
             {
                 for j in 0..=6 {
-                    let wire_pin = TileWireCoord::new_idx(
-                        0,
-                        backend.edev.db.get_wire(&format!("HEX_{v}{j}[{i}]")),
-                    );
+                    let wire_pin = backend
+                        .edev
+                        .db
+                        .get_wire(&format!("HEX_{v}{j}[{i}]"))
+                        .cell(0);
                     let resolved_pin = backend.edev.resolve_wire(tcrd.wire(wire_pin.wire)).unwrap();
                     if resolved_pin != resolved_wire {
                         continue;
@@ -627,7 +631,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
                             _ => unreachable!(),
                         }
                     };
-                    let clb_wire = TileWireCoord::new_idx(0, clb_wire);
+                    let clb_wire = clb_wire.cell(0);
                     let wire_pin = pips_fwd(backend.edev, tcls::CLB, clb_wire)
                         .first()
                         .unwrap()
@@ -727,8 +731,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
                         let in_wire_name = intdb.wires.key(wire_from.wire);
                         'quad_src_all_pin: {
                             if in_wire_name.starts_with("SINGLE") {
-                                let wire_buf =
-                                    TileWireCoord::new_idx(0, single_to_buf(wire_from.wire));
+                                let wire_buf = single_to_buf(wire_from.wire).cell(0);
                                 let related = Delta::new(
                                     -1,
                                     wire_from.cell.to_idx() as i32 - 4,
@@ -740,10 +743,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
                                 );
                                 props.push(Box::new(Related::new(
                                     related.clone(),
-                                    BaseIntPip::new(
-                                        wire_buf,
-                                        TileWireCoord::new_idx(0, wire_from.wire),
-                                    ),
+                                    BaseIntPip::new(wire_buf, wire_from.wire.cell(0)),
                                 )));
                                 props.push(Box::new(Related::new(
                                     related,
@@ -858,7 +858,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
             } else if out_name.starts_with("SINGLE") {
                 let mut props: Vec<Box<DynProp>> = vec![Box::new(WireMutexExclusive::new(wire_to))];
 
-                let wire_buf = TileWireCoord::new_idx(0, single_to_buf(wire_to.wire));
+                let wire_buf = single_to_buf(wire_to.wire).cell(0);
                 if !tcname.contains("BRAM") {
                     props.push(Box::new(BaseIntPip::new(wire_buf, wire_to)));
                     props.push(Box::new(WireMutexExclusive::new(wire_buf)));
@@ -874,7 +874,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
                     );
                     props.push(Box::new(Related::new(
                         related.clone(),
-                        BaseIntPip::new(wire_buf, TileWireCoord::new_idx(0, wire_to.wire)),
+                        BaseIntPip::new(wire_buf, wire_to.wire.cell(0)),
                     )));
                     props.push(Box::new(Related::new(
                         related,
@@ -1005,7 +1005,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
                     let in_wire_name = intdb.wires.key(wire_from.wire);
                     'll_src_pin: {
                         if let Some(wire_unbuf) = wire_unbuf(wire_from.wire) {
-                            let wire_unbuf = TileWireCoord::new_idx(0, wire_unbuf);
+                            let wire_unbuf = wire_unbuf.cell(0);
                             props.push(Box::new(BaseIntPip::new(wire_from, wire_unbuf)));
                             props.push(Box::new(WireMutexExclusive::new(wire_unbuf)));
                             break 'll_src_pin;
@@ -1078,7 +1078,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
                                 }
                             }
                         } else if in_wire_name.starts_with("SINGLE") {
-                            let wire_buf = TileWireCoord::new_idx(0, single_to_buf(wire_from.wire));
+                            let wire_buf = single_to_buf(wire_from.wire).cell(0);
                             if matches!(
                                 tcid,
                                 tcls::BRAM_W
@@ -1098,10 +1098,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
                                 );
                                 props.push(Box::new(Related::new(
                                     related.clone(),
-                                    BaseIntPip::new(
-                                        wire_buf,
-                                        TileWireCoord::new_idx(0, wire_from.wire),
-                                    ),
+                                    BaseIntPip::new(wire_buf, wire_from.wire.cell(0)),
                                 )));
                                 props.push(Box::new(Related::new(
                                     related,
@@ -1201,10 +1198,10 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
                         }
                     }
                     if wire_to.wire == wires::IMUX_DLL_CLKIN {
-                        alt_out_wire = Some(TileWireCoord::new_idx(0, wires::IMUX_DLL_CLKFB));
+                        alt_out_wire = Some(wires::IMUX_DLL_CLKFB.cell(0));
                     }
                     if wire_to.wire == wires::IMUX_DLL_CLKFB {
-                        alt_out_wire = Some(TileWireCoord::new_idx(0, wires::IMUX_DLL_CLKIN));
+                        alt_out_wire = Some(wires::IMUX_DLL_CLKIN.cell(0));
                     }
                 }
                 if let Some(alt_out) = alt_out_wire {
@@ -1229,7 +1226,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
                         let wire_from = wire_from.tw;
                         'imux_pin: {
                             if let Some(wire_unbuf) = wire_unbuf(wire_from.wire) {
-                                let wire_unbuf = TileWireCoord::new_idx(0, wire_unbuf);
+                                let wire_unbuf = wire_unbuf.cell(0);
                                 props.push(Box::new(BaseIntPip::new(wire_from, wire_unbuf)));
                                 props.push(Box::new(WireMutexExclusive::new(wire_unbuf)));
                                 break 'imux_pin;
@@ -1285,7 +1282,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
                             // already pinned above
                             break 'imux_pin;
                         } else if wire_to.wire == wires::IMUX_PCI_I3 {
-                            let wire_buf = TileWireCoord::new_idx(0, hex_to_buf(wire_from.wire));
+                            let wire_buf = hex_to_buf(wire_from.wire).cell(0);
                             let related = Delta::new(
                                 0,
                                 0,

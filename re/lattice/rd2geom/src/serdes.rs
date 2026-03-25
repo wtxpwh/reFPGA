@@ -3,7 +3,7 @@ use prjcombine_ecp::{
     chip::{ChipKind, IoGroupKind, PllLoc, SpecialIoKey, SpecialLocKey},
 };
 use prjcombine_interconnect::{
-    db::{BelPin, LegacyBel, TileWireCoord},
+    db::{BelPin, LegacyBel, WireSlotIdExt},
     dir::{Dir, DirH, DirHV, DirV},
 };
 
@@ -265,8 +265,7 @@ impl ChipContext<'_> {
             };
 
             for i in 0..13 {
-                let twire =
-                    TileWireCoord::new_idx(2, self.intdb.get_wire(&format!("IO_{dir_n}{i}_1")));
+                let twire = self.intdb.get_wire(&format!("IO_{dir_n}{i}_1")).cell(2);
                 bel.pins.insert(format!("CIN_{i}"), BelPin::new_in(twire));
                 let wire_int = self.io_int_names[&self.edev.tile_wire(tcrd, twire)];
                 let wire = self.rc_corner_wire(cell, &format!("JVMAN01{i:02}"));
@@ -278,8 +277,7 @@ impl ChipContext<'_> {
                 }
             }
             {
-                let twire =
-                    TileWireCoord::new_idx(2, self.intdb.get_wire(&format!("IO_{dir_n}14_1")));
+                let twire = self.intdb.get_wire(&format!("IO_{dir_n}14_1")).cell(2);
                 bel.pins
                     .insert("TESTCLK_MACO".into(), BelPin::new_in(twire));
                 let wire_int = self.io_int_names[&self.edev.tile_wire(tcrd, twire)];
@@ -332,11 +330,10 @@ impl ChipContext<'_> {
             }
 
             for (seg, idx, pin, cell_serdes, wn_serdes) in outps {
-                let twire = TileWireCoord::new_idx(
-                    2,
-                    self.intdb
-                        .get_wire(&format!("IO_{dir_s}{idx}_{seg}", seg = seg + 1)),
-                );
+                let twire = self
+                    .intdb
+                    .get_wire(&format!("IO_{dir_s}{idx}_{seg}", seg = seg + 1))
+                    .cell(2);
                 bel.pins.insert(pin, BelPin::new_out(twire));
                 if let Some(cell_serdes) = cell_serdes {
                     let wire_int = self.io_int_names[&self.edev.tile_wire(tcrd, twire)];

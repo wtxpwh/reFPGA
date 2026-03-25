@@ -6,7 +6,7 @@ use prjcombine_ecp::{
 };
 use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
-    db::{BelPin, LegacyBel, TileWireCoord},
+    db::{BelPin, LegacyBel, WireSlotIdExt},
     dir::{Dir, DirH, DirHV, DirV},
     grid::{ColId, DieId, DieIdExt},
 };
@@ -751,14 +751,10 @@ impl ChipContext<'_> {
                     let mut bel = LegacyBel::default();
 
                     let pclk = self.intdb.get_wire(&format!("PCLK{pclk_i}"));
-                    bel.pins.insert(
-                        "OUT_S".into(),
-                        BelPin::new_out(TileWireCoord::new_idx(1, pclk)),
-                    );
-                    bel.pins.insert(
-                        "OUT_N".into(),
-                        BelPin::new_out(TileWireCoord::new_idx(0, pclk)),
-                    );
+                    bel.pins
+                        .insert("OUT_S".into(), BelPin::new_out(pclk.cell(1)));
+                    bel.pins
+                        .insert("OUT_N".into(), BelPin::new_out(pclk.cell(0)));
                     let out_s = self.rc_wire(cell, &format!("CLKO{pclk_i}B_DCC"));
                     self.add_bel_wire(bcrd, "OUT_S", out_s);
                     self.claim_pip(vptx_wires_s[&(cell.col, pclk_i)], out_s);
@@ -860,14 +856,10 @@ impl ChipContext<'_> {
                 let mut bel = LegacyBel::default();
                 for i in pclk_idx {
                     let pclk = self.intdb.get_wire(&format!("PCLK{i}"));
-                    bel.pins.insert(
-                        format!("OUT_S{i}"),
-                        BelPin::new_out(TileWireCoord::new_idx(1, pclk)),
-                    );
-                    bel.pins.insert(
-                        format!("OUT_N{i}"),
-                        BelPin::new_out(TileWireCoord::new_idx(0, pclk)),
-                    );
+                    bel.pins
+                        .insert(format!("OUT_S{i}"), BelPin::new_out(pclk.cell(1)));
+                    bel.pins
+                        .insert(format!("OUT_N{i}"), BelPin::new_out(pclk.cell(0)));
                     let hpsx = hpsx_wires[&(col_hpsx, i)];
                     self.claim_pip(vptx_wires_s[&(cell.col, i)], hpsx);
                     self.claim_pip(vptx_wires_n[&(cell.col, i)], hpsx);

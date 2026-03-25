@@ -2,7 +2,7 @@ use std::collections::BTreeSet;
 
 use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
-    db::{BelInfo, IntDb, PairMux, SwitchBoxItem, TileWireCoord, WireSlotIdExt, WireSupport},
+    db::{BelInfo, IntDb, PairMux, SwitchBoxItem, WireSlotIdExt, WireSupport},
     dir::{Dir, DirMap},
 };
 use prjcombine_re_xilinx_naming::db::{IntfWireInNaming, NamingDb, PipNaming, RawTileId};
@@ -431,7 +431,7 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
         builder.wire_names(wire_pent, &[format!("LOGIC_OUTS_{dir}1_{i}")]);
 
         for j in 0..20 {
-            builder.extra_name_sub(
+            builder.extra_name_cell(
                 format!("CFG_CENTER_LOGIC_OUTS{i}_{j}"),
                 j,
                 wires::OUT_BEL[i],
@@ -464,13 +464,13 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
 
     for i in 0..10 {
         builder.wire_names(wires::HCLK_ROW[i], &[format!("HCLK_G_HCLK_P{i}")]);
-        builder.extra_name_sub(format!("HCLK_IOI_G_HCLK_P{i}"), 2, wires::HCLK_ROW[i]);
-        builder.extra_name_sub(format!("HCLK_IOB_CMT_GCLK_B{i}"), 2, wires::HCLK_ROW[i]);
-        builder.extra_name_sub(format!("CLK_HROW_HCLKL_P{i}"), 0, wires::HCLK_ROW[i]);
-        builder.extra_name_sub(format!("CLK_HROW_HCLKR_P{i}"), 1, wires::HCLK_ROW[i]);
+        builder.extra_name_cell(format!("HCLK_IOI_G_HCLK_P{i}"), 2, wires::HCLK_ROW[i]);
+        builder.extra_name_cell(format!("HCLK_IOB_CMT_GCLK_B{i}"), 2, wires::HCLK_ROW[i]);
+        builder.extra_name_cell(format!("CLK_HROW_HCLKL_P{i}"), 0, wires::HCLK_ROW[i]);
+        builder.extra_name_cell(format!("CLK_HROW_HCLKR_P{i}"), 1, wires::HCLK_ROW[i]);
 
         builder.wire_names(wires::HCLK_IO[i], &[format!("IOI_LEAF_GCLK_P{i}")]);
-        builder.extra_name_sub(format!("HCLK_IOI_LEAF_GCLK_P{i}"), 2, wires::HCLK_IO[i]);
+        builder.extra_name_cell(format!("HCLK_IOI_LEAF_GCLK_P{i}"), 2, wires::HCLK_IO[i]);
 
         builder.wire_names(
             wires::HCLK_CMT[i],
@@ -482,39 +482,39 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
         );
         builder.alt_name(format!("CMT_BUFG{i}_TO_CLKIN2"), wires::HCLK_CMT[i]);
 
-        builder.extra_name_sub(format!("HCLK_IOB_CMT_BUFG{i}"), 2, wires::HCLK_CMT[i]);
+        builder.extra_name_cell(format!("HCLK_IOB_CMT_BUFG{i}"), 2, wires::HCLK_CMT[i]);
     }
     for i in 0..4 {
         builder.wire_names(wires::RCLK_ROW[i], &[format!("HCLK_RCLK{i}")]);
-        builder.extra_name_sub(format!("HCLK_IOI_RCLK{i}"), 2, wires::RCLK_ROW[i]);
+        builder.extra_name_cell(format!("HCLK_IOI_RCLK{i}"), 2, wires::RCLK_ROW[i]);
 
         builder.wire_names(wires::RCLK_IO[i], &[format!("IOI_RCLK_FORIO_P{i}")]);
-        builder.extra_name_sub(format!("HCLK_IOI_RCLK_FORIO_P{i}"), 2, wires::RCLK_IO[i]);
+        builder.extra_name_cell(format!("HCLK_IOI_RCLK_FORIO_P{i}"), 2, wires::RCLK_IO[i]);
 
         builder.wire_names(wires::IOCLK[i], &[format!("IOI_IOCLKP{i}")]);
-        builder.extra_name_sub(format!("HCLK_IOI_IOCLKP{i}"), 2, wires::IOCLK[i]);
+        builder.extra_name_cell(format!("HCLK_IOI_IOCLKP{i}"), 2, wires::IOCLK[i]);
     }
 
-    builder.extra_name_sub("HCLK_IOI_REFCLK", 2, wires::IMUX_IDELAYCTRL_REFCLK);
+    builder.extra_name_cell("HCLK_IOI_REFCLK", 2, wires::IMUX_IDELAYCTRL_REFCLK);
 
     for i in 0..2 {
-        builder.extra_name_sub(format!("HCLK_IOI_VRCLK{i}"), 2, wires::VRCLK[i]);
-        builder.extra_name_sub(format!("HCLK_IOI_VRCLK_S{i}"), 2, wires::VRCLK_S[i]);
-        builder.extra_name_sub(format!("HCLK_IOI_VRCLK_N{i}"), 2, wires::VRCLK_N[i]);
-        builder.extra_name_sub(format!("HCLK_IOI_BUFR_I{i}"), 2, wires::IMUX_BUFR[i]);
+        builder.extra_name_cell(format!("HCLK_IOI_VRCLK{i}"), 2, wires::VRCLK[i]);
+        builder.extra_name_cell(format!("HCLK_IOI_VRCLK_S{i}"), 2, wires::VRCLK_S[i]);
+        builder.extra_name_cell(format!("HCLK_IOI_VRCLK_N{i}"), 2, wires::VRCLK_N[i]);
+        builder.extra_name_cell(format!("HCLK_IOI_BUFR_I{i}"), 2, wires::IMUX_BUFR[i]);
     }
 
-    builder.extra_name_sub("HCLK_IOI_I2CLK_P8", 0, wires::OUT_CLKPAD);
-    builder.extra_name_sub("HCLK_IOI_I2CLK_P9", 1, wires::OUT_CLKPAD);
-    builder.extra_name_sub("HCLK_IOI_I2CLK_P0", 2, wires::OUT_CLKPAD);
-    builder.extra_name_sub("HCLK_IOI_I2CLK_P1", 3, wires::OUT_CLKPAD);
+    builder.extra_name_cell("HCLK_IOI_I2CLK_P8", 0, wires::OUT_CLKPAD);
+    builder.extra_name_cell("HCLK_IOI_I2CLK_P9", 1, wires::OUT_CLKPAD);
+    builder.extra_name_cell("HCLK_IOI_I2CLK_P0", 2, wires::OUT_CLKPAD);
+    builder.extra_name_cell("HCLK_IOI_I2CLK_P1", 3, wires::OUT_CLKPAD);
 
     for i in 0..10 {
-        builder.extra_name_sub(format!("CLK_IOB_CLK_BUF{i}"), i, wires::OUT_CLKPAD);
-        builder.extra_name_sub(format!("CLK_IOB_IOB_CLKP{i}"), 0, wires::GIOB[i]);
-        builder.extra_name_sub(format!("CLK_HROW_CLK_METAL9_{i}"), 2, wires::GIOB[i]);
-        builder.extra_name_sub(format!("CLK_HROW_CLK_H_METAL9_{i}"), 2, wires::GIOB_CMT[i]);
-        builder.extra_name_sub(format!("CMT_GIOB{i}"), 0, wires::GIOB_CMT[i]);
+        builder.extra_name_cell(format!("CLK_IOB_CLK_BUF{i}"), i, wires::OUT_CLKPAD);
+        builder.extra_name_cell(format!("CLK_IOB_IOB_CLKP{i}"), 0, wires::GIOB[i]);
+        builder.extra_name_cell(format!("CLK_HROW_CLK_METAL9_{i}"), 2, wires::GIOB[i]);
+        builder.extra_name_cell(format!("CLK_HROW_CLK_H_METAL9_{i}"), 2, wires::GIOB_CMT[i]);
+        builder.extra_name_cell(format!("CMT_GIOB{i}"), 0, wires::GIOB_CMT[i]);
     }
 
     for i in 0..5 {
@@ -524,62 +524,62 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
             &[format!("HCLK_BRAM_MGT_CLK_OUT_P{i}")],
         );
 
-        builder.extra_name_sub(format!("HCLK_IOI_MGT_CLK_P{i}"), 2, wires::MGT_ROW_I[i]);
-        builder.extra_name_sub(format!("GT3_MGT_CLK_P{i}"), 10, wires::MGT_ROW_O[i]);
+        builder.extra_name_cell(format!("HCLK_IOI_MGT_CLK_P{i}"), 2, wires::MGT_ROW_I[i]);
+        builder.extra_name_cell(format!("GT3_MGT_CLK_P{i}"), 10, wires::MGT_ROW_O[i]);
 
         let ii = 4 - i;
-        builder.extra_name_sub(
+        builder.extra_name_cell(
             format!("CLK_BUFGMUX_MGT_CLKP_LBOT{ii}"),
             0,
             wires::MGT_ROW_I[i],
         );
-        builder.extra_name_sub(
+        builder.extra_name_cell(
             format!("CLK_BUFGMUX_MGT_CLKP_RBOT{i}"),
             20,
             wires::MGT_ROW_I[i],
         );
-        builder.extra_name_sub(
+        builder.extra_name_cell(
             format!("CLK_BUFGMUX_MGT_CLKP_LTOP{ii}"),
             10,
             wires::MGT_ROW_I[i],
         );
-        builder.extra_name_sub(
+        builder.extra_name_cell(
             format!("CLK_BUFGMUX_MGT_CLKP_RTOP{i}"),
             21,
             wires::MGT_ROW_I[i],
         );
-        builder.extra_name_sub(
+        builder.extra_name_cell(
             format!("CLK_BUFGMUX_LMGT_CLK_BOT{ii}"),
             0,
             wires::MGT_BUF[i],
         );
-        builder.extra_name_sub(
+        builder.extra_name_cell(
             format!("CLK_BUFGMUX_RMGT_CLK_BOT{i}"),
             0,
             wires::MGT_BUF[i + 5],
         );
-        builder.extra_name_sub(
+        builder.extra_name_cell(
             format!("CLK_BUFGMUX_LMGT_CLK_TOP{ii}"),
             10,
             wires::MGT_BUF[i],
         );
-        builder.extra_name_sub(
+        builder.extra_name_cell(
             format!("CLK_BUFGMUX_RMGT_CLK_TOP{i}"),
             10,
             wires::MGT_BUF[i + 5],
         );
 
         let ii = 15 + i;
-        builder.extra_name_sub(format!("CLK_IOB_B_CLK_BUF{ii}"), 0, wires::MGT_ROW_I[i]);
-        builder.extra_name_sub(format!("CLK_IOB_T_CLK_BUF{ii}"), 0, wires::MGT_ROW_I[i]);
+        builder.extra_name_cell(format!("CLK_IOB_B_CLK_BUF{ii}"), 0, wires::MGT_ROW_I[i]);
+        builder.extra_name_cell(format!("CLK_IOB_T_CLK_BUF{ii}"), 0, wires::MGT_ROW_I[i]);
         let ii = 14 - i;
-        builder.extra_name_sub(format!("CLK_IOB_B_CLK_BUF{ii}"), 10, wires::MGT_ROW_I[i]);
-        builder.extra_name_sub(format!("CLK_IOB_T_CLK_BUF{ii}"), 10, wires::MGT_ROW_I[i]);
+        builder.extra_name_cell(format!("CLK_IOB_B_CLK_BUF{ii}"), 10, wires::MGT_ROW_I[i]);
+        builder.extra_name_cell(format!("CLK_IOB_T_CLK_BUF{ii}"), 10, wires::MGT_ROW_I[i]);
 
-        builder.extra_name_sub(format!("CLK_MGT_B_CLK{i}_LEFT"), 0, wires::MGT_ROW_I[i]);
-        builder.extra_name_sub(format!("CLK_MGT_T_CLK{i}_LEFT"), 0, wires::MGT_ROW_I[i]);
-        builder.extra_name_sub(format!("CLK_MGT_B_CLK{i}"), 10, wires::MGT_ROW_I[i]);
-        builder.extra_name_sub(format!("CLK_MGT_T_CLK{i}"), 10, wires::MGT_ROW_I[i]);
+        builder.extra_name_cell(format!("CLK_MGT_B_CLK{i}_LEFT"), 0, wires::MGT_ROW_I[i]);
+        builder.extra_name_cell(format!("CLK_MGT_T_CLK{i}_LEFT"), 0, wires::MGT_ROW_I[i]);
+        builder.extra_name_cell(format!("CLK_MGT_B_CLK{i}"), 10, wires::MGT_ROW_I[i]);
+        builder.extra_name_cell(format!("CLK_MGT_T_CLK{i}"), 10, wires::MGT_ROW_I[i]);
     }
 
     for i in 0..32 {
@@ -594,22 +594,22 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
         builder.wire_names(wires::IMUX_BUFG_I[i], &[format!("CLK_IOB_MUXED_CLKIN{i}")]);
         builder.wire_names(wires::IMUX_BUFG_O[i], &[format!("CLK_IOB_MUXED_CLKOUT{i}")]);
 
-        builder.extra_name_sub(
+        builder.extra_name_cell(
             format!("CLK_BUFGMUX_MUXED_IN_CLKB_P{i}"),
             0,
             wires::IMUX_BUFG_I[i],
         );
-        builder.extra_name_sub(
+        builder.extra_name_cell(
             format!("CLK_BUFGMUX_MUXED_IN_CLKT_P{i}"),
             10,
             wires::IMUX_BUFG_I[i],
         );
-        builder.extra_name_sub(
+        builder.extra_name_cell(
             format!("CLK_BUFGMUX_PREMUX{j}_CLK{k}", j = i % 2, k = i / 2),
             0,
             wires::IMUX_BUFG_O[i],
         );
-        builder.extra_name_sub(
+        builder.extra_name_cell(
             format!("CLK_BUFGMUX_PREMUX{j}_CLK{k}", j = i % 2, k = 16 + i / 2),
             10,
             wires::IMUX_BUFG_O[i],
@@ -660,8 +660,8 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
     .into_iter()
     .enumerate()
     {
-        builder.extra_name_sub(format!("CFG_CENTER_CKINT0_{i}"), c, wires::IMUX_IMUX[i0]);
-        builder.extra_name_sub(format!("CFG_CENTER_CKINT1_{i}"), c, wires::IMUX_IMUX[i1]);
+        builder.extra_name_cell(format!("CFG_CENTER_CKINT0_{i}"), c, wires::IMUX_IMUX[i0]);
+        builder.extra_name_cell(format!("CFG_CENTER_CKINT1_{i}"), c, wires::IMUX_IMUX[i1]);
     }
 
     for i in 0..28 {
@@ -704,14 +704,14 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
     builder.wire_names(wires::OMUX_PLL_SKEWCLKIN2, &["CMT_PLL_CLK_TO_DCM1"]);
     builder.wire_names(wires::TEST_PLL_CLKIN, &["CMT_PLL_CLKIN1_TEST"]);
     builder.alt_name("CMT_PLL_CLKFBDCM_TEST", wires::OUT_PLL_CLKFBDCM);
-    builder.extra_name_sub("CMT_DCM_0_SE_CLK_IN0", 0, wires::IMUX_CLK[0]);
-    builder.extra_name_sub("CMT_DCM_0_SE_CLK_IN1", 0, wires::IMUX_CLK[1]);
-    builder.extra_name_sub("CMT_DCM_0_SE_CLK_IN2", 0, wires::IMUX_IMUX[6]);
-    builder.extra_name_sub("CMT_PLL_SE_CLK_IN0", 3, wires::IMUX_CLK[0]);
-    builder.extra_name_sub("CMT_PLL_SE_CLK_IN1", 4, wires::IMUX_CLK[0]);
-    builder.extra_name_sub("CMT_DCM_1_SE_CLK_IN0", 7, wires::IMUX_CLK[0]);
-    builder.extra_name_sub("CMT_DCM_1_SE_CLK_IN1", 7, wires::IMUX_CLK[1]);
-    builder.extra_name_sub("CMT_DCM_1_SE_CLK_IN2", 7, wires::IMUX_IMUX[12]);
+    builder.extra_name_cell("CMT_DCM_0_SE_CLK_IN0", 0, wires::IMUX_CLK[0]);
+    builder.extra_name_cell("CMT_DCM_0_SE_CLK_IN1", 0, wires::IMUX_CLK[1]);
+    builder.extra_name_cell("CMT_DCM_0_SE_CLK_IN2", 0, wires::IMUX_IMUX[6]);
+    builder.extra_name_cell("CMT_PLL_SE_CLK_IN0", 3, wires::IMUX_CLK[0]);
+    builder.extra_name_cell("CMT_PLL_SE_CLK_IN1", 4, wires::IMUX_CLK[0]);
+    builder.extra_name_cell("CMT_DCM_1_SE_CLK_IN0", 7, wires::IMUX_CLK[0]);
+    builder.extra_name_cell("CMT_DCM_1_SE_CLK_IN1", 7, wires::IMUX_CLK[1]);
+    builder.extra_name_cell("CMT_DCM_1_SE_CLK_IN2", 7, wires::IMUX_IMUX[12]);
 
     builder.int_type_id(tcls::INT, bslots::INT, "INT", "INT");
 
@@ -908,10 +908,7 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
                 }
             }
         }
-        let mut x = builder
-            .xtile_id(tcls::BRAM, "BRAM", xy)
-            .num_cells(5)
-            .bel(bel);
+        let mut x = builder.xtile_id(tcls::BRAM, "BRAM", xy).bel(bel);
         for dy in 0..5 {
             x = x.ref_int(xy.delta(-2, dy as i32), dy).ref_single(
                 xy.delta(-1, dy as i32),
@@ -1020,14 +1017,14 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
 
     if let Some((_, intf)) = builder.ndb.tile_class_namings.get_mut("INTF_PPC_R") {
         intf.intf_wires_in.insert(
-            TileWireCoord::new_idx(0, wires::IMUX_CLK[0]),
+            wires::IMUX_CLK[0].cell(0),
             IntfWireInNaming::Buf {
                 name_out: "PPC_R_INT_INTERFACE_FB_CLK_B0".to_string(),
                 name_in: "INT_INTERFACE_CLK_B0".to_string(),
             },
         );
         intf.intf_wires_in.insert(
-            TileWireCoord::new_idx(0, wires::IMUX_CLK[1]),
+            wires::IMUX_CLK[1].cell(0),
             IntfWireInNaming::Buf {
                 name_out: "PPC_R_INT_INTERFACE_FB_CLK_B1".to_string(),
                 name_in: "INT_INTERFACE_CLK_B1".to_string(),
@@ -1101,7 +1098,7 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
             bel_sysmon,
             builder.bel_virtual(bslots::MISC_CFG),
         ]);
-        let mut xn = builder.xtile_id(tcls::CFG, "CFG", xy).num_cells(20);
+        let mut xn = builder.xtile_id(tcls::CFG, "CFG", xy);
         for i in 0..10 {
             xn = xn.ref_int(xy.delta(-4, -10 + (i as i32)), i);
             xn = xn.ref_single(xy.delta(-3, -10 + (i as i32)), i, intf);
@@ -1139,7 +1136,6 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
         let mut xn = builder
             .xtile_id(tcls::CLK_BUFG, "CLK_BUFG", xy)
             .raw_tile(xy.delta(1, 0))
-            .num_cells(20)
             .switchbox(bslots::SPEC_INT)
             .optin_muxes(&wires::MGT_BUF[..])
             .optin_muxes(&wires::IMUX_BUFG_O[..])
@@ -1376,7 +1372,6 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
             );
             let mut xn = builder
                 .xtile_id(tcls::CMT, tkn, xy)
-                .num_cells(10)
                 .switchbox(bslots::SPEC_INT)
                 .optin_muxes(&wires::IMUX_DCM_CLKIN[..])
                 .optin_muxes(&wires::IMUX_DCM_CLKFB[..])
@@ -1483,7 +1478,6 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
                 .xtile_id(tcls::CLK_HROW, "CLK_HROW", xy)
                 .switchbox(bslots::HROW_INT)
                 .optin_muxes(&wires::HCLK_ROW[..])
-                .num_cells(2)
                 .extract();
         }
     }
@@ -1655,7 +1649,6 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
 
             let mut xn = builder
                 .xtile_id(tcid, naming, xy)
-                .num_cells(4)
                 .switchbox(bslots::HCLK_IO_INT)
                 .optin_muxes(&wires::HCLK_IO[..])
                 .optin_muxes(&wires::RCLK_IO[..])
@@ -1785,7 +1778,6 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
             let bel = builder.bel_virtual(bslots::HCLK_CMT_DRP);
             builder
                 .xtile_id(tcls::HCLK_CMT, "HCLK_CMT", xy)
-                .num_cells(4)
                 .raw_tile(xy.delta(1, 0))
                 .switchbox(bslots::HCLK_IO_INT)
                 .optin_muxes(&wires::HCLK_CMT[..])
@@ -1809,7 +1801,6 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
         if let Some(&xy) = rd.tiles_by_kind_name(tkn).iter().next() {
             builder
                 .xtile_id(tcid, naming, xy)
-                .num_cells(10)
                 .switchbox(bslots::CLK_INT)
                 .optin_muxes(&wires::GIOB[..])
                 .optin_muxes(&wires::IMUX_BUFG_O[..])
@@ -1826,7 +1817,6 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
         if let Some(&xy) = rd.tiles_by_kind_name(tkn).iter().next() {
             builder
                 .xtile_id(tcid, naming, xy)
-                .num_cells(10)
                 .switchbox(bslots::CLK_INT)
                 .optin_muxes(&wires::IMUX_BUFG_O[..])
                 .extract();
@@ -1842,7 +1832,6 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
         if let Some(&xy) = rd.tiles_by_kind_name(tkn).iter().next() {
             builder
                 .xtile_id(tcid, naming, xy)
-                .num_cells(10)
                 .switchbox(bslots::CLK_INT)
                 .optin_muxes(&wires::IMUX_BUFG_O[..])
                 .extract();
@@ -1890,7 +1879,6 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
         if let Some(&xy) = rd.tiles_by_kind_name(tkn).iter().next() {
             builder
                 .xtile_id(tcls::HCLK_MGT_BUF, "HCLK_BRAM_MGT", xy)
-                .num_cells(1)
                 .switchbox(bslots::CLK_INT)
                 .optin_muxes(&wires::MGT_ROW_O[..])
                 .extract();
@@ -1996,7 +1984,7 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
                 bels.push(bel);
             }
 
-            let mut xn = builder.xtile_id(tcid, tkn, xy).num_cells(20).bels(bels);
+            let mut xn = builder.xtile_id(tcid, tkn, xy).bels(bels);
             for i in 0..10 {
                 xn = xn.ref_int(xy.delta(int_dx, -10 + i as i32), i).ref_single(
                     xy.delta(int_dx + 1, -10 + i as i32),

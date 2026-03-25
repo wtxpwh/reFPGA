@@ -1,8 +1,8 @@
-use prjcombine_interconnect::grid::BelCoord;
+use prjcombine_interconnect::{db::WireSlotIdExt, grid::BelCoord};
 use prjcombine_re_xilinx_naming_xc2000::ExpandedNamedDevice;
 use prjcombine_re_xilinx_rawdump::Part;
 use prjcombine_re_xilinx_rdverify::{SitePin, SitePinDir, Verifier};
-use prjcombine_xc2000::xc5200::{bslots, wires};
+use prjcombine_xc2000::xc5200::{bslots, tcls, wires};
 
 fn verify_lc(endev: &ExpandedNamedDevice, vrf: &mut Verifier, bcrd: BelCoord) {
     let idx = bslots::LC.index_of(bcrd.slot).unwrap();
@@ -138,6 +138,16 @@ pub fn verify_device(endev: &ExpandedNamedDevice, rd: &Part) {
     vrf.skip_bslot(bslots::BUFG);
     for idx in 0..4 {
         vrf.alias_wire_slot(wires::IMUX_IO_O_SN[idx], wires::IMUX_IO_O[idx]);
+        vrf.skip_tcls_pip(
+            tcls::IO_S,
+            wires::IMUX_IO_O_SN[idx].cell(0),
+            wires::OMUX_BUF_S[idx].cell(0).neg(),
+        );
+        vrf.skip_tcls_pip(
+            tcls::IO_N,
+            wires::IMUX_IO_O_SN[idx].cell(0),
+            wires::OMUX_BUF_N[idx].cell(0).neg(),
+        );
     }
     vrf.prep_int_wires();
     vrf.handle_int();

@@ -1,7 +1,7 @@
 use std::collections::BTreeMap;
 
 use prjcombine_interconnect::{
-    db::{BelInfo, IntDb, Mux, SwitchBoxItem, TileWireCoord},
+    db::{BelInfo, IntDb, Mux, SwitchBoxItem, WireSlotIdExt},
     dir::{Dir, DirMap},
 };
 use prjcombine_re_xilinx_rawdump::Part;
@@ -432,7 +432,7 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
     for i in 0..4 {
         bels_io_sn[i] = bels_io_sn[i]
             .clone()
-            .pin_int_nudge("O", TileWireCoord::new_idx(0, wires::IMUX_IO_O_SN[i]));
+            .pin_int_nudge("O", wires::IMUX_IO_O_SN[i].cell(0));
     }
     let mut bels_io_s = bels_io_sn.clone();
     bels_io_s.push(
@@ -578,7 +578,7 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
                 continue;
             };
             let mut new_mux = Mux {
-                dst: TileWireCoord::new_idx(0, wires::IMUX_IO_O_SN[idx]),
+                dst: wires::IMUX_IO_O_SN[idx].cell(0),
                 bits: Default::default(),
                 src: BTreeMap::new(),
                 bits_off: None,
@@ -602,10 +602,8 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
     for key in ["IO_S", "IO_S_CLK", "IO_N", "IO_N_CLK"] {
         let ntcls = naming.tile_class_namings.get_mut(key).unwrap().1;
         for i in 0..4 {
-            let name = ntcls.wires[&TileWireCoord::new_idx(0, wires::IMUX_IO_O[i])].clone();
-            ntcls
-                .wires
-                .insert(TileWireCoord::new_idx(0, wires::IMUX_IO_O_SN[i]), name);
+            let name = ntcls.wires[&wires::IMUX_IO_O[i].cell(0)].clone();
+            ntcls.wires.insert(wires::IMUX_IO_O_SN[i].cell(0), name);
         }
     }
 

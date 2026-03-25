@@ -392,10 +392,7 @@ fn verify_bufdiv_leaf(endev: &ExpandedNamedDevice, vrf: &mut Verifier, bel: &Leg
     }
     if !bel.info.pins.contains_key("I_CASC") {
         pins.push(("I_CASC", SitePinDir::In));
-        let idx = bslots::BUFDIV_LEAF
-            .into_iter()
-            .position(|x| x == bel.slot)
-            .unwrap();
+        let idx = bslots::BUFDIV_LEAF.index_of(bel.slot).unwrap();
         let obel = vrf.find_bel_sibling(bel, bslots::BUFDIV_LEAF[idx - 1]);
         vrf.claim_net(&[bel.wire("I_CASC")]);
         vrf.claim_pip(bel.wire("I_CASC"), obel.wire_far("O_CASC"));
@@ -438,10 +435,7 @@ fn verify_rclk_hdistr_loc(
 }
 
 fn verify_hdiob(vrf: &mut Verifier, bel: &LegacyBelContext<'_>) {
-    let idx = bslots::HDIOB
-        .into_iter()
-        .position(|x| x == bel.slot)
-        .unwrap();
+    let idx = bslots::HDIOB.index_of(bel.slot).unwrap();
     let obel = vrf.find_bel_sibling(bel, bslots::HDIOLOGIC[idx]);
     vrf.verify_legacy_bel(
         bel,
@@ -473,10 +467,7 @@ fn verify_hdiob(vrf: &mut Verifier, bel: &LegacyBelContext<'_>) {
 }
 
 fn verify_hdiologic(vrf: &mut Verifier, bel: &LegacyBelContext<'_>) {
-    let idx = bslots::HDIOLOGIC
-        .into_iter()
-        .position(|x| x == bel.slot)
-        .unwrap();
+    let idx = bslots::HDIOLOGIC.index_of(bel.slot).unwrap();
     let obel = vrf.find_bel_sibling(bel, bslots::HDIOB[idx]);
     vrf.verify_legacy_bel(
         bel,

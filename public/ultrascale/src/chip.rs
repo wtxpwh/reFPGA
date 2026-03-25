@@ -185,7 +185,7 @@ pub enum DspKind {
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Hash, Encode, Decode)]
 pub struct Column {
     pub kind: ColumnKind,
-    pub clk: [Option<u8>; 4],
+    pub clk: Option<(usize, usize)>,
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Hash, Encode, Decode)]
@@ -196,7 +196,8 @@ pub enum HardRowKind {
     Hdio,
     HdioAms,
     HdioL,
-    Pcie,
+    Pcie3,
+    Pcie4,
     Pcie4C,
     Pcie4CE,
     Cmac,
@@ -211,7 +212,8 @@ impl std::fmt::Display for HardRowKind {
             HardRowKind::None => write!(f, "none"),
             HardRowKind::Cfg => write!(f, "cfg"),
             HardRowKind::Ams => write!(f, "ams"),
-            HardRowKind::Pcie => write!(f, "pcie"),
+            HardRowKind::Pcie3 => write!(f, "pcie3"),
+            HardRowKind::Pcie4 => write!(f, "pcie4"),
             HardRowKind::Pcie4C => write!(f, "pcie4c"),
             HardRowKind::Pcie4CE => write!(f, "pcie4ce"),
             HardRowKind::Cmac => write!(f, "cmac"),
@@ -237,6 +239,7 @@ pub enum IoRowKind {
     Hpio,
     Hrio,
     HdioL,
+    HdioLMrc,
     Xp5io,
     Gth,
     Gty,
@@ -255,7 +258,8 @@ impl std::fmt::Display for IoRowKind {
             IoRowKind::Hpio => write!(f, "hpio"),
             IoRowKind::Hrio => write!(f, "hrio"),
             IoRowKind::HdioL => write!(f, "hdiol"),
-            IoRowKind::Xp5io => write!(f, "cp5io"),
+            IoRowKind::HdioLMrc => write!(f, "hdiol[mrc]"),
+            IoRowKind::Xp5io => write!(f, "xp5io"),
             IoRowKind::Gth => write!(f, "gth"),
             IoRowKind::Gty => write!(f, "gty"),
             IoRowKind::Gtm => write!(f, "gtm"),
@@ -510,21 +514,13 @@ impl Chip {
                 }
                 write!(o, "\t\t]")?;
             }
-            if cd.clk.iter().any(|x| x.is_some()) {
-                write!(o, " + clk [")?;
-                let mut first = true;
-                for v in cd.clk {
-                    if !first {
-                        write!(o, ", ")?;
-                    }
-                    first = false;
-                    if let Some(v) = v {
-                        write!(o, "{v}")?;
-                    } else {
-                        write!(o, "-")?;
-                    }
-                }
-                write!(o, "]")?;
+            if let Some((start, num)) = cd.clk {
+                write!(o, " + clk {start}..{end}", end = start + num)?;
+            }
+            if cd.kind == ColumnKind::Uram
+                && let Some((start, num)) = self.columns[col + 1].clk
+            {
+                write!(o, " + clk {start}..{end}", end = start + num)?;
             }
             if matches!(
                 cd.kind,

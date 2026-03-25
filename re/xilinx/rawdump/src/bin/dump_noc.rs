@@ -804,6 +804,21 @@ fn main() -> Result<(), Box<dyn Error>> {
             ],
         ),
         (
+            "NOC2_NCRB_TILE_MX",
+            &[
+                "NOC_NCRB_TOP_0_OUT_0",
+                "NOC_NCRB_TOP_0_OUT_1",
+                "NOC_NCRB_TOP_1_OUT_0",
+                "NOC_NCRB_TOP_1_OUT_1",
+            ],
+            &[
+                "NOC_NCRB_TOP_0_IN_0",
+                "NOC_NCRB_TOP_0_IN_1",
+                "NOC_NCRB_TOP_1_IN_0",
+                "NOC_NCRB_TOP_1_IN_1",
+            ],
+        ),
+        (
             "NOC2_NPP_RPTR_TILE",
             &[
                 "NOC_NPP_RPTR_FLOP_0_OUT_LEFT",
@@ -998,10 +1013,12 @@ fn main() -> Result<(), Box<dyn Error>> {
             for &wn in wires_in {
                 if rd.wires.get(wn).is_none() {
                     println!("OOPS {tkn} {wn}");
+                    continue;
                 }
                 let wni = rd.wires.get(wn).unwrap();
                 if tk.wires.get(&wni).is_none() {
                     println!("OOPS {tkn} {wn}");
+                    continue;
                 }
                 let w = tk.wires.get(&wni).unwrap().1;
                 if let TkWire::Connected(cwi) = *w
@@ -1014,10 +1031,12 @@ fn main() -> Result<(), Box<dyn Error>> {
             for &wn in wires_out {
                 if rd.wires.get(wn).is_none() {
                     println!("OOPS {tkn} {wn}");
+                    continue;
                 }
                 let wni = rd.wires.get(wn).unwrap();
                 if tk.wires.get(&wni).is_none() {
                     println!("OOPS {tkn} {wn}");
+                    continue;
                 }
                 let w = tk.wires.get(&wni).unwrap().1;
                 if let TkWire::Connected(cwi) = *w

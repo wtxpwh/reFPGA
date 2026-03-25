@@ -4,10 +4,7 @@ use prjcombine_re_xilinx_naming_virtex::ExpandedNamedDevice;
 use prjcombine_re_xilinx_rawdump::Part;
 use prjcombine_re_xilinx_rdverify::Verifier;
 use prjcombine_virtex::{
-    defs::{
-        bcls::{self, BUFGCE, IOI},
-        bslots, tcls, wire_to_mux, wires,
-    },
+    defs::{bcls, bslots, tcls, wire_to_mux, wires},
     expanded::ExpandedDevice,
 };
 
@@ -31,12 +28,7 @@ fn verify_slice(vrf: &mut Verifier, bcrd: BelCoord) {
 
 fn verify_iob(edev: &ExpandedDevice, vrf: &mut Verifier, bcrd: BelCoord) {
     let idx = bslots::IOI.index_of(bcrd.slot).unwrap();
-    let mut bel = vrf
-        .verify_bel(bcrd)
-        .kind("IOB")
-        .rename_in(IOI::ICLK, "CLK")
-        .skip_in(IOI::OCLK)
-        .skip_in(IOI::TCLK);
+    let mut bel = vrf.verify_bel(bcrd).kind("IOB");
     if idx == 0 || (idx == 3 && (bcrd.row == edev.chip.row_s() || bcrd.row == edev.chip.row_n())) {
         bel = bel.kind("EMPTYIOB");
     }
@@ -109,14 +101,6 @@ fn verify_tbus_we(edev: &ExpandedDevice, vrf: &mut Verifier, bcrd: BelCoord) {
     }
 }
 
-fn verify_bufg(vrf: &mut Verifier, bcrd: BelCoord) {
-    vrf.verify_bel(bcrd)
-        .kind("GCLK")
-        .rename_in(BUFGCE::I, "IN")
-        .rename_out(BUFGCE::O, "OUT")
-        .commit();
-}
-
 fn verify_iofb(vrf: &mut Verifier, bcrd: BelCoord) {
     let idx = bslots::IOFB.index_of(bcrd.slot).unwrap();
     let mut bel = vrf.verify_bel(bcrd);
@@ -167,12 +151,8 @@ fn verify_bel(edev: &ExpandedDevice, vrf: &mut Verifier, bcrd: BelCoord) {
         bslots::STARTUP | bslots::CAPTURE | bslots::BSCAN | bslots::DLL => {
             vrf.verify_bel(bcrd).commit()
         }
-        _ if bslots::GCLK_IOB.contains(bcrd.slot) => vrf
-            .verify_bel(bcrd)
-            .kind("GCLKIOB")
-            .rename_out(bcls::GCLK_IOB::I, "GCLKOUT")
-            .commit(),
-        _ if bslots::BUFGCE.contains(bcrd.slot) => verify_bufg(vrf, bcrd),
+        _ if bslots::GCLK_IOB.contains(bcrd.slot) => vrf.verify_bel(bcrd).kind("GCLKIOB").commit(),
+        _ if bslots::BUFGCE.contains(bcrd.slot) => vrf.verify_bel(bcrd).kind("GCLK").commit(),
         _ if bslots::IOFB.contains(bcrd.slot) => verify_iofb(vrf, bcrd),
         bslots::PCILOGIC => verify_pcilogic(edev, vrf, bcrd),
         _ => unreachable!(),
@@ -222,13 +202,13 @@ pub fn verify_device(endev: &ExpandedNamedDevice, rd: &Part) {
         wires::IMUX_TBUF_T,
     ] {
         for w in w {
-            vrf.skip_tcls_pip(tcls::CLB, w.cell(0), wires::PULLUP.cell(0));
+            vrf.skip_tcls_pip(tcls::CLB, w.cell(0), wires::PULLUP.cell(0).pos());
         }
     }
     for w in [wires::IMUX_TBUF_I, wires::IMUX_TBUF_T] {
         for w in w {
-            vrf.skip_tcls_pip(tcls::IO_W, w.cell(0), wires::PULLUP.cell(0));
-            vrf.skip_tcls_pip(tcls::IO_E, w.cell(0), wires::PULLUP.cell(0));
+            vrf.skip_tcls_pip(tcls::IO_W, w.cell(0), wires::PULLUP.cell(0).pos());
+            vrf.skip_tcls_pip(tcls::IO_E, w.cell(0), wires::PULLUP.cell(0).pos());
         }
     }
     for w in [
@@ -241,15 +221,15 @@ pub fn verify_device(endev: &ExpandedNamedDevice, rd: &Part) {
         wires::IMUX_IO_T,
     ] {
         for w in w {
-            vrf.skip_tcls_pip(tcls::IO_W, w.cell(0), wires::PULLUP.cell(0));
-            vrf.skip_tcls_pip(tcls::IO_E, w.cell(0), wires::PULLUP.cell(0));
-            vrf.skip_tcls_pip(tcls::IO_S, w.cell(0), wires::PULLUP.cell(0));
-            vrf.skip_tcls_pip(tcls::IO_N, w.cell(0), wires::PULLUP.cell(0));
+            vrf.skip_tcls_pip(tcls::IO_W, w.cell(0), wires::PULLUP.cell(0).pos());
+            vrf.skip_tcls_pip(tcls::IO_E, w.cell(0), wires::PULLUP.cell(0).pos());
+            vrf.skip_tcls_pip(tcls::IO_S, w.cell(0), wires::PULLUP.cell(0).pos());
+            vrf.skip_tcls_pip(tcls::IO_N, w.cell(0), wires::PULLUP.cell(0).pos());
         }
     }
     for w in [wires::IMUX_CAP_CLK, wires::IMUX_CAP_CAP] {
-        vrf.skip_tcls_pip(tcls::CNR_SW, w.cell(0), wires::PULLUP.cell(0));
-        vrf.skip_tcls_pip(tcls::CNR_SW_S2, w.cell(0), wires::PULLUP.cell(0));
+        vrf.skip_tcls_pip(tcls::CNR_SW, w.cell(0), wires::PULLUP.cell(0).pos());
+        vrf.skip_tcls_pip(tcls::CNR_SW_S2, w.cell(0), wires::PULLUP.cell(0).pos());
     }
     for w in [
         wires::IMUX_STARTUP_CLK,
@@ -259,8 +239,8 @@ pub fn verify_device(endev: &ExpandedNamedDevice, rd: &Part) {
         wires::IMUX_BSCAN_TDO1,
         wires::IMUX_BSCAN_TDO2,
     ] {
-        vrf.skip_tcls_pip(tcls::CNR_NW, w.cell(0), wires::PULLUP.cell(0));
-        vrf.skip_tcls_pip(tcls::CNR_NW_S2, w.cell(0), wires::PULLUP.cell(0));
+        vrf.skip_tcls_pip(tcls::CNR_NW, w.cell(0), wires::PULLUP.cell(0).pos());
+        vrf.skip_tcls_pip(tcls::CNR_NW_S2, w.cell(0), wires::PULLUP.cell(0).pos());
     }
     for tcid in [
         tcls::BRAM_W,
@@ -277,7 +257,7 @@ pub fn verify_device(endev: &ExpandedNamedDevice, rd: &Part) {
             wires::IMUX_BRAM_SELA,
             wires::IMUX_BRAM_SELB,
         ] {
-            vrf.skip_tcls_pip(tcid, w.cell(0), wires::PULLUP.cell(0));
+            vrf.skip_tcls_pip(tcid, w.cell(0), wires::PULLUP.cell(0).pos());
         }
     }
     for tcid in [
@@ -288,7 +268,11 @@ pub fn verify_device(endev: &ExpandedNamedDevice, rd: &Part) {
         tcls::DLLS_S,
         tcls::DLLS_N,
     ] {
-        vrf.skip_tcls_pip(tcid, wires::IMUX_DLL_RST.cell(0), wires::PULLUP.cell(0));
+        vrf.skip_tcls_pip(
+            tcid,
+            wires::IMUX_DLL_RST.cell(0),
+            wires::PULLUP.cell(0).pos(),
+        );
     }
     for tcid in [
         tcls::CLK_S_V,
@@ -299,7 +283,7 @@ pub fn verify_device(endev: &ExpandedNamedDevice, rd: &Part) {
         tcls::CLK_N_VE_4DLL,
     ] {
         for w in wires::IMUX_BUFGCE_CE {
-            vrf.skip_tcls_pip(tcid, w.cell(1), wires::PULLUP.cell(1));
+            vrf.skip_tcls_pip(tcid, w.cell(1), wires::PULLUP.cell(1).pos());
         }
     }
 

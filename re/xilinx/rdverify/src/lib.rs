@@ -1,8 +1,8 @@
 use prjcombine_entity::{EntityBitVec, EntityBundleItemIndex, EntityId, EntityPartVec, EntityVec};
 use prjcombine_interconnect::db::{
     BelBidirId, BelInfo, BelInput, BelInputId, BelKind, BelOutputId, BelPinIndexing, BelSlotId,
-    ConnectorWire, IntDb, LegacyBel, PinDir, SwitchBoxItem, TileClassId, TileWireCoord, WireKind,
-    WireSlotId,
+    ConnectorWire, IntDb, LegacyBel, PinDir, PolTileWireCoord, SwitchBoxItem, TileClassId,
+    TileWireCoord, WireKind, WireSlotId,
 };
 use prjcombine_interconnect::grid::{
     BelCoord, CellCoord, ColId, ConnectorCoord, DieId, ExpandedGrid, RowId, Tile, TileCoord,
@@ -13,7 +13,7 @@ use prjcombine_re_xilinx_naming::db::{
     PipNaming, RawTileId,
 };
 use prjcombine_re_xilinx_naming::grid::{ExpandedGridNaming, TileNaming};
-use prjcombine_re_xilinx_rawdump::{self as rawdump, Coord, NodeOrWire, Part};
+use prjcombine_re_xilinx_rawdump::{self as rawdump, Coord, NodeOrWire, Part, TkPipInversion};
 use std::borrow::Cow;
 use std::collections::{BTreeSet, HashMap, HashSet};
 
@@ -92,8 +92,6 @@ pub struct BelVerifier<'a, 'b> {
     skip_ins: HashSet<BelInputId>,
     skip_outs: HashSet<BelOutputId>,
     skip_auto: bool,
-    rename_ins: EntityPartVec<BelInputId, String>,
-    rename_outs: EntityPartVec<BelOutputId, String>,
     sub: usize,
 }
 
@@ -323,16 +321,6 @@ impl<'a, 'b> BelVerifier<'a, 'b> {
         self
     }
 
-    pub fn rename_in(mut self, pin: BelInputId, arg: impl Into<String>) -> Self {
-        self.rename_ins.insert(pin, arg.into());
-        self
-    }
-
-    pub fn rename_out(mut self, pin: BelOutputId, arg: impl Into<String>) -> Self {
-        self.rename_outs.insert(pin, arg.into());
-        self
-    }
-
     #[allow(clippy::should_implement_trait)]
     pub fn sub(mut self, sub: usize) -> Self {
         self.sub = sub;
@@ -360,10 +348,10 @@ impl<'a, 'b> BelVerifier<'a, 'b> {
                 let (name, idx) = bcls.inputs.key(pid);
                 let name = self.vrf.pin_index(name, idx, bcls.inputs[pid].indexing);
                 let n = &self.naming.pins[&name];
-                let pin = if let Some(pin) = self.rename_ins.get(pid) {
+                let pin = if let Some((ref pin, _)) = n.orig_pin {
                     pin.into()
                 } else {
-                    name.into()
+                    continue;
                 };
                 pins.push(SitePin {
                     dir: SitePinDir::In,
@@ -378,7 +366,7 @@ impl<'a, 'b> BelVerifier<'a, 'b> {
                 let (name, idx) = bcls.outputs.key(pid);
                 let name = self.vrf.pin_index(name, idx, bcls.outputs[pid].indexing);
                 let n = &self.naming.pins[&name];
-                let pin = if let Some(pin) = self.rename_outs.get(pid) {
+                let pin = if let Some((ref pin, _)) = n.orig_pin {
                     pin.into()
                 } else {
                     name.into()
@@ -478,9 +466,9 @@ pub struct Verifier<'a> {
     force_bel_output: HashMap<(TileClassId, BelSlotId, BelOutputId), TileWireCoord>,
     skip_bel_input: HashSet<(TileClassId, BelSlotId, BelInputId)>,
     skip_bel_output: HashSet<(TileClassId, BelSlotId, BelOutputId)>,
-    skip_tcls_pips: EntityPartVec<TileClassId, HashSet<(TileWireCoord, TileWireCoord)>>,
-    skip_tile_pips: HashMap<TileCoord, HashSet<(TileWireCoord, TileWireCoord)>>,
-    inject_tcls_pips: EntityPartVec<TileClassId, HashSet<(TileWireCoord, TileWireCoord)>>,
+    skip_tcls_pips: EntityPartVec<TileClassId, HashSet<(TileWireCoord, PolTileWireCoord)>>,
+    skip_tile_pips: HashMap<TileCoord, HashSet<(TileWireCoord, PolTileWireCoord)>>,
+    inject_tcls_pips: EntityPartVec<TileClassId, HashSet<(TileWireCoord, PolTileWireCoord)>>,
     dummy_in_nodes: HashSet<NodeOrWire>,
     dummy_out_nodes: HashSet<NodeOrWire>,
     claimed_nodes: EntityBitVec<rawdump::NodeId>,
@@ -658,21 +646,26 @@ impl<'a> Verifier<'a> {
         self.intf_int_aliases.insert(from, to);
     }
 
-    pub fn skip_tcls_pip(&mut self, tcid: TileClassId, dst: TileWireCoord, src: TileWireCoord) {
+    pub fn skip_tcls_pip(&mut self, tcid: TileClassId, dst: TileWireCoord, src: PolTileWireCoord) {
         if !self.skip_tcls_pips.contains_id(tcid) {
             self.skip_tcls_pips.insert(tcid, Default::default());
         }
         self.skip_tcls_pips[tcid].insert((dst, src));
     }
 
-    pub fn skip_tile_pip(&mut self, tcrd: TileCoord, dst: TileWireCoord, src: TileWireCoord) {
+    pub fn skip_tile_pip(&mut self, tcrd: TileCoord, dst: TileWireCoord, src: PolTileWireCoord) {
         self.skip_tile_pips
             .entry(tcrd)
             .or_default()
             .insert((dst, src));
     }
 
-    pub fn inject_tcls_pip(&mut self, tcid: TileClassId, dst: TileWireCoord, src: TileWireCoord) {
+    pub fn inject_tcls_pip(
+        &mut self,
+        tcid: TileClassId,
+        dst: TileWireCoord,
+        src: PolTileWireCoord,
+    ) {
         if !self.inject_tcls_pips.contains_id(tcid) {
             self.inject_tcls_pips.insert(tcid, Default::default());
         }
@@ -1139,14 +1132,22 @@ impl<'a> Verifier<'a> {
     }
 
     pub fn claim_pip(&mut self, wtn: RawWireCoord, wfn: RawWireCoord) {
+        self.claim_pip_pol(wtn, wfn, false);
+    }
+
+    pub fn claim_pip_pol(&mut self, wtn: RawWireCoord, wfn: RawWireCoord, inv: bool) {
         assert_eq!(wtn.crd, wfn.crd);
         let crd = wtn.crd;
         let wt = wtn.wire;
         let wf = wfn.wire;
-        self.claim_pip_tri(crd, wt, wf);
+        self.claim_pip_tri_pol(crd, wt, wf, inv);
     }
 
     pub fn claim_pip_tri(&mut self, crd: Coord, wt: &str, wf: &str) {
+        self.claim_pip_tri_pol(crd, wt, wf, false);
+    }
+
+    pub fn claim_pip_tri_pol(&mut self, crd: Coord, wt: &str, wf: &str, inv: bool) {
         let tile = &self.rd.tiles[&crd];
         let tk = &self.rd.tile_kinds[tile.kind];
         let tname = &tile.name;
@@ -1162,7 +1163,18 @@ impl<'a> Verifier<'a> {
             println!("MISSING PIP SRC WIRE {tname} {wf}");
             return;
         };
-        if let Some((idx, _)) = tk.pips.get(&(wfi, wti)) {
+        if let Some((idx, pip)) = tk.pips.get(&(wfi, wti)) {
+            let exp_inv = if inv {
+                TkPipInversion::Always
+            } else {
+                TkPipInversion::Never
+            };
+            if pip.inversion != exp_inv {
+                println!(
+                    "PIP INVERT MISMATCH {tname} {wt} <- {wf}: is {pi:?} expected {exp_inv:?}",
+                    pi = pip.inversion
+                );
+            }
             let ctp = self.claimed_pips.get_mut(&crd).unwrap();
             if ctp[idx] {
                 println!("DOUBLE CLAIMED PIP {tname} {wt} <- {wf}");
@@ -1342,11 +1354,12 @@ impl<'a> Verifier<'a> {
             EntityBundleItemIndex::Single => name.to_string(),
             EntityBundleItemIndex::Array { index, .. } => {
                 let index = indexing.phys_to_virt(index);
-                if matches!(
-                    self.rd.family.as_str(),
-                    "ultrascale" | "ultrascaleplus" | "versal"
-                ) {
+                if self.rd.family == "versal" {
                     format!("{name}_{index}_")
+                } else if self.rd.family.starts_with("ultra")
+                    && name.ends_with(|c: char| c.is_ascii_digit())
+                {
+                    format!("{name}_{index}")
                 } else {
                     format!("{name}{index}")
                 }
@@ -1393,23 +1406,23 @@ impl<'a> Verifier<'a> {
                         {
                             intf_anon_mux.insert(mux.dst, &mux.src);
                         } else {
-                            for src in mux.src.keys() {
-                                pips.insert((mux.dst, src.tw));
+                            for &src in mux.src.keys() {
+                                pips.insert((mux.dst, src));
                             }
                         }
                     }
                     SwitchBoxItem::ProgBuf(buf) => {
-                        pips.insert((buf.dst, buf.src.tw));
+                        pips.insert((buf.dst, buf.src));
                     }
                     SwitchBoxItem::PermaBuf(buf) => {
-                        pips.insert((buf.dst, buf.src.tw));
+                        pips.insert((buf.dst, buf.src));
                     }
                     SwitchBoxItem::Pass(pass) => {
-                        pips.insert((pass.dst, pass.src));
+                        pips.insert((pass.dst, pass.src.pos()));
                     }
                     SwitchBoxItem::BiPass(pass) => {
-                        pips.insert((pass.a, pass.b));
-                        pips.insert((pass.b, pass.a));
+                        pips.insert((pass.a, pass.b.pos()));
+                        pips.insert((pass.b, pass.a.pos()));
                     }
                     SwitchBoxItem::ProgDelay(delay) => {
                         let Some(wti) = wire_lut[&delay.dst] else {
@@ -1456,10 +1469,10 @@ impl<'a> Verifier<'a> {
                     SwitchBoxItem::PairMux(mux) => {
                         for &[src0, src1] in mux.src.keys() {
                             if let Some(src) = src0 {
-                                pips.insert((mux.dst[0], src.tw));
+                                pips.insert((mux.dst[0], src));
                             }
                             if let Some(src) = src1 {
-                                pips.insert((mux.dst[1], src.tw));
+                                pips.insert((mux.dst[1], src));
                             }
                         }
                     }
@@ -1497,7 +1510,7 @@ impl<'a> Verifier<'a> {
             let Some(wti) = wire_lut[&wt] else { continue };
             let wftie = self.db[wf.wire].is_tie();
             let pip_found;
-            if let Some(en) = naming.ext_pips.get(&(wt, wf)) {
+            if let Some(en) = naming.ext_pips.get(&(wt, wf.tw)) {
                 if !crds.contains_id(en.tile) {
                     pip_found = false;
                 } else {
@@ -1510,14 +1523,14 @@ impl<'a> Verifier<'a> {
                         wire: &en.wire_from,
                     };
                     if wftie {
-                        if !wires_pinned.contains(&wf) {
-                            wires_pinned.insert(wf);
+                        if !wires_pinned.contains(&wf.tw) {
+                            wires_pinned.insert(wf.tw);
                             self.claim_net(&[wfn]);
                             tie_pins_extra.insert(wf.wire, &en.wire_from);
                         }
                         pip_found = self.try_pin_int_wire(wtn, wti);
                         if pip_found {
-                            self.claim_pip(wtn, wfn);
+                            self.claim_pip_pol(wtn, wfn, wf.inv);
                         }
                     } else {
                         let Some(wfi) = wire_lut[&wf] else { continue };
@@ -1525,7 +1538,7 @@ impl<'a> Verifier<'a> {
                         let wff = self.try_pin_int_wire(wfn, wfi);
                         pip_found = wtf && wff;
                         if pip_found {
-                            self.claim_pip(wtn, wfn);
+                            self.claim_pip_pol(wtn, wfn, wf.inv);
                         }
                     }
                 }
@@ -1555,7 +1568,7 @@ impl<'a> Verifier<'a> {
                     wire: &naming.wires[&wf].name,
                 };
                 pip_found = self.try_pin_int_wire(wfn, wire_lut[&wf].unwrap());
-                self.claim_pip(wtn, wfn);
+                self.claim_pip_pol(wtn, wfn, wf.inv);
             } else if let Some(wn) = naming.wires.get(&wf)
                 && wn.alt_pips_from.contains(&wt)
             {
@@ -1563,26 +1576,26 @@ impl<'a> Verifier<'a> {
                     crd: crds[def_rt],
                     wire: wn.alt_name.as_ref().unwrap(),
                 };
-                if !alt_wires_dst.contains(&wf) && !alt_wires_src.contains(&wf) {
+                if !alt_wires_dst.contains(&wf) && !alt_wires_src.contains(&wf.tw) {
                     self.claim_net(&[wfn]);
                 }
-                if !alt_wires_src.contains(&wf) {
+                if !alt_wires_src.contains(&wf.tw) {
                     let rwfn = RawWireCoord {
                         crd: crds[def_rt],
                         wire: &wn.name,
                     };
                     self.try_pin_int_wire(rwfn, wire_lut[&wf].unwrap());
-                    if !self.skip_alt_pip.contains(&(tile.class, wf)) {
+                    if !self.skip_alt_pip.contains(&(tile.class, wf.tw)) {
                         self.claim_pip(wfn, rwfn);
                     }
                 }
-                alt_wires_src.insert(wf);
+                alt_wires_src.insert(wf.tw);
                 let wtn = RawWireCoord {
                     crd: crds[def_rt],
                     wire: &naming.wires[&wt].name,
                 };
                 pip_found = self.try_pin_int_wire(wtn, wire_lut[&wt].unwrap());
-                self.claim_pip(wtn, wfn);
+                self.claim_pip_pol(wtn, wfn, wf.inv);
             } else {
                 let wtf;
                 if wires_pinned.contains(&wt) {
@@ -1615,7 +1628,7 @@ impl<'a> Verifier<'a> {
                         wire: &naming.wires[&wf].name,
                     };
                     self.claim_net(&[wfn]);
-                    wires_pinned.insert(wf);
+                    wires_pinned.insert(wf.tw);
                     wff = true;
                 } else if let Some(wn) = naming.wires.get(&wf) {
                     let Some(wfi) = wire_lut[&wf] else {
@@ -1625,7 +1638,7 @@ impl<'a> Verifier<'a> {
                         let (wtn, wfn) = name_pip(&crds, pip);
                         wff = self.try_pin_int_wire(wfn, wfi);
                         if wff {
-                            self.claim_pip(wtn, wfn);
+                            self.claim_pip_pol(wtn, wfn, wf.inv);
                             self.claim_net(&[
                                 wtn,
                                 RawWireCoord {
@@ -1642,13 +1655,13 @@ impl<'a> Verifier<'a> {
                         wff = self.try_pin_int_wire(wfn, wfi);
                     }
                     if wff {
-                        wires_pinned.insert(wf);
+                        wires_pinned.insert(wf.tw);
                     } else {
-                        wires_missing.insert(wf);
+                        wires_missing.insert(wf.tw);
                     }
                 } else {
                     wff = false;
-                    wires_missing.insert(wf);
+                    wires_missing.insert(wf.tw);
                 }
 
                 pip_found = wtf && wff;
@@ -1661,7 +1674,7 @@ impl<'a> Verifier<'a> {
                         crd: crds[def_rt],
                         wire: &naming.wires[&wf].name,
                     };
-                    self.claim_pip(wtn, wfn);
+                    self.claim_pip_pol(wtn, wfn, wf.inv);
                 }
             }
             if !pip_found {
@@ -1678,8 +1691,8 @@ impl<'a> Verifier<'a> {
                         "MISSING PIP {part} {tile} {wt} {wf}",
                         part = self.rd.part,
                         tile = ntile.names[def_rt],
-                        wt = self.print_nw(wt),
-                        wf = self.print_nw(wf)
+                        wt = wt.to_string(self.db, &self.db[tile.class]),
+                        wf = wf.to_string(self.db, &self.db[tile.class])
                     );
                 }
             }
@@ -2416,8 +2429,6 @@ impl<'a> Verifier<'a> {
             skip_auto: false,
             skip_ins: Default::default(),
             skip_outs: Default::default(),
-            rename_ins: Default::default(),
-            rename_outs: Default::default(),
             sub: 0,
         }
     }

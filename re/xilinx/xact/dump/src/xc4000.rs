@@ -2,7 +2,7 @@ use std::collections::{BTreeMap, BTreeSet};
 
 use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
-    db::{BelInfo, BelInput, IntDb, TileWireCoord, WireKind},
+    db::{BelInfo, BelInput, IntDb, WireKind, WireSlotIdExt},
     grid::{CellCoord, DieId, DieIdExt, EdgeIoCoord},
 };
 use prjcombine_re_xilinx_xact_data::die::Die;
@@ -963,17 +963,15 @@ pub fn dump_chip(die: &Die, noblock: &[String]) -> (Chip, IntDb, NamingDb) {
             tcls::IO_N1_W,
         ] {
             for idx in 0..4 {
-                let t = TileWireCoord::new_idx(0, wires::IMUX_HIO_T[idx]);
-                let tp = TileWireCoord::new_idx(0, wires::IMUX_IO_T[idx / 2]);
-                let ts = TileWireCoord::new_idx(
-                    0,
-                    [
-                        wires::IMUX_IO_OK[0],
-                        wires::IMUX_IO_IK[0],
-                        wires::IMUX_IO_IK[1],
-                        wires::IMUX_IO_OK[1],
-                    ][idx],
-                );
+                let t = wires::IMUX_HIO_T[idx].cell(0);
+                let tp = wires::IMUX_IO_T[idx / 2].cell(0);
+                let ts = [
+                    wires::IMUX_IO_OK[0],
+                    wires::IMUX_IO_IK[0],
+                    wires::IMUX_IO_IK[1],
+                    wires::IMUX_IO_OK[1],
+                ][idx]
+                    .cell(0);
                 extractor.inject_pip(tcid, t, tp.pos());
                 extractor.inject_pip(tcid, t, ts.pos());
             }
@@ -992,8 +990,8 @@ pub fn dump_chip(die: &Die, noblock: &[String]) -> (Chip, IntDb, NamingDb) {
     ] {
         extractor.inject_pip(
             tcid,
-            TileWireCoord::new_idx(0, wires::IMUX_CLB_F4),
-            TileWireCoord::new_idx(0, wires::SPECIAL_CLB_CIN).pos(),
+            wires::IMUX_CLB_F4.cell(0),
+            wires::SPECIAL_CLB_CIN.cell(0).pos(),
         );
     }
     for tcid in [
@@ -1010,8 +1008,8 @@ pub fn dump_chip(die: &Die, noblock: &[String]) -> (Chip, IntDb, NamingDb) {
     ] {
         extractor.inject_pip(
             tcid,
-            TileWireCoord::new_idx(0, wires::IMUX_CLB_G3),
-            TileWireCoord::new_idx(0, wires::SPECIAL_CLB_CIN).pos(),
+            wires::IMUX_CLB_G3.cell(0),
+            wires::SPECIAL_CLB_CIN.cell(0).pos(),
         );
     }
     for tcid in [
@@ -1028,8 +1026,8 @@ pub fn dump_chip(die: &Die, noblock: &[String]) -> (Chip, IntDb, NamingDb) {
     ] {
         extractor.inject_pip(
             tcid,
-            TileWireCoord::new_idx(0, wires::IMUX_CLB_G2),
-            TileWireCoord::new_idx(0, wires::SPECIAL_CLB_COUT0).pos(),
+            wires::IMUX_CLB_G2.cell(0),
+            wires::SPECIAL_CLB_COUT0.cell(0).pos(),
         );
     }
     for (tcid, _, tcls) in &intdb.tile_classes {
@@ -1037,18 +1035,18 @@ pub fn dump_chip(die: &Die, noblock: &[String]) -> (Chip, IntDb, NamingDb) {
             if tcls.bels.contains_id(bslots::TBUF[idx]) {
                 extractor.inject_pip(
                     tcid,
-                    TileWireCoord::new_idx(0, wires::IMUX_TBUF_I[idx]),
-                    TileWireCoord::new_idx(0, wires::TIE_0).pos(),
+                    wires::IMUX_TBUF_I[idx].cell(0),
+                    wires::TIE_0.cell(0).pos(),
                 );
                 extractor.inject_pip(
                     tcid,
-                    TileWireCoord::new_idx(0, wires::IMUX_TBUF_T[idx]),
-                    TileWireCoord::new_idx(0, wires::TIE_0).pos(),
+                    wires::IMUX_TBUF_T[idx].cell(0),
+                    wires::TIE_0.cell(0).pos(),
                 );
                 extractor.inject_pip(
                     tcid,
-                    TileWireCoord::new_idx(0, wires::IMUX_TBUF_T[idx]),
-                    TileWireCoord::new_idx(0, wires::TIE_1).pos(),
+                    wires::IMUX_TBUF_T[idx].cell(0),
+                    wires::TIE_1.cell(0).pos(),
                 );
             }
         }
@@ -1056,13 +1054,13 @@ pub fn dump_chip(die: &Die, noblock: &[String]) -> (Chip, IntDb, NamingDb) {
             for idx in 0..2 {
                 extractor.inject_pip(
                     tcid,
-                    TileWireCoord::new_idx(0, wires::IMUX_IO_O1[idx]),
-                    TileWireCoord::new_idx(0, wires::TIE_0).pos(),
+                    wires::IMUX_IO_O1[idx].cell(0),
+                    wires::TIE_0.cell(0).pos(),
                 );
                 extractor.inject_pip(
                     tcid,
-                    TileWireCoord::new_idx(0, wires::IMUX_IO_T[idx]),
-                    TileWireCoord::new_idx(0, wires::TIE_0).pos(),
+                    wires::IMUX_IO_T[idx].cell(0),
+                    wires::TIE_0.cell(0).pos(),
                 );
             }
         }

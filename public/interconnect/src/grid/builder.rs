@@ -232,9 +232,9 @@ impl<'db> GridBuilder<'db> {
         self.fill_conn_pair_id(a, b, fwd, bwd);
     }
 
-    pub fn fill_conn_term_id(&mut self, xy: CellCoord, ccls: ConnectorClassId) {
+    pub fn fill_conn_term_id(&mut self, cell: CellCoord, ccls: ConnectorClassId) {
         let slot = self.db[ccls].slot;
-        self[xy].conns.insert(
+        self[cell].conns.insert(
             slot,
             Connector {
                 class: ccls,
@@ -243,9 +243,9 @@ impl<'db> GridBuilder<'db> {
         );
     }
 
-    pub fn fill_conn_term(&mut self, xy: CellCoord, kind: &str) {
+    pub fn fill_conn_term(&mut self, cell: CellCoord, kind: &str) {
         let ccls = self.db.get_conn_class(kind);
-        self.fill_conn_term_id(xy, ccls);
+        self.fill_conn_term_id(cell, ccls);
     }
 }
 

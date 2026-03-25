@@ -43,21 +43,21 @@ impl IntMaker<'_> {
                 &[format!("GCLK_B{i}_EAST"), format!("GCLK_L_B{i}")],
             );
             self.builder
-                .extra_name_sub(format!("HCLK_LEAF_CLK_B_BOT{i}"), 0, wires::LCLK[i]);
+                .extra_name_cell(format!("HCLK_LEAF_CLK_B_BOT{i}"), 0, wires::LCLK[i]);
             self.builder
-                .extra_name_sub(format!("HCLK_LEAF_CLK_B_TOP{i}"), 1, wires::LCLK[i]);
+                .extra_name_cell(format!("HCLK_LEAF_CLK_B_TOP{i}"), 1, wires::LCLK[i]);
         }
         for i in 6..12 {
             self.builder.wire_names(
                 wires::LCLK[i],
                 &[format!("GCLK_B{i}"), format!("GCLK_L_B{i}_WEST")],
             );
-            self.builder.extra_name_sub(
+            self.builder.extra_name_cell(
                 format!("HCLK_LEAF_CLK_B_BOTL{ii}", ii = i - 6),
                 0,
                 wires::LCLK[i],
             );
-            self.builder.extra_name_sub(
+            self.builder.extra_name_cell(
                 format!("HCLK_LEAF_CLK_B_TOPL{ii}", ii = i - 6),
                 1,
                 wires::LCLK[i],
@@ -462,61 +462,73 @@ impl IntMaker<'_> {
     fn fill_hclk_wires(&mut self) {
         for i in 0..12 {
             self.builder
-                .extra_name_sub(format!("HCLK_CK_BUFHCLK{i}"), 1, wires::HCLK_ROW[i]);
+                .extra_name_cell(format!("HCLK_CK_BUFHCLK{i}"), 1, wires::HCLK_ROW[i]);
             self.builder
-                .extra_name_sub(format!("HCLK_IOI_CK_BUFHCLK{i}"), 4, wires::HCLK_ROW[i]);
+                .extra_name_cell(format!("HCLK_IOI_CK_BUFHCLK{i}"), 4, wires::HCLK_ROW[i]);
             self.builder
-                .extra_name_sub(format!("HCLK_CMT_CK_BUFHCLK{i}"), 25, wires::HCLK_CMT[i]);
-            self.builder
-                .extra_name_sub(format!("CLK_HROW_CK_BUFHCLK_L{i}"), 1, wires::HCLK_ROW[i]);
-            self.builder
-                .extra_name_sub(format!("CLK_HROW_CK_BUFHCLK_R{i}"), 2, wires::HCLK_ROW[i]);
+                .extra_name_cell(format!("HCLK_CMT_CK_BUFHCLK{i}"), 25, wires::HCLK_CMT[i]);
+            self.builder.extra_name_cell(
+                format!("CLK_HROW_CK_BUFHCLK_L{i}"),
+                1,
+                wires::HCLK_ROW[i],
+            );
+            self.builder.extra_name_cell(
+                format!("CLK_HROW_CK_BUFHCLK_R{i}"),
+                2,
+                wires::HCLK_ROW[i],
+            );
 
             self.builder
-                .extra_name_sub(format!("HCLK_IOI_CK_IGCLK{i}"), 4, wires::HCLK_IO[i]);
+                .extra_name_cell(format!("HCLK_IOI_CK_IGCLK{i}"), 4, wires::HCLK_IO[i]);
         }
         for i in 0..4 {
             self.builder
-                .extra_name_sub(format!("HCLK_CK_BUFRCLK{i}"), 1, wires::RCLK_ROW[i]);
+                .extra_name_cell(format!("HCLK_CK_BUFRCLK{i}"), 1, wires::RCLK_ROW[i]);
             self.builder
-                .extra_name_sub(format!("HCLK_IOI_CK_BUFRCLK{i}"), 4, wires::RCLK_ROW[i]);
+                .extra_name_cell(format!("HCLK_IOI_CK_BUFRCLK{i}"), 4, wires::RCLK_ROW[i]);
             self.builder
-                .extra_name_sub(format!("HCLK_CMT_CK_BUFRCLK{i}"), 25, wires::RCLK_CMT[i]);
-            self.builder.extra_name_sub(
+                .extra_name_cell(format!("HCLK_CMT_CK_BUFRCLK{i}"), 25, wires::RCLK_CMT[i]);
+            self.builder.extra_name_cell(
                 format!("CLK_HROW_CK_BUFRCLK_L{i}"),
                 1,
                 wires::RCLK_HROW_W[i],
             );
-            self.builder.extra_name_sub(
+            self.builder.extra_name_cell(
                 format!("CLK_HROW_CK_BUFRCLK_R{i}"),
                 1,
                 wires::RCLK_HROW_E[i],
             );
         }
         for i in 0..14 {
-            self.builder
-                .extra_name_sub(format!("CLK_HROW_CK_IN_L{i}"), 1, wires::HROW_I_HROW_W[i]);
-            self.builder
-                .extra_name_sub(format!("CLK_HROW_CK_IN_R{i}"), 1, wires::HROW_I_HROW_E[i]);
-            self.builder.extra_name_tile_sub(
+            self.builder.extra_name_cell(
+                format!("CLK_HROW_CK_IN_L{i}"),
+                1,
+                wires::HROW_I_HROW_W[i],
+            );
+            self.builder.extra_name_cell(
+                format!("CLK_HROW_CK_IN_R{i}"),
+                1,
+                wires::HROW_I_HROW_E[i],
+            );
+            self.builder.extra_name_tile_cell(
                 "HCLK_CMT_L",
                 format!("HCLK_CMT_MUX_CLK_{i}"),
                 25,
                 wires::HROW_I_CMT[i],
             );
-            self.builder.extra_name_tile_sub(
+            self.builder.extra_name_tile_cell(
                 "HCLK_CMT_L",
                 format!("HCLK_CMT_CK_IN{i}"),
                 25,
                 wires::HROW_O[i],
             );
-            self.builder.extra_name_tile_sub(
+            self.builder.extra_name_tile_cell(
                 "HCLK_CMT",
                 format!("HCLK_CMT_MUX_CLK_{i}"),
                 25,
                 wires::HROW_O[i],
             );
-            self.builder.extra_name_tile_sub(
+            self.builder.extra_name_tile_cell(
                 "HCLK_CMT",
                 format!("HCLK_CMT_CK_IN{i}"),
                 25,
@@ -525,12 +537,12 @@ impl IntMaker<'_> {
         }
 
         for i in 0..12 {
-            self.builder.extra_name_sub(
+            self.builder.extra_name_cell(
                 format!("CLK_HROW_CK_MUX_OUT_L{i}"),
                 1,
                 wires::IMUX_BUFHCE_W[i],
             );
-            self.builder.extra_name_sub(
+            self.builder.extra_name_cell(
                 format!("CLK_HROW_CK_MUX_OUT_R{i}"),
                 1,
                 wires::IMUX_BUFHCE_E[i],
@@ -538,42 +550,42 @@ impl IntMaker<'_> {
         }
 
         self.builder
-            .extra_name_sub("CLK_HROW_CK_IN_L_TEST_OUT", 1, wires::BUFH_TEST_W);
+            .extra_name_cell("CLK_HROW_CK_IN_L_TEST_OUT", 1, wires::BUFH_TEST_W);
         self.builder
-            .extra_name_sub("CLK_HROW_CK_IN_R_TEST_OUT", 1, wires::BUFH_TEST_E);
+            .extra_name_cell("CLK_HROW_CK_IN_R_TEST_OUT", 1, wires::BUFH_TEST_E);
         self.builder
-            .extra_name_sub("CLK_HROW_CK_IN_L_TEST_IN", 1, wires::BUFH_TEST_W_IN);
+            .extra_name_cell("CLK_HROW_CK_IN_L_TEST_IN", 1, wires::BUFH_TEST_W_IN);
         self.builder
-            .extra_name_sub("CLK_HROW_CK_IN_R_TEST_IN", 1, wires::BUFH_TEST_E_IN);
+            .extra_name_cell("CLK_HROW_CK_IN_R_TEST_IN", 1, wires::BUFH_TEST_E_IN);
 
         self.builder
-            .extra_name_sub("CLK_HROW_CK_INT_0_0", 1, wires::CKINT_HROW[0]);
+            .extra_name_cell("CLK_HROW_CK_INT_0_0", 1, wires::CKINT_HROW[0]);
         self.builder
-            .extra_name_sub("CLK_HROW_CK_INT_0_1", 1, wires::CKINT_HROW[1]);
+            .extra_name_cell("CLK_HROW_CK_INT_0_1", 1, wires::CKINT_HROW[1]);
         self.builder
-            .extra_name_sub("CLK_HROW_CK_INT_1_0", 1, wires::CKINT_HROW[2]);
+            .extra_name_cell("CLK_HROW_CK_INT_1_0", 1, wires::CKINT_HROW[2]);
         self.builder
-            .extra_name_sub("CLK_HROW_CK_INT_1_1", 1, wires::CKINT_HROW[3]);
+            .extra_name_cell("CLK_HROW_CK_INT_1_1", 1, wires::CKINT_HROW[3]);
     }
 
     fn fill_gclk_wires(&mut self) {
         for i in 0..32 {
-            self.builder.extra_name_sub(
+            self.builder.extra_name_cell(
                 format!("CLK_HROW_BOT_R_CK_BUFG_CASCIN{i}"),
                 1,
                 wires::IMUX_BUFG_I[i],
             );
-            self.builder.extra_name_sub(
+            self.builder.extra_name_cell(
                 format!("CLK_HROW_TOP_R_CK_BUFG_CASCIN{i}"),
                 1,
                 wires::IMUX_BUFG_I[i],
             );
-            self.builder.extra_name_sub(
+            self.builder.extra_name_cell(
                 format!("CLK_HROW_BOT_R_CK_BUFG_CASCO{i}"),
                 1,
                 wires::IMUX_BUFG_O[i],
             );
-            self.builder.extra_name_sub(
+            self.builder.extra_name_cell(
                 format!("CLK_HROW_TOP_R_CK_BUFG_CASCO{i}"),
                 1,
                 wires::IMUX_BUFG_O[i],
@@ -590,28 +602,34 @@ impl IntMaker<'_> {
             self.builder
                 .extra_name(format!("CLK_BUFG_CK_GCLK{i}"), wires::GCLK[i]);
 
-            self.builder.extra_name_sub(
+            self.builder.extra_name_cell(
                 format!("CLK_BUFG_REBUF_R_CK_GCLK{i}_BOT"),
                 0,
                 wires::GCLK[i],
             );
-            self.builder.extra_name_sub(
+            self.builder.extra_name_cell(
                 format!("CLK_BUFG_REBUF_R_CK_GCLK{i}_TOP"),
                 1,
                 wires::GCLK[i],
             );
+            self.builder.extra_name_cell(
+                format!("CLK_BALI_REBUF_R_GCLK{i}_BOT"),
+                0,
+                wires::GCLK[i],
+            );
+            self.builder.extra_name_cell(
+                format!("CLK_BALI_REBUF_R_GCLK{i}_TOP"),
+                1,
+                wires::GCLK[i],
+            );
             self.builder
-                .extra_name_sub(format!("CLK_BALI_REBUF_R_GCLK{i}_BOT"), 0, wires::GCLK[i]);
-            self.builder
-                .extra_name_sub(format!("CLK_BALI_REBUF_R_GCLK{i}_TOP"), 1, wires::GCLK[i]);
-            self.builder
-                .extra_name_sub(format!("CLK_HROW_R_CK_GCLK{i}"), 1, wires::GCLK_HROW[i]);
-            self.builder.extra_name_sub(
+                .extra_name_cell(format!("CLK_HROW_R_CK_GCLK{i}"), 1, wires::GCLK_HROW[i]);
+            self.builder.extra_name_cell(
                 format!("CLK_HROW_CK_GCLK_TEST{i}"),
                 1,
                 wires::GCLK_TEST[i],
             );
-            self.builder.extra_name_sub(
+            self.builder.extra_name_cell(
                 format!("CLK_HROW_CK_GCLK_IN_TEST{i}",),
                 1,
                 wires::GCLK_TEST_IN[i],
@@ -623,12 +641,12 @@ impl IntMaker<'_> {
             self.builder
                 .extra_name(format!("CLK_BUFG_R_FBG_OUT{i}"), wires::OUT_BUFG_GFB[i]);
 
-            self.builder.extra_name_sub(
+            self.builder.extra_name_cell(
                 format!("CLK_BUFG_R_CK_FB_TEST0_{i}"),
                 i / 4,
                 wires::OUT_BEL[4 + i % 4],
             );
-            self.builder.extra_name_sub(
+            self.builder.extra_name_cell(
                 format!("CLK_BUFG_R_CK_FB_TEST1_{i}"),
                 i / 4,
                 wires::OUT_BEL[i % 4],
@@ -669,25 +687,25 @@ impl IntMaker<'_> {
             self.builder
                 .extra_name(format!("IOI_SING_RCLK_FORIO{i}"), wires::RCLK_IO[i]);
             self.builder
-                .extra_name_sub(format!("HCLK_IOI_RCLK2IO{i}"), 4, wires::RCLK_IO[i]);
+                .extra_name_cell(format!("HCLK_IOI_RCLK2IO{i}"), 4, wires::RCLK_IO[i]);
 
             self.builder
                 .extra_name(format!("IOI_IOCLK{i}"), wires::IOCLK[i]);
             self.builder
                 .extra_name(format!("IOI_SING_IOCLK{i}"), wires::IOCLK[i]);
             self.builder
-                .extra_name_sub(format!("HCLK_IOI_IOCLK{i}"), 4, wires::IOCLK[i]);
+                .extra_name_cell(format!("HCLK_IOI_IOCLK{i}"), 4, wires::IOCLK[i]);
 
             self.builder
-                .extra_name_sub(format!("HCLK_IOI_IOCLK_PLL{i}"), 4, wires::PERF_IO[i]);
-            self.builder.extra_name_sub(
+                .extra_name_cell(format!("HCLK_IOI_IOCLK_PLL{i}"), 4, wires::PERF_IO[i]);
+            self.builder.extra_name_cell(
                 format!("HCLK_IOI_IO_PLL_CLK{i}_DMUX"),
                 4,
                 wires::IMUX_BUFIO[i],
             );
             self.builder
-                .alt_name_sub(format!("HCLK_IOI_RCLK{i}"), 4, wires::IMUX_BUFIO[i]);
-            self.builder.extra_name_sub(
+                .alt_name_cell(format!("HCLK_IOI_RCLK{i}"), 4, wires::IMUX_BUFIO[i]);
+            self.builder.extra_name_cell(
                 format!("HCLK_IOI_RCLK_BEFORE_DIV{i}"),
                 4,
                 wires::IMUX_BUFR[i],
@@ -698,28 +716,34 @@ impl IntMaker<'_> {
                 .extra_name(format!("IOI_LEAF_GCLK{i}"), wires::LCLK_IO[i]);
             self.builder
                 .extra_name(format!("IOI_SING_LEAF_GCLK{i}"), wires::LCLK_IO[i]);
-            self.builder
-                .extra_name_sub(format!("HCLK_IOI_LEAF_GCLK_BOT{i}"), 3, wires::LCLK_IO[i]);
-            self.builder
-                .extra_name_sub(format!("HCLK_IOI_LEAF_GCLK_TOP{i}"), 4, wires::LCLK_IO[i]);
+            self.builder.extra_name_cell(
+                format!("HCLK_IOI_LEAF_GCLK_BOT{i}"),
+                3,
+                wires::LCLK_IO[i],
+            );
+            self.builder.extra_name_cell(
+                format!("HCLK_IOI_LEAF_GCLK_TOP{i}"),
+                4,
+                wires::LCLK_IO[i],
+            );
         }
         self.builder
-            .extra_name_sub("HCLK_IOI_I2IOCLK_BOT0", 1, wires::OUT_CLKPAD);
+            .extra_name_cell("HCLK_IOI_I2IOCLK_BOT0", 1, wires::OUT_CLKPAD);
         self.builder
-            .extra_name_sub("HCLK_IOI_I2IOCLK_BOT1", 3, wires::OUT_CLKPAD);
+            .extra_name_cell("HCLK_IOI_I2IOCLK_BOT1", 3, wires::OUT_CLKPAD);
         self.builder
-            .extra_name_sub("HCLK_IOI_I2IOCLK_TOP0", 5, wires::OUT_CLKPAD);
+            .extra_name_cell("HCLK_IOI_I2IOCLK_TOP0", 5, wires::OUT_CLKPAD);
         self.builder
-            .extra_name_sub("HCLK_IOI_I2IOCLK_TOP1", 7, wires::OUT_CLKPAD);
+            .extra_name_cell("HCLK_IOI_I2IOCLK_TOP1", 7, wires::OUT_CLKPAD);
         self.builder
-            .extra_name_sub("HCLK_IOI_RCLK_IMUX0", 4, wires::IMUX_BYP_SITE[3]);
+            .extra_name_cell("HCLK_IOI_RCLK_IMUX0", 4, wires::IMUX_BYP_SITE[3]);
         self.builder
-            .extra_name_sub("HCLK_IOI_RCLK_IMUX1", 4, wires::IMUX_BYP_SITE[4]);
+            .extra_name_cell("HCLK_IOI_RCLK_IMUX1", 4, wires::IMUX_BYP_SITE[4]);
         self.builder
-            .extra_name_sub("HCLK_IOI_RCLK_IMUX2", 3, wires::IMUX_BYP_SITE[4]);
+            .extra_name_cell("HCLK_IOI_RCLK_IMUX2", 3, wires::IMUX_BYP_SITE[4]);
         self.builder
-            .extra_name_sub("HCLK_IOI_RCLK_IMUX3", 3, wires::IMUX_BYP_SITE[3]);
-        self.builder.extra_name_sub(
+            .extra_name_cell("HCLK_IOI_RCLK_IMUX3", 3, wires::IMUX_BYP_SITE[3]);
+        self.builder.extra_name_cell(
             "HCLK_IOI_IDELAYCTRL_REFCLK",
             4,
             wires::IMUX_IDELAYCTRL_REFCLK,
@@ -734,27 +758,27 @@ impl IntMaker<'_> {
             (wires::IMUX_IOI_OCLKDIVF[1], "OLOGIC", "CLKDIVFB"),
         ] {
             self.builder
-                .extra_name_sub(format!("IOI_{prefix}1_{name}"), 0, wire);
+                .extra_name_cell(format!("IOI_{prefix}1_{name}"), 0, wire);
             self.builder
-                .extra_name_sub(format!("IOI_{prefix}0_{name}"), 1, wire);
+                .extra_name_cell(format!("IOI_{prefix}0_{name}"), 1, wire);
             for tkn in ["LIOI3_SING", "RIOI3_SING", "LIOI_SING", "RIOI_SING"] {
                 self.builder
-                    .extra_name_tile_sub(tkn, format!("IOI_{prefix}0_{name}"), 0, wire);
+                    .extra_name_tile_cell(tkn, format!("IOI_{prefix}0_{name}"), 0, wire);
             }
         }
         for prefix in ["LIOI", "RIOI"] {
-            self.builder.extra_name_sub(
+            self.builder.extra_name_cell(
                 format!("{prefix}_OLOGIC1_CLKDIVF"),
                 0,
                 wires::IMUX_IOI_OCLKDIVF[0],
             );
-            self.builder.extra_name_sub(
+            self.builder.extra_name_cell(
                 format!("{prefix}_OLOGIC0_CLKDIVF"),
                 1,
                 wires::IMUX_IOI_OCLKDIVF[0],
             );
             for tkn in ["LIOI3_SING", "RIOI3_SING", "LIOI_SING", "RIOI_SING"] {
-                self.builder.extra_name_tile_sub(
+                self.builder.extra_name_tile_cell(
                     tkn,
                     format!("{prefix}_OLOGIC0_CLKDIVF"),
                     0,
@@ -767,492 +791,492 @@ impl IntMaker<'_> {
             (wires::IMUX_IOI_OCLK[0], "IOI_OCLK"),
             (wires::IMUX_IOI_OCLK[1], "IOI_OCLKM"),
         ] {
-            self.builder.extra_name_sub(format!("{name}_1"), 0, wire);
-            self.builder.extra_name_sub(format!("{name}_0"), 1, wire);
+            self.builder.extra_name_cell(format!("{name}_1"), 0, wire);
+            self.builder.extra_name_cell(format!("{name}_0"), 1, wire);
             for tkn in ["LIOI3_SING", "RIOI3_SING", "LIOI_SING", "RIOI_SING"] {
                 self.builder
-                    .extra_name_tile_sub(tkn, format!("{name}_0"), 0, wire);
+                    .extra_name_tile_cell(tkn, format!("{name}_0"), 0, wire);
             }
         }
 
         self.builder
-            .extra_name_sub("IOI_PHASER_TO_IO_ICLK", 0, wires::PHASER_ICLK);
+            .extra_name_cell("IOI_PHASER_TO_IO_ICLK", 0, wires::PHASER_ICLK);
         self.builder
-            .extra_name_sub("IOI_PHASER_TO_IO_ICLK_0", 1, wires::PHASER_ICLK);
+            .extra_name_cell("IOI_PHASER_TO_IO_ICLK_0", 1, wires::PHASER_ICLK);
         self.builder
-            .extra_name_sub("IOI_PHASER_TO_IO_ICLKDIV", 0, wires::PHASER_ICLKDIV);
+            .extra_name_cell("IOI_PHASER_TO_IO_ICLKDIV", 0, wires::PHASER_ICLKDIV);
         self.builder
-            .extra_name_sub("IOI_PHASER_TO_IO_ICLKDIV_0", 1, wires::PHASER_ICLKDIV);
+            .extra_name_cell("IOI_PHASER_TO_IO_ICLKDIV_0", 1, wires::PHASER_ICLKDIV);
         self.builder
-            .extra_name_sub("IOI_PHASER_TO_IO_OCLK", 0, wires::PHASER_OCLK);
+            .extra_name_cell("IOI_PHASER_TO_IO_OCLK", 0, wires::PHASER_OCLK);
         self.builder
-            .extra_name_sub("IOI_PHASER_TO_IO_OCLK_0", 1, wires::PHASER_OCLK);
+            .extra_name_cell("IOI_PHASER_TO_IO_OCLK_0", 1, wires::PHASER_OCLK);
         self.builder
-            .extra_name_sub("IOI_PHASER_TO_IO_OCLK1X_90", 0, wires::PHASER_OCLK90);
+            .extra_name_cell("IOI_PHASER_TO_IO_OCLK1X_90", 0, wires::PHASER_OCLK90);
         self.builder
-            .extra_name_sub("IOI_PHASER_TO_IO_OCLK1X_90_0", 1, wires::PHASER_OCLK90);
+            .extra_name_cell("IOI_PHASER_TO_IO_OCLK1X_90_0", 1, wires::PHASER_OCLK90);
         self.builder
-            .extra_name_sub("IOI_PHASER_TO_IO_OCLKDIV", 0, wires::PHASER_OCLKDIV);
+            .extra_name_cell("IOI_PHASER_TO_IO_OCLKDIV", 0, wires::PHASER_OCLKDIV);
         self.builder
-            .extra_name_sub("IOI_PHASER_TO_IO_OCLKDIV_0", 1, wires::PHASER_OCLKDIV);
+            .extra_name_cell("IOI_PHASER_TO_IO_OCLKDIV_0", 1, wires::PHASER_OCLKDIV);
     }
 
     fn fill_cmt_wires(&mut self) {
         for i in 0..4 {
             self.builder
-                .extra_name_sub(format!("HCLK_CMT_CCIO{i}"), 25, wires::CCIO_CMT[i]);
-            self.builder.extra_name_sub(
+                .extra_name_cell(format!("HCLK_CMT_CCIO{i}"), 25, wires::CCIO_CMT[i]);
+            self.builder.extra_name_cell(
                 format!("HCLK_CMT_PREF_BOUNCE{i}"),
                 25,
                 wires::OMUX_CCIO[i],
             );
-            self.builder.extra_name_sub(
+            self.builder.extra_name_cell(
                 format!("HCLK_CMT_MUX_CLKINT_{i}"),
                 25,
                 wires::CKINT_CMT[i],
             );
-            self.builder.extra_name_sub(
+            self.builder.extra_name_cell(
                 format!("HCLK_CMT_MUX_PHSR_PERFCLK{i}"),
                 75,
                 wires::PERF[i],
             );
-            self.builder.extra_name_sub(
+            self.builder.extra_name_cell(
                 format!("HCLK_CMT_PHASERIN_RCLK{i}"),
                 25,
                 wires::OUT_PHASER_IN_RCLK[i],
             );
-            self.builder.extra_name_sub(
+            self.builder.extra_name_cell(
                 format!("HCLK_CMT_MUX_MMCM_MUXED{i}"),
                 25,
                 wires::OMUX_PLL_PERF[i],
             );
-            self.builder.extra_name_sub(
+            self.builder.extra_name_cell(
                 format!("HCLK_CMT_MUX_OUT_FREQ_REF{i}"),
                 25,
                 wires::OMUX_HCLK_FREQ_BB[i],
             );
-            self.builder.extra_name_sub(
+            self.builder.extra_name_cell(
                 format!("HCLK_CMT_FREQ_REF_NS{i}"),
                 25,
                 wires::CMT_FREQ_BB[i],
             );
-            self.builder.extra_name_sub(
+            self.builder.extra_name_cell(
                 format!("MMCM_CLK_FREQ_BB_REBUF{i}_NS"),
                 25,
                 wires::CMT_FREQ_BB_S[i],
             );
-            self.builder.extra_name_sub(
+            self.builder.extra_name_cell(
                 format!("PLL_CLK_FREQ_BB_BUFOUT_NS{i}"),
                 25,
                 wires::CMT_FREQ_BB_N[i],
             );
-            self.builder.extra_name_sub(
+            self.builder.extra_name_cell(
                 format!("CMT_L_LOWER_B_CLK_FREQ_BB{ii}", ii = i ^ 3),
                 25,
                 wires::CMT_FREQ_BB[i],
             );
-            self.builder.extra_name_sub(
+            self.builder.extra_name_cell(
                 format!("CMT_R_LOWER_B_CLK_FREQ_BB{ii}", ii = i ^ 3),
                 25,
                 wires::CMT_FREQ_BB[i],
             );
-            self.builder.extra_name_sub(
+            self.builder.extra_name_cell(
                 format!("CMT_TOP_L_UPPER_T_FREQ_BB{i}"),
                 25,
                 wires::CMT_FREQ_BB[i],
             );
-            self.builder.extra_name_sub(
+            self.builder.extra_name_cell(
                 format!("CMT_TOP_R_UPPER_T_FREQ_BB{i}"),
                 25,
                 wires::CMT_FREQ_BB[i],
             );
-            self.builder.extra_name_sub(
+            self.builder.extra_name_cell(
                 format!("CMT_FREQ_BB_PREF_IN{i}"),
                 25,
                 wires::CMT_FREQ_BB[i],
             );
-            self.builder.extra_name_sub(
+            self.builder.extra_name_cell(
                 format!("MMCMOUT_CLK_FREQ_BB_{i}"),
                 25,
                 wires::OUT_PLL_FREQ_BB_S[i],
             );
-            self.builder.extra_name_sub(
+            self.builder.extra_name_cell(
                 format!("PLLOUT_CLK_FREQ_BB_{i}"),
                 25,
                 wires::OUT_PLL_FREQ_BB_N[i],
             );
-            self.builder.extra_name_sub(
+            self.builder.extra_name_cell(
                 format!("MMCMOUT_CLK_FREQ_BB_REBUFOUT{i}"),
                 25,
                 wires::OMUX_PLL_FREQ_BB_S[i],
             );
-            self.builder.extra_name_sub(
+            self.builder.extra_name_cell(
                 format!("PLLOUT_CLK_FREQ_BB_REBUFOUT{i}"),
                 25,
                 wires::OMUX_PLL_FREQ_BB_N[i],
             );
         }
         self.builder
-            .extra_name_sub("CMT_MMCM_PHYCTRL_SYNC_BB_UP", 25, wires::CMT_SYNC_BB);
+            .extra_name_cell("CMT_MMCM_PHYCTRL_SYNC_BB_UP", 25, wires::CMT_SYNC_BB);
         self.builder
-            .extra_name_sub("CMT_PLL_PHYCTRL_SYNC_BB_DN", 25, wires::CMT_SYNC_BB);
+            .extra_name_cell("CMT_PLL_PHYCTRL_SYNC_BB_DN", 25, wires::CMT_SYNC_BB);
         self.builder
-            .extra_name_sub("CMT_PHASER_TOP_SYNC_BB", 25, wires::CMT_SYNC_BB);
+            .extra_name_cell("CMT_PHASER_TOP_SYNC_BB", 25, wires::CMT_SYNC_BB);
         self.builder
-            .extra_name_sub("CMT_MMCM_PHYCTRL_SYNC_BB_DN", 25, wires::CMT_SYNC_BB_S);
+            .extra_name_cell("CMT_MMCM_PHYCTRL_SYNC_BB_DN", 25, wires::CMT_SYNC_BB_S);
         self.builder
-            .extra_name_sub("CMT_PLL_PHYCTRL_SYNC_BB_UP", 25, wires::CMT_SYNC_BB_N);
+            .extra_name_cell("CMT_PLL_PHYCTRL_SYNC_BB_UP", 25, wires::CMT_SYNC_BB_N);
         self.builder
-            .extra_name_sub("CMT_PHASERTOP_PHYCTLEMPTY", 25, wires::OUT_PHY_PHYCTLEMPTY);
+            .extra_name_cell("CMT_PHASERTOP_PHYCTLEMPTY", 25, wires::OUT_PHY_PHYCTLEMPTY);
 
         for i in 0..8 {
-            self.builder.extra_name_sub(
+            self.builder.extra_name_cell(
                 format!("HCLK_CMT_MUX_CLK_PLL{i}"),
                 25,
                 wires::OUT_PLL_N[i],
             );
         }
         for i in 0..14 {
-            self.builder.extra_name_sub(
+            self.builder.extra_name_cell(
                 format!("HCLK_CMT_MUX_CLK_MMCM{i}"),
                 25,
                 wires::OUT_PLL_S[i],
             );
         }
         self.builder
-            .extra_name_sub("CMT_R_LOWER_B_CLK_IN1_INT", 15, wires::IMUX_CLK[0]);
+            .extra_name_cell("CMT_R_LOWER_B_CLK_IN1_INT", 15, wires::IMUX_CLK[0]);
         self.builder
-            .extra_name_sub("CMT_R_LOWER_B_CLK_IN2_INT", 15, wires::IMUX_CLK[1]);
+            .extra_name_cell("CMT_R_LOWER_B_CLK_IN2_INT", 15, wires::IMUX_CLK[1]);
         self.builder
-            .extra_name_sub("CMT_R_LOWER_B_CLK_IN3_INT", 14, wires::IMUX_CLK[0]);
+            .extra_name_cell("CMT_R_LOWER_B_CLK_IN3_INT", 14, wires::IMUX_CLK[0]);
         self.builder
-            .extra_name_sub("CMT_L_LOWER_B_CLK_IN1_INT", 15, wires::IMUX_CLK[0]);
+            .extra_name_cell("CMT_L_LOWER_B_CLK_IN1_INT", 15, wires::IMUX_CLK[0]);
         self.builder
-            .extra_name_sub("CMT_L_LOWER_B_CLK_IN2_INT", 15, wires::IMUX_CLK[1]);
+            .extra_name_cell("CMT_L_LOWER_B_CLK_IN2_INT", 15, wires::IMUX_CLK[1]);
         self.builder
-            .extra_name_sub("CMT_L_LOWER_B_CLK_IN3_INT", 14, wires::IMUX_CLK[0]);
-        self.builder.extra_name_sub(
+            .extra_name_cell("CMT_L_LOWER_B_CLK_IN3_INT", 14, wires::IMUX_CLK[0]);
+        self.builder.extra_name_cell(
             "CMT_TOP_R_UPPER_T_PLLE2_CLK_IN1_INT",
             37,
             wires::IMUX_CLK[1],
         );
-        self.builder.extra_name_sub(
+        self.builder.extra_name_cell(
             "CMT_TOP_R_UPPER_T_PLLE2_CLK_IN2_INT",
             37,
             wires::IMUX_CLK[0],
         );
         self.builder
-            .extra_name_sub("CMT_TOP_R_UPPER_T_PLLE2_CLK_FB_INT", 38, wires::IMUX_CLK[0]);
-        self.builder.extra_name_sub(
+            .extra_name_cell("CMT_TOP_R_UPPER_T_PLLE2_CLK_FB_INT", 38, wires::IMUX_CLK[0]);
+        self.builder.extra_name_cell(
             "CMT_TOP_L_UPPER_T_PLLE2_CLK_IN1_INT",
             37,
             wires::IMUX_CLK[1],
         );
-        self.builder.extra_name_sub(
+        self.builder.extra_name_cell(
             "CMT_TOP_L_UPPER_T_PLLE2_CLK_IN2_INT",
             37,
             wires::IMUX_CLK[0],
         );
         self.builder
-            .extra_name_sub("CMT_TOP_L_UPPER_T_PLLE2_CLK_FB_INT", 38, wires::IMUX_CLK[0]);
+            .extra_name_cell("CMT_TOP_L_UPPER_T_PLLE2_CLK_FB_INT", 38, wires::IMUX_CLK[0]);
         self.builder
-            .extra_name_sub("CMT_LR_LOWER_B_MMCM_CLKIN1", 25, wires::IMUX_PLL_CLKIN1[0]);
+            .extra_name_cell("CMT_LR_LOWER_B_MMCM_CLKIN1", 25, wires::IMUX_PLL_CLKIN1[0]);
         self.builder
-            .extra_name_sub("CMT_LR_LOWER_B_MMCM_CLKIN2", 25, wires::IMUX_PLL_CLKIN2[0]);
+            .extra_name_cell("CMT_LR_LOWER_B_MMCM_CLKIN2", 25, wires::IMUX_PLL_CLKIN2[0]);
         self.builder
-            .extra_name_sub("CMT_LR_LOWER_B_MMCM_CLKFBIN", 25, wires::IMUX_PLL_CLKFB[0]);
+            .extra_name_cell("CMT_LR_LOWER_B_MMCM_CLKFBIN", 25, wires::IMUX_PLL_CLKFB[0]);
         self.builder
-            .extra_name_sub("CMT_LR_LOWER_B_MMCM_CLKOUT0", 25, wires::OUT_PLL_S[0]);
+            .extra_name_cell("CMT_LR_LOWER_B_MMCM_CLKOUT0", 25, wires::OUT_PLL_S[0]);
         self.builder
-            .extra_name_sub("CMT_LR_LOWER_B_MMCM_CLKOUT0B", 25, wires::OUT_PLL_S[1]);
+            .extra_name_cell("CMT_LR_LOWER_B_MMCM_CLKOUT0B", 25, wires::OUT_PLL_S[1]);
         self.builder
-            .extra_name_sub("CMT_LR_LOWER_B_MMCM_CLKOUT1", 25, wires::OUT_PLL_S[2]);
+            .extra_name_cell("CMT_LR_LOWER_B_MMCM_CLKOUT1", 25, wires::OUT_PLL_S[2]);
         self.builder
-            .extra_name_sub("CMT_LR_LOWER_B_MMCM_CLKOUT1B", 25, wires::OUT_PLL_S[3]);
+            .extra_name_cell("CMT_LR_LOWER_B_MMCM_CLKOUT1B", 25, wires::OUT_PLL_S[3]);
         self.builder
-            .extra_name_sub("CMT_LR_LOWER_B_MMCM_CLKOUT2", 25, wires::OUT_PLL_S[4]);
+            .extra_name_cell("CMT_LR_LOWER_B_MMCM_CLKOUT2", 25, wires::OUT_PLL_S[4]);
         self.builder
-            .extra_name_sub("CMT_LR_LOWER_B_MMCM_CLKOUT2B", 25, wires::OUT_PLL_S[5]);
+            .extra_name_cell("CMT_LR_LOWER_B_MMCM_CLKOUT2B", 25, wires::OUT_PLL_S[5]);
         self.builder
-            .extra_name_sub("CMT_LR_LOWER_B_MMCM_CLKOUT3", 25, wires::OUT_PLL_S[6]);
+            .extra_name_cell("CMT_LR_LOWER_B_MMCM_CLKOUT3", 25, wires::OUT_PLL_S[6]);
         self.builder
-            .extra_name_sub("CMT_LR_LOWER_B_MMCM_CLKOUT3B", 25, wires::OUT_PLL_S[7]);
+            .extra_name_cell("CMT_LR_LOWER_B_MMCM_CLKOUT3B", 25, wires::OUT_PLL_S[7]);
         self.builder
-            .extra_name_sub("CMT_LR_LOWER_B_MMCM_CLKOUT4", 25, wires::OUT_PLL_S[8]);
+            .extra_name_cell("CMT_LR_LOWER_B_MMCM_CLKOUT4", 25, wires::OUT_PLL_S[8]);
         self.builder
-            .extra_name_sub("CMT_LR_LOWER_B_MMCM_CLKOUT5", 25, wires::OUT_PLL_S[9]);
+            .extra_name_cell("CMT_LR_LOWER_B_MMCM_CLKOUT5", 25, wires::OUT_PLL_S[9]);
         self.builder
-            .extra_name_sub("CMT_LR_LOWER_B_MMCM_CLKOUT6", 25, wires::OUT_PLL_S[10]);
+            .extra_name_cell("CMT_LR_LOWER_B_MMCM_CLKOUT6", 25, wires::OUT_PLL_S[10]);
         self.builder
-            .extra_name_sub("CMT_LR_LOWER_B_MMCM_CLKFBOUT", 25, wires::OUT_PLL_S[11]);
+            .extra_name_cell("CMT_LR_LOWER_B_MMCM_CLKFBOUT", 25, wires::OUT_PLL_S[11]);
         self.builder
-            .extra_name_sub("CMT_LR_LOWER_B_MMCM_CLKFBOUTB", 25, wires::OUT_PLL_S[12]);
+            .extra_name_cell("CMT_LR_LOWER_B_MMCM_CLKFBOUTB", 25, wires::OUT_PLL_S[12]);
         self.builder
-            .extra_name_sub("CMT_LR_LOWER_B_MMCM_TMUXOUT", 25, wires::OUT_PLL_S[13]);
-        self.builder.extra_name_sub(
+            .extra_name_cell("CMT_LR_LOWER_B_MMCM_TMUXOUT", 25, wires::OUT_PLL_S[13]);
+        self.builder.extra_name_cell(
             "CMT_TOP_R_UPPER_T_PLLE2_CLKIN1",
             25,
             wires::IMUX_PLL_CLKIN1[1],
         );
-        self.builder.extra_name_sub(
+        self.builder.extra_name_cell(
             "CMT_TOP_R_UPPER_T_PLLE2_CLKIN2",
             25,
             wires::IMUX_PLL_CLKIN2[1],
         );
-        self.builder.extra_name_sub(
+        self.builder.extra_name_cell(
             "CMT_TOP_R_UPPER_T_PLLE2_CLKFBIN",
             25,
             wires::IMUX_PLL_CLKFB[1],
         );
         self.builder
-            .extra_name_sub("CMT_TOP_R_UPPER_T_PLLE2_CLKOUT0", 25, wires::OUT_PLL_N[0]);
+            .extra_name_cell("CMT_TOP_R_UPPER_T_PLLE2_CLKOUT0", 25, wires::OUT_PLL_N[0]);
         self.builder
-            .extra_name_sub("CMT_TOP_R_UPPER_T_PLLE2_CLKOUT1", 25, wires::OUT_PLL_N[1]);
+            .extra_name_cell("CMT_TOP_R_UPPER_T_PLLE2_CLKOUT1", 25, wires::OUT_PLL_N[1]);
         self.builder
-            .extra_name_sub("CMT_TOP_R_UPPER_T_PLLE2_CLKOUT2", 25, wires::OUT_PLL_N[2]);
+            .extra_name_cell("CMT_TOP_R_UPPER_T_PLLE2_CLKOUT2", 25, wires::OUT_PLL_N[2]);
         self.builder
-            .extra_name_sub("CMT_TOP_R_UPPER_T_PLLE2_CLKOUT3", 25, wires::OUT_PLL_N[3]);
+            .extra_name_cell("CMT_TOP_R_UPPER_T_PLLE2_CLKOUT3", 25, wires::OUT_PLL_N[3]);
         self.builder
-            .extra_name_sub("CMT_TOP_R_UPPER_T_PLLE2_CLKOUT4", 25, wires::OUT_PLL_N[4]);
+            .extra_name_cell("CMT_TOP_R_UPPER_T_PLLE2_CLKOUT4", 25, wires::OUT_PLL_N[4]);
         self.builder
-            .extra_name_sub("CMT_TOP_R_UPPER_T_PLLE2_CLKOUT5", 25, wires::OUT_PLL_N[5]);
+            .extra_name_cell("CMT_TOP_R_UPPER_T_PLLE2_CLKOUT5", 25, wires::OUT_PLL_N[5]);
         self.builder
-            .extra_name_sub("CMT_TOP_R_UPPER_T_PLLE2_CLKFBOUT", 25, wires::OUT_PLL_N[6]);
+            .extra_name_cell("CMT_TOP_R_UPPER_T_PLLE2_CLKFBOUT", 25, wires::OUT_PLL_N[6]);
         self.builder
-            .extra_name_sub("CMT_TOP_R_UPPER_T_PLLE2_TMUXOUT", 25, wires::OUT_PLL_N[7]);
-        self.builder.extra_name_sub(
+            .extra_name_cell("CMT_TOP_R_UPPER_T_PLLE2_TMUXOUT", 25, wires::OUT_PLL_N[7]);
+        self.builder.extra_name_cell(
             "HCLK_CMT_MUX_MMCM_CLKIN1",
             25,
             wires::IMUX_PLL_CLKIN1_HCLK[0],
         );
-        self.builder.extra_name_sub(
+        self.builder.extra_name_cell(
             "HCLK_CMT_MUX_PLLE2_CLKIN1",
             25,
             wires::IMUX_PLL_CLKIN1_HCLK[1],
         );
-        self.builder.extra_name_sub(
+        self.builder.extra_name_cell(
             "HCLK_CMT_MUX_MMCM_CLKIN2",
             25,
             wires::IMUX_PLL_CLKIN2_HCLK[0],
         );
-        self.builder.extra_name_sub(
+        self.builder.extra_name_cell(
             "HCLK_CMT_MUX_PLLE2_CLKIN2",
             25,
             wires::IMUX_PLL_CLKIN2_HCLK[1],
         );
-        self.builder.extra_name_sub(
+        self.builder.extra_name_cell(
             "HCLK_CMT_MUX_MMCM_CLKFBIN",
             25,
             wires::IMUX_PLL_CLKFB_HCLK[0],
         );
-        self.builder.extra_name_sub(
+        self.builder.extra_name_cell(
             "HCLK_CMT_MUX_PLLE2_CLKFBIN",
             25,
             wires::IMUX_PLL_CLKFB_HCLK[1],
         );
         self.builder
-            .extra_name_sub("HCLK_CMT_PREF_CLKOUT", 25, wires::OUT_PHASER_REF_CLKOUT);
+            .extra_name_cell("HCLK_CMT_PREF_CLKOUT", 25, wires::OUT_PHASER_REF_CLKOUT);
         self.builder
-            .extra_name_sub("HCLK_CMT_PREF_TMUXOUT", 25, wires::OUT_PHASER_REF_TMUXOUT);
-        self.builder.extra_name_sub(
+            .extra_name_cell("HCLK_CMT_PREF_TMUXOUT", 25, wires::OUT_PHASER_REF_TMUXOUT);
+        self.builder.extra_name_cell(
             "CMT_PHASERREF_DOWN_PHASERIN_A",
             25,
             wires::IMUX_PHASER_IN_PHASEREFCLK[0],
         );
-        self.builder.extra_name_sub(
+        self.builder.extra_name_cell(
             "CMT_PHASERREF_DOWN_PHASERIN_B",
             25,
             wires::IMUX_PHASER_IN_PHASEREFCLK[1],
         );
-        self.builder.extra_name_sub(
+        self.builder.extra_name_cell(
             "CMT_PHASERREF_PHASERIN_C",
             25,
             wires::IMUX_PHASER_IN_PHASEREFCLK[2],
         );
-        self.builder.extra_name_sub(
+        self.builder.extra_name_cell(
             "CMT_PHASERREF_PHASERIN_D",
             25,
             wires::IMUX_PHASER_IN_PHASEREFCLK[3],
         );
-        self.builder.extra_name_sub(
+        self.builder.extra_name_cell(
             "CMT_PHASERREF_DOWN_PHASEROUT_A",
             25,
             wires::IMUX_PHASER_OUT_PHASEREFCLK[0],
         );
-        self.builder.extra_name_sub(
+        self.builder.extra_name_cell(
             "CMT_PHASERREF_DOWN_PHASEROUT_B",
             25,
             wires::IMUX_PHASER_OUT_PHASEREFCLK[1],
         );
-        self.builder.extra_name_sub(
+        self.builder.extra_name_cell(
             "CMT_PHASERREF_PHASEROUT_C",
             25,
             wires::IMUX_PHASER_OUT_PHASEREFCLK[2],
         );
-        self.builder.extra_name_sub(
+        self.builder.extra_name_cell(
             "CMT_PHASERREF_PHASEROUT_D",
             25,
             wires::IMUX_PHASER_OUT_PHASEREFCLK[3],
         );
         self.builder
-            .extra_name_sub("CMT_PHASER_BOT_REFMUX_0", 25, wires::IMUX_PHASER_REFMUX[0]);
+            .extra_name_cell("CMT_PHASER_BOT_REFMUX_0", 25, wires::IMUX_PHASER_REFMUX[0]);
         self.builder
-            .extra_name_sub("CMT_PHASER_BOT_REFMUX_1", 25, wires::IMUX_PHASER_REFMUX[1]);
+            .extra_name_cell("CMT_PHASER_BOT_REFMUX_1", 25, wires::IMUX_PHASER_REFMUX[1]);
         self.builder
-            .extra_name_sub("CMT_PHASER_BOT_REFMUX_2", 25, wires::IMUX_PHASER_REFMUX[2]);
+            .extra_name_cell("CMT_PHASER_BOT_REFMUX_2", 25, wires::IMUX_PHASER_REFMUX[2]);
         self.builder
-            .extra_name_sub("CMT_PHASER_DOWN_DQS_TO_PHASER_A", 58, wires::OUT_CLKPAD);
+            .extra_name_cell("CMT_PHASER_DOWN_DQS_TO_PHASER_A", 58, wires::OUT_CLKPAD);
         self.builder
-            .extra_name_sub("CMT_PHASER_DOWN_DQS_TO_PHASER_B", 70, wires::OUT_CLKPAD);
+            .extra_name_cell("CMT_PHASER_DOWN_DQS_TO_PHASER_B", 70, wires::OUT_CLKPAD);
         self.builder
-            .extra_name_sub("CMT_PHASER_UP_DQS_TO_PHASER_C", 82, wires::OUT_CLKPAD);
+            .extra_name_cell("CMT_PHASER_UP_DQS_TO_PHASER_C", 82, wires::OUT_CLKPAD);
         self.builder
-            .extra_name_sub("CMT_PHASER_UP_DQS_TO_PHASER_D", 94, wires::OUT_CLKPAD);
+            .extra_name_cell("CMT_PHASER_UP_DQS_TO_PHASER_D", 94, wires::OUT_CLKPAD);
 
         self.builder
-            .extra_name_sub("CMT_PHASER_IN_A_ICLK", 7, wires::PHASER_ICLK);
+            .extra_name_cell("CMT_PHASER_IN_A_ICLK", 7, wires::PHASER_ICLK);
         self.builder
-            .extra_name_sub("CMT_PHASER_IN_B_ICLK", 19, wires::PHASER_ICLK);
+            .extra_name_cell("CMT_PHASER_IN_B_ICLK", 19, wires::PHASER_ICLK);
         self.builder
-            .extra_name_sub("CMT_PHASER_IN_C_ICLK", 31, wires::PHASER_ICLK);
+            .extra_name_cell("CMT_PHASER_IN_C_ICLK", 31, wires::PHASER_ICLK);
         self.builder
-            .extra_name_sub("CMT_PHASER_IN_D_ICLK", 43, wires::PHASER_ICLK);
+            .extra_name_cell("CMT_PHASER_IN_D_ICLK", 43, wires::PHASER_ICLK);
         self.builder
-            .extra_name_sub("CMT_PHASER_IN_A_WRCLK_TOFIFO", 7, wires::PHASER_ICLKDIV);
+            .extra_name_cell("CMT_PHASER_IN_A_WRCLK_TOFIFO", 7, wires::PHASER_ICLKDIV);
         self.builder
-            .extra_name_sub("CMT_PHASER_IN_B_WRCLK_TOFIFO", 19, wires::PHASER_ICLKDIV);
+            .extra_name_cell("CMT_PHASER_IN_B_WRCLK_TOFIFO", 19, wires::PHASER_ICLKDIV);
         self.builder
-            .extra_name_sub("CMT_PHASER_IN_C_WRCLK_TOFIFO", 31, wires::PHASER_ICLKDIV);
+            .extra_name_cell("CMT_PHASER_IN_C_WRCLK_TOFIFO", 31, wires::PHASER_ICLKDIV);
         self.builder
-            .extra_name_sub("CMT_R_PHASER_IN_C_WRCLK_FIFO", 31, wires::PHASER_ICLKDIV);
+            .extra_name_cell("CMT_R_PHASER_IN_C_WRCLK_FIFO", 31, wires::PHASER_ICLKDIV);
         self.builder
-            .extra_name_sub("CMT_PHASER_IN_D_WRCLK_TOFIFO", 43, wires::PHASER_ICLKDIV);
+            .extra_name_cell("CMT_PHASER_IN_D_WRCLK_TOFIFO", 43, wires::PHASER_ICLKDIV);
         self.builder
-            .extra_name_sub("CMT_R_PHASER_IN_D_WRCLK_TOFIFO", 43, wires::PHASER_ICLKDIV);
+            .extra_name_cell("CMT_R_PHASER_IN_D_WRCLK_TOFIFO", 43, wires::PHASER_ICLKDIV);
         self.builder
-            .extra_name_sub("CMT_PHASER_IN_A_WREN_TOFIFO", 7, wires::PHASER_IWREN);
+            .extra_name_cell("CMT_PHASER_IN_A_WREN_TOFIFO", 7, wires::PHASER_IWREN);
         self.builder
-            .extra_name_sub("CMT_PHASER_IN_B_WREN_TOFIFO", 19, wires::PHASER_IWREN);
+            .extra_name_cell("CMT_PHASER_IN_B_WREN_TOFIFO", 19, wires::PHASER_IWREN);
         self.builder
-            .extra_name_sub("CMT_PHASER_IN_C_WRENABLE_FIFO", 31, wires::PHASER_IWREN);
+            .extra_name_cell("CMT_PHASER_IN_C_WRENABLE_FIFO", 31, wires::PHASER_IWREN);
         self.builder
-            .extra_name_sub("CMT_PHASER_IN_D_WRENABLE_FIFO", 43, wires::PHASER_IWREN);
+            .extra_name_cell("CMT_PHASER_IN_D_WRENABLE_FIFO", 43, wires::PHASER_IWREN);
 
         self.builder
-            .extra_name_sub("CMT_PHASER_OUT_A_OCLK", 7, wires::PHASER_OCLK);
+            .extra_name_cell("CMT_PHASER_OUT_A_OCLK", 7, wires::PHASER_OCLK);
         self.builder
-            .extra_name_sub("CMT_PHASER_OUT_B_OCLK", 19, wires::PHASER_OCLK);
+            .extra_name_cell("CMT_PHASER_OUT_B_OCLK", 19, wires::PHASER_OCLK);
         self.builder
-            .extra_name_sub("CMT_PHASER_OUT_C_OCLK", 31, wires::PHASER_OCLK);
+            .extra_name_cell("CMT_PHASER_OUT_C_OCLK", 31, wires::PHASER_OCLK);
         self.builder
-            .extra_name_sub("CMT_PHASER_OUT_D_OCLK", 43, wires::PHASER_OCLK);
+            .extra_name_cell("CMT_PHASER_OUT_D_OCLK", 43, wires::PHASER_OCLK);
         self.builder
-            .extra_name_sub("CMT_PHASER_OUT_A_RDCLK_TOFIFO", 7, wires::PHASER_OCLKDIV);
+            .extra_name_cell("CMT_PHASER_OUT_A_RDCLK_TOFIFO", 7, wires::PHASER_OCLKDIV);
         self.builder
-            .extra_name_sub("CMT_PHASER_OUT_B_RDCLK_TOFIFO", 19, wires::PHASER_OCLKDIV);
+            .extra_name_cell("CMT_PHASER_OUT_B_RDCLK_TOFIFO", 19, wires::PHASER_OCLKDIV);
         self.builder
-            .extra_name_sub("CMT_PHASER_OUT_C_RDCLK_TOFIFO", 31, wires::PHASER_OCLKDIV);
+            .extra_name_cell("CMT_PHASER_OUT_C_RDCLK_TOFIFO", 31, wires::PHASER_OCLKDIV);
         self.builder
-            .extra_name_sub("CMT_R_PHASER_OUT_C_RDCLK_FIFO", 31, wires::PHASER_OCLKDIV);
+            .extra_name_cell("CMT_R_PHASER_OUT_C_RDCLK_FIFO", 31, wires::PHASER_OCLKDIV);
         self.builder
-            .extra_name_sub("CMT_PHASER_OUT_D_RDCLK_TOFIFO", 43, wires::PHASER_OCLKDIV);
+            .extra_name_cell("CMT_PHASER_OUT_D_RDCLK_TOFIFO", 43, wires::PHASER_OCLKDIV);
         self.builder
-            .extra_name_sub("CMT_R_PHASER_OUT_D_RDCLK_TOFIFO", 43, wires::PHASER_OCLKDIV);
+            .extra_name_cell("CMT_R_PHASER_OUT_D_RDCLK_TOFIFO", 43, wires::PHASER_OCLKDIV);
         self.builder
-            .extra_name_sub("CMT_PHASER_OUT_A_RDEN_TOFIFO", 7, wires::PHASER_ORDEN);
+            .extra_name_cell("CMT_PHASER_OUT_A_RDEN_TOFIFO", 7, wires::PHASER_ORDEN);
         self.builder
-            .extra_name_sub("CMT_PHASER_OUT_B_RDEN_TOFIFO", 19, wires::PHASER_ORDEN);
+            .extra_name_cell("CMT_PHASER_OUT_B_RDEN_TOFIFO", 19, wires::PHASER_ORDEN);
         self.builder
-            .extra_name_sub("CMT_PHASER_OUT_C_RDENABLE_TOFIFO", 31, wires::PHASER_ORDEN);
+            .extra_name_cell("CMT_PHASER_OUT_C_RDENABLE_TOFIFO", 31, wires::PHASER_ORDEN);
         self.builder
-            .extra_name_sub("CMT_R_PHASER_OUT_C_RDENABLE_FIFO", 31, wires::PHASER_ORDEN);
+            .extra_name_cell("CMT_R_PHASER_OUT_C_RDENABLE_FIFO", 31, wires::PHASER_ORDEN);
         self.builder
-            .extra_name_sub("CMT_PHASER_OUT_D_RDENABLE_TOFIFO", 43, wires::PHASER_ORDEN);
-        self.builder.extra_name_sub(
+            .extra_name_cell("CMT_PHASER_OUT_D_RDENABLE_TOFIFO", 43, wires::PHASER_ORDEN);
+        self.builder.extra_name_cell(
             "CMT_R_PHASER_OUT_D_RDENABLE_TOFIFO",
             43,
             wires::PHASER_ORDEN,
         );
         for tkn in ["CMT_TOP_L_LOWER_B", "CMT_TOP_R_LOWER_B"] {
             self.builder
-                .extra_name_tile_sub(tkn, "CMT_TOP_OCLK1X_90_8", 58, wires::PHASER_OCLK90);
+                .extra_name_tile_cell(tkn, "CMT_TOP_OCLK1X_90_8", 58, wires::PHASER_OCLK90);
         }
         for tkn in ["CMT_TOP_L_LOWER_T", "CMT_TOP_R_LOWER_T"] {
             self.builder
-                .extra_name_tile_sub(tkn, "CMT_TOP_OCLK1X_90_4", 70, wires::PHASER_OCLK90);
+                .extra_name_tile_cell(tkn, "CMT_TOP_OCLK1X_90_4", 70, wires::PHASER_OCLK90);
         }
         for tkn in ["CMT_TOP_L_UPPER_B", "CMT_TOP_R_UPPER_B"] {
             self.builder
-                .extra_name_tile_sub(tkn, "CMT_TOP_OCLK1X_90_7", 82, wires::PHASER_OCLK90);
+                .extra_name_tile_cell(tkn, "CMT_TOP_OCLK1X_90_7", 82, wires::PHASER_OCLK90);
         }
         for tkn in ["CMT_TOP_L_UPPER_T", "CMT_TOP_R_UPPER_T"] {
             self.builder
-                .extra_name_tile_sub(tkn, "CMT_TOP_OCLK1X_90_7", 94, wires::PHASER_OCLK90);
+                .extra_name_tile_cell(tkn, "CMT_TOP_OCLK1X_90_7", 94, wires::PHASER_OCLK90);
         }
 
         for i in 0..2 {
-            self.builder.extra_name_sub(
+            self.builder.extra_name_cell(
                 format!("HCLK_CMT_MUX_CLK_LEAF_DN{i}"),
                 25,
                 wires::LCLK_CMT_S[i],
             );
-            self.builder.extra_name_sub(
+            self.builder.extra_name_cell(
                 format!("HCLK_CMT_MUX_CLK_LEAF_UP{i}"),
                 25,
                 wires::LCLK_CMT_N[i],
             );
-            self.builder.extra_name_sub(
+            self.builder.extra_name_cell(
                 format!("HCLK_CMT_BUFMR_INP{i}"),
                 25,
                 wires::IMUX_BUFMRCE[i],
             );
-            self.builder.extra_name_sub(
+            self.builder.extra_name_cell(
                 format!("HCLK_CMT_BUFMR_PHASEREF{i}"),
                 25,
                 wires::VMRCLK[i],
             );
-            self.builder.extra_name_sub(
+            self.builder.extra_name_cell(
                 format!("CMT_PHASER_UP_PHASERREF_ABOVE{i}"),
                 25,
                 wires::VMRCLK_S[i],
             );
-            self.builder.extra_name_sub(
+            self.builder.extra_name_cell(
                 format!("CMT_PHASER_UP_PHASERREF_BELOW{i}"),
                 25,
                 wires::VMRCLK_N[i],
             );
         }
         self.builder
-            .extra_name_sub("CMT_IN_FIFO_WRCLK", 6, wires::FIFO_IWRCLK);
+            .extra_name_cell("CMT_IN_FIFO_WRCLK", 6, wires::FIFO_IWRCLK);
         self.builder
-            .extra_name_sub("CMT_IN_FIFO_WREN", 6, wires::FIFO_IWREN);
+            .extra_name_cell("CMT_IN_FIFO_WREN", 6, wires::FIFO_IWREN);
         self.builder
-            .extra_name_sub("CMT_OUT_FIFO_RDCLK", 6, wires::FIFO_ORDCLK);
+            .extra_name_cell("CMT_OUT_FIFO_RDCLK", 6, wires::FIFO_ORDCLK);
         self.builder
-            .extra_name_sub("CMT_OUT_FIFO_RDEN", 6, wires::FIFO_ORDEN);
+            .extra_name_cell("CMT_OUT_FIFO_RDEN", 6, wires::FIFO_ORDEN);
         self.builder
-            .extra_name_sub("CMT_FIFO_L_PHASER_WRCLK", 6, wires::PHASER_ICLKDIV);
+            .extra_name_cell("CMT_FIFO_L_PHASER_WRCLK", 6, wires::PHASER_ICLKDIV);
         self.builder
-            .extra_name_sub("CMT_FIFO_L_PHASER_WRENABLE", 6, wires::PHASER_IWREN);
+            .extra_name_cell("CMT_FIFO_L_PHASER_WRENABLE", 6, wires::PHASER_IWREN);
         self.builder
-            .extra_name_sub("CMT_FIFO_L_PHASER_RDCLK", 6, wires::PHASER_OCLKDIV);
+            .extra_name_cell("CMT_FIFO_L_PHASER_RDCLK", 6, wires::PHASER_OCLKDIV);
         self.builder
-            .extra_name_sub("CMT_FIFO_L_PHASER_RDENABLE", 6, wires::PHASER_ORDEN);
+            .extra_name_cell("CMT_FIFO_L_PHASER_RDENABLE", 6, wires::PHASER_ORDEN);
     }
 
     fn fill_gt_wires(&mut self) {
         for i in 0..10 {
-            self.builder.extra_name_sub(
+            self.builder.extra_name_cell(
                 format!("GTPE2_COMMON_MGT_CLK{i}"),
                 3,
                 wires::HROW_O[i + 4],
             );
-            self.builder.extra_name_sub(
+            self.builder.extra_name_cell(
                 format!("GTXE2_COMMON_MGT_CLK{i}"),
                 3,
                 wires::HROW_O[i + 4],
             );
-            self.builder.extra_name_sub(
+            self.builder.extra_name_cell(
                 format!("GTHE2_COMMON_MGT_CLK{i}"),
                 3,
                 wires::HROW_O[i + 4],
@@ -1260,9 +1284,9 @@ impl IntMaker<'_> {
         }
         for i in 0..14 {
             self.builder
-                .extra_name_sub(format!("HCLK_GTP_CK_IN{i}"), 3, wires::HROW_O[i]);
+                .extra_name_cell(format!("HCLK_GTP_CK_IN{i}"), 3, wires::HROW_O[i]);
             self.builder
-                .extra_name_sub(format!("HCLK_GTP_CK_MUX{i}"), 3, wires::HROW_I_GTP[i]);
+                .extra_name_cell(format!("HCLK_GTP_CK_MUX{i}"), 3, wires::HROW_I_GTP[i]);
         }
         for prefix in ["GTP", "GTX", "GTH"] {
             for i in 0..4 {
@@ -1274,12 +1298,12 @@ impl IntMaker<'_> {
                     format!("{prefix}E2_CHANNEL_RXOUTCLK_{i}"),
                     wires::OUT_GT_RXOUTCLK,
                 );
-                self.builder.extra_name_sub(
+                self.builder.extra_name_cell(
                     format!("{prefix}E2_COMMON_TXOUTCLK_{i}"),
                     6 + i,
                     wires::OUT_GT_TXOUTCLK,
                 );
-                self.builder.extra_name_sub(
+                self.builder.extra_name_cell(
                     format!("{prefix}E2_COMMON_RXOUTCLK_{i}"),
                     6 + i,
                     wires::OUT_GT_RXOUTCLK,
@@ -1288,7 +1312,7 @@ impl IntMaker<'_> {
         }
         for prefix in ["GTP", "GT", "GTH"] {
             for i in 0..2 {
-                self.builder.extra_name_sub(
+                self.builder.extra_name_cell(
                     format!("IBUFDS_{prefix}E2_{i}_MGTCLKOUT"),
                     3,
                     wires::OUT_GT_MGTCLKOUT[i],
@@ -1296,19 +1320,19 @@ impl IntMaker<'_> {
             }
         }
         for i in 0..4 {
-            self.builder.extra_name_sub(
+            self.builder.extra_name_cell(
                 format!("GTPE2_COMMON_TXOUTCLK_MUX_{i}"),
                 3,
                 wires::OUT_GT_TXOUTCLK_HCLK[i],
             );
-            self.builder.extra_name_sub(
+            self.builder.extra_name_cell(
                 format!("GTPE2_COMMON_RXOUTCLK_MUX_{i}"),
                 3,
                 wires::OUT_GT_RXOUTCLK_HCLK[i],
             );
         }
         for i in 0..2 {
-            self.builder.extra_name_sub(
+            self.builder.extra_name_cell(
                 format!("IBUFDS_GTPE2_{i}_MGTCLKOUT_MUX"),
                 3,
                 wires::OUT_GT_MGTCLKOUT_HCLK[i],
@@ -1318,24 +1342,27 @@ impl IntMaker<'_> {
     fn fill_ps_wires(&mut self) {
         for i in 0..4 {
             self.builder
-                .extra_name_sub(format!("PSS_FCLKCLK{i}"), 25, wires::HROW_O[i]);
+                .extra_name_cell(format!("PSS_FCLKCLK{i}"), 25, wires::HROW_O[i]);
             self.builder
-                .extra_name_sub(format!("PSS2_FCLKCLK{i}"), 25, wires::HROW_O[i]);
+                .extra_name_cell(format!("PSS2_FCLKCLK{i}"), 25, wires::HROW_O[i]);
         }
         // argh.
         self.builder
-            .extra_name_sub("PSS1_LOGIC_OUTS1_39", 39, wires::OUT_BEL[1]);
+            .extra_name_cell("PSS1_LOGIC_OUTS1_39", 39, wires::OUT_BEL[1]);
         self.builder
-            .extra_name_sub("PSS1_LOGIC_OUTS2_39", 39, wires::OUT_BEL[2]);
+            .extra_name_cell("PSS1_LOGIC_OUTS2_39", 39, wires::OUT_BEL[2]);
         self.builder
-            .extra_name_sub("PSS2_LOGIC_OUTS0_61", 61, wires::OUT_BEL[0]);
+            .extra_name_cell("PSS2_LOGIC_OUTS0_61", 61, wires::OUT_BEL[0]);
         self.builder
-            .extra_name_sub("PSS2_LOGIC_OUTS1_61", 61, wires::OUT_BEL[1]);
+            .extra_name_cell("PSS2_LOGIC_OUTS1_61", 61, wires::OUT_BEL[1]);
 
         for i in 0..3 {
-            self.builder
-                .extra_name_sub(format!("PSS3_TESTPLLNEWCLK{i}_OUT"), 75, wires::HROW_O[i]);
-            self.builder.extra_name_sub(
+            self.builder.extra_name_cell(
+                format!("PSS3_TESTPLLNEWCLK{i}_OUT"),
+                75,
+                wires::HROW_O[i],
+            );
+            self.builder.extra_name_cell(
                 format!("PSS3_TESTPLLCLKOUT{i}_OUT"),
                 75,
                 wires::HROW_O[i + 3],
@@ -1356,13 +1383,13 @@ impl IntMaker<'_> {
                     let idx: usize = idx.parse().unwrap();
                     let cell: usize = cell.parse().unwrap();
                     self.builder
-                        .extra_name_sub(wt, cell, wires::IMUX_BYP_DSP[idx]);
+                        .extra_name_cell(wt, cell, wires::IMUX_BYP_DSP[idx]);
                 } else if let Some(suf) = wf.strip_prefix("DSP_FAN") {
                     let (idx, cell) = suf.split_once('_').unwrap();
                     let idx: usize = idx.parse().unwrap();
                     let cell: usize = cell.parse().unwrap();
                     self.builder
-                        .extra_name_sub(wt, cell, wires::IMUX_FAN_DSP[idx]);
+                        .extra_name_cell(wt, cell, wires::IMUX_FAN_DSP[idx]);
                 }
             }
         }
@@ -1411,33 +1438,35 @@ impl IntMaker<'_> {
                     if let Some(suf) = wf.strip_prefix("BRAM_UTURN_") {
                         self.bram_skip.insert((wt, wf));
                         if suf.ends_with("ADDRL15") {
-                            self.builder.extra_name_sub(wf, cell, wires::IMUX_BRAM[idx]);
+                            self.builder
+                                .extra_name_cell(wf, cell, wires::IMUX_BRAM[idx]);
                             self.bram_permabuf.insert(wires::IMUX_BRAM[idx].cell(cell));
                         } else {
-                            self.builder.extra_name_sub(
+                            self.builder.extra_name_cell(
                                 format!("BRAM_{suf}"),
                                 cell,
                                 wires::IMUX_BRAM[idx],
                             );
                         }
-                        self.builder.extra_name_sub(
+                        self.builder.extra_name_cell(
                             format!("BRAM_IMUX_R_{suf}"),
                             cell,
                             wires::IMUX_IMUX[idx],
                         );
-                        self.builder.extra_name_sub(
+                        self.builder.extra_name_cell(
                             format!("BRAM_R_IMUX_{suf}"),
                             cell,
                             wires::IMUX_IMUX[idx],
                         );
-                        self.builder.extra_name_sub(
+                        self.builder.extra_name_cell(
                             format!("BRAM_IMUX_{suf}"),
                             cell,
                             wires::IMUX_IMUX[idx],
                         );
                     } else {
-                        self.builder.extra_name_sub(wt, cell, wires::IMUX_BRAM[idx]);
-                        self.builder.extra_name_sub(
+                        self.builder
+                            .extra_name_cell(wt, cell, wires::IMUX_BRAM[idx]);
+                        self.builder.extra_name_cell(
                             format!("BRAM_IMUX{idx}_{cell}"),
                             cell,
                             wires::IMUX_IMUX[idx],
@@ -1809,7 +1838,6 @@ impl IntMaker<'_> {
                 let mut x = self
                     .builder
                     .xtile_id(tcls::BRAM, tkn, xy)
-                    .num_cells(5)
                     .switchbox(bslots::SPEC_INT)
                     .optin_muxes(&wires::IMUX_BRAM[..])
                     .optin_muxes(&wires::BRAM_ADDRA_CASC[..])
@@ -1889,11 +1917,7 @@ impl IntMaker<'_> {
                 }
             }
             let bel = self.builder.bel_xy(bslots::PMVBRAM, "PMVBRAM", 0, 0);
-            let mut x = self
-                .builder
-                .xtile_id(tcls::PMVBRAM, "PMVBRAM", xy)
-                .num_cells(15)
-                .bel(bel);
+            let mut x = self.builder.xtile_id(tcls::PMVBRAM, "PMVBRAM", xy).bel(bel);
             for &xy in &bram_xy {
                 x = x.raw_tile(xy);
             }
@@ -1913,7 +1937,6 @@ impl IntMaker<'_> {
                 ]);
             self.builder
                 .xtile_id(tcls::PMVBRAM_NC, "PMVBRAM_NC", xy)
-                .num_cells(0)
                 .bel(bel)
                 .extract();
         }
@@ -1986,7 +2009,6 @@ impl IntMaker<'_> {
                 let mut x = self
                     .builder
                     .xtile_id(tcls::DSP, tkn, xy)
-                    .num_cells(5)
                     .bels(bels_dsp)
                     .switchbox(bslots::SPEC_INT)
                     .optin_muxes(&wires::IMUX_BYP_DSP[..])
@@ -2060,7 +2082,6 @@ impl IntMaker<'_> {
                 let mut x = self
                     .builder
                     .xtile_id(tcls::PCIE, kind, xy)
-                    .num_cells(50)
                     .raw_tile(t_xy)
                     .bel(bel);
                 for (i, &xy) in int_xy.iter().enumerate() {
@@ -2122,7 +2143,6 @@ impl IntMaker<'_> {
             let mut x = self
                 .builder
                 .xtile_id(tcls::PCIE3, "PCIE3", xy)
-                .num_cells(Ord::max(int_xy.len(), intf_xy.len()))
                 .raw_tile(b_xy)
                 .raw_tile(t_xy)
                 .bel(bel);
@@ -2194,7 +2214,6 @@ impl IntMaker<'_> {
             self.builder
                 .xtile_id(tcls::HCLK, "HCLK", xy)
                 .raw_tile(xy.delta(1, 0))
-                .num_cells(2)
                 .bel(bel_w)
                 .bel(bel_e)
                 .bel(bel)
@@ -2306,7 +2325,6 @@ impl IntMaker<'_> {
                 }
                 self.builder
                     .xtile_id(tcid, naming, xy)
-                    .num_cells(2)
                     .switchbox(bslots::SPEC_INT)
                     .optin_muxes(&wires::GCLK[..])
                     .bel(bel)
@@ -2394,7 +2412,6 @@ impl IntMaker<'_> {
                 bels.push(bel_int);
                 self.builder
                     .xtile_id(tcls::CLK_HROW, tkn, xy)
-                    .num_cells(3)
                     .switchbox(bslots::SPEC_INT)
                     .optin_muxes(&wires::IMUX_BUFG_O[..])
                     .optin_muxes(&wires::IMUX_BUFHCE_W[..])
@@ -2505,7 +2522,6 @@ impl IntMaker<'_> {
                 let mut xt = self
                     .builder
                     .xtile_id(tcid, naming, xy)
-                    .num_cells(4)
                     .switchbox(bslots::SPEC_INT)
                     .optin_muxes(&wires::IMUX_BUFG_O[..])
                     .optin_muxes(&wires::OUT_BUFG_GFB[..])
@@ -2639,7 +2655,6 @@ impl IntMaker<'_> {
                     .raw_tile(xy.delta(0, -2))
                     .raw_tile(xy.delta(0, 1))
                     .raw_tile(xy.delta(0, 3))
-                    .num_cells(8)
                     .switchbox(bslots::HCLK_IO_INT)
                     .optin_muxes(&wires::HCLK_IO[..])
                     .optin_muxes(&wires::RCLK_IO[..])
@@ -2880,8 +2895,7 @@ impl IntMaker<'_> {
                         .optin_muxes(&wires::IMUX_IOI_OCLKDIV[..])
                         .optin_muxes(&wires::IMUX_IOI_OCLKDIVF[..])
                         .optin_muxes(&[wires::IMUX_SPEC[0], wires::IMUX_SPEC[2]])
-                        .bels(bels.clone())
-                        .num_cells(num);
+                        .bels(bels.clone());
                     if is_sing {
                         xt = xt.ref_int(int_xy, 0).ref_single(intf_xy, 0, intf)
                     } else {
@@ -3083,7 +3097,6 @@ impl IntMaker<'_> {
                 let mut xn = self
                     .builder
                     .xtile_id(tcls::CMT, naming, xy)
-                    .num_cells(50)
                     .force_ext_pips()
                     .raw_tile(xy.delta(0, 9))
                     .raw_tile(xy.delta(0, 22))
@@ -3434,7 +3447,6 @@ impl IntMaker<'_> {
                 let mut xn = self
                     .builder
                     .xtile_id(tcls::CMT_FIFO, tkn, xy)
-                    .num_cells(12)
                     .switchbox(bslots::CMT_FIFO_INT)
                     .optin_muxes(&[
                         wires::FIFO_IWRCLK,
@@ -3513,8 +3525,7 @@ impl IntMaker<'_> {
                 .builder
                 .xtile_id(tcls::CFG, "CFG", xy_b)
                 .raw_tile(xy_m)
-                .raw_tile(xy_t)
-                .num_cells(50);
+                .raw_tile(xy_t);
             for i in 0..25 {
                 xn = xn.ref_int(xy_b.delta(3, -10 + i as i32), i).ref_single(
                     xy_b.delta(2, -10 + i as i32),
@@ -3569,8 +3580,7 @@ impl IntMaker<'_> {
                     .builder
                     .xtile_id(tcls::SYSMON, naming, xy_b)
                     .raw_tile(xy_m)
-                    .raw_tile(xy_t)
-                    .num_cells(25);
+                    .raw_tile(xy_t);
                 if naming == "SYSMON_E" {
                     xn = xn
                         .raw_tile(xy_b.delta(0, -26))
@@ -3653,8 +3663,7 @@ impl IntMaker<'_> {
                 .raw_tile(xy_pss1)
                 .raw_tile(xy_pss2)
                 .raw_tile(xy_pss3)
-                .raw_tile(xy_pss4)
-                .num_cells(100);
+                .raw_tile(xy_pss4);
             for i in 0..4 {
                 for j in 0..25 {
                     xn = xn
@@ -3751,7 +3760,7 @@ impl IntMaker<'_> {
                     .sub_xy(self.rd, "OPAD", 0, 0)
                     .pin_rename("I", "OPAD_GTPTXN_I")
                     .pins_name_only(&["OPAD_GTPTXN_I"]);
-                let mut xn = self.builder.xtile_id(tcid, tkn, xy).num_cells(11);
+                let mut xn = self.builder.xtile_id(tcid, tkn, xy);
                 for i in 0..11 {
                     xn = xn.ref_int(xy.delta(int_dx, -5 + i as i32), i).ref_single(
                         xy.delta(intf_dx, -5 + i as i32),
@@ -3855,7 +3864,6 @@ impl IntMaker<'_> {
                 let mut xn = self
                     .builder
                     .xtile_id(tcid, tkn, xy)
-                    .num_cells(6)
                     .switchbox(bslots::SPEC_INT)
                     .optin_muxes(&wires::HROW_O[..])
                     .optin_muxes(&wires::OUT_GT_MGTCLKOUT_HCLK[..])
@@ -4015,7 +4023,7 @@ impl IntMaker<'_> {
                     .sub_xy(self.rd, "OPAD", 0, 0)
                     .pin_rename("I", format!("OPAD_{pref}TXN_I"))
                     .pins_name_only(&[format!("OPAD_{pref}TXN_I")]);
-                let mut xn = self.builder.xtile_id(tcid, tkn, xy).num_cells(11);
+                let mut xn = self.builder.xtile_id(tcid, tkn, xy);
                 let int_dx = if is_l { 3 } else { -4 };
                 let intf_dx = if is_l { 2 } else { -3 };
                 for i in 0..11 {
@@ -4134,7 +4142,6 @@ impl IntMaker<'_> {
                     .xtile_id(tcid, tkn, xy)
                     .raw_tile(xy.delta(0, -23))
                     .raw_tile(xy.delta(0, 29))
-                    .num_cells(6)
                     .switchbox(bslots::SPEC_INT)
                     .optin_muxes(&wires::HROW_O[..]);
                 let int_dx = if is_l { 3 } else { -4 };
@@ -4176,7 +4183,7 @@ impl IntMaker<'_> {
             for c in 0..86 {
                 for r in 0..49 {
                     let rr = if tcid == tcls::GTZ_N { 48 - r } else { r };
-                    self.builder.extra_name_tile_sub(
+                    self.builder.extra_name_tile_cell(
                         tkn,
                         format!("GTZ_VBRK_INTF_SLV_{c}_{rr}"),
                         1 + 49 * c + r,
@@ -4226,11 +4233,7 @@ impl IntMaker<'_> {
                     .pin_rename("I", format!("OPAD_GTZTXN{i}_I"))
                     .pins_name_only(&[format!("OPAD_GTZTXN{i}_I")]);
             }
-            self.builder
-                .xtile_id(tcid, naming, xy)
-                .num_cells(49 * 86 + 1)
-                .bel(bel)
-                .extract();
+            self.builder.xtile_id(tcid, naming, xy).bel(bel).extract();
         }
     }
 }

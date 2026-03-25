@@ -1,3 +1,3 @@
 # PCI Express
 
-{{tile ultrascale PCIE}}
+{{tile ultrascale PCIE3}}

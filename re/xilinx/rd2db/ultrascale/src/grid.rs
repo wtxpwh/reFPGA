@@ -54,6 +54,10 @@ impl IntGridWrapper<'_> {
     pub fn lookup_row(&self, row: i32) -> RowId {
         self.int.lookup_row(row)
     }
+
+    pub fn lookup_row_inter(&self, row: i32) -> RowId {
+        self.int.lookup_row_inter(row)
+    }
 }
 
 fn make_columns(int: &IntGridWrapper) -> EntityVec<ColId, Column> {
@@ -216,7 +220,7 @@ fn make_columns(int: &IntGridWrapper) -> EntityVec<ColId, Column> {
     }
     let mut res = res.into_map_values(|kind| Column {
         kind: kind.unwrap(),
-        clk: [None; 4],
+        clk: None,
     });
     for (col, cd) in res.iter_mut() {
         let x = int.int.cols[ColId::from_idx(col.to_idx() / 2)] as u16;
@@ -259,7 +263,11 @@ fn make_columns(int: &IntGridWrapper) -> EntityVec<ColId, Column> {
                         &format!("CLK_TEST_BUF_SITE_{ii}_CLK_IN", ii = j * 2 + 1),
                     );
                     if let Some(idx) = hdistr.iter().position(|&x| Some(x) == nw) {
-                        cd.clk[j] = Some(idx as u8);
+                        let sidx = idx - j;
+                        if j != 0 {
+                            assert_eq!(cd.clk, Some((sidx, j)));
+                        }
+                        cd.clk = Some((sidx, j + 1));
                     }
                 }
             }
@@ -283,7 +291,11 @@ fn make_columns(int: &IntGridWrapper) -> EntityVec<ColId, Column> {
                         &format!("CLK_TEST_BUF_SITE_{ii}_CLK_IN", ii = j * 2 + 1),
                     );
                     if let Some(idx) = hdistr.iter().position(|&x| Some(x) == nw) {
-                        cd.clk[j] = Some(idx as u8);
+                        let sidx = idx - j;
+                        if j != 0 {
+                            assert_eq!(cd.clk, Some((sidx, j)));
+                        }
+                        cd.clk = Some((sidx, j + 1));
                     }
                 }
             }
@@ -331,7 +343,7 @@ fn get_cols_hard(
         // Ultrascale
         ("CFG_CFG", HardRowKind::Cfg),
         ("CFGIO_IOB", HardRowKind::Ams),
-        ("PCIE", HardRowKind::Pcie),
+        ("PCIE", HardRowKind::Pcie3),
         ("CMAC_CMAC_FT", HardRowKind::Cmac),
         ("ILMAC_ILMAC_FT", HardRowKind::Ilkn),
         // Ultrascale+
@@ -340,7 +352,7 @@ fn get_cols_hard(
         ("CSEC_CONFIG_VER2_FT", HardRowKind::Cfg),
         ("CFGIO_IOB20", HardRowKind::Ams),
         ("CFGIOLC_IOB20_FT", HardRowKind::Ams),
-        ("PCIE4_PCIE4_FT", HardRowKind::Pcie),
+        ("PCIE4_PCIE4_FT", HardRowKind::Pcie4),
         ("PCIE4C_PCIE4C_FT", HardRowKind::Pcie4C),
         ("PCIE4CE_PCIE4CE_FT", HardRowKind::Pcie4CE),
         ("CMAC", HardRowKind::Cmac),
@@ -521,6 +533,11 @@ fn get_cols_io(
                 }
             }
         }
+    }
+    for (x, y) in int.find_tiles(&["RCLK_RCLK_HDIOL_MRC_L_FT"]) {
+        let col = int.lookup_column_inter(x);
+        let reg = RegId::from_idx(int.lookup_row_inter(y).to_idx() / Chip::ROWS_PER_REG);
+        cells.insert((col, reg), IoRowKind::HdioLMrc);
     }
     for (tt, kind) in [
         // Ultrascale
@@ -782,8 +799,8 @@ pub fn make_grids(
             assert_eq!(chips[s0].cols_hard.len(), 1);
             assert_eq!(chips[s0].cols_io.len(), 3);
             chips[s0].regs = 5;
-            chips[s0].cols_hard[0].regs.push(HardRowKind::Pcie);
-            chips[s0].cols_hard[0].regs.push(HardRowKind::Pcie);
+            chips[s0].cols_hard[0].regs.push(HardRowKind::Pcie3);
+            chips[s0].cols_hard[0].regs.push(HardRowKind::Pcie3);
             chips[s0].cols_io[0].regs.push(IoRowKind::Hpio);
             chips[s0].cols_io[0].regs.push(IoRowKind::Hpio);
             chips[s0].cols_io[1].regs.push(IoRowKind::Hpio);
@@ -801,7 +818,7 @@ pub fn make_grids(
             assert_eq!(chips[s1].cols_hard.len(), 1);
             assert_eq!(chips[s1].cols_io.len(), 4);
             chips[s1].regs = 5;
-            chips[s1].cols_hard[0].regs.push(HardRowKind::Pcie);
+            chips[s1].cols_hard[0].regs.push(HardRowKind::Pcie3);
             chips[s1].cols_io[0].regs.push(IoRowKind::Gth);
             chips[s1].cols_io[1].regs.push(IoRowKind::Hpio);
             chips[s1].cols_io[2].regs.push(IoRowKind::Hpio);
@@ -815,7 +832,7 @@ pub fn make_grids(
             assert_eq!(chips[s0].cols_io.len(), 3);
             chips[s0].regs = 8;
             chips[s0].cols_hard[0].regs.push(HardRowKind::Cmac);
-            chips[s0].cols_hard[0].regs.push(HardRowKind::Pcie);
+            chips[s0].cols_hard[0].regs.push(HardRowKind::Pcie4);
             chips[s0].cols_hard[1].regs.push(HardRowKind::Hdio);
             chips[s0].cols_hard[1].regs.push(HardRowKind::Hdio);
             chips[s0].cols_io[0].regs.push(IoRowKind::Gty);
@@ -874,7 +891,7 @@ pub fn make_grids(
             assert_eq!(chips[s0].cols_io.len(), 4);
             chips[s0].regs = 5;
             prepend_reg(&mut chips[s0].cols_hard[0].regs, HardRowKind::Ilkn);
-            prepend_reg(&mut chips[s0].cols_hard[1].regs, HardRowKind::Pcie);
+            prepend_reg(&mut chips[s0].cols_hard[1].regs, HardRowKind::Pcie3);
             prepend_reg(&mut chips[s0].cols_io[0].regs, IoRowKind::Gty);
             prepend_reg(&mut chips[s0].cols_io[1].regs, IoRowKind::Hpio);
             prepend_reg(&mut chips[s0].cols_io[2].regs, IoRowKind::Hrio);

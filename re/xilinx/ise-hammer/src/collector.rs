@@ -2,7 +2,7 @@ use std::ops::{Deref, DerefMut};
 
 use prjcombine_entity::EntityId;
 use prjcombine_interconnect::db::{
-    BelInfo, BelInput, BelInputId, BelSlotId, TileClassId, TileWireCoord,
+    BelInfo, BelInput, BelInputId, BelSlotId, TileClassId, TileWireCoord, WireSlotIdExt,
 };
 use prjcombine_re_collector::{collect::Collector, diff::xlat_bit_bi};
 use prjcombine_re_xilinx_geom::{Device, ExpandedDevice, GeomDb};
@@ -48,12 +48,12 @@ impl<'a, 'b: 'a> CollectorCtx<'a, 'b> {
         assert_eq!(wire.cell.to_idx(), bit.bit.rect.to_idx());
         bit.bit.rect = BitRectId::from_idx(0);
         let int_tcid = int_tiles[wire.cell.to_idx()];
-        self.insert_inv(int_tcid, TileWireCoord::new_idx(0, wire.wire), bit);
+        self.insert_inv(int_tcid, wire.wire.cell(0), bit);
     }
 
     pub fn item_int_inv_raw(&self, int_tiles: &[TileClassId], wire: TileWireCoord) -> PolTileBit {
         let int_tcid = int_tiles[wire.cell.to_idx()];
-        let mut bit = self.sb_inv(int_tcid, TileWireCoord::new_idx(0, wire.wire));
+        let mut bit = self.sb_inv(int_tcid, wire.wire.cell(0));
         bit.bit.rect = BitRectId::from_idx(wire.cell.to_idx());
         bit
     }

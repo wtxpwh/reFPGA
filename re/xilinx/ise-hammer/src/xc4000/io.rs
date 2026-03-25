@@ -1,5 +1,5 @@
 use prjcombine_interconnect::{
-    db::{BelInputId, BelSlotId, TileWireCoord},
+    db::{BelInputId, BelSlotId, WireSlotIdExt},
     grid::TileCoord,
 };
 use prjcombine_re_collector::diff::{xlat_bit, xlat_enum_attr};
@@ -61,7 +61,7 @@ impl<'b> FuzzerProp<'b, IseBackend<'b>> for Xc4000DriveImux {
             let otcrd = res_wire.cell.tile(tslots::MAIN);
             let otile = &backend.edev[otcrd];
             let otcls = &backend.edev.db_index[otile.class];
-            let wt = TileWireCoord::new_idx(0, res_wire.slot);
+            let wt = res_wire.slot.cell(0);
             let ins = &otcls.pips_bwd[&wt];
             let wf = ins.iter().find(|w| w.wire != wires::TIE_0).unwrap().tw;
             let res_wf = backend

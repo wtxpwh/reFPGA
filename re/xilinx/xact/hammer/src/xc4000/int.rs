@@ -2,7 +2,7 @@ use std::collections::{BTreeMap, HashSet, btree_map};
 
 use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
-    db::{BelInfo, SwitchBoxItem, TileClassId, TileWireCoord},
+    db::{BelInfo, SwitchBoxItem, TileClassId, TileWireCoord, WireSlotIdExt},
     grid::{BelCoord, TileCoord, WireCoord},
 };
 use prjcombine_re_collector::diff::{
@@ -170,8 +170,8 @@ fn drive_wire<'a>(
         {
             (
                 cell.tile(tslots::MAIN),
-                TileWireCoord::new_idx(0, wire_target.slot),
-                TileWireCoord::new_idx(0, wires::OUT_HIO_I[idx * 2]),
+                wire_target.slot.cell(0),
+                wires::OUT_HIO_I[idx * 2].cell(0),
             )
         } else {
             let tcrd = cell.tile(tslots::MAIN);
@@ -214,8 +214,8 @@ fn drive_wire<'a>(
         let tcrd = wire_target.with_row(chip.row_mid()).tile(tslots::LLV);
         (
             tcrd,
-            TileWireCoord::new_idx(0, wire_target.slot),
-            TileWireCoord::new_idx(0, wires::BUFGLS[idx * 2]),
+            wire_target.slot.cell(0),
+            wires::BUFGLS[idx * 2].cell(0),
         )
     } else if wires::DEC_H.contains(wire_target.slot) || wires::DEC_V.contains(wire_target.slot) {
         let idx = if let Some(idx) = wires::DEC_H.index_of(wire_target.slot) {
@@ -268,12 +268,12 @@ fn drive_wire<'a>(
                 let tcrd = w.cell.tile(tslots::MAIN);
                 let tile = &backend.edev[tcrd];
                 let tcls_index = &backend.edev.db_index[tile.class];
-                if let Some(ins) = tcls_index.pips_bwd.get(&TileWireCoord::new_idx(0, w.slot)) {
+                if let Some(ins) = tcls_index.pips_bwd.get(&w.slot.cell(0)) {
                     for &inp in ins {
                         if backend.edev.db.wires.key(inp.wire).starts_with("OUT") {
                             let rwf = backend.edev.resolve_tile_wire(tcrd, inp.tw).unwrap();
                             if rwf != wire_avoid {
-                                break 'a (tcrd, TileWireCoord::new_idx(0, w.slot), inp.tw);
+                                break 'a (tcrd, w.slot.cell(0), inp.tw);
                             }
                         }
                     }
@@ -287,12 +287,12 @@ fn drive_wire<'a>(
                 let tcrd = w.cell.tile(tslots::MAIN);
                 let tile = &backend.edev[tcrd];
                 let tcls_index = &backend.edev.db_index[tile.class];
-                if let Some(ins) = tcls_index.pips_bwd.get(&TileWireCoord::new_idx(0, w.slot)) {
+                if let Some(ins) = tcls_index.pips_bwd.get(&w.slot.cell(0)) {
                     for &inp in ins {
                         if backend.edev.db.wires.key(inp.wire).starts_with("SINGLE") {
                             let rwf = backend.edev.resolve_tile_wire(tcrd, inp.tw).unwrap();
                             if rwf != wire_avoid {
-                                break 'a (tcrd, TileWireCoord::new_idx(0, w.slot), inp.tw);
+                                break 'a (tcrd, w.slot.cell(0), inp.tw);
                             }
                         }
                     }
@@ -306,12 +306,12 @@ fn drive_wire<'a>(
                 let tcrd = w.cell.tile(tslots::MAIN);
                 let tile = &backend.edev[tcrd];
                 let tcls_index = &backend.edev.db_index[tile.class];
-                if let Some(ins) = tcls_index.pips_bwd.get(&TileWireCoord::new_idx(0, w.slot)) {
+                if let Some(ins) = tcls_index.pips_bwd.get(&w.slot.cell(0)) {
                     for &inp in ins {
                         if backend.edev.db.wires.key(inp.wire).starts_with("DOUBLE_IO") {
                             let rwf = backend.edev.resolve_tile_wire(tcrd, inp.tw).unwrap();
                             if rwf != wire_avoid {
-                                break 'a (tcrd, TileWireCoord::new_idx(0, w.slot), inp.tw);
+                                break 'a (tcrd, w.slot.cell(0), inp.tw);
                             }
                         }
                     }
@@ -496,7 +496,7 @@ fn apply_imux_finish<'a>(
         bel.slot = bslots::HIO[hidx];
         let crd = backend.ngrid.int_pip(
             tcrd,
-            TileWireCoord::new_idx(0, wires::IMUX_HIO_O[hidx]),
+            wires::IMUX_HIO_O[hidx].cell(0),
             wire_io_o(backend.edev[tcrd].class, idx, pin),
         );
         fuzzer = fuzzer.fuzz(Key::Pip(crd), None, Value::FromPin(sblock, spin.into()));
@@ -824,28 +824,26 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, XactBackend<'a>>, backend: &'a 
 }
 
 fn wire_io_o(tcid: TileClassId, idx: usize, pin: &str) -> TileWireCoord {
-    TileWireCoord::new_idx(
-        0,
-        match pin {
-            "O1" => wires::IMUX_IO_O1[idx],
-            "O2" => match tcid {
-                tcls::IO_W0 | tcls::IO_W1 | tcls::IO_W0_N | tcls::IO_W1_S => {
-                    [wires::IMUX_CLB_G3_W, wires::IMUX_CLB_F3_W][idx]
-                }
-                tcls::IO_E0 | tcls::IO_E1 | tcls::IO_E0_N | tcls::IO_E1_S => {
-                    [wires::IMUX_CLB_G1, wires::IMUX_CLB_F1][idx]
-                }
-                tcls::IO_S0 | tcls::IO_S1 | tcls::IO_S0_E | tcls::IO_S1_W => {
-                    [wires::IMUX_CLB_F4, wires::IMUX_CLB_G4][idx]
-                }
-                tcls::IO_N0 | tcls::IO_N1 | tcls::IO_N0_E | tcls::IO_N1_W => {
-                    [wires::IMUX_CLB_F2_N, wires::IMUX_CLB_G2_N][idx]
-                }
-                _ => unreachable!(),
-            },
+    match pin {
+        "O1" => wires::IMUX_IO_O1[idx],
+        "O2" => match tcid {
+            tcls::IO_W0 | tcls::IO_W1 | tcls::IO_W0_N | tcls::IO_W1_S => {
+                [wires::IMUX_CLB_G3_W, wires::IMUX_CLB_F3_W][idx]
+            }
+            tcls::IO_E0 | tcls::IO_E1 | tcls::IO_E0_N | tcls::IO_E1_S => {
+                [wires::IMUX_CLB_G1, wires::IMUX_CLB_F1][idx]
+            }
+            tcls::IO_S0 | tcls::IO_S1 | tcls::IO_S0_E | tcls::IO_S1_W => {
+                [wires::IMUX_CLB_F4, wires::IMUX_CLB_G4][idx]
+            }
+            tcls::IO_N0 | tcls::IO_N1 | tcls::IO_N0_E | tcls::IO_N1_W => {
+                [wires::IMUX_CLB_F2_N, wires::IMUX_CLB_G2_N][idx]
+            }
             _ => unreachable!(),
         },
-    )
+        _ => unreachable!(),
+    }
+    .cell(0)
 }
 
 pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
@@ -976,13 +974,7 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
                                         for &tcid in iob_tcids {
                                             let ioo = wire_io_o(tcid, idx, pin);
                                             match hiob_o_diffs
-                                                .entry((
-                                                    tcid,
-                                                    TileWireCoord::new_idx(
-                                                        0,
-                                                        wires::IMUX_HIO_O[hidx],
-                                                    ),
-                                                ))
+                                                .entry((tcid, wires::IMUX_HIO_O[hidx].cell(0)))
                                                 .or_default()
                                                 .entry(ioo.pos())
                                             {
@@ -998,10 +990,7 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
                                 }
                                 if pin == "O1" {
                                     assert!(!got_empty);
-                                    inps.push((
-                                        Some(TileWireCoord::new_idx(0, wires::TIE_0).pos()),
-                                        Diff::default(),
-                                    ));
+                                    inps.push((Some(wires::TIE_0.cell(0).pos()), Diff::default()));
                                 } else {
                                     assert!(got_empty);
                                 }
@@ -1046,7 +1035,7 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
                                     if pin == "O1" {
                                         assert!(!got_empty);
                                         inps.push((
-                                            Some(TileWireCoord::new_idx(0, wires::TIE_0).pos()),
+                                            Some(wires::TIE_0.cell(0).pos()),
                                             Diff::default(),
                                         ));
                                     } else {
@@ -1109,7 +1098,7 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
                                     ctx.get_diff_raw(&DiffKey::Routing(tcid, mux.dst, src)),
                                 ));
                             }
-                            let imux_i = TileWireCoord::new_idx(0, wires::IMUX_TBUF_I[idx]);
+                            let imux_i = wires::IMUX_TBUF_I[idx].cell(0);
                             let mux_i = sb
                                 .items
                                 .iter()
@@ -1140,15 +1129,9 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
                             }
                             for (_, diff) in &mut i_inps {
                                 let t_diff = diff.split_bits(&t_bits);
-                                t_inps.push((
-                                    Some(TileWireCoord::new_idx(0, wires::TIE_0).pos()),
-                                    t_diff,
-                                ));
+                                t_inps.push((Some(wires::TIE_0.cell(0).pos()), t_diff));
                             }
-                            i_inps.push((
-                                Some(TileWireCoord::new_idx(0, wires::TIE_0).pos()),
-                                Diff::default(),
-                            ));
+                            i_inps.push((Some(wires::TIE_0.cell(0).pos()), Diff::default()));
                             i_inps.sort_by_key(|&(k, _)| k);
                             let item_i = xlat_enum_raw(i_inps, OcdMode::Mux);
                             if item_i.bits.is_empty() {
@@ -1175,10 +1158,7 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
                                 "fuckup on {tcname} {mux_name}",
                                 mux_name = mux.dst.to_string(intdb, &intdb.tile_classes[tcid])
                             );
-                            t_inps.push((
-                                Some(TileWireCoord::new_idx(0, wires::TIE_1).pos()),
-                                Diff::default(),
-                            ));
+                            t_inps.push((Some(wires::TIE_1.cell(0).pos()), Diff::default()));
                             t_inps.sort_by_key(|&(k, _)| k);
                             let item_t = xlat_enum_raw(t_inps, OcdMode::Mux);
                             if item_t.bits.is_empty() {

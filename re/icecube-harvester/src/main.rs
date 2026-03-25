@@ -18,7 +18,7 @@ use prjcombine_entity::{EntityId, EntityVec};
 use prjcombine_interconnect::{
     db::{
         BelAttribute, BelInfo, CellSlotId, IntDb, Mux, ProgBuf, ProgInv, SwitchBox, SwitchBoxItem,
-        TileClass, TileClassId, TileWireCoord,
+        TileClass, TileClassId, TileWireCoord, WireSlotIdExt,
     },
     dir::{Dir, DirH, DirPartMap, DirV},
     grid::{BelCoord, CellCoord, ColId, DieId, DieIdExt, RowId, WireCoord},
@@ -30,7 +30,7 @@ use prjcombine_siliconblue::{
     bond::Bond,
     chip::{Chip, ChipKind, SpecialIoKey, SpecialTile, SpecialTileKey},
     db::Database,
-    defs::{self, bslots as bels},
+    defs::{self, bslots as bels, wires},
     expanded::{BitOwner, ExpandedDevice},
 };
 use prjcombine_types::{
@@ -156,7 +156,7 @@ impl HarvestContext<'_> {
             let DiffKey::GlobalRouting(wt, _wf) = key else {
                 continue;
             };
-            let Some(idx) = defs::wires::GLOBAL.index_of(wt.slot) else {
+            let Some(idx) = wires::GLOBAL.index_of(wt.slot) else {
                 continue;
             };
             assert_eq!(bits.len(), 1);
@@ -224,8 +224,8 @@ impl HarvestContext<'_> {
                 for (idx, bits) in plb_bits.iter().enumerate() {
                     let bits = bits.as_ref().unwrap();
                     let key = DiffKey::GlobalRouting(
-                        cell.wire(defs::wires::GLOBAL[idx]),
-                        cell.wire(defs::wires::GLOBAL_ROOT[idx]).pos(),
+                        cell.wire(wires::GLOBAL[idx]),
+                        cell.wire(wires::GLOBAL_ROOT[idx]).pos(),
                     );
                     let bits = bits
                         .iter()
@@ -242,8 +242,8 @@ impl HarvestContext<'_> {
             harvester.force_tiled(
                 DiffKey::Routing(
                     tcid,
-                    TileWireCoord::new_idx(0, defs::wires::GLOBAL[idx]),
-                    TileWireCoord::new_idx(0, defs::wires::GLOBAL_ROOT[idx]).pos(),
+                    wires::GLOBAL[idx].cell(0),
+                    wires::GLOBAL_ROOT[idx].cell(0).pos(),
                 ),
                 bits.unwrap(),
             );
@@ -266,18 +266,18 @@ impl HarvestContext<'_> {
                 } else if is_quad_h(wt.wire) && is_long(wf.wire) {
                     "LONG-QUAD.H"
                 } else if (is_quad_v(wt.wire) || is_quad_v_w(wt.wire))
-                    && defs::wires::OUT_LC.contains(wf.wire)
+                    && wires::OUT_LC.contains(wf.wire)
                 {
                     "OUT-QUAD.V"
-                } else if is_quad_h(wt.wire) && defs::wires::OUT_LC.contains(wf.wire) {
+                } else if is_quad_h(wt.wire) && wires::OUT_LC.contains(wf.wire) {
                     "OUT-QUAD.H"
                 } else if is_long_v(wt.wire) && is_long(wf.wire) {
                     "LONG-LONG.V"
                 } else if is_long_h(wt.wire) && is_long(wf.wire) {
                     "LONG-LONG.H"
-                } else if is_long_v(wt.wire) && defs::wires::OUT_LC.contains(wf.wire) {
+                } else if is_long_v(wt.wire) && wires::OUT_LC.contains(wf.wire) {
                     "OUT-LONG.V"
-                } else if is_long_h(wt.wire) && defs::wires::OUT_LC.contains(wf.wire) {
+                } else if is_long_h(wt.wire) && wires::OUT_LC.contains(wf.wire) {
                     "OUT-LONG.H"
                 } else {
                     self.edev.db.wires.key(wt.wire)
@@ -388,8 +388,8 @@ impl HarvestContext<'_> {
         let mut pips = self.pips.lock().unwrap();
         let mut ctr = 0;
         for pip in cur_pips {
-            let wt = TileWireCoord::new_idx(0, pip.1);
-            let wf = TileWireCoord::new_idx(0, pip.2);
+            let wt = pip.1.cell(0);
+            let wf = pip.2.cell(0);
             if pips.entry(pip.0).or_default().insert((wt, wf)) {
                 ctr += 1;
                 changed = true;
@@ -2165,42 +2165,42 @@ impl PartContext<'_> {
         for (tcid, wire, bit) in [
             (
                 self.chip.kind.tile_class_ioi(Dir::W),
-                defs::wires::IMUX_IO_ICLK_OPTINV,
+                wires::IMUX_IO_ICLK_OPTINV,
                 TileBit::new(0, 9, 4),
             ),
             (
                 self.chip.kind.tile_class_ioi(Dir::W),
-                defs::wires::IMUX_IO_OCLK_OPTINV,
+                wires::IMUX_IO_OCLK_OPTINV,
                 TileBit::new(0, 15, 4),
             ),
             (
                 self.chip.kind.tile_class_ioi(Dir::E),
-                defs::wires::IMUX_IO_ICLK_OPTINV,
+                wires::IMUX_IO_ICLK_OPTINV,
                 TileBit::new(0, 9, 13),
             ),
             (
                 self.chip.kind.tile_class_ioi(Dir::E),
-                defs::wires::IMUX_IO_OCLK_OPTINV,
+                wires::IMUX_IO_OCLK_OPTINV,
                 TileBit::new(0, 15, 13),
             ),
             (
                 self.chip.kind.tile_class_ioi(Dir::S),
-                defs::wires::IMUX_IO_ICLK_OPTINV,
+                wires::IMUX_IO_ICLK_OPTINV,
                 TileBit::new(0, 6, 35),
             ),
             (
                 self.chip.kind.tile_class_ioi(Dir::S),
-                defs::wires::IMUX_IO_OCLK_OPTINV,
+                wires::IMUX_IO_OCLK_OPTINV,
                 TileBit::new(0, 1, 35),
             ),
             (
                 self.chip.kind.tile_class_ioi(Dir::N),
-                defs::wires::IMUX_IO_ICLK_OPTINV,
+                wires::IMUX_IO_ICLK_OPTINV,
                 TileBit::new(0, 9, 35),
             ),
             (
                 self.chip.kind.tile_class_ioi(Dir::N),
-                defs::wires::IMUX_IO_OCLK_OPTINV,
+                wires::IMUX_IO_OCLK_OPTINV,
                 TileBit::new(0, 14, 35),
             ),
         ] {
@@ -2317,8 +2317,8 @@ impl PartContext<'_> {
         }
         if has_g2l {
             for i in 0..4 {
-                let wt = TileWireCoord::new_idx(0, defs::wires::LOCAL_0[i + 4]);
-                let wf = TileWireCoord::new_idx(0, defs::wires::GLOBAL_OUT[i]);
+                let wt = wires::LOCAL_0[i + 4].cell(0);
+                let wf = wires::GLOBAL_OUT[i].cell(0);
                 g2l.insert(wt, wf);
                 muxes.entry(wt).or_default().insert(wf.pos());
             }
@@ -2345,12 +2345,12 @@ impl PartContext<'_> {
             let wtn = self.intdb.wires.key(wt.wire);
             if wtn.starts_with("IMUX") || wtn.starts_with("LOCAL") || wtn.starts_with("GLOBAL_OUT")
             {
-                let tie = if wt.wire == defs::wires::IMUX_CE {
-                    defs::wires::TIE_1
+                let tie = if wt.wire == wires::IMUX_CE {
+                    wires::TIE_1
                 } else {
-                    defs::wires::TIE_0
+                    wires::TIE_0
                 };
-                wf.insert(TileWireCoord::new_idx(0, tie).pos());
+                wf.insert(tie.cell(0).pos());
             }
             items.push(SwitchBoxItem::Mux(Mux {
                 dst: wt,
@@ -2360,7 +2360,7 @@ impl PartContext<'_> {
             }));
             let wtn = self.intdb.wires.key(wt.wire);
             if wtn.ends_with("CLK") {
-                let wi = TileWireCoord::new_idx(0, self.intdb.get_wire(&format!("{wtn}_OPTINV")));
+                let wi = self.intdb.get_wire(&format!("{wtn}_OPTINV")).cell(0);
                 items.push(SwitchBoxItem::ProgInv(ProgInv {
                     dst: wi,
                     src: wt,
@@ -2432,9 +2432,9 @@ impl PartContext<'_> {
             let pips_plb = pips[&tcid_plb].clone();
             let pips_int_bram = pips.get_mut(&defs::tcls::INT_BRAM).unwrap();
             for (wt, wf) in pips_plb {
-                if defs::wires::IMUX_LC_I0.contains(wt.wire)
-                    || defs::wires::IMUX_LC_I1.contains(wt.wire)
-                    || defs::wires::IMUX_LC_I2.contains(wt.wire)
+                if wires::IMUX_LC_I0.contains(wt.wire)
+                    || wires::IMUX_LC_I1.contains(wt.wire)
+                    || wires::IMUX_LC_I2.contains(wt.wire)
                 {
                     let diff_plb =
                         harvester.known_tiled[&DiffKey::Routing(tcid_plb, wt, wf.pos())].clone();
@@ -2451,7 +2451,7 @@ impl PartContext<'_> {
                         );
                     }
                     pips_int_bram.insert((wt, wf));
-                } else if wf.wire != defs::wires::SPECIAL_CI {
+                } else if wf.wire != wires::SPECIAL_CI {
                     assert!(pips_int_bram.contains(&(wt, wf)));
                 }
             }

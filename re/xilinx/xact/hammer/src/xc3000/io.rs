@@ -1,5 +1,5 @@
 use prjcombine_interconnect::{
-    db::{BelKind, TileWireCoord},
+    db::{BelKind, WireSlotIdExt},
     dir::DirHV,
 };
 use prjcombine_re_collector::diff::{Diff, DiffKey, OcdMode, xlat_enum_attr, xlat_enum_raw};
@@ -86,8 +86,8 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, XactBackend<'a>>, backend: &'a 
 
             let mut bctx = ctx.bel(bslots::OSC);
             let tcrd = backend.edev.chip.corner(DirHV::SE);
-            let wt = TileWireCoord::new_idx(0, wires::IMUX_BUFG);
-            let wf = TileWireCoord::new_idx(0, wires::OUT_OSC);
+            let wt = wires::IMUX_BUFG.cell(0);
+            let wf = wires::OUT_OSC.cell(0);
             let crd = backend.ngrid.int_pip(tcrd, wt, wf);
             let rwt = backend.edev.resolve_tile_wire(tcrd, wt).unwrap();
             let rwf = backend.edev.resolve_tile_wire(tcrd, wf).unwrap();
@@ -187,7 +187,7 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
                     bcls::OSC::MODE,
                     val,
                 ));
-                let item = &ctx.data.sb_mux[&(tcid, TileWireCoord::new_idx(0, wires::IMUX_BUFG))];
+                let item = &ctx.data.sb_mux[&(tcid, wires::IMUX_BUFG.cell(0))];
                 diff.discard_bits(&item.bits);
                 diff.apply_bit_diff(
                     ctx.bel_attr_bit(tcid, bslots::IO_S[1], bcls::IO::OSC_PULLUP),

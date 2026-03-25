@@ -11,7 +11,7 @@ use prjcombine_re_xilinx_rdverify::{RawWireCoord, Verifier};
 use prjcombine_virtex4::{
     chip::{ColumnKind, DisabledPart},
     defs::{
-        bcls::{self, BRAM_V5 as BRAM, GTX_CHANNEL},
+        bcls::{self, BRAM_V5 as BRAM},
         bslots, cslots,
         virtex7::{ccls, tcls, wires},
     },
@@ -91,64 +91,7 @@ fn verify_bram(edev: &ExpandedDevice, vrf: &mut Verifier, bcrd: BelCoord) {
         .extra_in("CASCADEINA")
         .extra_in("CASCADEINB")
         .extra_out_claim("CASCADEOUTA")
-        .extra_out_claim("CASCADEOUTB")
-        .rename_in(BRAM::CLKAL, "CLKARDCLKL")
-        .rename_in(BRAM::CLKAU, "CLKARDCLKU")
-        .rename_in(BRAM::CLKBL, "CLKBWRCLKL")
-        .rename_in(BRAM::CLKBU, "CLKBWRCLKU")
-        .rename_in(BRAM::ENAL, "ENARDENL")
-        .rename_in(BRAM::ENAU, "ENARDENU")
-        .rename_in(BRAM::ENBL, "ENBWRENL")
-        .rename_in(BRAM::ENBU, "ENBWRENU")
-        .rename_in(BRAM::REGCEAL, "REGCEAREGCEL")
-        .rename_in(BRAM::REGCEAU, "REGCEAREGCEU")
-        .rename_in(BRAM::REGCLKAL, "REGCLKARDRCLKL")
-        .rename_in(BRAM::REGCLKAU, "REGCLKARDRCLKU")
-        .rename_in(BRAM::RSTRAMAL, "RSTRAMARSTRAMLRST")
-        .rename_in(BRAM::RSTRAMAU, "RSTRAMARSTRAMU")
-        .rename_in(BRAM::RSTREGAL, "RSTREGARSTREGL")
-        .rename_in(BRAM::RSTREGAU, "RSTREGARSTREGU");
-    for i in 0..16 {
-        bel = bel
-            .rename_in(BRAM::ADDRAL[i], format!("ADDRARDADDRL{i}"))
-            .rename_in(BRAM::ADDRBL[i], format!("ADDRBWRADDRL{i}"));
-    }
-    for i in 0..15 {
-        bel = bel
-            .rename_in(BRAM::ADDRAU[i], format!("ADDRARDADDRU{i}"))
-            .rename_in(BRAM::ADDRBU[i], format!("ADDRBWRADDRU{i}"));
-    }
-    for i in 0..8 {
-        bel = bel
-            .rename_in(BRAM::WEBL[i], format!("WEBWEL{i}"))
-            .rename_in(BRAM::WEBU[i], format!("WEBWEU{i}"));
-    }
-    for i in 0..32 {
-        bel = bel
-            .rename_in([BRAM::DIAL, BRAM::DIAU][i % 2][i / 2], format!("DIADI{i}"))
-            .rename_in([BRAM::DIBL, BRAM::DIBU][i % 2][i / 2], format!("DIBDI{i}"))
-            .rename_out([BRAM::DOAL, BRAM::DOAU][i % 2][i / 2], format!("DOADO{i}"))
-            .rename_out([BRAM::DOBL, BRAM::DOBU][i % 2][i / 2], format!("DOBDO{i}"));
-    }
-    for i in 0..4 {
-        bel = bel
-            .rename_in(
-                [BRAM::DIPAL, BRAM::DIPAU][i % 2][i / 2],
-                format!("DIPADIP{i}"),
-            )
-            .rename_in(
-                [BRAM::DIPBL, BRAM::DIPBU][i % 2][i / 2],
-                format!("DIPBDIP{i}"),
-            )
-            .rename_out(
-                [BRAM::DOPAL, BRAM::DOPAU][i % 2][i / 2],
-                format!("DOPADOP{i}"),
-            )
-            .rename_out(
-                [BRAM::DOPBL, BRAM::DOPBU][i % 2][i / 2],
-                format!("DOPBDOP{i}"),
-            );
-    }
+        .extra_out_claim("CASCADEOUTB");
     if let Some(obel) = edev.bel_carry_prev(bcrd) {
         for (ipin, opin) in [("CASCADEINA", "CASCADEOUTA"), ("CASCADEINB", "CASCADEOUTB")] {
             bel.claim_net(&[bel.wire(ipin), bel.bel_wire_far(obel, opin)]);
@@ -1043,13 +986,6 @@ fn verify_gtx_channel(edev: &ExpandedDevice, vrf: &mut Verifier, bcrd: BelCoord)
         .opad(txp, 3)
         .opad(txn, 4);
 
-    if !is_gth {
-        bel = bel
-            .rename_out(GTX_CHANNEL::RXDATAVALID[0], "RXDATAVALID")
-            .rename_out(GTX_CHANNEL::RXHEADERVALID[0], "RXHEADERVALID")
-            .rename_out(GTX_CHANNEL::RXSTARTOFSEQ[0], "RXSTARTOFSEQ")
-    }
-
     let obel = bcrd
         .with_row(edev.chips[bcrd.die].row_hclk(bcrd.row))
         .bel(bslots::GTX_COMMON);
@@ -1386,11 +1322,7 @@ fn verify_bel(edev: &ExpandedDevice, vrf: &mut Verifier, bcrd: BelCoord) {
             }
         }
         _ if bslots::BSCAN.contains(bcrd.slot) => vrf.verify_bel(bcrd).commit(),
-        _ if bslots::ICAP.contains(bcrd.slot) => vrf
-            .verify_bel(bcrd)
-            .kind("ICAP")
-            .rename_in(bcls::ICAP_V6::CSB, "CSIB")
-            .commit(),
+        _ if bslots::ICAP.contains(bcrd.slot) => vrf.verify_bel(bcrd).kind("ICAP").commit(),
 
         bslots::HCLK => verify_hclk(edev, vrf, bcrd),
         _ if bslots::BUFHCE_W.contains(bcrd.slot) || bslots::BUFHCE_E.contains(bcrd.slot) => {
@@ -1595,8 +1527,8 @@ fn verify_pre_clk_bufg(vrf: &mut Verifier) {
             if !wires::OUT_BEL.contains(buf.dst.wire) {
                 continue;
             }
-            vrf.skip_tcls_pip(tcid, buf.dst, buf.src.tw);
-            vrf.inject_tcls_pip(tcid, buf.src.tw, buf.dst);
+            vrf.skip_tcls_pip(tcid, buf.dst, buf.src);
+            vrf.inject_tcls_pip(tcid, buf.src.tw, buf.dst.pos());
         }
     }
 }
@@ -1616,7 +1548,7 @@ fn verify_pre_clk_hrow(vrf: &mut Verifier) {
             {
                 continue;
             }
-            vrf.skip_tcls_pip(tcls::CLK_HROW, buf.dst, buf.src.tw);
+            vrf.skip_tcls_pip(tcls::CLK_HROW, buf.dst, buf.src);
             let wt = vrf.grid.resolve_tile_wire(tcrd, buf.dst).unwrap();
             let wf = vrf.grid.resolve_tile_wire(tcrd, buf.src.tw).unwrap();
             vrf.alias_wire(wt, wf);
@@ -1626,7 +1558,7 @@ fn verify_pre_clk_hrow(vrf: &mut Verifier) {
         vrf.skip_tcls_pip(
             tcls::CLK_HROW,
             wires::IMUX_BUFG_O[i].cell(1),
-            wires::GCLK_TEST[i ^ 1].cell(1),
+            wires::GCLK_TEST[i ^ 1].cell(1).pos(),
         );
     }
 }
@@ -1990,7 +1922,7 @@ fn verify_pre_cmt(endev: &ExpandedNamedDevice, vrf: &mut Verifier) {
             {
                 continue;
             }
-            vrf.skip_tcls_pip(tcls::CMT, buf.dst, buf.src.tw);
+            vrf.skip_tcls_pip(tcls::CMT, buf.dst, buf.src);
             let wt = endev.edev.resolve_tile_wire(tcrd, buf.dst).unwrap();
             let wf = endev.edev.resolve_tile_wire(tcrd, buf.src.tw).unwrap();
             vrf.alias_wire(wt, wf);
@@ -2000,7 +1932,7 @@ fn verify_pre_cmt(endev: &ExpandedNamedDevice, vrf: &mut Verifier) {
             vrf.skip_tcls_pip(
                 tcls::CMT,
                 wires::OMUX_CCIO[i].cell(25),
-                wires::CCIO_CMT[i].cell(25),
+                wires::CCIO_CMT[i].cell(25).pos(),
             );
         }
         for i in 0..14 {
@@ -2008,7 +1940,7 @@ fn verify_pre_cmt(endev: &ExpandedNamedDevice, vrf: &mut Verifier) {
                 vrf.inject_tcls_pip(
                     tcls::CMT,
                     wires::HROW_O[i].cell(25),
-                    wires::CCIO_CMT[j].cell(25),
+                    wires::CCIO_CMT[j].cell(25).pos(),
                 );
             }
         }
@@ -2021,7 +1953,7 @@ fn verify_pre_cmt(endev: &ExpandedNamedDevice, vrf: &mut Verifier) {
         .flatten()
         {
             for j in 0..4 {
-                vrf.inject_tcls_pip(tcls::CMT, wt.cell(25), wires::CCIO_CMT[j].cell(25));
+                vrf.inject_tcls_pip(tcls::CMT, wt.cell(25), wires::CCIO_CMT[j].cell(25).pos());
             }
         }
         // fix up unconnected FREQ_BB/SYNC_BB at the edges
@@ -2030,23 +1962,23 @@ fn verify_pre_cmt(endev: &ExpandedNamedDevice, vrf: &mut Verifier) {
                 vrf.skip_tile_pip(
                     tcrd,
                     wires::CMT_FREQ_BB[i].cell(25),
-                    wires::CMT_FREQ_BB_S[i].cell(25),
+                    wires::CMT_FREQ_BB_S[i].cell(25).pos(),
                 );
                 vrf.skip_tile_pip(
                     tcrd,
                     wires::CMT_FREQ_BB_S[i].cell(25),
-                    wires::CMT_FREQ_BB[i].cell(25),
+                    wires::CMT_FREQ_BB[i].cell(25).pos(),
                 );
             }
             vrf.skip_tile_pip(
                 tcrd,
                 wires::CMT_SYNC_BB.cell(25),
-                wires::CMT_SYNC_BB_S.cell(25),
+                wires::CMT_SYNC_BB_S.cell(25).pos(),
             );
             vrf.skip_tile_pip(
                 tcrd,
                 wires::CMT_SYNC_BB_S.cell(25),
-                wires::CMT_SYNC_BB.cell(25),
+                wires::CMT_SYNC_BB.cell(25).pos(),
             );
         }
         if let Some(conn) = endev.edev[tcrd.cell].conns.get(cslots::IO_S)
@@ -2055,12 +1987,12 @@ fn verify_pre_cmt(endev: &ExpandedNamedDevice, vrf: &mut Verifier) {
             vrf.skip_tile_pip(
                 tcrd,
                 wires::CMT_SYNC_BB.cell(25),
-                wires::CMT_SYNC_BB_S.cell(25),
+                wires::CMT_SYNC_BB_S.cell(25).pos(),
             );
             vrf.skip_tile_pip(
                 tcrd,
                 wires::CMT_SYNC_BB_S.cell(25),
-                wires::CMT_SYNC_BB.cell(25),
+                wires::CMT_SYNC_BB.cell(25).pos(),
             );
         }
         if !endev.edev[tcrd.cell].conns.contains_id(cslots::IO_N) {
@@ -2068,23 +2000,23 @@ fn verify_pre_cmt(endev: &ExpandedNamedDevice, vrf: &mut Verifier) {
                 vrf.skip_tile_pip(
                     tcrd,
                     wires::CMT_FREQ_BB[i].cell(25),
-                    wires::CMT_FREQ_BB_N[i].cell(25),
+                    wires::CMT_FREQ_BB_N[i].cell(25).pos(),
                 );
                 vrf.skip_tile_pip(
                     tcrd,
                     wires::CMT_FREQ_BB_N[i].cell(25),
-                    wires::CMT_FREQ_BB[i].cell(25),
+                    wires::CMT_FREQ_BB[i].cell(25).pos(),
                 );
             }
             vrf.skip_tile_pip(
                 tcrd,
                 wires::CMT_SYNC_BB.cell(25),
-                wires::CMT_SYNC_BB_N.cell(25),
+                wires::CMT_SYNC_BB_N.cell(25).pos(),
             );
             vrf.skip_tile_pip(
                 tcrd,
                 wires::CMT_SYNC_BB_N.cell(25),
-                wires::CMT_SYNC_BB.cell(25),
+                wires::CMT_SYNC_BB.cell(25).pos(),
             );
         }
         if let Some(conn) = endev.edev[tcrd.cell].conns.get(cslots::IO_N)
@@ -2093,12 +2025,12 @@ fn verify_pre_cmt(endev: &ExpandedNamedDevice, vrf: &mut Verifier) {
             vrf.skip_tile_pip(
                 tcrd,
                 wires::CMT_SYNC_BB.cell(25),
-                wires::CMT_SYNC_BB_N.cell(25),
+                wires::CMT_SYNC_BB_N.cell(25).pos(),
             );
             vrf.skip_tile_pip(
                 tcrd,
                 wires::CMT_SYNC_BB_N.cell(25),
-                wires::CMT_SYNC_BB.cell(25),
+                wires::CMT_SYNC_BB.cell(25).pos(),
             );
         }
     }
@@ -2111,7 +2043,7 @@ fn verify_pre_io(endev: &ExpandedNamedDevice, vrf: &mut Verifier) {
             for (wt, wf) in wires::PERF_IO.into_iter().zip(wires::PERF) {
                 let dst = wt.cell(4);
                 let src = wf.cell(4);
-                vrf.skip_tcls_pip(tcid, dst, src);
+                vrf.skip_tcls_pip(tcid, dst, src.pos());
                 let wt = endev.edev.resolve_tile_wire(tcrd, dst).unwrap();
                 let wf = endev.edev.resolve_tile_wire(tcrd, src).unwrap();
                 vrf.alias_wire(wt, wf);
@@ -2138,31 +2070,31 @@ fn verify_pre_io(endev: &ExpandedNamedDevice, vrf: &mut Verifier) {
             vrf.skip_tcls_pip(
                 tcid,
                 wires::IMUX_IOI_OCLK[1].cell(c),
-                wires::PHASER_OCLK90.cell(c),
+                wires::PHASER_OCLK90.cell(c).pos(),
             );
             for i in 0..2 {
                 vrf.skip_tcls_pip(
                     tcid,
                     wires::IMUX_IOI_OCLKDIV[i].cell(c),
-                    wires::IMUX_IOI_OCLKDIVF[i].cell(c),
+                    wires::IMUX_IOI_OCLKDIVF[i].cell(c).pos(),
                 );
                 vrf.inject_tcls_pip(
                     tcid,
                     wires::IMUX_IOI_OCLKDIV[i].cell(c),
-                    wires::IMUX_IMUX[8].cell(c),
+                    wires::IMUX_IMUX[8].cell(c).pos(),
                 );
                 for j in 0..4 {
                     vrf.inject_tcls_pip(
                         tcid,
                         wires::IMUX_IOI_OCLKDIV[i].cell(c),
-                        wires::RCLK_IO[j].cell(0),
+                        wires::RCLK_IO[j].cell(0).pos(),
                     );
                 }
                 for j in 0..6 {
                     vrf.inject_tcls_pip(
                         tcid,
                         wires::IMUX_IOI_OCLKDIV[i].cell(c),
-                        wires::LCLK_IO[j].cell(0),
+                        wires::LCLK_IO[j].cell(0).pos(),
                     );
                 }
             }
@@ -2177,7 +2109,7 @@ fn verify_pre_gtp(endev: &ExpandedNamedDevice, vrf: &mut Verifier) {
         for i in 0..14 {
             let dst = wires::HROW_I_GTP[i].cell(3);
             let src = wires::HROW_I[i].cell(3);
-            vrf.skip_tcls_pip(tcid, dst, src);
+            vrf.skip_tcls_pip(tcid, dst, src.pos());
             let wt = endev.edev.resolve_tile_wire(tcrd, dst).unwrap();
             let wf = endev.edev.resolve_tile_wire(tcrd, src).unwrap();
             vrf.alias_wire(wt, wf);

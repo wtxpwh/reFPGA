@@ -10,15 +10,6 @@ use crate::chip::{
 
 use crate::bond::SharedCfgPad;
 
-#[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Encode, Decode)]
-pub enum ClkSrc {
-    DspSplitter(ColId),
-    Gt(ColId),
-    Cmt(ColId),
-    RouteSplitter(ColId),
-    RightHdio(ColId),
-}
-
 #[derive(Copy, Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Encode, Decode)]
 pub struct HpioCoord {
     pub cell: CellCoord,
@@ -84,8 +75,6 @@ pub struct ExpandedDevice<'a> {
     pub interposer: &'a Interposer,
     pub egrid: ExpandedGrid<'a>,
     pub disabled: BTreeSet<DisabledPart>,
-    pub hdistr_src: EntityVec<ColId, ClkSrc>,
-    pub hroute_src: EntityVec<ColId, ClkSrc>,
     pub has_pcie_cfg: bool,
     pub is_cut: bool,
     pub is_cut_d: bool,
@@ -232,16 +221,16 @@ impl ExpandedDevice<'_> {
                 let chip = self.chips[hdio.cell.die];
                 let x = self.bankxlut[hdio.cell.col];
                 let reg = chip.row_to_reg(hdio.cell.row);
+                let is_hdios = chip.columns[hdio.cell.col].kind == ColumnKind::HdioS;
                 let y = self.bankylut[hdio.cell.die][reg]
-                    + if hdio.cell.row != chip.row_reg_bot(reg) {
+                    + if hdio.cell.row != chip.row_reg_bot(reg) && !is_hdios {
                         1
                     } else {
                         0
                     };
                 let bank = x + y;
                 let is_ams = reg == chip.reg_cfg() + 1;
-                let is_hdios = chip.columns[hdio.cell.col].kind == ColumnKind::HdioS;
-                let idx = if hdio.cell.row != chip.row_reg_bot(reg) {
+                let idx = if hdio.cell.row != chip.row_reg_bot(reg) && !is_hdios {
                     hdio.iob.to_idx() + 42
                 } else {
                     hdio.iob.to_idx()

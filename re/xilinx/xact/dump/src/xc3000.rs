@@ -2,7 +2,7 @@ use std::collections::{BTreeMap, BTreeSet};
 
 use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
-    db::{BelInfo, IntDb, ProgInv, SwitchBoxItem, TileWireCoord, WireKind, WireSlotId},
+    db::{BelInfo, IntDb, ProgInv, SwitchBoxItem, WireKind, WireSlotId, WireSlotIdExt},
     dir::Dir,
     grid::{DieId, DieIdExt, EdgeIoCoord},
 };
@@ -623,25 +623,25 @@ pub fn dump_chip(die: &Die, kind: ChipKind) -> (Chip, IntDb, NamingDb) {
             if tcls.bels.contains_id(defs::bslots::TBUF[i]) {
                 extractor.inject_pip(
                     tcid,
-                    TileWireCoord::new_idx(0, wires::IMUX_TBUF_T[i]),
-                    TileWireCoord::new_idx(0, wires::TIE_0).pos(),
+                    wires::IMUX_TBUF_T[i].cell(0),
+                    wires::TIE_0.cell(0).pos(),
                 );
                 extractor.inject_pip(
                     tcid,
-                    TileWireCoord::new_idx(0, wires::IMUX_TBUF_T[i]),
-                    TileWireCoord::new_idx(0, wires::TIE_1).pos(),
+                    wires::IMUX_TBUF_T[i].cell(0),
+                    wires::TIE_1.cell(0).pos(),
                 );
             }
             if tcls.bels.contains_id(defs::bslots::TBUF_E[i]) {
                 extractor.inject_pip(
                     tcid,
-                    TileWireCoord::new_idx(0, wires::IMUX_TBUF_T[i + 2]),
-                    TileWireCoord::new_idx(0, wires::TIE_0).pos(),
+                    wires::IMUX_TBUF_T[i + 2].cell(0),
+                    wires::TIE_0.cell(0).pos(),
                 );
                 extractor.inject_pip(
                     tcid,
-                    TileWireCoord::new_idx(0, wires::IMUX_TBUF_T[i + 2]),
-                    TileWireCoord::new_idx(0, wires::TIE_1).pos(),
+                    wires::IMUX_TBUF_T[i + 2].cell(0),
+                    wires::TIE_1.cell(0).pos(),
                 );
             }
         }
@@ -653,20 +653,12 @@ pub fn dump_chip(die: &Die, kind: ChipKind) -> (Chip, IntDb, NamingDb) {
         ] {
             for i in 0..2 {
                 if tcls.bels.contains_id(slots[i]) {
+                    extractor.inject_pip(tcid, imux[i].cell(0), wires::TIE_0.cell(0).pos());
+                    extractor.inject_pip(tcid, imux[i].cell(0), wires::TIE_1.cell(0).pos());
                     extractor.inject_pip(
                         tcid,
-                        TileWireCoord::new_idx(0, imux[i]),
-                        TileWireCoord::new_idx(0, wires::TIE_0).pos(),
-                    );
-                    extractor.inject_pip(
-                        tcid,
-                        TileWireCoord::new_idx(0, imux[i]),
-                        TileWireCoord::new_idx(0, wires::TIE_1).pos(),
-                    );
-                    extractor.inject_pip(
-                        tcid,
-                        TileWireCoord::new_idx(0, imux[i]),
-                        TileWireCoord::new_idx(0, wires::SPECIAL_IO_PULLUP).pos(),
+                        imux[i].cell(0),
+                        wires::SPECIAL_IO_PULLUP.cell(0).pos(),
                     );
                 }
             }

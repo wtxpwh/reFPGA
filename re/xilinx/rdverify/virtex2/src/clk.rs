@@ -1,5 +1,5 @@
 use prjcombine_interconnect::{
-    db::TileWireCoord,
+    db::WireSlotIdExt,
     dir::{Dir, DirV},
     grid::BelCoord,
 };
@@ -7,13 +7,13 @@ use prjcombine_re_xilinx_naming_virtex2::ExpandedNamedDevice;
 use prjcombine_re_xilinx_rdverify::{RawWireCoord, Verifier};
 use prjcombine_virtex2::{
     chip::ChipKind,
-    defs::{bcls, bslots, spartan3::wires as wires_s3},
+    defs::{bslots, spartan3::wires as wires_s3},
 };
 
 pub fn verify_bufgmux(endev: &ExpandedNamedDevice, vrf: &mut Verifier, bcrd: BelCoord) {
     let mut bel = vrf.verify_bel(bcrd);
     if endev.edev.chip.kind == ChipKind::FpgaCore {
-        bel = bel.kind("BUFG").rename_in(bcls::BUFGMUX::I0, "I");
+        bel = bel.kind("BUFG");
     } else {
         let edge = if bcrd.row == endev.chip.row_s() {
             Dir::S
@@ -34,7 +34,7 @@ pub fn verify_bufgmux(endev: &ExpandedNamedDevice, vrf: &mut Verifier, bcrd: Bel
                 bel.wire("S"),
                 RawWireCoord {
                     crd: bel.crd(),
-                    wire: &naming.wires[&TileWireCoord::new_idx(4, wires_s3::PULLUP)].name,
+                    wire: &naming.wires[&wires_s3::PULLUP.cell(4)].name,
                 },
             );
         }

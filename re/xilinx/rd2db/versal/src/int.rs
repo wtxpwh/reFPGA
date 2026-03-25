@@ -2,7 +2,7 @@ use prjcombine_entity::id::EntityStaticRange;
 use prjcombine_entity::{EntityId, EntityPartVec};
 use prjcombine_interconnect::db::{
     CellSlotId, ConnectorClass, ConnectorWire, IntDb, TileClassId, TileWireCoord, WireKind,
-    WireSlotId,
+    WireSlotId, WireSlotIdExt,
 };
 use prjcombine_interconnect::dir::{Dir, DirH, DirMap};
 use prjcombine_re_xilinx_naming::db::NamingDb;
@@ -23,7 +23,7 @@ trait IntBuilderExt {
 impl IntBuilderExt for IntBuilder<'_> {
     fn wire_names_pair(&mut self, wire: WireSlotId, raw_names: &[impl AsRef<str>; 2]) {
         for (sub, name) in raw_names.iter().enumerate() {
-            self.extra_name_sub(name.as_ref(), sub, wire);
+            self.extra_name_cell(name.as_ref(), sub, wire);
         }
     }
 }
@@ -591,71 +591,67 @@ impl IntMaker<'_> {
                     (Dir::N, 2, 1) => {
                         let ii = i + 32;
                         self.builder
-                            .extra_name_sub(format!("IF_VBUS_S_NBUS{ii}"), 1, wires[j][i]);
+                            .extra_name_cell(format!("IF_VBUS_S_NBUS{ii}"), 1, wires[j][i]);
                         let ii = i + 48;
                         self.builder
-                            .extra_name_sub(format!("IF_VBUS_S_NBUS{ii}"), 0, wires[j][i]);
+                            .extra_name_cell(format!("IF_VBUS_S_NBUS{ii}"), 0, wires[j][i]);
                     }
                     (Dir::N, 4, 1) => {
                         let ii = i + 64;
                         self.builder
-                            .extra_name_sub(format!("IF_VBUS_S_NBUS{ii}"), 1, wires[j][i]);
+                            .extra_name_cell(format!("IF_VBUS_S_NBUS{ii}"), 1, wires[j][i]);
                         let ii = i + 96;
                         self.builder
-                            .extra_name_sub(format!("IF_VBUS_S_NBUS{ii}"), 0, wires[j][i]);
+                            .extra_name_cell(format!("IF_VBUS_S_NBUS{ii}"), 0, wires[j][i]);
                     }
                     _ => (),
                 }
             }
             let swz = [0, 7, 8, 9, 10, 11, 12, 13, 14, 15, 1, 2, 3, 4, 5, 6][i];
             if length == 1 && fwd == Dir::E {
-                self.builder.extra_name_sub(
+                self.builder.extra_name_cell(
                     format!("INT_SDQ_RED_ATOM_{ii}_INT_OUT0", ii = 16 + swz),
                     0,
                     wires[0][i],
                 );
-                self.sng_fixup_map.insert(
-                    TileWireCoord::new_idx(0, wires[0][i]),
-                    TileWireCoord::new_idx(1, wires[1][i]),
-                );
+                self.sng_fixup_map
+                    .insert(wires[0][i].cell(0), wires[1][i].cell(1));
 
-                self.builder.extra_name_sub(
+                self.builder.extra_name_cell(
                     format!("IN_{fwd}{fwd}{length}_E_END{i}"),
                     0,
                     wires[length][i],
                 );
-                self.builder.extra_name_sub(
+                self.builder.extra_name_cell(
                     format!("IN_{fwd}{fwd}{length}_W_END{i}"),
                     1,
                     wires[length][i],
                 );
             } else if length == 1 && fwd == Dir::W {
-                self.builder.extra_name_sub(
+                self.builder.extra_name_cell(
                     format!("INT_SDQ_RED_ATOM_{ii}_INT_OUT0", ii = 32 + swz),
                     1,
                     wires[0][i],
                 );
-                self.sng_fixup_map.insert(
-                    TileWireCoord::new_idx(1, wires[0][i]),
-                    TileWireCoord::new_idx(0, wires[1][i]),
-                );
-                self.builder.extra_name_sub(
+                self.sng_fixup_map
+                    .insert(wires[0][i].cell(1), wires[1][i].cell(0));
+                self.builder.extra_name_cell(
                     format!("IN_{fwd}{fwd}{length}_E_END{i}"),
                     0,
                     wires[length][i],
                 );
-                self.builder.extra_name_sub(
+                self.builder.extra_name_cell(
                     format!("IN_{fwd}{fwd}{length}_W_END{i}"),
                     1,
                     wires[length][i],
                 );
             } else {
-                self.builder.extra_name_sub(
+                self.builder.extra_name_cell(
                     format!("IN_{fwd}{fwd}{length}_W_END{i}"),
                     0,
                     wires[length][i],
                 );
-                self.builder.extra_name_sub(
+                self.builder.extra_name_cell(
                     format!("IN_{fwd}{fwd}{length}_E_END{i}"),
                     1,
                     wires[length][i],
@@ -678,13 +674,13 @@ impl IntMaker<'_> {
         self.fill_wireset_sdq(Dir::S, &wiredata::X4_S);
         self.fill_wireset_sdq(Dir::N, &wiredata::X4_N);
         self.builder
-            .extra_name_tile_sub("CLE_BC_CORE", "BNODE_TAP0", 1, wires::X1_W0_S0);
+            .extra_name_tile_cell("CLE_BC_CORE", "BNODE_TAP0", 1, wires::X1_W0_S0);
         self.builder
-            .extra_name_tile_sub("CLE_BC_CORE_MX", "BNODE_TAP0", 1, wires::X1_W0_S0);
+            .extra_name_tile_cell("CLE_BC_CORE_MX", "BNODE_TAP0", 1, wires::X1_W0_S0);
         self.builder
-            .extra_name_tile_sub("SLL", "BNODE_TAP0", 1, wires::X1_W0_S0);
+            .extra_name_tile_cell("SLL", "BNODE_TAP0", 1, wires::X1_W0_S0);
         self.builder
-            .extra_name_tile_sub("SLL2", "BNODE_TAP0", 1, wires::X1_W0_S0);
+            .extra_name_tile_cell("SLL2", "BNODE_TAP0", 1, wires::X1_W0_S0);
         self.builder
             .extra_name("IF_LBC_N_BNODE_SOUTHBUS", wires::X4_E3_S0);
     }
@@ -748,13 +744,13 @@ impl IntMaker<'_> {
         self.fill_wires_long();
 
         for i in 0..6 {
-            self.builder.extra_name_tile_sub(
+            self.builder.extra_name_tile_cell(
                 "SLL",
                 format!("LAG_CASCOUT_TXI{i}"),
                 0,
                 wires::IMUX_LAG[i],
             );
-            self.builder.extra_name_tile_sub(
+            self.builder.extra_name_tile_cell(
                 "SLL2",
                 format!("LAG_CASCOUT_TXI{i}"),
                 0,
@@ -763,22 +759,22 @@ impl IntMaker<'_> {
         }
 
         for i in 0..6 {
-            self.builder.extra_name_tile_sub(
+            self.builder.extra_name_tile_cell(
                 "CLE_BC_CORE",
                 format!("VCC_WIRE{i}"),
                 0,
                 wires::OUT_LAG[i],
             );
-            self.builder.extra_name_tile_sub(
+            self.builder.extra_name_tile_cell(
                 "CLE_BC_CORE_MX",
                 format!("VCC_WIRE{i}"),
                 0,
                 wires::OUT_LAG[i],
             );
             self.builder
-                .extra_name_tile_sub("SLL", format!("LAG_OUT{i}"), 0, wires::OUT_LAG[i]);
+                .extra_name_tile_cell("SLL", format!("LAG_OUT{i}"), 0, wires::OUT_LAG[i]);
             self.builder
-                .extra_name_tile_sub("SLL2", format!("LAG_OUT{i}"), 0, wires::OUT_LAG[i]);
+                .extra_name_tile_cell("SLL2", format!("LAG_OUT{i}"), 0, wires::OUT_LAG[i]);
         }
 
         // wires belonging to interconnect left/right half-tiles
@@ -788,9 +784,9 @@ impl IntMaker<'_> {
             self.builder
                 .mark_test_mux_in_test(wires::OUT_TEST[i], wires::OUT[i]);
             self.builder
-                .extra_name_tile_sub("INT", format!("LOGIC_OUTS_W{i}"), 0, wires::OUT[i]);
+                .extra_name_tile_cell("INT", format!("LOGIC_OUTS_W{i}"), 0, wires::OUT[i]);
             self.builder
-                .extra_name_tile_sub("INT", format!("LOGIC_OUTS_E{i}"), 1, wires::OUT[i]);
+                .extra_name_tile_cell("INT", format!("LOGIC_OUTS_E{i}"), 1, wires::OUT[i]);
             match i {
                 1 | 4 | 5 => {
                     self.builder.wire_names_pair(
@@ -805,13 +801,13 @@ impl IntMaker<'_> {
             }
             self.builder.test_mux_pass(wires::OUT_CLE[i]);
             for tkn in ["CLE_BC_CORE", "CLE_BC_CORE_MX", "SLL", "SLL2"] {
-                self.builder.extra_name_tile_sub(
+                self.builder.extra_name_tile_cell(
                     tkn,
                     format!("LOGIC_OUTS_W{i}"),
                     0,
                     wires::OUT_CLE[i],
                 );
-                self.builder.extra_name_tile_sub(
+                self.builder.extra_name_tile_cell(
                     tkn,
                     format!("LOGIC_OUTS_E{i}"),
                     1,
@@ -849,13 +845,13 @@ impl IntMaker<'_> {
         }
 
         for i in 0..32 {
-            self.builder.extra_name_tile_sub(
+            self.builder.extra_name_tile_cell(
                 "INT",
                 format!("BOUNCE_W{i}"),
                 0,
                 wires::IMUX_BOUNCE[i],
             );
-            self.builder.extra_name_tile_sub(
+            self.builder.extra_name_tile_cell(
                 "INT",
                 format!("BOUNCE_E{i}"),
                 1,
@@ -865,9 +861,9 @@ impl IntMaker<'_> {
 
         for i in 0..64 {
             self.builder
-                .extra_name_tile_sub("INT", format!("BNODE_W{i}"), 0, wires::BNODE[i]);
+                .extra_name_tile_cell("INT", format!("BNODE_W{i}"), 0, wires::BNODE[i]);
             self.builder
-                .extra_name_tile_sub("INT", format!("BNODE_E{i}"), 1, wires::BNODE[i]);
+                .extra_name_tile_cell("INT", format!("BNODE_E{i}"), 1, wires::BNODE[i]);
         }
 
         self.builder
@@ -884,16 +880,16 @@ impl IntMaker<'_> {
 
         for i in 0..32 {
             self.builder
-                .extra_name_sub(format!("BNODE_OUTS_W{i}"), 0, wires::BNODE_CLE[i]);
+                .extra_name_cell(format!("BNODE_OUTS_W{i}"), 0, wires::BNODE_CLE[i]);
             self.builder
-                .extra_name_sub(format!("BNODE_OUTS_E{i}"), 1, wires::BNODE_CLE[i]);
+                .extra_name_cell(format!("BNODE_OUTS_E{i}"), 1, wires::BNODE_CLE[i]);
         }
 
         for i in 0..12 {
             self.builder
-                .extra_name_sub(format!("CNODE_OUTS_W{i}"), 0, wires::CNODE_CLE[i]);
+                .extra_name_cell(format!("CNODE_OUTS_W{i}"), 0, wires::CNODE_CLE[i]);
             self.builder
-                .extra_name_sub(format!("CNODE_OUTS_E{i}"), 1, wires::CNODE_CLE[i]);
+                .extra_name_cell(format!("CNODE_OUTS_E{i}"), 1, wires::CNODE_CLE[i]);
         }
 
         self.fill_wires_cle_imux();
@@ -934,7 +930,7 @@ impl IntMaker<'_> {
 
         for i in 0..16 {
             self.builder
-                .extra_name_sub(format!("GCLK_B{i}"), 1, wires::GCLK_CLE[i]);
+                .extra_name_cell(format!("GCLK_B{i}"), 1, wires::GCLK_CLE[i]);
         }
 
         for (i, wclk, wrst, wce) in [
@@ -1066,21 +1062,21 @@ impl IntMaker<'_> {
 
                 let name = &self.builder.rd.wires[buf_outs[&site.pins["CLK_O"].wire.unwrap()]];
                 self.builder
-                    .extra_name_tile_sub(tkn, name, sub, wiredata::IRI_CLK[iri]);
+                    .extra_name_tile_cell(tkn, name, sub, wiredata::IRI_CLK[iri]);
                 let name = &self.builder.rd.wires[buf_outs[&site.pins["RST_O"].wire.unwrap()]];
                 self.builder
-                    .extra_name_tile_sub(tkn, name, sub, wiredata::IRI_RST[iri]);
+                    .extra_name_tile_cell(tkn, name, sub, wiredata::IRI_RST[iri]);
                 for j in 0..4 {
                     let name = &self.builder.rd.wires
                         [buf_outs[&site.pins[&format!("CE{j}_O")].wire.unwrap()]];
                     self.builder
-                        .extra_name_tile_sub(tkn, name, sub, wiredata::IRI_CE[iri][j]);
+                        .extra_name_tile_cell(tkn, name, sub, wiredata::IRI_CE[iri][j]);
                 }
                 for j in 0..24 {
                     let name = &self.builder.rd.wires
                         [buf_outs[&site.pins[&format!("IMUX_O{j}")].wire.unwrap()]];
                     self.builder
-                        .extra_name_tile_sub(tkn, name, sub, wiredata::IRI_IMUX[iri][j]);
+                        .extra_name_tile_cell(tkn, name, sub, wiredata::IRI_IMUX[iri][j]);
                 }
             }
         }
@@ -1145,7 +1141,6 @@ impl IntMaker<'_> {
                 }
                 self.builder
                     .xtile_id(tcid, naming, xy)
-                    .num_cells(2)
                     .ref_int_side(int_xy_w, Dir::E, 0)
                     .ref_int_side(int_xy_e, Dir::W, 1)
                     .extract_muxes(bslots::CLE_BC_INT)
@@ -1339,7 +1334,6 @@ impl IntMaker<'_> {
                 }
                 self.builder
                     .xtile_id(tcls::RCLK, "RCLK", xy)
-                    .num_cells(2)
                     .ref_int_side(int_xy, Dir::W, 0)
                     .ref_int_side(int_xy, Dir::E, 1)
                     .extract_muxes(bslots::RCLK_INT)
@@ -1440,7 +1434,6 @@ impl IntMaker<'_> {
                 let mut xn = self
                     .builder
                     .xtile_id(tcid, naming, xy)
-                    .num_cells(if is_full { 2 } else { 1 })
                     .ref_xlat(int_e_xy, &[Some(0), None], rclk_int)
                     .ref_xlat(int_u_xy, &[None, Some(0)], cle_bc);
                 if is_full {
@@ -1911,7 +1904,6 @@ impl IntMaker<'_> {
                         format!("RCLK_INTF_{side}{half}_{naming}"),
                         xy,
                     )
-                    .num_cells(if is_full { 2 } else { 1 })
                     .ref_xlat(
                         int_xy,
                         &if side == DirH::W {
@@ -2050,7 +2042,6 @@ impl IntMaker<'_> {
                 let mut xn = self
                     .builder
                     .xtile_id(tcid, naming, xy)
-                    .num_cells(if side == Dir::W { 2 } else { 1 })
                     .bel(bel_slicel)
                     .bel(bel_slicem)
                     .ref_int_side(int_xy, side, 0);
@@ -2127,7 +2118,7 @@ impl IntMaker<'_> {
                     }
                 }
                 let bels = [bel_f, bel_h0, bel_h1];
-                let mut xn = self.builder.xtile_id(tcid, naming, xy).num_cells(4);
+                let mut xn = self.builder.xtile_id(tcid, naming, xy);
                 for i in 0..4 {
                     let cur_intf_xy = xn.builder.delta(intf_xy, 0, i as i32);
                     xn = xn.ref_single(cur_intf_xy, i, intf)
@@ -2192,7 +2183,7 @@ impl IntMaker<'_> {
                         bel
                     })
                     .collect();
-                let mut xn = self.builder.xtile_id(tcid, naming, xy).num_cells(4);
+                let mut xn = self.builder.xtile_id(tcid, naming, xy);
                 for i in 0..4 {
                     let cur_intf_xy = xn.builder.delta(intf_xy, 0, i as i32);
                     xn = xn.ref_single(cur_intf_xy, i, intf)
@@ -2297,7 +2288,6 @@ impl IntMaker<'_> {
                 let intf3_xy = self.builder.delta(xy, 2, 1);
                 self.builder
                     .xtile_id(tcls::DSP, naming, xy)
-                    .num_cells(4)
                     .ref_single(intf0_xy, 0, intf_e)
                     .ref_single(intf1_xy, 1, intf_e)
                     .ref_single(intf2_xy, 2, intf_w)
@@ -2398,10 +2388,7 @@ impl IntMaker<'_> {
                 let intf_e = self.builder.ndb.get_tile_class_naming("INTF_E_HB");
                 let intf_w = self.builder.ndb.get_tile_class_naming("INTF_W_HB");
                 let height = if is_large { 96 } else { 48 };
-                let mut xn = self
-                    .builder
-                    .xtile_id(tcid, naming, xy)
-                    .num_cells(height * 2);
+                let mut xn = self.builder.xtile_id(tcid, naming, xy);
                 for i in 0..height {
                     let intf_w_xy = xn.builder.delta(xy, -1, (i + i / 4) as i32);
                     let intf_e_xy = xn.builder.delta(xy, 1, (i + i / 4) as i32);
@@ -2486,7 +2473,7 @@ impl IntMaker<'_> {
                 );
                 let intf_e = self.builder.ndb.get_tile_class_naming("INTF_E_HB");
                 let intf_w = self.builder.ndb.get_tile_class_naming("INTF_W_HB");
-                let mut xn = self.builder.xtile_id(tcls::HDIO, "HDIO", xy).num_cells(96);
+                let mut xn = self.builder.xtile_id(tcls::HDIO, "HDIO", xy);
                 for i in 0..48 {
                     let intf_w_xy = xn.builder.delta(xy, -1, (i + i / 4) as i32);
                     let intf_e_xy = xn.builder.delta(xy, 1, (i + i / 4) as i32);
@@ -2563,7 +2550,6 @@ impl IntMaker<'_> {
                 }
                 self.builder
                     .xtile_id(tcls::RCLK_HDIO, naming, xy)
-                    .num_cells(0)
                     .bel(bel_hdio)
                     .bel(bel_dpll)
                     .extract();
@@ -2651,7 +2637,6 @@ impl IntMaker<'_> {
                 }
                 self.builder
                     .xtile_id(tcls::RCLK_HB_HDIO, naming, xy)
-                    .num_cells(0)
                     .bel(bel_hdio)
                     .bel(bel_dpll)
                     .extract();
@@ -2673,8 +2658,7 @@ impl IntMaker<'_> {
             let intf_e = self.builder.ndb.get_tile_class_naming("INTF_E");
             let mut xn = self
                 .builder
-                .xtile_id(tcls::SYSMON_SAT_VNOC, "SYSMON_SAT_VNOC", xy)
-                .num_cells(96);
+                .xtile_id(tcls::SYSMON_SAT_VNOC, "SYSMON_SAT_VNOC", xy);
             for i in 0..48 {
                 let intf_xy = xn.builder.delta(xy, -1, -49 + (i + i / 4) as i32);
                 xn = xn.ref_single(intf_xy, i, intf_e)
@@ -2691,7 +2675,7 @@ impl IntMaker<'_> {
         {
             let bel = self.builder.bel_xy(bslots::MISR, "MISR", 0, 0);
             let intf_w = self.builder.ndb.get_tile_class_naming("INTF_W");
-            let mut xn = self.builder.xtile_id(tcls::MISR, "MISR", xy).num_cells(96);
+            let mut xn = self.builder.xtile_id(tcls::MISR, "MISR", xy);
             for i in 0..48 {
                 let intf_xy = xn.builder.delta(xy, 1, 1 + (i + i / 4) as i32);
                 xn = xn.ref_single(intf_xy, i + 48, intf_w)
@@ -2747,7 +2731,6 @@ impl IntMaker<'_> {
             let mut xn = self
                 .builder
                 .xtile_id(tcls::VNOC, "VNOC", nsu_xy)
-                .num_cells(96)
                 .raw_tile(nps_a_xy)
                 .raw_tile(nps_b_xy)
                 .raw_tile(nmu_xy);
@@ -2832,7 +2815,6 @@ impl IntMaker<'_> {
             let mut xn = self
                 .builder
                 .xtile_id(tcls::VNOC2, "VNOC2", nsu_xy)
-                .num_cells(96)
                 .raw_tile(nps_a_xy)
                 .raw_tile(nps_b_xy)
                 .raw_tile(nmu_xy)
@@ -2917,7 +2899,6 @@ impl IntMaker<'_> {
             let mut xn = self
                 .builder
                 .xtile_id(tcls::VNOC4, "VNOC4", nsu_xy)
-                .num_cells(96)
                 .raw_tile(nps_a_xy)
                 .raw_tile(nps_b_xy)
                 .raw_tile(nmu_xy)
@@ -2983,7 +2964,7 @@ impl IntMaker<'_> {
                 let intf_xy = self
                     .builder
                     .delta(int_xy, if int_dir == Dir::E { -1 } else { 1 }, 0);
-                let mut xn = self.builder.xtile_id(tcid, naming, xy).num_cells(48);
+                let mut xn = self.builder.xtile_id(tcid, naming, xy);
                 for i in 0..48 {
                     let intf_xy = xn.builder.delta(intf_xy, 0, (i + i / 4) as i32);
                     xn = xn.ref_single(intf_xy, i, intf)
@@ -3000,10 +2981,7 @@ impl IntMaker<'_> {
                     .pin_name_only("CLKOUT3", 1)
                     .pin_name_only("TMUXOUT", 1);
                 let dpll_xy = self.builder.delta(xy, 0, -15);
-                let mut xn = self
-                    .builder
-                    .xtile_id(dpll_tcid, dpll_naming, dpll_xy)
-                    .num_cells(48);
+                let mut xn = self.builder.xtile_id(dpll_tcid, dpll_naming, dpll_xy);
                 for i in 0..48 {
                     let intf_xy = xn.builder.delta(intf_xy, 0, (i + i / 4) as i32);
                     xn = xn.ref_single(intf_xy, i, intf)
@@ -3028,10 +3006,7 @@ impl IntMaker<'_> {
                 .pin_name_only("VDUMCUCLK", 1);
             let intf_e = self.builder.ndb.get_tile_class_naming("INTF_E_TERM_GT");
             let int_xy = self.builder.walk_to_int(xy, Dir::W, false).unwrap();
-            let mut xn = self
-                .builder
-                .xtile_id(tcls::VDU_E, "VDU_E", xy)
-                .num_cells(48);
+            let mut xn = self.builder.xtile_id(tcls::VDU_E, "VDU_E", xy);
             for i in 0..48 {
                 xn = xn.ref_single(int_xy.delta(1, (i + i / 4) as i32), i, intf_e)
             }
@@ -3043,10 +3018,7 @@ impl IntMaker<'_> {
                 let bel = self.builder.bel_xy(bslots::BFR_B, "BFR_B", 0, 0);
                 let intf_e = self.builder.ndb.get_tile_class_naming("INTF_E_TERM_GT");
                 let int_xy = self.builder.walk_to_int(xy, Dir::W, false).unwrap();
-                let mut xn = self
-                    .builder
-                    .xtile_id(tcls::BFR_B_E, "BFR_B_E", xy)
-                    .num_cells(48);
+                let mut xn = self.builder.xtile_id(tcls::BFR_B_E, "BFR_B_E", xy);
                 for i in 0..48 {
                     xn = xn.ref_single(int_xy.delta(1, (i + i / 4) as i32), i, intf_e)
                 }

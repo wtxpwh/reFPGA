@@ -5,7 +5,7 @@ use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
     db::{
         BelInfo, ConnectorWire, Mux, PermaBuf, ProgBuf, ProgDelay, SwitchBox, SwitchBoxItem,
-        TileClassId, TileWireCoord, WireKind, WireSlotId,
+        TileClassId, WireKind, WireSlotId, WireSlotIdExt,
     },
     grid::CellCoord,
 };
@@ -445,8 +445,8 @@ impl ChipContext<'_> {
             }
             let mut muxes = BTreeMap::new();
             for (wt, wf) in pips {
-                let wt = TileWireCoord::new_idx(0, wt);
-                let wf = TileWireCoord::new_idx(0, wf);
+                let wt = wt.cell(0);
+                let wf = wf.cell(0);
                 muxes
                     .entry(wt)
                     .or_insert_with(|| Mux {
@@ -498,10 +498,8 @@ impl ChipContext<'_> {
                 && self.intdb.tile_classes.key(tcid) == "INT_EBR"
             {
                 for i in 0..8 {
-                    let vsdclk =
-                        TileWireCoord::new_idx(0, self.intdb.get_wire(&format!("VSDCLK{i}")));
-                    let vsdclk_n =
-                        TileWireCoord::new_idx(0, self.intdb.get_wire(&format!("VSDCLK{i}_N")));
+                    let vsdclk = self.intdb.get_wire(&format!("VSDCLK{i}")).cell(0);
+                    let vsdclk_n = self.intdb.get_wire(&format!("VSDCLK{i}_N")).cell(0);
                     sb.items.push(SwitchBoxItem::ProgBuf(ProgBuf {
                         dst: vsdclk,
                         src: vsdclk_n.pos(),
@@ -516,12 +514,8 @@ impl ChipContext<'_> {
             }
             if self.chip.kind == ChipKind::Ecp4 && self.intdb.tile_classes.key(tcid) != "INT_PLC" {
                 for i in 0..2 {
-                    let clk =
-                        TileWireCoord::new_idx(0, self.intdb.get_wire(&format!("IMUX_CLK{i}")));
-                    let clk_delay = TileWireCoord::new_idx(
-                        0,
-                        self.intdb.get_wire(&format!("IMUX_CLK{i}_DELAY")),
-                    );
+                    let clk = self.intdb.get_wire(&format!("IMUX_CLK{i}")).cell(0);
+                    let clk_delay = self.intdb.get_wire(&format!("IMUX_CLK{i}_DELAY")).cell(0);
                     sb.items.push(SwitchBoxItem::ProgDelay(ProgDelay {
                         dst: clk_delay,
                         src: clk.pos(),

@@ -1,92 +1,107 @@
-use prjcombine_re_xilinx_rdverify::{LegacyBelContext, SitePinDir, Verifier};
-use prjcombine_ultrascale::defs;
+use prjcombine_interconnect::{db::PinDir, grid::BelCoord};
+use prjcombine_re_xilinx_rdverify::Verifier;
+use prjcombine_ultrascale::defs::{bcls, bslots};
 
-pub fn verify_xp5iob(vrf: &mut Verifier, bel: &LegacyBelContext<'_>) {
-    let idx = defs::bslots::XP5IOB
-        .into_iter()
-        .position(|x| bel.slot == x)
-        .unwrap();
+pub fn verify_xp5iob_pair(vrf: &mut Verifier, bcrd: BelCoord) {
+    let idx = bslots::XP5IOB_PAIR.index_of(bcrd.slot).unwrap();
     let nidx = idx / 3;
     let iidx = idx % 3;
-    let pins = [
-        ("IOB2COMP_LSPEED_I0", SitePinDir::Out),
-        ("IOB2COMP_LSPEED_I1", SitePinDir::Out),
-        ("IOB2PHY_I0", SitePinDir::Out),
-        ("IOB2PHY_I1", SitePinDir::Out),
-        ("IOB2PHY_LP_I_0", SitePinDir::Out),
-        ("IOB2PHY_LP_I_1", SitePinDir::Out),
-        ("PHY2IOB_DYNAMIC_DCI_TS0", SitePinDir::In),
-        ("PHY2IOB_DYNAMIC_DCI_TS1", SitePinDir::In),
-        ("PHY2IOB_IBUF_DISABLE_1", SitePinDir::In),
-        ("PHY2IOB_IBUF_DIS_OR_HS_RX_DIS_0", SitePinDir::In),
-        ("PHY2IOB_KEEPER_EN0", SitePinDir::In),
-        ("PHY2IOB_KEEPER_EN1", SitePinDir::In),
-        ("PHY2IOB_LP_RX_DIS_OR_TERM_EN", SitePinDir::In),
-        ("PHY2IOB_LP_TX_O_OR_PU_EN_0", SitePinDir::In),
-        ("PHY2IOB_LP_TX_O_OR_PU_EN_1", SitePinDir::In),
-        ("PHY2IOB_LP_TX_T_OR_PD_EN_0", SitePinDir::In),
-        ("PHY2IOB_O0_0", SitePinDir::In),
-        ("PHY2IOB_O0_1", SitePinDir::In),
-        ("PHY2IOB_PD_EN_1", SitePinDir::In),
-        ("PHY2IOB_T0", SitePinDir::In),
-        ("PHY2IOB_T1", SitePinDir::In),
-        ("VREF", SitePinDir::In),
-    ];
-    vrf.verify_legacy_bel(bel, "XP5IOB", &pins, &[]);
-    for (pin, _) in pins {
-        vrf.claim_net(&[bel.wire(pin)]);
-    }
+    let mut bel = vrf
+        .verify_bel(bcrd)
+        .kind("XP5IOB")
+        .skip_auto()
+        .extra_out_claim("IOB2COMP_LSPEED_I0")
+        .extra_out_claim("IOB2COMP_LSPEED_I1")
+        .extra_out_claim("IOB2PHY_I0")
+        .extra_out_claim("IOB2PHY_I1")
+        .extra_out_claim("IOB2PHY_LP_I_0")
+        .extra_out_claim("IOB2PHY_LP_I_1")
+        .extra_in_claim("PHY2IOB_DYNAMIC_DCI_TS0")
+        .extra_in_claim("PHY2IOB_DYNAMIC_DCI_TS1")
+        .extra_in_claim("PHY2IOB_IBUF_DISABLE_1")
+        .extra_in_claim("PHY2IOB_IBUF_DIS_OR_HS_RX_DIS_0")
+        .extra_in_claim("PHY2IOB_KEEPER_EN0")
+        .extra_in_claim("PHY2IOB_KEEPER_EN1")
+        .extra_in_claim("PHY2IOB_LP_RX_DIS_OR_TERM_EN")
+        .extra_in_claim("PHY2IOB_LP_TX_O_OR_PU_EN_0")
+        .extra_in_claim("PHY2IOB_LP_TX_O_OR_PU_EN_1")
+        .extra_in_claim("PHY2IOB_LP_TX_T_OR_PD_EN_0")
+        .extra_in_claim("PHY2IOB_O0_0")
+        .extra_in_claim("PHY2IOB_O0_1")
+        .extra_in_claim("PHY2IOB_PD_EN_1")
+        .extra_in_claim("PHY2IOB_T0")
+        .extra_in_claim("PHY2IOB_T1")
+        .extra_in_claim("VREF");
 
-    let obel_vref = vrf.find_bel_sibling(bel, defs::bslots::XP5IO_VREF[nidx]);
-    vrf.claim_pip(bel.wire("VREF"), obel_vref.wire("VREF2IOB_VREF"));
+    let obel_vref = bcrd.bel(bslots::XP5IO_VREF[nidx]);
+    bel.claim_pip(bel.wire("VREF"), bel.bel_wire(obel_vref, "VREF2IOB_VREF"));
 
-    let obel_x5phy_hs = vrf.find_bel_sibling(bel, defs::bslots::X5PHY_HS[nidx]);
+    let obel_x5phy = bcrd.bel(bslots::X5PHY[nidx]);
     for i in 0..2 {
-        vrf.claim_pip(
+        bel.claim_pip(
             bel.wire(&format!("PHY2IOB_O0_{i}")),
-            obel_x5phy_hs.wire(&format!("HRT_PHY2IOB_O0_{ii}", ii = iidx * 2 + i)),
+            bel.bel_wire(
+                obel_x5phy,
+                &format!("HS_HRT_PHY2IOB_O0_{ii}", ii = iidx * 2 + i),
+            ),
         );
-        vrf.claim_pip(
+        bel.claim_pip(
             bel.wire(&format!("PHY2IOB_T{i}")),
-            obel_x5phy_hs.wire(&format!("HRT_PHY2IOB_T{ii}", ii = iidx * 2 + i)),
+            bel.bel_wire(
+                obel_x5phy,
+                &format!("HS_HRT_PHY2IOB_T{ii}", ii = iidx * 2 + i),
+            ),
         );
     }
 
-    let obel_x5phy_ls = vrf.find_bel_sibling(bel, defs::bslots::X5PHY_LS[nidx]);
     for i in 0..2 {
-        vrf.claim_pip(
+        bel.claim_pip(
             bel.wire(&format!("PHY2IOB_DYNAMIC_DCI_TS{i}")),
-            obel_x5phy_ls.wire(&format!("PHY2IOB_DYNAMIC_DCI_TS{ii}", ii = iidx * 2 + i)),
+            bel.bel_wire(
+                obel_x5phy,
+                &format!("PHY2IOB_DYNAMIC_DCI_TS{ii}", ii = iidx * 2 + i),
+            ),
         );
-        vrf.claim_pip(
+        bel.claim_pip(
             bel.wire(&format!("PHY2IOB_KEEPER_EN{i}")),
-            obel_x5phy_ls.wire(&format!("PHY2IOB_KEEPER_EN{ii}", ii = iidx * 2 + i)),
+            bel.bel_wire(
+                obel_x5phy,
+                &format!("PHY2IOB_KEEPER_EN{ii}", ii = iidx * 2 + i),
+            ),
         );
-        vrf.claim_pip(
+        bel.claim_pip(
             bel.wire(&format!("PHY2IOB_LP_TX_O_OR_PU_EN_{i}")),
-            obel_x5phy_ls.wire(&format!("PHY2IOB_LP_TX_O_OR_PU_EN_{i}_{iidx}")),
+            bel.bel_wire(obel_x5phy, &format!("PHY2IOB_LP_TX_O_OR_PU_EN_{i}_{iidx}")),
         );
     }
-    vrf.claim_pip(
+    bel.claim_pip(
         bel.wire("PHY2IOB_IBUF_DIS_OR_HS_RX_DIS_0"),
-        obel_x5phy_ls.wire(&format!("PHY2IOB_IBUF_DISABLE{ii}", ii = iidx * 2)),
+        bel.bel_wire(
+            obel_x5phy,
+            &format!("PHY2IOB_IBUF_DISABLE{ii}", ii = iidx * 2),
+        ),
     );
-    vrf.claim_pip(
+    bel.claim_pip(
         bel.wire("PHY2IOB_IBUF_DISABLE_1"),
-        obel_x5phy_ls.wire(&format!("PHY2IOB_IBUF_DISABLE{ii}", ii = iidx * 2 + 1)),
+        bel.bel_wire(
+            obel_x5phy,
+            &format!("PHY2IOB_IBUF_DISABLE{ii}", ii = iidx * 2 + 1),
+        ),
     );
-    vrf.claim_pip(
+    bel.claim_pip(
         bel.wire("PHY2IOB_LP_RX_DIS_OR_TERM_EN"),
-        obel_x5phy_ls.wire(&format!("PHY2IOB_LP_RX_DIS_OR_TERM_EN{iidx}")),
+        bel.bel_wire(obel_x5phy, &format!("PHY2IOB_LP_RX_DIS_OR_TERM_EN{iidx}")),
     );
-    vrf.claim_pip(
+    bel.claim_pip(
         bel.wire("PHY2IOB_LP_TX_T_OR_PD_EN_0"),
-        obel_x5phy_ls.wire(&format!("PHY2IOB_LP_TX_T_OR_PD_EN_0_{iidx}")),
+        bel.bel_wire(obel_x5phy, &format!("PHY2IOB_LP_TX_T_OR_PD_EN_0_{iidx}")),
     );
-    vrf.claim_pip(
+    bel.claim_pip(
         bel.wire("PHY2IOB_PD_EN_1"),
-        obel_x5phy_ls.wire(&format!("PHY2IOB_PD_EN_1_{iidx}")),
+        bel.bel_wire(obel_x5phy, &format!("PHY2IOB_PD_EN_1_{iidx}")),
     );
+
+    bel.commit();
 }
 
 pub const X5PHY_HS_FROM_LS: &[(&str, &str)] = &[
@@ -1781,41 +1796,34 @@ pub const X5PHY_LS_FROM_LPDDRMC_DFX_BROADCAST: &[&str] = &[
     "CLB2PHY_SCAN_MODE_RST_B",
 ];
 
-pub fn verify_xp5io_vref(vrf: &mut Verifier, bel: &LegacyBelContext<'_>) {
-    let idx = defs::bslots::XP5IO_VREF
-        .into_iter()
-        .position(|x| bel.slot == x)
-        .unwrap();
-    let pins = [
-        ("FAB2IOB_R2R_DAC_SEL0", SitePinDir::In),
-        ("FAB2IOB_R2R_DAC_SEL1", SitePinDir::In),
-        ("FAB2IOB_R2R_DAC_SEL2", SitePinDir::In),
-        ("FAB2IOB_R2R_DAC_SEL3", SitePinDir::In),
-        ("FAB2IOB_R2R_DAC_SEL4", SitePinDir::In),
-        ("FAB2IOB_R2R_DAC_SEL5", SitePinDir::In),
-        ("FAB2IOB_R2R_DAC_SEL6", SitePinDir::In),
-        ("FAB2IOB_R2R_DAC_SEL7", SitePinDir::In),
-        ("FAB2IOB_R2R_DAC_SEL8", SitePinDir::In),
-        ("FAB2IOB_R2R_DAC_SEL9", SitePinDir::In),
-        ("PHY2IOB_R2RDAC_MODE", SitePinDir::In),
-        ("PHY2IOB_R2RDAC_SEL0", SitePinDir::In),
-        ("PHY2IOB_R2RDAC_SEL1", SitePinDir::In),
-        ("PHY2IOB_R2RDAC_SEL2", SitePinDir::In),
-        ("PHY2IOB_R2RDAC_SEL3", SitePinDir::In),
-        ("PHY2IOB_R2RDAC_SEL4", SitePinDir::In),
-        ("PHY2IOB_R2RDAC_SEL5", SitePinDir::In),
-        ("PHY2IOB_R2RDAC_SEL6", SitePinDir::In),
-        ("PHY2IOB_R2RDAC_SEL7", SitePinDir::In),
-        ("PHY2IOB_R2RDAC_SEL8", SitePinDir::In),
-        ("PHY2IOB_R2RDAC_SEL9", SitePinDir::In),
-        ("VREF2IOB_VREF", SitePinDir::Out),
-    ];
-    vrf.verify_legacy_bel(bel, "XP5IO_VREF", &pins, &[]);
-    for (pin, _) in pins {
-        vrf.claim_net(&[bel.wire(pin)]);
-    }
+pub fn verify_xp5io_vref(vrf: &mut Verifier, bcrd: BelCoord) {
+    let idx = bslots::XP5IO_VREF.index_of(bcrd.slot).unwrap();
+    let mut bel = vrf
+        .verify_bel(bcrd)
+        .extra_in_claim("FAB2IOB_R2R_DAC_SEL0")
+        .extra_in_claim("FAB2IOB_R2R_DAC_SEL1")
+        .extra_in_claim("FAB2IOB_R2R_DAC_SEL2")
+        .extra_in_claim("FAB2IOB_R2R_DAC_SEL3")
+        .extra_in_claim("FAB2IOB_R2R_DAC_SEL4")
+        .extra_in_claim("FAB2IOB_R2R_DAC_SEL5")
+        .extra_in_claim("FAB2IOB_R2R_DAC_SEL6")
+        .extra_in_claim("FAB2IOB_R2R_DAC_SEL7")
+        .extra_in_claim("FAB2IOB_R2R_DAC_SEL8")
+        .extra_in_claim("FAB2IOB_R2R_DAC_SEL9")
+        .extra_in_claim("PHY2IOB_R2RDAC_MODE")
+        .extra_in_claim("PHY2IOB_R2RDAC_SEL0")
+        .extra_in_claim("PHY2IOB_R2RDAC_SEL1")
+        .extra_in_claim("PHY2IOB_R2RDAC_SEL2")
+        .extra_in_claim("PHY2IOB_R2RDAC_SEL3")
+        .extra_in_claim("PHY2IOB_R2RDAC_SEL4")
+        .extra_in_claim("PHY2IOB_R2RDAC_SEL5")
+        .extra_in_claim("PHY2IOB_R2RDAC_SEL6")
+        .extra_in_claim("PHY2IOB_R2RDAC_SEL7")
+        .extra_in_claim("PHY2IOB_R2RDAC_SEL8")
+        .extra_in_claim("PHY2IOB_R2RDAC_SEL9")
+        .extra_out_claim("VREF2IOB_VREF");
 
-    let obel_x5phy_ls = vrf.find_bel_sibling(bel, defs::bslots::X5PHY_LS[idx]);
+    let obel_x5phy_ls = bcrd.bel(bslots::X5PHY[idx]);
     for (wire, owire) in [
         ("FAB2IOB_R2R_DAC_SEL0", "PHY2IOB_KEEPER_EN0"),
         ("FAB2IOB_R2R_DAC_SEL1", "PHY2IOB_KEEPER_EN1"),
@@ -1839,197 +1847,187 @@ pub fn verify_xp5io_vref(vrf: &mut Verifier, bel: &LegacyBelContext<'_>) {
         ("PHY2IOB_R2RDAC_SEL8", "PHY2IOB_R2RDAC_SEL8"),
         ("PHY2IOB_R2RDAC_SEL9", "PHY2IOB_R2RDAC_SEL9"),
     ] {
-        vrf.claim_pip(bel.wire(wire), obel_x5phy_ls.wire(owire));
+        bel.claim_pip(bel.wire(wire), bel.bel_wire(obel_x5phy_ls, owire));
     }
+
+    bel.commit();
 }
 
-pub fn verify_x5phy_ls(vrf: &mut Verifier, bel: &LegacyBelContext<'_>) {
-    let idx = defs::bslots::X5PHY_LS
-        .into_iter()
-        .position(|x| bel.slot == x)
-        .unwrap();
-    let mut alloc_ins = vec![];
-    let mut alloc_outs = vec![];
+pub fn verify_x5phy(vrf: &mut Verifier, bcrd: BelCoord) {
+    let idx = bslots::X5PHY.index_of(bcrd.slot).unwrap();
+    let mut bel = vrf.verify_bel(bcrd).kind("X5PHY_LS").skip_auto();
     for &pin in X5PHY_LS_FROM_LPDDRMC_CLB2PHY {
-        alloc_ins.push(format!("IF_CLB2PHY_{pin}"));
+        bel = bel.extra_in_claim(format!("IF_CLB2PHY_{pin}"));
     }
     for &pin in X5PHY_LPDDRMC_FROM_LS_CLB2PHY {
-        alloc_outs.push(format!("IF_CLB2PHY_{pin}"));
+        bel = bel.extra_out_claim(format!("IF_CLB2PHY_{pin}"));
     }
     for &(pin, _) in X5PHY_LS_FROM_LPDDRMC_DMC2PHY {
-        alloc_ins.push(format!("IF_DMC2PHY_{pin}"));
+        bel = bel.extra_in_claim(format!("IF_DMC2PHY_{pin}"));
     }
     for &(pin, _) in X5PHY_LPDDRMC_FROM_LS_DMC2PHY {
-        alloc_outs.push(format!("IF_DMC2PHY_{pin}"));
+        bel = bel.extra_out_claim(format!("IF_DMC2PHY_{pin}"));
     }
-    let mut pins = vec![
-        ("XXX2PHY_IJTAG_TDI_RETURN", SitePinDir::In),
-        ("XXX2PHY_IJTAG_TDI", SitePinDir::In),
-        ("PHY2XXX_IJTAG_TDO_RETURN", SitePinDir::Out),
-        ("PHY2XXX_IJTAG_TDO", SitePinDir::Out),
-        ("IOB2COMP_LSPEED_I0", SitePinDir::In),
-        ("IOB2COMP_LSPEED_I1", SitePinDir::In),
-        ("IOB2COMP_LSPEED_I2", SitePinDir::In),
-        ("IOB2COMP_LSPEED_I3", SitePinDir::In),
-        ("IOB2COMP_LSPEED_I4", SitePinDir::In),
-        ("IOB2COMP_LSPEED_I5", SitePinDir::In),
-        ("IOB2PHY_LP_I_0_0", SitePinDir::In),
-        ("IOB2PHY_LP_I_0_1", SitePinDir::In),
-        ("IOB2PHY_LP_I_0_2", SitePinDir::In),
-        ("IOB2PHY_LP_I_1_0", SitePinDir::In),
-        ("IOB2PHY_LP_I_1_1", SitePinDir::In),
-        ("IOB2PHY_LP_I_1_2", SitePinDir::In),
-        ("PHY2IOB_DYNAMIC_DCI_TS0", SitePinDir::Out),
-        ("PHY2IOB_DYNAMIC_DCI_TS1", SitePinDir::Out),
-        ("PHY2IOB_DYNAMIC_DCI_TS2", SitePinDir::Out),
-        ("PHY2IOB_DYNAMIC_DCI_TS3", SitePinDir::Out),
-        ("PHY2IOB_DYNAMIC_DCI_TS4", SitePinDir::Out),
-        ("PHY2IOB_DYNAMIC_DCI_TS5", SitePinDir::Out),
-        ("PHY2IOB_KEEPER_EN0", SitePinDir::Out),
-        ("PHY2IOB_KEEPER_EN1", SitePinDir::Out),
-        ("PHY2IOB_KEEPER_EN2", SitePinDir::Out),
-        ("PHY2IOB_KEEPER_EN3", SitePinDir::Out),
-        ("PHY2IOB_KEEPER_EN4", SitePinDir::Out),
-        ("PHY2IOB_KEEPER_EN5", SitePinDir::Out),
-        ("PHY2IOB_LP_TX_O_OR_PU_EN_0_0", SitePinDir::Out),
-        ("PHY2IOB_LP_TX_O_OR_PU_EN_0_1", SitePinDir::Out),
-        ("PHY2IOB_LP_TX_O_OR_PU_EN_0_2", SitePinDir::Out),
-        ("PHY2IOB_LP_TX_O_OR_PU_EN_1_0", SitePinDir::Out),
-        ("PHY2IOB_LP_TX_O_OR_PU_EN_1_1", SitePinDir::Out),
-        ("PHY2IOB_LP_TX_O_OR_PU_EN_1_2", SitePinDir::Out),
-        ("PHY2IOB_IBUF_DISABLE0", SitePinDir::Out),
-        ("PHY2IOB_IBUF_DISABLE1", SitePinDir::Out),
-        ("PHY2IOB_IBUF_DISABLE2", SitePinDir::Out),
-        ("PHY2IOB_IBUF_DISABLE3", SitePinDir::Out),
-        ("PHY2IOB_IBUF_DISABLE4", SitePinDir::Out),
-        ("PHY2IOB_IBUF_DISABLE5", SitePinDir::Out),
-        ("PHY2IOB_LP_RX_DIS_OR_TERM_EN0", SitePinDir::Out),
-        ("PHY2IOB_LP_RX_DIS_OR_TERM_EN1", SitePinDir::Out),
-        ("PHY2IOB_LP_RX_DIS_OR_TERM_EN2", SitePinDir::Out),
-        ("PHY2IOB_LP_TX_T_OR_PD_EN_0_0", SitePinDir::Out),
-        ("PHY2IOB_LP_TX_T_OR_PD_EN_0_1", SitePinDir::Out),
-        ("PHY2IOB_LP_TX_T_OR_PD_EN_0_2", SitePinDir::Out),
-        ("PHY2IOB_PD_EN_1_0", SitePinDir::Out),
-        ("PHY2IOB_PD_EN_1_1", SitePinDir::Out),
-        ("PHY2IOB_PD_EN_1_2", SitePinDir::Out),
-        ("IF_DMC2PHY_DMC2PHY_T_TXBIT0", SitePinDir::In),
-        ("IF_DMC2PHY_DMC2PHY_T_TXBIT1", SitePinDir::In),
-        ("IF_DMC2PHY_DMC2PHY_T_TXBIT2", SitePinDir::In),
-        ("IF_DMC2PHY_DMC2PHY_T_TXBIT3", SitePinDir::In),
-        ("IF_DMC2PHY_DMC2PHY_T_TXBIT4", SitePinDir::In),
-        ("IF_DMC2PHY_DMC2PHY_T_TXBIT5", SitePinDir::In),
-        ("DIV4_CLK", SitePinDir::Out),
-        ("PHY2GCLK_FIFO_WRCLK", SitePinDir::Out),
-        ("PHY2PHY_BISC_START_IN", SitePinDir::In),
-        ("PHY2PHY_BISC_START_OUT", SitePinDir::Out),
-        ("PHY2PHY_BISC_STOP_IN", SitePinDir::In),
-        ("PHY2PHY_BISC_STOP_OUT", SitePinDir::Out),
-        ("PHY2IOB_R2RDAC_MODE", SitePinDir::Out),
-        ("PHY2IOB_R2RDAC_SEL0", SitePinDir::Out),
-        ("PHY2IOB_R2RDAC_SEL1", SitePinDir::Out),
-        ("PHY2IOB_R2RDAC_SEL2", SitePinDir::Out),
-        ("PHY2IOB_R2RDAC_SEL3", SitePinDir::Out),
-        ("PHY2IOB_R2RDAC_SEL4", SitePinDir::Out),
-        ("PHY2IOB_R2RDAC_SEL5", SitePinDir::Out),
-        ("PHY2IOB_R2RDAC_SEL6", SitePinDir::Out),
-        ("PHY2IOB_R2RDAC_SEL7", SitePinDir::Out),
-        ("PHY2IOB_R2RDAC_SEL8", SitePinDir::Out),
-        ("PHY2IOB_R2RDAC_SEL9", SitePinDir::Out),
-        ("CFG2PHY_SCAN_DATA_OUT_INT0", SitePinDir::In),
-        ("CFG2PHY_SCAN_DATA_OUT_INT1", SitePinDir::In),
-        ("CFG2PHY_SCAN_DATA_OUT_INT2", SitePinDir::In),
-        ("CFG2PHY_SCAN_DATA_OUT_INT3", SitePinDir::In),
-    ];
-    for pin in X5PHY_LPDDRMC_FROM_LS_DFX {
-        pins.push((pin, SitePinDir::Out));
+    bel = bel
+        .extra_in_claim("XXX2PHY_IJTAG_TDI_RETURN")
+        .extra_in_claim("XXX2PHY_IJTAG_TDI")
+        .extra_out_claim("PHY2XXX_IJTAG_TDO_RETURN")
+        .extra_out_claim("PHY2XXX_IJTAG_TDO")
+        .extra_in_claim("IOB2COMP_LSPEED_I0")
+        .extra_in_claim("IOB2COMP_LSPEED_I1")
+        .extra_in_claim("IOB2COMP_LSPEED_I2")
+        .extra_in_claim("IOB2COMP_LSPEED_I3")
+        .extra_in_claim("IOB2COMP_LSPEED_I4")
+        .extra_in_claim("IOB2COMP_LSPEED_I5")
+        .extra_in_claim("IOB2PHY_LP_I_0_0")
+        .extra_in_claim("IOB2PHY_LP_I_0_1")
+        .extra_in_claim("IOB2PHY_LP_I_0_2")
+        .extra_in_claim("IOB2PHY_LP_I_1_0")
+        .extra_in_claim("IOB2PHY_LP_I_1_1")
+        .extra_in_claim("IOB2PHY_LP_I_1_2")
+        .extra_out_claim("PHY2IOB_DYNAMIC_DCI_TS0")
+        .extra_out_claim("PHY2IOB_DYNAMIC_DCI_TS1")
+        .extra_out_claim("PHY2IOB_DYNAMIC_DCI_TS2")
+        .extra_out_claim("PHY2IOB_DYNAMIC_DCI_TS3")
+        .extra_out_claim("PHY2IOB_DYNAMIC_DCI_TS4")
+        .extra_out_claim("PHY2IOB_DYNAMIC_DCI_TS5")
+        .extra_out_claim("PHY2IOB_KEEPER_EN0")
+        .extra_out_claim("PHY2IOB_KEEPER_EN1")
+        .extra_out_claim("PHY2IOB_KEEPER_EN2")
+        .extra_out_claim("PHY2IOB_KEEPER_EN3")
+        .extra_out_claim("PHY2IOB_KEEPER_EN4")
+        .extra_out_claim("PHY2IOB_KEEPER_EN5")
+        .extra_out_claim("PHY2IOB_LP_TX_O_OR_PU_EN_0_0")
+        .extra_out_claim("PHY2IOB_LP_TX_O_OR_PU_EN_0_1")
+        .extra_out_claim("PHY2IOB_LP_TX_O_OR_PU_EN_0_2")
+        .extra_out_claim("PHY2IOB_LP_TX_O_OR_PU_EN_1_0")
+        .extra_out_claim("PHY2IOB_LP_TX_O_OR_PU_EN_1_1")
+        .extra_out_claim("PHY2IOB_LP_TX_O_OR_PU_EN_1_2")
+        .extra_out_claim("PHY2IOB_IBUF_DISABLE0")
+        .extra_out_claim("PHY2IOB_IBUF_DISABLE1")
+        .extra_out_claim("PHY2IOB_IBUF_DISABLE2")
+        .extra_out_claim("PHY2IOB_IBUF_DISABLE3")
+        .extra_out_claim("PHY2IOB_IBUF_DISABLE4")
+        .extra_out_claim("PHY2IOB_IBUF_DISABLE5")
+        .extra_out_claim("PHY2IOB_LP_RX_DIS_OR_TERM_EN0")
+        .extra_out_claim("PHY2IOB_LP_RX_DIS_OR_TERM_EN1")
+        .extra_out_claim("PHY2IOB_LP_RX_DIS_OR_TERM_EN2")
+        .extra_out_claim("PHY2IOB_LP_TX_T_OR_PD_EN_0_0")
+        .extra_out_claim("PHY2IOB_LP_TX_T_OR_PD_EN_0_1")
+        .extra_out_claim("PHY2IOB_LP_TX_T_OR_PD_EN_0_2")
+        .extra_out_claim("PHY2IOB_PD_EN_1_0")
+        .extra_out_claim("PHY2IOB_PD_EN_1_1")
+        .extra_out_claim("PHY2IOB_PD_EN_1_2")
+        .extra_in_claim("IF_DMC2PHY_DMC2PHY_T_TXBIT0")
+        .extra_in_claim("IF_DMC2PHY_DMC2PHY_T_TXBIT1")
+        .extra_in_claim("IF_DMC2PHY_DMC2PHY_T_TXBIT2")
+        .extra_in_claim("IF_DMC2PHY_DMC2PHY_T_TXBIT3")
+        .extra_in_claim("IF_DMC2PHY_DMC2PHY_T_TXBIT4")
+        .extra_in_claim("IF_DMC2PHY_DMC2PHY_T_TXBIT5")
+        .extra_out_claim("DIV4_CLK")
+        .extra_out_claim("PHY2GCLK_FIFO_WRCLK")
+        .extra_in_claim("PHY2PHY_BISC_START_IN")
+        .extra_out_claim("PHY2PHY_BISC_START_OUT")
+        .extra_in_claim("PHY2PHY_BISC_STOP_IN")
+        .extra_out_claim("PHY2PHY_BISC_STOP_OUT")
+        .extra_out_claim("PHY2IOB_R2RDAC_MODE")
+        .extra_out_claim("PHY2IOB_R2RDAC_SEL0")
+        .extra_out_claim("PHY2IOB_R2RDAC_SEL1")
+        .extra_out_claim("PHY2IOB_R2RDAC_SEL2")
+        .extra_out_claim("PHY2IOB_R2RDAC_SEL3")
+        .extra_out_claim("PHY2IOB_R2RDAC_SEL4")
+        .extra_out_claim("PHY2IOB_R2RDAC_SEL5")
+        .extra_out_claim("PHY2IOB_R2RDAC_SEL6")
+        .extra_out_claim("PHY2IOB_R2RDAC_SEL7")
+        .extra_out_claim("PHY2IOB_R2RDAC_SEL8")
+        .extra_out_claim("PHY2IOB_R2RDAC_SEL9")
+        .extra_in_claim("CFG2PHY_SCAN_DATA_OUT_INT0")
+        .extra_in_claim("CFG2PHY_SCAN_DATA_OUT_INT1")
+        .extra_in_claim("CFG2PHY_SCAN_DATA_OUT_INT2")
+        .extra_in_claim("CFG2PHY_SCAN_DATA_OUT_INT3");
+    for &pin in X5PHY_LPDDRMC_FROM_LS_DFX {
+        bel = bel.extra_out_claim(pin);
     }
-    for pin in X5PHY_LS_FROM_LPDDRMC_DFX {
-        pins.push((pin, SitePinDir::In));
+    for &pin in X5PHY_LS_FROM_LPDDRMC_DFX {
+        bel = bel.extra_in_claim(pin);
     }
-    for pin in X5PHY_LS_FROM_LPDDRMC_DFX_BROADCAST {
-        pins.push((pin, SitePinDir::In));
+    for &pin in X5PHY_LS_FROM_LPDDRMC_DFX_BROADCAST {
+        bel = bel.extra_in_claim(pin);
     }
     for &(pin, _) in X5PHY_LS_FROM_HS {
-        pins.push((pin, SitePinDir::In));
+        bel = bel.extra_in_claim(pin);
     }
     for &(opin, pin) in X5PHY_HS_FROM_LS {
         if !opin.starts_with("XMC_ODELAY_FDLY") && !opin.starts_with("XMC_IDELAY_FDLY") {
-            pins.push((pin, SitePinDir::Out));
+            bel = bel.extra_out_claim(pin);
         }
     }
-    for pin in &alloc_ins {
-        pins.push((pin.as_str(), SitePinDir::In));
-    }
-    for pin in &alloc_outs {
-        pins.push((pin.as_str(), SitePinDir::Out));
-    }
     for &(ipin, opin) in XP5IO_RTRIM {
-        pins.push((ipin, SitePinDir::In));
-        pins.push((opin, SitePinDir::Out));
+        bel = bel.extra_in_claim(ipin).extra_out_claim(opin);
     }
     for &(_, _, opin, ipin) in XP5IO_JTAG {
-        pins.push((ipin, SitePinDir::In));
-        pins.push((opin, SitePinDir::Out));
-    }
-
-    vrf.verify_legacy_bel(bel, "X5PHY_LS", &pins, &[]);
-    for (pin, _) in pins {
-        vrf.claim_net(&[bel.wire(pin)]);
+        bel = bel.extra_in_claim(ipin).extra_out_claim(opin);
     }
 
     for i in 0..3 {
-        let obel_iob = vrf.find_bel_sibling(bel, defs::bslots::XP5IOB[idx * 3 + i]);
+        let obel_iob = bcrd.bel(bslots::XP5IOB_PAIR[idx * 3 + i]);
         for j in 0..2 {
-            vrf.claim_pip(
+            bel.claim_pip(
                 bel.wire(&format!("IOB2COMP_LSPEED_I{jj}", jj = i * 2 + j)),
-                obel_iob.wire(&format!("IOB2COMP_LSPEED_I{j}")),
+                bel.bel_wire(obel_iob, &format!("IOB2COMP_LSPEED_I{j}")),
             );
-            vrf.claim_pip(
+            bel.claim_pip(
                 bel.wire(&format!("IOB2PHY_LP_I_{j}_{i}")),
-                obel_iob.wire(&format!("IOB2PHY_LP_I_{j}")),
+                bel.bel_wire(obel_iob, &format!("IOB2PHY_LP_I_{j}")),
             );
         }
     }
 
-    let obel_x5phy_hs = vrf.find_bel_sibling(bel, defs::bslots::X5PHY_HS[idx]);
     for &(pin, opin) in X5PHY_LS_FROM_HS {
-        vrf.claim_pip(bel.wire(pin), obel_x5phy_hs.wire(opin));
+        bel.claim_pip(bel.wire(pin), bel.wire(&format!("HS_{opin}")));
     }
 
-    let obel_lpddrmc = vrf.find_bel_sibling(bel, defs::bslots::LPDDRMC);
+    let obel_lpddrmc = bcrd.bel(bslots::LPDDRMC);
     for &pin in X5PHY_LS_FROM_LPDDRMC_CLB2PHY {
-        vrf.claim_pip(
+        bel.claim_pip(
             bel.wire(&format!("IF_CLB2PHY_{pin}")),
-            obel_lpddrmc.wire(&format!("IF_DMC_CLB2PHY_P{idx}_{pin}")),
+            bel.bel_wire(obel_lpddrmc, &format!("IF_DMC_CLB2PHY_P{idx}_{pin}")),
         );
     }
     for &(pin, prefix) in X5PHY_LS_FROM_LPDDRMC_DMC2PHY {
-        vrf.claim_pip(
+        bel.claim_pip(
             bel.wire(&format!("IF_DMC2PHY_{pin}")),
-            obel_lpddrmc.wire(&format!("IF_DMC2PHY_{prefix}{idx}_{pin}")),
+            bel.bel_wire(obel_lpddrmc, &format!("IF_DMC2PHY_{prefix}{idx}_{pin}")),
         );
     }
     for i in 0..6 {
-        vrf.claim_pip(
+        bel.claim_pip(
             bel.wire(&format!("IF_DMC2PHY_DMC2PHY_T_TXBIT{i}")),
-            obel_lpddrmc.wire(&format!("DMC2PHY_T_TXBIT{ii}", ii = idx * 6 + i)),
+            bel.bel_wire(
+                obel_lpddrmc,
+                &format!("DMC2PHY_T_TXBIT{ii}", ii = idx * 6 + i),
+            ),
         );
     }
 
     for pin in X5PHY_LS_FROM_LPDDRMC_DFX {
-        vrf.claim_pip(
+        bel.claim_pip(
             bel.wire(pin),
-            obel_lpddrmc.wire(&format!("IF_XPIO_DFX_DFXCNTRL_DMC_IABUT_{pin}{idx}")),
+            bel.bel_wire(
+                obel_lpddrmc,
+                &format!("IF_XPIO_DFX_DFXCNTRL_DMC_IABUT_{pin}{idx}"),
+            ),
         );
     }
     for pin in X5PHY_LS_FROM_LPDDRMC_DFX_BROADCAST {
-        vrf.claim_pip(
+        bel.claim_pip(
             bel.wire(pin),
-            obel_lpddrmc.wire(&format!("IF_XPIO_DFX_DFXCNTRL_DMC_IABUT_{pin}")),
+            bel.bel_wire(
+                obel_lpddrmc,
+                &format!("IF_XPIO_DFX_DFXCNTRL_DMC_IABUT_{pin}"),
+            ),
         );
     }
-
-    let obel_dig = vrf.find_bel_sibling(bel, defs::bslots::XP5PIO_CMU_DIG_TOP);
 
     // ... <- 9 <- 8 <- 7 <- 6 <- 10 <- DIG <- 5 <- 4 <- 3 <- 2 <- 1 <- 0 <- ...
     let idx_n = if idx == 10 {
@@ -2056,195 +2054,215 @@ pub fn verify_x5phy_ls(vrf: &mut Verifier, bel: &LegacyBelContext<'_>) {
 
     if idx == 10 {
         for &(ipin, opin) in XP5IO_RTRIM {
-            vrf.claim_pip(bel.wire(ipin), obel_dig.wire(opin));
+            bel.claim_pip(
+                bel.wire(ipin),
+                bel.bel_wire(obel_lpddrmc, &format!("CMU_DIG_{opin}")),
+            );
         }
     } else if idx == 0 {
         for &(ipin, _) in XP5IO_RTRIM {
-            vrf.claim_pip(bel.wire(ipin), bel.wire_far(ipin));
+            bel.claim_pip(bel.wire(ipin), bel.wire_far(ipin));
         }
-        if let Some(obel) = vrf.find_bel_delta(bel, 0, 60, defs::bslots::X5PHY_LS[9]) {
+        if let Some(obel) = bel.vrf.grid.bel_delta(bcrd.cell, 0, 60, bslots::X5PHY[9]) {
             for &(ipin, opin) in XP5IO_RTRIM {
-                vrf.verify_net(&[bel.wire_far(ipin), obel.wire(opin)]);
+                bel.verify_net(&[bel.wire_far(ipin), bel.bel_wire(obel, opin)]);
             }
         } else {
             for &(ipin, _) in XP5IO_RTRIM {
-                vrf.claim_net(&[bel.wire_far(ipin)]);
+                bel.claim_net(&[bel.wire_far(ipin)]);
             }
         }
     } else {
-        let obel = vrf.find_bel_sibling(bel, defs::bslots::X5PHY_LS[idx_n]);
+        let obel = bcrd.bel(bslots::X5PHY[idx_n]);
         for &(ipin, opin) in XP5IO_RTRIM {
-            vrf.claim_pip(bel.wire(ipin), obel.wire(opin));
+            bel.claim_pip(bel.wire(ipin), bel.bel_wire(obel, opin));
         }
     }
 
     if idx == 0 {
-        vrf.claim_pip(
+        bel.claim_pip(
             bel.wire("PHY2PHY_BISC_START_IN"),
             bel.wire("PHY2PHY_BISC_STOP_OUT"),
         );
     } else {
-        let obel = vrf.find_bel_sibling(bel, defs::bslots::X5PHY_LS[idx_n]);
-        vrf.claim_pip(
+        let obel = bcrd.bel(bslots::X5PHY[idx_n]);
+        bel.claim_pip(
             bel.wire("PHY2PHY_BISC_START_IN"),
-            obel.wire("PHY2PHY_BISC_START_OUT"),
+            bel.bel_wire(obel, "PHY2PHY_BISC_START_OUT"),
         );
     }
     if idx != 9 {
-        let obel = vrf.find_bel_sibling(bel, defs::bslots::X5PHY_LS[idx_s]);
-        vrf.claim_pip(
+        let obel = bcrd.bel(bslots::X5PHY[idx_s]);
+        bel.claim_pip(
             bel.wire("PHY2PHY_BISC_STOP_IN"),
-            obel.wire("PHY2PHY_BISC_STOP_OUT"),
+            bel.bel_wire(obel, "PHY2PHY_BISC_STOP_OUT"),
         );
     }
 
     for &(lpddrmc_pin, _, opin, ipin) in XP5IO_JTAG {
         if idx == 5 || idx == 10 {
-            vrf.claim_pip(bel.wire(ipin), obel_lpddrmc.wire(lpddrmc_pin));
+            bel.claim_pip(bel.wire(ipin), bel.bel_wire(obel_lpddrmc, lpddrmc_pin));
         } else if idx < 5 {
-            let obel = vrf.find_bel_sibling(bel, defs::bslots::X5PHY_LS[idx + 1]);
-            vrf.claim_pip(bel.wire(ipin), obel.wire(opin));
+            let obel = bcrd.bel(bslots::X5PHY[idx + 1]);
+            bel.claim_pip(bel.wire(ipin), bel.bel_wire(obel, opin));
         } else if idx == 6 {
-            let obel = vrf.find_bel_sibling(bel, defs::bslots::X5PHY_LS[10]);
-            vrf.claim_pip(bel.wire(ipin), obel.wire(opin));
+            let obel = bcrd.bel(bslots::X5PHY[10]);
+            bel.claim_pip(bel.wire(ipin), bel.bel_wire(obel, opin));
         } else {
-            let obel = vrf.find_bel_sibling(bel, defs::bslots::X5PHY_LS[idx - 1]);
-            vrf.claim_pip(bel.wire(ipin), obel.wire(opin));
+            let obel = bcrd.bel(bslots::X5PHY[idx - 1]);
+            bel.claim_pip(bel.wire(ipin), bel.bel_wire(obel, opin));
         }
     }
 
     if idx == 0 {
-        vrf.claim_pip(
+        bel.claim_pip(
             bel.wire("XXX2PHY_IJTAG_TDI"),
             bel.wire("PHY2XXX_IJTAG_TDO_RETURN"),
         );
     } else if idx == 10 {
-        vrf.claim_pip(
+        bel.claim_pip(
             bel.wire("XXX2PHY_IJTAG_TDI"),
-            obel_dig.wire("IJTAG_TDO_EXT"),
+            bel.bel_wire(obel_lpddrmc, "CMU_DIG_IJTAG_TDO_EXT"),
         );
     } else {
-        let obel = vrf.find_bel_sibling(bel, defs::bslots::X5PHY_LS[idx_n]);
-        vrf.claim_pip(
+        let obel = bcrd.bel(bslots::X5PHY[idx_n]);
+        bel.claim_pip(
             bel.wire("XXX2PHY_IJTAG_TDI"),
-            obel.wire("PHY2XXX_IJTAG_TDO"),
+            bel.bel_wire(obel, "PHY2XXX_IJTAG_TDO"),
         );
     }
 
     if idx == 9 {
-        vrf.claim_pip(
+        bel.claim_pip(
             bel.wire("XXX2PHY_IJTAG_TDI_RETURN"),
             bel.wire("PHY2XXX_IJTAG_TDO"),
         );
     } else if idx == 5 {
-        vrf.claim_pip(
+        bel.claim_pip(
             bel.wire("XXX2PHY_IJTAG_TDI_RETURN"),
-            obel_dig.wire("IJTAG_TDO_RETURN_EXT"),
+            bel.bel_wire(obel_lpddrmc, "CMU_DIG_IJTAG_TDO_RETURN_EXT"),
         );
     } else {
-        let obel = vrf.find_bel_sibling(bel, defs::bslots::X5PHY_LS[idx_s]);
-        vrf.claim_pip(
+        let obel = bcrd.bel(bslots::X5PHY[idx_s]);
+        bel.claim_pip(
             bel.wire("XXX2PHY_IJTAG_TDI_RETURN"),
-            obel.wire("PHY2XXX_IJTAG_TDO_RETURN"),
+            bel.bel_wire(obel, "PHY2XXX_IJTAG_TDO_RETURN"),
         );
     }
-}
 
-pub fn verify_x5phy_hs(vrf: &mut Verifier, bel: &LegacyBelContext<'_>) {
-    let idx = defs::bslots::X5PHY_HS
-        .into_iter()
-        .position(|x| bel.slot == x)
-        .unwrap();
-    let mut pins = vec![];
+    bel.commit();
+
+    let mut bel = vrf.verify_bel(bcrd).sub(1).kind("X5PHY_HS").skip_auto();
+
     for &(pin, _) in X5PHY_HS_FROM_LS {
-        pins.push((pin, SitePinDir::In));
+        bel = bel.extra_in_claim_rename(pin, format!("HS_{pin}"));
     }
     for &(_, pin) in X5PHY_LS_FROM_HS {
-        pins.push((pin, SitePinDir::Out));
+        bel = bel.extra_out_claim_rename(pin, format!("HS_{pin}"));
     }
-    pins.extend([
-        ("PLL_CLK", SitePinDir::In),
-        ("CLK_FROM_EXT", SitePinDir::In),
-        ("CLK_TO_EXT_NORTH", SitePinDir::Out),
-        ("CLK_TO_EXT_SOUTH", SitePinDir::Out),
-        ("PDQS_GT_IN", SitePinDir::In),
-        ("NDQS_GT_IN", SitePinDir::In),
-        ("PDQS_GT_OUT", SitePinDir::Out),
-        ("NDQS_GT_OUT", SitePinDir::Out),
-        ("IOB2PHY_RX_D0", SitePinDir::In),
-        ("IOB2PHY_RX_D1", SitePinDir::In),
-        ("IOB2PHY_RX_D2", SitePinDir::In),
-        ("IOB2PHY_RX_D3", SitePinDir::In),
-        ("IOB2PHY_RX_D4", SitePinDir::In),
-        ("IOB2PHY_RX_D5", SitePinDir::In),
-        ("HRT_PHY2IOB_O0_0", SitePinDir::Out),
-        ("HRT_PHY2IOB_O0_1", SitePinDir::Out),
-        ("HRT_PHY2IOB_O0_2", SitePinDir::Out),
-        ("HRT_PHY2IOB_O0_3", SitePinDir::Out),
-        ("HRT_PHY2IOB_O0_4", SitePinDir::Out),
-        ("HRT_PHY2IOB_O0_5", SitePinDir::Out),
-        ("HRT_PHY2IOB_T0", SitePinDir::Out),
-        ("HRT_PHY2IOB_T1", SitePinDir::Out),
-        ("HRT_PHY2IOB_T2", SitePinDir::Out),
-        ("HRT_PHY2IOB_T3", SitePinDir::Out),
-        ("HRT_PHY2IOB_T4", SitePinDir::Out),
-        ("HRT_PHY2IOB_T5", SitePinDir::Out),
-        ("CLB2PHY_CTRL_DLY_TEST_IN", SitePinDir::In),
-    ]);
-    vrf.verify_legacy_bel(bel, "X5PHY_HS", &pins, &[]);
-    for (pin, _) in pins {
-        vrf.claim_net(&[bel.wire(pin)]);
+    for pin in [
+        "PLL_CLK",
+        "CLK_FROM_EXT",
+        "PDQS_GT_IN",
+        "NDQS_GT_IN",
+        "CLB2PHY_CTRL_DLY_TEST_IN",
+    ] {
+        bel = bel.extra_in_claim_rename(pin, format!("HS_{pin}"));
     }
+    for pin in [
+        "CLK_TO_EXT_NORTH",
+        "CLK_TO_EXT_SOUTH",
+        "PDQS_GT_OUT",
+        "NDQS_GT_OUT",
+        "HRT_PHY2IOB_O0_0",
+        "HRT_PHY2IOB_O0_1",
+        "HRT_PHY2IOB_O0_2",
+        "HRT_PHY2IOB_O0_3",
+        "HRT_PHY2IOB_O0_4",
+        "HRT_PHY2IOB_O0_5",
+        "HRT_PHY2IOB_T0",
+        "HRT_PHY2IOB_T1",
+        "HRT_PHY2IOB_T2",
+        "HRT_PHY2IOB_T3",
+        "HRT_PHY2IOB_T4",
+        "HRT_PHY2IOB_T5",
+    ] {
+        bel = bel.extra_out_claim_rename(pin, format!("HS_{pin}"));
+    }
+
     for i in 0..3 {
-        let obel_iob = vrf.find_bel_sibling(bel, defs::bslots::XP5IOB[idx * 3 + i]);
+        let obel_iob = bcrd.bel(bslots::XP5IOB_PAIR[idx * 3 + i]);
         for j in 0..2 {
-            vrf.claim_pip(
-                bel.wire(&format!("IOB2PHY_RX_D{jj}", jj = i * 2 + j)),
-                obel_iob.wire(&format!("IOB2PHY_I{j}")),
+            let pin = &format!("IOB2PHY_RX_D{jj}", jj = i * 2 + j);
+            let rpin = &format!("HS_{pin}");
+            bel = bel.extra_in_claim_rename(pin, rpin);
+            bel.claim_pip(
+                bel.wire(rpin),
+                bel.bel_wire(obel_iob, &format!("IOB2PHY_I{j}")),
             );
         }
     }
 
-    let obel_x5phy_ls = vrf.find_bel_sibling(bel, defs::bslots::X5PHY_LS[idx]);
     for &(pin, opin) in X5PHY_HS_FROM_LS {
-        vrf.claim_pip(bel.wire(pin), obel_x5phy_ls.wire(opin));
+        bel.claim_pip(bel.wire(&format!("HS_{pin}")), bel.wire(opin));
     }
 
-    let obel_x5phy_pllsel = vrf.find_bel_sibling(bel, defs::bslots::X5PHY_PLL_SELECT[idx]);
-    vrf.claim_pip(bel.wire("PLL_CLK"), obel_x5phy_pllsel.wire("Z"));
+    bel.claim_pip(bel.wire("HS_PLL_CLK"), bel.wire("PLL_SELECT_Z"));
 
     if idx < 5 {
-        let obel = vrf.find_bel_sibling(bel, defs::bslots::X5PHY_HS[idx + 2]);
-        vrf.claim_pip(bel.wire("CLK_FROM_EXT"), obel.wire("CLK_TO_EXT_NORTH"));
+        let obel = bcrd.bel(bslots::X5PHY[idx + 2]);
+        bel.claim_pip(
+            bel.wire("HS_CLK_FROM_EXT"),
+            bel.bel_wire(obel, "HS_CLK_TO_EXT_NORTH"),
+        );
     } else if idx < 10 {
-        let obel = vrf.find_bel_sibling(bel, defs::bslots::X5PHY_HS[idx - 2]);
-        vrf.claim_pip(bel.wire("CLK_FROM_EXT"), obel.wire("CLK_TO_EXT_SOUTH"));
+        let obel = bcrd.bel(bslots::X5PHY[idx - 2]);
+        bel.claim_pip(
+            bel.wire("HS_CLK_FROM_EXT"),
+            bel.bel_wire(obel, "HS_CLK_TO_EXT_SOUTH"),
+        );
     } else {
-        let obel = vrf.find_bel_sibling(bel, defs::bslots::X5PHY_HS[7]);
-        vrf.claim_pip(bel.wire("CLK_FROM_EXT"), obel.wire("CLK_TO_EXT_NORTH"));
+        let obel = bcrd.bel(bslots::X5PHY[7]);
+        bel.claim_pip(
+            bel.wire("HS_CLK_FROM_EXT"),
+            bel.bel_wire(obel, "HS_CLK_TO_EXT_NORTH"),
+        );
     }
 
     if idx < 10 {
-        let obel = vrf.find_bel_sibling(bel, defs::bslots::X5PHY_HS[idx ^ 1]);
-        vrf.claim_pip(bel.wire("PDQS_GT_IN"), obel.wire("PDQS_GT_OUT"));
-        vrf.claim_pip(bel.wire("NDQS_GT_IN"), obel.wire("NDQS_GT_OUT"));
+        let obel = bcrd.bel(bslots::X5PHY[idx ^ 1]);
+        bel.claim_pip(
+            bel.wire("HS_PDQS_GT_IN"),
+            bel.bel_wire(obel, "HS_PDQS_GT_OUT"),
+        );
+        bel.claim_pip(
+            bel.wire("HS_NDQS_GT_IN"),
+            bel.bel_wire(obel, "HS_NDQS_GT_OUT"),
+        );
     }
-}
 
-pub fn verify_x5phy_pll_select(vrf: &mut Verifier, bel: &LegacyBelContext<'_>) {
-    let pins = [
-        ("D0", SitePinDir::In),
-        ("D1", SitePinDir::In),
-        ("DIS", SitePinDir::In),
-        ("Z", SitePinDir::Out),
-    ];
-    vrf.verify_legacy_bel(bel, "X5PHY_PLL_SELECT", &pins, &[]);
-    for (pin, _) in pins {
-        vrf.claim_net(&[bel.wire(pin)]);
-    }
-    let obel = vrf.find_bel_sibling(bel, defs::bslots::LPDDRMC);
-    vrf.claim_pip(bel.wire("D0"), obel.wire("PLL0_CLKOUTPHY_OABUT"));
-    vrf.claim_pip(bel.wire("D1"), obel.wire("PLL1_CLKOUTPHY_OABUT"));
+    bel.commit();
+
+    let mut bel = vrf
+        .verify_bel(bcrd)
+        .sub(2)
+        .kind("X5PHY_PLL_SELECT")
+        .skip_auto()
+        .extra_in_claim_rename("D0", "PLL_SELECT_D0")
+        .extra_in_claim_rename("D1", "PLL_SELECT_D1")
+        .extra_in_claim_rename("DIS", "PLL_SELECT_DIS")
+        .extra_out_claim_rename("Z", "PLL_SELECT_Z");
+    let obel = bcrd.bel(bslots::LPDDRMC);
+    bel.claim_pip(
+        bel.wire("PLL_SELECT_D0"),
+        bel.bel_wire(obel, "PLL0_CLKOUTPHY_OABUT"),
+    );
+    bel.claim_pip(
+        bel.wire("PLL_SELECT_D1"),
+        bel.bel_wire(obel, "PLL1_CLKOUTPHY_OABUT"),
+    );
+
+    bel.commit();
 }
 
 pub const XP5PIO_ANA_FROM_DIG: &[(&str, &str)] = &[
@@ -2615,286 +2633,276 @@ pub const XP5IO_JTAG: &[(&str, &str, &str, &str)] = &[
     ),
 ];
 
-pub fn verify_xp5pio_cmu_ana(vrf: &mut Verifier, bel: &LegacyBelContext<'_>) {
-    let mut pins = vec![
-        ("GTS_CFG_B_IN", SitePinDir::In),
-        ("GHIGH_B_IN", SitePinDir::In),
-    ];
-    for &(pin, _) in XP5PIO_ANA_FROM_DIG {
-        pins.push((pin, SitePinDir::In));
-    }
-    for &(_, pin) in XP5PIO_DIG_FROM_ANA {
-        pins.push((pin, SitePinDir::Out));
-    }
-    vrf.verify_legacy_bel(bel, "XP5PIO_CMU_ANA", &pins, &[]);
-    for (pin, _) in pins {
-        vrf.claim_net(&[bel.wire(pin)]);
-    }
-    let obel = vrf.find_bel_sibling(bel, defs::bslots::XP5PIO_CMU_DIG_TOP);
-    for (pin, opin) in XP5PIO_ANA_FROM_DIG {
-        vrf.claim_pip(bel.wire(pin), obel.wire(opin));
-    }
-}
+pub fn verify_lpddrmc(vrf: &mut Verifier, bcrd: BelCoord) {
+    let mut bel = vrf
+        .verify_bel(bcrd)
+        .skip_in(bcls::LPDDRMC::IOB_PUDC_B)
+        .skip_out(bcls::LPDDRMC::IOB_PUDC_B_O)
+        .skip_out(bcls::LPDDRMC::IJTAG_CAPTURE_DR_O)
+        .skip_out(bcls::LPDDRMC::IJTAG_SELECT_DR_O)
+        .skip_out(bcls::LPDDRMC::IJTAG_RESET_TAP_O)
+        .extra_out_claim("PLL0_CLKOUTPHY_OABUT")
+        .extra_out_claim("PLL1_CLKOUTPHY_OABUT")
+        .extra_out_claim("DMC_XPLL0_RESET")
+        .extra_out_claim("DMC_XPLL1_RESET")
+        .extra_out_claim("DMC_XPLL0_CLKOUTPHY_EN")
+        .extra_out_claim("DMC_XPLL1_CLKOUTPHY_EN")
+        .extra_in_claim("PLL0_CLKOUTPHY_IABUT")
+        .extra_in_claim("PLL1_CLKOUTPHY_IABUT")
+        .extra_in_claim("XPLL0_DMC_LOCK")
+        .extra_in_claim("XPLL1_DMC_LOCK")
+        .extra_in_claim("IF_XPIO_MMCM_DMC_IABUT_XPIO_CCIO0")
+        .extra_in_claim("IF_XPIO_MMCM_DMC_IABUT_XPIO_CCIO1")
+        .extra_in_claim("IF_XPIO_MMCM_DMC_IABUT_XPIO_CCIO2")
+        .extra_in_claim("IF_XPIO_MMCM_DMC_IABUT_XPIO_CCIO3")
+        .extra_out_claim("IF_XPIO_DFX_DFXCNTRL_DMC_IABUT_CLB2PHY_SCAN_EDT_UPDT_B")
+        .extra_in_claim("IJTAG_TDO_IABUT")
+        // ties
+        .extra_in_claim("IJTAG_SHIFT_DR")
+        .extra_in_claim("IJTAG_CLOCK_DR")
+        .extra_in_claim("IJTAG_UPDATE_DR")
+        .extra_in_claim("BSCAN_GTS_USR_B_IABUT")
+        .extra_in_claim("BSCAN_CFG2IOB_PUDC_B_IABUT")
+        .extra_in_claim("BSCAN_EXTEST_IABUT")
+        .extra_in_claim("BSCAN_EXTEST_SMPL_IABUT");
 
-pub fn verify_xp5pio_cmu_dig(vrf: &mut Verifier, bel: &LegacyBelContext<'_>) {
-    let mut junk_out = vec![];
+    let naming = bel.vrf.ngrid.get_bel_naming(bcrd);
+    for (pname, pin) in &naming.pins {
+        if pname.starts_with("IF_HSM_CLB2PHY")
+            || pname.starts_with("IF_XPIO_MMCM_DMC_OABUT_XPIO_CCIO")
+            || pname.starts_with("IF_XPIO_MMCM_DMC_OABUT_XPIO_PHY_CLK")
+        {
+            if pin.orig_pin.as_ref().unwrap().1 == PinDir::Output {
+                bel = bel.extra_out(pname);
+            } else {
+                bel = bel.extra_in(pname);
+            }
+        }
+    }
+
+    for i in 0..66 {
+        bel = bel.extra_out_claim(format!("DMC2PHY_T_TXBIT{i}"));
+    }
+    for i in 0..11 {
+        for &pin in X5PHY_LS_FROM_LPDDRMC_CLB2PHY {
+            bel = bel.extra_out_claim(format!("IF_DMC_CLB2PHY_P{i}_{pin}"));
+        }
+        for &pin in X5PHY_LPDDRMC_FROM_LS_CLB2PHY {
+            bel = bel.extra_in_claim(format!("IF_DMC_CLB2PHY_P{i}_{pin}"));
+        }
+        for &(pin, prefix) in X5PHY_LS_FROM_LPDDRMC_DMC2PHY {
+            bel = bel.extra_out_claim(format!("IF_DMC2PHY_{prefix}{i}_{pin}"));
+        }
+        for &(pin, prefix) in X5PHY_LPDDRMC_FROM_LS_DMC2PHY {
+            bel = bel.extra_in_claim(format!("IF_DMC2PHY_{prefix}{i}_{pin}"));
+        }
+        for pin in X5PHY_LPDDRMC_FROM_LS_DFX {
+            bel = bel.extra_in_claim(format!("IF_XPIO_DFX_DFXCNTRL_DMC_IABUT_{pin}{i}"));
+        }
+        for pin in X5PHY_LS_FROM_LPDDRMC_DFX {
+            bel = bel.extra_out_claim(format!("IF_XPIO_DFX_DFXCNTRL_DMC_IABUT_{pin}{i}"));
+        }
+        bel = bel.extra_in_claim(format!("IF_XPIO_MMCM_DMC_IABUT_XPIO_PHY_CLK{i}"));
+        bel = bel.extra_in_claim(format!("PHY_DIV4_CLK{i}"));
+    }
+
+    for &(_, pin) in XP5PIO_DIG_FROM_LPDDRMC {
+        bel = bel.extra_out_claim(pin);
+    }
+    for &(pin, _) in XP5PIO_LPDDRMC_FROM_DIG {
+        bel = bel.extra_in_claim(pin);
+    }
+    for &(pin, _, _, _) in XP5IO_JTAG {
+        bel = bel.extra_out_claim(pin);
+    }
+
+    for (pin, opin) in XP5PIO_LPDDRMC_FROM_DIG {
+        bel.claim_pip(bel.wire(pin), bel.wire(&format!("CMU_DIG_{opin}")));
+    }
+
+    for i in 0..11 {
+        let obel = bcrd.bel(bslots::X5PHY[i]);
+        for &(pin, prefix) in X5PHY_LPDDRMC_FROM_LS_DMC2PHY {
+            bel.claim_pip(
+                bel.wire(&format!("IF_DMC2PHY_{prefix}{i}_{pin}")),
+                bel.bel_wire(obel, &format!("IF_DMC2PHY_{pin}")),
+            );
+        }
+        for pin in X5PHY_LPDDRMC_FROM_LS_CLB2PHY {
+            bel.claim_pip(
+                bel.wire(&format!("IF_DMC_CLB2PHY_P{i}_{pin}")),
+                bel.bel_wire(obel, &format!("IF_CLB2PHY_{pin}")),
+            );
+        }
+        for pin in X5PHY_LPDDRMC_FROM_LS_DFX {
+            bel.claim_pip(
+                bel.wire(&format!("IF_XPIO_DFX_DFXCNTRL_DMC_IABUT_{pin}{i}")),
+                bel.bel_wire(obel, pin),
+            );
+        }
+        bel.claim_pip(
+            bel.wire(&format!("IF_XPIO_MMCM_DMC_IABUT_XPIO_PHY_CLK{i}")),
+            bel.bel_wire(obel, "PHY2GCLK_FIFO_WRCLK"),
+        );
+        bel.claim_pip(
+            bel.wire(&format!("PHY_DIV4_CLK{i}")),
+            bel.bel_wire(obel, "DIV4_CLK"),
+        );
+    }
+
+    for (pin, oslot, opin) in [
+        ("PLL0_CLKOUTPHY_IABUT", bslots::PLL[0], "CLKOUTPHY_P"),
+        ("PLL1_CLKOUTPHY_IABUT", bslots::PLL[1], "CLKOUTPHY_P"),
+        ("XPLL0_DMC_LOCK", bslots::PLL[0], "LOCKED_DMC"),
+        ("XPLL1_DMC_LOCK", bslots::PLL[1], "LOCKED_DMC"),
+    ] {
+        bel.claim_pip(bel.wire(pin), bel.wire_far(pin));
+        let obel = bcrd.bel(oslot);
+        bel.verify_net(&[bel.wire_far(pin), bel.bel_wire(obel, opin)]);
+    }
+
+    let obel = bcrd.bel(bslots::X5PHY[5]);
+    bel.claim_pip(
+        bel.wire("IJTAG_TDO_IABUT"),
+        bel.bel_wire(obel, "PHY2XXX_IJTAG_TDO"),
+    );
+
+    for (ccio, nibble) in [4, 5, 10, 6].into_iter().enumerate() {
+        bel.claim_pip(
+            bel.wire(&format!("IF_XPIO_MMCM_DMC_IABUT_XPIO_CCIO{ccio}")),
+            bel.wire("VCC"),
+        );
+        let obel = bcrd.bel(bslots::XP5IOB_PAIR[nibble * 3]);
+        bel.claim_pip(
+            bel.wire(&format!("IF_XPIO_MMCM_DMC_IABUT_XPIO_CCIO{ccio}")),
+            bel.bel_wire(obel, "IOB2PHY_I0"),
+        );
+        let obel = bcrd.bel(bslots::XP5IOB_PAIR[nibble * 3 + 2]);
+        bel.claim_pip(
+            bel.wire(&format!("IF_XPIO_MMCM_DMC_IABUT_XPIO_CCIO{ccio}")),
+            bel.bel_wire(obel, "IOB2PHY_I0"),
+        );
+    }
+    for nibble in [0, 1, 2, 3, 7, 8, 9] {
+        bel.claim_net(&[bel.wire(&format!("NIBBLE{nibble}_CCIO_DUMMY"))]);
+        bel.claim_pip(
+            bel.wire(&format!("NIBBLE{nibble}_CCIO_DUMMY")),
+            bel.wire("VCC"),
+        );
+        let obel = bcrd.bel(bslots::XP5IOB_PAIR[nibble * 3]);
+        bel.claim_pip(
+            bel.wire(&format!("NIBBLE{nibble}_CCIO_DUMMY")),
+            bel.bel_wire(obel, "IOB2PHY_I0"),
+        );
+        let obel = bcrd.bel(bslots::XP5IOB_PAIR[nibble * 3 + 2]);
+        bel.claim_pip(
+            bel.wire(&format!("NIBBLE{nibble}_CCIO_DUMMY")),
+            bel.bel_wire(obel, "IOB2PHY_I0"),
+        );
+    }
+
+    bel.claim_net(&[bel.wire("VCC")]);
+
+    bel.commit();
+
+    let mut bel = vrf
+        .verify_bel(bcrd)
+        .sub(1)
+        .kind("XP5PIO_CMU_DIG_TOP")
+        .skip_auto()
+        .extra_in_claim_rename("IJTAG_TDI_RETURN_EXT", "CMU_DIG_IJTAG_TDI_RETURN_EXT")
+        .extra_in_claim_rename("MASTER_EN_PIN", "CMU_DIG_MASTER_EN_PIN")
+        .extra_out_claim_rename("IJTAG_TDO_RETURN_EXT", "CMU_DIG_IJTAG_TDO_RETURN_EXT")
+        .extra_out_claim_rename("IJTAG_TDO_EXT", "CMU_DIG_IJTAG_TDO_EXT")
+        .extra_out_claim_rename("IMPCAL_RTUNE0", "CMU_DIG_IMPCAL_RTUNE0");
+
     for i in 0..17 {
-        junk_out.push(format!("CMU2XCV_DCI_ZBUS{i}"));
+        bel = bel.extra_out_claim_rename(
+            format!("CMU2XCV_DCI_ZBUS{i}"),
+            format!("CMU_DIG_CMU2XCV_DCI_ZBUS{i}"),
+        );
     }
     for i in 0..69 {
-        junk_out.push(format!("XMC_CFG2ANA_REG{i}"));
+        bel = bel.extra_out_claim_rename(
+            format!("XMC_CFG2ANA_REG{i}"),
+            format!("CMU_DIG_XMC_CFG2ANA_REG{i}"),
+        );
     }
-    let mut junk_in = vec![];
     for i in 0..16 {
-        junk_in.push(format!("DCI_COMP_SCAN_OUT{i}"));
+        bel = bel.extra_in_claim_rename(
+            format!("DCI_COMP_SCAN_OUT{i}"),
+            format!("CMU_DIG_DCI_COMP_SCAN_OUT{i}"),
+        );
     }
 
-    let mut pins = vec![
-        ("IJTAG_TDI_RETURN_EXT", SitePinDir::In),
-        ("IJTAG_TDO_RETURN_EXT", SitePinDir::Out),
-        ("IJTAG_TDO_EXT", SitePinDir::Out),
-        ("IMPCAL_RTUNE0", SitePinDir::Out),
-        ("MASTER_EN_PIN", SitePinDir::In),
-    ];
-    for pin in &junk_out {
-        pins.push((pin.as_str(), SitePinDir::Out));
-    }
-    for pin in &junk_in {
-        pins.push((pin.as_str(), SitePinDir::In));
-    }
     for &(opin, pin) in XP5PIO_ANA_FROM_DIG {
         if opin == "IMPCALANA_REF_ENABLE" {
             continue;
         }
-        pins.push((pin, SitePinDir::Out));
+        bel = bel.extra_out_claim_rename(pin, format!("CMU_DIG_{pin}"));
     }
     for &(_, pin) in XP5PIO_LPDDRMC_FROM_DIG {
-        pins.push((pin, SitePinDir::Out));
+        bel = bel.extra_out_claim_rename(pin, format!("CMU_DIG_{pin}"));
     }
     for &(ipin, opin) in XP5IO_RTRIM {
-        pins.push((ipin, SitePinDir::In));
-        pins.push((opin, SitePinDir::Out));
+        bel = bel.extra_in_claim_rename(ipin, format!("CMU_DIG_{ipin}"));
+        bel = bel.extra_out_claim_rename(opin, format!("CMU_DIG_{opin}"));
     }
 
     for &(pin, _) in XP5PIO_DIG_FROM_ANA {
-        pins.push((pin, SitePinDir::In));
+        bel = bel.extra_in_claim_rename(pin, format!("CMU_DIG_{pin}"));
     }
     for &(pin, _) in XP5PIO_DIG_FROM_LPDDRMC {
-        pins.push((pin, SitePinDir::In));
+        bel = bel.extra_in_claim_rename(pin, format!("CMU_DIG_{pin}"));
     }
     for &(_, pin, _, _) in XP5IO_JTAG {
-        pins.push((pin, SitePinDir::In));
+        bel = bel.extra_in_claim_rename(pin, format!("CMU_DIG_{pin}"));
     }
-    vrf.verify_legacy_bel(bel, "XP5PIO_CMU_DIG_TOP", &pins, &[]);
-    for (pin, _) in pins {
-        vrf.claim_net(&[bel.wire(pin)]);
-    }
-    let obel = vrf.find_bel_sibling(bel, defs::bslots::XP5PIO_CMU_ANA);
     for (pin, opin) in XP5PIO_DIG_FROM_ANA {
-        vrf.claim_pip(bel.wire(pin), obel.wire(opin));
+        bel.claim_pip(
+            bel.wire(&format!("CMU_DIG_{pin}")),
+            bel.wire(&format!("CMU_ANA_{opin}")),
+        );
     }
-    let obel = vrf.find_bel_sibling(bel, defs::bslots::LPDDRMC);
     for (pin, opin) in XP5PIO_DIG_FROM_LPDDRMC {
-        vrf.claim_pip(bel.wire(pin), obel.wire(opin));
+        bel.claim_pip(bel.wire(&format!("CMU_DIG_{pin}")), bel.wire(opin));
     }
     for (opin, pin, _, _) in XP5IO_JTAG {
-        vrf.claim_pip(bel.wire(pin), obel.wire(opin));
+        bel.claim_pip(bel.wire(&format!("CMU_DIG_{pin}")), bel.wire(opin));
     }
-    let obel = vrf.find_bel_sibling(bel, defs::bslots::X5PHY_LS[5]);
+    let obel = bcrd.bel(bslots::X5PHY[5]);
     for (pin, opin) in XP5IO_RTRIM {
-        vrf.claim_pip(bel.wire(pin), obel.wire(opin));
+        bel.claim_pip(
+            bel.wire(&format!("CMU_DIG_{pin}")),
+            bel.bel_wire(obel, opin),
+        );
     }
-    let obel = vrf.find_bel_sibling(bel, defs::bslots::X5PHY_LS[10]);
-    vrf.claim_pip(
-        bel.wire("IJTAG_TDI_RETURN_EXT"),
-        obel.wire("PHY2XXX_IJTAG_TDO_RETURN"),
+    let obel = bcrd.bel(bslots::X5PHY[10]);
+    bel.claim_pip(
+        bel.wire("CMU_DIG_IJTAG_TDI_RETURN_EXT"),
+        bel.bel_wire(obel, "PHY2XXX_IJTAG_TDO_RETURN"),
     );
-}
 
-pub fn verify_lpddrmc(vrf: &mut Verifier, bel: &LegacyBelContext<'_>) {
-    let mut alloc_outs = vec![];
-    let mut alloc_ins = vec![];
-    for i in 0..66 {
-        alloc_outs.push(format!("DMC2PHY_T_TXBIT{i}"));
-    }
-    for i in 0..11 {
-        for &pin in X5PHY_LS_FROM_LPDDRMC_CLB2PHY {
-            alloc_outs.push(format!("IF_DMC_CLB2PHY_P{i}_{pin}"));
-        }
-        for &pin in X5PHY_LPDDRMC_FROM_LS_CLB2PHY {
-            alloc_ins.push(format!("IF_DMC_CLB2PHY_P{i}_{pin}"));
-        }
-        for &(pin, prefix) in X5PHY_LS_FROM_LPDDRMC_DMC2PHY {
-            alloc_outs.push(format!("IF_DMC2PHY_{prefix}{i}_{pin}"));
-        }
-        for &(pin, prefix) in X5PHY_LPDDRMC_FROM_LS_DMC2PHY {
-            alloc_ins.push(format!("IF_DMC2PHY_{prefix}{i}_{pin}"));
-        }
-        for pin in X5PHY_LPDDRMC_FROM_LS_DFX {
-            alloc_ins.push(format!("IF_XPIO_DFX_DFXCNTRL_DMC_IABUT_{pin}{i}"));
-        }
-        for pin in X5PHY_LS_FROM_LPDDRMC_DFX {
-            alloc_outs.push(format!("IF_XPIO_DFX_DFXCNTRL_DMC_IABUT_{pin}{i}"));
-        }
-        alloc_ins.push(format!("IF_XPIO_MMCM_DMC_IABUT_XPIO_PHY_CLK{i}"));
-        alloc_ins.push(format!("PHY_DIV4_CLK{i}"));
-        if !matches!(i, 0 | 9 | 10) {
-            alloc_outs.push(format!("IF_XPIO_MMCM_DMC_OABUT_XPIO_PHY_CLK{i}"));
-        }
-    }
+    bel.commit();
 
-    let mut pins = vec![
-        ("PLL0_CLKOUTPHY_OABUT", SitePinDir::Out),
-        ("PLL1_CLKOUTPHY_OABUT", SitePinDir::Out),
-        ("DMC_XPLL0_RESET", SitePinDir::Out),
-        ("DMC_XPLL1_RESET", SitePinDir::Out),
-        ("DMC_XPLL0_CLKOUTPHY_EN", SitePinDir::Out),
-        ("DMC_XPLL1_CLKOUTPHY_EN", SitePinDir::Out),
-        ("PLL0_CLKOUTPHY_IABUT", SitePinDir::In),
-        ("PLL1_CLKOUTPHY_IABUT", SitePinDir::In),
-        ("XPLL0_DMC_LOCK", SitePinDir::In),
-        ("XPLL1_DMC_LOCK", SitePinDir::In),
-        ("IF_XPIO_MMCM_DMC_OABUT_XPIO_CCIO0", SitePinDir::Out),
-        ("IF_XPIO_MMCM_DMC_OABUT_XPIO_CCIO1", SitePinDir::Out),
-        ("IF_XPIO_MMCM_DMC_OABUT_XPIO_CCIO2", SitePinDir::Out),
-        ("IF_XPIO_MMCM_DMC_OABUT_XPIO_CCIO3", SitePinDir::Out),
-        ("IF_XPIO_MMCM_DMC_IABUT_XPIO_CCIO0", SitePinDir::In),
-        ("IF_XPIO_MMCM_DMC_IABUT_XPIO_CCIO1", SitePinDir::In),
-        ("IF_XPIO_MMCM_DMC_IABUT_XPIO_CCIO2", SitePinDir::In),
-        ("IF_XPIO_MMCM_DMC_IABUT_XPIO_CCIO3", SitePinDir::In),
-        (
-            "IF_XPIO_DFX_DFXCNTRL_DMC_IABUT_CLB2PHY_SCAN_EDT_UPDT_B",
-            SitePinDir::Out,
-        ),
-        ("IJTAG_TDO_IABUT", SitePinDir::In),
-        // ties
-        ("IJTAG_SHIFT_DR", SitePinDir::In),
-        ("IJTAG_CLOCK_DR", SitePinDir::In),
-        ("IJTAG_UPDATE_DR", SitePinDir::In),
-        ("BSCAN_GTS_USR_B_IABUT", SitePinDir::In),
-        ("BSCAN_CFG2IOB_PUDC_B_IABUT", SitePinDir::In),
-        ("BSCAN_EXTEST_IABUT", SitePinDir::In),
-        ("BSCAN_EXTEST_SMPL_IABUT", SitePinDir::In),
-    ];
-
-    for pin in &alloc_outs {
-        pins.push((pin.as_str(), SitePinDir::Out));
+    let mut bel = vrf
+        .verify_bel(bcrd)
+        .sub(2)
+        .kind("XP5PIO_CMU_ANA")
+        .skip_auto()
+        .extra_in_claim_rename("GTS_CFG_B_IN", "CMU_ANA_GTS_CFG_B_IN")
+        .extra_in_claim_rename("GHIGH_B_IN", "CMU_ANA_GHIGH_B_IN");
+    for &(pin, _) in XP5PIO_ANA_FROM_DIG {
+        bel = bel.extra_in_claim_rename(pin, format!("CMU_ANA_{pin}"));
     }
-    for pin in &alloc_ins {
-        pins.push((pin.as_str(), SitePinDir::In));
+    for &(_, pin) in XP5PIO_DIG_FROM_ANA {
+        bel = bel.extra_out_claim_rename(pin, format!("CMU_ANA_{pin}"));
     }
-    for &(_, pin) in XP5PIO_DIG_FROM_LPDDRMC {
-        pins.push((pin, SitePinDir::Out));
-    }
-    for &(pin, _) in XP5PIO_LPDDRMC_FROM_DIG {
-        pins.push((pin, SitePinDir::In));
-    }
-    for &(pin, _, _, _) in XP5IO_JTAG {
-        pins.push((pin, SitePinDir::Out));
-    }
-
-    vrf.verify_legacy_bel(
-        bel,
-        "LPDDRMC",
-        &pins,
-        &[
-            "CFG2IOB_PUDC_B",
-            "CFG2IOB_PUDC_B_O",
-            "CAPTURE_DR_O",
-            "SELECT_DR_O",
-            "IJTAG_RESET_TAP_O",
-        ],
-    );
-    for (pin, _) in pins {
-        vrf.claim_net(&[bel.wire(pin)]);
-    }
-
-    let obel = vrf.find_bel_sibling(bel, defs::bslots::XP5PIO_CMU_DIG_TOP);
-    for (pin, opin) in XP5PIO_LPDDRMC_FROM_DIG {
-        vrf.claim_pip(bel.wire(pin), obel.wire(opin));
-    }
-
-    for i in 0..11 {
-        let obel = vrf.find_bel_sibling(bel, defs::bslots::X5PHY_LS[i]);
-        for &(pin, prefix) in X5PHY_LPDDRMC_FROM_LS_DMC2PHY {
-            vrf.claim_pip(
-                bel.wire(&format!("IF_DMC2PHY_{prefix}{i}_{pin}")),
-                obel.wire(&format!("IF_DMC2PHY_{pin}")),
-            );
-        }
-        for pin in X5PHY_LPDDRMC_FROM_LS_CLB2PHY {
-            vrf.claim_pip(
-                bel.wire(&format!("IF_DMC_CLB2PHY_P{i}_{pin}")),
-                obel.wire(&format!("IF_CLB2PHY_{pin}")),
-            );
-        }
-        for pin in X5PHY_LPDDRMC_FROM_LS_DFX {
-            vrf.claim_pip(
-                bel.wire(&format!("IF_XPIO_DFX_DFXCNTRL_DMC_IABUT_{pin}{i}")),
-                obel.wire(pin),
-            );
-        }
-        vrf.claim_pip(
-            bel.wire(&format!("IF_XPIO_MMCM_DMC_IABUT_XPIO_PHY_CLK{i}")),
-            obel.wire("PHY2GCLK_FIFO_WRCLK"),
-        );
-        vrf.claim_pip(bel.wire(&format!("PHY_DIV4_CLK{i}")), obel.wire("DIV4_CLK"));
-    }
-
-    for (pin, oslot, opin) in [
-        (
-            "PLL0_CLKOUTPHY_IABUT",
-            defs::bslots::PLLXP[0],
-            "CLKOUTPHY_P",
-        ),
-        (
-            "PLL1_CLKOUTPHY_IABUT",
-            defs::bslots::PLLXP[1],
-            "CLKOUTPHY_P",
-        ),
-        ("XPLL0_DMC_LOCK", defs::bslots::PLLXP[0], "LOCKED_DMC"),
-        ("XPLL1_DMC_LOCK", defs::bslots::PLLXP[1], "LOCKED_DMC"),
-    ] {
-        vrf.claim_pip(bel.wire(pin), bel.wire_far(pin));
-        let obel = vrf.find_bel_sibling(bel, oslot);
-        vrf.verify_net(&[bel.wire_far(pin), obel.wire(opin)]);
-    }
-
-    let obel = vrf.find_bel_sibling(bel, defs::bslots::X5PHY_LS[5]);
-    vrf.claim_pip(bel.wire("IJTAG_TDO_IABUT"), obel.wire("PHY2XXX_IJTAG_TDO"));
-
-    let obel_vcc = vrf.find_bel_sibling(bel, defs::bslots::VCC_XP5IO);
-    for (ccio, nibble) in [4, 5, 10, 6].into_iter().enumerate() {
-        vrf.claim_pip(
-            bel.wire(&format!("IF_XPIO_MMCM_DMC_IABUT_XPIO_CCIO{ccio}")),
-            obel_vcc.wire("VCC"),
-        );
-        let obel = vrf.find_bel_sibling(bel, defs::bslots::XP5IOB[nibble * 3]);
-        vrf.claim_pip(
-            bel.wire(&format!("IF_XPIO_MMCM_DMC_IABUT_XPIO_CCIO{ccio}")),
-            obel.wire("IOB2PHY_I0"),
-        );
-        let obel = vrf.find_bel_sibling(bel, defs::bslots::XP5IOB[nibble * 3 + 2]);
-        vrf.claim_pip(
-            bel.wire(&format!("IF_XPIO_MMCM_DMC_IABUT_XPIO_CCIO{ccio}")),
-            obel.wire("IOB2PHY_I0"),
+    for (pin, opin) in XP5PIO_ANA_FROM_DIG {
+        bel.claim_pip(
+            bel.wire(&format!("CMU_ANA_{pin}")),
+            bel.wire(&format!("CMU_DIG_{opin}")),
         );
     }
-    for nibble in [0, 1, 2, 3, 7, 8, 9] {
-        vrf.claim_net(&[bel.wire(&format!("NIBBLE{nibble}_CCIO_DUMMY"))]);
-        vrf.claim_pip(
-            bel.wire(&format!("NIBBLE{nibble}_CCIO_DUMMY")),
-            obel_vcc.wire("VCC"),
-        );
-        let obel = vrf.find_bel_sibling(bel, defs::bslots::XP5IOB[nibble * 3]);
-        vrf.claim_pip(
-            bel.wire(&format!("NIBBLE{nibble}_CCIO_DUMMY")),
-            obel.wire("IOB2PHY_I0"),
-        );
-        let obel = vrf.find_bel_sibling(bel, defs::bslots::XP5IOB[nibble * 3 + 2]);
-        vrf.claim_pip(
-            bel.wire(&format!("NIBBLE{nibble}_CCIO_DUMMY")),
-            obel.wire("IOB2PHY_I0"),
-        );
-    }
+    bel.commit();
 }

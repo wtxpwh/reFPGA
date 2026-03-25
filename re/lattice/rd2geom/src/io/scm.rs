@@ -4,7 +4,7 @@ use prjcombine_ecp::{
 };
 use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
-    db::{LegacyBel, TileWireCoord},
+    db::{LegacyBel, WireSlotIdExt},
     dir::{Dir, DirH, DirHV, DirV},
     grid::{BelCoord, CellCoord, EdgeIoCoord},
 };
@@ -659,7 +659,7 @@ impl ChipContext<'_> {
         let mut bpin = self.xlat_int_wire(bcrd, td);
         if io.edge() != Dir::N {
             for w in ["IO_T_W", "IO_T_E"] {
-                let wire = TileWireCoord::new_idx(0, self.intdb.get_wire(w));
+                let wire = self.intdb.get_wire(w).cell(0);
                 bpin.wires.insert(wire);
                 let tcrd = self.edev.bel_tile(bcrd);
                 let wire = self.io_int_names[&self.edev.tile_wire(tcrd, wire)];

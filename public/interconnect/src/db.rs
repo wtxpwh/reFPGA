@@ -383,7 +383,10 @@ pub trait WireSlotIdExt {
 
 impl WireSlotIdExt for WireSlotId {
     fn cell(self, idx: usize) -> TileWireCoord {
-        TileWireCoord::new_idx(idx, self)
+        TileWireCoord {
+            cell: CellSlotId::from_idx(idx),
+            wire: self,
+        }
     }
 }
 
@@ -516,13 +519,6 @@ pub struct TileWireCoord {
 }
 
 impl TileWireCoord {
-    pub fn new_idx(cell_idx: usize, wire: WireSlotId) -> Self {
-        TileWireCoord {
-            cell: CellSlotId::from_idx(cell_idx),
-            wire,
-        }
-    }
-
     pub const fn pos(self) -> PolTileWireCoord {
         PolTileWireCoord {
             tw: self,

@@ -185,7 +185,7 @@ pub fn draw_device(name: &str, edev: ExpandedDevice) -> Drawer {
                             IoRowKind::None => continue,
                             IoRowKind::Hpio => "hpio",
                             IoRowKind::Hrio => "hrio",
-                            IoRowKind::HdioL => "hdiolc",
+                            IoRowKind::HdioL | IoRowKind::HdioLMrc => "hdiolc",
                             IoRowKind::Xp5io => "xp5io",
                             IoRowKind::Gth => "gth",
                             IoRowKind::Gty => "gty",
@@ -235,9 +235,10 @@ pub fn draw_device(name: &str, edev: ExpandedDevice) -> Drawer {
                             HardRowKind::None => continue,
                             HardRowKind::Hdio | HardRowKind::HdioAms => "hdio",
                             HardRowKind::HdioL => "hdiolc",
-                            HardRowKind::Pcie | HardRowKind::Pcie4C | HardRowKind::Pcie4CE => {
-                                "pcie"
-                            }
+                            HardRowKind::Pcie3
+                            | HardRowKind::Pcie4
+                            | HardRowKind::Pcie4C
+                            | HardRowKind::Pcie4CE => "pcie",
                             HardRowKind::Cmac => "cmac",
                             HardRowKind::Ilkn => "ilkn",
                             HardRowKind::DfeA => "dfea",

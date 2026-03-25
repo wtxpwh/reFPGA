@@ -9,7 +9,7 @@ use prjcombine_entity::{EntityId, EntityPartVec};
 use prjcombine_interconnect::{
     db::{
         BelInfo, BelPin, ConnectorWire, LegacyBel, Mux, PinDir, SwitchBox, SwitchBoxItem,
-        TileWireCoord,
+        WireSlotIdExt,
     },
     dir::{DirH, DirV},
     grid::DieId,
@@ -219,11 +219,10 @@ impl ChipContext<'_> {
                         let wire_out_out = self.claim_single_out(wire_out);
                         self.add_bel_wire(bcrd, format!("EBRO{i}{j:02}_OUT_OUT"), wire_out_out);
 
-                        let int_wire = TileWireCoord::new_idx(
-                            15 - i,
-                            self.intdb
-                                .get_wire(&format!("EBR_{nedge}{j}_1", nedge = !edge)),
-                        );
+                        let int_wire = self
+                            .intdb
+                            .get_wire(&format!("EBR_{nedge}{j}_1", nedge = !edge))
+                            .cell(15 - i);
                         bel.pins
                             .insert(format!("EBRO{i}{j:02}"), BelPin::new_out(int_wire));
                         let wire_ebr = self.ebr_wires[&self.edev.tile_wire(tcrd, int_wire)];
@@ -236,10 +235,7 @@ impl ChipContext<'_> {
                         self.add_bel_wire(bcrd, format!("EBRI{i}{j:02}_IN"), wire_in);
                         self.claim_pip(wire, wire_in);
                         let wire_ebr = self.claim_single_in(wire_in);
-                        let int_wire = TileWireCoord::new_idx(
-                            6 + i,
-                            self.intdb.get_wire(&format!("EBR_{edge}{j}_0")),
-                        );
+                        let int_wire = self.intdb.get_wire(&format!("EBR_{edge}{j}_0")).cell(6 + i);
                         bel.pins
                             .insert(format!("EBRI{i}{j:02}"), BelPin::new_in(int_wire));
                         match self.ebr_wires.entry(self.edev.tile_wire(tcrd, int_wire)) {
@@ -280,10 +276,10 @@ impl ChipContext<'_> {
                     };
                     for i in 0..8 {
                         for j in 0..32 {
-                            let twire_ipo = TileWireCoord::new_idx(
-                                0,
-                                self.intdb.get_wire(&format!("OUT_MACO_IO_{dir}{i}_{j}")),
-                            );
+                            let twire_ipo = self
+                                .intdb
+                                .get_wire(&format!("OUT_MACO_IO_{dir}{i}_{j}"))
+                                .cell(0);
                             let wire_ipo =
                                 self.rc_io_wire(cell, &format!("{dir}IPO{i}{j:02}_MACO"));
                             self.add_bel_wire(bcrd, format!("{dir}IPO{i}{j:02}"), wire_ipo);
@@ -298,14 +294,13 @@ impl ChipContext<'_> {
                                 wire_ipo_out,
                             );
 
-                            let twire_out = TileWireCoord::new_idx(
-                                match dir {
+                            let twire_out = self
+                                .intdb
+                                .get_wire(&format!("IO_{dir_io}{j}_{seg}", seg = i + 1))
+                                .cell(match dir {
                                     DirV::S => 4,
                                     DirV::N => 5,
-                                },
-                                self.intdb
-                                    .get_wire(&format!("IO_{dir_io}{j}_{seg}", seg = i + 1)),
-                            );
+                                });
                             let wire_out = self
                                 .io_int_names
                                 .get(&self.edev.tile_wire(tcrd, twire_out))
@@ -318,13 +313,13 @@ impl ChipContext<'_> {
                                 );
                             }
 
-                            let twire_in = TileWireCoord::new_idx(
-                                match dir {
+                            let twire_in = self
+                                .intdb
+                                .get_wire(&format!("IO_{dir_io}{j}_{i}"))
+                                .cell(match dir {
                                     DirV::S => 5,
                                     DirV::N => 4,
-                                },
-                                self.intdb.get_wire(&format!("IO_{dir_io}{j}_{i}")),
-                            );
+                                });
                             let wire_in = self
                                 .io_int_names
                                 .get(&self.edev.tile_wire(tcrd, twire_in))
@@ -401,13 +396,10 @@ impl ChipContext<'_> {
                     };
                     let wire = self.intdb.get_wire(&format!("IO_T_{dir_io}"));
 
-                    let twire_out = TileWireCoord::new_idx(
-                        match dir {
-                            DirV::S => 4,
-                            DirV::N => 5,
-                        },
-                        wire,
-                    );
+                    let twire_out = wire.cell(match dir {
+                        DirV::S => 4,
+                        DirV::N => 5,
+                    });
                     let wire_out = self.io_int_names[&self.edev.tile_wire(tcrd, twire_out)];
                     self.add_bel_wire_no_claim(
                         bcrd_int,
@@ -415,13 +407,10 @@ impl ChipContext<'_> {
                         wire_out,
                     );
 
-                    let twire_in = TileWireCoord::new_idx(
-                        match dir {
-                            DirV::S => 5,
-                            DirV::N => 4,
-                        },
-                        wire,
-                    );
+                    let twire_in = wire.cell(match dir {
+                        DirV::S => 5,
+                        DirV::N => 4,
+                    });
                     let wire_in = self.io_int_names[&self.edev.tile_wire(tcrd, twire_in)];
                     self.add_bel_wire_no_claim(
                         bcrd_int,

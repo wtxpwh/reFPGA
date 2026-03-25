@@ -6,7 +6,7 @@ use prjcombine_ecp::{
 };
 use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
-    db::{BelPin, LegacyBel, TileWireCoord},
+    db::{BelPin, LegacyBel, WireSlotIdExt},
     dir::{Dir, DirH, DirV},
     grid::{BelCoord, CellCoord, DieId},
 };
@@ -525,7 +525,7 @@ impl ChipContext<'_> {
                     self.claim_pip(eclk_pll, wire_pll);
 
                     let wire = self.intdb.get_wire(["OUT_F6", "OUT_F7"][i]);
-                    let wire = TileWireCoord::new_idx(0, wire);
+                    let wire = wire.cell(0);
                     bel.pins
                         .insert(format!("PAD{i}_OUT"), BelPin::new_out(wire));
                     let wire = self.edev.tile_wire(tcrd, wire);
@@ -533,7 +533,7 @@ impl ChipContext<'_> {
                 } else {
                     for ci in 0..2 {
                         let wire = self.intdb.get_wire(["OUT_F6", "OUT_F7"][i]);
-                        let wire = TileWireCoord::new_idx(ci, wire);
+                        let wire = wire.cell(ci);
                         bel.pins
                             .insert(format!("PAD{i}_OUT{ci}"), BelPin::new_out(wire));
                         let wire = self.edev.tile_wire(tcrd, wire);
@@ -638,7 +638,7 @@ impl ChipContext<'_> {
                     }
 
                     let wire = self.intdb.get_wire(["OUT_F6", "OUT_F7"][i]);
-                    let wire = TileWireCoord::new_idx(0, wire);
+                    let wire = wire.cell(0);
                     bel.pins
                         .insert(format!("PAD{i}_OUT"), BelPin::new_out(wire));
                     let wire = self.edev.tile_wire(tcrd, wire);
@@ -646,7 +646,7 @@ impl ChipContext<'_> {
                 } else {
                     for ci in 0..2 {
                         let wire = self.intdb.get_wire(["OUT_F6", "OUT_F7"][i]);
-                        let wire = TileWireCoord::new_idx(ci, wire);
+                        let wire = wire.cell(ci);
                         bel.pins
                             .insert(format!("PAD{i}_OUT{ci}"), BelPin::new_out(wire));
                         let wire = self.edev.tile_wire(tcrd, wire);

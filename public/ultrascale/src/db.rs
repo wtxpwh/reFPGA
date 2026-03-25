@@ -131,7 +131,7 @@ impl Database {
                 writeln!(
                     o,
                     "\tchip {};",
-                    dev.chips.ids().map(|x| x.to_string()).join(", ")
+                    dev.chips.values().map(|x| x.to_string()).join(", ")
                 )?;
                 writeln!(o, "\tinterposer {ipid};", ipid = dev.interposer)?;
                 for (_dpid, pkg, bond) in &dev.bonds {

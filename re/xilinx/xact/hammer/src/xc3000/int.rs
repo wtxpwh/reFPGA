@@ -1,5 +1,8 @@
 use prjcombine_interconnect::{
-    db::{BelInfo, BelKind, BelSlotId, PolTileWireCoord, SwitchBoxItem, TileWireCoord, WireSlotId},
+    db::{
+        BelInfo, BelKind, BelSlotId, PolTileWireCoord, SwitchBoxItem, TileWireCoord, WireSlotId,
+        WireSlotIdExt,
+    },
     dir::Dir,
     grid::{BelCoord, TileCoord, WireCoord},
 };
@@ -164,15 +167,10 @@ fn drive_wire<'a>(
                 } else {
                     wires[0]
                 };
-                let crd = backend.ngrid.int_pip(
-                    tcrd,
-                    TileWireCoord::new_idx(0, wire),
-                    TileWireCoord::new_idx(0, wire_target.slot),
-                );
-                let rw = backend
-                    .edev
-                    .resolve_tile_wire(tcrd, TileWireCoord::new_idx(0, wire))
-                    .unwrap();
+                let crd = backend
+                    .ngrid
+                    .int_pip(tcrd, wire.cell(0), wire_target.slot.cell(0));
+                let rw = backend.edev.resolve_tile_wire(tcrd, wire.cell(0)).unwrap();
                 fuzzer = fuzzer
                     .base(Key::Pip(crd), Value::FromPin(block, pin.into()))
                     .base(Key::WireMutex(rw), "OSC_HOOK");
@@ -205,10 +203,7 @@ fn drive_wire<'a>(
                 let tile = &backend.edev[tcrd];
                 let tcls_index = &backend.edev.db_index[tile.class];
                 let rw = if let Some((_, idx)) = wire_as_ioclk(wire_target.slot) {
-                    if tcls_index
-                        .pips_bwd
-                        .contains_key(&TileWireCoord::new_idx(0, w.slot))
-                    {
+                    if tcls_index.pips_bwd.contains_key(&w.slot.cell(0)) {
                         w.wire(wires::IMUX_IOCLK[idx])
                     } else {
                         continue;
@@ -216,12 +211,12 @@ fn drive_wire<'a>(
                 } else {
                     w
                 };
-                if let Some(ins) = tcls_index.pips_bwd.get(&TileWireCoord::new_idx(0, rw.slot)) {
+                if let Some(ins) = tcls_index.pips_bwd.get(&rw.slot.cell(0)) {
                     for &inp in ins {
                         if matches!(inp.wire, wires::GCLK | wires::ACLK) {
                             let rwf = backend.edev.resolve_tile_wire(tcrd, inp.tw).unwrap();
                             if !wire_avoid.contains(&rwf) {
-                                break 'a (tcrd, TileWireCoord::new_idx(0, w.slot), inp.tw);
+                                break 'a (tcrd, w.slot.cell(0), inp.tw);
                             }
                         }
                     }
@@ -238,12 +233,12 @@ fn drive_wire<'a>(
                 let tcrd = w.cell.tile(tslots::MAIN);
                 let tile = &backend.edev[tcrd];
                 let tcls_index = &backend.edev.db_index[tile.class];
-                if let Some(ins) = tcls_index.pips_bwd.get(&TileWireCoord::new_idx(0, w.slot)) {
+                if let Some(ins) = tcls_index.pips_bwd.get(&w.slot.cell(0)) {
                     for &inp in ins {
                         if backend.edev.db.wires.key(inp.wire).starts_with("SINGLE") {
                             let rwf = backend.edev.resolve_tile_wire(tcrd, inp.tw).unwrap();
                             if !wire_avoid.contains(&rwf) {
-                                break 'a (tcrd, TileWireCoord::new_idx(0, w.slot), inp.tw);
+                                break 'a (tcrd, w.slot.cell(0), inp.tw);
                             }
                         }
                     }
@@ -257,14 +252,14 @@ fn drive_wire<'a>(
                 let tcrd = w.cell.tile(tslots::MAIN);
                 let tile = &backend.edev[tcrd];
                 let tcls_index = &backend.edev.db_index[tile.class];
-                if let Some(ins) = tcls_index.pips_bwd.get(&TileWireCoord::new_idx(0, w.slot)) {
+                if let Some(ins) = tcls_index.pips_bwd.get(&w.slot.cell(0)) {
                     for &inp in ins {
                         if backend.edev.db.wires.key(inp.wire).starts_with("OUT")
                             || backend.edev.db.wires.key(inp.wire).starts_with("LONG_H")
                         {
                             let rwf = backend.edev.resolve_tile_wire(tcrd, inp.tw).unwrap();
                             if !wire_avoid.contains(&rwf) {
-                                break 'a (tcrd, TileWireCoord::new_idx(0, w.slot), inp.tw);
+                                break 'a (tcrd, w.slot.cell(0), inp.tw);
                             }
                         }
                     }
@@ -278,7 +273,7 @@ fn drive_wire<'a>(
                 let tcrd = w.cell.tile(tslots::MAIN);
                 let tile = &backend.edev[tcrd];
                 let tcls_index = &backend.edev.db_index[tile.class];
-                if let Some(ins) = tcls_index.pips_bwd.get(&TileWireCoord::new_idx(0, w.slot)) {
+                if let Some(ins) = tcls_index.pips_bwd.get(&w.slot.cell(0)) {
                     for &inp in ins {
                         if (backend.edev.db.wires.key(inp.wire).starts_with("SINGLE_V")
                             && !backend.edev.db.wires.key(inp.wire).contains("_STUB"))
@@ -286,7 +281,7 @@ fn drive_wire<'a>(
                         {
                             let rwf = backend.edev.resolve_tile_wire(tcrd, inp.tw).unwrap();
                             if !wire_avoid.contains(&rwf) {
-                                break 'a (tcrd, TileWireCoord::new_idx(0, w.slot), inp.tw);
+                                break 'a (tcrd, w.slot.cell(0), inp.tw);
                             }
                         }
                     }
@@ -296,12 +291,12 @@ fn drive_wire<'a>(
                 let tcrd = w.cell.tile(tslots::MAIN);
                 let tile = &backend.edev[tcrd];
                 let tcls_index = &backend.edev.db_index[tile.class];
-                if let Some(ins) = tcls_index.pips_bwd.get(&TileWireCoord::new_idx(0, w.slot)) {
+                if let Some(ins) = tcls_index.pips_bwd.get(&w.slot.cell(0)) {
                     for &inp in ins {
                         if backend.edev.db.wires.key(inp.wire).starts_with("SINGLE_H") {
                             let rwf = backend.edev.resolve_tile_wire(tcrd, inp.tw).unwrap();
                             if !wire_avoid.contains(&rwf) {
-                                break 'a (tcrd, TileWireCoord::new_idx(0, w.slot), inp.tw);
+                                break 'a (tcrd, w.slot.cell(0), inp.tw);
                             }
                         }
                     }
@@ -369,10 +364,8 @@ fn apply_imux_finish<'a>(
         let ntile = &backend.ngrid.tiles[&tcrd];
         let block = &ntile.bels[slot][0];
         let wire_pin = backend.edev.get_bel_input(cell.bel(slot), pin);
-        let wire_pin = TileWireCoord::new_idx(0, wire_pin.slot);
-        let crd = backend
-            .ngrid
-            .int_pip(tcrd, wire_pin, TileWireCoord::new_idx(0, wire.slot));
+        let wire_pin = wire_pin.slot.cell(0);
+        let crd = backend.ngrid.int_pip(tcrd, wire_pin, wire.slot.cell(0));
         let pin_name = backend.edev.db.bel_classes[bcls::IO].inputs.key(pin).0;
         return fuzzer
             .base(Key::BlockBase(block), "IO")
@@ -566,8 +559,8 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, XactBackend<'a>>, backend: &'a 
                         if let Some(idx) = wires::IMUX_TBUF_I.index_of(mux.dst.wire) {
                             let wire_long = wires::LONG_H[idx % 2];
                             let wire_t = wires::IMUX_TBUF_T[idx];
-                            let wire_long = TileWireCoord::new_idx(0, wire_long);
-                            let wire_t = TileWireCoord::new_idx(0, wire_t);
+                            let wire_long = wire_long.cell(0);
+                            let wire_t = wire_t.cell(0);
                             for &src in mux.src.keys() {
                                 let wire_from_name = intdb.wires.key(src.wire);
                                 if !wire_from_name.starts_with("SINGLE") {
@@ -577,7 +570,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, XactBackend<'a>>, backend: &'a 
                                     .test_raw(DiffKey::Routing(
                                         tcid,
                                         wire_t,
-                                        TileWireCoord::new_idx(0, wires::TIE_0).pos(),
+                                        wires::TIE_0.cell(0).pos(),
                                     ))
                                     .prop(ProhibitInt::new(mux.dst))
                                     .prop(ProhibitInt::new(wire_t))

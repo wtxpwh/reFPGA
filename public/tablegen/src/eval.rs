@@ -72,8 +72,15 @@ impl Context {
                     let Some((expr, rest)) = rest.split_once('}') else {
                         error_at(lit.span(), "unterminated interpolation")?
                     };
+                    let (expr, fmt) = expr.split_once(':').unwrap_or((expr, ""));
+
                     let val = self.eval_expr(lit.span(), expr)?;
-                    write!(res, "{val}").unwrap();
+                    if fmt.is_empty() {
+                        write!(res, "{val}").unwrap();
+                    } else {
+                        let width: usize = fmt.parse().expect("cannot parse width");
+                        write!(res, "{val:0>width$}").unwrap();
+                    }
                     suffix = rest;
                 }
                 res.push_str(suffix);

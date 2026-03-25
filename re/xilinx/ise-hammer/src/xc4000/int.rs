@@ -2,7 +2,7 @@ use std::collections::{BTreeMap, btree_map};
 
 use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
-    db::{BelInfo, BelSlotId, CellSlotId, SwitchBoxItem, TileWireCoord},
+    db::{BelInfo, BelSlotId, CellSlotId, SwitchBoxItem, TileWireCoord, WireSlotIdExt},
     dir::{DirH, DirV},
     grid::{TileCoord, WireCoord},
 };
@@ -121,8 +121,8 @@ fn drive_xc4000_wire<'a>(
         let (tile, wt, wf) = resolve_int_pip_no_alt(
             backend,
             cell.tile(tslots::MAIN),
-            TileWireCoord::new_idx(0, wt),
-            TileWireCoord::new_idx(0, nwt.slot),
+            wt.cell(0),
+            nwt.slot.cell(0),
         )
         .unwrap();
         let fuzzer = fuzzer.base(
@@ -193,8 +193,8 @@ fn drive_xc4000_wire<'a>(
             let (tile, wt, wf) = resolve_int_pip_no_alt(
                 backend,
                 cell.delta(1, 0).tile(tslots::MAIN),
-                TileWireCoord::new_idx(0, wires::SINGLE_H_E[idx]),
-                TileWireCoord::new_idx(0, wt),
+                wires::SINGLE_H_E[idx].cell(0),
+                wt.cell(0),
             )
             .unwrap();
             let fuzzer = fuzzer.base(
@@ -209,8 +209,8 @@ fn drive_xc4000_wire<'a>(
             let (tile, wt, wf) = resolve_int_pip_no_alt(
                 backend,
                 cell.tile(tslots::MAIN),
-                TileWireCoord::new_idx(0, wt),
-                TileWireCoord::new_idx(0, wires::SINGLE_H_E[idx]),
+                wt.cell(0),
+                wires::SINGLE_H_E[idx].cell(0),
             )
             .unwrap();
             let fuzzer = fuzzer.base(
@@ -225,8 +225,8 @@ fn drive_xc4000_wire<'a>(
             let (tile, wt, wf) = resolve_int_pip_no_alt(
                 backend,
                 cell.tile(tslots::MAIN),
-                TileWireCoord::new_idx(0, wt),
-                TileWireCoord::new_idx(0, wires::SINGLE_V_S[idx]),
+                wt.cell(0),
+                wires::SINGLE_V_S[idx].cell(0),
             )
             .unwrap();
             let fuzzer = fuzzer.base(
@@ -241,8 +241,8 @@ fn drive_xc4000_wire<'a>(
             let (tile, wt, wf) = resolve_int_pip_no_alt(
                 backend,
                 cell.tile(tslots::MAIN),
-                TileWireCoord::new_idx(0, wt),
-                TileWireCoord::new_idx(0, nwt.slot),
+                wt.cell(0),
+                nwt.slot.cell(0),
             )
             .unwrap();
             let fuzzer = fuzzer.base(
@@ -268,13 +268,9 @@ fn drive_xc4000_wire<'a>(
             let nwt = cell.delta(0, dy).wire(sout);
             let (fuzzer, site_name, pin_name) =
                 drive_xc4000_wire(backend, fuzzer, nwt, None, wire_avoid);
-            let (tile, wt, wf) = resolve_int_pip_no_alt(
-                backend,
-                cell.tile(tslots::MAIN),
-                TileWireCoord::new_idx(0, wt),
-                TileWireCoord::new_idx(0, out),
-            )
-            .unwrap();
+            let (tile, wt, wf) =
+                resolve_int_pip_no_alt(backend, cell.tile(tslots::MAIN), wt.cell(0), out.cell(0))
+                    .unwrap();
             let fuzzer = fuzzer.base(
                 Key::Pip(tile, wf, wt),
                 Value::FromPin(site_name, pin_name.into()),
@@ -290,8 +286,8 @@ fn drive_xc4000_wire<'a>(
             let (tile, wt, wf) = resolve_int_pip_no_alt(
                 backend,
                 cell.tile(tslots::MAIN),
-                TileWireCoord::new_idx(0, wt),
-                TileWireCoord::new_idx(0, wires::SINGLE_V_S[idx]),
+                wt.cell(0),
+                wires::SINGLE_V_S[idx].cell(0),
             )
             .unwrap();
             let fuzzer = fuzzer.base(
@@ -309,8 +305,8 @@ fn drive_xc4000_wire<'a>(
             let (tile, wt, wf) = resolve_int_pip_no_alt(
                 backend,
                 cell.delta(0, -1).tile(tslots::MAIN),
-                TileWireCoord::new_idx(0, wires::SINGLE_V_S[idx]),
-                TileWireCoord::new_idx(0, wt),
+                wires::SINGLE_V_S[idx].cell(0),
+                wt.cell(0),
             )
             .unwrap();
             let fuzzer = fuzzer.base(
@@ -325,8 +321,8 @@ fn drive_xc4000_wire<'a>(
             let (tile, wt, wf) = resolve_int_pip_no_alt(
                 backend,
                 cell.tile(tslots::MAIN),
-                TileWireCoord::new_idx(0, wt),
-                TileWireCoord::new_idx(0, nwt.slot),
+                wt.cell(0),
+                nwt.slot.cell(0),
             )
             .unwrap();
             let fuzzer = fuzzer.base(
@@ -341,8 +337,8 @@ fn drive_xc4000_wire<'a>(
             let (tile, wt, wf) = resolve_int_pip_no_alt(
                 backend,
                 cell.tile(tslots::MAIN),
-                TileWireCoord::new_idx(0, wt),
-                TileWireCoord::new_idx(0, wires::SINGLE_H_E[idx]),
+                wt.cell(0),
+                wires::SINGLE_H_E[idx].cell(0),
             )
             .unwrap();
             let fuzzer = fuzzer.base(
@@ -368,13 +364,9 @@ fn drive_xc4000_wire<'a>(
             let nwt = cell.delta(dx, 0).wire(sout);
             let (fuzzer, site_name, pin_name) =
                 drive_xc4000_wire(backend, fuzzer, nwt, None, wire_avoid);
-            let (tile, wt, wf) = resolve_int_pip_no_alt(
-                backend,
-                cell.tile(tslots::MAIN),
-                TileWireCoord::new_idx(0, wt),
-                TileWireCoord::new_idx(0, out),
-            )
-            .unwrap();
+            let (tile, wt, wf) =
+                resolve_int_pip_no_alt(backend, cell.tile(tslots::MAIN), wt.cell(0), out.cell(0))
+                    .unwrap();
             let fuzzer = fuzzer.base(
                 Key::Pip(tile, wf, wt),
                 Value::FromPin(site_name, pin_name.into()),
@@ -583,7 +575,7 @@ fn drive_xc4000_wire<'a>(
             && ((wire_target.slot == wires::OCTAL_V[7] && cell.row == edev.chip.row_n())
                 || (wire_target.slot == wires::OCTAL_H[7] && cell.col == edev.chip.col_w()))
         {
-            ins.insert(TileWireCoord::new_idx(0, wires::TIE_0).pos());
+            ins.insert(wires::TIE_0.cell(0).pos());
         }
         for mwf in ins {
             let wfname = backend.edev.db.wires.key(mwf.wire);
@@ -1065,9 +1057,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
                     None
                 };
                 if let Some(tbuf_i_wire) = tbuf_i_wire
-                    && let Some(mux) = tcls_index
-                        .pips_bwd
-                        .get(&TileWireCoord::new_idx(0, tbuf_i_wire))
+                    && let Some(mux) = tcls_index.pips_bwd.get(&tbuf_i_wire.cell(0))
                     && mux.contains(&wire_to.pos())
                 {
                     is_bidi = true;
@@ -1301,8 +1291,8 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
             }
             let mut bctx = ctx.bel(bslot);
             if kind.is_clb_xl() && tcname.starts_with("CLB") {
-                let wt = TileWireCoord::new_idx(0, wires::IMUX_TBUF_T[idx]);
-                let wf = TileWireCoord::new_idx(0, wires::LONG_V[0]);
+                let wt = wires::IMUX_TBUF_T[idx].cell(0);
+                let wf = wires::LONG_V[0].cell(0);
                 bctx.mode("TBUF")
                     .prop(BaseIntPip::new(wt, wf))
                     .test_bel_attr_bits(bcls::TBUF::DRIVE1)
@@ -1353,8 +1343,8 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
                     }
                     _ => unreachable!(),
                 };
-                let wt = TileWireCoord::new_idx(0, out);
-                let wf = TileWireCoord::new_idx(0, inp);
+                let wt = out.cell(0);
+                let wf = inp.cell(0);
                 bctx.build()
                     .prop(BaseIntPip::new(wt, wf))
                     .test_bel_attr_bits(bcls::BUFG::ALT_PAD)
@@ -1587,10 +1577,7 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
                                 bcls::TBUF::DRIVE1,
                                 xlat_bit(drive1),
                             );
-                            inps.push((
-                                Some(TileWireCoord::new_idx(0, wires::TIE_1).pos()),
-                                Diff::default(),
-                            ));
+                            inps.push((Some(wires::TIE_1.cell(0).pos()), Diff::default()));
                             assert!(!got_empty);
                             got_empty = true;
                         }
@@ -1786,7 +1773,7 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
                 }
             }
 
-            let obuf = TileWireCoord::new_idx(0, wires::OBUF);
+            let obuf = wires::OBUF.cell(0);
             for dst in obuf_dsts {
                 let mut diffs = vec![];
                 for &src in &obuf_srcs {
