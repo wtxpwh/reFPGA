@@ -832,10 +832,16 @@ target_defs! {
         input IJTAG_TDI_RETURN_EXT;
         output IJTAG_TDO_OABUT;
         output IJTAG_TDO_RETURN_EXT;
+        input IJTAG_CLOCK_DR;
+        output IJTAG_CLOCK_DR_O;
         input IJTAG_SELECT_DR;
         output IJTAG_SELECT_DR_O;
         input IJTAG_CAPTURE_DR;
         output IJTAG_CAPTURE_DR_O;
+        input IJTAG_SHIFT_DR;
+        output IJTAG_SHIFT_DR_O;
+        input IJTAG_UPDATE_DR;
+        output IJTAG_UPDATE_DR_O;
 
         input IOB_PUDC_B;
         output IOB_PUDC_B_O;
@@ -6673,7 +6679,7 @@ target_defs! {
         // u+ only
         bel_slot BUFGCE_HDIO[4]: BUFGCE;
         bel_slot ABUS_SWITCH_HDIO[12]: ABUS_SWITCH;
-        tile_class RCLK_HDIO, RCLK_HDIOS, RCLK_HDIOL, RCLK_HDIOL_CMT {
+        tile_class RCLK_HDIO, RCLK_HDIOS, RCLK_HDIOL, RCLK_HDIOL_CMT_W, RCLK_HDIOL_CMT_E {
             cell CELL[60];
         }
 

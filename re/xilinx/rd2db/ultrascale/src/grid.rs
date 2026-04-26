@@ -115,7 +115,7 @@ fn make_columns(int: &IntGridWrapper) -> EntityVec<ColId, Column> {
         "CMAC",
         "ILKN_ILKN_FT",
         "HDIO_BOT_RIGHT",
-        "HDIOLC_HDIOL_BOT_RIGHT_CFG_FT",
+        "RCLK_RCLK_HDIOL_R_FT",
         "DFE_DFE_TILEA_FT",
         "DFE_DFE_TILEG_FT",
     ]) {
@@ -360,12 +360,12 @@ fn get_cols_hard(
         ("DFE_DFE_TILEA_FT", HardRowKind::DfeA),
         ("DFE_DFE_TILEG_FT", HardRowKind::DfeG),
         ("HDIO_BOT_RIGHT", HardRowKind::Hdio),
-        ("HDIOLC_HDIOL_BOT_RIGHT_CFG_FT", HardRowKind::HdioL),
-        ("HDIOLC_HDIOL_BOT_RIGHT_AUX_FT", HardRowKind::HdioL),
+        ("HDIOLC_HDIOS_CMAC_BOT_LEFT_FT", HardRowKind::HdioS),
+        ("RCLK_RCLK_HDIOL_R_FT", HardRowKind::HdioL),
     ] {
         for (x, y) in int.find_tiles(&[tt]) {
             let col = int.lookup_column_inter(x) - 1;
-            let reg = RegId::from_idx(int.lookup_row(y).to_idx() / Chip::ROWS_PER_REG);
+            let reg = RegId::from_idx(int.lookup_row(y + 1).to_idx() / Chip::ROWS_PER_REG);
             cells.insert((col, reg), kind);
             let crd = Coord {
                 x: x as u16,
@@ -542,7 +542,10 @@ fn get_cols_io(
             if tt == "GTY_R" && int.int.rd.site_name_xy(crd, "GTYE4_COMMON", 0, 0).is_none() {
                 disabled.insert(DisabledPart::Gt(dieid, col, reg));
             }
-            if tt.starts_with("HS") || tt.starts_with("RF") {
+            if matches!(
+                kind,
+                IoRowKind::HsAdc | IoRowKind::HsDac | IoRowKind::RfAdc | IoRowKind::RfDac
+            ) {
                 if int.int.rd.site_name_xy(crd, &tt[..5], 0, 0).is_none() {
                     disabled.insert(DisabledPart::Gt(dieid, col, reg));
                 }
@@ -559,6 +562,11 @@ fn get_cols_io(
                 }
             }
         }
+    }
+    for (x, y) in int.find_tiles(&["RCLK_RCLK_HDIOL_MRC_R_FT"]) {
+        let col = int.lookup_column_inter(x) - 1;
+        let reg = RegId::from_idx(int.lookup_row_inter(y).to_idx() / Chip::ROWS_PER_REG);
+        cells.insert((col, reg), IoRowKind::HdioLMrc);
     }
     let cols: BTreeSet<ColId> = cells.keys().map(|&(c, _)| c).collect();
     let mut res = Vec::new();
@@ -920,7 +928,17 @@ pub fn make_grids(
             disabled.insert(DisabledPart::HbmLeft);
         }
     }
+    let xp5io_es1 = if let Some((tk, _)) = rd.tile_kinds.get("HSM_XP5IO_FT")
+        && rd.tk_slot_xy(tk, "IOB", 0, 18).is_some()
+    {
+        true
+    } else {
+        false
+    };
 
-    let naming = DeviceNaming { rclk_alt_pins };
+    let naming = DeviceNaming {
+        rclk_alt_pins,
+        xp5io_es1,
+    };
     (chips, interposer, disabled, naming)
 }

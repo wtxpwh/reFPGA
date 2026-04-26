@@ -6,7 +6,9 @@ use prjcombine_ultrascale::bond::{
     Bond, BondPad, CfgPad, GtPad, GtRegion, GtRegionPad, HbmPad, PsPad, RfAdcPad, RfDacPad,
     SharedCfgPad, SysMonPad,
 };
-use prjcombine_ultrascale::chip::{Chip, ChipKind, ColumnKind, DisabledPart, IoRowKind};
+use prjcombine_ultrascale::chip::{
+    Chip, ChipKind, ColumnKind, DisabledPart, HardRowKind, IoRowKind,
+};
 use prjcombine_ultrascale::expanded::{IoCoord, IoDiffKind, IoKind};
 use std::collections::{BTreeMap, HashMap};
 use std::fmt::Write;
@@ -240,9 +242,15 @@ pub fn make_bond(rd: &Part, pkg: &str, endev: &ExpandedNamedDevice, pins: &[PkgP
                     }
                     IoCoord::HdioLc(crd) => {
                         let chip = endev.edev.chips[crd.cell.die];
-                        let idx = if crd.cell.row == chip.row_rclk(crd.cell.row)
-                            && chip.columns[crd.cell.col].kind != ColumnKind::HdioS
-                        {
+                        let reg = chip.row_to_reg(crd.cell.row);
+                        let is_hdios = match chip.columns[crd.cell.col].kind {
+                            ColumnKind::HdioS => true,
+                            ColumnKind::Hard(_, idx) => {
+                                chip.cols_hard[idx].regs[reg] == HardRowKind::HdioS
+                            }
+                            _ => false,
+                        };
+                        let idx = if crd.cell.row == chip.row_rclk(crd.cell.row) && !is_hdios {
                             42 + crd.iob.to_idx()
                         } else {
                             crd.iob.to_idx()
@@ -281,7 +289,13 @@ pub fn make_bond(rd: &Part, pkg: &str, endev: &ExpandedNamedDevice, pins: &[PkgP
                 }
                 if io_info.is_gc {
                     if io_info.kind == IoKind::Hdio {
-                        exp_func += "_HDGC";
+                        if !(endev.dev_naming.xp5io_es1
+                            && matches!(io_info.diff, IoDiffKind::N(_))
+                            && endev.edev.chips[io.cell().die].columns[io.cell().col].kind
+                                == ColumnKind::HdioS)
+                        {
+                            exp_func += "_HDGC";
+                        }
                     } else {
                         exp_func += "_GC";
                     }
@@ -399,7 +413,7 @@ pub fn make_bond(rd: &Part, pkg: &str, endev: &ExpandedNamedDevice, pins: &[PkgP
                     }
                     Some(SharedCfgPad::PerstN1) => exp_func += "_PERSTN1",
                     Some(SharedCfgPad::SmbAlert) => exp_func += "_SMBALERT",
-                    Some(SharedCfgPad::I2cSclk) => exp_func += "_I2C_SCLK",
+                    Some(SharedCfgPad::I2cScl) => exp_func += "_I2C_SCLK",
                     Some(SharedCfgPad::I2cSda) => {
                         exp_func += if endev.edev.kind == ChipKind::Ultrascale
                             || pgrid.config_kind.is_csec()

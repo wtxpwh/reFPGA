@@ -1,4 +1,5 @@
 use prjcombine_interconnect::{db::PinDir, grid::BelCoord};
+use prjcombine_re_xilinx_naming_ultrascale::ExpandedNamedDevice;
 use prjcombine_re_xilinx_rdverify::Verifier;
 use prjcombine_ultrascale::defs::{bcls, bslots};
 
@@ -1853,7 +1854,7 @@ pub fn verify_xp5io_vref(vrf: &mut Verifier, bcrd: BelCoord) {
     bel.commit();
 }
 
-pub fn verify_x5phy(vrf: &mut Verifier, bcrd: BelCoord) {
+pub fn verify_x5phy(endev: &ExpandedNamedDevice, vrf: &mut Verifier, bcrd: BelCoord) {
     let idx = bslots::X5PHY.index_of(bcrd.slot).unwrap();
     let mut bel = vrf.verify_bel(bcrd).kind("X5PHY_LS").skip_auto();
     for &pin in X5PHY_LS_FROM_LPDDRMC_CLB2PHY {
@@ -1868,11 +1869,14 @@ pub fn verify_x5phy(vrf: &mut Verifier, bcrd: BelCoord) {
     for &(pin, _) in X5PHY_LPDDRMC_FROM_LS_DMC2PHY {
         bel = bel.extra_out_claim(format!("IF_DMC2PHY_{pin}"));
     }
+    if endev.dev_naming.xp5io_es1 {
+        bel = bel
+            .extra_in_claim("XXX2PHY_IJTAG_TDI_RETURN")
+            .extra_in_claim("XXX2PHY_IJTAG_TDI")
+            .extra_out_claim("PHY2XXX_IJTAG_TDO_RETURN")
+            .extra_out_claim("PHY2XXX_IJTAG_TDO");
+    }
     bel = bel
-        .extra_in_claim("XXX2PHY_IJTAG_TDI_RETURN")
-        .extra_in_claim("XXX2PHY_IJTAG_TDI")
-        .extra_out_claim("PHY2XXX_IJTAG_TDO_RETURN")
-        .extra_out_claim("PHY2XXX_IJTAG_TDO")
         .extra_in_claim("IOB2COMP_LSPEED_I0")
         .extra_in_claim("IOB2COMP_LSPEED_I1")
         .extra_in_claim("IOB2COMP_LSPEED_I2")
@@ -1965,8 +1969,10 @@ pub fn verify_x5phy(vrf: &mut Verifier, bcrd: BelCoord) {
     for &(ipin, opin) in XP5IO_RTRIM {
         bel = bel.extra_in_claim(ipin).extra_out_claim(opin);
     }
-    for &(_, _, opin, ipin) in XP5IO_JTAG {
-        bel = bel.extra_in_claim(ipin).extra_out_claim(opin);
+    if endev.dev_naming.xp5io_es1 {
+        for &(_, _, opin, ipin) in XP5IO_JTAG {
+            bel = bel.extra_in_claim(ipin).extra_out_claim(opin);
+        }
     }
 
     for i in 0..3 {
@@ -2099,55 +2105,57 @@ pub fn verify_x5phy(vrf: &mut Verifier, bcrd: BelCoord) {
         );
     }
 
-    for &(lpddrmc_pin, _, opin, ipin) in XP5IO_JTAG {
-        if idx == 5 || idx == 10 {
-            bel.claim_pip(bel.wire(ipin), bel.bel_wire(obel_lpddrmc, lpddrmc_pin));
-        } else if idx < 5 {
-            let obel = bcrd.bel(bslots::X5PHY[idx + 1]);
-            bel.claim_pip(bel.wire(ipin), bel.bel_wire(obel, opin));
-        } else if idx == 6 {
-            let obel = bcrd.bel(bslots::X5PHY[10]);
-            bel.claim_pip(bel.wire(ipin), bel.bel_wire(obel, opin));
-        } else {
-            let obel = bcrd.bel(bslots::X5PHY[idx - 1]);
-            bel.claim_pip(bel.wire(ipin), bel.bel_wire(obel, opin));
+    if endev.dev_naming.xp5io_es1 {
+        for &(lpddrmc_pin, _, opin, ipin) in XP5IO_JTAG {
+            if idx == 5 || idx == 10 {
+                bel.claim_pip(bel.wire(ipin), bel.bel_wire(obel_lpddrmc, lpddrmc_pin));
+            } else if idx < 5 {
+                let obel = bcrd.bel(bslots::X5PHY[idx + 1]);
+                bel.claim_pip(bel.wire(ipin), bel.bel_wire(obel, opin));
+            } else if idx == 6 {
+                let obel = bcrd.bel(bslots::X5PHY[10]);
+                bel.claim_pip(bel.wire(ipin), bel.bel_wire(obel, opin));
+            } else {
+                let obel = bcrd.bel(bslots::X5PHY[idx - 1]);
+                bel.claim_pip(bel.wire(ipin), bel.bel_wire(obel, opin));
+            }
         }
-    }
 
-    if idx == 0 {
-        bel.claim_pip(
-            bel.wire("XXX2PHY_IJTAG_TDI"),
-            bel.wire("PHY2XXX_IJTAG_TDO_RETURN"),
-        );
-    } else if idx == 10 {
-        bel.claim_pip(
-            bel.wire("XXX2PHY_IJTAG_TDI"),
-            bel.bel_wire(obel_lpddrmc, "CMU_DIG_IJTAG_TDO_EXT"),
-        );
-    } else {
-        let obel = bcrd.bel(bslots::X5PHY[idx_n]);
-        bel.claim_pip(
-            bel.wire("XXX2PHY_IJTAG_TDI"),
-            bel.bel_wire(obel, "PHY2XXX_IJTAG_TDO"),
-        );
-    }
+        if idx == 0 {
+            bel.claim_pip(
+                bel.wire("XXX2PHY_IJTAG_TDI"),
+                bel.wire("PHY2XXX_IJTAG_TDO_RETURN"),
+            );
+        } else if idx == 10 {
+            bel.claim_pip(
+                bel.wire("XXX2PHY_IJTAG_TDI"),
+                bel.bel_wire(obel_lpddrmc, "CMU_DIG_IJTAG_TDO_EXT"),
+            );
+        } else {
+            let obel = bcrd.bel(bslots::X5PHY[idx_n]);
+            bel.claim_pip(
+                bel.wire("XXX2PHY_IJTAG_TDI"),
+                bel.bel_wire(obel, "PHY2XXX_IJTAG_TDO"),
+            );
+        }
 
-    if idx == 9 {
-        bel.claim_pip(
-            bel.wire("XXX2PHY_IJTAG_TDI_RETURN"),
-            bel.wire("PHY2XXX_IJTAG_TDO"),
-        );
-    } else if idx == 5 {
-        bel.claim_pip(
-            bel.wire("XXX2PHY_IJTAG_TDI_RETURN"),
-            bel.bel_wire(obel_lpddrmc, "CMU_DIG_IJTAG_TDO_RETURN_EXT"),
-        );
-    } else {
-        let obel = bcrd.bel(bslots::X5PHY[idx_s]);
-        bel.claim_pip(
-            bel.wire("XXX2PHY_IJTAG_TDI_RETURN"),
-            bel.bel_wire(obel, "PHY2XXX_IJTAG_TDO_RETURN"),
-        );
+        if idx == 9 {
+            bel.claim_pip(
+                bel.wire("XXX2PHY_IJTAG_TDI_RETURN"),
+                bel.wire("PHY2XXX_IJTAG_TDO"),
+            );
+        } else if idx == 5 {
+            bel.claim_pip(
+                bel.wire("XXX2PHY_IJTAG_TDI_RETURN"),
+                bel.bel_wire(obel_lpddrmc, "CMU_DIG_IJTAG_TDO_RETURN_EXT"),
+            );
+        } else {
+            let obel = bcrd.bel(bslots::X5PHY[idx_s]);
+            bel.claim_pip(
+                bel.wire("XXX2PHY_IJTAG_TDI_RETURN"),
+                bel.bel_wire(obel, "PHY2XXX_IJTAG_TDO_RETURN"),
+            );
+        }
     }
 
     bel.commit();
@@ -2468,7 +2476,6 @@ pub const XP5PIO_DIG_FROM_LPDDRMC: &[(&str, &str)] = &[
         "DCI_TEST_I9",
         "IF_XPIO_DCI_FABRIC_DMC_IABUT_CLB2CTR_DCI_TEST_I9",
     ),
-    ("IJTAG_TDI_EXT", "IJTAG_TDO_EXT"),
 ];
 
 pub const XP5PIO_LPDDRMC_FROM_DIG: &[(&str, &str)] = &[
@@ -2633,13 +2640,16 @@ pub const XP5IO_JTAG: &[(&str, &str, &str, &str)] = &[
     ),
 ];
 
-pub fn verify_lpddrmc(vrf: &mut Verifier, bcrd: BelCoord) {
+pub fn verify_lpddrmc(endev: &ExpandedNamedDevice, vrf: &mut Verifier, bcrd: BelCoord) {
     let mut bel = vrf
         .verify_bel(bcrd)
         .skip_in(bcls::LPDDRMC::IOB_PUDC_B)
         .skip_out(bcls::LPDDRMC::IOB_PUDC_B_O)
-        .skip_out(bcls::LPDDRMC::IJTAG_CAPTURE_DR_O)
+        .skip_out(bcls::LPDDRMC::IJTAG_CLOCK_DR_O)
         .skip_out(bcls::LPDDRMC::IJTAG_SELECT_DR_O)
+        .skip_out(bcls::LPDDRMC::IJTAG_CAPTURE_DR_O)
+        .skip_out(bcls::LPDDRMC::IJTAG_SHIFT_DR_O)
+        .skip_out(bcls::LPDDRMC::IJTAG_UPDATE_DR_O)
         .skip_out(bcls::LPDDRMC::IJTAG_RESET_TAP_O)
         .extra_out_claim("PLL0_CLKOUTPHY_OABUT")
         .extra_out_claim("PLL1_CLKOUTPHY_OABUT")
@@ -2656,15 +2666,24 @@ pub fn verify_lpddrmc(vrf: &mut Verifier, bcrd: BelCoord) {
         .extra_in_claim("IF_XPIO_MMCM_DMC_IABUT_XPIO_CCIO2")
         .extra_in_claim("IF_XPIO_MMCM_DMC_IABUT_XPIO_CCIO3")
         .extra_out_claim("IF_XPIO_DFX_DFXCNTRL_DMC_IABUT_CLB2PHY_SCAN_EDT_UPDT_B")
-        .extra_in_claim("IJTAG_TDO_IABUT")
         // ties
-        .extra_in_claim("IJTAG_SHIFT_DR")
-        .extra_in_claim("IJTAG_CLOCK_DR")
-        .extra_in_claim("IJTAG_UPDATE_DR")
         .extra_in_claim("BSCAN_GTS_USR_B_IABUT")
         .extra_in_claim("BSCAN_CFG2IOB_PUDC_B_IABUT")
         .extra_in_claim("BSCAN_EXTEST_IABUT")
         .extra_in_claim("BSCAN_EXTEST_SMPL_IABUT");
+
+    if endev.dev_naming.xp5io_es1 {
+        bel = bel
+            .extra_in_claim("IJTAG_TDO_IABUT")
+            .extra_in_claim("_IJTAG_SHIFT_DR")
+            .extra_in_claim("_IJTAG_CLOCK_DR")
+            .extra_in_claim("_IJTAG_UPDATE_DR")
+            .skip_in(bcls::LPDDRMC::IJTAG_SHIFT_DR)
+            .skip_in(bcls::LPDDRMC::IJTAG_CLOCK_DR)
+            .skip_in(bcls::LPDDRMC::IJTAG_UPDATE_DR);
+    } else {
+        bel = bel.extra_in_dummy("IJTAG_TDO_IABUT");
+    }
 
     let naming = bel.vrf.ngrid.get_bel_naming(bcrd);
     for (pname, pin) in &naming.pins {
@@ -2709,6 +2728,7 @@ pub fn verify_lpddrmc(vrf: &mut Verifier, bcrd: BelCoord) {
     for &(_, pin) in XP5PIO_DIG_FROM_LPDDRMC {
         bel = bel.extra_out_claim(pin);
     }
+    bel = bel.extra_out_claim("IJTAG_TDO_EXT");
     for &(pin, _) in XP5PIO_LPDDRMC_FROM_DIG {
         bel = bel.extra_in_claim(pin);
     }
@@ -2762,10 +2782,12 @@ pub fn verify_lpddrmc(vrf: &mut Verifier, bcrd: BelCoord) {
     }
 
     let obel = bcrd.bel(bslots::X5PHY[5]);
-    bel.claim_pip(
-        bel.wire("IJTAG_TDO_IABUT"),
-        bel.bel_wire(obel, "PHY2XXX_IJTAG_TDO"),
-    );
+    if endev.dev_naming.xp5io_es1 {
+        bel.claim_pip(
+            bel.wire("IJTAG_TDO_IABUT"),
+            bel.bel_wire(obel, "PHY2XXX_IJTAG_TDO"),
+        );
+    }
 
     for (ccio, nibble) in [4, 5, 10, 6].into_iter().enumerate() {
         bel.claim_pip(
@@ -2810,11 +2832,15 @@ pub fn verify_lpddrmc(vrf: &mut Verifier, bcrd: BelCoord) {
         .sub(1)
         .kind("XP5PIO_CMU_DIG_TOP")
         .skip_auto()
-        .extra_in_claim("CMU_DIG_IJTAG_TDI_RETURN_EXT")
         .extra_in_claim("CMU_DIG_MASTER_EN_PIN")
-        .extra_out_claim("CMU_DIG_IJTAG_TDO_RETURN_EXT")
-        .extra_out_claim("CMU_DIG_IJTAG_TDO_EXT")
         .extra_out_claim("CMU_DIG_IMPCAL_RTUNE0");
+
+    if endev.dev_naming.xp5io_es1 {
+        bel = bel
+            .extra_in_claim("CMU_DIG_IJTAG_TDI_RETURN_EXT")
+            .extra_out_claim("CMU_DIG_IJTAG_TDO_RETURN_EXT")
+            .extra_out_claim("CMU_DIG_IJTAG_TDO_EXT");
+    }
 
     for i in 0..17 {
         bel = bel.extra_out_claim(format!("CMU_DIG_CMU2XCV_DCI_ZBUS{i}"));
@@ -2846,8 +2872,11 @@ pub fn verify_lpddrmc(vrf: &mut Verifier, bcrd: BelCoord) {
     for &(pin, _) in XP5PIO_DIG_FROM_LPDDRMC {
         bel = bel.extra_in_claim(format!("CMU_DIG_{pin}"));
     }
-    for &(_, pin, _, _) in XP5IO_JTAG {
-        bel = bel.extra_in_claim(format!("CMU_DIG_{pin}"));
+    if endev.dev_naming.xp5io_es1 {
+        bel = bel.extra_in_claim("CMU_DIG_IJTAG_TDI_EXT");
+        for &(_, pin, _, _) in XP5IO_JTAG {
+            bel = bel.extra_in_claim(format!("CMU_DIG_{pin}"));
+        }
     }
     for (pin, opin) in XP5PIO_DIG_FROM_ANA {
         bel.claim_pip(
@@ -2858,8 +2887,11 @@ pub fn verify_lpddrmc(vrf: &mut Verifier, bcrd: BelCoord) {
     for (pin, opin) in XP5PIO_DIG_FROM_LPDDRMC {
         bel.claim_pip(bel.wire(&format!("CMU_DIG_{pin}")), bel.wire(opin));
     }
-    for (opin, pin, _, _) in XP5IO_JTAG {
-        bel.claim_pip(bel.wire(&format!("CMU_DIG_{pin}")), bel.wire(opin));
+    if endev.dev_naming.xp5io_es1 {
+        bel.claim_pip(bel.wire("CMU_DIG_IJTAG_TDI_EXT"), bel.wire("IJTAG_TDO_EXT"));
+        for (opin, pin, _, _) in XP5IO_JTAG {
+            bel.claim_pip(bel.wire(&format!("CMU_DIG_{pin}")), bel.wire(opin));
+        }
     }
     let obel = bcrd.bel(bslots::X5PHY[5]);
     for (pin, opin) in XP5IO_RTRIM {
@@ -2869,10 +2901,12 @@ pub fn verify_lpddrmc(vrf: &mut Verifier, bcrd: BelCoord) {
         );
     }
     let obel = bcrd.bel(bslots::X5PHY[10]);
-    bel.claim_pip(
-        bel.wire("CMU_DIG_IJTAG_TDI_RETURN_EXT"),
-        bel.bel_wire(obel, "PHY2XXX_IJTAG_TDO_RETURN"),
-    );
+    if endev.dev_naming.xp5io_es1 {
+        bel.claim_pip(
+            bel.wire("CMU_DIG_IJTAG_TDI_RETURN_EXT"),
+            bel.bel_wire(obel, "PHY2XXX_IJTAG_TDO_RETURN"),
+        );
+    }
 
     bel.commit();
 

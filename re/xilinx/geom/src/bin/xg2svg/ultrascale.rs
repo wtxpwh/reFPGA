@@ -234,6 +234,7 @@ pub fn draw_device(name: &str, edev: ExpandedDevice) -> Drawer {
                             HardRowKind::Ams => "sysmon",
                             HardRowKind::None => continue,
                             HardRowKind::Hdio | HardRowKind::HdioAms => "hdio",
+                            HardRowKind::HdioS => "hdiolc",
                             HardRowKind::HdioL => "hdiolc",
                             HardRowKind::Pcie3
                             | HardRowKind::Pcie4

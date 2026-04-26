@@ -453,7 +453,7 @@ pub enum SharedCfgPad {
     Rs(u8), // ×2
     FweB,   // doubles as FCS2_B
     FoeB,
-    I2cSclk,
+    I2cScl,
     I2cSda,   // on Ultrascale+, doubles as PERSTN1
     SmbAlert, // Ultrascale+ only
     PerstN0,
@@ -478,7 +478,7 @@ impl std::fmt::Display for SharedCfgPad {
             SharedCfgPad::CsiB => write!(f, "CSI_B"),
             SharedCfgPad::EmCclk => write!(f, "EM_CCLK"),
             SharedCfgPad::PudcB => write!(f, "PUDC_B"),
-            SharedCfgPad::I2cSclk => write!(f, "I2C_SCLK"),
+            SharedCfgPad::I2cScl => write!(f, "I2C_SCLK"),
             SharedCfgPad::I2cSda => write!(f, "I2C_SDA"),
             SharedCfgPad::SmbAlert => write!(f, "SMB_ALERT"),
             SharedCfgPad::PerstN0 => write!(f, "PERST_N0"),

@@ -36,6 +36,17 @@ pub enum IoCoord {
     Xp5io(Xp5ioCoord),
 }
 
+impl IoCoord {
+    pub fn cell(self) -> CellCoord {
+        match self {
+            IoCoord::Hpio(hpio) => hpio.cell,
+            IoCoord::Hdio(hdio) => hdio.cell,
+            IoCoord::HdioLc(hdio) => hdio.cell,
+            IoCoord::Xp5io(xp5io) => xp5io.cell,
+        }
+    }
+}
+
 #[derive(Copy, Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Encode, Decode)]
 pub enum IoKind {
     Hpio,
@@ -221,7 +232,11 @@ impl ExpandedDevice<'_> {
                 let chip = self.chips[hdio.cell.die];
                 let x = self.bankxlut[hdio.cell.col];
                 let reg = chip.row_to_reg(hdio.cell.row);
-                let is_hdios = chip.columns[hdio.cell.col].kind == ColumnKind::HdioS;
+                let is_hdios = match chip.columns[hdio.cell.col].kind {
+                    ColumnKind::HdioS => true,
+                    ColumnKind::Hard(_, idx) => chip.cols_hard[idx].regs[reg] == HardRowKind::HdioS,
+                    _ => false,
+                };
                 let y = self.bankylut[hdio.cell.die][reg]
                     + if hdio.cell.row != chip.row_reg_bot(reg) && !is_hdios {
                         1
@@ -229,7 +244,9 @@ impl ExpandedDevice<'_> {
                         0
                     };
                 let bank = x + y;
-                let is_ams = reg == chip.reg_cfg() + 1;
+                let is_ams = reg == chip.reg_cfg() + 1
+                    && (!is_hdios
+                        || !matches!(chip.columns[hdio.cell.col].kind, ColumnKind::Hard(..)));
                 let idx = if hdio.cell.row != chip.row_reg_bot(reg) && !is_hdios {
                     hdio.iob.to_idx() + 42
                 } else {
@@ -253,7 +270,7 @@ impl ExpandedDevice<'_> {
                     is_qbc: false,
                     is_dbc: false,
                     is_gc: if is_hdios {
-                        matches!(idx, 8 | 10 | 22 | 24)
+                        matches!(idx, 8..12 | 22..26)
                     } else {
                         matches!(idx, 10..14 | 42..46)
                     },

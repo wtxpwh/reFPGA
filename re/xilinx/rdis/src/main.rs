@@ -24,7 +24,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     );
     let mut pos = 13;
     let mut meta = vec![];
-    for l in [b'a', b'b', b'c', b'd'] {
+    for l in *b"abcd" {
         assert_eq!(bitdata[pos], l);
         pos += 1;
         let len = u16::from_be_bytes(*array_ref!(bitdata, pos, 2)) as usize;

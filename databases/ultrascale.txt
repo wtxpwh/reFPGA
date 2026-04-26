@@ -65197,8 +65197,11 @@ intdb {
 		input IJTAG_RESET_TAP;
 		input IJTAG_TDI_EXT;
 		input IJTAG_TDI_RETURN_EXT;
+		input IJTAG_CLOCK_DR;
 		input IJTAG_SELECT_DR;
 		input IJTAG_CAPTURE_DR;
+		input IJTAG_SHIFT_DR;
+		input IJTAG_UPDATE_DR;
 		input IOB_PUDC_B;
 		output AXIA0_ARREADY;
 		output AXIA0_AWREADY;
@@ -65283,8 +65286,11 @@ intdb {
 		output IJTAG_RESET_TAP_O;
 		output IJTAG_TDO_OABUT;
 		output IJTAG_TDO_RETURN_EXT;
+		output IJTAG_CLOCK_DR_O;
 		output IJTAG_SELECT_DR_O;
 		output IJTAG_CAPTURE_DR_O;
+		output IJTAG_SHIFT_DR_O;
+		output IJTAG_UPDATE_DR_O;
 		output IOB_PUDC_B_O;
 		output TEST_CLK_OUT[2];
 	}
@@ -142957,7 +142963,70 @@ intdb {
 			cell CELL[59];
 		}
 
-		tile_class RCLK_HDIOL_CMT {
+		tile_class RCLK_HDIOL_CMT_W {
+			cell CELL[0];
+			cell CELL[1];
+			cell CELL[2];
+			cell CELL[3];
+			cell CELL[4];
+			cell CELL[5];
+			cell CELL[6];
+			cell CELL[7];
+			cell CELL[8];
+			cell CELL[9];
+			cell CELL[10];
+			cell CELL[11];
+			cell CELL[12];
+			cell CELL[13];
+			cell CELL[14];
+			cell CELL[15];
+			cell CELL[16];
+			cell CELL[17];
+			cell CELL[18];
+			cell CELL[19];
+			cell CELL[20];
+			cell CELL[21];
+			cell CELL[22];
+			cell CELL[23];
+			cell CELL[24];
+			cell CELL[25];
+			cell CELL[26];
+			cell CELL[27];
+			cell CELL[28];
+			cell CELL[29];
+			cell CELL[30];
+			cell CELL[31];
+			cell CELL[32];
+			cell CELL[33];
+			cell CELL[34];
+			cell CELL[35];
+			cell CELL[36];
+			cell CELL[37];
+			cell CELL[38];
+			cell CELL[39];
+			cell CELL[40];
+			cell CELL[41];
+			cell CELL[42];
+			cell CELL[43];
+			cell CELL[44];
+			cell CELL[45];
+			cell CELL[46];
+			cell CELL[47];
+			cell CELL[48];
+			cell CELL[49];
+			cell CELL[50];
+			cell CELL[51];
+			cell CELL[52];
+			cell CELL[53];
+			cell CELL[54];
+			cell CELL[55];
+			cell CELL[56];
+			cell CELL[57];
+			cell CELL[58];
+			cell CELL[59];
+		}
+
+		tile_class RCLK_HDIOL_CMT_E {
 			cell CELL[0];
 			cell CELL[1];
 			cell CELL[2];

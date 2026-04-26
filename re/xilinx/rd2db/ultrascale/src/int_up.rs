@@ -66,6 +66,7 @@ impl XTileInfoExt for XTileInfo<'_, '_> {
 }
 
 struct IntMaker<'a> {
+    rd: &'a Part,
     builder: IntBuilder<'a>,
     // how many mental illnesses do you think I could be diagnosed with just from this repo?
     sng_fixup_map: BTreeMap<TileWireCoord, TileWireCoord>,
@@ -1727,9 +1728,11 @@ impl IntMaker<'_> {
                 "RCLK_RCLK_HDIO_R_FT",
                 "RCLK_RCLK_HDIO_LAST_R_FT",
                 "RCLK_RCLK_HDIOS_L_FT",
+                "RCLK_RCLK_HDIOS_CMAC_L_FT",
                 "RCLK_RCLK_HDIOL_L_FT",
                 "RCLK_RCLK_HDIOL_MRC_L_FT",
                 "RCLK_RCLK_HDIOL_R_FT",
+                "RCLK_RCLK_HDIOL_MRC_R_FT",
             ] {
                 self.builder.extra_name_tile_cell(
                     tkn,
@@ -1887,11 +1890,16 @@ impl IntMaker<'_> {
         ] {
             if let Some(&xy) = self.builder.rd.tiles_by_kind_name(tkn).iter().next() {
                 let int_xy = self.builder.walk_to_int(xy, !side, false).unwrap();
-                let intf = self.builder.ndb.get_tile_class_naming(if side == Dir::W {
-                    "INTF_W_IO"
-                } else {
-                    "INTF_E_PCIE"
-                });
+                let intf_xy = int_xy.delta(if side == Dir::W { -1 } else { 1 }, 0);
+                let intf_tile = &self.rd.tiles[&intf_xy];
+                let intf = self.builder.ndb.get_tile_class_naming(
+                    match self.rd.tile_kinds.key(intf_tile.kind).as_str() {
+                        "INT_INTF_LEFT_TERM_IO_FT" => "INTF_W_IO",
+                        "INT_INTF_RIGHT_TERM_IO" => "INTF_E_IO",
+                        "INT_INTF_RIGHT_TERM_HDIO_FT" => "INTF_E_PCIE",
+                        x => panic!("ummm {x}"),
+                    },
+                );
                 let mut bels = vec![];
                 for i in 0..21 {
                     let mut bel_iob0 = self
@@ -2010,11 +2018,7 @@ impl IntMaker<'_> {
                 for i in 0..30 {
                     xn = xn
                         .ref_int_side(int_xy.delta(0, (i + i / 30) as i32), side, i)
-                        .ref_single(
-                            int_xy.delta(if side == Dir::W { -1 } else { 1 }, (i + i / 30) as i32),
-                            i,
-                            intf,
-                        )
+                        .ref_single(intf_xy.delta(0, (i + i / 30) as i32), i, intf)
                 }
                 xn.bels(bels).extract();
             }
@@ -2024,6 +2028,7 @@ impl IntMaker<'_> {
             "HDIOLC_HDIOS_BOT_LEFT_FT",
             "HDIOLC_HDIOS_BOT_LEFT_CFG_FT",
             "HDIOLC_HDIOS_BOT_LEFT_AUX_FT",
+            "HDIOLC_HDIOS_CMAC_BOT_LEFT_FT",
         ] {
             if let Some(&xy) = self.builder.rd.tiles_by_kind_name(tkn).iter().next() {
                 let int_w_xy = self.builder.walk_to_int(xy, Dir::W, false).unwrap();
@@ -2188,6 +2193,7 @@ impl IntMaker<'_> {
             (tcls::RCLK_HDIO, "RCLK_HDIO", "RCLK_RCLK_HDIO_R_FT"),
             (tcls::RCLK_HDIO, "RCLK_HDIO", "RCLK_RCLK_HDIO_LAST_R_FT"),
             (tcls::RCLK_HDIOS, "RCLK_HDIOS", "RCLK_RCLK_HDIOS_L_FT"),
+            (tcls::RCLK_HDIOS, "RCLK_HDIOS", "RCLK_RCLK_HDIOS_CMAC_L_FT"),
         ] {
             for i in 0..24 {
                 self.builder.extra_name_tile_cell(
@@ -2298,13 +2304,13 @@ impl IntMaker<'_> {
 
         for (tcid, naming, tkn, side) in [
             (
-                tcls::RCLK_HDIOL_CMT,
+                tcls::RCLK_HDIOL_CMT_W,
                 "RCLK_HDIOL_L",
                 "RCLK_RCLK_HDIOL_L_FT",
                 Dir::W,
             ),
             (
-                tcls::RCLK_HDIOL_CMT,
+                tcls::RCLK_HDIOL_CMT_W,
                 "RCLK_HDIOL_L",
                 "RCLK_RCLK_HDIOL_MRC_L_FT",
                 Dir::W,
@@ -2313,6 +2319,12 @@ impl IntMaker<'_> {
                 tcls::RCLK_HDIOL,
                 "RCLK_HDIOL_R",
                 "RCLK_RCLK_HDIOL_R_FT",
+                Dir::E,
+            ),
+            (
+                tcls::RCLK_HDIOL_CMT_E,
+                "RCLK_HDIOL_R",
+                "RCLK_RCLK_HDIOL_MRC_R_FT",
                 Dir::E,
             ),
         ] {
@@ -2349,7 +2361,7 @@ impl IntMaker<'_> {
                         tkn,
                         format!("CLK_HROUTE_FT1_{i}"),
                         30,
-                        if tcid == tcls::RCLK_HDIOL_CMT {
+                        if tcid != tcls::RCLK_HDIOL {
                             wires::GCLK_HROUTE_FAR[i]
                         } else {
                             wires::GCLK_HROUTE[i]
@@ -2366,7 +2378,7 @@ impl IntMaker<'_> {
                         tkn,
                         format!("CLK_HROUTE_FT0_{i}"),
                         30,
-                        if tcid == tcls::RCLK_HDIOL_CMT {
+                        if tcid != tcls::RCLK_HDIOL {
                             wires::GCLK_HROUTE_FAR[i]
                         } else {
                             wires::GCLK_HROUTE[i]
@@ -2397,11 +2409,16 @@ impl IntMaker<'_> {
             if let Some(&xy) = self.builder.rd.tiles_by_kind_name(tkn).iter().next() {
                 let top_xy = xy.delta(0, -30);
                 let int_xy = self.builder.walk_to_int(top_xy, !side, false).unwrap();
-                let intf = self.builder.ndb.get_tile_class_naming(if side == Dir::W {
-                    "INTF_W_IO"
-                } else {
-                    "INTF_E_PCIE"
-                });
+                let intf_xy = int_xy.delta(if side == Dir::W { -1 } else { 1 }, 0);
+                let intf_tile = &self.rd.tiles[&intf_xy];
+                let intf = self.builder.ndb.get_tile_class_naming(
+                    match self.rd.tile_kinds.key(intf_tile.kind).as_str() {
+                        "INT_INTF_LEFT_TERM_IO_FT" => "INTF_W_IO",
+                        "INT_INTF_RIGHT_TERM_IO" => "INTF_E_IO",
+                        "INT_INTF_RIGHT_TERM_HDIO_FT" => "INTF_E_PCIE",
+                        x => panic!("ummm {x}"),
+                    },
+                );
                 let mut bels = vec![];
                 for i in 0..4 {
                     bels.push(
@@ -2455,7 +2472,11 @@ impl IntMaker<'_> {
                 xn.bels(bels).extract();
             }
         }
-        for tcid in [tcls::RCLK_HDIOL, tcls::RCLK_HDIOL_CMT] {
+        for tcid in [
+            tcls::RCLK_HDIOL,
+            tcls::RCLK_HDIOL_CMT_W,
+            tcls::RCLK_HDIOL_CMT_E,
+        ] {
             if let Some(pips) = self.builder.pips.get_mut(&(tcid, bslots::RCLK_BEL_INT)) {
                 for i in 0..4 {
                     pips.pips.insert(
@@ -2490,6 +2511,7 @@ impl IntMaker<'_> {
             (tcls::CMT, "CMT_L", "CMT_CMT_LEFT_DL3_FT", Dir::W),
             (tcls::CMT_HBM, "CMT_L_HBM", "CMT_LEFT_H", Dir::W),
             (tcls::CMT, "CMT_R", "CMT_RIGHT", Dir::E),
+            (tcls::CMT, "CMT_R", "CMT_CMT_RIGHT_DL4T_FT", Dir::E),
             (tcls::CMTXP, "CMTXP_R", "CMTXP_CMTXP_RIGHT_FT", Dir::E),
         ] {
             let is_hbm = tcid == tcls::CMT_HBM;
@@ -3831,6 +3853,14 @@ impl IntMaker<'_> {
         let Some(&xy) = self.builder.rd.tiles_by_kind_name(tkn).iter().next() else {
             return;
         };
+        let xp5io_es1 = if let Some((tk, _)) = self.rd.tile_kinds.get("HSM_XP5IO_FT")
+            && self.rd.tk_slot_xy(tk, "IOB", 0, 18).is_some()
+        {
+            true
+        } else {
+            false
+        };
+        let naming = if !xp5io_es1 { "XP5IO" } else { "XP5IO_ES1" };
 
         for i in 0..4 {
             self.builder.extra_name_pin_xy(
@@ -3869,14 +3899,25 @@ impl IntMaker<'_> {
         let tk = &self.builder.rd.tile_kinds[tile.kind];
 
         for i in 0..33 {
+            let sy = if !xp5io_es1 {
+                if i >= 30 {
+                    i - 30 + 19
+                } else if i >= 18 {
+                    i - 18 + 22
+                } else {
+                    i
+                }
+            } else {
+                i
+            };
             let tksite = tk
                 .sites
-                .get(&self.builder.rd.slot_xy("IOB", 0, i).unwrap())
+                .get(&self.builder.rd.slot_xy("IOB", 0, sy).unwrap())
                 .unwrap()
                 .1;
             let mut bel = self
                 .builder
-                .bel_xy(bslots::XP5IOB_PAIR[i], "IOB", 0, i)
+                .bel_xy(bslots::XP5IOB_PAIR[i], "IOB", 0, sy)
                 .manual();
             for pin in tksite.pins.keys() {
                 bel = bel.pin_name_only(pin, 0);
@@ -3900,14 +3941,26 @@ impl IntMaker<'_> {
         }
 
         for i in 0..11 {
+            let sy = if !xp5io_es1 {
+                if i >= 10 {
+                    i - 10 + 6
+                } else if i >= 6 {
+                    i - 6 + 7
+                } else {
+                    i
+                }
+            } else {
+                i
+            };
+
             let tksite_ls = tk
                 .sites
-                .get(&self.builder.rd.slot_xy("X5PHY_LS", 0, i).unwrap())
+                .get(&self.builder.rd.slot_xy("X5PHY_LS", 0, sy).unwrap())
                 .unwrap()
                 .1;
             let mut bel = self
                 .builder
-                .bel_xy(bslots::X5PHY[i], "X5PHY_LS", 0, i)
+                .bel_xy(bslots::X5PHY[i], "X5PHY_LS", 0, sy)
                 .manual();
             for pin in tksite_ls.pins.keys() {
                 let mut buf_cnt = 0;
@@ -3917,10 +3970,10 @@ impl IntMaker<'_> {
                 bel = bel.pin_name_only(pin, buf_cnt);
             }
 
-            bel = bel.sub_xy("X5PHY_HS", 0, i);
+            bel = bel.sub_xy("X5PHY_HS", 0, sy);
             let tksite_hs = tk
                 .sites
-                .get(&self.builder.rd.slot_xy("X5PHY_HS", 0, i).unwrap())
+                .get(&self.builder.rd.slot_xy("X5PHY_HS", 0, sy).unwrap())
                 .unwrap()
                 .1;
             for pin in tksite_hs.pins.keys() {
@@ -3950,6 +4003,26 @@ impl IntMaker<'_> {
             .builder
             .bel_xy(bslots::LPDDRMC, "LPDDRMC", 0, 0)
             .manual();
+        if !xp5io_es1 {
+            bel = bel
+                .pin_rename("IJTAG_TDO_IABUT", "_IJTAG_TDO_IABUT")
+                .pin_dummy("_IJTAG_TDO_IABUT")
+                .extra_int_in("IJTAG_TDO_IABUT", &["LPDDRMC_DMC_SITE_0_IJTAG_TDO_IABUT"])
+        } else {
+            bel = bel
+                .pin_rename("IJTAG_CLOCK_DR", "_IJTAG_CLOCK_DR")
+                .pin_rename("IJTAG_SHIFT_DR", "_IJTAG_SHIFT_DR")
+                .pin_rename("IJTAG_UPDATE_DR", "_IJTAG_UPDATE_DR")
+                .pin_name_only("_IJTAG_CLOCK_DR", 0)
+                .pin_name_only("_IJTAG_SHIFT_DR", 0)
+                .pin_name_only("_IJTAG_UPDATE_DR", 0)
+                .extra_int_in("IJTAG_CLOCK_DR", &["GND_WIRE0"])
+                .extra_int_in("IJTAG_SHIFT_DR", &["GND_WIRE9"])
+                .extra_int_in("IJTAG_UPDATE_DR", &["GND_WIRE11"])
+                .extra_int_out("IJTAG_CLOCK_DR_O", &["GND_WIRE1"])
+                .extra_int_out("IJTAG_SHIFT_DR_O", &["GND_WIRE10"])
+                .extra_int_out("IJTAG_UPDATE_DR_O", &["GND_WIRE12"]);
+        }
         for pin in tksite.pins.keys() {
             if pin.starts_with("IF_DMC_CLB2PHY")
                 || pin.starts_with("IF_DMC2PHY")
@@ -3968,9 +4041,6 @@ impl IntMaker<'_> {
                         | "IJTAG_TDO_IABUT"
                         | "UPDATE_DR_OABUT"
                         | "SELECT_DR_OABUT"
-                        | "IJTAG_CLOCK_DR"
-                        | "IJTAG_SHIFT_DR"
-                        | "IJTAG_UPDATE_DR"
                         | "CAPTURE_DR_OABUT"
                         | "BSCAN_CFG2IOB_PUDC_B_IABUT"
                         | "BSCAN_GTS_USR_B_IABUT"
@@ -4019,6 +4089,12 @@ impl IntMaker<'_> {
             .extra_int_out("IJTAG_CAPTURE_DR_O", &["LPDDRMC_DMC_SITE_0_CAPTURE_DR"])
             .extra_int_out("IJTAG_SELECT_DR_O", &["LPDDRMC_DMC_SITE_0_SELECT_DR"])
             .extra_int_out("IJTAG_RESET_TAP_O", &["LPDDRMC_DMC_SITE_0_IJTAG_RESET_TAP"]);
+        if !xp5io_es1 {
+            bel = bel
+                .extra_int_out("IJTAG_CLOCK_DR_O", &["LPDDRMC_DMC_SITE_0_IJTAG_CLOCK_DR"])
+                .extra_int_out("IJTAG_SHIFT_DR_O", &["LPDDRMC_DMC_SITE_0_IJTAG_SHIFT_DR"])
+                .extra_int_out("IJTAG_UPDATE_DR_O", &["LPDDRMC_DMC_SITE_0_IJTAG_UPDATE_DR"]);
+        }
 
         let tksite = tk
             .sites
@@ -4055,7 +4131,7 @@ impl IntMaker<'_> {
 
         let mut xn = self
             .builder
-            .xtile_id(tcls::XP5IO, "XP5IO", xy)
+            .xtile_id(tcls::XP5IO, naming, xy)
             .raw_tile(xy.delta(-2, 30));
         for i in 0..60 {
             xn = xn
@@ -4083,6 +4159,19 @@ impl IntMaker<'_> {
             bpin.wires = BTreeSet::from_iter([wire]);
             let bnpin = naming_lpddrmc.pins.get_mut(pname).unwrap();
             bnpin.is_intf = false;
+        }
+        if !xp5io_es1 {
+            for (pname, wire) in [
+                ("IJTAG_CLOCK_DR", wires::IMUX_IMUX_DELAY[6]),
+                ("IJTAG_SHIFT_DR", wires::IMUX_IMUX_DELAY[29]),
+                ("IJTAG_UPDATE_DR", wires::IMUX_IMUX_DELAY[7]),
+            ] {
+                let wire = wire.cell(34);
+                let bpin = bel_lpddrmc.pins.get_mut(pname).unwrap();
+                bpin.wires = BTreeSet::from_iter([wire]);
+                let bnpin = naming_lpddrmc.pins.get_mut(pname).unwrap();
+                bnpin.is_intf = false;
+            }
         }
 
         let mut renames = vec![];
@@ -4316,27 +4405,27 @@ impl IntMaker<'_> {
         for (bslot, (bel, bn)) in bslots::XP5IOB.into_iter().zip(bels_iob) {
             self.builder
                 .insert_tcls_bel(tcls::XP5IO, bslot, BelInfo::Legacy(bel));
-            self.builder.insert_bel_naming("XP5IO", bslot, bn);
+            self.builder.insert_bel_naming(naming, bslot, bn);
         }
         for (bslot, (bel, bn)) in bslots::XP5IOB_PAIR.into_iter().zip(bels_pair) {
             self.builder
                 .insert_tcls_bel(tcls::XP5IO, bslot, BelInfo::Legacy(bel));
-            self.builder.insert_bel_naming("XP5IO", bslot, bn);
+            self.builder.insert_bel_naming(naming, bslot, bn);
         }
         for (bslot, (bel, bn)) in bslots::XP5IO_BITSLICE.into_iter().zip(bels_bitslice) {
             self.builder
                 .insert_tcls_bel(tcls::XP5IO, bslot, BelInfo::Legacy(bel));
-            self.builder.insert_bel_naming("XP5IO", bslot, bn);
+            self.builder.insert_bel_naming(naming, bslot, bn);
         }
         for (bslot, (bel, bn)) in bslots::X5PHY.into_iter().zip(bels_phy) {
             self.builder
                 .insert_tcls_bel(tcls::XP5IO, bslot, BelInfo::Legacy(bel));
-            self.builder.insert_bel_naming("XP5IO", bslot, bn);
+            self.builder.insert_bel_naming(naming, bslot, bn);
         }
         self.builder
             .insert_tcls_bel(tcls::XP5IO, bslots::LPDDRMC, BelInfo::Legacy(bel_lpddrmc));
         self.builder
-            .insert_bel_naming("XP5IO", bslots::LPDDRMC, naming_lpddrmc);
+            .insert_bel_naming(naming, bslots::LPDDRMC, naming_lpddrmc);
     }
 
     fn fill_tiles_rclk(&mut self) {
@@ -5510,6 +5599,7 @@ impl IntMaker<'_> {
 
 pub fn make_int_db(rd: &Part, dev_naming: &DeviceNaming) -> (IntDb, NamingDb) {
     let mut maker = IntMaker {
+        rd,
         builder: IntBuilder::new(
             rd,
             bincode::decode_from_slice(defs::ultrascaleplus::INIT, bincode::config::standard())

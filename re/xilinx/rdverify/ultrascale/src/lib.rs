@@ -658,7 +658,7 @@ fn verify_sysmon(edev: &ExpandedDevice, vrf: &mut Verifier, bcrd: BelCoord) {
         let obel = get_hpiob_bel(
             edev,
             *edev.cfg_io[bcrd.die]
-                .get_by_left(&SharedCfgPad::I2cSclk)
+                .get_by_left(&SharedCfgPad::I2cScl)
                 .unwrap(),
         );
         bel.verify_net(&[bel.wire("I2C_SCLK_TS"), bel.bel_wire_far(obel, "TSDI")]);
@@ -1820,7 +1820,7 @@ fn verify_hpiob(edev: &ExpandedDevice, vrf: &mut Verifier, bcrd: BelCoord) {
         Some(_) => true,
         None => false,
     };
-    let is_ams = matches!(cfg, Some(SharedCfgPad::I2cSda | SharedCfgPad::I2cSclk))
+    let is_ams = matches!(cfg, Some(SharedCfgPad::I2cSda | SharedCfgPad::I2cScl))
         && edev.kind == ChipKind::Ultrascale;
     if is_ams {
         bel.claim_net(&[bel.wire("TSDI")]);
@@ -2100,7 +2100,7 @@ fn verify_hriob(edev: &ExpandedDevice, vrf: &mut Verifier, bcrd: BelCoord) {
         Some(_) => true,
         None => false,
     };
-    let is_ams = matches!(cfg, Some(SharedCfgPad::I2cSda | SharedCfgPad::I2cSclk))
+    let is_ams = matches!(cfg, Some(SharedCfgPad::I2cSda | SharedCfgPad::I2cScl))
         && edev.kind == ChipKind::Ultrascale;
     if is_ams {
         bel.claim_pip(bel.wire("TSDI"), bel.wire_far("TSDI"));
@@ -2706,7 +2706,8 @@ fn verify_hsadc_hsdac(edev: &ExpandedDevice, vrf: &mut Verifier, bcrd: BelCoord)
     }
 }
 
-fn verify_bel(edev: &ExpandedDevice, vrf: &mut Verifier, bcrd: BelCoord) {
+fn verify_bel(endev: &ExpandedNamedDevice, vrf: &mut Verifier, bcrd: BelCoord) {
+    let edev = endev.edev;
     match bcrd.slot {
         bslots::INT
         | bslots::INTF_INT
@@ -2865,8 +2866,8 @@ fn verify_bel(edev: &ExpandedDevice, vrf: &mut Verifier, bcrd: BelCoord) {
         _ if bslots::XP5IO_BITSLICE.contains(bcrd.slot) => (),
         _ if bslots::XP5IOB_PAIR.contains(bcrd.slot) => xp5io::verify_xp5iob_pair(vrf, bcrd),
         _ if bslots::XP5IO_VREF.contains(bcrd.slot) => xp5io::verify_xp5io_vref(vrf, bcrd),
-        _ if bslots::X5PHY.contains(bcrd.slot) => xp5io::verify_x5phy(vrf, bcrd),
-        bslots::LPDDRMC => xp5io::verify_lpddrmc(vrf, bcrd),
+        _ if bslots::X5PHY.contains(bcrd.slot) => xp5io::verify_x5phy(endev, vrf, bcrd),
+        bslots::LPDDRMC => xp5io::verify_lpddrmc(endev, vrf, bcrd),
 
         _ if bslots::BUFG_GT_SYNC.contains(bcrd.slot) => verify_bufg_gt_sync(edev, vrf, bcrd),
         _ if bslots::BUFG_GT.contains(bcrd.slot) => verify_bufg_gt(edev, vrf, bcrd),
@@ -2882,7 +2883,9 @@ fn verify_bel(edev: &ExpandedDevice, vrf: &mut Verifier, bcrd: BelCoord) {
         bslots::GTM_DUAL => verify_gtm_dual(edev, vrf, bcrd),
         bslots::HSADC | bslots::HSDAC => verify_hsadc_hsdac(edev, vrf, bcrd),
 
-        _ => println!("MEOW {}", bcrd.to_string(edev.db)),
+        _ => vrf
+            .pb
+            .suspend(|| println!("MEOW {}", bcrd.to_string(edev.db))),
     }
 }
 
@@ -3202,12 +3205,13 @@ fn verify_extra(edev: &ExpandedDevice, vrf: &mut Verifier) {
     }
 }
 
-fn verify_pre(vrf: &mut Verifier) {
+fn verify_pre(endev: &ExpandedNamedDevice, vrf: &mut Verifier) {
     for (tcid, bslot) in [
         (tcls::RCLK_HDIO, bslots::RCLK_BEL_INT),
         (tcls::RCLK_HDIOS, bslots::RCLK_BEL_INT),
         (tcls::RCLK_HDIOL, bslots::RCLK_BEL_INT),
-        (tcls::RCLK_HDIOL_CMT, bslots::RCLK_BEL_INT),
+        (tcls::RCLK_HDIOL_CMT_W, bslots::RCLK_BEL_INT),
+        (tcls::RCLK_HDIOL_CMT_E, bslots::RCLK_BEL_INT),
         (tcls::RCLK_HPIO, bslots::RCLK_IOB_INT),
         (tcls::RCLK_HRIO, bslots::RCLK_IOB_INT),
     ] {
@@ -3233,21 +3237,46 @@ fn verify_pre(vrf: &mut Verifier) {
             unreachable!()
         };
         for &tcrd in &vrf.grid.tile_index[tcls::XP5IO] {
-            for (opin, ipin) in [
-                (bcls::LPDDRMC::IOB_PUDC_B_O, bcls::LPDDRMC::IOB_PUDC_B),
+            for (opin, ipin, skip_es1) in [
+                (
+                    bcls::LPDDRMC::IOB_PUDC_B_O,
+                    bcls::LPDDRMC::IOB_PUDC_B,
+                    false,
+                ),
                 (
                     bcls::LPDDRMC::IJTAG_RESET_TAP_O,
                     bcls::LPDDRMC::IJTAG_RESET_TAP,
+                    false,
                 ),
                 (
                     bcls::LPDDRMC::IJTAG_CAPTURE_DR_O,
                     bcls::LPDDRMC::IJTAG_CAPTURE_DR,
+                    false,
                 ),
                 (
                     bcls::LPDDRMC::IJTAG_SELECT_DR_O,
                     bcls::LPDDRMC::IJTAG_SELECT_DR,
+                    false,
+                ),
+                (
+                    bcls::LPDDRMC::IJTAG_CLOCK_DR_O,
+                    bcls::LPDDRMC::IJTAG_CLOCK_DR,
+                    true,
+                ),
+                (
+                    bcls::LPDDRMC::IJTAG_SHIFT_DR_O,
+                    bcls::LPDDRMC::IJTAG_SHIFT_DR,
+                    true,
+                ),
+                (
+                    bcls::LPDDRMC::IJTAG_UPDATE_DR_O,
+                    bcls::LPDDRMC::IJTAG_UPDATE_DR,
+                    true,
                 ),
             ] {
+                if skip_es1 && endev.dev_naming.xp5io_es1 {
+                    continue;
+                }
                 let wo = *bel.outputs[opin].iter().next().unwrap();
                 let wo = vrf.grid.tile_wire(tcrd, wo);
                 let wi = bel.inputs[ipin].wire();
@@ -3260,15 +3289,20 @@ fn verify_pre(vrf: &mut Verifier) {
 
 pub fn verify_device(endev: &ExpandedNamedDevice, rd: &Part, pb: &ProgressBar) {
     let mut vrf = Verifier::new(rd, &endev.ngrid, pb);
-    verify_pre(&mut vrf);
+    verify_pre(endev, &mut vrf);
     vrf.prep_int_wires();
     vrf.handle_int();
+    pb.set_length(vrf.grid.tiles().count() as u64);
+    pb.set_position(0);
+    pb.set_message("verify bel");
     for (tcrd, tile) in endev.ngrid.egrid.tiles() {
+        pb.inc(1);
         let tcls = &endev.ngrid.egrid.db[tile.class];
         for slot in tcls.bels.ids() {
-            verify_bel(endev.edev, &mut vrf, tcrd.bel(slot));
+            verify_bel(endev, &mut vrf, tcrd.bel(slot));
         }
     }
+    pb.set_message("verify finish");
     verify_extra(endev.edev, &mut vrf);
     vrf.finish();
 }

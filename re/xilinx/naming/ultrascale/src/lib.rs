@@ -19,6 +19,7 @@ use prjcombine_ultrascale::{
 #[derive(Clone, Debug, Eq, PartialEq, Encode, Decode)]
 pub struct DeviceNaming {
     pub rclk_alt_pins: BTreeMap<String, bool>,
+    pub xp5io_es1: bool,
 }
 
 struct Asx {
@@ -81,7 +82,11 @@ fn make_aswitch_grid(edev: &ExpandedDevice) -> ASwitchGrid {
                 }
                 hdio = asx;
                 if has_hdio && !has_hdios {
-                    asx += 6;
+                    if pchip.col_side(col) == DirH::W {
+                        asx += 6;
+                    } else {
+                        hdio = asx + 1;
+                    }
                 }
                 io = asx;
                 cmt = asx;
@@ -120,7 +125,8 @@ fn make_aswitch_grid(edev: &ExpandedDevice) -> ASwitchGrid {
                 let has_hdio = regs
                     .values()
                     .any(|x| matches!(x, HardRowKind::Hdio | HardRowKind::HdioAms));
-                let has_hdiolc = regs.values().any(|&x| x == HardRowKind::HdioL);
+                let has_hdiol = regs.values().any(|&x| x == HardRowKind::HdioL);
+                let has_hdios = regs.values().any(|&x| x == HardRowKind::HdioS);
                 let has_cfg = regs.values().any(|&x| x == HardRowKind::Cfg);
                 if has_cfg {
                     hdio += 1;
@@ -130,9 +136,9 @@ fn make_aswitch_grid(edev: &ExpandedDevice) -> ASwitchGrid {
                         asx += 4;
                     }
                 }
-                if has_hdiolc {
+                if has_hdiol {
                     asx += 6;
-                } else if has_hdio {
+                } else if has_hdio || has_hdios {
                     asx += 4;
                 }
             }
@@ -157,7 +163,10 @@ fn make_aswitch_grid(edev: &ExpandedDevice) -> ASwitchGrid {
             let has_hdio = (chip.cols_hard.iter().any(|x| {
                 matches!(
                     x.regs[reg],
-                    HardRowKind::Hdio | HardRowKind::HdioAms | HardRowKind::HdioL
+                    HardRowKind::Hdio
+                        | HardRowKind::HdioAms
+                        | HardRowKind::HdioL
+                        | HardRowKind::HdioS
                 )
             }) || chip
                 .cols_io
@@ -269,7 +278,8 @@ fn make_hdiols_grid(edev: &ExpandedDevice) -> HdioLSGrid {
             ColumnKind::Hard(_, idx) => {
                 let hc = &pchip.cols_hard[idx];
                 let has_hdiol = hc.regs.values().any(|&x| x == HardRowKind::HdioL);
-                if has_hdiol {
+                let has_hdios = hc.regs.values().any(|&x| x == HardRowKind::HdioS);
+                if has_hdiol || has_hdios {
                     x += 1;
                 }
             }
@@ -291,7 +301,11 @@ fn make_hdiols_grid(edev: &ExpandedDevice) -> HdioLSGrid {
                     .cols_hard
                     .iter()
                     .any(|hcol| hcol.regs[reg] == HardRowKind::HdioL);
-            let has_hdios = chip.columns.values().any(|cd| cd.kind == ColumnKind::HdioS);
+            let has_hdios = chip.columns.values().any(|cd| cd.kind == ColumnKind::HdioS)
+                || chip
+                    .cols_hard
+                    .iter()
+                    .any(|hc| hc.regs[reg] == HardRowKind::HdioS);
             let ioly_s = ioly;
             let mut ioly_n = ioly;
             let vrefsy_s = vrefy;
@@ -534,7 +548,10 @@ fn make_io_grid(edev: &ExpandedDevice) -> IoGrid {
                 if regs.values().any(|x| {
                     matches!(
                         x,
-                        HardRowKind::Hdio | HardRowKind::HdioAms | HardRowKind::HdioL
+                        HardRowKind::Hdio
+                            | HardRowKind::HdioAms
+                            | HardRowKind::HdioS
+                            | HardRowKind::HdioL
                     )
                 }) {
                     hdio_xlut.insert(col, iox);
@@ -626,6 +643,7 @@ pub struct Gt<'a> {
 pub struct ExpandedNamedDevice<'a> {
     pub edev: &'a ExpandedDevice<'a>,
     pub ngrid: ExpandedGridNaming<'a>,
+    pub dev_naming: &'a DeviceNaming,
 }
 
 impl ExpandedNamedDevice<'_> {
@@ -776,7 +794,7 @@ fn get_bram_tk(
 pub fn name_device<'a>(
     edev: &'a ExpandedDevice<'a>,
     ndb: &'a NamingDb,
-    dev_naming: &DeviceNaming,
+    dev_naming: &'a DeviceNaming,
 ) -> ExpandedNamedDevice<'a> {
     let mut ngrid = ExpandedGridNaming::new(ndb, edev);
 
@@ -1551,7 +1569,12 @@ pub fn name_device<'a>(
                 }
             }
             tcls::HDIOS => {
-                let (tkn_s, tkn_n) = if reg == chip.reg_cfg() {
+                let (tkn_s, tkn_n) = if matches!(chip.columns[col].kind, ColumnKind::Hard(..)) {
+                    (
+                        "HDIOLC_HDIOS_CMAC_BOT_LEFT_FT",
+                        "HDIOLC_HDIOS_CMAC_TOP_LEFT_FT",
+                    )
+                } else if reg == chip.reg_cfg() {
                     (
                         "HDIOLC_HDIOS_BOT_LEFT_CFG_FT",
                         "HDIOLC_HDIOS_TOP_LEFT_CFG_FT",
@@ -1673,7 +1696,11 @@ pub fn name_device<'a>(
             }
             tcls::RCLK_HDIOS => {
                 let naming = "RCLK_HDIOS";
-                let tkn = "RCLK_RCLK_HDIOS_L_FT";
+                let tkn = if chip.columns[col].kind == ColumnKind::HdioS {
+                    "RCLK_RCLK_HDIOS_L_FT"
+                } else {
+                    "RCLK_RCLK_HDIOS_CMAC_L_FT"
+                };
                 let name = format!("{tkn}_X{x}Y{y}", y = y - 1);
                 let ntile = ngrid.name_tile(tcrd, naming, [name]);
                 let sx = rclk_hdio_grid.xlut[col];
@@ -1713,7 +1740,7 @@ pub fn name_device<'a>(
                     );
                 }
             }
-            tcls::RCLK_HDIOL | tcls::RCLK_HDIOL_CMT => {
+            tcls::RCLK_HDIOL | tcls::RCLK_HDIOL_CMT_W | tcls::RCLK_HDIOL_CMT_E => {
                 let (naming, tkn) = if chip.col_side(col) == DirH::W {
                     let iocol = chip.cols_io.iter().find(|iocol| iocol.col == col).unwrap();
                     if iocol.regs[reg] == IoRowKind::HdioLMrc {
@@ -1722,7 +1749,13 @@ pub fn name_device<'a>(
                         ("RCLK_HDIOL_L", "RCLK_RCLK_HDIOL_L_FT")
                     }
                 } else {
-                    ("RCLK_HDIOL_R", "RCLK_RCLK_HDIOL_R_FT")
+                    if let Some(iocol) = chip.cols_io.iter().find(|iocol| iocol.col == col)
+                        && iocol.regs[reg] == IoRowKind::HdioLMrc
+                    {
+                        ("RCLK_HDIOL_R", "RCLK_RCLK_HDIOL_MRC_R_FT")
+                    } else {
+                        ("RCLK_HDIOL_R", "RCLK_RCLK_HDIOL_R_FT")
+                    }
                 };
                 let name = format!("{tkn}_X{x}Y{y}", y = y - 1);
                 let ntile = ngrid.name_tile(tcrd, naming, [name]);
@@ -1786,6 +1819,9 @@ pub fn name_device<'a>(
                     } else {
                         if tile.class == tcls::CMTXP {
                             "CMTXP_CMTXP_RIGHT_FT"
+                        } else if matches!(iocol.regs[reg], IoRowKind::HdioL | IoRowKind::HdioLMrc)
+                        {
+                            "CMT_CMT_RIGHT_DL4T_FT"
                         } else {
                             "CMT_RIGHT"
                         }
@@ -2814,7 +2850,11 @@ pub fn name_device<'a>(
             tcls::XP5IO => {
                 let ntile = ngrid.name_tile(
                     tcrd,
-                    kind,
+                    if !dev_naming.xp5io_es1 {
+                        "XP5IO"
+                    } else {
+                        "XP5IO_ES1"
+                    },
                     [
                         format!("HSM_XP5IO_FT_X{x}Y{y}", y = y - 30),
                         format!("RCLK_RCLK_MC2NPI_R_FT_X{x}Y{y}", y = y - 1),
@@ -2825,12 +2865,31 @@ pub fn name_device<'a>(
                 let sx = xp5io_grid.xlut[col];
                 let sy = xp5io_grid.ylut[die][row];
                 for j in 0..33 {
-                    ntile.add_bel(
-                        bslots::XP5IOB_PAIR[j],
-                        format!("IOB_X{iox}Y{y}", y = ioy + j),
-                    );
+                    let ioby = if !dev_naming.xp5io_es1 {
+                        if j >= 30 {
+                            ioy + j - 30 + 19
+                        } else if j >= 18 {
+                            ioy + j - 18 + 22
+                        } else {
+                            ioy + j
+                        }
+                    } else {
+                        ioy + j
+                    };
+                    ntile.add_bel(bslots::XP5IOB_PAIR[j], format!("IOB_X{iox}Y{ioby}"));
                 }
                 for i in 0..11 {
+                    let ny = if !dev_naming.xp5io_es1 {
+                        if i >= 10 {
+                            sy * 11 + i - 10 + 6
+                        } else if i >= 6 {
+                            sy * 11 + i - 6 + 7
+                        } else {
+                            sy * 11 + i
+                        }
+                    } else {
+                        sy * 11 + i
+                    };
                     ntile.add_bel(
                         bslots::XP5IO_VREF[i],
                         format!("XP5IO_VREF_X{sx}Y{y}", y = sy * 11 + i),
@@ -2838,8 +2897,8 @@ pub fn name_device<'a>(
                     ntile.add_bel_multi(
                         bslots::X5PHY[i],
                         [
-                            format!("X5PHY_LS_X{sx}Y{y}", y = sy * 11 + i),
-                            format!("X5PHY_HS_X{sx}Y{y}", y = sy * 11 + i),
+                            format!("X5PHY_LS_X{sx}Y{ny}"),
+                            format!("X5PHY_HS_X{sx}Y{ny}"),
                             format!("X5PHY_PLL_SELECT_X{sx}Y{y}", y = sy * 11 + i),
                         ],
                     );
@@ -2869,5 +2928,9 @@ pub fn name_device<'a>(
         }
     }
 
-    ExpandedNamedDevice { edev, ngrid }
+    ExpandedNamedDevice {
+        edev,
+        ngrid,
+        dev_naming,
+    }
 }

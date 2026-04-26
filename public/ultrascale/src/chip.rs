@@ -195,6 +195,7 @@ pub enum HardRowKind {
     Ams,
     Hdio,
     HdioAms,
+    HdioS,
     HdioL,
     Pcie3,
     Pcie4,
@@ -222,6 +223,7 @@ impl std::fmt::Display for HardRowKind {
             HardRowKind::DfeG => write!(f, "dfe_g"),
             HardRowKind::Hdio => write!(f, "hdio"),
             HardRowKind::HdioAms => write!(f, "hdio[ams]"),
+            HardRowKind::HdioS => write!(f, "hdios"),
             HardRowKind::HdioL => write!(f, "hdiol"),
         }
     }
@@ -427,10 +429,11 @@ impl Chip {
 
     pub fn is_nocfg(&self) -> bool {
         let reg_cfg = self.reg_cfg();
-        !self
-            .cols_io
-            .iter()
-            .any(|x| matches!(x.regs[reg_cfg], IoRowKind::Hpio | IoRowKind::Hrio))
+        !self.config_kind.is_csec()
+            && !self
+                .cols_io
+                .iter()
+                .any(|x| matches!(x.regs[reg_cfg], IoRowKind::Hpio | IoRowKind::Hrio))
     }
 
     pub fn col_side(&self, col: ColId) -> DirH {
