@@ -38,7 +38,7 @@ impl Chip {
             Chip::Spartan6(chip) => chip.dump(o),
             Chip::Virtex4(chip) => chip.dump(o),
             Chip::Ultrascale(chip) => chip.dump(o),
-            Chip::Versal(chip) => write!(o, "{chip}"),
+            Chip::Versal(chip) => chip.dump(o),
         }
     }
 }
@@ -91,7 +91,7 @@ impl Interposer {
             Interposer::None => writeln!(o, "\t[NONE]"),
             Interposer::Virtex4(ip) => ip.dump(o),
             Interposer::Ultrascale(ip) => ip.dump(o),
-            Interposer::Versal(ip) => write!(o, "{ip}"),
+            Interposer::Versal(ip) => ip.dump(o),
         }
     }
 }
@@ -174,6 +174,16 @@ pub enum DeviceNaming {
     Dummy,
     Ultrascale(prjcombine_re_xilinx_naming_ultrascale::DeviceNaming),
     Versal(prjcombine_re_xilinx_naming_versal::DeviceNaming),
+}
+
+impl DeviceNaming {
+    pub fn dump(&self, o: &mut dyn std::io::Write, db: &IntDb) -> std::io::Result<()> {
+        match self {
+            DeviceNaming::Dummy => Ok(()),
+            DeviceNaming::Ultrascale(dn) => writeln!(o, "{dn:?}"),
+            DeviceNaming::Versal(dn) => dn.dump(o, db),
+        }
+    }
 }
 
 pub enum ExpandedDevice<'a> {

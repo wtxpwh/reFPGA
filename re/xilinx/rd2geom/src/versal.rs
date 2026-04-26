@@ -1,3 +1,4 @@
+use indicatif::ProgressBar;
 use prjcombine_re_xilinx_geom::{Bond, Chip, DeviceNaming, DisabledPart, Interposer};
 use prjcombine_re_xilinx_naming_versal::name_device;
 use prjcombine_re_xilinx_rawdump::Part;
@@ -7,19 +8,25 @@ use crate::db::{PreDevice, make_device_multi};
 use prjcombine_re_xilinx_rd2db_versal::{grid, int};
 use prjcombine_re_xilinx_rdverify_versal::verify_device;
 
-pub fn ingest(rd: &Part, verify: bool) -> PreDevice {
+pub fn ingest(rd: &Part, verify: bool, pb: &ProgressBar) -> PreDevice {
+    pb.set_message("grid");
     let (grids, interposer, disabled, naming) = grid::make_chips(rd);
+    pb.set_message("intdb");
     let (intdb, ndb) = int::make_int_db(rd, &naming);
+    pb.set_message("bonds");
     let mut bonds = Vec::new();
     for (pkg, _) in rd.packages.iter() {
         bonds.push((pkg.clone(), Bond::Versal(prjcombine_versal::bond::Bond {})));
     }
     let grid_refs = grids.map_values(|x| x);
+    pb.set_message("expand");
     let edev = expand_grid(&grid_refs, &interposer, &disabled, &intdb);
+    pb.set_message("name");
     let endev = name_device(&edev, &ndb, &naming);
     if verify {
-        verify_device(&endev, rd);
+        verify_device(&endev, rd, pb);
     }
+    pb.set_message("finishing");
     let grids = grids.into_map_values(Chip::Versal);
     let disabled = disabled.into_iter().map(DisabledPart::Versal).collect();
     make_device_multi(

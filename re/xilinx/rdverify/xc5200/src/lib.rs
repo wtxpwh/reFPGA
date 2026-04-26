@@ -1,3 +1,4 @@
+use indicatif::ProgressBar;
 use prjcombine_interconnect::{db::WireSlotIdExt, grid::BelCoord};
 use prjcombine_re_xilinx_naming_xc2000::ExpandedNamedDevice;
 use prjcombine_re_xilinx_rawdump::Part;
@@ -133,8 +134,8 @@ fn verify_bel(endev: &ExpandedNamedDevice, vrf: &mut Verifier, bcrd: BelCoord) {
     }
 }
 
-pub fn verify_device(endev: &ExpandedNamedDevice, rd: &Part) {
-    let mut vrf = Verifier::new(rd, &endev.ngrid);
+pub fn verify_device(endev: &ExpandedNamedDevice, rd: &Part, pb: &ProgressBar) {
+    let mut vrf = Verifier::new(rd, &endev.ngrid, pb);
     vrf.skip_bslot(bslots::BUFG);
     for idx in 0..4 {
         vrf.alias_wire_slot(wires::IMUX_IO_O_SN[idx], wires::IMUX_IO_O[idx]);

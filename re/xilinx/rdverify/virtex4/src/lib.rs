@@ -1,3 +1,4 @@
+use indicatif::ProgressBar;
 use prjcombine_entity::{EntityBundleItemIndex, EntityId};
 use prjcombine_interconnect::{
     db::{BelInfo, BelInputId, BelKind, SwitchBoxItem, WireSlotIdExt},
@@ -689,8 +690,8 @@ fn verify_extra(_endev: &ExpandedNamedDevice, vrf: &mut Verifier) {
     vrf.kill_stub_out_cond("IOIS_BYP_INT_B7");
 }
 
-pub fn verify_device(endev: &ExpandedNamedDevice, rd: &Part) {
-    let mut vrf = Verifier::new(rd, &endev.ngrid);
+pub fn verify_device(endev: &ExpandedNamedDevice, rd: &Part, pb: &ProgressBar) {
+    let mut vrf = Verifier::new(rd, &endev.ngrid, pb);
 
     for (tkn, prefix, do_s, do_n) in [
         ("HCLK_IOIS_DCI", "HCLK_IOIS", true, true),

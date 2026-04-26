@@ -1,3 +1,4 @@
+use indicatif::ProgressBar;
 use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{db::WireSlotIdExt, grid::BelCoord};
 use prjcombine_re_xilinx_naming_virtex::ExpandedNamedDevice;
@@ -159,8 +160,8 @@ fn verify_bel(edev: &ExpandedDevice, vrf: &mut Verifier, bcrd: BelCoord) {
     }
 }
 
-pub fn verify_device(endev: &ExpandedNamedDevice, rd: &Part) {
-    let mut vrf = Verifier::new(rd, &endev.ngrid);
+pub fn verify_device(endev: &ExpandedNamedDevice, rd: &Part, pb: &ProgressBar) {
+    let mut vrf = Verifier::new(rd, &endev.ngrid, pb);
 
     for w in endev.edev.db.wires.ids() {
         if let Some(wm) = wire_to_mux(w) {
@@ -184,12 +185,12 @@ pub fn verify_device(endev: &ExpandedNamedDevice, rd: &Part) {
     }
 
     for tcid in [tcls::IO_W, tcls::IO_E, tcls::IO_S, tcls::IO_N] {
-        vrf.skip_bel_output(tcid, bslots::IOI[0], bcls::IOI::I);
-        vrf.skip_bel_output(tcid, bslots::IOI[0], bcls::IOI::IQ);
+        vrf.skip_tcls_bel_output(tcid, bslots::IOI[0], bcls::IOI::I);
+        vrf.skip_tcls_bel_output(tcid, bslots::IOI[0], bcls::IOI::IQ);
     }
     for tcid in [tcls::IO_S, tcls::IO_N] {
-        vrf.skip_bel_output(tcid, bslots::IOI[3], bcls::IOI::I);
-        vrf.skip_bel_output(tcid, bslots::IOI[3], bcls::IOI::IQ);
+        vrf.skip_tcls_bel_output(tcid, bslots::IOI[3], bcls::IOI::I);
+        vrf.skip_tcls_bel_output(tcid, bslots::IOI[3], bcls::IOI::IQ);
     }
 
     for w in [

@@ -906,7 +906,7 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
             .pins_name_only(&["CASCADEOUTA", "CASCADEOUTB"])
             .pin_name_only("CASCADEINA", 1)
             .pin_name_only("CASCADEINB", 1)
-            .sub_xy(rd, "FIFO16", 0, 0)
+            .sub_xy("FIFO16", 0, 0)
             .manual();
         let mut xt = builder.xtile_id(tcls::BRAM, "BRAM", xy).bel(bel);
         for i in 0..4 {
@@ -2087,10 +2087,10 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
                 .pin_name_only(&format!("VN{i}"), 1);
         }
         bel = bel
-            .sub_xy(rd, "IPAD", 0, 0)
+            .sub_xy("IPAD", 0, 0)
             .pin_rename("O", "IPAD_VP_O")
             .pins_name_only(&["IPAD_VP_O"])
-            .sub_xy(rd, "IPAD", 0, 1)
+            .sub_xy("IPAD", 0, 1)
             .pin_rename("O", "IPAD_VN_O")
             .pins_name_only(&["IPAD_VN_O"]);
         let mut x = builder
@@ -2153,19 +2153,19 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
                     bel = bel.pin_name_only("RXMCLK", 1);
                 }
                 bel = bel
-                    .sub_xy(rd, "IPAD", 0, 0)
+                    .sub_xy("IPAD", 0, 0)
                     .raw_tile(i)
                     .pin_rename("O", "IPAD_RX1P_O")
                     .pins_name_only(&["IPAD_RX1P_O"])
-                    .sub_xy(rd, "IPAD", 0, 1)
+                    .sub_xy("IPAD", 0, 1)
                     .raw_tile(i)
                     .pin_rename("O", "IPAD_RX1N_O")
                     .pins_name_only(&["IPAD_RX1N_O"])
-                    .sub_xy(rd, "OPAD", 0, 0)
+                    .sub_xy("OPAD", 0, 0)
                     .raw_tile(i)
                     .pin_rename("I", "OPAD_TX1P_I")
                     .pins_name_only(&["OPAD_TX1P_I"])
-                    .sub_xy(rd, "OPAD", 0, 1)
+                    .sub_xy("OPAD", 0, 1)
                     .raw_tile(i)
                     .pin_rename("I", "OPAD_TX1N_I")
                     .pins_name_only(&["OPAD_TX1N_I"]);
@@ -2219,11 +2219,11 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
                     );
             }
             bel = bel
-                .sub_xy(rd, "IPAD", 0, 1)
+                .sub_xy("IPAD", 0, 1)
                 .raw_tile(2)
                 .pin_rename("O", "IPAD_MGTCLKP_O")
                 .pins_name_only(&["IPAD_MGTCLKP_O"])
-                .sub_xy(rd, "IPAD", 0, 0)
+                .sub_xy("IPAD", 0, 0)
                 .raw_tile(2)
                 .pin_rename("O", "IPAD_MGTCLKN_O")
                 .pins_name_only(&["IPAD_MGTCLKN_O"]);

@@ -1489,7 +1489,7 @@ fn extract_left(builder: &mut IntBuilder, imux_wires: &[WireSlotId], imux_nw: &[
     }
 }
 
-fn bel_bufg(builder: &mut IntBuilder, slot: BelSlotId, idx: usize) -> ExtrBelInfo {
+fn bel_bufg<'rd>(builder: &mut IntBuilder<'rd>, slot: BelSlotId, idx: usize) -> ExtrBelInfo<'rd> {
     let rd = builder.rd;
     match rd.family.as_str() {
         "spartanxl" => builder.bel_indexed(slot, "BUFGLS", idx),
@@ -1505,11 +1505,11 @@ fn bel_bufg(builder: &mut IntBuilder, slot: BelSlotId, idx: usize) -> ExtrBelInf
             .bel_indexed(slot, "BUFG", idx)
             .pin_rename("O", "O_BUFG")
             .pins_name_only(&["O_BUFG"])
-            .sub_indexed(rd, "BUFGE", idx)
+            .sub_indexed("BUFGE", idx)
             .pin_rename("I", "I_BUFGE")
             .pins_name_only(&["I_BUFGE"])
             .pin_rename("O", "O_BUFGE")
-            .sub_indexed(rd, "BUFGLS", idx)
+            .sub_indexed("BUFGLS", idx)
             .pin_rename("I", "I_BUFGLS")
             .pins_name_only(&["I_BUFGLS"]),
     }

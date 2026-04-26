@@ -1,3 +1,4 @@
+use indicatif::ProgressBar;
 use prjcombine_entity::EntityVec;
 use prjcombine_re_xilinx_geom::{Bond, Chip, DisabledPart};
 use prjcombine_re_xilinx_naming_virtex4::name_device;
@@ -8,7 +9,7 @@ use prjcombine_re_xilinx_rd2db_virtex6::{bond, grid, int};
 use prjcombine_re_xilinx_rdverify_virtex6::verify_device;
 use prjcombine_virtex4::{defs, expand_grid};
 
-pub fn ingest(rd: &Part, verify: bool) -> PreDevice {
+pub fn ingest(rd: &Part, verify: bool, pb: &ProgressBar) -> PreDevice {
     let (grid, disabled) = grid::make_grid(rd);
     let grid_refs: EntityVec<_, _> = [&grid].into_iter().collect();
     let (intdb, ndb) = int::make_int_db(rd);
@@ -20,7 +21,7 @@ pub fn ingest(rd: &Part, verify: bool) -> PreDevice {
         bonds.push((pkg.clone(), Bond::Virtex4(bond)));
     }
     if verify {
-        verify_device(&endev, rd);
+        verify_device(&endev, rd, pb);
     }
     let disabled = disabled.into_iter().map(DisabledPart::Virtex4).collect();
     make_device(

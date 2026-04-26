@@ -1,3 +1,4 @@
+use indicatif::ProgressBar;
 use prjcombine_entity::EntityId;
 use prjcombine_interconnect::db::{BelInfo, PinDir, SwitchBoxItem};
 use prjcombine_interconnect::grid::{BelCoord, DieId, DieIdExt, RowId, TileIobId};
@@ -257,10 +258,10 @@ fn verify_bram(edev: &ExpandedDevice, vrf: &mut Verifier, bcrd: BelCoord) {
                             | "CASPRVRDEN"
                     )
                 {
-                    bel = bel.extra_out_claim_rename(rpin, pin);
+                    bel = bel.extra_out_claim(pin);
                     bel.claim_pip(bel.wire_far(rpin), bel.wire(pin));
                 } else {
-                    bel = bel.extra_in_claim_rename(rpin, pin);
+                    bel = bel.extra_in_claim(pin);
                     let spin = rpin.strip_suffix("_X").unwrap_or(rpin);
                     bel.claim_pip(bel.wire(pin), bel.wire_far(spin));
                 }
@@ -985,7 +986,7 @@ fn verify_bitslice(edev: &ExpandedDevice, vrf: &mut Verifier, bcrd: BelCoord) {
     if !matches!(idx, 0 | 6) {
         bel = bel
             // stub
-            .extra_out_claim_rename("PHY2CLB_FIFO_WRCLK", "FIFO_WRCLK");
+            .extra_out_claim("FIFO_WRCLK");
     }
 
     bel.claim_pip(bel.wire("RX_CLKDIV"), bel.wire_far("CLK"));
@@ -1050,8 +1051,8 @@ fn verify_bitslice(edev: &ExpandedDevice, vrf: &mut Verifier, bcrd: BelCoord) {
             ("TX_REGRST", format!("CLB2PHY_ODELAY_RST_SMX{idx}")),
         ]);
         bel = bel
-            .extra_in_claim_rename("RX_RST", "RAW_RX_RST")
-            .extra_in_claim_rename("TX_RST", "RAW_TX_RST");
+            .extra_in_claim("RAW_RX_RST")
+            .extra_in_claim("RAW_TX_RST");
         bel.claim_pip(
             bel.wire("RAW_RX_RST"),
             bel.bel_wire(obel_feed, &format!("CLB2PHY_RXBIT_RST_SMX{idx}")),
@@ -1194,11 +1195,7 @@ fn verify_bitslice_t(edev: &ExpandedDevice, vrf: &mut Verifier, bcrd: BelCoord) 
         ]
     };
     for (pin, opin_l, opin_u) in feed_pins {
-        if pin == "RAW_RST" {
-            bel = bel.extra_in_claim_rename("RST", pin);
-        } else {
-            bel = bel.extra_in_claim(pin);
-        }
+        bel = bel.extra_in_claim(pin);
         bel.claim_pip(
             bel.wire(pin),
             bel.bel_wire(obel_feed, [opin_l, opin_u][idx]),
@@ -1512,11 +1509,11 @@ fn verify_bitslice_control(edev: &ExpandedDevice, vrf: &mut Verifier, bcrd: BelC
         .sub(1)
         .kind("PLL_SELECT_SITE")
         .skip_auto()
-        .extra_in_claim_rename("D0", "PLL_SELECT_D0")
-        .extra_in_claim_rename("D1", "PLL_SELECT_D1")
-        .extra_in_claim_rename("REFCLK_DFD", "PLL_SELECT_REFCLK_DFD")
-        .extra_in_claim_rename("PLL_CLK_EN", "PLL_SELECT_PLL_CLK_EN")
-        .extra_out_claim_rename("Z", "PLL_SELECT_Z");
+        .extra_in_claim("PLL_SELECT_D0")
+        .extra_in_claim("PLL_SELECT_D1")
+        .extra_in_claim("PLL_SELECT_REFCLK_DFD")
+        .extra_in_claim("PLL_SELECT_PLL_CLK_EN")
+        .extra_out_claim("PLL_SELECT_Z");
     let obel_pll0 = bcrd.with_row(chip.row_rclk(bcrd.row)).bel(bslots::PLL[0]);
     let obel_pll1 = bcrd.with_row(chip.row_rclk(bcrd.row)).bel(bslots::PLL[1]);
     bel.claim_pip(bel.wire("PLL_SELECT_D0"), bel.wire_far("PLL_SELECT_D0"));
@@ -2579,14 +2576,14 @@ fn verify_gtm_dual(edev: &ExpandedDevice, vrf: &mut Verifier, bcrd: BelCoord) {
         .sub(1)
         .kind("GTM_REFCLK")
         .skip_auto()
-        .extra_in_claim_rename("HROW_TEST_CK_FS", "GTM_REFCLK_HROW_TEST_CK_FS")
-        .extra_in_claim_rename("REFCLKPDB_SA", "GTM_REFCLK_REFCLKPDB_SA")
-        .extra_in_claim_rename("RXRECCLK0_INT", "GTM_REFCLK_RXRECCLK0_INT")
-        .extra_in_claim_rename("RXRECCLK1_INT", "GTM_REFCLK_RXRECCLK1_INT")
-        .extra_in_claim_rename("RXRECCLK2_INT", "GTM_REFCLK_RXRECCLK2_INT")
-        .extra_in_claim_rename("RXRECCLK3_INT", "GTM_REFCLK_RXRECCLK3_INT")
-        .extra_out_claim_rename("MGTREFCLK_CLEAN", "GTM_REFCLK_MGTREFCLK_CLEAN")
-        .extra_out_claim_rename("REFCLK2HROW", "GTM_REFCLK_REFCLK2HROW");
+        .extra_in_claim("GTM_REFCLK_HROW_TEST_CK_FS")
+        .extra_in_claim("GTM_REFCLK_REFCLKPDB_SA")
+        .extra_in_claim("GTM_REFCLK_RXRECCLK0_INT")
+        .extra_in_claim("GTM_REFCLK_RXRECCLK1_INT")
+        .extra_in_claim("GTM_REFCLK_RXRECCLK2_INT")
+        .extra_in_claim("GTM_REFCLK_RXRECCLK3_INT")
+        .extra_out_claim("GTM_REFCLK_MGTREFCLK_CLEAN")
+        .extra_out_claim("GTM_REFCLK_REFCLK2HROW");
     if !edev
         .disabled
         .contains(&DisabledPart::Gt(bcrd.die, bcrd.col, reg))
@@ -3261,8 +3258,8 @@ fn verify_pre(vrf: &mut Verifier) {
     }
 }
 
-pub fn verify_device(endev: &ExpandedNamedDevice, rd: &Part) {
-    let mut vrf = Verifier::new(rd, &endev.ngrid);
+pub fn verify_device(endev: &ExpandedNamedDevice, rd: &Part, pb: &ProgressBar) {
+    let mut vrf = Verifier::new(rd, &endev.ngrid, pb);
     verify_pre(&mut vrf);
     vrf.prep_int_wires();
     vrf.handle_int();

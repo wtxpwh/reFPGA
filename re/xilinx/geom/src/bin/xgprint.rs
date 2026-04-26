@@ -119,8 +119,8 @@ fn main() -> Result<(), Box<dyn Error>> {
             }
             println!();
             if args.namings {
-                // XXX pretty
-                println!("{dn:#?}");
+                let db = geom.ints.values().next().unwrap();
+                dn.dump(&mut std::io::stdout(), db)?;
             }
         }
     }

@@ -489,6 +489,36 @@ fn main() -> Result<(), Box<dyn Error>> {
                 "NOC_NPS7575_TOP_1_IN_3",
             ],
         ),
+        // top SSIT2
+        (
+            "NOC2_TNOC_NIDB_CORE",
+            &[
+                "NOC_NPP_RPTR_FLOP_1_OUT_LEFT",
+                "NOC_NPP_RPTR_FLOP_2_OUT_LEFT",
+                "NOC_NPP_RPTR_FLOP_6_OUT_RIGHT",
+                "NOC_NPP_RPTR_FLOP_7_OUT_RIGHT",
+                "NOC2_NIDBV_TOP_0_TX",
+                "NOC2_NIDBV_TOP_5_TX",
+                "NOC_NPS7575_TOP_3_OUT_1",
+                "NOC_NPS7575_TOP_4_OUT_3",
+            ],
+            &[
+                "NOC_NPP_RPTR_FLOP_1_IN_LEFT",
+                "NOC_NPP_RPTR_FLOP_2_IN_LEFT",
+                "NOC_NPP_RPTR_FLOP_6_IN_RIGHT",
+                "NOC_NPP_RPTR_FLOP_7_IN_RIGHT",
+                "NOC2_NIDBV_TOP_0_RX",
+                "NOC2_NIDBV_TOP_5_RX",
+                "NOC_NPS7575_TOP_3_IN_1",
+                "NOC_NPS7575_TOP_4_IN_3",
+            ],
+        ),
+        // bot SSIT2
+        (
+            "NOC2_HNOC_NIDB_CORE",
+            &["NOC2_NIDBH_TOP_0_OUT_0", "NOC2_NIDBH_TOP_0_TX"],
+            &["NOC2_NIDBH_TOP_0_IN_0", "NOC2_NIDBH_TOP_0_RX"],
+        ),
         // top HBM
         (
             "HBMMC_CORE",
@@ -928,6 +958,31 @@ fn main() -> Result<(), Box<dyn Error>> {
                 "PSXL_ATOM_0_NOC_PCIE_0",
             ],
         ),
+        // PSXC
+        (
+            "PSXC_TILE",
+            &[
+                "PSXC_ATOM_0_CMN_NOC_0",
+                "PSXC_ATOM_0_CMN_NOC_1",
+                "PSXC_ATOM_0_CMN_NOC_2",
+                "PSXC_ATOM_0_CMN_NOC_3",
+                "PSXC_ATOM_0_CMN_NOC_4",
+                "PSXC_ATOM_0_CMN_NOC_5",
+                "PSXC_ATOM_0_CMN_NOC_6",
+                "PSXC_ATOM_0_CMN_NOC_7",
+                "PSXC_ATOM_0_CMN_NOC_8",
+                "PSXC_ATOM_0_PMC_NOC_0",
+                "PSXC_ATOM_0_RPU_NOC_0",
+                "PSXC_ATOM_0_MMI_NOC_0",
+            ],
+            &[
+                "PSXC_ATOM_0_CMN_NOC_CCI_0",
+                "PSXC_ATOM_0_CMN_NOC_CCI_1",
+                "PSXC_ATOM_0_CMN_NOC_CCI_2",
+                "PSXC_ATOM_0_CMN_NOC_CCI_3",
+                "PSXC_ATOM_0_NOC_PMC_0",
+            ],
+        ),
         // bot X5HPIO
         (
             "DDRMC5_DMC_CORE",
@@ -943,6 +998,38 @@ fn main() -> Result<(), Box<dyn Error>> {
             &[
                 "DDRMC5_DMC_SITE_0_FROM_NOC_0",
                 "DDRMC5_DMC_SITE_0_FROM_NOC_1",
+            ],
+        ),
+        (
+            "DDRMC5C_DMC_CORE",
+            &["DDRMC5C_DMC_SITE_0_TO_NOC_0", "DDRMC5C_DMC_SITE_0_TO_NOC_1"],
+            &[
+                "DDRMC5C_DMC_SITE_0_FROM_NOC_0",
+                "DDRMC5C_DMC_SITE_0_FROM_NOC_1",
+            ],
+        ),
+        (
+            "DDRMC5C_DMC_CORE_MY",
+            &["DDRMC5C_DMC_SITE_0_TO_NOC_0", "DDRMC5C_DMC_SITE_0_TO_NOC_1"],
+            &[
+                "DDRMC5C_DMC_SITE_0_FROM_NOC_0",
+                "DDRMC5C_DMC_SITE_0_FROM_NOC_1",
+            ],
+        ),
+        (
+            "DDRMC5E_DMC_CORE",
+            &["DDRMC5E_DMC_SITE_0_TO_NOC_0", "DDRMC5E_DMC_SITE_0_TO_NOC_1"],
+            &[
+                "DDRMC5E_DMC_SITE_0_FROM_NOC_0",
+                "DDRMC5E_DMC_SITE_0_FROM_NOC_1",
+            ],
+        ),
+        (
+            "DDRMC5E_DMC_CORE_MY",
+            &["DDRMC5E_DMC_SITE_0_TO_NOC_0", "DDRMC5E_DMC_SITE_0_TO_NOC_1"],
+            &[
+                "DDRMC5E_DMC_SITE_0_FROM_NOC_0",
+                "DDRMC5E_DMC_SITE_0_FROM_NOC_1",
             ],
         ),
         // CPM5N

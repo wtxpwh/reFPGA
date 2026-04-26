@@ -1,3 +1,4 @@
+use indicatif::ProgressBar;
 use prjcombine_re_xilinx_geom::{Bond, Chip, DeviceNaming, DisabledPart, Interposer};
 use prjcombine_re_xilinx_naming_ultrascale::name_device;
 use prjcombine_re_xilinx_rawdump::Part;
@@ -7,7 +8,7 @@ use crate::db::{PreDevice, make_device_multi};
 use prjcombine_re_xilinx_rd2db_ultrascale::{bond, grid, int_u, int_up};
 use prjcombine_re_xilinx_rdverify_ultrascale::verify_device;
 
-pub fn ingest(rd: &Part, verify: bool) -> PreDevice {
+pub fn ingest(rd: &Part, verify: bool, pb: &ProgressBar) -> PreDevice {
     let (grids, interposer, disabled, naming) = grid::make_grids(rd);
     let (base, (intdb, ndb)) = if rd.family == "ultrascale" {
         (
@@ -33,7 +34,7 @@ pub fn ingest(rd: &Part, verify: bool) -> PreDevice {
         bonds.push((pkg.clone(), Bond::Ultrascale(bond)));
     }
     if verify {
-        verify_device(&endev, rd);
+        verify_device(&endev, rd, pb);
     }
     let grids = grids.into_map_values(Chip::Ultrascale);
     let disabled = disabled.into_iter().map(DisabledPart::Ultrascale).collect();

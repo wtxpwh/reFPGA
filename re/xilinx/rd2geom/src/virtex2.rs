@@ -1,5 +1,6 @@
 use std::collections::BTreeSet;
 
+use indicatif::ProgressBar;
 use prjcombine_re_xilinx_geom::{Bond, Chip};
 use prjcombine_re_xilinx_naming_virtex2::name_device;
 use prjcombine_re_xilinx_rawdump::Part;
@@ -9,7 +10,7 @@ use crate::db::{PreDevice, make_device};
 use prjcombine_re_xilinx_rd2db_virtex2::{bond, grid, int_s3, int_v2};
 use prjcombine_re_xilinx_rdverify_virtex2::verify_device;
 
-pub fn ingest(rd: &Part, verify: bool) -> PreDevice {
+pub fn ingest(rd: &Part, verify: bool, pb: &ProgressBar) -> PreDevice {
     let grid = grid::make_grid(rd);
     let (intdb_init, (intdb, ndb)) = if rd.family.starts_with("virtex2") {
         (
@@ -34,7 +35,7 @@ pub fn ingest(rd: &Part, verify: bool) -> PreDevice {
         bonds.push((pkg.clone(), Bond::Virtex2(bond)));
     }
     if verify {
-        verify_device(&endev, rd);
+        verify_device(&endev, rd, pb);
     }
     let intdb_name = if grid.kind.is_virtex2() {
         "virtex2"

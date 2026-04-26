@@ -4,6 +4,7 @@ version.workspace = true
 edition.workspace = true
 
 [dependencies]
+indicatif.workspace = true
 prjcombine-entity.workspace = true
 prjcombine-interconnect.workspace = true
 prjcombine-virtex4.workspace = true

@@ -57,6 +57,7 @@ bincode.workspace = true
 clap.workspace = true
 simple-error.workspace = true
 std-semaphore.workspace = true
+indicatif.workspace = true
 
 [lints]
 workspace = true

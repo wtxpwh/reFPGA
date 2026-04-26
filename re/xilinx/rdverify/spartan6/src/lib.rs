@@ -1,3 +1,4 @@
+use indicatif::ProgressBar;
 use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
     db::{BelInfo, SwitchBoxItem, WireSlotIdExt},
@@ -81,13 +82,13 @@ fn verify_bram(vrf: &mut Verifier, bcrd: BelCoord) {
         let mut bel = vrf.verify_bel(bcrd).sub(1).kind("RAMB16BWER").skip_auto();
         for pin in &pins_in {
             let rpin = &format!("RAMB16_{pin}");
-            bel = bel.extra_in_rename(pin, rpin);
+            bel = bel.extra_in(rpin);
             bel.claim_net(&[bel.wire(rpin)]);
             bel.claim_pip(bel.wire(rpin), bel.wire_far(rpin));
         }
         for pin in &pins_out {
             let rpin = &format!("RAMB16_{pin}");
-            bel = bel.extra_out_rename(pin, rpin);
+            bel = bel.extra_out(rpin);
             bel.claim_net(&[bel.wire(rpin)]);
             bel.claim_pip(bel.wire_far(rpin), bel.wire(rpin));
         }
@@ -110,7 +111,7 @@ fn verify_ilogic(vrf: &mut Verifier, bcrd: BelCoord) {
         .extra_in("CLK0")
         .extra_in("CLK1")
         .extra_in("SHIFTIN")
-        .extra_in_rename("SR", "SR_MUXED")
+        .extra_in("SR_MUXED")
         .extra_out("SHIFTOUT");
     for pin in [
         "TFB", "OFB", "D", "DDLY", "DDLY2", "CLK0", "CLK1", "SHIFTIN", "SR_MUXED", "SHIFTOUT",
@@ -743,9 +744,9 @@ fn verify_mcb(endev: &ExpandedNamedDevice, vrf: &mut Verifier, bcrd: BelCoord) {
             .sub(sub)
             .kind("TIEOFF")
             .skip_auto()
-            .extra_out_rename("HARD0", format!("{prefix}_HARD0"))
-            .extra_out_rename("HARD1", format!("{prefix}_HARD1"))
-            .extra_out_rename("KEEP1", format!("{prefix}_KEEP1"));
+            .extra_out(format!("{prefix}_HARD0"))
+            .extra_out(format!("{prefix}_HARD1"))
+            .extra_out(format!("{prefix}_KEEP1"));
         bel.claim_net(&[bel.wire(&format!("{prefix}_HARD0"))]);
         bel.claim_net(&[bel.wire(&format!("{prefix}_HARD1"))]);
         bel.claim_net(&[bel.wire(&format!("{prefix}_KEEP1"))]);
@@ -798,8 +799,8 @@ fn verify_hclk_row(vrf: &mut Verifier, bcrd: BelCoord) {
                 .kind("BUFH")
                 .skip_auto()
                 .sub(i * 16 + j)
-                .extra_in_rename("I", iname)
-                .extra_out_rename("O", oname);
+                .extra_in(iname)
+                .extra_out(oname);
             bel.claim_net(&[bel.wire(iname)]);
             bel.claim_net(&[bel.wire(oname)]);
             bel.claim_pip(bel.wire(iname), bel.wire_far(iname));
@@ -831,27 +832,27 @@ fn verify_bufpll(endev: &ExpandedNamedDevice, vrf: &mut Verifier, bcrd: BelCoord
     vrf.verify_bel(bcrd)
         .kind("BUFPLL_MCB")
         .skip_auto()
-        .extra_in_rename("PLLIN0", "BUFPLL_MCB_PLLIN0")
-        .extra_in_rename("PLLIN1", "BUFPLL_MCB_PLLIN1")
-        .extra_in_rename("LOCKED", "BUFPLL_MCB_LOCKED")
-        .extra_in_rename("GCLK", "BUFPLL_MCB_GCLK")
-        .extra_out_rename("IOCLK0", "BUFPLL_MCB_IOCLK0")
-        .extra_out_rename("IOCLK1", "BUFPLL_MCB_IOCLK1")
-        .extra_out_rename("SERDESSTROBE0", "BUFPLL_MCB_SERDESSTROBE0")
-        .extra_out_rename("SERDESSTROBE1", "BUFPLL_MCB_SERDESSTROBE1")
-        .extra_out_rename("LOCK", "BUFPLL_MCB_LOCK")
+        .extra_in("BUFPLL_MCB_PLLIN0")
+        .extra_in("BUFPLL_MCB_PLLIN1")
+        .extra_in("BUFPLL_MCB_LOCKED")
+        .extra_in("BUFPLL_MCB_GCLK")
+        .extra_out("BUFPLL_MCB_IOCLK0")
+        .extra_out("BUFPLL_MCB_IOCLK1")
+        .extra_out("BUFPLL_MCB_SERDESSTROBE0")
+        .extra_out("BUFPLL_MCB_SERDESSTROBE1")
+        .extra_out("BUFPLL_MCB_LOCK")
         .commit();
 
     for i in 0..2 {
         vrf.verify_bel(bcrd)
             .sub(1 + i)
             .skip_auto()
-            .extra_in_rename("PLLIN", format!("BUFPLL{i}_PLLIN"))
-            .extra_in_rename("GCLK", format!("BUFPLL{i}_GCLK"))
-            .extra_in_rename("LOCKED", format!("BUFPLL{i}_LOCKED"))
-            .extra_out_rename("IOCLK", format!("BUFPLL{i}_IOCLK"))
-            .extra_out_rename("SERDESSTROBE", format!("BUFPLL{i}_SERDESSTROBE"))
-            .extra_out_rename("LOCK", format!("BUFPLL{i}_LOCK"))
+            .extra_in(format!("BUFPLL{i}_PLLIN"))
+            .extra_in(format!("BUFPLL{i}_GCLK"))
+            .extra_in(format!("BUFPLL{i}_LOCKED"))
+            .extra_out(format!("BUFPLL{i}_IOCLK"))
+            .extra_out(format!("BUFPLL{i}_SERDESSTROBE"))
+            .extra_out(format!("BUFPLL{i}_LOCK"))
             .commit();
     }
 
@@ -1003,9 +1004,9 @@ fn verify_pll(vrf: &mut Verifier, bcrd: BelCoord) {
         .sub(1)
         .kind("TIEOFF")
         .skip_auto()
-        .extra_out_rename("HARD0", "TIE_PLL_HARD0")
-        .extra_out_rename("HARD1", "TIE_PLL_HARD1")
-        .extra_out_rename("KEEP1", "TIE_PLL_KEEP1");
+        .extra_out("TIE_PLL_HARD0")
+        .extra_out("TIE_PLL_HARD1")
+        .extra_out("TIE_PLL_KEEP1");
     bel.claim_net(&[bel.wire("TIE_PLL_HARD0")]);
     bel.claim_net(&[bel.wire("TIE_PLL_HARD1")]);
     bel.claim_net(&[bel.wire("TIE_PLL_KEEP1")]);
@@ -1156,9 +1157,9 @@ fn verify_gtp(endev: &ExpandedNamedDevice, vrf: &mut Verifier, bcrd: BelCoord) {
             .sub(1 + i)
             .kind("BUFDS")
             .skip_auto()
-            .extra_out_claim_rename("O", format!("BUFDS{i}_O"))
-            .ipad_rename("I", format!("BUFDS{i}_I"), 11 + i * 2)
-            .ipad_rename("IB", format!("BUFDS{i}_IB"), 12 + i * 2)
+            .extra_out_claim(format!("BUFDS{i}_O"))
+            .ipad(format!("BUFDS{i}_I"), 11 + i * 2)
+            .ipad(format!("BUFDS{i}_IB"), 12 + i * 2)
             .commit();
     }
 }
@@ -1337,8 +1338,8 @@ fn verify_extra(_endev: &ExpandedNamedDevice, vrf: &mut Verifier) {
     vrf.kill_stub_out_cond("REGR_GTPCLK3");
 }
 
-pub fn verify_device(endev: &ExpandedNamedDevice, rd: &Part) {
-    let mut vrf = Verifier::new(rd, &endev.ngrid);
+pub fn verify_device(endev: &ExpandedNamedDevice, rd: &Part, pb: &ProgressBar) {
+    let mut vrf = Verifier::new(rd, &endev.ngrid, pb);
     for (tkn, is_trunk_s, is_v_s) in [
         ("HCLK_IOIL_BOT_DN", true, true),
         ("HCLK_IOIL_BOT_UP", true, false),
@@ -2109,8 +2110,8 @@ pub fn verify_device(endev: &ExpandedNamedDevice, rd: &Part) {
             wire.cell(2)
         });
         for i in 0..2 {
-            vrf.skip_bel_input(tcid, bslots::BUFPLL, bcls::BUFPLL::PLLIN_CMT[i]);
-            vrf.skip_bel_input(tcid, bslots::BUFPLL, bcls::BUFPLL::LOCKED[i]);
+            vrf.skip_tcls_bel_input(tcid, bslots::BUFPLL, bcls::BUFPLL::PLLIN_CMT[i]);
+            vrf.skip_tcls_bel_input(tcid, bslots::BUFPLL, bcls::BUFPLL::LOCKED[i]);
         }
         for i in 0..2 {
             for j in 0..6 {
@@ -2158,13 +2159,13 @@ pub fn verify_device(endev: &ExpandedNamedDevice, rd: &Part) {
     vrf.skip_bslot(bslots::IOI_DDR[1]);
     for tcid in [tcls::IOI_WE, tcls::IOI_SN] {
         for bslot in bslots::ILOGIC {
-            vrf.skip_bel_input(tcid, bslot, bcls::ILOGIC::CLK);
+            vrf.skip_tcls_bel_input(tcid, bslot, bcls::ILOGIC::CLK);
         }
         for bslot in bslots::OLOGIC {
-            vrf.skip_bel_input(tcid, bslot, bcls::OLOGIC::CLK);
+            vrf.skip_tcls_bel_input(tcid, bslot, bcls::OLOGIC::CLK);
         }
         for bslot in bslots::IODELAY {
-            vrf.skip_bel_input(tcid, bslot, bcls::IODELAY::IOCLK);
+            vrf.skip_tcls_bel_input(tcid, bslot, bcls::IODELAY::IOCLK);
         }
     }
 

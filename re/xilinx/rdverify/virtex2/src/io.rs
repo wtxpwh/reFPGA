@@ -16,7 +16,7 @@ pub fn verify_ioi(endev: &ExpandedNamedDevice, vrf: &mut Verifier, bcrd: BelCoor
     if io_info.pad_kind == Some(IobKind::Clk) {
         bel = bel
             .kind(["CLK_P", "CLK_N"][io.iob().to_idx() % 2])
-            .extra_out_rename("I", "BREFCLK")
+            .extra_out("BREFCLK")
             .skip_out(bcls::IOI::I);
         bel.claim_net(&[bel.wire("BREFCLK")]);
         bel.claim_net(&[bel.wire_far("BREFCLK")]);

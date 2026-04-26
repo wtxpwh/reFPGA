@@ -1,3 +1,4 @@
+use indicatif::ProgressBar;
 use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
     db::{BelInfo, SwitchBoxItem, WireSlotIdExt},
@@ -129,7 +130,7 @@ fn verify_bram(edev: &ExpandedDevice, vrf: &mut Verifier, bcrd: BelCoord) {
         ("ADDRATIEHIGH1", "ADDRAL15"),
         ("ADDRBTIEHIGH1", "ADDRBL15"),
     ] {
-        bel = bel.extra_in_claim_rename(hpin, format!("H0_{hpin}"));
+        bel = bel.extra_in_claim(format!("H0_{hpin}"));
         bel.claim_pip(bel.wire(&format!("H0_{hpin}")), bel.wire_far(fpin));
     }
     for pin in [
@@ -140,7 +141,7 @@ fn verify_bram(edev: &ExpandedDevice, vrf: &mut Verifier, bcrd: BelCoord) {
         "RDERR",
         "WRERR",
     ] {
-        bel = bel.extra_out_claim_rename(pin, format!("H0_{pin}"));
+        bel = bel.extra_out_claim(format!("H0_{pin}"));
         bel.claim_pip(bel.wire_far(pin), bel.wire(&format!("H0_{pin}")));
     }
     for (hpin, fpin, width) in [
@@ -152,7 +153,7 @@ fn verify_bram(edev: &ExpandedDevice, vrf: &mut Verifier, bcrd: BelCoord) {
         ("DIPBDIP", "DIPBL", 2),
     ] {
         for i in 0..width {
-            bel = bel.extra_in_claim_rename(format!("{hpin}{i}"), format!("H0_{hpin}{i}"));
+            bel = bel.extra_in_claim(format!("H0_{hpin}{i}"));
             bel.claim_pip(
                 bel.wire(&format!("H0_{hpin}{i}")),
                 bel.wire_far(&format!("{fpin}{i}")),
@@ -167,7 +168,7 @@ fn verify_bram(edev: &ExpandedDevice, vrf: &mut Verifier, bcrd: BelCoord) {
     ] {
         for i in 0..width {
             let ii = i + delta;
-            bel = bel.extra_out_claim_rename(format!("{hpin}{ii}"), format!("H0_{hpin}{ii}"));
+            bel = bel.extra_out_claim(format!("H0_{hpin}{ii}"));
             bel.claim_pip(
                 bel.wire_far(&format!("{fpin}{i}")),
                 bel.wire(&format!("H0_{hpin}{ii}")),
@@ -176,8 +177,8 @@ fn verify_bram(edev: &ExpandedDevice, vrf: &mut Verifier, bcrd: BelCoord) {
     }
     for i in 0..12 {
         bel = bel
-            .extra_out_claim_rename(format!("RDCOUNT{i}"), format!("H0_RDCOUNT{i}"))
-            .extra_out_claim_rename(format!("WRCOUNT{i}"), format!("H0_WRCOUNT{i}"));
+            .extra_out_claim(format!("H0_RDCOUNT{i}"))
+            .extra_out_claim(format!("H0_WRCOUNT{i}"));
         bel.claim_pip(
             bel.wire_far(&format!("RDCOUNT{i}")),
             bel.wire(&format!("H0_RDCOUNT{i}")),
@@ -189,8 +190,8 @@ fn verify_bram(edev: &ExpandedDevice, vrf: &mut Verifier, bcrd: BelCoord) {
     }
     for i in 0..14 {
         bel = bel
-            .extra_in_claim_rename(format!("ADDRARDADDR{i}"), format!("H0_ADDRARDADDR{i}"))
-            .extra_in_claim_rename(format!("ADDRBWRADDR{i}"), format!("H0_ADDRBWRADDR{i}"));
+            .extra_in_claim(format!("H0_ADDRARDADDR{i}"))
+            .extra_in_claim(format!("H0_ADDRBWRADDR{i}"));
         bel.claim_pip(
             bel.wire(&format!("H0_ADDRARDADDR{i}")),
             bel.wire_far(&format!("ADDRAL{ii}", ii = i + 1)),
@@ -231,7 +232,7 @@ fn verify_bram(edev: &ExpandedDevice, vrf: &mut Verifier, bcrd: BelCoord) {
         ("ADDRATIEHIGH1", "ADDRAL15"),
         ("ADDRBTIEHIGH1", "ADDRBL15"),
     ] {
-        bel = bel.extra_in_claim_rename(hpin, format!("H1_{hpin}"));
+        bel = bel.extra_in_claim(format!("H1_{hpin}"));
         bel.claim_pip(bel.wire(&format!("H1_{hpin}")), bel.wire_far(fpin));
     }
     for (hpin, fpin, width) in [
@@ -243,7 +244,7 @@ fn verify_bram(edev: &ExpandedDevice, vrf: &mut Verifier, bcrd: BelCoord) {
         ("DIPBDIP", "DIPBU", 2),
     ] {
         for i in 0..width {
-            bel = bel.extra_in_claim_rename(format!("{hpin}{i}"), format!("H1_{hpin}{i}"));
+            bel = bel.extra_in_claim(format!("H1_{hpin}{i}"));
             bel.claim_pip(
                 bel.wire(&format!("H1_{hpin}{i}")),
                 bel.wire_far(&format!("{fpin}{i}")),
@@ -257,7 +258,7 @@ fn verify_bram(edev: &ExpandedDevice, vrf: &mut Verifier, bcrd: BelCoord) {
         ("DOPBDOP", "DOPBU", 2),
     ] {
         for i in 0..width {
-            bel = bel.extra_out_claim_rename(format!("{hpin}{i}"), format!("H1_{hpin}{i}"));
+            bel = bel.extra_out_claim(format!("H1_{hpin}{i}"));
             bel.claim_pip(
                 bel.wire_far(&format!("{fpin}{i}")),
                 bel.wire(&format!("H1_{hpin}{i}")),
@@ -266,8 +267,8 @@ fn verify_bram(edev: &ExpandedDevice, vrf: &mut Verifier, bcrd: BelCoord) {
     }
     for i in 0..14 {
         bel = bel
-            .extra_in_claim_rename(format!("ADDRARDADDR{i}"), format!("H1_ADDRARDADDR{i}"))
-            .extra_in_claim_rename(format!("ADDRBWRADDR{i}"), format!("H1_ADDRBWRADDR{i}"));
+            .extra_in_claim(format!("H1_ADDRARDADDR{i}"))
+            .extra_in_claim(format!("H1_ADDRBWRADDR{i}"));
         bel.claim_pip(
             bel.wire(&format!("H1_ADDRARDADDR{i}")),
             bel.wire_far(&format!("ADDRAU{ii}", ii = i + 1)),
@@ -438,16 +439,16 @@ fn verify_clk_rebuf(vrf: &mut Verifier, bcrd: BelCoord) {
         let ii = i / 2;
         if i.is_multiple_of(2) {
             bel = bel
-                .extra_in_claim_rename("CLKIN", format!("BUF{ii}_S_CLKIN"))
-                .extra_out_rename("CLKOUT", format!("BUF{ii}_S_CLKOUT"));
+                .extra_in_claim(format!("BUF{ii}_S_CLKIN"))
+                .extra_out(format!("BUF{ii}_S_CLKOUT"));
             bel.claim_pip(
                 bel.wire(&format!("BUF{ii}_S_CLKIN")),
                 bel.wire(&format!("GCLK{i}_S")),
             );
         } else {
             bel = bel
-                .extra_in_claim_rename("CLKIN", format!("BUF{ii}_N_CLKIN"))
-                .extra_out_rename("CLKOUT", format!("BUF{ii}_N_CLKOUT"));
+                .extra_in_claim(format!("BUF{ii}_N_CLKIN"))
+                .extra_out(format!("BUF{ii}_N_CLKOUT"));
             bel.claim_pip(
                 bel.wire(&format!("BUF{ii}_N_CLKIN")),
                 bel.wire(&format!("GCLK{i}_N")),
@@ -467,8 +468,8 @@ fn verify_clk_hrow(vrf: &mut Verifier, bcrd: BelCoord) {
             .sub(i)
             .kind("GCLK_TEST_BUF")
             .skip_auto()
-            .extra_in_claim_rename("CLKIN", clkin)
-            .extra_out_claim_rename("CLKOUT", clkout);
+            .extra_in_claim(clkin)
+            .extra_out_claim(clkout);
         bel.claim_pip(bel.wire(clkin), bel.wire(&format!("GCLK{i}_TEST_IN")));
         bel.claim_net(&[bel.wire(&format!("GCLK{i}_TEST_OUT"))]);
         bel.claim_pip(bel.wire(&format!("GCLK{i}_TEST_OUT")), bel.wire(clkout));
@@ -488,8 +489,8 @@ fn verify_clk_hrow(vrf: &mut Verifier, bcrd: BelCoord) {
         .sub(32)
         .kind("GCLK_TEST_BUF")
         .skip_auto()
-        .extra_in_claim_rename("CLKIN", "HCLK_TEST_W_CLKIN")
-        .extra_out_claim_rename("CLKOUT", "HCLK_TEST_W_CLKOUT");
+        .extra_in_claim("HCLK_TEST_W_CLKIN")
+        .extra_out_claim("HCLK_TEST_W_CLKOUT");
     bel.claim_pip(bel.wire("HCLK_TEST_W_CLKIN"), bel.wire("HCLK_TEST_IN_W"));
     bel.claim_pip(bel.wire("HCLK_TEST_OUT_W"), bel.wire("HCLK_TEST_W_CLKOUT"));
     bel.commit();
@@ -499,8 +500,8 @@ fn verify_clk_hrow(vrf: &mut Verifier, bcrd: BelCoord) {
         .sub(33)
         .kind("GCLK_TEST_BUF")
         .skip_auto()
-        .extra_in_claim_rename("CLKIN", "HCLK_TEST_E_CLKIN")
-        .extra_out_claim_rename("CLKOUT", "HCLK_TEST_E_CLKOUT");
+        .extra_in_claim("HCLK_TEST_E_CLKIN")
+        .extra_out_claim("HCLK_TEST_E_CLKOUT");
     bel.claim_pip(bel.wire("HCLK_TEST_E_CLKIN"), bel.wire("HCLK_TEST_IN_E"));
     bel.claim_pip(bel.wire("HCLK_TEST_OUT_E"), bel.wire("HCLK_TEST_E_CLKOUT"));
     bel.commit();
@@ -593,10 +594,10 @@ fn verify_ologic(edev: &ExpandedDevice, vrf: &mut Verifier, bcrd: BelCoord) {
         .skip_in(bcls::OLOGIC::CLK)
         .skip_in(bcls::OLOGIC::CLKB)
         .skip_out(bcls::OLOGIC::TFB)
-        .extra_in_claim_rename("CLK", "CLK_FAKE")
-        .extra_in_claim_rename("CLKB", "CLKB_FAKE")
+        .extra_in_claim("CLK_FAKE")
+        .extra_in_claim("CLKB_FAKE")
         .extra_out_claim("OFB")
-        .extra_out_claim_rename("TFB", "TFB_FAKE")
+        .extra_out_claim("TFB_FAKE")
         .extra_out_claim("OQ")
         .extra_out_claim("TQ")
         .extra_out_claim("SHIFTOUT1")
@@ -790,24 +791,24 @@ fn verify_phaser_out(vrf: &mut Verifier, bcrd: BelCoord) {
 
 fn verify_phy_control(vrf: &mut Verifier, bcrd: BelCoord) {
     vrf.verify_bel(bcrd)
-        .extra_out_claim_far("INRANKA0")
-        .extra_out_claim_far("INRANKA1")
-        .extra_out_claim_far("INRANKB0")
-        .extra_out_claim_far("INRANKB1")
-        .extra_out_claim_far("INRANKC0")
-        .extra_out_claim_far("INRANKC1")
-        .extra_out_claim_far("INRANKD0")
-        .extra_out_claim_far("INRANKD1")
-        .extra_out_claim_far("PCENABLECALIB0")
-        .extra_out_claim_far("PCENABLECALIB1")
-        .extra_out_claim_far("INBURSTPENDING0")
-        .extra_out_claim_far("INBURSTPENDING1")
-        .extra_out_claim_far("INBURSTPENDING2")
-        .extra_out_claim_far("INBURSTPENDING3")
-        .extra_out_claim_far("OUTBURSTPENDING0")
-        .extra_out_claim_far("OUTBURSTPENDING1")
-        .extra_out_claim_far("OUTBURSTPENDING2")
-        .extra_out_claim_far("OUTBURSTPENDING3")
+        .extra_out_far_claim("INRANKA0")
+        .extra_out_far_claim("INRANKA1")
+        .extra_out_far_claim("INRANKB0")
+        .extra_out_far_claim("INRANKB1")
+        .extra_out_far_claim("INRANKC0")
+        .extra_out_far_claim("INRANKC1")
+        .extra_out_far_claim("INRANKD0")
+        .extra_out_far_claim("INRANKD1")
+        .extra_out_far_claim("PCENABLECALIB0")
+        .extra_out_far_claim("PCENABLECALIB1")
+        .extra_out_far_claim("INBURSTPENDING0")
+        .extra_out_far_claim("INBURSTPENDING1")
+        .extra_out_far_claim("INBURSTPENDING2")
+        .extra_out_far_claim("INBURSTPENDING3")
+        .extra_out_far_claim("OUTBURSTPENDING0")
+        .extra_out_far_claim("OUTBURSTPENDING1")
+        .extra_out_far_claim("OUTBURSTPENDING2")
+        .extra_out_far_claim("OUTBURSTPENDING3")
         .commit();
 }
 
@@ -2282,8 +2283,8 @@ fn verify_pre(endev: &ExpandedNamedDevice, vrf: &mut Verifier) {
     verify_pre_gtz(vrf);
 }
 
-pub fn verify_device(endev: &ExpandedNamedDevice, rd: &Part) {
-    let mut vrf = Verifier::new(rd, &endev.ngrid);
+pub fn verify_device(endev: &ExpandedNamedDevice, rd: &Part, pb: &ProgressBar) {
+    let mut vrf = Verifier::new(rd, &endev.ngrid, pb);
     verify_pre(endev, &mut vrf);
     vrf.prep_int_wires();
     vrf.handle_int();

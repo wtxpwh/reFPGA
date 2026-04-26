@@ -5,7 +5,7 @@ use std::error::Error;
 use std::path::PathBuf;
 
 #[derive(Debug, Parser)]
-#[command(name = "dump_noc", about = "Dump Versal NOC structure from rawdump.")]
+#[command(name = "dump_sll", about = "Dump Versal SLL structure from rawdump.")]
 struct Args {
     file: PathBuf,
 }

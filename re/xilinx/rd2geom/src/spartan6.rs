@@ -1,3 +1,4 @@
+use indicatif::ProgressBar;
 use prjcombine_re_xilinx_geom::{Bond, Chip, DisabledPart};
 use prjcombine_re_xilinx_naming_spartan6::name_device;
 use prjcombine_re_xilinx_rawdump::Part;
@@ -7,7 +8,7 @@ use crate::db::{PreDevice, make_device};
 use prjcombine_re_xilinx_rd2db_spartan6::{bond, grid, int};
 use prjcombine_re_xilinx_rdverify_spartan6::verify_device;
 
-pub fn ingest(rd: &Part, verify: bool) -> PreDevice {
+pub fn ingest(rd: &Part, verify: bool, pb: &ProgressBar) -> PreDevice {
     let (grid, disabled) = grid::make_grid(rd);
     let (intdb, ndb) = int::make_int_db(rd);
     let edev = grid.expand_grid(&intdb, &disabled);
@@ -18,7 +19,7 @@ pub fn ingest(rd: &Part, verify: bool) -> PreDevice {
         bonds.push((pkg.clone(), Bond::Spartan6(bond)));
     }
     if verify {
-        verify_device(&endev, rd);
+        verify_device(&endev, rd, pb);
     }
     let disabled = disabled.into_iter().map(DisabledPart::Spartan6).collect();
 

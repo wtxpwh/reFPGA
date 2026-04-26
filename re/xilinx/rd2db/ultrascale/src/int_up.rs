@@ -7,7 +7,7 @@ use prjcombine_interconnect::{
     },
     dir::{Dir, DirMap, DirV},
 };
-use prjcombine_re_xilinx_rawdump::{Coord, Part, TkSiteSlot};
+use prjcombine_re_xilinx_rawdump::{Coord, Part};
 
 use prjcombine_entity::{EntityId, EntityPartVec};
 use prjcombine_re_xilinx_naming::db::{BelNaming, NamingDb};
@@ -1067,11 +1067,13 @@ impl IntMaker<'_> {
             }
             let tile = &self.builder.rd.tiles[&xy];
             let tk = &self.builder.rd.tile_kinds[tile.kind];
-            let slot_ramb18 = self.builder.rd.slot_kinds.get("RAMB18").unwrap();
             for i in 0..2 {
-                bel = bel.sub_xy(self.builder.rd, "RAMB18", 0, i);
-                let slot = TkSiteSlot::Xy(slot_ramb18, 0, i as u8);
-                let tksite = tk.sites.get(&slot).unwrap().1;
+                bel = bel.sub_xy("RAMB18", 0, i);
+                let tksite = tk
+                    .sites
+                    .get(&self.builder.rd.slot_xy("RAMB18", 0, i).unwrap())
+                    .unwrap()
+                    .1;
                 for pin in tksite.pins.keys() {
                     bel = bel
                         .pin_rename(pin, format!("H{i}_{pin}"))
@@ -3350,7 +3352,7 @@ impl IntMaker<'_> {
                         bel = bel.pins_name_only(&[format!("RIU2CLB_RD_DATA{i}")]);
                     }
                     bel = bel
-                        .sub_xy(self.builder.rd, "PLL_SELECT_SITE", 0, i)
+                        .sub_xy("PLL_SELECT_SITE", 0, i)
                         .pin_rename("D0", "PLL_SELECT_D0")
                         .pin_rename("D1", "PLL_SELECT_D1")
                         .pin_rename("REFCLK_DFD", "PLL_SELECT_REFCLK_DFD")
@@ -3406,7 +3408,7 @@ impl IntMaker<'_> {
                     ]);
                 }
                 bel = bel
-                    .sub_xy(self.builder.rd, "RIU_OR", 0, 0)
+                    .sub_xy("RIU_OR", 0, 0)
                     .pins_name_only(&["RIU_RD_VALID_LOW", "RIU_RD_VALID_UPP"]);
                 for i in 0..16 {
                     bel = bel.pins_name_only(&[
@@ -3867,9 +3869,11 @@ impl IntMaker<'_> {
         let tk = &self.builder.rd.tile_kinds[tile.kind];
 
         for i in 0..33 {
-            let slot = self.builder.rd.slot_kinds.get("IOB").unwrap();
-            let slot = TkSiteSlot::Xy(slot, 0, i as u8);
-            let tksite = tk.sites.get(&slot).unwrap().1;
+            let tksite = tk
+                .sites
+                .get(&self.builder.rd.slot_xy("IOB", 0, i).unwrap())
+                .unwrap()
+                .1;
             let mut bel = self
                 .builder
                 .bel_xy(bslots::XP5IOB_PAIR[i], "IOB", 0, i)
@@ -3881,9 +3885,11 @@ impl IntMaker<'_> {
         }
 
         for i in 0..11 {
-            let slot = self.builder.rd.slot_kinds.get("XP5IO_VREF").unwrap();
-            let slot = TkSiteSlot::Xy(slot, 0, i as u8);
-            let tksite = tk.sites.get(&slot).unwrap().1;
+            let tksite = tk
+                .sites
+                .get(&self.builder.rd.slot_xy("XP5IO_VREF", 0, i).unwrap())
+                .unwrap()
+                .1;
             let mut bel = self
                 .builder
                 .bel_xy(bslots::XP5IO_VREF[i], "XP5IO_VREF", 0, i);
@@ -3894,9 +3900,11 @@ impl IntMaker<'_> {
         }
 
         for i in 0..11 {
-            let slot_ls = self.builder.rd.slot_kinds.get("X5PHY_LS").unwrap();
-            let slot_ls = TkSiteSlot::Xy(slot_ls, 0, i as u8);
-            let tksite_ls = tk.sites.get(&slot_ls).unwrap().1;
+            let tksite_ls = tk
+                .sites
+                .get(&self.builder.rd.slot_xy("X5PHY_LS", 0, i).unwrap())
+                .unwrap()
+                .1;
             let mut bel = self
                 .builder
                 .bel_xy(bslots::X5PHY[i], "X5PHY_LS", 0, i)
@@ -3909,19 +3917,23 @@ impl IntMaker<'_> {
                 bel = bel.pin_name_only(pin, buf_cnt);
             }
 
-            bel = bel.sub_xy(self.builder.rd, "X5PHY_HS", 0, i);
-            let slot_hs = self.builder.rd.slot_kinds.get("X5PHY_HS").unwrap();
-            let slot_hs = TkSiteSlot::Xy(slot_hs, 0, i as u8);
-            let tksite_hs = tk.sites.get(&slot_hs).unwrap().1;
+            bel = bel.sub_xy("X5PHY_HS", 0, i);
+            let tksite_hs = tk
+                .sites
+                .get(&self.builder.rd.slot_xy("X5PHY_HS", 0, i).unwrap())
+                .unwrap()
+                .1;
             for pin in tksite_hs.pins.keys() {
                 let npin = &format!("HS_{pin}");
                 bel = bel.pin_rename(pin, npin).pin_name_only(npin, 0);
             }
 
-            bel = bel.sub_xy(self.builder.rd, "X5PHY_PLL_SELECT", 0, i);
-            let slot_sel = self.builder.rd.slot_kinds.get("X5PHY_PLL_SELECT").unwrap();
-            let slot_sel = TkSiteSlot::Xy(slot_sel, 0, i as u8);
-            let tksite_sel = tk.sites.get(&slot_sel).unwrap().1;
+            bel = bel.sub_xy("X5PHY_PLL_SELECT", 0, i);
+            let tksite_sel = tk
+                .sites
+                .get(&self.builder.rd.slot_xy("X5PHY_PLL_SELECT", 0, i).unwrap())
+                .unwrap()
+                .1;
             for pin in tksite_sel.pins.keys() {
                 let npin = &format!("PLL_SELECT_{pin}");
                 bel = bel.pin_rename(pin, npin).pin_name_only(npin, 0);
@@ -3929,9 +3941,11 @@ impl IntMaker<'_> {
             bels.push(bel);
         }
 
-        let slot = self.builder.rd.slot_kinds.get("LPDDRMC").unwrap();
-        let slot = TkSiteSlot::Xy(slot, 0, 0);
-        let tksite = tk.sites.get(&slot).unwrap().1;
+        let tksite = tk
+            .sites
+            .get(&self.builder.rd.slot_xy("LPDDRMC", 0, 0).unwrap())
+            .unwrap()
+            .1;
         let mut bel = self
             .builder
             .bel_xy(bslots::LPDDRMC, "LPDDRMC", 0, 0)
@@ -4006,24 +4020,23 @@ impl IntMaker<'_> {
             .extra_int_out("IJTAG_SELECT_DR_O", &["LPDDRMC_DMC_SITE_0_SELECT_DR"])
             .extra_int_out("IJTAG_RESET_TAP_O", &["LPDDRMC_DMC_SITE_0_IJTAG_RESET_TAP"]);
 
-        let slot = self
-            .builder
-            .rd
-            .slot_kinds
-            .get("XP5PIO_CMU_DIG_TOP")
-            .unwrap();
-        let slot = TkSiteSlot::Xy(slot, 0, 0);
-        let tksite = tk.sites.get(&slot).unwrap().1;
-        bel = bel.sub_xy(self.builder.rd, "XP5PIO_CMU_DIG_TOP", 0, 0);
+        let tksite = tk
+            .sites
+            .get(&self.builder.rd.slot_xy("XP5PIO_CMU_DIG_TOP", 0, 0).unwrap())
+            .unwrap()
+            .1;
+        bel = bel.sub_xy("XP5PIO_CMU_DIG_TOP", 0, 0);
         for pin in tksite.pins.keys() {
             let npin = &format!("CMU_DIG_{pin}");
             bel = bel.pin_rename(pin, npin).pin_name_only(npin, 0);
         }
 
-        let slot = self.builder.rd.slot_kinds.get("XP5PIO_CMU_ANA").unwrap();
-        let slot = TkSiteSlot::Xy(slot, 0, 0);
-        let tksite = tk.sites.get(&slot).unwrap().1;
-        bel = bel.sub_xy(self.builder.rd, "XP5PIO_CMU_ANA", 0, 0);
+        let tksite = tk
+            .sites
+            .get(&self.builder.rd.slot_xy("XP5PIO_CMU_ANA", 0, 0).unwrap())
+            .unwrap()
+            .1;
+        bel = bel.sub_xy("XP5PIO_CMU_ANA", 0, 0);
         for pin in tksite.pins.keys() {
             let npin = &format!("CMU_ANA_{pin}");
             bel = bel.pin_rename(pin, npin).pin_name_only(npin, 0);
@@ -5303,7 +5316,7 @@ impl IntMaker<'_> {
                         .extra_wire("NORTHCLKOUT", &["NORTHCLKOUT"])
                         .extra_wire("NORTHCLKOUT_DUMMY0", &["VCC_WIRE74"])
                         .extra_wire("NORTHCLKOUT_DUMMY1", &["VCC_WIRE75"])
-                        .sub_xy(self.builder.rd, "GTM_REFCLK", 0, 0);
+                        .sub_xy("GTM_REFCLK", 0, 0);
                     for pin in [
                         "HROW_TEST_CK_FS",
                         "MGTREFCLK_CLEAN",

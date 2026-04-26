@@ -1,3 +1,4 @@
+use indicatif::ProgressBar;
 use prjcombine_re_xilinx_geom::{Bond, Chip};
 use prjcombine_re_xilinx_naming_xc2000::name_device;
 use prjcombine_re_xilinx_rawdump::Part;
@@ -7,19 +8,24 @@ use crate::db::{PreDevice, make_device};
 use prjcombine_re_xilinx_rd2db_xc4000::{bond, grid, int};
 use prjcombine_re_xilinx_rdverify_xc4000::verify_device;
 
-pub fn ingest(rd: &Part, verify: bool) -> PreDevice {
+pub fn ingest(rd: &Part, verify: bool, pb: &ProgressBar) -> PreDevice {
+    pb.set_message("grid");
     let mut grid = grid::make_grid(rd);
+    pb.set_message("intdb");
     let (intdb, ndb) = int::make_int_db(rd);
+    pb.set_message("bonds");
     let mut bonds = Vec::new();
     let mut cfg_io = core::mem::take(&mut grid.cfg_io);
+    pb.set_message("expand");
     let edev = grid.expand_grid(&intdb);
+    pb.set_message("name");
     let endev = name_device(&edev, &ndb);
     for (pkg, pins) in rd.packages.iter() {
         let bond = bond::make_bond(&endev, pkg, pins, &mut cfg_io);
         bonds.push((pkg.clone(), Bond::Xc2000(bond)));
     }
     if verify {
-        verify_device(&endev, rd);
+        verify_device(&endev, rd, pb);
     }
     grid.cfg_io = cfg_io;
 

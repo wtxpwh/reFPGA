@@ -256,6 +256,34 @@ impl Part {
         let widx = self.wires.get(wire).unwrap();
         self.lookup_wire_raw_force(crd, widx)
     }
+
+    pub fn iter_node(&self, ni: NodeId) -> impl Iterator<Item = (Coord, WireId)> {
+        let node = &self.nodes[ni];
+        let tpl = &self.templates[node.template];
+        tpl.iter().map(|w| {
+            let tc = Coord {
+                x: node.base.x + w.delta.x,
+                y: node.base.y + w.delta.y,
+            };
+            (tc, w.wire)
+        })
+    }
+
+    pub fn slot_xy(&self, name: &str, x: usize, y: usize) -> Option<TkSiteSlot> {
+        let slot = self.slot_kinds.get(name)?;
+        Some(TkSiteSlot::Xy(slot, x as _, y as _))
+    }
+
+    pub fn tk_slot_xy(&self, tk: TileKindId, name: &str, x: usize, y: usize) -> Option<TkSiteId> {
+        let slot = self.slot_xy(name, x, y)?;
+        Some(self.tile_kinds[tk].sites.get(&slot)?.0)
+    }
+
+    pub fn site_name_xy(&self, xy: Coord, name: &str, x: usize, y: usize) -> Option<&str> {
+        let tile = &self.tiles[&xy];
+        let sid = self.tk_slot_xy(tile.kind, name, x, y)?;
+        tile.sites.get(sid).map(|x| x.as_str())
+    }
 }
 
 impl Tile {

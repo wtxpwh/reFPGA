@@ -1,48 +1,70 @@
 #![allow(clippy::too_many_arguments)]
 
 use bincode::{Decode, Encode};
+use itertools::Itertools;
 use prjcombine_entity::{EntityId, EntityPartVec, EntityVec, entity_id};
 use prjcombine_interconnect::{
-    db::{TileClass, TileClassId},
+    db::{IntDb, TileClass, TileClassId},
     dir::{DirH, DirV},
-    grid::{CellCoord, ColId, DieId, RowId, TileCoord},
+    grid::{BelCoord, CellCoord, ColId, DieId, RowId, TileCoord},
 };
 use prjcombine_re_xilinx_naming::{db::NamingDb, grid::ExpandedGridNaming};
 use prjcombine_versal::{
-    chip::{BramKind, CleKind, ColumnKind, HardRowKind, InterposerKind, RegId, RightKind},
-    defs::{bslots, tcls},
+    chip::{
+        BramKind, Chip, CleKind, ColumnKind, FabricKind, HardRowKind, HsrNKind, InterposerKind,
+        PsKind,
+    },
+    defs::{bslots, cslots, tcls, tslots},
     expanded::ExpandedDevice,
 };
-use std::{cmp::max, collections::BTreeMap};
+use std::{
+    cmp::max,
+    collections::{BTreeMap, BTreeSet},
+};
 
 #[derive(Clone, Debug, PartialEq, Eq, Encode, Decode)]
 pub struct DeviceNaming {
-    pub die: EntityVec<DieId, DieNaming>,
-    pub is_dsp_v2: bool,
+    pub tile_names: BTreeMap<TileCoord, Vec<String>>,
+    pub bel_names: BTreeMap<BelCoord, Vec<String>>,
+    pub skip_bels: BTreeSet<BelCoord>,
+    pub has_dsp_v2: bool,
+    pub has_term2: bool,
     pub is_vnoc2_scan_offset: bool,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Encode, Decode)]
-pub struct DieNaming {
-    pub hdio: BTreeMap<(ColId, RegId), HdioNaming>,
-    pub sysmon_sat_vnoc: BTreeMap<(ColId, RegId), (u32, u32)>,
-    pub sysmon_sat_gt: BTreeMap<(ColId, RegId), (u32, u32)>,
-    pub dpll_gt: BTreeMap<(ColId, RegId), (u32, u32)>,
-    pub vnoc2: BTreeMap<(ColId, RegId), VNoc2Naming>,
-}
-
-#[derive(Clone, Debug, PartialEq, Eq, Encode, Decode)]
-pub struct HdioNaming {
-    pub iob_xy: (u32, u32),
-    pub dpll_xy: (u32, u32),
-}
-
-#[derive(Clone, Debug, PartialEq, Eq, Encode, Decode)]
-pub struct VNoc2Naming {
-    pub nsu_xy: (u32, u32),
-    pub nmu_xy: (u32, u32),
-    pub nps_xy: (u32, u32),
-    pub scan_xy: (u32, u32),
+impl DeviceNaming {
+    pub fn dump(&self, o: &mut dyn std::io::Write, db: &IntDb) -> std::io::Result<()> {
+        for (tcrd, names) in &self.tile_names {
+            let tn = tcrd.to_string(db);
+            if names.len() == 1 {
+                writeln!(o, "\ttile {tn} = {name};", name = names[0])?;
+            } else {
+                writeln!(o, "\ttile {tn} = {names};", names = names.iter().join(", "))?;
+            }
+        }
+        for (bcrd, names) in &self.bel_names {
+            let bn = bcrd.to_string(db);
+            if names.len() == 1 {
+                writeln!(o, "\tbel {bn} = {name};", name = names[0])?;
+            } else {
+                writeln!(o, "\tbel {bn} = {names};", names = names.iter().join(", "))?;
+            }
+        }
+        for &bcrd in &self.skip_bels {
+            let bn = bcrd.to_string(db);
+            writeln!(o, "\tskip_bel {bn};")?;
+        }
+        if self.has_dsp_v2 {
+            writeln!(o, "\thas_dsp_v2;")?;
+        }
+        if self.has_term2 {
+            writeln!(o, "\thas_term2;")?;
+        }
+        if self.is_vnoc2_scan_offset {
+            writeln!(o, "\tvnoc2_scan_offset;")?;
+        }
+        Ok(())
+    }
 }
 
 pub const BUFDIV_LEAF_SWZ_A: [u32; 32] = [
@@ -104,7 +126,7 @@ impl BelGrid {
 
     fn name_manual(&self, prefix: &str, die: DieId, x: u32, y: u32) -> String {
         if self.mirror_square {
-            format!("{prefix}_S{die}X{x}Y{y}")
+            format!("{prefix}_S{die:#}X{x}Y{y}")
         } else {
             format!("{prefix}_X{x}Y{y}")
         }
@@ -119,10 +141,27 @@ fn make_grid(
     make_grid_complex(edev, f, |_, _, _, _| n)
 }
 
+fn make_grid_gt(
+    edev: &ExpandedDevice,
+    f: impl Fn(TileClassId, &str, &TileClass) -> bool,
+    n: (i32, i32),
+) -> BelGrid {
+    make_grid_complex_gen(edev, f, |_, _, _, _| n, true)
+}
+
 fn make_grid_complex(
     edev: &ExpandedDevice,
     f: impl Fn(TileClassId, &str, &TileClass) -> bool,
     n: impl Fn(TileClassId, &str, &TileClass, TileCoord) -> (i32, i32),
+) -> BelGrid {
+    make_grid_complex_gen(edev, f, n, false)
+}
+
+fn make_grid_complex_gen(
+    edev: &ExpandedDevice,
+    f: impl Fn(TileClassId, &str, &TileClass) -> bool,
+    n: impl Fn(TileClassId, &str, &TileClass, TileCoord) -> (i32, i32),
+    is_gt: bool,
 ) -> BelGrid {
     if edev.interposer.kind == InterposerKind::MirrorSquare {
         let mut res = BelGrid {
@@ -130,7 +169,7 @@ fn make_grid_complex(
             xlut: EntityVec::new(),
             ylut: EntityVec::new(),
         };
-        for die in edev.chips.ids() {
+        for (die, chip) in &edev.chips {
             let mut cols = BTreeMap::new();
             let mut rows = BTreeMap::new();
             for (tcid, tcname, tcls) in &edev.db.tile_classes {
@@ -140,7 +179,16 @@ fn make_grid_complex(
                             continue;
                         }
                         let (n_x, n_y) = n(tcid, tcname, tcls, tcrd);
-                        let v_c = cols.entry(tcrd.col).or_default();
+                        let col = if is_gt {
+                            if chip.col_side(tcrd.col) == DirH::W {
+                                chip.col_w()
+                            } else {
+                                chip.col_e()
+                            }
+                        } else {
+                            tcrd.col
+                        };
+                        let v_c = cols.entry(col).or_default();
                         *v_c = max(*v_c, n_x);
                         let v_r = rows.entry(tcrd.row).or_default();
                         *v_r = max(*v_r, n_y);
@@ -153,6 +201,9 @@ fn make_grid_complex(
             for (col, num) in cols {
                 xlut.insert(col, x);
                 x += num;
+            }
+            if is_gt && let Some(&x) = xlut.get(chip.col_w()) {
+                xlut.insert(edev.col_cfrm[die], x);
             }
             let mut y = 0;
             for (row, num) in rows {
@@ -170,7 +221,17 @@ fn make_grid_complex(
             if f(tcid, tcname, tcls) {
                 for &tcrd in &edev.tile_index[tcid] {
                     let (n_x, n_y) = n(tcid, tcname, tcls, tcrd);
-                    let v_c = cols[tcrd.die].entry(tcrd.col).or_default();
+                    let chip = edev.chips[tcrd.die];
+                    let col = if is_gt {
+                        if chip.col_side(tcrd.col) == DirH::W {
+                            chip.col_w()
+                        } else {
+                            chip.col_e()
+                        }
+                    } else {
+                        tcrd.col
+                    };
+                    let v_c = cols[tcrd.die].entry(col).or_default();
                     *v_c = max(*v_c, n_x);
                     let v_r = rows.entry((tcrd.die, tcrd.row)).or_default();
                     *v_r = max(*v_r, n_y);
@@ -190,7 +251,7 @@ fn make_grid_complex(
             }
             x = max(x, lx);
         }
-        for die in edev.chips.ids() {
+        for (die, chip) in &edev.chips {
             let mut lx = x;
             for (&col, &num) in &cols[die] {
                 if col < edev.col_cfrm[die] {
@@ -198,6 +259,9 @@ fn make_grid_complex(
                 }
                 xlut[die].insert(col, lx);
                 lx += num;
+            }
+            if is_gt && let Some(&x) = xlut[die].get(chip.col_w()) {
+                xlut[die].insert(edev.col_cfrm[die], x);
             }
         }
         let mut y = 0;
@@ -217,12 +281,13 @@ fn make_grid_complex(
 pub struct ExpandedNamedDevice<'a> {
     pub edev: &'a ExpandedDevice<'a>,
     pub ngrid: ExpandedGridNaming<'a>,
+    pub dev_naming: &'a DeviceNaming,
 }
 
 pub fn name_device<'a>(
     edev: &'a ExpandedDevice<'a>,
     ndb: &'a NamingDb,
-    dev_naming: &DeviceNaming,
+    dev_naming: &'a DeviceNaming,
 ) -> ExpandedNamedDevice<'a> {
     let mut int_grid = make_grid(edev, |tcid, _, _| tcid == tcls::INT, (1, 1));
     for (die, &chip) in &edev.chips {
@@ -241,21 +306,12 @@ pub fn name_device<'a>(
         .max()
         .unwrap();
     for (die, &chip) in &edev.chips {
-        int_grid_gt.xlut[die][chip.columns.last_id().unwrap()] = max_x;
+        int_grid_gt.xlut[die][edev.col_cfrm[die]] = 0;
+        int_grid_gt.xlut[die][chip.col_e()] = max_x;
     }
     let bufdiv_grid = make_grid_complex(
         edev,
-        |tcid, _, _| {
-            matches!(
-                tcid,
-                tcls::RCLK_CLE
-                    | tcls::RCLK_CLE_HALF
-                    | tcls::RCLK_INTF_W
-                    | tcls::RCLK_INTF_E
-                    | tcls::RCLK_INTF_W_HALF
-                    | tcls::RCLK_INTF_E_HALF
-            )
-        },
+        |tcid, _, _| matches!(tcid, tcls::RCLK_CLE | tcls::RCLK_INTF),
         |_, _, _, tcrd| {
             let chip = edev.chips[tcrd.die];
             let cd = &chip.columns[tcrd.col];
@@ -264,10 +320,7 @@ pub fn name_device<'a>(
                 ColumnKind::ContHard => {
                     let hc = chip.get_col_hard(tcrd.col - 1).unwrap();
                     let reg = chip.row_to_reg(tcrd.row);
-                    if matches!(
-                        hc.regs[reg],
-                        HardRowKind::DcmacT | HardRowKind::HscT | HardRowKind::IlknT
-                    ) {
+                    if reg.to_idx() != 0 && hc.regs[reg - 1].is_double() {
                         (1, 32)
                     } else {
                         (0, 0)
@@ -276,10 +329,7 @@ pub fn name_device<'a>(
                 ColumnKind::Hard => {
                     let hc = chip.get_col_hard(tcrd.col).unwrap();
                     let reg = chip.row_to_reg(tcrd.row);
-                    if matches!(
-                        hc.regs[reg],
-                        HardRowKind::DcmacT | HardRowKind::HscT | HardRowKind::IlknT
-                    ) {
+                    if reg.to_idx() != 0 && hc.regs[reg - 1].is_double() {
                         (1, 32)
                     } else {
                         (1, 64)
@@ -305,21 +355,25 @@ pub fn name_device<'a>(
                     | tcls::INTF_E_HB
                     | tcls::INTF_W_TERM_PSS
                     | tcls::INTF_W_PSS
-                    | tcls::INTF_BLI_CLE_W_S0
-                    | tcls::INTF_BLI_CLE_E_S0
-                    | tcls::INTF_BLI_CLE_W_N0
-                    | tcls::INTF_BLI_CLE_E_N0
+                    | tcls::INTF_BLI_CLE_ABC_S
+                    | tcls::INTF_BLI_CLE_ABC_N
+                    | tcls::INTF_BLI_CLE_D_S
+                    | tcls::INTF_BLI_CLE_D_N
             )
         },
-        |tcid, _, _, _| {
+        |tcid, _, _, tcrd| {
             if matches!(
                 tcid,
-                tcls::INTF_BLI_CLE_W_S0
-                    | tcls::INTF_BLI_CLE_E_S0
-                    | tcls::INTF_BLI_CLE_W_N0
-                    | tcls::INTF_BLI_CLE_E_N0
+                tcls::INTF_BLI_CLE_ABC_S
+                    | tcls::INTF_BLI_CLE_ABC_N
+                    | tcls::INTF_BLI_CLE_D_S
+                    | tcls::INTF_BLI_CLE_D_N
             ) {
-                (1, 16)
+                if tcrd.row.to_idx().is_multiple_of(4) {
+                    (1, 16)
+                } else {
+                    (0, 0)
+                }
             } else {
                 (1, 4)
             }
@@ -327,67 +381,227 @@ pub fn name_device<'a>(
     );
     let rclk_dfx_grid = make_grid_complex(
         edev,
-        |tcid, _, _| matches!(tcid, tcls::RCLK_DFX_W | tcls::RCLK_DFX_E),
+        |tcid, _, _| matches!(tcid, tcls::RCLK_DFX),
         |_, _, _, tcrd| {
             let chip = edev.chips[tcrd.die];
-            if chip.columns[tcrd.col].kind == ColumnKind::Bram(BramKind::MaybeClkBufNoPd) {
+            if chip.columns[tcrd.col].kind == ColumnKind::Bram(BramKind::OptSplitter) {
                 (2, 1)
             } else {
                 (1, 1)
             }
         },
     );
-    let slice_grid = make_grid(
+    let bli_grid = make_grid(
         edev,
         |tcid, _, _| {
             matches!(
                 tcid,
-                tcls::CLE_W | tcls::CLE_E | tcls::CLE_W_VR | tcls::CLE_E_VR
+                tcls::BLI_S | tcls::BLI_N | tcls::BLI_CLE_S | tcls::BLI_CLE_N
             )
         },
+        (1, 1),
+    );
+    let slice_grid = make_grid(
+        edev,
+        |tcid, _, _| matches!(tcid, tcls::CLE | tcls::CLE_VR),
         (2, 1),
     );
     let dsp_grid = make_grid(edev, |tcid, _, _| tcid == tcls::DSP, (1, 1));
-    let bram_grid = make_grid(
+    let bram_grid = make_grid(edev, |tcid, _, _| tcid == tcls::BRAM, (1, 1));
+    let uram_grid = make_grid(edev, |tcid, _, _| matches!(tcid, tcls::URAM), (1, 1));
+    let uram_delay_grid = make_grid_complex(
         edev,
-        |tcid, _, _| matches!(tcid, tcls::BRAM_W | tcls::BRAM_E),
-        (1, 1),
+        |tcid, _, _| tcid == tcls::URAM,
+        |_, _, _, tcrd| {
+            let reg = edev.row_to_reg(tcrd.row);
+            if edev.is_reg_n(tcrd.die, reg) && tcrd.row.to_idx() % 48 == 44 {
+                (1, 1)
+            } else {
+                (0, 0)
+            }
+        },
     );
-    let uram_grid = make_grid(
-        edev,
-        |tcid, _, _| matches!(tcid, tcls::URAM | tcls::URAM_DELAY),
-        (1, 1),
-    );
-    let uram_delay_grid = make_grid(edev, |tcid, _, _| tcid == tcls::URAM_DELAY, (1, 1));
     let pcie4_grid = make_grid(edev, |tcid, _, _| tcid == tcls::PCIE4, (1, 1));
     let pcie5_grid = make_grid(edev, |tcid, _, _| tcid == tcls::PCIE5, (1, 1));
     let mrmac_grid = make_grid(edev, |tcid, _, _| tcid == tcls::MRMAC, (1, 1));
     let sdfec_grid = make_grid(edev, |tcid, _, _| tcid == tcls::SDFEC, (1, 1));
-    let dfe_cfc_bot_grid = make_grid(edev, |tcid, _, _| tcid == tcls::DFE_CFC_S, (1, 1));
-    let dfe_cfc_top_grid = make_grid(edev, |tcid, _, _| tcid == tcls::DFE_CFC_N, (1, 1));
+    let dfe_cfc_bot_grid = make_grid_complex(
+        edev,
+        |tcid, _, _| tcid == tcls::DFE_CFC,
+        |_, _, _, tcrd| {
+            if edev.is_reg_n(tcrd.die, edev.row_to_reg(tcrd.row)) {
+                (0, 0)
+            } else {
+                (1, 1)
+            }
+        },
+    );
+    let dfe_cfc_top_grid = make_grid_complex(
+        edev,
+        |tcid, _, _| tcid == tcls::DFE_CFC,
+        |_, _, _, tcrd| {
+            if edev.is_reg_n(tcrd.die, edev.row_to_reg(tcrd.row)) {
+                (1, 1)
+            } else {
+                (0, 0)
+            }
+        },
+    );
     let dcmac_grid = make_grid(edev, |tcid, _, _| tcid == tcls::DCMAC, (1, 1));
     let ilkn_grid = make_grid(edev, |tcid, _, _| tcid == tcls::ILKN, (1, 1));
     let hsc_grid = make_grid(edev, |tcid, _, _| tcid == tcls::HSC, (1, 1));
     let hdio_grid = make_grid(edev, |tcid, _, _| tcid == tcls::HDIO, (1, 1));
     let vnoc_grid = make_grid(edev, |tcid, _, _| tcid == tcls::VNOC, (1, 1));
     let misr_grid = make_grid(edev, |tcid, _, _| tcid == tcls::MISR, (1, 1));
-    let vdu_grid = make_grid(edev, |tcid, _, _| tcid == tcls::VDU_E, (1, 1));
-    let bfr_b_grid = make_grid(edev, |tcid, _, _| tcid == tcls::BFR_B_E, (1, 1));
+    let clk_gt_grid = make_grid(
+        edev,
+        |_, _, tcls| tcls.bels.contains_id(bslots::GCLK_TAPS_DECODE_GT),
+        (1, 1),
+    );
+    let gty_grid = make_grid_gt(
+        edev,
+        |_, _, tcls| tcls.bels.contains_id(bslots::GTY),
+        (1, 1),
+    );
+    let gtyp_grid = make_grid_gt(
+        edev,
+        |_, _, tcls| tcls.bels.contains_id(bslots::GTYP),
+        (1, 1),
+    );
+    let gtm_grid = make_grid_gt(
+        edev,
+        |_, _, tcls| tcls.bels.contains_id(bslots::GTM),
+        (1, 1),
+    );
+    let gtm2_grid = make_grid_gt(
+        edev,
+        |_, _, tcls| tcls.bels.contains_id(bslots::GTM2),
+        (1, 1),
+    );
+    let xpipe_grid = make_grid_gt(
+        edev,
+        |_, _, tcls| tcls.bels.contains_id(bslots::XPIPE),
+        (1, 1),
+    );
+    let hnicpipe_grid = make_grid_gt(
+        edev,
+        |_, _, tcls| tcls.bels.contains_id(bslots::HNICPIPE),
+        (1, 1),
+    );
+    let rfadc_grid = make_grid(edev, |tcid, _, _| tcid == tcls::RFADC, (1, 2));
+    let rfdac_grid = make_grid(edev, |tcid, _, _| tcid == tcls::RFDAC, (1, 2));
+    let vdu_grid = make_grid(edev, |tcid, _, _| tcid == tcls::VDU, (1, 1));
+    let bfr_b_grid = make_grid(edev, |tcid, _, _| tcid == tcls::BFR_B, (1, 1));
+    let vcu2_grid = make_grid(edev, |tcid, _, _| tcid == tcls::VCU2, (1, 1));
+    let isp2_grid = make_grid(edev, |tcid, _, _| tcid == tcls::ISP2, (1, 1));
+    let ps_grid = make_grid(
+        edev,
+        |tcid, _, _| matches!(tcid, tcls::PS9 | tcls::PSXL | tcls::PSXC),
+        (1, 1),
+    );
+    let xram_grid = make_grid(
+        edev,
+        |tcid, _, _| matches!(tcid, tcls::XRAM | tcls::XRAM_NC),
+        (1, 1),
+    );
+
+    let aie_grid = make_grid(edev, |_, _, tcls| tcls.slot == tslots::AIE, (1, 1));
+    let aie_core_grid = make_grid(
+        edev,
+        |tcid, _, _| matches!(tcid, tcls::AIE | tcls::AIE_ML | tcls::AIE2PS),
+        (1, 1),
+    );
+    let aie_mem_grid = make_grid(
+        edev,
+        |tcid, _, _| matches!(tcid, tcls::AIE_ML_MEM | tcls::AIE2PS_MEM),
+        (1, 1),
+    );
+    let aie_fifo_grid = make_grid(
+        edev,
+        |tcid, _, _| {
+            matches!(
+                tcid,
+                tcls::AIE
+                    | tcls::AIE_ML
+                    | tcls::AIE2PS
+                    | tcls::AIE_SHIM
+                    | tcls::AIE_ML_SHIM
+                    | tcls::AIE_SHIM_PL
+                    | tcls::AIE_SHIM_NOC_PL
+                    | tcls::AIE_ML_SHIM_PL
+                    | tcls::AIE_ML_SHIM_NOC_PL
+                    | tcls::AIE2PS_SHIM_NOC_PL
+            )
+        },
+        (1, 1),
+    );
+    let aie_pl_grid = make_grid(
+        edev,
+        |tcid, _, _| {
+            matches!(
+                tcid,
+                tcls::AIE_SHIM_PL
+                    | tcls::AIE_SHIM_NOC_PL
+                    | tcls::AIE_ML_SHIM_PL
+                    | tcls::AIE_ML_SHIM_NOC_PL
+                    | tcls::AIE2PS_SHIM_NOC_PL
+            )
+        },
+        (1, 1),
+    );
+    let aie_noc_grid = make_grid(
+        edev,
+        |tcid, _, _| {
+            matches!(
+                tcid,
+                tcls::AIE_SHIM_NOC_PL | tcls::AIE_ML_SHIM_NOC_PL | tcls::AIE2PS_SHIM_NOC_PL
+            )
+        },
+        (1, 1),
+    );
+    let aie_test_grid = make_grid(
+        edev,
+        |tcid, _, _| {
+            matches!(
+                tcid,
+                tcls::AIE_INTF_TEST
+                    | tcls::AIE_ML_INTF_TEST
+                    | tcls::AIE2PS_INTF_TEST
+                    | tcls::AIE2PS_INTF_TEST_NC
+            )
+        },
+        (1, 1),
+    );
+    let aie_test_nc_grid = make_grid(
+        edev,
+        |tcid, _, _| matches!(tcid, tcls::AIE_INTF_TEST_NC | tcls::AIE_ML_INTF_TEST_NC),
+        (1, 1),
+    );
 
     let mut ngrid = ExpandedGridNaming::new(ndb, edev);
 
     for (tcrd, tile) in edev.tiles() {
         let chip = edev.chips[tcrd.die];
-        let reg = chip.row_to_reg(tcrd.row);
+        let reg = edev.row_to_reg(tcrd.row);
         let CellCoord { die, col, row } = tcrd.cell;
         let kind = edev.db.tile_classes.key(tile.class);
+        let ocf = if col < edev.col_cfrm[die] {
+            "LOCF"
+        } else {
+            "ROCF"
+        };
+
         match tile.class {
             tcls::INT => {
                 ngrid.name_tile(tcrd, "INT", [int_grid.name("INT", die, col, row, 0, 0)]);
             }
             tcls::RCLK => {
                 let lr = if col < edev.col_cfrm[die] { 'L' } else { 'R' };
-                let vr = if chip.is_vr { "_VR" } else { "" };
+                let vr = if chip.fabric == FabricKind::Ulvt {
+                    "_VR"
+                } else {
+                    ""
+                };
                 ngrid.name_tile(
                     tcrd,
                     "RCLK",
@@ -429,12 +643,12 @@ pub fn name_device<'a>(
                     )],
                 );
             }
-            tcls::RCLK_CLE | tcls::RCLK_CLE_HALF => {
+            tcls::RCLK_CLE => {
                 let ColumnKind::Cle(cle_kind) = chip.columns[col].kind else {
                     unreachable!()
                 };
                 let naming = &if cle_kind == CleKind::Plain {
-                    if chip.is_vr {
+                    if chip.fabric == FabricKind::Ulvt {
                         format!("{kind}_VR")
                     } else {
                         kind.to_string()
@@ -447,7 +661,7 @@ pub fn name_device<'a>(
                     naming,
                     [int_grid.name(
                         if cle_kind == CleKind::Plain {
-                            if chip.is_vr {
+                            if chip.fabric == FabricKind::Ulvt {
                                 "RCLK_CLE_VR_CORE"
                             } else {
                                 "RCLK_CLE_CORE"
@@ -462,7 +676,7 @@ pub fn name_device<'a>(
                         0,
                     )],
                 );
-                let swz = if cle_kind == CleKind::Plain && !chip.is_vr {
+                let swz = if cle_kind == CleKind::Plain && chip.fabric != FabricKind::Ulvt {
                     BUFDIV_LEAF_SWZ_A
                 } else {
                     BUFDIV_LEAF_SWZ_B
@@ -471,7 +685,7 @@ pub fn name_device<'a>(
                     ntile.add_bel(
                         bslots::BUFDIV_LEAF[i],
                         bufdiv_grid.name(
-                            if chip.is_vr {
+                            if chip.fabric == FabricKind::Ulvt {
                                 "BUFDIV_LEAF_ULVT"
                             } else {
                                 "BUFDIV_LEAF"
@@ -491,11 +705,6 @@ pub fn name_device<'a>(
             | tcls::INTF_W_HB
             | tcls::INTF_W_PSS
             | tcls::INTF_W_TERM_PSS => {
-                let ocf = if col < edev.col_cfrm[die] {
-                    "LOCF"
-                } else {
-                    "ROCF"
-                };
                 let bt = if chip.is_reg_n(reg) { 'T' } else { 'B' };
                 let name = int_grid.name(
                     &match tile.class {
@@ -522,11 +731,6 @@ pub fn name_device<'a>(
                 }
             }
             tcls::INTF_E | tcls::INTF_E_TERM_GT | tcls::INTF_E_HDIO | tcls::INTF_E_HB => {
-                let ocf = if col < edev.col_cfrm[die] {
-                    "LOCF"
-                } else {
-                    "ROCF"
-                };
                 let bt = if chip.is_reg_n(reg) { 'T' } else { 'B' };
                 let name = int_grid.name(
                     &match tile.class {
@@ -550,68 +754,29 @@ pub fn name_device<'a>(
                     );
                 }
             }
-            tcls::INTF_BLI_CLE_W_S0
-            | tcls::INTF_BLI_CLE_W_S1
-            | tcls::INTF_BLI_CLE_W_S2
-            | tcls::INTF_BLI_CLE_W_S3
-            | tcls::INTF_BLI_CLE_W_N0
-            | tcls::INTF_BLI_CLE_W_N1
-            | tcls::INTF_BLI_CLE_W_N2
-            | tcls::INTF_BLI_CLE_W_N3 => {
-                let (dy, side, srow) = match tile.class {
-                    tcls::INTF_BLI_CLE_W_S0 => (12, DirV::S, row),
-                    tcls::INTF_BLI_CLE_W_S1 => (8, DirV::S, row - 1),
-                    tcls::INTF_BLI_CLE_W_S2 => (4, DirV::S, row - 2),
-                    tcls::INTF_BLI_CLE_W_S3 => (0, DirV::S, row - 3),
-                    tcls::INTF_BLI_CLE_W_N0 => (0, DirV::N, row),
-                    tcls::INTF_BLI_CLE_W_N1 => (4, DirV::N, row - 1),
-                    tcls::INTF_BLI_CLE_W_N2 => (8, DirV::N, row - 2),
-                    tcls::INTF_BLI_CLE_W_N3 => (12, DirV::N, row - 3),
+            tcls::INTF_BLI_CLE_ABC_S
+            | tcls::INTF_BLI_CLE_ABC_N
+            | tcls::INTF_BLI_CLE_D_S
+            | tcls::INTF_BLI_CLE_D_N => {
+                let side = if reg.to_idx() == 0 { DirV::S } else { DirV::N };
+                let ridx = row.to_idx() % 4;
+                let (dy, naming) = match (side, ridx) {
+                    (DirV::S, 0) => (12, "INTF_BLI_CLE_D_S"),
+                    (DirV::S, 1) => (8, "INTF_BLI_CLE_C_S"),
+                    (DirV::S, 2) => (4, "INTF_BLI_CLE_B_S"),
+                    (DirV::S, 3) => (0, "INTF_BLI_CLE_A_S"),
+                    (DirV::N, 0) => (0, "INTF_BLI_CLE_A_N"),
+                    (DirV::N, 1) => (4, "INTF_BLI_CLE_B_N"),
+                    (DirV::N, 2) => (8, "INTF_BLI_CLE_C_N"),
+                    (DirV::N, 3) => (12, "INTF_BLI_CLE_D_N"),
                     _ => unreachable!(),
                 };
-                let name = int_grid.name(
-                    if side == DirV::S {
-                        "BLI_CLE_BOT_CORE"
-                    } else {
-                        "BLI_CLE_TOP_CORE"
-                    },
-                    die,
-                    col,
-                    srow,
-                    0,
-                    0,
-                );
-                let ntile = ngrid.name_tile(tcrd, kind, [name]);
-                for i in 0..4 {
-                    ntile.add_bel(
-                        bslots::IRI[i],
-                        iri_grid.name("IRI_QUAD", die, col, srow, 0, dy + i as i32),
-                    );
-                }
-            }
-            tcls::INTF_BLI_CLE_E_S0
-            | tcls::INTF_BLI_CLE_E_S1
-            | tcls::INTF_BLI_CLE_E_S2
-            | tcls::INTF_BLI_CLE_E_S3
-            | tcls::INTF_BLI_CLE_E_N0
-            | tcls::INTF_BLI_CLE_E_N1
-            | tcls::INTF_BLI_CLE_E_N2
-            | tcls::INTF_BLI_CLE_E_N3 => {
-                let (dy, side, srow) = match tile.class {
-                    tcls::INTF_BLI_CLE_E_S0 => (12, DirV::S, row),
-                    tcls::INTF_BLI_CLE_E_S1 => (8, DirV::S, row - 1),
-                    tcls::INTF_BLI_CLE_E_S2 => (4, DirV::S, row - 2),
-                    tcls::INTF_BLI_CLE_E_S3 => (0, DirV::S, row - 3),
-                    tcls::INTF_BLI_CLE_E_N0 => (0, DirV::N, row),
-                    tcls::INTF_BLI_CLE_E_N1 => (4, DirV::N, row - 1),
-                    tcls::INTF_BLI_CLE_E_N2 => (8, DirV::N, row - 2),
-                    tcls::INTF_BLI_CLE_E_N3 => (12, DirV::N, row - 3),
-                    _ => unreachable!(),
-                };
+                let srow = row - ridx;
                 let name = int_grid.name(
                     if side == DirV::S {
                         if matches!(chip.columns[col - 1].kind, ColumnKind::Cle(_))
                             && chip.columns[col - 1].has_bli_s
+                            && chip.col_side(col) == DirH::E
                         {
                             "BLI_CLE_BOT_CORE_1"
                         } else {
@@ -620,6 +785,7 @@ pub fn name_device<'a>(
                     } else {
                         if matches!(chip.columns[col - 1].kind, ColumnKind::Cle(_))
                             && chip.columns[col - 1].has_bli_n
+                            && chip.col_side(col) == DirH::E
                         {
                             "BLI_CLE_TOP_CORE_1"
                         } else {
@@ -632,7 +798,7 @@ pub fn name_device<'a>(
                     0,
                     0,
                 );
-                let ntile = ngrid.name_tile(tcrd, kind, [name]);
+                let ntile = ngrid.name_tile(tcrd, naming, [name]);
                 for i in 0..4 {
                     ntile.add_bel(
                         bslots::IRI[i],
@@ -640,238 +806,556 @@ pub fn name_device<'a>(
                     );
                 }
             }
-            tcls::RCLK_INTF_W | tcls::RCLK_INTF_W_HALF => {
-                let srow = if reg.to_idx() % 2 == 1 { row - 1 } else { row };
-                let (subkind, name, swz, wide) = match chip.columns[col].kind {
-                    ColumnKind::ContDsp => (
-                        if chip.is_vr { "DSP_VR" } else { "DSP" },
-                        int_grid.name(
-                            if chip.is_vr {
-                                "RCLK_DSP_VR_CORE"
+            tcls::BLI_CLE_S | tcls::BLI_CLE_N | tcls::BLI_S | tcls::BLI_N => {
+                let v = if row.to_idx() == 0 { DirV::S } else { DirV::N };
+                let srow = if v == DirV::S { row } else { row - 3 };
+                let ntile = if matches!(tile.class, tcls::BLI_CLE_S | tcls::BLI_CLE_N) {
+                    let name = int_grid.name(
+                        if v == DirV::S {
+                            if matches!(chip.columns[col - 1].kind, ColumnKind::Cle(_))
+                                && chip.columns[col - 1].has_bli_s
+                                && chip.col_side(col) == DirH::E
+                            {
+                                "BLI_CLE_BOT_CORE_1"
                             } else {
-                                "RCLK_DSP_CORE"
-                            },
-                            die,
-                            col - 1,
-                            srow,
-                            0,
-                            0,
-                        ),
-                        if chip.is_vr {
-                            BUFDIV_LEAF_SWZ_BH
-                        } else {
-                            BUFDIV_LEAF_SWZ_AH
-                        },
-                        true,
-                    ),
-                    ColumnKind::Bram(BramKind::Plain) => (
-                        if chip.is_vr { "BRAM_VR" } else { "BRAM" },
-                        int_grid.name(
-                            if chip.is_vr {
-                                "RCLK_BRAM_VR_CORE"
-                            } else {
-                                "RCLK_BRAM_CORE"
-                            },
-                            die,
-                            col,
-                            srow,
-                            0,
-                            0,
-                        ),
-                        if chip.is_vr {
-                            BUFDIV_LEAF_SWZ_B
-                        } else {
-                            BUFDIV_LEAF_SWZ_A
-                        },
-                        false,
-                    ),
-                    ColumnKind::Uram => (
-                        if chip.is_vr { "URAM_VR" } else { "URAM" },
-                        int_grid.name(
-                            if chip.is_vr {
-                                "RCLK_URAM_VR_CORE"
-                            } else {
-                                "RCLK_URAM_CORE"
-                            },
-                            die,
-                            col,
-                            srow,
-                            0,
-                            0,
-                        ),
-                        if chip.is_vr {
-                            BUFDIV_LEAF_SWZ_B
-                        } else {
-                            BUFDIV_LEAF_SWZ_A
-                        },
-                        false,
-                    ),
-                    ColumnKind::Gt => (
-                        if chip.is_vr { "GT_VR" } else { "GT" },
-                        int_grid.name(
-                            if chip.is_vr {
-                                "RCLK_INTF_TERM_LEFT_VR_CORE"
-                            } else {
-                                "RCLK_INTF_TERM_LEFT_CORE"
-                            },
-                            die,
-                            col,
-                            srow,
-                            0,
-                            0,
-                        ),
-                        if chip.is_vr {
-                            BUFDIV_LEAF_SWZ_B
-                        } else {
-                            BUFDIV_LEAF_SWZ_A
-                        },
-                        false,
-                    ),
-                    ColumnKind::Cfrm => (
-                        if chip.is_vr { "CFRM_VR" } else { "CFRM" },
-                        int_grid.name(
-                            if chip.is_vr {
-                                "RCLK_INTF_OPT_VR_CORE"
-                            } else {
-                                "RCLK_INTF_OPT_CORE"
-                            },
-                            die,
-                            col,
-                            srow,
-                            0,
-                            0,
-                        ),
-                        if chip.is_vr {
-                            BUFDIV_LEAF_SWZ_B
-                        } else {
-                            BUFDIV_LEAF_SWZ_A
-                        },
-                        false,
-                    ),
-                    ColumnKind::ContVNoc => (
-                        if chip.is_vr { "VNOC_VR" } else { "VNOC" },
-                        int_grid.name(
-                            if chip.is_vr {
-                                "RCLK_INTF_L_VR_CORE"
-                            } else {
-                                "RCLK_INTF_L_CORE"
-                            },
-                            die,
-                            col,
-                            srow,
-                            0,
-                            0,
-                        ),
-                        BUFDIV_LEAF_SWZ_B,
-                        false,
-                    ),
-                    ColumnKind::ContHard => {
-                        let hc = chip.get_col_hard(col - 1).unwrap();
-                        if reg.to_idx().is_multiple_of(2) {
-                            if hc.regs[reg] == HardRowKind::Hdio {
-                                (
-                                    if chip.is_vr { "HDIO_VR" } else { "HDIO" },
-                                    int_grid.name(
-                                        if chip.is_vr {
-                                            "RCLK_HDIO_VR_CORE"
-                                        } else {
-                                            "RCLK_HDIO_CORE"
-                                        },
-                                        die,
-                                        col - 1,
-                                        srow,
-                                        0,
-                                        0,
-                                    ),
-                                    if chip.is_vr {
-                                        BUFDIV_LEAF_SWZ_BH
-                                    } else {
-                                        BUFDIV_LEAF_SWZ_AH
-                                    },
-                                    true,
-                                )
-                            } else {
-                                (
-                                    if chip.is_vr { "HB_VR" } else { "HB" },
-                                    int_grid.name(
-                                        if chip.is_vr {
-                                            "RCLK_HB_VR_CORE"
-                                        } else {
-                                            "RCLK_HB_CORE"
-                                        },
-                                        die,
-                                        col - 1,
-                                        srow,
-                                        0,
-                                        0,
-                                    ),
-                                    if chip.is_vr {
-                                        BUFDIV_LEAF_SWZ_BH
-                                    } else {
-                                        BUFDIV_LEAF_SWZ_AH
-                                    },
-                                    true,
-                                )
+                                "BLI_CLE_BOT_CORE"
                             }
                         } else {
-                            if hc.regs[reg] == HardRowKind::Hdio {
-                                (
-                                    if chip.is_vr { "HDIO_VR" } else { "HDIO" },
-                                    int_grid.name(
-                                        if chip.is_vr {
-                                            "RCLK_HDIO_VR_CORE"
+                            if matches!(chip.columns[col - 1].kind, ColumnKind::Cle(_))
+                                && chip.columns[col - 1].has_bli_n
+                                && chip.col_side(col) == DirH::E
+                            {
+                                "BLI_CLE_TOP_CORE_1"
+                            } else {
+                                "BLI_CLE_TOP_CORE"
+                            }
+                        },
+                        die,
+                        col,
+                        srow,
+                        0,
+                        0,
+                    );
+                    ngrid.name_tile(tcrd, kind, [name])
+                } else {
+                    let k = match chip.columns[col].kind {
+                        ColumnKind::Bram(_) => "BRAM",
+                        ColumnKind::Uram => "URAM",
+                        ColumnKind::Dsp | ColumnKind::ContDsp => "DSP",
+                        _ => unreachable!(),
+                    };
+                    let tkn = format!(
+                        "BLI_{k}_{ocf}_{bt}{lr}_TILE",
+                        bt = match v {
+                            DirV::S => 'B',
+                            DirV::N => 'T',
+                        },
+                        lr = match chip.col_side(col) {
+                            DirH::W => 'L',
+                            DirH::E => 'R',
+                        },
+                    );
+                    let name = int_grid.name(&tkn, die, col, srow, 0, 0);
+                    ngrid.name_tile(tcrd, kind, [name])
+                };
+                for i in 0..3 {
+                    let abc = ['A', 'B', 'C'][i];
+                    ntile.add_bel(
+                        bslots::BLI_GRP0[i],
+                        bli_grid.name(&format!("BLI_{abc}_GRP0"), die, col, row, 0, 0),
+                    );
+                    ntile.add_bel(
+                        bslots::BLI_GRP1[i],
+                        bli_grid.name(&format!("BLI_{abc}_GRP1"), die, col, row, 0, 0),
+                    );
+                    ntile.add_bel(
+                        bslots::BLI_GRP2[i],
+                        bli_grid.name(&format!("BLI_{abc}_GRP2"), die, col, row, 0, 0),
+                    );
+                }
+                ntile.add_bel(
+                    bslots::BLI_GRP4,
+                    bli_grid.name("BLI_D_GRP4", die, col, row, 0, 0),
+                );
+                ntile.add_bel(
+                    bslots::BLI_GRP5,
+                    bli_grid.name("BLI_D_GRP5", die, col, row, 0, 0),
+                );
+                ntile.add_bel(
+                    bslots::BLI_GRP6,
+                    bli_grid.name("BLI_D_GRP6", die, col, row, 0, 0),
+                );
+                ntile.add_bel(
+                    bslots::BLI_GRP7,
+                    bli_grid.name("BLI_D_GRP7", die, col, row, 0, 0),
+                );
+                ntile.add_bel(
+                    bslots::BLI_TMR,
+                    bli_grid.name("BLI_TMR", die, col, row, 0, 0),
+                );
+            }
+            tcls::BLI_MUX | tcls::BLI_MUX_NOC => {
+                let v = if row.to_idx() == 0 { DirV::S } else { DirV::N };
+                let is_1 = if v == DirV::S {
+                    chip.columns[col - 1].has_bli_s && chip.col_side(col) == DirH::E
+                } else {
+                    chip.columns[col - 1].has_bli_n && chip.col_side(col) == DirH::E
+                };
+                let tkn = if tile.class == tcls::BLI_MUX_NOC {
+                    if is_1 {
+                        "BLI_LS_MUX_CORE_1"
+                    } else {
+                        "BLI_LS_MUX_CORE"
+                    }
+                } else {
+                    if is_1 { "BLI_LS_CORE_1" } else { "BLI_LS_CORE" }
+                };
+                let name = int_grid.name(tkn, die, col, row, 0, 0);
+                ngrid.name_tile(tcrd, kind, [name]);
+            }
+            tcls::RCLK_INTF => {
+                if chip.col_side(col) == DirH::W {
+                    let srow = if reg.to_idx() % 2 == 1 { row - 1 } else { row };
+                    let (subkind, name, swz, wide) = match chip.columns[col].kind {
+                        ColumnKind::ContDsp => (
+                            if chip.fabric == FabricKind::Ulvt {
+                                "DSP_VR"
+                            } else {
+                                "DSP"
+                            },
+                            int_grid.name(
+                                if chip.fabric == FabricKind::Ulvt {
+                                    "RCLK_DSP_VR_CORE"
+                                } else {
+                                    "RCLK_DSP_CORE"
+                                },
+                                die,
+                                col - 1,
+                                srow,
+                                0,
+                                0,
+                            ),
+                            if chip.fabric == FabricKind::Ulvt {
+                                BUFDIV_LEAF_SWZ_BH
+                            } else {
+                                BUFDIV_LEAF_SWZ_AH
+                            },
+                            true,
+                        ),
+                        ColumnKind::Bram(BramKind::Plain) => (
+                            if chip.fabric == FabricKind::Ulvt {
+                                "BRAM_VR"
+                            } else {
+                                "BRAM"
+                            },
+                            int_grid.name(
+                                if chip.fabric == FabricKind::Ulvt {
+                                    "RCLK_BRAM_VR_CORE"
+                                } else {
+                                    "RCLK_BRAM_CORE"
+                                },
+                                die,
+                                col,
+                                srow,
+                                0,
+                                0,
+                            ),
+                            if chip.fabric == FabricKind::Ulvt {
+                                BUFDIV_LEAF_SWZ_B
+                            } else {
+                                BUFDIV_LEAF_SWZ_A
+                            },
+                            false,
+                        ),
+                        ColumnKind::Uram => (
+                            if chip.fabric == FabricKind::Ulvt {
+                                "URAM_VR"
+                            } else {
+                                "URAM"
+                            },
+                            int_grid.name(
+                                if chip.fabric == FabricKind::Ulvt {
+                                    "RCLK_URAM_VR_CORE"
+                                } else {
+                                    "RCLK_URAM_CORE"
+                                },
+                                die,
+                                col,
+                                srow,
+                                0,
+                                0,
+                            ),
+                            if chip.fabric == FabricKind::Ulvt {
+                                BUFDIV_LEAF_SWZ_B
+                            } else {
+                                BUFDIV_LEAF_SWZ_A
+                            },
+                            false,
+                        ),
+                        ColumnKind::Gt => (
+                            if chip.fabric == FabricKind::Ulvt {
+                                "GT_VR"
+                            } else {
+                                "GT"
+                            },
+                            int_grid.name(
+                                if chip.fabric == FabricKind::Ulvt {
+                                    "RCLK_INTF_TERM_LEFT_VR_CORE"
+                                } else {
+                                    "RCLK_INTF_TERM_LEFT_CORE"
+                                },
+                                die,
+                                col,
+                                srow,
+                                0,
+                                0,
+                            ),
+                            if chip.fabric == FabricKind::Ulvt {
+                                BUFDIV_LEAF_SWZ_B
+                            } else {
+                                BUFDIV_LEAF_SWZ_A
+                            },
+                            false,
+                        ),
+                        ColumnKind::Cfrm => (
+                            if chip.fabric == FabricKind::Ulvt {
+                                "CFRM_VR"
+                            } else {
+                                "CFRM"
+                            },
+                            int_grid.name(
+                                if chip.fabric == FabricKind::Ulvt {
+                                    "RCLK_INTF_OPT_VR_CORE"
+                                } else {
+                                    "RCLK_INTF_OPT_CORE"
+                                },
+                                die,
+                                col,
+                                srow,
+                                0,
+                                0,
+                            ),
+                            if chip.fabric == FabricKind::Ulvt {
+                                BUFDIV_LEAF_SWZ_B
+                            } else {
+                                BUFDIV_LEAF_SWZ_A
+                            },
+                            false,
+                        ),
+                        ColumnKind::ContVNoc => (
+                            if chip.fabric == FabricKind::Ulvt {
+                                "VNOC_VR"
+                            } else {
+                                "VNOC"
+                            },
+                            int_grid.name(
+                                if chip.fabric == FabricKind::Ulvt {
+                                    "RCLK_INTF_L_VR_CORE"
+                                } else {
+                                    "RCLK_INTF_L_CORE"
+                                },
+                                die,
+                                col,
+                                srow,
+                                0,
+                                0,
+                            ),
+                            BUFDIV_LEAF_SWZ_B,
+                            false,
+                        ),
+                        ColumnKind::ContHard => {
+                            let hc = chip.get_col_hard(col - 1).unwrap();
+                            if reg.to_idx().is_multiple_of(2) {
+                                if hc.regs[reg] == HardRowKind::Hdio {
+                                    (
+                                        if chip.fabric == FabricKind::Ulvt {
+                                            "HDIO_VR"
                                         } else {
-                                            "RCLK_HDIO_CORE"
+                                            "HDIO"
                                         },
-                                        die,
-                                        col - 1,
-                                        srow,
-                                        0,
-                                        0,
-                                    ),
-                                    if chip.is_vr {
-                                        BUFDIV_LEAF_SWZ_BH
+                                        int_grid.name(
+                                            if chip.fabric == FabricKind::Ulvt {
+                                                "RCLK_HDIO_VR_CORE"
+                                            } else {
+                                                "RCLK_HDIO_CORE"
+                                            },
+                                            die,
+                                            col - 1,
+                                            srow,
+                                            0,
+                                            0,
+                                        ),
+                                        if chip.fabric == FabricKind::Ulvt {
+                                            BUFDIV_LEAF_SWZ_BH
+                                        } else {
+                                            BUFDIV_LEAF_SWZ_AH
+                                        },
+                                        true,
+                                    )
+                                } else {
+                                    (
+                                        if chip.fabric == FabricKind::Ulvt {
+                                            "HB_VR"
+                                        } else {
+                                            "HB"
+                                        },
+                                        int_grid.name(
+                                            if chip.fabric == FabricKind::Ulvt {
+                                                "RCLK_HB_VR_CORE"
+                                            } else {
+                                                "RCLK_HB_CORE"
+                                            },
+                                            die,
+                                            col - 1,
+                                            srow,
+                                            0,
+                                            0,
+                                        ),
+                                        if chip.fabric == FabricKind::Ulvt {
+                                            BUFDIV_LEAF_SWZ_BH
+                                        } else {
+                                            BUFDIV_LEAF_SWZ_AH
+                                        },
+                                        true,
+                                    )
+                                }
+                            } else {
+                                if hc.regs[reg] == HardRowKind::Hdio {
+                                    (
+                                        if chip.fabric == FabricKind::Ulvt {
+                                            "HDIO_VR"
+                                        } else {
+                                            "HDIO"
+                                        },
+                                        int_grid.name(
+                                            if chip.fabric == FabricKind::Ulvt {
+                                                "RCLK_HDIO_VR_CORE"
+                                            } else {
+                                                "RCLK_HDIO_CORE"
+                                            },
+                                            die,
+                                            col - 1,
+                                            srow,
+                                            0,
+                                            0,
+                                        ),
+                                        if chip.fabric == FabricKind::Ulvt {
+                                            BUFDIV_LEAF_SWZ_BH
+                                        } else {
+                                            BUFDIV_LEAF_SWZ_AH
+                                        },
+                                        true,
+                                    )
+                                } else if hc.regs[reg - 1] == HardRowKind::Hdio {
+                                    (
+                                        if chip.fabric == FabricKind::Ulvt {
+                                            "HB_HDIO_VR"
+                                        } else {
+                                            "HB_HDIO"
+                                        },
+                                        int_grid.name(
+                                            if chip.fabric == FabricKind::Ulvt {
+                                                "RCLK_HB_HDIO_VR_CORE"
+                                            } else {
+                                                "RCLK_HB_HDIO_CORE"
+                                            },
+                                            die,
+                                            col - 1,
+                                            srow,
+                                            0,
+                                            0,
+                                        ),
+                                        BUFDIV_LEAF_SWZ_BH,
+                                        true,
+                                    )
+                                } else if hc.regs[reg - 1] == HardRowKind::DfeCfc {
+                                    (
+                                        "SDFEC",
+                                        int_grid.name("RCLK_SDFEC_CORE", die, col - 1, srow, 0, 0),
+                                        BUFDIV_LEAF_SWZ_BH,
+                                        true,
+                                    )
+                                } else if reg.to_idx() != 0 && hc.regs[reg - 1].is_double() {
+                                    (
+                                        if chip.fabric == FabricKind::Ulvt {
+                                            "HB_FULL_VR"
+                                        } else {
+                                            "HB_FULL"
+                                        },
+                                        int_grid.name(
+                                            if chip.fabric == FabricKind::Ulvt {
+                                                "RCLK_HB_FULL_R_VR_CORE"
+                                            } else {
+                                                "RCLK_HB_FULL_R_CORE"
+                                            },
+                                            die,
+                                            col,
+                                            srow,
+                                            0,
+                                            0,
+                                        ),
+                                        BUFDIV_LEAF_SWZ_B,
+                                        false,
+                                    )
+                                } else {
+                                    (
+                                        if chip.fabric == FabricKind::Ulvt {
+                                            "HB_VR"
+                                        } else {
+                                            "HB"
+                                        },
+                                        int_grid.name(
+                                            if chip.fabric == FabricKind::Ulvt {
+                                                "RCLK_HB_VR_CORE"
+                                            } else {
+                                                "RCLK_HB_CORE"
+                                            },
+                                            die,
+                                            col - 1,
+                                            srow,
+                                            0,
+                                            0,
+                                        ),
+                                        if chip.fabric == FabricKind::Ulvt {
+                                            BUFDIV_LEAF_SWZ_BH
+                                        } else {
+                                            BUFDIV_LEAF_SWZ_AH
+                                        },
+                                        true,
+                                    )
+                                }
+                            }
+                        }
+                        _ => unreachable!(),
+                    };
+                    let ntile = ngrid.name_tile(
+                        tcrd,
+                        &format!("{kind}_{side}_{subkind}", side = chip.col_side(col)),
+                        [name],
+                    );
+                    for (i, dy) in swz.into_iter().enumerate() {
+                        ntile.add_bel(
+                            bslots::BUFDIV_LEAF[i],
+                            if wide {
+                                bufdiv_grid.name(
+                                    if chip.fabric == FabricKind::Ulvt {
+                                        "BUFDIV_LEAF_ULVT"
                                     } else {
-                                        BUFDIV_LEAF_SWZ_AH
+                                        "BUFDIV_LEAF"
                                     },
-                                    true,
+                                    die,
+                                    col - 1,
+                                    row,
+                                    0,
+                                    dy as i32,
                                 )
-                            } else if hc.regs[reg - 1] == HardRowKind::Hdio {
+                            } else {
+                                bufdiv_grid.name(
+                                    if chip.fabric == FabricKind::Ulvt {
+                                        "BUFDIV_LEAF_ULVT"
+                                    } else {
+                                        "BUFDIV_LEAF"
+                                    },
+                                    die,
+                                    col,
+                                    row,
+                                    0,
+                                    dy as i32,
+                                )
+                            },
+                        );
+                    }
+                } else {
+                    let srow = if reg.to_idx() % 2 == 1 { row - 1 } else { row };
+                    let (subkind, name, swz) = match chip.columns[col].kind {
+                        ColumnKind::Dsp => (
+                            if chip.fabric == FabricKind::Ulvt {
+                                "DSP_VR"
+                            } else {
+                                "DSP"
+                            },
+                            int_grid.name(
+                                if chip.fabric == FabricKind::Ulvt {
+                                    "RCLK_DSP_VR_CORE"
+                                } else {
+                                    "RCLK_DSP_CORE"
+                                },
+                                die,
+                                col,
+                                srow,
+                                0,
+                                0,
+                            ),
+                            if chip.fabric == FabricKind::Ulvt {
+                                BUFDIV_LEAF_SWZ_B
+                            } else {
+                                BUFDIV_LEAF_SWZ_A
+                            },
+                        ),
+                        ColumnKind::Bram(BramKind::Plain) => (
+                            if chip.fabric == FabricKind::Ulvt {
+                                "BRAM_VR"
+                            } else {
+                                "BRAM"
+                            },
+                            int_grid.name(
+                                if chip.fabric == FabricKind::Ulvt {
+                                    "RCLK_BRAM_VR_CORE"
+                                } else {
+                                    "RCLK_BRAM_CORE"
+                                },
+                                die,
+                                col,
+                                srow,
+                                0,
+                                0,
+                            ),
+                            if chip.fabric == FabricKind::Ulvt {
+                                BUFDIV_LEAF_SWZ_B
+                            } else {
+                                BUFDIV_LEAF_SWZ_A
+                            },
+                        ),
+                        ColumnKind::Bram(BramKind::SplitterPd) => (
+                            if chip.fabric == FabricKind::Ulvt {
+                                "BRAM_CLKBUF_VR"
+                            } else {
+                                "BRAM_CLKBUF"
+                            },
+                            int_grid.name(
+                                if chip.fabric == FabricKind::Ulvt {
+                                    "RCLK_BRAM_CLKBUF_VR_CORE"
+                                } else {
+                                    "RCLK_BRAM_CLKBUF_CORE"
+                                },
+                                die,
+                                col,
+                                srow,
+                                0,
+                                0,
+                            ),
+                            if chip.fabric == FabricKind::Ulvt {
+                                BUFDIV_LEAF_SWZ_B
+                            } else {
+                                BUFDIV_LEAF_SWZ_A
+                            },
+                        ),
+                        ColumnKind::Bram(BramKind::Splitter | BramKind::OptSplitter) => {
+                            let is_splitter = row.to_idx() >= chip.ps.height()
+                                || chip.columns[col].kind == ColumnKind::Bram(BramKind::Splitter);
+
+                            if is_splitter {
                                 (
-                                    if chip.is_vr { "HB_HDIO_VR" } else { "HB_HDIO" },
+                                    if chip.fabric == FabricKind::Ulvt {
+                                        "BRAM_CLKBUF_NOPD_VR"
+                                    } else {
+                                        "BRAM_CLKBUF_NOPD"
+                                    },
                                     int_grid.name(
-                                        if chip.is_vr {
-                                            "RCLK_HB_HDIO_VR_CORE"
+                                        if chip.fabric == FabricKind::Ulvt {
+                                            "RCLK_BRAM_CLKBUF_NOPD_VR_CORE"
                                         } else {
-                                            "RCLK_HB_HDIO_CORE"
-                                        },
-                                        die,
-                                        col - 1,
-                                        srow,
-                                        0,
-                                        0,
-                                    ),
-                                    BUFDIV_LEAF_SWZ_BH,
-                                    true,
-                                )
-                            } else if hc.regs[reg - 1] == HardRowKind::DfeCfcS {
-                                (
-                                    "SDFEC",
-                                    int_grid.name("RCLK_SDFEC_CORE", die, col - 1, srow, 0, 0),
-                                    BUFDIV_LEAF_SWZ_BH,
-                                    true,
-                                )
-                            } else if matches!(
-                                hc.regs[reg],
-                                HardRowKind::DcmacT | HardRowKind::HscT | HardRowKind::IlknT
-                            ) {
-                                (
-                                    if chip.is_vr { "HB_FULL_VR" } else { "HB_FULL" },
-                                    int_grid.name(
-                                        if chip.is_vr {
-                                            "RCLK_HB_FULL_R_VR_CORE"
-                                        } else {
-                                            "RCLK_HB_FULL_R_CORE"
+                                            "RCLK_BRAM_CLKBUF_NOPD_CORE"
                                         },
                                         die,
                                         col,
@@ -880,55 +1364,298 @@ pub fn name_device<'a>(
                                         0,
                                     ),
                                     BUFDIV_LEAF_SWZ_B,
-                                    false,
                                 )
                             } else {
                                 (
-                                    if chip.is_vr { "HB_VR" } else { "HB" },
+                                    if chip.fabric == FabricKind::Ulvt {
+                                        "BRAM_VR"
+                                    } else {
+                                        "BRAM"
+                                    },
                                     int_grid.name(
-                                        if chip.is_vr {
-                                            "RCLK_HB_VR_CORE"
+                                        if chip.fabric == FabricKind::Ulvt {
+                                            "RCLK_BRAM_VR_CORE"
                                         } else {
-                                            "RCLK_HB_CORE"
+                                            "RCLK_BRAM_CORE"
                                         },
                                         die,
-                                        col - 1,
+                                        col,
                                         srow,
                                         0,
                                         0,
                                     ),
-                                    if chip.is_vr {
-                                        BUFDIV_LEAF_SWZ_BH
+                                    if chip.fabric == FabricKind::Ulvt {
+                                        BUFDIV_LEAF_SWZ_B
                                     } else {
-                                        BUFDIV_LEAF_SWZ_AH
+                                        BUFDIV_LEAF_SWZ_A
                                     },
-                                    true,
                                 )
                             }
                         }
-                    }
-                    _ => unreachable!(),
-                };
-                let ntile = ngrid.name_tile(tcrd, &format!("{kind}_{subkind}"), [name]);
-                for (i, dy) in swz.into_iter().enumerate() {
-                    ntile.add_bel(
-                        bslots::BUFDIV_LEAF[i],
-                        if wide {
-                            bufdiv_grid.name(
-                                if chip.is_vr {
-                                    "BUFDIV_LEAF_ULVT"
+                        ColumnKind::Uram => (
+                            if chip.fabric == FabricKind::Ulvt {
+                                "URAM_VR"
+                            } else {
+                                "URAM"
+                            },
+                            int_grid.name(
+                                if chip.fabric == FabricKind::Ulvt {
+                                    "RCLK_URAM_VR_CORE"
                                 } else {
-                                    "BUFDIV_LEAF"
+                                    "RCLK_URAM_CORE"
                                 },
                                 die,
-                                col - 1,
-                                row,
+                                col,
+                                srow,
                                 0,
-                                dy as i32,
-                            )
-                        } else {
+                                0,
+                            ),
+                            if chip.fabric == FabricKind::Ulvt {
+                                BUFDIV_LEAF_SWZ_B
+                            } else {
+                                BUFDIV_LEAF_SWZ_A
+                            },
+                        ),
+                        ColumnKind::Gt
+                        | ColumnKind::Term
+                        | ColumnKind::TermSsit
+                        | ColumnKind::HNicX => {
+                            if reg.to_idx() == 1 && dev_naming.has_term2 {
+                                (
+                                    if chip.fabric == FabricKind::Ulvt {
+                                        "GT_ALT_VR"
+                                    } else {
+                                        "GT_ALT"
+                                    },
+                                    int_grid.name(
+                                        if chip.fabric == FabricKind::Ulvt {
+                                            "RCLK_INTF_TERM2_RIGHT_VR_CORE"
+                                        } else {
+                                            "RCLK_INTF_TERM2_RIGHT_CORE"
+                                        },
+                                        die,
+                                        col,
+                                        srow,
+                                        0,
+                                        0,
+                                    ),
+                                    BUFDIV_LEAF_SWZ_B,
+                                )
+                            } else {
+                                (
+                                    if chip.fabric == FabricKind::Ulvt {
+                                        "GT_VR"
+                                    } else {
+                                        "GT"
+                                    },
+                                    int_grid.name(
+                                        if chip.fabric == FabricKind::Ulvt {
+                                            "RCLK_INTF_TERM_RIGHT_VR_CORE"
+                                        } else {
+                                            "RCLK_INTF_TERM_RIGHT_CORE"
+                                        },
+                                        die,
+                                        col,
+                                        srow,
+                                        0,
+                                        0,
+                                    ),
+                                    if chip.fabric == FabricKind::Ulvt {
+                                        BUFDIV_LEAF_SWZ_B
+                                    } else {
+                                        BUFDIV_LEAF_SWZ_A
+                                    },
+                                )
+                            }
+                        }
+                        ColumnKind::VNoc | ColumnKind::VNoc2 | ColumnKind::VNoc4 => (
+                            if chip.fabric == FabricKind::Ulvt {
+                                "VNOC_VR"
+                            } else {
+                                "VNOC"
+                            },
+                            int_grid.name(
+                                if chip.fabric == FabricKind::Ulvt {
+                                    "RCLK_INTF_R_VR_CORE"
+                                } else {
+                                    "RCLK_INTF_R_CORE"
+                                },
+                                die,
+                                col,
+                                srow,
+                                0,
+                                0,
+                            ),
+                            BUFDIV_LEAF_SWZ_B,
+                        ),
+                        ColumnKind::Hard => {
+                            let hc = chip.get_col_hard(col).unwrap();
+                            if reg.to_idx().is_multiple_of(2) {
+                                if hc.regs[reg] == HardRowKind::Hdio {
+                                    (
+                                        if chip.fabric == FabricKind::Ulvt {
+                                            "HDIO_VR"
+                                        } else {
+                                            "HDIO"
+                                        },
+                                        int_grid.name(
+                                            if chip.fabric == FabricKind::Ulvt {
+                                                "RCLK_HDIO_VR_CORE"
+                                            } else {
+                                                "RCLK_HDIO_CORE"
+                                            },
+                                            die,
+                                            col,
+                                            srow,
+                                            0,
+                                            0,
+                                        ),
+                                        if chip.fabric == FabricKind::Ulvt {
+                                            BUFDIV_LEAF_SWZ_B
+                                        } else {
+                                            BUFDIV_LEAF_SWZ_A
+                                        },
+                                    )
+                                } else {
+                                    (
+                                        if chip.fabric == FabricKind::Ulvt {
+                                            "HB_VR"
+                                        } else {
+                                            "HB"
+                                        },
+                                        int_grid.name(
+                                            if chip.fabric == FabricKind::Ulvt {
+                                                "RCLK_HB_VR_CORE"
+                                            } else {
+                                                "RCLK_HB_CORE"
+                                            },
+                                            die,
+                                            col,
+                                            srow,
+                                            0,
+                                            0,
+                                        ),
+                                        if chip.fabric == FabricKind::Ulvt {
+                                            BUFDIV_LEAF_SWZ_B
+                                        } else {
+                                            BUFDIV_LEAF_SWZ_A
+                                        },
+                                    )
+                                }
+                            } else {
+                                if hc.regs[reg] == HardRowKind::Hdio {
+                                    (
+                                        if chip.fabric == FabricKind::Ulvt {
+                                            "HDIO_VR"
+                                        } else {
+                                            "HDIO"
+                                        },
+                                        int_grid.name(
+                                            if chip.fabric == FabricKind::Ulvt {
+                                                "RCLK_HDIO_VR_CORE"
+                                            } else {
+                                                "RCLK_HDIO_CORE"
+                                            },
+                                            die,
+                                            col,
+                                            srow,
+                                            0,
+                                            0,
+                                        ),
+                                        if chip.fabric == FabricKind::Ulvt {
+                                            BUFDIV_LEAF_SWZ_B
+                                        } else {
+                                            BUFDIV_LEAF_SWZ_A
+                                        },
+                                    )
+                                } else if hc.regs[reg - 1] == HardRowKind::Hdio {
+                                    (
+                                        if chip.fabric == FabricKind::Ulvt {
+                                            "HB_HDIO_VR"
+                                        } else {
+                                            "HB_HDIO"
+                                        },
+                                        int_grid.name(
+                                            if chip.fabric == FabricKind::Ulvt {
+                                                "RCLK_HB_HDIO_VR_CORE"
+                                            } else {
+                                                "RCLK_HB_HDIO_CORE"
+                                            },
+                                            die,
+                                            col,
+                                            srow,
+                                            0,
+                                            0,
+                                        ),
+                                        BUFDIV_LEAF_SWZ_B,
+                                    )
+                                } else if hc.regs[reg - 1] == HardRowKind::DfeCfc {
+                                    (
+                                        "SDFEC",
+                                        int_grid.name("RCLK_SDFEC_CORE", die, col, srow, 0, 0),
+                                        BUFDIV_LEAF_SWZ_B,
+                                    )
+                                } else if reg.to_idx() != 0 && hc.regs[reg - 1].is_double() {
+                                    (
+                                        if chip.fabric == FabricKind::Ulvt {
+                                            "HB_FULL_VR"
+                                        } else {
+                                            "HB_FULL"
+                                        },
+                                        int_grid.name(
+                                            if chip.fabric == FabricKind::Ulvt {
+                                                "RCLK_HB_FULL_L_VR_CORE"
+                                            } else {
+                                                "RCLK_HB_FULL_L_CORE"
+                                            },
+                                            die,
+                                            col,
+                                            srow,
+                                            0,
+                                            0,
+                                        ),
+                                        BUFDIV_LEAF_SWZ_B,
+                                    )
+                                } else {
+                                    (
+                                        if chip.fabric == FabricKind::Ulvt {
+                                            "HB_VR"
+                                        } else {
+                                            "HB"
+                                        },
+                                        int_grid.name(
+                                            if chip.fabric == FabricKind::Ulvt {
+                                                "RCLK_HB_VR_CORE"
+                                            } else {
+                                                "RCLK_HB_CORE"
+                                            },
+                                            die,
+                                            col,
+                                            srow,
+                                            0,
+                                            0,
+                                        ),
+                                        if chip.fabric == FabricKind::Ulvt {
+                                            BUFDIV_LEAF_SWZ_B
+                                        } else {
+                                            BUFDIV_LEAF_SWZ_A
+                                        },
+                                    )
+                                }
+                            }
+                        }
+                        _ => unreachable!(),
+                    };
+                    let ntile = ngrid.name_tile(
+                        tcrd,
+                        &format!("{kind}_{side}_{subkind}", side = chip.col_side(col)),
+                        [name],
+                    );
+                    for (i, dy) in swz.into_iter().enumerate() {
+                        ntile.add_bel(
+                            bslots::BUFDIV_LEAF[i],
                             bufdiv_grid.name(
-                                if chip.is_vr {
+                                if chip.fabric == FabricKind::Ulvt {
                                     "BUFDIV_LEAF_ULVT"
                                 } else {
                                     "BUFDIV_LEAF"
@@ -938,592 +1665,240 @@ pub fn name_device<'a>(
                                 row,
                                 0,
                                 dy as i32,
-                            )
-                        },
-                    );
+                            ),
+                        );
+                    }
                 }
             }
-            tcls::RCLK_INTF_E | tcls::RCLK_INTF_E_HALF => {
+            tcls::RCLK_DFX => {
                 let srow = if reg.to_idx() % 2 == 1 { row - 1 } else { row };
-                let (subkind, name, swz) = match chip.columns[col].kind {
-                    ColumnKind::Dsp => (
-                        if chip.is_vr { "DSP_VR" } else { "DSP" },
-                        int_grid.name(
-                            if chip.is_vr {
-                                "RCLK_DSP_VR_CORE"
-                            } else {
-                                "RCLK_DSP_CORE"
-                            },
-                            die,
-                            col,
-                            srow,
-                            0,
-                            0,
-                        ),
-                        if chip.is_vr {
-                            BUFDIV_LEAF_SWZ_B
-                        } else {
-                            BUFDIV_LEAF_SWZ_A
-                        },
-                    ),
-                    ColumnKind::Bram(BramKind::Plain) => (
-                        if chip.is_vr { "BRAM_VR" } else { "BRAM" },
-                        int_grid.name(
-                            if chip.is_vr {
-                                "RCLK_BRAM_VR_CORE"
-                            } else {
-                                "RCLK_BRAM_CORE"
-                            },
-                            die,
-                            col,
-                            srow,
-                            0,
-                            0,
-                        ),
-                        if chip.is_vr {
-                            BUFDIV_LEAF_SWZ_B
-                        } else {
-                            BUFDIV_LEAF_SWZ_A
-                        },
-                    ),
-                    ColumnKind::Bram(BramKind::ClkBuf) => (
-                        if chip.is_vr {
-                            "BRAM_CLKBUF_VR"
-                        } else {
-                            "BRAM_CLKBUF"
-                        },
-                        int_grid.name(
-                            if chip.is_vr {
-                                "RCLK_BRAM_CLKBUF_VR_CORE"
-                            } else {
-                                "RCLK_BRAM_CLKBUF_CORE"
-                            },
-                            die,
-                            col,
-                            srow,
-                            0,
-                            0,
-                        ),
-                        if chip.is_vr {
-                            BUFDIV_LEAF_SWZ_B
-                        } else {
-                            BUFDIV_LEAF_SWZ_A
-                        },
-                    ),
-                    ColumnKind::Bram(BramKind::ClkBufNoPd) => (
-                        if chip.is_vr {
-                            "BRAM_CLKBUF_NOPD_VR"
-                        } else {
-                            "BRAM_CLKBUF_NOPD"
-                        },
-                        int_grid.name(
-                            if chip.is_vr {
-                                "RCLK_BRAM_CLKBUF_NOPD_VR_CORE"
-                            } else {
-                                "RCLK_BRAM_CLKBUF_NOPD_CORE"
-                            },
-                            die,
-                            col,
-                            srow,
-                            0,
-                            0,
-                        ),
-                        BUFDIV_LEAF_SWZ_B,
-                    ),
-                    ColumnKind::Bram(BramKind::MaybeClkBufNoPd) => (
-                        if row.to_idx() < chip.get_ps_height() {
-                            if chip.is_vr { "BRAM_VR" } else { "BRAM" }
-                        } else {
-                            if chip.is_vr {
-                                "BRAM_CLKBUF_NOPD_VR"
-                            } else {
-                                "BRAM_CLKBUF_NOPD"
-                            }
-                        },
-                        int_grid.name(
-                            if row.to_idx() < chip.get_ps_height() {
-                                if chip.is_vr {
-                                    "RCLK_BRAM_VR_CORE"
+                let (subkind, name, dx) = if chip.col_side(col) == DirH::W {
+                    match chip.columns[col].kind {
+                        ColumnKind::ContDsp => (
+                            "DSP",
+                            int_grid.name(
+                                if chip.fabric == FabricKind::Ulvt {
+                                    "RCLK_DSP_VR_CORE"
                                 } else {
-                                    "RCLK_BRAM_CORE"
-                                }
-                            } else {
-                                if chip.is_vr {
-                                    "RCLK_BRAM_CLKBUF_NOPD_VR_CORE"
-                                } else {
-                                    "RCLK_BRAM_CLKBUF_NOPD_CORE"
-                                }
-                            },
-                            die,
-                            col,
-                            srow,
-                            0,
-                            0,
-                        ),
-                        if chip.is_vr || row.to_idx() >= chip.get_ps_height() {
-                            BUFDIV_LEAF_SWZ_B
-                        } else {
-                            BUFDIV_LEAF_SWZ_A
-                        },
-                    ),
-                    ColumnKind::Uram => (
-                        if chip.is_vr { "URAM_VR" } else { "URAM" },
-                        int_grid.name(
-                            if chip.is_vr {
-                                "RCLK_URAM_VR_CORE"
-                            } else {
-                                "RCLK_URAM_CORE"
-                            },
-                            die,
-                            col,
-                            srow,
-                            0,
-                            0,
-                        ),
-                        if chip.is_vr {
-                            BUFDIV_LEAF_SWZ_B
-                        } else {
-                            BUFDIV_LEAF_SWZ_A
-                        },
-                    ),
-                    ColumnKind::Gt => {
-                        if reg.to_idx() == 1 && matches!(chip.right, RightKind::Term2) {
-                            (
-                                if chip.is_vr { "GT.ALT_VR" } else { "GT.ALT" },
-                                int_grid.name(
-                                    if chip.is_vr {
-                                        "RCLK_INTF_TERM2_RIGHT_VR_CORE"
-                                    } else {
-                                        "RCLK_INTF_TERM2_RIGHT_CORE"
-                                    },
-                                    die,
-                                    col,
-                                    srow,
-                                    0,
-                                    0,
-                                ),
-                                BUFDIV_LEAF_SWZ_B,
-                            )
-                        } else {
-                            (
-                                if chip.is_vr { "GT_VR" } else { "GT" },
-                                int_grid.name(
-                                    if chip.is_vr {
-                                        "RCLK_INTF_TERM_RIGHT_VR_CORE"
-                                    } else {
-                                        "RCLK_INTF_TERM_RIGHT_CORE"
-                                    },
-                                    die,
-                                    col,
-                                    srow,
-                                    0,
-                                    0,
-                                ),
-                                if chip.is_vr {
-                                    BUFDIV_LEAF_SWZ_B
-                                } else {
-                                    BUFDIV_LEAF_SWZ_A
+                                    "RCLK_DSP_CORE"
                                 },
-                            )
-                        }
-                    }
-                    ColumnKind::VNoc | ColumnKind::VNoc2 | ColumnKind::VNoc4 => (
-                        if chip.is_vr { "VNOC_VR" } else { "VNOC" },
-                        int_grid.name(
-                            if chip.is_vr {
-                                "RCLK_INTF_R_VR_CORE"
-                            } else {
-                                "RCLK_INTF_R_CORE"
-                            },
-                            die,
-                            col,
-                            srow,
-                            0,
+                                die,
+                                col - 1,
+                                srow,
+                                0,
+                                0,
+                            ),
                             0,
                         ),
-                        BUFDIV_LEAF_SWZ_B,
-                    ),
-                    ColumnKind::Hard => {
-                        let hc = chip.get_col_hard(col).unwrap();
-                        if reg.to_idx().is_multiple_of(2) {
-                            if hc.regs[reg] == HardRowKind::Hdio {
-                                (
-                                    if chip.is_vr { "HDIO_VR" } else { "HDIO" },
-                                    int_grid.name(
-                                        if chip.is_vr {
-                                            "RCLK_HDIO_VR_CORE"
-                                        } else {
-                                            "RCLK_HDIO_CORE"
-                                        },
-                                        die,
-                                        col,
-                                        srow,
-                                        0,
-                                        0,
-                                    ),
-                                    if chip.is_vr {
-                                        BUFDIV_LEAF_SWZ_B
-                                    } else {
-                                        BUFDIV_LEAF_SWZ_A
-                                    },
-                                )
-                            } else {
-                                (
-                                    if chip.is_vr { "HB_VR" } else { "HB" },
-                                    int_grid.name(
-                                        if chip.is_vr {
-                                            "RCLK_HB_VR_CORE"
-                                        } else {
-                                            "RCLK_HB_CORE"
-                                        },
-                                        die,
-                                        col,
-                                        srow,
-                                        0,
-                                        0,
-                                    ),
-                                    if chip.is_vr {
-                                        BUFDIV_LEAF_SWZ_B
-                                    } else {
-                                        BUFDIV_LEAF_SWZ_A
-                                    },
-                                )
-                            }
-                        } else {
-                            if hc.regs[reg] == HardRowKind::Hdio {
-                                (
-                                    if chip.is_vr { "HDIO_VR" } else { "HDIO" },
-                                    int_grid.name(
-                                        if chip.is_vr {
-                                            "RCLK_HDIO_VR_CORE"
-                                        } else {
-                                            "RCLK_HDIO_CORE"
-                                        },
-                                        die,
-                                        col,
-                                        srow,
-                                        0,
-                                        0,
-                                    ),
-                                    if chip.is_vr {
-                                        BUFDIV_LEAF_SWZ_B
-                                    } else {
-                                        BUFDIV_LEAF_SWZ_A
-                                    },
-                                )
-                            } else if hc.regs[reg - 1] == HardRowKind::Hdio {
-                                (
-                                    if chip.is_vr { "HB_HDIO_VR" } else { "HB_HDIO" },
-                                    int_grid.name(
-                                        if chip.is_vr {
-                                            "RCLK_HB_HDIO_VR_CORE"
-                                        } else {
-                                            "RCLK_HB_HDIO_CORE"
-                                        },
-                                        die,
-                                        col,
-                                        srow,
-                                        0,
-                                        0,
-                                    ),
-                                    BUFDIV_LEAF_SWZ_B,
-                                )
-                            } else if hc.regs[reg - 1] == HardRowKind::DfeCfcS {
-                                (
-                                    "SDFEC",
-                                    int_grid.name("RCLK_SDFEC_CORE", die, col, srow, 0, 0),
-                                    BUFDIV_LEAF_SWZ_B,
-                                )
-                            } else if matches!(
-                                hc.regs[reg],
-                                HardRowKind::DcmacT | HardRowKind::HscT | HardRowKind::IlknT
-                            ) {
-                                (
-                                    if chip.is_vr { "HB_FULL_VR" } else { "HB_FULL" },
-                                    int_grid.name(
-                                        if chip.is_vr {
-                                            "RCLK_HB_FULL_L_VR_CORE"
-                                        } else {
-                                            "RCLK_HB_FULL_L_CORE"
-                                        },
-                                        die,
-                                        col,
-                                        srow,
-                                        0,
-                                        0,
-                                    ),
-                                    BUFDIV_LEAF_SWZ_B,
-                                )
-                            } else {
-                                (
-                                    if chip.is_vr { "HB_VR" } else { "HB" },
-                                    int_grid.name(
-                                        if chip.is_vr {
-                                            "RCLK_HB_VR_CORE"
-                                        } else {
-                                            "RCLK_HB_CORE"
-                                        },
-                                        die,
-                                        col,
-                                        srow,
-                                        0,
-                                        0,
-                                    ),
-                                    if chip.is_vr {
-                                        BUFDIV_LEAF_SWZ_B
-                                    } else {
-                                        BUFDIV_LEAF_SWZ_A
-                                    },
-                                )
-                            }
-                        }
-                    }
-                    _ => unreachable!(),
-                };
-                let ntile = ngrid.name_tile(tcrd, &format!("{kind}_{subkind}"), [name]);
-                for (i, dy) in swz.into_iter().enumerate() {
-                    ntile.add_bel(
-                        bslots::BUFDIV_LEAF[i],
-                        bufdiv_grid.name(
-                            if chip.is_vr {
-                                "BUFDIV_LEAF_ULVT"
-                            } else {
-                                "BUFDIV_LEAF"
-                            },
-                            die,
-                            col,
-                            row,
-                            0,
-                            dy as i32,
-                        ),
-                    );
-                }
-            }
-            tcls::RCLK_DFX_W => {
-                let srow = if reg.to_idx() % 2 == 1 { row - 1 } else { row };
-                let (subkind, name) = match chip.columns[col].kind {
-                    ColumnKind::ContDsp => (
-                        "DSP",
-                        int_grid.name(
-                            if chip.is_vr {
-                                "RCLK_DSP_VR_CORE"
-                            } else {
-                                "RCLK_DSP_CORE"
-                            },
-                            die,
-                            col - 1,
-                            srow,
-                            0,
-                            0,
-                        ),
-                    ),
-                    ColumnKind::Bram(BramKind::Plain) => (
-                        "BRAM",
-                        int_grid.name(
-                            if chip.is_vr {
-                                "RCLK_BRAM_VR_CORE"
-                            } else {
-                                "RCLK_BRAM_CORE"
-                            },
-                            die,
-                            col,
-                            srow,
-                            0,
-                            0,
-                        ),
-                    ),
-                    ColumnKind::Uram => (
-                        "URAM",
-                        int_grid.name(
-                            if chip.is_vr {
-                                "RCLK_URAM_VR_CORE"
-                            } else {
-                                "RCLK_URAM_CORE"
-                            },
-                            die,
-                            col,
-                            srow,
-                            0,
-                            0,
-                        ),
-                    ),
-                    _ => unreachable!(),
-                };
-                let vr = if chip.is_vr { "_VR" } else { "" };
-                let ntile = ngrid.name_tile(tcrd, &format!("{kind}_{subkind}{vr}"), [name]);
-                ntile.add_bel(
-                    bslots::RCLK_DFX_TEST,
-                    rclk_dfx_grid.name("RCLK", die, col, row, 0, 0),
-                );
-            }
-            tcls::RCLK_DFX_E => {
-                let srow = if reg.to_idx() % 2 == 1 { row - 1 } else { row };
-                let (subkind, name, dx) = match chip.columns[col].kind {
-                    ColumnKind::Bram(BramKind::Plain) => (
-                        "BRAM",
-                        int_grid.name(
-                            if chip.is_vr {
-                                "RCLK_BRAM_VR_CORE"
-                            } else {
-                                "RCLK_BRAM_CORE"
-                            },
-                            die,
-                            col,
-                            srow,
-                            0,
-                            0,
-                        ),
-                        0,
-                    ),
-                    ColumnKind::Bram(BramKind::ClkBuf) => (
-                        "BRAM_CLKBUF",
-                        int_grid.name(
-                            if chip.is_vr {
-                                "RCLK_BRAM_CLKBUF_VR_CORE"
-                            } else {
-                                "RCLK_BRAM_CLKBUF_CORE"
-                            },
-                            die,
-                            col,
-                            srow,
-                            0,
-                            0,
-                        ),
-                        0,
-                    ),
-                    ColumnKind::Bram(BramKind::ClkBufNoPd) => (
-                        "BRAM_CLKBUF_NOPD",
-                        int_grid.name(
-                            if chip.is_vr {
-                                "RCLK_BRAM_CLKBUF_NOPD_VR_CORE"
-                            } else {
-                                "RCLK_BRAM_CLKBUF_NOPD_CORE"
-                            },
-                            die,
-                            col,
-                            srow,
-                            0,
-                            0,
-                        ),
-                        0,
-                    ),
-                    ColumnKind::Bram(BramKind::MaybeClkBufNoPd) => (
-                        if row.to_idx() < chip.get_ps_height() {
-                            "BRAM"
-                        } else {
-                            "BRAM_CLKBUF_NOPD"
-                        },
-                        int_grid.name(
-                            if row.to_idx() < chip.get_ps_height() {
-                                if chip.is_vr {
+                        ColumnKind::Bram(BramKind::Plain) => (
+                            "BRAM",
+                            int_grid.name(
+                                if chip.fabric == FabricKind::Ulvt {
                                     "RCLK_BRAM_VR_CORE"
                                 } else {
                                     "RCLK_BRAM_CORE"
-                                }
-                            } else {
-                                if chip.is_vr {
-                                    "RCLK_BRAM_CLKBUF_NOPD_VR_CORE"
+                                },
+                                die,
+                                col,
+                                srow,
+                                0,
+                                0,
+                            ),
+                            0,
+                        ),
+                        ColumnKind::Uram => (
+                            "URAM",
+                            int_grid.name(
+                                if chip.fabric == FabricKind::Ulvt {
+                                    "RCLK_URAM_VR_CORE"
                                 } else {
-                                    "RCLK_BRAM_CLKBUF_NOPD_CORE"
-                                }
-                            },
-                            die,
-                            col,
-                            srow,
-                            0,
+                                    "RCLK_URAM_CORE"
+                                },
+                                die,
+                                col,
+                                srow,
+                                0,
+                                0,
+                            ),
                             0,
                         ),
-                        if row.to_idx() < chip.get_ps_height() {
-                            0
-                        } else {
-                            1
-                        },
-                    ),
-                    ColumnKind::Uram => (
-                        "URAM",
-                        int_grid.name(
-                            if chip.is_vr {
-                                "RCLK_URAM_VR_CORE"
+                        _ => unreachable!(),
+                    }
+                } else {
+                    match chip.columns[col].kind {
+                        ColumnKind::Bram(BramKind::Plain) => (
+                            "BRAM",
+                            int_grid.name(
+                                if chip.fabric == FabricKind::Ulvt {
+                                    "RCLK_BRAM_VR_CORE"
+                                } else {
+                                    "RCLK_BRAM_CORE"
+                                },
+                                die,
+                                col,
+                                srow,
+                                0,
+                                0,
+                            ),
+                            0,
+                        ),
+                        ColumnKind::Bram(BramKind::SplitterPd) => (
+                            "BRAM_CLKBUF",
+                            int_grid.name(
+                                if chip.fabric == FabricKind::Ulvt {
+                                    "RCLK_BRAM_CLKBUF_VR_CORE"
+                                } else {
+                                    "RCLK_BRAM_CLKBUF_CORE"
+                                },
+                                die,
+                                col,
+                                srow,
+                                0,
+                                0,
+                            ),
+                            0,
+                        ),
+                        ColumnKind::Bram(BramKind::Splitter | BramKind::OptSplitter) => {
+                            let is_opt =
+                                chip.columns[col].kind == ColumnKind::Bram(BramKind::OptSplitter);
+                            let is_splitter = row.to_idx() >= chip.ps.height() || !is_opt;
+                            if is_splitter {
+                                (
+                                    "BRAM_CLKBUF_NOPD",
+                                    int_grid.name(
+                                        if chip.fabric == FabricKind::Ulvt {
+                                            "RCLK_BRAM_CLKBUF_NOPD_VR_CORE"
+                                        } else {
+                                            "RCLK_BRAM_CLKBUF_NOPD_CORE"
+                                        },
+                                        die,
+                                        col,
+                                        srow,
+                                        0,
+                                        0,
+                                    ),
+                                    if is_opt { 1 } else { 0 },
+                                )
                             } else {
-                                "RCLK_URAM_CORE"
-                            },
-                            die,
-                            col,
-                            srow,
-                            0,
+                                (
+                                    "BRAM",
+                                    int_grid.name(
+                                        if chip.fabric == FabricKind::Ulvt {
+                                            "RCLK_BRAM_VR_CORE"
+                                        } else {
+                                            "RCLK_BRAM_CORE"
+                                        },
+                                        die,
+                                        col,
+                                        srow,
+                                        0,
+                                        0,
+                                    ),
+                                    0,
+                                )
+                            }
+                        }
+                        ColumnKind::Uram => (
+                            "URAM",
+                            int_grid.name(
+                                if chip.fabric == FabricKind::Ulvt {
+                                    "RCLK_URAM_VR_CORE"
+                                } else {
+                                    "RCLK_URAM_CORE"
+                                },
+                                die,
+                                col,
+                                srow,
+                                0,
+                                0,
+                            ),
                             0,
                         ),
-                        0,
-                    ),
-                    _ => unreachable!(),
+                        _ => unreachable!(),
+                    }
                 };
-                let vr = if chip.is_vr { "_VR" } else { "" };
+                let vr = if chip.fabric == FabricKind::Ulvt {
+                    "_VR"
+                } else {
+                    ""
+                };
                 let ntile = ngrid.name_tile(tcrd, &format!("{kind}_{subkind}{vr}"), [name]);
                 ntile.add_bel(
                     bslots::RCLK_DFX_TEST,
                     rclk_dfx_grid.name("RCLK", die, col, row, dx, 0),
                 );
             }
-            tcls::RCLK_HDIO | tcls::RCLK_HB_HDIO => {
+            tcls::RCLK_HDIO | tcls::RCLK_HDIO_VR | tcls::RCLK_HB_HDIO | tcls::RCLK_HB_HDIO_VR => {
                 let srow = if reg.to_idx() % 2 == 1 { row - 1 } else { row };
-                let naming = if chip.is_vr {
-                    format!("{kind}_VR")
-                } else {
-                    kind.to_string()
-                };
+                let name = int_grid.name(&format!("{kind}_CORE"), die, col - 1, srow, 0, 0);
+                ngrid.name_tile(tcrd, kind, [name]);
+            }
+            tcls::RCLK_SPLITTER
+            | tcls::RCLK_SPLITTER_VR
+            | tcls::RCLK_SPLITTER_PD
+            | tcls::RCLK_SPLITTER_PD_VR => {
+                let srow = if reg.to_idx() % 2 == 1 { row - 1 } else { row };
                 let name = int_grid.name(
-                    &if chip.is_vr {
-                        format!("{kind}_VR_CORE")
-                    } else {
-                        format!("{kind}_CORE")
+                    match tile.class {
+                        tcls::RCLK_SPLITTER => "RCLK_BRAM_CLKBUF_NOPD_CORE",
+                        tcls::RCLK_SPLITTER_VR => "RCLK_BRAM_CLKBUF_NOPD_VR_CORE",
+                        tcls::RCLK_SPLITTER_PD => "RCLK_BRAM_CLKBUF_CORE",
+                        tcls::RCLK_SPLITTER_PD_VR => "RCLK_BRAM_CLKBUF_VR_CORE",
+                        _ => unreachable!(),
                     },
                     die,
-                    col - 1,
+                    col,
                     srow,
                     0,
                     0,
                 );
-                ngrid.name_tile(tcrd, &naming, [name]);
+                ngrid.name_tile(tcrd, kind, [name]);
             }
-            tcls::CLE_W | tcls::CLE_W_VR => {
-                let tkn = if !chip.is_vr {
-                    "CLE_E_CORE"
-                } else {
-                    "CLE_E_VR_CORE"
-                };
-                let ntile = ngrid.name_tile(tcrd, kind, [int_grid.name(tkn, die, col, row, 0, 0)]);
-                for i in 0..2 {
-                    ntile.add_bel(
-                        bslots::SLICE[i],
-                        slice_grid.name("SLICE", die, col, row, i as i32, 0),
-                    );
-                }
+            tcls::RCLK_SPLITTER_SSIT => {
+                ngrid.name_tile(tcrd, kind, dev_naming.tile_names[&tcrd].clone());
             }
-            tcls::CLE_E | tcls::CLE_E_VR => {
-                let tkn = if !chip.is_vr {
-                    "CLE_W_CORE"
+            tcls::CLE | tcls::CLE_VR => {
+                if chip.col_side(col) == DirH::W {
+                    let tkn = if chip.fabric != FabricKind::Ulvt {
+                        "CLE_E_CORE"
+                    } else {
+                        "CLE_E_VR_CORE"
+                    };
+                    let name = if col.to_idx() == 28 && chip.ps == PsKind::Ps9Cpm6 {
+                        // ?!? fucking... I don't know, I give up
+                        int_grid.name(&format!("{tkn}_1"), die, col - 1, row, 0, 0)
+                    } else {
+                        int_grid.name(tkn, die, col, row, 0, 0)
+                    };
+                    let ntile = ngrid.name_tile(tcrd, kind, [name]);
+                    for i in 0..2 {
+                        ntile.add_bel(
+                            bslots::SLICE[i],
+                            slice_grid.name("SLICE", die, col, row, i as i32, 0),
+                        );
+                    }
                 } else {
-                    "CLE_W_VR_CORE"
-                };
-                let ntile = ngrid.name_tile(tcrd, kind, [int_grid.name(tkn, die, col, row, 0, 0)]);
-                for i in 0..2 {
-                    ntile.add_bel(
-                        bslots::SLICE[i],
-                        slice_grid.name("SLICE", die, col, row, i as i32, 0),
-                    );
+                    let tkn = if chip.fabric != FabricKind::Ulvt {
+                        "CLE_W_CORE"
+                    } else {
+                        "CLE_W_VR_CORE"
+                    };
+                    let ntile =
+                        ngrid.name_tile(tcrd, kind, [int_grid.name(tkn, die, col, row, 0, 0)]);
+                    for i in 0..2 {
+                        ntile.add_bel(
+                            bslots::SLICE[i],
+                            slice_grid.name("SLICE", die, col, row, i as i32, 0),
+                        );
+                    }
                 }
             }
             tcls::DSP => {
-                let ocf = if col < edev.col_cfrm[die] {
-                    "LOCF"
-                } else {
-                    "ROCF"
-                };
                 let bt = if chip.is_reg_n(reg) { 'T' } else { 'B' };
                 let name = int_grid.name(&format!("DSP_{ocf}_{bt}_TILE"), die, col, row, 0, 0);
                 let ntile = ngrid.name_tile(
                     tcrd,
-                    if dev_naming.is_dsp_v2 {
+                    if dev_naming.has_dsp_v2 {
                         "DSP_V2"
                     } else {
                         "DSP_V1"
@@ -1531,82 +1906,75 @@ pub fn name_device<'a>(
                     [name],
                 );
                 for i in 0..2 {
-                    ntile.add_bel(
+                    ntile.add_bel_multi(
                         bslots::DSP[i],
-                        dsp_grid.name_mult("DSP", die, col, row, 2, i as i32, 1, 0),
+                        [
+                            dsp_grid.name_mult("DSP", die, col, row, 2, i as i32, 1, 0),
+                            dsp_grid.name("DSP58_CPLX", die, col, row, 0, 0),
+                        ],
                     );
                 }
-                ntile.add_bel(
-                    bslots::DSP_CPLX,
-                    dsp_grid.name("DSP58_CPLX", die, col, row, 0, 0),
-                );
             }
-            tcls::BRAM_E | tcls::BRAM_W => {
-                let lr = if kind == "BRAM_W" { 'L' } else { 'R' };
-                let ocf = if col < edev.col_cfrm[die] {
-                    "LOCF"
+            tcls::BRAM => {
+                let lr = if chip.col_side(col) == DirH::W {
+                    'L'
                 } else {
-                    "ROCF"
+                    'R'
                 };
                 let bt = if chip.is_reg_n(reg) { 'T' } else { 'B' };
                 let name = int_grid.name(&format!("BRAM_{ocf}_{bt}{lr}_TILE"), die, col, row, 0, 0);
                 let ntile = ngrid.name_tile(tcrd, kind, [name]);
-                ntile.add_bel(
-                    bslots::BRAM_F,
-                    bram_grid.name("RAMB36", die, col, row, 0, 0),
+                ntile.add_bel_multi(
+                    bslots::BRAM,
+                    [
+                        bram_grid.name("RAMB36", die, col, row, 0, 0),
+                        bram_grid.name_mult("RAMB18", die, col, row, 1, 0, 2, 0),
+                        bram_grid.name_mult("RAMB18", die, col, row, 1, 0, 2, 1),
+                    ],
                 );
-                for i in 0..2 {
-                    ntile.add_bel(
-                        bslots::BRAM_H[i],
-                        bram_grid.name_mult("RAMB18", die, col, row, 1, 0, 2, i as i32),
-                    );
-                }
             }
-            tcls::URAM | tcls::URAM_DELAY => {
-                let ocf = if col < edev.col_cfrm[die] {
-                    "LOCF"
-                } else {
-                    "ROCF"
-                };
+            tcls::URAM => {
+                let is_delay = chip.is_reg_n(reg) && row.to_idx() % Chip::ROWS_PER_REG == 44;
                 let bt = if chip.is_reg_n(reg) { 'T' } else { 'B' };
-                let name = int_grid.name(&format!("{kind}_{ocf}_{bt}L_TILE"), die, col, row, 0, 0);
-                let ntile = ngrid.name_tile(tcrd, kind, [name]);
-                ntile.add_bel(bslots::URAM, uram_grid.name("URAM288", die, col, row, 0, 0));
-                if kind == "URAM_DELAY" {
-                    ntile.add_bel(
-                        bslots::URAM_CAS_DLY,
-                        uram_delay_grid.name("URAM_CAS_DLY", die, col, row, 0, 0),
-                    );
+                let tkn = if is_delay { "URAM_DELAY" } else { "URAM" };
+                let name = int_grid.name(&format!("{tkn}_{ocf}_{bt}L_TILE"), die, col, row, 0, 0);
+                let ntile = ngrid.name_tile(tcrd, tkn, [name]);
+                let mut names = vec![uram_grid.name("URAM288", die, col, row, 0, 0)];
+                if is_delay {
+                    names.push(uram_delay_grid.name("URAM_CAS_DLY", die, col, row, 0, 0));
                 }
+                ntile.add_bel_multi(bslots::URAM, names);
             }
-            tcls::PCIE4
-            | tcls::PCIE5
-            | tcls::MRMAC
-            | tcls::SDFEC
-            | tcls::DFE_CFC_S
-            | tcls::DFE_CFC_N => {
-                let (slot, tk, bk, bel_grid) = match tile.class {
-                    tcls::PCIE4 => (bslots::PCIE4, "PCIEB", "PCIE40", &pcie4_grid),
-                    tcls::PCIE5 => (bslots::PCIE5, "PCIEB5", "PCIE50", &pcie5_grid),
-                    tcls::MRMAC => (bslots::MRMAC, "MRMAC", "MRMAC", &mrmac_grid),
-                    tcls::SDFEC => (bslots::SDFEC, "SDFECA", "SDFEC_A", &sdfec_grid),
-                    tcls::DFE_CFC_S => (
-                        bslots::DFE_CFC_S,
-                        "DFE_CFC",
-                        "DFE_CFC_BOT",
-                        &dfe_cfc_bot_grid,
-                    ),
-                    tcls::DFE_CFC_N => (
-                        bslots::DFE_CFC_N,
-                        "DFE_CFC",
-                        "DFE_CFC_TOP",
-                        &dfe_cfc_top_grid,
-                    ),
+            tcls::PCIE4 | tcls::PCIE5 | tcls::MRMAC | tcls::SDFEC | tcls::DFE_CFC => {
+                let (slot, naming, tk, bk, bel_grid) = match tile.class {
+                    tcls::PCIE4 => (bslots::PCIE4, "PCIE4", "PCIEB", "PCIE40", &pcie4_grid),
+                    tcls::PCIE5 => (bslots::PCIE5, "PCIE5", "PCIEB5", "PCIE50", &pcie5_grid),
+                    tcls::MRMAC => (bslots::MRMAC, "MRMAC", "MRMAC", "MRMAC", &mrmac_grid),
+                    tcls::SDFEC => (bslots::SDFEC, "SDFEC", "SDFECA", "SDFEC_A", &sdfec_grid),
+                    tcls::DFE_CFC => {
+                        if edev.is_reg_n(die, reg) {
+                            (
+                                bslots::DFE_CFC,
+                                "DFE_CFC_N",
+                                "DFE_CFC",
+                                "DFE_CFC_TOP",
+                                &dfe_cfc_top_grid,
+                            )
+                        } else {
+                            (
+                                bslots::DFE_CFC,
+                                "DFE_CFC_S",
+                                "DFE_CFC",
+                                "DFE_CFC_BOT",
+                                &dfe_cfc_bot_grid,
+                            )
+                        }
+                    }
                     _ => unreachable!(),
                 };
                 let bt = if chip.is_reg_n(reg) { "TOP" } else { "BOT" };
                 let name = int_grid.name(&format!("{tk}_{bt}_TILE"), die, col, row, 0, 0);
-                let ntile = ngrid.name_tile(tcrd, kind, [name]);
+                let ntile = ngrid.name_tile(tcrd, naming, [name]);
                 ntile.add_bel(slot, bel_grid.name(bk, die, col, row, 0, 0));
             }
             tcls::DCMAC | tcls::ILKN | tcls::HSC => {
@@ -1634,23 +2002,11 @@ pub fn name_device<'a>(
                     0,
                 );
                 let ntile = ngrid.name_tile(tcrd, kind, [name]);
-                let naming = &dev_naming.die[die].hdio[&(col, reg)];
                 for i in 0..11 {
-                    ntile.add_bel(
-                        bslots::HDIOLOGIC[i],
-                        hdio_grid.name_mult("HDIOLOGIC", die, col, row, 1, 0, 11, i as i32),
-                    );
-                }
-                for i in 0..11 {
-                    ntile.add_bel(
-                        bslots::HDIOB[i],
-                        hdio_grid.name_manual(
-                            "IOB",
-                            die,
-                            naming.iob_xy.0,
-                            naming.iob_xy.1 + i as u32,
-                        ),
-                    );
+                    let name = hdio_grid.name_mult("HDIOLOGIC", die, col, row, 1, 0, 11, i as i32);
+                    ntile.add_bel(bslots::HDIOLOGIC[2 * i], name.clone());
+                    ntile.add_bel(bslots::HDIOLOGIC[2 * i + 1], name.clone());
+                    ntile.add_bel(bslots::HDIOLOGIC_SCAN[i], name);
                 }
                 for i in 0..4 {
                     ntile.add_bel(
@@ -1658,10 +2014,6 @@ pub fn name_device<'a>(
                         hdio_grid.name_mult("BUFGCE_HDIO", die, col, row, 1, 0, 4, i as i32),
                     );
                 }
-                ntile.add_bel(
-                    bslots::DPLL_HDIO,
-                    hdio_grid.name_manual("DPLL", die, naming.dpll_xy.0, naming.dpll_xy.1),
-                );
                 ntile.add_bel(
                     bslots::HDIO_BIAS,
                     hdio_grid.name("HDIO_BIAS", die, col, row, 0, 0),
@@ -1691,11 +2043,11 @@ pub fn name_device<'a>(
                     vnoc_grid.name("NOC_NSU512", die, col, row, 0, 0),
                 );
                 ntile.add_bel(
-                    bslots::VNOC_NPS_A,
+                    bslots::VNOC_NPS_NSU,
                     vnoc_grid.name_mult("NOC_NPS_VNOC", die, col, row, 1, 0, 2, 0),
                 );
                 ntile.add_bel(
-                    bslots::VNOC_NPS_B,
+                    bslots::VNOC_NPS_NMU,
                     vnoc_grid.name_mult("NOC_NPS_VNOC", die, col, row, 1, 0, 2, 1),
                 );
                 ntile.add_bel(
@@ -1704,7 +2056,7 @@ pub fn name_device<'a>(
                 );
             }
             tcls::VNOC2 => {
-                let ntile = ngrid.name_tile(
+                ngrid.name_tile(
                     tcrd,
                     kind,
                     [
@@ -1726,35 +2078,9 @@ pub fn name_device<'a>(
                         ),
                     ],
                 );
-                let naming = &dev_naming.die[die].vnoc2[&(col, reg)];
-                ntile.add_bel(
-                    bslots::VNOC2_NSU512,
-                    vnoc_grid.name_manual("NOC2_NSU512", die, naming.nsu_xy.0, naming.nsu_xy.1),
-                );
-                ntile.add_bel(
-                    bslots::VNOC2_NPS_A,
-                    vnoc_grid.name_manual("NOC2_NPS5555", die, naming.nps_xy.0, naming.nps_xy.1),
-                );
-                ntile.add_bel(
-                    bslots::VNOC2_NPS_B,
-                    vnoc_grid.name_manual(
-                        "NOC2_NPS5555",
-                        die,
-                        naming.nps_xy.0,
-                        naming.nps_xy.1 + 1,
-                    ),
-                );
-                ntile.add_bel(
-                    bslots::VNOC2_NMU512,
-                    vnoc_grid.name_manual("NOC2_NMU512", die, naming.nmu_xy.0, naming.nmu_xy.1),
-                );
-                ntile.add_bel(
-                    bslots::VNOC2_SCAN,
-                    vnoc_grid.name_manual("NOC2_SCAN", die, naming.scan_xy.0, naming.scan_xy.1),
-                );
             }
             tcls::VNOC4 => {
-                let ntile = ngrid.name_tile(
+                ngrid.name_tile(
                     tcrd,
                     kind,
                     [
@@ -1764,27 +2090,6 @@ pub fn name_device<'a>(
                         int_grid.name("NOC2_NMU512_VNOC4_TILE", die, col, row + 16, 0, 0),
                         int_grid.name("NOC2_SCAN_TOP", die, col, row + 7, 0, 0),
                     ],
-                );
-                let naming = &dev_naming.die[die].vnoc2[&(col, reg)];
-                ntile.add_bel(
-                    bslots::VNOC4_NSU512,
-                    vnoc_grid.name_manual("NOC2_NSU512", die, naming.nsu_xy.0, naming.nsu_xy.1),
-                );
-                ntile.add_bel(
-                    bslots::VNOC4_NPS_A,
-                    vnoc_grid.name_manual("NOC2_NPS6X", die, naming.nps_xy.0, naming.nps_xy.1),
-                );
-                ntile.add_bel(
-                    bslots::VNOC4_NPS_B,
-                    vnoc_grid.name_manual("NOC2_NPS6X", die, naming.nps_xy.0, naming.nps_xy.1 + 1),
-                );
-                ntile.add_bel(
-                    bslots::VNOC4_NMU512,
-                    vnoc_grid.name_manual("NOC2_NMU512", die, naming.nmu_xy.0, naming.nmu_xy.1),
-                );
-                ntile.add_bel(
-                    bslots::VNOC4_SCAN,
-                    vnoc_grid.name_manual("NOC2_SCAN", die, naming.scan_xy.0, naming.scan_xy.1),
                 );
             }
             tcls::MISR => {
@@ -1806,49 +2111,292 @@ pub fn name_device<'a>(
                 );
                 ntile.add_bel(bslots::MISR, misr_grid.name("MISR", die, col, row, 0, 0));
             }
+            tcls::RCLK_VNOC => {
+                let naming = match chip.fabric {
+                    FabricKind::Orig | FabricKind::Rev2 => "RCLK_VNOC",
+                    FabricKind::Ssit => "RCLK_VNOC_SSIT",
+                    FabricKind::Ssit2 => "RCLK_VNOC_SSIT2",
+                    FabricKind::Ulvt => "RCLK_VNOC_ULVT",
+                };
+                ngrid.name_tile(tcrd, naming, dev_naming.tile_names[&tcrd].clone());
+            }
+            tcls::RCLK_VNOC_PS => {
+                let naming = match chip.fabric {
+                    FabricKind::Orig | FabricKind::Rev2 => "RCLK_VNOC_PS",
+                    FabricKind::Ssit => "RCLK_VNOC_PS_SSIT",
+                    FabricKind::Ssit2 => "RCLK_VNOC_PS_SSIT2",
+                    FabricKind::Ulvt => "RCLK_VNOC_PS_ULVT",
+                };
+                ngrid.name_tile(tcrd, naming, dev_naming.tile_names[&tcrd].clone());
+            }
+            tcls::RCLK_GT | tcls::RCLK_GT_CPM6 => {
+                let naming = if tile.class == tcls::RCLK_GT_CPM6 {
+                    "RCLK_GT_CPM6_ULVT"
+                } else if !edev[tcrd.cell].conns.contains_id(cslots::CLK_DRV) {
+                    "RCLK_GT_NO_LOC_ULVT"
+                } else {
+                    match chip.fabric {
+                        FabricKind::Orig | FabricKind::Rev2 => "RCLK_GT",
+                        FabricKind::Ssit => "RCLK_GT_SSIT",
+                        FabricKind::Ssit2 => "RCLK_GT_SSIT2",
+                        FabricKind::Ulvt => "RCLK_GT_ULVT",
+                    }
+                };
+                let ntile = ngrid.name_tile(tcrd, naming, dev_naming.tile_names[&tcrd].clone());
+                ntile.add_bel(
+                    bslots::GCLK_TAPS_DECODE_GT,
+                    clk_gt_grid.name("GCLK_TAPS_DECODE_GT", die, col, row, 0, 0),
+                );
+                for i in 0..24 {
+                    ntile.add_bel(
+                        bslots::BUFG_GT[i],
+                        clk_gt_grid.name_mult(
+                            if chip.fabric == FabricKind::Ulvt {
+                                "BUFG_GT_ULVT"
+                            } else {
+                                "BUFG_GT"
+                            },
+                            die,
+                            col,
+                            row,
+                            1,
+                            0,
+                            24,
+                            i as i32,
+                        ),
+                    );
+                }
+                for i in 0..41 {
+                    ntile.add_bel(
+                        bslots::BUFG_GT_SYNC[i],
+                        clk_gt_grid.name_mult("BUFG_GT_SYNC", die, col, row, 1, 0, 41, i as i32),
+                    );
+                }
+            }
+            tcls::CLK_V_BUF_VNOC => {
+                let is_top = reg.to_idx() == chip.regs - 1;
+                let naming = match (chip.fabric, is_top) {
+                    (FabricKind::Orig | FabricKind::Rev2, false) => "CLK_V_BUF_VNOC",
+                    (FabricKind::Ssit, false) => "CLK_V_BUF_VNOC_SSIT",
+                    (FabricKind::Ssit2, false) => "CLK_V_BUF_VNOC_SSIT2",
+                    (FabricKind::Ulvt, false) => "CLK_V_BUF_VNOC_ULVT",
+                    (FabricKind::Orig | FabricKind::Rev2, true) => "CLK_V_BUF_VNOC_TOP",
+                    (FabricKind::Ssit, true) => "CLK_V_BUF_VNOC_TOP_SSIT",
+                    (FabricKind::Ssit2, true) => "CLK_V_BUF_VNOC_TOP_SSIT2",
+                    (FabricKind::Ulvt, true) => "CLK_V_BUF_VNOC_TOP_ULVT",
+                };
+                ngrid.name_tile(tcrd, naming, dev_naming.tile_names[&tcrd].clone());
+            }
+            tcls::CLK_V_BUF_VNOC_SSIT_HNOC_S
+            | tcls::CLK_V_BUF_VNOC_SSIT_S
+            | tcls::CLK_V_BUF_VNOC_SSIT_MID_S
+            | tcls::CLK_V_BUF_VNOC_SSIT_MID_N
+            | tcls::CLK_V_BUF_VNOC_SSIT2_EDGE
+            | tcls::CLK_V_BUF_GT_SSIT_HNOC_S
+            | tcls::CLK_V_BUF_GT_SSIT_S
+            | tcls::CLK_V_BUF_GT_SSIT_MID_S
+            | tcls::CLK_V_BUF_GT_SSIT_MID_N
+            | tcls::CLK_V_BUF_GT_SSIT2_EDGE
+            | tcls::HNOC_SSIT_PS9_A
+            | tcls::HNOC_SSIT_PS9_BD
+            | tcls::HNOC_SSIT_PS9_C
+            | tcls::HNOC_SSIT
+            | tcls::HNOC_SSIT2_V
+            | tcls::HNOC_SSIT2_H => {
+                ngrid.name_tile(tcrd, kind, dev_naming.tile_names[&tcrd].clone());
+            }
+            tcls::HNOC_NCRB => {
+                let naming = if edev.has_bel(tcrd.bel(bslots::HNOC_NIDB_V[0])) {
+                    "HNOC_NCRB_SSIT"
+                } else {
+                    "HNOC_NCRB"
+                };
+                ngrid.name_tile(tcrd, naming, dev_naming.tile_names[&tcrd].clone());
+            }
+            tcls::CLK_V_BUF_VNOC_SSIT_N => {
+                let naming = match chip.hsr_n {
+                    HsrNKind::Ssit => "CLK_V_BUF_VNOC_SSIT_N",
+                    HsrNKind::Me(_) => "CLK_V_BUF_VNOC_SSIT_N_AIE",
+                    HsrNKind::Hbm(_) => "CLK_V_BUF_VNOC_SSIT_N_HBM",
+                    _ => unreachable!(),
+                };
+                ngrid.name_tile(tcrd, naming, dev_naming.tile_names[&tcrd].clone());
+            }
+            tcls::CLK_V_BUF_GT_SSIT_N => {
+                let naming = match chip.hsr_n {
+                    HsrNKind::Ssit => "CLK_V_BUF_GT_SSIT_N",
+                    HsrNKind::Me(_) => "CLK_V_BUF_GT_SSIT_N_HBM",
+                    HsrNKind::Hbm(_) => "CLK_V_BUF_GT_SSIT_N_HBM",
+                    _ => unreachable!(),
+                };
+                ngrid.name_tile(tcrd, naming, dev_naming.tile_names[&tcrd].clone());
+            }
+            tcls::CLK_V_BUF_GT => {
+                let naming = match chip.fabric {
+                    FabricKind::Orig | FabricKind::Rev2 => "CLK_V_BUF_GT",
+                    FabricKind::Ssit => "CLK_V_BUF_GT_SSIT",
+                    FabricKind::Ssit2 => "CLK_V_BUF_GT_SSIT2",
+                    FabricKind::Ulvt => "CLK_V_BUF_GT_ULVT",
+                };
+                ngrid.name_tile(tcrd, naming, dev_naming.tile_names[&tcrd].clone());
+            }
+            tcls::CLK_S_BUF_VNOC | tcls::CLK_S_BUF_GT => {
+                ngrid.name_tile(tcrd, kind, dev_naming.tile_names[&tcrd].clone());
+            }
             tcls::SYSMON_SAT_VNOC => {
-                let ntile = ngrid.name_tile(
+                if !ndb.tile_class_namings.contains_key(kind) {
+                    continue;
+                }
+                ngrid.name_tile(
                     tcrd,
                     kind,
                     [int_grid.name("AMS_SAT_VNOC_TILE", die, col, row + 39, 0, 0)],
                 );
-                let (sx, sy) = dev_naming.die[die].sysmon_sat_vnoc[&(col, reg)];
-                ntile.add_bel(
-                    bslots::SYSMON_SAT_VNOC,
-                    vnoc_grid.name_manual("SYSMON_SAT", die, sx, sy),
-                );
             }
-            tcls::SYSMON_SAT_GT_W | tcls::SYSMON_SAT_GT_E => {
+            tcls::SYSMON_SAT_GT => {
+                if !ndb.tile_class_namings.contains_key(kind) {
+                    continue;
+                }
                 let bt = if chip.is_reg_n(reg) { "TOP" } else { "BOT" };
-                let ntile =
-                    ngrid.name_tile(
-                        tcrd,
-                        kind,
-                        [int_grid_gt.name(
+                ngrid.name_tile(
+                    tcrd,
+                    kind,
+                    [
+                        int_grid_gt.name(
                             &format!("AMS_SAT_GT_{bt}_TILE"),
                             die,
                             col,
                             row + 19,
                             0,
                             0,
-                        )],
-                    );
-                let (sx, sy) = dev_naming.die[die].sysmon_sat_gt[&(col, reg)];
-                ntile.add_bel(
-                    bslots::SYSMON_SAT_GT,
-                    vnoc_grid.name_manual("SYSMON_SAT", die, sx, sy),
+                        ),
+                    ],
                 );
             }
-            tcls::DPLL_GT_W | tcls::DPLL_GT_E => {
-                let ntile = ngrid.name_tile(
+            tcls::DPLL_GT => {
+                ngrid.name_tile(
                     tcrd,
                     kind,
                     [int_grid_gt.name("CMT_DPLL", die, col, row + 7, 0, 0)],
                 );
-                let (sx, sy) = dev_naming.die[die].dpll_gt[&(col, reg)];
-                ntile.add_bel(bslots::DPLL_GT, vnoc_grid.name_manual("DPLL", die, sx, sy));
             }
-            tcls::BFR_B_E => {
+            tcls::GTY => {
+                if chip.col_side(col) == DirH::W {
+                    let ntile = ngrid.name_tile(
+                        tcrd,
+                        "GTY_XPIPE",
+                        [
+                            int_grid_gt.name("GTY_QUAD_SINGLE", die, col, row, 0, 0),
+                            int_grid_gt.name("XPIPE_QUAD_SINGLE", die, col, row, 0, 0),
+                        ],
+                    );
+                    ntile.add_bel_multi(
+                        bslots::GTY,
+                        [
+                            gty_grid.name("GTY_QUAD", die, col, row, 0, 0),
+                            gty_grid.name_mult("GTY_REFCLK", die, col, row, 1, 0, 2, 0),
+                            gty_grid.name_mult("GTY_REFCLK", die, col, row, 1, 0, 2, 1),
+                            xpipe_grid.name("XPIPE_QUAD", die, col, row, 0, 0),
+                        ],
+                    );
+                } else {
+                    let ntile = ngrid.name_tile(
+                        tcrd,
+                        "GTY",
+                        [int_grid_gt.name("GTY_QUAD_SINGLE", die, col, row, 0, 0)],
+                    );
+                    ntile.add_bel_multi(
+                        bslots::GTY,
+                        [
+                            gty_grid.name("GTY_QUAD", die, col, row, 0, 0),
+                            gty_grid.name_mult("GTY_REFCLK", die, col, row, 1, 0, 2, 0),
+                            gty_grid.name_mult("GTY_REFCLK", die, col, row, 1, 0, 2, 1),
+                        ],
+                    );
+                }
+            }
+            tcls::XPIPE => {
+                let ntile = ngrid.name_tile(
+                    tcrd,
+                    if chip.is_reg_n(reg) {
+                        "XPIPE_N"
+                    } else {
+                        "XPIPE_S"
+                    },
+                    [int_grid_gt.name("XPIPE_QUAD_SINGLE", die, col, row, 0, 0)],
+                );
+                ntile.add_bel(
+                    bslots::XPIPE,
+                    xpipe_grid.name("XPIPE_QUAD", die, col, row, 0, 0),
+                );
+            }
+            tcls::GTYP | tcls::GTYP_XRAM | tcls::GTYP_PS => {
+                let ntile = ngrid.name_tile(
+                    tcrd,
+                    "GTYP",
+                    [int_grid_gt.name("GTYP_QUAD_SINGLE", die, col, row, 0, 0)],
+                );
+                ntile.add_bel_multi(
+                    bslots::GTYP,
+                    [
+                        gtyp_grid.name("GTYP_QUAD", die, col, row, 0, 0),
+                        gtyp_grid.name_mult("GTYP_REFCLK", die, col, row, 1, 0, 2, 0),
+                        gtyp_grid.name_mult("GTYP_REFCLK", die, col, row, 1, 0, 2, 1),
+                    ],
+                );
+            }
+            tcls::GTM | tcls::GTM_HNIC => {
+                let mut tnames = vec![int_grid_gt.name("GTM_QUAD_SINGLE", die, col, row, 0, 0)];
+                if tile.class == tcls::GTM_HNIC {
+                    tnames.push(int_grid_gt.name("HNICPIPE_QUAD_SINGLE", die, col, row, 0, 0));
+                }
+                let ntile = ngrid.name_tile(tcrd, kind, tnames);
+                let mut names = vec![
+                    gtm_grid.name("GTM_QUAD", die, col, row, 0, 0),
+                    gtm_grid.name_mult("GTM_REFCLK", die, col, row, 1, 0, 2, 0),
+                    gtm_grid.name_mult("GTM_REFCLK", die, col, row, 1, 0, 2, 1),
+                ];
+                if tile.class == tcls::GTM_HNIC {
+                    let hn_name = hnicpipe_grid.name("HNICPIPE_QUAD", die, col, row, 0, 0);
+                    ntile.add_bel(bslots::HNICPIPE, hn_name.clone());
+                    names.push(hn_name);
+                }
+                ntile.add_bel_multi(bslots::GTM, names);
+            }
+            tcls::GTM2_S | tcls::GTM2_N | tcls::GTM2_PS => {
+                let ntile = ngrid.name_tile(
+                    tcrd,
+                    "GTM2",
+                    [int_grid_gt.name("GTMPW_QUAD_SINGLE", die, col, row, 0, 0)],
+                );
+                ntile.add_bel_multi(
+                    bslots::GTM2,
+                    [
+                        gtm2_grid.name("GTM2_QUAD", die, col, row, 0, 0),
+                        gtm2_grid.name_mult("GTM2_REFCLK", die, col, row, 1, 0, 2, 0),
+                        gtm2_grid.name_mult("GTM2_REFCLK", die, col, row, 1, 0, 2, 1),
+                    ],
+                );
+            }
+            tcls::RFADC | tcls::RFDAC => {
+                let ntile = ngrid.name_tile(
+                    tcrd,
+                    kind,
+                    [
+                        int_grid_gt.name(&format!("{kind}_BOT_CORE"), die, col, row, 0, 0),
+                        int_grid_gt.name(&format!("{kind}_TOP_CORE"), die, col, row, 0, 48),
+                    ],
+                );
+                let (bslots, grid) = match tile.class {
+                    tcls::RFADC => (bslots::RFADC, &rfadc_grid),
+                    tcls::RFDAC => (bslots::RFDAC, &rfdac_grid),
+                    _ => unreachable!(),
+                };
+                for i in 0..2 {
+                    ntile.add_bel(bslots[i], grid.name(kind, die, col, row, 0, i as _));
+                }
+            }
+            tcls::BFR_B => {
                 let bt = if chip.is_reg_n(reg) { "TOP" } else { "BOT" };
                 let ntile = ngrid.name_tile(
                     tcrd,
@@ -1857,15 +2405,697 @@ pub fn name_device<'a>(
                 );
                 ntile.add_bel(bslots::BFR_B, bfr_b_grid.name("BFR_B", die, col, row, 0, 0));
             }
-            tcls::VDU_E => {
+            tcls::VDU => {
                 let ntile =
                     ngrid.name_tile(tcrd, kind, [int_grid.name("VDU_CORE", die, col, row, 0, 0)]);
                 ntile.add_bel(bslots::VDU, vdu_grid.name("VDU", die, col, row, 0, 0));
+            }
+            tcls::VCU2 => {
+                let ntile = ngrid.name_tile(tcrd, kind, dev_naming.tile_names[&tcrd].clone());
+                ntile.add_bel(bslots::VCU2, vcu2_grid.name("VCU2", die, col, row, 0, 0));
+            }
+            tcls::ISP2 => {
+                let ntile = ngrid.name_tile(tcrd, kind, dev_naming.tile_names[&tcrd].clone());
+                ntile.add_bel(bslots::ISP2, isp2_grid.name("ISP2", die, col, row, 0, 0));
+            }
+            tcls::XRAM | tcls::XRAM_NC => {
+                let ntile = ngrid.name_tile(
+                    tcrd,
+                    "XRAM",
+                    [int_grid.name("XRAM_CORE", die, col, row, 0, 0)],
+                );
+                ntile.add_bel(bslots::XRAM, xram_grid.name("XRAM", die, col, row, 0, 0));
+            }
+            tcls::PS9 => {
+                let naming = if chip.ps == PsKind::Ps9Cpm6 {
+                    "PS9_2VP"
+                } else if chip.fabric != FabricKind::Orig {
+                    "PS9_REV2"
+                } else {
+                    "PS9"
+                };
+                let ntile = ngrid.name_tile(
+                    tcrd,
+                    naming,
+                    [int_grid.name("PSS_BASE_CORE", die, ColId::from_idx(0), row + 17, 0, 0)],
+                );
+                ntile.add_bel(bslots::PS9, ps_grid.name("PS9", die, col, row, 0, 0));
+            }
+            tcls::CPM4 => {
+                let ntile = ngrid.name_tile(
+                    tcrd,
+                    kind,
+                    [
+                        int_grid.name("CPM_CORE", die, ColId::from_idx(0), row - 1, 0, 0),
+                        int_grid.name("CPM_EXT_TILE", die, chip.cols_hard[0].col, row + 48, 0, 0),
+                    ],
+                );
+                ntile.add_bel_multi(
+                    bslots::CPM4,
+                    ["CPM_MAIN_X0Y0".into(), "CPM_EXT_X0Y0".into()],
+                );
+            }
+            tcls::CPM5 => {
+                let ntile = ngrid.name_tile(
+                    tcrd,
+                    kind,
+                    [int_grid.name("CPM_G5_TILE", die, ColId::from_idx(0), row - 1, 0, 0)],
+                );
+                ntile.add_bel(bslots::CPM5, "CPM5_X0Y0".into());
+            }
+            tcls::CPM6 => {
+                let ntile = ngrid.name_tile(
+                    tcrd,
+                    kind,
+                    [int_grid.name("CPM6_TILE", die, ColId::from_idx(0), row - 1, 0, 0)],
+                );
+                ntile.add_bel(bslots::CPM6, "CPM6_X0Y0".into());
+            }
+            tcls::PSXL => {
+                let ntile = ngrid.name_tile(
+                    tcrd,
+                    kind,
+                    [int_grid.name("PSXL_CORE", die, ColId::from_idx(0), row, 0, 0)],
+                );
+                ntile.add_bel(bslots::PSXL, ps_grid.name("PSX", die, col, row, 0, 0));
+            }
+            tcls::CPM5N => {
+                let ntile = ngrid.name_tile(
+                    tcrd,
+                    kind,
+                    [int_grid.name("CPM_G5N2X_TILE", die, ColId::from_idx(0), row - 1, 0, 0)],
+                );
+                ntile.add_bel(bslots::CPM5N, "CPM5N_X0Y0".into());
+            }
+            tcls::PSXC => {
+                let ntile = ngrid.name_tile(
+                    tcrd,
+                    kind,
+                    [int_grid.name("PSXC_TILE", die, ColId::from_idx(0), row, 0, 0)],
+                );
+                ntile.add_bel(bslots::PSXC, ps_grid.name("PS11", die, col, row, 0, 0));
+            }
+            tcls::MMI | tcls::MMI_NC => {
+                let ntile = ngrid.name_tile(
+                    tcrd,
+                    kind,
+                    [int_grid.name(
+                        "MMI_TILE",
+                        die,
+                        ColId::from_idx(0),
+                        if tile.class == tcls::MMI_NC {
+                            row
+                        } else {
+                            row - 1
+                        },
+                        0,
+                        0,
+                    )],
+                );
+                ntile.add_bel(
+                    bslots::MMI,
+                    if tile.class == tcls::MMI {
+                        "MMI_X0Y0"
+                    } else {
+                        "MMI2_X0Y0"
+                    }
+                    .into(),
+                );
+            }
+            tcls::HNICX => {
+                let ntile = ngrid.name_tile(
+                    tcrd,
+                    kind,
+                    [int_grid.name("HNICX_TILE", die, col, row, 0, 0)],
+                );
+                ntile.add_bel(bslots::HNICX, "HNICX_X0Y0".into());
+            }
+
+            tcls::SYSMON_SAT_HSR_XPIO | tcls::SYSMON_SAT_HSR_X5IO => {
+                ngrid.name_tile(
+                    tcrd,
+                    "SYSMON_SAT_HSR_XPIO",
+                    dev_naming.tile_names[&tcrd].clone(),
+                );
+            }
+            tcls::SYSMON_SAT_HSR_ME | tcls::SYSMON_SAT_HSR_NC => {
+                ngrid.name_tile(
+                    tcrd,
+                    "SYSMON_SAT_HSR_ME",
+                    dev_naming.tile_names[&tcrd].clone(),
+                );
+            }
+
+            tcls::CLK_XPIO_FULL
+            | tcls::CLK_XPIO_MIN
+            | tcls::CLK_X5IO_FULL
+            | tcls::CLK_X5IO_MIN_A
+            | tcls::CLK_X5IO_MIN_B => {
+                ngrid.name_tile(tcrd, "CLK_XPIO", dev_naming.tile_names[&tcrd].clone());
+            }
+            tcls::CLK_HSR_SSIT2_H => {
+                ngrid.name_tile(tcrd, kind, dev_naming.tile_names[&tcrd].clone());
+            }
+            tcls::CLK_ME => {
+                let naming = if matches!(chip.hsr_n, HsrNKind::Me2(_)) {
+                    "CLK_ME_ME2"
+                } else {
+                    match chip.fabric {
+                        FabricKind::Orig => "CLK_ME",
+                        FabricKind::Ulvt => "CLK_ME_ULVT",
+                        _ => "CLK_ME_REV2",
+                    }
+                };
+                ngrid.name_tile(tcrd, naming, dev_naming.tile_names[&tcrd].clone());
+            }
+            tcls::MMCM_XPIO | tcls::MMCM_X5IO => {
+                ngrid.name_tile(tcrd, "MMCM", dev_naming.tile_names[&tcrd].clone());
+            }
+            tcls::DPLL_XPIO | tcls::DPLL_X5IO | tcls::DPLL_X5IO_NC => {
+                ngrid.name_tile(tcrd, "DPLL", dev_naming.tile_names[&tcrd].clone());
+            }
+            tcls::XPIO | tcls::XPIO_NC => {
+                ngrid.name_tile(tcrd, kind, dev_naming.tile_names[&tcrd].clone());
+            }
+            tcls::XPIO_DCI_A | tcls::XPIO_DCI_B | tcls::XPIO_DCI_C | tcls::XPIO_DCI_S => {
+                ngrid.name_tile(tcrd, "XPIO_DCI", dev_naming.tile_names[&tcrd].clone());
+            }
+            tcls::XPIO_SCAN_A | tcls::XPIO_SCAN_B | tcls::XPIO_SCAN_C | tcls::XPIO_SCAN_S => {
+                let mut names = dev_naming.tile_names[&tcrd.tile(tslots::HSR_BANK)].clone();
+                for i in 0..9 {
+                    names.extend(
+                        dev_naming.tile_names[&tcrd.delta(i, 0).tile(tslots::HSR_IO)].clone(),
+                    );
+                }
+                ngrid.name_tile(tcrd, "XPIO_SCAN", names);
+            }
+            tcls::X5IO_BANK | tcls::X5IO_BANK_NC => {
+                ngrid.name_tile(tcrd, "X5IO_BANK", dev_naming.tile_names[&tcrd].clone());
+            }
+            tcls::X5PLL_A | tcls::X5PLL_B | tcls::X5PLL_S | tcls::X5PLL_NC => {
+                ngrid.name_tile(tcrd, kind, dev_naming.tile_names[&tcrd].clone());
+            }
+            tcls::X5IO_SCAN_A | tcls::X5IO_SCAN_B | tcls::X5IO_SCAN_C => {
+                ngrid.name_tile(tcrd, "X5IO_SCAN", dev_naming.tile_names[&tcrd].clone());
+            }
+            tcls::X5IO | tcls::X5IO_NC => {
+                let i = [0, 1, 2, 3, 3, 2, 1, 0][col.to_idx() % 8];
+                ngrid.name_tile(
+                    tcrd,
+                    &format!("X5IO{i}"),
+                    dev_naming.tile_names[&tcrd].clone(),
+                );
+            }
+            tcls::XPLL
+            | tcls::DDRMC
+            | tcls::DDRMC5
+            | tcls::DDRMC5C
+            | tcls::DDRMC5E
+            | tcls::DDRMC5E2
+            | tcls::HNOC_XPIO
+            | tcls::HNOC_XPIO_PS9_A
+            | tcls::HNOC_XPIO_PS9_B
+            | tcls::HNOC_XPIO_PS9_C
+            | tcls::HNOC_X5IO_PS9_A
+            | tcls::HNOC_X5IO_PS9_B
+            | tcls::HNOC_X5IO_PS9_C
+            | tcls::HNOC_X5IO_PSX_A
+            | tcls::HNOC_X5IO_PSX_B
+            | tcls::HNOC_X5IO_PSXL_C
+            | tcls::HNOC_X5IO_PSXC_C
+            | tcls::HNOC_X5IO_CAP
+            | tcls::HNOC_X5IO_DDRMC
+            | tcls::HNOC_ME
+            | tcls::HNOC_ME_VNOC
+            | tcls::HNOC_ME2_CAP_W
+            | tcls::HNOC_ME2_CAP_E
+            | tcls::HNOC_ME2
+            | tcls::HNOC_ME2_NCRB
+            | tcls::HNOC_ME2_VNOC4
+            | tcls::HNOC_HBM
+            | tcls::HNOC_HBM_VNOC
+            | tcls::HNOC_NIC_CPM_CDX
+            | tcls::HNOC_NIC_CPM_DPU
+            | tcls::HNOC_NIC_VNOC
+            | tcls::HNOC_NIC_BLI
+            | tcls::HNOC_NIC_HNICX
+            | tcls::HNOC2_NCRB
+            | tcls::CLK_HBM
+            | tcls::HBM_INTF
+            | tcls::HBM_CHNL
+            | tcls::HBM_MS => {
+                ngrid.name_tile(tcrd, kind, dev_naming.tile_names[&tcrd].clone());
+            }
+            tcls::HNOC_X5IO_CROSS | tcls::HNOC_X5IO_CROSS_ALT => {
+                ngrid.name_tile(
+                    tcrd,
+                    "HNOC_X5IO_CROSS",
+                    dev_naming.tile_names[&tcrd].clone(),
+                );
+            }
+            tcls::DDRMC5E_ALT => {
+                ngrid.name_tile(tcrd, "DDRMC5E", dev_naming.tile_names[&tcrd].clone());
+            }
+            tcls::HSR_CLK_TEST_XPIO_REV1
+            | tcls::HSR_CLK_TEST_XPIO_REV2
+            | tcls::HSR_CLK_TEST_ME_REV1
+            | tcls::HSR_CLK_TEST_ME_REV2
+            | tcls::HSR_CLK_TEST_ME_SSIT
+            | tcls::HSR_CLK_TEST_ME_ULVT
+            | tcls::HSR_CLK_HBM_EVEN
+            | tcls::HSR_CLK_HBM_ODD
+            | tcls::HSR_CLK_HBM_MS_EVEN
+            | tcls::HSR_CLK_HBM_MS_ODD
+            | tcls::HSR_CLK_AIE_PLL
+            | tcls::HSR_CLK_TEST_X5IO_A
+            | tcls::HSR_CLK_TEST_X5IO_B
+            | tcls::X5PLL_GASKET
+            | tcls::X5PLL_GASKET_HALF => (),
+
+            tcls::AIE => {
+                let ntile =
+                    ngrid.name_tile(tcrd, kind, [aie_grid.name("AIE_TILE", die, col, row, 0, 0)]);
+                ntile.add_bel(
+                    bslots::AIE_TILECTRL,
+                    aie_grid.name("AIE_TILECTRL", die, col, row, 0, 0),
+                );
+                for i in 0..2 {
+                    ntile.add_bel(
+                        bslots::AIE_FIFO[i],
+                        aie_grid.name_mult("AIE_FIFO", die, col, row, 2, i as i32, 1, 0),
+                    );
+                }
+                ntile.add_bel(
+                    bslots::AIE_CORE,
+                    aie_core_grid.name("AIE_CORE", die, col, row, 0, 0),
+                );
+                ntile.add_bel(
+                    bslots::AIE_ARRAYSWITCH,
+                    aie_core_grid.name("AIE_ARRAYSWITCH", die, col, row, 0, 0),
+                );
+                ntile.add_bel(
+                    bslots::AIE_MEMGRP,
+                    aie_core_grid.name("AIE_MEMGRP", die, col, row, 0, 0),
+                );
+            }
+            tcls::AIE_PLL => {
+                let ntile = ngrid.name_tile(
+                    tcrd,
+                    kind,
+                    [aie_grid.name("AIE_INTF_A_CORE", die, col, row, 0, 0)],
+                );
+                ntile.add_bel(bslots::AIE_PLL, "AIE_PLL_X0Y0".into());
+            }
+            tcls::AIE_SHIM => {
+                let ntile = ngrid.name_tile(
+                    tcrd,
+                    kind,
+                    [aie_grid.name("AIE_INTF_A_CORE", die, col, row, 0, 0)],
+                );
+                ntile.add_bel(
+                    bslots::AIE_TILECTRL,
+                    aie_grid.name("AIE_TILECTRL", die, col, row, 0, 0),
+                );
+                for i in 0..2 {
+                    ntile.add_bel(
+                        bslots::AIE_FIFO[i],
+                        aie_grid.name_mult("AIE_FIFO", die, col, row, 2, i as i32, 1, 0),
+                    );
+                }
+                ntile.add_bel(
+                    bslots::AIE_SHIMSWITCH,
+                    aie_grid.name("AIE_SHIMSWITCH", die, col, row, 0, 0),
+                );
+                ntile.add_bel(
+                    bslots::AIE_SHIMTRACE,
+                    aie_grid.name("AIE_SHIMTRACE", die, col, row, 0, 0),
+                );
+            }
+            tcls::AIE_SHIM_NOC_PL | tcls::AIE_SHIM_PL => {
+                let HsrNKind::Me(ref me) = chip.hsr_n else {
+                    unreachable!()
+                };
+                let prefix = if col.to_idx() < me.regions.len() * 4 + 1 {
+                    [
+                        "AIE_INTF_B0_CORE",
+                        "AIE_INTF_B1_CORE",
+                        "AIE_INTF_B2_CORE",
+                        "AIE_INTF_B3_CORE",
+                    ][(col.to_idx() - 1) % 4]
+                } else {
+                    "AIE_INTF_C_CORE"
+                };
+                let ntile =
+                    ngrid.name_tile(tcrd, kind, [aie_grid.name(prefix, die, col, row, 0, 0)]);
+                ntile.add_bel(
+                    bslots::AIE_TILECTRL,
+                    aie_grid.name("AIE_TILECTRL", die, col, row, 0, 0),
+                );
+                for i in 0..2 {
+                    ntile.add_bel(
+                        bslots::AIE_FIFO[i],
+                        aie_grid.name_mult("AIE_FIFO", die, col, row, 2, i as i32, 1, 0),
+                    );
+                }
+                ntile.add_bel(
+                    bslots::AIE_SHIMSWITCH,
+                    aie_grid.name("AIE_SHIMSWITCH", die, col, row, 0, 0),
+                );
+                ntile.add_bel(
+                    bslots::AIE_SHIMTRACE,
+                    aie_grid.name("AIE_SHIMTRACE", die, col, row, 0, 0),
+                );
+                ntile.add_bel(
+                    bslots::AIE_PL,
+                    aie_pl_grid.name("AIE_PL", die, col, row, 0, 0),
+                );
+                if tile.class == tcls::AIE_SHIM_NOC_PL {
+                    ntile.add_bel(
+                        bslots::AIE_NOC,
+                        aie_noc_grid.name("AIE_NOC", die, col, row, 0, 0),
+                    );
+                }
+            }
+            tcls::AIE_INTF_TEST => {
+                let ntile = ngrid.name_tile(
+                    tcrd,
+                    kind,
+                    [aie_grid.name("AIE_INTF_B0_CORE", die, col, row, 0, 0)],
+                );
+                ntile.add_bel(
+                    bslots::AIE_INTF_TEST,
+                    aie_test_grid.name("AIE_INTF_B_TEST", die, col, row, 0, 0),
+                );
+            }
+            tcls::AIE_INTF_TEST_NC => {
+                let ntile = ngrid.name_tile(
+                    tcrd,
+                    kind,
+                    [aie_grid.name("AIE_INTF_C_CORE", die, col, row, 0, 0)],
+                );
+                ntile.add_bel(
+                    bslots::AIE_INTF_TEST,
+                    aie_test_nc_grid.name("AIE_INTF_C_TEST", die, col, row, 0, 0),
+                );
+            }
+
+            tcls::AIE_ML => {
+                let ntile = ngrid.name_tile(
+                    tcrd,
+                    kind,
+                    [aie_grid.name("AIE_ML_TILE", die, col, row, 0, 1)],
+                );
+                ntile.add_bel(
+                    bslots::AIE_TILECTRL,
+                    aie_grid.name("AIE_ML_TILECTRL", die, col, row, 0, 0),
+                );
+                ntile.add_bel(
+                    bslots::AIE_FIFO[0],
+                    aie_fifo_grid.name("AIE_ML_FIFO", die, col, row, 0, 0),
+                );
+                ntile.add_bel(
+                    bslots::AIE_ML_CORE,
+                    aie_core_grid.name("AIE_ML_CORE", die, col, row, 0, 0),
+                );
+                ntile.add_bel(
+                    bslots::AIE_ML_ARRAYSWITCH,
+                    aie_core_grid.name("AIE_ML_ARRAYSWITCH", die, col, row, 0, 0),
+                );
+                ntile.add_bel(
+                    bslots::AIE_MEMGRP,
+                    aie_core_grid.name("AIE_ML_MEMGRP", die, col, row, 0, 0),
+                );
+            }
+            tcls::AIE_ML_MEM => {
+                let ntile = ngrid.name_tile(
+                    tcrd,
+                    kind,
+                    [aie_grid.name("AIE_ML_MEM_TILE", die, col, row, 0, 1)],
+                );
+                ntile.add_bel(
+                    bslots::AIE_TILECTRL,
+                    aie_grid.name("AIE_ML_TILECTRL", die, col, row, 0, 0),
+                );
+                ntile.add_bel(
+                    bslots::AIE_ML_MEM_ARRAYSWITCH,
+                    aie_mem_grid.name("AIE_ML_MEM_ARRAYSWITCH", die, col, row, 0, 0),
+                );
+                ntile.add_bel(
+                    bslots::AIE_ML_MEM_MEMGRP,
+                    aie_mem_grid.name("AIE_ML_MEM_MEMGRP", die, col, row, 0, 0),
+                );
+            }
+            tcls::AIE_ML_PLL => {
+                let ntile = ngrid.name_tile(
+                    tcrd,
+                    kind,
+                    [aie_grid.name("AIE_ML_INTF_A_CORE", die, col, row, 0, 1)],
+                );
+                ntile.add_bel(bslots::AIE_PLL, "AIE_ML_PLL_X0Y0".into());
+            }
+            tcls::AIE_ML_SHIM => {
+                let ntile = ngrid.name_tile(
+                    tcrd,
+                    kind,
+                    [aie_grid.name("AIE_ML_INTF_A_CORE", die, col, row, 0, 1)],
+                );
+                ntile.add_bel(
+                    bslots::AIE_TILECTRL,
+                    aie_grid.name("AIE_ML_TILECTRL", die, col, row, 0, 0),
+                );
+                ntile.add_bel(
+                    bslots::AIE_FIFO[0],
+                    aie_fifo_grid.name("AIE_ML_FIFO", die, col, row, 0, 0),
+                );
+                ntile.add_bel(
+                    bslots::AIE_ML_SHIMSWITCH,
+                    aie_grid.name("AIE_ML_SHIMSWITCH", die, col, row, 0, 0),
+                );
+                ntile.add_bel(
+                    bslots::AIE_SHIMTRACE,
+                    aie_grid.name("AIE_ML_SHIMTRACE", die, col, row, 0, 0),
+                );
+            }
+            tcls::AIE_ML_SHIM_NOC_PL | tcls::AIE_ML_SHIM_PL => {
+                let HsrNKind::Me(ref me) = chip.hsr_n else {
+                    unreachable!()
+                };
+                let prefix = if col.to_idx() < me.regions.len() * 4 + 1 {
+                    [
+                        "AIE_ML_SHIM_PL_TILE",
+                        "AIE_ML_SHIM_NOC_TILE",
+                        "AIE_ML_SHIM_NOC_TILE",
+                        "AIE_ML_SHIM_PL_TILE",
+                    ][(col.to_idx() - 1) % 4]
+                } else {
+                    "AIE_ML_SHIM_PL_TILE"
+                };
+                let ntile =
+                    ngrid.name_tile(tcrd, kind, [aie_grid.name(prefix, die, col, row, 0, 1)]);
+                ntile.add_bel(
+                    bslots::AIE_TILECTRL,
+                    aie_grid.name("AIE_ML_TILECTRL", die, col, row, 0, 0),
+                );
+                ntile.add_bel(
+                    bslots::AIE_FIFO[0],
+                    aie_fifo_grid.name("AIE_ML_FIFO", die, col, row, 0, 0),
+                );
+                ntile.add_bel(
+                    bslots::AIE_ML_SHIMSWITCH,
+                    aie_grid.name("AIE_ML_SHIMSWITCH", die, col, row, 0, 0),
+                );
+                ntile.add_bel(
+                    bslots::AIE_SHIMTRACE,
+                    aie_grid.name("AIE_ML_SHIMTRACE", die, col, row, 0, 0),
+                );
+                ntile.add_bel(
+                    bslots::AIE_PL,
+                    aie_pl_grid.name("AIE_ML_PL", die, col, row, 0, 0),
+                );
+                if tile.class == tcls::AIE_ML_SHIM_NOC_PL {
+                    ntile.add_bel(
+                        bslots::AIE_NOC,
+                        aie_noc_grid.name("AIE_ML_NOC", die, col, row, 0, 0),
+                    );
+                }
+            }
+            tcls::AIE_ML_INTF_TEST => {
+                let ntile = ngrid.name_tile(
+                    tcrd,
+                    kind,
+                    [aie_grid.name("AIE_ML_INTF_B_TILE", die, col, row, 0, 0)],
+                );
+                ntile.add_bel(
+                    bslots::AIE_ML_INTF_TEST,
+                    aie_test_grid.name("AIE_ML_INTF_B_TEST", die, col, row, 0, 0),
+                );
+            }
+            tcls::AIE_ML_INTF_TEST_NC => {
+                let ntile = ngrid.name_tile(
+                    tcrd,
+                    kind,
+                    [aie_grid.name("AIE_ML_INTF_C_TILE", die, col, row, 0, 0)],
+                );
+                ntile.add_bel(
+                    bslots::AIE_ML_INTF_TEST,
+                    aie_test_nc_grid.name("AIE_ML_INTF_C_TEST", die, col, row, 0, 0),
+                );
+            }
+
+            tcls::AIE2PS => {
+                let ntile = ngrid.name_tile(
+                    tcrd,
+                    kind,
+                    [aie_grid.name("AIE2P_S_TILE", die, col, row, 0, 0)],
+                );
+                ntile.add_bel(
+                    bslots::AIE_TILECTRL,
+                    aie_grid.name_mult("AIE2P_TILECTRL", die, col, row, 2, 0, 1, 0),
+                );
+                ntile.add_bel(
+                    bslots::AIE_FIFO[0],
+                    aie_fifo_grid.name_mult("AIE2P_FIFO", die, col, row, 2, 0, 1, 0),
+                );
+                ntile.add_bel(
+                    bslots::AIE_ML_CORE,
+                    aie_core_grid.name("AIE2PS_CORE", die, col, row, 0, 0),
+                );
+                ntile.add_bel(
+                    bslots::AIE_ML_ARRAYSWITCH,
+                    aie_core_grid.name("AIE2PS_ARRAYSWITCH", die, col, row, 0, 0),
+                );
+                ntile.add_bel(
+                    bslots::AIE_MEMGRP,
+                    aie_core_grid.name("AIE2PS_MEMGRP", die, col, row, 0, 0),
+                );
+            }
+            tcls::AIE2PS_MEM => {
+                let ntile = ngrid.name_tile(
+                    tcrd,
+                    kind,
+                    [aie_grid.name("AIE2P_S_MEM_TILE", die, col, row, 0, 0)],
+                );
+                ntile.add_bel(
+                    bslots::AIE_TILECTRL,
+                    aie_grid.name_mult("AIE2P_TILECTRL", die, col, row, 2, 0, 1, 0),
+                );
+                ntile.add_bel(
+                    bslots::AIE_ML_MEM_ARRAYSWITCH,
+                    aie_mem_grid.name("AIE2PS_MEM_ARRAYSWITCH", die, col, row, 0, 0),
+                );
+                ntile.add_bel(
+                    bslots::AIE_ML_MEM_MEMGRP,
+                    aie_mem_grid.name("AIE2PS_MEM_MEMGRP", die, col, row, 0, 0),
+                );
+            }
+            tcls::AIE2PS_SHIM_NOC_PL => {
+                let ntile = ngrid.name_tile(
+                    tcrd,
+                    if col.to_idx() == 0 {
+                        "AIE2PS_SHIM_NOC_PL_A"
+                    } else {
+                        "AIE2PS_SHIM_NOC_PL"
+                    },
+                    [aie_grid.name(
+                        if col.to_idx() == 0 {
+                            "AIE2P_S_INTF_A_CORE"
+                        } else {
+                            "AIE2P_S_INTF_C_CORE"
+                        },
+                        die,
+                        col,
+                        row,
+                        0,
+                        0,
+                    )],
+                );
+                ntile.add_bel(
+                    bslots::AIE_TILECTRL,
+                    aie_grid.name_mult("AIE2P_TILECTRL", die, col, row, 2, 1, 1, 0),
+                );
+                ntile.add_bel(
+                    bslots::AIE_FIFO[0],
+                    aie_fifo_grid.name_mult("AIE2P_FIFO", die, col, row, 2, 1, 1, 0),
+                );
+                ntile.add_bel(
+                    bslots::AIE2PS_SHIM_CNTRL,
+                    aie_grid.name("AIE2PS_SHIM_CNTRL", die, col, row, 0, 0),
+                );
+                ntile.add_bel(
+                    bslots::AIE2PS_NMU_ARBIT,
+                    aie_grid.name("AIE2PS_NMU_ARBIT", die, col, row, 0, 0),
+                );
+                ntile.add_bel(
+                    bslots::AIE2PS_SHIMSWITCH,
+                    aie_grid.name("AIE2PS_SHIMSWITCH", die, col, row, 0, 0),
+                );
+                ntile.add_bel(
+                    bslots::AIE_SHIMTRACE,
+                    aie_grid.name("AIE2PS_SHIMTRACE", die, col, row, 0, 0),
+                );
+                ntile.add_bel(
+                    bslots::AIE_PL,
+                    aie_pl_grid.name("AIE2P_PL", die, col, row, 0, 0),
+                );
+                ntile.add_bel(
+                    bslots::AIE_NOC,
+                    aie_noc_grid.name("AIE2PS_NOC", die, col, row, 0, 0),
+                );
+            }
+            tcls::AIE2PS_PLL => {
+                let ntile = ngrid.name_tile(
+                    tcrd,
+                    kind,
+                    [aie_grid.name("AIE2P_S_INTF_A_CORE", die, col, row, 0, 0)],
+                );
+                ntile.add_bel(bslots::AIE_PLL, "AIE2PS_PLL_X0Y0".into());
+            }
+            tcls::AIE2PS_INTF_TEST | tcls::AIE2PS_INTF_TEST_NC => {
+                let ntile = ngrid.name_tile(
+                    tcrd,
+                    "AIE2PS_INTF_TEST",
+                    [aie_grid.name(
+                        if col.to_idx() == 0 {
+                            "AIE2P_S_INTF_A_CORE"
+                        } else {
+                            "AIE2P_S_INTF_C_CORE"
+                        },
+                        die,
+                        col,
+                        row,
+                        0,
+                        0,
+                    )],
+                );
+
+                if col.to_idx() == 0 {
+                    ntile.add_bel(
+                        bslots::AIE2PS_INTF_TEST,
+                        aie_grid.name("AIE2PS_INTF_A_TEST", die, col, row, 0, 0),
+                    );
+                } else {
+                    ntile.add_bel(
+                        bslots::AIE2PS_INTF_TEST,
+                        aie_grid.name("AIE2PS_INTF_C_TEST", die, col, row, -1, 0),
+                    );
+                }
             }
 
             _ => panic!("how to {kind}"),
         }
     }
 
-    ExpandedNamedDevice { edev, ngrid }
+    for (&bcrd, names) in &dev_naming.bel_names {
+        let tcrd = edev.bel_tile(bcrd);
+        let Some(ntile) = ngrid.tiles.get_mut(&tcrd) else {
+            continue;
+        };
+        ntile.add_bel_multi(bcrd.slot, names.clone());
+    }
+
+    ExpandedNamedDevice {
+        edev,
+        ngrid,
+        dev_naming,
+    }
 }

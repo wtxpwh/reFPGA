@@ -56,6 +56,16 @@ impl IntDb {
             .0
     }
 
+    pub fn bel_class(&self, slot: BelSlotId) -> BelClassId {
+        let BelKind::Class(bcid) = self.bel_slots[slot].kind else {
+            panic!(
+                "bel slot {slot} is not classful",
+                slot = self.bel_slots.key(slot)
+            )
+        };
+        bcid
+    }
+
     pub fn new(
         tslots: &[(TileSlotId, &str)],
         bslots: &[(BelSlotId, &str, TileSlotId)],

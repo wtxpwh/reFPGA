@@ -1,5 +1,6 @@
 use std::collections::BTreeSet;
 
+use indicatif::ProgressBar;
 use prjcombine_interconnect::{
     db::{BelInfo, SwitchBoxItem, WireSlotIdExt},
     dir::DirHV,
@@ -156,7 +157,7 @@ fn verify_bufg(endev: &ExpandedNamedDevice, vrf: &mut Verifier, bcrd: BelCoord) 
             .kind("BUFG")
             .skip_out(bcls::BUFG::O)
             .skip_out(bcls::BUFG::O_BUFGE)
-            .extra_out_rename("O", "O_BUFG");
+            .extra_out("O_BUFG");
         bel.claim_net(&[bel.wire("O_BUFG")]);
         bel.claim_net(&[bel.wire("I_BUFGE")]);
         bel.claim_net(&[bel.wire("I_BUFGLS")]);
@@ -168,14 +169,14 @@ fn verify_bufg(endev: &ExpandedNamedDevice, vrf: &mut Verifier, bcrd: BelCoord) 
             .kind("BUFGE")
             .skip_in(bcls::BUFG::I)
             .skip_out(bcls::BUFG::O)
-            .extra_in_rename("I", "I_BUFGE")
+            .extra_in("I_BUFGE")
             .commit();
         vrf.verify_bel(bcrd)
             .sub(2)
             .kind("BUFGLS")
             .skip_in(bcls::BUFG::I)
             .skip_out(bcls::BUFG::O_BUFGE)
-            .extra_in_rename("I", "I_BUFGLS")
+            .extra_in("I_BUFGLS")
             .commit();
     }
 }
@@ -300,9 +301,9 @@ fn verify_bel(endev: &ExpandedNamedDevice, vrf: &mut Verifier, bel: BelCoord) {
     }
 }
 
-pub fn verify_device(endev: &ExpandedNamedDevice, rd: &Part) {
+pub fn verify_device(endev: &ExpandedNamedDevice, rd: &Part, pb: &ProgressBar) {
     {
-        let mut vrf = Verifier::new(rd, &endev.ngrid);
+        let mut vrf = Verifier::new(rd, &endev.ngrid, pb);
         if endev.edev.chip.kind == ChipKind::SpartanXl {
             for tcid in [tcls::LLV_CLB, tcls::LLV_IO_W, tcls::LLV_IO_E] {
                 let BelInfo::SwitchBox(ref sb) = endev.edev.db[tcid].bels[bslots::LLV] else {

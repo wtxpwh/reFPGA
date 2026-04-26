@@ -1356,7 +1356,7 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
                 .pin_rename("RSTBRST", "RSTB")
                 .pin_rename("REGCEBREGCE", "REGCEB");
             if i == 0 {
-                bel = bel.sub_xy(rd, "RAMB16", 0, 0);
+                bel = bel.sub_xy("RAMB16", 0, 0);
                 for ab in ['A', 'B'] {
                     for j in 0..14 {
                         bel = bel.pin_rename(format!("ADDR{ab}{j}"), format!("RAMB16_ADDR{ab}{j}"));
@@ -1936,7 +1936,7 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
                 bel = bel.pin_name_only(&format!("BA{i}"), 1);
             }
             bel = bel
-                .sub_xy(rd, "TIEOFF", 0, 0)
+                .sub_xy("TIEOFF", 0, 0)
                 .raw_tile(2)
                 .pin_rename("HARD0", "TIE_CLK_HARD0")
                 .pin_rename("HARD1", "TIE_CLK_HARD1")
@@ -1946,7 +1946,7 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
                 .extra_wire("TIE_CLK_OUTN0", &["MCB_BOT_MOUTN_VCC"])
                 .extra_wire("TIE_CLK_OUTP1", &["MCB_BOT_SOUTP_VCC"])
                 .extra_wire("TIE_CLK_OUTN1", &["MCB_BOT_SOUTN_GND"])
-                .sub_xy(rd, "TIEOFF", 0, 0)
+                .sub_xy("TIEOFF", 0, 0)
                 .raw_tile(3)
                 .pin_rename("HARD0", "TIE_DQS0_HARD0")
                 .pin_rename("HARD1", "TIE_DQS0_HARD1")
@@ -1956,7 +1956,7 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
                 .extra_wire("TIE_DQS0_OUTN0", &["MCB_BOT_MOUTN_VCC"])
                 .extra_wire("TIE_DQS0_OUTP1", &["MCB_BOT_SOUTP_VCC"])
                 .extra_wire("TIE_DQS0_OUTN1", &["MCB_BOT_SOUTN_GND"])
-                .sub_xy(rd, "TIEOFF", 0, 0)
+                .sub_xy("TIEOFF", 0, 0)
                 .raw_tile(4)
                 .pin_rename("HARD0", "TIE_DQS1_HARD0")
                 .pin_rename("HARD1", "TIE_DQS1_HARD1")
@@ -2267,7 +2267,7 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
             bel = bel.pin_rename(pin, qpin).pins_name_only(&[qpin]);
         }
         for i in 0..2 {
-            bel = bel.sub_xy(rd, "BUFPLL", 0, bpll[i]);
+            bel = bel.sub_xy("BUFPLL", 0, bpll[i]);
             for pin in ["PLLIN", "IOCLK", "SERDESSTROBE", "LOCKED", "LOCK", "GCLK"] {
                 let qpin = &format!("BUFPLL{i}_{pin}");
                 bel = bel.pin_rename(pin, qpin).pins_name_only(&[qpin]);
@@ -2674,7 +2674,7 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
                 .extra_wire("DCM0_CLKFB_TEST", &["CMT_DCM2_CLKFB"])
                 .extra_wire("DCM1_CLKIN_TEST", &["CMT_DCM1_CLKIN"])
                 .extra_wire("DCM1_CLKFB_TEST", &["CMT_DCM1_CLKFB"])
-                .sub_xy(rd, "TIEOFF", 0, 0)
+                .sub_xy("TIEOFF", 0, 0)
                 .pin_rename("HARD0", "TIE_PLL_HARD0")
                 .pin_rename("HARD1", "TIE_PLL_HARD1")
                 .pin_rename("KEEP1", "TIE_PLL_KEEP1")
@@ -3048,7 +3048,7 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
             }
             for i in 0..2 {
                 bel = bel
-                    .sub_xy(rd, "BUFDS", 0, i)
+                    .sub_xy("BUFDS", 0, i)
                     .pin_rename("I", format!("BUFDS{i}_I"))
                     .pin_rename("IB", format!("BUFDS{i}_IB"))
                     .pin_rename("O", format!("BUFDS{i}_O"))
@@ -3066,7 +3066,7 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
                 (2, "OPAD_TXN1"),
             ] {
                 bel = bel
-                    .sub_xy(rd, "OPAD", 0, i)
+                    .sub_xy("OPAD", 0, i)
                     .pin_rename("I", format!("{name}_I"))
                     .pins_name_only(&[format!("{name}_I")]);
             }
@@ -3082,7 +3082,7 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
                 (6, "IPAD_BUFDS1_IB"),
             ] {
                 bel = bel
-                    .sub_xy(rd, "IPAD", 0, i)
+                    .sub_xy("IPAD", 0, i)
                     .pin_rename("O", format!("{name}_O"))
                     .pins_name_only(&[format!("{name}_O")]);
             }

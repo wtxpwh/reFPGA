@@ -1,3 +1,4 @@
+use indicatif::ProgressBar;
 use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
     db::WireSlotIdExt,
@@ -305,9 +306,9 @@ fn verify_gt(edev: &ExpandedDevice, vrf: &mut Verifier, bcrd: BelCoord) {
         .sub(1)
         .kind("BUFDS")
         .skip_auto()
-        .ipad_rename("IP", "BUFDS_IP", 2)
-        .ipad_rename("IN", "BUFDS_IN", 3)
-        .extra_out_claim_rename("O", "BUFDS_O")
+        .ipad("BUFDS_IP", 2)
+        .ipad("BUFDS_IN", 3)
+        .extra_out_claim("BUFDS_O")
         .commit();
 }
 
@@ -325,7 +326,7 @@ fn verify_crc32(vrf: &mut Verifier, bcrd: BelCoord) {
             "CRCDATAWIDTH2",
         ] {
             let pin64 = &format!("CRC64_{pin}");
-            bel = bel.extra_in_claim_rename(pin, pin64);
+            bel = bel.extra_in_claim(pin64);
             bel.claim_pip(bel.wire(pin64), bel.wire_far(pin64));
             bel.verify_net(&[bel.wire_far(pin64), bel.wire_far(pin)]);
         }
@@ -333,22 +334,21 @@ fn verify_crc32(vrf: &mut Verifier, bcrd: BelCoord) {
         for i in 0..32 {
             let pin = &format!("CRCIN{i}");
             let pin64 = &format!("CRC64_CRCIN{i}");
-            bel = bel.extra_in_claim_rename(pin, pin64);
+            bel = bel.extra_in_claim(pin64);
             bel.claim_pip(bel.wire(pin64), bel.wire_far(pin64));
             bel.verify_net(&[bel.wire_far(pin64), bel.bel_wire_far(obel, pin)]);
         }
         for i in 0..32 {
             let pin = &format!("CRCIN{i}");
-            let pinh = &format!("CRCIN{ii}", ii = i + 32);
             let pin64 = &format!("CRC64_CRCIN{ii}", ii = i + 32);
-            bel = bel.extra_in_claim_rename(pinh, pin64);
+            bel = bel.extra_in_claim(pin64);
             bel.claim_pip(bel.wire(pin64), bel.wire_far(pin64));
             bel.verify_net(&[bel.wire_far(pin64), bel.wire_far(pin)]);
         }
         for i in 0..32 {
             let pin = &format!("CRCOUT{i}");
             let pin64 = &format!("CRC64_CRCOUT{i}");
-            bel = bel.extra_out_claim_rename(pin, pin64);
+            bel = bel.extra_out_claim(pin64);
             bel.claim_pip(bel.wire_far(pin64), bel.wire(pin64));
             bel.verify_net(&[bel.wire_far(pin64), bel.wire_far(pin)]);
         }
@@ -446,8 +446,8 @@ pub fn verify_extra(endev: &ExpandedNamedDevice, vrf: &mut Verifier) {
     vrf.kill_stub_out_cond("IOI_BYP_INT_B6");
 }
 
-pub fn verify_device(endev: &ExpandedNamedDevice, rd: &Part) {
-    let mut vrf = Verifier::new(rd, &endev.ngrid);
+pub fn verify_device(endev: &ExpandedNamedDevice, rd: &Part, pb: &ProgressBar) {
+    let mut vrf = Verifier::new(rd, &endev.ngrid, pb);
 
     vrf.mark_merge_pip("IOI", "IOI_BLOCK_OUTS_B0", "IOI_OCLKP_1");
     vrf.mark_merge_pip("IOI", "IOI_BLOCK_OUTS_B1", "IOI_OCLKDIV1");

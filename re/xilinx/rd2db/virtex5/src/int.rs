@@ -1073,10 +1073,10 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
                 .pin_name_only(&format!("VAUXN{i}"), 1);
         }
         bel_sysmon = bel_sysmon
-            .sub_xy(rd, "IPAD", 0, 0)
+            .sub_xy("IPAD", 0, 0)
             .pin_rename("O", "IPAD_VP_O")
             .pins_name_only(&["IPAD_VP_O"])
-            .sub_xy(rd, "IPAD", 0, 1)
+            .sub_xy("IPAD", 0, 1)
             .pin_rename("O", "IPAD_VN_O")
             .pins_name_only(&["IPAD_VN_O"]);
         bels.extend([
@@ -1921,39 +1921,39 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
                         "GREFCLK",
                         &["GT3_GREFCLK", "GTX_GREFCLK", "GTX_LEFT_GREFCLK"],
                     )
-                    .sub_xy(rd, "BUFDS", 0, 0)
+                    .sub_xy("BUFDS", 0, 0)
                     .pin_rename("IP", "BUFDS_IP")
                     .pin_rename("IN", "BUFDS_IN")
                     .pin_rename("O", "BUFDS_O")
                     .pins_name_only(&["BUFDS_IP", "BUFDS_IN", "BUFDS_O"])
-                    .sub_xy(rd, "IPAD", 0, 5)
+                    .sub_xy("IPAD", 0, 5)
                     .pin_rename("O", "IPAD_BUFDS_IP_O")
                     .pins_name_only(&["IPAD_BUFDS_IP_O"])
-                    .sub_xy(rd, "IPAD", 0, 4)
+                    .sub_xy("IPAD", 0, 4)
                     .pin_rename("O", "IPAD_BUFDS_IN_O")
                     .pins_name_only(&["IPAD_BUFDS_IN_O"])
-                    .sub_xy(rd, "IPAD", 0, 1)
+                    .sub_xy("IPAD", 0, 1)
                     .pin_rename("O", "IPAD_RXP0_O")
                     .pins_name_only(&["IPAD_RXP0_O"])
-                    .sub_xy(rd, "IPAD", 0, 0)
+                    .sub_xy("IPAD", 0, 0)
                     .pin_rename("O", "IPAD_RXN0_O")
                     .pins_name_only(&["IPAD_RXN0_O"])
-                    .sub_xy(rd, "IPAD", 0, 3)
+                    .sub_xy("IPAD", 0, 3)
                     .pin_rename("O", "IPAD_RXP1_O")
                     .pins_name_only(&["IPAD_RXP1_O"])
-                    .sub_xy(rd, "IPAD", 0, 2)
+                    .sub_xy("IPAD", 0, 2)
                     .pin_rename("O", "IPAD_RXN1_O")
                     .pins_name_only(&["IPAD_RXN1_O"])
-                    .sub_xy(rd, "OPAD", 0, 1)
+                    .sub_xy("OPAD", 0, 1)
                     .pin_rename("I", "OPAD_TXP0_I")
                     .pins_name_only(&["OPAD_TXP0_I"])
-                    .sub_xy(rd, "OPAD", 0, 0)
+                    .sub_xy("OPAD", 0, 0)
                     .pin_rename("I", "OPAD_TXN0_I")
                     .pins_name_only(&["OPAD_TXN0_I"])
-                    .sub_xy(rd, "OPAD", 0, 3)
+                    .sub_xy("OPAD", 0, 3)
                     .pin_rename("I", "OPAD_TXP1_I")
                     .pins_name_only(&["OPAD_TXP1_I"])
-                    .sub_xy(rd, "OPAD", 0, 2)
+                    .sub_xy("OPAD", 0, 2)
                     .pin_rename("I", "OPAD_TXN1_I")
                     .pins_name_only(&["OPAD_TXN1_I"]),
             ];
@@ -1964,7 +1964,7 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
                     .manual();
                 if i.is_multiple_of(2) {
                     bel = bel
-                        .sub_xy(rd, "CRC64", 0, i / 2)
+                        .sub_xy("CRC64", 0, i / 2)
                         .pin_rename("CRCCLK", "CRC64_CRCCLK")
                         .pin_rename("CRCRESET", "CRC64_CRCRESET")
                         .pin_rename("CRCDATAVALID", "CRC64_CRCDATAVALID");

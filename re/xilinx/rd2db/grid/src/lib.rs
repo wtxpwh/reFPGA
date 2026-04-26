@@ -97,6 +97,14 @@ impl IntGrid<'_> {
         }
     }
 
+    pub fn try_lookup_column(&self, col: i32) -> Result<ColId, ColId> {
+        if self.mirror_x {
+            self.cols.binary_search_by_key(&-col, |&x| -x)
+        } else {
+            self.cols.binary_search(&col)
+        }
+    }
+
     pub fn lookup_column_inter(&self, col: i32) -> ColId {
         if self.mirror_x {
             self.cols.binary_search_by_key(&-col, |&x| -x).unwrap_err()

@@ -2155,10 +2155,10 @@ pub fn verify_x5phy(vrf: &mut Verifier, bcrd: BelCoord) {
     let mut bel = vrf.verify_bel(bcrd).sub(1).kind("X5PHY_HS").skip_auto();
 
     for &(pin, _) in X5PHY_HS_FROM_LS {
-        bel = bel.extra_in_claim_rename(pin, format!("HS_{pin}"));
+        bel = bel.extra_in_claim(format!("HS_{pin}"));
     }
     for &(_, pin) in X5PHY_LS_FROM_HS {
-        bel = bel.extra_out_claim_rename(pin, format!("HS_{pin}"));
+        bel = bel.extra_out_claim(format!("HS_{pin}"));
     }
     for pin in [
         "PLL_CLK",
@@ -2167,7 +2167,7 @@ pub fn verify_x5phy(vrf: &mut Verifier, bcrd: BelCoord) {
         "NDQS_GT_IN",
         "CLB2PHY_CTRL_DLY_TEST_IN",
     ] {
-        bel = bel.extra_in_claim_rename(pin, format!("HS_{pin}"));
+        bel = bel.extra_in_claim(format!("HS_{pin}"));
     }
     for pin in [
         "CLK_TO_EXT_NORTH",
@@ -2187,7 +2187,7 @@ pub fn verify_x5phy(vrf: &mut Verifier, bcrd: BelCoord) {
         "HRT_PHY2IOB_T4",
         "HRT_PHY2IOB_T5",
     ] {
-        bel = bel.extra_out_claim_rename(pin, format!("HS_{pin}"));
+        bel = bel.extra_out_claim(format!("HS_{pin}"));
     }
 
     for i in 0..3 {
@@ -2195,7 +2195,7 @@ pub fn verify_x5phy(vrf: &mut Verifier, bcrd: BelCoord) {
         for j in 0..2 {
             let pin = &format!("IOB2PHY_RX_D{jj}", jj = i * 2 + j);
             let rpin = &format!("HS_{pin}");
-            bel = bel.extra_in_claim_rename(pin, rpin);
+            bel = bel.extra_in_claim(rpin);
             bel.claim_pip(
                 bel.wire(rpin),
                 bel.bel_wire(obel_iob, &format!("IOB2PHY_I{j}")),
@@ -2248,10 +2248,10 @@ pub fn verify_x5phy(vrf: &mut Verifier, bcrd: BelCoord) {
         .sub(2)
         .kind("X5PHY_PLL_SELECT")
         .skip_auto()
-        .extra_in_claim_rename("D0", "PLL_SELECT_D0")
-        .extra_in_claim_rename("D1", "PLL_SELECT_D1")
-        .extra_in_claim_rename("DIS", "PLL_SELECT_DIS")
-        .extra_out_claim_rename("Z", "PLL_SELECT_Z");
+        .extra_in_claim("PLL_SELECT_D0")
+        .extra_in_claim("PLL_SELECT_D1")
+        .extra_in_claim("PLL_SELECT_DIS")
+        .extra_out_claim("PLL_SELECT_Z");
     let obel = bcrd.bel(bslots::LPDDRMC);
     bel.claim_pip(
         bel.wire("PLL_SELECT_D0"),
@@ -2810,53 +2810,44 @@ pub fn verify_lpddrmc(vrf: &mut Verifier, bcrd: BelCoord) {
         .sub(1)
         .kind("XP5PIO_CMU_DIG_TOP")
         .skip_auto()
-        .extra_in_claim_rename("IJTAG_TDI_RETURN_EXT", "CMU_DIG_IJTAG_TDI_RETURN_EXT")
-        .extra_in_claim_rename("MASTER_EN_PIN", "CMU_DIG_MASTER_EN_PIN")
-        .extra_out_claim_rename("IJTAG_TDO_RETURN_EXT", "CMU_DIG_IJTAG_TDO_RETURN_EXT")
-        .extra_out_claim_rename("IJTAG_TDO_EXT", "CMU_DIG_IJTAG_TDO_EXT")
-        .extra_out_claim_rename("IMPCAL_RTUNE0", "CMU_DIG_IMPCAL_RTUNE0");
+        .extra_in_claim("CMU_DIG_IJTAG_TDI_RETURN_EXT")
+        .extra_in_claim("CMU_DIG_MASTER_EN_PIN")
+        .extra_out_claim("CMU_DIG_IJTAG_TDO_RETURN_EXT")
+        .extra_out_claim("CMU_DIG_IJTAG_TDO_EXT")
+        .extra_out_claim("CMU_DIG_IMPCAL_RTUNE0");
 
     for i in 0..17 {
-        bel = bel.extra_out_claim_rename(
-            format!("CMU2XCV_DCI_ZBUS{i}"),
-            format!("CMU_DIG_CMU2XCV_DCI_ZBUS{i}"),
-        );
+        bel = bel.extra_out_claim(format!("CMU_DIG_CMU2XCV_DCI_ZBUS{i}"));
     }
     for i in 0..69 {
-        bel = bel.extra_out_claim_rename(
-            format!("XMC_CFG2ANA_REG{i}"),
-            format!("CMU_DIG_XMC_CFG2ANA_REG{i}"),
-        );
+        bel = bel.extra_out_claim(format!("CMU_DIG_XMC_CFG2ANA_REG{i}"));
     }
     for i in 0..16 {
-        bel = bel.extra_in_claim_rename(
-            format!("DCI_COMP_SCAN_OUT{i}"),
-            format!("CMU_DIG_DCI_COMP_SCAN_OUT{i}"),
-        );
+        bel = bel.extra_in_claim(format!("CMU_DIG_DCI_COMP_SCAN_OUT{i}"));
     }
 
     for &(opin, pin) in XP5PIO_ANA_FROM_DIG {
         if opin == "IMPCALANA_REF_ENABLE" {
             continue;
         }
-        bel = bel.extra_out_claim_rename(pin, format!("CMU_DIG_{pin}"));
+        bel = bel.extra_out_claim(format!("CMU_DIG_{pin}"));
     }
     for &(_, pin) in XP5PIO_LPDDRMC_FROM_DIG {
-        bel = bel.extra_out_claim_rename(pin, format!("CMU_DIG_{pin}"));
+        bel = bel.extra_out_claim(format!("CMU_DIG_{pin}"));
     }
     for &(ipin, opin) in XP5IO_RTRIM {
-        bel = bel.extra_in_claim_rename(ipin, format!("CMU_DIG_{ipin}"));
-        bel = bel.extra_out_claim_rename(opin, format!("CMU_DIG_{opin}"));
+        bel = bel.extra_in_claim(format!("CMU_DIG_{ipin}"));
+        bel = bel.extra_out_claim(format!("CMU_DIG_{opin}"));
     }
 
     for &(pin, _) in XP5PIO_DIG_FROM_ANA {
-        bel = bel.extra_in_claim_rename(pin, format!("CMU_DIG_{pin}"));
+        bel = bel.extra_in_claim(format!("CMU_DIG_{pin}"));
     }
     for &(pin, _) in XP5PIO_DIG_FROM_LPDDRMC {
-        bel = bel.extra_in_claim_rename(pin, format!("CMU_DIG_{pin}"));
+        bel = bel.extra_in_claim(format!("CMU_DIG_{pin}"));
     }
     for &(_, pin, _, _) in XP5IO_JTAG {
-        bel = bel.extra_in_claim_rename(pin, format!("CMU_DIG_{pin}"));
+        bel = bel.extra_in_claim(format!("CMU_DIG_{pin}"));
     }
     for (pin, opin) in XP5PIO_DIG_FROM_ANA {
         bel.claim_pip(
@@ -2890,13 +2881,13 @@ pub fn verify_lpddrmc(vrf: &mut Verifier, bcrd: BelCoord) {
         .sub(2)
         .kind("XP5PIO_CMU_ANA")
         .skip_auto()
-        .extra_in_claim_rename("GTS_CFG_B_IN", "CMU_ANA_GTS_CFG_B_IN")
-        .extra_in_claim_rename("GHIGH_B_IN", "CMU_ANA_GHIGH_B_IN");
+        .extra_in_claim("CMU_ANA_GTS_CFG_B_IN")
+        .extra_in_claim("CMU_ANA_GHIGH_B_IN");
     for &(pin, _) in XP5PIO_ANA_FROM_DIG {
-        bel = bel.extra_in_claim_rename(pin, format!("CMU_ANA_{pin}"));
+        bel = bel.extra_in_claim(format!("CMU_ANA_{pin}"));
     }
     for &(_, pin) in XP5PIO_DIG_FROM_ANA {
-        bel = bel.extra_out_claim_rename(pin, format!("CMU_ANA_{pin}"));
+        bel = bel.extra_out_claim(format!("CMU_ANA_{pin}"));
     }
     for (pin, opin) in XP5PIO_ANA_FROM_DIG {
         bel.claim_pip(

@@ -1185,7 +1185,7 @@ impl IntMaker<'_> {
                 }
             }
             for i in 0..2 {
-                bel = bel.sub_xy(self.rd, "RAMB18", 0, i);
+                bel = bel.sub_xy("RAMB18", 0, i);
                 if i == 0 {
                     for pin in [
                         "RDCLK", "WRCLK", "RDEN", "WREN", "RDRCLK", "REGCE", "REGCEB", "REGCLKB",
@@ -1554,7 +1554,7 @@ impl IntMaker<'_> {
                         .pin_rename("O", "BUFO0_O")
                         .pins_name_only(&["BUFO0_O", "BUFO0_I"])
                         .extra_wire("BUFO0_OCLK", &["HCLK_IOI_OCLK0"])
-                        .sub_xy(self.rd, "BUFO", 0, 0)
+                        .sub_xy("BUFO", 0, 0)
                         .pin_rename("I", "BUFO1_I")
                         .pin_rename("O", "BUFO1_O")
                         .pins_name_only(&["BUFO1_O", "BUFO1_I"])
@@ -1813,11 +1813,11 @@ impl IntMaker<'_> {
                     .pin_name_only(&format!("VAUXN{i}"), 1);
             }
             bel_sysmon = bel_sysmon
-                .sub_xy(self.rd, "IPAD", 0, 0)
+                .sub_xy("IPAD", 0, 0)
                 .raw_tile(2)
                 .pin_rename("O", "IPAD_VP_O")
                 .pins_name_only(&["IPAD_VP_O"])
-                .sub_xy(self.rd, "IPAD", 0, 1)
+                .sub_xy("IPAD", 0, 1)
                 .raw_tile(2)
                 .pin_rename("O", "IPAD_VN_O")
                 .pins_name_only(&["IPAD_VN_O"]);
@@ -2376,19 +2376,19 @@ impl IntMaker<'_> {
                                 "SOUTHREFCLKOUT1",
                                 &["GTX_SOUTHREFCLKOUT1", "GTX_LEFT_SOUTHREFCLKOUT1"],
                             )
-                            .sub_xy(self.rd, "IPAD", 0, 1)
+                            .sub_xy("IPAD", 0, 1)
                             .raw_tile(i + 1)
                             .pin_rename("O", "IPAD_RXP_O")
                             .pins_name_only(&["IPAD_RXP_O"])
-                            .sub_xy(self.rd, "IPAD", 0, 0)
+                            .sub_xy("IPAD", 0, 0)
                             .raw_tile(i + 1)
                             .pin_rename("O", "IPAD_RXN_O")
                             .pins_name_only(&["IPAD_RXN_O"])
-                            .sub_xy(self.rd, "OPAD", 0, 1)
+                            .sub_xy("OPAD", 0, 1)
                             .raw_tile(i + 1)
                             .pin_rename("I", "OPAD_TXP_I")
                             .pins_name_only(&["OPAD_TXP_I"])
-                            .sub_xy(self.rd, "OPAD", 0, 0)
+                            .sub_xy("OPAD", 0, 0)
                             .raw_tile(i + 1)
                             .pin_rename("I", "OPAD_TXN_I")
                             .pins_name_only(&["OPAD_TXN_I"]),
@@ -2402,10 +2402,10 @@ impl IntMaker<'_> {
                             "CLKOUT",
                             &["HCLK_GTX_REFCLKHROW0", "HCLK_GTX_LEFT_REFCLKHROW0"],
                         )
-                        .sub_xy(self.rd, "IPAD", 0, 2)
+                        .sub_xy("IPAD", 0, 2)
                         .pin_rename("O", "IPAD_I_O")
                         .pins_name_only(&["IPAD_I_O"])
-                        .sub_xy(self.rd, "IPAD", 0, 3)
+                        .sub_xy("IPAD", 0, 3)
                         .pin_rename("O", "IPAD_IB_O")
                         .pins_name_only(&["IPAD_IB_O"]),
                     self.builder
@@ -2415,10 +2415,10 @@ impl IntMaker<'_> {
                             "CLKOUT",
                             &["HCLK_GTX_REFCLKHROW1", "HCLK_GTX_LEFT_REFCLKHROW1"],
                         )
-                        .sub_xy(self.rd, "IPAD", 0, 0)
+                        .sub_xy("IPAD", 0, 0)
                         .pin_rename("O", "IPAD_I_O")
                         .pins_name_only(&["IPAD_I_O"])
-                        .sub_xy(self.rd, "IPAD", 0, 1)
+                        .sub_xy("IPAD", 0, 1)
                         .pin_rename("O", "IPAD_IB_O")
                         .pins_name_only(&["IPAD_IB_O"]),
                     bel_hclk_gtx,
@@ -2484,18 +2484,18 @@ impl IntMaker<'_> {
                     ]);
                 }
                 bel = bel
-                    .sub_xy(self.rd, "IBUFDS_GTHE1", 0, 0)
+                    .sub_xy("IBUFDS_GTHE1", 0, 0)
                     .raw_tile(2)
                     .pin_rename("O", "BUFDS_O")
                     .pin_rename("I", "BUFDS_I")
                     .pin_rename("IB", "BUFDS_IB")
                     .pins_name_only(&["BUFDS_I", "BUFDS_IB"])
                     .pin_name_only("BUFDS_O", 1)
-                    .sub_xy(self.rd, "IPAD", 0, 1)
+                    .sub_xy("IPAD", 0, 1)
                     .raw_tile(2)
                     .pin_rename("O", "IPAD_BUFDS_I_O")
                     .pins_name_only(&["IPAD_BUFDS_I_O"])
-                    .sub_xy(self.rd, "IPAD", 0, 0)
+                    .sub_xy("IPAD", 0, 0)
                     .raw_tile(2)
                     .pin_rename("O", "IPAD_BUFDS_IB_O")
                     .pins_name_only(&["IPAD_BUFDS_IB_O"]);
@@ -2503,11 +2503,11 @@ impl IntMaker<'_> {
                     let rxp = &format!("IPAD_RXP{i}_O");
                     let rxn = &format!("IPAD_RXN{i}_O");
                     bel = bel
-                        .sub_xy(self.rd, "IPAD", 0, (3 - i) * 2 + 1)
+                        .sub_xy("IPAD", 0, (3 - i) * 2 + 1)
                         .pin_rename("O", rxp)
                         .raw_tile(1)
                         .pins_name_only(&[rxp])
-                        .sub_xy(self.rd, "IPAD", 0, (3 - i) * 2)
+                        .sub_xy("IPAD", 0, (3 - i) * 2)
                         .pin_rename("O", rxn)
                         .raw_tile(1)
                         .pins_name_only(&[rxn]);
@@ -2516,11 +2516,11 @@ impl IntMaker<'_> {
                     let txp = &format!("OPAD_TXP{i}_I");
                     let txn = &format!("OPAD_TXN{i}_I");
                     bel = bel
-                        .sub_xy(self.rd, "OPAD", 0, (3 - i) * 2 + 1)
+                        .sub_xy("OPAD", 0, (3 - i) * 2 + 1)
                         .pin_rename("I", txp)
                         .raw_tile(1)
                         .pins_name_only(&[txp])
-                        .sub_xy(self.rd, "OPAD", 0, (3 - i) * 2)
+                        .sub_xy("OPAD", 0, (3 - i) * 2)
                         .pin_rename("I", txn)
                         .raw_tile(1)
                         .pins_name_only(&[txn]);

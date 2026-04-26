@@ -595,14 +595,14 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
         builder
             .bel_indexed(bslots::IOI[1], "IOB", 1)
             .pin_rename("CLK", "ICLK")
-            .extra_wire_force("PCI", "LEFT_PCI_BOT_PCI1"),
+            .extra_wire_force_out("PCI", "LEFT_PCI_BOT_PCI1"),
         builder
             .bel_indexed(bslots::IOI[2], "IOB", 2)
             .pin_rename("CLK", "ICLK"),
         builder
             .bel_indexed(bslots::IOI[3], "IOB", 3)
             .pin_rename("CLK", "ICLK")
-            .extra_wire_force("PCI", "LEFT_PCI_TOP_PCI3"),
+            .extra_wire_force_out("PCI", "LEFT_PCI_TOP_PCI3"),
         builder
             .bel_indexed(bslots::TBUF[0], "TBUF", 0)
             .pins_name_only(&["O"]),
@@ -628,14 +628,14 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
         builder
             .bel_indexed(bslots::IOI[1], "IOB", 1)
             .pin_rename("CLK", "ICLK")
-            .extra_wire_force("PCI", "RIGHT_PCI_BOT_PCI1"),
+            .extra_wire_force_out("PCI", "RIGHT_PCI_BOT_PCI1"),
         builder
             .bel_indexed(bslots::IOI[2], "IOB", 2)
             .pin_rename("CLK", "ICLK"),
         builder
             .bel_indexed(bslots::IOI[3], "IOB", 3)
             .pin_rename("CLK", "ICLK")
-            .extra_wire_force("PCI", "RIGHT_PCI_TOP_PCI3"),
+            .extra_wire_force_out("PCI", "RIGHT_PCI_TOP_PCI3"),
         builder
             .bel_indexed(bslots::TBUF[0], "TBUF", 0)
             .pins_name_only(&["O"]),
@@ -672,11 +672,11 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
         builder
             .bel_indexed(bslots::IOI[1], "IOB", 1)
             .pin_rename("CLK", "ICLK")
-            .extra_wire_force("DLLFB", "BL_DLLIOB_IOFB"),
+            .extra_wire_force_out("DLLFB", "BL_DLLIOB_IOFB"),
         builder
             .bel_indexed(bslots::IOI[2], "IOB", 2)
             .pin_rename("CLK", "ICLK")
-            .extra_wire_force("DLLFB", "BR_DLLIOB_IOFB"),
+            .extra_wire_force_out("DLLFB", "BR_DLLIOB_IOFB"),
         builder
             .bel_indexed(bslots::IOI[3], "IOB", 3)
             .pin_rename("CLK", "ICLK"),
@@ -692,11 +692,11 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
         builder
             .bel_indexed(bslots::IOI[1], "IOB", 1)
             .pin_rename("CLK", "ICLK")
-            .extra_wire_force("DLLFB", "TL_DLLIOB_IOFB"),
+            .extra_wire_force_out("DLLFB", "TL_DLLIOB_IOFB"),
         builder
             .bel_indexed(bslots::IOI[2], "IOB", 2)
             .pin_rename("CLK", "ICLK")
-            .extra_wire_force("DLLFB", "TR_DLLIOB_IOFB"),
+            .extra_wire_force_out("DLLFB", "TR_DLLIOB_IOFB"),
         builder
             .bel_indexed(bslots::IOI[3], "IOB", 3)
             .pin_rename("CLK", "ICLK"),

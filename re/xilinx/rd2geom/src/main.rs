@@ -1,4 +1,5 @@
 use clap::{Parser, Subcommand};
+use indicatif::{MultiProgress, ProgressBar, ProgressStyle};
 use prjcombine_interconnect::db::IntDb;
 use prjcombine_re_xilinx_geom::{Device, DeviceBond, GeomDb};
 use prjcombine_re_xilinx_rawdump::Part;
@@ -60,34 +61,46 @@ fn main() -> Result<(), Box<dyn Error>> {
             let rb = &builder;
             let sema = Semaphore::new(std::thread::available_parallelism().unwrap().get() as isize);
             let verify = !no_verify;
+            let m = MultiProgress::new();
             std::thread::scope(|s| {
                 for fname in files {
                     let guard = sema.access();
                     let tname = fname.file_stem().unwrap().to_str().unwrap();
+                    let pb = m.add(
+                        ProgressBar::new(0)
+                            .with_prefix(tname.to_string())
+                            .with_style(
+                                ProgressStyle::with_template("{prefix}: {wide_msg}").unwrap(),
+                            ),
+                    );
+                    pb.set_message("loading");
                     std::thread::Builder::new()
                         .name(tname.to_string())
                         .spawn_scoped(s, move || {
                             let rd = Part::from_file(fname).unwrap();
-                            println!("INGEST {} {:?}", rd.part, rd.source);
+                            pb.set_message("starting");
                             let pre = match &rd.family[..] {
                                 "xc4000e" | "xc4000ex" | "xc4000xla" | "xc4000xv" | "spartanxl" => {
-                                    xc4000::ingest(&rd, verify)
+                                    xc4000::ingest(&rd, verify, &pb)
                                 }
-                                "xc5200" => xc5200::ingest(&rd, verify),
-                                "virtex" | "virtexe" => virtex::ingest(&rd, verify),
+                                "xc5200" => xc5200::ingest(&rd, verify, &pb),
+                                "virtex" | "virtexe" => virtex::ingest(&rd, verify, &pb),
                                 "virtex2" | "virtex2p" | "spartan3" | "spartan3e" | "spartan3a"
-                                | "spartan3adsp" | "fpgacore" => virtex2::ingest(&rd, verify),
-                                "spartan6" => spartan6::ingest(&rd, verify),
-                                "virtex4" => virtex4::ingest(&rd, verify),
-                                "virtex5" => virtex5::ingest(&rd, verify),
-                                "virtex6" => virtex6::ingest(&rd, verify),
-                                "virtex7" => virtex7::ingest(&rd, verify),
-                                "ultrascale" | "ultrascaleplus" => ultrascale::ingest(&rd, verify),
-                                "versal" => versal::ingest(&rd, verify),
+                                | "spartan3adsp" | "fpgacore" => virtex2::ingest(&rd, verify, &pb),
+                                "spartan6" => spartan6::ingest(&rd, verify, &pb),
+                                "virtex4" => virtex4::ingest(&rd, verify, &pb),
+                                "virtex5" => virtex5::ingest(&rd, verify, &pb),
+                                "virtex6" => virtex6::ingest(&rd, verify, &pb),
+                                "virtex7" => virtex7::ingest(&rd, verify, &pb),
+                                "ultrascale" | "ultrascaleplus" => {
+                                    ultrascale::ingest(&rd, verify, &pb)
+                                }
+                                "versal" => versal::ingest(&rd, verify, &pb),
                                 _ => panic!("unknown family {}", rd.family),
                             };
                             let mut builder = rb.lock().unwrap();
                             builder.ingest(pre);
+                            pb.finish_with_message("done");
                             std::mem::drop(guard);
                         })
                         .unwrap();

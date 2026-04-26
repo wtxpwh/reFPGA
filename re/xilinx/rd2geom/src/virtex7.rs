@@ -1,5 +1,6 @@
 use std::collections::HashSet;
 
+use indicatif::ProgressBar;
 use prjcombine_entity::EntityId;
 use prjcombine_interconnect::grid::{DieId, DieIdExt};
 use prjcombine_re_xilinx_geom::{Bond, Chip, DeviceNaming, DisabledPart, Interposer};
@@ -38,7 +39,7 @@ fn adjust_vivado(edev: &mut ExpandedDevice) {
     edev.egrid.blackhole_wires.extend(cursed_wires);
 }
 
-pub fn ingest(rd: &Part, verify: bool) -> PreDevice {
+pub fn ingest(rd: &Part, verify: bool, pb: &ProgressBar) -> PreDevice {
     let (grids, interposer, disabled) = grid::make_grids(rd);
     let (intdb, ndb) = int::make_int_db(rd);
     let grid_refs = grids.map_values(|x| x);
@@ -53,7 +54,7 @@ pub fn ingest(rd: &Part, verify: bool) -> PreDevice {
         bonds.push((pkg.clone(), Bond::Virtex4(bond)));
     }
     if verify {
-        verify_device(&endev, rd);
+        verify_device(&endev, rd, pb);
     }
     let grids = grids.into_map_values(Chip::Virtex4);
     let disabled = disabled.into_iter().map(DisabledPart::Virtex4).collect();

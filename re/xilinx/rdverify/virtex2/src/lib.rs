@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 
+use indicatif::ProgressBar;
 use prjcombine_entity::{EntityBundleItemIndex, EntityId};
 use prjcombine_interconnect::{
     db::{BelInfo, SwitchBoxItem, WireSlotIdExt},
@@ -75,7 +76,7 @@ fn verify_gt(endev: &ExpandedNamedDevice<'_>, vrf: &mut Verifier, bcrd: BelCoord
             .sub(sub)
             .kind("GTIPAD")
             .skip_auto()
-            .extra_out_rename("I", pin)
+            .extra_out(pin)
             .commit();
     }
     for (pin, sub) in [("O_TXP", 3), ("O_TXN", 4)] {
@@ -83,7 +84,7 @@ fn verify_gt(endev: &ExpandedNamedDevice<'_>, vrf: &mut Verifier, bcrd: BelCoord
             .sub(sub)
             .kind("GTOPAD")
             .skip_auto()
-            .extra_in_rename("O", pin)
+            .extra_in(pin)
             .commit();
     }
 }
@@ -334,8 +335,8 @@ fn verify_bel(endev: &ExpandedNamedDevice<'_>, vrf: &mut Verifier, bcrd: BelCoor
     }
 }
 
-pub fn verify_device(endev: &ExpandedNamedDevice, rd: &Part) {
-    let mut vrf = Verifier::new(rd, &endev.ngrid);
+pub fn verify_device(endev: &ExpandedNamedDevice, rd: &Part, pb: &ProgressBar) {
+    let mut vrf = Verifier::new(rd, &endev.ngrid, pb);
     vrf.kill_stub_out("LH0_TESTWIRE");
     vrf.kill_stub_out("LH6_TESTWIRE");
     vrf.kill_stub_out("LH12_TESTWIRE");

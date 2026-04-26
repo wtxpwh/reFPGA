@@ -4,7 +4,7 @@ use prjcombine_interconnect::{
     grid::{ColId, DieId, RowId, TileIobId},
 };
 use prjcombine_re_xilinx_naming_ultrascale::DeviceNaming;
-use prjcombine_re_xilinx_rawdump::{Coord, NodeId, Part, TkSiteSlot};
+use prjcombine_re_xilinx_rawdump::{Coord, NodeId, Part};
 use prjcombine_ultrascale::chip::{
     BramKind, Chip, ChipKind, CleLKind, CleMKind, Column, ColumnKind, ConfigKind, DisabledPart,
     DspKind, HardColumn, HardKind, HardRowKind, Interposer, IoColumn, IoRowKind, Ps, PsIntfKind,
@@ -376,11 +376,8 @@ fn get_cols_hard(
                 disabled.insert(DisabledPart::HardIp(dieid, col, reg));
             }
             if tt == "HDIO_BOT_RIGHT" {
-                let sk = int.int.rd.slot_kinds.get("IOB").unwrap();
-                let tk = &int.int.rd.tile_kinds[tile.kind];
                 for i in 0..12 {
-                    let slot = TkSiteSlot::Xy(sk, 0, i as u8);
-                    let sid = tk.sites.get(&slot).unwrap().0;
+                    let sid = int.int.rd.tk_slot_xy(tile.kind, "IOB", 0, i).unwrap();
                     if !tile.sites.contains_id(sid) {
                         disabled.insert(DisabledPart::HdioIob(
                             dieid,
@@ -391,10 +388,8 @@ fn get_cols_hard(
                     }
                 }
                 let tile = &int.int.rd.tiles[&crd.delta(0, 31)];
-                let tk = &int.int.rd.tile_kinds[tile.kind];
                 for i in 0..12 {
-                    let slot = TkSiteSlot::Xy(sk, 0, i as u8);
-                    let sid = tk.sites.get(&slot).unwrap().0;
+                    let sid = int.int.rd.tk_slot_xy(tile.kind, "IOB", 0, i).unwrap();
                     if !tile.sites.contains_id(sid) {
                         disabled.insert(DisabledPart::HdioIob(
                             dieid,
@@ -473,10 +468,7 @@ fn get_cols_io(
                 x: x as u16,
                 y: y as u16,
             };
-            let tile = &int.int.rd.tiles[&crd];
-            let tk = &int.int.rd.tile_kinds[tile.kind];
             if tt == "HPIO_L" {
-                let sk = int.int.rd.slot_kinds.get("IOB").unwrap();
                 let bi = if int
                     .lookup_row(y)
                     .to_idx()
@@ -487,9 +479,7 @@ fn get_cols_io(
                     26
                 };
                 for i in 0..26 {
-                    let slot = TkSiteSlot::Xy(sk, 0, i as u8);
-                    let sid = tk.sites.get(&slot).unwrap().0;
-                    if !tile.sites.contains_id(sid) {
+                    if int.int.rd.site_name_xy(crd, "IOB", 0, i).is_none() {
                         disabled.insert(DisabledPart::HpioIob(
                             dieid,
                             col,
@@ -498,37 +488,24 @@ fn get_cols_io(
                         ));
                     }
                 }
-                if int.int.rd.family == "ultrascaleplus" {
-                    let sk = int.int.rd.slot_kinds.get("HPIOB_DCI_SNGL").unwrap();
-                    let slot = TkSiteSlot::Xy(sk, 0, 0);
-                    let sid = tk.sites.get(&slot).unwrap().0;
-                    if !tile.sites.contains_id(sid) {
-                        disabled.insert(DisabledPart::HpioDci(dieid, col, reg));
-                    }
+                if int.int.rd.family == "ultrascaleplus"
+                    && int
+                        .int
+                        .rd
+                        .site_name_xy(crd, "HPIOB_DCI_SNGL", 0, 0)
+                        .is_none()
+                {
+                    disabled.insert(DisabledPart::HpioDci(dieid, col, reg));
                 }
             }
-            if tt == "GTY_L" {
-                let sk = int.int.rd.slot_kinds.get("GTYE4_COMMON").unwrap();
-                let slot = TkSiteSlot::Xy(sk, 0, 0);
-                let sid = tk.sites.get(&slot).unwrap().0;
-                if !tile.sites.contains_id(sid) {
-                    disabled.insert(DisabledPart::Gt(dieid, col, reg));
-                }
+            if tt == "GTY_L" && int.int.rd.site_name_xy(crd, "GTYE4_COMMON", 0, 0).is_none() {
+                disabled.insert(DisabledPart::Gt(dieid, col, reg));
             }
             if tt == "GTM_DUAL_LEFT_FT" {
-                let sk = int.int.rd.slot_kinds.get("BUFG_GT_SYNC").unwrap();
-                let slot = TkSiteSlot::Xy(sk, 0, 6);
-                if let Some((sid, _)) = tk.sites.get(&slot) {
-                    if !tile.sites.contains_id(sid) {
-                        disabled.insert(DisabledPart::GtmSpareBufs(dieid, col, reg));
-                    }
-                } else {
+                if int.int.rd.site_name_xy(crd, "BUFG_GT_SYNC", 0, 6).is_none() {
                     disabled.insert(DisabledPart::GtmSpareBufs(dieid, col, reg));
                 }
-                let sk = int.int.rd.slot_kinds.get("GTM_DUAL").unwrap();
-                let slot = TkSiteSlot::Xy(sk, 0, 0);
-                let sid = tk.sites.get(&slot).unwrap().0;
-                if !tile.sites.contains_id(sid) {
+                if int.int.rd.site_name_xy(crd, "GTM_DUAL", 0, 0).is_none() {
                     disabled.insert(DisabledPart::Gt(dieid, col, reg));
                 }
             }
@@ -562,50 +539,22 @@ fn get_cols_io(
                 x: x as u16,
                 y: y as u16,
             };
-            let tile = &int.int.rd.tiles[&crd];
-            let tk = &int.int.rd.tile_kinds[tile.kind];
-            if tt == "GTY_R" {
-                let sk = int.int.rd.slot_kinds.get("GTYE4_COMMON").unwrap();
-                let slot = TkSiteSlot::Xy(sk, 0, 0);
-                let sid = tk.sites.get(&slot).unwrap().0;
-                if !tile.sites.contains_id(sid) {
-                    disabled.insert(DisabledPart::Gt(dieid, col, reg));
-                }
+            if tt == "GTY_R" && int.int.rd.site_name_xy(crd, "GTYE4_COMMON", 0, 0).is_none() {
+                disabled.insert(DisabledPart::Gt(dieid, col, reg));
             }
             if tt.starts_with("HS") || tt.starts_with("RF") {
-                if let Some(sk) = int.int.rd.slot_kinds.get(&tt[..5]) {
-                    let slot = TkSiteSlot::Xy(sk, 0, 0);
-                    let sid = tk.sites.get(&slot).unwrap().0;
-                    if !tile.sites.contains_id(sid) {
-                        disabled.insert(DisabledPart::Gt(dieid, col, reg));
-                    }
-                    let sk = int.int.rd.slot_kinds.get("BUFG_GT").unwrap();
-                    let slot = TkSiteSlot::Xy(sk, 0, 0);
-                    let sid = tk.sites.get(&slot).unwrap().0;
-                    if !tile.sites.contains_id(sid) {
-                        disabled.insert(DisabledPart::GtBufs(dieid, col, reg));
-                    }
-                } else {
+                if int.int.rd.site_name_xy(crd, &tt[..5], 0, 0).is_none() {
                     disabled.insert(DisabledPart::Gt(dieid, col, reg));
+                }
+                if int.int.rd.site_name_xy(crd, "BUFG_GT", 0, 0).is_none() {
+                    disabled.insert(DisabledPart::GtBufs(dieid, col, reg));
                 }
             }
             if tt == "GTM_DUAL_RIGHT_FT" {
-                let sk = int.int.rd.slot_kinds.get("BUFG_GT_SYNC").unwrap();
-                let slot = TkSiteSlot::Xy(sk, 0, 6);
-                if let Some((sid, _)) = tk.sites.get(&slot) {
-                    if !tile.sites.contains_id(sid) {
-                        disabled.insert(DisabledPart::GtmSpareBufs(dieid, col, reg));
-                    }
-                } else {
+                if int.int.rd.site_name_xy(crd, "BUFG_GT_SYNC", 0, 6).is_none() {
                     disabled.insert(DisabledPart::GtmSpareBufs(dieid, col, reg));
                 }
-                if let Some(sk) = int.int.rd.slot_kinds.get("GTM_DUAL") {
-                    let slot = TkSiteSlot::Xy(sk, 0, 0);
-                    let sid = tk.sites.get(&slot).unwrap().0;
-                    if !tile.sites.contains_id(sid) {
-                        disabled.insert(DisabledPart::Gt(dieid, col, reg));
-                    }
-                } else {
+                if int.int.rd.site_name_xy(crd, "GTM_DUAL", 0, 0).is_none() {
                     disabled.insert(DisabledPart::Gt(dieid, col, reg));
                 }
             }

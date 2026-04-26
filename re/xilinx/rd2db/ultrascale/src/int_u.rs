@@ -7,7 +7,7 @@ use prjcombine_interconnect::{
     },
     dir::{Dir, DirMap, DirV},
 };
-use prjcombine_re_xilinx_rawdump::{Coord, Part, TkSiteSlot};
+use prjcombine_re_xilinx_rawdump::{Coord, Part};
 
 use prjcombine_entity::{EntityId, EntityPartVec, id::EntityStaticRange};
 use prjcombine_re_xilinx_naming::db::NamingDb;
@@ -977,11 +977,13 @@ impl IntMaker<'_> {
             }
             let tile = &self.builder.rd.tiles[&xy];
             let tk = &self.builder.rd.tile_kinds[tile.kind];
-            let slot_ramb18 = self.builder.rd.slot_kinds.get("RAMB18").unwrap();
             for i in 0..2 {
-                bel = bel.sub_xy(self.builder.rd, "RAMB18", 0, i);
-                let slot = TkSiteSlot::Xy(slot_ramb18, 0, i as u8);
-                let tksite = tk.sites.get(&slot).unwrap().1;
+                bel = bel.sub_xy("RAMB18", 0, i);
+                let tksite = tk
+                    .sites
+                    .get(&self.builder.rd.slot_xy("RAMB18", 0, i).unwrap())
+                    .unwrap()
+                    .1;
                 for pin in tksite.pins.keys() {
                     bel = bel
                         .pin_rename(pin, format!("H{i}_{pin}"))
@@ -2090,7 +2092,7 @@ impl IntMaker<'_> {
                     bel = bel.pins_name_only(&[format!("RIU2CLB_RD_DATA{j}")]);
                 }
                 bel = bel
-                    .sub_xy(self.builder.rd, "PLL_SELECT_SITE", 0, fi ^ 1)
+                    .sub_xy("PLL_SELECT_SITE", 0, fi ^ 1)
                     .pin_rename("D0", "PLL_SELECT_D0")
                     .pin_rename("D1", "PLL_SELECT_D1")
                     .pin_rename("REFCLK_DFD", "PLL_SELECT_REFCLK_DFD")
@@ -2146,7 +2148,7 @@ impl IntMaker<'_> {
                 ]);
             }
             bel = bel
-                .sub_xy(self.builder.rd, "RIU_OR", 0, byte)
+                .sub_xy("RIU_OR", 0, byte)
                 .pins_name_only(&["RIU_RD_VALID_LOW", "RIU_RD_VALID_UPP"]);
             for j in 0..16 {
                 bel = bel.pins_name_only(&[
