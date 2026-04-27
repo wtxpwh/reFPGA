@@ -1,9 +1,9 @@
 use std::collections::{BTreeMap, BTreeSet, btree_map};
 
 use prjcombine_ecp::{
-    bels,
     chip::{ChipKind, RowKind},
-    cslots,
+    defs::bslots,
+    defs::cslots,
 };
 use prjcombine_entity::{EntityId, EntityPartVec};
 use prjcombine_interconnect::{
@@ -170,8 +170,8 @@ impl ChipContext<'_> {
             let tcid = self.intdb.get_tile_class(tcname);
             let tcls = &self.intdb[tcid];
             for &tcrd in &self.edev.tile_index[tcid] {
-                let bcrd = tcrd.bel(bels::MACO);
-                let bcrd_int = tcrd.bel(bels::MACO_INT);
+                let bcrd = tcrd.bel(bslots::MACO);
+                let bcrd_int = tcrd.bel(bslots::MACO_INT);
                 let cell = bcrd.delta(0, 1);
                 let (ul, idx) = maco_rows[bcrd.row];
                 self.name_bel(bcrd, [format!("{lr}{ul}MACO{idx}")]);

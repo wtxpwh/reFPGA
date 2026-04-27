@@ -1,7 +1,7 @@
 use prjcombine_ecp::{
-    bels,
     chip::{ChipKind, RowKind},
-    tslots,
+    defs::bslots,
+    defs::tslots,
 };
 use prjcombine_interconnect::db::LegacyBel;
 
@@ -42,7 +42,7 @@ impl ChipContext<'_> {
             };
             if has_cibtest {
                 let (r, c) = self.rc(cell);
-                self.name_bel(cell.bel(bels::INT), [format!("CIBTEST_R{r}C{c}")]);
+                self.name_bel(cell.bel(bslots::INT), [format!("CIBTEST_R{r}C{c}")]);
                 if self.chip.kind == ChipKind::MachXo {
                     for w in [
                         "A0", "A1", "A2", "A3", "A6", "B0", "B1", "B2", "B3", "B6", "C0", "C1",
@@ -51,13 +51,13 @@ impl ChipContext<'_> {
                     ] {
                         let wt = self.rc_wire(cell, &format!("J{w}_CIBTEST"));
                         let wf = cell.wire(self.intdb.get_wire(&format!("IMUX_{w}")));
-                        self.add_bel_wire(cell.bel(bels::INT), w, wt);
+                        self.add_bel_wire(cell.bel(bslots::INT), w, wt);
                         self.claim_pip_int_in(wt, wf);
                     }
                     for i in 0..12 {
                         let wf = self.rc_wire(cell, &format!("JTI{i}_CIBTEST"));
                         let wt = cell.wire(self.intdb.get_wire(&format!("OUT_TI{i}")));
-                        self.add_bel_wire(cell.bel(bels::INT), format!("TI{i}"), wf);
+                        self.add_bel_wire(cell.bel(bslots::INT), format!("TI{i}"), wf);
                         self.claim_pip_int_out(wt, wf);
                     }
                     let bcrd = self.chip.bel_cibtest_sel();
@@ -66,7 +66,7 @@ impl ChipContext<'_> {
                     };
                     for pin in ["TSEL0", "TSEL1"] {
                         let wire = self.rc_wire(cell, &format!("J{pin}_CIBTEST"));
-                        self.add_bel_wire(cell.bel(bels::INT), pin, wire);
+                        self.add_bel_wire(cell.bel(bslots::INT), pin, wire);
                         let bpin = self.xlat_int_wire(bcrd, wire);
                         bel.pins.insert(pin.to_string(), bpin);
                     }
@@ -107,7 +107,7 @@ impl ChipContext<'_> {
                             } else {
                                 cell.wire(self.intdb.get_wire(&format!("IMUX_{l}{i}")))
                             };
-                            self.add_bel_wire(cell.bel(bels::INT), format!("{l}{i}"), wt);
+                            self.add_bel_wire(cell.bel(bslots::INT), format!("{l}{i}"), wt);
                             self.claim_pip_int_in(wt, wf);
                         }
                     }
@@ -120,7 +120,7 @@ impl ChipContext<'_> {
                         for i in 0..n {
                             let wf = self.rc_wire(cell, &format!("J{l}{i}_CIBTEST"));
                             let wt = cell.wire(self.intdb.get_wire(&format!("OUT_{l}{i}")));
-                            self.add_bel_wire(cell.bel(bels::INT), format!("{l}{i}"), wf);
+                            self.add_bel_wire(cell.bel(bslots::INT), format!("{l}{i}"), wf);
                             if matches!(
                                 self.chip.kind,
                                 ChipKind::Scm
@@ -140,7 +140,7 @@ impl ChipContext<'_> {
                     }
                 }
             } else {
-                self.name_bel_null(cell.bel(bels::INT));
+                self.name_bel_null(cell.bel(bslots::INT));
             }
         }
     }
@@ -148,7 +148,7 @@ impl ChipContext<'_> {
     fn process_int_misc(&mut self) {
         let conn_w = self.intdb.get_conn_slot("W");
         for (cell, cell_data) in self.edev.cells() {
-            if !self.edev.has_bel(cell.bel(bels::INT)) {
+            if !self.edev.has_bel(cell.bel(bslots::INT)) {
                 continue;
             }
             let has_cin = if matches!(self.chip.kind, ChipKind::MachXo | ChipKind::MachXo2(_)) {
@@ -160,10 +160,10 @@ impl ChipContext<'_> {
             };
             if has_cin {
                 let wire = self.rc_wire(cell, "HFIE0000");
-                self.add_bel_wire(cell.bel(bels::INT), "FCI_IN", wire);
+                self.add_bel_wire(cell.bel(bslots::INT), "FCI_IN", wire);
                 if !self.chip.kind.has_out_ofx_branch() {
                     let wire = self.rc_wire(cell, "HL7W0001");
-                    self.add_bel_wire(cell.bel(bels::INT), "SLICE2_FX_OUT", wire);
+                    self.add_bel_wire(cell.bel(bslots::INT), "SLICE2_FX_OUT", wire);
                 }
             }
         }
@@ -181,7 +181,7 @@ impl ChipContext<'_> {
             if tcname == "INT_PLC" {
                 continue;
             }
-            let bcrd = cell.bel(bels::INT);
+            let bcrd = cell.bel(bslots::INT);
             for i in 0..2 {
                 let clk = self.naming.interconnect
                     [&cell.wire(self.intdb.get_wire(&format!("IMUX_CLK{i}")))];
@@ -231,7 +231,7 @@ impl ChipContext<'_> {
             if has_int {
                 for (sclki, ti, vsdclki) in clocks {
                     let sclk_in = self.rc_wire(cell, &format!("HSBX0{ti}00"));
-                    self.add_bel_wire(cell.bel(bels::INT), format!("SCLK{sclki}_IN"), sclk_in);
+                    self.add_bel_wire(cell.bel(bslots::INT), format!("SCLK{sclki}_IN"), sclk_in);
                     let sclk = cell.wire(self.intdb.get_wire(&format!("SCLK{sclki}")));
                     self.claim_pip_int_out(sclk, sclk_in);
                     let vsdclk = cell.wire(self.intdb.get_wire(&format!("VSDCLK{vsdclki}")));
@@ -258,7 +258,7 @@ impl ChipContext<'_> {
                     };
                 for (sclki, ti) in clocks {
                     let sclk_in = self.rc_wire(cell, &format!("HSBX0{ti}00"));
-                    self.add_bel_wire(cell.bel(bels::INT), format!("SCLK{sclki}_IN"), sclk_in);
+                    self.add_bel_wire(cell.bel(bslots::INT), format!("SCLK{sclki}_IN"), sclk_in);
                     let sclk = cell.wire(self.intdb.get_wire(&format!("SCLK{sclki}")));
                     self.claim_pip_int_out(sclk, sclk_in);
                 }
@@ -279,8 +279,8 @@ impl ChipContext<'_> {
                     let idx = [2, 3, 6, 7, 10, 11, 6, 7][i];
                     let b2t = self.rc_wire(cell, &format!("VSTX{idx:02}00_B2T"));
                     let t2b = self.rc_wire(cell, &format!("VSTX{idx:02}00_T2B"));
-                    self.add_bel_wire(cell.bel(bels::INT), format!("VSDCLK{i}_B2T"), b2t);
-                    self.add_bel_wire(cell.bel(bels::INT), format!("VSDCLK{i}_T2B"), t2b);
+                    self.add_bel_wire(cell.bel(bslots::INT), format!("VSDCLK{i}_B2T"), b2t);
+                    self.add_bel_wire(cell.bel(bslots::INT), format!("VSDCLK{i}_T2B"), t2b);
                     self.claim_pip(t2b, keep);
                     self.claim_pip(b2t, keep);
                     if cell.row == self.chip.row_s() {

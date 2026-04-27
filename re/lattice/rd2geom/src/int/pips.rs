@@ -1,6 +1,10 @@
 use std::collections::{BTreeMap, BTreeSet};
 
-use prjcombine_ecp::{bels, chip::ChipKind, cslots, regions, tslots};
+use prjcombine_ecp::{
+    chip::ChipKind,
+    defs::bslots,
+    defs::{cslots, rslots, tslots},
+};
 use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
     db::{
@@ -268,13 +272,13 @@ impl ChipContext<'_> {
                     wires_f[0]
                 } else if wtsn.starts_with("VSDCLK") {
                     let mut wf = wires_f.iter().find(|w| w.col == wt.col).copied().unwrap();
-                    let wt_root = self.edev[wt.cell].region_root[regions::VSDCLK];
-                    let wf_root = self.edev[wf.cell].region_root[regions::VSDCLK];
+                    let wt_root = self.edev[wt.cell].region_root[rslots::VSDCLK];
+                    let wf_root = self.edev[wf.cell].region_root[rslots::VSDCLK];
                     if wt_root == wf_root {
                         wt.cell = wf.cell;
                     } else {
                         assert_eq!(
-                            self.edev[wf.cell.delta(0, -1)].region_root[regions::VSDCLK],
+                            self.edev[wf.cell.delta(0, -1)].region_root[rslots::VSDCLK],
                             wt_root
                         );
                         wt.cell = wf.cell;
@@ -285,7 +289,7 @@ impl ChipContext<'_> {
                         && wf.cell.row <= self.chip.row_s() + 9
                     {
                         wf.cell.row = self.chip.row_s();
-                        if !self.edev.has_bel(wf.cell.bel(bels::INT)) {
+                        if !self.edev.has_bel(wf.cell.bel(bslots::INT)) {
                             wf.cell.row += 9;
                         }
                         wt.cell = wf.cell;
@@ -299,7 +303,7 @@ impl ChipContext<'_> {
                         if wf_root == wt_root {
                             Some(wt.cell.wire(wires_f[0].slot))
                         } else if wfsn.starts_with("VSDCLK")
-                            && self.edev[wt.cell.delta(0, -1)].region_root[regions::VSDCLK]
+                            && self.edev[wt.cell.delta(0, -1)].region_root[rslots::VSDCLK]
                                 == wf_root
                         {
                             Some(wt.cell.wire(self.intdb.get_wire(&format!("{wfsn}_N"))))
@@ -524,7 +528,8 @@ impl ChipContext<'_> {
                     }));
                 }
             }
-            self.bels.insert((tcid, bels::INT), BelInfo::SwitchBox(sb));
+            self.bels
+                .insert((tcid, bslots::INT), BelInfo::SwitchBox(sb));
         }
     }
 

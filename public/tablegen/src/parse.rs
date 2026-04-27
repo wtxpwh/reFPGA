@@ -404,7 +404,7 @@ fn parse_enum(mut tokenizer: Tokenizer, block: TokenStream) -> Result<ast::EnumC
 }
 
 fn parse_region_slot(mut tokenizer: Tokenizer) -> Result<ast::RegionSlot> {
-    let name = tokenizer.template_id()?;
+    let name = tokenizer.array_id_def()?;
     tokenizer.finish()?;
     Ok(ast::RegionSlot { name })
 }
@@ -936,7 +936,7 @@ fn parse_wire_kind(tokenizer: &mut Tokenizer) -> Result<ast::WireKind> {
                 _ => tokenizer.error(&format!("invalid tie value {val}"))?,
             }
         }
-        "regional" => ast::WireKind::Regional(tokenizer.template_id()?),
+        "regional" => ast::WireKind::Regional(tokenizer.array_id_ref()?),
         "pullup" => ast::WireKind::TiePullup,
         "mux" => ast::WireKind::Mux,
         "bel" => ast::WireKind::Bel,

@@ -1,9 +1,9 @@
 use std::collections::BTreeSet;
 
 use prjcombine_ecp::{
-    bels,
     chip::{ChipKind, RowKind},
-    cslots,
+    defs::bslots,
+    defs::cslots,
 };
 use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
@@ -140,13 +140,13 @@ impl ChipContext<'_> {
                         let mut cell_start = cell;
                         let mut cell_end = cell;
                         while let Some(cell_new) = self.edev.cell_delta(cell_start, -1, 0)
-                            && self.edev.has_bel(cell_new.bel(bels::INT))
+                            && self.edev.has_bel(cell_new.bel(bslots::INT))
                             && self.edev[cell_new].region_root[region] == root
                         {
                             cell_start = cell_new;
                         }
                         while let Some(cell_new) = self.edev.cell_delta(cell_end, 1, 0)
-                            && self.edev.has_bel(cell_new.bel(bels::INT))
+                            && self.edev.has_bel(cell_new.bel(bslots::INT))
                             && self.edev[cell_new].region_root[region] == root
                         {
                             cell_end = cell_new;
@@ -228,14 +228,14 @@ impl ChipContext<'_> {
             let wire = cell.wire(wire);
             let mut res = vec![wire];
             if let Some(cell_w) = self.edev.cell_delta(cell, -1, 0)
-                && self.edev.has_bel(cell_w.bel(bels::INT))
+                && self.edev.has_bel(cell_w.bel(bslots::INT))
             {
                 let wire = self.intdb.get_wire(&format!("SCLK{idx}_W"));
                 let wire = cell_w.wire(wire);
                 res.push(wire);
             }
             if let Some(cell_e) = self.edev.cell_delta(cell, 1, 0)
-                && self.edev.has_bel(cell_e.bel(bels::INT))
+                && self.edev.has_bel(cell_e.bel(bslots::INT))
             {
                 let wire = self.intdb.get_wire(&format!("SCLK{idx}_E"));
                 let wire = cell_e.wire(wire);

@@ -1171,10 +1171,7 @@ impl Context {
             ast::WireKind::Tie1 => Ok(WireKind::Tie1),
             ast::WireKind::TiePullup => Ok(WireKind::TiePullup),
             ast::WireKind::Regional(id) => {
-                let id = self.eval_templ_id(id)?;
-                let Some(rslot) = self.db.db.region_slots.get(&id.to_string()) else {
-                    error_at(id.span(), "unknown region slot")?
-                };
+                let rslot = self.eval_array_ref(id, &self.db.rslot_id)?;
                 Ok(WireKind::Regional(rslot))
             }
             ast::WireKind::Mux => Ok(WireKind::MuxOut),
@@ -1273,12 +1270,30 @@ impl Context {
                 self.db.tslot_id.push(name);
             }
             ast::TopItem::RegionSlot(rslot) => {
-                let name = self.eval_templ_id(&rslot.name)?;
-                let (_, new) = self.db.db.region_slots.insert(name.to_string());
-                if !new {
-                    error_at(rslot.name.span(), "region slot redefined")?;
+                let (name, num) = match &rslot.name {
+                    ast::ArrayIdDef::Plain(id) => (id, None),
+                    ast::ArrayIdDef::Array(id, n) => (id, Some(*n)),
+                };
+                let name = self.eval_templ_id(name)?;
+                if let Some(num) = num {
+                    let Some(range) =
+                        self.db
+                            .rslot_id
+                            .insert_array(name.to_string(), num, name.clone())
+                    else {
+                        error_at(name.span(), "region slot redefined")?
+                    };
+                    assert_eq!(range.first().unwrap(), self.db.db.region_slots.next_id());
+                    for i in 0..num {
+                        self.db.db.region_slots.insert(format!("{name}[{i}]"));
+                    }
+                } else {
+                    let Some(id) = self.db.rslot_id.insert(name.to_string(), name.clone()) else {
+                        error_at(name.span(), "region slot redefined")?
+                    };
+                    assert_eq!(id, self.db.db.region_slots.next_id());
+                    self.db.db.region_slots.insert(name.to_string());
                 }
-                self.db.rslot_id.push(name);
             }
             ast::TopItem::ConnectorSlot(cslot) => {
                 let name = self.eval_templ_id(&cslot.name)?;
@@ -1422,7 +1437,7 @@ fn eval_variant(variant: Option<Ident>, items: &[ast::TopItem]) -> Result<Annota
             tslot_id: EntityVec::new(),
             cslot_id: EntityVec::new(),
             bslot_id: Default::default(),
-            rslot_id: EntityVec::new(),
+            rslot_id: Default::default(),
             tcls_id: EntityVec::new(),
             ccls_id: EntityVec::new(),
             bcls_id: EntityVec::new(),

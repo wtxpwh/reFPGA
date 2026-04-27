@@ -50,6 +50,10 @@ where
         self.set.is_empty()
     }
 
+    pub fn next_id(&self) -> I {
+        I::from_idx(self.len())
+    }
+
     pub fn clear(&mut self) {
         self.set.clear()
     }

@@ -1,9 +1,9 @@
 use std::collections::{BTreeMap, BTreeSet};
 
 use prjcombine_ecp::{
-    bels,
     chip::{Chip, RowKind},
-    cslots, tslots,
+    defs::bslots,
+    defs::{cslots, tslots},
 };
 use prjcombine_entity::{EntityId, EntityVec};
 use prjcombine_interconnect::{
@@ -25,7 +25,7 @@ impl ChipContext<'_> {
             col_group.push(idx);
         }
         for cell in self.edev.die_cells(DieId::from_idx(0)) {
-            let bcrd = cell.bel(bels::IO_INT);
+            let bcrd = cell.bel(bslots::IO_INT);
             if self.edev.has_bel(bcrd) {
                 self.name_bel_null(bcrd);
             }
@@ -135,7 +135,7 @@ impl ChipContext<'_> {
                 self.claim_node(wn);
                 for &wire in &wires {
                     self.add_bel_wire_no_claim(
-                        wire.cell.bel(bels::IO_INT),
+                        wire.cell.bel(bslots::IO_INT),
                         self.intdb.wires.key(wire.slot),
                         wn,
                     );
@@ -203,7 +203,7 @@ impl ChipContext<'_> {
                 self.claim_node(wn);
                 for &wire in &wires {
                     self.add_bel_wire_no_claim(
-                        wire.cell.bel(bels::IO_INT),
+                        wire.cell.bel(bslots::IO_INT),
                         self.intdb.wires.key(wire.slot),
                         wn,
                     );
@@ -214,7 +214,7 @@ impl ChipContext<'_> {
                 let idx: usize = idx.parse().unwrap();
                 let wire = self.intdb.get_wire(&format!("OUT_IO{idx}"));
                 let cell = self.chip.xlat_rc_wire(wn);
-                self.add_bel_wire(cell.bel(bels::IO_INT), format!("OUT_IO{idx}"), wn);
+                self.add_bel_wire(cell.bel(bslots::IO_INT), format!("OUT_IO{idx}"), wn);
                 let wire = cell.wire(wire);
                 self.io_int_wires.insert(wn, vec![wire]);
                 self.io_int_names.insert(wire, wn);
@@ -222,7 +222,7 @@ impl ChipContext<'_> {
                 let idx: usize = idx.parse().unwrap();
                 let wire = self.intdb.get_wire(&format!("IMUX_IO{idx}"));
                 let cell = self.chip.xlat_rc_wire(wn);
-                self.add_bel_wire(cell.bel(bels::IO_INT), format!("IMUX_IO{idx}"), wn);
+                self.add_bel_wire(cell.bel(bslots::IO_INT), format!("IMUX_IO{idx}"), wn);
                 let wire = cell.wire(wire);
                 self.io_int_wires.insert(wn, vec![wire]);
                 self.io_int_names.insert(wire, wn);
@@ -237,7 +237,11 @@ impl ChipContext<'_> {
                 assert!(self.intdb.wires.key(iwire.slot).starts_with("IMUX_"));
                 self.claim_pip(wn, wire_int);
                 assert_eq!(iwire.cell, cell);
-                self.add_bel_wire(cell.bel(bels::IO_INT), self.intdb.wires.key(iwire.slot), wn);
+                self.add_bel_wire(
+                    cell.bel(bslots::IO_INT),
+                    self.intdb.wires.key(iwire.slot),
+                    wn,
+                );
                 self.io_int_wires.insert(wn, vec![iwire]);
                 self.io_int_names.insert(iwire, wn);
             } else if suffix.starts_with("JTOCIB_") {
@@ -251,7 +255,11 @@ impl ChipContext<'_> {
                 assert!(self.intdb.wires.key(iwire.slot).starts_with("OUT_"));
                 self.claim_pip(wire_int, wn);
                 assert_eq!(iwire.cell, cell);
-                self.add_bel_wire(cell.bel(bels::IO_INT), self.intdb.wires.key(iwire.slot), wn);
+                self.add_bel_wire(
+                    cell.bel(bslots::IO_INT),
+                    self.intdb.wires.key(iwire.slot),
+                    wn,
+                );
                 self.io_int_wires.insert(wn, vec![iwire]);
                 self.io_int_names.insert(iwire, wn);
             }
@@ -320,7 +328,7 @@ impl ChipContext<'_> {
             let mut missing_dst = BTreeSet::new();
             let mut missing_src = BTreeSet::new();
             for &tcrd in &self.edev.tile_index[tcid] {
-                let bcrd = tcrd.bel(bels::IO_INT);
+                let bcrd = tcrd.bel(bslots::IO_INT);
                 for (&wt, wfs) in &sb_pips {
                     let Some(wt) = self
                         .naming
@@ -364,7 +372,7 @@ impl ChipContext<'_> {
                 sb.items.push(SwitchBoxItem::Mux(mux));
             }
             self.bels
-                .insert((tcid, bels::IO_INT), BelInfo::SwitchBox(sb));
+                .insert((tcid, bslots::IO_INT), BelInfo::SwitchBox(sb));
         }
     }
 }

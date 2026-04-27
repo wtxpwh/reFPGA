@@ -1,6 +1,6 @@
 use prjcombine_ecp::{
-    bels,
     chip::{PllPad, SpecialIoKey, SpecialLocKey},
+    defs::bslots,
 };
 use prjcombine_interconnect::{
     db::LegacyBel,
@@ -22,11 +22,11 @@ impl ChipContext<'_> {
                     DirH::E => cell.delta(-2, 0),
                 };
 
-                let bcrd_pll = cell.bel(bels::PLL0);
-                let bcrd_dll = cell.bel(bels::DLL0);
-                let bcrd_dlldel = cell.bel(bels::DLLDEL0);
-                let bcrd_clkdiv = cell.bel(bels::CLKDIV0);
-                let bcrd_eclk = cell.bel(bels::ECLK_ALT_ROOT);
+                let bcrd_pll = cell.bel(bslots::PLL[0]);
+                let bcrd_dll = cell.bel(bslots::DLL[0]);
+                let bcrd_dlldel = cell.bel(bslots::DLLDEL[0]);
+                let bcrd_clkdiv = cell.bel(bslots::CLKDIV[0]);
+                let bcrd_eclk = cell.bel(bslots::ECLK_ALT_ROOT);
 
                 let (r, c) = self.rc(cell_pll);
                 self.name_bel(bcrd_pll, [format!("PLL_R{r}C{c}")]);
@@ -268,7 +268,7 @@ impl ChipContext<'_> {
             } else {
                 // SPLL
 
-                let bcrd = cell.bel(bels::SPLL);
+                let bcrd = cell.bel(bslots::SPLL);
                 let (r, c) = self.rc(cell);
                 self.name_bel(bcrd, [format!("SPLL_R{r}C{c}")]);
                 let mut bel = self.extract_simple_bel(bcrd, cell, "SPLL");

@@ -31,7 +31,7 @@ pub struct AnnotatedDb {
     pub tslot_id: EntityVec<TileSlotId, Ident>,
     pub cslot_id: EntityVec<ConnectorSlotId, Ident>,
     pub bslot_id: EntityBundleMap<BelSlotId, Ident>,
-    pub rslot_id: EntityVec<RegionSlotId, Ident>,
+    pub rslot_id: EntityBundleMap<RegionSlotId, Ident>,
     pub tcls_id: EntityVec<TileClassId, Ident>,
     pub tcls_cell_id: EntityVec<TileClassId, EntityBundleMap<CellSlotId, Ident>>,
     pub tcls_bitrect_id: EntityVec<TileClassId, EntityBundleMap<BitRectId, Ident>>,

@@ -1,6 +1,6 @@
 use prjcombine_ecp::{
-    bels,
     chip::{PllPad, SpecialIoKey, SpecialLocKey},
+    defs::bslots,
 };
 
 use crate::ChipContext;
@@ -11,7 +11,7 @@ impl ChipContext<'_> {
             let SpecialLocKey::Pll(loc) = loc else {
                 continue;
             };
-            let bcrd = cell.bel(bels::PLL0);
+            let bcrd = cell.bel(bslots::PLL[0]);
             let (r, c) = self.rc(cell);
             self.name_bel(bcrd, [format!("PLL3_R{r}C{c}")]);
             let mut bel = self.extract_simple_bel(bcrd, cell, "PLL3");

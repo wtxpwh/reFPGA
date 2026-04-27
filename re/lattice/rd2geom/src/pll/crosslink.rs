@@ -1,6 +1,6 @@
 use prjcombine_ecp::{
-    bels,
     chip::{PllLoc, PllPad, SpecialIoKey, SpecialLocKey},
+    defs::bslots,
 };
 use prjcombine_interconnect::{
     db::LegacyBel,
@@ -13,7 +13,7 @@ impl ChipContext<'_> {
     pub(super) fn process_pll_crosslink(&mut self) {
         let cell = self.chip.special_loc[&SpecialLocKey::Pll(PllLoc::new(DirHV::SE, 0))];
 
-        let bcrd_pllrefcs = cell.bel(bels::PLLREFCS0);
+        let bcrd_pllrefcs = cell.bel(bslots::PLLREFCS[0]);
 
         self.name_bel(bcrd_pllrefcs, ["PLLREFCS"]);
         let mut bel_pllrefcs = LegacyBel::default();
@@ -77,7 +77,7 @@ impl ChipContext<'_> {
 
         // actual PLL
 
-        let bcrd = cell.bel(bels::PLL0);
+        let bcrd = cell.bel(bslots::PLL[0]);
         self.name_bel(bcrd, ["PLL"]);
         let mut bel = self.extract_simple_bel(bcrd, cell, "PLL");
 

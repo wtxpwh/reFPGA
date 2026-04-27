@@ -1,4 +1,4 @@
-use prjcombine_ecp::{bels, chip::ChipKind};
+use prjcombine_ecp::{chip::ChipKind, defs::bslots};
 
 use super::ChipContext;
 
@@ -12,10 +12,10 @@ impl ChipContext<'_> {
             for &tcrd in &self.edev.tile_index[tcid] {
                 let cell = tcrd.cell;
                 let slices = [
-                    cell.bel(bels::SLICE0),
-                    cell.bel(bels::SLICE1),
-                    cell.bel(bels::SLICE2),
-                    cell.bel(bels::SLICE3),
+                    cell.bel(bslots::SLICE[0]),
+                    cell.bel(bslots::SLICE[1]),
+                    cell.bel(bslots::SLICE[2]),
+                    cell.bel(bslots::SLICE[3]),
                 ];
                 let (r, c) = self.rc(cell);
                 self.name_bel(slices[0], [format!("R{r}C{c}A")]);
@@ -168,13 +168,13 @@ impl ChipContext<'_> {
                     self.claim_pip(wt, wf);
                 }
                 let fci_in = self.naming.strings.get("FCI_IN").unwrap();
-                if let Some(naming) = self.naming.bels.get(&cell.bel(bels::INT))
+                if let Some(naming) = self.naming.bels.get(&cell.bel(bslots::INT))
                     && let Some(&wf) = naming.wires.get(&fci_in)
                 {
                     let wt = self.rc_wire(cell, "FCI");
                     self.claim_pip(wt, wf);
                 }
-                if let Some(naming) = self.naming.bels.get(&cell.delta(1, 0).bel(bels::INT))
+                if let Some(naming) = self.naming.bels.get(&cell.delta(1, 0).bel(bslots::INT))
                     && let Some(&wt) = naming.wires.get(&fci_in)
                 {
                     let wf = self.rc_wire(cell, "FCO");
@@ -278,10 +278,10 @@ impl ChipContext<'_> {
             for &tcrd in &self.edev.tile_index[tcid] {
                 let cell = tcrd.cell;
                 let slices = [
-                    cell.bel(bels::SLICE0),
-                    cell.bel(bels::SLICE1),
-                    cell.bel(bels::SLICE2),
-                    cell.bel(bels::SLICE3),
+                    cell.bel(bslots::SLICE[0]),
+                    cell.bel(bslots::SLICE[1]),
+                    cell.bel(bslots::SLICE[2]),
+                    cell.bel(bslots::SLICE[3]),
                 ];
                 let (r, c) = self.rc(cell);
                 self.name_bel(slices[0], [format!("R{r}C{c}A")]);
@@ -338,7 +338,7 @@ impl ChipContext<'_> {
                     self.claim_pip_int_out(ofx0_int, ofx0_slice);
                     self.claim_pip_int_out(ofx1_int, ofx1_slice);
                     let out_idx = if is_ecp3 { 1 } else { 2 };
-                    if i == out_idx && self.edev.has_bel(cell.delta(-1, 0).bel(bels::INT)) {
+                    if i == out_idx && self.edev.has_bel(cell.delta(-1, 0).bel(bslots::INT)) {
                         let fx_out = self.rc_wire(cell, "HL7W0001");
                         self.claim_pip_int_in(fx_out, ofx1_int);
                     }
@@ -359,7 +359,7 @@ impl ChipContext<'_> {
                         let (ia, ib) = [(2, 0), (5, 1), (6, 4), (3, 3)][i];
                         if i == 3 {
                             let cell_src = cell.delta(1, 0);
-                            if self.edev.has_bel(cell_src.bel(bels::INT)) {
+                            if self.edev.has_bel(cell_src.bel(bslots::INT)) {
                                 let fx_out = self.rc_wire(cell_src, "HL7W0001");
                                 self.claim_pip(fxa, fx_out);
                             }
@@ -373,7 +373,7 @@ impl ChipContext<'_> {
                         let (ia, ib) = [(5, 5), (2, 0), (7, 3), (6, 4)][i];
                         if i == 0 {
                             let cell_src = cell.delta(1, 0);
-                            if self.edev.has_bel(cell_src.bel(bels::INT)) {
+                            if self.edev.has_bel(cell_src.bel(bslots::INT)) {
                                 let fx_out = self.rc_wire(cell_src, "HL7W0001");
                                 self.claim_pip(fxa, fx_out);
                             }
@@ -448,13 +448,13 @@ impl ChipContext<'_> {
                     self.claim_pip(wt, wf);
                 }
                 let fci_in = self.naming.strings.get("FCI_IN").unwrap();
-                if let Some(naming) = self.naming.bels.get(&cell.bel(bels::INT))
+                if let Some(naming) = self.naming.bels.get(&cell.bel(bslots::INT))
                     && let Some(&wf) = naming.wires.get(&fci_in)
                 {
                     let wt = self.rc_wire(cell, "FCI");
                     self.claim_pip(wt, wf);
                 }
-                if let Some(naming) = self.naming.bels.get(&cell.delta(1, 0).bel(bels::INT))
+                if let Some(naming) = self.naming.bels.get(&cell.delta(1, 0).bel(bslots::INT))
                     && let Some(&wt) = naming.wires.get(&fci_in)
                 {
                     let wf = self.rc_wire(cell, "FCO");
@@ -554,10 +554,10 @@ impl ChipContext<'_> {
         for &tcrd in &self.edev.tile_index[tcid] {
             let cell = tcrd.cell;
             let slices = [
-                cell.bel(bels::SLICE0),
-                cell.bel(bels::SLICE1),
-                cell.bel(bels::SLICE2),
-                cell.bel(bels::SLICE3),
+                cell.bel(bslots::SLICE[0]),
+                cell.bel(bslots::SLICE[1]),
+                cell.bel(bslots::SLICE[2]),
+                cell.bel(bslots::SLICE[3]),
             ];
             let (r, c) = self.rc(cell);
             self.name_bel(slices[0], [format!("R{r}C{c}A")]);
@@ -728,13 +728,13 @@ impl ChipContext<'_> {
                 self.claim_pip(wt, wf);
             }
             let fci_in = self.naming.strings.get("FCI_IN").unwrap();
-            if let Some(naming) = self.naming.bels.get(&cell.bel(bels::INT))
+            if let Some(naming) = self.naming.bels.get(&cell.bel(bslots::INT))
                 && let Some(&wf) = naming.wires.get(&fci_in)
             {
                 let wt = self.rc_wire(cell, "FCI");
                 self.claim_pip(wt, wf);
             }
-            if let Some(naming) = self.naming.bels.get(&cell.delta(1, 0).bel(bels::INT))
+            if let Some(naming) = self.naming.bels.get(&cell.delta(1, 0).bel(bslots::INT))
                 && let Some(&wt) = naming.wires.get(&fci_in)
             {
                 let wf = self.rc_wire(cell, "FCO");

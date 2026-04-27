@@ -1,8 +1,8 @@
 use std::collections::{BTreeMap, btree_map};
 
 use prjcombine_ecp::{
-    bels,
     chip::{Chip, IoGroupKind, PllLoc, SpecialIoKey, SpecialLocKey},
+    defs::bslots,
 };
 use prjcombine_interconnect::{
     db::{BelPin, LegacyBel, WireSlotIdExt},
@@ -48,7 +48,7 @@ impl ChipContext<'_> {
                         }
                         if col == col_tgt {
                             self.add_bel_wire_no_claim(
-                                cell.bel(bels::INT),
+                                cell.bel(bslots::INT),
                                 format!("PCLK{i}_IN"),
                                 cur_vptx,
                             );
@@ -80,7 +80,7 @@ impl ChipContext<'_> {
             };
 
             {
-                let bcrd = cell_tile.bel(bels::CLKTEST);
+                let bcrd = cell_tile.bel(bslots::CLKTEST);
                 self.name_bel(bcrd, [format!("CLKTEST_{bt}MID")]);
                 let mut bel = LegacyBel::default();
                 for i in 0..3 {
@@ -96,7 +96,7 @@ impl ChipContext<'_> {
                 self.insert_bel(bcrd, bel);
             }
 
-            let bcrd = cell_tile.bel(bels::CLK_EDGE);
+            let bcrd = cell_tile.bel(bslots::CLK_EDGE);
             self.name_bel_null(bcrd);
 
             let mut bel = LegacyBel::default();
@@ -208,7 +208,7 @@ impl ChipContext<'_> {
             };
 
             for i in 0..num_dcc {
-                let bcrd_dcc = cell_tile.bel(bels::DCC[i]);
+                let bcrd_dcc = cell_tile.bel(bslots::DCC[i]);
                 self.name_bel(bcrd_dcc, [format!("DCC_{bt}{i}")]);
                 let mut bel = LegacyBel::default();
 
@@ -355,7 +355,7 @@ impl ChipContext<'_> {
         let cell = cell_tile.delta(-1, 0);
 
         {
-            let bcrd = cell_tile.bel(bels::CLKTEST);
+            let bcrd = cell_tile.bel(bslots::CLKTEST);
             self.name_bel(bcrd, ["CLKTEST_CEN"]);
             let mut bel = LegacyBel::default();
             for i in 0..4 {
@@ -373,7 +373,7 @@ impl ChipContext<'_> {
 
         let dcs_in;
         {
-            let bcrd = cell_tile.bel(bels::DCS0);
+            let bcrd = cell_tile.bel(bslots::DCS[0]);
             self.name_bel(bcrd, ["DCS"]);
             let mut bel = LegacyBel::default();
 
@@ -397,7 +397,7 @@ impl ChipContext<'_> {
                 for (edge, num_dcc) in [(DirV::S, 8), (DirV::N, 6)] {
                     let cell_edge = cell_tile.with_row(self.chip.row_edge(edge));
                     for j in 0..num_dcc {
-                        let bcrd_dcc = cell_edge.bel(bels::DCC[j]);
+                        let bcrd_dcc = cell_edge.bel(bslots::DCC[j]);
                         let wire_dcc = self.naming.bel_wire(bcrd_dcc, "CLKO_OUT");
                         self.claim_pip(clk_in, wire_dcc);
                     }
@@ -439,7 +439,7 @@ impl ChipContext<'_> {
             for (edge, num_dcc) in [(DirV::S, 8), (DirV::N, 6)] {
                 let cell_edge = cell_tile.with_row(self.chip.row_edge(edge));
                 for j in 0..num_dcc {
-                    let bcrd_dcc = cell_edge.bel(bels::DCC[j]);
+                    let bcrd_dcc = cell_edge.bel(bslots::DCC[j]);
                     let wire_dcc = self.naming.bel_wire(bcrd_dcc, "CLKO_OUT");
                     self.claim_pip(pclk, wire_dcc);
                 }

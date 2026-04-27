@@ -1,8 +1,8 @@
 use std::collections::{BTreeMap, btree_map};
 
 use prjcombine_ecp::{
-    bels,
     chip::{Chip, PllLoc, RowKind, SpecialIoKey, SpecialLocKey},
+    defs::bslots,
 };
 use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
@@ -23,7 +23,7 @@ impl ChipContext<'_> {
             }
             let bcrd = Chip::DIE
                 .cell(self.chip.col_clk, row)
-                .bel(bels::HSDCLK_ROOT);
+                .bel(bslots::HSDCLK_ROOT);
             self.name_bel_null(bcrd);
             for i in 0..8 {
                 for h in [DirH::W, DirH::E] {
@@ -85,7 +85,7 @@ impl ChipContext<'_> {
                 }
                 let idx = self.chip.col_sclk_idx(cell.col);
                 let mut pclk_idx = vec![idx, idx + 4];
-                if self.edev.has_bel(cell.bel(bels::PCLK_SOURCE_W)) {
+                if self.edev.has_bel(cell.bel(bslots::PCLK_SOURCE_W)) {
                     pclk_idx.extend([
                         (idx + 3) % 4,
                         (idx + 3) % 4 + 4,
@@ -93,14 +93,14 @@ impl ChipContext<'_> {
                         (idx + 2) % 4 + 4,
                     ]);
                 }
-                if self.edev.has_bel(cell.bel(bels::PCLK_SOURCE_E)) {
+                if self.edev.has_bel(cell.bel(bslots::PCLK_SOURCE_E)) {
                     pclk_idx.extend([(idx + 1) % 4, (idx + 1) % 4 + 4]);
                 }
                 for &i in &pclk_idx {
                     let wire_n = self.naming.interconnect
                         [&cell.wire(self.intdb.get_wire(&format!("PCLK{i}")))];
                     let wire_n = self.find_single_in(wire_n);
-                    self.add_bel_wire(cell.bel(bels::INT), format!("PCLK{i}_N"), wire_n);
+                    self.add_bel_wire(cell.bel(bslots::INT), format!("PCLK{i}_N"), wire_n);
                     vptx_wires_n.insert((cell.col, i), wire_n);
                     for row in cell.row.range(row_n) {
                         let wire = self.naming.interconnect[&cell
@@ -114,7 +114,7 @@ impl ChipContext<'_> {
                             .delta(0, -1)
                             .wire(self.intdb.get_wire(&format!("PCLK{i}")))];
                         let wire_s = self.find_single_in(wire_s);
-                        self.add_bel_wire(cell.bel(bels::INT), format!("PCLK{i}_S"), wire_s);
+                        self.add_bel_wire(cell.bel(bslots::INT), format!("PCLK{i}_S"), wire_s);
                         vptx_wires_s.insert((cell.col, i), wire_s);
                         for row in row_s.range(cell.row) {
                             let wire = self.naming.interconnect[&cell
@@ -128,7 +128,7 @@ impl ChipContext<'_> {
                 let (r, c) = self.rc(cell_nom);
                 for i in 0..2 {
                     let pclk_i = pclk_idx[i];
-                    let bcrd = cell.bel(bels::PCLK_DCC[i]);
+                    let bcrd = cell.bel(bslots::PCLK_DCC[i]);
                     if cell.row == self.chip.row_s() {
                         self.name_bel(bcrd, [format!("DCC_R{r}C{c}_{i}")]);
                     } else if self.chip.rows.len() == 26 && row.to_idx() == 6 {
@@ -228,9 +228,9 @@ impl ChipContext<'_> {
                     col_hpsx = cell.col;
                 }
                 let idx = self.chip.col_sclk_idx(cell.col);
-                let (bcrd, pclk_idx) = if self.edev.has_bel(cell.bel(bels::PCLK_SOURCE_W)) {
+                let (bcrd, pclk_idx) = if self.edev.has_bel(cell.bel(bslots::PCLK_SOURCE_W)) {
                     (
-                        cell.bel(bels::PCLK_SOURCE_W),
+                        cell.bel(bslots::PCLK_SOURCE_W),
                         vec![
                             (idx + 3) % 4,
                             (idx + 3) % 4 + 4,
@@ -238,9 +238,9 @@ impl ChipContext<'_> {
                             (idx + 2) % 4 + 4,
                         ],
                     )
-                } else if self.edev.has_bel(cell.bel(bels::PCLK_SOURCE_E)) {
+                } else if self.edev.has_bel(cell.bel(bslots::PCLK_SOURCE_E)) {
                     (
-                        cell.bel(bels::PCLK_SOURCE_E),
+                        cell.bel(bslots::PCLK_SOURCE_E),
                         vec![(idx + 1) % 4, (idx + 1) % 4 + 4],
                     )
                 } else {
@@ -287,7 +287,7 @@ impl ChipContext<'_> {
                 Dir::H(edge) => Chip::DIE.cell(self.chip.col_edge(edge), self.chip.row_clk),
                 Dir::V(edge) => Chip::DIE.cell(self.chip.col_clk - 1, self.chip.row_edge(edge)),
             };
-            let bcrd = cell.bel(bels::DLLDEL[idx]);
+            let bcrd = cell.bel(bslots::DLLDEL[idx]);
             let lrbt = match edge {
                 Dir::W => 'L',
                 Dir::E => 'R',
@@ -488,7 +488,7 @@ impl ChipContext<'_> {
             let wire_out = pclk_roots[&i];
             self.add_bel_wire(bcrd, format!("PCLK{i}"), wire_out);
 
-            let bcrd_dcc = bcrd.bel(bels::DCC[i]);
+            let bcrd_dcc = bcrd.bel(bslots::DCC[i]);
             self.name_bel(bcrd_dcc, [format!("DCC{i}")]);
             let mut bel_dcc = LegacyBel::default();
 
@@ -540,7 +540,7 @@ impl ChipContext<'_> {
                     }
                 }
             } else {
-                let bcrd_dcm = bcrd.bel(bels::DCM[i - 6]);
+                let bcrd_dcm = bcrd.bel(bslots::DCM[i - 6]);
                 self.name_bel(bcrd_dcm, [format!("DCM{i}")]);
                 let mut bel_dcm = LegacyBel::default();
 
@@ -709,13 +709,13 @@ impl ChipContext<'_> {
 
         self.insert_bel(bcrd, bel);
 
-        let bcrd_centest = bcrd.bel(bels::CLKTEST);
+        let bcrd_centest = bcrd.bel(bslots::CLKTEST);
         self.name_bel(bcrd_centest, ["CENTEST"]);
         self.insert_simple_bel(bcrd_centest, cell, "CENTEST");
 
         if !is_smol {
             for i in 0..2 {
-                let bcrd = bcrd.bel(bels::ECLKBRIDGECS[i]);
+                let bcrd = bcrd.bel(bslots::ECLKBRIDGECS[i]);
                 self.name_bel(bcrd, [format!("ECLKBRIDGECS{i}")]);
                 let mut bel = LegacyBel::default();
 

@@ -1,6 +1,6 @@
 use prjcombine_ecp::{
-    bels,
     chip::{ChipKind, IoGroupKind, IoKind, PllLoc, SpecialIoKey, SpecialLocKey},
+    defs::bslots,
 };
 use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
@@ -167,7 +167,7 @@ impl ChipContext<'_> {
         if matches!(kind, IoKind::Dqs | IoKind::SDqs) {
             let dqsw = self.rc_io_wire(cell, &format!("JDQSW{abcd}_{iol}"));
             self.add_bel_wire(bcrd, "DQSW", dqsw);
-            let bcrd_dqs = bcrd.bel(bels::DQS0);
+            let bcrd_dqs = bcrd.bel(bslots::DQS[0]);
             let dqsw_dqs = self.naming.bel_wire(bcrd_dqs, "DQSW");
             self.claim_pip(dqsw, dqsw_dqs);
 
@@ -179,7 +179,7 @@ impl ChipContext<'_> {
         }
 
         if kind != IoKind::Xsio {
-            let bcrd_dqs = self.edev.dqs[&bcrd.cell].bel(bels::DQS0);
+            let bcrd_dqs = self.edev.dqs[&bcrd.cell].bel(bslots::DQS[0]);
             let mut pins = vec!["DQCLK1", "DDRCLKPOL", "DDRLAT"];
             if self.chip.kind == ChipKind::Ecp3A {
                 pins.push("ECLKDQSR");
@@ -235,7 +235,7 @@ impl ChipContext<'_> {
 
     fn process_dqs_ecp3(&mut self, bcrd_io: BelCoord) {
         let io = self.chip.get_io_crd(bcrd_io);
-        let bcrd_dqs = bcrd_io.bel(bels::DQS0);
+        let bcrd_dqs = bcrd_io.bel(bslots::DQS[0]);
         let kind = self.chip.get_io_kind(io);
         let cell = match io.edge() {
             Dir::H(_) => bcrd_dqs.cell.delta(0, 1),
@@ -309,7 +309,7 @@ impl ChipContext<'_> {
 
         self.insert_simple_bel(bcrd_dqs, cell, suffix);
         if matches!(io.edge(), Dir::H(_)) && self.chip.kind == ChipKind::Ecp3A {
-            let bcrd_dqstest = bcrd_io.bel(bels::DQSTEST);
+            let bcrd_dqstest = bcrd_io.bel(bslots::DQSTEST);
             match io.edge() {
                 Dir::W => self.name_bel(bcrd_dqstest, [format!("DQSTEST_L{r}")]),
                 Dir::E => self.name_bel(bcrd_dqstest, [format!("DQSTEST_R{r}")]),
@@ -619,7 +619,7 @@ impl ChipContext<'_> {
             }
             self.insert_bel(bcrd, bel);
 
-            let bcrd = bcrd.bel(bels::DQSDLLTEST);
+            let bcrd = bcrd.bel(bslots::DQSDLLTEST);
             self.name_bel(
                 bcrd,
                 [match edge {
@@ -634,7 +634,7 @@ impl ChipContext<'_> {
     pub(super) fn process_eclk_tap_ecp3(&mut self) {
         let tcid = self.intdb.get_tile_class("ECLK_TAP");
         for &tcrd in &self.edev.tile_index[tcid] {
-            let bcrd = tcrd.bel(bels::ECLK_TAP);
+            let bcrd = tcrd.bel(bslots::ECLK_TAP);
             let edge = if tcrd.col == self.chip.col_w() {
                 Dir::W
             } else if tcrd.col == self.chip.col_e() {

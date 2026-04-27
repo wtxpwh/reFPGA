@@ -1,6 +1,6 @@
 use prjcombine_ecp::{
-    bels,
     chip::{PllLoc, PllPad, SpecialIoKey},
+    defs::bslots,
 };
 use prjcombine_interconnect::dir::DirHV;
 
@@ -12,7 +12,7 @@ impl ChipContext<'_> {
             let tcid = self.intdb.get_tile_class(tcname);
             for &tcrd in &self.edev.tile_index[tcid] {
                 let cell = tcrd.cell;
-                let bcrd = cell.bel(bels::PLL0);
+                let bcrd = cell.bel(bslots::PLL[0]);
                 let (r, c) = self.rc(tcrd.cell);
                 self.name_bel(bcrd, [format!("PLL3_R{r}C{c}")]);
                 let mut bel = self.extract_simple_bel(bcrd, cell, "PLL");

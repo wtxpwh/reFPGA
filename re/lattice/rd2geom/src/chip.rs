@@ -1,11 +1,11 @@
 use std::collections::{BTreeMap, BTreeSet, HashMap, btree_map};
 
 use prjcombine_ecp::{
-    bels,
     chip::{
         Chip, ChipKind, Column, IoGroupKind, MachXo2Kind, PllLoc, PllPad, Row, RowKind,
         SpecialIoKey, SpecialLocKey,
     },
+    defs::bslots,
 };
 use prjcombine_entity::{EntityId, EntityVec};
 use prjcombine_interconnect::{
@@ -1834,8 +1834,8 @@ impl ChipBuilder<'_> {
                             ridx += 1;
                             cell.row -= 1;
                         }
-                        IoGroupKind::Quad => break bels::IO[idx],
-                        IoGroupKind::Dozen => break bels::IO[(2 - ridx) * 4 + idx],
+                        IoGroupKind::Quad => break bslots::IO[idx],
+                        IoGroupKind::Dozen => break bslots::IO[(2 - ridx) * 4 + idx],
                         _ => unreachable!(),
                     }
                 }
@@ -1858,7 +1858,7 @@ impl ChipBuilder<'_> {
                         break;
                     }
                 }
-                bels::IO[idx]
+                bslots::IO[idx]
             };
             let io = self.chip.get_io_crd(cell.bel(bel));
             pad_nodes.insert(node, (io, dir));
@@ -1928,25 +1928,25 @@ impl ChipBuilder<'_> {
         for (node, &wn) in self.nodes {
             let mut cell = self.chip.xlat_rc_wire(wn);
             let (bel, e) = if Some(wn.suffix) == jpaddia_pio {
-                (bels::IO0, false)
+                (bslots::IO[0], false)
             } else if Some(wn.suffix) == jpaddib_pio {
-                (bels::IO1, false)
+                (bslots::IO[1], false)
             } else if Some(wn.suffix) == jpaddic_pio {
-                (bels::IO2, false)
+                (bslots::IO[2], false)
             } else if Some(wn.suffix) == jpaddid_pio {
-                (bels::IO3, false)
+                (bslots::IO[3], false)
             } else if Some(wn.suffix) == jpaddie_pio {
-                (bels::IO4, false)
+                (bslots::IO[4], false)
             } else if Some(wn.suffix) == jpaddif_pio {
-                (bels::IO5, false)
+                (bslots::IO[5], false)
             } else if Some(wn.suffix) == jpaddiea_pio {
-                (bels::IO0, true)
+                (bslots::IO[0], true)
             } else if Some(wn.suffix) == jpaddieb_pio {
-                (bels::IO1, true)
+                (bslots::IO[1], true)
             } else if Some(wn.suffix) == jpaddiec_pio {
-                (bels::IO2, true)
+                (bslots::IO[2], true)
             } else if Some(wn.suffix) == jpaddied_pio {
-                (bels::IO3, true)
+                (bslots::IO[3], true)
             } else {
                 continue;
             };
@@ -2060,21 +2060,21 @@ impl ChipBuilder<'_> {
         for (node, &wn) in self.nodes {
             let mut cell = self.chip.xlat_rc_wire(wn);
             let (bel, e, dir) = if wn.suffix == jpaddia_pio || wn.suffix == jdia {
-                (bels::IO0, false, PinDir::Input)
+                (bslots::IO[0], false, PinDir::Input)
             } else if wn.suffix == jpaddib_pio || wn.suffix == jdib {
-                (bels::IO1, false, PinDir::Input)
+                (bslots::IO[1], false, PinDir::Input)
             } else if wn.suffix == jpaddic_pio || wn.suffix == jdic {
-                (bels::IO2, false, PinDir::Input)
+                (bslots::IO[2], false, PinDir::Input)
             } else if wn.suffix == jpaddid_pio || wn.suffix == jdid {
-                (bels::IO3, false, PinDir::Input)
+                (bslots::IO[3], false, PinDir::Input)
             } else if wn.suffix == jpaddoa {
-                (bels::IO0, false, PinDir::Output)
+                (bslots::IO[0], false, PinDir::Output)
             } else if wn.suffix == jpaddob {
-                (bels::IO1, false, PinDir::Output)
+                (bslots::IO[1], false, PinDir::Output)
             } else if wn.suffix == jpaddoc {
-                (bels::IO2, false, PinDir::Output)
+                (bslots::IO[2], false, PinDir::Output)
             } else if wn.suffix == jpaddod {
-                (bels::IO3, false, PinDir::Output)
+                (bslots::IO[3], false, PinDir::Output)
             } else {
                 continue;
             };
@@ -3515,7 +3515,7 @@ impl ChipBuilder<'_> {
             let wtn = self.nodes[wt];
             if let Some(&iob) = xlat.get(&wtn.suffix) {
                 let io_cell = self.chip.xlat_rc_wire(wtn);
-                let io = io_cell.bel(bels::IO[iob]);
+                let io = io_cell.bel(bslots::IO[iob]);
                 let io = self.chip.get_io_crd(io);
                 let wfn = self.nodes[wf];
                 let stage_cell = self.chip.xlat_rc_wire(wfn);

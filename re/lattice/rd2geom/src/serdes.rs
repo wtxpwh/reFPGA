@@ -1,6 +1,6 @@
 use prjcombine_ecp::{
-    bels,
     chip::{ChipKind, IoGroupKind, PllLoc, SpecialIoKey, SpecialLocKey},
+    defs::bslots,
 };
 use prjcombine_interconnect::{
     db::{BelPin, LegacyBel, WireSlotIdExt},
@@ -14,7 +14,7 @@ impl ChipContext<'_> {
         for tcname in ["SERDES_W", "SERDES_E"] {
             let tcid = self.intdb.get_tile_class(tcname);
             for &tcrd in &self.edev.tile_index[tcid] {
-                let bcrd = tcrd.bel(bels::SERDES);
+                let bcrd = tcrd.bel(bslots::SERDES);
                 let bank = self.chip.columns[bcrd.col].bank_n.unwrap();
                 let (edge, quad) = match bank {
                     9 => (DirH::W, 0),
@@ -223,7 +223,7 @@ impl ChipContext<'_> {
 
                 {
                     let bcrd_center =
-                        self.chip.special_loc[&SpecialLocKey::Config].bel(bels::SERDES_CENTER);
+                        self.chip.special_loc[&SpecialLocKey::Config].bel(bslots::SERDES_CENTER);
                     let mut bel_center = LegacyBel::default();
                     let wire = self.rc_wire(cell, "JFFC_CK_CORE_TX_PCS");
                     self.add_bel_wire(bcrd, "FFC_CK_CORE_TX", wire);
@@ -237,7 +237,7 @@ impl ChipContext<'_> {
         }
         for hv in [DirHV::NW, DirHV::NE] {
             let bcrd = self.chip.special_loc[&SpecialLocKey::Pll(PllLoc::new(hv, 0))]
-                .bel(bels::SERDES_CORNER);
+                .bel(bslots::SERDES_CORNER);
             let tcrd = self.edev.bel_tile(bcrd);
             let tcls = &self.intdb[self.edev[tcrd].class];
             let cell = bcrd.with_row(self.chip.row_n());
@@ -353,7 +353,7 @@ impl ChipContext<'_> {
         for tcname in ["SERDES_S", "SERDES_N"] {
             let tcid = self.intdb.get_tile_class(tcname);
             for &tcrd in &self.edev.tile_index[tcid] {
-                let bcrd = tcrd.bel(bels::SERDES);
+                let bcrd = tcrd.bel(bslots::SERDES);
                 let hv = DirHV {
                     h: if bcrd.col < self.chip.col_clk {
                         DirH::W
@@ -478,7 +478,7 @@ impl ChipContext<'_> {
     fn process_serdes_ecp3(&mut self) {
         let tcid = self.intdb.get_tile_class("SERDES");
         for &tcrd in &self.edev.tile_index[tcid] {
-            let bcrd = tcrd.bel(bels::SERDES);
+            let bcrd = tcrd.bel(bslots::SERDES);
             let bank = self.chip.columns[bcrd.cell.col].bank_s.unwrap();
             let name = match bank {
                 50 => "PCSA",
@@ -571,7 +571,7 @@ impl ChipContext<'_> {
             let wire = self.rc_wire(cell, "JREFCLK_FROM_NQ_PCS");
             self.add_bel_wire(bcrd, "REFCLK_FROM_NQ_PCS", wire);
             if let Some(cell_prev) = self.edev.cell_delta(bcrd.cell, -36, 0)
-                && self.edev.has_bel(cell_prev.bel(bels::SERDES))
+                && self.edev.has_bel(cell_prev.bel(bslots::SERDES))
             {
                 let wire_prev = self.rc_wire(cell.delta(-36, 0), "JREFCLK_TO_NQ_PCS");
                 self.claim_pip(wire, wire_prev);
@@ -591,7 +591,7 @@ impl ChipContext<'_> {
             } else {
                 unreachable!()
             };
-        let bcrd = cell.bel(bels::SERDES);
+        let bcrd = cell.bel(bslots::SERDES);
 
         let mut names = vec![
             "ASB".to_string(),
@@ -1113,7 +1113,7 @@ impl ChipContext<'_> {
         }
         let tcid = self.intdb.get_tile_class("SERDES");
         for &tcrd in &self.edev.tile_index[tcid] {
-            let bcrd = tcrd.bel(bels::SERDES);
+            let bcrd = tcrd.bel(bslots::SERDES);
             let cell = bcrd.cell;
             let bank = self.chip.columns[bcrd.cell.col].bank_s.unwrap();
             let dual = match bank {
@@ -1297,7 +1297,7 @@ impl ChipContext<'_> {
         for tcname in ["MIPI_W", "MIPI_E"] {
             let tcid = self.intdb.get_tile_class(tcname);
             for &tcrd in &self.edev.tile_index[tcid] {
-                let bcrd = tcrd.bel(bels::MIPI);
+                let bcrd = tcrd.bel(bslots::MIPI);
                 let cell = bcrd.cell;
                 let bank = self.chip.columns[bcrd.cell.col].bank_n.unwrap();
                 let idx = match bank {
@@ -1364,7 +1364,7 @@ impl ChipContext<'_> {
 
                 self.insert_bel(bcrd, bel);
 
-                let bcrd = bcrd.bel(bels::CLKTEST_MIPI);
+                let bcrd = bcrd.bel(bslots::CLKTEST_MIPI);
                 self.name_bel(bcrd, [format!("CLKTEST_MIPIDPHY{idx}")]);
                 let mut bel = LegacyBel::default();
 

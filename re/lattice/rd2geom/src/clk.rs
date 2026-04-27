@@ -1,7 +1,7 @@
 use prjcombine_ecp::{
-    bels,
     chip::{Chip, ChipKind, RowKind},
-    tslots,
+    defs::bslots,
+    defs::tslots,
 };
 use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{db::CellSlotId, grid::DieIdExt};
@@ -28,7 +28,7 @@ impl ChipContext<'_> {
             if tcrd.slot != tslots::HSDCLK_SPLITTER {
                 continue;
             }
-            let bcrd = tcrd.bel(bels::HSDCLK_SPLITTER);
+            let bcrd = tcrd.bel(bslots::HSDCLK_SPLITTER);
             self.name_bel_null(bcrd);
             let cell = tcrd.cell.delta(-1, 0);
             for i in 0..8 {
@@ -56,7 +56,7 @@ impl ChipContext<'_> {
                     continue;
                 }
                 let mut cell = Chip::DIE.cell(col, row);
-                if !self.edev.has_bel(cell.bel(bels::INT)) {
+                if !self.edev.has_bel(cell.bel(bslots::INT)) {
                     cell.row += 9;
                 }
                 for i in 0..8 {

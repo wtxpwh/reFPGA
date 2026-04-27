@@ -1,8 +1,8 @@
 use std::collections::BTreeMap;
 
 use prjcombine_ecp::{
-    bels,
     chip::{ChipKind, IoGroupKind, PllLoc, PllPad, RowKind, SpecialIoKey, SpecialLocKey},
+    defs::bslots,
 };
 use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
@@ -16,7 +16,10 @@ use crate::ChipContext;
 impl ChipContext<'_> {
     fn process_single_io_ecp(&mut self, bcrd: BelCoord, mut dummy: bool, is_dqs: bool) {
         let is_ecp2 = !matches!(self.chip.kind, ChipKind::Ecp | ChipKind::Xp);
-        let idx = bels::IO.iter().position(|&slot| slot == bcrd.slot).unwrap();
+        let idx = bslots::IO
+            .iter()
+            .position(|&slot| slot == bcrd.slot)
+            .unwrap();
         let cell = bcrd.cell;
         let ab = ['A', 'B'][idx];
         let io = self.chip.get_io_crd(bcrd);
@@ -209,7 +212,7 @@ impl ChipContext<'_> {
                     self.add_bel_wire(bcrd, "DQS", dqs);
                     self.add_bel_wire(bcrd, "DDRCLKPOL", ddrclkpol);
                     if let Some(&cell_dqs) = self.edev.dqs.get(&cell) {
-                        let bel_dqs = cell_dqs.bel(bels::DQS0);
+                        let bel_dqs = cell_dqs.bel(bslots::DQS[0]);
                         let dqs_tree = self.naming.bel_wire(bel_dqs, "DQSO_TREE");
                         let ddrclkpol_tree = self.naming.bel_wire(bel_dqs, "DDRCLKPOL_TREE");
                         self.claim_pip(dqs, dqs_tree);
@@ -236,7 +239,7 @@ impl ChipContext<'_> {
                     if idx == 0 {
                         self.add_bel_wire(bcrd, "DQSXFER", dqsxfer);
                         if let Some(&cell_dqs) = self.edev.dqs.get(&cell) {
-                            let bel_dqs = cell_dqs.bel(bels::DQS0);
+                            let bel_dqs = cell_dqs.bel(bslots::DQS[0]);
                             let dqsxfer_tree = self.naming.bel_wire(bel_dqs, "DQSXFER_TREE");
                             self.claim_pip(dqsxfer, dqsxfer_tree);
                         }
@@ -256,7 +259,7 @@ impl ChipContext<'_> {
     fn process_dqs_ecp(&mut self, bcrd: BelCoord) {
         let is_ecp2 = !matches!(self.chip.kind, ChipKind::Ecp | ChipKind::Xp);
         let cell = bcrd.cell;
-        let io = self.chip.get_io_crd(bcrd.bel(bels::IO0));
+        let io = self.chip.get_io_crd(bcrd.bel(bslots::IO[0]));
         let (r, c) = self.rc(cell);
         let name = match io.edge() {
             Dir::W => format!("LDQS{r}"),
@@ -381,12 +384,12 @@ impl ChipContext<'_> {
             return;
         }
         self.process_single_io_ecp(
-            cell.bel(bels::IO0),
+            cell.bel(bslots::IO[0]),
             matches!(kind, IoGroupKind::DoubleB | IoGroupKind::None),
             kind == IoGroupKind::DoubleDqs,
         );
         self.process_single_io_ecp(
-            cell.bel(bels::IO1),
+            cell.bel(bslots::IO[1]),
             matches!(kind, IoGroupKind::DoubleA | IoGroupKind::None),
             false,
         );
@@ -396,22 +399,22 @@ impl ChipContext<'_> {
         let die = DieId::from_idx(0);
         for cell in self.edev.column(die, self.chip.col_w()) {
             if self.chip.rows[cell.row].io_w == IoGroupKind::DoubleDqs {
-                self.process_dqs_ecp(cell.bel(bels::DQS0));
+                self.process_dqs_ecp(cell.bel(bslots::DQS[0]));
             }
         }
         for cell in self.edev.column(die, self.chip.col_e()) {
             if self.chip.rows[cell.row].io_e == IoGroupKind::DoubleDqs {
-                self.process_dqs_ecp(cell.bel(bels::DQS0));
+                self.process_dqs_ecp(cell.bel(bslots::DQS[0]));
             }
         }
         for cell in self.edev.row(die, self.chip.row_s()) {
             if self.chip.columns[cell.col].io_s == IoGroupKind::DoubleDqs {
-                self.process_dqs_ecp(cell.bel(bels::DQS0));
+                self.process_dqs_ecp(cell.bel(bslots::DQS[0]));
             }
         }
         for cell in self.edev.row(die, self.chip.row_n()) {
             if self.chip.columns[cell.col].io_n == IoGroupKind::DoubleDqs {
-                self.process_dqs_ecp(cell.bel(bels::DQS0));
+                self.process_dqs_ecp(cell.bel(bslots::DQS[0]));
             }
         }
         for cell in self.edev.column(die, self.chip.col_w()) {
@@ -661,7 +664,7 @@ impl ChipContext<'_> {
     pub(super) fn process_eclk_tap_ecp2(&mut self) {
         let tcid = self.intdb.get_tile_class("ECLK_TAP");
         for &tcrd in &self.edev.tile_index[tcid] {
-            let bcrd = tcrd.bel(bels::ECLK_TAP);
+            let bcrd = tcrd.bel(bslots::ECLK_TAP);
             let edge = if tcrd.row == self.chip.row_s() {
                 Dir::S
             } else if tcrd.row == self.chip.row_n() {

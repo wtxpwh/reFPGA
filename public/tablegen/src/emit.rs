@@ -303,7 +303,7 @@ pub fn emit(dbs: Vec<AnnotatedDb>) -> TokenStream {
         emit_mod(
             &mut res,
             to_ident("rslots"),
-            emit_ids("RegionSlotId", &dbs[0].rslot_id),
+            emit_array_ids("RegionSlotId", &dbs[0].rslot_id, true),
         );
         if dbs.len() != 1 {
             for stream in &mut variant_outs {
@@ -315,7 +315,7 @@ pub fn emit(dbs: Vec<AnnotatedDb>) -> TokenStream {
             emit_mod(
                 stream,
                 to_ident("rslots"),
-                emit_ids("RegionSlotId", &adb.rslot_id),
+                emit_array_ids("RegionSlotId", &adb.rslot_id, true),
             );
         }
     }

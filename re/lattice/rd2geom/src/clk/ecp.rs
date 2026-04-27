@@ -1,8 +1,8 @@
 use std::collections::BTreeMap;
 
 use prjcombine_ecp::{
-    bels,
     chip::{Chip, SpecialIoKey, SpecialLocKey},
+    defs::bslots,
 };
 use prjcombine_interconnect::{
     db::{BelPin, LegacyBel, WireSlotIdExt},
@@ -150,14 +150,14 @@ impl ChipContext<'_> {
         self.insert_bel(bcrd, bel);
 
         for (bidx, (ll, slot)) in [
-            ("LL", bels::DCS_SW[0]),
-            ("LL", bels::DCS_SW[1]),
-            ("LR", bels::DCS_SE[0]),
-            ("LR", bels::DCS_SE[1]),
-            ("UL", bels::DCS_NW[0]),
-            ("UL", bels::DCS_NW[1]),
-            ("UR", bels::DCS_NE[0]),
-            ("UR", bels::DCS_NE[1]),
+            ("LL", bslots::DCS_SW[0]),
+            ("LL", bslots::DCS_SW[1]),
+            ("LR", bslots::DCS_SE[0]),
+            ("LR", bslots::DCS_SE[1]),
+            ("UL", bslots::DCS_NW[0]),
+            ("UL", bslots::DCS_NW[1]),
+            ("UR", bslots::DCS_NE[0]),
+            ("UR", bslots::DCS_NE[1]),
         ]
         .into_iter()
         .enumerate()

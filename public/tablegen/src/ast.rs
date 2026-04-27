@@ -211,7 +211,7 @@ pub struct TileBit {
 
 #[derive(Debug)]
 pub struct RegionSlot {
-    pub name: TemplateId,
+    pub name: ArrayIdDef,
 }
 
 #[derive(Debug)]
@@ -260,7 +260,7 @@ pub enum WireKind {
     Tie0,
     Tie1,
     TiePullup,
-    Regional(TemplateId),
+    Regional(ArrayIdRef),
     Mux,
     Bel,
     Test,

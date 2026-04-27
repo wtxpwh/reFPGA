@@ -1,8 +1,8 @@
 use std::collections::{BTreeMap, btree_map};
 
 use prjcombine_ecp::{
-    bels,
     chip::{Chip, IoGroupKind, SpecialIoKey},
+    defs::bslots,
 };
 use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
@@ -22,7 +22,7 @@ impl ChipContext<'_> {
         for i in 0..12 {
             let pclk = self.intdb.get_wire(&format!("PCLK{i}"));
             for cell in self.edev.die_cells(DieId::from_idx(0)) {
-                if !self.edev.has_bel(cell.bel(bels::INT)) {
+                if !self.edev.has_bel(cell.bel(bslots::INT)) {
                     continue;
                 }
                 let pclk = self.naming.interconnect[&cell.wire(pclk)];
@@ -47,7 +47,7 @@ impl ChipContext<'_> {
                 let Some(&cur_hpbx) = hpbx.get(&(cell_tag, i)) else {
                     continue;
                 };
-                let bcrd = cell.bel(bels::INT);
+                let bcrd = cell.bel(bslots::INT);
                 if !self.edev.has_bel(bcrd) && i == 0 {
                     self.name_bel_null(bcrd);
                 }
@@ -106,7 +106,7 @@ impl ChipContext<'_> {
                 Dir::V(_) => cell_tile.delta(-1, 0),
             };
             for i in 0..2 {
-                let bcrd = cell_tile.bel(bels::DCS[i]);
+                let bcrd = cell_tile.bel(bslots::DCS[i]);
                 let ab = ['A', 'B'][i];
                 self.name_bel(bcrd, [format!("DCS{lrbt}{ab}")]);
                 let mut bel = LegacyBel::default();
@@ -126,7 +126,7 @@ impl ChipContext<'_> {
                 self.insert_bel(bcrd, bel);
             }
             {
-                let bcrd = cell_tile.bel(bels::CLK_EDGE);
+                let bcrd = cell_tile.bel(bslots::CLK_EDGE);
                 self.name_bel_null(bcrd);
                 self.insert_bel(bcrd, LegacyBel::default());
 
@@ -150,7 +150,8 @@ impl ChipContext<'_> {
                             let abcd = ['A', 'B', 'C', 'D'][i];
                             let wire = self.rc_io_wire(cell, &format!("JCLKD{bank}{abcd}"));
                             self.add_bel_wire(bcrd, format!("IN_CLKDIV_{bank}_{i}"), wire);
-                            let bcrd_cdiv = self.chip.bel_eclk_root_bank(bank).bel(bels::CLKDIV[i]);
+                            let bcrd_cdiv =
+                                self.chip.bel_eclk_root_bank(bank).bel(bslots::CLKDIV[i]);
                             let wire_clkdiv = self.naming.bel_wire(bcrd_cdiv, "CLKO");
                             self.claim_pip(wire, wire_clkdiv);
                         }
@@ -401,7 +402,7 @@ impl ChipContext<'_> {
         }
         self.insert_bel(bcrd, bel);
         {
-            let bcrd = bcrd.bel(bels::CLKTEST);
+            let bcrd = bcrd.bel(bslots::CLKTEST);
             self.name_bel(bcrd, ["TESTCK"]);
             self.insert_simple_bel(bcrd, cell, "TESTCK");
         }

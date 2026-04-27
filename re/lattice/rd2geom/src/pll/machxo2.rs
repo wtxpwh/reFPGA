@@ -1,6 +1,6 @@
 use prjcombine_ecp::{
-    bels,
     chip::{ChipKind, MachXo2Kind, PllLoc, PllPad, SpecialIoKey, SpecialLocKey},
+    defs::bslots,
 };
 use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
@@ -20,7 +20,7 @@ impl ChipContext<'_> {
                 continue;
             };
 
-            let bcrd_pllrefcs = cell.bel(bels::PLLREFCS0);
+            let bcrd_pllrefcs = cell.bel(bslots::PLLREFCS[0]);
             self.name_bel(bcrd_pllrefcs, [format!("{lr}PLLREFCS")]);
             let mut bel_pllrefcs = LegacyBel::default();
 
@@ -110,7 +110,7 @@ impl ChipContext<'_> {
 
             self.insert_bel(bcrd_pllrefcs, bel_pllrefcs);
 
-            let bcrd = cell.bel(bels::PLL0);
+            let bcrd = cell.bel(bslots::PLL[0]);
             self.name_bel(bcrd, [format!("{lr}PLL")]);
             let mut bel = self.extract_simple_bel(bcrd, cell, "PLL");
 

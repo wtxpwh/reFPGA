@@ -3,7 +3,7 @@ use std::collections::BTreeMap;
 use prjcombine_entity::{EntityPartVec, EntityVec};
 use prjcombine_interconnect::grid::{CellCoord, ColId, ExpandedGrid, Rect, RowId};
 
-use crate::{bels, chip::Chip};
+use crate::{chip::Chip, defs::bslots};
 
 pub struct ExpandedDevice<'a> {
     pub chip: &'a Chip,
@@ -21,7 +21,7 @@ pub struct ExpandedDevice<'a> {
 
 impl ExpandedDevice<'_> {
     pub fn is_in_int_hole(&self, cell: CellCoord) -> bool {
-        !self.has_bel(cell.bel(bels::INT))
+        !self.has_bel(cell.bel(bslots::INT))
     }
 
     pub fn is_in_bel_hole(&self, cell: CellCoord) -> bool {

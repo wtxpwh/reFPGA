@@ -8,10 +8,9 @@ use prjcombine_interconnect::{
 };
 
 use crate::{
-    bels,
     chip::{Chip, ChipKind, IoGroupKind, MachXo2Kind, PllLoc, RowKind, SpecialLocKey},
+    defs::{bslots, rslots, tslots},
     expanded::ExpandedDevice,
-    regions, tslots,
 };
 
 struct Expander<'a, 'b> {
@@ -683,7 +682,7 @@ impl Expander<'_, '_> {
                 continue;
             }
             for cell in self.egrid.row(self.die, row) {
-                if !self.egrid.has_bel(cell.bel(bels::INT)) {
+                if !self.egrid.has_bel(cell.bel(bslots::INT)) {
                     let int_kind = if ebr_width == 3
                         && (cell.col == self.chip.col_w() || cell.col == self.chip.col_e())
                     {
@@ -730,7 +729,7 @@ impl Expander<'_, '_> {
                 continue;
             }
             for cell in self.egrid.row(self.die, row) {
-                if !self.egrid.has_bel(cell.bel(bels::INT)) {
+                if !self.egrid.has_bel(cell.bel(bslots::INT)) {
                     let int_kind = if dsp_width == 9
                         && (cell.col == self.chip.col_w() || cell.col == self.chip.col_e())
                     {
@@ -1839,7 +1838,7 @@ impl Expander<'_, '_> {
             } else {
                 self.chip.row_n()
             };
-            self.egrid[cell].region_root[regions::PCLK0] = self.die.cell(col_pclk, row_pclk);
+            self.egrid[cell].region_root[rslots::PCLK[0]] = self.die.cell(col_pclk, row_pclk);
         }
 
         for (bank, kind) in [
@@ -1886,7 +1885,7 @@ impl Expander<'_, '_> {
             } else {
                 self.chip.row_n()
             };
-            self.egrid[cell].region_root[regions::PCLK0] = self.die.cell(col_pclk, row_pclk);
+            self.egrid[cell].region_root[rslots::PCLK[0]] = self.die.cell(col_pclk, row_pclk);
         }
 
         let ebr_rows = Vec::from_iter(
@@ -1984,7 +1983,7 @@ impl Expander<'_, '_> {
             } else {
                 self.chip.row_n()
             };
-            self.egrid[cell].region_root[regions::PCLK0] = cell.with_cr(col_pclk, row_pclk);
+            self.egrid[cell].region_root[rslots::PCLK[0]] = cell.with_cr(col_pclk, row_pclk);
         }
 
         let mut rows_sclk = EntityVec::new();
@@ -1997,7 +1996,7 @@ impl Expander<'_, '_> {
         }
         for i in 0..4 {
             for cell in self.egrid.die_cells(self.die) {
-                if !self.egrid.has_bel(cell.bel(bels::INT)) {
+                if !self.egrid.has_bel(cell.bel(bslots::INT)) {
                     continue;
                 }
                 let (dx, dx_alt) = match (cell.col.to_idx() + i) % 4 {
@@ -2008,17 +2007,17 @@ impl Expander<'_, '_> {
                     _ => unreachable!(),
                 };
                 let cell_src = if let Some(cell_src) = self.egrid.cell_delta(cell, dx, 0)
-                    && self.egrid.has_bel(cell_src.bel(bels::INT))
+                    && self.egrid.has_bel(cell_src.bel(bslots::INT))
                 {
                     cell_src
                 } else {
                     cell.delta(dx_alt, 0)
                 };
                 let cell_src = cell_src.with_row(rows_sclk[cell.row]);
-                self.egrid[cell].region_root[regions::SCLK[i]] = cell_src;
+                self.egrid[cell].region_root[rslots::SCLK[i]] = cell_src;
                 if cell == cell_src {
                     let mut cell = cell;
-                    if !self.egrid.has_bel(cell.bel(bels::INT)) {
+                    if !self.egrid.has_bel(cell.bel(bslots::INT)) {
                         cell.row += 7;
                     }
                     self.egrid.add_tile_single(cell, &format!("SCLK{i}_SOURCE"));
@@ -2032,7 +2031,7 @@ impl Expander<'_, '_> {
             }
             let mut prev = None;
             for mut cell in self.egrid.row(self.die, row) {
-                if !self.egrid.has_bel(cell.bel(bels::INT)) {
+                if !self.egrid.has_bel(cell.bel(bslots::INT)) {
                     if cell.row == self.chip.row_s() {
                         cell.row += 7;
                     } else if cell.row == self.chip.row_n() {
@@ -2061,7 +2060,7 @@ impl Expander<'_, '_> {
                     }
                     let mut cells = cells.map(Option::unwrap);
                     for cell in &mut cells {
-                        if !self.egrid.has_bel(cell.bel(bels::INT)) {
+                        if !self.egrid.has_bel(cell.bel(bslots::INT)) {
                             if cell.row == self.chip.row_s() {
                                 cell.row += 7;
                             } else if cell.row == self.chip.row_n() {
@@ -2072,7 +2071,7 @@ impl Expander<'_, '_> {
                         }
                     }
                     let mut cell = cell;
-                    if !self.egrid.has_bel(cell.bel(bels::INT)) {
+                    if !self.egrid.has_bel(cell.bel(bslots::INT)) {
                         if cell.row == self.chip.row_s() {
                             cell.row += 7;
                         } else if cell.row == self.chip.row_n() {
@@ -2100,7 +2099,7 @@ impl Expander<'_, '_> {
                 if self.chip.rows[cell.row].sclk_break {
                     root = cell;
                 }
-                self.egrid[cell].region_root[regions::VSDCLK] = root;
+                self.egrid[cell].region_root[rslots::VSDCLK] = root;
             }
         }
 
@@ -2160,7 +2159,7 @@ impl Expander<'_, '_> {
             self.die.cell(self.chip.col_e(), self.chip.row_n()),
         ];
         for cell in &mut cells {
-            if !self.egrid.has_bel(cell.bel(bels::INT)) {
+            if !self.egrid.has_bel(cell.bel(bslots::INT)) {
                 if cell.row == self.chip.row_s() {
                     cell.row += 7;
                 } else if cell.row == self.chip.row_n() {
@@ -2222,7 +2221,7 @@ impl Expander<'_, '_> {
                     cell
                 };
                 let cell_src_sclk = cell_src.with_row(rows_sclk[cell.row]);
-                self.egrid[cell].region_root[regions::SCLK[i]] = cell_src_sclk;
+                self.egrid[cell].region_root[rslots::SCLK[i]] = cell_src_sclk;
             }
         }
         for (row, rd) in &self.chip.rows {
@@ -2248,7 +2247,7 @@ impl Expander<'_, '_> {
                 if self.chip.rows[cell.row].sclk_break {
                     root = cell;
                 }
-                self.egrid[cell].region_root[regions::VSDCLK] = root;
+                self.egrid[cell].region_root[rslots::VSDCLK] = root;
             }
         }
 
@@ -2258,7 +2257,7 @@ impl Expander<'_, '_> {
             }
             let mut prev = None;
             for mut cell in self.egrid.row(self.die, row) {
-                if !self.egrid.has_bel(cell.bel(bels::INT)) {
+                if !self.egrid.has_bel(cell.bel(bslots::INT)) {
                     if cell.row == self.chip.row_s() {
                         cell.row += 9;
                     } else {
@@ -2285,7 +2284,7 @@ impl Expander<'_, '_> {
                     }
                     let mut cells = cells.map(Option::unwrap);
                     for cell in &mut cells {
-                        if !self.egrid.has_bel(cell.bel(bels::INT)) {
+                        if !self.egrid.has_bel(cell.bel(bslots::INT)) {
                             if cell.row == self.chip.row_s() {
                                 cell.row += 9;
                             } else {
@@ -2294,7 +2293,7 @@ impl Expander<'_, '_> {
                         }
                     }
                     let mut cell = cell;
-                    if !self.egrid.has_bel(cell.bel(bels::INT)) {
+                    if !self.egrid.has_bel(cell.bel(bslots::INT)) {
                         if cell.row == self.chip.row_s() {
                             cell.row += 9;
                         } else {
@@ -2350,7 +2349,7 @@ impl Expander<'_, '_> {
                     cell
                 };
                 let cell_src_pclk = cell_src.with_row(rows_pclk[cell.row]);
-                self.egrid[cell].region_root[regions::PCLK[i]] = cell_src_pclk;
+                self.egrid[cell].region_root[rslots::PCLK[i]] = cell_src_pclk;
             }
         }
 
@@ -2563,7 +2562,7 @@ impl Expander<'_, '_> {
             } else {
                 self.chip.row_n()
             };
-            self.egrid[cell].region_root[regions::PCLK0] = self.die.cell(col_pclk, row_pclk);
+            self.egrid[cell].region_root[rslots::PCLK[0]] = self.die.cell(col_pclk, row_pclk);
         }
 
         let num_quads = if self
@@ -2721,7 +2720,7 @@ impl Expander<'_, '_> {
             } else {
                 self.chip.row_n()
             };
-            self.egrid[cell].region_root[regions::PCLK0] = self.die.cell(col_pclk, row_pclk);
+            self.egrid[cell].region_root[rslots::PCLK[0]] = self.die.cell(col_pclk, row_pclk);
         }
 
         let cell = self.die.cell(self.chip.col_w(), self.chip.row_clk);
@@ -2851,7 +2850,7 @@ impl Expander<'_, '_> {
 
     fn fill_clk_crosslink(&mut self) {
         for cell in self.egrid.die_cells(self.die) {
-            self.egrid[cell].region_root[regions::PCLK0] =
+            self.egrid[cell].region_root[rslots::PCLK[0]] =
                 cell.with_cr(self.chip.col_clk, self.chip.row_clk);
         }
 
@@ -3058,7 +3057,7 @@ impl Expander<'_, '_> {
 
     fn fill_clk_machxo(&mut self) {
         for cell in self.egrid.die_cells(self.die) {
-            self.egrid[cell].region_root[regions::PCLK0] =
+            self.egrid[cell].region_root[rslots::PCLK[0]] =
                 self.die.cell(self.chip.col_clk, self.chip.row_clk);
         }
         let kind = if self

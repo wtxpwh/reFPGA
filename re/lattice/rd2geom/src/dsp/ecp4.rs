@@ -1,4 +1,4 @@
-use prjcombine_ecp::bels;
+use prjcombine_ecp::defs::bslots;
 use prjcombine_interconnect::db::LegacyBel;
 
 use crate::ChipContext;
@@ -8,7 +8,7 @@ impl ChipContext<'_> {
         let tcid = self.intdb.get_tile_class("DSP");
         for &tcrd in &self.edev.tile_index[tcid] {
             for idx in 0..2 {
-                let bcrd = tcrd.bel(bels::DSP[idx]);
+                let bcrd = tcrd.bel(bslots::DSP[idx]);
                 let (r, c) = self.rc(tcrd.cell);
                 let c = c + (idx as u8) * 4;
                 self.name_bel(
@@ -37,7 +37,7 @@ impl ChipContext<'_> {
                 } else if bcrd.col == self.chip.col_clk + 1 {
                     Some(bcrd.delta(-11, 0).delta(4, 0))
                 } else if let Some(cell_prev) = self.edev.cell_delta(bcrd.cell, -9, 0)
-                    && self.edev.has_bel(cell_prev.bel(bels::DSP0))
+                    && self.edev.has_bel(cell_prev.bel(bslots::DSP[0]))
                 {
                     Some(cell_prev.delta(4, 0))
                 } else {
@@ -52,7 +52,7 @@ impl ChipContext<'_> {
                 } else if bcrd.col == self.chip.col_clk - 10 {
                     Some(bcrd.delta(11, 0))
                 } else if let Some(cell_next) = self.edev.cell_delta(bcrd.cell, 9, 0)
-                    && self.edev.has_bel(cell_next.bel(bels::DSP0))
+                    && self.edev.has_bel(cell_next.bel(bslots::DSP[0]))
                 {
                     Some(cell_next)
                 } else {

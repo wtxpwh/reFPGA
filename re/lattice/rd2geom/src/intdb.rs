@@ -1,4 +1,8 @@
-use prjcombine_ecp::{bels, chip::ChipKind, cslots, regions, tslots};
+use prjcombine_ecp::{
+    chip::ChipKind,
+    defs::bslots,
+    defs::{cslots, rslots, tslots},
+};
 use prjcombine_interconnect::{
     db::{
         BelInfo, BelPin, BelSlotId, ConnectorClass, ConnectorSlotId, ConnectorWire, IntDb,
@@ -251,9 +255,9 @@ impl IntDbBuilder {
         };
         for i in 0..num_clk {
             let region = if self.kind.has_distributed_sclk_ecp3() {
-                regions::PCLK[i % 4]
+                rslots::PCLK[i % 4]
             } else {
-                regions::PCLK0
+                rslots::PCLK[0]
             };
             self.db
                 .wires
@@ -274,9 +278,9 @@ impl IntDbBuilder {
 
         for i in 0..num_clk {
             let region = if self.kind.has_distributed_sclk() {
-                regions::SCLK[i % 4]
+                rslots::SCLK[i % 4]
             } else {
-                regions::PCLK0
+                rslots::PCLK[0]
             };
             self.db
                 .wires
@@ -312,7 +316,7 @@ impl IntDbBuilder {
                 let w = self
                     .db
                     .wires
-                    .insert(format!("VSDCLK{i}"), WireKind::Regional(regions::VSDCLK))
+                    .insert(format!("VSDCLK{i}"), WireKind::Regional(rslots::VSDCLK))
                     .0;
                 let w_n = self
                     .db
@@ -741,12 +745,12 @@ impl IntDbBuilder {
             let mut tcls = self.tile_class(name, tslots::INT, 1);
             tcls.class
                 .bels
-                .insert(bels::INT, BelInfo::SwitchBox(SwitchBox::default()));
+                .insert(bslots::INT, BelInfo::SwitchBox(SwitchBox::default()));
         }
 
         if self.kind == ChipKind::MachXo {
             self.tile_class("CIBTEST_SEL", tslots::BEL, 1)
-                .bel(bels::CIBTEST_SEL);
+                .bel(bslots::CIBTEST_SEL);
         }
     }
 
@@ -754,22 +758,22 @@ impl IntDbBuilder {
         for i in 0..4 {
             {
                 let mut tcls = self.tile_class(format!("PCLK{i}_SOURCE"), tslots::PCLK_SOURCE, 2);
-                tcls.bel(bels::PCLK_DCC0);
-                tcls.bel(bels::PCLK_DCC1);
+                tcls.bel(bslots::PCLK_DCC[0]);
+                tcls.bel(bslots::PCLK_DCC[1]);
             }
 
             if !(i == 2 && matches!(self.kind, ChipKind::Ecp3 | ChipKind::Ecp3A)) {
                 let mut tcls = self.tile_class(format!("PCLK{i}_SOURCE_W"), tslots::PCLK_SOURCE, 2);
-                tcls.bel(bels::PCLK_SOURCE_W);
-                tcls.bel(bels::PCLK_DCC0);
-                tcls.bel(bels::PCLK_DCC1);
+                tcls.bel(bslots::PCLK_SOURCE_W);
+                tcls.bel(bslots::PCLK_DCC[0]);
+                tcls.bel(bslots::PCLK_DCC[1]);
             }
 
             if !(i == 1 && matches!(self.kind, ChipKind::Ecp3 | ChipKind::Ecp3A)) {
                 let mut tcls = self.tile_class(format!("PCLK{i}_SOURCE_E"), tslots::PCLK_SOURCE, 2);
-                tcls.bel(bels::PCLK_SOURCE_E);
-                tcls.bel(bels::PCLK_DCC0);
-                tcls.bel(bels::PCLK_DCC1);
+                tcls.bel(bslots::PCLK_SOURCE_E);
+                tcls.bel(bslots::PCLK_DCC[0]);
+                tcls.bel(bslots::PCLK_DCC[1]);
             }
         }
     }
@@ -778,60 +782,60 @@ impl IntDbBuilder {
         for i in 0..4 {
             for name in [format!("PCLK{i}_SOURCE_IO_N"), format!("PCLK{i}_SOURCE_N")] {
                 let mut tcls = self.tile_class(name, tslots::PCLK_SOURCE, 1);
-                tcls.bel(bels::PCLK_DCC0);
-                tcls.bel(bels::PCLK_DCC1);
+                tcls.bel(bslots::PCLK_DCC[0]);
+                tcls.bel(bslots::PCLK_DCC[1]);
             }
 
             if matches!(i, 0 | 3) {
                 let mut tcls =
                     self.tile_class(format!("PCLK{i}_SOURCE_IO_N_W"), tslots::PCLK_SOURCE, 1);
-                tcls.bel(bels::PCLK_SOURCE_W);
-                tcls.bel(bels::PCLK_DCC0);
-                tcls.bel(bels::PCLK_DCC1);
+                tcls.bel(bslots::PCLK_SOURCE_W);
+                tcls.bel(bslots::PCLK_DCC[0]);
+                tcls.bel(bslots::PCLK_DCC[1]);
             }
 
             if i == 1 {
                 let mut tcls =
                     self.tile_class(format!("PCLK{i}_SOURCE_N_W"), tslots::PCLK_SOURCE, 1);
-                tcls.bel(bels::PCLK_SOURCE_W);
-                tcls.bel(bels::PCLK_DCC0);
-                tcls.bel(bels::PCLK_DCC1);
+                tcls.bel(bslots::PCLK_SOURCE_W);
+                tcls.bel(bslots::PCLK_DCC[0]);
+                tcls.bel(bslots::PCLK_DCC[1]);
             }
 
             if matches!(i, 0 | 1) {
                 let mut tcls =
                     self.tile_class(format!("PCLK{i}_SOURCE_IO_N_E"), tslots::PCLK_SOURCE, 1);
-                tcls.bel(bels::PCLK_SOURCE_E);
-                tcls.bel(bels::PCLK_DCC0);
-                tcls.bel(bels::PCLK_DCC1);
+                tcls.bel(bslots::PCLK_SOURCE_E);
+                tcls.bel(bslots::PCLK_DCC[0]);
+                tcls.bel(bslots::PCLK_DCC[1]);
             }
 
             if i == 1 {
                 let mut tcls =
                     self.tile_class(format!("PCLK{i}_SOURCE_N_E"), tslots::PCLK_SOURCE, 1);
-                tcls.bel(bels::PCLK_SOURCE_E);
-                tcls.bel(bels::PCLK_DCC0);
-                tcls.bel(bels::PCLK_DCC1);
+                tcls.bel(bslots::PCLK_SOURCE_E);
+                tcls.bel(bslots::PCLK_DCC[0]);
+                tcls.bel(bslots::PCLK_DCC[1]);
             }
 
             {
                 let mut tcls = self.tile_class(format!("PCLK{i}_SOURCE"), tslots::PCLK_SOURCE, 2);
-                tcls.bel(bels::PCLK_DCC0);
-                tcls.bel(bels::PCLK_DCC1);
+                tcls.bel(bslots::PCLK_DCC[0]);
+                tcls.bel(bslots::PCLK_DCC[1]);
             }
 
             {
                 let mut tcls = self.tile_class(format!("PCLK{i}_SOURCE_W"), tslots::PCLK_SOURCE, 2);
-                tcls.bel(bels::PCLK_SOURCE_W);
-                tcls.bel(bels::PCLK_DCC0);
-                tcls.bel(bels::PCLK_DCC1);
+                tcls.bel(bslots::PCLK_SOURCE_W);
+                tcls.bel(bslots::PCLK_DCC[0]);
+                tcls.bel(bslots::PCLK_DCC[1]);
             }
 
             if i != 2 {
                 let mut tcls = self.tile_class(format!("PCLK{i}_SOURCE_E"), tslots::PCLK_SOURCE, 2);
-                tcls.bel(bels::PCLK_SOURCE_E);
-                tcls.bel(bels::PCLK_DCC0);
-                tcls.bel(bels::PCLK_DCC1);
+                tcls.bel(bslots::PCLK_SOURCE_E);
+                tcls.bel(bslots::PCLK_DCC[0]);
+                tcls.bel(bslots::PCLK_DCC[1]);
             }
         }
     }
@@ -893,7 +897,7 @@ impl IntDbBuilder {
                 let mut tcls = self.tile_class(name, tslots::SCLK_SOURCE, 1);
                 tcls.class
                     .bels
-                    .insert(bels::SCLK_SOURCE, BelInfo::SwitchBox(sb));
+                    .insert(bslots::SCLK_SOURCE, BelInfo::SwitchBox(sb));
             }
         }
 
@@ -920,9 +924,9 @@ impl IntDbBuilder {
             let mut tcls = self.tile_class(name, tslots::HSDCLK_SPLITTER, 8);
             tcls.class
                 .bels
-                .insert(bels::HSDCLK_SPLITTER, BelInfo::SwitchBox(sb));
+                .insert(bslots::HSDCLK_SPLITTER, BelInfo::SwitchBox(sb));
             if name == "HSDCLK_ROOT" {
-                let mut bel = tcls.bel(bels::HSDCLK_ROOT);
+                let mut bel = tcls.bel(bslots::HSDCLK_ROOT);
                 for i in 0..8 {
                     bel.add_output(
                         &format!("OUT_W{i}"),
@@ -940,44 +944,44 @@ impl IntDbBuilder {
     }
 
     fn fill_clk_tiles_scm(&mut self) {
-        for slot in bels::CLKDIV {
+        for slot in bslots::CLKDIV {
             self.db.bel_slots[slot].tile_slot = tslots::CLK;
         }
         for name in ["CLK_W", "CLK_E", "CLK_N"] {
             let mut tcls = self.tile_class(name, tslots::CLK, 2);
-            tcls.bel(bels::ECLK_ROOT);
+            tcls.bel(bslots::ECLK_ROOT);
             for i in 0..4 {
-                tcls.bel(bels::CLKDIV[i]);
+                tcls.bel(bslots::CLKDIV[i]);
             }
             for i in 0..2 {
-                tcls.bel(bels::DCS[i]);
+                tcls.bel(bslots::DCS[i]);
             }
-            tcls.bel(bels::CLK_EDGE);
+            tcls.bel(bslots::CLK_EDGE);
         }
         {
             let mut tcls = self.tile_class("CLK_S", tslots::CLK, 2);
             for i in 0..2 {
-                tcls.bel(bels::DCS[i]);
+                tcls.bel(bslots::DCS[i]);
             }
-            tcls.bel(bels::CLK_EDGE);
+            tcls.bel(bslots::CLK_EDGE);
         }
         for name in ["CLK_SW", "CLK_SE"] {
             let mut tcls = self.tile_class(name, tslots::CLK, 2);
-            tcls.bel(bels::ECLK_ROOT);
+            tcls.bel(bslots::ECLK_ROOT);
             for i in 0..4 {
-                tcls.bel(bels::CLKDIV[i]);
+                tcls.bel(bslots::CLKDIV[i]);
             }
         }
         {
             let mut tcls = self.tile_class("CLK_ROOT", tslots::CLK, 4);
-            tcls.bel(bels::CLK_ROOT);
-            tcls.bel(bels::CLKTEST);
+            tcls.bel(bslots::CLK_ROOT);
+            tcls.bel(bslots::CLKTEST);
         }
     }
 
     fn fill_clk_tiles_machxo(&mut self) {
         for name in ["CLK_ROOT_0PLL", "CLK_ROOT_1PLL", "CLK_ROOT_2PLL"] {
-            self.tile_class(name, tslots::CLK, 6).bel(bels::CLK_ROOT);
+            self.tile_class(name, tslots::CLK, 6).bel(bslots::CLK_ROOT);
         }
     }
 
@@ -1002,41 +1006,41 @@ impl IntDbBuilder {
         };
         for &(name, num_cells) in tile_classes {
             let mut tcls = self.tile_class(name, tslots::CLK, num_cells);
-            tcls.bel(bels::CLK_ROOT);
+            tcls.bel(bslots::CLK_ROOT);
             for i in 0..2 {
-                tcls.bel(bels::DCS_SW[i]);
-                tcls.bel(bels::DCS_SE[i]);
-                tcls.bel(bels::DCS_NW[i]);
-                tcls.bel(bels::DCS_NE[i]);
+                tcls.bel(bslots::DCS_SW[i]);
+                tcls.bel(bslots::DCS_SE[i]);
+                tcls.bel(bslots::DCS_NW[i]);
+                tcls.bel(bslots::DCS_NE[i]);
             }
         }
     }
 
     fn fill_clk_tiles_ecp3(&mut self) {
         let mut tcls = self.tile_class("CLK_ROOT", tslots::CLK, 30);
-        tcls.bel(bels::CLK_ROOT);
+        tcls.bel(bslots::CLK_ROOT);
         for i in 0..6 {
-            tcls.bel(bels::DCC_SW[i]);
-            tcls.bel(bels::DCC_SE[i]);
-            tcls.bel(bels::DCC_NW[i]);
-            tcls.bel(bels::DCC_NE[i]);
+            tcls.bel(bslots::DCC_SW[i]);
+            tcls.bel(bslots::DCC_SE[i]);
+            tcls.bel(bslots::DCC_NW[i]);
+            tcls.bel(bslots::DCC_NE[i]);
         }
         for i in 0..2 {
-            tcls.bel(bels::DCS_SW[i]);
-            tcls.bel(bels::DCS_SE[i]);
-            tcls.bel(bels::DCS_NW[i]);
-            tcls.bel(bels::DCS_NE[i]);
+            tcls.bel(bslots::DCS_SW[i]);
+            tcls.bel(bslots::DCS_SE[i]);
+            tcls.bel(bslots::DCS_NW[i]);
+            tcls.bel(bslots::DCS_NE[i]);
         }
     }
 
     fn fill_clk_tiles_machxo2(&mut self) {
-        for slot in bels::CLKDIV {
+        for slot in bslots::CLKDIV {
             self.db.bel_slots[slot].tile_slot = tslots::CLK;
         }
-        for slot in bels::DLLDEL {
+        for slot in bslots::DLLDEL {
             self.db.bel_slots[slot].tile_slot = tslots::CLK;
         }
-        for slot in bels::DQS {
+        for slot in bslots::DQS {
             self.db.bel_slots[slot].tile_slot = tslots::CLK;
         }
         for (name, num_cells) in [
@@ -1047,60 +1051,60 @@ impl IntDbBuilder {
         ] {
             let mut tcls = self.tile_class(name, tslots::CLK, num_cells);
             for i in 0..8 {
-                tcls.bel(bels::DCC[i]);
+                tcls.bel(bslots::DCC[i]);
             }
-            for bel in bels::DCM {
+            for bel in bslots::DCM {
                 tcls.bel(bel);
             }
             if name != "CLK_ROOT_0EBR" {
-                for bel in bels::ECLKBRIDGECS {
+                for bel in bslots::ECLKBRIDGECS {
                     tcls.bel(bel);
                 }
             }
-            tcls.bel(bels::CLKTEST);
-            tcls.bel(bels::CLK_ROOT);
+            tcls.bel(bslots::CLKTEST);
+            tcls.bel(bslots::CLK_ROOT);
         }
         for name in ["CLK_S", "CLK_N"] {
             let mut tcls = self.tile_class(name, tslots::CLK, 1);
-            tcls.bel(bels::ECLKSYNC0);
-            tcls.bel(bels::ECLKSYNC1);
-            tcls.bel(bels::DLLDEL0);
-            tcls.bel(bels::DLLDEL1);
-            tcls.bel(bels::CLKDIV0);
-            tcls.bel(bels::CLKDIV1);
+            tcls.bel(bslots::ECLKSYNC[0]);
+            tcls.bel(bslots::ECLKSYNC[1]);
+            tcls.bel(bslots::DLLDEL[0]);
+            tcls.bel(bslots::DLLDEL[1]);
+            tcls.bel(bslots::CLKDIV[0]);
+            tcls.bel(bslots::CLKDIV[1]);
             if name == "CLK_S" {
-                tcls.bel(bels::CLKFBBUF0);
-                tcls.bel(bels::CLKFBBUF1);
+                tcls.bel(bslots::CLKFBBUF[0]);
+                tcls.bel(bslots::CLKFBBUF[1]);
             }
         }
         for name in ["DQSDLL_S", "DQSDLL_N"] {
             let mut tcls = self.tile_class(name, tslots::BEL, 1);
-            tcls.bel(bels::DQSDLL);
-            tcls.bel(bels::DQSDLLTEST);
+            tcls.bel(bslots::DQSDLL);
+            tcls.bel(bslots::DQSDLLTEST);
         }
         {
             let mut tcls = self.tile_class("CLK_W", tslots::CLK, 1);
-            tcls.bel(bels::DLLDEL0);
-            tcls.bel(bels::DLLDEL1);
-            tcls.bel(bels::DLLDEL2);
+            tcls.bel(bslots::DLLDEL[0]);
+            tcls.bel(bslots::DLLDEL[1]);
+            tcls.bel(bslots::DLLDEL[2]);
         }
         {
             let mut tcls = self.tile_class("CLK_E", tslots::CLK, 1);
-            tcls.bel(bels::DLLDEL0);
+            tcls.bel(bslots::DLLDEL[0]);
         }
         {
             let mut tcls = self.tile_class("CLK_E_DQS", tslots::CLK, 5);
-            tcls.bel(bels::DLLDEL0);
-            tcls.bel(bels::DQS0);
-            tcls.bel(bels::DQS1);
+            tcls.bel(bslots::DLLDEL[0]);
+            tcls.bel(bslots::DQS[0]);
+            tcls.bel(bslots::DQS[1]);
         }
     }
 
     fn fill_clk_tiles_ecp4(&mut self) {
-        for slot in bels::CLKDIV {
+        for slot in bslots::CLKDIV {
             self.db.bel_slots[slot].tile_slot = tslots::CLK;
         }
-        for slot in bels::DLLDEL {
+        for slot in bslots::DLLDEL {
             self.db.bel_slots[slot].tile_slot = tslots::CLK;
         }
         for (name, num_cells, bank_range, num_dcc) in [
@@ -1116,28 +1120,28 @@ impl IntDbBuilder {
         ] {
             let mut tcls = self.tile_class(name, tslots::CLK, num_cells);
             for i in 0..num_dcc {
-                tcls.bel(bels::DCC[i]);
+                tcls.bel(bslots::DCC[i]);
             }
-            tcls.bel(bels::CLKTEST);
-            tcls.bel(bels::CLK_EDGE);
+            tcls.bel(bslots::CLKTEST);
+            tcls.bel(bslots::CLK_EDGE);
             for i in bank_range.clone() {
                 for j in 0..4 {
-                    tcls.bel(bels::ECLKSYNC[i * 4 + j]);
+                    tcls.bel(bslots::ECLKSYNC[i * 4 + j]);
                 }
             }
-            tcls.bel(bels::CLKTEST_ECLK);
+            tcls.bel(bslots::CLKTEST_ECLK);
             for i in bank_range.clone() {
                 for j in 0..2 {
-                    tcls.bel(bels::DLLDEL[i * 2 + j]);
+                    tcls.bel(bslots::DLLDEL[i * 2 + j]);
                 }
             }
             for i in 0..4 {
-                tcls.bel(bels::CLKDIV[i]);
+                tcls.bel(bslots::CLKDIV[i]);
             }
             if !name.starts_with("CLK_N") {
                 for i in 0..2 {
-                    tcls.bel(bels::BRGECLKSYNC[i]);
-                    tcls.bel(bels::ECLKBRIDGECS[i]);
+                    tcls.bel(bslots::BRGECLKSYNC[i]);
+                    tcls.bel(bslots::ECLKBRIDGECS[i]);
                 }
             }
         }
@@ -1146,33 +1150,33 @@ impl IntDbBuilder {
         {
             let mut tcls = self.tile_class(name, tslots::CLK, num_cells);
             for i in 0..16 {
-                tcls.bel(bels::DCC[i]);
+                tcls.bel(bslots::DCC[i]);
             }
-            tcls.bel(bels::CLKTEST);
-            tcls.bel(bels::CLK_EDGE);
+            tcls.bel(bslots::CLKTEST);
+            tcls.bel(bslots::CLK_EDGE);
             for i in 0..num_quads {
-                tcls.bel(bels::PCSCLKDIV[i]);
+                tcls.bel(bslots::PCSCLKDIV[i]);
             }
         }
 
         {
             let mut tcls = self.tile_class("CLK_ROOT", tslots::CLK, 4);
-            tcls.bel(bels::DCC_SW0);
-            tcls.bel(bels::DCC_SE0);
-            tcls.bel(bels::DCC_NW0);
-            tcls.bel(bels::DCC_NE0);
-            tcls.bel(bels::DCS0);
-            tcls.bel(bels::DCS1);
-            tcls.bel(bels::CLK_ROOT);
-            tcls.bel(bels::CLKTEST);
+            tcls.bel(bslots::DCC_SW[0]);
+            tcls.bel(bslots::DCC_SE[0]);
+            tcls.bel(bslots::DCC_NW[0]);
+            tcls.bel(bslots::DCC_NE[0]);
+            tcls.bel(bslots::DCS[0]);
+            tcls.bel(bslots::DCS[1]);
+            tcls.bel(bslots::CLK_ROOT);
+            tcls.bel(bslots::CLKTEST);
         }
     }
 
     fn fill_clk_tiles_ecp5(&mut self) {
-        for slot in bels::CLKDIV {
+        for slot in bslots::CLKDIV {
             self.db.bel_slots[slot].tile_slot = tslots::CLK;
         }
-        for slot in bels::DLLDEL {
+        for slot in bslots::DLLDEL {
             self.db.bel_slots[slot].tile_slot = tslots::CLK;
         }
         for (name, num_cells) in [
@@ -1183,107 +1187,107 @@ impl IntDbBuilder {
         ] {
             let mut tcls = self.tile_class(name, tslots::CLK, num_cells);
             for i in 0..14 {
-                tcls.bel(bels::DCC[i]);
+                tcls.bel(bslots::DCC[i]);
             }
-            tcls.bel(bels::CLKTEST);
-            tcls.bel(bels::CLK_EDGE);
+            tcls.bel(bslots::CLKTEST);
+            tcls.bel(bslots::CLK_EDGE);
             for i in 0..2 {
                 for j in 0..2 {
-                    tcls.bel(bels::ECLKSYNC[i * 2 + j]);
+                    tcls.bel(bslots::ECLKSYNC[i * 2 + j]);
                 }
             }
-            tcls.bel(bels::CLKTEST_ECLK);
+            tcls.bel(bslots::CLKTEST_ECLK);
             for i in 0..2 {
                 for j in 0..2 {
-                    tcls.bel(bels::DLLDEL[i * 2 + j]);
+                    tcls.bel(bslots::DLLDEL[i * 2 + j]);
                 }
             }
             for i in 0..2 {
-                tcls.bel(bels::CLKDIV[i]);
+                tcls.bel(bslots::CLKDIV[i]);
             }
-            tcls.bel(bels::BRGECLKSYNC0);
-            tcls.bel(bels::ECLKBRIDGECS0);
+            tcls.bel(bslots::BRGECLKSYNC[0]);
+            tcls.bel(bslots::ECLKBRIDGECS[0]);
         }
         for (name, num_cells) in [("CLK_N_S", 10), ("CLK_N_L", 12)] {
             let mut tcls = self.tile_class(name, tslots::CLK, num_cells);
             for i in 0..12 {
-                tcls.bel(bels::DCC[i]);
+                tcls.bel(bslots::DCC[i]);
             }
-            tcls.bel(bels::CLKTEST);
-            tcls.bel(bels::CLK_EDGE);
+            tcls.bel(bslots::CLKTEST);
+            tcls.bel(bslots::CLK_EDGE);
             for i in 0..2 {
                 for j in 0..2 {
-                    tcls.bel(bels::DLLDEL[i * 2 + j]);
+                    tcls.bel(bslots::DLLDEL[i * 2 + j]);
                 }
             }
         }
         for (name, num_cells) in [("CLK_S_S", 8), ("CLK_S_L", 10)] {
             let mut tcls = self.tile_class(name, tslots::CLK, num_cells);
             for i in 0..16 {
-                tcls.bel(bels::DCC[i]);
+                tcls.bel(bslots::DCC[i]);
             }
-            tcls.bel(bels::CLKTEST);
-            tcls.bel(bels::CLK_EDGE);
+            tcls.bel(bslots::CLKTEST);
+            tcls.bel(bslots::CLK_EDGE);
             for i in 0..2 {
-                tcls.bel(bels::PCSCLKDIV[i]);
+                tcls.bel(bslots::PCSCLKDIV[i]);
             }
         }
 
         for (name, num_cells) in [("CLK_ROOT_S", 4), ("CLK_ROOT_L", 8)] {
             let mut tcls = self.tile_class(name, tslots::CLK, num_cells);
-            tcls.bel(bels::DCC_SW0);
-            tcls.bel(bels::DCC_SE0);
-            tcls.bel(bels::DCC_NW0);
-            tcls.bel(bels::DCC_NE0);
-            tcls.bel(bels::DCS0);
-            tcls.bel(bels::DCS1);
-            tcls.bel(bels::CLK_ROOT);
-            tcls.bel(bels::CLKTEST);
+            tcls.bel(bslots::DCC_SW[0]);
+            tcls.bel(bslots::DCC_SE[0]);
+            tcls.bel(bslots::DCC_NW[0]);
+            tcls.bel(bslots::DCC_NE[0]);
+            tcls.bel(bslots::DCS[0]);
+            tcls.bel(bslots::DCS[1]);
+            tcls.bel(bslots::CLK_ROOT);
+            tcls.bel(bslots::CLKTEST);
         }
     }
 
     fn fill_clk_tiles_crosslink(&mut self) {
-        for slot in bels::CLKDIV {
+        for slot in bslots::CLKDIV {
             self.db.bel_slots[slot].tile_slot = tslots::CLK;
         }
-        for slot in bels::DLLDEL {
+        for slot in bslots::DLLDEL {
             self.db.bel_slots[slot].tile_slot = tslots::CLK;
         }
         {
             let mut tcls = self.tile_class("CLK_S", tslots::CLK, 6);
             for i in 0..8 {
-                tcls.bel(bels::DCC[i]);
+                tcls.bel(bslots::DCC[i]);
             }
-            tcls.bel(bels::CLKTEST);
-            tcls.bel(bels::CLK_EDGE);
+            tcls.bel(bslots::CLKTEST);
+            tcls.bel(bslots::CLK_EDGE);
             for i in 0..2 {
                 for j in 0..2 {
-                    tcls.bel(bels::ECLKSYNC[i * 2 + j]);
+                    tcls.bel(bslots::ECLKSYNC[i * 2 + j]);
                 }
             }
-            tcls.bel(bels::CLKTEST_ECLK);
+            tcls.bel(bslots::CLKTEST_ECLK);
             for i in 0..2 {
                 for j in 0..2 {
-                    tcls.bel(bels::DLLDEL[i * 2 + j]);
+                    tcls.bel(bslots::DLLDEL[i * 2 + j]);
                 }
             }
             for i in 0..4 {
-                tcls.bel(bels::CLKDIV[i]);
+                tcls.bel(bslots::CLKDIV[i]);
             }
         }
         {
             let mut tcls = self.tile_class("CLK_N", tslots::CLK, 2);
             for i in 0..6 {
-                tcls.bel(bels::DCC[i]);
+                tcls.bel(bslots::DCC[i]);
             }
-            tcls.bel(bels::CLKTEST);
-            tcls.bel(bels::CLK_EDGE);
+            tcls.bel(bslots::CLKTEST);
+            tcls.bel(bslots::CLK_EDGE);
         }
         {
             let mut tcls = self.tile_class("CLK_ROOT", tslots::CLK, 1);
-            tcls.bel(bels::DCS0);
-            tcls.bel(bels::CLK_ROOT);
-            tcls.bel(bels::CLKTEST);
+            tcls.bel(bslots::DCS[0]);
+            tcls.bel(bslots::CLK_ROOT);
+            tcls.bel(bslots::CLKTEST);
         }
     }
 
@@ -1319,7 +1323,7 @@ impl IntDbBuilder {
             }
             let mut tcls = self.tile_class(name, tslots::BEL, 1);
             for i in 0..4 {
-                let mut bel = tcls.bel(bels::SLICE[i]);
+                let mut bel = tcls.bel(bslots::SLICE[i]);
                 let i0 = 2 * i;
                 let i1 = 2 * i + 1;
                 for l in ['A', 'B', 'C', 'D', 'M'] {
@@ -1383,10 +1387,10 @@ impl IntDbBuilder {
         for &tcname in tiles {
             let mut tcls = self.tile_class(tcname, tslots::BEL, num_cells);
             for i in 0..num_bels {
-                tcls.bel(bels::EBR[i]);
+                tcls.bel(bslots::EBR[i]);
             }
             if kind == ChipKind::Scm {
-                tcls.bel(bels::EBR_INT);
+                tcls.bel(bslots::EBR_INT);
             }
         }
     }
@@ -1404,80 +1408,80 @@ impl IntDbBuilder {
         };
         let mut tcls = self.tile_class("DSP", tslots::BEL, num_cells);
         for i in 0..num_bels {
-            tcls.bel(bels::DSP[i]);
+            tcls.bel(bslots::DSP[i]);
         }
     }
 
     fn fill_config_tiles_scm(&mut self) {
         let mut tcls = self.tile_class("CONFIG", tslots::BEL, 13);
-        tcls.bel(bels::JTAG);
-        tcls.bel(bels::RDBK);
-        tcls.bel(bels::GSR);
-        tcls.bel(bels::OSC);
-        tcls.bel(bels::START);
-        tcls.bel(bels::SYSBUS);
-        tcls.bel(bels::SERDES_CENTER);
+        tcls.bel(bslots::JTAG);
+        tcls.bel(bslots::RDBK);
+        tcls.bel(bslots::GSR);
+        tcls.bel(bslots::OSC);
+        tcls.bel(bslots::START);
+        tcls.bel(bslots::SYSBUS);
+        tcls.bel(bslots::SERDES_CENTER);
     }
 
     fn fill_config_tiles_ecp(&mut self) {
         for (name, num_cells) in [("CONFIG_S", 4), ("CONFIG_L", 5)] {
             let mut tcls = self.tile_class(name, tslots::BEL, num_cells);
-            tcls.bel(bels::START);
-            tcls.bel(bels::OSC);
-            tcls.bel(bels::JTAG);
+            tcls.bel(bslots::START);
+            tcls.bel(bslots::OSC);
+            tcls.bel(bslots::JTAG);
             // RDBK exists as stub?
-            tcls.bel(bels::GSR);
+            tcls.bel(bslots::GSR);
         }
     }
 
     fn fill_config_tiles_xp(&mut self) {
         let mut tcls = self.tile_class("CONFIG", tslots::BEL, 1);
-        tcls.bel(bels::START);
-        tcls.bel(bels::JTAG);
-        tcls.bel(bels::GSR);
+        tcls.bel(bslots::START);
+        tcls.bel(bslots::JTAG);
+        tcls.bel(bslots::GSR);
         // OSC and RDBK exist as stubs?
     }
 
     fn fill_config_tiles_machxo(&mut self) {
         for name in ["OSC", "OSC_X"] {
-            self.tile_class(name, tslots::BEL, 1).bel(bels::OSC);
+            self.tile_class(name, tslots::BEL, 1).bel(bslots::OSC);
         }
 
         let mut tcls = self.tile_class("CONFIG", tslots::BEL, 5);
-        tcls.bel(bels::GSR);
-        tcls.bel(bels::JTAG);
+        tcls.bel(bslots::GSR);
+        tcls.bel(bslots::JTAG);
     }
 
     fn fill_config_tiles_ecp2(&mut self) {
         let mut tcls = self.tile_class("CONFIG", tslots::BEL, 3);
-        tcls.bel(bels::START);
-        tcls.bel(bels::OSC);
-        tcls.bel(bels::JTAG);
-        tcls.bel(bels::GSR);
-        tcls.bel(bels::SED);
-        tcls.bel(bels::SPIM);
+        tcls.bel(bslots::START);
+        tcls.bel(bslots::OSC);
+        tcls.bel(bslots::JTAG);
+        tcls.bel(bslots::GSR);
+        tcls.bel(bslots::SED);
+        tcls.bel(bslots::SPIM);
     }
 
     fn fill_config_tiles_xp2(&mut self) {
         {
             let mut tcls = self.tile_class("CONFIG", tslots::BEL, 1);
-            tcls.bel(bels::JTAG);
-            tcls.bel(bels::SED);
+            tcls.bel(bslots::JTAG);
+            tcls.bel(bslots::SED);
         }
 
-        self.tile_class("OSC", tslots::BEL, 1).bel(bels::OSC);
+        self.tile_class("OSC", tslots::BEL, 1).bel(bslots::OSC);
     }
 
     fn fill_config_tiles_ecp3(&mut self) {
         {
             let mut tcls = self.tile_class("CONFIG", tslots::BEL, 14);
-            tcls.bel(bels::START);
-            tcls.bel(bels::JTAG);
-            tcls.bel(bels::OSC);
-            tcls.bel(bels::GSR);
-            tcls.bel(bels::SED);
-            tcls.bel(bels::AMBOOT);
-            tcls.bel(bels::PERREG);
+            tcls.bel(bslots::START);
+            tcls.bel(bslots::JTAG);
+            tcls.bel(bslots::OSC);
+            tcls.bel(bslots::GSR);
+            tcls.bel(bslots::SED);
+            tcls.bel(bslots::AMBOOT);
+            tcls.bel(bslots::PERREG);
         }
 
         for (name, num_cells) in [
@@ -1487,10 +1491,10 @@ impl IntDbBuilder {
             ("TEST_NE", 2),
         ] {
             let mut tcls = self.tile_class(name, tslots::BEL, num_cells);
-            tcls.bel(bels::TESTIN);
-            tcls.bel(bels::TESTOUT);
+            tcls.bel(bslots::TESTIN);
+            tcls.bel(bslots::TESTOUT);
             if name == "TEST_SE" {
-                tcls.bel(bels::DTS);
+                tcls.bel(bslots::DTS);
             }
         }
     }
@@ -1498,59 +1502,59 @@ impl IntDbBuilder {
     fn fill_config_tiles_machxo2(&mut self) {
         for (name, num_cells) in [("CONFIG", 4), ("CONFIG_XO3D", 10)] {
             let mut tcls = self.tile_class(name, tslots::BEL, num_cells);
-            tcls.bel(bels::START);
-            tcls.bel(bels::JTAG);
-            tcls.bel(bels::OSC);
-            tcls.bel(bels::GSR);
-            tcls.bel(bels::SED);
-            tcls.bel(bels::PCNTR);
-            tcls.bel(bels::TSALL);
-            tcls.bel(bels::EFB);
+            tcls.bel(bslots::START);
+            tcls.bel(bslots::JTAG);
+            tcls.bel(bslots::OSC);
+            tcls.bel(bslots::GSR);
+            tcls.bel(bslots::SED);
+            tcls.bel(bslots::PCNTR);
+            tcls.bel(bslots::TSALL);
+            tcls.bel(bslots::EFB);
             if name == "CONFIG_XO3D" {
-                tcls.bel(bels::ESB);
+                tcls.bel(bslots::ESB);
             }
         }
     }
 
     fn fill_config_tiles_ecp4(&mut self) {
         let mut tcls = self.tile_class("CONFIG", tslots::BEL, 11);
-        tcls.bel(bels::START);
-        tcls.bel(bels::JTAG);
-        tcls.bel(bels::OSC);
-        tcls.bel(bels::GSR);
-        tcls.bel(bels::SED);
-        tcls.bel(bels::PCNTR);
-        tcls.bel(bels::EFB);
+        tcls.bel(bslots::START);
+        tcls.bel(bslots::JTAG);
+        tcls.bel(bslots::OSC);
+        tcls.bel(bslots::GSR);
+        tcls.bel(bslots::SED);
+        tcls.bel(bslots::PCNTR);
+        tcls.bel(bslots::EFB);
     }
 
     fn fill_config_tiles_ecp5(&mut self) {
         let mut tcls = self.tile_class("CONFIG", tslots::BEL, 4);
-        tcls.bel(bels::START);
-        tcls.bel(bels::JTAG);
-        tcls.bel(bels::OSC);
-        tcls.bel(bels::GSR);
-        tcls.bel(bels::SED);
-        tcls.bel(bels::CCLK);
+        tcls.bel(bslots::START);
+        tcls.bel(bslots::JTAG);
+        tcls.bel(bslots::OSC);
+        tcls.bel(bslots::GSR);
+        tcls.bel(bslots::SED);
+        tcls.bel(bslots::CCLK);
     }
 
     fn fill_config_tiles_crosslink(&mut self) {
         for name in ["I2C_W", "I2C_E"] {
             let mut tcls = self.tile_class(name, tslots::BEL, 2);
-            tcls.bel(bels::I2C);
+            tcls.bel(bslots::I2C);
             if name == "I2C_E" {
-                tcls.bel(bels::NVCMTEST);
+                tcls.bel(bslots::NVCMTEST);
             }
         }
-        self.tile_class("OSC", tslots::BEL, 1).bel(bels::OSC);
+        self.tile_class("OSC", tslots::BEL, 1).bel(bslots::OSC);
         {
             let mut tcls = self.tile_class("CONFIG", tslots::BEL, 4);
-            tcls.bel(bels::GSR);
-            tcls.bel(bels::CFGTEST);
+            tcls.bel(bslots::GSR);
+            tcls.bel(bslots::CFGTEST);
         }
         {
             let mut tcls = self.tile_class("PMU", tslots::BEL, 1);
-            tcls.bel(bels::PMU);
-            tcls.bel(bels::PMUTEST);
+            tcls.bel(bslots::PMU);
+            tcls.bel(bslots::PMUTEST);
         }
     }
 
@@ -1584,46 +1588,46 @@ impl IntDbBuilder {
         ] {
             let mut tcls = self.tile_class(name, tslots::IO, num_cells);
             for i in 0..num_io {
-                tcls.bel(bels::IO[i]);
+                tcls.bel(bslots::IO[i]);
             }
             for i in 0..num_io / 4 {
-                tcls.bel(bels::PICTEST[i]);
+                tcls.bel(bslots::PICTEST[i]);
             }
         }
         for name in ["IO_INT_W", "IO_INT_E", "IO_INT_S"] {
-            self.tile_class(name, tslots::BEL, 1).bel(bels::IO_INT);
+            self.tile_class(name, tslots::BEL, 1).bel(bslots::IO_INT);
         }
     }
 
     fn fill_io_tiles_ecp(&mut self) {
         for name in ["IO_W", "IO_E", "IO_S", "IO_N"] {
             let mut tcls = self.tile_class(name, tslots::IO, 1);
-            tcls.bel(bels::IO0);
-            tcls.bel(bels::IO1);
+            tcls.bel(bslots::IO[0]);
+            tcls.bel(bslots::IO[1]);
         }
         for name in ["DQS_W", "DQS_E", "DQS_S", "DQS_N"] {
             if matches!(self.kind, ChipKind::Ecp2 | ChipKind::Ecp2M) && name == "DQS_N" {
                 continue;
             }
-            self.tile_class(name, tslots::BEL, 1).bel(bels::DQS0);
+            self.tile_class(name, tslots::BEL, 1).bel(bslots::DQS[0]);
         }
         if matches!(self.kind, ChipKind::Ecp | ChipKind::Xp) {
             for name in ["DQSDLL_S", "DQSDLL_N"] {
-                self.tile_class(name, tslots::BEL, 1).bel(bels::DQSDLL);
+                self.tile_class(name, tslots::BEL, 1).bel(bslots::DQSDLL);
             }
         }
         if self.kind == ChipKind::Xp2 {
             for name in ["CLK_W", "CLK_E"] {
                 let mut tcls =
                     self.tile_class(name, tslots::BEL, if name == "CLK_E" { 2 } else { 1 });
-                tcls.bel(bels::DQSDLL);
-                tcls.bel(bels::CLKDIV0);
+                tcls.bel(bslots::DQSDLL);
+                tcls.bel(bslots::CLKDIV[0]);
                 if name == "CLK_E" {
-                    tcls.bel(bels::SSPI);
-                    tcls.bel(bels::STF);
-                    tcls.bel(bels::WAKEUP);
-                    tcls.bel(bels::START);
-                    tcls.bel(bels::GSR);
+                    tcls.bel(bslots::SSPI);
+                    tcls.bel(bslots::STF);
+                    tcls.bel(bslots::WAKEUP);
+                    tcls.bel(bslots::START);
+                    tcls.bel(bslots::GSR);
                 }
             }
         }
@@ -1635,11 +1639,11 @@ impl IntDbBuilder {
                 ("ECLK_ROOT_N", 2),
             ] {
                 self.tile_class(name, tslots::CLK, num_cells)
-                    .bel(bels::ECLK_ROOT);
+                    .bel(bslots::ECLK_ROOT);
             }
             {
                 let mut tcls = self.tile_class("ECLK_TAP", tslots::ECLK_TAP, 1);
-                let mut bel = tcls.bel(bels::ECLK_TAP);
+                let mut bel = tcls.bel(bslots::ECLK_TAP);
                 bel.add_output("ECLK0", 0, "OUT_F6");
                 bel.add_output("ECLK1", 0, "OUT_F7");
             }
@@ -1667,7 +1671,7 @@ impl IntDbBuilder {
         ] {
             let mut tcls = self.tile_class(name, tslots::IO, 1);
             for i in 0..num {
-                tcls.bel(bels::IO[i]);
+                tcls.bel(bslots::IO[i]);
             }
         }
     }
@@ -1688,31 +1692,31 @@ impl IntDbBuilder {
         ] {
             let mut tcls = self.tile_class(name, tslots::IO, 3);
             for i in 0..4 {
-                tcls.bel(bels::IO[i]);
+                tcls.bel(bslots::IO[i]);
             }
             if name.contains("DQS") {}
         }
         for name in ["DQS_N", "DQS_W", "DQS_E", "DQS_A_W", "DQS_A_E"] {
             let mut tcls = self.tile_class(name, tslots::BEL, if name == "DQS_N" { 6 } else { 3 });
-            tcls.bel(bels::DQS0);
+            tcls.bel(bslots::DQS[0]);
             if name.starts_with("DQS_A") {
-                tcls.bel(bels::DQSTEST);
+                tcls.bel(bslots::DQSTEST);
             }
         }
         for name in ["IO_PLL_W", "IO_PLL_E"] {
             let mut tcls = self.tile_class(name, tslots::IO, 2);
             for i in 0..4 {
-                tcls.bel(bels::IO[i]);
+                tcls.bel(bslots::IO[i]);
             }
         }
         for name in ["ECLK_ROOT_W", "ECLK_ROOT_E", "ECLK_ROOT_N"] {
             let mut tcls = self.tile_class(name, tslots::CLK, 1);
-            tcls.bel(bels::ECLKSYNC0);
-            tcls.bel(bels::ECLKSYNC1);
+            tcls.bel(bslots::ECLKSYNC[0]);
+            tcls.bel(bslots::ECLKSYNC[1]);
         }
         {
             let mut tcls = self.tile_class("ECLK_TAP", tslots::ECLK_TAP, 1);
-            let mut bel = tcls.bel(bels::ECLK_TAP);
+            let mut bel = tcls.bel(bslots::ECLK_TAP);
             bel.add_output("ECLK0", 0, "OUT_F6");
             bel.add_output("ECLK1", 0, "OUT_F7");
         }
@@ -1728,13 +1732,13 @@ impl IntDbBuilder {
             ("BCSR_N", 1),
         ] {
             let mut tcls = self.tile_class(name, tslots::BC, num_cells);
-            tcls.bel(bels::BCINRD);
-            tcls.bel(bels::BCPG);
+            tcls.bel(bslots::BCINRD);
+            tcls.bel(bslots::BCPG);
             if name.ends_with("_N") {
-                tcls.bel(bels::BCLVDSO);
+                tcls.bel(bslots::BCLVDSO);
             }
             if name.starts_with("BCSR") {
-                tcls.bel(bels::BCSLEWRATE);
+                tcls.bel(bslots::BCSLEWRATE);
             }
         }
         for (name, num) in [
@@ -1752,7 +1756,7 @@ impl IntDbBuilder {
         ] {
             let mut tcls = self.tile_class(name, tslots::IO, 1);
             for i in 0..num {
-                tcls.bel(bels::IO[i]);
+                tcls.bel(bslots::IO[i]);
             }
         }
     }
@@ -1760,22 +1764,22 @@ impl IntDbBuilder {
     fn fill_io_tiles_ecp4(&mut self) {
         for name in ["BC_W", "BC_E", "BC_N"] {
             let mut tcls = self.tile_class(name, tslots::BC, 1);
-            tcls.bel(bels::BCINRD);
-            tcls.bel(bels::BCPG);
-            tcls.bel(bels::BCLVDSO);
-            tcls.bel(bels::BCPUSL);
-            tcls.bel(bels::BREFTEST);
+            tcls.bel(bslots::BCINRD);
+            tcls.bel(bslots::BCPG);
+            tcls.bel(bslots::BCLVDSO);
+            tcls.bel(bslots::BCPUSL);
+            tcls.bel(bslots::BREFTEST);
         }
         {
             let mut tcls = self.tile_class("PVTTEST", tslots::BEL, 1);
-            tcls.bel(bels::PVTTEST);
-            tcls.bel(bels::PVTCAL);
+            tcls.bel(bslots::PVTTEST);
+            tcls.bel(bslots::PVTCAL);
         }
         for name in ["DDRDLL_S", "DDRDLL_N"] {
-            self.tile_class(name, tslots::BEL, 1).bel(bels::DDRDLL);
+            self.tile_class(name, tslots::BEL, 1).bel(bslots::DDRDLL);
         }
         for name in ["DTR_S", "DTR_N"] {
-            self.tile_class(name, tslots::BEL, 1).bel(bels::DTR);
+            self.tile_class(name, tslots::BEL, 1).bel(bslots::DTR);
         }
         for name in [
             "IO_W",
@@ -1792,7 +1796,7 @@ impl IntDbBuilder {
         ] {
             let mut tcls = self.tile_class(name, tslots::IO, 4);
             for i in 0..4 {
-                tcls.bel(bels::IO[i]);
+                tcls.bel(bslots::IO[i]);
             }
         }
         for name in [
@@ -1812,7 +1816,7 @@ impl IntDbBuilder {
             "DQS_E_DSP_N",
             "DQS_N",
         ] {
-            self.tile_class(name, tslots::BEL, 5).bel(bels::DQS0);
+            self.tile_class(name, tslots::BEL, 5).bel(bslots::DQS[0]);
         }
     }
 
@@ -1829,15 +1833,16 @@ impl IntDbBuilder {
         ] {
             let mut tcls = self.tile_class(name, tslots::BC, 1);
             if is_we {
-                tcls.bel(bels::BCINRD);
-                tcls.bel(bels::BCLVDSO);
+                tcls.bel(bslots::BCINRD);
+                tcls.bel(bslots::BCLVDSO);
             }
-            tcls.bel(bels::BREFTEST);
+            tcls.bel(bslots::BREFTEST);
         }
         {
-            self.tile_class("DTR", tslots::BEL, 1).bel(bels::DTR);
+            self.tile_class("DTR", tslots::BEL, 1).bel(bslots::DTR);
         }
-        self.tile_class("DDRDLL", tslots::BEL, 1).bel(bels::DDRDLL);
+        self.tile_class("DDRDLL", tslots::BEL, 1)
+            .bel(bslots::DDRDLL);
         for (name, num_io, num_cells) in [
             ("IO_W4", 4, 3),
             ("IO_E4", 4, 3),
@@ -1847,28 +1852,28 @@ impl IntDbBuilder {
         ] {
             let mut tcls = self.tile_class(name, tslots::IO, num_cells);
             for i in 0..num_io {
-                tcls.bel(bels::IO[i]);
+                tcls.bel(bslots::IO[i]);
             }
         }
         for name in ["DQS_W", "DQS_E"] {
-            self.tile_class(name, tslots::BEL, 6).bel(bels::DQS0);
+            self.tile_class(name, tslots::BEL, 6).bel(bslots::DQS[0]);
         }
     }
 
     fn fill_io_tiles_crosslink(&mut self) {
-        for slot in [bels::BCINRD, bels::BCLVDSO] {
+        for slot in [bslots::BCINRD, bslots::BCLVDSO] {
             self.db.bel_slots[slot].tile_slot = tslots::BEL;
         }
         {
             let mut tcls = self.tile_class("BC", tslots::BEL, 1);
-            tcls.bel(bels::BCINRD);
-            tcls.bel(bels::BCLVDSO);
-            tcls.bel(bels::DDRDLL);
+            tcls.bel(bslots::BCINRD);
+            tcls.bel(bslots::BCLVDSO);
+            tcls.bel(bslots::DDRDLL);
         }
         for (name, num_cells) in [("IO_S4", 4), ("IO_S1A", 1), ("IO_S1B", 1)] {
             let mut tcls = self.tile_class(name, tslots::IO, num_cells);
             for i in 0..num_cells {
-                tcls.bel(bels::IO[i]);
+                tcls.bel(bslots::IO[i]);
             }
         }
     }
@@ -1890,41 +1895,43 @@ impl IntDbBuilder {
 
     fn fill_serdes_tiles_scm(&mut self) {
         for name in ["SERDES_W", "SERDES_E"] {
-            self.tile_class(name, tslots::BEL, 7).bel(bels::SERDES);
+            self.tile_class(name, tslots::BEL, 7).bel(bslots::SERDES);
         }
         for name in ["MACO_W", "MACO_E"] {
             let mut tcls = self.tile_class(name, tslots::BEL, 16);
-            tcls.bel(bels::MACO);
-            tcls.bel(bels::MACO_INT);
+            tcls.bel(bslots::MACO);
+            tcls.bel(bslots::MACO_INT);
         }
     }
 
     fn fill_serdes_tiles_ecp2(&mut self) {
         for name in ["SERDES_S", "SERDES_N"] {
-            self.tile_class(name, tslots::BEL, 27).bel(bels::SERDES);
+            self.tile_class(name, tslots::BEL, 27).bel(bslots::SERDES);
         }
     }
 
     fn fill_serdes_tiles_ecp3(&mut self) {
-        self.tile_class("SERDES", tslots::BEL, 36).bel(bels::SERDES);
+        self.tile_class("SERDES", tslots::BEL, 36)
+            .bel(bslots::SERDES);
     }
 
     fn fill_serdes_tiles_ecp4(&mut self) {
         for (name, num_cells) in [("SERDES1", 62), ("SERDES2", 120), ("SERDES3", 177)] {
             self.tile_class(name, tslots::BEL, num_cells)
-                .bel(bels::SERDES);
+                .bel(bslots::SERDES);
         }
     }
 
     fn fill_serdes_tiles_ecp5(&mut self) {
-        self.tile_class("SERDES", tslots::BEL, 12).bel(bels::SERDES);
+        self.tile_class("SERDES", tslots::BEL, 12)
+            .bel(bslots::SERDES);
     }
 
     fn fill_mipi_tiles_crosslink(&mut self) {
         for name in ["MIPI_W", "MIPI_E"] {
             let mut tcls = self.tile_class(name, tslots::BEL, 24);
-            tcls.bel(bels::MIPI);
-            tcls.bel(bels::CLKTEST_MIPI);
+            tcls.bel(bslots::MIPI);
+            tcls.bel(bslots::CLKTEST_MIPI);
         }
     }
 
@@ -1949,105 +1956,105 @@ impl IntDbBuilder {
         for name in ["PLL_SW", "PLL_SE"] {
             let mut tcls = self.tile_class(name, tslots::BEL, 6);
             for i in 0..2 {
-                tcls.bel(bels::PLL[i]);
+                tcls.bel(bslots::PLL[i]);
             }
             for i in 0..4 {
-                tcls.bel(bels::DLL[i]);
+                tcls.bel(bslots::DLL[i]);
             }
             for i in 0..2 {
-                tcls.bel(bels::DLL_DCNTL[i]);
+                tcls.bel(bslots::DLL_DCNTL[i]);
             }
-            tcls.bel(bels::PLL_SMI);
-            tcls.bel(bels::PROMON);
+            tcls.bel(bslots::PLL_SMI);
+            tcls.bel(bslots::PROMON);
             if name == "PLL_SW" {
-                tcls.bel(bels::RNET);
+                tcls.bel(bslots::RNET);
             }
         }
         for name in ["PLL_NW", "PLL_NE"] {
             let mut tcls = self.tile_class(name, tslots::BEL, 3);
             for i in 0..2 {
-                tcls.bel(bels::PLL[i]);
+                tcls.bel(bslots::PLL[i]);
             }
             for i in 0..2 {
-                tcls.bel(bels::DLL[i]);
+                tcls.bel(bslots::DLL[i]);
             }
             for i in 0..2 {
-                tcls.bel(bels::DLL_DCNTL[i]);
+                tcls.bel(bslots::DLL_DCNTL[i]);
             }
-            tcls.bel(bels::PLL_SMI);
-            tcls.bel(bels::SERDES_CORNER);
+            tcls.bel(bslots::PLL_SMI);
+            tcls.bel(bslots::SERDES_CORNER);
             if name == "PLL_NW" {
-                tcls.bel(bels::M0);
-                tcls.bel(bels::M1);
-                tcls.bel(bels::M2);
-                tcls.bel(bels::M3);
-                tcls.bel(bels::RESETN);
-                tcls.bel(bels::RDCFGN);
+                tcls.bel(bslots::M0);
+                tcls.bel(bslots::M1);
+                tcls.bel(bslots::M2);
+                tcls.bel(bslots::M3);
+                tcls.bel(bslots::RESETN);
+                tcls.bel(bslots::RDCFGN);
             }
             if name == "PLL_NE" {
-                tcls.bel(bels::CCLK);
-                tcls.bel(bels::TCK);
-                tcls.bel(bels::TMS);
-                tcls.bel(bels::TDI);
+                tcls.bel(bslots::CCLK);
+                tcls.bel(bslots::TCK);
+                tcls.bel(bslots::TMS);
+                tcls.bel(bslots::TDI);
             }
         }
     }
 
     fn fill_pll_tiles_ecp(&mut self) {
         for name in ["PLL_W", "PLL_E"] {
-            self.tile_class(name, tslots::BEL, 1).bel(bels::PLL0);
+            self.tile_class(name, tslots::BEL, 1).bel(bslots::PLL[0]);
         }
     }
 
     fn fill_pll_tiles_machxo(&mut self) {
         for name in ["PLL_S", "PLL_N"] {
-            self.tile_class(name, tslots::BEL, 1).bel(bels::PLL0);
+            self.tile_class(name, tslots::BEL, 1).bel(bslots::PLL[0]);
         }
     }
 
     fn fill_pll_tiles_ecp2(&mut self) {
         for name in ["SPLL_W", "SPLL_E"] {
-            self.tile_class(name, tslots::BEL, 2).bel(bels::SPLL);
+            self.tile_class(name, tslots::BEL, 2).bel(bslots::SPLL);
         }
         for name in ["PLL_W", "PLL_E"] {
             let mut tcls = self.tile_class(name, tslots::BEL, 4);
-            tcls.bel(bels::PLL0);
-            tcls.bel(bels::DLL0);
-            tcls.bel(bels::DLLDEL0);
-            tcls.bel(bels::CLKDIV0);
-            tcls.bel(bels::ECLK_ALT_ROOT);
-            tcls.bel(bels::DQSDLL);
+            tcls.bel(bslots::PLL[0]);
+            tcls.bel(bslots::DLL[0]);
+            tcls.bel(bslots::DLLDEL[0]);
+            tcls.bel(bslots::CLKDIV[0]);
+            tcls.bel(bslots::ECLK_ALT_ROOT);
+            tcls.bel(bslots::DQSDLL);
         }
     }
 
     fn fill_pll_tiles_xp2(&mut self) {
         for name in ["PLL_S", "PLL_N"] {
-            self.tile_class(name, tslots::BEL, 2).bel(bels::PLL0);
+            self.tile_class(name, tslots::BEL, 2).bel(bslots::PLL[0]);
         }
     }
 
     fn fill_pll_tiles_ecp3(&mut self) {
         for name in ["PLL_DLL_W", "PLL_DLL_E", "PLL_DLL_A_W", "PLL_DLL_A_E"] {
             let mut tcls = self.tile_class(name, tslots::BEL, 18);
-            tcls.bel(bels::PLL0);
-            tcls.bel(bels::DLL0);
-            tcls.bel(bels::DLLDEL0);
-            tcls.bel(bels::DQSDLL);
-            tcls.bel(bels::DQSDLLTEST);
-            tcls.bel(bels::ECLK_ALT_ROOT);
-            tcls.bel(bels::CLKDIV0);
+            tcls.bel(bslots::PLL[0]);
+            tcls.bel(bslots::DLL[0]);
+            tcls.bel(bslots::DLLDEL[0]);
+            tcls.bel(bslots::DQSDLL);
+            tcls.bel(bslots::DQSDLLTEST);
+            tcls.bel(bslots::ECLK_ALT_ROOT);
+            tcls.bel(bslots::CLKDIV[0]);
         }
         for name in ["PLL_W", "PLL_E", "PLL_A_W", "PLL_A_E"] {
             let mut tcls = self.tile_class(name, tslots::BEL, 13);
-            tcls.bel(bels::PLL0);
+            tcls.bel(bslots::PLL[0]);
         }
     }
 
     fn fill_pll_tiles_machxo2(&mut self) {
         for name in ["PLL_W", "PLL_E"] {
             let mut tcls = self.tile_class(name, tslots::BEL, 2);
-            tcls.bel(bels::PLL0);
-            tcls.bel(bels::PLLREFCS0);
+            tcls.bel(bslots::PLL[0]);
+            tcls.bel(bslots::PLLREFCS[0]);
         }
     }
 
@@ -2055,8 +2062,8 @@ impl IntDbBuilder {
         for name in ["PLL_SW", "PLL_SE", "PLL_NW", "PLL_NE"] {
             let mut tcls = self.tile_class(name, tslots::BEL, 4);
             for i in 0..2 {
-                tcls.bel(bels::PLL[i]);
-                tcls.bel(bels::PLLREFCS[i]);
+                tcls.bel(bslots::PLL[i]);
+                tcls.bel(bslots::PLLREFCS[i]);
             }
         }
     }
@@ -2064,15 +2071,15 @@ impl IntDbBuilder {
     fn fill_pll_tiles_ecp5(&mut self) {
         for name in ["PLL_SW", "PLL_SE", "PLL_NW", "PLL_NE"] {
             let mut tcls = self.tile_class(name, tslots::BEL, 2);
-            tcls.bel(bels::PLL0);
-            tcls.bel(bels::PLLREFCS0);
+            tcls.bel(bslots::PLL[0]);
+            tcls.bel(bslots::PLLREFCS[0]);
         }
     }
 
     fn fill_pll_tiles_crosslink(&mut self) {
         let mut tcls = self.tile_class("PLL", tslots::BEL, 2);
-        tcls.bel(bels::PLL0);
-        tcls.bel(bels::PLLREFCS0);
+        tcls.bel(bslots::PLL[0]);
+        tcls.bel(bslots::PLLREFCS[0]);
     }
 
     fn fill_pll_tiles(&mut self) {
@@ -2131,7 +2138,9 @@ pub fn init_intdb(kind: ChipKind) -> IntDb {
     });
     let builder = IntDbBuilder {
         kind,
-        db: IntDb::new(tslots::SLOTS, bels::SLOTS, regions::SLOTS, cslots::SLOTS),
+        db: bincode::decode_from_slice(prjcombine_ecp::defs::INIT, bincode::config::standard())
+            .unwrap()
+            .0,
         conn_slots,
         passes: DirMap::from_fn(|dir| ConnectorClass::new(conn_slots[dir])),
         terms: DirMap::from_fn(|dir| ConnectorClass::new(conn_slots[dir])),

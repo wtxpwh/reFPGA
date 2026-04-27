@@ -1,8 +1,8 @@
 use std::collections::{BTreeMap, btree_map};
 
 use prjcombine_ecp::{
-    bels,
     chip::{Chip, ChipKind, IoGroupKind, RowKind, SpecialIoKey, SpecialLocKey},
+    defs::bslots,
 };
 use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
@@ -35,10 +35,10 @@ impl ChipContext<'_> {
         for &row in &root_rows {
             for &col in &root_cols {
                 let mut cell = Chip::DIE.cell(col, row);
-                if !self.edev.has_bel(cell.bel(bels::INT)) {
+                if !self.edev.has_bel(cell.bel(bslots::INT)) {
                     cell.row += 9;
                 }
-                let bcrd = cell.bel(bels::HSDCLK_ROOT);
+                let bcrd = cell.bel(bslots::HSDCLK_ROOT);
                 self.name_bel_null(bcrd);
                 for i in 0..8 {
                     for h in [DirH::W, DirH::E] {
@@ -304,10 +304,10 @@ impl ChipContext<'_> {
         self.insert_bel(bcrd, bel);
 
         for (hv, ll, dcc, dcs) in [
-            (DirHV::SW, "LL", bels::DCC_SW, bels::DCS_SW),
-            (DirHV::SE, "LR", bels::DCC_SE, bels::DCS_SE),
-            (DirHV::NW, "UL", bels::DCC_NW, bels::DCS_NW),
-            (DirHV::NE, "UR", bels::DCC_NE, bels::DCS_NE),
+            (DirHV::SW, "LL", bslots::DCC_SW, bslots::DCS_SW),
+            (DirHV::SE, "LR", bslots::DCC_SE, bslots::DCS_SE),
+            (DirHV::NW, "UL", bslots::DCC_NW, bslots::DCS_NW),
+            (DirHV::NE, "UR", bslots::DCC_NE, bslots::DCS_NE),
         ] {
             for i in 0..8 {
                 let wire_out = if i < 6 {
@@ -650,7 +650,7 @@ impl ChipContext<'_> {
                 }
                 let idx = self.chip.col_sclk_idx(cell.col);
                 let mut pclk_idx = vec![idx, idx + 4];
-                if self.edev.has_bel(cell.bel(bels::PCLK_SOURCE_W)) {
+                if self.edev.has_bel(cell.bel(bslots::PCLK_SOURCE_W)) {
                     pclk_idx.extend([
                         (idx + 3) % 4,
                         (idx + 3) % 4 + 4,
@@ -658,14 +658,14 @@ impl ChipContext<'_> {
                         (idx + 2) % 4 + 4,
                     ]);
                 }
-                if self.edev.has_bel(cell.bel(bels::PCLK_SOURCE_E)) {
+                if self.edev.has_bel(cell.bel(bslots::PCLK_SOURCE_E)) {
                     pclk_idx.extend([(idx + 1) % 4, (idx + 1) % 4 + 4]);
                 }
                 for &i in &pclk_idx {
                     let wire_n = self.naming.interconnect
                         [&cell.wire(self.intdb.get_wire(&format!("PCLK{i}")))];
                     let wire_n = self.find_single_in(wire_n);
-                    self.add_bel_wire(cell.bel(bels::INT), format!("PCLK{i}_N"), wire_n);
+                    self.add_bel_wire(cell.bel(bslots::INT), format!("PCLK{i}_N"), wire_n);
                     vptx_wires_n.insert((cell.col, i), wire_n);
                     for row in cell.row.range(row_n) {
                         let wire = self.naming.interconnect[&cell
@@ -678,7 +678,7 @@ impl ChipContext<'_> {
                         .delta(0, -1)
                         .wire(self.intdb.get_wire(&format!("PCLK{i}")))];
                     let wire_s = self.find_single_in(wire_s);
-                    self.add_bel_wire(cell.bel(bels::INT), format!("PCLK{i}_S"), wire_s);
+                    self.add_bel_wire(cell.bel(bslots::INT), format!("PCLK{i}_S"), wire_s);
                     vptx_wires_s.insert((cell.col, i), wire_s);
                     for row in row_s.range(cell.row) {
                         let wire = self.naming.interconnect[&cell
@@ -696,7 +696,7 @@ impl ChipContext<'_> {
                     {
                         let wire_ss = self.find_single_in(wire_ss);
                         vptx_wires_ss.insert((cell.col, i), wire_ss);
-                        self.add_bel_wire(cell.bel(bels::INT), format!("PCLK{i}_SS"), wire_ss);
+                        self.add_bel_wire(cell.bel(bslots::INT), format!("PCLK{i}_SS"), wire_ss);
                         self.claim_pip(wire_ss, wire_s);
                         for row in self.chip.row_s().range(row_s) {
                             let wire = self.naming.interconnect[&cell
@@ -710,7 +710,7 @@ impl ChipContext<'_> {
                 let (r, c) = self.rc(cell);
                 for i in 0..2 {
                     let pclk_i = pclk_idx[i];
-                    let bcrd = cell.bel(bels::PCLK_DCC[i]);
+                    let bcrd = cell.bel(bslots::PCLK_DCC[i]);
                     // what in fuck's name.
                     if self.chip.rows.len() == 53
                         && cell.col.to_idx() == 36
@@ -834,9 +834,9 @@ impl ChipContext<'_> {
                     col_hpsx = cell.col;
                 }
                 let idx = self.chip.col_sclk_idx(cell.col);
-                let (bcrd, pclk_idx) = if self.edev.has_bel(cell.bel(bels::PCLK_SOURCE_W)) {
+                let (bcrd, pclk_idx) = if self.edev.has_bel(cell.bel(bslots::PCLK_SOURCE_W)) {
                     (
-                        cell.bel(bels::PCLK_SOURCE_W),
+                        cell.bel(bslots::PCLK_SOURCE_W),
                         vec![
                             (idx + 3) % 4,
                             (idx + 3) % 4 + 4,
@@ -844,9 +844,9 @@ impl ChipContext<'_> {
                             (idx + 2) % 4 + 4,
                         ],
                     )
-                } else if self.edev.has_bel(cell.bel(bels::PCLK_SOURCE_E)) {
+                } else if self.edev.has_bel(cell.bel(bslots::PCLK_SOURCE_E)) {
                     (
-                        cell.bel(bels::PCLK_SOURCE_E),
+                        cell.bel(bslots::PCLK_SOURCE_E),
                         vec![(idx + 1) % 4, (idx + 1) % 4 + 4],
                     )
                 } else {

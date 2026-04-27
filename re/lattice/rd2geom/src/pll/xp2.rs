@@ -1,6 +1,6 @@
 use prjcombine_ecp::{
-    bels,
     chip::{PllLoc, PllPad, SpecialIoKey, SpecialLocKey},
+    defs::bslots,
 };
 use prjcombine_interconnect::dir::{Dir, DirH, DirHV, DirV};
 
@@ -12,7 +12,7 @@ impl ChipContext<'_> {
             let SpecialLocKey::Pll(loc) = loc else {
                 continue;
             };
-            let bcrd = cell.bel(bels::PLL0);
+            let bcrd = cell.bel(bslots::PLL[0]);
             self.name_bel(
                 bcrd,
                 [match loc.quad {
@@ -86,7 +86,7 @@ impl ChipContext<'_> {
 
     pub(super) fn process_clkdiv_xp2(&mut self) {
         for edge in [DirH::W, DirH::E] {
-            let bcrd = self.chip.bel_dqsdll_ecp2(edge).bel(bels::CLKDIV0);
+            let bcrd = self.chip.bel_dqsdll_ecp2(edge).bel(bslots::CLKDIV[0]);
             let cell = bcrd.cell;
             self.name_bel(
                 bcrd,

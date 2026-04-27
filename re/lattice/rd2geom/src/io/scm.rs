@@ -1,6 +1,6 @@
 use prjcombine_ecp::{
-    bels,
     chip::{IoGroupKind, PllLoc, PllPad, SpecialIoKey, SpecialLocKey},
+    defs::bslots,
 };
 use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
@@ -123,7 +123,7 @@ impl ChipContext<'_> {
             // XXXNCLKG: SW CLKOS C     B       5
             // XXXNCLKH: SW CLKOS D     C       7
             for i in 0..4 {
-                let bcrd = cell_tile.bel(bels::CLKDIV[i]);
+                let bcrd = cell_tile.bel(bslots::CLKDIV[i]);
                 let abcd = ['A', 'B', 'C', 'D'][i];
                 self.name_bel(bcrd, [format!("CLKDIV{bank}{abcd}")]);
                 let mut bel = LegacyBel::default();
@@ -167,7 +167,7 @@ impl ChipContext<'_> {
                 self.insert_bel(bcrd, bel);
             }
             {
-                let bcrd = cell_tile.bel(bels::ECLK_ROOT);
+                let bcrd = cell_tile.bel(bslots::ECLK_ROOT);
                 self.name_bel_null(bcrd);
                 let mut bel = LegacyBel::default();
 
@@ -252,7 +252,7 @@ impl ChipContext<'_> {
             let cell_tile = &self.chip.special_loc[&SpecialLocKey::Pll(PllLoc::new(hv, 0))];
             let cell = cell_tile.with_row(self.chip.row_edge(hv.v));
             {
-                let bcrd = cell_tile.bel(bels::PLL_SMI);
+                let bcrd = cell_tile.bel(bslots::PLL_SMI);
                 self.name_bel_null(bcrd);
                 let mut bel = LegacyBel::default();
                 for pin in [
@@ -292,9 +292,9 @@ impl ChipContext<'_> {
             }
             for idx in 0..6 {
                 let bcrd = cell_tile.bel(if idx < 2 {
-                    bels::PLL[idx]
+                    bslots::PLL[idx]
                 } else {
-                    bels::DLL[idx - 2]
+                    bslots::DLL[idx - 2]
                 });
                 if !self.edev.has_bel(bcrd) {
                     continue;
@@ -454,7 +454,7 @@ impl ChipContext<'_> {
                 self.insert_bel(bcrd, bel);
             }
             for i in 0..2 {
-                let bcrd = cell_tile.bel(bels::DLL_DCNTL[i]);
+                let bcrd = cell_tile.bel(bslots::DLL_DCNTL[i]);
                 self.name_bel_null(bcrd);
                 let mut bel = LegacyBel::default();
 
@@ -505,28 +505,28 @@ impl ChipContext<'_> {
                 self.insert_bel(bcrd, bel);
             }
             if hv == DirHV::SW {
-                let bcrd = cell_tile.bel(bels::RNET);
+                let bcrd = cell_tile.bel(bslots::RNET);
                 self.name_bel(bcrd, ["RNET"]);
                 self.insert_simple_bel(bcrd, cell, "RNET");
             }
             if hv == DirHV::NW {
                 for (slot, name, suffix) in [
-                    (bels::M0, "M0PAD", "M0"),
-                    (bels::M1, "M1PAD", "M1"),
-                    (bels::M2, "M2PAD", "M2"),
-                    (bels::M3, "M3PAD", "M3"),
+                    (bslots::M0, "M0PAD", "M0"),
+                    (bslots::M1, "M1PAD", "M1"),
+                    (bslots::M2, "M2PAD", "M2"),
+                    (bslots::M3, "M3PAD", "M3"),
                 ] {
                     let bcrd = cell_tile.bel(slot);
                     self.name_bel(bcrd, [name]);
                     self.insert_simple_bel(bcrd, cell, suffix);
                 }
                 {
-                    let bcrd = cell_tile.bel(bels::RESETN);
+                    let bcrd = cell_tile.bel(bslots::RESETN);
                     self.name_bel(bcrd, ["RESETN"]);
                     self.insert_simple_bel(bcrd, cell, "RSTN");
                 }
                 {
-                    let bcrd = cell_tile.bel(bels::RDCFGN);
+                    let bcrd = cell_tile.bel(bslots::RDCFGN);
                     self.name_bel(bcrd, ["RDCFGN"]);
                     let mut bel = LegacyBel::default();
 
@@ -554,10 +554,14 @@ impl ChipContext<'_> {
                 }
             }
             if hv == DirHV::NE {
-                let bcrd = cell_tile.bel(bels::CCLK);
+                let bcrd = cell_tile.bel(bslots::CCLK);
                 self.name_bel(bcrd, ["CCLK"]);
                 self.insert_simple_bel(bcrd, cell, "CCLK");
-                for (slot, name) in [(bels::TCK, "TCK"), (bels::TMS, "TMS"), (bels::TDI, "TDI")] {
+                for (slot, name) in [
+                    (bslots::TCK, "TCK"),
+                    (bslots::TMS, "TMS"),
+                    (bslots::TDI, "TDI"),
+                ] {
                     let bcrd = cell_tile.bel(slot);
                     self.name_bel(bcrd, [name]);
                     let wire = self.rc_corner_wire(cell, &format!("J{name}_{name}"));
@@ -573,7 +577,7 @@ impl ChipContext<'_> {
                 DirHV::SE => Some("PROMON1V"),
                 _ => None,
             } {
-                let bcrd = cell_tile.bel(bels::PROMON);
+                let bcrd = cell_tile.bel(bslots::PROMON);
                 self.name_bel(bcrd, [name]);
                 self.insert_simple_bel(bcrd, cell, name);
             }
@@ -712,7 +716,7 @@ impl ChipContext<'_> {
             self.add_bel_wire(bcrd, format!("DCNTL{i}_IN"), wire_in);
             self.claim_pip(wire, wire_in);
             for j in 0..2 {
-                let bel_dll_dcntl = cell_dll_dcntl.bel(bels::DLL_DCNTL[j]);
+                let bel_dll_dcntl = cell_dll_dcntl.bel(bslots::DLL_DCNTL[j]);
                 let wire_dll = self
                     .naming
                     .bel_wire(bel_dll_dcntl, &format!("DCNTL_{edge}{i}_OUT"));
@@ -724,7 +728,7 @@ impl ChipContext<'_> {
     }
 
     fn process_pictest_scm(&mut self, bcrd: BelCoord) {
-        let idx = bels::PICTEST
+        let idx = bslots::PICTEST
             .iter()
             .position(|&slot| slot == bcrd.slot)
             .unwrap();
@@ -786,11 +790,11 @@ impl ChipContext<'_> {
             let tcid = self.intdb.get_tile_class(tcname);
             for &tcrd in &self.edev.tile_index[tcid] {
                 for i in 0..num_io {
-                    let bcrd = tcrd.bel(bels::IO[i]);
+                    let bcrd = tcrd.bel(bslots::IO[i]);
                     self.process_single_io_scm(bcrd);
                 }
                 for i in 0..num_io / 4 {
-                    let bcrd = tcrd.bel(bels::PICTEST[i]);
+                    let bcrd = tcrd.bel(bslots::PICTEST[i]);
                     self.process_pictest_scm(bcrd);
                 }
             }

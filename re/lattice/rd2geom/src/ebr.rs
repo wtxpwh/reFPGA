@@ -1,6 +1,6 @@
 use std::collections::{BTreeMap, BTreeSet, btree_map};
 
-use prjcombine_ecp::{bels, chip::ChipKind};
+use prjcombine_ecp::{chip::ChipKind, defs::bslots};
 use prjcombine_interconnect::{
     db::{BelInfo, BelPin, LegacyBel, Mux, PinDir, SwitchBox, SwitchBoxItem, WireSlotIdExt},
     dir::DirH,
@@ -60,8 +60,8 @@ impl ChipContext<'_> {
             }
 
             for &tcrd in &self.edev.tile_index[tcid] {
-                let bcrd = tcrd.bel(bels::EBR0);
-                let bcrd_int = tcrd.bel(bels::EBR_INT);
+                let bcrd = tcrd.bel(bslots::EBR[0]);
+                let bcrd_int = tcrd.bel(bslots::EBR_INT);
                 let cell_w = bcrd.cell;
                 let cell_e = bcrd.cell.delta(1, 0);
                 let (r, c) = self.rc(cell_w);
@@ -248,7 +248,7 @@ impl ChipContext<'_> {
                 sb.items.push(SwitchBoxItem::Mux(mux));
             }
             self.bels
-                .insert((tcid, bels::EBR_INT), BelInfo::SwitchBox(sb));
+                .insert((tcid, bslots::EBR_INT), BelInfo::SwitchBox(sb));
         }
     }
 
@@ -261,7 +261,7 @@ impl ChipContext<'_> {
         for &tcname in tiles {
             let tcid = self.intdb.get_tile_class(tcname);
             for &tcrd in &self.edev.tile_index[tcid] {
-                let bcrd = tcrd.bel(bels::EBR0);
+                let bcrd = tcrd.bel(bslots::EBR[0]);
                 let cell = if self.chip.kind == ChipKind::MachXo {
                     tcrd.cell.delta(0, 3)
                 } else {
@@ -278,7 +278,7 @@ impl ChipContext<'_> {
         let tcid = self.intdb.get_tile_class("EBR");
         for &tcrd in &self.edev.tile_index[tcid] {
             for i in 0..4 {
-                let bcrd = tcrd.bel(bels::EBR[i]);
+                let bcrd = tcrd.bel(bslots::EBR[i]);
                 let cell = tcrd.delta(2 * (i as i32), 0);
                 let (r, c) = self.rc(cell);
                 self.name_bel(bcrd, [format!("EBR_R{r}C{c}")]);

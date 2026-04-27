@@ -1,6 +1,6 @@
 use prjcombine_ecp::{
-    bels,
     chip::{Chip, ChipKind, PllLoc, PllPad, SpecialIoKey, SpecialLocKey},
+    defs::bslots,
 };
 use prjcombine_interconnect::{
     db::LegacyBel,
@@ -16,7 +16,7 @@ impl ChipContext<'_> {
             let SpecialLocKey::Pll(loc) = loc else {
                 continue;
             };
-            let bcrd = cell.bel(bels::PLL0);
+            let bcrd = cell.bel(bslots::PLL[0]);
             let cell = match loc.quad.h {
                 DirH::W => cell.delta(3, 0),
                 DirH::E => cell.delta(-3, 0),
@@ -138,8 +138,8 @@ impl ChipContext<'_> {
                     },
                     self.chip.row_clk,
                 )
-                .bel(bels::DLL0);
-            let bcrd_dlldel = bcrd_dll.bel(bels::DLLDEL0);
+                .bel(bslots::DLL[0]);
+            let bcrd_dlldel = bcrd_dll.bel(bslots::DLLDEL[0]);
             let cell = match edge {
                 DirH::W => bcrd_dll.cell.delta(13, 0),
                 DirH::E => bcrd_dll.cell.delta(-13, 0),
@@ -268,7 +268,7 @@ impl ChipContext<'_> {
 
             self.insert_bel(bcrd_dll, bel_dll);
 
-            let bcrd = bcrd_dll.bel(bels::ECLK_ALT_ROOT);
+            let bcrd = bcrd_dll.bel(bslots::ECLK_ALT_ROOT);
             let mut bel = LegacyBel::default();
             self.name_bel_null(bcrd);
 
@@ -320,7 +320,7 @@ impl ChipContext<'_> {
                     },
                     self.chip.row_clk,
                 )
-                .bel(bels::CLKDIV0);
+                .bel(bslots::CLKDIV[0]);
             let cell = match edge {
                 DirH::W => bcrd.cell.delta(13, 0),
                 DirH::E => bcrd.cell.delta(-13, 0),

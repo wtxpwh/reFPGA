@@ -66,42 +66,6 @@ impl IntDb {
         bcid
     }
 
-    pub fn new(
-        tslots: &[(TileSlotId, &str)],
-        bslots: &[(BelSlotId, &str, TileSlotId)],
-        rslots: &[(RegionSlotId, &str)],
-        cslots: &[(ConnectorSlotId, &str, ConnectorSlotId)],
-    ) -> Self {
-        let mut result = IntDb::default();
-        for &(id, name) in tslots {
-            assert_eq!(result.tile_slots.insert(name.into()), (id, true));
-        }
-        for &(id, name, tslot) in bslots {
-            assert_eq!(
-                result.bel_slots.insert(
-                    name.into(),
-                    BelSlot {
-                        tile_slot: tslot,
-                        kind: BelKind::Legacy
-                    }
-                ),
-                (id, None)
-            );
-        }
-        for &(id, name) in rslots {
-            assert_eq!(result.region_slots.insert(name.into()), (id, true));
-        }
-        for &(id, name, opposite) in cslots {
-            assert_eq!(
-                result
-                    .conn_slots
-                    .insert(name.into(), ConnectorSlot { opposite }),
-                (id, None)
-            );
-        }
-        result
-    }
-
     pub fn validate(&self) {
         for (_, tcname, tcls) in &self.tile_classes {
             for bel in tcls.bels.ids() {

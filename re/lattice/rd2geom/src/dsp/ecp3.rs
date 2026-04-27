@@ -1,4 +1,4 @@
-use prjcombine_ecp::bels;
+use prjcombine_ecp::defs::bslots;
 use prjcombine_interconnect::db::LegacyBel;
 
 use crate::ChipContext;
@@ -8,7 +8,7 @@ impl ChipContext<'_> {
         let tcid = self.intdb.get_tile_class("DSP");
         for &tcrd in &self.edev.tile_index[tcid] {
             for idx in 0..2 {
-                let bcrd = tcrd.bel(bels::DSP[idx]);
+                let bcrd = tcrd.bel(bslots::DSP[idx]);
                 let (r, c) = self.rc(tcrd.cell);
                 let c = c + (idx as u8) * 4;
                 self.name_bel(

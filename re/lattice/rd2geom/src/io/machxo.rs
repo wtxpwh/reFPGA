@@ -1,6 +1,6 @@
 use prjcombine_ecp::{
-    bels,
     chip::{Chip, IoGroupKind},
+    defs::bslots,
 };
 use prjcombine_interconnect::{
     db::LegacyBel,
@@ -12,7 +12,10 @@ use crate::{ChipContext, chip::ChipExt};
 
 impl ChipContext<'_> {
     fn process_single_io_machxo(&mut self, bcrd: BelCoord) {
-        let idx = bels::IO.iter().position(|&slot| slot == bcrd.slot).unwrap();
+        let idx = bslots::IO
+            .iter()
+            .position(|&slot| slot == bcrd.slot)
+            .unwrap();
         let cell = bcrd.cell;
         let abcd = ['A', 'B', 'C', 'D', 'E', 'F'][idx];
         let io = self.chip.get_io_crd(bcrd);
@@ -40,7 +43,7 @@ impl ChipContext<'_> {
         self.add_bel_wire(bcrd, "DD2", dd2);
 
         let (plc_cell, plc_idx) = self.chip.io_direct_plc[&io];
-        let slice = plc_cell.bel(bels::SLICE[usize::from(plc_idx / 2)]);
+        let slice = plc_cell.bel(bslots::SLICE[usize::from(plc_idx / 2)]);
         let plcf = self.naming.bel_wire(slice, &format!("F{}_IO", plc_idx % 2));
         let plcq = self.naming.bel_wire(slice, &format!("Q{}_IO", plc_idx % 2));
 
@@ -78,8 +81,8 @@ impl ChipContext<'_> {
     fn process_pictest(&mut self, cell: CellCoord) {
         let (r, c) = self.rc(cell);
         let lr = if c == 1 { 'L' } else { 'R' };
-        let bcrd2 = cell.bel(bels::IO2);
-        let bcrd3 = cell.bel(bels::IO3);
+        let bcrd2 = cell.bel(bslots::IO[2]);
+        let bcrd3 = cell.bel(bslots::IO[3]);
         self.name_bel(bcrd2, [format!("{lr}PICTEST{r}")]);
         self.name_bel_null(bcrd3);
 
@@ -124,7 +127,7 @@ impl ChipContext<'_> {
             };
             let cell = Chip::DIE.cell(self.chip.col_w(), row);
             for i in 0..num_io {
-                self.process_single_io_machxo(cell.bel(bels::IO[i]));
+                self.process_single_io_machxo(cell.bel(bslots::IO[i]));
             }
             if num_io == 2 {
                 self.process_pictest(cell);
@@ -137,7 +140,7 @@ impl ChipContext<'_> {
             };
             let cell = Chip::DIE.cell(self.chip.col_e(), row);
             for i in 0..num_io {
-                self.process_single_io_machxo(cell.bel(bels::IO[i]));
+                self.process_single_io_machxo(cell.bel(bslots::IO[i]));
             }
             if num_io == 2 {
                 self.process_pictest(cell);
@@ -152,7 +155,7 @@ impl ChipContext<'_> {
             };
             let cell = Chip::DIE.cell(col, self.chip.row_s());
             for i in 0..num_io {
-                self.process_single_io_machxo(cell.bel(bels::IO[i]));
+                self.process_single_io_machxo(cell.bel(bslots::IO[i]));
             }
             let num_io = match cd.io_n {
                 IoGroupKind::None => 0,
@@ -162,7 +165,7 @@ impl ChipContext<'_> {
             };
             let cell = Chip::DIE.cell(col, self.chip.row_n());
             for i in 0..num_io {
-                self.process_single_io_machxo(cell.bel(bels::IO[i]));
+                self.process_single_io_machxo(cell.bel(bslots::IO[i]));
             }
         }
     }

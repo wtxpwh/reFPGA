@@ -1,8 +1,8 @@
 use std::collections::BTreeMap;
 
 use prjcombine_ecp::{
-    bels,
     chip::{Chip, ChipKind, RowKind, SpecialIoKey, SpecialLocKey},
+    defs::bslots,
 };
 use prjcombine_interconnect::{
     db::{BelPin, LegacyBel, WireSlotIdExt},
@@ -23,7 +23,7 @@ impl ChipContext<'_> {
                 prev = row;
                 let bcrd = Chip::DIE
                     .cell(self.chip.col_clk, row)
-                    .bel(bels::HSDCLK_ROOT);
+                    .bel(bslots::HSDCLK_ROOT);
                 self.name_bel_null(bcrd);
                 for h in [DirH::W, DirH::E] {
                     for i in 0..8 {
@@ -352,7 +352,7 @@ impl ChipContext<'_> {
             for tcname in ["SERDES_S", "SERDES_N"] {
                 let tcid = self.intdb.get_tile_class(tcname);
                 for &tcrd in &self.edev.tile_index[tcid] {
-                    let bcrd_pcs = tcrd.bel(bels::SERDES);
+                    let bcrd_pcs = tcrd.bel(bslots::SERDES);
                     let hv = DirHV {
                         h: if bcrd_pcs.col < self.chip.col_clk {
                             DirH::W
@@ -443,14 +443,14 @@ impl ChipContext<'_> {
         }
 
         for (bidx, (hv, ll, slot)) in [
-            (DirHV::SW, "LL", bels::DCS_SW[0]),
-            (DirHV::SW, "LL", bels::DCS_SW[1]),
-            (DirHV::SE, "LR", bels::DCS_SE[0]),
-            (DirHV::SE, "LR", bels::DCS_SE[1]),
-            (DirHV::NW, "UL", bels::DCS_NW[0]),
-            (DirHV::NW, "UL", bels::DCS_NW[1]),
-            (DirHV::NE, "UR", bels::DCS_NE[0]),
-            (DirHV::NE, "UR", bels::DCS_NE[1]),
+            (DirHV::SW, "LL", bslots::DCS_SW[0]),
+            (DirHV::SW, "LL", bslots::DCS_SW[1]),
+            (DirHV::SE, "LR", bslots::DCS_SE[0]),
+            (DirHV::SE, "LR", bslots::DCS_SE[1]),
+            (DirHV::NW, "UL", bslots::DCS_NW[0]),
+            (DirHV::NW, "UL", bslots::DCS_NW[1]),
+            (DirHV::NE, "UR", bslots::DCS_NE[0]),
+            (DirHV::NE, "UR", bslots::DCS_NE[1]),
         ]
         .into_iter()
         .enumerate()
@@ -609,7 +609,7 @@ impl ChipContext<'_> {
                     DirV::N
                 };
                 let hv = DirHV { h, v };
-                while !self.edev.has_bel(cell.bel(bels::INT)) {
+                while !self.edev.has_bel(cell.bel(bslots::INT)) {
                     if cell.col == self.chip.col_e() {
                         continue 'cells;
                     }

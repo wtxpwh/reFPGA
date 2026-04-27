@@ -4981,14 +4981,14 @@ device LFXP20E {
 }
 
 intdb {
-	region_slot PCLK0;
-	region_slot PCLK1;
-	region_slot PCLK2;
-	region_slot PCLK3;
-	region_slot SCLK0;
-	region_slot SCLK1;
-	region_slot SCLK2;
-	region_slot SCLK3;
+	region_slot PCLK[0];
+	region_slot PCLK[1];
+	region_slot PCLK[2];
+	region_slot PCLK[3];
+	region_slot SCLK[0];
+	region_slot SCLK[1];
+	region_slot SCLK[2];
+	region_slot SCLK[3];
 	region_slot VSDCLK;
 	wire TIE0: tie 0;
 	wire TIE1: tie 1;
@@ -5232,14 +5232,14 @@ intdb {
 	wire X6_N3_4: branch S;
 	wire X6_N3_5: branch S;
 	wire X6_N3_6: branch S;
-	wire PCLK0: regional PCLK0;
-	wire PCLK1: regional PCLK0;
-	wire PCLK2: regional PCLK0;
-	wire PCLK3: regional PCLK0;
-	wire SCLK0: regional PCLK0;
-	wire SCLK1: regional PCLK0;
-	wire SCLK2: regional PCLK0;
-	wire SCLK3: regional PCLK0;
+	wire PCLK0: regional PCLK[0];
+	wire PCLK1: regional PCLK[0];
+	wire PCLK2: regional PCLK[0];
+	wire PCLK3: regional PCLK[0];
+	wire SCLK0: regional PCLK[0];
+	wire SCLK1: regional PCLK[0];
+	wire SCLK2: regional PCLK[0];
+	wire SCLK3: regional PCLK[0];
 	wire IMUX_A0: mux;
 	wire IMUX_A1: mux;
 	wire IMUX_A2: mux;
@@ -5338,7 +5338,7 @@ intdb {
 	wire OUT_TI11: bel;
 
 	tile_slot INT {
-		bel_slot INT: legacy;
+		bel_slot INT: routing;
 
 		tile_class INT_PLC {
 			cell CELL0;
@@ -5997,26 +5997,26 @@ intdb {
 	}
 
 	tile_slot IO {
-		bel_slot IO0: legacy;
-		bel_slot IO1: legacy;
-		bel_slot IO2: legacy;
-		bel_slot IO3: legacy;
-		bel_slot IO4: legacy;
-		bel_slot IO5: legacy;
-		bel_slot IO6: legacy;
-		bel_slot IO7: legacy;
-		bel_slot IO8: legacy;
-		bel_slot IO9: legacy;
-		bel_slot IO10: legacy;
-		bel_slot IO11: legacy;
-		bel_slot PICTEST0: legacy;
-		bel_slot PICTEST1: legacy;
-		bel_slot PICTEST2: legacy;
+		bel_slot IO[0]: legacy;
+		bel_slot IO[1]: legacy;
+		bel_slot IO[2]: legacy;
+		bel_slot IO[3]: legacy;
+		bel_slot IO[4]: legacy;
+		bel_slot IO[5]: legacy;
+		bel_slot IO[6]: legacy;
+		bel_slot IO[7]: legacy;
+		bel_slot IO[8]: legacy;
+		bel_slot IO[9]: legacy;
+		bel_slot IO[10]: legacy;
+		bel_slot IO[11]: legacy;
+		bel_slot PICTEST[0]: legacy;
+		bel_slot PICTEST[1]: legacy;
+		bel_slot PICTEST[2]: legacy;
 
 		tile_class IO_W {
 			cell CELL0;
 
-			bel IO0 {
+			bel IO[0] {
 				input CE = IMUX_CE0;
 				input CLK = IMUX_CLK0;
 				output DI = OUT_F0;
@@ -6030,7 +6030,7 @@ intdb {
 				input TD = IMUX_B2;
 			}
 
-			bel IO1 {
+			bel IO[1] {
 				input CE = IMUX_CE1;
 				input CLK = IMUX_CLK1;
 				output DI = OUT_F1;
@@ -6044,34 +6044,34 @@ intdb {
 				input TD = IMUX_B3;
 			}
 
-			// wire IMUX_A0                        IO0.ONEG0
-			// wire IMUX_A1                        IO1.ONEG0
-			// wire IMUX_B0                        IO0.ONEG1
-			// wire IMUX_B1                        IO1.ONEG1
-			// wire IMUX_B2                        IO0.TD
-			// wire IMUX_B3                        IO1.TD
-			// wire IMUX_C0                        IO0.OPOS0
-			// wire IMUX_C1                        IO1.OPOS0
-			// wire IMUX_D0                        IO0.OPOS1
-			// wire IMUX_D1                        IO1.OPOS1
-			// wire IMUX_CLK0                      IO0.CLK
-			// wire IMUX_CLK1                      IO1.CLK
-			// wire IMUX_LSR0                      IO0.LSR
-			// wire IMUX_LSR1                      IO1.LSR
-			// wire IMUX_CE0                       IO0.CE
-			// wire IMUX_CE1                       IO1.CE
-			// wire OUT_F0                         IO0.DI
-			// wire OUT_F1                         IO1.DI
-			// wire OUT_F6                         IO0.IPOS0
-			// wire OUT_F7                         IO0.IPOS1
-			// wire OUT_Q1                         IO1.IPOS0
-			// wire OUT_Q2                         IO1.IPOS1
+			// wire IMUX_A0                        IO[0].ONEG0
+			// wire IMUX_A1                        IO[1].ONEG0
+			// wire IMUX_B0                        IO[0].ONEG1
+			// wire IMUX_B1                        IO[1].ONEG1
+			// wire IMUX_B2                        IO[0].TD
+			// wire IMUX_B3                        IO[1].TD
+			// wire IMUX_C0                        IO[0].OPOS0
+			// wire IMUX_C1                        IO[1].OPOS0
+			// wire IMUX_D0                        IO[0].OPOS1
+			// wire IMUX_D1                        IO[1].OPOS1
+			// wire IMUX_CLK0                      IO[0].CLK
+			// wire IMUX_CLK1                      IO[1].CLK
+			// wire IMUX_LSR0                      IO[0].LSR
+			// wire IMUX_LSR1                      IO[1].LSR
+			// wire IMUX_CE0                       IO[0].CE
+			// wire IMUX_CE1                       IO[1].CE
+			// wire OUT_F0                         IO[0].DI
+			// wire OUT_F1                         IO[1].DI
+			// wire OUT_F6                         IO[0].IPOS0
+			// wire OUT_F7                         IO[0].IPOS1
+			// wire OUT_Q1                         IO[1].IPOS0
+			// wire OUT_Q2                         IO[1].IPOS1
 		}
 
 		tile_class IO_E {
 			cell CELL0;
 
-			bel IO0 {
+			bel IO[0] {
 				input CE = IMUX_CE0;
 				input CLK = IMUX_CLK0;
 				output DI = OUT_F0;
@@ -6085,7 +6085,7 @@ intdb {
 				input TD = IMUX_B2;
 			}
 
-			bel IO1 {
+			bel IO[1] {
 				input CE = IMUX_CE1;
 				input CLK = IMUX_CLK1;
 				output DI = OUT_F1;
@@ -6099,34 +6099,34 @@ intdb {
 				input TD = IMUX_B3;
 			}
 
-			// wire IMUX_A0                        IO0.ONEG0
-			// wire IMUX_A1                        IO1.ONEG0
-			// wire IMUX_B0                        IO0.ONEG1
-			// wire IMUX_B1                        IO1.ONEG1
-			// wire IMUX_B2                        IO0.TD
-			// wire IMUX_B3                        IO1.TD
-			// wire IMUX_C0                        IO0.OPOS0
-			// wire IMUX_C1                        IO1.OPOS0
-			// wire IMUX_D0                        IO0.OPOS1
-			// wire IMUX_D1                        IO1.OPOS1
-			// wire IMUX_CLK0                      IO0.CLK
-			// wire IMUX_CLK1                      IO1.CLK
-			// wire IMUX_LSR0                      IO0.LSR
-			// wire IMUX_LSR1                      IO1.LSR
-			// wire IMUX_CE0                       IO0.CE
-			// wire IMUX_CE1                       IO1.CE
-			// wire OUT_F0                         IO0.DI
-			// wire OUT_F1                         IO1.DI
-			// wire OUT_F6                         IO0.IPOS0
-			// wire OUT_F7                         IO0.IPOS1
-			// wire OUT_Q1                         IO1.IPOS0
-			// wire OUT_Q2                         IO1.IPOS1
+			// wire IMUX_A0                        IO[0].ONEG0
+			// wire IMUX_A1                        IO[1].ONEG0
+			// wire IMUX_B0                        IO[0].ONEG1
+			// wire IMUX_B1                        IO[1].ONEG1
+			// wire IMUX_B2                        IO[0].TD
+			// wire IMUX_B3                        IO[1].TD
+			// wire IMUX_C0                        IO[0].OPOS0
+			// wire IMUX_C1                        IO[1].OPOS0
+			// wire IMUX_D0                        IO[0].OPOS1
+			// wire IMUX_D1                        IO[1].OPOS1
+			// wire IMUX_CLK0                      IO[0].CLK
+			// wire IMUX_CLK1                      IO[1].CLK
+			// wire IMUX_LSR0                      IO[0].LSR
+			// wire IMUX_LSR1                      IO[1].LSR
+			// wire IMUX_CE0                       IO[0].CE
+			// wire IMUX_CE1                       IO[1].CE
+			// wire OUT_F0                         IO[0].DI
+			// wire OUT_F1                         IO[1].DI
+			// wire OUT_F6                         IO[0].IPOS0
+			// wire OUT_F7                         IO[0].IPOS1
+			// wire OUT_Q1                         IO[1].IPOS0
+			// wire OUT_Q2                         IO[1].IPOS1
 		}
 
 		tile_class IO_S {
 			cell CELL0;
 
-			bel IO0 {
+			bel IO[0] {
 				input CE = IMUX_CE0;
 				input CLK = IMUX_CLK0;
 				output DI = OUT_F0;
@@ -6140,7 +6140,7 @@ intdb {
 				input TD = IMUX_B2;
 			}
 
-			bel IO1 {
+			bel IO[1] {
 				input CE = IMUX_CE1;
 				input CLK = IMUX_CLK1;
 				output DI = OUT_F1;
@@ -6154,34 +6154,34 @@ intdb {
 				input TD = IMUX_B3;
 			}
 
-			// wire IMUX_A0                        IO0.ONEG0
-			// wire IMUX_A1                        IO1.ONEG0
-			// wire IMUX_B0                        IO0.ONEG1
-			// wire IMUX_B1                        IO1.ONEG1
-			// wire IMUX_B2                        IO0.TD
-			// wire IMUX_B3                        IO1.TD
-			// wire IMUX_C0                        IO0.OPOS0
-			// wire IMUX_C1                        IO1.OPOS0
-			// wire IMUX_D0                        IO0.OPOS1
-			// wire IMUX_D1                        IO1.OPOS1
-			// wire IMUX_CLK0                      IO0.CLK
-			// wire IMUX_CLK1                      IO1.CLK
-			// wire IMUX_LSR0                      IO0.LSR
-			// wire IMUX_LSR1                      IO1.LSR
-			// wire IMUX_CE0                       IO0.CE
-			// wire IMUX_CE1                       IO1.CE
-			// wire OUT_F0                         IO0.DI
-			// wire OUT_F1                         IO1.DI
-			// wire OUT_F6                         IO0.IPOS0
-			// wire OUT_F7                         IO0.IPOS1
-			// wire OUT_Q1                         IO1.IPOS0
-			// wire OUT_Q2                         IO1.IPOS1
+			// wire IMUX_A0                        IO[0].ONEG0
+			// wire IMUX_A1                        IO[1].ONEG0
+			// wire IMUX_B0                        IO[0].ONEG1
+			// wire IMUX_B1                        IO[1].ONEG1
+			// wire IMUX_B2                        IO[0].TD
+			// wire IMUX_B3                        IO[1].TD
+			// wire IMUX_C0                        IO[0].OPOS0
+			// wire IMUX_C1                        IO[1].OPOS0
+			// wire IMUX_D0                        IO[0].OPOS1
+			// wire IMUX_D1                        IO[1].OPOS1
+			// wire IMUX_CLK0                      IO[0].CLK
+			// wire IMUX_CLK1                      IO[1].CLK
+			// wire IMUX_LSR0                      IO[0].LSR
+			// wire IMUX_LSR1                      IO[1].LSR
+			// wire IMUX_CE0                       IO[0].CE
+			// wire IMUX_CE1                       IO[1].CE
+			// wire OUT_F0                         IO[0].DI
+			// wire OUT_F1                         IO[1].DI
+			// wire OUT_F6                         IO[0].IPOS0
+			// wire OUT_F7                         IO[0].IPOS1
+			// wire OUT_Q1                         IO[1].IPOS0
+			// wire OUT_Q2                         IO[1].IPOS1
 		}
 
 		tile_class IO_N {
 			cell CELL0;
 
-			bel IO0 {
+			bel IO[0] {
 				input CE = IMUX_CE0;
 				input CLK = IMUX_CLK0;
 				output DI = OUT_F0;
@@ -6195,7 +6195,7 @@ intdb {
 				input TD = IMUX_B2;
 			}
 
-			bel IO1 {
+			bel IO[1] {
 				input CE = IMUX_CE1;
 				input CLK = IMUX_CLK1;
 				output DI = OUT_F1;
@@ -6209,39 +6209,39 @@ intdb {
 				input TD = IMUX_B3;
 			}
 
-			// wire IMUX_A0                        IO0.ONEG0
-			// wire IMUX_A1                        IO1.ONEG0
-			// wire IMUX_B0                        IO0.ONEG1
-			// wire IMUX_B1                        IO1.ONEG1
-			// wire IMUX_B2                        IO0.TD
-			// wire IMUX_B3                        IO1.TD
-			// wire IMUX_C0                        IO0.OPOS0
-			// wire IMUX_C1                        IO1.OPOS0
-			// wire IMUX_D0                        IO0.OPOS1
-			// wire IMUX_D1                        IO1.OPOS1
-			// wire IMUX_CLK0                      IO0.CLK
-			// wire IMUX_CLK1                      IO1.CLK
-			// wire IMUX_LSR0                      IO0.LSR
-			// wire IMUX_LSR1                      IO1.LSR
-			// wire IMUX_CE0                       IO0.CE
-			// wire IMUX_CE1                       IO1.CE
-			// wire OUT_F0                         IO0.DI
-			// wire OUT_F1                         IO1.DI
-			// wire OUT_F6                         IO0.IPOS0
-			// wire OUT_F7                         IO0.IPOS1
-			// wire OUT_Q1                         IO1.IPOS0
-			// wire OUT_Q2                         IO1.IPOS1
+			// wire IMUX_A0                        IO[0].ONEG0
+			// wire IMUX_A1                        IO[1].ONEG0
+			// wire IMUX_B0                        IO[0].ONEG1
+			// wire IMUX_B1                        IO[1].ONEG1
+			// wire IMUX_B2                        IO[0].TD
+			// wire IMUX_B3                        IO[1].TD
+			// wire IMUX_C0                        IO[0].OPOS0
+			// wire IMUX_C1                        IO[1].OPOS0
+			// wire IMUX_D0                        IO[0].OPOS1
+			// wire IMUX_D1                        IO[1].OPOS1
+			// wire IMUX_CLK0                      IO[0].CLK
+			// wire IMUX_CLK1                      IO[1].CLK
+			// wire IMUX_LSR0                      IO[0].LSR
+			// wire IMUX_LSR1                      IO[1].LSR
+			// wire IMUX_CE0                       IO[0].CE
+			// wire IMUX_CE1                       IO[1].CE
+			// wire OUT_F0                         IO[0].DI
+			// wire OUT_F1                         IO[1].DI
+			// wire OUT_F6                         IO[0].IPOS0
+			// wire OUT_F7                         IO[0].IPOS1
+			// wire OUT_Q1                         IO[1].IPOS0
+			// wire OUT_Q2                         IO[1].IPOS1
 		}
 	}
 
 	tile_slot BEL {
-		bel_slot SLICE0: legacy;
-		bel_slot SLICE1: legacy;
-		bel_slot SLICE2: legacy;
-		bel_slot SLICE3: legacy;
-		bel_slot IO_INT: legacy;
-		bel_slot DQS0: legacy;
-		bel_slot DQS1: legacy;
+		bel_slot SLICE[0]: legacy;
+		bel_slot SLICE[1]: legacy;
+		bel_slot SLICE[2]: legacy;
+		bel_slot SLICE[3]: legacy;
+		bel_slot IO_INT: routing;
+		bel_slot DQS[0]: legacy;
+		bel_slot DQS[1]: legacy;
 		bel_slot DQSTEST: legacy;
 		bel_slot DQSDLL: legacy;
 		bel_slot DQSDLLTEST: legacy;
@@ -6249,44 +6249,44 @@ intdb {
 		bel_slot SERDES_CENTER: legacy;
 		bel_slot SERDES_CORNER: legacy;
 		bel_slot MACO: legacy;
-		bel_slot MACO_INT: legacy;
+		bel_slot MACO_INT: routing;
 		bel_slot MIPI: legacy;
 		bel_slot CLKTEST_MIPI: legacy;
 		bel_slot CIBTEST_SEL: legacy;
-		bel_slot EBR0: legacy;
-		bel_slot EBR1: legacy;
-		bel_slot EBR2: legacy;
-		bel_slot EBR3: legacy;
-		bel_slot EBR_INT: legacy;
-		bel_slot DSP0: legacy;
-		bel_slot DSP1: legacy;
-		bel_slot PLL0: legacy;
-		bel_slot PLL1: legacy;
+		bel_slot EBR_INT: routing;
+		bel_slot EBR[0]: legacy;
+		bel_slot EBR[1]: legacy;
+		bel_slot EBR[2]: legacy;
+		bel_slot EBR[3]: legacy;
+		bel_slot DSP[0]: legacy;
+		bel_slot DSP[1]: legacy;
+		bel_slot PLL[0]: legacy;
+		bel_slot PLL[1]: legacy;
 		bel_slot PLL_SMI: legacy;
-		bel_slot PLLREFCS0: legacy;
-		bel_slot PLLREFCS1: legacy;
-		bel_slot DLL0: legacy;
-		bel_slot DLL1: legacy;
-		bel_slot DLL2: legacy;
-		bel_slot DLL3: legacy;
-		bel_slot DLL_DCNTL0: legacy;
-		bel_slot DLL_DCNTL1: legacy;
+		bel_slot PLLREFCS[0]: legacy;
+		bel_slot PLLREFCS[1]: legacy;
+		bel_slot DLL[0]: legacy;
+		bel_slot DLL[1]: legacy;
+		bel_slot DLL[2]: legacy;
+		bel_slot DLL[3]: legacy;
+		bel_slot DLL_DCNTL[0]: legacy;
+		bel_slot DLL_DCNTL[1]: legacy;
 		bel_slot PROMON: legacy;
 		bel_slot RNET: legacy;
 		bel_slot DDRDLL: legacy;
 		bel_slot DTR: legacy;
-		bel_slot DLLDEL0: legacy;
-		bel_slot DLLDEL1: legacy;
-		bel_slot DLLDEL2: legacy;
-		bel_slot DLLDEL3: legacy;
-		bel_slot DLLDEL4: legacy;
-		bel_slot DLLDEL5: legacy;
-		bel_slot DLLDEL6: legacy;
-		bel_slot DLLDEL7: legacy;
-		bel_slot CLKDIV0: legacy;
-		bel_slot CLKDIV1: legacy;
-		bel_slot CLKDIV2: legacy;
-		bel_slot CLKDIV3: legacy;
+		bel_slot DLLDEL[0]: legacy;
+		bel_slot DLLDEL[1]: legacy;
+		bel_slot DLLDEL[2]: legacy;
+		bel_slot DLLDEL[3]: legacy;
+		bel_slot DLLDEL[4]: legacy;
+		bel_slot DLLDEL[5]: legacy;
+		bel_slot DLLDEL[6]: legacy;
+		bel_slot DLLDEL[7]: legacy;
+		bel_slot CLKDIV[0]: legacy;
+		bel_slot CLKDIV[1]: legacy;
+		bel_slot CLKDIV[2]: legacy;
+		bel_slot CLKDIV[3]: legacy;
 		bel_slot ECLK_ALT_ROOT: legacy;
 		bel_slot SPLL: legacy;
 		bel_slot SYSBUS: legacy;
@@ -6330,7 +6330,7 @@ intdb {
 		tile_class PLC {
 			cell CELL0;
 
-			bel SLICE0 {
+			bel SLICE[0] {
 				input A0 = IMUX_A0;
 				input A1 = IMUX_A1;
 				input B0 = IMUX_B0;
@@ -6352,7 +6352,7 @@ intdb {
 				output Q1 = OUT_Q1;
 			}
 
-			bel SLICE1 {
+			bel SLICE[1] {
 				input A0 = IMUX_A2;
 				input A1 = IMUX_A3;
 				input B0 = IMUX_B2;
@@ -6374,7 +6374,7 @@ intdb {
 				output Q1 = OUT_Q3;
 			}
 
-			bel SLICE2 {
+			bel SLICE[2] {
 				input A0 = IMUX_A4;
 				input A1 = IMUX_A5;
 				input B0 = IMUX_B4;
@@ -6396,7 +6396,7 @@ intdb {
 				output Q1 = OUT_Q5;
 			}
 
-			bel SLICE3 {
+			bel SLICE[3] {
 				input A0 = IMUX_A6;
 				input A1 = IMUX_A7;
 				input B0 = IMUX_B6;
@@ -6419,89 +6419,89 @@ intdb {
 				output Q1 = OUT_Q7;
 			}
 
-			// wire IMUX_A0                        SLICE0.A0
-			// wire IMUX_A1                        SLICE0.A1
-			// wire IMUX_A2                        SLICE1.A0
-			// wire IMUX_A3                        SLICE1.A1
-			// wire IMUX_A4                        SLICE2.A0
-			// wire IMUX_A5                        SLICE2.A1
-			// wire IMUX_A6                        SLICE3.A0
-			// wire IMUX_A7                        SLICE3.A1
-			// wire IMUX_B0                        SLICE0.B0
-			// wire IMUX_B1                        SLICE0.B1
-			// wire IMUX_B2                        SLICE1.B0
-			// wire IMUX_B3                        SLICE1.B1
-			// wire IMUX_B4                        SLICE2.B0
-			// wire IMUX_B5                        SLICE2.B1
-			// wire IMUX_B6                        SLICE3.B0
-			// wire IMUX_B7                        SLICE3.B1
-			// wire IMUX_C0                        SLICE0.C0
-			// wire IMUX_C1                        SLICE0.C1
-			// wire IMUX_C2                        SLICE1.C0
-			// wire IMUX_C3                        SLICE1.C1
-			// wire IMUX_C4                        SLICE2.C0
-			// wire IMUX_C5                        SLICE2.C1
-			// wire IMUX_C6                        SLICE3.C0
-			// wire IMUX_C7                        SLICE3.C1
-			// wire IMUX_D0                        SLICE0.D0
-			// wire IMUX_D1                        SLICE0.D1
-			// wire IMUX_D2                        SLICE1.D0
-			// wire IMUX_D3                        SLICE1.D1
-			// wire IMUX_D4                        SLICE2.D0
-			// wire IMUX_D5                        SLICE2.D1
-			// wire IMUX_D6                        SLICE3.D0
-			// wire IMUX_D7                        SLICE3.D1
-			// wire IMUX_M0                        SLICE0.M0
-			// wire IMUX_M1                        SLICE0.M1
-			// wire IMUX_M2                        SLICE1.M0
-			// wire IMUX_M3                        SLICE1.M1
-			// wire IMUX_M4                        SLICE2.M0
-			// wire IMUX_M5                        SLICE2.M1
-			// wire IMUX_M6                        SLICE3.M0
-			// wire IMUX_M7                        SLICE3.M1
-			// wire IMUX_CLK0                      SLICE0.CLK
-			// wire IMUX_CLK1                      SLICE1.CLK
-			// wire IMUX_CLK2                      SLICE2.CLK
-			// wire IMUX_CLK3                      SLICE3.CLK
-			// wire IMUX_LSR0                      SLICE0.LSR
-			// wire IMUX_LSR1                      SLICE1.LSR
-			// wire IMUX_LSR2                      SLICE2.LSR
-			// wire IMUX_LSR3                      SLICE3.LSR
-			// wire IMUX_CE0                       SLICE0.CE
-			// wire IMUX_CE1                       SLICE1.CE
-			// wire IMUX_CE2                       SLICE2.CE
-			// wire IMUX_CE3                       SLICE3.CE
-			// wire OUT_F0                         SLICE0.F0
-			// wire OUT_F1                         SLICE0.F1
-			// wire OUT_F2                         SLICE1.F0
-			// wire OUT_F3                         SLICE1.F1
-			// wire OUT_F4                         SLICE2.F0
-			// wire OUT_F5                         SLICE2.F1
-			// wire OUT_F6                         SLICE3.F0
-			// wire OUT_F7                         SLICE3.F1
-			// wire OUT_Q0                         SLICE0.Q0
-			// wire OUT_Q1                         SLICE0.Q1
-			// wire OUT_Q2                         SLICE1.Q0
-			// wire OUT_Q3                         SLICE1.Q1
-			// wire OUT_Q4                         SLICE2.Q0
-			// wire OUT_Q5                         SLICE2.Q1
-			// wire OUT_Q6                         SLICE3.Q0
-			// wire OUT_Q7                         SLICE3.Q1
-			// wire OUT_OFX0                       SLICE0.OFX0
-			// wire OUT_OFX1                       SLICE0.OFX1
-			// wire OUT_OFX2                       SLICE1.OFX0
-			// wire OUT_OFX3                       SLICE1.OFX1
-			// wire OUT_OFX3_W                     SLICE3.FXB
-			// wire OUT_OFX4                       SLICE2.OFX0
-			// wire OUT_OFX5                       SLICE2.OFX1
-			// wire OUT_OFX6                       SLICE3.OFX0
-			// wire OUT_OFX7                       SLICE3.OFX1
+			// wire IMUX_A0                        SLICE[0].A0
+			// wire IMUX_A1                        SLICE[0].A1
+			// wire IMUX_A2                        SLICE[1].A0
+			// wire IMUX_A3                        SLICE[1].A1
+			// wire IMUX_A4                        SLICE[2].A0
+			// wire IMUX_A5                        SLICE[2].A1
+			// wire IMUX_A6                        SLICE[3].A0
+			// wire IMUX_A7                        SLICE[3].A1
+			// wire IMUX_B0                        SLICE[0].B0
+			// wire IMUX_B1                        SLICE[0].B1
+			// wire IMUX_B2                        SLICE[1].B0
+			// wire IMUX_B3                        SLICE[1].B1
+			// wire IMUX_B4                        SLICE[2].B0
+			// wire IMUX_B5                        SLICE[2].B1
+			// wire IMUX_B6                        SLICE[3].B0
+			// wire IMUX_B7                        SLICE[3].B1
+			// wire IMUX_C0                        SLICE[0].C0
+			// wire IMUX_C1                        SLICE[0].C1
+			// wire IMUX_C2                        SLICE[1].C0
+			// wire IMUX_C3                        SLICE[1].C1
+			// wire IMUX_C4                        SLICE[2].C0
+			// wire IMUX_C5                        SLICE[2].C1
+			// wire IMUX_C6                        SLICE[3].C0
+			// wire IMUX_C7                        SLICE[3].C1
+			// wire IMUX_D0                        SLICE[0].D0
+			// wire IMUX_D1                        SLICE[0].D1
+			// wire IMUX_D2                        SLICE[1].D0
+			// wire IMUX_D3                        SLICE[1].D1
+			// wire IMUX_D4                        SLICE[2].D0
+			// wire IMUX_D5                        SLICE[2].D1
+			// wire IMUX_D6                        SLICE[3].D0
+			// wire IMUX_D7                        SLICE[3].D1
+			// wire IMUX_M0                        SLICE[0].M0
+			// wire IMUX_M1                        SLICE[0].M1
+			// wire IMUX_M2                        SLICE[1].M0
+			// wire IMUX_M3                        SLICE[1].M1
+			// wire IMUX_M4                        SLICE[2].M0
+			// wire IMUX_M5                        SLICE[2].M1
+			// wire IMUX_M6                        SLICE[3].M0
+			// wire IMUX_M7                        SLICE[3].M1
+			// wire IMUX_CLK0                      SLICE[0].CLK
+			// wire IMUX_CLK1                      SLICE[1].CLK
+			// wire IMUX_CLK2                      SLICE[2].CLK
+			// wire IMUX_CLK3                      SLICE[3].CLK
+			// wire IMUX_LSR0                      SLICE[0].LSR
+			// wire IMUX_LSR1                      SLICE[1].LSR
+			// wire IMUX_LSR2                      SLICE[2].LSR
+			// wire IMUX_LSR3                      SLICE[3].LSR
+			// wire IMUX_CE0                       SLICE[0].CE
+			// wire IMUX_CE1                       SLICE[1].CE
+			// wire IMUX_CE2                       SLICE[2].CE
+			// wire IMUX_CE3                       SLICE[3].CE
+			// wire OUT_F0                         SLICE[0].F0
+			// wire OUT_F1                         SLICE[0].F1
+			// wire OUT_F2                         SLICE[1].F0
+			// wire OUT_F3                         SLICE[1].F1
+			// wire OUT_F4                         SLICE[2].F0
+			// wire OUT_F5                         SLICE[2].F1
+			// wire OUT_F6                         SLICE[3].F0
+			// wire OUT_F7                         SLICE[3].F1
+			// wire OUT_Q0                         SLICE[0].Q0
+			// wire OUT_Q1                         SLICE[0].Q1
+			// wire OUT_Q2                         SLICE[1].Q0
+			// wire OUT_Q3                         SLICE[1].Q1
+			// wire OUT_Q4                         SLICE[2].Q0
+			// wire OUT_Q5                         SLICE[2].Q1
+			// wire OUT_Q6                         SLICE[3].Q0
+			// wire OUT_Q7                         SLICE[3].Q1
+			// wire OUT_OFX0                       SLICE[0].OFX0
+			// wire OUT_OFX1                       SLICE[0].OFX1
+			// wire OUT_OFX2                       SLICE[1].OFX0
+			// wire OUT_OFX3                       SLICE[1].OFX1
+			// wire OUT_OFX3_W                     SLICE[3].FXB
+			// wire OUT_OFX4                       SLICE[2].OFX0
+			// wire OUT_OFX5                       SLICE[2].OFX1
+			// wire OUT_OFX6                       SLICE[3].OFX0
+			// wire OUT_OFX7                       SLICE[3].OFX1
 		}
 
 		tile_class FPLC {
 			cell CELL0;
 
-			bel SLICE0 {
+			bel SLICE[0] {
 				input A0 = IMUX_A0;
 				input A1 = IMUX_A1;
 				input B0 = IMUX_B0;
@@ -6523,7 +6523,7 @@ intdb {
 				output Q1 = OUT_Q1;
 			}
 
-			bel SLICE1 {
+			bel SLICE[1] {
 				input A0 = IMUX_A2;
 				input A1 = IMUX_A3;
 				input B0 = IMUX_B2;
@@ -6545,7 +6545,7 @@ intdb {
 				output Q1 = OUT_Q3;
 			}
 
-			bel SLICE2 {
+			bel SLICE[2] {
 				input A0 = IMUX_A4;
 				input A1 = IMUX_A5;
 				input B0 = IMUX_B4;
@@ -6567,7 +6567,7 @@ intdb {
 				output Q1 = OUT_Q5;
 			}
 
-			bel SLICE3 {
+			bel SLICE[3] {
 				input A0 = IMUX_A6;
 				input A1 = IMUX_A7;
 				input B0 = IMUX_B6;
@@ -6590,90 +6590,90 @@ intdb {
 				output Q1 = OUT_Q7;
 			}
 
-			// wire IMUX_A0                        SLICE0.A0
-			// wire IMUX_A1                        SLICE0.A1
-			// wire IMUX_A2                        SLICE1.A0
-			// wire IMUX_A3                        SLICE1.A1
-			// wire IMUX_A4                        SLICE2.A0
-			// wire IMUX_A5                        SLICE2.A1
-			// wire IMUX_A6                        SLICE3.A0
-			// wire IMUX_A7                        SLICE3.A1
-			// wire IMUX_B0                        SLICE0.B0
-			// wire IMUX_B1                        SLICE0.B1
-			// wire IMUX_B2                        SLICE1.B0
-			// wire IMUX_B3                        SLICE1.B1
-			// wire IMUX_B4                        SLICE2.B0
-			// wire IMUX_B5                        SLICE2.B1
-			// wire IMUX_B6                        SLICE3.B0
-			// wire IMUX_B7                        SLICE3.B1
-			// wire IMUX_C0                        SLICE0.C0
-			// wire IMUX_C1                        SLICE0.C1
-			// wire IMUX_C2                        SLICE1.C0
-			// wire IMUX_C3                        SLICE1.C1
-			// wire IMUX_C4                        SLICE2.C0
-			// wire IMUX_C5                        SLICE2.C1
-			// wire IMUX_C6                        SLICE3.C0
-			// wire IMUX_C7                        SLICE3.C1
-			// wire IMUX_D0                        SLICE0.D0
-			// wire IMUX_D1                        SLICE0.D1
-			// wire IMUX_D2                        SLICE1.D0
-			// wire IMUX_D3                        SLICE1.D1
-			// wire IMUX_D4                        SLICE2.D0
-			// wire IMUX_D5                        SLICE2.D1
-			// wire IMUX_D6                        SLICE3.D0
-			// wire IMUX_D7                        SLICE3.D1
-			// wire IMUX_M0                        SLICE0.M0
-			// wire IMUX_M1                        SLICE0.M1
-			// wire IMUX_M2                        SLICE1.M0
-			// wire IMUX_M3                        SLICE1.M1
-			// wire IMUX_M4                        SLICE2.M0
-			// wire IMUX_M5                        SLICE2.M1
-			// wire IMUX_M6                        SLICE3.M0
-			// wire IMUX_M7                        SLICE3.M1
-			// wire IMUX_CLK0                      SLICE0.CLK
-			// wire IMUX_CLK1                      SLICE1.CLK
-			// wire IMUX_CLK2                      SLICE2.CLK
-			// wire IMUX_CLK3                      SLICE3.CLK
-			// wire IMUX_LSR0                      SLICE0.LSR
-			// wire IMUX_LSR1                      SLICE1.LSR
-			// wire IMUX_LSR2                      SLICE2.LSR
-			// wire IMUX_LSR3                      SLICE3.LSR
-			// wire IMUX_CE0                       SLICE0.CE
-			// wire IMUX_CE1                       SLICE1.CE
-			// wire IMUX_CE2                       SLICE2.CE
-			// wire IMUX_CE3                       SLICE3.CE
-			// wire OUT_F0                         SLICE0.F0
-			// wire OUT_F1                         SLICE0.F1
-			// wire OUT_F2                         SLICE1.F0
-			// wire OUT_F3                         SLICE1.F1
-			// wire OUT_F4                         SLICE2.F0
-			// wire OUT_F5                         SLICE2.F1
-			// wire OUT_F6                         SLICE3.F0
-			// wire OUT_F7                         SLICE3.F1
-			// wire OUT_Q0                         SLICE0.Q0
-			// wire OUT_Q1                         SLICE0.Q1
-			// wire OUT_Q2                         SLICE1.Q0
-			// wire OUT_Q3                         SLICE1.Q1
-			// wire OUT_Q4                         SLICE2.Q0
-			// wire OUT_Q5                         SLICE2.Q1
-			// wire OUT_Q6                         SLICE3.Q0
-			// wire OUT_Q7                         SLICE3.Q1
-			// wire OUT_OFX0                       SLICE0.OFX0
-			// wire OUT_OFX1                       SLICE0.OFX1
-			// wire OUT_OFX2                       SLICE1.OFX0
-			// wire OUT_OFX3                       SLICE1.OFX1
-			// wire OUT_OFX3_W                     SLICE3.FXB
-			// wire OUT_OFX4                       SLICE2.OFX0
-			// wire OUT_OFX5                       SLICE2.OFX1
-			// wire OUT_OFX6                       SLICE3.OFX0
-			// wire OUT_OFX7                       SLICE3.OFX1
+			// wire IMUX_A0                        SLICE[0].A0
+			// wire IMUX_A1                        SLICE[0].A1
+			// wire IMUX_A2                        SLICE[1].A0
+			// wire IMUX_A3                        SLICE[1].A1
+			// wire IMUX_A4                        SLICE[2].A0
+			// wire IMUX_A5                        SLICE[2].A1
+			// wire IMUX_A6                        SLICE[3].A0
+			// wire IMUX_A7                        SLICE[3].A1
+			// wire IMUX_B0                        SLICE[0].B0
+			// wire IMUX_B1                        SLICE[0].B1
+			// wire IMUX_B2                        SLICE[1].B0
+			// wire IMUX_B3                        SLICE[1].B1
+			// wire IMUX_B4                        SLICE[2].B0
+			// wire IMUX_B5                        SLICE[2].B1
+			// wire IMUX_B6                        SLICE[3].B0
+			// wire IMUX_B7                        SLICE[3].B1
+			// wire IMUX_C0                        SLICE[0].C0
+			// wire IMUX_C1                        SLICE[0].C1
+			// wire IMUX_C2                        SLICE[1].C0
+			// wire IMUX_C3                        SLICE[1].C1
+			// wire IMUX_C4                        SLICE[2].C0
+			// wire IMUX_C5                        SLICE[2].C1
+			// wire IMUX_C6                        SLICE[3].C0
+			// wire IMUX_C7                        SLICE[3].C1
+			// wire IMUX_D0                        SLICE[0].D0
+			// wire IMUX_D1                        SLICE[0].D1
+			// wire IMUX_D2                        SLICE[1].D0
+			// wire IMUX_D3                        SLICE[1].D1
+			// wire IMUX_D4                        SLICE[2].D0
+			// wire IMUX_D5                        SLICE[2].D1
+			// wire IMUX_D6                        SLICE[3].D0
+			// wire IMUX_D7                        SLICE[3].D1
+			// wire IMUX_M0                        SLICE[0].M0
+			// wire IMUX_M1                        SLICE[0].M1
+			// wire IMUX_M2                        SLICE[1].M0
+			// wire IMUX_M3                        SLICE[1].M1
+			// wire IMUX_M4                        SLICE[2].M0
+			// wire IMUX_M5                        SLICE[2].M1
+			// wire IMUX_M6                        SLICE[3].M0
+			// wire IMUX_M7                        SLICE[3].M1
+			// wire IMUX_CLK0                      SLICE[0].CLK
+			// wire IMUX_CLK1                      SLICE[1].CLK
+			// wire IMUX_CLK2                      SLICE[2].CLK
+			// wire IMUX_CLK3                      SLICE[3].CLK
+			// wire IMUX_LSR0                      SLICE[0].LSR
+			// wire IMUX_LSR1                      SLICE[1].LSR
+			// wire IMUX_LSR2                      SLICE[2].LSR
+			// wire IMUX_LSR3                      SLICE[3].LSR
+			// wire IMUX_CE0                       SLICE[0].CE
+			// wire IMUX_CE1                       SLICE[1].CE
+			// wire IMUX_CE2                       SLICE[2].CE
+			// wire IMUX_CE3                       SLICE[3].CE
+			// wire OUT_F0                         SLICE[0].F0
+			// wire OUT_F1                         SLICE[0].F1
+			// wire OUT_F2                         SLICE[1].F0
+			// wire OUT_F3                         SLICE[1].F1
+			// wire OUT_F4                         SLICE[2].F0
+			// wire OUT_F5                         SLICE[2].F1
+			// wire OUT_F6                         SLICE[3].F0
+			// wire OUT_F7                         SLICE[3].F1
+			// wire OUT_Q0                         SLICE[0].Q0
+			// wire OUT_Q1                         SLICE[0].Q1
+			// wire OUT_Q2                         SLICE[1].Q0
+			// wire OUT_Q3                         SLICE[1].Q1
+			// wire OUT_Q4                         SLICE[2].Q0
+			// wire OUT_Q5                         SLICE[2].Q1
+			// wire OUT_Q6                         SLICE[3].Q0
+			// wire OUT_Q7                         SLICE[3].Q1
+			// wire OUT_OFX0                       SLICE[0].OFX0
+			// wire OUT_OFX1                       SLICE[0].OFX1
+			// wire OUT_OFX2                       SLICE[1].OFX0
+			// wire OUT_OFX3                       SLICE[1].OFX1
+			// wire OUT_OFX3_W                     SLICE[3].FXB
+			// wire OUT_OFX4                       SLICE[2].OFX0
+			// wire OUT_OFX5                       SLICE[2].OFX1
+			// wire OUT_OFX6                       SLICE[3].OFX0
+			// wire OUT_OFX7                       SLICE[3].OFX1
 		}
 
 		tile_class EBR {
 			cell CELL0;
 			cell CELL1;
 
-			bel EBR0 {
+			bel EBR[0] {
 				input ADA0 = CELL0.IMUX_D7;
 				input ADA1 = CELL0.IMUX_A6;
 				input ADA10 = CELL1.IMUX_D0;
@@ -6790,120 +6790,120 @@ intdb {
 				input WEB = CELL0.IMUX_M0;
 			}
 
-			// wire CELL0.IMUX_A0                  EBR0.DIB8
-			// wire CELL0.IMUX_A1                  EBR0.DIB16
-			// wire CELL0.IMUX_A2                  EBR0.DIB5
-			// wire CELL0.IMUX_A3                  EBR0.DIB2
-			// wire CELL0.IMUX_A4                  EBR0.ADB12
-			// wire CELL0.IMUX_A5                  EBR0.DIA14
-			// wire CELL0.IMUX_A6                  EBR0.ADA1
-			// wire CELL0.IMUX_A7                  EBR0.DIA6
-			// wire CELL0.IMUX_B0                  EBR0.DIB7
-			// wire CELL0.IMUX_B1                  EBR0.DIB15
-			// wire CELL0.IMUX_B2                  EBR0.DIB4
-			// wire CELL0.IMUX_B3                  EBR0.DIB1
-			// wire CELL0.IMUX_B4                  EBR0.ADB11
-			// wire CELL0.IMUX_B5                  EBR0.DIA16
-			// wire CELL0.IMUX_B6                  EBR0.ADB10
-			// wire CELL0.IMUX_B7                  EBR0.DIA5
-			// wire CELL0.IMUX_C0                  EBR0.DIB6
-			// wire CELL0.IMUX_C1                  EBR0.DIB14
-			// wire CELL0.IMUX_C2                  EBR0.ADB1
-			// wire CELL0.IMUX_C3                  EBR0.DIB0
-			// wire CELL0.IMUX_C4                  EBR0.DIA17
-			// wire CELL0.IMUX_C5                  EBR0.DIA13
-			// wire CELL0.IMUX_C6                  EBR0.DIA8
-			// wire CELL0.IMUX_C7                  EBR0.ADB9
-			// wire CELL0.IMUX_D0                  EBR0.DIB17
-			// wire CELL0.IMUX_D1                  EBR0.DIB13
-			// wire CELL0.IMUX_D2                  EBR0.DIB3
-			// wire CELL0.IMUX_D3                  EBR0.ADB0
-			// wire CELL0.IMUX_D4                  EBR0.DIA15
-			// wire CELL0.IMUX_D6                  EBR0.DIA7
-			// wire CELL0.IMUX_D7                  EBR0.ADA0
-			// wire CELL0.IMUX_M0                  EBR0.WEB
-			// wire CELL0.IMUX_M2                  EBR0.CSB2
-			// wire CELL0.IMUX_M4                  EBR0.CSA1
-			// wire CELL0.IMUX_M6                  EBR0.CSA2
-			// wire CELL0.IMUX_CLK0                EBR0.MORCLKB
-			// wire CELL0.IMUX_CLK1                EBR0.MORCLKA
-			// wire CELL0.IMUX_LSR3                EBR0.RSTB
-			// wire CELL0.IMUX_CE1                 EBR0.CEB
-			// wire CELL0.OUT_F0                   EBR0.DOB8
-			// wire CELL0.OUT_F1                   EBR0.DOB5
-			// wire CELL0.OUT_F2                   EBR0.DOB16
-			// wire CELL0.OUT_F3                   EBR0.DOB13
-			// wire CELL0.OUT_F4                   EBR0.DOA6
-			// wire CELL0.OUT_F5                   EBR0.DOA4
-			// wire CELL0.OUT_F6                   EBR0.DOA16
-			// wire CELL0.OUT_F7                   EBR0.DOA14
-			// wire CELL0.OUT_Q0                   EBR0.DOB7
-			// wire CELL0.OUT_Q1                   EBR0.DOB4
-			// wire CELL0.OUT_Q2                   EBR0.DOB15
-			// wire CELL0.OUT_Q3                   EBR0.DOA8
-			// wire CELL0.OUT_Q4                   EBR0.DOA5
-			// wire CELL0.OUT_Q5                   EBR0.DOA17
-			// wire CELL0.OUT_Q6                   EBR0.DOA15
-			// wire CELL0.OUT_Q7                   EBR0.DOA13
-			// wire CELL0.OUT_OFX0                 EBR0.DOB6
-			// wire CELL0.OUT_OFX1                 EBR0.DOB17
-			// wire CELL0.OUT_OFX2                 EBR0.DOB14
-			// wire CELL0.OUT_OFX3                 EBR0.DOA7
-			// wire CELL1.IMUX_A0                  EBR0.DIA4
-			// wire CELL1.IMUX_A1                  EBR0.ADA9
-			// wire CELL1.IMUX_A2                  EBR0.DIB9
-			// wire CELL1.IMUX_A3                  EBR0.ADB8
-			// wire CELL1.IMUX_A4                  EBR0.DIA12
-			// wire CELL1.IMUX_A5                  EBR0.ADB4
-			// wire CELL1.IMUX_A6                  EBR0.ADA2
-			// wire CELL1.IMUX_A7                  EBR0.ADA6
-			// wire CELL1.IMUX_B1                  EBR0.ADA11
-			// wire CELL1.IMUX_B2                  EBR0.DIB10
-			// wire CELL1.IMUX_B3                  EBR0.ADB7
-			// wire CELL1.IMUX_B4                  EBR0.DIA11
-			// wire CELL1.IMUX_B5                  EBR0.ADB3
-			// wire CELL1.IMUX_B6                  EBR0.DIA0
-			// wire CELL1.IMUX_B7                  EBR0.ADA5
-			// wire CELL1.IMUX_C0                  EBR0.ADA12
-			// wire CELL1.IMUX_C1                  EBR0.DIB12
-			// wire CELL1.IMUX_C2                  EBR0.DIA3
-			// wire CELL1.IMUX_C3                  EBR0.ADB2
-			// wire CELL1.IMUX_C4                  EBR0.ADB6
-			// wire CELL1.IMUX_C5                  EBR0.DIA9
-			// wire CELL1.IMUX_C6                  EBR0.ADA8
-			// wire CELL1.IMUX_C7                  EBR0.ADA4
-			// wire CELL1.IMUX_D0                  EBR0.ADA10
-			// wire CELL1.IMUX_D1                  EBR0.DIB11
-			// wire CELL1.IMUX_D2                  EBR0.DIA2
-			// wire CELL1.IMUX_D3                  EBR0.ADB5
-			// wire CELL1.IMUX_D4                  EBR0.DIA10
-			// wire CELL1.IMUX_D5                  EBR0.DIA1
-			// wire CELL1.IMUX_D6                  EBR0.ADA7
-			// wire CELL1.IMUX_D7                  EBR0.ADA3
-			// wire CELL1.IMUX_M0                  EBR0.WEA
-			// wire CELL1.IMUX_M2                  EBR0.CSA0
-			// wire CELL1.IMUX_M4                  EBR0.CSB1
-			// wire CELL1.IMUX_M6                  EBR0.CSB0
-			// wire CELL1.IMUX_CLK0                EBR0.CLKB
-			// wire CELL1.IMUX_CLK1                EBR0.CLKA
-			// wire CELL1.IMUX_LSR3                EBR0.RSTA
-			// wire CELL1.IMUX_CE1                 EBR0.CEA
-			// wire CELL1.OUT_F0                   EBR0.DOB2
-			// wire CELL1.OUT_F1                   EBR0.DOB1
-			// wire CELL1.OUT_F2                   EBR0.DOB12
-			// wire CELL1.OUT_F3                   EBR0.DOB9
-			// wire CELL1.OUT_F4                   EBR0.DOA1
-			// wire CELL1.OUT_F5                   EBR0.DOA2
-			// wire CELL1.OUT_F6                   EBR0.DOA12
-			// wire CELL1.OUT_F7                   EBR0.DOA10
-			// wire CELL1.OUT_Q0                   EBR0.DOB3
-			// wire CELL1.OUT_Q1                   EBR0.DOB0
-			// wire CELL1.OUT_Q2                   EBR0.DOB11
-			// wire CELL1.OUT_Q3                   EBR0.DOB10
-			// wire CELL1.OUT_Q4                   EBR0.DOA0
-			// wire CELL1.OUT_Q5                   EBR0.DOA3
-			// wire CELL1.OUT_Q6                   EBR0.DOA11
-			// wire CELL1.OUT_Q7                   EBR0.DOA9
+			// wire CELL0.IMUX_A0                  EBR[0].DIB8
+			// wire CELL0.IMUX_A1                  EBR[0].DIB16
+			// wire CELL0.IMUX_A2                  EBR[0].DIB5
+			// wire CELL0.IMUX_A3                  EBR[0].DIB2
+			// wire CELL0.IMUX_A4                  EBR[0].ADB12
+			// wire CELL0.IMUX_A5                  EBR[0].DIA14
+			// wire CELL0.IMUX_A6                  EBR[0].ADA1
+			// wire CELL0.IMUX_A7                  EBR[0].DIA6
+			// wire CELL0.IMUX_B0                  EBR[0].DIB7
+			// wire CELL0.IMUX_B1                  EBR[0].DIB15
+			// wire CELL0.IMUX_B2                  EBR[0].DIB4
+			// wire CELL0.IMUX_B3                  EBR[0].DIB1
+			// wire CELL0.IMUX_B4                  EBR[0].ADB11
+			// wire CELL0.IMUX_B5                  EBR[0].DIA16
+			// wire CELL0.IMUX_B6                  EBR[0].ADB10
+			// wire CELL0.IMUX_B7                  EBR[0].DIA5
+			// wire CELL0.IMUX_C0                  EBR[0].DIB6
+			// wire CELL0.IMUX_C1                  EBR[0].DIB14
+			// wire CELL0.IMUX_C2                  EBR[0].ADB1
+			// wire CELL0.IMUX_C3                  EBR[0].DIB0
+			// wire CELL0.IMUX_C4                  EBR[0].DIA17
+			// wire CELL0.IMUX_C5                  EBR[0].DIA13
+			// wire CELL0.IMUX_C6                  EBR[0].DIA8
+			// wire CELL0.IMUX_C7                  EBR[0].ADB9
+			// wire CELL0.IMUX_D0                  EBR[0].DIB17
+			// wire CELL0.IMUX_D1                  EBR[0].DIB13
+			// wire CELL0.IMUX_D2                  EBR[0].DIB3
+			// wire CELL0.IMUX_D3                  EBR[0].ADB0
+			// wire CELL0.IMUX_D4                  EBR[0].DIA15
+			// wire CELL0.IMUX_D6                  EBR[0].DIA7
+			// wire CELL0.IMUX_D7                  EBR[0].ADA0
+			// wire CELL0.IMUX_M0                  EBR[0].WEB
+			// wire CELL0.IMUX_M2                  EBR[0].CSB2
+			// wire CELL0.IMUX_M4                  EBR[0].CSA1
+			// wire CELL0.IMUX_M6                  EBR[0].CSA2
+			// wire CELL0.IMUX_CLK0                EBR[0].MORCLKB
+			// wire CELL0.IMUX_CLK1                EBR[0].MORCLKA
+			// wire CELL0.IMUX_LSR3                EBR[0].RSTB
+			// wire CELL0.IMUX_CE1                 EBR[0].CEB
+			// wire CELL0.OUT_F0                   EBR[0].DOB8
+			// wire CELL0.OUT_F1                   EBR[0].DOB5
+			// wire CELL0.OUT_F2                   EBR[0].DOB16
+			// wire CELL0.OUT_F3                   EBR[0].DOB13
+			// wire CELL0.OUT_F4                   EBR[0].DOA6
+			// wire CELL0.OUT_F5                   EBR[0].DOA4
+			// wire CELL0.OUT_F6                   EBR[0].DOA16
+			// wire CELL0.OUT_F7                   EBR[0].DOA14
+			// wire CELL0.OUT_Q0                   EBR[0].DOB7
+			// wire CELL0.OUT_Q1                   EBR[0].DOB4
+			// wire CELL0.OUT_Q2                   EBR[0].DOB15
+			// wire CELL0.OUT_Q3                   EBR[0].DOA8
+			// wire CELL0.OUT_Q4                   EBR[0].DOA5
+			// wire CELL0.OUT_Q5                   EBR[0].DOA17
+			// wire CELL0.OUT_Q6                   EBR[0].DOA15
+			// wire CELL0.OUT_Q7                   EBR[0].DOA13
+			// wire CELL0.OUT_OFX0                 EBR[0].DOB6
+			// wire CELL0.OUT_OFX1                 EBR[0].DOB17
+			// wire CELL0.OUT_OFX2                 EBR[0].DOB14
+			// wire CELL0.OUT_OFX3                 EBR[0].DOA7
+			// wire CELL1.IMUX_A0                  EBR[0].DIA4
+			// wire CELL1.IMUX_A1                  EBR[0].ADA9
+			// wire CELL1.IMUX_A2                  EBR[0].DIB9
+			// wire CELL1.IMUX_A3                  EBR[0].ADB8
+			// wire CELL1.IMUX_A4                  EBR[0].DIA12
+			// wire CELL1.IMUX_A5                  EBR[0].ADB4
+			// wire CELL1.IMUX_A6                  EBR[0].ADA2
+			// wire CELL1.IMUX_A7                  EBR[0].ADA6
+			// wire CELL1.IMUX_B1                  EBR[0].ADA11
+			// wire CELL1.IMUX_B2                  EBR[0].DIB10
+			// wire CELL1.IMUX_B3                  EBR[0].ADB7
+			// wire CELL1.IMUX_B4                  EBR[0].DIA11
+			// wire CELL1.IMUX_B5                  EBR[0].ADB3
+			// wire CELL1.IMUX_B6                  EBR[0].DIA0
+			// wire CELL1.IMUX_B7                  EBR[0].ADA5
+			// wire CELL1.IMUX_C0                  EBR[0].ADA12
+			// wire CELL1.IMUX_C1                  EBR[0].DIB12
+			// wire CELL1.IMUX_C2                  EBR[0].DIA3
+			// wire CELL1.IMUX_C3                  EBR[0].ADB2
+			// wire CELL1.IMUX_C4                  EBR[0].ADB6
+			// wire CELL1.IMUX_C5                  EBR[0].DIA9
+			// wire CELL1.IMUX_C6                  EBR[0].ADA8
+			// wire CELL1.IMUX_C7                  EBR[0].ADA4
+			// wire CELL1.IMUX_D0                  EBR[0].ADA10
+			// wire CELL1.IMUX_D1                  EBR[0].DIB11
+			// wire CELL1.IMUX_D2                  EBR[0].DIA2
+			// wire CELL1.IMUX_D3                  EBR[0].ADB5
+			// wire CELL1.IMUX_D4                  EBR[0].DIA10
+			// wire CELL1.IMUX_D5                  EBR[0].DIA1
+			// wire CELL1.IMUX_D6                  EBR[0].ADA7
+			// wire CELL1.IMUX_D7                  EBR[0].ADA3
+			// wire CELL1.IMUX_M0                  EBR[0].WEA
+			// wire CELL1.IMUX_M2                  EBR[0].CSA0
+			// wire CELL1.IMUX_M4                  EBR[0].CSB1
+			// wire CELL1.IMUX_M6                  EBR[0].CSB0
+			// wire CELL1.IMUX_CLK0                EBR[0].CLKB
+			// wire CELL1.IMUX_CLK1                EBR[0].CLKA
+			// wire CELL1.IMUX_LSR3                EBR[0].RSTA
+			// wire CELL1.IMUX_CE1                 EBR[0].CEA
+			// wire CELL1.OUT_F0                   EBR[0].DOB2
+			// wire CELL1.OUT_F1                   EBR[0].DOB1
+			// wire CELL1.OUT_F2                   EBR[0].DOB12
+			// wire CELL1.OUT_F3                   EBR[0].DOB9
+			// wire CELL1.OUT_F4                   EBR[0].DOA1
+			// wire CELL1.OUT_F5                   EBR[0].DOA2
+			// wire CELL1.OUT_F6                   EBR[0].DOA12
+			// wire CELL1.OUT_F7                   EBR[0].DOA10
+			// wire CELL1.OUT_Q0                   EBR[0].DOB3
+			// wire CELL1.OUT_Q1                   EBR[0].DOB0
+			// wire CELL1.OUT_Q2                   EBR[0].DOB11
+			// wire CELL1.OUT_Q3                   EBR[0].DOB10
+			// wire CELL1.OUT_Q4                   EBR[0].DOA0
+			// wire CELL1.OUT_Q5                   EBR[0].DOA3
+			// wire CELL1.OUT_Q6                   EBR[0].DOA11
+			// wire CELL1.OUT_Q7                   EBR[0].DOA9
 		}
 
 		tile_class CONFIG {
@@ -6950,65 +6950,65 @@ intdb {
 		tile_class DQS_W {
 			cell CELL0;
 
-			bel DQS0 {
+			bel DQS[0] {
 				input CLK = IMUX_CLK2;
 				output DDRCLKPOL = OUT_Q7;
 				output PRMBDET = OUT_Q6;
 				input READ = IMUX_D2;
 			}
 
-			// wire IMUX_D2                        DQS0.READ
-			// wire IMUX_CLK2                      DQS0.CLK
-			// wire OUT_Q6                         DQS0.PRMBDET
-			// wire OUT_Q7                         DQS0.DDRCLKPOL
+			// wire IMUX_D2                        DQS[0].READ
+			// wire IMUX_CLK2                      DQS[0].CLK
+			// wire OUT_Q6                         DQS[0].PRMBDET
+			// wire OUT_Q7                         DQS[0].DDRCLKPOL
 		}
 
 		tile_class DQS_E {
 			cell CELL0;
 
-			bel DQS0 {
+			bel DQS[0] {
 				input CLK = IMUX_CLK2;
 				output DDRCLKPOL = OUT_Q7;
 				output PRMBDET = OUT_Q6;
 				input READ = IMUX_D2;
 			}
 
-			// wire IMUX_D2                        DQS0.READ
-			// wire IMUX_CLK2                      DQS0.CLK
-			// wire OUT_Q6                         DQS0.PRMBDET
-			// wire OUT_Q7                         DQS0.DDRCLKPOL
+			// wire IMUX_D2                        DQS[0].READ
+			// wire IMUX_CLK2                      DQS[0].CLK
+			// wire OUT_Q6                         DQS[0].PRMBDET
+			// wire OUT_Q7                         DQS[0].DDRCLKPOL
 		}
 
 		tile_class DQS_S {
 			cell CELL0;
 
-			bel DQS0 {
+			bel DQS[0] {
 				input CLK = IMUX_CLK2;
 				output DDRCLKPOL = OUT_Q7;
 				output PRMBDET = OUT_Q6;
 				input READ = IMUX_D2;
 			}
 
-			// wire IMUX_D2                        DQS0.READ
-			// wire IMUX_CLK2                      DQS0.CLK
-			// wire OUT_Q6                         DQS0.PRMBDET
-			// wire OUT_Q7                         DQS0.DDRCLKPOL
+			// wire IMUX_D2                        DQS[0].READ
+			// wire IMUX_CLK2                      DQS[0].CLK
+			// wire OUT_Q6                         DQS[0].PRMBDET
+			// wire OUT_Q7                         DQS[0].DDRCLKPOL
 		}
 
 		tile_class DQS_N {
 			cell CELL0;
 
-			bel DQS0 {
+			bel DQS[0] {
 				input CLK = IMUX_CLK2;
 				output DDRCLKPOL = OUT_Q7;
 				output PRMBDET = OUT_Q6;
 				input READ = IMUX_D2;
 			}
 
-			// wire IMUX_D2                        DQS0.READ
-			// wire IMUX_CLK2                      DQS0.CLK
-			// wire OUT_Q6                         DQS0.PRMBDET
-			// wire OUT_Q7                         DQS0.DDRCLKPOL
+			// wire IMUX_D2                        DQS[0].READ
+			// wire IMUX_CLK2                      DQS[0].CLK
+			// wire OUT_Q6                         DQS[0].PRMBDET
+			// wire OUT_Q7                         DQS[0].DDRCLKPOL
 		}
 
 		tile_class DQSDLL_S {
@@ -7046,7 +7046,7 @@ intdb {
 		tile_class PLL_W {
 			cell CELL0;
 
-			bel PLL0 {
+			bel PLL[0] {
 				input CLKFB0 = IMUX_C0;
 				input CLKFB1 = IMUX_CLK1;
 				input CLKI0 = IMUX_B0;
@@ -7077,40 +7077,40 @@ intdb {
 				output UPLOCK = OUT_Q2;
 			}
 
-			// wire IMUX_A0                        PLL0.CLKI1
-			// wire IMUX_A1                        PLL0.RESETM
-			// wire IMUX_A2                        PLL0.DDAIZR
-			// wire IMUX_A3                        PLL0.DDAILAG
-			// wire IMUX_B0                        PLL0.CLKI0
-			// wire IMUX_B1                        PLL0.RESETK
-			// wire IMUX_B2                        PLL0.DDAIDEL2
-			// wire IMUX_B3                        PLL0.DDAMODE
-			// wire IMUX_C0                        PLL0.CLKFB0
-			// wire IMUX_C1                        PLL0.PWD
-			// wire IMUX_C2                        PLL0.DDAIDEL1
-			// wire IMUX_D0                        PLL0.CNTRST
-			// wire IMUX_D1                        PLL0.TCLKI
-			// wire IMUX_D2                        PLL0.DDAIDEL0
-			// wire IMUX_CLK0                      PLL0.CLKI2
-			// wire IMUX_CLK1                      PLL0.CLKFB1
-			// wire OUT_F0                         PLL0.DDAOZR
-			// wire OUT_F1                         PLL0.DDAODEL2
-			// wire OUT_F2                         PLL0.DDAODEL1
-			// wire OUT_F3                         PLL0.DDAODEL0
-			// wire OUT_F4                         PLL0.DDAOLAG
-			// wire OUT_F5                         PLL0.CLKOP
-			// wire OUT_F6                         PLL0.CLKOS
-			// wire OUT_F7                         PLL0.CLKOK
-			// wire OUT_Q0                         PLL0.LOCK
-			// wire OUT_Q1                         PLL0.TESTOUT
-			// wire OUT_Q2                         PLL0.UPLOCK
-			// wire OUT_Q3                         PLL0.DNLOCK
+			// wire IMUX_A0                        PLL[0].CLKI1
+			// wire IMUX_A1                        PLL[0].RESETM
+			// wire IMUX_A2                        PLL[0].DDAIZR
+			// wire IMUX_A3                        PLL[0].DDAILAG
+			// wire IMUX_B0                        PLL[0].CLKI0
+			// wire IMUX_B1                        PLL[0].RESETK
+			// wire IMUX_B2                        PLL[0].DDAIDEL2
+			// wire IMUX_B3                        PLL[0].DDAMODE
+			// wire IMUX_C0                        PLL[0].CLKFB0
+			// wire IMUX_C1                        PLL[0].PWD
+			// wire IMUX_C2                        PLL[0].DDAIDEL1
+			// wire IMUX_D0                        PLL[0].CNTRST
+			// wire IMUX_D1                        PLL[0].TCLKI
+			// wire IMUX_D2                        PLL[0].DDAIDEL0
+			// wire IMUX_CLK0                      PLL[0].CLKI2
+			// wire IMUX_CLK1                      PLL[0].CLKFB1
+			// wire OUT_F0                         PLL[0].DDAOZR
+			// wire OUT_F1                         PLL[0].DDAODEL2
+			// wire OUT_F2                         PLL[0].DDAODEL1
+			// wire OUT_F3                         PLL[0].DDAODEL0
+			// wire OUT_F4                         PLL[0].DDAOLAG
+			// wire OUT_F5                         PLL[0].CLKOP
+			// wire OUT_F6                         PLL[0].CLKOS
+			// wire OUT_F7                         PLL[0].CLKOK
+			// wire OUT_Q0                         PLL[0].LOCK
+			// wire OUT_Q1                         PLL[0].TESTOUT
+			// wire OUT_Q2                         PLL[0].UPLOCK
+			// wire OUT_Q3                         PLL[0].DNLOCK
 		}
 
 		tile_class PLL_E {
 			cell CELL0;
 
-			bel PLL0 {
+			bel PLL[0] {
 				input CLKFB0 = IMUX_C0;
 				input CLKFB1 = IMUX_CLK1;
 				input CLKI0 = IMUX_B0;
@@ -7141,34 +7141,34 @@ intdb {
 				output UPLOCK = OUT_Q2;
 			}
 
-			// wire IMUX_A0                        PLL0.CLKI1
-			// wire IMUX_A1                        PLL0.RESETM
-			// wire IMUX_A2                        PLL0.DDAIZR
-			// wire IMUX_A3                        PLL0.DDAILAG
-			// wire IMUX_B0                        PLL0.CLKI0
-			// wire IMUX_B1                        PLL0.RESETK
-			// wire IMUX_B2                        PLL0.DDAIDEL2
-			// wire IMUX_B3                        PLL0.DDAMODE
-			// wire IMUX_C0                        PLL0.CLKFB0
-			// wire IMUX_C1                        PLL0.PWD
-			// wire IMUX_C2                        PLL0.DDAIDEL1
-			// wire IMUX_D0                        PLL0.CNTRST
-			// wire IMUX_D1                        PLL0.TCLKI
-			// wire IMUX_D2                        PLL0.DDAIDEL0
-			// wire IMUX_CLK0                      PLL0.CLKI2
-			// wire IMUX_CLK1                      PLL0.CLKFB1
-			// wire OUT_F0                         PLL0.DDAOZR
-			// wire OUT_F1                         PLL0.DDAODEL2
-			// wire OUT_F2                         PLL0.DDAODEL1
-			// wire OUT_F3                         PLL0.DDAODEL0
-			// wire OUT_F4                         PLL0.DDAOLAG
-			// wire OUT_F5                         PLL0.CLKOP
-			// wire OUT_F6                         PLL0.CLKOS
-			// wire OUT_F7                         PLL0.CLKOK
-			// wire OUT_Q0                         PLL0.LOCK
-			// wire OUT_Q1                         PLL0.TESTOUT
-			// wire OUT_Q2                         PLL0.UPLOCK
-			// wire OUT_Q3                         PLL0.DNLOCK
+			// wire IMUX_A0                        PLL[0].CLKI1
+			// wire IMUX_A1                        PLL[0].RESETM
+			// wire IMUX_A2                        PLL[0].DDAIZR
+			// wire IMUX_A3                        PLL[0].DDAILAG
+			// wire IMUX_B0                        PLL[0].CLKI0
+			// wire IMUX_B1                        PLL[0].RESETK
+			// wire IMUX_B2                        PLL[0].DDAIDEL2
+			// wire IMUX_B3                        PLL[0].DDAMODE
+			// wire IMUX_C0                        PLL[0].CLKFB0
+			// wire IMUX_C1                        PLL[0].PWD
+			// wire IMUX_C2                        PLL[0].DDAIDEL1
+			// wire IMUX_D0                        PLL[0].CNTRST
+			// wire IMUX_D1                        PLL[0].TCLKI
+			// wire IMUX_D2                        PLL[0].DDAIDEL0
+			// wire IMUX_CLK0                      PLL[0].CLKI2
+			// wire IMUX_CLK1                      PLL[0].CLKFB1
+			// wire OUT_F0                         PLL[0].DDAOZR
+			// wire OUT_F1                         PLL[0].DDAODEL2
+			// wire OUT_F2                         PLL[0].DDAODEL1
+			// wire OUT_F3                         PLL[0].DDAODEL0
+			// wire OUT_F4                         PLL[0].DDAOLAG
+			// wire OUT_F5                         PLL[0].CLKOP
+			// wire OUT_F6                         PLL[0].CLKOS
+			// wire OUT_F7                         PLL[0].CLKOK
+			// wire OUT_Q0                         PLL[0].LOCK
+			// wire OUT_Q1                         PLL[0].TESTOUT
+			// wire OUT_Q2                         PLL[0].UPLOCK
+			// wire OUT_Q3                         PLL[0].DNLOCK
 		}
 	}
 
@@ -7182,88 +7182,88 @@ intdb {
 	}
 
 	tile_slot CLK {
-		bel_slot PCSCLKDIV0: legacy;
-		bel_slot PCSCLKDIV1: legacy;
-		bel_slot PCSCLKDIV2: legacy;
-		bel_slot PCSCLKDIV3: legacy;
-		bel_slot DCC_SW0: legacy;
-		bel_slot DCC_SW1: legacy;
-		bel_slot DCC_SW2: legacy;
-		bel_slot DCC_SW3: legacy;
-		bel_slot DCC_SW4: legacy;
-		bel_slot DCC_SW5: legacy;
-		bel_slot DCC_SE0: legacy;
-		bel_slot DCC_SE1: legacy;
-		bel_slot DCC_SE2: legacy;
-		bel_slot DCC_SE3: legacy;
-		bel_slot DCC_SE4: legacy;
-		bel_slot DCC_SE5: legacy;
-		bel_slot DCC_NW0: legacy;
-		bel_slot DCC_NW1: legacy;
-		bel_slot DCC_NW2: legacy;
-		bel_slot DCC_NW3: legacy;
-		bel_slot DCC_NW4: legacy;
-		bel_slot DCC_NW5: legacy;
-		bel_slot DCC_NE0: legacy;
-		bel_slot DCC_NE1: legacy;
-		bel_slot DCC_NE2: legacy;
-		bel_slot DCC_NE3: legacy;
-		bel_slot DCC_NE4: legacy;
-		bel_slot DCC_NE5: legacy;
-		bel_slot DCS_SW0: legacy;
-		bel_slot DCS_SW1: legacy;
-		bel_slot DCS_SE0: legacy;
-		bel_slot DCS_SE1: legacy;
-		bel_slot DCS_NW0: legacy;
-		bel_slot DCS_NW1: legacy;
-		bel_slot DCS_NE0: legacy;
-		bel_slot DCS_NE1: legacy;
-		bel_slot DCC0: legacy;
-		bel_slot DCC1: legacy;
-		bel_slot DCC2: legacy;
-		bel_slot DCC3: legacy;
-		bel_slot DCC4: legacy;
-		bel_slot DCC5: legacy;
-		bel_slot DCC6: legacy;
-		bel_slot DCC7: legacy;
-		bel_slot DCC8: legacy;
-		bel_slot DCC9: legacy;
-		bel_slot DCC10: legacy;
-		bel_slot DCC11: legacy;
-		bel_slot DCC12: legacy;
-		bel_slot DCC13: legacy;
-		bel_slot DCC14: legacy;
-		bel_slot DCC15: legacy;
-		bel_slot DCM0: legacy;
-		bel_slot DCM1: legacy;
-		bel_slot DCS0: legacy;
-		bel_slot DCS1: legacy;
-		bel_slot ECLKBRIDGECS0: legacy;
-		bel_slot ECLKBRIDGECS1: legacy;
-		bel_slot BRGECLKSYNC0: legacy;
-		bel_slot BRGECLKSYNC1: legacy;
-		bel_slot CLKFBBUF0: legacy;
-		bel_slot CLKFBBUF1: legacy;
+		bel_slot PCSCLKDIV[0]: legacy;
+		bel_slot PCSCLKDIV[1]: legacy;
+		bel_slot PCSCLKDIV[2]: legacy;
+		bel_slot PCSCLKDIV[3]: legacy;
+		bel_slot DCC_SW[0]: legacy;
+		bel_slot DCC_SW[1]: legacy;
+		bel_slot DCC_SW[2]: legacy;
+		bel_slot DCC_SW[3]: legacy;
+		bel_slot DCC_SW[4]: legacy;
+		bel_slot DCC_SW[5]: legacy;
+		bel_slot DCC_SE[0]: legacy;
+		bel_slot DCC_SE[1]: legacy;
+		bel_slot DCC_SE[2]: legacy;
+		bel_slot DCC_SE[3]: legacy;
+		bel_slot DCC_SE[4]: legacy;
+		bel_slot DCC_SE[5]: legacy;
+		bel_slot DCC_NW[0]: legacy;
+		bel_slot DCC_NW[1]: legacy;
+		bel_slot DCC_NW[2]: legacy;
+		bel_slot DCC_NW[3]: legacy;
+		bel_slot DCC_NW[4]: legacy;
+		bel_slot DCC_NW[5]: legacy;
+		bel_slot DCC_NE[0]: legacy;
+		bel_slot DCC_NE[1]: legacy;
+		bel_slot DCC_NE[2]: legacy;
+		bel_slot DCC_NE[3]: legacy;
+		bel_slot DCC_NE[4]: legacy;
+		bel_slot DCC_NE[5]: legacy;
+		bel_slot DCS_SW[0]: legacy;
+		bel_slot DCS_SW[1]: legacy;
+		bel_slot DCS_SE[0]: legacy;
+		bel_slot DCS_SE[1]: legacy;
+		bel_slot DCS_NW[0]: legacy;
+		bel_slot DCS_NW[1]: legacy;
+		bel_slot DCS_NE[0]: legacy;
+		bel_slot DCS_NE[1]: legacy;
+		bel_slot DCC[0]: legacy;
+		bel_slot DCC[1]: legacy;
+		bel_slot DCC[2]: legacy;
+		bel_slot DCC[3]: legacy;
+		bel_slot DCC[4]: legacy;
+		bel_slot DCC[5]: legacy;
+		bel_slot DCC[6]: legacy;
+		bel_slot DCC[7]: legacy;
+		bel_slot DCC[8]: legacy;
+		bel_slot DCC[9]: legacy;
+		bel_slot DCC[10]: legacy;
+		bel_slot DCC[11]: legacy;
+		bel_slot DCC[12]: legacy;
+		bel_slot DCC[13]: legacy;
+		bel_slot DCC[14]: legacy;
+		bel_slot DCC[15]: legacy;
+		bel_slot DCM[0]: legacy;
+		bel_slot DCM[1]: legacy;
+		bel_slot DCS[0]: legacy;
+		bel_slot DCS[1]: legacy;
+		bel_slot ECLKBRIDGECS[0]: legacy;
+		bel_slot ECLKBRIDGECS[1]: legacy;
+		bel_slot BRGECLKSYNC[0]: legacy;
+		bel_slot BRGECLKSYNC[1]: legacy;
+		bel_slot CLKFBBUF[0]: legacy;
+		bel_slot CLKFBBUF[1]: legacy;
 		bel_slot CLK_ROOT: legacy;
 		bel_slot CLK_EDGE: legacy;
 		bel_slot CLKTEST: legacy;
 		bel_slot ECLK_ROOT: legacy;
-		bel_slot ECLKSYNC0: legacy;
-		bel_slot ECLKSYNC1: legacy;
-		bel_slot ECLKSYNC2: legacy;
-		bel_slot ECLKSYNC3: legacy;
-		bel_slot ECLKSYNC4: legacy;
-		bel_slot ECLKSYNC5: legacy;
-		bel_slot ECLKSYNC6: legacy;
-		bel_slot ECLKSYNC7: legacy;
-		bel_slot ECLKSYNC8: legacy;
-		bel_slot ECLKSYNC9: legacy;
-		bel_slot ECLKSYNC10: legacy;
-		bel_slot ECLKSYNC11: legacy;
-		bel_slot ECLKSYNC12: legacy;
-		bel_slot ECLKSYNC13: legacy;
-		bel_slot ECLKSYNC14: legacy;
-		bel_slot ECLKSYNC15: legacy;
+		bel_slot ECLKSYNC[0]: legacy;
+		bel_slot ECLKSYNC[1]: legacy;
+		bel_slot ECLKSYNC[2]: legacy;
+		bel_slot ECLKSYNC[3]: legacy;
+		bel_slot ECLKSYNC[4]: legacy;
+		bel_slot ECLKSYNC[5]: legacy;
+		bel_slot ECLKSYNC[6]: legacy;
+		bel_slot ECLKSYNC[7]: legacy;
+		bel_slot ECLKSYNC[8]: legacy;
+		bel_slot ECLKSYNC[9]: legacy;
+		bel_slot ECLKSYNC[10]: legacy;
+		bel_slot ECLKSYNC[11]: legacy;
+		bel_slot ECLKSYNC[12]: legacy;
+		bel_slot ECLKSYNC[13]: legacy;
+		bel_slot ECLKSYNC[14]: legacy;
+		bel_slot ECLKSYNC[15]: legacy;
 		bel_slot CLKTEST_ECLK: legacy;
 
 		tile_class CLK_ROOT_2PLL_A {
@@ -7296,42 +7296,42 @@ intdb {
 			cell CELL26;
 			cell CELL27;
 
-			bel DCS_SW0 {
+			bel DCS_SW[0] {
 				input OUT = CELL0.PCLK2;
 				input SEL = CELL5.IMUX_C5;
 			}
 
-			bel DCS_SW1 {
+			bel DCS_SW[1] {
 				input OUT = CELL0.PCLK3;
 				input SEL = CELL4.IMUX_C5;
 			}
 
-			bel DCS_SE0 {
+			bel DCS_SE[0] {
 				input OUT = CELL1.PCLK2;
 				input SEL = CELL6.IMUX_C5;
 			}
 
-			bel DCS_SE1 {
+			bel DCS_SE[1] {
 				input OUT = CELL1.PCLK3;
 				input SEL = CELL7.IMUX_C5;
 			}
 
-			bel DCS_NW0 {
+			bel DCS_NW[0] {
 				input OUT = CELL2.PCLK2;
 				input SEL = CELL5.IMUX_B5;
 			}
 
-			bel DCS_NW1 {
+			bel DCS_NW[1] {
 				input OUT = CELL2.PCLK3;
 				input SEL = CELL4.IMUX_B5;
 			}
 
-			bel DCS_NE0 {
+			bel DCS_NE[0] {
 				input OUT = CELL3.PCLK2;
 				input SEL = CELL6.IMUX_B5;
 			}
 
-			bel DCS_NE1 {
+			bel DCS_NE[1] {
 				input OUT = CELL3.PCLK3;
 				input SEL = CELL7.IMUX_B5;
 			}
@@ -7385,44 +7385,44 @@ intdb {
 
 			// wire CELL0.PCLK0                    CLK_ROOT.PCLK0_SW
 			// wire CELL0.PCLK1                    CLK_ROOT.PCLK1_SW
-			// wire CELL0.PCLK2                    DCS_SW0.OUT
-			// wire CELL0.PCLK3                    DCS_SW1.OUT
+			// wire CELL0.PCLK2                    DCS_SW[0].OUT
+			// wire CELL0.PCLK3                    DCS_SW[1].OUT
 			// wire CELL0.SCLK0                    CLK_ROOT.SCLK0_SW
 			// wire CELL0.SCLK1                    CLK_ROOT.SCLK1_SW
 			// wire CELL0.SCLK2                    CLK_ROOT.SCLK2_SW
 			// wire CELL0.SCLK3                    CLK_ROOT.SCLK3_SW
 			// wire CELL1.PCLK0                    CLK_ROOT.PCLK0_SE
 			// wire CELL1.PCLK1                    CLK_ROOT.PCLK1_SE
-			// wire CELL1.PCLK2                    DCS_SE0.OUT
-			// wire CELL1.PCLK3                    DCS_SE1.OUT
+			// wire CELL1.PCLK2                    DCS_SE[0].OUT
+			// wire CELL1.PCLK3                    DCS_SE[1].OUT
 			// wire CELL1.SCLK0                    CLK_ROOT.SCLK0_SE
 			// wire CELL1.SCLK1                    CLK_ROOT.SCLK1_SE
 			// wire CELL1.SCLK2                    CLK_ROOT.SCLK2_SE
 			// wire CELL1.SCLK3                    CLK_ROOT.SCLK3_SE
 			// wire CELL2.PCLK0                    CLK_ROOT.PCLK0_NW
 			// wire CELL2.PCLK1                    CLK_ROOT.PCLK1_NW
-			// wire CELL2.PCLK2                    DCS_NW0.OUT
-			// wire CELL2.PCLK3                    DCS_NW1.OUT
+			// wire CELL2.PCLK2                    DCS_NW[0].OUT
+			// wire CELL2.PCLK3                    DCS_NW[1].OUT
 			// wire CELL2.SCLK0                    CLK_ROOT.SCLK0_NW
 			// wire CELL2.SCLK1                    CLK_ROOT.SCLK1_NW
 			// wire CELL2.SCLK2                    CLK_ROOT.SCLK2_NW
 			// wire CELL2.SCLK3                    CLK_ROOT.SCLK3_NW
 			// wire CELL3.PCLK0                    CLK_ROOT.PCLK0_NE
 			// wire CELL3.PCLK1                    CLK_ROOT.PCLK1_NE
-			// wire CELL3.PCLK2                    DCS_NE0.OUT
-			// wire CELL3.PCLK3                    DCS_NE1.OUT
+			// wire CELL3.PCLK2                    DCS_NE[0].OUT
+			// wire CELL3.PCLK3                    DCS_NE[1].OUT
 			// wire CELL3.SCLK0                    CLK_ROOT.SCLK0_NE
 			// wire CELL3.SCLK1                    CLK_ROOT.SCLK1_NE
 			// wire CELL3.SCLK2                    CLK_ROOT.SCLK2_NE
 			// wire CELL3.SCLK3                    CLK_ROOT.SCLK3_NE
-			// wire CELL4.IMUX_B5                  DCS_NW1.SEL
-			// wire CELL4.IMUX_C5                  DCS_SW1.SEL
-			// wire CELL5.IMUX_B5                  DCS_NW0.SEL
-			// wire CELL5.IMUX_C5                  DCS_SW0.SEL
-			// wire CELL6.IMUX_B5                  DCS_NE0.SEL
-			// wire CELL6.IMUX_C5                  DCS_SE0.SEL
-			// wire CELL7.IMUX_B5                  DCS_NE1.SEL
-			// wire CELL7.IMUX_C5                  DCS_SE1.SEL
+			// wire CELL4.IMUX_B5                  DCS_NW[1].SEL
+			// wire CELL4.IMUX_C5                  DCS_SW[1].SEL
+			// wire CELL5.IMUX_B5                  DCS_NW[0].SEL
+			// wire CELL5.IMUX_C5                  DCS_SW[0].SEL
+			// wire CELL6.IMUX_B5                  DCS_NE[0].SEL
+			// wire CELL6.IMUX_C5                  DCS_SE[0].SEL
+			// wire CELL7.IMUX_B5                  DCS_NE[1].SEL
+			// wire CELL7.IMUX_C5                  DCS_SE[1].SEL
 			// wire CELL8.IMUX_B5                  CLK_ROOT.PCLK_IN_W
 			// wire CELL9.IMUX_B5                  CLK_ROOT.PCLK_IN_E
 			// wire CELL10.IMUX_B5                 CLK_ROOT.PCLK_IN_S
@@ -7475,42 +7475,42 @@ intdb {
 			cell CELL26;
 			cell CELL27;
 
-			bel DCS_SW0 {
+			bel DCS_SW[0] {
 				input OUT = CELL0.PCLK2;
 				input SEL = CELL5.IMUX_C5;
 			}
 
-			bel DCS_SW1 {
+			bel DCS_SW[1] {
 				input OUT = CELL0.PCLK3;
 				input SEL = CELL4.IMUX_C5;
 			}
 
-			bel DCS_SE0 {
+			bel DCS_SE[0] {
 				input OUT = CELL1.PCLK2;
 				input SEL = CELL6.IMUX_C5;
 			}
 
-			bel DCS_SE1 {
+			bel DCS_SE[1] {
 				input OUT = CELL1.PCLK3;
 				input SEL = CELL7.IMUX_C5;
 			}
 
-			bel DCS_NW0 {
+			bel DCS_NW[0] {
 				input OUT = CELL2.PCLK2;
 				input SEL = CELL5.IMUX_B5;
 			}
 
-			bel DCS_NW1 {
+			bel DCS_NW[1] {
 				input OUT = CELL2.PCLK3;
 				input SEL = CELL4.IMUX_B5;
 			}
 
-			bel DCS_NE0 {
+			bel DCS_NE[0] {
 				input OUT = CELL3.PCLK2;
 				input SEL = CELL6.IMUX_B5;
 			}
 
-			bel DCS_NE1 {
+			bel DCS_NE[1] {
 				input OUT = CELL3.PCLK3;
 				input SEL = CELL7.IMUX_B5;
 			}
@@ -7564,44 +7564,44 @@ intdb {
 
 			// wire CELL0.PCLK0                    CLK_ROOT.PCLK0_SW
 			// wire CELL0.PCLK1                    CLK_ROOT.PCLK1_SW
-			// wire CELL0.PCLK2                    DCS_SW0.OUT
-			// wire CELL0.PCLK3                    DCS_SW1.OUT
+			// wire CELL0.PCLK2                    DCS_SW[0].OUT
+			// wire CELL0.PCLK3                    DCS_SW[1].OUT
 			// wire CELL0.SCLK0                    CLK_ROOT.SCLK0_SW
 			// wire CELL0.SCLK1                    CLK_ROOT.SCLK1_SW
 			// wire CELL0.SCLK2                    CLK_ROOT.SCLK2_SW
 			// wire CELL0.SCLK3                    CLK_ROOT.SCLK3_SW
 			// wire CELL1.PCLK0                    CLK_ROOT.PCLK0_SE
 			// wire CELL1.PCLK1                    CLK_ROOT.PCLK1_SE
-			// wire CELL1.PCLK2                    DCS_SE0.OUT
-			// wire CELL1.PCLK3                    DCS_SE1.OUT
+			// wire CELL1.PCLK2                    DCS_SE[0].OUT
+			// wire CELL1.PCLK3                    DCS_SE[1].OUT
 			// wire CELL1.SCLK0                    CLK_ROOT.SCLK0_SE
 			// wire CELL1.SCLK1                    CLK_ROOT.SCLK1_SE
 			// wire CELL1.SCLK2                    CLK_ROOT.SCLK2_SE
 			// wire CELL1.SCLK3                    CLK_ROOT.SCLK3_SE
 			// wire CELL2.PCLK0                    CLK_ROOT.PCLK0_NW
 			// wire CELL2.PCLK1                    CLK_ROOT.PCLK1_NW
-			// wire CELL2.PCLK2                    DCS_NW0.OUT
-			// wire CELL2.PCLK3                    DCS_NW1.OUT
+			// wire CELL2.PCLK2                    DCS_NW[0].OUT
+			// wire CELL2.PCLK3                    DCS_NW[1].OUT
 			// wire CELL2.SCLK0                    CLK_ROOT.SCLK0_NW
 			// wire CELL2.SCLK1                    CLK_ROOT.SCLK1_NW
 			// wire CELL2.SCLK2                    CLK_ROOT.SCLK2_NW
 			// wire CELL2.SCLK3                    CLK_ROOT.SCLK3_NW
 			// wire CELL3.PCLK0                    CLK_ROOT.PCLK0_NE
 			// wire CELL3.PCLK1                    CLK_ROOT.PCLK1_NE
-			// wire CELL3.PCLK2                    DCS_NE0.OUT
-			// wire CELL3.PCLK3                    DCS_NE1.OUT
+			// wire CELL3.PCLK2                    DCS_NE[0].OUT
+			// wire CELL3.PCLK3                    DCS_NE[1].OUT
 			// wire CELL3.SCLK0                    CLK_ROOT.SCLK0_NE
 			// wire CELL3.SCLK1                    CLK_ROOT.SCLK1_NE
 			// wire CELL3.SCLK2                    CLK_ROOT.SCLK2_NE
 			// wire CELL3.SCLK3                    CLK_ROOT.SCLK3_NE
-			// wire CELL4.IMUX_B5                  DCS_NW1.SEL
-			// wire CELL4.IMUX_C5                  DCS_SW1.SEL
-			// wire CELL5.IMUX_B5                  DCS_NW0.SEL
-			// wire CELL5.IMUX_C5                  DCS_SW0.SEL
-			// wire CELL6.IMUX_B5                  DCS_NE0.SEL
-			// wire CELL6.IMUX_C5                  DCS_SE0.SEL
-			// wire CELL7.IMUX_B5                  DCS_NE1.SEL
-			// wire CELL7.IMUX_C5                  DCS_SE1.SEL
+			// wire CELL4.IMUX_B5                  DCS_NW[1].SEL
+			// wire CELL4.IMUX_C5                  DCS_SW[1].SEL
+			// wire CELL5.IMUX_B5                  DCS_NW[0].SEL
+			// wire CELL5.IMUX_C5                  DCS_SW[0].SEL
+			// wire CELL6.IMUX_B5                  DCS_NE[0].SEL
+			// wire CELL6.IMUX_C5                  DCS_SE[0].SEL
+			// wire CELL7.IMUX_B5                  DCS_NE[1].SEL
+			// wire CELL7.IMUX_C5                  DCS_SE[1].SEL
 			// wire CELL8.IMUX_B5                  CLK_ROOT.PCLK_IN_W
 			// wire CELL9.IMUX_B5                  CLK_ROOT.PCLK_IN_E
 			// wire CELL10.IMUX_B5                 CLK_ROOT.PCLK_IN_S
@@ -7658,42 +7658,42 @@ intdb {
 			cell CELL30;
 			cell CELL31;
 
-			bel DCS_SW0 {
+			bel DCS_SW[0] {
 				input OUT = CELL0.PCLK2;
 				input SEL = CELL5.IMUX_B5;
 			}
 
-			bel DCS_SW1 {
+			bel DCS_SW[1] {
 				input OUT = CELL0.PCLK3;
 				input SEL = CELL4.IMUX_B5;
 			}
 
-			bel DCS_SE0 {
+			bel DCS_SE[0] {
 				input OUT = CELL1.PCLK2;
 				input SEL = CELL6.IMUX_B5;
 			}
 
-			bel DCS_SE1 {
+			bel DCS_SE[1] {
 				input OUT = CELL1.PCLK3;
 				input SEL = CELL7.IMUX_B5;
 			}
 
-			bel DCS_NW0 {
+			bel DCS_NW[0] {
 				input OUT = CELL2.PCLK2;
 				input SEL = CELL9.IMUX_B5;
 			}
 
-			bel DCS_NW1 {
+			bel DCS_NW[1] {
 				input OUT = CELL2.PCLK3;
 				input SEL = CELL8.IMUX_B5;
 			}
 
-			bel DCS_NE0 {
+			bel DCS_NE[0] {
 				input OUT = CELL3.PCLK2;
 				input SEL = CELL10.IMUX_B5;
 			}
 
-			bel DCS_NE1 {
+			bel DCS_NE[1] {
 				input OUT = CELL3.PCLK3;
 				input SEL = CELL11.IMUX_B5;
 			}
@@ -7747,44 +7747,44 @@ intdb {
 
 			// wire CELL0.PCLK0                    CLK_ROOT.PCLK0_SW
 			// wire CELL0.PCLK1                    CLK_ROOT.PCLK1_SW
-			// wire CELL0.PCLK2                    DCS_SW0.OUT
-			// wire CELL0.PCLK3                    DCS_SW1.OUT
+			// wire CELL0.PCLK2                    DCS_SW[0].OUT
+			// wire CELL0.PCLK3                    DCS_SW[1].OUT
 			// wire CELL0.SCLK0                    CLK_ROOT.SCLK0_SW
 			// wire CELL0.SCLK1                    CLK_ROOT.SCLK1_SW
 			// wire CELL0.SCLK2                    CLK_ROOT.SCLK2_SW
 			// wire CELL0.SCLK3                    CLK_ROOT.SCLK3_SW
 			// wire CELL1.PCLK0                    CLK_ROOT.PCLK0_SE
 			// wire CELL1.PCLK1                    CLK_ROOT.PCLK1_SE
-			// wire CELL1.PCLK2                    DCS_SE0.OUT
-			// wire CELL1.PCLK3                    DCS_SE1.OUT
+			// wire CELL1.PCLK2                    DCS_SE[0].OUT
+			// wire CELL1.PCLK3                    DCS_SE[1].OUT
 			// wire CELL1.SCLK0                    CLK_ROOT.SCLK0_SE
 			// wire CELL1.SCLK1                    CLK_ROOT.SCLK1_SE
 			// wire CELL1.SCLK2                    CLK_ROOT.SCLK2_SE
 			// wire CELL1.SCLK3                    CLK_ROOT.SCLK3_SE
 			// wire CELL2.PCLK0                    CLK_ROOT.PCLK0_NW
 			// wire CELL2.PCLK1                    CLK_ROOT.PCLK1_NW
-			// wire CELL2.PCLK2                    DCS_NW0.OUT
-			// wire CELL2.PCLK3                    DCS_NW1.OUT
+			// wire CELL2.PCLK2                    DCS_NW[0].OUT
+			// wire CELL2.PCLK3                    DCS_NW[1].OUT
 			// wire CELL2.SCLK0                    CLK_ROOT.SCLK0_NW
 			// wire CELL2.SCLK1                    CLK_ROOT.SCLK1_NW
 			// wire CELL2.SCLK2                    CLK_ROOT.SCLK2_NW
 			// wire CELL2.SCLK3                    CLK_ROOT.SCLK3_NW
 			// wire CELL3.PCLK0                    CLK_ROOT.PCLK0_NE
 			// wire CELL3.PCLK1                    CLK_ROOT.PCLK1_NE
-			// wire CELL3.PCLK2                    DCS_NE0.OUT
-			// wire CELL3.PCLK3                    DCS_NE1.OUT
+			// wire CELL3.PCLK2                    DCS_NE[0].OUT
+			// wire CELL3.PCLK3                    DCS_NE[1].OUT
 			// wire CELL3.SCLK0                    CLK_ROOT.SCLK0_NE
 			// wire CELL3.SCLK1                    CLK_ROOT.SCLK1_NE
 			// wire CELL3.SCLK2                    CLK_ROOT.SCLK2_NE
 			// wire CELL3.SCLK3                    CLK_ROOT.SCLK3_NE
-			// wire CELL4.IMUX_B5                  DCS_SW1.SEL
-			// wire CELL5.IMUX_B5                  DCS_SW0.SEL
-			// wire CELL6.IMUX_B5                  DCS_SE0.SEL
-			// wire CELL7.IMUX_B5                  DCS_SE1.SEL
-			// wire CELL8.IMUX_B5                  DCS_NW1.SEL
-			// wire CELL9.IMUX_B5                  DCS_NW0.SEL
-			// wire CELL10.IMUX_B5                 DCS_NE0.SEL
-			// wire CELL11.IMUX_B5                 DCS_NE1.SEL
+			// wire CELL4.IMUX_B5                  DCS_SW[1].SEL
+			// wire CELL5.IMUX_B5                  DCS_SW[0].SEL
+			// wire CELL6.IMUX_B5                  DCS_SE[0].SEL
+			// wire CELL7.IMUX_B5                  DCS_SE[1].SEL
+			// wire CELL8.IMUX_B5                  DCS_NW[1].SEL
+			// wire CELL9.IMUX_B5                  DCS_NW[0].SEL
+			// wire CELL10.IMUX_B5                 DCS_NE[0].SEL
+			// wire CELL11.IMUX_B5                 DCS_NE[1].SEL
 			// wire CELL12.IMUX_B5                 CLK_ROOT.PCLK_IN_W
 			// wire CELL13.IMUX_B5                 CLK_ROOT.PCLK_IN_E
 			// wire CELL14.IMUX_B5                 CLK_ROOT.PCLK_IN_S
@@ -7808,15 +7808,15 @@ intdb {
 		}
 	}
 
-	tile_slot SCLK_SOURCE {
-		bel_slot SCLK_SOURCE: legacy;
-	}
-
 	tile_slot PCLK_SOURCE {
 		bel_slot PCLK_SOURCE_W: legacy;
 		bel_slot PCLK_SOURCE_E: legacy;
-		bel_slot PCLK_DCC0: legacy;
-		bel_slot PCLK_DCC1: legacy;
+		bel_slot PCLK_DCC[0]: legacy;
+		bel_slot PCLK_DCC[1]: legacy;
+	}
+
+	tile_slot SCLK_SOURCE {
+		bel_slot SCLK_SOURCE: legacy;
 	}
 
 	tile_slot ECLK_TAP {

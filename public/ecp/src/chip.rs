@@ -7,7 +7,7 @@ use prjcombine_interconnect::{
     grid::{BelCoord, CellCoord, ColId, DieId, DieIdExt, EdgeIoCoord, RowId, TileIobId},
 };
 
-use crate::bels;
+use crate::defs::bslots;
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Encode, Decode)]
 pub enum ChipKind {
@@ -492,7 +492,7 @@ impl Chip {
                 EdgeIoCoord::E(row, iob) => (self.col_e() - 1, row, iob),
                 _ => unreachable!(),
             };
-            let slot = bels::IO[iob.to_idx() - 4];
+            let slot = bslots::IO[iob.to_idx() - 4];
             Self::DIE.cell(col, row).bel(slot)
         } else {
             let (col, row, iob) = match io {
@@ -501,13 +501,13 @@ impl Chip {
                 EdgeIoCoord::S(col, iob) => (col, self.row_s(), iob),
                 EdgeIoCoord::W(row, iob) => (self.col_w(), row, iob),
             };
-            let slot = bels::IO[iob.to_idx()];
+            let slot = bslots::IO[iob.to_idx()];
             Self::DIE.cell(col, row).bel(slot)
         }
     }
 
     pub fn get_io_crd(&self, bel: BelCoord) -> EdgeIoCoord {
-        let iob = TileIobId::from_idx(bels::IO.iter().position(|&x| x == bel.slot).unwrap());
+        let iob = TileIobId::from_idx(bslots::IO.iter().position(|&x| x == bel.slot).unwrap());
         if bel.col == self.col_w() && self.kind != ChipKind::Crosslink {
             EdgeIoCoord::W(bel.row, iob)
         } else if bel.col == self.col_e() && self.kind != ChipKind::Crosslink {
@@ -518,12 +518,14 @@ impl Chip {
             EdgeIoCoord::N(bel.col, iob)
         } else if matches!(self.kind, ChipKind::Ecp3 | ChipKind::Ecp3A | ChipKind::Ecp4) {
             if bel.col == self.col_w() + 1 {
-                let iob =
-                    TileIobId::from_idx(bels::IO.iter().position(|&x| x == bel.slot).unwrap() + 4);
+                let iob = TileIobId::from_idx(
+                    bslots::IO.iter().position(|&x| x == bel.slot).unwrap() + 4,
+                );
                 EdgeIoCoord::W(bel.row, iob)
             } else if bel.col == self.col_e() - 1 {
-                let iob =
-                    TileIobId::from_idx(bels::IO.iter().position(|&x| x == bel.slot).unwrap() + 4);
+                let iob = TileIobId::from_idx(
+                    bslots::IO.iter().position(|&x| x == bel.slot).unwrap() + 4,
+                );
                 EdgeIoCoord::E(bel.row, iob)
             } else {
                 unreachable!()
@@ -648,13 +650,13 @@ impl Chip {
         assert!(self.special_loc.contains_key(&SpecialLocKey::Ebr(0)));
         Self::DIE
             .cell(self.col_w(), self.row_n() - 1)
-            .bel(bels::CIBTEST_SEL)
+            .bel(bslots::CIBTEST_SEL)
     }
 
     pub fn bel_clk_root(&self) -> BelCoord {
         Self::DIE
             .cell(self.col_clk, self.row_clk)
-            .bel(bels::CLK_ROOT)
+            .bel(bslots::CLK_ROOT)
     }
 
     pub fn bel_dqsdll(&self, io: CellCoord) -> BelCoord {
@@ -685,10 +687,10 @@ impl Chip {
         match edge {
             DirV::S => Self::DIE
                 .cell(self.col_clk - 2, self.row_s())
-                .bel(bels::DQSDLL),
+                .bel(bslots::DQSDLL),
             DirV::N => Self::DIE
                 .cell(self.col_clk + 1, self.row_n())
-                .bel(bels::DQSDLL),
+                .bel(bslots::DQSDLL),
         }
     }
 
@@ -696,10 +698,10 @@ impl Chip {
         match self.kind {
             ChipKind::Ecp2 | ChipKind::Ecp2M => self.special_loc
                 [&SpecialLocKey::Pll(PllLoc::new_hv(edge, DirV::S, 0))]
-                .bel(bels::DQSDLL),
+                .bel(bslots::DQSDLL),
             ChipKind::Xp2 => Self::DIE
                 .cell(self.col_edge(edge), self.row_clk)
-                .bel(bels::DQSDLL),
+                .bel(bslots::DQSDLL),
             ChipKind::Ecp3 | ChipKind::Ecp3A => Self::DIE
                 .cell(
                     match edge {
@@ -708,7 +710,7 @@ impl Chip {
                     },
                     self.row_clk,
                 )
-                .bel(bels::DQSDLL),
+                .bel(bslots::DQSDLL),
             _ => unreachable!(),
         }
     }
@@ -721,16 +723,16 @@ impl Chip {
         match edge {
             Dir::W => Self::DIE
                 .cell(self.col_w(), self.row_clk)
-                .bel(bels::ECLK_ROOT),
+                .bel(bslots::ECLK_ROOT),
             Dir::E => Self::DIE
                 .cell(self.col_e(), self.row_clk)
-                .bel(bels::ECLK_ROOT),
+                .bel(bslots::ECLK_ROOT),
             Dir::S => Self::DIE
                 .cell(self.col_clk, self.row_s())
-                .bel(bels::ECLK_ROOT),
+                .bel(bslots::ECLK_ROOT),
             Dir::N => Self::DIE
                 .cell(self.col_clk, self.row_n())
-                .bel(bels::ECLK_ROOT),
+                .bel(bslots::ECLK_ROOT),
         }
     }
 
@@ -741,7 +743,7 @@ impl Chip {
             6 => 7,
             _ => bank,
         };
-        self.special_loc[&SpecialLocKey::Bc(bank)].bel(bels::ECLK_ROOT)
+        self.special_loc[&SpecialLocKey::Bc(bank)].bel(bslots::ECLK_ROOT)
     }
 
     pub fn bel_eclksync(&self, edge: Dir, idx: usize) -> BelCoord {
@@ -749,24 +751,24 @@ impl Chip {
             ChipKind::Ecp3 | ChipKind::Ecp3A => match edge {
                 Dir::W => Self::DIE
                     .cell(self.col_w(), self.row_clk)
-                    .bel(bels::ECLKSYNC[idx]),
+                    .bel(bslots::ECLKSYNC[idx]),
                 Dir::E => Self::DIE
                     .cell(self.col_e(), self.row_clk)
-                    .bel(bels::ECLKSYNC[idx]),
+                    .bel(bslots::ECLKSYNC[idx]),
                 Dir::S => unreachable!(),
                 Dir::N => Self::DIE
                     .cell(self.col_clk - 1, self.row_n())
-                    .bel(bels::ECLKSYNC[idx]),
+                    .bel(bslots::ECLKSYNC[idx]),
             },
             ChipKind::MachXo2(_) => match edge {
                 Dir::W => unreachable!(),
                 Dir::E => unreachable!(),
                 Dir::S => Self::DIE
                     .cell(self.col_clk - 1, self.row_s())
-                    .bel(bels::ECLKSYNC[idx]),
+                    .bel(bslots::ECLKSYNC[idx]),
                 Dir::N => Self::DIE
                     .cell(self.col_clk - 1, self.row_n())
-                    .bel(bels::ECLKSYNC[idx]),
+                    .bel(bslots::ECLKSYNC[idx]),
             },
             _ => unreachable!(),
         }
@@ -777,27 +779,27 @@ impl Chip {
             ChipKind::Ecp4 => match bank {
                 0..4 => Self::DIE
                     .cell(self.col_clk, self.row_n())
-                    .bel(bels::ECLKSYNC[(bank as usize) * 4 + idx]),
+                    .bel(bslots::ECLKSYNC[(bank as usize) * 4 + idx]),
                 4..6 => Self::DIE
                     .cell(self.col_e(), self.row_clk)
-                    .bel(bels::ECLKSYNC[(5 - bank as usize) * 4 + idx]),
+                    .bel(bslots::ECLKSYNC[(5 - bank as usize) * 4 + idx]),
                 6..8 => Self::DIE
                     .cell(self.col_w(), self.row_clk)
-                    .bel(bels::ECLKSYNC[(bank as usize - 6) * 4 + idx]),
+                    .bel(bslots::ECLKSYNC[(bank as usize - 6) * 4 + idx]),
                 _ => unreachable!(),
             },
             ChipKind::Ecp5 => match bank {
                 2..4 => Self::DIE
                     .cell(self.col_e(), self.row_clk)
-                    .bel(bels::ECLKSYNC[(3 - bank as usize) * 2 + idx]),
+                    .bel(bslots::ECLKSYNC[(3 - bank as usize) * 2 + idx]),
                 6..8 => Self::DIE
                     .cell(self.col_w(), self.row_clk)
-                    .bel(bels::ECLKSYNC[(bank as usize - 6) * 2 + idx]),
+                    .bel(bslots::ECLKSYNC[(bank as usize - 6) * 2 + idx]),
                 _ => unreachable!(),
             },
             ChipKind::Crosslink => Self::DIE
                 .cell(self.col_clk, self.row_s())
-                .bel(bels::ECLKSYNC[(2 - bank as usize) * 2 + idx]),
+                .bel(bslots::ECLKSYNC[(2 - bank as usize) * 2 + idx]),
             _ => unreachable!(),
         }
     }
@@ -807,13 +809,13 @@ impl Chip {
         match edge {
             Dir::N => Self::DIE
                 .cell(self.col_clk, self.row_n())
-                .bel(bels::DLLDEL[idx]),
+                .bel(bslots::DLLDEL[idx]),
             Dir::W => Self::DIE
                 .cell(self.col_w(), self.row_clk)
-                .bel(bels::DLLDEL[idx]),
+                .bel(bslots::DLLDEL[idx]),
             Dir::E => Self::DIE
                 .cell(self.col_e(), self.row_clk)
-                .bel(bels::DLLDEL[idx]),
+                .bel(bslots::DLLDEL[idx]),
             _ => unreachable!(),
         }
     }
@@ -822,22 +824,22 @@ impl Chip {
         match self.kind {
             ChipKind::Scm => {
                 assert_eq!(edge, DirV::N);
-                Self::DIE.cell(col, self.row_n() - 12).bel(bels::SERDES)
+                Self::DIE.cell(col, self.row_n() - 12).bel(bslots::SERDES)
             }
             ChipKind::Ecp2M => {
                 let row = match edge {
                     DirV::S => self.row_s() + 7,
                     DirV::N => self.row_n() - 7,
                 };
-                Self::DIE.cell(col, row).bel(bels::SERDES)
+                Self::DIE.cell(col, row).bel(bslots::SERDES)
             }
             ChipKind::Ecp3 | ChipKind::Ecp3A => {
                 assert_eq!(edge, DirV::S);
-                Self::DIE.cell(col, self.row_s() + 9).bel(bels::SERDES)
+                Self::DIE.cell(col, self.row_s() + 9).bel(bslots::SERDES)
             }
             ChipKind::Ecp5 => {
                 assert_eq!(edge, DirV::S);
-                Self::DIE.cell(col, self.row_s()).bel(bels::SERDES)
+                Self::DIE.cell(col, self.row_s()).bel(bslots::SERDES)
             }
             _ => unreachable!(),
         }
@@ -845,7 +847,7 @@ impl Chip {
 
     pub fn bel_mipi(&self, col: ColId) -> BelCoord {
         assert_eq!(self.kind, ChipKind::Crosslink);
-        Self::DIE.cell(col, self.row_n()).bel(bels::MIPI)
+        Self::DIE.cell(col, self.row_n()).bel(bslots::MIPI)
     }
 
     pub fn btile_term_width(&self, _col: ColId) -> usize {
