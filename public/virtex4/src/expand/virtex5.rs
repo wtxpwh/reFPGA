@@ -1,4 +1,3 @@
-use assert_matches::assert_matches;
 use prjcombine_entity::{EntityId, EntityPartVec, EntityVec};
 use prjcombine_interconnect::db::{IntDb, TileClassId};
 use prjcombine_interconnect::grid::builder::GridBuilder;
@@ -8,6 +7,7 @@ use prjcombine_interconnect::grid::{
 use prjcombine_xilinx_bitstream::{
     BitstreamGeom, DeviceKind, DieBitstreamGeom, FrameAddr, FrameInfo, FrameMaskMode,
 };
+use std::assert_matches;
 use std::collections::BTreeSet;
 
 use crate::bond::SharedCfgPad;
