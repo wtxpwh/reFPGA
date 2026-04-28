@@ -1,4 +1,7 @@
-use prjcombine_ecp::chip::{Chip, PllLoc, SpecialIoKey, SpecialLocKey};
+use prjcombine_ecp::{
+    chip::{Chip, PllLoc, SpecialIoKey, SpecialLocKey},
+    defs::wires,
+};
 use prjcombine_interconnect::{
     db::{BelPin, LegacyBel, WireSlotIdExt},
     dir::{Dir, DirHV},
@@ -101,13 +104,16 @@ impl ChipContext<'_> {
             inputs_pclk.push(clkok);
         }
 
-        for pin in [
-            "PCLK0", "PCLK1", "PCLK2", "PCLK3", "SCLK0", "SCLK1", "SCLK2", "SCLK3",
-        ] {
-            let wire = self.intdb.get_wire(pin);
-            bel.pins.insert(pin.into(), BelPin::new_in(wire.cell(0)));
+        for idx in 0..8 {
+            let wire = wires::PCLK[idx];
+            let pin = if idx < 4 {
+                format!("PCLK{idx}")
+            } else {
+                format!("SCLK{ii}", ii = idx - 4)
+            };
+            bel.pins.insert(pin, BelPin::new_in(wire.cell(0)));
             let wire = bcrd.cell.wire(wire);
-            if pin.starts_with("PCLK") {
+            if idx < 4 {
                 for &wf in &inputs_pclk {
                     self.claim_pip_int_out(wire, wf);
                 }

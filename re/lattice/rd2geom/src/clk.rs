@@ -1,7 +1,6 @@
 use prjcombine_ecp::{
     chip::{Chip, ChipKind, RowKind},
-    defs::bslots,
-    defs::tslots,
+    defs::{bslots, tslots, wires},
 };
 use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{db::CellSlotId, grid::DieIdExt};
@@ -20,10 +19,7 @@ mod scm;
 
 impl ChipContext<'_> {
     fn process_hsdclk_splitter(&mut self) {
-        let hsdclk = [
-            self.intdb.get_wire("HSDCLK0"),
-            self.intdb.get_wire("HSDCLK4"),
-        ];
+        let hsdclk = [wires::RSCLK_H[0], wires::RSCLK_H[4]];
         for (tcrd, tile) in self.edev.tiles() {
             if tcrd.slot != tslots::HSDCLK_SPLITTER {
                 continue;
@@ -60,8 +56,8 @@ impl ChipContext<'_> {
                     cell.row += 9;
                 }
                 for i in 0..8 {
-                    let wire = cell.wire(self.intdb.get_wire(&format!("HSDCLK{i}")));
-                    let vcc = cell.wire(self.intdb.get_wire("TIE1"));
+                    let wire = cell.wire(wires::RSCLK_H[i]);
+                    let vcc = cell.wire(wires::TIE1);
                     let vcc = self.naming.interconnect[&vcc];
                     self.claim_pip_int_out(wire, vcc);
                 }

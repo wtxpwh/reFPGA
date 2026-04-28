@@ -4,7 +4,7 @@ use prjcombine_re_xilinx_naming::{db::NamingDb, grid::ExpandedGridNaming};
 use prjcombine_virtex4::{
     chip::CfgRowKind,
     defs::{
-        bslots, tslots,
+        bslots, cslots, tslots,
         virtex4::{ccls, tcls},
     },
     expanded::ExpandedDevice,
@@ -43,11 +43,6 @@ pub fn name_device<'a>(edev: &'a ExpandedDevice<'a>, ndb: &'a NamingDb) -> Expan
     let dci_grid = ngrid.bel_grid(|_, _, tcls| tcls.bels.contains_id(bslots::DCI));
 
     let mut namer = Namer { ngrid };
-
-    let term_slot_w = edev.db.get_conn_slot("W");
-    let term_slot_e = edev.db.get_conn_slot("E");
-    let term_slot_s = edev.db.get_conn_slot("S");
-    let term_slot_n = edev.db.get_conn_slot("N");
 
     for (tcrd, tile) in edev.tiles() {
         let cell = tcrd.cell;
@@ -244,12 +239,12 @@ pub fn name_device<'a>(edev: &'a ExpandedDevice<'a>, ndb: &'a NamingDb) -> Expan
                 for dy in 0..22 {
                     let name = if dy < 11 { &name_b } else { &name_t };
                     namer.ngrid.name_conn_tile(
-                        cell.delta(0, 1 + dy).connector(term_slot_e),
+                        cell.delta(0, 1 + dy).connector(cslots::E),
                         &format!("TERM_PPC_E{dy}"),
                         name.into(),
                     );
                     namer.ngrid.name_conn_tile(
-                        cell.delta(8, 1 + dy).connector(term_slot_w),
+                        cell.delta(8, 1 + dy).connector(cslots::W),
                         &format!("TERM_PPC_W{dy}"),
                         name.into(),
                     );
@@ -258,13 +253,13 @@ pub fn name_device<'a>(edev: &'a ExpandedDevice<'a>, ndb: &'a NamingDb) -> Expan
                     namer.name_intf(cell.delta(dx + 1, 0), &format!("INTF_PPC_S{dx}"), &name_b);
                     namer.name_intf(cell.delta(dx + 1, 23), &format!("INTF_PPC_N{dx}"), &name_t);
                     namer.ngrid.name_conn_pair(
-                        cell.delta(dx + 1, 0).connector(term_slot_n),
+                        cell.delta(dx + 1, 0).connector(cslots::N),
                         &format!("TERM_PPC_N{dx}"),
                         name_b.clone(),
                         name_t.clone(),
                     );
                     namer.ngrid.name_conn_pair(
-                        cell.delta(dx + 1, 23).connector(term_slot_s),
+                        cell.delta(dx + 1, 23).connector(cslots::S),
                         &format!("TERM_PPC_S{dx}"),
                         name_t.clone(),
                         name_b.clone(),
@@ -287,13 +282,13 @@ pub fn name_device<'a>(edev: &'a ExpandedDevice<'a>, ndb: &'a NamingDb) -> Expan
                         namer.name_intf(cell.delta(0, br + i), &format!("INTF_MGT_{i}"), name);
                         if lr == 'L' {
                             namer.ngrid.name_conn_tile(
-                                cell.delta(0, br + i).connector(term_slot_w),
+                                cell.delta(0, br + i).connector(cslots::W),
                                 &format!("TERM_W_MGT{i}"),
                                 name.into(),
                             );
                         } else {
                             namer.ngrid.name_conn_tile(
-                                cell.delta(0, br + i).connector(term_slot_e),
+                                cell.delta(0, br + i).connector(cslots::E),
                                 &format!("TERM_E_MGT{i}"),
                                 name.into(),
                             );

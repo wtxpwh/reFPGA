@@ -2,8 +2,7 @@ use std::collections::{BTreeMap, BTreeSet, btree_map};
 
 use prjcombine_ecp::{
     chip::{ChipKind, RowKind},
-    defs::bslots,
-    defs::cslots,
+    defs::{bslots, cslots, wiredata, wires},
 };
 use prjcombine_entity::{EntityId, EntityPartVec};
 use prjcombine_interconnect::{
@@ -67,8 +66,10 @@ impl ChipContext<'_> {
                     };
                     if has_1 {
                         for i in 0..num {
-                            let iwire_1 =
-                                cell.wire(self.intdb.get_wire(&format!("EBR_{dir}{i}_1")));
+                            let iwire_1 = cell.wire(match dir {
+                                DirH::W => wires::EBR_W1[i],
+                                DirH::E => wires::EBR_E1[i],
+                            });
                             let wire_1 =
                                 self.rc_wire(cell.delta(1, 1), &format!("HMA{ab}SI{i:02}"));
                             self.ebr_wires.insert(iwire_1, wire_1);
@@ -78,8 +79,10 @@ impl ChipContext<'_> {
                                     .copied()
                                     .find(|wn| self.naming.strings[wn.suffix].starts_with("HMA"))
                                     .unwrap();
-                                let iwire_0 =
-                                    cell.wire(self.intdb.get_wire(&format!("EBR_{dir}{i}_0")));
+                                let iwire_0 = cell.wire(match dir {
+                                    DirH::W => wires::EBR_W0[i],
+                                    DirH::E => wires::EBR_E0[i],
+                                });
                                 self.ebr_wires.insert(iwire_0, wire_0);
                             }
                         }
@@ -219,10 +222,11 @@ impl ChipContext<'_> {
                         let wire_out_out = self.claim_single_out(wire_out);
                         self.add_bel_wire(bcrd, format!("EBRO{i}{j:02}_OUT_OUT"), wire_out_out);
 
-                        let int_wire = self
-                            .intdb
-                            .get_wire(&format!("EBR_{nedge}{j}_1", nedge = !edge))
-                            .cell(15 - i);
+                        let int_wire = match !edge {
+                            DirH::W => wires::EBR_W1[j],
+                            DirH::E => wires::EBR_E1[j],
+                        }
+                        .cell(15 - i);
                         bel.pins
                             .insert(format!("EBRO{i}{j:02}"), BelPin::new_out(int_wire));
                         let wire_ebr = self.ebr_wires[&self.edev.tile_wire(tcrd, int_wire)];
@@ -235,7 +239,11 @@ impl ChipContext<'_> {
                         self.add_bel_wire(bcrd, format!("EBRI{i}{j:02}_IN"), wire_in);
                         self.claim_pip(wire, wire_in);
                         let wire_ebr = self.claim_single_in(wire_in);
-                        let int_wire = self.intdb.get_wire(&format!("EBR_{edge}{j}_0")).cell(6 + i);
+                        let int_wire = match edge {
+                            DirH::W => wires::EBR_W0[j],
+                            DirH::E => wires::EBR_E0[j],
+                        }
+                        .cell(6 + i);
                         bel.pins
                             .insert(format!("EBRI{i}{j:02}"), BelPin::new_in(int_wire));
                         match self.ebr_wires.entry(self.edev.tile_wire(tcrd, int_wire)) {
@@ -276,10 +284,11 @@ impl ChipContext<'_> {
                     };
                     for i in 0..8 {
                         for j in 0..32 {
-                            let twire_ipo = self
-                                .intdb
-                                .get_wire(&format!("OUT_MACO_IO_{dir}{i}_{j}"))
-                                .cell(0);
+                            let twire_ipo = match dir {
+                                DirV::S => wiredata::OUT_MACO_IO_S[i][j],
+                                DirV::N => wiredata::OUT_MACO_IO_N[i][j],
+                            }
+                            .cell(0);
                             let wire_ipo =
                                 self.rc_io_wire(cell, &format!("{dir}IPO{i}{j:02}_MACO"));
                             self.add_bel_wire(bcrd, format!("{dir}IPO{i}{j:02}"), wire_ipo);
@@ -294,13 +303,14 @@ impl ChipContext<'_> {
                                 wire_ipo_out,
                             );
 
-                            let twire_out = self
-                                .intdb
-                                .get_wire(&format!("IO_{dir_io}{j}_{seg}", seg = i + 1))
-                                .cell(match dir {
-                                    DirV::S => 4,
-                                    DirV::N => 5,
-                                });
+                            let twire_out = match dir_io {
+                                DirH::W => wiredata::IO_W[i + 1][j],
+                                DirH::E => wiredata::IO_E[i + 1][j],
+                            }
+                            .cell(match dir {
+                                DirV::S => 4,
+                                DirV::N => 5,
+                            });
                             let wire_out = self
                                 .io_int_names
                                 .get(&self.edev.tile_wire(tcrd, twire_out))
@@ -313,13 +323,14 @@ impl ChipContext<'_> {
                                 );
                             }
 
-                            let twire_in = self
-                                .intdb
-                                .get_wire(&format!("IO_{dir_io}{j}_{i}"))
-                                .cell(match dir {
-                                    DirV::S => 5,
-                                    DirV::N => 4,
-                                });
+                            let twire_in =match dir_io {
+                                DirH::W => wiredata::IO_W[i][j],
+                                DirH::E => wiredata::IO_E[i][j],
+                            }
+                            .cell(match dir {
+                                DirV::S => 5,
+                                DirV::N => 4,
+                            });
                             let wire_in = self
                                 .io_int_names
                                 .get(&self.edev.tile_wire(tcrd, twire_in))
@@ -388,13 +399,12 @@ impl ChipContext<'_> {
                 }
 
                 for dir in [DirV::S, DirV::N] {
-                    let dir_io = match (dir, edge) {
-                        (DirV::S, DirH::W) => DirH::E,
-                        (DirV::S, DirH::E) => DirH::W,
-                        (DirV::N, DirH::W) => DirH::W,
-                        (DirV::N, DirH::E) => DirH::E,
+                    let wire = match (dir, edge) {
+                        (DirV::S, DirH::W) => wires::IO_T_E,
+                        (DirV::S, DirH::E) => wires::IO_T_W,
+                        (DirV::N, DirH::W) => wires::IO_T_W,
+                        (DirV::N, DirH::E) => wires::IO_T_E,
                     };
-                    let wire = self.intdb.get_wire(&format!("IO_T_{dir_io}"));
 
                     let twire_out = wire.cell(match dir {
                         DirV::S => 4,

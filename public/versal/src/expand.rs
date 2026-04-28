@@ -122,13 +122,13 @@ impl Expander<'_> {
                 }
                 let cell_e = cell.delta(1, 0);
                 if cell.col == chip.col_e() || self.in_int_hole(cell_e) {
-                    self.egrid.fill_conn_term_id(cell, ccls::TERM_E);
+                    self.egrid.fill_conn_term(cell, ccls::TERM_E);
                 } else {
                     self.egrid
-                        .fill_conn_pair_id(cell, cell_e, ccls::PASS_E, ccls::PASS_W);
+                        .fill_conn_pair(cell, cell_e, ccls::PASS_E, ccls::PASS_W);
                 }
                 if cell.col == chip.col_w() || self.in_int_hole(cell.delta(-1, 0)) {
-                    self.egrid.fill_conn_term_id(cell, ccls::TERM_W);
+                    self.egrid.fill_conn_term(cell, ccls::TERM_W);
                 }
             }
 
@@ -141,26 +141,26 @@ impl Expander<'_> {
                 }
                 let cell_e = cell.delta(2, 0);
                 if cell.col == chip.col_e() - 1 || self.in_int_hole(cell_e) {
-                    self.egrid.fill_conn_term_id(cell, ccls::TERM_LE);
+                    self.egrid.fill_conn_term(cell, ccls::TERM_LE);
                 } else {
                     self.egrid
-                        .fill_conn_pair_id(cell, cell_e, ccls::PASS_LE, ccls::PASS_LW);
+                        .fill_conn_pair(cell, cell_e, ccls::PASS_LE, ccls::PASS_LW);
                 }
                 if cell.col == chip.col_w() || self.in_int_hole(cell.delta(-2, 0)) {
-                    self.egrid.fill_conn_term_id(cell, ccls::TERM_LW);
+                    self.egrid.fill_conn_term(cell, ccls::TERM_LW);
                 }
             }
 
             for cell in self.die_cells_pl(die) {
                 let cell_n = cell.delta(0, 1);
                 if cell.row == chip.row_n() || self.in_int_hole(cell_n) {
-                    self.egrid.fill_conn_term_id(cell, ccls::TERM_N);
+                    self.egrid.fill_conn_term(cell, ccls::TERM_N);
                 } else {
                     self.egrid
-                        .fill_conn_pair_id(cell, cell_n, ccls::PASS_N, ccls::PASS_S);
+                        .fill_conn_pair(cell, cell_n, ccls::PASS_N, ccls::PASS_S);
                 }
                 if cell.row == chip.row_s() || self.in_int_hole(cell.delta(0, -1)) {
-                    self.egrid.fill_conn_term_id(cell, ccls::TERM_S);
+                    self.egrid.fill_conn_term(cell, ccls::TERM_S);
                 }
             }
         }
@@ -195,12 +195,11 @@ impl Expander<'_> {
                         self.egrid[cell.delta(1, 0)].region_root[rslots::CLE] = cell;
                         self.egrid.add_tile_e_id(cell, tcid, 2);
                         if self.in_bli(cell) {
-                            self.egrid.fill_conn_term_id(cell, ccls::CLE_BLI_E);
-                            self.egrid
-                                .fill_conn_term_id(cell.delta(1, 0), ccls::CLE_BLI_W);
+                            self.egrid.fill_conn_term(cell, ccls::CLE_BLI_E);
+                            self.egrid.fill_conn_term(cell.delta(1, 0), ccls::CLE_BLI_W);
                         } else {
-                            self.egrid.fill_conn_term_id(cell, ccls::CLE_E);
-                            self.egrid.fill_conn_term_id(cell.delta(1, 0), ccls::CLE_W);
+                            self.egrid.fill_conn_term(cell, ccls::CLE_E);
+                            self.egrid.fill_conn_term(cell.delta(1, 0), ccls::CLE_W);
                         }
                         let reg = chip.row_to_reg(cell.row);
                         if cell.row.to_idx().is_multiple_of(Chip::ROWS_PER_REG) {
@@ -592,9 +591,8 @@ impl Expander<'_> {
                             tcls::RCLK_VNOC
                         };
                         self.egrid.add_tile_id(cell, tcid, &tcells);
-                        self.egrid.fill_conn_term_id(cell, ccls::CLK_DRV);
-                        self.egrid
-                            .fill_conn_term_id(cell.delta(1, 0), ccls::CLK_DRV);
+                        self.egrid.fill_conn_term(cell, ccls::CLK_DRV);
+                        self.egrid.fill_conn_term(cell.delta(1, 0), ccls::CLK_DRV);
                         if matches!(chip.hsr_s, HsrSKind::Ssit) {
                             self.egrid.add_tile_e_id(
                                 cell,
@@ -677,7 +675,7 @@ impl Expander<'_> {
                         .add_tile_n_id(cell, tcls::SYSMON_SAT_GT, Chip::ROWS_PER_REG);
                     self.egrid
                         .add_tile_n_id(cell, tcls::DPLL_GT, Chip::ROWS_PER_REG);
-                    self.egrid.fill_conn_term_id(
+                    self.egrid.fill_conn_term(
                         cell,
                         if is_vdu {
                             ccls::DPLL_GT_VDU
@@ -689,7 +687,7 @@ impl Expander<'_> {
                         self.egrid
                             .add_tile_n_id(cell, tcls::RCLK_GT, Chip::ROWS_PER_REG);
                         if !is_no_loc {
-                            self.egrid.fill_conn_term_id(cell, ccls::CLK_DRV);
+                            self.egrid.fill_conn_term(cell, ccls::CLK_DRV);
                         }
                         if matches!(chip.hsr_s, HsrSKind::Ssit) && side == DirH::E {
                             self.egrid.add_tile_single_id(
@@ -1241,7 +1239,7 @@ impl Expander<'_> {
                         let ocell =
                             die.cell(ocol, chip.row_reg_bot(RegId::from_idx(chip.regs - 1)));
                         self.egrid
-                            .fill_conn_pair_id(ocell, cell, ccls::CLK_N_HSR, ccls::CLK_S_HSR);
+                            .fill_conn_pair(ocell, cell, ccls::CLK_N_HSR, ccls::CLK_S_HSR);
                     }
                 }
             }
@@ -1253,7 +1251,7 @@ impl Expander<'_> {
             }
             if let Some(prev) = prev {
                 self.egrid
-                    .fill_conn_pair_id(prev, cell, ccls::HSR_E, ccls::HSR_W);
+                    .fill_conn_pair(prev, cell, ccls::HSR_E, ccls::HSR_W);
             }
             prev = Some(cell);
         }
@@ -1287,7 +1285,7 @@ impl Expander<'_> {
             self.egrid.add_tile_single_id(cell, tcls::CLK_HSR_SSIT2_H);
 
             self.egrid
-                .fill_conn_pair_id(prev.unwrap(), cell, ccls::HSR_E, ccls::HSR_W);
+                .fill_conn_pair(prev.unwrap(), cell, ccls::HSR_E, ccls::HSR_W);
         }
     }
 
@@ -1437,7 +1435,7 @@ impl Expander<'_> {
                 }
             }
             if rd.io[0].is_some() && rd.io[1].is_some() {
-                self.egrid.fill_conn_pair_id(
+                self.egrid.fill_conn_pair(
                     cell.delta(3, 0),
                     cell.delta(4, 0),
                     ccls::X5IO_PAIR,
@@ -1466,44 +1464,44 @@ impl Expander<'_> {
             if let Some(ddrmc_w) = ddrmc_w
                 && let Some(ddrmc_e) = ddrmc_e
             {
-                self.egrid.fill_conn_pair_id(
+                self.egrid.fill_conn_pair(
                     cell.delta(3, 0),
                     cell,
                     ccls::X5IO_HS_DESKEW_CLKIN,
                     ccls::X5IO_HS_DESKEW_CLKIN_REV,
                 );
-                self.egrid.fill_conn_pair_id(
+                self.egrid.fill_conn_pair(
                     cell.delta(4, 0),
                     cell.delta(7, 0),
                     ccls::X5IO_HS_DESKEW_CLKIN,
                     ccls::X5IO_HS_DESKEW_CLKIN_REV,
                 );
-                self.egrid.fill_conn_pair_id(
+                self.egrid.fill_conn_pair(
                     cell.delta(3, 0),
                     ddrmc_w.delta(3, 0),
                     ccls::X5IO_HS_DESKEW_CLKFB,
                     ccls::X5IO_HS_DESKEW_CLKFB_REV,
                 );
-                self.egrid.fill_conn_pair_id(
+                self.egrid.fill_conn_pair(
                     cell.delta(4, 0),
                     ddrmc_e.delta(-3, 0),
                     ccls::X5IO_HS_DESKEW_CLKFB,
                     ccls::X5IO_HS_DESKEW_CLKFB_REV,
                 );
             } else if let Some(ddrmc_e) = ddrmc_e {
-                self.egrid.fill_conn_pair_id(
+                self.egrid.fill_conn_pair(
                     cell.delta(3, 0),
                     cell,
                     ccls::X5IO_HS_DESKEW_CLKIN,
                     ccls::X5IO_HS_DESKEW_CLKIN_REV,
                 );
-                self.egrid.fill_conn_pair_id(
+                self.egrid.fill_conn_pair(
                     cell.delta(4, 0),
                     cell.delta(7, 0),
                     ccls::X5IO_HS_DESKEW_CLKIN,
                     ccls::X5IO_HS_DESKEW_CLKIN_REV,
                 );
-                self.egrid.fill_conn_pair_id(
+                self.egrid.fill_conn_pair(
                     cell.delta(4, 0),
                     ddrmc_e.delta(-3, 0),
                     ccls::X5IO_HS_DESKEW_CLKFB,
@@ -1867,7 +1865,7 @@ impl Expander<'_> {
 
             if let Some(prev) = prev {
                 self.egrid
-                    .fill_conn_pair_id(prev, cell, ccls::HSR_E, ccls::HSR_W);
+                    .fill_conn_pair(prev, cell, ccls::HSR_E, ccls::HSR_W);
             }
             prev = Some(cell);
         }
@@ -2207,12 +2205,12 @@ impl Expander<'_> {
             if let Some(ocol) = rd.clk_col {
                 let ocell = die.cell(ocol, chip.row_reg_bot(RegId::from_idx(chip.regs - 1)));
                 self.egrid
-                    .fill_conn_pair_id(ocell, cell, ccls::CLK_N_HSR, ccls::CLK_S_HSR);
+                    .fill_conn_pair(ocell, cell, ccls::CLK_N_HSR, ccls::CLK_S_HSR);
             }
 
             if let Some(prev) = prev {
                 self.egrid
-                    .fill_conn_pair_id(prev, cell, ccls::HSR_E, ccls::HSR_W);
+                    .fill_conn_pair(prev, cell, ccls::HSR_E, ccls::HSR_W);
             }
             prev = Some(cell);
         }
@@ -2275,12 +2273,12 @@ impl Expander<'_> {
             if let Some(ocol) = rd.clk_col {
                 let ocell = die.cell(ocol, chip.row_reg_bot(RegId::from_idx(chip.regs - 1)));
                 self.egrid
-                    .fill_conn_pair_id(ocell, cell, ccls::CLK_N_HSR, ccls::CLK_S_HSR);
+                    .fill_conn_pair(ocell, cell, ccls::CLK_N_HSR, ccls::CLK_S_HSR);
             }
 
             if let Some(prev) = prev {
                 self.egrid
-                    .fill_conn_pair_id(prev, cell, ccls::HSR_E, ccls::HSR_W);
+                    .fill_conn_pair(prev, cell, ccls::HSR_E, ccls::HSR_W);
             }
             prev = Some(cell);
 
@@ -2456,12 +2454,12 @@ impl Expander<'_> {
                     chip.row_reg_bot(RegId::from_idx(chip.regs - 1)),
                 );
                 self.egrid
-                    .fill_conn_pair_id(ocell, cell, ccls::CLK_N_HSR, ccls::CLK_S_HSR);
+                    .fill_conn_pair(ocell, cell, ccls::CLK_N_HSR, ccls::CLK_S_HSR);
             }
 
             if let Some(prev) = prev {
                 self.egrid
-                    .fill_conn_pair_id(prev, cell, ccls::HSR_E, ccls::HSR_W);
+                    .fill_conn_pair(prev, cell, ccls::HSR_E, ccls::HSR_W);
             }
             prev = Some(cell);
         }
@@ -2862,10 +2860,10 @@ impl Expander<'_> {
                 .add_tile_e_id(cell, tcls::CLK_V_BUF_VNOC_SSIT_S, 2);
             let pcell = pdie.cell(pcol, prow);
             self.egrid
-                .fill_conn_pair_id(pcell, cell, ccls::CLK_N_SSIT, ccls::CLK_S);
+                .fill_conn_pair(pcell, cell, ccls::CLK_N_SSIT, ccls::CLK_S);
             self.egrid[cell].region_root[rslots::GCLK_PD_V] = pcell;
             self.egrid[cell.delta(1, 0)].region_root[rslots::GCLK_PD_V] = pcell.delta(1, 0);
-            self.egrid.fill_conn_pair_id(
+            self.egrid.fill_conn_pair(
                 pcell.delta(1, 0),
                 cell.delta(1, 0),
                 ccls::CLK_N_SSIT,
@@ -2879,10 +2877,10 @@ impl Expander<'_> {
         // what. why. what the fuck.
         if matches!(chip.hsr_n, HsrNKind::Hbm(_)) {
             self.egrid
-                .fill_conn_pair_id(pcell, cell, ccls::CLK_N_SSIT_HBM, ccls::CLK_S);
+                .fill_conn_pair(pcell, cell, ccls::CLK_N_SSIT_HBM, ccls::CLK_S);
         } else {
             self.egrid
-                .fill_conn_pair_id(pcell, cell, ccls::CLK_N_SSIT, ccls::CLK_S);
+                .fill_conn_pair(pcell, cell, ccls::CLK_N_SSIT, ccls::CLK_S);
         }
         self.egrid[cell].region_root[rslots::GCLK_PD_V] = pcell;
 
@@ -3178,7 +3176,7 @@ impl Expander<'_> {
                 }
                 if !chip.is_reg_half(reg) {
                     for cell in self.egrid.row(die, row) {
-                        self.egrid.fill_conn_pair_id(
+                        self.egrid.fill_conn_pair(
                             cell.delta(0, -(Chip::ROWS_PER_REG as i32)),
                             cell,
                             ccls::CLK_HALF_N,
@@ -3197,7 +3195,7 @@ impl Expander<'_> {
                             } else {
                                 ccls::CLK_N_GT
                             };
-                            self.egrid.fill_conn_pair_id(
+                            self.egrid.fill_conn_pair(
                                 cell.with_row(prev_row),
                                 cell,
                                 clk_n,
@@ -3209,13 +3207,13 @@ impl Expander<'_> {
                             } else {
                                 ccls::CLK_N_VNOC
                             };
-                            self.egrid.fill_conn_pair_id(
+                            self.egrid.fill_conn_pair(
                                 cell.with_row(prev_row),
                                 cell,
                                 clk_n,
                                 ccls::CLK_S,
                             );
-                            self.egrid.fill_conn_pair_id(
+                            self.egrid.fill_conn_pair(
                                 cell.delta(1, 0).with_row(prev_row),
                                 cell.delta(1, 0),
                                 clk_n,

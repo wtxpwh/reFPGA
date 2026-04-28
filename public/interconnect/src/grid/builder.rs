@@ -201,7 +201,7 @@ impl<'db> GridBuilder<'db> {
         self.add_tile(cell, kind, &cell.delta(0, -(num_s as i32)).cells_n(num))
     }
 
-    pub fn fill_conn_pair_id(
+    pub fn fill_conn_pair(
         &mut self,
         a: CellCoord,
         b: CellCoord,
@@ -226,13 +226,7 @@ impl<'db> GridBuilder<'db> {
         );
     }
 
-    pub fn fill_conn_pair(&mut self, a: CellCoord, b: CellCoord, fwd: &str, bwd: &str) {
-        let fwd = self.db.get_conn_class(fwd);
-        let bwd = self.db.get_conn_class(bwd);
-        self.fill_conn_pair_id(a, b, fwd, bwd);
-    }
-
-    pub fn fill_conn_term_id(&mut self, cell: CellCoord, ccls: ConnectorClassId) {
+    pub fn fill_conn_term(&mut self, cell: CellCoord, ccls: ConnectorClassId) {
         let slot = self.db[ccls].slot;
         self[cell].conns.insert(
             slot,
@@ -241,11 +235,6 @@ impl<'db> GridBuilder<'db> {
                 target: None,
             },
         );
-    }
-
-    pub fn fill_conn_term(&mut self, cell: CellCoord, kind: &str) {
-        let ccls = self.db.get_conn_class(kind);
-        self.fill_conn_term_id(cell, ccls);
     }
 }
 

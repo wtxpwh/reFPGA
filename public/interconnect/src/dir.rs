@@ -176,10 +176,10 @@ impl std::fmt::Display for DirHV {
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Encode, Decode, Default)]
 pub struct DirMap<T> {
-    w: T,
-    e: T,
-    s: T,
-    n: T,
+    pub w: T,
+    pub e: T,
+    pub s: T,
+    pub n: T,
 }
 
 impl<T> DirMap<T> {

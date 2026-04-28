@@ -122,33 +122,33 @@ impl Expander<'_, '_> {
         for cell in self.egrid.row(self.die, self.chip.row_s()) {
             if self.chip.kind.is_virtex2() {
                 self.egrid.add_tile_single_id(cell, tcls_v2::TERM_S);
-                self.egrid.fill_conn_term_id(cell, ccls_v2::TERM_S);
+                self.egrid.fill_conn_term(cell, ccls_v2::TERM_S);
             } else {
-                self.egrid.fill_conn_term_id(cell, ccls_s3::TERM_S);
+                self.egrid.fill_conn_term(cell, ccls_s3::TERM_S);
             }
         }
         for cell in self.egrid.row(self.die, self.chip.row_n()) {
             if self.chip.kind.is_virtex2() {
                 self.egrid.add_tile_single_id(cell, tcls_v2::TERM_N);
-                self.egrid.fill_conn_term_id(cell, ccls_v2::TERM_N);
+                self.egrid.fill_conn_term(cell, ccls_v2::TERM_N);
             } else {
-                self.egrid.fill_conn_term_id(cell, ccls_s3::TERM_N);
+                self.egrid.fill_conn_term(cell, ccls_s3::TERM_N);
             }
         }
         for cell in self.egrid.column(self.die, self.chip.col_w()) {
             if self.chip.kind.is_virtex2() {
                 self.egrid.add_tile_single_id(cell, tcls_v2::TERM_W);
-                self.egrid.fill_conn_term_id(cell, ccls_v2::TERM_W);
+                self.egrid.fill_conn_term(cell, ccls_v2::TERM_W);
             } else {
-                self.egrid.fill_conn_term_id(cell, ccls_s3::TERM_W);
+                self.egrid.fill_conn_term(cell, ccls_s3::TERM_W);
             }
         }
         for cell in self.egrid.column(self.die, self.chip.col_e()) {
             if self.chip.kind.is_virtex2() {
                 self.egrid.add_tile_single_id(cell, tcls_v2::TERM_E);
-                self.egrid.fill_conn_term_id(cell, ccls_v2::TERM_E);
+                self.egrid.fill_conn_term(cell, ccls_v2::TERM_E);
             } else {
-                self.egrid.fill_conn_term_id(cell, ccls_s3::TERM_E);
+                self.egrid.fill_conn_term(cell, ccls_s3::TERM_E);
             }
         }
     }
@@ -368,7 +368,7 @@ impl Expander<'_, '_> {
                     row_n: t + 1,
                 });
                 for d in 1..4 {
-                    self.egrid.fill_conn_pair_id(
+                    self.egrid.fill_conn_pair(
                         self.die.cell(col + d, b - 1),
                         self.die.cell(col + d, t + 1),
                         ccls_s3::TERM_BRAM_N,
@@ -594,7 +594,7 @@ impl Expander<'_, '_> {
                 self.egrid
                     .add_tile_id(cell_e, tcls_v2::PPC_TERM_W, &[cell_e, cell_w]);
                 self.egrid
-                    .fill_conn_pair_id(cell_w, cell_e, ccls_v2::PPC_E, ccls_v2::PPC_W);
+                    .fill_conn_pair(cell_w, cell_e, ccls_v2::PPC_E, ccls_v2::PPC_W);
             }
             // vert passes
             for d in 1..9 {
@@ -605,7 +605,7 @@ impl Expander<'_, '_> {
                 self.egrid
                     .add_tile_id(cell_n, tcls_v2::PPC_TERM_S, &[cell_n, cell_s]);
                 self.egrid
-                    .fill_conn_pair_id(cell_s, cell_n, ccls_v2::PPC_N, ccls_v2::PPC_S);
+                    .fill_conn_pair(cell_s, cell_n, ccls_v2::PPC_N, ccls_v2::PPC_S);
             }
             let tcid = if bc < self.chip.col_clk {
                 tcls_v2::PPC_W
@@ -741,7 +741,7 @@ impl Expander<'_, '_> {
                 term_s = ccls_s3::LLV_CLK_WE_S3E_S;
                 term_n = ccls_s3::LLV_CLK_WE_S3E_N;
             }
-            self.egrid.fill_conn_pair_id(cell_s, cell_n, term_n, term_s);
+            self.egrid.fill_conn_pair(cell_s, cell_n, term_n, term_s);
             self.egrid.add_tile_id(
                 cell_n,
                 if self.chip.kind.is_spartan3a() {
@@ -781,7 +781,7 @@ impl Expander<'_, '_> {
                 term_w = ccls_s3::LLH_DCM_S3ADSP_W;
                 term_e = ccls_s3::LLH_DCM_S3ADSP_E;
             }
-            self.egrid.fill_conn_pair_id(cell_w, cell_e, term_e, term_w);
+            self.egrid.fill_conn_pair(cell_w, cell_e, term_e, term_w);
             self.egrid.add_tile_id(
                 cell_e,
                 if self.chip.kind.is_spartan3a() && cell.row == self.chip.row_s() {
@@ -799,7 +799,7 @@ impl Expander<'_, '_> {
     fn fill_misc_passes(&mut self) {
         if self.chip.kind == ChipKind::Spartan3E && !self.chip.has_ll {
             for col in [self.chip.col_w(), self.chip.col_e()] {
-                self.egrid.fill_conn_pair_id(
+                self.egrid.fill_conn_pair(
                     self.die.cell(col, self.chip.row_mid() - 1),
                     self.die.cell(col, self.chip.row_mid()),
                     ccls_s3::CLK_WE_S3E_N,
@@ -816,7 +816,7 @@ impl Expander<'_, '_> {
                     continue;
                 }
                 for cell in self.egrid.row(self.die, row) {
-                    self.egrid.fill_conn_pair_id(
+                    self.egrid.fill_conn_pair(
                         cell.delta(0, -1),
                         cell,
                         ccls_s3::BRKH_S3_N,
@@ -829,7 +829,7 @@ impl Expander<'_, '_> {
             for (col, cd) in &self.chip.columns {
                 if cd.kind == ColumnKind::Dsp {
                     for row in [self.chip.row_s(), self.chip.row_n()] {
-                        self.egrid.fill_conn_pair_id(
+                        self.egrid.fill_conn_pair(
                             self.die.cell(col, row),
                             self.die.cell(col + 1, row),
                             ccls_s3::DSPHOLE_E,
@@ -840,7 +840,7 @@ impl Expander<'_, '_> {
             }
             for col in [self.chip.col_w() + 3, self.chip.col_e() - 6] {
                 for row in [self.chip.row_mid() - 1, self.chip.row_mid()] {
-                    self.egrid.fill_conn_pair_id(
+                    self.egrid.fill_conn_pair(
                         self.die.cell(col, row),
                         self.die.cell(col + 4, row),
                         ccls_s3::DSPHOLE_E,
@@ -855,7 +855,7 @@ impl Expander<'_, '_> {
                     self.chip.row_mid() + 2,
                     self.chip.row_mid() + 3,
                 ] {
-                    self.egrid.fill_conn_pair_id(
+                    self.egrid.fill_conn_pair(
                         self.die.cell(col - 1, row),
                         self.die.cell(col + 4, row),
                         ccls_s3::HDCM_E,
@@ -902,7 +902,7 @@ impl Expander<'_, '_> {
                 if let Some(prev) = prev
                     && !self.egrid[cell].conns.contains_id(slot_w)
                 {
-                    self.egrid.fill_conn_pair_id(prev, cell, pass_e, pass_w);
+                    self.egrid.fill_conn_pair(prev, cell, pass_e, pass_w);
                 }
                 if !self.egrid[cell].conns.contains_id(slot_e) {
                     prev = Some(cell);
@@ -921,7 +921,7 @@ impl Expander<'_, '_> {
                 if let Some(prev) = prev
                     && !self.egrid[cell].conns.contains_id(slot_s)
                 {
-                    self.egrid.fill_conn_pair_id(prev, cell, pass_n, pass_s);
+                    self.egrid.fill_conn_pair(prev, cell, pass_n, pass_s);
                 }
                 if !self.egrid[cell].conns.contains_id(slot_n) {
                     prev = Some(cell);

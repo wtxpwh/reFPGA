@@ -1,7 +1,6 @@
 use prjcombine_ecp::{
     chip::{ChipKind, RowKind},
-    defs::bslots,
-    defs::tslots,
+    defs::{self, bslots, cslots, tslots},
 };
 use prjcombine_interconnect::db::LegacyBel;
 
@@ -44,19 +43,42 @@ impl ChipContext<'_> {
                 let (r, c) = self.rc(cell);
                 self.name_bel(cell.bel(bslots::INT), [format!("CIBTEST_R{r}C{c}")]);
                 if self.chip.kind == ChipKind::MachXo {
-                    for w in [
-                        "A0", "A1", "A2", "A3", "A6", "B0", "B1", "B2", "B3", "B6", "C0", "C1",
-                        "C2", "C3", "C6", "D0", "D1", "D2", "D3", "D6", "M0", "M1", "CLK0", "CLK1",
-                        "LSR0", "CE0",
+                    for (w, n) in [
+                        (defs::wires::IMUX_A[0], "A0"),
+                        (defs::wires::IMUX_A[1], "A1"),
+                        (defs::wires::IMUX_A[2], "A2"),
+                        (defs::wires::IMUX_A[3], "A3"),
+                        (defs::wires::IMUX_A[6], "A6"),
+                        (defs::wires::IMUX_B[0], "B0"),
+                        (defs::wires::IMUX_B[1], "B1"),
+                        (defs::wires::IMUX_B[2], "B2"),
+                        (defs::wires::IMUX_B[3], "B3"),
+                        (defs::wires::IMUX_B[6], "B6"),
+                        (defs::wires::IMUX_C[0], "C0"),
+                        (defs::wires::IMUX_C[1], "C1"),
+                        (defs::wires::IMUX_C[2], "C2"),
+                        (defs::wires::IMUX_C[3], "C3"),
+                        (defs::wires::IMUX_C[6], "C6"),
+                        (defs::wires::IMUX_D[0], "D0"),
+                        (defs::wires::IMUX_D[1], "D1"),
+                        (defs::wires::IMUX_D[2], "D2"),
+                        (defs::wires::IMUX_D[3], "D3"),
+                        (defs::wires::IMUX_D[6], "D6"),
+                        (defs::wires::IMUX_M[0], "M0"),
+                        (defs::wires::IMUX_M[1], "M1"),
+                        (defs::wires::IMUX_CLK[0], "CLK0"),
+                        (defs::wires::IMUX_CLK[1], "CLK1"),
+                        (defs::wires::IMUX_LSR[0], "LSR0"),
+                        (defs::wires::IMUX_CE[0], "CE0"),
                     ] {
-                        let wt = self.rc_wire(cell, &format!("J{w}_CIBTEST"));
-                        let wf = cell.wire(self.intdb.get_wire(&format!("IMUX_{w}")));
-                        self.add_bel_wire(cell.bel(bslots::INT), w, wt);
+                        let wt = self.rc_wire(cell, &format!("J{n}_CIBTEST"));
+                        let wf = cell.wire(w);
+                        self.add_bel_wire(cell.bel(bslots::INT), n, wt);
                         self.claim_pip_int_in(wt, wf);
                     }
                     for i in 0..12 {
                         let wf = self.rc_wire(cell, &format!("JTI{i}_CIBTEST"));
-                        let wt = cell.wire(self.intdb.get_wire(&format!("OUT_TI{i}")));
+                        let wt = cell.wire(defs::wires::OUT_TI[i]);
                         self.add_bel_wire(cell.bel(bslots::INT), format!("TI{i}"), wf);
                         self.claim_pip_int_out(wt, wf);
                     }
@@ -80,15 +102,15 @@ impl ChipContext<'_> {
                     } else {
                         4
                     };
-                    for (l, n) in [
-                        ("A", 8),
-                        ("B", 8),
-                        ("C", 8),
-                        ("D", 8),
-                        ("M", 8),
-                        ("CLK", num_clk),
-                        ("LSR", num_clk),
-                        ("CE", 4),
+                    for (w, l, n) in [
+                        (defs::wires::IMUX_A.as_slice(), "A", 8),
+                        (defs::wires::IMUX_B.as_slice(), "B", 8),
+                        (defs::wires::IMUX_C.as_slice(), "C", 8),
+                        (defs::wires::IMUX_D.as_slice(), "D", 8),
+                        (defs::wires::IMUX_M.as_slice(), "M", 8),
+                        (defs::wires::IMUX_CLK.as_slice(), "CLK", num_clk),
+                        (defs::wires::IMUX_LSR.as_slice(), "LSR", num_clk),
+                        (defs::wires::IMUX_CE.as_slice(), "CE", 4),
                     ] {
                         for i in 0..n {
                             let wt = self.rc_wire(cell, &format!("J{l}{i}_CIBTEST"));
@@ -101,17 +123,21 @@ impl ChipContext<'_> {
                                     && (cell.row == self.chip.row_s()
                                         || cell.row == self.chip.row_n()))
                             {
-                                cell.wire(self.intdb.get_wire("IMUX_CLK0"))
+                                cell.wire(defs::wires::IMUX_CLK[0])
                             } else if self.chip.kind == ChipKind::Ecp4 && l == "CLK" {
-                                cell.wire(self.intdb.get_wire(&format!("IMUX_{l}{i}_DELAY")))
+                                cell.wire(defs::wires::IMUX_CLK_DELAY[i])
                             } else {
-                                cell.wire(self.intdb.get_wire(&format!("IMUX_{l}{i}")))
+                                cell.wire(w[i])
                             };
                             self.add_bel_wire(cell.bel(bslots::INT), format!("{l}{i}"), wt);
                             self.claim_pip_int_in(wt, wf);
                         }
                     }
-                    for (l, n) in [("F", 8), ("Q", 8), ("OFX", 8)] {
+                    for (w, l, n) in [
+                        (defs::wires::OUT_F, "F", 8),
+                        (defs::wires::OUT_Q, "Q", 8),
+                        (defs::wires::OUT_OFX, "OFX", 8),
+                    ] {
                         if l == "OFX"
                             && matches!(self.chip.kind, ChipKind::Ecp5 | ChipKind::Crosslink)
                         {
@@ -119,7 +145,7 @@ impl ChipContext<'_> {
                         }
                         for i in 0..n {
                             let wf = self.rc_wire(cell, &format!("J{l}{i}_CIBTEST"));
-                            let wt = cell.wire(self.intdb.get_wire(&format!("OUT_{l}{i}")));
+                            let wt = cell.wire(w[i]);
                             self.add_bel_wire(cell.bel(bslots::INT), format!("{l}{i}"), wf);
                             if matches!(
                                 self.chip.kind,
@@ -146,7 +172,6 @@ impl ChipContext<'_> {
     }
 
     fn process_int_misc(&mut self) {
-        let conn_w = self.intdb.get_conn_slot("W");
         for (cell, cell_data) in self.edev.cells() {
             if !self.edev.has_bel(cell.bel(bslots::INT)) {
                 continue;
@@ -156,7 +181,7 @@ impl ChipContext<'_> {
                     && cell.col != self.chip.col_e()
                     && cell.col > self.chip.col_w() + 1
             } else {
-                cell_data.conns[conn_w].target.is_some()
+                cell_data.conns[cslots::W].target.is_some()
             };
             if has_cin {
                 let wire = self.rc_wire(cell, "HFIE0000");
@@ -183,10 +208,9 @@ impl ChipContext<'_> {
             }
             let bcrd = cell.bel(bslots::INT);
             for i in 0..2 {
-                let clk = self.naming.interconnect
-                    [&cell.wire(self.intdb.get_wire(&format!("IMUX_CLK{i}")))];
-                let clk_delay = self.naming.interconnect
-                    [&cell.wire(self.intdb.get_wire(&format!("IMUX_CLK{i}_DELAY")))];
+                let clk = self.naming.interconnect[&cell.wire(defs::wires::IMUX_CLK[i])];
+                let clk_delay =
+                    self.naming.interconnect[&cell.wire(defs::wires::IMUX_CLK_DELAY[i])];
                 let del1 = self.rc_wire(cell, &format!("CLK{i}_DEL1"));
                 let del2 = self.rc_wire(cell, &format!("CLK{i}_DEL2"));
                 let del3 = self.rc_wire(cell, &format!("CLK{i}_DEL3"));
@@ -232,16 +256,16 @@ impl ChipContext<'_> {
                 for (sclki, ti, vsdclki) in clocks {
                     let sclk_in = self.rc_wire(cell, &format!("HSBX0{ti}00"));
                     self.add_bel_wire(cell.bel(bslots::INT), format!("SCLK{sclki}_IN"), sclk_in);
-                    let sclk = cell.wire(self.intdb.get_wire(&format!("SCLK{sclki}")));
+                    let sclk = cell.wire(defs::wires::RSCLK[sclki]);
                     self.claim_pip_int_out(sclk, sclk_in);
-                    let vsdclk = cell.wire(self.intdb.get_wire(&format!("VSDCLK{vsdclki}")));
+                    let vsdclk = cell.wire(defs::wires::RSCLK_V[vsdclki]);
                     self.claim_pip_int_in(sclk_in, vsdclk);
                 }
             } else if self.chip.kind.has_distributed_sclk_ecp3() {
                 for (sclki, _, vsdclki) in clocks {
-                    let sclk = cell.wire(self.intdb.get_wire(&format!("SCLK{sclki}")));
+                    let sclk = cell.wire(defs::wires::RSCLK[sclki]);
                     if let Some(&sclk) = self.naming.interconnect.get(&sclk) {
-                        let vsdclk = cell.wire(self.intdb.get_wire(&format!("VSDCLK{vsdclki}")));
+                        let vsdclk = cell.wire(defs::wires::RSCLK_V[vsdclki]);
                         self.claim_pip_int_in(sclk, vsdclk);
                     }
                 }
@@ -259,7 +283,7 @@ impl ChipContext<'_> {
                 for (sclki, ti) in clocks {
                     let sclk_in = self.rc_wire(cell, &format!("HSBX0{ti}00"));
                     self.add_bel_wire(cell.bel(bslots::INT), format!("SCLK{sclki}_IN"), sclk_in);
-                    let sclk = cell.wire(self.intdb.get_wire(&format!("SCLK{sclki}")));
+                    let sclk = cell.wire(defs::wires::RSCLK[sclki]);
                     self.claim_pip_int_out(sclk, sclk_in);
                 }
             }
@@ -274,8 +298,8 @@ impl ChipContext<'_> {
                     if matches!(i, 4..8) && cell.col != self.chip.col_w() {
                         continue;
                     }
-                    let vsdclk = cell.wire(self.intdb.get_wire(&format!("VSDCLK{i}")));
-                    let vsdclk_n = cell.wire(self.intdb.get_wire(&format!("VSDCLK{i}_N")));
+                    let vsdclk = cell.wire(defs::wires::RSCLK_V[i]);
+                    let vsdclk_n = cell.wire(defs::wires::RSCLK_V_N[i]);
                     let idx = [2, 3, 6, 7, 10, 11, 6, 7][i];
                     let b2t = self.rc_wire(cell, &format!("VSTX{idx:02}00_B2T"));
                     let t2b = self.rc_wire(cell, &format!("VSTX{idx:02}00_T2B"));

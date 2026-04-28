@@ -2,8 +2,7 @@ use std::collections::{BTreeMap, BTreeSet};
 
 use prjcombine_ecp::{
     chip::{Chip, RowKind},
-    defs::bslots,
-    defs::{cslots, tslots},
+    defs::{bslots, cslots, tslots, wiredata, wires},
 };
 use prjcombine_entity::{EntityId, EntityVec};
 use prjcombine_interconnect::{
@@ -118,7 +117,10 @@ impl ChipContext<'_> {
                 }
                 let mut wires = vec![];
                 while seg <= 8 {
-                    let wire = cell.wire(self.intdb.get_wire(&format!("IO_{dir}{idx}_{seg}")));
+                    let wire = cell.wire(match dir {
+                        DirH::W => wiredata::IO_W[seg][idx],
+                        DirH::E => wiredata::IO_E[seg][idx],
+                    });
                     wires.push(wire);
                     if let Some(conn) = self.edev[cell].conns.get(match dir {
                         DirH::W => cslots::IO_W,
@@ -186,7 +188,10 @@ impl ChipContext<'_> {
                 }
                 let mut wires = vec![];
                 loop {
-                    let wire = cell.wire(self.intdb.get_wire(&format!("IO_T_{dir}")));
+                    let wire = cell.wire(match dir {
+                        DirH::W => wires::IO_T_W,
+                        DirH::E => wires::IO_T_E,
+                    });
                     wires.push(wire);
                     if let Some(conn) = self.edev[cell].conns.get(match dir {
                         DirH::W => cslots::IO_W,
@@ -212,17 +217,17 @@ impl ChipContext<'_> {
                 self.io_int_wires.insert(wn, wires);
             } else if let Some(idx) = suffix.strip_prefix("JFMPIC_") {
                 let idx: usize = idx.parse().unwrap();
-                let wire = self.intdb.get_wire(&format!("OUT_IO{idx}"));
+                let wire = wires::OUT_IO[idx];
                 let cell = self.chip.xlat_rc_wire(wn);
-                self.add_bel_wire(cell.bel(bslots::IO_INT), format!("OUT_IO{idx}"), wn);
+                self.add_bel_wire(cell.bel(bslots::IO_INT), format!("OUT_IO[{idx}]"), wn);
                 let wire = cell.wire(wire);
                 self.io_int_wires.insert(wn, vec![wire]);
                 self.io_int_names.insert(wire, wn);
             } else if let Some(idx) = suffix.strip_prefix("JTOPIC_") {
                 let idx: usize = idx.parse().unwrap();
-                let wire = self.intdb.get_wire(&format!("IMUX_IO{idx}"));
+                let wire = wires::IMUX_IO[idx];
                 let cell = self.chip.xlat_rc_wire(wn);
-                self.add_bel_wire(cell.bel(bslots::IO_INT), format!("IMUX_IO{idx}"), wn);
+                self.add_bel_wire(cell.bel(bslots::IO_INT), format!("IMUX_IO[{idx}]"), wn);
                 let wire = cell.wire(wire);
                 self.io_int_wires.insert(wn, vec![wire]);
                 self.io_int_names.insert(wire, wn);
@@ -290,10 +295,10 @@ impl ChipContext<'_> {
             if col == self.chip.col_clk || cd.pclk_drive {
                 let cell_e = Chip::DIE.cell(col, self.chip.row_s());
                 let cell_w = cell_e.delta(-1, 0);
-                for (cell_to, cell_from, w) in
-                    [(cell_w, cell_e, "IO_T_W"), (cell_e, cell_w, "IO_T_E")]
-                {
-                    let wire = self.intdb.get_wire(w);
+                for (cell_to, cell_from, wire) in [
+                    (cell_w, cell_e, wires::IO_T_W),
+                    (cell_e, cell_w, wires::IO_T_E),
+                ] {
                     let wt = self.io_int_names[&cell_to.wire(wire)];
                     let wf = self.io_int_names[&cell_from.wire(wire)];
                     self.claim_pip(wt, wf);

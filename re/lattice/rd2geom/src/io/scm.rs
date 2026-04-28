@@ -1,6 +1,6 @@
 use prjcombine_ecp::{
     chip::{IoGroupKind, PllLoc, PllPad, SpecialIoKey, SpecialLocKey},
-    defs::bslots,
+    defs::{bslots, wires},
 };
 use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
@@ -662,8 +662,8 @@ impl ChipContext<'_> {
         self.claim_pip(td_int, td);
         let mut bpin = self.xlat_int_wire(bcrd, td);
         if io.edge() != Dir::N {
-            for w in ["IO_T_W", "IO_T_E"] {
-                let wire = self.intdb.get_wire(w).cell(0);
+            for w in [wires::IO_T_W, wires::IO_T_E] {
+                let wire = w.cell(0);
                 bpin.wires.insert(wire);
                 let tcrd = self.edev.bel_tile(bcrd);
                 let wire = self.io_int_names[&self.edev.tile_wire(tcrd, wire)];

@@ -1,4 +1,7 @@
-use prjcombine_ecp::{chip::ChipKind, defs::bslots};
+use prjcombine_ecp::{
+    chip::ChipKind,
+    defs::{bslots, wires},
+};
 
 use super::ChipContext;
 
@@ -24,20 +27,27 @@ impl ChipContext<'_> {
                 self.name_bel(slices[3], [format!("R{r}C{c}D")]);
                 for i in 0..4 {
                     let abcd = ['A', 'B', 'C', 'D'][i];
+                    let i0 = i * 2;
+                    let i1 = i * 2 + 1;
 
                     // plain inputs
-                    for pin in [
-                        "A0", "A1", "B0", "B1", "C0", "C1", "D0", "D1", "M0", "M1", "CLK", "LSR",
-                        "CE",
+                    for (pin, wire) in [
+                        ("A0", format!("A{i0}_SLICE")),
+                        ("A1", format!("A{i1}_SLICE")),
+                        ("B0", format!("B{i0}_SLICE")),
+                        ("B1", format!("B{i1}_SLICE")),
+                        ("C0", format!("C{i0}_SLICE")),
+                        ("C1", format!("C{i1}_SLICE")),
+                        ("D0", format!("D{i0}_SLICE")),
+                        ("D1", format!("D{i1}_SLICE")),
+                        ("M0", format!("M{i0}_SLICE")),
+                        ("M1", format!("M{i1}_SLICE")),
+                        ("CLK", format!("CLK{i}_SLICE")),
+                        ("LSR", format!("LSR{i}_SLICE")),
+                        ("CE", format!("CE{i}_SLICE")),
                     ] {
                         let wire_int = self.edev.get_bel_pin(slices[i], pin)[0];
-                        let wn = self
-                            .intdb
-                            .wires
-                            .key(wire_int.slot)
-                            .strip_prefix("IMUX_")
-                            .unwrap();
-                        let wire_slice = self.rc_wire(cell, &format!("{wn}_SLICE"));
+                        let wire_slice = self.rc_wire(cell, &wire);
                         self.add_bel_wire(slices[i], pin, wire_slice);
                         self.claim_pip_int_in(wire_slice, wire_int);
                     }
@@ -59,27 +69,26 @@ impl ChipContext<'_> {
                     };
 
                     // plain outputs
-                    for pin in ["F0", "F1", "Q0", "Q1"] {
+                    for (pin, wire) in [
+                        ("F0", format!("F{i0}")),
+                        ("F1", format!("F{i1}")),
+                        ("Q0", format!("Q{i0}")),
+                        ("Q1", format!("Q{i1}")),
+                    ] {
                         let wire_int = self.edev.get_bel_pin(slices[i], pin)[0];
-                        let wn = self
-                            .intdb
-                            .wires
-                            .key(wire_int.slot)
-                            .strip_prefix("OUT_")
-                            .unwrap();
                         let wire_slice = self.rc_wire(
                             cell,
                             &if self.chip.kind == ChipKind::MachXo {
-                                format!("J{wn}_SLICE")
+                                format!("J{wire}_SLICE")
                             } else {
-                                format!("{wn}_SLICE")
+                                format!("{wire}_SLICE")
                             },
                         );
                         self.add_bel_wire(slices[i], pin, wire_slice);
                         self.claim_pip_int_out(wire_int, wire_slice);
 
                         if let Some(io_cell) = io_cell {
-                            let wire_io = self.rc_wire(io_cell, &format!("JPLC{wn}"));
+                            let wire_io = self.rc_wire(io_cell, &format!("JPLC{wire}"));
                             self.add_bel_wire(slices[i], format!("{pin}_IO"), wire_io);
                             self.claim_pip(wire_io, wire_slice);
                         }
@@ -108,18 +117,18 @@ impl ChipContext<'_> {
                     self.claim_pip(fxb_slice, fxb);
 
                     let (ia, ib) = [(0, 2), (1, 5), (4, 6), (3, 3)][i];
-                    let fxa_int = cell.wire(self.intdb.get_wire(&format!("OUT_OFX{ia}")));
+                    let fxa_int = cell.wire(wires::OUT_OFX[ia]);
                     self.claim_pip_int_in(fxa, fxa_int);
                     if i == 3 {
                         if let Some(&fxb_int) = self
                             .naming
                             .interconnect
-                            .get(&cell.wire(self.intdb.get_wire("OUT_OFX3_W")))
+                            .get(&cell.wire(wires::OUT_OFX_W[3]))
                         {
                             self.claim_pip(fxb, fxb_int);
                         }
                     } else {
-                        let fxb_int = cell.wire(self.intdb.get_wire(&format!("OUT_OFX{ib}")));
+                        let fxb_int = cell.wire(wires::OUT_OFX[ib]);
                         self.claim_pip_int_in(fxb, fxb_int);
                     }
 
@@ -290,40 +299,46 @@ impl ChipContext<'_> {
                 self.name_bel(slices[3], [format!("R{r}C{c}D")]);
                 for i in 0..4 {
                     let abcd = ['A', 'B', 'C', 'D'][i];
+                    let i0 = i * 2;
+                    let i1 = i * 2 + 1;
 
                     // plain inputs
-                    for pin in [
-                        "A0", "A1", "B0", "B1", "C0", "C1", "D0", "D1", "M0", "M1", "CLK", "LSR",
-                        "CE",
+                    for (pin, wire) in [
+                        ("A0", format!("A{i0}_SLICE")),
+                        ("A1", format!("A{i1}_SLICE")),
+                        ("B0", format!("B{i0}_SLICE")),
+                        ("B1", format!("B{i1}_SLICE")),
+                        ("C0", format!("C{i0}_SLICE")),
+                        ("C1", format!("C{i1}_SLICE")),
+                        ("D0", format!("D{i0}_SLICE")),
+                        ("D1", format!("D{i1}_SLICE")),
+                        ("M0", format!("M{i0}_SLICE")),
+                        ("M1", format!("M{i1}_SLICE")),
+                        ("CLK", format!("CLK{i}_SLICE")),
+                        ("LSR", format!("LSR{i}_SLICE")),
+                        ("CE", format!("CE{i}_SLICE")),
                     ] {
                         if matches!(pin, "CLK" | "LSR" | "CE") && i == 3 {
                             continue;
                         }
                         let wire_int = self.edev.get_bel_pin(slices[i], pin)[0];
-                        let wn = self
-                            .intdb
-                            .wires
-                            .key(wire_int.slot)
-                            .strip_prefix("IMUX_")
-                            .unwrap();
-                        let wire_slice = self.rc_wire(cell, &format!("{wn}_SLICE"));
+                        let wire_slice = self.rc_wire(cell, &wire);
                         self.add_bel_wire(slices[i], pin, wire_slice);
                         self.claim_pip_int_in(wire_slice, wire_int);
                     }
 
                     // plain outputs
-                    for pin in ["F0", "F1", "Q0", "Q1"] {
+                    for (pin, wire) in [
+                        ("F0", format!("F{i0}")),
+                        ("F1", format!("F{i1}")),
+                        ("Q0", format!("Q{i0}")),
+                        ("Q1", format!("Q{i1}")),
+                    ] {
                         if pin.starts_with('Q') && i == 3 {
                             continue;
                         }
                         let wire_int = self.edev.get_bel_pin(slices[i], pin)[0];
-                        let wn = self
-                            .intdb
-                            .wires
-                            .key(wire_int.slot)
-                            .strip_prefix("OUT_")
-                            .unwrap();
-                        let wire_slice = self.rc_wire(cell, &format!("{wn}_SLICE"));
+                        let wire_slice = self.rc_wire(cell, &format!("{wire}_SLICE"));
                         self.add_bel_wire(slices[i], pin, wire_slice);
                         self.claim_pip_int_out(wire_int, wire_slice);
                     }
@@ -364,10 +379,10 @@ impl ChipContext<'_> {
                                 self.claim_pip(fxa, fx_out);
                             }
                         } else {
-                            let fxa_int = cell.wire(self.intdb.get_wire(&format!("OUT_OFX{ia}")));
+                            let fxa_int = cell.wire(wires::OUT_OFX[ia]);
                             self.claim_pip_int_in(fxa, fxa_int);
                         }
-                        let fxb_int = cell.wire(self.intdb.get_wire(&format!("OUT_OFX{ib}")));
+                        let fxb_int = cell.wire(wires::OUT_OFX[ib]);
                         self.claim_pip_int_in(fxb, fxb_int);
                     } else {
                         let (ia, ib) = [(5, 5), (2, 0), (7, 3), (6, 4)][i];
@@ -378,10 +393,10 @@ impl ChipContext<'_> {
                                 self.claim_pip(fxa, fx_out);
                             }
                         } else {
-                            let fxa_int = cell.wire(self.intdb.get_wire(&format!("OUT_OFX{ia}")));
+                            let fxa_int = cell.wire(wires::OUT_OFX[ia]);
                             self.claim_pip_int_in(fxa, fxa_int);
                         }
-                        let fxb_int = cell.wire(self.intdb.get_wire(&format!("OUT_OFX{ib}")));
+                        let fxb_int = cell.wire(wires::OUT_OFX[ib]);
                         self.claim_pip_int_in(fxb, fxb_int);
                     }
 
@@ -566,19 +581,25 @@ impl ChipContext<'_> {
             self.name_bel(slices[3], [format!("R{r}C{c}D")]);
             for i in 0..4 {
                 let abcd = ['A', 'B', 'C', 'D'][i];
+                let i0 = i * 2;
+                let i1 = i * 2 + 1;
 
                 // plain inputs
-                for pin in [
-                    "A0", "A1", "B0", "B1", "C0", "C1", "D0", "D1", "M0", "M1", "CE",
+                for (pin, wire) in [
+                    ("A0", format!("A{i0}_SLICE")),
+                    ("A1", format!("A{i1}_SLICE")),
+                    ("B0", format!("B{i0}_SLICE")),
+                    ("B1", format!("B{i1}_SLICE")),
+                    ("C0", format!("C{i0}_SLICE")),
+                    ("C1", format!("C{i1}_SLICE")),
+                    ("D0", format!("D{i0}_SLICE")),
+                    ("D1", format!("D{i1}_SLICE")),
+                    ("M0", format!("M{i0}_SLICE")),
+                    ("M1", format!("M{i1}_SLICE")),
+                    ("CE", format!("CE{i}_SLICE")),
                 ] {
                     let wire_int = self.edev.get_bel_pin(slices[i], pin)[0];
-                    let wn = self
-                        .intdb
-                        .wires
-                        .key(wire_int.slot)
-                        .strip_prefix("IMUX_")
-                        .unwrap();
-                    let wire_slice = self.rc_wire(cell, &format!("{wn}_SLICE"));
+                    let wire_slice = self.rc_wire(cell, &wire);
                     self.add_bel_wire(slices[i], pin, wire_slice);
                     self.claim_pip_int_in(wire_slice, wire_int);
                 }
@@ -590,15 +611,14 @@ impl ChipContext<'_> {
                 }
 
                 // plain outputs
-                for pin in ["F0", "F1", "Q0", "Q1"] {
+                for (pin, wire) in [
+                    ("F0", format!("F{i0}")),
+                    ("F1", format!("F{i1}")),
+                    ("Q0", format!("Q{i0}")),
+                    ("Q1", format!("Q{i1}")),
+                ] {
                     let wire_int = self.edev.get_bel_pin(slices[i], pin)[0];
-                    let wn = self
-                        .intdb
-                        .wires
-                        .key(wire_int.slot)
-                        .strip_prefix("OUT_")
-                        .unwrap();
-                    let wire_slice = self.rc_wire(cell, &format!("{wn}_SLICE"));
+                    let wire_slice = self.rc_wire(cell, &format!("{wire}_SLICE"));
                     self.add_bel_wire(slices[i], pin, wire_slice);
                     self.claim_pip_int_out(wire_int, wire_slice);
                 }
@@ -631,30 +651,26 @@ impl ChipContext<'_> {
 
                 let (ia, ib) = [(2, 0), (5, 1), (6, 4), (3, 3)][i];
                 if i == 3 {
-                    if let Some(&fxa_int) =
-                        self.naming
-                            .interconnect
-                            .get(&cell.wire(self.intdb.get_wire(if is_ecp5 {
-                                "OUT_F3_W"
-                            } else {
-                                "OUT_OFX3_W"
-                            })))
-                    {
+                    if let Some(&fxa_int) = self.naming.interconnect.get(&cell.wire(if is_ecp5 {
+                        wires::OUT_F_W[3]
+                    } else {
+                        wires::OUT_OFX_W[3]
+                    })) {
                         self.claim_pip(fxa, fxa_int);
                     }
                 } else {
-                    let fxa_int = cell.wire(self.intdb.get_wire(&if is_ecp5 {
-                        format!("OUT_F{ia}")
+                    let fxa_int = cell.wire(if is_ecp5 {
+                        wires::OUT_F[ia]
                     } else {
-                        format!("OUT_OFX{ia}")
-                    }));
+                        wires::OUT_OFX[ia]
+                    });
                     self.claim_pip_int_in(fxa, fxa_int);
                 }
-                let fxb_int = cell.wire(self.intdb.get_wire(&if is_ecp5 {
-                    format!("OUT_F{ib}")
+                let fxb_int = cell.wire(if is_ecp5 {
+                    wires::OUT_F[ib]
                 } else {
-                    format!("OUT_OFX{ib}")
-                }));
+                    wires::OUT_OFX[ib]
+                });
                 self.claim_pip_int_in(fxb, fxb_int);
 
                 // DI

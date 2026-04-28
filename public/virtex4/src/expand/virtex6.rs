@@ -111,11 +111,11 @@ impl Expander<'_, '_> {
         for dx in 0..6 {
             if cell.row.to_idx() != 40 {
                 self.egrid
-                    .fill_conn_term_id(cell.delta(-6 + dx, -41), ccls::TERM_N);
+                    .fill_conn_term(cell.delta(-6 + dx, -41), ccls::TERM_N);
             }
             if cell.row.to_idx() != self.chip.regs * 40 - 40 {
                 self.egrid
-                    .fill_conn_term_id(cell.delta(-6 + dx, 40), ccls::TERM_S);
+                    .fill_conn_term(cell.delta(-6 + dx, 40), ccls::TERM_S);
             }
         }
         self.egrid.add_tile_sn_id(cell, tcls::CFG, 40, 80);
@@ -126,23 +126,23 @@ impl Expander<'_, '_> {
         let row_b = self.chip.rows().first().unwrap();
         for cell in self.egrid.row(self.die, row_b) {
             if !self.is_int_hole(cell) {
-                self.egrid.fill_conn_term_id(cell, ccls::TERM_S_HOLE);
+                self.egrid.fill_conn_term(cell, ccls::TERM_S_HOLE);
             }
         }
         let row_t = self.chip.rows().last().unwrap();
         for cell in self.egrid.row(self.die, row_t) {
             if !self.is_int_hole(cell) {
-                self.egrid.fill_conn_term_id(cell, ccls::TERM_N_HOLE);
+                self.egrid.fill_conn_term(cell, ccls::TERM_N_HOLE);
             }
         }
 
         let col_l = self.chip.columns.ids().first().unwrap();
         for cell in self.egrid.column(self.die, col_l) {
-            self.egrid.fill_conn_term_id(cell, ccls::TERM_W);
+            self.egrid.fill_conn_term(cell, ccls::TERM_W);
         }
         let col_r = self.chip.columns.ids().last().unwrap();
         for cell in self.egrid.column(self.die, col_r) {
-            self.egrid.fill_conn_term_id(cell, ccls::TERM_E);
+            self.egrid.fill_conn_term(cell, ccls::TERM_E);
         }
     }
 
@@ -158,7 +158,7 @@ impl Expander<'_, '_> {
                     && !self.egrid[cell].conns.contains_id(defs::cslots::W)
                 {
                     self.egrid
-                        .fill_conn_pair_id(prev, cell, ccls::PASS_E, ccls::PASS_W);
+                        .fill_conn_pair(prev, cell, ccls::PASS_E, ccls::PASS_W);
                 }
                 if !self.egrid[cell].conns.contains_id(defs::cslots::E) {
                     prev = Some(cell);
@@ -178,7 +178,7 @@ impl Expander<'_, '_> {
                     && !self.egrid[cell].conns.contains_id(defs::cslots::S)
                 {
                     self.egrid
-                        .fill_conn_pair_id(prev, cell, ccls::PASS_N, ccls::PASS_S);
+                        .fill_conn_pair(prev, cell, ccls::PASS_N, ccls::PASS_S);
                 }
                 if !self.egrid[cell].conns.contains_id(defs::cslots::N) {
                     prev = Some(cell);
@@ -224,15 +224,11 @@ impl Expander<'_, '_> {
             for &row in &hard.rows_pcie {
                 let cell = self.die.cell(hard.col, row);
                 if row.to_idx() != 0 {
-                    self.egrid
-                        .fill_conn_term_id(cell.delta(-1, -1), ccls::TERM_N);
-                    self.egrid
-                        .fill_conn_term_id(cell.delta(0, -1), ccls::TERM_N);
+                    self.egrid.fill_conn_term(cell.delta(-1, -1), ccls::TERM_N);
+                    self.egrid.fill_conn_term(cell.delta(0, -1), ccls::TERM_N);
                 }
-                self.egrid
-                    .fill_conn_term_id(cell.delta(-1, 20), ccls::TERM_S);
-                self.egrid
-                    .fill_conn_term_id(cell.delta(0, 20), ccls::TERM_S);
+                self.egrid.fill_conn_term(cell.delta(-1, 20), ccls::TERM_S);
+                self.egrid.fill_conn_term(cell.delta(0, 20), ccls::TERM_S);
 
                 for dy in [0, 5, 10, 15] {
                     self.hard_skip.insert(row + dy);
@@ -298,7 +294,7 @@ impl Expander<'_, '_> {
                     self.egrid.add_tile_sn_id(cell, tcls::HCLK_IO, 4, 8);
                     if let Some(prev) = prev_hclk {
                         self.egrid
-                            .fill_conn_pair_id(prev, cell, ccls::IO_N, ccls::IO_S);
+                            .fill_conn_pair(prev, cell, ccls::IO_N, ccls::IO_S);
                     }
                     prev_hclk = Some(cell);
                 }
@@ -321,10 +317,10 @@ impl Expander<'_, '_> {
             if let Some(prev) = prev {
                 if reg < self.chip.reg_cfg {
                     self.egrid
-                        .fill_conn_pair_id(prev, cell_hclk, ccls::CLK_NEXT, ccls::CLK_PREV);
+                        .fill_conn_pair(prev, cell_hclk, ccls::CLK_NEXT, ccls::CLK_PREV);
                 } else {
                     self.egrid
-                        .fill_conn_pair_id(prev, cell_hclk, ccls::CLK_PREV, ccls::CLK_NEXT);
+                        .fill_conn_pair(prev, cell_hclk, ccls::CLK_PREV, ccls::CLK_NEXT);
                 }
             }
             prev = Some(cell_hclk);
@@ -349,7 +345,7 @@ impl Expander<'_, '_> {
                     ],
                 );
                 self.egrid
-                    .fill_conn_pair_id(cell_hclk, cell, ccls::CLK_NEXT, ccls::CLK_PREV);
+                    .fill_conn_pair(cell_hclk, cell, ccls::CLK_NEXT, ccls::CLK_PREV);
             } else {
                 // GCLK_BUF
             }
@@ -372,7 +368,7 @@ impl Expander<'_, '_> {
                     ],
                 );
                 self.egrid
-                    .fill_conn_pair_id(cell_hclk, cell, ccls::CLK_NEXT, ccls::CLK_PREV);
+                    .fill_conn_pair(cell_hclk, cell, ccls::CLK_NEXT, ccls::CLK_PREV);
                 prev = None;
             } else {
                 self.egrid.add_tile_n_id(cell, tcls::PMVIOB, 2);
@@ -446,14 +442,14 @@ impl Expander<'_, '_> {
             if let Some(col) = self.col_io_w {
                 let cell = prev.with_col(col);
                 self.egrid
-                    .fill_conn_pair_id(prev, cell, ccls::HCLK_ROW_PREV, cc);
+                    .fill_conn_pair(prev, cell, ccls::HCLK_ROW_PREV, cc);
                 prev = cell;
                 cc = ccls::HCLK_ROW_NEXT_PASS;
             }
             if let Some(col) = self.col_gt_w {
                 let cell = prev.with_col(col);
                 self.egrid
-                    .fill_conn_pair_id(prev, cell, ccls::HCLK_ROW_PREV, cc);
+                    .fill_conn_pair(prev, cell, ccls::HCLK_ROW_PREV, cc);
             }
             // east side
             let mut prev = self.die.cell(self.col_io_ie.unwrap(), row);
@@ -461,14 +457,14 @@ impl Expander<'_, '_> {
             if let Some(col) = self.col_io_e {
                 let cell = prev.with_col(col);
                 self.egrid
-                    .fill_conn_pair_id(prev, cell, ccls::HCLK_ROW_PREV, cc);
+                    .fill_conn_pair(prev, cell, ccls::HCLK_ROW_PREV, cc);
                 prev = cell;
                 cc = ccls::HCLK_ROW_NEXT_PASS;
             }
             if let Some(col) = self.col_gt_e {
                 let cell = prev.with_col(col);
                 self.egrid
-                    .fill_conn_pair_id(prev, cell, ccls::HCLK_ROW_PREV, cc);
+                    .fill_conn_pair(prev, cell, ccls::HCLK_ROW_PREV, cc);
             }
         }
     }

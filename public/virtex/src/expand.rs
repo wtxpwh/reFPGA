@@ -119,7 +119,7 @@ impl Expander<'_, '_> {
             let mut prev_cell = None;
             for cell in self.egrid.column(self.die, col) {
                 if let Some(prev) = prev_cell {
-                    self.egrid.fill_conn_pair_id(
+                    self.egrid.fill_conn_pair(
                         prev,
                         cell,
                         defs::ccls::PASS_N,
@@ -128,7 +128,7 @@ impl Expander<'_, '_> {
                 }
                 prev_cell = Some(cell);
                 if let Some(prev_col) = prev_col {
-                    self.egrid.fill_conn_pair_id(
+                    self.egrid.fill_conn_pair(
                         cell.with_col(prev_col),
                         cell,
                         defs::ccls::PASS_E,
@@ -188,7 +188,7 @@ impl Expander<'_, '_> {
                         cell.delta(1, 3),
                     ],
                 );
-                self.egrid.fill_conn_pair_id(
+                self.egrid.fill_conn_pair(
                     prev_cell,
                     cell,
                     defs::ccls::PASS_N,
@@ -201,7 +201,7 @@ impl Expander<'_, '_> {
             self.egrid
                 .add_tile_id(cell, tcls::BRAM_N, &[cell, cell.delta(-1, 0)]);
             self.egrid
-                .fill_conn_pair_id(prev_cell, cell, defs::ccls::PASS_N, defs::ccls::PASS_S);
+                .fill_conn_pair(prev_cell, cell, defs::ccls::PASS_N, defs::ccls::PASS_S);
 
             // special hack!
             for (wire, wname, _) in &self.db.wires {

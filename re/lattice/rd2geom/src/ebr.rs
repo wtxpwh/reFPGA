@@ -1,6 +1,9 @@
 use std::collections::{BTreeMap, BTreeSet, btree_map};
 
-use prjcombine_ecp::{chip::ChipKind, defs::bslots};
+use prjcombine_ecp::{
+    chip::ChipKind,
+    defs::{bslots, wires},
+};
 use prjcombine_interconnect::{
     db::{BelInfo, BelPin, LegacyBel, Mux, PinDir, SwitchBox, SwitchBoxItem, WireSlotIdExt},
     dir::DirH,
@@ -53,8 +56,16 @@ impl ChipContext<'_> {
                     _ => unreachable!(),
                 };
                 for i in 0..num {
-                    let iwire_i = self.intdb.get_wire(&format!("EBR_{dir}{i}_1")).cell(0);
-                    let iwire_o = self.intdb.get_wire(&format!("EBR_{dir}{i}_0")).cell(0);
+                    let iwire_i = match dir {
+                        DirH::W => wires::EBR_W1[i],
+                        DirH::E => wires::EBR_E1[i],
+                    }
+                    .cell(0);
+                    let iwire_o = match dir {
+                        DirH::W => wires::EBR_W0[i],
+                        DirH::E => wires::EBR_E0[i],
+                    }
+                    .cell(0);
                     x10_from_x10.insert(iwire_o, iwire_i);
                 }
             }
@@ -110,7 +121,22 @@ impl ChipContext<'_> {
                     }
 
                     if !pin.starts_with("EXTRA") {
-                        let out_wire = self.intdb.get_wire(&format!("OUT_EBR_{pin}")).cell(0);
+                        let out_wire = if let Some(idx) = pin.strip_prefix("DOA") {
+                            let idx: usize = idx.parse().unwrap();
+                            wires::OUT_EBR_DOA[idx]
+                        } else if let Some(idx) = pin.strip_prefix("DOB") {
+                            let idx: usize = idx.parse().unwrap();
+                            wires::OUT_EBR_DOB[idx]
+                        } else {
+                            match pin.as_str() {
+                                "FF" => wires::OUT_EBR_FF,
+                                "EF" => wires::OUT_EBR_EF,
+                                "AF" => wires::OUT_EBR_AF,
+                                "AE" => wires::OUT_EBR_AE,
+                                _ => panic!("umm {pin}"),
+                            }
+                        }
+                        .cell(0);
                         bel.pins.insert(pin.into(), BelPin::new_out(out_wire));
                         match ebr_to_int.entry(out_wire) {
                             btree_map::Entry::Vacant(e) => {
@@ -152,7 +178,33 @@ impl ChipContext<'_> {
                         }
                     }
 
-                    let imux_wire = self.intdb.get_wire(&format!("IMUX_EBR_{pin}")).cell(0);
+                    let imux_wire = if let Some(idx) = pin.strip_prefix("DIA") {
+                        let idx: usize = idx.parse().unwrap();
+                        wires::IMUX_EBR_DIA[idx]
+                    } else if let Some(idx) = pin.strip_prefix("DIB") {
+                        let idx: usize = idx.parse().unwrap();
+                        wires::IMUX_EBR_DIB[idx]
+                    } else if let Some(idx) = pin.strip_prefix("ADA") {
+                        let idx: usize = idx.parse().unwrap();
+                        wires::IMUX_EBR_ADA[idx - 3]
+                    } else if let Some(idx) = pin.strip_prefix("ADB") {
+                        let idx: usize = idx.parse().unwrap();
+                        wires::IMUX_EBR_ADB[idx - 3]
+                    } else {
+                        match pin.as_str() {
+                            "CLKA" => wires::IMUX_EBR_CLKA,
+                            "CLKB" => wires::IMUX_EBR_CLKB,
+                            "RSTA" => wires::IMUX_EBR_RSTA,
+                            "RSTB" => wires::IMUX_EBR_RSTB,
+                            "CEA" => wires::IMUX_EBR_CEA,
+                            "CEB" => wires::IMUX_EBR_CEB,
+                            "WEA" => wires::IMUX_EBR_WEA,
+                            "WEB" => wires::IMUX_EBR_WEB,
+                            _ => panic!("umm {pin}"),
+                        }
+                    }
+                    .cell(0);
+
                     bel.pins.insert(pin.into(), BelPin::new_out(imux_wire));
                     match ebr_from_int.entry(imux_wire) {
                         btree_map::Entry::Vacant(e) => {

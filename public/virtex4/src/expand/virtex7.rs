@@ -141,11 +141,11 @@ impl DieExpander<'_, '_, '_> {
             for dx in 0..6 {
                 if cell.row.to_idx() != 0 {
                     self.egrid
-                        .fill_conn_term_id(cell.delta(-6 + dx, -1), ccls::TERM_N);
+                        .fill_conn_term(cell.delta(-6 + dx, -1), ccls::TERM_N);
                 }
                 if cell.row.to_idx() != self.chip.regs * 50 - 100 {
                     self.egrid
-                        .fill_conn_term_id(cell.delta(-6 + dx, 100), ccls::TERM_S);
+                        .fill_conn_term(cell.delta(-6 + dx, 100), ccls::TERM_S);
                 }
             }
         }
@@ -167,12 +167,12 @@ impl DieExpander<'_, '_, '_> {
             if self.chip.regs != 2 {
                 for dx in 0..18 {
                     self.egrid
-                        .fill_conn_term_id(cell.delta(-18 + dx, -1), ccls::TERM_N);
+                        .fill_conn_term(cell.delta(-18 + dx, -1), ccls::TERM_N);
                 }
             }
             let tcells = cell.cells_n_const::<100>();
             for cell in tcells {
-                self.egrid.fill_conn_term_id(cell, ccls::TERM_W);
+                self.egrid.fill_conn_term(cell, ccls::TERM_W);
                 self.egrid.add_tile_single_id(cell, tcls::INTF);
             }
 
@@ -185,11 +185,9 @@ impl DieExpander<'_, '_, '_> {
             let cell = self.die.cell(pcie2.col, pcie2.row);
             for dx in 1..3 {
                 if cell.row.to_idx() != 0 {
-                    self.egrid
-                        .fill_conn_term_id(cell.delta(dx, -1), ccls::TERM_N);
+                    self.egrid.fill_conn_term(cell.delta(dx, -1), ccls::TERM_N);
                 }
-                self.egrid
-                    .fill_conn_term_id(cell.delta(dx, 25), ccls::TERM_S);
+                self.egrid.fill_conn_term(cell.delta(dx, 25), ccls::TERM_S);
             }
             let mut tcells = vec![];
             match pcie2.side {
@@ -213,10 +211,8 @@ impl DieExpander<'_, '_, '_> {
         for &(bc, br) in &self.chip.holes_pcie3 {
             let cell = self.die.cell(bc, br);
             for dx in 1..5 {
-                self.egrid
-                    .fill_conn_term_id(cell.delta(dx, -1), ccls::TERM_N);
-                self.egrid
-                    .fill_conn_term_id(cell.delta(dx, 50), ccls::TERM_S);
+                self.egrid.fill_conn_term(cell.delta(dx, -1), ccls::TERM_N);
+                self.egrid.fill_conn_term(cell.delta(dx, 50), ccls::TERM_S);
             }
             let mut tcells = vec![];
             tcells.extend(cell.cells_n_const::<50>());
@@ -239,54 +235,45 @@ impl DieExpander<'_, '_, '_> {
                         if is_l {
                             for dx in 1..19 {
                                 if cell.row.to_idx() != 0 {
-                                    self.egrid
-                                        .fill_conn_term_id(cell.delta(dx, -1), ccls::TERM_N);
+                                    self.egrid.fill_conn_term(cell.delta(dx, -1), ccls::TERM_N);
                                 }
                                 if cell.row.to_idx() + 50 != self.chip.regs * 50 {
-                                    self.egrid
-                                        .fill_conn_term_id(cell.delta(dx, 50), ccls::TERM_S);
+                                    self.egrid.fill_conn_term(cell.delta(dx, 50), ccls::TERM_S);
                                 }
                             }
                             for dy in 0..50 {
-                                self.egrid
-                                    .fill_conn_term_id(cell.delta(0, dy), ccls::TERM_E);
-                                self.egrid
-                                    .fill_conn_term_id(cell.delta(19, dy), ccls::TERM_W);
+                                self.egrid.fill_conn_term(cell.delta(0, dy), ccls::TERM_E);
+                                self.egrid.fill_conn_term(cell.delta(19, dy), ccls::TERM_W);
                             }
                         } else {
                             for dx in 1..19 {
                                 if cell.row.to_idx() != 0 {
                                     self.egrid
-                                        .fill_conn_term_id(cell.delta(-19 + dx, -1), ccls::TERM_N);
+                                        .fill_conn_term(cell.delta(-19 + dx, -1), ccls::TERM_N);
                                 }
                                 if cell.row.to_idx() + 50 != self.chip.regs * 50 {
                                     self.egrid
-                                        .fill_conn_term_id(cell.delta(-19 + dx, 50), ccls::TERM_S);
+                                        .fill_conn_term(cell.delta(-19 + dx, 50), ccls::TERM_S);
                                 }
                             }
                             for dy in 0..50 {
-                                self.egrid
-                                    .fill_conn_term_id(cell.delta(-19, dy), ccls::TERM_E);
-                                self.egrid
-                                    .fill_conn_term_id(cell.delta(0, dy), ccls::TERM_W);
+                                self.egrid.fill_conn_term(cell.delta(-19, dy), ccls::TERM_E);
+                                self.egrid.fill_conn_term(cell.delta(0, dy), ccls::TERM_W);
                             }
                         }
                     } else if !is_l && gtcol.col != self.chip.columns.last_id().unwrap() {
                         if reg.to_idx() != 0 && gtcol.regs[reg - 1].is_none() {
                             for dx in 1..7 {
-                                self.egrid
-                                    .fill_conn_term_id(cell.delta(dx, -1), ccls::TERM_N);
+                                self.egrid.fill_conn_term(cell.delta(dx, -1), ccls::TERM_N);
                             }
                         }
                         if reg.to_idx() != self.chip.regs - 1 && gtcol.regs[reg + 1].is_none() {
                             for dx in 1..7 {
-                                self.egrid
-                                    .fill_conn_term_id(cell.delta(dx, 50), ccls::TERM_S);
+                                self.egrid.fill_conn_term(cell.delta(dx, 50), ccls::TERM_S);
                             }
                         }
                         for dy in 0..50 {
-                            self.egrid
-                                .fill_conn_term_id(cell.delta(0, dy), ccls::TERM_E);
+                            self.egrid.fill_conn_term(cell.delta(0, dy), ccls::TERM_E);
                         }
                     }
                     for dy in 0..50 {
@@ -352,9 +339,9 @@ impl DieExpander<'_, '_, '_> {
         {
             if !self.is_int_hole(cell) {
                 if self.chip.has_no_tbuturn {
-                    self.egrid.fill_conn_term_id(cell, ccls::TERM_S_HOLE);
+                    self.egrid.fill_conn_term(cell, ccls::TERM_S_HOLE);
                 } else {
-                    self.egrid.fill_conn_term_id(cell, ccls::TERM_S);
+                    self.egrid.fill_conn_term(cell, ccls::TERM_S);
                 }
             }
         }
@@ -364,9 +351,9 @@ impl DieExpander<'_, '_, '_> {
         {
             if !self.is_int_hole(cell) {
                 if self.chip.has_no_tbuturn {
-                    self.egrid.fill_conn_term_id(cell, ccls::TERM_N_HOLE);
+                    self.egrid.fill_conn_term(cell, ccls::TERM_N_HOLE);
                 } else {
-                    self.egrid.fill_conn_term_id(cell, ccls::TERM_N);
+                    self.egrid.fill_conn_term(cell, ccls::TERM_N);
                 }
             }
         }
@@ -375,7 +362,7 @@ impl DieExpander<'_, '_, '_> {
             .column(self.die, self.egrid.cols(self.die).first().unwrap())
         {
             if !self.is_int_hole(cell) {
-                self.egrid.fill_conn_term_id(cell, ccls::TERM_W);
+                self.egrid.fill_conn_term(cell, ccls::TERM_W);
             }
         }
         for cell in self
@@ -383,7 +370,7 @@ impl DieExpander<'_, '_, '_> {
             .column(self.die, self.egrid.cols(self.die).last().unwrap())
         {
             if !self.is_int_hole(cell) {
-                self.egrid.fill_conn_term_id(cell, ccls::TERM_E);
+                self.egrid.fill_conn_term(cell, ccls::TERM_E);
             }
         }
         for reg in 1..self.chip.regs {
@@ -391,7 +378,7 @@ impl DieExpander<'_, '_, '_> {
                 let cell_s = cell_n.delta(0, -1);
                 if !self.is_int_hole(cell_s) && !self.is_int_hole(cell_n) {
                     self.egrid
-                        .fill_conn_pair_id(cell_s, cell_n, ccls::BRKH_N, ccls::BRKH_S);
+                        .fill_conn_pair(cell_s, cell_n, ccls::BRKH_N, ccls::BRKH_S);
                 }
             }
         }
@@ -409,7 +396,7 @@ impl DieExpander<'_, '_, '_> {
                     && !self.egrid[cell].conns.contains_id(defs::cslots::W)
                 {
                     self.egrid
-                        .fill_conn_pair_id(prev, cell, ccls::PASS_E, ccls::PASS_W);
+                        .fill_conn_pair(prev, cell, ccls::PASS_E, ccls::PASS_W);
                 }
                 if !self.egrid[cell].conns.contains_id(defs::cslots::E) {
                     prev = Some(cell);
@@ -429,7 +416,7 @@ impl DieExpander<'_, '_, '_> {
                     && !self.egrid[cell].conns.contains_id(defs::cslots::S)
                 {
                     self.egrid
-                        .fill_conn_pair_id(prev, cell, ccls::PASS_N, ccls::PASS_S);
+                        .fill_conn_pair(prev, cell, ccls::PASS_N, ccls::PASS_S);
                 }
                 if !self.egrid[cell].conns.contains_id(defs::cslots::N) {
                     prev = Some(cell);
@@ -487,7 +474,7 @@ impl DieExpander<'_, '_, '_> {
                     && cd == ColumnKind::Bram
                 {
                     self.egrid
-                        .fill_conn_pair_id(prev, cell, ccls::BRAM_N, ccls::BRAM_S);
+                        .fill_conn_pair(prev, cell, ccls::BRAM_N, ccls::BRAM_S);
                 }
                 prev = Some(cell);
             }
@@ -612,7 +599,7 @@ impl DieExpander<'_, '_, '_> {
                 }
 
                 if let Some(prev) = prev {
-                    self.egrid.fill_conn_pair_id(prev, cell, cc_n, cc_s);
+                    self.egrid.fill_conn_pair(prev, cell, cc_n, cc_s);
                 }
                 prev = Some(cell);
                 cc_s = ccls::IO_S;
@@ -649,10 +636,10 @@ impl DieExpander<'_, '_, '_> {
             if let Some(prev) = prev {
                 if reg < self.chip.reg_clk {
                     self.egrid
-                        .fill_conn_pair_id(prev, cell, ccls::CLK_NEXT, ccls::CLK_PREV);
+                        .fill_conn_pair(prev, cell, ccls::CLK_NEXT, ccls::CLK_PREV);
                 } else {
                     self.egrid
-                        .fill_conn_pair_id(prev, cell, ccls::CLK_PREV, ccls::CLK_NEXT);
+                        .fill_conn_pair(prev, cell, ccls::CLK_PREV, ccls::CLK_NEXT);
                 }
             }
             prev = Some(cell);
@@ -669,7 +656,7 @@ impl DieExpander<'_, '_, '_> {
                 let cell_bufg = self.die.cell(self.col_clk, self.chip.row_bufg() - 4);
                 self.egrid.add_tile_n_id(cell_bufg, tcls::CLK_BUFG_S, 4);
                 self.egrid
-                    .fill_conn_pair_id(cell, cell_bufg, ccls::CLK_NEXT, ccls::CLK_PREV);
+                    .fill_conn_pair(cell, cell_bufg, ccls::CLK_NEXT, ccls::CLK_PREV);
             }
         }
 
@@ -772,7 +759,7 @@ impl DieExpander<'_, '_, '_> {
                     )
                 {
                     if let Some(prev) = prev {
-                        self.egrid.fill_conn_pair_id(
+                        self.egrid.fill_conn_pair(
                             prev,
                             cell,
                             ccls::HCLK_ROW_NEXT,
@@ -783,7 +770,7 @@ impl DieExpander<'_, '_, '_> {
                 }
                 if cell.col == self.col_clk {
                     if let Some(prev) = prev {
-                        self.egrid.fill_conn_pair_id(
+                        self.egrid.fill_conn_pair(
                             prev,
                             cell,
                             ccls::HCLK_ROW_NEXT,
@@ -807,7 +794,7 @@ impl DieExpander<'_, '_, '_> {
                     )
                 {
                     if let Some(prev) = prev {
-                        self.egrid.fill_conn_pair_id(
+                        self.egrid.fill_conn_pair(
                             prev,
                             cell,
                             ccls::HCLK_ROW_NEXT,
@@ -818,7 +805,7 @@ impl DieExpander<'_, '_, '_> {
                 }
                 if cell.col == self.col_clk + 1 {
                     if let Some(prev) = prev {
-                        self.egrid.fill_conn_pair_id(
+                        self.egrid.fill_conn_pair(
                             prev,
                             cell,
                             ccls::HCLK_ROW_NEXT,

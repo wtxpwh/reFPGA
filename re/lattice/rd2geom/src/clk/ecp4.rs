@@ -2,7 +2,7 @@ use std::collections::{BTreeMap, btree_map};
 
 use prjcombine_ecp::{
     chip::{Chip, IoGroupKind, RowKind, SpecialLocKey},
-    defs::bslots,
+    defs::{bslots, wires},
 };
 use prjcombine_interconnect::{
     db::{BelPin, LegacyBel, WireSlotIdExt},
@@ -18,7 +18,7 @@ impl ChipContext<'_> {
         let mut hprx = BTreeMap::new();
         let mut roots = BTreeMap::new();
         for i in 0..20 {
-            let pclk = self.intdb.get_wire(&format!("PCLK{i}"));
+            let pclk = wires::PCLK[i];
             for (row_src, rd) in &self.chip.rows {
                 if rd.kind != RowKind::Ebr {
                     continue;
@@ -990,7 +990,7 @@ impl ChipContext<'_> {
             .enumerate()
         {
             for i in 0..20 {
-                let wire = self.intdb.get_wire(&format!("PCLK{i}")).cell(cell);
+                let wire = wires::PCLK[i].cell(cell);
                 bel.pins
                     .insert(format!("PCLK{i}_{hv}"), BelPin::new_out(wire));
 

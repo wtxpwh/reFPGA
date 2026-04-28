@@ -173,7 +173,7 @@ impl Chip {
                         }
                     }
                     if cell.col != self.col_w() {
-                        egrid.fill_conn_pair_id(
+                        egrid.fill_conn_pair(
                             cell.delta(-1, 0),
                             cell,
                             xc2000::ccls::PASS_E,
@@ -181,7 +181,7 @@ impl Chip {
                         );
                     }
                     if cell.row != self.row_s() {
-                        egrid.fill_conn_pair_id(
+                        egrid.fill_conn_pair(
                             cell.delta(0, -1),
                             cell,
                             xc2000::ccls::PASS_N,
@@ -388,7 +388,7 @@ impl Chip {
                         }
                     }
                     if cell.col != self.col_w() {
-                        egrid.fill_conn_pair_id(
+                        egrid.fill_conn_pair(
                             cell.delta(-1, 0),
                             cell,
                             xc3000::ccls::PASS_E,
@@ -396,7 +396,7 @@ impl Chip {
                         );
                     }
                     if cell.row != self.row_s() {
-                        egrid.fill_conn_pair_id(
+                        egrid.fill_conn_pair(
                             cell.delta(0, -1),
                             cell,
                             xc3000::ccls::PASS_N,
@@ -777,14 +777,14 @@ impl Chip {
                             && cell.row != self.row_s()
                             && cell.row != self.row_n()
                         {
-                            egrid.fill_conn_pair_id(
+                            egrid.fill_conn_pair(
                                 cell.delta(-1, 0),
                                 cell,
                                 xc4000::xc4000::ccls::PASS_E,
                                 xc4000::xc4000::ccls::PASS_CLB_W_W,
                             );
                         } else {
-                            egrid.fill_conn_pair_id(
+                            egrid.fill_conn_pair(
                                 cell.delta(-1, 0),
                                 cell,
                                 xc4000::xc4000::ccls::PASS_E,
@@ -797,14 +797,14 @@ impl Chip {
                             && cell.col != self.col_w()
                             && cell.col != self.col_e()
                         {
-                            egrid.fill_conn_pair_id(
+                            egrid.fill_conn_pair(
                                 cell.delta(0, -1),
                                 cell,
                                 xc4000::xc4000::ccls::PASS_CLB_N_N,
                                 xc4000::xc4000::ccls::PASS_S,
                             );
                         } else {
-                            egrid.fill_conn_pair_id(
+                            egrid.fill_conn_pair(
                                 cell.delta(0, -1),
                                 cell,
                                 xc4000::xc4000::ccls::PASS_N,
@@ -814,19 +814,19 @@ impl Chip {
                     }
                 }
 
-                egrid.fill_conn_term_id(
+                egrid.fill_conn_term(
                     die.cell(self.col_w(), self.row_s()),
                     xc4000::xc4000::ccls::CNR_SW,
                 );
-                egrid.fill_conn_term_id(
+                egrid.fill_conn_term(
                     die.cell(self.col_e(), self.row_s()),
                     xc4000::xc4000::ccls::CNR_SE,
                 );
-                egrid.fill_conn_term_id(
+                egrid.fill_conn_term(
                     die.cell(self.col_w(), self.row_n()),
                     xc4000::xc4000::ccls::CNR_NW,
                 );
-                egrid.fill_conn_term_id(
+                egrid.fill_conn_term(
                     die.cell(self.col_e(), self.row_n()),
                     xc4000::xc4000::ccls::CNR_NE,
                 );
@@ -927,7 +927,7 @@ impl Chip {
                         }
                     }
                     if cell.col != self.col_w() {
-                        egrid.fill_conn_pair_id(
+                        egrid.fill_conn_pair(
                             cell.delta(-1, 0),
                             cell,
                             xc5200::ccls::PASS_E,
@@ -935,7 +935,7 @@ impl Chip {
                         );
                     }
                     if cell.row != self.row_s() {
-                        egrid.fill_conn_pair_id(
+                        egrid.fill_conn_pair(
                             cell.delta(0, -1),
                             cell,
                             xc5200::ccls::PASS_N,
@@ -983,10 +983,10 @@ impl Chip {
                         });
                 }
 
-                egrid.fill_conn_term_id(die.cell(self.col_w(), self.row_s()), xc5200::ccls::CNR_SW);
-                egrid.fill_conn_term_id(die.cell(self.col_e(), self.row_s()), xc5200::ccls::CNR_SE);
-                egrid.fill_conn_term_id(die.cell(self.col_w(), self.row_n()), xc5200::ccls::CNR_NW);
-                egrid.fill_conn_term_id(die.cell(self.col_e(), self.row_n()), xc5200::ccls::CNR_NE);
+                egrid.fill_conn_term(die.cell(self.col_w(), self.row_s()), xc5200::ccls::CNR_SW);
+                egrid.fill_conn_term(die.cell(self.col_e(), self.row_s()), xc5200::ccls::CNR_SE);
+                egrid.fill_conn_term(die.cell(self.col_w(), self.row_n()), xc5200::ccls::CNR_NW);
+                egrid.fill_conn_term(die.cell(self.col_e(), self.row_n()), xc5200::ccls::CNR_NE);
 
                 for row in egrid.rows(die) {
                     if row == self.row_mid() {

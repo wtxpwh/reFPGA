@@ -100,7 +100,7 @@ impl Chip {
 
         for cell in egrid.die_cells(die) {
             if cell.col != self.col_w() {
-                egrid.fill_conn_pair_id(
+                egrid.fill_conn_pair(
                     cell.delta(-1, 0),
                     cell,
                     defs::ccls::PASS_E,
@@ -108,7 +108,7 @@ impl Chip {
                 );
             }
             if cell.row != self.row_s() {
-                egrid.fill_conn_pair_id(
+                egrid.fill_conn_pair(
                     cell.delta(0, -1),
                     cell,
                     defs::ccls::PASS_N,

@@ -2,7 +2,7 @@ use std::collections::{BTreeMap, btree_map};
 
 use prjcombine_ecp::{
     chip::{Chip, ChipKind, IoGroupKind, RowKind, SpecialIoKey, SpecialLocKey},
-    defs::bslots,
+    defs::{bslots, wires},
 };
 use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
@@ -571,11 +571,10 @@ impl ChipContext<'_> {
                     self.claim_pip(sdclk_root, sclk_in[&SpecialLocKey::SclkIn(e, si)]);
                 }
             }
-            for (w, name) in [("TIE0", "GND"), ("TIE1", "VCC")] {
+            for (w, name) in [(wires::TIE0, "GND"), (wires::TIE1, "VCC")] {
                 let col = self.chip.col_edge(hv.h);
                 let row = self.chip.row_edge(hv.v);
-                let wire = self.naming.interconnect
-                    [&Chip::DIE.cell(col, row).wire(self.intdb.get_wire(w))];
+                let wire = self.naming.interconnect[&Chip::DIE.cell(col, row).wire(w)];
                 let wire = self.find_single_in(wire);
                 self.add_bel_wire(bcrd, format!("{name}_{hv}"), wire);
                 let (row_s, row_n) = match hv.v {
@@ -583,8 +582,7 @@ impl ChipContext<'_> {
                     DirV::N => (self.chip.row_clk, self.chip.row_n() + 1),
                 };
                 for row in row_s.range(row_n) {
-                    let wire_int = self.naming.interconnect
-                        [&Chip::DIE.cell(col, row).wire(self.intdb.get_wire(w))];
+                    let wire_int = self.naming.interconnect[&Chip::DIE.cell(col, row).wire(w)];
                     self.claim_pip(wire_int, wire);
                 }
                 for ll in ["LL", "UL", "LR", "UR"] {
@@ -662,46 +660,39 @@ impl ChipContext<'_> {
                     pclk_idx.extend([(idx + 1) % 4, (idx + 1) % 4 + 4]);
                 }
                 for &i in &pclk_idx {
-                    let wire_n = self.naming.interconnect
-                        [&cell.wire(self.intdb.get_wire(&format!("PCLK{i}")))];
+                    let wire_n = self.naming.interconnect[&cell.wire(wires::RPCLK[i])];
                     let wire_n = self.find_single_in(wire_n);
                     self.add_bel_wire(cell.bel(bslots::INT), format!("PCLK{i}_N"), wire_n);
                     vptx_wires_n.insert((cell.col, i), wire_n);
                     for row in cell.row.range(row_n) {
-                        let wire = self.naming.interconnect[&cell
-                            .with_row(row)
-                            .wire(self.intdb.get_wire(&format!("PCLK{i}")))];
+                        let wire =
+                            self.naming.interconnect[&cell.with_row(row).wire(wires::RPCLK[i])];
                         self.claim_pip(wire, wire_n);
                     }
 
-                    let wire_s = self.naming.interconnect[&cell
-                        .delta(0, -1)
-                        .wire(self.intdb.get_wire(&format!("PCLK{i}")))];
+                    let wire_s = self.naming.interconnect[&cell.delta(0, -1).wire(wires::RPCLK[i])];
                     let wire_s = self.find_single_in(wire_s);
                     self.add_bel_wire(cell.bel(bslots::INT), format!("PCLK{i}_S"), wire_s);
                     vptx_wires_s.insert((cell.col, i), wire_s);
                     for row in row_s.range(cell.row) {
-                        let wire = self.naming.interconnect[&cell
-                            .with_row(row)
-                            .wire(self.intdb.get_wire(&format!("PCLK{i}")))];
+                        let wire =
+                            self.naming.interconnect[&cell.with_row(row).wire(wires::RPCLK[i])];
                         self.claim_pip(wire, wire_s);
                     }
 
                     if is_bot
-                        && let Some(&wire_ss) = self.naming.interconnect.get(
-                            &cell
-                                .with_row(self.chip.row_s())
-                                .wire(self.intdb.get_wire(&format!("PCLK{i}"))),
-                        )
+                        && let Some(&wire_ss) = self
+                            .naming
+                            .interconnect
+                            .get(&cell.with_row(self.chip.row_s()).wire(wires::RPCLK[i]))
                     {
                         let wire_ss = self.find_single_in(wire_ss);
                         vptx_wires_ss.insert((cell.col, i), wire_ss);
                         self.add_bel_wire(cell.bel(bslots::INT), format!("PCLK{i}_SS"), wire_ss);
                         self.claim_pip(wire_ss, wire_s);
                         for row in self.chip.row_s().range(row_s) {
-                            let wire = self.naming.interconnect[&cell
-                                .with_row(row)
-                                .wire(self.intdb.get_wire(&format!("PCLK{i}")))];
+                            let wire =
+                                self.naming.interconnect[&cell.with_row(row).wire(wires::RPCLK[i])];
                             self.claim_pip(wire, wire_ss);
                         }
                     }
@@ -750,7 +741,7 @@ impl ChipContext<'_> {
                     }
                     let mut bel = LegacyBel::default();
 
-                    let pclk = self.intdb.get_wire(&format!("PCLK{pclk_i}"));
+                    let pclk = wires::RPCLK[pclk_i];
                     bel.pins
                         .insert("OUT_S".into(), BelPin::new_out(pclk.cell(1)));
                     bel.pins
@@ -855,7 +846,7 @@ impl ChipContext<'_> {
                 self.name_bel_null(bcrd);
                 let mut bel = LegacyBel::default();
                 for i in pclk_idx {
-                    let pclk = self.intdb.get_wire(&format!("PCLK{i}"));
+                    let pclk = wires::RPCLK[i];
                     bel.pins
                         .insert(format!("OUT_S{i}"), BelPin::new_out(pclk.cell(1)));
                     bel.pins

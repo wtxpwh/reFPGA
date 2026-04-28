@@ -2,8 +2,7 @@ use std::collections::BTreeSet;
 
 use prjcombine_ecp::{
     chip::{ChipKind, RowKind},
-    defs::bslots,
-    defs::cslots,
+    defs::{bslots, cslots, wiredata, wires},
 };
 use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
@@ -27,11 +26,11 @@ impl ChipContext<'_> {
                 ("V", "T") => Dir::N,
                 _ => unreachable!(),
             };
-            let idx: u8 = suffix[4..6].parse().unwrap();
+            let idx: usize = suffix[4..6].parse().unwrap();
             let seg: u8 = suffix[6..8].parse().unwrap();
             assert!(seg <= 1);
             let mut cell = self.chip.xlat_rc_wire(wn);
-            let conn_bwd = self.intdb.get_conn_slot(&(!dir).to_string());
+            let conn_bwd = wiredata::CONNS[!dir];
             if seg != 0 {
                 if let Some(conn) = self.edev[cell].conns.get(conn_bwd)
                     && let Some(target) = conn.target
@@ -41,14 +40,20 @@ impl ChipContext<'_> {
                     return vec![];
                 }
             }
-            let wire = cell.wire(self.intdb.get_wire(&format!("X0_{dir}{idx}")));
+            let wire = match dir {
+                Dir::W => wires::X0_W[idx],
+                Dir::E => wires::X0_E[idx],
+                Dir::S => wires::X0_S[idx],
+                Dir::N => wires::X0_N[idx],
+            };
+            let wire = cell.wire(wire);
             vec![wire]
         } else if (suffix.starts_with("H0") || suffix.starts_with("V0")) && &suffix[3..4] != "M" {
             let mut result = vec![];
             assert_eq!(suffix.len(), 8);
-            let len: u8 = suffix[1..3].parse().unwrap();
-            let mut idx: u8 = suffix[4..6].parse().unwrap();
-            let mut seg: u8 = suffix[6..8].parse().unwrap();
+            let len: usize = suffix[1..3].parse().unwrap();
+            let mut idx: usize = suffix[4..6].parse().unwrap();
+            let mut seg: usize = suffix[6..8].parse().unwrap();
             let dir = match (&suffix[0..1], &suffix[3..4]) {
                 ("H", "W") => Dir::W,
                 ("H", "E") => Dir::E,
@@ -68,8 +73,8 @@ impl ChipContext<'_> {
             };
             assert!(seg <= len);
             let mut cell = self.chip.xlat_rc_wire(wn);
-            let conn_fwd = self.intdb.get_conn_slot(&dir.to_string());
-            let conn_bwd = self.intdb.get_conn_slot(&(!dir).to_string());
+            let conn_fwd = wiredata::CONNS[dir];
+            let conn_bwd = wiredata::CONNS[!dir];
             if self.has_v01b.contains(&cell) && dir == Dir::N && len == 6 && seg == 4 {
                 // hwaet.
                 seg = 3;
@@ -85,7 +90,22 @@ impl ChipContext<'_> {
                 }
             }
             while seg <= len {
-                let wire = cell.wire(self.intdb.get_wire(&format!("X{len}_{dir}{idx}_{seg}")));
+                let wire = match (len, dir) {
+                    (1, Dir::W) => wiredata::X1_W[seg][idx],
+                    (1, Dir::E) => wiredata::X1_E[seg][idx],
+                    (1, Dir::S) => wiredata::X1_S[seg][idx],
+                    (1, Dir::N) => wiredata::X1_N[seg][idx],
+                    (2, Dir::W) => wiredata::X2_W[seg][idx],
+                    (2, Dir::E) => wiredata::X2_E[seg][idx],
+                    (2, Dir::S) => wiredata::X2_S[seg][idx],
+                    (2, Dir::N) => wiredata::X2_N[seg][idx],
+                    (6, Dir::W) => wiredata::X6_W[seg][idx],
+                    (6, Dir::E) => wiredata::X6_E[seg][idx],
+                    (6, Dir::S) => wiredata::X6_S[seg][idx],
+                    (6, Dir::N) => wiredata::X6_N[seg][idx],
+                    _ => panic!("ummm X{len}_{dir}"),
+                };
+                let wire = cell.wire(wire);
                 result.push(wire);
                 if let Some(conn) = self.edev[cell].conns.get(conn_fwd)
                     && let Some(target) = conn.target
@@ -99,7 +119,7 @@ impl ChipContext<'_> {
             result
         } else if suffix.starts_with("HPBX") || suffix.starts_with("HSBX") {
             assert_eq!(suffix.len(), 8);
-            let mut idx: u8 = suffix[4..6].parse().unwrap();
+            let mut idx: usize = suffix[4..6].parse().unwrap();
             if self.chip.kind == ChipKind::Crosslink {
                 idx = match idx {
                     2..6 => idx - 2,
@@ -108,11 +128,6 @@ impl ChipContext<'_> {
                 };
             }
             let is_sclk = suffix.starts_with("HSBX");
-            let w = if is_sclk {
-                format!("SCLK{idx}")
-            } else {
-                format!("PCLK{idx}")
-            };
             if (is_sclk && self.chip.kind.has_distributed_sclk())
                 || (!is_sclk && self.chip.kind == ChipKind::Scm)
             {
@@ -123,7 +138,26 @@ impl ChipContext<'_> {
             } else {
                 assert!(suffix.ends_with("00"));
             }
-            let wire = self.intdb.get_wire(&w);
+            let wire = if is_sclk {
+                if self.chip.kind == ChipKind::Scm {
+                    wires::DSCLK[idx]
+                } else if self.chip.kind.has_distributed_sclk() {
+                    wires::RSCLK[idx]
+                } else if matches!(
+                    self.chip.kind,
+                    ChipKind::Ecp | ChipKind::Xp | ChipKind::MachXo
+                ) {
+                    wires::PCLK[idx + 4]
+                } else {
+                    panic!("ummmm {suffix}")
+                }
+            } else {
+                if self.chip.kind.has_distributed_sclk_ecp3() {
+                    wires::RPCLK[idx]
+                } else {
+                    wires::PCLK[idx]
+                }
+            };
             let cell = self.chip.xlat_rc_wire(wn);
             match self.chip.kind {
                 ChipKind::Ecp | ChipKind::Xp | ChipKind::MachXo => {
@@ -224,20 +258,20 @@ impl ChipContext<'_> {
             } else {
                 assert!(suffix.ends_with("00"));
             }
-            let wire = self.intdb.get_wire(&format!("SCLK{idx}"));
+            let wire = wires::DSCLK[idx];
             let wire = cell.wire(wire);
             let mut res = vec![wire];
             if let Some(cell_w) = self.edev.cell_delta(cell, -1, 0)
                 && self.edev.has_bel(cell_w.bel(bslots::INT))
             {
-                let wire = self.intdb.get_wire(&format!("SCLK{idx}_W"));
+                let wire = wires::DSCLK_W[idx];
                 let wire = cell_w.wire(wire);
                 res.push(wire);
             }
             if let Some(cell_e) = self.edev.cell_delta(cell, 1, 0)
                 && self.edev.has_bel(cell_e.bel(bslots::INT))
             {
-                let wire = self.intdb.get_wire(&format!("SCLK{idx}_E"));
+                let wire = wires::DSCLK_E[idx];
                 let wire = cell_e.wire(wire);
                 res.push(wire);
             }
@@ -247,7 +281,7 @@ impl ChipContext<'_> {
         {
             assert_eq!(suffix.len(), 8);
             let idx: u8 = suffix[4..6].parse().unwrap();
-            let mut seg: u8 = suffix[6..8].parse().unwrap();
+            let mut seg: usize = suffix[6..8].parse().unwrap();
             assert_eq!(idx, 0);
             if suffix.starts_with("VSBB") {
                 assert_eq!(seg, 0);
@@ -268,7 +302,7 @@ impl ChipContext<'_> {
             }
             let mut result = vec![];
             while seg <= 6 {
-                let wire = cell.wire(self.intdb.get_wire(&format!("VSDCLK{seg}")));
+                let wire = cell.wire(wires::DSCLK_V[seg]);
                 result.push(wire);
                 if let Some(conn) = self.edev[cell].conns.get(cslots::N)
                     && let Some(target) = conn.target
@@ -285,7 +319,7 @@ impl ChipContext<'_> {
         {
             assert_eq!(suffix.len(), 8);
             let idx: u8 = suffix[4..6].parse().unwrap();
-            let seg: u8 = suffix[6..8].parse().unwrap();
+            let seg: usize = suffix[6..8].parse().unwrap();
             assert_eq!(idx, 0);
             if suffix.starts_with("HSCX") {
                 assert!(matches!(seg, 1 | 2 | 4));
@@ -293,7 +327,7 @@ impl ChipContext<'_> {
                 assert_eq!(seg, 3);
             }
             let cell = self.chip.xlat_rc_wire(wn);
-            let wire = cell.wire(self.intdb.get_wire(&format!("HSDCLK{seg}")));
+            let wire = cell.wire(wires::DSCLK_H[seg]);
             let wire = self.edev.resolve_wire(wire).unwrap();
             self.edev.wire_tree(wire)
         } else if suffix.starts_with("HSSX") && suffix.len() == 8 {
@@ -307,7 +341,7 @@ impl ChipContext<'_> {
                 assert_eq!(idx % 4, self.chip.col_sclk_idx(cell.col));
                 idx / 4 * 4
             };
-            let wire = self.intdb.get_wire(&format!("HSDCLK{idx}"));
+            let wire = wires::RSCLK_H[idx];
             let wire = cell.wire(wire);
             let wire = self.edev.resolve_wire(wire).unwrap();
             self.edev.wire_tree(wire)
@@ -337,35 +371,38 @@ impl ChipContext<'_> {
                     _ => unreachable!(),
                 }
             };
-            let wire = self.intdb.get_wire(&format!("VSDCLK{idx}"));
+            let wire = wires::RSCLK_V[idx];
             let wire = cell.wire(wire);
             let wire = self.edev.resolve_wire(wire).unwrap();
             self.edev.wire_tree(wire)
         } else if let Some(w) = match suffix.as_str() {
             "HL7W0000" if self.chip.kind.has_ecp_plc() && self.chip.kind.has_out_ofx_branch() => {
-                Some("OUT_OFX3_W")
+                Some(wires::OUT_OFX_W[3])
             }
             "HL7W0001" if !self.chip.kind.has_ecp_plc() && self.chip.kind.has_out_ofx_branch() => {
                 if matches!(self.chip.kind, ChipKind::Ecp5 | ChipKind::Crosslink) {
-                    Some("OUT_F3_W")
+                    Some(wires::OUT_F_W[3])
                 } else {
-                    Some("OUT_OFX3_W")
+                    Some(wires::OUT_OFX_W[3])
                 }
             }
-            "HF0W0000" if self.chip.kind.has_out_f_branch() => Some("OUT_F0_W"),
-            "HF1W0000" if self.chip.kind.has_out_f_branch() => Some("OUT_F1_W"),
-            "HF2W0000" if self.chip.kind.has_out_f_branch() => Some("OUT_F2_W"),
+            "HF0W0000" if self.chip.kind.has_out_f_branch() => Some(wires::OUT_F_W[0]),
+            "HF1W0000" if self.chip.kind.has_out_f_branch() => Some(wires::OUT_F_W[1]),
+            "HF2W0000" if self.chip.kind.has_out_f_branch() => Some(wires::OUT_F_W[2]),
             _ => None,
         } {
             let cell = self.chip.xlat_rc_wire(wn);
             if cell.col == self.chip.col_w() {
                 return vec![];
             }
-            vec![cell.delta(-1, 0).wire(self.intdb.get_wire(w))]
+            vec![cell.delta(-1, 0).wire(w)]
         } else if matches!(suffix.as_str(), "GND" | "VCC") {
-            let w = if suffix == "VCC" { "TIE1" } else { "TIE0" };
+            let w = if suffix == "VCC" {
+                wires::TIE1
+            } else {
+                wires::TIE0
+            };
             let cell = self.chip.xlat_rc_wire(wn);
-            let w = self.intdb.get_wire(w);
             if matches!(self.chip.kind, ChipKind::Ecp3 | ChipKind::Ecp3A)
                 && cell.row <= self.chip.row_s() + 9
             {
@@ -409,116 +446,116 @@ impl ChipContext<'_> {
             }
         } else {
             let w = match suffix.as_str() {
-                "A0" | "JA0" => "IMUX_A0",
-                "A1" | "JA1" => "IMUX_A1",
-                "A2" | "JA2" => "IMUX_A2",
-                "A3" | "JA3" => "IMUX_A3",
-                "A4" | "JA4" => "IMUX_A4",
-                "A5" | "JA5" => "IMUX_A5",
-                "A6" | "JA6" => "IMUX_A6",
-                "A7" | "JA7" => "IMUX_A7",
-                "B0" | "JB0" => "IMUX_B0",
-                "B1" | "JB1" => "IMUX_B1",
-                "B2" | "JB2" => "IMUX_B2",
-                "B3" | "JB3" => "IMUX_B3",
-                "B4" | "JB4" => "IMUX_B4",
-                "B5" | "JB5" => "IMUX_B5",
-                "B6" | "JB6" => "IMUX_B6",
-                "B7" | "JB7" => "IMUX_B7",
-                "C0" | "JC0" => "IMUX_C0",
-                "C1" | "JC1" => "IMUX_C1",
-                "C2" | "JC2" => "IMUX_C2",
-                "C3" | "JC3" => "IMUX_C3",
-                "C4" | "JC4" => "IMUX_C4",
-                "C5" | "JC5" => "IMUX_C5",
-                "C6" | "JC6" => "IMUX_C6",
-                "C7" | "JC7" => "IMUX_C7",
-                "D0" | "JD0" => "IMUX_D0",
-                "D1" | "JD1" => "IMUX_D1",
-                "D2" | "JD2" => "IMUX_D2",
-                "D3" | "JD3" => "IMUX_D3",
-                "D4" | "JD4" => "IMUX_D4",
-                "D5" | "JD5" => "IMUX_D5",
-                "D6" | "JD6" => "IMUX_D6",
-                "D7" | "JD7" => "IMUX_D7",
-                "M0" | "JM0" => "IMUX_M0",
-                "M1" | "JM1" => "IMUX_M1",
-                "M2" | "JM2" => "IMUX_M2",
-                "M3" | "JM3" => "IMUX_M3",
-                "M4" | "JM4" => "IMUX_M4",
-                "M5" | "JM5" => "IMUX_M5",
-                "M6" | "JM6" => "IMUX_M6",
-                "M7" | "JM7" => "IMUX_M7",
-                "JCLK0" if self.chip.kind == ChipKind::Ecp4 => "IMUX_CLK0_DELAY",
-                "JCLK1" if self.chip.kind == ChipKind::Ecp4 => "IMUX_CLK1_DELAY",
-                "MUXCLK0" => "IMUX_MUXCLK0",
-                "MUXCLK1" => "IMUX_MUXCLK1",
-                "MUXCLK2" => "IMUX_MUXCLK2",
-                "MUXCLK3" => "IMUX_MUXCLK3",
-                "MUXLSR0" => "IMUX_MUXLSR0",
-                "MUXLSR1" => "IMUX_MUXLSR1",
-                "MUXLSR2" => "IMUX_MUXLSR2",
-                "MUXLSR3" => "IMUX_MUXLSR3",
-                "CLK0" | "JCLK0" => "IMUX_CLK0",
-                "CLK1" | "JCLK1" => "IMUX_CLK1",
-                "CLK2" | "JCLK2" => "IMUX_CLK2",
-                "CLK3" | "JCLK3" => "IMUX_CLK3",
-                "LSR0" | "JLSR0" => "IMUX_LSR0",
-                "LSR1" | "JLSR1" => "IMUX_LSR1",
-                "LSR2" | "JLSR2" => "IMUX_LSR2",
-                "LSR3" | "JLSR3" => "IMUX_LSR3",
-                "CE0" | "JCE0" => "IMUX_CE0",
-                "CE1" | "JCE1" => "IMUX_CE1",
-                "CE2" | "JCE2" => "IMUX_CE2",
-                "CE3" | "JCE3" => "IMUX_CE3",
-                "F0" | "JF0" => "OUT_F0",
-                "F1" | "JF1" => "OUT_F1",
-                "F2" | "JF2" => "OUT_F2",
-                "F3" | "JF3" => "OUT_F3",
-                "F4" | "JF4" => "OUT_F4",
-                "F5" | "JF5" => "OUT_F5",
-                "F6" | "JF6" => "OUT_F6",
-                "F7" | "JF7" => "OUT_F7",
-                "Q0" | "JQ0" => "OUT_Q0",
-                "Q1" | "JQ1" => "OUT_Q1",
-                "Q2" | "JQ2" => "OUT_Q2",
-                "Q3" | "JQ3" => "OUT_Q3",
-                "Q4" | "JQ4" => "OUT_Q4",
-                "Q5" | "JQ5" => "OUT_Q5",
-                "Q6" | "JQ6" => "OUT_Q6",
-                "Q7" | "JQ7" => "OUT_Q7",
-                "OFX0" | "JOFX0" => "OUT_OFX0",
-                "OFX1" | "JOFX1" => "OUT_OFX1",
-                "OFX2" | "JOFX2" => "OUT_OFX2",
-                "OFX3" | "JOFX3" => "OUT_OFX3",
-                "OFX4" | "JOFX4" => "OUT_OFX4",
-                "OFX5" | "JOFX5" => "OUT_OFX5",
-                "OFX6" | "JOFX6" => "OUT_OFX6",
-                "OFX7" | "JOFX7" => "OUT_OFX7",
-                "JTI0" => "OUT_TI0",
-                "JTI1" => "OUT_TI1",
-                "JTI2" => "OUT_TI2",
-                "JTI3" => "OUT_TI3",
-                "JTI4" => "OUT_TI4",
-                "JTI5" => "OUT_TI5",
-                "JTI6" => "OUT_TI6",
-                "JTI7" => "OUT_TI7",
-                "JTI8" => "OUT_TI8",
-                "JTI9" => "OUT_TI9",
-                "JTI10" => "OUT_TI10",
-                "JTI11" => "OUT_TI11",
-                "HF4E0001" if self.chip.kind.has_out_f_branch() => "OUT_F4_E",
-                "HF5E0001" if self.chip.kind.has_out_f_branch() => "OUT_F5_E",
-                "HF6E0001" if self.chip.kind.has_out_f_branch() => "OUT_F6_E",
-                "HF7E0001" if self.chip.kind.has_out_f_branch() => "OUT_F7_E",
-                "H01M0100" => "X1_H1",
-                "H01M0400" => "X1_H4",
-                "V01M0100" => "X1_V1",
-                "V01M0400" => "X1_V4",
+                "A0" | "JA0" => wires::IMUX_A[0],
+                "A1" | "JA1" => wires::IMUX_A[1],
+                "A2" | "JA2" => wires::IMUX_A[2],
+                "A3" | "JA3" => wires::IMUX_A[3],
+                "A4" | "JA4" => wires::IMUX_A[4],
+                "A5" | "JA5" => wires::IMUX_A[5],
+                "A6" | "JA6" => wires::IMUX_A[6],
+                "A7" | "JA7" => wires::IMUX_A[7],
+                "B0" | "JB0" => wires::IMUX_B[0],
+                "B1" | "JB1" => wires::IMUX_B[1],
+                "B2" | "JB2" => wires::IMUX_B[2],
+                "B3" | "JB3" => wires::IMUX_B[3],
+                "B4" | "JB4" => wires::IMUX_B[4],
+                "B5" | "JB5" => wires::IMUX_B[5],
+                "B6" | "JB6" => wires::IMUX_B[6],
+                "B7" | "JB7" => wires::IMUX_B[7],
+                "C0" | "JC0" => wires::IMUX_C[0],
+                "C1" | "JC1" => wires::IMUX_C[1],
+                "C2" | "JC2" => wires::IMUX_C[2],
+                "C3" | "JC3" => wires::IMUX_C[3],
+                "C4" | "JC4" => wires::IMUX_C[4],
+                "C5" | "JC5" => wires::IMUX_C[5],
+                "C6" | "JC6" => wires::IMUX_C[6],
+                "C7" | "JC7" => wires::IMUX_C[7],
+                "D0" | "JD0" => wires::IMUX_D[0],
+                "D1" | "JD1" => wires::IMUX_D[1],
+                "D2" | "JD2" => wires::IMUX_D[2],
+                "D3" | "JD3" => wires::IMUX_D[3],
+                "D4" | "JD4" => wires::IMUX_D[4],
+                "D5" | "JD5" => wires::IMUX_D[5],
+                "D6" | "JD6" => wires::IMUX_D[6],
+                "D7" | "JD7" => wires::IMUX_D[7],
+                "M0" | "JM0" => wires::IMUX_M[0],
+                "M1" | "JM1" => wires::IMUX_M[1],
+                "M2" | "JM2" => wires::IMUX_M[2],
+                "M3" | "JM3" => wires::IMUX_M[3],
+                "M4" | "JM4" => wires::IMUX_M[4],
+                "M5" | "JM5" => wires::IMUX_M[5],
+                "M6" | "JM6" => wires::IMUX_M[6],
+                "M7" | "JM7" => wires::IMUX_M[7],
+                "JCLK0" if self.chip.kind == ChipKind::Ecp4 => wires::IMUX_CLK_DELAY[0],
+                "JCLK1" if self.chip.kind == ChipKind::Ecp4 => wires::IMUX_CLK_DELAY[1],
+                "MUXCLK0" => wires::IMUX_MUXCLK[0],
+                "MUXCLK1" => wires::IMUX_MUXCLK[1],
+                "MUXCLK2" => wires::IMUX_MUXCLK[2],
+                "MUXCLK3" => wires::IMUX_MUXCLK[3],
+                "MUXLSR0" => wires::IMUX_MUXLSR[0],
+                "MUXLSR1" => wires::IMUX_MUXLSR[1],
+                "MUXLSR2" => wires::IMUX_MUXLSR[2],
+                "MUXLSR3" => wires::IMUX_MUXLSR[3],
+                "CLK0" | "JCLK0" => wires::IMUX_CLK[0],
+                "CLK1" | "JCLK1" => wires::IMUX_CLK[1],
+                "CLK2" | "JCLK2" => wires::IMUX_CLK[2],
+                "CLK3" | "JCLK3" => wires::IMUX_CLK[3],
+                "LSR0" | "JLSR0" => wires::IMUX_LSR[0],
+                "LSR1" | "JLSR1" => wires::IMUX_LSR[1],
+                "LSR2" | "JLSR2" => wires::IMUX_LSR[2],
+                "LSR3" | "JLSR3" => wires::IMUX_LSR[3],
+                "CE0" | "JCE0" => wires::IMUX_CE[0],
+                "CE1" | "JCE1" => wires::IMUX_CE[1],
+                "CE2" | "JCE2" => wires::IMUX_CE[2],
+                "CE3" | "JCE3" => wires::IMUX_CE[3],
+                "F0" | "JF0" => wires::OUT_F[0],
+                "F1" | "JF1" => wires::OUT_F[1],
+                "F2" | "JF2" => wires::OUT_F[2],
+                "F3" | "JF3" => wires::OUT_F[3],
+                "F4" | "JF4" => wires::OUT_F[4],
+                "F5" | "JF5" => wires::OUT_F[5],
+                "F6" | "JF6" => wires::OUT_F[6],
+                "F7" | "JF7" => wires::OUT_F[7],
+                "Q0" | "JQ0" => wires::OUT_Q[0],
+                "Q1" | "JQ1" => wires::OUT_Q[1],
+                "Q2" | "JQ2" => wires::OUT_Q[2],
+                "Q3" | "JQ3" => wires::OUT_Q[3],
+                "Q4" | "JQ4" => wires::OUT_Q[4],
+                "Q5" | "JQ5" => wires::OUT_Q[5],
+                "Q6" | "JQ6" => wires::OUT_Q[6],
+                "Q7" | "JQ7" => wires::OUT_Q[7],
+                "OFX0" | "JOFX0" => wires::OUT_OFX[0],
+                "OFX1" | "JOFX1" => wires::OUT_OFX[1],
+                "OFX2" | "JOFX2" => wires::OUT_OFX[2],
+                "OFX3" | "JOFX3" => wires::OUT_OFX[3],
+                "OFX4" | "JOFX4" => wires::OUT_OFX[4],
+                "OFX5" | "JOFX5" => wires::OUT_OFX[5],
+                "OFX6" | "JOFX6" => wires::OUT_OFX[6],
+                "OFX7" | "JOFX7" => wires::OUT_OFX[7],
+                "JTI0" => wires::OUT_TI[0],
+                "JTI1" => wires::OUT_TI[1],
+                "JTI2" => wires::OUT_TI[2],
+                "JTI3" => wires::OUT_TI[3],
+                "JTI4" => wires::OUT_TI[4],
+                "JTI5" => wires::OUT_TI[5],
+                "JTI6" => wires::OUT_TI[6],
+                "JTI7" => wires::OUT_TI[7],
+                "JTI8" => wires::OUT_TI[8],
+                "JTI9" => wires::OUT_TI[9],
+                "JTI10" => wires::OUT_TI[10],
+                "JTI11" => wires::OUT_TI[11],
+                "HF4E0001" if self.chip.kind.has_out_f_branch() => wires::OUT_F_E[4],
+                "HF5E0001" if self.chip.kind.has_out_f_branch() => wires::OUT_F_E[5],
+                "HF6E0001" if self.chip.kind.has_out_f_branch() => wires::OUT_F_E[6],
+                "HF7E0001" if self.chip.kind.has_out_f_branch() => wires::OUT_F_E[7],
+                "H01M0100" => wires::X1_H[1],
+                "H01M0400" => wires::X1_H[4],
+                "V01M0100" => wires::X1_V[1],
+                "V01M0400" => wires::X1_V[4],
                 _ => return vec![],
             };
             let cell = self.chip.xlat_rc_wire(wn);
-            vec![cell.wire(self.intdb.get_wire(w))]
+            vec![cell.wire(w)]
         }
     }
 

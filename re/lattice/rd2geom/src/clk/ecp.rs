@@ -2,7 +2,7 @@ use std::collections::BTreeMap;
 
 use prjcombine_ecp::{
     chip::{Chip, SpecialIoKey, SpecialLocKey},
-    defs::bslots,
+    defs::{bslots, wires},
 };
 use prjcombine_interconnect::{
     db::{BelPin, LegacyBel, WireSlotIdExt},
@@ -102,13 +102,17 @@ impl ChipContext<'_> {
             .into_iter()
             .enumerate()
         {
-            for wname in ["PCLK0", "PCLK1", "SCLK0", "SCLK1", "SCLK2", "SCLK3"] {
-                let wire = self.intdb.get_wire(wname).cell(cell_idx);
+            for idx in [0, 1, 4, 5, 6, 7] {
+                let wire = wires::PCLK[idx].cell(cell_idx);
+                let wname = if idx < 4 {
+                    format!("PCLK{idx}")
+                } else {
+                    format!("SCLK{ii}", ii = idx - 4)
+                };
                 bel.pins
                     .insert(format!("{wname}_{hv}"), BelPin::new_in(wire));
                 let wire = self.edev.tile_wire(tcrd, wire);
-                let idx: u8 = wname[4..].parse().unwrap();
-                if wname.starts_with("PCLK") {
+                if idx < 4 {
                     for &wf in pll_in.values().flatten() {
                         self.claim_pip_int_out(wire, wf);
                     }
@@ -126,10 +130,10 @@ impl ChipContext<'_> {
                     }
                 } else {
                     let (io_in_dir, sclk_in_idx) = match idx {
-                        0 => (Dir::W, [0, 2]),
-                        1 => (Dir::N, [0, 2]),
-                        2 => (Dir::E, [1, 3]),
-                        3 => (Dir::S, [1, 3]),
+                        4 => (Dir::W, [0, 2]),
+                        5 => (Dir::N, [0, 2]),
+                        6 => (Dir::E, [1, 3]),
+                        7 => (Dir::S, [1, 3]),
                         _ => unreachable!(),
                     };
                     self.claim_pip_int_out(wire, io_in[&io_in_dir]);
@@ -175,10 +179,7 @@ impl ChipContext<'_> {
             let out = self.rc_wire(cell, &format!("{ll}DCSOUT{i}_DCS"));
             self.add_bel_wire(bcrd, "OUT", out);
 
-            let wire = self
-                .intdb
-                .get_wire(&format!("PCLK{}", i + 2))
-                .cell(bidx / 2);
+            let wire = wires::PCLK[i + 2].cell(bidx / 2);
             bel.pins.insert("OUT".into(), BelPin::new_in(wire));
             let pclk = self.edev.tile_wire(tcrd, wire);
             self.claim_pip_int_out(pclk, out);

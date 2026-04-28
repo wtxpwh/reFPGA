@@ -221,9 +221,11 @@ pub fn emit(dbs: Vec<AnnotatedDb>) -> TokenStream {
     let mut bslot_uniform = true;
     let mut tslot_uniform = true;
     let mut tcls_uniform = true;
+    let mut tcls_id_uniform = true;
     let mut rslot_uniform = true;
     let mut cslot_uniform = true;
     let mut ccls_uniform = true;
+    let mut ccls_id_uniform = true;
     let mut wire_uniform = true;
     let mut table_uniform = true;
     let mut devdata_uniform = true;
@@ -243,11 +245,21 @@ pub fn emit(dbs: Vec<AnnotatedDb>) -> TokenStream {
         if db.db.tile_classes != dbs[0].db.tile_classes {
             tcls_uniform = false;
         }
+        if Vec::from_iter(db.db.tile_classes.keys())
+            != Vec::from_iter(dbs[0].db.tile_classes.keys())
+        {
+            tcls_id_uniform = false;
+        }
         if db.db.region_slots != dbs[0].db.region_slots {
             rslot_uniform = false;
         }
         if db.db.conn_classes != dbs[0].db.conn_classes {
             ccls_uniform = false;
+        }
+        if Vec::from_iter(db.db.conn_classes.keys())
+            != Vec::from_iter(dbs[0].db.conn_classes.keys())
+        {
+            ccls_id_uniform = false;
         }
         if db.db.conn_slots != dbs[0].db.conn_slots {
             cslot_uniform = false;
@@ -352,6 +364,10 @@ pub fn emit(dbs: Vec<AnnotatedDb>) -> TokenStream {
         for (adb, stream) in dbs.iter().zip(variant_outs.iter_mut()) {
             emit_tile_classes(stream, adb);
         }
+        if tcls_id_uniform {
+            let mod_stream = emit_ids("TileClassId", &dbs[0].tcls_id);
+            emit_mod(&mut res, to_ident("tcls"), mod_stream);
+        }
     }
 
     if bcls_uniform {
@@ -385,6 +401,10 @@ pub fn emit(dbs: Vec<AnnotatedDb>) -> TokenStream {
                 to_ident("ccls"),
                 emit_ids("ConnectorClassId", &adb.ccls_id),
             );
+        }
+        if ccls_id_uniform {
+            let mod_stream = emit_ids("ConnectorClassId", &dbs[0].ccls_id);
+            emit_mod(&mut res, to_ident("ccls"), mod_stream);
         }
     }
 

@@ -9,7 +9,7 @@ use prjcombine_interconnect::{
 
 use crate::{
     chip::{Chip, ChipKind, IoGroupKind, MachXo2Kind, PllLoc, RowKind, SpecialLocKey},
-    defs::{bslots, rslots, tslots},
+    defs::{bslots, ccls, rslots, tslots},
     expanded::ExpandedDevice,
 };
 
@@ -643,24 +643,24 @@ impl Expander<'_, '_> {
                             self.egrid.fill_conn_pair(
                                 cell,
                                 cell_next,
-                                "PASS_EBR_W_E",
-                                "PASS_EBR_W_W",
+                                ccls::PASS_EBR_W_E,
+                                ccls::PASS_EBR_W_W,
                             );
                         } else if cell.col < self.chip.col_clk {
                             let cell_next = cell.delta(10, 0);
                             self.egrid.fill_conn_pair(
                                 cell,
                                 cell_next,
-                                "PASS_EBR_M_E",
-                                "PASS_EBR_M_W",
+                                ccls::PASS_EBR_M_E,
+                                ccls::PASS_EBR_M_W,
                             );
                         } else if cell.col < self.chip.col_e() - 23 {
                             let cell_next = cell.delta(10, 0);
                             self.egrid.fill_conn_pair(
                                 cell,
                                 cell_next,
-                                "PASS_EBR_E_E",
-                                "PASS_EBR_E_W",
+                                ccls::PASS_EBR_E_E,
+                                ccls::PASS_EBR_E_W,
                             );
                         }
                     }
@@ -893,7 +893,7 @@ impl Expander<'_, '_> {
             self.egrid.add_tile_single(cell, "IO_INT_W");
             if let Some(prev) = prev {
                 self.egrid
-                    .fill_conn_pair(prev, cell, "PASS_IO_E", "PASS_IO_W");
+                    .fill_conn_pair(prev, cell, ccls::PASS_IO_E, ccls::PASS_IO_W);
             }
             prev = Some(cell);
             match rd.io_w {
@@ -916,7 +916,7 @@ impl Expander<'_, '_> {
                 self.egrid.add_tile_single(cell, "IO_INT_S");
                 if let Some(prev) = prev {
                     self.egrid
-                        .fill_conn_pair(prev, cell, "PASS_IO_E", "PASS_IO_W");
+                        .fill_conn_pair(prev, cell, ccls::PASS_IO_E, ccls::PASS_IO_W);
                 }
                 prev = Some(cell);
             }
@@ -946,7 +946,7 @@ impl Expander<'_, '_> {
             self.egrid.add_tile_single(cell, "IO_INT_E");
             if let Some(prev) = prev {
                 self.egrid
-                    .fill_conn_pair(prev, cell, "PASS_IO_E", "PASS_IO_W");
+                    .fill_conn_pair(prev, cell, ccls::PASS_IO_E, ccls::PASS_IO_W);
             }
             prev = Some(cell);
             match rd.io_e {
@@ -1838,7 +1838,7 @@ impl Expander<'_, '_> {
             } else {
                 self.chip.row_n()
             };
-            self.egrid[cell].region_root[rslots::PCLK[0]] = self.die.cell(col_pclk, row_pclk);
+            self.egrid[cell].region_root[rslots::PCLK] = self.die.cell(col_pclk, row_pclk);
         }
 
         for (bank, kind) in [
@@ -1885,7 +1885,7 @@ impl Expander<'_, '_> {
             } else {
                 self.chip.row_n()
             };
-            self.egrid[cell].region_root[rslots::PCLK[0]] = self.die.cell(col_pclk, row_pclk);
+            self.egrid[cell].region_root[rslots::PCLK] = self.die.cell(col_pclk, row_pclk);
         }
 
         let ebr_rows = Vec::from_iter(
@@ -1983,7 +1983,7 @@ impl Expander<'_, '_> {
             } else {
                 self.chip.row_n()
             };
-            self.egrid[cell].region_root[rslots::PCLK[0]] = cell.with_cr(col_pclk, row_pclk);
+            self.egrid[cell].region_root[rslots::PCLK] = cell.with_cr(col_pclk, row_pclk);
         }
 
         let mut rows_sclk = EntityVec::new();
@@ -2014,7 +2014,7 @@ impl Expander<'_, '_> {
                     cell.delta(dx_alt, 0)
                 };
                 let cell_src = cell_src.with_row(rows_sclk[cell.row]);
-                self.egrid[cell].region_root[rslots::SCLK[i]] = cell_src;
+                self.egrid[cell].region_root[rslots::RSCLK[i]] = cell_src;
                 if cell == cell_src {
                     let mut cell = cell;
                     if !self.egrid.has_bel(cell.bel(bslots::INT)) {
@@ -2044,7 +2044,8 @@ impl Expander<'_, '_> {
                     prev = None;
                 }
                 if let Some(prev) = prev {
-                    self.egrid.fill_conn_pair(prev, cell, "PASS_SE", "PASS_SW");
+                    self.egrid
+                        .fill_conn_pair(prev, cell, ccls::PASS_SE, ccls::PASS_SW);
                 }
                 prev = Some(cell);
             }
@@ -2099,7 +2100,7 @@ impl Expander<'_, '_> {
                 if self.chip.rows[cell.row].sclk_break {
                     root = cell;
                 }
-                self.egrid[cell].region_root[rslots::VSDCLK] = root;
+                self.egrid[cell].region_root[rslots::RSCLK_V] = root;
             }
         }
 
@@ -2221,7 +2222,7 @@ impl Expander<'_, '_> {
                     cell
                 };
                 let cell_src_sclk = cell_src.with_row(rows_sclk[cell.row]);
-                self.egrid[cell].region_root[rslots::SCLK[i]] = cell_src_sclk;
+                self.egrid[cell].region_root[rslots::RSCLK[i]] = cell_src_sclk;
             }
         }
         for (row, rd) in &self.chip.rows {
@@ -2247,7 +2248,7 @@ impl Expander<'_, '_> {
                 if self.chip.rows[cell.row].sclk_break {
                     root = cell;
                 }
-                self.egrid[cell].region_root[rslots::VSDCLK] = root;
+                self.egrid[cell].region_root[rslots::RSCLK_V] = root;
             }
         }
 
@@ -2268,7 +2269,8 @@ impl Expander<'_, '_> {
                     prev = None;
                 }
                 if let Some(prev) = prev {
-                    self.egrid.fill_conn_pair(prev, cell, "PASS_SE", "PASS_SW");
+                    self.egrid
+                        .fill_conn_pair(prev, cell, ccls::PASS_SE, ccls::PASS_SW);
                 }
                 prev = Some(cell);
             }
@@ -2349,7 +2351,7 @@ impl Expander<'_, '_> {
                     cell
                 };
                 let cell_src_pclk = cell_src.with_row(rows_pclk[cell.row]);
-                self.egrid[cell].region_root[rslots::PCLK[i]] = cell_src_pclk;
+                self.egrid[cell].region_root[rslots::RPCLK[i]] = cell_src_pclk;
             }
         }
 
@@ -2562,7 +2564,7 @@ impl Expander<'_, '_> {
             } else {
                 self.chip.row_n()
             };
-            self.egrid[cell].region_root[rslots::PCLK[0]] = self.die.cell(col_pclk, row_pclk);
+            self.egrid[cell].region_root[rslots::PCLK] = self.die.cell(col_pclk, row_pclk);
         }
 
         let num_quads = if self
@@ -2720,7 +2722,7 @@ impl Expander<'_, '_> {
             } else {
                 self.chip.row_n()
             };
-            self.egrid[cell].region_root[rslots::PCLK[0]] = self.die.cell(col_pclk, row_pclk);
+            self.egrid[cell].region_root[rslots::PCLK] = self.die.cell(col_pclk, row_pclk);
         }
 
         let cell = self.die.cell(self.chip.col_w(), self.chip.row_clk);
@@ -2850,7 +2852,7 @@ impl Expander<'_, '_> {
 
     fn fill_clk_crosslink(&mut self) {
         for cell in self.egrid.die_cells(self.die) {
-            self.egrid[cell].region_root[rslots::PCLK[0]] =
+            self.egrid[cell].region_root[rslots::PCLK] =
                 cell.with_cr(self.chip.col_clk, self.chip.row_clk);
         }
 
@@ -3057,7 +3059,7 @@ impl Expander<'_, '_> {
 
     fn fill_clk_machxo(&mut self) {
         for cell in self.egrid.die_cells(self.die) {
-            self.egrid[cell].region_root[rslots::PCLK[0]] =
+            self.egrid[cell].region_root[rslots::PCLK] =
                 self.die.cell(self.chip.col_clk, self.chip.row_clk);
         }
         let kind = if self
@@ -3093,27 +3095,27 @@ impl Expander<'_, '_> {
                 && self.egrid[cell.delta(-1, 0)].tiles.contains_id(tslots::INT)
             {
                 self.egrid
-                    .fill_conn_pair(cell.delta(-1, 0), cell, "PASS_E", "PASS_W");
+                    .fill_conn_pair(cell.delta(-1, 0), cell, ccls::PASS_E, ccls::PASS_W);
             } else {
-                self.egrid.fill_conn_term(cell, "TERM_W");
+                self.egrid.fill_conn_term(cell, ccls::TERM_W);
             }
             if cell.col == self.chip.col_e()
                 || !self.egrid[cell.delta(1, 0)].tiles.contains_id(tslots::INT)
             {
-                self.egrid.fill_conn_term(cell, "TERM_E");
+                self.egrid.fill_conn_term(cell, ccls::TERM_E);
             }
             if cell.row != self.chip.row_s()
                 && self.egrid[cell.delta(0, -1)].tiles.contains_id(tslots::INT)
             {
                 self.egrid
-                    .fill_conn_pair(cell.delta(0, -1), cell, "PASS_N", "PASS_S");
+                    .fill_conn_pair(cell.delta(0, -1), cell, ccls::PASS_N, ccls::PASS_S);
             } else {
-                self.egrid.fill_conn_term(cell, "TERM_S");
+                self.egrid.fill_conn_term(cell, ccls::TERM_S);
             }
             if cell.row == self.chip.row_n()
                 || !self.egrid[cell.delta(0, 1)].tiles.contains_id(tslots::INT)
             {
-                self.egrid.fill_conn_term(cell, "TERM_N");
+                self.egrid.fill_conn_term(cell, ccls::TERM_N);
             }
         }
     }

@@ -2,7 +2,7 @@ use std::collections::BTreeMap;
 
 use prjcombine_ecp::{
     chip::{ChipKind, IoGroupKind, PllLoc, PllPad, RowKind, SpecialIoKey, SpecialLocKey},
-    defs::bslots,
+    defs::{bslots, wires},
 };
 use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
@@ -527,7 +527,7 @@ impl ChipContext<'_> {
                     let wire_pll = self.rc_wire(cell_pll, &format!("JFRC{i}"));
                     self.claim_pip(eclk_pll, wire_pll);
 
-                    let wire = self.intdb.get_wire(["OUT_F6", "OUT_F7"][i]);
+                    let wire = [wires::OUT_F[6], wires::OUT_F[7]][i];
                     let wire = wire.cell(0);
                     bel.pins
                         .insert(format!("PAD{i}_OUT"), BelPin::new_out(wire));
@@ -535,7 +535,7 @@ impl ChipContext<'_> {
                     self.claim_pip_int_out(wire, wire_io);
                 } else {
                     for ci in 0..2 {
-                        let wire = self.intdb.get_wire(["OUT_F6", "OUT_F7"][i]);
+                        let wire = [wires::OUT_F[6], wires::OUT_F[7]][i];
                         let wire = wire.cell(ci);
                         bel.pins
                             .insert(format!("PAD{i}_OUT{ci}"), BelPin::new_out(wire));
@@ -640,7 +640,7 @@ impl ChipContext<'_> {
                         }
                     }
 
-                    let wire = self.intdb.get_wire(["OUT_F6", "OUT_F7"][i]);
+                    let wire = [wires::OUT_F[6], wires::OUT_F[7]][i];
                     let wire = wire.cell(0);
                     bel.pins
                         .insert(format!("PAD{i}_OUT"), BelPin::new_out(wire));
@@ -648,7 +648,7 @@ impl ChipContext<'_> {
                     self.claim_pip_int_out(wire, wire_io);
                 } else {
                     for ci in 0..2 {
-                        let wire = self.intdb.get_wire(["OUT_F6", "OUT_F7"][i]);
+                        let wire = [wires::OUT_F[6], wires::OUT_F[7]][i];
                         let wire = wire.cell(ci);
                         bel.pins
                             .insert(format!("PAD{i}_OUT{ci}"), BelPin::new_out(wire));

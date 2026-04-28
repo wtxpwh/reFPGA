@@ -2,7 +2,7 @@ use prjcombine_ecp::{
     chip::{
         Chip, ChipKind, IoGroupKind, MachXo2Kind, PllLoc, RowKind, SpecialIoKey, SpecialLocKey,
     },
-    defs::bslots,
+    defs::{bslots, wires},
 };
 use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
@@ -465,7 +465,7 @@ impl ChipContext<'_> {
         self.claim_pip(di, indd);
         self.claim_pip(di, paddi_pio);
         if self.is_machnx_io(io) {
-            let wire = self.intdb.get_wire(&format!("OUT_Q{idx}"));
+            let wire = wires::OUT_Q[idx];
             let wire = wire.cell(0);
             bel.pins.insert("DI".into(), BelPin::new_out(wire));
         } else {
@@ -688,17 +688,17 @@ impl ChipContext<'_> {
 
             let wire_i = self.rc_io_wire(cell_icc1, &format!("J{pin}I_ICC1"));
             self.add_bel_wire(bcrd, format!("{pin}I"), wire_i);
-            let wire_int = cell_io.wire(self.intdb.get_wire(&format!("OUT_Q{iob}")));
+            let wire_int = cell_io.wire(wires::OUT_Q[iob]);
             self.claim_pip_int_out(wire_int, wire_i);
 
             let wire_o = self.rc_io_wire(cell_icc1, &format!("J{pin}O_ICC1"));
             self.add_bel_wire(bcrd, format!("{pin}O"), wire_o);
-            let wire_int = cell_io.wire(self.intdb.get_wire(&format!("IMUX_A{iob}")));
+            let wire_int = cell_io.wire(wires::IMUX_A[iob]);
             self.claim_pip_int_in(wire_o, wire_int);
 
             let wire_oe = self.rc_io_wire(cell_icc1, &format!("J{pin}OE_ICC1"));
             self.add_bel_wire(bcrd, format!("{pin}OE"), wire_oe);
-            let wire_int = cell_io.wire(self.intdb.get_wire(&format!("IMUX_C{iob}")));
+            let wire_int = cell_io.wire(wires::IMUX_C[iob]);
             self.claim_pip_int_in(wire_oe, wire_int);
         }
         {
@@ -707,7 +707,7 @@ impl ChipContext<'_> {
             let cell_io = cell_icc1.with_row(row);
             let wire = self.rc_io_wire(cell_icc1, &format!("J{pin}_ICC1"));
             self.add_bel_wire(bcrd, pin, wire);
-            let wire_int = cell_io.wire(self.intdb.get_wire(&format!("OUT_Q{iob}")));
+            let wire_int = cell_io.wire(wires::OUT_Q[iob]);
             self.claim_pip_int_out(wire_int, wire);
         }
         for (pin, row, iob) in [("PFRPRMN", 11, 1), ("PFRJTAGEN", 11, 2)] {
@@ -715,7 +715,7 @@ impl ChipContext<'_> {
             let cell_io = cell_icc1.with_row(row);
             let wire = self.rc_io_wire(cell_icc1, &format!("J{pin}_ICC1"));
             self.add_bel_wire(bcrd, pin, wire);
-            let wire_int = cell_io.wire(self.intdb.get_wire(&format!("IMUX_A{iob}")));
+            let wire_int = cell_io.wire(wires::IMUX_A[iob]);
             self.claim_pip_int_in(wire, wire_int);
         }
         let cell_icc = Chip::DIE.cell(ColId::from_idx(0), RowId::from_idx(10));
@@ -745,28 +745,28 @@ impl ChipContext<'_> {
             self.add_bel_wire(bcrd, format!("D_{pin_iccreg}"), wire_d);
             let row = RowId::from_idx(row);
             let cell_io = cell_icc1.with_row(row);
-            let wire_int = cell_io.wire(self.intdb.get_wire(&format!("IMUX_A{iob}")));
+            let wire_int = cell_io.wire(wires::IMUX_A[iob]);
             self.claim_pip_int_in(wire_icc, wire_int);
             self.claim_pip_int_in(wire_d, wire_int);
             self.claim_pip(wire_icc, wire_q);
 
             let wire_clk = self.rc_io_wire(cell_iccreg, &format!("JCK{pin_iccreg}_ICCREG"));
             self.add_bel_wire(bcrd, format!("CLK_{pin_iccreg}"), wire_clk);
-            let wire_int = cell_io.wire(self.intdb.get_wire(&format!("IMUX_CLK{iob}")));
+            let wire_int = cell_io.wire(wires::IMUX_CLK[iob]);
             self.claim_pip_int_in(wire_clk, wire_int);
 
             let wire_rst = self.rc_io_wire(cell_iccreg, &format!("JRS{pin_iccreg}_ICCREG"));
             self.add_bel_wire(bcrd, format!("RST_{pin_iccreg}"), wire_rst);
-            let wire_int = cell_io.wire(self.intdb.get_wire(&format!("IMUX_LSR{iob}")));
+            let wire_int = cell_io.wire(wires::IMUX_LSR[iob]);
             self.claim_pip_int_in(wire_rst, wire_int);
 
             let wire_ce = self.rc_io_wire(cell_iccreg, &format!("JCE{pin_iccreg}_ICCREG"));
             self.add_bel_wire(bcrd, format!("CE_{pin_iccreg}"), wire_ce);
-            let wire_int = cell_io.wire(self.intdb.get_wire(&format!("IMUX_CE{iob}")));
+            let wire_int = cell_io.wire(wires::IMUX_CE[iob]);
             self.claim_pip_int_in(wire_ce, wire_int);
             if pin_icc == "TXCLK" {
                 // ???
-                let wire_int = cell_io.wire(self.intdb.get_wire(&format!("IMUX_B{iob}")));
+                let wire_int = cell_io.wire(wires::IMUX_B[iob]);
                 self.claim_pip_int_in(wire_ce, wire_int);
             }
         }
@@ -793,24 +793,24 @@ impl ChipContext<'_> {
             let row = RowId::from_idx(row);
             let cell_io = cell_icc1.with_row(row);
             self.claim_pip(wire_d, wire_icc);
-            let wire_int = cell_io.wire(self.intdb.get_wire(&format!("OUT_F{iob}")));
+            let wire_int = cell_io.wire(wires::OUT_F[iob]);
             self.claim_pip_int_out(wire_int, wire_q);
-            let wire_int = cell_io.wire(self.intdb.get_wire(&format!("OUT_Q{iob}")));
+            let wire_int = cell_io.wire(wires::OUT_Q[iob]);
             self.claim_pip_int_out(wire_int, wire_icc);
 
             let wire_clk = self.rc_io_wire(cell_iccreg, &format!("JCK{pin_iccreg}_ICCREG"));
             self.add_bel_wire(bcrd, format!("CLK_{pin_iccreg}"), wire_clk);
-            let wire_int = cell_io.wire(self.intdb.get_wire(&format!("IMUX_CLK{iob}")));
+            let wire_int = cell_io.wire(wires::IMUX_CLK[iob]);
             self.claim_pip_int_in(wire_clk, wire_int);
 
             let wire_rst = self.rc_io_wire(cell_iccreg, &format!("JRS{pin_iccreg}_ICCREG"));
             self.add_bel_wire(bcrd, format!("RST_{pin_iccreg}"), wire_rst);
-            let wire_int = cell_io.wire(self.intdb.get_wire(&format!("IMUX_LSR{iob}")));
+            let wire_int = cell_io.wire(wires::IMUX_LSR[iob]);
             self.claim_pip_int_in(wire_rst, wire_int);
 
             let wire_ce = self.rc_io_wire(cell_iccreg, &format!("JCE{pin_iccreg}_ICCREG"));
             self.add_bel_wire(bcrd, format!("CE_{pin_iccreg}"), wire_ce);
-            let wire_int = cell_io.wire(self.intdb.get_wire(&format!("IMUX_CE{iob}")));
+            let wire_int = cell_io.wire(wires::IMUX_CE[iob]);
             self.claim_pip_int_in(wire_ce, wire_int);
         }
 
@@ -818,7 +818,7 @@ impl ChipContext<'_> {
         self.add_bel_wire(bcrd, "RXCLK", wire_icc);
         let row = RowId::from_idx(3);
         let cell_io = cell_icc1.with_row(row);
-        let wire_int = cell_io.wire(self.intdb.get_wire("OUT_Q0"));
+        let wire_int = cell_io.wire(wires::OUT_Q[0]);
         self.claim_pip_int_out(wire_int, wire_icc);
         let cell_dlldel = cell_icc1.with_row(self.chip.row_clk);
         let wire_clki = self.rc_io_wire(cell_dlldel, "JCLKI0_DLLDEL");

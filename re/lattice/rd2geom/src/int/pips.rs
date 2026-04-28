@@ -2,8 +2,7 @@ use std::collections::{BTreeMap, BTreeSet};
 
 use prjcombine_ecp::{
     chip::ChipKind,
-    defs::bslots,
-    defs::{cslots, rslots, tslots},
+    defs::{bslots, cslots, rslots, tslots, wires},
 };
 use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
@@ -22,33 +21,28 @@ impl ChipContext<'_> {
     fn collect_term_pips(&mut self) -> BTreeSet<(WireName, WireName)> {
         let mut term_pips = BTreeSet::new();
         // collect expected term pips.
-        let conn_e = self.intdb.get_conn_slot("E");
-        let conn_w = self.intdb.get_conn_slot("W");
         let mut out_w = vec![];
         let mut out_e = vec![];
         if self.chip.kind.has_out_f_branch() {
-            out_w.extend(["F0", "F1", "F2"]);
-            out_e.extend(["F4", "F5", "F6", "F7"]);
+            out_w.extend([
+                (wires::OUT_F_W[0], wires::OUT_F[0]),
+                (wires::OUT_F_W[1], wires::OUT_F[1]),
+                (wires::OUT_F_W[2], wires::OUT_F[2]),
+            ]);
+            out_e.extend([
+                (wires::OUT_F_E[4], wires::OUT_F[4]),
+                (wires::OUT_F_E[5], wires::OUT_F[5]),
+                (wires::OUT_F_E[6], wires::OUT_F[6]),
+                (wires::OUT_F_E[7], wires::OUT_F[7]),
+            ]);
         }
         if self.chip.kind.has_out_ofx_branch() {
             if matches!(self.chip.kind, ChipKind::Ecp5 | ChipKind::Crosslink) {
-                out_w.push("F3");
+                out_w.push((wires::OUT_F_W[3], wires::OUT_F[3]));
             } else {
-                out_w.push("OFX3");
+                out_w.push((wires::OUT_OFX_W[3], wires::OUT_OFX[3]));
             }
         }
-        let out_w = Vec::from_iter(out_w.into_iter().map(|w| {
-            (
-                self.intdb.get_wire(&format!("OUT_{w}_W")),
-                self.intdb.get_wire(&format!("OUT_{w}")),
-            )
-        }));
-        let out_e = Vec::from_iter(out_e.into_iter().map(|w| {
-            (
-                self.intdb.get_wire(&format!("OUT_{w}_E")),
-                self.intdb.get_wire(&format!("OUT_{w}")),
-            )
-        }));
         for (cell, cell_data) in self.edev.cells() {
             for (slot, conn) in &cell_data.conns {
                 if let Some(target) = conn.target {
@@ -62,7 +56,7 @@ impl ChipContext<'_> {
                             || target.col == self.chip.col_e()
                             || target.row == self.chip.row_s()
                             || target.row == self.chip.row_n());
-                    if slot == conn_w && !target_sio && !cell_sio {
+                    if slot == cslots::W && !target_sio && !cell_sio {
                         for &(wt, wf) in &out_w {
                             let wt = target.wire(wt);
                             let wf = cell.wire(wf);
@@ -85,7 +79,7 @@ impl ChipContext<'_> {
                             term_pips.insert((wtn, wfn));
                         }
                     }
-                    if slot == conn_e && !target_sio && !cell_sio {
+                    if slot == cslots::E && !target_sio && !cell_sio {
                         for &(wt, wf) in &out_e {
                             let wt = target.wire(wt);
                             let wf = cell.wire(wf);
@@ -114,7 +108,7 @@ impl ChipContext<'_> {
                         let ConnectorWire::Reflect(wf) = wf else {
                             unreachable!()
                         };
-                        if self.intdb.wires.key(wt).starts_with("HSDCLK") {
+                        if wires::DSCLK_H.contains(wt) {
                             continue;
                         }
                         let wt = cell.wire(wt);
@@ -167,12 +161,12 @@ impl ChipContext<'_> {
             if let Some(wires_f) = self.int_wires.get(&wfn)
                 && let Some(wires_t) = self.int_wires.get(&wtn)
                 && let mut wt = wires_t[0]
-                && let wtsn = self.intdb.wires.key(wt.slot)
-                && (!wtsn.starts_with("SCLK") || self.chip.kind == ChipKind::Scm)
-                && !(wtsn.starts_with("HSDCLK") && self.intdb[wires_f[0].slot].is_tie())
-                && !(wtsn.ends_with("_DELAY"))
+                && !wires::RSCLK.contains(wt.slot)
+                && !(wires::RSCLK_H.contains(wt.slot) && self.intdb[wires_f[0].slot].is_tie())
+                && !wires::IMUX_CLK_DELAY.contains(wt.slot)
             {
-                if matches!(self.intdb[wt.slot], WireKind::Branch(_)) && !wtsn.starts_with("HSDCLK")
+                if matches!(self.intdb[wt.slot], WireKind::Branch(_))
+                    && !wires::RSCLK_H.contains(wt.slot)
                 {
                     println!(
                         "{name}: extra term pip {wtn} / {wt} <- {wfn} / {wf}",
@@ -184,8 +178,8 @@ impl ChipContext<'_> {
                     );
                     continue;
                 }
-                let wf = if wtsn.starts_with("VSDCLK") && self.chip.kind == ChipKind::Scm {
-                    if self.intdb.wires.key(wires_f[0].slot).starts_with("HSDCLK") {
+                let wf = if wires::DSCLK_V.contains(wt.slot) {
+                    if wires::DSCLK_H.contains(wires_f[0].slot) {
                         let cand_cells_t =
                             BTreeSet::from_iter(wires_t.iter().copied().map(|w| w.cell));
                         let cand_cells = BTreeSet::from_iter(
@@ -197,10 +191,9 @@ impl ChipContext<'_> {
                         );
                         assert_eq!(cand_cells.len(), 1);
                         let wires_f = Vec::from_iter(wires_f.iter().copied().filter(|w| {
-                            matches!(
-                                self.intdb.wires.key(w.slot).as_str(),
-                                "HSDCLK0" | "HSDCLK3" | "HSDCLK6"
-                            )
+                            w.slot == wires::DSCLK_H[0]
+                                || w.slot == wires::DSCLK_H[3]
+                                || w.slot == wires::DSCLK_H[6]
                         }));
                         let cell = cand_cells.into_iter().next().unwrap();
                         wt = wires_t.iter().find(|w| w.cell == cell).copied().unwrap();
@@ -220,19 +213,19 @@ impl ChipContext<'_> {
                         wt = wires_t.iter().find(|w| w.cell == cell).copied().unwrap();
                         wires_f.iter().find(|w| w.cell == cell).copied().unwrap()
                     }
-                } else if wtsn.starts_with("HSDCLK") && self.chip.kind == ChipKind::Scm {
-                    if self.intdb.wires.key(wires_f[0].slot).starts_with("HSDCLK") {
+                } else if wires::DSCLK_H.contains(wt.slot) && self.chip.kind == ChipKind::Scm {
+                    if wires::DSCLK_H.contains(wires_f[0].slot) {
                         let wires_t = Vec::from_iter(
                             wires_t
                                 .iter()
                                 .copied()
-                                .filter(|w| self.intdb.wires.key(w.slot) == "HSDCLK6"),
+                                .filter(|w| w.slot == wires::DSCLK_H[6]),
                         );
                         let wires_f = Vec::from_iter(
                             wires_f
                                 .iter()
                                 .copied()
-                                .filter(|w| self.intdb.wires.key(w.slot) == "HSDCLK0"),
+                                .filter(|w| w.slot == wires::DSCLK_H[0]),
                         );
                         let cand_cells_t =
                             BTreeSet::from_iter(wires_t.iter().copied().map(|w| w.cell));
@@ -253,16 +246,13 @@ impl ChipContext<'_> {
                             .iter()
                             .find(|w| {
                                 w.cell == wires_f[0].cell
-                                    && matches!(
-                                        self.intdb.wires.key(w.slot).as_str(),
-                                        "HSDCLK0" | "HSDCLK6"
-                                    )
+                                    && (w.slot == wires::DSCLK_H[0] || w.slot == wires::DSCLK_H[6])
                             })
                             .copied()
                             .unwrap();
                         wires_f[0]
                     }
-                } else if wtsn.starts_with("HSDCLK") {
+                } else if wires::RSCLK_H.contains(wt.slot) {
                     assert_eq!(wires_f.len(), 1);
                     wt = wires_t
                         .iter()
@@ -270,19 +260,19 @@ impl ChipContext<'_> {
                         .copied()
                         .unwrap();
                     wires_f[0]
-                } else if wtsn.starts_with("VSDCLK") {
+                } else if let Some(idx) = wires::RSCLK_V.index_of(wt.slot) {
                     let mut wf = wires_f.iter().find(|w| w.col == wt.col).copied().unwrap();
-                    let wt_root = self.edev[wt.cell].region_root[rslots::VSDCLK];
-                    let wf_root = self.edev[wf.cell].region_root[rslots::VSDCLK];
+                    let wt_root = self.edev[wt.cell].region_root[rslots::RSCLK_V];
+                    let wf_root = self.edev[wf.cell].region_root[rslots::RSCLK_V];
                     if wt_root == wf_root {
                         wt.cell = wf.cell;
                     } else {
                         assert_eq!(
-                            self.edev[wf.cell.delta(0, -1)].region_root[rslots::VSDCLK],
+                            self.edev[wf.cell.delta(0, -1)].region_root[rslots::RSCLK_V],
                             wt_root
                         );
                         wt.cell = wf.cell;
-                        wt.slot = self.intdb.get_wire(&format!("{wtsn}_N"));
+                        wt.slot = wires::RSCLK_V_N[idx];
                     }
                     if matches!(self.chip.kind, ChipKind::Ecp3 | ChipKind::Ecp3A)
                         && self.intdb[wf.slot].is_tie()
@@ -299,14 +289,13 @@ impl ChipContext<'_> {
                     let wf = if let WireKind::Regional(region) = self.intdb[wires_f[0].slot] {
                         let wf_root = self.edev[wires_f[0].cell].region_root[region];
                         let wt_root = self.edev[wt.cell].region_root[region];
-                        let wfsn = self.intdb.wires.key(wires_f[0].slot);
                         if wf_root == wt_root {
                             Some(wt.cell.wire(wires_f[0].slot))
-                        } else if wfsn.starts_with("VSDCLK")
-                            && self.edev[wt.cell.delta(0, -1)].region_root[rslots::VSDCLK]
+                        } else if let Some(idx) = wires::RSCLK_V.index_of(wires_f[0].slot)
+                            && self.edev[wt.cell.delta(0, -1)].region_root[rslots::RSCLK_V]
                                 == wf_root
                         {
-                            Some(wt.cell.wire(self.intdb.get_wire(&format!("{wfsn}_N"))))
+                            Some(wt.cell.wire(wires::RSCLK_V_N[idx]))
                         } else {
                             None
                         }
@@ -373,55 +362,56 @@ impl ChipContext<'_> {
                     }
                     if !self.naming.interconnect.contains_key(&wf)
                         && (wfsn.starts_with("OUT")
-                            || (self.chip.kind == ChipKind::Scm && wfsn.starts_with("SCLK")))
+                            || (self.chip.kind == ChipKind::Scm && wfsn.starts_with("DSCLK")))
                     {
                         continue;
                     }
                     if self.chip.kind == ChipKind::Scm {
-                        if wtsn == "VSDCLK0"
-                            && (wfsn == "VSDCLK6" || wfsn.starts_with("HSDCLK"))
+                        if wt.slot == wires::DSCLK_V[0]
+                            && (wf.slot == wires::DSCLK_V[6] || wires::DSCLK_H.contains(wf.slot))
                             && self.edev[tcrd.cell].conns[cslots::N].target.is_none()
                         {
                             continue;
                         }
-                        if matches!(wtsn, "VSDCLK0" | "VSDCLK6")
-                            && matches!(wfsn, "HSDCLK0" | "HSDCLK6")
+                        if (wt.slot == wires::DSCLK_V[0] || wt.slot == wires::DSCLK_V[6])
+                            && (wf.slot == wires::DSCLK_H[0] || wf.slot == wires::DSCLK_H[6])
                             && self.edev.resolve_wire(wf)
-                                == self
-                                    .edev
-                                    .resolve_wire(wf.wire(self.intdb.get_wire("HSDCLK3")))
+                                == self.edev.resolve_wire(wf.wire(wires::DSCLK_H[3]))
                         {
                             continue;
                         }
                     } else {
-                        if (matches!(wtsn, "VSDCLK0_N" | "VSDCLK1_N")
-                            || matches!(wfsn, "VSDCLK0_N" | "VSDCLK1_N"))
+                        if (wt.slot == wires::RSCLK_V_N[0]
+                            || wt.slot == wires::RSCLK_V_N[1]
+                            || wf.slot == wires::RSCLK_V_N[0]
+                            || wf.slot == wires::RSCLK_V_N[1])
                             && tcrd.row != self.chip.row_s()
                             && !self.chip.rows[tcrd.row].sclk_break
                         {
                             continue;
                         }
-                        if matches!(wtsn, "VSDCLK2" | "VSDCLK3" | "VSDCLK2_N" | "VSDCLK3_N")
+                        if (wt.slot == wires::RSCLK_V[2]
+                            || wt.slot == wires::RSCLK_V[3]
+                            || wt.slot == wires::RSCLK_V_N[2]
+                            || wt.slot == wires::RSCLK_V_N[3])
                             && tcrd.col != self.chip.col_e()
                         {
                             continue;
                         }
-                        if matches!(
-                            wtsn,
-                            "VSDCLK4"
-                                | "VSDCLK5"
-                                | "VSDCLK4_N"
-                                | "VSDCLK5_N"
-                                | "VSDCLK6"
-                                | "VSDCLK7"
-                                | "VSDCLK6_N"
-                                | "VSDCLK7_N"
-                        ) && tcrd.col != self.chip.col_w()
+                        if (wt.slot == wires::RSCLK_V[4]
+                            || wt.slot == wires::RSCLK_V[5]
+                            || wt.slot == wires::RSCLK_V[6]
+                            || wt.slot == wires::RSCLK_V[7]
+                            || wt.slot == wires::RSCLK_V_N[4]
+                            || wt.slot == wires::RSCLK_V_N[5]
+                            || wt.slot == wires::RSCLK_V_N[6]
+                            || wt.slot == wires::RSCLK_V_N[7])
+                            && tcrd.col != self.chip.col_w()
                         {
                             continue;
                         }
                     }
-                    if matches!(wfsn, "SCLK3" | "SCLK7") {
+                    if wf.slot == wires::RSCLK[3] || wf.slot == wires::RSCLK[7] {
                         // ???? for some inscrutable reason these two devices are missing SCLK3
                         // in these locations in particular
                         if self.chip.kind == ChipKind::Ecp2
@@ -461,10 +451,10 @@ impl ChipContext<'_> {
                     })
                     .src
                     .insert(wf.pos(), Default::default());
-                if (self.intdb.wires.key(wt.wire).starts_with("VSDCLK")
-                    && self.intdb.wires.key(wf.wire).starts_with("VSDCLK"))
-                    || (self.intdb.wires.key(wt.wire).starts_with("HSDCLK")
-                        && self.intdb.wires.key(wf.wire).starts_with("HSDCLK"))
+                if (self.intdb.wires.key(wt.wire).starts_with("RSCLK_V")
+                    && self.intdb.wires.key(wf.wire).starts_with("RSCLK_V"))
+                    || (self.intdb.wires.key(wt.wire).starts_with("RSCLK_H")
+                        && self.intdb.wires.key(wf.wire).starts_with("RSCLK_H"))
                 {
                     muxes
                         .entry(wf)
@@ -502,8 +492,8 @@ impl ChipContext<'_> {
                 && self.intdb.tile_classes.key(tcid) == "INT_EBR"
             {
                 for i in 0..8 {
-                    let vsdclk = self.intdb.get_wire(&format!("VSDCLK{i}")).cell(0);
-                    let vsdclk_n = self.intdb.get_wire(&format!("VSDCLK{i}_N")).cell(0);
+                    let vsdclk = wires::RSCLK_V[i].cell(0);
+                    let vsdclk_n = wires::RSCLK_V_N[i].cell(0);
                     sb.items.push(SwitchBoxItem::ProgBuf(ProgBuf {
                         dst: vsdclk,
                         src: vsdclk_n.pos(),
@@ -518,8 +508,8 @@ impl ChipContext<'_> {
             }
             if self.chip.kind == ChipKind::Ecp4 && self.intdb.tile_classes.key(tcid) != "INT_PLC" {
                 for i in 0..2 {
-                    let clk = self.intdb.get_wire(&format!("IMUX_CLK{i}")).cell(0);
-                    let clk_delay = self.intdb.get_wire(&format!("IMUX_CLK{i}_DELAY")).cell(0);
+                    let clk = wires::IMUX_CLK[i].cell(0);
+                    let clk_delay = wires::IMUX_CLK_DELAY[i].cell(0);
                     sb.items.push(SwitchBoxItem::ProgDelay(ProgDelay {
                         dst: clk_delay,
                         src: clk.pos(),
