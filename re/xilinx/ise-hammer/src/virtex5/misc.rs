@@ -8,8 +8,8 @@ use prjcombine_re_fpga_hammer::{FuzzerFeature, FuzzerProp};
 use prjcombine_re_hammer::{Fuzzer, Session};
 use prjcombine_re_xilinx_geom::ExpandedDevice;
 use prjcombine_types::{bits, bsdata::TileBit};
+use prjcombine_virtex4::bitstream::{BitRect, Reg};
 use prjcombine_virtex4::defs::{self, bcls, bslots, enums, tslots, virtex5::tcls};
-use prjcombine_xilinx_bitstream::{BitRect, Reg};
 
 use crate::{
     backend::{IseBackend, MultiValue},
@@ -38,7 +38,7 @@ impl<'b> FuzzerProp<'b, IseBackend<'b>> for RegPresentSpecial {
         for die in backend.edev.die() {
             fuzzer.info.features.push(FuzzerFeature {
                 key: DiffKey::GlobalSpecial(self.1),
-                rects: EntityVec::from_iter([BitRect::RegPresent(die, self.0)]),
+                rects: EntityVec::from_iter([BitRect::RegPresent(die, self.0).into()]),
             });
         }
         Some((fuzzer, false))

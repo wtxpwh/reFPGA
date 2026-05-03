@@ -323,7 +323,7 @@ impl<'b> FuzzerProp<'b, IseBackend<'b>> for VrefInternal {
         fuzzer = fuzzer.fuzz(Key::InternalVref(io.bank), None, val);
         fuzzer.info.features.push(FuzzerFeature {
             key: DiffKey::BelAttrValue(self.0, bslots::BANK, bcls::BANK::INTERNAL_VREF, self.1),
-            rects: edev.tile_bits(hclk_ioi),
+            rects: backend.edev.tile_bits(hclk_ioi),
         });
         Some((fuzzer, false))
     }
@@ -367,7 +367,7 @@ impl<'b> FuzzerProp<'b, IseBackend<'b>> for Dci {
         if self.0.is_some() {
             fuzzer.info.features.push(FuzzerFeature {
                 key: DiffKey::BelSpecial(tcls::IO, bslots::IOB[0], specials::IOB_VR),
-                rects: edev.tile_bits(tile_vr),
+                rects: backend.edev.tile_bits(tile_vr),
             });
         }
         // Take exclusive mutex on bank DCI.
@@ -384,7 +384,7 @@ impl<'b> FuzzerProp<'b, IseBackend<'b>> for Dci {
         if let Some((spec, row)) = self.0 {
             fuzzer.info.features.push(FuzzerFeature {
                 key: DiffKey::BelSpecialRow(tcls::HCLK_IO, bslots::DCI, spec, row),
-                rects: edev.tile_bits(hclk_ioi),
+                rects: backend.edev.tile_bits(hclk_ioi),
             });
         }
         // Take shared mutex on global DCI.
@@ -451,7 +451,7 @@ impl<'b> FuzzerProp<'b, IseBackend<'b>> for DiffOut {
                 self.0,
                 self.1,
             ),
-            rects: edev.tile_bits(hclk_ioi),
+            rects: backend.edev.tile_bits(hclk_ioi),
         });
         Some((fuzzer, false))
     }

@@ -5,10 +5,9 @@ use prjcombine_interconnect::db::IntDb;
 use prjcombine_interconnect::grid::{DieId, ExpandedGrid, TileCoord};
 use prjcombine_re_xilinx_naming::db::NamingDb;
 use prjcombine_re_xilinx_naming::grid::ExpandedGridNaming;
-use prjcombine_types::bsdata::BitRectId;
+use prjcombine_types::bsdata::{BitRectId, RectBitId, RectFrameId};
 use prjcombine_types::db::{BondId, ChipId, DevBondId, DevSpeedId, InterposerId};
-use prjcombine_xilinx_bitstream::{BitRect, BitstreamGeom};
-use std::collections::{BTreeMap, BTreeSet};
+use std::collections::{BTreeMap, BTreeSet, HashMap};
 use std::error::Error;
 use std::fs::File;
 use std::path::Path;
@@ -186,6 +185,155 @@ impl DeviceNaming {
     }
 }
 
+#[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub enum BitPos {
+    Xc2000(prjcombine_xc2000::bitstream::BitPos),
+    Virtex(prjcombine_virtex::bitstream::BitPos),
+    Virtex2(prjcombine_virtex2::bitstream::BitPos),
+    Spartan6(prjcombine_spartan6::bitstream::BitPos),
+    Virtex4(prjcombine_virtex4::bitstream::BitPos),
+}
+
+impl From<prjcombine_virtex::bitstream::BitPos> for BitPos {
+    fn from(value: prjcombine_virtex::bitstream::BitPos) -> Self {
+        BitPos::Virtex(value)
+    }
+}
+
+impl From<prjcombine_virtex2::bitstream::BitPos> for BitPos {
+    fn from(value: prjcombine_virtex2::bitstream::BitPos) -> Self {
+        BitPos::Virtex2(value)
+    }
+}
+
+#[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub enum BitRect {
+    Xc2000(prjcombine_xc2000::bitstream::BitRect),
+    Virtex(prjcombine_virtex::bitstream::BitRect),
+    Virtex2(prjcombine_virtex2::bitstream::BitRect),
+    Spartan6(prjcombine_spartan6::bitstream::BitRect),
+    Virtex4(prjcombine_virtex4::bitstream::BitRect),
+}
+
+impl From<prjcombine_xc2000::bitstream::BitRect> for BitRect {
+    fn from(value: prjcombine_xc2000::bitstream::BitRect) -> Self {
+        BitRect::Xc2000(value)
+    }
+}
+
+impl From<prjcombine_virtex::bitstream::BitRect> for BitRect {
+    fn from(value: prjcombine_virtex::bitstream::BitRect) -> Self {
+        BitRect::Virtex(value)
+    }
+}
+
+impl From<prjcombine_virtex2::bitstream::BitRect> for BitRect {
+    fn from(value: prjcombine_virtex2::bitstream::BitRect) -> Self {
+        BitRect::Virtex2(value)
+    }
+}
+
+impl From<prjcombine_spartan6::bitstream::BitRect> for BitRect {
+    fn from(value: prjcombine_spartan6::bitstream::BitRect) -> Self {
+        BitRect::Spartan6(value)
+    }
+}
+
+impl From<prjcombine_virtex4::bitstream::BitRect> for BitRect {
+    fn from(value: prjcombine_virtex4::bitstream::BitRect) -> Self {
+        BitRect::Virtex4(value)
+    }
+}
+
+#[derive(Clone, Debug)]
+pub enum Bitstream {
+    Xc2000(prjcombine_xc2000::bitstream::Bitstream),
+    Virtex(prjcombine_virtex::bitstream::Bitstream),
+    Virtex2(prjcombine_virtex2::bitstream::Bitstream),
+    Spartan6(prjcombine_spartan6::bitstream::Bitstream),
+    Virtex4(prjcombine_virtex4::bitstream::Bitstream),
+}
+
+impl prjcombine_types::bitrect::BitRect for BitRect {
+    type BitPos = BitPos;
+
+    fn xlat_pos_rev(&self, bit: Self::BitPos) -> Option<(RectFrameId, RectBitId)> {
+        match (self, bit) {
+            (BitRect::Xc2000(rect), BitPos::Xc2000(pos)) => rect.xlat_pos_rev(pos),
+            (BitRect::Virtex(rect), BitPos::Virtex(pos)) => rect.xlat_pos_rev(pos),
+            (BitRect::Virtex2(rect), BitPos::Virtex2(pos)) => rect.xlat_pos_rev(pos),
+            (BitRect::Spartan6(rect), BitPos::Spartan6(pos)) => rect.xlat_pos_rev(pos),
+            (BitRect::Virtex4(rect), BitPos::Virtex4(pos)) => rect.xlat_pos_rev(pos),
+            _ => unreachable!(),
+        }
+    }
+
+    fn xlat_pos_fwd(&self, bit: (RectFrameId, RectBitId)) -> Self::BitPos {
+        match self {
+            BitRect::Xc2000(rect) => BitPos::Xc2000(rect.xlat_pos_fwd(bit)),
+            BitRect::Virtex(rect) => BitPos::Virtex(rect.xlat_pos_fwd(bit)),
+            BitRect::Virtex2(rect) => BitPos::Virtex2(rect.xlat_pos_fwd(bit)),
+            BitRect::Spartan6(rect) => BitPos::Spartan6(rect.xlat_pos_fwd(bit)),
+            BitRect::Virtex4(rect) => BitPos::Virtex4(rect.xlat_pos_fwd(bit)),
+        }
+    }
+}
+
+impl Bitstream {
+    pub fn diff(a: &Bitstream, b: &Bitstream) -> HashMap<BitPos, bool> {
+        match (a, b) {
+            (Bitstream::Xc2000(a), Bitstream::Xc2000(b)) => {
+                prjcombine_xc2000::bitstream::Bitstream::diff(a, b)
+                    .map(|(pos, val)| (BitPos::Xc2000(pos), val))
+                    .collect()
+            }
+            (Bitstream::Virtex(a), Bitstream::Virtex(b)) => {
+                prjcombine_virtex::bitstream::Bitstream::diff(a, b)
+                    .into_iter()
+                    .map(|(pos, val)| (BitPos::Virtex(pos), val))
+                    .collect()
+            }
+            (Bitstream::Virtex2(a), Bitstream::Virtex2(b)) => {
+                prjcombine_virtex2::bitstream::Bitstream::diff(a, b)
+                    .into_iter()
+                    .map(|(pos, val)| (BitPos::Virtex2(pos), val))
+                    .collect()
+            }
+            (Bitstream::Spartan6(a), Bitstream::Spartan6(b)) => {
+                prjcombine_spartan6::bitstream::Bitstream::diff(a, b)
+                    .into_iter()
+                    .map(|(pos, val)| (BitPos::Spartan6(pos), val))
+                    .collect()
+            }
+            (Bitstream::Virtex4(a), Bitstream::Virtex4(b)) => {
+                prjcombine_virtex4::bitstream::Bitstream::diff(a, b)
+                    .into_iter()
+                    .map(|(pos, val)| (BitPos::Virtex4(pos), val))
+                    .collect()
+            }
+            _ => unreachable!(),
+        }
+    }
+
+    pub fn get_bit(&self, pos: BitPos) -> bool {
+        match (self, pos) {
+            (Bitstream::Xc2000(bs), BitPos::Xc2000(pos)) => bs.get_bit(pos),
+            (Bitstream::Virtex(bs), BitPos::Virtex(pos)) => bs.get_bit(pos),
+            (Bitstream::Virtex2(bs), BitPos::Virtex2(pos)) => bs.get_bit(pos),
+            (Bitstream::Spartan6(bs), BitPos::Spartan6(pos)) => bs.get_bit(pos),
+            (Bitstream::Virtex4(bs), BitPos::Virtex4(pos)) => bs.get_bit(pos),
+            _ => unreachable!(),
+        }
+    }
+}
+
+#[derive(Copy, Clone, Debug)]
+pub enum KeyData {
+    None,
+    Des(prjcombine_virtex2::bitstream::KeyData),
+    Aes([u8; 32]),
+}
+
 pub enum ExpandedDevice<'a> {
     Xc2000(prjcombine_xc2000::expanded::ExpandedDevice<'a>),
     Virtex(prjcombine_virtex::expanded::ExpandedDevice<'a>),
@@ -197,25 +345,56 @@ pub enum ExpandedDevice<'a> {
 }
 
 impl<'a> ExpandedDevice<'a> {
-    pub fn bs_geom(&self) -> &BitstreamGeom {
+    pub fn tile_bits(&self, tcrd: TileCoord) -> EntityVec<BitRectId, BitRect> {
         match self {
-            ExpandedDevice::Xc2000(edev) => &edev.bs_geom,
-            ExpandedDevice::Virtex(edev) => &edev.bs_geom,
-            ExpandedDevice::Virtex2(edev) => &edev.bs_geom,
-            ExpandedDevice::Spartan6(edev) => &edev.bs_geom,
-            ExpandedDevice::Virtex4(edev) => &edev.bs_geom,
+            ExpandedDevice::Xc2000(edev) => edev
+                .tile_bits(tcrd)
+                .map_values(|&rect| BitRect::Xc2000(rect)),
+            ExpandedDevice::Virtex(edev) => edev
+                .tile_bits(tcrd)
+                .map_values(|&rect| BitRect::Virtex(rect)),
+            ExpandedDevice::Virtex2(edev) => edev
+                .tile_bits(tcrd)
+                .map_values(|&rect| BitRect::Virtex2(rect)),
+            ExpandedDevice::Spartan6(edev) => edev
+                .tile_bits(tcrd)
+                .map_values(|&rect| BitRect::Spartan6(rect)),
+            ExpandedDevice::Virtex4(edev) => edev
+                .tile_bits(tcrd)
+                .map_values(|&rect| BitRect::Virtex4(rect)),
             ExpandedDevice::Ultrascale(_) => todo!(),
             ExpandedDevice::Versal(_) => todo!(),
         }
     }
 
-    pub fn tile_bits(&self, tcrd: TileCoord) -> EntityVec<BitRectId, BitRect> {
+    pub fn parse_bitstream(&self, data: &[u8], key: KeyData) -> Bitstream {
         match self {
-            ExpandedDevice::Xc2000(edev) => edev.tile_bits(tcrd),
-            ExpandedDevice::Virtex(edev) => edev.tile_bits(tcrd),
-            ExpandedDevice::Virtex2(edev) => edev.tile_bits(tcrd),
-            ExpandedDevice::Spartan6(edev) => edev.tile_bits(tcrd),
-            ExpandedDevice::Virtex4(edev) => edev.tile_bits(tcrd),
+            ExpandedDevice::Xc2000(edev) => Bitstream::Xc2000(edev.parse_bitstream(data)),
+            ExpandedDevice::Virtex(edev) => Bitstream::Virtex(edev.parse_bitstream(data)),
+            ExpandedDevice::Virtex2(edev) => Bitstream::Virtex2(edev.parse_bitstream(
+                data,
+                match key {
+                    KeyData::None => None,
+                    KeyData::Des(key) => Some(key),
+                    KeyData::Aes(_) => unreachable!(),
+                },
+            )),
+            ExpandedDevice::Spartan6(edev) => Bitstream::Spartan6(edev.parse_bitstream(
+                data,
+                match key {
+                    KeyData::None => None,
+                    KeyData::Des(_) => unreachable!(),
+                    KeyData::Aes(key) => Some(key),
+                },
+            )),
+            ExpandedDevice::Virtex4(edev) => Bitstream::Virtex4(edev.parse_bitstream(
+                data,
+                match key {
+                    KeyData::None => None,
+                    KeyData::Des(_) => unreachable!(),
+                    KeyData::Aes(key) => Some(key),
+                },
+            )),
             ExpandedDevice::Ultrascale(_) => todo!(),
             ExpandedDevice::Versal(_) => todo!(),
         }

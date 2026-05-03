@@ -66,7 +66,7 @@ impl<'b> FuzzerProp<'b, IseBackend<'b>> for DcmCornerEnable {
                     0,
                     true,
                 ),
-                rects: edev.tile_bits(tcrd),
+                rects: backend.edev.tile_bits(tcrd),
             });
             Some((fuzzer, false))
         } else if required {

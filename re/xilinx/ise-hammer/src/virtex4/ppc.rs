@@ -5,7 +5,7 @@ use prjcombine_interconnect::{
 };
 use prjcombine_re_fpga_hammer::FuzzerProp;
 use prjcombine_re_hammer::{Fuzzer, Session};
-use prjcombine_re_xilinx_geom::ExpandedDevice;
+use prjcombine_re_xilinx_geom::{BitRect, ExpandedDevice};
 use prjcombine_virtex4::defs::{
     bcls, bslots,
     virtex4::{tcls, wires},
@@ -39,8 +39,11 @@ impl<'b> FuzzerProp<'b, IseBackend<'b>> for ForceBitRects {
         let ExpandedDevice::Virtex4(edev) = backend.edev else {
             unreachable!()
         };
-        fuzzer.info.features[0].rects =
-            EntityVec::from_iter(tile.cells.values().map(|&cell| edev.btile_main(cell)));
+        fuzzer.info.features[0].rects = EntityVec::from_iter(
+            tile.cells
+                .values()
+                .map(|&cell| BitRect::Virtex4(edev.btile_main(cell))),
+        );
         Some((fuzzer, false))
     }
 }

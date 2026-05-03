@@ -8,8 +8,10 @@ use prjcombine_interconnect::{
 use prjcombine_re_collector::diff::{Diff, DiffKey, OcdMode, xlat_bit, xlat_enum_raw};
 use prjcombine_re_fpga_hammer::{FuzzerFeature, FuzzerProp};
 use prjcombine_re_hammer::{Fuzzer, Session};
-use prjcombine_xc2000::xc5200::{bcls, bslots, tcls, tslots, wires};
-use prjcombine_xilinx_bitstream::BitRect;
+use prjcombine_xc2000::{
+    bitstream::BitRect,
+    xc5200::{bcls, bslots, tcls, tslots, wires},
+};
 
 use crate::{
     backend::{Key, Value, XactBackend},
@@ -445,7 +447,13 @@ impl<'b> FuzzerProp<'b, XactBackend<'b>> for AllColumnIo {
             fuzzer.info.features.push(FuzzerFeature {
                 key: id.clone(),
                 rects: EntityVec::from_iter([
-                    BitRect::Null,
+                    // dummy rect placeholder
+                    BitRect {
+                        frame: 0,
+                        width: 0,
+                        bit: 0,
+                        height: 0,
+                    },
                     backend.edev.btile_main(tcrd.col, row),
                 ]),
             });

@@ -1,7 +1,8 @@
+use crate::bitstream::{BitRect, Reg};
 use crate::bond::{PsPad, SharedCfgPad};
 use crate::chip::{Chip, ChipKind, DisabledPart, GtKind, Interposer, IoKind, RegId, XadcIoLoc};
-use crate::defs::tslots;
-use crate::defs::{self, bslots};
+use crate::defs::{self, bslots, tslots};
+use arrayvec::ArrayVec;
 use bimap::BiHashMap;
 use prjcombine_entity::{EntityId, EntityPartVec, EntityVec};
 use prjcombine_interconnect::dir::{Dir, DirV};
@@ -11,7 +12,6 @@ use prjcombine_interconnect::{
     grid::{CellCoord, ColId, DieId, ExpandedGrid, Rect, RowId, TileCoord, TileIobId},
 };
 use prjcombine_types::bsdata::BitRectId;
-use prjcombine_xilinx_bitstream::{BitRect, BitstreamGeom, Reg};
 use std::collections::BTreeSet;
 
 #[derive(Clone, Debug)]
@@ -20,6 +20,39 @@ pub struct DieFrameGeom {
     pub col_width: EntityVec<RegId, EntityVec<ColId, usize>>,
     pub bram_frame: EntityVec<RegId, EntityPartVec<ColId, usize>>,
     pub spine_frame: EntityVec<RegId, usize>,
+    pub frame_info: Vec<FrameInfo>,
+}
+
+#[derive(Clone, Copy, Eq, PartialEq, Hash, Debug)]
+pub struct FrameAddr {
+    pub typ: u32,
+    pub region: i32,
+    pub major: u32,
+    pub minor: u32,
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Hash)]
+pub enum FrameMaskMode {
+    // no masked bits; everything is read back
+    None,
+    // bits 1-16 of each 20-bit group masked iff bit 18 of the group is set
+    DrpV4,
+    // INIT_[AB] bits masked
+    BramV4,
+    // all bits masked
+    All,
+    // whole frame masked iff given (frame, bit) bit in HCLK tile is set
+    DrpHclk(usize, usize),
+    // likewise, but the mask bit is 3 major columns to the left
+    PcieLeftDrpHclk(usize, usize),
+    // whole frame except two tiles nearest to HCLK masked iff given (frame, bit) bit in HCLK tile is set
+    CmtDrpHclk(usize, usize),
+}
+
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct FrameInfo {
+    pub addr: FrameAddr,
+    pub mask_mode: ArrayVec<FrameMaskMode, 4>,
 }
 
 pub struct ExpandedDevice<'a> {
@@ -30,7 +63,7 @@ pub struct ExpandedDevice<'a> {
     pub interposer: Option<&'a Interposer>,
     pub int_holes: Vec<Rect>,
     pub site_holes: Vec<Rect>,
-    pub bs_geom: BitstreamGeom,
+    pub die_order: Vec<DieId>,
     pub frames: EntityVec<DieId, DieFrameGeom>,
     pub col_cfg: ColId,
     pub col_clk: ColId,

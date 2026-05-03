@@ -4,14 +4,11 @@ use prjcombine_interconnect::grid::builder::GridBuilder;
 use prjcombine_interconnect::grid::{
     BelCoord, CellCoord, ColId, DieId, DieIdExt, Rect, RowId, TileIobId,
 };
-use prjcombine_xilinx_bitstream::{
-    BitstreamGeom, DeviceKind, DieBitstreamGeom, FrameAddr, FrameInfo, FrameMaskMode,
-};
 
 use crate::bond::SharedCfgPad;
 use crate::chip::{CfgRowKind, Chip, ColumnKind, DisabledPart};
 use crate::defs::{bslots, tslots};
-use crate::expanded::{DieFrameGeom, ExpandedDevice, IoCoord};
+use crate::expanded::{DieFrameGeom, ExpandedDevice, FrameAddr, FrameInfo, FrameMaskMode, IoCoord};
 use crate::{
     defs,
     defs::virtex4::{ccls, rslots, tcls},
@@ -25,7 +22,6 @@ struct Expander<'a, 'b> {
     die: DieId,
     site_holes: &'a mut Vec<Rect>,
     int_holes: &'a mut Vec<Rect>,
-    frame_info: Vec<FrameInfo>,
     frames: DieFrameGeom,
     col_cfg: ColId,
     col_lio: Option<ColId>,
@@ -571,7 +567,7 @@ impl Expander<'_, '_> {
             let mut major = 0;
             for &cd in self.chip.columns.values() {
                 // Fixed later for Bram
-                self.frames.col_frame[reg].push(self.frame_info.len());
+                self.frames.col_frame[reg].push(self.frames.frame_info.len());
                 let width = match cd {
                     ColumnKind::ClbLM => 22,
                     ColumnKind::Bram => 20,
@@ -610,7 +606,7 @@ impl Expander<'_, '_> {
                             }
                         }
                     }
-                    self.frame_info.push(FrameInfo {
+                    self.frames.frame_info.push(FrameInfo {
                         addr: FrameAddr {
                             typ: 0,
                             region: (reg - self.chip.reg_cfg) as i32,
@@ -622,9 +618,9 @@ impl Expander<'_, '_> {
                 }
                 major += 1;
                 if cd == ColumnKind::Cfg {
-                    self.frames.spine_frame[reg] = self.frame_info.len();
+                    self.frames.spine_frame[reg] = self.frames.frame_info.len();
                     for minor in 0..3 {
-                        self.frame_info.push(FrameInfo {
+                        self.frames.frame_info.push(FrameInfo {
                             addr: FrameAddr {
                                 typ: 0,
                                 region: (reg - self.chip.reg_cfg) as i32,
@@ -644,14 +640,14 @@ impl Expander<'_, '_> {
                 if cd != ColumnKind::Bram {
                     continue;
                 }
-                self.frames.col_frame[reg][col] = self.frame_info.len();
+                self.frames.col_frame[reg][col] = self.frames.frame_info.len();
                 for minor in 0..20 {
                     let mask_mode = if minor == 19 {
                         FrameMaskMode::BramV4
                     } else {
                         FrameMaskMode::None
                     };
-                    self.frame_info.push(FrameInfo {
+                    self.frames.frame_info.push(FrameInfo {
                         addr: FrameAddr {
                             typ: 1,
                             region: (reg - self.chip.reg_cfg) as i32,
@@ -670,9 +666,9 @@ impl Expander<'_, '_> {
                 if cd != ColumnKind::Bram {
                     continue;
                 }
-                self.frames.bram_frame[reg].insert(col, self.frame_info.len());
+                self.frames.bram_frame[reg].insert(col, self.frames.frame_info.len());
                 for minor in 0..64 {
-                    self.frame_info.push(FrameInfo {
+                    self.frames.frame_info.push(FrameInfo {
                         addr: FrameAddr {
                             typ: 2,
                             region: (reg - self.chip.reg_cfg) as i32,
@@ -738,12 +734,12 @@ pub fn expand_grid<'a>(
         die,
         int_holes: &mut int_holes,
         site_holes: &mut site_holes,
-        frame_info: vec![],
         frames: DieFrameGeom {
             col_frame: EntityVec::new(),
             col_width: EntityVec::new(),
             bram_frame: EntityVec::new(),
             spine_frame: EntityVec::new(),
+            frame_info: vec![],
         },
         col_lio: Some(cols_io[0]),
         col_cfg,
@@ -773,20 +769,6 @@ pub fn expand_grid<'a>(
     let gt = expander.gt;
     let row_dcmiob = expander.row_dcmiob;
     let row_iobdcm = expander.row_iobdcm;
-    let die_bs_geom = DieBitstreamGeom {
-        frame_len: 80 * 16 + 32,
-        frame_info: expander.frame_info,
-        bram_frame_len: 0,
-        bram_frame_info: vec![],
-        iob_frame_len: 0,
-    };
-    let bs_geom = BitstreamGeom {
-        kind: DeviceKind::Virtex4,
-        die: [die_bs_geom].into_iter().collect(),
-        die_order: vec![die],
-        has_gtz_bot: false,
-        has_gtz_top: false,
-    };
 
     let mut cfg_io = BiHashMap::new();
     for i in 0..16 {
@@ -821,7 +803,7 @@ pub fn expand_grid<'a>(
         int_holes,
         site_holes,
         egrid,
-        bs_geom,
+        die_order: vec![die],
         frames: [frames].into_iter().collect(),
         col_cfg,
         col_clk: col_cfg,

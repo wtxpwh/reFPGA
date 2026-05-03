@@ -36,8 +36,11 @@ impl<'b> FuzzerProp<'b, IseBackend<'b>> for ForceBitRects {
         let ExpandedDevice::Virtex2(edev) = backend.edev else {
             unreachable!()
         };
-        fuzzer.info.features[0].rects =
-            EntityVec::from_iter(tile.cells.values().map(|&cell| edev.btile_main(cell)));
+        fuzzer.info.features[0].rects = EntityVec::from_iter(
+            tile.cells
+                .values()
+                .map(|&cell| edev.btile_main(cell).into()),
+        );
         Some((fuzzer, false))
     }
 }

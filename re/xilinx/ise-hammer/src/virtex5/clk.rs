@@ -92,7 +92,7 @@ impl<'b> FuzzerProp<'b, IseBackend<'b>> for HclkBramMgtPrev {
             let ntcrd = tcrd.with_col(col).tile(defs::tslots::CLK);
             fuzzer.info.features.push(FuzzerFeature {
                 key: DiffKey::Routing(tcls::HCLK_MGT_BUF, self.0, self.1),
-                rects: edev.tile_bits(ntcrd),
+                rects: backend.edev.tile_bits(ntcrd),
             });
             sad = false;
         }
@@ -125,7 +125,7 @@ impl<'b> FuzzerProp<'b, IseBackend<'b>> for HclkIoiCenterSupport {
         {
             fuzzer.info.features.push(FuzzerFeature {
                 key: DiffKey::RoutingSpecial(self.0, self.1, specials::SUPPORT),
-                rects: edev.tile_bits(ntcrd),
+                rects: backend.edev.tile_bits(ntcrd),
             });
             sad = false;
         }
@@ -166,7 +166,7 @@ impl<'b> FuzzerProp<'b, IseBackend<'b>> for AllIodelay {
             }
             fuzzer.info.features.push(FuzzerFeature {
                 key: DiffKey::BelSpecial(tcls::IO, bslots::IODELAY[0], self.1),
-                rects: edev.tile_bits(ntcrd),
+                rects: backend.edev.tile_bits(ntcrd),
             });
         }
         Some((fuzzer, false))

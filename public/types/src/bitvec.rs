@@ -126,6 +126,11 @@ impl BitVec {
         }
         res
     }
+
+    pub fn diff(a: &BitVec, b: &BitVec) -> impl Iterator<Item = (usize, bool)> {
+        assert_eq!(a.len(), b.len());
+        (0..a.len()).filter_map(|i| if a[i] != b[i] { Some((i, b[i])) } else { None })
+    }
 }
 
 impl std::ops::BitAndAssign<&BitVec> for BitVec {

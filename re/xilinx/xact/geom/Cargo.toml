@@ -11,7 +11,6 @@ prjcombine-entity.workspace = true
 prjcombine-types.workspace = true
 prjcombine-interconnect.workspace = true
 prjcombine-xc2000.workspace = true
-prjcombine-xilinx-bitstream.workspace = true
 prjcombine-re-xilinx-xact-naming.workspace = true
 prjcombine-re-xilinx-xact-xc2000.workspace = true
 

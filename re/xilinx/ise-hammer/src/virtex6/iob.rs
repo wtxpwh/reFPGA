@@ -311,7 +311,7 @@ impl<'b> FuzzerProp<'b, IseBackend<'b>> for Dci {
         if self.0.is_some() {
             fuzzer.info.features.push(FuzzerFeature {
                 key: DiffKey::BelSpecial(tcls::IO, bslots::IOB[0], specials::IOB_VR),
-                rects: edev.tile_bits(vr_tile),
+                rects: backend.edev.tile_bits(vr_tile),
             });
         }
 
@@ -329,7 +329,7 @@ impl<'b> FuzzerProp<'b, IseBackend<'b>> for Dci {
         if let Some((spec, row)) = self.0 {
             fuzzer.info.features.push(FuzzerFeature {
                 key: DiffKey::BelSpecialRow(tcls::HCLK_IO, bslots::DCI, spec, row),
-                rects: edev.tile_bits(hclk_ioi),
+                rects: backend.edev.tile_bits(hclk_ioi),
             });
         }
         // Take shared mutex on global DCI.

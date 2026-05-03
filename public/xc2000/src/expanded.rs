@@ -1,12 +1,12 @@
-use prjcombine_entity::{EntityId, EntityPartVec, EntityVec};
+use prjcombine_entity::{EntityPartVec, EntityVec};
 use prjcombine_interconnect::{
     dir::{DirH, DirV},
-    grid::{ColId, DieId, ExpandedGrid, RowId, TileCoord},
+    grid::{ColId, ExpandedGrid, RowId, TileCoord},
 };
 use prjcombine_types::bsdata::BitRectId;
-use prjcombine_xilinx_bitstream::{BitRect, BitstreamGeom};
 
 use crate::{
+    bitstream::BitRect,
     chip::{Chip, ChipKind},
     xc2000, xc3000, xc4000, xc5200,
 };
@@ -14,14 +14,19 @@ use crate::{
 pub struct ExpandedDevice<'a> {
     pub chip: &'a Chip,
     pub egrid: ExpandedGrid<'a>,
-    pub bs_geom: BitstreamGeom,
     pub col_frame: EntityVec<ColId, usize>,
     pub llh_frame: EntityPartVec<ColId, usize>,
+    pub frames_num: usize,
     pub row_framebit: EntityVec<RowId, usize>,
     pub llv_framebit: EntityPartVec<RowId, usize>,
+    pub frame_len: usize,
 }
 
 impl ExpandedDevice<'_> {
+    pub fn is_s40xl(&self) -> bool {
+        self.chip.kind == ChipKind::SpartanXl && self.chip.columns == 30
+    }
+
     pub fn tile_bits(&self, tcrd: TileCoord) -> EntityVec<BitRectId, BitRect> {
         let col = tcrd.col;
         let row = tcrd.row;
@@ -177,14 +182,12 @@ impl ExpandedDevice<'_> {
     }
 
     pub fn btile_main(&self, col: ColId, row: RowId) -> BitRect {
-        BitRect::Main(
-            DieId::from_idx(0),
-            self.col_frame[col],
-            self.chip.btile_width_main(col),
-            self.row_framebit[row],
-            self.chip.btile_height_main(row),
-            false,
-        )
+        BitRect {
+            frame: self.col_frame[col],
+            width: self.chip.btile_width_main(col),
+            bit: self.row_framebit[row],
+            height: self.chip.btile_height_main(row),
+        }
     }
 
     pub fn btile_llv(&self, col: ColId, row: RowId) -> BitRect {
@@ -198,14 +201,12 @@ impl ExpandedDevice<'_> {
         } else {
             unreachable!()
         };
-        BitRect::Main(
-            DieId::from_idx(0),
-            self.col_frame[col],
-            self.chip.btile_width_main(col),
+        BitRect {
+            frame: self.col_frame[col],
+            width: self.chip.btile_width_main(col),
             bit,
             height,
-            false,
-        )
+        }
     }
 
     pub fn btile_llh(&self, col: ColId, row: RowId) -> BitRect {
@@ -219,14 +220,12 @@ impl ExpandedDevice<'_> {
         } else {
             unreachable!()
         };
-        BitRect::Main(
-            DieId::from_idx(0),
+        BitRect {
             frame,
             width,
-            self.row_framebit[row],
-            self.chip.btile_height_main(row),
-            false,
-        )
+            bit: self.row_framebit[row],
+            height: self.chip.btile_height_main(row),
+        }
     }
 }
 

@@ -7,7 +7,6 @@ members = [
     "tablegen",
     "jed",
     "siliconblue",
-    "xilinx-bitstream",
     "xc2000",
     "virtex",
     "virtex2",
@@ -35,7 +34,6 @@ prjcombine-types = { path = "types" }
 prjcombine-interconnect = { path = "interconnect" }
 prjcombine-tablegen = { path = "tablegen" }
 prjcombine-jed = { path = "jed" }
-prjcombine-xilinx-bitstream = { path = "xilinx-bitstream" }
 prjcombine-xc2000 = { path = "xc2000" }
 prjcombine-virtex = { path = "virtex" }
 prjcombine-virtex2 = { path = "virtex2" }

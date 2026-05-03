@@ -3,11 +3,9 @@ use prjcombine_interconnect::db::IntDb;
 use prjcombine_interconnect::dir::{Dir, DirH, DirHV, DirMap};
 use prjcombine_interconnect::grid::builder::GridBuilder;
 use prjcombine_interconnect::grid::{CellCoord, ColId, DieId, DieIdExt, Rect};
-use prjcombine_xilinx_bitstream::{
-    BitstreamGeom, DeviceKind, DieBitstreamGeom, FrameAddr, FrameInfo,
-};
 use std::collections::{BTreeSet, HashMap};
 
+use crate::bitstream::FrameAddr;
 use crate::chip::{Chip, ColumnIoKind, ColumnKind, DcmKind, DisabledPart, PllKind, RegId};
 use crate::defs::{self, rslots};
 use crate::expanded::ExpandedDevice;
@@ -19,8 +17,8 @@ struct Expander<'a, 'b> {
     die: DieId,
     int_holes: Vec<Rect>,
     site_holes: Vec<Rect>,
-    frame_info: Vec<FrameInfo>,
-    bram_frame_info: Vec<FrameInfo>,
+    frame_info: Vec<FrameAddr>,
+    bram_frame_info: Vec<FrameAddr>,
     iob_frame_len: usize,
     col_frame: EntityVec<RegId, EntityVec<ColId, usize>>,
     col_width: EntityVec<ColId, usize>,
@@ -715,28 +713,22 @@ impl Expander<'_, '_> {
             let mut bram_major = 0;
             self.spine_frame.push(self.frame_info.len());
             for minor in 0..4 {
-                self.frame_info.push(FrameInfo {
-                    addr: FrameAddr {
-                        typ: 0,
-                        region: reg.to_idx() as i32,
-                        major,
-                        minor: minor as u32,
-                    },
-                    mask_mode: [].into_iter().collect(),
+                self.frame_info.push(FrameAddr {
+                    typ: 0,
+                    region: reg.to_idx() as u32,
+                    major,
+                    minor: minor as u32,
                 });
             }
             major += 1;
             for (col, cd) in &self.chip.columns {
                 self.col_frame[reg].push(self.frame_info.len());
                 for minor in 0..self.col_width[col] {
-                    self.frame_info.push(FrameInfo {
-                        addr: FrameAddr {
-                            typ: 0,
-                            region: reg.to_idx() as i32,
-                            major,
-                            minor: minor as u32,
-                        },
-                        mask_mode: [].into_iter().collect(),
+                    self.frame_info.push(FrameAddr {
+                        typ: 0,
+                        region: reg.to_idx() as u32,
+                        major,
+                        minor: minor as u32,
                     });
                 }
                 major += 1;
@@ -744,14 +736,11 @@ impl Expander<'_, '_> {
                     self.bram_frame[reg].insert(col, self.bram_frame_info.len());
                     // XXX uncertain
                     for minor in 0..4 {
-                        self.bram_frame_info.push(FrameInfo {
-                            addr: FrameAddr {
-                                typ: 1,
-                                region: reg.to_idx() as i32,
-                                major: bram_major,
-                                minor,
-                            },
-                            mask_mode: [].into_iter().collect(),
+                        self.bram_frame_info.push(FrameAddr {
+                            typ: 1,
+                            region: reg.to_idx() as u32,
+                            major: bram_major,
+                            minor,
                         });
                     }
                     bram_major += 1;
@@ -874,20 +863,9 @@ impl Chip {
         expander.fill_frame_info();
         expander.fill_iob_frame_info();
 
-        let die_bs_geom = DieBitstreamGeom {
-            frame_len: 1040,
-            frame_info: expander.frame_info,
-            bram_frame_len: 1040 * 18,
-            bram_frame_info: expander.bram_frame_info,
-            iob_frame_len: expander.iob_frame_len,
-        };
-        let bs_geom = BitstreamGeom {
-            kind: DeviceKind::Spartan6,
-            die: [die_bs_geom].into_iter().collect(),
-            die_order: vec![expander.die],
-            has_gtz_bot: false,
-            has_gtz_top: false,
-        };
+        let frame_info = expander.frame_info;
+        let bram_frame_info = expander.bram_frame_info;
+        let iob_frame_len = expander.iob_frame_len;
         let site_holes = expander.site_holes;
         let col_frame = expander.col_frame;
         let col_width = expander.col_width;
@@ -902,7 +880,9 @@ impl Chip {
             disabled,
             egrid,
             site_holes,
-            bs_geom,
+            frame_info,
+            bram_frame_info,
+            iob_frame_len,
             col_frame,
             col_width,
             spine_frame,

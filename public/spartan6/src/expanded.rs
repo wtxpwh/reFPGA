@@ -1,13 +1,13 @@
-use prjcombine_entity::{EntityId, EntityPartVec, EntityVec};
+use prjcombine_entity::{EntityPartVec, EntityVec};
 use prjcombine_interconnect::{
     dir::{Dir, DirMap},
-    grid::{BelCoord, CellCoord, ColId, DieId, ExpandedGrid, Rect, RowId, TileCoord},
+    grid::{BelCoord, CellCoord, ColId, ExpandedGrid, Rect, RowId, TileCoord},
 };
 use prjcombine_types::bsdata::BitRectId;
-use prjcombine_xilinx_bitstream::{BitRect, BitstreamGeom, Reg};
 use std::collections::{BTreeSet, HashMap};
 
 use crate::{
+    bitstream::{BitRect, FrameAddr, Reg},
     chip::{Chip, DisabledPart, RegId},
     defs::{self, bslots},
 };
@@ -17,7 +17,9 @@ pub struct ExpandedDevice<'a> {
     pub disabled: BTreeSet<DisabledPart>,
     pub egrid: ExpandedGrid<'a>,
     pub site_holes: Vec<Rect>,
-    pub bs_geom: BitstreamGeom,
+    pub frame_info: Vec<FrameAddr>,
+    pub bram_frame_info: Vec<FrameAddr>,
+    pub iob_frame_len: usize,
     pub col_frame: EntityVec<RegId, EntityVec<ColId, usize>>,
     pub col_width: EntityVec<ColId, usize>,
     pub spine_frame: EntityVec<RegId, usize>,
@@ -41,7 +43,6 @@ impl ExpandedDevice<'_> {
         let rd = row - self.chip.row_reg_s(reg);
         let bit = 64 * (rd as usize) + if rd < 8 { 0 } else { 16 };
         BitRect::Main(
-            DieId::from_idx(0),
             self.col_frame[reg][col],
             self.col_width[col],
             bit,
@@ -54,13 +55,12 @@ impl ExpandedDevice<'_> {
         let reg = self.chip.row_to_reg(row);
         let rd = row - self.chip.row_reg_s(reg);
         let bit = 64 * (rd as usize) + if rd < 8 { 0 } else { 16 };
-        BitRect::Main(DieId::from_idx(0), self.spine_frame[reg], 4, bit, 64, false)
+        BitRect::Main(self.spine_frame[reg], 4, bit, 64, false)
     }
 
     pub fn btile_hclk(&self, col: ColId, row: RowId) -> BitRect {
         let reg = self.chip.row_to_reg(row);
         BitRect::Main(
-            DieId::from_idx(0),
             self.col_frame[reg][col],
             self.col_width[col],
             64 * 8,
@@ -72,39 +72,39 @@ impl ExpandedDevice<'_> {
     pub fn btile_bram(&self, col: ColId, row: RowId) -> BitRect {
         let reg = self.chip.row_to_reg(row);
         let rd: usize = (row - self.chip.row_reg_s(reg)).try_into().unwrap();
-        BitRect::Bram(DieId::from_idx(0), self.bram_frame[reg][col] + rd / 4)
+        BitRect::Bram(self.bram_frame[reg][col] + rd / 4)
     }
 
     pub fn btile_clk(&self, dir: Dir) -> BitRect {
-        BitRect::Iob(DieId::from_idx(0), self.reg_frame[dir], 384)
+        BitRect::Iob(self.reg_frame[dir], 384)
     }
 
     pub fn btile_iob(&self, cell: CellCoord) -> BitRect {
-        BitRect::Iob(DieId::from_idx(0), self.iob_frame[&cell], 128)
+        BitRect::Iob(self.iob_frame[&cell], 128)
     }
 
     pub fn tile_bits(&self, tcrd: TileCoord) -> EntityVec<BitRectId, BitRect> {
         let tile = &self[tcrd];
         if tcrd.slot == defs::tslots::GLOBAL {
             EntityVec::from_iter([
-                BitRect::Reg(tcrd.die, Reg::Cor1),
-                BitRect::Reg(tcrd.die, Reg::Cor2),
-                BitRect::Reg(tcrd.die, Reg::Ctl0),
-                BitRect::Reg(tcrd.die, Reg::CclkFrequency),
-                BitRect::Reg(tcrd.die, Reg::HcOpt),
-                BitRect::Reg(tcrd.die, Reg::Powerdown),
-                BitRect::Reg(tcrd.die, Reg::PuGwe),
-                BitRect::Reg(tcrd.die, Reg::PuGts),
-                BitRect::Reg(tcrd.die, Reg::Mode),
-                BitRect::Reg(tcrd.die, Reg::General1),
-                BitRect::Reg(tcrd.die, Reg::General2),
-                BitRect::Reg(tcrd.die, Reg::General3),
-                BitRect::Reg(tcrd.die, Reg::General4),
-                BitRect::Reg(tcrd.die, Reg::General5),
-                BitRect::Reg(tcrd.die, Reg::SeuOpt),
-                BitRect::Reg(tcrd.die, Reg::EyeMask),
-                BitRect::Reg(tcrd.die, Reg::Timer),
-                BitRect::Reg(tcrd.die, Reg::Testmode),
+                BitRect::Reg(Reg::Cor1),
+                BitRect::Reg(Reg::Cor2),
+                BitRect::Reg(Reg::Ctl0),
+                BitRect::Reg(Reg::CclkFrequency),
+                BitRect::Reg(Reg::HcOpt),
+                BitRect::Reg(Reg::Powerdown),
+                BitRect::Reg(Reg::PuGwe),
+                BitRect::Reg(Reg::PuGts),
+                BitRect::Reg(Reg::Mode),
+                BitRect::Reg(Reg::General1),
+                BitRect::Reg(Reg::General2),
+                BitRect::Reg(Reg::General3),
+                BitRect::Reg(Reg::General4),
+                BitRect::Reg(Reg::General5),
+                BitRect::Reg(Reg::SeuOpt),
+                BitRect::Reg(Reg::EyeMask),
+                BitRect::Reg(Reg::Timer),
+                BitRect::Reg(Reg::Testmode),
             ])
         } else if tile.class == defs::tcls::BRAM {
             EntityVec::from_iter([

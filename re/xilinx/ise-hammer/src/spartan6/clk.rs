@@ -74,7 +74,7 @@ impl<'b> FuzzerProp<'b, IseBackend<'b>> for BufpllPll {
                 }
                 fuzzer.info.features.push(FuzzerFeature {
                     key: DiffKey::Routing(self.1, self.2, self.3),
-                    rects: edev.tile_bits(ntcrd),
+                    rects: backend.edev.tile_bits(ntcrd),
                 });
                 return Some((fuzzer, false));
             }

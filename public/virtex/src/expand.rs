@@ -3,11 +3,9 @@ use prjcombine_interconnect::db::IntDb;
 use prjcombine_interconnect::dir::{DirH, DirV};
 use prjcombine_interconnect::grid::builder::GridBuilder;
 use prjcombine_interconnect::grid::{ColId, DieId, DieIdExt, WireCoord};
-use prjcombine_xilinx_bitstream::{
-    BitstreamGeom, DeviceKind, DieBitstreamGeom, FrameAddr, FrameInfo,
-};
 use std::collections::{BTreeSet, HashSet};
 
+use crate::bitstream::FrameAddr;
 use crate::chip::{Chip, ChipKind, DisabledPart};
 use crate::defs::{self, tcls};
 use crate::expanded::ExpandedDevice;
@@ -20,7 +18,7 @@ struct Expander<'a, 'b> {
     egrid: &'a mut GridBuilder<'b>,
     cols_bram: Vec<ColId>,
     spine_frame: usize,
-    frame_info: Vec<FrameInfo>,
+    frame_info: Vec<FrameAddr>,
     col_frame: EntityVec<ColId, usize>,
     bram_frame: EntityPartVec<ColId, usize>,
     clkv_frame: EntityPartVec<ColId, usize>,
@@ -119,12 +117,8 @@ impl Expander<'_, '_> {
             let mut prev_cell = None;
             for cell in self.egrid.column(self.die, col) {
                 if let Some(prev) = prev_cell {
-                    self.egrid.fill_conn_pair(
-                        prev,
-                        cell,
-                        defs::ccls::PASS_N,
-                        defs::ccls::PASS_S,
-                    );
+                    self.egrid
+                        .fill_conn_pair(prev, cell, defs::ccls::PASS_N, defs::ccls::PASS_S);
                 }
                 prev_cell = Some(cell);
                 if let Some(prev_col) = prev_col {
@@ -188,12 +182,8 @@ impl Expander<'_, '_> {
                         cell.delta(1, 3),
                     ],
                 );
-                self.egrid.fill_conn_pair(
-                    prev_cell,
-                    cell,
-                    defs::ccls::PASS_N,
-                    defs::ccls::PASS_S,
-                );
+                self.egrid
+                    .fill_conn_pair(prev_cell, cell, defs::ccls::PASS_N, defs::ccls::PASS_S);
                 prev_cell = cell;
             }
 
@@ -393,14 +383,10 @@ impl Expander<'_, '_> {
         // spine
         self.spine_frame = 0;
         for minor in 0..8 {
-            self.frame_info.push(FrameInfo {
-                addr: FrameAddr {
-                    typ: 0,
-                    region: 0,
-                    major,
-                    minor,
-                },
-                mask_mode: [].into_iter().collect(),
+            self.frame_info.push(FrameAddr {
+                typ: 0,
+                major,
+                minor,
             });
         }
         major += 1;
@@ -443,14 +429,10 @@ impl Expander<'_, '_> {
                     48
                 };
                 for minor in 0..width {
-                    self.frame_info.push(FrameInfo {
-                        addr: FrameAddr {
-                            typ: 0,
-                            region: 0,
-                            major,
-                            minor,
-                        },
-                        mask_mode: [].into_iter().collect(),
+                    self.frame_info.push(FrameAddr {
+                        typ: 0,
+                        major,
+                        minor,
                     });
                 }
                 major += 1;
@@ -471,14 +453,10 @@ impl Expander<'_, '_> {
                     }
                     self.col_frame[col] = self.frame_info.len();
                     for minor in 0..27 {
-                        self.frame_info.push(FrameInfo {
-                            addr: FrameAddr {
-                                typ: 0,
-                                region: 0,
-                                major,
-                                minor,
-                            },
-                            mask_mode: [].into_iter().collect(),
+                        self.frame_info.push(FrameAddr {
+                            typ: 0,
+                            major,
+                            minor,
                         });
                     }
                     major += 1;
@@ -505,14 +483,10 @@ impl Expander<'_, '_> {
                 }
                 self.bram_frame.insert(col, self.frame_info.len());
                 for minor in 0..64 {
-                    self.frame_info.push(FrameInfo {
-                        addr: FrameAddr {
-                            typ: 1,
-                            region: 0,
-                            major,
-                            minor,
-                        },
-                        mask_mode: [].into_iter().collect(),
+                    self.frame_info.push(FrameAddr {
+                        typ: 1,
+                        major,
+                        minor,
                     });
                 }
                 major += 1;
@@ -558,27 +532,15 @@ impl Chip {
         let bram_frame = expander.bram_frame;
         let clkv_frame = expander.clkv_frame;
 
-        let die_bs_geom = DieBitstreamGeom {
-            frame_len: self.rows * 18,
-            frame_info: expander.frame_info,
-            bram_frame_len: 0,
-            bram_frame_info: vec![],
-            iob_frame_len: 0,
-        };
-        let bs_geom = BitstreamGeom {
-            kind: DeviceKind::Virtex,
-            die: [die_bs_geom].into_iter().collect(),
-            die_order: vec![expander.die],
-            has_gtz_bot: false,
-            has_gtz_top: false,
-        };
+        let frame_info = expander.frame_info;
 
         egrid.blackhole_wires = expander.blackhole_wires;
         let egrid = egrid.finish();
         ExpandedDevice {
             chip: self,
             egrid,
-            bs_geom,
+            frame_info,
+            frame_len: self.rows * 18,
             spine_frame,
             col_frame,
             bram_frame,

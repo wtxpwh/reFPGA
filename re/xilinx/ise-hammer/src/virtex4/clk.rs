@@ -143,9 +143,6 @@ impl<'b> FuzzerProp<'b, IseBackend<'b>> for ExtraHclkDcmSupport {
         tcrd: TileCoord,
         mut fuzzer: Fuzzer<IseBackend<'a>>,
     ) -> Option<(Fuzzer<IseBackend<'a>>, bool)> {
-        let ExpandedDevice::Virtex4(edev) = backend.edev else {
-            unreachable!()
-        };
         let rows = match self.0 {
             DirV::N => [tcrd.row, tcrd.row + 4],
             DirV::S => [tcrd.row - 8, tcrd.row - 4],
@@ -158,7 +155,7 @@ impl<'b> FuzzerProp<'b, IseBackend<'b>> for ExtraHclkDcmSupport {
             {
                 fuzzer.info.features.push(FuzzerFeature {
                     key: DiffKey::RoutingSpecial(self.1, self.2, specials::SUPPORT),
-                    rects: edev.tile_bits(ntcrd),
+                    rects: backend.edev.tile_bits(ntcrd),
                 });
                 sad = false;
             }
@@ -190,7 +187,7 @@ impl<'b> FuzzerProp<'b, IseBackend<'b>> for ExtraMgtRepeaterAttr {
                 let ntcrd = tcrd.with_col(rcol).tile(tslots::CLK);
                 fuzzer.info.features.push(FuzzerFeature {
                     key: DiffKey::RoutingSpecial(tcls::HCLK_MGT_BUF, self.1, self.2),
-                    rects: edev.tile_bits(ntcrd),
+                    rects: backend.edev.tile_bits(ntcrd),
                 });
             }
         }
@@ -226,7 +223,7 @@ impl<'b> FuzzerProp<'b, IseBackend<'b>> for MgtRepeater {
                 let ntcrd = tcrd.with_cr(rcol, rrow).tile(tslots::CLK);
                 fuzzer.info.features.push(FuzzerFeature {
                     key: DiffKey::RoutingSpecial(tcls::HCLK_MGT_BUF, self.2, self.3),
-                    rects: edev.tile_bits(ntcrd),
+                    rects: backend.edev.tile_bits(ntcrd),
                 });
             }
         }

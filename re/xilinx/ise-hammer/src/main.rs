@@ -7,10 +7,9 @@ use prjcombine_interconnect::dir::DirV;
 use prjcombine_re_collector::{bitdata::CollectorData, collect::Collector};
 use prjcombine_re_hammer::{Backend, Session};
 use prjcombine_re_toolchain::Toolchain;
-use prjcombine_re_xilinx_geom::{Chip, Device, ExpandedDevice, GeomDb};
+use prjcombine_re_xilinx_geom::{Bitstream, Chip, Device, ExpandedDevice, GeomDb};
 use prjcombine_types::bitvec::BitVec;
 use prjcombine_virtex2::defs::virtex2::{tcls as tcls_v2, wires as wires_v2};
-use prjcombine_xilinx_bitstream::Reg;
 use std::collections::{HashMap, hash_map};
 use std::error::Error;
 use std::path::PathBuf;
@@ -119,7 +118,6 @@ fn run(tc: &Toolchain, db: &GeomDb, part: &Device, data: &mut CollectorData, opt
         tc,
         db,
         device: part,
-        bs_geom: gedev.bs_geom(),
         ngrid: gendev.ngrid(),
         edev: &gedev,
         endev: &gendev,
@@ -689,20 +687,42 @@ fn run(tc: &Toolchain, db: &GeomDb, part: &Device, data: &mut CollectorData, opt
     if !opts.skip_core {
         generic::intf::collect_fuzzers(&mut ctx);
     }
-    for (die, dbs) in &ctx.empty_bs.die {
-        if let Some(&val) = dbs.regs.get(&Reg::Idcode) {
-            let mut idcode = BitVec::new();
-            for i in 0..32 {
-                idcode.push((val & 1 << i) != 0);
+    match ctx.empty_bs {
+        Bitstream::Xc2000(_) => (),
+        Bitstream::Virtex(_) => (),
+        Bitstream::Virtex2(bs) => {
+            if let Some(&val) = bs.regs.get(&prjcombine_virtex2::bitstream::Reg::Idcode) {
+                let mut idcode = BitVec::new();
+                for i in 0..32 {
+                    idcode.push((val & 1 << i) != 0);
+                }
+                match gedev {
+                    ExpandedDevice::Virtex2(_) => {
+                        ctx.insert_devdata_bitvec(
+                            prjcombine_virtex2::defs::devdata::IDCODE,
+                            idcode,
+                        );
+                    }
+                    _ => unreachable!(),
+                }
             }
-            match gedev {
-                ExpandedDevice::Virtex2(_) => {
-                    ctx.insert_devdata_bitvec(prjcombine_virtex2::defs::devdata::IDCODE, idcode);
+        }
+        Bitstream::Spartan6(bs) => {
+            if let Some(&val) = bs.regs.get(&prjcombine_spartan6::bitstream::Reg::Idcode) {
+                let mut idcode = BitVec::new();
+                for i in 0..32 {
+                    idcode.push((val & 1 << i) != 0);
                 }
-                ExpandedDevice::Spartan6(_) => {
-                    ctx.insert_devdata_bitvec(prjcombine_spartan6::defs::devdata::IDCODE, idcode);
-                }
-                ExpandedDevice::Virtex4(_) => {
+                ctx.insert_devdata_bitvec(prjcombine_spartan6::defs::devdata::IDCODE, idcode);
+            }
+        }
+        Bitstream::Virtex4(bs) => {
+            for (die, dbs) in &bs.die {
+                if let Some(&val) = dbs.regs.get(&prjcombine_virtex4::bitstream::Reg::Idcode) {
+                    let mut idcode = BitVec::new();
+                    for i in 0..32 {
+                        idcode.push((val & 1 << i) != 0);
+                    }
                     ctx.insert_devdata_bitvec(
                         [
                             prjcombine_virtex4::defs::devdata::IDCODE0,
@@ -713,20 +733,19 @@ fn run(tc: &Toolchain, db: &GeomDb, part: &Device, data: &mut CollectorData, opt
                         idcode,
                     );
                 }
-                _ => unreachable!(),
+            }
+            for (&dir, gtzbs) in &bs.gtz {
+                let which = match dir {
+                    DirV::S => prjcombine_virtex4::defs::devdata::IDCODE_GTZ_S,
+                    DirV::N => prjcombine_virtex4::defs::devdata::IDCODE_GTZ_N,
+                };
+                let mut idcode = BitVec::new();
+                for i in 0..32 {
+                    idcode.push((gtzbs.idcode & 1 << i) != 0);
+                }
+                ctx.insert_devdata_bitvec(which, idcode);
             }
         }
-    }
-    for (&dir, gtzbs) in &ctx.empty_bs.gtz {
-        let which = match dir {
-            DirV::S => prjcombine_virtex4::defs::devdata::IDCODE_GTZ_S,
-            DirV::N => prjcombine_virtex4::defs::devdata::IDCODE_GTZ_N,
-        };
-        let mut idcode = BitVec::new();
-        for i in 0..32 {
-            idcode.push((gtzbs.idcode & 1 << i) != 0);
-        }
-        ctx.insert_devdata_bitvec(which, idcode);
     }
 
     for (key, data) in diffs {

@@ -8,8 +8,10 @@ use prjcombine_re_fpga_hammer::{FuzzerFeature, FuzzerProp};
 use prjcombine_re_hammer::{Fuzzer, Session};
 use prjcombine_re_xilinx_geom::ExpandedDevice;
 use prjcombine_types::bsdata::TileBit;
-use prjcombine_xc2000::xc5200::{bcls, bslots, tcls, wires};
-use prjcombine_xilinx_bitstream::BitRect;
+use prjcombine_xc2000::{
+    bitstream::BitRect,
+    xc5200::{bcls, bslots, tcls, wires},
+};
 
 use crate::{
     backend::IseBackend,
@@ -52,7 +54,16 @@ impl<'b> FuzzerProp<'b, IseBackend<'b>> for AllColumnIo {
             }
             fuzzer.info.features.push(FuzzerFeature {
                 key: id.clone(),
-                rects: EntityVec::from_iter([BitRect::Null, edev.btile_main(tcrd.col, row)]),
+                rects: EntityVec::from_iter([
+                    BitRect {
+                        frame: 0,
+                        width: 0,
+                        bit: 0,
+                        height: 0,
+                    }
+                    .into(),
+                    edev.btile_main(tcrd.col, row).into(),
+                ]),
             });
         }
         Some((fuzzer, false))

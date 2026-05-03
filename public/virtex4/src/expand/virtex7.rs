@@ -6,15 +6,12 @@ use prjcombine_interconnect::grid::builder::GridBuilder;
 use prjcombine_interconnect::grid::{
     BelCoord, CellCoord, ColId, DieId, DieIdExt, Rect, RowId, TileIobId,
 };
-use prjcombine_xilinx_bitstream::{
-    BitstreamGeom, DeviceKind, DieBitstreamGeom, FrameAddr, FrameInfo, FrameMaskMode,
-};
 use std::collections::BTreeSet;
 
 use crate::bond::SharedCfgPad;
 use crate::chip::{Chip, ColumnKind, DisabledPart, GtKind, Interposer, IoKind};
 use crate::defs::{bslots, tslots};
-use crate::expanded::{DieFrameGeom, ExpandedDevice, IoCoord};
+use crate::expanded::{DieFrameGeom, ExpandedDevice, FrameAddr, FrameInfo, FrameMaskMode, IoCoord};
 use crate::{
     defs,
     defs::virtex7::{ccls, rslots, tcls, wires},
@@ -26,7 +23,6 @@ struct DieExpander<'a, 'b, 'c> {
     die: DieId,
     site_holes: &'a mut Vec<Rect>,
     int_holes: &'a mut Vec<Rect>,
-    frame_info: Vec<FrameInfo>,
     frames: DieFrameGeom,
     col_cfg: ColId,
     col_clk: ColId,
@@ -831,7 +827,7 @@ impl DieExpander<'_, '_, '_> {
         }
         for &reg in &regs {
             for (col, &cd) in &self.chip.columns {
-                self.frames.col_frame[reg].push(self.frame_info.len());
+                self.frames.col_frame[reg].push(self.frames.frame_info.len());
                 if let Some(gtcol) = self.chip.get_col_gt(col)
                     && gtcol.regs[reg].is_some()
                     && (gtcol.col == self.chip.columns.last_id().unwrap()
@@ -846,7 +842,7 @@ impl DieExpander<'_, '_, '_> {
                                 FrameMaskMode::DrpHclk(25, 13),
                             ];
                         }
-                        self.frame_info.push(FrameInfo {
+                        self.frames.frame_info.push(FrameInfo {
                             addr: FrameAddr {
                                 typ: 0,
                                 region: if self.chip.regs == 1 {
@@ -928,7 +924,7 @@ impl DieExpander<'_, '_, '_> {
                             mask_mode[1] = FrameMaskMode::DrpHclk(24, 13);
                         }
                     }
-                    self.frame_info.push(FrameInfo {
+                    self.frames.frame_info.push(FrameInfo {
                         addr: FrameAddr {
                             typ: 0,
                             region: if self.chip.regs == 1 {
@@ -956,9 +952,9 @@ impl DieExpander<'_, '_, '_> {
                 {
                     break;
                 }
-                self.frames.bram_frame[reg].insert(col, self.frame_info.len());
+                self.frames.bram_frame[reg].insert(col, self.frames.frame_info.len());
                 for minor in 0..128 {
-                    self.frame_info.push(FrameInfo {
+                    self.frames.frame_info.push(FrameInfo {
                         addr: FrameAddr {
                             typ: 1,
                             region: if self.chip.regs == 1 {
@@ -1034,7 +1030,6 @@ pub fn expand_grid<'a>(
             })
             .sum::<usize>()) as u32;
     let mut frames = EntityVec::new();
-    let mut die_bs_geom = EntityVec::new();
 
     let col_cfg = pchip
         .columns
@@ -1109,12 +1104,12 @@ pub fn expand_grid<'a>(
             egrid: &mut egrid,
             site_holes: &mut site_holes,
             int_holes: &mut int_holes,
-            frame_info: vec![],
             frames: DieFrameGeom {
                 col_frame: EntityVec::new(),
                 col_width: EntityVec::new(),
                 bram_frame: EntityVec::new(),
                 spine_frame: EntityVec::new(),
+                frame_info: vec![],
             },
             col_cfg,
             col_clk,
@@ -1142,13 +1137,6 @@ pub fn expand_grid<'a>(
         de.fill_frame_info();
 
         frames.push(de.frames);
-        die_bs_geom.push(DieBitstreamGeom {
-            frame_len: 50 * 64 + 32,
-            frame_info: de.frame_info,
-            bram_frame_len: 0,
-            bram_frame_info: vec![],
-            iob_frame_len: 0,
-        });
         banklut.push(bank);
         bank += chip.regs as u32;
     }
@@ -1196,14 +1184,6 @@ pub fn expand_grid<'a>(
             die_order.push(die);
         }
     }
-
-    let bs_geom = BitstreamGeom {
-        kind: DeviceKind::Virtex7,
-        die: die_bs_geom,
-        die_order,
-        has_gtz_bot: interposer.gtz_s,
-        has_gtz_top: interposer.gtz_n,
-    };
 
     let mut cfg_io = BiHashMap::new();
     if pchip.has_ps {
@@ -1330,7 +1310,7 @@ pub fn expand_grid<'a>(
         disabled: disabled.clone(),
         int_holes,
         site_holes,
-        bs_geom,
+        die_order,
         frames,
         col_cfg,
         col_clk,

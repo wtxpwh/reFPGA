@@ -59,6 +59,17 @@ impl std::fmt::Display for ChipKind {
     }
 }
 
+impl ChipKind {
+    pub fn frame_len(self) -> usize {
+        match self {
+            ChipKind::Virtex4 => 80 * 16 + 32,
+            ChipKind::Virtex5 => 64 * 20 + 32,
+            ChipKind::Virtex6 => 64 * 40 + 32,
+            ChipKind::Virtex7 => 64 * 50 + 32,
+        }
+    }
+}
+
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Hash, Encode, Decode)]
 pub enum ColumnKind {
     ClbLL,

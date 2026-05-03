@@ -13,15 +13,16 @@ use prjcombine_re_hammer::{Backend, FuzzerId};
 use prjcombine_re_xilinx_xact_geom::Device;
 use prjcombine_re_xilinx_xact_naming::grid::{ExpandedGridNaming, PipCoords};
 use prjcombine_types::{bitvec::BitVec, bsdata::BitRectId};
-use prjcombine_xc2000::expanded::ExpandedDevice;
-use prjcombine_xilinx_bitstream::{BitPos, BitRect, Bitstream, BitstreamGeom, KeyData, parse};
+use prjcombine_xc2000::{
+    bitstream::{BitPos, BitRect, Bitstream},
+    expanded::ExpandedDevice,
+};
 
 use crate::lca::{Block, Design, Net};
 
 pub struct XactBackend<'a> {
     pub xact_path: &'a Path,
     pub device: &'a Device,
-    pub bs_geom: &'a BitstreamGeom,
     pub ngrid: &'a ExpandedGridNaming<'a>,
     pub edev: &'a ExpandedDevice<'a>,
 }
@@ -344,11 +345,11 @@ impl<'a> Backend for XactBackend<'a> {
             }
         }
         assert_eq!(bitpos, 7);
-        parse(self.bs_geom, &data, &KeyData::None)
+        self.edev.parse_bitstream(&data)
     }
 
     fn diff(bs1: &Bitstream, bs2: &Bitstream) -> HashMap<BitPos, bool> {
-        Bitstream::diff(bs1, bs2)
+        Bitstream::diff(bs1, bs2).collect()
     }
 
     fn return_fuzzer(

@@ -1,11 +1,11 @@
 use std::collections::BTreeSet;
 
 use prjcombine_entity::{EntityId, EntityPartVec, EntityVec};
-use prjcombine_interconnect::grid::{ColId, DieId, EdgeIoCoord, ExpandedGrid, RowId, TileCoord};
+use prjcombine_interconnect::grid::{ColId, EdgeIoCoord, ExpandedGrid, RowId, TileCoord};
 use prjcombine_types::bsdata::BitRectId;
-use prjcombine_xilinx_bitstream::{BitRect, BitstreamGeom, Reg};
 
 use crate::{
+    bitstream::{BitRect, FrameAddr, Reg},
     chip::{Chip, DisabledPart},
     defs::{tcls, tslots},
 };
@@ -19,7 +19,8 @@ pub struct Io {
 pub struct ExpandedDevice<'a> {
     pub chip: &'a Chip,
     pub egrid: ExpandedGrid<'a>,
-    pub bs_geom: BitstreamGeom,
+    pub frame_info: Vec<FrameAddr>,
+    pub frame_len: usize,
     pub spine_frame: usize,
     pub col_frame: EntityVec<ColId, usize>,
     pub bram_frame: EntityPartVec<ColId, usize>,
@@ -39,14 +40,7 @@ impl ExpandedDevice<'_> {
         let height = 18;
 
         let bit = height * row.to_idx();
-        BitRect::Main(
-            DieId::from_idx(0),
-            self.col_frame[col],
-            width,
-            bit,
-            height,
-            false,
-        )
+        BitRect::Main(self.col_frame[col], width, bit, height, false)
     }
 
     pub fn btile_spine(&self, row: RowId) -> BitRect {
@@ -54,28 +48,14 @@ impl ExpandedDevice<'_> {
         let height = 18;
 
         let bit = height * row.to_idx();
-        BitRect::Main(
-            DieId::from_idx(0),
-            self.spine_frame,
-            width,
-            bit,
-            height,
-            false,
-        )
+        BitRect::Main(self.spine_frame, width, bit, height, false)
     }
 
     pub fn btile_clkv(&self, col: ColId, row: RowId) -> BitRect {
         let height = 18;
 
         let bit = height * row.to_idx();
-        BitRect::Main(
-            DieId::from_idx(0),
-            self.clkv_frame[col],
-            1,
-            bit,
-            height,
-            false,
-        )
+        BitRect::Main(self.clkv_frame[col], 1, bit, height, false)
     }
 
     pub fn btile_bram(&self, col: ColId, row: RowId) -> BitRect {
@@ -83,14 +63,7 @@ impl ExpandedDevice<'_> {
         let height = 18;
 
         let bit = height * row.to_idx();
-        BitRect::Main(
-            DieId::from_idx(0),
-            self.bram_frame[col],
-            width,
-            bit,
-            height * 4,
-            false,
-        )
+        BitRect::Main(self.bram_frame[col], width, bit, height * 4, false)
     }
 
     pub fn tile_bits(&self, tcrd: TileCoord) -> EntityVec<BitRectId, BitRect> {
@@ -98,10 +71,7 @@ impl ExpandedDevice<'_> {
         if self.db[tile.class].bitrects.is_empty() {
             EntityVec::new()
         } else if tile.class == tcls::GLOBAL {
-            EntityVec::from_iter([
-                BitRect::Reg(Chip::DIE, Reg::Cor0),
-                BitRect::Reg(Chip::DIE, Reg::Ctl0),
-            ])
+            EntityVec::from_iter([BitRect::Reg(Reg::Cor0), BitRect::Reg(Reg::Ctl0)])
         } else if matches!(
             tile.class,
             tcls::BRAM_W | tcls::BRAM_E | tcls::BRAM_M | tcls::BRAM_W_S2 | tcls::BRAM_E_S2

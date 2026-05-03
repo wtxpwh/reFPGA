@@ -3,10 +3,8 @@ use prjcombine_interconnect::db::IntDb;
 use prjcombine_interconnect::dir::DirHV;
 use prjcombine_interconnect::grid::builder::GridBuilder;
 use prjcombine_interconnect::grid::{CellCoord, ColId, DieId, DieIdExt, Rect};
-use prjcombine_xilinx_bitstream::{
-    BitstreamGeom, DeviceKind, DieBitstreamGeom, FrameAddr, FrameInfo,
-};
 
+use crate::bitstream::FrameAddr;
 use crate::chip::{Chip, ChipKind, ColumnIoKind, ColumnKind, DcmPairKind};
 use crate::defs::{
     cslots, rslots,
@@ -22,7 +20,7 @@ struct Expander<'a, 'b> {
     die: DieId,
     egrid: &'a mut GridBuilder<'b>,
     holes: Vec<Rect>,
-    frame_info: Vec<FrameInfo>,
+    frame_info: Vec<FrameAddr>,
     clkv_frame: usize,
     spine_frame: usize,
     term_w_frame: usize,
@@ -1179,28 +1177,20 @@ impl Expander<'_, '_> {
             3
         };
         for minor in 0..num_spine {
-            self.frame_info.push(FrameInfo {
-                addr: FrameAddr {
-                    typ: 0,
-                    region: 0,
-                    major,
-                    minor,
-                },
-                mask_mode: [].into_iter().collect(),
+            self.frame_info.push(FrameAddr {
+                typ: 0,
+                major,
+                minor,
             });
         }
         major += 1;
         let num_term = if self.chip.kind.is_virtex2() { 4 } else { 2 };
         self.term_w_frame = self.frame_info.len();
         for minor in 0..num_term {
-            self.frame_info.push(FrameInfo {
-                addr: FrameAddr {
-                    typ: 0,
-                    region: 0,
-                    major,
-                    minor,
-                },
-                mask_mode: [].into_iter().collect(),
+            self.frame_info.push(FrameAddr {
+                typ: 0,
+                major,
+                minor,
             });
         }
         major += 1;
@@ -1212,28 +1202,20 @@ impl Expander<'_, '_> {
                 continue;
             }
             for minor in 0..num_main {
-                self.frame_info.push(FrameInfo {
-                    addr: FrameAddr {
-                        typ: 0,
-                        region: 0,
-                        major,
-                        minor,
-                    },
-                    mask_mode: [].into_iter().collect(),
+                self.frame_info.push(FrameAddr {
+                    typ: 0,
+                    major,
+                    minor,
                 });
             }
             major += 1;
         }
         self.term_e_frame = self.frame_info.len();
         for minor in 0..num_term {
-            self.frame_info.push(FrameInfo {
-                addr: FrameAddr {
-                    typ: 0,
-                    region: 0,
-                    major,
-                    minor,
-                },
-                mask_mode: [].into_iter().collect(),
+            self.frame_info.push(FrameAddr {
+                typ: 0,
+                major,
+                minor,
             });
         }
 
@@ -1245,14 +1227,10 @@ impl Expander<'_, '_> {
             }
             self.bram_frame.insert(col, self.frame_info.len());
             for minor in 0..num_bram {
-                self.frame_info.push(FrameInfo {
-                    addr: FrameAddr {
-                        typ: 1,
-                        region: 0,
-                        major,
-                        minor,
-                    },
-                    mask_mode: [].into_iter().collect(),
+                self.frame_info.push(FrameAddr {
+                    typ: 1,
+                    major,
+                    minor,
                 });
             }
             major += 1;
@@ -1265,14 +1243,10 @@ impl Expander<'_, '_> {
             }
             self.col_frame[col] = self.frame_info.len();
             for minor in 0..num_main {
-                self.frame_info.push(FrameInfo {
-                    addr: FrameAddr {
-                        typ: 2,
-                        region: 0,
-                        major,
-                        minor,
-                    },
-                    mask_mode: [].into_iter().collect(),
+                self.frame_info.push(FrameAddr {
+                    typ: 2,
+                    major,
+                    minor,
                 });
             }
             major += 1;
@@ -1347,30 +1321,15 @@ impl Chip {
         let bram_frame = expander.bram_frame;
         let holes = expander.holes;
 
-        let die_bs_geom = DieBitstreamGeom {
-            frame_len: 32 + self.rows.len() * if self.kind.is_virtex2() { 80 } else { 64 },
-            frame_info: expander.frame_info,
-            bram_frame_len: 0,
-            bram_frame_info: vec![],
-            iob_frame_len: 0,
-        };
-        let bs_geom = BitstreamGeom {
-            kind: if self.kind.is_spartan3a() {
-                DeviceKind::Spartan3A
-            } else {
-                DeviceKind::Virtex2
-            },
-            die: [die_bs_geom].into_iter().collect(),
-            die_order: vec![expander.die],
-            has_gtz_bot: false,
-            has_gtz_top: false,
-        };
+        let frame_info = expander.frame_info;
+        let frame_len = 32 + self.rows.len() * if self.kind.is_virtex2() { 80 } else { 64 };
 
         let egrid = egrid.finish();
         ExpandedDevice {
             chip: self,
             egrid,
-            bs_geom,
+            frame_info,
+            frame_len,
             clkv_frame,
             spine_frame,
             term_w_frame,

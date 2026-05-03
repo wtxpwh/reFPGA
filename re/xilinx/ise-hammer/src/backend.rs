@@ -8,7 +8,8 @@ use prjcombine_re_fpga_hammer::{FpgaBackend, FuzzerInfo, State};
 use prjcombine_re_hammer::{Backend, FuzzerId};
 use prjcombine_re_toolchain::Toolchain;
 use prjcombine_re_xilinx_geom::{
-    Bond, Device, ExpandedBond, ExpandedDevice, ExpandedNamedDevice, GeomDb,
+    BitPos, BitRect, Bitstream, Bond, Device, ExpandedBond, ExpandedDevice, ExpandedNamedDevice,
+    GeomDb, KeyData,
 };
 use prjcombine_re_xilinx_naming::grid::ExpandedGridNaming;
 use prjcombine_re_xilinx_xdl::{
@@ -16,8 +17,7 @@ use prjcombine_re_xilinx_xdl::{
 };
 use prjcombine_types::bitvec::BitVec;
 use prjcombine_types::bsdata::BitRectId;
-use prjcombine_xilinx_bitstream::{BitPos, BitRect, Bitstream, BitstreamGeom};
-use prjcombine_xilinx_bitstream::{KeyData, KeyDataAes, KeyDataDes, KeySeq, parse};
+use prjcombine_virtex::bitstream::KeySeq;
 use rand::prelude::*;
 use std::collections::{HashMap, hash_map};
 use std::fmt::{Debug, Write};
@@ -26,7 +26,6 @@ pub struct IseBackend<'a> {
     pub tc: &'a Toolchain,
     pub db: &'a GeomDb,
     pub device: &'a Device,
-    pub bs_geom: &'a BitstreamGeom,
     pub ngrid: &'a ExpandedGridNaming<'a>,
     pub edev: &'a ExpandedDevice<'a>,
     pub endev: &'a ExpandedNamedDevice<'a>,
@@ -164,7 +163,7 @@ impl IseBackend<'_> {
             ExpandedDevice::Virtex2(_) => {
                 let key_passes = rng.random_range(1..=6);
                 let start_key = rng.random_range(0..(6 - key_passes + 1));
-                let mut key = KeyDataDes {
+                let mut key = prjcombine_virtex2::bitstream::KeyData {
                     key: rng.random(),
                     keyseq: core::array::from_fn(|_| {
                         *[KeySeq::First, KeySeq::Middle, KeySeq::Last, KeySeq::Single]
@@ -199,8 +198,8 @@ impl IseBackend<'_> {
                 KeyData::Des(key)
             }
             ExpandedDevice::Spartan6(_) | ExpandedDevice::Virtex4(_) => {
-                let key = KeyDataAes { key: rng.random() };
-                gopts.insert("KEY0".into(), hex::encode(key.key));
+                let key: [u8; 32] = rng.random();
+                gopts.insert("KEY0".into(), hex::encode(key));
                 KeyData::Aes(key)
             }
             _ => unreachable!(),
@@ -684,7 +683,7 @@ impl<'a> Backend for IseBackend<'a> {
             gopts.insert("COMPRESS".to_owned(), "".to_owned());
         }
         let bitdata = run_bitgen(self.tc, &xdl, &gopts, &pcf, altvr).unwrap();
-        parse(self.bs_geom, &bitdata, &key)
+        self.edev.parse_bitstream(&bitdata, key)
     }
 
     fn return_fuzzer(

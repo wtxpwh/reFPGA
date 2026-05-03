@@ -1525,8 +1525,9 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
                                         ),
                                     };
                                     drive_bits.retain(|bit| {
-                                        !ctx.empty_bs
-                                            .get_bit(btile.xlat_pos_fwd((bit.frame, bit.bit)))
+                                        !ctx.empty_bs.get_bit(
+                                            btile.xlat_pos_fwd((bit.frame, bit.bit)).into(),
+                                        )
                                     });
                                 }
                             }

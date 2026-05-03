@@ -85,7 +85,7 @@ impl<'b> FuzzerProp<'b, IseBackend<'b>> for MgtRepeaterMgt {
                 let ntcrd = tcrd.with_cr(rcol, row).tile(defs::tslots::CLK);
                 fuzzer.info.features.push(FuzzerFeature {
                     key: DiffKey::RoutingSpecial(tcls::HCLK_MGT_BUF, self.1, self.2),
-                    rects: edev.tile_bits(ntcrd),
+                    rects: backend.edev.tile_bits(ntcrd),
                 });
             }
         }

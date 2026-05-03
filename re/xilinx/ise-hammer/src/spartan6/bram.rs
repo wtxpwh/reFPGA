@@ -5,6 +5,7 @@ use prjcombine_re_collector::diff::{
 };
 use prjcombine_re_fpga_hammer::{FuzzerFeature, FuzzerProp};
 use prjcombine_re_hammer::{Fuzzer, Session};
+use prjcombine_re_xilinx_geom::BitRect;
 use prjcombine_spartan6::defs::{bcls, bslots, enums, tcls};
 
 use crate::{
@@ -39,7 +40,12 @@ impl<'b> FuzzerProp<'b, IseBackend<'b>> for ExtraBramFixup {
             .rects
             .values()
             .take(4)
-            .map(|&rect| rect.to_fixup())
+            .map(|&rect| {
+                let BitRect::Spartan6(rect) = rect else {
+                    unreachable!()
+                };
+                rect.to_fixup().into()
+            })
             .collect();
         fuzzer.info.features.push(FuzzerFeature { key, rects });
         Some((fuzzer, false))

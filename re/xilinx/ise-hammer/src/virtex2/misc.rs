@@ -1,24 +1,21 @@
 use std::collections::HashSet;
 
 use prjcombine_entity::{EntityId, EntityVec};
-use prjcombine_interconnect::{
-    db::BelAttributeId,
-    dir::DirHV,
-    grid::{DieId, TileCoord},
-};
+use prjcombine_interconnect::{db::BelAttributeId, dir::DirHV, grid::TileCoord};
 use prjcombine_re_collector::diff::{
     Diff, DiffKey, OcdMode, extract_bitvec_val, extract_bitvec_val_part, xlat_bit, xlat_bit_bi,
     xlat_bit_wide, xlat_bit_wide_bi,
 };
 use prjcombine_re_fpga_hammer::{FuzzerFeature, FuzzerProp};
 use prjcombine_re_hammer::{Fuzzer, Session};
-use prjcombine_re_xilinx_geom::{ExpandedBond, ExpandedDevice, ExpandedNamedDevice};
+use prjcombine_re_xilinx_geom::{Bitstream, ExpandedBond, ExpandedDevice, ExpandedNamedDevice};
 use prjcombine_types::{
     bitrect::BitRect as _,
     bits,
     bitvec::BitVec,
     bsdata::{BitRectId, RectBitId, RectFrameId, TileBit},
 };
+use prjcombine_virtex2::bitstream::{BitRect, Reg};
 use prjcombine_virtex2::{
     chip::{Chip, ChipKind, IoDiffKind},
     defs::{
@@ -32,7 +29,6 @@ use prjcombine_virtex2::{
     },
     iob::IobKind,
 };
-use prjcombine_xilinx_bitstream::{BitRect, Reg};
 
 use crate::{
     backend::{IseBackend, Key, MultiValue},
@@ -93,7 +89,7 @@ impl<'b> FuzzerProp<'b, IseBackend<'b>> for ForceBits {
         _tcrd: TileCoord,
         mut fuzzer: Fuzzer<IseBackend<'a>>,
     ) -> Option<(Fuzzer<IseBackend<'a>>, bool)> {
-        fuzzer.info.features[0].rects = self.0.clone();
+        fuzzer.info.features[0].rects = self.0.map_values(|&rect| rect.into());
         Some((fuzzer, false))
     }
 }
@@ -157,8 +153,8 @@ pub fn add_fuzzers<'a>(
             .to_fixup(),
         edev.btile_term_v(edev.chip.corner(DirHV::SW).cell)
             .to_fixup(),
-        BitRect::Reg(DieId::from_idx(0), Reg::FakeFreezeDciNops),
-        BitRect::RegPresent(DieId::from_idx(0), Reg::FakeFreezeDciNops),
+        BitRect::Reg(Reg::FakeFreezeDciNops),
+        BitRect::RegPresent(Reg::FakeFreezeDciNops),
     ]);
 
     let global = edev.chip.tile_global();
@@ -1578,10 +1574,10 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx, skip_io: bool, devdata_only: bool
             }
             ctx.insert_devdata_u32(devdata::FREEZE_DCI_NOPS, freeze_dci_nops);
 
-            let is_double_grestore = ctx.empty_bs.die[DieId::from_idx(0)]
-                .regs
-                .get(&Reg::FakeDoubleGrestore)
-                == Some(&1);
+            let Bitstream::Virtex2(bs) = ctx.empty_bs else {
+                unreachable!()
+            };
+            let is_double_grestore = bs.regs.get(&Reg::FakeDoubleGrestore) == Some(&1);
             ctx.insert_devdata_bool(devdata::DOUBLE_GRESTORE, is_double_grestore);
         }
 
@@ -2465,7 +2461,7 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx, skip_io: bool, devdata_only: bool
                     .iter()
                     .map(|bit| {
                         ctx.empty_bs
-                            .get_bit(btile.xlat_pos_fwd((bit.bit.frame, bit.bit.bit)))
+                            .get_bit(btile.xlat_pos_fwd((bit.bit.frame, bit.bit.bit)).into())
                     })
                     .collect();
 
@@ -2505,7 +2501,7 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx, skip_io: bool, devdata_only: bool
                 (cnr_ne, edev.btile_term_h(edev.chip.corner(DirHV::NE).cell)),
             ] {
                 let mut diff = Diff::default();
-                let BitRect::Main(_, _, width, _, height, _) = btile else {
+                let BitRect::Main(_, width, _, height, _) = btile else {
                     unreachable!()
                 };
                 for rframe in 0..width {
@@ -2513,7 +2509,7 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx, skip_io: bool, devdata_only: bool
                     for rbit in 0..height {
                         let rbit = RectBitId::from_idx(rbit);
                         let bit = btile.xlat_pos_fwd((rframe, rbit));
-                        if ctx.empty_bs.get_bit(bit) {
+                        if ctx.empty_bs.get_bit(bit.into()) {
                             diff.bits.insert(
                                 TileBit {
                                     rect: BitRectId::from_idx(0),
@@ -2821,10 +2817,10 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx, skip_io: bool, devdata_only: bool
     }
 
     if edev.chip.kind.is_virtex2() {
-        let is_double_grestore = ctx.empty_bs.die[DieId::from_idx(0)]
-            .regs
-            .get(&Reg::FakeDoubleGrestore)
-            == Some(&1);
+        let Bitstream::Virtex2(bs) = ctx.empty_bs else {
+            unreachable!()
+        };
+        let is_double_grestore = bs.regs.get(&Reg::FakeDoubleGrestore) == Some(&1);
         ctx.insert_devdata_bool(devdata::DOUBLE_GRESTORE, is_double_grestore);
     }
 }

@@ -2,10 +2,7 @@ use prjcombine_entity::{EntityId, EntityPartVec, EntityVec};
 use prjcombine_interconnect::{
     db::{IntDb, TileClassId},
     dir::{DirH, DirHV, DirV},
-    grid::{ColId, DieId, DieIdExt, RowId, builder::GridBuilder},
-};
-use prjcombine_xilinx_bitstream::{
-    BitstreamGeom, DeviceKind, DieBitstreamGeom, FrameAddr, FrameInfo,
+    grid::{ColId, DieIdExt, RowId, builder::GridBuilder},
 };
 
 use crate::{
@@ -98,7 +95,7 @@ impl Chip {
         let mut row_framebit = EntityVec::new();
         let mut llv_framebit = EntityPartVec::new();
         let mut frame_len = 0;
-        let mut frame_info = vec![];
+        let mut frames_num = 0;
         let mut col_frame: EntityVec<_, _> = egrid.cols(die).map(|_| 0).collect();
         let mut llh_frame = EntityPartVec::new();
 
@@ -229,34 +226,12 @@ impl Chip {
 
                 for col in egrid.cols(die).rev() {
                     let width = self.btile_width_main(col);
-                    col_frame[col] = frame_info.len();
-                    for _ in 0..width {
-                        let minor = frame_info.len();
-                        frame_info.push(FrameInfo {
-                            addr: FrameAddr {
-                                typ: 0,
-                                region: 0,
-                                major: 0,
-                                minor: minor as u32,
-                            },
-                            mask_mode: [].into_iter().collect(),
-                        });
-                    }
+                    col_frame[col] = frames_num;
+                    frames_num += width;
                     if self.cols_bidi.contains(&col) {
                         let width = self.btile_width_brk();
-                        llh_frame.insert(col, frame_info.len());
-                        for _ in 0..width {
-                            let minor = frame_info.len();
-                            frame_info.push(FrameInfo {
-                                addr: FrameAddr {
-                                    typ: 0,
-                                    region: 0,
-                                    major: 0,
-                                    minor: minor as u32,
-                                },
-                                mask_mode: [].into_iter().collect(),
-                            });
-                        }
+                        llh_frame.insert(col, frames_num);
+                        frames_num += width;
                     }
                 }
             }
@@ -466,19 +441,8 @@ impl Chip {
 
                 for col in egrid.cols(die).rev() {
                     let width = self.btile_width_main(col);
-                    col_frame[col] = frame_info.len();
-                    for _ in 0..width {
-                        let minor = frame_info.len();
-                        frame_info.push(FrameInfo {
-                            addr: FrameAddr {
-                                typ: 0,
-                                region: 0,
-                                major: 0,
-                                minor: minor as u32,
-                            },
-                            mask_mode: [].into_iter().collect(),
-                        });
-                    }
+                    col_frame[col] = frames_num;
+                    frames_num += width;
                 }
             }
             ChipKind::Xc4000
@@ -853,49 +817,18 @@ impl Chip {
 
                 for col in egrid.cols(die).rev() {
                     let width = self.btile_width_main(col);
-                    col_frame[col] = frame_info.len();
-                    for _ in 0..width {
-                        let minor = frame_info.len();
-                        frame_info.push(FrameInfo {
-                            addr: FrameAddr {
-                                typ: 0,
-                                region: 0,
-                                major: 0,
-                                minor: minor as u32,
-                            },
-                            mask_mode: [].into_iter().collect(),
-                        });
-                    }
+                    col_frame[col] = frames_num;
+                    frames_num += width;
                     if col == self.col_mid() {
                         let width = self.btile_width_clk();
-                        llh_frame.insert(col, frame_info.len());
-                        for _ in 0..width {
-                            let minor = frame_info.len();
-                            frame_info.push(FrameInfo {
-                                addr: FrameAddr {
-                                    typ: 0,
-                                    region: 0,
-                                    major: 0,
-                                    minor: minor as u32,
-                                },
-                                mask_mode: [].into_iter().collect(),
-                            });
-                        }
+                        llh_frame.insert(col, frames_num);
+                        frames_num += width;
                     }
                     if self.kind.is_xl()
                         && (col == self.col_q(DirH::W) || col == self.col_q(DirH::E))
                     {
-                        let minor = frame_info.len();
-                        llh_frame.insert(col, frame_info.len());
-                        frame_info.push(FrameInfo {
-                            addr: FrameAddr {
-                                typ: 0,
-                                region: 0,
-                                major: 0,
-                                minor: minor as u32,
-                            },
-                            mask_mode: [].into_iter().collect(),
-                        });
+                        llh_frame.insert(col, frames_num);
+                        frames_num += 1;
                     }
                 }
             }
@@ -1000,31 +933,11 @@ impl Chip {
 
                 for col in egrid.cols(die).rev() {
                     let width = self.btile_width_main(col);
-                    col_frame[col] = frame_info.len();
-                    for _ in 0..width {
-                        let minor = frame_info.len();
-                        frame_info.push(FrameInfo {
-                            addr: FrameAddr {
-                                typ: 0,
-                                region: 0,
-                                major: 0,
-                                minor: minor as u32,
-                            },
-                            mask_mode: [].into_iter().collect(),
-                        });
-                    }
+                    col_frame[col] = frames_num;
+                    frames_num += width;
                     if col == self.col_mid() {
-                        let minor = frame_info.len();
-                        llh_frame.insert(col, minor);
-                        frame_info.push(FrameInfo {
-                            addr: FrameAddr {
-                                typ: 0,
-                                region: 0,
-                                major: 0,
-                                minor: minor as u32,
-                            },
-                            mask_mode: [].into_iter().collect(),
-                        });
+                        llh_frame.insert(col, frames_num);
+                        frames_num += 1;
                     }
                 }
             }
@@ -1032,46 +945,15 @@ impl Chip {
 
         let egrid = egrid.finish();
 
-        let die_bs_geom = DieBitstreamGeom {
-            frame_len,
-            frame_info,
-            bram_frame_len: 0,
-            bram_frame_info: vec![],
-            iob_frame_len: 0,
-        };
-        let bs_geom = BitstreamGeom {
-            kind: match self.kind {
-                ChipKind::Xc2000 | ChipKind::Xc3000 | ChipKind::Xc3000A => DeviceKind::Xc2000,
-                ChipKind::Xc4000
-                | ChipKind::Xc4000A
-                | ChipKind::Xc4000H
-                | ChipKind::Xc4000E
-                | ChipKind::Xc4000Ex
-                | ChipKind::Xc4000Xla
-                | ChipKind::Xc4000Xv => DeviceKind::Xc4000,
-                ChipKind::SpartanXl => {
-                    if self.columns == 30 {
-                        DeviceKind::S40Xl
-                    } else {
-                        DeviceKind::Xc4000
-                    }
-                }
-                ChipKind::Xc5200 => DeviceKind::Xc5200,
-            },
-            die: [die_bs_geom].into_iter().collect(),
-            die_order: vec![DieId::from_idx(0)],
-            has_gtz_bot: false,
-            has_gtz_top: false,
-        };
-
         ExpandedDevice {
             chip: self,
             egrid,
-            bs_geom,
             col_frame,
             llh_frame,
+            frames_num,
             row_framebit,
             llv_framebit,
+            frame_len,
         }
     }
 }

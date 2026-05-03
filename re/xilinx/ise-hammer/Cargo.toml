@@ -21,7 +21,6 @@ prjcombine-virtex.workspace = true
 prjcombine-virtex2.workspace = true
 prjcombine-spartan6.workspace = true
 prjcombine-virtex4.workspace = true
-prjcombine-xilinx-bitstream.workspace = true
 prjcombine-re-toolchain.workspace = true
 prjcombine-re-hammer.workspace = true
 prjcombine-re-collector.workspace = true

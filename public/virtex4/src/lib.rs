@@ -1,3 +1,4 @@
+pub mod bitstream;
 pub mod bond;
 pub mod chip;
 pub mod db;

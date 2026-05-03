@@ -5,16 +5,13 @@ use prjcombine_interconnect::grid::builder::GridBuilder;
 use prjcombine_interconnect::grid::{
     BelCoord, CellCoord, ColId, DieId, DieIdExt, Rect, RowId, TileIobId,
 };
-use prjcombine_xilinx_bitstream::{
-    BitstreamGeom, DeviceKind, DieBitstreamGeom, FrameAddr, FrameInfo, FrameMaskMode,
-};
 use std::collections::BTreeSet;
 
 use crate::bond::SharedCfgPad;
 use crate::chip::{Chip, ColumnKind, DisabledPart, GtKind};
 
 use crate::defs::{bslots, tslots};
-use crate::expanded::{DieFrameGeom, ExpandedDevice, IoCoord};
+use crate::expanded::{DieFrameGeom, ExpandedDevice, FrameAddr, FrameInfo, FrameMaskMode, IoCoord};
 use crate::{
     defs,
     defs::virtex5::{ccls, rslots, tcls},
@@ -26,7 +23,6 @@ struct Expander<'a, 'b> {
     die: DieId,
     site_holes: &'a mut Vec<Rect>,
     int_holes: &'a mut Vec<Rect>,
-    frame_info: Vec<FrameInfo>,
     frames: DieFrameGeom,
     col_cfg: ColId,
     io: Vec<IoCoord>,
@@ -568,7 +564,7 @@ impl Expander<'_, '_> {
         for &reg in &regs {
             let mut major = 0;
             for (col, &cd) in &self.chip.columns {
-                self.frames.col_frame[reg].push(self.frame_info.len());
+                self.frames.col_frame[reg].push(self.frames.frame_info.len());
                 let width = match cd {
                     ColumnKind::ClbLL => 36,
                     ColumnKind::ClbLM => 36,
@@ -599,7 +595,7 @@ impl Expander<'_, '_> {
                     {
                         mask_mode[0] = FrameMaskMode::DrpHclk(27, 15);
                     }
-                    self.frame_info.push(FrameInfo {
+                    self.frames.frame_info.push(FrameInfo {
                         addr: FrameAddr {
                             typ: 0,
                             region: (reg - self.chip.reg_cfg) as i32,
@@ -611,9 +607,9 @@ impl Expander<'_, '_> {
                 }
                 major += 1;
                 if col == self.col_cfg {
-                    self.frames.spine_frame[reg] = self.frame_info.len();
+                    self.frames.spine_frame[reg] = self.frames.frame_info.len();
                     for minor in 0..4 {
-                        self.frame_info.push(FrameInfo {
+                        self.frames.frame_info.push(FrameInfo {
                             addr: FrameAddr {
                                 typ: 0,
                                 region: (reg - self.chip.reg_cfg) as i32,
@@ -633,9 +629,9 @@ impl Expander<'_, '_> {
                 if cd != ColumnKind::Bram {
                     continue;
                 }
-                self.frames.bram_frame[reg].insert(col, self.frame_info.len());
+                self.frames.bram_frame[reg].insert(col, self.frames.frame_info.len());
                 for minor in 0..128 {
-                    self.frame_info.push(FrameInfo {
+                    self.frames.frame_info.push(FrameInfo {
                         addr: FrameAddr {
                             typ: 1,
                             region: (reg - self.chip.reg_cfg) as i32,
@@ -703,12 +699,12 @@ pub fn expand_grid<'a>(
         egrid: &mut egrid,
         int_holes: &mut int_holes,
         site_holes: &mut site_holes,
-        frame_info: vec![],
         frames: DieFrameGeom {
             col_frame: EntityVec::new(),
             col_width: EntityVec::new(),
             bram_frame: EntityVec::new(),
             spine_frame: EntityVec::new(),
+            frame_info: vec![],
         },
         col_cfg,
         io: vec![],
@@ -736,20 +732,6 @@ pub fn expand_grid<'a>(
     let frames = expander.frames;
     let io = expander.io;
     let gt = expander.gt;
-    let die_bs_geom = DieBitstreamGeom {
-        frame_len: 64 * 20 + 32,
-        frame_info: expander.frame_info,
-        bram_frame_len: 0,
-        bram_frame_info: vec![],
-        iob_frame_len: 0,
-    };
-    let bs_geom = BitstreamGeom {
-        kind: DeviceKind::Virtex5,
-        die: [die_bs_geom].into_iter().collect(),
-        die_order: vec![die],
-        has_gtz_bot: false,
-        has_gtz_top: false,
-    };
 
     let cfg_io = [
         (6, 0, SharedCfgPad::Data(8)),
@@ -826,7 +808,7 @@ pub fn expand_grid<'a>(
         egrid,
         int_holes,
         site_holes,
-        bs_geom,
+        die_order: vec![die],
         frames: [frames].into_iter().collect(),
         col_cfg,
         col_clk: col_cfg,

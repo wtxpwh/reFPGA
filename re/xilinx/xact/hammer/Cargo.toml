@@ -16,7 +16,6 @@ rand.workspace = true
 prjcombine-entity.workspace = true
 prjcombine-types.workspace = true
 prjcombine-interconnect.workspace = true
-prjcombine-xilinx-bitstream.workspace = true
 prjcombine-xc2000.workspace = true
 prjcombine-re-hammer.workspace = true
 prjcombine-re-collector.workspace = true

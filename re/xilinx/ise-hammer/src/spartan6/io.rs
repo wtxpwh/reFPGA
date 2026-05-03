@@ -186,7 +186,7 @@ impl<'b> FuzzerProp<'b, IseBackend<'b>> for AllMcbIoi {
             {
                 fuzzer.info.features.push(FuzzerFeature {
                     key: DiffKey::BelSpecial(tcls::IOI_WE, bslots::MISC_IOI, self.0),
-                    rects: edev.tile_bits(ntcrd),
+                    rects: backend.edev.tile_bits(ntcrd),
                 })
             }
         }

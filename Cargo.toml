@@ -60,7 +60,6 @@ members = [
 	"re/xilinx/xact/dump",
 	"re/xilinx/xact/hammer",
 	"re/xilinx/finish",
-	"re/xilinx/rdis",
 	"re/xilinx/cpld",
 	"re/icecube-harvester",
 	"re/lattice/dump",
@@ -85,7 +84,6 @@ prjcombine-entity = { path = "public/entity", features = ["bitvec", "map", "serd
 prjcombine-types = { path = "public/types" }
 prjcombine-interconnect = { path = "public/interconnect" }
 prjcombine-siliconblue = { path = "public/siliconblue" }
-prjcombine-xilinx-bitstream = { path = "public/xilinx-bitstream" }
 prjcombine-xc2000 = { path = "public/xc2000" }
 prjcombine-virtex = { path = "public/virtex" }
 prjcombine-virtex2 = { path = "public/virtex2" }

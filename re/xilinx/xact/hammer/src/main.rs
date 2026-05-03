@@ -54,7 +54,6 @@ fn run(xact_path: &Path, db: &GeomDb, part: &Device, data: &mut CollectorData, o
     let backend = XactBackend {
         xact_path,
         device: part,
-        bs_geom: &edev.bs_geom,
         ngrid: &endev.ngrid,
         edev: &edev,
     };
