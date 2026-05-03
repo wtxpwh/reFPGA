@@ -201,7 +201,7 @@ pub struct BelAttribute {
 #[derive(Debug)]
 pub struct TileBit {
     pub name: TemplateId,
-    pub index: Vec<Index>,
+    pub index: Vec<Expr>,
     pub inv: bool,
 }
 
@@ -316,7 +316,7 @@ impl TemplateId {
 #[derive(Debug)]
 pub enum ArrayIdRef {
     Plain(TemplateId),
-    Indexed(TemplateId, Index),
+    Indexed(TemplateId, Expr),
 }
 
 impl ArrayIdRef {
@@ -329,9 +329,14 @@ impl ArrayIdRef {
 }
 
 #[derive(Debug)]
-pub enum Index {
-    Ident(Ident, isize),
+pub enum Expr {
+    Ident(Ident),
     Literal(usize),
+    Add(Box<Expr>, Box<Expr>),
+    Sub(Box<Expr>, Box<Expr>),
+    Mul(Box<Expr>, Box<Expr>),
+    Div(Box<Expr>, Box<Expr>),
+    Mod(Box<Expr>, Box<Expr>),
 }
 
 #[derive(Debug)]

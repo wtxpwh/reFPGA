@@ -32,6 +32,115 @@ pub fn parse_str(lit: &Literal) -> Result<String> {
     Ok(s.to_string())
 }
 
+fn parse_expr(span: Span, tokens: TokenStream) -> Result<ast::Expr> {
+    #[derive(Copy, Clone, Eq, PartialEq)]
+    enum SumOp {
+        Add,
+        Sub,
+    }
+    impl SumOp {
+        fn apply(self, a: ast::Expr, b: ast::Expr) -> ast::Expr {
+            match self {
+                SumOp::Add => ast::Expr::Add(a.into(), b.into()),
+                SumOp::Sub => ast::Expr::Sub(a.into(), b.into()),
+            }
+        }
+    }
+    #[derive(Copy, Clone, Eq, PartialEq)]
+    enum ProdOp {
+        Mul,
+        Div,
+        Mod,
+    }
+    impl ProdOp {
+        fn apply(self, a: ast::Expr, b: ast::Expr) -> ast::Expr {
+            match self {
+                ProdOp::Mul => ast::Expr::Mul(a.into(), b.into()),
+                ProdOp::Div => ast::Expr::Div(a.into(), b.into()),
+                ProdOp::Mod => ast::Expr::Mod(a.into(), b.into()),
+            }
+        }
+    }
+
+    enum State {
+        Start,
+        Expr(ast::Expr),
+        ExprSum(ast::Expr, SumOp),
+        ExprSumExpr(ast::Expr, SumOp, ast::Expr),
+        ExprSumExprProd(ast::Expr, SumOp, ast::Expr, ProdOp),
+        ExprProd(ast::Expr, ProdOp),
+    }
+
+    let mut state = State::Start;
+    for token in tokens {
+        if let TokenTree::Punct(punct) = token {
+            let op = punct.to_string();
+            if let Some(prod) = match op.as_str() {
+                "*" => Some(ProdOp::Mul),
+                "/" => Some(ProdOp::Div),
+                "%" => Some(ProdOp::Mod),
+                _ => None,
+            } {
+                state = match state {
+                    State::Expr(expr) => State::ExprProd(expr, prod),
+                    State::ExprSumExpr(e1, sum, e2) => State::ExprSumExprProd(e1, sum, e2, prod),
+                    _ => error_at(punct.span(), &format!("unexpected {punct}"))?,
+                }
+            } else if let Some(sum) = match op.as_str() {
+                "+" => Some(SumOp::Add),
+                "-" => Some(SumOp::Sub),
+                _ => None,
+            } {
+                state = match state {
+                    State::Expr(expr) => State::ExprSum(expr, sum),
+                    State::ExprSumExpr(e1, cur_sum, e2) => {
+                        State::ExprSum(cur_sum.apply(e1, e2), sum)
+                    }
+                    _ => error_at(punct.span(), &format!("unexpected {punct}"))?,
+                }
+            } else {
+                error_at(punct.span(), &format!("unexpected {punct}"))?;
+            }
+        } else {
+            let span = token.span();
+            let cur = match token {
+                TokenTree::Group(group) => {
+                    if !matches!(group.delimiter(), Delimiter::Parenthesis | Delimiter::None) {
+                        error_at(group.span(), &format!("unexpected {group}"))?;
+                    }
+                    parse_expr(group.span(), group.stream())?
+                }
+                TokenTree::Ident(ident) => ast::Expr::Ident(ident),
+                TokenTree::Punct(punct) => error_at(punct.span(), &format!("unexpected {punct}"))?,
+                TokenTree::Literal(literal) => {
+                    let s = literal.to_string();
+                    let val = if let Some(s) = s.strip_prefix("0x") {
+                        usize::from_str_radix(s, 16)
+                    } else {
+                        s.parse()
+                    }
+                    .map_err(|_| error_at::<()>(literal.span(), "expected number").unwrap_err())?;
+                    ast::Expr::Literal(val)
+                }
+            };
+            state = match state {
+                State::Start => State::Expr(cur),
+                State::ExprSum(expr, sum) => State::ExprSumExpr(expr, sum, cur),
+                State::ExprSumExprProd(e1, sum, e2, prod) => {
+                    State::ExprSumExpr(e1, sum, prod.apply(e2, cur))
+                }
+                State::ExprProd(expr, prod) => State::Expr(prod.apply(expr, cur)),
+                State::Expr(_) | State::ExprSumExpr(..) => error_at(span, "unexpected value")?,
+            }
+        }
+    }
+    match state {
+        State::Expr(expr) => Ok(expr),
+        State::ExprSumExpr(e1, sum, e2) => Ok(sum.apply(e1, e2)),
+        _ => error_at(span, "unexpected end of expression")?,
+    }
+}
+
 struct Tokenizer {
     span: Span,
     tokens: core::iter::Peekable<std::vec::IntoIter<TokenTree>>,
@@ -167,28 +276,16 @@ impl Tokenizer {
         })
     }
 
-    fn try_index(&mut self) -> Result<Option<ast::Index>> {
-        let Some(mut inner) = self.try_brackets() else {
+    fn try_index(&mut self) -> Result<Option<ast::Expr>> {
+        let Some(TokenTree::Group(g)) = self.tokens.peek() else {
             return Ok(None);
         };
-        Ok(Some(if let Some(id) = inner.try_ident() {
-            if inner.try_punct('+') {
-                let offset = inner.usize()?;
-                inner.finish()?;
-                ast::Index::Ident(id, offset as isize)
-            } else if inner.try_punct('-') {
-                let offset = inner.usize()?;
-                inner.finish()?;
-                ast::Index::Ident(id, -(offset as isize))
-            } else {
-                inner.finish()?;
-                ast::Index::Ident(id, 0)
-            }
-        } else {
-            let n = inner.usize()?;
-            inner.finish()?;
-            ast::Index::Literal(n)
-        }))
+        if g.delimiter() != Delimiter::Bracket {
+            return Ok(None);
+        }
+        let res = parse_expr(g.span(), g.stream())?;
+        self.next();
+        Ok(Some(res))
     }
 
     fn wire_ref(&mut self) -> Result<ast::WireRef> {

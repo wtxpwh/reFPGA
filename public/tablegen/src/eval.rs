@@ -13,7 +13,7 @@ use prjcombine_interconnect::db::{
     TileClass, TileClassId, TileSlotId, TileWireCoord, WireKind,
 };
 use prjcombine_types::bsdata::{BitRectGeometry, PolTileBit, RectBitId, RectFrameId, TileBit};
-use proc_macro::{Ident, Span, TokenStream};
+use proc_macro::{Delimiter, Ident, Span, TokenStream, TokenTree};
 
 use crate::{
     ast,
@@ -44,20 +44,103 @@ enum WildCard {
 }
 
 impl Context {
-    fn eval_expr(&self, span: Span, expr: &str) -> Result<usize> {
-        let expr = expr.trim_ascii();
-        if let Some((a, b)) = expr.rsplit_once('+') {
-            let a = self.eval_expr(span, a)?;
-            let b = self.eval_expr(span, b)?;
-            Ok(a + b)
-        } else if let Ok(val) = expr.parse() {
-            Ok(val)
-        } else {
-            let Some(&val) = self.for_vars.get(expr) else {
-                error_at(span, &format!("unknown variable {expr}"))?
-            };
-            Ok(val)
+    fn eval_templ_subexpr(&self, span: Span, expr: TokenStream) -> Result<usize> {
+        #[derive(Copy, Clone, Eq, PartialEq)]
+        enum SumOp {
+            Add,
+            Sub,
         }
+        #[derive(Copy, Clone, Eq, PartialEq)]
+        enum ProdOp {
+            Mul,
+            Div,
+            Mod,
+        }
+        let mut cur_term = None;
+        let mut sum = 0;
+        let mut sum_op = SumOp::Add;
+        let mut prod = 1;
+        let mut prod_op = ProdOp::Mul;
+        for token in expr {
+            if let Some(term) = cur_term {
+                match prod_op {
+                    ProdOp::Mul => prod *= term,
+                    ProdOp::Div => prod /= term,
+                    ProdOp::Mod => prod %= term,
+                }
+                cur_term = None;
+                let TokenTree::Punct(punct) = token else {
+                    error_at(span, &format!("unexpected token {token}"))?
+                };
+                match punct.to_string().as_str() {
+                    "*" => prod_op = ProdOp::Mul,
+                    "/" => prod_op = ProdOp::Div,
+                    "%" => prod_op = ProdOp::Mod,
+                    "+" => {
+                        match sum_op {
+                            SumOp::Add => sum += prod,
+                            SumOp::Sub => sum -= prod,
+                        }
+                        prod = 1;
+                        prod_op = ProdOp::Mul;
+                        sum_op = SumOp::Add;
+                    }
+                    "-" => {
+                        match sum_op {
+                            SumOp::Add => sum += prod,
+                            SumOp::Sub => sum -= prod,
+                        }
+                        prod = 1;
+                        prod_op = ProdOp::Mul;
+                        sum_op = SumOp::Sub;
+                    }
+                    _ => error_at(span, &format!("unexpected token {punct}"))?,
+                }
+            } else {
+                match token {
+                    TokenTree::Group(group) => {
+                        if group.delimiter() != Delimiter::Parenthesis {
+                            error_at(span, &format!("group {group} not supported"))?;
+                        }
+                        cur_term = Some(self.eval_templ_subexpr(span, group.stream())?);
+                    }
+                    TokenTree::Ident(ident) => {
+                        let Some(&val) = self.for_vars.get(&ident.to_string()) else {
+                            error_at(span, &format!("unknown variable {ident}"))?
+                        };
+                        cur_term = Some(val);
+                    }
+                    TokenTree::Punct(punct) => error_at(span, &format!("unexpected {punct}"))?,
+                    TokenTree::Literal(literal) => {
+                        let Ok(val) = literal.to_string().parse() else {
+                            error_at(span, &format!("unhandled literal {literal}"))?
+                        };
+                        let val: usize = val;
+                        cur_term = Some(val);
+                    }
+                }
+            }
+        }
+        let Some(cur_term) = cur_term else {
+            error_at(span, "unexpected end of expression")?
+        };
+        match prod_op {
+            ProdOp::Mul => prod *= cur_term,
+            ProdOp::Div => prod /= cur_term,
+            ProdOp::Mod => prod %= cur_term,
+        }
+        match sum_op {
+            SumOp::Add => sum += prod,
+            SumOp::Sub => sum -= prod,
+        }
+        Ok(sum)
+    }
+
+    fn eval_templ_expr(&self, span: Span, expr: &str) -> Result<usize> {
+        let Ok(expr) = expr.parse::<TokenStream>() else {
+            error_at(span, "malformed expression")?
+        };
+        self.eval_templ_subexpr(span, expr)
     }
 
     fn eval_templ_wildcard(&self, id: &ast::TemplateId) -> Result<WildCard> {
@@ -74,7 +157,7 @@ impl Context {
                     };
                     let (expr, fmt) = expr.split_once(':').unwrap_or((expr, ""));
 
-                    let val = self.eval_expr(lit.span(), expr)?;
+                    let val = self.eval_templ_expr(lit.span(), expr)?;
                     if fmt.is_empty() {
                         write!(res, "{val}").unwrap();
                     } else {
@@ -100,13 +183,18 @@ impl Context {
         }
     }
 
-    fn eval_index(&self, index: &ast::Index) -> Result<usize> {
-        match index {
-            ast::Index::Ident(ident, offset) => match self.for_vars.get(&ident.to_string()) {
-                Some(&n) => Ok(n.strict_add_signed(*offset)),
+    fn eval_expr(&self, expr: &ast::Expr) -> Result<usize> {
+        match expr {
+            ast::Expr::Ident(ident) => match self.for_vars.get(&ident.to_string()) {
+                Some(&n) => Ok(n),
                 None => error_at(ident.span(), "undefined variable")?,
             },
-            ast::Index::Literal(n) => Ok(*n),
+            ast::Expr::Literal(n) => Ok(*n),
+            ast::Expr::Add(a, b) => Ok(self.eval_expr(a)? + self.eval_expr(b)?),
+            ast::Expr::Sub(a, b) => Ok(self.eval_expr(a)? - self.eval_expr(b)?),
+            ast::Expr::Mul(a, b) => Ok(self.eval_expr(a)? * self.eval_expr(b)?),
+            ast::Expr::Div(a, b) => Ok(self.eval_expr(a)? / self.eval_expr(b)?),
+            ast::Expr::Mod(a, b) => Ok(self.eval_expr(a)? % self.eval_expr(b)?),
         }
     }
 
@@ -125,7 +213,7 @@ impl Context {
             }
             ast::ArrayIdRef::Indexed(id, index) => {
                 let id = self.eval_templ_id(id)?;
-                let index = self.eval_index(index)?;
+                let index = self.eval_expr(index)?;
                 let Some((item, _)) = map.get(&id.to_string()) else {
                     error_at(id.span(), "undefined object")?
                 };
@@ -191,7 +279,7 @@ impl Context {
         let name = self.eval_templ_id(&tbit.name)?;
         let mut index = vec![];
         for idx in &tbit.index {
-            index.push(self.eval_index(idx)?);
+            index.push(self.eval_expr(idx)?);
         }
         let Some((rect, _)) = self.db.tcls_bitrect_id[tcls].get(&name.to_string()) else {
             error_at(name.span(), "undefined bitrect")?
@@ -891,7 +979,7 @@ impl Context {
             }
             ast::ArrayIdRef::Indexed(id, index) => {
                 let id = self.eval_templ_id(id)?;
-                let index = self.eval_index(index)?;
+                let index = self.eval_expr(index)?;
                 let Some((item, &(_, indexing))) = map.get(&id.to_string()) else {
                     error_at(id.span(), "undefined object")?
                 };
