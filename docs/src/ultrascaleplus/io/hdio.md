@@ -6,5 +6,6 @@
 {{tile ultrascaleplus HDIOS}}
 {{tile ultrascaleplus RCLK_HDIO}}
 {{tile ultrascaleplus RCLK_HDIOL}}
-{{tile ultrascaleplus RCLK_HDIOL_CMT}}
+{{tile ultrascaleplus RCLK_HDIOL_CMT_W}}
+{{tile ultrascaleplus RCLK_HDIOL_CMT_E}}
 {{tile ultrascaleplus RCLK_HDIOS}}
