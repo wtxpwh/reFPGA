@@ -1,6 +1,5 @@
 #![allow(clippy::too_many_arguments)]
 
-use std::assert_matches;
 use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet, btree_map};
 
 use prjcombine_entity::{EntityBundleIndices, EntityId, EntityPartVec, EntityVec};
@@ -19,6 +18,8 @@ use prjcombine_re_xilinx_naming::db::{
     TileClassNamingId, WireNaming,
 };
 use prjcombine_re_xilinx_rawdump::{self as rawdump, Coord, NodeOrWire, Part, TkPipInversion};
+
+use assert_matches::assert_matches;
 
 use prjcombine_types::bsdata::PolTileBit;
 use rawdump::TileKindId;

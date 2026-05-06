@@ -106,6 +106,7 @@ itertools = "0.14"
 arrayvec = "0.7.6"
 bimap = "0.6"
 arrayref = "0.3.6"
+assert_matches = "1.5"
 clap = { version = "4.1", features = ["derive"] }
 # RE-only crates and their dependencies
 prjcombine-re-toolchain = { path = "re/toolchain" }
