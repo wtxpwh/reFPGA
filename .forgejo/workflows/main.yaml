@@ -15,6 +15,12 @@ jobs:
         uses: https://github.com/peaceiris/actions-mdbook@v2
       - name: Set up Rust
         uses: https://codeberg.org/prjunnamed/setup-rust-toolchain@f0e3fff1ca3442708aa9fb8156820eb859d80846
+      - name: Build the project
+        run: |
+          cargo build
+      - name: Run unit tests
+        run: |
+          cargo test
       - name: Build the book
         run: |
           mdbook build docs
