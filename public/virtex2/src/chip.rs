@@ -194,6 +194,7 @@ pub enum SharedCfgPad {
     Ldc2,
     Hdc,
     Addr(u8), // ×20 on 3s100e, ×24 on other Spartan 3E, ×26 on Spartan 3A
+    Vs(u8),   // Spartan-3A only; Spartan-3E has them shared with A17-A19 instead
     // Spartan 3A only.
     Awake,
 }
@@ -203,6 +204,7 @@ impl std::fmt::Display for SharedCfgPad {
         match self {
             SharedCfgPad::Data(i) => write!(f, "D{i}"),
             SharedCfgPad::Addr(i) => write!(f, "A{i}"),
+            SharedCfgPad::Vs(i) => write!(f, "VS{i}"),
             SharedCfgPad::CsiB => write!(f, "CSI_B"),
             SharedCfgPad::CsoB => write!(f, "CSO_B"),
             SharedCfgPad::RdWrB => write!(f, "RDWR_B"),

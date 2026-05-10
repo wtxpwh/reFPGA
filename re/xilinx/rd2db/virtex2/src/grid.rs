@@ -483,7 +483,13 @@ fn handle_spec_io(rd: &Part, chip: &mut Chip, int: &IntGrid) {
                             _ => {
                                 if let Some((s, n)) = split_num(f) {
                                     match s {
-                                        "VS" => continue,
+                                        "VS" => {
+                                            if chip.kind.is_spartan3a() {
+                                                SharedCfgPad::Vs(n as u8)
+                                            } else {
+                                                continue;
+                                            }
+                                        }
                                         "D" => SharedCfgPad::Data(n as u8),
                                         "A" => SharedCfgPad::Addr(n as u8),
                                         _ => {

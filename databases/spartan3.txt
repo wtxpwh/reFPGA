@@ -2321,6 +2321,9 @@ chip CHIP16 {
 	cfg_io LDC1 = IOB_E2_0;
 	cfg_io LDC2 = IOB_E1_1;
 	cfg_io HDC = IOB_E1_0;
+	cfg_io VS0 = IOB_S4_1;
+	cfg_io VS1 = IOB_S3_1;
+	cfg_io VS2 = IOB_S4_0;
 	cfg_io AWAKE = IOB_S12_0;
 }
 
@@ -2452,6 +2455,9 @@ chip CHIP17 {
 	cfg_io A23 = IOB_E30_1;
 	cfg_io A24 = IOB_E31_0;
 	cfg_io A25 = IOB_E31_1;
+	cfg_io VS0 = IOB_S5_1;
+	cfg_io VS1 = IOB_S5_0;
+	cfg_io VS2 = IOB_S3_1;
 	cfg_io AWAKE = IOB_S18_0;
 }
 
@@ -2605,6 +2611,9 @@ chip CHIP18 {
 	cfg_io A23 = IOB_E38_1;
 	cfg_io A24 = IOB_E39_0;
 	cfg_io A25 = IOB_E39_1;
+	cfg_io VS0 = IOB_S9_1;
+	cfg_io VS1 = IOB_S9_0;
+	cfg_io VS2 = IOB_S7_1;
 	cfg_io AWAKE = IOB_S22_0;
 }
 
@@ -2774,6 +2783,9 @@ chip CHIP19 {
 	cfg_io A23 = IOB_E46_1;
 	cfg_io A24 = IOB_E47_0;
 	cfg_io A25 = IOB_E47_1;
+	cfg_io VS0 = IOB_S13_1;
+	cfg_io VS1 = IOB_S13_0;
+	cfg_io VS2 = IOB_S11_1;
 	cfg_io AWAKE = IOB_S26_0;
 }
 
@@ -2982,6 +2994,9 @@ chip CHIP20 {
 	cfg_io A23 = IOB_E70_1;
 	cfg_io A24 = IOB_E71_0;
 	cfg_io A25 = IOB_E71_1;
+	cfg_io VS0 = IOB_S17_1;
+	cfg_io VS1 = IOB_S17_0;
+	cfg_io VS2 = IOB_S15_1;
 	cfg_io AWAKE = IOB_S30_0;
 }
 
@@ -3222,6 +3237,9 @@ chip CHIP21 {
 	cfg_io A23 = IOB_E86_1;
 	cfg_io A24 = IOB_E87_0;
 	cfg_io A25 = IOB_E87_1;
+	cfg_io VS0 = IOB_S25_1;
+	cfg_io VS1 = IOB_S25_0;
+	cfg_io VS2 = IOB_S23_1;
 	cfg_io AWAKE = IOB_S38_0;
 }
 
@@ -3498,6 +3516,9 @@ chip CHIP22 {
 	cfg_io A23 = IOB_E102_1;
 	cfg_io A24 = IOB_E103_0;
 	cfg_io A25 = IOB_E103_1;
+	cfg_io VS0 = IOB_S31_1;
+	cfg_io VS1 = IOB_S31_0;
+	cfg_io VS2 = IOB_S29_1;
 	cfg_io AWAKE = IOB_S44_0;
 }
 
