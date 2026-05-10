@@ -177,7 +177,7 @@ pub enum Dcms {
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Encode, Decode)]
 pub enum SharedCfgPad {
     Data(u8), // ×8
-    CsiB,     // Called CS_B on Virtex 2 and Spartan 3.
+    CsiB,     // Called CS_B on Virtex 2 and Spartan 3.  Doubles as COPI on Spartan-3E and up.
     InitB,
     RdWrB,
     Dout,
@@ -188,7 +188,7 @@ pub enum SharedCfgPad {
     Cclk,
     HswapEn,
     // Spartan 3E, Spartan 3A only.
-    CsoB,
+    CsoB, // Daisy chain output and SPI CS_B.
     Ldc0,
     Ldc1,
     Ldc2,

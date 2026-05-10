@@ -9,7 +9,7 @@ pub enum CfgPad {
     Tdi,
     Tdo,
     Tms,
-    CmpCsB,
+    TspiCsB,
     Done,
     ProgB,
     Suspend,
@@ -25,7 +25,7 @@ impl std::fmt::Display for CfgPad {
             CfgPad::Tdi => write!(f, "TDI"),
             CfgPad::Tdo => write!(f, "TDO"),
             CfgPad::Suspend => write!(f, "SUSPEND"),
-            CfgPad::CmpCsB => write!(f, "CMP_CS_B"),
+            CfgPad::TspiCsB => write!(f, "TSPI_CS_B"),
         }
     }
 }

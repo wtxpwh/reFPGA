@@ -71,7 +71,7 @@ pub fn make_bond(endev: &ExpandedNamedDevice, pins: &[PkgPin]) -> Bond {
                 "TDI" => BondPad::Cfg(CfgPad::Tdi),
                 "TDO" => BondPad::Cfg(CfgPad::Tdo),
                 "TMS" => BondPad::Cfg(CfgPad::Tms),
-                "CMPCS_B_2" => BondPad::Cfg(CfgPad::CmpCsB),
+                "CMPCS_B_2" => BondPad::Cfg(CfgPad::TspiCsB),
                 "DONE_2" => BondPad::Cfg(CfgPad::Done),
                 "PROGRAM_B_2" => BondPad::Cfg(CfgPad::ProgB),
                 "SUSPEND" => BondPad::Cfg(CfgPad::Suspend),

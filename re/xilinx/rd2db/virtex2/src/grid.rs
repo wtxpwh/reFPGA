@@ -462,16 +462,17 @@ fn handle_spec_io(rd: &Part, chip: &mut Chip, int: &IntGrid) {
                         // ignore
                     } else {
                         let cfg = match f {
-                            "No_Pair" | "DIN" | "BUSY" | "MOSI" | "MISO" => continue,
+                            "No_Pair" => continue,
+                            "DIN" | "MISO" => SharedCfgPad::Data(0),
                             "CS_B" => SharedCfgPad::CsiB,
                             "INIT_B" => SharedCfgPad::InitB,
                             "RDWR_B" => SharedCfgPad::RdWrB,
-                            "DOUT" => SharedCfgPad::Dout,
+                            "DOUT" | "BUSY" => SharedCfgPad::Dout,
                             // Spartan 3E, Spartan 3A only
                             "M0" => SharedCfgPad::M0,
                             "M1" => SharedCfgPad::M1,
                             "M2" => SharedCfgPad::M2,
-                            "CSI_B" => SharedCfgPad::CsiB,
+                            "CSI_B" | "MOSI" => SharedCfgPad::CsiB,
                             "CSO_B" => SharedCfgPad::CsoB,
                             "CCLK" => SharedCfgPad::Cclk,
                             "HSWAP" | "PUDC_B" => SharedCfgPad::HswapEn,
@@ -487,7 +488,7 @@ fn handle_spec_io(rd: &Part, chip: &mut Chip, int: &IntGrid) {
                                             if chip.kind.is_spartan3a() {
                                                 SharedCfgPad::Vs(n as u8)
                                             } else {
-                                                continue;
+                                                SharedCfgPad::Addr(n as u8 + 17)
                                             }
                                         }
                                         "D" => SharedCfgPad::Data(n as u8),

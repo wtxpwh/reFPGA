@@ -2429,7 +2429,7 @@ pub fn name_device<'a>(edev: &'a ExpandedDevice<'a>, ndb: &'a NamingDb) -> Expan
                 ntile.add_bel(defs::bslots::STARTUP, "STARTUP".to_string());
                 ntile.add_bel(defs::bslots::CAPTURE, "CAPTURE".to_string());
                 ntile.add_bel(defs::bslots::ICAP, "ICAP".to_string());
-                ntile.add_bel(defs::bslots::SPI_ACCESS, "SPI_ACCESS".to_string());
+                ntile.add_bel(defs::bslots::ISPI_ACCESS, "SPI_ACCESS".to_string());
             }
             (true, tcls_v2::CNR_NW_V2 | tcls_v2::CNR_NW_V2P) => {
                 let (_, name) = namer.get_int_name(tcrd.cell);

@@ -283,14 +283,14 @@ fn verify_bel(endev: &ExpandedNamedDevice<'_>, vrf: &mut Verifier, bcrd: BelCoor
         bslots::GT | bslots::GT10 => verify_gt(endev, vrf, bcrd),
         bslots::STARTUP
         | bslots::CAPTURE
-        | bslots::SPI_ACCESS
         | bslots::BSCAN
         | bslots::JTAGPPC
         | bslots::PMV
-        | bslots::DNA_PORT => {
+        | bslots::DNA_PORT
+        | bslots::PCILOGIC => {
             vrf.verify_bel(bcrd).commit();
         }
-        bslots::PCILOGIC => vrf.verify_bel(bcrd).commit(),
+        bslots::ISPI_ACCESS => vrf.verify_bel(bcrd).kind("SPI_ACCESS").commit(),
         bslots::PPC405 => {
             vrf.verify_bel(bcrd).commit();
         }

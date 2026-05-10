@@ -1503,7 +1503,11 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
         let bels = vec![
             builder.bel_xy(bslots::OCT_CAL[1], "OCT_CAL", 0, 0),
             builder.bel_xy(bslots::ICAP, "ICAP", 0, 0),
-            builder.bel_single(bslots::SPI_ACCESS, "SPI_ACCESS"),
+            builder
+                .bel_single(bslots::ISPI_ACCESS, "SPI_ACCESS")
+                .pin_rename("CSB", "CS_B")
+                .pin_rename("MOSI", "COPI")
+                .pin_rename("MISO", "CIPO"),
             builder
                 .bel_single(bslots::SUSPEND_SYNC, "SUSPEND_SYNC")
                 .raw_tile(1),
@@ -1512,7 +1516,12 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
                 .raw_tile(1),
             builder.bel_single(bslots::STARTUP, "STARTUP").raw_tile(1),
             builder
-                .bel_single(bslots::SLAVE_SPI, "SLAVE_SPI")
+                .bel_single(bslots::TARGET_SPI, "SLAVE_SPI")
+                .pin_rename("CMPACTIVEB", "ACTIVE_B")
+                .pin_rename("CMPCLK", "CLK")
+                .pin_rename("CMPCSB", "CS_B")
+                .pin_rename("CMPMOSI", "COPI")
+                .pin_rename("CMPMISO", "CIPO")
                 .raw_tile(1),
             builder.bel_virtual(bslots::MISR_CNR_H),
             builder.bel_virtual(bslots::MISR_CNR_V),

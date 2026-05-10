@@ -76,7 +76,7 @@ In parallel or SPI configuration modes, some I/O pads in banks 14 and 15 are bor
 - bank 14 row 45: `D[3]`
 - bank 14 row 46: `D[2]`
 - bank 14 row 47: `D[1]/DIN`
-- bank 14 row 48: `D[0]/MOSI`
+- bank 14 row 48: `D[0]/COPI`
 - bank 15 row 1: `RS[0]`
 - bank 15 row 2: `RS[1]`
 - bank 15 row 3: `FWE_B`

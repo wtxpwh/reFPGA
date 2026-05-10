@@ -1772,9 +1772,9 @@ target_defs! {
         attribute ENABLE: bool;
     }
 
-    bel_class SPI_ACCESS {
-        input CLK, CSB, MOSI;
-        output MISO;
+    bel_class ISPI_ACCESS {
+        input CLK, CS_B, COPI;
+        output CIPO;
         attribute ENABLE: bool;
     }
 
@@ -1800,9 +1800,9 @@ target_defs! {
         attribute KEYCLEARB_ENABLE: bool;
     }
 
-    bel_class SLAVE_SPI {
-        input CMPMISO;
-        output CMPACTIVEB, CMPCLK, CMPCSB, CMPMOSI;
+    bel_class TARGET_SPI {
+        input CIPO;
+        output ACTIVE_B, CLK, CS_B, COPI;
     }
 
     bel_class BSCAN {
@@ -1814,10 +1814,10 @@ target_defs! {
 
     bel_class MISC_SW {
         pad PROG_B: input;
-        pad MISO2: input;
+        pad ISPI_CIPO: input;
 
         attribute PROG_PULL: IOB_PULL;
-        attribute MISO2_PULL: IOB_PULL;
+        attribute ISPI_CIPO_PULL: IOB_PULL;
 
         attribute LEAKER_GAIN_OPTIONS: bitvec[4];
         attribute LEAKER_SLOPE_OPTIONS: bitvec[4];
@@ -1830,14 +1830,14 @@ target_defs! {
     bel_class MISC_SE {
         pad DONE: inout;
         pad SUSPEND: input;
-        pad CMP_CS_B: input;
-        pad CCLK2: output;
-        pad MOSI2: output;
+        pad TSPI_CS_B: input;
+        pad ISPI_CCLK: output;
+        pad ISPI_COPI: output;
 
         attribute DONE_PULL: IOB_PULL;
-        attribute CMP_CS_PULL: IOB_PULL;
-        attribute CCLK2_PULL: IOB_PULL;
-        attribute MOSI2_PULL: IOB_PULL;
+        attribute TSPI_CS_B_PULL: IOB_PULL;
+        attribute ISPI_CCLK_PULL: IOB_PULL;
+        attribute ISPI_COPI_PULL: IOB_PULL;
 
         attribute GLUTMASK_IOB: bool;
     }
@@ -1855,9 +1855,9 @@ target_defs! {
     bel_class MISC_NE {
         pad TCK, TMS, TDI: input;
         pad TDO: output;
-        pad CSO2: output;
+        pad ISPI_CS_B: output;
 
-        attribute CSO2_PULL: IOB_PULL;
+        attribute ISPI_CS_B_PULL: IOB_PULL;
         attribute TCK_PULL: IOB_PULL;
         attribute TMS_PULL: IOB_PULL;
         attribute TDI_PULL: IOB_PULL;
@@ -2346,11 +2346,11 @@ target_defs! {
         bel_slot PMV: PMV;
         bel_slot DNA_PORT: DNA_PORT;
         bel_slot ICAP: ICAP;
-        bel_slot SPI_ACCESS: SPI_ACCESS;
+        bel_slot ISPI_ACCESS: ISPI_ACCESS;
         bel_slot SUSPEND_SYNC: SUSPEND_SYNC;
         bel_slot POST_CRC_INTERNAL: POST_CRC_INTERNAL;
         bel_slot STARTUP: STARTUP;
-        bel_slot SLAVE_SPI: SLAVE_SPI;
+        bel_slot TARGET_SPI: TARGET_SPI;
         bel_slot BSCAN[4]: BSCAN;
         bel_slot MISR_CNR_H: MISR;
         bel_slot MISR_CNR_V: MISR;

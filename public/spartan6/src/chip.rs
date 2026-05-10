@@ -37,9 +37,9 @@ pub struct Chip {
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Encode, Decode)]
 pub enum SharedCfgPad {
     // ×16
-    // 0 doubles as DIN, MISO, MISO1
-    // 1 doubles as MISO2
-    // 2 doubles as MISO3
+    // 0 doubles as DIN, SPI IO1 (aka CIPO)
+    // 1 doubles as SPI IO2
+    // 2 doubles as SPI IO3
     Data(u8),
     CsoB,
     InitB,
@@ -51,14 +51,14 @@ pub enum SharedCfgPad {
     Hdc,
     Addr(u8),
     Dout, // doubles as BUSY
-    Mosi, // doubles as CSI_B, MISO0
-    M0,   // doubles as CMPMISO
+    Copi, // doubles as CSI_B
+    M0,   // doubles as TSPI_CIPO
     M1,
     Cclk,
     UserCclk,
     HswapEn,
-    CmpClk,
-    CmpMosi,
+    TspiClk,
+    TspiCopi,
     Awake,
     Scp(u8), // ×8
 }
@@ -75,9 +75,9 @@ impl std::fmt::Display for SharedCfgPad {
             SharedCfgPad::InitB => write!(f, "INIT_B"),
             SharedCfgPad::Cclk => write!(f, "CCLK"),
             SharedCfgPad::UserCclk => write!(f, "USER_CCLK"),
-            SharedCfgPad::Mosi => write!(f, "MOSI"),
-            SharedCfgPad::CmpMosi => write!(f, "CMP_MOSI"),
-            SharedCfgPad::CmpClk => write!(f, "CMP_CLK"),
+            SharedCfgPad::Copi => write!(f, "COPI"),
+            SharedCfgPad::TspiCopi => write!(f, "TSPI_COPI"),
+            SharedCfgPad::TspiClk => write!(f, "TSPI_CLK"),
             SharedCfgPad::FcsB => write!(f, "FCS_B"),
             SharedCfgPad::FoeB => write!(f, "FOE_B"),
             SharedCfgPad::FweB => write!(f, "FWE_B"),

@@ -368,8 +368,8 @@ pub fn add_fuzzers<'a>(
                 .test_global_attr_rename("TEMPSENSOR", bcls::MISC_SW::TEMP_SENSOR);
         }
         if edev.chip.kind.is_spartan3a() {
-            test_pull(&mut bctx, bcls::MISC_SW::CCLK2_PULL, "CCLK2PIN");
-            test_pull(&mut bctx, bcls::MISC_SW::MOSI2_PULL, "MOSI2PIN");
+            test_pull(&mut bctx, bcls::MISC_SW::ISPI_CCLK_PULL, "CCLK2PIN");
+            test_pull(&mut bctx, bcls::MISC_SW::ISPI_COPI_PULL, "MOSI2PIN");
         } else if edev.chip.kind != ChipKind::Spartan3E && edev.chip.kind != ChipKind::FpgaCore {
             test_pull(&mut bctx, bcls::MISC_SW::M0_PULL, "M0PIN");
             test_pull(&mut bctx, bcls::MISC_SW::M1_PULL, "M1PIN");
@@ -595,10 +595,10 @@ pub fn add_fuzzers<'a>(
         }
 
         if edev.chip.kind.is_spartan3a() {
-            let mut bctx = ctx.bel(bslots::SPI_ACCESS);
+            let mut bctx = ctx.bel(bslots::ISPI_ACCESS);
             bctx.build()
                 .prop(ExtraTileInt)
-                .test_bel_attr_bits(bcls::SPI_ACCESS::ENABLE)
+                .test_bel_attr_bits(bcls::ISPI_ACCESS::ENABLE)
                 .mode("SPI_ACCESS")
                 .commit();
         }
@@ -614,8 +614,8 @@ pub fn add_fuzzers<'a>(
             if !edev.chip.kind.is_spartan3a() {
                 test_pull(&mut bctx, bcls::MISC_NE::TMS_PULL, "TMSPIN");
             } else {
-                test_pull(&mut bctx, bcls::MISC_NE::MISO2_PULL, "MISO2PIN");
-                test_pull(&mut bctx, bcls::MISC_NE::CSO2_PULL, "CSO2PIN");
+                test_pull(&mut bctx, bcls::MISC_NE::ISPI_CIPO_PULL, "MISO2PIN");
+                test_pull(&mut bctx, bcls::MISC_NE::ISPI_CS_B_PULL, "CSO2PIN");
             }
         }
         let mut bctx = ctx.bel(bslots::BSCAN);
@@ -1647,8 +1647,8 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx, skip_io: bool, devdata_only: bool
             ctx.collect_bel_attr(tcid, bslot, bcls::MISC_SW::TEMP_SENSOR);
         }
         if edev.chip.kind.is_spartan3a() {
-            ctx.collect_bel_attr_subset(tcid, bslot, bcls::MISC_SW::CCLK2_PULL, vals_pull);
-            ctx.collect_bel_attr_subset(tcid, bslot, bcls::MISC_SW::MOSI2_PULL, vals_pull);
+            ctx.collect_bel_attr_subset(tcid, bslot, bcls::MISC_SW::ISPI_CCLK_PULL, vals_pull);
+            ctx.collect_bel_attr_subset(tcid, bslot, bcls::MISC_SW::ISPI_COPI_PULL, vals_pull);
         } else if edev.chip.kind != ChipKind::Spartan3E && edev.chip.kind != ChipKind::FpgaCore {
             ctx.collect_bel_attr_subset(tcid, bslot, bcls::MISC_SW::M0_PULL, vals_pull);
             ctx.collect_bel_attr_subset(tcid, bslot, bcls::MISC_SW::M1_PULL, vals_pull);
@@ -1752,11 +1752,11 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx, skip_io: bool, devdata_only: bool
         }
     }
     if edev.chip.kind.is_spartan3a() {
-        let bslot = bslots::SPI_ACCESS;
-        ctx.collect_bel_attr(tcid, bslot, bcls::SPI_ACCESS::ENABLE);
-        let mut diff = ctx.get_diff_attr_bit(int_tcid, bslot, bcls::SPI_ACCESS::ENABLE, 0);
+        let bslot = bslots::ISPI_ACCESS;
+        ctx.collect_bel_attr(tcid, bslot, bcls::ISPI_ACCESS::ENABLE);
+        let mut diff = ctx.get_diff_attr_bit(int_tcid, bslot, bcls::ISPI_ACCESS::ENABLE, 0);
         diff.discard_bits(&[ctx
-            .item_int_inv(int_tiles, tcid, bslot, bcls::SPI_ACCESS::MOSI)
+            .item_int_inv(int_tiles, tcid, bslot, bcls::ISPI_ACCESS::COPI)
             .bit]);
         diff.assert_empty();
     }
@@ -1771,8 +1771,8 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx, skip_io: bool, devdata_only: bool
             if !edev.chip.kind.is_spartan3a() {
                 ctx.collect_bel_attr_subset(tcid, bslot, bcls::MISC_NE::TMS_PULL, vals_pull);
             } else {
-                ctx.collect_bel_attr_subset(tcid, bslot, bcls::MISC_NE::MISO2_PULL, vals_pull);
-                ctx.collect_bel_attr_subset(tcid, bslot, bcls::MISC_NE::CSO2_PULL, vals_pull);
+                ctx.collect_bel_attr_subset(tcid, bslot, bcls::MISC_NE::ISPI_CIPO_PULL, vals_pull);
+                ctx.collect_bel_attr_subset(tcid, bslot, bcls::MISC_NE::ISPI_CS_B_PULL, vals_pull);
             }
         }
         if edev.chip.kind.is_virtex2() {

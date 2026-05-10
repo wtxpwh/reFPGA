@@ -90,7 +90,7 @@ In parallel configuration modes, some I/O pads in banks 1-4 are borrowed for con
 - bank 2 row 3 `IOB1`: `D[7]`
 - bank 2 row 4 `IOB0`: `CSO_B`
 - bank 2 row 4 `IOB1`: `FWE_B`
-- bank 2 row 5 `IOB0`: `FOE_B/MOSI`
+- bank 2 row 5 `IOB0`: `FOE_B/COPI`
 - bank 2 row 5 `IOB1`: `FCS_B`
 - bank 2 row 6 `IOB0`: `A[20]`
 - bank 2 row 6 `IOB1`: `A[21]`

@@ -21,7 +21,7 @@ impl Chip {
         let mut io = BTreeMap::new();
         let mut cfg = BTreeMap::new();
         let mut builder = BScanBuilder::new();
-        // TIO
+        // N
         for (col, &cd) in self.columns.iter().rev() {
             if cd.io_n == ColumnIoKind::None {
                 continue;
@@ -40,7 +40,7 @@ impl Chip {
                 }
             }
         }
-        // LIO
+        // W
         for (row, &rd) in self.rows.iter().rev() {
             if rd.io_w {
                 for iob in [0, 1] {
@@ -49,8 +49,9 @@ impl Chip {
                 }
             }
         }
+        // SW
         cfg.insert(CfgPad::ProgB, builder.get_toi());
-        // BIO
+        // S
         for (col, &cd) in &self.columns {
             if cd.io_s == ColumnIoKind::None {
                 continue;
@@ -69,10 +70,11 @@ impl Chip {
                 }
             }
         }
+        // SE
         cfg.insert(CfgPad::Done, builder.get_toi());
-        cfg.insert(CfgPad::CmpCsB, builder.get_toi());
+        cfg.insert(CfgPad::TspiCsB, builder.get_toi());
         cfg.insert(CfgPad::Suspend, builder.get_toi());
-        // RIO
+        // E
         for (row, &rd) in &self.rows {
             if rd.io_e {
                 for iob in [0, 1] {

@@ -43,7 +43,7 @@ In parallel or SPI configuration modes, some I/O pads in banks 24 and 34 are bor
 - bank 24 row 7: `RS[0]`
 - bank 24 row 8: `RS[1]`
 - bank 24 row 9: `FWE_B`
-- bank 24 row 10: `FOE_B/MOSI`
+- bank 24 row 10: `FOE_B/COPI`
 - bank 24 row 11: `FCS_B`
 - bank 24 row 12: `D[0]/FS[0]`
 - bank 24 row 13: `D[1]/FS[1]`

@@ -1926,7 +1926,11 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
                 builder.bel_single(bslots::STARTUP, "STARTUP"),
                 builder.bel_single(bslots::CAPTURE, "CAPTURE"),
                 builder.bel_single(bslots::ICAP, "ICAP"),
-                builder.bel_single(bslots::SPI_ACCESS, "SPI_ACCESS"),
+                builder
+                    .bel_single(bslots::ISPI_ACCESS, "SPI_ACCESS")
+                    .pin_rename("CSB", "CS_B")
+                    .pin_rename("MISO", "CIPO")
+                    .pin_rename("MOSI", "COPI"),
                 builder.bel_virtual(bslots::MISC_SE),
             ],
         );
@@ -1973,12 +1977,12 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
         }
         if let Some(bel) = builder.db.tile_classes[tcid]
             .bels
-            .get_mut(bslots::SPI_ACCESS)
+            .get_mut(bslots::ISPI_ACCESS)
         {
             let BelInfo::Bel(bel) = bel else {
                 unreachable!()
             };
-            let pin = bcls::SPI_ACCESS::CSB;
+            let pin = bcls::ISPI_ACCESS::CS_B;
             let BelInput::Fixed(wire) = bel.inputs[pin] else {
                 unreachable!()
             };

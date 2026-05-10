@@ -34214,11 +34214,11 @@ intdb {
 		attribute ENABLE: bool;
 	}
 
-	bel_class SPI_ACCESS {
+	bel_class ISPI_ACCESS {
 		input CLK;
-		input CSB;
-		input MOSI;
-		output MISO;
+		input CS_B;
+		input COPI;
+		output CIPO;
 		attribute ENABLE: bool;
 	}
 
@@ -34267,13 +34267,13 @@ intdb {
 		pad M0: input
 		pad M1: input
 		pad M2: input
-		pad CCLK2: output
-		pad MOSI2: output
+		pad ISPI_CCLK: output
+		pad ISPI_COPI: output
 		attribute M0_PULL: IOB_PULL;
 		attribute M1_PULL: IOB_PULL;
 		attribute M2_PULL: IOB_PULL;
-		attribute CCLK2_PULL: IOB_PULL;
-		attribute MOSI2_PULL: IOB_PULL;
+		attribute ISPI_CCLK_PULL: IOB_PULL;
+		attribute ISPI_COPI_PULL: IOB_PULL;
 		attribute DCI_CLK_ENABLE: bool;
 		attribute DCI_ALTVR: bool;
 		attribute BCLK_N_DIV2: bitvec[5];
@@ -34317,13 +34317,13 @@ intdb {
 		pad TCK: input
 		pad TMS: input
 		pad TDO: output
-		pad CSO2: output
-		pad MISO2: input
+		pad ISPI_CS_B: output
+		pad ISPI_CIPO: input
 		attribute TCK_PULL: IOB_PULL;
 		attribute TMS_PULL: IOB_PULL;
 		attribute TDO_PULL: IOB_PULL;
-		attribute CSO2_PULL: IOB_PULL;
-		attribute MISO2_PULL: IOB_PULL;
+		attribute ISPI_CS_B_PULL: IOB_PULL;
+		attribute ISPI_CIPO_PULL: IOB_PULL;
 		attribute TEST_LL: bool;
 	}
 
@@ -77593,7 +77593,7 @@ intdb {
 		bel_slot STARTUP: STARTUP;
 		bel_slot CAPTURE: CAPTURE;
 		bel_slot ICAP: ICAP;
-		bel_slot SPI_ACCESS: SPI_ACCESS;
+		bel_slot ISPI_ACCESS: ISPI_ACCESS;
 		bel_slot PMV: PMV;
 		bel_slot DNA_PORT: DNA_PORT;
 		bel_slot BSCAN: BSCAN;
@@ -84170,12 +84170,12 @@ intdb {
 			bitrect TERM_H: Vertical (rev 2, rev 64);
 
 			bel MISC_SW {
-				attribute CCLK2_PULL @[TERM_H[1][15], TERM_H[0][15]] {
+				attribute ISPI_CCLK_PULL @[TERM_H[1][15], TERM_H[0][15]] {
 					NONE = 0b01,
 					PULLUP = 0b00,
 					PULLDOWN = 0b11,
 				}
-				attribute MOSI2_PULL @[TERM_H[0][24], TERM_H[1][24]] {
+				attribute ISPI_COPI_PULL @[TERM_H[0][24], TERM_H[1][24]] {
 					NONE = 0b01,
 					PULLUP = 0b00,
 					PULLDOWN = 0b11,
@@ -84571,11 +84571,11 @@ intdb {
 				output O[7] = OUT_FAN[7];
 			}
 
-			bel SPI_ACCESS {
+			bel ISPI_ACCESS {
 				input CLK = IMUX_CLK_OPTINV[3];
-				input CSB = ~IMUX_CE_OPTINV[0];
-				input MOSI = IMUX_SR_OPTINV[2];
-				output MISO = OUT_SEC[14];
+				input CS_B = ~IMUX_CE_OPTINV[0];
+				input COPI = IMUX_SR_OPTINV[2];
+				output CIPO = OUT_SEC[14];
 				attribute ENABLE @TERM_H[1][3];
 			}
 
@@ -84589,11 +84589,11 @@ intdb {
 			// wire IMUX_CLK_OPTINV[0]             STARTUP.CLK
 			// wire IMUX_CLK_OPTINV[1]             ICAP.CLK
 			// wire IMUX_CLK_OPTINV[2]             CAPTURE.CLK
-			// wire IMUX_CLK_OPTINV[3]             SPI_ACCESS.CLK
+			// wire IMUX_CLK_OPTINV[3]             ISPI_ACCESS.CLK
 			// wire IMUX_SR_OPTINV[0]              STARTUP.GSR
 			// wire IMUX_SR_OPTINV[1]              CAPTURE.CAP
-			// wire IMUX_SR_OPTINV[2]              SPI_ACCESS.MOSI
-			// wire IMUX_CE_OPTINV[0]              SPI_ACCESS.CSB
+			// wire IMUX_SR_OPTINV[2]              ISPI_ACCESS.COPI
+			// wire IMUX_CE_OPTINV[0]              ISPI_ACCESS.CS_B
 			// wire IMUX_CE_OPTINV[1]              ICAP.WRITE
 			// wire IMUX_CE_OPTINV[2]              ICAP.CE
 			// wire IMUX_CE_OPTINV[3]              STARTUP.GTS
@@ -84614,7 +84614,7 @@ intdb {
 			// wire OUT_FAN[6]                     ICAP.O[6]
 			// wire OUT_FAN[7]                     ICAP.O[7]
 			// wire OUT_SEC[0]                     ICAP.BUSY
-			// wire OUT_SEC[14]                    SPI_ACCESS.MISO
+			// wire OUT_SEC[14]                    ISPI_ACCESS.CIPO
 		}
 
 		tile_class CNR_NW_S3 {
@@ -85172,12 +85172,12 @@ intdb {
 					PULLUP = 0b00,
 					PULLDOWN = 0b11,
 				}
-				attribute CSO2_PULL @[TERM_H[0][46], TERM_H[1][46]] {
+				attribute ISPI_CS_B_PULL @[TERM_H[0][46], TERM_H[1][46]] {
 					NONE = 0b01,
 					PULLUP = 0b00,
 					PULLDOWN = 0b11,
 				}
-				attribute MISO2_PULL @[TERM_H[1][45], TERM_H[0][45]] {
+				attribute ISPI_CIPO_PULL @[TERM_H[1][45], TERM_H[0][45]] {
 					NONE = 0b01,
 					PULLUP = 0b00,
 					PULLDOWN = 0b11,

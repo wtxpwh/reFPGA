@@ -348,9 +348,9 @@ fn handle_spec_io(rd: &Part, grid: &mut Chip, int: &IntGrid) {
                     ("D0_DIN_MISO_MISO1_", SharedCfgPad::Data(0)),
                     ("D1_MISO2_", SharedCfgPad::Data(1)),
                     ("D2_MISO3_", SharedCfgPad::Data(2)),
-                    ("MOSI_CSI_B_MISO0_", SharedCfgPad::Mosi),
-                    ("CMPCLK_", SharedCfgPad::CmpClk),
-                    ("CMPMOSI_", SharedCfgPad::CmpMosi),
+                    ("MOSI_CSI_B_MISO0_", SharedCfgPad::Copi),
+                    ("CMPCLK_", SharedCfgPad::TspiClk),
+                    ("CMPMOSI_", SharedCfgPad::TspiCopi),
                     ("USERCCLK_", SharedCfgPad::UserCclk),
                     ("HSWAPEN_", SharedCfgPad::HswapEn),
                 ] {

@@ -368,14 +368,14 @@ pub enum SharedCfgPad {
     // ×32
     // [V5+] high 16 bits are also low 16 bits of Addr
     // [V5, V6] 0-2 double as FS
-    // [V7] 0 doubles as MOSI, 1 doubles as DIN
+    // [V7] 0 doubles as COPI, 1 doubles as DIN
     Data(u8),
     // the following are V5+
     Addr(u8), // ×26 [V5, V6] or ×29 [V7] total, but 0-15 are represented as Data(16-31)
     Rs(u8),   // ×2
     CsoB,     // [V7] doubles as DOUT
     FweB,
-    FoeB, // [V5, V6] doubles as MOSI
+    FoeB, // [V5, V6] doubles as COPI
     FcsB,
     // the following are V7-only
     CsiB,

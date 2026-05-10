@@ -57822,11 +57822,11 @@ intdb {
 		attribute ENABLE: bool;
 	}
 
-	bel_class SPI_ACCESS {
+	bel_class ISPI_ACCESS {
 		input CLK;
-		input CSB;
-		input MOSI;
-		output MISO;
+		input CS_B;
+		input COPI;
+		output CIPO;
 		attribute ENABLE: bool;
 	}
 
@@ -57875,13 +57875,13 @@ intdb {
 		pad M0: input
 		pad M1: input
 		pad M2: input
-		pad CCLK2: output
-		pad MOSI2: output
+		pad ISPI_CCLK: output
+		pad ISPI_COPI: output
 		attribute M0_PULL: IOB_PULL;
 		attribute M1_PULL: IOB_PULL;
 		attribute M2_PULL: IOB_PULL;
-		attribute CCLK2_PULL: IOB_PULL;
-		attribute MOSI2_PULL: IOB_PULL;
+		attribute ISPI_CCLK_PULL: IOB_PULL;
+		attribute ISPI_COPI_PULL: IOB_PULL;
 		attribute DCI_CLK_ENABLE: bool;
 		attribute DCI_ALTVR: bool;
 		attribute BCLK_N_DIV2: bitvec[5];
@@ -57925,13 +57925,13 @@ intdb {
 		pad TCK: input
 		pad TMS: input
 		pad TDO: output
-		pad CSO2: output
-		pad MISO2: input
+		pad ISPI_CS_B: output
+		pad ISPI_CIPO: input
 		attribute TCK_PULL: IOB_PULL;
 		attribute TMS_PULL: IOB_PULL;
 		attribute TDO_PULL: IOB_PULL;
-		attribute CSO2_PULL: IOB_PULL;
-		attribute MISO2_PULL: IOB_PULL;
+		attribute ISPI_CS_B_PULL: IOB_PULL;
+		attribute ISPI_CIPO_PULL: IOB_PULL;
 		attribute TEST_LL: bool;
 	}
 
@@ -93120,7 +93120,7 @@ intdb {
 		bel_slot STARTUP: STARTUP;
 		bel_slot CAPTURE: CAPTURE;
 		bel_slot ICAP: ICAP;
-		bel_slot SPI_ACCESS: SPI_ACCESS;
+		bel_slot ISPI_ACCESS: ISPI_ACCESS;
 		bel_slot PMV: PMV;
 		bel_slot DNA_PORT: DNA_PORT;
 		bel_slot BSCAN: BSCAN;

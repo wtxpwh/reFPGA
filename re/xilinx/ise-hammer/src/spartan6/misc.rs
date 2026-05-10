@@ -106,7 +106,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
             (enums::IOB_PULL::PULLDOWN, "PULLDOWN"),
         ] {
             bctx.build()
-                .test_bel_attr_val(bcls::MISC_SW::MISO2_PULL, val)
+                .test_bel_attr_val(bcls::MISC_SW::ISPI_CIPO_PULL, val)
                 .global("MISO2PIN", vname)
                 .commit();
         }
@@ -163,9 +163,9 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
         let mut ctx = FuzzCtx::new(session, backend, tcls::CNR_SE);
         let mut bctx = ctx.bel(bslots::MISC_SE);
         for (attr, opt) in [
-            (bcls::MISC_SE::CCLK2_PULL, "CCLK2PIN"),
-            (bcls::MISC_SE::MOSI2_PULL, "MOSI2PIN"),
-            (bcls::MISC_SE::CMP_CS_PULL, "SS_BPIN"),
+            (bcls::MISC_SE::ISPI_CCLK_PULL, "CCLK2PIN"),
+            (bcls::MISC_SE::ISPI_COPI_PULL, "MOSI2PIN"),
+            (bcls::MISC_SE::TSPI_CS_B_PULL, "SS_BPIN"),
             (bcls::MISC_SE::DONE_PULL, "DONEPIN"),
         ] {
             for (val, vname) in [
@@ -187,9 +187,9 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
             .test_bel_attr_bits(bcls::ICAP::ENABLE)
             .mode("ICAP")
             .commit();
-        let mut bctx = ctx.bel(bslots::SPI_ACCESS);
+        let mut bctx = ctx.bel(bslots::ISPI_ACCESS);
         bctx.build()
-            .test_bel_attr_bits(bcls::SPI_ACCESS::ENABLE)
+            .test_bel_attr_bits(bcls::ISPI_ACCESS::ENABLE)
             .mode("SPI_ACCESS")
             .commit();
 
@@ -254,7 +254,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
                 .commit();
         }
 
-        let mut bctx = ctx.bel(bslots::SLAVE_SPI);
+        let mut bctx = ctx.bel(bslots::TARGET_SPI);
         bctx.build()
             .null_bits()
             .test_bel_special(specials::PRESENT)
@@ -270,7 +270,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
             (bcls::MISC_NE::TMS_PULL, "TMSPIN"),
             (bcls::MISC_NE::TDI_PULL, "TDIPIN"),
             (bcls::MISC_NE::TDO_PULL, "TDOPIN"),
-            (bcls::MISC_NE::CSO2_PULL, "CSO2PIN"),
+            (bcls::MISC_NE::ISPI_CS_B_PULL, "CSO2PIN"),
         ] {
             for (val, vname) in [
                 (enums::IOB_PULL::NONE, "PULLNONE"),
@@ -616,7 +616,7 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
         ctx.collect_bel_attr_subset(
             tcid,
             bslot,
-            bcls::MISC_SW::MISO2_PULL,
+            bcls::MISC_SW::ISPI_CIPO_PULL,
             &[
                 enums::IOB_PULL::PULLUP,
                 enums::IOB_PULL::NONE,
@@ -658,9 +658,9 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
         let tcid = tcls::CNR_SE;
         let bslot = bslots::MISC_SE;
         for attr in [
-            bcls::MISC_SE::CCLK2_PULL,
-            bcls::MISC_SE::MOSI2_PULL,
-            bcls::MISC_SE::CMP_CS_PULL,
+            bcls::MISC_SE::ISPI_CCLK_PULL,
+            bcls::MISC_SE::ISPI_COPI_PULL,
+            bcls::MISC_SE::TSPI_CS_B_PULL,
         ] {
             ctx.collect_bel_attr_subset(
                 tcid,
@@ -681,7 +681,7 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
         );
         ctx.collect_bel_attr(tcid, bslots::ICAP, bcls::ICAP::ENABLE);
         ctx.collect_bel_attr(tcid, bslots::SUSPEND_SYNC, bcls::SUSPEND_SYNC::ENABLE);
-        ctx.collect_bel_attr(tcid, bslots::SPI_ACCESS, bcls::SPI_ACCESS::ENABLE);
+        ctx.collect_bel_attr(tcid, bslots::ISPI_ACCESS, bcls::ISPI_ACCESS::ENABLE);
     }
     {
         let tcid = tcls::CNR_SE;
@@ -702,7 +702,7 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
             bcls::MISC_NE::TMS_PULL,
             bcls::MISC_NE::TDI_PULL,
             bcls::MISC_NE::TDO_PULL,
-            bcls::MISC_NE::CSO2_PULL,
+            bcls::MISC_NE::ISPI_CS_B_PULL,
         ] {
             ctx.collect_bel_attr_subset(
                 tcid,

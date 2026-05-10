@@ -781,9 +781,9 @@ target_defs! {
         attribute ENABLE: bool;
     }
 
-    bel_class SPI_ACCESS {
-        input CLK, CSB, MOSI;
-        output MISO;
+    bel_class ISPI_ACCESS {
+        input CLK, CS_B, COPI;
+        output CIPO;
 
         attribute ENABLE: bool;
     }
@@ -824,14 +824,14 @@ target_defs! {
         // not present on spartan3e and up (shared I/O instead)
         pad M0, M1, M2: input;
         // spartan3a only
-        pad CCLK2: output;
-        pad MOSI2: output;
+        pad ISPI_CCLK: output;
+        pad ISPI_COPI: output;
 
         attribute M0_PULL: IOB_PULL;
         attribute M1_PULL: IOB_PULL;
         attribute M2_PULL: IOB_PULL;
-        attribute CCLK2_PULL: IOB_PULL;
-        attribute MOSI2_PULL: IOB_PULL;
+        attribute ISPI_CCLK_PULL: IOB_PULL;
+        attribute ISPI_COPI_PULL: IOB_PULL;
         attribute DCI_CLK_ENABLE: bool;
         // virtex2 (not virtex2p) only
         attribute DCI_ALTVR: bool;
@@ -891,14 +891,14 @@ target_defs! {
         pad TDO: output;
 
         // spartan3a only
-        pad CSO2: output;
-        pad MISO2: input;
+        pad ISPI_CS_B: output;
+        pad ISPI_CIPO: input;
 
         attribute TCK_PULL: IOB_PULL;
         attribute TMS_PULL: IOB_PULL;
         attribute TDO_PULL: IOB_PULL;
-        attribute CSO2_PULL: IOB_PULL;
-        attribute MISO2_PULL: IOB_PULL;
+        attribute ISPI_CS_B_PULL: IOB_PULL;
+        attribute ISPI_CIPO_PULL: IOB_PULL;
         // virtex2 only
         attribute TEST_LL: bool;
     }
@@ -2232,7 +2232,7 @@ target_defs! {
         bel_slot STARTUP: STARTUP;
         bel_slot CAPTURE: CAPTURE;
         bel_slot ICAP: ICAP;
-        bel_slot SPI_ACCESS: SPI_ACCESS;
+        bel_slot ISPI_ACCESS: ISPI_ACCESS;
         bel_slot PMV: PMV;
         bel_slot DNA_PORT: DNA_PORT;
         bel_slot BSCAN: BSCAN;

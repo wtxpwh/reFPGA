@@ -718,11 +718,11 @@ pub fn name_device<'a>(edev: &'a ExpandedDevice<'a>, ndb: &'a NamingDb) -> Expan
                 );
                 ntile.add_bel(bslots::OCT_CAL[1], "OCT_CAL_X1Y0".to_string());
                 ntile.add_bel(bslots::ICAP, "ICAP_X0Y0".to_string());
-                ntile.add_bel(bslots::SPI_ACCESS, "SPI_ACCESS".to_string());
+                ntile.add_bel(bslots::ISPI_ACCESS, "SPI_ACCESS".to_string());
                 ntile.add_bel(bslots::SUSPEND_SYNC, "SUSPEND_SYNC".to_string());
                 ntile.add_bel(bslots::POST_CRC_INTERNAL, "POST_CRC_INTERNAL".to_string());
                 ntile.add_bel(bslots::STARTUP, "STARTUP".to_string());
-                ntile.add_bel(bslots::SLAVE_SPI, "SLAVE_SPI".to_string());
+                ntile.add_bel(bslots::TARGET_SPI, "SLAVE_SPI".to_string());
             }
             tcls::CNR_NE => {
                 let x = col.to_idx();

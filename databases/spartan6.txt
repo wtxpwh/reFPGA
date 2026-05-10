@@ -160,14 +160,14 @@ chip CHIP0 {
 	cfg_io A24 = IOB_E61_0;
 	cfg_io A25 = IOB_E61_1;
 	cfg_io DOUT = IOB_E2_0;
-	cfg_io MOSI = IOB_S14_2;
+	cfg_io COPI = IOB_S14_2;
 	cfg_io M0 = IOB_S15_2;
 	cfg_io M1 = IOB_S12_3;
 	cfg_io CCLK = IOB_S15_3;
 	cfg_io USER_CCLK = IOB_S9_0;
 	cfg_io HSWAP_EN = IOB_N1_3;
-	cfg_io CMP_CLK = IOB_S15_1;
-	cfg_io CMP_MOSI = IOB_S15_0;
+	cfg_io TSPI_CLK = IOB_S15_1;
+	cfg_io TSPI_COPI = IOB_S15_0;
 	cfg_io AWAKE = IOB_E2_1;
 	cfg_io SCP0 = IOB_N15_0;
 	cfg_io SCP1 = IOB_N15_1;
@@ -310,14 +310,14 @@ chip CHIP1 {
 	cfg_io INIT_B = IOB_S1_1;
 	cfg_io RDWR_B = IOB_S4_2;
 	cfg_io DOUT = IOB_E2_0;
-	cfg_io MOSI = IOB_S14_2;
+	cfg_io COPI = IOB_S14_2;
 	cfg_io M0 = IOB_S15_2;
 	cfg_io M1 = IOB_S12_3;
 	cfg_io CCLK = IOB_S15_3;
 	cfg_io USER_CCLK = IOB_S9_0;
 	cfg_io HSWAP_EN = IOB_N1_3;
-	cfg_io CMP_CLK = IOB_S15_1;
-	cfg_io CMP_MOSI = IOB_S15_0;
+	cfg_io TSPI_CLK = IOB_S15_1;
+	cfg_io TSPI_COPI = IOB_S15_0;
 	cfg_io AWAKE = IOB_E2_1;
 	cfg_io SCP0 = IOB_N15_0;
 	cfg_io SCP1 = IOB_N15_1;
@@ -499,14 +499,14 @@ chip CHIP2 {
 	cfg_io A24 = IOB_E61_0;
 	cfg_io A25 = IOB_E61_1;
 	cfg_io DOUT = IOB_E2_0;
-	cfg_io MOSI = IOB_S22_2;
+	cfg_io COPI = IOB_S22_2;
 	cfg_io M0 = IOB_S23_2;
 	cfg_io M1 = IOB_S19_3;
 	cfg_io CCLK = IOB_S23_3;
 	cfg_io USER_CCLK = IOB_S12_0;
 	cfg_io HSWAP_EN = IOB_N1_3;
-	cfg_io CMP_CLK = IOB_S23_1;
-	cfg_io CMP_MOSI = IOB_S23_0;
+	cfg_io TSPI_CLK = IOB_S23_1;
+	cfg_io TSPI_COPI = IOB_S23_0;
 	cfg_io AWAKE = IOB_E2_1;
 	cfg_io SCP0 = IOB_N23_0;
 	cfg_io SCP1 = IOB_N23_1;
@@ -716,14 +716,14 @@ chip CHIP3 {
 	cfg_io A24 = IOB_E77_0;
 	cfg_io A25 = IOB_E77_1;
 	cfg_io DOUT = IOB_E4_0;
-	cfg_io MOSI = IOB_S31_0;
+	cfg_io COPI = IOB_S31_0;
 	cfg_io M0 = IOB_S32_2;
 	cfg_io M1 = IOB_S28_1;
 	cfg_io CCLK = IOB_S32_3;
 	cfg_io USER_CCLK = IOB_S19_0;
 	cfg_io HSWAP_EN = IOB_N1_3;
-	cfg_io CMP_CLK = IOB_S31_3;
-	cfg_io CMP_MOSI = IOB_S31_2;
+	cfg_io TSPI_CLK = IOB_S31_3;
+	cfg_io TSPI_COPI = IOB_S31_2;
 	cfg_io AWAKE = IOB_E4_1;
 	cfg_io SCP0 = IOB_N32_2;
 	cfg_io SCP1 = IOB_N32_3;
@@ -992,14 +992,14 @@ chip CHIP4 {
 	cfg_io A24 = IOB_E125_0;
 	cfg_io A25 = IOB_E125_1;
 	cfg_io DOUT = IOB_E3_0;
-	cfg_io MOSI = IOB_S35_2;
+	cfg_io COPI = IOB_S35_2;
 	cfg_io M0 = IOB_S36_2;
 	cfg_io M1 = IOB_S27_3;
 	cfg_io CCLK = IOB_S36_3;
 	cfg_io USER_CCLK = IOB_S19_0;
 	cfg_io HSWAP_EN = IOB_N1_3;
-	cfg_io CMP_CLK = IOB_S36_1;
-	cfg_io CMP_MOSI = IOB_S36_0;
+	cfg_io TSPI_CLK = IOB_S36_1;
+	cfg_io TSPI_COPI = IOB_S36_0;
 	cfg_io AWAKE = IOB_E3_1;
 	cfg_io SCP0 = IOB_N36_0;
 	cfg_io SCP1 = IOB_N36_1;
@@ -1365,14 +1365,14 @@ chip CHIP5 {
 	cfg_io A24 = IOB_E189_0;
 	cfg_io A25 = IOB_E189_1;
 	cfg_io DOUT = IOB_E22_0;
-	cfg_io MOSI = IOB_S40_2;
+	cfg_io COPI = IOB_S40_2;
 	cfg_io M0 = IOB_S41_2;
 	cfg_io M1 = IOB_S37_3;
 	cfg_io CCLK = IOB_S41_3;
 	cfg_io USER_CCLK = IOB_S21_0;
 	cfg_io HSWAP_EN = IOB_N1_3;
-	cfg_io CMP_CLK = IOB_S41_1;
-	cfg_io CMP_MOSI = IOB_S41_0;
+	cfg_io TSPI_CLK = IOB_S41_1;
+	cfg_io TSPI_COPI = IOB_S41_0;
 	cfg_io AWAKE = IOB_E22_1;
 	cfg_io SCP0 = IOB_N41_0;
 	cfg_io SCP1 = IOB_N41_1;
@@ -1753,14 +1753,14 @@ chip CHIP6 {
 	cfg_io A24 = IOB_E189_0;
 	cfg_io A25 = IOB_E189_1;
 	cfg_io DOUT = IOB_E22_0;
-	cfg_io MOSI = IOB_S54_2;
+	cfg_io COPI = IOB_S54_2;
 	cfg_io M0 = IOB_S55_2;
 	cfg_io M1 = IOB_S46_3;
 	cfg_io CCLK = IOB_S55_3;
 	cfg_io USER_CCLK = IOB_S28_0;
 	cfg_io HSWAP_EN = IOB_N1_3;
-	cfg_io CMP_CLK = IOB_S55_1;
-	cfg_io CMP_MOSI = IOB_S55_0;
+	cfg_io TSPI_CLK = IOB_S55_1;
+	cfg_io TSPI_COPI = IOB_S55_0;
 	cfg_io AWAKE = IOB_E22_1;
 	cfg_io SCP0 = IOB_N55_0;
 	cfg_io SCP1 = IOB_N55_1;
@@ -2160,14 +2160,14 @@ chip CHIP7 {
 	cfg_io A24 = IOB_E189_0;
 	cfg_io A25 = IOB_E189_1;
 	cfg_io DOUT = IOB_E22_0;
-	cfg_io MOSI = IOB_S73_2;
+	cfg_io COPI = IOB_S73_2;
 	cfg_io M0 = IOB_S74_2;
 	cfg_io M1 = IOB_S65_1;
 	cfg_io CCLK = IOB_S74_3;
 	cfg_io USER_CCLK = IOB_S40_0;
 	cfg_io HSWAP_EN = IOB_N1_3;
-	cfg_io CMP_CLK = IOB_S74_1;
-	cfg_io CMP_MOSI = IOB_S74_0;
+	cfg_io TSPI_CLK = IOB_S74_1;
+	cfg_io TSPI_COPI = IOB_S74_0;
 	cfg_io AWAKE = IOB_E22_1;
 	cfg_io SCP0 = IOB_N74_0;
 	cfg_io SCP1 = IOB_N74_1;
@@ -2351,7 +2351,7 @@ bond BOND0 {
 	pin M9 = VCCO2;
 	pin M10 = VCCO2;
 	pin M11 = GND;
-	pin M12 = CMP_CS_B;
+	pin M12 = TSPI_CS_B;
 	pin M13 = IOB_E2_1;
 	pin M14 = IOB_E2_0;
 	pin N1 = PROG_B;
@@ -2556,7 +2556,7 @@ bond BOND1 {
 	pin L7 = IOB_S5_1;
 	pin L8 = IOB_S8_2;
 	pin L9 = IOB_S12_1;
-	pin L10 = CMP_CS_B;
+	pin L10 = TSPI_CS_B;
 	pin L11 = GND;
 	pin L12 = IOB_E35_0;
 	pin L13 = SUSPEND;
@@ -2884,7 +2884,7 @@ bond BOND2 {
 	pin P10 = VCCAUX;
 	pin P11 = NC;
 	pin P12 = IOB_S12_2;
-	pin P13 = CMP_CS_B;
+	pin P13 = TSPI_CS_B;
 	pin P14 = VCCAUX;
 	pin P15 = IOB_E2_1;
 	pin P16 = IOB_E2_0;
@@ -3152,7 +3152,7 @@ bond BOND3 {
 	pin L8 = IOB_S2_3;
 	pin L9 = VCCAUX;
 	pin L10 = IOB_S11_1;
-	pin L11 = CMP_CS_B;
+	pin L11 = TSPI_CS_B;
 	pin L12 = IOB_E4_1;
 	pin L13 = IOB_E4_0;
 	pin L14 = IOB_E20_1;
@@ -3326,7 +3326,7 @@ bond BOND4 {
 	pin P69 = IOB_S15_2;
 	pin P70 = IOB_S15_3;
 	pin P71 = DONE;
-	pin P72 = CMP_CS_B;
+	pin P72 = TSPI_CS_B;
 	pin P73 = SUSPEND;
 	pin P74 = IOB_E2_0;
 	pin P75 = IOB_E2_1;
@@ -3572,7 +3572,7 @@ bond BOND5 {
 	pin L7 = NC;
 	pin L8 = IOB_S8_2;
 	pin L9 = IOB_S12_1;
-	pin L10 = CMP_CS_B;
+	pin L10 = TSPI_CS_B;
 	pin L11 = GND;
 	pin L12 = IOB_E35_0;
 	pin L13 = SUSPEND;
@@ -3818,7 +3818,7 @@ bond BOND6 {
 	pin M9 = VCCO2;
 	pin M10 = VCCO2;
 	pin M11 = GND;
-	pin M12 = CMP_CS_B;
+	pin M12 = TSPI_CS_B;
 	pin M13 = IOB_E2_1;
 	pin M14 = IOB_E2_0;
 	pin N1 = PROG_B;
@@ -4023,7 +4023,7 @@ bond BOND7 {
 	pin L7 = IOB_S5_1;
 	pin L8 = IOB_S11_2;
 	pin L9 = IOB_S19_1;
-	pin L10 = CMP_CS_B;
+	pin L10 = TSPI_CS_B;
 	pin L11 = GND;
 	pin L12 = IOB_E35_0;
 	pin L13 = SUSPEND;
@@ -4351,7 +4351,7 @@ bond BOND8 {
 	pin P10 = VCCAUX;
 	pin P11 = IOB_S16_0;
 	pin P12 = IOB_S19_2;
-	pin P13 = CMP_CS_B;
+	pin P13 = TSPI_CS_B;
 	pin P14 = VCCAUX;
 	pin P15 = IOB_E2_1;
 	pin P16 = IOB_E2_0;
@@ -4619,7 +4619,7 @@ bond BOND9 {
 	pin L8 = IOB_S2_3;
 	pin L9 = VCCAUX;
 	pin L10 = IOB_S17_1;
-	pin L11 = CMP_CS_B;
+	pin L11 = TSPI_CS_B;
 	pin L12 = IOB_E4_1;
 	pin L13 = IOB_E4_0;
 	pin L14 = IOB_E20_1;
@@ -4968,7 +4968,7 @@ bond BOND10 {
 	pin P10 = VCCAUX;
 	pin P11 = IOB_S22_2;
 	pin P12 = IOB_S28_0;
-	pin P13 = CMP_CS_B;
+	pin P13 = TSPI_CS_B;
 	pin P14 = VCCAUX;
 	pin P15 = IOB_E4_1;
 	pin P16 = IOB_E4_0;
@@ -5454,7 +5454,7 @@ bond BOND11 {
 	pin V15 = NC;
 	pin V16 = VCCO2;
 	pin V17 = IOB_S31_3;
-	pin V18 = CMP_CS_B;
+	pin V18 = TSPI_CS_B;
 	pin V19 = IOB_E4_1;
 	pin V20 = IOB_E4_0;
 	pin V21 = IOB_E18_1;
@@ -5813,7 +5813,7 @@ bond BOND12 {
 	pin P10 = VCCAUX;
 	pin P11 = IOB_S22_2;
 	pin P12 = IOB_S28_0;
-	pin P13 = CMP_CS_B;
+	pin P13 = TSPI_CS_B;
 	pin P14 = VCCAUX;
 	pin P15 = IOB_E4_1;
 	pin P16 = IOB_E4_0;
@@ -6348,7 +6348,7 @@ bond BOND13 {
 	pin Y17 = IOB_S26_1;
 	pin Y18 = IOB_S29_0;
 	pin Y19 = IOB_S29_3;
-	pin Y20 = CMP_CS_B;
+	pin Y20 = TSPI_CS_B;
 	pin Y21 = IOB_S32_3;
 	pin Y22 = DONE;
 	pin AA1 = PROG_B;
@@ -6585,7 +6585,7 @@ bond BOND14 {
 	pin L8 = IOB_S4_1;
 	pin L9 = VCCAUX;
 	pin L10 = IOB_S24_3;
-	pin L11 = CMP_CS_B;
+	pin L11 = TSPI_CS_B;
 	pin L12 = IOB_E10_1;
 	pin L13 = IOB_E10_0;
 	pin L14 = IOB_E28_1;
@@ -6934,7 +6934,7 @@ bond BOND15 {
 	pin P10 = VCCAUX;
 	pin P11 = IOB_S22_2;
 	pin P12 = IOB_S27_2;
-	pin P13 = CMP_CS_B;
+	pin P13 = TSPI_CS_B;
 	pin P14 = VCCAUX;
 	pin P15 = IOB_E3_1;
 	pin P16 = IOB_E3_0;
@@ -7392,7 +7392,7 @@ bond BOND16 {
 	pin U9 = IOB_W32_1;
 	pin U10 = IOB_W16_0;
 	pin U11 = VCCAUX;
-	pin U12 = CMP_CS_B;
+	pin U12 = TSPI_CS_B;
 	pin U13 = IOB_S22_2;
 	pin U14 = VCCO2;
 	pin U15 = IOB_S27_3;
@@ -7926,7 +7926,7 @@ bond BOND17 {
 	pin V15 = IOB_S35_0;
 	pin V16 = VCCO2;
 	pin V17 = IOB_S36_1;
-	pin V18 = CMP_CS_B;
+	pin V18 = TSPI_CS_B;
 	pin V19 = IOB_E3_1;
 	pin V20 = IOB_E3_0;
 	pin V21 = IOB_E43_1;
@@ -8288,7 +8288,7 @@ bond BOND18 {
 	pin P10 = VCCAUX;
 	pin P11 = IOB_S22_2;
 	pin P12 = IOB_S27_2;
-	pin P13 = CMP_CS_B;
+	pin P13 = TSPI_CS_B;
 	pin P14 = VCCAUX;
 	pin P15 = IOB_E3_1;
 	pin P16 = IOB_E3_0;
@@ -8730,7 +8730,7 @@ bond BOND19 {
 	pin T12 = NC;
 	pin T13 = VCCO2;
 	pin T14 = IOB_S22_3;
-	pin T15 = CMP_CS_B;
+	pin T15 = TSPI_CS_B;
 	pin T16 = NC;
 	pin T17 = IOB_E7_1;
 	pin T18 = IOB_E7_0;
@@ -9330,7 +9330,7 @@ bond BOND20 {
 	pin Y17 = IOB_S26_3;
 	pin Y18 = IOB_S33_0;
 	pin Y19 = IOB_S33_3;
-	pin Y20 = CMP_CS_B;
+	pin Y20 = TSPI_CS_B;
 	pin Y21 = IOB_S36_3;
 	pin Y22 = DONE;
 	pin AA1 = PROG_B;
@@ -9993,7 +9993,7 @@ bond BOND21 {
 	pin AC19 = IOB_S32_3;
 	pin AC20 = IOB_S33_3;
 	pin AC21 = VCCO2;
-	pin AC22 = CMP_CS_B;
+	pin AC22 = TSPI_CS_B;
 	pin AC23 = IOB_E23_1;
 	pin AC24 = IOB_E23_0;
 	pin AC25 = IOB_E43_1;
@@ -10464,7 +10464,7 @@ bond BOND22 {
 	pin U9 = IOB_W55_1;
 	pin U10 = IOB_W25_0;
 	pin U11 = VCCAUX;
-	pin U12 = CMP_CS_B;
+	pin U12 = TSPI_CS_B;
 	pin U13 = IOB_S34_2;
 	pin U14 = VCCO2;
 	pin U15 = IOB_S37_3;
@@ -11000,7 +11000,7 @@ bond BOND23 {
 	pin V15 = IOB_S40_0;
 	pin V16 = VCCO2;
 	pin V17 = IOB_S41_1;
-	pin V18 = CMP_CS_B;
+	pin V18 = TSPI_CS_B;
 	pin V19 = IOB_E22_1;
 	pin V20 = IOB_E22_0;
 	pin V21 = IOB_E75_1;
@@ -11630,7 +11630,7 @@ bond BOND24 {
 	pin Y16 = NC;
 	pin Y17 = IOB_S35_1;
 	pin Y18 = VCCO2;
-	pin Y19 = CMP_CS_B;
+	pin Y19 = TSPI_CS_B;
 	pin Y20 = IOB_S40_0;
 	pin Y21 = IOB_S41_1;
 	pin Y22 = SUSPEND;
@@ -12168,7 +12168,7 @@ bond BOND25 {
 	pin T12 = IOB_S19_1;
 	pin T13 = VCCO2;
 	pin T14 = IOB_S34_3;
-	pin T15 = CMP_CS_B;
+	pin T15 = TSPI_CS_B;
 	pin T16 = RFUSE;
 	pin T17 = IOB_E27_1;
 	pin T18 = IOB_E27_0;
@@ -12770,7 +12770,7 @@ bond BOND26 {
 	pin Y17 = IOB_S35_3;
 	pin Y18 = NC;
 	pin Y19 = IOB_S38_3;
-	pin Y20 = CMP_CS_B;
+	pin Y20 = TSPI_CS_B;
 	pin Y21 = IOB_S41_3;
 	pin Y22 = DONE;
 	pin AA1 = PROG_B;
@@ -13435,7 +13435,7 @@ bond BOND27 {
 	pin AC19 = NC;
 	pin AC20 = NC;
 	pin AC21 = VCCO2;
-	pin AC22 = CMP_CS_B;
+	pin AC22 = TSPI_CS_B;
 	pin AC23 = IOB_E43_1;
 	pin AC24 = IOB_E43_0;
 	pin AC25 = IOB_E75_1;
@@ -13911,7 +13911,7 @@ bond BOND28 {
 	pin U9 = IOB_W55_1;
 	pin U10 = IOB_W25_0;
 	pin U11 = VCCAUX;
-	pin U12 = CMP_CS_B;
+	pin U12 = TSPI_CS_B;
 	pin U13 = IOB_S41_0;
 	pin U14 = VCCO2;
 	pin U15 = IOB_S46_3;
@@ -14447,7 +14447,7 @@ bond BOND29 {
 	pin V15 = IOB_S54_0;
 	pin V16 = VCCO2;
 	pin V17 = IOB_S55_1;
-	pin V18 = CMP_CS_B;
+	pin V18 = TSPI_CS_B;
 	pin V19 = IOB_E22_1;
 	pin V20 = IOB_E22_0;
 	pin V21 = IOB_E75_1;
@@ -15077,7 +15077,7 @@ bond BOND30 {
 	pin Y16 = IOB_S41_2;
 	pin Y17 = IOB_S44_1;
 	pin Y18 = VCCO2;
-	pin Y19 = CMP_CS_B;
+	pin Y19 = TSPI_CS_B;
 	pin Y20 = IOB_S54_0;
 	pin Y21 = IOB_S55_1;
 	pin Y22 = SUSPEND;
@@ -15955,7 +15955,7 @@ bond BOND31 {
 	pin AC22 = IOB_S52_0;
 	pin AC23 = IOB_S54_0;
 	pin AC24 = IOB_S55_1;
-	pin AC25 = CMP_CS_B;
+	pin AC25 = TSPI_CS_B;
 	pin AC26 = VCCO1;
 	pin AC27 = IOB_E78_1;
 	pin AC28 = IOB_E78_0;
@@ -16545,7 +16545,7 @@ bond BOND32 {
 	pin T12 = IOB_S26_1;
 	pin T13 = VCCO2;
 	pin T14 = IOB_S41_1;
-	pin T15 = CMP_CS_B;
+	pin T15 = TSPI_CS_B;
 	pin T16 = RFUSE;
 	pin T17 = IOB_E27_1;
 	pin T18 = IOB_E27_0;
@@ -17147,7 +17147,7 @@ bond BOND33 {
 	pin Y17 = IOB_S44_3;
 	pin Y18 = IOB_S52_0;
 	pin Y19 = IOB_S52_3;
-	pin Y20 = CMP_CS_B;
+	pin Y20 = TSPI_CS_B;
 	pin Y21 = IOB_S55_3;
 	pin Y22 = DONE;
 	pin AA1 = PROG_B;
@@ -17812,7 +17812,7 @@ bond BOND34 {
 	pin AC19 = IOB_S51_3;
 	pin AC20 = IOB_S52_3;
 	pin AC21 = VCCO2;
-	pin AC22 = CMP_CS_B;
+	pin AC22 = TSPI_CS_B;
 	pin AC23 = IOB_E43_1;
 	pin AC24 = IOB_E43_0;
 	pin AC25 = IOB_E75_1;
@@ -18288,7 +18288,7 @@ bond BOND35 {
 	pin U9 = IOB_W55_1;
 	pin U10 = IOB_W25_0;
 	pin U11 = VCCAUX;
-	pin U12 = CMP_CS_B;
+	pin U12 = TSPI_CS_B;
 	pin U13 = IOB_S59_2;
 	pin U14 = VCCO2;
 	pin U15 = IOB_S65_1;
@@ -18824,7 +18824,7 @@ bond BOND36 {
 	pin V15 = IOB_S73_0;
 	pin V16 = VCCO2;
 	pin V17 = IOB_S74_1;
-	pin V18 = CMP_CS_B;
+	pin V18 = TSPI_CS_B;
 	pin V19 = IOB_E22_1;
 	pin V20 = IOB_E22_0;
 	pin V21 = IOB_E75_1;
@@ -19454,7 +19454,7 @@ bond BOND37 {
 	pin Y16 = IOB_S61_0;
 	pin Y17 = IOB_S62_3;
 	pin Y18 = VCCO2;
-	pin Y19 = CMP_CS_B;
+	pin Y19 = TSPI_CS_B;
 	pin Y20 = IOB_S73_0;
 	pin Y21 = IOB_S74_1;
 	pin Y22 = SUSPEND;
@@ -20333,7 +20333,7 @@ bond BOND38 {
 	pin AC22 = IOB_S70_2;
 	pin AC23 = IOB_S73_0;
 	pin AC24 = IOB_S74_1;
-	pin AC25 = CMP_CS_B;
+	pin AC25 = TSPI_CS_B;
 	pin AC26 = VCCO1;
 	pin AC27 = IOB_E78_1;
 	pin AC28 = IOB_E78_0;
@@ -20923,7 +20923,7 @@ bond BOND39 {
 	pin T12 = IOB_S38_1;
 	pin T13 = VCCO2;
 	pin T14 = IOB_S59_3;
-	pin T15 = CMP_CS_B;
+	pin T15 = TSPI_CS_B;
 	pin T16 = RFUSE;
 	pin T17 = IOB_E27_1;
 	pin T18 = IOB_E27_0;
@@ -21525,7 +21525,7 @@ bond BOND40 {
 	pin Y17 = IOB_S64_1;
 	pin Y18 = IOB_S70_2;
 	pin Y19 = IOB_S71_1;
-	pin Y20 = CMP_CS_B;
+	pin Y20 = TSPI_CS_B;
 	pin Y21 = IOB_S74_3;
 	pin Y22 = DONE;
 	pin AA1 = PROG_B;
@@ -22190,7 +22190,7 @@ bond BOND41 {
 	pin AC19 = IOB_S70_1;
 	pin AC20 = IOB_S71_1;
 	pin AC21 = VCCO2;
-	pin AC22 = CMP_CS_B;
+	pin AC22 = TSPI_CS_B;
 	pin AC23 = IOB_E43_1;
 	pin AC24 = IOB_E43_0;
 	pin AC25 = IOB_E75_1;
@@ -22987,7 +22987,7 @@ bond BOND42 {
 	pin AC22 = VCCO2;
 	pin AC23 = GND;
 	pin AC24 = VCCAUX;
-	pin AC25 = CMP_CS_B;
+	pin AC25 = TSPI_CS_B;
 	pin AC26 = VCCO1;
 	pin AC27 = IOB_E78_1;
 	pin AC28 = IOB_E78_0;
@@ -26738,11 +26738,11 @@ intdb {
 		attribute ENABLE: bool;
 	}
 
-	bel_class SPI_ACCESS {
+	bel_class ISPI_ACCESS {
 		input CLK;
-		input CSB;
-		input MOSI;
-		output MISO;
+		input CS_B;
+		input COPI;
+		output CIPO;
 		attribute ENABLE: bool;
 	}
 
@@ -26773,12 +26773,12 @@ intdb {
 		attribute KEYCLEARB_ENABLE: bool;
 	}
 
-	bel_class SLAVE_SPI {
-		input CMPMISO;
-		output CMPACTIVEB;
-		output CMPCLK;
-		output CMPCSB;
-		output CMPMOSI;
+	bel_class TARGET_SPI {
+		input CIPO;
+		output ACTIVE_B;
+		output CLK;
+		output CS_B;
+		output COPI;
 	}
 
 	bel_class BSCAN {
@@ -26798,9 +26798,9 @@ intdb {
 
 	bel_class MISC_SW {
 		pad PROG_B: input
-		pad MISO2: input
+		pad ISPI_CIPO: input
 		attribute PROG_PULL: IOB_PULL;
-		attribute MISO2_PULL: IOB_PULL;
+		attribute ISPI_CIPO_PULL: IOB_PULL;
 		attribute LEAKER_GAIN_OPTIONS: bitvec[4];
 		attribute LEAKER_SLOPE_OPTIONS: bitvec[4];
 		attribute VBG_SLOPE_OPTIONS: bitvec[4];
@@ -26812,13 +26812,13 @@ intdb {
 	bel_class MISC_SE {
 		pad DONE: inout
 		pad SUSPEND: input
-		pad CMP_CS_B: input
-		pad CCLK2: output
-		pad MOSI2: output
+		pad TSPI_CS_B: input
+		pad ISPI_CCLK: output
+		pad ISPI_COPI: output
 		attribute DONE_PULL: IOB_PULL;
-		attribute CMP_CS_PULL: IOB_PULL;
-		attribute CCLK2_PULL: IOB_PULL;
-		attribute MOSI2_PULL: IOB_PULL;
+		attribute TSPI_CS_B_PULL: IOB_PULL;
+		attribute ISPI_CCLK_PULL: IOB_PULL;
+		attribute ISPI_COPI_PULL: IOB_PULL;
 		attribute GLUTMASK_IOB: bool;
 	}
 
@@ -26835,8 +26835,8 @@ intdb {
 		pad TMS: input
 		pad TDI: input
 		pad TDO: output
-		pad CSO2: output
-		attribute CSO2_PULL: IOB_PULL;
+		pad ISPI_CS_B: output
+		attribute ISPI_CS_B_PULL: IOB_PULL;
 		attribute TCK_PULL: IOB_PULL;
 		attribute TMS_PULL: IOB_PULL;
 		attribute TDI_PULL: IOB_PULL;
@@ -36043,11 +36043,11 @@ intdb {
 		bel_slot PMV: PMV;
 		bel_slot DNA_PORT: DNA_PORT;
 		bel_slot ICAP: ICAP;
-		bel_slot SPI_ACCESS: SPI_ACCESS;
+		bel_slot ISPI_ACCESS: ISPI_ACCESS;
 		bel_slot SUSPEND_SYNC: SUSPEND_SYNC;
 		bel_slot POST_CRC_INTERNAL: POST_CRC_INTERNAL;
 		bel_slot STARTUP: STARTUP;
-		bel_slot SLAVE_SPI: SLAVE_SPI;
+		bel_slot TARGET_SPI: TARGET_SPI;
 		bel_slot BSCAN[0]: BSCAN;
 		bel_slot BSCAN[1]: BSCAN;
 		bel_slot BSCAN[2]: BSCAN;
@@ -47457,7 +47457,7 @@ intdb {
 					NONE = 0b1,
 					PULLUP = 0b0,
 				}
-				attribute MISO2_PULL @[MAIN[23][59], MAIN[23][58]] {
+				attribute ISPI_CIPO_PULL @[MAIN[23][59], MAIN[23][58]] {
 					NONE = 0b01,
 					PULLUP = 0b00,
 					PULLDOWN = 0b11,
@@ -47657,11 +47657,11 @@ intdb {
 				attribute ENABLE @MAIN[1][22][8];
 			}
 
-			bel SPI_ACCESS {
+			bel ISPI_ACCESS {
 				input CLK = CELL[0].IMUX_CLK[0];
-				input CSB = CELL[0].IMUX_LOGICIN[24];
-				input MOSI = CELL[0].IMUX_SR[0];
-				output MISO = CELL[0].OUT_BEL[1];
+				input CS_B = CELL[0].IMUX_LOGICIN[24];
+				input COPI = CELL[0].IMUX_SR[0];
+				output CIPO = CELL[0].OUT_BEL[1];
 				attribute ENABLE @MAIN[1][22][7];
 			}
 
@@ -47692,12 +47692,12 @@ intdb {
 				attribute KEYCLEARB_ENABLE @MAIN[1][22][9];
 			}
 
-			bel SLAVE_SPI {
-				input CMPMISO = CELL[1].IMUX_LOGICIN[15];
-				output CMPACTIVEB = CELL[1].OUT_BEL[7];
-				output CMPCLK = CELL[1].OUT_BEL[4];
-				output CMPCSB = CELL[1].OUT_BEL[5];
-				output CMPMOSI = CELL[1].OUT_BEL[6];
+			bel TARGET_SPI {
+				input CIPO = CELL[1].IMUX_LOGICIN[15];
+				output ACTIVE_B = CELL[1].OUT_BEL[7];
+				output CLK = CELL[1].OUT_BEL[4];
+				output CS_B = CELL[1].OUT_BEL[5];
+				output COPI = CELL[1].OUT_BEL[6];
 			}
 
 			bel MISR_CNR_H {
@@ -47718,17 +47718,17 @@ intdb {
 					NONE = 0b1,
 					PULLUP = 0b0,
 				}
-				attribute CMP_CS_PULL @[MAIN[0][22][60], MAIN[0][22][61]] {
+				attribute TSPI_CS_B_PULL @[MAIN[0][22][60], MAIN[0][22][61]] {
 					NONE = 0b01,
 					PULLUP = 0b00,
 					PULLDOWN = 0b11,
 				}
-				attribute CCLK2_PULL @[MAIN[0][22][56], MAIN[0][22][57]] {
+				attribute ISPI_CCLK_PULL @[MAIN[0][22][56], MAIN[0][22][57]] {
 					NONE = 0b01,
 					PULLUP = 0b00,
 					PULLDOWN = 0b11,
 				}
-				attribute MOSI2_PULL @[MAIN[0][22][58], MAIN[0][22][59]] {
+				attribute ISPI_COPI_PULL @[MAIN[0][22][58], MAIN[0][22][59]] {
 					NONE = 0b01,
 					PULLUP = 0b00,
 					PULLDOWN = 0b11,
@@ -47736,9 +47736,9 @@ intdb {
 				attribute GLUTMASK_IOB @MAIN[0][22][51];
 			}
 
-			// wire CELL[0].IMUX_CLK[0]            SPI_ACCESS.CLK
+			// wire CELL[0].IMUX_CLK[0]            ISPI_ACCESS.CLK
 			// wire CELL[0].IMUX_CLK[1]            ICAP.CLK
-			// wire CELL[0].IMUX_SR[0]             SPI_ACCESS.MOSI
+			// wire CELL[0].IMUX_SR[0]             ISPI_ACCESS.COPI
 			// wire CELL[0].IMUX_LOGICIN[4]        ICAP.I[15]
 			// wire CELL[0].IMUX_LOGICIN[5]        ICAP.I[1]
 			// wire CELL[0].IMUX_LOGICIN[7]        ICAP.CE
@@ -47747,7 +47747,7 @@ intdb {
 			// wire CELL[0].IMUX_LOGICIN[17]       ICAP.I[7]
 			// wire CELL[0].IMUX_LOGICIN[20]       ICAP.I[4]
 			// wire CELL[0].IMUX_LOGICIN[23]       ICAP.I[12]
-			// wire CELL[0].IMUX_LOGICIN[24]       SPI_ACCESS.CSB
+			// wire CELL[0].IMUX_LOGICIN[24]       ISPI_ACCESS.CS_B
 			// wire CELL[0].IMUX_LOGICIN[25]       ICAP.I[8]
 			// wire CELL[0].IMUX_LOGICIN[29]       OCT_CAL[1].S[0]
 			// wire CELL[0].IMUX_LOGICIN[32]       OCT_CAL[1].S[1]
@@ -47760,7 +47760,7 @@ intdb {
 			// wire CELL[0].IMUX_LOGICIN[48]       ICAP.I[11]
 			// wire CELL[0].IMUX_LOGICIN[54]       ICAP.I[10]
 			// wire CELL[0].IMUX_LOGICIN[57]       ICAP.I[13]
-			// wire CELL[0].OUT_BEL[1]             SPI_ACCESS.MISO
+			// wire CELL[0].OUT_BEL[1]             ISPI_ACCESS.CIPO
 			// wire CELL[0].OUT_BEL[3]             ICAP.BUSY
 			// wire CELL[0].OUT_BEL[4]             ICAP.O[0]
 			// wire CELL[0].OUT_BEL[5]             ICAP.O[1]
@@ -47783,16 +47783,16 @@ intdb {
 			// wire CELL[1].IMUX_SR[0]             SUSPEND_SYNC.SACK
 			// wire CELL[1].IMUX_SR[1]             STARTUP.GSR
 			// wire CELL[1].IMUX_LOGICIN[1]        STARTUP.KEYCLEARB
-			// wire CELL[1].IMUX_LOGICIN[15]       SLAVE_SPI.CMPMISO
+			// wire CELL[1].IMUX_LOGICIN[15]       TARGET_SPI.CIPO
 			// wire CELL[1].IMUX_LOGICIN[24]       STARTUP.GTS
 			// wire CELL[1].OUT_BEL[0]             SUSPEND_SYNC.SREQ
 			// wire CELL[1].OUT_BEL[1]             STARTUP.CFGMCLK
 			// wire CELL[1].OUT_BEL[2]             STARTUP.CFGCLK
 			// wire CELL[1].OUT_BEL[3]             STARTUP.EOS
-			// wire CELL[1].OUT_BEL[4]             SLAVE_SPI.CMPCLK
-			// wire CELL[1].OUT_BEL[5]             SLAVE_SPI.CMPCSB
-			// wire CELL[1].OUT_BEL[6]             SLAVE_SPI.CMPMOSI
-			// wire CELL[1].OUT_BEL[7]             SLAVE_SPI.CMPACTIVEB
+			// wire CELL[1].OUT_BEL[4]             TARGET_SPI.CLK
+			// wire CELL[1].OUT_BEL[5]             TARGET_SPI.CS_B
+			// wire CELL[1].OUT_BEL[6]             TARGET_SPI.COPI
+			// wire CELL[1].OUT_BEL[7]             TARGET_SPI.ACTIVE_B
 			// wire CELL[1].OUT_BEL[8]             POST_CRC_INTERNAL.CRCERROR
 		}
 
@@ -47891,7 +47891,7 @@ intdb {
 			}
 
 			bel MISC_NE {
-				attribute CSO2_PULL @[MAIN[1][22][42], MAIN[1][22][43]] {
+				attribute ISPI_CS_B_PULL @[MAIN[1][22][42], MAIN[1][22][43]] {
 					NONE = 0b01,
 					PULLUP = 0b00,
 					PULLDOWN = 0b11,

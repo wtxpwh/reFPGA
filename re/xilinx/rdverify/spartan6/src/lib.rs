@@ -1199,11 +1199,11 @@ fn verify_bel(endev: &ExpandedNamedDevice, vrf: &mut Verifier, bcrd: BelCoord) {
         bslots::PMV
         | bslots::DNA_PORT
         | bslots::ICAP
-        | bslots::SPI_ACCESS
         | bslots::SUSPEND_SYNC
         | bslots::POST_CRC_INTERNAL
-        | bslots::STARTUP
-        | bslots::SLAVE_SPI => vrf.verify_bel(bcrd).commit(),
+        | bslots::STARTUP => vrf.verify_bel(bcrd).commit(),
+        bslots::ISPI_ACCESS => vrf.verify_bel(bcrd).kind("SPI_ACCESS").commit(),
+        bslots::TARGET_SPI => vrf.verify_bel(bcrd).kind("SLAVE_SPI").commit(),
 
         _ if bslots::ILOGIC.contains(bcrd.slot) => verify_ilogic(vrf, bcrd),
         _ if bslots::OLOGIC.contains(bcrd.slot) => verify_ologic(vrf, bcrd),
