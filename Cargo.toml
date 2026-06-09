@@ -1,75 +1,88 @@
-# NOTE: this is the workspace containing RE-only crates; for the public crate workspace, see public/Cargo.toml
-#
-# Dependency versions should be kept in sync between the two workspaces.
-
 [workspace]
 resolver = "3"
 members = [
-	"re/toolchain",
-	"re/hammer",
-	"re/collector",
-	"re/fpga-hammer",
-	"re/harvester",
-	"re/sdf",
-	"re/xilinx/rawdump",
-	"re/xilinx/xdl",
-	"re/xilinx/v2xdl-verify",
-	"re/xilinx/ise-dump",
-	"re/xilinx/vivado-dump",
-	"re/xilinx/naming",
-	"re/xilinx/naming/xc2000",
-	"re/xilinx/naming/virtex",
-	"re/xilinx/naming/virtex2",
-	"re/xilinx/naming/virtex4",
-	"re/xilinx/naming/spartan6",
-	"re/xilinx/naming/ultrascale",
-	"re/xilinx/naming/versal",
-	"re/xilinx/geom",
-	"re/xilinx/rdbuild",
-	"re/xilinx/rd2db/grid",
-	"re/xilinx/rd2db/interconnect",
-	"re/xilinx/rd2db/xc4000",
-	"re/xilinx/rd2db/xc5200",
-	"re/xilinx/rd2db/virtex",
-	"re/xilinx/rd2db/virtex2",
-	"re/xilinx/rd2db/spartan6",
-	"re/xilinx/rd2db/virtex4",
-	"re/xilinx/rd2db/virtex5",
-	"re/xilinx/rd2db/virtex6",
-	"re/xilinx/rd2db/virtex7",
-	"re/xilinx/rd2db/ultrascale",
-	"re/xilinx/rd2db/versal",
-	"re/xilinx/rdverify",
-	"re/xilinx/rdverify/xc4000",
-	"re/xilinx/rdverify/xc5200",
-	"re/xilinx/rdverify/virtex",
-	"re/xilinx/rdverify/virtex2",
-	"re/xilinx/rdverify/spartan6",
-	"re/xilinx/rdverify/virtex4",
-	"re/xilinx/rdverify/virtex5",
-	"re/xilinx/rdverify/virtex6",
-	"re/xilinx/rdverify/virtex7",
-	"re/xilinx/rdverify/ultrascale",
-	"re/xilinx/rdverify/versal",
-	"re/xilinx/rd2geom",
-	"re/xilinx/ise-hammer",
-	"re/xilinx/xact/naming",
-	"re/xilinx/xact/xc2000",
-	"re/xilinx/xact/geom",
-	"re/xilinx/xact/data",
-	"re/xilinx/xact/dump",
-	"re/xilinx/xact/hammer",
-	"re/xilinx/finish",
-	"re/xilinx/cpld",
-	"re/icecube-harvester",
-	"re/lattice/dump",
-	"re/lattice/rawdump",
-	"re/lattice/naming",
-	"re/lattice/rd2geom",
-	"re/lattice/finish",
-	"docgen",
+    "public/entity",
+    "public/types",
+    "public/interconnect",
+    "public/tablegen",
+    "public/jed",
+    "public/siliconblue",
+    "public/xc2000",
+    "public/virtex",
+    "public/virtex2",
+    "public/spartan6",
+    "public/virtex4",
+    "public/ultrascale",
+    "public/versal",
+    "public/ecp",
+    "public/xc9500",
+    "public/xpla3",
+    "public/coolrunner2",
+    "public/cli",
+    "re/toolchain",
+    "re/hammer",
+    "re/collector",
+    "re/fpga-hammer",
+    "re/harvester",
+    "re/sdf",
+    "re/xilinx/rawdump",
+    "re/xilinx/xdl",
+    "re/xilinx/v2xdl-verify",
+    "re/xilinx/ise-dump",
+    "re/xilinx/vivado-dump",
+    "re/xilinx/naming",
+    "re/xilinx/naming/xc2000",
+    "re/xilinx/naming/virtex",
+    "re/xilinx/naming/virtex2",
+    "re/xilinx/naming/virtex4",
+    "re/xilinx/naming/spartan6",
+    "re/xilinx/naming/ultrascale",
+    "re/xilinx/naming/versal",
+    "re/xilinx/geom",
+    "re/xilinx/rdbuild",
+    "re/xilinx/rd2db/grid",
+    "re/xilinx/rd2db/interconnect",
+    "re/xilinx/rd2db/xc4000",
+    "re/xilinx/rd2db/xc5200",
+    "re/xilinx/rd2db/virtex",
+    "re/xilinx/rd2db/virtex2",
+    "re/xilinx/rd2db/spartan6",
+    "re/xilinx/rd2db/virtex4",
+    "re/xilinx/rd2db/virtex5",
+    "re/xilinx/rd2db/virtex6",
+    "re/xilinx/rd2db/virtex7",
+    "re/xilinx/rd2db/ultrascale",
+    "re/xilinx/rd2db/versal",
+    "re/xilinx/rdverify",
+    "re/xilinx/rdverify/xc4000",
+    "re/xilinx/rdverify/xc5200",
+    "re/xilinx/rdverify/virtex",
+    "re/xilinx/rdverify/virtex2",
+    "re/xilinx/rdverify/spartan6",
+    "re/xilinx/rdverify/virtex4",
+    "re/xilinx/rdverify/virtex5",
+    "re/xilinx/rdverify/virtex6",
+    "re/xilinx/rdverify/virtex7",
+    "re/xilinx/rdverify/ultrascale",
+    "re/xilinx/rdverify/versal",
+    "re/xilinx/rd2geom",
+    "re/xilinx/ise-hammer",
+    "re/xilinx/xact/naming",
+    "re/xilinx/xact/xc2000",
+    "re/xilinx/xact/geom",
+    "re/xilinx/xact/data",
+    "re/xilinx/xact/dump",
+    "re/xilinx/xact/hammer",
+    "re/xilinx/finish",
+    "re/xilinx/cpld",
+    "re/icecube-harvester",
+    "re/lattice/dump",
+    "re/lattice/rawdump",
+    "re/lattice/naming",
+    "re/lattice/rd2geom",
+    "re/lattice/finish",
+    "docgen",
 ]
-exclude = ["public"]
 
 [workspace.package]
 edition = "2024"
@@ -83,6 +96,7 @@ authors = []
 prjcombine-entity = { path = "public/entity", features = ["bitvec", "map", "serde", "bincode"] }
 prjcombine-types = { path = "public/types" }
 prjcombine-interconnect = { path = "public/interconnect" }
+prjcombine-tablegen = { path = "public/tablegen" }
 prjcombine-siliconblue = { path = "public/siliconblue" }
 prjcombine-xc2000 = { path = "public/xc2000" }
 prjcombine-virtex = { path = "public/virtex" }
@@ -104,6 +118,10 @@ itertools = "0.14"
 arrayvec = "0.7.6"
 bimap = "0.6"
 arrayref = "0.3.6"
+des = "0.8.1"
+aes = "0.8.4"
+sha2 = "0.10.8"
+cbc = "0.1.2"
 assert_matches = "1.5"
 clap = { version = "4.1", features = ["derive"] }
 # RE-only crates and their dependencies
@@ -187,11 +205,14 @@ debug = 2
 split-debuginfo = "unpacked"
 
 [workspace.lints.clippy]
-collapsible_else_if = "allow"
+question_mark = "allow"
 collapsible_match = "allow"
+collapsible_else_if = "allow"
 bool_to_int_with_if = "allow"
 needless_range_loop = "allow"
+assigning_clones = "allow"
 large_enum_variant = "allow"
 nonminimal_bool = "allow"
+precedence = "allow"
+explicit_counter_loop = "allow"
 manual_map = "allow"
-question_mark = "allow"
