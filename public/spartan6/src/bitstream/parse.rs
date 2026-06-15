@@ -151,7 +151,7 @@ impl ExpandedDevice<'_> {
         }
         match packets.next() {
             Some(Packet::Idcode(val)) => {
-                bs.regs.insert(Reg::Idcode, val.into());
+                bs.regs.insert(Reg::Idcode, val);
             }
             p => panic!("expected idcode got {p:?}"),
         }
@@ -272,7 +272,7 @@ impl ExpandedDevice<'_> {
         }
         match packets.next() {
             Some(Packet::RbCrcSw(val)) => {
-                bs.regs.insert(Reg::RbCrcSw, val.into());
+                bs.regs.insert(Reg::RbCrcSw, val);
             }
             p => panic!("expected rbcrcsw got {p:?}"),
         }

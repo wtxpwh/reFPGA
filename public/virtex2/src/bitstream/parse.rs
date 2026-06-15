@@ -417,7 +417,7 @@ impl ExpandedDevice<'_> {
         }
         match packets.next() {
             Some(Packet::RbCrcSw(val)) => {
-                bs.regs.insert(Reg::RbCrcSw, val.into());
+                bs.regs.insert(Reg::RbCrcSw, val);
             }
             p => panic!("expected rbcrcsw got {p:?}"),
         }

@@ -15,7 +15,8 @@ pub fn ingest(rd: &Part, verify: bool, pb: &ProgressBar) -> PreDevice {
     let (intdb, ndb) = int::make_int_db(rd, &naming);
     pb.set_message("bonds");
     let mut bonds = Vec::new();
-    for (pkg, _) in rd.packages.iter() {
+    for (pkg, pins) in rd.packages.iter() {
+        let _ = pins;
         bonds.push((pkg.clone(), Bond::Versal(prjcombine_versal::bond::Bond {})));
     }
     let grid_refs = grids.map_values(|x| x);

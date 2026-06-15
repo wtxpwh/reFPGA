@@ -116,6 +116,12 @@ impl Crc {
     }
 }
 
+impl Default for Crc {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl<'a> PacketParser<'a> {
     pub fn new(kind: DeviceKind, data: &'a [u8], key: Option<[u8; 32]>) -> Self {
         Self {

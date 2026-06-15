@@ -218,11 +218,8 @@ impl Iterator for PacketParser<'_> {
                             (8, 1) => Some(Packet::LoutDebug(get_val(0))),
                             (9, 1) => {
                                 let val = get_val(0);
-                                match self.kind {
-                                    DeviceKind::Virtex2 => {
-                                        self.bypass_crc = (val & 1 << 29) != 0;
-                                    }
-                                    _ => (),
+                                if self.kind == DeviceKind::Virtex2 {
+                                    self.bypass_crc = (val & 1 << 29) != 0;
                                 }
                                 Some(Packet::Cor0(val))
                             }
