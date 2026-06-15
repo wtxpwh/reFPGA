@@ -1,4 +1,4 @@
-use aes::cipher::{BlockDecryptMut, KeyIvInit, inout::InOutBuf};
+use aes::cipher::{BlockModeDecrypt, KeyIvInit, inout::InOutBuf};
 use arrayref::array_ref;
 
 #[derive(Copy, Clone, Eq, PartialEq, Debug)]
@@ -150,7 +150,7 @@ impl<'a> PacketParser<'a> {
         let iodata: InOutBuf<_> = (&mut data[..]).into();
         let (mut blocks, tail) = iodata.into_chunks();
         assert!(tail.is_empty());
-        cipher.decrypt_blocks_inout_mut(blocks.reborrow());
+        cipher.decrypt_blocks_inout(blocks.reborrow());
         bitswap32(&mut data);
         data
     }

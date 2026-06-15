@@ -1,6 +1,6 @@
 use crate::bitstream::{KeyData, KeySeq};
 use arrayref::array_ref;
-use cbc::cipher::{BlockDecrypt, BlockEncrypt, KeyInit};
+use des::cipher::{BlockCipherDecrypt, BlockCipherEncrypt, KeyInit};
 
 #[derive(Debug, Clone, Copy, Eq, PartialEq)]
 pub enum DeviceKind {
