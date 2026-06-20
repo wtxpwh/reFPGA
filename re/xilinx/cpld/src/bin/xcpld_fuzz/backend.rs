@@ -1267,7 +1267,7 @@ impl Backend for CpldBackend<'_> {
                     Value::Ut(fb, pt) => {
                         let node = ct_lut[&(fb, pt)];
                         let name = vm6.nodes[node].name.clone();
-                        vm6.utc[ut] = Some(name);
+                        vm6.utc.insert(ut, name);
                     }
                     _ => unreachable!(),
                 },

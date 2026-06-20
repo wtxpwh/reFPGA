@@ -304,10 +304,10 @@ fn test_ff_ut(
     insert_srff_inp(&mut vm6, mcid, InputNodeKind::SrffCe, node_sce);
     insert_bufoe(&mut vm6, mcid, node_se);
     insert_obuf(&mut vm6, mcid, 3);
-    vm6.utc[Ut::Clk] = Some(vm6.nodes[node_sc].name.clone());
-    vm6.utc[Ut::Oe] = Some(vm6.nodes[node_se].name.clone());
-    vm6.utc[Ut::Rst] = Some(vm6.nodes[node_sr].name.clone());
-    vm6.utc[Ut::Set] = Some(vm6.nodes[node_ss].name.clone());
+    vm6.utc.insert(Ut::Clk, vm6.nodes[node_sc].name.clone());
+    vm6.utc.insert(Ut::Oe, vm6.nodes[node_se].name.clone());
+    vm6.utc.insert(Ut::Rst, vm6.nodes[node_sr].name.clone());
+    vm6.utc.insert(Ut::Set, vm6.nodes[node_ss].name.clone());
 
     let (_, sdf) = run_tsim(tc, &vm6).unwrap();
     let sdf = Sdf::parse(&sdf);

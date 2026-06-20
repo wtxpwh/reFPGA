@@ -6,7 +6,6 @@ use std::{
 };
 
 use clap::Parser;
-use enum_map::Enum;
 use prjcombine_entity::{EntityId, EntityPartVec, EntityVec};
 use prjcombine_re_xilinx_cpld::{
     bits::{IBufOut, McOut, extract_bitvec, extract_bool, extract_bool_to_enum, extract_enum},
@@ -439,7 +438,7 @@ fn extract_global_bits(device: &Device, fpart: &FuzzDbPart, dd: &DevData) -> Til
     }
     for (idx, ut) in [(0, Ut::Oe), (1, Ut::Rst), (2, Ut::Set), (3, Ut::Clk)] {
         let item = extract_enum(
-            &fpart.bits.ut.as_ref().unwrap()[ut.into_usize()],
+            &fpart.bits.ut[&ut],
             |(fb, pt)| format!("FB{fb:#}_LCT{pt:#}"),
             xlat_bit,
             "NONE",
@@ -503,10 +502,7 @@ fn extract_global_bits(device: &Device, fpart: &FuzzDbPart, dd: &DevData) -> Til
 fn extract_jed_global_bits(device: &Device, fpart: &FuzzDbPart) -> Vec<(String, usize)> {
     let mut res = vec![];
     if device.fbs == 32 {
-        let bits = fpart.bits.ut.as_ref().unwrap()[Ut::Clk.into_usize()]
-            .bits
-            .len()
-            / 2;
+        let bits = fpart.bits.ut[&Ut::Clk].bits.len() / 2;
         for i in 0..2 {
             for j in 0..4 {
                 for k in 0..bits {
@@ -515,9 +511,7 @@ fn extract_jed_global_bits(device: &Device, fpart: &FuzzDbPart) -> Vec<(String, 
             }
         }
     } else {
-        let bits = fpart.bits.ut.as_ref().unwrap()[Ut::Clk.into_usize()]
-            .bits
-            .len();
+        let bits = fpart.bits.ut[&Ut::Clk].bits.len();
         for j in 0..4 {
             for k in 0..bits {
                 res.push((format!("FB_GROUP[0].UCT{j}"), k));

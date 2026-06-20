@@ -8,7 +8,6 @@ use crate::types::{
     Xc9500McPt, XorMuxVal,
 };
 use bincode::{Decode, Encode};
-use enum_map::Enum;
 use itertools::Itertools;
 use prjcombine_entity::{EntityId, EntityPartVec, EntityVec};
 use prjcombine_types::{
@@ -57,7 +56,7 @@ pub struct Bits {
     pub clkdiv_div: Option<EnumData<u8>>,
     pub clkdiv_dly_en: Option<InvBit>,
     // XPLA3
-    pub ut: Option<[EnumData<(BlockId, ProductTermId)>; 4]>,
+    pub ut: BTreeMap<Ut, EnumData<(BlockId, ProductTermId)>>,
     pub no_isp: Option<InvBit>,
     // XC9500
     pub usercode: Option<[InvBit; 32]>,
@@ -84,9 +83,9 @@ pub struct FbBits {
 #[derive(Debug, Clone, Eq, PartialEq, Encode, Decode)]
 pub struct McBits {
     // XC9500*
-    pub pt: Option<[PtData; 5]>,
+    pub pt: BTreeMap<Xc9500McPt, PtData>,
     pub exp_dir: Option<EnumData<ExportDir>>,
-    pub import: Option<[InvBit; 2]>,
+    pub import: BTreeMap<ExportDir, InvBit>,
     pub inv: Option<InvBit>,
     pub hp: Option<InvBit>,
     pub ff_en: Option<InvBit>,
@@ -256,25 +255,22 @@ impl Bits {
             }
             for (mcid, mc) in &fb.mcs {
                 let m = mcid.to_idx();
-                if let Some(ref pts) = mc.pt {
-                    for (ptid, pt) in pts.iter().enumerate() {
-                        let ptid = Xc9500McPt::from_usize(ptid);
-                        let p = match ptid {
-                            Xc9500McPt::Clk => "CLK",
-                            Xc9500McPt::Oe => "OE",
-                            Xc9500McPt::Rst => "RST",
-                            Xc9500McPt::Set => "SET",
-                            Xc9500McPt::Xor => "XOR",
-                        };
-                        for (imid, &(bt, bf)) in &pt.and {
-                            let im = imid.to_idx();
-                            set(bt.0, format!("FB{f}.MC{m}.PT{p}.IMUX{im}.T"));
-                            set(bf.0, format!("FB{f}.MC{m}.PT{p}.IMUX{im}.F"));
-                        }
-                        set(pt.hp.0, format!("FB{f}.MC{m}.PT{p}.HP"));
-                        for (i, &bit) in pt.alloc.bits.iter().enumerate() {
-                            set(bit, format!("FB{f}.MC{m}.PT{p}.ALLOC.{i}"));
-                        }
+                for (ptid, pt) in &mc.pt {
+                    let p = match ptid {
+                        Xc9500McPt::Clk => "CLK",
+                        Xc9500McPt::Oe => "OE",
+                        Xc9500McPt::Rst => "RST",
+                        Xc9500McPt::Set => "SET",
+                        Xc9500McPt::Xor => "XOR",
+                    };
+                    for (imid, &(bt, bf)) in &pt.and {
+                        let im = imid.to_idx();
+                        set(bt.0, format!("FB{f}.MC{m}.PT{p}.IMUX{im}.T"));
+                        set(bf.0, format!("FB{f}.MC{m}.PT{p}.IMUX{im}.F"));
+                    }
+                    set(pt.hp.0, format!("FB{f}.MC{m}.PT{p}.HP"));
+                    for (i, &bit) in pt.alloc.bits.iter().enumerate() {
+                        set(bit, format!("FB{f}.MC{m}.PT{p}.ALLOC.{i}"));
                     }
                 }
                 if let Some(ref data) = mc.exp_dir {
@@ -282,15 +278,12 @@ impl Bits {
                         set(bit, format!("FB{f}.MC{m}.EXP_DIR.{i}"));
                     }
                 }
-                if let Some(ref imp) = mc.import {
-                    for (k, v) in imp.iter().enumerate() {
-                        let k = ExportDir::from_usize(k);
-                        let d = match k {
-                            ExportDir::Up => "UP",
-                            ExportDir::Down => "DOWN",
-                        };
-                        set(v.0, format!("FB{f}.MC{m}.IMPORT.{d}"));
-                    }
+                for (k, &v) in &mc.import {
+                    let d = match k {
+                        ExportDir::Up => "UP",
+                        ExportDir::Down => "DOWN",
+                    };
+                    set(v.0, format!("FB{f}.MC{m}.IMPORT.{d}"));
                 }
                 if let Some(bit) = mc.inv {
                     set(bit.0, format!("FB{f}.MC{m}.INV"));
@@ -498,23 +491,20 @@ impl Bits {
                 set(bit, format!("CLKDIV.DIV.{i}"));
             }
         }
-        if let Some(ref uts) = self.ut {
-            for (ut, data) in uts.iter().enumerate() {
-                let ut = Ut::from_usize(ut);
-                for (i, &bit) in data.bits.iter().enumerate() {
-                    set(
-                        bit,
-                        format!(
-                            "UT{ut}.{i}",
-                            ut = match ut {
-                                Ut::Clk => "CLK",
-                                Ut::Oe => "OE",
-                                Ut::Rst => "RST",
-                                Ut::Set => "SET",
-                            }
-                        ),
-                    );
-                }
+        for (ut, data) in &self.ut {
+            for (i, &bit) in data.bits.iter().enumerate() {
+                set(
+                    bit,
+                    format!(
+                        "UT{ut}.{i}",
+                        ut = match ut {
+                            Ut::Clk => "CLK",
+                            Ut::Oe => "OE",
+                            Ut::Rst => "RST",
+                            Ut::Set => "SET",
+                        }
+                    ),
+                );
             }
         }
         if let Some(bit) = self.no_isp {
@@ -617,35 +607,32 @@ impl Bits {
             for (mcid, mc) in &fb.mcs {
                 writeln!(o, "\tMC{mcid}:", mcid = mcid.to_idx())?;
 
-                if let Some(ref pts) = mc.pt {
-                    for (ptid, data) in pts.iter().enumerate() {
-                        let ptid = Xc9500McPt::from_usize(ptid);
-                        let pt = match ptid {
-                            Xc9500McPt::Clk => "CLK",
-                            Xc9500McPt::Oe => "OE ",
-                            Xc9500McPt::Rst => "RST",
-                            Xc9500McPt::Set => "SET",
-                            Xc9500McPt::Xor => "XOR",
-                        };
-                        write!(o, "\t\tPT AND PT{pt}:")?;
-                        for (imid, &(bt, bf)) in &data.and {
-                            write!(o, " IM{imid}: ", imid = imid.to_idx())?;
-                            write_invbit(o, bt)?;
-                            write!(o, " ")?;
-                            write_invbit(o, bf)?;
-                        }
-                        writeln!(o)?;
-                        write!(o, "\t\tPT HP PT{pt}: ")?;
-                        write_invbit(o, data.hp)?;
-                        writeln!(o)?;
-
-                        write!(o, "\t\tPT ALLOC PT{pt}: ",)?;
-                        write_enum(o, "\t\t", &data.alloc, |k| match k {
-                            PtAlloc::OrMain => "OR_MAIN".to_string(),
-                            PtAlloc::OrExport => "OR_EXPORT".to_string(),
-                            PtAlloc::Special => "SPECIAL".to_string(),
-                        })?;
+                for (ptid, data) in &mc.pt {
+                    let pt = match ptid {
+                        Xc9500McPt::Clk => "CLK",
+                        Xc9500McPt::Oe => "OE ",
+                        Xc9500McPt::Rst => "RST",
+                        Xc9500McPt::Set => "SET",
+                        Xc9500McPt::Xor => "XOR",
+                    };
+                    write!(o, "\t\tPT AND PT{pt}:")?;
+                    for (imid, &(bt, bf)) in &data.and {
+                        write!(o, " IM{imid}: ", imid = imid.to_idx())?;
+                        write_invbit(o, bt)?;
+                        write!(o, " ")?;
+                        write_invbit(o, bf)?;
                     }
+                    writeln!(o)?;
+                    write!(o, "\t\tPT HP PT{pt}: ")?;
+                    write_invbit(o, data.hp)?;
+                    writeln!(o)?;
+
+                    write!(o, "\t\tPT ALLOC PT{pt}: ",)?;
+                    write_enum(o, "\t\t", &data.alloc, |k| match k {
+                        PtAlloc::OrMain => "OR_MAIN".to_string(),
+                        PtAlloc::OrExport => "OR_EXPORT".to_string(),
+                        PtAlloc::Special => "SPECIAL".to_string(),
+                    })?;
                 }
 
                 if !mc.pla_or.is_empty() {
@@ -668,10 +655,9 @@ impl Bits {
                     })?;
                 }
 
-                if let Some(dirs) = mc.import {
+                if !mc.import.is_empty() {
                     write!(o, "\t\tIMPORT:",)?;
-                    for (dir, &b) in dirs.iter().enumerate() {
-                        let dir = ExportDir::from_usize(dir);
+                    for (dir, &b) in &mc.import {
                         write!(
                             o,
                             " {dir}: ",
@@ -1057,27 +1043,24 @@ impl Bits {
             writeln!(o)?;
         }
 
-        if let Some(ref uts) = self.ut {
-            for (ut, data) in uts.iter().enumerate() {
-                let ut = Ut::from_usize(ut);
-                write!(
-                    o,
-                    "UT {ut}: ",
-                    ut = match ut {
-                        Ut::Clk => "CLK",
-                        Ut::Oe => "OE",
-                        Ut::Rst => "RST",
-                        Ut::Set => "SET",
-                    }
-                )?;
-                write_enum(o, "", data, |k| {
-                    format!(
-                        "FB{fbid} PT{ptid}",
-                        fbid = k.0.to_idx(),
-                        ptid = k.1.to_idx()
-                    )
-                })?;
-            }
+        for (ut, data) in &self.ut {
+            write!(
+                o,
+                "UT {ut}: ",
+                ut = match ut {
+                    Ut::Clk => "CLK",
+                    Ut::Oe => "OE",
+                    Ut::Rst => "RST",
+                    Ut::Set => "SET",
+                }
+            )?;
+            write_enum(o, "", data, |k| {
+                format!(
+                    "FB{fbid} PT{ptid}",
+                    fbid = k.0.to_idx(),
+                    ptid = k.1.to_idx()
+                )
+            })?;
         }
 
         if let Some(b) = self.no_isp {

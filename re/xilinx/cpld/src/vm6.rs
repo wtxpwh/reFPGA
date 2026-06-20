@@ -1,11 +1,10 @@
 mod parser;
 use std::{
-    collections::{HashMap, HashSet},
+    collections::{BTreeMap, HashMap, HashSet},
     fmt::{self, Write},
 };
 
 use crate::types::{ClkPadId, FbnId, FclkId, FoeId, ImuxId, Ut};
-use enum_map::EnumMap;
 pub use parser::{ParseError, ParseErrorKind};
 use prjcombine_entity::{EntityId, EntityMap, EntityPartVec, EntityVec, entity_id_u32};
 use prjcombine_types::cpld::{BlockId, IoCoord, IpadId, MacrocellId, ProductTermId};
@@ -39,7 +38,7 @@ pub struct Vm6 {
     pub dge: Option<String>,
     pub iostd_default: Option<String>,
     pub iostd: HashMap<String, String>,
-    pub utc: EnumMap<Ut, Option<String>>,
+    pub utc: BTreeMap<Ut, String>,
     pub cdr: Option<Cdr>,
     pub prohibit_pins: HashSet<String>,
     pub vref: HashSet<String>,
@@ -742,21 +741,19 @@ impl Vm6 {
             writeln!(f)?;
         }
 
-        if self.utc.values().any(Option::is_some) {
+        if !self.utc.is_empty() {
             write!(f, "UTC")?;
-            for (k, v) in &self.utc {
-                if let Some(n) = v {
-                    write!(
-                        f,
-                        " | {n} | {s}",
-                        s = match k {
-                            Ut::Clk => 0,
-                            Ut::Oe => 1,
-                            Ut::Set => 2,
-                            Ut::Rst => 3,
-                        }
-                    )?;
-                }
+            for (k, n) in &self.utc {
+                write!(
+                    f,
+                    " | {n} | {s}",
+                    s = match k {
+                        Ut::Clk => 0,
+                        Ut::Oe => 1,
+                        Ut::Set => 2,
+                        Ut::Rst => 3,
+                    }
+                )?;
             }
             writeln!(f)?;
             writeln!(f)?;

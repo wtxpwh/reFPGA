@@ -5,7 +5,6 @@ use std::{
 };
 
 use crate::types::{ClkPadId, FbnId, ImuxId};
-use enum_map::EnumMap;
 use prjcombine_entity::{EntityId, EntityMap, EntityPartVec, EntityVec};
 use prjcombine_types::cpld::{BlockId, IpadId, MacrocellId, ProductTermId};
 
@@ -461,7 +460,7 @@ pub fn parse(s: &str) -> Result<Vm6, ParseError> {
         dge: None,
         iostd_default: None,
         iostd: Default::default(),
-        utc: EnumMap::from_fn(|_| None),
+        utc: Default::default(),
         cdr: None,
         prohibit_pins: Default::default(),
         vref: Default::default(),
@@ -941,7 +940,7 @@ pub fn parse(s: &str) -> Result<Vm6, ParseError> {
                 if line.len() % 2 != 1 {
                     parser.error(ParseErrorKind::MalformedVerb)?;
                 }
-                if res.utc.values().any(Option::is_some) {
+                if !res.utc.is_empty() {
                     parser.error(ParseErrorKind::RedefinedInstance)?;
                 }
                 for i in 0..(line.len() / 2) {
@@ -954,7 +953,7 @@ pub fn parse(s: &str) -> Result<Vm6, ParseError> {
                         3 => Ut::Rst,
                         _ => parser.error(ParseErrorKind::MalformedVerb)?,
                     };
-                    res.utc[slot] = Some(name);
+                    res.utc.insert(slot, name);
                 }
             }
             "GLOBAL_FCLK_IDX" => {

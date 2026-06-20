@@ -5,7 +5,6 @@ use std::{
 };
 
 use clap::Parser;
-use enum_map::Enum;
 use prjcombine_entity::{EntityId, EntityVec};
 use prjcombine_re_xilinx_cpld::{
     bits::{BitPos, extract_bitvec, extract_bool, extract_bool_to_enum, extract_enum},
@@ -123,7 +122,7 @@ fn extract_mc_bits(device: &Device, fpart: &FuzzDbPart) -> Tile {
             tile.insert(
                 format!("PT[{i}].ALLOC"),
                 extract_enum(
-                    &mcbits.pt.as_ref().unwrap()[pt.into_usize()].alloc,
+                    &mcbits.pt[&pt].alloc,
                     |alloc| match alloc {
                         prjcombine_re_xilinx_cpld::bits::PtAlloc::OrMain => "SUM".to_string(),
                         prjcombine_re_xilinx_cpld::bits::PtAlloc::OrExport => "EXPORT".to_string(),
@@ -136,7 +135,7 @@ fn extract_mc_bits(device: &Device, fpart: &FuzzDbPart) -> Tile {
             );
             tile.insert(
                 format!("PT[{i}].HP"),
-                extract_bool(mcbits.pt.as_ref().unwrap()[pt.into_usize()].hp, xlat_bit),
+                extract_bool(mcbits.pt[&pt].hp, xlat_bit),
                 neutral,
             );
         }
@@ -146,12 +145,7 @@ fn extract_mc_bits(device: &Device, fpart: &FuzzDbPart) -> Tile {
         ] {
             tile.insert(
                 name,
-                extract_bool_to_enum(
-                    mcbits.import.as_ref().unwrap()[dir.into_usize()],
-                    xlat_bit,
-                    "SUM",
-                    "EXPORT",
-                ),
+                extract_bool_to_enum(mcbits.import[&dir], xlat_bit, "SUM", "EXPORT"),
                 neutral,
             );
         }
@@ -754,7 +748,7 @@ fn validate_pterm(device: &Device, fpart: &FuzzDbPart) {
             {
                 for im in device.fb_imuxes() {
                     let ((fuse_t, pol_t), (fuse_f, pol_f)) =
-                        fpart.bits.blocks[fb].mcs[mc].pt.as_ref().unwrap()[pt.into_usize()].and[im];
+                        fpart.bits.blocks[fb].mcs[mc].pt[&pt].and[im];
                     assert!(pol_t);
                     assert!(pol_f);
                     for (neg, fuse) in [(0, fuse_t), (1, fuse_f)] {
