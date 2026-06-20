@@ -426,6 +426,3 @@ impl<I: EntityId, V> Extend<(I, V)> for EntityPartVec<I, V> {
         }
     }
 }
-
-#[cfg(feature = "serde")]
-mod serde;

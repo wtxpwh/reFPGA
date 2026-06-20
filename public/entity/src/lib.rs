@@ -24,6 +24,3 @@ pub mod bitvec;
 
 #[cfg(feature = "bitvec")]
 pub use crate::bitvec::EntityBitVec;
-
-#[cfg(feature = "serde")]
-pub use serde as __serde;

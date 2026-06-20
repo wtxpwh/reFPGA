@@ -367,6 +367,3 @@ impl<I: EntityId, V> Extend<V> for EntityVec<I, V> {
         self.vals.extend(iter);
     }
 }
-
-#[cfg(feature = "serde")]
-mod serde;

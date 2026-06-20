@@ -1,13 +1,13 @@
+use bincode::{Decode, Encode, impl_borrow_decode};
 use prjcombine_entity::{
     EntityMap, EntityPartVec, EntitySet, EntityVec, entity_id_u16, entity_id_u32,
 };
-use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::error::Error;
 use std::fs::File;
 use std::path::Path;
 
-#[derive(Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Copy, Clone, Serialize, Deserialize)]
+#[derive(Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Copy, Clone, Encode, Decode)]
 pub struct Coord {
     pub x: u16,
     pub y: u16,
@@ -34,60 +34,60 @@ entity_id_u32!(pub TkPipId, TkPip, "TkPip");
 entity_id_u32!(pub TkWireId, TkWire, "TkWire");
 entity_id_u32!(pub TkConnWireId, TkConnWireTag tag, "TkConnWire");
 
-#[derive(Debug, Eq, PartialEq, Hash, Copy, Clone, Serialize, Deserialize)]
+#[derive(Debug, Eq, PartialEq, Hash, Copy, Clone, Encode, Decode)]
 pub enum Source {
     ISE,
     Vivado,
 }
 
-#[derive(Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Copy, Clone, Serialize, Deserialize)]
+#[derive(Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Copy, Clone, Encode, Decode)]
 pub enum TkSiteSlot {
     Single(SlotKindId),
     Indexed(SlotKindId, u8),
     Xy(SlotKindId, u8, u8),
 }
 
-#[derive(Debug, Eq, PartialEq, Hash, Copy, Clone, Serialize, Deserialize)]
+#[derive(Debug, Eq, PartialEq, Hash, Copy, Clone, Encode, Decode)]
 pub enum TkSitePinDir {
     Input,
     Output,
     Bidir,
 }
 
-#[derive(Debug, Eq, PartialEq, Hash, Copy, Clone, Serialize, Deserialize)]
+#[derive(Debug, Eq, PartialEq, Hash, Copy, Clone, Encode, Decode)]
 pub struct TkSitePin {
     pub dir: TkSitePinDir,
     pub wire: Option<WireId>,
     pub speed: Option<SpeedId>,
 }
 
-#[derive(Debug, Eq, PartialEq, Clone, Serialize, Deserialize)]
+#[derive(Debug, Eq, PartialEq, Clone, Encode, Decode)]
 pub struct TkSite {
     pub kind: String,
     pub pins: HashMap<String, TkSitePin>,
 }
 
-#[derive(Debug, Eq, PartialEq, Hash, Copy, Clone, Serialize, Deserialize)]
+#[derive(Debug, Eq, PartialEq, Hash, Copy, Clone, Encode, Decode)]
 pub enum TkWire {
     Internal(Option<SpeedId>, Option<NodeClassId>),
     Connected(TkConnWireId),
 }
 
-#[derive(Debug, Eq, PartialEq, Hash, Copy, Clone, Serialize, Deserialize)]
+#[derive(Debug, Eq, PartialEq, Hash, Copy, Clone, Encode, Decode)]
 pub enum TkPipInversion {
     Never,
     Always,
     Prog,
 }
 
-#[derive(Debug, Eq, PartialEq, Hash, Copy, Clone, Serialize, Deserialize)]
+#[derive(Debug, Eq, PartialEq, Hash, Copy, Clone, Encode, Decode)]
 pub enum TkPipDirection {
     Uni,
     BiFwd,
     BiBwd,
 }
 
-#[derive(Debug, Eq, PartialEq, Hash, Copy, Clone, Serialize, Deserialize)]
+#[derive(Debug, Eq, PartialEq, Hash, Copy, Clone, Encode, Decode)]
 pub struct TkPip {
     pub is_buf: bool,
     pub is_excluded: bool,
@@ -97,7 +97,7 @@ pub struct TkPip {
     pub speed: Option<SpeedId>,
 }
 
-#[derive(Debug, Eq, PartialEq, Clone, Serialize, Deserialize)]
+#[derive(Debug, Eq, PartialEq, Clone, Encode, Decode)]
 pub struct TileKind {
     pub sites: EntityMap<TkSiteId, TkSiteSlot, TkSite>,
     pub wires: EntityMap<TkWireId, WireId, TkWire>,
@@ -106,23 +106,55 @@ pub struct TileKind {
     pub tiles: Vec<Coord>,
 }
 
-#[derive(Debug, Eq, PartialEq, Clone, Serialize, Deserialize)]
+#[derive(Debug, Eq, PartialEq, Clone)]
 pub struct Tile {
     pub name: String,
     pub kind: TileKindId,
     pub sites: EntityPartVec<TkSiteId, String>,
-    #[serde(skip)]
     pub conn_wires: EntityPartVec<TkConnWireId, NodeId>,
     pub pip_overrides: HashMap<TkPipId, (NodeClassId, NodeClassId)>,
 }
 
-#[derive(Debug, Eq, PartialEq, Hash, Copy, Clone, Serialize, Deserialize)]
+impl Encode for Tile {
+    fn encode<E: bincode::enc::Encoder>(
+        &self,
+        encoder: &mut E,
+    ) -> Result<(), bincode::error::EncodeError> {
+        self.name.encode(encoder)?;
+        self.kind.encode(encoder)?;
+        self.sites.encode(encoder)?;
+        self.pip_overrides.encode(encoder)?;
+        Ok(())
+    }
+}
+
+impl<Context> Decode<Context> for Tile {
+    fn decode<D: bincode::de::Decoder<Context = Context>>(
+        decoder: &mut D,
+    ) -> Result<Self, bincode::error::DecodeError> {
+        let name = Decode::decode(decoder)?;
+        let kind = Decode::decode(decoder)?;
+        let sites = Decode::decode(decoder)?;
+        let pip_overrides = Decode::decode(decoder)?;
+        Ok(Tile {
+            name,
+            kind,
+            sites,
+            conn_wires: Default::default(),
+            pip_overrides,
+        })
+    }
+}
+
+impl_borrow_decode!(Tile);
+
+#[derive(Debug, Eq, PartialEq, Hash, Copy, Clone, Encode, Decode)]
 pub struct TkNode {
     pub base: Coord,
     pub template: TemplateId,
 }
 
-#[derive(Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Copy, Clone, Serialize, Deserialize)]
+#[derive(Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Copy, Clone, Encode, Decode)]
 pub struct TkNodeTemplateWire {
     pub delta: Coord,
     pub wire: WireId,
@@ -130,7 +162,7 @@ pub struct TkNodeTemplateWire {
     pub cls: Option<NodeClassId>,
 }
 
-#[derive(Debug, Eq, PartialEq, Clone, Serialize, Deserialize)]
+#[derive(Debug, Eq, PartialEq, Clone, Encode, Decode)]
 pub struct PartCombo {
     pub name: String,
     pub device: String,
@@ -139,7 +171,7 @@ pub struct PartCombo {
     pub temp: String,
 }
 
-#[derive(Debug, Eq, PartialEq, Hash, Clone, Serialize, Deserialize)]
+#[derive(Debug, Eq, PartialEq, Hash, Clone, Encode, Decode)]
 pub struct PkgPin {
     pub pad: Option<String>,
     pub pin: String,
@@ -151,7 +183,7 @@ pub struct PkgPin {
     pub delay_max_fs: Option<u32>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Encode, Decode)]
 pub struct Part {
     pub part: String,
     pub family: String,
@@ -201,7 +233,7 @@ impl Part {
         let f = File::open(path)?;
         let mut cf = zstd::stream::Decoder::new(f)?;
         let config = bincode::config::standard();
-        let mut res: Part = bincode::serde::decode_from_std_read(&mut cf, config).unwrap();
+        let mut res: Part = bincode::decode_from_std_read(&mut cf, config).unwrap();
         res.post_deserialize();
         Ok(res)
     }
@@ -210,7 +242,7 @@ impl Part {
         let f = File::create(path)?;
         let mut cf = zstd::stream::Encoder::new(f, 9)?;
         let config = bincode::config::standard();
-        bincode::serde::encode_into_std_write(self, &mut cf, config)?;
+        bincode::encode_into_std_write(self, &mut cf, config)?;
         cf.finish()?;
         Ok(())
     }

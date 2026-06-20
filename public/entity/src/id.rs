@@ -9,8 +9,6 @@ use std::{
 
 #[cfg(feature = "bincode")]
 use bincode::{BorrowDecode, Decode, Encode};
-#[cfg(feature = "serde")]
-use serde::{Deserialize, Serialize};
 
 /// Implemented by types that can be used as IDs in `prjcombine_entity` datastructures.
 ///
@@ -122,6 +120,7 @@ macro_rules! make_id {
                 write!(f, "{}{}", Tag::PREFIX, self.to_idx())
             }
         }
+
         impl<Tag: EntityTag> Display for $ty<Tag> {
             fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
                 if f.alternate() {
@@ -131,28 +130,7 @@ macro_rules! make_id {
                 }
             }
         }
-        #[cfg(feature = "serde")]
-        impl<Tag> Serialize for $ty<Tag> {
-            fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-            where
-                S: serde::Serializer,
-            {
-                let idx = self.0.get() - 1;
-                idx.serialize(serializer)
-            }
-        }
-        #[cfg(feature = "serde")]
-        impl<'de, Tag> Deserialize<'de> for $ty<Tag> {
-            fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-            where
-                D: serde::Deserializer<'de>,
-            {
-                let idx = $intty::deserialize(deserializer)?;
-                let idx = idx.checked_add(1).unwrap();
-                let idx = NonZero::new(idx).unwrap();
-                Ok(Self(idx, PhantomData))
-            }
-        }
+
         #[cfg(feature = "bincode")]
         impl<Tag> Encode for $ty<Tag> {
             fn encode<E: bincode::enc::Encoder>(
@@ -163,6 +141,7 @@ macro_rules! make_id {
                 idx.encode(encoder)
             }
         }
+
         #[cfg(feature = "bincode")]
         impl<Tag, Context> Decode<Context> for $ty<Tag> {
             fn decode<D: bincode::de::Decoder<Context = Context>>(
@@ -174,6 +153,7 @@ macro_rules! make_id {
                 Ok(Self(idx, PhantomData))
             }
         }
+
         #[cfg(feature = "bincode")]
         impl<'de, Tag, Context> BorrowDecode<'de, Context> for $ty<Tag> {
             fn borrow_decode<D: bincode::de::BorrowDecoder<'de, Context = Context>>(

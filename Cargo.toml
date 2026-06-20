@@ -93,7 +93,7 @@ authors = []
 
 [workspace.dependencies]
 # public crates and their dependencies
-prjcombine-entity = { path = "public/entity", features = ["bitvec", "map", "serde", "bincode"] }
+prjcombine-entity = { path = "public/entity", features = ["bitvec", "map", "bincode"] }
 prjcombine-types = { path = "public/types" }
 prjcombine-interconnect = { path = "public/interconnect" }
 prjcombine-tablegen = { path = "public/tablegen" }
@@ -111,7 +111,7 @@ prjcombine-xc9500 = { path = "public/xc9500" }
 prjcombine-xpla3 = { path = "public/xpla3" }
 prjcombine-coolrunner2 = { path = "public/coolrunner2" }
 zstd = "0.13"
-bincode = { version = "2.0", features = ["serde"] }
+bincode = "2.0"
 bitvec = "1.0"
 itertools = "0.15"
 arrayvec = "0.7.6"

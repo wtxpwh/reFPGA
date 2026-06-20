@@ -312,8 +312,5 @@ impl<I: EntityId> Extend<bool> for EntityBitVec<I> {
     }
 }
 
-#[cfg(feature = "serde")]
-mod serde;
-
 #[cfg(feature = "bincode")]
 mod bincode;
