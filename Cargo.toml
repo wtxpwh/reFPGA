@@ -175,13 +175,12 @@ prjcombine-re-xilinx-xact-data = { path = "re/xilinx/xact/data" }
 prjcombine-re-xilinx-cpld = { path = "re/xilinx/cpld" }
 prjcombine-re-lattice-rawdump = { path = "re/lattice/rawdump" }
 prjcombine-re-lattice-naming = { path = "re/lattice/naming" }
-serde = { version = "1.0", features = ["derive"] }
+kdl = { version = "6.7", default-features = false }
 indexmap = "2"
 ndarray = "0.17"
 rand = "0.10"
 nix = { version = "0.31", features = ["fs"] }
 tempfile = "3.0"
-toml = { version = "1.0", features = ["serde", "std"] }
 simple-error = "0.3"
 regex = "1"
 rayon = "1.5"

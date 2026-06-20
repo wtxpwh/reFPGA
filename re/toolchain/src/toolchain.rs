@@ -1,11 +1,11 @@
-use serde::Deserialize;
+use kdl::KdlDocument;
 use std::collections::HashMap;
 use std::fs::read_to_string;
 use std::path::Path;
 use std::process::Command;
 use which::which_in;
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone)]
 pub struct Toolchain {
     pub use_wine: bool,
     pub env: HashMap<String, String>,
@@ -14,7 +14,27 @@ pub struct Toolchain {
 impl Toolchain {
     pub fn from_file<P: AsRef<Path>>(path: P) -> Result<Self, Box<dyn std::error::Error>> {
         let s = read_to_string(path)?;
-        Ok(toml::from_str(&s).unwrap())
+        let doc: KdlDocument = s.parse()?;
+        let mut tc = Toolchain {
+            use_wine: false,
+            env: HashMap::new(),
+        };
+        for node in doc {
+            match node.name().value() {
+                "wine" => {
+                    tc.use_wine = true;
+                }
+                "env" => {
+                    for e in node.entries() {
+                        let k = e.name().unwrap().value();
+                        let v = e.value().as_string().unwrap();
+                        tc.env.insert(k.into(), v.into());
+                    }
+                }
+                n => panic!("unknown node {n}"),
+            }
+        }
+        Ok(tc)
     }
 
     pub fn command(&self, cmd: &str) -> Command {
