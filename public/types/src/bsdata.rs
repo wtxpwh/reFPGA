@@ -8,30 +8,13 @@ use std::{
 
 use bincode::{Decode, Encode};
 use itertools::*;
-use prjcombine_entity::id::{EntityIdU16, EntityTag, EntityTagArith};
+use prjcombine_entity::entity_id_u16;
 
 use crate::bitvec::BitVec;
 
-pub struct BitRectTag;
-impl EntityTag for BitRectTag {
-    const PREFIX: &'static str = "R";
-}
-
-pub struct RectFrameTag;
-impl EntityTag for RectFrameTag {
-    const PREFIX: &'static str = "F";
-}
-impl EntityTagArith for RectFrameTag {}
-
-pub struct RectBitTag;
-impl EntityTag for RectBitTag {
-    const PREFIX: &'static str = "B";
-}
-impl EntityTagArith for RectBitTag {}
-
-pub type BitRectId = EntityIdU16<BitRectTag>;
-pub type RectFrameId = EntityIdU16<RectFrameTag>;
-pub type RectBitId = EntityIdU16<RectBitTag>;
+entity_id_u16!(pub BitRectId, BitRectTag tag, "R");
+entity_id_u16!(pub RectFrameId arith, RectFrameTag tag, "F");
+entity_id_u16!(pub RectBitId arith, RectBitTag tag, "B");
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Encode, Decode)]
 pub struct TileBit {

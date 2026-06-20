@@ -4,34 +4,16 @@ use crate::{db::*, dir::Dir};
 use bimap::BiHashMap;
 use bincode::{Decode, Encode};
 use prjcombine_entity::{
-    EntityBundleItemIndex, EntityId, EntityPartVec, EntityVec,
-    id::{EntityIdU8, EntityIdU16, EntityRange, EntityTag, EntityTagArith},
+    EntityBundleItemIndex, EntityId, EntityPartVec, EntityVec, entity_id_u8, entity_id_u16,
+    id::EntityRange,
 };
 use std::collections::{HashMap, HashSet};
 
 pub mod builder;
 
-pub struct DieTag;
-pub struct ColTag;
-pub struct RowTag;
-
-impl EntityTag for DieTag {
-    const PREFIX: &'static str = "D";
-}
-impl EntityTag for ColTag {
-    const PREFIX: &'static str = "X";
-}
-impl EntityTag for RowTag {
-    const PREFIX: &'static str = "Y";
-}
-
-impl EntityTagArith for DieTag {}
-impl EntityTagArith for ColTag {}
-impl EntityTagArith for RowTag {}
-
-pub type DieId = EntityIdU8<DieTag>;
-pub type ColId = EntityIdU16<ColTag>;
-pub type RowId = EntityIdU16<RowTag>;
+entity_id_u8!(pub DieId arith, DieTag tag, "D");
+entity_id_u16!(pub ColId arith, ColTag tag, "X");
+entity_id_u16!(pub RowId arith, RowTag tag, "Y");
 
 pub trait DieIdExt {
     fn cell(self, col: ColId, row: RowId) -> CellCoord;
@@ -47,11 +29,7 @@ impl DieIdExt for DieId {
     }
 }
 
-pub struct IobTag;
-impl EntityTag for IobTag {
-    const PREFIX: &'static str = "IOB";
-}
-pub type TileIobId = EntityIdU8<IobTag>;
+entity_id_u8!(pub TileIobId, IobTag tag, "IOB");
 
 #[derive(Copy, Clone, Debug, Eq, PartialEq, Hash, Ord, PartialOrd, Encode, Decode)]
 pub enum EdgeIoCoord {

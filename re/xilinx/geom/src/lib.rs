@@ -1,6 +1,5 @@
 use bincode::{Decode, Encode};
-use prjcombine_entity::EntityVec;
-use prjcombine_entity::id::{EntityIdU16, EntityTag};
+use prjcombine_entity::{EntityVec, entity_id_u16};
 use prjcombine_interconnect::db::IntDb;
 use prjcombine_interconnect::grid::{DieId, ExpandedGrid, TileCoord};
 use prjcombine_re_xilinx_naming::db::NamingDb;
@@ -12,10 +11,7 @@ use std::error::Error;
 use std::fs::File;
 use std::path::Path;
 
-impl EntityTag for DeviceNaming {
-    const PREFIX: &'static str = "DEVNAMING";
-}
-pub type DeviceNamingId = EntityIdU16<DeviceNaming>;
+entity_id_u16!(pub DeviceNamingId, DeviceNaming, "DEVNAMING");
 
 #[derive(Clone, Debug, Eq, PartialEq, Encode, Decode)]
 pub enum Chip {

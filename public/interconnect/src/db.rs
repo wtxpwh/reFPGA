@@ -1,7 +1,7 @@
 use bincode::{Decode, Encode};
 use prjcombine_entity::{
-    EntityBundleMap, EntityId, EntityMap, EntityPartVec, EntitySet, EntityVec,
-    id::{EntityIdU8, EntityIdU16, EntityTag},
+    EntityBundleMap, EntityId, EntityMap, EntityPartVec, EntitySet, EntityVec, entity_id_u8,
+    entity_id_u16,
 };
 use prjcombine_types::{
     bitvec::BitVec,
@@ -135,35 +135,17 @@ impl std::ops::Index<TableId> for IntDb {
 
 // region: enums and tables
 
-impl EntityTag for EnumClass {
-    const PREFIX: &'static str = "ECLS";
-}
-pub struct EnumValueTag;
-impl EntityTag for EnumValueTag {
-    const PREFIX: &'static str = "EV";
-}
-pub type EnumClassId = EntityIdU16<EnumClass>;
-pub type EnumValueId = EntityIdU16<EnumValueTag>;
+entity_id_u16!(pub EnumClassId, EnumClass, "ECLS");
+entity_id_u16!(pub EnumValueId, EnumValueTag tag, "EV");
 
 #[derive(Clone, Debug, Eq, PartialEq, Encode, Decode)]
 pub struct EnumClass {
     pub values: EntitySet<EnumValueId, String>,
 }
 
-impl EntityTag for Table {
-    const PREFIX: &'static str = "TABLE";
-}
-pub type TableId = EntityIdU16<Table>;
-pub struct TableFieldTag;
-impl EntityTag for TableFieldTag {
-    const PREFIX: &'static str = "FIELD";
-}
-pub type TableFieldId = EntityIdU8<TableFieldTag>;
-pub struct TableRowTag;
-impl EntityTag for TableRowTag {
-    const PREFIX: &'static str = "ROW";
-}
-pub type TableRowId = EntityIdU16<TableRowTag>;
+entity_id_u16!(pub TableId, Table, "TABLE");
+entity_id_u8!(pub TableFieldId, TableFieldTag tag, "FIELD");
+entity_id_u16!(pub TableRowId, TableRowTag tag, "ROW");
 
 #[derive(Clone, Debug, Eq, PartialEq, Encode, Decode)]
 pub struct Table {
@@ -178,40 +160,18 @@ pub enum TableValue {
     U32(u32),
 }
 
-impl EntityTag for DeviceDataTag {
-    const PREFIX: &'static str = "DD";
-}
-pub struct DeviceDataTag;
-pub type DeviceDataId = EntityIdU16<DeviceDataTag>;
+entity_id_u16!(pub DeviceDataId, DeviceDataTag tag, "DD");
 
 // endregion:
 
 // region: bel classes and slots
 
-impl EntityTag for BelClass {
-    const PREFIX: &'static str = "BCLS";
-}
-impl EntityTag for BelClassInput {
-    const PREFIX: &'static str = "BELIN";
-}
-impl EntityTag for BelClassOutput {
-    const PREFIX: &'static str = "BELOUT";
-}
-impl EntityTag for BelClassBidir {
-    const PREFIX: &'static str = "BELIO";
-}
-impl EntityTag for BelClassPad {
-    const PREFIX: &'static str = "BELPAD";
-}
-impl EntityTag for BelClassAttribute {
-    const PREFIX: &'static str = "BELATTR";
-}
-pub type BelClassId = EntityIdU16<BelClass>;
-pub type BelInputId = EntityIdU16<BelClassInput>;
-pub type BelOutputId = EntityIdU16<BelClassOutput>;
-pub type BelBidirId = EntityIdU16<BelClassBidir>;
-pub type BelPadId = EntityIdU16<BelClassPad>;
-pub type BelAttributeId = EntityIdU16<BelClassAttribute>;
+entity_id_u16!(pub BelClassId, BelClass, "BCLS");
+entity_id_u16!(pub BelInputId, BelClassInput, "BELIN");
+entity_id_u16!(pub BelOutputId, BelClassOutput, "BELOUT");
+entity_id_u16!(pub BelBidirId, BelClassBidir, "BELBI");
+entity_id_u16!(pub BelPadId, BelClassPad, "BELPAD");
+entity_id_u16!(pub BelAttributeId, BelClassAttribute, "BELATTR");
 
 #[derive(Default, Clone, Debug, Eq, PartialEq, Encode, Decode)]
 pub struct BelClass {
@@ -317,11 +277,7 @@ pub enum PadKind {
     Analog,
 }
 
-impl EntityTag for BelSlot {
-    const PREFIX: &'static str = "BEL";
-}
-
-pub type BelSlotId = EntityIdU16<BelSlot>;
+entity_id_u16!(pub BelSlotId, BelSlot, "BEL");
 
 #[derive(Copy, Clone, Debug, Eq, PartialEq, Hash, Encode, Decode)]
 pub struct BelSlot {
@@ -340,16 +296,8 @@ pub enum BelKind {
 
 // region: regions, wires, connectors
 
-pub struct RegionSlotTag;
-impl EntityTag for RegionSlotTag {
-    const PREFIX: &'static str = "RSLOT";
-}
-pub type RegionSlotId = EntityIdU8<RegionSlotTag>;
-
-impl EntityTag for WireKind {
-    const PREFIX: &'static str = "WIRE";
-}
-pub type WireSlotId = EntityIdU16<WireKind>;
+entity_id_u8!(pub RegionSlotId, RegionSlotTag tag, "RSLOT");
+entity_id_u16!(pub WireSlotId, WireKind, "WIRE");
 
 pub trait WireSlotIdExt {
     fn cell(self, idx: usize) -> TileWireCoord;
@@ -405,15 +353,8 @@ impl WireKind {
     }
 }
 
-impl EntityTag for ConnectorSlot {
-    const PREFIX: &'static str = "CSLOT";
-}
-impl EntityTag for ConnectorClass {
-    const PREFIX: &'static str = "CCLS";
-}
-
-pub type ConnectorSlotId = EntityIdU8<ConnectorSlot>;
-pub type ConnectorClassId = EntityIdU16<ConnectorClass>;
+entity_id_u8!(pub ConnectorSlotId, ConnectorSlot, "CSLOT");
+entity_id_u16!(pub ConnectorClassId, ConnectorClass, "CCLS");
 
 #[derive(Clone, Debug, Eq, PartialEq, Encode, Decode)]
 pub struct ConnectorClass {
@@ -446,20 +387,9 @@ pub struct ConnectorSlot {
 
 // region: tiles
 
-impl EntityTag for TileClass {
-    const PREFIX: &'static str = "TCLS";
-}
-pub struct CellSlotTag;
-impl EntityTag for CellSlotTag {
-    const PREFIX: &'static str = "TCELL";
-}
-pub struct TileSlotTag;
-impl EntityTag for TileSlotTag {
-    const PREFIX: &'static str = "TSLOT";
-}
-pub type TileClassId = EntityIdU16<TileClass>;
-pub type CellSlotId = EntityIdU16<CellSlotTag>;
-pub type TileSlotId = EntityIdU8<TileSlotTag>;
+entity_id_u8!(pub TileSlotId, TileSlotTag tag, "TSLOT");
+entity_id_u16!(pub TileClassId, TileClass, "TCLS");
+entity_id_u16!(pub CellSlotId, CellSlotTag tag, "TCELL");
 
 #[derive(Clone, Debug, Eq, PartialEq, Encode, Decode)]
 pub struct TileClass {

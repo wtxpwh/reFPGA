@@ -5,7 +5,6 @@ edition.workspace = true
 
 [dependencies]
 prjcombine-entity.workspace = true
-serde.workspace = true
 simple-error.workspace = true
 rayon.workspace = true
 clap.workspace = true

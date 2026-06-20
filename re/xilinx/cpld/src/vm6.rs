@@ -7,16 +7,14 @@ use std::{
 use crate::types::{ClkPadId, FbnId, FclkId, FoeId, ImuxId, Ut};
 use enum_map::EnumMap;
 pub use parser::{ParseError, ParseErrorKind};
-use prjcombine_entity::{EntityId, EntityMap, EntityPartVec, EntityVec, entity_id};
+use prjcombine_entity::{EntityId, EntityMap, EntityPartVec, EntityVec, entity_id_u32};
 use prjcombine_types::cpld::{BlockId, IoCoord, IpadId, MacrocellId, ProductTermId};
 
-entity_id! {
-    pub id NodeId u32, reserve 1;
-    pub id IBufId u32, reserve 1;
-    pub id Vm6MacrocellId u32, reserve 1;
-    pub id OBufId u32, reserve 1;
-    pub id UimId u32, reserve 1;
-}
+entity_id_u32!(pub NodeId, Node, "NODE");
+entity_id_u32!(pub IBufId, IBuf, "IBUF");
+entity_id_u32!(pub Vm6MacrocellId, Macrocell, "VM6MC");
+entity_id_u32!(pub OBufId, OBuf, "OBUF");
+entity_id_u32!(pub UimId, Uim, "UIM");
 
 #[derive(Debug, Clone)]
 pub struct Vm6 {

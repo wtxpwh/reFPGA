@@ -245,7 +245,7 @@ impl Extend<bool> for BitVec {
 }
 
 mod bincode {
-    use bincode::{BorrowDecode, Decode, Encode, de::read::Reader, enc::write::Writer};
+    use bincode::{Decode, Encode, de::read::Reader, enc::write::Writer, impl_borrow_decode};
 
     use super::BitVec;
 
@@ -272,16 +272,7 @@ mod bincode {
         }
     }
 
-    impl<'de, Context> BorrowDecode<'de, Context> for BitVec {
-        fn borrow_decode<D: bincode::de::BorrowDecoder<'de, Context = Context>>(
-            decoder: &mut D,
-        ) -> Result<Self, bincode::error::DecodeError> {
-            let len: usize = BorrowDecode::borrow_decode(decoder)?;
-            let mut buf = vec![0u8; len.div_ceil(8)];
-            decoder.reader().read(&mut buf)?;
-            Ok(BitVec::from_bytes(&buf, len))
-        }
-    }
+    impl_borrow_decode!(BitVec);
 }
 
 #[macro_export]

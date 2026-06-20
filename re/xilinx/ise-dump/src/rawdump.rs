@@ -1,16 +1,13 @@
 use super::partgen::PartgenPkg;
 use super::xdlrc::{Options, Parser, PipKind, Tile, Wire};
-use prjcombine_entity::{EntitySet, entity_id};
+use prjcombine_entity::{EntitySet, entity_id_u32};
 use prjcombine_re_toolchain::Toolchain;
 use prjcombine_re_xilinx_rawdump::{Coord, Part, Source, TkPipDirection, TkPipInversion};
 use prjcombine_re_xilinx_rdbuild::{PartBuilder, PbPip, PbSitePin};
 use std::collections::{HashMap, HashSet};
-use std::convert::TryInto;
 use std::error::Error;
 
-entity_id! {
-    id StringId u32;
-}
+entity_id_u32!(StringId, StringTag tag, "STR");
 
 fn is_buf_speed(speed: &Option<String>) -> bool {
     match speed {

@@ -1,26 +1,16 @@
 use bincode::{Decode, Encode};
 use enum_map::Enum;
-use prjcombine_entity::id::{EntityIdU8, EntityTag};
+use prjcombine_entity::entity_id_u8;
 use prjcombine_types::cpld::{IoCoord, MacrocellCoord, MacrocellId, ProductTermId};
 
-macro_rules! entity_id_u8 {
-    ($ty:ident, $tag:ident, $prefix:literal) => {
-        pub struct $tag;
-        impl EntityTag for $tag {
-            const PREFIX: &'static str = $prefix;
-        }
-        pub type $ty = EntityIdU8<$tag>;
-    };
-}
-
-entity_id_u8!(FbGroupId, FbGroupTag, "BG");
-entity_id_u8!(ImuxId, ImuxTag, "IM");
-entity_id_u8!(FbnId, FbnTag, "FBN");
-entity_id_u8!(ClkPadId, ClkPadTag, "CLKPAD");
-entity_id_u8!(FclkId, FclkTag, "FCLK");
-entity_id_u8!(OePadId, OePadTag, "OEPAD");
-entity_id_u8!(FoeId, FoeTag, "FOE");
-entity_id_u8!(BankId, BankTag, "BANK");
+entity_id_u8!(pub FbGroupId, FbGroupTag tag, "BG");
+entity_id_u8!(pub ImuxId, ImuxTag tag, "IM");
+entity_id_u8!(pub FbnId, FbnTag tag, "FBN");
+entity_id_u8!(pub ClkPadId, ClkPadTag tag, "CLKPAD");
+entity_id_u8!(pub FclkId, FclkTag tag, "FCLK");
+entity_id_u8!(pub OePadId, OePadTag tag, "OEPAD");
+entity_id_u8!(pub FoeId, FoeTag tag, "FOE");
+entity_id_u8!(pub BankId, BankTag tag, "BANK");
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq, Hash, Ord, PartialOrd, Encode, Decode, Enum)]
 pub enum ExportDir {

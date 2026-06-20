@@ -7,10 +7,7 @@ use std::{
 
 use bincode::{Decode, Encode};
 use itertools::Itertools;
-use prjcombine_entity::{
-    EntityRange, EntityVec,
-    id::{EntityIdU8, EntityTag},
-};
+use prjcombine_entity::{EntityRange, EntityVec, entity_id_u8};
 use prjcombine_types::{
     bsdata::Tile,
     cpld::{BlockId, MacrocellCoord, MacrocellId},
@@ -18,11 +15,7 @@ use prjcombine_types::{
     speed::Speed,
 };
 
-pub struct GclkTag;
-impl EntityTag for GclkTag {
-    const PREFIX: &'static str = "GCLK";
-}
-pub type GclkId = EntityIdU8<GclkTag>;
+entity_id_u8!(pub GclkId, GclkTag tag, "GCLK");
 
 #[derive(Debug, Clone, Eq, PartialEq, Encode, Decode)]
 pub struct Chip {

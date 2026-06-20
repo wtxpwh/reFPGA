@@ -1,9 +1,6 @@
 use bincode::{Decode, Encode};
 use itertools::Itertools;
-use prjcombine_entity::{
-    EntityId, EntityRange, EntityVec,
-    id::{EntityIdU8, EntityTag, EntityTagArith},
-};
+use prjcombine_entity::{EntityId, EntityRange, EntityVec, entity_id_u8};
 use prjcombine_interconnect::{
     dir::{Dir, DirH, DirHV, DirV},
     grid::{BelCoord, ColId, DieId, DieIdExt, EdgeIoCoord, RowId, TileCoord, TileIobId},
@@ -12,12 +9,7 @@ use std::collections::BTreeMap;
 
 use crate::defs::{bslots, tslots};
 
-pub struct RegTag;
-impl EntityTag for RegTag {
-    const PREFIX: &'static str = "REG";
-}
-impl EntityTagArith for RegTag {}
-pub type RegId = EntityIdU8<RegTag>;
+entity_id_u8!(pub RegId arith, RegTag tag, "REG");
 
 #[derive(Clone, Debug, Eq, PartialEq, Hash, Encode, Decode)]
 pub struct Chip {

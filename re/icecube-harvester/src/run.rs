@@ -9,8 +9,7 @@ use std::path::PathBuf;
 use std::process::Stdio;
 
 use bincode::{Decode, Encode};
-use prjcombine_entity::id::{EntityIdU32, EntityTag};
-use prjcombine_entity::{EntityId, EntityPartVec, EntityVec};
+use prjcombine_entity::{EntityId, EntityPartVec, EntityVec, entity_id_u32};
 use prjcombine_interconnect::db::PinDir;
 use prjcombine_re_sdf::Sdf;
 use prjcombine_re_toolchain::Toolchain;
@@ -34,10 +33,7 @@ pub struct Instance {
     pub io: BTreeMap<InstPin, String>,
 }
 
-impl EntityTag for Instance {
-    const PREFIX: &'static str = "";
-}
-pub type InstId = EntityIdU32<Instance>;
+entity_id_u32!(pub InstId, Instance, "");
 
 impl Instance {
     pub fn new(kind: &str) -> Self {

@@ -1,6 +1,6 @@
 use super::parts::VivadoPart;
 use indicatif::ProgressBar;
-use prjcombine_entity::{EntitySet, entity_id};
+use prjcombine_entity::{EntitySet, entity_id_u32};
 use prjcombine_re_toolchain::{Toolchain, ToolchainReader};
 use prjcombine_re_xilinx_rawdump::{
     Coord, Part, PkgPin, Source, TileKindId, TkPipDirection, TkPipInversion, TkSite, TkSitePin,
@@ -9,7 +9,6 @@ use prjcombine_re_xilinx_rawdump::{
 use prjcombine_re_xilinx_rdbuild::{PartBuilder, PbPip, PbSitePin};
 use rayon::prelude::*;
 use std::collections::HashMap;
-use std::convert::TryInto;
 use std::error::Error;
 use std::fmt::Write as FmtWrite;
 use std::io::{BufRead, Write};
@@ -61,9 +60,7 @@ fn parse_bool(s: &str) -> bool {
     }
 }
 
-entity_id! {
-    id NameId u32;
-}
+entity_id_u32!(pub NameId, NameTag tag, "NAME");
 
 const LIST_TILES_TCL: &str = r#"
 set fd [open "tiles.fifo" w]

@@ -1,4 +1,6 @@
-use prjcombine_entity::{EntityMap, EntityPartVec, EntitySet, EntityVec, entity_id};
+use prjcombine_entity::{
+    EntityMap, EntityPartVec, EntitySet, EntityVec, entity_id_u16, entity_id_u32,
+};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::error::Error;
@@ -20,19 +22,17 @@ impl Coord {
     }
 }
 
-entity_id! {
-    pub id WireId u32, reserve 1;
-    pub id NodeClassId u32, reserve 1;
-    pub id SpeedId u32, reserve 1;
-    pub id SlotKindId u16;
-    pub id TileKindId u16;
-    pub id TemplateId u32;
-    pub id NodeId u32, reserve 1;
-    pub id TkSiteId u32;
-    pub id TkPipId u32;
-    pub id TkWireId u32;
-    pub id TkConnWireId u32;
-}
+entity_id_u32!(pub WireId, WireTag tag, "Wire");
+entity_id_u32!(pub NodeClassId, NodeClassTag tag, "NodeClass");
+entity_id_u32!(pub SpeedId, SpeedTag tag, "Speed");
+entity_id_u16!(pub SlotKindId, SlotKindTag tag, "SlotKind");
+entity_id_u16!(pub TileKindId, TileKind, "TileKind");
+entity_id_u32!(pub TemplateId, TemplateTag tag, "Template");
+entity_id_u32!(pub NodeId, TkNode, "Node");
+entity_id_u32!(pub TkSiteId, TkSite, "TkSite");
+entity_id_u32!(pub TkPipId, TkPip, "TkPip");
+entity_id_u32!(pub TkWireId, TkWire, "TkWire");
+entity_id_u32!(pub TkConnWireId, TkConnWireTag tag, "TkConnWire");
 
 #[derive(Debug, Eq, PartialEq, Hash, Copy, Clone, Serialize, Deserialize)]
 pub enum Source {
@@ -200,7 +200,7 @@ impl Part {
     pub fn from_file<P: AsRef<Path>>(path: P) -> Result<Self, Box<dyn Error>> {
         let f = File::open(path)?;
         let mut cf = zstd::stream::Decoder::new(f)?;
-        let config = bincode::config::legacy();
+        let config = bincode::config::standard();
         let mut res: Part = bincode::serde::decode_from_std_read(&mut cf, config).unwrap();
         res.post_deserialize();
         Ok(res)
@@ -209,7 +209,7 @@ impl Part {
     pub fn to_file<P: AsRef<Path>>(&self, path: P) -> Result<(), Box<dyn Error>> {
         let f = File::create(path)?;
         let mut cf = zstd::stream::Encoder::new(f, 9)?;
-        let config = bincode::config::legacy();
+        let config = bincode::config::standard();
         bincode::serde::encode_into_std_write(self, &mut cf, config)?;
         cf.finish()?;
         Ok(())

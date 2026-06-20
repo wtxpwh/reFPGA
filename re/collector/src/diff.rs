@@ -2,10 +2,7 @@ use core::fmt::Debug;
 use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet, btree_map, hash_map};
 
 use itertools::Itertools;
-use prjcombine_entity::{
-    EntityId, EntityPartVec, EntityVec,
-    id::{EntityIdU16, EntityTag},
-};
+use prjcombine_entity::{EntityId, EntityPartVec, EntityVec, entity_id_u16};
 use prjcombine_interconnect::{
     db::{
         BelAttributeEnum, BelAttributeId, BelInputId, BelSlotId, ConnectorSlotId, EnumValueId,
@@ -18,12 +15,7 @@ use prjcombine_types::{
     bsdata::{BitRectId, EnumData, PolTileBit, TileBit},
 };
 
-pub struct SpecialTag;
-impl EntityTag for SpecialTag {
-    const PREFIX: &'static str = "SPEC";
-}
-
-pub type SpecialId = EntityIdU16<SpecialTag>;
+entity_id_u16!(pub SpecialId, SpecialTag tag, "SPEC");
 
 #[macro_export]
 macro_rules! specials {

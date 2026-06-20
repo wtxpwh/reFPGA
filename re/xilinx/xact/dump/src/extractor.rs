@@ -5,7 +5,8 @@ use std::{
 
 use ndarray::Array2;
 use prjcombine_entity::{
-    EntityBitVec, EntityBundleItemIndex, EntityId, EntityMap, EntityPartVec, EntityVec, entity_id,
+    EntityBitVec, EntityBundleItemIndex, EntityId, EntityMap, EntityPartVec, EntityVec,
+    entity_id_u32,
 };
 use prjcombine_interconnect::{
     db::{
@@ -23,9 +24,7 @@ use prjcombine_re_xilinx_xact_naming::{
 };
 use prjcombine_types::bsdata::PolTileBit;
 
-entity_id! {
-    pub id NetId u32, reserve 1;
-}
+entity_id_u32!(pub NetId, NetTag tag, "NET");
 
 pub enum PipMode {
     Mux,

@@ -2,16 +2,14 @@ use std::{collections::BTreeMap, path::Path};
 
 use bytes::{Buf, Bytes};
 use ndarray::Array2;
-use prjcombine_entity::{EntityId, EntityPartVec, EntityVec, entity_id};
+use prjcombine_entity::{EntityId, EntityPartVec, EntityVec, entity_id_u16};
 use prjcombine_interconnect::dir::{Dir, DirMap};
 
-entity_id! {
-    pub id PrimDefId u16;
-    pub id PrimId u16;
-    pub id PinId u16;
-    pub id BoxDefId u16;
-    pub id BoxId u16;
-}
+entity_id_u16!(pub PrimDefId, PrimDef, "PD");
+entity_id_u16!(pub PrimId, PrimInst, "PRIM");
+entity_id_u16!(pub PinId, PinDef, "PIN");
+entity_id_u16!(pub BoxDefId, BoxDef, "BD");
+entity_id_u16!(pub BoxId, BoxInst, "BOX");
 
 #[derive(Debug)]
 pub struct Die {

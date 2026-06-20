@@ -6,7 +6,6 @@ edition.workspace = true
 [dependencies]
 prjcombine-entity.workspace = true
 ndarray.workspace = true
-serde.workspace = true
 bincode.workspace = true
 zstd.workspace = true
 clap.workspace = true

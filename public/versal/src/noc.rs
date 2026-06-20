@@ -1,18 +1,9 @@
 use std::collections::{HashMap, hash_map};
 
-use prjcombine_entity::{
-    EntityId,
-    id::{EntityIdU8, EntityTag},
-};
+use prjcombine_entity::{EntityId, entity_id_u8};
 use prjcombine_interconnect::{db::IntDb, grid::BelCoord};
 
-pub struct NocPortTag;
-
-impl EntityTag for NocPortTag {
-    const PREFIX: &'static str = "P";
-}
-
-pub type NocPortId = EntityIdU8<NocPortTag>;
+entity_id_u8!(pub NocPortId, NocPortTag tag, "P");
 
 #[derive(Copy, Clone, PartialEq, PartialOrd, Eq, Ord, Hash, Debug)]
 pub struct NocPortCoord {

@@ -3,7 +3,7 @@ use std::{
     fmt::Debug,
 };
 
-use prjcombine_entity::{EntityVec, entity_id};
+use prjcombine_entity::{EntityVec, entity_id_u32};
 use prjcombine_re_collector::diff::DiffKey;
 use prjcombine_types::bsdata::{BitRectId, RectBitId, RectFrameId, TileBit};
 
@@ -78,10 +78,8 @@ pub struct Harvester<BitRect: Copy + Eq + Ord + Debug> {
     pub debug: u8,
 }
 
-entity_id! {
-    pub id WorkSampleId u32;
-    pub id WorkSamplePatternId u32;
-}
+entity_id_u32!(pub WorkSampleId, WorkSampleTag tag, "SAMPLE");
+entity_id_u32!(pub WorkSamplePatternId, WorkSamplePatternTag tag, "PATTERN");
 
 #[derive(Debug)]
 pub struct WorkSample<BitRect: Copy + Eq + Ord + Debug> {

@@ -1,38 +1,13 @@
 use core::fmt::Debug;
 
 use bincode::{Decode, Encode};
-use prjcombine_entity::{
-    EntityId,
-    id::{EntityIdU8, EntityTag},
-};
+use prjcombine_entity::{EntityId, entity_id_u8};
 
-pub struct ClusterTag;
-pub struct BlockTag;
-pub struct MacrocellTag;
-pub struct ProductTermTag;
-pub struct IpadTag;
-
-impl EntityTag for ClusterTag {
-    const PREFIX: &'static str = "C";
-}
-impl EntityTag for BlockTag {
-    const PREFIX: &'static str = "B";
-}
-impl EntityTag for MacrocellTag {
-    const PREFIX: &'static str = "MC";
-}
-impl EntityTag for ProductTermTag {
-    const PREFIX: &'static str = "PT";
-}
-impl EntityTag for IpadTag {
-    const PREFIX: &'static str = "IPAD";
-}
-
-pub type ClusterId = EntityIdU8<ClusterTag>;
-pub type BlockId = EntityIdU8<BlockTag>;
-pub type MacrocellId = EntityIdU8<MacrocellTag>;
-pub type ProductTermId = EntityIdU8<ProductTermTag>;
-pub type IpadId = EntityIdU8<IpadTag>;
+entity_id_u8!(pub ClusterId, ClusterTag tag, "C");
+entity_id_u8!(pub BlockId, BlockTag tag, "B");
+entity_id_u8!(pub MacrocellId, MacrocellTag tag, "MC");
+entity_id_u8!(pub ProductTermId, ProductTermTag tag, "PT");
+entity_id_u8!(pub IpadId, IpadTag tag, "IPAD");
 
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Encode, Decode)]
 pub struct MacrocellCoord {

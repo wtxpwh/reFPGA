@@ -2,7 +2,7 @@
 
 use bincode::{Decode, Encode};
 use itertools::Itertools;
-use prjcombine_entity::{EntityId, EntityPartVec, EntityVec, entity_id};
+use prjcombine_entity::{EntityId, EntityPartVec, EntityVec};
 use prjcombine_interconnect::{
     db::{IntDb, TileClass, TileClassId},
     dir::{DirH, DirV},
@@ -86,10 +86,6 @@ pub const BUFDIV_LEAF_SWZ_BH: [u32; 32] = [
     39, 38, 37, 36, 44, 45, 46, 47, 55, 54, 53, 52, 60, 61, 62, 63, 32, 33, 34, 35, 43, 42, 41, 40,
     48, 49, 50, 51, 59, 58, 57, 56,
 ];
-
-entity_id! {
-    id EColId u32, delta;
-}
 
 #[derive(Clone, Debug)]
 struct BelGrid {

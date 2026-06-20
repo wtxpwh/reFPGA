@@ -1,14 +1,12 @@
 use core::fmt::Debug;
 use core::hash::Hash;
 use derive_where::derive_where;
-use prjcombine_entity::{EntityVec, entity_id};
+use prjcombine_entity::{EntityVec, entity_id_u32};
 use prjcombine_types::bitvec::BitVec;
 use std::collections::{HashMap, HashSet, hash_map::Entry};
 
-entity_id! {
-    pub id BatchFuzzerId u32;
-    id BatchId u32;
-}
+entity_id_u32!(pub BatchFuzzerId, BatchFuzzerTag tag, "FUZZ");
+entity_id_u32!(BatchId, BatchTag tag, "BATCH");
 
 pub trait Backend: Debug + Sync {
     type Key: Hash + PartialEq + Eq + PartialOrd + Ord + Clone + Debug + Sync + Send;

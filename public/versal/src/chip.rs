@@ -1,28 +1,14 @@
 use bincode::{Decode, Encode};
 use itertools::Itertools;
-use prjcombine_entity::{
-    EntityId, EntityRange, EntityVec,
-    id::{EntityIdU8, EntityTag, EntityTagArith},
-};
+use prjcombine_entity::{EntityId, EntityRange, EntityVec, entity_id_u8};
 use prjcombine_interconnect::{
     dir::{DirH, DirV},
     grid::{ColId, DieId, RowId},
 };
 use std::collections::BTreeSet;
 
-pub struct RegTag;
-impl EntityTag for RegTag {
-    const PREFIX: &'static str = "REG";
-}
-impl EntityTagArith for RegTag {}
-pub type RegId = EntityIdU8<RegTag>;
-
-pub struct HRegTag;
-impl EntityTag for HRegTag {
-    const PREFIX: &'static str = "HREG";
-}
-impl EntityTagArith for HRegTag {}
-pub type HRegId = EntityIdU8<HRegTag>;
+entity_id_u8!(pub RegId arith, RegTag tag, "REG");
+entity_id_u8!(pub HRegId arith, HRegTag tag, "HREG");
 
 #[derive(Clone, Debug, Eq, PartialEq, Hash, Encode, Decode)]
 pub struct Chip {

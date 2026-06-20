@@ -1,21 +1,11 @@
 use std::collections::BTreeMap;
 
 use bincode::{Decode, Encode};
-use prjcombine_entity::{
-    EntityMap,
-    id::{EntityIdU16, EntityTag},
-};
+use prjcombine_entity::{EntityMap, entity_id_u16};
 use prjcombine_interconnect::db::{BelSlotId, IntDb, TileWireCoord};
 
-pub struct TileRawCellTag;
-impl EntityTag for TileRawCellTag {
-    const PREFIX: &'static str = "RT";
-}
-impl EntityTag for TileNaming {
-    const PREFIX: &'static str = "TNCLS";
-}
-pub type TileNamingId = EntityIdU16<TileNaming>;
-pub type TileRawCellId = EntityIdU16<TileRawCellTag>;
+entity_id_u16!(pub TileNamingId, TileNaming, "TNCLS");
+entity_id_u16!(pub TileRawCellId, TileRawCellTag tag, "RT");
 
 #[derive(Clone, Debug, Eq, PartialEq, Default, Encode, Decode)]
 pub struct NamingDb {

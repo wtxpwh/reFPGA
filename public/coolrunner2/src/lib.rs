@@ -2,10 +2,7 @@ use std::{collections::BTreeMap, error::Error, fs::File, path::Path};
 
 use bincode::{Decode, Encode};
 use itertools::Itertools;
-use prjcombine_entity::{
-    EntityRange, EntityVec,
-    id::{EntityIdU8, EntityTag},
-};
+use prjcombine_entity::{EntityRange, EntityVec, entity_id_u8};
 use prjcombine_types::{
     bsdata::Tile,
     cpld::{BlockId, IoCoord, IpadId, MacrocellCoord},
@@ -13,11 +10,7 @@ use prjcombine_types::{
     speed::Speed,
 };
 
-pub struct BankTag;
-impl EntityTag for BankTag {
-    const PREFIX: &'static str = "BANK";
-}
-pub type BankId = EntityIdU8<BankTag>;
+entity_id_u8!(pub BankId, BankTag tag, "BANK");
 
 #[derive(Debug, Clone, Eq, PartialEq, Encode, Decode)]
 pub struct Chip {

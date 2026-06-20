@@ -2,25 +2,12 @@ use std::collections::{BTreeMap, BTreeSet};
 
 use bincode::{Decode, Encode};
 use itertools::Itertools;
-use prjcombine_entity::{
-    EntityId, EntityMap, EntityPartVec,
-    id::{EntityIdU16, EntityTag},
-};
+use prjcombine_entity::{EntityId, EntityMap, EntityPartVec, entity_id_u16};
 use prjcombine_interconnect::db::{BelSlotId, IntDb, PinDir, TileWireCoord, WireSlotId};
 
-pub struct RawTileTag;
-impl EntityTag for RawTileTag {
-    const PREFIX: &'static str = "RT";
-}
-impl EntityTag for TileClassNaming {
-    const PREFIX: &'static str = "TNCLS";
-}
-impl EntityTag for ConnectorClassNaming {
-    const PREFIX: &'static str = "CNCLS";
-}
-pub type TileClassNamingId = EntityIdU16<TileClassNaming>;
-pub type ConnectorClassNamingId = EntityIdU16<ConnectorClassNaming>;
-pub type RawTileId = EntityIdU16<RawTileTag>;
+entity_id_u16!(pub ConnectorClassNamingId, ConnectorClassNaming, "CNCLS");
+entity_id_u16!(pub TileClassNamingId, TileClassNaming, "TNCLS");
+entity_id_u16!(pub RawTileId, RawTileTag tag, "RT");
 
 #[derive(Clone, Debug, Encode, Decode, Default)]
 pub struct NamingDb {

@@ -2,21 +2,14 @@ use std::{collections::BTreeMap, error::Error, fs::File, path::Path};
 
 use bincode::{Decode, Encode};
 use prjcombine_ecp::{bond::Bond, chip::Chip, db::Device};
-use prjcombine_entity::{
-    EntitySet, EntityVec,
-    id::{EntityIdU32, EntityTag},
-};
+use prjcombine_entity::{EntitySet, EntityVec, entity_id_u32};
 use prjcombine_interconnect::{
     db::IntDb,
     grid::{BelCoord, WireCoord},
 };
 use prjcombine_types::db::{BondId, ChipId};
 
-pub struct StringTag;
-
-impl EntityTag for StringTag {}
-
-pub type StringId = EntityIdU32<StringTag>;
+entity_id_u32!(pub StringId, StringTag tag, "STR");
 
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Debug, Encode, Decode)]
 pub struct WireName {

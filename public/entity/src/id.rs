@@ -12,300 +12,6 @@ use bincode::{BorrowDecode, Decode, Encode};
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 
-// XXX: these old-style id types are sticking around because the on-disk format differs
-// between old-style and new-style ids when using bincode v1 (and some data that's very
-// CPU-intensive to regenerate is currently stored as bincode v1).
-
-macro_rules! make_res_type {
-    ($t:ident, $b:ty, $i:ty) => {
-        #[doc(hidden)]
-        #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-        #[cfg_attr(
-            feature = "serde",
-            derive(Serialize, Deserialize),
-            serde(into = "usize"),
-            serde(try_from = "usize")
-        )]
-        pub struct $t($b);
-
-        impl $t {
-            pub const fn from_usize_const(val: usize) -> Self {
-                let tmp = (val + 1) as $i;
-                $t(<$b>::new(tmp).unwrap())
-            }
-
-            pub const fn to_usize_const(self) -> usize {
-                (self.0.get() - 1) as usize
-            }
-        }
-
-        impl From<$t> for usize {
-            fn from(x: $t) -> usize {
-                (x.0.get() - 1).try_into().unwrap()
-            }
-        }
-
-        impl TryFrom<usize> for $t {
-            type Error = std::num::TryFromIntError;
-            fn try_from(x: usize) -> Result<Self, Self::Error> {
-                let tmp: $i = (x + 1).try_into()?;
-                Ok($t(tmp.try_into()?))
-            }
-        }
-
-        impl Debug for $t {
-            fn fmt(
-                &self,
-                f: &mut std::fmt::Formatter<'_>,
-            ) -> core::result::Result<(), std::fmt::Error> {
-                write!(f, "{}", usize::from(*self))
-            }
-        }
-
-        impl Display for $t {
-            fn fmt(
-                &self,
-                f: &mut std::fmt::Formatter<'_>,
-            ) -> core::result::Result<(), std::fmt::Error> {
-                write!(f, "{}", usize::from(*self))
-            }
-        }
-    };
-}
-
-make_res_type!(__ReservedU8, core::num::NonZeroU8, u8);
-make_res_type!(__ReservedU16, core::num::NonZeroU16, u16);
-make_res_type!(__ReservedU32, core::num::NonZeroU32, u32);
-make_res_type!(__ReservedUsize, core::num::NonZeroUsize, usize);
-
-#[cfg(feature = "serde")]
-#[doc(hidden)]
-#[macro_export]
-macro_rules! __def_entity_id {
-    ($v:vis, $id:ident, $t:ty) => {
-        #[derive(Debug, Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, $crate::__serde::Serialize, $crate::__serde::Deserialize)]
-        #[serde(crate="prjcombine_entity::__serde")]
-        $v struct $id($t);
-    }
-}
-
-#[cfg(not(feature = "serde"))]
-#[doc(hidden)]
-#[macro_export]
-macro_rules! __def_entity_id {
-    ($v:vis, $id:ident, $t:ty) => {
-        #[derive(Debug, Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-        $v struct $id($t);
-    }
-}
-
-#[doc(hidden)]
-#[macro_export]
-macro_rules! __impl_entity_id {
-    ($v:vis, $id:ident, $t:ty) => {
-        $crate::__def_entity_id!($v, $id, $t);
-
-        impl $crate::EntityId for $id {
-            fn to_idx(self) -> usize {
-                self.0.try_into().unwrap()
-            }
-            fn from_idx(idx: usize) -> Self {
-                Self(idx.try_into().unwrap())
-            }
-        }
-
-        impl ::core::fmt::Display for $id {
-            fn fmt(
-                &self,
-                f: &mut std::fmt::Formatter<'_>,
-            ) -> core::result::Result<(), std::fmt::Error> {
-                use $crate::EntityId;
-                write!(f, "{}", self.to_idx())
-            }
-        }
-    };
-}
-
-#[doc(hidden)]
-#[macro_export]
-macro_rules! __impl_entity_id_const {
-    ($v:vis, $id:ident, $t:ty) => {
-        impl $id {
-            pub const fn from_idx_const(val: usize) -> Self {
-                Self(val as $t)
-            }
-
-            pub const fn to_idx_const(self) -> usize {
-                self.0 as usize
-            }
-        }
-    };
-}
-
-#[doc(hidden)]
-#[macro_export]
-macro_rules! __impl_entity_id_const_reserved {
-    ($v:vis, $id:ident, $t:ty) => {
-        impl $id {
-            pub const fn from_idx_const(val: usize) -> Self {
-                Self(<$t>::from_usize_const(val))
-            }
-
-            pub const fn to_idx_const(self) -> usize {
-                self.0.to_usize_const()
-            }
-        }
-    };
-}
-
-#[doc(hidden)]
-#[macro_export]
-macro_rules! __impl_entity_id_delta {
-    ($v:vis, $id:ident, $t:ty) => {
-        impl core::ops::Add<usize> for $id {
-            type Output = $id;
-            fn add(self, x: usize) -> Self {
-                use $crate::EntityId;
-                Self::from_idx(self.to_idx() + x)
-            }
-        }
-
-        impl core::ops::AddAssign<usize> for $id {
-            fn add_assign(&mut self, x: usize) {
-                *self = *self + x;
-            }
-        }
-
-        impl core::ops::Sub<usize> for $id {
-            type Output = $id;
-            fn sub(self, x: usize) -> Self {
-                use $crate::EntityId;
-                Self::from_idx(self.to_idx() - x)
-            }
-        }
-
-        impl core::ops::SubAssign<usize> for $id {
-            fn sub_assign(&mut self, x: usize) {
-                *self = *self - x;
-            }
-        }
-
-        impl core::ops::Add<isize> for $id {
-            type Output = $id;
-            fn add(self, x: isize) -> Self {
-                use $crate::EntityId;
-                Self::from_idx(self.to_idx().checked_add_signed(x).unwrap())
-            }
-        }
-
-        impl core::ops::AddAssign<isize> for $id {
-            fn add_assign(&mut self, x: isize) {
-                *self = *self + x;
-            }
-        }
-
-        impl core::ops::Sub<isize> for $id {
-            type Output = $id;
-            fn sub(self, x: isize) -> Self {
-                self + (-x)
-            }
-        }
-
-        impl core::ops::SubAssign<isize> for $id {
-            fn sub_assign(&mut self, x: isize) {
-                *self = *self - x;
-            }
-        }
-
-        impl core::ops::Add<i32> for $id {
-            type Output = $id;
-            fn add(self, x: i32) -> Self {
-                self + (x as isize)
-            }
-        }
-
-        impl core::ops::AddAssign<i32> for $id {
-            fn add_assign(&mut self, x: i32) {
-                *self = *self + (x as isize);
-            }
-        }
-
-        impl core::ops::Sub<i32> for $id {
-            type Output = $id;
-            fn sub(self, x: i32) -> Self {
-                self - (x as isize)
-            }
-        }
-
-        impl core::ops::SubAssign<i32> for $id {
-            fn sub_assign(&mut self, x: i32) {
-                *self = *self - (x as isize);
-            }
-        }
-
-        impl core::ops::Sub<$id> for $id {
-            type Output = isize;
-            fn sub(self, x: Self) -> isize {
-                use $crate::EntityId;
-                self.to_idx() as isize - x.to_idx() as isize
-            }
-        }
-
-        impl $id {
-            /// Returns the range `self..other`.
-            pub fn range(self, other: $id) -> $crate::id::EntityRange<$id> {
-                use $crate::EntityId;
-                $crate::id::EntityRange::new(self.to_idx(), other.to_idx())
-            }
-        }
-    };
-}
-
-#[doc(hidden)]
-#[macro_export]
-macro_rules! __reserved_ty {
-    (u8) => {
-        $crate::id::__ReservedU8
-    };
-    (u16) => {
-        $crate::id::__ReservedU16
-    };
-    (u32) => {
-        $crate::id::__ReservedU32
-    };
-    (usize) => {
-        $crate::id::__ReservedUsize
-    };
-}
-
-/// Define an old-style entity ID.
-#[macro_export]
-macro_rules! entity_id {
-    ($v:vis id $id:ident $t:ty; $($rest:tt)*) => {
-        $crate::__impl_entity_id!($v, $id, $t);
-        $crate::__impl_entity_id_const!($v, $id, $t);
-        $crate::entity_id!{ $($rest)* }
-    };
-    ($v:vis id $id:ident $t:ty, delta; $($rest:tt)*) => {
-        $crate::__impl_entity_id!($v, $id, $t);
-        $crate::__impl_entity_id_const!($v, $id, $t);
-        $crate::__impl_entity_id_delta!($v, $id, $t);
-        $crate::entity_id!{ $($rest)* }
-    };
-    ($v:vis id $id:ident $t:tt, reserve 1; $($rest:tt)*) => {
-        $crate::__impl_entity_id!($v, $id, $crate::__reserved_ty!($t));
-        $crate::__impl_entity_id_const_reserved!($v, $id, $crate::__reserved_ty!($t));
-        $crate::entity_id!{ $($rest)* }
-    };
-    ($v:vis id $id:ident $t:tt, reserve 1, delta; $($rest:tt)*) => {
-        $crate::__impl_entity_id!($v, $id, $crate::__reserved_ty!($t));
-        $crate::__impl_entity_id_delta!($v, $id, $t);
-        $crate::__impl_entity_id_const_reserved!($v, $id, $crate::__reserved_ty!($t));
-        $crate::entity_id!{ $($rest)* }
-    };
-    () => {};
-}
-
 /// Implemented by types that can be used as IDs in `prjcombine_entity` datastructures.
 ///
 /// For new code, you use one of [`EntityIdU8`], [`EntityIdU16`], or [`EntityIdU32`],
@@ -316,8 +22,6 @@ pub trait EntityId:
     fn from_idx(idx: usize) -> Self;
     fn to_idx(self) -> usize;
 }
-
-// new-style id
 
 /// Marker for types usable as ID tag types.
 ///
@@ -583,6 +287,60 @@ macro_rules! make_id {
 make_id!(EntityIdU8, EntityIdU8Inner, u8);
 make_id!(EntityIdU16, EntityIdU16Inner, u16);
 make_id!(EntityIdU32, EntityIdU32Inner, u32);
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __entity_id_idopt {
+    ($tag:ident, arith) => {
+        impl $crate::id::EntityTagArith for $tag {}
+    };
+    ($tag:ident, ) => {};
+}
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __entity_id_tagopt {
+    ($vis:vis $tag:ident, tag) => {
+        $vis struct $tag;
+    };
+    ($vis:vis $tag:ident, ) => {};
+}
+
+#[macro_export]
+macro_rules! entity_id_u8 {
+    ($vis:vis $ty:ident $($idopt:ident)*, $tag:ident $($tagopt:ident)*, $prefix:literal) => {
+        $crate::__entity_id_idopt!($tag, $($idopt)*);
+        $crate::__entity_id_tagopt!($vis $tag, $($tagopt)*);
+        impl $crate::id::EntityTag for $tag {
+            const PREFIX: &'static str = $prefix;
+        }
+        $vis type $ty = $crate::id::EntityIdU8<$tag>;
+    };
+}
+
+#[macro_export]
+macro_rules! entity_id_u16 {
+    ($vis:vis $ty:ident $($idopt:ident)*, $tag:ident $($tagopt:ident)*, $prefix:literal) => {
+        $crate::__entity_id_idopt!($tag, $($idopt)*);
+        $crate::__entity_id_tagopt!($vis $tag, $($tagopt)*);
+        impl $crate::id::EntityTag for $tag {
+            const PREFIX: &'static str = $prefix;
+        }
+        $vis type $ty = $crate::id::EntityIdU16<$tag>;
+    };
+}
+
+#[macro_export]
+macro_rules! entity_id_u32 {
+    ($vis:vis $ty:ident $($idopt:ident)*, $tag:ident $($tagopt:ident)*, $prefix:literal) => {
+        $crate::__entity_id_idopt!($tag, $($idopt)*);
+        $crate::__entity_id_tagopt!($vis $tag, $($tagopt)*);
+        impl $crate::id::EntityTag for $tag {
+            const PREFIX: &'static str = $prefix;
+        }
+        $vis type $ty = $crate::id::EntityIdU32<$tag>;
+    };
+}
 
 // range
 

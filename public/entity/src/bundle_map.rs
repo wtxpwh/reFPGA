@@ -1,7 +1,6 @@
 //! A map where each key-value pair is assigned a contiguous range of IDs.
-use crate::id::{EntityIdU32, EntityTag};
 use crate::map::Entry;
-use crate::{EntityId, EntityMap, EntityRange, EntityVec};
+use crate::{EntityId, EntityMap, EntityRange, EntityVec, entity_id_u32};
 
 /// Indices occupied by a given bundle.
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
@@ -26,9 +25,7 @@ pub enum EntityBundleItemIndex {
     },
 }
 
-struct BundleTag;
-impl EntityTag for BundleTag {}
-type BundleId = EntityIdU32<BundleTag>;
+entity_id_u32!(BundleId, BundleTag tag, "BUNDLE");
 
 /// A map where each key-value pair is assigned a contiguous range of IDs.
 ///
