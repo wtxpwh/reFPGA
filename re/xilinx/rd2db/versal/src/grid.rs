@@ -3142,10 +3142,7 @@ fn get_hsr_nic(int: &IntGridWrapper, die: DieId, dev_naming: &mut DeviceNaming) 
     let mut ncrb_scan_bli = vec![];
     let mut ncrb_tiles = vec![];
 
-    for chunk in tiles_ncrb.chunks_exact(2) {
-        let &[ncrb_xy, scan_xy] = chunk else {
-            unreachable!()
-        };
+    for &[ncrb_xy, scan_xy] in tiles_ncrb.as_chunks::<2>().0 {
         let ni = int
             .int
             .rd

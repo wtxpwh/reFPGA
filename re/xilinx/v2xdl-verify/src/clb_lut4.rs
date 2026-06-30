@@ -521,14 +521,13 @@ fn gen_cy(test: &mut Test, ctx: &mut TestGenCtx, mode: Mode, num: usize) {
         let xo = test.make_out(ctx);
         inst_x.connect("O", &xo);
 
-        let cymode;
-        if f == "F" {
-            cymode = ctx.rng.random_range(0..4);
+        let cymode = if f == "F" {
+            ctx.rng.random_range(0..4)
         } else if mode == Mode::Virtex {
-            cymode = prevcymode.unwrap();
+            prevcymode.unwrap()
         } else {
-            cymode = ctx.rng.random_range(0..5);
-        }
+            ctx.rng.random_range(0..5)
+        };
         prevcymode = Some(cymode);
         let mut do_backflip = false;
 

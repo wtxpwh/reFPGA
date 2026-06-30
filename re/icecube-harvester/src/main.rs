@@ -2119,13 +2119,10 @@ impl PartContext<'_> {
         let mut sites = sites.clone();
         sites.sort_by_key(|site| site.loc);
         assert_eq!(sites.len(), 4);
-        for edge_sites in sites.chunks_exact(2) {
-            assert_eq!(edge_sites[0].loc.x, edge_sites[1].loc.x);
-            let edge = if edge_sites[0].loc.x == 0 {
-                DirH::W
-            } else {
-                DirH::E
-            };
+        for edge_sites in sites.as_chunks::<2>().0 {
+            let [site_a, site_b] = edge_sites;
+            assert_eq!(site_a.loc.x, site_b.loc.x);
+            let edge = if site_a.loc.x == 0 { DirH::W } else { DirH::E };
             let key = SpecialTileKey::SpramPair(edge);
             let tcid = key.tile_class(self.chip.kind);
             let cells: [_; 4] = CellCoord {
@@ -2142,8 +2139,7 @@ impl PartContext<'_> {
             let (tcls, special) = builder.finish();
             insert_tile_class(&mut self.tcls_filled, &mut self.intdb, tcid, tcls);
             self.chip.special_tiles.insert(key, special);
-            self.special_tiles
-                .insert(key, vec![edge_sites[0].loc, edge_sites[1].loc]);
+            self.special_tiles.insert(key, vec![site_a.loc, site_b.loc]);
         }
     }
 

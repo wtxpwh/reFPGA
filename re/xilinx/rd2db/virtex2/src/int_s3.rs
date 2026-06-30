@@ -1626,57 +1626,56 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
                 .extra_int_out_force("CLKPAD", wires::OUT_CLKPAD[1].cell(0), "RIOIS_IBUF0")
                 .extra_wire_force("PCI_RDY_IN", "IOIS_PCI_IRDY_IN"),
         ];
-        let naming_l;
-        let naming_r;
-        let naming_l_pci;
-        let naming_r_pci;
-        let naming_b;
-        let naming_t;
-        if rd.family == "spartan3adsp" {
-            naming_l = "IOI_S3ADSP_W";
-            naming_r = "IOI_S3ADSP_E";
-            naming_l_pci = "IOI_S3ADSP_W_PCI";
-            naming_r_pci = "IOI_S3ADSP_E_PCI";
-            naming_b = "IOI_S3ADSP_S";
-            naming_t = "IOI_S3ADSP_N";
-        } else {
-            naming_l = "IOI_S3A_W";
-            naming_r = "IOI_S3A_E";
-            naming_l_pci = "IOI_S3A_W_PCI";
-            naming_r_pci = "IOI_S3A_E_PCI";
-            naming_b = "IOI_S3A_S";
-            naming_t = "IOI_S3A_N";
-        }
-        builder.extract_int_bels_id(tcls::IOI_S3A_WE, "LIOIS", naming_l, &bels_ioi_l);
-        builder.extract_int_bels_id(tcls::IOI_S3A_WE, "LIOIS_BRK", naming_l, &bels_ioi_l);
-        builder.extract_int_bels_id(tcls::IOI_S3A_WE, "LIOIS_PCI", naming_l_pci, &bels_ioi_l);
-        builder.extract_int_bels_id(tcls::IOI_S3A_WE, "LIOIS_CLK_PCI", naming_l_pci, &bels_ioi_l);
+        let (naming_w, naming_e, naming_w_pci, naming_e_pci, naming_s, naming_n) =
+            if rd.family == "spartan3adsp" {
+                (
+                    "IOI_S3ADSP_W",
+                    "IOI_S3ADSP_E",
+                    "IOI_S3ADSP_W_PCI",
+                    "IOI_S3ADSP_E_PCI",
+                    "IOI_S3ADSP_S",
+                    "IOI_S3ADSP_N",
+                )
+            } else {
+                (
+                    "IOI_S3A_W",
+                    "IOI_S3A_E",
+                    "IOI_S3A_W_PCI",
+                    "IOI_S3A_E_PCI",
+                    "IOI_S3A_S",
+                    "IOI_S3A_N",
+                )
+            };
+        builder.extract_int_bels_id(tcls::IOI_S3A_WE, "LIOIS", naming_w, &bels_ioi_l);
+        builder.extract_int_bels_id(tcls::IOI_S3A_WE, "LIOIS_BRK", naming_w, &bels_ioi_l);
+        builder.extract_int_bels_id(tcls::IOI_S3A_WE, "LIOIS_PCI", naming_w_pci, &bels_ioi_l);
+        builder.extract_int_bels_id(tcls::IOI_S3A_WE, "LIOIS_CLK_PCI", naming_w_pci, &bels_ioi_l);
         builder.extract_int_bels_id(
             tcls::IOI_S3A_WE,
             "LIOIS_CLK_PCI_BRK",
-            naming_l_pci,
+            naming_w_pci,
             &bels_ioi_l,
         );
-        builder.extract_int_bels_id(tcls::IOI_S3A_WE, "LIBUFS", naming_l, &bels_ioi_l);
-        builder.extract_int_bels_id(tcls::IOI_S3A_WE, "LIBUFS_PCI", naming_l, &bels_ioi_l);
-        builder.extract_int_bels_id(tcls::IOI_S3A_WE, "LIBUFS_CLK_PCI", naming_l, &bels_ioi_l);
-        builder.extract_int_bels_id(tcls::IOI_S3A_WE, "RIOIS", naming_r, &bels_ioi_r);
-        builder.extract_int_bels_id(tcls::IOI_S3A_WE, "RIOIS_PCI", naming_r_pci, &bels_ioi_r);
-        builder.extract_int_bels_id(tcls::IOI_S3A_WE, "RIOIS_CLK_PCI", naming_r_pci, &bels_ioi_r);
-        builder.extract_int_bels_id(tcls::IOI_S3A_WE, "RIBUFS", naming_r, &bels_ioi_r);
-        builder.extract_int_bels_id(tcls::IOI_S3A_WE, "RIBUFS_BRK", naming_r, &bels_ioi_r);
-        builder.extract_int_bels_id(tcls::IOI_S3A_WE, "RIBUFS_PCI", naming_r, &bels_ioi_r);
-        builder.extract_int_bels_id(tcls::IOI_S3A_WE, "RIBUFS_CLK_PCI", naming_r, &bels_ioi_r);
+        builder.extract_int_bels_id(tcls::IOI_S3A_WE, "LIBUFS", naming_w, &bels_ioi_l);
+        builder.extract_int_bels_id(tcls::IOI_S3A_WE, "LIBUFS_PCI", naming_w, &bels_ioi_l);
+        builder.extract_int_bels_id(tcls::IOI_S3A_WE, "LIBUFS_CLK_PCI", naming_w, &bels_ioi_l);
+        builder.extract_int_bels_id(tcls::IOI_S3A_WE, "RIOIS", naming_e, &bels_ioi_r);
+        builder.extract_int_bels_id(tcls::IOI_S3A_WE, "RIOIS_PCI", naming_e_pci, &bels_ioi_r);
+        builder.extract_int_bels_id(tcls::IOI_S3A_WE, "RIOIS_CLK_PCI", naming_e_pci, &bels_ioi_r);
+        builder.extract_int_bels_id(tcls::IOI_S3A_WE, "RIBUFS", naming_e, &bels_ioi_r);
+        builder.extract_int_bels_id(tcls::IOI_S3A_WE, "RIBUFS_BRK", naming_e, &bels_ioi_r);
+        builder.extract_int_bels_id(tcls::IOI_S3A_WE, "RIBUFS_PCI", naming_e, &bels_ioi_r);
+        builder.extract_int_bels_id(tcls::IOI_S3A_WE, "RIBUFS_CLK_PCI", naming_e, &bels_ioi_r);
         builder.extract_int_bels_id(
             tcls::IOI_S3A_WE,
             "RIBUFS_CLK_PCI_BRK",
-            naming_r,
+            naming_e,
             &bels_ioi_r,
         );
-        builder.extract_int_bels_id(tcls::IOI_S3A_S, "BIOIS", naming_b, &bels_ioi_tb);
-        builder.extract_int_bels_id(tcls::IOI_S3A_S, "BIOIB", naming_b, &bels_ioi_tb);
-        builder.extract_int_bels_id(tcls::IOI_S3A_N, "TIOIS", naming_t, &bels_ioi_tb);
-        builder.extract_int_bels_id(tcls::IOI_S3A_N, "TIOIB", naming_t, &bels_ioi_tb);
+        builder.extract_int_bels_id(tcls::IOI_S3A_S, "BIOIS", naming_s, &bels_ioi_tb);
+        builder.extract_int_bels_id(tcls::IOI_S3A_S, "BIOIB", naming_s, &bels_ioi_tb);
+        builder.extract_int_bels_id(tcls::IOI_S3A_N, "TIOIS", naming_n, &bels_ioi_tb);
+        builder.extract_int_bels_id(tcls::IOI_S3A_N, "TIOIB", naming_n, &bels_ioi_tb);
     }
     let tcid_randor = if rd.family == "fpgacore" {
         tcls::RANDOR_FC
@@ -2586,18 +2585,11 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
                         .pin_name_only("TRDY", 1),
                     builder.bel_virtual(bslots::GLOBALSIG_BUFG[0]),
                 ];
-                let tcid;
-                let naming;
-                let buf_xy;
-                if rd.family == "spartan3e" {
-                    naming = format!("{nn}_S3E");
-                    tcid = tcid_s3e;
-                    buf_xy = vec![];
+                let (naming, tcid, buf_xy) = if rd.family == "spartan3e" {
+                    (format!("{nn}_S3E"), tcid_s3e, vec![])
                 } else {
-                    naming = format!("{nn}_S3A");
-                    tcid = tcid_s3a;
-                    buf_xy = vec![xy_o];
-                }
+                    (format!("{nn}_S3A"), tcid_s3a, vec![xy_o])
+                };
                 let mut xt = builder
                     .xtile_id(tcid, &naming, xy)
                     .bels(bels)

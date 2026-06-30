@@ -3168,36 +3168,38 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
                     tables::IOB_IQ_DELAY::DELAY_WSN
                 };
 
-                let bits_i;
-                let bits_iq;
-                if is_e {
-                    bits_iq = vec![
-                        !xlat_bit(diffs_iq[&tables::IOB_IQ_DELAY::DLY5].clone()),
-                        !xlat_bit(diffs_iq[&tables::IOB_IQ_DELAY::DLY4].clone()),
-                        !xlat_bit(diffs_iq[&tables::IOB_IQ_DELAY::DLY3].clone()),
-                    ];
-                    bits_i = vec![
-                        !xlat_bit(diffs_i[&tables::IOB_I_DELAY::DLY11].clone()),
-                        !xlat_bit(diffs_i[&tables::IOB_I_DELAY::DLY10].clone()),
-                        !xlat_bit(diffs_i[&tables::IOB_I_DELAY::DLY8].clone()),
-                        !xlat_bit(diffs_iq[&tables::IOB_IQ_DELAY::DLY3].clone()),
-                    ];
+                let (bits_iq, bits_i) = if is_e {
+                    (
+                        vec![
+                            !xlat_bit(diffs_iq[&tables::IOB_IQ_DELAY::DLY5].clone()),
+                            !xlat_bit(diffs_iq[&tables::IOB_IQ_DELAY::DLY4].clone()),
+                            !xlat_bit(diffs_iq[&tables::IOB_IQ_DELAY::DLY3].clone()),
+                        ],
+                        vec![
+                            !xlat_bit(diffs_i[&tables::IOB_I_DELAY::DLY11].clone()),
+                            !xlat_bit(diffs_i[&tables::IOB_I_DELAY::DLY10].clone()),
+                            !xlat_bit(diffs_i[&tables::IOB_I_DELAY::DLY8].clone()),
+                            !xlat_bit(diffs_iq[&tables::IOB_IQ_DELAY::DLY3].clone()),
+                        ],
+                    )
                 } else {
-                    bits_iq = vec![
-                        !xlat_bit(diffs_iq[&tables::IOB_IQ_DELAY::DLY6].clone()),
-                        !xlat_bit(diffs_iq[&tables::IOB_IQ_DELAY::DLY5].clone()),
-                        !xlat_bit(diffs_iq[&tables::IOB_IQ_DELAY::DLY4].clone()),
-                    ];
-                    bits_i = vec![
-                        !xlat_bit(
-                            diffs_i[&tables::IOB_I_DELAY::DLY11]
-                                .combine(&!&diffs_i[&tables::IOB_I_DELAY::DLY12]),
-                        ),
-                        !xlat_bit(diffs_i[&tables::IOB_I_DELAY::DLY12].clone()),
-                        !xlat_bit(diffs_i[&tables::IOB_I_DELAY::DLY10].clone()),
-                        !xlat_bit(diffs_iq[&tables::IOB_IQ_DELAY::DLY4].clone()),
-                    ];
-                }
+                    (
+                        vec![
+                            !xlat_bit(diffs_iq[&tables::IOB_IQ_DELAY::DLY6].clone()),
+                            !xlat_bit(diffs_iq[&tables::IOB_IQ_DELAY::DLY5].clone()),
+                            !xlat_bit(diffs_iq[&tables::IOB_IQ_DELAY::DLY4].clone()),
+                        ],
+                        vec![
+                            !xlat_bit(
+                                diffs_i[&tables::IOB_I_DELAY::DLY11]
+                                    .combine(&!&diffs_i[&tables::IOB_I_DELAY::DLY12]),
+                            ),
+                            !xlat_bit(diffs_i[&tables::IOB_I_DELAY::DLY12].clone()),
+                            !xlat_bit(diffs_i[&tables::IOB_I_DELAY::DLY10].clone()),
+                            !xlat_bit(diffs_iq[&tables::IOB_IQ_DELAY::DLY4].clone()),
+                        ],
+                    )
+                };
                 for (row, diff) in diffs_iq {
                     let val = extract_bitvec_val(&bits_iq, &bits![1; 3], diff);
                     ctx.insert_table_bitvec(tables::IOB_IQ_DELAY, row, field_iq, val);

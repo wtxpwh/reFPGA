@@ -23,15 +23,12 @@ impl ChipContext<'_> {
                 if rd.kind != RowKind::Ebr {
                     continue;
                 }
-                let v;
-                let row_mid;
-                if row_src < self.chip.row_clk {
-                    v = DirV::S;
-                    row_mid = row_src + 1;
+
+                let (v, row_mid) = if row_src < self.chip.row_clk {
+                    (DirV::S, row_src + 1)
                 } else {
-                    v = DirV::N;
-                    row_mid = row_src;
-                }
+                    (DirV::N, row_src)
+                };
                 assert!(self.chip.rows[row_mid].pclk_break);
                 let mut row_s = row_mid - 1;
                 let mut row_n = row_mid + 1;

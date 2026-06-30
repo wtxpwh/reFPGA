@@ -273,30 +273,17 @@ impl Expander<'_, '_> {
             if self.chip.is_row_io(cell.row) {
                 continue;
             }
-            let int_kind;
-            let ioi_kind;
-            match self.chip.kind {
+            let (int_kind, ioi_kind) = match self.chip.kind {
                 ChipKind::Virtex2 | ChipKind::Virtex2P | ChipKind::Virtex2PX => {
-                    int_kind = tcls_v2::INT_IOI;
-                    ioi_kind = tcls_v2::IOI;
+                    (tcls_v2::INT_IOI, tcls_v2::IOI)
                 }
-                ChipKind::Spartan3 => {
-                    int_kind = tcls_s3::INT_IOI_S3;
-                    ioi_kind = tcls_s3::IOI_S3;
-                }
-                ChipKind::FpgaCore => {
-                    int_kind = tcls_s3::INT_IOI_FC;
-                    ioi_kind = tcls_s3::IOI_FC;
-                }
-                ChipKind::Spartan3E => {
-                    int_kind = tcls_s3::INT_IOI_S3E;
-                    ioi_kind = tcls_s3::IOI_S3E;
-                }
+                ChipKind::Spartan3 => (tcls_s3::INT_IOI_S3, tcls_s3::IOI_S3),
+                ChipKind::FpgaCore => (tcls_s3::INT_IOI_FC, tcls_s3::IOI_FC),
+                ChipKind::Spartan3E => (tcls_s3::INT_IOI_S3E, tcls_s3::IOI_S3E),
                 ChipKind::Spartan3A | ChipKind::Spartan3ADsp => {
-                    int_kind = tcls_s3::INT_IOI_S3A_WE;
-                    ioi_kind = tcls_s3::IOI_S3A_WE;
+                    (tcls_s3::INT_IOI_S3A_WE, tcls_s3::IOI_S3A_WE)
                 }
-            }
+            };
             self.egrid.add_tile_single_id(cell, int_kind);
             self.egrid.add_tile_single_id(cell, ioi_kind);
             let (data, tidx) = get_iob_data_w(self.chip.kind, self.chip.rows[cell.row]);
@@ -865,26 +852,28 @@ impl Expander<'_, '_> {
     }
 
     fn fill_main_passes(&mut self) {
-        let pass_w;
-        let pass_e;
-        let pass_s;
-        let pass_n;
-        if self.chip.kind.is_virtex2() {
-            pass_w = ccls_v2::PASS_W;
-            pass_e = ccls_v2::PASS_E;
-            pass_s = ccls_v2::PASS_S;
-            pass_n = ccls_v2::PASS_N;
+        let (pass_w, pass_e, pass_s, pass_n) = if self.chip.kind.is_virtex2() {
+            (
+                ccls_v2::PASS_W,
+                ccls_v2::PASS_E,
+                ccls_v2::PASS_S,
+                ccls_v2::PASS_N,
+            )
         } else if self.chip.kind == ChipKind::FpgaCore {
-            pass_w = ccls_s3::PASS_W_FC;
-            pass_e = ccls_s3::PASS_E;
-            pass_s = ccls_s3::PASS_S_FC;
-            pass_n = ccls_s3::PASS_N;
+            (
+                ccls_s3::PASS_W_FC,
+                ccls_s3::PASS_E,
+                ccls_s3::PASS_S_FC,
+                ccls_s3::PASS_N,
+            )
         } else {
-            pass_w = ccls_s3::PASS_W;
-            pass_e = ccls_s3::PASS_E;
-            pass_s = ccls_s3::PASS_S;
-            pass_n = ccls_s3::PASS_N;
-        }
+            (
+                ccls_s3::PASS_W,
+                ccls_s3::PASS_E,
+                ccls_s3::PASS_S,
+                ccls_s3::PASS_N,
+            )
+        };
         let slot_w = cslots::W;
         let slot_e = cslots::E;
         let slot_s = cslots::S;

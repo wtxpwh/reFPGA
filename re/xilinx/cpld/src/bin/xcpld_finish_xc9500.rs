@@ -646,11 +646,11 @@ fn validate_jed_map_xc9500(device: &Device, fpart: &FuzzDbPart) {
     assert_eq!(fpart.map.main.len(), total_bits);
     for (mut fuse, &(r_addr, r_bit)) in fpart.map.main.iter().enumerate() {
         let r_addr = r_addr as usize;
-        let addr;
+
         let bit;
         let fb = fuse / fb_bits;
         fuse %= fb_bits;
-        if fuse < main_area_bits {
+        let addr = if fuse < main_area_bits {
             let row = fuse / main_row_bits;
             fuse %= main_row_bits;
             let column;
@@ -662,7 +662,7 @@ fn validate_jed_map_xc9500(device: &Device, fpart: &FuzzDbPart) {
                 column = 9 + fuse / 6;
                 bit = fuse % 6;
             }
-            addr = fb << 13 | row << 5 | (column / 5) << 3 | (column % 5);
+            fb << 13 | row << 5 | (column / 5) << 3 | (column % 5)
         } else {
             fuse -= main_area_bits;
             let subarea = fuse / uim_subarea_bits;
@@ -678,8 +678,8 @@ fn validate_jed_map_xc9500(device: &Device, fpart: &FuzzDbPart) {
                 column = 1 + fuse / 7;
                 bit = fuse % 7;
             }
-            addr = fb << 13 | 1 << 12 | subarea << 8 | row << 3 | column;
-        }
+            fb << 13 | 1 << 12 | subarea << 8 | row << 3 | column
+        };
         assert_eq!((addr, bit), (r_addr, r_bit));
     }
 }
@@ -690,23 +690,21 @@ fn validate_jed_map_xc9500xl(device: &Device, fpart: &FuzzDbPart) {
     assert_eq!(fpart.map.main.len(), total_bits);
     for (mut fuse, &(r_addr, r_bit)) in fpart.map.main.iter().enumerate() {
         let r_addr = r_addr as usize;
-        let bit;
+
         let row = fuse / row_bits;
-        let fb;
+
         fuse %= row_bits;
         let column;
-        if fuse < 8 * 9 * device.fbs {
+        let (fb, bit) = if fuse < 8 * 9 * device.fbs {
             column = fuse / (8 * device.fbs);
             fuse %= 8 * device.fbs;
-            fb = fuse / 8;
-            bit = fuse % 8;
+            (fuse / 8, fuse % 8)
         } else {
             fuse -= 8 * 9 * device.fbs;
             column = 9 + fuse / (6 * device.fbs);
             fuse %= 6 * device.fbs;
-            fb = fuse / 6;
-            bit = fuse % 6;
-        }
+            (fuse / 6, fuse % 6)
+        };
         let addr = row << 5 | (column / 5) << 3 | (column % 5);
         assert_eq!((addr, fb * 8 + bit), (r_addr, r_bit));
     }

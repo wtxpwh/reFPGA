@@ -448,15 +448,11 @@ impl Die {
                     let grheight = stream.get_u16();
                     let num_pins: usize = stream.get_u16().into();
                     let kind = stream.get_u8();
-                    let unk0;
-                    let unk1;
-                    if version_a < 46 {
-                        unk0 = 0;
-                        unk1 = 0;
+                    let (unk0, unk1) = if version_a < 46 {
+                        (0, 0)
                     } else {
-                        unk0 = stream.get_u16();
-                        unk1 = stream.get_u16();
-                    }
+                        (stream.get_u16(), stream.get_u16())
+                    };
                     assert_eq!(stream.get_u8(), 0);
                     let primdef = PrimDef {
                         name,
@@ -526,15 +522,11 @@ impl Die {
                     let id = PrimId::from_idx(stream.get_u16().into());
                     let col = get_string(&mut stream);
                     let row = get_string(&mut stream);
-                    let unk1;
-                    let unk2;
-                    if version_a < 46 {
-                        unk1 = 0;
-                        unk2 = 0;
+                    let (unk1, unk2) = if version_a < 46 {
+                        (0, 0)
                     } else {
-                        unk1 = stream.get_u16();
-                        unk2 = stream.get_u16();
-                    }
+                        (stream.get_u16(), stream.get_u16())
+                    };
                     assert_eq!(stream.get_u8(), 0);
                     let prim = PrimInst {
                         name_a,

@@ -432,18 +432,11 @@ fn gen_muxf7(test: &mut Test, ctx: &mut TestGenCtx, mode: Mode) {
     let mut inst = SrcInst::new(ctx, "MUXF7");
     let mut ti = TgtInst::new(&["SLICEM", "SLICEL"]);
 
-    let bel;
-    let a;
-    let b;
-    if ctx.rng.random() {
-        bel = "F7AMUX";
-        a = 'A';
-        b = 'B';
+    let (bel, a, b) = if ctx.rng.random() {
+        ("F7AMUX", 'A', 'B')
     } else {
-        bel = "F7BMUX";
-        a = 'C';
-        b = 'D';
-    }
+        ("F7BMUX", 'C', 'D')
+    };
 
     let i0 = test.make_wire(ctx);
     let i1 = test.make_wire(ctx);
