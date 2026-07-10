@@ -60,11 +60,14 @@ fn main() {
         }
     }
     for (dev, devparts) in parts.iter() {
+        let fdir = args.target_directory.join(&devparts[0].actual_family);
+        create_dir_all(&fdir).unwrap();
+        let path = fdir.join(dev.clone() + ".zstd");
+        let new = if path.exists() { "" } else { "[NEW] " };
         println!(
-            "device {} [{}]: {}",
-            dev,
-            devparts[0].actual_family,
-            devparts
+            "{new} device {dev} [{fam}]: {variants}",
+            fam = devparts[0].actual_family,
+            variants = devparts
                 .iter()
                 .fold(String::new(), |acc, dp| acc + &dp.name + ", ")
         );
