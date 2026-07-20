@@ -1,6 +1,5 @@
 use prjcombine_re_toolchain::Toolchain;
 use prjcombine_re_xilinx_xdl::Design;
-use simple_error::bail;
 use std::fs::{File, read_to_string};
 use std::io::Write;
 use std::process::Stdio;
@@ -28,7 +27,7 @@ pub fn run(tc: &Toolchain, part: &str, vlog: &str) -> Result<Design, Box<dyn std
     if !status.status.success() {
         let _ = std::io::stderr().write_all(&status.stdout);
         let _ = std::io::stderr().write_all(&status.stderr);
-        bail!("non-zero xst status");
+        panic!("non-zero xst status");
     }
 
     let mut cmd = tc.command("ngdbuild");
@@ -39,7 +38,7 @@ pub fn run(tc: &Toolchain, part: &str, vlog: &str) -> Result<Design, Box<dyn std
     if !status.status.success() {
         let _ = std::io::stderr().write_all(&status.stdout);
         let _ = std::io::stderr().write_all(&status.stderr);
-        bail!("non-zero ngdbuild status");
+        panic!("non-zero ngdbuild status");
     }
 
     let mut cmd = tc.command("map");
@@ -54,7 +53,7 @@ pub fn run(tc: &Toolchain, part: &str, vlog: &str) -> Result<Design, Box<dyn std
     if !status.status.success() {
         let _ = std::io::stderr().write_all(&status.stdout);
         let _ = std::io::stderr().write_all(&status.stderr);
-        bail!("non-zero map status");
+        panic!("non-zero map status");
     }
 
     let mut cmd = tc.command("xdl");
@@ -66,7 +65,7 @@ pub fn run(tc: &Toolchain, part: &str, vlog: &str) -> Result<Design, Box<dyn std
     cmd.arg("t.ncd");
     let status = cmd.status()?;
     if !status.success() {
-        bail!("non-zero xdl status");
+        panic!("non-zero xdl status");
     }
 
     let xdl = read_to_string(dir.path().join("t.xdl"))?;

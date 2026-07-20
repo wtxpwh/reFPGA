@@ -8,7 +8,6 @@ use std::{
 use prjcombine_jed::JedFile;
 use prjcombine_re_toolchain::Toolchain;
 use prjcombine_types::bitvec::BitVec;
-use simple_error::bail;
 
 #[allow(clippy::too_many_arguments)]
 pub fn run_impact(
@@ -61,7 +60,7 @@ pub fn run_impact(
     if !status.status.success() {
         let _ = std::io::stderr().write_all(&status.stdout);
         let _ = std::io::stderr().write_all(&status.stderr);
-        bail!("non-zero impact status");
+        panic!("non-zero impact status");
     }
 
     let res = read_to_string(dir.path().join("t.svf"))?;

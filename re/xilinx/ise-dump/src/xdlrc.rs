@@ -1,6 +1,5 @@
 use prjcombine_re_toolchain::{Toolchain, ToolchainReader};
 use prjcombine_re_xilinx_rawdump::TkSitePinDir;
-use simple_error::{SimpleError, bail};
 use std::error::Error;
 use std::fs::File;
 use std::io::{BufRead, BufReader, Lines, Write};
@@ -90,15 +89,26 @@ pub struct Options {
     pub dump_excluded: bool,
 }
 
+#[derive(Debug, Clone)]
+pub struct PipParseError;
+
+impl core::fmt::Display for PipParseError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "pip parse error")
+    }
+}
+
+impl Error for PipParseError {}
+
 impl FromStr for PipKind {
-    type Err = SimpleError;
-    fn from_str(s: &str) -> Result<Self, SimpleError> {
+    type Err = PipParseError;
+    fn from_str(s: &str) -> Result<Self, PipParseError> {
         match s {
             "->" => Ok(PipKind::Uni),
             "==" => Ok(PipKind::BiPass),
             "=>" => Ok(PipKind::BiUniBuf),
             "=-" => Ok(PipKind::BiBuf),
-            _ => bail!("invalid pip direction {}", s),
+            _ => Err(PipParseError),
         }
     }
 }
@@ -108,9 +118,7 @@ impl Parser {
         let mut lines = file.lines();
         // Comments.
         let l = loop {
-            let l = lines
-                .next()
-                .ok_or_else(|| SimpleError::new("eof before xdl_resource_report"))??;
+            let l = lines.next().expect("eof before xdl_resource_report")?;
             if !l.starts_with('#') {
                 break l;
             }
@@ -118,18 +126,16 @@ impl Parser {
         // xdl_resource_report.
         let l: Vec<_> = l
             .strip_prefix("(xdl_resource_report ")
-            .ok_or_else(|| SimpleError::new("expected xdl_resource_report"))?
+            .expect("expected xdl_resource_report")
             .split(' ')
             .collect();
         let (version, part, family) = match l[..] {
             [v, p, f] => (v.to_string(), p.to_string(), f.to_string()),
-            _ => bail!("xdl_resource_report wrong arg count"),
+            _ => panic!("xdl_resource_report wrong arg count"),
         };
         // More comments.
         let l = loop {
-            let l = lines
-                .next()
-                .ok_or_else(|| SimpleError::new("eof before xdl_resource_report"))??;
+            let l = lines.next().expect("eof before xdl_resource_report")?;
             if !l.starts_with('#') {
                 break l;
             }
@@ -137,12 +143,12 @@ impl Parser {
         // tiles.
         let l: Vec<_> = l
             .strip_prefix("(tiles ")
-            .ok_or_else(|| SimpleError::new("expected tiles"))?
+            .expect("expected tiles")
             .split(' ')
             .collect();
         let (width, height) = match l[..] {
             [h, w] => (w.parse::<u32>()?, h.parse::<u32>()?),
-            _ => bail!("tiles wrong arg count"),
+            _ => panic!("tiles wrong arg count"),
         };
         // Make the actual parser.
         Ok(Parser {
@@ -191,7 +197,7 @@ impl Parser {
             if !status.status.success() {
                 let _ = std::io::stderr().write_all(&status.stdout);
                 let _ = std::io::stderr().write_all(&status.stderr);
-                bail!("non-zero xdl exit status");
+                panic!("non-zero xdl exit status");
             }
             Parser::new(Box::new(BufReader::new(File::open(
                 dir.path().join("out.xdlrc"),
@@ -213,10 +219,7 @@ impl Parser {
         if self.tiles_done {
             return Ok(None);
         }
-        let l = self
-            .lines
-            .next()
-            .ok_or_else(|| SimpleError::new("eof in tiles"))??;
+        let l = self.lines.next().expect("eof in tiles")?;
         if let Some(l) = l.strip_prefix("\t(tile ") {
             // Parse tile.
             let l: Vec<_> = l.split(' ').collect();
@@ -227,7 +230,7 @@ impl Parser {
                     name.to_string(),
                     kind.to_string(),
                 ),
-                _ => bail!("tile wrong arg count"),
+                _ => panic!("tile wrong arg count"),
             };
 
             let mut prims: Vec<Prim> = Vec::new();
@@ -235,10 +238,7 @@ impl Parser {
             let mut pips: Vec<Pip> = Vec::new();
             // Parse things.
             loop {
-                let l = self
-                    .lines
-                    .next()
-                    .ok_or_else(|| SimpleError::new("eof in tile"))??;
+                let l = self.lines.next().expect("eof in tile")?;
                 if l == "\t)" {
                     break;
                 } else if let Some(l) = l.strip_prefix("\t\t(primitive_site ") {
@@ -249,16 +249,11 @@ impl Parser {
                     let mut pinwires: Vec<PinWire> = Vec::new();
                     if has_body {
                         loop {
-                            let l = self
-                                .lines
-                                .next()
-                                .ok_or_else(|| SimpleError::new("eof in primitive_site"))??;
+                            let l = self.lines.next().expect("eof in primitive_site")?;
                             if l == "\t\t)" {
                                 break;
                             } else if let Some(l) = l.strip_prefix("\t\t\t(pinwire ") {
-                                let l = l
-                                    .strip_suffix(')')
-                                    .ok_or_else(|| SimpleError::new("missing ) on pinwire"))?;
+                                let l = l.strip_suffix(')').expect("missing ) on pinwire");
                                 let l: Vec<_> = l.split(' ').collect();
                                 match l[..] {
                                     [n, k, w] => pinwires.push(PinWire {
@@ -267,16 +262,16 @@ impl Parser {
                                             "input" => TkSitePinDir::Input,
                                             "output" => TkSitePinDir::Output,
                                             "bidir" => TkSitePinDir::Bidir,
-                                            _ => bail!("unknown pinwire kind {}", k),
+                                            _ => panic!("unknown pinwire kind {}", k),
                                         },
                                         wire: w.to_string(),
                                     }),
                                     _ => {
-                                        bail!("pinwire wrong arg count");
+                                        panic!("pinwire wrong arg count");
                                     }
                                 }
                             } else {
-                                bail!("expected primitive_site item: {}", l);
+                                panic!("expected primitive_site item: {}", l);
                             }
                         }
                     }
@@ -289,7 +284,7 @@ impl Parser {
                                 "bonded" => PrimBonded::Bonded,
                                 "unbonded" => PrimBonded::Unbonded,
                                 "internal" => PrimBonded::Internal,
-                                _ => bail!("unknown bonding: {}", bonded),
+                                _ => panic!("unknown bonding: {}", bonded),
                             },
                         ),
                         [name, kind, bonded, _, _] => (
@@ -299,10 +294,10 @@ impl Parser {
                                 "bonded" => PrimBonded::Bonded,
                                 "unbonded" => PrimBonded::Unbonded,
                                 "internal" => PrimBonded::Internal,
-                                _ => bail!("unknown bonding: {}", bonded),
+                                _ => panic!("unknown bonding: {}", bonded),
                             },
                         ),
-                        _ => bail!("primitive_site wrong arg count"),
+                        _ => panic!("primitive_site wrong arg count"),
                     };
                     prims.push(Prim {
                         name,
@@ -318,25 +313,20 @@ impl Parser {
                     let mut conns: Vec<(String, String)> = Vec::new();
                     if has_body {
                         loop {
-                            let l = self
-                                .lines
-                                .next()
-                                .ok_or_else(|| SimpleError::new("eof in wire"))??;
+                            let l = self.lines.next().expect("eof in wire")?;
                             if l == "\t\t)" {
                                 break;
                             } else if let Some(l) = l.strip_prefix("\t\t\t(conn ") {
-                                let l = l
-                                    .strip_suffix(')')
-                                    .ok_or_else(|| SimpleError::new("missing ) on conn"))?;
+                                let l = l.strip_suffix(')').expect("missing ) on conn");
                                 let l: Vec<_> = l.split(' ').collect();
                                 match l[..] {
                                     [tile, wire] => {
                                         conns.push((tile.to_string(), wire.to_string()))
                                     }
-                                    _ => bail!("conn wrong arg count"),
+                                    _ => panic!("conn wrong arg count"),
                                 }
                             } else {
-                                bail!("expected wire item: {}", l);
+                                panic!("expected wire item: {}", l);
                             }
                         }
                     }
@@ -344,13 +334,11 @@ impl Parser {
                     let (name, speed) = match l[..] {
                         [name, _] => (name.to_string(), None),
                         [name, _, speed] => (name.to_string(), Some(speed.to_string())),
-                        _ => bail!("wire wrong arg count"),
+                        _ => panic!("wire wrong arg count"),
                     };
                     wires.push(Wire { name, speed, conns });
                 } else if let Some(l) = l.strip_prefix("\t\t(pip ") {
-                    let l = l
-                        .strip_suffix(')')
-                        .ok_or_else(|| SimpleError::new("missing ) on pip"))?;
+                    let l = l.strip_suffix(')').expect("missing ) on pip");
                     let (l, rt) = match l.strip_suffix(')') {
                         Some(l) => {
                             let sl: Vec<_> = if l.contains("_ROUTETHROUGH") {
@@ -359,15 +347,15 @@ impl Parser {
                                 l.split(" (ROUTETHROUGH-").collect()
                             };
                             if sl.len() != 2 {
-                                bail!("not routethru pip: {:?}", l);
+                                panic!("not routethru pip: {:?}", l);
                             }
                             let sl1: Vec<_> = sl[1].split(' ').collect();
                             if sl1.len() != 2 {
-                                bail!("not routethru pip: {:?}", l);
+                                panic!("not routethru pip: {:?}", l);
                             }
                             let sl10: Vec<_> = sl1[0].split('-').collect();
                             if sl10.len() != 2 {
-                                bail!("not routethru pip: {:?}", l);
+                                panic!("not routethru pip: {:?}", l);
                             }
                             (
                                 sl[0],
@@ -396,12 +384,12 @@ impl Parser {
                             speed: None,
                             route_through: rt,
                         }),
-                        _ => bail!("pip wrong arg count: {:?}", l),
+                        _ => panic!("pip wrong arg count: {:?}", l),
                     }
                 } else if l.starts_with("\t\t(tile_summary") && l.ends_with(')') {
                     // eh.
                 } else {
-                    bail!("expected tile item: {}", l);
+                    panic!("expected tile item: {}", l);
                 }
             }
 
@@ -420,7 +408,7 @@ impl Parser {
             self.tiles_done = true;
             Ok(None)
         } else {
-            bail!("expected tile: {}", l)
+            panic!("expected tile: {}", l)
         }
     }
 

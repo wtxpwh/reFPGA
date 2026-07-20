@@ -4,7 +4,6 @@ use prjcombine_re_xilinx_ise_dump::partgen::{PartgenPkg, get_pkgs};
 use prjcombine_re_xilinx_ise_dump::rawdump::get_rawdump;
 use rayon::ThreadPoolBuilder;
 use rayon::prelude::*;
-use simple_error::{SimpleError, bail};
 use std::collections::HashMap;
 use std::error::Error;
 use std::fs::create_dir_all;
@@ -96,7 +95,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                 // "azynq",
                 // "qzynq",
             ],
-            _ => bail!("unknown family {}", family),
+            _ => panic!("unknown family {}", family),
         });
     }
     create_dir_all(&args.target_directory)?;
@@ -106,10 +105,10 @@ fn main() -> Result<(), Box<dyn Error>> {
     }
     let pkg_list: Vec<_> = ise_families
         .into_par_iter()
-        .map(|ise_fam| get_pkgs(&tc, ise_fam).map_err(|x| SimpleError::new(x.to_string())))
+        .map(|ise_fam| get_pkgs(&tc, ise_fam).unwrap())
         .collect();
     for pkgs in pkg_list {
-        for pkg in pkgs? {
+        for pkg in pkgs {
             match parts.get_mut(&pkg.device) {
                 None => {
                     parts.insert(pkg.device.to_string(), vec![pkg]);
@@ -129,14 +128,8 @@ fn main() -> Result<(), Box<dyn Error>> {
                 .fold(String::new(), |acc, pkg| acc + &pkg.package + ", ")
         );
     }
-    for res in parts
+    parts
         .into_par_iter()
-        .map(|(part, pkgs)| {
-            dump_part(&args, &tc, part, pkgs).map_err(|x| SimpleError::new(x.to_string()))
-        })
-        .collect::<Vec<_>>()
-    {
-        res?;
-    }
+        .for_each(|(part, pkgs)| dump_part(&args, &tc, part, pkgs).unwrap());
     Ok(())
 }

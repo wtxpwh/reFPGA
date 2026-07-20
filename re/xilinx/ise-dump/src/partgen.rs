@@ -1,6 +1,5 @@
 use prjcombine_re_toolchain::Toolchain;
 use prjcombine_re_xilinx_rawdump::PkgPin;
-use simple_error::bail;
 use std::collections::HashMap;
 use std::error::Error;
 use std::fs::File;
@@ -223,7 +222,7 @@ pub fn get_pkgs(tc: &Toolchain, query: &str) -> Result<Vec<PartgenPkg>, Box<dyn 
     if !status.status.success() {
         let _ = std::io::stderr().write_all(&status.stdout);
         let _ = std::io::stderr().write_all(&status.stderr);
-        bail!("non-zero partgen exit status");
+        panic!("non-zero partgen exit status");
     }
     let file = File::open(dir.path().join("partlist.xct"))?;
     let bufread = BufReader::new(file);
@@ -243,23 +242,23 @@ pub fn get_pkgs(tc: &Toolchain, query: &str) -> Result<Vec<PartgenPkg>, Box<dyn 
         }
         let words = sl.split_whitespace().collect::<Vec<_>>();
         if words.len() < 4 {
-            bail!("first line too short: {}", l);
+            panic!("first line too short: {}", l);
         }
         if !words[0].starts_with("part") {
-            bail!("does not start with part: {}", l);
+            panic!("does not start with part: {}", l);
         }
         let mut part = words[1].to_lowercase();
         if !part.starts_with('x') {
             part = format!("xc{part}");
         }
         let (device, package, family) = match split_partname(&part) {
-            None => bail!("cannot parse part name: {}", part),
+            None => panic!("cannot parse part name: {}", part),
             Some((d, p, f)) => (d.to_string(), p.to_string(), f.to_string()),
         };
         let mut speedgrades: Vec<String> = Vec::new();
         while cont {
             let l = match lines.next() {
-                None => bail!("part definition cut off"),
+                None => panic!("part definition cut off"),
                 Some(l) => l?,
             };
             let mut sl: &str = &l;
@@ -271,7 +270,7 @@ pub fn get_pkgs(tc: &Toolchain, query: &str) -> Result<Vec<PartgenPkg>, Box<dyn 
             if let Some(x) = sl.strip_prefix("\tSPEEDGRADE=") {
                 let x: Vec<_> = x.split_whitespace().collect();
                 if x.is_empty() {
-                    bail!("empty speedgrade".to_string());
+                    panic!("empty speedgrade");
                 }
                 speedgrades.push(x[0].to_string());
             }
@@ -305,14 +304,14 @@ pub fn get_pkgs(tc: &Toolchain, query: &str) -> Result<Vec<PartgenPkg>, Box<dyn 
         if !status.status.success() {
             let _ = std::io::stderr().write_all(&status.stdout);
             let _ = std::io::stderr().write_all(&status.stderr);
-            bail!("non-zero partgen exit status");
+            panic!("non-zero partgen exit status");
         }
         let mut parts = HashMap::new();
         for l in std::str::from_utf8(&status.stdout)?.lines() {
             if l.contains("SPEEDS:") {
                 let l: Vec<_> = l.split_ascii_whitespace().collect();
                 if l[1] != "SPEEDS:" {
-                    bail!("weird speed list");
+                    panic!("weird speed list");
                 }
                 parts.insert(l[0], l[2..].to_vec());
             }

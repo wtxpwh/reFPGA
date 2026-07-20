@@ -11,7 +11,6 @@ path = "src/main.rs"
 itertools.workspace = true
 clap.workspace = true
 tempfile.workspace = true
-simple-error.workspace = true
 rand.workspace = true
 prjcombine-entity.workspace = true
 prjcombine-types.workspace = true

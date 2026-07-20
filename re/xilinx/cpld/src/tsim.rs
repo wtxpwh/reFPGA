@@ -7,7 +7,6 @@ use std::{
 
 use crate::vm6::Vm6;
 use prjcombine_re_toolchain::Toolchain;
-use simple_error::bail;
 
 pub fn run_tsim(tc: &Toolchain, vm6: &Vm6) -> Result<(String, String), Box<dyn Error>> {
     let dir = tempfile::Builder::new()
@@ -35,7 +34,7 @@ pub fn run_tsim(tc: &Toolchain, vm6: &Vm6) -> Result<(String, String), Box<dyn E
         );
         let _ = std::fs::write(fname, vs);
         std::mem::forget(dir);
-        bail!("non-zero tsim status");
+        panic!("non-zero tsim status");
     }
 
     let mut cmd = tc.command("netgen");
@@ -58,7 +57,7 @@ pub fn run_tsim(tc: &Toolchain, vm6: &Vm6) -> Result<(String, String), Box<dyn E
         );
         let _ = std::fs::write(fname, vs);
         std::mem::forget(dir);
-        bail!("non-zero tsim status");
+        panic!("non-zero tsim status");
     }
 
     let v = read_to_string(dir.path().join("t.v"))?;

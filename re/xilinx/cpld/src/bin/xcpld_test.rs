@@ -2,7 +2,6 @@ use std::{error::Error, fs::read_to_string, path::PathBuf};
 
 use clap::Parser;
 use prjcombine_re_toolchain::Toolchain;
-use simple_error::bail;
 
 use prjcombine_re_xilinx_cpld::device::DeviceKind;
 use prjcombine_re_xilinx_cpld::{
@@ -43,7 +42,7 @@ pub fn main() -> Result<(), Box<dyn Error>> {
     } else if args.part.starts_with("xc2c") || args.part.starts_with("xa2c") {
         DeviceKind::Coolrunner2
     } else {
-        bail!("unknown family for part {p}", p = args.part)
+        panic!("unknown family for part {p}", p = args.part)
     };
     let pkgs = get_parts(&tc, kind)?;
     let fitopts = FitOpts {
@@ -69,5 +68,5 @@ pub fn main() -> Result<(), Box<dyn Error>> {
             return Ok(());
         }
     }
-    bail!("no part found");
+    panic!("no part found");
 }

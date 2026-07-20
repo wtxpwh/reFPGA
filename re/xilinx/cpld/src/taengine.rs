@@ -5,10 +5,8 @@ use std::{
     process::Stdio,
 };
 
-use prjcombine_re_toolchain::Toolchain;
-use simple_error::bail;
-
 use crate::vm6::Vm6;
+use prjcombine_re_toolchain::Toolchain;
 
 pub fn run_taengine(tc: &Toolchain, vm6: &Vm6) -> Result<String, Box<dyn Error>> {
     let dir = tempfile::Builder::new()
@@ -38,7 +36,7 @@ pub fn run_taengine(tc: &Toolchain, vm6: &Vm6) -> Result<String, Box<dyn Error>>
         );
         let _ = std::fs::write(fname, vs);
         std::mem::forget(dir);
-        bail!("non-zero taengine status");
+        panic!("non-zero taengine status");
     }
 
     let res = read_to_string(dir.path().join("t.tim"))?;

@@ -6,7 +6,6 @@ use std::{
 
 use clap::ValueEnum;
 use prjcombine_re_toolchain::Toolchain;
-use simple_error::bail;
 
 use crate::vm6::Vm6;
 
@@ -64,7 +63,7 @@ pub fn v2vm6(
     if !status.status.success() {
         let _ = std::io::stderr().write_all(&status.stdout);
         let _ = std::io::stderr().write_all(&status.stderr);
-        bail!("non-zero xst status");
+        panic!("non-zero xst status");
     }
 
     let mut cmd = tc.command("ngdbuild");
@@ -75,7 +74,7 @@ pub fn v2vm6(
     if !status.status.success() {
         let _ = std::io::stderr().write_all(&status.stdout);
         let _ = std::io::stderr().write_all(&status.stderr);
-        bail!("non-zero ngdbuild status");
+        panic!("non-zero ngdbuild status");
     }
 
     let mut cmd = tc.command("cpldfit");
@@ -125,7 +124,7 @@ pub fn v2vm6(
             let _ = std::io::stderr().write_all(&status.stdout);
             let _ = std::io::stderr().write_all(&status.stderr);
         }
-        bail!("non-zero map status");
+        panic!("non-zero map status");
     }
 
     let vm6 = read_to_string(dir.path().join("t.vm6"))?;

@@ -3,7 +3,6 @@ use indicatif::{MultiProgress, ProgressBar, ProgressStyle};
 use prjcombine_interconnect::db::IntDb;
 use prjcombine_re_xilinx_geom::{Device, DeviceBond, GeomDb};
 use prjcombine_re_xilinx_rawdump::Part;
-use simple_error::bail;
 use std::error::Error;
 use std::path::PathBuf;
 use std::sync::Mutex;
@@ -55,7 +54,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             no_verify,
         } => {
             if files.is_empty() {
-                bail!("no files given");
+                panic!("no files given");
             }
             let builder = Mutex::new(db::DbBuilder::new());
             let rb = &builder;

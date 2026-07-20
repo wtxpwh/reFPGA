@@ -8,7 +8,6 @@ prjcombine-entity.workspace = true
 rayon.workspace = true
 tempfile.workspace = true
 clap.workspace = true
-simple-error.workspace = true
 ndarray.workspace = true
 regex.workspace = true
 prjcombine-re-toolchain.workspace = true

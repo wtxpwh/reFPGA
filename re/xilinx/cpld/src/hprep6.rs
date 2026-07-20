@@ -5,7 +5,6 @@ use std::{
 
 use prjcombine_jed::{JedFile, JedParserOptions};
 use prjcombine_re_toolchain::Toolchain;
-use simple_error::bail;
 
 use crate::vm6::Vm6;
 
@@ -43,7 +42,7 @@ pub fn run_hprep6(tc: &Toolchain, vm6: &Vm6, sig: Option<u32>) -> Result<JedFile
         );
         let _ = std::fs::write(fname, vs);
         std::mem::forget(dir);
-        bail!("non-zero hprep6 status");
+        panic!("non-zero hprep6 status");
     }
 
     let jed = JedFile::parse_from_file(

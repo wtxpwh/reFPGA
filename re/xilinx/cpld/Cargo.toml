@@ -17,7 +17,6 @@ prjcombine-re-xilinx-ise-dump.workspace = true
 prjcombine-re-xilinx-rawdump.workspace = true
 clap.workspace = true
 tempfile.workspace = true
-simple-error.workspace = true
 itertools.workspace = true
 rand.workspace = true
 rayon.workspace = true

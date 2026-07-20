@@ -4,7 +4,6 @@ use crate::device::DeviceKind;
 use prjcombine_re_toolchain::Toolchain;
 use prjcombine_re_xilinx_ise_dump::partgen::{PartgenPkg, get_pkgs};
 use prjcombine_re_xilinx_rawdump::PkgPin;
-use simple_error::bail;
 
 pub fn get_parts(tc: &Toolchain, kind: DeviceKind) -> Result<Vec<PartgenPkg>, Box<dyn Error>> {
     let mut pkgs = vec![];
@@ -25,7 +24,7 @@ pub fn get_parts(tc: &Toolchain, kind: DeviceKind) -> Result<Vec<PartgenPkg>, Bo
     for pkg in &mut pkgs {
         if pkg.pins.is_empty() {
             if !pkg.device.starts_with("xa") {
-                bail!("weird case of missing pins {}", pkg.device);
+                panic!("weird case of missing pins {}", pkg.device);
             }
             let dev = format!("xc{}", &pkg.device[2..]);
             pkg.pins = index[&(dev, pkg.package.clone())].clone();

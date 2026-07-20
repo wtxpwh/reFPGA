@@ -1,5 +1,4 @@
 use prjcombine_re_toolchain::{Toolchain, ToolchainReader};
-use simple_error::bail;
 use std::error::Error;
 use std::io::BufRead;
 
@@ -90,7 +89,7 @@ pub fn get_parts(tc: &Toolchain) -> Result<Vec<VivadoPart>, Box<dyn Error>> {
         });
     }
     if !got_end {
-        bail!("missing END");
+        panic!("missing END");
     }
     Ok(res)
 }
