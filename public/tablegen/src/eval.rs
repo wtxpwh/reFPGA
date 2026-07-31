@@ -19,7 +19,9 @@ use prjcombine_types::bsdata::{PolTileBit, RectBitId, RectFrameId, TileBit};
 use proc_macro::{Delimiter, Ident, Span, TokenStream, TokenTree};
 
 use crate::ast::{ArrayIdRef, TemplateId};
-use crate::db::{AnnotatedDbSet, BundleIdentData, BundleIdentRegistry, IdentRegistry, VariantId};
+use crate::db::{
+    AnnotatedDbSet, BundleIdentData, BundleIdentRegistry, Const, IdentRegistry, VariantId,
+};
 use crate::{
     ast,
     db::AnnotatedDb,
@@ -289,12 +291,17 @@ impl Context {
     }
 
     fn eval_expr(&self, vid: VariantId, expr: &ast::Expr) -> Result<usize> {
-        let _ = vid;
         match expr {
-            ast::Expr::Ident(ident) => match self.for_vars.get(&ident.to_string()) {
-                Some(&n) => Ok(n),
-                None => error_at(ident.span(), "undefined variable")?,
-            },
+            ast::Expr::Ident(ident) => {
+                let name = ident.to_string();
+                if let Some(&n) = self.for_vars.get(&name) {
+                    Ok(n)
+                } else if let Some((_, c)) = self.dbs.variants[vid].consts.get(&name) {
+                    Ok(c.value)
+                } else {
+                    error_at(ident.span(), "undefined variable")?
+                }
+            }
             ast::Expr::Literal(n) => Ok(*n),
             ast::Expr::Add(a, b) => Ok(self.eval_expr(vid, a)? + self.eval_expr(vid, b)?),
             ast::Expr::Sub(a, b) => Ok(self.eval_expr(vid, a)? - self.eval_expr(vid, b)?),
@@ -1791,6 +1798,25 @@ impl Context {
             ast::TopItem::Variant(ident) => {
                 error_at(ident.span(), "variants must be at the top level")?;
             }
+            ast::TopItem::Const(c) => {
+                for vid in self.active_variants() {
+                    let value = self.eval_expr(vid, &c.value)?;
+                    if self.dbs.variants[vid]
+                        .consts
+                        .insert(
+                            c.name.to_string(),
+                            Const {
+                                ident: c.name.clone(),
+                                value,
+                            },
+                        )
+                        .1
+                        .is_some()
+                    {
+                        error_at(c.name.span(), "const redefined")?;
+                    };
+                }
+            }
             ast::TopItem::BitRectClass(brc) => {
                 for vid in self.active_variants() {
                     if self.dbs.variants[vid]
@@ -1966,6 +1992,7 @@ impl Context {
             ast::TopItem::Variant(ident) => {
                 error_at(ident.span(), "variants must be at the top level")?;
             }
+            ast::TopItem::Const(_) => (),
             ast::TopItem::BitRectClass(_) => (),
             ast::TopItem::EnumClass(_) => (),
             ast::TopItem::BelClass(bcls) => {
@@ -2068,6 +2095,7 @@ pub fn eval(items: Vec<ast::TopItem>) -> Result<AnnotatedDbSet> {
                     bitrect_geoms: Default::default(),
                     skip_tcls: Default::default(),
                     skip_ccls: Default::default(),
+                    consts: Default::default(),
                 })
                 .collect(),
             enum_id: Default::default(),

@@ -148,7 +148,7 @@ impl ChipContext<'_> {
                     }
                     let mut bel = LegacyBel::default();
 
-                    let pclk = wires::PCLK[pclk_i];
+                    let pclk = wires::RPCLK[pclk_i];
                     if row_s != cell.row {
                         bel.pins
                             .insert("OUT_S".into(), BelPin::new_out(pclk.cell(1)));

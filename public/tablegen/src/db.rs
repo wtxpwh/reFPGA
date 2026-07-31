@@ -39,9 +39,18 @@ pub struct AnnotatedDb {
     pub bitrect_geoms: HashMap<String, BitRectGeometry>,
     pub skip_tcls: HashSet<TileClassId>,
     pub skip_ccls: HashSet<ConnectorClassId>,
+    pub consts: EntityMap<ConstId, String, Const>,
 }
 
 entity_id_u32!(pub VariantId, AnnotatedDb, "VAR");
+
+pub struct Const {
+    #[allow(unused)]
+    pub ident: Ident,
+    pub value: usize,
+}
+
+entity_id_u32!(pub ConstId, Const, "CONST");
 
 pub struct IdentRegistry<I: EntityId> {
     pub ids: EntityMap<I, String, Vec<Ident>>,

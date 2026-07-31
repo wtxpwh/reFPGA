@@ -43,7 +43,7 @@ fn parse_num_literal(literal: Literal) -> Result<usize> {
     Ok(val)
 }
 
-fn parse_expr(span: Span, tokens: TokenStream) -> Result<ast::Expr> {
+fn parse_expr(span: Span, tokens: impl IntoIterator<Item = TokenTree>) -> Result<ast::Expr> {
     #[derive(Copy, Clone, Eq, PartialEq)]
     enum SumOp {
         Add,
@@ -470,6 +470,13 @@ impl Tokenizer {
 
 // region: top items
 
+fn parse_const(mut tokenizer: Tokenizer) -> Result<ast::Const> {
+    let name = tokenizer.ident()?;
+    tokenizer.punct('=')?;
+    let value = parse_expr(tokenizer.span, tokenizer.tokens)?;
+    Ok(ast::Const { name, value })
+}
+
 fn parse_bitrect_class(mut tokenizer: Tokenizer) -> Result<ast::BitRectClass> {
     let name = tokenizer.ident()?;
     tokenizer.punct('=')?;
@@ -543,6 +550,12 @@ impl Item for ast::TopItem {
                 let id = tokenizer.ident()?;
                 tokenizer.finish()?;
                 ast::TopItem::Variant(id)
+            }
+            "const" => {
+                if block.is_some() {
+                    error_at(keyword.span(), "const does not accept a block")?;
+                }
+                ast::TopItem::Const(parse_const(tokenizer)?)
             }
             "bitrect" => {
                 if block.is_some() {

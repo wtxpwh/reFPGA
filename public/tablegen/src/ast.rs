@@ -5,6 +5,7 @@ use proc_macro::{Ident, Literal, Span};
 #[derive(Debug)]
 pub enum TopItem {
     Variant(Ident),
+    Const(Const),
     BitRectClass(BitRectClass),
     EnumClass(EnumClass),
     BelClass(BelClass),
@@ -44,6 +45,12 @@ pub enum IfCond {
     TileClass(Vec<TemplateId>),
     ConnectorClass(Vec<TemplateId>),
     BelSlot(Vec<ArrayIdRef>),
+}
+
+#[derive(Debug)]
+pub struct Const {
+    pub name: Ident,
+    pub value: Expr,
 }
 
 #[derive(Debug)]

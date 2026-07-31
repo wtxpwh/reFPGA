@@ -15202,49 +15202,16 @@ device LFSCM3GA115EP1 {
 
 intdb {
 	region_slot PCLK;
-	region_slot RPCLK[0];
-	region_slot RPCLK[1];
-	region_slot RPCLK[2];
-	region_slot RPCLK[3];
-	region_slot RSCLK[0];
-	region_slot RSCLK[1];
-	region_slot RSCLK[2];
-	region_slot RSCLK[3];
-	region_slot RSCLK_V;
 	wire TIE0: tie 0;
 	wire TIE1: tie 1;
 	wire X0_W[0]: mux;
 	wire X0_W[1]: mux;
-	wire X0_W[2]: mux;
-	wire X0_W[3]: mux;
 	wire X0_E[0]: mux;
 	wire X0_E[1]: mux;
-	wire X0_E[2]: mux;
-	wire X0_E[3]: mux;
 	wire X0_S[0]: mux;
 	wire X0_S[1]: mux;
-	wire X0_S[2]: mux;
-	wire X0_S[3]: mux;
 	wire X0_N[0]: mux;
 	wire X0_N[1]: mux;
-	wire X0_N[2]: mux;
-	wire X0_N[3]: mux;
-	wire X1_H[0]: mux;
-	wire X1_H[1]: mux;
-	wire X1_H[2]: mux;
-	wire X1_H[3]: mux;
-	wire X1_H[4]: mux;
-	wire X1_H[5]: mux;
-	wire X1_H[6]: mux;
-	wire X1_H[7]: mux;
-	wire X1_V[0]: mux;
-	wire X1_V[1]: mux;
-	wire X1_V[2]: mux;
-	wire X1_V[3]: mux;
-	wire X1_V[4]: mux;
-	wire X1_V[5]: mux;
-	wire X1_V[6]: mux;
-	wire X1_V[7]: mux;
 	wire X1_W0[0]: mux;
 	wire X1_W0[1]: mux;
 	wire X1_W0[2]: mux;
@@ -15641,54 +15608,6 @@ intdb {
 	wire PCLK[9]: regional PCLK;
 	wire PCLK[10]: regional PCLK;
 	wire PCLK[11]: regional PCLK;
-	wire PCLK[12]: regional PCLK;
-	wire PCLK[13]: regional PCLK;
-	wire PCLK[14]: regional PCLK;
-	wire PCLK[15]: regional PCLK;
-	wire PCLK[16]: regional PCLK;
-	wire PCLK[17]: regional PCLK;
-	wire PCLK[18]: regional PCLK;
-	wire PCLK[19]: regional PCLK;
-	wire RPCLK[0]: regional RPCLK[0];
-	wire RPCLK[1]: regional RPCLK[1];
-	wire RPCLK[2]: regional RPCLK[2];
-	wire RPCLK[3]: regional RPCLK[3];
-	wire RPCLK[4]: regional RPCLK[0];
-	wire RPCLK[5]: regional RPCLK[1];
-	wire RPCLK[6]: regional RPCLK[2];
-	wire RPCLK[7]: regional RPCLK[3];
-	wire RSCLK[0]: regional RSCLK[0];
-	wire RSCLK[1]: regional RSCLK[1];
-	wire RSCLK[2]: regional RSCLK[2];
-	wire RSCLK[3]: regional RSCLK[3];
-	wire RSCLK[4]: regional RSCLK[0];
-	wire RSCLK[5]: regional RSCLK[1];
-	wire RSCLK[6]: regional RSCLK[2];
-	wire RSCLK[7]: regional RSCLK[3];
-	wire RSCLK_H[0]: branch RSCLK_W;
-	wire RSCLK_H[1]: branch RSCLK_W;
-	wire RSCLK_H[2]: branch RSCLK_W;
-	wire RSCLK_H[3]: branch RSCLK_W;
-	wire RSCLK_H[4]: branch RSCLK_W;
-	wire RSCLK_H[5]: branch RSCLK_W;
-	wire RSCLK_H[6]: branch RSCLK_W;
-	wire RSCLK_H[7]: branch RSCLK_W;
-	wire RSCLK_V[0]: regional RSCLK_V;
-	wire RSCLK_V[1]: regional RSCLK_V;
-	wire RSCLK_V[2]: regional RSCLK_V;
-	wire RSCLK_V[3]: regional RSCLK_V;
-	wire RSCLK_V[4]: regional RSCLK_V;
-	wire RSCLK_V[5]: regional RSCLK_V;
-	wire RSCLK_V[6]: regional RSCLK_V;
-	wire RSCLK_V[7]: regional RSCLK_V;
-	wire RSCLK_V_N[0]: branch S;
-	wire RSCLK_V_N[1]: branch S;
-	wire RSCLK_V_N[2]: branch S;
-	wire RSCLK_V_N[3]: branch S;
-	wire RSCLK_V_N[4]: branch S;
-	wire RSCLK_V_N[5]: branch S;
-	wire RSCLK_V_N[6]: branch S;
-	wire RSCLK_V_N[7]: branch S;
 	wire DSCLK[0]: mux;
 	wire DSCLK[1]: mux;
 	wire DSCLK_W[0]: branch E;
@@ -15761,16 +15680,6 @@ intdb {
 	wire IMUX_CE[1]: mux;
 	wire IMUX_CE[2]: mux;
 	wire IMUX_CE[3]: mux;
-	wire IMUX_CLK_DELAY[0]: mux;
-	wire IMUX_CLK_DELAY[1]: mux;
-	wire IMUX_MUXCLK[0]: mux;
-	wire IMUX_MUXCLK[1]: mux;
-	wire IMUX_MUXCLK[2]: mux;
-	wire IMUX_MUXCLK[3]: mux;
-	wire IMUX_MUXLSR[0]: mux;
-	wire IMUX_MUXLSR[1]: mux;
-	wire IMUX_MUXLSR[2]: mux;
-	wire IMUX_MUXLSR[3]: mux;
 	wire OUT_F[0]: bel;
 	wire OUT_F[1]: bel;
 	wire OUT_F[2]: bel;
@@ -15819,18 +15728,6 @@ intdb {
 	wire OUT_OFX_W[5]: branch E;
 	wire OUT_OFX_W[6]: branch E;
 	wire OUT_OFX_W[7]: branch E;
-	wire OUT_TI[0]: bel;
-	wire OUT_TI[1]: bel;
-	wire OUT_TI[2]: bel;
-	wire OUT_TI[3]: bel;
-	wire OUT_TI[4]: bel;
-	wire OUT_TI[5]: bel;
-	wire OUT_TI[6]: bel;
-	wire OUT_TI[7]: bel;
-	wire OUT_TI[8]: bel;
-	wire OUT_TI[9]: bel;
-	wire OUT_TI[10]: bel;
-	wire OUT_TI[11]: bel;
 	wire IMUX_EBR_DIA[0]: mux;
 	wire IMUX_EBR_DIA[1]: mux;
 	wire IMUX_EBR_DIA[2]: mux;
@@ -37389,14 +37286,6 @@ intdb {
 			pass X6_N6[5] = X6_N5[5];
 			pass X6_N6[6] = X6_N5[6];
 			pass X6_N6[7] = X6_N5[7];
-			pass RSCLK_V_N[0] = RSCLK_V[0];
-			pass RSCLK_V_N[1] = RSCLK_V[1];
-			pass RSCLK_V_N[2] = RSCLK_V[2];
-			pass RSCLK_V_N[3] = RSCLK_V[3];
-			pass RSCLK_V_N[4] = RSCLK_V[4];
-			pass RSCLK_V_N[5] = RSCLK_V[5];
-			pass RSCLK_V_N[6] = RSCLK_V[6];
-			pass RSCLK_V_N[7] = RSCLK_V[7];
 			pass DSCLK_V[1] = DSCLK_V[0];
 			pass DSCLK_V[2] = DSCLK_V[1];
 			pass DSCLK_V[3] = DSCLK_V[2];
@@ -37616,20 +37505,6 @@ intdb {
 			reflect X6_S6[5] = X6_N5[5];
 			reflect X6_S6[6] = X6_N5[6];
 			reflect X6_S6[7] = X6_N5[7];
-		}
-	}
-
-	connector_slot RSCLK_W {
-		opposite RSCLK_E;
-
-		connector_class PASS_SW {
-		}
-	}
-
-	connector_slot RSCLK_E {
-		opposite RSCLK_W;
-
-		connector_class PASS_SE {
 		}
 	}
 

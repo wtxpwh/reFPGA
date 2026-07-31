@@ -13,37 +13,45 @@ target_defs! {
     variant ecp5;
     variant crosslink;
 
-    region_slot PCLK;
-    region_slot RPCLK[4];
-    region_slot RSCLK[4];
-    region_slot RSCLK_V;
-
     wire TIE0: tie 0;
     wire TIE1: tie 1;
 
-    // ECP, XP,  MachXO, MachXO2: 2 per direction
-    // everything else: 4 per direction
-    wire X0_W[4]: mux;
-    wire X0_E[4]: mux;
-    wire X0_S[4]: mux;
-    wire X0_N[4]: mux;
+    if variant [ecp, xp, machxo, machxo2] {
+        const NUM_X0 = 4;
+    } else {
+        const NUM_X0 = 2;
+    }
 
-    // only on: ECP2, ECP2M, XP2, ECP3, and only [1] and [4] are actually used
-    // X1_W0 and X1_E0 are aliased to X1_H where applicable; X1_S0/X1_N0 are aliased to X1_V
-    wire X1_H[8]: mux;
-    wire X1_V[8]: mux;
+    wire X0_W[NUM_X0]: mux;
+    wire X0_E[NUM_X0]: mux;
+    wire X0_S[NUM_X0]: mux;
+    wire X0_N[NUM_X0]: mux;
 
-    // SCM, ECP4: indices 0, 1, 4, 5, 6, 7 are valid
-    // devices that have X1_[HV]: indices 0, 1, 4, 5 are valid (and 1, 4 are aliased to X1_[HV])
-    // remaining devices: indices 0, 1 are valid
-    wire X1_W0[8]: mux;
-    wire X1_W1[8]: branch E;
-    wire X1_E0[8]: mux;
-    wire X1_E1[8]: branch W;
-    wire X1_S0[8]: mux;
-    wire X1_S1[8]: branch N;
-    wire X1_N0[8]: mux;
-    wire X1_N1[8]: branch S;
+    if variant [ecp2, xp2, ecp3] {
+        // only [1] and [4] are actually used
+        // X1_W0 and X1_E0 are aliased to X1_H where applicable; X1_S0/X1_N0 are aliased to X1_V
+        wire X1_H[8]: mux;
+        wire X1_V[8]: mux;
+    }
+
+    if variant [scm, ecp4] {
+        // indices 0, 1, 4, 5, 6, 7 are valid
+        const NUM_X1 = 8;
+    } else if variant [ecp2, xp2, ecp3] {
+        // indices 0, 1, 4, 5 are valid (and 1, 4 are aliased to X1_[HV])
+        const NUM_X1 = 8;
+    } else {
+        // indices 0, 1 are valid
+        const NUM_X1 = 2;
+    }
+    wire X1_W0[NUM_X1]: mux;
+    wire X1_W1[NUM_X1]: branch E;
+    wire X1_E0[NUM_X1]: mux;
+    wire X1_E1[NUM_X1]: branch W;
+    wire X1_S0[NUM_X1]: mux;
+    wire X1_S1[NUM_X1]: branch N;
+    wire X1_N0[NUM_X1]: mux;
+    wire X1_N1[NUM_X1]: branch S;
 
     wire X2_W0[8]: mux;
     wire X2_W1[8]: branch E;
@@ -58,84 +66,108 @@ target_defs! {
     wire X2_N1[8]: branch S;
     wire X2_N2[8]: branch S;
 
-    // SCM, ECP4: 8 per direction
-    // everything else: 4 per direction
-    wire X6_W0[8]: mux;
-    for i in 1..7 {
-        wire "X6_W{i}"[8]: branch E;
+    if variant [scm, ecp4] {
+        const NUM_X6 = 8;
+    } else {
+        const NUM_X6 = 4;
     }
-    wire X6_E0[8]: mux;
+    wire X6_W0[NUM_X6]: mux;
     for i in 1..7 {
-        wire "X6_E{i}"[8]: branch W;
+        wire "X6_W{i}"[NUM_X6]: branch E;
     }
-    wire X6_S0[8]: mux;
+    wire X6_E0[NUM_X6]: mux;
     for i in 1..7 {
-        wire "X6_S{i}"[8]: branch N;
+        wire "X6_E{i}"[NUM_X6]: branch W;
     }
-    wire X6_N0[8]: mux;
+    wire X6_S0[NUM_X6]: mux;
     for i in 1..7 {
-        wire "X6_N{i}"[8]: branch S;
+        wire "X6_S{i}"[NUM_X6]: branch N;
+    }
+    wire X6_N0[NUM_X6]: mux;
+    for i in 1..7 {
+        wire "X6_N{i}"[NUM_X6]: branch S;
     }
 
     // Clocking
 
     // The primary clocks, connected to all cells.
-    // SCM: 12 wires, per quadrant
-    // ECP, XP: 8 wires, per quadrant (nominally 4 primary and 4 secondary clocks, but they're close enough in behavior)
-    // MachXO: 8 wires, global (likewise nominally 4 primary and 4 secondary)
-    // ECP2, XP2: 8 wires, per quadrant
-    // ECP3, MachXO2: N/A (uses RPCLK)
-    // ECP4: 20 wires, per quadrant
-    // ECP5: 16 wires, per quadrant
-    // Crosslink: 8 wires, global
-    wire PCLK[20]: regional PCLK;
-
-    // Rotating primary clocks.
-    // used on ECP3, MachXO2
-    wire RPCLK[8] {
-        0 => regional RPCLK[0],
-        1 => regional RPCLK[1],
-        2 => regional RPCLK[2],
-        3 => regional RPCLK[3],
-        4 => regional RPCLK[0],
-        5 => regional RPCLK[1],
-        6 => regional RPCLK[2],
-        7 => regional RPCLK[3],
+    if variant scm {
+        // per quadrant
+        region_slot PCLK;
+        wire PCLK[12]: regional PCLK;
+    } else if variant [ecp, xp, machxo] {
+        // nominally 4 primary and 4 secondary clocks, but they're close enough in behavior
+        // per quadrant on ECP, XP; global on MachXO
+        region_slot PCLK;
+        wire PCLK[8]: regional PCLK;
+    } else if variant [ecp2, xp2] {
+        // per quadrant
+        region_slot PCLK;
+        wire PCLK[8]: regional PCLK;
+    } else if variant [ecp3, machxo2] {
+        // Rotating primary clocks.
+        region_slot RPCLK[4];
+        wire RPCLK[8] {
+            0 => regional RPCLK[0],
+            1 => regional RPCLK[1],
+            2 => regional RPCLK[2],
+            3 => regional RPCLK[3],
+            4 => regional RPCLK[0],
+            5 => regional RPCLK[1],
+            6 => regional RPCLK[2],
+            7 => regional RPCLK[3],
+        }
+    } else if variant ecp4 {
+        // per quadrant
+        region_slot PCLK;
+        wire PCLK[20]: regional PCLK;
+    } else if variant ecp5 {
+        // per quadrant
+        region_slot PCLK;
+        wire PCLK[16]: regional PCLK;
+    } else if variant crosslink {
+        // global
+        region_slot PCLK;
+        wire PCLK[8]: regional PCLK;
     }
 
-    // Rotating secondary clocks.
-    // Used on ECP2, XP2, ECP3, MachXO2
-    wire RSCLK[8] {
-        0 => regional RSCLK[0],
-        1 => regional RSCLK[1],
-        2 => regional RSCLK[2],
-        3 => regional RSCLK[3],
-        4 => regional RSCLK[0],
-        5 => regional RSCLK[1],
-        6 => regional RSCLK[2],
-        7 => regional RSCLK[3],
+    if variant [ecp2, xp2, ecp3, machxo2] {
+        region_slot RSCLK[4];
+        region_slot RSCLK_V;
+        // Rotating secondary clocks.
+        wire RSCLK[8] {
+            0 => regional RSCLK[0],
+            1 => regional RSCLK[1],
+            2 => regional RSCLK[2],
+            3 => regional RSCLK[3],
+            4 => regional RSCLK[0],
+            5 => regional RSCLK[1],
+            6 => regional RSCLK[2],
+            7 => regional RSCLK[3],
+        }
+
+        // Distribution wires supplying RSCLK.
+        wire RSCLK_H[8]: branch RSCLK_W;
+        wire RSCLK_V[8]: regional RSCLK_V;
+        wire RSCLK_V_N[8]: branch S;
     }
 
-    // Distribution wires supplying RSCLK.
-    wire RSCLK_H[8]: branch RSCLK_W;
-    wire RSCLK_V[8]: regional RSCLK_V;
-    wire RSCLK_V_N[8]: branch S;
+    if variant scm {
+        // Distributed secondary clocks.
+        wire DSCLK[2]: mux;
+        wire DSCLK_W[2]: branch E;
+        wire DSCLK_E[2]: branch W;
 
-    // Distributed secondary clocks.
-    // Used on SCM only.
-    wire DSCLK[2]: mux;
-    wire DSCLK_W[2]: branch E;
-    wire DSCLK_E[2]: branch W;
-
-    // Distribution wires supplying the above
-    wire DSCLK_V[7] {
-        0 => multi_root,
-        1..7 => multi_branch S,
-    }
-    wire DSCLK_H[7] {
-        0..3 => multi_branch E,
-        3 => multi_root,
-        4..7 => multi_branch W,
+        // Distribution wires supplying the above
+        wire DSCLK_V[7] {
+            0 => multi_root,
+            1..7 => multi_branch S,
+        }
+        wire DSCLK_H[7] {
+            0..3 => multi_branch E,
+            3 => multi_root,
+            4..7 => multi_branch W,
+        }
     }
 
     wire IMUX_A[8]: mux;
@@ -146,73 +178,81 @@ target_defs! {
 
     // ECP4. ECP5, Crosslink: only 2 indices used, but has IMUX_MUX*
     // others: all 4 indices used
-    wire IMUX_CLK[4]: mux;
-    wire IMUX_LSR[4]: mux;
-    // always all 4 used
+    if variant [ecp4, ecp5, crosslink] {
+        wire IMUX_CLK[2]: mux;
+        wire IMUX_LSR[2]: mux;
+        wire IMUX_MUXCLK[4]: mux;
+        wire IMUX_MUXLSR[4]: mux;
+    } else {
+        wire IMUX_CLK[4]: mux;
+        wire IMUX_LSR[4]: mux;
+    }
+    if variant ecp4 {
+        wire IMUX_CLK_DELAY[2]: mux;
+    }
     wire IMUX_CE[4]: mux;
-
-    // ECP4 only
-    wire IMUX_CLK_DELAY[2]: mux;
-
-    // ECP4, ECP5, Crosslink only
-    wire IMUX_MUXCLK[4]: mux;
-    wire IMUX_MUXLSR[4]: mux;
 
     wire OUT_F[8]: bel;
     wire OUT_F_W[8]: branch E;
     wire OUT_F_E[8]: branch W;
     wire OUT_Q[8]: bel;
-    // not present on ECP5 and CrossLink
-    wire OUT_OFX[8]: bel;
-    wire OUT_OFX_W[8]: branch E;
-
-    // MachXO only (purpose unclear)
-    wire OUT_TI[12]: bel;
-
-    // SCM special: EBR interconnect
-    wire IMUX_EBR_DIA[18]: mux;
-    wire IMUX_EBR_DIB[18]: mux;
-    wire IMUX_EBR_ADA[11]: mux;
-    wire IMUX_EBR_ADB[11]: mux;
-    wire IMUX_EBR_CLKA: mux;
-    wire IMUX_EBR_CLKB: mux;
-    wire IMUX_EBR_RSTA: mux;
-    wire IMUX_EBR_RSTB: mux;
-    wire IMUX_EBR_CEA: mux;
-    wire IMUX_EBR_CEB: mux;
-    wire IMUX_EBR_WEA: mux;
-    wire IMUX_EBR_WEB: mux;
-    wire OUT_EBR_DOA[18]: bel;
-    wire OUT_EBR_DOB[18]: bel;
-    wire OUT_EBR_FF: bel;
-    wire OUT_EBR_AF: bel;
-    wire OUT_EBR_EF: bel;
-    wire OUT_EBR_AE: bel;
-
-    wire EBR_W0[64]: mux;
-    wire EBR_W1[64]: branch EBR_E;
-    wire EBR_E0[64]: mux;
-    wire EBR_E1[64]: branch EBR_W;
-
-    // SCM special: IO interconnect
-    wire IMUX_IO[32]: mux;
-    wire OUT_IO[24]: bel;
-    for i in 0..8 {
-        wire "OUT_MACO_IO_S{i}"[32]: bel;
+    if variant [ecp5, crosslink] {
+    } else {
+        wire OUT_OFX[8]: bel;
+        wire OUT_OFX_W[8]: branch E;
     }
-    for i in 0..8 {
-        wire "OUT_MACO_IO_N{i}"[32]: bel;
+
+    if variant machxo {
+        // MachXO only (purpose unclear)
+        wire OUT_TI[12]: bel;
     }
-    wire IO_W0[32]: mux;
-    for i in 1..9 {
-        wire "IO_W{i}"[32]: branch IO_E;
+
+    if variant scm {
+        // SCM special: EBR interconnect
+        wire IMUX_EBR_DIA[18]: mux;
+        wire IMUX_EBR_DIB[18]: mux;
+        wire IMUX_EBR_ADA[11]: mux;
+        wire IMUX_EBR_ADB[11]: mux;
+        wire IMUX_EBR_CLKA: mux;
+        wire IMUX_EBR_CLKB: mux;
+        wire IMUX_EBR_RSTA: mux;
+        wire IMUX_EBR_RSTB: mux;
+        wire IMUX_EBR_CEA: mux;
+        wire IMUX_EBR_CEB: mux;
+        wire IMUX_EBR_WEA: mux;
+        wire IMUX_EBR_WEB: mux;
+        wire OUT_EBR_DOA[18]: bel;
+        wire OUT_EBR_DOB[18]: bel;
+        wire OUT_EBR_FF: bel;
+        wire OUT_EBR_AF: bel;
+        wire OUT_EBR_EF: bel;
+        wire OUT_EBR_AE: bel;
+
+        wire EBR_W0[64]: mux;
+        wire EBR_W1[64]: branch EBR_E;
+        wire EBR_E0[64]: mux;
+        wire EBR_E1[64]: branch EBR_W;
+
+        // SCM special: IO interconnect
+        wire IMUX_IO[32]: mux;
+        wire OUT_IO[24]: bel;
+        for i in 0..8 {
+            wire "OUT_MACO_IO_S{i}"[32]: bel;
+        }
+        for i in 0..8 {
+            wire "OUT_MACO_IO_N{i}"[32]: bel;
+        }
+        wire IO_W0[32]: mux;
+        for i in 1..9 {
+            wire "IO_W{i}"[32]: branch IO_E;
+        }
+        wire IO_E0[32]: mux;
+        for i in 1..9 {
+            wire "IO_E{i}"[32]: branch IO_W;
+        }
+        wire IO_T_W: branch IO_E;
+        wire IO_T_E: branch IO_W;
     }
-    wire IO_E0[32]: mux;
-    for i in 1..9 {
-        wire "IO_E{i}"[32]: branch IO_W;
-    }
-    wire IO_T_W: branch IO_E;
-    wire IO_T_E: branch IO_W;
 
     tile_slot INT {
         bel_slot INT: routing;
@@ -368,10 +408,12 @@ target_defs! {
                 pass "X6_E{i+1}" = "X6_E{i}";
             }
 
-            pass DSCLK_E = DSCLK;
-            pass DSCLK_H[6] = DSCLK_H[5];
-            pass DSCLK_H[5] = DSCLK_H[4];
-            pass DSCLK_H[4] = DSCLK_H[3];
+            if variant scm {
+                pass DSCLK_E = DSCLK;
+                pass DSCLK_H[6] = DSCLK_H[5];
+                pass DSCLK_H[5] = DSCLK_H[4];
+                pass DSCLK_H[4] = DSCLK_H[3];
+            }
 
             pass OUT_F_E = OUT_F;
         }
@@ -385,9 +427,11 @@ target_defs! {
                 reflect "X6_E{i+1}" = "X6_W{i}";
             }
 
-            reflect DSCLK_H[6] = DSCLK_H[1];
-            reflect DSCLK_H[5] = DSCLK_H[2];
-            reflect DSCLK_H[4] = DSCLK_H[3];
+            if variant scm {
+                reflect DSCLK_H[6] = DSCLK_H[1];
+                reflect DSCLK_H[5] = DSCLK_H[2];
+                reflect DSCLK_H[4] = DSCLK_H[3];
+            }
         }
     }
     connector_slot E {
@@ -400,10 +444,12 @@ target_defs! {
                 pass "X6_W{i+1}" = "X6_W{i}";
             }
 
-            pass DSCLK_W = DSCLK;
-            pass DSCLK_H[0] = DSCLK_H[1];
-            pass DSCLK_H[1] = DSCLK_H[2];
-            pass DSCLK_H[2] = DSCLK_H[3];
+            if variant scm {
+                pass DSCLK_W = DSCLK;
+                pass DSCLK_H[0] = DSCLK_H[1];
+                pass DSCLK_H[1] = DSCLK_H[2];
+                pass DSCLK_H[2] = DSCLK_H[3];
+            }
 
             pass OUT_F_W = OUT_F;
             pass OUT_OFX_W = OUT_OFX;
@@ -418,9 +464,11 @@ target_defs! {
                 reflect "X6_W{i+1}" = "X6_E{i}";
             }
 
-            reflect DSCLK_H[0] = DSCLK_H[5];
-            reflect DSCLK_H[1] = DSCLK_H[4];
-            reflect DSCLK_H[2] = DSCLK_H[3];
+            if variant scm {
+                reflect DSCLK_H[0] = DSCLK_H[5];
+                reflect DSCLK_H[1] = DSCLK_H[4];
+                reflect DSCLK_H[2] = DSCLK_H[3];
+            }
         }
     }
     connector_slot S {
@@ -433,10 +481,14 @@ target_defs! {
                 pass "X6_N{i+1}" = "X6_N{i}";
             }
 
-            pass RSCLK_V_N = RSCLK_V;
+            if variant [ecp2, xp2, ecp3, machxo2] {
+                pass RSCLK_V_N = RSCLK_V;
+            }
 
-            for i in 0..6 {
-                pass DSCLK_V[i + 1] = DSCLK_V[i];
+            if variant scm {
+                for i in 0..6 {
+                    pass DSCLK_V[i + 1] = DSCLK_V[i];
+                }
             }
         }
         connector_class TERM_S {
@@ -472,87 +524,91 @@ target_defs! {
         }
     }
 
-    connector_slot RSCLK_W {
-        opposite RSCLK_E;
-        connector_class PASS_SW {
-            if variant [ecp2, xp2] {
-                pass RSCLK_H[0] = RSCLK_H[1];
-                pass RSCLK_H[1] = RSCLK_H[2];
-                pass RSCLK_H[2] = RSCLK_H[3];
-                pass RSCLK_H[3] = RSCLK_H[0];
-                pass RSCLK_H[4] = RSCLK_H[5];
-                pass RSCLK_H[5] = RSCLK_H[6];
-                pass RSCLK_H[6] = RSCLK_H[7];
-                pass RSCLK_H[7] = RSCLK_H[4];
-            } else if variant [ecp3, machxo2] {
-                pass RSCLK_H[0] = RSCLK_H[3];
-                pass RSCLK_H[1] = RSCLK_H[0];
-                pass RSCLK_H[2] = RSCLK_H[1];
-                pass RSCLK_H[3] = RSCLK_H[2];
-                pass RSCLK_H[4] = RSCLK_H[7];
-                pass RSCLK_H[5] = RSCLK_H[4];
-                pass RSCLK_H[6] = RSCLK_H[5];
-                pass RSCLK_H[7] = RSCLK_H[6];
+    if variant [ecp2, xp2, ecp3, machxo2] {
+        connector_slot RSCLK_W {
+            opposite RSCLK_E;
+            connector_class PASS_SW {
+                if variant [ecp2, xp2] {
+                    pass RSCLK_H[0] = RSCLK_H[1];
+                    pass RSCLK_H[1] = RSCLK_H[2];
+                    pass RSCLK_H[2] = RSCLK_H[3];
+                    pass RSCLK_H[3] = RSCLK_H[0];
+                    pass RSCLK_H[4] = RSCLK_H[5];
+                    pass RSCLK_H[5] = RSCLK_H[6];
+                    pass RSCLK_H[6] = RSCLK_H[7];
+                    pass RSCLK_H[7] = RSCLK_H[4];
+                } else if variant [ecp3, machxo2] {
+                    pass RSCLK_H[0] = RSCLK_H[3];
+                    pass RSCLK_H[1] = RSCLK_H[0];
+                    pass RSCLK_H[2] = RSCLK_H[1];
+                    pass RSCLK_H[3] = RSCLK_H[2];
+                    pass RSCLK_H[4] = RSCLK_H[7];
+                    pass RSCLK_H[5] = RSCLK_H[4];
+                    pass RSCLK_H[6] = RSCLK_H[5];
+                    pass RSCLK_H[7] = RSCLK_H[6];
+                }
             }
         }
-    }
-    connector_slot RSCLK_E {
-        opposite RSCLK_W;
-        connector_class PASS_SE {
+        connector_slot RSCLK_E {
+            opposite RSCLK_W;
+            connector_class PASS_SE {
+            }
         }
     }
 
-    connector_slot EBR_W {
-        opposite EBR_E;
-        connector_class PASS_EBR_W_W {
-            pass EBR_E1 = EBR_E0;
-        }
-        connector_class PASS_EBR_M_W {
-            for i in 0..24 {
-                pass EBR_E1[i] = EBR_E0[i];
-                pass EBR_E1[i + 24] = EBR_E0[i + 40];
+    if variant scm {
+        connector_slot EBR_W {
+            opposite EBR_E;
+            connector_class PASS_EBR_W_W {
+                pass EBR_E1 = EBR_E0;
+            }
+            connector_class PASS_EBR_M_W {
+                for i in 0..24 {
+                    pass EBR_E1[i] = EBR_E0[i];
+                    pass EBR_E1[i + 24] = EBR_E0[i + 40];
+                }
+            }
+            connector_class PASS_EBR_E_W {
+                for i in 0..48 {
+                    pass EBR_E1[i] = EBR_E0[i];
+                }
             }
         }
-        connector_class PASS_EBR_E_W {
-            for i in 0..48 {
-                pass EBR_E1[i] = EBR_E0[i];
+        connector_slot EBR_E {
+            opposite EBR_W;
+            connector_class PASS_EBR_W_E {
+                for i in 0..48 {
+                    pass EBR_W1[i] = EBR_W0[i];
+                }
+            }
+            connector_class PASS_EBR_M_E {
+                for i in 0..24 {
+                    pass EBR_W1[i] = EBR_W0[i];
+                    pass EBR_W1[i + 24] = EBR_W0[i + 40];
+                }
+            }
+            connector_class PASS_EBR_E_E {
+                pass EBR_W1 = EBR_W0;
             }
         }
-    }
-    connector_slot EBR_E {
-        opposite EBR_W;
-        connector_class PASS_EBR_W_E {
-            for i in 0..48 {
-                pass EBR_W1[i] = EBR_W0[i];
-            }
-        }
-        connector_class PASS_EBR_M_E {
-            for i in 0..24 {
-                pass EBR_W1[i] = EBR_W0[i];
-                pass EBR_W1[i + 24] = EBR_W0[i + 40];
-            }
-        }
-        connector_class PASS_EBR_E_E {
-            pass EBR_W1 = EBR_W0;
-        }
-    }
 
-    connector_slot IO_W {
-        opposite IO_E;
-        connector_class PASS_IO_W {
-            for i in 0..8 {
-                pass "IO_E{i+1}" = "IO_E{i}";
+        connector_slot IO_W {
+            opposite IO_E;
+            connector_class PASS_IO_W {
+                for i in 0..8 {
+                    pass "IO_E{i+1}" = "IO_E{i}";
+                }
+                pass IO_T_E = IO_T_E;
             }
-            pass IO_T_E = IO_T_E;
         }
-    }
-    connector_slot IO_E {
-        opposite IO_W;
-        connector_class PASS_IO_E {
-            for i in 0..8 {
-                pass "IO_W{i+1}" = "IO_W{i}";
+        connector_slot IO_E {
+            opposite IO_W;
+            connector_class PASS_IO_E {
+                for i in 0..8 {
+                    pass "IO_W{i+1}" = "IO_W{i}";
+                }
+                pass IO_T_W = IO_T_W;
             }
-            pass IO_T_W = IO_T_W;
         }
     }
 }
