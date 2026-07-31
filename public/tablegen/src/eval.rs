@@ -288,18 +288,19 @@ impl Context {
         }
     }
 
-    fn eval_expr(&self, expr: &ast::Expr) -> Result<usize> {
+    fn eval_expr(&self, vid: VariantId, expr: &ast::Expr) -> Result<usize> {
+        let _ = vid;
         match expr {
             ast::Expr::Ident(ident) => match self.for_vars.get(&ident.to_string()) {
                 Some(&n) => Ok(n),
                 None => error_at(ident.span(), "undefined variable")?,
             },
             ast::Expr::Literal(n) => Ok(*n),
-            ast::Expr::Add(a, b) => Ok(self.eval_expr(a)? + self.eval_expr(b)?),
-            ast::Expr::Sub(a, b) => Ok(self.eval_expr(a)? - self.eval_expr(b)?),
-            ast::Expr::Mul(a, b) => Ok(self.eval_expr(a)? * self.eval_expr(b)?),
-            ast::Expr::Div(a, b) => Ok(self.eval_expr(a)? / self.eval_expr(b)?),
-            ast::Expr::Mod(a, b) => Ok(self.eval_expr(a)? % self.eval_expr(b)?),
+            ast::Expr::Add(a, b) => Ok(self.eval_expr(vid, a)? + self.eval_expr(vid, b)?),
+            ast::Expr::Sub(a, b) => Ok(self.eval_expr(vid, a)? - self.eval_expr(vid, b)?),
+            ast::Expr::Mul(a, b) => Ok(self.eval_expr(vid, a)? * self.eval_expr(vid, b)?),
+            ast::Expr::Div(a, b) => Ok(self.eval_expr(vid, a)? / self.eval_expr(vid, b)?),
+            ast::Expr::Mod(a, b) => Ok(self.eval_expr(vid, a)? % self.eval_expr(vid, b)?),
         }
     }
 
@@ -376,7 +377,7 @@ impl Context {
             }
             ast::ArrayIdRef::Indexed(id, index) => {
                 let ident = self.eval_templ_id(id)?;
-                let index = self.eval_expr(index)?;
+                let index = self.eval_expr(vid, index)?;
                 let Some(item) = reg(&mut self.dbs).get_ref(&ident) else {
                     error_at(ident.span(), &format!("undefined {kind}: {ident}"))?
                 };
@@ -417,6 +418,19 @@ impl Context {
         }
     }
 
+    fn eval_array_def(
+        &self,
+        vid: VariantId,
+        name: &ast::ArrayIdDef,
+    ) -> Result<(Ident, Option<usize>)> {
+        let (name, num) = match name {
+            ast::ArrayIdDef::Plain(id) => (id, None),
+            ast::ArrayIdDef::Array(id, n) => (id, Some(self.eval_expr(vid, n)?)),
+        };
+        let name = self.eval_templ_id(name)?;
+        Ok((name, num))
+    }
+
     fn eval_cell_ref(
         &self,
         vid: VariantId,
@@ -438,7 +452,7 @@ impl Context {
             }
             ast::ArrayIdRef::Indexed(id, index) => {
                 let ident = self.eval_templ_id(id)?;
-                let index = self.eval_expr(index)?;
+                let index = self.eval_expr(vid, index)?;
                 let Some((item, _)) =
                     self.dbs.variants[vid].tcls_cell_id[tcls].get(&ident.to_string())
                 else {
@@ -561,7 +575,7 @@ impl Context {
         let name = self.eval_templ_id(&tbit.name)?;
         let mut index = vec![];
         for idx in &tbit.index {
-            index.push(self.eval_expr(idx)?);
+            index.push(self.eval_expr(vid, idx)?);
         }
         let Some((rect, _)) = self.dbs.variants[vid].tcls_bitrect_id[tcls].get(&name.to_string())
         else {
@@ -635,17 +649,40 @@ impl Context {
         if self.for_vars.contains_key(&var_name) {
             error_at(var.span(), "loop variable {var} redefined")?
         }
-        match loop_.iterator {
-            ast::ForIterator::Range(ref range) => {
-                for i in range.clone() {
-                    self.for_vars.insert(var_name.clone(), i);
-                    for item in &loop_.items {
-                        eval_item(self, item)?;
+        let orig_mask = self.if_mask.clone();
+        let mut ranges = EntityVec::new();
+        for (vid, &en) in &orig_mask {
+            let range = if en {
+                Some(match loop_.iterator {
+                    ast::ForIterator::Range(ref start, ref end) => {
+                        (self.eval_expr(vid, start)?, self.eval_expr(vid, end)?)
                     }
-                }
-            }
-            ast::ForIterator::RangeInclusive(ref range) => {
-                for i in range.clone() {
+                    ast::ForIterator::RangeInclusive(ref start, ref end) => {
+                        (self.eval_expr(vid, start)?, self.eval_expr(vid, end)? + 1)
+                    }
+                })
+            } else {
+                None
+            };
+            ranges.push(range);
+        }
+        let start = ranges
+            .values()
+            .filter_map(|&range| range.map(|r| r.0))
+            .min();
+        let end = ranges
+            .values()
+            .filter_map(|&range| range.map(|r| r.1))
+            .max();
+        if let Some(start) = start
+            && let Some(end) = end
+        {
+            for i in start..end {
+                self.if_mask = ranges.map_values(|&r| match r {
+                    Some((s, e)) => (s..e).contains(&i),
+                    None => false,
+                });
+                if self.if_mask.values().any(|&x| x) {
                     self.for_vars.insert(var_name.clone(), i);
                     for item in &loop_.items {
                         eval_item(self, item)?;
@@ -653,6 +690,7 @@ impl Context {
                 }
             }
         }
+        self.if_mask = orig_mask;
         self.for_vars.remove(&var_name);
         Ok(())
     }
@@ -761,6 +799,7 @@ impl Context {
 
     fn eval_pin_indexing(
         &self,
+        vid: VariantId,
         name: &ast::PinArrayIdDef,
     ) -> Result<(Ident, Option<usize>, BelPinIndexing)> {
         Ok(match *name {
@@ -768,11 +807,14 @@ impl Context {
                 let name = self.eval_templ_id(name)?;
                 (name, None, Default::default())
             }
-            ast::PinArrayIdDef::Array(ref name, width) => {
+            ast::PinArrayIdDef::Array(ref name, ref width) => {
+                let width = self.eval_expr(vid, width)?;
                 let name = self.eval_templ_id(name)?;
                 (name, Some(width), Default::default())
             }
-            ast::PinArrayIdDef::ArrayRange(ref name, msb, lsb) => {
+            ast::PinArrayIdDef::ArrayRange(ref name, ref msb, ref lsb) => {
+                let msb = self.eval_expr(vid, msb)?;
+                let lsb = self.eval_expr(vid, lsb)?;
                 let name = self.eval_templ_id(name)?;
                 if msb < lsb {
                     (
@@ -804,8 +846,13 @@ impl Context {
     ) -> Result<BelAttributeType> {
         Ok(match *typ {
             ast::AttributeType::Bool => BelAttributeType::Bool,
-            ast::AttributeType::BitVec(width) => BelAttributeType::BitVec(width),
-            ast::AttributeType::BitVecArray(width, depth) => {
+            ast::AttributeType::BitVec(ref width) => {
+                let width = self.eval_expr(vid, width)?;
+                BelAttributeType::BitVec(width)
+            }
+            ast::AttributeType::BitVecArray(ref width, ref depth) => {
+                let width = self.eval_expr(vid, width)?;
+                let depth = self.eval_expr(vid, depth)?;
                 BelAttributeType::BitVecArray(width, depth)
             }
             ast::AttributeType::Enum(ref ident) => {
@@ -827,7 +874,7 @@ impl Context {
             ast::BelClassItem::Input(pin) => {
                 for vid in self.active_variants() {
                     for name in &pin.names {
-                        let (name, width, indexing) = self.eval_pin_indexing(name)?;
+                        let (name, width, indexing) = self.eval_pin_indexing(vid, name)?;
                         let inp = BelClassInput {
                             nonroutable: pin.nonroutable,
                             indexing,
@@ -866,7 +913,7 @@ impl Context {
             ast::BelClassItem::Output(pin) => {
                 for vid in self.active_variants() {
                     for name in &pin.names {
-                        let (name, width, indexing) = self.eval_pin_indexing(name)?;
+                        let (name, width, indexing) = self.eval_pin_indexing(vid, name)?;
                         let outp = BelClassOutput {
                             nonroutable: pin.nonroutable,
                             indexing,
@@ -905,7 +952,7 @@ impl Context {
             ast::BelClassItem::Bidir(pin) => {
                 for vid in self.active_variants() {
                     for name in &pin.names {
-                        let (name, width, indexing) = self.eval_pin_indexing(name)?;
+                        let (name, width, indexing) = self.eval_pin_indexing(vid, name)?;
                         let bidi = BelClassBidir {
                             nonroutable: pin.nonroutable,
                             indexing,
@@ -945,9 +992,9 @@ impl Context {
                 for vid in self.active_variants() {
                     for name in &pad.names {
                         let pad = BelClassPad { kind: pad.kind };
-                        match *name {
-                            ast::ArrayIdDef::Plain(ref name) => {
-                                let name = self.eval_templ_id(name)?;
+                        let (name, num) = self.eval_array_def(vid, name)?;
+                        match num {
+                            None => {
                                 if self.dbs.variants[vid].db.bel_classes[bcls]
                                     .pads
                                     .insert(name.to_string(), pad)
@@ -959,8 +1006,7 @@ impl Context {
                                     .pad_id
                                     .insert(name.to_string(), name.clone());
                             }
-                            ast::ArrayIdDef::Array(ref name, num) => {
-                                let name = self.eval_templ_id(name)?;
+                            Some(num) => {
                                 if self.dbs.variants[vid].db.bel_classes[bcls]
                                     .pads
                                     .insert_array(name.to_string(), num, pad)
@@ -1010,11 +1056,7 @@ impl Context {
         match item {
             ast::TileSlotItem::BelSlot(bslot) => {
                 for vid in self.active_variants() {
-                    let (name, num) = match &bslot.name {
-                        ast::ArrayIdDef::Plain(id) => (id, None),
-                        ast::ArrayIdDef::Array(id, n) => (id, Some(*n)),
-                    };
-                    let name = self.eval_templ_id(name)?;
+                    let (name, num) = self.eval_array_def(vid, &bslot.name)?;
                     if let Err(msg) = self.bslot_pre.insert(vid, &name, num) {
                         error_at(name.span(), msg)?
                     }
@@ -1058,12 +1100,8 @@ impl Context {
     fn eval_tile_slot(&mut self, tslot: TileSlotId, item: &ast::TileSlotItem) -> Result<()> {
         match item {
             ast::TileSlotItem::BelSlot(bslot) => {
-                let (raw_name, num) = match &bslot.name {
-                    ast::ArrayIdDef::Plain(id) => (id, None),
-                    ast::ArrayIdDef::Array(id, n) => (id, Some(*n)),
-                };
-                let name = self.eval_templ_id(raw_name)?;
                 for vid in self.active_variants() {
+                    let (name, num) = self.eval_array_def(vid, &bslot.name)?;
                     let kind = match &bslot.kind {
                         ast::BelKind::Routing => BelKind::Routing,
                         ast::BelKind::Class(id) => {
@@ -1125,12 +1163,8 @@ impl Context {
         match item {
             ast::TileClassItem::Cell(names) => {
                 for name in names {
-                    let (name, num) = match name {
-                        ast::ArrayIdDef::Plain(id) => (id, None),
-                        ast::ArrayIdDef::Array(id, n) => (id, Some(*n)),
-                    };
-                    let name = self.eval_templ_id(name)?;
                     for vid in self.active_variants() {
+                        let (name, num) = self.eval_array_def(vid, name)?;
                         if let Some(num) = num {
                             let Some(range) = self.dbs.variants[vid].tcls_cell_id[tcls]
                                 .insert_array(name.to_string(), num, name.clone())
@@ -1164,12 +1198,8 @@ impl Context {
                 }
             }
             ast::TileClassItem::BitRect(name, class) => {
-                let (name, num) = match name {
-                    ast::ArrayIdDef::Plain(id) => (id, None),
-                    ast::ArrayIdDef::Array(id, n) => (id, Some(*n)),
-                };
-                let name = self.eval_templ_id(name)?;
                 for vid in self.active_variants() {
+                    let (name, num) = self.eval_array_def(vid, name)?;
                     let Some(&geometry) =
                         self.dbs.variants[vid].bitrect_geoms.get(&class.to_string())
                     else {
@@ -1350,6 +1380,7 @@ impl Context {
 
     fn eval_pin_array_ref<T: EntityId>(
         &self,
+        vid: VariantId,
         id: &ast::ArrayIdRef,
         map: &EntityBundleMap<T, (Ident, BelPinIndexing)>,
     ) -> Result<T> {
@@ -1366,7 +1397,7 @@ impl Context {
             }
             ast::ArrayIdRef::Indexed(id, index) => {
                 let id = self.eval_templ_id(id)?;
-                let index = self.eval_expr(index)?;
+                let index = self.eval_expr(vid, index)?;
                 let Some((item, &(_, indexing))) = map.get(&id.to_string()) else {
                     error_at(id.span(), "undefined object")?
                 };
@@ -1400,13 +1431,16 @@ impl Context {
         match item {
             ast::BelItem::Input(pin, wire_ref) => {
                 let pin =
-                    self.eval_pin_array_ref(pin, &self.dbs.variants[vid].bcls[bcls].input_id)?;
+                    self.eval_pin_array_ref(vid, pin, &self.dbs.variants[vid].bcls[bcls].input_id)?;
                 let wire = self.eval_pol_tile_wire_ref(vid, tcls, wire_ref)?;
                 bel.inputs.insert(pin, BelInput::Fixed(wire));
             }
             ast::BelItem::Output(pin, wire_refs) => {
-                let pin =
-                    self.eval_pin_array_ref(pin, &self.dbs.variants[vid].bcls[bcls].output_id)?;
+                let pin = self.eval_pin_array_ref(
+                    vid,
+                    pin,
+                    &self.dbs.variants[vid].bcls[bcls].output_id,
+                )?;
                 let mut wires = BTreeSet::new();
                 for wref in wire_refs {
                     let wire = self.eval_tile_wire_ref(vid, tcls, wref)?;
@@ -1416,7 +1450,7 @@ impl Context {
             }
             ast::BelItem::Bidir(pin, wire_ref) => {
                 let pin =
-                    self.eval_pin_array_ref(pin, &self.dbs.variants[vid].bcls[bcls].bidir_id)?;
+                    self.eval_pin_array_ref(vid, pin, &self.dbs.variants[vid].bcls[bcls].bidir_id)?;
                 let wire = self.eval_tile_wire_ref(vid, tcls, wire_ref)?;
                 bel.bidirs.insert(pin, wire);
             }
@@ -1740,8 +1774,10 @@ impl Context {
             ast::WireKinds::Single(kind) => self.eval_wire_kind(vid, kind),
             ast::WireKinds::Multi(kinds) => {
                 let idx = idx.unwrap();
-                for (range, kind) in kinds {
-                    if range.contains(&idx) {
+                for (start, end, kind) in kinds {
+                    let start = self.eval_expr(vid, start)?;
+                    let end = self.eval_expr(vid, end)?;
+                    if (start..end).contains(&idx) {
                         return self.eval_wire_kind(vid, kind);
                     }
                 }
@@ -1829,11 +1865,7 @@ impl Context {
             }
             ast::TopItem::RegionSlot(rslot) => {
                 for vid in self.active_variants() {
-                    let (name, num) = match &rslot.name {
-                        ast::ArrayIdDef::Plain(id) => (id, None),
-                        ast::ArrayIdDef::Array(id, n) => (id, Some(*n)),
-                    };
-                    let name = self.eval_templ_id(name)?;
+                    let (name, num) = self.eval_array_def(vid, &rslot.name)?;
                     if let Err(msg) = self.rslot_pre.insert(vid, &name, num) {
                         error_at(name.span(), msg)?
                     }
@@ -1866,11 +1898,7 @@ impl Context {
             }
             ast::TopItem::Wire(wire) => {
                 for vid in self.active_variants() {
-                    let (name, num) = match &wire.name {
-                        ast::ArrayIdDef::Plain(id) => (id, None),
-                        ast::ArrayIdDef::Array(id, n) => (id, Some(*n)),
-                    };
-                    let name = self.eval_templ_id(name)?;
+                    let (name, num) = self.eval_array_def(vid, &wire.name)?;
                     if let Err(msg) = self.wire_pre.insert(vid, &name, num) {
                         error_at(name.span(), msg)?
                     }
@@ -1969,22 +1997,18 @@ impl Context {
                 }
             }
             ast::TopItem::Wire(wire) => {
-                let (raw_name, num) = match &wire.name {
-                    ast::ArrayIdDef::Plain(id) => (id, None),
-                    ast::ArrayIdDef::Array(id, n) => (id, Some(*n)),
-                };
-                let name = self.eval_templ_id(raw_name)?;
                 for vid in self.active_variants() {
+                    let (name, num) = self.eval_array_def(vid, &wire.name)?;
                     if let Some(num) = num {
                         for i in 0..num {
                             let id = self.dbs.wire_id.get(&name, Some(i));
                             let kind =
-                                self.eval_wire_kinds(vid, raw_name.span(), &wire.kinds, Some(i))?;
+                                self.eval_wire_kinds(vid, name.span(), &wire.kinds, Some(i))?;
                             self.dbs.variants[vid].db.wires[id].kind = kind;
                         }
                     } else {
                         let id = self.dbs.wire_id.get(&name, None);
-                        let kind = self.eval_wire_kinds(vid, raw_name.span(), &wire.kinds, None)?;
+                        let kind = self.eval_wire_kinds(vid, name.span(), &wire.kinds, None)?;
                         self.dbs.variants[vid].db.wires[id].kind = kind;
                     }
                 }

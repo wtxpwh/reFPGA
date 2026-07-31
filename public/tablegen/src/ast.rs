@@ -27,8 +27,8 @@ pub struct ForLoop<T> {
 
 #[derive(Debug)]
 pub enum ForIterator {
-    Range(core::ops::Range<usize>),
-    RangeInclusive(core::ops::RangeInclusive<usize>),
+    Range(Expr, Expr),
+    RangeInclusive(Expr, Expr),
 }
 
 #[derive(Debug)]
@@ -86,8 +86,8 @@ pub struct BelClassPin {
 #[derive(Debug)]
 pub enum PinArrayIdDef {
     Plain(TemplateId),
-    Array(TemplateId, usize),
-    ArrayRange(TemplateId, usize, usize),
+    Array(TemplateId, Expr),
+    ArrayRange(TemplateId, Expr, Expr),
 }
 
 #[derive(Debug)]
@@ -105,8 +105,8 @@ pub struct BelClassAttribute {
 #[derive(Debug)]
 pub enum AttributeType {
     Bool,
-    BitVec(usize),
-    BitVecArray(usize, usize),
+    BitVec(Expr),
+    BitVecArray(Expr, Expr),
     Enum(TemplateId),
     U32,
 }
@@ -254,7 +254,7 @@ pub struct Wire {
 #[derive(Debug)]
 pub enum WireKinds {
     Single(WireKind),
-    Multi(Vec<(core::ops::Range<usize>, WireKind)>),
+    Multi(Vec<(Expr, Expr, WireKind)>),
 }
 
 #[derive(Debug)]
@@ -330,7 +330,7 @@ impl ArrayIdRef {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Expr {
     Ident(Ident),
     Literal(usize),
@@ -344,7 +344,7 @@ pub enum Expr {
 #[derive(Debug)]
 pub enum ArrayIdDef {
     Plain(TemplateId),
-    Array(TemplateId, usize),
+    Array(TemplateId, Expr),
 }
 
 impl ArrayIdDef {

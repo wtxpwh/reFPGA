@@ -32,6 +32,17 @@ pub fn parse_str(lit: &Literal) -> Result<String> {
     Ok(s.to_string())
 }
 
+fn parse_num_literal(literal: Literal) -> Result<usize> {
+    let s = literal.to_string();
+    let val = if let Some(s) = s.strip_prefix("0x") {
+        usize::from_str_radix(s, 16)
+    } else {
+        s.parse()
+    }
+    .map_err(|_| error_at::<()>(literal.span(), "expected number").unwrap_err())?;
+    Ok(val)
+}
+
 fn parse_expr(span: Span, tokens: TokenStream) -> Result<ast::Expr> {
     #[derive(Copy, Clone, Eq, PartialEq)]
     enum SumOp {
@@ -113,13 +124,7 @@ fn parse_expr(span: Span, tokens: TokenStream) -> Result<ast::Expr> {
                 TokenTree::Ident(ident) => ast::Expr::Ident(ident),
                 TokenTree::Punct(punct) => error_at(punct.span(), &format!("unexpected {punct}"))?,
                 TokenTree::Literal(literal) => {
-                    let s = literal.to_string();
-                    let val = if let Some(s) = s.strip_prefix("0x") {
-                        usize::from_str_radix(s, 16)
-                    } else {
-                        s.parse()
-                    }
-                    .map_err(|_| error_at::<()>(literal.span(), "expected number").unwrap_err())?;
+                    let val = parse_num_literal(literal)?;
                     ast::Expr::Literal(val)
                 }
             };
@@ -138,6 +143,22 @@ fn parse_expr(span: Span, tokens: TokenStream) -> Result<ast::Expr> {
         State::Expr(expr) => Ok(expr),
         State::ExprSumExpr(e1, sum, e2) => Ok(sum.apply(e1, e2)),
         _ => error_at(span, "unexpected end of expression")?,
+    }
+}
+
+fn parse_expr_simple(token: TokenTree) -> Result<ast::Expr> {
+    match token {
+        TokenTree::Group(group)
+            if matches!(group.delimiter(), Delimiter::Parenthesis | Delimiter::None) =>
+        {
+            parse_expr(group.span(), group.stream())
+        }
+        TokenTree::Ident(ident) => Ok(ast::Expr::Ident(ident)),
+        TokenTree::Literal(literal) => {
+            let val = parse_num_literal(literal)?;
+            Ok(ast::Expr::Literal(val))
+        }
+        _ => error_at(token.span(), "expected expression")?,
     }
 }
 
@@ -234,7 +255,7 @@ impl Tokenizer {
                 && g.delimiter() == Delimiter::Bracket
             {
                 let mut tokenizer = Tokenizer::new(g.span(), Vec::from_iter(g.stream()));
-                let num = tokenizer.usize()?;
+                let num = tokenizer.expr()?;
                 tokenizer.finish()?;
                 self.next();
                 ast::ArrayIdDef::Array(id, num)
@@ -252,9 +273,9 @@ impl Tokenizer {
             {
                 let mut tokenizer = Tokenizer::new(g.span(), Vec::from_iter(g.stream()));
                 self.next();
-                let num = tokenizer.usize()?;
+                let num = tokenizer.expr()?;
                 if tokenizer.try_punct(':') {
-                    let num2 = tokenizer.usize()?;
+                    let num2 = tokenizer.expr()?;
                     tokenizer.finish()?;
                     ast::PinArrayIdDef::ArrayRange(id, num, num2)
                 } else {
@@ -316,10 +337,10 @@ impl Tokenizer {
                 "u32" => return Ok(ast::AttributeType::U32),
                 "bitvec" => {
                     let mut inner = self.brackets()?;
-                    let width = inner.usize()?;
+                    let width = inner.expr()?;
                     inner.finish()?;
                     return Ok(if let Some(mut inner) = self.try_brackets() {
-                        let depth = inner.usize()?;
+                        let depth = inner.expr()?;
                         inner.finish()?;
                         ast::AttributeType::BitVecArray(width, depth)
                     } else {
@@ -354,13 +375,14 @@ impl Tokenizer {
         let Some(TokenTree::Literal(lit)) = self.next() else {
             self.error("expected number")?
         };
-        let s = lit.to_string();
-        if let Some(s) = s.strip_prefix("0x") {
-            usize::from_str_radix(s, 16)
-        } else {
-            s.parse()
-        }
-        .map_err(|_| self.error::<()>("expected number").unwrap_err())
+        parse_num_literal(lit)
+    }
+
+    fn expr(&mut self) -> Result<ast::Expr> {
+        let Some(token) = self.next() else {
+            self.error("expected expression")?
+        };
+        parse_expr_simple(token)
     }
 
     fn bitvec(&mut self) -> Result<BitVec> {
@@ -1066,19 +1088,18 @@ fn parse_wire(mut tokenizer: Tokenizer, block: Option<TokenStream>) -> Result<as
         let mut inner = Tokenizer::new(name.span(), Vec::from_iter(block));
         let mut kinds = vec![];
         while !inner.is_empty() {
-            let n = inner.usize()?;
-            let range = if inner.try_punct('.') {
+            let start = inner.expr()?;
+            let end = if inner.try_punct('.') {
                 inner.punct('.')?;
-                let m = inner.usize()?;
-                n..m
+                inner.expr()?
             } else {
-                n..n + 1
+                ast::Expr::Add(Box::new(start.clone()), Box::new(ast::Expr::Literal(1)))
             };
             inner.punct('=')?;
             inner.punct('>')?;
             let kind = parse_wire_kind(&mut inner)?;
             inner.punct(',')?;
-            kinds.push((range, kind));
+            kinds.push((start, end, kind));
         }
         ast::WireKinds::Multi(kinds)
     } else {
@@ -1236,16 +1257,16 @@ fn parse_for<T: Item>(span: Span, tokens: Vec<TokenTree>, block: TokenStream) ->
     let var = tokenizer.ident()?;
     tokenizer.kw("in")?;
 
-    let n1 = tokenizer.usize()?;
+    let start = tokenizer.expr()?;
     tokenizer.punct('.')?;
     tokenizer.punct('.')?;
     let is_inclusive = tokenizer.try_punct('=');
-    let n2 = tokenizer.usize()?;
+    let end = tokenizer.expr()?;
 
     let iterator = if is_inclusive {
-        ast::ForIterator::RangeInclusive(n1..=n2)
+        ast::ForIterator::RangeInclusive(start, end)
     } else {
-        ast::ForIterator::Range(n1..n2)
+        ast::ForIterator::Range(start, end)
     };
 
     tokenizer.finish()?;
