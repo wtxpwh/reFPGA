@@ -3,10 +3,7 @@ use prjcombine_interconnect::grid::{CellCoord, RowId};
 use prjcombine_re_xilinx_naming::{db::NamingDb, grid::ExpandedGridNaming};
 use prjcombine_virtex4::{
     chip::CfgRowKind,
-    defs::{
-        bslots, cslots, tslots,
-        virtex4::{ccls, tcls},
-    },
+    defs::{bslots, ccls, cslots, tcls, tslots},
     expanded::ExpandedDevice,
 };
 
@@ -31,16 +28,16 @@ pub fn name_device<'a>(edev: &'a ExpandedDevice<'a>, ndb: &'a NamingDb) -> Expan
     ngrid.tie_pin_gnd = Some("HARD0".to_string());
     ngrid.tie_pin_vcc = Some("HARD1".to_string());
 
-    let clb_grid = ngrid.bel_grid(|_, name, _| name == "CLB");
-    let bram_grid = ngrid.bel_grid(|_, name, _| name == "BRAM");
-    let dsp_grid = ngrid.bel_grid(|_, name, _| name == "DSP");
-    let io_grid = ngrid.bel_grid(|_, name, _| name == "IO");
-    let dcm_grid = ngrid.bel_grid(|_, name, _| name == "DCM");
-    let ccm_grid = ngrid.bel_grid(|_, name, _| name == "CCM");
-    let sysmon_grid = ngrid.bel_grid(|_, name, _| name == "SYSMON");
-    let ppc_grid = ngrid.bel_grid(|_, name, _| name == "PPC");
-    let mgt_grid = ngrid.bel_grid(|_, name, _| name == "MGT");
-    let dci_grid = ngrid.bel_grid(|_, _, tcls| tcls.bels.contains_id(bslots::DCI));
+    let clb_grid = ngrid.bel_grid(|tcid, _| tcid == tcls::CLB);
+    let bram_grid = ngrid.bel_grid(|tcid, _| tcid == tcls::BRAM);
+    let dsp_grid = ngrid.bel_grid(|tcid, _| tcid == tcls::DSP);
+    let io_grid = ngrid.bel_grid(|tcid, _| tcid == tcls::IO);
+    let dcm_grid = ngrid.bel_grid(|tcid, _| tcid == tcls::DCM);
+    let ccm_grid = ngrid.bel_grid(|tcid, _| tcid == tcls::CCM);
+    let sysmon_grid = ngrid.bel_grid(|tcid, _| tcid == tcls::SYSMON);
+    let ppc_grid = ngrid.bel_grid(|tcid, _| tcid == tcls::PPC);
+    let mgt_grid = ngrid.bel_grid(|tcid, _| tcid == tcls::MGT);
+    let dci_grid = ngrid.bel_grid(|_, tcls| tcls.bels.contains_id(bslots::DCI));
 
     let mut namer = Namer { ngrid };
 
@@ -48,7 +45,7 @@ pub fn name_device<'a>(edev: &'a ExpandedDevice<'a>, ndb: &'a NamingDb) -> Expan
         let cell = tcrd.cell;
         let CellCoord { col, row, .. } = cell;
         let chip = edev.chips[cell.die];
-        let kind = edev.db.tile_classes.key(tile.class);
+        let kind = edev.db.tile_classes[tile.class].name.as_str();
         let x = col.to_idx();
         let y = row.to_idx();
         match tile.class {

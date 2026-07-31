@@ -12,7 +12,7 @@ use crate::defs::bslots;
 use crate::expanded::{DieFrameGeom, ExpandedDevice, FrameAddr, FrameInfo, FrameMaskMode, IoCoord};
 use crate::{
     defs,
-    defs::virtex6::{ccls, rslots, tcls},
+    defs::{ccls, rslots, tcls},
 };
 
 struct Expander<'a, 'b> {
@@ -415,7 +415,7 @@ impl Expander<'_, '_> {
             self.egrid[cell].region_root[rslots::HROW] = cell.with_cr(col_hrow, row_hclk);
             self.egrid[cell].region_root[rslots::LEAF] = cell.with_row(crow);
             self.egrid[cell].region_root[rslots::LEAF_IO] = cell.with_row(row_hclk);
-            self.egrid[cell].region_root[rslots::GLOBAL] =
+            self.egrid[cell].region_root[rslots::GCLK] =
                 cell.with_cr(self.col_cfg, self.chip.row_bufg());
 
             if cell.row.to_idx() % 40 == 20 {

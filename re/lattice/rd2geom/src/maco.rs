@@ -2,7 +2,7 @@ use std::collections::{BTreeMap, BTreeSet, btree_map};
 
 use prjcombine_ecp::{
     chip::{ChipKind, RowKind},
-    defs::{bslots, cslots, wiredata, wires},
+    defs::{bslots, ccls, cslots, wiredata, wires},
 };
 use prjcombine_entity::{EntityId, EntityPartVec};
 use prjcombine_interconnect::{
@@ -122,7 +122,7 @@ impl ChipContext<'_> {
                     };
                     self.claim_pip(wt, wf);
                 }
-                if self.intdb.conn_classes.key(conn.class) == "PASS_EBR_E_W" {
+                if conn.class == ccls::PASS_EBR_E_W {
                     for i in 48..64 {
                         let wire_1 = self.rc_wire(cell_to.delta(1, 1), &format!("HMAASI{i:02}"));
                         self.claim_node(wire_1);
@@ -131,7 +131,7 @@ impl ChipContext<'_> {
                         assert!(self.naming.strings[wire_0.suffix].starts_with("HMA"));
                     }
                 }
-                if self.intdb.conn_classes.key(conn.class) == "PASS_EBR_W_E" {
+                if conn.class == ccls::PASS_EBR_W_E {
                     for i in 48..64 {
                         let wire_1 = self.rc_wire(cell_to.delta(1, 1), &format!("HMABSI{i:02}"));
                         self.claim_node(wire_1);
@@ -323,7 +323,7 @@ impl ChipContext<'_> {
                                 );
                             }
 
-                            let twire_in =match dir_io {
+                            let twire_in = match dir_io {
                                 DirH::W => wiredata::IO_W[i][j],
                                 DirH::E => wiredata::IO_E[i][j],
                             }

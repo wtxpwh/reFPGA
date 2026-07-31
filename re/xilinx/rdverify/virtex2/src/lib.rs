@@ -12,10 +12,7 @@ use prjcombine_re_xilinx_rawdump::Part;
 use prjcombine_re_xilinx_rdverify::{RawWireCoord, SitePinDir, Verifier};
 use prjcombine_virtex2::{
     chip::{ChipKind, ColumnKind},
-    defs::{
-        self, bcls, bslots,
-        spartan3::{tcls as tcls_s3, wires as wires_s3},
-    },
+    defs::{self, bcls, bslots, tcls, wires},
 };
 
 mod clb;
@@ -376,42 +373,30 @@ pub fn verify_device(endev: &ExpandedNamedDevice, rd: &Part, pb: &ProgressBar) {
         }
         for (wt, wf) in [
             (
-                defs::virtex2::wires::IMUX_CLK_OPTINV.as_slice(),
-                defs::virtex2::wires::IMUX_CLK.as_slice(),
+                wires::IMUX_CLK_OPTINV.as_slice(),
+                wires::IMUX_CLK.as_slice(),
             ),
             (
-                defs::virtex2::wires::IMUX_DCM_CLK_OPTINV.as_slice(),
-                defs::virtex2::wires::IMUX_DCM_CLK.as_slice(),
+                wires::IMUX_DCM_CLK_OPTINV.as_slice(),
+                wires::IMUX_DCM_CLK.as_slice(),
             ),
-            (
-                defs::virtex2::wires::IMUX_SR_OPTINV.as_slice(),
-                defs::virtex2::wires::IMUX_SR.as_slice(),
-            ),
-            (
-                defs::virtex2::wires::IMUX_CE_OPTINV.as_slice(),
-                defs::virtex2::wires::IMUX_CE.as_slice(),
-            ),
-            (
-                defs::virtex2::wires::IMUX_TS_OPTINV.as_slice(),
-                defs::virtex2::wires::IMUX_TS.as_slice(),
-            ),
-            (
-                defs::virtex2::wires::IMUX_TI_OPTINV.as_slice(),
-                defs::virtex2::wires::IMUX_TI.as_slice(),
-            ),
+            (wires::IMUX_SR_OPTINV.as_slice(), wires::IMUX_SR.as_slice()),
+            (wires::IMUX_CE_OPTINV.as_slice(), wires::IMUX_CE.as_slice()),
+            (wires::IMUX_TS_OPTINV.as_slice(), wires::IMUX_TS.as_slice()),
+            (wires::IMUX_TI_OPTINV.as_slice(), wires::IMUX_TI.as_slice()),
         ] {
             for (&wt, &wf) in wt.iter().zip(wf) {
                 vrf.alias_wire_slot(wt, wf);
             }
         }
         for wt in [
-            defs::virtex2::wires::IMUX_CE[0],
-            defs::virtex2::wires::IMUX_CE[1],
-            defs::virtex2::wires::IMUX_TS[0],
-            defs::virtex2::wires::IMUX_TS[1],
+            wires::IMUX_CE[0],
+            wires::IMUX_CE[1],
+            wires::IMUX_TS[0],
+            wires::IMUX_TS[1],
         ] {
             vrf.inject_tcls_pip(defs::virtex2::tcls::INT_GT_CLKPAD, wt.cell(0), {
-                let wire = defs::virtex2::wires::PULLUP;
+                let wire = wires::PULLUP;
                 wire.cell(0).pos()
             });
         }
@@ -499,17 +484,11 @@ pub fn verify_device(endev: &ExpandedNamedDevice, rd: &Part, pb: &ProgressBar) {
         }
         for (wt, wf) in [
             (
-                defs::spartan3::wires::IMUX_CLK_OPTINV.as_slice(),
-                defs::spartan3::wires::IMUX_CLK.as_slice(),
+                wires::IMUX_CLK_OPTINV.as_slice(),
+                wires::IMUX_CLK.as_slice(),
             ),
-            (
-                defs::spartan3::wires::IMUX_SR_OPTINV.as_slice(),
-                defs::spartan3::wires::IMUX_SR.as_slice(),
-            ),
-            (
-                defs::spartan3::wires::IMUX_CE_OPTINV.as_slice(),
-                defs::spartan3::wires::IMUX_CE.as_slice(),
-            ),
+            (wires::IMUX_SR_OPTINV.as_slice(), wires::IMUX_SR.as_slice()),
+            (wires::IMUX_CE_OPTINV.as_slice(), wires::IMUX_CE.as_slice()),
         ] {
             for (&wt, &wf) in wt.iter().zip(wf) {
                 vrf.alias_wire_slot(wt, wf);
@@ -526,21 +505,21 @@ pub fn verify_device(endev: &ExpandedNamedDevice, rd: &Part, pb: &ProgressBar) {
             vrf.kill_stub_out_cond("BRAM_CLK3");
         }
         for tcid in [
-            tcls_s3::CLK_W_S3E,
-            tcls_s3::CLK_W_S3A,
-            tcls_s3::CLK_E_S3E,
-            tcls_s3::CLK_E_S3A,
+            tcls::CLK_W_S3E,
+            tcls::CLK_W_S3A,
+            tcls::CLK_E_S3E,
+            tcls::CLK_E_S3A,
         ] {
             for i in 0..4 {
                 for c in [3, 4] {
                     vrf.inject_tcls_pip(
                         tcid,
                         {
-                            let wire = wires_s3::IMUX_DATA[3 + i * 4];
+                            let wire = wires::IMUX_DATA[3 + i * 4];
                             wire.cell(c)
                         },
                         {
-                            let wire = wires_s3::PULLUP;
+                            let wire = wires::PULLUP;
                             wire.cell(4).pos()
                         },
                     );
@@ -573,7 +552,7 @@ pub fn verify_device(endev: &ExpandedNamedDevice, rd: &Part, pb: &ProgressBar) {
                 }
             }
         }
-        for &tcrd in &endev.edev.tile_index[tcls_s3::HCLK_UNI] {
+        for &tcrd in &endev.edev.tile_index[tcls::HCLK_UNI] {
             let ntile = &endev.ngrid.tiles[&tcrd];
             if endev.ngrid.db.tile_class_namings.key(ntile.naming) == "HCLK_BRAM" {
                 let naming = &endev.ngrid.db.tile_class_namings[ntile.naming];
@@ -582,7 +561,7 @@ pub fn verify_device(endev: &ExpandedNamedDevice, rd: &Part, pb: &ProgressBar) {
                     let wire_s = RawWireCoord {
                         crd,
                         wire: &naming.wires[&{
-                            let wire = wires_s3::GCLK[i];
+                            let wire = wires::GCLK[i];
                             wire.cell(0)
                         }]
                             .name,
@@ -590,7 +569,7 @@ pub fn verify_device(endev: &ExpandedNamedDevice, rd: &Part, pb: &ProgressBar) {
                     let wire_n = RawWireCoord {
                         crd,
                         wire: &naming.wires[&{
-                            let wire = wires_s3::GCLK[i];
+                            let wire = wires::GCLK[i];
                             wire.cell(1)
                         }]
                             .name,
@@ -598,7 +577,7 @@ pub fn verify_device(endev: &ExpandedNamedDevice, rd: &Part, pb: &ProgressBar) {
                     let wire_row = RawWireCoord {
                         crd,
                         wire: &naming.wires[&{
-                            let wire = wires_s3::GCLK_QUAD[i];
+                            let wire = wires::GCLK_QUAD[i];
                             wire.cell(1)
                         }]
                             .name,
@@ -610,11 +589,11 @@ pub fn verify_device(endev: &ExpandedNamedDevice, rd: &Part, pb: &ProgressBar) {
         }
     }
     if !endev.edev.chip.kind.is_virtex2() {
-        for tcid in [tcls_s3::INT_DCM, tcls_s3::INT_DCM_S3E_DUMMY] {
+        for tcid in [tcls::INT_DCM, tcls::INT_DCM_S3E_DUMMY] {
             for (wt, wf) in [
-                (wires_s3::OUT_SEC[12], wires_s3::IMUX_CLK_OPTINV[3]),
-                (wires_s3::OUT_SEC[13], wires_s3::IMUX_CLK_OPTINV[2]),
-                (wires_s3::OUT_SEC[14], wires_s3::IMUX_CLK_OPTINV[1]),
+                (wires::OUT_SEC[12], wires::IMUX_CLK_OPTINV[3]),
+                (wires::OUT_SEC[13], wires::IMUX_CLK_OPTINV[2]),
+                (wires::OUT_SEC[14], wires::IMUX_CLK_OPTINV[1]),
             ] {
                 vrf.skip_tcls_pip(tcid, wt.cell(0), wf.cell(0).neg());
                 vrf.inject_tcls_pip(tcid, wt.cell(0), wf.cell(0).pos());

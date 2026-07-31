@@ -348,14 +348,14 @@ pub fn add_fuzzers<'a>(
                         .prop(WireMutexExclusive::new(odst))
                         .prop(BaseIntPip::new(odst, src.tw))
                         .prop(FuzzIntPip::new(dst, src.tw));
-                } else if wires::GCLK_CMT.contains(src.wire) {
+                } else if wires::GCLK_HROW.contains(src.wire) {
                     builder = builder
                         .global_mutex("GCLK", "USE")
                         .prop(WireMutexExclusive::new(odst))
                         .prop(BaseIntPip::new(odst, src.tw))
                         .prop(FuzzIntPip::new(dst, src.tw));
-                } else if wires::BUFH_INT_W.contains(src.wire)
-                    || wires::BUFH_INT_E.contains(src.wire)
+                } else if wires::CKINT_HROW_W.contains(src.wire)
+                    || wires::CKINT_HROW_E.contains(src.wire)
                 {
                     builder = builder
                         .tile_mutex("BUFHCE_CKINT", "USE")
@@ -371,8 +371,8 @@ pub fn add_fuzzers<'a>(
     }
     {
         for (wt, wf) in [
-            (wires::IMUX_BUFHCE_W[0], wires::BUFH_INT_W),
-            (wires::IMUX_BUFHCE_E[0], wires::BUFH_INT_E),
+            (wires::IMUX_BUFHCE_W[0], wires::CKINT_HROW_W),
+            (wires::IMUX_BUFHCE_E[0], wires::CKINT_HROW_E),
         ] {
             for wf in wf {
                 let dst = wt.cell(20);
@@ -439,7 +439,7 @@ pub fn add_fuzzers<'a>(
         let mut bctx = ctx.bel(bslots::SPEC_INT);
         let wire_pin = wires::IMUX_BUFHCE_W[i % 12].cell(20);
         let dst = wires::GCLK_TEST[i].cell(20);
-        let src = wires::GCLK_CMT[i].cell(20);
+        let src = wires::GCLK_HROW[i].cell(20);
         bctx.build()
             .global_mutex("GCLK", "USE")
             .prop(WireMutexExclusive::new(dst))
@@ -1138,8 +1138,8 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx, devdata_only: bool) {
     }
     {
         for (wt, wf) in [
-            (wires::IMUX_BUFHCE_W[0], wires::BUFH_INT_W),
-            (wires::IMUX_BUFHCE_E[0], wires::BUFH_INT_E),
+            (wires::IMUX_BUFHCE_W[0], wires::CKINT_HROW_W),
+            (wires::IMUX_BUFHCE_E[0], wires::CKINT_HROW_E),
         ] {
             for wf in wf {
                 let dst = wt.cell(20);
@@ -1200,7 +1200,7 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx, devdata_only: bool) {
     for i in 0..32 {
         let dst = wires::GCLK_TEST[i].cell(20);
         let buf = wires::GCLK_TEST_IN[i].cell(20);
-        let src = wires::GCLK_CMT[i].cell(20);
+        let src = wires::GCLK_HROW[i].cell(20);
 
         let diff_buf = ctx.get_diff_routing(tcid, dst, src.pos());
         let mut diff_inv = ctx

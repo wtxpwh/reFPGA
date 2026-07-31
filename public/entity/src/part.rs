@@ -36,6 +36,10 @@ impl<I: EntityId, V> EntityPartVec<I, V> {
         }
     }
 
+    pub fn is_empty(&self) -> bool {
+        self.iter().next().is_none()
+    }
+
     pub fn get(&self, id: I) -> Option<&V> {
         let idx = id.to_idx();
         self.vals.get(idx).and_then(|x| x.as_ref())
@@ -157,6 +161,14 @@ impl<I: EntityId, V> EntityPartVec<I, V> {
             }
         }
         Ok(res)
+    }
+
+    pub fn map<O>(&self, mut f: impl FnMut(I, &V) -> O) -> EntityPartVec<I, O> {
+        self.iter().map(|(id, v)| (id, f(id, v))).collect()
+    }
+
+    pub fn map_values<O>(&self, mut f: impl FnMut(&V) -> O) -> EntityPartVec<I, O> {
+        self.iter().map(|(id, v)| (id, f(v))).collect()
     }
 }
 

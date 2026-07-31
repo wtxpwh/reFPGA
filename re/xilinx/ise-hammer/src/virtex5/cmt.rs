@@ -797,8 +797,8 @@ pub fn add_fuzzers<'a>(
             }
         }
 
-        let dst = wires::IMUX_PLL_CLKFB.cell(0);
-        let odst = wires::IMUX_PLL_CLKIN1.cell(0);
+        let dst = wires::IMUX_PLL_CLKFB[0].cell(0);
+        let odst = wires::IMUX_PLL_CLKIN1[0].cell(0);
         let mux = &backend.edev.db_index.tile_classes[tcls::CMT].muxes[&dst];
         for &src in mux.src.keys() {
             let mut builder = bctx
@@ -827,8 +827,8 @@ pub fn add_fuzzers<'a>(
             builder.commit();
         }
 
-        let dst = wires::IMUX_PLL_CLKIN1.cell(0);
-        let odst = wires::IMUX_PLL_CLKFB.cell(0);
+        let dst = wires::IMUX_PLL_CLKIN1[0].cell(0);
+        let odst = wires::IMUX_PLL_CLKFB[0].cell(0);
         for src in wires::GIOB_CMT
             .into_iter()
             .chain(wires::HCLK_CMT)
@@ -866,7 +866,7 @@ pub fn add_fuzzers<'a>(
             builder.commit();
         }
 
-        let dst = wires::IMUX_PLL_CLKIN2.cell(0);
+        let dst = wires::IMUX_PLL_CLKIN2[0].cell(0);
         let src = wires::GIOB_CMT[5].cell(0);
         bctx.mode(mode)
             .global_mutex("HCLK_CMT", "USE")
@@ -1645,13 +1645,17 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx, skip_dcm: bool, skip_pll: bool, d
         let item = xlat_bit(
             ctx.peek_diff_routing(
                 tcid,
-                wires::IMUX_PLL_CLKIN1.cell(0),
+                wires::IMUX_PLL_CLKIN1[0].cell(0),
                 wires::GIOB_CMT[5].cell(0).pos(),
             )
             .clone(),
         );
         ctx.insert_bel_attr_bool(tcid, bslot, PLL::CLKINSEL_STATIC_VAL, item);
-        ctx.collect_mux_ocd(tcid, wires::IMUX_PLL_CLKFB.cell(0), OcdMode::BitOrderDrpV5);
+        ctx.collect_mux_ocd(
+            tcid,
+            wires::IMUX_PLL_CLKFB[0].cell(0),
+            OcdMode::BitOrderDrpV5,
+        );
 
         let BelInfo::SwitchBox(ref sb) = ctx.edev.db[tcid].bels[bslots::SPEC_INT] else {
             unreachable!()
@@ -1673,11 +1677,11 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx, skip_dcm: bool, skip_pll: bool, d
             if let Some(src0) = srcs[0] {
                 diffs.push((
                     srcs,
-                    ctx.get_diff_routing(tcid, wires::IMUX_PLL_CLKIN1.cell(0), src0),
+                    ctx.get_diff_routing(tcid, wires::IMUX_PLL_CLKIN1[0].cell(0), src0),
                 ));
             }
             if let Some(src1) = srcs[1] {
-                let mut diff = ctx.get_diff_routing(tcid, wires::IMUX_PLL_CLKIN1.cell(0), src1);
+                let mut diff = ctx.get_diff_routing(tcid, wires::IMUX_PLL_CLKIN1[0].cell(0), src1);
                 diff.apply_bit_diff(
                     ctx.bel_attr_bit(tcid, bslot, PLL::CLKINSEL_STATIC_VAL),
                     true,

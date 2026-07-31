@@ -24,7 +24,7 @@ impl NocPortCoord {
         format!(
             "{cell}.{slot}.{port}",
             cell = self.cell,
-            slot = db.bel_slots.key(self.slot),
+            slot = db.bel_slots[self.slot].name,
             port = self.port,
         )
     }

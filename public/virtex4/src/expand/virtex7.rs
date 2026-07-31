@@ -14,7 +14,7 @@ use crate::defs::{bslots, tslots};
 use crate::expanded::{DieFrameGeom, ExpandedDevice, FrameAddr, FrameInfo, FrameMaskMode, IoCoord};
 use crate::{
     defs,
-    defs::virtex7::{ccls, rslots, tcls, wires},
+    defs::{ccls, rslots, tcls, wires},
 };
 
 struct DieExpander<'a, 'b, 'c> {

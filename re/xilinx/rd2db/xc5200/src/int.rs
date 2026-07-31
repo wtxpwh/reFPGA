@@ -555,7 +555,7 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
 
     for pips in builder.pips.values_mut() {
         for (&(wt, _wf), mode) in &mut pips.pips {
-            let wtn = builder.db.wires.key(wt.wire);
+            let wtn = builder.db.wires[wt.wire].name.as_str();
             if !wtn.starts_with("IMUX") && !wtn.starts_with("OMUX") && *mode != PipMode::PermaBuf {
                 *mode = PipMode::Pass;
             }

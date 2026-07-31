@@ -122,8 +122,8 @@ pub fn make_sample(
                         let (cell, wa, wb) =
                             xlat_mux_in(edev, iwa, iwb, (ax, ay, aw), (bx, by, bw));
                         let tile = &edev[cell.tile(tslots::MAIN)];
-                        let wan = edev.db.wires.key(wa);
-                        let wbn = edev.db.wires.key(wb);
+                        let wan = edev.db.wires[wa].name.as_str();
+                        let wbn = edev.db.wires[wb].name.as_str();
                         if let Some(idx) = wires::GLOBAL.index_of(wb) {
                             let root = wires::GLOBAL_ROOT[idx].cell(0);
                             let tcid = edev.chip.kind.tile_class_gb_root();

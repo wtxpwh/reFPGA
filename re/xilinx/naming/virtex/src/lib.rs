@@ -182,7 +182,7 @@ pub fn name_device<'a>(edev: &'a ExpandedDevice<'a>, ndb: &'a NamingDb) -> Expan
 
     for (tcrd, tile) in edev.tiles() {
         let CellCoord { col, row, .. } = tcrd.cell;
-        let kind = edev.db.tile_classes.key(tile.class);
+        let kind = edev.db.tile_classes[tile.class].name.as_str();
         match tile.class {
             tcls::CNR_SW | tcls::CNR_SW_S2 => {
                 let ntile = namer.ngrid.name_tile(tcrd, "CNR_SW", ["BL".into()]);

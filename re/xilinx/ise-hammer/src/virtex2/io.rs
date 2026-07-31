@@ -992,7 +992,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
         .unwrap();
 
     // IOI
-    for (tcid, _, tcls) in &intdb.tile_classes {
+    for (tcid, tcls) in &intdb.tile_classes {
         let Some(mut ctx) = FuzzCtx::try_new(session, backend, tcid) else {
             continue;
         };
@@ -1967,7 +1967,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
     // IOB
     for iob_data in get_iob_tiles(edev.chip.kind) {
         let tcid = iob_data.tcid;
-        let tile = edev.db.tile_classes.key(tcid);
+        let tile = edev.db[tcid].name.as_str();
         let is_s3a_we = !edev.chip.kind.is_virtex2()
             && (matches!(tcid, tcls_s3::IOB_S3A_W4 | tcls_s3::IOB_S3A_E4));
         let Some(mut ctx) = FuzzCtx::try_new(session, backend, tcid) else {
@@ -2767,7 +2767,7 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
     let intdb = ctx.edev.db;
 
     // IOI
-    for (tcid, _, tcls) in &intdb.tile_classes {
+    for (tcid, tcls) in &intdb.tile_classes {
         if !ctx.has_tcls(tcid) {
             continue;
         }

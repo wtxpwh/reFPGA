@@ -582,7 +582,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         .collect();
     let pgrids = EntityVec::<GridId, _>::from_iter(pgrids);
     let mut missing_bels = BTreeSet::new();
-    for (tcid, _, tcls) in &int.tile_classes {
+    for (tcid, tcls) in &int.tile_classes {
         for (bid, bel) in &tcls.bels {
             if let BelInfo::Legacy(bel) = bel
                 && !bel.pins.is_empty()
@@ -610,8 +610,8 @@ fn main() -> Result<(), Box<dyn Error>> {
                     int[tcid].bels[bid],
                     bel,
                     "MERGE FAILED {chip_id} {tc} {bel}",
-                    tc = int.tile_classes.key(tcid),
-                    bel = int.bel_slots.key(bid),
+                    tc = int.tile_classes[tcid].name,
+                    bel = int.bel_slots[bid].name,
                 );
             }
         }
@@ -822,8 +822,8 @@ fn main() -> Result<(), Box<dyn Error>> {
     for (tcid, bid) in missing_bels {
         println!(
             "MISSING BEL {tc} {bel}",
-            tc = int.tile_classes.key(tcid),
-            bel = int.bel_slots.key(bid),
+            tc = int.tile_classes[tcid].name,
+            bel = int.bel_slots[bid].name,
         );
     }
     let db = Database {

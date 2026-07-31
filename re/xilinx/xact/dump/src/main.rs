@@ -129,9 +129,9 @@ fn main() {
                         let col_intdb = entry.get_mut();
                         assert_eq!(col_intdb.wires, intdb.wires);
                         assert_eq!(col_intdb.conn_classes, intdb.conn_classes);
-                        for (_, tcname, tcls) in intdb.tile_classes {
-                            if let Some((_, col_tcls)) = col_intdb.tile_classes.get_mut(&tcname) {
-                                if let Some((_, base_tcls)) = base.tile_classes.get(&tcname) {
+                        for (tcid, tcls) in intdb.tile_classes {
+                            if let Some(col_tcls) = col_intdb.tile_classes.get_mut_id(tcid) {
+                                if let Some(base_tcls) = base.tile_classes.get_id(tcid) {
                                     if *base_tcls == tcls {
                                         continue;
                                     }
@@ -140,9 +140,14 @@ fn main() {
                                         continue;
                                     }
                                 }
-                                assert_eq!(*col_tcls, tcls, "mismatch for tile class {tcname}");
+                                assert_eq!(
+                                    *col_tcls,
+                                    tcls,
+                                    "mismatch for tile class {tcname}",
+                                    tcname = tcls.name
+                                );
                             } else {
-                                col_intdb.tile_classes.insert(tcname, tcls);
+                                col_intdb.tile_classes.insert(tcid, tcls).unwrap();
                             }
                         }
                     }

@@ -13,8 +13,7 @@ use prjcombine_virtex4::{
     chip::{ColumnKind, DisabledPart},
     defs::{
         bcls::{self, BRAM_V5 as BRAM},
-        bslots, cslots,
-        virtex7::{ccls, tcls, wires},
+        bslots, ccls, cslots, tcls, wires,
     },
     expanded::ExpandedDevice,
 };
@@ -2041,7 +2040,7 @@ fn verify_pre_io(endev: &ExpandedNamedDevice, vrf: &mut Verifier) {
     for tcid in [tcls::HCLK_IO_HP, tcls::HCLK_IO_HR] {
         for &tcrd in &endev.edev.tile_index[tcid] {
             // insert invisible buffers
-            for (wt, wf) in wires::PERF_IO.into_iter().zip(wires::PERF) {
+            for (wt, wf) in wires::PERF_BUF.into_iter().zip(wires::PERF) {
                 let dst = wt.cell(4);
                 let src = wf.cell(4);
                 vrf.skip_tcls_pip(tcid, dst, src.pos());

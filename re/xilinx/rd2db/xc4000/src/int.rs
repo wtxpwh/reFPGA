@@ -1797,8 +1797,8 @@ fn extract_llh(builder: &mut IntBuilder) {
 
 fn extract_llv(builder: &mut IntBuilder) {
     let mut clk_wires = vec![];
-    for (w, wn, _) in &builder.db.wires {
-        if wn.starts_with("GCLK") {
+    for (w, wire) in &builder.db.wires {
+        if wire.name.starts_with("GCLK") {
             clk_wires.push(w);
         }
     }
@@ -2141,10 +2141,10 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
     }
 
     for (&(tcid, bslot), pips) in &mut builder.pips {
-        let tcname = builder.db.tile_classes.key(tcid);
+        let tcname = builder.db.tile_classes[tcid].name.as_str();
         for (&(wt, wf), mode) in &mut pips.pips {
-            let wtn = builder.db.wires.key(wt.wire);
-            let wfn = builder.db.wires.key(wf.wire);
+            let wtn = builder.db.wires[wt.wire].name.as_str();
+            let wfn = builder.db.wires[wf.wire].name.as_str();
             if *mode == PipMode::PermaBuf {
                 continue;
             }
@@ -2342,7 +2342,7 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
             .or_default()
             .push(wires::SPECIAL_CLB_COUT0.cell(0).pos());
     }
-    for (tcid, _, tcls) in &intdb.tile_classes {
+    for (tcid, tcls) in &intdb.tile_classes {
         for idx in 0..2 {
             if tcls.bels.contains_id(bslots::TBUF[idx]) {
                 injected_specials
@@ -2373,7 +2373,7 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
         }
     }
 
-    for (tcid, _, tcls) in &mut intdb.tile_classes {
+    for (tcid, tcls) in &mut intdb.tile_classes {
         for bel in tcls.bels.values_mut() {
             let BelInfo::SwitchBox(sb) = bel else {
                 continue;

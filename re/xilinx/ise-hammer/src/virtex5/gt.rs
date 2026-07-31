@@ -48,7 +48,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
             continue;
         };
         let mut bctx = ctx.bel(bslot);
-        let mode = backend.edev.db.bel_slots.key(bslot).as_str();
+        let mode = backend.edev.db[bslot].name.as_str();
         for &pin in invpins {
             bctx.mode(mode)
                 .mutex("USRCLK", "INV")

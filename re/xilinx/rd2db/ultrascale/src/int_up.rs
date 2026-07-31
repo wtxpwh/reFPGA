@@ -2,8 +2,8 @@ use std::collections::{BTreeMap, BTreeSet, btree_map};
 
 use prjcombine_interconnect::{
     db::{
-        BelInfo, CellSlotId, ConnectorClass, ConnectorWire, IntDb, LegacyBel, TileWireCoord,
-        WireSlotId, WireSlotIdExt,
+        BelInfo, CellSlotId, ConnectorWire, IntDb, LegacyBel, TileWireCoord, WireSlotId,
+        WireSlotIdExt,
     },
     dir::{Dir, DirMap, DirV},
 };
@@ -14,9 +14,7 @@ use prjcombine_re_xilinx_naming::db::{BelNaming, NamingDb};
 use prjcombine_re_xilinx_naming_ultrascale::DeviceNaming;
 use prjcombine_re_xilinx_rd2db_interconnect::{IntBuilder, PipMode, XTileInfo, XTileRef};
 use prjcombine_ultrascale::defs::{
-    self,
-    ultrascaleplus::{bslots, ccls, cslots, tcls, wires},
-    wiredata::ultrascaleplus as wiredata,
+    self, bslots, ccls, tcls, ultrascaleplus::wires, wiredata::ultrascaleplus as wiredata,
 };
 
 const XLAT24: [usize; 24] = [
@@ -83,15 +81,15 @@ impl IntMaker<'_> {
         });
 
         for (w, dir, fts, ftn) in [
-            (wiredata::X12_W.as_slice(), Dir::W, None, None),
+            (wiredata::LX12_W.as_slice(), Dir::W, None, None),
             (
-                wiredata::X12_E.as_slice(),
+                wiredata::LX12_E.as_slice(),
                 Dir::E,
-                Some(wires::X12_E6_S0),
-                Some(wires::X12_E6_N7),
+                Some(wires::LX12_E6_S0),
+                Some(wires::LX12_E6_N7),
             ),
-            (wiredata::X12_S.as_slice(), Dir::S, None, None),
-            (wiredata::X12_N.as_slice(), Dir::N, None, None),
+            (wiredata::LX12_S.as_slice(), Dir::S, None, None),
+            (wiredata::LX12_N.as_slice(), Dir::N, None, None),
         ] {
             let length = w.len() - 1;
             let ftd = d2n[!dir];
@@ -674,19 +672,12 @@ impl IntMaker<'_> {
                     wires.insert(wt, ConnectorWire::Reflect(wf));
                 }
             }
-            let conn = ConnectorClass {
-                slot: match dir {
-                    DirV::S => cslots::S,
-                    DirV::N => cslots::N,
-                },
-                wires,
-            };
             self.builder.insert_connector(
                 match dir {
                     DirV::S => [ccls::TERM_S0, ccls::TERM_S1][cid],
                     DirV::N => [ccls::TERM_N0, ccls::TERM_N1][cid],
                 },
-                conn,
+                wires,
             );
         }
     }
@@ -711,9 +702,9 @@ impl IntMaker<'_> {
             w2e.insert(wt, wf);
         }
         let switch_tile = [w2e, e2w];
-        for (cslot, ccid_pass, ccid_io, xy_to, xy_from, cell_to, cell_from) in [
-            (cslots::W, ccls::PASS_W, ccls::IO_W, xy_e, xy_w, 0, 1),
-            (cslots::E, ccls::PASS_E, ccls::IO_E, xy_w, xy_e, 1, 0),
+        for (ccid_pass, ccid_io, xy_to, xy_from, cell_to, cell_from) in [
+            (ccls::PASS_W, ccls::IO_W, xy_e, xy_w, 0, 1),
+            (ccls::PASS_E, ccls::IO_E, xy_w, xy_e, 1, 0),
         ] {
             let pass = &self.builder.db[ccid_pass];
             let naming =
@@ -755,15 +746,14 @@ impl IntMaker<'_> {
                     wires.insert(wt, ConnectorWire::Pass(wf));
                 }
             }
-            let conn = ConnectorClass { slot: cslot, wires };
-            self.builder.insert_connector(ccid_io, conn);
+            self.builder.insert_connector(ccid_io, wires);
         }
     }
 
     fn fill_io_term_long(&mut self, xy_w: Coord, xy_e: Coord) {
-        for (cslot, ccid_pass, ccid_io, xy_to, xy_from) in [
-            (cslots::LW, ccls::PASS_LW, ccls::IO_LW, xy_e, xy_w),
-            (cslots::LE, ccls::PASS_LE, ccls::IO_LE, xy_w, xy_e),
+        for (ccid_pass, ccid_io, xy_to, xy_from) in [
+            (ccls::PASS_LW, ccls::IO_LW, xy_e, xy_w),
+            (ccls::PASS_LE, ccls::IO_LE, xy_w, xy_e),
         ] {
             let pass = &self.builder.db[ccid_pass];
             let naming =
@@ -789,8 +779,7 @@ impl IntMaker<'_> {
                     wires.insert(wt, ConnectorWire::Pass(wf));
                 }
             }
-            let conn = ConnectorClass { slot: cslot, wires };
-            self.builder.insert_connector(ccid_io, conn);
+            self.builder.insert_connector(ccid_io, wires);
         }
     }
 
@@ -4860,7 +4849,7 @@ impl IntMaker<'_> {
                             .pin_rename("TEST_ANALOGBUS_SEL_B", "TEST_ANALOGBUS_SEL"),
                     );
                 }
-                let tcname = self.builder.db.tile_classes.key(tcid).to_string();
+                let tcname = self.builder.db[tcid].name.clone();
                 self.builder
                     .xtile_id(
                         tcid,

@@ -1047,7 +1047,7 @@ pub fn find_bel_pins(
                         }
                         _ => continue,
                     };
-                    let wtn = p01_db.wires.key(wt.wire);
+                    let wtn = p01_db.wires[wt.wire].name.as_str();
                     if wtn.starts_with("IMUX") {
                         let wf = cell.wire(wf.wire);
                         let wf = edev.resolve_wire(wf).unwrap();
@@ -1068,7 +1068,7 @@ pub fn find_bel_pins(
                             result.ins.insert(pin.clone(), wt);
                         }
                     }
-                    let wfn = p01_db.wires.key(wf.wire);
+                    let wfn = p01_db.wires[wf.wire].name.as_str();
                     if wfn.starts_with("OUT") {
                         let wt = cell.wire(wt.wire);
                         let wt = edev.resolve_wire(wt).unwrap();

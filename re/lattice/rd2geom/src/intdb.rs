@@ -2,15 +2,16 @@ use prjcombine_ecp::{
     chip::ChipKind,
     defs::{bslots, tslots, wires},
 };
+use prjcombine_entity::EntityId;
 use prjcombine_interconnect::db::{
     BelInfo, BelPin, BelSlotId, IntDb, LegacyBel, PermaBuf, ProgBuf, SwitchBox, SwitchBoxItem,
-    TileClass, TileSlotId, WireSlotId, WireSlotIdExt,
+    TileClass, TileClassId, TileSlotId, WireSlotId, WireSlotIdExt,
 };
 use prjcombine_types::bsdata::PolTileBit;
 
 struct TileClassBuilder<'db> {
     db: &'db mut IntDbBuilder,
-    name: String,
+    tcid: TileClassId,
     class: TileClass,
 }
 
@@ -26,10 +27,14 @@ impl<'db> TileClassBuilder<'db> {
 
 impl Drop for TileClassBuilder<'_> {
     fn drop(&mut self) {
-        self.db.db.tile_classes.insert(
-            std::mem::take(&mut self.name),
-            std::mem::replace(&mut self.class, TileClass::new(tslots::INT, 1)),
-        );
+        self.db
+            .db
+            .tile_classes
+            .insert(
+                self.tcid,
+                std::mem::replace(&mut self.class, TileClass::new("".into(), tslots::INT, 1)),
+            )
+            .unwrap();
     }
 }
 
@@ -63,21 +68,29 @@ impl Drop for BelBuilder<'_, '_> {
 }
 
 struct IntDbBuilder {
+    tcid: TileClassId,
     kind: ChipKind,
     db: IntDb,
 }
 
 impl IntDbBuilder {
+    fn next_tcid(&mut self) -> TileClassId {
+        let res = self.tcid;
+        self.tcid = TileClassId::from_idx(res.to_idx() + 1);
+        res
+    }
+
     fn tile_class(
         &mut self,
         name: impl Into<String>,
         slot: TileSlotId,
         num_cells: usize,
     ) -> TileClassBuilder<'_> {
+        let tcid = self.next_tcid();
         TileClassBuilder {
             db: self,
-            name: name.into(),
-            class: TileClass::new(slot, num_cells),
+            tcid,
+            class: TileClass::new(name.into(), slot, num_cells),
         }
     }
 
@@ -1537,7 +1550,11 @@ pub fn init_intdb(kind: ChipKind) -> IntDb {
     .unwrap()
     .0;
 
-    let builder = IntDbBuilder { kind, db };
+    let builder = IntDbBuilder {
+        tcid: TileClassId::from_idx(0),
+        kind,
+        db,
+    };
 
     builder.build()
 }

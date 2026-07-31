@@ -37,12 +37,12 @@ pub fn name_device<'a>(edev: &'a ExpandedDevice<'a>, ndb: &'a NamingDb) -> Expan
         row_y.push(oy..y);
     }
     for (tcrd, tile) in edev.tiles() {
-        let kind = edev.db.tile_classes.key(tile.class);
+        let kind = edev.db.tile_classes[tile.class].name.as_str();
         if tcrd.slot != defs::tslots::MAIN {
             ngrid.name_tile(tcrd, kind, []);
             continue;
         }
-        let mut naming = &kind[..];
+        let mut naming = kind;
         if tcrd.col == chip.col_w() && tcrd.row == chip.row_s() + 1 {
             naming = "CLB_S1W";
         }

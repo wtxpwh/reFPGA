@@ -138,7 +138,7 @@ impl ChipContext<'_> {
                 for &wire in &wires {
                     self.add_bel_wire_no_claim(
                         wire.cell.bel(bslots::IO_INT),
-                        self.intdb.wires.key(wire.slot),
+                        self.intdb.wires[wire.slot].name.as_str(),
                         wn,
                     );
                     self.io_int_names.insert(wire, wn);
@@ -209,7 +209,7 @@ impl ChipContext<'_> {
                 for &wire in &wires {
                     self.add_bel_wire_no_claim(
                         wire.cell.bel(bslots::IO_INT),
-                        self.intdb.wires.key(wire.slot),
+                        self.intdb.wires[wire.slot].name.as_str(),
                         wn,
                     );
                     self.io_int_names.insert(wire, wn);
@@ -239,12 +239,17 @@ impl ChipContext<'_> {
                     .find(|&w| self.int_wires.contains_key(&w))
                     .unwrap();
                 let iwire = self.int_wires[&wire_int][0];
-                assert!(self.intdb.wires.key(iwire.slot).starts_with("IMUX_"));
+                assert!(
+                    self.intdb.wires[iwire.slot]
+                        .name
+                        .as_str()
+                        .starts_with("IMUX_")
+                );
                 self.claim_pip(wn, wire_int);
                 assert_eq!(iwire.cell, cell);
                 self.add_bel_wire(
                     cell.bel(bslots::IO_INT),
-                    self.intdb.wires.key(iwire.slot),
+                    self.intdb.wires[iwire.slot].name.as_str(),
                     wn,
                 );
                 self.io_int_wires.insert(wn, vec![iwire]);
@@ -257,12 +262,17 @@ impl ChipContext<'_> {
                     .find(|&w| self.int_wires.contains_key(&w))
                     .unwrap();
                 let iwire = self.int_wires[&wire_int][0];
-                assert!(self.intdb.wires.key(iwire.slot).starts_with("OUT_"));
+                assert!(
+                    self.intdb.wires[iwire.slot]
+                        .name
+                        .as_str()
+                        .starts_with("OUT_")
+                );
                 self.claim_pip(wire_int, wn);
                 assert_eq!(iwire.cell, cell);
                 self.add_bel_wire(
                     cell.bel(bslots::IO_INT),
-                    self.intdb.wires.key(iwire.slot),
+                    self.intdb.wires[iwire.slot].name.as_str(),
                     wn,
                 );
                 self.io_int_wires.insert(wn, vec![iwire]);
@@ -337,7 +347,7 @@ impl ChipContext<'_> {
                 for (&wt, wfs) in &sb_pips {
                     let Some(wt) = self
                         .naming
-                        .try_bel_wire(bcrd, self.intdb.wires.key(wt.wire))
+                        .try_bel_wire(bcrd, self.intdb.wires[wt.wire].name.as_str())
                     else {
                         missing_dst.insert(bcrd.wire(wt.wire));
                         continue;
@@ -345,7 +355,7 @@ impl ChipContext<'_> {
                     for &wf in wfs {
                         let Some(wf) = self
                             .naming
-                            .try_bel_wire(bcrd, self.intdb.wires.key(wf.wire))
+                            .try_bel_wire(bcrd, self.intdb.wires[wf.wire].name.as_str())
                         else {
                             missing_src.insert(bcrd.wire(wf.wire));
                             continue;

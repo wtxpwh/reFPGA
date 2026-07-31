@@ -31,7 +31,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, XactBackend<'a>>, backend: &'a 
             )
             .commit();
     };
-    for (tcid, _, tcls) in &backend.edev.db.tile_classes {
+    for (tcid, tcls) in &backend.edev.db.tile_classes {
         let Some(mut ctx) = FuzzCtx::try_new(session, backend, tcid) else {
             continue;
         };
@@ -275,7 +275,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, XactBackend<'a>>, backend: &'a 
 }
 
 pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
-    for (tcid, _, tcls) in &ctx.edev.db.tile_classes {
+    for (tcid, tcls) in &ctx.edev.db.tile_classes {
         if !ctx.has_tile(tcid) {
             continue;
         }

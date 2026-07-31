@@ -688,6 +688,12 @@ target_defs! {
                 bitrect MAIN_S: MAIN_W;
             }
 
+            if variant [xc4000ex, xc4000xla, xc4000xv] {
+                // ok, keep all tile classes
+            } else if tile_class [IO_W0_F0, IO_W1_F0, IO_W0_F1, IO_W1_F1] {
+                skip;
+            }
+
             switchbox INT;
 
             if variant xc4000h {
@@ -802,6 +808,12 @@ target_defs! {
                 bitrect MAIN_S: MAIN_E;
             }
             bitrect MAIN_W: MAIN;
+
+            if variant [xc4000ex, xc4000xla, xc4000xv] {
+                // ok, keep all tile classes
+            } else if tile_class [IO_E0_F0, IO_E1_F0, IO_E0_F1, IO_E1_F1] {
+                skip;
+            }
 
             switchbox INT;
 
@@ -1250,9 +1262,9 @@ target_defs! {
         bel_slot PULLUP_DEC_W[4]: PULLUP;
         bel_slot PULLUP_DEC_E[4]: PULLUP;
 
-        tile_class LLH_CLB, LLH_CLB_S, LLH_IO_S, LLH_IO_N {
-            cell W, E;
-            if variant [xc4000, xc4000a, xc4000h, xc4000e, spartanxl] {
+        if variant [xc4000, xc4000a, xc4000h, xc4000e, spartanxl] {
+            tile_class LLH_CLB, LLH_CLB_S, LLH_IO_S, LLH_IO_N {
+                cell W, E;
                 if tile_class LLH_CLB {
                     bitrect LLH: LLH;
                     bitrect LLH_S: LLH;
@@ -1271,24 +1283,22 @@ target_defs! {
                     bitrect LLH_S: LLH;
                     bitrect MAIN_W: MAIN_N;
                 }
-            }
 
-            switchbox LLH;
-            if variant spartanxl {
-                if tile_class [LLH_CLB, LLH_CLB_S] {
-                    for i in 0..2 {
-                        bel TBUF_SPLITTER[i] {
-                            bidir W = W.LONG_H[i + 2];
-                            bidir E = E.LONG_H[i + 2];
+                switchbox LLH;
+                if variant spartanxl {
+                    if tile_class [LLH_CLB, LLH_CLB_S] {
+                        for i in 0..2 {
+                            bel TBUF_SPLITTER[i] {
+                                bidir W = W.LONG_H[i + 2];
+                                bidir E = E.LONG_H[i + 2];
+                            }
                         }
                     }
                 }
             }
-        }
-
-        tile_class LLHC_CLB, LLHC_CLB_S, LLHC_IO_S, LLHC_IO_N {
-            cell W, E;
-            if variant [xc4000ex, xc4000xla, xc4000xv] {
+        } else {
+            tile_class LLHC_CLB, LLHC_CLB_S, LLHC_IO_S, LLHC_IO_N {
+                cell W, E;
                 if tile_class LLHC_CLB {
                     bitrect LLH: LLHC;
                     bitrect LLH_S: LLHC;
@@ -1307,37 +1317,35 @@ target_defs! {
                     bitrect LLH_S: LLHC;
                     bitrect MAIN_W: MAIN_N;
                 }
-            }
 
-            switchbox LLH;
-            if tile_class [LLHC_CLB, LLHC_CLB_S] {
-                for i in 0..2 {
-                    bel TBUF_SPLITTER[i] {
-                        bidir W = W.LONG_H[i + 2];
-                        bidir E = E.LONG_H[i + 2];
+                switchbox LLH;
+                if tile_class [LLHC_CLB, LLHC_CLB_S] {
+                    for i in 0..2 {
+                        bel TBUF_SPLITTER[i] {
+                            bidir W = W.LONG_H[i + 2];
+                            bidir E = E.LONG_H[i + 2];
+                        }
+                        bel PULLUP_TBUF_W[i] {
+                            bidir O = W.LONG_H[i + 2];
+                        }
+                        bel PULLUP_TBUF_E[i] {
+                            bidir O = E.LONG_H[i + 2];
+                        }
                     }
-                    bel PULLUP_TBUF_W[i] {
-                        bidir O = W.LONG_H[i + 2];
-                    }
-                    bel PULLUP_TBUF_E[i] {
-                        bidir O = E.LONG_H[i + 2];
+                } else {
+                    for i in 0..4 {
+                        bel PULLUP_DEC_W[i] {
+                            bidir O = W.DEC_H[i];
+                        }
+                        bel PULLUP_DEC_E[i] {
+                            bidir O = E.DEC_H[i];
+                        }
                     }
                 }
-            } else {
-                for i in 0..4 {
-                    bel PULLUP_DEC_W[i] {
-                        bidir O = W.DEC_H[i];
-                    }
-                    bel PULLUP_DEC_E[i] {
-                        bidir O = E.DEC_H[i];
-                    }
-                }
             }
-        }
 
-        tile_class LLHQ_CLB, LLHQ_CLB_S, LLHQ_CLB_N, LLHQ_IO_S, LLHQ_IO_N {
-            cell W, E;
-            if variant [xc4000ex, xc4000xla, xc4000xv] {
+            tile_class LLHQ_CLB, LLHQ_CLB_S, LLHQ_CLB_N, LLHQ_IO_S, LLHQ_IO_N {
+                cell W, E;
                 if tile_class [LLHQ_CLB, LLHQ_CLB_N] {
                     bitrect LLH: LLHQ;
                     bitrect LLH_S: LLHQ;
@@ -1356,16 +1364,16 @@ target_defs! {
                     bitrect LLH_S: LLHQ;
                     bitrect MAIN_W: MAIN_N;
                 }
-            }
 
-            switchbox LLH;
-            if tile_class [LLHQ_CLB, LLHQ_CLB_S, LLHQ_CLB_N] {
-                for i in 0..2 {
-                    bel PULLUP_TBUF_W[i] {
-                        bidir O = W.LONG_H[i + 2];
-                    }
-                    bel PULLUP_TBUF_E[i] {
-                        bidir O = E.LONG_H[i + 2];
+                switchbox LLH;
+                if tile_class [LLHQ_CLB, LLHQ_CLB_S, LLHQ_CLB_N] {
+                    for i in 0..2 {
+                        bel PULLUP_TBUF_W[i] {
+                            bidir O = W.LONG_H[i + 2];
+                        }
+                        bel PULLUP_TBUF_E[i] {
+                            bidir O = E.LONG_H[i + 2];
+                        }
                     }
                 }
             }
@@ -1379,72 +1387,74 @@ target_defs! {
         bel_slot PULLUP_DEC_N[4]: PULLUP;
         bel_slot MISC_E: MISC_E;
 
-        tile_class LLV_CLB, LLV_IO_W, LLV_IO_E {
-            cell S, N;
-            if tile_class LLV_CLB {
-                bitrect LLV: LLV;
-            }
-            if tile_class LLV_IO_W {
-                bitrect LLV: LLV_W;
-                bitrect LLV_E: LLV;
-            }
-            if tile_class LLV_IO_E {
-                bitrect LLV: LLV_E;
-            }
+        if variant [xc4000, xc4000a, xc4000h, xc4000e, spartanxl] {
+            tile_class LLV_CLB, LLV_IO_W, LLV_IO_E {
+                cell S, N;
+                if tile_class LLV_CLB {
+                    bitrect LLV: LLV;
+                }
+                if tile_class LLV_IO_W {
+                    bitrect LLV: LLV_W;
+                    bitrect LLV_E: LLV;
+                }
+                if tile_class LLV_IO_E {
+                    bitrect LLV: LLV_E;
+                }
 
-            switchbox LLV;
-            if tile_class LLV_IO_E {
-                bel MISC_E;
-            }
-        }
-
-        tile_class LLVC_CLB, LLVC_IO_W, LLVC_IO_E {
-            cell S, N;
-            if tile_class LLVC_CLB {
-                bitrect LLV: LLV;
-            }
-            if tile_class LLVC_IO_W {
-                bitrect LLV: LLV_W;
-                bitrect LLV_E: LLV;
-            }
-            if tile_class LLVC_IO_E {
-                bitrect LLV: LLV_E;
-            }
-
-            switchbox LLV;
-            if tile_class [LLVC_IO_W, LLVC_IO_E] {
-                for i in 0..4 {
-                    bel PULLUP_DEC_S[i] {
-                        bidir O = S.DEC_V[i];
-                    }
-                    bel PULLUP_DEC_N[i] {
-                        bidir O = N.DEC_V[i];
-                    }
+                switchbox LLV;
+                if tile_class LLV_IO_E {
+                    bel MISC_E;
                 }
             }
-            if tile_class LLVC_IO_E {
-                bel MISC_E;
-            }
-        }
+        } else {
+            tile_class LLVC_CLB, LLVC_IO_W, LLVC_IO_E {
+                cell S, N;
+                if tile_class LLVC_CLB {
+                    bitrect LLV: LLV;
+                }
+                if tile_class LLVC_IO_W {
+                    bitrect LLV: LLV_W;
+                    bitrect LLV_E: LLV;
+                }
+                if tile_class LLVC_IO_E {
+                    bitrect LLV: LLV_E;
+                }
 
-        tile_class LLVQ_CLB, LLVQ_IO_SW, LLVQ_IO_NW, LLVQ_IO_SE, LLVQ_IO_NE {
-            cell S, N;
-            if tile_class LLVQ_CLB {
-                bitrect LLV: LLV;
-            }
-            if tile_class [LLVQ_IO_SW, LLVQ_IO_NW] {
-                bitrect LLV: LLV_W;
-                bitrect LLV_E: LLV;
-            }
-            if tile_class [LLVQ_IO_SE, LLVQ_IO_NE] {
-                bitrect LLV: LLV_E;
+                switchbox LLV;
+                if tile_class [LLVC_IO_W, LLVC_IO_E] {
+                    for i in 0..4 {
+                        bel PULLUP_DEC_S[i] {
+                            bidir O = S.DEC_V[i];
+                        }
+                        bel PULLUP_DEC_N[i] {
+                            bidir O = N.DEC_V[i];
+                        }
+                    }
+                }
+                if tile_class LLVC_IO_E {
+                    bel MISC_E;
+                }
             }
 
-            switchbox LLV;
+            tile_class LLVQ_CLB, LLVQ_IO_SW, LLVQ_IO_NW, LLVQ_IO_SE, LLVQ_IO_NE {
+                cell S, N;
+                if tile_class LLVQ_CLB {
+                    bitrect LLV: LLV;
+                }
+                if tile_class [LLVQ_IO_SW, LLVQ_IO_NW] {
+                    bitrect LLV: LLV_W;
+                    bitrect LLV_E: LLV;
+                }
+                if tile_class [LLVQ_IO_SE, LLVQ_IO_NE] {
+                    bitrect LLV: LLV_E;
+                }
 
-            if tile_class [LLVQ_IO_SW, LLVQ_IO_NW, LLVQ_IO_SE, LLVQ_IO_NE] {
-                bel BUFF {
-                    output O = N.OUT_BUFF;
+                switchbox LLV;
+
+                if tile_class [LLVQ_IO_SW, LLVQ_IO_NW, LLVQ_IO_SE, LLVQ_IO_NE] {
+                    bel BUFF {
+                        output O = N.OUT_BUFF;
+                    }
                 }
             }
         }
@@ -1454,14 +1464,18 @@ target_defs! {
         bel_slot CLKQC: routing;
         bel_slot CLKQ: routing;
 
-        tile_class CLKQC {
-            cell CELL;
-            switchbox CLKQC;
+        if variant [xc4000ex, xc4000xla] {
+            tile_class CLKQC {
+                cell CELL;
+                switchbox CLKQC;
+            }
         }
 
-        tile_class CLKQ {
-            cell W, E;
-            switchbox CLKQ;
+        if variant xc4000xv {
+            tile_class CLKQ {
+                cell W, E;
+                switchbox CLKQ;
+            }
         }
     }
 

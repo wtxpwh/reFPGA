@@ -1,5 +1,5 @@
 use indicatif::{ProgressBar, ProgressStyle};
-use prjcombine_entity::{EntityBitVec, EntityBundleItemIndex, EntityId, EntityPartVec, EntityVec};
+use prjcombine_entity::{EntityBitVec, EntityBundleItemIndex, EntityId, EntityPartVec};
 use prjcombine_interconnect::db::{
     BelBidirId, BelInfo, BelInput, BelInputId, BelKind, BelOutputId, BelPinIndexing, BelSlotId,
     ConnectorWire, IntDb, PinDir, PolTileWireCoord, SwitchBoxItem, TileClassId, TileWireCoord,
@@ -479,7 +479,7 @@ impl<'a, 'b> BelVerifier<'a, 'b> {
                 println!(
                     "MISSING SITE NAME {tiles:?} {slot}",
                     tiles = tile.cells,
-                    slot = db.bel_slots.key(self.bcrd.slot)
+                    slot = db.bel_slots[self.bcrd.slot].name
                 );
             });
         }
@@ -528,7 +528,7 @@ pub struct Verifier<'a> {
     claimed_sites: HashMap<Coord, EntityBitVec<rawdump::TkSiteId>>,
     vcc_nodes: HashSet<NodeOrWire>,
     int_wire_data: HashMap<WireCoord, IntWireData>,
-    tcls_used: EntityVec<TileClassId, TileClassUsedInfo>,
+    tcls_used: EntityPartVec<TileClassId, TileClassUsedInfo>,
     skip_residual_sites: bool,
     skip_residual_pips: bool,
     skip_residual_nodes: bool,
@@ -633,7 +633,7 @@ impl<'a> Verifier<'a> {
                 })
                 .collect(),
             vcc_nodes: HashSet::new(),
-            tcls_used: EntityVec::new(),
+            tcls_used: EntityPartVec::new(),
             int_wire_data: HashMap::new(),
             skip_residual_sites: false,
             skip_residual_pips: false,
@@ -775,14 +775,14 @@ impl<'a> Verifier<'a> {
                             SwitchBoxItem::Mux(mux) => {
                                 used_o.insert(mux.dst);
                                 for &w in mux.src.keys() {
-                                    if !self.db[w.wire].is_tie() {
+                                    if !self.db[w.wire].kind.is_tie() {
                                         used_i.insert(w.tw);
                                     }
                                 }
                             }
                             SwitchBoxItem::ProgBuf(buf) => {
                                 used_o.insert(buf.dst);
-                                if !self.db[buf.src.wire].is_tie() {
+                                if !self.db[buf.src.wire].kind.is_tie() {
                                     used_i.insert(buf.src.tw);
                                 }
                             }
@@ -813,7 +813,7 @@ impl<'a> Verifier<'a> {
                                 used_o.insert(mux.dst[0]);
                                 used_o.insert(mux.dst[1]);
                                 for &w in mux.src.keys().flatten().flatten() {
-                                    if !self.db[w.wire].is_tie() {
+                                    if !self.db[w.wire].kind.is_tie() {
                                         used_i.insert(w.tw);
                                     }
                                 }
@@ -866,7 +866,8 @@ impl<'a> Verifier<'a> {
         self.pb.set_message("verify prep_int_wires");
         assert!(self.tcls_used.is_empty());
         for tcid in self.db.tile_classes.ids() {
-            self.tcls_used.push(self.prep_tile_class_used_info(tcid));
+            self.tcls_used
+                .insert(tcid, self.prep_tile_class_used_info(tcid));
         }
         self.pb.set_style(
             ProgressStyle::with_template("{prefix}: {msg} {wide_bar} {pos}/{len}").unwrap(),
@@ -1618,7 +1619,7 @@ impl<'a> Verifier<'a> {
         let mut alt_wires_dst = BTreeSet::new();
         let mut alt_wires_src = BTreeSet::new();
         for (wt, wf) in pips {
-            if matches!(self.db[wf.wire], WireKind::Special) {
+            if matches!(self.db[wf.wire].kind, WireKind::Special) {
                 continue;
             }
             if wt.cell == wf.cell
@@ -1628,7 +1629,7 @@ impl<'a> Verifier<'a> {
                 continue;
             }
             let Some(wti) = wire_lut[&wt] else { continue };
-            let wftie = self.db[wf.wire].is_tie();
+            let wftie = self.db[wf.wire].kind.is_tie();
             let pip_found;
             if let Some(en) = naming.ext_pips.get(&(wt, wf.tw)) {
                 if !crds.contains_id(en.tile) {
@@ -1645,7 +1646,8 @@ impl<'a> Verifier<'a> {
                     if wftie {
                         if !wires_pinned.contains(&wf.tw) {
                             wires_pinned.insert(wf.tw);
-                            if self.rd.family == "versal" && self.db[wf.wire] == WireKind::Tie1 {
+                            if self.rd.family == "versal" && self.db[wf.wire].kind == WireKind::Tie1
+                            {
                                 self.claim_vcc_node(wfn);
                             } else {
                                 self.claim_net(&[wfn]);
@@ -1751,7 +1753,7 @@ impl<'a> Verifier<'a> {
                         crd: crds[def_rt],
                         wire: &naming.wires[&wf].name,
                     };
-                    if self.rd.family == "versal" && self.db[wf.wire] == WireKind::Tie1 {
+                    if self.rd.family == "versal" && self.db[wf.wire].kind == WireKind::Tie1 {
                         self.claim_vcc_node(wfn);
                     } else {
                         self.claim_net(&[wfn]);
@@ -1830,7 +1832,7 @@ impl<'a> Verifier<'a> {
         if let Some(ref tn) = ntile.tie_name {
             let mut pins = vec![];
             for (&k, wn) in &naming.wires {
-                let pin = match self.db[k.wire] {
+                let pin = match self.db[k.wire].kind {
                     WireKind::Tie0 => self.ngrid.tie_pin_gnd.as_ref().unwrap(),
                     WireKind::Tie1 => self.ngrid.tie_pin_vcc.as_ref().unwrap(),
                     WireKind::TiePullup => self.ngrid.tie_pin_pullup.as_ref().unwrap(),
@@ -1849,7 +1851,7 @@ impl<'a> Verifier<'a> {
                 });
             }
             for (k, v) in tie_pins_extra {
-                let pin = match self.db[k] {
+                let pin = match self.db[k].kind {
                     WireKind::Tie0 => self.ngrid.tie_pin_gnd.as_ref().unwrap(),
                     WireKind::Tie1 => self.ngrid.tie_pin_vcc.as_ref().unwrap(),
                     WireKind::TiePullup => self.ngrid.tie_pin_pullup.as_ref().unwrap(),
@@ -2360,7 +2362,7 @@ impl<'a> Verifier<'a> {
                             "MISSING TERM PIP {part} {tile} {wt}",
                             part = self.rd.part,
                             tile = nconn.tile,
-                            wt = self.grid.db.wires.key(w),
+                            wt = self.grid.db.wires[w].name,
                         );
                     });
                 }
@@ -2452,11 +2454,10 @@ impl<'a> Verifier<'a> {
 
     pub fn verify_bel<'b>(&'b mut self, bcrd: BelCoord) -> BelVerifier<'a, 'b> {
         let kind = if let BelKind::Class(bcid) = self.db.bel_slots[bcrd.slot].kind {
-            self.db.bel_classes.key(bcid)
+            self.db.bel_classes[bcid].name.clone()
         } else {
-            self.db.bel_slots.key(bcrd.slot)
-        }
-        .to_string();
+            self.db.bel_slots[bcrd.slot].name.clone()
+        };
         let tcrd = self.grid.bel_tile(bcrd);
         let ntile = &self.ngrid.tiles[&tcrd];
         let crds = self.get_tile_crds(tcrd).unwrap();

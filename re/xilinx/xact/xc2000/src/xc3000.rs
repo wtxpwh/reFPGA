@@ -55,7 +55,7 @@ pub fn name_device<'a>(edev: &'a ExpandedDevice<'a>, ndb: &'a NamingDb) -> Expan
         row_y.push(oy..y);
     }
     for (tcrd, tile) in edev.tiles() {
-        let kind = edev.db.tile_classes.key(tile.class);
+        let kind = edev.db.tile_classes[tile.class].name.as_str();
         let col = tcrd.col;
         let row = tcrd.row;
         let mut naming = kind.to_string();

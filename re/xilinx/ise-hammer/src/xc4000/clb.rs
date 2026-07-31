@@ -26,7 +26,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
     };
     let kind = edev.chip.kind;
     let ff_maybe = if kind.is_clb_xl() { "#FF" } else { "" };
-    for (tcid, _, tcls) in &backend.edev.db.tile_classes {
+    for (tcid, tcls) in &backend.edev.db.tile_classes {
         if !tcls.bels.contains_id(bslots::CLB) {
             continue;
         }
@@ -423,7 +423,7 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
         unreachable!()
     };
     let kind = edev.chip.kind;
-    for (tcid, _, tcls) in &ctx.edev.db.tile_classes {
+    for (tcid, tcls) in &ctx.edev.db.tile_classes {
         let bslot = bslots::CLB;
         if !tcls.bels.contains_id(bslot) {
             continue;

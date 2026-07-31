@@ -211,7 +211,7 @@ impl ConnectorCoord {
         format!(
             "{cell}.{slot}",
             cell = self.cell,
-            slot = db.conn_slots.key(self.slot)
+            slot = db.conn_slots[self.slot].name
         )
     }
 }
@@ -241,7 +241,7 @@ impl WireCoord {
         format!(
             "{cell}.{slot}",
             cell = self.cell,
-            slot = db.wires.key(self.slot)
+            slot = db.wires[self.slot].name
         )
     }
 
@@ -298,7 +298,7 @@ impl BelCoord {
         format!(
             "{cell}.{slot}",
             cell = self.cell,
-            slot = db.bel_slots.key(self.slot)
+            slot = db.bel_slots[self.slot].name
         )
     }
 
@@ -383,8 +383,8 @@ pub struct ExpandedGrid<'a> {
     pub die: EntityVec<DieId, ExpandedDie>,
     pub extra_conns: BiHashMap<WireCoord, WireCoord>,
     pub blackhole_wires: HashSet<WireCoord>,
-    pub tile_index: EntityVec<TileClassId, Vec<TileCoord>>,
-    pub region_root_cells: EntityVec<RegionSlotId, HashMap<CellCoord, HashSet<CellCoord>>>,
+    pub tile_index: EntityPartVec<TileClassId, Vec<TileCoord>>,
+    pub region_root_cells: EntityPartVec<RegionSlotId, HashMap<CellCoord, HashSet<CellCoord>>>,
 }
 
 #[derive(Clone, Debug)]
@@ -670,8 +670,7 @@ impl ExpandedGrid<'_> {
     pub fn resolve_wire(&self, mut wire: WireCoord) -> Option<WireCoord> {
         loop {
             let cell = &self[wire.cell];
-            let wi = self.db[wire.slot];
-            match wi {
+            match self.db[wire.slot].kind {
                 WireKind::Regional(rslot) => {
                     wire.cell = cell.region_root[rslot];
                     break;
@@ -719,7 +718,7 @@ impl ExpandedGrid<'_> {
         while let Some(wire) = queue.pop() {
             let tile = &self[wire.cell];
             res.push(wire);
-            if let WireKind::Regional(rslot) = self.db[wire.slot]
+            if let WireKind::Regional(rslot) = self.db[wire.slot].kind
                 && tile.region_root[rslot] == wire.cell
             {
                 for &cell in &self.region_root_cells[rslot][&wire.cell] {
@@ -747,7 +746,7 @@ impl ExpandedGrid<'_> {
     pub fn wire_pips_bwd(&self, wire: WireCoord) -> Vec<TilePip> {
         let mut wires = vec![wire];
         if matches!(
-            self.db[wire.slot],
+            self.db[wire.slot].kind,
             WireKind::MultiRoot | WireKind::MultiBranch(_)
         ) {
             wires = self.wire_tree(wire);
@@ -820,7 +819,7 @@ pub struct Cell {
     pub tiles: EntityPartVec<TileSlotId, Tile>,
     pub conns: EntityPartVec<ConnectorSlotId, Connector>,
     pub tile_index: Vec<(TileCoord, CellSlotId)>,
-    pub region_root: EntityVec<RegionSlotId, CellCoord>,
+    pub region_root: EntityPartVec<RegionSlotId, CellCoord>,
 }
 
 #[derive(Clone, Debug)]

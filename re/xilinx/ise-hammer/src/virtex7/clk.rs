@@ -753,7 +753,7 @@ fn add_fuzzers_hclk_io<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &
                 .test_routing(dst, src_ccio.pos())
                 .prop(FuzzIntPip::new(dst, src_ccio))
                 .commit();
-            let src_perf = wires::PERF_IO[i].cell(4);
+            let src_perf = wires::PERF_BUF[i].cell(4);
             bctx.build()
                 .prop(WireMutexExclusive::new(dst))
                 .related_tile_mutex(ColPair(tcls::CMT), "PERF", "USE_IO")

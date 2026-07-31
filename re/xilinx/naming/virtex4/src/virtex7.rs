@@ -10,10 +10,7 @@ use prjcombine_re_xilinx_naming::{
 };
 use prjcombine_virtex4::{
     chip::{ColumnKind, GtKind, XadcIoLoc},
-    defs::{
-        bslots, tslots,
-        virtex7::{ccls, tcls},
-    },
+    defs::{bslots, ccls, tcls, tslots},
     expanded::ExpandedDevice,
 };
 
@@ -23,7 +20,7 @@ fn make_int_tie_grid(
     edev: &ExpandedDevice,
     ngrid: &ExpandedGridNaming,
 ) -> (BelMultiGrid, BelMultiGrid) {
-    let mut int_grid = ngrid.bel_multi_grid(|tcid, _, _| tcid == tcls::INT);
+    let mut int_grid = ngrid.bel_multi_grid(|tcid, _| tcid == tcls::INT);
     let mut tie_grid = int_grid.clone();
     if edev.interposer.unwrap().gtz_s {
         for die in int_grid.ylut.values_mut() {
@@ -226,38 +223,38 @@ pub fn name_device<'a>(edev: &'a ExpandedDevice<'a>, ndb: &'a NamingDb) -> Expan
 
     let (int_grid, tie_grid) = make_int_tie_grid(edev, &ngrid);
     let raw_grid = make_raw_grid(edev);
-    let clb_grid = ngrid.bel_multi_grid(|tcid, _, _| matches!(tcid, tcls::CLBLL | tcls::CLBLM));
-    let bram_grid = ngrid.bel_multi_grid(|tcid, _, _| tcid == tcls::BRAM);
-    let dsp_grid = ngrid.bel_multi_grid(|tcid, _, _| tcid == tcls::DSP);
-    let cmt_grid = ngrid.bel_multi_grid(|tcid, _, _| tcid == tcls::CMT);
-    let fifo_grid = ngrid.bel_multi_grid(|tcid, _, _| tcid == tcls::CMT_FIFO);
-    let pcie_grid = ngrid.bel_multi_grid(|tcid, _, _| tcid == tcls::PCIE);
-    let pcie3_grid = ngrid.bel_multi_grid(|tcid, _, _| tcid == tcls::PCIE3);
+    let clb_grid = ngrid.bel_multi_grid(|tcid, _| matches!(tcid, tcls::CLBLL | tcls::CLBLM));
+    let bram_grid = ngrid.bel_multi_grid(|tcid, _| tcid == tcls::BRAM);
+    let dsp_grid = ngrid.bel_multi_grid(|tcid, _| tcid == tcls::DSP);
+    let cmt_grid = ngrid.bel_multi_grid(|tcid, _| tcid == tcls::CMT);
+    let fifo_grid = ngrid.bel_multi_grid(|tcid, _| tcid == tcls::CMT_FIFO);
+    let pcie_grid = ngrid.bel_multi_grid(|tcid, _| tcid == tcls::PCIE);
+    let pcie3_grid = ngrid.bel_multi_grid(|tcid, _| tcid == tcls::PCIE3);
     let bufg_grid =
-        ngrid.bel_multi_grid(|tcid, _, _| matches!(tcid, tcls::CLK_BUFG_S | tcls::CLK_BUFG_N));
+        ngrid.bel_multi_grid(|tcid, _| matches!(tcid, tcls::CLK_BUFG_S | tcls::CLK_BUFG_N));
     let pmvbram_grid =
-        ngrid.bel_multi_grid(|tcid, _, _| matches!(tcid, tcls::PMVBRAM | tcls::PMVBRAM_NC));
+        ngrid.bel_multi_grid(|tcid, _| matches!(tcid, tcls::PMVBRAM | tcls::PMVBRAM_NC));
     let io_grid = BelMultiGrid {
         ylut: tie_grid.ylut.clone(),
-        ..ngrid.bel_multi_grid(|tcid, _, _| matches!(tcid, tcls::IO_HP_S | tcls::IO_HR_S))
+        ..ngrid.bel_multi_grid(|tcid, _| matches!(tcid, tcls::IO_HP_S | tcls::IO_HR_S))
     };
-    let dci_grid = ngrid.bel_multi_grid(|tcid, _, _| tcid == tcls::HCLK_IO_HP);
+    let dci_grid = ngrid.bel_multi_grid(|tcid, _| tcid == tcls::HCLK_IO_HP);
     let ipad_grid = make_ipad_grid(edev);
     let opad_grid = make_opad_grid(edev);
-    let gt_grid = ngrid.bel_multi_grid(|tcid, _, _| {
+    let gt_grid = ngrid.bel_multi_grid(|tcid, _| {
         matches!(
             tcid,
             tcls::GTP_CHANNEL | tcls::GTP_CHANNEL_MID | tcls::GTX_CHANNEL | tcls::GTH_CHANNEL
         )
     });
-    let gtc_grid = ngrid.bel_multi_grid(|tcid, _, _| {
+    let gtc_grid = ngrid.bel_multi_grid(|tcid, _| {
         matches!(
             tcid,
             tcls::GTP_COMMON | tcls::GTP_COMMON_MID | tcls::GTX_COMMON | tcls::GTH_COMMON
         )
     });
     let mut pmviob_grid =
-        ngrid.bel_multi_grid(|tcid, _, _| matches!(tcid, tcls::CFG | tcls::CLK_PMVIOB));
+        ngrid.bel_multi_grid(|tcid, _| matches!(tcid, tcls::CFG | tcls::CLK_PMVIOB));
     for (die, ylut) in &mut pmviob_grid.ylut {
         let chip = edev.chips[die];
         if chip.reg_cfg == chip.reg_clk {
@@ -276,7 +273,7 @@ pub fn name_device<'a>(edev: &'a ExpandedDevice<'a>, ndb: &'a NamingDb) -> Expan
         let has_gtz_u = die == edev.chips.last_id().unwrap() && edev.interposer.unwrap().gtz_n;
 
         let reg = chip.row_to_reg(row);
-        let kind = edev.db.tile_classes.key(tile.class);
+        let kind = edev.db.tile_classes[tile.class].name.as_str();
         let x = int_grid.xlut[col];
         let y = int_grid.ylut[die][row];
         let int_lr = match edev.col_side(col) {

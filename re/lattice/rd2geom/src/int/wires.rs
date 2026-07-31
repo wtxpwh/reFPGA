@@ -167,7 +167,7 @@ impl ChipContext<'_> {
                 }
                 ChipKind::Ecp2 | ChipKind::Ecp2M | ChipKind::Xp2 => {
                     if is_sclk {
-                        let WireKind::Regional(region) = self.intdb[wire] else {
+                        let WireKind::Regional(region) = self.intdb[wire].kind else {
                             unreachable!()
                         };
                         let root = self.edev[cell].region_root[region];
@@ -211,7 +211,7 @@ impl ChipContext<'_> {
                     }
                 }
                 ChipKind::Ecp3 | ChipKind::Ecp3A | ChipKind::MachXo2(_) => {
-                    let WireKind::Regional(region) = self.intdb[wire] else {
+                    let WireKind::Regional(region) = self.intdb[wire].kind else {
                         unreachable!()
                     };
                     let root = self.edev[cell].region_root[region];
@@ -667,7 +667,7 @@ impl ChipContext<'_> {
                             cur = wn.to_string(&self.naming),
                         );
                     }
-                    if !self.intdb[wire.slot].is_tie() {
+                    if !self.intdb[wire.slot].kind.is_tie() {
                         let rwire = self.edev.resolve_wire(wire).unwrap();
                         assert_eq!(
                             rwire,
@@ -701,7 +701,7 @@ impl ChipContext<'_> {
                 .or_else(|| self.io_int_wires.get(&wfn))
             {
                 let wf = wires_f[0];
-                if !self.intdb.wires.key(wf.slot).starts_with("IMUX") {
+                if !self.intdb.wires[wf.slot].name.starts_with("IMUX") {
                     continue;
                 }
                 let Some((cell, _)) = tile.cells.iter().find(|&(_cid, &cell)| cell == wf.cell)
@@ -732,7 +732,7 @@ impl ChipContext<'_> {
                 .or_else(|| self.io_int_wires.get(&wtn))
             {
                 let wt = wires_t[0];
-                if !self.intdb.wires.key(wt.slot).starts_with("OUT") {
+                if !self.intdb.wires[wt.slot].name.starts_with("OUT") {
                     continue;
                 }
                 let Some((cell, _)) = tile.cells.iter().find(|&(_cid, &cell)| cell == wt.cell)

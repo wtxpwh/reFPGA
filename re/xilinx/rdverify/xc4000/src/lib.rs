@@ -255,7 +255,7 @@ fn verify_buff(endev: &ExpandedNamedDevice, vrf: &mut Verifier, bcrd: BelCoord) 
 }
 
 fn verify_bel(endev: &ExpandedNamedDevice, vrf: &mut Verifier, bel: BelCoord) {
-    let slot_name = endev.edev.db.bel_slots.key(bel.slot);
+    let slot_name = endev.edev.db.bel_slots[bel.slot].name.as_str();
     match bel.slot {
         bslots::INT
         | bslots::LLH
@@ -338,7 +338,7 @@ pub fn verify_device(endev: &ExpandedNamedDevice, rd: &Part, pb: &ProgressBar) {
             }
         }
         if endev.edev.chip.kind == ChipKind::Xc4000Xv {
-            for (tcid, tcname, tcls) in &endev.edev.db.tile_classes {
+            for (tcid, tcls) in &endev.edev.db.tile_classes {
                 let Some(BelInfo::SwitchBox(sb)) = tcls.bels.get(bslots::INT) else {
                     continue;
                 };
@@ -367,7 +367,7 @@ pub fn verify_device(endev: &ExpandedNamedDevice, rd: &Part, pb: &ProgressBar) {
                         }
                     }
                 }
-                if tcname.starts_with("IO_W") {
+                if tcls.name.starts_with("IO_W") {
                     vrf.inject_tcls_pip(
                         tcid,
                         {
@@ -380,7 +380,7 @@ pub fn verify_device(endev: &ExpandedNamedDevice, rd: &Part, pb: &ProgressBar) {
                         },
                     );
                 }
-                if tcname.starts_with("IO_N") {
+                if tcls.name.starts_with("IO_N") {
                     vrf.inject_tcls_pip(
                         tcid,
                         {
@@ -395,7 +395,7 @@ pub fn verify_device(endev: &ExpandedNamedDevice, rd: &Part, pb: &ProgressBar) {
                 }
             }
         }
-        for (tcid, _, tcls) in &endev.edev.db.tile_classes {
+        for (tcid, tcls) in &endev.edev.db.tile_classes {
             let Some(BelInfo::SwitchBox(sb)) = tcls.bels.get(bslots::INT) else {
                 continue;
             };

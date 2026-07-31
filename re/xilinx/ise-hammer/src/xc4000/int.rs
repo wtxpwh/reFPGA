@@ -73,8 +73,8 @@ fn drive_xc4000_wire<'a>(
     let ExpandedDevice::Xc2000(edev) = backend.edev else {
         unreachable!()
     };
-    let wname = backend.edev.db.wires.key(wire_target.slot);
-    let aname = backend.edev.db.wires.key(wire_avoid.slot);
+    let wname = backend.edev.db[wire_target.slot].name.as_str();
+    let aname = backend.edev.db[wire_avoid.slot].name.as_str();
     let mut cell = wire_target.cell;
     let mut wt = wire_target.slot;
     let fuzzer = fuzzer.fuzz(Key::WireMutex(wire_target), None, "EXCLUSIVE");
@@ -578,7 +578,7 @@ fn drive_xc4000_wire<'a>(
             ins.insert(wires::TIE_0.cell(0).pos());
         }
         for mwf in ins {
-            let wfname = backend.edev.db.wires.key(mwf.wire);
+            let wfname = backend.edev.db[mwf.wire].name.as_str();
             if let Some(filter) = filter {
                 if !wfname.starts_with(filter) {
                     continue;
@@ -619,7 +619,7 @@ fn drive_xc4000_wire<'a>(
         let tile = &backend.edev[tcrd];
         let ins = &backend.edev.db_index[tile.class].pips_bwd[&mwt];
         for &mwf in ins {
-            let wfname = backend.edev.db.wires.key(mwf.wire);
+            let wfname = backend.edev.db[mwf.wire].name.as_str();
             if !wfname.starts_with("SINGLE") {
                 continue;
             }
@@ -964,13 +964,14 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
     };
     let kind = edev.chip.kind;
     let intdb = backend.edev.db;
-    for (tcid, tcname, tcls) in &intdb.tile_classes {
+    for (tcid, tcls) in &intdb.tile_classes {
+        let tcname = tcls.name.as_str();
         let tcls_index = &backend.edev.db_index[tcid];
         let Some(mut ctx) = FuzzCtx::try_new(session, backend, tcid) else {
             continue;
         };
         for (&wire_to, ins) in &tcls_index.pips_bwd {
-            let out_name = intdb.wires.key(wire_to.wire);
+            let out_name = intdb[wire_to.wire].name.as_str();
             if wires::BUFGLS_H.contains(wire_to.wire) && kind == ChipKind::SpartanXl {
                 continue;
             }
@@ -1041,7 +1042,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
             }
             for &wire_from in ins {
                 let wire_from = wire_from.tw;
-                let wire_from_name = intdb.wires.key(wire_from.wire);
+                let wire_from_name = intdb[wire_from.wire].name.as_str();
 
                 let mut is_bidi = false;
                 if let Some(mux) = tcls_index.pips_bwd.get(&wire_from)
@@ -1431,7 +1432,8 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
     };
     let kind = edev.chip.kind;
     let intdb = edev.db;
-    for (tcid, tcname, tcls) in &intdb.tile_classes {
+    for (tcid, tcls) in &intdb.tile_classes {
+        let tcname = tcls.name.as_str();
         if !ctx.has_tcls(tcid) {
             continue;
         }
@@ -1711,8 +1713,9 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
                                     let common = Diff {
                                         bits: [(bit, val)].into_iter().collect(),
                                     };
-                                    for (io_tcid, io_tcname, _) in &intdb.tile_classes {
-                                        if io_tcname.starts_with(filter) && ctx.has_tcls(io_tcid) {
+                                    for (io_tcid, io_tcls) in &intdb.tile_classes {
+                                        if io_tcls.name.starts_with(filter) && ctx.has_tcls(io_tcid)
+                                        {
                                             ctx.insert_bel_attr_enum(
                                                 io_tcid,
                                                 bel,

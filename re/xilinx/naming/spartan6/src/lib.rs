@@ -291,10 +291,10 @@ pub fn name_device<'a>(edev: &'a ExpandedDevice<'a>, ndb: &'a NamingDb) -> Expan
     ngrid.tie_pin_pullup = Some("KEEP1".to_string());
     ngrid.tie_pin_gnd = Some("HARD0".to_string());
     ngrid.tie_pin_vcc = Some("HARD1".to_string());
-    let slice_grid = ngrid.bel_grid(|_, name, _| name.starts_with("CLE"));
-    let bram_grid = ngrid.bel_grid(|_, name, _| name == "BRAM");
-    let dsp_grid = ngrid.bel_grid(|_, name, _| name == "DSP");
-    let gtp_grid = ngrid.bel_grid(|_, name, _| name == "GTP");
+    let slice_grid = ngrid.bel_grid(|tcid, _| matches!(tcid, tcls::CLEXL | tcls::CLEXM));
+    let bram_grid = ngrid.bel_grid(|tcid, _| tcid == tcls::BRAM);
+    let dsp_grid = ngrid.bel_grid(|tcid, _| tcid == tcls::DSP);
+    let gtp_grid = ngrid.bel_grid(|tcid, _| tcid == tcls::GTP);
     let mut namer = Namer {
         grid,
         ngrid,
@@ -318,7 +318,7 @@ pub fn name_device<'a>(edev: &'a ExpandedDevice<'a>, ndb: &'a NamingDb) -> Expan
     for (tcrd, tile) in edev.tiles() {
         let cell = tcrd.cell;
         let CellCoord { col, row, .. } = cell;
-        let kind = edev.db.tile_classes.key(tile.class);
+        let kind = edev.db.tile_classes[tile.class].name.as_str();
         match tile.class {
             tcls::INT => {
                 let cd = grid.columns[col];

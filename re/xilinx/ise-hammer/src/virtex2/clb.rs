@@ -712,7 +712,7 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
     } else {
         tcls_s3::INT_CLB
     };
-    for (tcid, _, tcls) in &ctx.edev.db.tile_classes {
+    for (tcid, tcls) in &ctx.edev.db.tile_classes {
         if tcid == int_clb {
             continue;
         }

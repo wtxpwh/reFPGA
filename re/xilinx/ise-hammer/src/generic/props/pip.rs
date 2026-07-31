@@ -155,8 +155,8 @@ impl PipWire {
                 let pin_naming = bel_naming.pins.get(pin).unwrap_or_else(|| {
                     panic!(
                         "missing pin {pin} in bel {bel} tile {tile}",
-                        bel = backend.edev.db.bel_slots.key(*bel),
-                        tile = backend.edev.db.tile_classes.key(tile.class),
+                        bel = backend.edev.db[*bel].name,
+                        tile = backend.edev.db[tile.class].name,
                     )
                 });
                 (&ntile.names[pin_naming.tile], &pin_naming.name)
@@ -166,8 +166,8 @@ impl PipWire {
                 let pin_naming = bel_naming.pins.get(pin).unwrap_or_else(|| {
                     panic!(
                         "missing pin {pin} in bel {bel} tile {tile}",
-                        bel = backend.edev.db.bel_slots.key(*bel),
-                        tile = backend.edev.db.tile_classes.key(tile.class),
+                        bel = backend.edev.db[*bel].name,
+                        tile = backend.edev.db[tile.class].name,
                     )
                 });
                 (&ntile.names[pin_naming.tile], &pin_naming.name_far)

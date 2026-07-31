@@ -154,6 +154,7 @@ pub enum TileClassItem {
     BitRect(ArrayIdDef, Ident),
     SwitchBox(SwitchBox),
     Bel(Bel),
+    Skip,
     ForLoop(ForLoop<TileClassItem>),
     If(If<TileClassItem>),
 }
@@ -239,6 +240,7 @@ pub enum ConnectorClassItem {
     Blackhole(ArrayIdRef),
     Pass(ArrayIdRef, ArrayIdRef),
     Reflect(ArrayIdRef, ArrayIdRef),
+    Skip,
     ForLoop(ForLoop<ConnectorClassItem>),
     If(If<ConnectorClassItem>),
 }

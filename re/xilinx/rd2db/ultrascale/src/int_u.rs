@@ -1,10 +1,7 @@
 use std::collections::{BTreeMap, btree_map};
 
 use prjcombine_interconnect::{
-    db::{
-        BelInfo, CellSlotId, ConnectorClass, ConnectorWire, IntDb, TileWireCoord, WireSlotId,
-        WireSlotIdExt,
-    },
+    db::{BelInfo, CellSlotId, ConnectorWire, IntDb, TileWireCoord, WireSlotId, WireSlotIdExt},
     dir::{Dir, DirMap, DirV},
 };
 use prjcombine_re_xilinx_rawdump::{Coord, Part};
@@ -14,9 +11,7 @@ use prjcombine_re_xilinx_naming::db::NamingDb;
 use prjcombine_re_xilinx_naming_ultrascale::DeviceNaming;
 use prjcombine_re_xilinx_rd2db_interconnect::{IntBuilder, PipMode, XTileInfo, XTileRef};
 use prjcombine_ultrascale::defs::{
-    self, bslots,
-    ultrascale::{ccls, cslots, tcls, wires},
-    wiredata::ultrascale as wiredata,
+    self, bslots, ccls, tcls, ultrascale::wires, wiredata::ultrascale as wiredata,
 };
 
 trait IntBuilderExt {
@@ -105,22 +100,22 @@ impl IntMaker<'_> {
 
     fn fill_wires_ql(&mut self) {
         self.fill_wireset_ql(
-            &wiredata::X4_E,
+            &wiredata::LX4_E,
             Dir::E,
-            Some(wires::X4_E2_S0),
-            Some(wires::X4_E2_N15),
+            Some(wires::LX4_E2_S0),
+            Some(wires::LX4_E2_N15),
         );
-        self.fill_wireset_ql(&wiredata::X4_W, Dir::W, None, None);
-        self.fill_wireset_ql(&wiredata::X4_N, Dir::N, None, None);
-        self.fill_wireset_ql(&wiredata::X5_N, Dir::N, None, Some(wires::X5_N5_N7));
-        self.fill_wireset_ql(&wiredata::X4_S, Dir::S, None, None);
-        self.fill_wireset_ql(&wiredata::X5_S, Dir::S, None, None);
-        self.fill_wireset_ql(&wiredata::X12_E, Dir::E, Some(wires::X12_E6_S0), None);
-        self.fill_wireset_ql(&wiredata::X12_W, Dir::W, None, Some(wires::X12_W6_N7));
-        self.fill_wireset_ql(&wiredata::X12_N, Dir::N, None, None);
-        self.fill_wireset_ql(&wiredata::X16_N, Dir::N, None, Some(wires::X16_N16_N3));
-        self.fill_wireset_ql(&wiredata::X12_S, Dir::S, Some(wires::X12_S12_S0), None);
-        self.fill_wireset_ql(&wiredata::X16_S, Dir::S, None, None);
+        self.fill_wireset_ql(&wiredata::LX4_W, Dir::W, None, None);
+        self.fill_wireset_ql(&wiredata::LX4_N, Dir::N, None, None);
+        self.fill_wireset_ql(&wiredata::LX5_N, Dir::N, None, Some(wires::LX5_N5_N7));
+        self.fill_wireset_ql(&wiredata::LX4_S, Dir::S, None, None);
+        self.fill_wireset_ql(&wiredata::LX5_S, Dir::S, None, None);
+        self.fill_wireset_ql(&wiredata::LX12_E, Dir::E, Some(wires::LX12_E6_S0), None);
+        self.fill_wireset_ql(&wiredata::LX12_W, Dir::W, None, Some(wires::LX12_W6_N7));
+        self.fill_wireset_ql(&wiredata::LX12_N, Dir::N, None, None);
+        self.fill_wireset_ql(&wiredata::LX16_N, Dir::N, None, Some(wires::LX16_N16_N3));
+        self.fill_wireset_ql(&wiredata::LX12_S, Dir::S, Some(wires::LX12_S12_S0), None);
+        self.fill_wireset_ql(&wiredata::LX16_S, Dir::S, None, None);
     }
 
     fn fill_wires_sdnode(&mut self) {
@@ -687,19 +682,12 @@ impl IntMaker<'_> {
                     wires.insert(wt, ConnectorWire::Reflect(wf));
                 }
             }
-            let conn = ConnectorClass {
-                slot: match dir {
-                    DirV::S => cslots::S,
-                    DirV::N => cslots::N,
-                },
-                wires,
-            };
             self.builder.insert_connector(
                 match dir {
                     DirV::S => [ccls::TERM_S0, ccls::TERM_S1][cid],
                     DirV::N => [ccls::TERM_N0, ccls::TERM_N1][cid],
                 },
-                conn,
+                wires,
             );
         }
     }

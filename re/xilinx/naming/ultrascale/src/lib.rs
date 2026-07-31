@@ -798,7 +798,7 @@ pub fn name_device<'a>(
 ) -> ExpandedNamedDevice<'a> {
     let mut ngrid = ExpandedGridNaming::new(ndb, edev);
 
-    let mut int_grid = ngrid.bel_multi_grid(|tcid, _, _| tcid == tcls::INT);
+    let mut int_grid = ngrid.bel_multi_grid(|tcid, _| tcid == tcls::INT);
     for col in edev.chips[edev.interposer.primary].columns.ids() {
         int_grid.xlut.insert(col, col.to_idx() / 2);
     }
@@ -815,53 +815,51 @@ pub fn name_device<'a>(
         }
     }
 
-    let rclk_int_grid = ngrid.bel_multi_grid(|tcid, _, _| tcid == tcls::RCLK_INT);
-    let rclk_ps_grid = ngrid.bel_multi_grid(|tcid, _, _| tcid == tcls::RCLK_PS);
-    let cle_grid = ngrid.bel_multi_grid(|tcid, _, _| matches!(tcid, tcls::CLEL | tcls::CLEM));
-    let laguna_grid = ngrid.bel_multi_grid(|tcid, _, _| tcid == tcls::LAGUNA);
-    let bram_grid = ngrid.bel_multi_grid(|tcid, _, _| tcid == tcls::BRAM);
-    let hard_sync_grid = ngrid.bel_multi_grid(|tcid, _, _| tcid == tcls::HARD_SYNC);
-    let dsp_grid = ngrid.bel_multi_grid(|tcid, _, _| tcid == tcls::DSP);
-    let uram_grid = ngrid.bel_multi_grid(|tcid, _, _| tcid == tcls::URAM);
-    let cfg_grid = ngrid.bel_multi_grid(|tcid, _, _| {
-        matches!(tcid, tcls::CFG | tcls::CFG_CSEC | tcls::CFG_CSEC_V2)
-    });
-    let cfgio_grid = ngrid.bel_multi_grid(|tcid, _, _| tcid == tcls::CFGIO);
-    let ams_grid = ngrid.bel_multi_grid(|tcid, _, _| tcid == tcls::AMS);
-    let cmac_grid = ngrid.bel_multi_grid(|tcid, _, _| tcid == tcls::CMAC);
-    let pcie_grid = ngrid.bel_multi_grid(|tcid, _, _| tcid == tcls::PCIE3);
-    let pcie4_grid = ngrid.bel_multi_grid(|tcid, _, _| tcid == tcls::PCIE4);
-    let pcie4c_grid = ngrid.bel_multi_grid(|tcid, _, _| tcid == tcls::PCIE4C);
-    let pcie4ce_grid = ngrid.bel_multi_grid(|tcid, _, _| tcid == tcls::PCIE4CE);
-    let ilkn_grid = ngrid.bel_multi_grid(|tcid, _, _| tcid == tcls::ILKN);
-    let fe_grid = ngrid.bel_multi_grid(|tcid, _, _| tcid == tcls::FE);
-    let dfe_a_grid = ngrid.bel_multi_grid(|tcid, _, _| tcid == tcls::DFE_A);
-    let dfe_b_grid = ngrid.bel_multi_grid(|tcid, _, _| tcid == tcls::DFE_B);
-    let dfe_c_grid = ngrid.bel_multi_grid(|tcid, _, _| tcid == tcls::DFE_C);
-    let dfe_d_grid = ngrid.bel_multi_grid(|tcid, _, _| tcid == tcls::DFE_D);
-    let dfe_e_grid = ngrid.bel_multi_grid(|tcid, _, _| tcid == tcls::DFE_E);
-    let dfe_f_grid = ngrid.bel_multi_grid(|tcid, _, _| tcid == tcls::DFE_F);
-    let dfe_g_grid = ngrid.bel_multi_grid(|tcid, _, _| tcid == tcls::DFE_G);
-    let hdio_grid = ngrid.bel_multi_grid(|tcid, _, _| matches!(tcid, tcls::HDIO));
-    let hdiol_grid =
-        ngrid.bel_multi_grid(|tcid, _, _| matches!(tcid, tcls::HDIOL_S | tcls::HDIOL_N));
-    let hdios_grid = ngrid.bel_multi_grid(|tcid, _, _| matches!(tcid, tcls::HDIOS));
+    let rclk_int_grid = ngrid.bel_multi_grid(|tcid, _| tcid == tcls::RCLK_INT);
+    let rclk_ps_grid = ngrid.bel_multi_grid(|tcid, _| tcid == tcls::RCLK_PS);
+    let cle_grid = ngrid.bel_multi_grid(|tcid, _| matches!(tcid, tcls::CLEL | tcls::CLEM));
+    let laguna_grid = ngrid.bel_multi_grid(|tcid, _| tcid == tcls::LAGUNA);
+    let bram_grid = ngrid.bel_multi_grid(|tcid, _| tcid == tcls::BRAM);
+    let hard_sync_grid = ngrid.bel_multi_grid(|tcid, _| tcid == tcls::HARD_SYNC);
+    let dsp_grid = ngrid.bel_multi_grid(|tcid, _| tcid == tcls::DSP);
+    let uram_grid = ngrid.bel_multi_grid(|tcid, _| tcid == tcls::URAM);
+    let cfg_grid = ngrid
+        .bel_multi_grid(|tcid, _| matches!(tcid, tcls::CFG | tcls::CFG_CSEC | tcls::CFG_CSEC_V2));
+    let cfgio_grid = ngrid.bel_multi_grid(|tcid, _| tcid == tcls::CFGIO);
+    let ams_grid = ngrid.bel_multi_grid(|tcid, _| tcid == tcls::AMS);
+    let cmac_grid = ngrid.bel_multi_grid(|tcid, _| tcid == tcls::CMAC);
+    let pcie_grid = ngrid.bel_multi_grid(|tcid, _| tcid == tcls::PCIE3);
+    let pcie4_grid = ngrid.bel_multi_grid(|tcid, _| tcid == tcls::PCIE4);
+    let pcie4c_grid = ngrid.bel_multi_grid(|tcid, _| tcid == tcls::PCIE4C);
+    let pcie4ce_grid = ngrid.bel_multi_grid(|tcid, _| tcid == tcls::PCIE4CE);
+    let ilkn_grid = ngrid.bel_multi_grid(|tcid, _| tcid == tcls::ILKN);
+    let fe_grid = ngrid.bel_multi_grid(|tcid, _| tcid == tcls::FE);
+    let dfe_a_grid = ngrid.bel_multi_grid(|tcid, _| tcid == tcls::DFE_A);
+    let dfe_b_grid = ngrid.bel_multi_grid(|tcid, _| tcid == tcls::DFE_B);
+    let dfe_c_grid = ngrid.bel_multi_grid(|tcid, _| tcid == tcls::DFE_C);
+    let dfe_d_grid = ngrid.bel_multi_grid(|tcid, _| tcid == tcls::DFE_D);
+    let dfe_e_grid = ngrid.bel_multi_grid(|tcid, _| tcid == tcls::DFE_E);
+    let dfe_f_grid = ngrid.bel_multi_grid(|tcid, _| tcid == tcls::DFE_F);
+    let dfe_g_grid = ngrid.bel_multi_grid(|tcid, _| tcid == tcls::DFE_G);
+    let hdio_grid = ngrid.bel_multi_grid(|tcid, _| matches!(tcid, tcls::HDIO));
+    let hdiol_grid = ngrid.bel_multi_grid(|tcid, _| matches!(tcid, tcls::HDIOL_S | tcls::HDIOL_N));
+    let hdios_grid = ngrid.bel_multi_grid(|tcid, _| matches!(tcid, tcls::HDIOS));
     let hdiols_grid = make_hdiols_grid(edev);
-    let hpio_grid = ngrid.bel_multi_grid(|tcid, _, _| tcid == tcls::HPIO);
-    let xp5io_grid = ngrid.bel_multi_grid(|tcid, _, _| tcid == tcls::XP5IO);
-    let rclk_hpio_grid = ngrid.bel_multi_grid(|tcid, _, _| tcid == tcls::RCLK_HPIO);
-    let hrio_grid = ngrid.bel_multi_grid(|tcid, _, _| tcid == tcls::HRIO);
+    let hpio_grid = ngrid.bel_multi_grid(|tcid, _| tcid == tcls::HPIO);
+    let xp5io_grid = ngrid.bel_multi_grid(|tcid, _| tcid == tcls::XP5IO);
+    let rclk_hpio_grid = ngrid.bel_multi_grid(|tcid, _| tcid == tcls::RCLK_HPIO);
+    let hrio_grid = ngrid.bel_multi_grid(|tcid, _| tcid == tcls::HRIO);
     let rclk_hdio_grid =
-        ngrid.bel_multi_grid(|_, _, tcls| tcls.bels.contains_id(bslots::BUFGCE_HDIO[0]));
+        ngrid.bel_multi_grid(|_, tcls| tcls.bels.contains_id(bslots::BUFGCE_HDIO[0]));
     let aswitch_grid = make_aswitch_grid(edev);
     let io_grid = make_io_grid(edev);
     let clk_grid = make_clk_grid(edev);
-    let xiphy_grid = ngrid.bel_multi_grid(|tcid, _, _| tcid == tcls::XIPHY);
+    let xiphy_grid = ngrid.bel_multi_grid(|tcid, _| tcid == tcls::XIPHY);
     let cmt_grid =
-        ngrid.bel_multi_grid(|tcid, _, _| matches!(tcid, tcls::CMT | tcls::CMT_HBM | tcls::CMTXP));
-    let pll_grid = ngrid.bel_multi_grid(|tcid, _, _| matches!(tcid, tcls::CMT | tcls::CMT_HBM));
-    let pllxp_grid = ngrid.bel_multi_grid(|tcid, _, _| tcid == tcls::CMTXP);
-    let gt_grid = ngrid.bel_multi_grid(|tcid, _, _| {
+        ngrid.bel_multi_grid(|tcid, _| matches!(tcid, tcls::CMT | tcls::CMT_HBM | tcls::CMTXP));
+    let pll_grid = ngrid.bel_multi_grid(|tcid, _| matches!(tcid, tcls::CMT | tcls::CMT_HBM));
+    let pllxp_grid = ngrid.bel_multi_grid(|tcid, _| tcid == tcls::CMTXP);
+    let gt_grid = ngrid.bel_multi_grid(|tcid, _| {
         matches!(
             tcid,
             tcls::GTH
@@ -874,14 +872,14 @@ pub fn name_device<'a>(
                 | tcls::RFDAC
         )
     });
-    let gth_grid = ngrid.bel_multi_grid(|tcid, _, _| tcid == tcls::GTH);
-    let gty_grid = ngrid.bel_multi_grid(|tcid, _, _| tcid == tcls::GTY);
-    let gtm_grid = ngrid.bel_multi_grid(|tcid, _, _| tcid == tcls::GTM);
-    let gtf_grid = ngrid.bel_multi_grid(|tcid, _, _| tcid == tcls::GTF);
-    let hsadc_grid = ngrid.bel_multi_grid(|tcid, _, _| tcid == tcls::HSADC);
-    let hsdac_grid = ngrid.bel_multi_grid(|tcid, _, _| tcid == tcls::HSDAC);
-    let rfadc_grid = ngrid.bel_multi_grid(|tcid, _, _| tcid == tcls::RFADC);
-    let rfdac_grid = ngrid.bel_multi_grid(|tcid, _, _| tcid == tcls::RFDAC);
+    let gth_grid = ngrid.bel_multi_grid(|tcid, _| tcid == tcls::GTH);
+    let gty_grid = ngrid.bel_multi_grid(|tcid, _| tcid == tcls::GTY);
+    let gtm_grid = ngrid.bel_multi_grid(|tcid, _| tcid == tcls::GTM);
+    let gtf_grid = ngrid.bel_multi_grid(|tcid, _| tcid == tcls::GTF);
+    let hsadc_grid = ngrid.bel_multi_grid(|tcid, _| tcid == tcls::HSADC);
+    let hsdac_grid = ngrid.bel_multi_grid(|tcid, _| tcid == tcls::HSDAC);
+    let rfadc_grid = ngrid.bel_multi_grid(|tcid, _| tcid == tcls::RFADC);
+    let rfdac_grid = ngrid.bel_multi_grid(|tcid, _| tcid == tcls::RFDAC);
 
     let has_laguna = edev.chips.values().any(|chip| {
         chip.columns
@@ -923,7 +921,7 @@ pub fn name_device<'a>(
         let CellCoord { die, col, row } = cell;
         let chip = edev.chips[die];
         let reg = chip.row_to_reg(row);
-        let kind = edev.db.tile_classes.key(tile.class);
+        let kind = edev.db.tile_classes[tile.class].name.as_str();
         let x = int_grid.xlut[col];
         let y = int_grid.ylut[die][row];
         match tile.class {

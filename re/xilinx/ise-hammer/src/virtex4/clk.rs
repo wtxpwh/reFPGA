@@ -13,10 +13,7 @@ use prjcombine_re_fpga_hammer::{FuzzerFeature, FuzzerProp};
 use prjcombine_re_hammer::{Fuzzer, Session};
 use prjcombine_re_xilinx_geom::ExpandedDevice;
 use prjcombine_types::bsdata::TileBit;
-use prjcombine_virtex4::defs::{
-    bcls,
-    virtex4::{bslots, tcls, tslots, wires},
-};
+use prjcombine_virtex4::defs::{bcls, bslots, tcls, tslots, virtex4::wires};
 
 use crate::{
     backend::IseBackend,
@@ -1003,7 +1000,7 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
                 let wt = wires::HCLK_ROW[o].cell(co);
                 let mut inps = vec![(None, Diff::default())];
                 for i in 0..32 {
-                    let wf = wires::GCLK_BUF[i].cell(0);
+                    let wf = wires::GCLK_HROW[i].cell(0);
                     let fwf = wires::GCLK[i].cell(0);
                     let mut diff = ctx.get_diff_routing(tcid, wt, fwf.pos());
                     diff = diff.combine(&!&inp_diffs[i]);
@@ -1015,7 +1012,7 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
         for (i, diff) in inp_diffs.into_iter().enumerate() {
             ctx.insert_progbuf(
                 tcid,
-                wires::GCLK_BUF[i].cell(0),
+                wires::GCLK_HROW[i].cell(0),
                 wires::GCLK[i].cell(0).pos(),
                 xlat_bit(diff),
             );

@@ -7,10 +7,7 @@ use prjcombine_interconnect::{
 };
 use prjcombine_re_xilinx_naming::db::{IntfWireInNaming, NamingDb, PipNaming, RawTileId};
 use prjcombine_re_xilinx_rawdump::{Coord, Part};
-use prjcombine_virtex4::defs::{
-    self, bslots,
-    virtex5::{ccls, tcls, wires},
-};
+use prjcombine_virtex4::defs::{self, bslots, ccls, tcls, virtex5::wires};
 
 use prjcombine_re_xilinx_rd2db_interconnect::{IntBuilder, PipMode};
 
@@ -455,8 +452,8 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
     builder.extra_name("IOI_OCLKDIV1", wires::IMUX_SPEC[1]);
     builder.extra_name("IOI_OCLKP_0", wires::IMUX_SPEC[2]);
     builder.extra_name("IOI_OCLKDIV0", wires::IMUX_SPEC[3]);
-    builder.extra_name("IOI_ICLKP_1", wires::IMUX_IO_ICLK[0]);
-    builder.extra_name("IOI_ICLKP_0", wires::IMUX_IO_ICLK[1]);
+    builder.extra_name("IOI_ICLKP_1", wires::IMUX_IOI_ICLK[0]);
+    builder.extra_name("IOI_ICLKP_0", wires::IMUX_IOI_ICLK[1]);
     builder.extra_name("IOI_ICLK1", wires::IMUX_ILOGIC_CLK[0]);
     builder.extra_name("IOI_ICLK0", wires::IMUX_ILOGIC_CLK[1]);
     builder.extra_name("IOI_ICLKB1", wires::IMUX_ILOGIC_CLKB[0]);
@@ -693,12 +690,12 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
             &[format!("CMT_PLL_CLKOUTDCM{i}")],
         );
     }
-    builder.wire_names(wires::IMUX_PLL_CLKIN1, &["CMT_PLL_CLKIN1"]);
-    builder.wire_names(wires::IMUX_PLL_CLKIN2, &["CMT_PLL_CLKIN2"]);
-    builder.alt_name("CMT_PLL_CLK_DCM_MUX", wires::IMUX_PLL_CLKIN1);
-    builder.wire_names(wires::IMUX_PLL_CLKFB, &["CMT_PLL_CLKFBIN"]);
-    builder.alt_name("CMT_PLL_CLK_FB_FROM_DCM", wires::IMUX_PLL_CLKFB);
-    builder.extra_name("CMT_PLL_CLKINFB_TEST", wires::IMUX_PLL_CLKFB);
+    builder.wire_names(wires::IMUX_PLL_CLKIN1[0], &["CMT_PLL_CLKIN1"]);
+    builder.wire_names(wires::IMUX_PLL_CLKIN2[0], &["CMT_PLL_CLKIN2"]);
+    builder.alt_name("CMT_PLL_CLK_DCM_MUX", wires::IMUX_PLL_CLKIN1[0]);
+    builder.wire_names(wires::IMUX_PLL_CLKFB[0], &["CMT_PLL_CLKFBIN"]);
+    builder.alt_name("CMT_PLL_CLK_FB_FROM_DCM", wires::IMUX_PLL_CLKFB[0]);
+    builder.extra_name("CMT_PLL_CLKINFB_TEST", wires::IMUX_PLL_CLKFB[0]);
     builder.wire_names(wires::OUT_PLL_CLKFBDCM, &["CMT_PLL_CLKFBDCM"]);
     builder.wire_names(wires::OMUX_PLL_SKEWCLKIN1, &["CMT_PLL_CLK_TO_DCM0"]);
     builder.wire_names(wires::OMUX_PLL_SKEWCLKIN2, &["CMT_PLL_CLK_TO_DCM1"]);
@@ -1299,7 +1296,7 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
                 .ref_single(intf_xy, 0, intf)
                 .switchbox(bslots::SPEC_INT)
                 .optin_muxes(&wires::IMUX_SPEC[..])
-                .optin_muxes(&wires::IMUX_IO_ICLK[..])
+                .optin_muxes(&wires::IMUX_IOI_ICLK[..])
                 .optin_muxes(&wires::IMUX_ILOGIC_CLK[..])
                 .optin_muxes(&wires::IMUX_ILOGIC_CLKB[..])
                 .skip_edge("IOI_BLOCK_OUTS_B0", "IOI_OCLKP_1")
@@ -1317,9 +1314,9 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
                 .extract();
 
             let naming = builder.ndb.tile_class_namings.get_mut(tkn).unwrap().1;
-            for (wt, wf) in wires::IMUX_IO_ICLK_OPTINV
+            for (wt, wf) in wires::IMUX_IOI_ICLK_OPTINV
                 .into_iter()
-                .zip(wires::IMUX_IO_ICLK)
+                .zip(wires::IMUX_IOI_ICLK)
             {
                 let wt = wt.cell(0);
                 let wf = wf.cell(0);
@@ -1332,8 +1329,8 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
     let pips = builder.pips.get_mut(&(tcls::IO, bslots::SPEC_INT)).unwrap();
     let mut new_pips = vec![];
     pips.pips.retain(|&(wt, wf), _| {
-        if let Some(idx) = wires::IMUX_IO_ICLK.index_of(wf.wire) {
-            new_pips.push((wt, wires::IMUX_IO_ICLK_OPTINV[idx].cell(0).pos()));
+        if let Some(idx) = wires::IMUX_IOI_ICLK.index_of(wf.wire) {
+            new_pips.push((wt, wires::IMUX_IOI_ICLK_OPTINV[idx].cell(0).pos()));
             false
         } else {
             true
@@ -1342,9 +1339,9 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
     for pip in new_pips {
         pips.pips.insert(pip, PipMode::Mux);
     }
-    for (wt, wf) in wires::IMUX_IO_ICLK_OPTINV
+    for (wt, wf) in wires::IMUX_IOI_ICLK_OPTINV
         .into_iter()
-        .zip(wires::IMUX_IO_ICLK)
+        .zip(wires::IMUX_IOI_ICLK)
     {
         let wt = wt.cell(0);
         let wf = wf.cell(0);
@@ -1379,9 +1376,9 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
                 .optin_muxes(&wires::OMUX_DCM_SKEWCLKIN2[..])
                 .optin_muxes(&[wires::OMUX_PLL_SKEWCLKIN1])
                 .optin_muxes(&[wires::OMUX_PLL_SKEWCLKIN2])
-                .optin_muxes(&[wires::IMUX_PLL_CLKFB])
-                .optin_muxes(&[wires::IMUX_PLL_CLKIN1])
-                .optin_muxes(&[wires::IMUX_PLL_CLKIN2])
+                .optin_muxes(&wires::IMUX_PLL_CLKFB[..])
+                .optin_muxes(&wires::IMUX_PLL_CLKIN1[..])
+                .optin_muxes(&wires::IMUX_PLL_CLKIN2[..])
                 .optin_muxes(&[wires::OUT_CMT[10]])
                 .optin_muxes_tile(&[wires::OUT_BEL[20].cell(5)])
                 .skip_edge("CMT_PLL_CLKINFB_TEST", "CMT_PLL_CLKFBIN")
@@ -1394,7 +1391,7 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
 
             let naming = builder.ndb.tile_class_namings.get_mut(tkn).unwrap().1;
             naming.ext_pips.insert(
-                (wires::OUT_CMT[10].cell(0), wires::IMUX_PLL_CLKFB.cell(0)),
+                (wires::OUT_CMT[10].cell(0), wires::IMUX_PLL_CLKFB[0].cell(0)),
                 PipNaming {
                     tile: RawTileId::from_idx(0),
                     wire_to: "CMT_CLK_10".into(),
@@ -1413,12 +1410,13 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
             *mode = PipMode::PermaBuf;
         }
     }
-    pips.pips
-        .retain(|&(wt, _), _| !matches!(wt.wire, wires::IMUX_PLL_CLKIN1 | wires::IMUX_PLL_CLKIN2));
+    pips.pips.retain(|&(wt, _), _| {
+        wt.wire != wires::IMUX_PLL_CLKIN1[0] && wt.wire != wires::IMUX_PLL_CLKIN2[0]
+    });
     pips.specials.extend([SwitchBoxItem::PairMux(PairMux {
         dst: [
-            wires::IMUX_PLL_CLKIN1.cell(0),
-            wires::IMUX_PLL_CLKIN2.cell(0),
+            wires::IMUX_PLL_CLKIN1[0].cell(0),
+            wires::IMUX_PLL_CLKIN2[0].cell(0),
         ],
         bits: vec![],
         src: [
@@ -1493,7 +1491,7 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
                 pips.pips.insert(
                     (
                         wires::HCLK_ROW[o].cell(co),
-                        wires::GCLK_BUF[i].cell(0).pos(),
+                        wires::GCLK_HROW[i].cell(0).pos(),
                     ),
                     PipMode::Mux,
                 );
@@ -1502,7 +1500,7 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
     }
     for i in 0..32 {
         pips.pips.insert(
-            (wires::GCLK_BUF[i].cell(0), wires::GCLK[i].cell(0).pos()),
+            (wires::GCLK_HROW[i].cell(0), wires::GCLK[i].cell(0).pos()),
             PipMode::Buf,
         );
     }

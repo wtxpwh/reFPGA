@@ -194,9 +194,9 @@ impl Expander<'_, '_> {
                 .fill_conn_pair(prev_cell, cell, defs::ccls::PASS_N, defs::ccls::PASS_S);
 
             // special hack!
-            for (wire, wname, _) in &self.db.wires {
-                if wname.starts_with("BRAM_QUAD") {
-                    self.blackhole_wires.insert(cell.wire(wire));
+            for (wid, wire) in &self.db.wires {
+                if wire.name.starts_with("BRAM_QUAD") {
+                    self.blackhole_wires.insert(cell.wire(wid));
                 }
             }
         }

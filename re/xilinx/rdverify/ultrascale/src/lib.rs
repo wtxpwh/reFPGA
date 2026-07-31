@@ -2600,7 +2600,7 @@ fn verify_hsadc_hsdac(edev: &ExpandedDevice, vrf: &mut Verifier, bcrd: BelCoord)
     let is_rf = matches!(tcid, tcls::RFDAC | tcls::RFADC);
     let mut bel = vrf
         .verify_bel(bcrd)
-        .kind(edev.db.tile_classes.key(tcid))
+        .kind(&edev.db[tcid].name)
         // to/from north/south
         .extra_in_claim("SYSREF_IN_SOUTH_P")
         .extra_in_claim("SYSREF_IN_NORTH_P")
@@ -3215,6 +3215,9 @@ fn verify_pre(endev: &ExpandedNamedDevice, vrf: &mut Verifier) {
         (tcls::RCLK_HPIO, bslots::RCLK_IOB_INT),
         (tcls::RCLK_HRIO, bslots::RCLK_IOB_INT),
     ] {
+        if !vrf.grid.db.tile_classes.contains_id(tcid) {
+            continue;
+        }
         let Some(BelInfo::SwitchBox(sb)) = vrf.grid.db[tcid].bels.get(bslot) else {
             continue;
         };
@@ -3231,57 +3234,59 @@ fn verify_pre(endev: &ExpandedNamedDevice, vrf: &mut Verifier) {
         }
     }
 
-    let tcls = &vrf.db.tile_classes[tcls::XP5IO];
-    if let Some(bel) = tcls.bels.get(bslots::LPDDRMC) {
-        let BelInfo::Bel(bel) = bel else {
-            unreachable!()
-        };
-        for &tcrd in &vrf.grid.tile_index[tcls::XP5IO] {
-            for (opin, ipin, skip_es1) in [
-                (
-                    bcls::LPDDRMC::IOB_PUDC_B_O,
-                    bcls::LPDDRMC::IOB_PUDC_B,
-                    false,
-                ),
-                (
-                    bcls::LPDDRMC::IJTAG_RESET_TAP_O,
-                    bcls::LPDDRMC::IJTAG_RESET_TAP,
-                    false,
-                ),
-                (
-                    bcls::LPDDRMC::IJTAG_CAPTURE_DR_O,
-                    bcls::LPDDRMC::IJTAG_CAPTURE_DR,
-                    false,
-                ),
-                (
-                    bcls::LPDDRMC::IJTAG_SELECT_DR_O,
-                    bcls::LPDDRMC::IJTAG_SELECT_DR,
-                    false,
-                ),
-                (
-                    bcls::LPDDRMC::IJTAG_CLOCK_DR_O,
-                    bcls::LPDDRMC::IJTAG_CLOCK_DR,
-                    true,
-                ),
-                (
-                    bcls::LPDDRMC::IJTAG_SHIFT_DR_O,
-                    bcls::LPDDRMC::IJTAG_SHIFT_DR,
-                    true,
-                ),
-                (
-                    bcls::LPDDRMC::IJTAG_UPDATE_DR_O,
-                    bcls::LPDDRMC::IJTAG_UPDATE_DR,
-                    true,
-                ),
-            ] {
-                if skip_es1 && endev.dev_naming.xp5io_es1 {
-                    continue;
+    if endev.edev.kind == ChipKind::UltrascalePlus {
+        let tcls = &vrf.db.tile_classes[tcls::XP5IO];
+        if let Some(bel) = tcls.bels.get(bslots::LPDDRMC) {
+            let BelInfo::Bel(bel) = bel else {
+                unreachable!()
+            };
+            for &tcrd in &vrf.grid.tile_index[tcls::XP5IO] {
+                for (opin, ipin, skip_es1) in [
+                    (
+                        bcls::LPDDRMC::IOB_PUDC_B_O,
+                        bcls::LPDDRMC::IOB_PUDC_B,
+                        false,
+                    ),
+                    (
+                        bcls::LPDDRMC::IJTAG_RESET_TAP_O,
+                        bcls::LPDDRMC::IJTAG_RESET_TAP,
+                        false,
+                    ),
+                    (
+                        bcls::LPDDRMC::IJTAG_CAPTURE_DR_O,
+                        bcls::LPDDRMC::IJTAG_CAPTURE_DR,
+                        false,
+                    ),
+                    (
+                        bcls::LPDDRMC::IJTAG_SELECT_DR_O,
+                        bcls::LPDDRMC::IJTAG_SELECT_DR,
+                        false,
+                    ),
+                    (
+                        bcls::LPDDRMC::IJTAG_CLOCK_DR_O,
+                        bcls::LPDDRMC::IJTAG_CLOCK_DR,
+                        true,
+                    ),
+                    (
+                        bcls::LPDDRMC::IJTAG_SHIFT_DR_O,
+                        bcls::LPDDRMC::IJTAG_SHIFT_DR,
+                        true,
+                    ),
+                    (
+                        bcls::LPDDRMC::IJTAG_UPDATE_DR_O,
+                        bcls::LPDDRMC::IJTAG_UPDATE_DR,
+                        true,
+                    ),
+                ] {
+                    if skip_es1 && endev.dev_naming.xp5io_es1 {
+                        continue;
+                    }
+                    let wo = *bel.outputs[opin].iter().next().unwrap();
+                    let wo = vrf.grid.tile_wire(tcrd, wo);
+                    let wi = bel.inputs[ipin].wire();
+                    let wi = vrf.grid.tile_wire(tcrd, wi);
+                    vrf.alias_wire(wo, wi);
                 }
-                let wo = *bel.outputs[opin].iter().next().unwrap();
-                let wo = vrf.grid.tile_wire(tcrd, wo);
-                let wi = bel.inputs[ipin].wire();
-                let wi = vrf.grid.tile_wire(tcrd, wi);
-                vrf.alias_wire(wo, wi);
             }
         }
     }

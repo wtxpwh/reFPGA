@@ -77,8 +77,9 @@ pub fn dump_chip(die: &Die) -> (Chip, IntDb, NamingDb) {
         .unwrap()
         .0;
     let mut ndb = NamingDb::default();
-    for name in intdb.tile_classes.keys() {
-        ndb.tile_namings.insert(name.clone(), TileNaming::default());
+    for tcls in intdb.tile_classes.values() {
+        ndb.tile_namings
+            .insert(tcls.name.clone(), TileNaming::default());
     }
     for name in ["CLB_S1W", "CLB_S1E"] {
         ndb.tile_namings.insert(name.into(), TileNaming::default());
@@ -125,7 +126,7 @@ pub fn dump_chip(die: &Die) -> (Chip, IntDb, NamingDb) {
         let ntile = &endev.ngrid.tiles[&tcrd];
         for (slot, bel_info) in &tcls.bels {
             let bel = tcrd.bel(slot);
-            let slot_name = intdb.bel_slots.key(slot);
+            let slot_name = intdb.bel_slots[slot].name.as_str();
             match slot {
                 defs::bslots::INT
                 | defs::bslots::BIDIH
@@ -366,22 +367,22 @@ pub fn dump_chip(die: &Die) -> (Chip, IntDb, NamingDb) {
         extractor.own_box(box_id, die.cell(col, row).tile(defs::tslots::MAIN));
     }
 
-    for (wire, name, &kind) in &intdb.wires {
-        if !name.starts_with("IMUX") {
+    for (wid, wire) in &intdb.wires {
+        if !wire.name.starts_with("IMUX") {
             continue;
         }
-        if kind != WireKind::MuxOut {
+        if wire.kind != WireKind::MuxOut {
             continue;
         }
         for (cell, _) in edev.cells() {
-            let rw = edev.resolve_wire(cell.wire(wire)).unwrap();
+            let rw = edev.resolve_wire(cell.wire(wid)).unwrap();
             if extractor.int_nets.contains_key(&rw) {
                 extractor.own_mux(rw, cell.tile(defs::tslots::MAIN));
             }
         }
     }
 
-    for (tcid, _, tcls) in &intdb.tile_classes {
+    for (tcid, tcls) in &intdb.tile_classes {
         if tcls.bels.contains_id(defs::bslots::CLB) {
             for w in [
                 wires::SPECIAL_CLB_C.cell(0).pos(),
@@ -407,7 +408,7 @@ pub fn dump_chip(die: &Die) -> (Chip, IntDb, NamingDb) {
 
     let finisher = extractor.finish();
     finisher.finish(&mut intdb, &mut ndb, |db, _, wt, _| {
-        let wtn = db.wires.key(wt.wire);
+        let wtn = db.wires[wt.wire].name.as_str();
         if wtn.starts_with("IMUX") || wtn.starts_with("IOCLK") {
             PipMode::Mux
         } else {

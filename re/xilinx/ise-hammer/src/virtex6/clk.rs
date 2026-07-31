@@ -142,12 +142,12 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
                 .null_bits()
                 .extra_tile_routing(
                     Delta::new(0, dy - 20, tcls::CMT),
-                    wires::GCLK_CMT[base + i].cell(20),
+                    wires::GCLK_HROW[base + i].cell(20),
                     wires::GCLK[base + i].cell(20).pos(),
                 )
                 .extra_tile_routing(
                     Delta::new(0, dy + 20, tcls::CMT),
-                    wires::GCLK_CMT[base + i].cell(20),
+                    wires::GCLK_HROW[base + i].cell(20),
                     wires::GCLK[base + i].cell(20).pos(),
                 )
                 .global_mutex("GCLK", "TEST")
@@ -578,7 +578,7 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
         for i in 0..32 {
             ctx.collect_progbuf(
                 tcid,
-                wires::GCLK_CMT[i].cell(20),
+                wires::GCLK_HROW[i].cell(20),
                 wires::GCLK[i].cell(20).pos(),
             );
         }

@@ -10,10 +10,7 @@ use prjcombine_re_xilinx_rawdump::{Coord, Part};
 use prjcombine_re_xilinx_naming::db::{NamingDb, PipNaming, RawTileId};
 use prjcombine_re_xilinx_rd2db_interconnect::{IntBuilder, PipMode};
 use prjcombine_types::bsdata::PolTileBit;
-use prjcombine_virtex4::defs::{
-    self, bslots,
-    virtex7::{ccls, tcls, wires},
-};
+use prjcombine_virtex4::defs::{self, bslots, ccls, tcls, virtex7::wires};
 
 struct IntMaker<'a> {
     rd: &'a Part,
@@ -697,7 +694,7 @@ impl IntMaker<'_> {
                 .extra_name_cell(format!("HCLK_IOI_IOCLK{i}"), 4, wires::IOCLK[i]);
 
             self.builder
-                .extra_name_cell(format!("HCLK_IOI_IOCLK_PLL{i}"), 4, wires::PERF_IO[i]);
+                .extra_name_cell(format!("HCLK_IOI_IOCLK_PLL{i}"), 4, wires::PERF_BUF[i]);
             self.builder.extra_name_cell(
                 format!("HCLK_IOI_IO_PLL_CLK{i}_DMUX"),
                 4,
@@ -1247,13 +1244,13 @@ impl IntMaker<'_> {
             );
         }
         self.builder
-            .extra_name_cell("CMT_IN_FIFO_WRCLK", 6, wires::FIFO_IWRCLK);
+            .extra_name_cell("CMT_IN_FIFO_WRCLK", 6, wires::IMUX_FIFO_IWRCLK);
         self.builder
-            .extra_name_cell("CMT_IN_FIFO_WREN", 6, wires::FIFO_IWREN);
+            .extra_name_cell("CMT_IN_FIFO_WREN", 6, wires::IMUX_FIFO_IWREN);
         self.builder
-            .extra_name_cell("CMT_OUT_FIFO_RDCLK", 6, wires::FIFO_ORDCLK);
+            .extra_name_cell("CMT_OUT_FIFO_RDCLK", 6, wires::IMUX_FIFO_ORDCLK);
         self.builder
-            .extra_name_cell("CMT_OUT_FIFO_RDEN", 6, wires::FIFO_ORDEN);
+            .extra_name_cell("CMT_OUT_FIFO_RDEN", 6, wires::IMUX_FIFO_ORDEN);
         self.builder
             .extra_name_cell("CMT_FIFO_L_PHASER_WRCLK", 6, wires::PHASER_ICLKDIV);
         self.builder
@@ -1615,11 +1612,11 @@ impl IntMaker<'_> {
             .db
             .wires
             .iter()
-            .filter_map(|(w, wn, _)| {
-                if wn.starts_with("SNG_S") || wn.starts_with("SNG_N") {
+            .filter_map(|(wid, wire)| {
+                if wire.name.starts_with("SNG_S") || wire.name.starts_with("SNG_N") {
                     None
                 } else {
-                    Some(w)
+                    Some(wid)
                 }
             })
             .collect();
@@ -2688,7 +2685,7 @@ impl IntMaker<'_> {
                         *mode = PipMode::Buf;
                     }
                 }
-                for (wt, wf) in wires::PERF_IO.into_iter().zip(wires::PERF) {
+                for (wt, wf) in wires::PERF_BUF.into_iter().zip(wires::PERF) {
                     let dst = wt.cell(4);
                     let src = wf.cell(4);
                     pips.pips.insert((dst, src.pos()), PipMode::Buf);
@@ -3449,10 +3446,10 @@ impl IntMaker<'_> {
                     .xtile_id(tcls::CMT_FIFO, tkn, xy)
                     .switchbox(bslots::CMT_FIFO_INT)
                     .optin_muxes(&[
-                        wires::FIFO_IWRCLK,
-                        wires::FIFO_IWREN,
-                        wires::FIFO_ORDCLK,
-                        wires::FIFO_ORDEN,
+                        wires::IMUX_FIFO_IWRCLK,
+                        wires::IMUX_FIFO_IWREN,
+                        wires::IMUX_FIFO_ORDCLK,
+                        wires::IMUX_FIFO_ORDEN,
                     ]);
                 for i in 0..12 {
                     xn = xn.ref_int(int_xy.delta(0, i as i32), i).ref_single(

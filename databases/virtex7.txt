@@ -82474,10 +82474,10 @@ intdb {
 	wire LVB[10]: multi_branch S;
 	wire LVB[11]: multi_branch S;
 	wire LVB[12]: multi_branch S;
-	wire IMUX_GFAN[0]: mux;
-	wire IMUX_GFAN[1]: mux;
 	wire IMUX_CLK[0]: mux;
 	wire IMUX_CLK[1]: mux;
+	wire IMUX_GFAN[0]: mux;
+	wire IMUX_GFAN[1]: mux;
 	wire IMUX_CTRL[0]: mux;
 	wire IMUX_CTRL[1]: mux;
 	wire IMUX_BYP[0]: mux;
@@ -82488,14 +82488,6 @@ intdb {
 	wire IMUX_BYP[5]: mux;
 	wire IMUX_BYP[6]: mux;
 	wire IMUX_BYP[7]: mux;
-	wire IMUX_BYP_SITE[0]: mux;
-	wire IMUX_BYP_SITE[1]: mux;
-	wire IMUX_BYP_SITE[2]: mux;
-	wire IMUX_BYP_SITE[3]: mux;
-	wire IMUX_BYP_SITE[4]: mux;
-	wire IMUX_BYP_SITE[5]: mux;
-	wire IMUX_BYP_SITE[6]: mux;
-	wire IMUX_BYP_SITE[7]: mux;
 	wire IMUX_BYP_BOUNCE[0]: mux;
 	wire IMUX_BYP_BOUNCE[1]: mux;
 	wire IMUX_BYP_BOUNCE[2]: mux;
@@ -82504,6 +82496,14 @@ intdb {
 	wire IMUX_BYP_BOUNCE[5]: mux;
 	wire IMUX_BYP_BOUNCE[6]: mux;
 	wire IMUX_BYP_BOUNCE[7]: mux;
+	wire IMUX_BYP_SITE[0]: mux;
+	wire IMUX_BYP_SITE[1]: mux;
+	wire IMUX_BYP_SITE[2]: mux;
+	wire IMUX_BYP_SITE[3]: mux;
+	wire IMUX_BYP_SITE[4]: mux;
+	wire IMUX_BYP_SITE[5]: mux;
+	wire IMUX_BYP_SITE[6]: mux;
+	wire IMUX_BYP_SITE[7]: mux;
 	wire IMUX_BYP_BOUNCE_N[0]: branch S;
 	wire IMUX_BYP_BOUNCE_N[1]: branch S;
 	wire IMUX_BYP_BOUNCE_N[2]: branch S;
@@ -82780,6 +82780,98 @@ intdb {
 	wire IMUX_SPEC[1]: test;
 	wire IMUX_SPEC[2]: test;
 	wire IMUX_SPEC[3]: test;
+	wire HCLK_ROW[0]: regional HROW;
+	wire HCLK_ROW[1]: regional HROW;
+	wire HCLK_ROW[2]: regional HROW;
+	wire HCLK_ROW[3]: regional HROW;
+	wire HCLK_ROW[4]: regional HROW;
+	wire HCLK_ROW[5]: regional HROW;
+	wire HCLK_ROW[6]: regional HROW;
+	wire HCLK_ROW[7]: regional HROW;
+	wire HCLK_ROW[8]: regional HROW;
+	wire HCLK_ROW[9]: regional HROW;
+	wire HCLK_ROW[10]: regional HROW;
+	wire HCLK_ROW[11]: regional HROW;
+	wire RCLK_ROW[0]: regional HROW;
+	wire RCLK_ROW[1]: regional HROW;
+	wire RCLK_ROW[2]: regional HROW;
+	wire RCLK_ROW[3]: regional HROW;
+	wire HCLK_BUF[0]: mux;
+	wire HCLK_BUF[1]: mux;
+	wire HCLK_BUF[2]: mux;
+	wire HCLK_BUF[3]: mux;
+	wire HCLK_BUF[4]: mux;
+	wire HCLK_BUF[5]: mux;
+	wire HCLK_BUF[6]: mux;
+	wire HCLK_BUF[7]: mux;
+	wire HCLK_BUF[8]: mux;
+	wire HCLK_BUF[9]: mux;
+	wire HCLK_BUF[10]: mux;
+	wire HCLK_BUF[11]: mux;
+	wire RCLK_BUF[0]: mux;
+	wire RCLK_BUF[1]: mux;
+	wire RCLK_BUF[2]: mux;
+	wire RCLK_BUF[3]: mux;
+	wire HROW_O[0]: mux;
+	wire HROW_O[1]: mux;
+	wire HROW_O[2]: mux;
+	wire HROW_O[3]: mux;
+	wire HROW_O[4]: mux;
+	wire HROW_O[5]: mux;
+	wire HROW_O[6]: mux;
+	wire HROW_O[7]: mux;
+	wire HROW_O[8]: mux;
+	wire HROW_O[9]: mux;
+	wire HROW_O[10]: mux;
+	wire HROW_O[11]: mux;
+	wire HROW_O[12]: mux;
+	wire HROW_O[13]: mux;
+	wire HROW_I[0]: branch HCLK_ROW_PREV;
+	wire HROW_I[1]: branch HCLK_ROW_PREV;
+	wire HROW_I[2]: branch HCLK_ROW_PREV;
+	wire HROW_I[3]: branch HCLK_ROW_PREV;
+	wire HROW_I[4]: branch HCLK_ROW_PREV;
+	wire HROW_I[5]: branch HCLK_ROW_PREV;
+	wire HROW_I[6]: branch HCLK_ROW_PREV;
+	wire HROW_I[7]: branch HCLK_ROW_PREV;
+	wire HROW_I[8]: branch HCLK_ROW_PREV;
+	wire HROW_I[9]: branch HCLK_ROW_PREV;
+	wire HROW_I[10]: branch HCLK_ROW_PREV;
+	wire HROW_I[11]: branch HCLK_ROW_PREV;
+	wire HROW_I[12]: branch HCLK_ROW_PREV;
+	wire HROW_I[13]: branch HCLK_ROW_PREV;
+	wire OUT_BUFG[0]: bel;
+	wire OUT_BUFG[1]: bel;
+	wire OUT_BUFG[2]: bel;
+	wire OUT_BUFG[3]: bel;
+	wire OUT_BUFG[4]: bel;
+	wire OUT_BUFG[5]: bel;
+	wire OUT_BUFG[6]: bel;
+	wire OUT_BUFG[7]: bel;
+	wire OUT_BUFG[8]: bel;
+	wire OUT_BUFG[9]: bel;
+	wire OUT_BUFG[10]: bel;
+	wire OUT_BUFG[11]: bel;
+	wire OUT_BUFG[12]: bel;
+	wire OUT_BUFG[13]: bel;
+	wire OUT_BUFG[14]: bel;
+	wire OUT_BUFG[15]: bel;
+	wire OUT_BUFG_GFB[0]: mux;
+	wire OUT_BUFG_GFB[1]: mux;
+	wire OUT_BUFG_GFB[2]: mux;
+	wire OUT_BUFG_GFB[3]: mux;
+	wire OUT_BUFG_GFB[4]: mux;
+	wire OUT_BUFG_GFB[5]: mux;
+	wire OUT_BUFG_GFB[6]: mux;
+	wire OUT_BUFG_GFB[7]: mux;
+	wire OUT_BUFG_GFB[8]: mux;
+	wire OUT_BUFG_GFB[9]: mux;
+	wire OUT_BUFG_GFB[10]: mux;
+	wire OUT_BUFG_GFB[11]: mux;
+	wire OUT_BUFG_GFB[12]: mux;
+	wire OUT_BUFG_GFB[13]: mux;
+	wire OUT_BUFG_GFB[14]: mux;
+	wire OUT_BUFG_GFB[15]: mux;
 	wire GCLK[0]: regional GCLK;
 	wire GCLK[1]: regional GCLK;
 	wire GCLK[2]: regional GCLK;
@@ -82844,38 +82936,6 @@ intdb {
 	wire GCLK_REBUF_TEST[29]: mux;
 	wire GCLK_REBUF_TEST[30]: mux;
 	wire GCLK_REBUF_TEST[31]: mux;
-	wire OUT_BUFG[0]: bel;
-	wire OUT_BUFG[1]: bel;
-	wire OUT_BUFG[2]: bel;
-	wire OUT_BUFG[3]: bel;
-	wire OUT_BUFG[4]: bel;
-	wire OUT_BUFG[5]: bel;
-	wire OUT_BUFG[6]: bel;
-	wire OUT_BUFG[7]: bel;
-	wire OUT_BUFG[8]: bel;
-	wire OUT_BUFG[9]: bel;
-	wire OUT_BUFG[10]: bel;
-	wire OUT_BUFG[11]: bel;
-	wire OUT_BUFG[12]: bel;
-	wire OUT_BUFG[13]: bel;
-	wire OUT_BUFG[14]: bel;
-	wire OUT_BUFG[15]: bel;
-	wire OUT_BUFG_GFB[0]: mux;
-	wire OUT_BUFG_GFB[1]: mux;
-	wire OUT_BUFG_GFB[2]: mux;
-	wire OUT_BUFG_GFB[3]: mux;
-	wire OUT_BUFG_GFB[4]: mux;
-	wire OUT_BUFG_GFB[5]: mux;
-	wire OUT_BUFG_GFB[6]: mux;
-	wire OUT_BUFG_GFB[7]: mux;
-	wire OUT_BUFG_GFB[8]: mux;
-	wire OUT_BUFG_GFB[9]: mux;
-	wire OUT_BUFG_GFB[10]: mux;
-	wire OUT_BUFG_GFB[11]: mux;
-	wire OUT_BUFG_GFB[12]: mux;
-	wire OUT_BUFG_GFB[13]: mux;
-	wire OUT_BUFG_GFB[14]: mux;
-	wire OUT_BUFG_GFB[15]: mux;
 	wire IMUX_BUFG_O[0]: mux;
 	wire IMUX_BUFG_O[1]: mux;
 	wire IMUX_BUFG_O[2]: mux;
@@ -83104,66 +83164,6 @@ intdb {
 	wire IMUX_BUFHCE_E[9]: mux;
 	wire IMUX_BUFHCE_E[10]: mux;
 	wire IMUX_BUFHCE_E[11]: mux;
-	wire HCLK_ROW[0]: regional HROW;
-	wire HCLK_ROW[1]: regional HROW;
-	wire HCLK_ROW[2]: regional HROW;
-	wire HCLK_ROW[3]: regional HROW;
-	wire HCLK_ROW[4]: regional HROW;
-	wire HCLK_ROW[5]: regional HROW;
-	wire HCLK_ROW[6]: regional HROW;
-	wire HCLK_ROW[7]: regional HROW;
-	wire HCLK_ROW[8]: regional HROW;
-	wire HCLK_ROW[9]: regional HROW;
-	wire HCLK_ROW[10]: regional HROW;
-	wire HCLK_ROW[11]: regional HROW;
-	wire RCLK_ROW[0]: regional HROW;
-	wire RCLK_ROW[1]: regional HROW;
-	wire RCLK_ROW[2]: regional HROW;
-	wire RCLK_ROW[3]: regional HROW;
-	wire HCLK_BUF[0]: mux;
-	wire HCLK_BUF[1]: mux;
-	wire HCLK_BUF[2]: mux;
-	wire HCLK_BUF[3]: mux;
-	wire HCLK_BUF[4]: mux;
-	wire HCLK_BUF[5]: mux;
-	wire HCLK_BUF[6]: mux;
-	wire HCLK_BUF[7]: mux;
-	wire HCLK_BUF[8]: mux;
-	wire HCLK_BUF[9]: mux;
-	wire HCLK_BUF[10]: mux;
-	wire HCLK_BUF[11]: mux;
-	wire RCLK_BUF[0]: mux;
-	wire RCLK_BUF[1]: mux;
-	wire RCLK_BUF[2]: mux;
-	wire RCLK_BUF[3]: mux;
-	wire HROW_O[0]: mux;
-	wire HROW_O[1]: mux;
-	wire HROW_O[2]: mux;
-	wire HROW_O[3]: mux;
-	wire HROW_O[4]: mux;
-	wire HROW_O[5]: mux;
-	wire HROW_O[6]: mux;
-	wire HROW_O[7]: mux;
-	wire HROW_O[8]: mux;
-	wire HROW_O[9]: mux;
-	wire HROW_O[10]: mux;
-	wire HROW_O[11]: mux;
-	wire HROW_O[12]: mux;
-	wire HROW_O[13]: mux;
-	wire HROW_I[0]: branch HCLK_ROW_PREV;
-	wire HROW_I[1]: branch HCLK_ROW_PREV;
-	wire HROW_I[2]: branch HCLK_ROW_PREV;
-	wire HROW_I[3]: branch HCLK_ROW_PREV;
-	wire HROW_I[4]: branch HCLK_ROW_PREV;
-	wire HROW_I[5]: branch HCLK_ROW_PREV;
-	wire HROW_I[6]: branch HCLK_ROW_PREV;
-	wire HROW_I[7]: branch HCLK_ROW_PREV;
-	wire HROW_I[8]: branch HCLK_ROW_PREV;
-	wire HROW_I[9]: branch HCLK_ROW_PREV;
-	wire HROW_I[10]: branch HCLK_ROW_PREV;
-	wire HROW_I[11]: branch HCLK_ROW_PREV;
-	wire HROW_I[12]: branch HCLK_ROW_PREV;
-	wire HROW_I[13]: branch HCLK_ROW_PREV;
 	wire OUT_CLKPAD: bel;
 	wire IMUX_IOI_ICLK[0]: mux;
 	wire IMUX_IOI_ICLK[1]: mux;
@@ -83209,25 +83209,10 @@ intdb {
 	wire IMUX_BUFR[1]: mux;
 	wire IMUX_BUFR[2]: mux;
 	wire IMUX_BUFR[3]: mux;
-	wire PERF_IO[0]: mux;
-	wire PERF_IO[1]: mux;
-	wire PERF_IO[2]: mux;
-	wire PERF_IO[3]: mux;
-	wire PERF[0]: mux;
-	wire PERF[1]: mux;
-	wire PERF[2]: mux;
-	wire PERF[3]: mux;
-	wire FIFO_ORDCLK: mux;
-	wire FIFO_ORDEN: mux;
-	wire FIFO_IWRCLK: mux;
-	wire FIFO_IWREN: mux;
-	wire PHASER_ICLK: regional IO_BYTE;
-	wire PHASER_ICLKDIV: regional IO_BYTE;
-	wire PHASER_IWREN: bel;
-	wire PHASER_OCLK: regional IO_BYTE;
-	wire PHASER_OCLK90: bel;
-	wire PHASER_OCLKDIV: regional IO_BYTE;
-	wire PHASER_ORDEN: bel;
+	wire PERF_BUF[0]: mux;
+	wire PERF_BUF[1]: mux;
+	wire PERF_BUF[2]: mux;
+	wire PERF_BUF[3]: mux;
 	wire HCLK_CMT[0]: mux;
 	wire HCLK_CMT[1]: mux;
 	wire HCLK_CMT[2]: mux;
@@ -83266,47 +83251,18 @@ intdb {
 	wire HROW_I_CMT[11]: mux;
 	wire HROW_I_CMT[12]: mux;
 	wire HROW_I_CMT[13]: mux;
-	wire PERF_IN_PLL[0]: mux;
-	wire PERF_IN_PLL[1]: mux;
-	wire PERF_IN_PLL[2]: mux;
-	wire PERF_IN_PLL[3]: mux;
-	wire PERF_IN_PHASER[0]: mux;
-	wire PERF_IN_PHASER[1]: mux;
-	wire PERF_IN_PHASER[2]: mux;
-	wire PERF_IN_PHASER[3]: mux;
-	wire CMT_FREQ_BB[0]: mux;
-	wire CMT_FREQ_BB[1]: mux;
-	wire CMT_FREQ_BB[2]: mux;
-	wire CMT_FREQ_BB[3]: mux;
-	wire CMT_FREQ_BB_S[0]: multi_branch IO_S;
-	wire CMT_FREQ_BB_S[1]: multi_branch IO_S;
-	wire CMT_FREQ_BB_S[2]: multi_branch IO_S;
-	wire CMT_FREQ_BB_S[3]: multi_branch IO_S;
-	wire CMT_FREQ_BB_N[0]: multi_root;
-	wire CMT_FREQ_BB_N[1]: multi_root;
-	wire CMT_FREQ_BB_N[2]: multi_root;
-	wire CMT_FREQ_BB_N[3]: multi_root;
-	wire CMT_SYNC_BB: mux;
-	wire CMT_SYNC_BB_S: multi_branch IO_S;
-	wire CMT_SYNC_BB_N: multi_root;
-	wire IMUX_BUFMRCE[0]: mux;
-	wire IMUX_BUFMRCE[1]: mux;
-	wire LCLK_CMT_S[0]: mux;
-	wire LCLK_CMT_S[1]: mux;
-	wire LCLK_CMT_N[0]: mux;
-	wire LCLK_CMT_N[1]: mux;
-	wire IMUX_PLL_CLKIN1_HCLK[0]: mux;
-	wire IMUX_PLL_CLKIN1_HCLK[1]: mux;
-	wire IMUX_PLL_CLKIN2_HCLK[0]: mux;
-	wire IMUX_PLL_CLKIN2_HCLK[1]: mux;
-	wire IMUX_PLL_CLKFB_HCLK[0]: mux;
-	wire IMUX_PLL_CLKFB_HCLK[1]: mux;
 	wire IMUX_PLL_CLKIN1[0]: mux;
 	wire IMUX_PLL_CLKIN1[1]: mux;
 	wire IMUX_PLL_CLKIN2[0]: mux;
 	wire IMUX_PLL_CLKIN2[1]: mux;
 	wire IMUX_PLL_CLKFB[0]: mux;
 	wire IMUX_PLL_CLKFB[1]: mux;
+	wire IMUX_PLL_CLKIN1_HCLK[0]: mux;
+	wire IMUX_PLL_CLKIN1_HCLK[1]: mux;
+	wire IMUX_PLL_CLKIN2_HCLK[0]: mux;
+	wire IMUX_PLL_CLKIN2_HCLK[1]: mux;
+	wire IMUX_PLL_CLKFB_HCLK[0]: mux;
+	wire IMUX_PLL_CLKFB_HCLK[1]: mux;
 	wire OUT_PLL_S[0]: bel;
 	wire OUT_PLL_S[1]: bel;
 	wire OUT_PLL_S[2]: bel;
@@ -83349,14 +83305,14 @@ intdb {
 	wire OMUX_PLL_FREQ_BB_N[1]: mux;
 	wire OMUX_PLL_FREQ_BB_N[2]: mux;
 	wire OMUX_PLL_FREQ_BB_N[3]: mux;
-	wire OMUX_HCLK_FREQ_BB[0]: mux;
-	wire OMUX_HCLK_FREQ_BB[1]: mux;
-	wire OMUX_HCLK_FREQ_BB[2]: mux;
-	wire OMUX_HCLK_FREQ_BB[3]: mux;
-	wire OMUX_CCIO[0]: mux;
-	wire OMUX_CCIO[1]: mux;
-	wire OMUX_CCIO[2]: mux;
-	wire OMUX_CCIO[3]: mux;
+	wire IMUX_BUFMRCE[0]: mux;
+	wire IMUX_BUFMRCE[1]: mux;
+	wire VMRCLK[0]: bel;
+	wire VMRCLK[1]: bel;
+	wire VMRCLK_S[0]: branch IO_N;
+	wire VMRCLK_S[1]: branch IO_N;
+	wire VMRCLK_N[0]: branch IO_S;
+	wire VMRCLK_N[1]: branch IO_S;
 	wire IMUX_PHASER_REFMUX[0]: mux;
 	wire IMUX_PHASER_REFMUX[1]: mux;
 	wire IMUX_PHASER_REFMUX[2]: mux;
@@ -83375,12 +83331,56 @@ intdb {
 	wire OUT_PHASER_IN_RCLK[2]: bel;
 	wire OUT_PHASER_IN_RCLK[3]: bel;
 	wire OUT_PHY_PHYCTLEMPTY: bel;
-	wire VMRCLK[0]: bel;
-	wire VMRCLK[1]: bel;
-	wire VMRCLK_S[0]: branch IO_N;
-	wire VMRCLK_S[1]: branch IO_N;
-	wire VMRCLK_N[0]: branch IO_S;
-	wire VMRCLK_N[1]: branch IO_S;
+	wire PHASER_ICLK: regional IO_BYTE;
+	wire PHASER_ICLKDIV: regional IO_BYTE;
+	wire PHASER_IWREN: bel;
+	wire PHASER_OCLK: regional IO_BYTE;
+	wire PHASER_OCLK90: bel;
+	wire PHASER_OCLKDIV: regional IO_BYTE;
+	wire PHASER_ORDEN: bel;
+	wire OMUX_CCIO[0]: mux;
+	wire OMUX_CCIO[1]: mux;
+	wire OMUX_CCIO[2]: mux;
+	wire OMUX_CCIO[3]: mux;
+	wire OMUX_HCLK_FREQ_BB[0]: mux;
+	wire OMUX_HCLK_FREQ_BB[1]: mux;
+	wire OMUX_HCLK_FREQ_BB[2]: mux;
+	wire OMUX_HCLK_FREQ_BB[3]: mux;
+	wire PERF[0]: mux;
+	wire PERF[1]: mux;
+	wire PERF[2]: mux;
+	wire PERF[3]: mux;
+	wire PERF_IN_PLL[0]: mux;
+	wire PERF_IN_PLL[1]: mux;
+	wire PERF_IN_PLL[2]: mux;
+	wire PERF_IN_PLL[3]: mux;
+	wire PERF_IN_PHASER[0]: mux;
+	wire PERF_IN_PHASER[1]: mux;
+	wire PERF_IN_PHASER[2]: mux;
+	wire PERF_IN_PHASER[3]: mux;
+	wire CMT_FREQ_BB[0]: mux;
+	wire CMT_FREQ_BB[1]: mux;
+	wire CMT_FREQ_BB[2]: mux;
+	wire CMT_FREQ_BB[3]: mux;
+	wire CMT_FREQ_BB_S[0]: multi_branch IO_S;
+	wire CMT_FREQ_BB_S[1]: multi_branch IO_S;
+	wire CMT_FREQ_BB_S[2]: multi_branch IO_S;
+	wire CMT_FREQ_BB_S[3]: multi_branch IO_S;
+	wire CMT_FREQ_BB_N[0]: multi_root;
+	wire CMT_FREQ_BB_N[1]: multi_root;
+	wire CMT_FREQ_BB_N[2]: multi_root;
+	wire CMT_FREQ_BB_N[3]: multi_root;
+	wire CMT_SYNC_BB: mux;
+	wire CMT_SYNC_BB_S: multi_branch IO_S;
+	wire CMT_SYNC_BB_N: multi_root;
+	wire LCLK_CMT_S[0]: mux;
+	wire LCLK_CMT_S[1]: mux;
+	wire LCLK_CMT_N[0]: mux;
+	wire LCLK_CMT_N[1]: mux;
+	wire IMUX_FIFO_ORDCLK: mux;
+	wire IMUX_FIFO_ORDEN: mux;
+	wire IMUX_FIFO_IWRCLK: mux;
+	wire IMUX_FIFO_IWREN: mux;
 	wire OUT_GT_RXOUTCLK: bel;
 	wire OUT_GT_TXOUTCLK: bel;
 	wire OUT_GT_MGTCLKOUT[0]: bel;
@@ -85818,44 +85818,6 @@ intdb {
 					LVB[0] = 0b010100000,
 					off = 0b000000000,
 				}
-				mux IMUX_GFAN[0] @[MAIN[1][9], MAIN[0][10], MAIN[1][10], MAIN[0][11], MAIN[1][16], MAIN[1][18], MAIN[1][12], MAIN[1][14]] {
-					TIE_0 = 0b00010001,
-					LCLK[0] = 0b01110010,
-					LCLK[1] = 0b10110010,
-					LCLK[2] = 0b00100010,
-					LCLK[3] = 0b00010010,
-					LCLK[4] = 0b01110100,
-					LCLK[5] = 0b10110100,
-					LCLK[6] = 0b00100100,
-					LCLK[7] = 0b00010100,
-					LCLK[8] = 0b01111000,
-					LCLK[9] = 0b10111000,
-					LCLK[10] = 0b00101000,
-					LCLK[11] = 0b00011000,
-					SNG_N1[5] = 0b10110001,
-					QUAD_WW4[1] = 0b00100001,
-					IMUX_BYP_BOUNCE[1] = 0b01110001,
-					off = 0b00000000,
-				}
-				mux IMUX_GFAN[1] @[MAIN[0][19], MAIN[0][18], MAIN[0][14], MAIN[1][13], MAIN[1][17], MAIN[0][15], MAIN[0][13], MAIN[0][17]] {
-					TIE_0 = 0b00010001,
-					LCLK[0] = 0b01110010,
-					LCLK[1] = 0b10110010,
-					LCLK[2] = 0b00100010,
-					LCLK[3] = 0b00010010,
-					LCLK[4] = 0b01110100,
-					LCLK[5] = 0b10110100,
-					LCLK[6] = 0b00100100,
-					LCLK[7] = 0b00010100,
-					LCLK[8] = 0b01111000,
-					LCLK[9] = 0b10111000,
-					LCLK[10] = 0b00101000,
-					LCLK[11] = 0b00011000,
-					SNG_N1[5] = 0b10110001,
-					QUAD_WW4[1] = 0b00100001,
-					IMUX_BYP_BOUNCE[1] = 0b01110001,
-					off = 0b00000000,
-				}
 				mux IMUX_CLK[0] @[MAIN[1][21], MAIN[1][20], MAIN[0][25], MAIN[1][24], MAIN[0][22], MAIN[0][21], MAIN[1][28], MAIN[0][26]] {
 					LCLK[0] = 0b01110001,
 					LCLK[1] = 0b00010001,
@@ -85892,6 +85854,44 @@ intdb {
 					SNG_E1[5] = 0b01111000,
 					SNG_S1[5] = 0b00101000,
 					IMUX_FAN_BOUNCE[5] = 0b10110001,
+					off = 0b00000000,
+				}
+				mux IMUX_GFAN[0] @[MAIN[1][9], MAIN[0][10], MAIN[1][10], MAIN[0][11], MAIN[1][16], MAIN[1][18], MAIN[1][12], MAIN[1][14]] {
+					TIE_0 = 0b00010001,
+					LCLK[0] = 0b01110010,
+					LCLK[1] = 0b10110010,
+					LCLK[2] = 0b00100010,
+					LCLK[3] = 0b00010010,
+					LCLK[4] = 0b01110100,
+					LCLK[5] = 0b10110100,
+					LCLK[6] = 0b00100100,
+					LCLK[7] = 0b00010100,
+					LCLK[8] = 0b01111000,
+					LCLK[9] = 0b10111000,
+					LCLK[10] = 0b00101000,
+					LCLK[11] = 0b00011000,
+					SNG_N1[5] = 0b10110001,
+					QUAD_WW4[1] = 0b00100001,
+					IMUX_BYP_BOUNCE[1] = 0b01110001,
+					off = 0b00000000,
+				}
+				mux IMUX_GFAN[1] @[MAIN[0][19], MAIN[0][18], MAIN[0][14], MAIN[1][13], MAIN[1][17], MAIN[0][15], MAIN[0][13], MAIN[0][17]] {
+					TIE_0 = 0b00010001,
+					LCLK[0] = 0b01110010,
+					LCLK[1] = 0b10110010,
+					LCLK[2] = 0b00100010,
+					LCLK[3] = 0b00010010,
+					LCLK[4] = 0b01110100,
+					LCLK[5] = 0b10110100,
+					LCLK[6] = 0b00100100,
+					LCLK[7] = 0b00010100,
+					LCLK[8] = 0b01111000,
+					LCLK[9] = 0b10111000,
+					LCLK[10] = 0b00101000,
+					LCLK[11] = 0b00011000,
+					SNG_N1[5] = 0b10110001,
+					QUAD_WW4[1] = 0b00100001,
+					IMUX_BYP_BOUNCE[1] = 0b01110001,
 					off = 0b00000000,
 				}
 				mux IMUX_CTRL[0] @[MAIN[0][35], MAIN[1][40], MAIN[1][38], MAIN[0][39], MAIN[1][37], MAIN[0][38], MAIN[1][33], MAIN[0][34]] {
@@ -87660,14 +87660,6 @@ intdb {
 					OUT[15] = 0b0111010000,
 					OUT[21] = 0b0010010000,
 				}
-				permabuf IMUX_BYP_SITE[0] = IMUX_BYP[0];
-				permabuf IMUX_BYP_SITE[1] = IMUX_BYP[1];
-				permabuf IMUX_BYP_SITE[2] = IMUX_BYP[2];
-				permabuf IMUX_BYP_SITE[3] = IMUX_BYP[3];
-				permabuf IMUX_BYP_SITE[4] = IMUX_BYP[4];
-				permabuf IMUX_BYP_SITE[5] = IMUX_BYP[5];
-				permabuf IMUX_BYP_SITE[6] = IMUX_BYP[6];
-				permabuf IMUX_BYP_SITE[7] = IMUX_BYP[7];
 				permabuf IMUX_BYP_BOUNCE[0] = IMUX_BYP[0];
 				permabuf IMUX_BYP_BOUNCE[1] = IMUX_BYP[1];
 				permabuf IMUX_BYP_BOUNCE[2] = IMUX_BYP[2];
@@ -87676,6 +87668,14 @@ intdb {
 				permabuf IMUX_BYP_BOUNCE[5] = IMUX_BYP[5];
 				permabuf IMUX_BYP_BOUNCE[6] = IMUX_BYP[6];
 				permabuf IMUX_BYP_BOUNCE[7] = IMUX_BYP[7];
+				permabuf IMUX_BYP_SITE[0] = IMUX_BYP[0];
+				permabuf IMUX_BYP_SITE[1] = IMUX_BYP[1];
+				permabuf IMUX_BYP_SITE[2] = IMUX_BYP[2];
+				permabuf IMUX_BYP_SITE[3] = IMUX_BYP[3];
+				permabuf IMUX_BYP_SITE[4] = IMUX_BYP[4];
+				permabuf IMUX_BYP_SITE[5] = IMUX_BYP[5];
+				permabuf IMUX_BYP_SITE[6] = IMUX_BYP[6];
+				permabuf IMUX_BYP_SITE[7] = IMUX_BYP[7];
 				permabuf IMUX_FAN_SITE[0] = IMUX_FAN[0];
 				permabuf IMUX_FAN_SITE[1] = IMUX_FAN[1];
 				permabuf IMUX_FAN_SITE[2] = IMUX_FAN[2];
@@ -88407,29 +88407,21 @@ intdb {
 		bel_slot SPEC_INT: routing;
 		bel_slot SLICE[0]: SLICE_V5;
 		bel_slot SLICE[1]: SLICE_V5;
-		bel_slot SLICE[2]: SLICE_V5;
-		bel_slot SLICE[3]: SLICE_V5;
 		bel_slot BRAM: BRAM_V5;
 		bel_slot DSP[0]: DSP_V6;
 		bel_slot DSP[1]: DSP_V6;
-		bel_slot DSP_C: DSP_C;
 		bel_slot ILOGIC[0]: ILOGIC;
 		bel_slot ILOGIC[1]: ILOGIC;
 		bel_slot OLOGIC[0]: OLOGIC;
 		bel_slot OLOGIC[1]: OLOGIC;
-		bel_slot IODELAY[0]: IODELAY_V6;
-		bel_slot IODELAY[1]: IODELAY_V6;
 		bel_slot IDELAY[0]: IDELAY;
 		bel_slot IDELAY[1]: IDELAY;
 		bel_slot ODELAY[0]: ODELAY;
 		bel_slot ODELAY[1]: ODELAY;
 		bel_slot IOB[0]: IOB;
 		bel_slot IOB[1]: IOB;
-		bel_slot DCM[0]: DCM_V5;
-		bel_slot DCM[1]: DCM_V5;
 		bel_slot PLL[0]: PLL_V6;
 		bel_slot PLL[1]: PLL_V6;
-		bel_slot PPR_FRAME: PPR_FRAME;
 		bel_slot PHASER_IN[0]: PHASER_IN;
 		bel_slot PHASER_IN[1]: PHASER_IN;
 		bel_slot PHASER_IN[2]: PHASER_IN;
@@ -88442,10 +88434,6 @@ intdb {
 		bel_slot PHY_CONTROL: PHY_CONTROL;
 		bel_slot BUFMRCE[0]: BUFHCE;
 		bel_slot BUFMRCE[1]: BUFHCE;
-		bel_slot CCM: CCM;
-		bel_slot PMCD[0]: PMCD;
-		bel_slot PMCD[1]: PMCD;
-		bel_slot DPM: DPM;
 		bel_slot BUFHCE_W[0]: BUFHCE;
 		bel_slot BUFHCE_W[1]: BUFHCE;
 		bel_slot BUFHCE_W[2]: BUFHCE;
@@ -88470,37 +88458,20 @@ intdb {
 		bel_slot BUFHCE_E[9]: BUFHCE;
 		bel_slot BUFHCE_E[10]: BUFHCE;
 		bel_slot BUFHCE_E[11]: BUFHCE;
-		bel_slot PMV_CLK: PMV;
 		bel_slot PMVIOB_CLK: PMVIOB;
+		bel_slot PMV_CLK: PMV;
 		bel_slot PMV2: PMV2;
 		bel_slot PMV2_SVT: PMV2;
 		bel_slot MTBF2: MTBF2;
-		bel_slot PPC: PPC440;
-		bel_slot EMAC: EMAC_V6;
 		bel_slot PCIE: PCIE_V7;
 		bel_slot PCIE3: PCIE3;
-		bel_slot GT11[0]: GT11;
-		bel_slot GT11[1]: GT11;
-		bel_slot GT11CLK: GT11CLK;
-		bel_slot GTP_DUAL: GTP_DUAL;
-		bel_slot GTX_DUAL: GTX_DUAL;
-		bel_slot HCLK_GTX: HCLK_GTX;
 		bel_slot GTCLK[0]: GTCLK;
 		bel_slot GTCLK[1]: GTCLK;
-		bel_slot GTX[0]: GTX;
-		bel_slot GTX[1]: GTX;
-		bel_slot GTX[2]: GTX;
-		bel_slot GTX[3]: GTX;
-		bel_slot GTH_QUAD: GTH_QUAD;
 		bel_slot HCLK_DRP_GTP_MID: HCLK_DRP;
 		bel_slot GTP_COMMON: GTP_COMMON;
 		bel_slot GTX_COMMON: GTX_COMMON;
 		bel_slot GTP_CHANNEL: GTP_CHANNEL;
 		bel_slot GTX_CHANNEL: GTX_CHANNEL;
-		bel_slot CRC32[0]: CRC32;
-		bel_slot CRC32[1]: CRC32;
-		bel_slot CRC32[2]: CRC32;
-		bel_slot CRC32[3]: CRC32;
 		bel_slot BUFGCTRL[0]: BUFGCTRL;
 		bel_slot BUFGCTRL[1]: BUFGCTRL;
 		bel_slot BUFGCTRL[2]: BUFGCTRL;
@@ -88517,22 +88488,6 @@ intdb {
 		bel_slot BUFGCTRL[13]: BUFGCTRL;
 		bel_slot BUFGCTRL[14]: BUFGCTRL;
 		bel_slot BUFGCTRL[15]: BUFGCTRL;
-		bel_slot BUFGCTRL[16]: BUFGCTRL;
-		bel_slot BUFGCTRL[17]: BUFGCTRL;
-		bel_slot BUFGCTRL[18]: BUFGCTRL;
-		bel_slot BUFGCTRL[19]: BUFGCTRL;
-		bel_slot BUFGCTRL[20]: BUFGCTRL;
-		bel_slot BUFGCTRL[21]: BUFGCTRL;
-		bel_slot BUFGCTRL[22]: BUFGCTRL;
-		bel_slot BUFGCTRL[23]: BUFGCTRL;
-		bel_slot BUFGCTRL[24]: BUFGCTRL;
-		bel_slot BUFGCTRL[25]: BUFGCTRL;
-		bel_slot BUFGCTRL[26]: BUFGCTRL;
-		bel_slot BUFGCTRL[27]: BUFGCTRL;
-		bel_slot BUFGCTRL[28]: BUFGCTRL;
-		bel_slot BUFGCTRL[29]: BUFGCTRL;
-		bel_slot BUFGCTRL[30]: BUFGCTRL;
-		bel_slot BUFGCTRL[31]: BUFGCTRL;
 		bel_slot PS: PS;
 
 		tile_class CLBLL {
@@ -97315,177 +97270,53 @@ intdb {
 					CELL[25].OMUX_CCIO[3] = 0b10000000000100,
 					off = 0b00000000000000,
 				}
-				mux CELL[25].CMT_FREQ_BB[0] @[MAIN[36][29][45], MAIN[16][29][53], MAIN[36][28][54], MAIN[16][28][46], MAIN[36][29][34], MAIN[16][29][34], MAIN[24][29][63]] {
-					CELL[25].CMT_FREQ_BB_S[0] = 0b0101000,
-					CELL[25].CMT_FREQ_BB_N[0] = 0b1010000,
-					CELL[25].OMUX_PLL_FREQ_BB_S[0] = 0b0000010,
-					CELL[25].OMUX_PLL_FREQ_BB_N[0] = 0b0000100,
-					CELL[25].OMUX_HCLK_FREQ_BB[0] = 0b0000001,
-					off = 0b0000000,
+				mux CELL[25].IMUX_PLL_CLKIN1[0] @[MAIN[15][28][54], MAIN[15][29][54], MAIN[15][29][53]] {
+					CELL[15].IMUX_CLK[0] = 0b011,
+					CELL[25].IMUX_PLL_CLKIN1_HCLK[0] = 0b001,
+					CELL[25].CMT_FREQ_BB[0] = 0b000,
+					CELL[25].CMT_FREQ_BB[1] = 0b010,
+					CELL[25].CMT_FREQ_BB[2] = 0b100,
+					CELL[25].CMT_FREQ_BB[3] = 0b110,
 				}
-				mux CELL[25].CMT_FREQ_BB[1] @[MAIN[36][29][46], MAIN[16][29][54], MAIN[36][28][55], MAIN[16][28][47], MAIN[36][28][35], MAIN[16][28][35], MAIN[24][28][63]] {
-					CELL[25].CMT_FREQ_BB_S[1] = 0b0101000,
-					CELL[25].CMT_FREQ_BB_N[1] = 0b1010000,
-					CELL[25].OMUX_PLL_FREQ_BB_S[1] = 0b0000010,
-					CELL[25].OMUX_PLL_FREQ_BB_N[1] = 0b0000100,
-					CELL[25].OMUX_HCLK_FREQ_BB[1] = 0b0000001,
-					off = 0b0000000,
+				mux CELL[25].IMUX_PLL_CLKIN1[1] @[MAIN[37][29][9], MAIN[37][28][9], MAIN[37][28][10]] {
+					CELL[25].IMUX_PLL_CLKIN1_HCLK[1] = 0b001,
+					CELL[25].CMT_FREQ_BB[0] = 0b000,
+					CELL[25].CMT_FREQ_BB[1] = 0b010,
+					CELL[25].CMT_FREQ_BB[2] = 0b100,
+					CELL[25].CMT_FREQ_BB[3] = 0b110,
+					CELL[37].IMUX_CLK[1] = 0b011,
 				}
-				mux CELL[25].CMT_FREQ_BB[2] @[MAIN[36][29][47], MAIN[16][29][55], MAIN[36][28][56], MAIN[16][28][48], MAIN[36][29][35], MAIN[16][29][35], MAIN[24][29][62]] {
-					CELL[25].CMT_FREQ_BB_S[2] = 0b0101000,
-					CELL[25].CMT_FREQ_BB_N[2] = 0b1010000,
-					CELL[25].OMUX_PLL_FREQ_BB_S[2] = 0b0000010,
-					CELL[25].OMUX_PLL_FREQ_BB_N[2] = 0b0000100,
-					CELL[25].OMUX_HCLK_FREQ_BB[2] = 0b0000001,
-					off = 0b0000000,
+				mux CELL[25].IMUX_PLL_CLKIN2[0] @[MAIN[15][29][55], MAIN[15][28][56], MAIN[15][28][55]] {
+					CELL[15].IMUX_CLK[1] = 0b011,
+					CELL[25].IMUX_PLL_CLKIN2_HCLK[0] = 0b001,
+					CELL[25].CMT_FREQ_BB[0] = 0b000,
+					CELL[25].CMT_FREQ_BB[1] = 0b010,
+					CELL[25].CMT_FREQ_BB[2] = 0b100,
+					CELL[25].CMT_FREQ_BB[3] = 0b110,
 				}
-				mux CELL[25].CMT_FREQ_BB[3] @[MAIN[36][29][48], MAIN[16][29][56], MAIN[36][28][57], MAIN[16][28][49], MAIN[36][28][36], MAIN[16][28][36], MAIN[24][28][62]] {
-					CELL[25].CMT_FREQ_BB_S[3] = 0b0101000,
-					CELL[25].CMT_FREQ_BB_N[3] = 0b1010000,
-					CELL[25].OMUX_PLL_FREQ_BB_S[3] = 0b0000010,
-					CELL[25].OMUX_PLL_FREQ_BB_N[3] = 0b0000100,
-					CELL[25].OMUX_HCLK_FREQ_BB[3] = 0b0000001,
-					off = 0b0000000,
+				mux CELL[25].IMUX_PLL_CLKIN2[1] @[MAIN[37][28][8], MAIN[37][29][7], MAIN[37][29][8]] {
+					CELL[25].IMUX_PLL_CLKIN2_HCLK[1] = 0b001,
+					CELL[25].CMT_FREQ_BB[0] = 0b000,
+					CELL[25].CMT_FREQ_BB[1] = 0b010,
+					CELL[25].CMT_FREQ_BB[2] = 0b100,
+					CELL[25].CMT_FREQ_BB[3] = 0b110,
+					CELL[37].IMUX_CLK[0] = 0b011,
 				}
-				mux CELL[25].CMT_FREQ_BB_S[0] @[MAIN[16][29][45], MAIN[16][28][54]] {
-					CELL[25].CMT_FREQ_BB[0] = 0b11,
-					off = 0b00,
+				mux CELL[25].IMUX_PLL_CLKFB[0] @[MAIN[15][29][52], MAIN[15][28][53], MAIN[15][28][52]] {
+					CELL[14].IMUX_CLK[0] = 0b011,
+					CELL[25].IMUX_PLL_CLKFB_HCLK[0] = 0b001,
+					CELL[25].CMT_FREQ_BB[0] = 0b000,
+					CELL[25].CMT_FREQ_BB[1] = 0b010,
+					CELL[25].CMT_FREQ_BB[2] = 0b100,
+					CELL[25].CMT_FREQ_BB[3] = 0b110,
 				}
-				mux CELL[25].CMT_FREQ_BB_S[1] @[MAIN[16][29][46], MAIN[16][28][55]] {
-					CELL[25].CMT_FREQ_BB[1] = 0b11,
-					off = 0b00,
-				}
-				mux CELL[25].CMT_FREQ_BB_S[2] @[MAIN[16][29][47], MAIN[16][28][56]] {
-					CELL[25].CMT_FREQ_BB[2] = 0b11,
-					off = 0b00,
-				}
-				mux CELL[25].CMT_FREQ_BB_S[3] @[MAIN[16][29][48], MAIN[16][28][57]] {
-					CELL[25].CMT_FREQ_BB[3] = 0b11,
-					off = 0b00,
-				}
-				mux CELL[25].CMT_FREQ_BB_N[0] @[MAIN[36][29][53], MAIN[36][28][46]] {
-					CELL[25].CMT_FREQ_BB[0] = 0b11,
-					off = 0b00,
-				}
-				mux CELL[25].CMT_FREQ_BB_N[1] @[MAIN[36][29][54], MAIN[36][28][47]] {
-					CELL[25].CMT_FREQ_BB[1] = 0b11,
-					off = 0b00,
-				}
-				mux CELL[25].CMT_FREQ_BB_N[2] @[MAIN[36][29][55], MAIN[36][28][48]] {
-					CELL[25].CMT_FREQ_BB[2] = 0b11,
-					off = 0b00,
-				}
-				mux CELL[25].CMT_FREQ_BB_N[3] @[MAIN[36][29][56], MAIN[36][28][49]] {
-					CELL[25].CMT_FREQ_BB[3] = 0b11,
-					off = 0b00,
-				}
-				mux CELL[25].IMUX_BUFMRCE[0] @[HCLK[27][28], HCLK[27][30], MAIN[25][26][1], MAIN[25][27][0], MAIN[25][26][0], HCLK[27][31], HCLK[26][31], HCLK[26][28], MAIN[25][29][2], MAIN[25][28][2]] {
-					CELL[25].CCIO_CMT[0] = 0b0000000001,
-					CELL[25].CKINT_CMT[0] = 0b0000001110,
-					CELL[25].CKINT_CMT[1] = 0b0000010110,
-					CELL[25].HROW_I_CMT[4] = 0b0000100110,
-					CELL[25].HROW_I_CMT[5] = 0b0001000110,
-					CELL[25].HROW_I_CMT[6] = 0b0010000110,
-					CELL[25].HROW_I_CMT[7] = 0b0100000110,
-					CELL[25].HROW_I_CMT[8] = 0b1000100010,
-					CELL[25].HROW_I_CMT[9] = 0b1001000010,
-					CELL[25].HROW_I_CMT[10] = 0b1010000010,
-					CELL[25].HROW_I_CMT[11] = 0b1100000010,
-					CELL[25].HROW_I_CMT[12] = 0b1000001010,
-					CELL[25].HROW_I_CMT[13] = 0b1000010010,
-					off = 0b0000000000,
-				}
-				mux CELL[25].IMUX_BUFMRCE[1] @[HCLK[27][27], HCLK[26][29], MAIN[25][27][2], MAIN[25][26][2], MAIN[25][27][1], HCLK[26][30], HCLK[27][29], HCLK[26][27], HCLK[27][26], HCLK[26][26]] {
-					CELL[25].CCIO_CMT[3] = 0b0000000001,
-					CELL[25].CKINT_CMT[0] = 0b0000001110,
-					CELL[25].CKINT_CMT[1] = 0b0000010110,
-					CELL[25].HROW_I_CMT[4] = 0b0000100110,
-					CELL[25].HROW_I_CMT[5] = 0b0001000110,
-					CELL[25].HROW_I_CMT[6] = 0b0010000110,
-					CELL[25].HROW_I_CMT[7] = 0b0100000110,
-					CELL[25].HROW_I_CMT[8] = 0b1000100010,
-					CELL[25].HROW_I_CMT[9] = 0b1001000010,
-					CELL[25].HROW_I_CMT[10] = 0b1010000010,
-					CELL[25].HROW_I_CMT[11] = 0b1100000010,
-					CELL[25].HROW_I_CMT[12] = 0b1000001010,
-					CELL[25].HROW_I_CMT[13] = 0b1000010010,
-					off = 0b0000000000,
-				}
-				mux CELL[25].LCLK_CMT_S[0] @[MAIN[24][27][17], MAIN[24][26][17], MAIN[24][27][16], MAIN[24][26][18], MAIN[24][27][18], MAIN[24][26][19], MAIN[24][27][19], MAIN[24][26][20], MAIN[24][27][20]] {
-					CELL[25].HCLK_CMT[0] = 0b001000001,
-					CELL[25].HCLK_CMT[1] = 0b001000010,
-					CELL[25].HCLK_CMT[2] = 0b001000100,
-					CELL[25].HCLK_CMT[3] = 0b001001000,
-					CELL[25].HCLK_CMT[4] = 0b001010000,
-					CELL[25].HCLK_CMT[5] = 0b001100000,
-					CELL[25].HCLK_CMT[6] = 0b010000001,
-					CELL[25].HCLK_CMT[7] = 0b010000010,
-					CELL[25].HCLK_CMT[8] = 0b010000100,
-					CELL[25].HCLK_CMT[9] = 0b010001000,
-					CELL[25].HCLK_CMT[10] = 0b010010000,
-					CELL[25].HCLK_CMT[11] = 0b010100000,
-					CELL[25].RCLK_CMT[0] = 0b100000001,
-					CELL[25].RCLK_CMT[1] = 0b100000010,
-					CELL[25].RCLK_CMT[2] = 0b100000100,
-					CELL[25].RCLK_CMT[3] = 0b100001000,
-					off = 0b000000000,
-				}
-				mux CELL[25].LCLK_CMT_S[1] @[MAIN[24][29][17], MAIN[24][28][17], MAIN[24][29][16], MAIN[24][28][18], MAIN[24][29][18], MAIN[24][28][19], MAIN[24][29][19], MAIN[24][28][20], MAIN[24][29][20]] {
-					CELL[25].HCLK_CMT[0] = 0b001000001,
-					CELL[25].HCLK_CMT[1] = 0b001000010,
-					CELL[25].HCLK_CMT[2] = 0b001000100,
-					CELL[25].HCLK_CMT[3] = 0b001001000,
-					CELL[25].HCLK_CMT[4] = 0b001010000,
-					CELL[25].HCLK_CMT[5] = 0b001100000,
-					CELL[25].HCLK_CMT[6] = 0b010000001,
-					CELL[25].HCLK_CMT[7] = 0b010000010,
-					CELL[25].HCLK_CMT[8] = 0b010000100,
-					CELL[25].HCLK_CMT[9] = 0b010001000,
-					CELL[25].HCLK_CMT[10] = 0b010010000,
-					CELL[25].HCLK_CMT[11] = 0b010100000,
-					CELL[25].RCLK_CMT[0] = 0b100000001,
-					CELL[25].RCLK_CMT[1] = 0b100000010,
-					CELL[25].RCLK_CMT[2] = 0b100000100,
-					CELL[25].RCLK_CMT[3] = 0b100001000,
-					off = 0b000000000,
-				}
-				mux CELL[25].LCLK_CMT_N[0] @[MAIN[25][26][46], MAIN[25][27][46], MAIN[25][26][47], MAIN[25][27][45], MAIN[25][26][45], MAIN[25][27][44], MAIN[25][26][44], MAIN[25][27][43], MAIN[25][26][43]] {
-					CELL[25].HCLK_CMT[0] = 0b001000001,
-					CELL[25].HCLK_CMT[1] = 0b001000010,
-					CELL[25].HCLK_CMT[2] = 0b001000100,
-					CELL[25].HCLK_CMT[3] = 0b001001000,
-					CELL[25].HCLK_CMT[4] = 0b001010000,
-					CELL[25].HCLK_CMT[5] = 0b001100000,
-					CELL[25].HCLK_CMT[6] = 0b010000001,
-					CELL[25].HCLK_CMT[7] = 0b010000010,
-					CELL[25].HCLK_CMT[8] = 0b010000100,
-					CELL[25].HCLK_CMT[9] = 0b010001000,
-					CELL[25].HCLK_CMT[10] = 0b010010000,
-					CELL[25].HCLK_CMT[11] = 0b010100000,
-					CELL[25].RCLK_CMT[0] = 0b100000001,
-					CELL[25].RCLK_CMT[1] = 0b100000010,
-					CELL[25].RCLK_CMT[2] = 0b100000100,
-					CELL[25].RCLK_CMT[3] = 0b100001000,
-					off = 0b000000000,
-				}
-				mux CELL[25].LCLK_CMT_N[1] @[MAIN[25][28][46], MAIN[25][29][46], MAIN[25][28][47], MAIN[25][29][45], MAIN[25][28][45], MAIN[25][29][44], MAIN[25][28][44], MAIN[25][29][43], MAIN[25][28][43]] {
-					CELL[25].HCLK_CMT[0] = 0b001000001,
-					CELL[25].HCLK_CMT[1] = 0b001000010,
-					CELL[25].HCLK_CMT[2] = 0b001000100,
-					CELL[25].HCLK_CMT[3] = 0b001001000,
-					CELL[25].HCLK_CMT[4] = 0b001010000,
-					CELL[25].HCLK_CMT[5] = 0b001100000,
-					CELL[25].HCLK_CMT[6] = 0b010000001,
-					CELL[25].HCLK_CMT[7] = 0b010000010,
-					CELL[25].HCLK_CMT[8] = 0b010000100,
-					CELL[25].HCLK_CMT[9] = 0b010001000,
-					CELL[25].HCLK_CMT[10] = 0b010010000,
-					CELL[25].HCLK_CMT[11] = 0b010100000,
-					CELL[25].RCLK_CMT[0] = 0b100000001,
-					CELL[25].RCLK_CMT[1] = 0b100000010,
-					CELL[25].RCLK_CMT[2] = 0b100000100,
-					CELL[25].RCLK_CMT[3] = 0b100001000,
-					off = 0b000000000,
+				mux CELL[25].IMUX_PLL_CLKFB[1] @[MAIN[37][28][11], MAIN[37][29][10], MAIN[37][29][11]] {
+					CELL[25].IMUX_PLL_CLKFB_HCLK[1] = 0b001,
+					CELL[25].CMT_FREQ_BB[0] = 0b000,
+					CELL[25].CMT_FREQ_BB[1] = 0b010,
+					CELL[25].CMT_FREQ_BB[2] = 0b100,
+					CELL[25].CMT_FREQ_BB[3] = 0b110,
+					CELL[38].IMUX_CLK[0] = 0b011,
 				}
 				mux CELL[25].IMUX_PLL_CLKIN1_HCLK[0] @[MAIN[24][28][23], MAIN[24][29][22], MAIN[24][28][22], MAIN[24][29][21], MAIN[24][28][21], MAIN[24][29][23], MAIN[24][28][24], MAIN[24][29][24], MAIN[24][28][25], MAIN[24][29][25], MAIN[24][28][26]] {
 					CELL[25].HCLK_CMT[0] = 0b00001000001,
@@ -97685,54 +97516,6 @@ intdb {
 					CELL[25].OMUX_CCIO[3] = 0b01000100000,
 					off = 0b00000000000,
 				}
-				mux CELL[25].IMUX_PLL_CLKIN1[0] @[MAIN[15][28][54], MAIN[15][29][53], MAIN[15][29][54]] {
-					CELL[15].IMUX_CLK[0] = 0b011,
-					CELL[25].CMT_FREQ_BB[0] = 0b000,
-					CELL[25].CMT_FREQ_BB[1] = 0b001,
-					CELL[25].CMT_FREQ_BB[2] = 0b100,
-					CELL[25].CMT_FREQ_BB[3] = 0b101,
-					CELL[25].IMUX_PLL_CLKIN1_HCLK[0] = 0b010,
-				}
-				mux CELL[25].IMUX_PLL_CLKIN1[1] @[MAIN[37][28][10], MAIN[37][29][9], MAIN[37][28][9]] {
-					CELL[25].CMT_FREQ_BB[0] = 0b000,
-					CELL[25].CMT_FREQ_BB[1] = 0b001,
-					CELL[25].CMT_FREQ_BB[2] = 0b010,
-					CELL[25].CMT_FREQ_BB[3] = 0b011,
-					CELL[25].IMUX_PLL_CLKIN1_HCLK[1] = 0b100,
-					CELL[37].IMUX_CLK[1] = 0b101,
-				}
-				mux CELL[25].IMUX_PLL_CLKIN2[0] @[MAIN[15][29][55], MAIN[15][28][55], MAIN[15][28][56]] {
-					CELL[15].IMUX_CLK[1] = 0b011,
-					CELL[25].CMT_FREQ_BB[0] = 0b000,
-					CELL[25].CMT_FREQ_BB[1] = 0b001,
-					CELL[25].CMT_FREQ_BB[2] = 0b100,
-					CELL[25].CMT_FREQ_BB[3] = 0b101,
-					CELL[25].IMUX_PLL_CLKIN2_HCLK[0] = 0b010,
-				}
-				mux CELL[25].IMUX_PLL_CLKIN2[1] @[MAIN[37][29][8], MAIN[37][28][8], MAIN[37][29][7]] {
-					CELL[25].CMT_FREQ_BB[0] = 0b000,
-					CELL[25].CMT_FREQ_BB[1] = 0b001,
-					CELL[25].CMT_FREQ_BB[2] = 0b010,
-					CELL[25].CMT_FREQ_BB[3] = 0b011,
-					CELL[25].IMUX_PLL_CLKIN2_HCLK[1] = 0b100,
-					CELL[37].IMUX_CLK[0] = 0b101,
-				}
-				mux CELL[25].IMUX_PLL_CLKFB[0] @[MAIN[15][29][52], MAIN[15][28][52], MAIN[15][28][53]] {
-					CELL[14].IMUX_CLK[0] = 0b011,
-					CELL[25].CMT_FREQ_BB[0] = 0b000,
-					CELL[25].CMT_FREQ_BB[1] = 0b001,
-					CELL[25].CMT_FREQ_BB[2] = 0b100,
-					CELL[25].CMT_FREQ_BB[3] = 0b101,
-					CELL[25].IMUX_PLL_CLKFB_HCLK[0] = 0b010,
-				}
-				mux CELL[25].IMUX_PLL_CLKFB[1] @[MAIN[37][29][11], MAIN[37][28][11], MAIN[37][29][10]] {
-					CELL[25].CMT_FREQ_BB[0] = 0b000,
-					CELL[25].CMT_FREQ_BB[1] = 0b001,
-					CELL[25].CMT_FREQ_BB[2] = 0b010,
-					CELL[25].CMT_FREQ_BB[3] = 0b011,
-					CELL[25].IMUX_PLL_CLKFB_HCLK[1] = 0b100,
-					CELL[38].IMUX_CLK[0] = 0b101,
-				}
 				mux CELL[25].OMUX_PLL_PERF[0] @[MAIN[15][29][63], MAIN[15][29][37], MAIN[15][28][37], MAIN[15][29][36]] {
 					CELL[25].OUT_PLL_S[0] = 0b1000,
 					CELL[25].OUT_PLL_S[2] = 0b1100,
@@ -97813,70 +97596,58 @@ intdb {
 					CELL[25].OUT_PLL_FREQ_BB_N[2] = 0b10,
 					CELL[25].OUT_PLL_FREQ_BB_N[3] = 0b11,
 				}
-				mux CELL[25].OMUX_HCLK_FREQ_BB[0] @[MAIN[25][28][3], MAIN[25][29][3]] {
-					CELL[25].CCIO_CMT[0] = 0b10,
-					CELL[25].CKINT_CMT[0] = 0b01,
-					off = 0b00,
+				mux CELL[25].IMUX_BUFMRCE[0] @[HCLK[27][28], HCLK[27][30], MAIN[25][26][1], MAIN[25][27][0], MAIN[25][26][0], HCLK[27][31], HCLK[26][31], HCLK[26][28], MAIN[25][29][2], MAIN[25][28][2]] {
+					CELL[25].CCIO_CMT[0] = 0b0000000001,
+					CELL[25].CKINT_CMT[0] = 0b0000001110,
+					CELL[25].CKINT_CMT[1] = 0b0000010110,
+					CELL[25].HROW_I_CMT[4] = 0b0000100110,
+					CELL[25].HROW_I_CMT[5] = 0b0001000110,
+					CELL[25].HROW_I_CMT[6] = 0b0010000110,
+					CELL[25].HROW_I_CMT[7] = 0b0100000110,
+					CELL[25].HROW_I_CMT[8] = 0b1000100010,
+					CELL[25].HROW_I_CMT[9] = 0b1001000010,
+					CELL[25].HROW_I_CMT[10] = 0b1010000010,
+					CELL[25].HROW_I_CMT[11] = 0b1100000010,
+					CELL[25].HROW_I_CMT[12] = 0b1000001010,
+					CELL[25].HROW_I_CMT[13] = 0b1000010010,
+					off = 0b0000000000,
 				}
-				mux CELL[25].OMUX_HCLK_FREQ_BB[1] @[MAIN[25][28][1], MAIN[25][29][1]] {
-					CELL[25].CCIO_CMT[1] = 0b10,
-					CELL[25].CKINT_CMT[1] = 0b01,
-					off = 0b00,
-				}
-				mux CELL[25].OMUX_HCLK_FREQ_BB[2] @[MAIN[25][28][0], MAIN[25][29][0]] {
-					CELL[25].CCIO_CMT[2] = 0b10,
-					CELL[25].CKINT_CMT[2] = 0b01,
-					off = 0b00,
-				}
-				mux CELL[25].OMUX_HCLK_FREQ_BB[3] @[MAIN[25][26][3], MAIN[25][27][3]] {
-					CELL[25].CCIO_CMT[3] = 0b10,
-					CELL[25].CKINT_CMT[3] = 0b01,
-					off = 0b00,
-				}
-				mux CELL[25].OMUX_CCIO[0] @[MAIN[24][27][61], MAIN[24][27][60], MAIN[24][26][61]] {
-					CELL[25].CCIO_CMT[0] = 0b100,
-					CELL[25].OUT_PHASER_REF_CLKOUT = 0b001,
-					CELL[25].OUT_PHASER_REF_TMUXOUT = 0b010,
-					off = 0b000,
-				}
-				mux CELL[25].OMUX_CCIO[1] @[MAIN[24][26][60], MAIN[25][27][47], MAIN[24][26][16]] {
-					CELL[25].CCIO_CMT[1] = 0b100,
-					CELL[25].OUT_PHASER_REF_CLKOUT = 0b001,
-					CELL[25].OUT_PHASER_REF_TMUXOUT = 0b010,
-					off = 0b000,
-				}
-				mux CELL[25].OMUX_CCIO[2] @[MAIN[25][28][25], MAIN[25][28][26], MAIN[25][29][25]] {
-					CELL[25].CCIO_CMT[2] = 0b100,
-					CELL[25].OUT_PHASER_REF_CLKOUT = 0b001,
-					CELL[25].OUT_PHASER_REF_TMUXOUT = 0b010,
-					off = 0b000,
-				}
-				mux CELL[25].OMUX_CCIO[3] @[MAIN[25][29][26], MAIN[25][29][27], MAIN[25][28][27]] {
-					CELL[25].CCIO_CMT[3] = 0b100,
-					CELL[25].OUT_PHASER_REF_CLKOUT = 0b001,
-					CELL[25].OUT_PHASER_REF_TMUXOUT = 0b010,
-					off = 0b000,
+				mux CELL[25].IMUX_BUFMRCE[1] @[HCLK[27][27], HCLK[26][29], MAIN[25][27][2], MAIN[25][26][2], MAIN[25][27][1], HCLK[26][30], HCLK[27][29], HCLK[26][27], HCLK[27][26], HCLK[26][26]] {
+					CELL[25].CCIO_CMT[3] = 0b0000000001,
+					CELL[25].CKINT_CMT[0] = 0b0000001110,
+					CELL[25].CKINT_CMT[1] = 0b0000010110,
+					CELL[25].HROW_I_CMT[4] = 0b0000100110,
+					CELL[25].HROW_I_CMT[5] = 0b0001000110,
+					CELL[25].HROW_I_CMT[6] = 0b0010000110,
+					CELL[25].HROW_I_CMT[7] = 0b0100000110,
+					CELL[25].HROW_I_CMT[8] = 0b1000100010,
+					CELL[25].HROW_I_CMT[9] = 0b1001000010,
+					CELL[25].HROW_I_CMT[10] = 0b1010000010,
+					CELL[25].HROW_I_CMT[11] = 0b1100000010,
+					CELL[25].HROW_I_CMT[12] = 0b1000001010,
+					CELL[25].HROW_I_CMT[13] = 0b1000010010,
+					off = 0b0000000000,
 				}
 				mux CELL[25].IMUX_PHASER_REFMUX[0] @[MAIN[36][29][37], MAIN[36][28][37], MAIN[36][29][36]] {
+					CELL[25].OUT_PLL_FREQ_BB_N[0] = 0b000,
 					CELL[25].CMT_FREQ_BB[0] = 0b001,
 					CELL[25].CMT_FREQ_BB[1] = 0b011,
 					CELL[25].CMT_FREQ_BB[2] = 0b101,
 					CELL[25].CMT_FREQ_BB[3] = 0b111,
-					CELL[25].OUT_PLL_FREQ_BB_N[0] = 0b000,
 				}
 				mux CELL[25].IMUX_PHASER_REFMUX[1] @[MAIN[36][29][57], MAIN[36][28][41], MAIN[36][29][40]] {
+					CELL[25].OUT_PLL_FREQ_BB_N[1] = 0b000,
 					CELL[25].CMT_FREQ_BB[0] = 0b001,
 					CELL[25].CMT_FREQ_BB[1] = 0b011,
 					CELL[25].CMT_FREQ_BB[2] = 0b101,
 					CELL[25].CMT_FREQ_BB[3] = 0b111,
-					CELL[25].OUT_PLL_FREQ_BB_N[1] = 0b000,
 				}
 				mux CELL[25].IMUX_PHASER_REFMUX[2] @[MAIN[36][28][59], MAIN[36][29][58], MAIN[36][28][58]] {
+					CELL[25].OUT_PLL_FREQ_BB_N[2] = 0b000,
 					CELL[25].CMT_FREQ_BB[0] = 0b001,
 					CELL[25].CMT_FREQ_BB[1] = 0b011,
 					CELL[25].CMT_FREQ_BB[2] = 0b101,
 					CELL[25].CMT_FREQ_BB[3] = 0b111,
-					CELL[25].OUT_PLL_FREQ_BB_N[2] = 0b000,
 				}
 				mux CELL[25].IMUX_PHASER_IN_PHASEREFCLK[0] @[MAIN[19][28][28], MAIN[19][28][27], MAIN[19][29][27], MAIN[18][29][59]] {
 					CELL[25].VMRCLK[0] = 0b0011,
@@ -97918,37 +97689,221 @@ intdb {
 					CELL[25].VMRCLK[0] = 0b0011,
 					CELL[25].VMRCLK[1] = 0b0111,
 					CELL[25].VMRCLK_S[0] = 0b1001,
-					CELL[25].VMRCLK_S[1] = 0b1101,
+					CELL[25].VMRCLK_S[1] = 0b1100,
 					CELL[25].VMRCLK_N[0] = 0b0001,
 					CELL[25].VMRCLK_N[1] = 0b0101,
 					off = 0b0000,
 				}
-				mux CELL[25].IMUX_PHASER_OUT_PHASEREFCLK[1] @[MAIN[21][28][34], MAIN[21][28][33], MAIN[21][29][33], MAIN[21][29][32]] {
-					CELL[25].VMRCLK[0] = 0b0011,
+				mux CELL[25].IMUX_PHASER_OUT_PHASEREFCLK[1] @[MAIN[21][28][34], MAIN[21][28][33], MAIN[21][29][32], MAIN[21][29][33]] {
+					CELL[25].VMRCLK[0] = 0b0001,
 					CELL[25].VMRCLK[1] = 0b0111,
-					CELL[25].VMRCLK_S[0] = 0b1001,
-					CELL[25].VMRCLK_S[1] = 0b1101,
-					CELL[25].VMRCLK_N[0] = 0b0001,
-					CELL[25].VMRCLK_N[1] = 0b0101,
+					CELL[25].VMRCLK_S[0] = 0b1010,
+					CELL[25].VMRCLK_S[1] = 0b1110,
+					CELL[25].VMRCLK_N[0] = 0b0010,
+					CELL[25].VMRCLK_N[1] = 0b0110,
 					off = 0b0000,
 				}
 				mux CELL[25].IMUX_PHASER_OUT_PHASEREFCLK[2] @[MAIN[28][28][2], MAIN[28][28][1], MAIN[28][29][1], MAIN[28][29][0]] {
 					CELL[25].VMRCLK[0] = 0b0011,
 					CELL[25].VMRCLK[1] = 0b0111,
 					CELL[25].VMRCLK_S[0] = 0b1001,
-					CELL[25].VMRCLK_S[1] = 0b1101,
+					CELL[25].VMRCLK_S[1] = 0b1100,
 					CELL[25].VMRCLK_N[0] = 0b0001,
 					CELL[25].VMRCLK_N[1] = 0b0101,
 					off = 0b0000,
 				}
-				mux CELL[25].IMUX_PHASER_OUT_PHASEREFCLK[3] @[MAIN[31][28][34], MAIN[31][28][33], MAIN[31][29][33], MAIN[31][29][32]] {
-					CELL[25].VMRCLK[0] = 0b0011,
+				mux CELL[25].IMUX_PHASER_OUT_PHASEREFCLK[3] @[MAIN[31][28][34], MAIN[31][28][33], MAIN[31][29][32], MAIN[31][29][33]] {
+					CELL[25].VMRCLK[0] = 0b0001,
 					CELL[25].VMRCLK[1] = 0b0111,
-					CELL[25].VMRCLK_S[0] = 0b1001,
-					CELL[25].VMRCLK_S[1] = 0b1101,
-					CELL[25].VMRCLK_N[0] = 0b0001,
-					CELL[25].VMRCLK_N[1] = 0b0101,
+					CELL[25].VMRCLK_S[0] = 0b1010,
+					CELL[25].VMRCLK_S[1] = 0b1110,
+					CELL[25].VMRCLK_N[0] = 0b0010,
+					CELL[25].VMRCLK_N[1] = 0b0110,
 					off = 0b0000,
+				}
+				mux CELL[25].OMUX_CCIO[0] @[MAIN[24][27][61], MAIN[24][27][60], MAIN[24][26][61]] {
+					CELL[25].CCIO_CMT[0] = 0b100,
+					CELL[25].OUT_PHASER_REF_CLKOUT = 0b001,
+					CELL[25].OUT_PHASER_REF_TMUXOUT = 0b010,
+					off = 0b000,
+				}
+				mux CELL[25].OMUX_CCIO[1] @[MAIN[24][26][60], MAIN[25][27][47], MAIN[24][26][16]] {
+					CELL[25].CCIO_CMT[1] = 0b100,
+					CELL[25].OUT_PHASER_REF_CLKOUT = 0b001,
+					CELL[25].OUT_PHASER_REF_TMUXOUT = 0b010,
+					off = 0b000,
+				}
+				mux CELL[25].OMUX_CCIO[2] @[MAIN[25][28][25], MAIN[25][28][26], MAIN[25][29][25]] {
+					CELL[25].CCIO_CMT[2] = 0b100,
+					CELL[25].OUT_PHASER_REF_CLKOUT = 0b001,
+					CELL[25].OUT_PHASER_REF_TMUXOUT = 0b010,
+					off = 0b000,
+				}
+				mux CELL[25].OMUX_CCIO[3] @[MAIN[25][29][26], MAIN[25][29][27], MAIN[25][28][27]] {
+					CELL[25].CCIO_CMT[3] = 0b100,
+					CELL[25].OUT_PHASER_REF_CLKOUT = 0b001,
+					CELL[25].OUT_PHASER_REF_TMUXOUT = 0b010,
+					off = 0b000,
+				}
+				mux CELL[25].OMUX_HCLK_FREQ_BB[0] @[MAIN[25][28][3], MAIN[25][29][3]] {
+					CELL[25].CCIO_CMT[0] = 0b10,
+					CELL[25].CKINT_CMT[0] = 0b01,
+					off = 0b00,
+				}
+				mux CELL[25].OMUX_HCLK_FREQ_BB[1] @[MAIN[25][28][1], MAIN[25][29][1]] {
+					CELL[25].CCIO_CMT[1] = 0b10,
+					CELL[25].CKINT_CMT[1] = 0b01,
+					off = 0b00,
+				}
+				mux CELL[25].OMUX_HCLK_FREQ_BB[2] @[MAIN[25][28][0], MAIN[25][29][0]] {
+					CELL[25].CCIO_CMT[2] = 0b10,
+					CELL[25].CKINT_CMT[2] = 0b01,
+					off = 0b00,
+				}
+				mux CELL[25].OMUX_HCLK_FREQ_BB[3] @[MAIN[25][26][3], MAIN[25][27][3]] {
+					CELL[25].CCIO_CMT[3] = 0b10,
+					CELL[25].CKINT_CMT[3] = 0b01,
+					off = 0b00,
+				}
+				mux CELL[25].CMT_FREQ_BB[0] @[MAIN[36][29][45], MAIN[16][29][53], MAIN[36][28][54], MAIN[16][28][46], MAIN[36][29][34], MAIN[16][29][34], MAIN[24][29][63]] {
+					CELL[25].OMUX_PLL_FREQ_BB_S[0] = 0b0000010,
+					CELL[25].OMUX_PLL_FREQ_BB_N[0] = 0b0000100,
+					CELL[25].OMUX_HCLK_FREQ_BB[0] = 0b0000001,
+					CELL[25].CMT_FREQ_BB_S[0] = 0b0101000,
+					CELL[25].CMT_FREQ_BB_N[0] = 0b1010000,
+					off = 0b0000000,
+				}
+				mux CELL[25].CMT_FREQ_BB[1] @[MAIN[36][29][46], MAIN[16][29][54], MAIN[36][28][55], MAIN[16][28][47], MAIN[36][28][35], MAIN[16][28][35], MAIN[24][28][63]] {
+					CELL[25].OMUX_PLL_FREQ_BB_S[1] = 0b0000010,
+					CELL[25].OMUX_PLL_FREQ_BB_N[1] = 0b0000100,
+					CELL[25].OMUX_HCLK_FREQ_BB[1] = 0b0000001,
+					CELL[25].CMT_FREQ_BB_S[1] = 0b0101000,
+					CELL[25].CMT_FREQ_BB_N[1] = 0b1010000,
+					off = 0b0000000,
+				}
+				mux CELL[25].CMT_FREQ_BB[2] @[MAIN[36][29][47], MAIN[16][29][55], MAIN[36][28][56], MAIN[16][28][48], MAIN[36][29][35], MAIN[16][29][35], MAIN[24][29][62]] {
+					CELL[25].OMUX_PLL_FREQ_BB_S[2] = 0b0000010,
+					CELL[25].OMUX_PLL_FREQ_BB_N[2] = 0b0000100,
+					CELL[25].OMUX_HCLK_FREQ_BB[2] = 0b0000001,
+					CELL[25].CMT_FREQ_BB_S[2] = 0b0101000,
+					CELL[25].CMT_FREQ_BB_N[2] = 0b1010000,
+					off = 0b0000000,
+				}
+				mux CELL[25].CMT_FREQ_BB[3] @[MAIN[36][29][48], MAIN[16][29][56], MAIN[36][28][57], MAIN[16][28][49], MAIN[36][28][36], MAIN[16][28][36], MAIN[24][28][62]] {
+					CELL[25].OMUX_PLL_FREQ_BB_S[3] = 0b0000010,
+					CELL[25].OMUX_PLL_FREQ_BB_N[3] = 0b0000100,
+					CELL[25].OMUX_HCLK_FREQ_BB[3] = 0b0000001,
+					CELL[25].CMT_FREQ_BB_S[3] = 0b0101000,
+					CELL[25].CMT_FREQ_BB_N[3] = 0b1010000,
+					off = 0b0000000,
+				}
+				mux CELL[25].CMT_FREQ_BB_S[0] @[MAIN[16][29][45], MAIN[16][28][54]] {
+					CELL[25].CMT_FREQ_BB[0] = 0b11,
+					off = 0b00,
+				}
+				mux CELL[25].CMT_FREQ_BB_S[1] @[MAIN[16][29][46], MAIN[16][28][55]] {
+					CELL[25].CMT_FREQ_BB[1] = 0b11,
+					off = 0b00,
+				}
+				mux CELL[25].CMT_FREQ_BB_S[2] @[MAIN[16][29][47], MAIN[16][28][56]] {
+					CELL[25].CMT_FREQ_BB[2] = 0b11,
+					off = 0b00,
+				}
+				mux CELL[25].CMT_FREQ_BB_S[3] @[MAIN[16][29][48], MAIN[16][28][57]] {
+					CELL[25].CMT_FREQ_BB[3] = 0b11,
+					off = 0b00,
+				}
+				mux CELL[25].CMT_FREQ_BB_N[0] @[MAIN[36][29][53], MAIN[36][28][46]] {
+					CELL[25].CMT_FREQ_BB[0] = 0b11,
+					off = 0b00,
+				}
+				mux CELL[25].CMT_FREQ_BB_N[1] @[MAIN[36][29][54], MAIN[36][28][47]] {
+					CELL[25].CMT_FREQ_BB[1] = 0b11,
+					off = 0b00,
+				}
+				mux CELL[25].CMT_FREQ_BB_N[2] @[MAIN[36][29][55], MAIN[36][28][48]] {
+					CELL[25].CMT_FREQ_BB[2] = 0b11,
+					off = 0b00,
+				}
+				mux CELL[25].CMT_FREQ_BB_N[3] @[MAIN[36][29][56], MAIN[36][28][49]] {
+					CELL[25].CMT_FREQ_BB[3] = 0b11,
+					off = 0b00,
+				}
+				mux CELL[25].LCLK_CMT_S[0] @[MAIN[24][27][17], MAIN[24][26][17], MAIN[24][27][16], MAIN[24][26][18], MAIN[24][27][18], MAIN[24][26][19], MAIN[24][27][19], MAIN[24][26][20], MAIN[24][27][20]] {
+					CELL[25].HCLK_CMT[0] = 0b001000001,
+					CELL[25].HCLK_CMT[1] = 0b001000010,
+					CELL[25].HCLK_CMT[2] = 0b001000100,
+					CELL[25].HCLK_CMT[3] = 0b001001000,
+					CELL[25].HCLK_CMT[4] = 0b001010000,
+					CELL[25].HCLK_CMT[5] = 0b001100000,
+					CELL[25].HCLK_CMT[6] = 0b010000001,
+					CELL[25].HCLK_CMT[7] = 0b010000010,
+					CELL[25].HCLK_CMT[8] = 0b010000100,
+					CELL[25].HCLK_CMT[9] = 0b010001000,
+					CELL[25].HCLK_CMT[10] = 0b010010000,
+					CELL[25].HCLK_CMT[11] = 0b010100000,
+					CELL[25].RCLK_CMT[0] = 0b100000001,
+					CELL[25].RCLK_CMT[1] = 0b100000010,
+					CELL[25].RCLK_CMT[2] = 0b100000100,
+					CELL[25].RCLK_CMT[3] = 0b100001000,
+					off = 0b000000000,
+				}
+				mux CELL[25].LCLK_CMT_S[1] @[MAIN[24][29][17], MAIN[24][28][17], MAIN[24][29][16], MAIN[24][28][18], MAIN[24][29][18], MAIN[24][28][19], MAIN[24][29][19], MAIN[24][28][20], MAIN[24][29][20]] {
+					CELL[25].HCLK_CMT[0] = 0b001000001,
+					CELL[25].HCLK_CMT[1] = 0b001000010,
+					CELL[25].HCLK_CMT[2] = 0b001000100,
+					CELL[25].HCLK_CMT[3] = 0b001001000,
+					CELL[25].HCLK_CMT[4] = 0b001010000,
+					CELL[25].HCLK_CMT[5] = 0b001100000,
+					CELL[25].HCLK_CMT[6] = 0b010000001,
+					CELL[25].HCLK_CMT[7] = 0b010000010,
+					CELL[25].HCLK_CMT[8] = 0b010000100,
+					CELL[25].HCLK_CMT[9] = 0b010001000,
+					CELL[25].HCLK_CMT[10] = 0b010010000,
+					CELL[25].HCLK_CMT[11] = 0b010100000,
+					CELL[25].RCLK_CMT[0] = 0b100000001,
+					CELL[25].RCLK_CMT[1] = 0b100000010,
+					CELL[25].RCLK_CMT[2] = 0b100000100,
+					CELL[25].RCLK_CMT[3] = 0b100001000,
+					off = 0b000000000,
+				}
+				mux CELL[25].LCLK_CMT_N[0] @[MAIN[25][26][46], MAIN[25][27][46], MAIN[25][26][47], MAIN[25][27][45], MAIN[25][26][45], MAIN[25][27][44], MAIN[25][26][44], MAIN[25][27][43], MAIN[25][26][43]] {
+					CELL[25].HCLK_CMT[0] = 0b001000001,
+					CELL[25].HCLK_CMT[1] = 0b001000010,
+					CELL[25].HCLK_CMT[2] = 0b001000100,
+					CELL[25].HCLK_CMT[3] = 0b001001000,
+					CELL[25].HCLK_CMT[4] = 0b001010000,
+					CELL[25].HCLK_CMT[5] = 0b001100000,
+					CELL[25].HCLK_CMT[6] = 0b010000001,
+					CELL[25].HCLK_CMT[7] = 0b010000010,
+					CELL[25].HCLK_CMT[8] = 0b010000100,
+					CELL[25].HCLK_CMT[9] = 0b010001000,
+					CELL[25].HCLK_CMT[10] = 0b010010000,
+					CELL[25].HCLK_CMT[11] = 0b010100000,
+					CELL[25].RCLK_CMT[0] = 0b100000001,
+					CELL[25].RCLK_CMT[1] = 0b100000010,
+					CELL[25].RCLK_CMT[2] = 0b100000100,
+					CELL[25].RCLK_CMT[3] = 0b100001000,
+					off = 0b000000000,
+				}
+				mux CELL[25].LCLK_CMT_N[1] @[MAIN[25][28][46], MAIN[25][29][46], MAIN[25][28][47], MAIN[25][29][45], MAIN[25][28][45], MAIN[25][29][44], MAIN[25][28][44], MAIN[25][29][43], MAIN[25][28][43]] {
+					CELL[25].HCLK_CMT[0] = 0b001000001,
+					CELL[25].HCLK_CMT[1] = 0b001000010,
+					CELL[25].HCLK_CMT[2] = 0b001000100,
+					CELL[25].HCLK_CMT[3] = 0b001001000,
+					CELL[25].HCLK_CMT[4] = 0b001010000,
+					CELL[25].HCLK_CMT[5] = 0b001100000,
+					CELL[25].HCLK_CMT[6] = 0b010000001,
+					CELL[25].HCLK_CMT[7] = 0b010000010,
+					CELL[25].HCLK_CMT[8] = 0b010000100,
+					CELL[25].HCLK_CMT[9] = 0b010001000,
+					CELL[25].HCLK_CMT[10] = 0b010010000,
+					CELL[25].HCLK_CMT[11] = 0b010100000,
+					CELL[25].RCLK_CMT[0] = 0b100000001,
+					CELL[25].RCLK_CMT[1] = 0b100000010,
+					CELL[25].RCLK_CMT[2] = 0b100000100,
+					CELL[25].RCLK_CMT[3] = 0b100001000,
+					off = 0b000000000,
 				}
 				mux IO[25].PERF[0] @[HCLK[27][19], HCLK[26][20], HCLK[26][18], HCLK[26][17], HCLK[26][16]] {
 					CELL[25].PERF_IN_PLL[0] = 0b01001,
@@ -98020,19 +97975,6 @@ intdb {
 				progbuf CELL[25].HROW_I_CMT[11] = CELL[25].HROW_I[11] @HCLK[29][24];
 				progbuf CELL[25].HROW_I_CMT[12] = CELL[25].HROW_I[12] @HCLK[28][25];
 				progbuf CELL[25].HROW_I_CMT[13] = CELL[25].HROW_I[13] @HCLK[29][25];
-				progbuf CELL[25].PERF_IN_PLL[0] = CELL[25].OMUX_PLL_PERF[0] @MAIN[24][29][38];
-				progbuf CELL[25].PERF_IN_PLL[1] = CELL[25].OMUX_PLL_PERF[1] @MAIN[24][28][38];
-				progbuf CELL[25].PERF_IN_PLL[2] = CELL[25].OMUX_PLL_PERF[2] @MAIN[24][29][37];
-				progbuf CELL[25].PERF_IN_PLL[3] = CELL[25].OMUX_PLL_PERF[3] @MAIN[24][28][37];
-				progbuf CELL[25].PERF_IN_PHASER[0] = CELL[25].OUT_PHASER_IN_RCLK[0] @MAIN[24][29][36];
-				progbuf CELL[25].PERF_IN_PHASER[1] = CELL[25].OUT_PHASER_IN_RCLK[1] @MAIN[24][28][36];
-				progbuf CELL[25].PERF_IN_PHASER[2] = CELL[25].OUT_PHASER_IN_RCLK[2] @MAIN[24][29][35];
-				progbuf CELL[25].PERF_IN_PHASER[3] = CELL[25].OUT_PHASER_IN_RCLK[3] @MAIN[24][28][35];
-				progbuf CELL[25].CMT_SYNC_BB = CELL[25].CMT_SYNC_BB_S @MAIN[16][28][39];
-				progbuf CELL[25].CMT_SYNC_BB = CELL[25].CMT_SYNC_BB_N @MAIN[36][28][38];
-				progbuf CELL[25].CMT_SYNC_BB = CELL[25].OUT_PHY_PHYCTLEMPTY @MAIN[36][28][40];
-				progbuf CELL[25].CMT_SYNC_BB_S = CELL[25].CMT_SYNC_BB @MAIN[16][28][38];
-				progbuf CELL[25].CMT_SYNC_BB_N = CELL[25].CMT_SYNC_BB @MAIN[36][28][39];
 				progbuf CELL[25].OUT_PLL_FREQ_BB_S[0] = CELL[25].OUT_PLL_S[0] @MAIN[15][29][51];
 				progbuf CELL[25].OUT_PLL_FREQ_BB_S[1] = CELL[25].OUT_PLL_S[2] @MAIN[15][28][51];
 				progbuf CELL[25].OUT_PLL_FREQ_BB_S[2] = CELL[25].OUT_PLL_S[4] @MAIN[15][29][50];
@@ -98041,6 +97983,19 @@ intdb {
 				progbuf CELL[25].OUT_PLL_FREQ_BB_N[1] = CELL[25].OUT_PLL_N[1] @MAIN[37][29][12];
 				progbuf CELL[25].OUT_PLL_FREQ_BB_N[2] = CELL[25].OUT_PLL_N[2] @MAIN[37][28][13];
 				progbuf CELL[25].OUT_PLL_FREQ_BB_N[3] = CELL[25].OUT_PLL_N[3] @MAIN[37][29][13];
+				progbuf CELL[25].PERF_IN_PLL[0] = CELL[25].OMUX_PLL_PERF[0] @MAIN[24][29][38];
+				progbuf CELL[25].PERF_IN_PLL[1] = CELL[25].OMUX_PLL_PERF[1] @MAIN[24][28][38];
+				progbuf CELL[25].PERF_IN_PLL[2] = CELL[25].OMUX_PLL_PERF[2] @MAIN[24][29][37];
+				progbuf CELL[25].PERF_IN_PLL[3] = CELL[25].OMUX_PLL_PERF[3] @MAIN[24][28][37];
+				progbuf CELL[25].PERF_IN_PHASER[0] = CELL[25].OUT_PHASER_IN_RCLK[0] @MAIN[24][29][36];
+				progbuf CELL[25].PERF_IN_PHASER[1] = CELL[25].OUT_PHASER_IN_RCLK[1] @MAIN[24][28][36];
+				progbuf CELL[25].PERF_IN_PHASER[2] = CELL[25].OUT_PHASER_IN_RCLK[2] @MAIN[24][29][35];
+				progbuf CELL[25].PERF_IN_PHASER[3] = CELL[25].OUT_PHASER_IN_RCLK[3] @MAIN[24][28][35];
+				progbuf CELL[25].CMT_SYNC_BB = CELL[25].OUT_PHY_PHYCTLEMPTY @MAIN[36][28][40];
+				progbuf CELL[25].CMT_SYNC_BB = CELL[25].CMT_SYNC_BB_S @MAIN[16][28][39];
+				progbuf CELL[25].CMT_SYNC_BB = CELL[25].CMT_SYNC_BB_N @MAIN[36][28][38];
+				progbuf CELL[25].CMT_SYNC_BB_S = CELL[25].CMT_SYNC_BB @MAIN[16][28][38];
+				progbuf CELL[25].CMT_SYNC_BB_N = CELL[25].CMT_SYNC_BB @MAIN[36][28][39];
 				wire_support CELL[25].CMT_FREQ_BB[0] @[MAIN[36][29][49], MAIN[36][29][41], MAIN[36][29][32], MAIN[24][29][61], MAIN[16][29][32], MAIN[16][28][50], MAIN[16][28][42]]
 				wire_support CELL[25].CMT_FREQ_BB[1] @[MAIN[36][29][50], MAIN[36][29][42], MAIN[36][28][33], MAIN[24][28][61], MAIN[16][28][51], MAIN[16][28][43], MAIN[16][28][33]]
 				wire_support CELL[25].CMT_FREQ_BB[2] @[MAIN[36][29][51], MAIN[36][29][43], MAIN[36][29][33], MAIN[24][29][60], MAIN[16][29][33], MAIN[16][28][52], MAIN[16][28][44]]
@@ -100735,9 +100690,6 @@ intdb {
 			// wire CELL[25].OUT_BEL[18]           PHASER_REF.TESTOUT[3]
 			// wire CELL[25].OUT_BEL[21]           PHASER_OUT[2].COUNTERREADVAL[1]
 			// wire CELL[25].OUT_BEL[23]           PHASER_REF.TESTOUT[4]
-			// wire CELL[25].CMT_SYNC_BB           PHY_CONTROL.PHYCTLMSTREMPTY
-			// wire CELL[25].IMUX_BUFMRCE[0]       BUFMRCE[0].I
-			// wire CELL[25].IMUX_BUFMRCE[1]       BUFMRCE[1].I
 			// wire CELL[25].IMUX_PLL_CLKIN1[0]    PLL[0].CLKIN1
 			// wire CELL[25].IMUX_PLL_CLKIN1[1]    PLL[1].CLKIN1
 			// wire CELL[25].IMUX_PLL_CLKIN2[0]    PLL[0].CLKIN2
@@ -100766,6 +100718,10 @@ intdb {
 			// wire CELL[25].OUT_PLL_N[5]          PLL[1].CLKOUT5
 			// wire CELL[25].OUT_PLL_N[6]          PLL[1].CLKFBOUT
 			// wire CELL[25].OUT_PLL_N[7]          PLL[1].TMUXOUT
+			// wire CELL[25].IMUX_BUFMRCE[0]       BUFMRCE[0].I
+			// wire CELL[25].IMUX_BUFMRCE[1]       BUFMRCE[1].I
+			// wire CELL[25].VMRCLK[0]             BUFMRCE[0].O
+			// wire CELL[25].VMRCLK[1]             BUFMRCE[1].O
 			// wire CELL[25].IMUX_PHASER_REFMUX[0] PHASER_IN[0].FREQREFCLK PHASER_IN[1].FREQREFCLK PHASER_IN[2].FREQREFCLK PHASER_IN[3].FREQREFCLK PHASER_OUT[0].FREQREFCLK PHASER_OUT[1].FREQREFCLK PHASER_OUT[2].FREQREFCLK PHASER_OUT[3].FREQREFCLK PHASER_REF.CLKIN
 			// wire CELL[25].IMUX_PHASER_REFMUX[1] PHASER_IN[0].MEMREFCLK PHASER_IN[1].MEMREFCLK PHASER_IN[2].MEMREFCLK PHASER_IN[3].MEMREFCLK PHASER_OUT[0].MEMREFCLK PHASER_OUT[1].MEMREFCLK PHASER_OUT[2].MEMREFCLK PHASER_OUT[3].MEMREFCLK PHY_CONTROL.MEMREFCLK
 			// wire CELL[25].IMUX_PHASER_REFMUX[2] PHASER_IN[0].SYNCIN PHASER_IN[1].SYNCIN PHASER_IN[2].SYNCIN PHASER_IN[3].SYNCIN PHASER_OUT[0].SYNCIN PHASER_OUT[1].SYNCIN PHASER_OUT[2].SYNCIN PHASER_OUT[3].SYNCIN PHY_CONTROL.SYNCIN
@@ -100784,8 +100740,7 @@ intdb {
 			// wire CELL[25].OUT_PHASER_IN_RCLK[2] PHASER_IN[2].RCLK
 			// wire CELL[25].OUT_PHASER_IN_RCLK[3] PHASER_IN[3].RCLK
 			// wire CELL[25].OUT_PHY_PHYCTLEMPTY   PHY_CONTROL.PHYCTLEMPTY
-			// wire CELL[25].VMRCLK[0]             BUFMRCE[0].O
-			// wire CELL[25].VMRCLK[1]             BUFMRCE[1].O
+			// wire CELL[25].CMT_SYNC_BB           PHY_CONTROL.PHYCTLMSTREMPTY
 			// wire CELL[26].IMUX_IMUX[0]          PHASER_OUT[2].SELFINEOCLKDELAY
 			// wire CELL[26].IMUX_IMUX[1]          PHASER_OUT[2].TESTIN[3]
 			// wire CELL[26].IMUX_IMUX[2]          PHASER_OUT[2].TESTIN[7]
@@ -104833,6 +104788,18 @@ intdb {
 			// wire CELL[1].IMUX_IMUX[9]           BUFHCE_E[9].CE
 			// wire CELL[1].IMUX_IMUX[10]          BUFHCE_E[10].CE
 			// wire CELL[1].IMUX_IMUX[11]          BUFHCE_E[11].CE
+			// wire CELL[1].HCLK_ROW[0]            BUFHCE_W[0].O
+			// wire CELL[1].HCLK_ROW[1]            BUFHCE_W[1].O
+			// wire CELL[1].HCLK_ROW[2]            BUFHCE_W[2].O
+			// wire CELL[1].HCLK_ROW[3]            BUFHCE_W[3].O
+			// wire CELL[1].HCLK_ROW[4]            BUFHCE_W[4].O
+			// wire CELL[1].HCLK_ROW[5]            BUFHCE_W[5].O
+			// wire CELL[1].HCLK_ROW[6]            BUFHCE_W[6].O
+			// wire CELL[1].HCLK_ROW[7]            BUFHCE_W[7].O
+			// wire CELL[1].HCLK_ROW[8]            BUFHCE_W[8].O
+			// wire CELL[1].HCLK_ROW[9]            BUFHCE_W[9].O
+			// wire CELL[1].HCLK_ROW[10]           BUFHCE_W[10].O
+			// wire CELL[1].HCLK_ROW[11]           BUFHCE_W[11].O
 			// wire CELL[1].IMUX_BUFHCE_W[0]       BUFHCE_W[0].I
 			// wire CELL[1].IMUX_BUFHCE_W[1]       BUFHCE_W[1].I
 			// wire CELL[1].IMUX_BUFHCE_W[2]       BUFHCE_W[2].I
@@ -104857,18 +104824,6 @@ intdb {
 			// wire CELL[1].IMUX_BUFHCE_E[9]       BUFHCE_E[9].I
 			// wire CELL[1].IMUX_BUFHCE_E[10]      BUFHCE_E[10].I
 			// wire CELL[1].IMUX_BUFHCE_E[11]      BUFHCE_E[11].I
-			// wire CELL[1].HCLK_ROW[0]            BUFHCE_W[0].O
-			// wire CELL[1].HCLK_ROW[1]            BUFHCE_W[1].O
-			// wire CELL[1].HCLK_ROW[2]            BUFHCE_W[2].O
-			// wire CELL[1].HCLK_ROW[3]            BUFHCE_W[3].O
-			// wire CELL[1].HCLK_ROW[4]            BUFHCE_W[4].O
-			// wire CELL[1].HCLK_ROW[5]            BUFHCE_W[5].O
-			// wire CELL[1].HCLK_ROW[6]            BUFHCE_W[6].O
-			// wire CELL[1].HCLK_ROW[7]            BUFHCE_W[7].O
-			// wire CELL[1].HCLK_ROW[8]            BUFHCE_W[8].O
-			// wire CELL[1].HCLK_ROW[9]            BUFHCE_W[9].O
-			// wire CELL[1].HCLK_ROW[10]           BUFHCE_W[10].O
-			// wire CELL[1].HCLK_ROW[11]           BUFHCE_W[11].O
 			// wire CELL_E.HCLK_ROW[0]             BUFHCE_E[0].O
 			// wire CELL_E.HCLK_ROW[1]             BUFHCE_E[1].O
 			// wire CELL_E.HCLK_ROW[2]             BUFHCE_E[2].O
@@ -104931,28 +104886,6 @@ intdb {
 			// wire OUT_BEL[2]                     PMVIOB_CLK.ODIV4
 		}
 
-		tile_class CLK_PMV2_SVT {
-			cell CELL;
-
-			bel PMV2_SVT {
-				input EN = IMUX_IMUX[4];
-				input A[0] = IMUX_IMUX[43];
-				input A[1] = IMUX_IMUX[27];
-				input A[2] = IMUX_IMUX[35];
-				output O = OUT_BEL[9];
-				output ODIV2 = OUT_BEL[5];
-				output ODIV4 = OUT_BEL[19];
-			}
-
-			// wire IMUX_IMUX[4]                   PMV2_SVT.EN
-			// wire IMUX_IMUX[27]                  PMV2_SVT.A[1]
-			// wire IMUX_IMUX[35]                  PMV2_SVT.A[2]
-			// wire IMUX_IMUX[43]                  PMV2_SVT.A[0]
-			// wire OUT_BEL[5]                     PMV2_SVT.ODIV2
-			// wire OUT_BEL[9]                     PMV2_SVT.O
-			// wire OUT_BEL[19]                    PMV2_SVT.ODIV4
-		}
-
 		tile_class CLK_PMV2 {
 			cell CELL;
 
@@ -104973,6 +104906,28 @@ intdb {
 			// wire OUT_BEL[5]                     PMV2.ODIV2
 			// wire OUT_BEL[9]                     PMV2.O
 			// wire OUT_BEL[19]                    PMV2.ODIV4
+		}
+
+		tile_class CLK_PMV2_SVT {
+			cell CELL;
+
+			bel PMV2_SVT {
+				input EN = IMUX_IMUX[4];
+				input A[0] = IMUX_IMUX[43];
+				input A[1] = IMUX_IMUX[27];
+				input A[2] = IMUX_IMUX[35];
+				output O = OUT_BEL[9];
+				output ODIV2 = OUT_BEL[5];
+				output ODIV4 = OUT_BEL[19];
+			}
+
+			// wire IMUX_IMUX[4]                   PMV2_SVT.EN
+			// wire IMUX_IMUX[27]                  PMV2_SVT.A[1]
+			// wire IMUX_IMUX[35]                  PMV2_SVT.A[2]
+			// wire IMUX_IMUX[43]                  PMV2_SVT.A[0]
+			// wire OUT_BEL[5]                     PMV2_SVT.ODIV2
+			// wire OUT_BEL[9]                     PMV2_SVT.O
+			// wire OUT_BEL[19]                    PMV2_SVT.ODIV4
 		}
 
 		tile_class CLK_MTBF2 {
@@ -130625,22 +130580,6 @@ intdb {
 				progbuf CELL[0].OUT_BEL[5] = CELL[0].IMUX_BUFG_O[2] @MAIN[0][27][25];
 				progbuf CELL[0].OUT_BEL[6] = CELL[0].IMUX_BUFG_O[4] @MAIN[0][27][41];
 				progbuf CELL[0].OUT_BEL[7] = CELL[0].IMUX_BUFG_O[6] @MAIN[0][27][57];
-				progbuf CELL[0].GCLK[0] = CELL[0].OUT_BUFG[0] @MAIN[0][27][14];
-				progbuf CELL[0].GCLK[1] = CELL[0].OUT_BUFG[1] @MAIN[0][27][30];
-				progbuf CELL[0].GCLK[2] = CELL[0].OUT_BUFG[2] @MAIN[0][27][46];
-				progbuf CELL[0].GCLK[3] = CELL[0].OUT_BUFG[3] @MAIN[0][27][62];
-				progbuf CELL[0].GCLK[4] = CELL[0].OUT_BUFG[4] @MAIN[1][27][14];
-				progbuf CELL[0].GCLK[5] = CELL[0].OUT_BUFG[5] @MAIN[1][27][30];
-				progbuf CELL[0].GCLK[6] = CELL[0].OUT_BUFG[6] @MAIN[1][27][46];
-				progbuf CELL[0].GCLK[7] = CELL[0].OUT_BUFG[7] @MAIN[1][27][62];
-				progbuf CELL[0].GCLK[8] = CELL[0].OUT_BUFG[8] @MAIN[2][27][14];
-				progbuf CELL[0].GCLK[9] = CELL[0].OUT_BUFG[9] @MAIN[2][27][30];
-				progbuf CELL[0].GCLK[10] = CELL[0].OUT_BUFG[10] @MAIN[2][27][46];
-				progbuf CELL[0].GCLK[11] = CELL[0].OUT_BUFG[11] @MAIN[2][27][62];
-				progbuf CELL[0].GCLK[12] = CELL[0].OUT_BUFG[12] @MAIN[3][27][14];
-				progbuf CELL[0].GCLK[13] = CELL[0].OUT_BUFG[13] @MAIN[3][27][30];
-				progbuf CELL[0].GCLK[14] = CELL[0].OUT_BUFG[14] @MAIN[3][27][46];
-				progbuf CELL[0].GCLK[15] = CELL[0].OUT_BUFG[15] @MAIN[3][27][62];
 				progbuf CELL[0].OUT_BUFG_GFB[0] = CELL[0].OUT_BUFG[0] @MAIN[0][26][14];
 				progbuf CELL[0].OUT_BUFG_GFB[1] = CELL[0].OUT_BUFG[1] @MAIN[0][26][30];
 				progbuf CELL[0].OUT_BUFG_GFB[2] = CELL[0].OUT_BUFG[2] @MAIN[0][26][46];
@@ -130657,6 +130596,22 @@ intdb {
 				progbuf CELL[0].OUT_BUFG_GFB[13] = CELL[0].OUT_BUFG[13] @MAIN[3][26][30];
 				progbuf CELL[0].OUT_BUFG_GFB[14] = CELL[0].OUT_BUFG[14] @MAIN[3][26][46];
 				progbuf CELL[0].OUT_BUFG_GFB[15] = CELL[0].OUT_BUFG[15] @MAIN[3][26][62];
+				progbuf CELL[0].GCLK[0] = CELL[0].OUT_BUFG[0] @MAIN[0][27][14];
+				progbuf CELL[0].GCLK[1] = CELL[0].OUT_BUFG[1] @MAIN[0][27][30];
+				progbuf CELL[0].GCLK[2] = CELL[0].OUT_BUFG[2] @MAIN[0][27][46];
+				progbuf CELL[0].GCLK[3] = CELL[0].OUT_BUFG[3] @MAIN[0][27][62];
+				progbuf CELL[0].GCLK[4] = CELL[0].OUT_BUFG[4] @MAIN[1][27][14];
+				progbuf CELL[0].GCLK[5] = CELL[0].OUT_BUFG[5] @MAIN[1][27][30];
+				progbuf CELL[0].GCLK[6] = CELL[0].OUT_BUFG[6] @MAIN[1][27][46];
+				progbuf CELL[0].GCLK[7] = CELL[0].OUT_BUFG[7] @MAIN[1][27][62];
+				progbuf CELL[0].GCLK[8] = CELL[0].OUT_BUFG[8] @MAIN[2][27][14];
+				progbuf CELL[0].GCLK[9] = CELL[0].OUT_BUFG[9] @MAIN[2][27][30];
+				progbuf CELL[0].GCLK[10] = CELL[0].OUT_BUFG[10] @MAIN[2][27][46];
+				progbuf CELL[0].GCLK[11] = CELL[0].OUT_BUFG[11] @MAIN[2][27][62];
+				progbuf CELL[0].GCLK[12] = CELL[0].OUT_BUFG[12] @MAIN[3][27][14];
+				progbuf CELL[0].GCLK[13] = CELL[0].OUT_BUFG[13] @MAIN[3][27][30];
+				progbuf CELL[0].GCLK[14] = CELL[0].OUT_BUFG[14] @MAIN[3][27][46];
+				progbuf CELL[0].GCLK[15] = CELL[0].OUT_BUFG[15] @MAIN[3][27][62];
 				progbuf CELL[1].OUT_BEL[0] = CELL[0].IMUX_BUFG_O[9] @MAIN[1][26][10];
 				progbuf CELL[1].OUT_BEL[1] = CELL[0].IMUX_BUFG_O[11] @MAIN[1][26][26];
 				progbuf CELL[1].OUT_BEL[2] = CELL[0].IMUX_BUFG_O[13] @MAIN[1][26][42];
@@ -131344,22 +131299,6 @@ intdb {
 				progbuf CELL[0].OUT_BEL[5] = CELL[0].IMUX_BUFG_O[2] @MAIN[0][27][25];
 				progbuf CELL[0].OUT_BEL[6] = CELL[0].IMUX_BUFG_O[4] @MAIN[0][27][41];
 				progbuf CELL[0].OUT_BEL[7] = CELL[0].IMUX_BUFG_O[6] @MAIN[0][27][57];
-				progbuf CELL[0].GCLK[16] = CELL[0].OUT_BUFG[0] @MAIN[0][27][14];
-				progbuf CELL[0].GCLK[17] = CELL[0].OUT_BUFG[1] @MAIN[0][27][30];
-				progbuf CELL[0].GCLK[18] = CELL[0].OUT_BUFG[2] @MAIN[0][27][46];
-				progbuf CELL[0].GCLK[19] = CELL[0].OUT_BUFG[3] @MAIN[0][27][62];
-				progbuf CELL[0].GCLK[20] = CELL[0].OUT_BUFG[4] @MAIN[1][27][14];
-				progbuf CELL[0].GCLK[21] = CELL[0].OUT_BUFG[5] @MAIN[1][27][30];
-				progbuf CELL[0].GCLK[22] = CELL[0].OUT_BUFG[6] @MAIN[1][27][46];
-				progbuf CELL[0].GCLK[23] = CELL[0].OUT_BUFG[7] @MAIN[1][27][62];
-				progbuf CELL[0].GCLK[24] = CELL[0].OUT_BUFG[8] @MAIN[2][27][14];
-				progbuf CELL[0].GCLK[25] = CELL[0].OUT_BUFG[9] @MAIN[2][27][30];
-				progbuf CELL[0].GCLK[26] = CELL[0].OUT_BUFG[10] @MAIN[2][27][46];
-				progbuf CELL[0].GCLK[27] = CELL[0].OUT_BUFG[11] @MAIN[2][27][62];
-				progbuf CELL[0].GCLK[28] = CELL[0].OUT_BUFG[12] @MAIN[3][27][14];
-				progbuf CELL[0].GCLK[29] = CELL[0].OUT_BUFG[13] @MAIN[3][27][30];
-				progbuf CELL[0].GCLK[30] = CELL[0].OUT_BUFG[14] @MAIN[3][27][46];
-				progbuf CELL[0].GCLK[31] = CELL[0].OUT_BUFG[15] @MAIN[3][27][62];
 				progbuf CELL[0].OUT_BUFG_GFB[0] = CELL[0].OUT_BUFG[0] @MAIN[0][26][14];
 				progbuf CELL[0].OUT_BUFG_GFB[1] = CELL[0].OUT_BUFG[1] @MAIN[0][26][30];
 				progbuf CELL[0].OUT_BUFG_GFB[2] = CELL[0].OUT_BUFG[2] @MAIN[0][26][46];
@@ -131376,6 +131315,22 @@ intdb {
 				progbuf CELL[0].OUT_BUFG_GFB[13] = CELL[0].OUT_BUFG[13] @MAIN[3][26][30];
 				progbuf CELL[0].OUT_BUFG_GFB[14] = CELL[0].OUT_BUFG[14] @MAIN[3][26][46];
 				progbuf CELL[0].OUT_BUFG_GFB[15] = CELL[0].OUT_BUFG[15] @MAIN[3][26][62];
+				progbuf CELL[0].GCLK[16] = CELL[0].OUT_BUFG[0] @MAIN[0][27][14];
+				progbuf CELL[0].GCLK[17] = CELL[0].OUT_BUFG[1] @MAIN[0][27][30];
+				progbuf CELL[0].GCLK[18] = CELL[0].OUT_BUFG[2] @MAIN[0][27][46];
+				progbuf CELL[0].GCLK[19] = CELL[0].OUT_BUFG[3] @MAIN[0][27][62];
+				progbuf CELL[0].GCLK[20] = CELL[0].OUT_BUFG[4] @MAIN[1][27][14];
+				progbuf CELL[0].GCLK[21] = CELL[0].OUT_BUFG[5] @MAIN[1][27][30];
+				progbuf CELL[0].GCLK[22] = CELL[0].OUT_BUFG[6] @MAIN[1][27][46];
+				progbuf CELL[0].GCLK[23] = CELL[0].OUT_BUFG[7] @MAIN[1][27][62];
+				progbuf CELL[0].GCLK[24] = CELL[0].OUT_BUFG[8] @MAIN[2][27][14];
+				progbuf CELL[0].GCLK[25] = CELL[0].OUT_BUFG[9] @MAIN[2][27][30];
+				progbuf CELL[0].GCLK[26] = CELL[0].OUT_BUFG[10] @MAIN[2][27][46];
+				progbuf CELL[0].GCLK[27] = CELL[0].OUT_BUFG[11] @MAIN[2][27][62];
+				progbuf CELL[0].GCLK[28] = CELL[0].OUT_BUFG[12] @MAIN[3][27][14];
+				progbuf CELL[0].GCLK[29] = CELL[0].OUT_BUFG[13] @MAIN[3][27][30];
+				progbuf CELL[0].GCLK[30] = CELL[0].OUT_BUFG[14] @MAIN[3][27][46];
+				progbuf CELL[0].GCLK[31] = CELL[0].OUT_BUFG[15] @MAIN[3][27][62];
 				progbuf CELL[1].OUT_BEL[0] = CELL[0].IMUX_BUFG_O[9] @MAIN[1][26][10];
 				progbuf CELL[1].OUT_BEL[1] = CELL[0].IMUX_BUFG_O[11] @MAIN[1][26][26];
 				progbuf CELL[1].OUT_BEL[2] = CELL[0].IMUX_BUFG_O[13] @MAIN[1][26][42];
@@ -139538,19 +139493,19 @@ intdb {
 			bitrect MAIN[11]: Vertical (30, rev 64);
 
 			switchbox CMT_FIFO_INT {
-				mux CELL[6].FIFO_ORDCLK @[MAIN[6][26][34]] {
+				mux CELL[6].IMUX_FIFO_ORDCLK @[MAIN[6][26][34]] {
 					CELL[6].PHASER_OCLKDIV = 0b1,
 					CELL[7].IMUX_CLK[0] = 0b0,
 				}
-				mux CELL[6].FIFO_ORDEN @[MAIN[6][27][29]] {
+				mux CELL[6].IMUX_FIFO_ORDEN @[MAIN[6][27][29]] {
 					CELL[6].PHASER_ORDEN = 0b1,
 					CELL[7].IMUX_IMUX[6] = 0b0,
 				}
-				mux CELL[6].FIFO_IWRCLK @[MAIN[7][26][34]] {
+				mux CELL[6].IMUX_FIFO_IWRCLK @[MAIN[7][26][34]] {
 					CELL[6].IMUX_CLK[1] = 0b0,
 					CELL[6].PHASER_ICLKDIV = 0b1,
 				}
-				mux CELL[6].FIFO_IWREN @[MAIN[7][27][29]] {
+				mux CELL[6].IMUX_FIFO_IWREN @[MAIN[7][27][29]] {
 					CELL[6].IMUX_IMUX[7] = 0b0,
 					CELL[6].PHASER_IWREN = 0b1,
 				}
@@ -139559,8 +139514,8 @@ intdb {
 			bel IN_FIFO {
 				input RDCLK = CELL[7].IMUX_CLK[1];
 				input RDEN = CELL[7].IMUX_IMUX[7];
-				input WRCLK = CELL[6].FIFO_IWRCLK;
-				input WREN = CELL[6].FIFO_IWREN;
+				input WRCLK = CELL[6].IMUX_FIFO_IWRCLK;
+				input WREN = CELL[6].IMUX_FIFO_IWREN;
 				input RESET = CELL[7].IMUX_IMUX[5];
 				input D0[0] = CELL[0].IMUX_IMUX[26];
 				input D0[1] = CELL[0].IMUX_IMUX[40];
@@ -139727,8 +139682,8 @@ intdb {
 			}
 
 			bel OUT_FIFO {
-				input RDCLK = CELL[6].FIFO_ORDCLK;
-				input RDEN = CELL[6].FIFO_ORDEN;
+				input RDCLK = CELL[6].IMUX_FIFO_ORDCLK;
+				input RDEN = CELL[6].IMUX_FIFO_ORDEN;
 				input WRCLK = CELL[6].IMUX_CLK[0];
 				input WREN = CELL[6].IMUX_IMUX[6];
 				input RESET = CELL[6].IMUX_IMUX[5];
@@ -140068,10 +140023,10 @@ intdb {
 			// wire CELL[6].OUT_BEL[19]            OUT_FIFO.Q5[5]
 			// wire CELL[6].OUT_BEL[20]            OUT_FIFO.Q5[7]
 			// wire CELL[6].OUT_BEL[22]            OUT_FIFO.Q5[4]
-			// wire CELL[6].FIFO_ORDCLK            OUT_FIFO.RDCLK
-			// wire CELL[6].FIFO_ORDEN             OUT_FIFO.RDEN
-			// wire CELL[6].FIFO_IWRCLK            IN_FIFO.WRCLK
-			// wire CELL[6].FIFO_IWREN             IN_FIFO.WREN
+			// wire CELL[6].IMUX_FIFO_ORDCLK       OUT_FIFO.RDCLK
+			// wire CELL[6].IMUX_FIFO_ORDEN        OUT_FIFO.RDEN
+			// wire CELL[6].IMUX_FIFO_IWRCLK       IN_FIFO.WRCLK
+			// wire CELL[6].IMUX_FIFO_IWREN        IN_FIFO.WREN
 			// wire CELL[7].IMUX_CLK[1]            IN_FIFO.RDCLK
 			// wire CELL[7].IMUX_IMUX[1]           IN_FIFO.SCANIN[2]
 			// wire CELL[7].IMUX_IMUX[3]           IN_FIFO.SCANENB
@@ -140199,7 +140154,7 @@ intdb {
 	}
 
 	tile_slot CFG {
-		bel_slot SYSMON_INT: routing;
+		bel_slot SYSMON: SYSMON_V5;
 		bel_slot BSCAN[0]: BSCAN;
 		bel_slot BSCAN[1]: BSCAN;
 		bel_slot BSCAN[2]: BSCAN;
@@ -140208,985 +140163,14 @@ intdb {
 		bel_slot ICAP[1]: ICAP_V6;
 		bel_slot STARTUP: STARTUP;
 		bel_slot CAPTURE: CAPTURE;
-		bel_slot JTAGPPC: JTAGPPC;
-		bel_slot PMV_CFG[0]: PMV;
-		bel_slot PMV_CFG[1]: PMV;
+		bel_slot PMVIOB_CFG: PMVIOB;
 		bel_slot DCIRESET: DCIRESET;
 		bel_slot FRAME_ECC: FRAME_ECC_V6;
 		bel_slot USR_ACCESS: USR_ACCESS;
-		bel_slot KEY_CLEAR: KEY_CLEAR;
 		bel_slot EFUSE_USR: EFUSE_USR;
 		bel_slot DNA_PORT: DNA_PORT;
 		bel_slot CFG_IO_ACCESS: CFG_IO_ACCESS_V7;
-		bel_slot PMVIOB_CFG: PMVIOB;
 		bel_slot MISC_CFG: MISC_CFG;
-		bel_slot SYSMON: SYSMON_V5;
-
-		tile_class CFG {
-			cell CELL[0];
-			cell CELL[1];
-			cell CELL[2];
-			cell CELL[3];
-			cell CELL[4];
-			cell CELL[5];
-			cell CELL[6];
-			cell CELL[7];
-			cell CELL[8];
-			cell CELL[9];
-			cell CELL[10];
-			cell CELL[11];
-			cell CELL[12];
-			cell CELL[13];
-			cell CELL[14];
-			cell CELL[15];
-			cell CELL[16];
-			cell CELL[17];
-			cell CELL[18];
-			cell CELL[19];
-			cell CELL[20];
-			cell CELL[21];
-			cell CELL[22];
-			cell CELL[23];
-			cell CELL[24];
-			cell CELL[25];
-			cell CELL[26];
-			cell CELL[27];
-			cell CELL[28];
-			cell CELL[29];
-			cell CELL[30];
-			cell CELL[31];
-			cell CELL[32];
-			cell CELL[33];
-			cell CELL[34];
-			cell CELL[35];
-			cell CELL[36];
-			cell CELL[37];
-			cell CELL[38];
-			cell CELL[39];
-			cell CELL[40];
-			cell CELL[41];
-			cell CELL[42];
-			cell CELL[43];
-			cell CELL[44];
-			cell CELL[45];
-			cell CELL[46];
-			cell CELL[47];
-			cell CELL[48];
-			cell CELL[49];
-			bitrect MAIN[0]: Vertical (30, rev 64);
-			bitrect MAIN[1]: Vertical (30, rev 64);
-			bitrect MAIN[2]: Vertical (30, rev 64);
-			bitrect MAIN[3]: Vertical (30, rev 64);
-			bitrect MAIN[4]: Vertical (30, rev 64);
-			bitrect MAIN[5]: Vertical (30, rev 64);
-			bitrect MAIN[6]: Vertical (30, rev 64);
-			bitrect MAIN[7]: Vertical (30, rev 64);
-			bitrect MAIN[8]: Vertical (30, rev 64);
-			bitrect MAIN[9]: Vertical (30, rev 64);
-			bitrect MAIN[10]: Vertical (30, rev 64);
-			bitrect MAIN[11]: Vertical (30, rev 64);
-			bitrect MAIN[12]: Vertical (30, rev 64);
-			bitrect MAIN[13]: Vertical (30, rev 64);
-			bitrect MAIN[14]: Vertical (30, rev 64);
-			bitrect MAIN[15]: Vertical (30, rev 64);
-			bitrect MAIN[16]: Vertical (30, rev 64);
-			bitrect MAIN[17]: Vertical (30, rev 64);
-			bitrect MAIN[18]: Vertical (30, rev 64);
-			bitrect MAIN[19]: Vertical (30, rev 64);
-			bitrect MAIN[20]: Vertical (30, rev 64);
-			bitrect MAIN[21]: Vertical (30, rev 64);
-			bitrect MAIN[22]: Vertical (30, rev 64);
-			bitrect MAIN[23]: Vertical (30, rev 64);
-			bitrect MAIN[24]: Vertical (30, rev 64);
-			bitrect MAIN[25]: Vertical (30, rev 64);
-			bitrect MAIN[26]: Vertical (30, rev 64);
-			bitrect MAIN[27]: Vertical (30, rev 64);
-			bitrect MAIN[28]: Vertical (30, rev 64);
-			bitrect MAIN[29]: Vertical (30, rev 64);
-			bitrect MAIN[30]: Vertical (30, rev 64);
-			bitrect MAIN[31]: Vertical (30, rev 64);
-			bitrect MAIN[32]: Vertical (30, rev 64);
-			bitrect MAIN[33]: Vertical (30, rev 64);
-			bitrect MAIN[34]: Vertical (30, rev 64);
-			bitrect MAIN[35]: Vertical (30, rev 64);
-			bitrect MAIN[36]: Vertical (30, rev 64);
-			bitrect MAIN[37]: Vertical (30, rev 64);
-			bitrect MAIN[38]: Vertical (30, rev 64);
-			bitrect MAIN[39]: Vertical (30, rev 64);
-			bitrect MAIN[40]: Vertical (30, rev 64);
-			bitrect MAIN[41]: Vertical (30, rev 64);
-			bitrect MAIN[42]: Vertical (30, rev 64);
-			bitrect MAIN[43]: Vertical (30, rev 64);
-			bitrect MAIN[44]: Vertical (30, rev 64);
-			bitrect MAIN[45]: Vertical (30, rev 64);
-			bitrect MAIN[46]: Vertical (30, rev 64);
-			bitrect MAIN[47]: Vertical (30, rev 64);
-			bitrect MAIN[48]: Vertical (30, rev 64);
-			bitrect MAIN[49]: Vertical (30, rev 64);
-
-			bel BSCAN[0] {
-				input TDO = CELL[23].IMUX_IMUX[33];
-				output DRCK = CELL[22].OUT_BEL[20];
-				output SEL = CELL[22].OUT_BEL[14];
-				output TDI = CELL[23].OUT_BEL[12];
-				output RESET = CELL[22].OUT_BEL[18];
-				output CAPTURE = CELL[22].OUT_BEL[22];
-				output SHIFT = CELL[23].OUT_BEL[16];
-				output UPDATE = CELL[22].OUT_BEL[16];
-				output RUNTEST = CELL[22].OUT_BEL[8];
-				output TCK = CELL[23].OUT_BEL[14];
-				output TMS = CELL[23].OUT_BEL[10];
-				attribute ENABLE @MAIN[33][26][18];
-			}
-
-			bel BSCAN[1] {
-				input TDO = CELL[23].IMUX_IMUX[34];
-				output DRCK = CELL[22].OUT_BEL[21];
-				output SEL = CELL[22].OUT_BEL[15];
-				output TDI = CELL[23].OUT_BEL[13];
-				output RESET = CELL[22].OUT_BEL[19];
-				output CAPTURE = CELL[22].OUT_BEL[23];
-				output SHIFT = CELL[23].OUT_BEL[17];
-				output UPDATE = CELL[22].OUT_BEL[17];
-				output RUNTEST = CELL[22].OUT_BEL[9];
-				output TCK = CELL[23].OUT_BEL[15];
-				output TMS = CELL[23].OUT_BEL[11];
-				attribute ENABLE @MAIN[33][27][18];
-			}
-
-			bel BSCAN[2] {
-				input TDO = CELL[31].IMUX_IMUX[38];
-				output DRCK = CELL[30].OUT_BEL[22];
-				output SEL = CELL[30].OUT_BEL[16];
-				output TDI = CELL[31].OUT_BEL[17];
-				output RESET = CELL[30].OUT_BEL[20];
-				output CAPTURE = CELL[31].OUT_BEL[11];
-				output SHIFT = CELL[31].OUT_BEL[21];
-				output UPDATE = CELL[30].OUT_BEL[18];
-				output RUNTEST = CELL[31].OUT_BEL[13];
-				output TCK = CELL[31].OUT_BEL[19];
-				output TMS = CELL[31].OUT_BEL[15];
-				attribute ENABLE @MAIN[33][26][19];
-			}
-
-			bel BSCAN[3] {
-				input TDO = CELL[31].IMUX_IMUX[39];
-				output DRCK = CELL[30].OUT_BEL[23];
-				output SEL = CELL[30].OUT_BEL[17];
-				output TDI = CELL[31].OUT_BEL[18];
-				output RESET = CELL[30].OUT_BEL[21];
-				output CAPTURE = CELL[31].OUT_BEL[12];
-				output SHIFT = CELL[31].OUT_BEL[22];
-				output UPDATE = CELL[30].OUT_BEL[19];
-				output RUNTEST = CELL[31].OUT_BEL[14];
-				output TCK = CELL[31].OUT_BEL[20];
-				output TMS = CELL[31].OUT_BEL[16];
-				attribute ENABLE @MAIN[33][27][19];
-			}
-
-			bel ICAP[0] {
-				input CLK = CELL[26].IMUX_CLK[1];
-				input CSB = CELL[31].IMUX_IMUX[40];
-				input RDWRB = CELL[31].IMUX_IMUX[41];
-				input I[0] = CELL[24].IMUX_IMUX[28];
-				input I[1] = CELL[24].IMUX_IMUX[29];
-				input I[2] = CELL[24].IMUX_IMUX[30];
-				input I[3] = CELL[24].IMUX_IMUX[31];
-				input I[4] = CELL[24].IMUX_IMUX[32];
-				input I[5] = CELL[24].IMUX_IMUX[33];
-				input I[6] = CELL[24].IMUX_IMUX[34];
-				input I[7] = CELL[24].IMUX_IMUX[35];
-				input I[8] = CELL[24].IMUX_IMUX[36];
-				input I[9] = CELL[24].IMUX_IMUX[37];
-				input I[10] = CELL[24].IMUX_IMUX[38];
-				input I[11] = CELL[24].IMUX_IMUX[39];
-				input I[12] = CELL[24].IMUX_IMUX[40];
-				input I[13] = CELL[24].IMUX_IMUX[41];
-				input I[14] = CELL[24].IMUX_IMUX[42];
-				input I[15] = CELL[24].IMUX_IMUX[43];
-				input I[16] = CELL[25].IMUX_IMUX[27];
-				input I[17] = CELL[25].IMUX_IMUX[28];
-				input I[18] = CELL[25].IMUX_IMUX[29];
-				input I[19] = CELL[25].IMUX_IMUX[30];
-				input I[20] = CELL[25].IMUX_IMUX[31];
-				input I[21] = CELL[25].IMUX_IMUX[32];
-				input I[22] = CELL[25].IMUX_IMUX[33];
-				input I[23] = CELL[25].IMUX_IMUX[34];
-				input I[24] = CELL[25].IMUX_IMUX[35];
-				input I[25] = CELL[25].IMUX_IMUX[36];
-				input I[26] = CELL[25].IMUX_IMUX[37];
-				input I[27] = CELL[25].IMUX_IMUX[38];
-				input I[28] = CELL[25].IMUX_IMUX[39];
-				input I[29] = CELL[25].IMUX_IMUX[40];
-				input I[30] = CELL[25].IMUX_IMUX[41];
-				input I[31] = CELL[25].IMUX_IMUX[42];
-				output O[0] = CELL[24].OUT_BEL[16];
-				output O[1] = CELL[24].OUT_BEL[17];
-				output O[2] = CELL[23].OUT_BEL[18];
-				output O[3] = CELL[23].OUT_BEL[19];
-				output O[4] = CELL[23].OUT_BEL[20];
-				output O[5] = CELL[23].OUT_BEL[21];
-				output O[6] = CELL[23].OUT_BEL[22];
-				output O[7] = CELL[23].OUT_BEL[23];
-				output O[8] = CELL[23].OUT_BEL[8];
-				output O[9] = CELL[23].OUT_BEL[9];
-				output O[10] = CELL[24].OUT_BEL[10];
-				output O[11] = CELL[24].OUT_BEL[11];
-				output O[12] = CELL[24].OUT_BEL[12];
-				output O[13] = CELL[24].OUT_BEL[13];
-				output O[14] = CELL[24].OUT_BEL[14];
-				output O[15] = CELL[24].OUT_BEL[15];
-				output O[16] = CELL[25].OUT_BEL[16];
-				output O[17] = CELL[25].OUT_BEL[17];
-				output O[18] = CELL[24].OUT_BEL[18];
-				output O[19] = CELL[24].OUT_BEL[19];
-				output O[20] = CELL[24].OUT_BEL[20];
-				output O[21] = CELL[24].OUT_BEL[21];
-				output O[22] = CELL[24].OUT_BEL[22];
-				output O[23] = CELL[24].OUT_BEL[23];
-				output O[24] = CELL[24].OUT_BEL[8];
-				output O[25] = CELL[24].OUT_BEL[9];
-				output O[26] = CELL[25].OUT_BEL[10];
-				output O[27] = CELL[25].OUT_BEL[11];
-				output O[28] = CELL[25].OUT_BEL[12];
-				output O[29] = CELL[25].OUT_BEL[13];
-				output O[30] = CELL[25].OUT_BEL[14];
-				output O[31] = CELL[25].OUT_BEL[15];
-				attribute ENABLE_TR @[MAIN[33][27][63], MAIN[33][27][62], MAIN[33][26][61]];
-			}
-
-			bel ICAP[1] {
-				input CLK = CELL[40].IMUX_CLK[1];
-				input CSB = CELL[31].IMUX_IMUX[43];
-				input RDWRB = CELL[31].IMUX_IMUX[42];
-				input I[0] = CELL[32].IMUX_IMUX[28];
-				input I[1] = CELL[32].IMUX_IMUX[29];
-				input I[2] = CELL[32].IMUX_IMUX[30];
-				input I[3] = CELL[32].IMUX_IMUX[31];
-				input I[4] = CELL[32].IMUX_IMUX[32];
-				input I[5] = CELL[32].IMUX_IMUX[33];
-				input I[6] = CELL[32].IMUX_IMUX[34];
-				input I[7] = CELL[32].IMUX_IMUX[35];
-				input I[8] = CELL[32].IMUX_IMUX[36];
-				input I[9] = CELL[32].IMUX_IMUX[37];
-				input I[10] = CELL[32].IMUX_IMUX[38];
-				input I[11] = CELL[32].IMUX_IMUX[39];
-				input I[12] = CELL[32].IMUX_IMUX[40];
-				input I[13] = CELL[32].IMUX_IMUX[41];
-				input I[14] = CELL[32].IMUX_IMUX[42];
-				input I[15] = CELL[32].IMUX_IMUX[43];
-				input I[16] = CELL[33].IMUX_IMUX[28];
-				input I[17] = CELL[33].IMUX_IMUX[29];
-				input I[18] = CELL[33].IMUX_IMUX[30];
-				input I[19] = CELL[33].IMUX_IMUX[31];
-				input I[20] = CELL[33].IMUX_IMUX[32];
-				input I[21] = CELL[33].IMUX_IMUX[33];
-				input I[22] = CELL[33].IMUX_IMUX[34];
-				input I[23] = CELL[33].IMUX_IMUX[35];
-				input I[24] = CELL[33].IMUX_IMUX[36];
-				input I[25] = CELL[33].IMUX_IMUX[37];
-				input I[26] = CELL[33].IMUX_IMUX[38];
-				input I[27] = CELL[33].IMUX_IMUX[39];
-				input I[28] = CELL[33].IMUX_IMUX[40];
-				input I[29] = CELL[33].IMUX_IMUX[41];
-				input I[30] = CELL[33].IMUX_IMUX[42];
-				input I[31] = CELL[33].IMUX_IMUX[43];
-				output O[0] = CELL[31].OUT_BEL[23];
-				output O[1] = CELL[32].OUT_BEL[12];
-				output O[2] = CELL[32].OUT_BEL[13];
-				output O[3] = CELL[32].OUT_BEL[14];
-				output O[4] = CELL[32].OUT_BEL[15];
-				output O[5] = CELL[32].OUT_BEL[16];
-				output O[6] = CELL[32].OUT_BEL[17];
-				output O[7] = CELL[32].OUT_BEL[18];
-				output O[8] = CELL[32].OUT_BEL[19];
-				output O[9] = CELL[32].OUT_BEL[20];
-				output O[10] = CELL[32].OUT_BEL[21];
-				output O[11] = CELL[32].OUT_BEL[22];
-				output O[12] = CELL[32].OUT_BEL[23];
-				output O[13] = CELL[33].OUT_BEL[12];
-				output O[14] = CELL[33].OUT_BEL[13];
-				output O[15] = CELL[33].OUT_BEL[14];
-				output O[16] = CELL[33].OUT_BEL[15];
-				output O[17] = CELL[33].OUT_BEL[16];
-				output O[18] = CELL[33].OUT_BEL[17];
-				output O[19] = CELL[33].OUT_BEL[18];
-				output O[20] = CELL[33].OUT_BEL[19];
-				output O[21] = CELL[33].OUT_BEL[20];
-				output O[22] = CELL[33].OUT_BEL[21];
-				output O[23] = CELL[33].OUT_BEL[22];
-				output O[24] = CELL[33].OUT_BEL[23];
-				output O[25] = CELL[34].OUT_BEL[10];
-				output O[26] = CELL[34].OUT_BEL[11];
-				output O[27] = CELL[34].OUT_BEL[12];
-				output O[28] = CELL[34].OUT_BEL[13];
-				output O[29] = CELL[34].OUT_BEL[14];
-				output O[30] = CELL[34].OUT_BEL[15];
-				output O[31] = CELL[34].OUT_BEL[16];
-				attribute ENABLE_TR @[MAIN[33][27][61], MAIN[33][26][63], MAIN[33][26][62]];
-			}
-
-			bel STARTUP {
-				input CLK = CELL[25].IMUX_CLK[1];
-				input GTS = CELL[28].IMUX_IMUX[39];
-				input GSR = CELL[28].IMUX_IMUX[40];
-				input USRCCLKO = CELL[27].IMUX_CLK[1];
-				input USRCCLKTS = CELL[28].IMUX_IMUX[38];
-				input USRDONEO = CELL[28].IMUX_IMUX[42];
-				input USRDONETS = CELL[28].IMUX_IMUX[41];
-				input PACK = CELL[28].IMUX_IMUX[43];
-				input KEYCLEARB = CELL[28].IMUX_IMUX[36];
-				output EOS = CELL[29].OUT_BEL[23];
-				output CFGCLK = CELL[30].OUT_BEL[14];
-				output CFGMCLK = CELL[25].OUT_BEL[18];
-				output PREQ = CELL[29].OUT_BEL[22];
-				attribute GTS_SYNC @MAIN[33][26][17];
-				attribute GSR_SYNC @MAIN[33][27][17];
-				attribute USER_GTS_GSR_ENABLE_TR @[MAIN[33][27][55], MAIN[33][26][57], MAIN[33][26][56]];
-				attribute KEY_CLEAR_ENABLE_TR @[MAIN[33][27][15], MAIN[33][27][14], MAIN[33][26][13]];
-				attribute PROG_USR_TR @[MAIN[33][27][52], MAIN[33][26][54], MAIN[33][26][53]];
-				attribute USRCCLK_ENABLE_TR @[MAIN[33][27][54], MAIN[33][27][53], MAIN[33][26][52]];
-			}
-
-			bel CAPTURE {
-				input CLK = CELL[29].IMUX_CLK[1];
-				input CAP = CELL[28].IMUX_IMUX[37];
-			}
-
-			bel DCIRESET {
-				input RST = CELL[28].IMUX_IMUX[35];
-				output LOCKED = CELL[29].OUT_BEL[21];
-				attribute ENABLE_TR @[MAIN[33][27][20], MAIN[33][26][22], MAIN[33][26][21]];
-			}
-
-			bel FRAME_ECC {
-				output CRCERROR = CELL[30].OUT_BEL[15];
-				output ECCERROR = CELL[29].OUT_BEL[20];
-				output ECCERRORSINGLE = CELL[28].OUT_BEL[23];
-				output SYNDROMEVALID = CELL[22].OUT_BEL[13];
-				output SYNDROME[0] = CELL[21].OUT_BEL[14];
-				output SYNDROME[1] = CELL[21].OUT_BEL[15];
-				output SYNDROME[2] = CELL[21].OUT_BEL[16];
-				output SYNDROME[3] = CELL[21].OUT_BEL[17];
-				output SYNDROME[4] = CELL[21].OUT_BEL[18];
-				output SYNDROME[5] = CELL[21].OUT_BEL[19];
-				output SYNDROME[6] = CELL[21].OUT_BEL[20];
-				output SYNDROME[7] = CELL[21].OUT_BEL[21];
-				output SYNDROME[8] = CELL[21].OUT_BEL[22];
-				output SYNDROME[9] = CELL[21].OUT_BEL[23];
-				output SYNDROME[10] = CELL[22].OUT_BEL[10];
-				output SYNDROME[11] = CELL[22].OUT_BEL[11];
-				output SYNDROME[12] = CELL[22].OUT_BEL[12];
-				output SYNBIT[0] = CELL[28].OUT_BEL[18];
-				output SYNBIT[1] = CELL[28].OUT_BEL[19];
-				output SYNBIT[2] = CELL[28].OUT_BEL[20];
-				output SYNBIT[3] = CELL[28].OUT_BEL[21];
-				output SYNBIT[4] = CELL[28].OUT_BEL[22];
-				output SYNWORD[0] = CELL[27].OUT_BEL[20];
-				output SYNWORD[1] = CELL[27].OUT_BEL[21];
-				output SYNWORD[2] = CELL[27].OUT_BEL[22];
-				output SYNWORD[3] = CELL[27].OUT_BEL[23];
-				output SYNWORD[4] = CELL[27].OUT_BEL[8];
-				output SYNWORD[5] = CELL[27].OUT_BEL[9];
-				output SYNWORD[6] = CELL[28].OUT_BEL[17];
-				output FAR[0] = CELL[26].OUT_BEL[10];
-				output FAR[1] = CELL[26].OUT_BEL[11];
-				output FAR[2] = CELL[26].OUT_BEL[12];
-				output FAR[3] = CELL[26].OUT_BEL[13];
-				output FAR[4] = CELL[26].OUT_BEL[14];
-				output FAR[5] = CELL[26].OUT_BEL[15];
-				output FAR[6] = CELL[26].OUT_BEL[16];
-				output FAR[7] = CELL[26].OUT_BEL[17];
-				output FAR[8] = CELL[26].OUT_BEL[18];
-				output FAR[9] = CELL[26].OUT_BEL[19];
-				output FAR[10] = CELL[26].OUT_BEL[20];
-				output FAR[11] = CELL[26].OUT_BEL[21];
-				output FAR[12] = CELL[26].OUT_BEL[22];
-				output FAR[13] = CELL[26].OUT_BEL[23];
-				output FAR[14] = CELL[26].OUT_BEL[8];
-				output FAR[15] = CELL[26].OUT_BEL[9];
-				output FAR[16] = CELL[27].OUT_BEL[10];
-				output FAR[17] = CELL[27].OUT_BEL[11];
-				output FAR[18] = CELL[27].OUT_BEL[12];
-				output FAR[19] = CELL[27].OUT_BEL[13];
-				output FAR[20] = CELL[27].OUT_BEL[14];
-				output FAR[21] = CELL[27].OUT_BEL[15];
-				output FAR[22] = CELL[27].OUT_BEL[16];
-				output FAR[23] = CELL[27].OUT_BEL[17];
-				output FAR[24] = CELL[27].OUT_BEL[18];
-				output FAR[25] = CELL[27].OUT_BEL[19];
-			}
-
-			bel USR_ACCESS {
-				output DATAVALID = CELL[21].OUT_BEL[13];
-				output DATA[0] = CELL[20].OUT_BEL[11];
-				output DATA[1] = CELL[20].OUT_BEL[12];
-				output DATA[2] = CELL[19].OUT_BEL[13];
-				output DATA[3] = CELL[19].OUT_BEL[14];
-				output DATA[4] = CELL[19].OUT_BEL[15];
-				output DATA[5] = CELL[19].OUT_BEL[16];
-				output DATA[6] = CELL[19].OUT_BEL[17];
-				output DATA[7] = CELL[19].OUT_BEL[18];
-				output DATA[8] = CELL[19].OUT_BEL[19];
-				output DATA[9] = CELL[19].OUT_BEL[20];
-				output DATA[10] = CELL[19].OUT_BEL[21];
-				output DATA[11] = CELL[19].OUT_BEL[22];
-				output DATA[12] = CELL[19].OUT_BEL[23];
-				output DATA[13] = CELL[19].OUT_BEL[10];
-				output DATA[14] = CELL[19].OUT_BEL[11];
-				output DATA[15] = CELL[20].OUT_BEL[10];
-				output DATA[16] = CELL[21].OUT_BEL[11];
-				output DATA[17] = CELL[21].OUT_BEL[12];
-				output DATA[18] = CELL[20].OUT_BEL[13];
-				output DATA[19] = CELL[20].OUT_BEL[14];
-				output DATA[20] = CELL[20].OUT_BEL[15];
-				output DATA[21] = CELL[20].OUT_BEL[16];
-				output DATA[22] = CELL[20].OUT_BEL[17];
-				output DATA[23] = CELL[20].OUT_BEL[18];
-				output DATA[24] = CELL[20].OUT_BEL[19];
-				output DATA[25] = CELL[20].OUT_BEL[20];
-				output DATA[26] = CELL[20].OUT_BEL[21];
-				output DATA[27] = CELL[20].OUT_BEL[22];
-				output DATA[28] = CELL[20].OUT_BEL[23];
-				output DATA[29] = CELL[20].OUT_BEL[8];
-				output DATA[30] = CELL[20].OUT_BEL[9];
-				output DATA[31] = CELL[21].OUT_BEL[10];
-				output CFGCLK = CELL[25].OUT_BEL[9];
-			}
-
-			bel EFUSE_USR {
-				output EFUSEUSR[0] = CELL[46].OUT_BEL[16];
-				output EFUSEUSR[1] = CELL[46].OUT_BEL[17];
-				output EFUSEUSR[2] = CELL[46].OUT_BEL[18];
-				output EFUSEUSR[3] = CELL[46].OUT_BEL[19];
-				output EFUSEUSR[4] = CELL[46].OUT_BEL[20];
-				output EFUSEUSR[5] = CELL[46].OUT_BEL[21];
-				output EFUSEUSR[6] = CELL[46].OUT_BEL[22];
-				output EFUSEUSR[7] = CELL[46].OUT_BEL[23];
-				output EFUSEUSR[8] = CELL[47].OUT_BEL[16];
-				output EFUSEUSR[9] = CELL[47].OUT_BEL[17];
-				output EFUSEUSR[10] = CELL[47].OUT_BEL[18];
-				output EFUSEUSR[11] = CELL[47].OUT_BEL[19];
-				output EFUSEUSR[12] = CELL[47].OUT_BEL[20];
-				output EFUSEUSR[13] = CELL[47].OUT_BEL[21];
-				output EFUSEUSR[14] = CELL[47].OUT_BEL[22];
-				output EFUSEUSR[15] = CELL[47].OUT_BEL[23];
-				output EFUSEUSR[16] = CELL[48].OUT_BEL[16];
-				output EFUSEUSR[17] = CELL[48].OUT_BEL[17];
-				output EFUSEUSR[18] = CELL[48].OUT_BEL[18];
-				output EFUSEUSR[19] = CELL[48].OUT_BEL[19];
-				output EFUSEUSR[20] = CELL[48].OUT_BEL[20];
-				output EFUSEUSR[21] = CELL[48].OUT_BEL[21];
-				output EFUSEUSR[22] = CELL[48].OUT_BEL[22];
-				output EFUSEUSR[23] = CELL[48].OUT_BEL[23];
-				output EFUSEUSR[24] = CELL[49].OUT_BEL[16];
-				output EFUSEUSR[25] = CELL[49].OUT_BEL[17];
-				output EFUSEUSR[26] = CELL[49].OUT_BEL[18];
-				output EFUSEUSR[27] = CELL[49].OUT_BEL[19];
-				output EFUSEUSR[28] = CELL[49].OUT_BEL[20];
-				output EFUSEUSR[29] = CELL[49].OUT_BEL[21];
-				output EFUSEUSR[30] = CELL[49].OUT_BEL[22];
-				output EFUSEUSR[31] = CELL[49].OUT_BEL[23];
-			}
-
-			bel DNA_PORT {
-				input CLK = CELL[28].IMUX_CLK[1];
-				input READ = CELL[45].IMUX_IMUX[41];
-				input SHIFT = CELL[45].IMUX_IMUX[42];
-				input DIN = CELL[45].IMUX_IMUX[43];
-				output DOUT = CELL[45].OUT_BEL[23];
-				attribute ENABLE_TR @[MAIN[34][27][7], MAIN[34][27][2], MAIN[34][26][5]];
-			}
-
-			bel CFG_IO_ACCESS {
-				input TDO = CELL[34].IMUX_IMUX[38];
-				input INITBO = CELL[34].IMUX_IMUX[39];
-				output INITBI = CELL[34].OUT_BEL[19];
-				output CFGDATA[0] = CELL[35].OUT_BEL[13];
-				output CFGDATA[1] = CELL[35].OUT_BEL[14];
-				output CFGDATA[2] = CELL[35].OUT_BEL[15];
-				output CFGDATA[3] = CELL[35].OUT_BEL[16];
-				output CFGDATA[4] = CELL[35].OUT_BEL[17];
-				output CFGDATA[5] = CELL[35].OUT_BEL[18];
-				output CFGDATA[6] = CELL[35].OUT_BEL[19];
-				output CFGDATA[7] = CELL[35].OUT_BEL[20];
-				output CFGDATA[8] = CELL[35].OUT_BEL[21];
-				output CFGDATA[9] = CELL[35].OUT_BEL[22];
-				output CFGDATA[10] = CELL[35].OUT_BEL[23];
-				output CFGDATA[11] = CELL[42].OUT_BEL[20];
-				output CFGDATA[12] = CELL[42].OUT_BEL[21];
-				output CFGDATA[13] = CELL[42].OUT_BEL[22];
-				output CFGDATA[14] = CELL[42].OUT_BEL[23];
-				output CFGDATA[15] = CELL[43].OUT_BEL[16];
-				output CFGDATA[16] = CELL[43].OUT_BEL[17];
-				output CFGDATA[17] = CELL[43].OUT_BEL[18];
-				output CFGDATA[18] = CELL[43].OUT_BEL[19];
-				output CFGDATA[19] = CELL[43].OUT_BEL[20];
-				output CFGDATA[20] = CELL[43].OUT_BEL[21];
-				output CFGDATA[21] = CELL[43].OUT_BEL[22];
-				output CFGDATA[22] = CELL[43].OUT_BEL[23];
-				output CFGDATA[23] = CELL[44].OUT_BEL[22];
-				output CFGDATA[24] = CELL[44].OUT_BEL[23];
-				output CFGDATA[25] = CELL[45].OUT_BEL[16];
-				output CFGDATA[26] = CELL[45].OUT_BEL[17];
-				output CFGDATA[27] = CELL[45].OUT_BEL[18];
-				output CFGDATA[28] = CELL[45].OUT_BEL[19];
-				output CFGDATA[29] = CELL[45].OUT_BEL[20];
-				output CFGDATA[30] = CELL[45].OUT_BEL[21];
-				output CFGDATA[31] = CELL[45].OUT_BEL[22];
-				output PUDCB = CELL[34].OUT_BEL[21];
-				output CCLK = CELL[34].OUT_BEL[18];
-				output RDWRB = CELL[34].OUT_BEL[20];
-				output MASTER = CELL[34].OUT_BEL[17];
-				output MODE0 = CELL[34].OUT_BEL[22];
-				output MODE1 = CELL[34].OUT_BEL[23];
-				output MODE2 = CELL[35].OUT_BEL[12];
-				output VGGCOMPOUT = CELL[19].OUT_BEL[12];
-				attribute ENABLE_TR @[MAIN[33][27][49], MAIN[33][26][51], MAIN[33][26][50]];
-			}
-
-			bel PMVIOB_CFG {
-				input EN = CELL[25].IMUX_IMUX[26];
-				input A[0] = CELL[25].IMUX_IMUX[24];
-				input A[1] = CELL[25].IMUX_IMUX[25];
-				output O = CELL[25].OUT_BEL[21];
-				output ODIV2 = CELL[25].OUT_BEL[20];
-				output ODIV4 = CELL[25].OUT_BEL[19];
-			}
-
-			bel MISC_CFG {
-				attribute USERCODE @[!MAIN[33][27][47], !MAIN[33][26][47], !MAIN[33][27][46], !MAIN[33][26][46], !MAIN[33][27][45], !MAIN[33][26][45], !MAIN[33][27][44], !MAIN[33][26][44], !MAIN[33][27][43], !MAIN[33][26][43], !MAIN[33][27][42], !MAIN[33][26][42], !MAIN[33][27][41], !MAIN[33][26][41], !MAIN[33][27][40], !MAIN[33][26][40], !MAIN[33][27][39], !MAIN[33][26][39], !MAIN[33][27][38], !MAIN[33][26][38], !MAIN[33][27][37], !MAIN[33][26][37], !MAIN[33][27][36], !MAIN[33][26][36], !MAIN[33][27][35], !MAIN[33][26][35], !MAIN[33][27][34], !MAIN[33][26][34], !MAIN[33][27][33], !MAIN[33][26][33], !MAIN[33][27][32], !MAIN[33][26][32]];
-				attribute ICAP_WIDTH @[MAIN[33][27][57], MAIN[33][27][56], MAIN[33][26][55], MAIN[33][27][58], MAIN[33][26][60], MAIN[33][26][59]] {
-					X8 = 0b000111,
-					X16 = 0b111000,
-					X32 = 0b000000,
-				}
-				attribute DCI_CLK_ENABLE_TR @[MAIN[33][27][25], MAIN[33][27][24], MAIN[33][27][23], MAIN[33][26][25], MAIN[33][26][24], MAIN[33][26][23]];
-				attribute DISABLE_JTAG_TR @[MAIN[33][27][60], MAIN[33][27][59], MAIN[33][26][58]];
-				attribute PROG_PULL @[MAIN[31][26][42]] {
-					NONE = 0b1,
-					PULLUP = 0b0,
-				}
-				attribute DONE_PULL @[MAIN[31][27][47]] {
-					NONE = 0b1,
-					PULLUP = 0b0,
-				}
-				attribute M0_PULL @[MAIN[30][27][50], MAIN[30][26][53]] {
-					NONE = 0b01,
-					PULLUP = 0b00,
-					PULLDOWN = 0b11,
-				}
-				attribute M1_PULL @[MAIN[30][27][55], MAIN[30][26][58]] {
-					NONE = 0b01,
-					PULLUP = 0b00,
-					PULLDOWN = 0b11,
-				}
-				attribute M2_PULL @[MAIN[30][27][60], MAIN[30][27][63]] {
-					NONE = 0b01,
-					PULLUP = 0b00,
-					PULLDOWN = 0b11,
-				}
-				attribute CCLK_PULL @[MAIN[34][27][31]] {
-					NONE = 0b1,
-					PULLUP = 0b0,
-				}
-				attribute INIT_PULL @[MAIN[31][27][44]] {
-					NONE = 0b1,
-					PULLUP = 0b0,
-				}
-				attribute TCK_PULL @[MAIN[34][26][25], MAIN[34][27][27]] {
-					NONE = 0b01,
-					PULLUP = 0b00,
-					PULLDOWN = 0b11,
-				}
-				attribute TMS_PULL @[MAIN[31][27][55], MAIN[31][26][58]] {
-					NONE = 0b01,
-					PULLUP = 0b00,
-					PULLDOWN = 0b11,
-				}
-				attribute TDI_PULL @[MAIN[31][27][50], MAIN[31][26][53]] {
-					NONE = 0b01,
-					PULLUP = 0b00,
-					PULLDOWN = 0b11,
-				}
-				attribute TDO_PULL @[MAIN[31][27][60], MAIN[31][27][63]] {
-					NONE = 0b01,
-					PULLUP = 0b00,
-					PULLDOWN = 0b11,
-				}
-			}
-
-			// wire CELL[19].OUT_BEL[10]           USR_ACCESS.DATA[13]
-			// wire CELL[19].OUT_BEL[11]           USR_ACCESS.DATA[14]
-			// wire CELL[19].OUT_BEL[12]           CFG_IO_ACCESS.VGGCOMPOUT
-			// wire CELL[19].OUT_BEL[13]           USR_ACCESS.DATA[2]
-			// wire CELL[19].OUT_BEL[14]           USR_ACCESS.DATA[3]
-			// wire CELL[19].OUT_BEL[15]           USR_ACCESS.DATA[4]
-			// wire CELL[19].OUT_BEL[16]           USR_ACCESS.DATA[5]
-			// wire CELL[19].OUT_BEL[17]           USR_ACCESS.DATA[6]
-			// wire CELL[19].OUT_BEL[18]           USR_ACCESS.DATA[7]
-			// wire CELL[19].OUT_BEL[19]           USR_ACCESS.DATA[8]
-			// wire CELL[19].OUT_BEL[20]           USR_ACCESS.DATA[9]
-			// wire CELL[19].OUT_BEL[21]           USR_ACCESS.DATA[10]
-			// wire CELL[19].OUT_BEL[22]           USR_ACCESS.DATA[11]
-			// wire CELL[19].OUT_BEL[23]           USR_ACCESS.DATA[12]
-			// wire CELL[20].OUT_BEL[8]            USR_ACCESS.DATA[29]
-			// wire CELL[20].OUT_BEL[9]            USR_ACCESS.DATA[30]
-			// wire CELL[20].OUT_BEL[10]           USR_ACCESS.DATA[15]
-			// wire CELL[20].OUT_BEL[11]           USR_ACCESS.DATA[0]
-			// wire CELL[20].OUT_BEL[12]           USR_ACCESS.DATA[1]
-			// wire CELL[20].OUT_BEL[13]           USR_ACCESS.DATA[18]
-			// wire CELL[20].OUT_BEL[14]           USR_ACCESS.DATA[19]
-			// wire CELL[20].OUT_BEL[15]           USR_ACCESS.DATA[20]
-			// wire CELL[20].OUT_BEL[16]           USR_ACCESS.DATA[21]
-			// wire CELL[20].OUT_BEL[17]           USR_ACCESS.DATA[22]
-			// wire CELL[20].OUT_BEL[18]           USR_ACCESS.DATA[23]
-			// wire CELL[20].OUT_BEL[19]           USR_ACCESS.DATA[24]
-			// wire CELL[20].OUT_BEL[20]           USR_ACCESS.DATA[25]
-			// wire CELL[20].OUT_BEL[21]           USR_ACCESS.DATA[26]
-			// wire CELL[20].OUT_BEL[22]           USR_ACCESS.DATA[27]
-			// wire CELL[20].OUT_BEL[23]           USR_ACCESS.DATA[28]
-			// wire CELL[21].OUT_BEL[10]           USR_ACCESS.DATA[31]
-			// wire CELL[21].OUT_BEL[11]           USR_ACCESS.DATA[16]
-			// wire CELL[21].OUT_BEL[12]           USR_ACCESS.DATA[17]
-			// wire CELL[21].OUT_BEL[13]           USR_ACCESS.DATAVALID
-			// wire CELL[21].OUT_BEL[14]           FRAME_ECC.SYNDROME[0]
-			// wire CELL[21].OUT_BEL[15]           FRAME_ECC.SYNDROME[1]
-			// wire CELL[21].OUT_BEL[16]           FRAME_ECC.SYNDROME[2]
-			// wire CELL[21].OUT_BEL[17]           FRAME_ECC.SYNDROME[3]
-			// wire CELL[21].OUT_BEL[18]           FRAME_ECC.SYNDROME[4]
-			// wire CELL[21].OUT_BEL[19]           FRAME_ECC.SYNDROME[5]
-			// wire CELL[21].OUT_BEL[20]           FRAME_ECC.SYNDROME[6]
-			// wire CELL[21].OUT_BEL[21]           FRAME_ECC.SYNDROME[7]
-			// wire CELL[21].OUT_BEL[22]           FRAME_ECC.SYNDROME[8]
-			// wire CELL[21].OUT_BEL[23]           FRAME_ECC.SYNDROME[9]
-			// wire CELL[22].OUT_BEL[8]            BSCAN[0].RUNTEST
-			// wire CELL[22].OUT_BEL[9]            BSCAN[1].RUNTEST
-			// wire CELL[22].OUT_BEL[10]           FRAME_ECC.SYNDROME[10]
-			// wire CELL[22].OUT_BEL[11]           FRAME_ECC.SYNDROME[11]
-			// wire CELL[22].OUT_BEL[12]           FRAME_ECC.SYNDROME[12]
-			// wire CELL[22].OUT_BEL[13]           FRAME_ECC.SYNDROMEVALID
-			// wire CELL[22].OUT_BEL[14]           BSCAN[0].SEL
-			// wire CELL[22].OUT_BEL[15]           BSCAN[1].SEL
-			// wire CELL[22].OUT_BEL[16]           BSCAN[0].UPDATE
-			// wire CELL[22].OUT_BEL[17]           BSCAN[1].UPDATE
-			// wire CELL[22].OUT_BEL[18]           BSCAN[0].RESET
-			// wire CELL[22].OUT_BEL[19]           BSCAN[1].RESET
-			// wire CELL[22].OUT_BEL[20]           BSCAN[0].DRCK
-			// wire CELL[22].OUT_BEL[21]           BSCAN[1].DRCK
-			// wire CELL[22].OUT_BEL[22]           BSCAN[0].CAPTURE
-			// wire CELL[22].OUT_BEL[23]           BSCAN[1].CAPTURE
-			// wire CELL[23].IMUX_IMUX[33]         BSCAN[0].TDO
-			// wire CELL[23].IMUX_IMUX[34]         BSCAN[1].TDO
-			// wire CELL[23].OUT_BEL[8]            ICAP[0].O[8]
-			// wire CELL[23].OUT_BEL[9]            ICAP[0].O[9]
-			// wire CELL[23].OUT_BEL[10]           BSCAN[0].TMS
-			// wire CELL[23].OUT_BEL[11]           BSCAN[1].TMS
-			// wire CELL[23].OUT_BEL[12]           BSCAN[0].TDI
-			// wire CELL[23].OUT_BEL[13]           BSCAN[1].TDI
-			// wire CELL[23].OUT_BEL[14]           BSCAN[0].TCK
-			// wire CELL[23].OUT_BEL[15]           BSCAN[1].TCK
-			// wire CELL[23].OUT_BEL[16]           BSCAN[0].SHIFT
-			// wire CELL[23].OUT_BEL[17]           BSCAN[1].SHIFT
-			// wire CELL[23].OUT_BEL[18]           ICAP[0].O[2]
-			// wire CELL[23].OUT_BEL[19]           ICAP[0].O[3]
-			// wire CELL[23].OUT_BEL[20]           ICAP[0].O[4]
-			// wire CELL[23].OUT_BEL[21]           ICAP[0].O[5]
-			// wire CELL[23].OUT_BEL[22]           ICAP[0].O[6]
-			// wire CELL[23].OUT_BEL[23]           ICAP[0].O[7]
-			// wire CELL[24].IMUX_IMUX[28]         ICAP[0].I[0]
-			// wire CELL[24].IMUX_IMUX[29]         ICAP[0].I[1]
-			// wire CELL[24].IMUX_IMUX[30]         ICAP[0].I[2]
-			// wire CELL[24].IMUX_IMUX[31]         ICAP[0].I[3]
-			// wire CELL[24].IMUX_IMUX[32]         ICAP[0].I[4]
-			// wire CELL[24].IMUX_IMUX[33]         ICAP[0].I[5]
-			// wire CELL[24].IMUX_IMUX[34]         ICAP[0].I[6]
-			// wire CELL[24].IMUX_IMUX[35]         ICAP[0].I[7]
-			// wire CELL[24].IMUX_IMUX[36]         ICAP[0].I[8]
-			// wire CELL[24].IMUX_IMUX[37]         ICAP[0].I[9]
-			// wire CELL[24].IMUX_IMUX[38]         ICAP[0].I[10]
-			// wire CELL[24].IMUX_IMUX[39]         ICAP[0].I[11]
-			// wire CELL[24].IMUX_IMUX[40]         ICAP[0].I[12]
-			// wire CELL[24].IMUX_IMUX[41]         ICAP[0].I[13]
-			// wire CELL[24].IMUX_IMUX[42]         ICAP[0].I[14]
-			// wire CELL[24].IMUX_IMUX[43]         ICAP[0].I[15]
-			// wire CELL[24].OUT_BEL[8]            ICAP[0].O[24]
-			// wire CELL[24].OUT_BEL[9]            ICAP[0].O[25]
-			// wire CELL[24].OUT_BEL[10]           ICAP[0].O[10]
-			// wire CELL[24].OUT_BEL[11]           ICAP[0].O[11]
-			// wire CELL[24].OUT_BEL[12]           ICAP[0].O[12]
-			// wire CELL[24].OUT_BEL[13]           ICAP[0].O[13]
-			// wire CELL[24].OUT_BEL[14]           ICAP[0].O[14]
-			// wire CELL[24].OUT_BEL[15]           ICAP[0].O[15]
-			// wire CELL[24].OUT_BEL[16]           ICAP[0].O[0]
-			// wire CELL[24].OUT_BEL[17]           ICAP[0].O[1]
-			// wire CELL[24].OUT_BEL[18]           ICAP[0].O[18]
-			// wire CELL[24].OUT_BEL[19]           ICAP[0].O[19]
-			// wire CELL[24].OUT_BEL[20]           ICAP[0].O[20]
-			// wire CELL[24].OUT_BEL[21]           ICAP[0].O[21]
-			// wire CELL[24].OUT_BEL[22]           ICAP[0].O[22]
-			// wire CELL[24].OUT_BEL[23]           ICAP[0].O[23]
-			// wire CELL[25].IMUX_CLK[1]           STARTUP.CLK
-			// wire CELL[25].IMUX_IMUX[24]         PMVIOB_CFG.A[0]
-			// wire CELL[25].IMUX_IMUX[25]         PMVIOB_CFG.A[1]
-			// wire CELL[25].IMUX_IMUX[26]         PMVIOB_CFG.EN
-			// wire CELL[25].IMUX_IMUX[27]         ICAP[0].I[16]
-			// wire CELL[25].IMUX_IMUX[28]         ICAP[0].I[17]
-			// wire CELL[25].IMUX_IMUX[29]         ICAP[0].I[18]
-			// wire CELL[25].IMUX_IMUX[30]         ICAP[0].I[19]
-			// wire CELL[25].IMUX_IMUX[31]         ICAP[0].I[20]
-			// wire CELL[25].IMUX_IMUX[32]         ICAP[0].I[21]
-			// wire CELL[25].IMUX_IMUX[33]         ICAP[0].I[22]
-			// wire CELL[25].IMUX_IMUX[34]         ICAP[0].I[23]
-			// wire CELL[25].IMUX_IMUX[35]         ICAP[0].I[24]
-			// wire CELL[25].IMUX_IMUX[36]         ICAP[0].I[25]
-			// wire CELL[25].IMUX_IMUX[37]         ICAP[0].I[26]
-			// wire CELL[25].IMUX_IMUX[38]         ICAP[0].I[27]
-			// wire CELL[25].IMUX_IMUX[39]         ICAP[0].I[28]
-			// wire CELL[25].IMUX_IMUX[40]         ICAP[0].I[29]
-			// wire CELL[25].IMUX_IMUX[41]         ICAP[0].I[30]
-			// wire CELL[25].IMUX_IMUX[42]         ICAP[0].I[31]
-			// wire CELL[25].OUT_BEL[9]            USR_ACCESS.CFGCLK
-			// wire CELL[25].OUT_BEL[10]           ICAP[0].O[26]
-			// wire CELL[25].OUT_BEL[11]           ICAP[0].O[27]
-			// wire CELL[25].OUT_BEL[12]           ICAP[0].O[28]
-			// wire CELL[25].OUT_BEL[13]           ICAP[0].O[29]
-			// wire CELL[25].OUT_BEL[14]           ICAP[0].O[30]
-			// wire CELL[25].OUT_BEL[15]           ICAP[0].O[31]
-			// wire CELL[25].OUT_BEL[16]           ICAP[0].O[16]
-			// wire CELL[25].OUT_BEL[17]           ICAP[0].O[17]
-			// wire CELL[25].OUT_BEL[18]           STARTUP.CFGMCLK
-			// wire CELL[25].OUT_BEL[19]           PMVIOB_CFG.ODIV4
-			// wire CELL[25].OUT_BEL[20]           PMVIOB_CFG.ODIV2
-			// wire CELL[25].OUT_BEL[21]           PMVIOB_CFG.O
-			// wire CELL[26].IMUX_CLK[1]           ICAP[0].CLK
-			// wire CELL[26].OUT_BEL[8]            FRAME_ECC.FAR[14]
-			// wire CELL[26].OUT_BEL[9]            FRAME_ECC.FAR[15]
-			// wire CELL[26].OUT_BEL[10]           FRAME_ECC.FAR[0]
-			// wire CELL[26].OUT_BEL[11]           FRAME_ECC.FAR[1]
-			// wire CELL[26].OUT_BEL[12]           FRAME_ECC.FAR[2]
-			// wire CELL[26].OUT_BEL[13]           FRAME_ECC.FAR[3]
-			// wire CELL[26].OUT_BEL[14]           FRAME_ECC.FAR[4]
-			// wire CELL[26].OUT_BEL[15]           FRAME_ECC.FAR[5]
-			// wire CELL[26].OUT_BEL[16]           FRAME_ECC.FAR[6]
-			// wire CELL[26].OUT_BEL[17]           FRAME_ECC.FAR[7]
-			// wire CELL[26].OUT_BEL[18]           FRAME_ECC.FAR[8]
-			// wire CELL[26].OUT_BEL[19]           FRAME_ECC.FAR[9]
-			// wire CELL[26].OUT_BEL[20]           FRAME_ECC.FAR[10]
-			// wire CELL[26].OUT_BEL[21]           FRAME_ECC.FAR[11]
-			// wire CELL[26].OUT_BEL[22]           FRAME_ECC.FAR[12]
-			// wire CELL[26].OUT_BEL[23]           FRAME_ECC.FAR[13]
-			// wire CELL[27].IMUX_CLK[1]           STARTUP.USRCCLKO
-			// wire CELL[27].OUT_BEL[8]            FRAME_ECC.SYNWORD[4]
-			// wire CELL[27].OUT_BEL[9]            FRAME_ECC.SYNWORD[5]
-			// wire CELL[27].OUT_BEL[10]           FRAME_ECC.FAR[16]
-			// wire CELL[27].OUT_BEL[11]           FRAME_ECC.FAR[17]
-			// wire CELL[27].OUT_BEL[12]           FRAME_ECC.FAR[18]
-			// wire CELL[27].OUT_BEL[13]           FRAME_ECC.FAR[19]
-			// wire CELL[27].OUT_BEL[14]           FRAME_ECC.FAR[20]
-			// wire CELL[27].OUT_BEL[15]           FRAME_ECC.FAR[21]
-			// wire CELL[27].OUT_BEL[16]           FRAME_ECC.FAR[22]
-			// wire CELL[27].OUT_BEL[17]           FRAME_ECC.FAR[23]
-			// wire CELL[27].OUT_BEL[18]           FRAME_ECC.FAR[24]
-			// wire CELL[27].OUT_BEL[19]           FRAME_ECC.FAR[25]
-			// wire CELL[27].OUT_BEL[20]           FRAME_ECC.SYNWORD[0]
-			// wire CELL[27].OUT_BEL[21]           FRAME_ECC.SYNWORD[1]
-			// wire CELL[27].OUT_BEL[22]           FRAME_ECC.SYNWORD[2]
-			// wire CELL[27].OUT_BEL[23]           FRAME_ECC.SYNWORD[3]
-			// wire CELL[28].IMUX_CLK[1]           DNA_PORT.CLK
-			// wire CELL[28].IMUX_IMUX[35]         DCIRESET.RST
-			// wire CELL[28].IMUX_IMUX[36]         STARTUP.KEYCLEARB
-			// wire CELL[28].IMUX_IMUX[37]         CAPTURE.CAP
-			// wire CELL[28].IMUX_IMUX[38]         STARTUP.USRCCLKTS
-			// wire CELL[28].IMUX_IMUX[39]         STARTUP.GTS
-			// wire CELL[28].IMUX_IMUX[40]         STARTUP.GSR
-			// wire CELL[28].IMUX_IMUX[41]         STARTUP.USRDONETS
-			// wire CELL[28].IMUX_IMUX[42]         STARTUP.USRDONEO
-			// wire CELL[28].IMUX_IMUX[43]         STARTUP.PACK
-			// wire CELL[28].OUT_BEL[17]           FRAME_ECC.SYNWORD[6]
-			// wire CELL[28].OUT_BEL[18]           FRAME_ECC.SYNBIT[0]
-			// wire CELL[28].OUT_BEL[19]           FRAME_ECC.SYNBIT[1]
-			// wire CELL[28].OUT_BEL[20]           FRAME_ECC.SYNBIT[2]
-			// wire CELL[28].OUT_BEL[21]           FRAME_ECC.SYNBIT[3]
-			// wire CELL[28].OUT_BEL[22]           FRAME_ECC.SYNBIT[4]
-			// wire CELL[28].OUT_BEL[23]           FRAME_ECC.ECCERRORSINGLE
-			// wire CELL[29].IMUX_CLK[1]           CAPTURE.CLK
-			// wire CELL[29].OUT_BEL[20]           FRAME_ECC.ECCERROR
-			// wire CELL[29].OUT_BEL[21]           DCIRESET.LOCKED
-			// wire CELL[29].OUT_BEL[22]           STARTUP.PREQ
-			// wire CELL[29].OUT_BEL[23]           STARTUP.EOS
-			// wire CELL[30].OUT_BEL[14]           STARTUP.CFGCLK
-			// wire CELL[30].OUT_BEL[15]           FRAME_ECC.CRCERROR
-			// wire CELL[30].OUT_BEL[16]           BSCAN[2].SEL
-			// wire CELL[30].OUT_BEL[17]           BSCAN[3].SEL
-			// wire CELL[30].OUT_BEL[18]           BSCAN[2].UPDATE
-			// wire CELL[30].OUT_BEL[19]           BSCAN[3].UPDATE
-			// wire CELL[30].OUT_BEL[20]           BSCAN[2].RESET
-			// wire CELL[30].OUT_BEL[21]           BSCAN[3].RESET
-			// wire CELL[30].OUT_BEL[22]           BSCAN[2].DRCK
-			// wire CELL[30].OUT_BEL[23]           BSCAN[3].DRCK
-			// wire CELL[31].IMUX_IMUX[38]         BSCAN[2].TDO
-			// wire CELL[31].IMUX_IMUX[39]         BSCAN[3].TDO
-			// wire CELL[31].IMUX_IMUX[40]         ICAP[0].CSB
-			// wire CELL[31].IMUX_IMUX[41]         ICAP[0].RDWRB
-			// wire CELL[31].IMUX_IMUX[42]         ICAP[1].RDWRB
-			// wire CELL[31].IMUX_IMUX[43]         ICAP[1].CSB
-			// wire CELL[31].OUT_BEL[11]           BSCAN[2].CAPTURE
-			// wire CELL[31].OUT_BEL[12]           BSCAN[3].CAPTURE
-			// wire CELL[31].OUT_BEL[13]           BSCAN[2].RUNTEST
-			// wire CELL[31].OUT_BEL[14]           BSCAN[3].RUNTEST
-			// wire CELL[31].OUT_BEL[15]           BSCAN[2].TMS
-			// wire CELL[31].OUT_BEL[16]           BSCAN[3].TMS
-			// wire CELL[31].OUT_BEL[17]           BSCAN[2].TDI
-			// wire CELL[31].OUT_BEL[18]           BSCAN[3].TDI
-			// wire CELL[31].OUT_BEL[19]           BSCAN[2].TCK
-			// wire CELL[31].OUT_BEL[20]           BSCAN[3].TCK
-			// wire CELL[31].OUT_BEL[21]           BSCAN[2].SHIFT
-			// wire CELL[31].OUT_BEL[22]           BSCAN[3].SHIFT
-			// wire CELL[31].OUT_BEL[23]           ICAP[1].O[0]
-			// wire CELL[32].IMUX_IMUX[28]         ICAP[1].I[0]
-			// wire CELL[32].IMUX_IMUX[29]         ICAP[1].I[1]
-			// wire CELL[32].IMUX_IMUX[30]         ICAP[1].I[2]
-			// wire CELL[32].IMUX_IMUX[31]         ICAP[1].I[3]
-			// wire CELL[32].IMUX_IMUX[32]         ICAP[1].I[4]
-			// wire CELL[32].IMUX_IMUX[33]         ICAP[1].I[5]
-			// wire CELL[32].IMUX_IMUX[34]         ICAP[1].I[6]
-			// wire CELL[32].IMUX_IMUX[35]         ICAP[1].I[7]
-			// wire CELL[32].IMUX_IMUX[36]         ICAP[1].I[8]
-			// wire CELL[32].IMUX_IMUX[37]         ICAP[1].I[9]
-			// wire CELL[32].IMUX_IMUX[38]         ICAP[1].I[10]
-			// wire CELL[32].IMUX_IMUX[39]         ICAP[1].I[11]
-			// wire CELL[32].IMUX_IMUX[40]         ICAP[1].I[12]
-			// wire CELL[32].IMUX_IMUX[41]         ICAP[1].I[13]
-			// wire CELL[32].IMUX_IMUX[42]         ICAP[1].I[14]
-			// wire CELL[32].IMUX_IMUX[43]         ICAP[1].I[15]
-			// wire CELL[32].OUT_BEL[12]           ICAP[1].O[1]
-			// wire CELL[32].OUT_BEL[13]           ICAP[1].O[2]
-			// wire CELL[32].OUT_BEL[14]           ICAP[1].O[3]
-			// wire CELL[32].OUT_BEL[15]           ICAP[1].O[4]
-			// wire CELL[32].OUT_BEL[16]           ICAP[1].O[5]
-			// wire CELL[32].OUT_BEL[17]           ICAP[1].O[6]
-			// wire CELL[32].OUT_BEL[18]           ICAP[1].O[7]
-			// wire CELL[32].OUT_BEL[19]           ICAP[1].O[8]
-			// wire CELL[32].OUT_BEL[20]           ICAP[1].O[9]
-			// wire CELL[32].OUT_BEL[21]           ICAP[1].O[10]
-			// wire CELL[32].OUT_BEL[22]           ICAP[1].O[11]
-			// wire CELL[32].OUT_BEL[23]           ICAP[1].O[12]
-			// wire CELL[33].IMUX_IMUX[28]         ICAP[1].I[16]
-			// wire CELL[33].IMUX_IMUX[29]         ICAP[1].I[17]
-			// wire CELL[33].IMUX_IMUX[30]         ICAP[1].I[18]
-			// wire CELL[33].IMUX_IMUX[31]         ICAP[1].I[19]
-			// wire CELL[33].IMUX_IMUX[32]         ICAP[1].I[20]
-			// wire CELL[33].IMUX_IMUX[33]         ICAP[1].I[21]
-			// wire CELL[33].IMUX_IMUX[34]         ICAP[1].I[22]
-			// wire CELL[33].IMUX_IMUX[35]         ICAP[1].I[23]
-			// wire CELL[33].IMUX_IMUX[36]         ICAP[1].I[24]
-			// wire CELL[33].IMUX_IMUX[37]         ICAP[1].I[25]
-			// wire CELL[33].IMUX_IMUX[38]         ICAP[1].I[26]
-			// wire CELL[33].IMUX_IMUX[39]         ICAP[1].I[27]
-			// wire CELL[33].IMUX_IMUX[40]         ICAP[1].I[28]
-			// wire CELL[33].IMUX_IMUX[41]         ICAP[1].I[29]
-			// wire CELL[33].IMUX_IMUX[42]         ICAP[1].I[30]
-			// wire CELL[33].IMUX_IMUX[43]         ICAP[1].I[31]
-			// wire CELL[33].OUT_BEL[12]           ICAP[1].O[13]
-			// wire CELL[33].OUT_BEL[13]           ICAP[1].O[14]
-			// wire CELL[33].OUT_BEL[14]           ICAP[1].O[15]
-			// wire CELL[33].OUT_BEL[15]           ICAP[1].O[16]
-			// wire CELL[33].OUT_BEL[16]           ICAP[1].O[17]
-			// wire CELL[33].OUT_BEL[17]           ICAP[1].O[18]
-			// wire CELL[33].OUT_BEL[18]           ICAP[1].O[19]
-			// wire CELL[33].OUT_BEL[19]           ICAP[1].O[20]
-			// wire CELL[33].OUT_BEL[20]           ICAP[1].O[21]
-			// wire CELL[33].OUT_BEL[21]           ICAP[1].O[22]
-			// wire CELL[33].OUT_BEL[22]           ICAP[1].O[23]
-			// wire CELL[33].OUT_BEL[23]           ICAP[1].O[24]
-			// wire CELL[34].IMUX_IMUX[38]         CFG_IO_ACCESS.TDO
-			// wire CELL[34].IMUX_IMUX[39]         CFG_IO_ACCESS.INITBO
-			// wire CELL[34].OUT_BEL[10]           ICAP[1].O[25]
-			// wire CELL[34].OUT_BEL[11]           ICAP[1].O[26]
-			// wire CELL[34].OUT_BEL[12]           ICAP[1].O[27]
-			// wire CELL[34].OUT_BEL[13]           ICAP[1].O[28]
-			// wire CELL[34].OUT_BEL[14]           ICAP[1].O[29]
-			// wire CELL[34].OUT_BEL[15]           ICAP[1].O[30]
-			// wire CELL[34].OUT_BEL[16]           ICAP[1].O[31]
-			// wire CELL[34].OUT_BEL[17]           CFG_IO_ACCESS.MASTER
-			// wire CELL[34].OUT_BEL[18]           CFG_IO_ACCESS.CCLK
-			// wire CELL[34].OUT_BEL[19]           CFG_IO_ACCESS.INITBI
-			// wire CELL[34].OUT_BEL[20]           CFG_IO_ACCESS.RDWRB
-			// wire CELL[34].OUT_BEL[21]           CFG_IO_ACCESS.PUDCB
-			// wire CELL[34].OUT_BEL[22]           CFG_IO_ACCESS.MODE0
-			// wire CELL[34].OUT_BEL[23]           CFG_IO_ACCESS.MODE1
-			// wire CELL[35].OUT_BEL[12]           CFG_IO_ACCESS.MODE2
-			// wire CELL[35].OUT_BEL[13]           CFG_IO_ACCESS.CFGDATA[0]
-			// wire CELL[35].OUT_BEL[14]           CFG_IO_ACCESS.CFGDATA[1]
-			// wire CELL[35].OUT_BEL[15]           CFG_IO_ACCESS.CFGDATA[2]
-			// wire CELL[35].OUT_BEL[16]           CFG_IO_ACCESS.CFGDATA[3]
-			// wire CELL[35].OUT_BEL[17]           CFG_IO_ACCESS.CFGDATA[4]
-			// wire CELL[35].OUT_BEL[18]           CFG_IO_ACCESS.CFGDATA[5]
-			// wire CELL[35].OUT_BEL[19]           CFG_IO_ACCESS.CFGDATA[6]
-			// wire CELL[35].OUT_BEL[20]           CFG_IO_ACCESS.CFGDATA[7]
-			// wire CELL[35].OUT_BEL[21]           CFG_IO_ACCESS.CFGDATA[8]
-			// wire CELL[35].OUT_BEL[22]           CFG_IO_ACCESS.CFGDATA[9]
-			// wire CELL[35].OUT_BEL[23]           CFG_IO_ACCESS.CFGDATA[10]
-			// wire CELL[40].IMUX_CLK[1]           ICAP[1].CLK
-			// wire CELL[42].OUT_BEL[20]           CFG_IO_ACCESS.CFGDATA[11]
-			// wire CELL[42].OUT_BEL[21]           CFG_IO_ACCESS.CFGDATA[12]
-			// wire CELL[42].OUT_BEL[22]           CFG_IO_ACCESS.CFGDATA[13]
-			// wire CELL[42].OUT_BEL[23]           CFG_IO_ACCESS.CFGDATA[14]
-			// wire CELL[43].OUT_BEL[16]           CFG_IO_ACCESS.CFGDATA[15]
-			// wire CELL[43].OUT_BEL[17]           CFG_IO_ACCESS.CFGDATA[16]
-			// wire CELL[43].OUT_BEL[18]           CFG_IO_ACCESS.CFGDATA[17]
-			// wire CELL[43].OUT_BEL[19]           CFG_IO_ACCESS.CFGDATA[18]
-			// wire CELL[43].OUT_BEL[20]           CFG_IO_ACCESS.CFGDATA[19]
-			// wire CELL[43].OUT_BEL[21]           CFG_IO_ACCESS.CFGDATA[20]
-			// wire CELL[43].OUT_BEL[22]           CFG_IO_ACCESS.CFGDATA[21]
-			// wire CELL[43].OUT_BEL[23]           CFG_IO_ACCESS.CFGDATA[22]
-			// wire CELL[44].OUT_BEL[22]           CFG_IO_ACCESS.CFGDATA[23]
-			// wire CELL[44].OUT_BEL[23]           CFG_IO_ACCESS.CFGDATA[24]
-			// wire CELL[45].IMUX_IMUX[41]         DNA_PORT.READ
-			// wire CELL[45].IMUX_IMUX[42]         DNA_PORT.SHIFT
-			// wire CELL[45].IMUX_IMUX[43]         DNA_PORT.DIN
-			// wire CELL[45].OUT_BEL[16]           CFG_IO_ACCESS.CFGDATA[25]
-			// wire CELL[45].OUT_BEL[17]           CFG_IO_ACCESS.CFGDATA[26]
-			// wire CELL[45].OUT_BEL[18]           CFG_IO_ACCESS.CFGDATA[27]
-			// wire CELL[45].OUT_BEL[19]           CFG_IO_ACCESS.CFGDATA[28]
-			// wire CELL[45].OUT_BEL[20]           CFG_IO_ACCESS.CFGDATA[29]
-			// wire CELL[45].OUT_BEL[21]           CFG_IO_ACCESS.CFGDATA[30]
-			// wire CELL[45].OUT_BEL[22]           CFG_IO_ACCESS.CFGDATA[31]
-			// wire CELL[45].OUT_BEL[23]           DNA_PORT.DOUT
-			// wire CELL[46].OUT_BEL[16]           EFUSE_USR.EFUSEUSR[0]
-			// wire CELL[46].OUT_BEL[17]           EFUSE_USR.EFUSEUSR[1]
-			// wire CELL[46].OUT_BEL[18]           EFUSE_USR.EFUSEUSR[2]
-			// wire CELL[46].OUT_BEL[19]           EFUSE_USR.EFUSEUSR[3]
-			// wire CELL[46].OUT_BEL[20]           EFUSE_USR.EFUSEUSR[4]
-			// wire CELL[46].OUT_BEL[21]           EFUSE_USR.EFUSEUSR[5]
-			// wire CELL[46].OUT_BEL[22]           EFUSE_USR.EFUSEUSR[6]
-			// wire CELL[46].OUT_BEL[23]           EFUSE_USR.EFUSEUSR[7]
-			// wire CELL[47].OUT_BEL[16]           EFUSE_USR.EFUSEUSR[8]
-			// wire CELL[47].OUT_BEL[17]           EFUSE_USR.EFUSEUSR[9]
-			// wire CELL[47].OUT_BEL[18]           EFUSE_USR.EFUSEUSR[10]
-			// wire CELL[47].OUT_BEL[19]           EFUSE_USR.EFUSEUSR[11]
-			// wire CELL[47].OUT_BEL[20]           EFUSE_USR.EFUSEUSR[12]
-			// wire CELL[47].OUT_BEL[21]           EFUSE_USR.EFUSEUSR[13]
-			// wire CELL[47].OUT_BEL[22]           EFUSE_USR.EFUSEUSR[14]
-			// wire CELL[47].OUT_BEL[23]           EFUSE_USR.EFUSEUSR[15]
-			// wire CELL[48].OUT_BEL[16]           EFUSE_USR.EFUSEUSR[16]
-			// wire CELL[48].OUT_BEL[17]           EFUSE_USR.EFUSEUSR[17]
-			// wire CELL[48].OUT_BEL[18]           EFUSE_USR.EFUSEUSR[18]
-			// wire CELL[48].OUT_BEL[19]           EFUSE_USR.EFUSEUSR[19]
-			// wire CELL[48].OUT_BEL[20]           EFUSE_USR.EFUSEUSR[20]
-			// wire CELL[48].OUT_BEL[21]           EFUSE_USR.EFUSEUSR[21]
-			// wire CELL[48].OUT_BEL[22]           EFUSE_USR.EFUSEUSR[22]
-			// wire CELL[48].OUT_BEL[23]           EFUSE_USR.EFUSEUSR[23]
-			// wire CELL[49].OUT_BEL[16]           EFUSE_USR.EFUSEUSR[24]
-			// wire CELL[49].OUT_BEL[17]           EFUSE_USR.EFUSEUSR[25]
-			// wire CELL[49].OUT_BEL[18]           EFUSE_USR.EFUSEUSR[26]
-			// wire CELL[49].OUT_BEL[19]           EFUSE_USR.EFUSEUSR[27]
-			// wire CELL[49].OUT_BEL[20]           EFUSE_USR.EFUSEUSR[28]
-			// wire CELL[49].OUT_BEL[21]           EFUSE_USR.EFUSEUSR[29]
-			// wire CELL[49].OUT_BEL[22]           EFUSE_USR.EFUSEUSR[30]
-			// wire CELL[49].OUT_BEL[23]           EFUSE_USR.EFUSEUSR[31]
-		}
 
 		tile_class SYSMON {
 			cell CELL[0];
@@ -141655,14 +140639,972 @@ intdb {
 			// wire CELL[5].OUT_BEL[22]            SYSMON.TESTSO[3]
 			// wire CELL[5].OUT_BEL[23]            SYSMON.TESTSO[4]
 		}
-	}
 
-	tile_slot CLK {
-		bel_slot CLK_INT: routing;
-	}
+		tile_class CFG {
+			cell CELL[0];
+			cell CELL[1];
+			cell CELL[2];
+			cell CELL[3];
+			cell CELL[4];
+			cell CELL[5];
+			cell CELL[6];
+			cell CELL[7];
+			cell CELL[8];
+			cell CELL[9];
+			cell CELL[10];
+			cell CELL[11];
+			cell CELL[12];
+			cell CELL[13];
+			cell CELL[14];
+			cell CELL[15];
+			cell CELL[16];
+			cell CELL[17];
+			cell CELL[18];
+			cell CELL[19];
+			cell CELL[20];
+			cell CELL[21];
+			cell CELL[22];
+			cell CELL[23];
+			cell CELL[24];
+			cell CELL[25];
+			cell CELL[26];
+			cell CELL[27];
+			cell CELL[28];
+			cell CELL[29];
+			cell CELL[30];
+			cell CELL[31];
+			cell CELL[32];
+			cell CELL[33];
+			cell CELL[34];
+			cell CELL[35];
+			cell CELL[36];
+			cell CELL[37];
+			cell CELL[38];
+			cell CELL[39];
+			cell CELL[40];
+			cell CELL[41];
+			cell CELL[42];
+			cell CELL[43];
+			cell CELL[44];
+			cell CELL[45];
+			cell CELL[46];
+			cell CELL[47];
+			cell CELL[48];
+			cell CELL[49];
+			bitrect MAIN[0]: Vertical (30, rev 64);
+			bitrect MAIN[1]: Vertical (30, rev 64);
+			bitrect MAIN[2]: Vertical (30, rev 64);
+			bitrect MAIN[3]: Vertical (30, rev 64);
+			bitrect MAIN[4]: Vertical (30, rev 64);
+			bitrect MAIN[5]: Vertical (30, rev 64);
+			bitrect MAIN[6]: Vertical (30, rev 64);
+			bitrect MAIN[7]: Vertical (30, rev 64);
+			bitrect MAIN[8]: Vertical (30, rev 64);
+			bitrect MAIN[9]: Vertical (30, rev 64);
+			bitrect MAIN[10]: Vertical (30, rev 64);
+			bitrect MAIN[11]: Vertical (30, rev 64);
+			bitrect MAIN[12]: Vertical (30, rev 64);
+			bitrect MAIN[13]: Vertical (30, rev 64);
+			bitrect MAIN[14]: Vertical (30, rev 64);
+			bitrect MAIN[15]: Vertical (30, rev 64);
+			bitrect MAIN[16]: Vertical (30, rev 64);
+			bitrect MAIN[17]: Vertical (30, rev 64);
+			bitrect MAIN[18]: Vertical (30, rev 64);
+			bitrect MAIN[19]: Vertical (30, rev 64);
+			bitrect MAIN[20]: Vertical (30, rev 64);
+			bitrect MAIN[21]: Vertical (30, rev 64);
+			bitrect MAIN[22]: Vertical (30, rev 64);
+			bitrect MAIN[23]: Vertical (30, rev 64);
+			bitrect MAIN[24]: Vertical (30, rev 64);
+			bitrect MAIN[25]: Vertical (30, rev 64);
+			bitrect MAIN[26]: Vertical (30, rev 64);
+			bitrect MAIN[27]: Vertical (30, rev 64);
+			bitrect MAIN[28]: Vertical (30, rev 64);
+			bitrect MAIN[29]: Vertical (30, rev 64);
+			bitrect MAIN[30]: Vertical (30, rev 64);
+			bitrect MAIN[31]: Vertical (30, rev 64);
+			bitrect MAIN[32]: Vertical (30, rev 64);
+			bitrect MAIN[33]: Vertical (30, rev 64);
+			bitrect MAIN[34]: Vertical (30, rev 64);
+			bitrect MAIN[35]: Vertical (30, rev 64);
+			bitrect MAIN[36]: Vertical (30, rev 64);
+			bitrect MAIN[37]: Vertical (30, rev 64);
+			bitrect MAIN[38]: Vertical (30, rev 64);
+			bitrect MAIN[39]: Vertical (30, rev 64);
+			bitrect MAIN[40]: Vertical (30, rev 64);
+			bitrect MAIN[41]: Vertical (30, rev 64);
+			bitrect MAIN[42]: Vertical (30, rev 64);
+			bitrect MAIN[43]: Vertical (30, rev 64);
+			bitrect MAIN[44]: Vertical (30, rev 64);
+			bitrect MAIN[45]: Vertical (30, rev 64);
+			bitrect MAIN[46]: Vertical (30, rev 64);
+			bitrect MAIN[47]: Vertical (30, rev 64);
+			bitrect MAIN[48]: Vertical (30, rev 64);
+			bitrect MAIN[49]: Vertical (30, rev 64);
 
-	tile_slot HROW {
-		bel_slot HROW_INT: routing;
+			bel BSCAN[0] {
+				input TDO = CELL[23].IMUX_IMUX[33];
+				output DRCK = CELL[22].OUT_BEL[20];
+				output SEL = CELL[22].OUT_BEL[14];
+				output TDI = CELL[23].OUT_BEL[12];
+				output RESET = CELL[22].OUT_BEL[18];
+				output CAPTURE = CELL[22].OUT_BEL[22];
+				output SHIFT = CELL[23].OUT_BEL[16];
+				output UPDATE = CELL[22].OUT_BEL[16];
+				output RUNTEST = CELL[22].OUT_BEL[8];
+				output TCK = CELL[23].OUT_BEL[14];
+				output TMS = CELL[23].OUT_BEL[10];
+				attribute ENABLE @MAIN[33][26][18];
+			}
+
+			bel BSCAN[1] {
+				input TDO = CELL[23].IMUX_IMUX[34];
+				output DRCK = CELL[22].OUT_BEL[21];
+				output SEL = CELL[22].OUT_BEL[15];
+				output TDI = CELL[23].OUT_BEL[13];
+				output RESET = CELL[22].OUT_BEL[19];
+				output CAPTURE = CELL[22].OUT_BEL[23];
+				output SHIFT = CELL[23].OUT_BEL[17];
+				output UPDATE = CELL[22].OUT_BEL[17];
+				output RUNTEST = CELL[22].OUT_BEL[9];
+				output TCK = CELL[23].OUT_BEL[15];
+				output TMS = CELL[23].OUT_BEL[11];
+				attribute ENABLE @MAIN[33][27][18];
+			}
+
+			bel BSCAN[2] {
+				input TDO = CELL[31].IMUX_IMUX[38];
+				output DRCK = CELL[30].OUT_BEL[22];
+				output SEL = CELL[30].OUT_BEL[16];
+				output TDI = CELL[31].OUT_BEL[17];
+				output RESET = CELL[30].OUT_BEL[20];
+				output CAPTURE = CELL[31].OUT_BEL[11];
+				output SHIFT = CELL[31].OUT_BEL[21];
+				output UPDATE = CELL[30].OUT_BEL[18];
+				output RUNTEST = CELL[31].OUT_BEL[13];
+				output TCK = CELL[31].OUT_BEL[19];
+				output TMS = CELL[31].OUT_BEL[15];
+				attribute ENABLE @MAIN[33][26][19];
+			}
+
+			bel BSCAN[3] {
+				input TDO = CELL[31].IMUX_IMUX[39];
+				output DRCK = CELL[30].OUT_BEL[23];
+				output SEL = CELL[30].OUT_BEL[17];
+				output TDI = CELL[31].OUT_BEL[18];
+				output RESET = CELL[30].OUT_BEL[21];
+				output CAPTURE = CELL[31].OUT_BEL[12];
+				output SHIFT = CELL[31].OUT_BEL[22];
+				output UPDATE = CELL[30].OUT_BEL[19];
+				output RUNTEST = CELL[31].OUT_BEL[14];
+				output TCK = CELL[31].OUT_BEL[20];
+				output TMS = CELL[31].OUT_BEL[16];
+				attribute ENABLE @MAIN[33][27][19];
+			}
+
+			bel ICAP[0] {
+				input CLK = CELL[26].IMUX_CLK[1];
+				input CSB = CELL[31].IMUX_IMUX[40];
+				input RDWRB = CELL[31].IMUX_IMUX[41];
+				input I[0] = CELL[24].IMUX_IMUX[28];
+				input I[1] = CELL[24].IMUX_IMUX[29];
+				input I[2] = CELL[24].IMUX_IMUX[30];
+				input I[3] = CELL[24].IMUX_IMUX[31];
+				input I[4] = CELL[24].IMUX_IMUX[32];
+				input I[5] = CELL[24].IMUX_IMUX[33];
+				input I[6] = CELL[24].IMUX_IMUX[34];
+				input I[7] = CELL[24].IMUX_IMUX[35];
+				input I[8] = CELL[24].IMUX_IMUX[36];
+				input I[9] = CELL[24].IMUX_IMUX[37];
+				input I[10] = CELL[24].IMUX_IMUX[38];
+				input I[11] = CELL[24].IMUX_IMUX[39];
+				input I[12] = CELL[24].IMUX_IMUX[40];
+				input I[13] = CELL[24].IMUX_IMUX[41];
+				input I[14] = CELL[24].IMUX_IMUX[42];
+				input I[15] = CELL[24].IMUX_IMUX[43];
+				input I[16] = CELL[25].IMUX_IMUX[27];
+				input I[17] = CELL[25].IMUX_IMUX[28];
+				input I[18] = CELL[25].IMUX_IMUX[29];
+				input I[19] = CELL[25].IMUX_IMUX[30];
+				input I[20] = CELL[25].IMUX_IMUX[31];
+				input I[21] = CELL[25].IMUX_IMUX[32];
+				input I[22] = CELL[25].IMUX_IMUX[33];
+				input I[23] = CELL[25].IMUX_IMUX[34];
+				input I[24] = CELL[25].IMUX_IMUX[35];
+				input I[25] = CELL[25].IMUX_IMUX[36];
+				input I[26] = CELL[25].IMUX_IMUX[37];
+				input I[27] = CELL[25].IMUX_IMUX[38];
+				input I[28] = CELL[25].IMUX_IMUX[39];
+				input I[29] = CELL[25].IMUX_IMUX[40];
+				input I[30] = CELL[25].IMUX_IMUX[41];
+				input I[31] = CELL[25].IMUX_IMUX[42];
+				output O[0] = CELL[24].OUT_BEL[16];
+				output O[1] = CELL[24].OUT_BEL[17];
+				output O[2] = CELL[23].OUT_BEL[18];
+				output O[3] = CELL[23].OUT_BEL[19];
+				output O[4] = CELL[23].OUT_BEL[20];
+				output O[5] = CELL[23].OUT_BEL[21];
+				output O[6] = CELL[23].OUT_BEL[22];
+				output O[7] = CELL[23].OUT_BEL[23];
+				output O[8] = CELL[23].OUT_BEL[8];
+				output O[9] = CELL[23].OUT_BEL[9];
+				output O[10] = CELL[24].OUT_BEL[10];
+				output O[11] = CELL[24].OUT_BEL[11];
+				output O[12] = CELL[24].OUT_BEL[12];
+				output O[13] = CELL[24].OUT_BEL[13];
+				output O[14] = CELL[24].OUT_BEL[14];
+				output O[15] = CELL[24].OUT_BEL[15];
+				output O[16] = CELL[25].OUT_BEL[16];
+				output O[17] = CELL[25].OUT_BEL[17];
+				output O[18] = CELL[24].OUT_BEL[18];
+				output O[19] = CELL[24].OUT_BEL[19];
+				output O[20] = CELL[24].OUT_BEL[20];
+				output O[21] = CELL[24].OUT_BEL[21];
+				output O[22] = CELL[24].OUT_BEL[22];
+				output O[23] = CELL[24].OUT_BEL[23];
+				output O[24] = CELL[24].OUT_BEL[8];
+				output O[25] = CELL[24].OUT_BEL[9];
+				output O[26] = CELL[25].OUT_BEL[10];
+				output O[27] = CELL[25].OUT_BEL[11];
+				output O[28] = CELL[25].OUT_BEL[12];
+				output O[29] = CELL[25].OUT_BEL[13];
+				output O[30] = CELL[25].OUT_BEL[14];
+				output O[31] = CELL[25].OUT_BEL[15];
+				attribute ENABLE_TR @[MAIN[33][27][63], MAIN[33][27][62], MAIN[33][26][61]];
+			}
+
+			bel ICAP[1] {
+				input CLK = CELL[40].IMUX_CLK[1];
+				input CSB = CELL[31].IMUX_IMUX[43];
+				input RDWRB = CELL[31].IMUX_IMUX[42];
+				input I[0] = CELL[32].IMUX_IMUX[28];
+				input I[1] = CELL[32].IMUX_IMUX[29];
+				input I[2] = CELL[32].IMUX_IMUX[30];
+				input I[3] = CELL[32].IMUX_IMUX[31];
+				input I[4] = CELL[32].IMUX_IMUX[32];
+				input I[5] = CELL[32].IMUX_IMUX[33];
+				input I[6] = CELL[32].IMUX_IMUX[34];
+				input I[7] = CELL[32].IMUX_IMUX[35];
+				input I[8] = CELL[32].IMUX_IMUX[36];
+				input I[9] = CELL[32].IMUX_IMUX[37];
+				input I[10] = CELL[32].IMUX_IMUX[38];
+				input I[11] = CELL[32].IMUX_IMUX[39];
+				input I[12] = CELL[32].IMUX_IMUX[40];
+				input I[13] = CELL[32].IMUX_IMUX[41];
+				input I[14] = CELL[32].IMUX_IMUX[42];
+				input I[15] = CELL[32].IMUX_IMUX[43];
+				input I[16] = CELL[33].IMUX_IMUX[28];
+				input I[17] = CELL[33].IMUX_IMUX[29];
+				input I[18] = CELL[33].IMUX_IMUX[30];
+				input I[19] = CELL[33].IMUX_IMUX[31];
+				input I[20] = CELL[33].IMUX_IMUX[32];
+				input I[21] = CELL[33].IMUX_IMUX[33];
+				input I[22] = CELL[33].IMUX_IMUX[34];
+				input I[23] = CELL[33].IMUX_IMUX[35];
+				input I[24] = CELL[33].IMUX_IMUX[36];
+				input I[25] = CELL[33].IMUX_IMUX[37];
+				input I[26] = CELL[33].IMUX_IMUX[38];
+				input I[27] = CELL[33].IMUX_IMUX[39];
+				input I[28] = CELL[33].IMUX_IMUX[40];
+				input I[29] = CELL[33].IMUX_IMUX[41];
+				input I[30] = CELL[33].IMUX_IMUX[42];
+				input I[31] = CELL[33].IMUX_IMUX[43];
+				output O[0] = CELL[31].OUT_BEL[23];
+				output O[1] = CELL[32].OUT_BEL[12];
+				output O[2] = CELL[32].OUT_BEL[13];
+				output O[3] = CELL[32].OUT_BEL[14];
+				output O[4] = CELL[32].OUT_BEL[15];
+				output O[5] = CELL[32].OUT_BEL[16];
+				output O[6] = CELL[32].OUT_BEL[17];
+				output O[7] = CELL[32].OUT_BEL[18];
+				output O[8] = CELL[32].OUT_BEL[19];
+				output O[9] = CELL[32].OUT_BEL[20];
+				output O[10] = CELL[32].OUT_BEL[21];
+				output O[11] = CELL[32].OUT_BEL[22];
+				output O[12] = CELL[32].OUT_BEL[23];
+				output O[13] = CELL[33].OUT_BEL[12];
+				output O[14] = CELL[33].OUT_BEL[13];
+				output O[15] = CELL[33].OUT_BEL[14];
+				output O[16] = CELL[33].OUT_BEL[15];
+				output O[17] = CELL[33].OUT_BEL[16];
+				output O[18] = CELL[33].OUT_BEL[17];
+				output O[19] = CELL[33].OUT_BEL[18];
+				output O[20] = CELL[33].OUT_BEL[19];
+				output O[21] = CELL[33].OUT_BEL[20];
+				output O[22] = CELL[33].OUT_BEL[21];
+				output O[23] = CELL[33].OUT_BEL[22];
+				output O[24] = CELL[33].OUT_BEL[23];
+				output O[25] = CELL[34].OUT_BEL[10];
+				output O[26] = CELL[34].OUT_BEL[11];
+				output O[27] = CELL[34].OUT_BEL[12];
+				output O[28] = CELL[34].OUT_BEL[13];
+				output O[29] = CELL[34].OUT_BEL[14];
+				output O[30] = CELL[34].OUT_BEL[15];
+				output O[31] = CELL[34].OUT_BEL[16];
+				attribute ENABLE_TR @[MAIN[33][27][61], MAIN[33][26][63], MAIN[33][26][62]];
+			}
+
+			bel STARTUP {
+				input CLK = CELL[25].IMUX_CLK[1];
+				input GTS = CELL[28].IMUX_IMUX[39];
+				input GSR = CELL[28].IMUX_IMUX[40];
+				input USRCCLKO = CELL[27].IMUX_CLK[1];
+				input USRCCLKTS = CELL[28].IMUX_IMUX[38];
+				input USRDONEO = CELL[28].IMUX_IMUX[42];
+				input USRDONETS = CELL[28].IMUX_IMUX[41];
+				input PACK = CELL[28].IMUX_IMUX[43];
+				input KEYCLEARB = CELL[28].IMUX_IMUX[36];
+				output EOS = CELL[29].OUT_BEL[23];
+				output CFGCLK = CELL[30].OUT_BEL[14];
+				output CFGMCLK = CELL[25].OUT_BEL[18];
+				output PREQ = CELL[29].OUT_BEL[22];
+				attribute GTS_SYNC @MAIN[33][26][17];
+				attribute GSR_SYNC @MAIN[33][27][17];
+				attribute USER_GTS_GSR_ENABLE_TR @[MAIN[33][27][55], MAIN[33][26][57], MAIN[33][26][56]];
+				attribute KEY_CLEAR_ENABLE_TR @[MAIN[33][27][15], MAIN[33][27][14], MAIN[33][26][13]];
+				attribute PROG_USR_TR @[MAIN[33][27][52], MAIN[33][26][54], MAIN[33][26][53]];
+				attribute USRCCLK_ENABLE_TR @[MAIN[33][27][54], MAIN[33][27][53], MAIN[33][26][52]];
+			}
+
+			bel CAPTURE {
+				input CLK = CELL[29].IMUX_CLK[1];
+				input CAP = CELL[28].IMUX_IMUX[37];
+			}
+
+			bel PMVIOB_CFG {
+				input EN = CELL[25].IMUX_IMUX[26];
+				input A[0] = CELL[25].IMUX_IMUX[24];
+				input A[1] = CELL[25].IMUX_IMUX[25];
+				output O = CELL[25].OUT_BEL[21];
+				output ODIV2 = CELL[25].OUT_BEL[20];
+				output ODIV4 = CELL[25].OUT_BEL[19];
+			}
+
+			bel DCIRESET {
+				input RST = CELL[28].IMUX_IMUX[35];
+				output LOCKED = CELL[29].OUT_BEL[21];
+				attribute ENABLE_TR @[MAIN[33][27][20], MAIN[33][26][22], MAIN[33][26][21]];
+			}
+
+			bel FRAME_ECC {
+				output CRCERROR = CELL[30].OUT_BEL[15];
+				output ECCERROR = CELL[29].OUT_BEL[20];
+				output ECCERRORSINGLE = CELL[28].OUT_BEL[23];
+				output SYNDROMEVALID = CELL[22].OUT_BEL[13];
+				output SYNDROME[0] = CELL[21].OUT_BEL[14];
+				output SYNDROME[1] = CELL[21].OUT_BEL[15];
+				output SYNDROME[2] = CELL[21].OUT_BEL[16];
+				output SYNDROME[3] = CELL[21].OUT_BEL[17];
+				output SYNDROME[4] = CELL[21].OUT_BEL[18];
+				output SYNDROME[5] = CELL[21].OUT_BEL[19];
+				output SYNDROME[6] = CELL[21].OUT_BEL[20];
+				output SYNDROME[7] = CELL[21].OUT_BEL[21];
+				output SYNDROME[8] = CELL[21].OUT_BEL[22];
+				output SYNDROME[9] = CELL[21].OUT_BEL[23];
+				output SYNDROME[10] = CELL[22].OUT_BEL[10];
+				output SYNDROME[11] = CELL[22].OUT_BEL[11];
+				output SYNDROME[12] = CELL[22].OUT_BEL[12];
+				output SYNBIT[0] = CELL[28].OUT_BEL[18];
+				output SYNBIT[1] = CELL[28].OUT_BEL[19];
+				output SYNBIT[2] = CELL[28].OUT_BEL[20];
+				output SYNBIT[3] = CELL[28].OUT_BEL[21];
+				output SYNBIT[4] = CELL[28].OUT_BEL[22];
+				output SYNWORD[0] = CELL[27].OUT_BEL[20];
+				output SYNWORD[1] = CELL[27].OUT_BEL[21];
+				output SYNWORD[2] = CELL[27].OUT_BEL[22];
+				output SYNWORD[3] = CELL[27].OUT_BEL[23];
+				output SYNWORD[4] = CELL[27].OUT_BEL[8];
+				output SYNWORD[5] = CELL[27].OUT_BEL[9];
+				output SYNWORD[6] = CELL[28].OUT_BEL[17];
+				output FAR[0] = CELL[26].OUT_BEL[10];
+				output FAR[1] = CELL[26].OUT_BEL[11];
+				output FAR[2] = CELL[26].OUT_BEL[12];
+				output FAR[3] = CELL[26].OUT_BEL[13];
+				output FAR[4] = CELL[26].OUT_BEL[14];
+				output FAR[5] = CELL[26].OUT_BEL[15];
+				output FAR[6] = CELL[26].OUT_BEL[16];
+				output FAR[7] = CELL[26].OUT_BEL[17];
+				output FAR[8] = CELL[26].OUT_BEL[18];
+				output FAR[9] = CELL[26].OUT_BEL[19];
+				output FAR[10] = CELL[26].OUT_BEL[20];
+				output FAR[11] = CELL[26].OUT_BEL[21];
+				output FAR[12] = CELL[26].OUT_BEL[22];
+				output FAR[13] = CELL[26].OUT_BEL[23];
+				output FAR[14] = CELL[26].OUT_BEL[8];
+				output FAR[15] = CELL[26].OUT_BEL[9];
+				output FAR[16] = CELL[27].OUT_BEL[10];
+				output FAR[17] = CELL[27].OUT_BEL[11];
+				output FAR[18] = CELL[27].OUT_BEL[12];
+				output FAR[19] = CELL[27].OUT_BEL[13];
+				output FAR[20] = CELL[27].OUT_BEL[14];
+				output FAR[21] = CELL[27].OUT_BEL[15];
+				output FAR[22] = CELL[27].OUT_BEL[16];
+				output FAR[23] = CELL[27].OUT_BEL[17];
+				output FAR[24] = CELL[27].OUT_BEL[18];
+				output FAR[25] = CELL[27].OUT_BEL[19];
+			}
+
+			bel USR_ACCESS {
+				output DATAVALID = CELL[21].OUT_BEL[13];
+				output DATA[0] = CELL[20].OUT_BEL[11];
+				output DATA[1] = CELL[20].OUT_BEL[12];
+				output DATA[2] = CELL[19].OUT_BEL[13];
+				output DATA[3] = CELL[19].OUT_BEL[14];
+				output DATA[4] = CELL[19].OUT_BEL[15];
+				output DATA[5] = CELL[19].OUT_BEL[16];
+				output DATA[6] = CELL[19].OUT_BEL[17];
+				output DATA[7] = CELL[19].OUT_BEL[18];
+				output DATA[8] = CELL[19].OUT_BEL[19];
+				output DATA[9] = CELL[19].OUT_BEL[20];
+				output DATA[10] = CELL[19].OUT_BEL[21];
+				output DATA[11] = CELL[19].OUT_BEL[22];
+				output DATA[12] = CELL[19].OUT_BEL[23];
+				output DATA[13] = CELL[19].OUT_BEL[10];
+				output DATA[14] = CELL[19].OUT_BEL[11];
+				output DATA[15] = CELL[20].OUT_BEL[10];
+				output DATA[16] = CELL[21].OUT_BEL[11];
+				output DATA[17] = CELL[21].OUT_BEL[12];
+				output DATA[18] = CELL[20].OUT_BEL[13];
+				output DATA[19] = CELL[20].OUT_BEL[14];
+				output DATA[20] = CELL[20].OUT_BEL[15];
+				output DATA[21] = CELL[20].OUT_BEL[16];
+				output DATA[22] = CELL[20].OUT_BEL[17];
+				output DATA[23] = CELL[20].OUT_BEL[18];
+				output DATA[24] = CELL[20].OUT_BEL[19];
+				output DATA[25] = CELL[20].OUT_BEL[20];
+				output DATA[26] = CELL[20].OUT_BEL[21];
+				output DATA[27] = CELL[20].OUT_BEL[22];
+				output DATA[28] = CELL[20].OUT_BEL[23];
+				output DATA[29] = CELL[20].OUT_BEL[8];
+				output DATA[30] = CELL[20].OUT_BEL[9];
+				output DATA[31] = CELL[21].OUT_BEL[10];
+				output CFGCLK = CELL[25].OUT_BEL[9];
+			}
+
+			bel EFUSE_USR {
+				output EFUSEUSR[0] = CELL[46].OUT_BEL[16];
+				output EFUSEUSR[1] = CELL[46].OUT_BEL[17];
+				output EFUSEUSR[2] = CELL[46].OUT_BEL[18];
+				output EFUSEUSR[3] = CELL[46].OUT_BEL[19];
+				output EFUSEUSR[4] = CELL[46].OUT_BEL[20];
+				output EFUSEUSR[5] = CELL[46].OUT_BEL[21];
+				output EFUSEUSR[6] = CELL[46].OUT_BEL[22];
+				output EFUSEUSR[7] = CELL[46].OUT_BEL[23];
+				output EFUSEUSR[8] = CELL[47].OUT_BEL[16];
+				output EFUSEUSR[9] = CELL[47].OUT_BEL[17];
+				output EFUSEUSR[10] = CELL[47].OUT_BEL[18];
+				output EFUSEUSR[11] = CELL[47].OUT_BEL[19];
+				output EFUSEUSR[12] = CELL[47].OUT_BEL[20];
+				output EFUSEUSR[13] = CELL[47].OUT_BEL[21];
+				output EFUSEUSR[14] = CELL[47].OUT_BEL[22];
+				output EFUSEUSR[15] = CELL[47].OUT_BEL[23];
+				output EFUSEUSR[16] = CELL[48].OUT_BEL[16];
+				output EFUSEUSR[17] = CELL[48].OUT_BEL[17];
+				output EFUSEUSR[18] = CELL[48].OUT_BEL[18];
+				output EFUSEUSR[19] = CELL[48].OUT_BEL[19];
+				output EFUSEUSR[20] = CELL[48].OUT_BEL[20];
+				output EFUSEUSR[21] = CELL[48].OUT_BEL[21];
+				output EFUSEUSR[22] = CELL[48].OUT_BEL[22];
+				output EFUSEUSR[23] = CELL[48].OUT_BEL[23];
+				output EFUSEUSR[24] = CELL[49].OUT_BEL[16];
+				output EFUSEUSR[25] = CELL[49].OUT_BEL[17];
+				output EFUSEUSR[26] = CELL[49].OUT_BEL[18];
+				output EFUSEUSR[27] = CELL[49].OUT_BEL[19];
+				output EFUSEUSR[28] = CELL[49].OUT_BEL[20];
+				output EFUSEUSR[29] = CELL[49].OUT_BEL[21];
+				output EFUSEUSR[30] = CELL[49].OUT_BEL[22];
+				output EFUSEUSR[31] = CELL[49].OUT_BEL[23];
+			}
+
+			bel DNA_PORT {
+				input CLK = CELL[28].IMUX_CLK[1];
+				input READ = CELL[45].IMUX_IMUX[41];
+				input SHIFT = CELL[45].IMUX_IMUX[42];
+				input DIN = CELL[45].IMUX_IMUX[43];
+				output DOUT = CELL[45].OUT_BEL[23];
+				attribute ENABLE_TR @[MAIN[34][27][7], MAIN[34][27][2], MAIN[34][26][5]];
+			}
+
+			bel CFG_IO_ACCESS {
+				input TDO = CELL[34].IMUX_IMUX[38];
+				input INITBO = CELL[34].IMUX_IMUX[39];
+				output INITBI = CELL[34].OUT_BEL[19];
+				output CFGDATA[0] = CELL[35].OUT_BEL[13];
+				output CFGDATA[1] = CELL[35].OUT_BEL[14];
+				output CFGDATA[2] = CELL[35].OUT_BEL[15];
+				output CFGDATA[3] = CELL[35].OUT_BEL[16];
+				output CFGDATA[4] = CELL[35].OUT_BEL[17];
+				output CFGDATA[5] = CELL[35].OUT_BEL[18];
+				output CFGDATA[6] = CELL[35].OUT_BEL[19];
+				output CFGDATA[7] = CELL[35].OUT_BEL[20];
+				output CFGDATA[8] = CELL[35].OUT_BEL[21];
+				output CFGDATA[9] = CELL[35].OUT_BEL[22];
+				output CFGDATA[10] = CELL[35].OUT_BEL[23];
+				output CFGDATA[11] = CELL[42].OUT_BEL[20];
+				output CFGDATA[12] = CELL[42].OUT_BEL[21];
+				output CFGDATA[13] = CELL[42].OUT_BEL[22];
+				output CFGDATA[14] = CELL[42].OUT_BEL[23];
+				output CFGDATA[15] = CELL[43].OUT_BEL[16];
+				output CFGDATA[16] = CELL[43].OUT_BEL[17];
+				output CFGDATA[17] = CELL[43].OUT_BEL[18];
+				output CFGDATA[18] = CELL[43].OUT_BEL[19];
+				output CFGDATA[19] = CELL[43].OUT_BEL[20];
+				output CFGDATA[20] = CELL[43].OUT_BEL[21];
+				output CFGDATA[21] = CELL[43].OUT_BEL[22];
+				output CFGDATA[22] = CELL[43].OUT_BEL[23];
+				output CFGDATA[23] = CELL[44].OUT_BEL[22];
+				output CFGDATA[24] = CELL[44].OUT_BEL[23];
+				output CFGDATA[25] = CELL[45].OUT_BEL[16];
+				output CFGDATA[26] = CELL[45].OUT_BEL[17];
+				output CFGDATA[27] = CELL[45].OUT_BEL[18];
+				output CFGDATA[28] = CELL[45].OUT_BEL[19];
+				output CFGDATA[29] = CELL[45].OUT_BEL[20];
+				output CFGDATA[30] = CELL[45].OUT_BEL[21];
+				output CFGDATA[31] = CELL[45].OUT_BEL[22];
+				output PUDCB = CELL[34].OUT_BEL[21];
+				output CCLK = CELL[34].OUT_BEL[18];
+				output RDWRB = CELL[34].OUT_BEL[20];
+				output MASTER = CELL[34].OUT_BEL[17];
+				output MODE0 = CELL[34].OUT_BEL[22];
+				output MODE1 = CELL[34].OUT_BEL[23];
+				output MODE2 = CELL[35].OUT_BEL[12];
+				output VGGCOMPOUT = CELL[19].OUT_BEL[12];
+				attribute ENABLE_TR @[MAIN[33][27][49], MAIN[33][26][51], MAIN[33][26][50]];
+			}
+
+			bel MISC_CFG {
+				attribute USERCODE @[!MAIN[33][27][47], !MAIN[33][26][47], !MAIN[33][27][46], !MAIN[33][26][46], !MAIN[33][27][45], !MAIN[33][26][45], !MAIN[33][27][44], !MAIN[33][26][44], !MAIN[33][27][43], !MAIN[33][26][43], !MAIN[33][27][42], !MAIN[33][26][42], !MAIN[33][27][41], !MAIN[33][26][41], !MAIN[33][27][40], !MAIN[33][26][40], !MAIN[33][27][39], !MAIN[33][26][39], !MAIN[33][27][38], !MAIN[33][26][38], !MAIN[33][27][37], !MAIN[33][26][37], !MAIN[33][27][36], !MAIN[33][26][36], !MAIN[33][27][35], !MAIN[33][26][35], !MAIN[33][27][34], !MAIN[33][26][34], !MAIN[33][27][33], !MAIN[33][26][33], !MAIN[33][27][32], !MAIN[33][26][32]];
+				attribute ICAP_WIDTH @[MAIN[33][27][57], MAIN[33][27][56], MAIN[33][26][55], MAIN[33][27][58], MAIN[33][26][60], MAIN[33][26][59]] {
+					X8 = 0b000111,
+					X16 = 0b111000,
+					X32 = 0b000000,
+				}
+				attribute DCI_CLK_ENABLE_TR @[MAIN[33][27][25], MAIN[33][27][24], MAIN[33][27][23], MAIN[33][26][25], MAIN[33][26][24], MAIN[33][26][23]];
+				attribute DISABLE_JTAG_TR @[MAIN[33][27][60], MAIN[33][27][59], MAIN[33][26][58]];
+				attribute PROG_PULL @[MAIN[31][26][42]] {
+					NONE = 0b1,
+					PULLUP = 0b0,
+				}
+				attribute DONE_PULL @[MAIN[31][27][47]] {
+					NONE = 0b1,
+					PULLUP = 0b0,
+				}
+				attribute M0_PULL @[MAIN[30][27][50], MAIN[30][26][53]] {
+					NONE = 0b01,
+					PULLUP = 0b00,
+					PULLDOWN = 0b11,
+				}
+				attribute M1_PULL @[MAIN[30][27][55], MAIN[30][26][58]] {
+					NONE = 0b01,
+					PULLUP = 0b00,
+					PULLDOWN = 0b11,
+				}
+				attribute M2_PULL @[MAIN[30][27][60], MAIN[30][27][63]] {
+					NONE = 0b01,
+					PULLUP = 0b00,
+					PULLDOWN = 0b11,
+				}
+				attribute CCLK_PULL @[MAIN[34][27][31]] {
+					NONE = 0b1,
+					PULLUP = 0b0,
+				}
+				attribute INIT_PULL @[MAIN[31][27][44]] {
+					NONE = 0b1,
+					PULLUP = 0b0,
+				}
+				attribute TCK_PULL @[MAIN[34][26][25], MAIN[34][27][27]] {
+					NONE = 0b01,
+					PULLUP = 0b00,
+					PULLDOWN = 0b11,
+				}
+				attribute TMS_PULL @[MAIN[31][27][55], MAIN[31][26][58]] {
+					NONE = 0b01,
+					PULLUP = 0b00,
+					PULLDOWN = 0b11,
+				}
+				attribute TDI_PULL @[MAIN[31][27][50], MAIN[31][26][53]] {
+					NONE = 0b01,
+					PULLUP = 0b00,
+					PULLDOWN = 0b11,
+				}
+				attribute TDO_PULL @[MAIN[31][27][60], MAIN[31][27][63]] {
+					NONE = 0b01,
+					PULLUP = 0b00,
+					PULLDOWN = 0b11,
+				}
+			}
+
+			// wire CELL[19].OUT_BEL[10]           USR_ACCESS.DATA[13]
+			// wire CELL[19].OUT_BEL[11]           USR_ACCESS.DATA[14]
+			// wire CELL[19].OUT_BEL[12]           CFG_IO_ACCESS.VGGCOMPOUT
+			// wire CELL[19].OUT_BEL[13]           USR_ACCESS.DATA[2]
+			// wire CELL[19].OUT_BEL[14]           USR_ACCESS.DATA[3]
+			// wire CELL[19].OUT_BEL[15]           USR_ACCESS.DATA[4]
+			// wire CELL[19].OUT_BEL[16]           USR_ACCESS.DATA[5]
+			// wire CELL[19].OUT_BEL[17]           USR_ACCESS.DATA[6]
+			// wire CELL[19].OUT_BEL[18]           USR_ACCESS.DATA[7]
+			// wire CELL[19].OUT_BEL[19]           USR_ACCESS.DATA[8]
+			// wire CELL[19].OUT_BEL[20]           USR_ACCESS.DATA[9]
+			// wire CELL[19].OUT_BEL[21]           USR_ACCESS.DATA[10]
+			// wire CELL[19].OUT_BEL[22]           USR_ACCESS.DATA[11]
+			// wire CELL[19].OUT_BEL[23]           USR_ACCESS.DATA[12]
+			// wire CELL[20].OUT_BEL[8]            USR_ACCESS.DATA[29]
+			// wire CELL[20].OUT_BEL[9]            USR_ACCESS.DATA[30]
+			// wire CELL[20].OUT_BEL[10]           USR_ACCESS.DATA[15]
+			// wire CELL[20].OUT_BEL[11]           USR_ACCESS.DATA[0]
+			// wire CELL[20].OUT_BEL[12]           USR_ACCESS.DATA[1]
+			// wire CELL[20].OUT_BEL[13]           USR_ACCESS.DATA[18]
+			// wire CELL[20].OUT_BEL[14]           USR_ACCESS.DATA[19]
+			// wire CELL[20].OUT_BEL[15]           USR_ACCESS.DATA[20]
+			// wire CELL[20].OUT_BEL[16]           USR_ACCESS.DATA[21]
+			// wire CELL[20].OUT_BEL[17]           USR_ACCESS.DATA[22]
+			// wire CELL[20].OUT_BEL[18]           USR_ACCESS.DATA[23]
+			// wire CELL[20].OUT_BEL[19]           USR_ACCESS.DATA[24]
+			// wire CELL[20].OUT_BEL[20]           USR_ACCESS.DATA[25]
+			// wire CELL[20].OUT_BEL[21]           USR_ACCESS.DATA[26]
+			// wire CELL[20].OUT_BEL[22]           USR_ACCESS.DATA[27]
+			// wire CELL[20].OUT_BEL[23]           USR_ACCESS.DATA[28]
+			// wire CELL[21].OUT_BEL[10]           USR_ACCESS.DATA[31]
+			// wire CELL[21].OUT_BEL[11]           USR_ACCESS.DATA[16]
+			// wire CELL[21].OUT_BEL[12]           USR_ACCESS.DATA[17]
+			// wire CELL[21].OUT_BEL[13]           USR_ACCESS.DATAVALID
+			// wire CELL[21].OUT_BEL[14]           FRAME_ECC.SYNDROME[0]
+			// wire CELL[21].OUT_BEL[15]           FRAME_ECC.SYNDROME[1]
+			// wire CELL[21].OUT_BEL[16]           FRAME_ECC.SYNDROME[2]
+			// wire CELL[21].OUT_BEL[17]           FRAME_ECC.SYNDROME[3]
+			// wire CELL[21].OUT_BEL[18]           FRAME_ECC.SYNDROME[4]
+			// wire CELL[21].OUT_BEL[19]           FRAME_ECC.SYNDROME[5]
+			// wire CELL[21].OUT_BEL[20]           FRAME_ECC.SYNDROME[6]
+			// wire CELL[21].OUT_BEL[21]           FRAME_ECC.SYNDROME[7]
+			// wire CELL[21].OUT_BEL[22]           FRAME_ECC.SYNDROME[8]
+			// wire CELL[21].OUT_BEL[23]           FRAME_ECC.SYNDROME[9]
+			// wire CELL[22].OUT_BEL[8]            BSCAN[0].RUNTEST
+			// wire CELL[22].OUT_BEL[9]            BSCAN[1].RUNTEST
+			// wire CELL[22].OUT_BEL[10]           FRAME_ECC.SYNDROME[10]
+			// wire CELL[22].OUT_BEL[11]           FRAME_ECC.SYNDROME[11]
+			// wire CELL[22].OUT_BEL[12]           FRAME_ECC.SYNDROME[12]
+			// wire CELL[22].OUT_BEL[13]           FRAME_ECC.SYNDROMEVALID
+			// wire CELL[22].OUT_BEL[14]           BSCAN[0].SEL
+			// wire CELL[22].OUT_BEL[15]           BSCAN[1].SEL
+			// wire CELL[22].OUT_BEL[16]           BSCAN[0].UPDATE
+			// wire CELL[22].OUT_BEL[17]           BSCAN[1].UPDATE
+			// wire CELL[22].OUT_BEL[18]           BSCAN[0].RESET
+			// wire CELL[22].OUT_BEL[19]           BSCAN[1].RESET
+			// wire CELL[22].OUT_BEL[20]           BSCAN[0].DRCK
+			// wire CELL[22].OUT_BEL[21]           BSCAN[1].DRCK
+			// wire CELL[22].OUT_BEL[22]           BSCAN[0].CAPTURE
+			// wire CELL[22].OUT_BEL[23]           BSCAN[1].CAPTURE
+			// wire CELL[23].IMUX_IMUX[33]         BSCAN[0].TDO
+			// wire CELL[23].IMUX_IMUX[34]         BSCAN[1].TDO
+			// wire CELL[23].OUT_BEL[8]            ICAP[0].O[8]
+			// wire CELL[23].OUT_BEL[9]            ICAP[0].O[9]
+			// wire CELL[23].OUT_BEL[10]           BSCAN[0].TMS
+			// wire CELL[23].OUT_BEL[11]           BSCAN[1].TMS
+			// wire CELL[23].OUT_BEL[12]           BSCAN[0].TDI
+			// wire CELL[23].OUT_BEL[13]           BSCAN[1].TDI
+			// wire CELL[23].OUT_BEL[14]           BSCAN[0].TCK
+			// wire CELL[23].OUT_BEL[15]           BSCAN[1].TCK
+			// wire CELL[23].OUT_BEL[16]           BSCAN[0].SHIFT
+			// wire CELL[23].OUT_BEL[17]           BSCAN[1].SHIFT
+			// wire CELL[23].OUT_BEL[18]           ICAP[0].O[2]
+			// wire CELL[23].OUT_BEL[19]           ICAP[0].O[3]
+			// wire CELL[23].OUT_BEL[20]           ICAP[0].O[4]
+			// wire CELL[23].OUT_BEL[21]           ICAP[0].O[5]
+			// wire CELL[23].OUT_BEL[22]           ICAP[0].O[6]
+			// wire CELL[23].OUT_BEL[23]           ICAP[0].O[7]
+			// wire CELL[24].IMUX_IMUX[28]         ICAP[0].I[0]
+			// wire CELL[24].IMUX_IMUX[29]         ICAP[0].I[1]
+			// wire CELL[24].IMUX_IMUX[30]         ICAP[0].I[2]
+			// wire CELL[24].IMUX_IMUX[31]         ICAP[0].I[3]
+			// wire CELL[24].IMUX_IMUX[32]         ICAP[0].I[4]
+			// wire CELL[24].IMUX_IMUX[33]         ICAP[0].I[5]
+			// wire CELL[24].IMUX_IMUX[34]         ICAP[0].I[6]
+			// wire CELL[24].IMUX_IMUX[35]         ICAP[0].I[7]
+			// wire CELL[24].IMUX_IMUX[36]         ICAP[0].I[8]
+			// wire CELL[24].IMUX_IMUX[37]         ICAP[0].I[9]
+			// wire CELL[24].IMUX_IMUX[38]         ICAP[0].I[10]
+			// wire CELL[24].IMUX_IMUX[39]         ICAP[0].I[11]
+			// wire CELL[24].IMUX_IMUX[40]         ICAP[0].I[12]
+			// wire CELL[24].IMUX_IMUX[41]         ICAP[0].I[13]
+			// wire CELL[24].IMUX_IMUX[42]         ICAP[0].I[14]
+			// wire CELL[24].IMUX_IMUX[43]         ICAP[0].I[15]
+			// wire CELL[24].OUT_BEL[8]            ICAP[0].O[24]
+			// wire CELL[24].OUT_BEL[9]            ICAP[0].O[25]
+			// wire CELL[24].OUT_BEL[10]           ICAP[0].O[10]
+			// wire CELL[24].OUT_BEL[11]           ICAP[0].O[11]
+			// wire CELL[24].OUT_BEL[12]           ICAP[0].O[12]
+			// wire CELL[24].OUT_BEL[13]           ICAP[0].O[13]
+			// wire CELL[24].OUT_BEL[14]           ICAP[0].O[14]
+			// wire CELL[24].OUT_BEL[15]           ICAP[0].O[15]
+			// wire CELL[24].OUT_BEL[16]           ICAP[0].O[0]
+			// wire CELL[24].OUT_BEL[17]           ICAP[0].O[1]
+			// wire CELL[24].OUT_BEL[18]           ICAP[0].O[18]
+			// wire CELL[24].OUT_BEL[19]           ICAP[0].O[19]
+			// wire CELL[24].OUT_BEL[20]           ICAP[0].O[20]
+			// wire CELL[24].OUT_BEL[21]           ICAP[0].O[21]
+			// wire CELL[24].OUT_BEL[22]           ICAP[0].O[22]
+			// wire CELL[24].OUT_BEL[23]           ICAP[0].O[23]
+			// wire CELL[25].IMUX_CLK[1]           STARTUP.CLK
+			// wire CELL[25].IMUX_IMUX[24]         PMVIOB_CFG.A[0]
+			// wire CELL[25].IMUX_IMUX[25]         PMVIOB_CFG.A[1]
+			// wire CELL[25].IMUX_IMUX[26]         PMVIOB_CFG.EN
+			// wire CELL[25].IMUX_IMUX[27]         ICAP[0].I[16]
+			// wire CELL[25].IMUX_IMUX[28]         ICAP[0].I[17]
+			// wire CELL[25].IMUX_IMUX[29]         ICAP[0].I[18]
+			// wire CELL[25].IMUX_IMUX[30]         ICAP[0].I[19]
+			// wire CELL[25].IMUX_IMUX[31]         ICAP[0].I[20]
+			// wire CELL[25].IMUX_IMUX[32]         ICAP[0].I[21]
+			// wire CELL[25].IMUX_IMUX[33]         ICAP[0].I[22]
+			// wire CELL[25].IMUX_IMUX[34]         ICAP[0].I[23]
+			// wire CELL[25].IMUX_IMUX[35]         ICAP[0].I[24]
+			// wire CELL[25].IMUX_IMUX[36]         ICAP[0].I[25]
+			// wire CELL[25].IMUX_IMUX[37]         ICAP[0].I[26]
+			// wire CELL[25].IMUX_IMUX[38]         ICAP[0].I[27]
+			// wire CELL[25].IMUX_IMUX[39]         ICAP[0].I[28]
+			// wire CELL[25].IMUX_IMUX[40]         ICAP[0].I[29]
+			// wire CELL[25].IMUX_IMUX[41]         ICAP[0].I[30]
+			// wire CELL[25].IMUX_IMUX[42]         ICAP[0].I[31]
+			// wire CELL[25].OUT_BEL[9]            USR_ACCESS.CFGCLK
+			// wire CELL[25].OUT_BEL[10]           ICAP[0].O[26]
+			// wire CELL[25].OUT_BEL[11]           ICAP[0].O[27]
+			// wire CELL[25].OUT_BEL[12]           ICAP[0].O[28]
+			// wire CELL[25].OUT_BEL[13]           ICAP[0].O[29]
+			// wire CELL[25].OUT_BEL[14]           ICAP[0].O[30]
+			// wire CELL[25].OUT_BEL[15]           ICAP[0].O[31]
+			// wire CELL[25].OUT_BEL[16]           ICAP[0].O[16]
+			// wire CELL[25].OUT_BEL[17]           ICAP[0].O[17]
+			// wire CELL[25].OUT_BEL[18]           STARTUP.CFGMCLK
+			// wire CELL[25].OUT_BEL[19]           PMVIOB_CFG.ODIV4
+			// wire CELL[25].OUT_BEL[20]           PMVIOB_CFG.ODIV2
+			// wire CELL[25].OUT_BEL[21]           PMVIOB_CFG.O
+			// wire CELL[26].IMUX_CLK[1]           ICAP[0].CLK
+			// wire CELL[26].OUT_BEL[8]            FRAME_ECC.FAR[14]
+			// wire CELL[26].OUT_BEL[9]            FRAME_ECC.FAR[15]
+			// wire CELL[26].OUT_BEL[10]           FRAME_ECC.FAR[0]
+			// wire CELL[26].OUT_BEL[11]           FRAME_ECC.FAR[1]
+			// wire CELL[26].OUT_BEL[12]           FRAME_ECC.FAR[2]
+			// wire CELL[26].OUT_BEL[13]           FRAME_ECC.FAR[3]
+			// wire CELL[26].OUT_BEL[14]           FRAME_ECC.FAR[4]
+			// wire CELL[26].OUT_BEL[15]           FRAME_ECC.FAR[5]
+			// wire CELL[26].OUT_BEL[16]           FRAME_ECC.FAR[6]
+			// wire CELL[26].OUT_BEL[17]           FRAME_ECC.FAR[7]
+			// wire CELL[26].OUT_BEL[18]           FRAME_ECC.FAR[8]
+			// wire CELL[26].OUT_BEL[19]           FRAME_ECC.FAR[9]
+			// wire CELL[26].OUT_BEL[20]           FRAME_ECC.FAR[10]
+			// wire CELL[26].OUT_BEL[21]           FRAME_ECC.FAR[11]
+			// wire CELL[26].OUT_BEL[22]           FRAME_ECC.FAR[12]
+			// wire CELL[26].OUT_BEL[23]           FRAME_ECC.FAR[13]
+			// wire CELL[27].IMUX_CLK[1]           STARTUP.USRCCLKO
+			// wire CELL[27].OUT_BEL[8]            FRAME_ECC.SYNWORD[4]
+			// wire CELL[27].OUT_BEL[9]            FRAME_ECC.SYNWORD[5]
+			// wire CELL[27].OUT_BEL[10]           FRAME_ECC.FAR[16]
+			// wire CELL[27].OUT_BEL[11]           FRAME_ECC.FAR[17]
+			// wire CELL[27].OUT_BEL[12]           FRAME_ECC.FAR[18]
+			// wire CELL[27].OUT_BEL[13]           FRAME_ECC.FAR[19]
+			// wire CELL[27].OUT_BEL[14]           FRAME_ECC.FAR[20]
+			// wire CELL[27].OUT_BEL[15]           FRAME_ECC.FAR[21]
+			// wire CELL[27].OUT_BEL[16]           FRAME_ECC.FAR[22]
+			// wire CELL[27].OUT_BEL[17]           FRAME_ECC.FAR[23]
+			// wire CELL[27].OUT_BEL[18]           FRAME_ECC.FAR[24]
+			// wire CELL[27].OUT_BEL[19]           FRAME_ECC.FAR[25]
+			// wire CELL[27].OUT_BEL[20]           FRAME_ECC.SYNWORD[0]
+			// wire CELL[27].OUT_BEL[21]           FRAME_ECC.SYNWORD[1]
+			// wire CELL[27].OUT_BEL[22]           FRAME_ECC.SYNWORD[2]
+			// wire CELL[27].OUT_BEL[23]           FRAME_ECC.SYNWORD[3]
+			// wire CELL[28].IMUX_CLK[1]           DNA_PORT.CLK
+			// wire CELL[28].IMUX_IMUX[35]         DCIRESET.RST
+			// wire CELL[28].IMUX_IMUX[36]         STARTUP.KEYCLEARB
+			// wire CELL[28].IMUX_IMUX[37]         CAPTURE.CAP
+			// wire CELL[28].IMUX_IMUX[38]         STARTUP.USRCCLKTS
+			// wire CELL[28].IMUX_IMUX[39]         STARTUP.GTS
+			// wire CELL[28].IMUX_IMUX[40]         STARTUP.GSR
+			// wire CELL[28].IMUX_IMUX[41]         STARTUP.USRDONETS
+			// wire CELL[28].IMUX_IMUX[42]         STARTUP.USRDONEO
+			// wire CELL[28].IMUX_IMUX[43]         STARTUP.PACK
+			// wire CELL[28].OUT_BEL[17]           FRAME_ECC.SYNWORD[6]
+			// wire CELL[28].OUT_BEL[18]           FRAME_ECC.SYNBIT[0]
+			// wire CELL[28].OUT_BEL[19]           FRAME_ECC.SYNBIT[1]
+			// wire CELL[28].OUT_BEL[20]           FRAME_ECC.SYNBIT[2]
+			// wire CELL[28].OUT_BEL[21]           FRAME_ECC.SYNBIT[3]
+			// wire CELL[28].OUT_BEL[22]           FRAME_ECC.SYNBIT[4]
+			// wire CELL[28].OUT_BEL[23]           FRAME_ECC.ECCERRORSINGLE
+			// wire CELL[29].IMUX_CLK[1]           CAPTURE.CLK
+			// wire CELL[29].OUT_BEL[20]           FRAME_ECC.ECCERROR
+			// wire CELL[29].OUT_BEL[21]           DCIRESET.LOCKED
+			// wire CELL[29].OUT_BEL[22]           STARTUP.PREQ
+			// wire CELL[29].OUT_BEL[23]           STARTUP.EOS
+			// wire CELL[30].OUT_BEL[14]           STARTUP.CFGCLK
+			// wire CELL[30].OUT_BEL[15]           FRAME_ECC.CRCERROR
+			// wire CELL[30].OUT_BEL[16]           BSCAN[2].SEL
+			// wire CELL[30].OUT_BEL[17]           BSCAN[3].SEL
+			// wire CELL[30].OUT_BEL[18]           BSCAN[2].UPDATE
+			// wire CELL[30].OUT_BEL[19]           BSCAN[3].UPDATE
+			// wire CELL[30].OUT_BEL[20]           BSCAN[2].RESET
+			// wire CELL[30].OUT_BEL[21]           BSCAN[3].RESET
+			// wire CELL[30].OUT_BEL[22]           BSCAN[2].DRCK
+			// wire CELL[30].OUT_BEL[23]           BSCAN[3].DRCK
+			// wire CELL[31].IMUX_IMUX[38]         BSCAN[2].TDO
+			// wire CELL[31].IMUX_IMUX[39]         BSCAN[3].TDO
+			// wire CELL[31].IMUX_IMUX[40]         ICAP[0].CSB
+			// wire CELL[31].IMUX_IMUX[41]         ICAP[0].RDWRB
+			// wire CELL[31].IMUX_IMUX[42]         ICAP[1].RDWRB
+			// wire CELL[31].IMUX_IMUX[43]         ICAP[1].CSB
+			// wire CELL[31].OUT_BEL[11]           BSCAN[2].CAPTURE
+			// wire CELL[31].OUT_BEL[12]           BSCAN[3].CAPTURE
+			// wire CELL[31].OUT_BEL[13]           BSCAN[2].RUNTEST
+			// wire CELL[31].OUT_BEL[14]           BSCAN[3].RUNTEST
+			// wire CELL[31].OUT_BEL[15]           BSCAN[2].TMS
+			// wire CELL[31].OUT_BEL[16]           BSCAN[3].TMS
+			// wire CELL[31].OUT_BEL[17]           BSCAN[2].TDI
+			// wire CELL[31].OUT_BEL[18]           BSCAN[3].TDI
+			// wire CELL[31].OUT_BEL[19]           BSCAN[2].TCK
+			// wire CELL[31].OUT_BEL[20]           BSCAN[3].TCK
+			// wire CELL[31].OUT_BEL[21]           BSCAN[2].SHIFT
+			// wire CELL[31].OUT_BEL[22]           BSCAN[3].SHIFT
+			// wire CELL[31].OUT_BEL[23]           ICAP[1].O[0]
+			// wire CELL[32].IMUX_IMUX[28]         ICAP[1].I[0]
+			// wire CELL[32].IMUX_IMUX[29]         ICAP[1].I[1]
+			// wire CELL[32].IMUX_IMUX[30]         ICAP[1].I[2]
+			// wire CELL[32].IMUX_IMUX[31]         ICAP[1].I[3]
+			// wire CELL[32].IMUX_IMUX[32]         ICAP[1].I[4]
+			// wire CELL[32].IMUX_IMUX[33]         ICAP[1].I[5]
+			// wire CELL[32].IMUX_IMUX[34]         ICAP[1].I[6]
+			// wire CELL[32].IMUX_IMUX[35]         ICAP[1].I[7]
+			// wire CELL[32].IMUX_IMUX[36]         ICAP[1].I[8]
+			// wire CELL[32].IMUX_IMUX[37]         ICAP[1].I[9]
+			// wire CELL[32].IMUX_IMUX[38]         ICAP[1].I[10]
+			// wire CELL[32].IMUX_IMUX[39]         ICAP[1].I[11]
+			// wire CELL[32].IMUX_IMUX[40]         ICAP[1].I[12]
+			// wire CELL[32].IMUX_IMUX[41]         ICAP[1].I[13]
+			// wire CELL[32].IMUX_IMUX[42]         ICAP[1].I[14]
+			// wire CELL[32].IMUX_IMUX[43]         ICAP[1].I[15]
+			// wire CELL[32].OUT_BEL[12]           ICAP[1].O[1]
+			// wire CELL[32].OUT_BEL[13]           ICAP[1].O[2]
+			// wire CELL[32].OUT_BEL[14]           ICAP[1].O[3]
+			// wire CELL[32].OUT_BEL[15]           ICAP[1].O[4]
+			// wire CELL[32].OUT_BEL[16]           ICAP[1].O[5]
+			// wire CELL[32].OUT_BEL[17]           ICAP[1].O[6]
+			// wire CELL[32].OUT_BEL[18]           ICAP[1].O[7]
+			// wire CELL[32].OUT_BEL[19]           ICAP[1].O[8]
+			// wire CELL[32].OUT_BEL[20]           ICAP[1].O[9]
+			// wire CELL[32].OUT_BEL[21]           ICAP[1].O[10]
+			// wire CELL[32].OUT_BEL[22]           ICAP[1].O[11]
+			// wire CELL[32].OUT_BEL[23]           ICAP[1].O[12]
+			// wire CELL[33].IMUX_IMUX[28]         ICAP[1].I[16]
+			// wire CELL[33].IMUX_IMUX[29]         ICAP[1].I[17]
+			// wire CELL[33].IMUX_IMUX[30]         ICAP[1].I[18]
+			// wire CELL[33].IMUX_IMUX[31]         ICAP[1].I[19]
+			// wire CELL[33].IMUX_IMUX[32]         ICAP[1].I[20]
+			// wire CELL[33].IMUX_IMUX[33]         ICAP[1].I[21]
+			// wire CELL[33].IMUX_IMUX[34]         ICAP[1].I[22]
+			// wire CELL[33].IMUX_IMUX[35]         ICAP[1].I[23]
+			// wire CELL[33].IMUX_IMUX[36]         ICAP[1].I[24]
+			// wire CELL[33].IMUX_IMUX[37]         ICAP[1].I[25]
+			// wire CELL[33].IMUX_IMUX[38]         ICAP[1].I[26]
+			// wire CELL[33].IMUX_IMUX[39]         ICAP[1].I[27]
+			// wire CELL[33].IMUX_IMUX[40]         ICAP[1].I[28]
+			// wire CELL[33].IMUX_IMUX[41]         ICAP[1].I[29]
+			// wire CELL[33].IMUX_IMUX[42]         ICAP[1].I[30]
+			// wire CELL[33].IMUX_IMUX[43]         ICAP[1].I[31]
+			// wire CELL[33].OUT_BEL[12]           ICAP[1].O[13]
+			// wire CELL[33].OUT_BEL[13]           ICAP[1].O[14]
+			// wire CELL[33].OUT_BEL[14]           ICAP[1].O[15]
+			// wire CELL[33].OUT_BEL[15]           ICAP[1].O[16]
+			// wire CELL[33].OUT_BEL[16]           ICAP[1].O[17]
+			// wire CELL[33].OUT_BEL[17]           ICAP[1].O[18]
+			// wire CELL[33].OUT_BEL[18]           ICAP[1].O[19]
+			// wire CELL[33].OUT_BEL[19]           ICAP[1].O[20]
+			// wire CELL[33].OUT_BEL[20]           ICAP[1].O[21]
+			// wire CELL[33].OUT_BEL[21]           ICAP[1].O[22]
+			// wire CELL[33].OUT_BEL[22]           ICAP[1].O[23]
+			// wire CELL[33].OUT_BEL[23]           ICAP[1].O[24]
+			// wire CELL[34].IMUX_IMUX[38]         CFG_IO_ACCESS.TDO
+			// wire CELL[34].IMUX_IMUX[39]         CFG_IO_ACCESS.INITBO
+			// wire CELL[34].OUT_BEL[10]           ICAP[1].O[25]
+			// wire CELL[34].OUT_BEL[11]           ICAP[1].O[26]
+			// wire CELL[34].OUT_BEL[12]           ICAP[1].O[27]
+			// wire CELL[34].OUT_BEL[13]           ICAP[1].O[28]
+			// wire CELL[34].OUT_BEL[14]           ICAP[1].O[29]
+			// wire CELL[34].OUT_BEL[15]           ICAP[1].O[30]
+			// wire CELL[34].OUT_BEL[16]           ICAP[1].O[31]
+			// wire CELL[34].OUT_BEL[17]           CFG_IO_ACCESS.MASTER
+			// wire CELL[34].OUT_BEL[18]           CFG_IO_ACCESS.CCLK
+			// wire CELL[34].OUT_BEL[19]           CFG_IO_ACCESS.INITBI
+			// wire CELL[34].OUT_BEL[20]           CFG_IO_ACCESS.RDWRB
+			// wire CELL[34].OUT_BEL[21]           CFG_IO_ACCESS.PUDCB
+			// wire CELL[34].OUT_BEL[22]           CFG_IO_ACCESS.MODE0
+			// wire CELL[34].OUT_BEL[23]           CFG_IO_ACCESS.MODE1
+			// wire CELL[35].OUT_BEL[12]           CFG_IO_ACCESS.MODE2
+			// wire CELL[35].OUT_BEL[13]           CFG_IO_ACCESS.CFGDATA[0]
+			// wire CELL[35].OUT_BEL[14]           CFG_IO_ACCESS.CFGDATA[1]
+			// wire CELL[35].OUT_BEL[15]           CFG_IO_ACCESS.CFGDATA[2]
+			// wire CELL[35].OUT_BEL[16]           CFG_IO_ACCESS.CFGDATA[3]
+			// wire CELL[35].OUT_BEL[17]           CFG_IO_ACCESS.CFGDATA[4]
+			// wire CELL[35].OUT_BEL[18]           CFG_IO_ACCESS.CFGDATA[5]
+			// wire CELL[35].OUT_BEL[19]           CFG_IO_ACCESS.CFGDATA[6]
+			// wire CELL[35].OUT_BEL[20]           CFG_IO_ACCESS.CFGDATA[7]
+			// wire CELL[35].OUT_BEL[21]           CFG_IO_ACCESS.CFGDATA[8]
+			// wire CELL[35].OUT_BEL[22]           CFG_IO_ACCESS.CFGDATA[9]
+			// wire CELL[35].OUT_BEL[23]           CFG_IO_ACCESS.CFGDATA[10]
+			// wire CELL[40].IMUX_CLK[1]           ICAP[1].CLK
+			// wire CELL[42].OUT_BEL[20]           CFG_IO_ACCESS.CFGDATA[11]
+			// wire CELL[42].OUT_BEL[21]           CFG_IO_ACCESS.CFGDATA[12]
+			// wire CELL[42].OUT_BEL[22]           CFG_IO_ACCESS.CFGDATA[13]
+			// wire CELL[42].OUT_BEL[23]           CFG_IO_ACCESS.CFGDATA[14]
+			// wire CELL[43].OUT_BEL[16]           CFG_IO_ACCESS.CFGDATA[15]
+			// wire CELL[43].OUT_BEL[17]           CFG_IO_ACCESS.CFGDATA[16]
+			// wire CELL[43].OUT_BEL[18]           CFG_IO_ACCESS.CFGDATA[17]
+			// wire CELL[43].OUT_BEL[19]           CFG_IO_ACCESS.CFGDATA[18]
+			// wire CELL[43].OUT_BEL[20]           CFG_IO_ACCESS.CFGDATA[19]
+			// wire CELL[43].OUT_BEL[21]           CFG_IO_ACCESS.CFGDATA[20]
+			// wire CELL[43].OUT_BEL[22]           CFG_IO_ACCESS.CFGDATA[21]
+			// wire CELL[43].OUT_BEL[23]           CFG_IO_ACCESS.CFGDATA[22]
+			// wire CELL[44].OUT_BEL[22]           CFG_IO_ACCESS.CFGDATA[23]
+			// wire CELL[44].OUT_BEL[23]           CFG_IO_ACCESS.CFGDATA[24]
+			// wire CELL[45].IMUX_IMUX[41]         DNA_PORT.READ
+			// wire CELL[45].IMUX_IMUX[42]         DNA_PORT.SHIFT
+			// wire CELL[45].IMUX_IMUX[43]         DNA_PORT.DIN
+			// wire CELL[45].OUT_BEL[16]           CFG_IO_ACCESS.CFGDATA[25]
+			// wire CELL[45].OUT_BEL[17]           CFG_IO_ACCESS.CFGDATA[26]
+			// wire CELL[45].OUT_BEL[18]           CFG_IO_ACCESS.CFGDATA[27]
+			// wire CELL[45].OUT_BEL[19]           CFG_IO_ACCESS.CFGDATA[28]
+			// wire CELL[45].OUT_BEL[20]           CFG_IO_ACCESS.CFGDATA[29]
+			// wire CELL[45].OUT_BEL[21]           CFG_IO_ACCESS.CFGDATA[30]
+			// wire CELL[45].OUT_BEL[22]           CFG_IO_ACCESS.CFGDATA[31]
+			// wire CELL[45].OUT_BEL[23]           DNA_PORT.DOUT
+			// wire CELL[46].OUT_BEL[16]           EFUSE_USR.EFUSEUSR[0]
+			// wire CELL[46].OUT_BEL[17]           EFUSE_USR.EFUSEUSR[1]
+			// wire CELL[46].OUT_BEL[18]           EFUSE_USR.EFUSEUSR[2]
+			// wire CELL[46].OUT_BEL[19]           EFUSE_USR.EFUSEUSR[3]
+			// wire CELL[46].OUT_BEL[20]           EFUSE_USR.EFUSEUSR[4]
+			// wire CELL[46].OUT_BEL[21]           EFUSE_USR.EFUSEUSR[5]
+			// wire CELL[46].OUT_BEL[22]           EFUSE_USR.EFUSEUSR[6]
+			// wire CELL[46].OUT_BEL[23]           EFUSE_USR.EFUSEUSR[7]
+			// wire CELL[47].OUT_BEL[16]           EFUSE_USR.EFUSEUSR[8]
+			// wire CELL[47].OUT_BEL[17]           EFUSE_USR.EFUSEUSR[9]
+			// wire CELL[47].OUT_BEL[18]           EFUSE_USR.EFUSEUSR[10]
+			// wire CELL[47].OUT_BEL[19]           EFUSE_USR.EFUSEUSR[11]
+			// wire CELL[47].OUT_BEL[20]           EFUSE_USR.EFUSEUSR[12]
+			// wire CELL[47].OUT_BEL[21]           EFUSE_USR.EFUSEUSR[13]
+			// wire CELL[47].OUT_BEL[22]           EFUSE_USR.EFUSEUSR[14]
+			// wire CELL[47].OUT_BEL[23]           EFUSE_USR.EFUSEUSR[15]
+			// wire CELL[48].OUT_BEL[16]           EFUSE_USR.EFUSEUSR[16]
+			// wire CELL[48].OUT_BEL[17]           EFUSE_USR.EFUSEUSR[17]
+			// wire CELL[48].OUT_BEL[18]           EFUSE_USR.EFUSEUSR[18]
+			// wire CELL[48].OUT_BEL[19]           EFUSE_USR.EFUSEUSR[19]
+			// wire CELL[48].OUT_BEL[20]           EFUSE_USR.EFUSEUSR[20]
+			// wire CELL[48].OUT_BEL[21]           EFUSE_USR.EFUSEUSR[21]
+			// wire CELL[48].OUT_BEL[22]           EFUSE_USR.EFUSEUSR[22]
+			// wire CELL[48].OUT_BEL[23]           EFUSE_USR.EFUSEUSR[23]
+			// wire CELL[49].OUT_BEL[16]           EFUSE_USR.EFUSEUSR[24]
+			// wire CELL[49].OUT_BEL[17]           EFUSE_USR.EFUSEUSR[25]
+			// wire CELL[49].OUT_BEL[18]           EFUSE_USR.EFUSEUSR[26]
+			// wire CELL[49].OUT_BEL[19]           EFUSE_USR.EFUSEUSR[27]
+			// wire CELL[49].OUT_BEL[20]           EFUSE_USR.EFUSEUSR[28]
+			// wire CELL[49].OUT_BEL[21]           EFUSE_USR.EFUSEUSR[29]
+			// wire CELL[49].OUT_BEL[22]           EFUSE_USR.EFUSEUSR[30]
+			// wire CELL[49].OUT_BEL[23]           EFUSE_USR.EFUSEUSR[31]
+		}
 	}
 
 	tile_slot HCLK {
@@ -142167,7 +142109,6 @@ intdb {
 	tile_slot HCLK_BEL {
 		bel_slot PMVBRAM: PMVBRAM_V6;
 		bel_slot HCLK_IO_INT: routing;
-		bel_slot HCLK_CMT_DRP: HCLK_CMT_DRP;
 		bel_slot BUFR[0]: BUFR;
 		bel_slot BUFR[1]: BUFR;
 		bel_slot BUFR[2]: BUFR;
@@ -142179,7 +142120,6 @@ intdb {
 		bel_slot IDELAYCTRL: IDELAYCTRL;
 		bel_slot DCI: DCI;
 		bel_slot BANK: BANK;
-		bel_slot LVDS: LVDS_V4;
 
 		tile_class PMVBRAM {
 			cell CELL[0];
@@ -142431,20 +142371,20 @@ intdb {
 					off = 0b000000000000,
 				}
 				mux CELL[4].IMUX_BUFIO[0] @[MAIN[36][29]] {
-					CELL[4].PERF_IO[0] = 0b1,
+					CELL[4].PERF_BUF[0] = 0b1,
 					CELL[5].OUT_CLKPAD = 0b0,
 				}
 				mux CELL[4].IMUX_BUFIO[1] @[MAIN[37][21]] {
-					CELL[4].PERF_IO[1] = 0b1,
+					CELL[4].PERF_BUF[1] = 0b1,
 					CELL[7].OUT_CLKPAD = 0b0,
 				}
 				mux CELL[4].IMUX_BUFIO[2] @[MAIN[36][17]] {
 					CELL[1].OUT_CLKPAD = 0b0,
-					CELL[4].PERF_IO[2] = 0b1,
+					CELL[4].PERF_BUF[2] = 0b1,
 				}
 				mux CELL[4].IMUX_BUFIO[3] @[MAIN[37][17]] {
 					CELL[3].OUT_CLKPAD = 0b0,
-					CELL[4].PERF_IO[3] = 0b1,
+					CELL[4].PERF_BUF[3] = 0b1,
 				}
 				mux CELL[4].IMUX_BUFR[0] @[MAIN[35][25], MAIN[34][31], MAIN[35][24], MAIN[35][23], MAIN[35][27], MAIN[35][26], MAIN[35][28], MAIN[35][29]] {
 					CELL[3].IMUX_BYP_SITE[3] = 0b00000001,
@@ -142506,10 +142446,10 @@ intdb {
 				progbuf CELL[4].RCLK_IO[1] = CELL[4].RCLK_ROW[1] @MAIN[30][31];
 				progbuf CELL[4].RCLK_IO[2] = CELL[4].RCLK_ROW[2] @MAIN[31][19];
 				progbuf CELL[4].RCLK_IO[3] = CELL[4].RCLK_ROW[3] @MAIN[28][17];
-				progbuf CELL[4].PERF_IO[0] = CELL[4].PERF[0] @MAIN[36][28];
-				progbuf CELL[4].PERF_IO[1] = CELL[4].PERF[1] @MAIN[36][20];
-				progbuf CELL[4].PERF_IO[2] = CELL[4].PERF[2] @MAIN[36][14];
-				progbuf CELL[4].PERF_IO[3] = CELL[4].PERF[3] @MAIN[37][14];
+				progbuf CELL[4].PERF_BUF[0] = CELL[4].PERF[0] @MAIN[36][28];
+				progbuf CELL[4].PERF_BUF[1] = CELL[4].PERF[1] @MAIN[36][20];
+				progbuf CELL[4].PERF_BUF[2] = CELL[4].PERF[2] @MAIN[36][14];
+				progbuf CELL[4].PERF_BUF[3] = CELL[4].PERF[3] @MAIN[37][14];
 			}
 
 			bel BUFR[0] {
@@ -142911,20 +142851,20 @@ intdb {
 					off = 0b000000000000,
 				}
 				mux CELL[4].IMUX_BUFIO[0] @[MAIN[36][29]] {
-					CELL[4].PERF_IO[0] = 0b1,
+					CELL[4].PERF_BUF[0] = 0b1,
 					CELL[5].OUT_CLKPAD = 0b0,
 				}
 				mux CELL[4].IMUX_BUFIO[1] @[MAIN[37][21]] {
-					CELL[4].PERF_IO[1] = 0b1,
+					CELL[4].PERF_BUF[1] = 0b1,
 					CELL[7].OUT_CLKPAD = 0b0,
 				}
 				mux CELL[4].IMUX_BUFIO[2] @[MAIN[36][17]] {
 					CELL[1].OUT_CLKPAD = 0b0,
-					CELL[4].PERF_IO[2] = 0b1,
+					CELL[4].PERF_BUF[2] = 0b1,
 				}
 				mux CELL[4].IMUX_BUFIO[3] @[MAIN[37][17]] {
 					CELL[3].OUT_CLKPAD = 0b0,
-					CELL[4].PERF_IO[3] = 0b1,
+					CELL[4].PERF_BUF[3] = 0b1,
 				}
 				mux CELL[4].IMUX_BUFR[0] @[MAIN[35][25], MAIN[34][31], MAIN[35][24], MAIN[35][23], MAIN[35][27], MAIN[35][26], MAIN[35][28], MAIN[35][29]] {
 					CELL[3].IMUX_BYP_SITE[3] = 0b00000001,
@@ -142986,10 +142926,10 @@ intdb {
 				progbuf CELL[4].RCLK_IO[1] = CELL[4].RCLK_ROW[1] @MAIN[30][31];
 				progbuf CELL[4].RCLK_IO[2] = CELL[4].RCLK_ROW[2] @MAIN[31][19];
 				progbuf CELL[4].RCLK_IO[3] = CELL[4].RCLK_ROW[3] @MAIN[28][17];
-				progbuf CELL[4].PERF_IO[0] = CELL[4].PERF[0] @MAIN[36][28];
-				progbuf CELL[4].PERF_IO[1] = CELL[4].PERF[1] @MAIN[36][20];
-				progbuf CELL[4].PERF_IO[2] = CELL[4].PERF[2] @MAIN[36][14];
-				progbuf CELL[4].PERF_IO[3] = CELL[4].PERF[3] @MAIN[37][14];
+				progbuf CELL[4].PERF_BUF[0] = CELL[4].PERF[0] @MAIN[36][28];
+				progbuf CELL[4].PERF_BUF[1] = CELL[4].PERF[1] @MAIN[36][20];
+				progbuf CELL[4].PERF_BUF[2] = CELL[4].PERF[2] @MAIN[36][14];
+				progbuf CELL[4].PERF_BUF[3] = CELL[4].PERF[3] @MAIN[37][14];
 			}
 
 			bel BUFR[0] {
@@ -174916,13 +174856,13 @@ intdb {
 		opposite IO_N;
 
 		connector_class IO_S {
+			pass VMRCLK_N[0] = VMRCLK[0];
+			pass VMRCLK_N[1] = VMRCLK[1];
 			pass CMT_FREQ_BB_S[0] = CMT_FREQ_BB_N[0];
 			pass CMT_FREQ_BB_S[1] = CMT_FREQ_BB_N[1];
 			pass CMT_FREQ_BB_S[2] = CMT_FREQ_BB_N[2];
 			pass CMT_FREQ_BB_S[3] = CMT_FREQ_BB_N[3];
 			pass CMT_SYNC_BB_S = CMT_SYNC_BB_N;
-			pass VMRCLK_N[0] = VMRCLK[0];
-			pass VMRCLK_N[1] = VMRCLK[1];
 		}
 
 		connector_class IO_S_SLR {
@@ -175063,14 +175003,6 @@ intdb {
 			pass BRAM_ADDRB_CASC_S[13] = BRAM_ADDRB_CASC[13];
 			pass BRAM_ADDRB_CASC_S[14] = BRAM_ADDRB_CASC[14];
 		}
-	}
-
-	connector_slot CMT_PREV {
-		opposite CMT_NEXT;
-	}
-
-	connector_slot CMT_NEXT {
-		opposite CMT_PREV;
 	}
 
 	connector_slot HCLK_ROW_PREV {

@@ -8,10 +8,7 @@ use prjcombine_re_xilinx_naming::db::{NamingDb, TileClassNaming};
 use prjcombine_re_xilinx_rd2db_interconnect::{IntBuilder, PipMode};
 use prjcombine_virtex2::{
     chip::ChipKind,
-    defs::{
-        self, bcls, bslots,
-        virtex2::{ccls, tcls, wires},
-    },
+    defs::{self, bcls, bslots, ccls, tcls, wires},
     iob::get_iob_tiles,
 };
 
@@ -1170,7 +1167,7 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
         ("CNR_LTERM", "TERM_W"),
     ] {
         builder.extract_term_id(
-            defs::virtex2::ccls::TERM_W,
+            ccls::TERM_W,
             Some((tcls::TERM_W, bslots::TERM_W)),
             Dir::W,
             tkn,
@@ -1187,7 +1184,7 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
         ("CNR_RTERM", "TERM_E"),
     ] {
         builder.extract_term_id(
-            defs::virtex2::ccls::TERM_E,
+            ccls::TERM_E,
             Some((tcls::TERM_E, bslots::TERM_E)),
             Dir::E,
             tkn,
@@ -1213,7 +1210,7 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
         "BGIGABIT10_INT_TERM",
     ] {
         builder.extract_term_id(
-            defs::virtex2::ccls::TERM_S,
+            ccls::TERM_S,
             Some((tcls::TERM_S, bslots::TERM_S)),
             Dir::S,
             tkn,
@@ -1221,14 +1218,14 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
         );
     }
     builder.extract_term_id(
-        defs::virtex2::ccls::TERM_S,
+        ccls::TERM_S,
         Some((tcls::TERM_S, bslots::TERM_S)),
         Dir::S,
         "CNR_BTERM",
         "TERM_S_CNR",
     );
     builder.extract_term_id(
-        defs::virtex2::ccls::TERM_S,
+        ccls::TERM_S,
         Some((tcls::TERM_S, bslots::TERM_S)),
         Dir::S,
         "ML_CNR_BTERM",
@@ -1253,7 +1250,7 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
         "TGIGABIT10_INT_TERM",
     ] {
         builder.extract_term_id(
-            defs::virtex2::ccls::TERM_N,
+            ccls::TERM_N,
             Some((tcls::TERM_N, bslots::TERM_N)),
             Dir::N,
             tkn,
@@ -1261,7 +1258,7 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
         );
     }
     builder.extract_term_id(
-        defs::virtex2::ccls::TERM_N,
+        ccls::TERM_N,
         Some((tcls::TERM_N, bslots::TERM_N)),
         Dir::N,
         "CNR_TTERM",
@@ -1273,7 +1270,7 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
         let int_s_xy = builder.walk_to_int(xy_b, Dir::S, false).unwrap();
         let int_n_xy = builder.walk_to_int(xy_t, Dir::N, false).unwrap();
         builder.extract_pass_tile_id(
-            defs::virtex2::ccls::PPC_S,
+            ccls::PPC_S,
             Dir::S,
             int_n_xy,
             Some(xy_t),
@@ -1285,7 +1282,7 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
             &[],
         );
         builder.extract_pass_tile_id(
-            defs::virtex2::ccls::PPC_N,
+            ccls::PPC_N,
             Dir::N,
             int_s_xy,
             Some(xy_b),
@@ -1302,7 +1299,7 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
             let int_w_xy = builder.walk_to_int(xy_r, Dir::W, false).unwrap();
             let int_e_xy = builder.walk_to_int(xy_r, Dir::E, false).unwrap();
             builder.extract_pass_tile_id(
-                defs::virtex2::ccls::PPC_W,
+                ccls::PPC_W,
                 Dir::W,
                 int_e_xy,
                 Some(xy_r),
@@ -1314,7 +1311,7 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
                 &[],
             );
             builder.extract_pass_tile_id(
-                defs::virtex2::ccls::PPC_E,
+                ccls::PPC_E,
                 Dir::E,
                 int_w_xy,
                 Some(int_w_xy),
@@ -1773,7 +1770,7 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
         builder
             .ndb
             .tile_class_namings
-            .insert(builder.db.tile_classes.key(tcid).into(), naming);
+            .insert(builder.db.tile_classes[tcid].name.clone(), naming);
     }
 
     builder.build()

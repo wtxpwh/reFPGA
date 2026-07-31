@@ -10,10 +10,7 @@ use prjcombine_re_xilinx_naming_virtex4::ExpandedNamedDevice;
 use prjcombine_re_xilinx_rawdump::Part;
 use prjcombine_re_xilinx_rdverify::{BelVerifier, RawWireCoord, Verifier};
 use prjcombine_virtex4::{
-    defs::{
-        bcls, bslots, tslots,
-        virtex4::{tcls, wires},
-    },
+    defs::{bcls, bslots, tcls, wires},
     expanded::ExpandedDevice,
 };
 
@@ -330,12 +327,7 @@ fn verify_test_in(bel: &mut BelVerifier, pin: BelInputId) {
     let wire = binfo.inputs[pin].wire();
     let ntile = &ngrid.tiles[&tcrd];
     let ntcls = &ngrid.db.tile_class_namings[ntile.naming];
-    let sbslot = match tcrd.slot {
-        tslots::BEL => bslots::SPEC_INT,
-        tslots::CFG => bslots::SYSMON_INT,
-        _ => unreachable!(),
-    };
-    let BelInfo::SwitchBox(ref sb) = intdb[tcid].bels[sbslot] else {
+    let BelInfo::SwitchBox(ref sb) = intdb[tcid].bels[bslots::SPEC_INT] else {
         unreachable!()
     };
     for item in &sb.items {
@@ -604,7 +596,6 @@ fn verify_bel(edev: &ExpandedDevice, vrf: &mut Verifier, bcrd: BelCoord) {
         | bslots::HROW_INT
         | bslots::SPEC_INT
         | bslots::CLK_INT
-        | bslots::SYSMON_INT
         | bslots::HCLK_IO_INT
         | bslots::MISC_CFG
         | bslots::GLOBAL => (),
@@ -1016,7 +1007,7 @@ pub fn verify_device(endev: &ExpandedNamedDevice, rd: &Part, pb: &ProgressBar) {
                 vrf.skip_tcls_pip(
                     tcls::CLK_HROW,
                     wires::HCLK_ROW[o].cell(co),
-                    wires::GCLK_BUF[i].cell(0).pos(),
+                    wires::GCLK_HROW[i].cell(0).pos(),
                 );
                 vrf.inject_tcls_pip(
                     tcls::CLK_HROW,
@@ -1029,7 +1020,7 @@ pub fn verify_device(endev: &ExpandedNamedDevice, rd: &Part, pb: &ProgressBar) {
     for i in 0..32 {
         vrf.skip_tcls_pip(
             tcls::CLK_HROW,
-            wires::GCLK_BUF[i].cell(0),
+            wires::GCLK_HROW[i].cell(0),
             wires::GCLK[i].cell(0).pos(),
         );
     }

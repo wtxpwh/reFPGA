@@ -70,8 +70,8 @@ pub fn add_fuzzers<'a>(
         let mode = "DCM";
 
         let mut builder = bctx.build().global_mutex("DCM", "ENABLE").global_mutex(
-            backend.edev.db.tile_classes.key(vreg_tcid),
-            backend.edev.db.tile_classes.key(tcid),
+            backend.edev.db[vreg_tcid].name.as_str(),
+            backend.edev.db[tcid].name.as_str(),
         );
         if let Some((_, ref vreg)) = vreg {
             builder = builder.extra_tile_bel_special(

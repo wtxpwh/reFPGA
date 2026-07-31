@@ -162,7 +162,7 @@ fn drive_wire<'a>(
     let chip = backend.edev.chip;
     let mut cell = wire_target.cell;
     let wt = wire_target.slot;
-    let wtn = &backend.edev.db.wires.key(wt)[..];
+    let wtn = &backend.edev.db.wires[wt].name.as_str();
     let (ploc, pwt, pwf) = if let Some((bel, mut pin)) = wire_to_outpin(chip, wire_target) {
         cell = bel.cell;
         if let Some(idx) = bslots::IO.index_of(bel.slot)
@@ -270,7 +270,7 @@ fn drive_wire<'a>(
                 let tcls_index = &backend.edev.db_index[tile.class];
                 if let Some(ins) = tcls_index.pips_bwd.get(&w.slot.cell(0)) {
                     for &inp in ins {
-                        if backend.edev.db.wires.key(inp.wire).starts_with("OUT") {
+                        if backend.edev.db.wires[inp.wire].name.starts_with("OUT") {
                             let rwf = backend.edev.resolve_tile_wire(tcrd, inp.tw).unwrap();
                             if rwf != wire_avoid {
                                 break 'a (tcrd, w.slot.cell(0), inp.tw);
@@ -289,7 +289,7 @@ fn drive_wire<'a>(
                 let tcls_index = &backend.edev.db_index[tile.class];
                 if let Some(ins) = tcls_index.pips_bwd.get(&w.slot.cell(0)) {
                     for &inp in ins {
-                        if backend.edev.db.wires.key(inp.wire).starts_with("SINGLE") {
+                        if backend.edev.db.wires[inp.wire].name.starts_with("SINGLE") {
                             let rwf = backend.edev.resolve_tile_wire(tcrd, inp.tw).unwrap();
                             if rwf != wire_avoid {
                                 break 'a (tcrd, w.slot.cell(0), inp.tw);
@@ -308,7 +308,10 @@ fn drive_wire<'a>(
                 let tcls_index = &backend.edev.db_index[tile.class];
                 if let Some(ins) = tcls_index.pips_bwd.get(&w.slot.cell(0)) {
                     for &inp in ins {
-                        if backend.edev.db.wires.key(inp.wire).starts_with("DOUBLE_IO") {
+                        if backend.edev.db.wires[inp.wire]
+                            .name
+                            .starts_with("DOUBLE_IO")
+                        {
                             let rwf = backend.edev.resolve_tile_wire(tcrd, inp.tw).unwrap();
                             if rwf != wire_avoid {
                                 break 'a (tcrd, w.slot.cell(0), inp.tw);
@@ -685,7 +688,7 @@ impl<'b> FuzzerProp<'b, XactBackend<'b>> for ClbSpecialMux {
 
 pub fn add_fuzzers<'a>(session: &mut Session<'a, XactBackend<'a>>, backend: &'a XactBackend<'a>) {
     let intdb = backend.edev.db;
-    for (tcid, tcname, _) in &intdb.tile_classes {
+    for (tcid, tcls) in &intdb.tile_classes {
         let tcls_index = &backend.edev.db_index[tcid];
         if tcls_index.pips_bwd.is_empty() {
             continue;
@@ -714,11 +717,11 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, XactBackend<'a>>, backend: &'a 
                 continue;
             }
             let mut is_iob_o = false;
-            if wires::IMUX_IO_O1.contains(wire_to.wire) && tcname.starts_with("IO") {
+            if wires::IMUX_IO_O1.contains(wire_to.wire) && tcls.name.starts_with("IO") {
                 is_iob_o = true;
             }
             if matches!(wire_to.wire, wires::IMUX_CLB_F4 | wires::IMUX_CLB_G4)
-                && tcname.starts_with("IO_S")
+                && tcls.name.starts_with("IO_S")
             {
                 is_iob_o = true;
             }
@@ -733,7 +736,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, XactBackend<'a>>, backend: &'a 
                 is_iob_o = true;
             }
             if matches!(wire_to.wire, wires::IMUX_CLB_F1 | wires::IMUX_CLB_G1)
-                && tcname.starts_with("IO_E")
+                && tcls.name.starts_with("IO_E")
             {
                 is_iob_o = true;
             }
@@ -850,7 +853,7 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
     let intdb = ctx.edev.db;
     let mut iob_o_diffs: BTreeMap<_, BTreeMap<_, _>> = BTreeMap::new();
     let mut hiob_o_diffs: BTreeMap<_, BTreeMap<_, _>> = BTreeMap::new();
-    for (tcid, tcname, tcls) in &intdb.tile_classes {
+    for (tcid, tcls) in &intdb.tile_classes {
         for (_, bel) in &tcls.bels {
             let BelInfo::SwitchBox(sb) = bel else {
                 continue;
@@ -863,12 +866,12 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
                         }
                         let mut iob_o = None;
                         if let Some(idx) = wires::IMUX_IO_O1.index_of(mux.dst.wire)
-                            && tcname.starts_with("IO")
+                            && tcls.name.starts_with("IO")
                         {
                             iob_o =
                                 Some((vec![tcid], bslots::IO[idx], "O1", BitRectId::from_idx(0)));
                         }
-                        if tcname.starts_with("IO_S") {
+                        if tcls.name.starts_with("IO_S") {
                             if mux.dst.wire == wires::IMUX_CLB_F4 {
                                 iob_o =
                                     Some((vec![tcid], bslots::IO[0], "O2", BitRectId::from_idx(0)));
@@ -914,7 +917,7 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
                                 ));
                             }
                         }
-                        if tcname.starts_with("IO_E") {
+                        if tcls.name.starts_with("IO_E") {
                             if mux.dst.wire == wires::IMUX_CLB_G1 {
                                 iob_o =
                                     Some((vec![tcid], bslots::IO[0], "O2", BitRectId::from_idx(0)));
@@ -999,6 +1002,7 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
                                 if item.bits.is_empty() {
                                     println!(
                                         "UMMM MUX {tcname} {mux_name} is empty",
+                                        tcname = tcls.name,
                                         mux_name =
                                             mux.dst.to_string(intdb, &intdb.tile_classes[tcid])
                                     );
@@ -1046,6 +1050,7 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
                                     if item.bits.is_empty() {
                                         println!(
                                             "UMMM MUX {tcname} {mux_name} is empty",
+                                            tcname = tcls.name,
                                             mux_name =
                                                 mux.dst.to_string(intdb, &intdb.tile_classes[tcid])
                                         );
@@ -1137,6 +1142,7 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
                             if item_i.bits.is_empty() {
                                 println!(
                                     "UMMM MUX {tcname} {imux_i} is empty",
+                                    tcname = tcls.name,
                                     imux_i = imux_i.to_string(intdb, &intdb.tile_classes[tcid])
                                 );
                             }
@@ -1156,6 +1162,7 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
                             assert!(
                                 !got_empty,
                                 "fuckup on {tcname} {mux_name}",
+                                tcname = tcls.name,
                                 mux_name = mux.dst.to_string(intdb, &intdb.tile_classes[tcid])
                             );
                             t_inps.push((Some(wires::TIE_1.cell(0).pos()), Diff::default()));
@@ -1164,6 +1171,7 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
                             if item_t.bits.is_empty() {
                                 println!(
                                     "UMMM MUX {tcname} {mux_name} is empty",
+                                    tcname = tcls.name,
                                     mux_name = mux.dst.to_string(intdb, &intdb.tile_classes[tcid])
                                 );
                             }
@@ -1259,6 +1267,7 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
                             if item.bits.is_empty() {
                                 println!(
                                     "UMMM MUX {tcname} {mux_name} is empty",
+                                    tcname = tcls.name,
                                     mux_name = mux.dst.to_string(intdb, &intdb.tile_classes[tcid])
                                 );
                             }

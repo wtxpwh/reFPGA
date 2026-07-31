@@ -11,10 +11,7 @@ use prjcombine_re_xilinx_rawdump::Part;
 use prjcombine_re_xilinx_rdverify::{RawWireCoord, Verifier};
 use prjcombine_virtex4::{
     chip::ColumnKind,
-    defs::{
-        self, bcls, bslots,
-        virtex5::{tcls, wires},
-    },
+    defs::{self, bcls, bslots, tcls, wires},
     expanded::ExpandedDevice,
 };
 
@@ -554,7 +551,7 @@ pub fn verify_device(endev: &ExpandedNamedDevice, rd: &Part, pb: &ProgressBar) {
                 vrf.skip_tcls_pip(
                     tcls::CLK_HROW,
                     wires::HCLK_ROW[o].cell(co),
-                    wires::GCLK_BUF[i].cell(0).pos(),
+                    wires::GCLK_HROW[i].cell(0).pos(),
                 );
                 vrf.inject_tcls_pip(
                     tcls::CLK_HROW,
@@ -567,7 +564,7 @@ pub fn verify_device(endev: &ExpandedNamedDevice, rd: &Part, pb: &ProgressBar) {
     for i in 0..32 {
         vrf.skip_tcls_pip(
             tcls::CLK_HROW,
-            wires::GCLK_BUF[i].cell(0),
+            wires::GCLK_HROW[i].cell(0),
             wires::GCLK[i].cell(0).pos(),
         );
     }
@@ -612,28 +609,28 @@ pub fn verify_device(endev: &ExpandedNamedDevice, rd: &Part, pb: &ProgressBar) {
     for i in 5..10 {
         vrf.inject_tcls_pip(
             tcls::CMT,
-            wires::IMUX_PLL_CLKIN1.cell(0),
+            wires::IMUX_PLL_CLKIN1[0].cell(0),
             wires::HCLK_CMT[i].cell(0).pos(),
         );
         vrf.inject_tcls_pip(
             tcls::CMT,
-            wires::IMUX_PLL_CLKIN1.cell(0),
+            wires::IMUX_PLL_CLKIN1[0].cell(0),
             wires::GIOB_CMT[i].cell(0).pos(),
         );
     }
     vrf.inject_tcls_pip(
         tcls::CMT,
-        wires::IMUX_PLL_CLKIN1.cell(0),
+        wires::IMUX_PLL_CLKIN1[0].cell(0),
         wires::OUT_PLL_CLKFBDCM.cell(0).pos(),
     );
     vrf.skip_tcls_pip(
         tcls::CMT,
-        wires::IMUX_PLL_CLKIN2.cell(0),
+        wires::IMUX_PLL_CLKIN2[0].cell(0),
         wires::OUT_PLL_CLKFBDCM.cell(0).pos(),
     );
 
     for i in 0..2 {
-        vrf.alias_wire_slot(wires::IMUX_IO_ICLK_OPTINV[i], wires::IMUX_IO_ICLK[i]);
+        vrf.alias_wire_slot(wires::IMUX_IOI_ICLK_OPTINV[i], wires::IMUX_IOI_ICLK[i]);
     }
 
     vrf.prep_int_wires();

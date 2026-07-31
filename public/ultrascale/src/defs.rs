@@ -6071,81 +6071,91 @@ target_defs! {
     wire GCLK[16]: regional LEAF;
     wire GNODE[32]: mux;
 
+    // X4/X5 wires
     if variant ultrascale {
-        wire X4_W0[16]: mux;
+        wire LX4_W0[16]: mux;
         for i in 1..=2 {
-            wire "X4_W{i}"[16]: branch LE;
+            wire "LX4_W{i}"[16]: branch LE;
         }
-        wire X4_E0[16]: mux;
-        for i in 1..=2 {
-            wire "X4_E{i}"[16]: branch LW;
-        }
-        wire X4_E2_S0: branch N;
-        wire X4_E2_N15: branch S;
-        wire X4_S0[8]: mux;
-        for i in 1..=4 {
-            wire "X4_S{i}"[8]: branch N;
-        }
-        wire X5_S0[8]: mux;
-        for i in 1..=5 {
-            wire "X5_S{i}"[8]: branch N;
-        }
-        wire X4_N0[8]: mux;
-        for i in 1..=4 {
-            wire "X4_N{i}"[8]: branch S;
-        }
-        wire X5_N0[8]: mux;
-        for i in 1..=5 {
-            wire "X5_N{i}"[8]: branch S;
-        }
-        wire X5_N5_N7: branch S;
 
-        wire X12_W0[8]: mux;
-        for i in 1..=6 {
-            wire "X12_W{i}"[8]: branch LE;
+        wire LX4_E0[16]: mux;
+        for i in 1..=2 {
+            wire "LX4_E{i}"[16]: branch LW;
         }
-        wire X12_W6_N7: branch S;
-        wire X12_E0[8]: mux;
-        for i in 1..=6 {
-            wire "X12_E{i}"[8]: branch LW;
+        wire LX4_E2_S0: branch N;
+        wire LX4_E2_N15: branch S;
+
+        wire LX4_S0[8]: mux;
+        for i in 1..=4 {
+            wire "LX4_S{i}"[8]: branch N;
         }
-        wire X12_E6_S0: branch N;
-        wire X12_S0[4]: mux;
+
+        wire LX5_S0[8]: mux;
+        for i in 1..=5 {
+            wire "LX5_S{i}"[8]: branch N;
+        }
+
+        wire LX4_N0[8]: mux;
+        for i in 1..=4 {
+            wire "LX4_N{i}"[8]: branch S;
+        }
+
+        wire LX5_N0[8]: mux;
+        for i in 1..=5 {
+            wire "LX5_N{i}"[8]: branch S;
+        }
+        wire LX5_N5_N7: branch S;
+    }
+
+    // X12/X16 wires
+    wire LX12_W0[8]: mux;
+    for i in 1..=6 {
+        wire "LX12_W{i}"[8]: branch LE;
+    }
+    if variant ultrascale {
+        wire LX12_W6_N7: branch S;
+    }
+
+    wire LX12_E0[8]: mux;
+    for i in 1..=6 {
+        wire "LX12_E{i}"[8]: branch LW;
+    }
+    wire LX12_E6_S0: branch N;
+    if variant ultrascaleplus {
+        wire LX12_E6_N7: branch S;
+    }
+
+    if variant ultrascale {
+        wire LX12_S0[4]: mux;
         for i in 1..=12 {
-            wire "X12_S{i}"[4]: branch N;
+            wire "LX12_S{i}"[4]: branch N;
         }
-        wire X12_S12_S0: branch N;
-        wire X16_S0[4]: mux;
+        wire LX12_S12_S0: branch N;
+        wire LX16_S0[4]: mux;
         for i in 1..=16 {
-            wire "X16_S{i}"[4]: branch N;
+            wire "LX16_S{i}"[4]: branch N;
         }
-        wire X12_N0[4]: mux;
-        for i in 1..=12 {
-            wire "X12_N{i}"[4]: branch S;
-        }
-        wire X16_N0[4]: mux;
-        for i in 1..=16 {
-            wire "X16_N{i}"[4]: branch S;
-        }
-        wire X16_N16_N3: branch S;
     } else {
-        wire X12_W0[8]: mux;
-        for i in 1..=6 {
-            wire "X12_W{i}"[8]: branch LE;
-        }
-        wire X12_E0[8]: mux;
-        for i in 1..=6 {
-            wire "X12_E{i}"[8]: branch LW;
-        }
-        wire X12_E6_S0: branch N;
-        wire X12_E6_N7: branch S;
-        wire X12_S0[8]: mux;
+        wire LX12_S0[8]: mux;
         for i in 1..=12 {
-            wire "X12_S{i}"[8]: branch N;
+            wire "LX12_S{i}"[8]: branch N;
         }
-        wire X12_N0[8]: mux;
+    }
+
+    if variant ultrascale {
+        wire LX12_N0[4]: mux;
         for i in 1..=12 {
-            wire "X12_N{i}"[8]: branch S;
+            wire "LX12_N{i}"[4]: branch S;
+        }
+        wire LX16_N0[4]: mux;
+        for i in 1..=16 {
+            wire "LX16_N{i}"[4]: branch S;
+        }
+        wire LX16_N16_N3: branch S;
+    } else {
+        wire LX12_N0[8]: mux;
+        for i in 1..=12 {
+            wire "LX12_N{i}"[8]: branch S;
         }
     }
 
@@ -6156,98 +6166,109 @@ target_defs! {
     wire OUT_TEST[32]: test;
     wire TEST[4]: test;
 
+    // intermediates for X1/X2/X4 muxes
     if variant ultrascale {
         wire SDNODE[64]: mux;
         // only a few actually exist
         wire SDNODE_S[64]: branch N;
         wire SDNODE_N[64]: branch S;
-
-        wire X1_W0[8]: mux;
-        wire X1_W1[8]: branch E;
-        wire X1_E0[8]: mux;
-        wire X1_E1[8]: branch W;
-        wire X1_E1_W0: branch E;
-        wire X1_E1_E0: branch W;
-        wire X1_E1_S0: branch N;
-        wire X1_S0[8]: mux;
-        wire X1_S1[8]: branch N;
-        wire X1_S1_S0: branch N;
-        wire X1_N0[8]: mux;
-        wire X1_N1[8]: branch S;
-
-        wire X2_W0[8]: mux;
-        wire X2_W1[8]: branch E;
-        wire X2_W2[8]: branch E;
-        wire X2_E0[8]: mux;
-        wire X2_E1[8]: branch W;
-        wire X2_E2[8]: branch W;
-        wire X2_E2_W7: branch E;
-        wire X2_E2_E7: branch W;
-        wire X2_E2_N7: branch S;
-        wire X2_S0[8]: mux;
-        wire X2_S1[8]: branch N;
-        wire X2_S2[8]: branch N;
-        wire X2_N0[8]: mux;
-        wire X2_N1[8]: branch S;
-        wire X2_N2[8]: branch S;
-        wire X2_N2_N7: branch S;
-
-        wire QLNODE[64]: mux;
-        // only a few actually exist
-        wire QLNODE_S[64]: branch N;
-        wire QLNODE_N[64]: branch S;
     } else {
         wire SDQNODE[96]: mux;
         // only a few actually exist
         wire SDQNODE_S[96]: branch N;
         wire SDQNODE_N[96]: branch S;
+    }
 
-        wire X1_W0[8]: mux;
-        wire X1_W1[8]: branch E;
+    // X1 wires
+
+    wire X1_W0[8]: mux;
+    wire X1_W1[8]: branch E;
+    if variant ultrascaleplus {
         wire X1_W1_W7: branch E;
         wire X1_W1_E7: branch W;
         wire X1_W1_N7: branch S;
-        wire X1_E0[8]: mux;
-        wire X1_E1[8]: branch W;
-        wire X1_S0[8]: mux;
-        wire X1_S1[8]: branch N;
-        wire X1_N0[8]: mux;
-        wire X1_N1[8]: branch S;
+    }
 
-        wire X2_W0[8]: mux;
-        wire X2_W1[8]: branch E;
-        wire X2_W2[8]: branch E;
+    wire X1_E0[8]: mux;
+    wire X1_E1[8]: branch W;
+    if variant ultrascale {
+        wire X1_E1_W0: branch E;
+        wire X1_E1_E0: branch W;
+        wire X1_E1_S0: branch N;
+    }
+
+    wire X1_S0[8]: mux;
+    wire X1_S1[8]: branch N;
+    if variant ultrascale {
+        wire X1_S1_S0: branch N;
+    }
+
+    wire X1_N0[8]: mux;
+    wire X1_N1[8]: branch S;
+
+    // X2 wires
+
+    wire X2_W0[8]: mux;
+    wire X2_W1[8]: branch E;
+    wire X2_W2[8]: branch E;
+    if variant ultrascaleplus {
         wire X2_W2_W0: branch E;
         wire X2_W2_E0: branch W;
         wire X2_W2_S0: branch N;
-        wire X2_E0[8]: mux;
-        wire X2_E1[8]: branch W;
-        wire X2_E2[8]: branch W;
-        wire X2_S0[8]: mux;
-        wire X2_S1[8]: branch N;
-        wire X2_S2[8]: branch N;
-        wire X2_N0[8]: mux;
-        wire X2_N1[8]: branch S;
-        wire X2_N2[8]: branch S;
+    }
 
+    wire X2_E0[8]: mux;
+    wire X2_E1[8]: branch W;
+    wire X2_E2[8]: branch W;
+    if variant ultrascale {
+        wire X2_E2_W7: branch E;
+        wire X2_E2_E7: branch W;
+        wire X2_E2_N7: branch S;
+    }
+
+    wire X2_S0[8]: mux;
+    wire X2_S1[8]: branch N;
+    wire X2_S2[8]: branch N;
+
+    wire X2_N0[8]: mux;
+    wire X2_N1[8]: branch S;
+    wire X2_N2[8]: branch S;
+    if variant ultrascale {
+        wire X2_N2_N7: branch S;
+    }
+
+    // X4 wires
+
+    if variant ultrascaleplus {
         wire X4_W0[8]: mux;
         for i in 1..=4 {
             wire "X4_W{i}"[8]: branch E;
         }
+
         wire X4_E0[8]: mux;
         for i in 1..=4 {
             wire "X4_E{i}"[8]: branch W;
         }
+
         wire X4_S0[8]: mux;
         for i in 1..=4 {
             wire "X4_S{i}"[8]: branch N;
         }
         wire X4_S4_S0: branch N;
+
         wire X4_N0[8]: mux;
         for i in 1..=4 {
             wire "X4_N{i}"[8]: branch S;
         }
         wire X4_N4_N7: branch S;
+    }
+
+    // intermediates for X4/X12 muxes (u+ doesn't use intermediates for X12)
+    if variant ultrascale {
+        wire QLNODE[64]: mux;
+        // only a few actually exist
+        wire QLNODE_S[64]: branch N;
+        wire QLNODE_N[64]: branch S;
     }
 
     wire INODE[64]: mux;
@@ -6415,9 +6436,11 @@ target_defs! {
         tile_class INTF_DELAY {
             cell CELL;
         }
-        // u+ only
-        tile_class INTF_IO {
-            cell CELL;
+
+        if variant ultrascaleplus {
+            tile_class INTF_IO {
+                cell CELL;
+            }
         }
     }
 
@@ -6445,32 +6468,34 @@ target_defs! {
             cell CELL[5];
         }
 
-        // u+ only
-        bel_slot URAM[4]: URAM;
-        tile_class URAM {
-            cell CELL_W[15];
-            cell CELL_E[15];
+        if variant ultrascaleplus {
+            bel_slot URAM[4]: URAM;
+            tile_class URAM {
+                cell CELL_W[15];
+                cell CELL_E[15];
+            }
         }
 
-        // u+ only
-        bel_slot HDIOB[42]: HDIOB;
-        bel_slot HDIOB_DIFF_IN[21]: HDIOB_DIFF_IN;
-        bel_slot HDIOLOGIC[42]: HDIOLOGIC;
-        bel_slot HDLOGIC_CSSD[4]: HDLOGIC_CSSD;
-        bel_slot HDIO_VREF[3]: HDIO_VREF;
-        bel_slot HDIO_BIAS: HDIO_BIAS;
-        tile_class HDIO {
-            cell CELL[60];
-        }
-        tile_class HDIOL_S {
-            cell CELL[30];
-        }
-        tile_class HDIOL_N {
-            cell CELL[30];
-        }
-        tile_class HDIOS {
-            cell CELL_W[60];
-            cell CELL_E[60];
+        if variant ultrascaleplus {
+            bel_slot HDIOB[42]: HDIOB;
+            bel_slot HDIOB_DIFF_IN[21]: HDIOB_DIFF_IN;
+            bel_slot HDIOLOGIC[42]: HDIOLOGIC;
+            bel_slot HDLOGIC_CSSD[4]: HDLOGIC_CSSD;
+            bel_slot HDIO_VREF[3]: HDIO_VREF;
+            bel_slot HDIO_BIAS: HDIO_BIAS;
+            tile_class HDIO {
+                cell CELL[60];
+            }
+            tile_class HDIOL_S {
+                cell CELL[30];
+            }
+            tile_class HDIOL_N {
+                cell CELL[30];
+            }
+            tile_class HDIOS {
+                cell CELL_W[60];
+                cell CELL_E[60];
+            }
         }
 
         bel_slot XIPHY_INT: routing;
@@ -6482,21 +6507,27 @@ target_defs! {
             cell CELL[15];
         }
 
-        // u+ only
-        bel_slot XP5IOB[66]: XP5IOB;
-        bel_slot XP5IOB_PAIR[33]: XP5IOB_PAIR;
-        bel_slot XP5IO_BITSLICE[66]: XP5IO_BITSLICE;
-        bel_slot X5PHY[11]: X5PHY;
-        bel_slot XP5IO_VREF[11]: XP5IO_VREF;
-        bel_slot LPDDRMC: LPDDRMC;
-        bel_slot ABUS_SWITCH_XP5IO[2]: ABUS_SWITCH;
-        tile_class XP5IO {
-            cell CELL[60];
+        if variant ultrascaleplus {
+            bel_slot XP5IOB[66]: XP5IOB;
+            bel_slot XP5IOB_PAIR[33]: XP5IOB_PAIR;
+            bel_slot XP5IO_BITSLICE[66]: XP5IO_BITSLICE;
+            bel_slot X5PHY[11]: X5PHY;
+            bel_slot XP5IO_VREF[11]: XP5IO_VREF;
+            bel_slot LPDDRMC: LPDDRMC;
+            bel_slot ABUS_SWITCH_XP5IO[2]: ABUS_SWITCH;
+            tile_class XP5IO {
+                cell CELL[60];
+            }
         }
 
         bel_slot CFG: CFG;
         bel_slot ABUS_SWITCH_CFG: ABUS_SWITCH;
         tile_class CFG, CFG_CSEC, CFG_CSEC_V2 {
+            if variant ultrascale {
+                if tile_class [CFG_CSEC, CFG_CSEC_V2] {
+                    skip;
+                }
+            }
             cell CELL[60];
         }
 
@@ -6514,74 +6545,96 @@ target_defs! {
             cell CELL[30];
         }
 
-        // u only
-        bel_slot PCIE3: PCIE3;
-        // u+ only
-        bel_slot PCIE4: PCIE4;
+        if variant ultrascale {
+            bel_slot PCIE3: PCIE3;
+            tile_class PCIE3 {
+                cell CELL_W[60];
+                cell CELL_E[60];
+            }
+        }
+        if variant ultrascaleplus {
+            bel_slot PCIE4: PCIE4;
+            tile_class PCIE4, PCIE4C, PCIE4CE {
+                cell CELL_W[60];
+                cell CELL_E[60];
+            }
+        }
         bel_slot CMAC: CMAC;
         bel_slot ILKN: ILKN;
-        tile_class PCIE3, PCIE4, PCIE4C, PCIE4CE, CMAC, ILKN {
+        tile_class CMAC, ILKN {
             cell CELL_W[60];
             cell CELL_E[60];
         }
 
-        // u+ only
-        bel_slot FE: FE;
-        tile_class FE {
-            cell CELL[60];
+        if variant ultrascaleplus {
+            bel_slot FE: FE;
+            tile_class FE {
+                cell CELL[60];
+            }
         }
 
-        // u+ only
-        bel_slot DFE_FFT[2]: DFE_FFT;
-        bel_slot DFE_PRACH: DFE_PRACH;
-        bel_slot DFE_FIR[2]: DFE_FIR;
-        bel_slot DFE_MATRIX_FIR[2]: DFE_MATRIX_FIR;
-        bel_slot DFE_DUC_DDC[2]: DFE_DUC_DDC;
-        bel_slot DFE_CFR[2]: DFE_CFR;
-        bel_slot DFE_NL_FIR[3]: DFE_NL_FIR;
-        bel_slot DFE_PQ_INTERP[4]: DFE_PQ_INTERP;
-        bel_slot DFE_PQ_DECIM[5]: DFE_PQ_DECIM;
-        tile_class DFE_A, DFE_C, DFE_D, DFE_E, DFE_F, DFE_G {
-            cell CELL_W[60];
-            cell CELL_E[60];
-        }
-        tile_class DFE_B {
-            cell CELL[60];
+        if variant ultrascaleplus {
+            bel_slot DFE_FFT[2]: DFE_FFT;
+            bel_slot DFE_PRACH: DFE_PRACH;
+            bel_slot DFE_FIR[2]: DFE_FIR;
+            bel_slot DFE_MATRIX_FIR[2]: DFE_MATRIX_FIR;
+            bel_slot DFE_DUC_DDC[2]: DFE_DUC_DDC;
+            bel_slot DFE_CFR[2]: DFE_CFR;
+            bel_slot DFE_NL_FIR[3]: DFE_NL_FIR;
+            bel_slot DFE_PQ_INTERP[4]: DFE_PQ_INTERP;
+            bel_slot DFE_PQ_DECIM[5]: DFE_PQ_DECIM;
+            tile_class DFE_A, DFE_C, DFE_D, DFE_E, DFE_F, DFE_G {
+                cell CELL_W[60];
+                cell CELL_E[60];
+            }
+            tile_class DFE_B {
+                cell CELL[60];
+            }
         }
 
         bel_slot GT_INT: routing;
         bel_slot BUFG_GT[24]: BUFG_GT;
         bel_slot BUFG_GT_SYNC[15]: BUFG_GT_SYNC;
         bel_slot ABUS_SWITCH_GT[5]: ABUS_SWITCH;
-        bel_slot GT3_COMMON: GT3_COMMON;
-        bel_slot GT3_CHANNEL[4]: GT3_CHANNEL;
-        bel_slot GT4_COMMON: GT4_COMMON;
-        bel_slot GT4_CHANNEL[4]: GT4_CHANNEL;
-        bel_slot GTF_COMMON: GTF_COMMON;
-        bel_slot GTF_CHANNEL[4]: GTF_CHANNEL;
-        bel_slot GTM_DUAL: GTM_DUAL;
-        bel_slot HSDAC: HSDAC;
-        bel_slot HSADC: HSADC;
-        // all except GTH/GTY are u+ only
-        tile_class GTH, GTY, GTF, GTM, HSDAC, HSADC, RFDAC, RFADC {
+        if variant ultrascale {
+            bel_slot GT3_COMMON: GT3_COMMON;
+            bel_slot GT3_CHANNEL[4]: GT3_CHANNEL;
+        }
+        if variant ultrascaleplus {
+            bel_slot GT4_COMMON: GT4_COMMON;
+            bel_slot GT4_CHANNEL[4]: GT4_CHANNEL;
+            bel_slot GTF_COMMON: GTF_COMMON;
+            bel_slot GTF_CHANNEL[4]: GTF_CHANNEL;
+            bel_slot GTM_DUAL: GTM_DUAL;
+            bel_slot HSDAC: HSDAC;
+            bel_slot HSADC: HSADC;
+        }
+        tile_class GTH, GTY {
             cell CELL[60];
         }
-
-        // u+ only
-        bel_slot PS: PS;
-        bel_slot VCU: VCU;
-        tile_class PS {
-            cell CELL[180];
-        }
-        tile_class VCU {
-            cell CELL[60];
+        if variant ultrascaleplus {
+            tile_class GTF, GTM, HSDAC, HSADC, RFDAC, RFADC {
+                cell CELL[60];
+            }
         }
 
-        // u+ only
-        bel_slot BLI_HBM_APB_INTF: BLI_HBM_APB_INTF;
-        bel_slot BLI_HBM_AXI_INTF: BLI_HBM_AXI_INTF;
-        tile_class HBM_BLI {
-            cell CELL[15];
+        if variant ultrascaleplus {
+            bel_slot PS: PS;
+            tile_class PS {
+                cell CELL[180];
+            }
+            bel_slot VCU: VCU;
+            tile_class VCU {
+                cell CELL[60];
+            }
+        }
+
+        if variant ultrascaleplus {
+            bel_slot BLI_HBM_APB_INTF: BLI_HBM_APB_INTF;
+            bel_slot BLI_HBM_AXI_INTF: BLI_HBM_AXI_INTF;
+            tile_class HBM_BLI {
+                cell CELL[15];
+            }
         }
     }
 
@@ -6596,14 +6649,19 @@ target_defs! {
         bel_slot MMCM: MMCM;
         bel_slot ABUS_SWITCH_CMT: ABUS_SWITCH;
         bel_slot HBM_REF_CLK[2]: HBM_REF_CLK;
-        // CMT_HBM, CMTXP: u+ only
-        tile_class CMT, CMT_HBM, CMTXP {
+        tile_class CMT {
             cell CELL[60];
         }
+        if variant ultrascaleplus {
+            tile_class CMT_HBM, CMTXP {
+                cell CELL[60];
+            }
+        }
 
-        // u+ only
-        bel_slot ABUS_SWITCH_HBM[8]: ABUS_SWITCH;
-        tile_class HBM_ABUS_SWITCH {
+        if variant ultrascaleplus {
+            bel_slot ABUS_SWITCH_HBM[8]: ABUS_SWITCH;
+            tile_class HBM_ABUS_SWITCH {
+            }
         }
     }
 
@@ -6618,12 +6676,13 @@ target_defs! {
             cell CELL[30];
         }
 
-        // u only
-        bel_slot HRIOB[26]: HRIOB;
-        bel_slot HRIOB_DIFF_IN[12]: HRIOB_DIFF_IN;
-        bel_slot HRIOB_DIFF_OUT[12]: HRIOB_DIFF_OUT;
-        tile_class HRIO {
-            cell CELL[30];
+        if variant ultrascale {
+            bel_slot HRIOB[26]: HRIOB;
+            bel_slot HRIOB_DIFF_IN[12]: HRIOB_DIFF_IN;
+            bel_slot HRIOB_DIFF_OUT[12]: HRIOB_DIFF_OUT;
+            tile_class HRIO {
+                cell CELL[30];
+            }
         }
     }
 
@@ -6643,19 +6702,27 @@ target_defs! {
         bel_slot BUFCE_ROW_RCLK[4]: BUFCE_ROW;
         bel_slot GCLK_TEST_BUF_RCLK[4]: GCLK_TEST_BUF;
         bel_slot VBUS_SWITCH[3]: VBUS_SWITCH;
-        // LAG is u+ only
-        tile_class RCLK_V_SINGLE_CLE, RCLK_V_SINGLE_LAG {
+        tile_class RCLK_V_SINGLE_CLE {
             cell CELL;
         }
-        // BRAM is u only
-        tile_class RCLK_V_DOUBLE_BRAM, RCLK_V_DOUBLE_DSP {
+        if variant ultrascaleplus {
+            tile_class RCLK_V_SINGLE_LAG {
+                cell CELL;
+            }
+        }
+        if variant ultrascale {
+            tile_class RCLK_V_DOUBLE_BRAM {
+                cell CELL;
+            }
+        }
+        tile_class RCLK_V_DOUBLE_DSP {
             cell CELL;
         }
-        // u+ only
-        tile_class RCLK_V_QUAD_BRAM, RCLK_V_QUAD_URAM {
-            cell CELL;
+        if variant ultrascaleplus {
+            tile_class RCLK_V_QUAD_BRAM, RCLK_V_QUAD_URAM {
+                cell CELL;
+            }
         }
-
     }
 
     tile_slot RCLK_SPLITTER {
@@ -6676,22 +6743,25 @@ target_defs! {
             cell CELL;
         }
 
-        // u+ only
-        bel_slot BUFGCE_HDIO[4]: BUFGCE;
-        bel_slot ABUS_SWITCH_HDIO[12]: ABUS_SWITCH;
-        tile_class RCLK_HDIO, RCLK_HDIOS, RCLK_HDIOL, RCLK_HDIOL_CMT_W, RCLK_HDIOL_CMT_E {
-            cell CELL[60];
+        if variant ultrascaleplus {
+            bel_slot BUFGCE_HDIO[4]: BUFGCE;
+            bel_slot ABUS_SWITCH_HDIO[12]: ABUS_SWITCH;
+            tile_class RCLK_HDIO, RCLK_HDIOS, RCLK_HDIOL, RCLK_HDIOL_CMT_W, RCLK_HDIOL_CMT_E {
+                cell CELL[60];
+            }
         }
 
-        // u+ only
-        bel_slot BUFG_PS[24]: BUFG_PS;
-        tile_class RCLK_PS {
-            cell CELL;
+        if variant ultrascaleplus {
+            bel_slot BUFG_PS[24]: BUFG_PS;
+            tile_class RCLK_PS {
+                cell CELL;
+            }
         }
 
-        // u+ only
-        tile_class RCLK_XIPHY {
-            cell N, S;
+        if variant ultrascaleplus {
+            tile_class RCLK_XIPHY {
+                cell N, S;
+            }
         }
     }
 
@@ -6704,10 +6774,11 @@ target_defs! {
             cell CELL[60];
         }
 
-        // u only
-        bel_slot ABUS_SWITCH_HRIO[8]: ABUS_SWITCH;
-        tile_class RCLK_HRIO {
-            cell CELL[60];
+        if variant ultrascale {
+            bel_slot ABUS_SWITCH_HRIO[8]: ABUS_SWITCH;
+            tile_class RCLK_HRIO {
+                cell CELL[60];
+            }
         }
     }
 
@@ -6799,14 +6870,14 @@ target_defs! {
         connector_class PASS_LW {
             if variant ultrascale {
                 for i in 0..2 {
-                    pass "X4_E{i+1}" = "X4_E{i}";
+                    pass "LX4_E{i+1}" = "LX4_E{i}";
                 }
                 for i in 0..6 {
-                    pass "X12_E{i+1}" = "X12_E{i}";
+                    pass "LX12_E{i+1}" = "LX12_E{i}";
                 }
             } else {
                 for i in 0..6 {
-                    pass "X12_E{i+1}" = "X12_E{i}";
+                    pass "LX12_E{i+1}" = "LX12_E{i}";
                 }
             }
         }
@@ -6814,14 +6885,14 @@ target_defs! {
         connector_class TERM_LW {
             if variant ultrascale {
                 for i in 0..2 {
-                    reflect "X4_E{i+1}" = "X4_W{i}";
+                    reflect "LX4_E{i+1}" = "LX4_W{i}";
                 }
                 for i in 0..6 {
-                    reflect "X12_E{i+1}" = "X12_W{i}";
+                    reflect "LX12_E{i+1}" = "LX12_W{i}";
                 }
             } else {
                 for i in 0..6 {
-                    reflect "X12_E{i+1}" = "X12_W{i}";
+                    reflect "LX12_E{i+1}" = "LX12_W{i}";
                 }
             }
         }
@@ -6833,14 +6904,14 @@ target_defs! {
         connector_class PASS_LE {
             if variant ultrascale {
                 for i in 0..2 {
-                    pass "X4_W{i+1}" = "X4_W{i}";
+                    pass "LX4_W{i+1}" = "LX4_W{i}";
                 }
                 for i in 0..6 {
-                    pass "X12_W{i+1}" = "X12_W{i}";
+                    pass "LX12_W{i+1}" = "LX12_W{i}";
                 }
             } else {
                 for i in 0..6 {
-                    pass "X12_W{i+1}" = "X12_W{i}";
+                    pass "LX12_W{i+1}" = "LX12_W{i}";
                 }
             }
         }
@@ -6848,14 +6919,14 @@ target_defs! {
         connector_class TERM_LE {
             if variant ultrascale {
                 for i in 0..2 {
-                    reflect "X4_W{i+1}" = "X4_E{i}";
+                    reflect "LX4_W{i+1}" = "LX4_E{i}";
                 }
                 for i in 0..6 {
-                    reflect "X12_W{i+1}" = "X12_E{i}";
+                    reflect "LX12_W{i+1}" = "LX12_E{i}";
                 }
             } else {
                 for i in 0..6 {
-                    reflect "X12_W{i+1}" = "X12_E{i}";
+                    reflect "LX12_W{i+1}" = "LX12_E{i}";
                 }
             }
         }
@@ -6867,27 +6938,27 @@ target_defs! {
         connector_class PASS_S {
             if variant ultrascale {
                 for i in 0..4 {
-                    pass "X4_N{i+1}" = "X4_N{i}";
+                    pass "LX4_N{i+1}" = "LX4_N{i}";
                 }
                 for i in 0..5 {
-                    pass "X5_N{i+1}" = "X5_N{i}";
+                    pass "LX5_N{i+1}" = "LX5_N{i}";
                 }
-                pass X4_E2_N15 = X4_E2[15];
-                pass X5_N5_N7 = X5_N5[7];
+                pass LX4_E2_N15 = LX4_E2[15];
+                pass LX5_N5_N7 = LX5_N5[7];
 
                 for i in 0..12 {
-                    pass "X12_N{i+1}" = "X12_N{i}";
+                    pass "LX12_N{i+1}" = "LX12_N{i}";
                 }
                 for i in 0..16 {
-                    pass "X16_N{i+1}" = "X16_N{i}";
+                    pass "LX16_N{i+1}" = "LX16_N{i}";
                 }
-                pass X12_W6_N7 = X12_W6[7];
-                pass X16_N16_N3 = X16_N16[3];
+                pass LX12_W6_N7 = LX12_W6[7];
+                pass LX16_N16_N3 = LX16_N16[3];
             } else {
                 for i in 0..12 {
-                    pass "X12_N{i+1}" = "X12_N{i}";
+                    pass "LX12_N{i+1}" = "LX12_N{i}";
                 }
-                pass X12_E6_N7 = X12_E6[7];
+                pass LX12_E6_N7 = LX12_E6[7];
             }
 
             if variant ultrascale {
@@ -6926,26 +6997,26 @@ target_defs! {
         connector_class PASS_N {
             if variant ultrascale {
                 for i in 0..4 {
-                    pass "X4_S{i+1}" = "X4_S{i}";
+                    pass "LX4_S{i+1}" = "LX4_S{i}";
                 }
                 for i in 0..5 {
-                    pass "X5_S{i+1}" = "X5_S{i}";
+                    pass "LX5_S{i+1}" = "LX5_S{i}";
                 }
-                pass X4_E2_S0 = X4_E2[0];
+                pass LX4_E2_S0 = LX4_E2[0];
 
                 for i in 0..12 {
-                    pass "X12_S{i+1}" = "X12_S{i}";
+                    pass "LX12_S{i+1}" = "LX12_S{i}";
                 }
                 for i in 0..16 {
-                    pass "X16_S{i+1}" = "X16_S{i}";
+                    pass "LX16_S{i+1}" = "LX16_S{i}";
                 }
-                pass X12_E6_S0 = X12_E6[0];
-                pass X12_S12_S0 = X12_S12[0];
+                pass LX12_E6_S0 = LX12_E6[0];
+                pass LX12_S12_S0 = LX12_S12[0];
             } else {
                 for i in 0..12 {
-                    pass "X12_S{i+1}" = "X12_S{i}";
+                    pass "LX12_S{i+1}" = "LX12_S{i}";
                 }
-                pass X12_E6_S0 = X12_E6[0];
+                pass LX12_E6_S0 = LX12_E6[0];
             }
 
             if variant ultrascale {
@@ -7084,126 +7155,126 @@ pub mod wiredata {
 
         use crate::defs::ultrascale::wires;
 
-        pub const X4_W: [EntityStaticRange<WireSlotId, 16>; 3] =
-            [wires::X4_W0, wires::X4_W1, wires::X4_W2];
-        pub const X4_E: [EntityStaticRange<WireSlotId, 16>; 3] =
-            [wires::X4_E0, wires::X4_E1, wires::X4_E2];
-        pub const X4_S: [EntityStaticRange<WireSlotId, 8>; 5] = [
-            wires::X4_S0,
-            wires::X4_S1,
-            wires::X4_S2,
-            wires::X4_S3,
-            wires::X4_S4,
+        pub const LX4_W: [EntityStaticRange<WireSlotId, 16>; 3] =
+            [wires::LX4_W0, wires::LX4_W1, wires::LX4_W2];
+        pub const LX4_E: [EntityStaticRange<WireSlotId, 16>; 3] =
+            [wires::LX4_E0, wires::LX4_E1, wires::LX4_E2];
+        pub const LX4_S: [EntityStaticRange<WireSlotId, 8>; 5] = [
+            wires::LX4_S0,
+            wires::LX4_S1,
+            wires::LX4_S2,
+            wires::LX4_S3,
+            wires::LX4_S4,
         ];
-        pub const X5_S: [EntityStaticRange<WireSlotId, 8>; 6] = [
-            wires::X5_S0,
-            wires::X5_S1,
-            wires::X5_S2,
-            wires::X5_S3,
-            wires::X5_S4,
-            wires::X5_S5,
+        pub const LX5_S: [EntityStaticRange<WireSlotId, 8>; 6] = [
+            wires::LX5_S0,
+            wires::LX5_S1,
+            wires::LX5_S2,
+            wires::LX5_S3,
+            wires::LX5_S4,
+            wires::LX5_S5,
         ];
-        pub const X4_N: [EntityStaticRange<WireSlotId, 8>; 5] = [
-            wires::X4_N0,
-            wires::X4_N1,
-            wires::X4_N2,
-            wires::X4_N3,
-            wires::X4_N4,
+        pub const LX4_N: [EntityStaticRange<WireSlotId, 8>; 5] = [
+            wires::LX4_N0,
+            wires::LX4_N1,
+            wires::LX4_N2,
+            wires::LX4_N3,
+            wires::LX4_N4,
         ];
-        pub const X5_N: [EntityStaticRange<WireSlotId, 8>; 6] = [
-            wires::X5_N0,
-            wires::X5_N1,
-            wires::X5_N2,
-            wires::X5_N3,
-            wires::X5_N4,
-            wires::X5_N5,
+        pub const LX5_N: [EntityStaticRange<WireSlotId, 8>; 6] = [
+            wires::LX5_N0,
+            wires::LX5_N1,
+            wires::LX5_N2,
+            wires::LX5_N3,
+            wires::LX5_N4,
+            wires::LX5_N5,
         ];
 
-        pub const X12_W: [EntityStaticRange<WireSlotId, 8>; 7] = [
-            wires::X12_W0,
-            wires::X12_W1,
-            wires::X12_W2,
-            wires::X12_W3,
-            wires::X12_W4,
-            wires::X12_W5,
-            wires::X12_W6,
+        pub const LX12_W: [EntityStaticRange<WireSlotId, 8>; 7] = [
+            wires::LX12_W0,
+            wires::LX12_W1,
+            wires::LX12_W2,
+            wires::LX12_W3,
+            wires::LX12_W4,
+            wires::LX12_W5,
+            wires::LX12_W6,
         ];
-        pub const X12_E: [EntityStaticRange<WireSlotId, 8>; 7] = [
-            wires::X12_E0,
-            wires::X12_E1,
-            wires::X12_E2,
-            wires::X12_E3,
-            wires::X12_E4,
-            wires::X12_E5,
-            wires::X12_E6,
+        pub const LX12_E: [EntityStaticRange<WireSlotId, 8>; 7] = [
+            wires::LX12_E0,
+            wires::LX12_E1,
+            wires::LX12_E2,
+            wires::LX12_E3,
+            wires::LX12_E4,
+            wires::LX12_E5,
+            wires::LX12_E6,
         ];
-        pub const X12_S: [EntityStaticRange<WireSlotId, 4>; 13] = [
-            wires::X12_S0,
-            wires::X12_S1,
-            wires::X12_S2,
-            wires::X12_S3,
-            wires::X12_S4,
-            wires::X12_S5,
-            wires::X12_S6,
-            wires::X12_S7,
-            wires::X12_S8,
-            wires::X12_S9,
-            wires::X12_S10,
-            wires::X12_S11,
-            wires::X12_S12,
+        pub const LX12_S: [EntityStaticRange<WireSlotId, 4>; 13] = [
+            wires::LX12_S0,
+            wires::LX12_S1,
+            wires::LX12_S2,
+            wires::LX12_S3,
+            wires::LX12_S4,
+            wires::LX12_S5,
+            wires::LX12_S6,
+            wires::LX12_S7,
+            wires::LX12_S8,
+            wires::LX12_S9,
+            wires::LX12_S10,
+            wires::LX12_S11,
+            wires::LX12_S12,
         ];
-        pub const X16_S: [EntityStaticRange<WireSlotId, 4>; 17] = [
-            wires::X16_S0,
-            wires::X16_S1,
-            wires::X16_S2,
-            wires::X16_S3,
-            wires::X16_S4,
-            wires::X16_S5,
-            wires::X16_S6,
-            wires::X16_S7,
-            wires::X16_S8,
-            wires::X16_S9,
-            wires::X16_S10,
-            wires::X16_S11,
-            wires::X16_S12,
-            wires::X16_S13,
-            wires::X16_S14,
-            wires::X16_S15,
-            wires::X16_S16,
+        pub const LX16_S: [EntityStaticRange<WireSlotId, 4>; 17] = [
+            wires::LX16_S0,
+            wires::LX16_S1,
+            wires::LX16_S2,
+            wires::LX16_S3,
+            wires::LX16_S4,
+            wires::LX16_S5,
+            wires::LX16_S6,
+            wires::LX16_S7,
+            wires::LX16_S8,
+            wires::LX16_S9,
+            wires::LX16_S10,
+            wires::LX16_S11,
+            wires::LX16_S12,
+            wires::LX16_S13,
+            wires::LX16_S14,
+            wires::LX16_S15,
+            wires::LX16_S16,
         ];
-        pub const X12_N: [EntityStaticRange<WireSlotId, 4>; 13] = [
-            wires::X12_N0,
-            wires::X12_N1,
-            wires::X12_N2,
-            wires::X12_N3,
-            wires::X12_N4,
-            wires::X12_N5,
-            wires::X12_N6,
-            wires::X12_N7,
-            wires::X12_N8,
-            wires::X12_N9,
-            wires::X12_N10,
-            wires::X12_N11,
-            wires::X12_N12,
+        pub const LX12_N: [EntityStaticRange<WireSlotId, 4>; 13] = [
+            wires::LX12_N0,
+            wires::LX12_N1,
+            wires::LX12_N2,
+            wires::LX12_N3,
+            wires::LX12_N4,
+            wires::LX12_N5,
+            wires::LX12_N6,
+            wires::LX12_N7,
+            wires::LX12_N8,
+            wires::LX12_N9,
+            wires::LX12_N10,
+            wires::LX12_N11,
+            wires::LX12_N12,
         ];
-        pub const X16_N: [EntityStaticRange<WireSlotId, 4>; 17] = [
-            wires::X16_N0,
-            wires::X16_N1,
-            wires::X16_N2,
-            wires::X16_N3,
-            wires::X16_N4,
-            wires::X16_N5,
-            wires::X16_N6,
-            wires::X16_N7,
-            wires::X16_N8,
-            wires::X16_N9,
-            wires::X16_N10,
-            wires::X16_N11,
-            wires::X16_N12,
-            wires::X16_N13,
-            wires::X16_N14,
-            wires::X16_N15,
-            wires::X16_N16,
+        pub const LX16_N: [EntityStaticRange<WireSlotId, 4>; 17] = [
+            wires::LX16_N0,
+            wires::LX16_N1,
+            wires::LX16_N2,
+            wires::LX16_N3,
+            wires::LX16_N4,
+            wires::LX16_N5,
+            wires::LX16_N6,
+            wires::LX16_N7,
+            wires::LX16_N8,
+            wires::LX16_N9,
+            wires::LX16_N10,
+            wires::LX16_N11,
+            wires::LX16_N12,
+            wires::LX16_N13,
+            wires::LX16_N14,
+            wires::LX16_N15,
+            wires::LX16_N16,
         ];
     }
     pub mod ultrascaleplus {
@@ -7212,53 +7283,53 @@ pub mod wiredata {
 
         use crate::defs::ultrascaleplus::wires;
 
-        pub const X12_W: [EntityStaticRange<WireSlotId, 8>; 7] = [
-            wires::X12_W0,
-            wires::X12_W1,
-            wires::X12_W2,
-            wires::X12_W3,
-            wires::X12_W4,
-            wires::X12_W5,
-            wires::X12_W6,
+        pub const LX12_W: [EntityStaticRange<WireSlotId, 8>; 7] = [
+            wires::LX12_W0,
+            wires::LX12_W1,
+            wires::LX12_W2,
+            wires::LX12_W3,
+            wires::LX12_W4,
+            wires::LX12_W5,
+            wires::LX12_W6,
         ];
-        pub const X12_E: [EntityStaticRange<WireSlotId, 8>; 7] = [
-            wires::X12_E0,
-            wires::X12_E1,
-            wires::X12_E2,
-            wires::X12_E3,
-            wires::X12_E4,
-            wires::X12_E5,
-            wires::X12_E6,
+        pub const LX12_E: [EntityStaticRange<WireSlotId, 8>; 7] = [
+            wires::LX12_E0,
+            wires::LX12_E1,
+            wires::LX12_E2,
+            wires::LX12_E3,
+            wires::LX12_E4,
+            wires::LX12_E5,
+            wires::LX12_E6,
         ];
-        pub const X12_S: [EntityStaticRange<WireSlotId, 8>; 13] = [
-            wires::X12_S0,
-            wires::X12_S1,
-            wires::X12_S2,
-            wires::X12_S3,
-            wires::X12_S4,
-            wires::X12_S5,
-            wires::X12_S6,
-            wires::X12_S7,
-            wires::X12_S8,
-            wires::X12_S9,
-            wires::X12_S10,
-            wires::X12_S11,
-            wires::X12_S12,
+        pub const LX12_S: [EntityStaticRange<WireSlotId, 8>; 13] = [
+            wires::LX12_S0,
+            wires::LX12_S1,
+            wires::LX12_S2,
+            wires::LX12_S3,
+            wires::LX12_S4,
+            wires::LX12_S5,
+            wires::LX12_S6,
+            wires::LX12_S7,
+            wires::LX12_S8,
+            wires::LX12_S9,
+            wires::LX12_S10,
+            wires::LX12_S11,
+            wires::LX12_S12,
         ];
-        pub const X12_N: [EntityStaticRange<WireSlotId, 8>; 13] = [
-            wires::X12_N0,
-            wires::X12_N1,
-            wires::X12_N2,
-            wires::X12_N3,
-            wires::X12_N4,
-            wires::X12_N5,
-            wires::X12_N6,
-            wires::X12_N7,
-            wires::X12_N8,
-            wires::X12_N9,
-            wires::X12_N10,
-            wires::X12_N11,
-            wires::X12_N12,
+        pub const LX12_N: [EntityStaticRange<WireSlotId, 8>; 13] = [
+            wires::LX12_N0,
+            wires::LX12_N1,
+            wires::LX12_N2,
+            wires::LX12_N3,
+            wires::LX12_N4,
+            wires::LX12_N5,
+            wires::LX12_N6,
+            wires::LX12_N7,
+            wires::LX12_N8,
+            wires::LX12_N9,
+            wires::LX12_N10,
+            wires::LX12_N11,
+            wires::LX12_N12,
         ];
 
         pub const X1_W: [EntityStaticRange<WireSlotId, 8>; 2] = [wires::X1_W0, wires::X1_W1];

@@ -5,9 +5,9 @@ use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet, btree_map};
 use prjcombine_entity::{EntityBundleIndices, EntityId, EntityPartVec, EntityVec};
 use prjcombine_interconnect::{
     db::{
-        Bel, BelInfo, BelInput, BelKind, BelPin, BelSlotId, BiPass, CellSlotId, ConnectorClass,
-        ConnectorClassId, ConnectorSlotId, ConnectorWire, IntDb, LegacyBel, Mux, Pass, PermaBuf,
-        PinDir, PolTileWireCoord, ProgBuf, ProgDelay, ProgInv, SwitchBox, SwitchBoxItem, TestMux,
+        Bel, BelInfo, BelInput, BelKind, BelPin, BelSlotId, BiPass, CellSlotId, ConnectorClassId,
+        ConnectorSlotId, ConnectorWire, IntDb, LegacyBel, Mux, Pass, PermaBuf, PinDir,
+        PolTileWireCoord, ProgBuf, ProgDelay, ProgInv, SwitchBox, SwitchBoxItem, TestMux,
         TestMuxWire, TileClassId, TileWireCoord, WireKind, WireSlotId, WireSlotIdExt,
     },
     dir::{Dir, DirMap},
@@ -555,7 +555,7 @@ impl<'rd> XTileInfo<'rd, '_> {
                 for (&k, wn) in &naming.wires {
                     if round == 0
                         && matches!(
-                            self.builder.db[k.wire],
+                            self.builder.db[k.wire].kind,
                             WireKind::Branch(_) | WireKind::MultiBranch(_)
                         )
                     {
@@ -619,7 +619,7 @@ impl<'rd> XTileInfo<'rd, '_> {
                     {
                         if round == 0
                             && matches!(
-                                self.builder.db[w.wire],
+                                self.builder.db[w.wire].kind,
                                 WireKind::Branch(_) | WireKind::MultiBranch(_)
                             )
                         {
@@ -761,8 +761,8 @@ impl<'rd> XTileInfo<'rd, '_> {
         result
     }
 
-    pub fn name(&self) -> &str {
-        self.builder.db.tile_classes.key(self.tcid)
+    fn name(&self) -> &str {
+        &self.builder.db.tile_classes[self.tcid].name
     }
 }
 
@@ -1312,7 +1312,7 @@ impl XTileExtractor<'_, '_, '_> {
                 }
                 if let Some(wt) = self.get_wire_by_name(i, wti) {
                     let mut pass = rt.extract_muxes
-                        && !matches!(self.db[wt.wire], WireKind::BelOut)
+                        && !matches!(self.db[wt.wire].kind, WireKind::BelOut)
                         && !self.xtile.skip_muxes.contains(&wt.wire);
                     if self.xtile.optin_muxes.contains(&wt.wire) {
                         pass = true;
@@ -1397,7 +1397,7 @@ impl XTileExtractor<'_, '_, '_> {
                     && let Some(wt) = self.get_alt_by_name(i, wti)
                 {
                     let mut pass = rt.extract_muxes
-                        && !matches!(self.db[wt.wire], WireKind::BelOut)
+                        && !matches!(self.db[wt.wire].kind, WireKind::BelOut)
                         && !self.xtile.skip_muxes.contains(&wt.wire);
                     if self.xtile.optin_muxes.contains(&wt.wire) {
                         pass = true;
@@ -1461,7 +1461,7 @@ impl XTileExtractor<'_, '_, '_> {
                 }
                 let nwt = self.rd.lookup_wire_raw_force(crd, wti);
                 if let Some(&(_, wf)) = self.names.get(&nwf) {
-                    if !matches!(self.db[wf.wire], WireKind::MuxOut) {
+                    if !matches!(self.db[wf.wire].kind, WireKind::MuxOut) {
                         continue;
                     }
                     let Some(&wtw) = self.xtile.builder.delay_wires.get(&wf.wire) else {
@@ -1510,7 +1510,7 @@ impl XTileExtractor<'_, '_, '_> {
         for &(wfi, wti) in tk.pips.keys() {
             let nwt = self.rd.lookup_wire_raw_force(crd, wti);
             if let Some(&(_, wt)) = self.names.get(&nwt) {
-                if !matches!(self.db[wt.wire], WireKind::BelOut) {
+                if !matches!(self.db[wt.wire].kind, WireKind::BelOut) {
                     continue;
                 }
                 self.tcls_naming
@@ -1557,7 +1557,7 @@ impl XTileExtractor<'_, '_, '_> {
                             alt_pips_from: Default::default(),
                         },
                     );
-                    if self.db[wf.wire] == WireKind::BelOut
+                    if self.db[wf.wire].kind == WireKind::BelOut
                         || self.xtile.builder.test_mux_pass.contains(&wf.wire)
                     {
                         assert!(out_muxes.entry(wt).or_default().1.replace(wf).is_none());
@@ -1698,10 +1698,10 @@ pub struct IntBuilder<'rd> {
 impl<'rd> IntBuilder<'rd> {
     pub fn new(rd: &'rd Part, db: IntDb) -> Self {
         let term_slots = DirMap::from_fn(|dir| match dir {
-            Dir::W => db.get_conn_slot("W"),
-            Dir::E => db.get_conn_slot("E"),
-            Dir::S => db.get_conn_slot("S"),
-            Dir::N => db.get_conn_slot("N"),
+            Dir::W => db.conn_slots.get("W").unwrap().0,
+            Dir::E => db.conn_slots.get("E").unwrap().0,
+            Dir::S => db.conn_slots.get("S").unwrap().0,
+            Dir::N => db.conn_slots.get("N").unwrap().0,
         });
 
         let ndb = NamingDb::default();
@@ -2581,7 +2581,7 @@ impl<'rd> IntBuilder<'rd> {
 
             for &(wfi, wti) in tk.pips.keys() {
                 if let Some(&(_, wt)) = names.get(&wti) {
-                    match self.db[wt.wire] {
+                    match self.db[wt.wire].kind {
                         WireKind::MultiBranch(_) | WireKind::MultiRoot | WireKind::MuxOut => (),
                         WireKind::Branch(_) => {
                             if !self.allow_mux_to_branch {
@@ -3018,12 +3018,15 @@ impl<'rd> IntBuilder<'rd> {
         }
     }
 
-    pub fn insert_connector(&mut self, ccid: ConnectorClassId, ccls: ConnectorClass) {
+    pub fn insert_connector(
+        &mut self,
+        ccid: ConnectorClassId,
+        wires: EntityPartVec<WireSlotId, ConnectorWire>,
+    ) {
         let cur_ccls = &mut self.db.conn_classes[ccid];
-        assert_eq!(ccls.slot, cur_ccls.slot);
         for k in self.db.wires.ids() {
             let a = cur_ccls.wires.get_mut(k);
-            let b = ccls.wires.get(k);
+            let b = wires.get(k);
             match (a, b) {
                 (_, None) => (),
                 (None, Some(b)) => {
@@ -3068,8 +3071,10 @@ impl<'rd> IntBuilder<'rd> {
                     if wf.len() > 1 {
                         println!(
                             "WHOOPS MULTI {} {:?}",
-                            self.db.wires.key(wt),
-                            wf.iter().map(|&x| self.db.wires.key(x)).collect::<Vec<_>>()
+                            self.db.wires[wt].name,
+                            wf.iter()
+                                .map(|&x| self.db.wires[x].name.clone())
+                                .collect::<Vec<_>>()
                         );
                     }
                 }
@@ -3098,7 +3103,7 @@ impl<'rd> IntBuilder<'rd> {
         for &(wfi, wti) in tk.pips.keys() {
             if let Some(wtl) = names.get(&wti) {
                 for &wt in wtl {
-                    match self.db[wt] {
+                    match self.db[wt].kind {
                         WireKind::Branch(slot) => {
                             if slot != self.term_slots[dir] {
                                 continue;
@@ -3206,11 +3211,7 @@ impl<'rd> IntBuilder<'rd> {
         } else {
             assert!(node_pips.pips.is_empty());
         }
-        let term = ConnectorClass {
-            slot: self.term_slots[dir],
-            wires,
-        };
-        self.insert_connector(ccid, term);
+        self.insert_connector(ccid, wires);
     }
 
     pub fn extract_term_buf_tile_id(
@@ -3234,7 +3235,7 @@ impl<'rd> IntBuilder<'rd> {
         for &(wfi, wti) in tk.pips.keys() {
             if let Some(wtl) = names.get(&wti) {
                 for &wt in wtl {
-                    match self.db[wt] {
+                    match self.db[wt].kind {
                         WireKind::Branch(slot) => {
                             if slot != self.term_slots[dir] {
                                 continue;
@@ -3290,11 +3291,7 @@ impl<'rd> IntBuilder<'rd> {
                 }
             }
         }
-        let term = ConnectorClass {
-            slot: self.term_slots[dir],
-            wires,
-        };
-        self.insert_connector(ccid, term);
+        self.insert_connector(ccid, wires);
     }
 
     pub fn extract_term_conn_tile_id(
@@ -3306,11 +3303,7 @@ impl<'rd> IntBuilder<'rd> {
     ) {
         let forced: HashMap<_, _> = forced.iter().copied().collect();
         let wires = self.extract_term_tile_conn(dir, int_xy, &forced);
-        let term = ConnectorClass {
-            slot: self.term_slots[dir],
-            wires,
-        };
-        self.insert_connector(ccls, term);
+        self.insert_connector(ccls, wires);
     }
 
     pub fn walk_to_int(&self, mut xy: Coord, mut dir: Dir, mut step: bool) -> Option<Coord> {
@@ -3530,7 +3523,7 @@ impl<'rd> IntBuilder<'rd> {
             for &(wfi, wti) in tk.pips.keys() {
                 if let Some(wtl) = names.get(&wti) {
                     for &wt in wtl {
-                        match self.db[wt] {
+                        match self.db[wt].kind {
                             WireKind::Branch(slot) => {
                                 if slot != self.term_slots[dir] {
                                     continue;
@@ -3754,7 +3747,7 @@ impl<'rd> IntBuilder<'rd> {
                 }
                 if let Some(wtl) = names.get(&wti) {
                     for &wt in wtl {
-                        if self.db[wt] != WireKind::MultiBranch(self.term_slots[dir]) {
+                        if self.db[wt].kind != WireKind::MultiBranch(self.term_slots[dir]) {
                             continue;
                         }
                         let wf = self.main_passes[dir][wt];
@@ -3821,11 +3814,7 @@ impl<'rd> IntBuilder<'rd> {
             }
         }
 
-        let term = ConnectorClass {
-            slot: self.term_slots[dir],
-            wires,
-        };
-        self.insert_connector(ccid, term);
+        self.insert_connector(ccid, wires);
     }
 
     pub fn extract_pass_simple_id(

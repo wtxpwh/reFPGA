@@ -53,9 +53,9 @@ impl NamingDb {
                     o,
                     "\t\tPIP {wtt}.{wtn:20} <- {wft}.{wfn:20}: ",
                     wtt = wt.cell,
-                    wtn = intdb.wires.key(wt.wire),
+                    wtn = intdb.wires[wt.wire].name,
                     wft = wf.cell,
-                    wfn = intdb.wires.key(wf.wire),
+                    wfn = intdb.wires[wf.wire].name,
                 )?;
                 match v {
                     IntPipNaming::Pip(p) => {
@@ -77,7 +77,7 @@ impl NamingDb {
                 writeln!(
                     o,
                     "\t\tPIP BEL {slot:20}  {key:20}  : {rt}.{x}.{y}",
-                    slot = intdb.bel_slots.key(slot),
+                    slot = intdb.bel_slots[slot].name,
                     rt = v.rt,
                     x = v.x,
                     y = v.y

@@ -1,20 +1,25 @@
 use std::collections::{BTreeSet, HashMap};
 use std::fmt::Write;
+use std::marker::PhantomData;
 
 use prjcombine_entity::{
-    EntityBundleIndices, EntityBundleMap, EntityId, EntityPartVec, EntitySet, EntityVec,
+    EntityBundleIndices, EntityBundleMap, EntityId, EntityKey, EntityMap, EntityPartMap,
+    EntityPartVec, EntityRange, EntitySet, EntityVec, entity_id_u32,
 };
 use prjcombine_interconnect::db::{
     Bel, BelAttribute, BelAttributeEnum, BelAttributeType, BelClass, BelClassAttribute,
     BelClassBidir, BelClassId, BelClassInput, BelClassOutput, BelClassPad, BelInfo, BelInput,
     BelKind, BelPinIndexing, BelSlot, BelSlotId, Bidi, BitRectInfo, CellSlotId, ConnectorClass,
-    ConnectorClassId, ConnectorSlot, ConnectorSlotId, ConnectorWire, EnumClass, IntDb, Mux,
-    PermaBuf, PolTileWireCoord, ProgBuf, ProgInv, SwitchBox, SwitchBoxItem, Table, TableId,
-    TileClass, TileClassId, TileSlotId, TileWireCoord, WireKind,
+    ConnectorClassId, ConnectorSlot, ConnectorSlotId, ConnectorWire, DeviceDataSlot, EnumClass,
+    IntDb, Mux, PermaBuf, PolTileWireCoord, ProgBuf, ProgInv, RegionSlotId, SwitchBox,
+    SwitchBoxItem, Table, TableId, TileClass, TileClassId, TileSlotId, TileWireCoord, WireKind,
+    WireSlot, WireSlotId,
 };
-use prjcombine_types::bsdata::{BitRectGeometry, PolTileBit, RectBitId, RectFrameId, TileBit};
+use prjcombine_types::bsdata::{PolTileBit, RectBitId, RectFrameId, TileBit};
 use proc_macro::{Delimiter, Ident, Span, TokenStream, TokenTree};
 
+use crate::ast::{ArrayIdRef, TemplateId};
+use crate::db::{AnnotatedDbSet, BundleIdentData, BundleIdentRegistry, IdentRegistry, VariantId};
 use crate::{
     ast,
     db::AnnotatedDb,
@@ -23,10 +28,102 @@ use crate::{
 
 type Result<T> = core::result::Result<T, TokenStream>;
 
+entity_id_u32!(PreId, PreTag tag, "PRE");
+
+struct BundleIdentPreRegistry<I: EntityId> {
+    ids: EntityMap<PreId, String, BundleIdentData>,
+    num_variants: usize,
+    i: PhantomData<I>,
+}
+
+impl<I: EntityId> BundleIdentPreRegistry<I> {
+    fn new(num_variants: usize) -> Self {
+        Self {
+            ids: Default::default(),
+            num_variants,
+            i: PhantomData,
+        }
+    }
+
+    fn insert(
+        &mut self,
+        vid: VariantId,
+        ident: &Ident,
+        array_size: Option<usize>,
+    ) -> core::result::Result<(), &'static str> {
+        let name = ident.to_string();
+        if let Some((_, pre)) = self.ids.get_mut(&name) {
+            match (&mut pre.array_size, array_size) {
+                (None, Some(_)) => return Err("non-array redefined as an array"),
+                (Some(_), None) => return Err("array redefined as a non-array"),
+                (None, None) => (),
+                (Some(cur), Some(new)) => {
+                    *cur = Ord::max(*cur, new);
+                }
+            }
+            if pre.variants.contains_id(vid) {
+                return Err("item redefined");
+            }
+            pre.variants.insert(vid, array_size);
+        } else {
+            self.ids.insert(
+                name.clone(),
+                BundleIdentData {
+                    array_size,
+                    idents: vec![ident.clone()],
+                    variants: EntityPartVec::from_iter([(vid, array_size)]),
+                },
+            );
+        }
+        Ok(())
+    }
+
+    fn finish<V: EntityKey>(
+        &self,
+        f: impl Fn(String) -> V,
+    ) -> (
+        BundleIdentRegistry<I>,
+        EntityVec<VariantId, EntityPartMap<I, V>>,
+    ) {
+        let mut reg = BundleIdentRegistry {
+            ids: Default::default(),
+        };
+        let mut vars: EntityVec<_, _> = (0..self.num_variants)
+            .map(|_| EntityPartMap::new())
+            .collect();
+        for (_, name, pre) in &self.ids {
+            match pre.array_size {
+                None => {
+                    let id = reg.ids.insert(name.clone(), pre.clone()).unwrap();
+                    for vid in pre.variants.ids() {
+                        vars[vid].insert(id, f(name.clone())).unwrap();
+                    }
+                }
+                Some(n) => {
+                    let ids = reg.ids.insert_array(name.clone(), n, pre.clone()).unwrap();
+                    for (vid, &asize) in &pre.variants {
+                        let asize = asize.unwrap();
+                        assert!(asize <= n);
+                        for i in 0..asize {
+                            vars[vid]
+                                .insert(ids.index(i), f(format!("{name}[{i}]")))
+                                .unwrap();
+                        }
+                    }
+                }
+            }
+        }
+        (reg, vars)
+    }
+}
+
 struct Context {
-    db: AnnotatedDb,
+    dbs: AnnotatedDbSet,
+    bslot_pre: BundleIdentPreRegistry<BelSlotId>,
+    rslot_pre: BundleIdentPreRegistry<RegionSlotId>,
+    wire_pre: BundleIdentPreRegistry<WireSlotId>,
     for_vars: HashMap<String, usize>,
-    bitrect_geoms: HashMap<String, BitRectGeometry>,
+    if_mask: EntityVec<VariantId, bool>,
 }
 
 #[derive(Copy, Clone)]
@@ -44,6 +141,14 @@ enum WildCard {
 }
 
 impl Context {
+    fn active_variants(&self) -> Vec<VariantId> {
+        self.if_mask
+            .iter()
+            .filter(|&(_, &c)| c)
+            .map(|(id, _)| id)
+            .collect()
+    }
+
     fn eval_templ_subexpr(&self, span: Span, expr: TokenStream) -> Result<usize> {
         #[derive(Copy, Clone, Eq, PartialEq)]
         enum SumOp {
@@ -198,55 +303,226 @@ impl Context {
         }
     }
 
-    fn eval_array_ref_wide<I: EntityId>(
-        &self,
+    fn eval_ref<I: EntityId, V: EntityKey>(
+        &mut self,
+        vid: VariantId,
+        ident: &Ident,
+        reg: impl Fn(&mut AnnotatedDbSet) -> &mut IdentRegistry<I>,
+        map: impl Fn(&AnnotatedDb) -> &EntityPartMap<I, V>,
+        kind: &str,
+    ) -> Result<I> {
+        let Some(id) = reg(&mut self.dbs).get_ref(ident) else {
+            error_at(ident.span(), &format!("undefined {kind}: {ident}"))?
+        };
+        if !map(&self.dbs.variants[vid]).contains_id(id) {
+            let var = self.dbs.variants[vid].name.as_ref().unwrap();
+            error_at(
+                ident.span(),
+                &format!("undefined {kind} for variant {var}: {ident}"),
+            )?
+        }
+        Ok(id)
+    }
+
+    fn eval_templ_ref<I: EntityId, V: EntityKey>(
+        &mut self,
+        vid: VariantId,
+        ident: &TemplateId,
+        reg: impl Fn(&mut AnnotatedDbSet) -> &mut IdentRegistry<I>,
+        map: impl Fn(&AnnotatedDb) -> &EntityPartMap<I, V>,
+        kind: &str,
+    ) -> Result<I> {
+        let ident = self.eval_templ_id(ident)?;
+        self.eval_ref(vid, &ident, reg, map, kind)
+    }
+
+    fn eval_array_ref_wide<I: EntityId, V: EntityKey>(
+        &mut self,
+        vid: VariantId,
         id: &ast::ArrayIdRef,
-        map: &EntityBundleMap<I, Ident>,
+        reg: impl Fn(&mut AnnotatedDbSet) -> &mut BundleIdentRegistry<I>,
+        map: impl Fn(&AnnotatedDb) -> &EntityPartMap<I, V>,
+        kind: &'static str,
     ) -> Result<EntityBundleIndices<I>> {
         match id {
             ast::ArrayIdRef::Plain(id) => {
-                let id = self.eval_templ_id(id)?;
-                let Some((item, _)) = map.get(&id.to_string()) else {
-                    error_at(id.span(), "undefined object")?
+                let ident = self.eval_templ_id(id)?;
+                let Some(item) = reg(&mut self.dbs).get_ref(&ident) else {
+                    error_at(ident.span(), &format!("undefined {kind}: {ident}"))?
                 };
-                Ok(item)
+                match item {
+                    EntityBundleIndices::Single(id) => {
+                        if !map(&self.dbs.variants[vid]).contains_id(id) {
+                            let var = self.dbs.variants[vid].name.as_ref().unwrap();
+                            error_at(
+                                ident.span(),
+                                &format!("{kind} {ident} not present for variant {var}"),
+                            )?
+                        }
+                        Ok(item)
+                    }
+                    EntityBundleIndices::Array(range) => {
+                        for id in range {
+                            if !map(&self.dbs.variants[vid]).contains_id(id) {
+                                return Ok(EntityBundleIndices::Array(EntityRange::new(
+                                    range.start().to_idx(),
+                                    id.to_idx(),
+                                )));
+                            }
+                        }
+                        Ok(item)
+                    }
+                }
             }
             ast::ArrayIdRef::Indexed(id, index) => {
-                let id = self.eval_templ_id(id)?;
+                let ident = self.eval_templ_id(id)?;
                 let index = self.eval_expr(index)?;
-                let Some((item, _)) = map.get(&id.to_string()) else {
-                    error_at(id.span(), "undefined object")?
+                let Some(item) = reg(&mut self.dbs).get_ref(&ident) else {
+                    error_at(ident.span(), &format!("undefined {kind}: {ident}"))?
                 };
                 match item {
                     EntityBundleIndices::Single(_) => {
-                        error_at(id.span(), "object is not an array")?
+                        error_at(ident.span(), "object is not an array")?
                     }
                     EntityBundleIndices::Array(range) => {
-                        if index > range.len() {
-                            error_at(id.span(), "index out of bounds")?
+                        if index >= range.len() {
+                            error_at(ident.span(), "index out of bounds")?
                         }
-                        Ok(EntityBundleIndices::Single(range.index(index)))
+                        let id = range.index(index);
+                        if !map(&self.dbs.variants[vid]).contains_id(id) {
+                            let var = self.dbs.variants[vid].name.as_ref().unwrap();
+                            error_at(
+                                ident.span(),
+                                &format!("{kind} {ident}[{index}] not present for variant {var}"),
+                            )?
+                        }
+                        Ok(EntityBundleIndices::Single(id))
                     }
                 }
             }
         }
     }
 
-    fn eval_array_ref<I: EntityId>(
-        &self,
+    fn eval_array_ref<I: EntityId, V: EntityKey>(
+        &mut self,
+        vid: VariantId,
         id: &ast::ArrayIdRef,
-        map: &EntityBundleMap<I, Ident>,
+        reg: impl Fn(&mut AnnotatedDbSet) -> &mut BundleIdentRegistry<I>,
+        map: impl Fn(&AnnotatedDb) -> &EntityPartMap<I, V>,
+        kind: &'static str,
     ) -> Result<I> {
-        match self.eval_array_ref_wide(id, map)? {
+        match self.eval_array_ref_wide(vid, id, reg, map, kind)? {
             EntityBundleIndices::Single(id) => Ok(id),
             EntityBundleIndices::Array(_) => error_at(id.span(), "object is an array")?,
         }
     }
 
-    fn eval_wire_ref(&self, tcls: TileClassId, wref: &ast::WireRef) -> Result<TileWireCoord> {
+    fn eval_cell_ref(
+        &self,
+        vid: VariantId,
+        tcls: TileClassId,
+        id: &ast::ArrayIdRef,
+    ) -> Result<CellSlotId> {
+        match id {
+            ast::ArrayIdRef::Plain(id) => {
+                let ident = self.eval_templ_id(id)?;
+                let Some((item, _)) =
+                    self.dbs.variants[vid].tcls_cell_id[tcls].get(&ident.to_string())
+                else {
+                    error_at(ident.span(), &format!("undefined cell: {ident}"))?
+                };
+                match item {
+                    EntityBundleIndices::Single(id) => Ok(id),
+                    EntityBundleIndices::Array(_) => error_at(id.span(), "object is an array")?,
+                }
+            }
+            ast::ArrayIdRef::Indexed(id, index) => {
+                let ident = self.eval_templ_id(id)?;
+                let index = self.eval_expr(index)?;
+                let Some((item, _)) =
+                    self.dbs.variants[vid].tcls_cell_id[tcls].get(&ident.to_string())
+                else {
+                    error_at(ident.span(), &format!("undefined cell: {ident}"))?
+                };
+                match item {
+                    EntityBundleIndices::Single(_) => {
+                        error_at(ident.span(), "object is not an array")?
+                    }
+                    EntityBundleIndices::Array(range) => {
+                        if index > range.len() {
+                            error_at(ident.span(), "index out of bounds")?
+                        }
+                        let id = range.index(index);
+                        Ok(id)
+                    }
+                }
+            }
+        }
+    }
+
+    fn eval_conn_slot_ref(&mut self, vid: VariantId, ident: &Ident) -> Result<ConnectorSlotId> {
+        self.eval_ref(
+            vid,
+            ident,
+            |dbs| &mut dbs.cslot_id,
+            |db| &db.db.conn_slots,
+            "connector slot",
+        )
+    }
+
+    fn eval_bel_slot_ref(&mut self, vid: VariantId, ident: &ArrayIdRef) -> Result<BelSlotId> {
+        self.eval_array_ref(
+            vid,
+            ident,
+            |dbs| &mut dbs.bslot_id,
+            |db| &db.db.bel_slots,
+            "bel slot",
+        )
+    }
+
+    fn eval_region_slot_ref(&mut self, vid: VariantId, ident: &ArrayIdRef) -> Result<RegionSlotId> {
+        self.eval_array_ref(
+            vid,
+            ident,
+            |dbs| &mut dbs.rslot_id,
+            |db| &db.db.region_slots,
+            "region slot",
+        )
+    }
+
+    fn eval_wire_ref_wide(
+        &mut self,
+        vid: VariantId,
+        ident: &ArrayIdRef,
+    ) -> Result<EntityBundleIndices<WireSlotId>> {
+        self.eval_array_ref_wide(
+            vid,
+            ident,
+            |dbs| &mut dbs.wire_id,
+            |db| &db.db.wires,
+            "wire",
+        )
+    }
+
+    fn eval_wire_ref(&mut self, vid: VariantId, ident: &ArrayIdRef) -> Result<WireSlotId> {
+        self.eval_array_ref(
+            vid,
+            ident,
+            |dbs| &mut dbs.wire_id,
+            |db| &db.db.wires,
+            "wire",
+        )
+    }
+
+    fn eval_tile_wire_ref(
+        &mut self,
+        vid: VariantId,
+        tcls: TileClassId,
+        wref: &ast::WireRef,
+    ) -> Result<TileWireCoord> {
         Ok(match wref {
             ast::WireRef::Simple(wref) => {
-                if self.db.db.tile_classes[tcls].cells.len() != 1 {
+                if self.dbs.variants[vid].db.tile_classes[tcls].cells.len() != 1 {
                     error_at(
                         wref.span(),
                         "non-qualified wire references are only valid in single-cell tiles",
@@ -254,34 +530,41 @@ impl Context {
                 }
                 TileWireCoord {
                     cell: CellSlotId::from_idx(0),
-                    wire: self.eval_array_ref(wref, &self.db.wire_id)?,
+                    wire: self.eval_wire_ref(vid, wref)?,
                 }
             }
             ast::WireRef::Qualified(cref, wref) => TileWireCoord {
-                cell: self.eval_array_ref(cref, &self.db.tcls_cell_id[tcls])?,
-                wire: self.eval_array_ref(wref, &self.db.wire_id)?,
+                cell: self.eval_cell_ref(vid, tcls, cref)?,
+                wire: self.eval_wire_ref(vid, wref)?,
             },
         })
     }
 
-    fn eval_pol_wire_ref(
-        &self,
+    fn eval_pol_tile_wire_ref(
+        &mut self,
+        vid: VariantId,
         tcls: TileClassId,
         wref: &ast::PolWireRef,
     ) -> Result<PolTileWireCoord> {
         Ok(match wref {
-            ast::PolWireRef::Pos(wire_ref) => self.eval_wire_ref(tcls, wire_ref)?.pos(),
-            ast::PolWireRef::Neg(wire_ref) => self.eval_wire_ref(tcls, wire_ref)?.neg(),
+            ast::PolWireRef::Pos(wire_ref) => self.eval_tile_wire_ref(vid, tcls, wire_ref)?.pos(),
+            ast::PolWireRef::Neg(wire_ref) => self.eval_tile_wire_ref(vid, tcls, wire_ref)?.neg(),
         })
     }
 
-    fn eval_pol_tile_bit(&self, tcls: TileClassId, tbit: &ast::TileBit) -> Result<PolTileBit> {
+    fn eval_pol_tile_bit(
+        &mut self,
+        vid: VariantId,
+        tcls: TileClassId,
+        tbit: &ast::TileBit,
+    ) -> Result<PolTileBit> {
         let name = self.eval_templ_id(&tbit.name)?;
         let mut index = vec![];
         for idx in &tbit.index {
             index.push(self.eval_expr(idx)?);
         }
-        let Some((rect, _)) = self.db.tcls_bitrect_id[tcls].get(&name.to_string()) else {
+        let Some((rect, _)) = self.dbs.variants[vid].tcls_bitrect_id[tcls].get(&name.to_string())
+        else {
             error_at(name.span(), "undefined bitrect")?
         };
         let rect = match rect {
@@ -297,7 +580,7 @@ impl Context {
                 range.index(idx)
             }
         };
-        let geom = self.db.db.tile_classes[tcls].bitrects[rect].geometry;
+        let geom = self.dbs.variants[vid].db.tile_classes[tcls].bitrects[rect].geometry;
         let (frame, bit) = match *index.as_slice() {
             [] => error_at(name.span(), "missing bit coordinates")?,
             [bit] => {
@@ -329,8 +612,13 @@ impl Context {
         })
     }
 
-    fn eval_tile_bit(&self, tcls: TileClassId, tbit: &ast::TileBit) -> Result<TileBit> {
-        let bit = self.eval_pol_tile_bit(tcls, tbit)?;
+    fn eval_tile_bit(
+        &mut self,
+        vid: VariantId,
+        tcls: TileClassId,
+        tbit: &ast::TileBit,
+    ) -> Result<TileBit> {
+        let bit = self.eval_pol_tile_bit(vid, tcls, tbit)?;
         if bit.inv {
             error_at(tbit.name.span(), "inversion not accepted here")?;
         }
@@ -369,10 +657,16 @@ impl Context {
         Ok(())
     }
 
-    fn eval_cond(&mut self, ictx: IfContext, span: Span, cond: &ast::IfCond) -> Result<bool> {
+    fn eval_cond(
+        &mut self,
+        vid: VariantId,
+        ictx: IfContext,
+        span: Span,
+        cond: &ast::IfCond,
+    ) -> Result<bool> {
         match cond {
             ast::IfCond::Variant(idents) => {
-                let Some(ref our_name) = self.db.name else {
+                let Some(ref our_name) = self.dbs.variants[vid].name else {
                     error_at(span, "no variants defined")?
                 };
                 for id in idents {
@@ -388,7 +682,7 @@ impl Context {
                     IfContext::Bel(tcls, _) => tcls,
                     _ => error_at(span, "not in tile class")?,
                 };
-                let name = self.db.db.tile_classes.key(tcls);
+                let name = &self.dbs.variants[vid].db.tile_classes[tcls].name;
                 for id in ids {
                     let ok = match self.eval_templ_wildcard(id)? {
                         WildCard::Ident(ident) => name == &ident.to_string(),
@@ -405,7 +699,7 @@ impl Context {
                     IfContext::ConnectorClass(ccls) => ccls,
                     _ => error_at(span, "not in connector class")?,
                 };
-                let name = self.db.db.conn_classes.key(ccls);
+                let name = &self.dbs.variants[vid].db.conn_classes[ccls].name;
                 for id in ids {
                     let ok = match self.eval_templ_wildcard(id)? {
                         WildCard::Ident(ident) => name == &ident.to_string(),
@@ -423,7 +717,7 @@ impl Context {
                     _ => error_at(span, "not in bel")?,
                 };
                 for id in ids {
-                    let bslot = self.eval_array_ref(id, &self.db.bslot_id)?;
+                    let bslot = self.eval_bel_slot_ref(vid, id)?;
                     if bslot == our_bslot {
                         return Ok(true);
                     }
@@ -439,17 +733,29 @@ impl Context {
         if_: &ast::If<T>,
         mut eval_item: impl FnMut(&mut Context, &T) -> Result<()>,
     ) -> Result<()> {
+        let orig_mask = self.if_mask.clone();
+        let mut else_mask = orig_mask.clone();
         for branch in &if_.branches {
-            if self.eval_cond(ictx, if_.span, &branch.0)? {
+            self.if_mask = orig_mask.map_values(|_| false);
+            for vid in orig_mask.ids() {
+                if else_mask[vid] && self.eval_cond(vid, ictx, if_.span, &branch.0)? {
+                    self.if_mask[vid] = true;
+                    else_mask[vid] = false;
+                }
+            }
+            if self.if_mask.values().any(|&v| v) {
                 for item in &branch.1 {
                     eval_item(self, item)?;
                 }
-                return Ok(());
             }
         }
-        for item in &if_.else_items {
-            eval_item(self, item)?;
+        if else_mask.values().any(|&v| v) {
+            self.if_mask = else_mask;
+            for item in &if_.else_items {
+                eval_item(self, item)?;
+            }
         }
+        self.if_mask = orig_mask;
         Ok(())
     }
 
@@ -491,18 +797,25 @@ impl Context {
         })
     }
 
-    fn eval_attribute_type(&self, typ: &ast::AttributeType) -> Result<BelAttributeType> {
+    fn eval_attribute_type(
+        &mut self,
+        vid: VariantId,
+        typ: &ast::AttributeType,
+    ) -> Result<BelAttributeType> {
         Ok(match *typ {
             ast::AttributeType::Bool => BelAttributeType::Bool,
             ast::AttributeType::BitVec(width) => BelAttributeType::BitVec(width),
             ast::AttributeType::BitVecArray(width, depth) => {
                 BelAttributeType::BitVecArray(width, depth)
             }
-            ast::AttributeType::Enum(ref id) => {
-                let ident = self.eval_templ_id(id)?;
-                let Some((eid, _)) = self.db.db.enum_classes.get(&ident.to_string()) else {
-                    error_at(ident.span(), "undefined enum")?
-                };
+            ast::AttributeType::Enum(ref ident) => {
+                let eid = self.eval_templ_ref(
+                    vid,
+                    ident,
+                    |dbs| &mut dbs.enum_id,
+                    |db| &db.db.enum_classes,
+                    "enum",
+                )?;
                 BelAttributeType::Enum(eid)
             }
             ast::AttributeType::U32 => BelAttributeType::U32,
@@ -512,163 +825,175 @@ impl Context {
     fn eval_bel_class(&mut self, bcls: BelClassId, item: &ast::BelClassItem) -> Result<()> {
         match item {
             ast::BelClassItem::Input(pin) => {
-                for name in &pin.names {
-                    let (name, width, indexing) = self.eval_pin_indexing(name)?;
-                    let inp = BelClassInput {
-                        nonroutable: pin.nonroutable,
-                        indexing,
-                    };
-                    match width {
-                        None => {
-                            if self.db.db.bel_classes[bcls]
-                                .inputs
-                                .insert(name.to_string(), inp)
-                                .is_none()
-                            {
-                                error_at(name.span(), "bel input redefined")?
+                for vid in self.active_variants() {
+                    for name in &pin.names {
+                        let (name, width, indexing) = self.eval_pin_indexing(name)?;
+                        let inp = BelClassInput {
+                            nonroutable: pin.nonroutable,
+                            indexing,
+                        };
+                        match width {
+                            None => {
+                                if self.dbs.variants[vid].db.bel_classes[bcls]
+                                    .inputs
+                                    .insert(name.to_string(), inp)
+                                    .is_none()
+                                {
+                                    error_at(name.span(), "bel input redefined")?
+                                }
+                                self.dbs.variants[vid].bcls[bcls]
+                                    .input_id
+                                    .insert(name.to_string(), (name, indexing));
                             }
-                            self.db.bcls[bcls]
-                                .input_id
-                                .insert(name.to_string(), (name, indexing));
-                        }
-                        Some(width) => {
-                            if self.db.db.bel_classes[bcls]
-                                .inputs
-                                .insert_array(name.to_string(), width, inp)
-                                .is_none()
-                            {
-                                error_at(name.span(), "bel input redefined")?
+                            Some(width) => {
+                                if self.dbs.variants[vid].db.bel_classes[bcls]
+                                    .inputs
+                                    .insert_array(name.to_string(), width, inp)
+                                    .is_none()
+                                {
+                                    error_at(name.span(), "bel input redefined")?
+                                }
+                                self.dbs.variants[vid].bcls[bcls].input_id.insert_array(
+                                    name.to_string(),
+                                    width,
+                                    (name, indexing),
+                                );
                             }
-                            self.db.bcls[bcls].input_id.insert_array(
-                                name.to_string(),
-                                width,
-                                (name, indexing),
-                            );
                         }
                     }
                 }
             }
             ast::BelClassItem::Output(pin) => {
-                for name in &pin.names {
-                    let (name, width, indexing) = self.eval_pin_indexing(name)?;
-                    let outp = BelClassOutput {
-                        nonroutable: pin.nonroutable,
-                        indexing,
-                    };
-                    match width {
-                        None => {
-                            if self.db.db.bel_classes[bcls]
-                                .outputs
-                                .insert(name.to_string(), outp)
-                                .is_none()
-                            {
-                                error_at(name.span(), "bel output redefined")?
+                for vid in self.active_variants() {
+                    for name in &pin.names {
+                        let (name, width, indexing) = self.eval_pin_indexing(name)?;
+                        let outp = BelClassOutput {
+                            nonroutable: pin.nonroutable,
+                            indexing,
+                        };
+                        match width {
+                            None => {
+                                if self.dbs.variants[vid].db.bel_classes[bcls]
+                                    .outputs
+                                    .insert(name.to_string(), outp)
+                                    .is_none()
+                                {
+                                    error_at(name.span(), "bel output redefined")?
+                                }
+                                self.dbs.variants[vid].bcls[bcls]
+                                    .output_id
+                                    .insert(name.to_string(), (name, indexing));
                             }
-                            self.db.bcls[bcls]
-                                .output_id
-                                .insert(name.to_string(), (name, indexing));
-                        }
-                        Some(width) => {
-                            if self.db.db.bel_classes[bcls]
-                                .outputs
-                                .insert_array(name.to_string(), width, outp)
-                                .is_none()
-                            {
-                                error_at(name.span(), "bel output redefined")?
+                            Some(width) => {
+                                if self.dbs.variants[vid].db.bel_classes[bcls]
+                                    .outputs
+                                    .insert_array(name.to_string(), width, outp)
+                                    .is_none()
+                                {
+                                    error_at(name.span(), "bel output redefined")?
+                                }
+                                self.dbs.variants[vid].bcls[bcls].output_id.insert_array(
+                                    name.to_string(),
+                                    width,
+                                    (name, indexing),
+                                );
                             }
-                            self.db.bcls[bcls].output_id.insert_array(
-                                name.to_string(),
-                                width,
-                                (name, indexing),
-                            );
                         }
                     }
                 }
             }
             ast::BelClassItem::Bidir(pin) => {
-                for name in &pin.names {
-                    let (name, width, indexing) = self.eval_pin_indexing(name)?;
-                    let bidi = BelClassBidir {
-                        nonroutable: pin.nonroutable,
-                        indexing,
-                    };
-                    match width {
-                        None => {
-                            if self.db.db.bel_classes[bcls]
-                                .bidirs
-                                .insert(name.to_string(), bidi)
-                                .is_none()
-                            {
-                                error_at(name.span(), "bel bidir redefined")?
+                for vid in self.active_variants() {
+                    for name in &pin.names {
+                        let (name, width, indexing) = self.eval_pin_indexing(name)?;
+                        let bidi = BelClassBidir {
+                            nonroutable: pin.nonroutable,
+                            indexing,
+                        };
+                        match width {
+                            None => {
+                                if self.dbs.variants[vid].db.bel_classes[bcls]
+                                    .bidirs
+                                    .insert(name.to_string(), bidi)
+                                    .is_none()
+                                {
+                                    error_at(name.span(), "bel bidir redefined")?
+                                }
+                                self.dbs.variants[vid].bcls[bcls]
+                                    .bidir_id
+                                    .insert(name.to_string(), (name, indexing));
                             }
-                            self.db.bcls[bcls]
-                                .bidir_id
-                                .insert(name.to_string(), (name, indexing));
-                        }
-                        Some(width) => {
-                            if self.db.db.bel_classes[bcls]
-                                .bidirs
-                                .insert_array(name.to_string(), width, bidi)
-                                .is_none()
-                            {
-                                error_at(name.span(), "bel bidir redefined")?
+                            Some(width) => {
+                                if self.dbs.variants[vid].db.bel_classes[bcls]
+                                    .bidirs
+                                    .insert_array(name.to_string(), width, bidi)
+                                    .is_none()
+                                {
+                                    error_at(name.span(), "bel bidir redefined")?
+                                }
+                                self.dbs.variants[vid].bcls[bcls].bidir_id.insert_array(
+                                    name.to_string(),
+                                    width,
+                                    (name, indexing),
+                                );
                             }
-                            self.db.bcls[bcls].bidir_id.insert_array(
-                                name.to_string(),
-                                width,
-                                (name, indexing),
-                            );
                         }
                     }
                 }
             }
             ast::BelClassItem::Pad(pad) => {
-                for name in &pad.names {
-                    let pad = BelClassPad { kind: pad.kind };
-                    match *name {
-                        ast::ArrayIdDef::Plain(ref name) => {
-                            let name = self.eval_templ_id(name)?;
-                            if self.db.db.bel_classes[bcls]
-                                .pads
-                                .insert(name.to_string(), pad)
-                                .is_none()
-                            {
-                                error_at(name.span(), "bel pad redefined")?
+                for vid in self.active_variants() {
+                    for name in &pad.names {
+                        let pad = BelClassPad { kind: pad.kind };
+                        match *name {
+                            ast::ArrayIdDef::Plain(ref name) => {
+                                let name = self.eval_templ_id(name)?;
+                                if self.dbs.variants[vid].db.bel_classes[bcls]
+                                    .pads
+                                    .insert(name.to_string(), pad)
+                                    .is_none()
+                                {
+                                    error_at(name.span(), "bel pad redefined")?
+                                }
+                                self.dbs.variants[vid].bcls[bcls]
+                                    .pad_id
+                                    .insert(name.to_string(), name.clone());
                             }
-                            self.db.bcls[bcls]
-                                .pad_id
-                                .insert(name.to_string(), name.clone());
-                        }
-                        ast::ArrayIdDef::Array(ref name, num) => {
-                            let name = self.eval_templ_id(name)?;
-                            if self.db.db.bel_classes[bcls]
-                                .pads
-                                .insert_array(name.to_string(), num, pad)
-                                .is_none()
-                            {
-                                error_at(name.span(), "bel pad redefined")?
+                            ast::ArrayIdDef::Array(ref name, num) => {
+                                let name = self.eval_templ_id(name)?;
+                                if self.dbs.variants[vid].db.bel_classes[bcls]
+                                    .pads
+                                    .insert_array(name.to_string(), num, pad)
+                                    .is_none()
+                                {
+                                    error_at(name.span(), "bel pad redefined")?
+                                }
+                                self.dbs.variants[vid].bcls[bcls].pad_id.insert_array(
+                                    name.to_string(),
+                                    num,
+                                    name.clone(),
+                                );
                             }
-                            self.db.bcls[bcls].pad_id.insert_array(
-                                name.to_string(),
-                                num,
-                                name.clone(),
-                            );
                         }
                     }
                 }
             }
             ast::BelClassItem::Attribute(attr) => {
-                let typ = self.eval_attribute_type(&attr.typ)?;
-                let attribute = BelClassAttribute { typ };
-                for name in &attr.names {
-                    let ident = self.eval_templ_id(name)?;
-                    let (_, prev) = self.db.db.bel_classes[bcls]
-                        .attributes
-                        .insert(ident.to_string(), attribute.clone());
-                    if prev.is_some() {
-                        error_at(ident.span(), "bel attribute redefined")?
+                for vid in self.active_variants() {
+                    let typ = self.eval_attribute_type(vid, &attr.typ)?;
+                    let attribute = BelClassAttribute { typ };
+                    for name in &attr.names {
+                        let ident = self.eval_templ_id(name)?;
+                        let (_, prev) = self.dbs.variants[vid].db.bel_classes[bcls]
+                            .attributes
+                            .insert(ident.to_string(), attribute.clone());
+                        if prev.is_some() {
+                            error_at(ident.span(), "bel attribute redefined")?
+                        }
+                        self.dbs.variants[vid].bcls[bcls]
+                            .attr_id
+                            .insert(ident.to_string(), ident.clone());
                     }
-                    self.db.bcls[bcls].attr_id.push(ident.clone());
                 }
             }
             ast::BelClassItem::ForLoop(for_loop) => {
@@ -681,76 +1006,108 @@ impl Context {
         Ok(())
     }
 
+    fn eval_tile_slot_phase1(&mut self, tslot: TileSlotId, item: &ast::TileSlotItem) -> Result<()> {
+        match item {
+            ast::TileSlotItem::BelSlot(bslot) => {
+                for vid in self.active_variants() {
+                    let (name, num) = match &bslot.name {
+                        ast::ArrayIdDef::Plain(id) => (id, None),
+                        ast::ArrayIdDef::Array(id, n) => (id, Some(*n)),
+                    };
+                    let name = self.eval_templ_id(name)?;
+                    if let Err(msg) = self.bslot_pre.insert(vid, &name, num) {
+                        error_at(name.span(), msg)?
+                    }
+                }
+            }
+            ast::TileSlotItem::TileClass(tcls) => {
+                for raw_name in &tcls.names {
+                    let name = self.eval_templ_id(raw_name)?;
+                    let (tcid, name) = self.dbs.tcls_id.insert(&name);
+                    for vid in self.active_variants() {
+                        if self.dbs.variants[vid]
+                            .db
+                            .tile_classes
+                            .insert(
+                                tcid,
+                                TileClass {
+                                    name: name.clone(),
+                                    slot: tslot,
+                                    cells: Default::default(),
+                                    bitrects: Default::default(),
+                                    bels: Default::default(),
+                                },
+                            )
+                            .is_err()
+                        {
+                            error_at(raw_name.span(), "tile class redefined")?;
+                        }
+                    }
+                }
+            }
+            ast::TileSlotItem::ForLoop(for_loop) => self.eval_for(for_loop, |ctx, subitem| {
+                ctx.eval_tile_slot_phase1(tslot, subitem)
+            })?,
+            ast::TileSlotItem::If(if_) => self.eval_if(IfContext::Top, if_, |ctx, subitem| {
+                ctx.eval_tile_slot_phase1(tslot, subitem)
+            })?,
+        }
+        Ok(())
+    }
+
     fn eval_tile_slot(&mut self, tslot: TileSlotId, item: &ast::TileSlotItem) -> Result<()> {
         match item {
             ast::TileSlotItem::BelSlot(bslot) => {
-                let (name, num) = match &bslot.name {
+                let (raw_name, num) = match &bslot.name {
                     ast::ArrayIdDef::Plain(id) => (id, None),
                     ast::ArrayIdDef::Array(id, n) => (id, Some(*n)),
                 };
-                let name = self.eval_templ_id(name)?;
-                let kind = match &bslot.kind {
-                    ast::BelKind::Routing => BelKind::Routing,
-                    ast::BelKind::Class(id) => {
-                        let Some((bcls, _)) = self.db.db.bel_classes.get(&id.to_string()) else {
-                            error_at(id.span(), "unknown bel class")?
-                        };
-                        BelKind::Class(bcls)
-                    }
-                    ast::BelKind::Legacy => BelKind::Legacy,
-                };
-                if let Some(num) = num {
-                    let Some(range) =
-                        self.db
-                            .bslot_id
-                            .insert_array(name.to_string(), num, name.clone())
-                    else {
-                        error_at(name.span(), "bel slot redefined")?
+                let name = self.eval_templ_id(raw_name)?;
+                for vid in self.active_variants() {
+                    let kind = match &bslot.kind {
+                        ast::BelKind::Routing => BelKind::Routing,
+                        ast::BelKind::Class(id) => {
+                            let bcls = self.eval_ref(
+                                vid,
+                                id,
+                                |dbs| &mut dbs.bcls_id,
+                                |db| &db.db.bel_classes,
+                                "bel class",
+                            )?;
+                            BelKind::Class(bcls)
+                        }
+                        ast::BelKind::Legacy => BelKind::Legacy,
                     };
-                    assert_eq!(range.first().unwrap(), self.db.db.bel_slots.next_id());
-                    for i in 0..num {
-                        self.db.db.bel_slots.insert(
-                            format!("{name}[{i}]"),
-                            BelSlot {
-                                tile_slot: tslot,
-                                kind,
-                            },
-                        );
+                    if let Some(num) = num {
+                        for i in 0..num {
+                            let id = self.dbs.bslot_id.get(&name, Some(i));
+                            let bslot = &mut self.dbs.variants[vid].db.bel_slots[id];
+                            bslot.tile_slot = tslot;
+                            bslot.kind = kind;
+                        }
+                    } else {
+                        let id = self.dbs.bslot_id.get(&name, None);
+                        let bslot = &mut self.dbs.variants[vid].db.bel_slots[id];
+                        bslot.tile_slot = tslot;
+                        bslot.kind = kind;
                     }
-                } else {
-                    let Some(id) = self.db.bslot_id.insert(name.to_string(), name.clone()) else {
-                        error_at(name.span(), "bel slot redefined")?
-                    };
-                    assert_eq!(id, self.db.db.bel_slots.next_id());
-                    self.db.db.bel_slots.insert(
-                        name.to_string(),
-                        BelSlot {
-                            tile_slot: tslot,
-                            kind,
-                        },
-                    );
                 }
             }
             ast::TileSlotItem::TileClass(tcls) => {
                 for name in &tcls.names {
                     let name = self.eval_templ_id(name)?;
-                    let (ccid, prev) = self.db.db.tile_classes.insert(
-                        name.to_string(),
-                        TileClass {
-                            slot: tslot,
-                            cells: Default::default(),
-                            bitrects: Default::default(),
-                            bels: Default::default(),
-                        },
-                    );
-                    if prev.is_some() {
-                        error_at(name.span(), "tile class redefined")?;
+                    let tcid = self.dbs.tcls_id.get(&name);
+
+                    for vid in self.active_variants() {
+                        self.dbs.variants[vid]
+                            .tcls_cell_id
+                            .insert(tcid, Default::default());
+                        self.dbs.variants[vid]
+                            .tcls_bitrect_id
+                            .insert(tcid, Default::default());
                     }
-                    self.db.tcls_id.push(name);
-                    self.db.tcls_cell_id.push(Default::default());
-                    self.db.tcls_bitrect_id.push(Default::default());
                     for item in &tcls.items {
-                        self.eval_tile_class(ccid, item)?;
+                        self.eval_tile_class(tcid, item)?;
                     }
                 }
             }
@@ -773,31 +1130,36 @@ impl Context {
                         ast::ArrayIdDef::Array(id, n) => (id, Some(*n)),
                     };
                     let name = self.eval_templ_id(name)?;
-                    if let Some(num) = num {
-                        let Some(range) = self.db.tcls_cell_id[tcls].insert_array(
-                            name.to_string(),
-                            num,
-                            name.clone(),
-                        ) else {
-                            error_at(name.span(), "cell slot redefined")?
-                        };
-                        assert_eq!(
-                            range.first().unwrap(),
-                            self.db.db.tile_classes[tcls].cells.next_id()
-                        );
-                        for i in 0..num {
-                            self.db.db.tile_classes[tcls]
+                    for vid in self.active_variants() {
+                        if let Some(num) = num {
+                            let Some(range) = self.dbs.variants[vid].tcls_cell_id[tcls]
+                                .insert_array(name.to_string(), num, name.clone())
+                            else {
+                                error_at(name.span(), "cell slot redefined")?
+                            };
+                            assert_eq!(
+                                range.first().unwrap(),
+                                self.dbs.variants[vid].db.tile_classes[tcls].cells.next_id()
+                            );
+                            for i in 0..num {
+                                self.dbs.variants[vid].db.tile_classes[tcls]
+                                    .cells
+                                    .push(format!("{name}[{i}]"));
+                            }
+                        } else {
+                            let Some(id) = self.dbs.variants[vid].tcls_cell_id[tcls]
+                                .insert(name.to_string(), name.clone())
+                            else {
+                                error_at(name.span(), "cell slot redefined")?
+                            };
+                            assert_eq!(
+                                id,
+                                self.dbs.variants[vid].db.tile_classes[tcls].cells.next_id()
+                            );
+                            self.dbs.variants[vid].db.tile_classes[tcls]
                                 .cells
-                                .push(format!("{name}[{i}]"));
+                                .push(name.to_string());
                         }
-                    } else {
-                        let Some(id) =
-                            self.db.tcls_cell_id[tcls].insert(name.to_string(), name.clone())
-                        else {
-                            error_at(name.span(), "cell slot redefined")?
-                        };
-                        assert_eq!(id, self.db.db.tile_classes[tcls].cells.next_id());
-                        self.db.db.tile_classes[tcls].cells.push(name.to_string());
                     }
                 }
             }
@@ -807,76 +1169,98 @@ impl Context {
                     ast::ArrayIdDef::Array(id, n) => (id, Some(*n)),
                 };
                 let name = self.eval_templ_id(name)?;
-                let Some(&geometry) = self.bitrect_geoms.get(&class.to_string()) else {
-                    error_at(class.span(), "undefined bitrect class")?
-                };
-                if let Some(num) = num {
-                    let Some(range) = self.db.tcls_bitrect_id[tcls].insert_array(
-                        name.to_string(),
-                        num,
-                        name.clone(),
-                    ) else {
-                        error_at(name.span(), "bitrect redefined")?
-                    };
-                    assert_eq!(
-                        range.first().unwrap(),
-                        self.db.db.tile_classes[tcls].bitrects.next_id()
-                    );
-                    for i in 0..num {
-                        self.db.db.tile_classes[tcls].bitrects.push(BitRectInfo {
-                            name: format!("{name}[{i}]"),
-                            geometry,
-                        });
-                    }
-                } else {
-                    let Some(id) =
-                        self.db.tcls_bitrect_id[tcls].insert(name.to_string(), name.clone())
+                for vid in self.active_variants() {
+                    let Some(&geometry) =
+                        self.dbs.variants[vid].bitrect_geoms.get(&class.to_string())
                     else {
-                        error_at(name.span(), "bitrect redefined")?
+                        error_at(class.span(), "undefined bitrect class")?
                     };
-                    assert_eq!(id, self.db.db.tile_classes[tcls].bitrects.next_id());
-                    self.db.db.tile_classes[tcls].bitrects.push(BitRectInfo {
-                        name: name.to_string(),
-                        geometry,
-                    });
+                    if let Some(num) = num {
+                        let Some(range) = self.dbs.variants[vid].tcls_bitrect_id[tcls]
+                            .insert_array(name.to_string(), num, name.clone())
+                        else {
+                            error_at(name.span(), "bitrect redefined")?
+                        };
+                        assert_eq!(
+                            range.first().unwrap(),
+                            self.dbs.variants[vid].db.tile_classes[tcls]
+                                .bitrects
+                                .next_id()
+                        );
+                        for i in 0..num {
+                            self.dbs.variants[vid].db.tile_classes[tcls].bitrects.push(
+                                BitRectInfo {
+                                    name: format!("{name}[{i}]"),
+                                    geometry,
+                                },
+                            );
+                        }
+                    } else {
+                        let Some(id) = self.dbs.variants[vid].tcls_bitrect_id[tcls]
+                            .insert(name.to_string(), name.clone())
+                        else {
+                            error_at(name.span(), "bitrect redefined")?
+                        };
+                        assert_eq!(
+                            id,
+                            self.dbs.variants[vid].db.tile_classes[tcls]
+                                .bitrects
+                                .next_id()
+                        );
+                        self.dbs.variants[vid].db.tile_classes[tcls]
+                            .bitrects
+                            .push(BitRectInfo {
+                                name: name.to_string(),
+                                geometry,
+                            });
+                    }
                 }
             }
             ast::TileClassItem::SwitchBox(sbox) => {
-                let slot = self.eval_array_ref(&sbox.slot, &self.db.bslot_id)?;
-                if self.db.db.bel_slots[slot].kind != BelKind::Routing {
-                    error_at(sbox.slot.span(), "switchbox must be on routing bel")?;
+                for vid in self.active_variants() {
+                    let slot = self.eval_bel_slot_ref(vid, &sbox.slot)?;
+                    if self.dbs.variants[vid].db.bel_slots[slot].kind != BelKind::Routing {
+                        error_at(sbox.slot.span(), "switchbox must be on routing bel")?;
+                    }
+                    let mut switchbox = SwitchBox::default();
+                    for subitem in &sbox.items {
+                        self.eval_switchbox(vid, tcls, slot, &mut switchbox, subitem)?;
+                    }
+                    self.dbs.variants[vid].db.tile_classes[tcls]
+                        .bels
+                        .insert(slot, BelInfo::SwitchBox(switchbox));
                 }
-                let mut switchbox = SwitchBox::default();
-                for subitem in &sbox.items {
-                    self.eval_switchbox(tcls, slot, &mut switchbox, subitem)?;
-                }
-                self.db.db.tile_classes[tcls]
-                    .bels
-                    .insert(slot, BelInfo::SwitchBox(switchbox));
             }
             ast::TileClassItem::Bel(sbel) => {
-                let slot = self.eval_array_ref(&sbel.slot, &self.db.bslot_id)?;
-                match self.db.db.bel_slots[slot].kind {
-                    BelKind::Routing => {
-                        error_at(sbel.slot.span(), "bel kind must not be switchbox")?
-                    }
-                    BelKind::Class(bcls) => {
-                        let mut bel = Bel::default();
-                        for subitem in &sbel.items {
-                            self.eval_bel(tcls, slot, bcls, &mut bel, subitem)?;
+                for vid in self.active_variants() {
+                    let slot = self.eval_bel_slot_ref(vid, &sbel.slot)?;
+                    match self.dbs.variants[vid].db.bel_slots[slot].kind {
+                        BelKind::Routing => {
+                            error_at(sbel.slot.span(), "bel kind must not be switchbox")?
                         }
-                        self.db.db.tile_classes[tcls]
-                            .bels
-                            .insert(slot, BelInfo::Bel(bel));
-                    }
-                    BelKind::Legacy => {
-                        if !sbel.items.is_empty() {
-                            error_at(sbel.slot.span(), "legacy bel must not have items")?;
+                        BelKind::Class(bcls) => {
+                            let mut bel = Bel::default();
+                            for subitem in &sbel.items {
+                                self.eval_bel(vid, tcls, slot, bcls, &mut bel, subitem)?;
+                            }
+                            self.dbs.variants[vid].db.tile_classes[tcls]
+                                .bels
+                                .insert(slot, BelInfo::Bel(bel));
                         }
-                        self.db.db.tile_classes[tcls]
-                            .bels
-                            .insert(slot, BelInfo::Legacy(Default::default()));
+                        BelKind::Legacy => {
+                            if !sbel.items.is_empty() {
+                                error_at(sbel.slot.span(), "legacy bel must not have items")?;
+                            }
+                            self.dbs.variants[vid].db.tile_classes[tcls]
+                                .bels
+                                .insert(slot, BelInfo::Legacy(Default::default()));
+                        }
                     }
+                }
+            }
+            ast::TileClassItem::Skip => {
+                for vid in self.active_variants() {
+                    self.dbs.variants[vid].skip_tcls.insert(tcls);
                 }
             }
             ast::TileClassItem::ForLoop(for_loop) => {
@@ -893,6 +1277,7 @@ impl Context {
 
     fn eval_switchbox(
         &mut self,
+        vid: VariantId,
         tcls: TileClassId,
         bslot: BelSlotId,
         switchbox: &mut SwitchBox,
@@ -900,15 +1285,15 @@ impl Context {
     ) -> Result<()> {
         match item {
             ast::SwitchBoxItem::PermaBuf(dst, src) => {
-                let dst = self.eval_wire_ref(tcls, dst)?;
-                let src = self.eval_pol_wire_ref(tcls, src)?;
+                let dst = self.eval_tile_wire_ref(vid, tcls, dst)?;
+                let src = self.eval_pol_tile_wire_ref(vid, tcls, src)?;
                 switchbox
                     .items
                     .push(SwitchBoxItem::PermaBuf(PermaBuf { dst, src }));
             }
             ast::SwitchBoxItem::ProgBuf(dst, src) => {
-                let dst = self.eval_wire_ref(tcls, dst)?;
-                let src = self.eval_pol_wire_ref(tcls, src)?;
+                let dst = self.eval_tile_wire_ref(vid, tcls, dst)?;
+                let src = self.eval_pol_tile_wire_ref(vid, tcls, src)?;
                 switchbox.items.push(SwitchBoxItem::ProgBuf(ProgBuf {
                     dst,
                     src,
@@ -916,8 +1301,8 @@ impl Context {
                 }));
             }
             ast::SwitchBoxItem::ProgInv(dst, src) => {
-                let dst = self.eval_wire_ref(tcls, dst)?;
-                let src = self.eval_wire_ref(tcls, src)?;
+                let dst = self.eval_tile_wire_ref(vid, tcls, dst)?;
+                let src = self.eval_tile_wire_ref(vid, tcls, src)?;
                 switchbox.items.push(SwitchBoxItem::ProgInv(ProgInv {
                     dst,
                     src,
@@ -926,35 +1311,37 @@ impl Context {
             }
             ast::SwitchBoxItem::Mux(dst, srcs) => {
                 let mut mux = Mux {
-                    dst: self.eval_wire_ref(tcls, dst)?,
+                    dst: self.eval_tile_wire_ref(vid, tcls, dst)?,
                     bits: Default::default(),
                     src: Default::default(),
                     bits_off: None,
                 };
                 for src in srcs {
-                    let src = self.eval_pol_wire_ref(tcls, src)?;
+                    let src = self.eval_pol_tile_wire_ref(vid, tcls, src)?;
                     mux.src.insert(src, Default::default());
                 }
                 switchbox.items.push(SwitchBoxItem::Mux(mux));
             }
             ast::SwitchBoxItem::Bidi(conn, wire) => {
-                let id = self.eval_templ_id(conn)?;
-                let Some((csid, _)) = self.db.db.conn_slots.get(&id.to_string()) else {
-                    error_at(id.span(), &format!("undefined connector slot: {id}"))?
-                };
+                let ident = self.eval_templ_id(conn)?;
+                let csid = self.eval_conn_slot_ref(vid, &ident)?;
                 let bidi = Bidi {
                     conn: csid,
-                    wire: self.eval_wire_ref(tcls, wire)?,
+                    wire: self.eval_tile_wire_ref(vid, tcls, wire)?,
                     bit_upstream: PolTileBit::DUMMY,
                 };
                 switchbox.items.push(SwitchBoxItem::Bidi(bidi));
             }
             ast::SwitchBoxItem::ForLoop(for_loop) => self.eval_for(for_loop, |ctx, subitem| {
-                ctx.eval_switchbox(tcls, bslot, switchbox, subitem)
+                ctx.eval_switchbox(vid, tcls, bslot, switchbox, subitem)
             })?,
             ast::SwitchBoxItem::If(if_) => {
                 self.eval_if(IfContext::Bel(tcls, bslot), if_, |ctx, subitem| {
-                    ctx.eval_switchbox(tcls, bslot, switchbox, subitem)
+                    if ctx.if_mask[vid] {
+                        ctx.eval_switchbox(vid, tcls, bslot, switchbox, subitem)
+                    } else {
+                        Ok(())
+                    }
                 })?
             }
         }
@@ -1003,6 +1390,7 @@ impl Context {
 
     fn eval_bel(
         &mut self,
+        vid: VariantId,
         tcls: TileClassId,
         bslot: BelSlotId,
         bcls: BelClassId,
@@ -1011,45 +1399,50 @@ impl Context {
     ) -> Result<()> {
         match item {
             ast::BelItem::Input(pin, wire_ref) => {
-                let pin = self.eval_pin_array_ref(pin, &self.db.bcls[bcls].input_id)?;
-                let wire = self.eval_pol_wire_ref(tcls, wire_ref)?;
+                let pin =
+                    self.eval_pin_array_ref(pin, &self.dbs.variants[vid].bcls[bcls].input_id)?;
+                let wire = self.eval_pol_tile_wire_ref(vid, tcls, wire_ref)?;
                 bel.inputs.insert(pin, BelInput::Fixed(wire));
             }
             ast::BelItem::Output(pin, wire_refs) => {
-                let pin = self.eval_pin_array_ref(pin, &self.db.bcls[bcls].output_id)?;
+                let pin =
+                    self.eval_pin_array_ref(pin, &self.dbs.variants[vid].bcls[bcls].output_id)?;
                 let mut wires = BTreeSet::new();
                 for wref in wire_refs {
-                    let wire = self.eval_wire_ref(tcls, wref)?;
+                    let wire = self.eval_tile_wire_ref(vid, tcls, wref)?;
                     wires.insert(wire);
                 }
                 bel.outputs.insert(pin, wires);
             }
             ast::BelItem::Bidir(pin, wire_ref) => {
-                let pin = self.eval_pin_array_ref(pin, &self.db.bcls[bcls].bidir_id)?;
-                let wire = self.eval_wire_ref(tcls, wire_ref)?;
+                let pin =
+                    self.eval_pin_array_ref(pin, &self.dbs.variants[vid].bcls[bcls].bidir_id)?;
+                let wire = self.eval_tile_wire_ref(vid, tcls, wire_ref)?;
                 bel.bidirs.insert(pin, wire);
             }
             ast::BelItem::Attribute(attr) => {
                 let name = self.eval_templ_id(&attr.name)?;
-                let Some((aid, cattr)) = self.db.db.bel_classes[bcls]
+                let Some((aid, cattr)) = self.dbs.variants[vid].db.bel_classes[bcls]
                     .attributes
                     .get(&name.to_string())
                 else {
                     error_at(name.span(), "unknown attribute")?
                 };
+                let typ = cattr.typ;
                 if let Some(ref avalues) = attr.values {
                     let mut bits = vec![];
                     for bit in &attr.bits {
-                        bits.push(self.eval_tile_bit(tcls, bit)?);
+                        bits.push(self.eval_tile_bit(vid, tcls, bit)?);
                     }
-                    let BelAttributeType::Enum(ecid) = cattr.typ else {
+                    let BelAttributeType::Enum(ecid) = typ else {
                         unreachable!()
                     };
                     let mut values = EntityPartVec::new();
                     for (vname, val) in avalues {
                         let vname = self.eval_templ_id(vname)?;
-                        let Some(vid) =
-                            self.db.db.enum_classes[ecid].values.get(&vname.to_string())
+                        let Some(vid) = self.dbs.variants[vid].db.enum_classes[ecid]
+                            .values
+                            .get(&vname.to_string())
                         else {
                             error_at(name.span(), "unknown enum value")?
                         };
@@ -1060,9 +1453,9 @@ impl Context {
                 } else {
                     let mut bits = vec![];
                     for bit in &attr.bits {
-                        bits.push(self.eval_pol_tile_bit(tcls, bit)?);
+                        bits.push(self.eval_pol_tile_bit(vid, tcls, bit)?);
                     }
-                    match cattr.typ {
+                    match typ {
                         BelAttributeType::U32 => {
                             error_at(name.span(), "u32 not allowed in attributes")?
                         }
@@ -1086,11 +1479,58 @@ impl Context {
                 }
             }
             ast::BelItem::ForLoop(for_loop) => self.eval_for(for_loop, |ctx, subitem| {
-                ctx.eval_bel(tcls, bslot, bcls, bel, subitem)
+                ctx.eval_bel(vid, tcls, bslot, bcls, bel, subitem)
             })?,
             ast::BelItem::If(if_) => {
                 self.eval_if(IfContext::Bel(tcls, bslot), if_, |ctx, subitem| {
-                    ctx.eval_bel(tcls, bslot, bcls, bel, subitem)
+                    if ctx.if_mask[vid] {
+                        ctx.eval_bel(vid, tcls, bslot, bcls, bel, subitem)
+                    } else {
+                        Ok(())
+                    }
+                })?
+            }
+        }
+        Ok(())
+    }
+
+    fn eval_connector_slot_phase1(
+        &mut self,
+        cslot: ConnectorSlotId,
+        item: &ast::ConnectorSlotItem,
+    ) -> Result<()> {
+        match item {
+            ast::ConnectorSlotItem::Opposite(_) => (),
+            ast::ConnectorSlotItem::ConnectorClass(ccls) => {
+                for raw_name in &ccls.names {
+                    let name = self.eval_templ_id(raw_name)?;
+                    let (ccid, name) = self.dbs.ccls_id.insert(&name);
+                    for vid in self.active_variants() {
+                        if self.dbs.variants[vid]
+                            .db
+                            .conn_classes
+                            .insert(
+                                ccid,
+                                ConnectorClass {
+                                    name: name.clone(),
+                                    slot: cslot,
+                                    wires: Default::default(),
+                                },
+                            )
+                            .is_err()
+                        {
+                            error_at(raw_name.span(), "connector class redefined")?;
+                        }
+                    }
+                }
+            }
+            ast::ConnectorSlotItem::ForLoop(for_loop) => self
+                .eval_for(for_loop, |ctx, subitem| {
+                    ctx.eval_connector_slot_phase1(cslot, subitem)
+                })?,
+            ast::ConnectorSlotItem::If(if_) => {
+                self.eval_if(IfContext::Top, if_, |ctx, subitem| {
+                    ctx.eval_connector_slot_phase1(cslot, subitem)
                 })?
             }
         }
@@ -1100,35 +1540,25 @@ impl Context {
     fn eval_connector_slot(
         &mut self,
         cslot: ConnectorSlotId,
-        got_opposite: &mut bool,
+        got_opposite: &mut EntityVec<VariantId, bool>,
         item: &ast::ConnectorSlotItem,
     ) -> Result<()> {
         match item {
             ast::ConnectorSlotItem::Opposite(ident) => {
-                if *got_opposite {
-                    error_at(ident.span(), "opposite slot redefined")?;
-                }
-                *got_opposite = true;
                 let ident = self.eval_templ_id(ident)?;
-                let Some((opposite, _)) = self.db.db.conn_slots.get(&ident.to_string()) else {
-                    error_at(ident.span(), &format!("undefined connector slot: {ident}"))?
-                };
-                self.db.db.conn_slots[cslot].opposite = opposite;
+                for vid in self.active_variants() {
+                    if got_opposite[vid] {
+                        error_at(ident.span(), "opposite slot redefined")?;
+                    }
+                    got_opposite[vid] = true;
+                    let opposite = self.eval_conn_slot_ref(vid, &ident)?;
+                    self.dbs.variants[vid].db.conn_slots[cslot].opposite = opposite;
+                }
             }
             ast::ConnectorSlotItem::ConnectorClass(ccls) => {
                 for name in &ccls.names {
                     let name = self.eval_templ_id(name)?;
-                    let (ccid, prev) = self.db.db.conn_classes.insert(
-                        name.to_string(),
-                        ConnectorClass {
-                            slot: cslot,
-                            wires: Default::default(),
-                        },
-                    );
-                    if prev.is_some() {
-                        error_at(name.span(), "connector class redefined")?;
-                    }
-                    self.db.ccls_id.push(name);
+                    let ccid = self.dbs.ccls_id.get(&name);
                     for item in &ccls.items {
                         self.eval_connector_class(ccid, item)?;
                     }
@@ -1154,55 +1584,66 @@ impl Context {
     ) -> Result<()> {
         match item {
             ast::ConnectorClassItem::Pass(dst, src) => {
-                let span = dst.span();
-                let dst = self.eval_array_ref_wide(dst, &self.db.wire_id)?;
-                let src = self.eval_array_ref_wide(src, &self.db.wire_id)?;
-                let ccls = &mut self.db.db.conn_classes[ccls];
-                match (dst, src) {
-                    (EntityBundleIndices::Single(dst), EntityBundleIndices::Single(src)) => {
-                        ccls.wires.insert(dst, ConnectorWire::Pass(src));
-                    }
-                    (EntityBundleIndices::Array(dsts), EntityBundleIndices::Array(srcs))
-                        if dsts.len() == srcs.len() =>
-                    {
-                        for (dst, src) in dsts.into_iter().zip(srcs) {
+                for vid in self.active_variants() {
+                    let span = dst.span();
+                    let dst = self.eval_wire_ref_wide(vid, dst)?;
+                    let src = self.eval_wire_ref_wide(vid, src)?;
+                    let ccls = &mut self.dbs.variants[vid].db.conn_classes[ccls];
+                    match (dst, src) {
+                        (EntityBundleIndices::Single(dst), EntityBundleIndices::Single(src)) => {
                             ccls.wires.insert(dst, ConnectorWire::Pass(src));
                         }
+                        (EntityBundleIndices::Array(dsts), EntityBundleIndices::Array(srcs))
+                            if dsts.len() == srcs.len() =>
+                        {
+                            for (dst, src) in dsts.into_iter().zip(srcs) {
+                                ccls.wires.insert(dst, ConnectorWire::Pass(src));
+                            }
+                        }
+                        _ => error_at(span, "assignment width mismatch")?,
                     }
-                    _ => error_at(span, "assignment width mismatch")?,
                 }
             }
             ast::ConnectorClassItem::Reflect(dst, src) => {
-                let span = dst.span();
-                let dst = self.eval_array_ref_wide(dst, &self.db.wire_id)?;
-                let src = self.eval_array_ref_wide(src, &self.db.wire_id)?;
-                let ccls = &mut self.db.db.conn_classes[ccls];
-                match (dst, src) {
-                    (EntityBundleIndices::Single(dst), EntityBundleIndices::Single(src)) => {
-                        ccls.wires.insert(dst, ConnectorWire::Reflect(src));
-                    }
-                    (EntityBundleIndices::Array(dsts), EntityBundleIndices::Array(srcs))
-                        if dsts.len() == srcs.len() =>
-                    {
-                        for (dst, src) in dsts.into_iter().zip(srcs) {
+                for vid in self.active_variants() {
+                    let span = dst.span();
+                    let dst = self.eval_wire_ref_wide(vid, dst)?;
+                    let src = self.eval_wire_ref_wide(vid, src)?;
+                    let ccls = &mut self.dbs.variants[vid].db.conn_classes[ccls];
+                    match (dst, src) {
+                        (EntityBundleIndices::Single(dst), EntityBundleIndices::Single(src)) => {
                             ccls.wires.insert(dst, ConnectorWire::Reflect(src));
                         }
+                        (EntityBundleIndices::Array(dsts), EntityBundleIndices::Array(srcs))
+                            if dsts.len() == srcs.len() =>
+                        {
+                            for (dst, src) in dsts.into_iter().zip(srcs) {
+                                ccls.wires.insert(dst, ConnectorWire::Reflect(src));
+                            }
+                        }
+                        _ => error_at(span, "assignment width mismatch")?,
                     }
-                    _ => error_at(span, "assignment width mismatch")?,
                 }
             }
             ast::ConnectorClassItem::Blackhole(dst) => {
-                let dst = self.eval_array_ref_wide(dst, &self.db.wire_id)?;
-                let ccls = &mut self.db.db.conn_classes[ccls];
-                match dst {
-                    EntityBundleIndices::Single(dst) => {
-                        ccls.wires.insert(dst, ConnectorWire::BlackHole);
-                    }
-                    EntityBundleIndices::Array(dsts) => {
-                        for dst in dsts {
+                for vid in self.active_variants() {
+                    let dst = self.eval_wire_ref_wide(vid, dst)?;
+                    let ccls = &mut self.dbs.variants[vid].db.conn_classes[ccls];
+                    match dst {
+                        EntityBundleIndices::Single(dst) => {
                             ccls.wires.insert(dst, ConnectorWire::BlackHole);
                         }
+                        EntityBundleIndices::Array(dsts) => {
+                            for dst in dsts {
+                                ccls.wires.insert(dst, ConnectorWire::BlackHole);
+                            }
+                        }
                     }
+                }
+            }
+            ast::ConnectorClassItem::Skip => {
+                for vid in self.active_variants() {
+                    self.dbs.variants[vid].skip_ccls.insert(ccls);
                 }
             }
             ast::ConnectorClassItem::ForLoop(for_loop) => self
@@ -1221,26 +1662,36 @@ impl Context {
     fn eval_table(&mut self, tid: TableId, item: &ast::TableItem) -> Result<()> {
         match item {
             ast::TableItem::Field(field) => {
-                let typ = self.eval_attribute_type(&field.typ)?;
-                for name in &field.names {
-                    let ident = self.eval_templ_id(name)?;
-                    let (_, prev) = self.db.db.tables[tid].fields.insert(ident.to_string(), typ);
-                    if prev.is_some() {
-                        error_at(ident.span(), "table field redefined")?
+                for vid in self.active_variants() {
+                    let typ = self.eval_attribute_type(vid, &field.typ)?;
+                    for name in &field.names {
+                        let ident = self.eval_templ_id(name)?;
+                        let (_, prev) = self.dbs.variants[vid].db.tables[tid]
+                            .fields
+                            .insert(ident.to_string(), typ);
+                        if prev.is_some() {
+                            error_at(ident.span(), "table field redefined")?
+                        }
+                        self.dbs.variants[vid].table[tid]
+                            .field_id
+                            .insert(ident.to_string(), ident.clone());
                     }
-                    self.db.table[tid].field_id.push(ident.clone());
                 }
             }
             ast::TableItem::Row(names) => {
-                for name in names {
-                    let ident = self.eval_templ_id(name)?;
-                    let (_, prev) = self.db.db.tables[tid]
-                        .rows
-                        .insert(ident.to_string(), EntityPartVec::new());
-                    if prev.is_some() {
-                        error_at(ident.span(), "table row redefined")?
+                for vid in self.active_variants() {
+                    for name in names {
+                        let ident = self.eval_templ_id(name)?;
+                        let (_, prev) = self.dbs.variants[vid].db.tables[tid]
+                            .rows
+                            .insert(ident.to_string(), EntityPartVec::new());
+                        if prev.is_some() {
+                            error_at(ident.span(), "table row redefined")?
+                        }
+                        self.dbs.variants[vid].table[tid]
+                            .row_id
+                            .insert(ident.to_string(), ident.clone());
                     }
-                    self.db.table[tid].row_id.push(ident.clone());
                 }
             }
             ast::TableItem::ForLoop(for_loop) => {
@@ -1253,29 +1704,25 @@ impl Context {
         Ok(())
     }
 
-    fn eval_wire_kind(&self, kind: &ast::WireKind) -> Result<WireKind> {
+    fn eval_wire_kind(&mut self, vid: VariantId, kind: &ast::WireKind) -> Result<WireKind> {
         match kind {
             ast::WireKind::Tie0 => Ok(WireKind::Tie0),
             ast::WireKind::Tie1 => Ok(WireKind::Tie1),
             ast::WireKind::TiePullup => Ok(WireKind::TiePullup),
-            ast::WireKind::Regional(id) => {
-                let rslot = self.eval_array_ref(id, &self.db.rslot_id)?;
+            ast::WireKind::Regional(ident) => {
+                let rslot = self.eval_region_slot_ref(vid, ident)?;
                 Ok(WireKind::Regional(rslot))
             }
             ast::WireKind::Mux => Ok(WireKind::MuxOut),
             ast::WireKind::Bel => Ok(WireKind::BelOut),
             ast::WireKind::Test => Ok(WireKind::TestOut),
             ast::WireKind::MultiRoot => Ok(WireKind::MultiRoot),
-            ast::WireKind::MultiBranch(id) => {
-                let Some((csid, _)) = self.db.db.conn_slots.get(&id.to_string()) else {
-                    error_at(id.span(), &format!("undefined connector slot: {id}"))?
-                };
+            ast::WireKind::MultiBranch(ident) => {
+                let csid = self.eval_conn_slot_ref(vid, ident)?;
                 Ok(WireKind::MultiBranch(csid))
             }
-            ast::WireKind::Branch(id) => {
-                let Some((csid, _)) = self.db.db.conn_slots.get(&id.to_string()) else {
-                    error_at(id.span(), &format!("undefined connector slot: {id}"))?
-                };
+            ast::WireKind::Branch(ident) => {
+                let csid = self.eval_conn_slot_ref(vid, ident)?;
                 Ok(WireKind::Branch(csid))
             }
             ast::WireKind::Special => Ok(WireKind::Special),
@@ -1283,18 +1730,19 @@ impl Context {
     }
 
     fn eval_wire_kinds(
-        &self,
+        &mut self,
+        vid: VariantId,
         span: Span,
         kind: &ast::WireKinds,
         idx: Option<usize>,
     ) -> Result<WireKind> {
         match kind {
-            ast::WireKinds::Single(kind) => self.eval_wire_kind(kind),
+            ast::WireKinds::Single(kind) => self.eval_wire_kind(vid, kind),
             ast::WireKinds::Multi(kinds) => {
                 let idx = idx.unwrap();
                 for (range, kind) in kinds {
                     if range.contains(&idx) {
-                        return self.eval_wire_kind(kind);
+                        return self.eval_wire_kind(vid, kind);
                     }
                 }
                 error_at(span, "index not in match")?
@@ -1302,108 +1750,184 @@ impl Context {
         }
     }
 
-    fn eval_top_ph1(&mut self, item: &ast::TopItem) -> Result<()> {
+    fn eval_top_phase1(&mut self, item: &ast::TopItem) -> Result<()> {
         match item {
             ast::TopItem::Variant(ident) => {
                 error_at(ident.span(), "variants must be at the top level")?;
             }
             ast::TopItem::BitRectClass(brc) => {
-                if self
-                    .bitrect_geoms
-                    .insert(brc.name.to_string(), brc.geometry)
-                    .is_some()
-                {
-                    error_at(brc.name.span(), "bitrect class redefined")?;
+                for vid in self.active_variants() {
+                    if self.dbs.variants[vid]
+                        .bitrect_geoms
+                        .insert(brc.name.to_string(), brc.geometry)
+                        .is_some()
+                    {
+                        error_at(brc.name.span(), "bitrect class redefined")?;
+                    }
                 }
             }
-            ast::TopItem::EnumClass(ecls) => {
+            ast::TopItem::EnumClass(a_ecls) => {
+                let (ecid, name) = self.dbs.enum_id.insert(&a_ecls.name);
+
                 let mut values = EntitySet::new();
-                let mut vids = EntityVec::new();
-                for val in &ecls.values {
+                let mut vids = EntityMap::new();
+                for val in &a_ecls.values {
                     let (_vid, new) = values.insert(val.to_string());
                     if !new {
                         error_at(val.span(), "enum value redefined")?;
                     }
-                    vids.push(val.clone());
+                    vids.insert(val.to_string(), val.clone());
                 }
-                let (_eclsid, prev) = self
-                    .db
-                    .db
-                    .enum_classes
-                    .insert(ecls.name.to_string(), EnumClass { values });
-                if prev.is_some() {
-                    error_at(ecls.name.span(), "enum class redefined")?;
+                let ecls = EnumClass { name, values };
+                for vid in self.active_variants() {
+                    let variant = &mut self.dbs.variants[vid];
+                    if variant.db.enum_classes.insert(ecid, ecls.clone()).is_err() {
+                        error_at(a_ecls.name.span(), "enum class redefined")?;
+                    }
+                    variant.eval_id.insert(ecid, vids.clone());
                 }
-                self.db.enum_id.push(ecls.name.clone());
-                self.db.eval_id.push(vids);
             }
             ast::TopItem::BelClass(bcls) => {
-                let (_bcid, prev) = self
-                    .db
-                    .db
-                    .bel_classes
-                    .insert(bcls.name.to_string(), BelClass::default());
-                if prev.is_some() {
-                    error_at(bcls.name.span(), "bel class redefined")?;
+                let (bcid, name) = self.dbs.bcls_id.insert(&bcls.name);
+
+                for vid in self.active_variants() {
+                    let variant = &mut self.dbs.variants[vid];
+                    if variant
+                        .db
+                        .bel_classes
+                        .insert(
+                            bcid,
+                            BelClass {
+                                name: name.clone(),
+                                inputs: Default::default(),
+                                outputs: Default::default(),
+                                bidirs: Default::default(),
+                                pads: Default::default(),
+                                attributes: Default::default(),
+                            },
+                        )
+                        .is_err()
+                    {
+                        error_at(bcls.name.span(), "bel class redefined")?;
+                    }
+                    variant.bcls.insert(bcid, Default::default());
                 }
-                self.db.bcls_id.push(bcls.name.clone());
-                self.db.bcls.push(Default::default());
             }
             ast::TopItem::TileSlot(tslot) => {
-                let name = self.eval_templ_id(&tslot.name)?;
-                let (_tsid, new) = self.db.db.tile_slots.insert(name.to_string());
-                if !new {
-                    error_at(tslot.name.span(), "tile slot redefined")?;
+                let ident = self.eval_templ_id(&tslot.name)?;
+                let (tsid, name) = self.dbs.tslot_id.insert(&ident);
+
+                for vid in self.active_variants() {
+                    let variant = &mut self.dbs.variants[vid];
+                    if variant.db.tile_slots.insert(tsid, name.clone()).is_err() {
+                        error_at(tslot.name.span(), "tile slot redefined")?;
+                    }
                 }
-                self.db.tslot_id.push(name);
+                for item in &tslot.items {
+                    self.eval_tile_slot_phase1(tsid, item)?;
+                }
             }
             ast::TopItem::RegionSlot(rslot) => {
-                let (name, num) = match &rslot.name {
-                    ast::ArrayIdDef::Plain(id) => (id, None),
-                    ast::ArrayIdDef::Array(id, n) => (id, Some(*n)),
-                };
-                let name = self.eval_templ_id(name)?;
-                if let Some(num) = num {
-                    let Some(range) =
-                        self.db
-                            .rslot_id
-                            .insert_array(name.to_string(), num, name.clone())
-                    else {
-                        error_at(name.span(), "region slot redefined")?
+                for vid in self.active_variants() {
+                    let (name, num) = match &rslot.name {
+                        ast::ArrayIdDef::Plain(id) => (id, None),
+                        ast::ArrayIdDef::Array(id, n) => (id, Some(*n)),
                     };
-                    assert_eq!(range.first().unwrap(), self.db.db.region_slots.next_id());
-                    for i in 0..num {
-                        self.db.db.region_slots.insert(format!("{name}[{i}]"));
+                    let name = self.eval_templ_id(name)?;
+                    if let Err(msg) = self.rslot_pre.insert(vid, &name, num) {
+                        error_at(name.span(), msg)?
                     }
-                } else {
-                    let Some(id) = self.db.rslot_id.insert(name.to_string(), name.clone()) else {
-                        error_at(name.span(), "region slot redefined")?
-                    };
-                    assert_eq!(id, self.db.db.region_slots.next_id());
-                    self.db.db.region_slots.insert(name.to_string());
                 }
             }
             ast::TopItem::ConnectorSlot(cslot) => {
-                let name = self.eval_templ_id(&cslot.name)?;
-                let (_csid, prev) = self.db.db.conn_slots.insert(
-                    name.to_string(),
-                    ConnectorSlot {
-                        opposite: ConnectorSlotId::from_idx(0),
-                    },
-                );
-                if prev.is_some() {
-                    error_at(cslot.name.span(), "connector slot redefined")?;
+                let ident = self.eval_templ_id(&cslot.name)?;
+                let (csid, name) = self.dbs.cslot_id.insert(&ident);
+
+                for vid in self.active_variants() {
+                    let variant = &mut self.dbs.variants[vid];
+                    if variant
+                        .db
+                        .conn_slots
+                        .insert(
+                            csid,
+                            ConnectorSlot {
+                                name: name.to_string(),
+                                opposite: ConnectorSlotId::from_idx(0),
+                            },
+                        )
+                        .is_err()
+                    {
+                        error_at(cslot.name.span(), "connector slot redefined")?;
+                    }
                 }
-                self.db.cslot_id.push(name);
+                for item in &cslot.items {
+                    self.eval_connector_slot_phase1(csid, item)?;
+                }
             }
-            ast::TopItem::Wire(_) => (),
-            ast::TopItem::Table(_) => (),
-            ast::TopItem::DeviceData(_) => (),
+            ast::TopItem::Wire(wire) => {
+                for vid in self.active_variants() {
+                    let (name, num) = match &wire.name {
+                        ast::ArrayIdDef::Plain(id) => (id, None),
+                        ast::ArrayIdDef::Array(id, n) => (id, Some(*n)),
+                    };
+                    let name = self.eval_templ_id(name)?;
+                    if let Err(msg) = self.wire_pre.insert(vid, &name, num) {
+                        error_at(name.span(), msg)?
+                    }
+                }
+            }
+            ast::TopItem::Table(table) => {
+                let ident = self.eval_templ_id(&table.name)?;
+                let (tid, name) = self.dbs.table_id.insert(&ident);
+                for vid in self.active_variants() {
+                    let variant = &mut self.dbs.variants[vid];
+                    variant.table.insert(tid, Default::default());
+                    if variant
+                        .db
+                        .tables
+                        .insert(
+                            tid,
+                            Table {
+                                name: name.clone(),
+                                fields: Default::default(),
+                                rows: Default::default(),
+                            },
+                        )
+                        .is_err()
+                    {
+                        error_at(table.name.span(), "table redefined")?;
+                    }
+                }
+            }
+            ast::TopItem::DeviceData(devdata) => {
+                for raw_name in &devdata.names {
+                    let ident = self.eval_templ_id(raw_name)?;
+                    let (ddid, name) = self.dbs.devdata_id.insert(&ident);
+                    for vid in self.active_variants() {
+                        let variant = &mut self.dbs.variants[vid];
+                        if variant
+                            .db
+                            .devdata
+                            .insert(
+                                ddid,
+                                DeviceDataSlot {
+                                    name: name.clone(),
+                                    // overwritten later
+                                    typ: BelAttributeType::Bool,
+                                },
+                            )
+                            .is_err()
+                        {
+                            error_at(raw_name.span(), "device data redefined")?;
+                        }
+                    }
+                }
+            }
             ast::TopItem::ForLoop(for_loop) => {
-                self.eval_for(for_loop, |ctx, subitem| ctx.eval_top_ph1(subitem))?
+                self.eval_for(for_loop, |ctx, subitem| ctx.eval_top_phase1(subitem))?
             }
             ast::TopItem::If(if_) => self.eval_if(IfContext::Top, if_, |ctx, subitem| {
-                ctx.eval_top_ph1(subitem)
+                ctx.eval_top_phase1(subitem)
             })?,
         }
         Ok(())
@@ -1417,20 +1941,14 @@ impl Context {
             ast::TopItem::BitRectClass(_) => (),
             ast::TopItem::EnumClass(_) => (),
             ast::TopItem::BelClass(bcls) => {
-                let bcid = self
-                    .db
-                    .db
-                    .bel_classes
-                    .get(&bcls.name.to_string())
-                    .unwrap()
-                    .0;
+                let bcid = self.dbs.bcls_id.get(&bcls.name);
                 for item in &bcls.items {
                     self.eval_bel_class(bcid, item)?;
                 }
             }
             ast::TopItem::TileSlot(tslot) => {
                 let name = self.eval_templ_id(&tslot.name)?;
-                let tsid = self.db.db.tile_slots.get(&name.to_string()).unwrap();
+                let tsid = self.dbs.tslot_id.get(&name);
                 for item in &tslot.items {
                     self.eval_tile_slot(tsid, item)?;
                 }
@@ -1438,70 +1956,54 @@ impl Context {
             ast::TopItem::RegionSlot(_) => (),
             ast::TopItem::ConnectorSlot(cslot) => {
                 let name = self.eval_templ_id(&cslot.name)?;
-                let csid = self.db.db.conn_slots.get(&name.to_string()).unwrap().0;
-                let mut got_opposite = false;
+                let csid = self.dbs.cslot_id.get(&name);
+
+                let mut got_opposite = self.dbs.variants.map_values(|_| false);
                 for item in &cslot.items {
                     self.eval_connector_slot(csid, &mut got_opposite, item)?;
                 }
-                if !got_opposite {
-                    error_at(cslot.name.span(), "missing opposite connector slot")?;
+                for vid in self.active_variants() {
+                    if !got_opposite[vid] {
+                        error_at(cslot.name.span(), "missing opposite connector slot")?;
+                    }
                 }
             }
             ast::TopItem::Wire(wire) => {
-                let (name, num) = match &wire.name {
+                let (raw_name, num) = match &wire.name {
                     ast::ArrayIdDef::Plain(id) => (id, None),
                     ast::ArrayIdDef::Array(id, n) => (id, Some(*n)),
                 };
-                let name = self.eval_templ_id(name)?;
-                if let Some(num) = num {
-                    let Some(range) =
-                        self.db
-                            .wire_id
-                            .insert_array(name.to_string(), num, name.clone())
-                    else {
-                        error_at(name.span(), "wire redefined")?
-                    };
-                    assert_eq!(range.first().unwrap(), self.db.db.wires.next_id());
-                    for i in 0..num {
-                        let kind = self.eval_wire_kinds(name.span(), &wire.kinds, Some(i))?;
-                        self.db.db.wires.insert(format!("{name}[{i}]"), kind);
+                let name = self.eval_templ_id(raw_name)?;
+                for vid in self.active_variants() {
+                    if let Some(num) = num {
+                        for i in 0..num {
+                            let id = self.dbs.wire_id.get(&name, Some(i));
+                            let kind =
+                                self.eval_wire_kinds(vid, raw_name.span(), &wire.kinds, Some(i))?;
+                            self.dbs.variants[vid].db.wires[id].kind = kind;
+                        }
+                    } else {
+                        let id = self.dbs.wire_id.get(&name, None);
+                        let kind = self.eval_wire_kinds(vid, raw_name.span(), &wire.kinds, None)?;
+                        self.dbs.variants[vid].db.wires[id].kind = kind;
                     }
-                } else {
-                    let Some(id) = self.db.wire_id.insert(name.to_string(), name.clone()) else {
-                        error_at(name.span(), "wire redefined")?
-                    };
-                    assert_eq!(id, self.db.db.wires.next_id());
-                    let kind = self.eval_wire_kinds(name.span(), &wire.kinds, None)?;
-                    self.db.db.wires.insert(name.to_string(), kind);
                 }
             }
             ast::TopItem::Table(table) => {
-                let name = self.eval_templ_id(&table.name)?;
-                let (tid, prev) = self.db.db.tables.insert(
-                    name.to_string(),
-                    Table {
-                        fields: Default::default(),
-                        rows: Default::default(),
-                    },
-                );
-                if prev.is_some() {
-                    error_at(table.name.span(), "table redefined")?;
-                }
-                self.db.table_id.push(name);
-                self.db.table.push(Default::default());
+                let ident = self.eval_templ_id(&table.name)?;
+                let tid = self.dbs.table_id.get(&ident);
                 for item in &table.items {
                     self.eval_table(tid, item)?;
                 }
             }
             ast::TopItem::DeviceData(devdata) => {
-                let typ = self.eval_attribute_type(&devdata.typ)?;
-                for name in &devdata.names {
-                    let ident = self.eval_templ_id(name)?;
-                    let (_, prev) = self.db.db.devdata.insert(ident.to_string(), typ);
-                    if prev.is_some() {
-                        error_at(ident.span(), "device data redefined")?
+                for vid in self.active_variants() {
+                    let typ = self.eval_attribute_type(vid, &devdata.typ)?;
+                    for raw_name in &devdata.names {
+                        let ident = self.eval_templ_id(raw_name)?;
+                        let ddid = self.dbs.devdata_id.get(&ident);
+                        self.dbs.variants[vid].db.devdata[ddid].typ = typ;
                     }
-                    self.db.devdata_id.push(ident.clone());
                 }
             }
             ast::TopItem::ForLoop(for_loop) => {
@@ -1515,60 +2017,102 @@ impl Context {
     }
 }
 
-fn eval_variant(variant: Option<Ident>, items: &[ast::TopItem]) -> Result<AnnotatedDb> {
+pub fn eval(items: Vec<ast::TopItem>) -> Result<AnnotatedDbSet> {
+    let mut variants = vec![];
+    for item in &items {
+        if let ast::TopItem::Variant(variant) = item {
+            variants.push(Some(variant.clone()));
+        }
+    }
+    if variants.is_empty() {
+        variants.push(None);
+    }
+    let num_variants = variants.len();
+    let if_mask = variants.iter().map(|_| true).collect();
     let mut ctx = Context {
-        db: AnnotatedDb {
-            name: variant,
-            db: IntDb::default(),
-            enum_id: EntityVec::new(),
-            eval_id: EntityVec::new(),
-            tslot_id: EntityVec::new(),
-            cslot_id: EntityVec::new(),
+        dbs: AnnotatedDbSet {
+            variants: variants
+                .into_iter()
+                .map(|variant| AnnotatedDb {
+                    name: variant,
+                    db: IntDb::default(),
+                    eval_id: Default::default(),
+                    bcls: EntityPartVec::new(),
+                    tcls_cell_id: Default::default(),
+                    tcls_bitrect_id: Default::default(),
+                    table: Default::default(),
+                    bitrect_geoms: Default::default(),
+                    skip_tcls: Default::default(),
+                    skip_ccls: Default::default(),
+                })
+                .collect(),
+            enum_id: Default::default(),
+            tslot_id: Default::default(),
+            cslot_id: Default::default(),
             bslot_id: Default::default(),
             rslot_id: Default::default(),
-            tcls_id: EntityVec::new(),
-            ccls_id: EntityVec::new(),
-            bcls_id: EntityVec::new(),
-            bcls: EntityVec::new(),
             wire_id: Default::default(),
-            tcls_cell_id: Default::default(),
-            tcls_bitrect_id: Default::default(),
+            tcls_id: Default::default(),
+            ccls_id: Default::default(),
+            bcls_id: Default::default(),
             table_id: Default::default(),
-            table: Default::default(),
             devdata_id: Default::default(),
         },
+        if_mask,
         for_vars: Default::default(),
-        bitrect_geoms: Default::default(),
+        bslot_pre: BundleIdentPreRegistry::new(num_variants),
+        rslot_pre: BundleIdentPreRegistry::new(num_variants),
+        wire_pre: BundleIdentPreRegistry::new(num_variants),
     };
-    for item in items {
+    for item in &items {
         if let ast::TopItem::Variant(_) = item {
             continue;
         }
-        ctx.eval_top_ph1(item)?;
+        ctx.eval_top_phase1(item)?;
     }
-    for item in items {
+
+    let (bslot_id, vars) = ctx.bslot_pre.finish(|name| BelSlot {
+        name,
+        // overwritten later
+        tile_slot: TileSlotId::from_idx(0),
+        kind: BelKind::Legacy,
+    });
+    ctx.dbs.bslot_id = bslot_id;
+    for (vid, bel_slots) in vars {
+        ctx.dbs.variants[vid].db.bel_slots = bel_slots;
+    }
+
+    let (rslot_id, vars) = ctx.rslot_pre.finish(|name| name);
+    ctx.dbs.rslot_id = rslot_id;
+    for (vid, region_slots) in vars {
+        ctx.dbs.variants[vid].db.region_slots = region_slots;
+    }
+
+    let (wire_id, vars) = ctx.wire_pre.finish(|name| WireSlot {
+        name,
+        // overwritten later
+        kind: WireKind::Special,
+    });
+    ctx.dbs.wire_id = wire_id;
+    for (vid, wires) in vars {
+        ctx.dbs.variants[vid].db.wires = wires;
+    }
+
+    for item in &items {
         if let ast::TopItem::Variant(_) = item {
             continue;
         }
         ctx.eval_top(item)?;
     }
-    Ok(ctx.db)
-}
 
-pub fn eval(items: Vec<ast::TopItem>) -> Result<Vec<AnnotatedDb>> {
-    let mut variants = vec![];
-    for item in &items {
-        if let ast::TopItem::Variant(variant) = item {
-            variants.push(variant.clone());
+    for db in ctx.dbs.variants.values_mut() {
+        for &tcid in &db.skip_tcls {
+            db.db.tile_classes.remove(tcid);
+        }
+        for &ccid in &db.skip_ccls {
+            db.db.conn_classes.remove(ccid);
         }
     }
-    if variants.is_empty() {
-        Ok(vec![eval_variant(None, &items)?])
-    } else {
-        let mut res = vec![];
-        for variant in variants {
-            res.push(eval_variant(Some(variant), &items)?);
-        }
-        Ok(res)
-    }
+
+    Ok(ctx.dbs)
 }

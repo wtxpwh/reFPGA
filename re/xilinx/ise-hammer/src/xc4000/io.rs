@@ -83,7 +83,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
     let ExpandedDevice::Xc2000(edev) = backend.edev else {
         unreachable!()
     };
-    for (tcid, _, tcls) in &backend.edev.db.tile_classes {
+    for (tcid, tcls) in &backend.edev.db.tile_classes {
         let Some(mut ctx) = FuzzCtx::try_new(session, backend, tcid) else {
             continue;
         };
@@ -256,7 +256,8 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
     let ExpandedDevice::Xc2000(edev) = ctx.edev else {
         unreachable!()
     };
-    for (tcid, tile, tcls) in &edev.db.tile_classes {
+    for (tcid, tcls) in &edev.db.tile_classes {
+        let tcname = tcls.name.as_str();
         if !ctx.has_tcls(tcid) {
             continue;
         }
@@ -416,7 +417,7 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
                 ctx.collect_bel_attr(tcid, bslot, bcls::IO::DRIVE);
                 ctx.collect_bel_attr(tcid, bslot, bcls::IO::MUX_T);
             }
-            let rb_bits = match (&tile[..4], edev.chip.kind, i) {
+            let rb_bits = match (&tcname[..4], edev.chip.kind, i) {
                 ("IO_W", ChipKind::Xc4000E | ChipKind::SpartanXl, 0) => [
                     (bcls::IO::READBACK_I1, TileBit::new(0, 25, 8)),
                     (bcls::IO::READBACK_I2, TileBit::new(0, 23, 8)),

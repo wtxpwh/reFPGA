@@ -1781,45 +1781,77 @@ target_defs! {
     region_slot DCM_CLKPAD;
     region_slot DCM_BUS;
 
-    if variant virtex2 {
-        wire PULLUP: pullup;
+    wire PULLUP: pullup;
 
+    // GCLK roots (BUFGMUX direct outputs)
+    if variant virtex2 {
         wire GCLK_S[8]: regional GLOBAL;
         wire GCLK_N[8]: regional GLOBAL;
+    } else {
+        wire GCLK_S[4]: regional GLOBAL;
+        wire GCLK_N[4]: regional GLOBAL;
+        // Spartan 3E / 3A only
+        wire GCLK_WE[8]: regional HCLK;
+    }
+    // per-region muxed clocks (except plain Spartan 3 where there's nothing to mux)
+    if variant virtex2 {
         wire GCLK_ROW[8]: regional HCLK;
-        wire GCLK[8]: regional LEAF;
+    } else {
+        wire GCLK_QUAD[8]: regional HCLK;
+    }
+    // 1-1 to the above, have an enable but not mux
+    wire GCLK[8]: regional LEAF;
+
+    if variant virtex2 {
+        // raw IOB outputs for clock input purposes, 1-1 to IOIs within the tile
         wire OUT_CLKPAD[4]: bel;
+        // permabuf-aliases of OUT_CLKPAD, now by per-side clock input index
         wire DCM_CLKPAD[8]: regional DCM_CLKPAD;
+        // DCM -> BUFGMUX path
         wire DCM_BUS[8]: regional DCM_BUS;
+    } else {
+        wire OUT_CLKPAD[2]: bel;
+        wire DCM_CLKPAD[4]: regional DCM_CLKPAD;
+        wire DCM_BUS[4]: regional DCM_BUS;
+    }
 
-        wire OMUX[16]: mux;
-        wire OMUX_S0: branch N;
-        wire OMUX_W1: branch E;
-        wire OMUX_WS1: branch N;
-        wire OMUX_E2: branch W;
-        wire OMUX_S2: branch N;
-        wire OMUX_S3: branch N;
-        wire OMUX_SE3: branch W;
-        wire OMUX_S4: branch N;
-        wire OMUX_S5: branch N;
-        wire OMUX_SW5: branch E;
-        wire OMUX_W6: branch E;
-        wire OMUX_E7: branch W;
-        wire OMUX_ES7: branch N;
-        wire OMUX_E8: branch W;
-        wire OMUX_EN8: branch S;
-        wire OMUX_W9: branch E;
-        wire OMUX_N10: branch S;
-        wire OMUX_NW10: branch E;
-        wire OMUX_N11: branch S;
-        wire OMUX_N12: branch S;
-        wire OMUX_NE12: branch W;
-        wire OMUX_E13: branch W;
+    // output muxes (all normal `OUT_*` go to those; `OUT_FAN` can also be routed
+    // directly to some imux / routing tracks, but for other outs `OMUX*` is the only path)
+    wire OMUX[16]: mux;
+    wire OMUX_S0: branch N;
+    wire OMUX_W1: branch E;
+    wire OMUX_WS1: branch N;
+    wire OMUX_E2: branch W;
+    wire OMUX_S2: branch N;
+    wire OMUX_S3: branch N;
+    wire OMUX_SE3: branch W;
+    wire OMUX_S4: branch N;
+    wire OMUX_S5: branch N;
+    wire OMUX_SW5: branch E;
+    wire OMUX_W6: branch E;
+    wire OMUX_E7: branch W;
+    wire OMUX_ES7: branch N;
+    wire OMUX_E8: branch W;
+    wire OMUX_EN8: branch S;
+    wire OMUX_W9: branch E;
+    if variant spartan3 {
+        wire OMUX_N9: branch S;
+    }
+    wire OMUX_N10: branch S;
+    wire OMUX_NW10: branch E;
+    wire OMUX_N11: branch S;
+    wire OMUX_N12: branch S;
+    wire OMUX_NE12: branch W;
+    wire OMUX_E13: branch W;
+    if variant virtex2 {
         wire OMUX_N13: branch S;
-        wire OMUX_W14: branch E;
-        wire OMUX_WN14: branch S;
-        wire OMUX_N15: branch S;
+    }
+    wire OMUX_W14: branch E;
+    wire OMUX_WN14: branch S;
+    wire OMUX_N15: branch S;
 
+    // 2 tiles long unidirectional routing paths, with a tap in the middle
+    if variant virtex2 {
         wire DBL_W0[10]: mux;
         wire DBL_W1[10]: branch E;
         wire DBL_W2[10]: branch E;
@@ -1836,7 +1868,27 @@ target_defs! {
         wire DBL_N1[10]: branch S;
         wire DBL_N2[10]: branch S;
         wire DBL_N3[10]: branch S;
+    } else {
+        wire DBL_W0[8]: mux;
+        wire DBL_W1[8]: branch E;
+        wire DBL_W2[8]: branch E;
+        wire DBL_W2_N[8]: branch S;
+        wire DBL_E0[8]: mux;
+        wire DBL_E1[8]: branch W;
+        wire DBL_E2[8]: branch W;
+        wire DBL_E2_S[8]: branch N;
+        wire DBL_S0[8]: mux;
+        wire DBL_S1[8]: branch N;
+        wire DBL_S2[8]: branch N;
+        wire DBL_S3[8]: branch N;
+        wire DBL_N0[8]: mux;
+        wire DBL_N1[8]: branch S;
+        wire DBL_N2[8]: branch S;
+        wire DBL_N3[8]: branch S;
+    }
 
+    // 6 tiles long unidirectional routing paths, with a tap in the middle
+    if variant virtex2 {
         wire HEX_W0[10]: mux;
         for i in 1..=6 {
             wire "HEX_W{i}"[10]: branch E;
@@ -1855,127 +1907,7 @@ target_defs! {
         for i in 1..=7 {
             wire "HEX_N{i}"[10]: branch S;
         }
-
-        wire LH[24]: multi_branch W;
-        wire LV[24]: multi_branch S;
-
-        wire IMUX_CLK[4]: mux;
-        wire IMUX_CLK_OPTINV[4]: mux;
-        wire IMUX_DCM_CLK[4]: mux;
-        wire IMUX_DCM_CLK_OPTINV[4]: mux;
-        wire IMUX_SR[4]: mux;
-        wire IMUX_SR_OPTINV[4]: mux;
-        wire IMUX_CE[4]: mux;
-        wire IMUX_CE_OPTINV[4]: mux;
-        wire IMUX_TI[2]: mux;
-        wire IMUX_TI_OPTINV[2]: mux;
-        wire IMUX_TS[2]: mux;
-        wire IMUX_TS_OPTINV[2]: mux;
-
-        for i in 1..=5 {
-            wire "IMUX_CLB_F{i}"[4]: mux;
-        }
-        for i in 1..=5 {
-            wire "IMUX_CLB_G{i}"[4]: mux;
-        }
-        wire IMUX_CLB_BX[4]: mux;
-        wire IMUX_CLB_BY[4]: mux;
-
-        for i in 0..4 {
-            wire "IMUX_G{i}_FAN"[2]: mux;
-            wire "IMUX_G{i}_DATA"[8]: mux;
-        }
-        wire IMUX_IOI_ICLK[4]: mux;
-        wire IMUX_IOI_TS1[4]: mux;
-        wire IMUX_IOI_TS2[4]: mux;
-        wire IMUX_IOI_ICE[4]: mux;
-        wire IMUX_IOI_TCE[4]: mux;
-
-        wire IMUX_BRAM_ADDRA[4]: mux;
-        for i in 1..=5 {
-            wire "IMUX_BRAM_ADDRA_S{i}"[4]: branch N;
-        }
-        for i in 1..=5 {
-            wire "IMUX_BRAM_ADDRA_N{i}"[4]: branch S;
-        }
-        wire IMUX_BRAM_ADDRB[4]: mux;
-        for i in 1..=5 {
-            wire "IMUX_BRAM_ADDRB_S{i}"[4]: branch N;
-        }
-        for i in 1..=5 {
-            wire "IMUX_BRAM_ADDRB_N{i}"[4]: branch S;
-        }
-
-        wire OUT_FAN[8]: bel;
-        wire OUT_FAN_BEL[8]: bel;
-        wire OUT_SEC[24]: bel;
-        wire OUT_SEC_BEL[24]: bel;
-        wire OUT_HALF0[18]: bel;
-        wire OUT_HALF1[18]: bel;
-        wire OUT_TEST[16]: bel;
-        wire OUT_TBUS: bel;
-        wire OUT_PCI[2]: bel;
-
-        wire IMUX_BUFG_CLK_INT[8]: mux;
-        wire IMUX_BUFG_CLK[8]: mux;
-        wire IMUX_BUFG_SEL[8]: mux;
     } else {
-        wire PULLUP: pullup;
-
-        wire GCLK_S[4]: regional GLOBAL;
-        wire GCLK_N[4]: regional GLOBAL;
-        wire GCLK_WE[8]: regional HCLK;
-        wire GCLK_QUAD[8]: regional HCLK;
-        wire GCLK[8]: regional LEAF;
-        wire OUT_CLKPAD[2]: bel;
-        wire DCM_CLKPAD[4]: regional DCM_CLKPAD;
-        wire DCM_BUS[4]: regional DCM_BUS;
-
-        wire OMUX[16]: mux;
-        wire OMUX_S0: branch N;
-        wire OMUX_W1: branch E;
-        wire OMUX_WS1: branch N;
-        wire OMUX_E2: branch W;
-        wire OMUX_S2: branch N;
-        wire OMUX_S3: branch N;
-        wire OMUX_SE3: branch W;
-        wire OMUX_S4: branch N;
-        wire OMUX_S5: branch N;
-        wire OMUX_SW5: branch E;
-        wire OMUX_W6: branch E;
-        wire OMUX_E7: branch W;
-        wire OMUX_ES7: branch N;
-        wire OMUX_E8: branch W;
-        wire OMUX_EN8: branch S;
-        wire OMUX_W9: branch E;
-        wire OMUX_N9: branch S;
-        wire OMUX_N10: branch S;
-        wire OMUX_NW10: branch E;
-        wire OMUX_N11: branch S;
-        wire OMUX_N12: branch S;
-        wire OMUX_NE12: branch W;
-        wire OMUX_E13: branch W;
-        wire OMUX_W14: branch E;
-        wire OMUX_WN14: branch S;
-        wire OMUX_N15: branch S;
-
-        wire DBL_W0[8]: mux;
-        wire DBL_W1[8]: branch E;
-        wire DBL_W2[8]: branch E;
-        wire DBL_W2_N[8]: branch S;
-        wire DBL_E0[8]: mux;
-        wire DBL_E1[8]: branch W;
-        wire DBL_E2[8]: branch W;
-        wire DBL_E2_S[8]: branch N;
-        wire DBL_S0[8]: mux;
-        wire DBL_S1[8]: branch N;
-        wire DBL_S2[8]: branch N;
-        wire DBL_S3[8]: branch N;
-        wire DBL_N0[8]: mux;
-        wire DBL_N1[8]: branch S;
-        wire DBL_N2[8]: branch S;
-        wire DBL_N3[8]: branch S;
-
         wire HEX_W0[8]: mux;
         for i in 1..=6 {
             wire "HEX_W{i}"[8]: branch E;
@@ -1994,38 +1926,132 @@ target_defs! {
         for i in 1..=7 {
             wire "HEX_N{i}"[8]: branch S;
         }
+    }
 
-        wire LH[24]: multi_branch W;
-        wire LV[24]: multi_branch S;
+    // rotating bus of 24 long wires, running the whole length of the device
+    // on larger Spartan 3E and 3A devices, splittable at the midpoint of the device
+    // any given wire can be driven every 6th tile
+    // fpgacore have only 12 long wires, not 24
+    wire LH[24]: multi_branch W;
+    wire LV[24]: multi_branch S;
 
-        wire IMUX_CLK[4]: mux;
-        wire IMUX_CLK_OPTINV[4]: mux;
-        wire IMUX_SR[4]: mux;
-        wire IMUX_SR_OPTINV[4]: mux;
-        wire IMUX_CE[4]: mux;
-        wire IMUX_CE_OPTINV[4]: mux;
+    // input multiplexers (directly feed bel inputs)
+
+    // control inputs (freely invertible)
+    wire IMUX_CLK[4]: mux;
+    wire IMUX_CLK_OPTINV[4]: mux;
+    if variant virtex2 {
+        wire IMUX_DCM_CLK[4]: mux;
+        wire IMUX_DCM_CLK_OPTINV[4]: mux;
+    }
+    wire IMUX_SR[4]: mux;
+    wire IMUX_SR_OPTINV[4]: mux;
+    wire IMUX_CE[4]: mux;
+    wire IMUX_CE_OPTINV[4]: mux;
+    if variant virtex2 {
+        wire IMUX_TI[2]: mux;
+        wire IMUX_TI_OPTINV[2]: mux;
+        wire IMUX_TS[2]: mux;
+        wire IMUX_TS_OPTINV[2]: mux;
+    }
+    if variant spartan3 {
+        // also freely invertible, but at bel level
         wire IMUX_IOCLK[8]: mux;
+    }
 
+    // general data inputs
+    if variant virtex2 {
+        // data inputs for CLB
+        for i in 1..=5 {
+            wire "IMUX_CLB_F{i}"[4]: mux;
+        }
+        for i in 1..=5 {
+            wire "IMUX_CLB_G{i}"[4]: mux;
+        }
+        wire IMUX_CLB_BX[4]: mux;
+        wire IMUX_CLB_BY[4]: mux;
+
+        // generic data inputs for everything else
+        for i in 0..4 {
+            wire "IMUX_G{i}_FAN"[2]: mux;
+            wire "IMUX_G{i}_DATA"[8]: mux;
+        }
+
+        // extra inputs for IOI (invertible, but at bel level)
+        wire IMUX_IOI_ICLK[4]: mux;
+        wire IMUX_IOI_TS1[4]: mux;
+        wire IMUX_IOI_TS2[4]: mux;
+        wire IMUX_IOI_ICE[4]: mux;
+        wire IMUX_IOI_TCE[4]: mux;
+
+        // address inputs for BRAM (have extra cascade routing)
+        wire IMUX_BRAM_ADDRA[4]: mux;
+        for i in 1..=5 {
+            wire "IMUX_BRAM_ADDRA_S{i}"[4]: branch N;
+        }
+        for i in 1..=5 {
+            wire "IMUX_BRAM_ADDRA_N{i}"[4]: branch S;
+        }
+        wire IMUX_BRAM_ADDRB[4]: mux;
+        for i in 1..=5 {
+            wire "IMUX_BRAM_ADDRB_S{i}"[4]: branch N;
+        }
+        for i in 1..=5 {
+            wire "IMUX_BRAM_ADDRB_N{i}"[4]: branch S;
+        }
+    } else {
         wire IMUX_FAN_BX[4]: mux;
         wire IMUX_FAN_BY[4]: mux;
+        // permabuf aliases of above (purpose unknown; remove?)
         wire IMUX_FAN_BX_BOUNCE[4]: mux;
         wire IMUX_FAN_BY_BOUNCE[4]: mux;
         wire IMUX_DATA[32]: mux;
+    }
 
-        wire OUT_FAN[8]: bel;
-        wire OUT_FAN_BEL[8]: bel;
+    // general bel outputs
+    // where test muxes are involved, the _BEL variants are direct outputs from the bel,
+    // while unsuffixed wire is the test mux output
+    // OUT_FAN is the primary output, with dedicated paths to some inputs / routing resources,
+    // and also a path to every OMUX
+    wire OUT_FAN[8]: bel;
+    wire OUT_FAN_BEL[8]: bel;
+    if variant virtex2 {
+        // OUT_SEC is secondary output, has to be routed through OMUX; has path to every OMUX
+        wire OUT_SEC[24]: bel;
+        wire OUT_SEC_BEL[24]: bel;
+        // OUT_HALF* are tertiary outputs; OUT_HALF0 have paths to OMUX[0..8], OUT_HALF1 have paths to OMUX[8..16]
+        wire OUT_HALF0[18]: bel;
+        wire OUT_HALF1[18]: bel;
+        // test outputs; each of them has path to only two of the OMUXes
+        wire OUT_TEST[16]: bel;
+        // tristate bus tap; has to be routed through OMUX
+        wire OUT_TBUS: bel;
+        // PCILOGIC special output; routed through the muxes in the TERM_[WE] tiles
+        wire OUT_PCI[2]: bel;
+    } else {
         wire OUT_SEC[16]: bel;
         wire OUT_SEC_BEL[16]: bel;
         wire OUT_HALF0[4]: bel;
         wire OUT_HALF1[4]: bel;
         wire OUT_HALF0_BEL[4]: bel;
         wire OUT_HALF1_BEL[4]: bel;
+    }
 
+    // special input muxes for BUFGMUX
+    if variant virtex2 {
+        // first-stage clock input muxes, for fabric inputs only
+        wire IMUX_BUFG_CLK_INT[8]: mux;
+        // final clock input muxes; mux between CLK_INT and dedicated CLKPAD/DCM paths
+        wire IMUX_BUFG_CLK[8]: mux;
+        wire IMUX_BUFG_SEL[8]: mux;
+    } else {
         wire IMUX_BUFG_CLK_INT[4]: mux;
         wire IMUX_BUFG_CLK[4]: mux;
         wire IMUX_BUFG_SEL[4]: mux;
+    }
 
-        // spartan3a only
+    if variant spartan3 {
+        // spartan3a only, MULT18X18SIO input; muxes between fabric input and direct path from BRAM
         wire IMUX_MULT_A[18]: mux;
         wire IMUX_MULT_B[18]: mux;
     }

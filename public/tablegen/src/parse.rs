@@ -868,6 +868,13 @@ impl Item for ast::TileClassItem {
                 tokenizer.finish()?;
                 ast::TileClassItem::BitRect(name, class)
             }
+            "skip" => {
+                if block.is_some() {
+                    error_at(keyword.span(), "skip does not accept a block")?;
+                }
+                tokenizer.finish()?;
+                ast::TileClassItem::Skip
+            }
             "switchbox" => ast::TileClassItem::SwitchBox(parse_switchbox(tokenizer, block)?),
             "bel" => ast::TileClassItem::Bel(parse_bel(tokenizer, block)?),
             _ => error_at(keyword.span(), &format!("unknown item keyword: {keyword}"))?,
@@ -1016,6 +1023,13 @@ impl Item for ast::ConnectorClassItem {
                 let dst = tokenizer.array_id_ref()?;
                 tokenizer.finish()?;
                 ast::ConnectorClassItem::Blackhole(dst)
+            }
+            "skip" => {
+                if block.is_some() {
+                    error_at(keyword.span(), "skip does not accept a block")?;
+                }
+                tokenizer.finish()?;
+                ast::ConnectorClassItem::Skip
             }
             _ => error_at(keyword.span(), &format!("unknown item keyword: {keyword}"))?,
         })

@@ -656,7 +656,7 @@ fn add_fuzzers_routing<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &
             if !backend.edev.tile_index[tcid].is_empty() {
                 props.push(Box::new(ExtraTileMaybe::new(
                     ColPair(tcid),
-                    ExtraKeyRouting::new(wires::PERF_IO[i].cell(4), wires::PERF[i].cell(4).pos()),
+                    ExtraKeyRouting::new(wires::PERF_BUF[i].cell(4), wires::PERF[i].cell(4).pos()),
                 )));
             }
         }
@@ -1529,7 +1529,7 @@ fn collect_fuzzers_routing(ctx: &mut CollectorCtx) {
             for i in 0..4 {
                 ctx.collect_progbuf(
                     tcid,
-                    wires::PERF_IO[i].cell(4),
+                    wires::PERF_BUF[i].cell(4),
                     wires::PERF[i].cell(4).pos(),
                 );
             }

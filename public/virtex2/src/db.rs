@@ -113,8 +113,8 @@ impl Database {
                     writeln!(
                         o,
                         "\tdevice_data {ddname} = {value};",
-                        ddname = self.int.devdata.key(ddid),
-                        value = self.int.dump_value(self.int.devdata[ddid], value)
+                        ddname = self.int.devdata[ddid].name,
+                        value = self.int.dump_value(self.int.devdata[ddid].typ, value)
                     )?;
                 }
                 writeln!(o, "}}")?;

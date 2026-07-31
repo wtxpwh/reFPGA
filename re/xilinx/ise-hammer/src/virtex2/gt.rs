@@ -25,7 +25,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
             let BelInput::Fixed(wire) = inp else {
                 unreachable!()
             };
-            if intdb.wires.key(wire.wire).starts_with("IMUX_G") {
+            if intdb[wire.wire].name.starts_with("IMUX_G") {
                 continue;
             }
             bctx.mode(mode).test_bel_input_inv_auto(pid);
@@ -148,7 +148,7 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
             let BelInput::Fixed(wire) = inp else {
                 unreachable!()
             };
-            if ctx.edev.db.wires.key(wire.wire).starts_with("IMUX_G") {
+            if ctx.edev.db[wire.wire].name.starts_with("IMUX_G") {
                 continue;
             }
             let int_tiles = &[

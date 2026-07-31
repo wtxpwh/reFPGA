@@ -522,8 +522,8 @@ pub fn add_fuzzers<'a>(
         ] {
             let wt = wt.cell(0);
             for j in 0..2 {
-                let wo = wires::IMUX_IO_ICLK_OPTINV[j].cell(0);
-                let wf = wires::IMUX_IO_ICLK[j].cell(0);
+                let wo = wires::IMUX_IOI_ICLK_OPTINV[j].cell(0);
+                let wf = wires::IMUX_IOI_ICLK[j].cell(0);
                 bctx.mode("ISERDES")
                     .prop(WireMutexExclusive::new(wt))
                     .prop(WireMutexExclusive::new(wo))
@@ -1670,8 +1670,8 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx, devdata_only: bool) {
         return;
     }
 
-    ctx.collect_mux(tcid, wires::IMUX_IO_ICLK_OPTINV[0].cell(0));
-    ctx.collect_mux(tcid, wires::IMUX_IO_ICLK_OPTINV[1].cell(0));
+    ctx.collect_mux(tcid, wires::IMUX_IOI_ICLK_OPTINV[0].cell(0));
+    ctx.collect_mux(tcid, wires::IMUX_IOI_ICLK_OPTINV[1].cell(0));
 
     for i in 0..2 {
         let bslot = bslots::ILOGIC[i];

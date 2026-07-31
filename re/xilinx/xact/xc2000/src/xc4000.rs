@@ -88,7 +88,7 @@ pub fn name_device<'a>(edev: &'a ExpandedDevice<'a>, ndb: &'a NamingDb) -> Expan
     for (tcrd, tile) in edev.tiles() {
         let col = tcrd.col;
         let row = tcrd.row;
-        let kind = edev.db.tile_classes.key(tile.class);
+        let kind = edev.db.tile_classes[tile.class].name.as_str();
         match tile.class {
             tcls::CLB
             | tcls::CLB_W

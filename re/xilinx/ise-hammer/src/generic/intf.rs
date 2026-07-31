@@ -46,7 +46,7 @@ fn resolve_intf_test_pip<'a>(
     if let ExpandedDevice::Virtex4(edev) = backend.edev
         && edev.kind == prjcombine_virtex4::chip::ChipKind::Virtex5
         && ndb.tile_class_namings.key(ntile.naming) == "INTF_PPC_R"
-        && intdb.wires.key(wire_from.wire).starts_with("TEST")
+        && intdb.wires[wire_from.wire].name.starts_with("TEST")
     {
         // ISE.
         return None;
@@ -88,11 +88,8 @@ impl<'b> FuzzerProp<'b, IseBackend<'b>> for FuzzIntfTestPip {
     ) -> Option<(Fuzzer<IseBackend<'a>>, bool)> {
         if let ExpandedDevice::Virtex4(edev) = backend.edev
             && edev.kind == prjcombine_virtex4::chip::ChipKind::Virtex4
-            && backend
-                .edev
-                .db
-                .wires
-                .key(self.wire_from.wire)
+            && backend.edev.db[self.wire_from.wire]
+                .name
                 .starts_with("TEST")
             && tcrd.col == edev.col_cfg
         {
@@ -129,7 +126,7 @@ fn is_anon_wire(edev: &ExpandedDevice, wire: WireSlotId) -> bool {
 
 pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a IseBackend<'a>) {
     let intdb = backend.edev.db;
-    for (tcid, _, tcls) in &intdb.tile_classes {
+    for (tcid, tcls) in &intdb.tile_classes {
         let Some(mut ctx) = FuzzCtx::try_new(session, backend, tcid) else {
             continue;
         };
@@ -169,7 +166,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
 
 pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
     let intdb = ctx.edev.db;
-    for (tcid, _, tcls) in &intdb.tile_classes {
+    for (tcid, tcls) in &intdb.tile_classes {
         if !ctx.has_tcls(tcid) {
             continue;
         }

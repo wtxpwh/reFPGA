@@ -16,7 +16,7 @@ use crate::defs::rslots;
 use crate::expanded::{ExpandedDevice, HdioCoord, HpioCoord, IoCoord, Xp5ioCoord};
 
 use crate::bond::SharedCfgPad;
-use crate::defs::ultrascale::{ccls, tcls};
+use crate::defs::{ccls, tcls};
 
 struct DieExpander<'a, 'b, 'c> {
     chip: &'b Chip,

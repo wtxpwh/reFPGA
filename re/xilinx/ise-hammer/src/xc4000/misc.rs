@@ -702,7 +702,9 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
     }
 
     if edev.chip.kind == ChipKind::SpartanXl {
-        for (tcid, tcname, tcls) in &edev.db.tile_classes {
+        for (tcid, tcls) in &edev.db.tile_classes {
+            let tcname = tcls.name.as_str();
+
             if !tcls.bels.contains_id(bslots::IO[0]) {
                 continue;
             }
@@ -738,7 +740,7 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
         }
     }
     if edev.chip.kind == ChipKind::Xc4000Ex {
-        for (tcid, _, tcls) in &edev.db.tile_classes {
+        for (tcid, tcls) in &edev.db.tile_classes {
             if !tcls.bels.contains_id(bslots::MISC_W) {
                 continue;
             }

@@ -44,8 +44,8 @@ impl CollectorData {
             let Some(BelInfo::Bel(bel)) = intdb.tile_classes[tcid].bels.get_mut(bslot) else {
                 panic!(
                     "no bel {tile} {bel}",
-                    tile = intdb.tile_classes.key(tcid),
-                    bel = intdb.bel_slots.key(bslot)
+                    tile = intdb.tile_classes[tcid].name,
+                    bel = intdb.bel_slots[bslot].name
                 )
             };
             if bel.attributes.contains_id(aid) {
@@ -69,7 +69,7 @@ impl CollectorData {
             }
         }
 
-        for (tcid, _, tcls) in &mut intdb.tile_classes {
+        for (tcid, tcls) in &mut intdb.tile_classes {
             for (bslot, bel) in &mut tcls.bels {
                 match bel {
                     BelInfo::SwitchBox(sbox) => {
@@ -81,7 +81,7 @@ impl CollectorData {
                                             let dst = mux.dst;
                                             eprintln!(
                                                 "can't find collect enum mux {tcname} {dst}",
-                                                tcname = copydb.tile_classes.key(tcid),
+                                                tcname = copydb.tile_classes[tcid].name,
                                                 dst = dst
                                                     .to_string(&copydb, &copydb.tile_classes[tcid]),
                                             )
@@ -104,7 +104,7 @@ impl CollectorData {
                                             let dst = mux.dst;
                                             eprintln!(
                                                 "can't find mux input {tcname} {dst} {src}",
-                                                tcname = copydb.tile_classes.key(tcid),
+                                                tcname = copydb.tile_classes[tcid].name,
                                                 dst = dst
                                                     .to_string(&copydb, &copydb.tile_classes[tcid]),
                                                 src = src
@@ -121,7 +121,7 @@ impl CollectorData {
                                             let src = buf.src;
                                             eprintln!(
                                                 "can't find collect bit progbuf {tcname} {dst} {src}",
-                                                tcname = copydb.tile_classes.key(tcid),
+                                                tcname = copydb.tile_classes[tcid].name,
                                                 dst = dst
                                                     .to_string(&copydb, &copydb.tile_classes[tcid]),
                                                 src = src
@@ -142,7 +142,7 @@ impl CollectorData {
                                             let src = pass.src;
                                             eprintln!(
                                                 "can't find collect bit pass {tcname} {dst} {src}",
-                                                tcname = copydb.tile_classes.key(tcid),
+                                                tcname = copydb.tile_classes[tcid].name,
                                                 dst = dst
                                                     .to_string(&copydb, &copydb.tile_classes[tcid]),
                                                 src = src
@@ -161,7 +161,7 @@ impl CollectorData {
                                             let src = pass.b;
                                             eprintln!(
                                                 "can't find collect bit bipass {tcname} {dst} {src}",
-                                                tcname = copydb.tile_classes.key(tcid),
+                                                tcname = copydb.tile_classes[tcid].name,
                                                 dst = dst
                                                     .to_string(&copydb, &copydb.tile_classes[tcid]),
                                                 src = src
@@ -178,7 +178,7 @@ impl CollectorData {
                                             let twc = inv.dst;
                                             eprintln!(
                                                 "can't find collect bit proginv {tcname} {wire}",
-                                                tcname = copydb.tile_classes.key(tcid),
+                                                tcname = copydb.tile_classes[tcid].name,
                                                 wire = twc
                                                     .to_string(&copydb, &copydb.tile_classes[tcid])
                                             )
@@ -194,7 +194,7 @@ impl CollectorData {
                                             let twc = delay.dst;
                                             eprintln!(
                                                 "can't find collect progdelay {tcname} {wire}",
-                                                tcname = copydb.tile_classes.key(tcid),
+                                                tcname = copydb.tile_classes[tcid].name,
                                                 wire = twc
                                                     .to_string(&copydb, &copydb.tile_classes[tcid])
                                             )
@@ -216,8 +216,8 @@ impl CollectorData {
                                             let twc = bidi.wire;
                                             eprintln!(
                                                 "can't find collect bit bidi {tcname} {conn} {wire}",
-                                                tcname = copydb.tile_classes.key(tcid),
-                                                conn = intdb.conn_slots.key(conn),
+                                                tcname = copydb.tile_classes[tcid].name,
+                                                conn = intdb.conn_slots[conn].name,
                                                 wire = twc
                                                     .to_string(&copydb, &copydb.tile_classes[tcid])
                                             )
@@ -233,7 +233,7 @@ impl CollectorData {
                                             let dst = mux.dst;
                                             eprintln!(
                                                 "can't find collect enum pair mux {tcname} {dst0} {dst1}",
-                                                tcname = copydb.tile_classes.key(tcid),
+                                                tcname = copydb.tile_classes[tcid].name,
                                                 dst0 = dst[0]
                                                     .to_string(&copydb, &copydb.tile_classes[tcid]),
                                                 dst1 = dst[1]
@@ -254,7 +254,7 @@ impl CollectorData {
                                             let dst = mux.dst;
                                             eprintln!(
                                                 "can't find mux input {tcname} ({dst0}, {dst1}) ({src0}, {src1})",
-                                                tcname = copydb.tile_classes.key(tcid),
+                                                tcname = copydb.tile_classes[tcid].name,
                                                 dst0 = dst[0]
                                                     .to_string(&copydb, &copydb.tile_classes[tcid]),
                                                 dst1 = dst[1]
@@ -292,7 +292,7 @@ impl CollectorData {
                                                 .join(", ");
                                             eprintln!(
                                                 "can't find collect bit support {tcname} {wires}",
-                                                tcname = copydb.tile_classes.key(tcid),
+                                                tcname = copydb.tile_classes[tcid].name,
                                             )
                                         }
                                         continue;
@@ -309,8 +309,8 @@ impl CollectorData {
                             }
                             panic!(
                                 "can't find collect group testmux {tcname} {bel}",
-                                tcname = copydb.tile_classes.key(tcid),
-                                bel = intdb.bel_slots.key(bslot),
+                                tcname = copydb.tile_classes[tcid].name,
+                                bel = intdb.bel_slots[bslot].name,
                             )
                         };
                         tmux.bits = data.bits;
@@ -328,7 +328,7 @@ impl CollectorData {
         for ((tcid, dst), data) in self.sb_mux {
             println!(
                 "uncollected enum: mux {tcls} {dst}: {data:?}",
-                tcls = intdb.tile_classes.key(tcid),
+                tcls = intdb.tile_classes[tcid].name,
                 dst = dst.to_string(intdb, &intdb.tile_classes[tcid]),
             );
         }
@@ -336,7 +336,7 @@ impl CollectorData {
         for ((tcid, dst, src), bit) in self.sb_buf {
             println!(
                 "uncollected bit: progbuf {tcls} {dst} {src}: {bit}",
-                tcls = intdb.tile_classes.key(tcid),
+                tcls = intdb.tile_classes[tcid].name,
                 dst = dst.to_string(intdb, &intdb.tile_classes[tcid]),
                 src = src.to_string(intdb, &intdb.tile_classes[tcid]),
                 bit = intdb.tile_classes[tcid].dump_polbit(bit),
@@ -346,7 +346,7 @@ impl CollectorData {
         for ((tcid, dst, src), bit) in self.sb_pass {
             println!(
                 "uncollected bit: pass {tcls} {dst} {src}: {bit}",
-                tcls = intdb.tile_classes.key(tcid),
+                tcls = intdb.tile_classes[tcid].name,
                 dst = dst.to_string(intdb, &intdb.tile_classes[tcid]),
                 src = src.to_string(intdb, &intdb.tile_classes[tcid]),
                 bit = intdb.tile_classes[tcid].dump_polbit(bit),
@@ -356,7 +356,7 @@ impl CollectorData {
         for ((tcid, dst, src), bit) in self.sb_bipass {
             println!(
                 "uncollected bit: bipass {tcls} {dst} {src}: {bit}",
-                tcls = intdb.tile_classes.key(tcid),
+                tcls = intdb.tile_classes[tcid].name,
                 dst = dst.to_string(intdb, &intdb.tile_classes[tcid]),
                 src = src.to_string(intdb, &intdb.tile_classes[tcid]),
                 bit = intdb.tile_classes[tcid].dump_polbit(bit),
@@ -366,7 +366,7 @@ impl CollectorData {
         for ((tcid, twc), bit) in self.sb_inv {
             println!(
                 "uncollected bit: proginv {tcls} {wire}: {bit}",
-                tcls = intdb.tile_classes.key(tcid),
+                tcls = intdb.tile_classes[tcid].name,
                 wire = twc.to_string(intdb, &intdb.tile_classes[tcid]),
                 bit = intdb.tile_classes[tcid].dump_polbit(bit),
             );
@@ -375,7 +375,7 @@ impl CollectorData {
         for ((tcid, twc), data) in self.sb_delay {
             println!(
                 "uncollected enum: delay {tcls} {wire}: {data:?}",
-                tcls = intdb.tile_classes.key(tcid),
+                tcls = intdb.tile_classes[tcid].name,
                 wire = twc.to_string(intdb, &intdb.tile_classes[tcid]),
             );
         }
@@ -383,16 +383,16 @@ impl CollectorData {
         for ((tcid, bslot), data) in self.tmux_group {
             println!(
                 "uncollected enum: delay {tcls} {bel}: {data:?}",
-                tcls = intdb.tile_classes.key(tcid),
-                bel = intdb.bel_slots.key(bslot),
+                tcls = intdb.tile_classes[tcid].name,
+                bel = intdb.bel_slots[bslot].name,
             );
         }
 
         for ((tcid, conn, twc), bit) in self.sb_bidi {
             println!(
                 "uncollected bit: bidi {tcls} {conn} {wire}: {bit}",
-                tcls = intdb.tile_classes.key(tcid),
-                conn = intdb.conn_slots.key(conn),
+                tcls = intdb.tile_classes[tcid].name,
+                conn = intdb.conn_slots[conn].name,
                 wire = twc.to_string(intdb, &intdb.tile_classes[tcid]),
                 bit = intdb.tile_classes[tcid].dump_polbit(bit),
             );

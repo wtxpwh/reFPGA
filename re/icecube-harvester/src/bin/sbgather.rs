@@ -21,35 +21,38 @@ fn merge_int(dst: &mut IntDb, src: &IntDb, init: &IntDb, dbname: &str) {
     assert_eq!(dst.region_slots, src.region_slots);
     assert_eq!(dst.conn_slots, src.conn_slots);
     assert_eq!(dst.conn_classes, src.conn_classes);
-    assert_eq!(dst.tile_classes.len(), src.tile_classes.len());
-    for ((dtcls, stcls), (_tcid, name, itcls)) in dst
-        .tile_classes
-        .values_mut()
-        .zip(src.tile_classes.values())
-        .zip(&init.tile_classes)
-    {
+    for (tcid, itcls) in &init.tile_classes {
+        let dtcls = &mut dst.tile_classes[tcid];
+        let stcls = &src.tile_classes[tcid];
         if *stcls == *itcls {
             continue;
         }
         if *dtcls == *itcls {
             *dtcls = stcls.clone();
         } else {
-            assert_eq!(*dtcls, *stcls, "FAIL when merging {dbname} TCLS {name}");
+            assert_eq!(
+                *dtcls,
+                *stcls,
+                "FAIL when merging {dbname} TCLS {name}",
+                name = itcls.name
+            );
         }
     }
-    for ((dtable, stable), (_tid, name, itable)) in dst
-        .tables
-        .values_mut()
-        .zip(src.tables.values())
-        .zip(&init.tables)
-    {
+    for (tid, itable) in &init.tables {
+        let dtable = &mut dst.tables[tid];
+        let stable = &src.tables[tid];
         if *stable == *itable {
             continue;
         }
         if *dtable == *itable {
             *dtable = stable.clone();
         } else {
-            assert_eq!(*dtable, *stable, "FAIL when merging {dbname} TABLE {name}");
+            assert_eq!(
+                *dtable,
+                *stable,
+                "FAIL when merging {dbname} TABLE {name}",
+                name = itable.name
+            );
         }
     }
 }

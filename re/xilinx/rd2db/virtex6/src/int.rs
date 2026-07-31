@@ -9,10 +9,7 @@ use prjcombine_re_xilinx_rawdump::{Coord, Part};
 use prjcombine_re_xilinx_naming::db::{NamingDb, WireNaming};
 use prjcombine_re_xilinx_rd2db_interconnect::{IntBuilder, PipMode};
 use prjcombine_types::bsdata::PolTileBit;
-use prjcombine_virtex4::defs::{
-    self, bslots,
-    virtex6::{ccls, tcls, wires},
-};
+use prjcombine_virtex4::defs::{self, bslots, ccls, tcls, virtex6::wires};
 
 struct IntMaker<'a> {
     rd: &'a Part,
@@ -686,7 +683,7 @@ impl IntMaker<'_> {
         }
         for i in 0..32 {
             self.builder
-                .extra_name_cell(format!("HCLK_CMT_CK_GCLK{i}"), 20, wires::GCLK_CMT[i]);
+                .extra_name_cell(format!("HCLK_CMT_CK_GCLK{i}"), 20, wires::GCLK_HROW[i]);
             self.builder
                 .extra_name(format!("CMT_BUFG_CK_GCLK{i}"), wires::GCLK[i]);
 
@@ -887,13 +884,13 @@ impl IntMaker<'_> {
         self.builder
             .extra_name_tile_cell("CMT_TOP", "CMT_MMCM_IMUX_CLKFB", 21, wires::IMUX_CLK[0]);
         self.builder
-            .extra_name_cell("HCLK_CMT_CLK_0_B0", 20, wires::BUFH_INT_W[0]);
+            .extra_name_cell("HCLK_CMT_CLK_0_B0", 20, wires::CKINT_HROW_W[0]);
         self.builder
-            .extra_name_cell("HCLK_CMT_CLK_0_B1", 20, wires::BUFH_INT_W[1]);
+            .extra_name_cell("HCLK_CMT_CLK_0_B1", 20, wires::CKINT_HROW_W[1]);
         self.builder
-            .extra_name_cell("HCLK_CMT_CLK_1_B0", 20, wires::BUFH_INT_E[0]);
+            .extra_name_cell("HCLK_CMT_CLK_1_B0", 20, wires::CKINT_HROW_E[0]);
         self.builder
-            .extra_name_cell("HCLK_CMT_CLK_1_B1", 20, wires::BUFH_INT_E[1]);
+            .extra_name_cell("HCLK_CMT_CLK_1_B1", 20, wires::CKINT_HROW_E[1]);
         self.builder
             .extra_name_cell("HCLK_CMT_CLKFB_HCLK_B", 20, wires::IMUX_PLL_CLKFB_HCLK[0]);
         self.builder
@@ -1968,8 +1965,8 @@ impl IntMaker<'_> {
                     .switchbox(bslots::SPEC_INT)
                     .optin_muxes(&[wires::BUFH_TEST_W_IN, wires::BUFH_TEST_E_IN])
                     .optin_muxes(&wires::IMUX_BUFG_O[..])
-                    .optin_muxes(&wires::BUFH_INT_W[..])
-                    .optin_muxes(&wires::BUFH_INT_E[..])
+                    .optin_muxes(&wires::CKINT_HROW_W[..])
+                    .optin_muxes(&wires::CKINT_HROW_E[..])
                     .optin_muxes(&wires::IMUX_BUFHCE_W[..])
                     .optin_muxes(&wires::IMUX_BUFHCE_E[..])
                     .optin_muxes(&wires::IMUX_PLL_CLKIN1[..])
@@ -2022,8 +2019,8 @@ impl IntMaker<'_> {
             .get_mut(&(tcls::CMT, bslots::SPEC_INT))
             .unwrap();
         for ((wt, _wf), mode) in pips.pips.iter_mut() {
-            if wires::BUFH_INT_W.contains(wt.wire)
-                || wires::BUFH_INT_E.contains(wt.wire)
+            if wires::CKINT_HROW_W.contains(wt.wire)
+                || wires::CKINT_HROW_E.contains(wt.wire)
                 || wires::PERF_ROW.contains(wt.wire)
                 || wires::PERF_ROW_OUTER.contains(wt.wire)
             {
@@ -2048,13 +2045,13 @@ impl IntMaker<'_> {
         }
         for i in 0..32 {
             pips.pips.insert(
-                (wires::GCLK_CMT[i].cell(20), wires::GCLK[i].cell(20).pos()),
+                (wires::GCLK_HROW[i].cell(20), wires::GCLK[i].cell(20).pos()),
                 PipMode::Buf,
             );
             pips.pips.insert(
                 (
                     wires::GCLK_TEST_IN[i].cell(20),
-                    wires::GCLK_CMT[i].cell(20).pos(),
+                    wires::GCLK_HROW[i].cell(20).pos(),
                 ),
                 PipMode::Buf,
             );

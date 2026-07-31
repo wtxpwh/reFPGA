@@ -13,10 +13,7 @@ use prjcombine_re_xilinx_naming::db::{
 use prjcombine_re_xilinx_rawdump::{Coord, Part};
 use prjcombine_virtex2::{
     chip::ChipKind,
-    defs::{
-        self, bcls, bslots,
-        spartan3::{ccls, tcls, wires},
-    },
+    defs::{self, bcls, bslots, ccls, tcls, wires},
     iob::get_iob_tiles,
 };
 
@@ -3114,7 +3111,7 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
         builder
             .ndb
             .tile_class_namings
-            .insert(builder.db.tile_classes.key(tcid).into(), naming);
+            .insert(builder.db.tile_classes[tcid].name.clone(), naming);
     }
 
     builder.build()

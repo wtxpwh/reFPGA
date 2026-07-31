@@ -42428,38 +42428,6 @@ intdb {
 		bel_slot PULLUP_DEC_E[2]: PULLUP;
 		bel_slot PULLUP_DEC_E[3]: PULLUP;
 
-		tile_class LLH_CLB {
-			cell W;
-			cell E;
-
-			switchbox LLH {
-			}
-		}
-
-		tile_class LLH_CLB_S {
-			cell W;
-			cell E;
-
-			switchbox LLH {
-			}
-		}
-
-		tile_class LLH_IO_S {
-			cell W;
-			cell E;
-
-			switchbox LLH {
-			}
-		}
-
-		tile_class LLH_IO_N {
-			cell W;
-			cell E;
-
-			switchbox LLH {
-			}
-		}
-
 		tile_class LLHC_CLB {
 			cell W;
 			cell E;
@@ -42926,37 +42894,6 @@ intdb {
 		bel_slot PULLUP_DEC_N[2]: PULLUP;
 		bel_slot PULLUP_DEC_N[3]: PULLUP;
 		bel_slot MISC_E: MISC_E;
-
-		tile_class LLV_CLB {
-			cell S;
-			cell N;
-			bitrect LLV: Vertical (rev 47, rev 2);
-
-			switchbox LLV {
-			}
-		}
-
-		tile_class LLV_IO_W {
-			cell S;
-			cell N;
-			bitrect LLV: Vertical (rev 27, rev 2);
-			bitrect LLV_E: Vertical (rev 47, rev 2);
-
-			switchbox LLV {
-			}
-		}
-
-		tile_class LLV_IO_E {
-			cell S;
-			cell N;
-			bitrect LLV: Vertical (rev 52, rev 2);
-
-			switchbox LLV {
-			}
-
-			bel MISC_E {
-			}
-		}
 
 		tile_class LLVC_CLB {
 			cell S;
@@ -43940,14 +43877,6 @@ intdb {
 				permabuf BUFGLS_H[5] = BUFGLS[5];
 				permabuf BUFGLS_H[6] = BUFGLS[6];
 				permabuf BUFGLS_H[7] = BUFGLS[7];
-			}
-		}
-
-		tile_class CLKQ {
-			cell W;
-			cell E;
-
-			switchbox CLKQ {
 			}
 		}
 	}

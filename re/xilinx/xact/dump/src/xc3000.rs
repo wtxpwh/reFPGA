@@ -92,7 +92,8 @@ pub fn dump_chip(die: &Die, kind: ChipKind) -> (Chip, IntDb, NamingDb) {
         .unwrap()
         .0;
     let mut ndb = NamingDb::default();
-    for name in intdb.tile_classes.keys() {
+    for tcls in intdb.tile_classes.values() {
+        let name = &tcls.name;
         ndb.tile_namings.insert(name.clone(), TileNaming::default());
         if name.starts_with("CLB") && !name.contains("W_") && !name.contains("E_") {
             ndb.tile_namings
@@ -149,7 +150,7 @@ pub fn dump_chip(die: &Die, kind: ChipKind) -> (Chip, IntDb, NamingDb) {
         let ntile = &endev.ngrid.tiles[&tcrd];
         for (slot, bel_info) in &tcld.bels {
             let bel = tcrd.bel(slot);
-            let slot_name = intdb.bel_slots.key(slot);
+            let slot_name = intdb.bel_slots[slot].name.as_str();
             match slot {
                 defs::bslots::INT
                 | defs::bslots::LLH
@@ -603,22 +604,22 @@ pub fn dump_chip(die: &Die, kind: ChipKind) -> (Chip, IntDb, NamingDb) {
         extractor.own_pip(net_t, net_f, tcrd);
     }
 
-    for (wire, name, &kind) in &intdb.wires {
-        if !name.starts_with("IMUX") {
+    for (wid, wire) in &intdb.wires {
+        if !wire.name.starts_with("IMUX") {
             continue;
         }
-        if kind != WireKind::MuxOut {
+        if wire.kind != WireKind::MuxOut {
             continue;
         }
         for (cell, _) in edev.cells() {
-            let rw = edev.resolve_wire(cell.wire(wire)).unwrap();
+            let rw = edev.resolve_wire(cell.wire(wid)).unwrap();
             if extractor.int_nets.contains_key(&rw) {
                 extractor.own_mux(rw, cell.tile(defs::tslots::MAIN));
             }
         }
     }
 
-    for (tcid, _, tcls) in &intdb.tile_classes {
+    for (tcid, tcls) in &intdb.tile_classes {
         for i in 0..2 {
             if tcls.bels.contains_id(defs::bslots::TBUF[i]) {
                 extractor.inject_pip(
@@ -670,7 +671,7 @@ pub fn dump_chip(die: &Die, kind: ChipKind) -> (Chip, IntDb, NamingDb) {
         if tslot != defs::tslots::MAIN {
             PipMode::Pass
         } else {
-            let wtn = db.wires.key(wt.wire);
+            let wtn = db.wires[wt.wire].name.as_str();
             if is_single_stub(wt.wire, wf.wire) || is_single_stub(wf.wire, wt.wire) {
                 PipMode::Buf
             } else if wtn.starts_with("IMUX") {

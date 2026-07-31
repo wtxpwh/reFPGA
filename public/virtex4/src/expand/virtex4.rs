@@ -11,7 +11,7 @@ use crate::defs::{bslots, tslots};
 use crate::expanded::{DieFrameGeom, ExpandedDevice, FrameAddr, FrameInfo, FrameMaskMode, IoCoord};
 use crate::{
     defs,
-    defs::virtex4::{ccls, rslots, tcls},
+    defs::{ccls, rslots, tcls},
 };
 use bimap::BiHashMap;
 use std::collections::BTreeSet;
@@ -519,7 +519,7 @@ impl Expander<'_, '_> {
                 } else {
                     crow
                 });
-            self.egrid[cell].region_root[rslots::GLOBAL] =
+            self.egrid[cell].region_root[rslots::GCLK] =
                 cell.with_cr(self.col_cfg, self.chip.row_bufg());
             self.egrid[cell].region_root[rslots::GIOB] = cell.with_cr(
                 self.col_cfg,

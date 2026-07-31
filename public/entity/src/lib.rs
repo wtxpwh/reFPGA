@@ -11,12 +11,18 @@ pub mod bundle_map;
 #[cfg(feature = "map")]
 pub mod map;
 #[cfg(feature = "map")]
+pub mod part_map;
+#[cfg(feature = "map")]
 pub mod set;
 
 #[cfg(feature = "map")]
 pub use {
-    bundle_map::EntityBundleIndices, bundle_map::EntityBundleItemIndex,
-    bundle_map::EntityBundleMap, map::EntityMap, set::EntitySet,
+    bundle_map::EntityBundleIndices,
+    bundle_map::EntityBundleItemIndex,
+    bundle_map::EntityBundleMap,
+    map::EntityMap,
+    part_map::{EntityKey, EntityPartMap},
+    set::EntitySet,
 };
 
 #[cfg(feature = "bitvec")]

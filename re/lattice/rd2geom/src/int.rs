@@ -33,7 +33,7 @@ impl ChipContext<'_> {
             let Some(tile) = cell_data.tiles.get(tslots::INT) else {
                 continue;
             };
-            let tcname = self.intdb.tile_classes.key(tile.class);
+            let tcname = self.intdb.tile_classes[tile.class].name.as_str();
             let has_cibtest = if self.chip.kind == ChipKind::MachXo {
                 tcname == "INT_SIO_L_W"
             } else {
@@ -202,7 +202,7 @@ impl ChipContext<'_> {
             let Some(tile) = cell_data.tiles.get(tslots::INT) else {
                 continue;
             };
-            let tcname = self.intdb.tile_classes.key(tile.class);
+            let tcname = self.intdb.tile_classes[tile.class].name.as_str();
             if tcname == "INT_PLC" {
                 continue;
             }

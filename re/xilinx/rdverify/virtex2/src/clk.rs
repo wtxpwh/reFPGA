@@ -7,7 +7,7 @@ use prjcombine_re_xilinx_naming_virtex2::ExpandedNamedDevice;
 use prjcombine_re_xilinx_rdverify::{RawWireCoord, Verifier};
 use prjcombine_virtex2::{
     chip::ChipKind,
-    defs::{bslots, spartan3::wires as wires_s3},
+    defs::{bslots, wires},
 };
 
 pub fn verify_bufgmux(endev: &ExpandedNamedDevice, vrf: &mut Verifier, bcrd: BelCoord) {
@@ -34,7 +34,7 @@ pub fn verify_bufgmux(endev: &ExpandedNamedDevice, vrf: &mut Verifier, bcrd: Bel
                 bel.wire("S"),
                 RawWireCoord {
                     crd: bel.crd(),
-                    wire: &naming.wires[&wires_s3::PULLUP.cell(4)].name,
+                    wire: &naming.wires[&wires::PULLUP.cell(4)].name,
                 },
             );
         }

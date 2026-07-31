@@ -135,7 +135,7 @@ impl NamingDb {
                     o,
                     "\t\tWIRE {wt:3}.{wn:20} {v:?}",
                     wt = k.cell.to_idx(),
-                    wn = intdb.wires.key(k.wire)
+                    wn = intdb.wires[k.wire].name
                 )?;
             }
             for (k, v) in &naming.wire_bufs {
@@ -143,7 +143,7 @@ impl NamingDb {
                     o,
                     "\t\tWIRE BUF {wt:3}.{wn:20}: RT.{vrt} {vt} <- {vf}",
                     wt = k.cell.to_idx(),
-                    wn = intdb.wires.key(k.wire),
+                    wn = intdb.wires[k.wire].name,
                     vrt = v.tile.to_idx(),
                     vt = v.wire_to,
                     vf = v.wire_from,
@@ -154,9 +154,9 @@ impl NamingDb {
                     o,
                     "\t\tEXT PIP {wtt:3}.{wtn:20} <- {wft:3}.{wfn:20}: RT.{vrt} {vt} <- {vf}",
                     wtt = k.0.cell.to_idx(),
-                    wtn = intdb.wires.key(k.0.wire),
+                    wtn = intdb.wires[k.0.wire].name,
                     wft = k.1.cell.to_idx(),
-                    wfn = intdb.wires.key(k.1.wire),
+                    wfn = intdb.wires[k.1.wire].name,
                     vrt = v.tile.to_idx(),
                     vt = v.wire_to,
                     vf = v.wire_from,
@@ -167,14 +167,14 @@ impl NamingDb {
                     o,
                     "\t\tDELAY WIRE {wt:3}.{wn:20} {v}",
                     wt = k.cell.to_idx(),
-                    wn = intdb.wires.key(k.wire)
+                    wn = intdb.wires[k.wire].name
                 )?;
             }
             for (slot, bn) in &naming.bels {
                 writeln!(
                     o,
                     "\t\tBEL {slot} RT {rt}:",
-                    slot = intdb.bel_slots.key(slot),
+                    slot = intdb.bel_slots[slot].name,
                     rt = bn.tiles.iter().map(|x| x.to_string()).join(" "),
                 )?;
                 for (k, v) in &bn.pins {
@@ -202,7 +202,7 @@ impl NamingDb {
                             o,
                             "\t\t\t\tINT PIP {wt:3}.{wn:20}: RT.{rt} {pt} <- {pf}",
                             wt = w.cell.to_idx(),
-                            wn = intdb.wires.key(w.wire),
+                            wn = intdb.wires[w.wire].name,
                             rt = pip.tile.to_idx(),
                             pt = pip.wire_to,
                             pf = pip.wire_from
@@ -215,7 +215,7 @@ impl NamingDb {
                     o,
                     "\t\tINTF.IN {wt:3}.{wn:20}: ",
                     wt = w.cell.to_idx(),
-                    wn = intdb.wires.key(w.wire)
+                    wn = intdb.wires[w.wire].name,
                 )?;
                 match wn {
                     IntfWireInNaming::Simple { name } => writeln!(o, "SIMPLE {name}")?,
@@ -232,7 +232,7 @@ impl NamingDb {
         for (_, name, naming) in &self.conn_class_namings {
             writeln!(o, "\tCONN NAMING {name}")?;
             for (w, wn) in &naming.wires_out {
-                write!(o, "\t\tWIRE OUT {w}: ", w = intdb.wires.key(w))?;
+                write!(o, "\t\tWIRE OUT {w}: ", w = intdb.wires[w].name)?;
                 match wn {
                     ConnectorWireOutNaming::Simple { name } => writeln!(o, "{name}")?,
                     ConnectorWireOutNaming::Buf { name_out, name_in } => {
@@ -241,10 +241,10 @@ impl NamingDb {
                 }
             }
             for (w, wn) in &naming.wires_in_near {
-                writeln!(o, "\t\tWIRE IN NEAR {w}: {wn}", w = intdb.wires.key(w))?;
+                writeln!(o, "\t\tWIRE IN NEAR {w}: {wn}", w = intdb.wires[w].name)?;
             }
             for (w, wn) in &naming.wires_in_far {
-                write!(o, "\t\tWIRE IN FAR {w}: ", w = intdb.wires.key(w))?;
+                write!(o, "\t\tWIRE IN FAR {w}: ", w = intdb.wires[w].name)?;
                 match wn {
                     ConnectorWireInFarNaming::Simple { name } => writeln!(o, "{name}")?,
                     ConnectorWireInFarNaming::Buf { name_out, name_in } => {

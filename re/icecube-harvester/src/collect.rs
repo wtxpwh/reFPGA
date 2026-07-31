@@ -181,7 +181,7 @@ pub fn collect(
     }
     let mut collector = Collector::new(&mut diffs, &mut data, dev_name, edev.db);
 
-    for (tcid, _, tcls) in &edev.db.tile_classes {
+    for (tcid, tcls) in &edev.db.tile_classes {
         if edev.tile_index[tcid].is_empty() {
             continue;
         }

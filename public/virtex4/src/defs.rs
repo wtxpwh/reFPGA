@@ -10670,20 +10670,57 @@ target_defs! {
     device_data IDCODE_GTZ_S: bitvec[32];
     device_data IDCODE_GTZ_N: bitvec[32];
 
-    if variant virtex4 {
-        region_slot GLOBAL;
+    // region for global clocks (only used at the clock spine column)
+    // on v[456], covers the whole device
+    // on v7, it is split at ¼ and ¾ points of every clock region
+    region_slot GCLK;
+    if variant [virtex4, virtex5] {
         region_slot GIOB;
-        region_slot HROW;
-        region_slot LEAF;
+    }
+
+    // region for horizontal clock spines (*the* clock region); two per `RegId`: one for west half, one for east half
+    region_slot HROW;
+
+    // region for leaf clock distribution
+    // v[45]: single column within a clock region
+    // v6: single column within a half-clock region (split at region midpoint)
+    // v7: a pair of two columns within a half-clock region
+    region_slot LEAF;
+    if variant virtex4 {
+        // likewise, but for clock distribution to DCMs; vertically covers only half a clock region as opposed to `LEAF`
         region_slot LEAF_DCM;
+    }
+    if variant [virtex6, virtex7] {
+        // likewise, but for clock distribution to IOIs; vertically covers a whole clock region as opposed to `LEAF`
+        region_slot LEAF_IO;
+    }
+    if variant virtex7 {
+        // a single byte group (a bunch of IOIs sharing a pair of PHASER bels)
+        region_slot IO_BYTE;
+    }
 
+    // const wires
+    if variant [virtex4, virtex5, virtex6] {
         wire PULLUP: pullup;
-        wire TIE_0: tie 0;
-        wire TIE_1: tie 1;
+    }
+    wire TIE_0: tie 0;
+    wire TIE_1: tie 1;
 
+    // leaf clocks
+    if variant virtex4 {
         wire HCLK[8]: regional LEAF;
         wire RCLK[2]: regional LEAF;
+    } else if variant virtex5 {
+        wire HCLK[10]: regional LEAF;
+        wire RCLK[4]: regional LEAF;
+    } else if variant virtex6 {
+        wire LCLK[8]: regional LEAF;
+    } else if variant virtex7 {
+        wire LCLK[12]: regional LEAF;
+    }
 
+    if variant virtex4 {
+        // v4 interconnect is a variant of v2
         wire OMUX[16]: mux;
         wire OMUX_S0: branch N;
         wire OMUX_S0_ALT: branch N;
@@ -10748,7 +10785,401 @@ target_defs! {
         for i in 1..=7 {
             wire "HEX_N{i}"[10]: branch S;
         }
+    } else {
+        // v[567] interconnect is a new creation.
+        // v5: X2 and X5 wires, going in 8 directions
+        // v6: X1 wires going in 4 directions, X2 and X4 wires going in 8 directions
+        // v7: like v6, but X4 wires in directions other then W/E are replaced with X6 wires
 
+        if variant [virtex6, virtex7] {
+            // X1 wires
+
+            wire SNG_W0_N3: mux;
+            wire SNG_W0_S4: mux;
+            wire SNG_W0[8] {
+                0..3 => mux,
+                3 => branch N,
+                4 => branch S,
+                5..8 => mux,
+            }
+            wire SNG_W1[8]: branch E;
+            wire SNG_W1_S4: branch N;
+            wire SNG_W1_N3: branch S;
+            wire SNG_E0_N3: mux;
+            wire SNG_E0_S4: mux;
+            wire SNG_E0[8] {
+                0..3 => mux,
+                3 => branch N,
+                4 => branch S,
+                5..8 => mux,
+            }
+            wire SNG_E1[8]: branch W;
+            wire SNG_E1_S0: branch N;
+            wire SNG_E1_N7: branch S;
+            wire SNG_S0_S4: mux;
+            wire SNG_S0[8] {
+                0..4 => mux,
+                4 => branch S,
+                5..8 => mux,
+            }
+            wire SNG_S1[8]: branch N;
+            wire SNG_S1_N7: branch S;
+            wire SNG_N0_N3: mux;
+            wire SNG_N0[8] {
+                0..3 => mux,
+                3 => branch N,
+                4..8 => mux,
+            }
+            wire SNG_N1[8]: branch S;
+            wire SNG_N1_S0: branch N;
+        }
+
+        // X2 wires
+
+        if variant virtex5 {
+            wire DBL_WW0_S0: mux;
+            wire DBL_WW0_N5: mux;
+            wire DBL_WW0[6] {
+                0 => branch S,
+                1..5 => mux,
+                5 => branch N,
+            }
+            wire DBL_WW1[6]: branch E;
+            wire DBL_WW2[6]: branch E;
+
+            wire DBL_WS0[3]: mux;
+            wire DBL_WS1[3]: branch E;
+            wire DBL_WS2[3]: branch N;
+            wire DBL_WS1_BUF0: mux;
+            wire DBL_WS1_S0: branch N;
+
+            wire DBL_WN0[3]: mux;
+            wire DBL_WN1[3]: branch E;
+            wire DBL_WN2[3]: branch S;
+            wire DBL_WN2_S0: branch N;
+        } else {
+            wire DBL_WW0[4]: mux;
+            wire DBL_WW1[4]: branch E;
+            wire DBL_WW2[4]: branch E;
+            wire DBL_WW2_N3: branch S;
+        }
+
+        if variant virtex5 {
+            wire DBL_EE0_S3: mux;
+            wire DBL_EE0[6] {
+                0..3 => mux,
+                3 => branch S,
+                4..6 => mux,
+            }
+            wire DBL_EE1[6]: branch W;
+            wire DBL_EE2[6]: branch W;
+
+            wire DBL_ES0[3]: mux;
+            wire DBL_ES1[3]: branch W;
+            wire DBL_ES2[3]: branch N;
+
+            wire DBL_EN0[3]: mux;
+            wire DBL_EN1[3]: branch W;
+            wire DBL_EN2[3]: branch S;
+        } else {
+            wire DBL_EE0[4]: mux;
+            wire DBL_EE1[4]: branch W;
+            wire DBL_EE2[4]: branch W;
+        }
+
+        if variant virtex5 {
+            wire DBL_SS0_N2: mux;
+            wire DBL_SS0[6] {
+                0..2 => mux,
+                2 => branch N,
+                3..6 => mux,
+            }
+            wire DBL_SS1[6]: branch N;
+            wire DBL_SS2[6]: branch N;
+        } else {
+            wire DBL_SS0[4]: mux;
+            wire DBL_SS1[4]: branch N;
+            wire DBL_SS2[4]: branch N;
+            wire DBL_SS2_N3: branch S;
+        }
+
+        if variant virtex5 {
+            wire DBL_SW0[3]: mux;
+            wire DBL_SW1[3]: branch N;
+            wire DBL_SW2[3]: branch E;
+        } else {
+            wire DBL_SW0[4]: mux;
+            wire DBL_SW1[4]: branch N;
+            wire DBL_SW2[4]: branch E;
+            wire DBL_SW2_N3: branch S;
+        }
+
+        if variant virtex5 {
+            wire DBL_SE0[3]: mux;
+            wire DBL_SE1[3]: branch N;
+            wire DBL_SE2[3]: branch W;
+        } else {
+            wire DBL_SE0[4]: mux;
+            wire DBL_SE1[4]: branch N;
+            wire DBL_SE2[4]: branch W;
+        }
+
+        if variant virtex5 {
+            wire DBL_NN0_S0: mux;
+            wire DBL_NN0_N5: mux;
+            wire DBL_NN0[6] {
+                0 => branch S,
+                1..5 => mux,
+                5 => branch N,
+            }
+            wire DBL_NN1[6]: branch S;
+            wire DBL_NN2[6]: branch S;
+        } else {
+            wire DBL_NN0[4]: mux;
+            wire DBL_NN1[4]: branch S;
+            wire DBL_NN2[4]: branch S;
+            wire DBL_NN2_S0: branch N;
+        }
+
+        if variant virtex5 {
+            wire DBL_NW0[3]: mux;
+            wire DBL_NW1[3]: branch S;
+            wire DBL_NW2[3]: branch E;
+            wire DBL_NW2_N2: branch S;
+        } else {
+            wire DBL_NW0[4]: mux;
+            wire DBL_NW1[4]: branch S;
+            wire DBL_NW2[4]: branch E;
+            wire DBL_NW2_S0: branch N;
+        }
+
+        if variant virtex5 {
+            wire DBL_NE0[3]: mux;
+            wire DBL_NE1[3]: branch S;
+            wire DBL_NE2[3]: branch W;
+            wire DBL_NE1_BUF2: mux;
+            wire DBL_NE1_N2: branch S;
+        } else {
+            wire DBL_NE0[4]: mux;
+            wire DBL_NE1[4]: branch S;
+            wire DBL_NE2[4]: branch W;
+            wire DBL_NE2_S0: branch N;
+        }
+
+        if variant virtex5 {
+            // X5 wires
+            wire PENT_WW0_S0: mux;
+            wire PENT_WW0[6] {
+                0 => branch S,
+                1..6 => mux,
+            }
+            wire PENT_WW1[6]: branch E;
+            wire PENT_WW2[6]: branch E;
+            wire PENT_WW3[6]: branch E;
+            wire PENT_WW4[6]: branch E;
+            wire PENT_WW5[6]: branch E;
+
+            wire PENT_WS0[3]: mux;
+            wire PENT_WS1[3]: branch E;
+            wire PENT_WS2[3]: branch E;
+            wire PENT_WS3[3]: branch E;
+            wire PENT_WS4[3]: branch N;
+            wire PENT_WS5[3]: branch N;
+            wire PENT_WS3_BUF0: mux;
+            wire PENT_WS3_S0: branch N;
+
+            wire PENT_WN0[3]: mux;
+            wire PENT_WN1[3]: branch E;
+            wire PENT_WN2[3]: branch E;
+            wire PENT_WN3[3]: branch E;
+            wire PENT_WN4[3]: branch S;
+            wire PENT_WN5[3]: branch S;
+            wire PENT_WN5_S0: branch N;
+
+            wire PENT_EE0[6]: mux;
+            wire PENT_EE1[6]: branch W;
+            wire PENT_EE2[6]: branch W;
+            wire PENT_EE3[6]: branch W;
+            wire PENT_EE4[6]: branch W;
+            wire PENT_EE5[6]: branch W;
+
+            wire PENT_ES0[3]: mux;
+            wire PENT_ES1[3]: branch W;
+            wire PENT_ES2[3]: branch W;
+            wire PENT_ES3[3]: branch W;
+            wire PENT_ES4[3]: branch N;
+            wire PENT_ES5[3]: branch N;
+
+            wire PENT_EN0[3]: mux;
+            wire PENT_EN1[3]: branch W;
+            wire PENT_EN2[3]: branch W;
+            wire PENT_EN3[3]: branch W;
+            wire PENT_EN4[3]: branch S;
+            wire PENT_EN5[3]: branch S;
+
+            wire PENT_SS0[6]: mux;
+            wire PENT_SS1[6]: branch N;
+            wire PENT_SS2[6]: branch N;
+            wire PENT_SS3[6]: branch N;
+            wire PENT_SS4[6]: branch N;
+            wire PENT_SS5[6]: branch N;
+
+            wire PENT_SW0[3]: mux;
+            wire PENT_SW1[3]: branch N;
+            wire PENT_SW2[3]: branch N;
+            wire PENT_SW3[3]: branch N;
+            wire PENT_SW4[3]: branch E;
+            wire PENT_SW5[3]: branch E;
+
+            wire PENT_SE0[3]: mux;
+            wire PENT_SE1[3]: branch N;
+            wire PENT_SE2[3]: branch N;
+            wire PENT_SE3[3]: branch N;
+            wire PENT_SE4[3]: branch W;
+            wire PENT_SE5[3]: branch W;
+
+            wire PENT_NN0_N5: mux;
+            wire PENT_NN0[6] {
+                0..5 => mux,
+                5 => branch N,
+            }
+            wire PENT_NN1[6]: branch S;
+            wire PENT_NN2[6]: branch S;
+            wire PENT_NN3[6]: branch S;
+            wire PENT_NN4[6]: branch S;
+            wire PENT_NN5[6]: branch S;
+
+            wire PENT_NW0[3]: mux;
+            wire PENT_NW1[3]: branch S;
+            wire PENT_NW2[3]: branch S;
+            wire PENT_NW3[3]: branch S;
+            wire PENT_NW4[3]: branch E;
+            wire PENT_NW5[3]: branch E;
+            wire PENT_NW5_N2: branch S;
+
+            wire PENT_NE0[3]: mux;
+            wire PENT_NE1[3]: branch S;
+            wire PENT_NE2[3]: branch S;
+            wire PENT_NE3[3]: branch S;
+            wire PENT_NE4[3]: branch W;
+            wire PENT_NE5[3]: branch W;
+            wire PENT_NE3_BUF2: mux;
+            wire PENT_NE3_N2: branch S;
+        } else {
+            // X4/X6 wires
+            wire QUAD_WW0[4]: mux;
+            wire QUAD_WW1[4]: branch E;
+            wire QUAD_WW2[4]: branch E;
+            wire QUAD_WW3[4]: branch E;
+            wire QUAD_WW4[4]: branch E;
+            wire QUAD_WW4_S0: branch N;
+
+            wire QUAD_EE0[4]: mux;
+            wire QUAD_EE1[4]: branch W;
+            wire QUAD_EE2[4]: branch W;
+            wire QUAD_EE3[4]: branch W;
+            wire QUAD_EE4[4]: branch W;
+
+            if variant virtex6 {
+                wire QUAD_SS0[4]: mux;
+                wire QUAD_SS1[4]: branch N;
+                wire QUAD_SS2[4]: branch N;
+                wire QUAD_SS3[4]: branch N;
+                wire QUAD_SS4[4]: branch N;
+                wire QUAD_SS4_N3: branch S;
+
+                wire QUAD_SW0[4]: mux;
+                wire QUAD_SW1[4]: branch E;
+                wire QUAD_SW2[4]: branch N;
+                wire QUAD_SW3[4]: branch N;
+                wire QUAD_SW4[4]: branch E;
+                wire QUAD_SW4_N3: branch S;
+
+                wire QUAD_SE0[4]: mux;
+                wire QUAD_SE1[4]: branch W;
+                wire QUAD_SE2[4]: branch N;
+                wire QUAD_SE3[4]: branch N;
+                wire QUAD_SE4[4]: branch W;
+
+                wire QUAD_NN0[4]: mux;
+                wire QUAD_NN1[4]: branch S;
+                wire QUAD_NN2[4]: branch S;
+                wire QUAD_NN3[4]: branch S;
+                wire QUAD_NN4[4]: branch S;
+                wire QUAD_NN4_S0: branch N;
+
+                wire QUAD_NW0[4]: mux;
+                wire QUAD_NW1[4]: branch E;
+                wire QUAD_NW2[4]: branch S;
+                wire QUAD_NW3[4]: branch S;
+                wire QUAD_NW4[4]: branch E;
+                wire QUAD_NW4_S0: branch N;
+
+                wire QUAD_NE0[4]: mux;
+                wire QUAD_NE1[4]: branch W;
+                wire QUAD_NE2[4]: branch S;
+                wire QUAD_NE3[4]: branch S;
+                wire QUAD_NE4[4]: branch W;
+            } else {
+                wire HEX_SS0[4]: mux;
+                wire HEX_SS1[4]: branch N;
+                wire HEX_SS2[4]: branch N;
+                wire HEX_SS3[4]: branch N;
+                wire HEX_SS4[4]: branch N;
+                wire HEX_SS5[4]: branch N;
+                wire HEX_SS6[4]: branch N;
+                wire HEX_SS6_N3: branch S;
+
+                wire HEX_SW0[4]: mux;
+                wire HEX_SW1[4]: branch E;
+                wire HEX_SW2[4]: branch N;
+                wire HEX_SW3[4]: branch N;
+                wire HEX_SW4[4]: branch N;
+                wire HEX_SW5[4]: branch N;
+                wire HEX_SW6[4]: branch E;
+                wire HEX_SW6_N3: branch S;
+
+                wire HEX_SE0[4]: mux;
+                wire HEX_SE1[4]: branch W;
+                wire HEX_SE2[4]: branch N;
+                wire HEX_SE3[4]: branch N;
+                wire HEX_SE4[4]: branch N;
+                wire HEX_SE5[4]: branch N;
+                wire HEX_SE6[4]: branch W;
+
+                wire HEX_NN0[4]: mux;
+                wire HEX_NN1[4]: branch S;
+                wire HEX_NN2[4]: branch S;
+                wire HEX_NN3[4]: branch S;
+                wire HEX_NN4[4]: branch S;
+                wire HEX_NN5[4]: branch S;
+                wire HEX_NN6[4]: branch S;
+                wire HEX_NN6_S0: branch N;
+
+                wire HEX_NW0[4]: mux;
+                wire HEX_NW1[4]: branch E;
+                wire HEX_NW2[4]: branch S;
+                wire HEX_NW3[4]: branch S;
+                wire HEX_NW4[4]: branch S;
+                wire HEX_NW5[4]: branch S;
+                wire HEX_NW6[4]: branch E;
+                wire HEX_NW6_S0: branch N;
+
+                wire HEX_NE0[4]: mux;
+                wire HEX_NE1[4]: branch W;
+                wire HEX_NE2[4]: branch S;
+                wire HEX_NE3[4]: branch S;
+                wire HEX_NE4[4]: branch S;
+                wire HEX_NE5[4]: branch S;
+                wire HEX_NE6[4]: branch W;
+            }
+        }
+    }
+
+    if variant virtex4 {
+        // as opposed to v2, LH/LV do not span the whole device;
+        // instead, they are bidirectional length-24 wires
+        // driven at [0] and [24]; tapped at [0], [6], [12], [18], [24]
         wire LH[25] {
             0..12 => multi_branch W,
             12 => multi_root,
@@ -10759,18 +11190,128 @@ target_defs! {
             12 => multi_root,
             13..25 => multi_branch N,
         }
+    } else if variant virtex5 {
+        // same idea, but length 18, drive at [0] and [18], tap at [0], [6], [12], [18]
+        wire LH[19] {
+            0..9 => multi_branch W,
+            9 => multi_root,
+            10..19 => multi_branch E,
+        }
+        wire LV[19] {
+            0..9 => multi_branch N,
+            9 => multi_root,
+            10..19 => multi_branch S,
+        }
+    } else if variant virtex6 {
+        // length 16, drive at [0] and [16], tap at [0], [8], [16]
+        wire LH[17] {
+            0..8 => multi_branch W,
+            8 => multi_root,
+            9..17 => multi_branch E,
+        }
+        wire LV[17] {
+            0..8 => multi_branch N,
+            8 => multi_root,
+            9..17 => multi_branch S,
+        }
+    } else if variant virtex7 {
+        // LH: length 12, drive at [0] and [12], tap at [0], [6], [12]
+        // LV: length 18, drive at [0] and [18], tap at [0], [9], [18]
+        // LVB: length 12, drive and tap at [0] and [12]; for multi-die devices, LVB[6] of tiles in top region is connected to LVB[6] of another tile in next chip's bottom region
+        wire LH[13] {
+            0..6 => multi_branch W,
+            6 => multi_root,
+            7..13 => multi_branch E,
+        }
+        wire LV[19] {
+            0..9 => multi_branch N,
+            9 => multi_root,
+            10..19 => multi_branch S,
+        }
+        wire LVB[13] {
+            0..6 => multi_branch N,
+            6 => multi_root,
+            7..13 => multi_branch S,
+        }
+    }
 
-        wire IMUX_SR[4]: mux;
-        wire IMUX_SR_OPTINV[4]: mux;
-        wire IMUX_BOUNCE[4]: mux;
+    // input muxes (control signals)
+    if variant virtex4 {
+        // similar to v2
         wire IMUX_CLK[4]: mux;
         wire IMUX_CLK_OPTINV[4]: mux;
+        wire IMUX_SR[4]: mux;
+        wire IMUX_SR_OPTINV[4]: mux;
         wire IMUX_CE[4]: mux;
         wire IMUX_CE_OPTINV[4]: mux;
+        // doesn't directly drive anything, but is used as an extra routing resource
+        // that feeds other control and data IMUX
+        wire IMUX_BOUNCE[4]: mux;
+    } else {
+        wire IMUX_CLK[2]: mux;
+        // doesn't directly drive anything, but is used as an extra routing resource that can access HCLK/RCLK
+        wire IMUX_GFAN[2]: mux;
+
+        if variant virtex5 {
+            wire IMUX_CTRL[4]: mux;
+            // both _SITE and _BOUNCE are aliases of IMUX_CTRL (for unclear reasons)
+            wire IMUX_CTRL_SITE[4]: mux;
+            wire IMUX_CTRL_BOUNCE[4]: mux;
+            wire IMUX_CTRL_BOUNCE_S0: branch N;
+            wire IMUX_CTRL_BOUNCE_N3: branch S;
+        } else {
+            wire IMUX_CTRL[2]: mux;
+        }
+    }
+
+    // input muxes (data bypass); feeds less-used inputs and can also be used
+    // as extra routing resource for IMUX_IMUX
+    if variant virtex4 {
         wire IMUX_BYP[8]: mux;
         wire IMUX_BYP_BOUNCE[8]: mux;
-        wire IMUX_IMUX[32]: mux;
+    } else {
+        wire IMUX_BYP[8]: mux;
+        wire IMUX_BYP_SITE[8]: mux;
+        wire IMUX_BYP_BOUNCE[8]: mux;
 
+        if variant virtex5 {
+            wire IMUX_BYP_BOUNCE_S0: branch N;
+            wire IMUX_BYP_BOUNCE_N3: branch S;
+            wire IMUX_BYP_BOUNCE_S4: branch N;
+            wire IMUX_BYP_BOUNCE_N7: branch S;
+        } else {
+            wire IMUX_BYP_BOUNCE_N[8]: branch S;
+            // used in DSP tiles (they have extra muxes for const tieoffs)
+            wire IMUX_BYP_DSP[8]: mux;
+        }
+
+        wire IMUX_FAN[8]: mux;
+        wire IMUX_FAN_SITE[8]: mux;
+        wire IMUX_FAN_BOUNCE[8]: mux;
+
+        if variant virtex5 {
+            wire IMUX_FAN_BOUNCE_S0: branch N;
+            wire IMUX_FAN_BOUNCE_N7: branch S;
+        } else {
+            wire IMUX_FAN_BOUNCE_S[8]: branch N;
+            wire IMUX_FAN_DSP[8]: mux;
+        }
+    }
+    // input muxes (data)
+    if variant virtex4 {
+        wire IMUX_IMUX[32]: mux;
+    } else {
+        wire IMUX_IMUX[48]: mux;
+        wire IMUX_IMUX_DELAY[48]: mux;
+        if variant virtex7 {
+            // used in BRAM tiles (they have extra muxes for address cascade)
+            wire IMUX_BRAM[48]: test;
+        }
+    }
+
+    // bel outputs
+    if variant virtex4 {
+        // like v2
         wire OUT_BEST[8]: bel;
         wire OUT_BEST_TMIN[8]: bel;
         wire OUT_SEC[8]: bel;
@@ -10781,35 +11322,214 @@ target_defs! {
         wire OUT_HALF1[8]: bel;
         wire OUT_HALF1_BEL[8]: bel;
         wire OUT_HALF1_TEST[8]: test;
+    } else {
+        wire OUT[24]: bel;
+        wire OUT_BEL[24]: bel;
+        wire OUT_TEST[24]: test;
 
-        wire IMUX_SPEC[4]: test;
+        if variant virtex5 {
+            wire OUT_S12_DBL: branch N;
+            wire OUT_N15_DBL: branch S;
+            wire OUT_N17_DBL: branch S;
+            wire OUT_S18_DBL: branch N;
+            wire OUT_S12_PENT: branch N;
+            wire OUT_N15_PENT: branch S;
+            wire OUT_N17_PENT: branch S;
+            wire OUT_S18_PENT: branch N;
+        }
+    }
 
+    // all sorts of special input muxes, for things such as IO clocks, DCM/PLL ins, etc
+    // when present, they are routed to test muxes just like general IMUX, so we unify them
+    wire IMUX_SPEC[4]: test;
+
+    // horizontal clock routing (the special clock rows)
+    if variant virtex4 {
+        // muxed at vertical clock spine from GCLK and other inputs
         wire HCLK_ROW[8]: regional HROW;
+        // driven by BUFRs at one of the HCLK_IO* tiles
         wire RCLK_ROW[2]: regional HROW;
+
+        // routes MGT clock outputs to the vertical clock spine (BUFG*, PLLs, etc)
         wire MGT_ROW[2]: regional HROW;
+    } else if variant virtex5 {
+        wire HCLK_ROW[10]: regional HROW;
+        wire RCLK_ROW[4]: regional HROW;
 
+        wire MGT_ROW_I[5]: branch HCLK_ROW_PREV;
+        wire MGT_ROW_O[5]: mux;
+    } else if variant virtex6 {
+        wire HCLK_ROW[12]: regional HROW;
+        wire RCLK_ROW[6]: regional HROW;
+        // versions of above buffered at the HCLK tile
+        wire HCLK_BUF[12]: mux;
+        wire RCLK_BUF[6]: mux;
+
+        wire MGT_ROW[10]: regional HROW;
+        // fast route from PLL outs to IOI
+        wire PERF_ROW[4]: branch HCLK_ROW_NEXT;
+        wire PERF_ROW_OUTER[4]: mux;
+    } else {
+        wire HCLK_ROW[12]: regional HROW;
+        wire RCLK_ROW[4]: regional HROW;
+        wire HCLK_BUF[12]: mux;
+        wire RCLK_BUF[4]: mux;
+
+        // routes clock signals from edges towards the center column; replacement for MGT_ROW
+        // usually goes HCLK_IO -> center, GT -> center, or GT -> HCLK_IO -> center
+        // on xc7a200t, also goes HCLK_IO -> GTP -> center
+        wire HROW_O[14]: mux;
+        wire HROW_I[14]: branch HCLK_ROW_PREV;
+    }
+
+    // the clock center and vertical clock spine.
+    if variant [virtex4, virtex5] {
+        // raw BUFGCTRL output
         wire OUT_BUFG[32]: bel;
-        wire GCLK[32]: regional GLOBAL;
-        wire GCLK_BUF[32]: mux;
+    } else {
+        // likewise, except for v[67] we split the clock center into two tiles
+        wire OUT_BUFG[16]: bel;
+        // buffered version going to BUFGCTRL feedback
+        wire OUT_BUFG_GFB[16]: mux;
+    }
+    // the actual global clocks
+    wire GCLK[32]: regional GCLK;
+    if variant virtex7 {
+        // test buffer for GCLK at GCLK_REBUF tiles
+        wire GCLK_REBUF_TEST[32]: mux;
+    }
+    // global clock inputs from dedicated pins
+    if variant virtex4 {
         wire GIOB[16]: regional GIOB;
-        wire IMUX_BUFG_O[32]: mux;
-        wire IMUX_BUFG_I[32]: branch CLK_PREV;
+    } else if variant virtex5 {
+        wire GIOB[10]: regional GIOB;
+    } else if variant virtex6 {
+        wire GIOB[8]: regional GCLK;
+    }
+    if variant virtex5 {
+        // buffered version of MGT_ROW
+        wire MGT_BUF[10]: mux;
+    }
+    // mux cascade driving the BUFGCTRL inputs
+    wire IMUX_BUFG_O[32]: mux;
+    wire IMUX_BUFG_I[32]: branch CLK_PREV;
 
-        wire OUT_CLKPAD: bel;
+    // various internals of CLK_HROW
+    wire GCLK_HROW[32]: mux;
+    if variant virtex6 {
+        wire CKINT_HROW_W[2]: mux;
+        wire CKINT_HROW_E[2]: mux;
+    } else if variant virtex7 {
+        wire HROW_I_HROW_W[14]: mux;
+        wire HROW_I_HROW_E[14]: mux;
+        wire RCLK_HROW_W[4]: mux;
+        wire RCLK_HROW_E[4]: mux;
+        wire CKINT_HROW[4]: mux;
+    }
+    if variant [virtex6, virtex7] {
+        wire GCLK_TEST[32]: mux;
+        wire GCLK_TEST_IN[32]: mux;
+        wire BUFH_TEST_W: mux;
+        wire BUFH_TEST_E: mux;
+        wire BUFH_TEST_W_IN: mux;
+        wire BUFH_TEST_E_IN: mux;
+        wire IMUX_BUFHCE_W[12]: mux;
+        wire IMUX_BUFHCE_E[12]: mux;
+    }
 
+    // IOI output for dedicated clock ins
+    wire OUT_CLKPAD: bel;
+    // IOI clock in muxes
+    if variant [virtex5, virtex6, virtex7] {
+        wire IMUX_IOI_ICLK[2]: mux;
+        if variant virtex5 {
+            // ?!?!??!?? why three bits for inversion
+            wire IMUX_IOI_ICLK_OPTINV[2]: mux;
+            wire IMUX_ILOGIC_CLK[2]: mux;
+            wire IMUX_ILOGIC_CLKB[2]: mux;
+        }
+        if variant virtex7 {
+            wire IMUX_IOI_ICLKDIVP: mux;
+        }
+    }
+    if variant [virtex6, virtex7] {
+        wire IMUX_IOI_OCLK[2]: mux;
+        wire IMUX_IOI_OCLKDIV[2]: mux;
+        if variant virtex6 {
+            wire IMUX_IOI_OCLKPERF: mux;
+        }
+        if variant virtex7 {
+            wire IMUX_IOI_OCLKDIVF[2]: mux;
+        }
+    }
+
+    // IO column clock routing
+    if variant virtex4 {
         wire HCLK_IO[8]: regional LEAF;
+    } else if variant virtex5 {
+        wire HCLK_IO[10]: regional LEAF;
+    } else if variant virtex6 {
+        wire HCLK_IO[12]: regional LEAF_IO;
+    } else {
+        wire HCLK_IO[12]: mux;
+        wire LCLK_IO[6]: regional LEAF;
+    }
+    if variant virtex4 {
         wire RCLK_IO[2]: regional LEAF;
-        wire IMUX_IDELAYCTRL_REFCLK: mux;
-        wire IMUX_BUFR[2]: mux;
+    } else if variant virtex5 {
+        wire RCLK_IO[4]: regional LEAF;
+    } else if variant virtex6 {
+        wire RCLK_IO[6]: regional LEAF_IO;
+    } else {
+        wire RCLK_IO[4]: regional LEAF_IO;
+    }
+    if variant [virtex4, virtex5, virtex6] {
+        wire VRCLK[2]: bel;
+        wire VRCLK_S[2]: branch IO_N;
+        wire VRCLK_N[2]: branch IO_S;
+    }
+    if variant virtex4 {
         wire IOCLK[2]: regional LEAF;
         wire IOCLK_S[2]: branch IO_N;
         wire IOCLK_N[2]: branch IO_S;
         wire IOCLK_S_IO[2]: regional LEAF;
         wire IOCLK_N_IO[2]: regional LEAF;
-        wire VRCLK[2]: mux;
-        wire VRCLK_S[2]: branch IO_N;
-        wire VRCLK_N[2]: branch IO_S;
+    } else if variant virtex5 {
+        wire IOCLK[4]: regional LEAF;
+    } else if variant virtex6 {
+        wire IOCLK[8]: regional LEAF_IO;
+        wire SIOCLK[2]: bel;
+        wire VIOCLK[2]: bel;
+        wire VIOCLK_S[2]: branch IO_N;
+        wire VIOCLK_N[2]: branch IO_S;
+        wire VIOCLK_S_BUF[2]: mux;
+        wire VIOCLK_N_BUF[2]: mux;
+    } else {
+        wire IOCLK[4]: regional LEAF_IO;
+    }
+    if variant virtex6 {
+        wire OCLK[2]: regional LEAF_IO;
+        wire VOCLK[2]: mux;
+        wire VOCLK_S[2]: branch IO_N;
+        wire VOCLK_N[2]: branch IO_S;
+    }
 
+    // HCLK_IO internals
+    wire IMUX_IDELAYCTRL_REFCLK: mux;
+    if variant [virtex6, virtex7] {
+        wire IMUX_BUFIO[4]: mux;
+    }
+    if variant [virtex4, virtex5, virtex6] {
+        wire IMUX_BUFR[2]: mux;
+    } else {
+        wire IMUX_BUFR[4]: mux;
+    }
+    if variant [virtex6, virtex7] {
+        wire PERF_BUF[4]: mux;
+    }
+
+    // DCM/CCM stuff
+    if variant virtex4 {
         wire HCLK_DCM[8]: regional LEAF_DCM;
         wire GIOB_DCM[16]: regional LEAF_DCM;
         wire MGT_DCM[4]: regional LEAF_DCM;
@@ -10830,7 +11550,153 @@ target_defs! {
 
         wire DCM_DCM_O[24]: mux;
         wire DCM_DCM_I[24]: branch CMT_PREV;
+    }
 
+    // CMT stuff
+    // various buffered stuff for the CMT
+    if variant virtex5 {
+        wire HCLK_CMT[10]: regional LEAF;
+    } else if variant virtex6 {
+        wire HCLK_CMT_W[12]: mux;
+        wire HCLK_CMT_E[12]: mux;
+        wire RCLK_CMT_W[12]: mux;
+        wire RCLK_CMT_E[12]: mux;
+    } else if variant virtex7 {
+        wire HCLK_CMT[12]: mux;
+        wire RCLK_CMT[4]: mux;
+    }
+    if variant virtex5 {
+        wire GIOB_CMT[10]: regional LEAF;
+    } else if variant virtex6 {
+        wire GIOB_CMT[8]: mux;
+        wire CCIO_CMT_W[4]: mux;
+        wire CCIO_CMT_E[4]: mux;
+        wire MGT_CMT_W[10]: mux;
+        wire MGT_CMT_E[10]: mux;
+    } else if variant virtex7 {
+        wire CCIO_CMT[4]: mux;
+        wire CKINT_CMT[4]: mux;
+        wire HROW_I_CMT[14]: mux;
+    }
+
+    // CMT input muxes
+    if variant virtex5 {
+        wire IMUX_DCM_CLKIN[2]: mux;
+        wire IMUX_DCM_CLKFB[2]: mux;
+        wire IMUX_PLL_CLKIN1[1]: mux;
+        wire IMUX_PLL_CLKIN2[1]: mux;
+        wire IMUX_PLL_CLKFB[1]: mux;
+    } else if variant virtex6 {
+        wire IMUX_PLL_CLKIN1[2]: mux;
+        wire IMUX_PLL_CLKIN2[2]: mux;
+        wire IMUX_PLL_CLKFB[2]: mux;
+        wire IMUX_PLL_CLKIN1_HCLK_W[2]: mux;
+        wire IMUX_PLL_CLKIN2_HCLK_W[2]: mux;
+        wire IMUX_PLL_CLKFB_HCLK_W[2]: mux;
+        wire IMUX_PLL_CLKIN1_HCLK_E[2]: mux;
+        wire IMUX_PLL_CLKIN2_HCLK_E[2]: mux;
+        wire IMUX_PLL_CLKFB_HCLK_E[2]: mux;
+        wire IMUX_PLL_CLKIN1_HCLK[2]: mux;
+        wire IMUX_PLL_CLKIN2_HCLK[2]: mux;
+        wire IMUX_PLL_CLKFB_HCLK[2]: mux;
+        wire IMUX_PLL_CLKIN1_IO[2]: mux;
+        wire IMUX_PLL_CLKIN2_IO[2]: mux;
+        wire IMUX_PLL_CLKFB_IO[2]: mux;
+        wire IMUX_PLL_CLKIN1_MGT[2]: mux;
+        wire IMUX_PLL_CLKIN2_MGT[2]: mux;
+    } else if variant virtex7 {
+        wire IMUX_PLL_CLKIN1[2]: mux;
+        wire IMUX_PLL_CLKIN2[2]: mux;
+        wire IMUX_PLL_CLKFB[2]: mux;
+        wire IMUX_PLL_CLKIN1_HCLK[2]: mux;
+        wire IMUX_PLL_CLKIN2_HCLK[2]: mux;
+        wire IMUX_PLL_CLKFB_HCLK[2]: mux;
+    }
+
+    // CMUT bel outs
+    if variant virtex5 {
+        wire OUT_CMT[28]: bel;
+        wire OMUX_DCM_SKEWCLKIN1[2]: mux;
+        wire OMUX_DCM_SKEWCLKIN2[2]: mux;
+        wire TEST_PLL_CLKIN: bel;
+        wire OMUX_PLL_SKEWCLKIN1: mux;
+        wire OMUX_PLL_SKEWCLKIN2: mux;
+        wire OUT_PLL_CLKOUTDCM[6]: bel;
+        wire OUT_PLL_CLKFBDCM: bel;
+    } else if variant virtex6 {
+        wire OUT_PLL_S[14]: bel;
+        wire OUT_PLL_N[14]: bel;
+        wire OMUX_PLL_CASC[2]: bel;
+        wire OMUX_PLL_PERF_S[4]: bel;
+        wire OMUX_PLL_PERF_N[4]: bel;
+    } else if variant virtex7 {
+        wire OUT_PLL_S[14]: bel;
+        wire OUT_PLL_N[8]: bel;
+        wire OUT_PLL_FREQ_BB_S[4]: mux;
+        wire OUT_PLL_FREQ_BB_N[4]: mux;
+        wire OMUX_PLL_PERF[4]: mux;
+        wire OMUX_PLL_FREQ_BB_S[4]: mux;
+        wire OMUX_PLL_FREQ_BB_N[4]: mux;
+    }
+
+    if variant virtex7 {
+        // BUFMR stuff
+        wire IMUX_BUFMRCE[2]: mux;
+        wire VMRCLK[2]: bel;
+        wire VMRCLK_S[2]: branch IO_N;
+        wire VMRCLK_N[2]: branch IO_S;
+
+        // phaser inputs
+        wire IMUX_PHASER_REFMUX[3]: mux;
+        wire IMUX_PHASER_IN_PHASEREFCLK[4]: mux;
+        wire IMUX_PHASER_OUT_PHASEREFCLK[4]: mux;
+
+        // phaser outputs
+        wire OUT_PHASER_REF_CLKOUT: bel;
+        wire OUT_PHASER_REF_TMUXOUT: bel;
+        wire OUT_PHASER_IN_RCLK[4]: bel;
+        wire OUT_PHY_PHYCTLEMPTY: bel;
+
+        // PHASER to IOI and FIFO
+        wire PHASER_ICLK: regional IO_BYTE;
+        wire PHASER_ICLKDIV: regional IO_BYTE;
+        wire PHASER_IWREN: bel;
+        wire PHASER_OCLK: regional IO_BYTE;
+        wire PHASER_OCLK90: bel;
+        wire PHASER_OCLKDIV: regional IO_BYTE;
+        wire PHASER_ORDEN: bel;
+
+        // routes either CCIO or phaser out to HROW
+        wire OMUX_CCIO[4]: mux;
+        // routes either CCIO or CKINT to FREQ_BB
+        wire OMUX_HCLK_FREQ_BB[4]: mux;
+
+        // PLL/PHASER to IOI path
+        wire PERF[4]: mux;
+        // buffers
+        wire PERF_IN_PLL[4]: mux;
+        wire PERF_IN_PHASER[4]: mux;
+
+        // CMT clock and sync backbones
+        wire CMT_FREQ_BB[4]: mux;
+        wire CMT_FREQ_BB_S[4]: multi_branch IO_S;
+        wire CMT_FREQ_BB_N[4]: multi_root;
+        wire CMT_SYNC_BB: mux;
+        wire CMT_SYNC_BB_S: multi_branch IO_S;
+        wire CMT_SYNC_BB_N: multi_root;
+
+        // ummmm. what are these wires like. actually for.
+        wire LCLK_CMT_S[2]: mux;
+        wire LCLK_CMT_N[2]: mux;
+
+        // FIFO input muxes
+        wire IMUX_FIFO_ORDCLK: mux;
+        wire IMUX_FIFO_ORDEN: mux;
+        wire IMUX_FIFO_IWRCLK: mux;
+        wire IMUX_FIFO_IWREN: mux;
+    }
+
+    if variant virtex4 {
         wire HCLK_MGT[8]: mux;
         wire MGT_CLK_OUT[2]: mux;
         wire MGT_CLK_OUT_SYNCLK: mux;
@@ -10847,813 +11713,11 @@ target_defs! {
         wire OUT_MGT_TXPCSHCLKOUT[2]: bel;
     }
 
-    if variant virtex5 {
-        region_slot GLOBAL;
-        region_slot GIOB;
-        region_slot HROW;
-        region_slot LEAF;
-
-        wire PULLUP: pullup;
-        wire TIE_0: tie 0;
-        wire TIE_1: tie 1;
-
-        wire HCLK[10]: regional LEAF;
-        wire RCLK[4]: regional LEAF;
-
-        wire DBL_WW0_S0: mux;
-        wire DBL_WW0_N5: mux;
-        wire DBL_WW0[6] {
-            0 => branch S,
-            1..5 => mux,
-            5 => branch N,
-        }
-        wire DBL_WW1[6]: branch E;
-        wire DBL_WW2[6]: branch E;
-        wire DBL_WS0[3]: mux;
-        wire DBL_WS1[3]: branch E;
-        wire DBL_WS2[3]: branch N;
-        wire DBL_WS1_BUF0: mux;
-        wire DBL_WS1_S0: branch N;
-        wire DBL_WN0[3]: mux;
-        wire DBL_WN1[3]: branch E;
-        wire DBL_WN2[3]: branch S;
-        wire DBL_WN2_S0: branch N;
-        wire DBL_EE0_S3: mux;
-        wire DBL_EE0[6] {
-            0..3 => mux,
-            3 => branch S,
-            4..6 => mux,
-        }
-        wire DBL_EE1[6]: branch W;
-        wire DBL_EE2[6]: branch W;
-        wire DBL_ES0[3]: mux;
-        wire DBL_ES1[3]: branch W;
-        wire DBL_ES2[3]: branch N;
-        wire DBL_EN0[3]: mux;
-        wire DBL_EN1[3]: branch W;
-        wire DBL_EN2[3]: branch S;
-        wire DBL_NN0_S0: mux;
-        wire DBL_NN0_N5: mux;
-        wire DBL_NN0[6] {
-            0 => branch S,
-            1..5 => mux,
-            5 => branch N,
-        }
-        wire DBL_NN1[6]: branch S;
-        wire DBL_NN2[6]: branch S;
-        wire DBL_NW0[3]: mux;
-        wire DBL_NW1[3]: branch S;
-        wire DBL_NW2[3]: branch E;
-        wire DBL_NW2_N2: branch S;
-        wire DBL_NE0[3]: mux;
-        wire DBL_NE1[3]: branch S;
-        wire DBL_NE2[3]: branch W;
-        wire DBL_NE1_BUF2: mux;
-        wire DBL_NE1_N2: branch S;
-        wire DBL_SS0_N2: mux;
-        wire DBL_SS0[6] {
-            0..2 => mux,
-            2 => branch N,
-            3..6 => mux,
-        }
-        wire DBL_SS1[6]: branch N;
-        wire DBL_SS2[6]: branch N;
-        wire DBL_SW0[3]: mux;
-        wire DBL_SW1[3]: branch N;
-        wire DBL_SW2[3]: branch E;
-        wire DBL_SE0[3]: mux;
-        wire DBL_SE1[3]: branch N;
-        wire DBL_SE2[3]: branch W;
-
-        wire PENT_WW0_S0: mux;
-        wire PENT_WW0[6] {
-            0 => branch S,
-            1..6 => mux,
-        }
-        wire PENT_WW1[6]: branch E;
-        wire PENT_WW2[6]: branch E;
-        wire PENT_WW3[6]: branch E;
-        wire PENT_WW4[6]: branch E;
-        wire PENT_WW5[6]: branch E;
-        wire PENT_WS0[3]: mux;
-        wire PENT_WS1[3]: branch E;
-        wire PENT_WS2[3]: branch E;
-        wire PENT_WS3[3]: branch E;
-        wire PENT_WS4[3]: branch N;
-        wire PENT_WS5[3]: branch N;
-        wire PENT_WS3_BUF0: mux;
-        wire PENT_WS3_S0: branch N;
-        wire PENT_WN0[3]: mux;
-        wire PENT_WN1[3]: branch E;
-        wire PENT_WN2[3]: branch E;
-        wire PENT_WN3[3]: branch E;
-        wire PENT_WN4[3]: branch S;
-        wire PENT_WN5[3]: branch S;
-        wire PENT_WN5_S0: branch N;
-        wire PENT_EE0[6]: mux;
-        wire PENT_EE1[6]: branch W;
-        wire PENT_EE2[6]: branch W;
-        wire PENT_EE3[6]: branch W;
-        wire PENT_EE4[6]: branch W;
-        wire PENT_EE5[6]: branch W;
-        wire PENT_ES0[3]: mux;
-        wire PENT_ES1[3]: branch W;
-        wire PENT_ES2[3]: branch W;
-        wire PENT_ES3[3]: branch W;
-        wire PENT_ES4[3]: branch N;
-        wire PENT_ES5[3]: branch N;
-        wire PENT_EN0[3]: mux;
-        wire PENT_EN1[3]: branch W;
-        wire PENT_EN2[3]: branch W;
-        wire PENT_EN3[3]: branch W;
-        wire PENT_EN4[3]: branch S;
-        wire PENT_EN5[3]: branch S;
-        wire PENT_SS0[6]: mux;
-        wire PENT_SS1[6]: branch N;
-        wire PENT_SS2[6]: branch N;
-        wire PENT_SS3[6]: branch N;
-        wire PENT_SS4[6]: branch N;
-        wire PENT_SS5[6]: branch N;
-        wire PENT_SW0[3]: mux;
-        wire PENT_SW1[3]: branch N;
-        wire PENT_SW2[3]: branch N;
-        wire PENT_SW3[3]: branch N;
-        wire PENT_SW4[3]: branch E;
-        wire PENT_SW5[3]: branch E;
-        wire PENT_SE0[3]: mux;
-        wire PENT_SE1[3]: branch N;
-        wire PENT_SE2[3]: branch N;
-        wire PENT_SE3[3]: branch N;
-        wire PENT_SE4[3]: branch W;
-        wire PENT_SE5[3]: branch W;
-        wire PENT_NN0_N5: mux;
-        wire PENT_NN0[6] {
-            0..5 => mux,
-            5 => branch N,
-        }
-        wire PENT_NN1[6]: branch S;
-        wire PENT_NN2[6]: branch S;
-        wire PENT_NN3[6]: branch S;
-        wire PENT_NN4[6]: branch S;
-        wire PENT_NN5[6]: branch S;
-        wire PENT_NW0[3]: mux;
-        wire PENT_NW1[3]: branch S;
-        wire PENT_NW2[3]: branch S;
-        wire PENT_NW3[3]: branch S;
-        wire PENT_NW4[3]: branch E;
-        wire PENT_NW5[3]: branch E;
-        wire PENT_NW5_N2: branch S;
-        wire PENT_NE0[3]: mux;
-        wire PENT_NE1[3]: branch S;
-        wire PENT_NE2[3]: branch S;
-        wire PENT_NE3[3]: branch S;
-        wire PENT_NE4[3]: branch W;
-        wire PENT_NE5[3]: branch W;
-        wire PENT_NE3_BUF2: mux;
-        wire PENT_NE3_N2: branch S;
-
-        wire LH[19] {
-            0..9 => multi_branch W,
-            9 => multi_root,
-            10..19 => multi_branch E,
-        }
-        wire LV[19] {
-            0..9 => multi_branch N,
-            9 => multi_root,
-            10..19 => multi_branch S,
-        }
-
-        wire IMUX_GFAN[2]: mux;
-        wire IMUX_CLK[2]: mux;
-
-        wire IMUX_CTRL[4]: mux;
-        wire IMUX_CTRL_SITE[4]: mux;
-        wire IMUX_CTRL_BOUNCE[4]: mux;
-        wire IMUX_CTRL_BOUNCE_S0: branch N;
-        wire IMUX_CTRL_BOUNCE_N3: branch S;
-
-        wire IMUX_BYP[8]: mux;
-        wire IMUX_BYP_SITE[8]: mux;
-        wire IMUX_BYP_BOUNCE[8]: mux;
-        wire IMUX_BYP_BOUNCE_S0: branch N;
-        wire IMUX_BYP_BOUNCE_N3: branch S;
-        wire IMUX_BYP_BOUNCE_S4: branch N;
-        wire IMUX_BYP_BOUNCE_N7: branch S;
-
-        wire IMUX_FAN[8]: mux;
-        wire IMUX_FAN_SITE[8]: mux;
-        wire IMUX_FAN_BOUNCE[8]: mux;
-        wire IMUX_FAN_BOUNCE_S0: branch N;
-        wire IMUX_FAN_BOUNCE_N7: branch S;
-
-        wire IMUX_IMUX[48]: mux;
-        wire IMUX_IMUX_DELAY[48]: mux;
-
-        wire OUT[24]: bel;
-        wire OUT_BEL[24]: bel;
-        wire OUT_TEST[24]: test;
-        wire OUT_S12_DBL: branch N;
-        wire OUT_N15_DBL: branch S;
-        wire OUT_N17_DBL: branch S;
-        wire OUT_S18_DBL: branch N;
-        wire OUT_S12_PENT: branch N;
-        wire OUT_N15_PENT: branch S;
-        wire OUT_N17_PENT: branch S;
-        wire OUT_S18_PENT: branch N;
-
-        wire IMUX_SPEC[4]: test;
-
-        wire HCLK_ROW[10]: regional HROW;
-        wire RCLK_ROW[4]: regional HROW;
-        wire MGT_ROW_I[5]: branch HCLK_ROW_PREV;
-        wire MGT_ROW_O[5]: mux;
-
-        wire OUT_BUFG[32]: bel;
-        wire GCLK[32]: regional GLOBAL;
-        wire GCLK_BUF[32]: mux;
-        wire GIOB[10]: regional GIOB;
-        wire IMUX_BUFG_O[32]: mux;
-        wire IMUX_BUFG_I[32]: branch CLK_PREV;
-            wire MGT_BUF[10]: mux;
-
-        wire OUT_CLKPAD: bel;
-
-        wire HCLK_IO[10]: regional LEAF;
-        wire RCLK_IO[4]: regional LEAF;
-        wire IMUX_IDELAYCTRL_REFCLK: mux;
-        wire IMUX_BUFR[2]: mux;
-        wire IOCLK[4]: regional LEAF;
-        wire VRCLK[2]: mux;
-        wire VRCLK_S[2]: branch IO_N;
-        wire VRCLK_N[2]: branch IO_S;
-
-        wire IMUX_IO_ICLK[2]: mux;
-        // ?!?!??!?? why three bits for inversion
-        wire IMUX_IO_ICLK_OPTINV[2]: mux;
-        wire IMUX_ILOGIC_CLK[2]: mux;
-        wire IMUX_ILOGIC_CLKB[2]: mux;
-
-        wire HCLK_CMT[10]: regional LEAF;
-        wire GIOB_CMT[10]: regional LEAF;
-
-        wire OUT_CMT[28]: bel;
-            wire IMUX_DCM_CLKIN[2]: mux;
-            wire IMUX_DCM_CLKFB[2]: mux;
-            wire OMUX_DCM_SKEWCLKIN1[2]: mux;
-            wire OMUX_DCM_SKEWCLKIN2[2]: mux;
-            wire IMUX_PLL_CLKIN1: mux;
-            wire IMUX_PLL_CLKIN2: mux;
-            wire IMUX_PLL_CLKFB: mux;
-            wire TEST_PLL_CLKIN: bel;
-            wire OMUX_PLL_SKEWCLKIN1: mux;
-            wire OMUX_PLL_SKEWCLKIN2: mux;
-            wire OUT_PLL_CLKOUTDCM[6]: bel;
-            wire OUT_PLL_CLKFBDCM: bel;
-    }
-
     if variant virtex6 {
-        region_slot GLOBAL;
-        region_slot HROW;
-        region_slot LEAF;
-        region_slot LEAF_IO;
-
-        wire PULLUP: pullup;
-        wire TIE_0: tie 0;
-        wire TIE_1: tie 1;
-
-        wire LCLK[8]: regional LEAF;
-
-        wire SNG_W0_N3: mux;
-        wire SNG_W0_S4: mux;
-        wire SNG_W0[8] {
-            0..3 => mux,
-            3 => branch N,
-            4 => branch S,
-            5..8 => mux,
-        }
-        wire SNG_W1[8]: branch E;
-        wire SNG_W1_S4: branch N;
-        wire SNG_W1_N3: branch S;
-        wire SNG_E0_N3: mux;
-        wire SNG_E0_S4: mux;
-        wire SNG_E0[8] {
-            0..3 => mux,
-            3 => branch N,
-            4 => branch S,
-            5..8 => mux,
-        }
-        wire SNG_E1[8]: branch W;
-        wire SNG_E1_S0: branch N;
-        wire SNG_E1_N7: branch S;
-        wire SNG_S0_S4: mux;
-        wire SNG_S0[8] {
-            0..4 => mux,
-            4 => branch S,
-            5..8 => mux,
-        }
-        wire SNG_S1[8]: branch N;
-        wire SNG_S1_N7: branch S;
-        wire SNG_N0_N3: mux;
-        wire SNG_N0[8] {
-            0..3 => mux,
-            3 => branch N,
-            4..8 => mux,
-        }
-        wire SNG_N1[8]: branch S;
-        wire SNG_N1_S0: branch N;
-
-        wire DBL_WW0[4]: mux;
-        wire DBL_WW1[4]: branch E;
-        wire DBL_WW2[4]: branch E;
-        wire DBL_WW2_N3: branch S;
-        wire DBL_EE0[4]: mux;
-        wire DBL_EE1[4]: branch W;
-        wire DBL_EE2[4]: branch W;
-        wire DBL_SS0[4]: mux;
-        wire DBL_SS1[4]: branch N;
-        wire DBL_SS2[4]: branch N;
-        wire DBL_SS2_N3: branch S;
-        wire DBL_SW0[4]: mux;
-        wire DBL_SW1[4]: branch N;
-        wire DBL_SW2[4]: branch E;
-        wire DBL_SW2_N3: branch S;
-        wire DBL_SE0[4]: mux;
-        wire DBL_SE1[4]: branch N;
-        wire DBL_SE2[4]: branch W;
-        wire DBL_NN0[4]: mux;
-        wire DBL_NN1[4]: branch S;
-        wire DBL_NN2[4]: branch S;
-        wire DBL_NN2_S0: branch N;
-        wire DBL_NW0[4]: mux;
-        wire DBL_NW1[4]: branch S;
-        wire DBL_NW2[4]: branch E;
-        wire DBL_NW2_S0: branch N;
-        wire DBL_NE0[4]: mux;
-        wire DBL_NE1[4]: branch S;
-        wire DBL_NE2[4]: branch W;
-        wire DBL_NE2_S0: branch N;
-
-        wire QUAD_WW0[4]: mux;
-        wire QUAD_WW1[4]: branch E;
-        wire QUAD_WW2[4]: branch E;
-        wire QUAD_WW3[4]: branch E;
-        wire QUAD_WW4[4]: branch E;
-        wire QUAD_WW4_S0: branch N;
-        wire QUAD_EE0[4]: mux;
-        wire QUAD_EE1[4]: branch W;
-        wire QUAD_EE2[4]: branch W;
-        wire QUAD_EE3[4]: branch W;
-        wire QUAD_EE4[4]: branch W;
-        wire QUAD_SS0[4]: mux;
-        wire QUAD_SS1[4]: branch N;
-        wire QUAD_SS2[4]: branch N;
-        wire QUAD_SS3[4]: branch N;
-        wire QUAD_SS4[4]: branch N;
-        wire QUAD_SS4_N3: branch S;
-        wire QUAD_SW0[4]: mux;
-        wire QUAD_SW1[4]: branch E;
-        wire QUAD_SW2[4]: branch N;
-        wire QUAD_SW3[4]: branch N;
-        wire QUAD_SW4[4]: branch E;
-        wire QUAD_SW4_N3: branch S;
-        wire QUAD_SE0[4]: mux;
-        wire QUAD_SE1[4]: branch W;
-        wire QUAD_SE2[4]: branch N;
-        wire QUAD_SE3[4]: branch N;
-        wire QUAD_SE4[4]: branch W;
-        wire QUAD_NN0[4]: mux;
-        wire QUAD_NN1[4]: branch S;
-        wire QUAD_NN2[4]: branch S;
-        wire QUAD_NN3[4]: branch S;
-        wire QUAD_NN4[4]: branch S;
-        wire QUAD_NN4_S0: branch N;
-        wire QUAD_NW0[4]: mux;
-        wire QUAD_NW1[4]: branch E;
-        wire QUAD_NW2[4]: branch S;
-        wire QUAD_NW3[4]: branch S;
-        wire QUAD_NW4[4]: branch E;
-        wire QUAD_NW4_S0: branch N;
-        wire QUAD_NE0[4]: mux;
-        wire QUAD_NE1[4]: branch W;
-        wire QUAD_NE2[4]: branch S;
-        wire QUAD_NE3[4]: branch S;
-        wire QUAD_NE4[4]: branch W;
-
-        wire LH[17] {
-            0..8 => multi_branch W,
-            8 => multi_root,
-            9..17 => multi_branch E,
-        }
-        wire LV[17] {
-            0..8 => multi_branch N,
-            8 => multi_root,
-            9..17 => multi_branch S,
-        }
-
-        wire IMUX_GFAN[2]: mux;
-        wire IMUX_CLK[2]: mux;
-        wire IMUX_CTRL[2]: mux;
-
-        wire IMUX_BYP[8]: mux;
-        wire IMUX_BYP_SITE[8]: mux;
-        wire IMUX_BYP_BOUNCE[8]: mux;
-        wire IMUX_BYP_BOUNCE_N[8]: branch S;
-        wire IMUX_BYP_DSP[8]: mux;
-
-        wire IMUX_FAN[8]: mux;
-        wire IMUX_FAN_SITE[8]: mux;
-        wire IMUX_FAN_BOUNCE[8]: mux;
-        wire IMUX_FAN_BOUNCE_S[8]: branch N;
-        wire IMUX_FAN_DSP[8]: mux;
-
-        wire IMUX_IMUX[48]: mux;
-        wire IMUX_IMUX_DELAY[48]: mux;
-
-        wire OUT[24]: bel;
-        wire OUT_BEL[24]: bel;
-        wire OUT_TEST[24]: test;
-
-        wire IMUX_SPEC[4]: test;
-
-        wire HCLK_ROW[12]: regional HROW;
-        wire RCLK_ROW[6]: regional HROW;
-        wire MGT_ROW[10]: regional HROW;
-        wire HCLK_BUF[12]: mux;
-        wire RCLK_BUF[6]: mux;
-        wire PERF_ROW[4]: branch HCLK_ROW_NEXT;
-        wire PERF_ROW_OUTER[4]: mux;
-
-        wire PERF_BUF[4]: mux;
-        wire HCLK_IO[12]: regional LEAF_IO;
-        wire RCLK_IO[6]: regional LEAF_IO;
-        wire IMUX_IDELAYCTRL_REFCLK: mux;
-        wire IMUX_BUFIO[4]: mux;
-        wire IMUX_BUFR[2]: mux;
-        wire VRCLK[2]: bel;
-        wire VRCLK_S[2]: branch IO_N;
-        wire VRCLK_N[2]: branch IO_S;
-        wire SIOCLK[2]: bel;
-        wire VIOCLK[2]: bel;
-        wire VIOCLK_S[2]: branch IO_N;
-        wire VIOCLK_N[2]: branch IO_S;
-        wire VIOCLK_S_BUF[2]: mux;
-        wire VIOCLK_N_BUF[2]: mux;
-        wire IOCLK[8]: regional LEAF_IO;
-        wire VOCLK[2]: mux;
-        wire VOCLK_S[2]: branch IO_N;
-        wire VOCLK_N[2]: branch IO_S;
-        wire OCLK[2]: regional LEAF_IO;
-
-        wire OUT_CLKPAD: bel;
-        wire IMUX_IOI_ICLK[2]: mux;
-        wire IMUX_IOI_OCLK[2]: mux;
-        wire IMUX_IOI_OCLKDIV[2]: mux;
-        wire IMUX_IOI_OCLKPERF: mux;
-
         wire IMUX_GTX_PERFCLK: mux;
-
-        wire GCLK[32]: regional GLOBAL;
-        wire GIOB[8]: regional GLOBAL;
-        wire OUT_BUFG[16]: bel;
-        wire OUT_BUFG_GFB[16]: mux;
-        wire IMUX_BUFG_O[32]: mux;
-        wire IMUX_BUFG_I[32]: branch CLK_PREV;
-
-        // buffered for BUFH inputs
-        wire GCLK_CMT[32]: mux;
-        wire BUFH_INT_W[2]: mux;
-        wire BUFH_INT_E[2]: mux;
-        wire GCLK_TEST[32]: mux;
-        wire GCLK_TEST_IN[32]: mux;
-        wire BUFH_TEST_W: mux;
-        wire BUFH_TEST_E: mux;
-        wire BUFH_TEST_W_IN: mux;
-        wire BUFH_TEST_E_IN: mux;
-        wire IMUX_BUFHCE_W[12]: mux;
-        wire IMUX_BUFHCE_E[12]: mux;
-        // buffered for CMT ins
-        wire CCIO_CMT_W[4]: mux;
-        wire CCIO_CMT_E[4]: mux;
-        wire MGT_CMT_W[10]: mux;
-        wire MGT_CMT_E[10]: mux;
-        wire HCLK_CMT_W[12]: mux;
-        wire HCLK_CMT_E[12]: mux;
-        wire RCLK_CMT_W[12]: mux;
-        wire RCLK_CMT_E[12]: mux;
-        wire GIOB_CMT[8]: mux;
-
-        wire IMUX_PLL_CLKIN1_HCLK_W[2]: mux;
-        wire IMUX_PLL_CLKIN2_HCLK_W[2]: mux;
-        wire IMUX_PLL_CLKFB_HCLK_W[2]: mux;
-        wire IMUX_PLL_CLKIN1_HCLK_E[2]: mux;
-        wire IMUX_PLL_CLKIN2_HCLK_E[2]: mux;
-        wire IMUX_PLL_CLKFB_HCLK_E[2]: mux;
-        wire IMUX_PLL_CLKIN1_HCLK[2]: mux;
-        wire IMUX_PLL_CLKIN2_HCLK[2]: mux;
-        wire IMUX_PLL_CLKFB_HCLK[2]: mux;
-        wire IMUX_PLL_CLKIN1_IO[2]: mux;
-        wire IMUX_PLL_CLKIN2_IO[2]: mux;
-        wire IMUX_PLL_CLKFB_IO[2]: mux;
-        wire IMUX_PLL_CLKIN1_MGT[2]: mux;
-        wire IMUX_PLL_CLKIN2_MGT[2]: mux;
-        wire IMUX_PLL_CLKIN1[2]: mux;
-        wire IMUX_PLL_CLKIN2[2]: mux;
-        wire IMUX_PLL_CLKFB[2]: mux;
-        wire OUT_PLL_S[14]: bel;
-        wire OUT_PLL_N[14]: bel;
-        wire OMUX_PLL_CASC[2]: bel;
-        wire OMUX_PLL_PERF_S[4]: bel;
-        wire OMUX_PLL_PERF_N[4]: bel;
     }
 
     if variant virtex7 {
-        region_slot GCLK;
-        region_slot HROW;
-        region_slot LEAF;
-        region_slot LEAF_IO;
-        region_slot IO_BYTE;
-
-        wire TIE_0: tie 0;
-        wire TIE_1: tie 1;
-
-        wire LCLK[12]: regional LEAF;
-
-        wire SNG_W0_N3: mux;
-        wire SNG_W0_S4: mux;
-        wire SNG_W0[8] {
-            0..3 => mux,
-            3 => branch N,
-            4 => branch S,
-            5..8 => mux,
-        }
-        wire SNG_W1[8]: branch E;
-        wire SNG_W1_S4: branch N;
-        wire SNG_W1_N3: branch S;
-        wire SNG_E0_N3: mux;
-        wire SNG_E0_S4: mux;
-        wire SNG_E0[8] {
-            0..3 => mux,
-            3 => branch N,
-            4 => branch S,
-            5..8 => mux,
-        }
-        wire SNG_E1[8]: branch W;
-        wire SNG_E1_S0: branch N;
-        wire SNG_E1_N7: branch S;
-        wire SNG_S0_S4: mux;
-        wire SNG_S0[8] {
-            0..4 => mux,
-            4 => branch S,
-            5..8 => mux,
-        }
-        wire SNG_S1[8]: branch N;
-        wire SNG_S1_N7: branch S;
-        wire SNG_N0_N3: mux;
-        wire SNG_N0[8] {
-            0..3 => mux,
-            3 => branch N,
-            4..8 => mux,
-        }
-        wire SNG_N1[8]: branch S;
-        wire SNG_N1_S0: branch N;
-
-        wire DBL_WW0[4]: mux;
-        wire DBL_WW1[4]: branch E;
-        wire DBL_WW2[4]: branch E;
-        wire DBL_WW2_N3: branch S;
-        wire DBL_EE0[4]: mux;
-        wire DBL_EE1[4]: branch W;
-        wire DBL_EE2[4]: branch W;
-        wire DBL_SS0[4]: mux;
-        wire DBL_SS1[4]: branch N;
-        wire DBL_SS2[4]: branch N;
-        wire DBL_SS2_N3: branch S;
-        wire DBL_SW0[4]: mux;
-        wire DBL_SW1[4]: branch N;
-        wire DBL_SW2[4]: branch E;
-        wire DBL_SW2_N3: branch S;
-        wire DBL_SE0[4]: mux;
-        wire DBL_SE1[4]: branch N;
-        wire DBL_SE2[4]: branch W;
-        wire DBL_NN0[4]: mux;
-        wire DBL_NN1[4]: branch S;
-        wire DBL_NN2[4]: branch S;
-        wire DBL_NN2_S0: branch N;
-        wire DBL_NW0[4]: mux;
-        wire DBL_NW1[4]: branch S;
-        wire DBL_NW2[4]: branch E;
-        wire DBL_NW2_S0: branch N;
-        wire DBL_NE0[4]: mux;
-        wire DBL_NE1[4]: branch S;
-        wire DBL_NE2[4]: branch W;
-        wire DBL_NE2_S0: branch N;
-
-        wire QUAD_WW0[4]: mux;
-        wire QUAD_WW1[4]: branch E;
-        wire QUAD_WW2[4]: branch E;
-        wire QUAD_WW3[4]: branch E;
-        wire QUAD_WW4[4]: branch E;
-        wire QUAD_WW4_S0: branch N;
-        wire QUAD_EE0[4]: mux;
-        wire QUAD_EE1[4]: branch W;
-        wire QUAD_EE2[4]: branch W;
-        wire QUAD_EE3[4]: branch W;
-        wire QUAD_EE4[4]: branch W;
-
-        wire HEX_SS0[4]: mux;
-        wire HEX_SS1[4]: branch N;
-        wire HEX_SS2[4]: branch N;
-        wire HEX_SS3[4]: branch N;
-        wire HEX_SS4[4]: branch N;
-        wire HEX_SS5[4]: branch N;
-        wire HEX_SS6[4]: branch N;
-        wire HEX_SS6_N3: branch S;
-        wire HEX_SW0[4]: mux;
-        wire HEX_SW1[4]: branch E;
-        wire HEX_SW2[4]: branch N;
-        wire HEX_SW3[4]: branch N;
-        wire HEX_SW4[4]: branch N;
-        wire HEX_SW5[4]: branch N;
-        wire HEX_SW6[4]: branch E;
-        wire HEX_SW6_N3: branch S;
-        wire HEX_SE0[4]: mux;
-        wire HEX_SE1[4]: branch W;
-        wire HEX_SE2[4]: branch N;
-        wire HEX_SE3[4]: branch N;
-        wire HEX_SE4[4]: branch N;
-        wire HEX_SE5[4]: branch N;
-        wire HEX_SE6[4]: branch W;
-        wire HEX_NN0[4]: mux;
-        wire HEX_NN1[4]: branch S;
-        wire HEX_NN2[4]: branch S;
-        wire HEX_NN3[4]: branch S;
-        wire HEX_NN4[4]: branch S;
-        wire HEX_NN5[4]: branch S;
-        wire HEX_NN6[4]: branch S;
-        wire HEX_NN6_S0: branch N;
-        wire HEX_NW0[4]: mux;
-        wire HEX_NW1[4]: branch E;
-        wire HEX_NW2[4]: branch S;
-        wire HEX_NW3[4]: branch S;
-        wire HEX_NW4[4]: branch S;
-        wire HEX_NW5[4]: branch S;
-        wire HEX_NW6[4]: branch E;
-        wire HEX_NW6_S0: branch N;
-        wire HEX_NE0[4]: mux;
-        wire HEX_NE1[4]: branch W;
-        wire HEX_NE2[4]: branch S;
-        wire HEX_NE3[4]: branch S;
-        wire HEX_NE4[4]: branch S;
-        wire HEX_NE5[4]: branch S;
-        wire HEX_NE6[4]: branch W;
-
-        wire LH[13] {
-            0..6 => multi_branch W,
-            6 => multi_root,
-            7..13 => multi_branch E,
-        }
-        wire LV[19] {
-            0..9 => multi_branch N,
-            9 => multi_root,
-            10..19 => multi_branch S,
-        }
-        wire LVB[13] {
-            0..6 => multi_branch N,
-            6 => multi_root,
-            7..13 => multi_branch S,
-        }
-
-        wire IMUX_GFAN[2]: mux;
-        wire IMUX_CLK[2]: mux;
-        wire IMUX_CTRL[2]: mux;
-
-        wire IMUX_BYP[8]: mux;
-        wire IMUX_BYP_SITE[8]: mux;
-        wire IMUX_BYP_BOUNCE[8]: mux;
-        wire IMUX_BYP_BOUNCE_N[8]: branch S;
-        wire IMUX_BYP_DSP[8]: mux;
-
-        wire IMUX_FAN[8]: mux;
-        wire IMUX_FAN_SITE[8]: mux;
-        wire IMUX_FAN_BOUNCE[8]: mux;
-        wire IMUX_FAN_BOUNCE_S[8]: branch N;
-        wire IMUX_FAN_DSP[8]: mux;
-
-        wire IMUX_IMUX[48]: mux;
-        wire IMUX_IMUX_DELAY[48]: mux;
-        wire IMUX_BRAM[48]: test;
-
-        wire OUT[24]: bel;
-        wire OUT_BEL[24]: bel;
-        wire OUT_TEST[24]: test;
-
-        wire IMUX_SPEC[4]: test;
-
-        wire GCLK[32]: regional GCLK;
-        wire GCLK_REBUF_TEST[32]: mux;
-        wire OUT_BUFG[16]: bel;
-        wire OUT_BUFG_GFB[16]: mux;
-        wire IMUX_BUFG_O[32]: mux;
-        wire IMUX_BUFG_I[32]: branch CLK_PREV;
-
-        wire GCLK_HROW[32]: mux;
-        wire HROW_I_HROW_W[14]: mux;
-        wire HROW_I_HROW_E[14]: mux;
-        wire RCLK_HROW_W[4]: mux;
-        wire RCLK_HROW_E[4]: mux;
-        wire CKINT_HROW[4]: mux;
-        wire GCLK_TEST[32]: mux;
-        wire GCLK_TEST_IN[32]: mux;
-        wire BUFH_TEST_W: mux;
-        wire BUFH_TEST_E: mux;
-        wire BUFH_TEST_W_IN: mux;
-        wire BUFH_TEST_E_IN: mux;
-        wire IMUX_BUFHCE_W[12]: mux;
-        wire IMUX_BUFHCE_E[12]: mux;
-
-        wire HCLK_ROW[12]: regional HROW;
-        wire RCLK_ROW[4]: regional HROW;
-        wire HCLK_BUF[12]: mux;
-        wire RCLK_BUF[4]: mux;
-        wire HROW_O[14]: mux;
-        wire HROW_I[14]: branch HCLK_ROW_PREV;
-
-        wire OUT_CLKPAD: bel;
-        wire IMUX_IOI_ICLK[2]: mux;
-        wire IMUX_IOI_ICLKDIVP: mux;
-        wire IMUX_IOI_OCLK[2]: mux;
-        wire IMUX_IOI_OCLKDIV[2]: mux;
-        wire IMUX_IOI_OCLKDIVF[2]: mux;
-
-        wire HCLK_IO[12]: mux;
-        wire LCLK_IO[6]: regional LEAF;
-        wire RCLK_IO[4]: regional LEAF_IO;
-        wire IOCLK[4]: regional LEAF_IO;
-        wire IMUX_IDELAYCTRL_REFCLK: mux;
-        wire IMUX_BUFIO[4]: mux;
-        wire IMUX_BUFR[4]: mux;
-        wire PERF_IO[4]: mux;
-        wire PERF[4]: mux;
-
-        wire FIFO_ORDCLK: mux;
-        wire FIFO_ORDEN: mux;
-        wire FIFO_IWRCLK: mux;
-        wire FIFO_IWREN: mux;
-
-        wire PHASER_ICLK: regional IO_BYTE;
-        wire PHASER_ICLKDIV: regional IO_BYTE;
-        wire PHASER_IWREN: bel;
-        wire PHASER_OCLK: regional IO_BYTE;
-        wire PHASER_OCLK90: bel;
-        wire PHASER_OCLKDIV: regional IO_BYTE;
-        wire PHASER_ORDEN: bel;
-
-        // buffers
-        wire HCLK_CMT[12]: mux;
-        wire RCLK_CMT[4]: mux;
-        wire CCIO_CMT[4]: mux;
-        wire CKINT_CMT[4]: mux;
-        wire HROW_I_CMT[14]: mux;
-        wire PERF_IN_PLL[4]: mux;
-        wire PERF_IN_PHASER[4]: mux;
-        // actual contents
-        wire CMT_FREQ_BB[4]: mux;
-        wire CMT_FREQ_BB_S[4]: multi_branch IO_S;
-        wire CMT_FREQ_BB_N[4]: multi_root;
-        wire CMT_SYNC_BB: mux;
-        wire CMT_SYNC_BB_S: multi_branch IO_S;
-        wire CMT_SYNC_BB_N: multi_root;
-        wire IMUX_BUFMRCE[2]: mux;
-        // ummmm. what are these wires like. actually for.
-        wire LCLK_CMT_S[2]: mux;
-        wire LCLK_CMT_N[2]: mux;
-        wire IMUX_PLL_CLKIN1_HCLK[2]: mux;
-        wire IMUX_PLL_CLKIN2_HCLK[2]: mux;
-        wire IMUX_PLL_CLKFB_HCLK[2]: mux;
-        wire IMUX_PLL_CLKIN1[2]: mux;
-        wire IMUX_PLL_CLKIN2[2]: mux;
-        wire IMUX_PLL_CLKFB[2]: mux;
-        wire OUT_PLL_S[14]: bel;
-        wire OUT_PLL_N[8]: bel;
-        wire OUT_PLL_FREQ_BB_S[4]: mux;
-        wire OUT_PLL_FREQ_BB_N[4]: mux;
-        wire OMUX_PLL_PERF[4]: mux;
-        wire OMUX_PLL_FREQ_BB_S[4]: mux;
-        wire OMUX_PLL_FREQ_BB_N[4]: mux;
-        wire OMUX_HCLK_FREQ_BB[4]: mux;
-        // also used to route PHASER_REF outs to places. huh.
-        wire OMUX_CCIO[4]: mux;
-        wire IMUX_PHASER_REFMUX[3]: mux;
-        wire IMUX_PHASER_IN_PHASEREFCLK[4]: mux;
-        wire IMUX_PHASER_OUT_PHASEREFCLK[4]: mux;
-        wire OUT_PHASER_REF_CLKOUT: bel;
-        wire OUT_PHASER_REF_TMUXOUT: bel;
-        wire OUT_PHASER_IN_RCLK[4]: bel;
-        wire OUT_PHY_PHYCTLEMPTY: bel;
-        wire VMRCLK[2]: bel;
-        wire VMRCLK_S[2]: branch IO_N;
-        wire VMRCLK_N[2]: branch IO_S;
-
         wire OUT_GT_RXOUTCLK: bel;
         wire OUT_GT_TXOUTCLK: bel;
         wire OUT_GT_MGTCLKOUT[2]: bel;
@@ -11662,7 +11726,10 @@ target_defs! {
         wire OUT_GT_RXOUTCLK_HCLK[4]: mux;
         wire OUT_GT_TXOUTCLK_HCLK[4]: mux;
         wire HROW_I_GTP[14]: mux;
+    }
 
+    if variant virtex7 {
+        // BRAM address cascade routing
         wire BRAM_ADDRA_CASC[15]: mux;
         wire BRAM_ADDRB_CASC[15]: mux;
         wire BRAM_ADDRA_CASC_S[15]: branch BEL_N;
@@ -11767,7 +11834,7 @@ target_defs! {
         if variant virtex4 {
             bel_slot SLICE[4]: SLICE_V4;
         } else {
-            bel_slot SLICE[4]: SLICE_V5;
+            bel_slot SLICE[2]: SLICE_V5;
         }
         if variant virtex4 {
             tile_class CLB {
@@ -11803,12 +11870,12 @@ target_defs! {
 
         if variant virtex4 {
             bel_slot DSP[2]: DSP_V4;
+            bel_slot DSP_C: DSP_C;
         } else if variant virtex5 {
             bel_slot DSP[2]: DSP_V5;
         } else {
             bel_slot DSP[2]: DSP_V6;
         }
-        bel_slot DSP_C: DSP_C;
         if variant virtex4 {
             tile_class DSP {
                 cell CELL[4];
@@ -11823,13 +11890,14 @@ target_defs! {
 
         bel_slot ILOGIC[2]: ILOGIC;
         bel_slot OLOGIC[2]: OLOGIC;
-        if variant [virtex4, virtex5] {
+        if variant virtex5 {
             bel_slot IODELAY[2]: IODELAY_V5;
-        } else {
+        } else if variant virtex6 {
             bel_slot IODELAY[2]: IODELAY_V6;
+        } else if variant virtex7 {
+            bel_slot IDELAY[2]: IDELAY;
+            bel_slot ODELAY[2]: ODELAY;
         }
-        bel_slot IDELAY[2]: IDELAY;
-        bel_slot ODELAY[2]: ODELAY;
         bel_slot IOB[2]: IOB;
         if variant virtex4 {
             tile_class IO {
@@ -11861,34 +11929,35 @@ target_defs! {
         }
 
         if variant virtex4 {
-            bel_slot DCM[2]: DCM_V4;
-        } else {
-            bel_slot DCM[2]: DCM_V5;
-        }
-        if variant [virtex4, virtex5] {
-            bel_slot PLL[2]: PLL_V5;
-        } else {
-            bel_slot PLL[2]: PLL_V6;
-        }
-        bel_slot PPR_FRAME: PPR_FRAME;
-        bel_slot PHASER_IN[4]: PHASER_IN;
-        bel_slot PHASER_OUT[4]: PHASER_OUT;
-        bel_slot PHASER_REF: PHASER_REF;
-        bel_slot PHY_CONTROL: PHY_CONTROL;
-        bel_slot BUFMRCE[2]: BUFHCE;
-        if variant virtex4 {
+            bel_slot DCM[1]: DCM_V4;
             tile_class DCM {
                 cell CELL[4];
                 bitrect MAIN[4]: IO;
             }
-        }
-        if variant virtex5 {
+
+            bel_slot CCM: CCM;
+            bel_slot PMCD[2]: PMCD;
+            bel_slot DPM: DPM;
+            tile_class CCM {
+                cell CELL[4];
+                bitrect MAIN[4]: IO;
+            }
+
+            bel_slot SYSMON: SYSMON_V4;
+            tile_class SYSMON {
+                cell CELL[8];
+                bitrect MAIN[8]: IO;
+            }
+        } else if variant virtex5 {
+            bel_slot DCM[2]: DCM_V5;
+            bel_slot PLL[1]: PLL_V5;
             tile_class CMT {
                 cell CELL[10];
                 bitrect MAIN[10]: IO;
             }
-        }
-        if variant virtex6 {
+        } else  if variant virtex6 {
+            bel_slot PLL[2]: PLL_V6;
+            bel_slot PPR_FRAME: PPR_FRAME;
             tile_class CMT {
                 cell CELL[40];
                 cell IO_W[8];
@@ -11896,8 +11965,13 @@ target_defs! {
                 bitrect MAIN[40]: CMT;
                 bitrect HCLK: HCLK_CMT;
             }
-        }
-        if variant virtex7 {
+        } else {
+            bel_slot PLL[2]: PLL_V6;
+            bel_slot PHASER_IN[4]: PHASER_IN;
+            bel_slot PHASER_OUT[4]: PHASER_OUT;
+            bel_slot PHASER_REF: PHASER_REF;
+            bel_slot PHY_CONTROL: PHY_CONTROL;
+            bel_slot BUFMRCE[2]: BUFHCE;
             tile_class CMT {
                 cell CELL[50];
                 cell IO[50];
@@ -11906,18 +11980,10 @@ target_defs! {
             }
         }
 
-        bel_slot CCM: CCM;
-        bel_slot PMCD[2]: PMCD;
-        bel_slot DPM: DPM;
-        if variant virtex4 {
-            tile_class CCM {
-                cell CELL[4];
-                bitrect MAIN[4]: IO;
-            }
+        if variant [virtex6, virtex7] {
+            bel_slot BUFHCE_W[12]: BUFHCE;
+            bel_slot BUFHCE_E[12]: BUFHCE;
         }
-
-        bel_slot BUFHCE_W[12]: BUFHCE;
-        bel_slot BUFHCE_E[12]: BUFHCE;
         if variant virtex7 {
             tile_class CLK_HROW {
                 cell CELL[2];
@@ -11927,30 +11993,30 @@ target_defs! {
             }
         }
 
-        bel_slot PMV_CLK: PMV;
-        bel_slot PMVIOB_CLK: PMVIOB;
-        bel_slot PMV2: PMV2;
-        bel_slot PMV2_SVT: PMV2;
-        bel_slot MTBF2: MTBF2;
         if variant virtex6 {
+            bel_slot PMVIOB_CLK: PMVIOB;
             tile_class PMVIOB {
                 cell CELL[2];
                 bitrect MAIN[2]: CMT;
             }
-        }
-        if variant virtex7 {
+        } else if variant virtex7 {
+            bel_slot PMV_CLK: PMV;
             tile_class CLK_PMV {
                 cell CELL;
             }
+            bel_slot PMVIOB_CLK: PMVIOB;
             tile_class CLK_PMVIOB {
                 cell CELL;
             }
-            tile_class CLK_PMV2_SVT {
-                cell CELL;
-            }
+            bel_slot PMV2: PMV2;
             tile_class CLK_PMV2 {
                 cell CELL;
             }
+            bel_slot PMV2_SVT: PMV2;
+            tile_class CLK_PMV2_SVT {
+                cell CELL;
+            }
+            bel_slot MTBF2: MTBF2;
             tile_class CLK_MTBF2 {
                 cell CELL;
             }
@@ -11958,18 +12024,14 @@ target_defs! {
 
         if variant virtex4 {
             bel_slot PPC: PPC405;
-        } else {
-            bel_slot PPC: PPC440;
-        }
-        if variant virtex4 {
             tile_class PPC {
                 cell CELL_W[24];
                 cell CELL_E[24];
                 cell CELL_S[7];
                 cell CELL_N[7];
             }
-        }
-        if variant virtex5 {
+        } else if variant virtex5 {
+            bel_slot PPC: PPC440;
             tile_class PPC {
                 cell CELL_W[40];
                 cell CELL_E[40];
@@ -11980,7 +12042,7 @@ target_defs! {
 
         if variant [virtex4, virtex5] {
             bel_slot EMAC: EMAC_V4;
-        } else {
+        } else if variant virtex6 {
             bel_slot EMAC: EMAC_V6;
         }
         if variant [virtex5, virtex6] {
@@ -11990,36 +12052,28 @@ target_defs! {
             }
         }
 
-        if variant [virtex4, virtex5] {
-            bel_slot PCIE: PCIE_V5;
-        } else if variant virtex6 {
-            bel_slot PCIE: PCIE_V6;
-        } else {
-            bel_slot PCIE: PCIE_V7;
-        }
         if variant virtex5 {
+            bel_slot PCIE: PCIE_V5;
             tile_class PCIE {
                 cell CELL[40];
                 bitrect MAIN[40]: BRAM;
             }
-        }
-        if variant virtex6 {
+        } else if variant virtex6 {
+            bel_slot PCIE: PCIE_V6;
             tile_class PCIE {
                 cell CELL_W[20];
                 cell CELL_E[20];
                 bitrect MAIN[20]: BRAM;
             }
-        }
-        if variant virtex7 {
+        } else if variant virtex7 {
+            bel_slot PCIE: PCIE_V7;
             tile_class PCIE {
                 cell CELL_A[25];
                 cell CELL_B[25];
                 bitrect MAIN[25]: CLB;
             }
-        }
 
-        bel_slot PCIE3: PCIE3;
-        if variant virtex7 {
+            bel_slot PCIE3: PCIE3;
             tile_class PCIE3 {
                 cell CELL_W[50];
                 cell CELL_E[50];
@@ -12027,26 +12081,26 @@ target_defs! {
             }
         }
 
-        bel_slot GT11[2]: GT11;
-        bel_slot GT11CLK: GT11CLK;
         if variant virtex4 {
+            bel_slot GT11[2]: GT11;
+            bel_slot GT11CLK: GT11CLK;
             tile_class MGT {
                 cell CELL[32];
                 bitrect MAIN[32]: GT;
             }
         }
 
-        bel_slot GTP_DUAL: GTP_DUAL;
         if variant virtex5 {
+            bel_slot CRC32[4]: CRC32;
+
+            bel_slot GTP_DUAL: GTP_DUAL;
             tile_class GTP {
                 cell CELL[20];
                 bitrect MAIN[20]: GT;
                 bitrect HCLK: HCLK_GT;
             }
-        }
 
-        bel_slot GTX_DUAL: GTX_DUAL;
-        if variant virtex5 {
+            bel_slot GTX_DUAL: GTX_DUAL;
             tile_class GTX {
                 cell CELL[20];
                 bitrect MAIN[20]: GT;
@@ -12054,29 +12108,27 @@ target_defs! {
             }
         }
 
-        bel_slot HCLK_GTX: HCLK_GTX;
-        bel_slot GTCLK[2]: GTCLK;
-        bel_slot GTX[4]: GTX;
         if variant virtex6 {
+            bel_slot HCLK_GTX: HCLK_GTX;
+            bel_slot GTCLK[2]: GTCLK;
+            bel_slot GTX[4]: GTX;
             tile_class GTX {
                 cell CELL[40];
                 bitrect MAIN[40]: GT;
             }
-        }
 
-        bel_slot GTH_QUAD: GTH_QUAD;
-        if variant virtex6 {
+            bel_slot GTH_QUAD: GTH_QUAD;
             tile_class GTH {
                 cell CELL[40];
                 bitrect MAIN[40]: GT;
             }
         }
 
-        bel_slot HCLK_DRP_GTP_MID: HCLK_DRP;
-        bel_slot GTP_COMMON: GTP_COMMON;
-        bel_slot GTX_COMMON: GTX_COMMON;
-
         if variant virtex7 {
+            bel_slot GTCLK[2]: GTCLK;
+            bel_slot HCLK_DRP_GTP_MID: HCLK_DRP;
+
+            bel_slot GTP_COMMON: GTP_COMMON;
             tile_class GTP_COMMON {
                 cell CELL[6];
                 cell CHANNEL[4];
@@ -12088,22 +12140,15 @@ target_defs! {
                 bitrect MAIN[6]: INT;
                 bitrect HCLK: HCLK;
             }
-            tile_class GTX_COMMON {
+
+            bel_slot GTX_COMMON: GTX_COMMON;
+            tile_class GTX_COMMON, GTH_COMMON {
                 cell CELL[6];
                 cell CHANNEL[4];
                 bitrect MAIN[6]: GT;
             }
-            tile_class GTH_COMMON {
-                cell CELL[6];
-                cell CHANNEL[4];
-                bitrect MAIN[6]: GT;
-            }
-        }
 
-        bel_slot GTP_CHANNEL: GTP_CHANNEL;
-        bel_slot GTX_CHANNEL: GTX_CHANNEL;
-
-        if variant virtex7 {
+            bel_slot GTP_CHANNEL: GTP_CHANNEL;
             tile_class GTP_CHANNEL {
                 cell CELL[11];
                 bitrect MAIN[11]: GT;
@@ -12112,20 +12157,16 @@ target_defs! {
                 cell CELL[11];
                 bitrect MAIN[11]: INT;
             }
-            tile_class GTX_CHANNEL {
-                cell CELL[11];
-                bitrect MAIN[11]: GT;
-            }
-            tile_class GTH_CHANNEL {
+
+            bel_slot GTX_CHANNEL: GTX_CHANNEL;
+            tile_class GTX_CHANNEL, GTH_CHANNEL {
                 cell CELL[11];
                 bitrect MAIN[11]: GT;
             }
         }
 
-        bel_slot CRC32[4]: CRC32;
-
-        bel_slot BUFGCTRL[32]: BUFGCTRL;
         if variant virtex4 {
+            bel_slot BUFGCTRL[32]: BUFGCTRL;
             tile_class CLK_BUFG {
                 cell CELL[16];
                 cell CELL_E0;
@@ -12134,6 +12175,7 @@ target_defs! {
             }
         }
         if variant virtex5 {
+            bel_slot BUFGCTRL[32]: BUFGCTRL;
             tile_class CLK_BUFG {
                 cell CELL[20];
                 cell CELL_E0;
@@ -12142,6 +12184,7 @@ target_defs! {
             }
         }
         if variant virtex6 {
+            bel_slot BUFGCTRL[32]: BUFGCTRL;
             tile_class CLK_BUFG_S, CLK_BUFG_N {
                 cell CELL[3];
                 cell IO_W[2];
@@ -12150,6 +12193,7 @@ target_defs! {
             }
         }
         if variant virtex7 {
+            bel_slot BUFGCTRL[16]: BUFGCTRL;
             tile_class CLK_BUFG_S, CLK_BUFG_N {
                 cell CELL[4];
                 bitrect MAIN[4]: CLK;
@@ -12167,19 +12211,19 @@ target_defs! {
             }
         }
 
-        bel_slot PS: PS;
         if variant virtex7 {
+            bel_slot PS: PS;
             tile_class PS {
                 cell CELL[100];
             }
         }
     }
 
-    tile_slot CMT_FIFO {
-        bel_slot CMT_FIFO_INT: routing;
-        bel_slot IN_FIFO: IN_FIFO;
-        bel_slot OUT_FIFO: OUT_FIFO;
-        if variant virtex7 {
+    if variant virtex7 {
+        tile_slot CMT_FIFO {
+            bel_slot CMT_FIFO_INT: routing;
+            bel_slot IN_FIFO: IN_FIFO;
+            bel_slot OUT_FIFO: OUT_FIFO;
             tile_class CMT_FIFO {
                 cell CELL[12];
                 bitrect MAIN[12]: CMT;
@@ -12188,7 +12232,6 @@ target_defs! {
     }
 
     tile_slot CFG {
-        bel_slot SYSMON_INT: routing;
         bel_slot BSCAN[4]: BSCAN;
         if variant [virtex4, virtex5] {
             bel_slot ICAP[2]: ICAP_V4;
@@ -12197,8 +12240,14 @@ target_defs! {
         }
         bel_slot STARTUP: STARTUP;
         bel_slot CAPTURE: CAPTURE;
-        bel_slot JTAGPPC: JTAGPPC;
-        bel_slot PMV_CFG[2]: PMV;
+        if variant [virtex4, virtex5] {
+            bel_slot JTAGPPC: JTAGPPC;
+            bel_slot PMV_CFG[1]: PMV;
+        } else if variant virtex6 {
+            bel_slot PMV_CFG[2]: PMV;
+        } else if variant virtex7 {
+            bel_slot PMVIOB_CFG: PMVIOB;
+        }
         bel_slot DCIRESET: DCIRESET;
         if variant [virtex4, virtex5] {
             bel_slot FRAME_ECC: FRAME_ECC_V4;
@@ -12206,19 +12255,22 @@ target_defs! {
             bel_slot FRAME_ECC: FRAME_ECC_V6;
         }
         bel_slot USR_ACCESS: USR_ACCESS;
-        bel_slot KEY_CLEAR: KEY_CLEAR;
-        bel_slot EFUSE_USR: EFUSE_USR;
-        bel_slot DNA_PORT: DNA_PORT;
-        if variant [virtex4, virtex5, virtex6] {
+        if variant virtex5 {
+            bel_slot KEY_CLEAR: KEY_CLEAR;
+        }
+        if variant [virtex5, virtex6, virtex7] {
+            bel_slot EFUSE_USR: EFUSE_USR;
+        }
+        if variant [virtex6, virtex7] {
+            bel_slot DNA_PORT: DNA_PORT;
+        }
+        if variant virtex6 {
             bel_slot CFG_IO_ACCESS: CFG_IO_ACCESS_V6;
-        } else {
+        } else if variant virtex7 {
             bel_slot CFG_IO_ACCESS: CFG_IO_ACCESS_V7;
         }
-        bel_slot PMVIOB_CFG: PMVIOB;
         bel_slot MISC_CFG: MISC_CFG;
-        if variant virtex4 {
-            bel_slot SYSMON: SYSMON_V4;
-        } else {
+        if variant [virtex5, virtex6, virtex7] {
             bel_slot SYSMON: SYSMON_V5;
         }
 
@@ -12226,10 +12278,6 @@ target_defs! {
             tile_class CFG {
                 cell CELL[16];
                 bitrect MAIN[16]: IO;
-            }
-            tile_class SYSMON {
-                cell CELL[8];
-                bitrect MAIN[8]: IO;
             }
         }
         if variant virtex5 {
@@ -12256,63 +12304,65 @@ target_defs! {
         }
     }
 
-    tile_slot CLK {
-        bel_slot CLK_INT: routing;
-        if variant virtex4 {
-            tile_class CLK_DCM_S, CLK_DCM_N {
-                cell CELL[8];
-                bitrect MAIN[8]: CLK;
+    if variant [virtex4, virtex5] {
+        tile_slot CLK {
+            bel_slot CLK_INT: routing;
+            if variant virtex4 {
+                tile_class CLK_DCM_S, CLK_DCM_N {
+                    cell CELL[8];
+                    bitrect MAIN[8]: CLK;
+                }
+            } else {
+                tile_class CLK_CMT_S, CLK_CMT_N {
+                    cell CELL[10];
+                    cell CELL_E;
+                    bitrect MAIN[10]: CLK;
+                }
             }
-            tile_class CLK_IOB_S, CLK_IOB_N {
-                cell CELL[16];
-                bitrect MAIN[16]: CLK;
+            if variant virtex4 {
+                tile_class CLK_IOB_S, CLK_IOB_N {
+                    cell CELL[16];
+                    bitrect MAIN[16]: CLK;
+                }
+            } else {
+                tile_class CLK_IOB_S, CLK_IOB_N {
+                    cell CELL[10];
+                    cell CELL_E;
+                    bitrect MAIN[10]: CLK;
+                }
             }
-        }
-        if variant virtex5 {
-            tile_class CLK_CMT_S, CLK_CMT_N {
-                cell CELL[10];
-                cell CELL_E;
-                bitrect MAIN[10]: CLK;
+            if variant virtex5 {
+                tile_class CLK_MGT_S, CLK_MGT_N {
+                    cell CELL[10];
+                    cell CELL_E;
+                    bitrect MAIN[10]: CLK;
+                }
             }
-            tile_class CLK_IOB_S, CLK_IOB_N {
-                cell CELL[10];
-                cell CELL_E;
-                bitrect MAIN[10]: CLK;
-            }
-            tile_class CLK_MGT_S, CLK_MGT_N {
-                cell CELL[10];
-                cell CELL_E;
-                bitrect MAIN[10]: CLK;
-            }
-        }
 
-        if variant [virtex4, virtex5] {
             tile_class HCLK_MGT_BUF {
                 cell CELL;
                 bitrect MAIN: HCLK;
             }
         }
-    }
 
-    tile_slot HROW {
-        bel_slot HROW_INT: routing;
-        if variant [virtex4, virtex5] {
+        tile_slot HROW {
+            bel_slot HROW_INT: routing;
             tile_class CLK_HROW {
                 cell W, E;
                 bitrect MAIN[2]: CLK;
                 bitrect HCLK: HCLK_CLK;
             }
-        }
 
-        if variant virtex4 {
-            tile_class CLK_TERM {
-                cell CELL;
-                bitrect MAIN: CLK;
-            }
+            if variant virtex4 {
+                tile_class CLK_TERM {
+                    cell CELL;
+                    bitrect MAIN: CLK;
+                }
 
-            tile_class HCLK_TERM {
-                cell CELL;
-                bitrect MAIN: HCLK;
+                tile_class HCLK_TERM {
+                    cell CELL;
+                    bitrect MAIN: HCLK;
+                }
             }
         }
     }
@@ -12320,7 +12370,9 @@ target_defs! {
     tile_slot HCLK {
         bel_slot HCLK: routing;
         bel_slot GLOBALSIG: GLOBALSIG;
-        bel_slot HCLK_DRP[2]: HCLK_DRP;
+        if variant [virtex6, virtex7] {
+            bel_slot HCLK_DRP[2]: HCLK_DRP;
+        }
 
         if variant [virtex4, virtex5] {
             tile_class HCLK {
@@ -12343,35 +12395,43 @@ target_defs! {
     }
 
     tile_slot HCLK_BEL {
-        if variant [virtex4, virtex5] {
+        if variant virtex5 {
             bel_slot PMVBRAM: PMVBRAM_V5;
-        } else {
-            bel_slot PMVBRAM: PMVBRAM_V6;
-        }
-
-        if variant [virtex5] {
             tile_class PMVBRAM {
                 cell CELL[5];
             }
-        }
-        if variant [virtex6, virtex7] {
+        } else if variant [virtex6, virtex7] {
+            bel_slot PMVBRAM: PMVBRAM_V6;
             tile_class PMVBRAM {
                 cell CELL[15];
             }
-        }
-        if variant virtex7 {
-            tile_class PMVBRAM_NC {
+            if variant virtex7 {
+                tile_class PMVBRAM_NC {
+                }
             }
         }
 
         bel_slot HCLK_IO_INT: routing;
-        bel_slot HCLK_CMT_DRP: HCLK_CMT_DRP;
-        bel_slot BUFR[4]: BUFR;
-        bel_slot BUFIO[4]: BUFIO;
+        if variant virtex5 {
+            bel_slot HCLK_CMT_DRP: HCLK_CMT_DRP;
+        }
+        if variant [virtex4, virtex5, virtex6] {
+            bel_slot BUFR[2]: BUFR;
+        } else {
+            bel_slot BUFR[4]: BUFR;
+        }
+        if variant virtex4 {
+            bel_slot BUFIO[2]: BUFIO;
+        } else {
+            bel_slot BUFIO[4]: BUFIO;
+        }
         bel_slot IDELAYCTRL: IDELAYCTRL;
         bel_slot DCI: DCI;
-        bel_slot BANK: BANK;
-        bel_slot LVDS: LVDS_V4;
+        if variant virtex4 {
+            bel_slot LVDS: LVDS_V4;
+        } else {
+            bel_slot BANK: BANK;
+        }
 
         if variant virtex4 {
             tile_class HCLK_IO_DCI, HCLK_IO_LVDS, HCLK_IO_CENTER, HCLK_IO_CFG_N, HCLK_IO_DCM_S, HCLK_IO_DCM_N {
@@ -12432,9 +12492,9 @@ target_defs! {
         }
     }
 
-    tile_slot GTZ {
-        bel_slot GTZ_OCTAL: GTZ_OCTAL;
-        if variant virtex7 {
+    if variant virtex7 {
+        tile_slot GTZ {
+            bel_slot GTZ_OCTAL: GTZ_OCTAL;
             tile_class GTZ_S, GTZ_N {
                 cell CLK;
                 for i in 0..86 {
@@ -12502,8 +12562,8 @@ target_defs! {
     connector_slot W {
         opposite E;
 
-        if variant virtex4 {
-            connector_class PASS_W {
+        connector_class PASS_W {
+            if variant virtex4 {
                 pass OMUX_E2 = OMUX[2];
                 pass OMUX_SE3 = OMUX_S3;
                 pass OMUX_E7 = OMUX[7];
@@ -12518,16 +12578,7 @@ target_defs! {
                 pass HEX_E4 = HEX_E3;
                 pass HEX_E5 = HEX_E4;
                 pass HEX_E6 = HEX_E5;
-                for i in 0..12 {
-                    pass LH[i] = LH[i + 1];
-                }
-            }
-            connector_class TERM_W;
-            connector_class CLB_BUFFER_W;
-            connector_class PPC_W;
-        }
-        if variant virtex5 {
-            connector_class PASS_W {
+            } else if variant virtex5 {
                 pass DBL_EE1 = DBL_EE0;
                 pass DBL_EE2 = DBL_EE1;
                 pass DBL_ES1 = DBL_ES0;
@@ -12550,66 +12601,62 @@ target_defs! {
                 pass PENT_SE5 = PENT_SE4;
                 pass PENT_NE4 = PENT_NE3;
                 pass PENT_NE5 = PENT_NE4;
-
+            } else {
+                pass SNG_E1 = SNG_E0;
+                pass DBL_EE1 = DBL_EE0;
+                pass DBL_EE2 = DBL_EE1;
+                pass DBL_SE2 = DBL_SE1;
+                pass DBL_NE2 = DBL_NE1;
+                pass QUAD_EE1 = QUAD_EE0;
+                pass QUAD_EE2 = QUAD_EE1;
+                pass QUAD_EE3 = QUAD_EE2;
+                pass QUAD_EE4 = QUAD_EE3;
+                if variant virtex6 {
+                    pass QUAD_SE1 = QUAD_SE0;
+                    pass QUAD_SE4 = QUAD_SE3;
+                    pass QUAD_NE1 = QUAD_NE0;
+                    pass QUAD_NE4 = QUAD_NE3;
+                } else {
+                    pass HEX_SE1 = HEX_SE0;
+                    pass HEX_SE6 = HEX_SE5;
+                    pass HEX_NE1 = HEX_NE0;
+                    pass HEX_NE6 = HEX_NE5;
+                }
+            }
+            if variant virtex4 {
+                for i in 0..12 {
+                    pass LH[i] = LH[i + 1];
+                }
+            } else if variant virtex5 {
                 for i in 0..9 {
                     pass LH[i] = LH[i + 1];
                 }
-            }
-            connector_class TERM_W;
-            connector_class INT_BUFS_W;
-            connector_class PPC_W;
-        }
-        if variant virtex6 {
-            connector_class PASS_W {
-                pass SNG_E1 = SNG_E0;
-                pass DBL_EE1 = DBL_EE0;
-                pass DBL_EE2 = DBL_EE1;
-                pass DBL_SE2 = DBL_SE1;
-                pass DBL_NE2 = DBL_NE1;
-                pass QUAD_EE1 = QUAD_EE0;
-                pass QUAD_EE2 = QUAD_EE1;
-                pass QUAD_EE3 = QUAD_EE2;
-                pass QUAD_EE4 = QUAD_EE3;
-                pass QUAD_SE1 = QUAD_SE0;
-                pass QUAD_SE4 = QUAD_SE3;
-                pass QUAD_NE1 = QUAD_NE0;
-                pass QUAD_NE4 = QUAD_NE3;
-
+            } else if variant virtex6 {
                 for i in 0..8 {
                     pass LH[i] = LH[i + 1];
                 }
-            }
-            connector_class TERM_W;
-        }
-        if variant virtex7 {
-            connector_class PASS_W {
-                pass SNG_E1 = SNG_E0;
-                pass DBL_EE1 = DBL_EE0;
-                pass DBL_EE2 = DBL_EE1;
-                pass DBL_SE2 = DBL_SE1;
-                pass DBL_NE2 = DBL_NE1;
-                pass QUAD_EE1 = QUAD_EE0;
-                pass QUAD_EE2 = QUAD_EE1;
-                pass QUAD_EE3 = QUAD_EE2;
-                pass QUAD_EE4 = QUAD_EE3;
-                pass HEX_SE1 = HEX_SE0;
-                pass HEX_SE6 = HEX_SE5;
-                pass HEX_NE1 = HEX_NE0;
-                pass HEX_NE6 = HEX_NE5;
-
+            } else if variant virtex7 {
                 for i in 0..6 {
                     pass LH[i] = LH[i + 1];
                 }
             }
-            connector_class TERM_W;
+        }
+        connector_class TERM_W;
+        if variant virtex4 {
+            connector_class CLB_BUFFER_W;
+        }
+        if variant virtex5 {
+            connector_class INT_BUFS_W;
+        }
+        if variant [virtex4, virtex5] {
+            connector_class PPC_W;
         }
     }
 
     connector_slot E {
         opposite W;
-
-        if variant virtex4 {
-            connector_class PASS_E {
+        connector_class PASS_E {
+            if variant virtex4 {
                 pass OMUX_W1 = OMUX[1];
                 pass OMUX_SW5 = OMUX_S5;
                 pass OMUX_W6 = OMUX[6];
@@ -12624,16 +12671,7 @@ target_defs! {
                 pass HEX_W4 = HEX_W3;
                 pass HEX_W5 = HEX_W4;
                 pass HEX_W6 = HEX_W5;
-                for i in 13..25 {
-                    pass LH[i] = LH[i - 1];
-                }
-            }
-            connector_class TERM_E;
-            connector_class CLB_BUFFER_E;
-            connector_class PPC_E;
-        }
-        if variant virtex5 {
-            connector_class PASS_E {
+            } else if variant virtex5 {
                 pass DBL_WW1 = DBL_WW0;
                 pass DBL_WW2 = DBL_WW1;
                 pass DBL_WS1 = DBL_WS0;
@@ -12656,71 +12694,73 @@ target_defs! {
                 pass PENT_SW5 = PENT_SW4;
                 pass PENT_NW4 = PENT_NW3;
                 pass PENT_NW5 = PENT_NW4;
+            } else {
+                pass SNG_W1 = SNG_W0;
+                pass DBL_WW1 = DBL_WW0;
+                pass DBL_WW2 = DBL_WW1;
+                pass DBL_SW2 = DBL_SW1;
+                pass DBL_NW2 = DBL_NW1;
+                pass QUAD_WW1 = QUAD_WW0;
+                pass QUAD_WW2 = QUAD_WW1;
+                pass QUAD_WW3 = QUAD_WW2;
+                pass QUAD_WW4 = QUAD_WW3;
+                if variant virtex6 {
+                    pass QUAD_SW1 = QUAD_SW0;
+                    pass QUAD_SW4 = QUAD_SW3;
+                    pass QUAD_NW1 = QUAD_NW0;
+                    pass QUAD_NW4 = QUAD_NW3;
+                } else {
+                    pass HEX_SW1 = HEX_SW0;
+                    pass HEX_SW6 = HEX_SW5;
+                    pass HEX_NW1 = HEX_NW0;
+                    pass HEX_NW6 = HEX_NW5;
+                }
+            }
 
+            if variant virtex4 {
+                for i in 13..25 {
+                    pass LH[i] = LH[i - 1];
+                }
+            } else if variant virtex5 {
                 for i in 10..19 {
                     pass LH[i] = LH[i - 1];
                 }
+            } else if variant virtex6 {
+                for i in 9..17 {
+                    pass LH[i] = LH[i - 1];
+                }
+            } else if variant virtex7 {
+                for i in 7..13 {
+                    pass LH[i] = LH[i - 1];
+                }
             }
-            connector_class TERM_E;
+        }
+
+        connector_class TERM_E;
+        if variant virtex5 {
             connector_class TERM_E_HOLE {
                 for i in 10..19 {
                     blackhole LH[i];
                 }
             }
+        }
+
+        if variant virtex4 {
+            connector_class CLB_BUFFER_E;
+        }
+        if variant virtex5 {
             connector_class INT_BUFS_E;
+        }
+        if variant [virtex4, virtex5] {
             connector_class PPC_E;
-        }
-        if variant virtex6 {
-            connector_class PASS_E {
-                pass SNG_W1 = SNG_W0;
-                pass DBL_WW1 = DBL_WW0;
-                pass DBL_WW2 = DBL_WW1;
-                pass DBL_SW2 = DBL_SW1;
-                pass DBL_NW2 = DBL_NW1;
-                pass QUAD_WW1 = QUAD_WW0;
-                pass QUAD_WW2 = QUAD_WW1;
-                pass QUAD_WW3 = QUAD_WW2;
-                pass QUAD_WW4 = QUAD_WW3;
-                pass QUAD_SW1 = QUAD_SW0;
-                pass QUAD_SW4 = QUAD_SW3;
-                pass QUAD_NW1 = QUAD_NW0;
-                pass QUAD_NW4 = QUAD_NW3;
-
-                for i in 9..17 {
-                    pass LH[i] = LH[i - 1];
-                }
-            }
-            connector_class TERM_E;
-        }
-        if variant virtex7 {
-            connector_class PASS_E {
-                pass SNG_W1 = SNG_W0;
-                pass DBL_WW1 = DBL_WW0;
-                pass DBL_WW2 = DBL_WW1;
-                pass DBL_SW2 = DBL_SW1;
-                pass DBL_NW2 = DBL_NW1;
-                pass QUAD_WW1 = QUAD_WW0;
-                pass QUAD_WW2 = QUAD_WW1;
-                pass QUAD_WW3 = QUAD_WW2;
-                pass QUAD_WW4 = QUAD_WW3;
-                pass HEX_SW1 = HEX_SW0;
-                pass HEX_SW6 = HEX_SW5;
-                pass HEX_NW1 = HEX_NW0;
-                pass HEX_NW6 = HEX_NW5;
-
-                for i in 7..13 {
-                    pass LH[i] = LH[i - 1];
-                }
-            }
-            connector_class TERM_E;
         }
     }
 
     connector_slot S {
         opposite N;
 
-        if variant virtex4 {
-            connector_class PASS_S {
+        connector_class PASS_S {
+            if variant virtex4 {
                 pass OMUX_EN8 = OMUX_E8;
                 pass OMUX_N10 = OMUX[10];
                 pass OMUX_N11 = OMUX[11];
@@ -12740,17 +12780,7 @@ target_defs! {
                 pass HEX_N5 = HEX_N4;
                 pass HEX_N6 = HEX_N5;
                 pass HEX_N7 = HEX_N6;
-                for i in 0..12 {
-                    pass LV[i] = LV[i + 1];
-                }
-            }
-            connector_class TERM_S;
-            connector_class BRKH_S;
-            connector_class PPC_A_S;
-            connector_class PPC_B_S;
-        }
-        if variant virtex5 {
-            connector_class PASS_S {
+            } else if variant virtex5 {
                 pass DBL_NN1 = DBL_NN0;
                 pass DBL_NN2 = DBL_NN1;
                 pass DBL_NW1 = DBL_NW0;
@@ -12781,11 +12811,75 @@ target_defs! {
                 pass PENT_WW0[0] = PENT_WW0_S0;
                 pass PENT_NW5_N2 = PENT_NW5[2];
                 pass PENT_NE3_N2 = PENT_NE3_BUF2;
+            } else {
+                pass SNG_N1 = SNG_N0;
+                pass SNG_W0[4] = SNG_W0_S4;
+                pass SNG_E0[4] = SNG_E0_S4;
+                pass SNG_S0[4] = SNG_S0_S4;
+                pass SNG_W1_N3 = SNG_W1[3];
+                pass SNG_E1_N7 = SNG_E1[7];
+                pass SNG_S1_N7 = SNG_S1[7];
 
+                pass DBL_NN1 = DBL_NN0;
+                pass DBL_NN2 = DBL_NN1;
+                pass DBL_NW1 = DBL_NW0;
+                pass DBL_NE1 = DBL_NE0;
+                pass DBL_WW2_N3 = DBL_WW2[3];
+                pass DBL_SS2_N3 = DBL_SS2[3];
+                pass DBL_SW2_N3 = DBL_SW2[3];
+                if variant virtex6 {
+                    pass QUAD_NN1 = QUAD_NN0;
+                    pass QUAD_NN2 = QUAD_NN1;
+                    pass QUAD_NN3 = QUAD_NN2;
+                    pass QUAD_NN4 = QUAD_NN3;
+                    pass QUAD_NW2 = QUAD_NW1;
+                    pass QUAD_NW3 = QUAD_NW2;
+                    pass QUAD_NE2 = QUAD_NE1;
+                    pass QUAD_NE3 = QUAD_NE2;
+                    pass QUAD_SS4_N3 = QUAD_SS4[3];
+                    pass QUAD_SW4_N3 = QUAD_SW4[3];
+                } else {
+                    pass HEX_NN1 = HEX_NN0;
+                    pass HEX_NN2 = HEX_NN1;
+                    pass HEX_NN3 = HEX_NN2;
+                    pass HEX_NN4 = HEX_NN3;
+                    pass HEX_NN5 = HEX_NN4;
+                    pass HEX_NN6 = HEX_NN5;
+                    pass HEX_NW2 = HEX_NW1;
+                    pass HEX_NW3 = HEX_NW2;
+                    pass HEX_NW4 = HEX_NW3;
+                    pass HEX_NW5 = HEX_NW4;
+                    pass HEX_NE2 = HEX_NE1;
+                    pass HEX_NE3 = HEX_NE2;
+                    pass HEX_NE4 = HEX_NE3;
+                    pass HEX_NE5 = HEX_NE4;
+                    pass HEX_SS6_N3 = HEX_SS6[3];
+                    pass HEX_SW6_N3 = HEX_SW6[3];
+                }
+            }
+
+            if variant virtex4 {
+                for i in 0..12 {
+                    pass LV[i] = LV[i + 1];
+                }
+            } else if variant virtex5 {
                 for i in 10..19 {
                     pass LV[i] = LV[i - 1];
                 }
+            } else if variant virtex6 {
+                for i in 9..17 {
+                    pass LV[i] = LV[i - 1];
+                }
+            } else if variant virtex7 {
+                for i in 10..19 {
+                    pass LV[i] = LV[i - 1];
+                }
+                for i in 7..13 {
+                    pass LVB[i] = LVB[i - 1];
+                }
+            }
 
+            if variant virtex5 {
                 pass IMUX_CTRL_BOUNCE_N3 = IMUX_CTRL_BOUNCE[3];
                 pass IMUX_BYP_BOUNCE_N3 = IMUX_BYP_BOUNCE[3];
                 pass IMUX_BYP_BOUNCE_N7 = IMUX_BYP_BOUNCE[7];
@@ -12795,100 +12889,28 @@ target_defs! {
                 pass OUT_N15_PENT = OUT[15];
                 pass OUT_N17_PENT = OUT[17];
             }
+            if variant [virtex6, virtex7] {
+                pass IMUX_BYP_BOUNCE_N = IMUX_BYP_BOUNCE;
+            }
+        }
+
+        if variant [virtex4, virtex6, virtex7] {
+            connector_class TERM_S;
+        }
+        if variant virtex5 {
             connector_class TERM_S_HOLE {
                 for i in 10..19 {
                     blackhole LV[i];
                 }
             }
             connector_class TERM_S_PPC;
-        }
-        if variant virtex6 {
-            connector_class PASS_S {
-                pass SNG_N1 = SNG_N0;
-                pass SNG_W0[4] = SNG_W0_S4;
-                pass SNG_E0[4] = SNG_E0_S4;
-                pass SNG_S0[4] = SNG_S0_S4;
-                pass SNG_W1_N3 = SNG_W1[3];
-                pass SNG_E1_N7 = SNG_E1[7];
-                pass SNG_S1_N7 = SNG_S1[7];
-
-                pass DBL_NN1 = DBL_NN0;
-                pass DBL_NN2 = DBL_NN1;
-                pass DBL_NW1 = DBL_NW0;
-                pass DBL_NE1 = DBL_NE0;
-                pass DBL_WW2_N3 = DBL_WW2[3];
-                pass DBL_SS2_N3 = DBL_SS2[3];
-                pass DBL_SW2_N3 = DBL_SW2[3];
-
-                pass QUAD_NN1 = QUAD_NN0;
-                pass QUAD_NN2 = QUAD_NN1;
-                pass QUAD_NN3 = QUAD_NN2;
-                pass QUAD_NN4 = QUAD_NN3;
-                pass QUAD_NW2 = QUAD_NW1;
-                pass QUAD_NW3 = QUAD_NW2;
-                pass QUAD_NE2 = QUAD_NE1;
-                pass QUAD_NE3 = QUAD_NE2;
-                pass QUAD_SS4_N3 = QUAD_SS4[3];
-                pass QUAD_SW4_N3 = QUAD_SW4[3];
-
-                for i in 9..17 {
-                    pass LV[i] = LV[i - 1];
-                }
-
-                pass IMUX_BYP_BOUNCE_N = IMUX_BYP_BOUNCE;
-            }
-            connector_class TERM_S;
+        } else if variant virtex6 {
             connector_class TERM_S_HOLE {
                 for i in 9..17 {
                     blackhole LV[i];
                 }
             }
-        }
-        if variant virtex7 {
-            connector_class PASS_S {
-                pass SNG_N1 = SNG_N0;
-                pass SNG_W0[4] = SNG_W0_S4;
-                pass SNG_E0[4] = SNG_E0_S4;
-                pass SNG_S0[4] = SNG_S0_S4;
-                pass SNG_W1_N3 = SNG_W1[3];
-                pass SNG_E1_N7 = SNG_E1[7];
-                pass SNG_S1_N7 = SNG_S1[7];
-
-                pass DBL_NN1 = DBL_NN0;
-                pass DBL_NN2 = DBL_NN1;
-                pass DBL_NW1 = DBL_NW0;
-                pass DBL_NE1 = DBL_NE0;
-                pass DBL_WW2_N3 = DBL_WW2[3];
-                pass DBL_SS2_N3 = DBL_SS2[3];
-                pass DBL_SW2_N3 = DBL_SW2[3];
-
-                pass HEX_NN1 = HEX_NN0;
-                pass HEX_NN2 = HEX_NN1;
-                pass HEX_NN3 = HEX_NN2;
-                pass HEX_NN4 = HEX_NN3;
-                pass HEX_NN5 = HEX_NN4;
-                pass HEX_NN6 = HEX_NN5;
-                pass HEX_NW2 = HEX_NW1;
-                pass HEX_NW3 = HEX_NW2;
-                pass HEX_NW4 = HEX_NW3;
-                pass HEX_NW5 = HEX_NW4;
-                pass HEX_NE2 = HEX_NE1;
-                pass HEX_NE3 = HEX_NE2;
-                pass HEX_NE4 = HEX_NE3;
-                pass HEX_NE5 = HEX_NE4;
-                pass HEX_SS6_N3 = HEX_SS6[3];
-                pass HEX_SW6_N3 = HEX_SW6[3];
-
-                for i in 10..19 {
-                    pass LV[i] = LV[i - 1];
-                }
-                for i in 7..13 {
-                    pass LVB[i] = LVB[i - 1];
-                }
-
-                pass IMUX_BYP_BOUNCE_N = IMUX_BYP_BOUNCE;
-            }
-            connector_class TERM_S;
+        } else if variant virtex7 {
             connector_class TERM_S_HOLE {
                 for i in 10..19 {
                     blackhole LV[i];
@@ -12897,6 +12919,14 @@ target_defs! {
                     blackhole LVB[i];
                 }
             }
+        }
+
+        if variant virtex4 {
+            connector_class BRKH_S;
+            connector_class PPC_A_S;
+            connector_class PPC_B_S;
+        }
+        if variant virtex7 {
             connector_class BRKH_S;
         }
     }
@@ -12904,8 +12934,13 @@ target_defs! {
     connector_slot N {
         opposite S;
 
-        if variant virtex4 {
-            connector_class PASS_N {
+        connector_class PASS_N, PASS_NHOLE_N {
+            if variant [virtex4, virtex6, virtex7] {
+                if connector_class PASS_NHOLE_N {
+                    skip;
+                }
+            }
+            if variant virtex4 {
                 pass OMUX_S0 = OMUX[0];
                 pass OMUX_S0_ALT = OMUX[0];
                 pass OMUX_WS1 = OMUX_W1;
@@ -12926,17 +12961,7 @@ target_defs! {
                 pass HEX_S5 = HEX_S4;
                 pass HEX_S6 = HEX_S5;
                 pass HEX_S7 = HEX_S6;
-                for i in 13..25 {
-                    pass LV[i] = LV[i - 1];
-                }
-            }
-            connector_class TERM_N;
-            connector_class BRKH_N;
-            connector_class PPC_A_N;
-            connector_class PPC_B_N;
-        }
-        if variant virtex5 {
-            connector_class PASS_N, PASS_NHOLE_N {
+            } else if variant virtex5 {
                 pass DBL_SS1 = DBL_SS0;
                 pass DBL_SS2 = DBL_SS1;
                 pass DBL_SW1 = DBL_SW0;
@@ -12967,7 +12992,60 @@ target_defs! {
                 pass PENT_NN0[5] = PENT_NN0_N5;
                 pass PENT_WS3_S0 = PENT_WS3_BUF0;
                 pass PENT_WN5_S0 = PENT_WN5[0];
+            } else {
+                pass SNG_S1 = SNG_S0;
+                pass SNG_W0[3] = SNG_W0_N3;
+                pass SNG_E0[3] = SNG_E0_N3;
+                pass SNG_N0[3] = SNG_N0_N3;
+                pass SNG_W1_S4 = SNG_W1[4];
+                pass SNG_E1_S0 = SNG_E1[0];
+                pass SNG_N1_S0 = SNG_N1[0];
 
+                pass DBL_SS1 = DBL_SS0;
+                pass DBL_SS2 = DBL_SS1;
+                pass DBL_SW1 = DBL_SW0;
+                pass DBL_SE1 = DBL_SE0;
+                pass DBL_NN2_S0 = DBL_NN2[0];
+                pass DBL_NE2_S0 = DBL_NE2[0];
+                pass DBL_NW2_S0 = DBL_NW2[0];
+
+                pass QUAD_WW4_S0 = QUAD_WW4[0];
+                if variant virtex6 {
+                    pass QUAD_SS1 = QUAD_SS0;
+                    pass QUAD_SS2 = QUAD_SS1;
+                    pass QUAD_SS3 = QUAD_SS2;
+                    pass QUAD_SS4 = QUAD_SS3;
+                    pass QUAD_SW2 = QUAD_SW1;
+                    pass QUAD_SW3 = QUAD_SW2;
+                    pass QUAD_SE2 = QUAD_SE1;
+                    pass QUAD_SE3 = QUAD_SE2;
+                    pass QUAD_NN4_S0 = QUAD_NN4[0];
+                    pass QUAD_NW4_S0 = QUAD_NW4[0];
+                } else {
+                    pass HEX_SS1 = HEX_SS0;
+                    pass HEX_SS2 = HEX_SS1;
+                    pass HEX_SS3 = HEX_SS2;
+                    pass HEX_SS4 = HEX_SS3;
+                    pass HEX_SS5 = HEX_SS4;
+                    pass HEX_SS6 = HEX_SS5;
+                    pass HEX_SW2 = HEX_SW1;
+                    pass HEX_SW3 = HEX_SW2;
+                    pass HEX_SW4 = HEX_SW3;
+                    pass HEX_SW5 = HEX_SW4;
+                    pass HEX_SE2 = HEX_SE1;
+                    pass HEX_SE3 = HEX_SE2;
+                    pass HEX_SE4 = HEX_SE3;
+                    pass HEX_SE5 = HEX_SE4;
+                    pass HEX_NN6_S0 = HEX_NN6[0];
+                    pass HEX_NW6_S0 = HEX_NW6[0];
+                }
+            }
+
+            if variant virtex4 {
+                for i in 13..25 {
+                    pass LV[i] = LV[i - 1];
+                }
+            } else if variant virtex5 {
                 if connector_class PASS_N {
                     for i in 0..9 {
                         pass LV[i] = LV[i + 1];
@@ -12977,7 +13055,20 @@ target_defs! {
                         blackhole LV[i];
                     }
                 }
+            } else if variant virtex6 {
+                for i in 0..8 {
+                    pass LV[i] = LV[i + 1];
+                }
+            } else if variant virtex7 {
+                for i in 0..9 {
+                    pass LV[i] = LV[i + 1];
+                }
+                for i in 0..6 {
+                    pass LVB[i] = LVB[i + 1];
+                }
+            }
 
+            if variant virtex5 {
                 pass IMUX_CTRL_BOUNCE_S0 = IMUX_CTRL_BOUNCE[0];
                 pass IMUX_BYP_BOUNCE_S0 = IMUX_BYP_BOUNCE[0];
                 pass IMUX_BYP_BOUNCE_S4 = IMUX_BYP_BOUNCE[4];
@@ -12987,103 +13078,28 @@ target_defs! {
                 pass OUT_S12_PENT = OUT[12];
                 pass OUT_S18_PENT = OUT[18];
             }
+            if variant [virtex6, virtex7] {
+                pass IMUX_FAN_BOUNCE_S = IMUX_FAN_BOUNCE;
+            }
+        }
+
+        if variant [virtex4, virtex6, virtex7] {
+            connector_class TERM_N;
+        }
+        if variant virtex5 {
             connector_class TERM_N_HOLE {
                 for i in 0..9 {
                     blackhole LV[i];
                 }
             }
             connector_class TERM_N_PPC;
-        }
-        if variant virtex6 {
-            connector_class PASS_N {
-                pass SNG_S1 = SNG_S0;
-                pass SNG_W0[3] = SNG_W0_N3;
-                pass SNG_E0[3] = SNG_E0_N3;
-                pass SNG_N0[3] = SNG_N0_N3;
-                pass SNG_W1_S4 = SNG_W1[4];
-                pass SNG_E1_S0 = SNG_E1[0];
-                pass SNG_N1_S0 = SNG_N1[0];
-
-                pass DBL_SS1 = DBL_SS0;
-                pass DBL_SS2 = DBL_SS1;
-                pass DBL_SW1 = DBL_SW0;
-                pass DBL_SE1 = DBL_SE0;
-                pass DBL_NN2_S0 = DBL_NN2[0];
-                pass DBL_NE2_S0 = DBL_NE2[0];
-                pass DBL_NW2_S0 = DBL_NW2[0];
-
-                pass QUAD_SS1 = QUAD_SS0;
-                pass QUAD_SS2 = QUAD_SS1;
-                pass QUAD_SS3 = QUAD_SS2;
-                pass QUAD_SS4 = QUAD_SS3;
-                pass QUAD_SW2 = QUAD_SW1;
-                pass QUAD_SW3 = QUAD_SW2;
-                pass QUAD_SE2 = QUAD_SE1;
-                pass QUAD_SE3 = QUAD_SE2;
-                pass QUAD_WW4_S0 = QUAD_WW4[0];
-                pass QUAD_NN4_S0 = QUAD_NN4[0];
-                pass QUAD_NW4_S0 = QUAD_NW4[0];
-
-                for i in 0..8 {
-                    pass LV[i] = LV[i + 1];
-                }
-
-                pass IMUX_FAN_BOUNCE_S = IMUX_FAN_BOUNCE;
-            }
-            connector_class TERM_N;
+        } else if variant virtex6 {
             connector_class TERM_N_HOLE {
                 for i in 0..8 {
                     blackhole LV[i];
                 }
             }
-        }
-        if variant virtex7 {
-            connector_class PASS_N {
-                pass SNG_S1 = SNG_S0;
-                pass SNG_W0[3] = SNG_W0_N3;
-                pass SNG_E0[3] = SNG_E0_N3;
-                pass SNG_N0[3] = SNG_N0_N3;
-                pass SNG_W1_S4 = SNG_W1[4];
-                pass SNG_E1_S0 = SNG_E1[0];
-                pass SNG_N1_S0 = SNG_N1[0];
-
-                pass DBL_SS1 = DBL_SS0;
-                pass DBL_SS2 = DBL_SS1;
-                pass DBL_SW1 = DBL_SW0;
-                pass DBL_SE1 = DBL_SE0;
-                pass DBL_NN2_S0 = DBL_NN2[0];
-                pass DBL_NE2_S0 = DBL_NE2[0];
-                pass DBL_NW2_S0 = DBL_NW2[0];
-
-                pass QUAD_WW4_S0 = QUAD_WW4[0];
-
-                pass HEX_SS1 = HEX_SS0;
-                pass HEX_SS2 = HEX_SS1;
-                pass HEX_SS3 = HEX_SS2;
-                pass HEX_SS4 = HEX_SS3;
-                pass HEX_SS5 = HEX_SS4;
-                pass HEX_SS6 = HEX_SS5;
-                pass HEX_SW2 = HEX_SW1;
-                pass HEX_SW3 = HEX_SW2;
-                pass HEX_SW4 = HEX_SW3;
-                pass HEX_SW5 = HEX_SW4;
-                pass HEX_SE2 = HEX_SE1;
-                pass HEX_SE3 = HEX_SE2;
-                pass HEX_SE4 = HEX_SE3;
-                pass HEX_SE5 = HEX_SE4;
-                pass HEX_NN6_S0 = HEX_NN6[0];
-                pass HEX_NW6_S0 = HEX_NW6[0];
-
-                for i in 0..9 {
-                    pass LV[i] = LV[i + 1];
-                }
-                for i in 0..6 {
-                    pass LVB[i] = LVB[i + 1];
-                }
-
-                pass IMUX_FAN_BOUNCE_S = IMUX_FAN_BOUNCE;
-            }
-            connector_class TERM_N;
+        } else if variant virtex7 {
             connector_class TERM_N_HOLE {
                 for i in 0..9 {
                     blackhole LV[i];
@@ -13092,6 +13108,14 @@ target_defs! {
                     blackhole LVB[i];
                 }
             }
+        }
+
+        if variant virtex4 {
+            connector_class BRKH_N;
+            connector_class PPC_A_N;
+            connector_class PPC_B_N;
+        }
+        if variant virtex7 {
             connector_class BRKH_N;
         }
     }
@@ -13180,9 +13204,9 @@ target_defs! {
         }
     }
 
-    connector_slot CMT_PREV {
-        opposite CMT_NEXT;
-        if variant virtex4 {
+    if variant virtex4 {
+        connector_slot CMT_PREV {
+            opposite CMT_NEXT;
             connector_class CMT_PREV {
                 pass DCM_DCM_I = DCM_DCM_O;
             }
@@ -13190,50 +13214,49 @@ target_defs! {
                 pass DCM_DCM_I = DCM_DCM_I;
             }
         }
-    }
-
-    connector_slot CMT_NEXT {
-        opposite CMT_PREV;
-        if variant virtex4 {
+        connector_slot CMT_NEXT {
+            opposite CMT_PREV;
             connector_class CMT_NEXT;
         }
     }
 
-    connector_slot HCLK_ROW_PREV {
-        opposite HCLK_ROW_NEXT;
-        if variant virtex5 {
-            connector_class HCLK_ROW_PREV {
-                pass MGT_ROW_I = MGT_ROW_O;
+    if variant [virtex5, virtex6, virtex7] {
+        connector_slot HCLK_ROW_PREV {
+            opposite HCLK_ROW_NEXT;
+            if variant virtex5 {
+                connector_class HCLK_ROW_PREV {
+                    pass MGT_ROW_I = MGT_ROW_O;
+                }
+                connector_class HCLK_ROW_PREV_PASS {
+                    pass MGT_ROW_I = MGT_ROW_I;
+                }
             }
-            connector_class HCLK_ROW_PREV_PASS {
-                pass MGT_ROW_I = MGT_ROW_I;
+            if variant virtex6 {
+                connector_class HCLK_ROW_PREV;
+            }
+            if variant virtex7 {
+                connector_class HCLK_ROW_PREV {
+                    pass HROW_I = HROW_O;
+                }
             }
         }
-        if variant virtex6 {
-            connector_class HCLK_ROW_PREV;
-        }
-        if variant virtex7 {
-            connector_class HCLK_ROW_PREV {
-                pass HROW_I = HROW_O;
-            }
-        }
-    }
 
-    connector_slot HCLK_ROW_NEXT {
-        opposite HCLK_ROW_PREV;
-        if variant virtex5 {
-            connector_class HCLK_ROW_NEXT;
-        }
-        if variant virtex6 {
-            connector_class HCLK_ROW_NEXT {
-                pass PERF_ROW = PERF_ROW_OUTER;
+        connector_slot HCLK_ROW_NEXT {
+            opposite HCLK_ROW_PREV;
+            if variant virtex5 {
+                connector_class HCLK_ROW_NEXT;
             }
-            connector_class HCLK_ROW_NEXT_PASS {
-                pass PERF_ROW = PERF_ROW;
+            if variant virtex6 {
+                connector_class HCLK_ROW_NEXT {
+                    pass PERF_ROW = PERF_ROW_OUTER;
+                }
+                connector_class HCLK_ROW_NEXT_PASS {
+                    pass PERF_ROW = PERF_ROW;
+                }
             }
-        }
-        if variant virtex7 {
-            connector_class HCLK_ROW_NEXT;
+            if variant virtex7 {
+                connector_class HCLK_ROW_NEXT;
+            }
         }
     }
 }

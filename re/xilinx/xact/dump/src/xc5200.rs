@@ -37,8 +37,9 @@ pub fn dump_chip(die: &Die) -> (Chip, IntDb, NamingDb) {
         .unwrap()
         .0;
     let mut ndb = NamingDb::default();
-    for name in intdb.tile_classes.keys() {
-        ndb.tile_namings.insert(name.clone(), TileNaming::default());
+    for tcls in intdb.tile_classes.values() {
+        ndb.tile_namings
+            .insert(tcls.name.clone(), TileNaming::default());
     }
     for (key, kind) in [
         ("L", "left"),
@@ -106,7 +107,7 @@ pub fn dump_chip(die: &Die) -> (Chip, IntDb, NamingDb) {
         }
         for (slot, bel_info) in &tcls.bels {
             let bel = cell.bel(slot);
-            let slot_name = intdb.bel_slots.key(slot);
+            let slot_name = intdb.bel_slots[slot].name.as_str();
             match slot {
                 bslots::INT | bslots::LLH | bslots::LLV => (),
                 bslots::BUFG => {
@@ -587,12 +588,12 @@ pub fn dump_chip(die: &Die) -> (Chip, IntDb, NamingDb) {
         let NetBinding::Int(rw_t) = net_info.binding else {
             continue;
         };
-        let w_t = intdb.wires.key(rw_t.slot);
+        let w_t = intdb.wires[rw_t.slot].name.as_str();
         for &net_f in net_info.pips_bwd.keys() {
             let NetBinding::Int(rw_f) = extractor.nets[net_f].binding else {
                 continue;
             };
-            let w_f = intdb.wires.key(rw_f.slot);
+            let w_f = intdb.wires[rw_f.slot].name.as_str();
             if w_t.starts_with("LONG") && !(w_f.starts_with("LONG") || w_f.starts_with("OUT")) {
                 queue.push((net_t, net_f));
             }
@@ -620,7 +621,7 @@ pub fn dump_chip(die: &Die) -> (Chip, IntDb, NamingDb) {
 
     let finisher = extractor.finish();
     finisher.finish(&mut intdb, &mut ndb, |db, _, wt, _| {
-        let wtn = db.wires.key(wt.wire);
+        let wtn = db.wires[wt.wire].name.as_str();
         if wires::IO_M_BUF.contains(wt.wire)
             || wires::CLB_M_BUF.contains(wt.wire)
             || wires::OMUX_BUF.contains(wt.wire)

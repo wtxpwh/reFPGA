@@ -206,7 +206,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
         let bslot = bslots::BRAM[idx];
         let mut bctx = ctx.bel(bslot);
         let mode = "RAMB8BWER";
-        let bel_name = backend.edev.db.bel_slots.key(bslot).as_str();
+        let bel_name = backend.edev.db[bslot].name.as_str();
         bctx.build()
             .global_mutex("BRAM", "MULTI")
             .tile_mutex("MODE", bel_name)

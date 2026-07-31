@@ -58,8 +58,9 @@ pub fn dump_chip(die: &Die, noblock: &[String]) -> (Chip, IntDb, NamingDb) {
         .0
     };
     let mut ndb = NamingDb::default();
-    for name in intdb.tile_classes.keys() {
-        ndb.tile_namings.insert(name.clone(), TileNaming::default());
+    for tcls in intdb.tile_classes.values() {
+        ndb.tile_namings
+            .insert(tcls.name.clone(), TileNaming::default());
     }
     for (key, kind) in [("L", "left"), ("C", "center"), ("R", "rt"), ("CLK", "clkc")] {
         ndb.tile_widths
@@ -104,7 +105,7 @@ pub fn dump_chip(die: &Die, noblock: &[String]) -> (Chip, IntDb, NamingDb) {
         }
         for (slot, bel_info) in &tcls.bels {
             let bel = cell.bel(slot);
-            let slot_name = intdb.bel_slots.key(slot);
+            let slot_name = intdb.bel_slots[slot].name.as_str();
 
             match slot {
                 bslots::INT
@@ -843,15 +844,15 @@ pub fn dump_chip(die: &Die, noblock: &[String]) -> (Chip, IntDb, NamingDb) {
         }
     }
 
-    for (wire, name, &kind) in &intdb.wires {
-        if !name.starts_with("IMUX") {
+    for (wid, wire) in &intdb.wires {
+        if !wire.name.starts_with("IMUX") {
             continue;
         }
-        if kind != WireKind::MuxOut {
+        if wire.kind != WireKind::MuxOut {
             continue;
         }
         for (cell, _) in edev.cells() {
-            let rw = edev.resolve_wire(cell.wire(wire)).unwrap();
+            let rw = edev.resolve_wire(cell.wire(wid)).unwrap();
             if extractor.int_nets.contains_key(&rw) {
                 extractor.own_mux(rw, cell.tile(tslots::MAIN));
             }
@@ -887,7 +888,7 @@ pub fn dump_chip(die: &Die, noblock: &[String]) -> (Chip, IntDb, NamingDb) {
                         let NetBinding::Int(rw) = extractor.nets[net].binding else {
                             continue;
                         };
-                        let wkey = intdb.wires.key(rw.slot);
+                        let wkey = intdb.wires[rw.slot].name.as_str();
                         let is_o2 = if col == chip.col_w() || col == chip.col_e() {
                             wkey.starts_with("SINGLE_V")
                                 || wkey.starts_with("DOUBLE_V")
@@ -1030,7 +1031,7 @@ pub fn dump_chip(die: &Die, noblock: &[String]) -> (Chip, IntDb, NamingDb) {
             wires::SPECIAL_CLB_COUT0.cell(0).pos(),
         );
     }
-    for (tcid, _, tcls) in &intdb.tile_classes {
+    for (tcid, tcls) in &intdb.tile_classes {
         for idx in 0..2 {
             if tcls.bels.contains_id(bslots::TBUF[idx]) {
                 extractor.inject_pip(
@@ -1098,8 +1099,8 @@ pub fn dump_chip(die: &Die, noblock: &[String]) -> (Chip, IntDb, NamingDb) {
                 PipMode::Pass
             }
         } else {
-            let wtn = db.wires.key(wt.wire);
-            let wfn = db.wires.key(wf.wire);
+            let wtn = db.wires[wt.wire].name.as_str();
+            let wfn = db.wires[wf.wire].name.as_str();
             if wtn.starts_with("IMUX")
                 || wtn.starts_with("LONG_IO")
                 || wtn.starts_with("DBUF_IO")

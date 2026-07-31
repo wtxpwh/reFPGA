@@ -15,76 +15,76 @@ impl Chip {
     fn get_tcls_io_s(&self, col: ColId) -> TileClassId {
         assert!(self.kind.is_xc4000());
         if col == self.col_w() + 1 {
-            xc4000::xc4000::tcls::IO_S1_W
+            xc4000::tcls::IO_S1_W
         } else if col == self.col_e() - 1 {
-            xc4000::xc4000::tcls::IO_S0_E
+            xc4000::tcls::IO_S0_E
         } else if col.to_idx().is_multiple_of(2) {
-            xc4000::xc4000::tcls::IO_S0
+            xc4000::tcls::IO_S0
         } else {
-            xc4000::xc4000::tcls::IO_S1
+            xc4000::tcls::IO_S1
         }
     }
 
     fn get_tcls_io_n(&self, col: ColId) -> TileClassId {
         assert!(self.kind.is_xc4000());
         if col == self.col_w() + 1 {
-            xc4000::xc4000::tcls::IO_N1_W
+            xc4000::tcls::IO_N1_W
         } else if col == self.col_e() - 1 {
-            xc4000::xc4000::tcls::IO_N0_E
+            xc4000::tcls::IO_N0_E
         } else if col.to_idx().is_multiple_of(2) {
-            xc4000::xc4000::tcls::IO_N0
+            xc4000::tcls::IO_N0
         } else {
-            xc4000::xc4000::tcls::IO_N1
+            xc4000::tcls::IO_N1
         }
     }
 
     fn get_tcls_io_w(&self, row: RowId) -> TileClassId {
         assert!(self.kind.is_xc4000());
         if row == self.row_s() + 1 {
-            xc4000::xc4000::tcls::IO_W1_S
+            xc4000::tcls::IO_W1_S
         } else if row == self.row_n() - 1 {
-            xc4000::xc4000::tcls::IO_W0_N
+            xc4000::tcls::IO_W0_N
         } else if self.kind.is_xl() && row == self.bel_buff_io(DirHV::SW).row {
             if row.to_idx().is_multiple_of(2) {
-                xc4000::xc4000::tcls::IO_W0_F1
+                xc4000::tcls::IO_W0_F1
             } else {
-                xc4000::xc4000::tcls::IO_W1_F1
+                xc4000::tcls::IO_W1_F1
             }
         } else if self.kind.is_xl() && row == self.bel_buff_io(DirHV::NW).row {
             if row.to_idx().is_multiple_of(2) {
-                xc4000::xc4000::tcls::IO_W0_F0
+                xc4000::tcls::IO_W0_F0
             } else {
-                xc4000::xc4000::tcls::IO_W1_F0
+                xc4000::tcls::IO_W1_F0
             }
         } else if row.to_idx().is_multiple_of(2) {
-            xc4000::xc4000::tcls::IO_W0
+            xc4000::tcls::IO_W0
         } else {
-            xc4000::xc4000::tcls::IO_W1
+            xc4000::tcls::IO_W1
         }
     }
 
     fn get_tcls_io_e(&self, row: RowId) -> TileClassId {
         assert!(self.kind.is_xc4000());
         if row == self.row_s() + 1 {
-            xc4000::xc4000::tcls::IO_E1_S
+            xc4000::tcls::IO_E1_S
         } else if row == self.row_n() - 1 {
-            xc4000::xc4000::tcls::IO_E0_N
+            xc4000::tcls::IO_E0_N
         } else if self.kind.is_xl() && row == self.bel_buff_io(DirHV::SE).row {
             if row.to_idx().is_multiple_of(2) {
-                xc4000::xc4000::tcls::IO_E0_F1
+                xc4000::tcls::IO_E0_F1
             } else {
-                xc4000::xc4000::tcls::IO_E1_F1
+                xc4000::tcls::IO_E1_F1
             }
         } else if self.kind.is_xl() && row == self.bel_buff_io(DirHV::NE).row {
             if row.to_idx().is_multiple_of(2) {
-                xc4000::xc4000::tcls::IO_E0_F0
+                xc4000::tcls::IO_E0_F0
             } else {
-                xc4000::xc4000::tcls::IO_E1_F0
+                xc4000::tcls::IO_E1_F0
             }
         } else if row.to_idx().is_multiple_of(2) {
-            xc4000::xc4000::tcls::IO_E0
+            xc4000::tcls::IO_E0
         } else {
-            xc4000::xc4000::tcls::IO_E1
+            xc4000::tcls::IO_E1
         }
     }
 
@@ -458,13 +458,13 @@ impl Chip {
                         if cell.row == self.row_s() {
                             egrid.add_tile_id(
                                 cell,
-                                xc4000::xc4000::tcls::CNR_SW,
+                                xc4000::tcls::CNR_SW,
                                 &[cell, cell.delta(1, 0)],
                             );
                         } else if cell.row == self.row_n() {
                             egrid.add_tile_id(
                                 cell,
-                                xc4000::xc4000::tcls::CNR_NW,
+                                xc4000::tcls::CNR_NW,
                                 &[cell, cell.delta(1, 0), cell.delta(0, -1), cell.delta(1, -1)],
                             );
                         } else {
@@ -476,11 +476,11 @@ impl Chip {
                         }
                     } else if cell.col == self.col_e() {
                         if cell.row == self.row_s() {
-                            egrid.add_tile_single_id(cell, xc4000::xc4000::tcls::CNR_SE);
+                            egrid.add_tile_single_id(cell, xc4000::tcls::CNR_SE);
                         } else if cell.row == self.row_n() {
                             egrid.add_tile_id(
                                 cell,
-                                xc4000::xc4000::tcls::CNR_NE,
+                                xc4000::tcls::CNR_NE,
                                 &[cell, cell.delta(0, -1)],
                             );
                         } else {
@@ -506,27 +506,27 @@ impl Chip {
                         } else {
                             let tcid = if cell.row == self.row_s() + 1 {
                                 if cell.col == self.col_w() + 1 {
-                                    xc4000::xc4000::tcls::CLB_SW
+                                    xc4000::tcls::CLB_SW
                                 } else if cell.col == self.col_e() - 1 {
-                                    xc4000::xc4000::tcls::CLB_SE
+                                    xc4000::tcls::CLB_SE
                                 } else {
-                                    xc4000::xc4000::tcls::CLB_S
+                                    xc4000::tcls::CLB_S
                                 }
                             } else if cell.row == self.row_n() - 1 {
                                 if cell.col == self.col_w() + 1 {
-                                    xc4000::xc4000::tcls::CLB_NW
+                                    xc4000::tcls::CLB_NW
                                 } else if cell.col == self.col_e() - 1 {
-                                    xc4000::xc4000::tcls::CLB_NE
+                                    xc4000::tcls::CLB_NE
                                 } else {
-                                    xc4000::xc4000::tcls::CLB_N
+                                    xc4000::tcls::CLB_N
                                 }
                             } else {
                                 if cell.col == self.col_w() + 1 {
-                                    xc4000::xc4000::tcls::CLB_W
+                                    xc4000::tcls::CLB_W
                                 } else if cell.col == self.col_e() - 1 {
-                                    xc4000::xc4000::tcls::CLB_E
+                                    xc4000::tcls::CLB_E
                                 } else {
-                                    xc4000::xc4000::tcls::CLB
+                                    xc4000::tcls::CLB
                                 }
                             };
                             egrid.add_tile_id(
@@ -542,16 +542,16 @@ impl Chip {
                     for col in [self.col_q(DirH::W), self.col_q(DirH::E)] {
                         for cell in egrid.column(die, col) {
                             let tcid = if cell.row == self.row_s() {
-                                xc4000::xc4000::tcls::LLHQ_IO_S
+                                xc4000::tcls::LLHQ_IO_S
                             } else if cell.row == self.row_n() {
-                                xc4000::xc4000::tcls::LLHQ_IO_N
+                                xc4000::tcls::LLHQ_IO_N
                             } else {
                                 if cell.row == self.row_s() + 1 {
-                                    xc4000::xc4000::tcls::LLHQ_CLB_S
+                                    xc4000::tcls::LLHQ_CLB_S
                                 } else if cell.row == self.row_n() - 1 {
-                                    xc4000::xc4000::tcls::LLHQ_CLB_N
+                                    xc4000::tcls::LLHQ_CLB_N
                                 } else {
-                                    xc4000::xc4000::tcls::LLHQ_CLB
+                                    xc4000::tcls::LLHQ_CLB
                                 }
                             };
                             egrid.add_tile_id(cell, tcid, &[cell.delta(-1, 0), cell]);
@@ -559,13 +559,13 @@ impl Chip {
                     }
                     for cell in egrid.column(die, self.col_mid()) {
                         let tcid = if cell.row == self.row_s() {
-                            xc4000::xc4000::tcls::LLHC_IO_S
+                            xc4000::tcls::LLHC_IO_S
                         } else if cell.row == self.row_n() {
-                            xc4000::xc4000::tcls::LLHC_IO_N
+                            xc4000::tcls::LLHC_IO_N
                         } else if cell.row == self.row_s() + 1 {
-                            xc4000::xc4000::tcls::LLHC_CLB_S
+                            xc4000::tcls::LLHC_CLB_S
                         } else {
-                            xc4000::xc4000::tcls::LLHC_CLB
+                            xc4000::tcls::LLHC_CLB
                         };
                         egrid.add_tile_id(cell, tcid, &[cell.delta(-1, 0), cell]);
                     }
@@ -574,29 +574,29 @@ impl Chip {
                         for cell in egrid.row(die, row) {
                             let tcid = if cell.col == self.col_w() {
                                 if bt == 'B' {
-                                    xc4000::xc4000::tcls::LLVQ_IO_SW
+                                    xc4000::tcls::LLVQ_IO_SW
                                 } else {
-                                    xc4000::xc4000::tcls::LLVQ_IO_NW
+                                    xc4000::tcls::LLVQ_IO_NW
                                 }
                             } else if cell.col == self.col_e() {
                                 if bt == 'B' {
-                                    xc4000::xc4000::tcls::LLVQ_IO_SE
+                                    xc4000::tcls::LLVQ_IO_SE
                                 } else {
-                                    xc4000::xc4000::tcls::LLVQ_IO_NE
+                                    xc4000::tcls::LLVQ_IO_NE
                                 }
                             } else {
-                                xc4000::xc4000::tcls::LLVQ_CLB
+                                xc4000::tcls::LLVQ_CLB
                             };
                             egrid.add_tile_id(cell, tcid, &[cell.delta(0, -1), cell]);
                         }
                     }
                     for cell in egrid.row(die, self.row_mid()) {
                         let tcid = if cell.col == self.col_w() {
-                            xc4000::xc4000::tcls::LLVC_IO_W
+                            xc4000::tcls::LLVC_IO_W
                         } else if cell.col == self.col_e() {
-                            xc4000::xc4000::tcls::LLVC_IO_E
+                            xc4000::tcls::LLVC_IO_E
                         } else {
-                            xc4000::xc4000::tcls::LLVC_CLB
+                            xc4000::tcls::LLVC_CLB
                         };
                         egrid.add_tile_id(cell, tcid, &[cell.delta(0, -1), cell]);
                     }
@@ -607,7 +607,7 @@ impl Chip {
                                 let cell = die.cell(col, row);
                                 egrid.add_tile_id(
                                     cell,
-                                    xc4000::xc4000::tcls::CLKQ,
+                                    xc4000::tcls::CLKQ,
                                     &[cell.delta(-1, 0), cell],
                                 );
                             }
@@ -615,11 +615,11 @@ impl Chip {
                     } else {
                         egrid.add_tile_single_id(
                             die.cell(self.col_mid(), self.row_q(DirV::S)),
-                            xc4000::xc4000::tcls::CLKQC,
+                            xc4000::tcls::CLKQC,
                         );
                         egrid.add_tile_single_id(
                             die.cell(self.col_mid(), self.row_q(DirV::N)),
-                            xc4000::xc4000::tcls::CLKQC,
+                            xc4000::tcls::CLKQC,
                         );
                     }
 
@@ -690,24 +690,24 @@ impl Chip {
                 } else {
                     for cell in egrid.column(die, self.col_mid()) {
                         let tcid = if cell.row == self.row_s() {
-                            xc4000::xc4000::tcls::LLH_IO_S
+                            xc4000::tcls::LLH_IO_S
                         } else if cell.row == self.row_n() {
-                            xc4000::xc4000::tcls::LLH_IO_N
+                            xc4000::tcls::LLH_IO_N
                         } else if cell.row == self.row_s() + 1 {
-                            xc4000::xc4000::tcls::LLH_CLB_S
+                            xc4000::tcls::LLH_CLB_S
                         } else {
-                            xc4000::xc4000::tcls::LLH_CLB
+                            xc4000::tcls::LLH_CLB
                         };
                         egrid.add_tile_id(cell, tcid, &[cell.delta(-1, 0), cell]);
                     }
 
                     for cell in egrid.row(die, self.row_mid()) {
                         let tcid = if cell.col == self.col_w() {
-                            xc4000::xc4000::tcls::LLV_IO_W
+                            xc4000::tcls::LLV_IO_W
                         } else if cell.col == self.col_e() {
-                            xc4000::xc4000::tcls::LLV_IO_E
+                            xc4000::tcls::LLV_IO_E
                         } else {
-                            xc4000::xc4000::tcls::LLV_CLB
+                            xc4000::tcls::LLV_CLB
                         };
                         egrid.add_tile_id(cell, tcid, &[cell.delta(0, -1), cell]);
                     }
@@ -744,15 +744,15 @@ impl Chip {
                             egrid.fill_conn_pair(
                                 cell.delta(-1, 0),
                                 cell,
-                                xc4000::xc4000::ccls::PASS_E,
-                                xc4000::xc4000::ccls::PASS_CLB_W_W,
+                                xc4000::ccls::PASS_E,
+                                xc4000::ccls::PASS_CLB_W_W,
                             );
                         } else {
                             egrid.fill_conn_pair(
                                 cell.delta(-1, 0),
                                 cell,
-                                xc4000::xc4000::ccls::PASS_E,
-                                xc4000::xc4000::ccls::PASS_W,
+                                xc4000::ccls::PASS_E,
+                                xc4000::ccls::PASS_W,
                             );
                         }
                     }
@@ -764,36 +764,24 @@ impl Chip {
                             egrid.fill_conn_pair(
                                 cell.delta(0, -1),
                                 cell,
-                                xc4000::xc4000::ccls::PASS_CLB_N_N,
-                                xc4000::xc4000::ccls::PASS_S,
+                                xc4000::ccls::PASS_CLB_N_N,
+                                xc4000::ccls::PASS_S,
                             );
                         } else {
                             egrid.fill_conn_pair(
                                 cell.delta(0, -1),
                                 cell,
-                                xc4000::xc4000::ccls::PASS_N,
-                                xc4000::xc4000::ccls::PASS_S,
+                                xc4000::ccls::PASS_N,
+                                xc4000::ccls::PASS_S,
                             );
                         }
                     }
                 }
 
-                egrid.fill_conn_term(
-                    die.cell(self.col_w(), self.row_s()),
-                    xc4000::xc4000::ccls::CNR_SW,
-                );
-                egrid.fill_conn_term(
-                    die.cell(self.col_e(), self.row_s()),
-                    xc4000::xc4000::ccls::CNR_SE,
-                );
-                egrid.fill_conn_term(
-                    die.cell(self.col_w(), self.row_n()),
-                    xc4000::xc4000::ccls::CNR_NW,
-                );
-                egrid.fill_conn_term(
-                    die.cell(self.col_e(), self.row_n()),
-                    xc4000::xc4000::ccls::CNR_NE,
-                );
+                egrid.fill_conn_term(die.cell(self.col_w(), self.row_s()), xc4000::ccls::CNR_SW);
+                egrid.fill_conn_term(die.cell(self.col_e(), self.row_s()), xc4000::ccls::CNR_SE);
+                egrid.fill_conn_term(die.cell(self.col_w(), self.row_n()), xc4000::ccls::CNR_NW);
+                egrid.fill_conn_term(die.cell(self.col_e(), self.row_n()), xc4000::ccls::CNR_NE);
 
                 for row in egrid.rows(die) {
                     if self.kind.is_xl()

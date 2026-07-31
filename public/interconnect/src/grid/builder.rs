@@ -1,7 +1,7 @@
 use std::collections::{HashMap, HashSet};
 
 use bimap::BiHashMap;
-use prjcombine_entity::{EntityId, EntityVec};
+use prjcombine_entity::{EntityId, EntityPartVec, EntityVec};
 
 use crate::{
     db::{ConnectorClassId, IntDb, IntDbIndex, TileClassId},
@@ -23,15 +23,14 @@ impl<'db> GridBuilder<'db> {
                 die: EntityVec::new(),
                 extra_conns: BiHashMap::new(),
                 blackhole_wires: HashSet::new(),
-                tile_index: EntityVec::new(),
-                region_root_cells: EntityVec::new(),
+                tile_index: EntityPartVec::new(),
+                region_root_cells: EntityPartVec::new(),
             },
         }
     }
 
     pub fn finish(mut self) -> ExpandedGrid<'db> {
-        let mut region_root_cells: EntityVec<_, _> =
-            self.db.region_slots.ids().map(|_| HashMap::new()).collect();
+        let mut region_root_cells = self.db.region_slots.map_values(|_| HashMap::new());
         for rslot in self.db.region_slots.ids() {
             let mut die_region_root_cells: HashMap<_, HashSet<_>> = HashMap::new();
             for (cell, _) in self.cells() {
@@ -44,7 +43,7 @@ impl<'db> GridBuilder<'db> {
         }
         self.region_root_cells = region_root_cells;
 
-        let mut tile_index: EntityVec<_, _> = self.db.tile_classes.ids().map(|_| vec![]).collect();
+        let mut tile_index = self.db.tile_classes.map_values(|_| vec![]);
         for (cell, _) in self.cells() {
             for (slot, tile) in &self[cell].tiles {
                 tile_index[tile.class].push(cell.tile(slot));
@@ -94,9 +93,7 @@ impl<'db> GridBuilder<'db> {
                     region_root: self
                         .db
                         .region_slots
-                        .ids()
-                        .map(|_| die.cell(ColId::from_idx(c), RowId::from_idx(r)))
-                        .collect(),
+                        .map_values(|_| die.cell(ColId::from_idx(c), RowId::from_idx(r))),
                 }
             })
             .collect();
@@ -115,11 +112,11 @@ impl<'db> GridBuilder<'db> {
         cells: &[CellCoord],
     ) -> &mut Tile {
         let tcls = &self.db[tcid];
-        let tcrd = anchor.tile(tcls.slot);
-        let cells: EntityVec<_, _> = cells.iter().copied().collect();
-        assert_eq!(cells.len(), tcls.cells.len());
         let slot = tcls.slot;
         assert!(!self[anchor].tiles.contains_id(slot));
+        let tcrd = anchor.tile(slot);
+        let cells: EntityVec<_, _> = cells.iter().copied().collect();
+        assert_eq!(cells.len(), tcls.cells.len());
         self[anchor].tiles.insert(
             slot,
             Tile {

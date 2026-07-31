@@ -10,10 +10,7 @@ use prjcombine_re_xilinx_rawdump::Part;
 use prjcombine_re_xilinx_rdverify::{RawWireCoord, Verifier};
 use prjcombine_virtex4::{
     chip::ColumnKind,
-    defs::{
-        bcls, bslots,
-        virtex6::{tcls, wires},
-    },
+    defs::{bcls, bslots, tcls, wires},
     expanded::ExpandedDevice,
 };
 
@@ -941,7 +938,7 @@ pub fn verify_device(endev: &ExpandedNamedDevice, rd: &Part, pb: &ProgressBar) {
         vrf.skip_tcls_pip(
             tcls::CMT,
             wires::GCLK_TEST_IN[i].cell(20),
-            wires::GCLK_CMT[i].cell(20).pos(),
+            wires::GCLK_HROW[i].cell(20).pos(),
         );
     }
     for &tcrd in &endev.edev.tile_index[tcls::CMT] {
@@ -994,7 +991,7 @@ pub fn verify_device(endev: &ExpandedNamedDevice, rd: &Part, pb: &ProgressBar) {
             let SwitchBoxItem::ProgBuf(buf) = item else {
                 continue;
             };
-            if !wires::GCLK_CMT.contains(buf.dst.wire)
+            if !wires::GCLK_HROW.contains(buf.dst.wire)
                 && !wires::GIOB_CMT.contains(buf.dst.wire)
                 && !wires::CCIO_CMT_W.contains(buf.dst.wire)
                 && !wires::CCIO_CMT_E.contains(buf.dst.wire)

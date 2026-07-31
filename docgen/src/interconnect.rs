@@ -37,15 +37,15 @@ fn gen_intdb_basics(ctx: &mut DocgenContext, dbname: &str, intdb: &IntDb) {
     for (id, name) in &intdb.tile_slots {
         let tiles = intdb
             .tile_classes
-            .iter()
-            .filter(|&(_, _, tcls)| tcls.slot == id)
-            .map(|(_, name, _)| name.as_str())
+            .values()
+            .filter(|tcls| tcls.slot == id)
+            .map(|tcls| tcls.name.as_str())
             .join(", ");
         let bels = intdb
             .bel_slots
-            .iter()
-            .filter(|&(_, _, bslot)| bslot.tile_slot == id)
-            .map(|(_, name, _)| name.as_str())
+            .values()
+            .filter(|bslot| bslot.tile_slot == id)
+            .map(|bslot| bslot.name.as_str())
             .join(", ");
         writeln!(
             buf,
@@ -69,17 +69,18 @@ fn gen_intdb_basics(ctx: &mut DocgenContext, dbname: &str, intdb: &IntDb) {
     .unwrap();
     writeln!(buf, r#"</thead>"#).unwrap();
     writeln!(buf, r#"<tbody>"#).unwrap();
-    for (id, name, bslot) in &intdb.bel_slots {
+    for (id, bslot) in &intdb.bel_slots {
+        let name = bslot.name.as_str();
         let class = match bslot.kind {
             BelKind::Routing => "routing",
-            BelKind::Class(bcid) => intdb.bel_classes.key(bcid),
+            BelKind::Class(bcid) => intdb.bel_classes[bcid].name.as_str(),
             BelKind::Legacy => "legacy",
         };
         let tiles = intdb
             .tile_classes
-            .iter()
-            .filter(|&(_, _, tcls)| tcls.bels.contains_id(id))
-            .map(|(_, name, _)| name.as_str())
+            .values()
+            .filter(|tcls| tcls.bels.contains_id(id))
+            .map(|tcls| tcls.name.as_str())
             .join(", ");
         let tslot = intdb.tile_slots[bslot.tile_slot].as_str();
         writeln!(
@@ -104,14 +105,15 @@ fn gen_intdb_basics(ctx: &mut DocgenContext, dbname: &str, intdb: &IntDb) {
     .unwrap();
     writeln!(buf, r#"</thead>"#).unwrap();
     writeln!(buf, r#"<tbody>"#).unwrap();
-    for (id, name, slot) in &intdb.conn_slots {
+    for (id, slot) in &intdb.conn_slots {
+        let name = slot.name.as_str();
         let conns = intdb
             .conn_classes
-            .iter()
-            .filter(|&(_, _, ccls)| ccls.slot == id)
-            .map(|(_, name, _)| name.as_str())
+            .values()
+            .filter(|ccls| ccls.slot == id)
+            .map(|ccls| ccls.name.as_str())
             .join(", ");
-        let opposite = intdb.conn_slots.key(slot.opposite);
+        let opposite = intdb.conn_slots[slot.opposite].name.as_str();
         writeln!(
             buf,
             r#"<tr><td>{name}</td><td>{opposite}</td><td>{conns}</td></tr>"#
@@ -134,8 +136,8 @@ fn gen_intdb_basics(ctx: &mut DocgenContext, dbname: &str, intdb: &IntDb) {
         let wires = intdb
             .wires
             .iter()
-            .filter(|&(_, _, wkind)| *wkind == WireKind::Regional(id))
-            .map(|(_, name, _)| name.as_str())
+            .filter(|&(_, wslot)| wslot.kind == WireKind::Regional(id))
+            .map(|(_, wslot)| wslot.name.as_str())
             .join(", ");
         writeln!(buf, r#"<tr><td>{name}</td><td>{wires}</td></tr>"#).unwrap();
     }
@@ -152,38 +154,41 @@ fn gen_intdb_basics(ctx: &mut DocgenContext, dbname: &str, intdb: &IntDb) {
     writeln!(buf, r#"</tr>"#).unwrap();
     writeln!(buf, r#"</thead>"#).unwrap();
     writeln!(buf, r#"<tbody>"#).unwrap();
-    for (_, name, kind) in &intdb.wires {
-        let kind = kind.to_string(intdb);
+    for (_, wslot) in &intdb.wires {
+        let name = wslot.name.as_str();
+        let kind = wslot.kind.to_string(intdb);
         writeln!(buf, r#"<tr><td>{name}</td><td>{kind}</td></tr>"#).unwrap();
     }
     writeln!(buf, r#"</tbody>"#).unwrap();
     writeln!(buf, r#"</table></div>"#).unwrap();
     writeln!(buf).unwrap();
 
-    for (csid, csname, _) in &intdb.conn_slots {
+    for (csid, cslot) in &intdb.conn_slots {
+        let csname = cslot.name.as_str();
         writeln!(buf, "## Connectors — {csname}").unwrap();
         writeln!(buf).unwrap();
         writeln!(buf, r#"<div class="table-wrapper"><table>"#).unwrap();
         writeln!(buf, r#"<caption>{dbname} wires</caption>"#).unwrap();
         writeln!(buf, r#"<thead>"#).unwrap();
         writeln!(buf, r#"<tr><th>Wire</th>"#).unwrap();
-        for (_, name, ccls) in &intdb.conn_classes {
+        for (_, ccls) in &intdb.conn_classes {
             if ccls.slot == csid {
+                let name = ccls.name.as_str();
                 writeln!(buf, r#"<th>{name}</th>"#).unwrap();
             }
         }
         writeln!(buf, r#"</tr>"#).unwrap();
         writeln!(buf, r#"</thead>"#).unwrap();
         writeln!(buf, r#"<tbody>"#).unwrap();
-        for (id, name, &kind) in &intdb.wires {
-            if kind != WireKind::Branch(csid)
-                && kind != WireKind::MultiBranch(csid)
-                && kind != WireKind::MultiBranch(csid)
+        for (id, wslot) in &intdb.wires {
+            if wslot.kind != WireKind::Branch(csid)
+                && wslot.kind != WireKind::MultiBranch(csid)
+                && wslot.kind != WireKind::MultiBranch(csid)
             {
                 continue;
             }
-            writeln!(buf, r#"<tr><td>{name}</td>"#).unwrap();
-            for (_, _, ccls) in &intdb.conn_classes {
+            writeln!(buf, r#"<tr><td>{name}</td>"#, name = wslot.name).unwrap();
+            for (_, ccls) in &intdb.conn_classes {
                 if ccls.slot != csid {
                     continue;
                 }
@@ -193,11 +198,11 @@ fn gen_intdb_basics(ctx: &mut DocgenContext, dbname: &str, intdb: &IntDb) {
                             writeln!(buf, r#"<td>[BLACKHOLE]</td>"#).unwrap();
                         }
                         ConnectorWire::Reflect(wid) => {
-                            let wire = intdb.wires.key(wid);
+                            let wire = intdb.wires[wid].name.as_str();
                             writeln!(buf, r#"<td>← {wire}</td>"#).unwrap();
                         }
                         ConnectorWire::Pass(wid) => {
-                            let wire = intdb.wires.key(wid);
+                            let wire = intdb.wires[wid].name.as_str();
                             writeln!(buf, r#"<td>→ {wire}</td>"#).unwrap();
                         }
                     }
@@ -237,8 +242,8 @@ fn gen_switchbox_old(
     }
 
     let tcls = &intdb.tile_classes[tcid];
-    let tname = intdb.tile_classes.key(tcid).as_str();
-    let bname = intdb.bel_slots.key(bslot).as_str();
+    let tname = tcls.name.as_str();
+    let bname = intdb.bel_slots[bslot].name.as_str();
     let mut pips: BTreeMap<TileWireCoord, BTreeSet<(PipKind, TileWireCoord)>> = BTreeMap::new();
     for item in &sb.items {
         match item {
@@ -399,7 +404,7 @@ impl<'a, 'b, 'c> TileClassGen<'a, 'b, 'c> {
                 "{dbname}-{tname}-{bname}-progbuf-{dst}-{src}",
                 dbname = self.dbname,
                 tname = self.tname,
-                bname = self.intdb.bel_slots.key(bslot),
+                bname = self.intdb.bel_slots[bslot].name,
                 dst = dst.to_string(self.intdb, self.tcls),
                 src = src.to_string(self.intdb, self.tcls),
             ),
@@ -407,7 +412,7 @@ impl<'a, 'b, 'c> TileClassGen<'a, 'b, 'c> {
                 "{dbname}-{tname}-{bname}-pass-{dst}-{src}",
                 dbname = self.dbname,
                 tname = self.tname,
-                bname = self.intdb.bel_slots.key(bslot),
+                bname = self.intdb.bel_slots[bslot].name,
                 dst = dst.to_string(self.intdb, self.tcls),
                 src = src.to_string(self.intdb, self.tcls),
             ),
@@ -415,7 +420,7 @@ impl<'a, 'b, 'c> TileClassGen<'a, 'b, 'c> {
                 "{dbname}-{tname}-{bname}-bipass-{a}-{b}",
                 dbname = self.dbname,
                 tname = self.tname,
-                bname = self.intdb.bel_slots.key(bslot),
+                bname = self.intdb.bel_slots[bslot].name,
                 a = a.to_string(self.intdb, self.tcls),
                 b = b.to_string(self.intdb, self.tcls),
             ),
@@ -423,7 +428,7 @@ impl<'a, 'b, 'c> TileClassGen<'a, 'b, 'c> {
                 "{dbname}-{tname}-{bname}-proginv-{dst}-{src}",
                 dbname = self.dbname,
                 tname = self.tname,
-                bname = self.intdb.bel_slots.key(bslot),
+                bname = self.intdb.bel_slots[bslot].name,
                 dst = dst.to_string(self.intdb, self.tcls),
                 src = src.to_string(self.intdb, self.tcls),
             ),
@@ -431,7 +436,7 @@ impl<'a, 'b, 'c> TileClassGen<'a, 'b, 'c> {
                 "{dbname}-{tname}-{bname}-progdelay-{dst}-{src}-{idx}",
                 dbname = self.dbname,
                 tname = self.tname,
-                bname = self.intdb.bel_slots.key(bslot),
+                bname = self.intdb.bel_slots[bslot].name,
                 dst = dst.to_string(self.intdb, self.tcls),
                 src = src.to_string(self.intdb, self.tcls),
             ),
@@ -439,22 +444,22 @@ impl<'a, 'b, 'c> TileClassGen<'a, 'b, 'c> {
                 "{dbname}-{tname}-{bname}-mux-{dst}-{idx}",
                 dbname = self.dbname,
                 tname = self.tname,
-                bname = self.intdb.bel_slots.key(bslot),
+                bname = self.intdb.bel_slots[bslot].name,
                 dst = dst.to_string(self.intdb, self.tcls),
             ),
             BitInfo::Bidi(bslot, conn, wire, _) => format!(
                 "{dbname}-{tname}-{bname}-bidi-{conn}-{wire}",
                 dbname = self.dbname,
                 tname = self.tname,
-                bname = self.intdb.bel_slots.key(bslot),
-                conn = self.intdb.conn_slots.key(conn),
+                bname = self.intdb.bel_slots[bslot].name,
+                conn = self.intdb.conn_slots[conn].name,
                 wire = wire.to_string(self.intdb, self.tcls),
             ),
             BitInfo::PairMux(bslot, dst, idx) => format!(
                 "{dbname}-{tname}-{bname}-mux-{dst0}-{dst1}-{idx}",
                 dbname = self.dbname,
                 tname = self.tname,
-                bname = self.intdb.bel_slots.key(bslot),
+                bname = self.intdb.bel_slots[bslot].name,
                 dst0 = dst[0].to_string(self.intdb, self.tcls),
                 dst1 = dst[1].to_string(self.intdb, self.tcls),
             ),
@@ -462,7 +467,7 @@ impl<'a, 'b, 'c> TileClassGen<'a, 'b, 'c> {
                 "{dbname}-{tname}-{bname}-support-{wires}-{idx}",
                 dbname = self.dbname,
                 tname = self.tname,
-                bname = self.intdb.bel_slots.key(bslot),
+                bname = self.intdb.bel_slots[bslot].name,
                 wires = wires
                     .iter()
                     .map(|w| w.to_string(self.intdb, self.tcls))
@@ -472,7 +477,7 @@ impl<'a, 'b, 'c> TileClassGen<'a, 'b, 'c> {
                 "{dbname}-{tname}-{bname}-testmux-{idx}",
                 dbname = self.dbname,
                 tname = self.tname,
-                bname = self.intdb.bel_slots.key(bslot),
+                bname = self.intdb.bel_slots[bslot].name,
             ),
             BitInfo::BelInputInv(bslot, pid, _) => {
                 let BelKind::Class(bcid) = self.intdb.bel_slots[bslot].kind else {
@@ -485,13 +490,13 @@ impl<'a, 'b, 'c> TileClassGen<'a, 'b, 'c> {
                         "{dbname}-{tname}-{bname}-inpinv-{pname}",
                         dbname = self.dbname,
                         tname = self.tname,
-                        bname = self.intdb.bel_slots.key(bslot),
+                        bname = self.intdb.bel_slots[bslot].name,
                     ),
                     EntityBundleItemIndex::Array { index, .. } => format!(
                         "{dbname}-{tname}-{bname}-inpinv-{pname}[{index}]",
                         dbname = self.dbname,
                         tname = self.tname,
-                        bname = self.intdb.bel_slots.key(bslot),
+                        bname = self.intdb.bel_slots[bslot].name,
                     ),
                 }
             }
@@ -504,7 +509,7 @@ impl<'a, 'b, 'c> TileClassGen<'a, 'b, 'c> {
                     "{dbname}-{tname}-{bname}-{attr}",
                     dbname = self.dbname,
                     tname = self.tname,
-                    bname = self.intdb.bel_slots.key(bslot),
+                    bname = self.intdb.bel_slots[bslot].name,
                     attr = bcls.attributes.key(aid),
                 )
             }
@@ -517,7 +522,7 @@ impl<'a, 'b, 'c> TileClassGen<'a, 'b, 'c> {
                     "{dbname}-{tname}-{bname}-{attr}[{idx}]",
                     dbname = self.dbname,
                     tname = self.tname,
-                    bname = self.intdb.bel_slots.key(bslot),
+                    bname = self.intdb.bel_slots[bslot].name,
                     attr = bcls.attributes.key(aid),
                 )
             }
@@ -530,7 +535,7 @@ impl<'a, 'b, 'c> TileClassGen<'a, 'b, 'c> {
                     "{dbname}-{tname}-{bname}-{attr}[{row}][{idx}]",
                     dbname = self.dbname,
                     tname = self.tname,
-                    bname = self.intdb.bel_slots.key(bslot),
+                    bname = self.intdb.bel_slots[bslot].name,
                     attr = bcls.attributes.key(aid),
                 )
             }
@@ -559,7 +564,7 @@ impl<'a, 'b, 'c> TileClassGen<'a, 'b, 'c> {
     }
 
     fn classify_mux(&self, wire: TileWireCoord) -> String {
-        let wname = self.intdb.wires.key(wire.wire);
+        let wname = self.intdb.wires[wire.wire].name.as_str();
         match self.dbname {
             "siliconblue" => {
                 if wname.starts_with("GLOBAL_ROOT") {
@@ -600,7 +605,7 @@ fn gen_switchbox(tcgen: &mut TileClassGen, buf: &mut String, bslot: BelSlotId, s
     let intdb = tcgen.intdb;
     let dbname = tcgen.dbname;
     let tname = tcgen.tname;
-    let bname = tcgen.intdb.bel_slots.key(bslot).as_str();
+    let bname = tcgen.intdb.bel_slots[bslot].name.as_str();
 
     writeln!(buf, r#"### Switchbox {bname}"#).unwrap();
     writeln!(buf).unwrap();
@@ -881,7 +886,7 @@ fn gen_switchbox(tcgen: &mut TileClassGen, buf: &mut String, bslot: BelSlotId, s
                 buf,
                 r#"<tr id="{anchor}"><td>{conn}</td><td>{wire}</td><td>{bit}</td></tr>"#,
                 anchor = tcgen.anchor(&bi),
-                conn = intdb.conn_slots.key(bidi.conn),
+                conn = intdb.conn_slots[bidi.conn].name.as_str(),
                 wire = bidi.wire.to_string(intdb, tcls),
                 bit = tcgen.link_polbit(bidi.bit_upstream),
             )
@@ -1091,7 +1096,7 @@ fn gen_bels(tcgen: &mut TileClassGen, buf: &mut String, bcid: BelClassId, bslots
     let dbname = tcgen.dbname;
     let tname = tcgen.tname;
     let bcls = &intdb.bel_classes[bcid];
-    let bcname = intdb.bel_classes.key(bcid);
+    let bcname = bcls.name.as_str();
     let bels = Vec::from_iter(bslots.iter().map(|&slot| {
         let BelInfo::Bel(ref bel) = tcls.bels[slot] else {
             unreachable!()
@@ -1110,7 +1115,7 @@ fn gen_bels(tcgen: &mut TileClassGen, buf: &mut String, bcid: BelClassId, bslots
     writeln!(buf, r#"<thead>"#).unwrap();
     write!(buf, r#"<tr><th>Pin</th><th>Direction</th>"#).unwrap();
     for &slot in bslots {
-        write!(buf, r#"<th>{}</th>"#, intdb.bel_slots.key(slot)).unwrap();
+        write!(buf, r#"<th>{}</th>"#, intdb.bel_slots[slot].name).unwrap();
     }
     writeln!(buf, r#"</tr>"#).unwrap();
     writeln!(buf, r#"</thead>"#).unwrap();
@@ -1242,7 +1247,7 @@ fn gen_bels(tcgen: &mut TileClassGen, buf: &mut String, bcid: BelClassId, bslots
         writeln!(buf, r#"<thead>"#).unwrap();
         write!(buf, r#"<tr><th>Attribute</th>"#).unwrap();
         for &slot in bslots {
-            write!(buf, r#"<th>{}</th>"#, intdb.bel_slots.key(slot)).unwrap();
+            write!(buf, r#"<th>{}</th>"#, intdb.bel_slots[slot].name).unwrap();
         }
         writeln!(buf, r#"</tr>"#).unwrap();
         writeln!(buf, r#"</thead>"#).unwrap();
@@ -1271,8 +1276,8 @@ fn gen_bels(tcgen: &mut TileClassGen, buf: &mut String, bcid: BelClassId, bslots
                                 write!(
                                     buf,
                                     r##"<td><a href="#{dbname}-{tname}-{bname}-{aname}">[enum: {ename}]</a></td>"##,
-                                    bname = intdb.bel_slots.key(bslot),
-                                    ename = intdb.enum_classes.key(ecid),
+                                    bname = intdb.bel_slots[bslot].name,
+                                    ename = intdb.enum_classes[ecid].name,
                                 )
                                 .unwrap();
                             }
@@ -1376,7 +1381,7 @@ fn gen_bels(tcgen: &mut TileClassGen, buf: &mut String, bcid: BelClassId, bslots
             writeln!(
                 buf,
                 r#"<caption>{dbname} {tname} enum {ename}</caption>"#,
-                ename = intdb.enum_classes.key(ecid),
+                ename = ecls.name,
             )
             .unwrap();
             writeln!(buf, r#"<thead>"#).unwrap();
@@ -1384,7 +1389,7 @@ fn gen_bels(tcgen: &mut TileClassGen, buf: &mut String, bcid: BelClassId, bslots
                 write!(
                     buf,
                     r#"<tr id="{dbname}-{tname}-{bname}-{aname}"><th>{bname}.{aname}</th>"#,
-                    bname = intdb.bel_slots.key(bslot),
+                    bname = intdb.bel_slots[bslot].name,
                     aname = bcls.attributes.key(aid),
                 )
                 .unwrap();
@@ -1491,7 +1496,7 @@ fn gen_bits(tcgen: &mut TileClassGen, buf: &mut String) {
                         BitInfo::ProgBuf(bslot, dst, src, inv) => {
                             format!(
                                 "{bname}: {inv}buffer {dst} ← {src}",
-                                bname = intdb.bel_slots.key(bslot),
+                                bname = intdb.bel_slots[bslot].name,
                                 inv = if inv { "!" } else { "" },
                                 dst = dst.to_string(intdb, tcls),
                                 src = src.to_string(intdb, tcls),
@@ -1500,7 +1505,7 @@ fn gen_bits(tcgen: &mut TileClassGen, buf: &mut String) {
                         BitInfo::Pass(bslot, dst, src, inv) => {
                             format!(
                                 "{bname}: {inv}pass {dst} ← {src}",
-                                bname = intdb.bel_slots.key(bslot),
+                                bname = intdb.bel_slots[bslot].name,
                                 inv = if inv { "!" } else { "" },
                                 dst = dst.to_string(intdb, tcls),
                                 src = src.to_string(intdb, tcls),
@@ -1509,7 +1514,7 @@ fn gen_bits(tcgen: &mut TileClassGen, buf: &mut String) {
                         BitInfo::BiPass(bslot, a, b, inv) => {
                             format!(
                                 "{bname}: {inv}bipass {a} = {b}",
-                                bname = intdb.bel_slots.key(bslot),
+                                bname = intdb.bel_slots[bslot].name,
                                 inv = if inv { "!" } else { "" },
                                 a = a.to_string(intdb, tcls),
                                 b = b.to_string(intdb, tcls),
@@ -1518,7 +1523,7 @@ fn gen_bits(tcgen: &mut TileClassGen, buf: &mut String) {
                         BitInfo::ProgInv(bslot, dst, src, inv) => {
                             format!(
                                 "{bname}: {inv}invert {dst} ← {src}",
-                                bname = intdb.bel_slots.key(bslot),
+                                bname = intdb.bel_slots[bslot].name,
                                 inv = if inv { "!" } else { "" },
                                 dst = dst.to_string(intdb, tcls),
                                 src = src.to_string(intdb, tcls),
@@ -1527,7 +1532,7 @@ fn gen_bits(tcgen: &mut TileClassGen, buf: &mut String) {
                         BitInfo::ProgDelay(bslot, dst, src, idx) => {
                             format!(
                                 "{bname}: delay {dst} ← {src} bit {idx}",
-                                bname = intdb.bel_slots.key(bslot),
+                                bname = intdb.bel_slots[bslot].name,
                                 dst = dst.to_string(intdb, tcls),
                                 src = src.to_string(intdb, tcls),
                             )
@@ -1535,23 +1540,23 @@ fn gen_bits(tcgen: &mut TileClassGen, buf: &mut String) {
                         BitInfo::Mux(bslot, dst, idx) => {
                             format!(
                                 "{bname}: mux {dst} bit {idx}",
-                                bname = intdb.bel_slots.key(bslot),
+                                bname = intdb.bel_slots[bslot].name,
                                 dst = dst.to_string(intdb, tcls),
                             )
                         }
                         BitInfo::Bidi(bslot, conn, wire, inv) => {
                             format!(
                                 "{bname}: {inv}bidi {conn} {wire}",
-                                bname = intdb.bel_slots.key(bslot),
+                                bname = intdb.bel_slots[bslot].name,
                                 inv = if inv { "!" } else { "" },
-                                conn = intdb.conn_slots.key(conn),
+                                conn = intdb.conn_slots[conn].name,
                                 wire = wire.to_string(intdb, tcls),
                             )
                         }
                         BitInfo::PairMux(bslot, dst, idx) => {
                             format!(
                                 "{bname}: pair mux ({dst0}, {dst1}) bit {idx}",
-                                bname = intdb.bel_slots.key(bslot),
+                                bname = intdb.bel_slots[bslot].name,
                                 dst0 = dst[0].to_string(intdb, tcls),
                                 dst1 = dst[1].to_string(intdb, tcls),
                             )
@@ -1560,14 +1565,14 @@ fn gen_bits(tcgen: &mut TileClassGen, buf: &mut String) {
                             format!(
                                 "{bname}: {inv}wire support ({wires}) bit {idx}",
                                 inv = if inv { "!" } else { "" },
-                                bname = intdb.bel_slots.key(bslot),
+                                bname = intdb.bel_slots[bslot].name,
                                 wires = wires.iter().map(|w| w.to_string(intdb, tcls)).join(", "),
                             )
                         }
                         BitInfo::TestMux(bslot, idx) => {
                             format!(
                                 "{bname}: test mux bit {idx}",
-                                bname = intdb.bel_slots.key(bslot),
+                                bname = intdb.bel_slots[bslot].name,
                             )
                         }
                         BitInfo::BelInputInv(bslot, inp, inv) => {
@@ -1579,12 +1584,12 @@ fn gen_bits(tcgen: &mut TileClassGen, buf: &mut String) {
                             match idx {
                                 EntityBundleItemIndex::Single => format!(
                                     "{bname}: {inv}invert {pname}",
-                                    bname = intdb.bel_slots.key(bslot),
+                                    bname = intdb.bel_slots[bslot].name,
                                     inv = if inv { "!" } else { "" },
                                 ),
                                 EntityBundleItemIndex::Array { index, .. } => format!(
                                     "{bname}: {inv}invert {pname}[{index}]",
-                                    bname = intdb.bel_slots.key(bslot),
+                                    bname = intdb.bel_slots[bslot].name,
                                     inv = if inv { "!" } else { "" },
                                 ),
                             }
@@ -1596,7 +1601,7 @@ fn gen_bits(tcgen: &mut TileClassGen, buf: &mut String) {
                             let bcls = &intdb.bel_classes[bcid];
                             format!(
                                 "{bname}: {inv} {attr}",
-                                bname = intdb.bel_slots.key(bslot),
+                                bname = intdb.bel_slots[bslot].name,
                                 inv = if inv { "!" } else { "" },
                                 attr = bcls.attributes.key(aid),
                             )
@@ -1608,7 +1613,7 @@ fn gen_bits(tcgen: &mut TileClassGen, buf: &mut String) {
                             let bcls = &intdb.bel_classes[bcid];
                             format!(
                                 "{bname}: {inv} {attr} bit {idx}",
-                                bname = intdb.bel_slots.key(bslot),
+                                bname = intdb.bel_slots[bslot].name,
                                 inv = if inv { "!" } else { "" },
                                 attr = bcls.attributes.key(aid),
                             )
@@ -1620,7 +1625,7 @@ fn gen_bits(tcgen: &mut TileClassGen, buf: &mut String) {
                             let bcls = &intdb.bel_classes[bcid];
                             format!(
                                 "{bname}: {inv} {attr}[{row}] bit {idx}",
-                                bname = intdb.bel_slots.key(bslot),
+                                bname = intdb.bel_slots[bslot].name,
                                 inv = if inv { "!" } else { "" },
                                 attr = bcls.attributes.key(aid),
                             )
@@ -1665,37 +1670,9 @@ fn gen_bits(tcgen: &mut TileClassGen, buf: &mut String) {
 }
 
 fn gen_tile(ctx: &mut DocgenContext, dbname: &str, intdb: &IntDb, tcid: TileClassId) {
-    let tname = intdb.tile_classes.key(tcid).as_str();
     let tcls = &intdb[tcid];
+    let tname = tcls.name.as_str();
     let mut buf = String::new();
-
-    if matches!(dbname, "ultrascale" | "ultrascaleplus") && tcls.bels.iter().next().is_none() {
-        return;
-    }
-    if matches!(
-        dbname,
-        "xc4000" | "xc4000a" | "xc4000h" | "xc4000e" | "spartanxl"
-    ) && (tname.starts_with("LLHC_")
-        || tname.starts_with("LLHQ_")
-        || tname.starts_with("LLVC_")
-        || tname.starts_with("LLVQ_")
-        || tname.ends_with("_F0")
-        || tname.ends_with("_F1")
-        || matches!(tname, "CLKQ" | "CLKQC"))
-    {
-        return;
-    }
-    if matches!(dbname, "xc4000ex" | "xc4000xla" | "xc4000xv")
-        && (tname.starts_with("LLH_") || tname.starts_with("LLV_"))
-    {
-        return;
-    }
-    if matches!(dbname, "xc4000ex" | "xc4000xla") && tname == "CLKQ" {
-        return;
-    }
-    if dbname == "xc4000xv" && tname == "CLKQC" {
-        return;
-    }
 
     writeln!(buf, r#"## Tile {tname}"#).unwrap();
     writeln!(buf).unwrap();
@@ -1715,7 +1692,7 @@ fn gen_tile(ctx: &mut DocgenContext, dbname: &str, intdb: &IntDb, tcid: TileClas
     let mut bels: IndexMap<_, Vec<_>> = IndexMap::new();
 
     for (slot, bel) in &tcls.bels {
-        let bname = intdb.bel_slots.key(slot).as_str();
+        let bname = intdb.bel_slots[slot].name.as_str();
         match bel {
             BelInfo::SwitchBox(sb) => {
                 if tcls.bitrects.is_empty() {
@@ -1861,7 +1838,7 @@ fn gen_tile(ctx: &mut DocgenContext, dbname: &str, intdb: &IntDb, tcid: TileClas
             let pins = pins
                 .iter()
                 .map(|&(slot, ref pin)| {
-                    let bel = intdb.bel_slots.key(slot).as_str();
+                    let bel = intdb.bel_slots[slot].name.as_str();
                     format!("{bel}.{pin}")
                 })
                 .join(", ");
@@ -1885,8 +1862,8 @@ fn gen_tile(ctx: &mut DocgenContext, dbname: &str, intdb: &IntDb, tcid: TileClas
 }
 
 fn gen_table(ctx: &mut DocgenContext, dbname: &str, intdb: &IntDb, tid: TableId) {
-    let tname = intdb.tables.key(tid);
     let table = &intdb[tid];
+    let tname = table.name.as_str();
     let mut buf = String::new();
 
     writeln!(buf, r#"## Table {tname}"#).unwrap();
@@ -1970,7 +1947,7 @@ pub fn gen_devdata(
     writeln!(buf, r#"<thead>"#).unwrap();
     writeln!(buf, r#"<tr><th>Device</th>"#).unwrap();
     for &ddid in ids {
-        let fname = intdb.devdata.key(ddid);
+        let fname = intdb.devdata[ddid].name.as_str();
         writeln!(buf, r#"<th>{fname}</th>"#).unwrap();
     }
     writeln!(buf, r#"</tr>"#).unwrap();
@@ -1980,7 +1957,7 @@ pub fn gen_devdata(
     for (&devname, &row) in data {
         writeln!(buf, r#"<tr><td>{devname}</td>"#).unwrap();
         for &ddid in ids {
-            let typ = intdb.devdata[ddid];
+            let typ = intdb.devdata[ddid].typ;
             if let Some(value) = row.get(ddid) {
                 match value {
                     TableValue::BitVec(bv) => {

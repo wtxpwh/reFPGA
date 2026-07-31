@@ -518,7 +518,7 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
                 let mut diffs = vec![(None, Diff::default())];
                 for j in 0..32 {
                     let fake_src = wires::GCLK[j].cell(0).pos();
-                    let src = wires::GCLK_BUF[j].cell(0).pos();
+                    let src = wires::GCLK_HROW[j].cell(0).pos();
                     let mut diff = ctx.get_diff_routing(tcid, dst, fake_src);
                     diff = diff.combine(&!&inp_diffs[j]);
                     diffs.push((Some(src), diff));
@@ -528,7 +528,7 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
         }
 
         for (i, diff) in inp_diffs.into_iter().enumerate() {
-            let dst = wires::GCLK_BUF[i].cell(0);
+            let dst = wires::GCLK_HROW[i].cell(0);
             let src = wires::GCLK[i].cell(0).pos();
 
             ctx.insert_progbuf(tcid, dst, src, xlat_bit(diff));

@@ -18,10 +18,11 @@ use prjcombine_virtex2::defs::{
     tslots as tslots_v2,
     virtex2::wires as wires_v2,
 };
-use prjcombine_virtex4::defs::virtex4::{bslots as bslots_v4, tcls as tcls_v4, wires as wires_v4};
-use prjcombine_virtex4::defs::virtex5::{tcls as tcls_v5, wires as wires_v5};
-use prjcombine_virtex4::defs::virtex6::{tcls as tcls_v6, wires as wires_v6};
-use prjcombine_virtex4::defs::virtex7::{tcls as tcls_v7, wires as wires_v7};
+use prjcombine_virtex4::defs::virtex4::wires as wires_v4;
+use prjcombine_virtex4::defs::virtex5::wires as wires_v5;
+use prjcombine_virtex4::defs::virtex6::wires as wires_v6;
+use prjcombine_virtex4::defs::virtex7::wires as wires_v7;
+use prjcombine_virtex4::defs::{bslots as bslots_v4, tcls as tcls_v4};
 
 use crate::{
     backend::{IseBackend, Key, Value},
@@ -106,18 +107,12 @@ impl<'b> FuzzerProp<'b, IseBackend<'b>> for WireIntDstFilter {
     ) -> Option<(Fuzzer<IseBackend<'a>>, bool)> {
         let intdb = backend.edev.db;
         let ndb = backend.ngrid.db;
-        let wire_name = intdb.wires.key(self.wire.wire);
+        let wire_name = intdb.wires[self.wire.wire].name.as_str();
         let tile = &backend.edev[tcrd];
         match backend.edev {
             ExpandedDevice::Virtex2(edev) => {
                 let ntile = &backend.ngrid.tiles[&tcrd];
-                if backend
-                    .edev
-                    .db
-                    .tile_classes
-                    .key(tile.class)
-                    .starts_with("INT_BRAM")
-                {
+                if backend.edev.db[tile.class].name.starts_with("INT_BRAM") {
                     let mut tgt = None;
                     for i in 0..4 {
                         let bram_tcrd = tcrd.delta(0, -(i as i32)).tile(tslots_v2::BEL);
@@ -143,7 +138,7 @@ impl<'b> FuzzerProp<'b, IseBackend<'b>> for WireIntDstFilter {
                             .next()
                             .unwrap()
                             .wire;
-                        assert!(intdb.wires.key(wire_oi).contains("OPTINV"));
+                        assert!(intdb.wires[wire_oi].name.contains("OPTINV"));
                         let mut found = false;
                         for bel in bram_tcls.bels.values() {
                             let BelInfo::Bel(bel) = bel else {
@@ -165,11 +160,11 @@ impl<'b> FuzzerProp<'b, IseBackend<'b>> for WireIntDstFilter {
                         }
                     }
                 }
-                if backend.edev.db.tile_classes.key(tile.class) == "INT_IOI_S3E"
-                    || backend.edev.db.tile_classes.key(tile.class) == "INT_IOI_S3A_WE"
+                if backend.edev.db.tile_classes[tile.class].name == "INT_IOI_S3E"
+                    || backend.edev.db.tile_classes[tile.class].name == "INT_IOI_S3A_WE"
                 {
                     if matches!(
-                        &wire_name[..],
+                        wire_name,
                         "IMUX_DATA[3]"
                             | "IMUX_DATA[7]"
                             | "IMUX_DATA[11]"
@@ -191,14 +186,14 @@ impl<'b> FuzzerProp<'b, IseBackend<'b>> for WireIntDstFilter {
                         return None;
                     }
                     if matches!(
-                        &wire_name[..],
+                        wire_name,
                         "IMUX_DATA[12]" | "IMUX_DATA[13]" | "IMUX_DATA[14]"
                     ) && tcrd.row != edev.chip.row_mid()
                     {
                         return None;
                     }
                 }
-                if backend.edev.db.tile_classes.key(tile.class) == "INT_IOI_S3A_SN"
+                if backend.edev.db.tile_classes[tile.class].name == "INT_IOI_S3A_SN"
                     && wire_name == "IMUX_DATA[15]"
                     && tcrd.row == edev.chip.row_n()
                 {
@@ -206,16 +201,22 @@ impl<'b> FuzzerProp<'b, IseBackend<'b>> for WireIntDstFilter {
                     return None;
                 }
                 if edev.chip.kind.is_spartan3a()
-                    && backend.edev.db.tile_classes.key(tile.class) == "INT_CLB"
+                    && backend.edev.db.tile_classes[tile.class].name == "INT_CLB"
                 {
                     // avoid SR in corners — it causes the inverter bit to be auto-set
                     let is_lr = tcrd.col == edev.chip.col_w() || tcrd.col == edev.chip.col_e();
                     let is_bt = tcrd.row == edev.chip.row_s() || tcrd.row == edev.chip.row_n();
-                    if intdb.wires.key(self.wire.wire).starts_with("IMUX_SR") && is_lr && is_bt {
+                    if intdb.wires[self.wire.wire]
+                        .name
+                        .as_str()
+                        .starts_with("IMUX_SR")
+                        && is_lr
+                        && is_bt
+                    {
                         return None;
                     }
                 }
-                if matches!(&wire_name[..], "IMUX_DATA[15]" | "IMUX_DATA[31]")
+                if matches!(wire_name, "IMUX_DATA[15]" | "IMUX_DATA[31]")
                     && ndb
                         .tile_class_namings
                         .key(ntile.naming)
@@ -229,7 +230,10 @@ impl<'b> FuzzerProp<'b, IseBackend<'b>> for WireIntDstFilter {
                 if edev.kind == prjcombine_virtex4::chip::ChipKind::Virtex4 =>
             {
                 // avoid CLK in center column — using it on DCM tiles causes the inverter bit to be auto-set
-                if intdb.wires.key(self.wire.wire).starts_with("IMUX_CLK")
+                if intdb.wires[self.wire.wire]
+                    .name
+                    .as_str()
+                    .starts_with("IMUX_CLK")
                     && tcrd.col == edev.col_clk
                 {
                     return None;
@@ -275,7 +279,7 @@ impl<'b> FuzzerProp<'b, IseBackend<'b>> for WireIntSrcFilter {
     ) -> Option<(Fuzzer<IseBackend<'a>>, bool)> {
         let intdb = backend.edev.db;
         let ndb = backend.ngrid.db;
-        let wire_name = intdb.wires.key(self.wire.wire);
+        let wire_name = intdb.wires[self.wire.wire].name.as_str();
         let tile = &backend.edev[tcrd];
         let ntile = &backend.ngrid.tiles[&tcrd];
         match backend.edev {
@@ -283,7 +287,7 @@ impl<'b> FuzzerProp<'b, IseBackend<'b>> for WireIntSrcFilter {
                 if (edev.chip.kind.is_virtex2()
                     || edev.chip.kind == prjcombine_virtex2::chip::ChipKind::Spartan3)
                     && wire_name.starts_with("OUT")
-                    && intdb.tile_classes.key(tile.class).starts_with("INT_DCM")
+                    && intdb.tile_classes[tile.class].name.starts_with("INT_DCM")
                 {
                     let site = backend
                         .ngrid
@@ -317,10 +321,10 @@ impl<'b> FuzzerProp<'b, IseBackend<'b>> for WireIntSrcFilter {
                 {
                     return None;
                 }
-                if (backend.edev.db.tile_classes.key(tile.class) == "INT_IOI_S3E"
-                    || backend.edev.db.tile_classes.key(tile.class) == "INT_IOI_S3A_WE")
+                if (backend.edev.db.tile_classes[tile.class].name == "INT_IOI_S3E"
+                    || backend.edev.db.tile_classes[tile.class].name == "INT_IOI_S3A_WE")
                     && matches!(
-                        &wire_name[..],
+                        wire_name,
                         "OUT_FAN[3]" | "OUT_FAN[7]" | "OUT_SEC[11]" | "OUT_SEC[15]"
                     )
                     && tcrd.row != edev.chip.row_mid() - 1
@@ -526,7 +530,7 @@ impl<'b> FuzzerProp<'b, IseBackend<'b>> for DriveLLH {
                         .tile(prjcombine_virtex2::defs::tslots::INT);
                     if let Some(src_tile) = backend.edev.get_tile(int_tcrd) {
                         for (&dwire, ins) in &backend.edev.db_index[src_tile.class].pips_bwd {
-                            if !backend.edev.db.wires.key(dwire.wire).starts_with("LH") {
+                            if !backend.edev.db.wires[dwire.wire].name.starts_with("LH") {
                                 continue;
                             }
                             let Some(drwire) = backend
@@ -638,7 +642,7 @@ impl<'b> FuzzerProp<'b, IseBackend<'b>> for DriveLLV {
                         .tile(prjcombine_virtex2::defs::tslots::INT);
                     if let Some(src_tile) = backend.edev.get_tile(int_tcrd) {
                         for (&dwire, ins) in &backend.edev.db_index[src_tile.class].pips_bwd {
-                            if !backend.edev.db.wires.key(dwire.wire).starts_with("LV") {
+                            if !backend.edev.db.wires[dwire.wire].name.starts_with("LV") {
                                 continue;
                             }
                             let Some(drwire) = backend
@@ -740,7 +744,7 @@ fn build_pip_fuzzer(
 ) {
     let intdb = backend.edev.db;
     let tcid = ctx.tile_class.unwrap();
-    let tcname = intdb.tile_classes.key(tcid);
+    let tcls = &intdb[tcid];
     let tcls_index = &backend.edev.db_index[tcid];
     let mut builder = ctx
         .build()
@@ -768,9 +772,9 @@ fn build_pip_fuzzer(
     if let Some(inmux) = tcls_index.pips_bwd.get(&wire_from)
         && inmux.contains(&wire_to.pos())
     {
-        if tcname.starts_with("LLH") {
+        if tcls.name.starts_with("LLH") {
             builder = builder.prop(DriveLLH::new(wire_from));
-        } else if tcname.starts_with("LLV") {
+        } else if tcls.name.starts_with("LLV") {
             builder = builder.prop(DriveLLV::new(wire_from));
         } else {
             let mut wire_help = None;
@@ -793,7 +797,7 @@ fn build_pip_fuzzer(
             Value::None,
         ));
     }
-    if intdb.wires.key(wire_from.wire) == "OUT_TBUS" {
+    if intdb.wires[wire_from.wire].name == "OUT_TBUS" {
         builder = builder.prop(RowMutex::new("TBUF".to_string(), "INT".to_string()));
     }
     if matches!(backend.edev, ExpandedDevice::Spartan6(_)) {
@@ -913,7 +917,7 @@ fn skip_permabuf(
             if wires_v7::HROW_O.contains(dst.wire) {
                 return true;
             }
-            if tcid == tcls_v7::BRAM {
+            if tcid == tcls_v4::BRAM {
                 return true;
             }
         }
@@ -937,11 +941,7 @@ fn skip_mux(
             }
             if matches!(
                 bslot,
-                bslots_v4::HCLK
-                    | bslots_v4::HCLK_IO_INT
-                    | bslots_v4::CLK_INT
-                    | bslots_v4::HROW_INT
-                    | bslots_v4::SYSMON_INT
+                bslots_v4::HCLK | bslots_v4::HCLK_IO_INT | bslots_v4::CLK_INT | bslots_v4::HROW_INT
             ) && dst.wire != wires_v4::IMUX_IDELAYCTRL_REFCLK
                 && !wires_v4::IMUX_BUFR.contains(dst.wire)
             {
@@ -958,7 +958,8 @@ fn skip_mux(
             {
                 return true;
             }
-            if matches!(tcid, tcls_v4::CCM | tcls_v4::DCM) && wires_v4::IMUX_SPEC.contains(dst.wire)
+            if matches!(tcid, tcls_v4::CCM | tcls_v4::DCM | tcls_v4::SYSMON)
+                && wires_v4::IMUX_SPEC.contains(dst.wire)
             {
                 return true;
             }
@@ -974,10 +975,10 @@ fn skip_mux(
             if wires_v5::RCLK.contains(dst.wire)
                 || wires_v5::RCLK_IO.contains(dst.wire)
                 || wires_v5::RCLK_ROW.contains(dst.wire)
-                || wires_v5::IMUX_IO_ICLK_OPTINV.contains(dst.wire)
+                || wires_v5::IMUX_IOI_ICLK_OPTINV.contains(dst.wire)
                 || wires_v5::IMUX_DCM_CLKIN.contains(dst.wire)
                 || wires_v5::IMUX_DCM_CLKFB.contains(dst.wire)
-                || wires_v5::IMUX_PLL_CLKFB == dst.wire
+                || wires_v5::IMUX_PLL_CLKFB.contains(dst.wire)
                 || wires_v5::OMUX_PLL_SKEWCLKIN1 == dst.wire
                 || wires_v5::OMUX_PLL_SKEWCLKIN2 == dst.wire
                 || wires_v5::OUT_CMT.contains(dst.wire)
@@ -1005,10 +1006,10 @@ fn skip_mux(
             {
                 return true;
             }
-            if matches!(tcid, tcls_v6::CLK_BUFG_S | tcls_v6::CLK_BUFG_N) {
+            if matches!(tcid, tcls_v4::CLK_BUFG_S | tcls_v4::CLK_BUFG_N) {
                 return true;
             }
-            if tcid == tcls_v6::CMT
+            if tcid == tcls_v4::CMT
                 && !wires_v6::IMUX_PLL_CLKIN1_HCLK.contains(dst.wire)
                 && !wires_v6::IMUX_PLL_CLKIN2_HCLK.contains(dst.wire)
                 && !wires_v6::IMUX_PLL_CLKFB_HCLK.contains(dst.wire)
@@ -1028,14 +1029,14 @@ fn skip_mux(
             }
             if matches!(
                 tcid,
-                tcls_v7::BRAM
-                    | tcls_v7::CMT
-                    | tcls_v7::CLK_HROW
-                    | tcls_v7::CLK_BUFG_S
-                    | tcls_v7::CLK_BUFG_N
-                    | tcls_v7::CLK_BUFG_REBUF
-                    | tcls_v7::CLK_BALI_REBUF
-                    | tcls_v7::GTP_COMMON_MID
+                tcls_v4::BRAM
+                    | tcls_v4::CMT
+                    | tcls_v4::CLK_HROW
+                    | tcls_v4::CLK_BUFG_S
+                    | tcls_v4::CLK_BUFG_N
+                    | tcls_v4::CLK_BUFG_REBUF
+                    | tcls_v4::CLK_BALI_REBUF
+                    | tcls_v4::GTP_COMMON_MID
             ) {
                 return true;
             }
@@ -1044,7 +1045,7 @@ fn skip_mux(
                 || wires_v7::LCLK_IO.contains(dst.wire)
                 || wires_v7::HROW_O.contains(dst.wire)
                 || wires_v7::IMUX_BUFIO.contains(dst.wire)
-                || wires_v7::PERF_IO.contains(dst.wire)
+                || wires_v7::PERF_BUF.contains(dst.wire)
                 || wires_v7::IMUX_IOI_ICLK.contains(dst.wire)
                 || wires_v7::IMUX_IOI_OCLK.contains(dst.wire)
                 || wires_v7::IMUX_IOI_OCLKDIV.contains(dst.wire)
@@ -1092,7 +1093,7 @@ fn skip_mux(
 
 pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a IseBackend<'a>) {
     let intdb = backend.edev.db;
-    for (tcid, _, tcls) in &intdb.tile_classes {
+    for (tcid, tcls) in &intdb.tile_classes {
         let Some(mut ctx) = FuzzCtx::try_new(session, backend, tcid) else {
             continue;
         };
@@ -1163,7 +1164,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
 
 pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
     let intdb = ctx.edev.db;
-    for (tcid, tcname, tcls) in &intdb.tile_classes {
+    for (tcid, tcls) in &intdb.tile_classes {
         if !ctx.has_tcls(tcid) {
             continue;
         }
@@ -1189,19 +1190,19 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
             }
             if let ExpandedDevice::Virtex4(edev) = ctx.edev
                 && edev.kind == prjcombine_virtex4::chip::ChipKind::Virtex5
-                && tcid == tcls_v5::IO
+                && tcid == tcls_v4::IO
             {
                 is_empty_ok = true;
             }
             if let ExpandedDevice::Virtex4(edev) = ctx.edev
                 && edev.kind == prjcombine_virtex4::chip::ChipKind::Virtex6
-                && matches!(tcid, tcls_v6::IO | tcls_v6::CMT | tcls_v6::DSP)
+                && matches!(tcid, tcls_v4::IO | tcls_v4::CMT | tcls_v4::DSP)
             {
                 is_empty_ok = true;
             }
             if let ExpandedDevice::Virtex4(edev) = ctx.edev
                 && edev.kind == prjcombine_virtex4::chip::ChipKind::Virtex7
-                && tcid == tcls_v7::DSP
+                && tcid == tcls_v4::DSP
             {
                 is_empty_ok = true;
             }
@@ -1214,11 +1215,11 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
                         if skip_mux(ctx.edev, tcid, bslot, mux.dst) {
                             continue;
                         }
-                        let out_name = intdb.wires.key(mux.dst.wire);
+                        let out_name = intdb.wires[mux.dst.wire].name.as_str();
                         let mut inps = vec![];
                         let mut got_empty = false;
                         for &src in mux.src.keys() {
-                            let in_name = intdb.wires.key(src.wire);
+                            let in_name = intdb.wires[src.wire].name.as_str();
                             let mut diff = ctx.get_diff_routing(tcid, mux.dst, src);
                             let mut diff_fucked = false;
                             if let ExpandedDevice::Virtex2(edev) = ctx.edev
@@ -1233,11 +1234,11 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
                                 diff_fucked = true;
                             }
                             if diff.bits.is_empty() {
-                                if intdb.wires.key(mux.dst.wire).starts_with("IMUX")
-                                    && !intdb[src.wire].is_tie()
+                                if intdb.wires[mux.dst.wire].name.starts_with("IMUX")
+                                    && !intdb[src.wire].kind.is_tie()
                                     && !is_empty_ok
                                 {
-                                    if tcname.starts_with("INT_IOI_S3")
+                                    if tcls.name.starts_with("INT_IOI_S3")
                                         && out_name.starts_with("IMUX_DATA")
                                         && (in_name.starts_with("OUT_FAN")
                                             || in_name.starts_with("IMUX_FAN")
@@ -1248,6 +1249,7 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
                                     } else {
                                         println!(
                                             "UMMMMM PIP {tcname} {mux_name} {in_name} is empty",
+                                            tcname = tcls.name,
                                             mux_name = mux.dst.to_string(intdb, &intdb[tcid]),
                                             in_name = src.to_string(intdb, &intdb[tcid])
                                         );
@@ -1279,6 +1281,7 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
                         if ti.bits.is_empty() {
                             println!(
                                 "UMMM MUX {tcname} {mux_name} is empty",
+                                tcname = tcls.name,
                                 mux_name = mux.dst.to_string(intdb, &intdb[tcid])
                             );
                         }

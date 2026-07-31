@@ -280,7 +280,7 @@ impl HarvestContext<'_> {
                 } else if is_long_h(wt.wire) && wires::OUT_LC.contains(wf.wire) {
                     "OUT-LONG.H"
                 } else {
-                    self.edev.db.wires.key(wt.wire)
+                    self.edev.db.wires[wt.wire].name.as_str()
                 };
                 *stats.entry(bucket.to_string()).or_default() += 1;
             }
@@ -2304,8 +2304,8 @@ impl PartContext<'_> {
         let mut g2l = BTreeMap::new();
         let mut has_g2l = false;
         for &(wt, wf) in pips {
-            let wtn = self.intdb.wires.key(wt.wire);
-            let wfn = self.intdb.wires.key(wf.wire);
+            let wtn = self.intdb.wires[wt.wire].name.as_str();
+            let wfn = self.intdb.wires[wf.wire].name.as_str();
             if wtn.starts_with("LOCAL") && wfn.starts_with("GLOBAL") {
                 has_g2l = true;
                 break;
@@ -2320,8 +2320,8 @@ impl PartContext<'_> {
             }
         }
         for &(wt, wf) in pips {
-            let wtn = self.intdb.wires.key(wt.wire);
-            let wfn = self.intdb.wires.key(wf.wire);
+            let wtn = self.intdb.wires[wt.wire].name.as_str();
+            let wfn = self.intdb.wires[wf.wire].name.as_str();
             if ((wtn.starts_with("LONG") || wtn.starts_with("QUAD")) && wfn.starts_with("OUT"))
                 || (wtn.starts_with("QUAD") && wfn.starts_with("LONG"))
             {
@@ -2338,7 +2338,7 @@ impl PartContext<'_> {
             }
         }
         for (wt, mut wf) in muxes {
-            let wtn = self.intdb.wires.key(wt.wire);
+            let wtn = self.intdb.wires[wt.wire].name.as_str();
             if wtn.starts_with("IMUX") || wtn.starts_with("LOCAL") || wtn.starts_with("GLOBAL_OUT")
             {
                 let tie = if wt.wire == wires::IMUX_CE {
@@ -2354,7 +2354,7 @@ impl PartContext<'_> {
                 src: wf.into_iter().map(|k| (k, Default::default())).collect(),
                 bits_off: None,
             }));
-            let wtn = self.intdb.wires.key(wt.wire);
+            let wtn = self.intdb.wires[wt.wire].name.as_str();
             if wtn.ends_with("CLK") {
                 let wi = self.intdb.get_wire(&format!("{wtn}_OPTINV")).cell(0);
                 items.push(SwitchBoxItem::ProgInv(ProgInv {

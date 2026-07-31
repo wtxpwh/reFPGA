@@ -87,8 +87,7 @@ impl<'a> ExpandedGridNaming<'a> {
     pub fn resolve_wire_raw(&self, mut wire: WireCoord) -> Option<WireCoord> {
         loop {
             let cell = &self.egrid[wire.cell];
-            let wi = self.egrid.db[wire.slot];
-            match wi {
+            match self.egrid.db[wire.slot].kind {
                 WireKind::Regional(rslot) => {
                     wire.cell = cell.region_root[rslot];
                     break;
@@ -143,8 +142,7 @@ impl<'a> ExpandedGridNaming<'a> {
         let mut trace = vec![];
         loop {
             let tile = &self.egrid[wire.cell];
-            let wi = self.egrid.db[wire.slot];
-            match wi {
+            match self.egrid.db[wire.slot].kind {
                 WireKind::Regional(rslot) => {
                     wire.cell = tile.region_root[rslot];
                     break;
@@ -326,12 +324,12 @@ impl<'a> ExpandedGridNaming<'a> {
         entry.insert(nconn);
     }
 
-    pub fn bel_grid(&self, f: impl Fn(TileClassId, &str, &TileClass) -> bool) -> BelGrid {
+    pub fn bel_grid(&self, f: impl Fn(TileClassId, &TileClass) -> bool) -> BelGrid {
         assert_eq!(self.egrid.die.len(), 1);
         let mut cols = BTreeSet::new();
         let mut rows = BTreeSet::new();
-        for (kind, name, tcls) in &self.egrid.db.tile_classes {
-            if f(kind, name, tcls) {
+        for (kind, tcls) in &self.egrid.db.tile_classes {
+            if f(kind, tcls) {
                 for &tcrd in &self.egrid.tile_index[kind] {
                     cols.insert(tcrd.col);
                     rows.insert(tcrd.row);
@@ -349,14 +347,11 @@ impl<'a> ExpandedGridNaming<'a> {
         BelGrid { xlut, ylut }
     }
 
-    pub fn bel_multi_grid(
-        &self,
-        f: impl Fn(TileClassId, &str, &TileClass) -> bool,
-    ) -> BelMultiGrid {
+    pub fn bel_multi_grid(&self, f: impl Fn(TileClassId, &TileClass) -> bool) -> BelMultiGrid {
         let mut cols = BTreeSet::new();
         let mut rows = BTreeSet::new();
-        for (kind, name, tcls) in &self.egrid.db.tile_classes {
-            if f(kind, name, tcls) {
+        for (kind, tcls) in &self.egrid.db.tile_classes {
+            if f(kind, tcls) {
                 for &tcrd in &self.egrid.tile_index[kind] {
                     cols.insert(tcrd.col);
                     rows.insert((tcrd.die, tcrd.row));

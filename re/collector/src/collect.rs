@@ -35,7 +35,7 @@ impl<'a, 'b> Collector<'a, 'b> {
         intdb: &'b IntDb,
     ) -> Self {
         let mut mux_index = HashMap::new();
-        for (tcid, _, tcls) in &intdb.tile_classes {
+        for (tcid, tcls) in &intdb.tile_classes {
             for bel in tcls.bels.values() {
                 let BelInfo::SwitchBox(sb) = bel else {
                     continue;

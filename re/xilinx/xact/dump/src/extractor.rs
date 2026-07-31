@@ -5,8 +5,8 @@ use std::{
 
 use ndarray::Array2;
 use prjcombine_entity::{
-    EntityBitVec, EntityBundleItemIndex, EntityId, EntityMap, EntityPartVec, EntityVec,
-    entity_id_u32,
+    EntityBitVec, EntityBundleItemIndex, EntityId, EntityMap, EntityPartMap, EntityPartVec,
+    EntityVec, entity_id_u32,
 };
 use prjcombine_interconnect::{
     db::{
@@ -720,7 +720,7 @@ impl<'a> Extractor<'a> {
                         if !muxes.contains(&(dst, src)) {
                             println!(
                                 "MISMATCH AT {tcname} {dst} {src}",
-                                tcname = self.egrid.db.tile_classes.key(tile.class),
+                                tcname = self.egrid.db.tile_classes[tile.class].name.as_str(),
                                 dst = dst.to_string(self.egrid.db, &self.egrid.db[tile.class]),
                                 src = src.to_string(self.egrid.db, &self.egrid.db[tile.class]),
                             );
@@ -731,7 +731,7 @@ impl<'a> Extractor<'a> {
                     self.tcls_pips[tile.class],
                     muxes,
                     "fail merging tile {}",
-                    self.egrid.db.tile_classes.key(tile.class)
+                    self.egrid.db.tile_classes[tile.class].name.as_str()
                 );
             }
             if !self.int_pips.contains_id(ntile.naming) {
@@ -800,8 +800,8 @@ impl Finisher {
             }
         }
         ndb.tile_namings = new_tile_namings;
-        let mut new_tile_classes = EntityMap::new();
-        for (tcid, name, mut tcls) in core::mem::take(&mut db.tile_classes) {
+        let mut new_tile_classes = EntityPartMap::new();
+        for (tcid, mut tcls) in core::mem::take(&mut db.tile_classes) {
             if let Some(pips) = self.tcls_pips.remove(tcid) {
                 let mut muxes: BTreeMap<_, BTreeSet<_>> = BTreeMap::new();
                 let mut items = vec![];
@@ -862,9 +862,9 @@ impl Finisher {
                     }
                     assert!(items.is_empty());
                 }
-                new_tile_classes.insert(name, tcls);
+                new_tile_classes.insert(tcid, tcls).unwrap();
             } else {
-                new_tile_classes.insert(name, tcls);
+                new_tile_classes.insert(tcid, tcls).unwrap();
             }
         }
         db.tile_classes = new_tile_classes;

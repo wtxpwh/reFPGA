@@ -131,32 +131,32 @@ impl BelGrid {
 
 fn make_grid(
     edev: &ExpandedDevice,
-    f: impl Fn(TileClassId, &str, &TileClass) -> bool,
+    f: impl Fn(TileClassId, &TileClass) -> bool,
     n: (i32, i32),
 ) -> BelGrid {
-    make_grid_complex(edev, f, |_, _, _, _| n)
+    make_grid_complex(edev, f, |_, _, _| n)
 }
 
 fn make_grid_gt(
     edev: &ExpandedDevice,
-    f: impl Fn(TileClassId, &str, &TileClass) -> bool,
+    f: impl Fn(TileClassId, &TileClass) -> bool,
     n: (i32, i32),
 ) -> BelGrid {
-    make_grid_complex_gen(edev, f, |_, _, _, _| n, true)
+    make_grid_complex_gen(edev, f, |_, _, _| n, true)
 }
 
 fn make_grid_complex(
     edev: &ExpandedDevice,
-    f: impl Fn(TileClassId, &str, &TileClass) -> bool,
-    n: impl Fn(TileClassId, &str, &TileClass, TileCoord) -> (i32, i32),
+    f: impl Fn(TileClassId, &TileClass) -> bool,
+    n: impl Fn(TileClassId, &TileClass, TileCoord) -> (i32, i32),
 ) -> BelGrid {
     make_grid_complex_gen(edev, f, n, false)
 }
 
 fn make_grid_complex_gen(
     edev: &ExpandedDevice,
-    f: impl Fn(TileClassId, &str, &TileClass) -> bool,
-    n: impl Fn(TileClassId, &str, &TileClass, TileCoord) -> (i32, i32),
+    f: impl Fn(TileClassId, &TileClass) -> bool,
+    n: impl Fn(TileClassId, &TileClass, TileCoord) -> (i32, i32),
     is_gt: bool,
 ) -> BelGrid {
     if edev.interposer.kind == InterposerKind::MirrorSquare {
@@ -168,13 +168,13 @@ fn make_grid_complex_gen(
         for (die, chip) in &edev.chips {
             let mut cols = BTreeMap::new();
             let mut rows = BTreeMap::new();
-            for (tcid, tcname, tcls) in &edev.db.tile_classes {
-                if f(tcid, tcname, tcls) {
+            for (tcid, tcls) in &edev.db.tile_classes {
+                if f(tcid, tcls) {
                     for &tcrd in &edev.tile_index[tcid] {
                         if tcrd.die != die {
                             continue;
                         }
-                        let (n_x, n_y) = n(tcid, tcname, tcls, tcrd);
+                        let (n_x, n_y) = n(tcid, tcls, tcrd);
                         let col = if is_gt {
                             if chip.col_side(tcrd.col) == DirH::W {
                                 chip.col_w()
@@ -213,10 +213,10 @@ fn make_grid_complex_gen(
     } else {
         let mut cols: EntityVec<_, _> = edev.chips.ids().map(|_| BTreeMap::new()).collect();
         let mut rows = BTreeMap::new();
-        for (tcid, tcname, tcls) in &edev.db.tile_classes {
-            if f(tcid, tcname, tcls) {
+        for (tcid, tcls) in &edev.db.tile_classes {
+            if f(tcid, tcls) {
                 for &tcrd in &edev.tile_index[tcid] {
-                    let (n_x, n_y) = n(tcid, tcname, tcls, tcrd);
+                    let (n_x, n_y) = n(tcid, tcls, tcrd);
                     let chip = edev.chips[tcrd.die];
                     let col = if is_gt {
                         if chip.col_side(tcrd.col) == DirH::W {
@@ -285,7 +285,7 @@ pub fn name_device<'a>(
     ndb: &'a NamingDb,
     dev_naming: &'a DeviceNaming,
 ) -> ExpandedNamedDevice<'a> {
-    let mut int_grid = make_grid(edev, |tcid, _, _| tcid == tcls::INT, (1, 1));
+    let mut int_grid = make_grid(edev, |tcid, _| tcid == tcls::INT, (1, 1));
     for (die, &chip) in &edev.chips {
         for col in chip.columns.ids() {
             if chip.col_side(col) == DirH::E {
@@ -307,8 +307,8 @@ pub fn name_device<'a>(
     }
     let bufdiv_grid = make_grid_complex(
         edev,
-        |tcid, _, _| matches!(tcid, tcls::RCLK_CLE | tcls::RCLK_INTF),
-        |_, _, _, tcrd| {
+        |tcid, _| matches!(tcid, tcls::RCLK_CLE | tcls::RCLK_INTF),
+        |_, _, tcrd| {
             let chip = edev.chips[tcrd.die];
             let cd = &chip.columns[tcrd.col];
             match cd.kind {
@@ -338,7 +338,7 @@ pub fn name_device<'a>(
     );
     let iri_grid = make_grid_complex(
         edev,
-        |tcid, _, _| {
+        |tcid, _| {
             matches!(
                 tcid,
                 tcls::INTF_W
@@ -357,7 +357,7 @@ pub fn name_device<'a>(
                     | tcls::INTF_BLI_CLE_D_N
             )
         },
-        |tcid, _, _, tcrd| {
+        |tcid, _, tcrd| {
             if matches!(
                 tcid,
                 tcls::INTF_BLI_CLE_ABC_S
@@ -377,8 +377,8 @@ pub fn name_device<'a>(
     );
     let rclk_dfx_grid = make_grid_complex(
         edev,
-        |tcid, _, _| matches!(tcid, tcls::RCLK_DFX),
-        |_, _, _, tcrd| {
+        |tcid, _| matches!(tcid, tcls::RCLK_DFX),
+        |_, _, tcrd| {
             let chip = edev.chips[tcrd.die];
             if chip.columns[tcrd.col].kind == ColumnKind::Bram(BramKind::OptSplitter) {
                 (2, 1)
@@ -389,7 +389,7 @@ pub fn name_device<'a>(
     );
     let bli_grid = make_grid(
         edev,
-        |tcid, _, _| {
+        |tcid, _| {
             matches!(
                 tcid,
                 tcls::BLI_S | tcls::BLI_N | tcls::BLI_CLE_S | tcls::BLI_CLE_N
@@ -399,16 +399,16 @@ pub fn name_device<'a>(
     );
     let slice_grid = make_grid(
         edev,
-        |tcid, _, _| matches!(tcid, tcls::CLE | tcls::CLE_VR),
+        |tcid, _| matches!(tcid, tcls::CLE | tcls::CLE_VR),
         (2, 1),
     );
-    let dsp_grid = make_grid(edev, |tcid, _, _| tcid == tcls::DSP, (1, 1));
-    let bram_grid = make_grid(edev, |tcid, _, _| tcid == tcls::BRAM, (1, 1));
-    let uram_grid = make_grid(edev, |tcid, _, _| matches!(tcid, tcls::URAM), (1, 1));
+    let dsp_grid = make_grid(edev, |tcid, _| tcid == tcls::DSP, (1, 1));
+    let bram_grid = make_grid(edev, |tcid, _| tcid == tcls::BRAM, (1, 1));
+    let uram_grid = make_grid(edev, |tcid, _| matches!(tcid, tcls::URAM), (1, 1));
     let uram_delay_grid = make_grid_complex(
         edev,
-        |tcid, _, _| tcid == tcls::URAM,
-        |_, _, _, tcrd| {
+        |tcid, _| tcid == tcls::URAM,
+        |_, _, tcrd| {
             let reg = edev.row_to_reg(tcrd.row);
             if edev.is_reg_n(tcrd.die, reg) && tcrd.row.to_idx() % 48 == 44 {
                 (1, 1)
@@ -417,14 +417,14 @@ pub fn name_device<'a>(
             }
         },
     );
-    let pcie4_grid = make_grid(edev, |tcid, _, _| tcid == tcls::PCIE4, (1, 1));
-    let pcie5_grid = make_grid(edev, |tcid, _, _| tcid == tcls::PCIE5, (1, 1));
-    let mrmac_grid = make_grid(edev, |tcid, _, _| tcid == tcls::MRMAC, (1, 1));
-    let sdfec_grid = make_grid(edev, |tcid, _, _| tcid == tcls::SDFEC, (1, 1));
+    let pcie4_grid = make_grid(edev, |tcid, _| tcid == tcls::PCIE4, (1, 1));
+    let pcie5_grid = make_grid(edev, |tcid, _| tcid == tcls::PCIE5, (1, 1));
+    let mrmac_grid = make_grid(edev, |tcid, _| tcid == tcls::MRMAC, (1, 1));
+    let sdfec_grid = make_grid(edev, |tcid, _| tcid == tcls::SDFEC, (1, 1));
     let dfe_cfc_bot_grid = make_grid_complex(
         edev,
-        |tcid, _, _| tcid == tcls::DFE_CFC,
-        |_, _, _, tcrd| {
+        |tcid, _| tcid == tcls::DFE_CFC,
+        |_, _, tcrd| {
             if edev.is_reg_n(tcrd.die, edev.row_to_reg(tcrd.row)) {
                 (0, 0)
             } else {
@@ -434,8 +434,8 @@ pub fn name_device<'a>(
     );
     let dfe_cfc_top_grid = make_grid_complex(
         edev,
-        |tcid, _, _| tcid == tcls::DFE_CFC,
-        |_, _, _, tcrd| {
+        |tcid, _| tcid == tcls::DFE_CFC,
+        |_, _, tcrd| {
             if edev.is_reg_n(tcrd.die, edev.row_to_reg(tcrd.row)) {
                 (1, 1)
             } else {
@@ -443,78 +443,58 @@ pub fn name_device<'a>(
             }
         },
     );
-    let dcmac_grid = make_grid(edev, |tcid, _, _| tcid == tcls::DCMAC, (1, 1));
-    let ilkn_grid = make_grid(edev, |tcid, _, _| tcid == tcls::ILKN, (1, 1));
-    let hsc_grid = make_grid(edev, |tcid, _, _| tcid == tcls::HSC, (1, 1));
-    let hdio_grid = make_grid(edev, |tcid, _, _| tcid == tcls::HDIO, (1, 1));
-    let vnoc_grid = make_grid(edev, |tcid, _, _| tcid == tcls::VNOC, (1, 1));
-    let misr_grid = make_grid(edev, |tcid, _, _| tcid == tcls::MISR, (1, 1));
+    let dcmac_grid = make_grid(edev, |tcid, _| tcid == tcls::DCMAC, (1, 1));
+    let ilkn_grid = make_grid(edev, |tcid, _| tcid == tcls::ILKN, (1, 1));
+    let hsc_grid = make_grid(edev, |tcid, _| tcid == tcls::HSC, (1, 1));
+    let hdio_grid = make_grid(edev, |tcid, _| tcid == tcls::HDIO, (1, 1));
+    let vnoc_grid = make_grid(edev, |tcid, _| tcid == tcls::VNOC, (1, 1));
+    let misr_grid = make_grid(edev, |tcid, _| tcid == tcls::MISR, (1, 1));
     let clk_gt_grid = make_grid(
         edev,
-        |_, _, tcls| tcls.bels.contains_id(bslots::GCLK_TAPS_DECODE_GT),
+        |_, tcls| tcls.bels.contains_id(bslots::GCLK_TAPS_DECODE_GT),
         (1, 1),
     );
-    let gty_grid = make_grid_gt(
-        edev,
-        |_, _, tcls| tcls.bels.contains_id(bslots::GTY),
-        (1, 1),
-    );
-    let gtyp_grid = make_grid_gt(
-        edev,
-        |_, _, tcls| tcls.bels.contains_id(bslots::GTYP),
-        (1, 1),
-    );
-    let gtm_grid = make_grid_gt(
-        edev,
-        |_, _, tcls| tcls.bels.contains_id(bslots::GTM),
-        (1, 1),
-    );
-    let gtm2_grid = make_grid_gt(
-        edev,
-        |_, _, tcls| tcls.bels.contains_id(bslots::GTM2),
-        (1, 1),
-    );
-    let xpipe_grid = make_grid_gt(
-        edev,
-        |_, _, tcls| tcls.bels.contains_id(bslots::XPIPE),
-        (1, 1),
-    );
+    let gty_grid = make_grid_gt(edev, |_, tcls| tcls.bels.contains_id(bslots::GTY), (1, 1));
+    let gtyp_grid = make_grid_gt(edev, |_, tcls| tcls.bels.contains_id(bslots::GTYP), (1, 1));
+    let gtm_grid = make_grid_gt(edev, |_, tcls| tcls.bels.contains_id(bslots::GTM), (1, 1));
+    let gtm2_grid = make_grid_gt(edev, |_, tcls| tcls.bels.contains_id(bslots::GTM2), (1, 1));
+    let xpipe_grid = make_grid_gt(edev, |_, tcls| tcls.bels.contains_id(bslots::XPIPE), (1, 1));
     let hnicpipe_grid = make_grid_gt(
         edev,
-        |_, _, tcls| tcls.bels.contains_id(bslots::HNICPIPE),
+        |_, tcls| tcls.bels.contains_id(bslots::HNICPIPE),
         (1, 1),
     );
-    let rfadc_grid = make_grid(edev, |tcid, _, _| tcid == tcls::RFADC, (1, 2));
-    let rfdac_grid = make_grid(edev, |tcid, _, _| tcid == tcls::RFDAC, (1, 2));
-    let vdu_grid = make_grid(edev, |tcid, _, _| tcid == tcls::VDU, (1, 1));
-    let bfr_b_grid = make_grid(edev, |tcid, _, _| tcid == tcls::BFR_B, (1, 1));
-    let vcu2_grid = make_grid(edev, |tcid, _, _| tcid == tcls::VCU2, (1, 1));
-    let isp2_grid = make_grid(edev, |tcid, _, _| tcid == tcls::ISP2, (1, 1));
+    let rfadc_grid = make_grid(edev, |tcid, _| tcid == tcls::RFADC, (1, 2));
+    let rfdac_grid = make_grid(edev, |tcid, _| tcid == tcls::RFDAC, (1, 2));
+    let vdu_grid = make_grid(edev, |tcid, _| tcid == tcls::VDU, (1, 1));
+    let bfr_b_grid = make_grid(edev, |tcid, _| tcid == tcls::BFR_B, (1, 1));
+    let vcu2_grid = make_grid(edev, |tcid, _| tcid == tcls::VCU2, (1, 1));
+    let isp2_grid = make_grid(edev, |tcid, _| tcid == tcls::ISP2, (1, 1));
     let ps_grid = make_grid(
         edev,
-        |tcid, _, _| matches!(tcid, tcls::PS9 | tcls::PSXL | tcls::PSXC),
+        |tcid, _| matches!(tcid, tcls::PS9 | tcls::PSXL | tcls::PSXC),
         (1, 1),
     );
     let xram_grid = make_grid(
         edev,
-        |tcid, _, _| matches!(tcid, tcls::XRAM | tcls::XRAM_NC),
+        |tcid, _| matches!(tcid, tcls::XRAM | tcls::XRAM_NC),
         (1, 1),
     );
 
-    let aie_grid = make_grid(edev, |_, _, tcls| tcls.slot == tslots::AIE, (1, 1));
+    let aie_grid = make_grid(edev, |_, tcls| tcls.slot == tslots::AIE, (1, 1));
     let aie_core_grid = make_grid(
         edev,
-        |tcid, _, _| matches!(tcid, tcls::AIE | tcls::AIE_ML | tcls::AIE2PS),
+        |tcid, _| matches!(tcid, tcls::AIE | tcls::AIE_ML | tcls::AIE2PS),
         (1, 1),
     );
     let aie_mem_grid = make_grid(
         edev,
-        |tcid, _, _| matches!(tcid, tcls::AIE_ML_MEM | tcls::AIE2PS_MEM),
+        |tcid, _| matches!(tcid, tcls::AIE_ML_MEM | tcls::AIE2PS_MEM),
         (1, 1),
     );
     let aie_fifo_grid = make_grid(
         edev,
-        |tcid, _, _| {
+        |tcid, _| {
             matches!(
                 tcid,
                 tcls::AIE
@@ -533,7 +513,7 @@ pub fn name_device<'a>(
     );
     let aie_pl_grid = make_grid(
         edev,
-        |tcid, _, _| {
+        |tcid, _| {
             matches!(
                 tcid,
                 tcls::AIE_SHIM_PL
@@ -547,7 +527,7 @@ pub fn name_device<'a>(
     );
     let aie_noc_grid = make_grid(
         edev,
-        |tcid, _, _| {
+        |tcid, _| {
             matches!(
                 tcid,
                 tcls::AIE_SHIM_NOC_PL | tcls::AIE_ML_SHIM_NOC_PL | tcls::AIE2PS_SHIM_NOC_PL
@@ -557,7 +537,7 @@ pub fn name_device<'a>(
     );
     let aie_test_grid = make_grid(
         edev,
-        |tcid, _, _| {
+        |tcid, _| {
             matches!(
                 tcid,
                 tcls::AIE_INTF_TEST
@@ -570,7 +550,7 @@ pub fn name_device<'a>(
     );
     let aie_test_nc_grid = make_grid(
         edev,
-        |tcid, _, _| matches!(tcid, tcls::AIE_INTF_TEST_NC | tcls::AIE_ML_INTF_TEST_NC),
+        |tcid, _| matches!(tcid, tcls::AIE_INTF_TEST_NC | tcls::AIE_ML_INTF_TEST_NC),
         (1, 1),
     );
 
@@ -580,7 +560,7 @@ pub fn name_device<'a>(
         let chip = edev.chips[tcrd.die];
         let reg = edev.row_to_reg(tcrd.row);
         let CellCoord { die, col, row } = tcrd.cell;
-        let kind = edev.db.tile_classes.key(tile.class);
+        let kind = edev.db.tile_classes[tile.class].name.as_str();
         let ocf = if col < edev.col_cfrm[die] {
             "LOCF"
         } else {

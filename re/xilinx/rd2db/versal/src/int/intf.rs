@@ -2,10 +2,7 @@ use std::collections::HashMap;
 
 use prjcombine_entity::{EntityId, EntityPartVec};
 use prjcombine_interconnect::{
-    db::{
-        BelInfo, CellSlotId, ConnectorClass, ConnectorWire, TileClassId, TileWireCoord, WireKind,
-        WireSlotIdExt,
-    },
+    db::{BelInfo, CellSlotId, ConnectorWire, TileClassId, TileWireCoord, WireKind, WireSlotIdExt},
     dir::{Dir, DirH, DirV},
 };
 use prjcombine_re_xilinx_rawdump::{Coord, TkWire};
@@ -474,7 +471,7 @@ impl<'rd> IntMaker<'rd> {
                     }
                     let mut wires = EntityPartVec::new();
                     for w in wires::BNODE {
-                        if self.builder.db[w] != WireKind::Branch(cslots::INTF) {
+                        if self.builder.db[w].kind != WireKind::Branch(cslots::INTF) {
                             continue;
                         }
                         if let Some(n) = int_naming.wires.get(&TileWireCoord {
@@ -494,20 +491,14 @@ impl<'rd> IntMaker<'rd> {
                             DirH::W => ccls::CLE_W,
                             DirH::E => ccls::CLE_E,
                         },
-                        ConnectorClass {
-                            slot: cslots::INTF,
-                            wires: wires.clone(),
-                        },
+                        wires.clone(),
                     );
                     self.builder.insert_connector(
                         match side {
                             DirH::W => ccls::CLE_BLI_W,
                             DirH::E => ccls::CLE_BLI_E,
                         },
-                        ConnectorClass {
-                            slot: cslots::INTF,
-                            wires,
-                        },
+                        wires,
                     )
                 }
                 break;

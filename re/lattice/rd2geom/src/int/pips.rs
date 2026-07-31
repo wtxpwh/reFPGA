@@ -162,10 +162,10 @@ impl ChipContext<'_> {
                 && let Some(wires_t) = self.int_wires.get(&wtn)
                 && let mut wt = wires_t[0]
                 && !wires::RSCLK.contains(wt.slot)
-                && !(wires::RSCLK_H.contains(wt.slot) && self.intdb[wires_f[0].slot].is_tie())
+                && !(wires::RSCLK_H.contains(wt.slot) && self.intdb[wires_f[0].slot].kind.is_tie())
                 && !wires::IMUX_CLK_DELAY.contains(wt.slot)
             {
-                if matches!(self.intdb[wt.slot], WireKind::Branch(_))
+                if matches!(self.intdb[wt.slot].kind, WireKind::Branch(_))
                     && !wires::RSCLK_H.contains(wt.slot)
                 {
                     println!(
@@ -275,7 +275,7 @@ impl ChipContext<'_> {
                         wt.slot = wires::RSCLK_V_N[idx];
                     }
                     if matches!(self.chip.kind, ChipKind::Ecp3 | ChipKind::Ecp3A)
-                        && self.intdb[wf.slot].is_tie()
+                        && self.intdb[wf.slot].kind.is_tie()
                         && wf.cell.row <= self.chip.row_s() + 9
                     {
                         wf.cell.row = self.chip.row_s();
@@ -286,7 +286,7 @@ impl ChipContext<'_> {
                     }
                     wf
                 } else {
-                    let wf = if let WireKind::Regional(region) = self.intdb[wires_f[0].slot] {
+                    let wf = if let WireKind::Regional(region) = self.intdb[wires_f[0].slot].kind {
                         let wf_root = self.edev[wires_f[0].cell].region_root[region];
                         let wt_root = self.edev[wt.cell].region_root[region];
                         if wf_root == wt_root {
@@ -299,7 +299,7 @@ impl ChipContext<'_> {
                         } else {
                             None
                         }
-                    } else if self.intdb[wires_f[0].slot].is_tie() {
+                    } else if self.intdb[wires_f[0].slot].kind.is_tie() {
                         Some(wt.cell.wire(wires_f[0].slot))
                     } else {
                         wires_f.iter().find(|w| w.cell == wt.cell).copied()
@@ -355,8 +355,8 @@ impl ChipContext<'_> {
                     }
                     let wt = tcrd.wire(wt);
                     let wf = tcrd.wire(wf);
-                    let wtsn = self.intdb.wires.key(wt.slot).as_str();
-                    let wfsn = self.intdb.wires.key(wf.slot).as_str();
+                    let wtsn = self.intdb.wires[wt.slot].name.as_str();
+                    let wfsn = self.intdb.wires[wf.slot].name.as_str();
                     if !self.naming.interconnect.contains_key(&wt) && wtsn.starts_with("IMUX") {
                         continue;
                     }
@@ -451,10 +451,22 @@ impl ChipContext<'_> {
                     })
                     .src
                     .insert(wf.pos(), Default::default());
-                if (self.intdb.wires.key(wt.wire).starts_with("RSCLK_V")
-                    && self.intdb.wires.key(wf.wire).starts_with("RSCLK_V"))
-                    || (self.intdb.wires.key(wt.wire).starts_with("RSCLK_H")
-                        && self.intdb.wires.key(wf.wire).starts_with("RSCLK_H"))
+                if (self.intdb.wires[wt.wire]
+                    .name
+                    .as_str()
+                    .starts_with("RSCLK_V")
+                    && self.intdb.wires[wf.wire]
+                        .name
+                        .as_str()
+                        .starts_with("RSCLK_V"))
+                    || (self.intdb.wires[wt.wire]
+                        .name
+                        .as_str()
+                        .starts_with("RSCLK_H")
+                        && self.intdb.wires[wf.wire]
+                            .name
+                            .as_str()
+                            .starts_with("RSCLK_H"))
                 {
                     muxes
                         .entry(wf)
@@ -472,7 +484,7 @@ impl ChipContext<'_> {
             for mux in muxes.into_values() {
                 if mux.src.len() == 1 {
                     let src = mux.src.into_keys().next().unwrap();
-                    let wtn = self.intdb.wires.key(mux.dst.wire).as_str();
+                    let wtn = self.intdb.wires[mux.dst.wire].name.as_str();
                     if wtn.starts_with("X1") || wtn.starts_with("IMUX_M") {
                         let buf = PermaBuf { dst: mux.dst, src };
                         sb.items.push(SwitchBoxItem::PermaBuf(buf));
@@ -489,7 +501,7 @@ impl ChipContext<'_> {
                 }
             }
             if matches!(self.chip.kind, ChipKind::MachXo2(_))
-                && self.intdb.tile_classes.key(tcid) == "INT_EBR"
+                && self.intdb.tile_classes[tcid].name == "INT_EBR"
             {
                 for i in 0..8 {
                     let vsdclk = wires::RSCLK_V[i].cell(0);
@@ -506,7 +518,7 @@ impl ChipContext<'_> {
                     }));
                 }
             }
-            if self.chip.kind == ChipKind::Ecp4 && self.intdb.tile_classes.key(tcid) != "INT_PLC" {
+            if self.chip.kind == ChipKind::Ecp4 && self.intdb.tile_classes[tcid].name != "INT_PLC" {
                 for i in 0..2 {
                     let clk = wires::IMUX_CLK[i].cell(0);
                     let clk_delay = wires::IMUX_CLK_DELAY[i].cell(0);

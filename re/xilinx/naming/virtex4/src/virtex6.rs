@@ -60,17 +60,17 @@ pub fn name_device<'a>(edev: &'a ExpandedDevice<'a>, ndb: &'a NamingDb) -> Expan
     ngrid.tie_pin_gnd = Some("HARD0".to_string());
     ngrid.tie_pin_vcc = Some("HARD1".to_string());
 
-    let clb_grid = ngrid.bel_grid(|tcid, _, _| tcid == tcls::CLBLL || tcid == tcls::CLBLM);
-    let bram_grid = ngrid.bel_grid(|tcid, _, _| tcid == tcls::BRAM);
-    let dsp_grid = ngrid.bel_grid(|tcid, _, _| tcid == tcls::DSP);
-    let io_grid = ngrid.bel_grid(|tcid, _, _| tcid == tcls::IO);
-    let cmt_grid = ngrid.bel_grid(|tcid, _, _| tcid == tcls::CMT);
-    let emac_grid = ngrid.bel_grid(|tcid, _, _| tcid == tcls::EMAC);
-    let pcie_grid = ngrid.bel_grid(|tcid, _, _| tcid == tcls::PCIE);
-    let gt_grid = ngrid.bel_grid(|tcid, _, _| tcid == tcls::GTX || tcid == tcls::GTH);
-    let gth_grid = ngrid.bel_grid(|tcid, _, _| tcid == tcls::GTH);
-    let pmvbram_grid = ngrid.bel_grid(|tcid, _, _| tcid == tcls::PMVBRAM);
-    let pmviob_grid = ngrid.bel_grid(|tcid, _, _| tcid == tcls::PMVIOB);
+    let clb_grid = ngrid.bel_grid(|tcid, _| tcid == tcls::CLBLL || tcid == tcls::CLBLM);
+    let bram_grid = ngrid.bel_grid(|tcid, _| tcid == tcls::BRAM);
+    let dsp_grid = ngrid.bel_grid(|tcid, _| tcid == tcls::DSP);
+    let io_grid = ngrid.bel_grid(|tcid, _| tcid == tcls::IO);
+    let cmt_grid = ngrid.bel_grid(|tcid, _| tcid == tcls::CMT);
+    let emac_grid = ngrid.bel_grid(|tcid, _| tcid == tcls::EMAC);
+    let pcie_grid = ngrid.bel_grid(|tcid, _| tcid == tcls::PCIE);
+    let gt_grid = ngrid.bel_grid(|tcid, _| tcid == tcls::GTX || tcid == tcls::GTH);
+    let gth_grid = ngrid.bel_grid(|tcid, _| tcid == tcls::GTH);
+    let pmvbram_grid = ngrid.bel_grid(|tcid, _| tcid == tcls::PMVBRAM);
+    let pmviob_grid = ngrid.bel_grid(|tcid, _| tcid == tcls::PMVIOB);
 
     let mut namer = Namer {
         ngrid,
@@ -87,7 +87,7 @@ pub fn name_device<'a>(edev: &'a ExpandedDevice<'a>, ndb: &'a NamingDb) -> Expan
         let CellCoord { col, row, .. } = cell;
 
         let chip = edev.chips[cell.die];
-        let kind = edev.db.tile_classes.key(tile.class);
+        let kind = edev.db.tile_classes[tile.class].name.as_str();
         let x = col.to_idx();
         let y = row.to_idx();
         match tile.class {

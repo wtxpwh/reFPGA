@@ -5,7 +5,7 @@ use prjcombine_xc2000::xc4000::{bslots, enums, xc4000::bcls};
 use crate::{backend::XactBackend, collector::CollectorCtx, fbuild::FuzzCtx, specials};
 
 pub fn add_fuzzers<'a>(session: &mut Session<'a, XactBackend<'a>>, backend: &'a XactBackend<'a>) {
-    for (tcid, _, tcls) in &backend.edev.db.tile_classes {
+    for (tcid, tcls) in &backend.edev.db.tile_classes {
         if !tcls.bels.contains_id(bslots::CLB) {
             continue;
         }
@@ -148,7 +148,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, XactBackend<'a>>, backend: &'a 
 }
 
 pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
-    for (tcid, _, tcls) in &ctx.edev.db.tile_classes {
+    for (tcid, tcls) in &ctx.edev.db.tile_classes {
         let bslot = bslots::CLB;
         if !tcls.bels.contains_id(bslot) {
             continue;

@@ -74,7 +74,7 @@ fn drive_wire<'a>(
     wire_avoid: WireCoord,
 ) -> (Fuzzer<XactBackend<'a>>, &'a str, &'static str) {
     let wt = wire_target.slot;
-    let wtn = &backend.edev.db.wires.key(wt)[..];
+    let wtn = backend.edev.db.wires[wt].name.as_str();
     let (ploc, pwt, pwf) = if let Some((bel, pin)) = wire_to_outpin(backend, wire_target) {
         let tcrd = backend.edev.bel_tile(bel);
         let ntile = &backend.ngrid.tiles[&tcrd];
@@ -95,7 +95,7 @@ fn drive_wire<'a>(
                 let tcls_index = &backend.edev.db_index[tile.class];
                 if let Some(ins) = tcls_index.pips_bwd.get(&w.slot.cell(0)) {
                     for &inp in ins {
-                        if backend.edev.db.wires.key(inp.wire).starts_with("OUT") {
+                        if backend.edev.db.wires[inp.wire].name.starts_with("OUT") {
                             let rwf = backend.edev.resolve_tile_wire(tcrd, inp.tw).unwrap();
                             if rwf != wire_avoid {
                                 break 'a (tcrd, w.slot.cell(0), inp.tw);
@@ -110,7 +110,7 @@ fn drive_wire<'a>(
                 let tcls_index = &backend.edev.db_index[tile.class];
                 if let Some(ins) = tcls_index.pips_bwd.get(&w.slot.cell(0)) {
                     for &inp in ins {
-                        if backend.edev.db.wires.key(inp.wire).starts_with("SINGLE_V") {
+                        if backend.edev.db.wires[inp.wire].name.starts_with("SINGLE_V") {
                             let rwf = backend.edev.resolve_tile_wire(tcrd, inp.tw).unwrap();
                             if rwf != wire_avoid {
                                 break 'a (tcrd, w.slot.cell(0), inp.tw);
@@ -134,7 +134,7 @@ fn drive_wire<'a>(
                 let tcls_index = &backend.edev.db_index[tile.class];
                 if let Some(ins) = tcls_index.pips_bwd.get(&w.slot.cell(0)) {
                     for &inp in ins {
-                        if backend.edev.db.wires.key(inp.wire).starts_with("SINGLE_V") {
+                        if backend.edev.db.wires[inp.wire].name.starts_with("SINGLE_V") {
                             let rwf = backend.edev.resolve_tile_wire(tcrd, inp.tw).unwrap();
                             if rwf != wire_avoid {
                                 break 'a (tcrd, w.slot.cell(0), inp.tw);
@@ -409,7 +409,7 @@ impl HasBidi {
 
 pub fn add_fuzzers<'a>(session: &mut Session<'a, XactBackend<'a>>, backend: &'a XactBackend<'a>) {
     let intdb = backend.edev.db;
-    for (tcid, _, tcls) in &intdb.tile_classes {
+    for (tcid, tcls) in &intdb.tile_classes {
         let mut ctx = FuzzCtx::new(session, backend, tcid);
         for slot in tcls.bels.ids() {
             if backend.edev.db.bel_slots[slot].kind != BelKind::Class(bcls::IO) {
@@ -427,7 +427,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, XactBackend<'a>>, backend: &'a 
             continue;
         }
         for (&wire_to, ins) in &tcls_index.pips_bwd {
-            let wire_to_name = intdb.wires.key(wire_to.wire);
+            let wire_to_name = intdb.wires[wire_to.wire].name.as_str();
             for &wire_from in ins {
                 if matches!(
                     wire_from.wire,
@@ -447,7 +447,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, XactBackend<'a>>, backend: &'a 
                     && matches!(tcid, tcls::CLB | tcls::CLB_S | tcls::CLB_N)
                 {
                     let (dir, wire) =
-                        if matches!(intdb.wires[wire_to.wire], WireKind::MultiBranch(_)) {
+                        if matches!(intdb.wires[wire_to.wire].kind, WireKind::MultiBranch(_)) {
                             let ConnectorWire::Pass(wire) = intdb[ccls::PASS_W].wires[wire_to.wire]
                             else {
                                 unreachable!()
@@ -475,7 +475,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, XactBackend<'a>>, backend: &'a 
                     && matches!(tcid, tcls::CLB | tcls::CLB_W | tcls::CLB_E)
                 {
                     let (dir, wire) =
-                        if matches!(intdb.wires[wire_to.wire], WireKind::MultiBranch(_)) {
+                        if matches!(intdb.wires[wire_to.wire].kind, WireKind::MultiBranch(_)) {
                             let ConnectorWire::Pass(wire) = intdb[ccls::PASS_N].wires[wire_to.wire]
                             else {
                                 unreachable!()
@@ -564,7 +564,7 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
             }
         }
     }
-    for (tcid, tcname, tcls) in &intdb.tile_classes {
+    for (tcid, tcls) in &intdb.tile_classes {
         for (bslot, bel) in &tcls.bels {
             if bslot == bslots::BUFG {
                 continue;
@@ -576,7 +576,7 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
                 match item {
                     SwitchBoxItem::Mux(mux) => {
                         assert_eq!(mux.dst.cell, CellSlotId::from_idx(0));
-                        let out_name = intdb.wires.key(mux.dst.wire);
+                        let out_name = intdb.wires[mux.dst.wire].name.as_str();
                         let mux_name = format!("MUX.{out_name}");
                         let mut inps = vec![];
                         let mut got_empty = false;
@@ -626,7 +626,7 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
                         }
                         let item = xlat_enum_raw(inps, OcdMode::Mux);
                         if item.bits.is_empty() {
-                            println!("UMMM MUX {tcname} {mux_name} is empty");
+                            println!("UMMM MUX {tcname} {mux_name} is empty", tcname = tcls.name,);
                         }
                         ctx.insert_mux(tcid, mux.dst, item);
                     }

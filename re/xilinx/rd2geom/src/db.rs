@@ -182,13 +182,14 @@ impl DbBuilder {
             btree_map::Entry::Occupied(mut tgt) => {
                 let tgt = tgt.get_mut();
                 assert_eq!(tgt.wires, int.wires);
-                for (_, tcname, tcls) in int.tile_classes {
-                    match tgt.tile_classes.get_mut(&tcname) {
+                for (tcid, tcls) in int.tile_classes {
+                    let tcname = tcls.name.as_str();
+                    match tgt.tile_classes.get_mut_id(tcid) {
                         None => {
-                            tgt.tile_classes.insert(tcname, tcls);
+                            tgt.tile_classes.insert(tcid, tcls).unwrap();
                         }
-                        Some((_, cur_tcls)) => {
-                            if let Some((_, init)) = intdb_init.tile_classes.get(&tcname) {
+                        Some(cur_tcls) => {
+                            if let Some(init) = intdb_init.tile_classes.get_id(tcid) {
                                 if tcls == *init {
                                     continue;
                                 }
@@ -204,13 +205,14 @@ impl DbBuilder {
                         }
                     }
                 }
-                for (_, ccname, ccls) in int.conn_classes {
-                    match tgt.conn_classes.get_mut(&ccname) {
+                for (ccid, ccls) in int.conn_classes {
+                    let ccname = ccls.name.as_str();
+                    match tgt.conn_classes.get_mut_id(ccid) {
                         None => {
-                            tgt.conn_classes.insert(ccname, ccls);
+                            tgt.conn_classes.insert(ccid, ccls).unwrap();
                         }
-                        Some((_, cur_ccls)) => {
-                            if let Some((_, init)) = intdb_init.conn_classes.get(&ccname) {
+                        Some(cur_ccls) => {
+                            if let Some(init) = intdb_init.conn_classes.get_id(ccid) {
                                 if ccls == *init {
                                     continue;
                                 }

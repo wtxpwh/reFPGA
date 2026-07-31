@@ -93,7 +93,7 @@ fn drive_wire<'a>(
     let grid = backend.edev.chip;
     let mut cell = wire_target.cell;
     let wt = wire_target.slot;
-    let wtn = &backend.edev.db.wires.key(wt)[..];
+    let wtn = backend.edev.db.wires[wt].name.as_str();
     let (ploc, pwt, pwf) = if let Some((bel, pin)) = wire_to_outpin(wire_target) {
         let tcrd = bel.tile(tslots::MAIN);
         let ntile = &backend.ngrid.tiles[&tcrd];
@@ -241,8 +241,8 @@ fn drive_wire<'a>(
                 let wire = wire_target.slot;
                 wire.cell(0)
             }] {
-                if backend.edev.db.wires.key(inp.wire).starts_with("LONG")
-                    || backend.edev.db.wires.key(inp.wire).starts_with("GCLK")
+                if backend.edev.db.wires[inp.wire].name.starts_with("LONG")
+                    || backend.edev.db.wires[inp.wire].name.starts_with("GCLK")
                 {
                     break 'a (
                         tcrd,
@@ -267,8 +267,8 @@ fn drive_wire<'a>(
                     wire.cell(0)
                 }) {
                     for &inp in ins {
-                        if backend.edev.db.wires.key(inp.wire).starts_with("CLB_M")
-                            || backend.edev.db.wires.key(inp.wire).starts_with("IO_M")
+                        if backend.edev.db.wires[inp.wire].name.starts_with("CLB_M")
+                            || backend.edev.db.wires[inp.wire].name.starts_with("IO_M")
                         {
                             let rwf = backend.edev.resolve_tile_wire(tcrd, inp.tw).unwrap();
                             if rwf != wire_avoid {
@@ -464,7 +464,7 @@ impl<'b> FuzzerProp<'b, XactBackend<'b>> for AllColumnIo {
 
 pub fn add_fuzzers<'a>(session: &mut Session<'a, XactBackend<'a>>, backend: &'a XactBackend<'a>) {
     let intdb = backend.edev.db;
-    for (tcid, _, tcls) in &intdb.tile_classes {
+    for (tcid, tcls) in &intdb.tile_classes {
         let tcls_index = &backend.edev.db_index[tcid];
         if tcls_index.pips_bwd.is_empty() {
             continue;
@@ -522,7 +522,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, XactBackend<'a>>, backend: &'a 
 
 pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
     let intdb = ctx.edev.db;
-    for (tcid, tcname, tcls) in &intdb.tile_classes {
+    for (tcid, tcls) in &intdb.tile_classes {
         for (bslot, bel) in &tcls.bels {
             if matches!(bslot, bslots::BUFG | bslots::BUFR) {
                 continue;
@@ -576,6 +576,7 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
                             if item.bits.is_empty() {
                                 println!(
                                     "UMMM MUX {tcname} {mux_name} is empty",
+                                    tcname = tcls.name,
                                     mux_name = mux.dst.to_string(ctx.edev.db, &ctx.edev.db[tcid])
                                 );
                             }
@@ -631,6 +632,7 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
                             if item.bits.is_empty() {
                                 println!(
                                     "UMMM MUX {tcname} {mux_name} is empty",
+                                    tcname = tcls.name,
                                     mux_name = mux.dst.to_string(ctx.edev.db, &ctx.edev.db[tcid])
                                 );
                             }

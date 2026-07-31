@@ -11,10 +11,7 @@ use prjcombine_re_xilinx_rawdump::Part;
 
 use prjcombine_re_xilinx_naming::db::{BelNaming, NamingDb, TileClassNaming, WireNaming};
 use prjcombine_re_xilinx_rd2db_interconnect::{IntBuilder, PipMode};
-use prjcombine_virtex4::defs::{
-    self, bcls, bslots,
-    virtex4::{ccls, tcls, wires},
-};
+use prjcombine_virtex4::defs::{self, bcls, bslots, ccls, tcls, virtex4::wires};
 
 pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
     let mut builder = IntBuilder::new(
@@ -1299,7 +1296,7 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
                     pips.pips.insert(
                         (
                             wires::HCLK_ROW[o].cell(co),
-                            wires::GCLK_BUF[i].cell(0).pos(),
+                            wires::GCLK_HROW[i].cell(0).pos(),
                         ),
                         PipMode::Mux,
                     );
@@ -1308,7 +1305,7 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
         }
         for i in 0..32 {
             pips.pips.insert(
-                (wires::GCLK_BUF[i].cell(0), wires::GCLK[i].cell(0).pos()),
+                (wires::GCLK_HROW[i].cell(0), wires::GCLK[i].cell(0).pos()),
                 PipMode::Buf,
             );
         }
@@ -2096,7 +2093,7 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
         let mut x = builder
             .xtile_id(tcls::SYSMON, "SYSMON", xy)
             .bel(bel)
-            .switchbox(bslots::SYSMON_INT)
+            .switchbox(bslots::SPEC_INT)
             .optin_muxes(&wires::IMUX_SPEC[..])
             .force_test_mux_in();
         for (i, &xy) in int_xy.iter().enumerate() {
@@ -2111,7 +2108,7 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
         }
         let pips = builder
             .pips
-            .entry((tcls::SYSMON, bslots::SYSMON_INT))
+            .entry((tcls::SYSMON, bslots::SPEC_INT))
             .or_default();
         let wt = wires::IMUX_SPEC[0].cell(4);
         let wf = wires::IMUX_CLK[1].cell(0).pos();

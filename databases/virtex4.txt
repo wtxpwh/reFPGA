@@ -37791,7 +37791,7 @@ intdb {
 		attribute RSVD_ADDR255_LANE7: bitvec[32];
 	}
 
-	region_slot GLOBAL;
+	region_slot GCLK;
 	region_slot GIOB;
 	region_slot HROW;
 	region_slot LEAF;
@@ -38382,18 +38382,6 @@ intdb {
 	wire LV[22]: multi_branch N;
 	wire LV[23]: multi_branch N;
 	wire LV[24]: multi_branch N;
-	wire IMUX_SR[0]: mux;
-	wire IMUX_SR[1]: mux;
-	wire IMUX_SR[2]: mux;
-	wire IMUX_SR[3]: mux;
-	wire IMUX_SR_OPTINV[0]: mux;
-	wire IMUX_SR_OPTINV[1]: mux;
-	wire IMUX_SR_OPTINV[2]: mux;
-	wire IMUX_SR_OPTINV[3]: mux;
-	wire IMUX_BOUNCE[0]: mux;
-	wire IMUX_BOUNCE[1]: mux;
-	wire IMUX_BOUNCE[2]: mux;
-	wire IMUX_BOUNCE[3]: mux;
 	wire IMUX_CLK[0]: mux;
 	wire IMUX_CLK[1]: mux;
 	wire IMUX_CLK[2]: mux;
@@ -38402,6 +38390,14 @@ intdb {
 	wire IMUX_CLK_OPTINV[1]: mux;
 	wire IMUX_CLK_OPTINV[2]: mux;
 	wire IMUX_CLK_OPTINV[3]: mux;
+	wire IMUX_SR[0]: mux;
+	wire IMUX_SR[1]: mux;
+	wire IMUX_SR[2]: mux;
+	wire IMUX_SR[3]: mux;
+	wire IMUX_SR_OPTINV[0]: mux;
+	wire IMUX_SR_OPTINV[1]: mux;
+	wire IMUX_SR_OPTINV[2]: mux;
+	wire IMUX_SR_OPTINV[3]: mux;
 	wire IMUX_CE[0]: mux;
 	wire IMUX_CE[1]: mux;
 	wire IMUX_CE[2]: mux;
@@ -38410,6 +38406,10 @@ intdb {
 	wire IMUX_CE_OPTINV[1]: mux;
 	wire IMUX_CE_OPTINV[2]: mux;
 	wire IMUX_CE_OPTINV[3]: mux;
+	wire IMUX_BOUNCE[0]: mux;
+	wire IMUX_BOUNCE[1]: mux;
+	wire IMUX_BOUNCE[2]: mux;
+	wire IMUX_BOUNCE[3]: mux;
 	wire IMUX_BYP[0]: mux;
 	wire IMUX_BYP[1]: mux;
 	wire IMUX_BYP[2]: mux;
@@ -38586,70 +38586,38 @@ intdb {
 	wire OUT_BUFG[29]: bel;
 	wire OUT_BUFG[30]: bel;
 	wire OUT_BUFG[31]: bel;
-	wire GCLK[0]: regional GLOBAL;
-	wire GCLK[1]: regional GLOBAL;
-	wire GCLK[2]: regional GLOBAL;
-	wire GCLK[3]: regional GLOBAL;
-	wire GCLK[4]: regional GLOBAL;
-	wire GCLK[5]: regional GLOBAL;
-	wire GCLK[6]: regional GLOBAL;
-	wire GCLK[7]: regional GLOBAL;
-	wire GCLK[8]: regional GLOBAL;
-	wire GCLK[9]: regional GLOBAL;
-	wire GCLK[10]: regional GLOBAL;
-	wire GCLK[11]: regional GLOBAL;
-	wire GCLK[12]: regional GLOBAL;
-	wire GCLK[13]: regional GLOBAL;
-	wire GCLK[14]: regional GLOBAL;
-	wire GCLK[15]: regional GLOBAL;
-	wire GCLK[16]: regional GLOBAL;
-	wire GCLK[17]: regional GLOBAL;
-	wire GCLK[18]: regional GLOBAL;
-	wire GCLK[19]: regional GLOBAL;
-	wire GCLK[20]: regional GLOBAL;
-	wire GCLK[21]: regional GLOBAL;
-	wire GCLK[22]: regional GLOBAL;
-	wire GCLK[23]: regional GLOBAL;
-	wire GCLK[24]: regional GLOBAL;
-	wire GCLK[25]: regional GLOBAL;
-	wire GCLK[26]: regional GLOBAL;
-	wire GCLK[27]: regional GLOBAL;
-	wire GCLK[28]: regional GLOBAL;
-	wire GCLK[29]: regional GLOBAL;
-	wire GCLK[30]: regional GLOBAL;
-	wire GCLK[31]: regional GLOBAL;
-	wire GCLK_BUF[0]: mux;
-	wire GCLK_BUF[1]: mux;
-	wire GCLK_BUF[2]: mux;
-	wire GCLK_BUF[3]: mux;
-	wire GCLK_BUF[4]: mux;
-	wire GCLK_BUF[5]: mux;
-	wire GCLK_BUF[6]: mux;
-	wire GCLK_BUF[7]: mux;
-	wire GCLK_BUF[8]: mux;
-	wire GCLK_BUF[9]: mux;
-	wire GCLK_BUF[10]: mux;
-	wire GCLK_BUF[11]: mux;
-	wire GCLK_BUF[12]: mux;
-	wire GCLK_BUF[13]: mux;
-	wire GCLK_BUF[14]: mux;
-	wire GCLK_BUF[15]: mux;
-	wire GCLK_BUF[16]: mux;
-	wire GCLK_BUF[17]: mux;
-	wire GCLK_BUF[18]: mux;
-	wire GCLK_BUF[19]: mux;
-	wire GCLK_BUF[20]: mux;
-	wire GCLK_BUF[21]: mux;
-	wire GCLK_BUF[22]: mux;
-	wire GCLK_BUF[23]: mux;
-	wire GCLK_BUF[24]: mux;
-	wire GCLK_BUF[25]: mux;
-	wire GCLK_BUF[26]: mux;
-	wire GCLK_BUF[27]: mux;
-	wire GCLK_BUF[28]: mux;
-	wire GCLK_BUF[29]: mux;
-	wire GCLK_BUF[30]: mux;
-	wire GCLK_BUF[31]: mux;
+	wire GCLK[0]: regional GCLK;
+	wire GCLK[1]: regional GCLK;
+	wire GCLK[2]: regional GCLK;
+	wire GCLK[3]: regional GCLK;
+	wire GCLK[4]: regional GCLK;
+	wire GCLK[5]: regional GCLK;
+	wire GCLK[6]: regional GCLK;
+	wire GCLK[7]: regional GCLK;
+	wire GCLK[8]: regional GCLK;
+	wire GCLK[9]: regional GCLK;
+	wire GCLK[10]: regional GCLK;
+	wire GCLK[11]: regional GCLK;
+	wire GCLK[12]: regional GCLK;
+	wire GCLK[13]: regional GCLK;
+	wire GCLK[14]: regional GCLK;
+	wire GCLK[15]: regional GCLK;
+	wire GCLK[16]: regional GCLK;
+	wire GCLK[17]: regional GCLK;
+	wire GCLK[18]: regional GCLK;
+	wire GCLK[19]: regional GCLK;
+	wire GCLK[20]: regional GCLK;
+	wire GCLK[21]: regional GCLK;
+	wire GCLK[22]: regional GCLK;
+	wire GCLK[23]: regional GCLK;
+	wire GCLK[24]: regional GCLK;
+	wire GCLK[25]: regional GCLK;
+	wire GCLK[26]: regional GCLK;
+	wire GCLK[27]: regional GCLK;
+	wire GCLK[28]: regional GCLK;
+	wire GCLK[29]: regional GCLK;
+	wire GCLK[30]: regional GCLK;
+	wire GCLK[31]: regional GCLK;
 	wire GIOB[0]: regional GIOB;
 	wire GIOB[1]: regional GIOB;
 	wire GIOB[2]: regional GIOB;
@@ -38730,6 +38698,38 @@ intdb {
 	wire IMUX_BUFG_I[29]: branch CLK_PREV;
 	wire IMUX_BUFG_I[30]: branch CLK_PREV;
 	wire IMUX_BUFG_I[31]: branch CLK_PREV;
+	wire GCLK_HROW[0]: mux;
+	wire GCLK_HROW[1]: mux;
+	wire GCLK_HROW[2]: mux;
+	wire GCLK_HROW[3]: mux;
+	wire GCLK_HROW[4]: mux;
+	wire GCLK_HROW[5]: mux;
+	wire GCLK_HROW[6]: mux;
+	wire GCLK_HROW[7]: mux;
+	wire GCLK_HROW[8]: mux;
+	wire GCLK_HROW[9]: mux;
+	wire GCLK_HROW[10]: mux;
+	wire GCLK_HROW[11]: mux;
+	wire GCLK_HROW[12]: mux;
+	wire GCLK_HROW[13]: mux;
+	wire GCLK_HROW[14]: mux;
+	wire GCLK_HROW[15]: mux;
+	wire GCLK_HROW[16]: mux;
+	wire GCLK_HROW[17]: mux;
+	wire GCLK_HROW[18]: mux;
+	wire GCLK_HROW[19]: mux;
+	wire GCLK_HROW[20]: mux;
+	wire GCLK_HROW[21]: mux;
+	wire GCLK_HROW[22]: mux;
+	wire GCLK_HROW[23]: mux;
+	wire GCLK_HROW[24]: mux;
+	wire GCLK_HROW[25]: mux;
+	wire GCLK_HROW[26]: mux;
+	wire GCLK_HROW[27]: mux;
+	wire GCLK_HROW[28]: mux;
+	wire GCLK_HROW[29]: mux;
+	wire GCLK_HROW[30]: mux;
+	wire GCLK_HROW[31]: mux;
 	wire OUT_CLKPAD: bel;
 	wire HCLK_IO[0]: regional LEAF;
 	wire HCLK_IO[1]: regional LEAF;
@@ -38741,9 +38741,12 @@ intdb {
 	wire HCLK_IO[7]: regional LEAF;
 	wire RCLK_IO[0]: regional LEAF;
 	wire RCLK_IO[1]: regional LEAF;
-	wire IMUX_IDELAYCTRL_REFCLK: mux;
-	wire IMUX_BUFR[0]: mux;
-	wire IMUX_BUFR[1]: mux;
+	wire VRCLK[0]: bel;
+	wire VRCLK[1]: bel;
+	wire VRCLK_S[0]: branch IO_N;
+	wire VRCLK_S[1]: branch IO_N;
+	wire VRCLK_N[0]: branch IO_S;
+	wire VRCLK_N[1]: branch IO_S;
 	wire IOCLK[0]: regional LEAF;
 	wire IOCLK[1]: regional LEAF;
 	wire IOCLK_S[0]: branch IO_N;
@@ -38754,12 +38757,9 @@ intdb {
 	wire IOCLK_S_IO[1]: regional LEAF;
 	wire IOCLK_N_IO[0]: regional LEAF;
 	wire IOCLK_N_IO[1]: regional LEAF;
-	wire VRCLK[0]: mux;
-	wire VRCLK[1]: mux;
-	wire VRCLK_S[0]: branch IO_N;
-	wire VRCLK_S[1]: branch IO_N;
-	wire VRCLK_N[0]: branch IO_S;
-	wire VRCLK_N[1]: branch IO_S;
+	wire IMUX_IDELAYCTRL_REFCLK: mux;
+	wire IMUX_BUFR[0]: mux;
+	wire IMUX_BUFR[1]: mux;
 	wire HCLK_DCM[0]: regional LEAF_DCM;
 	wire HCLK_DCM[1]: regional LEAF_DCM;
 	wire HCLK_DCM[2]: regional LEAF_DCM;
@@ -40786,158 +40786,6 @@ intdb {
 					LV[0] = 0b10010000001,
 					off = 0b00000000000,
 				}
-				mux IMUX_SR[0] @[MAIN[14][7], MAIN[14][6], MAIN[15][6], MAIN[15][7], MAIN[14][4], MAIN[15][4], MAIN[15][2], MAIN[14][2]] {
-					TIE_1 = 0b00010001,
-					DBL_W1[0] = 0b00100010,
-					DBL_W2[0] = 0b00100100,
-					DBL_E0[0] = 0b01000001,
-					DBL_E0[1] = 0b00100001,
-					DBL_E1[0] = 0b00010010,
-					DBL_E2[0] = 0b00010100,
-					DBL_S1[0] = 0b10001000,
-					DBL_S2[0] = 0b10000100,
-					DBL_N0[1] = 0b10000001,
-					DBL_N1[0] = 0b00101000,
-					DBL_N2[0] = 0b10000010,
-					IMUX_BOUNCE[0] = 0b01001000,
-					IMUX_BOUNCE[1] = 0b01000100,
-					IMUX_BOUNCE[2] = 0b01000010,
-					IMUX_BOUNCE[3] = 0b00011000,
-					off = 0b00000000,
-				}
-				mux IMUX_SR[1] @[MAIN[15][15], MAIN[14][15], MAIN[14][14], MAIN[15][14], MAIN[14][12], MAIN[15][12], MAIN[15][10], MAIN[14][10]] {
-					TIE_1 = 0b00010001,
-					DBL_W0[1] = 0b00100001,
-					DBL_W1[1] = 0b00010010,
-					DBL_W2[1] = 0b00010100,
-					DBL_E0[2] = 0b01000001,
-					DBL_E1[1] = 0b10000010,
-					DBL_E2[1] = 0b10000100,
-					DBL_S0[1] = 0b10000001,
-					DBL_S1[1] = 0b01001000,
-					DBL_S2[1] = 0b01000100,
-					DBL_N1[1] = 0b00011000,
-					DBL_N2[1] = 0b01000010,
-					IMUX_BOUNCE[0] = 0b00101000,
-					IMUX_BOUNCE[1] = 0b00100100,
-					IMUX_BOUNCE[2] = 0b00100010,
-					IMUX_BOUNCE[3] = 0b10001000,
-					off = 0b00000000,
-				}
-				mux IMUX_SR[2] @[MAIN[14][1], MAIN[14][0], MAIN[15][0], MAIN[15][1], MAIN[15][5], MAIN[15][3], MAIN[14][3], MAIN[14][5]] {
-					TIE_1 = 0b00010001,
-					DBL_W0[1] = 0b00100001,
-					DBL_W1[0] = 0b01000010,
-					DBL_W2[0] = 0b01000100,
-					DBL_E0[0] = 0b10000001,
-					DBL_E1[0] = 0b00010010,
-					DBL_E2[0] = 0b00010100,
-					DBL_S0[1] = 0b01000001,
-					DBL_S1[0] = 0b00101000,
-					DBL_S2[0] = 0b00100100,
-					DBL_N1[0] = 0b01001000,
-					DBL_N2[0] = 0b00100010,
-					IMUX_BOUNCE[0] = 0b10001000,
-					IMUX_BOUNCE[1] = 0b10000100,
-					IMUX_BOUNCE[2] = 0b10000010,
-					IMUX_BOUNCE[3] = 0b00011000,
-					off = 0b00000000,
-				}
-				mux IMUX_SR[3] @[MAIN[15][13], MAIN[15][11], MAIN[14][11], MAIN[14][13], MAIN[14][9], MAIN[15][8], MAIN[15][9], MAIN[14][8]] {
-					TIE_1 = 0b00010001,
-					DBL_W1[1] = 0b00100001,
-					DBL_W2[1] = 0b01000001,
-					DBL_E0[1] = 0b00010010,
-					DBL_E0[2] = 0b00010100,
-					DBL_E1[1] = 0b00100010,
-					DBL_E2[1] = 0b01000010,
-					DBL_S1[1] = 0b10000100,
-					DBL_S2[1] = 0b01000100,
-					DBL_N0[1] = 0b00011000,
-					DBL_N1[1] = 0b10000001,
-					DBL_N2[1] = 0b00100100,
-					IMUX_BOUNCE[0] = 0b10001000,
-					IMUX_BOUNCE[1] = 0b01001000,
-					IMUX_BOUNCE[2] = 0b00101000,
-					IMUX_BOUNCE[3] = 0b10000010,
-					off = 0b00000000,
-				}
-				mux IMUX_BOUNCE[0] @[MAIN[14][24], MAIN[15][24], MAIN[14][25], MAIN[15][25], MAIN[14][27], MAIN[15][27], MAIN[15][29], MAIN[14][29]] {
-					TIE_0 = 0b00010001,
-					TIE_1 = 0b00100001,
-					HCLK[0] = 0b00100010,
-					HCLK[1] = 0b00100100,
-					HCLK[2] = 0b00101000,
-					HCLK[3] = 0b00010010,
-					HCLK[4] = 0b00010100,
-					HCLK[5] = 0b00011000,
-					HCLK[6] = 0b01000010,
-					HCLK[7] = 0b01000100,
-					RCLK[0] = 0b01001000,
-					RCLK[1] = 0b10000010,
-					OMUX[5] = 0b10000100,
-					DBL_W0[4] = 0b01000001,
-					DBL_E1[3] = 0b10001000,
-					DBL_S0[4] = 0b10000001,
-					off = 0b00000000,
-				}
-				mux IMUX_BOUNCE[1] @[MAIN[15][30], MAIN[14][31], MAIN[14][30], MAIN[15][31], MAIN[15][26], MAIN[15][28], MAIN[14][28], MAIN[14][26]] {
-					TIE_0 = 0b00010001,
-					TIE_1 = 0b00100001,
-					HCLK[0] = 0b00100010,
-					HCLK[1] = 0b00100100,
-					HCLK[2] = 0b00101000,
-					HCLK[3] = 0b00010010,
-					HCLK[4] = 0b00010100,
-					HCLK[5] = 0b00011000,
-					HCLK[6] = 0b01000010,
-					HCLK[7] = 0b01000100,
-					RCLK[0] = 0b01001000,
-					RCLK[1] = 0b10000010,
-					OMUX[5] = 0b10000100,
-					DBL_E0[4] = 0b10000001,
-					DBL_E1[3] = 0b10001000,
-					DBL_N0[4] = 0b01000001,
-					off = 0b00000000,
-				}
-				mux IMUX_BOUNCE[2] @[MAIN[15][33], MAIN[14][33], MAIN[14][32], MAIN[15][32], MAIN[14][35], MAIN[15][35], MAIN[15][37], MAIN[14][37]] {
-					TIE_0 = 0b00010001,
-					TIE_1 = 0b00100001,
-					HCLK[0] = 0b01000010,
-					HCLK[1] = 0b01000100,
-					HCLK[2] = 0b01001000,
-					HCLK[3] = 0b10000010,
-					HCLK[4] = 0b10000100,
-					HCLK[5] = 0b10001000,
-					HCLK[6] = 0b00010010,
-					HCLK[7] = 0b00010100,
-					RCLK[0] = 0b00011000,
-					RCLK[1] = 0b00100010,
-					OMUX[6] = 0b00100100,
-					DBL_E0[4] = 0b10000001,
-					DBL_E1[4] = 0b00101000,
-					DBL_N0[4] = 0b01000001,
-					off = 0b00000000,
-				}
-				mux IMUX_BOUNCE[3] @[MAIN[15][39], MAIN[14][38], MAIN[15][38], MAIN[14][39], MAIN[15][34], MAIN[15][36], MAIN[14][36], MAIN[14][34]] {
-					TIE_0 = 0b00010001,
-					TIE_1 = 0b00100001,
-					HCLK[0] = 0b01000010,
-					HCLK[1] = 0b01000100,
-					HCLK[2] = 0b01001000,
-					HCLK[3] = 0b10000010,
-					HCLK[4] = 0b10000100,
-					HCLK[5] = 0b10001000,
-					HCLK[6] = 0b00010010,
-					HCLK[7] = 0b00010100,
-					RCLK[0] = 0b00011000,
-					RCLK[1] = 0b00100010,
-					OMUX[6] = 0b00100100,
-					DBL_W0[4] = 0b01000001,
-					DBL_E1[4] = 0b00101000,
-					DBL_S0[4] = 0b10000001,
-					off = 0b00000000,
-				}
 				mux IMUX_CLK[0] @[MAIN[14][42], MAIN[15][42], MAIN[15][44], MAIN[14][44], MAIN[15][46], MAIN[14][47], MAIN[15][47], MAIN[14][46]] {
 					HCLK[0] = 0b00010001,
 					HCLK[1] = 0b00100001,
@@ -41014,6 +40862,82 @@ intdb {
 					DBL_N0[6] = 0b10000010,
 					off = 0b00000000,
 				}
+				mux IMUX_SR[0] @[MAIN[14][7], MAIN[14][6], MAIN[15][6], MAIN[15][7], MAIN[14][4], MAIN[15][4], MAIN[15][2], MAIN[14][2]] {
+					TIE_1 = 0b00010001,
+					DBL_W1[0] = 0b00100010,
+					DBL_W2[0] = 0b00100100,
+					DBL_E0[0] = 0b01000001,
+					DBL_E0[1] = 0b00100001,
+					DBL_E1[0] = 0b00010010,
+					DBL_E2[0] = 0b00010100,
+					DBL_S1[0] = 0b10001000,
+					DBL_S2[0] = 0b10000100,
+					DBL_N0[1] = 0b10000001,
+					DBL_N1[0] = 0b00101000,
+					DBL_N2[0] = 0b10000010,
+					IMUX_BOUNCE[0] = 0b01001000,
+					IMUX_BOUNCE[1] = 0b01000100,
+					IMUX_BOUNCE[2] = 0b01000010,
+					IMUX_BOUNCE[3] = 0b00011000,
+					off = 0b00000000,
+				}
+				mux IMUX_SR[1] @[MAIN[15][15], MAIN[14][15], MAIN[14][14], MAIN[15][14], MAIN[14][12], MAIN[15][12], MAIN[15][10], MAIN[14][10]] {
+					TIE_1 = 0b00010001,
+					DBL_W0[1] = 0b00100001,
+					DBL_W1[1] = 0b00010010,
+					DBL_W2[1] = 0b00010100,
+					DBL_E0[2] = 0b01000001,
+					DBL_E1[1] = 0b10000010,
+					DBL_E2[1] = 0b10000100,
+					DBL_S0[1] = 0b10000001,
+					DBL_S1[1] = 0b01001000,
+					DBL_S2[1] = 0b01000100,
+					DBL_N1[1] = 0b00011000,
+					DBL_N2[1] = 0b01000010,
+					IMUX_BOUNCE[0] = 0b00101000,
+					IMUX_BOUNCE[1] = 0b00100100,
+					IMUX_BOUNCE[2] = 0b00100010,
+					IMUX_BOUNCE[3] = 0b10001000,
+					off = 0b00000000,
+				}
+				mux IMUX_SR[2] @[MAIN[14][1], MAIN[14][0], MAIN[15][0], MAIN[15][1], MAIN[15][5], MAIN[15][3], MAIN[14][3], MAIN[14][5]] {
+					TIE_1 = 0b00010001,
+					DBL_W0[1] = 0b00100001,
+					DBL_W1[0] = 0b01000010,
+					DBL_W2[0] = 0b01000100,
+					DBL_E0[0] = 0b10000001,
+					DBL_E1[0] = 0b00010010,
+					DBL_E2[0] = 0b00010100,
+					DBL_S0[1] = 0b01000001,
+					DBL_S1[0] = 0b00101000,
+					DBL_S2[0] = 0b00100100,
+					DBL_N1[0] = 0b01001000,
+					DBL_N2[0] = 0b00100010,
+					IMUX_BOUNCE[0] = 0b10001000,
+					IMUX_BOUNCE[1] = 0b10000100,
+					IMUX_BOUNCE[2] = 0b10000010,
+					IMUX_BOUNCE[3] = 0b00011000,
+					off = 0b00000000,
+				}
+				mux IMUX_SR[3] @[MAIN[15][13], MAIN[15][11], MAIN[14][11], MAIN[14][13], MAIN[14][9], MAIN[15][8], MAIN[15][9], MAIN[14][8]] {
+					TIE_1 = 0b00010001,
+					DBL_W1[1] = 0b00100001,
+					DBL_W2[1] = 0b01000001,
+					DBL_E0[1] = 0b00010010,
+					DBL_E0[2] = 0b00010100,
+					DBL_E1[1] = 0b00100010,
+					DBL_E2[1] = 0b01000010,
+					DBL_S1[1] = 0b10000100,
+					DBL_S2[1] = 0b01000100,
+					DBL_N0[1] = 0b00011000,
+					DBL_N1[1] = 0b10000001,
+					DBL_N2[1] = 0b00100100,
+					IMUX_BOUNCE[0] = 0b10001000,
+					IMUX_BOUNCE[1] = 0b01001000,
+					IMUX_BOUNCE[2] = 0b00101000,
+					IMUX_BOUNCE[3] = 0b10000010,
+					off = 0b00000000,
+				}
 				mux IMUX_CE[0] @[MAIN[14][70], MAIN[15][70], MAIN[14][71], MAIN[15][71], MAIN[14][68], MAIN[15][68], MAIN[15][66], MAIN[14][66]] {
 					TIE_1 = 0b00010001,
 					DBL_W0[8] = 0b00100001,
@@ -41088,6 +41012,82 @@ intdb {
 					IMUX_BOUNCE[1] = 0b00100100,
 					IMUX_BOUNCE[2] = 0b00100010,
 					IMUX_BOUNCE[3] = 0b10001000,
+					off = 0b00000000,
+				}
+				mux IMUX_BOUNCE[0] @[MAIN[14][24], MAIN[15][24], MAIN[14][25], MAIN[15][25], MAIN[14][27], MAIN[15][27], MAIN[15][29], MAIN[14][29]] {
+					TIE_0 = 0b00010001,
+					TIE_1 = 0b00100001,
+					HCLK[0] = 0b00100010,
+					HCLK[1] = 0b00100100,
+					HCLK[2] = 0b00101000,
+					HCLK[3] = 0b00010010,
+					HCLK[4] = 0b00010100,
+					HCLK[5] = 0b00011000,
+					HCLK[6] = 0b01000010,
+					HCLK[7] = 0b01000100,
+					RCLK[0] = 0b01001000,
+					RCLK[1] = 0b10000010,
+					OMUX[5] = 0b10000100,
+					DBL_W0[4] = 0b01000001,
+					DBL_E1[3] = 0b10001000,
+					DBL_S0[4] = 0b10000001,
+					off = 0b00000000,
+				}
+				mux IMUX_BOUNCE[1] @[MAIN[15][30], MAIN[14][31], MAIN[14][30], MAIN[15][31], MAIN[15][26], MAIN[15][28], MAIN[14][28], MAIN[14][26]] {
+					TIE_0 = 0b00010001,
+					TIE_1 = 0b00100001,
+					HCLK[0] = 0b00100010,
+					HCLK[1] = 0b00100100,
+					HCLK[2] = 0b00101000,
+					HCLK[3] = 0b00010010,
+					HCLK[4] = 0b00010100,
+					HCLK[5] = 0b00011000,
+					HCLK[6] = 0b01000010,
+					HCLK[7] = 0b01000100,
+					RCLK[0] = 0b01001000,
+					RCLK[1] = 0b10000010,
+					OMUX[5] = 0b10000100,
+					DBL_E0[4] = 0b10000001,
+					DBL_E1[3] = 0b10001000,
+					DBL_N0[4] = 0b01000001,
+					off = 0b00000000,
+				}
+				mux IMUX_BOUNCE[2] @[MAIN[15][33], MAIN[14][33], MAIN[14][32], MAIN[15][32], MAIN[14][35], MAIN[15][35], MAIN[15][37], MAIN[14][37]] {
+					TIE_0 = 0b00010001,
+					TIE_1 = 0b00100001,
+					HCLK[0] = 0b01000010,
+					HCLK[1] = 0b01000100,
+					HCLK[2] = 0b01001000,
+					HCLK[3] = 0b10000010,
+					HCLK[4] = 0b10000100,
+					HCLK[5] = 0b10001000,
+					HCLK[6] = 0b00010010,
+					HCLK[7] = 0b00010100,
+					RCLK[0] = 0b00011000,
+					RCLK[1] = 0b00100010,
+					OMUX[6] = 0b00100100,
+					DBL_E0[4] = 0b10000001,
+					DBL_E1[4] = 0b00101000,
+					DBL_N0[4] = 0b01000001,
+					off = 0b00000000,
+				}
+				mux IMUX_BOUNCE[3] @[MAIN[15][39], MAIN[14][38], MAIN[15][38], MAIN[14][39], MAIN[15][34], MAIN[15][36], MAIN[14][36], MAIN[14][34]] {
+					TIE_0 = 0b00010001,
+					TIE_1 = 0b00100001,
+					HCLK[0] = 0b01000010,
+					HCLK[1] = 0b01000100,
+					HCLK[2] = 0b01001000,
+					HCLK[3] = 0b10000010,
+					HCLK[4] = 0b10000100,
+					HCLK[5] = 0b10001000,
+					HCLK[6] = 0b00010010,
+					HCLK[7] = 0b00010100,
+					RCLK[0] = 0b00011000,
+					RCLK[1] = 0b00100010,
+					OMUX[6] = 0b00100100,
+					DBL_W0[4] = 0b01000001,
+					DBL_E1[4] = 0b00101000,
+					DBL_S0[4] = 0b10000001,
 					off = 0b00000000,
 				}
 				mux IMUX_BYP[0] @[MAIN[12][16], MAIN[13][19], MAIN[12][19], MAIN[13][16], MAIN[10][16], MAIN[8][18], MAIN[9][17], MAIN[11][19], MAIN[14][16], MAIN[11][17], MAIN[8][16], MAIN[10][18], MAIN[9][19]] {
@@ -42658,14 +42658,14 @@ intdb {
 				permabuf IMUX_BYP_BOUNCE[5] = IMUX_BYP[5];
 				permabuf IMUX_BYP_BOUNCE[6] = IMUX_BYP[6];
 				permabuf IMUX_BYP_BOUNCE[7] = IMUX_BYP[7];
-				proginv IMUX_SR_OPTINV[0] = IMUX_SR[0] @!MAIN[18][24];
-				proginv IMUX_SR_OPTINV[1] = IMUX_SR[1] @!MAIN[18][26];
-				proginv IMUX_SR_OPTINV[2] = IMUX_SR[2] @!MAIN[18][23];
-				proginv IMUX_SR_OPTINV[3] = IMUX_SR[3] @!MAIN[18][25];
 				proginv IMUX_CLK_OPTINV[0] = IMUX_CLK[0] @!MAIN[18][29];
 				proginv IMUX_CLK_OPTINV[1] = IMUX_CLK[1] @!MAIN[18][27];
 				proginv IMUX_CLK_OPTINV[2] = IMUX_CLK[2] @!MAIN[18][55];
 				proginv IMUX_CLK_OPTINV[3] = IMUX_CLK[3] @!MAIN[18][50];
+				proginv IMUX_SR_OPTINV[0] = IMUX_SR[0] @!MAIN[18][24];
+				proginv IMUX_SR_OPTINV[1] = IMUX_SR[1] @!MAIN[18][26];
+				proginv IMUX_SR_OPTINV[2] = IMUX_SR[2] @!MAIN[18][23];
+				proginv IMUX_SR_OPTINV[3] = IMUX_SR[3] @!MAIN[18][25];
 				proginv IMUX_CE_OPTINV[0] = IMUX_CE[0] @!MAIN[18][53];
 				proginv IMUX_CE_OPTINV[1] = IMUX_CE[1] @!MAIN[18][56];
 				proginv IMUX_CE_OPTINV[2] = IMUX_CE[2] @!MAIN[18][52];
@@ -42803,90 +42803,19 @@ intdb {
 		bel_slot ILOGIC[1]: ILOGIC;
 		bel_slot OLOGIC[0]: OLOGIC;
 		bel_slot OLOGIC[1]: OLOGIC;
-		bel_slot IODELAY[0]: IODELAY_V5;
-		bel_slot IODELAY[1]: IODELAY_V5;
-		bel_slot IDELAY[0]: IDELAY;
-		bel_slot IDELAY[1]: IDELAY;
-		bel_slot ODELAY[0]: ODELAY;
-		bel_slot ODELAY[1]: ODELAY;
 		bel_slot IOB[0]: IOB;
 		bel_slot IOB[1]: IOB;
 		bel_slot DCM[0]: DCM_V4;
-		bel_slot DCM[1]: DCM_V4;
-		bel_slot PLL[0]: PLL_V5;
-		bel_slot PLL[1]: PLL_V5;
-		bel_slot PPR_FRAME: PPR_FRAME;
-		bel_slot PHASER_IN[0]: PHASER_IN;
-		bel_slot PHASER_IN[1]: PHASER_IN;
-		bel_slot PHASER_IN[2]: PHASER_IN;
-		bel_slot PHASER_IN[3]: PHASER_IN;
-		bel_slot PHASER_OUT[0]: PHASER_OUT;
-		bel_slot PHASER_OUT[1]: PHASER_OUT;
-		bel_slot PHASER_OUT[2]: PHASER_OUT;
-		bel_slot PHASER_OUT[3]: PHASER_OUT;
-		bel_slot PHASER_REF: PHASER_REF;
-		bel_slot PHY_CONTROL: PHY_CONTROL;
-		bel_slot BUFMRCE[0]: BUFHCE;
-		bel_slot BUFMRCE[1]: BUFHCE;
 		bel_slot CCM: CCM;
 		bel_slot PMCD[0]: PMCD;
 		bel_slot PMCD[1]: PMCD;
 		bel_slot DPM: DPM;
-		bel_slot BUFHCE_W[0]: BUFHCE;
-		bel_slot BUFHCE_W[1]: BUFHCE;
-		bel_slot BUFHCE_W[2]: BUFHCE;
-		bel_slot BUFHCE_W[3]: BUFHCE;
-		bel_slot BUFHCE_W[4]: BUFHCE;
-		bel_slot BUFHCE_W[5]: BUFHCE;
-		bel_slot BUFHCE_W[6]: BUFHCE;
-		bel_slot BUFHCE_W[7]: BUFHCE;
-		bel_slot BUFHCE_W[8]: BUFHCE;
-		bel_slot BUFHCE_W[9]: BUFHCE;
-		bel_slot BUFHCE_W[10]: BUFHCE;
-		bel_slot BUFHCE_W[11]: BUFHCE;
-		bel_slot BUFHCE_E[0]: BUFHCE;
-		bel_slot BUFHCE_E[1]: BUFHCE;
-		bel_slot BUFHCE_E[2]: BUFHCE;
-		bel_slot BUFHCE_E[3]: BUFHCE;
-		bel_slot BUFHCE_E[4]: BUFHCE;
-		bel_slot BUFHCE_E[5]: BUFHCE;
-		bel_slot BUFHCE_E[6]: BUFHCE;
-		bel_slot BUFHCE_E[7]: BUFHCE;
-		bel_slot BUFHCE_E[8]: BUFHCE;
-		bel_slot BUFHCE_E[9]: BUFHCE;
-		bel_slot BUFHCE_E[10]: BUFHCE;
-		bel_slot BUFHCE_E[11]: BUFHCE;
-		bel_slot PMV_CLK: PMV;
-		bel_slot PMVIOB_CLK: PMVIOB;
-		bel_slot PMV2: PMV2;
-		bel_slot PMV2_SVT: PMV2;
-		bel_slot MTBF2: MTBF2;
+		bel_slot SYSMON: SYSMON_V4;
 		bel_slot PPC: PPC405;
 		bel_slot EMAC: EMAC_V4;
-		bel_slot PCIE: PCIE_V5;
-		bel_slot PCIE3: PCIE3;
 		bel_slot GT11[0]: GT11;
 		bel_slot GT11[1]: GT11;
 		bel_slot GT11CLK: GT11CLK;
-		bel_slot GTP_DUAL: GTP_DUAL;
-		bel_slot GTX_DUAL: GTX_DUAL;
-		bel_slot HCLK_GTX: HCLK_GTX;
-		bel_slot GTCLK[0]: GTCLK;
-		bel_slot GTCLK[1]: GTCLK;
-		bel_slot GTX[0]: GTX;
-		bel_slot GTX[1]: GTX;
-		bel_slot GTX[2]: GTX;
-		bel_slot GTX[3]: GTX;
-		bel_slot GTH_QUAD: GTH_QUAD;
-		bel_slot HCLK_DRP_GTP_MID: HCLK_DRP;
-		bel_slot GTP_COMMON: GTP_COMMON;
-		bel_slot GTX_COMMON: GTX_COMMON;
-		bel_slot GTP_CHANNEL: GTP_CHANNEL;
-		bel_slot GTX_CHANNEL: GTX_CHANNEL;
-		bel_slot CRC32[0]: CRC32;
-		bel_slot CRC32[1]: CRC32;
-		bel_slot CRC32[2]: CRC32;
-		bel_slot CRC32[3]: CRC32;
 		bel_slot BUFGCTRL[0]: BUFGCTRL;
 		bel_slot BUFGCTRL[1]: BUFGCTRL;
 		bel_slot BUFGCTRL[2]: BUFGCTRL;
@@ -42919,7 +42848,6 @@ intdb {
 		bel_slot BUFGCTRL[29]: BUFGCTRL;
 		bel_slot BUFGCTRL[30]: BUFGCTRL;
 		bel_slot BUFGCTRL[31]: BUFGCTRL;
-		bel_slot PS: PS;
 
 		tile_class CLB {
 			cell CELL;
@@ -43275,14 +43203,14 @@ intdb {
 				}
 			}
 
-			// wire IMUX_SR_OPTINV[0]              SLICE[0].SR
-			// wire IMUX_SR_OPTINV[1]              SLICE[1].SR
-			// wire IMUX_SR_OPTINV[2]              SLICE[2].SR
-			// wire IMUX_SR_OPTINV[3]              SLICE[3].SR
 			// wire IMUX_CLK_OPTINV[0]             SLICE[0].CLK
 			// wire IMUX_CLK_OPTINV[1]             SLICE[1].CLK
 			// wire IMUX_CLK_OPTINV[2]             SLICE[2].CLK
 			// wire IMUX_CLK_OPTINV[3]             SLICE[3].CLK
+			// wire IMUX_SR_OPTINV[0]              SLICE[0].SR
+			// wire IMUX_SR_OPTINV[1]              SLICE[1].SR
+			// wire IMUX_SR_OPTINV[2]              SLICE[2].SR
+			// wire IMUX_SR_OPTINV[3]              SLICE[3].SR
 			// wire IMUX_CE_OPTINV[0]              SLICE[0].CE
 			// wire IMUX_CE_OPTINV[1]              SLICE[1].CE
 			// wire IMUX_CE_OPTINV[2]              SLICE[2].CE
@@ -44249,11 +44177,11 @@ intdb {
 			// wire CELL[0].OUT_HALF1_BEL[5]       DSP[0].P[1]
 			// wire CELL[0].OUT_HALF1_BEL[6]       DSP[0].P[2]
 			// wire CELL[0].OUT_HALF1_BEL[7]       DSP[0].P[3]
+			// wire CELL[1].IMUX_CLK_OPTINV[0]     DSP[1].CLK
 			// wire CELL[1].IMUX_SR_OPTINV[0]      DSP[1].RSTA
 			// wire CELL[1].IMUX_SR_OPTINV[1]      DSP[1].RSTB
 			// wire CELL[1].IMUX_SR_OPTINV[2]      DSP[1].RSTM
 			// wire CELL[1].IMUX_SR_OPTINV[3]      DSP[1].RSTP
-			// wire CELL[1].IMUX_CLK_OPTINV[0]     DSP[1].CLK
 			// wire CELL[1].IMUX_CE_OPTINV[0]      DSP[1].CEA
 			// wire CELL[1].IMUX_CE_OPTINV[1]      DSP[1].CEB
 			// wire CELL[1].IMUX_CE_OPTINV[2]      DSP[1].CEM
@@ -44326,10 +44254,10 @@ intdb {
 			// wire CELL[1].OUT_HALF1_BEL[5]       DSP[0].P[5]
 			// wire CELL[1].OUT_HALF1_BEL[6]       DSP[0].P[6]
 			// wire CELL[1].OUT_HALF1_BEL[7]       DSP[0].P[7]
+			// wire CELL[2].IMUX_CLK_OPTINV[0]     DSP[0].CLK
 			// wire CELL[2].IMUX_SR_OPTINV[0]      DSP_C.RSTC
 			// wire CELL[2].IMUX_SR_OPTINV[1]      DSP[0].RSTCARRYIN
 			// wire CELL[2].IMUX_SR_OPTINV[2]      DSP[0].RSTCTRL
-			// wire CELL[2].IMUX_CLK_OPTINV[0]     DSP[0].CLK
 			// wire CELL[2].IMUX_CE_OPTINV[0]      DSP_C.CEC
 			// wire CELL[2].IMUX_CE_OPTINV[1]      DSP[0].CECARRYIN
 			// wire CELL[2].IMUX_CE_OPTINV[2]      DSP[0].CECTRL
@@ -44975,14 +44903,14 @@ intdb {
 				attribute V4_LVDS @[MAIN[25][57], MAIN[26][59], MAIN[26][57], MAIN[26][70]];
 			}
 
-			// wire IMUX_SR_OPTINV[0]              ILOGIC[0].SR OLOGIC[0].SR
-			// wire IMUX_SR_OPTINV[1]              ILOGIC[1].SR OLOGIC[1].SR
-			// wire IMUX_SR_OPTINV[2]              ILOGIC[0].REV OLOGIC[0].REV
-			// wire IMUX_SR_OPTINV[3]              ILOGIC[1].REV OLOGIC[1].REV
 			// wire IMUX_CLK_OPTINV[0]             ILOGIC[0].CLKDIV
 			// wire IMUX_CLK_OPTINV[1]             OLOGIC[0].CLKDIV
 			// wire IMUX_CLK_OPTINV[2]             ILOGIC[1].CLKDIV
 			// wire IMUX_CLK_OPTINV[3]             OLOGIC[1].CLKDIV
+			// wire IMUX_SR_OPTINV[0]              ILOGIC[0].SR OLOGIC[0].SR
+			// wire IMUX_SR_OPTINV[1]              ILOGIC[1].SR OLOGIC[1].SR
+			// wire IMUX_SR_OPTINV[2]              ILOGIC[0].REV OLOGIC[0].REV
+			// wire IMUX_SR_OPTINV[3]              ILOGIC[1].REV OLOGIC[1].REV
 			// wire IMUX_CE_OPTINV[0]              OLOGIC[0].OCE
 			// wire IMUX_CE_OPTINV[1]              OLOGIC[1].OCE
 			// wire IMUX_CE_OPTINV[2]              OLOGIC[0].TCE
@@ -47092,6 +47020,353 @@ intdb {
 			// wire CELL[3].IMUX_SPEC[1]           PMCD[0].CLKC
 			// wire CELL[3].IMUX_SPEC[2]           PMCD[1].CLKD
 			// wire CELL[3].IMUX_SPEC[3]           PMCD[1].CLKC
+		}
+
+		tile_class SYSMON {
+			cell CELL[0];
+			cell CELL[1];
+			cell CELL[2];
+			cell CELL[3];
+			cell CELL[4];
+			cell CELL[5];
+			cell CELL[6];
+			cell CELL[7];
+			bitrect MAIN[0]: Vertical (30, rev 80);
+			bitrect MAIN[1]: Vertical (30, rev 80);
+			bitrect MAIN[2]: Vertical (30, rev 80);
+			bitrect MAIN[3]: Vertical (30, rev 80);
+			bitrect MAIN[4]: Vertical (30, rev 80);
+			bitrect MAIN[5]: Vertical (30, rev 80);
+			bitrect MAIN[6]: Vertical (30, rev 80);
+			bitrect MAIN[7]: Vertical (30, rev 80);
+
+			switchbox SPEC_INT {
+				mux CELL[4].IMUX_SPEC[0] @[MAIN[7][18][11], MAIN[7][18][9], MAIN[7][18][8], MAIN[7][18][14], MAIN[7][18][5]] {
+					CELL[0].IMUX_CLK_OPTINV[1] = 0b00001,
+					CELL[0].IMUX_IMUX[0] = 0b00000,
+					CELL[0].GIOB_DCM[0] = 0b00010,
+					CELL[0].GIOB_DCM[1] = 0b00011,
+					CELL[0].GIOB_DCM[2] = 0b00110,
+					CELL[0].GIOB_DCM[3] = 0b00111,
+					CELL[0].GIOB_DCM[4] = 0b01010,
+					CELL[0].GIOB_DCM[5] = 0b01011,
+					CELL[0].GIOB_DCM[6] = 0b01110,
+					CELL[0].GIOB_DCM[7] = 0b01111,
+					CELL[0].GIOB_DCM[8] = 0b10010,
+					CELL[0].GIOB_DCM[9] = 0b10011,
+					CELL[0].GIOB_DCM[10] = 0b10110,
+					CELL[0].GIOB_DCM[11] = 0b10111,
+					CELL[0].GIOB_DCM[12] = 0b11010,
+					CELL[0].GIOB_DCM[13] = 0b11011,
+					CELL[0].GIOB_DCM[14] = 0b11110,
+					CELL[0].GIOB_DCM[15] = 0b11111,
+				}
+			}
+
+			bel SYSMON {
+				input CONVST = ^CELL[4].IMUX_SPEC[0] @MAIN[7][18][12];
+				input RST = CELL[3].IMUX_SR_OPTINV[0];
+				input DCLK = CELL[3].IMUX_CLK_OPTINV[0];
+				input DEN = CELL[5].IMUX_CE_OPTINV[1];
+				input DWE = CELL[5].IMUX_CE_OPTINV[0];
+				input DADDR[0] = CELL[5].IMUX_IMUX[0];
+				input DADDR[1] = CELL[5].IMUX_IMUX[1];
+				input DADDR[2] = CELL[5].IMUX_IMUX[2];
+				input DADDR[3] = CELL[5].IMUX_IMUX[3];
+				input DADDR[4] = CELL[5].IMUX_IMUX[4];
+				input DADDR[5] = CELL[5].IMUX_IMUX[5];
+				input DADDR[6] = CELL[5].IMUX_IMUX[6];
+				input DI[0] = CELL[7].IMUX_IMUX[0];
+				input DI[1] = CELL[7].IMUX_IMUX[1];
+				input DI[2] = CELL[7].IMUX_IMUX[2];
+				input DI[3] = CELL[7].IMUX_IMUX[3];
+				input DI[4] = CELL[7].IMUX_IMUX[4];
+				input DI[5] = CELL[7].IMUX_IMUX[5];
+				input DI[6] = CELL[7].IMUX_IMUX[6];
+				input DI[7] = CELL[7].IMUX_IMUX[7];
+				input DI[8] = CELL[6].IMUX_IMUX[0];
+				input DI[9] = CELL[6].IMUX_IMUX[1];
+				input DI[10] = CELL[6].IMUX_IMUX[2];
+				input DI[11] = CELL[6].IMUX_IMUX[3];
+				input DI[12] = CELL[6].IMUX_IMUX[4];
+				input DI[13] = CELL[6].IMUX_IMUX[5];
+				input DI[14] = CELL[6].IMUX_IMUX[6];
+				input DI[15] = CELL[6].IMUX_IMUX[7];
+				input ROMTESTENABLE = CELL[2].IMUX_CE_OPTINV[0];
+				input ROMTESTADDR[0] = CELL[1].IMUX_IMUX[0];
+				input ROMTESTADDR[1] = CELL[1].IMUX_IMUX[1];
+				input ROMTESTADDR[2] = CELL[1].IMUX_IMUX[2];
+				input ROMTESTADDR[3] = CELL[1].IMUX_IMUX[3];
+				input ROMTESTADDR[4] = CELL[1].IMUX_IMUX[4];
+				input ROMTESTADDR[5] = CELL[1].IMUX_IMUX[5];
+				input ROMTESTADDR[6] = CELL[2].IMUX_IMUX[3];
+				input ROMTESTADDR[7] = CELL[2].IMUX_IMUX[4];
+				input ROMTESTADDR[8] = CELL[1].IMUX_IMUX[6];
+				input ROMTESTADDR[9] = CELL[1].IMUX_IMUX[7];
+				input ROMTESTADDR[10] = CELL[2].IMUX_IMUX[0];
+				input ROMTESTADDR[11] = CELL[2].IMUX_IMUX[1];
+				input ROMTESTADDR[12] = CELL[2].IMUX_IMUX[2];
+				input ROMTESTADDR[13] = CELL[2].IMUX_IMUX[5];
+				input ROMTESTADDR[14] = CELL[2].IMUX_IMUX[6];
+				input ROMTESTADDR[15] = CELL[2].IMUX_IMUX[7];
+				input SCANMEMCLK = CELL[3].IMUX_CLK_OPTINV[1];
+				input SCANMEMWE = CELL[3].IMUX_CE_OPTINV[2];
+				input SCANTESTENA = CELL[3].IMUX_CE_OPTINV[0];
+				input SCANTESTENB = CELL[4].IMUX_CE_OPTINV[0];
+				input SCLKA = CELL[3].IMUX_CLK_OPTINV[2];
+				input SCLKB = CELL[4].IMUX_CLK_OPTINV[1];
+				input SEA = CELL[3].IMUX_CE_OPTINV[1];
+				input SEB = CELL[4].IMUX_CE_OPTINV[1];
+				input SDIA = CELL[3].IMUX_IMUX[4];
+				input SDIB = CELL[4].IMUX_IMUX[5];
+				output ALARM[0] = CELL[1].OUT_BEST_TMIN[4];
+				output ALARM[1] = CELL[1].OUT_BEST_TMIN[5];
+				output ALARM[2] = CELL[1].OUT_BEST_TMIN[6];
+				output ALARM[3] = CELL[1].OUT_BEST_TMIN[7];
+				output ALARM[4] = CELL[0].OUT_BEST_TMIN[4];
+				output ALARM[5] = CELL[0].OUT_BEST_TMIN[5];
+				output ALARM[6] = CELL[0].OUT_BEST_TMIN[6];
+				output BUSY = CELL[3].OUT_BEST_TMIN[1];
+				output CHANNEL[0] = CELL[3].OUT_BEST_TMIN[2];
+				output CHANNEL[1] = CELL[3].OUT_BEST_TMIN[3];
+				output CHANNEL[2] = CELL[3].OUT_BEST_TMIN[4];
+				output CHANNEL[3] = CELL[3].OUT_BEST_TMIN[5];
+				output CHANNEL[4] = CELL[3].OUT_BEST_TMIN[6];
+				output DB[0] = CELL[2].OUT_BEST_TMIN[0];
+				output DB[1] = CELL[2].OUT_BEST_TMIN[1];
+				output DB[2] = CELL[2].OUT_BEST_TMIN[2];
+				output DB[3] = CELL[2].OUT_BEST_TMIN[3];
+				output DB[4] = CELL[1].OUT_BEST_TMIN[0];
+				output DB[5] = CELL[1].OUT_BEST_TMIN[1];
+				output DB[6] = CELL[1].OUT_BEST_TMIN[2];
+				output DB[7] = CELL[1].OUT_BEST_TMIN[3];
+				output DB[8] = CELL[0].OUT_BEST_TMIN[0];
+				output DB[9] = CELL[0].OUT_BEST_TMIN[1];
+				output DB[10] = CELL[0].OUT_BEST_TMIN[2];
+				output DB[11] = CELL[0].OUT_BEST_TMIN[3];
+				output EOC = CELL[3].OUT_BEST_TMIN[0];
+				output EOS = CELL[3].OUT_BEST_TMIN[7];
+				output OT = CELL[0].OUT_BEST_TMIN[7];
+				output DRDY = CELL[2].OUT_BEST_TMIN[5];
+				output DO[0] = CELL[7].OUT_BEST_TMIN[0];
+				output DO[1] = CELL[7].OUT_BEST_TMIN[1];
+				output DO[2] = CELL[7].OUT_BEST_TMIN[2];
+				output DO[3] = CELL[7].OUT_BEST_TMIN[3];
+				output DO[4] = CELL[7].OUT_BEST_TMIN[4];
+				output DO[5] = CELL[7].OUT_BEST_TMIN[5];
+				output DO[6] = CELL[7].OUT_BEST_TMIN[6];
+				output DO[7] = CELL[7].OUT_BEST_TMIN[7];
+				output DO[8] = CELL[6].OUT_BEST_TMIN[0];
+				output DO[9] = CELL[6].OUT_BEST_TMIN[1];
+				output DO[10] = CELL[6].OUT_BEST_TMIN[2];
+				output DO[11] = CELL[6].OUT_BEST_TMIN[3];
+				output DO[12] = CELL[6].OUT_BEST_TMIN[4];
+				output DO[13] = CELL[6].OUT_BEST_TMIN[5];
+				output DO[14] = CELL[6].OUT_BEST_TMIN[6];
+				output DO[15] = CELL[6].OUT_BEST_TMIN[7];
+				output ROMTESTDATA[0] = CELL[5].OUT_BEST_TMIN[0];
+				output ROMTESTDATA[1] = CELL[5].OUT_BEST_TMIN[1];
+				output ROMTESTDATA[2] = CELL[5].OUT_BEST_TMIN[2];
+				output ROMTESTDATA[3] = CELL[5].OUT_BEST_TMIN[3];
+				output ROMTESTDATA[4] = CELL[5].OUT_BEST_TMIN[4];
+				output ROMTESTDATA[5] = CELL[5].OUT_BEST_TMIN[5];
+				output ROMTESTDATA[6] = CELL[5].OUT_BEST_TMIN[6];
+				output ROMTESTDATA[7] = CELL[5].OUT_BEST_TMIN[7];
+				output ROMTESTDATA[8] = CELL[4].OUT_BEST_TMIN[0];
+				output ROMTESTDATA[9] = CELL[4].OUT_BEST_TMIN[1];
+				output ROMTESTDATA[10] = CELL[4].OUT_BEST_TMIN[2];
+				output ROMTESTDATA[11] = CELL[4].OUT_BEST_TMIN[3];
+				output ROMTESTDATA[12] = CELL[4].OUT_BEST_TMIN[4];
+				output ROMTESTDATA[13] = CELL[4].OUT_BEST_TMIN[5];
+				output ROMTESTDATA[14] = CELL[4].OUT_BEST_TMIN[6];
+				output ROMTESTDATA[15] = CELL[4].OUT_BEST_TMIN[7];
+				output SDOA = CELL[2].OUT_BEST_TMIN[7];
+				output SDOB = CELL[2].OUT_BEST_TMIN[4];
+				attribute INIT @[
+					[MAIN[7][26][64], MAIN[7][26][48], MAIN[7][26][32], MAIN[7][26][16], MAIN[7][26][0], MAIN[6][26][64], MAIN[6][26][48], MAIN[6][26][32], MAIN[7][28][64], MAIN[7][28][48], MAIN[7][28][32], MAIN[7][28][16], MAIN[7][28][0], MAIN[6][28][64], MAIN[6][28][48], MAIN[6][28][32]],
+					[MAIN[7][26][67], MAIN[7][26][51], MAIN[7][26][35], MAIN[7][26][19], MAIN[7][26][3], MAIN[6][26][67], MAIN[6][26][51], MAIN[6][26][35], MAIN[7][28][67], MAIN[7][28][51], MAIN[7][28][35], MAIN[7][28][19], MAIN[7][28][3], MAIN[6][28][67], MAIN[6][28][51], MAIN[6][28][35]],
+					[MAIN[7][26][68], MAIN[7][26][52], MAIN[7][26][36], MAIN[7][26][20], MAIN[7][26][4], MAIN[6][26][68], MAIN[6][26][52], MAIN[6][26][36], MAIN[7][28][68], MAIN[7][28][52], MAIN[7][28][36], MAIN[7][28][20], MAIN[7][28][4], MAIN[6][28][68], MAIN[6][28][52], MAIN[6][28][36]],
+					[MAIN[7][26][71], MAIN[7][26][55], MAIN[7][26][39], MAIN[7][26][23], MAIN[7][26][7], MAIN[6][26][71], MAIN[6][26][55], MAIN[6][26][39], MAIN[7][28][71], MAIN[7][28][55], MAIN[7][28][39], MAIN[7][28][23], MAIN[7][28][7], MAIN[6][28][71], MAIN[6][28][55], MAIN[6][28][39]],
+					[MAIN[7][26][72], MAIN[7][26][56], MAIN[7][26][40], MAIN[7][26][24], MAIN[7][26][8], MAIN[6][26][72], MAIN[6][26][56], MAIN[6][26][40], MAIN[7][28][72], MAIN[7][28][56], MAIN[7][28][40], MAIN[7][28][24], MAIN[7][28][8], MAIN[6][28][72], MAIN[6][28][56], MAIN[6][28][40]],
+					[MAIN[7][26][75], MAIN[7][26][59], MAIN[7][26][43], MAIN[7][26][27], MAIN[7][26][11], MAIN[6][26][75], MAIN[6][26][59], MAIN[6][26][43], MAIN[7][28][75], MAIN[7][28][59], MAIN[7][28][43], MAIN[7][28][27], MAIN[7][28][11], MAIN[6][28][75], MAIN[6][28][59], MAIN[6][28][43]],
+					[MAIN[7][26][76], MAIN[7][26][60], MAIN[7][26][44], MAIN[7][26][28], MAIN[7][26][12], MAIN[6][26][76], MAIN[6][26][60], MAIN[6][26][44], MAIN[7][28][76], MAIN[7][28][60], MAIN[7][28][44], MAIN[7][28][28], MAIN[7][28][12], MAIN[6][28][76], MAIN[6][28][60], MAIN[6][28][44]],
+					[MAIN[7][26][79], MAIN[7][26][63], MAIN[7][26][47], MAIN[7][26][31], MAIN[7][26][15], MAIN[6][26][79], MAIN[6][26][63], MAIN[6][26][47], MAIN[7][28][79], MAIN[7][28][63], MAIN[7][28][47], MAIN[7][28][31], MAIN[7][28][15], MAIN[6][28][79], MAIN[6][28][63], MAIN[6][28][47]],
+					[MAIN[7][25][64], MAIN[7][25][48], MAIN[7][25][32], MAIN[7][25][16], MAIN[7][25][0], MAIN[6][25][64], MAIN[6][25][48], MAIN[6][25][32], MAIN[7][27][64], MAIN[7][27][48], MAIN[7][27][32], MAIN[7][27][16], MAIN[7][27][0], MAIN[6][27][64], MAIN[6][27][48], MAIN[6][27][32]],
+					[MAIN[7][25][67], MAIN[7][25][51], MAIN[7][25][35], MAIN[7][25][19], MAIN[7][25][3], MAIN[6][25][67], MAIN[6][25][51], MAIN[6][25][35], MAIN[7][27][67], MAIN[7][27][51], MAIN[7][27][35], MAIN[7][27][19], MAIN[7][27][3], MAIN[6][27][67], MAIN[6][27][51], MAIN[6][27][35]],
+					[MAIN[7][25][68], MAIN[7][25][52], MAIN[7][25][36], MAIN[7][25][20], MAIN[7][25][4], MAIN[6][25][68], MAIN[6][25][52], MAIN[6][25][36], MAIN[7][27][68], MAIN[7][27][52], MAIN[7][27][36], MAIN[7][27][20], MAIN[7][27][4], MAIN[6][27][68], MAIN[6][27][52], MAIN[6][27][36]],
+					[MAIN[7][25][71], MAIN[7][25][55], MAIN[7][25][39], MAIN[7][25][23], MAIN[7][25][7], MAIN[6][25][71], MAIN[6][25][55], MAIN[6][25][39], MAIN[7][27][71], MAIN[7][27][55], MAIN[7][27][39], MAIN[7][27][23], MAIN[7][27][7], MAIN[6][27][71], MAIN[6][27][55], MAIN[6][27][39]],
+					[MAIN[7][25][72], MAIN[7][25][56], MAIN[7][25][40], MAIN[7][25][24], MAIN[7][25][8], MAIN[6][25][72], MAIN[6][25][56], MAIN[6][25][40], MAIN[7][27][72], MAIN[7][27][56], MAIN[7][27][40], MAIN[7][27][24], MAIN[7][27][8], MAIN[6][27][72], MAIN[6][27][56], MAIN[6][27][40]],
+					[MAIN[7][25][75], MAIN[7][25][59], MAIN[7][25][43], MAIN[7][25][27], MAIN[7][25][11], MAIN[6][25][75], MAIN[6][25][59], MAIN[6][25][43], MAIN[7][27][75], MAIN[7][27][59], MAIN[7][27][43], MAIN[7][27][27], MAIN[7][27][11], MAIN[6][27][75], MAIN[6][27][59], MAIN[6][27][43]],
+					[MAIN[7][25][76], MAIN[7][25][60], MAIN[7][25][44], MAIN[7][25][28], MAIN[7][25][12], MAIN[6][25][76], MAIN[6][25][60], MAIN[6][25][44], MAIN[7][27][76], MAIN[7][27][60], MAIN[7][27][44], MAIN[7][27][28], MAIN[7][27][12], MAIN[6][27][76], MAIN[6][27][60], MAIN[6][27][44]],
+					[MAIN[7][25][79], MAIN[7][25][63], MAIN[7][25][47], MAIN[7][25][31], MAIN[7][25][15], MAIN[6][25][79], MAIN[6][25][63], MAIN[6][25][47], MAIN[7][27][79], MAIN[7][27][63], MAIN[7][27][47], MAIN[7][27][31], MAIN[7][27][15], MAIN[6][27][79], MAIN[6][27][63], MAIN[6][27][47]],
+					[MAIN[7][20][64], MAIN[7][20][48], MAIN[7][20][32], MAIN[7][20][16], MAIN[7][20][0], MAIN[6][20][64], MAIN[6][20][48], MAIN[6][20][32], MAIN[7][24][64], MAIN[7][24][48], MAIN[7][24][32], MAIN[7][24][16], MAIN[7][24][0], MAIN[6][24][64], MAIN[6][24][48], MAIN[6][24][32]],
+					[MAIN[7][20][67], MAIN[7][20][51], MAIN[7][20][35], MAIN[7][20][19], MAIN[7][20][3], MAIN[6][20][67], MAIN[6][20][51], MAIN[6][20][35], MAIN[7][24][67], MAIN[7][24][51], MAIN[7][24][35], MAIN[7][24][19], MAIN[7][24][3], MAIN[6][24][67], MAIN[6][24][51], MAIN[6][24][35]],
+					[MAIN[7][20][68], MAIN[7][20][52], MAIN[7][20][36], MAIN[7][20][20], MAIN[7][20][4], MAIN[6][20][68], MAIN[6][20][52], MAIN[6][20][36], MAIN[7][24][68], MAIN[7][24][52], MAIN[7][24][36], MAIN[7][24][20], MAIN[7][24][4], MAIN[6][24][68], MAIN[6][24][52], MAIN[6][24][36]],
+					[MAIN[7][20][71], MAIN[7][20][55], MAIN[7][20][39], MAIN[7][20][23], MAIN[7][20][7], MAIN[6][20][71], MAIN[6][20][55], MAIN[6][20][39], MAIN[7][24][71], MAIN[7][24][55], MAIN[7][24][39], MAIN[7][24][23], MAIN[7][24][7], MAIN[6][24][71], MAIN[6][24][55], MAIN[6][24][39]],
+					[MAIN[7][20][72], MAIN[7][20][56], MAIN[7][20][40], MAIN[7][20][24], MAIN[7][20][8], MAIN[6][20][72], MAIN[6][20][56], MAIN[6][20][40], MAIN[7][24][72], MAIN[7][24][56], MAIN[7][24][40], MAIN[7][24][24], MAIN[7][24][8], MAIN[6][24][72], MAIN[6][24][56], MAIN[6][24][40]],
+					[MAIN[7][20][75], MAIN[7][20][59], MAIN[7][20][43], MAIN[7][20][27], MAIN[7][20][11], MAIN[6][20][75], MAIN[6][20][59], MAIN[6][20][43], MAIN[7][24][75], MAIN[7][24][59], MAIN[7][24][43], MAIN[7][24][27], MAIN[7][24][11], MAIN[6][24][75], MAIN[6][24][59], MAIN[6][24][43]],
+					[MAIN[7][20][76], MAIN[7][20][60], MAIN[7][20][44], MAIN[7][20][28], MAIN[7][20][12], MAIN[6][20][76], MAIN[6][20][60], MAIN[6][20][44], MAIN[7][24][76], MAIN[7][24][60], MAIN[7][24][44], MAIN[7][24][28], MAIN[7][24][12], MAIN[6][24][76], MAIN[6][24][60], MAIN[6][24][44]],
+					[MAIN[7][20][79], MAIN[7][20][63], MAIN[7][20][47], MAIN[7][20][31], MAIN[7][20][15], MAIN[6][20][79], MAIN[6][20][63], MAIN[6][20][47], MAIN[7][24][79], MAIN[7][24][63], MAIN[7][24][47], MAIN[7][24][31], MAIN[7][24][15], MAIN[6][24][79], MAIN[6][24][63], MAIN[6][24][47]],
+					[MAIN[7][19][64], MAIN[7][19][48], MAIN[7][19][32], MAIN[7][19][16], MAIN[7][19][0], MAIN[6][19][64], MAIN[6][19][48], MAIN[6][19][32], MAIN[7][21][64], MAIN[7][21][48], MAIN[7][21][32], MAIN[7][21][16], MAIN[7][21][0], MAIN[6][21][64], MAIN[6][21][48], MAIN[6][21][32]],
+					[MAIN[7][19][67], MAIN[7][19][51], MAIN[7][19][35], MAIN[7][19][19], MAIN[7][19][3], MAIN[6][19][67], MAIN[6][19][51], MAIN[6][19][35], MAIN[7][21][67], MAIN[7][21][51], MAIN[7][21][35], MAIN[7][21][19], MAIN[7][21][3], MAIN[6][21][67], MAIN[6][21][51], MAIN[6][21][35]],
+					[MAIN[7][19][68], MAIN[7][19][52], MAIN[7][19][36], MAIN[7][19][20], MAIN[7][19][4], MAIN[6][19][68], MAIN[6][19][52], MAIN[6][19][36], MAIN[7][21][68], MAIN[7][21][52], MAIN[7][21][36], MAIN[7][21][20], MAIN[7][21][4], MAIN[6][21][68], MAIN[6][21][52], MAIN[6][21][36]],
+					[MAIN[7][19][71], MAIN[7][19][55], MAIN[7][19][39], MAIN[7][19][23], MAIN[7][19][7], MAIN[6][19][71], MAIN[6][19][55], MAIN[6][19][39], MAIN[7][21][71], MAIN[7][21][55], MAIN[7][21][39], MAIN[7][21][23], MAIN[7][21][7], MAIN[6][21][71], MAIN[6][21][55], MAIN[6][21][39]],
+					[MAIN[7][19][72], MAIN[7][19][56], MAIN[7][19][40], MAIN[7][19][24], MAIN[7][19][8], MAIN[6][19][72], MAIN[6][19][56], MAIN[6][19][40], MAIN[7][21][72], MAIN[7][21][56], MAIN[7][21][40], MAIN[7][21][24], MAIN[7][21][8], MAIN[6][21][72], MAIN[6][21][56], MAIN[6][21][40]],
+					[MAIN[7][19][75], MAIN[7][19][59], MAIN[7][19][43], MAIN[7][19][27], MAIN[7][19][11], MAIN[6][19][75], MAIN[6][19][59], MAIN[6][19][43], MAIN[7][21][75], MAIN[7][21][59], MAIN[7][21][43], MAIN[7][21][27], MAIN[7][21][11], MAIN[6][21][75], MAIN[6][21][59], MAIN[6][21][43]],
+					[MAIN[7][19][76], MAIN[7][19][60], MAIN[7][19][44], MAIN[7][19][28], MAIN[7][19][12], MAIN[6][19][76], MAIN[6][19][60], MAIN[6][19][44], MAIN[7][21][76], MAIN[7][21][60], MAIN[7][21][44], MAIN[7][21][28], MAIN[7][21][12], MAIN[6][21][76], MAIN[6][21][60], MAIN[6][21][44]],
+					[MAIN[7][19][79], MAIN[7][19][63], MAIN[7][19][47], MAIN[7][19][31], MAIN[7][19][15], MAIN[6][19][79], MAIN[6][19][63], MAIN[6][19][47], MAIN[7][21][79], MAIN[7][21][63], MAIN[7][21][47], MAIN[7][21][31], MAIN[7][21][15], MAIN[6][21][79], MAIN[6][21][63], MAIN[6][21][47]],
+					[MAIN[7][20][65], MAIN[7][20][49], MAIN[7][20][33], MAIN[7][20][17], MAIN[7][20][1], MAIN[6][20][65], MAIN[6][20][49], MAIN[6][20][33], MAIN[7][24][65], MAIN[7][24][49], MAIN[7][24][33], MAIN[7][24][17], MAIN[7][24][1], MAIN[6][24][65], MAIN[6][24][49], MAIN[6][24][33]],
+					[MAIN[7][20][66], MAIN[7][20][50], MAIN[7][20][34], MAIN[7][20][18], MAIN[7][20][2], MAIN[6][20][66], MAIN[6][20][50], MAIN[6][20][34], MAIN[7][24][66], MAIN[7][24][50], MAIN[7][24][34], MAIN[7][24][18], MAIN[7][24][2], MAIN[6][24][66], MAIN[6][24][50], MAIN[6][24][34]],
+					[MAIN[7][20][69], MAIN[7][20][53], MAIN[7][20][37], MAIN[7][20][21], MAIN[7][20][5], MAIN[6][20][69], MAIN[6][20][53], MAIN[6][20][37], MAIN[7][24][69], MAIN[7][24][53], MAIN[7][24][37], MAIN[7][24][21], MAIN[7][24][5], MAIN[6][24][69], MAIN[6][24][53], MAIN[6][24][37]],
+					[MAIN[7][20][70], MAIN[7][20][54], MAIN[7][20][38], MAIN[7][20][22], MAIN[7][20][6], MAIN[6][20][70], MAIN[6][20][54], MAIN[6][20][38], MAIN[7][24][70], MAIN[7][24][54], MAIN[7][24][38], MAIN[7][24][22], MAIN[7][24][6], MAIN[6][24][70], MAIN[6][24][54], MAIN[6][24][38]],
+					[MAIN[7][20][73], MAIN[7][20][57], MAIN[7][20][41], MAIN[7][20][25], MAIN[7][20][9], MAIN[6][20][73], MAIN[6][20][57], MAIN[6][20][41], MAIN[7][24][73], MAIN[7][24][57], MAIN[7][24][41], MAIN[7][24][25], MAIN[7][24][9], MAIN[6][24][73], MAIN[6][24][57], MAIN[6][24][41]],
+					[MAIN[7][20][74], MAIN[7][20][58], MAIN[7][20][42], MAIN[7][20][26], MAIN[7][20][10], MAIN[6][20][74], MAIN[6][20][58], MAIN[6][20][42], MAIN[7][24][74], MAIN[7][24][58], MAIN[7][24][42], MAIN[7][24][26], MAIN[7][24][10], MAIN[6][24][74], MAIN[6][24][58], MAIN[6][24][42]],
+					[MAIN[7][20][77], MAIN[7][20][61], MAIN[7][20][45], MAIN[7][20][29], MAIN[7][20][13], MAIN[6][20][77], MAIN[6][20][61], MAIN[6][20][45], MAIN[7][24][77], MAIN[7][24][61], MAIN[7][24][45], MAIN[7][24][29], MAIN[7][24][13], MAIN[6][24][77], MAIN[6][24][61], MAIN[6][24][45]],
+					[MAIN[7][20][78], MAIN[7][20][62], MAIN[7][20][46], MAIN[7][20][30], MAIN[7][20][14], MAIN[6][20][78], MAIN[6][20][62], MAIN[6][20][46], MAIN[7][24][78], MAIN[7][24][62], MAIN[7][24][46], MAIN[7][24][30], MAIN[7][24][14], MAIN[6][24][78], MAIN[6][24][62], MAIN[6][24][46]],
+					[MAIN[7][19][65], MAIN[7][19][49], MAIN[7][19][33], MAIN[7][19][17], MAIN[7][19][1], MAIN[6][19][65], MAIN[6][19][49], MAIN[6][19][33], MAIN[7][21][65], MAIN[7][21][49], MAIN[7][21][33], MAIN[7][21][17], MAIN[7][21][1], MAIN[6][21][65], MAIN[6][21][49], MAIN[6][21][33]],
+					[MAIN[7][19][66], MAIN[7][19][50], MAIN[7][19][34], MAIN[7][19][18], MAIN[7][19][2], MAIN[6][19][66], MAIN[6][19][50], MAIN[6][19][34], MAIN[7][21][66], MAIN[7][21][50], MAIN[7][21][34], MAIN[7][21][18], MAIN[7][21][2], MAIN[6][21][66], MAIN[6][21][50], MAIN[6][21][34]],
+					[MAIN[7][19][69], MAIN[7][19][53], MAIN[7][19][37], MAIN[7][19][21], MAIN[7][19][5], MAIN[6][19][69], MAIN[6][19][53], MAIN[6][19][37], MAIN[7][21][69], MAIN[7][21][53], MAIN[7][21][37], MAIN[7][21][21], MAIN[7][21][5], MAIN[6][21][69], MAIN[6][21][53], MAIN[6][21][37]],
+					[MAIN[7][19][70], MAIN[7][19][54], MAIN[7][19][38], MAIN[7][19][22], MAIN[7][19][6], MAIN[6][19][70], MAIN[6][19][54], MAIN[6][19][38], MAIN[7][21][70], MAIN[7][21][54], MAIN[7][21][38], MAIN[7][21][22], MAIN[7][21][6], MAIN[6][21][70], MAIN[6][21][54], MAIN[6][21][38]],
+					[MAIN[7][19][73], MAIN[7][19][57], MAIN[7][19][41], MAIN[7][19][25], MAIN[7][19][9], MAIN[6][19][73], MAIN[6][19][57], MAIN[6][19][41], MAIN[7][21][73], MAIN[7][21][57], MAIN[7][21][41], MAIN[7][21][25], MAIN[7][21][9], MAIN[6][21][73], MAIN[6][21][57], MAIN[6][21][41]],
+					[MAIN[7][19][74], MAIN[7][19][58], MAIN[7][19][42], MAIN[7][19][26], MAIN[7][19][10], MAIN[6][19][74], MAIN[6][19][58], MAIN[6][19][42], MAIN[7][21][74], MAIN[7][21][58], MAIN[7][21][42], MAIN[7][21][26], MAIN[7][21][10], MAIN[6][21][74], MAIN[6][21][58], MAIN[6][21][42]],
+					[MAIN[7][19][77], MAIN[7][19][61], MAIN[7][19][45], MAIN[7][19][29], MAIN[7][19][13], MAIN[6][19][77], MAIN[6][19][61], MAIN[6][19][45], MAIN[7][21][77], MAIN[7][21][61], MAIN[7][21][45], MAIN[7][21][29], MAIN[7][21][13], MAIN[6][21][77], MAIN[6][21][61], MAIN[6][21][45]],
+					[MAIN[7][19][78], MAIN[7][19][62], MAIN[7][19][46], MAIN[7][19][30], MAIN[7][19][14], MAIN[6][19][78], MAIN[6][19][62], MAIN[6][19][46], MAIN[7][21][78], MAIN[7][21][62], MAIN[7][21][46], MAIN[7][21][30], MAIN[7][21][14], MAIN[6][21][78], MAIN[6][21][62], MAIN[6][21][46]],
+				];
+				attribute MONITOR_MODE @[MAIN[3][18][35], MAIN[3][18][34]] {
+					MONITOR = 0b00,
+					ADC = 0b01,
+					TEST = 0b10,
+				}
+				attribute BLOCK_ENABLE @[MAIN[3][18][12], MAIN[3][18][11], MAIN[3][18][9], MAIN[3][18][8], MAIN[3][18][5]];
+				attribute DCLK_DIVID_2 @[MAIN[2][18][44]];
+				attribute LW_DIVID_2_4 @[MAIN[2][18][41]];
+				attribute DCLK_MISSING @[MAIN[2][18][38], MAIN[2][18][37], MAIN[2][18][35], MAIN[2][18][34], MAIN[2][18][14], MAIN[2][18][12], MAIN[2][18][11], MAIN[2][18][9], MAIN[2][18][8], MAIN[2][18][5]];
+				attribute FEATURE_ENABLE @[MAIN[1][18][35], MAIN[1][18][34], MAIN[1][18][14], MAIN[1][18][12], MAIN[1][18][11], MAIN[1][18][9], MAIN[1][18][8], MAIN[1][18][5]];
+				attribute MCCLK_DIVID @[MAIN[3][18][68], MAIN[3][18][67], MAIN[3][18][65], MAIN[3][18][46], MAIN[3][18][45], MAIN[3][18][44], MAIN[3][18][41], MAIN[3][18][38]];
+				attribute OVER_TEMPERATURE @[MAIN[4][18][38], MAIN[4][18][37], MAIN[4][18][35], MAIN[4][18][34], MAIN[4][18][14], MAIN[4][18][12], MAIN[4][18][11], MAIN[4][18][9], MAIN[4][18][8], MAIN[4][18][5]];
+				attribute OVER_TEMPERATURE_DELAY @[MAIN[4][18][72], MAIN[4][18][70], MAIN[4][18][68], MAIN[4][18][67], MAIN[4][18][65], MAIN[4][18][46], MAIN[4][18][45], MAIN[4][18][44]];
+				attribute OVER_TEMPERATURE_OFF @[MAIN[4][18][41]];
+				attribute PROM_DATA @[MAIN[5][18][35], MAIN[5][18][34], MAIN[5][18][14], MAIN[5][18][12], MAIN[5][18][11], MAIN[5][18][9], MAIN[5][18][8], MAIN[5][18][5]];
+			}
+
+			// wire CELL[0].OUT_BEST_TMIN[0]       SYSMON.DB[8]
+			// wire CELL[0].OUT_BEST_TMIN[1]       SYSMON.DB[9]
+			// wire CELL[0].OUT_BEST_TMIN[2]       SYSMON.DB[10]
+			// wire CELL[0].OUT_BEST_TMIN[3]       SYSMON.DB[11]
+			// wire CELL[0].OUT_BEST_TMIN[4]       SYSMON.ALARM[4]
+			// wire CELL[0].OUT_BEST_TMIN[5]       SYSMON.ALARM[5]
+			// wire CELL[0].OUT_BEST_TMIN[6]       SYSMON.ALARM[6]
+			// wire CELL[0].OUT_BEST_TMIN[7]       SYSMON.OT
+			// wire CELL[1].IMUX_IMUX[0]           SYSMON.ROMTESTADDR[0]
+			// wire CELL[1].IMUX_IMUX[1]           SYSMON.ROMTESTADDR[1]
+			// wire CELL[1].IMUX_IMUX[2]           SYSMON.ROMTESTADDR[2]
+			// wire CELL[1].IMUX_IMUX[3]           SYSMON.ROMTESTADDR[3]
+			// wire CELL[1].IMUX_IMUX[4]           SYSMON.ROMTESTADDR[4]
+			// wire CELL[1].IMUX_IMUX[5]           SYSMON.ROMTESTADDR[5]
+			// wire CELL[1].IMUX_IMUX[6]           SYSMON.ROMTESTADDR[8]
+			// wire CELL[1].IMUX_IMUX[7]           SYSMON.ROMTESTADDR[9]
+			// wire CELL[1].OUT_BEST_TMIN[0]       SYSMON.DB[4]
+			// wire CELL[1].OUT_BEST_TMIN[1]       SYSMON.DB[5]
+			// wire CELL[1].OUT_BEST_TMIN[2]       SYSMON.DB[6]
+			// wire CELL[1].OUT_BEST_TMIN[3]       SYSMON.DB[7]
+			// wire CELL[1].OUT_BEST_TMIN[4]       SYSMON.ALARM[0]
+			// wire CELL[1].OUT_BEST_TMIN[5]       SYSMON.ALARM[1]
+			// wire CELL[1].OUT_BEST_TMIN[6]       SYSMON.ALARM[2]
+			// wire CELL[1].OUT_BEST_TMIN[7]       SYSMON.ALARM[3]
+			// wire CELL[2].IMUX_CE_OPTINV[0]      SYSMON.ROMTESTENABLE
+			// wire CELL[2].IMUX_IMUX[0]           SYSMON.ROMTESTADDR[10]
+			// wire CELL[2].IMUX_IMUX[1]           SYSMON.ROMTESTADDR[11]
+			// wire CELL[2].IMUX_IMUX[2]           SYSMON.ROMTESTADDR[12]
+			// wire CELL[2].IMUX_IMUX[3]           SYSMON.ROMTESTADDR[6]
+			// wire CELL[2].IMUX_IMUX[4]           SYSMON.ROMTESTADDR[7]
+			// wire CELL[2].IMUX_IMUX[5]           SYSMON.ROMTESTADDR[13]
+			// wire CELL[2].IMUX_IMUX[6]           SYSMON.ROMTESTADDR[14]
+			// wire CELL[2].IMUX_IMUX[7]           SYSMON.ROMTESTADDR[15]
+			// wire CELL[2].OUT_BEST_TMIN[0]       SYSMON.DB[0]
+			// wire CELL[2].OUT_BEST_TMIN[1]       SYSMON.DB[1]
+			// wire CELL[2].OUT_BEST_TMIN[2]       SYSMON.DB[2]
+			// wire CELL[2].OUT_BEST_TMIN[3]       SYSMON.DB[3]
+			// wire CELL[2].OUT_BEST_TMIN[4]       SYSMON.SDOB
+			// wire CELL[2].OUT_BEST_TMIN[5]       SYSMON.DRDY
+			// wire CELL[2].OUT_BEST_TMIN[7]       SYSMON.SDOA
+			// wire CELL[3].IMUX_CLK_OPTINV[0]     SYSMON.DCLK
+			// wire CELL[3].IMUX_CLK_OPTINV[1]     SYSMON.SCANMEMCLK
+			// wire CELL[3].IMUX_CLK_OPTINV[2]     SYSMON.SCLKA
+			// wire CELL[3].IMUX_SR_OPTINV[0]      SYSMON.RST
+			// wire CELL[3].IMUX_CE_OPTINV[0]      SYSMON.SCANTESTENA
+			// wire CELL[3].IMUX_CE_OPTINV[1]      SYSMON.SEA
+			// wire CELL[3].IMUX_CE_OPTINV[2]      SYSMON.SCANMEMWE
+			// wire CELL[3].IMUX_IMUX[4]           SYSMON.SDIA
+			// wire CELL[3].OUT_BEST_TMIN[0]       SYSMON.EOC
+			// wire CELL[3].OUT_BEST_TMIN[1]       SYSMON.BUSY
+			// wire CELL[3].OUT_BEST_TMIN[2]       SYSMON.CHANNEL[0]
+			// wire CELL[3].OUT_BEST_TMIN[3]       SYSMON.CHANNEL[1]
+			// wire CELL[3].OUT_BEST_TMIN[4]       SYSMON.CHANNEL[2]
+			// wire CELL[3].OUT_BEST_TMIN[5]       SYSMON.CHANNEL[3]
+			// wire CELL[3].OUT_BEST_TMIN[6]       SYSMON.CHANNEL[4]
+			// wire CELL[3].OUT_BEST_TMIN[7]       SYSMON.EOS
+			// wire CELL[4].IMUX_CLK_OPTINV[1]     SYSMON.SCLKB
+			// wire CELL[4].IMUX_CE_OPTINV[0]      SYSMON.SCANTESTENB
+			// wire CELL[4].IMUX_CE_OPTINV[1]      SYSMON.SEB
+			// wire CELL[4].IMUX_IMUX[5]           SYSMON.SDIB
+			// wire CELL[4].OUT_BEST_TMIN[0]       SYSMON.ROMTESTDATA[8]
+			// wire CELL[4].OUT_BEST_TMIN[1]       SYSMON.ROMTESTDATA[9]
+			// wire CELL[4].OUT_BEST_TMIN[2]       SYSMON.ROMTESTDATA[10]
+			// wire CELL[4].OUT_BEST_TMIN[3]       SYSMON.ROMTESTDATA[11]
+			// wire CELL[4].OUT_BEST_TMIN[4]       SYSMON.ROMTESTDATA[12]
+			// wire CELL[4].OUT_BEST_TMIN[5]       SYSMON.ROMTESTDATA[13]
+			// wire CELL[4].OUT_BEST_TMIN[6]       SYSMON.ROMTESTDATA[14]
+			// wire CELL[4].OUT_BEST_TMIN[7]       SYSMON.ROMTESTDATA[15]
+			// wire CELL[4].IMUX_SPEC[0]           SYSMON.CONVST
+			// wire CELL[5].IMUX_CE_OPTINV[0]      SYSMON.DWE
+			// wire CELL[5].IMUX_CE_OPTINV[1]      SYSMON.DEN
+			// wire CELL[5].IMUX_IMUX[0]           SYSMON.DADDR[0]
+			// wire CELL[5].IMUX_IMUX[1]           SYSMON.DADDR[1]
+			// wire CELL[5].IMUX_IMUX[2]           SYSMON.DADDR[2]
+			// wire CELL[5].IMUX_IMUX[3]           SYSMON.DADDR[3]
+			// wire CELL[5].IMUX_IMUX[4]           SYSMON.DADDR[4]
+			// wire CELL[5].IMUX_IMUX[5]           SYSMON.DADDR[5]
+			// wire CELL[5].IMUX_IMUX[6]           SYSMON.DADDR[6]
+			// wire CELL[5].OUT_BEST_TMIN[0]       SYSMON.ROMTESTDATA[0]
+			// wire CELL[5].OUT_BEST_TMIN[1]       SYSMON.ROMTESTDATA[1]
+			// wire CELL[5].OUT_BEST_TMIN[2]       SYSMON.ROMTESTDATA[2]
+			// wire CELL[5].OUT_BEST_TMIN[3]       SYSMON.ROMTESTDATA[3]
+			// wire CELL[5].OUT_BEST_TMIN[4]       SYSMON.ROMTESTDATA[4]
+			// wire CELL[5].OUT_BEST_TMIN[5]       SYSMON.ROMTESTDATA[5]
+			// wire CELL[5].OUT_BEST_TMIN[6]       SYSMON.ROMTESTDATA[6]
+			// wire CELL[5].OUT_BEST_TMIN[7]       SYSMON.ROMTESTDATA[7]
+			// wire CELL[6].IMUX_IMUX[0]           SYSMON.DI[8]
+			// wire CELL[6].IMUX_IMUX[1]           SYSMON.DI[9]
+			// wire CELL[6].IMUX_IMUX[2]           SYSMON.DI[10]
+			// wire CELL[6].IMUX_IMUX[3]           SYSMON.DI[11]
+			// wire CELL[6].IMUX_IMUX[4]           SYSMON.DI[12]
+			// wire CELL[6].IMUX_IMUX[5]           SYSMON.DI[13]
+			// wire CELL[6].IMUX_IMUX[6]           SYSMON.DI[14]
+			// wire CELL[6].IMUX_IMUX[7]           SYSMON.DI[15]
+			// wire CELL[6].OUT_BEST_TMIN[0]       SYSMON.DO[8]
+			// wire CELL[6].OUT_BEST_TMIN[1]       SYSMON.DO[9]
+			// wire CELL[6].OUT_BEST_TMIN[2]       SYSMON.DO[10]
+			// wire CELL[6].OUT_BEST_TMIN[3]       SYSMON.DO[11]
+			// wire CELL[6].OUT_BEST_TMIN[4]       SYSMON.DO[12]
+			// wire CELL[6].OUT_BEST_TMIN[5]       SYSMON.DO[13]
+			// wire CELL[6].OUT_BEST_TMIN[6]       SYSMON.DO[14]
+			// wire CELL[6].OUT_BEST_TMIN[7]       SYSMON.DO[15]
+			// wire CELL[7].IMUX_IMUX[0]           SYSMON.DI[0]
+			// wire CELL[7].IMUX_IMUX[1]           SYSMON.DI[1]
+			// wire CELL[7].IMUX_IMUX[2]           SYSMON.DI[2]
+			// wire CELL[7].IMUX_IMUX[3]           SYSMON.DI[3]
+			// wire CELL[7].IMUX_IMUX[4]           SYSMON.DI[4]
+			// wire CELL[7].IMUX_IMUX[5]           SYSMON.DI[5]
+			// wire CELL[7].IMUX_IMUX[6]           SYSMON.DI[6]
+			// wire CELL[7].IMUX_IMUX[7]           SYSMON.DI[7]
+			// wire CELL[7].OUT_BEST_TMIN[0]       SYSMON.DO[0]
+			// wire CELL[7].OUT_BEST_TMIN[1]       SYSMON.DO[1]
+			// wire CELL[7].OUT_BEST_TMIN[2]       SYSMON.DO[2]
+			// wire CELL[7].OUT_BEST_TMIN[3]       SYSMON.DO[3]
+			// wire CELL[7].OUT_BEST_TMIN[4]       SYSMON.DO[4]
+			// wire CELL[7].OUT_BEST_TMIN[5]       SYSMON.DO[5]
+			// wire CELL[7].OUT_BEST_TMIN[6]       SYSMON.DO[6]
+			// wire CELL[7].OUT_BEST_TMIN[7]       SYSMON.DO[7]
 		}
 
 		tile_class PPC {
@@ -50397,11 +50672,11 @@ intdb {
 			// wire CELL_W[5].OUT_HALF1_BEL[1]     PPC.TSTC405APUWBFLUSHO
 			// wire CELL_W[5].OUT_HALF1_BEL[2]     PPC.TSTC405APUWBHOLDO
 			// wire CELL_W[5].OUT_HALF1_BEL[3]     PPC.TSTC405APUDCDFULLO
+			// wire CELL_W[6].IMUX_CLK_OPTINV[0]   EMAC.EMAC0TIBUS[0]
 			// wire CELL_W[6].IMUX_SR_OPTINV[0]    PPC.TIEDCRADDR[4]
 			// wire CELL_W[6].IMUX_SR_OPTINV[1]    EMAC.TIEEMAC0UNICASTADDR[0]
 			// wire CELL_W[6].IMUX_SR_OPTINV[2]    EMAC.TIEEMAC0UNICASTADDR[1]
 			// wire CELL_W[6].IMUX_SR_OPTINV[3]    EMAC.TIEEMAC0UNICASTADDR[2]
-			// wire CELL_W[6].IMUX_CLK_OPTINV[0]   EMAC.EMAC0TIBUS[0]
 			// wire CELL_W[6].IMUX_CE_OPTINV[0]    PPC.TIEDCRADDR[0]
 			// wire CELL_W[6].IMUX_CE_OPTINV[1]    PPC.TIEDCRADDR[1]
 			// wire CELL_W[6].IMUX_CE_OPTINV[2]    PPC.TIEDCRADDR[2]
@@ -50454,11 +50729,11 @@ intdb {
 			// wire CELL_W[6].OUT_HALF1_BEL[5]     PPC.TSTC405DSOCMABORTOPO
 			// wire CELL_W[6].OUT_HALF1_BEL[6]     PPC.TSTC405DSOCMABORTREQO
 			// wire CELL_W[6].OUT_HALF1_BEL[7]     PPC.TSTC405DSOCMLOADREQO
+			// wire CELL_W[7].IMUX_CLK_OPTINV[0]   PPC.CPMDCRCLK
 			// wire CELL_W[7].IMUX_SR_OPTINV[0]    EMAC.TIEEMAC1UNICASTADDR[3]
 			// wire CELL_W[7].IMUX_SR_OPTINV[1]    EMAC.TIEEMAC1UNICASTADDR[2]
 			// wire CELL_W[7].IMUX_SR_OPTINV[2]    EMAC.TIEEMAC1UNICASTADDR[1]
 			// wire CELL_W[7].IMUX_SR_OPTINV[3]    EMAC.TIEEMAC1UNICASTADDR[0]
-			// wire CELL_W[7].IMUX_CLK_OPTINV[0]   PPC.CPMDCRCLK
 			// wire CELL_W[7].IMUX_CE_OPTINV[0]    PPC.TIEDCRADDR[5]
 			// wire CELL_W[7].IMUX_CE_OPTINV[1]    PPC.TESTSELI
 			// wire CELL_W[7].IMUX_CE_OPTINV[2]    EMAC.TIEEMAC0CONFIGVEC[63]
@@ -50511,11 +50786,11 @@ intdb {
 			// wire CELL_W[7].OUT_HALF1_BEL[5]     PPC.TSTC405APUEXEWDCNTO[1]
 			// wire CELL_W[7].OUT_HALF1_BEL[6]     PPC.TSTC405APUMSRFE0O
 			// wire CELL_W[7].OUT_HALF1_BEL[7]     PPC.TSTC405APUMSRFE1O
+			// wire CELL_W[8].IMUX_CLK_OPTINV[0]   EMAC.EMAC0TIBUS[1]
 			// wire CELL_W[8].IMUX_SR_OPTINV[0]    EMAC.TIEEMAC0CONFIGVEC[49]
 			// wire CELL_W[8].IMUX_SR_OPTINV[1]    EMAC.TIEEMAC0CONFIGVEC[50]
 			// wire CELL_W[8].IMUX_SR_OPTINV[2]    EMAC.TIEEMAC0CONFIGVEC[51]
 			// wire CELL_W[8].IMUX_SR_OPTINV[3]    EMAC.TIEEMAC0CONFIGVEC[52]
-			// wire CELL_W[8].IMUX_CLK_OPTINV[0]   EMAC.EMAC0TIBUS[1]
 			// wire CELL_W[8].IMUX_CE_OPTINV[0]    PPC.TIEPVRBIT[28]
 			// wire CELL_W[8].IMUX_CE_OPTINV[1]    PPC.TIEPVRBIT[29]
 			// wire CELL_W[8].IMUX_CE_OPTINV[2]    PPC.TIEPVRBIT[30]
@@ -50567,11 +50842,11 @@ intdb {
 			// wire CELL_W[8].OUT_HALF1_BEL[5]     PPC.TSTDSOCMC405RDDBUSO[29]
 			// wire CELL_W[8].OUT_HALF1_BEL[6]     PPC.TSTDSOCMC405RDDBUSO[30]
 			// wire CELL_W[8].OUT_HALF1_BEL[7]     PPC.TSTDSOCMC405RDDBUSO[31]
+			// wire CELL_W[9].IMUX_CLK_OPTINV[0]   EMAC.PHYEMAC0MCLKIN
 			// wire CELL_W[9].IMUX_SR_OPTINV[0]    EMAC.TIEEMAC0CONFIGVEC[53]
 			// wire CELL_W[9].IMUX_SR_OPTINV[1]    EMAC.TIEEMAC0CONFIGVEC[54]
 			// wire CELL_W[9].IMUX_SR_OPTINV[2]    EMAC.TIEEMAC0CONFIGVEC[55]
 			// wire CELL_W[9].IMUX_SR_OPTINV[3]    EMAC.TIEEMAC0CONFIGVEC[56]
-			// wire CELL_W[9].IMUX_CLK_OPTINV[0]   EMAC.PHYEMAC0MCLKIN
 			// wire CELL_W[9].IMUX_CE_OPTINV[0]    PPC.LSSDSCANIN[0]
 			// wire CELL_W[9].IMUX_CE_OPTINV[1]    PPC.LSSDSCANIN[1]
 			// wire CELL_W[9].IMUX_CE_OPTINV[2]    PPC.LSSDSCANIN[2]
@@ -50625,11 +50900,11 @@ intdb {
 			// wire CELL_W[9].OUT_HALF1_BEL[5]     PPC.TSTDSOCMC405RDDBUSO[25]
 			// wire CELL_W[9].OUT_HALF1_BEL[6]     PPC.TSTDSOCMC405RDDBUSO[26]
 			// wire CELL_W[9].OUT_HALF1_BEL[7]     PPC.TSTDSOCMC405RDDBUSO[27]
+			// wire CELL_W[10].IMUX_CLK_OPTINV[0]  EMAC.CLIENTEMAC0RXCLIENTCLKIN
 			// wire CELL_W[10].IMUX_SR_OPTINV[0]   EMAC.TIEEMAC0CONFIGVEC[57]
 			// wire CELL_W[10].IMUX_SR_OPTINV[1]   EMAC.TIEEMAC0CONFIGVEC[58]
 			// wire CELL_W[10].IMUX_SR_OPTINV[2]   EMAC.TIEEMAC0CONFIGVEC[59]
 			// wire CELL_W[10].IMUX_SR_OPTINV[3]   EMAC.TIEEMAC0CONFIGVEC[60]
-			// wire CELL_W[10].IMUX_CLK_OPTINV[0]  EMAC.CLIENTEMAC0RXCLIENTCLKIN
 			// wire CELL_W[10].IMUX_CE_OPTINV[0]   PPC.LSSDSCANIN[4]
 			// wire CELL_W[10].IMUX_CE_OPTINV[1]   PPC.LSSDSCANIN[5]
 			// wire CELL_W[10].IMUX_CE_OPTINV[2]   PPC.LSSDSCANIN[6]
@@ -50683,11 +50958,11 @@ intdb {
 			// wire CELL_W[10].OUT_HALF1_BEL[5]    PPC.TSTDSOCMC405RDDBUSO[21]
 			// wire CELL_W[10].OUT_HALF1_BEL[6]    PPC.TSTDSOCMC405RDDBUSO[22]
 			// wire CELL_W[10].OUT_HALF1_BEL[7]    PPC.TSTDSOCMC405RDDBUSO[23]
+			// wire CELL_W[11].IMUX_CLK_OPTINV[0]  EMAC.CLIENTEMAC0TXGMIIMIICLKIN
 			// wire CELL_W[11].IMUX_SR_OPTINV[0]   PPC.BISTCE0LOADIN
 			// wire CELL_W[11].IMUX_SR_OPTINV[1]   PPC.C405TESTRESERVE1
 			// wire CELL_W[11].IMUX_SR_OPTINV[2]   PPC.C405TESTRESERVE2
 			// wire CELL_W[11].IMUX_SR_OPTINV[3]   EMAC.TIEEMAC1CONFIGVEC[61]
-			// wire CELL_W[11].IMUX_CLK_OPTINV[0]  EMAC.CLIENTEMAC0TXGMIIMIICLKIN
 			// wire CELL_W[11].IMUX_CE_OPTINV[0]   PPC.LSSDSCANIN[8]
 			// wire CELL_W[11].IMUX_CE_OPTINV[1]   PPC.LSSDSCANIN[9]
 			// wire CELL_W[11].IMUX_CE_OPTINV[2]   PPC.LSSDSCANIN[10]
@@ -50735,11 +51010,11 @@ intdb {
 			// wire CELL_W[11].OUT_HALF1_BEL[5]    PPC.TSTDSOCMC405RDDBUSO[17]
 			// wire CELL_W[11].OUT_HALF1_BEL[6]    PPC.TSTDSOCMC405RDDBUSO[18]
 			// wire CELL_W[11].OUT_HALF1_BEL[7]    PPC.TSTDSOCMC405RDDBUSO[19]
+			// wire CELL_W[12].IMUX_CLK_OPTINV[0]  EMAC.CLIENTEMAC0TXCLIENTCLKIN
 			// wire CELL_W[12].IMUX_SR_OPTINV[0]   EMAC.TIEEMAC1CONFIGVEC[60]
 			// wire CELL_W[12].IMUX_SR_OPTINV[1]   EMAC.TIEEMAC1CONFIGVEC[59]
 			// wire CELL_W[12].IMUX_SR_OPTINV[2]   EMAC.TIEEMAC1CONFIGVEC[58]
 			// wire CELL_W[12].IMUX_SR_OPTINV[3]   EMAC.TIEEMAC1CONFIGVEC[57]
-			// wire CELL_W[12].IMUX_CLK_OPTINV[0]  EMAC.CLIENTEMAC0TXCLIENTCLKIN
 			// wire CELL_W[12].IMUX_CE_OPTINV[0]   PPC.LSSDSCANIN[12]
 			// wire CELL_W[12].IMUX_CE_OPTINV[1]   PPC.LSSDSCANIN[13]
 			// wire CELL_W[12].IMUX_CE_OPTINV[2]   PPC.LSSDSCANIN[14]
@@ -50788,11 +51063,11 @@ intdb {
 			// wire CELL_W[12].OUT_HALF1_BEL[5]    PPC.TSTDSOCMC405RDDBUSO[13]
 			// wire CELL_W[12].OUT_HALF1_BEL[6]    PPC.TSTDSOCMC405RDDBUSO[14]
 			// wire CELL_W[12].OUT_HALF1_BEL[7]    PPC.TSTDSOCMC405RDDBUSO[15]
+			// wire CELL_W[13].IMUX_CLK_OPTINV[0]  EMAC.PHYEMAC0MIITXCLK
 			// wire CELL_W[13].IMUX_SR_OPTINV[0]   EMAC.TIEEMAC1CONFIGVEC[56]
 			// wire CELL_W[13].IMUX_SR_OPTINV[1]   EMAC.TIEEMAC1CONFIGVEC[55]
 			// wire CELL_W[13].IMUX_SR_OPTINV[2]   EMAC.TIEEMAC1CONFIGVEC[54]
 			// wire CELL_W[13].IMUX_SR_OPTINV[3]   EMAC.TIEEMAC1CONFIGVEC[53]
-			// wire CELL_W[13].IMUX_CLK_OPTINV[0]  EMAC.PHYEMAC0MIITXCLK
 			// wire CELL_W[13].IMUX_CE_OPTINV[0]   PPC.TIEPVRBIT[8]
 			// wire CELL_W[13].IMUX_CE_OPTINV[1]   PPC.TIEPVRBIT[9]
 			// wire CELL_W[13].IMUX_CE_OPTINV[2]   PPC.TIEPVRBIT[10]
@@ -50841,11 +51116,11 @@ intdb {
 			// wire CELL_W[13].OUT_HALF1_BEL[5]    PPC.TSTDSOCMC405RDDBUSO[9]
 			// wire CELL_W[13].OUT_HALF1_BEL[6]    PPC.TSTDSOCMC405RDDBUSO[10]
 			// wire CELL_W[13].OUT_HALF1_BEL[7]    PPC.TSTDSOCMC405RDDBUSO[11]
+			// wire CELL_W[14].IMUX_CLK_OPTINV[0]  EMAC.PHYEMAC0RXCLK
 			// wire CELL_W[14].IMUX_SR_OPTINV[0]   PPC.MCBJTAGEN
 			// wire CELL_W[14].IMUX_SR_OPTINV[1]   PPC.MCBCPUCLKEN
 			// wire CELL_W[14].IMUX_SR_OPTINV[2]   PPC.MCBTIMEREN
 			// wire CELL_W[14].IMUX_SR_OPTINV[3]   PPC.MCPPCRST
-			// wire CELL_W[14].IMUX_CLK_OPTINV[0]  EMAC.PHYEMAC0RXCLK
 			// wire CELL_W[14].IMUX_CE_OPTINV[0]   PPC.BISTCE0CONTINUE
 			// wire CELL_W[14].IMUX_CE_OPTINV[1]   PPC.LSSDCE0TESTM3
 			// wire CELL_W[14].IMUX_CE_OPTINV[2]   PPC.LSSDCE0SCAN
@@ -50898,11 +51173,11 @@ intdb {
 			// wire CELL_W[14].OUT_HALF1_BEL[5]    PPC.TSTDSOCMC405RDDBUSO[5]
 			// wire CELL_W[14].OUT_HALF1_BEL[6]    PPC.TSTDSOCMC405RDDBUSO[6]
 			// wire CELL_W[14].OUT_HALF1_BEL[7]    PPC.TSTDSOCMC405RDDBUSO[7]
+			// wire CELL_W[15].IMUX_CLK_OPTINV[0]  EMAC.PHYEMAC0GTXCLK
 			// wire CELL_W[15].IMUX_SR_OPTINV[0]   EMAC.TIEEMAC1CONFIGVEC[63]
 			// wire CELL_W[15].IMUX_SR_OPTINV[1]   EMAC.TIEEMAC1CONFIGVEC[52]
 			// wire CELL_W[15].IMUX_SR_OPTINV[2]   EMAC.TIEEMAC1CONFIGVEC[51]
 			// wire CELL_W[15].IMUX_SR_OPTINV[3]   EMAC.TIEEMAC1CONFIGVEC[50]
-			// wire CELL_W[15].IMUX_CLK_OPTINV[0]  EMAC.PHYEMAC0GTXCLK
 			// wire CELL_W[15].IMUX_CE_OPTINV[0]   PPC.LSSDCE0A
 			// wire CELL_W[15].IMUX_CE_OPTINV[1]   PPC.BISTCE0TESTM1
 			// wire CELL_W[15].IMUX_CE_OPTINV[2]   PPC.BISTCE0DIAGSHIFTSEL
@@ -50953,11 +51228,11 @@ intdb {
 			// wire CELL_W[15].OUT_HALF1_BEL[5]    PPC.TSTDSOCMC405RDDBUSO[1]
 			// wire CELL_W[15].OUT_HALF1_BEL[6]    PPC.TSTDSOCMC405RDDBUSO[2]
 			// wire CELL_W[15].OUT_HALF1_BEL[7]    PPC.TSTDSOCMC405RDDBUSO[3]
+			// wire CELL_W[16].IMUX_CLK_OPTINV[0]  EMAC.HOSTCLK
 			// wire CELL_W[16].IMUX_SR_OPTINV[0]   EMAC.TIEEMAC1UNICASTADDR[7]
 			// wire CELL_W[16].IMUX_SR_OPTINV[1]   EMAC.TIEEMAC1UNICASTADDR[6]
 			// wire CELL_W[16].IMUX_SR_OPTINV[2]   EMAC.TIEEMAC1UNICASTADDR[5]
 			// wire CELL_W[16].IMUX_SR_OPTINV[3]   EMAC.TIEEMAC1UNICASTADDR[4]
-			// wire CELL_W[16].IMUX_CLK_OPTINV[0]  EMAC.HOSTCLK
 			// wire CELL_W[16].IMUX_CE_OPTINV[0]   EMAC.TIEEMAC1UNICASTADDR[11]
 			// wire CELL_W[16].IMUX_CE_OPTINV[1]   EMAC.TIEEMAC1UNICASTADDR[10]
 			// wire CELL_W[16].IMUX_CE_OPTINV[2]   EMAC.TIEEMAC1UNICASTADDR[9]
@@ -51010,11 +51285,11 @@ intdb {
 			// wire CELL_W[16].OUT_HALF1_BEL[5]    PPC.TSTC405DSOCMWRDBUSO[31]
 			// wire CELL_W[16].OUT_HALF1_BEL[6]    PPC.TSTC405DSOCMSTOREREQO
 			// wire CELL_W[16].OUT_HALF1_BEL[7]    PPC.TSTC405DSOCMWAITO
+			// wire CELL_W[17].IMUX_CLK_OPTINV[0]  EMAC.EMAC1TIBUS[0]
 			// wire CELL_W[17].IMUX_SR_OPTINV[0]   EMAC.TIEEMAC1UNICASTADDR[15]
 			// wire CELL_W[17].IMUX_SR_OPTINV[1]   EMAC.TIEEMAC1UNICASTADDR[14]
 			// wire CELL_W[17].IMUX_SR_OPTINV[2]   EMAC.TIEEMAC1UNICASTADDR[13]
 			// wire CELL_W[17].IMUX_SR_OPTINV[3]   EMAC.TIEEMAC1UNICASTADDR[12]
-			// wire CELL_W[17].IMUX_CLK_OPTINV[0]  EMAC.EMAC1TIBUS[0]
 			// wire CELL_W[17].IMUX_CE_OPTINV[0]   EMAC.TIEEMAC1UNICASTADDR[19]
 			// wire CELL_W[17].IMUX_CE_OPTINV[1]   EMAC.TIEEMAC1UNICASTADDR[18]
 			// wire CELL_W[17].IMUX_CE_OPTINV[2]   EMAC.TIEEMAC1UNICASTADDR[17]
@@ -51067,11 +51342,11 @@ intdb {
 			// wire CELL_W[17].OUT_HALF1_BEL[5]    PPC.TSTC405DSOCMWRDBUSO[25]
 			// wire CELL_W[17].OUT_HALF1_BEL[6]    PPC.TSTC405DSOCMWRDBUSO[26]
 			// wire CELL_W[17].OUT_HALF1_BEL[7]    PPC.TSTC405DSOCMWRDBUSO[27]
+			// wire CELL_W[18].IMUX_CLK_OPTINV[0]  EMAC.EMAC1TIBUS[1]
 			// wire CELL_W[18].IMUX_SR_OPTINV[0]   EMAC.TIEEMAC1UNICASTADDR[23]
 			// wire CELL_W[18].IMUX_SR_OPTINV[1]   EMAC.TIEEMAC1UNICASTADDR[22]
 			// wire CELL_W[18].IMUX_SR_OPTINV[2]   EMAC.TIEEMAC1UNICASTADDR[21]
 			// wire CELL_W[18].IMUX_SR_OPTINV[3]   EMAC.TIEEMAC1UNICASTADDR[20]
-			// wire CELL_W[18].IMUX_CLK_OPTINV[0]  EMAC.EMAC1TIBUS[1]
 			// wire CELL_W[18].IMUX_CE_OPTINV[0]   EMAC.TIEEMAC1UNICASTADDR[27]
 			// wire CELL_W[18].IMUX_CE_OPTINV[1]   EMAC.TIEEMAC1UNICASTADDR[26]
 			// wire CELL_W[18].IMUX_CE_OPTINV[2]   EMAC.TIEEMAC1UNICASTADDR[25]
@@ -51124,11 +51399,11 @@ intdb {
 			// wire CELL_W[18].OUT_HALF1_BEL[5]    PPC.TSTC405DSOCMWRDBUSO[21]
 			// wire CELL_W[18].OUT_HALF1_BEL[6]    PPC.TSTC405DSOCMWRDBUSO[22]
 			// wire CELL_W[18].OUT_HALF1_BEL[7]    PPC.TSTC405DSOCMWRDBUSO[23]
+			// wire CELL_W[19].IMUX_CLK_OPTINV[0]  EMAC.PHYEMAC1MCLKIN
 			// wire CELL_W[19].IMUX_SR_OPTINV[0]   EMAC.TIEEMAC1UNICASTADDR[31]
 			// wire CELL_W[19].IMUX_SR_OPTINV[1]   EMAC.TIEEMAC1UNICASTADDR[30]
 			// wire CELL_W[19].IMUX_SR_OPTINV[2]   EMAC.TIEEMAC1UNICASTADDR[29]
 			// wire CELL_W[19].IMUX_SR_OPTINV[3]   EMAC.TIEEMAC1UNICASTADDR[28]
-			// wire CELL_W[19].IMUX_CLK_OPTINV[0]  EMAC.PHYEMAC1MCLKIN
 			// wire CELL_W[19].IMUX_CE_OPTINV[0]   EMAC.TIEEMAC1UNICASTADDR[35]
 			// wire CELL_W[19].IMUX_CE_OPTINV[1]   EMAC.TIEEMAC1UNICASTADDR[34]
 			// wire CELL_W[19].IMUX_CE_OPTINV[2]   EMAC.TIEEMAC1UNICASTADDR[33]
@@ -51181,11 +51456,11 @@ intdb {
 			// wire CELL_W[19].OUT_HALF1_BEL[5]    PPC.TSTC405DSOCMWRDBUSO[17]
 			// wire CELL_W[19].OUT_HALF1_BEL[6]    PPC.TSTC405DSOCMWRDBUSO[18]
 			// wire CELL_W[19].OUT_HALF1_BEL[7]    PPC.TSTC405DSOCMWRDBUSO[19]
+			// wire CELL_W[20].IMUX_CLK_OPTINV[0]  EMAC.CLIENTEMAC1RXCLIENTCLKIN
 			// wire CELL_W[20].IMUX_SR_OPTINV[0]   EMAC.TIEEMAC1UNICASTADDR[39]
 			// wire CELL_W[20].IMUX_SR_OPTINV[1]   EMAC.TIEEMAC1UNICASTADDR[38]
 			// wire CELL_W[20].IMUX_SR_OPTINV[2]   EMAC.TIEEMAC1UNICASTADDR[37]
 			// wire CELL_W[20].IMUX_SR_OPTINV[3]   EMAC.TIEEMAC1UNICASTADDR[36]
-			// wire CELL_W[20].IMUX_CLK_OPTINV[0]  EMAC.CLIENTEMAC1RXCLIENTCLKIN
 			// wire CELL_W[20].IMUX_CE_OPTINV[0]   EMAC.TIEEMAC1UNICASTADDR[43]
 			// wire CELL_W[20].IMUX_CE_OPTINV[1]   EMAC.TIEEMAC1UNICASTADDR[42]
 			// wire CELL_W[20].IMUX_CE_OPTINV[2]   EMAC.TIEEMAC1UNICASTADDR[41]
@@ -51237,11 +51512,11 @@ intdb {
 			// wire CELL_W[20].OUT_HALF1_BEL[5]    PPC.TSTC405DSOCMWRDBUSO[13]
 			// wire CELL_W[20].OUT_HALF1_BEL[6]    PPC.TSTC405DSOCMWRDBUSO[14]
 			// wire CELL_W[20].OUT_HALF1_BEL[7]    PPC.TSTC405DSOCMWRDBUSO[15]
+			// wire CELL_W[21].IMUX_CLK_OPTINV[0]  EMAC.CLIENTEMAC1TXGMIIMIICLKIN
 			// wire CELL_W[21].IMUX_SR_OPTINV[0]   EMAC.TIEEMAC1UNICASTADDR[47]
 			// wire CELL_W[21].IMUX_SR_OPTINV[1]   EMAC.TIEEMAC1UNICASTADDR[46]
 			// wire CELL_W[21].IMUX_SR_OPTINV[2]   EMAC.TIEEMAC1UNICASTADDR[45]
 			// wire CELL_W[21].IMUX_SR_OPTINV[3]   EMAC.TIEEMAC1UNICASTADDR[44]
-			// wire CELL_W[21].IMUX_CLK_OPTINV[0]  EMAC.CLIENTEMAC1TXGMIIMIICLKIN
 			// wire CELL_W[21].IMUX_CE_OPTINV[0]   EMAC.TIEEMAC1CONFIGVEC[3]
 			// wire CELL_W[21].IMUX_CE_OPTINV[1]   EMAC.TIEEMAC1CONFIGVEC[2]
 			// wire CELL_W[21].IMUX_CE_OPTINV[2]   EMAC.TIEEMAC1CONFIGVEC[1]
@@ -51294,11 +51569,11 @@ intdb {
 			// wire CELL_W[21].OUT_HALF1_BEL[5]    PPC.TSTC405DSOCMWRDBUSO[9]
 			// wire CELL_W[21].OUT_HALF1_BEL[6]    PPC.TSTC405DSOCMWRDBUSO[10]
 			// wire CELL_W[21].OUT_HALF1_BEL[7]    PPC.TSTC405DSOCMWRDBUSO[11]
+			// wire CELL_W[22].IMUX_CLK_OPTINV[0]  EMAC.CLIENTEMAC1TXCLIENTCLKIN
 			// wire CELL_W[22].IMUX_SR_OPTINV[0]   EMAC.TIEEMAC1CONFIGVEC[7]
 			// wire CELL_W[22].IMUX_SR_OPTINV[1]   EMAC.TIEEMAC1CONFIGVEC[6]
 			// wire CELL_W[22].IMUX_SR_OPTINV[2]   EMAC.TIEEMAC1CONFIGVEC[5]
 			// wire CELL_W[22].IMUX_SR_OPTINV[3]   EMAC.TIEEMAC1CONFIGVEC[4]
-			// wire CELL_W[22].IMUX_CLK_OPTINV[0]  EMAC.CLIENTEMAC1TXCLIENTCLKIN
 			// wire CELL_W[22].IMUX_CE_OPTINV[0]   EMAC.TIEEMAC1CONFIGVEC[11]
 			// wire CELL_W[22].IMUX_CE_OPTINV[1]   EMAC.TIEEMAC1CONFIGVEC[10]
 			// wire CELL_W[22].IMUX_CE_OPTINV[2]   EMAC.TIEEMAC1CONFIGVEC[9]
@@ -52894,11 +53169,11 @@ intdb {
 			// wire CELL_S[2].OUT_HALF1_BEL[3]     PPC.TSTC405ISOCMABUSO[27]
 			// wire CELL_S[2].OUT_HALF1_BEL[4]     PPC.TSTC405ISOCMABUSO[28]
 			// wire CELL_S[2].OUT_HALF1_BEL[5]     PPC.TSTC405ISOCMABUSO[29]
+			// wire CELL_S[3].IMUX_CLK_OPTINV[0]   PPC.PLBCLK
 			// wire CELL_S[3].IMUX_SR_OPTINV[0]    EMAC.TIEEMAC0CONFIGVEC[45]
 			// wire CELL_S[3].IMUX_SR_OPTINV[1]    EMAC.TIEEMAC0CONFIGVEC[46]
 			// wire CELL_S[3].IMUX_SR_OPTINV[2]    EMAC.TIEEMAC0CONFIGVEC[47]
 			// wire CELL_S[3].IMUX_SR_OPTINV[3]    EMAC.TIEEMAC0CONFIGVEC[48]
-			// wire CELL_S[3].IMUX_CLK_OPTINV[0]   PPC.PLBCLK
 			// wire CELL_S[3].IMUX_CE_OPTINV[0]    EMAC.TIEEMAC0CONFIGVEC[41]
 			// wire CELL_S[3].IMUX_CE_OPTINV[1]    EMAC.TIEEMAC0CONFIGVEC[42]
 			// wire CELL_S[3].IMUX_CE_OPTINV[2]    EMAC.TIEEMAC0CONFIGVEC[43]
@@ -52951,11 +53226,11 @@ intdb {
 			// wire CELL_S[3].OUT_HALF1_BEL[5]     PPC.TSTC405ISOCMABUSO[21]
 			// wire CELL_S[3].OUT_HALF1_BEL[6]     PPC.TSTC405ISOCMABUSO[22]
 			// wire CELL_S[3].OUT_HALF1_BEL[7]     PPC.TSTC405ISOCMABUSO[23]
+			// wire CELL_S[4].IMUX_CLK_OPTINV[0]   PPC.JTGC405TCK
 			// wire CELL_S[4].IMUX_SR_OPTINV[0]    PPC.ISCNTLVALUE[4]
 			// wire CELL_S[4].IMUX_SR_OPTINV[1]    PPC.ISCNTLVALUE[5]
 			// wire CELL_S[4].IMUX_SR_OPTINV[2]    PPC.ISCNTLVALUE[6]
 			// wire CELL_S[4].IMUX_SR_OPTINV[3]    PPC.ISCNTLVALUE[7]
-			// wire CELL_S[4].IMUX_CLK_OPTINV[0]   PPC.JTGC405TCK
 			// wire CELL_S[4].IMUX_CE_OPTINV[0]    PPC.ISCNTLVALUE[0]
 			// wire CELL_S[4].IMUX_CE_OPTINV[1]    PPC.ISCNTLVALUE[1]
 			// wire CELL_S[4].IMUX_CE_OPTINV[2]    PPC.ISCNTLVALUE[2]
@@ -53006,11 +53281,11 @@ intdb {
 			// wire CELL_S[4].OUT_HALF1_BEL[5]     PPC.TSTC405ISOCMABUSO[13]
 			// wire CELL_S[4].OUT_HALF1_BEL[6]     PPC.TSTC405ISOCMABUSO[14]
 			// wire CELL_S[4].OUT_HALF1_BEL[7]     PPC.TSTC405ISOCMABUSO[15]
+			// wire CELL_S[5].IMUX_CLK_OPTINV[0]   PPC.CPMC405CLOCK
 			// wire CELL_S[5].IMUX_SR_OPTINV[0]    PPC.ISARCVALUE[4]
 			// wire CELL_S[5].IMUX_SR_OPTINV[1]    PPC.ISARCVALUE[5]
 			// wire CELL_S[5].IMUX_SR_OPTINV[2]    PPC.ISARCVALUE[6]
 			// wire CELL_S[5].IMUX_SR_OPTINV[3]    PPC.ISARCVALUE[7]
-			// wire CELL_S[5].IMUX_CLK_OPTINV[0]   PPC.CPMC405CLOCK
 			// wire CELL_S[5].IMUX_CE_OPTINV[0]    PPC.ISARCVALUE[0]
 			// wire CELL_S[5].IMUX_CE_OPTINV[1]    PPC.ISARCVALUE[1]
 			// wire CELL_S[5].IMUX_CE_OPTINV[2]    PPC.ISARCVALUE[2]
@@ -53062,11 +53337,11 @@ intdb {
 			// wire CELL_S[5].OUT_HALF1_BEL[5]     PPC.TSTC405ISOCMABUSO[5]
 			// wire CELL_S[5].OUT_HALF1_BEL[6]     PPC.TSTC405ISOCMABUSO[6]
 			// wire CELL_S[5].OUT_HALF1_BEL[7]     PPC.TSTC405ISOCMABUSO[7]
+			// wire CELL_S[6].IMUX_CLK_OPTINV[0]   PPC.BRAMISOCMCLK
 			// wire CELL_S[6].IMUX_SR_OPTINV[0]    PPC.TIEC405CLOCKSELECTS[0]
 			// wire CELL_S[6].IMUX_SR_OPTINV[1]    PPC.TIEC405CLOCKSELECTS[1]
 			// wire CELL_S[6].IMUX_SR_OPTINV[2]    PPC.CPMC405CLOCKFBENABLE
 			// wire CELL_S[6].IMUX_SR_OPTINV[3]    PPC.TSTSEPPCEMACI
-			// wire CELL_S[6].IMUX_CLK_OPTINV[0]   PPC.BRAMISOCMCLK
 			// wire CELL_S[6].IMUX_CE_OPTINV[0]    PPC.TIEC405ICUMARGIN
 			// wire CELL_S[6].IMUX_CE_OPTINV[1]    PPC.TIEC405DCUMARGIN
 			// wire CELL_S[6].IMUX_CE_OPTINV[2]    PPC.TIEC405TAGMARGIN
@@ -53103,11 +53378,11 @@ intdb {
 			// wire CELL_S[6].OUT_SEC_TMIN[1]      PPC.ISOCMBRAMRDABUS[26]
 			// wire CELL_S[6].OUT_SEC_TMIN[2]      PPC.ISOCMBRAMRDABUS[27]
 			// wire CELL_S[6].OUT_SEC_TMIN[3]      PPC.ISOCMBRAMRDABUS[28]
+			// wire CELL_N[0].IMUX_CLK_OPTINV[0]   PPC.BRAMDSOCMCLK
 			// wire CELL_N[0].IMUX_SR_OPTINV[0]    PPC.DSARCVALUE[4]
 			// wire CELL_N[0].IMUX_SR_OPTINV[1]    PPC.DSARCVALUE[5]
 			// wire CELL_N[0].IMUX_SR_OPTINV[2]    PPC.DSARCVALUE[6]
 			// wire CELL_N[0].IMUX_SR_OPTINV[3]    PPC.DSARCVALUE[7]
-			// wire CELL_N[0].IMUX_CLK_OPTINV[0]   PPC.BRAMDSOCMCLK
 			// wire CELL_N[0].IMUX_CE_OPTINV[0]    PPC.DSARCVALUE[0]
 			// wire CELL_N[0].IMUX_CE_OPTINV[1]    PPC.DSARCVALUE[1]
 			// wire CELL_N[0].IMUX_CE_OPTINV[2]    PPC.DSARCVALUE[2]
@@ -53216,11 +53491,11 @@ intdb {
 			// wire CELL_N[1].OUT_HALF1_BEL[5]     PPC.TSTC405APUDCDINSTRUCTIONO[21]
 			// wire CELL_N[1].OUT_HALF1_BEL[6]     PPC.TSTC405APUDCDINSTRUCTIONO[22]
 			// wire CELL_N[1].OUT_HALF1_BEL[7]     PPC.TSTC405APUDCDINSTRUCTIONO[23]
+			// wire CELL_N[2].IMUX_CLK_OPTINV[0]   EMAC.PHYEMAC1GTXCLK
 			// wire CELL_N[2].IMUX_SR_OPTINV[0]    PPC.TIEAPUCONTROL[11]
 			// wire CELL_N[2].IMUX_SR_OPTINV[1]    PPC.TIEAPUCONTROL[10]
 			// wire CELL_N[2].IMUX_SR_OPTINV[2]    PPC.TIEAPUCONTROL[9]
 			// wire CELL_N[2].IMUX_SR_OPTINV[3]    PPC.TIEAPUCONTROL[8]
-			// wire CELL_N[2].IMUX_CLK_OPTINV[0]   EMAC.PHYEMAC1GTXCLK
 			// wire CELL_N[2].IMUX_CE_OPTINV[0]    PPC.TIEAPUCONTROL[15]
 			// wire CELL_N[2].IMUX_CE_OPTINV[1]    PPC.TIEAPUCONTROL[14]
 			// wire CELL_N[2].IMUX_CE_OPTINV[2]    PPC.TIEAPUCONTROL[13]
@@ -53273,11 +53548,11 @@ intdb {
 			// wire CELL_N[2].OUT_HALF1_BEL[5]     PPC.TSTC405APUDCDINSTRUCTIONO[17]
 			// wire CELL_N[2].OUT_HALF1_BEL[6]     PPC.TSTC405APUDCDINSTRUCTIONO[18]
 			// wire CELL_N[2].OUT_HALF1_BEL[7]     PPC.TSTC405APUDCDINSTRUCTIONO[19]
+			// wire CELL_N[3].IMUX_CLK_OPTINV[0]   EMAC.PHYEMAC1RXCLK
 			// wire CELL_N[3].IMUX_SR_OPTINV[0]    PPC.TIEAPUCONTROL[3]
 			// wire CELL_N[3].IMUX_SR_OPTINV[1]    PPC.TIEAPUCONTROL[2]
 			// wire CELL_N[3].IMUX_SR_OPTINV[2]    PPC.TIEAPUCONTROL[1]
 			// wire CELL_N[3].IMUX_SR_OPTINV[3]    PPC.TIEAPUCONTROL[0]
-			// wire CELL_N[3].IMUX_CLK_OPTINV[0]   EMAC.PHYEMAC1RXCLK
 			// wire CELL_N[3].IMUX_CE_OPTINV[0]    PPC.TIEAPUCONTROL[7]
 			// wire CELL_N[3].IMUX_CE_OPTINV[1]    PPC.TIEAPUCONTROL[6]
 			// wire CELL_N[3].IMUX_CE_OPTINV[2]    PPC.TIEAPUCONTROL[5]
@@ -53330,11 +53605,11 @@ intdb {
 			// wire CELL_N[3].OUT_HALF1_BEL[5]     PPC.TSTC405APUDCDINSTRUCTIONO[13]
 			// wire CELL_N[3].OUT_HALF1_BEL[6]     PPC.TSTC405APUDCDINSTRUCTIONO[14]
 			// wire CELL_N[3].OUT_HALF1_BEL[7]     PPC.TSTC405APUDCDINSTRUCTIONO[15]
+			// wire CELL_N[4].IMUX_CLK_OPTINV[0]   EMAC.PHYEMAC1MIITXCLK
 			// wire CELL_N[4].IMUX_SR_OPTINV[0]    EMAC.TIEEMAC1CONFIGVEC[29]
 			// wire CELL_N[4].IMUX_SR_OPTINV[1]    EMAC.TIEEMAC1CONFIGVEC[28]
 			// wire CELL_N[4].IMUX_SR_OPTINV[2]    EMAC.TIEEMAC1CONFIGVEC[27]
 			// wire CELL_N[4].IMUX_SR_OPTINV[3]    EMAC.TIEEMAC1CONFIGVEC[26]
-			// wire CELL_N[4].IMUX_CLK_OPTINV[0]   EMAC.PHYEMAC1MIITXCLK
 			// wire CELL_N[4].IMUX_CE_OPTINV[0]    EMAC.TIEEMAC1CONFIGVEC[33]
 			// wire CELL_N[4].IMUX_CE_OPTINV[1]    EMAC.TIEEMAC1CONFIGVEC[32]
 			// wire CELL_N[4].IMUX_CE_OPTINV[2]    EMAC.TIEEMAC1CONFIGVEC[31]
@@ -53387,11 +53662,11 @@ intdb {
 			// wire CELL_N[4].OUT_HALF1_BEL[5]     PPC.TSTC405APUDCDINSTRUCTIONO[9]
 			// wire CELL_N[4].OUT_HALF1_BEL[6]     PPC.TSTC405APUDCDINSTRUCTIONO[10]
 			// wire CELL_N[4].OUT_HALF1_BEL[7]     PPC.TSTC405APUDCDINSTRUCTIONO[11]
+			// wire CELL_N[5].IMUX_CLK_OPTINV[0]   PPC.CPMFCMCLK
 			// wire CELL_N[5].IMUX_SR_OPTINV[0]    EMAC.TIEEMAC1CONFIGVEC[37]
 			// wire CELL_N[5].IMUX_SR_OPTINV[1]    EMAC.TIEEMAC1CONFIGVEC[36]
 			// wire CELL_N[5].IMUX_SR_OPTINV[2]    EMAC.TIEEMAC1CONFIGVEC[35]
 			// wire CELL_N[5].IMUX_SR_OPTINV[3]    EMAC.TIEEMAC1CONFIGVEC[34]
-			// wire CELL_N[5].IMUX_CLK_OPTINV[0]   PPC.CPMFCMCLK
 			// wire CELL_N[5].IMUX_CE_OPTINV[0]    EMAC.TIEEMAC1CONFIGVEC[41]
 			// wire CELL_N[5].IMUX_CE_OPTINV[1]    EMAC.TIEEMAC1CONFIGVEC[40]
 			// wire CELL_N[5].IMUX_CE_OPTINV[2]    EMAC.TIEEMAC1CONFIGVEC[39]
@@ -56114,9 +56389,9 @@ intdb {
 			// wire CELL[6].OUT_HALF1_BEL[4]       GT11[0].CDRSTATUS[15]
 			// wire CELL[6].OUT_HALF1_BEL[5]       GT11[0].CDRSTATUS[16]
 			// wire CELL[6].OUT_HALF1_BEL[6]       GT11[0].TXADCN
-			// wire CELL[7].IMUX_SR_OPTINV[0]      GT11[0].RXCRCRESET
 			// wire CELL[7].IMUX_CLK_OPTINV[0]     GT11[0].RXCRCINTCLK
 			// wire CELL[7].IMUX_CLK_OPTINV[1]     GT11[0].TXCRCINTCLK
+			// wire CELL[7].IMUX_SR_OPTINV[0]      GT11[0].RXCRCRESET
 			// wire CELL[7].IMUX_CE_OPTINV[0]      GT11[0].RXCRCDATAVALID
 			// wire CELL[7].IMUX_CE_OPTINV[1]      GT11[0].TXCRCDATAVALID
 			// wire CELL[7].IMUX_IMUX[0]           GT11[0].TXDATA[28]
@@ -56169,10 +56444,10 @@ intdb {
 			// wire CELL[7].OUT_HALF1_BEL[5]       GT11[0].DO[9]
 			// wire CELL[7].OUT_HALF1_BEL[6]       GT11[0].DO[10]
 			// wire CELL[7].OUT_HALF1_BEL[7]       GT11[0].DO[11]
-			// wire CELL[8].IMUX_SR_OPTINV[0]      GT11[0].TXCRCRESET
 			// wire CELL[8].IMUX_CLK_OPTINV[0]     GT11[0].TXCRCCLK
 			// wire CELL[8].IMUX_CLK_OPTINV[1]     GT11[0].RXCRCCLK
 			// wire CELL[8].IMUX_CLK_OPTINV[3]     GT11[0].DCLK
+			// wire CELL[8].IMUX_SR_OPTINV[0]      GT11[0].TXCRCRESET
 			// wire CELL[8].IMUX_CE_OPTINV[0]      GT11[0].DEN
 			// wire CELL[8].IMUX_CE_OPTINV[1]      GT11[0].DWE
 			// wire CELL[8].IMUX_IMUX[0]           GT11[0].TXDATA[32]
@@ -56861,9 +57136,9 @@ intdb {
 			// wire CELL[22].OUT_HALF1_BEL[4]      GT11[1].CDRSTATUS[15]
 			// wire CELL[22].OUT_HALF1_BEL[5]      GT11[1].CDRSTATUS[16]
 			// wire CELL[22].OUT_HALF1_BEL[6]      GT11[1].TXADCN
-			// wire CELL[23].IMUX_SR_OPTINV[0]     GT11[1].RXCRCRESET
 			// wire CELL[23].IMUX_CLK_OPTINV[0]    GT11[1].RXCRCINTCLK
 			// wire CELL[23].IMUX_CLK_OPTINV[1]    GT11[1].TXCRCINTCLK
+			// wire CELL[23].IMUX_SR_OPTINV[0]     GT11[1].RXCRCRESET
 			// wire CELL[23].IMUX_CE_OPTINV[0]     GT11[1].RXCRCDATAVALID
 			// wire CELL[23].IMUX_CE_OPTINV[1]     GT11[1].TXCRCDATAVALID
 			// wire CELL[23].IMUX_IMUX[0]          GT11[1].TXDATA[28]
@@ -56916,10 +57191,10 @@ intdb {
 			// wire CELL[23].OUT_HALF1_BEL[5]      GT11[1].DO[9]
 			// wire CELL[23].OUT_HALF1_BEL[6]      GT11[1].DO[10]
 			// wire CELL[23].OUT_HALF1_BEL[7]      GT11[1].DO[11]
-			// wire CELL[24].IMUX_SR_OPTINV[0]     GT11[1].TXCRCRESET
 			// wire CELL[24].IMUX_CLK_OPTINV[0]    GT11[1].TXCRCCLK
 			// wire CELL[24].IMUX_CLK_OPTINV[1]    GT11[1].RXCRCCLK
 			// wire CELL[24].IMUX_CLK_OPTINV[3]    GT11[1].DCLK
+			// wire CELL[24].IMUX_SR_OPTINV[0]     GT11[1].TXCRCRESET
 			// wire CELL[24].IMUX_CE_OPTINV[0]     GT11[1].DEN
 			// wire CELL[24].IMUX_CE_OPTINV[1]     GT11[1].DWE
 			// wire CELL[24].IMUX_IMUX[0]          GT11[1].TXDATA[32]
@@ -59892,14 +60167,7 @@ intdb {
 		}
 	}
 
-	tile_slot CMT_FIFO {
-		bel_slot CMT_FIFO_INT: routing;
-		bel_slot IN_FIFO: IN_FIFO;
-		bel_slot OUT_FIFO: OUT_FIFO;
-	}
-
 	tile_slot CFG {
-		bel_slot SYSMON_INT: routing;
 		bel_slot BSCAN[0]: BSCAN;
 		bel_slot BSCAN[1]: BSCAN;
 		bel_slot BSCAN[2]: BSCAN;
@@ -59910,17 +60178,10 @@ intdb {
 		bel_slot CAPTURE: CAPTURE;
 		bel_slot JTAGPPC: JTAGPPC;
 		bel_slot PMV_CFG[0]: PMV;
-		bel_slot PMV_CFG[1]: PMV;
 		bel_slot DCIRESET: DCIRESET;
 		bel_slot FRAME_ECC: FRAME_ECC_V4;
 		bel_slot USR_ACCESS: USR_ACCESS;
-		bel_slot KEY_CLEAR: KEY_CLEAR;
-		bel_slot EFUSE_USR: EFUSE_USR;
-		bel_slot DNA_PORT: DNA_PORT;
-		bel_slot CFG_IO_ACCESS: CFG_IO_ACCESS_V6;
-		bel_slot PMVIOB_CFG: PMVIOB;
 		bel_slot MISC_CFG: MISC_CFG;
-		bel_slot SYSMON: SYSMON_V4;
 
 		tile_class CFG {
 			cell CELL[0];
@@ -60345,8 +60606,8 @@ intdb {
 				}
 			}
 
-			// wire CELL[0].IMUX_SR_OPTINV[0]      STARTUP.GSR
 			// wire CELL[0].IMUX_CLK_OPTINV[0]     STARTUP.CLK
+			// wire CELL[0].IMUX_SR_OPTINV[0]      STARTUP.GSR
 			// wire CELL[0].IMUX_CE_OPTINV[0]      STARTUP.GTS
 			// wire CELL[0].IMUX_IMUX[0]           BSCAN[0].TDO
 			// wire CELL[0].IMUX_IMUX[1]           JTAGPPC.TDOPPC
@@ -60400,11 +60661,11 @@ intdb {
 			// wire CELL[4].OUT_BEST[5]            ICAP[0].O[29]
 			// wire CELL[4].OUT_BEST[6]            ICAP[0].O[30]
 			// wire CELL[4].OUT_BEST[7]            ICAP[0].O[31]
+			// wire CELL[5].IMUX_CLK_OPTINV[0]     ICAP[0].CLK
+			// wire CELL[5].IMUX_CLK_OPTINV[1]     STARTUP.USRCCLKO
 			// wire CELL[5].IMUX_SR_OPTINV[0]      STARTUP.USRDONETS
 			// wire CELL[5].IMUX_SR_OPTINV[1]      STARTUP.USRDONEO
 			// wire CELL[5].IMUX_SR_OPTINV[2]      STARTUP.USRCCLKTS
-			// wire CELL[5].IMUX_CLK_OPTINV[0]     ICAP[0].CLK
-			// wire CELL[5].IMUX_CLK_OPTINV[1]     STARTUP.USRCCLKO
 			// wire CELL[5].IMUX_CE_OPTINV[0]      ICAP[0].WRITE
 			// wire CELL[5].IMUX_CE_OPTINV[1]      ICAP[0].CE
 			// wire CELL[5].IMUX_CE_OPTINV[2]      CAPTURE.CAP
@@ -60586,353 +60847,6 @@ intdb {
 			// wire CELL[15].OUT_BEST[5]           BSCAN[3].DRCK
 			// wire CELL[15].OUT_BEST[6]           BSCAN[3].CAPTURE
 			// wire CELL[15].OUT_SEC[0]            USR_ACCESS.DATAVALID
-		}
-
-		tile_class SYSMON {
-			cell CELL[0];
-			cell CELL[1];
-			cell CELL[2];
-			cell CELL[3];
-			cell CELL[4];
-			cell CELL[5];
-			cell CELL[6];
-			cell CELL[7];
-			bitrect MAIN[0]: Vertical (30, rev 80);
-			bitrect MAIN[1]: Vertical (30, rev 80);
-			bitrect MAIN[2]: Vertical (30, rev 80);
-			bitrect MAIN[3]: Vertical (30, rev 80);
-			bitrect MAIN[4]: Vertical (30, rev 80);
-			bitrect MAIN[5]: Vertical (30, rev 80);
-			bitrect MAIN[6]: Vertical (30, rev 80);
-			bitrect MAIN[7]: Vertical (30, rev 80);
-
-			switchbox SYSMON_INT {
-				mux CELL[4].IMUX_SPEC[0] @[MAIN[7][18][11], MAIN[7][18][9], MAIN[7][18][8], MAIN[7][18][14], MAIN[7][18][5]] {
-					CELL[0].IMUX_CLK_OPTINV[1] = 0b00001,
-					CELL[0].IMUX_IMUX[0] = 0b00000,
-					CELL[0].GIOB_DCM[0] = 0b00010,
-					CELL[0].GIOB_DCM[1] = 0b00011,
-					CELL[0].GIOB_DCM[2] = 0b00110,
-					CELL[0].GIOB_DCM[3] = 0b00111,
-					CELL[0].GIOB_DCM[4] = 0b01010,
-					CELL[0].GIOB_DCM[5] = 0b01011,
-					CELL[0].GIOB_DCM[6] = 0b01110,
-					CELL[0].GIOB_DCM[7] = 0b01111,
-					CELL[0].GIOB_DCM[8] = 0b10010,
-					CELL[0].GIOB_DCM[9] = 0b10011,
-					CELL[0].GIOB_DCM[10] = 0b10110,
-					CELL[0].GIOB_DCM[11] = 0b10111,
-					CELL[0].GIOB_DCM[12] = 0b11010,
-					CELL[0].GIOB_DCM[13] = 0b11011,
-					CELL[0].GIOB_DCM[14] = 0b11110,
-					CELL[0].GIOB_DCM[15] = 0b11111,
-				}
-			}
-
-			bel SYSMON {
-				input CONVST = ^CELL[4].IMUX_SPEC[0] @MAIN[7][18][12];
-				input RST = CELL[3].IMUX_SR_OPTINV[0];
-				input DCLK = CELL[3].IMUX_CLK_OPTINV[0];
-				input DEN = CELL[5].IMUX_CE_OPTINV[1];
-				input DWE = CELL[5].IMUX_CE_OPTINV[0];
-				input DADDR[0] = CELL[5].IMUX_IMUX[0];
-				input DADDR[1] = CELL[5].IMUX_IMUX[1];
-				input DADDR[2] = CELL[5].IMUX_IMUX[2];
-				input DADDR[3] = CELL[5].IMUX_IMUX[3];
-				input DADDR[4] = CELL[5].IMUX_IMUX[4];
-				input DADDR[5] = CELL[5].IMUX_IMUX[5];
-				input DADDR[6] = CELL[5].IMUX_IMUX[6];
-				input DI[0] = CELL[7].IMUX_IMUX[0];
-				input DI[1] = CELL[7].IMUX_IMUX[1];
-				input DI[2] = CELL[7].IMUX_IMUX[2];
-				input DI[3] = CELL[7].IMUX_IMUX[3];
-				input DI[4] = CELL[7].IMUX_IMUX[4];
-				input DI[5] = CELL[7].IMUX_IMUX[5];
-				input DI[6] = CELL[7].IMUX_IMUX[6];
-				input DI[7] = CELL[7].IMUX_IMUX[7];
-				input DI[8] = CELL[6].IMUX_IMUX[0];
-				input DI[9] = CELL[6].IMUX_IMUX[1];
-				input DI[10] = CELL[6].IMUX_IMUX[2];
-				input DI[11] = CELL[6].IMUX_IMUX[3];
-				input DI[12] = CELL[6].IMUX_IMUX[4];
-				input DI[13] = CELL[6].IMUX_IMUX[5];
-				input DI[14] = CELL[6].IMUX_IMUX[6];
-				input DI[15] = CELL[6].IMUX_IMUX[7];
-				input ROMTESTENABLE = CELL[2].IMUX_CE_OPTINV[0];
-				input ROMTESTADDR[0] = CELL[1].IMUX_IMUX[0];
-				input ROMTESTADDR[1] = CELL[1].IMUX_IMUX[1];
-				input ROMTESTADDR[2] = CELL[1].IMUX_IMUX[2];
-				input ROMTESTADDR[3] = CELL[1].IMUX_IMUX[3];
-				input ROMTESTADDR[4] = CELL[1].IMUX_IMUX[4];
-				input ROMTESTADDR[5] = CELL[1].IMUX_IMUX[5];
-				input ROMTESTADDR[6] = CELL[2].IMUX_IMUX[3];
-				input ROMTESTADDR[7] = CELL[2].IMUX_IMUX[4];
-				input ROMTESTADDR[8] = CELL[1].IMUX_IMUX[6];
-				input ROMTESTADDR[9] = CELL[1].IMUX_IMUX[7];
-				input ROMTESTADDR[10] = CELL[2].IMUX_IMUX[0];
-				input ROMTESTADDR[11] = CELL[2].IMUX_IMUX[1];
-				input ROMTESTADDR[12] = CELL[2].IMUX_IMUX[2];
-				input ROMTESTADDR[13] = CELL[2].IMUX_IMUX[5];
-				input ROMTESTADDR[14] = CELL[2].IMUX_IMUX[6];
-				input ROMTESTADDR[15] = CELL[2].IMUX_IMUX[7];
-				input SCANMEMCLK = CELL[3].IMUX_CLK_OPTINV[1];
-				input SCANMEMWE = CELL[3].IMUX_CE_OPTINV[2];
-				input SCANTESTENA = CELL[3].IMUX_CE_OPTINV[0];
-				input SCANTESTENB = CELL[4].IMUX_CE_OPTINV[0];
-				input SCLKA = CELL[3].IMUX_CLK_OPTINV[2];
-				input SCLKB = CELL[4].IMUX_CLK_OPTINV[1];
-				input SEA = CELL[3].IMUX_CE_OPTINV[1];
-				input SEB = CELL[4].IMUX_CE_OPTINV[1];
-				input SDIA = CELL[3].IMUX_IMUX[4];
-				input SDIB = CELL[4].IMUX_IMUX[5];
-				output ALARM[0] = CELL[1].OUT_BEST_TMIN[4];
-				output ALARM[1] = CELL[1].OUT_BEST_TMIN[5];
-				output ALARM[2] = CELL[1].OUT_BEST_TMIN[6];
-				output ALARM[3] = CELL[1].OUT_BEST_TMIN[7];
-				output ALARM[4] = CELL[0].OUT_BEST_TMIN[4];
-				output ALARM[5] = CELL[0].OUT_BEST_TMIN[5];
-				output ALARM[6] = CELL[0].OUT_BEST_TMIN[6];
-				output BUSY = CELL[3].OUT_BEST_TMIN[1];
-				output CHANNEL[0] = CELL[3].OUT_BEST_TMIN[2];
-				output CHANNEL[1] = CELL[3].OUT_BEST_TMIN[3];
-				output CHANNEL[2] = CELL[3].OUT_BEST_TMIN[4];
-				output CHANNEL[3] = CELL[3].OUT_BEST_TMIN[5];
-				output CHANNEL[4] = CELL[3].OUT_BEST_TMIN[6];
-				output DB[0] = CELL[2].OUT_BEST_TMIN[0];
-				output DB[1] = CELL[2].OUT_BEST_TMIN[1];
-				output DB[2] = CELL[2].OUT_BEST_TMIN[2];
-				output DB[3] = CELL[2].OUT_BEST_TMIN[3];
-				output DB[4] = CELL[1].OUT_BEST_TMIN[0];
-				output DB[5] = CELL[1].OUT_BEST_TMIN[1];
-				output DB[6] = CELL[1].OUT_BEST_TMIN[2];
-				output DB[7] = CELL[1].OUT_BEST_TMIN[3];
-				output DB[8] = CELL[0].OUT_BEST_TMIN[0];
-				output DB[9] = CELL[0].OUT_BEST_TMIN[1];
-				output DB[10] = CELL[0].OUT_BEST_TMIN[2];
-				output DB[11] = CELL[0].OUT_BEST_TMIN[3];
-				output EOC = CELL[3].OUT_BEST_TMIN[0];
-				output EOS = CELL[3].OUT_BEST_TMIN[7];
-				output OT = CELL[0].OUT_BEST_TMIN[7];
-				output DRDY = CELL[2].OUT_BEST_TMIN[5];
-				output DO[0] = CELL[7].OUT_BEST_TMIN[0];
-				output DO[1] = CELL[7].OUT_BEST_TMIN[1];
-				output DO[2] = CELL[7].OUT_BEST_TMIN[2];
-				output DO[3] = CELL[7].OUT_BEST_TMIN[3];
-				output DO[4] = CELL[7].OUT_BEST_TMIN[4];
-				output DO[5] = CELL[7].OUT_BEST_TMIN[5];
-				output DO[6] = CELL[7].OUT_BEST_TMIN[6];
-				output DO[7] = CELL[7].OUT_BEST_TMIN[7];
-				output DO[8] = CELL[6].OUT_BEST_TMIN[0];
-				output DO[9] = CELL[6].OUT_BEST_TMIN[1];
-				output DO[10] = CELL[6].OUT_BEST_TMIN[2];
-				output DO[11] = CELL[6].OUT_BEST_TMIN[3];
-				output DO[12] = CELL[6].OUT_BEST_TMIN[4];
-				output DO[13] = CELL[6].OUT_BEST_TMIN[5];
-				output DO[14] = CELL[6].OUT_BEST_TMIN[6];
-				output DO[15] = CELL[6].OUT_BEST_TMIN[7];
-				output ROMTESTDATA[0] = CELL[5].OUT_BEST_TMIN[0];
-				output ROMTESTDATA[1] = CELL[5].OUT_BEST_TMIN[1];
-				output ROMTESTDATA[2] = CELL[5].OUT_BEST_TMIN[2];
-				output ROMTESTDATA[3] = CELL[5].OUT_BEST_TMIN[3];
-				output ROMTESTDATA[4] = CELL[5].OUT_BEST_TMIN[4];
-				output ROMTESTDATA[5] = CELL[5].OUT_BEST_TMIN[5];
-				output ROMTESTDATA[6] = CELL[5].OUT_BEST_TMIN[6];
-				output ROMTESTDATA[7] = CELL[5].OUT_BEST_TMIN[7];
-				output ROMTESTDATA[8] = CELL[4].OUT_BEST_TMIN[0];
-				output ROMTESTDATA[9] = CELL[4].OUT_BEST_TMIN[1];
-				output ROMTESTDATA[10] = CELL[4].OUT_BEST_TMIN[2];
-				output ROMTESTDATA[11] = CELL[4].OUT_BEST_TMIN[3];
-				output ROMTESTDATA[12] = CELL[4].OUT_BEST_TMIN[4];
-				output ROMTESTDATA[13] = CELL[4].OUT_BEST_TMIN[5];
-				output ROMTESTDATA[14] = CELL[4].OUT_BEST_TMIN[6];
-				output ROMTESTDATA[15] = CELL[4].OUT_BEST_TMIN[7];
-				output SDOA = CELL[2].OUT_BEST_TMIN[7];
-				output SDOB = CELL[2].OUT_BEST_TMIN[4];
-				attribute INIT @[
-					[MAIN[7][26][64], MAIN[7][26][48], MAIN[7][26][32], MAIN[7][26][16], MAIN[7][26][0], MAIN[6][26][64], MAIN[6][26][48], MAIN[6][26][32], MAIN[7][28][64], MAIN[7][28][48], MAIN[7][28][32], MAIN[7][28][16], MAIN[7][28][0], MAIN[6][28][64], MAIN[6][28][48], MAIN[6][28][32]],
-					[MAIN[7][26][67], MAIN[7][26][51], MAIN[7][26][35], MAIN[7][26][19], MAIN[7][26][3], MAIN[6][26][67], MAIN[6][26][51], MAIN[6][26][35], MAIN[7][28][67], MAIN[7][28][51], MAIN[7][28][35], MAIN[7][28][19], MAIN[7][28][3], MAIN[6][28][67], MAIN[6][28][51], MAIN[6][28][35]],
-					[MAIN[7][26][68], MAIN[7][26][52], MAIN[7][26][36], MAIN[7][26][20], MAIN[7][26][4], MAIN[6][26][68], MAIN[6][26][52], MAIN[6][26][36], MAIN[7][28][68], MAIN[7][28][52], MAIN[7][28][36], MAIN[7][28][20], MAIN[7][28][4], MAIN[6][28][68], MAIN[6][28][52], MAIN[6][28][36]],
-					[MAIN[7][26][71], MAIN[7][26][55], MAIN[7][26][39], MAIN[7][26][23], MAIN[7][26][7], MAIN[6][26][71], MAIN[6][26][55], MAIN[6][26][39], MAIN[7][28][71], MAIN[7][28][55], MAIN[7][28][39], MAIN[7][28][23], MAIN[7][28][7], MAIN[6][28][71], MAIN[6][28][55], MAIN[6][28][39]],
-					[MAIN[7][26][72], MAIN[7][26][56], MAIN[7][26][40], MAIN[7][26][24], MAIN[7][26][8], MAIN[6][26][72], MAIN[6][26][56], MAIN[6][26][40], MAIN[7][28][72], MAIN[7][28][56], MAIN[7][28][40], MAIN[7][28][24], MAIN[7][28][8], MAIN[6][28][72], MAIN[6][28][56], MAIN[6][28][40]],
-					[MAIN[7][26][75], MAIN[7][26][59], MAIN[7][26][43], MAIN[7][26][27], MAIN[7][26][11], MAIN[6][26][75], MAIN[6][26][59], MAIN[6][26][43], MAIN[7][28][75], MAIN[7][28][59], MAIN[7][28][43], MAIN[7][28][27], MAIN[7][28][11], MAIN[6][28][75], MAIN[6][28][59], MAIN[6][28][43]],
-					[MAIN[7][26][76], MAIN[7][26][60], MAIN[7][26][44], MAIN[7][26][28], MAIN[7][26][12], MAIN[6][26][76], MAIN[6][26][60], MAIN[6][26][44], MAIN[7][28][76], MAIN[7][28][60], MAIN[7][28][44], MAIN[7][28][28], MAIN[7][28][12], MAIN[6][28][76], MAIN[6][28][60], MAIN[6][28][44]],
-					[MAIN[7][26][79], MAIN[7][26][63], MAIN[7][26][47], MAIN[7][26][31], MAIN[7][26][15], MAIN[6][26][79], MAIN[6][26][63], MAIN[6][26][47], MAIN[7][28][79], MAIN[7][28][63], MAIN[7][28][47], MAIN[7][28][31], MAIN[7][28][15], MAIN[6][28][79], MAIN[6][28][63], MAIN[6][28][47]],
-					[MAIN[7][25][64], MAIN[7][25][48], MAIN[7][25][32], MAIN[7][25][16], MAIN[7][25][0], MAIN[6][25][64], MAIN[6][25][48], MAIN[6][25][32], MAIN[7][27][64], MAIN[7][27][48], MAIN[7][27][32], MAIN[7][27][16], MAIN[7][27][0], MAIN[6][27][64], MAIN[6][27][48], MAIN[6][27][32]],
-					[MAIN[7][25][67], MAIN[7][25][51], MAIN[7][25][35], MAIN[7][25][19], MAIN[7][25][3], MAIN[6][25][67], MAIN[6][25][51], MAIN[6][25][35], MAIN[7][27][67], MAIN[7][27][51], MAIN[7][27][35], MAIN[7][27][19], MAIN[7][27][3], MAIN[6][27][67], MAIN[6][27][51], MAIN[6][27][35]],
-					[MAIN[7][25][68], MAIN[7][25][52], MAIN[7][25][36], MAIN[7][25][20], MAIN[7][25][4], MAIN[6][25][68], MAIN[6][25][52], MAIN[6][25][36], MAIN[7][27][68], MAIN[7][27][52], MAIN[7][27][36], MAIN[7][27][20], MAIN[7][27][4], MAIN[6][27][68], MAIN[6][27][52], MAIN[6][27][36]],
-					[MAIN[7][25][71], MAIN[7][25][55], MAIN[7][25][39], MAIN[7][25][23], MAIN[7][25][7], MAIN[6][25][71], MAIN[6][25][55], MAIN[6][25][39], MAIN[7][27][71], MAIN[7][27][55], MAIN[7][27][39], MAIN[7][27][23], MAIN[7][27][7], MAIN[6][27][71], MAIN[6][27][55], MAIN[6][27][39]],
-					[MAIN[7][25][72], MAIN[7][25][56], MAIN[7][25][40], MAIN[7][25][24], MAIN[7][25][8], MAIN[6][25][72], MAIN[6][25][56], MAIN[6][25][40], MAIN[7][27][72], MAIN[7][27][56], MAIN[7][27][40], MAIN[7][27][24], MAIN[7][27][8], MAIN[6][27][72], MAIN[6][27][56], MAIN[6][27][40]],
-					[MAIN[7][25][75], MAIN[7][25][59], MAIN[7][25][43], MAIN[7][25][27], MAIN[7][25][11], MAIN[6][25][75], MAIN[6][25][59], MAIN[6][25][43], MAIN[7][27][75], MAIN[7][27][59], MAIN[7][27][43], MAIN[7][27][27], MAIN[7][27][11], MAIN[6][27][75], MAIN[6][27][59], MAIN[6][27][43]],
-					[MAIN[7][25][76], MAIN[7][25][60], MAIN[7][25][44], MAIN[7][25][28], MAIN[7][25][12], MAIN[6][25][76], MAIN[6][25][60], MAIN[6][25][44], MAIN[7][27][76], MAIN[7][27][60], MAIN[7][27][44], MAIN[7][27][28], MAIN[7][27][12], MAIN[6][27][76], MAIN[6][27][60], MAIN[6][27][44]],
-					[MAIN[7][25][79], MAIN[7][25][63], MAIN[7][25][47], MAIN[7][25][31], MAIN[7][25][15], MAIN[6][25][79], MAIN[6][25][63], MAIN[6][25][47], MAIN[7][27][79], MAIN[7][27][63], MAIN[7][27][47], MAIN[7][27][31], MAIN[7][27][15], MAIN[6][27][79], MAIN[6][27][63], MAIN[6][27][47]],
-					[MAIN[7][20][64], MAIN[7][20][48], MAIN[7][20][32], MAIN[7][20][16], MAIN[7][20][0], MAIN[6][20][64], MAIN[6][20][48], MAIN[6][20][32], MAIN[7][24][64], MAIN[7][24][48], MAIN[7][24][32], MAIN[7][24][16], MAIN[7][24][0], MAIN[6][24][64], MAIN[6][24][48], MAIN[6][24][32]],
-					[MAIN[7][20][67], MAIN[7][20][51], MAIN[7][20][35], MAIN[7][20][19], MAIN[7][20][3], MAIN[6][20][67], MAIN[6][20][51], MAIN[6][20][35], MAIN[7][24][67], MAIN[7][24][51], MAIN[7][24][35], MAIN[7][24][19], MAIN[7][24][3], MAIN[6][24][67], MAIN[6][24][51], MAIN[6][24][35]],
-					[MAIN[7][20][68], MAIN[7][20][52], MAIN[7][20][36], MAIN[7][20][20], MAIN[7][20][4], MAIN[6][20][68], MAIN[6][20][52], MAIN[6][20][36], MAIN[7][24][68], MAIN[7][24][52], MAIN[7][24][36], MAIN[7][24][20], MAIN[7][24][4], MAIN[6][24][68], MAIN[6][24][52], MAIN[6][24][36]],
-					[MAIN[7][20][71], MAIN[7][20][55], MAIN[7][20][39], MAIN[7][20][23], MAIN[7][20][7], MAIN[6][20][71], MAIN[6][20][55], MAIN[6][20][39], MAIN[7][24][71], MAIN[7][24][55], MAIN[7][24][39], MAIN[7][24][23], MAIN[7][24][7], MAIN[6][24][71], MAIN[6][24][55], MAIN[6][24][39]],
-					[MAIN[7][20][72], MAIN[7][20][56], MAIN[7][20][40], MAIN[7][20][24], MAIN[7][20][8], MAIN[6][20][72], MAIN[6][20][56], MAIN[6][20][40], MAIN[7][24][72], MAIN[7][24][56], MAIN[7][24][40], MAIN[7][24][24], MAIN[7][24][8], MAIN[6][24][72], MAIN[6][24][56], MAIN[6][24][40]],
-					[MAIN[7][20][75], MAIN[7][20][59], MAIN[7][20][43], MAIN[7][20][27], MAIN[7][20][11], MAIN[6][20][75], MAIN[6][20][59], MAIN[6][20][43], MAIN[7][24][75], MAIN[7][24][59], MAIN[7][24][43], MAIN[7][24][27], MAIN[7][24][11], MAIN[6][24][75], MAIN[6][24][59], MAIN[6][24][43]],
-					[MAIN[7][20][76], MAIN[7][20][60], MAIN[7][20][44], MAIN[7][20][28], MAIN[7][20][12], MAIN[6][20][76], MAIN[6][20][60], MAIN[6][20][44], MAIN[7][24][76], MAIN[7][24][60], MAIN[7][24][44], MAIN[7][24][28], MAIN[7][24][12], MAIN[6][24][76], MAIN[6][24][60], MAIN[6][24][44]],
-					[MAIN[7][20][79], MAIN[7][20][63], MAIN[7][20][47], MAIN[7][20][31], MAIN[7][20][15], MAIN[6][20][79], MAIN[6][20][63], MAIN[6][20][47], MAIN[7][24][79], MAIN[7][24][63], MAIN[7][24][47], MAIN[7][24][31], MAIN[7][24][15], MAIN[6][24][79], MAIN[6][24][63], MAIN[6][24][47]],
-					[MAIN[7][19][64], MAIN[7][19][48], MAIN[7][19][32], MAIN[7][19][16], MAIN[7][19][0], MAIN[6][19][64], MAIN[6][19][48], MAIN[6][19][32], MAIN[7][21][64], MAIN[7][21][48], MAIN[7][21][32], MAIN[7][21][16], MAIN[7][21][0], MAIN[6][21][64], MAIN[6][21][48], MAIN[6][21][32]],
-					[MAIN[7][19][67], MAIN[7][19][51], MAIN[7][19][35], MAIN[7][19][19], MAIN[7][19][3], MAIN[6][19][67], MAIN[6][19][51], MAIN[6][19][35], MAIN[7][21][67], MAIN[7][21][51], MAIN[7][21][35], MAIN[7][21][19], MAIN[7][21][3], MAIN[6][21][67], MAIN[6][21][51], MAIN[6][21][35]],
-					[MAIN[7][19][68], MAIN[7][19][52], MAIN[7][19][36], MAIN[7][19][20], MAIN[7][19][4], MAIN[6][19][68], MAIN[6][19][52], MAIN[6][19][36], MAIN[7][21][68], MAIN[7][21][52], MAIN[7][21][36], MAIN[7][21][20], MAIN[7][21][4], MAIN[6][21][68], MAIN[6][21][52], MAIN[6][21][36]],
-					[MAIN[7][19][71], MAIN[7][19][55], MAIN[7][19][39], MAIN[7][19][23], MAIN[7][19][7], MAIN[6][19][71], MAIN[6][19][55], MAIN[6][19][39], MAIN[7][21][71], MAIN[7][21][55], MAIN[7][21][39], MAIN[7][21][23], MAIN[7][21][7], MAIN[6][21][71], MAIN[6][21][55], MAIN[6][21][39]],
-					[MAIN[7][19][72], MAIN[7][19][56], MAIN[7][19][40], MAIN[7][19][24], MAIN[7][19][8], MAIN[6][19][72], MAIN[6][19][56], MAIN[6][19][40], MAIN[7][21][72], MAIN[7][21][56], MAIN[7][21][40], MAIN[7][21][24], MAIN[7][21][8], MAIN[6][21][72], MAIN[6][21][56], MAIN[6][21][40]],
-					[MAIN[7][19][75], MAIN[7][19][59], MAIN[7][19][43], MAIN[7][19][27], MAIN[7][19][11], MAIN[6][19][75], MAIN[6][19][59], MAIN[6][19][43], MAIN[7][21][75], MAIN[7][21][59], MAIN[7][21][43], MAIN[7][21][27], MAIN[7][21][11], MAIN[6][21][75], MAIN[6][21][59], MAIN[6][21][43]],
-					[MAIN[7][19][76], MAIN[7][19][60], MAIN[7][19][44], MAIN[7][19][28], MAIN[7][19][12], MAIN[6][19][76], MAIN[6][19][60], MAIN[6][19][44], MAIN[7][21][76], MAIN[7][21][60], MAIN[7][21][44], MAIN[7][21][28], MAIN[7][21][12], MAIN[6][21][76], MAIN[6][21][60], MAIN[6][21][44]],
-					[MAIN[7][19][79], MAIN[7][19][63], MAIN[7][19][47], MAIN[7][19][31], MAIN[7][19][15], MAIN[6][19][79], MAIN[6][19][63], MAIN[6][19][47], MAIN[7][21][79], MAIN[7][21][63], MAIN[7][21][47], MAIN[7][21][31], MAIN[7][21][15], MAIN[6][21][79], MAIN[6][21][63], MAIN[6][21][47]],
-					[MAIN[7][20][65], MAIN[7][20][49], MAIN[7][20][33], MAIN[7][20][17], MAIN[7][20][1], MAIN[6][20][65], MAIN[6][20][49], MAIN[6][20][33], MAIN[7][24][65], MAIN[7][24][49], MAIN[7][24][33], MAIN[7][24][17], MAIN[7][24][1], MAIN[6][24][65], MAIN[6][24][49], MAIN[6][24][33]],
-					[MAIN[7][20][66], MAIN[7][20][50], MAIN[7][20][34], MAIN[7][20][18], MAIN[7][20][2], MAIN[6][20][66], MAIN[6][20][50], MAIN[6][20][34], MAIN[7][24][66], MAIN[7][24][50], MAIN[7][24][34], MAIN[7][24][18], MAIN[7][24][2], MAIN[6][24][66], MAIN[6][24][50], MAIN[6][24][34]],
-					[MAIN[7][20][69], MAIN[7][20][53], MAIN[7][20][37], MAIN[7][20][21], MAIN[7][20][5], MAIN[6][20][69], MAIN[6][20][53], MAIN[6][20][37], MAIN[7][24][69], MAIN[7][24][53], MAIN[7][24][37], MAIN[7][24][21], MAIN[7][24][5], MAIN[6][24][69], MAIN[6][24][53], MAIN[6][24][37]],
-					[MAIN[7][20][70], MAIN[7][20][54], MAIN[7][20][38], MAIN[7][20][22], MAIN[7][20][6], MAIN[6][20][70], MAIN[6][20][54], MAIN[6][20][38], MAIN[7][24][70], MAIN[7][24][54], MAIN[7][24][38], MAIN[7][24][22], MAIN[7][24][6], MAIN[6][24][70], MAIN[6][24][54], MAIN[6][24][38]],
-					[MAIN[7][20][73], MAIN[7][20][57], MAIN[7][20][41], MAIN[7][20][25], MAIN[7][20][9], MAIN[6][20][73], MAIN[6][20][57], MAIN[6][20][41], MAIN[7][24][73], MAIN[7][24][57], MAIN[7][24][41], MAIN[7][24][25], MAIN[7][24][9], MAIN[6][24][73], MAIN[6][24][57], MAIN[6][24][41]],
-					[MAIN[7][20][74], MAIN[7][20][58], MAIN[7][20][42], MAIN[7][20][26], MAIN[7][20][10], MAIN[6][20][74], MAIN[6][20][58], MAIN[6][20][42], MAIN[7][24][74], MAIN[7][24][58], MAIN[7][24][42], MAIN[7][24][26], MAIN[7][24][10], MAIN[6][24][74], MAIN[6][24][58], MAIN[6][24][42]],
-					[MAIN[7][20][77], MAIN[7][20][61], MAIN[7][20][45], MAIN[7][20][29], MAIN[7][20][13], MAIN[6][20][77], MAIN[6][20][61], MAIN[6][20][45], MAIN[7][24][77], MAIN[7][24][61], MAIN[7][24][45], MAIN[7][24][29], MAIN[7][24][13], MAIN[6][24][77], MAIN[6][24][61], MAIN[6][24][45]],
-					[MAIN[7][20][78], MAIN[7][20][62], MAIN[7][20][46], MAIN[7][20][30], MAIN[7][20][14], MAIN[6][20][78], MAIN[6][20][62], MAIN[6][20][46], MAIN[7][24][78], MAIN[7][24][62], MAIN[7][24][46], MAIN[7][24][30], MAIN[7][24][14], MAIN[6][24][78], MAIN[6][24][62], MAIN[6][24][46]],
-					[MAIN[7][19][65], MAIN[7][19][49], MAIN[7][19][33], MAIN[7][19][17], MAIN[7][19][1], MAIN[6][19][65], MAIN[6][19][49], MAIN[6][19][33], MAIN[7][21][65], MAIN[7][21][49], MAIN[7][21][33], MAIN[7][21][17], MAIN[7][21][1], MAIN[6][21][65], MAIN[6][21][49], MAIN[6][21][33]],
-					[MAIN[7][19][66], MAIN[7][19][50], MAIN[7][19][34], MAIN[7][19][18], MAIN[7][19][2], MAIN[6][19][66], MAIN[6][19][50], MAIN[6][19][34], MAIN[7][21][66], MAIN[7][21][50], MAIN[7][21][34], MAIN[7][21][18], MAIN[7][21][2], MAIN[6][21][66], MAIN[6][21][50], MAIN[6][21][34]],
-					[MAIN[7][19][69], MAIN[7][19][53], MAIN[7][19][37], MAIN[7][19][21], MAIN[7][19][5], MAIN[6][19][69], MAIN[6][19][53], MAIN[6][19][37], MAIN[7][21][69], MAIN[7][21][53], MAIN[7][21][37], MAIN[7][21][21], MAIN[7][21][5], MAIN[6][21][69], MAIN[6][21][53], MAIN[6][21][37]],
-					[MAIN[7][19][70], MAIN[7][19][54], MAIN[7][19][38], MAIN[7][19][22], MAIN[7][19][6], MAIN[6][19][70], MAIN[6][19][54], MAIN[6][19][38], MAIN[7][21][70], MAIN[7][21][54], MAIN[7][21][38], MAIN[7][21][22], MAIN[7][21][6], MAIN[6][21][70], MAIN[6][21][54], MAIN[6][21][38]],
-					[MAIN[7][19][73], MAIN[7][19][57], MAIN[7][19][41], MAIN[7][19][25], MAIN[7][19][9], MAIN[6][19][73], MAIN[6][19][57], MAIN[6][19][41], MAIN[7][21][73], MAIN[7][21][57], MAIN[7][21][41], MAIN[7][21][25], MAIN[7][21][9], MAIN[6][21][73], MAIN[6][21][57], MAIN[6][21][41]],
-					[MAIN[7][19][74], MAIN[7][19][58], MAIN[7][19][42], MAIN[7][19][26], MAIN[7][19][10], MAIN[6][19][74], MAIN[6][19][58], MAIN[6][19][42], MAIN[7][21][74], MAIN[7][21][58], MAIN[7][21][42], MAIN[7][21][26], MAIN[7][21][10], MAIN[6][21][74], MAIN[6][21][58], MAIN[6][21][42]],
-					[MAIN[7][19][77], MAIN[7][19][61], MAIN[7][19][45], MAIN[7][19][29], MAIN[7][19][13], MAIN[6][19][77], MAIN[6][19][61], MAIN[6][19][45], MAIN[7][21][77], MAIN[7][21][61], MAIN[7][21][45], MAIN[7][21][29], MAIN[7][21][13], MAIN[6][21][77], MAIN[6][21][61], MAIN[6][21][45]],
-					[MAIN[7][19][78], MAIN[7][19][62], MAIN[7][19][46], MAIN[7][19][30], MAIN[7][19][14], MAIN[6][19][78], MAIN[6][19][62], MAIN[6][19][46], MAIN[7][21][78], MAIN[7][21][62], MAIN[7][21][46], MAIN[7][21][30], MAIN[7][21][14], MAIN[6][21][78], MAIN[6][21][62], MAIN[6][21][46]],
-				];
-				attribute MONITOR_MODE @[MAIN[3][18][35], MAIN[3][18][34]] {
-					MONITOR = 0b00,
-					ADC = 0b01,
-					TEST = 0b10,
-				}
-				attribute BLOCK_ENABLE @[MAIN[3][18][12], MAIN[3][18][11], MAIN[3][18][9], MAIN[3][18][8], MAIN[3][18][5]];
-				attribute DCLK_DIVID_2 @[MAIN[2][18][44]];
-				attribute LW_DIVID_2_4 @[MAIN[2][18][41]];
-				attribute DCLK_MISSING @[MAIN[2][18][38], MAIN[2][18][37], MAIN[2][18][35], MAIN[2][18][34], MAIN[2][18][14], MAIN[2][18][12], MAIN[2][18][11], MAIN[2][18][9], MAIN[2][18][8], MAIN[2][18][5]];
-				attribute FEATURE_ENABLE @[MAIN[1][18][35], MAIN[1][18][34], MAIN[1][18][14], MAIN[1][18][12], MAIN[1][18][11], MAIN[1][18][9], MAIN[1][18][8], MAIN[1][18][5]];
-				attribute MCCLK_DIVID @[MAIN[3][18][68], MAIN[3][18][67], MAIN[3][18][65], MAIN[3][18][46], MAIN[3][18][45], MAIN[3][18][44], MAIN[3][18][41], MAIN[3][18][38]];
-				attribute OVER_TEMPERATURE @[MAIN[4][18][38], MAIN[4][18][37], MAIN[4][18][35], MAIN[4][18][34], MAIN[4][18][14], MAIN[4][18][12], MAIN[4][18][11], MAIN[4][18][9], MAIN[4][18][8], MAIN[4][18][5]];
-				attribute OVER_TEMPERATURE_DELAY @[MAIN[4][18][72], MAIN[4][18][70], MAIN[4][18][68], MAIN[4][18][67], MAIN[4][18][65], MAIN[4][18][46], MAIN[4][18][45], MAIN[4][18][44]];
-				attribute OVER_TEMPERATURE_OFF @[MAIN[4][18][41]];
-				attribute PROM_DATA @[MAIN[5][18][35], MAIN[5][18][34], MAIN[5][18][14], MAIN[5][18][12], MAIN[5][18][11], MAIN[5][18][9], MAIN[5][18][8], MAIN[5][18][5]];
-			}
-
-			// wire CELL[0].OUT_BEST_TMIN[0]       SYSMON.DB[8]
-			// wire CELL[0].OUT_BEST_TMIN[1]       SYSMON.DB[9]
-			// wire CELL[0].OUT_BEST_TMIN[2]       SYSMON.DB[10]
-			// wire CELL[0].OUT_BEST_TMIN[3]       SYSMON.DB[11]
-			// wire CELL[0].OUT_BEST_TMIN[4]       SYSMON.ALARM[4]
-			// wire CELL[0].OUT_BEST_TMIN[5]       SYSMON.ALARM[5]
-			// wire CELL[0].OUT_BEST_TMIN[6]       SYSMON.ALARM[6]
-			// wire CELL[0].OUT_BEST_TMIN[7]       SYSMON.OT
-			// wire CELL[1].IMUX_IMUX[0]           SYSMON.ROMTESTADDR[0]
-			// wire CELL[1].IMUX_IMUX[1]           SYSMON.ROMTESTADDR[1]
-			// wire CELL[1].IMUX_IMUX[2]           SYSMON.ROMTESTADDR[2]
-			// wire CELL[1].IMUX_IMUX[3]           SYSMON.ROMTESTADDR[3]
-			// wire CELL[1].IMUX_IMUX[4]           SYSMON.ROMTESTADDR[4]
-			// wire CELL[1].IMUX_IMUX[5]           SYSMON.ROMTESTADDR[5]
-			// wire CELL[1].IMUX_IMUX[6]           SYSMON.ROMTESTADDR[8]
-			// wire CELL[1].IMUX_IMUX[7]           SYSMON.ROMTESTADDR[9]
-			// wire CELL[1].OUT_BEST_TMIN[0]       SYSMON.DB[4]
-			// wire CELL[1].OUT_BEST_TMIN[1]       SYSMON.DB[5]
-			// wire CELL[1].OUT_BEST_TMIN[2]       SYSMON.DB[6]
-			// wire CELL[1].OUT_BEST_TMIN[3]       SYSMON.DB[7]
-			// wire CELL[1].OUT_BEST_TMIN[4]       SYSMON.ALARM[0]
-			// wire CELL[1].OUT_BEST_TMIN[5]       SYSMON.ALARM[1]
-			// wire CELL[1].OUT_BEST_TMIN[6]       SYSMON.ALARM[2]
-			// wire CELL[1].OUT_BEST_TMIN[7]       SYSMON.ALARM[3]
-			// wire CELL[2].IMUX_CE_OPTINV[0]      SYSMON.ROMTESTENABLE
-			// wire CELL[2].IMUX_IMUX[0]           SYSMON.ROMTESTADDR[10]
-			// wire CELL[2].IMUX_IMUX[1]           SYSMON.ROMTESTADDR[11]
-			// wire CELL[2].IMUX_IMUX[2]           SYSMON.ROMTESTADDR[12]
-			// wire CELL[2].IMUX_IMUX[3]           SYSMON.ROMTESTADDR[6]
-			// wire CELL[2].IMUX_IMUX[4]           SYSMON.ROMTESTADDR[7]
-			// wire CELL[2].IMUX_IMUX[5]           SYSMON.ROMTESTADDR[13]
-			// wire CELL[2].IMUX_IMUX[6]           SYSMON.ROMTESTADDR[14]
-			// wire CELL[2].IMUX_IMUX[7]           SYSMON.ROMTESTADDR[15]
-			// wire CELL[2].OUT_BEST_TMIN[0]       SYSMON.DB[0]
-			// wire CELL[2].OUT_BEST_TMIN[1]       SYSMON.DB[1]
-			// wire CELL[2].OUT_BEST_TMIN[2]       SYSMON.DB[2]
-			// wire CELL[2].OUT_BEST_TMIN[3]       SYSMON.DB[3]
-			// wire CELL[2].OUT_BEST_TMIN[4]       SYSMON.SDOB
-			// wire CELL[2].OUT_BEST_TMIN[5]       SYSMON.DRDY
-			// wire CELL[2].OUT_BEST_TMIN[7]       SYSMON.SDOA
-			// wire CELL[3].IMUX_SR_OPTINV[0]      SYSMON.RST
-			// wire CELL[3].IMUX_CLK_OPTINV[0]     SYSMON.DCLK
-			// wire CELL[3].IMUX_CLK_OPTINV[1]     SYSMON.SCANMEMCLK
-			// wire CELL[3].IMUX_CLK_OPTINV[2]     SYSMON.SCLKA
-			// wire CELL[3].IMUX_CE_OPTINV[0]      SYSMON.SCANTESTENA
-			// wire CELL[3].IMUX_CE_OPTINV[1]      SYSMON.SEA
-			// wire CELL[3].IMUX_CE_OPTINV[2]      SYSMON.SCANMEMWE
-			// wire CELL[3].IMUX_IMUX[4]           SYSMON.SDIA
-			// wire CELL[3].OUT_BEST_TMIN[0]       SYSMON.EOC
-			// wire CELL[3].OUT_BEST_TMIN[1]       SYSMON.BUSY
-			// wire CELL[3].OUT_BEST_TMIN[2]       SYSMON.CHANNEL[0]
-			// wire CELL[3].OUT_BEST_TMIN[3]       SYSMON.CHANNEL[1]
-			// wire CELL[3].OUT_BEST_TMIN[4]       SYSMON.CHANNEL[2]
-			// wire CELL[3].OUT_BEST_TMIN[5]       SYSMON.CHANNEL[3]
-			// wire CELL[3].OUT_BEST_TMIN[6]       SYSMON.CHANNEL[4]
-			// wire CELL[3].OUT_BEST_TMIN[7]       SYSMON.EOS
-			// wire CELL[4].IMUX_CLK_OPTINV[1]     SYSMON.SCLKB
-			// wire CELL[4].IMUX_CE_OPTINV[0]      SYSMON.SCANTESTENB
-			// wire CELL[4].IMUX_CE_OPTINV[1]      SYSMON.SEB
-			// wire CELL[4].IMUX_IMUX[5]           SYSMON.SDIB
-			// wire CELL[4].OUT_BEST_TMIN[0]       SYSMON.ROMTESTDATA[8]
-			// wire CELL[4].OUT_BEST_TMIN[1]       SYSMON.ROMTESTDATA[9]
-			// wire CELL[4].OUT_BEST_TMIN[2]       SYSMON.ROMTESTDATA[10]
-			// wire CELL[4].OUT_BEST_TMIN[3]       SYSMON.ROMTESTDATA[11]
-			// wire CELL[4].OUT_BEST_TMIN[4]       SYSMON.ROMTESTDATA[12]
-			// wire CELL[4].OUT_BEST_TMIN[5]       SYSMON.ROMTESTDATA[13]
-			// wire CELL[4].OUT_BEST_TMIN[6]       SYSMON.ROMTESTDATA[14]
-			// wire CELL[4].OUT_BEST_TMIN[7]       SYSMON.ROMTESTDATA[15]
-			// wire CELL[4].IMUX_SPEC[0]           SYSMON.CONVST
-			// wire CELL[5].IMUX_CE_OPTINV[0]      SYSMON.DWE
-			// wire CELL[5].IMUX_CE_OPTINV[1]      SYSMON.DEN
-			// wire CELL[5].IMUX_IMUX[0]           SYSMON.DADDR[0]
-			// wire CELL[5].IMUX_IMUX[1]           SYSMON.DADDR[1]
-			// wire CELL[5].IMUX_IMUX[2]           SYSMON.DADDR[2]
-			// wire CELL[5].IMUX_IMUX[3]           SYSMON.DADDR[3]
-			// wire CELL[5].IMUX_IMUX[4]           SYSMON.DADDR[4]
-			// wire CELL[5].IMUX_IMUX[5]           SYSMON.DADDR[5]
-			// wire CELL[5].IMUX_IMUX[6]           SYSMON.DADDR[6]
-			// wire CELL[5].OUT_BEST_TMIN[0]       SYSMON.ROMTESTDATA[0]
-			// wire CELL[5].OUT_BEST_TMIN[1]       SYSMON.ROMTESTDATA[1]
-			// wire CELL[5].OUT_BEST_TMIN[2]       SYSMON.ROMTESTDATA[2]
-			// wire CELL[5].OUT_BEST_TMIN[3]       SYSMON.ROMTESTDATA[3]
-			// wire CELL[5].OUT_BEST_TMIN[4]       SYSMON.ROMTESTDATA[4]
-			// wire CELL[5].OUT_BEST_TMIN[5]       SYSMON.ROMTESTDATA[5]
-			// wire CELL[5].OUT_BEST_TMIN[6]       SYSMON.ROMTESTDATA[6]
-			// wire CELL[5].OUT_BEST_TMIN[7]       SYSMON.ROMTESTDATA[7]
-			// wire CELL[6].IMUX_IMUX[0]           SYSMON.DI[8]
-			// wire CELL[6].IMUX_IMUX[1]           SYSMON.DI[9]
-			// wire CELL[6].IMUX_IMUX[2]           SYSMON.DI[10]
-			// wire CELL[6].IMUX_IMUX[3]           SYSMON.DI[11]
-			// wire CELL[6].IMUX_IMUX[4]           SYSMON.DI[12]
-			// wire CELL[6].IMUX_IMUX[5]           SYSMON.DI[13]
-			// wire CELL[6].IMUX_IMUX[6]           SYSMON.DI[14]
-			// wire CELL[6].IMUX_IMUX[7]           SYSMON.DI[15]
-			// wire CELL[6].OUT_BEST_TMIN[0]       SYSMON.DO[8]
-			// wire CELL[6].OUT_BEST_TMIN[1]       SYSMON.DO[9]
-			// wire CELL[6].OUT_BEST_TMIN[2]       SYSMON.DO[10]
-			// wire CELL[6].OUT_BEST_TMIN[3]       SYSMON.DO[11]
-			// wire CELL[6].OUT_BEST_TMIN[4]       SYSMON.DO[12]
-			// wire CELL[6].OUT_BEST_TMIN[5]       SYSMON.DO[13]
-			// wire CELL[6].OUT_BEST_TMIN[6]       SYSMON.DO[14]
-			// wire CELL[6].OUT_BEST_TMIN[7]       SYSMON.DO[15]
-			// wire CELL[7].IMUX_IMUX[0]           SYSMON.DI[0]
-			// wire CELL[7].IMUX_IMUX[1]           SYSMON.DI[1]
-			// wire CELL[7].IMUX_IMUX[2]           SYSMON.DI[2]
-			// wire CELL[7].IMUX_IMUX[3]           SYSMON.DI[3]
-			// wire CELL[7].IMUX_IMUX[4]           SYSMON.DI[4]
-			// wire CELL[7].IMUX_IMUX[5]           SYSMON.DI[5]
-			// wire CELL[7].IMUX_IMUX[6]           SYSMON.DI[6]
-			// wire CELL[7].IMUX_IMUX[7]           SYSMON.DI[7]
-			// wire CELL[7].OUT_BEST_TMIN[0]       SYSMON.DO[0]
-			// wire CELL[7].OUT_BEST_TMIN[1]       SYSMON.DO[1]
-			// wire CELL[7].OUT_BEST_TMIN[2]       SYSMON.DO[2]
-			// wire CELL[7].OUT_BEST_TMIN[3]       SYSMON.DO[3]
-			// wire CELL[7].OUT_BEST_TMIN[4]       SYSMON.DO[4]
-			// wire CELL[7].OUT_BEST_TMIN[5]       SYSMON.DO[5]
-			// wire CELL[7].OUT_BEST_TMIN[6]       SYSMON.DO[6]
-			// wire CELL[7].OUT_BEST_TMIN[7]       SYSMON.DO[7]
 		}
 	}
 
@@ -64282,597 +64196,597 @@ intdb {
 
 			switchbox HROW_INT {
 				mux W.HCLK_ROW[0] @[MAIN[1][0][11], MAIN[1][1][13], MAIN[1][1][14], MAIN[1][1][12], MAIN[1][1][0], MAIN[1][1][2], MAIN[1][1][3], MAIN[1][1][6], MAIN[1][1][7], MAIN[1][1][8], MAIN[1][1][9], MAIN[1][1][11], MAIN[1][1][19], MAIN[1][1][18], MAIN[1][1][17], MAIN[1][1][16], MAIN[1][1][15], MAIN[1][1][5], MAIN[1][1][4], MAIN[1][1][1]] {
-					W.GCLK_BUF[0] = 0b00010000000111111111,
-					W.GCLK_BUF[1] = 0b00010000001011111111,
-					W.GCLK_BUF[2] = 0b00010000010011111111,
-					W.GCLK_BUF[3] = 0b00010000100011111111,
-					W.GCLK_BUF[4] = 0b00010001000011111111,
-					W.GCLK_BUF[5] = 0b00010010000011111111,
-					W.GCLK_BUF[6] = 0b00010100000011111111,
-					W.GCLK_BUF[7] = 0b00011000000011111111,
-					W.GCLK_BUF[8] = 0b00100000000111111111,
-					W.GCLK_BUF[9] = 0b00100000001011111111,
-					W.GCLK_BUF[10] = 0b00100000010011111111,
-					W.GCLK_BUF[11] = 0b00100000100011111111,
-					W.GCLK_BUF[12] = 0b00100001000011111111,
-					W.GCLK_BUF[13] = 0b00100010000011111111,
-					W.GCLK_BUF[14] = 0b00100100000011111111,
-					W.GCLK_BUF[15] = 0b00101000000011111111,
-					W.GCLK_BUF[16] = 0b01000000000111111111,
-					W.GCLK_BUF[17] = 0b01000000001011111111,
-					W.GCLK_BUF[18] = 0b01000000010011111111,
-					W.GCLK_BUF[19] = 0b01000000100011111111,
-					W.GCLK_BUF[20] = 0b01000001000011111111,
-					W.GCLK_BUF[21] = 0b01000010000011111111,
-					W.GCLK_BUF[22] = 0b01000100000011111111,
-					W.GCLK_BUF[23] = 0b01001000000011111111,
-					W.GCLK_BUF[24] = 0b10000000000111111111,
-					W.GCLK_BUF[25] = 0b10000000001011111111,
-					W.GCLK_BUF[26] = 0b10000000010011111111,
-					W.GCLK_BUF[27] = 0b10000000100011111111,
-					W.GCLK_BUF[28] = 0b10000001000011111111,
-					W.GCLK_BUF[29] = 0b10000010000011111111,
-					W.GCLK_BUF[30] = 0b10000100000011111111,
-					W.GCLK_BUF[31] = 0b10001000000011111111,
+					W.GCLK_HROW[0] = 0b00010000000111111111,
+					W.GCLK_HROW[1] = 0b00010000001011111111,
+					W.GCLK_HROW[2] = 0b00010000010011111111,
+					W.GCLK_HROW[3] = 0b00010000100011111111,
+					W.GCLK_HROW[4] = 0b00010001000011111111,
+					W.GCLK_HROW[5] = 0b00010010000011111111,
+					W.GCLK_HROW[6] = 0b00010100000011111111,
+					W.GCLK_HROW[7] = 0b00011000000011111111,
+					W.GCLK_HROW[8] = 0b00100000000111111111,
+					W.GCLK_HROW[9] = 0b00100000001011111111,
+					W.GCLK_HROW[10] = 0b00100000010011111111,
+					W.GCLK_HROW[11] = 0b00100000100011111111,
+					W.GCLK_HROW[12] = 0b00100001000011111111,
+					W.GCLK_HROW[13] = 0b00100010000011111111,
+					W.GCLK_HROW[14] = 0b00100100000011111111,
+					W.GCLK_HROW[15] = 0b00101000000011111111,
+					W.GCLK_HROW[16] = 0b01000000000111111111,
+					W.GCLK_HROW[17] = 0b01000000001011111111,
+					W.GCLK_HROW[18] = 0b01000000010011111111,
+					W.GCLK_HROW[19] = 0b01000000100011111111,
+					W.GCLK_HROW[20] = 0b01000001000011111111,
+					W.GCLK_HROW[21] = 0b01000010000011111111,
+					W.GCLK_HROW[22] = 0b01000100000011111111,
+					W.GCLK_HROW[23] = 0b01001000000011111111,
+					W.GCLK_HROW[24] = 0b10000000000111111111,
+					W.GCLK_HROW[25] = 0b10000000001011111111,
+					W.GCLK_HROW[26] = 0b10000000010011111111,
+					W.GCLK_HROW[27] = 0b10000000100011111111,
+					W.GCLK_HROW[28] = 0b10000001000011111111,
+					W.GCLK_HROW[29] = 0b10000010000011111111,
+					W.GCLK_HROW[30] = 0b10000100000011111111,
+					W.GCLK_HROW[31] = 0b10001000000011111111,
 					off = 0b00000000000000000000,
 				}
 				mux W.HCLK_ROW[1] @[MAIN[0][0][71], MAIN[0][1][73], MAIN[0][1][74], MAIN[0][1][72], MAIN[0][1][60], MAIN[0][1][62], MAIN[0][1][63], MAIN[0][1][66], MAIN[0][1][67], MAIN[0][1][68], MAIN[0][1][69], MAIN[0][1][71], MAIN[0][1][79], MAIN[0][1][78], MAIN[0][1][77], MAIN[0][1][76], MAIN[0][1][75], MAIN[0][1][65], MAIN[0][1][64], MAIN[0][1][61]] {
-					W.GCLK_BUF[0] = 0b00010000000111111111,
-					W.GCLK_BUF[1] = 0b00010000001011111111,
-					W.GCLK_BUF[2] = 0b00010000010011111111,
-					W.GCLK_BUF[3] = 0b00010000100011111111,
-					W.GCLK_BUF[4] = 0b00010001000011111111,
-					W.GCLK_BUF[5] = 0b00010010000011111111,
-					W.GCLK_BUF[6] = 0b00010100000011111111,
-					W.GCLK_BUF[7] = 0b00011000000011111111,
-					W.GCLK_BUF[8] = 0b00100000000111111111,
-					W.GCLK_BUF[9] = 0b00100000001011111111,
-					W.GCLK_BUF[10] = 0b00100000010011111111,
-					W.GCLK_BUF[11] = 0b00100000100011111111,
-					W.GCLK_BUF[12] = 0b00100001000011111111,
-					W.GCLK_BUF[13] = 0b00100010000011111111,
-					W.GCLK_BUF[14] = 0b00100100000011111111,
-					W.GCLK_BUF[15] = 0b00101000000011111111,
-					W.GCLK_BUF[16] = 0b01000000000111111111,
-					W.GCLK_BUF[17] = 0b01000000001011111111,
-					W.GCLK_BUF[18] = 0b01000000010011111111,
-					W.GCLK_BUF[19] = 0b01000000100011111111,
-					W.GCLK_BUF[20] = 0b01000001000011111111,
-					W.GCLK_BUF[21] = 0b01000010000011111111,
-					W.GCLK_BUF[22] = 0b01000100000011111111,
-					W.GCLK_BUF[23] = 0b01001000000011111111,
-					W.GCLK_BUF[24] = 0b10000000000111111111,
-					W.GCLK_BUF[25] = 0b10000000001011111111,
-					W.GCLK_BUF[26] = 0b10000000010011111111,
-					W.GCLK_BUF[27] = 0b10000000100011111111,
-					W.GCLK_BUF[28] = 0b10000001000011111111,
-					W.GCLK_BUF[29] = 0b10000010000011111111,
-					W.GCLK_BUF[30] = 0b10000100000011111111,
-					W.GCLK_BUF[31] = 0b10001000000011111111,
+					W.GCLK_HROW[0] = 0b00010000000111111111,
+					W.GCLK_HROW[1] = 0b00010000001011111111,
+					W.GCLK_HROW[2] = 0b00010000010011111111,
+					W.GCLK_HROW[3] = 0b00010000100011111111,
+					W.GCLK_HROW[4] = 0b00010001000011111111,
+					W.GCLK_HROW[5] = 0b00010010000011111111,
+					W.GCLK_HROW[6] = 0b00010100000011111111,
+					W.GCLK_HROW[7] = 0b00011000000011111111,
+					W.GCLK_HROW[8] = 0b00100000000111111111,
+					W.GCLK_HROW[9] = 0b00100000001011111111,
+					W.GCLK_HROW[10] = 0b00100000010011111111,
+					W.GCLK_HROW[11] = 0b00100000100011111111,
+					W.GCLK_HROW[12] = 0b00100001000011111111,
+					W.GCLK_HROW[13] = 0b00100010000011111111,
+					W.GCLK_HROW[14] = 0b00100100000011111111,
+					W.GCLK_HROW[15] = 0b00101000000011111111,
+					W.GCLK_HROW[16] = 0b01000000000111111111,
+					W.GCLK_HROW[17] = 0b01000000001011111111,
+					W.GCLK_HROW[18] = 0b01000000010011111111,
+					W.GCLK_HROW[19] = 0b01000000100011111111,
+					W.GCLK_HROW[20] = 0b01000001000011111111,
+					W.GCLK_HROW[21] = 0b01000010000011111111,
+					W.GCLK_HROW[22] = 0b01000100000011111111,
+					W.GCLK_HROW[23] = 0b01001000000011111111,
+					W.GCLK_HROW[24] = 0b10000000000111111111,
+					W.GCLK_HROW[25] = 0b10000000001011111111,
+					W.GCLK_HROW[26] = 0b10000000010011111111,
+					W.GCLK_HROW[27] = 0b10000000100011111111,
+					W.GCLK_HROW[28] = 0b10000001000011111111,
+					W.GCLK_HROW[29] = 0b10000010000011111111,
+					W.GCLK_HROW[30] = 0b10000100000011111111,
+					W.GCLK_HROW[31] = 0b10001000000011111111,
 					off = 0b00000000000000000000,
 				}
 				mux W.HCLK_ROW[2] @[MAIN[1][0][31], MAIN[1][1][33], MAIN[1][1][34], MAIN[1][1][32], MAIN[1][1][20], MAIN[1][1][22], MAIN[1][1][23], MAIN[1][1][26], MAIN[1][1][27], MAIN[1][1][28], MAIN[1][1][29], MAIN[1][1][31], MAIN[1][1][39], MAIN[1][1][38], MAIN[1][1][37], MAIN[1][1][36], MAIN[1][1][35], MAIN[1][1][25], MAIN[1][1][24], MAIN[1][1][21]] {
-					W.GCLK_BUF[0] = 0b00010000000111111111,
-					W.GCLK_BUF[1] = 0b00010000001011111111,
-					W.GCLK_BUF[2] = 0b00010000010011111111,
-					W.GCLK_BUF[3] = 0b00010000100011111111,
-					W.GCLK_BUF[4] = 0b00010001000011111111,
-					W.GCLK_BUF[5] = 0b00010010000011111111,
-					W.GCLK_BUF[6] = 0b00010100000011111111,
-					W.GCLK_BUF[7] = 0b00011000000011111111,
-					W.GCLK_BUF[8] = 0b00100000000111111111,
-					W.GCLK_BUF[9] = 0b00100000001011111111,
-					W.GCLK_BUF[10] = 0b00100000010011111111,
-					W.GCLK_BUF[11] = 0b00100000100011111111,
-					W.GCLK_BUF[12] = 0b00100001000011111111,
-					W.GCLK_BUF[13] = 0b00100010000011111111,
-					W.GCLK_BUF[14] = 0b00100100000011111111,
-					W.GCLK_BUF[15] = 0b00101000000011111111,
-					W.GCLK_BUF[16] = 0b01000000000111111111,
-					W.GCLK_BUF[17] = 0b01000000001011111111,
-					W.GCLK_BUF[18] = 0b01000000010011111111,
-					W.GCLK_BUF[19] = 0b01000000100011111111,
-					W.GCLK_BUF[20] = 0b01000001000011111111,
-					W.GCLK_BUF[21] = 0b01000010000011111111,
-					W.GCLK_BUF[22] = 0b01000100000011111111,
-					W.GCLK_BUF[23] = 0b01001000000011111111,
-					W.GCLK_BUF[24] = 0b10000000000111111111,
-					W.GCLK_BUF[25] = 0b10000000001011111111,
-					W.GCLK_BUF[26] = 0b10000000010011111111,
-					W.GCLK_BUF[27] = 0b10000000100011111111,
-					W.GCLK_BUF[28] = 0b10000001000011111111,
-					W.GCLK_BUF[29] = 0b10000010000011111111,
-					W.GCLK_BUF[30] = 0b10000100000011111111,
-					W.GCLK_BUF[31] = 0b10001000000011111111,
+					W.GCLK_HROW[0] = 0b00010000000111111111,
+					W.GCLK_HROW[1] = 0b00010000001011111111,
+					W.GCLK_HROW[2] = 0b00010000010011111111,
+					W.GCLK_HROW[3] = 0b00010000100011111111,
+					W.GCLK_HROW[4] = 0b00010001000011111111,
+					W.GCLK_HROW[5] = 0b00010010000011111111,
+					W.GCLK_HROW[6] = 0b00010100000011111111,
+					W.GCLK_HROW[7] = 0b00011000000011111111,
+					W.GCLK_HROW[8] = 0b00100000000111111111,
+					W.GCLK_HROW[9] = 0b00100000001011111111,
+					W.GCLK_HROW[10] = 0b00100000010011111111,
+					W.GCLK_HROW[11] = 0b00100000100011111111,
+					W.GCLK_HROW[12] = 0b00100001000011111111,
+					W.GCLK_HROW[13] = 0b00100010000011111111,
+					W.GCLK_HROW[14] = 0b00100100000011111111,
+					W.GCLK_HROW[15] = 0b00101000000011111111,
+					W.GCLK_HROW[16] = 0b01000000000111111111,
+					W.GCLK_HROW[17] = 0b01000000001011111111,
+					W.GCLK_HROW[18] = 0b01000000010011111111,
+					W.GCLK_HROW[19] = 0b01000000100011111111,
+					W.GCLK_HROW[20] = 0b01000001000011111111,
+					W.GCLK_HROW[21] = 0b01000010000011111111,
+					W.GCLK_HROW[22] = 0b01000100000011111111,
+					W.GCLK_HROW[23] = 0b01001000000011111111,
+					W.GCLK_HROW[24] = 0b10000000000111111111,
+					W.GCLK_HROW[25] = 0b10000000001011111111,
+					W.GCLK_HROW[26] = 0b10000000010011111111,
+					W.GCLK_HROW[27] = 0b10000000100011111111,
+					W.GCLK_HROW[28] = 0b10000001000011111111,
+					W.GCLK_HROW[29] = 0b10000010000011111111,
+					W.GCLK_HROW[30] = 0b10000100000011111111,
+					W.GCLK_HROW[31] = 0b10001000000011111111,
 					off = 0b00000000000000000000,
 				}
 				mux W.HCLK_ROW[3] @[MAIN[0][0][51], MAIN[0][1][53], MAIN[0][1][54], MAIN[0][1][52], MAIN[0][1][40], MAIN[0][1][42], MAIN[0][1][43], MAIN[0][1][46], MAIN[0][1][47], MAIN[0][1][48], MAIN[0][1][49], MAIN[0][1][51], MAIN[0][1][59], MAIN[0][1][58], MAIN[0][1][57], MAIN[0][1][56], MAIN[0][1][55], MAIN[0][1][45], MAIN[0][1][44], MAIN[0][1][41]] {
-					W.GCLK_BUF[0] = 0b00010000000111111111,
-					W.GCLK_BUF[1] = 0b00010000001011111111,
-					W.GCLK_BUF[2] = 0b00010000010011111111,
-					W.GCLK_BUF[3] = 0b00010000100011111111,
-					W.GCLK_BUF[4] = 0b00010001000011111111,
-					W.GCLK_BUF[5] = 0b00010010000011111111,
-					W.GCLK_BUF[6] = 0b00010100000011111111,
-					W.GCLK_BUF[7] = 0b00011000000011111111,
-					W.GCLK_BUF[8] = 0b00100000000111111111,
-					W.GCLK_BUF[9] = 0b00100000001011111111,
-					W.GCLK_BUF[10] = 0b00100000010011111111,
-					W.GCLK_BUF[11] = 0b00100000100011111111,
-					W.GCLK_BUF[12] = 0b00100001000011111111,
-					W.GCLK_BUF[13] = 0b00100010000011111111,
-					W.GCLK_BUF[14] = 0b00100100000011111111,
-					W.GCLK_BUF[15] = 0b00101000000011111111,
-					W.GCLK_BUF[16] = 0b01000000000111111111,
-					W.GCLK_BUF[17] = 0b01000000001011111111,
-					W.GCLK_BUF[18] = 0b01000000010011111111,
-					W.GCLK_BUF[19] = 0b01000000100011111111,
-					W.GCLK_BUF[20] = 0b01000001000011111111,
-					W.GCLK_BUF[21] = 0b01000010000011111111,
-					W.GCLK_BUF[22] = 0b01000100000011111111,
-					W.GCLK_BUF[23] = 0b01001000000011111111,
-					W.GCLK_BUF[24] = 0b10000000000111111111,
-					W.GCLK_BUF[25] = 0b10000000001011111111,
-					W.GCLK_BUF[26] = 0b10000000010011111111,
-					W.GCLK_BUF[27] = 0b10000000100011111111,
-					W.GCLK_BUF[28] = 0b10000001000011111111,
-					W.GCLK_BUF[29] = 0b10000010000011111111,
-					W.GCLK_BUF[30] = 0b10000100000011111111,
-					W.GCLK_BUF[31] = 0b10001000000011111111,
+					W.GCLK_HROW[0] = 0b00010000000111111111,
+					W.GCLK_HROW[1] = 0b00010000001011111111,
+					W.GCLK_HROW[2] = 0b00010000010011111111,
+					W.GCLK_HROW[3] = 0b00010000100011111111,
+					W.GCLK_HROW[4] = 0b00010001000011111111,
+					W.GCLK_HROW[5] = 0b00010010000011111111,
+					W.GCLK_HROW[6] = 0b00010100000011111111,
+					W.GCLK_HROW[7] = 0b00011000000011111111,
+					W.GCLK_HROW[8] = 0b00100000000111111111,
+					W.GCLK_HROW[9] = 0b00100000001011111111,
+					W.GCLK_HROW[10] = 0b00100000010011111111,
+					W.GCLK_HROW[11] = 0b00100000100011111111,
+					W.GCLK_HROW[12] = 0b00100001000011111111,
+					W.GCLK_HROW[13] = 0b00100010000011111111,
+					W.GCLK_HROW[14] = 0b00100100000011111111,
+					W.GCLK_HROW[15] = 0b00101000000011111111,
+					W.GCLK_HROW[16] = 0b01000000000111111111,
+					W.GCLK_HROW[17] = 0b01000000001011111111,
+					W.GCLK_HROW[18] = 0b01000000010011111111,
+					W.GCLK_HROW[19] = 0b01000000100011111111,
+					W.GCLK_HROW[20] = 0b01000001000011111111,
+					W.GCLK_HROW[21] = 0b01000010000011111111,
+					W.GCLK_HROW[22] = 0b01000100000011111111,
+					W.GCLK_HROW[23] = 0b01001000000011111111,
+					W.GCLK_HROW[24] = 0b10000000000111111111,
+					W.GCLK_HROW[25] = 0b10000000001011111111,
+					W.GCLK_HROW[26] = 0b10000000010011111111,
+					W.GCLK_HROW[27] = 0b10000000100011111111,
+					W.GCLK_HROW[28] = 0b10000001000011111111,
+					W.GCLK_HROW[29] = 0b10000010000011111111,
+					W.GCLK_HROW[30] = 0b10000100000011111111,
+					W.GCLK_HROW[31] = 0b10001000000011111111,
 					off = 0b00000000000000000000,
 				}
 				mux W.HCLK_ROW[4] @[MAIN[1][0][51], MAIN[1][1][53], MAIN[1][1][54], MAIN[1][1][52], MAIN[1][1][40], MAIN[1][1][42], MAIN[1][1][43], MAIN[1][1][46], MAIN[1][1][47], MAIN[1][1][48], MAIN[1][1][49], MAIN[1][1][51], MAIN[1][1][59], MAIN[1][1][58], MAIN[1][1][57], MAIN[1][1][56], MAIN[1][1][55], MAIN[1][1][45], MAIN[1][1][44], MAIN[1][1][41]] {
-					W.GCLK_BUF[0] = 0b00010000000111111111,
-					W.GCLK_BUF[1] = 0b00010000001011111111,
-					W.GCLK_BUF[2] = 0b00010000010011111111,
-					W.GCLK_BUF[3] = 0b00010000100011111111,
-					W.GCLK_BUF[4] = 0b00010001000011111111,
-					W.GCLK_BUF[5] = 0b00010010000011111111,
-					W.GCLK_BUF[6] = 0b00010100000011111111,
-					W.GCLK_BUF[7] = 0b00011000000011111111,
-					W.GCLK_BUF[8] = 0b00100000000111111111,
-					W.GCLK_BUF[9] = 0b00100000001011111111,
-					W.GCLK_BUF[10] = 0b00100000010011111111,
-					W.GCLK_BUF[11] = 0b00100000100011111111,
-					W.GCLK_BUF[12] = 0b00100001000011111111,
-					W.GCLK_BUF[13] = 0b00100010000011111111,
-					W.GCLK_BUF[14] = 0b00100100000011111111,
-					W.GCLK_BUF[15] = 0b00101000000011111111,
-					W.GCLK_BUF[16] = 0b01000000000111111111,
-					W.GCLK_BUF[17] = 0b01000000001011111111,
-					W.GCLK_BUF[18] = 0b01000000010011111111,
-					W.GCLK_BUF[19] = 0b01000000100011111111,
-					W.GCLK_BUF[20] = 0b01000001000011111111,
-					W.GCLK_BUF[21] = 0b01000010000011111111,
-					W.GCLK_BUF[22] = 0b01000100000011111111,
-					W.GCLK_BUF[23] = 0b01001000000011111111,
-					W.GCLK_BUF[24] = 0b10000000000111111111,
-					W.GCLK_BUF[25] = 0b10000000001011111111,
-					W.GCLK_BUF[26] = 0b10000000010011111111,
-					W.GCLK_BUF[27] = 0b10000000100011111111,
-					W.GCLK_BUF[28] = 0b10000001000011111111,
-					W.GCLK_BUF[29] = 0b10000010000011111111,
-					W.GCLK_BUF[30] = 0b10000100000011111111,
-					W.GCLK_BUF[31] = 0b10001000000011111111,
+					W.GCLK_HROW[0] = 0b00010000000111111111,
+					W.GCLK_HROW[1] = 0b00010000001011111111,
+					W.GCLK_HROW[2] = 0b00010000010011111111,
+					W.GCLK_HROW[3] = 0b00010000100011111111,
+					W.GCLK_HROW[4] = 0b00010001000011111111,
+					W.GCLK_HROW[5] = 0b00010010000011111111,
+					W.GCLK_HROW[6] = 0b00010100000011111111,
+					W.GCLK_HROW[7] = 0b00011000000011111111,
+					W.GCLK_HROW[8] = 0b00100000000111111111,
+					W.GCLK_HROW[9] = 0b00100000001011111111,
+					W.GCLK_HROW[10] = 0b00100000010011111111,
+					W.GCLK_HROW[11] = 0b00100000100011111111,
+					W.GCLK_HROW[12] = 0b00100001000011111111,
+					W.GCLK_HROW[13] = 0b00100010000011111111,
+					W.GCLK_HROW[14] = 0b00100100000011111111,
+					W.GCLK_HROW[15] = 0b00101000000011111111,
+					W.GCLK_HROW[16] = 0b01000000000111111111,
+					W.GCLK_HROW[17] = 0b01000000001011111111,
+					W.GCLK_HROW[18] = 0b01000000010011111111,
+					W.GCLK_HROW[19] = 0b01000000100011111111,
+					W.GCLK_HROW[20] = 0b01000001000011111111,
+					W.GCLK_HROW[21] = 0b01000010000011111111,
+					W.GCLK_HROW[22] = 0b01000100000011111111,
+					W.GCLK_HROW[23] = 0b01001000000011111111,
+					W.GCLK_HROW[24] = 0b10000000000111111111,
+					W.GCLK_HROW[25] = 0b10000000001011111111,
+					W.GCLK_HROW[26] = 0b10000000010011111111,
+					W.GCLK_HROW[27] = 0b10000000100011111111,
+					W.GCLK_HROW[28] = 0b10000001000011111111,
+					W.GCLK_HROW[29] = 0b10000010000011111111,
+					W.GCLK_HROW[30] = 0b10000100000011111111,
+					W.GCLK_HROW[31] = 0b10001000000011111111,
 					off = 0b00000000000000000000,
 				}
 				mux W.HCLK_ROW[5] @[MAIN[0][0][31], MAIN[0][1][33], MAIN[0][1][34], MAIN[0][1][32], MAIN[0][1][20], MAIN[0][1][22], MAIN[0][1][23], MAIN[0][1][26], MAIN[0][1][27], MAIN[0][1][28], MAIN[0][1][29], MAIN[0][1][31], MAIN[0][1][39], MAIN[0][1][38], MAIN[0][1][37], MAIN[0][1][36], MAIN[0][1][35], MAIN[0][1][25], MAIN[0][1][24], MAIN[0][1][21]] {
-					W.GCLK_BUF[0] = 0b00010000000111111111,
-					W.GCLK_BUF[1] = 0b00010000001011111111,
-					W.GCLK_BUF[2] = 0b00010000010011111111,
-					W.GCLK_BUF[3] = 0b00010000100011111111,
-					W.GCLK_BUF[4] = 0b00010001000011111111,
-					W.GCLK_BUF[5] = 0b00010010000011111111,
-					W.GCLK_BUF[6] = 0b00010100000011111111,
-					W.GCLK_BUF[7] = 0b00011000000011111111,
-					W.GCLK_BUF[8] = 0b00100000000111111111,
-					W.GCLK_BUF[9] = 0b00100000001011111111,
-					W.GCLK_BUF[10] = 0b00100000010011111111,
-					W.GCLK_BUF[11] = 0b00100000100011111111,
-					W.GCLK_BUF[12] = 0b00100001000011111111,
-					W.GCLK_BUF[13] = 0b00100010000011111111,
-					W.GCLK_BUF[14] = 0b00100100000011111111,
-					W.GCLK_BUF[15] = 0b00101000000011111111,
-					W.GCLK_BUF[16] = 0b01000000000111111111,
-					W.GCLK_BUF[17] = 0b01000000001011111111,
-					W.GCLK_BUF[18] = 0b01000000010011111111,
-					W.GCLK_BUF[19] = 0b01000000100011111111,
-					W.GCLK_BUF[20] = 0b01000001000011111111,
-					W.GCLK_BUF[21] = 0b01000010000011111111,
-					W.GCLK_BUF[22] = 0b01000100000011111111,
-					W.GCLK_BUF[23] = 0b01001000000011111111,
-					W.GCLK_BUF[24] = 0b10000000000111111111,
-					W.GCLK_BUF[25] = 0b10000000001011111111,
-					W.GCLK_BUF[26] = 0b10000000010011111111,
-					W.GCLK_BUF[27] = 0b10000000100011111111,
-					W.GCLK_BUF[28] = 0b10000001000011111111,
-					W.GCLK_BUF[29] = 0b10000010000011111111,
-					W.GCLK_BUF[30] = 0b10000100000011111111,
-					W.GCLK_BUF[31] = 0b10001000000011111111,
+					W.GCLK_HROW[0] = 0b00010000000111111111,
+					W.GCLK_HROW[1] = 0b00010000001011111111,
+					W.GCLK_HROW[2] = 0b00010000010011111111,
+					W.GCLK_HROW[3] = 0b00010000100011111111,
+					W.GCLK_HROW[4] = 0b00010001000011111111,
+					W.GCLK_HROW[5] = 0b00010010000011111111,
+					W.GCLK_HROW[6] = 0b00010100000011111111,
+					W.GCLK_HROW[7] = 0b00011000000011111111,
+					W.GCLK_HROW[8] = 0b00100000000111111111,
+					W.GCLK_HROW[9] = 0b00100000001011111111,
+					W.GCLK_HROW[10] = 0b00100000010011111111,
+					W.GCLK_HROW[11] = 0b00100000100011111111,
+					W.GCLK_HROW[12] = 0b00100001000011111111,
+					W.GCLK_HROW[13] = 0b00100010000011111111,
+					W.GCLK_HROW[14] = 0b00100100000011111111,
+					W.GCLK_HROW[15] = 0b00101000000011111111,
+					W.GCLK_HROW[16] = 0b01000000000111111111,
+					W.GCLK_HROW[17] = 0b01000000001011111111,
+					W.GCLK_HROW[18] = 0b01000000010011111111,
+					W.GCLK_HROW[19] = 0b01000000100011111111,
+					W.GCLK_HROW[20] = 0b01000001000011111111,
+					W.GCLK_HROW[21] = 0b01000010000011111111,
+					W.GCLK_HROW[22] = 0b01000100000011111111,
+					W.GCLK_HROW[23] = 0b01001000000011111111,
+					W.GCLK_HROW[24] = 0b10000000000111111111,
+					W.GCLK_HROW[25] = 0b10000000001011111111,
+					W.GCLK_HROW[26] = 0b10000000010011111111,
+					W.GCLK_HROW[27] = 0b10000000100011111111,
+					W.GCLK_HROW[28] = 0b10000001000011111111,
+					W.GCLK_HROW[29] = 0b10000010000011111111,
+					W.GCLK_HROW[30] = 0b10000100000011111111,
+					W.GCLK_HROW[31] = 0b10001000000011111111,
 					off = 0b00000000000000000000,
 				}
 				mux W.HCLK_ROW[6] @[MAIN[1][0][71], MAIN[1][1][73], MAIN[1][1][74], MAIN[1][1][72], MAIN[1][1][60], MAIN[1][1][62], MAIN[1][1][63], MAIN[1][1][66], MAIN[1][1][67], MAIN[1][1][68], MAIN[1][1][69], MAIN[1][1][71], MAIN[1][1][79], MAIN[1][1][78], MAIN[1][1][77], MAIN[1][1][76], MAIN[1][1][75], MAIN[1][1][65], MAIN[1][1][64], MAIN[1][1][61]] {
-					W.GCLK_BUF[0] = 0b00010000000111111111,
-					W.GCLK_BUF[1] = 0b00010000001011111111,
-					W.GCLK_BUF[2] = 0b00010000010011111111,
-					W.GCLK_BUF[3] = 0b00010000100011111111,
-					W.GCLK_BUF[4] = 0b00010001000011111111,
-					W.GCLK_BUF[5] = 0b00010010000011111111,
-					W.GCLK_BUF[6] = 0b00010100000011111111,
-					W.GCLK_BUF[7] = 0b00011000000011111111,
-					W.GCLK_BUF[8] = 0b00100000000111111111,
-					W.GCLK_BUF[9] = 0b00100000001011111111,
-					W.GCLK_BUF[10] = 0b00100000010011111111,
-					W.GCLK_BUF[11] = 0b00100000100011111111,
-					W.GCLK_BUF[12] = 0b00100001000011111111,
-					W.GCLK_BUF[13] = 0b00100010000011111111,
-					W.GCLK_BUF[14] = 0b00100100000011111111,
-					W.GCLK_BUF[15] = 0b00101000000011111111,
-					W.GCLK_BUF[16] = 0b01000000000111111111,
-					W.GCLK_BUF[17] = 0b01000000001011111111,
-					W.GCLK_BUF[18] = 0b01000000010011111111,
-					W.GCLK_BUF[19] = 0b01000000100011111111,
-					W.GCLK_BUF[20] = 0b01000001000011111111,
-					W.GCLK_BUF[21] = 0b01000010000011111111,
-					W.GCLK_BUF[22] = 0b01000100000011111111,
-					W.GCLK_BUF[23] = 0b01001000000011111111,
-					W.GCLK_BUF[24] = 0b10000000000111111111,
-					W.GCLK_BUF[25] = 0b10000000001011111111,
-					W.GCLK_BUF[26] = 0b10000000010011111111,
-					W.GCLK_BUF[27] = 0b10000000100011111111,
-					W.GCLK_BUF[28] = 0b10000001000011111111,
-					W.GCLK_BUF[29] = 0b10000010000011111111,
-					W.GCLK_BUF[30] = 0b10000100000011111111,
-					W.GCLK_BUF[31] = 0b10001000000011111111,
+					W.GCLK_HROW[0] = 0b00010000000111111111,
+					W.GCLK_HROW[1] = 0b00010000001011111111,
+					W.GCLK_HROW[2] = 0b00010000010011111111,
+					W.GCLK_HROW[3] = 0b00010000100011111111,
+					W.GCLK_HROW[4] = 0b00010001000011111111,
+					W.GCLK_HROW[5] = 0b00010010000011111111,
+					W.GCLK_HROW[6] = 0b00010100000011111111,
+					W.GCLK_HROW[7] = 0b00011000000011111111,
+					W.GCLK_HROW[8] = 0b00100000000111111111,
+					W.GCLK_HROW[9] = 0b00100000001011111111,
+					W.GCLK_HROW[10] = 0b00100000010011111111,
+					W.GCLK_HROW[11] = 0b00100000100011111111,
+					W.GCLK_HROW[12] = 0b00100001000011111111,
+					W.GCLK_HROW[13] = 0b00100010000011111111,
+					W.GCLK_HROW[14] = 0b00100100000011111111,
+					W.GCLK_HROW[15] = 0b00101000000011111111,
+					W.GCLK_HROW[16] = 0b01000000000111111111,
+					W.GCLK_HROW[17] = 0b01000000001011111111,
+					W.GCLK_HROW[18] = 0b01000000010011111111,
+					W.GCLK_HROW[19] = 0b01000000100011111111,
+					W.GCLK_HROW[20] = 0b01000001000011111111,
+					W.GCLK_HROW[21] = 0b01000010000011111111,
+					W.GCLK_HROW[22] = 0b01000100000011111111,
+					W.GCLK_HROW[23] = 0b01001000000011111111,
+					W.GCLK_HROW[24] = 0b10000000000111111111,
+					W.GCLK_HROW[25] = 0b10000000001011111111,
+					W.GCLK_HROW[26] = 0b10000000010011111111,
+					W.GCLK_HROW[27] = 0b10000000100011111111,
+					W.GCLK_HROW[28] = 0b10000001000011111111,
+					W.GCLK_HROW[29] = 0b10000010000011111111,
+					W.GCLK_HROW[30] = 0b10000100000011111111,
+					W.GCLK_HROW[31] = 0b10001000000011111111,
 					off = 0b00000000000000000000,
 				}
 				mux W.HCLK_ROW[7] @[MAIN[0][0][11], MAIN[0][1][13], MAIN[0][1][14], MAIN[0][1][12], MAIN[0][1][0], MAIN[0][1][2], MAIN[0][1][3], MAIN[0][1][6], MAIN[0][1][7], MAIN[0][1][8], MAIN[0][1][9], MAIN[0][1][11], MAIN[0][1][19], MAIN[0][1][18], MAIN[0][1][17], MAIN[0][1][16], MAIN[0][1][15], MAIN[0][1][5], MAIN[0][1][4], MAIN[0][1][1]] {
-					W.GCLK_BUF[0] = 0b00010000000111111111,
-					W.GCLK_BUF[1] = 0b00010000001011111111,
-					W.GCLK_BUF[2] = 0b00010000010011111111,
-					W.GCLK_BUF[3] = 0b00010000100011111111,
-					W.GCLK_BUF[4] = 0b00010001000011111111,
-					W.GCLK_BUF[5] = 0b00010010000011111111,
-					W.GCLK_BUF[6] = 0b00010100000011111111,
-					W.GCLK_BUF[7] = 0b00011000000011111111,
-					W.GCLK_BUF[8] = 0b00100000000111111111,
-					W.GCLK_BUF[9] = 0b00100000001011111111,
-					W.GCLK_BUF[10] = 0b00100000010011111111,
-					W.GCLK_BUF[11] = 0b00100000100011111111,
-					W.GCLK_BUF[12] = 0b00100001000011111111,
-					W.GCLK_BUF[13] = 0b00100010000011111111,
-					W.GCLK_BUF[14] = 0b00100100000011111111,
-					W.GCLK_BUF[15] = 0b00101000000011111111,
-					W.GCLK_BUF[16] = 0b01000000000111111111,
-					W.GCLK_BUF[17] = 0b01000000001011111111,
-					W.GCLK_BUF[18] = 0b01000000010011111111,
-					W.GCLK_BUF[19] = 0b01000000100011111111,
-					W.GCLK_BUF[20] = 0b01000001000011111111,
-					W.GCLK_BUF[21] = 0b01000010000011111111,
-					W.GCLK_BUF[22] = 0b01000100000011111111,
-					W.GCLK_BUF[23] = 0b01001000000011111111,
-					W.GCLK_BUF[24] = 0b10000000000111111111,
-					W.GCLK_BUF[25] = 0b10000000001011111111,
-					W.GCLK_BUF[26] = 0b10000000010011111111,
-					W.GCLK_BUF[27] = 0b10000000100011111111,
-					W.GCLK_BUF[28] = 0b10000001000011111111,
-					W.GCLK_BUF[29] = 0b10000010000011111111,
-					W.GCLK_BUF[30] = 0b10000100000011111111,
-					W.GCLK_BUF[31] = 0b10001000000011111111,
+					W.GCLK_HROW[0] = 0b00010000000111111111,
+					W.GCLK_HROW[1] = 0b00010000001011111111,
+					W.GCLK_HROW[2] = 0b00010000010011111111,
+					W.GCLK_HROW[3] = 0b00010000100011111111,
+					W.GCLK_HROW[4] = 0b00010001000011111111,
+					W.GCLK_HROW[5] = 0b00010010000011111111,
+					W.GCLK_HROW[6] = 0b00010100000011111111,
+					W.GCLK_HROW[7] = 0b00011000000011111111,
+					W.GCLK_HROW[8] = 0b00100000000111111111,
+					W.GCLK_HROW[9] = 0b00100000001011111111,
+					W.GCLK_HROW[10] = 0b00100000010011111111,
+					W.GCLK_HROW[11] = 0b00100000100011111111,
+					W.GCLK_HROW[12] = 0b00100001000011111111,
+					W.GCLK_HROW[13] = 0b00100010000011111111,
+					W.GCLK_HROW[14] = 0b00100100000011111111,
+					W.GCLK_HROW[15] = 0b00101000000011111111,
+					W.GCLK_HROW[16] = 0b01000000000111111111,
+					W.GCLK_HROW[17] = 0b01000000001011111111,
+					W.GCLK_HROW[18] = 0b01000000010011111111,
+					W.GCLK_HROW[19] = 0b01000000100011111111,
+					W.GCLK_HROW[20] = 0b01000001000011111111,
+					W.GCLK_HROW[21] = 0b01000010000011111111,
+					W.GCLK_HROW[22] = 0b01000100000011111111,
+					W.GCLK_HROW[23] = 0b01001000000011111111,
+					W.GCLK_HROW[24] = 0b10000000000111111111,
+					W.GCLK_HROW[25] = 0b10000000001011111111,
+					W.GCLK_HROW[26] = 0b10000000010011111111,
+					W.GCLK_HROW[27] = 0b10000000100011111111,
+					W.GCLK_HROW[28] = 0b10000001000011111111,
+					W.GCLK_HROW[29] = 0b10000010000011111111,
+					W.GCLK_HROW[30] = 0b10000100000011111111,
+					W.GCLK_HROW[31] = 0b10001000000011111111,
 					off = 0b00000000000000000000,
 				}
 				mux E.HCLK_ROW[0] @[MAIN[1][0][10], MAIN[1][2][13], MAIN[1][2][14], MAIN[1][2][12], MAIN[1][2][0], MAIN[1][2][2], MAIN[1][2][3], MAIN[1][2][6], MAIN[1][2][7], MAIN[1][2][8], MAIN[1][2][9], MAIN[1][2][11], MAIN[1][2][19], MAIN[1][2][18], MAIN[1][2][17], MAIN[1][2][16], MAIN[1][2][15], MAIN[1][2][5], MAIN[1][2][4], MAIN[1][2][1]] {
-					W.GCLK_BUF[0] = 0b00010000000111111111,
-					W.GCLK_BUF[1] = 0b00010000001011111111,
-					W.GCLK_BUF[2] = 0b00010000010011111111,
-					W.GCLK_BUF[3] = 0b00010000100011111111,
-					W.GCLK_BUF[4] = 0b00010001000011111111,
-					W.GCLK_BUF[5] = 0b00010010000011111111,
-					W.GCLK_BUF[6] = 0b00010100000011111111,
-					W.GCLK_BUF[7] = 0b00011000000011111111,
-					W.GCLK_BUF[8] = 0b00100000000111111111,
-					W.GCLK_BUF[9] = 0b00100000001011111111,
-					W.GCLK_BUF[10] = 0b00100000010011111111,
-					W.GCLK_BUF[11] = 0b00100000100011111111,
-					W.GCLK_BUF[12] = 0b00100001000011111111,
-					W.GCLK_BUF[13] = 0b00100010000011111111,
-					W.GCLK_BUF[14] = 0b00100100000011111111,
-					W.GCLK_BUF[15] = 0b00101000000011111111,
-					W.GCLK_BUF[16] = 0b01000000000111111111,
-					W.GCLK_BUF[17] = 0b01000000001011111111,
-					W.GCLK_BUF[18] = 0b01000000010011111111,
-					W.GCLK_BUF[19] = 0b01000000100011111111,
-					W.GCLK_BUF[20] = 0b01000001000011111111,
-					W.GCLK_BUF[21] = 0b01000010000011111111,
-					W.GCLK_BUF[22] = 0b01000100000011111111,
-					W.GCLK_BUF[23] = 0b01001000000011111111,
-					W.GCLK_BUF[24] = 0b10000000000111111111,
-					W.GCLK_BUF[25] = 0b10000000001011111111,
-					W.GCLK_BUF[26] = 0b10000000010011111111,
-					W.GCLK_BUF[27] = 0b10000000100011111111,
-					W.GCLK_BUF[28] = 0b10000001000011111111,
-					W.GCLK_BUF[29] = 0b10000010000011111111,
-					W.GCLK_BUF[30] = 0b10000100000011111111,
-					W.GCLK_BUF[31] = 0b10001000000011111111,
+					W.GCLK_HROW[0] = 0b00010000000111111111,
+					W.GCLK_HROW[1] = 0b00010000001011111111,
+					W.GCLK_HROW[2] = 0b00010000010011111111,
+					W.GCLK_HROW[3] = 0b00010000100011111111,
+					W.GCLK_HROW[4] = 0b00010001000011111111,
+					W.GCLK_HROW[5] = 0b00010010000011111111,
+					W.GCLK_HROW[6] = 0b00010100000011111111,
+					W.GCLK_HROW[7] = 0b00011000000011111111,
+					W.GCLK_HROW[8] = 0b00100000000111111111,
+					W.GCLK_HROW[9] = 0b00100000001011111111,
+					W.GCLK_HROW[10] = 0b00100000010011111111,
+					W.GCLK_HROW[11] = 0b00100000100011111111,
+					W.GCLK_HROW[12] = 0b00100001000011111111,
+					W.GCLK_HROW[13] = 0b00100010000011111111,
+					W.GCLK_HROW[14] = 0b00100100000011111111,
+					W.GCLK_HROW[15] = 0b00101000000011111111,
+					W.GCLK_HROW[16] = 0b01000000000111111111,
+					W.GCLK_HROW[17] = 0b01000000001011111111,
+					W.GCLK_HROW[18] = 0b01000000010011111111,
+					W.GCLK_HROW[19] = 0b01000000100011111111,
+					W.GCLK_HROW[20] = 0b01000001000011111111,
+					W.GCLK_HROW[21] = 0b01000010000011111111,
+					W.GCLK_HROW[22] = 0b01000100000011111111,
+					W.GCLK_HROW[23] = 0b01001000000011111111,
+					W.GCLK_HROW[24] = 0b10000000000111111111,
+					W.GCLK_HROW[25] = 0b10000000001011111111,
+					W.GCLK_HROW[26] = 0b10000000010011111111,
+					W.GCLK_HROW[27] = 0b10000000100011111111,
+					W.GCLK_HROW[28] = 0b10000001000011111111,
+					W.GCLK_HROW[29] = 0b10000010000011111111,
+					W.GCLK_HROW[30] = 0b10000100000011111111,
+					W.GCLK_HROW[31] = 0b10001000000011111111,
 					off = 0b00000000000000000000,
 				}
 				mux E.HCLK_ROW[1] @[MAIN[0][0][70], MAIN[0][2][73], MAIN[0][2][74], MAIN[0][2][72], MAIN[0][2][60], MAIN[0][2][62], MAIN[0][2][63], MAIN[0][2][66], MAIN[0][2][67], MAIN[0][2][68], MAIN[0][2][69], MAIN[0][2][71], MAIN[0][2][79], MAIN[0][2][78], MAIN[0][2][77], MAIN[0][2][76], MAIN[0][2][75], MAIN[0][2][65], MAIN[0][2][64], MAIN[0][2][61]] {
-					W.GCLK_BUF[0] = 0b00010000000111111111,
-					W.GCLK_BUF[1] = 0b00010000001011111111,
-					W.GCLK_BUF[2] = 0b00010000010011111111,
-					W.GCLK_BUF[3] = 0b00010000100011111111,
-					W.GCLK_BUF[4] = 0b00010001000011111111,
-					W.GCLK_BUF[5] = 0b00010010000011111111,
-					W.GCLK_BUF[6] = 0b00010100000011111111,
-					W.GCLK_BUF[7] = 0b00011000000011111111,
-					W.GCLK_BUF[8] = 0b00100000000111111111,
-					W.GCLK_BUF[9] = 0b00100000001011111111,
-					W.GCLK_BUF[10] = 0b00100000010011111111,
-					W.GCLK_BUF[11] = 0b00100000100011111111,
-					W.GCLK_BUF[12] = 0b00100001000011111111,
-					W.GCLK_BUF[13] = 0b00100010000011111111,
-					W.GCLK_BUF[14] = 0b00100100000011111111,
-					W.GCLK_BUF[15] = 0b00101000000011111111,
-					W.GCLK_BUF[16] = 0b01000000000111111111,
-					W.GCLK_BUF[17] = 0b01000000001011111111,
-					W.GCLK_BUF[18] = 0b01000000010011111111,
-					W.GCLK_BUF[19] = 0b01000000100011111111,
-					W.GCLK_BUF[20] = 0b01000001000011111111,
-					W.GCLK_BUF[21] = 0b01000010000011111111,
-					W.GCLK_BUF[22] = 0b01000100000011111111,
-					W.GCLK_BUF[23] = 0b01001000000011111111,
-					W.GCLK_BUF[24] = 0b10000000000111111111,
-					W.GCLK_BUF[25] = 0b10000000001011111111,
-					W.GCLK_BUF[26] = 0b10000000010011111111,
-					W.GCLK_BUF[27] = 0b10000000100011111111,
-					W.GCLK_BUF[28] = 0b10000001000011111111,
-					W.GCLK_BUF[29] = 0b10000010000011111111,
-					W.GCLK_BUF[30] = 0b10000100000011111111,
-					W.GCLK_BUF[31] = 0b10001000000011111111,
+					W.GCLK_HROW[0] = 0b00010000000111111111,
+					W.GCLK_HROW[1] = 0b00010000001011111111,
+					W.GCLK_HROW[2] = 0b00010000010011111111,
+					W.GCLK_HROW[3] = 0b00010000100011111111,
+					W.GCLK_HROW[4] = 0b00010001000011111111,
+					W.GCLK_HROW[5] = 0b00010010000011111111,
+					W.GCLK_HROW[6] = 0b00010100000011111111,
+					W.GCLK_HROW[7] = 0b00011000000011111111,
+					W.GCLK_HROW[8] = 0b00100000000111111111,
+					W.GCLK_HROW[9] = 0b00100000001011111111,
+					W.GCLK_HROW[10] = 0b00100000010011111111,
+					W.GCLK_HROW[11] = 0b00100000100011111111,
+					W.GCLK_HROW[12] = 0b00100001000011111111,
+					W.GCLK_HROW[13] = 0b00100010000011111111,
+					W.GCLK_HROW[14] = 0b00100100000011111111,
+					W.GCLK_HROW[15] = 0b00101000000011111111,
+					W.GCLK_HROW[16] = 0b01000000000111111111,
+					W.GCLK_HROW[17] = 0b01000000001011111111,
+					W.GCLK_HROW[18] = 0b01000000010011111111,
+					W.GCLK_HROW[19] = 0b01000000100011111111,
+					W.GCLK_HROW[20] = 0b01000001000011111111,
+					W.GCLK_HROW[21] = 0b01000010000011111111,
+					W.GCLK_HROW[22] = 0b01000100000011111111,
+					W.GCLK_HROW[23] = 0b01001000000011111111,
+					W.GCLK_HROW[24] = 0b10000000000111111111,
+					W.GCLK_HROW[25] = 0b10000000001011111111,
+					W.GCLK_HROW[26] = 0b10000000010011111111,
+					W.GCLK_HROW[27] = 0b10000000100011111111,
+					W.GCLK_HROW[28] = 0b10000001000011111111,
+					W.GCLK_HROW[29] = 0b10000010000011111111,
+					W.GCLK_HROW[30] = 0b10000100000011111111,
+					W.GCLK_HROW[31] = 0b10001000000011111111,
 					off = 0b00000000000000000000,
 				}
 				mux E.HCLK_ROW[2] @[MAIN[1][0][30], MAIN[1][2][33], MAIN[1][2][34], MAIN[1][2][32], MAIN[1][2][20], MAIN[1][2][22], MAIN[1][2][23], MAIN[1][2][26], MAIN[1][2][27], MAIN[1][2][28], MAIN[1][2][29], MAIN[1][2][31], MAIN[1][2][39], MAIN[1][2][38], MAIN[1][2][37], MAIN[1][2][36], MAIN[1][2][35], MAIN[1][2][25], MAIN[1][2][24], MAIN[1][2][21]] {
-					W.GCLK_BUF[0] = 0b00010000000111111111,
-					W.GCLK_BUF[1] = 0b00010000001011111111,
-					W.GCLK_BUF[2] = 0b00010000010011111111,
-					W.GCLK_BUF[3] = 0b00010000100011111111,
-					W.GCLK_BUF[4] = 0b00010001000011111111,
-					W.GCLK_BUF[5] = 0b00010010000011111111,
-					W.GCLK_BUF[6] = 0b00010100000011111111,
-					W.GCLK_BUF[7] = 0b00011000000011111111,
-					W.GCLK_BUF[8] = 0b00100000000111111111,
-					W.GCLK_BUF[9] = 0b00100000001011111111,
-					W.GCLK_BUF[10] = 0b00100000010011111111,
-					W.GCLK_BUF[11] = 0b00100000100011111111,
-					W.GCLK_BUF[12] = 0b00100001000011111111,
-					W.GCLK_BUF[13] = 0b00100010000011111111,
-					W.GCLK_BUF[14] = 0b00100100000011111111,
-					W.GCLK_BUF[15] = 0b00101000000011111111,
-					W.GCLK_BUF[16] = 0b01000000000111111111,
-					W.GCLK_BUF[17] = 0b01000000001011111111,
-					W.GCLK_BUF[18] = 0b01000000010011111111,
-					W.GCLK_BUF[19] = 0b01000000100011111111,
-					W.GCLK_BUF[20] = 0b01000001000011111111,
-					W.GCLK_BUF[21] = 0b01000010000011111111,
-					W.GCLK_BUF[22] = 0b01000100000011111111,
-					W.GCLK_BUF[23] = 0b01001000000011111111,
-					W.GCLK_BUF[24] = 0b10000000000111111111,
-					W.GCLK_BUF[25] = 0b10000000001011111111,
-					W.GCLK_BUF[26] = 0b10000000010011111111,
-					W.GCLK_BUF[27] = 0b10000000100011111111,
-					W.GCLK_BUF[28] = 0b10000001000011111111,
-					W.GCLK_BUF[29] = 0b10000010000011111111,
-					W.GCLK_BUF[30] = 0b10000100000011111111,
-					W.GCLK_BUF[31] = 0b10001000000011111111,
+					W.GCLK_HROW[0] = 0b00010000000111111111,
+					W.GCLK_HROW[1] = 0b00010000001011111111,
+					W.GCLK_HROW[2] = 0b00010000010011111111,
+					W.GCLK_HROW[3] = 0b00010000100011111111,
+					W.GCLK_HROW[4] = 0b00010001000011111111,
+					W.GCLK_HROW[5] = 0b00010010000011111111,
+					W.GCLK_HROW[6] = 0b00010100000011111111,
+					W.GCLK_HROW[7] = 0b00011000000011111111,
+					W.GCLK_HROW[8] = 0b00100000000111111111,
+					W.GCLK_HROW[9] = 0b00100000001011111111,
+					W.GCLK_HROW[10] = 0b00100000010011111111,
+					W.GCLK_HROW[11] = 0b00100000100011111111,
+					W.GCLK_HROW[12] = 0b00100001000011111111,
+					W.GCLK_HROW[13] = 0b00100010000011111111,
+					W.GCLK_HROW[14] = 0b00100100000011111111,
+					W.GCLK_HROW[15] = 0b00101000000011111111,
+					W.GCLK_HROW[16] = 0b01000000000111111111,
+					W.GCLK_HROW[17] = 0b01000000001011111111,
+					W.GCLK_HROW[18] = 0b01000000010011111111,
+					W.GCLK_HROW[19] = 0b01000000100011111111,
+					W.GCLK_HROW[20] = 0b01000001000011111111,
+					W.GCLK_HROW[21] = 0b01000010000011111111,
+					W.GCLK_HROW[22] = 0b01000100000011111111,
+					W.GCLK_HROW[23] = 0b01001000000011111111,
+					W.GCLK_HROW[24] = 0b10000000000111111111,
+					W.GCLK_HROW[25] = 0b10000000001011111111,
+					W.GCLK_HROW[26] = 0b10000000010011111111,
+					W.GCLK_HROW[27] = 0b10000000100011111111,
+					W.GCLK_HROW[28] = 0b10000001000011111111,
+					W.GCLK_HROW[29] = 0b10000010000011111111,
+					W.GCLK_HROW[30] = 0b10000100000011111111,
+					W.GCLK_HROW[31] = 0b10001000000011111111,
 					off = 0b00000000000000000000,
 				}
 				mux E.HCLK_ROW[3] @[MAIN[0][0][50], MAIN[0][2][53], MAIN[0][2][54], MAIN[0][2][52], MAIN[0][2][40], MAIN[0][2][42], MAIN[0][2][43], MAIN[0][2][46], MAIN[0][2][47], MAIN[0][2][48], MAIN[0][2][49], MAIN[0][2][51], MAIN[0][2][59], MAIN[0][2][58], MAIN[0][2][57], MAIN[0][2][56], MAIN[0][2][55], MAIN[0][2][45], MAIN[0][2][44], MAIN[0][2][41]] {
-					W.GCLK_BUF[0] = 0b00010000000111111111,
-					W.GCLK_BUF[1] = 0b00010000001011111111,
-					W.GCLK_BUF[2] = 0b00010000010011111111,
-					W.GCLK_BUF[3] = 0b00010000100011111111,
-					W.GCLK_BUF[4] = 0b00010001000011111111,
-					W.GCLK_BUF[5] = 0b00010010000011111111,
-					W.GCLK_BUF[6] = 0b00010100000011111111,
-					W.GCLK_BUF[7] = 0b00011000000011111111,
-					W.GCLK_BUF[8] = 0b00100000000111111111,
-					W.GCLK_BUF[9] = 0b00100000001011111111,
-					W.GCLK_BUF[10] = 0b00100000010011111111,
-					W.GCLK_BUF[11] = 0b00100000100011111111,
-					W.GCLK_BUF[12] = 0b00100001000011111111,
-					W.GCLK_BUF[13] = 0b00100010000011111111,
-					W.GCLK_BUF[14] = 0b00100100000011111111,
-					W.GCLK_BUF[15] = 0b00101000000011111111,
-					W.GCLK_BUF[16] = 0b01000000000111111111,
-					W.GCLK_BUF[17] = 0b01000000001011111111,
-					W.GCLK_BUF[18] = 0b01000000010011111111,
-					W.GCLK_BUF[19] = 0b01000000100011111111,
-					W.GCLK_BUF[20] = 0b01000001000011111111,
-					W.GCLK_BUF[21] = 0b01000010000011111111,
-					W.GCLK_BUF[22] = 0b01000100000011111111,
-					W.GCLK_BUF[23] = 0b01001000000011111111,
-					W.GCLK_BUF[24] = 0b10000000000111111111,
-					W.GCLK_BUF[25] = 0b10000000001011111111,
-					W.GCLK_BUF[26] = 0b10000000010011111111,
-					W.GCLK_BUF[27] = 0b10000000100011111111,
-					W.GCLK_BUF[28] = 0b10000001000011111111,
-					W.GCLK_BUF[29] = 0b10000010000011111111,
-					W.GCLK_BUF[30] = 0b10000100000011111111,
-					W.GCLK_BUF[31] = 0b10001000000011111111,
+					W.GCLK_HROW[0] = 0b00010000000111111111,
+					W.GCLK_HROW[1] = 0b00010000001011111111,
+					W.GCLK_HROW[2] = 0b00010000010011111111,
+					W.GCLK_HROW[3] = 0b00010000100011111111,
+					W.GCLK_HROW[4] = 0b00010001000011111111,
+					W.GCLK_HROW[5] = 0b00010010000011111111,
+					W.GCLK_HROW[6] = 0b00010100000011111111,
+					W.GCLK_HROW[7] = 0b00011000000011111111,
+					W.GCLK_HROW[8] = 0b00100000000111111111,
+					W.GCLK_HROW[9] = 0b00100000001011111111,
+					W.GCLK_HROW[10] = 0b00100000010011111111,
+					W.GCLK_HROW[11] = 0b00100000100011111111,
+					W.GCLK_HROW[12] = 0b00100001000011111111,
+					W.GCLK_HROW[13] = 0b00100010000011111111,
+					W.GCLK_HROW[14] = 0b00100100000011111111,
+					W.GCLK_HROW[15] = 0b00101000000011111111,
+					W.GCLK_HROW[16] = 0b01000000000111111111,
+					W.GCLK_HROW[17] = 0b01000000001011111111,
+					W.GCLK_HROW[18] = 0b01000000010011111111,
+					W.GCLK_HROW[19] = 0b01000000100011111111,
+					W.GCLK_HROW[20] = 0b01000001000011111111,
+					W.GCLK_HROW[21] = 0b01000010000011111111,
+					W.GCLK_HROW[22] = 0b01000100000011111111,
+					W.GCLK_HROW[23] = 0b01001000000011111111,
+					W.GCLK_HROW[24] = 0b10000000000111111111,
+					W.GCLK_HROW[25] = 0b10000000001011111111,
+					W.GCLK_HROW[26] = 0b10000000010011111111,
+					W.GCLK_HROW[27] = 0b10000000100011111111,
+					W.GCLK_HROW[28] = 0b10000001000011111111,
+					W.GCLK_HROW[29] = 0b10000010000011111111,
+					W.GCLK_HROW[30] = 0b10000100000011111111,
+					W.GCLK_HROW[31] = 0b10001000000011111111,
 					off = 0b00000000000000000000,
 				}
 				mux E.HCLK_ROW[4] @[MAIN[1][0][50], MAIN[1][2][53], MAIN[1][2][54], MAIN[1][2][52], MAIN[1][2][40], MAIN[1][2][42], MAIN[1][2][43], MAIN[1][2][46], MAIN[1][2][47], MAIN[1][2][48], MAIN[1][2][49], MAIN[1][2][51], MAIN[1][2][59], MAIN[1][2][58], MAIN[1][2][57], MAIN[1][2][56], MAIN[1][2][55], MAIN[1][2][45], MAIN[1][2][44], MAIN[1][2][41]] {
-					W.GCLK_BUF[0] = 0b00010000000111111111,
-					W.GCLK_BUF[1] = 0b00010000001011111111,
-					W.GCLK_BUF[2] = 0b00010000010011111111,
-					W.GCLK_BUF[3] = 0b00010000100011111111,
-					W.GCLK_BUF[4] = 0b00010001000011111111,
-					W.GCLK_BUF[5] = 0b00010010000011111111,
-					W.GCLK_BUF[6] = 0b00010100000011111111,
-					W.GCLK_BUF[7] = 0b00011000000011111111,
-					W.GCLK_BUF[8] = 0b00100000000111111111,
-					W.GCLK_BUF[9] = 0b00100000001011111111,
-					W.GCLK_BUF[10] = 0b00100000010011111111,
-					W.GCLK_BUF[11] = 0b00100000100011111111,
-					W.GCLK_BUF[12] = 0b00100001000011111111,
-					W.GCLK_BUF[13] = 0b00100010000011111111,
-					W.GCLK_BUF[14] = 0b00100100000011111111,
-					W.GCLK_BUF[15] = 0b00101000000011111111,
-					W.GCLK_BUF[16] = 0b01000000000111111111,
-					W.GCLK_BUF[17] = 0b01000000001011111111,
-					W.GCLK_BUF[18] = 0b01000000010011111111,
-					W.GCLK_BUF[19] = 0b01000000100011111111,
-					W.GCLK_BUF[20] = 0b01000001000011111111,
-					W.GCLK_BUF[21] = 0b01000010000011111111,
-					W.GCLK_BUF[22] = 0b01000100000011111111,
-					W.GCLK_BUF[23] = 0b01001000000011111111,
-					W.GCLK_BUF[24] = 0b10000000000111111111,
-					W.GCLK_BUF[25] = 0b10000000001011111111,
-					W.GCLK_BUF[26] = 0b10000000010011111111,
-					W.GCLK_BUF[27] = 0b10000000100011111111,
-					W.GCLK_BUF[28] = 0b10000001000011111111,
-					W.GCLK_BUF[29] = 0b10000010000011111111,
-					W.GCLK_BUF[30] = 0b10000100000011111111,
-					W.GCLK_BUF[31] = 0b10001000000011111111,
+					W.GCLK_HROW[0] = 0b00010000000111111111,
+					W.GCLK_HROW[1] = 0b00010000001011111111,
+					W.GCLK_HROW[2] = 0b00010000010011111111,
+					W.GCLK_HROW[3] = 0b00010000100011111111,
+					W.GCLK_HROW[4] = 0b00010001000011111111,
+					W.GCLK_HROW[5] = 0b00010010000011111111,
+					W.GCLK_HROW[6] = 0b00010100000011111111,
+					W.GCLK_HROW[7] = 0b00011000000011111111,
+					W.GCLK_HROW[8] = 0b00100000000111111111,
+					W.GCLK_HROW[9] = 0b00100000001011111111,
+					W.GCLK_HROW[10] = 0b00100000010011111111,
+					W.GCLK_HROW[11] = 0b00100000100011111111,
+					W.GCLK_HROW[12] = 0b00100001000011111111,
+					W.GCLK_HROW[13] = 0b00100010000011111111,
+					W.GCLK_HROW[14] = 0b00100100000011111111,
+					W.GCLK_HROW[15] = 0b00101000000011111111,
+					W.GCLK_HROW[16] = 0b01000000000111111111,
+					W.GCLK_HROW[17] = 0b01000000001011111111,
+					W.GCLK_HROW[18] = 0b01000000010011111111,
+					W.GCLK_HROW[19] = 0b01000000100011111111,
+					W.GCLK_HROW[20] = 0b01000001000011111111,
+					W.GCLK_HROW[21] = 0b01000010000011111111,
+					W.GCLK_HROW[22] = 0b01000100000011111111,
+					W.GCLK_HROW[23] = 0b01001000000011111111,
+					W.GCLK_HROW[24] = 0b10000000000111111111,
+					W.GCLK_HROW[25] = 0b10000000001011111111,
+					W.GCLK_HROW[26] = 0b10000000010011111111,
+					W.GCLK_HROW[27] = 0b10000000100011111111,
+					W.GCLK_HROW[28] = 0b10000001000011111111,
+					W.GCLK_HROW[29] = 0b10000010000011111111,
+					W.GCLK_HROW[30] = 0b10000100000011111111,
+					W.GCLK_HROW[31] = 0b10001000000011111111,
 					off = 0b00000000000000000000,
 				}
 				mux E.HCLK_ROW[5] @[MAIN[0][0][30], MAIN[0][2][33], MAIN[0][2][34], MAIN[0][2][32], MAIN[0][2][20], MAIN[0][2][22], MAIN[0][2][23], MAIN[0][2][26], MAIN[0][2][27], MAIN[0][2][28], MAIN[0][2][29], MAIN[0][2][31], MAIN[0][2][39], MAIN[0][2][38], MAIN[0][2][37], MAIN[0][2][36], MAIN[0][2][35], MAIN[0][2][25], MAIN[0][2][24], MAIN[0][2][21]] {
-					W.GCLK_BUF[0] = 0b00010000000111111111,
-					W.GCLK_BUF[1] = 0b00010000001011111111,
-					W.GCLK_BUF[2] = 0b00010000010011111111,
-					W.GCLK_BUF[3] = 0b00010000100011111111,
-					W.GCLK_BUF[4] = 0b00010001000011111111,
-					W.GCLK_BUF[5] = 0b00010010000011111111,
-					W.GCLK_BUF[6] = 0b00010100000011111111,
-					W.GCLK_BUF[7] = 0b00011000000011111111,
-					W.GCLK_BUF[8] = 0b00100000000111111111,
-					W.GCLK_BUF[9] = 0b00100000001011111111,
-					W.GCLK_BUF[10] = 0b00100000010011111111,
-					W.GCLK_BUF[11] = 0b00100000100011111111,
-					W.GCLK_BUF[12] = 0b00100001000011111111,
-					W.GCLK_BUF[13] = 0b00100010000011111111,
-					W.GCLK_BUF[14] = 0b00100100000011111111,
-					W.GCLK_BUF[15] = 0b00101000000011111111,
-					W.GCLK_BUF[16] = 0b01000000000111111111,
-					W.GCLK_BUF[17] = 0b01000000001011111111,
-					W.GCLK_BUF[18] = 0b01000000010011111111,
-					W.GCLK_BUF[19] = 0b01000000100011111111,
-					W.GCLK_BUF[20] = 0b01000001000011111111,
-					W.GCLK_BUF[21] = 0b01000010000011111111,
-					W.GCLK_BUF[22] = 0b01000100000011111111,
-					W.GCLK_BUF[23] = 0b01001000000011111111,
-					W.GCLK_BUF[24] = 0b10000000000111111111,
-					W.GCLK_BUF[25] = 0b10000000001011111111,
-					W.GCLK_BUF[26] = 0b10000000010011111111,
-					W.GCLK_BUF[27] = 0b10000000100011111111,
-					W.GCLK_BUF[28] = 0b10000001000011111111,
-					W.GCLK_BUF[29] = 0b10000010000011111111,
-					W.GCLK_BUF[30] = 0b10000100000011111111,
-					W.GCLK_BUF[31] = 0b10001000000011111111,
+					W.GCLK_HROW[0] = 0b00010000000111111111,
+					W.GCLK_HROW[1] = 0b00010000001011111111,
+					W.GCLK_HROW[2] = 0b00010000010011111111,
+					W.GCLK_HROW[3] = 0b00010000100011111111,
+					W.GCLK_HROW[4] = 0b00010001000011111111,
+					W.GCLK_HROW[5] = 0b00010010000011111111,
+					W.GCLK_HROW[6] = 0b00010100000011111111,
+					W.GCLK_HROW[7] = 0b00011000000011111111,
+					W.GCLK_HROW[8] = 0b00100000000111111111,
+					W.GCLK_HROW[9] = 0b00100000001011111111,
+					W.GCLK_HROW[10] = 0b00100000010011111111,
+					W.GCLK_HROW[11] = 0b00100000100011111111,
+					W.GCLK_HROW[12] = 0b00100001000011111111,
+					W.GCLK_HROW[13] = 0b00100010000011111111,
+					W.GCLK_HROW[14] = 0b00100100000011111111,
+					W.GCLK_HROW[15] = 0b00101000000011111111,
+					W.GCLK_HROW[16] = 0b01000000000111111111,
+					W.GCLK_HROW[17] = 0b01000000001011111111,
+					W.GCLK_HROW[18] = 0b01000000010011111111,
+					W.GCLK_HROW[19] = 0b01000000100011111111,
+					W.GCLK_HROW[20] = 0b01000001000011111111,
+					W.GCLK_HROW[21] = 0b01000010000011111111,
+					W.GCLK_HROW[22] = 0b01000100000011111111,
+					W.GCLK_HROW[23] = 0b01001000000011111111,
+					W.GCLK_HROW[24] = 0b10000000000111111111,
+					W.GCLK_HROW[25] = 0b10000000001011111111,
+					W.GCLK_HROW[26] = 0b10000000010011111111,
+					W.GCLK_HROW[27] = 0b10000000100011111111,
+					W.GCLK_HROW[28] = 0b10000001000011111111,
+					W.GCLK_HROW[29] = 0b10000010000011111111,
+					W.GCLK_HROW[30] = 0b10000100000011111111,
+					W.GCLK_HROW[31] = 0b10001000000011111111,
 					off = 0b00000000000000000000,
 				}
 				mux E.HCLK_ROW[6] @[MAIN[1][0][70], MAIN[1][2][73], MAIN[1][2][74], MAIN[1][2][72], MAIN[1][2][60], MAIN[1][2][62], MAIN[1][2][63], MAIN[1][2][66], MAIN[1][2][67], MAIN[1][2][68], MAIN[1][2][69], MAIN[1][2][71], MAIN[1][2][79], MAIN[1][2][78], MAIN[1][2][77], MAIN[1][2][76], MAIN[1][2][75], MAIN[1][2][65], MAIN[1][2][64], MAIN[1][2][61]] {
-					W.GCLK_BUF[0] = 0b00010000000111111111,
-					W.GCLK_BUF[1] = 0b00010000001011111111,
-					W.GCLK_BUF[2] = 0b00010000010011111111,
-					W.GCLK_BUF[3] = 0b00010000100011111111,
-					W.GCLK_BUF[4] = 0b00010001000011111111,
-					W.GCLK_BUF[5] = 0b00010010000011111111,
-					W.GCLK_BUF[6] = 0b00010100000011111111,
-					W.GCLK_BUF[7] = 0b00011000000011111111,
-					W.GCLK_BUF[8] = 0b00100000000111111111,
-					W.GCLK_BUF[9] = 0b00100000001011111111,
-					W.GCLK_BUF[10] = 0b00100000010011111111,
-					W.GCLK_BUF[11] = 0b00100000100011111111,
-					W.GCLK_BUF[12] = 0b00100001000011111111,
-					W.GCLK_BUF[13] = 0b00100010000011111111,
-					W.GCLK_BUF[14] = 0b00100100000011111111,
-					W.GCLK_BUF[15] = 0b00101000000011111111,
-					W.GCLK_BUF[16] = 0b01000000000111111111,
-					W.GCLK_BUF[17] = 0b01000000001011111111,
-					W.GCLK_BUF[18] = 0b01000000010011111111,
-					W.GCLK_BUF[19] = 0b01000000100011111111,
-					W.GCLK_BUF[20] = 0b01000001000011111111,
-					W.GCLK_BUF[21] = 0b01000010000011111111,
-					W.GCLK_BUF[22] = 0b01000100000011111111,
-					W.GCLK_BUF[23] = 0b01001000000011111111,
-					W.GCLK_BUF[24] = 0b10000000000111111111,
-					W.GCLK_BUF[25] = 0b10000000001011111111,
-					W.GCLK_BUF[26] = 0b10000000010011111111,
-					W.GCLK_BUF[27] = 0b10000000100011111111,
-					W.GCLK_BUF[28] = 0b10000001000011111111,
-					W.GCLK_BUF[29] = 0b10000010000011111111,
-					W.GCLK_BUF[30] = 0b10000100000011111111,
-					W.GCLK_BUF[31] = 0b10001000000011111111,
+					W.GCLK_HROW[0] = 0b00010000000111111111,
+					W.GCLK_HROW[1] = 0b00010000001011111111,
+					W.GCLK_HROW[2] = 0b00010000010011111111,
+					W.GCLK_HROW[3] = 0b00010000100011111111,
+					W.GCLK_HROW[4] = 0b00010001000011111111,
+					W.GCLK_HROW[5] = 0b00010010000011111111,
+					W.GCLK_HROW[6] = 0b00010100000011111111,
+					W.GCLK_HROW[7] = 0b00011000000011111111,
+					W.GCLK_HROW[8] = 0b00100000000111111111,
+					W.GCLK_HROW[9] = 0b00100000001011111111,
+					W.GCLK_HROW[10] = 0b00100000010011111111,
+					W.GCLK_HROW[11] = 0b00100000100011111111,
+					W.GCLK_HROW[12] = 0b00100001000011111111,
+					W.GCLK_HROW[13] = 0b00100010000011111111,
+					W.GCLK_HROW[14] = 0b00100100000011111111,
+					W.GCLK_HROW[15] = 0b00101000000011111111,
+					W.GCLK_HROW[16] = 0b01000000000111111111,
+					W.GCLK_HROW[17] = 0b01000000001011111111,
+					W.GCLK_HROW[18] = 0b01000000010011111111,
+					W.GCLK_HROW[19] = 0b01000000100011111111,
+					W.GCLK_HROW[20] = 0b01000001000011111111,
+					W.GCLK_HROW[21] = 0b01000010000011111111,
+					W.GCLK_HROW[22] = 0b01000100000011111111,
+					W.GCLK_HROW[23] = 0b01001000000011111111,
+					W.GCLK_HROW[24] = 0b10000000000111111111,
+					W.GCLK_HROW[25] = 0b10000000001011111111,
+					W.GCLK_HROW[26] = 0b10000000010011111111,
+					W.GCLK_HROW[27] = 0b10000000100011111111,
+					W.GCLK_HROW[28] = 0b10000001000011111111,
+					W.GCLK_HROW[29] = 0b10000010000011111111,
+					W.GCLK_HROW[30] = 0b10000100000011111111,
+					W.GCLK_HROW[31] = 0b10001000000011111111,
 					off = 0b00000000000000000000,
 				}
 				mux E.HCLK_ROW[7] @[MAIN[0][0][10], MAIN[0][2][13], MAIN[0][2][14], MAIN[0][2][12], MAIN[0][2][0], MAIN[0][2][2], MAIN[0][2][3], MAIN[0][2][6], MAIN[0][2][7], MAIN[0][2][8], MAIN[0][2][9], MAIN[0][2][11], MAIN[0][2][19], MAIN[0][2][18], MAIN[0][2][17], MAIN[0][2][16], MAIN[0][2][15], MAIN[0][2][5], MAIN[0][2][4], MAIN[0][2][1]] {
-					W.GCLK_BUF[0] = 0b00010000000111111111,
-					W.GCLK_BUF[1] = 0b00010000001011111111,
-					W.GCLK_BUF[2] = 0b00010000010011111111,
-					W.GCLK_BUF[3] = 0b00010000100011111111,
-					W.GCLK_BUF[4] = 0b00010001000011111111,
-					W.GCLK_BUF[5] = 0b00010010000011111111,
-					W.GCLK_BUF[6] = 0b00010100000011111111,
-					W.GCLK_BUF[7] = 0b00011000000011111111,
-					W.GCLK_BUF[8] = 0b00100000000111111111,
-					W.GCLK_BUF[9] = 0b00100000001011111111,
-					W.GCLK_BUF[10] = 0b00100000010011111111,
-					W.GCLK_BUF[11] = 0b00100000100011111111,
-					W.GCLK_BUF[12] = 0b00100001000011111111,
-					W.GCLK_BUF[13] = 0b00100010000011111111,
-					W.GCLK_BUF[14] = 0b00100100000011111111,
-					W.GCLK_BUF[15] = 0b00101000000011111111,
-					W.GCLK_BUF[16] = 0b01000000000111111111,
-					W.GCLK_BUF[17] = 0b01000000001011111111,
-					W.GCLK_BUF[18] = 0b01000000010011111111,
-					W.GCLK_BUF[19] = 0b01000000100011111111,
-					W.GCLK_BUF[20] = 0b01000001000011111111,
-					W.GCLK_BUF[21] = 0b01000010000011111111,
-					W.GCLK_BUF[22] = 0b01000100000011111111,
-					W.GCLK_BUF[23] = 0b01001000000011111111,
-					W.GCLK_BUF[24] = 0b10000000000111111111,
-					W.GCLK_BUF[25] = 0b10000000001011111111,
-					W.GCLK_BUF[26] = 0b10000000010011111111,
-					W.GCLK_BUF[27] = 0b10000000100011111111,
-					W.GCLK_BUF[28] = 0b10000001000011111111,
-					W.GCLK_BUF[29] = 0b10000010000011111111,
-					W.GCLK_BUF[30] = 0b10000100000011111111,
-					W.GCLK_BUF[31] = 0b10001000000011111111,
+					W.GCLK_HROW[0] = 0b00010000000111111111,
+					W.GCLK_HROW[1] = 0b00010000001011111111,
+					W.GCLK_HROW[2] = 0b00010000010011111111,
+					W.GCLK_HROW[3] = 0b00010000100011111111,
+					W.GCLK_HROW[4] = 0b00010001000011111111,
+					W.GCLK_HROW[5] = 0b00010010000011111111,
+					W.GCLK_HROW[6] = 0b00010100000011111111,
+					W.GCLK_HROW[7] = 0b00011000000011111111,
+					W.GCLK_HROW[8] = 0b00100000000111111111,
+					W.GCLK_HROW[9] = 0b00100000001011111111,
+					W.GCLK_HROW[10] = 0b00100000010011111111,
+					W.GCLK_HROW[11] = 0b00100000100011111111,
+					W.GCLK_HROW[12] = 0b00100001000011111111,
+					W.GCLK_HROW[13] = 0b00100010000011111111,
+					W.GCLK_HROW[14] = 0b00100100000011111111,
+					W.GCLK_HROW[15] = 0b00101000000011111111,
+					W.GCLK_HROW[16] = 0b01000000000111111111,
+					W.GCLK_HROW[17] = 0b01000000001011111111,
+					W.GCLK_HROW[18] = 0b01000000010011111111,
+					W.GCLK_HROW[19] = 0b01000000100011111111,
+					W.GCLK_HROW[20] = 0b01000001000011111111,
+					W.GCLK_HROW[21] = 0b01000010000011111111,
+					W.GCLK_HROW[22] = 0b01000100000011111111,
+					W.GCLK_HROW[23] = 0b01001000000011111111,
+					W.GCLK_HROW[24] = 0b10000000000111111111,
+					W.GCLK_HROW[25] = 0b10000000001011111111,
+					W.GCLK_HROW[26] = 0b10000000010011111111,
+					W.GCLK_HROW[27] = 0b10000000100011111111,
+					W.GCLK_HROW[28] = 0b10000001000011111111,
+					W.GCLK_HROW[29] = 0b10000010000011111111,
+					W.GCLK_HROW[30] = 0b10000100000011111111,
+					W.GCLK_HROW[31] = 0b10001000000011111111,
 					off = 0b00000000000000000000,
 				}
-				progbuf W.GCLK_BUF[0] = W.GCLK[0] @HCLK[0][12];
-				progbuf W.GCLK_BUF[1] = W.GCLK[1] @HCLK[1][12];
-				progbuf W.GCLK_BUF[2] = W.GCLK[2] @HCLK[0][13];
-				progbuf W.GCLK_BUF[3] = W.GCLK[3] @HCLK[1][13];
-				progbuf W.GCLK_BUF[4] = W.GCLK[4] @HCLK[0][14];
-				progbuf W.GCLK_BUF[5] = W.GCLK[5] @HCLK[1][14];
-				progbuf W.GCLK_BUF[6] = W.GCLK[6] @HCLK[0][15];
-				progbuf W.GCLK_BUF[7] = W.GCLK[7] @HCLK[1][15];
-				progbuf W.GCLK_BUF[8] = W.GCLK[8] @MAIN[0][0][5];
-				progbuf W.GCLK_BUF[9] = W.GCLK[9] @MAIN[0][0][6];
-				progbuf W.GCLK_BUF[10] = W.GCLK[10] @MAIN[0][0][7];
-				progbuf W.GCLK_BUF[11] = W.GCLK[11] @MAIN[0][0][8];
-				progbuf W.GCLK_BUF[12] = W.GCLK[12] @MAIN[1][0][8];
-				progbuf W.GCLK_BUF[13] = W.GCLK[13] @MAIN[1][0][7];
-				progbuf W.GCLK_BUF[14] = W.GCLK[14] @MAIN[1][0][6];
-				progbuf W.GCLK_BUF[15] = W.GCLK[15] @MAIN[1][0][5];
-				progbuf W.GCLK_BUF[16] = W.GCLK[16] @MAIN[0][0][9];
-				progbuf W.GCLK_BUF[17] = W.GCLK[17] @MAIN[0][0][4];
-				progbuf W.GCLK_BUF[18] = W.GCLK[18] @MAIN[0][0][3];
-				progbuf W.GCLK_BUF[19] = W.GCLK[19] @MAIN[0][0][2];
-				progbuf W.GCLK_BUF[20] = W.GCLK[20] @MAIN[1][0][2];
-				progbuf W.GCLK_BUF[21] = W.GCLK[21] @MAIN[1][0][3];
-				progbuf W.GCLK_BUF[22] = W.GCLK[22] @MAIN[1][0][4];
-				progbuf W.GCLK_BUF[23] = W.GCLK[23] @MAIN[1][0][9];
-				progbuf W.GCLK_BUF[24] = W.GCLK[24] @MAIN[0][0][0];
-				progbuf W.GCLK_BUF[25] = W.GCLK[25] @MAIN[0][0][1];
-				progbuf W.GCLK_BUF[26] = W.GCLK[26] @HCLK[2][12];
-				progbuf W.GCLK_BUF[27] = W.GCLK[27] @HCLK[2][13];
-				progbuf W.GCLK_BUF[28] = W.GCLK[28] @HCLK[2][14];
-				progbuf W.GCLK_BUF[29] = W.GCLK[29] @HCLK[2][15];
-				progbuf W.GCLK_BUF[30] = W.GCLK[30] @MAIN[1][0][1];
-				progbuf W.GCLK_BUF[31] = W.GCLK[31] @MAIN[1][0][0];
+				progbuf W.GCLK_HROW[0] = W.GCLK[0] @HCLK[0][12];
+				progbuf W.GCLK_HROW[1] = W.GCLK[1] @HCLK[1][12];
+				progbuf W.GCLK_HROW[2] = W.GCLK[2] @HCLK[0][13];
+				progbuf W.GCLK_HROW[3] = W.GCLK[3] @HCLK[1][13];
+				progbuf W.GCLK_HROW[4] = W.GCLK[4] @HCLK[0][14];
+				progbuf W.GCLK_HROW[5] = W.GCLK[5] @HCLK[1][14];
+				progbuf W.GCLK_HROW[6] = W.GCLK[6] @HCLK[0][15];
+				progbuf W.GCLK_HROW[7] = W.GCLK[7] @HCLK[1][15];
+				progbuf W.GCLK_HROW[8] = W.GCLK[8] @MAIN[0][0][5];
+				progbuf W.GCLK_HROW[9] = W.GCLK[9] @MAIN[0][0][6];
+				progbuf W.GCLK_HROW[10] = W.GCLK[10] @MAIN[0][0][7];
+				progbuf W.GCLK_HROW[11] = W.GCLK[11] @MAIN[0][0][8];
+				progbuf W.GCLK_HROW[12] = W.GCLK[12] @MAIN[1][0][8];
+				progbuf W.GCLK_HROW[13] = W.GCLK[13] @MAIN[1][0][7];
+				progbuf W.GCLK_HROW[14] = W.GCLK[14] @MAIN[1][0][6];
+				progbuf W.GCLK_HROW[15] = W.GCLK[15] @MAIN[1][0][5];
+				progbuf W.GCLK_HROW[16] = W.GCLK[16] @MAIN[0][0][9];
+				progbuf W.GCLK_HROW[17] = W.GCLK[17] @MAIN[0][0][4];
+				progbuf W.GCLK_HROW[18] = W.GCLK[18] @MAIN[0][0][3];
+				progbuf W.GCLK_HROW[19] = W.GCLK[19] @MAIN[0][0][2];
+				progbuf W.GCLK_HROW[20] = W.GCLK[20] @MAIN[1][0][2];
+				progbuf W.GCLK_HROW[21] = W.GCLK[21] @MAIN[1][0][3];
+				progbuf W.GCLK_HROW[22] = W.GCLK[22] @MAIN[1][0][4];
+				progbuf W.GCLK_HROW[23] = W.GCLK[23] @MAIN[1][0][9];
+				progbuf W.GCLK_HROW[24] = W.GCLK[24] @MAIN[0][0][0];
+				progbuf W.GCLK_HROW[25] = W.GCLK[25] @MAIN[0][0][1];
+				progbuf W.GCLK_HROW[26] = W.GCLK[26] @HCLK[2][12];
+				progbuf W.GCLK_HROW[27] = W.GCLK[27] @HCLK[2][13];
+				progbuf W.GCLK_HROW[28] = W.GCLK[28] @HCLK[2][14];
+				progbuf W.GCLK_HROW[29] = W.GCLK[29] @HCLK[2][15];
+				progbuf W.GCLK_HROW[30] = W.GCLK[30] @MAIN[1][0][1];
+				progbuf W.GCLK_HROW[31] = W.GCLK[31] @MAIN[1][0][0];
 			}
 		}
 
@@ -64899,8 +64813,6 @@ intdb {
 	tile_slot HCLK {
 		bel_slot HCLK: routing;
 		bel_slot GLOBALSIG: GLOBALSIG;
-		bel_slot HCLK_DRP[0]: HCLK_DRP;
-		bel_slot HCLK_DRP[1]: HCLK_DRP;
 
 		tile_class HCLK {
 			cell CELL;
@@ -64925,20 +64837,13 @@ intdb {
 	}
 
 	tile_slot HCLK_BEL {
-		bel_slot PMVBRAM: PMVBRAM_V5;
 		bel_slot HCLK_IO_INT: routing;
-		bel_slot HCLK_CMT_DRP: HCLK_CMT_DRP;
 		bel_slot BUFR[0]: BUFR;
 		bel_slot BUFR[1]: BUFR;
-		bel_slot BUFR[2]: BUFR;
-		bel_slot BUFR[3]: BUFR;
 		bel_slot BUFIO[0]: BUFIO;
 		bel_slot BUFIO[1]: BUFIO;
-		bel_slot BUFIO[2]: BUFIO;
-		bel_slot BUFIO[3]: BUFIO;
 		bel_slot IDELAYCTRL: IDELAYCTRL;
 		bel_slot DCI: DCI;
-		bel_slot BANK: BANK;
 		bel_slot LVDS: LVDS_V4;
 
 		tile_class HCLK_IO_DCI {
@@ -65128,13 +65033,13 @@ intdb {
 			// wire CELL[2].IMUX_BYP[0]            BUFR[0].CE
 			// wire CELL[2].IMUX_BYP[2]            BUFR[0].CLR
 			// wire CELL[2].OUT_CLKPAD             BUFIO[0].I
+			// wire CELL[2].VRCLK[0]               BUFR[0].O
+			// wire CELL[2].VRCLK[1]               BUFR[1].O
+			// wire CELL[2].IOCLK[0]               BUFIO[0].O
+			// wire CELL[2].IOCLK[1]               BUFIO[1].O
 			// wire CELL[2].IMUX_IDELAYCTRL_REFCLK IDELAYCTRL.REFCLK
 			// wire CELL[2].IMUX_BUFR[0]           BUFR[0].I
 			// wire CELL[2].IMUX_BUFR[1]           BUFR[1].I
-			// wire CELL[2].IOCLK[0]               BUFIO[0].O
-			// wire CELL[2].IOCLK[1]               BUFIO[1].O
-			// wire CELL[2].VRCLK[0]               BUFR[0].O
-			// wire CELL[2].VRCLK[1]               BUFR[1].O
 		}
 
 		tile_class HCLK_IO_LVDS {
@@ -65284,13 +65189,13 @@ intdb {
 			// wire CELL[2].IMUX_BYP[0]            BUFR[0].CE
 			// wire CELL[2].IMUX_BYP[2]            BUFR[0].CLR
 			// wire CELL[2].OUT_CLKPAD             BUFIO[0].I
+			// wire CELL[2].VRCLK[0]               BUFR[0].O
+			// wire CELL[2].VRCLK[1]               BUFR[1].O
+			// wire CELL[2].IOCLK[0]               BUFIO[0].O
+			// wire CELL[2].IOCLK[1]               BUFIO[1].O
 			// wire CELL[2].IMUX_IDELAYCTRL_REFCLK IDELAYCTRL.REFCLK
 			// wire CELL[2].IMUX_BUFR[0]           BUFR[0].I
 			// wire CELL[2].IMUX_BUFR[1]           BUFR[1].I
-			// wire CELL[2].IOCLK[0]               BUFIO[0].O
-			// wire CELL[2].IOCLK[1]               BUFIO[1].O
-			// wire CELL[2].VRCLK[0]               BUFR[0].O
-			// wire CELL[2].VRCLK[1]               BUFR[1].O
 		}
 
 		tile_class HCLK_IO_CENTER {
@@ -65410,9 +65315,9 @@ intdb {
 			// wire CELL[1].OUT_HALF1_BEL[7]       DCI.DCIADDRESS[2]
 			// wire CELL[1].OUT_CLKPAD             BUFIO[1].I
 			// wire CELL[2].OUT_CLKPAD             BUFIO[0].I
-			// wire CELL[2].IMUX_IDELAYCTRL_REFCLK IDELAYCTRL.REFCLK
 			// wire CELL[2].IOCLK[0]               BUFIO[0].O
 			// wire CELL[2].IOCLK[1]               BUFIO[1].O
+			// wire CELL[2].IMUX_IDELAYCTRL_REFCLK IDELAYCTRL.REFCLK
 		}
 
 		tile_class HCLK_IO_CFG_N {
@@ -65517,9 +65422,9 @@ intdb {
 			// wire CELL[2].OUT_HALF1_BEL[6]       DCI.DCIADDRESS[1]
 			// wire CELL[2].OUT_HALF1_BEL[7]       DCI.DCIADDRESS[2]
 			// wire CELL[2].OUT_CLKPAD             BUFIO[0].I
-			// wire CELL[2].IMUX_IDELAYCTRL_REFCLK IDELAYCTRL.REFCLK
 			// wire CELL[2].IOCLK[0]               BUFIO[0].O
 			// wire CELL[2].IOCLK[1]               BUFIO[1].O
+			// wire CELL[2].IMUX_IDELAYCTRL_REFCLK IDELAYCTRL.REFCLK
 			// wire CELL[3].IMUX_BYP[0]            DCI.TSTCLK
 			// wire CELL[3].IMUX_BYP[2]            DCI.TSTRST
 			// wire CELL[3].IMUX_BYP[4]            DCI.TSTHLP
@@ -65682,9 +65587,9 @@ intdb {
 			// wire CELL[1].OUT_HALF1_BEL[7]       DCI.DCIADDRESS[2]
 			// wire CELL[1].OUT_CLKPAD             BUFIO[1].I
 			// wire CELL[2].OUT_CLKPAD             BUFIO[0].I
-			// wire CELL[2].IMUX_IDELAYCTRL_REFCLK IDELAYCTRL.REFCLK
 			// wire CELL[2].IOCLK[0]               BUFIO[0].O
 			// wire CELL[2].IOCLK[1]               BUFIO[1].O
+			// wire CELL[2].IMUX_IDELAYCTRL_REFCLK IDELAYCTRL.REFCLK
 		}
 
 		tile_class HCLK_IO_DCM_N {
@@ -65819,9 +65724,9 @@ intdb {
 			// wire CELL[2].OUT_HALF1_BEL[6]       DCI.DCIADDRESS[1]
 			// wire CELL[2].OUT_HALF1_BEL[7]       DCI.DCIADDRESS[2]
 			// wire CELL[2].OUT_CLKPAD             BUFIO[0].I
-			// wire CELL[2].IMUX_IDELAYCTRL_REFCLK IDELAYCTRL.REFCLK
 			// wire CELL[2].IOCLK[0]               BUFIO[0].O
 			// wire CELL[2].IOCLK[1]               BUFIO[1].O
+			// wire CELL[2].IMUX_IDELAYCTRL_REFCLK IDELAYCTRL.REFCLK
 			// wire CELL[3].IMUX_BYP[0]            DCI.TSTCLK
 			// wire CELL[3].IMUX_BYP[2]            DCI.TSTRST
 			// wire CELL[3].IMUX_BYP[4]            DCI.TSTHLP
@@ -65926,10 +65831,6 @@ intdb {
 				progbuf MGT_ROW[1] = MGT_CLK_OUT[1] @MAIN[8][15];
 			}
 		}
-	}
-
-	tile_slot GTZ {
-		bel_slot GTZ_OCTAL: GTZ_OCTAL;
 	}
 
 	tile_slot GLOBAL {
@@ -67917,10 +67818,10 @@ intdb {
 		opposite IO_N;
 
 		connector_class IO_S {
-			pass IOCLK_N[0] = IOCLK[0];
-			pass IOCLK_N[1] = IOCLK[1];
 			pass VRCLK_N[0] = VRCLK[0];
 			pass VRCLK_N[1] = VRCLK[1];
+			pass IOCLK_N[0] = IOCLK[0];
+			pass IOCLK_N[1] = IOCLK[1];
 		}
 	}
 
@@ -67928,10 +67829,10 @@ intdb {
 		opposite IO_S;
 
 		connector_class IO_N {
-			pass IOCLK_S[0] = IOCLK[0];
-			pass IOCLK_S[1] = IOCLK[1];
 			pass VRCLK_S[0] = VRCLK[0];
 			pass VRCLK_S[1] = VRCLK[1];
+			pass IOCLK_S[0] = IOCLK[0];
+			pass IOCLK_S[1] = IOCLK[1];
 		}
 	}
 
@@ -68062,14 +67963,6 @@ intdb {
 
 		connector_class CMT_NEXT {
 		}
-	}
-
-	connector_slot HCLK_ROW_PREV {
-		opposite HCLK_ROW_NEXT;
-	}
-
-	connector_slot HCLK_ROW_NEXT {
-		opposite HCLK_ROW_PREV;
 	}
 
 	table IOB_DATA {

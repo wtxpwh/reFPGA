@@ -204,7 +204,7 @@ impl<'b> FuzzerProp<'b, IseBackend<'b>> for VirtexPinHexH {
         let resolved_wire = backend
             .edev
             .resolve_wire(backend.edev.tile_wire(tcrd, self.0))?;
-        let wire_name = backend.edev.db.wires.key(self.0.wire);
+        let wire_name = backend.edev.db[self.0.wire].name.as_str();
         let h = wire_name[4..5].chars().next().unwrap();
         let i: usize = wire_name[7..8].parse().unwrap();
         let mut tcrd = backend
@@ -240,7 +240,7 @@ impl<'b> FuzzerProp<'b, IseBackend<'b>> for VirtexPinHexH {
                         continue;
                     }
                     for wire_out in pips_fwd(backend.edev, tile.class, wire_pin) {
-                        let out_name = backend.edev.db.wires.key(wire_out.wire);
+                        let out_name = backend.edev.db[wire_out.wire].name.as_str();
                         if out_name.starts_with("SINGLE")
                             || (out_name.starts_with("LV") && i >= 4)
                             || (out_name.starts_with("HEX_E") && tile.class == tcls::IO_W)
@@ -280,7 +280,7 @@ impl<'b> FuzzerProp<'b, IseBackend<'b>> for VirtexPinHexV {
         let resolved_wire = backend
             .edev
             .resolve_wire(backend.edev.tile_wire(tcrd, self.0))?;
-        let wire_name = backend.edev.db.wires.key(self.0.wire);
+        let wire_name = backend.edev.db[self.0.wire].name.as_str();
         let v = wire_name[4..5].chars().next().unwrap();
         let i: usize = wire_name[7..8].parse().unwrap();
         let mut tcrd = backend
@@ -310,7 +310,7 @@ impl<'b> FuzzerProp<'b, IseBackend<'b>> for VirtexPinHexV {
                         continue;
                     }
                     for wire_out in pips_fwd(backend.edev, tile.class, wire_pin) {
-                        let out_name = backend.edev.db.wires.key(wire_out.wire);
+                        let out_name = backend.edev.db[wire_out.wire].name.as_str();
                         if out_name.starts_with("SINGLE")
                             || (out_name.starts_with("HEX_N") && tile.class == tcls::IO_S)
                             || (out_name.starts_with("HEX_S") && tile.class == tcls::IO_N)
@@ -349,7 +349,7 @@ impl<'b> FuzzerProp<'b, IseBackend<'b>> for VirtexDriveHexH {
         let resolved_wire = backend
             .edev
             .resolve_wire(backend.edev.tile_wire(tcrd, self.0))?;
-        let wire_name = backend.edev.db.wires.key(self.0.wire);
+        let wire_name = backend.edev.db[self.0.wire].name.as_str();
         let h = wire_name[4..5].chars().next().unwrap();
         let i: usize = wire_name[7..8].parse().unwrap();
         let mut tcrd = backend
@@ -379,7 +379,7 @@ impl<'b> FuzzerProp<'b, IseBackend<'b>> for VirtexDriveHexH {
                         continue;
                     }
                     for inp in pips_bwd(backend.edev, tile.class, wire_pin) {
-                        let inp_name = backend.edev.db.wires.key(inp.wire);
+                        let inp_name = backend.edev.db[inp.wire].name.as_str();
                         if inp_name.starts_with("OMUX")
                             || inp_name.starts_with("OUT")
                             || (h == 'E' && tile.class == tcls::IO_W && inp_name.starts_with("HEX"))
@@ -420,7 +420,7 @@ impl<'b> FuzzerProp<'b, IseBackend<'b>> for VirtexDriveHexV {
         let resolved_wire = backend
             .edev
             .resolve_wire(backend.edev.tile_wire(tcrd, self.0))?;
-        let wire_name = backend.edev.db.wires.key(self.0.wire);
+        let wire_name = backend.edev.db[self.0.wire].name.as_str();
         let v = wire_name[4..5].chars().next().unwrap();
         let i: usize = wire_name[7..8].parse().unwrap();
         let mut tcrd = backend
@@ -451,7 +451,7 @@ impl<'b> FuzzerProp<'b, IseBackend<'b>> for VirtexDriveHexV {
                         continue;
                     }
                     for inp in pips_bwd(backend.edev, tile.class, wire_pin) {
-                        let inp_name = backend.edev.db.wires.key(inp.wire);
+                        let inp_name = backend.edev.db[inp.wire].name.as_str();
                         if inp_name.starts_with("OMUX")
                             || inp_name.starts_with("OUT")
                             || (v == 'N' && tile.class == tcls::IO_S && inp_name.starts_with("HEX"))
@@ -594,7 +594,8 @@ fn wire_unbuf(wire: WireSlotId) -> Option<WireSlotId> {
 
 pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a IseBackend<'a>) {
     let intdb = backend.edev.db;
-    for (tcid, tcname, tcls) in &intdb.tile_classes {
+    for (tcid, tcls) in &intdb.tile_classes {
+        let tcname = tcls.name.as_str();
         let Some(mut ctx) = FuzzCtx::try_new(session, backend, tcid) else {
             continue;
         };
@@ -603,7 +604,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
                 continue;
             }
             let ins = &pips_bwd(backend.edev, tcid, wire_to);
-            let out_name = intdb.wires.key(wire_to.wire);
+            let out_name = intdb[wire_to.wire].name.as_str();
             if wire_unbuf(wire_to.wire).is_some() {
                 continue;
             } else if out_name.contains("OMUX") {
@@ -699,7 +700,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
                 let wire_pin = 'quad_dst_pin: {
                     for wire_pin in pips_fwd(backend.edev, tcid, wire_to_root) {
                         let wire_pin = wire_pin.tw;
-                        let wire_pin_name = intdb.wires.key(wire_pin.wire);
+                        let wire_pin_name = intdb[wire_pin.wire].name.as_str();
                         if wire_pin_name.starts_with("IMUX") || wire_pin_name.starts_with("HEX") {
                             break 'quad_dst_pin wire_pin;
                         }
@@ -728,7 +729,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
                     let mut pins = HashSet::new();
                     for &wire_from in ins {
                         let wire_from = wire_from.tw;
-                        let in_wire_name = intdb.wires.key(wire_from.wire);
+                        let in_wire_name = intdb[wire_from.wire].name.as_str();
                         'quad_src_all_pin: {
                             if in_wire_name.starts_with("SINGLE") {
                                 let wire_buf = single_to_buf(wire_from.wire).cell(0);
@@ -775,7 +776,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
                 }
                 for &wire_from in ins {
                     let wire_from = wire_from.tw;
-                    let in_wire_name = intdb.wires.key(wire_from.wire);
+                    let in_wire_name = intdb[wire_from.wire].name.as_str();
                     let mut props = props.clone();
                     if in_wire_name.starts_with("BRAM_QUAD") {
                         'quad_src_pin: {
@@ -815,8 +816,8 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
 
                             for wire_pin in pips_bwd(backend.edev, tcid, wire_from_root) {
                                 let wire_pin = wire_pin.tw;
-                                let wire_pin_name = intdb.wires.key(wire_pin.wire);
-                                if intdb.wires.key(wire_pin.wire).starts_with("HEX")
+                                let wire_pin_name = intdb[wire_pin.wire].name.as_str();
+                                if intdb[wire_pin.wire].name.as_str().starts_with("HEX")
                                     || wire_pin_name.starts_with("OUT")
                                 {
                                     if !is_s {
@@ -883,15 +884,15 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
                 }
                 for &wire_from in ins {
                     let wire_from = wire_from.tw;
-                    let in_wire_name = intdb.wires.key(wire_from.wire);
+                    let in_wire_name = intdb[wire_from.wire].name.as_str();
 
                     let mut props = props.clone();
                     'single_pin: {
                         if in_wire_name.starts_with("SINGLE") {
                             for wire_pin in pips_bwd(backend.edev, tcid, wire_from) {
                                 let wire_pin = wire_pin.tw;
-                                let wire_pin_name = intdb.wires.key(wire_pin.wire);
-                                if intdb.wires.key(wire_pin.wire).starts_with("HEX")
+                                let wire_pin_name = intdb[wire_pin.wire].name.as_str();
+                                if intdb[wire_pin.wire].name.as_str().starts_with("HEX")
                                     || wire_pin_name.starts_with("OMUX")
                                     || wire_pin_name.starts_with("BRAM_QUAD_DOUT")
                                 {
@@ -904,7 +905,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
                         } else {
                             for wire_pin in pips_fwd(backend.edev, tcid, wire_from) {
                                 let wire_pin = wire_pin.tw;
-                                let wire_pin_name = intdb.wires.key(wire_pin.wire);
+                                let wire_pin_name = intdb[wire_pin.wire].name.as_str();
                                 if wire_pin != wire_to && wire_pin_name.starts_with("SINGLE") {
                                     props.push(Box::new(BaseIntPip::new(wire_pin, wire_from)));
                                     props.push(Box::new(WireMutexExclusive::new(wire_pin)));
@@ -984,7 +985,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
                     'll_pin: {
                         for wire_pin in pips_fwd(backend.edev, tcid, wire_to) {
                             let wire_pin = wire_pin.tw;
-                            let wire_pin_name = intdb.wires.key(wire_pin.wire);
+                            let wire_pin_name = intdb[wire_pin.wire].name.as_str();
                             if wire_pin_name.starts_with("HEX")
                                 || wire_pin_name.starts_with("IMUX_BRAM")
                             {
@@ -1002,7 +1003,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
 
                 for &wire_from in ins {
                     let wire_from = wire_from.tw;
-                    let in_wire_name = intdb.wires.key(wire_from.wire);
+                    let in_wire_name = intdb[wire_from.wire].name.as_str();
                     'll_src_pin: {
                         if let Some(wire_unbuf) = wire_unbuf(wire_from.wire) {
                             let wire_unbuf = wire_unbuf.cell(0);
@@ -1014,7 +1015,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
                         {
                             for wire_pin in pips_bwd(backend.edev, tcid, wire_from) {
                                 let wire_pin = wire_pin.tw;
-                                if intdb.wires.key(wire_pin.wire).starts_with("OUT") {
+                                if intdb[wire_pin.wire].name.as_str().starts_with("OUT") {
                                     props.push(Box::new(BaseIntPip::new(wire_from, wire_pin)));
                                     props.push(Box::new(WireMutexExclusive::new(wire_from)));
                                     props.push(Box::new(WireMutexExclusive::new(wire_pin)));
@@ -1066,9 +1067,9 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
                                 .chain(extra_in)
                             {
                                 let wire_pin = wire_pin.tw;
-                                if intdb.wires.key(wire_pin.wire).starts_with("OMUX")
-                                    || intdb.wires.key(wire_pin.wire).starts_with("OUT")
-                                    || (intdb.wires.key(wire_pin.wire).starts_with("HEX")
+                                if intdb[wire_pin.wire].name.as_str().starts_with("OMUX")
+                                    || intdb[wire_pin.wire].name.as_str().starts_with("OUT")
+                                    || (intdb[wire_pin.wire].name.as_str().starts_with("HEX")
                                         && tcname.starts_with("CNR"))
                                 {
                                     props.push(Box::new(BaseIntPip::new(wire_from, wire_pin)));
@@ -1235,7 +1236,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
                             {
                                 for wire_pin in pips_bwd(backend.edev, tcid, wire_from) {
                                     let wire_pin = wire_pin.tw;
-                                    if intdb.wires.key(wire_pin.wire).starts_with("HEX") {
+                                    if intdb[wire_pin.wire].name.as_str().starts_with("HEX") {
                                         props.push(Box::new(BaseIntPip::new(wire_from, wire_pin)));
                                         props.push(Box::new(WireMutexExclusive::new(wire_from)));
                                         props.push(Box::new(WireMutexExclusive::new(wire_pin)));
@@ -1270,7 +1271,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
                         continue;
                     }
                     let wire_from = wire_from.tw;
-                    let in_wire_name = intdb.wires.key(wire_from.wire);
+                    let in_wire_name = intdb[wire_from.wire].name.as_str();
 
                     let mut props = props.clone();
                     'imux_pin: {
@@ -1415,7 +1416,8 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
         unreachable!()
     };
     let intdb = edev.db;
-    for (tcid, tcname, tcls) in &intdb.tile_classes {
+    for (tcid, tcls) in &intdb.tile_classes {
+        let tcname = tcls.name.as_str();
         if !ctx.has_tcls(tcid) {
             continue;
         }

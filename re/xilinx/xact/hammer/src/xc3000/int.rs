@@ -153,7 +153,7 @@ fn drive_wire<'a>(
 ) -> (Fuzzer<XactBackend<'a>>, &'a str, &'static str) {
     let cell = wire_target.cell;
     let wt = wire_target.slot;
-    let wtn = &backend.edev.db.wires.key(wt)[..];
+    let wtn = &backend.edev.db.wires[wt].name.as_str();
     let (ploc, pwt, pwf) = if let Some((bel, pin)) = wire_to_outpin(backend, wire_target) {
         let tcrd = backend.edev.bel_tile(bel);
         let ntile = &backend.ngrid.tiles[&tcrd];
@@ -235,7 +235,7 @@ fn drive_wire<'a>(
                 let tcls_index = &backend.edev.db_index[tile.class];
                 if let Some(ins) = tcls_index.pips_bwd.get(&w.slot.cell(0)) {
                     for &inp in ins {
-                        if backend.edev.db.wires.key(inp.wire).starts_with("SINGLE") {
+                        if backend.edev.db.wires[inp.wire].name.starts_with("SINGLE") {
                             let rwf = backend.edev.resolve_tile_wire(tcrd, inp.tw).unwrap();
                             if !wire_avoid.contains(&rwf) {
                                 break 'a (tcrd, w.slot.cell(0), inp.tw);
@@ -254,8 +254,8 @@ fn drive_wire<'a>(
                 let tcls_index = &backend.edev.db_index[tile.class];
                 if let Some(ins) = tcls_index.pips_bwd.get(&w.slot.cell(0)) {
                     for &inp in ins {
-                        if backend.edev.db.wires.key(inp.wire).starts_with("OUT")
-                            || backend.edev.db.wires.key(inp.wire).starts_with("LONG_H")
+                        if backend.edev.db.wires[inp.wire].name.starts_with("OUT")
+                            || backend.edev.db.wires[inp.wire].name.starts_with("LONG_H")
                         {
                             let rwf = backend.edev.resolve_tile_wire(tcrd, inp.tw).unwrap();
                             if !wire_avoid.contains(&rwf) {
@@ -275,9 +275,9 @@ fn drive_wire<'a>(
                 let tcls_index = &backend.edev.db_index[tile.class];
                 if let Some(ins) = tcls_index.pips_bwd.get(&w.slot.cell(0)) {
                     for &inp in ins {
-                        if (backend.edev.db.wires.key(inp.wire).starts_with("SINGLE_V")
-                            && !backend.edev.db.wires.key(inp.wire).contains("_STUB"))
-                            || backend.edev.db.wires.key(inp.wire).starts_with("OUT")
+                        if (backend.edev.db.wires[inp.wire].name.starts_with("SINGLE_V")
+                            && !backend.edev.db.wires[inp.wire].name.contains("_STUB"))
+                            || backend.edev.db.wires[inp.wire].name.starts_with("OUT")
                         {
                             let rwf = backend.edev.resolve_tile_wire(tcrd, inp.tw).unwrap();
                             if !wire_avoid.contains(&rwf) {
@@ -293,7 +293,7 @@ fn drive_wire<'a>(
                 let tcls_index = &backend.edev.db_index[tile.class];
                 if let Some(ins) = tcls_index.pips_bwd.get(&w.slot.cell(0)) {
                     for &inp in ins {
-                        if backend.edev.db.wires.key(inp.wire).starts_with("SINGLE_H") {
+                        if backend.edev.db.wires[inp.wire].name.starts_with("SINGLE_H") {
                             let rwf = backend.edev.resolve_tile_wire(tcrd, inp.tw).unwrap();
                             if !wire_avoid.contains(&rwf) {
                                 break 'a (tcrd, w.slot.cell(0), inp.tw);
@@ -339,7 +339,7 @@ fn apply_imux_finish<'a>(
     let chip = backend.edev.chip;
     let cell = wire.cell;
     let w = wire.slot;
-    let wn = &backend.edev.db.wires.key(w)[..];
+    let wn = backend.edev.db.wires[w].name.as_str();
     if let Some((side, idx)) = wire_as_ioclk(wire.slot) {
         let slot = match side {
             Dir::W => bslots::IO_W[0],
@@ -503,7 +503,7 @@ impl<'b> FuzzerProp<'b, XactBackend<'b>> for ProhibitInt {
 
 pub fn add_fuzzers<'a>(session: &mut Session<'a, XactBackend<'a>>, backend: &'a XactBackend<'a>) {
     let intdb = backend.edev.db;
-    for (tcid, _, tcls) in &intdb.tile_classes {
+    for (tcid, tcls) in &intdb.tile_classes {
         let Some(mut ctx) = FuzzCtx::try_new(session, backend, tcid) else {
             continue;
         };
@@ -562,7 +562,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, XactBackend<'a>>, backend: &'a 
                             let wire_long = wire_long.cell(0);
                             let wire_t = wire_t.cell(0);
                             for &src in mux.src.keys() {
-                                let wire_from_name = intdb.wires.key(src.wire);
+                                let wire_from_name = intdb.wires[src.wire].name.as_str();
                                 if !wire_from_name.starts_with("SINGLE") {
                                     continue;
                                 }
@@ -655,7 +655,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, XactBackend<'a>>, backend: &'a 
 
 pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
     let intdb = ctx.edev.db;
-    for (tcid, tcname, tcls) in &intdb.tile_classes {
+    for (tcid, tcls) in &intdb.tile_classes {
         if !ctx.has_tile(tcid) {
             continue;
         }
@@ -669,8 +669,8 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
             for item in &sb.items {
                 match item {
                     SwitchBoxItem::Mux(mux) => {
-                        let out_name = intdb.wires.key(mux.dst.wire);
-                        let mux_name = if tcname.starts_with("LL") {
+                        let out_name = intdb.wires[mux.dst.wire].name.as_str();
+                        let mux_name = if tcls.name.starts_with("LL") {
                             format!("MUX.{wtt:#}.{out_name}", wtt = mux.dst.cell)
                         } else {
                             format!("MUX.{out_name}")
@@ -744,7 +744,7 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
                         }
                         let item = xlat_enum_raw(inps, OcdMode::Mux);
                         if item.bits.is_empty() && !wires::IMUX_TBUF_I.contains(mux.dst.wire) {
-                            println!("UMMM MUX {tcname} {mux_name} is empty");
+                            println!("UMMM MUX {tcname} {mux_name} is empty", tcname = tcls.name,);
                         }
                         ctx.insert_mux(tcid, mux.dst, item);
                     }

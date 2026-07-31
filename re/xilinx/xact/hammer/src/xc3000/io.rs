@@ -16,7 +16,7 @@ use crate::{
 };
 
 pub fn add_fuzzers<'a>(session: &mut Session<'a, XactBackend<'a>>, backend: &'a XactBackend<'a>) {
-    for (tcid, _, tcls) in &backend.edev.db.tile_classes {
+    for (tcid, tcls) in &backend.edev.db.tile_classes {
         if tcls.slot != tslots::MAIN {
             continue;
         }
@@ -131,7 +131,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, XactBackend<'a>>, backend: &'a 
 }
 
 pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
-    for (tcid, _, tcls) in &ctx.edev.db.tile_classes {
+    for (tcid, tcls) in &ctx.edev.db.tile_classes {
         if tcls.slot != tslots::MAIN {
             continue;
         }

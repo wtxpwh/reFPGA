@@ -3,10 +3,7 @@ use prjcombine_interconnect::grid::{CellCoord, ColId, DieId};
 use prjcombine_re_xilinx_naming::{db::NamingDb, grid::ExpandedGridNaming};
 use prjcombine_virtex4::{
     chip::{ColumnKind, GtKind},
-    defs::{
-        bslots,
-        virtex5::{ccls, tcls},
-    },
+    defs::{bslots, ccls, tcls},
     expanded::ExpandedDevice,
 };
 
@@ -53,16 +50,16 @@ pub fn name_device<'a>(edev: &'a ExpandedDevice<'a>, ndb: &'a NamingDb) -> Expan
     ngrid.tie_pin_gnd = Some("HARD0".to_string());
     ngrid.tie_pin_vcc = Some("HARD1".to_string());
 
-    let clb_grid = ngrid.bel_grid(|_, name, _| name == "CLBLL" || name == "CLBLM");
-    let bram_grid = ngrid.bel_grid(|_, name, _| name == "BRAM");
-    let dsp_grid = ngrid.bel_grid(|_, name, _| name == "DSP");
-    let io_grid = ngrid.bel_grid(|_, name, _| name == "IO");
-    let cmt_grid = ngrid.bel_grid(|_, name, _| name == "CMT");
-    let emac_grid = ngrid.bel_grid(|_, name, _| name == "EMAC");
-    let pcie_grid = ngrid.bel_grid(|_, name, _| name == "PCIE");
-    let ppc_grid = ngrid.bel_grid(|_, name, _| name == "PPC");
-    let gt_grid = ngrid.bel_grid(|_, name, _| name == "GTP" || name == "GTX");
-    let pmvbram_grid = ngrid.bel_grid(|_, name, _| name == "PMVBRAM");
+    let clb_grid = ngrid.bel_grid(|tcid, _| tcid == tcls::CLBLL || tcid == tcls::CLBLM);
+    let bram_grid = ngrid.bel_grid(|tcid, _| tcid == tcls::BRAM);
+    let dsp_grid = ngrid.bel_grid(|tcid, _| tcid == tcls::DSP);
+    let io_grid = ngrid.bel_grid(|tcid, _| tcid == tcls::IO);
+    let cmt_grid = ngrid.bel_grid(|tcid, _| tcid == tcls::CMT);
+    let emac_grid = ngrid.bel_grid(|tcid, _| tcid == tcls::EMAC);
+    let pcie_grid = ngrid.bel_grid(|tcid, _| tcid == tcls::PCIE);
+    let ppc_grid = ngrid.bel_grid(|tcid, _| tcid == tcls::PPC);
+    let gt_grid = ngrid.bel_grid(|tcid, _| tcid == tcls::GTP || tcid == tcls::GTX);
+    let pmvbram_grid = ngrid.bel_grid(|tcid, _| tcid == tcls::PMVBRAM);
 
     let mut namer = Namer {
         edev,
@@ -78,7 +75,7 @@ pub fn name_device<'a>(edev: &'a ExpandedDevice<'a>, ndb: &'a NamingDb) -> Expan
         let CellCoord { col, row, .. } = cell;
 
         let chip = edev.chips[cell.die];
-        let kind = edev.db.tile_classes.key(tile.class);
+        let kind = edev.db.tile_classes[tile.class].name.as_str();
         let x = col.to_idx();
         let y = row.to_idx();
         match tile.class {

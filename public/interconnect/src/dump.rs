@@ -31,7 +31,7 @@ impl TileClass {
                     writeln!(
                         o,
                         "\t\t\tswitchbox {slot} {{",
-                        slot = db.bel_slots.key(slot)
+                        slot = db.bel_slots[slot].name
                     )?;
                     for item in &sb.items {
                         match item {
@@ -135,7 +135,7 @@ impl TileClass {
                             SwitchBoxItem::Bidi(bidi) => writeln!(
                                 o,
                                 "\t\t\t\tbidi {conn} {wire} @{bit};",
-                                conn = db.conn_slots.key(bidi.conn),
+                                conn = db.conn_slots[bidi.conn].name,
                                 wire = bidi.wire.to_string(db, self),
                                 bit = self.dump_polbit(bidi.bit_upstream),
                             )?,
@@ -232,7 +232,7 @@ impl TileClass {
                     let BelKind::Class(bcid) = db.bel_slots[slot].kind else {
                         unreachable!()
                     };
-                    writeln!(o, "\t\t\tbel {slot} {{", slot = db.bel_slots.key(slot))?;
+                    writeln!(o, "\t\t\tbel {slot} {{", slot = db.bel_slots[slot].name)?;
                     let bcls = &db.bel_classes[bcid];
                     for (pid, wire) in &bel.inputs {
                         let (pname, idx) = bcls.inputs.key(pid);
@@ -370,7 +370,7 @@ impl TileClass {
                     writeln!(o, "\t\t\t}}")?;
                 }
                 BelInfo::Legacy(bel) => {
-                    writeln!(o, "\t\t\tbel {slot} {{", slot = db.bel_slots.key(slot))?;
+                    writeln!(o, "\t\t\tbel {slot} {{", slot = db.bel_slots[slot].name)?;
                     for (pn, pin) in &bel.pins {
                         write!(
                             o,
@@ -396,7 +396,7 @@ impl TileClass {
                 }
                 BelInfo::OldTestMux => unreachable!(),
                 BelInfo::TestMux(tmux) => {
-                    write!(o, "\t\t\ttest_mux {slot}", slot = db.bel_slots.key(slot),)?;
+                    write!(o, "\t\t\ttest_mux {slot}", slot = db.bel_slots[slot].name)?;
                     if tmux.bits.is_empty() {
                         writeln!(o, " #{n} {{", n = tmux.groups.len())?;
                     } else {
@@ -445,7 +445,7 @@ impl TileClass {
         for (wire, bels) in wires {
             write!(o, "\t\t\t// wire {wn:30}", wn = wire.to_string(db, self))?;
             for (bel, pin) in bels {
-                write!(o, " {bel}.{pin}", bel = db.bel_slots.key(bel))?;
+                write!(o, " {bel}.{pin}", bel = db.bel_slots[bel].name)?;
             }
             writeln!(o)?;
         }
@@ -482,7 +482,7 @@ impl TileClass {
 impl IntDb {
     pub fn dump_typ(&self, typ: BelAttributeType) -> String {
         match typ {
-            BelAttributeType::Enum(eid) => self.enum_classes.key(eid).to_string(),
+            BelAttributeType::Enum(eid) => self.enum_classes[eid].name.clone(),
             BelAttributeType::Bool => "bool".to_string(),
             BelAttributeType::BitVec(width) => {
                 format!("bitvec[{width}]")
@@ -535,16 +535,16 @@ impl IntDb {
 
     pub fn dump(&self, o: &mut dyn std::io::Write) -> std::io::Result<()> {
         writeln!(o, "intdb {{")?;
-        for (_, name, ecls) in &self.enum_classes {
-            writeln!(o, "\tenum {name} {{")?;
+        for (_, ecls) in &self.enum_classes {
+            writeln!(o, "\tenum {name} {{", name = ecls.name)?;
             for val in ecls.values.values() {
                 writeln!(o, "\t\t{val},")?;
             }
             writeln!(o, "\t}}")?;
             writeln!(o,)?;
         }
-        for (_, name, bcls) in &self.bel_classes {
-            writeln!(o, "\tbel_class {name} {{")?;
+        for (_, bcls) in &self.bel_classes {
+            writeln!(o, "\tbel_class {name} {{", name = bcls.name)?;
             for (index, pname, pin) in bcls.inputs.bundles() {
                 write!(
                     o,
@@ -642,60 +642,65 @@ impl IntDb {
         for slot in self.region_slots.values() {
             writeln!(o, "\tregion_slot {slot};")?;
         }
-        for (_, k, &w) in &self.wires {
-            writeln!(o, "\twire {k}: {w};", w = w.to_string(self))?;
+        for (_, wslot) in &self.wires {
+            writeln!(
+                o,
+                "\twire {name}: {kind};",
+                name = wslot.name,
+                kind = wslot.kind.to_string(self)
+            )?;
         }
         for (tslot, tsname) in &self.tile_slots {
             writeln!(o)?;
             writeln!(o, "\ttile_slot {tsname} {{")?;
-            for (_, name, bslot) in &self.bel_slots {
+            for (_, bslot) in &self.bel_slots {
                 if bslot.tile_slot != tslot {
                     continue;
                 }
-                write!(o, "\t\tbel_slot {name}: ")?;
+                write!(o, "\t\tbel_slot {name}: ", name = bslot.name)?;
                 match bslot.kind {
                     BelKind::Routing => write!(o, "routing")?,
-                    BelKind::Class(bcls) => write!(o, "{}", self.bel_classes.key(bcls))?,
+                    BelKind::Class(bcls) => write!(o, "{}", self.bel_classes[bcls].name)?,
                     BelKind::Legacy => write!(o, "legacy")?,
                 }
                 writeln!(o, ";")?
             }
-            for (_, name, tcls) in &self.tile_classes {
+            for (_, tcls) in &self.tile_classes {
                 if tcls.slot != tslot {
                     continue;
                 }
                 writeln!(o,)?;
-                writeln!(o, "\t\ttile_class {name} {{")?;
+                writeln!(o, "\t\ttile_class {name} {{", name = tcls.name)?;
                 tcls.dump(self, o)?;
                 writeln!(o, "\t\t}}")?;
             }
             writeln!(o, "\t}}")?;
         }
-        for (csid, csname, cslot) in &self.conn_slots {
+        for (csid, cslot) in &self.conn_slots {
             writeln!(o,)?;
-            writeln!(o, "\tconnector_slot {csname} {{")?;
+            writeln!(o, "\tconnector_slot {csname} {{", csname = cslot.name)?;
             writeln!(
                 o,
                 "\t\topposite {oname};",
-                oname = self.conn_slots.key(cslot.opposite)
+                oname = self.conn_slots[cslot.opposite].name
             )?;
-            for (_, name, ccls) in &self.conn_classes {
+            for (_, ccls) in &self.conn_classes {
                 if ccls.slot != csid {
                     continue;
                 }
                 writeln!(o,)?;
-                writeln!(o, "\t\tconnector_class {name} {{",)?;
+                writeln!(o, "\t\tconnector_class {name} {{", name = ccls.name)?;
                 for (w, ti) in &ccls.wires {
-                    let wn = &self.wires.key(w);
+                    let wn = &self.wires[w].name.as_str();
                     match ti {
                         ConnectorWire::BlackHole => {
                             writeln!(o, "\t\t\tblackhole {wn};")?;
                         }
                         &ConnectorWire::Reflect(ow) => {
-                            writeln!(o, "\t\t\treflect {wn} = {own};", own = self.wires.key(ow))?;
+                            writeln!(o, "\t\t\treflect {wn} = {own};", own = self.wires[ow].name)?;
                         }
                         &ConnectorWire::Pass(ow) => {
-                            writeln!(o, "\t\t\tpass {wn} = {own};", own = self.wires.key(ow))?;
+                            writeln!(o, "\t\t\tpass {wn} = {own};", own = self.wires[ow].name)?;
                         }
                     }
                 }
@@ -704,9 +709,9 @@ impl IntDb {
             writeln!(o, "\t}}")?;
         }
 
-        for (_, tname, table) in &self.tables {
+        for (_, table) in &self.tables {
             writeln!(o)?;
-            writeln!(o, "\ttable {tname} {{")?;
+            writeln!(o, "\ttable {tname} {{", tname = table.name)?;
             for (_, fname, &typ) in &table.fields {
                 writeln!(o, "\t\tfield {fname}: {typ};", typ = self.dump_typ(typ))?;
             }
@@ -732,8 +737,13 @@ impl IntDb {
 
         if !self.devdata.is_empty() {
             writeln!(o)?;
-            for (_, name, &typ) in &self.devdata {
-                writeln!(o, "\tdevice_data {name}: {typ};", typ = self.dump_typ(typ))?;
+            for (_, ddslot) in &self.devdata {
+                writeln!(
+                    o,
+                    "\tdevice_data {name}: {typ};",
+                    name = ddslot.name,
+                    typ = self.dump_typ(ddslot.typ)
+                )?;
             }
         }
 

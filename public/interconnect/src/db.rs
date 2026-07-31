@@ -1,7 +1,7 @@
 use bincode::{Decode, Encode};
 use prjcombine_entity::{
-    EntityBundleMap, EntityId, EntityMap, EntityPartVec, EntitySet, EntityVec, entity_id_u8,
-    entity_id_u16,
+    EntityBundleMap, EntityId, EntityKey, EntityMap, EntityPartMap, EntityPartVec, EntitySet,
+    EntityVec, entity_id_u8, entity_id_u16,
 };
 use prjcombine_types::{
     bitvec::BitVec,
@@ -13,17 +13,17 @@ use std::collections::{BTreeMap, BTreeSet, HashSet};
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, Encode, Decode)]
 pub struct IntDb {
-    pub enum_classes: EntityMap<EnumClassId, String, EnumClass>,
-    pub bel_classes: EntityMap<BelClassId, String, BelClass>,
-    pub region_slots: EntitySet<RegionSlotId, String>,
-    pub wires: EntityMap<WireSlotId, String, WireKind>,
-    pub tile_slots: EntitySet<TileSlotId, String>,
-    pub bel_slots: EntityMap<BelSlotId, String, BelSlot>,
-    pub tile_classes: EntityMap<TileClassId, String, TileClass>,
-    pub conn_slots: EntityMap<ConnectorSlotId, String, ConnectorSlot>,
-    pub conn_classes: EntityMap<ConnectorClassId, String, ConnectorClass>,
-    pub tables: EntityMap<TableId, String, Table>,
-    pub devdata: EntityMap<DeviceDataId, String, BelAttributeType>,
+    pub enum_classes: EntityPartMap<EnumClassId, EnumClass>,
+    pub bel_classes: EntityPartMap<BelClassId, BelClass>,
+    pub region_slots: EntityPartMap<RegionSlotId, String>,
+    pub wires: EntityPartMap<WireSlotId, WireSlot>,
+    pub tile_slots: EntityPartMap<TileSlotId, String>,
+    pub bel_slots: EntityPartMap<BelSlotId, BelSlot>,
+    pub tile_classes: EntityPartMap<TileClassId, TileClass>,
+    pub conn_slots: EntityPartMap<ConnectorSlotId, ConnectorSlot>,
+    pub conn_classes: EntityPartMap<ConnectorClassId, ConnectorClass>,
+    pub tables: EntityPartMap<TableId, Table>,
+    pub devdata: EntityPartMap<DeviceDataId, DeviceDataSlot>,
 }
 
 impl IntDb {
@@ -41,40 +41,27 @@ impl IntDb {
             .unwrap_or_else(|| panic!("no tile class {name}"))
             .0
     }
-    #[track_caller]
-    pub fn get_conn_class(&self, name: &str) -> ConnectorClassId {
-        self.conn_classes
-            .get(name)
-            .unwrap_or_else(|| panic!("no connector class {name}"))
-            .0
-    }
-    #[track_caller]
-    pub fn get_conn_slot(&self, name: &str) -> ConnectorSlotId {
-        self.conn_slots
-            .get(name)
-            .unwrap_or_else(|| panic!("no connector slot {name}"))
-            .0
-    }
 
     pub fn bel_class(&self, slot: BelSlotId) -> BelClassId {
         let BelKind::Class(bcid) = self.bel_slots[slot].kind else {
             panic!(
                 "bel slot {slot} is not classful",
-                slot = self.bel_slots.key(slot)
+                slot = self.bel_slots[slot].name
             )
         };
         bcid
     }
 
     pub fn validate(&self) {
-        for (_, tcname, tcls) in &self.tile_classes {
+        for (_, tcls) in &self.tile_classes {
             for bel in tcls.bels.ids() {
-                let bname = self.bel_slots.key(bel);
                 let bslot = &self.bel_slots[bel];
                 assert_eq!(
                     tcls.slot,
                     bslot.tile_slot,
                     "mismatch on tile {tcname} bel {bname}: {tctslot} != {btslot}",
+                    tcname = tcls.name,
+                    bname = bslot.name,
                     tctslot = self.tile_slots[tcls.slot],
                     btslot = self.tile_slots[bslot.tile_slot],
                 );
@@ -91,6 +78,14 @@ impl std::ops::Index<EnumClassId> for IntDb {
     }
 }
 
+impl std::ops::Index<BelSlotId> for IntDb {
+    type Output = BelSlot;
+
+    fn index(&self, index: BelSlotId) -> &Self::Output {
+        &self.bel_slots[index]
+    }
+}
+
 impl std::ops::Index<BelClassId> for IntDb {
     type Output = BelClass;
 
@@ -100,7 +95,7 @@ impl std::ops::Index<BelClassId> for IntDb {
 }
 
 impl std::ops::Index<WireSlotId> for IntDb {
-    type Output = WireKind;
+    type Output = WireSlot;
 
     fn index(&self, index: WireSlotId) -> &Self::Output {
         &self.wires[index]
@@ -140,7 +135,16 @@ entity_id_u16!(pub EnumValueId, EnumValueTag tag, "EV");
 
 #[derive(Clone, Debug, Eq, PartialEq, Encode, Decode)]
 pub struct EnumClass {
+    pub name: String,
     pub values: EntitySet<EnumValueId, String>,
+}
+
+impl EntityKey for EnumClass {
+    type KeyType = str;
+
+    fn key(&self) -> &Self::KeyType {
+        &self.name
+    }
 }
 
 entity_id_u16!(pub TableId, Table, "TABLE");
@@ -149,8 +153,17 @@ entity_id_u16!(pub TableRowId, TableRowTag tag, "ROW");
 
 #[derive(Clone, Debug, Eq, PartialEq, Encode, Decode)]
 pub struct Table {
+    pub name: String,
     pub fields: EntityMap<TableFieldId, String, BelAttributeType>,
     pub rows: EntityMap<TableRowId, String, EntityPartVec<TableFieldId, TableValue>>,
+}
+
+impl EntityKey for Table {
+    type KeyType = str;
+
+    fn key(&self) -> &Self::KeyType {
+        &self.name
+    }
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Encode, Decode)]
@@ -160,7 +173,21 @@ pub enum TableValue {
     U32(u32),
 }
 
-entity_id_u16!(pub DeviceDataId, DeviceDataTag tag, "DD");
+entity_id_u16!(pub DeviceDataId, DeviceDataSlot, "DD");
+
+#[derive(Clone, Debug, Eq, PartialEq, Encode, Decode)]
+pub struct DeviceDataSlot {
+    pub name: String,
+    pub typ: BelAttributeType,
+}
+
+impl EntityKey for DeviceDataSlot {
+    type KeyType = str;
+
+    fn key(&self) -> &Self::KeyType {
+        &self.name
+    }
+}
 
 // endregion:
 
@@ -173,13 +200,22 @@ entity_id_u16!(pub BelBidirId, BelClassBidir, "BELBI");
 entity_id_u16!(pub BelPadId, BelClassPad, "BELPAD");
 entity_id_u16!(pub BelAttributeId, BelClassAttribute, "BELATTR");
 
-#[derive(Default, Clone, Debug, Eq, PartialEq, Encode, Decode)]
+#[derive(Clone, Debug, Eq, PartialEq, Encode, Decode)]
 pub struct BelClass {
+    pub name: String,
     pub inputs: EntityBundleMap<BelInputId, BelClassInput>,
     pub outputs: EntityBundleMap<BelOutputId, BelClassOutput>,
     pub bidirs: EntityBundleMap<BelBidirId, BelClassBidir>,
     pub pads: EntityBundleMap<BelPadId, BelClassPad>,
     pub attributes: EntityMap<BelAttributeId, String, BelClassAttribute>,
+}
+
+impl EntityKey for BelClass {
+    type KeyType = str;
+
+    fn key(&self) -> &Self::KeyType {
+        &self.name
+    }
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Encode, Decode)]
@@ -279,10 +315,19 @@ pub enum PadKind {
 
 entity_id_u16!(pub BelSlotId, BelSlot, "BEL");
 
-#[derive(Copy, Clone, Debug, Eq, PartialEq, Hash, Encode, Decode)]
+#[derive(Clone, Debug, Eq, PartialEq, Hash, Encode, Decode)]
 pub struct BelSlot {
+    pub name: String,
     pub tile_slot: TileSlotId,
     pub kind: BelKind,
+}
+
+impl EntityKey for BelSlot {
+    type KeyType = str;
+
+    fn key(&self) -> &Self::KeyType {
+        &self.name
+    }
 }
 
 #[derive(Copy, Clone, Debug, Eq, PartialEq, Hash, Encode, Decode)]
@@ -297,7 +342,7 @@ pub enum BelKind {
 // region: regions, wires, connectors
 
 entity_id_u8!(pub RegionSlotId, RegionSlotTag tag, "RSLOT");
-entity_id_u16!(pub WireSlotId, WireKind, "WIRE");
+entity_id_u16!(pub WireSlotId, WireSlot, "WIRE");
 
 pub trait WireSlotIdExt {
     fn cell(self, idx: usize) -> TileWireCoord;
@@ -309,6 +354,20 @@ impl WireSlotIdExt for WireSlotId {
             cell: CellSlotId::from_idx(idx),
             wire: self,
         }
+    }
+}
+
+#[derive(Clone, Debug, Eq, PartialEq, Hash, Encode, Decode)]
+pub struct WireSlot {
+    pub name: String,
+    pub kind: WireKind,
+}
+
+impl EntityKey for WireSlot {
+    type KeyType = str;
+
+    fn key(&self) -> &Self::KeyType {
+        &self.name
     }
 }
 
@@ -328,20 +387,20 @@ pub enum WireKind {
 }
 
 impl WireKind {
-    pub fn to_string(&self, db: &IntDb) -> String {
+    pub fn to_string(self, db: &IntDb) -> String {
         match self {
             WireKind::Tie0 => "tie 0".into(),
             WireKind::Tie1 => "tie 1".into(),
             WireKind::TiePullup => "pullup".into(),
-            WireKind::Regional(slot) => format!("regional {}", db.region_slots[*slot]),
+            WireKind::Regional(slot) => format!("regional {}", db.region_slots[slot]),
             WireKind::MuxOut => "mux".into(),
             WireKind::BelOut => "bel".into(),
             WireKind::TestOut => "test".into(),
             WireKind::MultiRoot => "multi_root".into(),
             WireKind::MultiBranch(slot) => {
-                format!("multi_branch {slot}", slot = db.conn_slots.key(*slot))
+                format!("multi_branch {slot}", slot = db.conn_slots[slot].name)
             }
-            WireKind::Branch(slot) => format!("branch {slot}", slot = db.conn_slots.key(*slot)),
+            WireKind::Branch(slot) => format!("branch {slot}", slot = db.conn_slots[slot].name),
             WireKind::Special => "special".into(),
         }
     }
@@ -358,16 +417,16 @@ entity_id_u16!(pub ConnectorClassId, ConnectorClass, "CCLS");
 
 #[derive(Clone, Debug, Eq, PartialEq, Encode, Decode)]
 pub struct ConnectorClass {
+    pub name: String,
     pub slot: ConnectorSlotId,
     pub wires: EntityPartVec<WireSlotId, ConnectorWire>,
 }
 
-impl ConnectorClass {
-    pub fn new(slot: ConnectorSlotId) -> Self {
-        ConnectorClass {
-            slot,
-            wires: Default::default(),
-        }
+impl EntityKey for ConnectorClass {
+    type KeyType = str;
+
+    fn key(&self) -> &Self::KeyType {
+        &self.name
     }
 }
 
@@ -378,9 +437,18 @@ pub enum ConnectorWire {
     Pass(WireSlotId),
 }
 
-#[derive(Clone, Copy, Debug, Eq, PartialEq, Hash, Encode, Decode)]
+#[derive(Clone, Debug, Eq, PartialEq, Hash, Encode, Decode)]
 pub struct ConnectorSlot {
+    pub name: String,
     pub opposite: ConnectorSlotId,
+}
+
+impl EntityKey for ConnectorSlot {
+    type KeyType = str;
+
+    fn key(&self) -> &Self::KeyType {
+        &self.name
+    }
 }
 
 // endregion:
@@ -393,15 +461,25 @@ entity_id_u16!(pub CellSlotId, CellSlotTag tag, "TCELL");
 
 #[derive(Clone, Debug, Eq, PartialEq, Encode, Decode)]
 pub struct TileClass {
+    pub name: String,
     pub slot: TileSlotId,
     pub cells: EntityVec<CellSlotId, String>,
     pub bitrects: EntityVec<BitRectId, BitRectInfo>,
     pub bels: EntityPartVec<BelSlotId, BelInfo>,
 }
 
+impl EntityKey for TileClass {
+    type KeyType = str;
+
+    fn key(&self) -> &Self::KeyType {
+        &self.name
+    }
+}
+
 impl TileClass {
-    pub fn new(slot: TileSlotId, num_cells: usize) -> Self {
+    pub fn new(name: String, slot: TileSlotId, num_cells: usize) -> Self {
         TileClass {
+            name,
             slot,
             cells: EntityVec::from_iter((0..num_cells).map(|i| format!("CELL{i}"))),
             bitrects: EntityVec::new(),
@@ -439,12 +517,12 @@ impl TileWireCoord {
 
     pub fn to_string(self, db: &IntDb, tcls: &TileClass) -> String {
         if tcls.cells.len() == 1 {
-            db.wires.key(self.wire).clone()
+            db.wires[self.wire].name.clone()
         } else {
             format!(
                 "{cell}.{wire}",
                 cell = tcls.cells[self.cell],
-                wire = db.wires.key(self.wire)
+                wire = db.wires[self.wire].name
             )
         }
     }
@@ -888,8 +966,8 @@ pub struct TestMuxWire {
 
 #[derive(Clone, Debug)]
 pub struct IntDbIndex {
-    pub tile_classes: EntityVec<TileClassId, TileClassIndex>,
-    pub conn_classes: EntityVec<ConnectorClassId, ConnectorClassIndex>,
+    pub tile_classes: EntityPartVec<TileClassId, TileClassIndex>,
+    pub conn_classes: EntityPartVec<ConnectorClassId, ConnectorClassIndex>,
 }
 
 impl std::ops::Index<TileClassId> for IntDbIndex {
@@ -917,19 +995,17 @@ pub struct TileClassIndex {
 
 #[derive(Clone, Debug)]
 pub struct ConnectorClassIndex {
-    pub wire_ins_far: EntityVec<WireSlotId, HashSet<WireSlotId>>,
-    pub wire_ins_near: EntityVec<WireSlotId, HashSet<WireSlotId>>,
+    pub wire_ins_far: EntityPartVec<WireSlotId, HashSet<WireSlotId>>,
+    pub wire_ins_near: EntityPartVec<WireSlotId, HashSet<WireSlotId>>,
 }
 
 impl IntDbIndex {
     pub fn new(db: &IntDb) -> Self {
         Self {
-            tile_classes: db.tile_classes.values().map(TileClassIndex::new).collect(),
+            tile_classes: db.tile_classes.map_values(TileClassIndex::new),
             conn_classes: db
                 .conn_classes
-                .values()
-                .map(|t| ConnectorClassIndex::new(t, db))
-                .collect(),
+                .map_values(|ccls| ConnectorClassIndex::new(ccls, db)),
         }
     }
 }
@@ -1043,8 +1119,8 @@ impl TileClassIndex {
 
 impl ConnectorClassIndex {
     pub fn new(term: &ConnectorClass, db: &IntDb) -> Self {
-        let mut wire_ins_far: EntityVec<_, _> = db.wires.ids().map(|_| HashSet::new()).collect();
-        let mut wire_ins_near: EntityVec<_, _> = db.wires.ids().map(|_| HashSet::new()).collect();
+        let mut wire_ins_far: EntityPartVec<_, _> = db.wires.map_values(|_| HashSet::new());
+        let mut wire_ins_near: EntityPartVec<_, _> = db.wires.map_values(|_| HashSet::new());
         for (wo, ti) in &term.wires {
             match *ti {
                 ConnectorWire::BlackHole => (),
