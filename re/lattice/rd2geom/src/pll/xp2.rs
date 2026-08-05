@@ -22,7 +22,7 @@ impl ChipContext<'_> {
                     DirHV::NE => "URPLL",
                 }],
             );
-            let mut bel = self.extract_simple_bel(bcrd, cell, "PLL");
+            let mut bel = self.extract_simple_legacy_bel(bcrd, cell, "PLL");
 
             let io_pll_in0 = self.get_special_io_wire_in(SpecialIoKey::Pll(PllPad::PllIn0, loc));
             let io_pll_fb = self.get_special_io_wire_in(SpecialIoKey::Pll(PllPad::PllFb, loc));
@@ -80,7 +80,7 @@ impl ChipContext<'_> {
             self.claim_pip(clkfb_pll, clkfb);
             self.claim_pip(clkintfb, clkintfb_pll);
 
-            self.insert_bel(bcrd, bel);
+            self.insert_legacy_bel(bcrd, bel);
         }
     }
 
@@ -95,7 +95,7 @@ impl ChipContext<'_> {
                     DirH::E => "RCLKDIV",
                 }],
             );
-            self.insert_simple_bel(bcrd, cell, "CLKDIV");
+            self.insert_simple_legacy_bel(bcrd, cell, "CLKDIV");
 
             let bel_eclk_root = self.chip.bel_eclk_root(Dir::H(edge));
             let eclk0_in = self.naming.bel_wire(bel_eclk_root, "ECLK0_IN");

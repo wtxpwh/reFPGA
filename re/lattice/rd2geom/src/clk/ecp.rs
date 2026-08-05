@@ -151,7 +151,7 @@ impl ChipContext<'_> {
             }
         }
 
-        self.insert_bel(bcrd, bel);
+        self.insert_legacy_bel(bcrd, bel);
 
         for (bidx, (ll, slot)) in [
             ("LL", bslots::DCS_SW[0]),
@@ -214,7 +214,7 @@ impl ChipContext<'_> {
                 self.claim_pip(clkb_in, clkok);
             }
 
-            self.insert_bel(bcrd, bel);
+            self.insert_legacy_bel(bcrd, bel);
         }
     }
 }

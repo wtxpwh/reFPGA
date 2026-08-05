@@ -1,6 +1,6 @@
 use prjcombine_ecp::{
     chip::{PllLoc, PllPad, SpecialIoKey},
-    defs::bslots,
+    defs::{bslots, tcls},
 };
 use prjcombine_interconnect::dir::DirHV;
 
@@ -8,16 +8,15 @@ use crate::ChipContext;
 
 impl ChipContext<'_> {
     pub(super) fn process_pll_machxo(&mut self) {
-        for tcname in ["PLL_S", "PLL_N"] {
-            let tcid = self.intdb.get_tile_class(tcname);
+        for tcid in [tcls::PLL_S, tcls::PLL_N] {
             for &tcrd in &self.edev.tile_index[tcid] {
                 let cell = tcrd.cell;
                 let bcrd = cell.bel(bslots::PLL[0]);
                 let (r, c) = self.rc(tcrd.cell);
                 self.name_bel(bcrd, [format!("PLL3_R{r}C{c}")]);
-                let mut bel = self.extract_simple_bel(bcrd, cell, "PLL");
+                let mut bel = self.extract_simple_legacy_bel(bcrd, cell, "PLL");
 
-                let pll_loc = if tcname == "PLL_S" {
+                let pll_loc = if tcid == tcls::PLL_S {
                     PllLoc::new(DirHV::SW, 0)
                 } else {
                     PllLoc::new(DirHV::NW, 0)
@@ -78,7 +77,7 @@ impl ChipContext<'_> {
                 self.claim_pip(clkfb, clkfb3);
                 self.claim_pip(clkfb_pll, clkfb);
 
-                self.insert_bel(bcrd, bel);
+                self.insert_legacy_bel(bcrd, bel);
             }
         }
     }

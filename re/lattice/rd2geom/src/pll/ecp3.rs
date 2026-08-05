@@ -23,7 +23,7 @@ impl ChipContext<'_> {
             };
             let (r, c) = self.rc(cell);
             self.name_bel(bcrd, [format!("PLL_R{r}C{c}")]);
-            let mut bel = self.extract_simple_bel(bcrd, cell, "PLL");
+            let mut bel = self.extract_simple_legacy_bel(bcrd, cell, "PLL");
 
             let clki_pll = self.rc_wire(cell, "CLKI_PLL");
             let clki = self.rc_wire(cell, "CLKI");
@@ -124,7 +124,7 @@ impl ChipContext<'_> {
                 self.claim_pip(wire, clki_pll);
             }
 
-            self.insert_bel(bcrd, bel);
+            self.insert_legacy_bel(bcrd, bel);
         }
     }
 
@@ -151,8 +151,8 @@ impl ChipContext<'_> {
             let (r, c) = self.rc(cell);
             self.name_bel(bcrd_dll, [format!("DLL_R{r}C{c}")]);
             self.name_bel(bcrd_dlldel, [format!("DLLDEL_R{r}C{c}")]);
-            let mut bel_dll = self.extract_simple_bel(bcrd_dll, cell, "DLL");
-            self.insert_simple_bel(bcrd_dlldel, cell, "DLLDEL");
+            let mut bel_dll = self.extract_simple_legacy_bel(bcrd_dll, cell, "DLL");
+            self.insert_simple_legacy_bel(bcrd_dlldel, cell, "DLLDEL");
 
             for i in 0..6 {
                 let wire_dll = self.rc_wire(cell, &format!("JDCNTL{i}_DLL"));
@@ -266,7 +266,7 @@ impl ChipContext<'_> {
             self.add_bel_wire(bcrd_dlldel, "CLKO_OUT", dlldel);
             self.claim_pip(dlldel, clko_dlldel);
 
-            self.insert_bel(bcrd_dll, bel_dll);
+            self.insert_legacy_bel(bcrd_dll, bel_dll);
 
             let bcrd = bcrd_dll.bel(bslots::ECLK_ALT_ROOT);
             let mut bel = LegacyBel::default();
@@ -306,7 +306,7 @@ impl ChipContext<'_> {
                 self.claim_pip(eclk_out, dlldel);
             }
 
-            self.insert_bel(bcrd, bel);
+            self.insert_legacy_bel(bcrd, bel);
         }
     }
 
@@ -330,7 +330,7 @@ impl ChipContext<'_> {
                 bcrd,
                 [format!("CLKDIV_R{r}C{c}"), format!("CLKDIVTEST_R{r}C{c}")],
             );
-            self.insert_simple_bel(bcrd, cell, "CLKDIV");
+            self.insert_simple_legacy_bel(bcrd, cell, "CLKDIV");
 
             let clk = self.rc_wire(cell, "CLKI_CLKDIV");
             self.add_bel_wire(bcrd, "CLK", clk);

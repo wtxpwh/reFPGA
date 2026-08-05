@@ -104,51 +104,27 @@ impl Chip {
                 for cell in egrid.die_cells(die) {
                     if cell.col == self.col_w() {
                         if cell.row == self.row_s() {
-                            egrid.add_tile_id(
-                                cell,
-                                xc2000::tcls::CLB_SW,
-                                &[cell, cell.delta(1, 0)],
-                            );
+                            egrid.add_tile(cell, xc2000::tcls::CLB_SW, &[cell, cell.delta(1, 0)]);
                         } else if cell.row == self.row_n() {
-                            egrid.add_tile_id(
+                            egrid.add_tile(
                                 cell,
                                 xc2000::tcls::CLB_NW,
                                 &[cell, cell.delta(0, -1), cell.delta(1, 0)],
                             );
                         } else if cell.row == self.row_mid() - 1 {
-                            egrid.add_tile_id(
-                                cell,
-                                xc2000::tcls::CLB_MW,
-                                &[cell, cell.delta(0, -1)],
-                            );
+                            egrid.add_tile(cell, xc2000::tcls::CLB_MW, &[cell, cell.delta(0, -1)]);
                         } else {
-                            egrid.add_tile_id(
-                                cell,
-                                xc2000::tcls::CLB_W,
-                                &[cell, cell.delta(0, -1)],
-                            );
+                            egrid.add_tile(cell, xc2000::tcls::CLB_W, &[cell, cell.delta(0, -1)]);
                         }
                     } else if cell.col == self.col_e() {
                         if cell.row == self.row_s() {
-                            egrid.add_tile_id(cell, xc2000::tcls::CLB_SE, &[cell]);
+                            egrid.add_tile(cell, xc2000::tcls::CLB_SE, &[cell]);
                         } else if cell.row == self.row_n() {
-                            egrid.add_tile_id(
-                                cell,
-                                xc2000::tcls::CLB_NE,
-                                &[cell, cell.delta(0, -1)],
-                            );
+                            egrid.add_tile(cell, xc2000::tcls::CLB_NE, &[cell, cell.delta(0, -1)]);
                         } else if cell.row == self.row_mid() - 1 {
-                            egrid.add_tile_id(
-                                cell,
-                                xc2000::tcls::CLB_ME,
-                                &[cell, cell.delta(0, -1)],
-                            );
+                            egrid.add_tile(cell, xc2000::tcls::CLB_ME, &[cell, cell.delta(0, -1)]);
                         } else {
-                            egrid.add_tile_id(
-                                cell,
-                                xc2000::tcls::CLB_E,
-                                &[cell, cell.delta(0, -1)],
-                            );
+                            egrid.add_tile(cell, xc2000::tcls::CLB_E, &[cell, cell.delta(0, -1)]);
                         }
                     } else {
                         if cell.row == self.row_s() {
@@ -157,16 +133,16 @@ impl Chip {
                             } else {
                                 xc2000::tcls::CLB_S
                             };
-                            egrid.add_tile_id(cell, tcid, &[cell, cell.delta(1, 0)]);
+                            egrid.add_tile(cell, tcid, &[cell, cell.delta(1, 0)]);
                         } else if cell.row == self.row_n() {
                             let tcid = if cell.col == self.col_e() - 1 {
                                 xc2000::tcls::CLB_NE1
                             } else {
                                 xc2000::tcls::CLB_N
                             };
-                            egrid.add_tile_id(cell, tcid, &[cell, cell.delta(1, 0)]);
+                            egrid.add_tile(cell, tcid, &[cell, cell.delta(1, 0)]);
                         } else {
-                            egrid.add_tile_id(cell, xc2000::tcls::CLB, &[cell]);
+                            egrid.add_tile(cell, xc2000::tcls::CLB, &[cell]);
                         }
                     }
                     if cell.col != self.col_w() {
@@ -189,22 +165,22 @@ impl Chip {
                 for &col in &self.cols_bidi {
                     for cell in egrid.column(die, col) {
                         if cell.row == self.row_s() {
-                            egrid.add_tile_single_id(cell, xc2000::tcls::BIDIH_S);
+                            egrid.add_tile_single(cell, xc2000::tcls::BIDIH_S);
                         } else if cell.row == self.row_n() {
-                            egrid.add_tile_single_id(cell, xc2000::tcls::BIDIH_N);
+                            egrid.add_tile_single(cell, xc2000::tcls::BIDIH_N);
                         } else {
-                            egrid.add_tile_single_id(cell, xc2000::tcls::BIDIH);
+                            egrid.add_tile_single(cell, xc2000::tcls::BIDIH);
                         }
                     }
                 }
                 for &row in &self.rows_bidi {
                     for cell in egrid.row(die, row) {
                         if cell.col == self.col_w() {
-                            egrid.add_tile_id(cell, xc2000::tcls::BIDIV_W, &[cell.delta(0, -1)]);
+                            egrid.add_tile(cell, xc2000::tcls::BIDIV_W, &[cell.delta(0, -1)]);
                         } else if cell.col == self.col_e() {
-                            egrid.add_tile_id(cell, xc2000::tcls::BIDIV_E, &[cell.delta(0, -1)]);
+                            egrid.add_tile(cell, xc2000::tcls::BIDIV_E, &[cell.delta(0, -1)]);
                         } else {
-                            egrid.add_tile_id(cell, xc2000::tcls::BIDIV, &[cell.delta(0, -1)]);
+                            egrid.add_tile(cell, xc2000::tcls::BIDIV, &[cell.delta(0, -1)]);
                         }
                     }
                 }
@@ -241,7 +217,7 @@ impl Chip {
                         (cell.row.to_idx() + 2 * (self.columns - 1 - cell.col.to_idx())) % 3;
                     if cell.col == self.col_w() {
                         if cell.row == self.row_s() {
-                            egrid.add_tile_id(
+                            egrid.add_tile(
                                 cell,
                                 if self.is_small {
                                     assert_eq!(subkind, 2);
@@ -256,7 +232,7 @@ impl Chip {
                                 &[cell, cell.delta(1, 0), cell.delta(0, 1)],
                             );
                         } else if cell.row == self.row_n() {
-                            egrid.add_tile_id(
+                            egrid.add_tile(
                                 cell,
                                 if self.is_small {
                                     assert_eq!(subkind, 0);
@@ -271,7 +247,7 @@ impl Chip {
                                 &[cell, cell.delta(1, 0), cell.delta(0, -1)],
                             );
                         } else {
-                            egrid.add_tile_id(
+                            egrid.add_tile(
                                 cell,
                                 [
                                     xc3000::tcls::CLB_W0,
@@ -284,7 +260,7 @@ impl Chip {
                     } else if cell.col == self.col_e() {
                         if cell.row == self.row_s() {
                             assert_eq!(subkind, 0);
-                            egrid.add_tile_id(
+                            egrid.add_tile(
                                 cell,
                                 if self.is_small {
                                     xc3000::tcls::CLB_SE0_S
@@ -294,7 +270,7 @@ impl Chip {
                                 &[cell, cell.delta(0, 1)],
                             );
                         } else if cell.row == self.row_n() {
-                            egrid.add_tile_id(
+                            egrid.add_tile(
                                 cell,
                                 if self.is_small {
                                     assert_eq!(subkind, 1);
@@ -313,7 +289,7 @@ impl Chip {
                                 // fuck me with the rustiest fork you can find
                                 subkind = 3;
                             }
-                            egrid.add_tile_id(
+                            egrid.add_tile(
                                 cell,
                                 [
                                     xc3000::tcls::CLB_E0,
@@ -326,7 +302,7 @@ impl Chip {
                         }
                     } else {
                         if cell.row == self.row_s() {
-                            egrid.add_tile_id(
+                            egrid.add_tile(
                                 cell,
                                 [
                                     xc3000::tcls::CLB_S0,
@@ -336,7 +312,7 @@ impl Chip {
                                 &[cell, cell.delta(1, 0), cell.delta(0, 1)],
                             );
                         } else if cell.row == self.row_n() {
-                            egrid.add_tile_id(
+                            egrid.add_tile(
                                 cell,
                                 if self.is_small {
                                     [
@@ -354,7 +330,7 @@ impl Chip {
                                 &[cell, cell.delta(1, 0), cell.delta(0, -1)],
                             );
                         } else {
-                            egrid.add_tile_id(
+                            egrid.add_tile(
                                 cell,
                                 [xc3000::tcls::CLB0, xc3000::tcls::CLB1, xc3000::tcls::CLB2]
                                     [subkind],
@@ -381,15 +357,15 @@ impl Chip {
                 }
                 {
                     let cell = die.cell(self.col_mid(), self.row_s());
-                    egrid.add_tile_id(cell, xc3000::tcls::LLH_S, &[cell.delta(-1, 0), cell]);
+                    egrid.add_tile(cell, xc3000::tcls::LLH_S, &[cell.delta(-1, 0), cell]);
                     let cell = die.cell(self.col_mid(), self.row_n());
-                    egrid.add_tile_id(cell, xc3000::tcls::LLH_N, &[cell.delta(-1, 0), cell]);
+                    egrid.add_tile(cell, xc3000::tcls::LLH_N, &[cell.delta(-1, 0), cell]);
                 }
                 if self.is_small {
                     let cell = die.cell(self.col_w(), self.row_mid());
-                    egrid.add_tile_id(cell, xc3000::tcls::LLVS_W, &[cell.delta(0, -1), cell]);
+                    egrid.add_tile(cell, xc3000::tcls::LLVS_W, &[cell.delta(0, -1), cell]);
                     let cell = die.cell(self.col_e(), self.row_mid());
-                    egrid.add_tile_id(cell, xc3000::tcls::LLVS_E, &[cell.delta(0, -1), cell]);
+                    egrid.add_tile(cell, xc3000::tcls::LLVS_E, &[cell.delta(0, -1), cell]);
                 } else {
                     for cell in egrid.row(die, self.row_mid()) {
                         let tcid = if cell.col == self.col_w() {
@@ -399,11 +375,11 @@ impl Chip {
                         } else {
                             xc3000::tcls::LLV
                         };
-                        egrid.add_tile_id(cell, tcid, &[cell.delta(0, -1), cell]);
+                        egrid.add_tile(cell, tcid, &[cell.delta(0, -1), cell]);
                     }
                 }
                 let cell = die.cell(self.col_e(), self.row_mid());
-                egrid.add_tile_id(cell, xc3000::tcls::MISC_E, &[]);
+                egrid.add_tile(cell, xc3000::tcls::MISC_E, &[]);
                 for cell in egrid.die_cells(die) {
                     egrid[cell].region_root[xc3000::rslots::GLOBAL] =
                         cell.with_cr(self.col_w(), self.row_s());
@@ -456,19 +432,15 @@ impl Chip {
                 for cell in egrid.die_cells(die) {
                     if cell.col == self.col_w() {
                         if cell.row == self.row_s() {
-                            egrid.add_tile_id(
-                                cell,
-                                xc4000::tcls::CNR_SW,
-                                &[cell, cell.delta(1, 0)],
-                            );
+                            egrid.add_tile(cell, xc4000::tcls::CNR_SW, &[cell, cell.delta(1, 0)]);
                         } else if cell.row == self.row_n() {
-                            egrid.add_tile_id(
+                            egrid.add_tile(
                                 cell,
                                 xc4000::tcls::CNR_NW,
                                 &[cell, cell.delta(1, 0), cell.delta(0, -1), cell.delta(1, -1)],
                             );
                         } else {
-                            egrid.add_tile_id(
+                            egrid.add_tile(
                                 cell,
                                 self.get_tcls_io_w(cell.row),
                                 &[cell, cell.delta(0, -1), cell.delta(1, 0), cell.delta(0, 1)],
@@ -476,15 +448,11 @@ impl Chip {
                         }
                     } else if cell.col == self.col_e() {
                         if cell.row == self.row_s() {
-                            egrid.add_tile_single_id(cell, xc4000::tcls::CNR_SE);
+                            egrid.add_tile_single(cell, xc4000::tcls::CNR_SE);
                         } else if cell.row == self.row_n() {
-                            egrid.add_tile_id(
-                                cell,
-                                xc4000::tcls::CNR_NE,
-                                &[cell, cell.delta(0, -1)],
-                            );
+                            egrid.add_tile(cell, xc4000::tcls::CNR_NE, &[cell, cell.delta(0, -1)]);
                         } else {
-                            egrid.add_tile_id(
+                            egrid.add_tile(
                                 cell,
                                 self.get_tcls_io_e(cell.row),
                                 &[cell, cell.delta(0, -1), cell.delta(0, 1)],
@@ -492,13 +460,13 @@ impl Chip {
                         }
                     } else {
                         if cell.row == self.row_s() {
-                            egrid.add_tile_id(
+                            egrid.add_tile(
                                 cell,
                                 self.get_tcls_io_s(cell.col),
                                 &[cell, cell.delta(0, 1), cell.delta(1, 0), cell.delta(-1, 0)],
                             );
                         } else if cell.row == self.row_n() {
-                            egrid.add_tile_id(
+                            egrid.add_tile(
                                 cell,
                                 self.get_tcls_io_n(cell.col),
                                 &[cell, cell.delta(1, 0), cell.delta(-1, 0)],
@@ -529,11 +497,7 @@ impl Chip {
                                     xc4000::tcls::CLB
                                 }
                             };
-                            egrid.add_tile_id(
-                                cell,
-                                tcid,
-                                &[cell, cell.delta(0, 1), cell.delta(1, 0)],
-                            );
+                            egrid.add_tile(cell, tcid, &[cell, cell.delta(0, 1), cell.delta(1, 0)]);
                         }
                     }
                 }
@@ -554,7 +518,7 @@ impl Chip {
                                     xc4000::tcls::LLHQ_CLB
                                 }
                             };
-                            egrid.add_tile_id(cell, tcid, &[cell.delta(-1, 0), cell]);
+                            egrid.add_tile(cell, tcid, &[cell.delta(-1, 0), cell]);
                         }
                     }
                     for cell in egrid.column(die, self.col_mid()) {
@@ -567,7 +531,7 @@ impl Chip {
                         } else {
                             xc4000::tcls::LLHC_CLB
                         };
-                        egrid.add_tile_id(cell, tcid, &[cell.delta(-1, 0), cell]);
+                        egrid.add_tile(cell, tcid, &[cell.delta(-1, 0), cell]);
                     }
 
                     for (bt, row) in [('B', self.row_q(DirV::S)), ('T', self.row_q(DirV::N))] {
@@ -587,7 +551,7 @@ impl Chip {
                             } else {
                                 xc4000::tcls::LLVQ_CLB
                             };
-                            egrid.add_tile_id(cell, tcid, &[cell.delta(0, -1), cell]);
+                            egrid.add_tile(cell, tcid, &[cell.delta(0, -1), cell]);
                         }
                     }
                     for cell in egrid.row(die, self.row_mid()) {
@@ -598,14 +562,14 @@ impl Chip {
                         } else {
                             xc4000::tcls::LLVC_CLB
                         };
-                        egrid.add_tile_id(cell, tcid, &[cell.delta(0, -1), cell]);
+                        egrid.add_tile(cell, tcid, &[cell.delta(0, -1), cell]);
                     }
 
                     if self.kind == ChipKind::Xc4000Xv {
                         for row in [self.row_q(DirV::S), self.row_q(DirV::N)] {
                             for col in [self.col_q(DirH::W), self.col_q(DirH::E)] {
                                 let cell = die.cell(col, row);
-                                egrid.add_tile_id(
+                                egrid.add_tile(
                                     cell,
                                     xc4000::tcls::CLKQ,
                                     &[cell.delta(-1, 0), cell],
@@ -613,11 +577,11 @@ impl Chip {
                             }
                         }
                     } else {
-                        egrid.add_tile_single_id(
+                        egrid.add_tile_single(
                             die.cell(self.col_mid(), self.row_q(DirV::S)),
                             xc4000::tcls::CLKQC,
                         );
-                        egrid.add_tile_single_id(
+                        egrid.add_tile_single(
                             die.cell(self.col_mid(), self.row_q(DirV::N)),
                             xc4000::tcls::CLKQC,
                         );
@@ -698,7 +662,7 @@ impl Chip {
                         } else {
                             xc4000::tcls::LLH_CLB
                         };
-                        egrid.add_tile_id(cell, tcid, &[cell.delta(-1, 0), cell]);
+                        egrid.add_tile(cell, tcid, &[cell.delta(-1, 0), cell]);
                     }
 
                     for cell in egrid.row(die, self.row_mid()) {
@@ -709,7 +673,7 @@ impl Chip {
                         } else {
                             xc4000::tcls::LLV_CLB
                         };
-                        egrid.add_tile_id(cell, tcid, &[cell.delta(0, -1), cell]);
+                        egrid.add_tile(cell, tcid, &[cell.delta(0, -1), cell]);
                     }
 
                     for cell in egrid.die_cells(die) {
@@ -824,27 +788,27 @@ impl Chip {
                 for cell in egrid.die_cells(die) {
                     if cell.col == self.col_w() {
                         if cell.row == self.row_s() {
-                            egrid.add_tile_single_id(cell, xc5200::tcls::CNR_SW);
+                            egrid.add_tile_single(cell, xc5200::tcls::CNR_SW);
                         } else if cell.row == self.row_n() {
-                            egrid.add_tile_single_id(cell, xc5200::tcls::CNR_NW);
+                            egrid.add_tile_single(cell, xc5200::tcls::CNR_NW);
                         } else {
-                            egrid.add_tile_single_id(cell, xc5200::tcls::IO_W);
+                            egrid.add_tile_single(cell, xc5200::tcls::IO_W);
                         }
                     } else if cell.col == self.col_e() {
                         if cell.row == self.row_s() {
-                            egrid.add_tile_single_id(cell, xc5200::tcls::CNR_SE);
+                            egrid.add_tile_single(cell, xc5200::tcls::CNR_SE);
                         } else if cell.row == self.row_n() {
-                            egrid.add_tile_single_id(cell, xc5200::tcls::CNR_NE);
+                            egrid.add_tile_single(cell, xc5200::tcls::CNR_NE);
                         } else {
-                            egrid.add_tile_single_id(cell, xc5200::tcls::IO_E);
+                            egrid.add_tile_single(cell, xc5200::tcls::IO_E);
                         }
                     } else {
                         if cell.row == self.row_s() {
-                            egrid.add_tile_single_id(cell, xc5200::tcls::IO_S);
+                            egrid.add_tile_single(cell, xc5200::tcls::IO_S);
                         } else if cell.row == self.row_n() {
-                            egrid.add_tile_single_id(cell, xc5200::tcls::IO_N);
+                            egrid.add_tile_single(cell, xc5200::tcls::IO_N);
                         } else {
-                            egrid.add_tile_single_id(cell, xc5200::tcls::CLB);
+                            egrid.add_tile_single(cell, xc5200::tcls::CLB);
                         }
                     }
                     if cell.col != self.col_w() {
@@ -873,7 +837,7 @@ impl Chip {
                     } else {
                         xc5200::tcls::LLV
                     };
-                    egrid.add_tile_id(cell, tcid, &[cell.delta(0, -1), cell]);
+                    egrid.add_tile(cell, tcid, &[cell.delta(0, -1), cell]);
                 }
 
                 for cell in egrid.column(die, self.col_mid()) {
@@ -884,7 +848,7 @@ impl Chip {
                     } else {
                         xc5200::tcls::LLH
                     };
-                    egrid.add_tile_id(cell, kind, &[cell.delta(-1, 0), cell]);
+                    egrid.add_tile(cell, kind, &[cell.delta(-1, 0), cell]);
                 }
 
                 for cell in egrid.die_cells(die) {

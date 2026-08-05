@@ -2,7 +2,7 @@ use std::collections::{BTreeMap, btree_map};
 
 use prjcombine_ecp::{
     chip::{Chip, ChipKind, IoGroupKind, RowKind, SpecialIoKey, SpecialLocKey},
-    defs::{bslots, wires},
+    defs::{bcls, bslots, wires},
 };
 use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
@@ -42,7 +42,13 @@ impl ChipContext<'_> {
                 self.name_bel_null(bcrd);
                 for i in 0..8 {
                     for h in [DirH::W, DirH::E] {
-                        let wire = self.edev.get_bel_pin(bcrd, &format!("OUT_{h}{i}"))[0];
+                        let wire = self.edev.get_bel_output(
+                            bcrd,
+                            match h {
+                                DirH::W => bcls::HSDCLK_ROOT::OUT_W[i],
+                                DirH::E => bcls::HSDCLK_ROOT::OUT_E[i],
+                            },
+                        )[0];
                         let wire = self.naming.interconnect[&wire];
                         let wire_out = self.pips_bwd[&wire]
                             .iter()
@@ -301,7 +307,7 @@ impl ChipContext<'_> {
             }
         }
 
-        self.insert_bel(bcrd, bel);
+        self.insert_legacy_bel(bcrd, bel);
 
         for (hv, ll, dcc, dcs) in [
             (DirHV::SW, "LL", bslots::DCC_SW, bslots::DCS_SW),
@@ -361,7 +367,7 @@ impl ChipContext<'_> {
                         self.claim_pip(clki_in, wire);
                     }
 
-                    self.insert_bel(bcrd_dcc, bel);
+                    self.insert_legacy_bel(bcrd_dcc, bel);
                     wire_out
                 } else {
                     let dcsi = i - 6;
@@ -473,7 +479,7 @@ impl ChipContext<'_> {
                         self.claim_pip(clkb_in, wire);
                     }
 
-                    self.insert_bel(bcrd_dcs, bel);
+                    self.insert_legacy_bel(bcrd_dcs, bel);
                     wire_out
                 };
                 let wire = self.claim_single_out(wire_out);
@@ -815,7 +821,7 @@ impl ChipContext<'_> {
                         }
                     }
 
-                    self.insert_bel(bcrd, bel);
+                    self.insert_legacy_bel(bcrd, bel);
                 }
             }
 
@@ -855,7 +861,7 @@ impl ChipContext<'_> {
                     self.claim_pip(vptx_wires_s[&(cell.col, i)], hpsx);
                     self.claim_pip(vptx_wires_n[&(cell.col, i)], hpsx);
                 }
-                self.insert_bel(bcrd, bel);
+                self.insert_legacy_bel(bcrd, bel);
             }
 
             is_bot = false;

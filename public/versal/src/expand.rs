@@ -106,11 +106,11 @@ impl Expander<'_> {
                         continue;
                     }
                     if chip.col_side(col) == DirH::W {
-                        self.egrid.add_tile_e_id(cell, tcls::INT, 2);
+                        self.egrid.add_tile_e(cell, tcls::INT, 2);
                         if cell.row.to_idx().is_multiple_of(Chip::ROWS_PER_REG)
                             && chip.is_reg_n(reg)
                         {
-                            self.egrid.add_tile_e_id(cell, tcls::RCLK, 2);
+                            self.egrid.add_tile_e(cell, tcls::RCLK, 2);
                         }
                     }
                 }
@@ -193,7 +193,7 @@ impl Expander<'_> {
                             _ => unreachable!(),
                         };
                         self.egrid[cell.delta(1, 0)].region_root[rslots::CLE] = cell;
-                        self.egrid.add_tile_e_id(cell, tcid, 2);
+                        self.egrid.add_tile_e(cell, tcid, 2);
                         if self.in_bli(cell) {
                             self.egrid.fill_conn_term(cell, ccls::CLE_BLI_E);
                             self.egrid.fill_conn_term(cell.delta(1, 0), ccls::CLE_BLI_W);
@@ -205,7 +205,7 @@ impl Expander<'_> {
                         if cell.row.to_idx().is_multiple_of(Chip::ROWS_PER_REG) {
                             let cell = cell.delta(1, 0);
                             if chip.is_reg_half(reg) || chip.is_reg_n(reg) {
-                                self.egrid.add_tile_single_id(cell, tcls::RCLK_CLE);
+                                self.egrid.add_tile_single(cell, tcls::RCLK_CLE);
                             }
                         }
                     }
@@ -220,35 +220,35 @@ impl Expander<'_> {
                 if cd.has_bli_s {
                     let cell = die.cell(col, chip.row_s());
                     if matches!(cd.kind, ColumnKind::Cle(_)) {
-                        self.egrid.add_tile_n_id(cell, tcls::BLI_CLE_S, 4);
-                        self.egrid.add_tile_single_id(cell, tcls::INTF_BLI_CLE_D_S);
+                        self.egrid.add_tile_n(cell, tcls::BLI_CLE_S, 4);
+                        self.egrid.add_tile_single(cell, tcls::INTF_BLI_CLE_D_S);
                         for dy in 1..=3 {
                             self.egrid
-                                .add_tile_single_id(cell.delta(0, dy), tcls::INTF_BLI_CLE_ABC_S);
+                                .add_tile_single(cell.delta(0, dy), tcls::INTF_BLI_CLE_ABC_S);
                         }
                     } else {
-                        self.egrid.add_tile_n_id(cell, tcls::BLI_S, 4);
+                        self.egrid.add_tile_n(cell, tcls::BLI_S, 4);
                     }
                     if chip.hsr_s.has_bli_mux_noc() {
-                        self.egrid.add_tile_single_id(cell, tcls::BLI_MUX_NOC);
+                        self.egrid.add_tile_single(cell, tcls::BLI_MUX_NOC);
                     } else {
-                        self.egrid.add_tile_single_id(cell, tcls::BLI_MUX);
+                        self.egrid.add_tile_single(cell, tcls::BLI_MUX);
                     }
                 }
 
                 if cd.has_bli_n {
                     let cell = die.cell(col, chip.row_n());
                     if matches!(cd.kind, ColumnKind::Cle(_)) {
-                        self.egrid.add_tile_sn_id(cell, tcls::BLI_CLE_N, 3, 4);
-                        self.egrid.add_tile_single_id(cell, tcls::INTF_BLI_CLE_D_N);
+                        self.egrid.add_tile_sn(cell, tcls::BLI_CLE_N, 3, 4);
+                        self.egrid.add_tile_single(cell, tcls::INTF_BLI_CLE_D_N);
                         for dy in -3..=-1 {
                             self.egrid
-                                .add_tile_single_id(cell.delta(0, dy), tcls::INTF_BLI_CLE_ABC_N);
+                                .add_tile_single(cell.delta(0, dy), tcls::INTF_BLI_CLE_ABC_N);
                         }
                     } else {
-                        self.egrid.add_tile_sn_id(cell, tcls::BLI_N, 3, 4);
+                        self.egrid.add_tile_sn(cell, tcls::BLI_N, 3, 4);
                     }
-                    self.egrid.add_tile_single_id(cell, tcls::BLI_MUX);
+                    self.egrid.add_tile_single(cell, tcls::BLI_MUX);
                 }
 
                 for cell in self.column_pl(die, col) {
@@ -291,15 +291,14 @@ impl Expander<'_> {
                             (_, DirH::W) => tcls::INTF_W,
                             (_, DirH::E) => tcls::INTF_E,
                         };
-                        self.egrid.add_tile_single_id(cell, tcid);
+                        self.egrid.add_tile_single(cell, tcid);
                     }
                     let reg = chip.row_to_reg(cell.row);
                     if cell.row.to_idx().is_multiple_of(Chip::ROWS_PER_REG)
                         && chip.is_reg_n(reg)
                         && cd.kind == ColumnKind::TermSsit
                     {
-                        self.egrid
-                            .add_tile_single_id(cell, tcls::RCLK_SPLITTER_SSIT);
+                        self.egrid.add_tile_single(cell, tcls::RCLK_SPLITTER_SSIT);
                     }
 
                     if cell.row.to_idx().is_multiple_of(Chip::ROWS_PER_REG)
@@ -309,16 +308,16 @@ impl Expander<'_> {
                             ColumnKind::Cle(_) | ColumnKind::TermSsit | ColumnKind::None
                         )
                     {
-                        self.egrid.add_tile_single_id(cell, tcls::RCLK_INTF);
+                        self.egrid.add_tile_single(cell, tcls::RCLK_INTF);
                         if matches!(
                             cd.kind,
                             ColumnKind::ContDsp | ColumnKind::Bram(_) | ColumnKind::Uram
                         ) {
-                            self.egrid.add_tile_single_id(cell, tcls::RCLK_DFX);
+                            self.egrid.add_tile_single(cell, tcls::RCLK_DFX);
                         }
                         if let ColumnKind::Bram(kind) = cd.kind {
                             if kind == BramKind::SplitterPd {
-                                self.egrid.add_tile_e_id(
+                                self.egrid.add_tile_e(
                                     cell,
                                     if chip.fabric == FabricKind::Ulvt {
                                         tcls::RCLK_SPLITTER_PD_VR
@@ -331,7 +330,7 @@ impl Expander<'_> {
                                 || (kind == BramKind::OptSplitter
                                     && cell.row.to_idx() >= chip.ps.height())
                             {
-                                self.egrid.add_tile_e_id(
+                                self.egrid.add_tile_e(
                                     cell,
                                     if chip.fabric == FabricKind::Ulvt {
                                         tcls::RCLK_SPLITTER_VR
@@ -345,7 +344,7 @@ impl Expander<'_> {
                         if cd.kind == ColumnKind::Hard {
                             let hc = chip.get_col_hard(col).unwrap();
                             if hc.regs[reg] == HardRowKind::Hdio {
-                                self.egrid.add_tile_single_id(
+                                self.egrid.add_tile_single(
                                     cell,
                                     if chip.fabric == FabricKind::Ulvt {
                                         tcls::RCLK_HDIO_VR
@@ -356,7 +355,7 @@ impl Expander<'_> {
                             } else if !reg.to_idx().is_multiple_of(2)
                                 && hc.regs[reg - 1] == HardRowKind::Hdio
                             {
-                                self.egrid.add_tile_single_id(
+                                self.egrid.add_tile_single(
                                     cell,
                                     if chip.fabric == FabricKind::Ulvt {
                                         tcls::RCLK_HB_HDIO_VR
@@ -383,7 +382,7 @@ impl Expander<'_> {
                         continue;
                     }
 
-                    self.egrid.add_tile_single_id(
+                    self.egrid.add_tile_single(
                         cell,
                         if chip.fabric == FabricKind::Ulvt {
                             tcls::CLE_VR
@@ -409,7 +408,7 @@ impl Expander<'_> {
                     if !cell.row.to_idx().is_multiple_of(2) {
                         continue;
                     }
-                    self.egrid.add_tile_id(
+                    self.egrid.add_tile(
                         cell,
                         tcls::DSP,
                         &[
@@ -437,7 +436,7 @@ impl Expander<'_> {
                     if !cell.row.to_idx().is_multiple_of(4) {
                         continue;
                     }
-                    self.egrid.add_tile_n_id(cell, tcls::BRAM, 4);
+                    self.egrid.add_tile_n(cell, tcls::BRAM, 4);
                 }
             }
         }
@@ -456,7 +455,7 @@ impl Expander<'_> {
                     if !cell.row.to_idx().is_multiple_of(4) {
                         continue;
                     }
-                    self.egrid.add_tile_n_id(cell, tcls::URAM, 4);
+                    self.egrid.add_tile_n(cell, tcls::URAM, 4);
                 }
             }
         }
@@ -501,7 +500,7 @@ impl Expander<'_> {
                     };
                     tcells.extend(cell.cells_n(height));
                     tcells.extend(cell.delta(1, 0).cells_n(height));
-                    self.egrid.add_tile_id(cell, tcid, &tcells);
+                    self.egrid.add_tile(cell, tcid, &tcells);
                 }
             }
         }
@@ -535,7 +534,7 @@ impl Expander<'_> {
                         ColumnKind::VNoc4 => tcls::VNOC4,
                         _ => unreachable!(),
                     };
-                    self.egrid.add_tile_id(cell, tcid, &tcells);
+                    self.egrid.add_tile(cell, tcid, &tcells);
 
                     let bel_nmu = cell.bel(bslots::VNOC_NMU512);
                     let bel_nsu = cell.bel(bslots::VNOC_NSU512);
@@ -581,8 +580,7 @@ impl Expander<'_> {
                     prev = Some(cell);
 
                     if chip.is_reg_n(reg) {
-                        self.egrid
-                            .add_tile_id(cell.delta(1, 0), tcls::MISR, &tcells);
+                        self.egrid.add_tile(cell.delta(1, 0), tcls::MISR, &tcells);
                         let tcid = if col == self.die[die].cols_vnoc[0]
                             && reg.to_idx() / 2 < chip.ps.bufg_ps_height()
                         {
@@ -590,11 +588,11 @@ impl Expander<'_> {
                         } else {
                             tcls::RCLK_VNOC
                         };
-                        self.egrid.add_tile_id(cell, tcid, &tcells);
+                        self.egrid.add_tile(cell, tcid, &tcells);
                         self.egrid.fill_conn_term(cell, ccls::CLK_DRV);
                         self.egrid.fill_conn_term(cell.delta(1, 0), ccls::CLK_DRV);
                         if matches!(chip.hsr_s, HsrSKind::Ssit) {
-                            self.egrid.add_tile_e_id(
+                            self.egrid.add_tile_e(
                                 cell,
                                 [
                                     tcls::CLK_V_BUF_VNOC_SSIT_MID_S,
@@ -604,7 +602,7 @@ impl Expander<'_> {
                                 2,
                             );
                         } else if matches!(chip.hsr_n, HsrNKind::Ssit) {
-                            self.egrid.add_tile_e_id(
+                            self.egrid.add_tile_e(
                                 cell,
                                 [
                                     tcls::CLK_V_BUF_VNOC_SSIT_HNOC_S,
@@ -618,7 +616,7 @@ impl Expander<'_> {
                             && reg.to_idx() == chip.regs - 1
                         {
                             self.egrid
-                                .add_tile_e_id(cell, tcls::CLK_V_BUF_VNOC_SSIT2_EDGE, 2);
+                                .add_tile_e(cell, tcls::CLK_V_BUF_VNOC_SSIT2_EDGE, 2);
                             if self.chips[die].hsr_n == HsrNKind::Ssit2 && (die.to_idx() & 1) != 0 {
                                 let odie = DieId::from_idx(die.to_idx() ^ 1);
                                 self.egrid[cell].region_root[rslots::GCLK_PD_V] =
@@ -627,10 +625,10 @@ impl Expander<'_> {
                                     odie.cell(cell.col, cell.row).delta(1, 0);
                             }
                         } else {
-                            self.egrid.add_tile_e_id(cell, tcls::CLK_V_BUF_VNOC, 2);
+                            self.egrid.add_tile_e(cell, tcls::CLK_V_BUF_VNOC, 2);
                         }
                     } else {
-                        self.egrid.add_tile_id(cell, tcls::SYSMON_SAT_VNOC, &tcells);
+                        self.egrid.add_tile(cell, tcls::SYSMON_SAT_VNOC, &tcells);
                     }
                 }
             }
@@ -672,9 +670,9 @@ impl Expander<'_> {
                         || was_vcu;
 
                     self.egrid
-                        .add_tile_n_id(cell, tcls::SYSMON_SAT_GT, Chip::ROWS_PER_REG);
+                        .add_tile_n(cell, tcls::SYSMON_SAT_GT, Chip::ROWS_PER_REG);
                     self.egrid
-                        .add_tile_n_id(cell, tcls::DPLL_GT, Chip::ROWS_PER_REG);
+                        .add_tile_n(cell, tcls::DPLL_GT, Chip::ROWS_PER_REG);
                     self.egrid.fill_conn_term(
                         cell,
                         if is_vdu {
@@ -685,12 +683,12 @@ impl Expander<'_> {
                     );
                     if chip.is_reg_n(reg) {
                         self.egrid
-                            .add_tile_n_id(cell, tcls::RCLK_GT, Chip::ROWS_PER_REG);
+                            .add_tile_n(cell, tcls::RCLK_GT, Chip::ROWS_PER_REG);
                         if !is_no_loc {
                             self.egrid.fill_conn_term(cell, ccls::CLK_DRV);
                         }
                         if matches!(chip.hsr_s, HsrSKind::Ssit) && side == DirH::E {
-                            self.egrid.add_tile_single_id(
+                            self.egrid.add_tile_single(
                                 cell,
                                 [
                                     tcls::CLK_V_BUF_GT_SSIT_MID_S,
@@ -699,7 +697,7 @@ impl Expander<'_> {
                                 ][reg.to_idx() / 2],
                             );
                         } else if matches!(chip.hsr_n, HsrNKind::Ssit) && side == DirH::E {
-                            self.egrid.add_tile_single_id(
+                            self.egrid.add_tile_single(
                                 cell,
                                 [
                                     tcls::CLK_V_BUF_GT_SSIT_HNOC_S,
@@ -712,24 +710,22 @@ impl Expander<'_> {
                             && reg.to_idx() == chip.regs - 1
                         {
                             self.egrid
-                                .add_tile_single_id(cell, tcls::CLK_V_BUF_GT_SSIT2_EDGE);
+                                .add_tile_single(cell, tcls::CLK_V_BUF_GT_SSIT2_EDGE);
                             if self.chips[die].hsr_n == HsrNKind::Ssit2 && (die.to_idx() & 1) != 0 {
                                 let odie = DieId::from_idx(die.to_idx() ^ 1);
                                 self.egrid[cell].region_root[rslots::GCLK_PD_V] =
                                     odie.cell(cell.col, cell.row);
                             }
                         } else {
-                            self.egrid.add_tile_single_id(cell, tcls::CLK_V_BUF_GT);
+                            self.egrid.add_tile_single(cell, tcls::CLK_V_BUF_GT);
                         }
                     }
                     match kind {
                         GtRowKind::None => (),
                         GtRowKind::Gty => {
-                            self.egrid
-                                .add_tile_n_id(cell, tcls::GTY, Chip::ROWS_PER_REG);
+                            self.egrid.add_tile_n(cell, tcls::GTY, Chip::ROWS_PER_REG);
                             if side == DirH::W {
-                                self.egrid
-                                    .add_tile_n_id(cell, tcls::XPIPE, Chip::ROWS_PER_REG);
+                                self.egrid.add_tile_n(cell, tcls::XPIPE, Chip::ROWS_PER_REG);
                             }
                         }
                         GtRowKind::Gtyp => {
@@ -738,7 +734,7 @@ impl Expander<'_> {
                             } else {
                                 tcls::GTYP
                             };
-                            self.egrid.add_tile_n_id(cell, tcid, Chip::ROWS_PER_REG);
+                            self.egrid.add_tile_n(cell, tcid, Chip::ROWS_PER_REG);
                         }
                         GtRowKind::Gtm => {
                             let tcid = if cd.kind == ColumnKind::HNicX {
@@ -746,7 +742,7 @@ impl Expander<'_> {
                             } else {
                                 tcls::GTM
                             };
-                            self.egrid.add_tile_n_id(cell, tcid, Chip::ROWS_PER_REG);
+                            self.egrid.add_tile_n(cell, tcid, Chip::ROWS_PER_REG);
                         }
                         GtRowKind::Gtm2 => {
                             let tcid = if chip.is_reg_n(reg) {
@@ -754,31 +750,27 @@ impl Expander<'_> {
                             } else {
                                 tcls::GTM2_S
                             };
-                            self.egrid.add_tile_n_id(cell, tcid, Chip::ROWS_PER_REG);
+                            self.egrid.add_tile_n(cell, tcid, Chip::ROWS_PER_REG);
                         }
                         GtRowKind::RfAdc => {
                             self.egrid
-                                .add_tile_n_id(cell, tcls::RFADC, Chip::ROWS_PER_REG * 2);
+                                .add_tile_n(cell, tcls::RFADC, Chip::ROWS_PER_REG * 2);
                         }
                         GtRowKind::RfDac => {
                             self.egrid
-                                .add_tile_n_id(cell, tcls::RFDAC, Chip::ROWS_PER_REG * 2);
+                                .add_tile_n(cell, tcls::RFDAC, Chip::ROWS_PER_REG * 2);
                         }
                         GtRowKind::Xram => {
-                            self.egrid
-                                .add_tile_n_id(cell, tcls::XRAM, Chip::ROWS_PER_REG);
+                            self.egrid.add_tile_n(cell, tcls::XRAM, Chip::ROWS_PER_REG);
                         }
                         GtRowKind::Vdu => {
-                            self.egrid
-                                .add_tile_n_id(cell, tcls::VDU, Chip::ROWS_PER_REG);
+                            self.egrid.add_tile_n(cell, tcls::VDU, Chip::ROWS_PER_REG);
                         }
                         GtRowKind::BfrB => {
-                            self.egrid
-                                .add_tile_n_id(cell, tcls::BFR_B, Chip::ROWS_PER_REG);
+                            self.egrid.add_tile_n(cell, tcls::BFR_B, Chip::ROWS_PER_REG);
                         }
                         GtRowKind::Isp2 => {
-                            self.egrid
-                                .add_tile_n_id(cell, tcls::ISP2, Chip::ROWS_PER_REG);
+                            self.egrid.add_tile_n(cell, tcls::ISP2, Chip::ROWS_PER_REG);
                             let bel_nps_0 = cell.bel(bslots::VCU2_NPS6X[0]);
                             let bel_nps_1 = cell.bel(bslots::VCU2_NPS6X[1]);
                             let bel_nmu_0 = cell.bel(bslots::VCU2_NMU[0]);
@@ -803,7 +795,7 @@ impl Expander<'_> {
                         }
                         GtRowKind::Vcu2 => {
                             self.egrid
-                                .add_tile_n_id(cell, tcls::VCU2, Chip::ROWS_PER_REG * 2);
+                                .add_tile_n(cell, tcls::VCU2, Chip::ROWS_PER_REG * 2);
                             let bel_nps_0 = cell.bel(bslots::VCU2_NPS6X[0]);
                             let bel_nps_1 = cell.bel(bslots::VCU2_NPS6X[1]);
                             let bel_nps_2 = cell.bel(bslots::VCU2_NPS6X[2]);
@@ -850,7 +842,7 @@ impl Expander<'_> {
                 if cd.kind == ColumnKind::HNicX {
                     let cell = die.cell(col, chip.row_reg_bot(RegId::from_idx(2)));
                     self.egrid
-                        .add_tile_n_id(cell, tcls::HNICX, Chip::ROWS_PER_REG * 7);
+                        .add_tile_n(cell, tcls::HNICX, Chip::ROWS_PER_REG * 7);
                 }
             }
         }
@@ -869,7 +861,7 @@ impl Expander<'_> {
                 HsrSKind::X5io(_) => 16,
             })),
         ]);
-        self.egrid.add_tile_id(cell, tcls::PS9, &tcells);
+        self.egrid.add_tile(cell, tcls::PS9, &tcells);
     }
 
     fn fill_ps(&mut self) {
@@ -884,7 +876,7 @@ impl Expander<'_> {
                 PsKind::Ps9Xram => {
                     self.fill_ps9(die);
                     if self.chips[die].regs == 2 {
-                        self.egrid.add_tile_id(
+                        self.egrid.add_tile(
                             cell.delta(0, Chip::ROWS_PER_REG as i32 * 2 - 1),
                             tcls::XRAM_NC,
                             &[],
@@ -901,7 +893,7 @@ impl Expander<'_> {
                     );
                     cells.extend(cell_ext.cells_n(Chip::ROWS_PER_REG));
                     cells.extend(cell_ext.delta(1, 0).cells_n(Chip::ROWS_PER_REG));
-                    self.egrid.add_tile_id(cpm_cell, tcls::CPM4, &cells);
+                    self.egrid.add_tile(cpm_cell, tcls::CPM4, &cells);
                     let chip = self.chips[die];
                     for reg in chip.regs() {
                         let cell = die.cell(chip.col_w(), chip.row_reg_bot(reg));
@@ -912,53 +904,50 @@ impl Expander<'_> {
                     self.fill_ps9(die);
                     let cpm_cell = cell.delta(0, Chip::ROWS_PER_REG as i32 * 2);
                     self.egrid
-                        .add_tile_n_id(cpm_cell, tcls::CPM5, Chip::ROWS_PER_REG * 4);
+                        .add_tile_n(cpm_cell, tcls::CPM5, Chip::ROWS_PER_REG * 4);
                     for i in 0..4 {
                         let gt_cell = cpm_cell.delta(0, Chip::ROWS_PER_REG as i32 * i);
-                        self.egrid.add_tile_id(gt_cell, tcls::GTYP_PS, &[]);
+                        self.egrid.add_tile(gt_cell, tcls::GTYP_PS, &[]);
                     }
                 }
                 PsKind::Ps9Cpm6 => {
                     self.fill_ps9(die);
                     let cpm_cell = cell.delta(0, Chip::ROWS_PER_REG as i32 * 2);
                     self.egrid
-                        .add_tile_n_id(cpm_cell, tcls::CPM6, Chip::ROWS_PER_REG * 4);
+                        .add_tile_n(cpm_cell, tcls::CPM6, Chip::ROWS_PER_REG * 4);
                     for i in 0..4 {
                         let gt_cell = cpm_cell.delta(0, Chip::ROWS_PER_REG as i32 * i);
-                        self.egrid.add_tile_id(gt_cell, tcls::GTM2_PS, &[]);
+                        self.egrid.add_tile(gt_cell, tcls::GTM2_PS, &[]);
                         if matches!(i, 1 | 3) {
-                            self.egrid.add_tile_n_id(
-                                gt_cell,
-                                tcls::RCLK_GT_CPM6,
-                                Chip::ROWS_PER_REG,
-                            );
+                            self.egrid
+                                .add_tile_n(gt_cell, tcls::RCLK_GT_CPM6, Chip::ROWS_PER_REG);
                         }
                     }
                 }
                 PsKind::PsXCpm5N => {
                     let mut tcells = cell.cells_n(Chip::ROWS_PER_REG * 5);
                     tcells.push(cell_hsr);
-                    self.egrid.add_tile_id(cell, tcls::PSXL, &tcells);
+                    self.egrid.add_tile(cell, tcls::PSXL, &tcells);
                     let cpm_cell = cell.delta(0, Chip::ROWS_PER_REG as i32 * 5);
                     self.egrid
-                        .add_tile_n_id(cpm_cell, tcls::CPM5N, Chip::ROWS_PER_REG * 4);
+                        .add_tile_n(cpm_cell, tcls::CPM5N, Chip::ROWS_PER_REG * 4);
                     for i in 0..4 {
                         let gt_cell = cpm_cell.delta(0, Chip::ROWS_PER_REG as i32 * i);
-                        self.egrid.add_tile_id(gt_cell, tcls::GTYP_PS, &[]);
+                        self.egrid.add_tile(gt_cell, tcls::GTYP_PS, &[]);
                     }
                 }
                 PsKind::PsXcMmi => {
                     let mut tcells = cell.cells_n(Chip::ROWS_PER_REG * 4);
                     tcells.push(cell_hsr);
-                    self.egrid.add_tile_id(cell, tcls::PSXC, &tcells);
+                    self.egrid.add_tile(cell, tcls::PSXC, &tcells);
                     if self.chips[die].regs == 4 {
                         let mmi_cell = cell.delta(0, Chip::ROWS_PER_REG as i32 * 4 - 1);
-                        self.egrid.add_tile_id(mmi_cell, tcls::MMI_NC, &[]);
-                        self.egrid.add_tile_id(mmi_cell, tcls::GTYP_PS, &[]);
+                        self.egrid.add_tile(mmi_cell, tcls::MMI_NC, &[]);
+                        self.egrid.add_tile(mmi_cell, tcls::GTYP_PS, &[]);
                     } else {
                         let mmi_cell = cell.delta(0, Chip::ROWS_PER_REG as i32 * 4);
-                        self.egrid.add_tile_n_id(mmi_cell, tcls::MMI, 96);
-                        self.egrid.add_tile_id(
+                        self.egrid.add_tile_n(mmi_cell, tcls::MMI, 96);
+                        self.egrid.add_tile(
                             mmi_cell.delta(0, Chip::ROWS_PER_REG as i32),
                             tcls::GTYP_PS,
                             &[],
@@ -1028,7 +1017,7 @@ impl Expander<'_> {
             for &col in &self.die[die].cols_vnoc {
                 let cell = die.cell(col, row_bli);
                 let cell_vnoc = die.cell(col, chip.row_reg_bot(chip.regs().last().unwrap()));
-                self.egrid.add_tile_id(cell, tcls::HNOC_NCRB, &[]);
+                self.egrid.add_tile(cell, tcls::HNOC_NCRB, &[]);
                 self.noc.connect_uni(
                     cell.bel(bslots::HNOC_NCRB[0]).noc_port(0),
                     cell_vnoc.bel(bslots::VNOC_NPS_NMU).noc_port(0),
@@ -1060,7 +1049,7 @@ impl Expander<'_> {
             let bli_clk = die.cell(col_bli_clk, row_bli);
             let bli_mmcm = die.cell(rd.mmcm_bli, row_bli);
             let bli_dpll = die.cell(rd.dpll_bli, row_bli);
-            self.egrid.add_tile_id(
+            self.egrid.add_tile(
                 cell,
                 tcid,
                 &[
@@ -1071,12 +1060,12 @@ impl Expander<'_> {
                     bli_mmcm.delta(1, 0),
                 ],
             );
-            self.egrid.add_tile_id(
+            self.egrid.add_tile(
                 cell,
                 tcls::MMCM_XPIO,
                 &[cell, bli_mmcm, bli_mmcm.delta(1, 0)],
             );
-            self.egrid.add_tile_id(
+            self.egrid.add_tile(
                 cell,
                 tcls::DPLL_XPIO,
                 &[cell, bli_dpll, bli_dpll.delta(1, 0)],
@@ -1084,7 +1073,7 @@ impl Expander<'_> {
             let bli_xpll = die.cell(rd.xpll_bli, row_bli);
             let mut tcells = cell.cells_e(9);
             tcells.extend([bli_xpll, bli_xpll.delta(1, 0)]);
-            self.egrid.add_tile_id(cell, tcls::XPLL, &tcells);
+            self.egrid.add_tile(cell, tcls::XPLL, &tcells);
             for i in 0..4 {
                 self.egrid[tcells[i]].region_root[rslots::XPIO_LEAF] = tcells[3];
             }
@@ -1097,9 +1086,9 @@ impl Expander<'_> {
                 if let Some(col_bli) = col_bli {
                     let bli = die.cell(col_bli, row_bli);
                     self.egrid
-                        .add_tile_id(cell_io, tcls::XPIO, &[cell_io, bli, bli.delta(1, 0)]);
+                        .add_tile(cell_io, tcls::XPIO, &[cell_io, bli, bli.delta(1, 0)]);
                 } else {
-                    self.egrid.add_tile_single_id(cell_io, tcls::XPIO_NC);
+                    self.egrid.add_tile_single(cell_io, tcls::XPIO_NC);
                 }
             }
 
@@ -1111,7 +1100,7 @@ impl Expander<'_> {
             };
             let dci_bli = die.cell(dci_bli, row_bli);
             self.egrid
-                .add_tile_id(cell, tcid, &[dci_bli, dci_bli.delta(1, 0)]);
+                .add_tile(cell, tcid, &[dci_bli, dci_bli.delta(1, 0)]);
 
             let (tcid, scan_bli) = match rd.scan_bli {
                 XpioTestBli::PrimaryA(c) => (tcls::XPIO_SCAN_A, c),
@@ -1121,11 +1110,11 @@ impl Expander<'_> {
             };
             let scan_bli = die.cell(scan_bli, row_bli);
             self.egrid
-                .add_tile_id(cell, tcid, &[scan_bli, scan_bli.delta(1, 0)]);
+                .add_tile(cell, tcid, &[scan_bli, scan_bli.delta(1, 0)]);
 
             if let Some(cols_bli) = rd.ddrmc_bli {
                 let bli = cols_bli.map(|c| die.cell(c, row_bli));
-                self.egrid.add_tile_id(
+                self.egrid.add_tile(
                     cell,
                     tcls::DDRMC,
                     &[cell, bli[0], bli[0].delta(1, 0), bli[1], bli[1].delta(1, 0)],
@@ -1133,7 +1122,7 @@ impl Expander<'_> {
 
                 if side == DirV::N || reg.to_idx() >= 3 {
                     let ncell = cell.delta(9, 0);
-                    self.egrid.add_tile_single_id(
+                    self.egrid.add_tile_single(
                         ncell,
                         match chip.fabric {
                             FabricKind::Orig => tcls::HSR_CLK_TEST_XPIO_REV1,
@@ -1147,13 +1136,13 @@ impl Expander<'_> {
             if let Some(col_bli) = rd.sysmon_bli {
                 let bli = die.cell(col_bli, row_bli);
                 self.egrid
-                    .add_tile_id(cell, tcls::SYSMON_SAT_HSR_XPIO, &[bli, bli.delta(1, 0)]);
+                    .add_tile(cell, tcls::SYSMON_SAT_HSR_XPIO, &[bli, bli.delta(1, 0)]);
             }
 
             if reg.to_idx() == 0 && side == DirV::S {
-                self.egrid.add_tile_id(cell, tcls::HNOC_XPIO_PS9_A, &[]);
+                self.egrid.add_tile(cell, tcls::HNOC_XPIO_PS9_A, &[]);
             } else if reg.to_idx() == 1 && side == DirV::S {
-                self.egrid.add_tile_id(cell, tcls::HNOC_XPIO_PS9_B, &[]);
+                self.egrid.add_tile(cell, tcls::HNOC_XPIO_PS9_B, &[]);
                 for i in 0..4 {
                     self.noc.connect(
                         cell.bel(bslots::DDRMC).noc_port(i),
@@ -1162,9 +1151,9 @@ impl Expander<'_> {
                     );
                 }
             } else if reg.to_idx() == 2 && side == DirV::S {
-                self.egrid.add_tile_id(cell, tcls::HNOC_XPIO_PS9_C, &[]);
+                self.egrid.add_tile(cell, tcls::HNOC_XPIO_PS9_C, &[]);
             } else {
-                self.egrid.add_tile_id(cell, tcls::HNOC_XPIO, &[]);
+                self.egrid.add_tile(cell, tcls::HNOC_XPIO, &[]);
                 for i in 0..2 {
                     self.noc.connect(
                         cell.bel(bslots::HNOC_NPS[2 * i]).noc_port(3),
@@ -1263,12 +1252,12 @@ impl Expander<'_> {
                 tcls::CLK_S_BUF_GT
             };
             self.egrid
-                .add_tile_id(cell_fabric, tcid, &[cell_fabric, cell_route, cell_distr]);
+                .add_tile(cell_fabric, tcid, &[cell_fabric, cell_route, cell_distr]);
         }
         if chip.columns[chip.col_e()].kind == ColumnKind::TermSsit {
             let col = ColId::from_idx(xpio.regions.len() * 9);
             let cell = die.cell(col, row);
-            self.egrid.add_tile_id(cell, tcls::HNOC_SSIT2_H, &[]);
+            self.egrid.add_tile(cell, tcls::HNOC_SSIT2_H, &[]);
             let bel = cell.bel(bslots::HNOC_NIDB_H);
             self.noc.connect(
                 prev.unwrap().bel(bslots::HNOC_NPS[0]).noc_port(2),
@@ -1282,7 +1271,7 @@ impl Expander<'_> {
                 self.egrid[cell].region_root[rslots::HSR_SSIT2_H] = ocell;
             }
 
-            self.egrid.add_tile_single_id(cell, tcls::CLK_HSR_SSIT2_H);
+            self.egrid.add_tile_single(cell, tcls::CLK_HSR_SSIT2_H);
 
             self.egrid
                 .fill_conn_pair(prev.unwrap(), cell, ccls::HSR_E, ccls::HSR_W);
@@ -1309,7 +1298,7 @@ impl Expander<'_> {
                 };
                 let bli_clk = die.cell(col_bli_clk, row_bli);
                 let bli_mmcm = die.cell(clk.mmcm_bli, row_bli);
-                self.egrid.add_tile_id(
+                self.egrid.add_tile(
                     cell,
                     tcid,
                     &[
@@ -1320,20 +1309,20 @@ impl Expander<'_> {
                         bli_mmcm.delta(1, 0),
                     ],
                 );
-                self.egrid.add_tile_id(
+                self.egrid.add_tile(
                     cell,
                     tcls::MMCM_X5IO,
                     &[cell, bli_mmcm, bli_mmcm.delta(1, 0)],
                 );
                 if let Some(bli_dpll) = clk.dpll_bli {
                     let bli_dpll = die.cell(bli_dpll, row_bli);
-                    self.egrid.add_tile_id(
+                    self.egrid.add_tile(
                         cell,
                         tcls::DPLL_X5IO,
                         &[cell, bli_dpll, bli_dpll.delta(1, 0)],
                     );
                 } else {
-                    self.egrid.add_tile_single_id(cell, tcls::DPLL_X5IO_NC);
+                    self.egrid.add_tile_single(cell, tcls::DPLL_X5IO_NC);
                 }
 
                 self.egrid[cell].region_root[rslots::HSM] =
@@ -1355,9 +1344,9 @@ impl Expander<'_> {
                     if let Some(bank_bli) = io.bank_bli {
                         let bli = die.cell(bank_bli, row_bli);
                         self.egrid
-                            .add_tile_id(cell_io, tcls::X5IO_BANK, &[bli, bli.delta(1, 0)]);
+                            .add_tile(cell_io, tcls::X5IO_BANK, &[bli, bli.delta(1, 0)]);
                     } else {
-                        self.egrid.add_tile_id(cell_io, tcls::X5IO_BANK_NC, &[]);
+                        self.egrid.add_tile(cell_io, tcls::X5IO_BANK_NC, &[]);
                     }
                     let (col_bli, tcid) = match io.scan_bli {
                         X5ioScanBli::A(col) => (col, tcls::X5IO_SCAN_A),
@@ -1365,8 +1354,7 @@ impl Expander<'_> {
                         X5ioScanBli::C(col) => (col, tcls::X5IO_SCAN_C),
                     };
                     let bli = die.cell(col_bli, row_bli);
-                    self.egrid
-                        .add_tile_id(cell_io, tcid, &[bli, bli.delta(1, 0)]);
+                    self.egrid.add_tile(cell_io, tcid, &[bli, bli.delta(1, 0)]);
                     let cells_octad = if i == 0 {
                         vec![
                             cell_io.delta(-3, 0),
@@ -1395,19 +1383,19 @@ impl Expander<'_> {
                         let bli = die.cell(col_bli, row_bli);
                         cells_pll.extend([bli, bli.delta(1, 0)]);
                     }
-                    self.egrid.add_tile_id(cell_io, tcid, &cells_pll);
+                    self.egrid.add_tile(cell_io, tcid, &cells_pll);
 
                     for (j, col_bli) in io.octad_bli.into_iter().enumerate() {
                         let cell_oct = cells_octad[j];
                         if let Some(col_bli) = col_bli {
                             let bli = die.cell(col_bli, row_bli);
-                            self.egrid.add_tile_id(
+                            self.egrid.add_tile(
                                 cell_oct,
                                 tcls::X5IO,
                                 &[cell_oct, bli, bli.delta(1, 0)],
                             );
                         } else {
-                            self.egrid.add_tile_single_id(cell_oct, tcls::X5IO_NC);
+                            self.egrid.add_tile_single(cell_oct, tcls::X5IO_NC);
                         }
                     }
 
@@ -1420,7 +1408,7 @@ impl Expander<'_> {
                             X5ioDdrmcKind::Ddrmc5E2 => tcls::DDRMC5E2,
                         };
                         let bli = die.cell(ddrmc.bli, row_bli);
-                        self.egrid.add_tile_id(
+                        self.egrid.add_tile(
                             cell_io,
                             tcid,
                             &[cell.delta((4 - i) as i32, 0), cell_io, bli, bli.delta(1, 0)],
@@ -1430,7 +1418,7 @@ impl Expander<'_> {
                             X5ioDdrmcTestClk::B(treg) => (tcls::HSR_CLK_TEST_X5IO_B, treg),
                         };
                         let cell_test = cell.with_col(ColId::from_idx(treg.to_idx() * 8));
-                        self.egrid.add_tile_id(cell_io, tcid, &[cell_test, cell_io]);
+                        self.egrid.add_tile(cell_io, tcid, &[cell_test, cell_io]);
                     }
                 }
             }
@@ -1441,9 +1429,9 @@ impl Expander<'_> {
                     ccls::X5IO_PAIR,
                     ccls::X5IO_PAIR,
                 );
-                self.egrid.add_tile_e_id(cell, tcls::X5PLL_GASKET, 8);
+                self.egrid.add_tile_e(cell, tcls::X5PLL_GASKET, 8);
             } else {
-                self.egrid.add_tile_e_id(cell, tcls::X5PLL_GASKET_HALF, 8);
+                self.egrid.add_tile_e(cell, tcls::X5PLL_GASKET_HALF, 8);
             }
             let ddrmc_w = if reg != x5io.regions.first_id().unwrap()
                 && let Some(io) = x5io.regions[reg - 1].io[1]
@@ -1514,7 +1502,7 @@ impl Expander<'_> {
                 match hnoc {
                     X5ioHNoc::None => (),
                     X5ioHNoc::Ps9A => {
-                        self.egrid.add_tile_id(cell, tcls::HNOC_X5IO_PS9_A, &[]);
+                        self.egrid.add_tile(cell, tcls::HNOC_X5IO_PS9_A, &[]);
                         let nps: [_; 3] = core::array::from_fn(|i| cell.bel(bslots::HNOC_NPS[i]));
                         let nmu: [_; 4] =
                             core::array::from_fn(|i| cell.bel(bslots::HNOC_PS_NMU[i]).noc_port(0));
@@ -1537,7 +1525,7 @@ impl Expander<'_> {
                         .map(Option::Some);
                     }
                     X5ioHNoc::Ps9B => {
-                        self.egrid.add_tile_id(cell, tcls::HNOC_X5IO_PS9_B, &[]);
+                        self.egrid.add_tile(cell, tcls::HNOC_X5IO_PS9_B, &[]);
                         let nps: [_; 4] = core::array::from_fn(|i| cell.bel(bslots::HNOC_NPS[i]));
                         let nmu: [_; 2] =
                             core::array::from_fn(|i| cell.bel(bslots::HNOC_PS_NMU[i]).noc_port(0));
@@ -1568,7 +1556,7 @@ impl Expander<'_> {
                     }
                     X5ioHNoc::Ps9C { scan_bli } => {
                         let scan_bli = die.cell(scan_bli, row_bli);
-                        self.egrid.add_tile_id(
+                        self.egrid.add_tile(
                             cell,
                             tcls::HNOC_X5IO_PS9_C,
                             &[scan_bli, scan_bli.delta(1, 0)],
@@ -1618,7 +1606,7 @@ impl Expander<'_> {
                         .map(Option::Some);
                     }
                     X5ioHNoc::PsXA => {
-                        self.egrid.add_tile_id(cell, tcls::HNOC_X5IO_PSX_A, &[]);
+                        self.egrid.add_tile(cell, tcls::HNOC_X5IO_PSX_A, &[]);
                         let nps = cell.bel(bslots::HNOC_NPS[0]);
                         let nmu: [_; 3] =
                             core::array::from_fn(|i| cell.bel(bslots::HNOC_PS_NMU[i]).noc_port(0));
@@ -1632,7 +1620,7 @@ impl Expander<'_> {
                         prev_hnoc = [Some(nps.noc_port(2)), Some(nsu[0]), Some(nmu[2]), None];
                     }
                     X5ioHNoc::PsXB { flip } => {
-                        self.egrid.add_tile_id(cell, tcls::HNOC_X5IO_PSX_B, &[]);
+                        self.egrid.add_tile(cell, tcls::HNOC_X5IO_PSX_B, &[]);
                         let nps: [_; 4] = core::array::from_fn(|i| cell.bel(bslots::HNOC_NPS[i]));
                         let nmu: [_; 4] =
                             core::array::from_fn(|i| cell.bel(bslots::HNOC_PS_NMU[i]).noc_port(0));
@@ -1668,7 +1656,7 @@ impl Expander<'_> {
                             _ => unreachable!(),
                         };
                         self.egrid
-                            .add_tile_id(cell, tcid, &[scan_bli, scan_bli.delta(1, 0)]);
+                            .add_tile(cell, tcid, &[scan_bli, scan_bli.delta(1, 0)]);
                         let nps: [_; 4] = core::array::from_fn(|i| cell.bel(bslots::HNOC_NPS[i]));
                         let nmu: [_; 4] =
                             core::array::from_fn(|i| cell.bel(bslots::HNOC_PS_NMU[i]).noc_port(0));
@@ -1709,7 +1697,7 @@ impl Expander<'_> {
                             tcls::HNOC_X5IO_CROSS
                         };
                         self.egrid
-                            .add_tile_id(cell, tcid, &[scan_bli, scan_bli.delta(1, 0)]);
+                            .add_tile(cell, tcid, &[scan_bli, scan_bli.delta(1, 0)]);
 
                         let nps: [_; 4] = core::array::from_fn(|i| cell.bel(bslots::HNOC_NPS[i]));
                         let prev_nps = prev_hnoc.map(Option::unwrap);
@@ -1791,7 +1779,7 @@ impl Expander<'_> {
                             }
                         }
                         tcells.extend([scan_bli, scan_bli.delta(1, 0)]);
-                        self.egrid.add_tile_id(cell, tcls::HNOC_X5IO_DDRMC, &tcells);
+                        self.egrid.add_tile(cell, tcls::HNOC_X5IO_DDRMC, &tcells);
 
                         let nps: [_; 4] = core::array::from_fn(|i| cell.bel(bslots::HNOC_NPS[i]));
                         let nmu: [_; 2] =
@@ -1837,7 +1825,7 @@ impl Expander<'_> {
                     }
                     X5ioHNoc::Cap { scan_bli } => {
                         let scan_bli = die.cell(scan_bli, row_bli);
-                        self.egrid.add_tile_id(
+                        self.egrid.add_tile(
                             cell,
                             tcls::HNOC_X5IO_CAP,
                             &[scan_bli, scan_bli.delta(1, 0)],
@@ -1860,7 +1848,7 @@ impl Expander<'_> {
             if let Some(col_bli) = rd.sysmon_bli {
                 let bli = die.cell(col_bli, row_bli);
                 self.egrid
-                    .add_tile_id(cell, tcls::SYSMON_SAT_HSR_X5IO, &[bli, bli.delta(1, 0)]);
+                    .add_tile(cell, tcls::SYSMON_SAT_HSR_X5IO, &[bli, bli.delta(1, 0)]);
             }
 
             if let Some(prev) = prev {
@@ -1895,7 +1883,7 @@ impl Expander<'_> {
                 tcls::CLK_S_BUF_GT
             };
             self.egrid
-                .add_tile_id(cell_fabric, tcid, &[cell_fabric, cell_route, cell_distr]);
+                .add_tile(cell_fabric, tcid, &[cell_fabric, cell_route, cell_distr]);
         }
     }
 
@@ -1910,7 +1898,7 @@ impl Expander<'_> {
             let is_pll = col == ai.columns.first_id().unwrap();
             if is_pll {
                 let bli = die.cell(ai.pll_bli, row_bli);
-                self.egrid.add_tile_id(
+                self.egrid.add_tile(
                     cell,
                     match ai.kind {
                         AiKind::Ai => tcls::AIE_PLL,
@@ -1933,20 +1921,19 @@ impl Expander<'_> {
                         tcells[2 * i + 1] = bli.delta(1, 0);
                     }
                 }
-                self.egrid
-                    .add_tile_id(cell, tcls::AIE2PS_SHIM_NOC_PL, &tcells);
+                self.egrid.add_tile(cell, tcls::AIE2PS_SHIM_NOC_PL, &tcells);
                 if let Some(cols_bli) = cd.test_bli {
                     let bli = cols_bli.map(|col| die.cell(col, row_bli));
-                    self.egrid.add_tile_id(
+                    self.egrid.add_tile(
                         cell,
                         tcls::AIE2PS_INTF_TEST,
                         &[bli[0], bli[0].delta(1, 0), bli[1], bli[1].delta(1, 0)],
                     );
                 } else {
-                    self.egrid.add_tile_id(cell, tcls::AIE2PS_INTF_TEST_NC, &[]);
+                    self.egrid.add_tile(cell, tcls::AIE2PS_INTF_TEST_NC, &[]);
                 }
             } else if is_pll {
-                self.egrid.add_tile_id(
+                self.egrid.add_tile(
                     cell,
                     match ai.kind {
                         AiKind::Ai => tcls::AIE_SHIM,
@@ -1974,7 +1961,7 @@ impl Expander<'_> {
                 let tcid = if col.to_idx() < regs * 4 + 1 {
                     if let Some(cols_bli) = cd.test_bli {
                         let bli = cols_bli.map(|col| die.cell(col, row_bli));
-                        self.egrid.add_tile_id(
+                        self.egrid.add_tile(
                             cell,
                             test,
                             &[bli[0], bli[0].delta(1, 0), bli[1], bli[1].delta(1, 0)],
@@ -1982,7 +1969,7 @@ impl Expander<'_> {
                     }
                     [intf_pl, intf_noc, intf_noc, intf_pl][(col.to_idx() - 1) % 4]
                 } else {
-                    self.egrid.add_tile_id(cell, test_nc, &[]);
+                    self.egrid.add_tile(cell, test_nc, &[]);
                     intf_pl
                 };
                 // dummy sinks
@@ -2002,7 +1989,7 @@ impl Expander<'_> {
                         tcells.push(cell);
                     }
                 }
-                self.egrid.add_tile_id(cell, tcid, &tcells);
+                self.egrid.add_tile(cell, tcid, &tcells);
             }
         }
         for dy in 0..ai.rows_mem {
@@ -2014,7 +2001,7 @@ impl Expander<'_> {
                     AiKind::AiMl => tcls::AIE_ML_MEM,
                     AiKind::AiMl2 => tcls::AIE2PS_MEM,
                 };
-                self.egrid.add_tile_id(cell, tcid, &[]);
+                self.egrid.add_tile(cell, tcid, &[]);
             }
         }
         for dy in 0..ai.rows {
@@ -2026,7 +2013,7 @@ impl Expander<'_> {
                     AiKind::AiMl => tcls::AIE_ML,
                     AiKind::AiMl2 => tcls::AIE2PS,
                 };
-                self.egrid.add_tile_id(cell, tcid, &[]);
+                self.egrid.add_tile(cell, tcid, &[]);
             }
         }
     }
@@ -2041,7 +2028,7 @@ impl Expander<'_> {
             let col = ColId::from_idx(reg.to_idx() * 4 + 1);
             let cell = die.cell(col, row);
 
-            self.egrid.add_tile_single_id(cell, tcls::CLK_ME);
+            self.egrid.add_tile_single(cell, tcls::CLK_ME);
 
             let tcid = if matches!(chip.hsr_s, HsrSKind::Ssit) {
                 tcls::HSR_CLK_TEST_ME_SSIT
@@ -2054,7 +2041,7 @@ impl Expander<'_> {
                     FabricKind::Ulvt => tcls::HSR_CLK_TEST_ME_ULVT,
                 }
             };
-            self.egrid.add_tile_single_id(cell, tcid);
+            self.egrid.add_tile_single(cell, tcid);
             self.egrid[cell].region_root[rslots::PS] =
                 die.cell(chip.col_w(), chip.row_hsr(DirV::S));
 
@@ -2065,25 +2052,25 @@ impl Expander<'_> {
             if rd.pll_test {
                 let cell_pll = die.cell(ColId::from_idx(1), row);
                 self.egrid
-                    .add_tile_id(cell, tcls::HSR_CLK_AIE_PLL, &[cell, cell_pll]);
+                    .add_tile(cell, tcls::HSR_CLK_AIE_PLL, &[cell, cell_pll]);
             }
 
             if let Some(cols_bli) = rd.sysmon_bli {
                 let bli0 = die.cell(cols_bli[0], row_bli);
                 let bli1 = die.cell(cols_bli[1], row_bli);
-                self.egrid.add_tile_id(
+                self.egrid.add_tile(
                     cell,
                     tcls::SYSMON_SAT_HSR_ME,
                     &[bli0, bli0.delta(1, 0), bli1, bli1.delta(1, 0)],
                 );
             } else {
-                self.egrid.add_tile_id(cell, tcls::SYSMON_SAT_HSR_NC, &[]);
+                self.egrid.add_tile(cell, tcls::SYSMON_SAT_HSR_NC, &[]);
             }
 
             let mut is_ncrb = false;
             match rd.vnoc {
                 MeVNocConn::None => {
-                    self.egrid.add_tile_id(cell, tcls::HNOC_ME, &[]);
+                    self.egrid.add_tile(cell, tcls::HNOC_ME, &[]);
                     self.noc.connect(
                         cell.bel(bslots::HNOC_NPS[0]).noc_port(1),
                         cell.bel(bslots::HNOC_ME_NMU[0]).noc_port(0),
@@ -2104,7 +2091,7 @@ impl Expander<'_> {
                 MeVNocConn::Port1(conns) => {
                     let cell_vnoc =
                         die.cell(conns[0].0, chip.row_reg_bot(chip.regs().last().unwrap()));
-                    self.egrid.add_tile_id(cell, tcls::HNOC_ME_VNOC, &[]);
+                    self.egrid.add_tile(cell, tcls::HNOC_ME_VNOC, &[]);
                     for (i, conn) in conns.into_iter().enumerate() {
                         self.noc.connect(
                             cell.bel(bslots::HNOC_NPS[i]).noc_port(1),
@@ -2122,7 +2109,7 @@ impl Expander<'_> {
                 MeVNocConn::Port3(conns) => {
                     let cell_vnoc =
                         die.cell(conns[0].0, chip.row_reg_bot(chip.regs().last().unwrap()));
-                    self.egrid.add_tile_id(cell, tcls::HNOC_ME_VNOC, &[]);
+                    self.egrid.add_tile(cell, tcls::HNOC_ME_VNOC, &[]);
                     for (i, conn) in conns.into_iter().enumerate() {
                         self.noc.connect(
                             cell.bel(bslots::HNOC_NPS[i]).noc_port(3),
@@ -2173,7 +2160,7 @@ impl Expander<'_> {
                 );
             }
             if is_ncrb {
-                self.egrid.add_tile_id(cell, tcls::HNOC_NCRB, &[]);
+                self.egrid.add_tile(cell, tcls::HNOC_NCRB, &[]);
                 self.noc.connect_uni(
                     cell.bel(bslots::HNOC_NCRB[0]).noc_port(0),
                     cell.bel(bslots::HNOC_NPS[0]).noc_port(2),
@@ -2227,7 +2214,7 @@ impl Expander<'_> {
         let cell = die.cell(ColId::from_idx(0), row);
         let bli = die.cell(me.scan_bli_w, row_bli);
         self.egrid
-            .add_tile_id(cell, tcls::HNOC_ME2_CAP_W, &[bli, bli.delta(1, 0)]);
+            .add_tile(cell, tcls::HNOC_ME2_CAP_W, &[bli, bli.delta(1, 0)]);
         let mut prev_hnoc = [0, 1].map(|i| cell.bel(bslots::HNOC_ME_NMU[i]).noc_port(0));
 
         let mut prev: Option<CellCoord> = None;
@@ -2235,11 +2222,11 @@ impl Expander<'_> {
             let col = ColId::from_idx(reg.to_idx() * 4 + 2);
             let cell = die.cell(col, row);
 
-            self.egrid.add_tile_single_id(cell, tcls::CLK_ME);
+            self.egrid.add_tile_single(cell, tcls::CLK_ME);
             if reg.to_idx() == 0 {
                 let cell_pll = die.cell(ColId::from_idx(2), row);
                 self.egrid
-                    .add_tile_id(cell, tcls::HSR_CLK_AIE_PLL, &[cell, cell_pll]);
+                    .add_tile(cell, tcls::HSR_CLK_AIE_PLL, &[cell, cell_pll]);
             }
 
             let tcid = if matches!(chip.hsr_s, HsrSKind::Ssit) {
@@ -2253,7 +2240,7 @@ impl Expander<'_> {
                     FabricKind::Ulvt => tcls::HSR_CLK_TEST_ME_ULVT,
                 }
             };
-            self.egrid.add_tile_single_id(cell, tcid);
+            self.egrid.add_tile_single(cell, tcid);
             self.egrid[cell].region_root[rslots::PS] =
                 die.cell(chip.col_w(), chip.row_hsr(DirV::S));
 
@@ -2264,7 +2251,7 @@ impl Expander<'_> {
 
             let bli0 = die.cell(rd.sysmon_bli[0], row_bli);
             let bli1 = die.cell(rd.sysmon_bli[1], row_bli);
-            self.egrid.add_tile_id(
+            self.egrid.add_tile(
                 cell,
                 tcls::SYSMON_SAT_HSR_ME,
                 &[bli0, bli0.delta(1, 0), bli1, bli1.delta(1, 0)],
@@ -2313,11 +2300,11 @@ impl Expander<'_> {
             let tcells = [bli, bli.delta(1, 0)];
             match rd.hnoc {
                 Me2HNoc::Plain => {
-                    self.egrid.add_tile_id(cell, tcls::HNOC_ME2, &tcells);
+                    self.egrid.add_tile(cell, tcls::HNOC_ME2, &tcells);
                 }
                 Me2HNoc::Cross => {
                     self.noc.connect(nps[0].noc_port(2), nps[1].noc_port(2));
-                    self.egrid.add_tile_id(cell, tcls::HNOC_ME2, &tcells);
+                    self.egrid.add_tile(cell, tcls::HNOC_ME2, &tcells);
                 }
                 Me2HNoc::VNoc(col) => {
                     let cell_vnoc = die.cell(col, chip.row_reg_bot(chip.regs().last().unwrap()));
@@ -2329,7 +2316,7 @@ impl Expander<'_> {
                         nps[1].noc_port(2),
                         cell_vnoc.bel(bslots::VNOC_NPS_NSU).noc_port(2),
                     );
-                    self.egrid.add_tile_id(cell, tcls::HNOC_ME2, &tcells);
+                    self.egrid.add_tile(cell, tcls::HNOC_ME2, &tcells);
                 }
                 Me2HNoc::VNocNcrb(col) => {
                     let cell_vnoc = die.cell(col, chip.row_reg_bot(chip.regs().last().unwrap()));
@@ -2341,7 +2328,7 @@ impl Expander<'_> {
                         nps[1].noc_port(2),
                         cell_vnoc.bel(bslots::VNOC_NPS_NSU).noc_port(2),
                     );
-                    self.egrid.add_tile_id(cell, tcls::HNOC_ME2_NCRB, &tcells);
+                    self.egrid.add_tile(cell, tcls::HNOC_ME2_NCRB, &tcells);
                 }
                 Me2HNoc::VNoc4(col) => {
                     let cell_vnoc = die.cell(col, chip.row_reg_bot(chip.regs().last().unwrap()));
@@ -2364,7 +2351,7 @@ impl Expander<'_> {
                     self.noc.connect(nps[0].noc_port(3), nps[2].noc_port(1));
                     self.noc.connect(nps[1].noc_port(3), nps[2].noc_port(2));
                     prev_hnoc = [nps[2].noc_port(5), nps[2].noc_port(4)];
-                    self.egrid.add_tile_id(cell, tcls::HNOC_ME2_VNOC4, &tcells);
+                    self.egrid.add_tile(cell, tcls::HNOC_ME2_VNOC4, &tcells);
                 }
             }
         }
@@ -2373,7 +2360,7 @@ impl Expander<'_> {
         let cell = die.cell(col, row);
         let bli = die.cell(me.scan_bli_e, row_bli);
         self.egrid
-            .add_tile_id(cell, tcls::HNOC_ME2_CAP_E, &[bli, bli.delta(1, 0)]);
+            .add_tile(cell, tcls::HNOC_ME2_CAP_E, &[bli, bli.delta(1, 0)]);
         let nmu = [0, 1, 2].map(|i| cell.bel(bslots::HNOC_ME_NMU[i]).noc_port(0));
         let nps = cell.bel(bslots::HNOC_NPS6X[0]);
         let nsu = cell.bel(bslots::HNOC_ME_NSU[0]).noc_port(0);
@@ -2394,7 +2381,7 @@ impl Expander<'_> {
         for &col in &self.die[die].cols_vnoc {
             let cell = die.cell(col, row_bli);
             let cell_vnoc = die.cell(col, chip.row_reg_bot(chip.regs().last().unwrap()));
-            self.egrid.add_tile_id(cell, tcls::HNOC_NCRB, &[]);
+            self.egrid.add_tile(cell, tcls::HNOC_NCRB, &[]);
             self.noc.connect_uni(
                 cell.bel(bslots::HNOC_NCRB[1]).noc_port(0),
                 cell_vnoc.bel(bslots::VNOC_NPS_NMU).noc_port(0),
@@ -2430,10 +2417,9 @@ impl Expander<'_> {
             let col = ColId::from_idx(i * 4);
             let cell = die.cell(col, row);
 
-            self.egrid.add_tile_single_id(cell, tcls::CLK_HBM);
-            self.egrid
-                .add_tile_single_id(cell, tcls::HSR_CLK_TEST_ME_SSIT);
-            self.egrid.add_tile_id(
+            self.egrid.add_tile_single(cell, tcls::CLK_HBM);
+            self.egrid.add_tile_single(cell, tcls::HSR_CLK_TEST_ME_SSIT);
+            self.egrid.add_tile(
                 cell,
                 tcid_conn,
                 &[
@@ -2466,7 +2452,7 @@ impl Expander<'_> {
 
         for (col, &bli) in &hbm.intf_bli {
             let bli = bli.map(|col_bli| die.cell(col_bli, row_bli));
-            self.egrid.add_tile_id(
+            self.egrid.add_tile(
                 die.cell(col, row),
                 tcls::HBM_INTF,
                 &[
@@ -2483,7 +2469,7 @@ impl Expander<'_> {
         for i in 0..16 {
             let col = ColId::from_idx(i * 2);
             let cell = die.cell(col, row);
-            self.egrid.add_tile_single_id(cell, tcls::HBM_CHNL);
+            self.egrid.add_tile_single(cell, tcls::HBM_CHNL);
         }
 
         let mut prev: Option<[NocPortCoord; 4]> = None;
@@ -2495,7 +2481,7 @@ impl Expander<'_> {
             ] {
                 let col = ColId::from_idx(i * 8 + dx);
                 let cell = die.cell(col, row);
-                self.egrid.add_tile_id(cell, tcid, &[]);
+                self.egrid.add_tile(cell, tcid, &[]);
 
                 if tcid == tcls::HNOC_HBM {
                     for j in 0..4 {
@@ -2585,7 +2571,7 @@ impl Expander<'_> {
             let col = ColId::from_idx(i * 16);
             let cell = die.cell(col, row);
             let bli = die.cell(col_bli, row_bli);
-            self.egrid.add_tile_id(
+            self.egrid.add_tile(
                 cell,
                 tcls::HBM_MS,
                 &[cell.delta(4, 0), cell.delta(8, 0), bli, bli.delta(1, 0)],
@@ -2603,7 +2589,7 @@ impl Expander<'_> {
             let cell = die.cell(col, row);
             match cd {
                 NicBlock::Cpm5NCdx => {
-                    self.egrid.add_tile_id(cell, tcls::HNOC_NIC_CPM_CDX, &[]);
+                    self.egrid.add_tile(cell, tcls::HNOC_NIC_CPM_CDX, &[]);
                     self.noc.connect(
                         cell.bel(bslots::HNOC_NIC_AXI_NMU).noc_port(0),
                         cell.bel(bslots::HNOC_NIC_XBR2X4).noc_port(4),
@@ -2635,7 +2621,7 @@ impl Expander<'_> {
                 }
                 NicBlock::Cpm5NDpu { scan_bli } => {
                     let scan_bli = die.cell(scan_bli, row_bli);
-                    self.egrid.add_tile_id(
+                    self.egrid.add_tile(
                         cell,
                         tcls::HNOC_NIC_CPM_DPU,
                         &[scan_bli, scan_bli.delta(1, 0)],
@@ -2667,7 +2653,7 @@ impl Expander<'_> {
                     let scan_bli = die.cell(scan_bli, row_bli);
                     let nmu_bli = nmu_bli.map(|col| die.cell(col, row_bli));
                     let nsu_bli = nsu_bli.map(|col| die.cell(col, row_bli));
-                    self.egrid.add_tile_id(
+                    self.egrid.add_tile(
                         cell,
                         tcls::HNOC_NIC_BLI,
                         &[
@@ -2731,12 +2717,12 @@ impl Expander<'_> {
                     let cell_vnoc =
                         die.cell(col_vnoc, chip.row_reg_bot(chip.regs().last().unwrap()));
                     let cell_ncrb = die.cell(col_vnoc, row_bli);
-                    self.egrid.add_tile_id(
+                    self.egrid.add_tile(
                         cell,
                         tcls::HNOC_NIC_VNOC,
                         &[scan_bli, scan_bli.delta(1, 0)],
                     );
-                    self.egrid.add_tile_id(
+                    self.egrid.add_tile(
                         cell_ncrb,
                         tcls::HNOC2_NCRB,
                         &[ncrb_scan_bli, ncrb_scan_bli.delta(1, 0)],
@@ -2809,7 +2795,7 @@ impl Expander<'_> {
                 }
                 NicBlock::HNicX { scan_bli } => {
                     let scan_bli = die.cell(scan_bli, row_bli);
-                    self.egrid.add_tile_id(
+                    self.egrid.add_tile(
                         cell,
                         tcls::HNOC_NIC_HNICX,
                         &[scan_bli, scan_bli.delta(1, 0)],
@@ -2856,8 +2842,7 @@ impl Expander<'_> {
             .zip(self.die[pdie].cols_vnoc.iter())
         {
             let cell = die.cell(col, row);
-            self.egrid
-                .add_tile_e_id(cell, tcls::CLK_V_BUF_VNOC_SSIT_S, 2);
+            self.egrid.add_tile_e(cell, tcls::CLK_V_BUF_VNOC_SSIT_S, 2);
             let pcell = pdie.cell(pcol, prow);
             self.egrid
                 .fill_conn_pair(pcell, cell, ccls::CLK_N_SSIT, ccls::CLK_S);
@@ -2872,8 +2857,7 @@ impl Expander<'_> {
         }
         let cell = die.cell(chip.col_e(), row);
         let pcell = pdie.cell(pchip.col_e(), prow);
-        self.egrid
-            .add_tile_single_id(cell, tcls::CLK_V_BUF_GT_SSIT_S);
+        self.egrid.add_tile_single(cell, tcls::CLK_V_BUF_GT_SSIT_S);
         // what. why. what the fuck.
         if matches!(chip.hsr_n, HsrNKind::Hbm(_)) {
             self.egrid
@@ -2885,13 +2869,13 @@ impl Expander<'_> {
         self.egrid[cell].region_root[rslots::GCLK_PD_V] = pcell;
 
         let cell = die.cell(chip.col_w(), row_hsr);
-        self.egrid.add_tile_id(cell, tcls::HNOC_SSIT_PS9_A, &[]);
+        self.egrid.add_tile(cell, tcls::HNOC_SSIT_PS9_A, &[]);
         self.egrid
-            .add_tile_id(cell.delta(1, 0), tcls::HNOC_SSIT_PS9_BD, &[]);
+            .add_tile(cell.delta(1, 0), tcls::HNOC_SSIT_PS9_BD, &[]);
         self.egrid
-            .add_tile_id(cell.delta(2, 0), tcls::HNOC_SSIT_PS9_C, &[]);
+            .add_tile(cell.delta(2, 0), tcls::HNOC_SSIT_PS9_C, &[]);
         self.egrid
-            .add_tile_id(cell.delta(3, 0), tcls::HNOC_SSIT_PS9_BD, &[]);
+            .add_tile(cell.delta(3, 0), tcls::HNOC_SSIT_PS9_BD, &[]);
         let bels_nps: [_; 8] =
             core::array::from_fn(|i| cell.delta(i as i32 / 2, 0).bel(bslots::HNOC_NPS[i % 2]));
         for i in 0..6 {
@@ -2940,8 +2924,8 @@ impl Expander<'_> {
             .zip(self.die[pdie].cols_vnoc.iter())
         {
             let cell = die.cell(col, row);
-            self.egrid.add_tile_id(cell, tcls::HNOC_SSIT, &[]);
-            self.egrid.add_tile_id(cell, tcls::HNOC_NCRB, &[]);
+            self.egrid.add_tile(cell, tcls::HNOC_SSIT, &[]);
+            self.egrid.add_tile(cell, tcls::HNOC_NCRB, &[]);
             let bel_ncrb0 = cell.bel(bslots::HNOC_NCRB[0]);
             let bel_ncrb1 = cell.bel(bslots::HNOC_NCRB[1]);
             let bel_nidb0 = cell.bel(bslots::HNOC_NIDB_V[0]);
@@ -3013,8 +2997,8 @@ impl Expander<'_> {
         for &col in &self.die[die].cols_vnoc {
             let cell = die.cell(col, row);
             let cell_vnoc = die.cell(col, row_vnoc);
-            self.egrid.add_tile_id(cell, tcid, &[]);
-            self.egrid.add_tile_id(cell, tcls::HNOC_NCRB, &[]);
+            self.egrid.add_tile(cell, tcid, &[]);
+            self.egrid.add_tile(cell, tcls::HNOC_NCRB, &[]);
             let bel_ncrb0 = cell.bel(bslots::HNOC_NCRB[0]);
             let bel_ncrb1 = cell.bel(bslots::HNOC_NCRB[1]);
             let bel_nidb0 = cell.bel(bslots::HNOC_NIDB_V[0]);

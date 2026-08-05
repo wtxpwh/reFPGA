@@ -6,7 +6,7 @@ use prjcombine_ecp::{
 };
 use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
-    db::{BelPin, TileWireCoord, WireKind},
+    db::{BelInput, BelPin, TileWireCoord, WireKind},
     dir::Dir,
     grid::{BelCoord, WireCoord},
 };
@@ -771,5 +771,50 @@ impl ChipContext<'_> {
 
     pub fn xlat_int_wire_filter(&mut self, bcrd: BelCoord, wire: WireName) -> BelPin {
         self.try_xlat_int_wire_inner(bcrd, wire, true).unwrap()
+    }
+
+    pub fn try_xlat_input(
+        &mut self,
+        bcrd: BelCoord,
+        wire: WireName,
+        filter: bool,
+    ) -> Option<BelInput> {
+        let tcrd = self.edev.bel_tile(bcrd);
+        let tile = &self.edev[tcrd];
+        for &wfn in self.pips_bwd.get(&wire).into_iter().flatten() {
+            if let Some(wires_f) = self
+                .int_wires
+                .get(&wfn)
+                .or_else(|| self.io_int_wires.get(&wfn))
+            {
+                let wf = wires_f[0];
+                if !self.intdb.wires[wf.slot].name.starts_with("IMUX") {
+                    continue;
+                }
+                let Some((cell, _)) = tile.cells.iter().find(|&(_cid, &cell)| cell == wf.cell)
+                else {
+                    if !filter {
+                        println!(
+                            "{name}: fail to xlat int wire {wf} in {bel}",
+                            name = self.name,
+                            wf = wf.to_string(self.intdb),
+                            bel = bcrd.to_string(self.intdb)
+                        );
+                    }
+                    continue;
+                };
+                self.claim_pip(wire, wfn);
+                let wf = TileWireCoord {
+                    cell,
+                    wire: wf.slot,
+                };
+                return Some(BelInput::Fixed(wf.pos()));
+            }
+        }
+        None
+    }
+
+    pub fn xlat_input(&mut self, bcrd: BelCoord, wire: WireName) -> BelInput {
+        self.try_xlat_input(bcrd, wire, false).unwrap()
     }
 }

@@ -2,7 +2,7 @@ use std::collections::{BTreeMap, btree_map};
 
 use prjcombine_ecp::{
     chip::{Chip, PllLoc, RowKind, SpecialIoKey, SpecialLocKey},
-    defs::{bslots, wires},
+    defs::{bcls, bslots, wires},
 };
 use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
@@ -27,7 +27,13 @@ impl ChipContext<'_> {
             self.name_bel_null(bcrd);
             for i in 0..8 {
                 for h in [DirH::W, DirH::E] {
-                    let wire = self.edev.get_bel_pin(bcrd, &format!("OUT_{h}{i}"))[0];
+                    let wire = self.edev.get_bel_output(
+                        bcrd,
+                        match h {
+                            DirH::W => bcls::HSDCLK_ROOT::OUT_W[i],
+                            DirH::E => bcls::HSDCLK_ROOT::OUT_E[i],
+                        },
+                    )[0];
                     let wire = self.naming.interconnect[&wire];
                     let wire_out = self.pips_bwd[&wire]
                         .iter()
@@ -214,7 +220,7 @@ impl ChipContext<'_> {
                         }
                     }
 
-                    self.insert_bel(bcrd, bel);
+                    self.insert_legacy_bel(bcrd, bel);
                 }
             }
 
@@ -258,7 +264,7 @@ impl ChipContext<'_> {
                     }
                     self.claim_pip(vptx_wires_n[&(cell.col, i)], hpsx);
                 }
-                self.insert_bel(bcrd, bel);
+                self.insert_legacy_bel(bcrd, bel);
             }
         }
         roots
@@ -330,7 +336,7 @@ impl ChipContext<'_> {
             let wire_dqsdll = self.rc_wire(cell_dqsdll, "JDQSDEL_DQSDLL");
             self.claim_pip(dqsdel, wire_dqsdll);
 
-            self.insert_bel(bcrd, LegacyBel::default());
+            self.insert_legacy_bel(bcrd, LegacyBel::default());
         }
     }
 
@@ -502,7 +508,7 @@ impl ChipContext<'_> {
             self.add_bel_wire(bcrd_dcc, "CLKI", clki);
             self.claim_pip(clko, clki);
 
-            self.insert_bel(bcrd_dcc, bel_dcc);
+            self.insert_legacy_bel(bcrd_dcc, bel_dcc);
 
             if i < 6 {
                 let clki_in = self.rc_wire(cell, &format!("VPRXCLKI{i}"));
@@ -566,7 +572,7 @@ impl ChipContext<'_> {
                 self.add_bel_wire(bcrd_dcm, "CLK1_IN", clk1_in);
                 self.claim_pip(clk1, clk1_in);
 
-                self.insert_bel(bcrd_dcm, bel_dcm);
+                self.insert_legacy_bel(bcrd_dcm, bel_dcm);
 
                 for &wire in io_in.values() {
                     self.claim_pip(clk0_in, wire);
@@ -703,11 +709,11 @@ impl ChipContext<'_> {
             }
         }
 
-        self.insert_bel(bcrd, bel);
+        self.insert_legacy_bel(bcrd, bel);
 
         let bcrd_centest = bcrd.bel(bslots::CLKTEST);
         self.name_bel(bcrd_centest, ["CENTEST"]);
-        self.insert_simple_bel(bcrd_centest, cell, "CENTEST");
+        self.insert_simple_legacy_bel(bcrd_centest, cell, "CENTEST");
 
         if !is_smol {
             for i in 0..2 {
@@ -754,7 +760,7 @@ impl ChipContext<'_> {
                 let ecsout = self.rc_wire(cell, &format!("JECSOUT{i}_ECLKBRIDGECS"));
                 self.add_bel_wire(bcrd, "ECSOUT", ecsout);
 
-                self.insert_bel(bcrd, bel);
+                self.insert_legacy_bel(bcrd, bel);
             }
         }
     }

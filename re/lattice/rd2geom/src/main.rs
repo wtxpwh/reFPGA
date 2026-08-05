@@ -16,7 +16,7 @@ use prjcombine_ecp::{
 };
 use prjcombine_entity::{EntityId, EntityVec};
 use prjcombine_interconnect::{
-    db::{BelInfo, BelSlotId, IntDb, LegacyBel, TileClassId},
+    db::{Bel, BelInfo, BelSlotId, IntDb, LegacyBel, TileClassId},
     grid::{BelCoord, CellCoord, ColId, WireCoord},
 };
 use prjcombine_re_lattice_naming::{BelNaming, ChipNaming, Database, WireName};
@@ -26,7 +26,6 @@ use rayon::iter::{IntoParallelIterator, ParallelIterator};
 
 use crate::{
     chip::{ChipExt, make_chip},
-    intdb::init_intdb,
     pkg::process_bond,
 };
 
@@ -37,7 +36,6 @@ mod config;
 mod dsp;
 mod ebr;
 mod int;
-mod intdb;
 mod io;
 mod maco;
 mod pkg;
@@ -410,11 +408,15 @@ impl ChipContext<'_> {
         }
     }
 
-    fn insert_bel(&mut self, bcrd: BelCoord, bel: LegacyBel) {
+    fn insert_bel(&mut self, bcrd: BelCoord, bel: Bel) {
+        self.insert_bel_generic(bcrd, BelInfo::Bel(bel));
+    }
+
+    fn insert_legacy_bel(&mut self, bcrd: BelCoord, bel: LegacyBel) {
         self.insert_bel_generic(bcrd, BelInfo::Legacy(bel));
     }
 
-    fn extract_simple_bel(
+    fn extract_simple_legacy_bel(
         &mut self,
         bcrd: BelCoord,
         cell: CellCoord,
@@ -432,9 +434,9 @@ impl ChipContext<'_> {
         bel
     }
 
-    fn insert_simple_bel(&mut self, bcrd: BelCoord, cell: CellCoord, suffix: &'static str) {
-        let bel = self.extract_simple_bel(bcrd, cell, suffix);
-        self.insert_bel(bcrd, bel);
+    fn insert_simple_legacy_bel(&mut self, bcrd: BelCoord, cell: CellCoord, suffix: &'static str) {
+        let bel = self.extract_simple_legacy_bel(bcrd, cell, suffix);
+        self.insert_legacy_bel(bcrd, bel);
     }
 
     fn print_unclaimed(&self) {
@@ -568,7 +570,25 @@ fn main() -> Result<(), Box<dyn Error>> {
         "crosslink" => ChipKind::Crosslink,
         _ => panic!("unknown family {}", rawdb.family),
     };
-    let mut int = init_intdb(kind);
+    let mut int = bincode::decode_from_slice(
+        match kind {
+            ChipKind::Scm => prjcombine_ecp::defs::scm::INIT,
+            ChipKind::Ecp => prjcombine_ecp::defs::ecp::INIT,
+            ChipKind::Xp => prjcombine_ecp::defs::xp::INIT,
+            ChipKind::MachXo => prjcombine_ecp::defs::machxo::INIT,
+            ChipKind::Ecp2 => prjcombine_ecp::defs::ecp2::INIT,
+            ChipKind::Ecp2M => prjcombine_ecp::defs::ecp2m::INIT,
+            ChipKind::Xp2 => prjcombine_ecp::defs::xp2::INIT,
+            ChipKind::Ecp3 | ChipKind::Ecp3A => prjcombine_ecp::defs::ecp3::INIT,
+            ChipKind::MachXo2(_) => prjcombine_ecp::defs::machxo2::INIT,
+            ChipKind::Ecp4 => prjcombine_ecp::defs::ecp4::INIT,
+            ChipKind::Ecp5 => prjcombine_ecp::defs::ecp5::INIT,
+            ChipKind::Crosslink => prjcombine_ecp::defs::crosslink::INIT,
+        },
+        bincode::config::standard(),
+    )
+    .unwrap()
+    .0;
     let mut devices = vec![];
     let mut chips = EntityVec::new();
     let mut bonds = EntityVec::new();
@@ -586,6 +606,11 @@ fn main() -> Result<(), Box<dyn Error>> {
         for (bid, bel) in &tcls.bels {
             if let BelInfo::Legacy(bel) = bel
                 && !bel.pins.is_empty()
+            {
+                continue;
+            }
+            if let BelInfo::Bel(bel) = bel
+                && !(bel.inputs.is_empty() && bel.outputs.is_empty() && bel.bidirs.is_empty())
             {
                 continue;
             }

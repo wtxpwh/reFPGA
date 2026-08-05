@@ -1,6 +1,6 @@
 use prjcombine_ecp::{
     chip::{Chip, IoGroupKind, IoKind, PllLoc, SpecialIoKey, SpecialLocKey},
-    defs::bslots,
+    defs::{bslots, tcls},
 };
 use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
@@ -40,7 +40,7 @@ impl ChipContext<'_> {
                 let mut bel = LegacyBel::default();
                 bel.pins
                     .insert(pin_in.into(), self.xlat_int_wire(bcrd, wire_in));
-                self.insert_bel(bcrd, bel);
+                self.insert_legacy_bel(bcrd, bel);
 
                 let wire_out = self.rc_corner_wire(cell, &format!("{pin_out}_{name}_{suffix}"));
                 self.add_bel_wire(bcrd, pin_out, wire_out);
@@ -62,7 +62,7 @@ impl ChipContext<'_> {
                             .insert(format!("{pin}{i}"), self.xlat_int_wire(bcrd, wire));
                     }
                 }
-                self.insert_bel(bcrd, bel);
+                self.insert_legacy_bel(bcrd, bel);
             }
         }
         if !self.chip.special_loc.contains_key(&SpecialLocKey::Bc(4)) {
@@ -201,7 +201,7 @@ impl ChipContext<'_> {
                 let wire_neigh = self.rc_io_wire(cell_neigh, &format!("JECLKO_ECLKSYNC{eclk_idx}"));
                 self.claim_pip(eclk_neigh, wire_neigh);
 
-                self.insert_bel(bcrd, bel);
+                self.insert_legacy_bel(bcrd, bel);
             }
         }
 
@@ -219,7 +219,7 @@ impl ChipContext<'_> {
                 }
             }
 
-            self.insert_bel(bcrd, bel);
+            self.insert_legacy_bel(bcrd, bel);
         }
 
         for (cell, eclk_idx) in [(cell_w, 1), (cell_e, 0)] {
@@ -246,7 +246,7 @@ impl ChipContext<'_> {
             let ecsout = self.rc_io_wire(cell, &format!("ECSOUT_ECLKBRIDGECS{eclk_idx}"));
             self.add_bel_wire(bcrd_cs, "ECSOUT", ecsout);
 
-            self.insert_bel(bcrd_cs, bel);
+            self.insert_legacy_bel(bcrd_cs, bel);
 
             let bcrd_brg = cell.bel(bslots::BRGECLKSYNC[0]);
             self.name_bel(bcrd_brg, [format!("BRGECLKSYNC{eclk_idx}")]);
@@ -265,7 +265,7 @@ impl ChipContext<'_> {
             self.add_bel_wire(bcrd_brg, "ECLKO", eclko);
             self.claim_pip(eclko, eclki);
 
-            self.insert_bel(bcrd_brg, bel);
+            self.insert_legacy_bel(bcrd_brg, bel);
         }
     }
 
@@ -281,7 +281,7 @@ impl ChipContext<'_> {
             };
             let cell = cell.with_cr(self.chip.col_edge(hv.h), self.chip.row_edge(hv.v));
             self.name_bel(bcrd, [format!("DDRDLL_{corner}")]);
-            let mut bel = self.extract_simple_bel(bcrd, cell, "DDRDLL");
+            let mut bel = self.extract_simple_legacy_bel(bcrd, cell, "DDRDLL");
 
             let clk = self.rc_corner_wire(cell, "JCLK_DDRDLL");
             self.add_bel_wire(bcrd, "CLK", clk);
@@ -311,7 +311,7 @@ impl ChipContext<'_> {
             let ddrdel_out = self.claim_single_out(ddrdel);
             self.add_bel_wire(bcrd, "DDRDEL_OUT", ddrdel_out);
 
-            self.insert_bel(bcrd, bel);
+            self.insert_legacy_bel(bcrd, bel);
 
             if hv == DirHV::NW {
                 let cell = bcrd.cell.with_col(self.chip.col_w());
@@ -398,16 +398,16 @@ impl ChipContext<'_> {
                 self.claim_pip(ddrdel_in, wire_ddrdll);
             }
 
-            self.insert_simple_bel(bcrd, cell, "DLLDEL");
+            self.insert_simple_legacy_bel(bcrd, cell, "DLLDEL");
         }
     }
 
     pub(super) fn process_dtr_ecp5(&mut self) {
-        let tcid = self.intdb.get_tile_class("DTR");
+        let tcid = tcls::DTR;
         for &tcrd in &self.edev.tile_index[tcid] {
             let bcrd = tcrd.bel(bslots::DTR);
             self.name_bel(bcrd, ["DTR"]);
-            self.insert_simple_bel(bcrd, bcrd.cell, "DTR");
+            self.insert_simple_legacy_bel(bcrd, bcrd.cell, "DTR");
         }
     }
 
@@ -435,7 +435,7 @@ impl ChipContext<'_> {
             _ => unreachable!(),
         }
 
-        self.insert_simple_bel(bcrd, cell, "DQS");
+        self.insert_simple_legacy_bel(bcrd, cell, "DQS");
 
         let dqsi = self.rc_io_wire(cell, "JDQSI_DQS");
         self.add_bel_wire(bcrd, "DQSI", dqsi);
@@ -656,24 +656,22 @@ impl ChipContext<'_> {
             }
         }
 
-        self.insert_bel(bcrd, bel);
+        self.insert_legacy_bel(bcrd, bel);
     }
 
     pub(super) fn process_io_ecp5(&mut self) {
-        for tcname in ["DQS_W", "DQS_E"] {
-            let tcid = self.intdb.get_tile_class(tcname);
+        for tcid in [tcls::DQS_W, tcls::DQS_E] {
             for &tcrd in &self.edev.tile_index[tcid] {
                 self.process_dqs_ecp5(tcrd.bel(bslots::DQS[0]));
             }
         }
-        for (tcname, num_io) in [
-            ("IO_W4", 4),
-            ("IO_E4", 4),
-            ("IO_N2", 2),
-            ("IO_S2", 2),
-            ("IO_S1", 1),
+        for (tcid, num_io) in [
+            (tcls::IO_W4, 4),
+            (tcls::IO_E4, 4),
+            (tcls::IO_N2, 2),
+            (tcls::IO_S2, 2),
+            (tcls::IO_S1, 1),
         ] {
-            let tcid = self.intdb.get_tile_class(tcname);
             for &tcrd in &self.edev.tile_index[tcid] {
                 for i in 0..num_io {
                     let bcrd = tcrd.bel(bslots::IO[i]);
@@ -806,7 +804,7 @@ impl ChipContext<'_> {
                     self.claim_pip(clki_in, wire_eclk);
                 }
 
-                self.insert_bel(bcrd, bel);
+                self.insert_legacy_bel(bcrd, bel);
             }
         }
         if self.skip_serdes {
@@ -860,7 +858,7 @@ impl ChipContext<'_> {
                     self.claim_pip(clki_txclk, wire_pcs);
                 }
 
-                self.insert_bel(bcrd, bel);
+                self.insert_legacy_bel(bcrd, bel);
             } else {
                 for pin in ["RST", "SEL0", "SEL1", "SEL2"] {
                     let wire = self.rc_wire(cell, &format!("J{pin}_PCSCLKDIV{i}"));

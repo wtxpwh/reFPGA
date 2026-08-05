@@ -14,7 +14,7 @@ impl ChipContext<'_> {
             let bcrd = cell.bel(bslots::PLL[0]);
             let (r, c) = self.rc(cell);
             self.name_bel(bcrd, [format!("PLL3_R{r}C{c}")]);
-            let mut bel = self.extract_simple_bel(bcrd, cell, "PLL3");
+            let mut bel = self.extract_simple_legacy_bel(bcrd, cell, "PLL3");
 
             let clki = self.rc_wire(cell, "CLKI");
             let clki0 = self.rc_wire(cell, "JCLKI0");
@@ -72,7 +72,7 @@ impl ChipContext<'_> {
             self.claim_pip(clkfb, clkfb3);
             self.claim_pip(clkfb_pll, clkfb);
 
-            self.insert_bel(bcrd, bel);
+            self.insert_legacy_bel(bcrd, bel);
         }
     }
 }

@@ -2,7 +2,7 @@ use std::collections::{BTreeMap, BTreeSet, btree_map};
 
 use prjcombine_ecp::{
     chip::ChipKind,
-    defs::{bslots, wires},
+    defs::{bslots, tcls, wires},
 };
 use prjcombine_interconnect::{
     db::{BelInfo, BelPin, LegacyBel, Mux, PinDir, SwitchBox, SwitchBoxItem, WireSlotIdExt},
@@ -39,8 +39,7 @@ impl ChipContext<'_> {
         for i in 0..8 {
             pins_out.push(format!("EXTRA{i}"));
         }
-        for tcname in ["EBR_W", "EBR_E"] {
-            let tcid = self.intdb.get_tile_class(tcname);
+        for tcid in [tcls::EBR_W, tcls::EBR_E] {
             let tcls = &self.intdb[tcid];
             let mut ebr_from_int = BTreeMap::new();
             let mut ebr_to_int = BTreeMap::new();
@@ -48,11 +47,11 @@ impl ChipContext<'_> {
             let mut x10_to_ebr = BTreeMap::new();
             let mut x10_from_ebr = BTreeMap::new();
             for dir in [DirH::W, DirH::E] {
-                let num = match (tcname, dir) {
-                    ("EBR_W", DirH::W) => 48,
-                    ("EBR_W", DirH::E) => 64,
-                    ("EBR_E", DirH::W) => 64,
-                    ("EBR_E", DirH::E) => 48,
+                let num = match (tcid, dir) {
+                    (tcls::EBR_W, DirH::W) => 48,
+                    (tcls::EBR_W, DirH::E) => 64,
+                    (tcls::EBR_E, DirH::W) => 64,
+                    (tcls::EBR_E, DirH::E) => 48,
                     _ => unreachable!(),
                 };
                 for i in 0..num {
@@ -267,7 +266,7 @@ impl ChipContext<'_> {
                     }
                 }
 
-                self.insert_bel(bcrd, bel);
+                self.insert_legacy_bel(bcrd, bel);
             }
             let mut sb = SwitchBox::default();
             let mut muxes: BTreeMap<_, BTreeSet<_>> = BTreeMap::new();
@@ -306,12 +305,11 @@ impl ChipContext<'_> {
 
     fn process_ebr_ecp(&mut self) {
         let tiles = if matches!(self.chip.kind, ChipKind::MachXo2(_)) {
-            ["EBR", "EBR_N"].as_slice()
+            [tcls::EBR, tcls::EBR_N].as_slice()
         } else {
-            ["EBR"].as_slice()
+            [tcls::EBR].as_slice()
         };
-        for &tcname in tiles {
-            let tcid = self.intdb.get_tile_class(tcname);
+        for &tcid in tiles {
             for &tcrd in &self.edev.tile_index[tcid] {
                 let bcrd = tcrd.bel(bslots::EBR[0]);
                 let cell = if self.chip.kind == ChipKind::MachXo {
@@ -321,20 +319,20 @@ impl ChipContext<'_> {
                 };
                 let (r, c) = self.rc(cell);
                 self.name_bel(bcrd, [format!("EBR_R{r}C{c}")]);
-                self.insert_simple_bel(bcrd, cell, "EBR");
+                self.insert_simple_legacy_bel(bcrd, cell, "EBR");
             }
         }
     }
 
     fn process_ebr_ecp4(&mut self) {
-        let tcid = self.intdb.get_tile_class("EBR");
+        let tcid = tcls::EBR;
         for &tcrd in &self.edev.tile_index[tcid] {
             for i in 0..4 {
                 let bcrd = tcrd.bel(bslots::EBR[i]);
                 let cell = tcrd.delta(2 * (i as i32), 0);
                 let (r, c) = self.rc(cell);
                 self.name_bel(bcrd, [format!("EBR_R{r}C{c}")]);
-                self.insert_simple_bel(bcrd, cell, "EBR");
+                self.insert_simple_legacy_bel(bcrd, cell, "EBR");
             }
         }
     }

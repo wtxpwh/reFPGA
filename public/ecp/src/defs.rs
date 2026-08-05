@@ -6,12 +6,38 @@ target_defs! {
     variant xp;
     variant machxo;
     variant ecp2;
+    variant ecp2m;
     variant xp2;
     variant ecp3;
     variant machxo2;
     variant ecp4;
     variant ecp5;
     variant crosslink;
+
+    bel_class SLICE {
+        input A0, B0, C0, D0;
+        input A1, B1, C1, D1;
+        input M0, M1;
+        input FXA, FXB;
+        input CLK, LSR, CE;
+        input WCK, WRE;
+        output F0, F1, Q0, Q1, OFX0, OFX1;
+    }
+
+    // ???
+    bel_class CIBTEST_SEL {
+        input TSEL0, TSEL1;
+    }
+
+    // TODO: convert to routing
+    bel_class ECLK_TAP {
+        output ECLK0;
+        output ECLK1;
+    }
+    bel_class HSDCLK_ROOT {
+        output OUT_W[8];
+        output OUT_E[8];
+    }
 
     wire TIE0: tie 0;
     wire TIE1: tie 1;
@@ -27,7 +53,7 @@ target_defs! {
     wire X0_S[NUM_X0]: mux;
     wire X0_N[NUM_X0]: mux;
 
-    if variant [ecp2, xp2, ecp3] {
+    if variant [ecp2, ecp2m, xp2, ecp3] {
         // only [1] and [4] are actually used
         // X1_W0 and X1_E0 are aliased to X1_H where applicable; X1_S0/X1_N0 are aliased to X1_V
         wire X1_H[8]: mux;
@@ -37,7 +63,7 @@ target_defs! {
     if variant [scm, ecp4] {
         // indices 0, 1, 4, 5, 6, 7 are valid
         const NUM_X1 = 8;
-    } else if variant [ecp2, xp2, ecp3] {
+    } else if variant [ecp2, ecp2m, xp2, ecp3] {
         // indices 0, 1, 4, 5 are valid (and 1, 4 are aliased to X1_[HV])
         const NUM_X1 = 8;
     } else {
@@ -100,7 +126,7 @@ target_defs! {
         // per quadrant on ECP, XP; global on MachXO
         region_slot PCLK;
         wire PCLK[8]: regional PCLK;
-    } else if variant [ecp2, xp2] {
+    } else if variant [ecp2, ecp2m, xp2] {
         // per quadrant
         region_slot PCLK;
         wire PCLK[8]: regional PCLK;
@@ -131,7 +157,7 @@ target_defs! {
         wire PCLK[8]: regional PCLK;
     }
 
-    if variant [ecp2, xp2, ecp3, machxo2] {
+    if variant [ecp2, ecp2m, xp2, ecp3, machxo2] {
         region_slot RSCLK[4];
         region_slot RSCLK_V;
         // Rotating secondary clocks.
@@ -256,146 +282,1683 @@ target_defs! {
 
     tile_slot INT {
         bel_slot INT: routing;
+
+        tile_class INT_PLC {
+            cell CELL;
+            switchbox INT;
+        }
+
+        if variant machxo {
+            tile_class
+                INT_SIO_S_W, INT_SIO_S_W_CLK, INT_SIO_S_E, INT_SIO_S_E_CFG,
+                INT_SIO_S_S4, INT_SIO_S_S6, INT_SIO_S_N4, INT_SIO_S_N6,
+                INT_SIO_L_W, INT_SIO_L_E, INT_SIO_L_E_CFG,
+                INT_SIO_L_S4, INT_SIO_L_S6, INT_SIO_L_N4, INT_SIO_L_N6
+            {
+                cell CELL;
+                switchbox INT;
+            }
+        }
+        if variant scm {
+            tile_class INT_IO {
+                cell CELL;
+                switchbox INT;
+            }
+        }
+        if variant [ecp, xp] {
+            tile_class INT_IO_WE, INT_IO_SN {
+                cell CELL;
+                switchbox INT;
+            }
+        }
+        if variant [ecp2, ecp2m, xp2, ecp3, machxo2, ecp4, ecp5] {
+            tile_class INT_IO_WE, INT_IO_S, INT_IO_N {
+                cell CELL;
+                switchbox INT;
+            }
+        }
+        if variant crosslink {
+            tile_class INT_IO_S, INT_IO_N {
+                cell CELL;
+                switchbox INT;
+            }
+        }
+        if variant ecp2m {
+            tile_class INT_SERDES_N {
+                cell CELL;
+                switchbox INT;
+            }
+        }
+
+        if variant [scm, ecp, xp, machxo2, ecp4, ecp5, crosslink] {
+            tile_class INT_EBR {
+                cell CELL;
+                switchbox INT;
+            }
+        } else if variant [ecp2, ecp2m, xp2] {
+            tile_class INT_EBR, INT_EBR_IO {
+                cell CELL;
+                switchbox INT;
+            }
+        } else if variant ecp3 {
+            tile_class INT_EBR, INT_EBR_IO, INT_EBR_SCLK, INT_EBR_IO_SCLK {
+                cell CELL;
+                switchbox INT;
+            }
+        }
+
+        if variant [ecp, xp] {
+            tile_class INT_PLL {
+                cell CELL;
+                switchbox INT;
+            }
+        }
     }
 
     tile_slot IO {
-        bel_slot IO[12]: legacy;
-        bel_slot PICTEST[3]: legacy;
+        if variant scm {
+            bel_slot IO[12]: legacy;
+            bel_slot PICTEST[3]: legacy;
+            tile_class IO_W4, IO_E4, IO_S4, IO_N4 {
+                cell CELL[2];
+                for i in 0..4 {
+                    bel IO[i];
+                }
+                bel PICTEST[0];
+            }
+            tile_class IO_N8 {
+                cell CELL[3];
+                for i in 0..8 {
+                    bel IO[i];
+                }
+                for i in 0..2 {
+                    bel PICTEST[i];
+                }
+            }
+            tile_class IO_W12, IO_E12, IO_S12, IO_N12 {
+                cell CELL[4];
+                for i in 0..12 {
+                    bel IO[i];
+                }
+                for i in 0..3 {
+                    bel PICTEST[i];
+                }
+            }
+        } else if variant [ecp, xp, ecp2, ecp2m, xp2] {
+            bel_slot IO[2]: legacy;
+            tile_class IO_W, IO_E, IO_S, IO_N {
+                cell CELL;
+                for i in 0..2 {
+                    bel IO[i];
+                }
+            }
+        } else if variant machxo {
+            bel_slot IO[6]: legacy;
+            tile_class
+                SIO_S_W2, SIO_S_W4, SIO_S_E2, SIO_S_E4,
+                SIO_S_S4, SIO_S_S6, SIO_S_N4, SIO_S_N6,
+                SIO_L_W2, SIO_L_W4, SIO_L_E2, SIO_L_E4,
+                SIO_L_S4, SIO_L_S6, SIO_L_N4, SIO_L_N6
+            {
+                cell CELL;
+                if tile_class [SIO_S_S6, SIO_S_N6, SIO_L_S6, SIO_L_N6] {
+                    for i in 0..6 {
+                        bel IO[i];
+                    }
+                } else {
+                    for i in 0..4 {
+                        bel IO[i];
+                    }
+                }
+            }
+        } else if variant ecp3 {
+            bel_slot IO[4]: legacy;
+            tile_class
+                IO_W, IO_DQS_W, IO_DQS_DUMMY_W,
+                IO_E, IO_DQS_E,
+                SIO_N, SIO_A_N, SIO_DQS_N,
+                XSIO_E, XSIO_S, XSIO_N
+            {
+                cell CELL[3];
+                for i in 0..4 {
+                    bel IO[i];
+                }
+            }
+            tile_class IO_PLL_W, IO_PLL_E {
+                cell CELL[2];
+                for i in 0..4 {
+                    bel IO[i];
+                }
+            }
+        } else if variant machxo2 {
+            bel_slot IO[4]: legacy;
+            tile_class
+                IO_W2, IO_W4, IO_W4_I3C,
+                IO_E2, IO_E4,
+                IO_S4, SIO_S2, SIO_S4,
+                IO_N4, SIO_N2, SIO_N4
+            {
+                cell CELL;
+                if tile_class [IO_W2, IO_E2, SIO_S2, SIO_N2] {
+                    for i in 0..2 {
+                        bel IO[i];
+                    }
+                } else {
+                    for i in 0..4 {
+                        bel IO[i];
+                    }
+                }
+            }
+        } else if variant ecp4 {
+            bel_slot IO[4]: legacy;
+            tile_class
+                IO_W, IO_W_EBR_S, IO_W_EBR_N, IO_W_DSP_S, IO_W_DSP_N,
+                IO_E, IO_E_EBR_S, IO_E_EBR_N, IO_E_DSP_S, IO_E_DSP_N,
+                IO_N
+            {
+                cell CELL[4];
+                for i in 0..4 {
+                    bel IO[i];
+                }
+            }
+        } else if variant ecp5 {
+            bel_slot IO[4]: legacy;
+            tile_class IO_W4, IO_E4 {
+                cell CELL[3];
+                for i in 0..4 {
+                    bel IO[i];
+                }
+            }
+            tile_class IO_S1 {
+                cell CELL;
+                bel IO[0];
+            }
+            tile_class IO_S2, IO_N2 {
+                cell CELL[2];
+                for i in 0..2 {
+                    bel IO[i];
+                }
+            }
+        } else if variant crosslink {
+            bel_slot IO[4]: legacy;
+            tile_class IO_S4 {
+                cell CELL[4];
+                for i in 0..4 {
+                    bel IO[i];
+                }
+            }
+            tile_class IO_S1A, IO_S1B {
+                cell CELL;
+                bel IO[0];
+            }
+        }
     }
 
     tile_slot BEL {
-        bel_slot SLICE[4]: legacy;
+        bel_slot SLICE[4]: SLICE;
 
-        bel_slot IO_INT: routing;
-        // patched to CLK for XO2
-        bel_slot DQS[2]: legacy;
-        bel_slot DQSTEST: legacy;
-        bel_slot DQSDLL: legacy;
-        bel_slot DQSDLLTEST: legacy;
+        tile_class PLC, FPLC {
+            if tile_class FPLC {
+                if variant [scm, machxo2, ecp4, ecp5, crosslink] {
+                    skip;
+                }
+            }
+            cell CELL;
 
-        bel_slot SERDES: legacy;
-        bel_slot SERDES_CENTER: legacy;
-        bel_slot SERDES_CORNER: legacy;
+            for i in 0..4 {
+                bel SLICE[i] {
+                    input A0 = IMUX_A[2 * i];
+                    input A1 = IMUX_A[2 * i + 1];
+                    input B0 = IMUX_B[2 * i];
+                    input B1 = IMUX_B[2 * i + 1];
+                    input C0 = IMUX_C[2 * i];
+                    input C1 = IMUX_C[2 * i + 1];
+                    input D0 = IMUX_D[2 * i];
+                    input D1 = IMUX_D[2 * i + 1];
+                    input M0 = IMUX_M[2 * i];
+                    input M1 = IMUX_M[2 * i + 1];
 
-        bel_slot MACO: legacy;
-        bel_slot MACO_INT: routing;
+                    output F0 = OUT_F[2 * i];
+                    output F1 = OUT_F[2 * i + 1];
 
-        bel_slot MIPI: legacy;
-        bel_slot CLKTEST_MIPI: legacy;
+                    if variant [scm, ecp, xp, machxo] {
+                        if bel_slot SLICE[3] {
+                            input FXB = OUT_OFX_W[3];
+                        }
+                    }
+                    if variant [machxo2, ecp4] {
+                        if bel_slot SLICE[3] {
+                            input FXA = OUT_OFX_W[3];
+                        }
+                    }
+                    if variant [ecp5, crosslink] {
+                        if bel_slot SLICE[3] {
+                            input FXA = OUT_F_W[3];
+                        }
+                    }
 
-        bel_slot CIBTEST_SEL: legacy;
+                    if variant [ecp5, crosslink] {
+                        // skip
+                    } else {
+                        output OFX0 = OUT_OFX[2 * i];
+                        output OFX1 = OUT_OFX[2 * i + 1];
+                    }
 
-        bel_slot EBR_INT: routing;
-        bel_slot EBR[4]: legacy;
+                    if variant [ecp2, ecp2m, xp2, ecp3] {
+                        if bel_slot SLICE[3] {
+                            // skip
+                        } else {
+                            input CLK = IMUX_CLK[i];
+                            input LSR = IMUX_LSR[i];
+                            input CE = IMUX_CE[i];
+                            output Q0 = OUT_Q[2 * i];
+                            output Q1 = OUT_Q[2 * i + 1];
+                        }
+                    } else {
+                        if variant [ecp4, ecp5, crosslink] {
+                            input CLK = IMUX_MUXCLK[i];
+                            input LSR = IMUX_MUXLSR[i];
+                        } else {
+                            input CLK = IMUX_CLK[i];
+                            input LSR = IMUX_LSR[i];
+                        }
+                        input CE = IMUX_CE[i];
+                        output Q0 = OUT_Q[2 * i];
+                        output Q1 = OUT_Q[2 * i + 1];
+                    }
 
-        bel_slot DSP[2]: legacy;
+                    if variant [ecp5, crosslink] {
+                        if bel_slot SLICE[2] {
+                            input WCK = IMUX_CLK[1];
+                            input WRE = IMUX_LSR[1];
+                        }
+                    }
+                }
+            }
+        }
 
-        bel_slot PLL[2]: legacy;
-        bel_slot PLL_SMI: legacy;
-        bel_slot PLLREFCS[2]: legacy;
-        bel_slot DLL[4]: legacy;
-        bel_slot DLL_DCNTL[2]: legacy;
-        bel_slot PROMON: legacy;
-        bel_slot RNET: legacy;
-        bel_slot DDRDLL: legacy;
-        bel_slot DTR: legacy;
+        if variant scm {
+            bel_slot IO_INT: routing;
+            tile_class IO_INT_W, IO_INT_E, IO_INT_S {
+                cell CELL;
+                switchbox IO_INT;
+            }
+        }
 
-        // patched to CLK for XO2, ECP4, ECP5
-        bel_slot DLLDEL[8]: legacy;
-        // patched to CLK for XO2, ECP4, ECP5, SCM
-        bel_slot CLKDIV[4]: legacy;
-        bel_slot ECLK_ALT_ROOT: legacy;
-        bel_slot SPLL: legacy;
-        bel_slot SYSBUS: legacy;
-        bel_slot START: legacy;
-        bel_slot OSC: legacy;
-        bel_slot JTAG: legacy;
-        bel_slot RDBK: legacy;
-        bel_slot GSR: legacy;
-        bel_slot TSALL: legacy;
-        bel_slot SED: legacy;
-        bel_slot M0: legacy;
-        bel_slot M1: legacy;
-        bel_slot M2: legacy;
-        bel_slot M3: legacy;
-        bel_slot RESETN: legacy;
-        bel_slot RDCFGN: legacy;
-        bel_slot CCLK: legacy;
-        bel_slot TCK: legacy;
-        bel_slot TMS: legacy;
-        bel_slot TDI: legacy;
-        bel_slot SPIM: legacy;
-        bel_slot SSPI: legacy;
-        bel_slot WAKEUP: legacy;
-        bel_slot STF: legacy;
-        bel_slot AMBOOT: legacy;
-        bel_slot PERREG: legacy;
-        bel_slot PCNTR: legacy;
-        bel_slot EFB: legacy;
-        bel_slot ESB: legacy;
-        bel_slot I2C: legacy;
-        bel_slot NVCMTEST: legacy;
-        bel_slot PMU: legacy;
-        bel_slot PMUTEST: legacy;
-        bel_slot CFGTEST: legacy;
-        bel_slot PVTTEST: legacy;
-        bel_slot PVTCAL: legacy;
+        bel_slot CIBTEST_SEL: CIBTEST_SEL;
+        tile_class CIBTEST_SEL {
+            cell CELL;
+            if variant machxo {
+                bel CIBTEST_SEL;
+            }
+        }
 
-        bel_slot TESTIN: legacy;
-        bel_slot TESTOUT: legacy;
-        bel_slot DTS: legacy;
+        // EBR & DSP
+        if variant scm {
+            bel_slot EBR_INT: routing;
+            bel_slot EBR[1]: legacy;
+            tile_class EBR_W, EBR_E {
+                cell CELL[2];
+                switchbox EBR_INT;
+                bel EBR[0];
+            }
+        } else if variant [ecp, xp] {
+            bel_slot EBR[1]: legacy;
+            tile_class EBR {
+                cell CELL[2];
+                bel EBR[0];
+            }
+        } else if variant machxo {
+            bel_slot EBR[1]: legacy;
+            tile_class EBR {
+                cell CELL[4];
+                bel EBR[0];
+            }
+        } else if variant [ecp2, ecp2m, xp2, ecp3] {
+            bel_slot EBR[1]: legacy;
+            tile_class EBR {
+                cell CELL[3];
+                bel EBR[0];
+            }
+        } else if variant machxo2 {
+            bel_slot EBR[1]: legacy;
+            tile_class EBR, EBR_N {
+                cell CELL[3];
+                bel EBR[0];
+            }
+        } else if variant [ecp4, ecp5, crosslink] {
+            bel_slot EBR[4]: legacy;
+            tile_class EBR {
+                cell CELL[9];
+                for i in 0..4 {
+                    bel EBR[i];
+                }
+            }
+        }
+        if variant ecp {
+            bel_slot DSP[1]: legacy;
+            tile_class DSP {
+                cell CELL[8];
+                bel DSP[0];
+            }
+        } else if variant [ecp2, ecp2m, xp2] {
+            bel_slot DSP[1]: legacy;
+            tile_class DSP {
+                cell CELL[9];
+                bel DSP[0];
+            }
+        } else if variant [ecp3, ecp4, ecp5] {
+            bel_slot DSP[2]: legacy;
+            tile_class DSP {
+                cell CELL[9];
+                for i in 0..2 {
+                    bel DSP[i];
+                }
+            }
+        }
+
+        // MACO, SERDES
+        if variant scm {
+            bel_slot MACO: legacy;
+            bel_slot MACO_INT: routing;
+            tile_class MACO_W, MACO_E {
+                cell CELL[4];
+                cell CELL_IO[2];
+                cell CELL_EBR[10];
+                switchbox MACO_INT;
+                bel MACO;
+            }
+
+            bel_slot SERDES: legacy;
+            tile_class SERDES_W, SERDES_E {
+                cell CELL[7];
+                bel SERDES;
+            }
+        } else if variant ecp2m {
+            bel_slot SERDES: legacy;
+            tile_class SERDES_S, SERDES_N {
+                cell CELL[27];
+                bel SERDES;
+            }
+        } else if variant ecp3 {
+            bel_slot SERDES: legacy;
+            tile_class SERDES {
+                cell CELL[36];
+                bel SERDES;
+            }
+        } else if variant ecp4 {
+            bel_slot SERDES: legacy;
+            tile_class SERDES1 {
+                cell CELL[62];
+                bel SERDES;
+            }
+            tile_class SERDES2 {
+                cell CELL[120];
+                bel SERDES;
+            }
+            tile_class SERDES3 {
+                cell CELL[177];
+                bel SERDES;
+            }
+        } else if variant ecp5 {
+            bel_slot SERDES: legacy;
+            tile_class SERDES {
+                cell CELL[12];
+                bel SERDES;
+            }
+        } else if variant crosslink {
+            bel_slot MIPI: legacy;
+            bel_slot CLKTEST_MIPI: legacy;
+            tile_class MIPI_W, MIPI_E {
+                cell CELL[24];
+                bel MIPI;
+                bel CLKTEST_MIPI;
+            }
+        }
+
+        // PLLs etc
+        if variant scm {
+            bel_slot PLL[2]: legacy;
+            bel_slot PLL_SMI: legacy;
+            bel_slot DLL[4]: legacy;
+            bel_slot DLL_DCNTL[2]: legacy;
+            bel_slot PROMON: legacy;
+            bel_slot RNET: legacy;
+            bel_slot SERDES_CORNER: legacy;
+            bel_slot M0: legacy;
+            bel_slot M1: legacy;
+            bel_slot M2: legacy;
+            bel_slot M3: legacy;
+            bel_slot RESETN: legacy;
+            bel_slot RDCFGN: legacy;
+            bel_slot CCLK: legacy;
+            bel_slot TCK: legacy;
+            bel_slot TMS: legacy;
+            bel_slot TDI: legacy;
+            tile_class PLL_SW, PLL_SE {
+                cell CELL_S[4];
+                cell CELL_WE[2];
+                for i in 0..2 {
+                    bel PLL[i];
+                }
+                for i in 0..4 {
+                    bel DLL[i];
+                }
+                for i in 0..2 {
+                    bel DLL_DCNTL[i];
+                }
+                bel PLL_SMI;
+                bel PROMON;
+                if tile_class PLL_SW {
+                    bel RNET;
+                }
+            }
+            tile_class PLL_NW, PLL_NE {
+                cell CELL_N[2];
+                cell CELL_WE;
+                for i in 0..2 {
+                    bel PLL[i];
+                }
+                for i in 0..2 {
+                    bel DLL[i];
+                }
+                for i in 0..2 {
+                    bel DLL_DCNTL[i];
+                }
+                bel PLL_SMI;
+                bel SERDES_CORNER;
+                if tile_class PLL_NW {
+                    bel M0;
+                    bel M1;
+                    bel M2;
+                    bel M3;
+                    bel RESETN;
+                    bel RDCFGN;
+                }
+                if tile_class PLL_NE {
+                    bel CCLK;
+                    bel TCK;
+                    bel TMS;
+                    bel TDI;
+                }
+            }
+        } else if variant [ecp, xp] {
+            bel_slot PLL[1]: legacy;
+            tile_class PLL_W, PLL_E {
+                cell CELL;
+                bel PLL[0];
+            }
+
+            bel_slot DQSDLL: legacy;
+            tile_class DQSDLL_S, DQSDLL_N {
+                cell CELL;
+                bel DQSDLL;
+            }
+        } else if variant machxo {
+            bel_slot PLL[1]: legacy;
+            tile_class PLL_S, PLL_N {
+                cell CELL;
+                bel PLL[0];
+            }
+        } else if variant [ecp2, ecp2m] {
+            bel_slot PLL[1]: legacy;
+            bel_slot DLL[1]: legacy;
+            bel_slot DLLDEL[1]: legacy;
+            bel_slot CLKDIV[1]: legacy;
+            bel_slot ECLK_ALT_ROOT: legacy;
+            bel_slot DQSDLL: legacy;
+            tile_class PLL_W, PLL_E {
+                cell CELL[4];
+                bel PLL[0];
+                bel DLL[0];
+                bel DLLDEL[0];
+                bel CLKDIV[0];
+                bel ECLK_ALT_ROOT;
+                bel DQSDLL;
+            }
+
+            bel_slot SPLL: legacy;
+            tile_class SPLL_W, SPLL_E {
+                cell CELL[2];
+                bel SPLL;
+            }
+        } else if variant xp2 {
+            bel_slot PLL[1]: legacy;
+            tile_class PLL_S, PLL_N {
+                cell CELL[2];
+                bel PLL[0];
+            }
+
+            bel_slot DQSDLL: legacy;
+            bel_slot CLKDIV[1]: legacy;
+            bel_slot START: legacy;
+            bel_slot GSR: legacy;
+            bel_slot SSPI: legacy;
+            bel_slot STF: legacy;
+            bel_slot WAKEUP: legacy;
+            tile_class CLK_W, CLK_E {
+                cell CELL;
+                bel DQSDLL;
+                bel CLKDIV[0];
+                if tile_class CLK_E {
+                    cell CELL_CLK;
+                    bel SSPI;
+                    bel STF;
+                    bel WAKEUP;
+                    bel START;
+                    bel GSR;
+                }
+            }
+        } else if variant ecp3 {
+            bel_slot PLL[1]: legacy;
+            bel_slot DLL[1]: legacy;
+            bel_slot DLLDEL[1]: legacy;
+            bel_slot DQSDLL: legacy;
+            bel_slot DQSDLLTEST: legacy;
+            bel_slot ECLK_ALT_ROOT: legacy;
+            bel_slot CLKDIV[1]: legacy;
+            tile_class PLL_DLL_W, PLL_DLL_E, PLL_DLL_A_W, PLL_DLL_A_E {
+                cell CELL[15];
+                cell CELL_WE[3];
+                bel PLL[0];
+                bel DLL[0];
+                bel DLLDEL[0];
+                bel DQSDLL;
+                bel DQSDLLTEST;
+                bel ECLK_ALT_ROOT;
+                bel CLKDIV[0];
+            }
+            tile_class PLL_W, PLL_E, PLL_A_W, PLL_A_E {
+                cell CELL[12];
+                cell CELL_WE;
+                bel PLL[0];
+            }
+        } else if variant machxo2 {
+            bel_slot PLL[1]: legacy;
+            bel_slot PLLREFCS[1]: legacy;
+            tile_class PLL_W, PLL_E {
+                cell CELL[2];
+                bel PLL[0];
+                bel PLLREFCS[0];
+            }
+
+            bel_slot DQSDLL: legacy;
+            bel_slot DQSDLLTEST: legacy;
+            tile_class DQSDLL_S, DQSDLL_N {
+                cell CELL;
+                bel DQSDLL;
+                bel DQSDLLTEST;
+            }
+        } else if variant ecp4 {
+            bel_slot PLL[2]: legacy;
+            bel_slot PLLREFCS[2]: legacy;
+            tile_class PLL_SW, PLL_SE, PLL_NW, PLL_NE {
+                cell CELL[4];
+                for i in 0..2 {
+                    bel PLL[i];
+                    bel PLLREFCS[i];
+                }
+            }
+
+            bel_slot DDRDLL: legacy;
+            tile_class DDRDLL_S, DDRDLL_N {
+                cell CELL;
+                bel DDRDLL;
+            }
+
+            bel_slot DTR: legacy;
+            tile_class DTR_S, DTR_N {
+                cell CELL;
+                bel DTR;
+            }
+        } else if variant ecp5 {
+            bel_slot PLL[1]: legacy;
+            bel_slot PLLREFCS[1]: legacy;
+            tile_class PLL_SW, PLL_SE, PLL_NW, PLL_NE {
+                cell CELL[2];
+                bel PLL[0];
+                bel PLLREFCS[0];
+            }
+
+            bel_slot DDRDLL: legacy;
+            tile_class DDRDLL {
+                cell CELL;
+                bel DDRDLL;
+            }
+
+            bel_slot DTR: legacy;
+            tile_class DTR {
+                cell CELL;
+                bel DTR;
+            }
+        } else if variant crosslink {
+            bel_slot PLL[1]: legacy;
+            bel_slot PLLREFCS[1]: legacy;
+            tile_class PLL {
+                cell CELL[2];
+                bel PLL[0];
+                bel PLLREFCS[0];
+            }
+
+            bel_slot BCINRD: legacy;
+            bel_slot BCLVDSO: legacy;
+            bel_slot DDRDLL: legacy;
+            tile_class BC {
+                cell CELL;
+                bel BCINRD;
+                bel BCLVDSO;
+                bel DDRDLL;
+            }
+        }
+
+        if variant [ecp, xp, ecp2, ecp2m, xp2] {
+            bel_slot DQS[1]: legacy;
+            tile_class DQS_W, DQS_E, DQS_S, DQS_N {
+                if tile_class DQS_N {
+                    if variant [ecp2, ecp2m] {
+                        skip;
+                    }
+                }
+                cell CELL;
+                bel DQS[0];
+            }
+        } else if variant ecp3 {
+            bel_slot DQS[1]: legacy;
+            bel_slot DQSTEST: legacy;
+            tile_class DQS_N, DQS_W, DQS_E, DQS_A_W, DQS_A_E {
+                if tile_class DQS_N {
+                    cell CELL[6];
+                } else {
+                    cell CELL[3];
+                }
+                bel DQS[0];
+                if tile_class [DQS_A_W, DQS_A_E] {
+                    bel DQSTEST;
+                }
+            }
+        } else if variant ecp4 {
+            bel_slot DQS[1]: legacy;
+            tile_class
+                DQS_W,
+                DQS_W_BELOW_DSP_N,
+                DQS_W_BELOW_EBR_N,
+                DQS_W_BELOW_EBR_S,
+                DQS_W_EBR_S,
+                DQS_W_EBR_N,
+                DQS_W_DSP_N,
+                DQS_E,
+                DQS_E_BELOW_DSP_N,
+                DQS_E_BELOW_EBR_N,
+                DQS_E_BELOW_EBR_S,
+                DQS_E_EBR_S,
+                DQS_E_EBR_N,
+                DQS_E_DSP_N,
+                DQS_N
+            {
+                cell CELL[5];
+                bel DQS[0];
+            }
+        } else if variant ecp5 {
+            bel_slot DQS[1]: legacy;
+            tile_class DQS_W, DQS_E {
+                cell CELL[6];
+                bel DQS[0];
+            }
+        }
+
+        // CONFIG etc.
+        if variant scm {
+            bel_slot JTAG: legacy;
+            bel_slot RDBK: legacy;
+            bel_slot GSR: legacy;
+            bel_slot OSC: legacy;
+            bel_slot START: legacy;
+            bel_slot SYSBUS: legacy;
+            bel_slot SERDES_CENTER: legacy;
+            tile_class CONFIG {
+                cell CELL[12];
+                cell CELL_CLK;
+                bel JTAG;
+                bel RDBK;
+                bel GSR;
+                bel OSC;
+                bel START;
+                bel SYSBUS;
+                bel SERDES_CENTER;
+            }
+        } else if variant ecp {
+            bel_slot START: legacy;
+            bel_slot OSC: legacy;
+            bel_slot JTAG: legacy;
+            bel_slot GSR: legacy;
+            tile_class CONFIG_S, CONFIG_L {
+                cell CELL[4];
+                if tile_class CONFIG_L {
+                    cell CELL_CLK;
+                }
+                bel START;
+                bel OSC;
+                bel JTAG;
+                bel GSR;
+                // RDBK exists as stub?
+            }
+        } else if variant xp {
+            bel_slot START: legacy;
+            bel_slot JTAG: legacy;
+            bel_slot GSR: legacy;
+            tile_class CONFIG {
+                cell CELL;
+                bel START;
+                bel JTAG;
+                bel GSR;
+                // RDBK and OSC exist as stubs?
+            }
+        } else if variant machxo {
+            bel_slot OSC: legacy;
+            tile_class OSC, OSC_X {
+                cell CELL;
+                bel OSC;
+            }
+
+            bel_slot JTAG: legacy;
+            bel_slot GSR: legacy;
+            tile_class CONFIG {
+                cell CELL[5];
+                bel JTAG;
+                bel GSR;
+            }
+        } else if variant [ecp2, ecp2m] {
+            bel_slot START: legacy;
+            bel_slot OSC: legacy;
+            bel_slot JTAG: legacy;
+            bel_slot GSR: legacy;
+            bel_slot SED: legacy;
+            bel_slot SPIM: legacy;
+            tile_class CONFIG {
+                cell CELL[2];
+                cell CELL_CLK;
+                bel START;
+                bel OSC;
+                bel JTAG;
+                bel GSR;
+                bel SED;
+                bel SPIM;
+            }
+        } else if variant xp2 {
+            bel_slot JTAG: legacy;
+            bel_slot SED: legacy;
+            tile_class CONFIG {
+                cell CELL;
+                bel JTAG;
+                bel SED;
+            }
+
+            bel_slot OSC: legacy;
+            tile_class OSC {
+                cell CELL;
+                bel OSC;
+            }
+
+        } else if variant ecp3 {
+            bel_slot START: legacy;
+            bel_slot JTAG: legacy;
+            bel_slot OSC: legacy;
+            bel_slot GSR: legacy;
+            bel_slot SED: legacy;
+            bel_slot AMBOOT: legacy;
+            bel_slot PERREG: legacy;
+            tile_class CONFIG {
+                cell CELL[13];
+                cell CELL_CLK;
+                bel START;
+                bel JTAG;
+                bel OSC;
+                bel GSR;
+                bel SED;
+                bel AMBOOT;
+                bel PERREG;
+            }
+
+            bel_slot TESTIN: legacy;
+            bel_slot TESTOUT: legacy;
+            bel_slot DTS: legacy;
+            tile_class TEST_SW, TEST_SE {
+                cell CELL[3];
+                bel TESTIN;
+                bel TESTOUT;
+                if tile_class TEST_SE {
+                    bel DTS;
+                }
+            }
+
+            tile_class TEST_NW, TEST_NE {
+                cell CELL[2];
+                bel TESTIN;
+                bel TESTOUT;
+            }
+        } else if variant machxo2 {
+            bel_slot START: legacy;
+            bel_slot JTAG: legacy;
+            bel_slot OSC: legacy;
+            bel_slot GSR: legacy;
+            bel_slot SED: legacy;
+            bel_slot PCNTR: legacy;
+            bel_slot TSALL: legacy;
+            bel_slot EFB: legacy;
+            bel_slot ESB: legacy;
+            tile_class CONFIG, CONFIG_XO3D {
+                if tile_class CONFIG {
+                    cell CELL[4];
+                } else {
+                    cell CELL[10];
+                }
+                bel START;
+                bel JTAG;
+                bel OSC;
+                bel GSR;
+                bel SED;
+                bel PCNTR;
+                bel TSALL;
+                bel EFB;
+                if tile_class CONFIG_XO3D {
+                    bel ESB;
+                }
+            }
+        } else if variant ecp4 {
+            bel_slot START: legacy;
+            bel_slot JTAG: legacy;
+            bel_slot OSC: legacy;
+            bel_slot GSR: legacy;
+            bel_slot SED: legacy;
+            bel_slot PCNTR: legacy;
+            bel_slot EFB: legacy;
+            tile_class CONFIG {
+                cell CELL[6];
+                cell CELL_CLK[5];
+                bel START;
+                bel JTAG;
+                bel OSC;
+                bel GSR;
+                bel SED;
+                bel PCNTR;
+                bel EFB;
+            }
+        } else if variant ecp5 {
+            bel_slot START: legacy;
+            bel_slot JTAG: legacy;
+            bel_slot OSC: legacy;
+            bel_slot GSR: legacy;
+            bel_slot SED: legacy;
+            bel_slot CCLK: legacy;
+            tile_class CONFIG {
+                cell CELL[3];
+                cell CELL_CLK;
+                bel START;
+                bel JTAG;
+                bel OSC;
+                bel GSR;
+                bel SED;
+                bel CCLK;
+            }
+        } else if variant crosslink {
+            bel_slot GSR: legacy;
+            bel_slot CFGTEST: legacy;
+            tile_class CONFIG {
+                cell CELL[2];
+                cell CELL_W;
+                cell CELL_CLK;
+                bel GSR;
+                bel CFGTEST;
+            }
+
+            bel_slot OSC: legacy;
+            tile_class OSC {
+                cell CELL;
+                bel OSC;
+            }
+
+            bel_slot PMU: legacy;
+            bel_slot PMUTEST: legacy;
+            tile_class PMU {
+                cell CELL;
+                bel PMU;
+                bel PMUTEST;
+            }
+
+            bel_slot I2C: legacy;
+            bel_slot NVCMTEST: legacy;
+            tile_class I2C_W, I2C_E {
+                cell CELL[2];
+                bel I2C;
+                if tile_class I2C_E {
+                    bel NVCMTEST;
+                }
+            }
+        }
+
+        if variant ecp4 {
+            bel_slot PVTTEST: legacy;
+            bel_slot PVTCAL: legacy;
+            tile_class PVTTEST {
+                cell CELL;
+                bel PVTTEST;
+                bel PVTCAL;
+            }
+        }
     }
 
-    tile_slot BC {
-        bel_slot BCPG: legacy;
-        bel_slot BCINRD: legacy;
-        bel_slot BCLVDSO: legacy;
-        bel_slot BCSLEWRATE: legacy;
-        bel_slot BCPUSL: legacy;
-        bel_slot BREFTEST: legacy;
+    if variant machxo2 {
+        tile_slot BC {
+            bel_slot BCPG: legacy;
+            bel_slot BCINRD: legacy;
+            bel_slot BCLVDSO: legacy;
+            bel_slot BCSLEWRATE: legacy;
+            tile_class BC, BC_N, BCSR_W, BCSR_E, BCSR_S, BCSR_N {
+                if tile_class BCSR_E {
+                    cell CELL[2];
+                } else {
+                    cell CELL;
+                }
+                bel BCPG;
+                bel BCINRD;
+                if tile_class [BC_N, BCSR_N] {
+                    bel BCLVDSO;
+                }
+                if tile_class [BCSR_W, BCSR_E, BCSR_S, BCSR_N] {
+                    bel BCSLEWRATE;
+                }
+            }
+        }
+    } else if variant ecp4 {
+        tile_slot BC {
+            bel_slot BCINRD: legacy;
+            bel_slot BCPG: legacy;
+            bel_slot BCLVDSO: legacy;
+            bel_slot BCPUSL: legacy;
+            bel_slot BREFTEST: legacy;
+            tile_class BC_W, BC_E, BC_N {
+                cell CELL;
+                bel BCINRD;
+                bel BCPG;
+                bel BCLVDSO;
+                bel BCPUSL;
+                bel BREFTEST;
+            }
+        }
+    } else if variant ecp5 {
+        tile_slot BC {
+            bel_slot BCINRD: legacy;
+            bel_slot BCLVDSO: legacy;
+            bel_slot BREFTEST: legacy;
+            // yup, no bank 5
+            tile_class BC0, BC1, BC2, BC3, BC4, BC6, BC7, BC8 {
+                cell CELL;
+                if tile_class [BC2, BC3, BC6, BC7] {
+                    bel BCINRD;
+                    bel BCLVDSO;
+                }
+                bel BREFTEST;
+            }
+        }
     }
 
     tile_slot CLK {
-        bel_slot PCSCLKDIV[4]: legacy;
-        bel_slot DCC_SW[6]: legacy;
-        bel_slot DCC_SE[6]: legacy;
-        bel_slot DCC_NW[6]: legacy;
-        bel_slot DCC_NE[6]: legacy;
-        bel_slot DCS_SW[2]: legacy;
-        bel_slot DCS_SE[2]: legacy;
-        bel_slot DCS_NW[2]: legacy;
-        bel_slot DCS_NE[2]: legacy;
-        bel_slot DCC[16]: legacy;
-        bel_slot DCM[2]: legacy;
-        bel_slot DCS[2]: legacy;
-        bel_slot ECLKBRIDGECS[2]: legacy;
-        bel_slot BRGECLKSYNC[2]: legacy;
-        bel_slot CLKFBBUF[2]: legacy;
-        bel_slot CLK_ROOT: legacy;
-        bel_slot CLK_EDGE: legacy;
-        bel_slot CLKTEST: legacy;
-        bel_slot ECLK_ROOT: legacy;
-        bel_slot ECLKSYNC[16]: legacy;
-        bel_slot CLKTEST_ECLK: legacy;
+        if variant scm {
+            bel_slot ECLK_ROOT: legacy;
+            bel_slot CLKDIV[4]: legacy;
+            bel_slot DCS[2]: legacy;
+            bel_slot CLK_EDGE: legacy;
+            bel_slot CLK_ROOT: legacy;
+            bel_slot CLKTEST: legacy;
+            tile_class CLK_W, CLK_E, CLK_N {
+                cell CELL[2];
+                bel ECLK_ROOT;
+                for i in 0..4 {
+                    bel CLKDIV[i];
+                }
+                for i in 0..2 {
+                    bel DCS[i];
+                }
+                bel CLK_EDGE;
+            }
+            tile_class CLK_S {
+                cell CELL[2];
+                for i in 0..2 {
+                    bel DCS[i];
+                }
+                bel CLK_EDGE;
+            }
+            tile_class CLK_SW, CLK_SE {
+                cell CELL[2];
+                bel ECLK_ROOT;
+                for i in 0..4 {
+                    bel CLKDIV[i];
+                }
+            }
+            tile_class CLK_ROOT {
+                cell CELL_S[2];
+                cell CELL_N[2];
+                bel CLK_ROOT;
+                bel CLKTEST;
+            }
+        } else if variant [ecp, xp, ecp2, ecp2m, xp2] {
+            bel_slot CLK_ROOT: legacy;
+            bel_slot DCS_SW[2]: legacy;
+            bel_slot DCS_SE[2]: legacy;
+            bel_slot DCS_NW[2]: legacy;
+            bel_slot DCS_NE[2]: legacy;
+            if variant ecp {
+                tile_class CLK_ROOT_2PLL, CLK_ROOT_4PLL {
+                    // actual clock root cells
+                    cell ROOT_SW, ROOT_SE, ROOT_NW, ROOT_NE;
+                    if tile_class CLK_ROOT_2PLL {
+                        // DCS select inputs
+                        cell DCS_SEL[2];
+                        // fabric clock inputs
+                        cell FABRIC_IN[16];
+                    } else {
+                        cell DCS_SEL[8];
+                        cell FABRIC_IN[20];
+                    }
+                    bel CLK_ROOT;
+                    for i in 0..2 {
+                        bel DCS_SW[i];
+                        bel DCS_SE[i];
+                        bel DCS_NW[i];
+                        bel DCS_NE[i];
+                    }
+                }
+            } else if variant xp {
+                tile_class CLK_ROOT_2PLL_A, CLK_ROOT_2PLL_B, CLK_ROOT_4PLL {
+                    // actual clock root cells
+                    cell ROOT_SW, ROOT_SE, ROOT_NW, ROOT_NE;
+                    // DCS select inputs
+                    if tile_class [CLK_ROOT_2PLL_A, CLK_ROOT_2PLL_B] {
+                        cell DCS_SEL[4];
+                    } else {
+                        cell DCS_SEL[8];
+                    }
+                    // fabric clock inputs
+                    cell FABRIC_IN[20];
+                    bel CLK_ROOT;
+                    for i in 0..2 {
+                        bel DCS_SW[i];
+                        bel DCS_SE[i];
+                        bel DCS_NW[i];
+                        bel DCS_NE[i];
+                    }
+                }
+            } else {
+                tile_class CLK_ROOT_2PLL, CLK_ROOT_4PLL, CLK_ROOT_6PLL, CLK_ROOT_8PLL {
+                    if variant ecp2 {
+                        if tile_class CLK_ROOT_8PLL {
+                            skip;
+                        }
+                    } else if variant ecp2m {
+                        if tile_class CLK_ROOT_8PLL {
+                            // skip
+                        } else {
+                            skip;
+                        }
+                    } else if variant xp2 {
+                        if tile_class [CLK_ROOT_6PLL, CLK_ROOT_8PLL] {
+                            skip;
+                        }
+                    }
+                    // actual clock root cells
+                    cell ROOT_SW, ROOT_SE, ROOT_NW, ROOT_NE;
+                    // fabric clock inputs
+                    cell FABRIC_IN[26];
+                    bel CLK_ROOT;
+                    for i in 0..2 {
+                        bel DCS_SW[i];
+                        bel DCS_SE[i];
+                        bel DCS_NW[i];
+                        bel DCS_NE[i];
+                    }
+                }
+            }
+        } else if variant machxo {
+            bel_slot CLK_ROOT: legacy;
+            tile_class CLK_ROOT_0PLL, CLK_ROOT_1PLL, CLK_ROOT_2PLL {
+                cell CELL[6];
+                bel CLK_ROOT;
+            }
+        } else if variant ecp3 {
+            bel_slot CLK_ROOT: legacy;
+            bel_slot DCC_SW[6]: legacy;
+            bel_slot DCC_SE[6]: legacy;
+            bel_slot DCC_NW[6]: legacy;
+            bel_slot DCC_NE[6]: legacy;
+            bel_slot DCS_SW[2]: legacy;
+            bel_slot DCS_SE[2]: legacy;
+            bel_slot DCS_NW[2]: legacy;
+            bel_slot DCS_NE[2]: legacy;
+            tile_class CLK_ROOT {
+                cell CELL[30];
+                bel CLK_ROOT;
+                for i in 0..6 {
+                    bel DCC_SW[i];
+                    bel DCC_SE[i];
+                    bel DCC_NW[i];
+                    bel DCC_NE[i];
+                }
+                for i in 0..2 {
+                    bel DCS_SW[i];
+                    bel DCS_SE[i];
+                    bel DCS_NW[i];
+                    bel DCS_NE[i];
+                }
+            }
+        } else if variant machxo2 {
+            bel_slot CLK_ROOT: legacy;
+            bel_slot CLKTEST: legacy;
+            bel_slot DCC[8]: legacy;
+            bel_slot DCM[2]: legacy;
+            bel_slot ECLKBRIDGECS[2]: legacy;
+            tile_class CLK_ROOT_0EBR, CLK_ROOT_1EBR, CLK_ROOT_2EBR, CLK_ROOT_3EBR {
+                if tile_class CLK_ROOT_0EBR {
+                    cell EDGE_W[2];
+                    cell EDGE_E[2];
+                    cell EDGE_S[2];
+                    cell EDGE_N[2];
+                } else if tile_class [CLK_ROOT_1EBR, CLK_ROOT_2EBR] {
+                    cell CELL[4];
+                    cell EDGE_W, EDGE_E, EDGE_S, EDGE_N;
+                    if tile_class CLK_ROOT_2EBR {
+                        cell EBR[3];
+                        cell EBR_W, EBR_E;
+                    }
+                } else {
+                    cell CELL[2];
+                    cell EDGE_W, EDGE_E, EDGE_S, EDGE_N;
+                    cell EBR_S[3];
+                    cell EBR_N[3];
+                    cell EBR_SW, EBR_SE;
+                }
+                bel CLK_ROOT;
+                bel CLKTEST;
+                for i in 0..8 {
+                    bel DCC[i];
+                }
+                for i in 0..2 {
+                    bel DCM[i];
+                }
+                if tile_class CLK_ROOT_0EBR {
+                    // nothing
+                } else {
+                    for i in 0..2 {
+                        bel ECLKBRIDGECS[i];
+                    }
+                }
+            }
+
+            bel_slot DLLDEL[3]: legacy;
+            bel_slot CLKDIV[4]: legacy;
+            bel_slot DQS[2]: legacy;
+            bel_slot ECLKSYNC[2]: legacy;
+            bel_slot CLKFBBUF[2]: legacy;
+            tile_class CLK_S, CLK_N {
+                cell CELL;
+                for i in 0..2 {
+                    bel ECLKSYNC[i];
+                    bel DLLDEL[i];
+                    bel CLKDIV[i];
+                    if tile_class CLK_S {
+                        bel CLKFBBUF[i];
+                    }
+                }
+            }
+            tile_class CLK_W {
+                cell CELL;
+                for i in 0..3 {
+                    bel DLLDEL[i];
+                }
+            }
+            tile_class CLK_E {
+                cell CELL;
+                bel DLLDEL[0];
+            }
+            tile_class CLK_E_DQS {
+                cell CELL[5];
+                bel DLLDEL[0];
+                for i in 0..2 {
+                    bel DQS[i];
+                }
+            }
+        } else if variant ecp4 {
+            bel_slot CLK_ROOT: legacy;
+            bel_slot CLKTEST: legacy;
+            bel_slot DCC_SW[1]: legacy;
+            bel_slot DCC_SE[1]: legacy;
+            bel_slot DCC_NW[1]: legacy;
+            bel_slot DCC_NE[1]: legacy;
+            bel_slot DCS[2]: legacy;
+            tile_class CLK_ROOT {
+                cell ROOT_SW, ROOT_SE, ROOT_NW, ROOT_NE;
+                bel CLK_ROOT;
+                bel CLKTEST;
+                bel DCC_SW[0];
+                bel DCC_SE[0];
+                bel DCC_NW[0];
+                bel DCC_NE[0];
+                for i in 0..2 {
+                    bel DCS[i];
+                }
+            }
+
+            bel_slot CLK_EDGE: legacy;
+            bel_slot CLKTEST_ECLK: legacy;
+            bel_slot DCC[16]: legacy;
+            bel_slot DLLDEL[8]: legacy;
+            bel_slot CLKDIV[4]: legacy;
+            bel_slot ECLKSYNC[16]: legacy;
+            bel_slot BRGECLKSYNC[2]: legacy;
+            bel_slot ECLKBRIDGECS[2]: legacy;
+            tile_class
+                CLK_N_S, CLK_N_M, CLK_N_L,
+                CLK_W_S, CLK_W_M, CLK_W_L,
+                CLK_E_S, CLK_E_M, CLK_E_L
+            {
+                if tile_class CLK_N_L {
+                    cell CELL[16];
+                    cell BC1, BC2;
+                } else {
+                    cell CELL[8];
+                }
+                if tile_class [CLK_N_M, CLK_W_M, CLK_E_M] {
+                    cell FABRIC_IN[2];
+                } else if tile_class [CLK_N_L, CLK_W_L, CLK_E_L] {
+                    cell FABRIC_IN[4];
+                }
+                bel CLKTEST;
+                bel CLK_EDGE;
+                bel CLKTEST_ECLK;
+                if tile_class [CLK_N_S, CLK_N_M, CLK_N_L] {
+                    for i in 0..16 {
+                        bel DCC[i];
+                    }
+                    if tile_class CLK_N_L {
+                        for i in 0..16 {
+                            bel ECLKSYNC[i];
+                        }
+                        for i in 0..8 {
+                            bel DLLDEL[i];
+                        }
+                    } else {
+                        for i in 4..12 {
+                            bel ECLKSYNC[i];
+                        }
+                        for i in 2..6 {
+                            bel DLLDEL[i];
+                        }
+                    }
+                } else {
+                    for i in 0..14 {
+                        bel DCC[i];
+                    }
+                    for i in 0..2 {
+                        bel BRGECLKSYNC[i];
+                        bel ECLKBRIDGECS[i];
+                    }
+                    for i in 0..8 {
+                        bel ECLKSYNC[i];
+                    }
+                    for i in 0..4 {
+                        bel DLLDEL[i];
+                    }
+                }
+                for i in 0..4 {
+                    bel CLKDIV[i];
+                }
+            }
+
+            bel_slot PCSCLKDIV[4]: legacy;
+            tile_class CLK_S_S, CLK_S_M, CLK_S_L {
+                cell CELL[2];
+                if tile_class CLK_S_S {
+                    bel PCSCLKDIV[0];
+                } else if tile_class CLK_S_M {
+                    cell FABRIC_IN[2];
+                    for i in 0..2 {
+                        bel PCSCLKDIV[i];
+                    }
+                } else if tile_class CLK_S_L {
+                    cell FABRIC_IN[4];
+                    for i in 0..3 {
+                        bel PCSCLKDIV[i];
+                    }
+                }
+                bel CLK_EDGE;
+                bel CLKTEST;
+                for i in 0..16 {
+                    bel DCC[i];
+                }
+            }
+        } else if variant ecp5 {
+            bel_slot CLK_ROOT: legacy;
+            bel_slot CLKTEST: legacy;
+            bel_slot DCC_SW[1]: legacy;
+            bel_slot DCC_SE[1]: legacy;
+            bel_slot DCC_NW[1]: legacy;
+            bel_slot DCC_NE[1]: legacy;
+            bel_slot DCS[2]: legacy;
+            tile_class CLK_ROOT_S, CLK_ROOT_L {
+                if tile_class CLK_ROOT_S {
+                    cell SW, SE, NW, NE;
+                } else {
+                    cell QSW, QSE, SW, SE, NW, NE, QNW, QNE;
+                }
+                bel CLK_ROOT;
+                bel CLKTEST;
+                bel DCC_SW[0];
+                bel DCC_SE[0];
+                bel DCC_NW[0];
+                bel DCC_NE[0];
+                for i in 0..2 {
+                    bel DCS[i];
+                }
+            }
+
+            bel_slot DCC[16]: legacy;
+            bel_slot CLK_EDGE: legacy;
+            bel_slot CLKTEST_ECLK: legacy;
+            bel_slot ECLKSYNC[4]: legacy;
+            bel_slot DLLDEL[4]: legacy;
+            bel_slot CLKDIV[2]: legacy;
+            bel_slot PCSCLKDIV[2]: legacy;
+            bel_slot BRGECLKSYNC[1]: legacy;
+            bel_slot ECLKBRIDGECS[1]: legacy;
+            tile_class CLK_W_S, CLK_W_L, CLK_E_S, CLK_E_L {
+                cell CELL_EDGE[4];
+                cell CELL_EBR[2];
+                if tile_class [CLK_W_S, CLK_E_S] {
+                    cell FABRIC_IN[6];
+                } else {
+                    cell FABRIC_IN[8];
+                }
+                for i in 0..14 {
+                    bel DCC[i];
+                }
+                bel CLKTEST;
+                bel CLK_EDGE;
+                bel CLKTEST_ECLK;
+                for i in 0..4 {
+                    bel ECLKSYNC[i];
+                    bel DLLDEL[i];
+                }
+                for i in 0..2 {
+                    bel CLKDIV[i];
+                }
+                bel BRGECLKSYNC[0];
+                bel ECLKBRIDGECS[0];
+            }
+            tile_class CLK_N_S, CLK_N_L {
+                cell CELL[4];
+                if tile_class CLK_N_S {
+                    cell FABRIC_IN[6];
+                } else {
+                    cell FABRIC_IN[8];
+                }
+                for i in 0..12 {
+                    bel DCC[i];
+                }
+                bel CLKTEST;
+                bel CLK_EDGE;
+                for i in 0..4 {
+                    bel DLLDEL[i];
+                }
+            }
+            tile_class CLK_S_S, CLK_S_L {
+                cell CELL[2];
+                if tile_class CLK_S_S {
+                    cell FABRIC_IN[6];
+                } else {
+                    cell FABRIC_IN[8];
+                }
+                for i in 0..16 {
+                    bel DCC[i];
+                }
+                bel CLKTEST;
+                bel CLK_EDGE;
+                for i in 0..2 {
+                    bel PCSCLKDIV[i];
+                }
+            }
+        } else if variant crosslink {
+            bel_slot CLK_ROOT: legacy;
+            bel_slot CLKTEST: legacy;
+            bel_slot DCS[1]: legacy;
+            tile_class CLK_ROOT {
+                cell CELL;
+                bel CLK_ROOT;
+                bel CLKTEST;
+                bel DCS[0];
+            }
+
+            bel_slot DCC[8]: legacy;
+            bel_slot CLK_EDGE: legacy;
+            bel_slot ECLKSYNC[4]: legacy;
+            bel_slot DLLDEL[4]: legacy;
+            bel_slot CLKDIV[4]: legacy;
+            bel_slot CLKTEST_ECLK: legacy;
+            tile_class CLK_S {
+                cell CELL[4];
+                cell FABRIC_IN[2];
+                for i in 0..8 {
+                    bel DCC[i];
+                }
+                bel CLKTEST;
+                bel CLK_EDGE;
+                for i in 0..4 {
+                    bel ECLKSYNC[i];
+                    bel DLLDEL[i];
+                    bel CLKDIV[i];
+                }
+                bel CLKTEST_ECLK;
+            }
+            tile_class CLK_N {
+                cell CELL[2];
+                for i in 0..6 {
+                    bel DCC[i];
+                }
+                bel CLKTEST;
+                bel CLK_EDGE;
+            }
+        }
+
+
+        if variant [ecp2, ecp2m, xp2] {
+            bel_slot ECLK_ROOT: legacy;
+            tile_class ECLK_ROOT_W, ECLK_ROOT_E {
+                cell CELL;
+                bel ECLK_ROOT;
+            }
+            tile_class ECLK_ROOT_S, ECLK_ROOT_N {
+                cell CELL[2];
+                bel ECLK_ROOT;
+            }
+        }
+
+        if variant ecp3 {
+            bel_slot ECLKSYNC[2]: legacy;
+            tile_class ECLK_ROOT_W, ECLK_ROOT_E, ECLK_ROOT_N {
+                cell CELL;
+                for i in 0..2 {
+                    bel ECLKSYNC[i];
+                }
+            }
+        }
     }
 
-    tile_slot PCLK_SOURCE {
-        bel_slot PCLK_SOURCE_W: legacy;
-        bel_slot PCLK_SOURCE_E: legacy;
-        bel_slot PCLK_DCC[2]: legacy;
+    if variant [ecp3, machxo2] {
+        tile_slot PCLK_SOURCE {
+            bel_slot PCLK_SOURCE_W: legacy;
+            bel_slot PCLK_SOURCE_E: legacy;
+            bel_slot PCLK_DCC[2]: legacy;
+
+            for i in 0..4 {
+                if variant machxo2 {
+                    tile_class "PCLK{i}_SOURCE_IO_N", "PCLK{i}_SOURCE_N" {
+                        cell CELL;
+                        for j in 0..2 {
+                            bel PCLK_DCC[j];
+                        }
+                    }
+                    tile_class "PCLK{i}_SOURCE_IO_N_W", "PCLK{i}_SOURCE_N_W" {
+                        if tile_class [PCLK0_SOURCE_IO_N_W, PCLK3_SOURCE_IO_N_W, PCLK1_SOURCE_N_W] {
+                            // keep
+                        } else {
+                            skip;
+                        }
+                        cell CELL;
+                        bel PCLK_SOURCE_W;
+                        for j in 0..2 {
+                            bel PCLK_DCC[j];
+                        }
+                    }
+                    tile_class "PCLK{i}_SOURCE_IO_N_E", "PCLK{i}_SOURCE_N_E" {
+                        if tile_class [PCLK0_SOURCE_IO_N_E, PCLK1_SOURCE_IO_N_E, PCLK1_SOURCE_N_E] {
+                            // keep
+                        } else {
+                            skip;
+                        }
+                        cell CELL;
+                        bel PCLK_SOURCE_E;
+                        for j in 0..2 {
+                            bel PCLK_DCC[j];
+                        }
+                    }
+                }
+
+                tile_class "PCLK{i}_SOURCE" {
+                    cell N, S;
+                    for j in 0..2 {
+                        bel PCLK_DCC[j];
+                    }
+                }
+                tile_class "PCLK{i}_SOURCE_W" {
+                    if variant ecp3 {
+                        if tile_class PCLK2_SOURCE_W {
+                            skip;
+                        }
+                    }
+                    cell N, S;
+                    bel PCLK_SOURCE_W;
+                    for j in 0..2 {
+                        bel PCLK_DCC[j];
+                    }
+                }
+                tile_class "PCLK{i}_SOURCE_E" {
+                    if variant ecp3 {
+                        if tile_class PCLK1_SOURCE_E {
+                            skip;
+                        }
+                    } else {
+                        if tile_class PCLK2_SOURCE_E {
+                            skip;
+                        }
+                    }
+                    cell N, S;
+                    bel PCLK_SOURCE_E;
+                    for j in 0..2 {
+                        bel PCLK_DCC[j];
+                    }
+                }
+            }
+        }
     }
 
-    tile_slot SCLK_SOURCE {
-        bel_slot SCLK_SOURCE: legacy;
+    if variant [ecp2, ecp2m, xp2, ecp3, machxo2] {
+        tile_slot SCLK_SOURCE {
+            bel_slot SCLK_SOURCE: routing;
+            for i in 0..4 {
+                tile_class "SCLK{i}_SOURCE" {
+                    cell CELL;
+                    switchbox SCLK_SOURCE {
+                        permabuf RSCLK[i] = RSCLK_V[0];
+                        permabuf RSCLK[i + 4] = RSCLK_V[1];
+                    }
+                }
+                if variant [ecp3, machxo2] {
+                    tile_class "SCLK{i}_SOURCE_W" {
+                        if variant ecp3 {
+                            if tile_class SCLK2_SOURCE_W {
+                                skip;
+                            }
+                        }
+                        cell CELL;
+                        switchbox SCLK_SOURCE {
+                            permabuf RSCLK[i] = RSCLK_V[0];
+                            permabuf RSCLK[i + 4] = RSCLK_V[1];
+                            permabuf RSCLK[(i + 3) % 4] = RSCLK_V[6];
+                            permabuf RSCLK[(i + 3) % 4 + 4] = RSCLK_V[7];
+                            permabuf RSCLK[(i + 2) % 4] = RSCLK_V[4];
+                            permabuf RSCLK[(i + 2) % 4 + 4] = RSCLK_V[5];
+                        }
+                    }
+                    tile_class "SCLK{i}_SOURCE_E" {
+                        if variant ecp3 {
+                            if tile_class SCLK1_SOURCE_E {
+                                skip;
+                            }
+                        }
+                        cell CELL;
+                        switchbox SCLK_SOURCE {
+                            permabuf RSCLK[i] = RSCLK_V[0];
+                            permabuf RSCLK[i + 4] = RSCLK_V[1];
+                            permabuf RSCLK[(i + 1) % 4] = RSCLK_V[2];
+                            permabuf RSCLK[(i + 1) % 4 + 4] = RSCLK_V[3];
+                        }
+                    }
+                }
+            }
+        }
     }
 
-    tile_slot ECLK_TAP {
-        bel_slot ECLK_TAP: legacy;
+    if variant [ecp2, ecp2m, xp2, ecp3] {
+        tile_slot ECLK_TAP {
+            bel_slot ECLK_TAP: ECLK_TAP;
+            tile_class ECLK_TAP {
+                cell CELL;
+                bel ECLK_TAP {
+                    output ECLK0 = OUT_F[6];
+                    output ECLK1 = OUT_F[7];
+                }
+            }
+        }
     }
 
-    tile_slot HSDCLK_SPLITTER {
-        bel_slot HSDCLK_ROOT: legacy;
-        bel_slot HSDCLK_SPLITTER: legacy;
+    if variant [ecp2, ecp2m, xp2, ecp3, machxo2] {
+        tile_slot HSDCLK_SPLITTER {
+            bel_slot HSDCLK_ROOT: HSDCLK_ROOT;
+            bel_slot HSDCLK_SPLITTER: routing;
+
+            tile_class HSDCLK_SPLITTER, HSDCLK_ROOT {
+                if variant machxo2 {
+                    if tile_class HSDCLK_SPLITTER {
+                        skip;
+                    }
+                }
+                cell W[4], E[4];
+                switchbox HSDCLK_SPLITTER {
+                    for i in 0..2 {
+                        for j in 0..4 {
+                            progbuf W[j].RSCLK_H[i * 4] = E[j].RSCLK_H[i * 4];
+                            progbuf E[j].RSCLK_H[i * 4] = W[j].RSCLK_H[i * 4];
+                        }
+                    }
+                }
+                if tile_class HSDCLK_ROOT {
+                    bel HSDCLK_ROOT {
+                        for i in 0..8 {
+                            output OUT_W[i] = W[i % 4].RSCLK_H[i / 4 * 4];
+                            output OUT_E[i] = E[i % 4].RSCLK_H[i / 4 * 4];
+                        }
+                    }
+                }
+            }
+        }
     }
 
     connector_slot W {
@@ -481,7 +2044,7 @@ target_defs! {
                 pass "X6_N{i+1}" = "X6_N{i}";
             }
 
-            if variant [ecp2, xp2, ecp3, machxo2] {
+            if variant [ecp2, ecp2m, xp2, ecp3, machxo2] {
                 pass RSCLK_V_N = RSCLK_V;
             }
 
@@ -524,11 +2087,11 @@ target_defs! {
         }
     }
 
-    if variant [ecp2, xp2, ecp3, machxo2] {
+    if variant [ecp2, ecp2m, xp2, ecp3, machxo2] {
         connector_slot RSCLK_W {
             opposite RSCLK_E;
             connector_class PASS_SW {
-                if variant [ecp2, xp2] {
+                if variant [ecp2, ecp2m, xp2] {
                     pass RSCLK_H[0] = RSCLK_H[1];
                     pass RSCLK_H[1] = RSCLK_H[2];
                     pass RSCLK_H[2] = RSCLK_H[3];
@@ -720,4 +2283,86 @@ pub mod wiredata {
         s: cslots::S,
         n: cslots::N,
     };
+}
+
+pub mod tiledata {
+    use prjcombine_interconnect::db::TileClassId;
+
+    use crate::defs::tcls;
+
+    pub const PCLK_SOURCE: [TileClassId; 4] = [
+        tcls::PCLK0_SOURCE,
+        tcls::PCLK1_SOURCE,
+        tcls::PCLK2_SOURCE,
+        tcls::PCLK3_SOURCE,
+    ];
+    pub const PCLK_SOURCE_W: [TileClassId; 4] = [
+        tcls::PCLK0_SOURCE_W,
+        tcls::PCLK1_SOURCE_W,
+        tcls::PCLK2_SOURCE_W,
+        tcls::PCLK3_SOURCE_W,
+    ];
+    pub const PCLK_SOURCE_E: [TileClassId; 4] = [
+        tcls::PCLK0_SOURCE_E,
+        tcls::PCLK1_SOURCE_E,
+        tcls::PCLK2_SOURCE_E,
+        tcls::PCLK3_SOURCE_E,
+    ];
+
+    pub const PCLK_SOURCE_N: [TileClassId; 4] = [
+        tcls::PCLK0_SOURCE_N,
+        tcls::PCLK1_SOURCE_N,
+        tcls::PCLK2_SOURCE_N,
+        tcls::PCLK3_SOURCE_N,
+    ];
+    pub const PCLK_SOURCE_N_W: [TileClassId; 4] = [
+        tcls::PCLK0_SOURCE_N_W,
+        tcls::PCLK1_SOURCE_N_W,
+        tcls::PCLK2_SOURCE_N_W,
+        tcls::PCLK3_SOURCE_N_W,
+    ];
+    pub const PCLK_SOURCE_N_E: [TileClassId; 4] = [
+        tcls::PCLK0_SOURCE_N_E,
+        tcls::PCLK1_SOURCE_N_E,
+        tcls::PCLK2_SOURCE_N_E,
+        tcls::PCLK3_SOURCE_N_E,
+    ];
+
+    pub const PCLK_SOURCE_IO_N: [TileClassId; 4] = [
+        tcls::PCLK0_SOURCE_IO_N,
+        tcls::PCLK1_SOURCE_IO_N,
+        tcls::PCLK2_SOURCE_IO_N,
+        tcls::PCLK3_SOURCE_IO_N,
+    ];
+    pub const PCLK_SOURCE_IO_N_W: [TileClassId; 4] = [
+        tcls::PCLK0_SOURCE_IO_N_W,
+        tcls::PCLK1_SOURCE_IO_N_W,
+        tcls::PCLK2_SOURCE_IO_N_W,
+        tcls::PCLK3_SOURCE_IO_N_W,
+    ];
+    pub const PCLK_SOURCE_IO_N_E: [TileClassId; 4] = [
+        tcls::PCLK0_SOURCE_IO_N_E,
+        tcls::PCLK1_SOURCE_IO_N_E,
+        tcls::PCLK2_SOURCE_IO_N_E,
+        tcls::PCLK3_SOURCE_IO_N_E,
+    ];
+
+    pub const SCLK_SOURCE: [TileClassId; 4] = [
+        tcls::SCLK0_SOURCE,
+        tcls::SCLK1_SOURCE,
+        tcls::SCLK2_SOURCE,
+        tcls::SCLK3_SOURCE,
+    ];
+    pub const SCLK_SOURCE_W: [TileClassId; 4] = [
+        tcls::SCLK0_SOURCE_W,
+        tcls::SCLK1_SOURCE_W,
+        tcls::SCLK2_SOURCE_W,
+        tcls::SCLK3_SOURCE_W,
+    ];
+    pub const SCLK_SOURCE_E: [TileClassId; 4] = [
+        tcls::SCLK0_SOURCE_E,
+        tcls::SCLK1_SOURCE_E,
+        tcls::SCLK2_SOURCE_E,
+        tcls::SCLK3_SOURCE_E,
+    ];
 }

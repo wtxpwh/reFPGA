@@ -99,7 +99,7 @@ impl ChipContext<'_> {
                             .insert(format!("TESTIN{i}"), self.xlat_int_wire(bcrd, wire));
                     }
                 }
-                self.insert_bel(bcrd, bel);
+                self.insert_legacy_bel(bcrd, bel);
             }
 
             let bcrd = cell_tile.bel(bslots::CLK_EDGE);
@@ -262,7 +262,7 @@ impl ChipContext<'_> {
                 bel.pins
                     .insert(format!("INT_IN_{i}"), self.xlat_int_wire(bcrd, wire));
             }
-            self.insert_bel(bcrd, bel);
+            self.insert_legacy_bel(bcrd, bel);
 
             let mut special_ins = BTreeMap::new();
             let cell_config = self.chip.special_loc[&SpecialLocKey::Config];
@@ -544,7 +544,7 @@ impl ChipContext<'_> {
                 let clko_out = self.claim_single_out(clko);
                 self.add_bel_wire(bcrd_dcc, "CLKO_OUT", clko_out);
 
-                self.insert_bel(bcrd_dcc, bel);
+                self.insert_legacy_bel(bcrd_dcc, bel);
             }
         }
     }
@@ -568,7 +568,7 @@ impl ChipContext<'_> {
                 bel.pins
                     .insert(format!("TESTIN{i}"), self.xlat_int_wire(bcrd, wire));
             }
-            self.insert_bel(bcrd, bel);
+            self.insert_legacy_bel(bcrd, bel);
         }
 
         let mut dcc_ins = BTreeMap::new();
@@ -599,7 +599,7 @@ impl ChipContext<'_> {
             self.add_bel_wire(bcrd, "CLKO_OUT", clko_out);
             dcc_ins.insert(hv, clko_out);
 
-            self.insert_bel(bcrd, bel);
+            self.insert_legacy_bel(bcrd, bel);
         }
 
         let mut dcs_ins = vec![];
@@ -642,7 +642,7 @@ impl ChipContext<'_> {
             self.add_bel_wire(bcrd, "DCSOUT_OUT", dcsout_out);
             dcs_ins.push(dcsout_out);
 
-            self.insert_bel(bcrd, bel);
+            self.insert_legacy_bel(bcrd, bel);
         }
 
         let bcrd = self.chip.bel_clk_root();
@@ -690,6 +690,6 @@ impl ChipContext<'_> {
             let wire_edge = self.rc_io_wire(cell_edge, &format!("JECLKO_BRGECLKSYNC{i}"));
             self.claim_pip(brgeclk_in, wire_edge);
         }
-        self.insert_bel(bcrd, bel);
+        self.insert_legacy_bel(bcrd, bel);
     }
 }

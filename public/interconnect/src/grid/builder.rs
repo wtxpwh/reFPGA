@@ -105,7 +105,7 @@ impl<'db> GridBuilder<'db> {
         die
     }
 
-    pub fn add_tile_id(
+    pub fn add_tile(
         &mut self,
         anchor: CellCoord,
         tcid: TileClassId,
@@ -130,72 +130,36 @@ impl<'db> GridBuilder<'db> {
         &mut self[anchor].tiles[slot]
     }
 
-    pub fn add_tile(&mut self, anchor: CellCoord, kind: &str, cells: &[CellCoord]) -> &mut Tile {
-        self.add_tile_id(anchor, self.db.get_tile_class(kind), cells)
+    pub fn add_tile_single(&mut self, cell: CellCoord, tcid: TileClassId) -> &mut Tile {
+        self.add_tile(cell, tcid, &[cell])
     }
 
-    pub fn add_tile_single_id(&mut self, cell: CellCoord, tcid: TileClassId) -> &mut Tile {
-        self.add_tile_id(cell, tcid, &[cell])
+    pub fn add_tile_e(&mut self, cell: CellCoord, tcid: TileClassId, num: usize) -> &mut Tile {
+        self.add_tile(cell, tcid, &cell.cells_e(num))
     }
 
-    pub fn add_tile_single(&mut self, cell: CellCoord, kind: &str) -> &mut Tile {
-        self.add_tile(cell, kind, &[cell])
-    }
-
-    pub fn add_tile_e_id(&mut self, cell: CellCoord, tcid: TileClassId, num: usize) -> &mut Tile {
-        self.add_tile_id(cell, tcid, &cell.cells_e(num))
-    }
-
-    pub fn add_tile_e(&mut self, cell: CellCoord, kind: &str, num: usize) -> &mut Tile {
-        self.add_tile(cell, kind, &cell.cells_e(num))
-    }
-
-    pub fn add_tile_n_id(&mut self, cell: CellCoord, tcid: TileClassId, num: usize) -> &mut Tile {
-        self.add_tile_id(cell, tcid, &cell.cells_n(num))
-    }
-
-    pub fn add_tile_n(&mut self, cell: CellCoord, kind: &str, num: usize) -> &mut Tile {
-        self.add_tile(cell, kind, &cell.cells_n(num))
-    }
-
-    pub fn add_tile_we_id(
-        &mut self,
-        cell: CellCoord,
-        tcid: TileClassId,
-        num_w: usize,
-        num: usize,
-    ) -> &mut Tile {
-        self.add_tile_id(cell, tcid, &cell.delta(-(num_w as i32), 0).cells_e(num))
+    pub fn add_tile_n(&mut self, cell: CellCoord, tcid: TileClassId, num: usize) -> &mut Tile {
+        self.add_tile(cell, tcid, &cell.cells_n(num))
     }
 
     pub fn add_tile_we(
         &mut self,
         cell: CellCoord,
-        kind: &str,
+        tcid: TileClassId,
         num_w: usize,
         num: usize,
     ) -> &mut Tile {
-        self.add_tile(cell, kind, &cell.delta(-(num_w as i32), 0).cells_e(num))
+        self.add_tile(cell, tcid, &cell.delta(-(num_w as i32), 0).cells_e(num))
     }
 
-    pub fn add_tile_sn_id(
+    pub fn add_tile_sn(
         &mut self,
         cell: CellCoord,
         tcid: TileClassId,
         num_s: usize,
         num: usize,
     ) -> &mut Tile {
-        self.add_tile_id(cell, tcid, &cell.delta(0, -(num_s as i32)).cells_n(num))
-    }
-
-    pub fn add_tile_sn(
-        &mut self,
-        cell: CellCoord,
-        kind: &str,
-        num_s: usize,
-        num: usize,
-    ) -> &mut Tile {
-        self.add_tile(cell, kind, &cell.delta(0, -(num_s as i32)).cells_n(num))
+        self.add_tile(cell, tcid, &cell.delta(0, -(num_s as i32)).cells_n(num))
     }
 
     pub fn fill_conn_pair(

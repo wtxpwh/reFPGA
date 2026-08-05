@@ -49,9 +49,9 @@ impl DieExpander<'_, '_, '_> {
                 continue;
             }
             if self.chip.col_side(cell.col) == DirH::W {
-                self.egrid.add_tile_e_id(cell, tcls::INT, 2);
+                self.egrid.add_tile_e(cell, tcls::INT, 2);
                 if cell.row.to_idx() % 60 == 30 {
-                    self.egrid.add_tile_id(
+                    self.egrid.add_tile(
                         cell,
                         tcls::RCLK_INT,
                         &[
@@ -69,7 +69,7 @@ impl DieExpander<'_, '_, '_> {
                 | ColumnKind::Dsp(_)
                 | ColumnKind::Uram
                 | ColumnKind::ContUram => {
-                    self.egrid.add_tile_single_id(cell, tcls::INTF);
+                    self.egrid.add_tile_single(cell, tcls::INTF);
                 }
                 ColumnKind::Gt(idx) | ColumnKind::Io(idx) => {
                     let iocol = &self.chip.cols_io[idx];
@@ -85,10 +85,10 @@ impl DieExpander<'_, '_, '_> {
                             | IoRowKind::HdioLMrc
                             | IoRowKind::Xp5io,
                         ) => {
-                            self.egrid.add_tile_single_id(cell, tcls::INTF_IO);
+                            self.egrid.add_tile_single(cell, tcls::INTF_IO);
                         }
                         _ => {
-                            self.egrid.add_tile_single_id(cell, tcls::INTF_DELAY);
+                            self.egrid.add_tile_single(cell, tcls::INTF_DELAY);
                         }
                     }
                 }
@@ -100,7 +100,7 @@ impl DieExpander<'_, '_, '_> {
                 | ColumnKind::ContHard
                 | ColumnKind::Sdfec
                 | ColumnKind::DfeB => {
-                    self.egrid.add_tile_single_id(cell, tcls::INTF_DELAY);
+                    self.egrid.add_tile_single(cell, tcls::INTF_DELAY);
                 }
             }
         }
@@ -125,17 +125,15 @@ impl DieExpander<'_, '_, '_> {
                 let dy = dy as i32;
                 self.egrid.fill_conn_term(cell.delta(0, dy), ccls::TERM_W);
                 self.egrid.fill_conn_term(cell.delta(0, dy), ccls::TERM_LW);
-                self.egrid
-                    .add_tile_single_id(cell.delta(0, dy), tcls::INTF_IO);
+                self.egrid.add_tile_single(cell.delta(0, dy), tcls::INTF_IO);
                 if dy % 60 == 30 {
-                    self.egrid
-                        .add_tile_single_id(cell.delta(0, dy), tcls::RCLK_PS);
+                    self.egrid.add_tile_single(cell.delta(0, dy), tcls::RCLK_PS);
                 }
             }
             let dy = if ps.has_vcu { 60 } else { 0 };
-            self.egrid.add_tile_n_id(cell.delta(0, dy), tcls::PS, 180);
+            self.egrid.add_tile_n(cell.delta(0, dy), tcls::PS, 180);
             if ps.has_vcu {
-                self.egrid.add_tile_n_id(cell, tcls::VCU, 60);
+                self.egrid.add_tile_n(cell, tcls::VCU, 60);
             }
         }
     }
@@ -274,14 +272,14 @@ impl DieExpander<'_, '_, '_> {
                 if cd.kind == ColumnKind::CleM(CleMKind::Laguna)
                     && self.chip.is_laguna_row(cell.row)
                 {
-                    self.egrid.add_tile_single_id(cell, tcls::LAGUNA);
+                    self.egrid.add_tile_single(cell, tcls::LAGUNA);
                 } else {
-                    self.egrid.add_tile_single_id(cell, tcid);
+                    self.egrid.add_tile_single(cell, tcid);
                 }
                 if cell.row == self.chip.row_rclk(cell.row) {
                     if matches!(cd.kind, ColumnKind::CleM(CleMKind::ClkBuf)) {
                         self.egrid
-                            .add_tile_single_id(cell, tcls::RCLK_HROUTE_SPLITTER_CLE);
+                            .add_tile_single(cell, tcls::RCLK_HROUTE_SPLITTER_CLE);
                         self.egrid.fill_conn_pair(
                             cell,
                             cell.delta(-1, 0),
@@ -294,11 +292,11 @@ impl DieExpander<'_, '_, '_> {
                         if self.chip.kind == ChipKind::Ultrascale {
                             continue;
                         }
-                        self.egrid.add_tile_single_id(cell, tcls::RCLK_V_SINGLE_LAG);
+                        self.egrid.add_tile_single(cell, tcls::RCLK_V_SINGLE_LAG);
                     } else if self.chip.col_side(col) == DirH::W
                         || self.chip.kind != ChipKind::UltrascalePlus
                     {
-                        self.egrid.add_tile_single_id(cell, tcls::RCLK_V_SINGLE_CLE);
+                        self.egrid.add_tile_single(cell, tcls::RCLK_V_SINGLE_CLE);
                     }
                 }
             }
@@ -323,14 +321,13 @@ impl DieExpander<'_, '_, '_> {
                 )) {
                     continue;
                 }
-                self.egrid.add_tile_n_id(cell, tcls::BRAM, 5);
+                self.egrid.add_tile_n(cell, tcls::BRAM, 5);
                 if cell.row == self.chip.row_rclk(cell.row) {
-                    self.egrid.add_tile_single_id(cell, tcls::HARD_SYNC);
+                    self.egrid.add_tile_single(cell, tcls::HARD_SYNC);
                     if self.chip.kind == ChipKind::Ultrascale {
-                        self.egrid
-                            .add_tile_single_id(cell, tcls::RCLK_V_DOUBLE_BRAM);
+                        self.egrid.add_tile_single(cell, tcls::RCLK_V_DOUBLE_BRAM);
                     } else {
-                        self.egrid.add_tile_single_id(cell, tcls::RCLK_V_QUAD_BRAM);
+                        self.egrid.add_tile_single(cell, tcls::RCLK_V_QUAD_BRAM);
                     }
                 }
             }
@@ -364,13 +361,13 @@ impl DieExpander<'_, '_, '_> {
                     {
                         continue;
                     }
-                    self.egrid.add_tile_n_id(cell, tcls::HBM_BLI, 15);
+                    self.egrid.add_tile_n(cell, tcls::HBM_BLI, 15);
                 } else {
-                    self.egrid.add_tile_n_id(cell, tcls::DSP, 5);
+                    self.egrid.add_tile_n(cell, tcls::DSP, 5);
                 }
                 if cell.row == self.chip.row_rclk(cell.row) {
                     if matches!(cd.kind, ColumnKind::Dsp(DspKind::ClkBuf)) {
-                        self.egrid.add_tile_single_id(cell, tcls::RCLK_SPLITTER);
+                        self.egrid.add_tile_single(cell, tcls::RCLK_SPLITTER);
                         let ccls = if matches!(self.chip.columns[col + 1].kind, ColumnKind::Io(_)) {
                             ccls::GCLK_H_IO
                         } else {
@@ -379,7 +376,7 @@ impl DieExpander<'_, '_, '_> {
                         self.egrid
                             .fill_conn_pair(cell, cell.delta(1, 0), ccls, ccls::GCLK_H_REV);
                     } else {
-                        self.egrid.add_tile_single_id(cell, tcls::RCLK_V_DOUBLE_DSP);
+                        self.egrid.add_tile_single(cell, tcls::RCLK_V_DOUBLE_DSP);
                     }
                 }
             }
@@ -407,10 +404,10 @@ impl DieExpander<'_, '_, '_> {
                 let mut tcells = vec![];
                 tcells.extend(cell.cells_n_const::<15>());
                 tcells.extend(cell.delta(1, 0).cells_n_const::<15>());
-                self.egrid.add_tile_id(cell, tcls::URAM, &tcells);
+                self.egrid.add_tile(cell, tcls::URAM, &tcells);
                 if cell.row == self.chip.row_rclk(cell.row) {
                     self.egrid
-                        .add_tile_single_id(cell.delta(1, 0), tcls::RCLK_V_QUAD_URAM);
+                        .add_tile_single(cell.delta(1, 0), tcls::RCLK_V_QUAD_URAM);
                 }
             }
         }
@@ -435,7 +432,7 @@ impl DieExpander<'_, '_, '_> {
             HardRowKind::None => return,
             HardRowKind::Hdio | HardRowKind::HdioAms => {
                 self.egrid
-                    .add_tile_sn_id(cell.delta(0, 30), tcls::HDIO, 30, 60);
+                    .add_tile_sn(cell.delta(0, 30), tcls::HDIO, 30, 60);
                 for idx in 0..24 {
                     self.io.push(IoCoord::Hdio(HdioCoord {
                         cell: cell.delta(0, 30),
@@ -443,7 +440,7 @@ impl DieExpander<'_, '_, '_> {
                     }));
                 }
                 self.egrid
-                    .add_tile_sn_id(cell.delta(0, 30), tcls::RCLK_HDIO, 30, 60);
+                    .add_tile_sn(cell.delta(0, 30), tcls::RCLK_HDIO, 30, 60);
                 return;
             }
             HardRowKind::HdioS => {
@@ -451,15 +448,14 @@ impl DieExpander<'_, '_, '_> {
                 tcells.extend(cell.cells_n_const::<60>());
                 tcells.extend(cell.delta(1, 0).cells_n_const::<60>());
                 self.egrid
-                    .add_tile_sn_id(cell.delta(0, 30), tcls::RCLK_HDIOS, 30, 60);
+                    .add_tile_sn(cell.delta(0, 30), tcls::RCLK_HDIOS, 30, 60);
                 self.egrid.fill_conn_pair(
                     cell.delta(0, 30),
                     cell.delta(1, 30),
                     ccls::GCLK_H,
                     ccls::GCLK_H_REV,
                 );
-                self.egrid
-                    .add_tile_id(cell.delta(0, 30), tcls::HDIOS, &tcells);
+                self.egrid.add_tile(cell.delta(0, 30), tcls::HDIOS, &tcells);
                 for i in 0..42 {
                     self.io.push(IoCoord::HdioLc(HdioCoord {
                         cell: cell.delta(0, 30),
@@ -471,7 +467,7 @@ impl DieExpander<'_, '_, '_> {
             HardRowKind::HdioL => {
                 for (i, tcid) in [tcls::HDIOL_S, tcls::HDIOL_N].into_iter().enumerate() {
                     let cell = cell.delta(0, (i * 30) as i32);
-                    self.egrid.add_tile_n_id(cell, tcid, 30);
+                    self.egrid.add_tile_n(cell, tcid, 30);
                     for j in 0..42 {
                         self.io.push(IoCoord::HdioLc(HdioCoord {
                             cell,
@@ -480,7 +476,7 @@ impl DieExpander<'_, '_, '_> {
                     }
                 }
                 self.egrid
-                    .add_tile_sn_id(cell.delta(0, 30), tcls::RCLK_HDIOL, 30, 60);
+                    .add_tile_sn(cell.delta(0, 30), tcls::RCLK_HDIOL, 30, 60);
                 return;
             }
             HardRowKind::Cfg => {
@@ -489,16 +485,16 @@ impl DieExpander<'_, '_, '_> {
                     ConfigKind::Csec => tcls::CFG_CSEC,
                     ConfigKind::CsecV2 => tcls::CFG_CSEC_V2,
                 };
-                self.egrid.add_tile_n_id(cell, tcid, 60);
+                self.egrid.add_tile_n(cell, tcid, 60);
                 self.egrid
-                    .add_tile_single_id(cell.delta(0, 30), tcls::RCLK_HROUTE_SPLITTER_HARD);
+                    .add_tile_single(cell.delta(0, 30), tcls::RCLK_HROUTE_SPLITTER_HARD);
                 return;
             }
             HardRowKind::Ams => {
-                self.egrid.add_tile_n_id(cell, tcls::CFGIO, 30);
+                self.egrid.add_tile_n(cell, tcls::CFGIO, 30);
                 self.egrid
-                    .add_tile_single_id(cell.delta(0, 30), tcls::RCLK_HROUTE_SPLITTER_HARD);
-                self.egrid.add_tile_n_id(cell.delta(0, 30), tcls::AMS, 30);
+                    .add_tile_single(cell.delta(0, 30), tcls::RCLK_HROUTE_SPLITTER_HARD);
+                self.egrid.add_tile_n(cell.delta(0, 30), tcls::AMS, 30);
                 return;
             }
             HardRowKind::Pcie3 => tcls::PCIE3,
@@ -511,11 +507,11 @@ impl DieExpander<'_, '_, '_> {
             HardRowKind::DfeG => tcls::DFE_G,
         };
         self.egrid
-            .add_tile_single_id(cell.delta(0, 30), tcls::RCLK_HROUTE_SPLITTER_HARD);
+            .add_tile_single(cell.delta(0, 30), tcls::RCLK_HROUTE_SPLITTER_HARD);
         let mut tcells = vec![];
         tcells.extend(cell.cells_n_const::<60>());
         tcells.extend(cell.delta(1, 0).cells_n_const::<60>());
-        self.egrid.add_tile_id(cell, tcid, &tcells);
+        self.egrid.add_tile(cell, tcid, &tcells);
     }
 
     fn fill_hard(&mut self, has_pcie_cfg: &mut bool) {
@@ -535,7 +531,7 @@ impl DieExpander<'_, '_, '_> {
                 self.fill_hard_single(self.die.cell(hc.col, self.chip.row_reg_bot(reg)), kind);
             }
             if is_cfg && self.chip.has_hbm {
-                self.egrid.add_tile_id(
+                self.egrid.add_tile(
                     self.die.cell(hc.col, RowId::from_idx(0)),
                     tcls::HBM_ABUS_SWITCH,
                     &[],
@@ -576,44 +572,35 @@ impl DieExpander<'_, '_, '_> {
                         }
                         let is_hbm = self.chip.has_hbm && reg.to_idx() == 0;
                         let tcid = if is_hbm { tcls::CMT_HBM } else { tcls::CMT };
-                        self.egrid.add_tile_sn_id(cell, tcid, 30, 60);
+                        self.egrid.add_tile_sn(cell, tcid, 30, 60);
 
                         for i in 0..4 {
                             self.egrid
-                                .add_tile_n_id(cell.delta(0, -30 + i * 15), tcls::XIPHY, 15);
+                                .add_tile_n(cell.delta(0, -30 + i * 15), tcls::XIPHY, 15);
                         }
                         if self.chip.kind == ChipKind::UltrascalePlus {
-                            self.egrid.add_tile_id(
-                                cell,
-                                tcls::RCLK_XIPHY,
-                                &[cell, cell.delta(0, -1)],
-                            );
+                            self.egrid
+                                .add_tile(cell, tcls::RCLK_XIPHY, &[cell, cell.delta(0, -1)]);
                         }
 
                         if kind == IoRowKind::Hpio {
                             for i in 0..2 {
-                                self.egrid.add_tile_n_id(
-                                    cell.delta(0, -30 + i * 30),
-                                    tcls::HPIO,
-                                    30,
-                                );
+                                self.egrid
+                                    .add_tile_n(cell.delta(0, -30 + i * 30), tcls::HPIO, 30);
                             }
-                            self.egrid.add_tile_sn_id(cell, tcls::RCLK_HPIO, 30, 60);
+                            self.egrid.add_tile_sn(cell, tcls::RCLK_HPIO, 30, 60);
                         } else {
                             for i in 0..2 {
-                                self.egrid.add_tile_n_id(
-                                    cell.delta(0, -30 + i * 30),
-                                    tcls::HRIO,
-                                    30,
-                                );
+                                self.egrid
+                                    .add_tile_n(cell.delta(0, -30 + i * 30), tcls::HRIO, 30);
                             }
-                            self.egrid.add_tile_sn_id(cell, tcls::RCLK_HRIO, 30, 60);
+                            self.egrid.add_tile_sn(cell, tcls::RCLK_HRIO, 30, 60);
                         }
                     }
                     IoRowKind::HdioL | IoRowKind::HdioLMrc => {
                         for (i, tcid) in [tcls::HDIOL_S, tcls::HDIOL_N].into_iter().enumerate() {
                             let cell = cell.delta(0, -30 + i as i32 * 30);
-                            self.egrid.add_tile_n_id(cell, tcid, 30);
+                            self.egrid.add_tile_n(cell, tcid, 30);
                             for idx in 0..42 {
                                 self.io.push(IoCoord::HdioLc(HdioCoord {
                                     cell,
@@ -624,8 +611,8 @@ impl DieExpander<'_, '_, '_> {
                         if kind == IoRowKind::HdioLMrc {
                             self.egrid.fill_conn_term(cell, ccls::RCLK_HDIO_CMT);
                         }
-                        self.egrid.add_tile_sn_id(cell, tcls::CMT, 30, 60);
-                        self.egrid.add_tile_sn_id(
+                        self.egrid.add_tile_sn(cell, tcls::CMT, 30, 60);
+                        self.egrid.add_tile_sn(
                             cell,
                             match self.chip.col_side(ioc.col) {
                                 DirH::W => tcls::RCLK_HDIOL_CMT_W,
@@ -636,8 +623,8 @@ impl DieExpander<'_, '_, '_> {
                         );
                     }
                     IoRowKind::Xp5io => {
-                        self.egrid.add_tile_sn_id(cell, tcls::CMTXP, 30, 60);
-                        self.egrid.add_tile_sn_id(cell, tcls::XP5IO, 30, 60);
+                        self.egrid.add_tile_sn(cell, tcls::CMTXP, 30, 60);
+                        self.egrid.add_tile_sn(cell, tcls::XP5IO, 30, 60);
                         for idx in 0..66 {
                             self.io.push(IoCoord::Xp5io(Xp5ioCoord {
                                 cell,
@@ -657,7 +644,7 @@ impl DieExpander<'_, '_, '_> {
                             IoRowKind::RfDac => tcls::RFDAC,
                             _ => unreachable!(),
                         };
-                        self.egrid.add_tile_sn_id(cell, tcid, 30, 60);
+                        self.egrid.add_tile_sn(cell, tcid, 30, 60);
                         self.gt.push(cell);
                     }
                 }
@@ -675,7 +662,7 @@ impl DieExpander<'_, '_, '_> {
                     continue;
                 }
                 let cell = self.die.cell(col, self.chip.row_reg_bot(reg));
-                self.egrid.add_tile_n_id(cell, tcls::FE, 60);
+                self.egrid.add_tile_n(cell, tcls::FE, 60);
             }
         }
     }
@@ -698,7 +685,7 @@ impl DieExpander<'_, '_, '_> {
                 };
                 if matches!(cd.kind, ColumnKind::DfeB | ColumnKind::DfeE) {
                     self.egrid
-                        .add_tile_single_id(cell.delta(0, 30), tcls::RCLK_HROUTE_SPLITTER_HARD);
+                        .add_tile_single(cell.delta(0, 30), tcls::RCLK_HROUTE_SPLITTER_HARD);
                     self.egrid.fill_conn_pair(
                         cell.delta(0, 30),
                         cell.delta(1, 30),
@@ -710,9 +697,9 @@ impl DieExpander<'_, '_, '_> {
                     let mut tcells = vec![];
                     tcells.extend(cell.cells_n_const::<60>());
                     tcells.extend(cell.delta(1, 0).cells_n_const::<60>());
-                    self.egrid.add_tile_id(cell, tcid, &tcells);
+                    self.egrid.add_tile(cell, tcid, &tcells);
                 } else {
-                    self.egrid.add_tile_n_id(cell, tcid, 60);
+                    self.egrid.add_tile_n(cell, tcid, 60);
                 }
             }
         }
@@ -729,10 +716,10 @@ impl DieExpander<'_, '_, '_> {
                 let mut tcells = vec![];
                 tcells.extend(cell.delta(0, -30).cells_n_const::<60>());
                 tcells.extend(cell.delta(1, -30).cells_n_const::<60>());
-                self.egrid.add_tile_sn_id(cell, tcls::RCLK_HDIOS, 30, 60);
+                self.egrid.add_tile_sn(cell, tcls::RCLK_HDIOS, 30, 60);
                 self.egrid
                     .fill_conn_pair(cell, cell.delta(1, 0), ccls::GCLK_H, ccls::GCLK_H_REV);
-                self.egrid.add_tile_id(cell, tcls::HDIOS, &tcells);
+                self.egrid.add_tile(cell, tcls::HDIOS, &tcells);
                 for i in 0..42 {
                     self.io.push(IoCoord::HdioLc(HdioCoord {
                         cell,

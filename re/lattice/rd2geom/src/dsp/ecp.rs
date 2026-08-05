@@ -1,11 +1,14 @@
-use prjcombine_ecp::{chip::ChipKind, defs::bslots};
+use prjcombine_ecp::{
+    chip::ChipKind,
+    defs::{bslots, tcls},
+};
 use prjcombine_interconnect::db::LegacyBel;
 
 use crate::ChipContext;
 
 impl ChipContext<'_> {
     pub(super) fn process_dsp_ecp(&mut self) {
-        let tcid = self.intdb.get_tile_class("DSP");
+        let tcid = tcls::DSP;
         let is_ecp2 = self.chip.kind != ChipKind::Ecp;
         for &tcrd in &self.edev.tile_index[tcid] {
             let bcrd = tcrd.bel(bslots::DSP[0]);
@@ -248,7 +251,7 @@ impl ChipContext<'_> {
                 }
             }
 
-            self.insert_bel(bcrd, bel);
+            self.insert_legacy_bel(bcrd, bel);
         }
     }
 }

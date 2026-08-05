@@ -34,13 +34,6 @@ impl IntDb {
             .unwrap_or_else(|| panic!("no wire {name}"))
             .0
     }
-    #[track_caller]
-    pub fn get_tile_class(&self, name: &str) -> TileClassId {
-        self.tile_classes
-            .get(name)
-            .unwrap_or_else(|| panic!("no tile class {name}"))
-            .0
-    }
 
     pub fn bel_class(&self, slot: BelSlotId) -> BelClassId {
         let BelKind::Class(bcid) = self.bel_slots[slot].kind else {

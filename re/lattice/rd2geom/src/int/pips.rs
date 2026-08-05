@@ -2,7 +2,7 @@ use std::collections::{BTreeMap, BTreeSet};
 
 use prjcombine_ecp::{
     chip::ChipKind,
-    defs::{bslots, cslots, rslots, tslots, wires},
+    defs::{bslots, cslots, rslots, tcls, tslots, wires},
 };
 use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
@@ -500,9 +500,7 @@ impl ChipContext<'_> {
                     sb.items.push(SwitchBoxItem::Mux(mux));
                 }
             }
-            if matches!(self.chip.kind, ChipKind::MachXo2(_))
-                && self.intdb.tile_classes[tcid].name == "INT_EBR"
-            {
+            if matches!(self.chip.kind, ChipKind::MachXo2(_)) && tcid == tcls::INT_EBR {
                 for i in 0..8 {
                     let vsdclk = wires::RSCLK_V[i].cell(0);
                     let vsdclk_n = wires::RSCLK_V_N[i].cell(0);
@@ -518,7 +516,7 @@ impl ChipContext<'_> {
                     }));
                 }
             }
-            if self.chip.kind == ChipKind::Ecp4 && self.intdb.tile_classes[tcid].name != "INT_PLC" {
+            if self.chip.kind == ChipKind::Ecp4 && tcid != tcls::INT_PLC {
                 for i in 0..2 {
                     let clk = wires::IMUX_CLK[i].cell(0);
                     let clk_delay = wires::IMUX_CLK_DELAY[i].cell(0);

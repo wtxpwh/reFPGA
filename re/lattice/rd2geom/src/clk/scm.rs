@@ -123,12 +123,12 @@ impl ChipContext<'_> {
                     }
                 }
 
-                self.insert_bel(bcrd, bel);
+                self.insert_legacy_bel(bcrd, bel);
             }
             {
                 let bcrd = cell_tile.bel(bslots::CLK_EDGE);
                 self.name_bel_null(bcrd);
-                self.insert_bel(bcrd, LegacyBel::default());
+                self.insert_legacy_bel(bcrd, LegacyBel::default());
 
                 for i in 0..2 {
                     let ab = ['A', 'B'][i];
@@ -400,11 +400,11 @@ impl ChipContext<'_> {
                 }
             }
         }
-        self.insert_bel(bcrd, bel);
+        self.insert_legacy_bel(bcrd, bel);
         {
             let bcrd = bcrd.bel(bslots::CLKTEST);
             self.name_bel(bcrd, ["TESTCK"]);
-            self.insert_simple_bel(bcrd, cell, "TESTCK");
+            self.insert_simple_legacy_bel(bcrd, cell, "TESTCK");
         }
     }
 }

@@ -1,6 +1,6 @@
 use prjcombine_ecp::{
     chip::{Chip, ChipKind, MachXo2Kind, PllLoc, SpecialIoKey, SpecialLocKey},
-    defs::bslots,
+    defs::{bslots, tcls},
 };
 use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
@@ -22,7 +22,7 @@ impl ChipContext<'_> {
         {
             let bcrd = cell.bel(bslots::START);
             self.name_bel(bcrd, ["START"]);
-            self.insert_simple_bel(bcrd, cell, "START");
+            self.insert_simple_legacy_bel(bcrd, cell, "START");
         }
 
         {
@@ -34,19 +34,19 @@ impl ChipContext<'_> {
                 self.add_bel_wire(bcrd, pin, wire);
                 bel.pins.insert(pin.into(), self.xlat_int_wire(bcrd, wire));
             }
-            self.insert_bel(bcrd, bel);
+            self.insert_legacy_bel(bcrd, bel);
         }
 
         {
             let bcrd = cell.bel(bslots::OSC);
             self.name_bel(bcrd, ["OSC"]);
-            self.insert_simple_bel(bcrd, cell, "OSC");
+            self.insert_simple_legacy_bel(bcrd, cell, "OSC");
         }
 
         {
             let bcrd = cell.bel(bslots::GSR);
             self.name_bel(bcrd, ["GSR"]);
-            self.insert_simple_bel(bcrd, cell, "GSR");
+            self.insert_simple_legacy_bel(bcrd, cell, "GSR");
             let rstn = self.rc_wire(cell, "JRSTN_GSR");
             self.add_bel_wire(bcrd, "RSTN", rstn);
             let rstn_io = self.rc_corner_wire(cell_nw, "JRSTN_RSTN");
@@ -68,7 +68,7 @@ impl ChipContext<'_> {
                 "JTAG"
             };
             self.name_bel(bcrd, [name, "TDO"]);
-            let mut bel = self.extract_simple_bel(bcrd, cell_jtag, "JTAG");
+            let mut bel = self.extract_simple_legacy_bel(bcrd, cell_jtag, "JTAG");
 
             for pin in ["TCK", "TMS", "TDI"] {
                 let wire = self.rc_wire(cell_jtag, &format!("J{pin}_JTAG"));
@@ -93,14 +93,14 @@ impl ChipContext<'_> {
             self.claim_pip(tdo_mux, tdo_int);
             self.claim_pip(tdo_io, tdo_mux);
 
-            self.insert_bel(bcrd, bel);
+            self.insert_legacy_bel(bcrd, bel);
         }
 
         {
             let bcrd = cell.bel(bslots::SYSBUS);
             let cell_sysbus = cell.delta(2, 0);
             self.name_bel(bcrd, ["SYSBUS", "MPIIRQN"]);
-            let mut bel = self.extract_simple_bel(bcrd, cell_sysbus, "SYSBUS");
+            let mut bel = self.extract_simple_legacy_bel(bcrd, cell_sysbus, "SYSBUS");
             for pin in [
                 "LPCSQ0",
                 "LPCSQ1",
@@ -270,7 +270,7 @@ impl ChipContext<'_> {
             self.add_bel_wire(bcrd, "MPIIRQN_OUT", mpiirq_out);
             self.claim_pip(mpiirq_out, mpiirq);
 
-            self.insert_bel(bcrd, bel);
+            self.insert_legacy_bel(bcrd, bel);
         }
     }
 
@@ -279,7 +279,7 @@ impl ChipContext<'_> {
 
         let bcrd = cell.bel(bslots::JTAG);
         self.name_bel(bcrd, ["JTAG", "TCK", "TMS", "TDI", "TDO"]);
-        self.insert_simple_bel(bcrd, cell, "JTAG");
+        self.insert_simple_legacy_bel(bcrd, cell, "JTAG");
         for pin in ["TCK", "TMS", "TDI", "TDO"] {
             let wire = self.rc_wire(cell, &format!("J{pin}_JTAG"));
             let wire_pin = WireName {
@@ -298,7 +298,7 @@ impl ChipContext<'_> {
 
         let bcrd = cell.bel(bslots::START);
         self.name_bel(bcrd, ["START"]);
-        self.insert_simple_bel(bcrd, cell, "START");
+        self.insert_simple_legacy_bel(bcrd, cell, "START");
 
         let bcrd = cell.bel(bslots::RDBK);
         self.name_bel(bcrd, ["RDBK"]);
@@ -313,7 +313,7 @@ impl ChipContext<'_> {
         let bcrd = cell.bel(bslots::OSC);
         self.name_bel(bcrd, ["OSC"]);
         if self.chip.kind == ChipKind::Ecp {
-            self.insert_simple_bel(bcrd, cell, "OSC");
+            self.insert_simple_legacy_bel(bcrd, cell, "OSC");
         } else {
             let wire = self.rc_wire(cell, "JCFGCLK_OSC");
             self.add_bel_wire(bcrd, "CFGCLK", wire);
@@ -321,7 +321,7 @@ impl ChipContext<'_> {
 
         let bcrd = cell.bel(bslots::GSR);
         self.name_bel(bcrd, ["GSR"]);
-        self.insert_simple_bel(bcrd, cell, "GSR");
+        self.insert_simple_legacy_bel(bcrd, cell, "GSR");
     }
 
     fn process_config_machxo(&mut self) {
@@ -329,7 +329,7 @@ impl ChipContext<'_> {
 
         let bcrd = cell.bel(bslots::JTAG);
         self.name_bel(bcrd, ["JTAG", "TCK", "TMS", "TDI", "TDO", "TSALL"]);
-        self.insert_simple_bel(bcrd, cell, "JTAG");
+        self.insert_simple_legacy_bel(bcrd, cell, "JTAG");
         for pin in ["TCK", "TMS", "TDI", "TDO"] {
             let wire = self.rc_wire(cell, &format!("J{pin}_JTAG"));
             let wire_pin = WireName {
@@ -354,7 +354,7 @@ impl ChipContext<'_> {
 
         let bcrd = cell.bel(bslots::GSR);
         self.name_bel(bcrd, ["GSR"]);
-        self.insert_simple_bel(bcrd, cell, "GSR");
+        self.insert_simple_legacy_bel(bcrd, cell, "GSR");
         let gsrpadn = self.rc_wire(cell, "JGSRPADN_GSR");
         self.add_bel_wire(bcrd, "GSRPADN", gsrpadn);
         let wire_io = self.get_special_io_wire_in(SpecialIoKey::Gsr);
@@ -365,7 +365,7 @@ impl ChipContext<'_> {
         let cell = self.chip.special_loc[&SpecialLocKey::Osc];
         let bcrd = cell.bel(bslots::OSC);
         self.name_bel(bcrd, ["OSC"]);
-        self.insert_simple_bel(bcrd, cell, "OSC");
+        self.insert_simple_legacy_bel(bcrd, cell, "OSC");
     }
 
     fn process_config_ecp2(&mut self) {
@@ -373,7 +373,7 @@ impl ChipContext<'_> {
 
         let bcrd = cell.bel(bslots::JTAG);
         self.name_bel(bcrd, ["JTAG", "TCK", "TMS", "TDI", "TDO"]);
-        self.insert_simple_bel(bcrd, cell, "JTAG");
+        self.insert_simple_legacy_bel(bcrd, cell, "JTAG");
         for pin in ["TCK", "TMS", "TDI", "TDO"] {
             let wire = self.rc_wire(cell, &format!("J{pin}_JTAG"));
             let wire_pin = WireName {
@@ -392,23 +392,23 @@ impl ChipContext<'_> {
 
         let bcrd = cell.bel(bslots::START);
         self.name_bel(bcrd, ["START"]);
-        self.insert_simple_bel(bcrd, cell, "START");
+        self.insert_simple_legacy_bel(bcrd, cell, "START");
 
         let bcrd = cell.bel(bslots::OSC);
         self.name_bel(bcrd, ["OSC"]);
-        self.insert_simple_bel(bcrd, cell, "OSC");
+        self.insert_simple_legacy_bel(bcrd, cell, "OSC");
 
         let bcrd = cell.bel(bslots::GSR);
         self.name_bel(bcrd, ["GSR"]);
-        self.insert_simple_bel(bcrd, cell, "GSR");
+        self.insert_simple_legacy_bel(bcrd, cell, "GSR");
 
         let bcrd = cell.bel(bslots::SED);
         self.name_bel(bcrd, ["SED"]);
-        self.insert_simple_bel(bcrd, cell, "SED");
+        self.insert_simple_legacy_bel(bcrd, cell, "SED");
 
         let bcrd = cell.bel(bslots::SPIM);
         self.name_bel(bcrd, ["SPIM"]);
-        self.insert_simple_bel(bcrd, cell, "SPIM");
+        self.insert_simple_legacy_bel(bcrd, cell, "SPIM");
     }
 
     fn process_config_xp2(&mut self) {
@@ -416,29 +416,29 @@ impl ChipContext<'_> {
         let bcrd = cell.bel(bslots::OSC);
         let cell = cell.delta(0, 1);
         self.name_bel(bcrd, ["OSC"]);
-        self.insert_simple_bel(bcrd, cell, "OSC");
+        self.insert_simple_legacy_bel(bcrd, cell, "OSC");
 
         let cell = self.chip.bel_dqsdll_ecp2(DirH::E).cell;
 
         let bcrd = cell.bel(bslots::WAKEUP);
         self.name_bel(bcrd, ["WAKEUP"]);
-        self.insert_simple_bel(bcrd, cell, "WAKEUP");
+        self.insert_simple_legacy_bel(bcrd, cell, "WAKEUP");
 
         let bcrd = cell.bel(bslots::GSR);
         self.name_bel(bcrd, ["GSR"]);
-        self.insert_simple_bel(bcrd, cell, "GSR");
+        self.insert_simple_legacy_bel(bcrd, cell, "GSR");
 
         let bcrd = cell.bel(bslots::STF);
         self.name_bel(bcrd, ["STF"]);
-        self.insert_simple_bel(bcrd, cell, "STF");
+        self.insert_simple_legacy_bel(bcrd, cell, "STF");
 
         let bcrd = cell.bel(bslots::START);
         self.name_bel(bcrd, ["START"]);
-        self.insert_simple_bel(bcrd, cell, "START");
+        self.insert_simple_legacy_bel(bcrd, cell, "START");
 
         let bcrd = cell.bel(bslots::SSPI);
         self.name_bel(bcrd, ["SSPICIB", "SSPIPIN"]);
-        self.insert_simple_bel(bcrd, cell, "SSPICIB");
+        self.insert_simple_legacy_bel(bcrd, cell, "SSPICIB");
         for (pin, key) in [
             ("CLK", SpecialIoKey::Cclk),
             ("CS", SpecialIoKey::SpiPCsB),
@@ -460,11 +460,11 @@ impl ChipContext<'_> {
 
         let bcrd = cell_cfg.bel(bslots::SED);
         self.name_bel(bcrd, ["SED"]);
-        self.insert_simple_bel(bcrd, cell, "SED");
+        self.insert_simple_legacy_bel(bcrd, cell, "SED");
 
         let bcrd = cell_cfg.bel(bslots::JTAG);
         self.name_bel(bcrd, ["JTAG", "TCK", "TMS", "TDI", "TDO"]);
-        self.insert_simple_bel(bcrd, cell, "JTAG");
+        self.insert_simple_legacy_bel(bcrd, cell, "JTAG");
         for pin in ["TCK", "TMS", "TDI", "TDO"] {
             let wire = self.rc_wire(cell, &format!("J{pin}_JTAG"));
             let wire_pin = self.rc_io_wire(cell, &format!("J{pin}_{pin}"));
@@ -483,7 +483,7 @@ impl ChipContext<'_> {
 
         let bcrd = cell.bel(bslots::JTAG);
         self.name_bel(bcrd, ["JTAG", "TCK", "TMS", "TDI", "TDO"]);
-        self.insert_simple_bel(bcrd, cell.delta(3, 0), "JTAG");
+        self.insert_simple_legacy_bel(bcrd, cell.delta(3, 0), "JTAG");
         for pin in ["TCK", "TMS", "TDI", "TDO"] {
             let wire = self.rc_wire(cell.delta(3, 0), &format!("J{pin}_JTAG"));
             let wire_pin = WireName {
@@ -503,27 +503,27 @@ impl ChipContext<'_> {
 
         let bcrd = cell.bel(bslots::START);
         self.name_bel(bcrd, ["START"]);
-        self.insert_simple_bel(bcrd, cell.delta(3, 0), "START");
+        self.insert_simple_legacy_bel(bcrd, cell.delta(3, 0), "START");
 
         let bcrd = cell.bel(bslots::OSC);
         self.name_bel(bcrd, ["OSC"]);
-        self.insert_simple_bel(bcrd, cell.delta(3, 0), "OSC");
+        self.insert_simple_legacy_bel(bcrd, cell.delta(3, 0), "OSC");
 
         let bcrd = cell.bel(bslots::GSR);
         self.name_bel(bcrd, ["GSR"]);
-        self.insert_simple_bel(bcrd, cell.delta(3, 0), "GSR");
+        self.insert_simple_legacy_bel(bcrd, cell.delta(3, 0), "GSR");
 
         let bcrd = cell.bel(bslots::SED);
         self.name_bel(bcrd, ["SED"]);
-        self.insert_simple_bel(bcrd, cell.delta(4, 0), "SED");
+        self.insert_simple_legacy_bel(bcrd, cell.delta(4, 0), "SED");
 
         let bcrd = cell.bel(bslots::AMBOOT);
         self.name_bel(bcrd, ["AMBOOT"]);
-        self.insert_simple_bel(bcrd, cell.delta(4, 0), "AMBOOT");
+        self.insert_simple_legacy_bel(bcrd, cell.delta(4, 0), "AMBOOT");
 
         let bcrd = cell.bel(bslots::PERREG);
         self.name_bel(bcrd, ["PERREG"]);
-        self.insert_simple_bel(bcrd, cell.delta(5, 0), "PERREG");
+        self.insert_simple_legacy_bel(bcrd, cell.delta(5, 0), "PERREG");
 
         for h in [DirH::W, DirH::E] {
             let col = self.chip.col_edge(h);
@@ -541,12 +541,12 @@ impl ChipContext<'_> {
                 for (bel, name) in [(bslots::TESTIN, "TESTIN"), (bslots::TESTOUT, "TESTOUT")] {
                     let bcrd = cell.bel(bel);
                     self.name_bel(bcrd, [format!("{lu}{lr}{name}")]);
-                    self.insert_simple_bel(bcrd, bcrd.cell, name);
+                    self.insert_simple_legacy_bel(bcrd, bcrd.cell, name);
                 }
                 if h == DirH::E && v == DirV::S {
                     let bcrd = cell.bel(bslots::DTS);
                     self.name_bel(bcrd, ["DTS"]);
-                    self.insert_simple_bel(bcrd, bcrd.cell, "DTS");
+                    self.insert_simple_legacy_bel(bcrd, bcrd.cell, "DTS");
                 }
             }
         }
@@ -557,7 +557,7 @@ impl ChipContext<'_> {
 
         let bcrd = cell.bel(bslots::JTAG);
         self.name_bel(bcrd, ["JTAG"]);
-        self.insert_simple_bel(bcrd, cell, "JTAG");
+        self.insert_simple_legacy_bel(bcrd, cell, "JTAG");
         for (pin, key) in [
             ("TCK", SpecialIoKey::Tck),
             ("TMS", SpecialIoKey::Tms),
@@ -586,19 +586,19 @@ impl ChipContext<'_> {
 
         let bcrd_osc = cell.bel(bslots::OSC);
         self.name_bel(bcrd_osc, ["OSC"]);
-        self.insert_simple_bel(bcrd_osc, cell, "OSC");
+        self.insert_simple_legacy_bel(bcrd_osc, cell, "OSC");
 
         let bcrd = cell.bel(bslots::START);
         self.name_bel(bcrd, ["START"]);
-        self.insert_simple_bel(bcrd, cell, "START");
+        self.insert_simple_legacy_bel(bcrd, cell, "START");
 
         let bcrd = cell.bel(bslots::GSR);
         self.name_bel(bcrd, ["GSR"]);
-        self.insert_simple_bel(bcrd, cell, "GSR");
+        self.insert_simple_legacy_bel(bcrd, cell, "GSR");
 
         let bcrd_efb = cell.bel(bslots::EFB);
         self.name_bel(bcrd_efb, ["EFB"]);
-        self.insert_simple_bel(bcrd_efb, cell, "EFB");
+        self.insert_simple_legacy_bel(bcrd_efb, cell, "EFB");
         for (pin, key) in [
             ("UFMSN", SpecialIoKey::SpiPCsB),
             ("SPIMOSII", SpecialIoKey::D(0)),
@@ -767,7 +767,7 @@ impl ChipContext<'_> {
 
         let bcrd = cell.bel(bslots::PCNTR);
         self.name_bel(bcrd, ["PCNTR"]);
-        let mut bel = self.extract_simple_bel(bcrd, cell, "PCNTR");
+        let mut bel = self.extract_simple_legacy_bel(bcrd, cell, "PCNTR");
         for pin in ["CFGWAKE", "CFGSTDBY"] {
             let wire_efb = self.rc_wire(cell, &format!("{pin}_EFB"));
             self.add_bel_wire(bcrd_efb, pin, wire_efb);
@@ -790,15 +790,15 @@ impl ChipContext<'_> {
         self.claim_pip(clk_in, clk_osc);
         let wire_osc = self.rc_wire(cell, "JOSC_OSC");
         self.claim_pip(clk_osc, wire_osc);
-        self.insert_bel(bcrd, bel);
+        self.insert_legacy_bel(bcrd, bel);
 
         let bcrd = cell.bel(bslots::TSALL);
         self.name_bel(bcrd, ["TSALL"]);
-        self.insert_simple_bel(bcrd, cell, "TSALL");
+        self.insert_simple_legacy_bel(bcrd, cell, "TSALL");
 
         let bcrd = cell.bel(bslots::SED);
         self.name_bel(bcrd, ["SED"]);
-        self.insert_simple_bel(bcrd, cell, "SED");
+        self.insert_simple_legacy_bel(bcrd, cell, "SED");
         let wire_osc = self.rc_wire(bcrd_osc.cell, "SEDSTDBY_OSC");
         self.add_bel_wire(bcrd_osc, "SEDSTDBY", wire_osc);
         let wire_osc_in = self.rc_wire(bcrd_osc.cell, "JSTDBY_OSC");
@@ -815,7 +815,7 @@ impl ChipContext<'_> {
             let cell = cell.delta(1, 0);
             let (r, c) = self.rc(cell);
             self.name_bel(bcrd, [format!("ESB_R{r}C{c}")]);
-            self.insert_simple_bel(bcrd, cell, "ESB");
+            self.insert_simple_legacy_bel(bcrd, cell, "ESB");
 
             let wire_osc = self.rc_wire(bcrd_osc.cell, "JOSCESB_OSC");
             self.add_bel_wire(bcrd_osc, "OSCESB", wire_osc);
@@ -830,7 +830,7 @@ impl ChipContext<'_> {
 
         let bcrd = cell.bel(bslots::JTAG);
         self.name_bel(bcrd, ["JTAG", "TCK", "TMS", "TDI", "TDO"]);
-        self.insert_simple_bel(bcrd, cell, "JTAG");
+        self.insert_simple_legacy_bel(bcrd, cell, "JTAG");
         for pin in ["TCK", "TMS", "TDI", "TDO"] {
             let wire = self.rc_wire(cell, &format!("J{pin}_JTAG"));
             let wire_pin = WireName {
@@ -849,19 +849,19 @@ impl ChipContext<'_> {
 
         let bcrd_osc = cell.bel(bslots::OSC);
         self.name_bel(bcrd_osc, ["OSC"]);
-        self.insert_simple_bel(bcrd_osc, cell, "OSC");
+        self.insert_simple_legacy_bel(bcrd_osc, cell, "OSC");
 
         let bcrd = cell.bel(bslots::START);
         self.name_bel(bcrd, ["START"]);
-        self.insert_simple_bel(bcrd, cell, "START");
+        self.insert_simple_legacy_bel(bcrd, cell, "START");
 
         let bcrd = cell.bel(bslots::GSR);
         self.name_bel(bcrd, ["GSR"]);
-        self.insert_simple_bel(bcrd, cell, "GSR");
+        self.insert_simple_legacy_bel(bcrd, cell, "GSR");
 
         let bcrd_efb = cell.bel(bslots::EFB);
         self.name_bel(bcrd_efb, ["EFB", "CCLK"]);
-        self.insert_simple_bel(bcrd_efb, cell, "EFB");
+        self.insert_simple_legacy_bel(bcrd_efb, cell, "EFB");
 
         let cell_cclk = cell.with_col(self.chip.col_w());
         for (pin, pin_cclk) in [
@@ -964,7 +964,7 @@ impl ChipContext<'_> {
 
         let bcrd = cell.bel(bslots::PCNTR);
         self.name_bel(bcrd, ["PCNTR"]);
-        let mut bel = self.extract_simple_bel(bcrd, cell, "PCNTR");
+        let mut bel = self.extract_simple_legacy_bel(bcrd, cell, "PCNTR");
         for pin in ["CFGWAKE", "CFGSTDBY"] {
             let wire_efb = self.rc_io_wire(cell, &format!("J{pin}_EFB"));
             self.add_bel_wire(bcrd_efb, pin, wire_efb);
@@ -987,11 +987,11 @@ impl ChipContext<'_> {
         self.claim_pip(clk_in, clk_osc);
         let wire_osc = self.rc_wire(cell, "JOSC_OSC");
         self.claim_pip(clk_osc, wire_osc);
-        self.insert_bel(bcrd, bel);
+        self.insert_legacy_bel(bcrd, bel);
 
         let bcrd = cell.bel(bslots::SED);
         self.name_bel(bcrd, ["SED"]);
-        self.insert_simple_bel(bcrd, cell, "SED");
+        self.insert_simple_legacy_bel(bcrd, cell, "SED");
         let wire_osc = self.rc_wire(bcrd_osc.cell, "SEDSTDBY_OSC");
         self.add_bel_wire(bcrd_osc, "SEDSTDBY", wire_osc);
         let wire_osc_in = self.rc_wire(bcrd_osc.cell, "JSTDBY_OSC");
@@ -1006,7 +1006,7 @@ impl ChipContext<'_> {
 
         let bcrd = cell.bel(bslots::JTAG);
         self.name_bel(bcrd, ["JTAG", "TCK", "TMS", "TDI", "TDO"]);
-        self.insert_simple_bel(bcrd, cell, "JTAG");
+        self.insert_simple_legacy_bel(bcrd, cell, "JTAG");
         for pin in ["TCK", "TMS", "TDI", "TDO"] {
             let wire = self.rc_wire(cell, &format!("J{pin}_JTAG"));
             let wire_pin = WireName {
@@ -1025,23 +1025,23 @@ impl ChipContext<'_> {
 
         let bcrd_osc = cell.bel(bslots::OSC);
         self.name_bel(bcrd_osc, ["OSC"]);
-        self.insert_simple_bel(bcrd_osc, cell, "OSC");
+        self.insert_simple_legacy_bel(bcrd_osc, cell, "OSC");
 
         let bcrd = cell.bel(bslots::START);
         self.name_bel(bcrd, ["START"]);
-        self.insert_simple_bel(bcrd, cell, "START");
+        self.insert_simple_legacy_bel(bcrd, cell, "START");
 
         let bcrd = cell.bel(bslots::GSR);
         self.name_bel(bcrd, ["GSR"]);
-        self.insert_simple_bel(bcrd, cell, "GSR");
+        self.insert_simple_legacy_bel(bcrd, cell, "GSR");
 
         let bcrd = cell.bel(bslots::CCLK);
         self.name_bel(bcrd, ["CCLK"]);
-        self.insert_simple_bel(bcrd, cell.with_col(self.chip.col_w()), "CCLK");
+        self.insert_simple_legacy_bel(bcrd, cell.with_col(self.chip.col_w()), "CCLK");
 
         let bcrd = cell.bel(bslots::SED);
         self.name_bel(bcrd, ["SED"]);
-        self.insert_simple_bel(bcrd, cell, "SED");
+        self.insert_simple_legacy_bel(bcrd, cell, "SED");
         let wire_osc = self.rc_wire(cell, "SEDSTDBY_OSC");
         self.add_bel_wire(bcrd_osc, "SEDSTDBY", wire_osc);
         let wire_osc_in = self.rc_wire(cell, "JSTDBY_OSC");
@@ -1052,18 +1052,17 @@ impl ChipContext<'_> {
     }
 
     fn process_config_crosslink(&mut self) {
-        for tcname in ["I2C_W", "I2C_E"] {
-            let tcid = self.intdb.get_tile_class(tcname);
+        for tcid in [tcls::I2C_W, tcls::I2C_E] {
             for &tcrd in &self.edev.tile_index[tcid] {
                 let bcrd = tcrd.bel(bslots::I2C);
                 let cell = bcrd.cell;
-                self.name_bel(bcrd, [if tcname == "I2C_W" { "I2C1" } else { "I2C0" }]);
-                self.insert_simple_bel(bcrd, cell, "I2C");
+                self.name_bel(bcrd, [if tcid == tcls::I2C_W { "I2C1" } else { "I2C0" }]);
+                self.insert_simple_legacy_bel(bcrd, cell, "I2C");
                 {
                     let wire = self.rc_wire(cell, "JPMUWKUP_I2C");
                     self.add_bel_wire(bcrd, "PMUWKUP", wire);
                 }
-                if tcname == "I2C_E" {
+                if tcid == tcls::I2C_E {
                     for (pin, key) in [("SDA", SpecialIoKey::D(2)), ("SCL", SpecialIoKey::D(3))] {
                         let io = self.chip.special_io[&key];
                         let (cell_io, abcd) = self.xlat_io_loc_crosslink(io);
@@ -1085,11 +1084,11 @@ impl ChipContext<'_> {
                     }
                 }
 
-                if tcname == "I2C_E" {
+                if tcid == tcls::I2C_E {
                     let bcrd = tcrd.bel(bslots::NVCMTEST);
                     let cell = bcrd.cell;
                     self.name_bel(bcrd, ["NVCMTEST"]);
-                    self.insert_simple_bel(bcrd, cell.delta(1, 0), "NVCMTEST");
+                    self.insert_simple_legacy_bel(bcrd, cell.delta(1, 0), "NVCMTEST");
                 }
             }
         }
@@ -1098,13 +1097,13 @@ impl ChipContext<'_> {
             let cell = self.chip.special_loc[&SpecialLocKey::Osc];
             let bcrd = cell.bel(bslots::OSC);
             self.name_bel(bcrd, ["OSC"]);
-            self.insert_simple_bel(bcrd, cell, "OSC");
+            self.insert_simple_legacy_bel(bcrd, cell, "OSC");
         }
         {
             let cell = self.chip.special_loc[&SpecialLocKey::Pmu];
             let bcrd = cell.bel(bslots::PMU);
             self.name_bel(bcrd, ["PMU"]);
-            self.insert_simple_bel(bcrd, cell, "PMU");
+            self.insert_simple_legacy_bel(bcrd, cell, "PMU");
 
             let wire = self.rc_wire(cell, "JPMUCLK_PMU");
             self.add_bel_wire(bcrd, "PMUCLK", wire);
@@ -1130,16 +1129,16 @@ impl ChipContext<'_> {
 
             let bcrd = cell.bel(bslots::PMUTEST);
             self.name_bel(bcrd, ["PMUTEST"]);
-            self.insert_simple_bel(bcrd, cell, "PMUTEST");
+            self.insert_simple_legacy_bel(bcrd, cell, "PMUTEST");
         }
         {
             let cell = self.chip.special_loc[&SpecialLocKey::Config];
             let bcrd = cell.bel(bslots::GSR);
             self.name_bel(bcrd, ["GSR"]);
-            self.insert_simple_bel(bcrd, cell, "GSR");
+            self.insert_simple_legacy_bel(bcrd, cell, "GSR");
             let bcrd = cell.bel(bslots::CFGTEST);
             self.name_bel(bcrd, ["CFGTEST"]);
-            self.insert_simple_bel(bcrd, cell, "CFGTEST");
+            self.insert_simple_legacy_bel(bcrd, cell, "CFGTEST");
         }
     }
 

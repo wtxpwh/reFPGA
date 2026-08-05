@@ -2,7 +2,7 @@ use std::collections::{BTreeMap, BTreeSet};
 
 use prjcombine_ecp::{
     chip::{Chip, RowKind},
-    defs::{bslots, cslots, tslots, wiredata, wires},
+    defs::{bslots, cslots, tcls, tslots, wiredata, wires},
 };
 use prjcombine_entity::{EntityId, EntityVec};
 use prjcombine_interconnect::{
@@ -318,8 +318,7 @@ impl ChipContext<'_> {
     }
 
     pub(super) fn process_int_io_pips(&mut self) {
-        for tcname in ["IO_INT_W", "IO_INT_E", "IO_INT_S"] {
-            let tcid = self.intdb.get_tile_class(tcname);
+        for tcid in [tcls::IO_INT_W, tcls::IO_INT_E, tcls::IO_INT_S] {
             let mut sb_pips: BTreeMap<TileWireCoord, BTreeSet<TileWireCoord>> = BTreeMap::new();
             for &(wt, wf) in &self.unclaimed_pips {
                 let Some(wires_t) = self.io_int_wires.get(&wt) else {

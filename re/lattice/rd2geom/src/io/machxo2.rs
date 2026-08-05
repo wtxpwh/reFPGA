@@ -53,7 +53,7 @@ impl ChipContext<'_> {
                     } else {
                         self.name_bel(bcrd, [format!("{suffix}{bank}")]);
                     }
-                    self.insert_simple_bel(bcrd, cell, suffix);
+                    self.insert_simple_legacy_bel(bcrd, cell, suffix);
                     let wire_out = if bel == bslots::BCSLEWRATE {
                         self.rc_io_wire(cell, &format!("J{pin_out}_{suffix}"))
                     } else {
@@ -161,12 +161,12 @@ impl ChipContext<'_> {
                     }
                 }
 
-                self.insert_bel(bcrd, bel);
+                self.insert_legacy_bel(bcrd, bel);
 
                 if edge == DirV::S {
                     let bcrd = bcrd.bel(bslots::CLKFBBUF[idx]);
                     self.name_bel(bcrd, [format!("CLKFBBUF{idx}")]);
-                    self.insert_bel(bcrd, LegacyBel::default());
+                    self.insert_legacy_bel(bcrd, LegacyBel::default());
 
                     let a = self.rc_wire(cell, &format!("JA{idx}_CLKFBBUF"));
                     self.add_bel_wire(bcrd, "A", a);
@@ -213,7 +213,7 @@ impl ChipContext<'_> {
 
             let bcrd = cell.bel(bslots::DQSDLL);
             self.name_bel(bcrd, [format!("{bt}DQSDLL",)]);
-            let mut bel = self.extract_simple_bel(bcrd, cell, "DQSDLL");
+            let mut bel = self.extract_simple_legacy_bel(bcrd, cell, "DQSDLL");
 
             let dqsdel = self.rc_wire(cell, "JDQSDEL_DQSDLL");
             self.add_bel_wire(bcrd, "DQSDEL", dqsdel);
@@ -235,11 +235,11 @@ impl ChipContext<'_> {
                 self.claim_pip(clk_in, wire_eclk);
             }
 
-            self.insert_bel(bcrd, bel);
+            self.insert_legacy_bel(bcrd, bel);
 
             let bcrd_test = bcrd.bel(bslots::DQSDLLTEST);
             self.name_bel(bcrd_test, [format!("{bt}DQSDLLTEST",)]);
-            self.insert_simple_bel(bcrd_test, cell, "DQSDLLTEST");
+            self.insert_simple_legacy_bel(bcrd_test, cell, "DQSDLLTEST");
         }
     }
 
@@ -338,7 +338,7 @@ impl ChipContext<'_> {
                 );
                 self.claim_pip(dqsi, wire_io);
 
-                self.insert_bel(bcrd, bel);
+                self.insert_legacy_bel(bcrd, bel);
             }
         }
     }
@@ -581,7 +581,7 @@ impl ChipContext<'_> {
             }
         }
 
-        self.insert_bel(bcrd, bel);
+        self.insert_legacy_bel(bcrd, bel);
     }
 
     pub(super) fn process_io_machxo2(&mut self) {
@@ -659,7 +659,7 @@ impl ChipContext<'_> {
                     self.add_bel_wire(bcrd, pin, wire);
                     bel.pins.insert(pin.into(), self.xlat_int_wire(bcrd, wire));
                 }
-                self.insert_bel(bcrd, bel);
+                self.insert_legacy_bel(bcrd, bel);
 
                 let clki = self.rc_wire(cell, &format!("CLKI{idx}_CLKDIV"));
                 self.add_bel_wire(bcrd, "CLKI", clki);

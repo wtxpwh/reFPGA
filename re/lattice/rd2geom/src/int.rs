@@ -1,8 +1,8 @@
 use prjcombine_ecp::{
     chip::{ChipKind, RowKind},
-    defs::{self, bslots, cslots, tslots},
+    defs::{self, bcls, bslots, cslots, tcls, tslots},
 };
-use prjcombine_interconnect::db::LegacyBel;
+use prjcombine_interconnect::db::Bel;
 
 use super::ChipContext;
 
@@ -33,11 +33,10 @@ impl ChipContext<'_> {
             let Some(tile) = cell_data.tiles.get(tslots::INT) else {
                 continue;
             };
-            let tcname = self.intdb.tile_classes[tile.class].name.as_str();
             let has_cibtest = if self.chip.kind == ChipKind::MachXo {
-                tcname == "INT_SIO_L_W"
+                tile.class == tcls::INT_SIO_L_W
             } else {
-                tcname != "INT_PLC"
+                tile.class != tcls::INT_PLC
             };
             if has_cibtest {
                 let (r, c) = self.rc(cell);
@@ -83,14 +82,12 @@ impl ChipContext<'_> {
                         self.claim_pip_int_out(wt, wf);
                     }
                     let bcrd = self.chip.bel_cibtest_sel();
-                    let mut bel = LegacyBel {
-                        pins: Default::default(),
-                    };
-                    for pin in ["TSEL0", "TSEL1"] {
-                        let wire = self.rc_wire(cell, &format!("J{pin}_CIBTEST"));
-                        self.add_bel_wire(cell.bel(bslots::INT), pin, wire);
-                        let bpin = self.xlat_int_wire(bcrd, wire);
-                        bel.pins.insert(pin.to_string(), bpin);
+                    let mut bel = Bel::default();
+                    for pin in [bcls::CIBTEST_SEL::TSEL0, bcls::CIBTEST_SEL::TSEL1] {
+                        let pname = self.intdb.bel_classes[bcls::CIBTEST_SEL].inputs.key(pin).0;
+                        let wire = self.rc_wire(cell, &format!("J{pname}_CIBTEST"));
+                        self.add_bel_wire(cell.bel(bslots::INT), pname, wire);
+                        bel.inputs.insert(pin, self.xlat_input(bcrd, wire));
                     }
                     self.insert_bel(bcrd, bel);
                 } else {
@@ -117,7 +114,10 @@ impl ChipContext<'_> {
                             let wf = if self.chip.kind == ChipKind::Xp2
                                 && l == "CLK"
                                 && i == 2
-                                && tcname.starts_with("INT_IO")
+                                && matches!(
+                                    tile.class,
+                                    tcls::INT_IO_WE | tcls::INT_IO_S | tcls::INT_IO_N
+                                )
                                 && !((cell.col == self.chip.col_w()
                                     || cell.col == self.chip.col_e())
                                     && (cell.row == self.chip.row_s()
@@ -202,8 +202,7 @@ impl ChipContext<'_> {
             let Some(tile) = cell_data.tiles.get(tslots::INT) else {
                 continue;
             };
-            let tcname = self.intdb.tile_classes[tile.class].name.as_str();
-            if tcname == "INT_PLC" {
+            if tile.class == tcls::INT_PLC {
                 continue;
             }
             let bcrd = cell.bel(bslots::INT);

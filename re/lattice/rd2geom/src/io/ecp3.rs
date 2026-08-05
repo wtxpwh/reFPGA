@@ -1,6 +1,6 @@
 use prjcombine_ecp::{
     chip::{ChipKind, IoGroupKind, IoKind, PllLoc, SpecialIoKey, SpecialLocKey},
-    defs::bslots,
+    defs::{bcls, bslots, tcls},
 };
 use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
@@ -230,7 +230,7 @@ impl ChipContext<'_> {
             assert_eq!(bel.pins["CLK"], bpin);
         }
 
-        self.insert_bel(bcrd, bel);
+        self.insert_legacy_bel(bcrd, bel);
     }
 
     fn process_dqs_ecp3(&mut self, bcrd_io: BelCoord) {
@@ -307,7 +307,7 @@ impl ChipContext<'_> {
         let dqsdel_dqsdll = self.naming.bel_wire(bcrd_dqsdll, "DQSDEL");
         self.claim_pip(dqsdel, dqsdel_dqsdll);
 
-        self.insert_simple_bel(bcrd_dqs, cell, suffix);
+        self.insert_simple_legacy_bel(bcrd_dqs, cell, suffix);
         if matches!(io.edge(), Dir::H(_)) && self.chip.kind == ChipKind::Ecp3A {
             let bcrd_dqstest = bcrd_io.bel(bslots::DQSTEST);
             match io.edge() {
@@ -315,7 +315,7 @@ impl ChipContext<'_> {
                 Dir::E => self.name_bel(bcrd_dqstest, [format!("DQSTEST_R{r}")]),
                 _ => unreachable!(),
             }
-            self.insert_simple_bel(bcrd_dqstest, cell, "DQSTEST");
+            self.insert_simple_legacy_bel(bcrd_dqstest, cell, "DQSTEST");
         }
     }
 
@@ -574,7 +574,7 @@ impl ChipContext<'_> {
                     }
                 }
 
-                self.insert_bel(bcrd, bel);
+                self.insert_legacy_bel(bcrd, bel);
             }
         }
     }
@@ -593,7 +593,7 @@ impl ChipContext<'_> {
                     DirH::E => "RDQSDLL",
                 }],
             );
-            let mut bel = self.extract_simple_bel(bcrd, cell, "DQSDLL");
+            let mut bel = self.extract_simple_legacy_bel(bcrd, cell, "DQSDLL");
             let dqsdel = self.rc_wire(cell, "JDQSDEL_DQSDLL");
             self.add_bel_wire(bcrd, "DQSDEL", dqsdel);
             if self.chip.kind == ChipKind::Ecp3A {
@@ -617,7 +617,7 @@ impl ChipContext<'_> {
                 let wire_eclk = self.naming.bel_wire(bcrd_eclk, "ECLKO");
                 self.claim_pip(clk_eclk, wire_eclk);
             }
-            self.insert_bel(bcrd, bel);
+            self.insert_legacy_bel(bcrd, bel);
 
             let bcrd = bcrd.bel(bslots::DQSDLLTEST);
             self.name_bel(
@@ -627,12 +627,12 @@ impl ChipContext<'_> {
                     DirH::E => "RDQSDLLTEST",
                 }],
             );
-            self.insert_simple_bel(bcrd, cell, "DQSDLLTEST");
+            self.insert_simple_legacy_bel(bcrd, cell, "DQSDLLTEST");
         }
     }
 
     pub(super) fn process_eclk_tap_ecp3(&mut self) {
-        let tcid = self.intdb.get_tile_class("ECLK_TAP");
+        let tcid = tcls::ECLK_TAP;
         for &tcrd in &self.edev.tile_index[tcid] {
             let bcrd = tcrd.bel(bslots::ECLK_TAP);
             let edge = if tcrd.col == self.chip.col_w() {
@@ -646,7 +646,9 @@ impl ChipContext<'_> {
             };
             for i in 0..2 {
                 let bel_eclksync = self.chip.bel_eclksync(edge, i);
-                let eclk_out = self.edev.get_bel_pin(bcrd, &format!("ECLK{i}"))[0];
+                let eclk_out = self
+                    .edev
+                    .get_bel_output(bcrd, [bcls::ECLK_TAP::ECLK0, bcls::ECLK_TAP::ECLK1][i])[0];
                 let eclk = self.naming.bel_wire(bel_eclksync, "ECLKO_OUT");
                 self.claim_pip_int_out(eclk_out, eclk);
             }

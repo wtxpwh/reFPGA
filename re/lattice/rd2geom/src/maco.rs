@@ -2,7 +2,7 @@ use std::collections::{BTreeMap, BTreeSet, btree_map};
 
 use prjcombine_ecp::{
     chip::{ChipKind, RowKind},
-    defs::{bslots, ccls, cslots, wiredata, wires},
+    defs::{bslots, ccls, cslots, tcls, wiredata, wires},
 };
 use prjcombine_entity::{EntityId, EntityPartVec};
 use prjcombine_interconnect::{
@@ -165,12 +165,11 @@ impl ChipContext<'_> {
                 idx += 1;
             }
         }
-        for (edge, tcname) in [(DirH::W, "MACO_W"), (DirH::E, "MACO_E")] {
+        for (edge, tcid) in [(DirH::W, tcls::MACO_W), (DirH::E, tcls::MACO_E)] {
             let lr = match edge {
                 DirH::W => 'L',
                 DirH::E => 'R',
             };
-            let tcid = self.intdb.get_tile_class(tcname);
             let tcls = &self.intdb[tcid];
             for &tcrd in &self.edev.tile_index[tcid] {
                 let bcrd = tcrd.bel(bslots::MACO);
@@ -453,7 +452,7 @@ impl ChipContext<'_> {
                     }));
                 }
 
-                self.insert_bel(bcrd, bel);
+                self.insert_legacy_bel(bcrd, bel);
                 self.insert_bel_generic(bcrd_int, BelInfo::SwitchBox(sb));
             }
         }

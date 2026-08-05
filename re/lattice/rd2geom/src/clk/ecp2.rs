@@ -2,7 +2,7 @@ use std::collections::BTreeMap;
 
 use prjcombine_ecp::{
     chip::{Chip, ChipKind, RowKind, SpecialIoKey, SpecialLocKey},
-    defs::{bslots, wires},
+    defs::{bcls, bslots, tcls, wires},
 };
 use prjcombine_interconnect::{
     db::{BelPin, LegacyBel, WireSlotIdExt},
@@ -27,7 +27,13 @@ impl ChipContext<'_> {
                 self.name_bel_null(bcrd);
                 for h in [DirH::W, DirH::E] {
                     for i in 0..8 {
-                        let wire = self.edev.get_bel_pin(bcrd, &format!("OUT_{h}{i}"))[0];
+                        let wire = self.edev.get_bel_output(
+                            bcrd,
+                            match h {
+                                DirH::W => bcls::HSDCLK_ROOT::OUT_W[i],
+                                DirH::E => bcls::HSDCLK_ROOT::OUT_E[i],
+                            },
+                        )[0];
                         let wire = self.naming.interconnect[&wire];
                         let wire_out = self.pips_bwd[&wire]
                             .iter()
@@ -349,8 +355,7 @@ impl ChipContext<'_> {
         }
         let mut serdes_in = BTreeMap::new();
         if self.chip.kind == ChipKind::Ecp2M {
-            for tcname in ["SERDES_S", "SERDES_N"] {
-                let tcid = self.intdb.get_tile_class(tcname);
+            for tcid in [tcls::SERDES_S, tcls::SERDES_N] {
                 for &tcrd in &self.edev.tile_index[tcid] {
                     let bcrd_pcs = tcrd.bel(bslots::SERDES);
                     let hv = DirHV {
@@ -560,7 +565,7 @@ impl ChipContext<'_> {
                 self.claim_pip(clkb_in, pclk_in[&SpecialLocKey::PclkIn(Dir::E, 3)]);
             }
 
-            self.insert_bel(bcrd, bel_dcs);
+            self.insert_legacy_bel(bcrd, bel_dcs);
         }
 
         for hv in DirHV::DIRS {
@@ -625,6 +630,6 @@ impl ChipContext<'_> {
             }
         }
 
-        self.insert_bel(bcrd, bel);
+        self.insert_legacy_bel(bcrd, bel);
     }
 }

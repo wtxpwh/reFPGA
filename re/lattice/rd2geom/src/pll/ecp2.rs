@@ -37,10 +37,10 @@ impl ChipContext<'_> {
                 self.name_bel(bcrd_clkdiv, [format!("CLKDIV_R{r}C{c}")]);
                 self.name_bel_null(bcrd_eclk);
 
-                let mut bel_pll = self.extract_simple_bel(bcrd_pll, cell_pll, "PLL");
-                let mut bel_dll = self.extract_simple_bel(bcrd_dll, cell, "DLL");
-                self.insert_simple_bel(bcrd_dlldel, cell, "DLLDEL");
-                self.insert_simple_bel(bcrd_clkdiv, cell, "CLKDIV");
+                let mut bel_pll = self.extract_simple_legacy_bel(bcrd_pll, cell_pll, "PLL");
+                let mut bel_dll = self.extract_simple_legacy_bel(bcrd_dll, cell, "DLL");
+                self.insert_simple_legacy_bel(bcrd_dlldel, cell, "DLLDEL");
+                self.insert_simple_legacy_bel(bcrd_clkdiv, cell, "CLKDIV");
                 let mut bel_eclk = LegacyBel::default();
 
                 let io_pll_in0 =
@@ -262,16 +262,16 @@ impl ChipContext<'_> {
                 self.claim_pip(clki_clkdiv_in, pll_clkop);
                 self.claim_pip(clki_clkdiv_in, dll_clkop);
 
-                self.insert_bel(bcrd_pll, bel_pll);
-                self.insert_bel(bcrd_dll, bel_dll);
-                self.insert_bel(bcrd_eclk, bel_eclk);
+                self.insert_legacy_bel(bcrd_pll, bel_pll);
+                self.insert_legacy_bel(bcrd_dll, bel_dll);
+                self.insert_legacy_bel(bcrd_eclk, bel_eclk);
             } else {
                 // SPLL
 
                 let bcrd = cell.bel(bslots::SPLL);
                 let (r, c) = self.rc(cell);
                 self.name_bel(bcrd, [format!("SPLL_R{r}C{c}")]);
-                let mut bel = self.extract_simple_bel(bcrd, cell, "SPLL");
+                let mut bel = self.extract_simple_legacy_bel(bcrd, cell, "SPLL");
 
                 let io_pll_in0 =
                     self.get_special_io_wire_in(SpecialIoKey::Pll(PllPad::PllIn0, loc));
@@ -324,7 +324,7 @@ impl ChipContext<'_> {
                 self.claim_pip(clkfb_pll, clkfb);
                 self.claim_pip(clkintfb, clkintfb_pll);
 
-                self.insert_bel(bcrd, bel);
+                self.insert_legacy_bel(bcrd, bel);
             }
         }
     }

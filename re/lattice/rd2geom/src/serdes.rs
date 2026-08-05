@@ -1,6 +1,6 @@
 use prjcombine_ecp::{
     chip::{ChipKind, IoGroupKind, PllLoc, SpecialIoKey, SpecialLocKey},
-    defs::{bslots, wiredata, wires},
+    defs::{bslots, tcls, wiredata, wires},
 };
 use prjcombine_interconnect::{
     db::{BelPin, LegacyBel, WireSlotIdExt},
@@ -11,8 +11,7 @@ use crate::ChipContext;
 
 impl ChipContext<'_> {
     fn process_serdes_scm(&mut self) {
-        for tcname in ["SERDES_W", "SERDES_E"] {
-            let tcid = self.intdb.get_tile_class(tcname);
+        for tcid in [tcls::SERDES_W, tcls::SERDES_E] {
             for &tcrd in &self.edev.tile_index[tcid] {
                 let bcrd = tcrd.bel(bslots::SERDES);
                 let bank = self.chip.columns[bcrd.col].bank_n.unwrap();
@@ -219,7 +218,7 @@ impl ChipContext<'_> {
                     self.add_bel_wire(bcrd, pin, wire);
                 }
 
-                self.insert_bel(bcrd, bel);
+                self.insert_legacy_bel(bcrd, bel);
 
                 {
                     let bcrd_center =
@@ -231,7 +230,7 @@ impl ChipContext<'_> {
                         "FFC_CK_CORE_TX".into(),
                         self.xlat_int_wire(bcrd_center, wire),
                     );
-                    self.insert_bel(bcrd_center, bel_center);
+                    self.insert_legacy_bel(bcrd_center, bel_center);
                 }
             }
         }
@@ -354,13 +353,12 @@ impl ChipContext<'_> {
                 }
             }
 
-            self.insert_bel(bcrd, bel);
+            self.insert_legacy_bel(bcrd, bel);
         }
     }
 
     fn process_serdes_ecp2(&mut self) {
-        for tcname in ["SERDES_S", "SERDES_N"] {
-            let tcid = self.intdb.get_tile_class(tcname);
+        for tcid in [tcls::SERDES_S, tcls::SERDES_N] {
             for &tcrd in &self.edev.tile_index[tcid] {
                 let bcrd = tcrd.bel(bslots::SERDES);
                 let hv = DirHV {
@@ -479,13 +477,13 @@ impl ChipContext<'_> {
                     self.claim_pip(wire_apio, wire_pcs);
                     self.add_bel_wire(bcrd, wn, wire_pcs);
                 }
-                self.insert_simple_bel(bcrd, cell, "PCS");
+                self.insert_simple_legacy_bel(bcrd, cell, "PCS");
             }
         }
     }
 
     fn process_serdes_ecp3(&mut self) {
-        let tcid = self.intdb.get_tile_class("SERDES");
+        let tcid = tcls::SERDES;
         for &tcrd in &self.edev.tile_index[tcid] {
             let bcrd = tcrd.bel(bslots::SERDES);
             let bank = self.chip.columns[bcrd.cell.col].bank_s.unwrap();
@@ -585,7 +583,7 @@ impl ChipContext<'_> {
                 let wire_prev = self.rc_wire(cell.delta(-36, 0), "JREFCLK_TO_NQ_PCS");
                 self.claim_pip(wire, wire_prev);
             }
-            self.insert_simple_bel(bcrd, cell, "PCS");
+            self.insert_simple_legacy_bel(bcrd, cell, "PCS");
         }
     }
 
@@ -620,7 +618,7 @@ impl ChipContext<'_> {
         }
         self.name_bel(bcrd, names);
         let cell = cell.with_col(self.chip.col_w());
-        self.insert_simple_bel(bcrd, cell, "ASB");
+        self.insert_simple_legacy_bel(bcrd, cell, "ASB");
 
         for quad in 0..num_quads {
             let cell_apio = cell.delta(1 + quad, 0);
@@ -1120,7 +1118,7 @@ impl ChipContext<'_> {
         if self.skip_serdes {
             return;
         }
-        let tcid = self.intdb.get_tile_class("SERDES");
+        let tcid = tcls::SERDES;
         for &tcrd in &self.edev.tile_index[tcid] {
             let bcrd = tcrd.bel(bslots::SERDES);
             let cell = bcrd.cell;
@@ -1156,7 +1154,7 @@ impl ChipContext<'_> {
                     format!("HDTXN0_D{dual}CH1"),
                 ],
             );
-            let mut bel = self.extract_simple_bel(bcrd, cell, "DCU");
+            let mut bel = self.extract_simple_legacy_bel(bcrd, cell, "DCU");
 
             for (name, pin) in [
                 ("IP0", "CH0_HDINP"),
@@ -1298,13 +1296,12 @@ impl ChipContext<'_> {
                 }
             }
 
-            self.insert_bel(bcrd, bel);
+            self.insert_legacy_bel(bcrd, bel);
         }
     }
 
     fn process_mipi_crosslink(&mut self) {
-        for tcname in ["MIPI_W", "MIPI_E"] {
-            let tcid = self.intdb.get_tile_class(tcname);
+        for tcid in [tcls::MIPI_W, tcls::MIPI_E] {
             for &tcrd in &self.edev.tile_index[tcid] {
                 let bcrd = tcrd.bel(bslots::MIPI);
                 let cell = bcrd.cell;
@@ -1331,7 +1328,7 @@ impl ChipContext<'_> {
                         format!("DPHY{idx}_DN3"),
                     ],
                 );
-                let mut bel = self.extract_simple_bel(bcrd, cell, "MIPIDPHY");
+                let mut bel = self.extract_simple_legacy_bel(bcrd, cell, "MIPIDPHY");
 
                 for pin in [
                     "DP0", "DN0", "DP1", "DN1", "DP2", "DN2", "DP3", "DN3", "CKP", "CKN",
@@ -1371,7 +1368,7 @@ impl ChipContext<'_> {
                     self.claim_pip(clkref_in, clkref_io);
                 }
 
-                self.insert_bel(bcrd, bel);
+                self.insert_legacy_bel(bcrd, bel);
 
                 let bcrd = bcrd.bel(bslots::CLKTEST_MIPI);
                 self.name_bel(bcrd, [format!("CLKTEST_MIPIDPHY{idx}")]);
@@ -1388,7 +1385,7 @@ impl ChipContext<'_> {
                     self.add_bel_wire(bcrd, format!("TESTIN{i}"), wire);
                 }
 
-                self.insert_bel(bcrd, bel);
+                self.insert_legacy_bel(bcrd, bel);
             }
         }
     }

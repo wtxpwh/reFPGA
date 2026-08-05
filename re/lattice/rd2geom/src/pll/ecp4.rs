@@ -135,13 +135,13 @@ impl ChipContext<'_> {
                     self.claim_pip(pllcsout, clk);
                 }
 
-                self.insert_bel(bcrd_pllrefcs, bel_pllrefcs);
+                self.insert_legacy_bel(bcrd_pllrefcs, bel_pllrefcs);
 
                 // actual PLL
 
                 let bcrd = cell_tile.bel(bslots::PLL[idx]);
                 self.name_bel(bcrd, [format!("PLL_{corner}{idx}")]);
-                let mut bel = self.extract_simple_bel(bcrd, cell, "PLL");
+                let mut bel = self.extract_simple_legacy_bel(bcrd, cell, "PLL");
 
                 let clki = self.rc_wire(cell, "CLKI_PLL");
                 self.add_bel_wire(bcrd, "CLKI", clki);
@@ -201,7 +201,7 @@ impl ChipContext<'_> {
                 self.add_bel_wire(bcrd, "CLKFB", clkfb);
                 self.claim_pip(clkfb, clkfb_in);
 
-                self.insert_bel(bcrd, bel);
+                self.insert_legacy_bel(bcrd, bel);
             }
         }
     }

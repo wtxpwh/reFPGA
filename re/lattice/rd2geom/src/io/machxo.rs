@@ -75,7 +75,7 @@ impl ChipContext<'_> {
         bel.pins
             .insert("PADDI".into(), self.xlat_int_wire(bcrd, paddi_pio));
 
-        self.insert_bel(bcrd, bel);
+        self.insert_legacy_bel(bcrd, bel);
     }
 
     fn process_pictest(&mut self, cell: CellCoord) {
@@ -99,7 +99,7 @@ impl ChipContext<'_> {
         self.add_bel_wire(bcrd2, "PADDI_PIO", paddi_pio);
         bel.pins
             .insert("PADDI".into(), self.xlat_int_wire(bcrd2, paddi_pio));
-        self.insert_bel(bcrd2, bel);
+        self.insert_legacy_bel(bcrd2, bel);
 
         let mut bel = LegacyBel::default();
         let ddtd0 = self.rc_io_wire(cell, "JD0_PICTEST");
@@ -114,7 +114,7 @@ impl ChipContext<'_> {
         self.add_bel_wire(bcrd3, "PADDI_PIO", paddi_pio);
         bel.pins
             .insert("PADDI".into(), self.xlat_int_wire(bcrd3, paddi_pio));
-        self.insert_bel(bcrd3, bel);
+        self.insert_legacy_bel(bcrd3, bel);
     }
 
     pub(super) fn process_io_machxo(&mut self) {
