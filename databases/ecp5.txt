@@ -12023,7 +12023,6 @@ intdb {
 		bel_slot SLICE[1]: SLICE;
 		bel_slot SLICE[2]: SLICE;
 		bel_slot SLICE[3]: SLICE;
-		bel_slot CIBTEST_SEL: CIBTEST_SEL;
 		bel_slot EBR[0]: legacy;
 		bel_slot EBR[1]: legacy;
 		bel_slot EBR[2]: legacy;
@@ -12200,10 +12199,6 @@ intdb {
 			// wire OUT_Q[5]                       SLICE[2].Q1
 			// wire OUT_Q[6]                       SLICE[3].Q0
 			// wire OUT_Q[7]                       SLICE[3].Q1
-		}
-
-		tile_class CIBTEST_SEL {
-			cell CELL;
 		}
 
 		tile_class EBR {

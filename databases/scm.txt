@@ -21104,7 +21104,6 @@ intdb {
 		bel_slot SLICE[2]: SLICE;
 		bel_slot SLICE[3]: SLICE;
 		bel_slot IO_INT: routing;
-		bel_slot CIBTEST_SEL: CIBTEST_SEL;
 		bel_slot EBR_INT: routing;
 		bel_slot EBR[0]: legacy;
 		bel_slot MACO: legacy;
@@ -21656,10 +21655,6 @@ intdb {
 				mux IO_E0[30] = IMUX_D[1] | OUT_IO[6] | IO_E8[14];
 				mux IO_E0[31] = IMUX_B[2] | OUT_IO[7] | IO_E8[15];
 			}
-		}
-
-		tile_class CIBTEST_SEL {
-			cell CELL;
 		}
 
 		tile_class EBR_W {

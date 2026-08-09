@@ -585,10 +585,10 @@ target_defs! {
             }
         }
 
-        bel_slot CIBTEST_SEL: CIBTEST_SEL;
-        tile_class CIBTEST_SEL {
-            cell CELL;
-            if variant machxo {
+        if variant machxo {
+            bel_slot CIBTEST_SEL: CIBTEST_SEL;
+            tile_class CIBTEST_SEL {
+                cell CELL;
                 bel CIBTEST_SEL;
             }
         }
