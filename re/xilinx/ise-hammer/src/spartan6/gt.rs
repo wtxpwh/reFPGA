@@ -44,7 +44,7 @@ struct DeviceSide(DirH);
 
 impl<'b> FuzzerProp<'b, IseBackend<'b>> for DeviceSide {
     fn dyn_clone(&self) -> Box<DynProp<'b>> {
-        Box::new(Clone::clone(self))
+        Box::new(*self)
     }
 
     fn apply<'a>(

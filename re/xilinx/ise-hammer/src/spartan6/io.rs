@@ -158,7 +158,7 @@ struct AllMcbIoi(SpecialId);
 
 impl<'b> FuzzerProp<'b, IseBackend<'b>> for AllMcbIoi {
     fn dyn_clone(&self) -> Box<DynProp<'b>> {
-        Box::new(Clone::clone(self))
+        Box::new(*self)
     }
 
     fn apply<'a>(
@@ -200,7 +200,7 @@ struct IsVref(BelSlotId);
 
 impl<'b> FuzzerProp<'b, IseBackend<'b>> for IsVref {
     fn dyn_clone(&self) -> Box<DynProp<'b>> {
-        Box::new(Clone::clone(self))
+        Box::new(*self)
     }
 
     fn apply<'a>(
@@ -231,7 +231,7 @@ struct IsBonded(BelSlotId);
 
 impl<'b> FuzzerProp<'b, IseBackend<'b>> for IsBonded {
     fn dyn_clone(&self) -> Box<DynProp<'b>> {
-        Box::new(Clone::clone(self))
+        Box::new(*self)
     }
 
     fn apply<'a>(
@@ -262,7 +262,7 @@ struct IsBank(BelSlotId, u32);
 
 impl<'b> FuzzerProp<'b, IseBackend<'b>> for IsBank {
     fn dyn_clone(&self) -> Box<DynProp<'b>> {
-        Box::new(Clone::clone(self))
+        Box::new(*self)
     }
 
     fn apply<'a>(
@@ -287,7 +287,7 @@ struct DeviceSide(DirV);
 
 impl<'b> FuzzerProp<'b, IseBackend<'b>> for DeviceSide {
     fn dyn_clone(&self) -> Box<DynProp<'b>> {
-        Box::new(Clone::clone(self))
+        Box::new(*self)
     }
 
     fn apply<'a>(

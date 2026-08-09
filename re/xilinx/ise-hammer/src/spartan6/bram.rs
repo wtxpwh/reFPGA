@@ -23,7 +23,7 @@ struct ExtraBramFixup(SpecialId);
 
 impl<'b> FuzzerProp<'b, IseBackend<'b>> for ExtraBramFixup {
     fn dyn_clone(&self) -> Box<DynProp<'b>> {
-        Box::new(Clone::clone(self))
+        Box::new(*self)
     }
 
     fn apply<'a>(

@@ -31,7 +31,7 @@ struct DeviceSide(DirH);
 
 impl<'b> FuzzerProp<'b, IseBackend<'b>> for DeviceSide {
     fn dyn_clone(&self) -> Box<DynProp<'b>> {
-        Box::new(Clone::clone(self))
+        Box::new(*self)
     }
 
     fn apply<'a>(
@@ -64,7 +64,7 @@ struct PinWireMutexShared(BelSlotId, BelInputId);
 
 impl<'b> FuzzerProp<'b, IseBackend<'b>> for PinWireMutexShared {
     fn dyn_clone(&self) -> Box<DynProp<'b>> {
-        Box::new(Clone::clone(self))
+        Box::new(*self)
     }
 
     fn apply<'a>(
@@ -93,7 +93,7 @@ struct FuzzGlobalDll(BelSlotId, &'static str, &'static str);
 
 impl<'b> FuzzerProp<'b, IseBackend<'b>> for FuzzGlobalDll {
     fn dyn_clone(&self) -> Box<DynProp<'b>> {
-        Box::new(Clone::clone(self))
+        Box::new(*self)
     }
 
     fn apply<'a>(

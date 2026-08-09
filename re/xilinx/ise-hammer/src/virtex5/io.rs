@@ -235,7 +235,7 @@ struct Vref;
 
 impl<'b> FuzzerProp<'b, IseBackend<'b>> for Vref {
     fn dyn_clone(&self) -> Box<DynProp<'b>> {
-        Box::new(Clone::clone(self))
+        Box::new(*self)
     }
 
     fn apply(
@@ -282,7 +282,7 @@ pub struct VrefInternal(pub TileClassId, pub EnumValueId);
 
 impl<'b> FuzzerProp<'b, IseBackend<'b>> for VrefInternal {
     fn dyn_clone(&self) -> Box<DynProp<'b>> {
-        Box::new(Clone::clone(self))
+        Box::new(*self)
     }
 
     fn apply(
@@ -334,7 +334,7 @@ struct Dci(Option<(SpecialId, TableRowId)>);
 
 impl<'b> FuzzerProp<'b, IseBackend<'b>> for Dci {
     fn dyn_clone(&self) -> Box<DynProp<'b>> {
-        Box::new(Clone::clone(self))
+        Box::new(*self)
     }
 
     fn apply(
@@ -417,7 +417,7 @@ pub struct DiffOut(pub SpecialId, pub TableRowId);
 
 impl<'b> FuzzerProp<'b, IseBackend<'b>> for DiffOut {
     fn dyn_clone(&self) -> Box<DynProp<'b>> {
-        Box::new(Clone::clone(self))
+        Box::new(*self)
     }
 
     fn apply(

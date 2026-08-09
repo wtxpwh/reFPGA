@@ -212,7 +212,7 @@ struct Vref;
 
 impl<'b> FuzzerProp<'b, IseBackend<'b>> for Vref {
     fn dyn_clone(&self) -> Box<DynProp<'b>> {
-        Box::new(Clone::clone(self))
+        Box::new(*self)
     }
 
     fn apply(
@@ -278,7 +278,7 @@ struct Dci(Option<(SpecialId, TableRowId)>);
 
 impl<'b> FuzzerProp<'b, IseBackend<'b>> for Dci {
     fn dyn_clone(&self) -> Box<DynProp<'b>> {
-        Box::new(Clone::clone(self))
+        Box::new(*self)
     }
 
     fn apply(

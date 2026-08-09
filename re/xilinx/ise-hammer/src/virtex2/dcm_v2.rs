@@ -34,7 +34,7 @@ struct DcmCornerEnable(DirHV, bool);
 
 impl<'b> FuzzerProp<'b, IseBackend<'b>> for DcmCornerEnable {
     fn dyn_clone(&self) -> Box<DynProp<'b>> {
-        Box::new(Clone::clone(self))
+        Box::new(*self)
     }
 
     fn apply(

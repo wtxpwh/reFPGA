@@ -120,7 +120,7 @@ struct HclkSide(DirV);
 
 impl<'b> FuzzerProp<'b, IseBackend<'b>> for HclkSide {
     fn dyn_clone(&self) -> Box<DynProp<'b>> {
-        Box::new(Clone::clone(self))
+        Box::new(*self)
     }
 
     fn apply(

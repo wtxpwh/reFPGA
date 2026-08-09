@@ -173,7 +173,7 @@ struct VccoSenseMode(&'static str);
 
 impl<'b> FuzzerProp<'b, IseBackend<'b>> for VccoSenseMode {
     fn dyn_clone(&self) -> Box<DynProp<'b>> {
-        Box::new(Clone::clone(self))
+        Box::new(*self)
     }
 
     fn apply(

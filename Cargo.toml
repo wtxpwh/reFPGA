@@ -1,11 +1,13 @@
 [workspace]
 resolver = "3"
 members = [
+    # public crates: generic infrastructure
     "public/entity",
     "public/types",
     "public/interconnect",
     "public/tablegen",
     "public/jed",
+    # public crates: per target
     "public/siliconblue",
     "public/xc2000",
     "public/virtex",
@@ -18,13 +20,17 @@ members = [
     "public/xc9500",
     "public/xpla3",
     "public/coolrunner2",
+    # public crates: CLI
     "public/cli",
+    "docgen",
+    # RE crates: generic infrastructure
     "re/toolchain",
     "re/hammer",
     "re/collector",
     "re/fpga-hammer",
     "re/harvester",
     "re/sdf",
+    # RE crates: Xilinx FPGA
     "re/xilinx/rawdump",
     "re/xilinx/xdl",
     "re/xilinx/v2xdl-verify",
@@ -74,14 +80,16 @@ members = [
     "re/xilinx/xact/dump",
     "re/xilinx/xact/hammer",
     "re/xilinx/finish",
+    # RE crates: Xilinx CPLD
     "re/xilinx/cpld",
+    # RE crates: SiliconBlue
     "re/icecube-harvester",
+    # RE crates: Lattice
     "re/lattice/dump",
     "re/lattice/rawdump",
     "re/lattice/naming",
     "re/lattice/rd2geom",
     "re/lattice/finish",
-    "docgen",
 ]
 
 [workspace.package]

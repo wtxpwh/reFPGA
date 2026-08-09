@@ -32,7 +32,7 @@ struct AllOtherDcms(SpecialId);
 
 impl<'b> FuzzerProp<'b, IseBackend<'b>> for AllOtherDcms {
     fn dyn_clone(&self) -> Box<DynProp<'b>> {
-        Box::new(Clone::clone(self))
+        Box::new(*self)
     }
 
     fn apply<'a>(

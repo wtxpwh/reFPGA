@@ -114,7 +114,7 @@ pub struct TouchHout(pub usize);
 
 impl<'b> FuzzerProp<'b, IseBackend<'b>> for TouchHout {
     fn dyn_clone(&self) -> Box<DynProp<'b>> {
-        Box::new(Clone::clone(self))
+        Box::new(*self)
     }
 
     fn apply<'a>(
