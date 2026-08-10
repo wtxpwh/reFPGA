@@ -3,7 +3,7 @@ use prjcombine_interconnect::{db::BelAttributeEnum, grid::DieId};
 use prjcombine_re_collector::diff::{OcdMode, xlat_bit_wide, xlat_bit_wide_bi};
 use prjcombine_re_hammer::Session;
 use prjcombine_re_xilinx_geom::ExpandedDevice;
-use prjcombine_types::{bits, bsdata::TileBit};
+use prjcombine_types::{bitrect::TileBit, bits};
 use prjcombine_virtex4::defs::{
     bcls::{self, GLOBAL},
     bslots, enums, tslots,

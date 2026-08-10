@@ -2,7 +2,7 @@ use prjcombine_interconnect::db::{BelAttributeId, WireSlotIdExt};
 use prjcombine_re_collector::diff::{OcdMode, xlat_bitvec_sparse_u32};
 use prjcombine_re_hammer::Session;
 use prjcombine_re_xilinx_geom::ExpandedDevice;
-use prjcombine_types::bsdata::TileBit;
+use prjcombine_types::bitrect::TileBit;
 use prjcombine_virtex::{
     chip::ChipKind,
     defs::{

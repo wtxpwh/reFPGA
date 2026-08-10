@@ -289,7 +289,6 @@ pub fn finish(
         _ => unreachable!(),
     };
 
-    assert!(bitdb.bsdata.is_empty());
     bitdb.insert_into(&mut int, false);
 
     Database {

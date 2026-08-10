@@ -13,7 +13,7 @@ use prjcombine_interconnect::{
     grid::CellCoord,
 };
 use prjcombine_re_lattice_naming::WireName;
-use prjcombine_types::bsdata::PolTileBit;
+use prjcombine_types::bitrect::PolTileBit;
 
 use crate::ChipContext;
 

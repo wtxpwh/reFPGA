@@ -15,9 +15,9 @@ use prjcombine_re_hammer::{Fuzzer, FuzzerValue, Session};
 use prjcombine_re_xilinx_geom::{ExpandedBond, ExpandedDevice};
 use prjcombine_spartan6::defs::{self, bcls, bslots, enums, tables, tcls, tslots, wires};
 use prjcombine_types::{
+    bitrect::{RectBitId, TileBit},
     bits,
     bitvec::BitVec,
-    bsdata::{RectBitId, TileBit},
 };
 
 use crate::{

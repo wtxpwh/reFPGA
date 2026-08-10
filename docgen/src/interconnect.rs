@@ -13,8 +13,8 @@ use prjcombine_interconnect::db::{
     TileWireCoord, WireKind,
 };
 use prjcombine_types::{
+    bitrect::{FrameOrientation, PolTileBit, RectBitId, RectFrameId, TileBit},
     bitvec::BitVec,
-    bsdata::{FrameOrientation, PolTileBit, RectBitId, RectFrameId, TileBit},
 };
 
 use crate::DocgenContext;

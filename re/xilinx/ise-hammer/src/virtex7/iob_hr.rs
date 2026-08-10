@@ -10,7 +10,7 @@ use prjcombine_re_collector::diff::{
 use prjcombine_re_fpga_hammer::FuzzerProp;
 use prjcombine_re_hammer::{Fuzzer, Session};
 use prjcombine_re_xilinx_geom::ExpandedDevice;
-use prjcombine_types::{bits, bsdata::TileBit};
+use prjcombine_types::{bitrect::TileBit, bits};
 use prjcombine_virtex4::{
     defs::{
         bcls::{BANK, IOB},

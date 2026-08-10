@@ -1,6 +1,6 @@
 use prjcombine_re_collector::diff::{Diff, DiffKey, xlat_bit_bi, xlat_enum_attr};
 use prjcombine_re_hammer::Session;
-use prjcombine_types::bsdata::TileBit;
+use prjcombine_types::bitrect::TileBit;
 use prjcombine_xc2000::xc5200::{bcls, bslots, enums, tcls};
 
 use crate::{

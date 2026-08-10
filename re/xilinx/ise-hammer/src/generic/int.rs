@@ -1234,7 +1234,8 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
                                 diff_fucked = true;
                             }
                             if diff.bits.is_empty() {
-                                if intdb.wires[mux.dst.wire].name.starts_with("IMUX")
+                                if intdb[mux.dst.wire].name.starts_with("IMUX")
+                                    && !intdb[mux.dst.wire].name.starts_with("IMUX_FIFO_")
                                     && !intdb[src.wire].kind.is_tie()
                                     && !is_empty_ok
                                 {

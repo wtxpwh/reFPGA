@@ -5,7 +5,7 @@ use prjcombine_interconnect::{
 use prjcombine_re_collector::diff::{Diff, DiffKey, OcdMode, xlat_bit, xlat_enum_raw};
 use prjcombine_re_hammer::Session;
 use prjcombine_re_xilinx_geom::ExpandedDevice;
-use prjcombine_types::bsdata::TileBit;
+use prjcombine_types::bitrect::TileBit;
 use prjcombine_virtex4::defs::{
     self, bcls, bslots,
     virtex6::{tcls, wires},

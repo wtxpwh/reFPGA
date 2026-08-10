@@ -4,9 +4,8 @@ use bincode::{Decode, Encode};
 use itertools::Itertools;
 use prjcombine_entity::{EntityMap, EntityVec};
 use prjcombine_interconnect::{db::IntDb, grid::DieId};
-use prjcombine_types::{
-    bsdata::BsData,
-    db::{BondId, ChipId, DevBondId, DevSpeedId, DeviceCombo, DumpFlags, InterposerId},
+use prjcombine_types::db::{
+    BondId, ChipId, DevBondId, DevSpeedId, DeviceCombo, DumpFlags, InterposerId,
 };
 
 use crate::{
@@ -32,7 +31,6 @@ pub struct Database {
     pub bonds: EntityVec<BondId, Bond>,
     pub devices: Vec<Device>,
     pub int: IntDb,
-    pub bsdata: BsData,
 }
 
 impl Database {
@@ -161,9 +159,6 @@ impl Database {
             writeln!(o)?;
         }
 
-        if flags.bsdata {
-            self.bsdata.dump(o)?;
-        }
         Ok(())
     }
 }

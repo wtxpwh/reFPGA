@@ -7,10 +7,7 @@ use prjcombine_interconnect::{
     grid::{ColId, DieId, DieIdExt, ExpandedGrid, RowId, TileCoord},
 };
 use prjcombine_re_hammer::{Backend, BatchValue, Fuzzer, FuzzerGen, FuzzerId};
-use prjcombine_types::{
-    bitrect::BitRect,
-    bsdata::{BitRectId, TileBit},
-};
+use prjcombine_types::bitrect::{BitRect, BitRectId, TileBit};
 use rand::seq::IndexedRandom;
 
 use prjcombine_re_collector::diff::{Diff, DiffKey};

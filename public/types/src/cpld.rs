@@ -3,6 +3,8 @@ use core::fmt::Debug;
 use bincode::{Decode, Encode};
 use prjcombine_entity::{EntityId, entity_id_u8};
 
+pub mod bsdata;
+
 entity_id_u8!(pub ClusterId, ClusterTag tag, "C");
 entity_id_u8!(pub BlockId, BlockTag tag, "B");
 entity_id_u8!(pub MacrocellId, MacrocellTag tag, "MC");

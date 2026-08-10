@@ -1,8 +1,8 @@
 use prjcombine_interconnect::db::PadKind;
 use prjcombine_types::{
+    bitrect::{BitRectGeometry, FrameOrientation},
     bits,
     bitvec::BitVec,
-    bsdata::{BitRectGeometry, FrameOrientation},
 };
 use proc_macro::{Delimiter, Group, Ident, Literal, Punct, Spacing, Span, TokenStream, TokenTree};
 

@@ -3,7 +3,7 @@ use crate::db::{
     SwitchBoxItem, TableValue, TileClass,
 };
 use prjcombine_entity::{EntityBundleIndices, EntityBundleItemIndex, EntityId};
-use prjcombine_types::bsdata::{PolTileBit, TileBit};
+use prjcombine_types::bitrect::{PolTileBit, TileBit};
 use std::collections::BTreeMap;
 
 impl TileClass {

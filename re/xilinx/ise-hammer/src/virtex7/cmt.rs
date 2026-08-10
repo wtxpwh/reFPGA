@@ -9,8 +9,8 @@ use prjcombine_re_collector::diff::{
 use prjcombine_re_hammer::Session;
 use prjcombine_re_xilinx_geom::ExpandedDevice;
 use prjcombine_types::{
+    bitrect::{BitRectId, TileBit},
     bitvec::BitVec,
-    bsdata::{BitRectId, TileBit},
 };
 use prjcombine_virtex4::defs::{
     bcls::{
@@ -29,6 +29,7 @@ use crate::{
         int::{BaseIntPip, FuzzIntPip},
         props::{
             DynProp,
+            bel::BaseBelMode,
             extra::{ExtraKeyRouting, ExtraTileMaybe},
             mutex::WireMutexExclusive,
             pip::{BasePip, FuzzPip, PipWire},
@@ -278,8 +279,15 @@ fn add_fuzzers_routing<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &
     {
         let dst = wt.cell(25);
         for &src in backend.edev.db_index[tcls::CMT].muxes[&dst].src.keys() {
-            ctx.build()
-                .prop(WireMutexExclusive::new(dst))
+            let mut builder = ctx.build().prop(WireMutexExclusive::new(dst));
+            if let Some(idx) = wires::IMUX_PHASER_OUT_PHASEREFCLK.index_of(wt) {
+                builder = builder.prop(BaseBelMode::new(
+                    bslots::PHASER_OUT[idx],
+                    0,
+                    "PHASER_OUT_ADV".into(),
+                ));
+            }
+            builder
                 .test_routing(dst, src)
                 .prop(FuzzIntPip::new(dst, src.tw))
                 .commit();

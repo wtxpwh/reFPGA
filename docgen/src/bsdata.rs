@@ -5,7 +5,10 @@ use indexmap::IndexMap;
 use itertools::Itertools;
 use prjcombine_entity::{EntityId, EntityVec};
 use prjcombine_types::bitvec::BitVec;
-use prjcombine_types::bsdata::{BsData, RectBitId, RectFrameId, Tile, TileBit, TileItemKind};
+use prjcombine_types::{
+    bitrect::{RectBitId, RectFrameId, TileBit},
+    cpld::bsdata::{Tile, TileItemKind},
+};
 
 use crate::DocgenContext;
 
@@ -211,16 +214,5 @@ pub fn gen_tile(
         btree_map::Entry::Vacant(entry) => {
             entry.insert(buf);
         }
-    }
-}
-
-pub fn gen_bstiles(
-    ctx: &mut DocgenContext,
-    dbname: &str,
-    tiledb: &BsData,
-    orientation: impl Fn(&str) -> TileOrientation,
-) {
-    for (tname, tile) in &tiledb.tiles {
-        gen_tile(ctx, dbname, tname, tile, orientation(tname));
     }
 }

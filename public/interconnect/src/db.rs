@@ -4,8 +4,8 @@ use prjcombine_entity::{
     EntityVec, entity_id_u8, entity_id_u16,
 };
 use prjcombine_types::{
+    bitrect::{BitRectGeometry, BitRectId, PolTileBit, TileBit},
     bitvec::BitVec,
-    bsdata::{BitRectGeometry, BitRectId, PolTileBit, TileBit},
 };
 use std::collections::{BTreeMap, BTreeSet, HashSet};
 

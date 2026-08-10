@@ -6,7 +6,7 @@ use prjcombine_re_collector::diff::{Diff, OcdMode, xlat_bit, xlat_enum_raw};
 use prjcombine_re_fpga_hammer::FuzzerProp;
 use prjcombine_re_hammer::{Fuzzer, Session};
 use prjcombine_re_xilinx_geom::ExpandedDevice;
-use prjcombine_types::{bitvec::BitVec, bsdata::TileBit};
+use prjcombine_types::{bitrect::TileBit, bitvec::BitVec};
 use prjcombine_virtex2::{
     chip::ChipKind,
     defs::{

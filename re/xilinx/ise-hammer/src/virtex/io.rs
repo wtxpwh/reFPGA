@@ -15,9 +15,9 @@ use prjcombine_re_xilinx_geom::{
     Bond, Device, ExpandedBond, ExpandedDevice, ExpandedNamedDevice, GeomDb,
 };
 use prjcombine_types::{
+    bitrect::{PolTileBit, TileBit},
     bits,
     bitvec::BitVec,
-    bsdata::{PolTileBit, TileBit},
 };
 use prjcombine_virtex::defs::{
     self,

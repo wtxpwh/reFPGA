@@ -1,7 +1,7 @@
 use prjcombine_entity::EntityId;
 use prjcombine_types::{
+    bitrect::{RectBitId, RectFrameId},
     bitvec::BitVec,
-    bsdata::{RectBitId, RectFrameId},
 };
 use std::collections::{BTreeMap, HashMap};
 

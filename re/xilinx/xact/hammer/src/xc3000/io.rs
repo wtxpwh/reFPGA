@@ -4,7 +4,7 @@ use prjcombine_interconnect::{
 };
 use prjcombine_re_collector::diff::{Diff, DiffKey, OcdMode, xlat_enum_attr, xlat_enum_raw};
 use prjcombine_re_hammer::Session;
-use prjcombine_types::bsdata::PolTileBit;
+use prjcombine_types::bitrect::PolTileBit;
 use prjcombine_xc2000::xc3000::{bcls, bslots, enums, tslots, wires};
 
 use crate::{

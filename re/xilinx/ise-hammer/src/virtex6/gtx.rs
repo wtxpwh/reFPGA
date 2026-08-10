@@ -1,7 +1,7 @@
 use prjcombine_interconnect::db::{BelAttributeType, BelInputId, WireSlotIdExt};
 use prjcombine_re_collector::diff::{Diff, OcdMode, xlat_bit, xlat_enum_attr};
 use prjcombine_re_hammer::Session;
-use prjcombine_types::bsdata::TileBit;
+use prjcombine_types::bitrect::TileBit;
 use prjcombine_virtex4::defs::{
     bcls::{GTCLK, GTX, HCLK_DRP, HCLK_GTX},
     bslots, enums,

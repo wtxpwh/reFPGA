@@ -9,7 +9,7 @@ use prjcombine_re_xilinx_rawdump::{Coord, Part};
 
 use prjcombine_re_xilinx_naming::db::{NamingDb, PipNaming, RawTileId};
 use prjcombine_re_xilinx_rd2db_interconnect::{IntBuilder, PipMode};
-use prjcombine_types::bsdata::PolTileBit;
+use prjcombine_types::bitrect::PolTileBit;
 use prjcombine_virtex4::defs::{self, bslots, ccls, tcls, virtex7::wires};
 
 struct IntMaker<'a> {

@@ -1,8 +1,8 @@
 use prjcombine_re_collector::diff::{Diff, xlat_bitvec, xlat_enum_attr};
 use prjcombine_re_hammer::Session;
 use prjcombine_types::{
+    bitrect::{PolTileBit, TileBit},
     bits,
-    bsdata::{PolTileBit, TileBit},
 };
 use prjcombine_xc2000::xc3000::{bcls, bslots, enums, tslots};
 

@@ -18,9 +18,12 @@ use prjcombine_re_xilinx_cpld::{
     speeddb::SpeedDb,
 };
 use prjcombine_types::{
+    bitrect::{BitRectId, RectBitId, RectFrameId, TileBit},
     bitvec::BitVec,
-    bsdata::{BitRectId, RectBitId, RectFrameId, Tile, TileBit, TileItem, TileItemKind},
-    cpld::{BlockId, IoCoord, MacrocellCoord, MacrocellId, ProductTermId},
+    cpld::{
+        BlockId, IoCoord, MacrocellCoord, MacrocellId, ProductTermId,
+        bsdata::{Tile, TileItem, TileItemKind},
+    },
     db::DumpFlags,
 };
 

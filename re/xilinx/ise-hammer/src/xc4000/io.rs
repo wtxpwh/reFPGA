@@ -6,7 +6,7 @@ use prjcombine_re_collector::diff::{xlat_bit, xlat_enum_attr};
 use prjcombine_re_fpga_hammer::FuzzerProp;
 use prjcombine_re_hammer::{Fuzzer, Session};
 use prjcombine_re_xilinx_geom::ExpandedDevice;
-use prjcombine_types::bsdata::TileBit;
+use prjcombine_types::bitrect::TileBit;
 use prjcombine_xc2000::{
     chip::ChipKind,
     xc4000::{bslots, enums, tslots, wires, xc4000::bcls},

@@ -13,7 +13,7 @@ use prjcombine_re_fpga_hammer::FuzzerProp;
 use prjcombine_re_hammer::{Fuzzer, Session};
 use prjcombine_re_xilinx_geom::ExpandedDevice;
 use prjcombine_re_xilinx_naming::db::RawTileId;
-use prjcombine_types::bsdata::{BitRectId, TileBit};
+use prjcombine_types::bitrect::{BitRectId, TileBit};
 use prjcombine_xc2000::{
     chip::ChipKind,
     xc4000::{bslots, enums, tslots, wires, xc4000::bcls, xc4000::tcls},

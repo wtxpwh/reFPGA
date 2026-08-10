@@ -5,8 +5,10 @@ use prjcombine_entity::EntityId;
 use prjcombine_jed::{JedFile, JedParserOptions};
 use prjcombine_types::{
     bitvec::BitVec,
-    bsdata::{Tile, TileItemKind},
-    cpld::MacrocellId,
+    cpld::{
+        MacrocellId,
+        bsdata::{Tile, TileItemKind},
+    },
 };
 use prjcombine_xpla3::{Chip, Database};
 

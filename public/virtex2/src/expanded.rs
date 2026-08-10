@@ -2,7 +2,7 @@ use prjcombine_entity::{EntityId, EntityPartVec, EntityVec};
 use prjcombine_interconnect::grid::{
     BelCoord, CellCoord, ColId, ExpandedGrid, Rect, RowId, TileCoord,
 };
-use prjcombine_types::bsdata::BitRectId;
+use prjcombine_types::bitrect::BitRectId;
 
 use crate::{
     bitstream::{BitRect, FrameAddr, Reg},

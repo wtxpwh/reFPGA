@@ -5,8 +5,9 @@ use clap::{Arg, Command, value_parser};
 use prjcombine_entity::EntityId;
 use prjcombine_jed::JedFile;
 use prjcombine_types::{
+    bitrect::TileBit,
     bitvec::BitVec,
-    bsdata::{Tile, TileBit, TileItemKind},
+    cpld::bsdata::{Tile, TileItemKind},
 };
 use prjcombine_xc9500::{Chip, ChipKind, Database};
 

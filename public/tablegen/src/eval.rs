@@ -15,7 +15,7 @@ use prjcombine_interconnect::db::{
     SwitchBoxItem, Table, TableId, TileClass, TileClassId, TileSlotId, TileWireCoord, WireKind,
     WireSlot, WireSlotId,
 };
-use prjcombine_types::bsdata::{PolTileBit, RectBitId, RectFrameId, TileBit};
+use prjcombine_types::bitrect::{PolTileBit, RectBitId, RectFrameId, TileBit};
 use proc_macro::{Delimiter, Ident, Span, TokenStream, TokenTree};
 
 use crate::ast::{ArrayIdRef, TemplateId};

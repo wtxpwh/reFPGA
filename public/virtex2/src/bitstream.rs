@@ -4,7 +4,7 @@ pub use prjcombine_virtex::bitstream::packet as packet_v2;
 pub use prjcombine_virtex::bitstream::{KeyData, KeySeq};
 
 use prjcombine_entity::EntityId;
-use prjcombine_types::bsdata::{RectBitId, RectFrameId};
+use prjcombine_types::bitrect::{RectBitId, RectFrameId};
 use std::collections::{BTreeMap, HashMap};
 
 mod parse;

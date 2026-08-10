@@ -6,8 +6,10 @@ use prjcombine_entity::EntityId;
 use prjcombine_jed::{JedFile, JedParserOptions};
 use prjcombine_types::{
     bitvec::BitVec,
-    bsdata::{Tile, TileItemKind},
-    cpld::{BlockId, IoCoord, MacrocellCoord, MacrocellId},
+    cpld::{
+        BlockId, IoCoord, MacrocellCoord, MacrocellId,
+        bsdata::{Tile, TileItemKind},
+    },
 };
 
 struct Bitstream {

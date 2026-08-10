@@ -3,7 +3,7 @@ use prjcombine_interconnect::{
     dir::{DirH, DirV},
     grid::{ColId, ExpandedGrid, RowId, TileCoord},
 };
-use prjcombine_types::bsdata::BitRectId;
+use prjcombine_types::bitrect::BitRectId;
 
 use crate::{
     bitstream::BitRect,

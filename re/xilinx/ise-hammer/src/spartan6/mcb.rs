@@ -5,7 +5,7 @@ use prjcombine_re_collector::diff::{
 };
 use prjcombine_re_hammer::Session;
 use prjcombine_spartan6::defs::{bcls, bslots, enums, tcls};
-use prjcombine_types::bsdata::{BitRectId, TileBit};
+use prjcombine_types::bitrect::{BitRectId, TileBit};
 
 use crate::{
     backend::{IseBackend, MultiValue},

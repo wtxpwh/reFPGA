@@ -7,7 +7,7 @@ use prjcombine_re_collector::diff::{Diff, OcdMode, xlat_bit, xlat_enum_raw};
 use prjcombine_re_fpga_hammer::{FuzzerFeature, FuzzerProp};
 use prjcombine_re_hammer::{Fuzzer, Session};
 use prjcombine_re_xilinx_geom::ExpandedDevice;
-use prjcombine_types::bsdata::TileBit;
+use prjcombine_types::bitrect::TileBit;
 use prjcombine_xc2000::{
     bitstream::BitRect,
     xc5200::{bcls, bslots, tcls, wires},

@@ -3,9 +3,9 @@ use std::{collections::HashMap, fmt::Write};
 use indexmap::IndexSet;
 use itertools::Itertools;
 use prjcombine_entity::{EntityId, EntityPartVec};
-use prjcombine_types::{
+use prjcombine_types::cpld::{
+    ClusterId, MacrocellCoord,
     bsdata::{Tile, TileItemKind},
-    cpld::{ClusterId, MacrocellCoord},
 };
 use prjcombine_xpla3::{BondPad, Database};
 

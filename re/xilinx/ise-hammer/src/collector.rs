@@ -6,7 +6,7 @@ use prjcombine_interconnect::db::{
 };
 use prjcombine_re_collector::{collect::Collector, diff::xlat_bit_bi};
 use prjcombine_re_xilinx_geom::{Bitstream, Device, ExpandedDevice, GeomDb};
-use prjcombine_types::bsdata::{BitRectId, PolTileBit};
+use prjcombine_types::bitrect::{BitRectId, PolTileBit};
 
 pub struct CollectorCtx<'a, 'b>
 where

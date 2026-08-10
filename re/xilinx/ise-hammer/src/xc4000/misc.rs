@@ -4,7 +4,7 @@ use prjcombine_re_collector::diff::{DiffKey, xlat_bit};
 use prjcombine_re_fpga_hammer::{FuzzerFeature, FuzzerProp};
 use prjcombine_re_hammer::{Fuzzer, Session};
 use prjcombine_re_xilinx_geom::ExpandedDevice;
-use prjcombine_types::bsdata::TileBit;
+use prjcombine_types::bitrect::TileBit;
 use prjcombine_xc2000::{
     chip::ChipKind,
     xc4000::{bslots, enums, xc4000::bcls, xc4000::tcls},

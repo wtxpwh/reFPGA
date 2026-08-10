@@ -4,8 +4,7 @@ use bincode::{Decode, Encode};
 use itertools::Itertools;
 use prjcombine_entity::{EntityRange, EntityVec, entity_id_u8};
 use prjcombine_types::{
-    bsdata::Tile,
-    cpld::{BlockId, IoCoord, IpadId, MacrocellCoord},
+    cpld::{BlockId, IoCoord, IpadId, MacrocellCoord, bsdata::Tile},
     db::{BondId, ChipId, DumpFlags, SpeedId},
     speed::Speed,
 };

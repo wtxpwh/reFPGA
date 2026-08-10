@@ -3,8 +3,8 @@ use std::collections::{BTreeMap, HashMap};
 use prjcombine_entity::{EntityId, EntityVec};
 use prjcombine_interconnect::{dir::DirV, grid::DieId};
 use prjcombine_types::{
+    bitrect::{RectBitId, RectFrameId},
     bitvec::BitVec,
-    bsdata::{RectBitId, RectFrameId},
 };
 
 use crate::{chip::ChipKind, expanded::FrameInfo};

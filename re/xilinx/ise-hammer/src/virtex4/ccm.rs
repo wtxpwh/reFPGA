@@ -1,7 +1,7 @@
 use prjcombine_interconnect::db::{BelInfo, BelKind};
 use prjcombine_re_collector::diff::{Diff, OcdMode, xlat_bit_wide, xlat_enum_raw};
 use prjcombine_re_hammer::Session;
-use prjcombine_types::bsdata::TileBit;
+use prjcombine_types::bitrect::TileBit;
 use prjcombine_virtex4::defs::{
     bcls, bslots,
     virtex4::{tcls, wires},

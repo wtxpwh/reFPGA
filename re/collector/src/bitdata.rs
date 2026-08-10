@@ -1,6 +1,6 @@
 use core::{fmt::Debug, hash::Hash};
 use std::{
-    collections::{BTreeSet, HashMap, btree_map, hash_map},
+    collections::{BTreeMap, BTreeSet, HashMap, hash_map},
     error::Error,
     fs::File,
     path::Path,
@@ -14,7 +14,16 @@ use prjcombine_interconnect::db::{
     DeviceDataId, IntDb, PolTileWireCoord, SwitchBoxItem, TableFieldId, TableId, TableRowId,
     TableValue, TileClassId, TileWireCoord,
 };
-use prjcombine_types::bsdata::{BsData, EnumData, PolTileBit};
+use prjcombine_types::{
+    bitrect::{PolTileBit, TileBit},
+    bitvec::BitVec,
+};
+
+#[derive(Clone, Debug, PartialEq, Eq, Encode, Decode)]
+pub struct EnumData<K: Ord> {
+    pub bits: Vec<TileBit>,
+    pub values: BTreeMap<K, BitVec>,
+}
 
 #[allow(clippy::type_complexity)]
 #[derive(Clone, Debug, Default, Encode, Decode)]
@@ -34,7 +43,6 @@ pub struct CollectorData {
     pub tmux_group: HashMap<(TileClassId, BelSlotId), EnumData<Option<usize>>>,
     pub table_data: HashMap<(TableId, TableRowId, TableFieldId), TableValue>,
     pub device_data: HashMap<String, EntityPartVec<DeviceDataId, TableValue>>,
-    pub bsdata: BsData,
 }
 
 impl CollectorData {
@@ -451,27 +459,5 @@ impl CollectorData {
         merge_hashmap(&mut self.tmux_group, other.tmux_group);
         merge_hashmap(&mut self.table_data, other.table_data);
         merge_hashmap(&mut self.device_data, other.device_data);
-        for (tile, tile_data) in other.bsdata.tiles {
-            let tile_dst = self.bsdata.tiles.entry(tile).or_default();
-            for (key, item) in tile_data.items {
-                match tile_dst.items.entry(key) {
-                    btree_map::Entry::Vacant(entry) => {
-                        entry.insert(item);
-                    }
-                    btree_map::Entry::Occupied(entry) => {
-                        // could make a little smarter?
-                        assert_eq!(item, *entry.get());
-                    }
-                }
-            }
-        }
-        for (device, data) in other.bsdata.device_data {
-            for (key, val) in data {
-                self.bsdata.insert_device_data(&device, key, val);
-            }
-        }
-        for (key, val) in other.bsdata.misc_data {
-            self.bsdata.insert_misc_data(key, val);
-        }
     }
 }

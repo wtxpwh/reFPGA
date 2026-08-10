@@ -6,7 +6,7 @@ use prjcombine_interconnect::{
 use prjcombine_re_collector::diff::{OcdMode, xlat_enum_raw};
 use prjcombine_re_hammer::Session;
 use prjcombine_re_xilinx_geom::ExpandedDevice;
-use prjcombine_types::{bits, bsdata::TileBit};
+use prjcombine_types::{bitrect::TileBit, bits};
 use prjcombine_virtex4::defs::{
     self, bcls, bslots, enums, tslots,
     virtex4::{tcls, wires},

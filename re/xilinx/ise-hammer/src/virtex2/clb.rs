@@ -6,7 +6,7 @@ use prjcombine_re_collector::diff::{Diff, DiffKey, xlat_bit, xlat_enum_attr};
 use prjcombine_re_fpga_hammer::{FuzzerFeature, FuzzerProp};
 use prjcombine_re_hammer::{Fuzzer, Session};
 use prjcombine_re_xilinx_geom::ExpandedDevice;
-use prjcombine_types::bsdata::TileBit;
+use prjcombine_types::bitrect::TileBit;
 use prjcombine_virtex2::{
     chip::ChipKind,
     defs::{bcls, bslots, enums, spartan3::tcls as tcls_s3, tslots, virtex2::tcls as tcls_v2},

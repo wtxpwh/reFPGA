@@ -10,7 +10,7 @@ use prjcombine_re_fpga_hammer::FuzzerProp;
 use prjcombine_re_hammer::{Fuzzer, Session};
 use prjcombine_re_xilinx_geom::ExpandedDevice;
 use prjcombine_re_xilinx_naming::db::{IntfWireInNaming, RawTileId};
-use prjcombine_types::bsdata::BitRectId;
+use prjcombine_types::bitrect::BitRectId;
 use prjcombine_virtex2::defs::spartan3::{tcls as tcls_s3, wires as wires_s3};
 use prjcombine_virtex4::defs::virtex4::{tcls as tcls_v4, wires as wires_v4};
 

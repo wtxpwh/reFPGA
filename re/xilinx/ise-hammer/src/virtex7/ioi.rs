@@ -7,7 +7,7 @@ use prjcombine_re_collector::diff::{
     xlat_enum_attr, xlat_enum_attr_ocd, xlat_enum_raw,
 };
 use prjcombine_re_hammer::Session;
-use prjcombine_types::bsdata::TileBit;
+use prjcombine_types::bitrect::TileBit;
 use prjcombine_virtex4::defs::{
     bcls::{IDELAY, ILOGIC, ODELAY, OLOGIC},
     bslots, enums,

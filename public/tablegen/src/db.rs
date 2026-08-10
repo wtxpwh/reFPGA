@@ -10,7 +10,7 @@ use prjcombine_interconnect::db::{
     EnumValueId, IntDb, RegionSlotId, TableFieldId, TableId, TableRowId, TileClassId, TileSlotId,
     WireSlotId,
 };
-use prjcombine_types::bsdata::{BitRectGeometry, BitRectId};
+use prjcombine_types::bitrect::{BitRectGeometry, BitRectId};
 use proc_macro::Ident;
 
 #[derive(Default)]

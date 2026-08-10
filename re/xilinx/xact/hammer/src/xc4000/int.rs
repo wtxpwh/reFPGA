@@ -10,7 +10,7 @@ use prjcombine_re_collector::diff::{
 };
 use prjcombine_re_fpga_hammer::FuzzerProp;
 use prjcombine_re_hammer::{Fuzzer, Session};
-use prjcombine_types::bsdata::{BitRectId, TileBit};
+use prjcombine_types::bitrect::{BitRectId, TileBit};
 use prjcombine_xc2000::{
     chip::{Chip, ChipKind},
     xc4000::{

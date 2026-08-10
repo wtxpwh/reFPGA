@@ -20,9 +20,12 @@ use prjcombine_re_xilinx_cpld::{
     speeddb::SpeedDb,
 };
 use prjcombine_types::{
+    bitrect::{BitRectId, RectBitId, RectFrameId, TileBit},
     bitvec::BitVec,
-    bsdata::{BitRectId, RectBitId, RectFrameId, Tile, TileBit, TileItem, TileItemKind},
-    cpld::{BlockId, IoCoord, MacrocellCoord, MacrocellId},
+    cpld::{
+        BlockId, IoCoord, MacrocellCoord, MacrocellId,
+        bsdata::{Tile, TileItem, TileItemKind},
+    },
     db::DumpFlags,
 };
 use prjcombine_xc9500 as xc9500;

@@ -7,7 +7,7 @@ use prjcombine_re_collector::diff::{DiffKey, OcdMode, SpecialId};
 use prjcombine_re_fpga_hammer::{FuzzerFeature, FuzzerProp};
 use prjcombine_re_hammer::{Fuzzer, Session};
 use prjcombine_re_xilinx_geom::ExpandedDevice;
-use prjcombine_types::{bits, bsdata::TileBit};
+use prjcombine_types::{bitrect::TileBit, bits};
 use prjcombine_virtex4::bitstream::{BitRect, Reg};
 use prjcombine_virtex4::defs::{self, bcls, bslots, enums, tslots, virtex5::tcls};
 

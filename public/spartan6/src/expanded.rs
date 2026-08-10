@@ -3,7 +3,7 @@ use prjcombine_interconnect::{
     dir::{Dir, DirMap},
     grid::{BelCoord, CellCoord, ColId, ExpandedGrid, Rect, RowId, TileCoord},
 };
-use prjcombine_types::bsdata::BitRectId;
+use prjcombine_types::bitrect::BitRectId;
 use std::collections::{BTreeSet, HashMap};
 
 use crate::{

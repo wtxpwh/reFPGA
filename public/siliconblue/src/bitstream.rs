@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use bitvec::prelude::*;
 use prjcombine_entity::EntityId;
-use prjcombine_types::bsdata::{RectBitId, RectFrameId};
+use prjcombine_types::bitrect::{RectBitId, RectFrameId};
 
 #[derive(Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord, Debug)]
 pub enum BitPos {

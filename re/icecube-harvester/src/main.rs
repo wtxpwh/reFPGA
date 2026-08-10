@@ -35,7 +35,7 @@ use prjcombine_siliconblue::{
 };
 use prjcombine_types::{
     bimap::BiMap,
-    bsdata::{BitRectId, PolTileBit, TileBit},
+    bitrect::{BitRectId, PolTileBit, TileBit},
     speed::Speed,
 };
 use rand::RngExt;

@@ -11,9 +11,12 @@ use bincode::{Decode, Encode};
 use itertools::Itertools;
 use prjcombine_entity::{EntityId, EntityPartVec, EntityVec};
 use prjcombine_types::{
+    bitrect::TileBit,
     bitvec::BitVec,
-    bsdata::{TileBit, TileItem, TileItemKind},
-    cpld::{BlockId, IpadId, MacrocellId, ProductTermId},
+    cpld::{
+        BlockId, IpadId, MacrocellId, ProductTermId,
+        bsdata::{TileItem, TileItemKind},
+    },
 };
 
 pub type BitPos = (u32, usize);

@@ -13,7 +13,7 @@ use prjcombine_spartan6::{
     chip::Gts,
     defs::{bcls, bslots, enums, tcls},
 };
-use prjcombine_types::bsdata::TileBit;
+use prjcombine_types::bitrect::TileBit;
 
 use crate::{
     backend::{IseBackend, MultiValue},

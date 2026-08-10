@@ -11,9 +11,11 @@ use prjcombine_interconnect::{
     grid::{BelCoord, PolWireCoord, WireCoord},
 };
 use prjcombine_types::{
+    bitrect::{BitRectId, PolTileBit, TileBit},
     bitvec::BitVec,
-    bsdata::{BitRectId, EnumData, PolTileBit, TileBit},
 };
+
+use crate::bitdata::EnumData;
 
 entity_id_u16!(pub SpecialId, SpecialTag tag, "SPEC");
 

@@ -3,7 +3,7 @@ use prjcombine_re_collector::diff::{Diff, xlat_bit, xlat_bitvec_sparse_u32};
 use prjcombine_re_hammer::Session;
 use prjcombine_re_xilinx_geom::ExpandedDevice;
 use prjcombine_spartan6::defs::{bcls, bslots, enums, tcls};
-use prjcombine_types::{bits, bsdata::TileBit};
+use prjcombine_types::{bitrect::TileBit, bits};
 
 use crate::{
     backend::{IseBackend, MultiValue},

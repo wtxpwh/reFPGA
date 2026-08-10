@@ -11,7 +11,7 @@ use prjcombine_interconnect::{
     dir::DirH,
     grid::{CellCoord, ColId, DieId, ExpandedGrid, Rect, RowId, TileCoord, TileIobId},
 };
-use prjcombine_types::bsdata::BitRectId;
+use prjcombine_types::bitrect::BitRectId;
 use std::collections::BTreeSet;
 
 #[derive(Clone, Debug)]

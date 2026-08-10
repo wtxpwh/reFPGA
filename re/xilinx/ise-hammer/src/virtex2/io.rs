@@ -17,9 +17,9 @@ use prjcombine_re_xilinx_geom::{
 };
 use prjcombine_re_xilinx_naming::db::RawTileId;
 use prjcombine_types::{
+    bitrect::{PolTileBit, TileBit},
     bits,
     bitvec::BitVec,
-    bsdata::{PolTileBit, TileBit},
 };
 use prjcombine_virtex2::{
     chip::{ChipKind, IoDiffKind},

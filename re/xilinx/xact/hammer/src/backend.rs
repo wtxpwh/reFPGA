@@ -12,7 +12,7 @@ use prjcombine_re_fpga_hammer::{FpgaBackend, FuzzerInfo, State};
 use prjcombine_re_hammer::{Backend, FuzzerId};
 use prjcombine_re_xilinx_xact_geom::Device;
 use prjcombine_re_xilinx_xact_naming::grid::{ExpandedGridNaming, PipCoords};
-use prjcombine_types::{bitvec::BitVec, bsdata::BitRectId};
+use prjcombine_types::{bitrect::BitRectId, bitvec::BitVec};
 use prjcombine_xc2000::{
     bitstream::{BitPos, BitRect, Bitstream},
     expanded::ExpandedDevice,

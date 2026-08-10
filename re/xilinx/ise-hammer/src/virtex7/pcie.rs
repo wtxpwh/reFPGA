@@ -2,7 +2,7 @@ use prjcombine_interconnect::{db::BelAttributeType, dir::DirH, grid::TileCoord};
 use prjcombine_re_collector::diff::xlat_bit;
 use prjcombine_re_hammer::Session;
 use prjcombine_re_xilinx_geom::ExpandedDevice;
-use prjcombine_types::bsdata::TileBit;
+use prjcombine_types::bitrect::TileBit;
 use prjcombine_virtex4::defs::{
     bcls::{self, PCIE_V7 as PCIE, PCIE3},
     bslots, tslots,

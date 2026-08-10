@@ -4,7 +4,7 @@ use prjcombine_re_collector::diff::{
 };
 use prjcombine_re_hammer::Session;
 use prjcombine_spartan6::defs::{bcls, bslots, tables, tcls, tslots, wires};
-use prjcombine_types::{bitvec::BitVec, bsdata::TileBit};
+use prjcombine_types::{bitrect::TileBit, bitvec::BitVec};
 
 use crate::{
     backend::{IseBackend, MultiValue},

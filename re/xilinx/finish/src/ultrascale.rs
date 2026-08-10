@@ -185,7 +185,7 @@ fn sort_key<'a>(name: &'a str, part: &TmpPart) -> SortKey<'a> {
     }
 }
 
-pub fn finish(geom: GeomDb, mut bitdb: CollectorData) -> Database {
+pub fn finish(geom: GeomDb, _bitdb: CollectorData) -> Database {
     let mut tmp_parts: BTreeMap<&str, _> = BTreeMap::new();
     for dev in &geom.devices {
         let chips = dev.chips.map_values(|&chip| {
@@ -286,10 +286,7 @@ pub fn finish(geom: GeomDb, mut bitdb: CollectorData) -> Database {
     let bonds = bonds.into_vec();
 
     assert_eq!(geom.ints.len(), 1);
-    let mut int = geom.ints.into_values().next().unwrap();
-
-    let bsdata = std::mem::take(&mut bitdb.bsdata);
-    bitdb.insert_into(&mut int, true);
+    let int = geom.ints.into_values().next().unwrap();
 
     Database {
         chips,
@@ -297,6 +294,5 @@ pub fn finish(geom: GeomDb, mut bitdb: CollectorData) -> Database {
         bonds,
         devices: parts,
         int,
-        bsdata,
     }
 }

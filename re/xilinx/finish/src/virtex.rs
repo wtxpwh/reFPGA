@@ -161,7 +161,6 @@ pub fn finish(geom: GeomDb, bitdb: CollectorData) -> Database {
     assert_eq!(geom.ints.len(), 1);
     let mut int = geom.ints.into_values().next().unwrap();
 
-    assert!(bitdb.bsdata.is_empty());
     bitdb.insert_into(&mut int, false);
 
     Database {

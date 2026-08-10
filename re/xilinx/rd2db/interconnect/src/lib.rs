@@ -21,7 +21,7 @@ use prjcombine_re_xilinx_rawdump::{self as rawdump, Coord, NodeOrWire, Part, TkP
 
 use assert_matches::assert_matches;
 
-use prjcombine_types::bsdata::PolTileBit;
+use prjcombine_types::bitrect::PolTileBit;
 use rawdump::TileKindId;
 
 #[derive(Default, Debug)]

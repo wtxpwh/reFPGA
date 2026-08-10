@@ -9,8 +9,7 @@ use bincode::{Decode, Encode};
 use itertools::Itertools;
 use prjcombine_entity::{EntityRange, EntityVec, entity_id_u8};
 use prjcombine_types::{
-    bsdata::Tile,
-    cpld::{BlockId, MacrocellCoord, MacrocellId},
+    cpld::{BlockId, MacrocellCoord, MacrocellId, bsdata::Tile},
     db::{BondId, ChipId, DumpFlags, SpeedId},
     speed::Speed,
 };

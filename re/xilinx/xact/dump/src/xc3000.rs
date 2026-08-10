@@ -9,7 +9,7 @@ use prjcombine_interconnect::{
 use prjcombine_re_xilinx_xact_data::die::Die;
 use prjcombine_re_xilinx_xact_naming::db::{NamingDb, TileNaming};
 use prjcombine_re_xilinx_xact_xc2000::{ExpandedNamedDevice, name_device};
-use prjcombine_types::bsdata::PolTileBit;
+use prjcombine_types::bitrect::PolTileBit;
 use prjcombine_xc2000::{
     bond::{Bond, BondPad, CfgPad},
     chip::{Chip, ChipKind, SharedCfgPad},

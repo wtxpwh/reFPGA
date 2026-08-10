@@ -989,14 +989,19 @@ fn main() -> Result<(), Box<dyn Error>> {
         }
     }
     // inter-part fixups!
-    for part in Vec::from_iter(data.bsdata.device_data.keys().cloned()) {
+    for part in Vec::from_iter(data.device_data.keys().cloned()) {
         if part.starts_with("xq2vp") {
             let xc_part = "xc".to_string() + &part[2..];
-            if data.bsdata.device_data.contains_key(&xc_part) {
-                for key in ["DCM:DESKEW_ADJUST", "DCM:VBG_SEL", "DCM:VBG_PD"] {
-                    if let Some(val) = data.bsdata.device_data[&xc_part].get(key) {
+            if let Some(dd) = data.device_data.get(&xc_part) {
+                let dd = dd.clone();
+                for key in [
+                    prjcombine_virtex2::defs::devdata::DCM_DESKEW_ADJUST,
+                    prjcombine_virtex2::defs::devdata::DCM_V2_VBG_SEL,
+                    prjcombine_virtex2::defs::devdata::DCM_V2_VBG_PD,
+                ] {
+                    if let Some(val) = dd.get(key) {
                         let val = val.clone();
-                        data.bsdata.insert_device_data(&part, key, val);
+                        data.device_data.get_mut(&part).unwrap().insert(key, val);
                     }
                 }
             }

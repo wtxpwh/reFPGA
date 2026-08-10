@@ -11,9 +11,9 @@ use prjcombine_re_hammer::{Fuzzer, Session};
 use prjcombine_re_xilinx_geom::{Bitstream, ExpandedBond, ExpandedDevice, ExpandedNamedDevice};
 use prjcombine_types::{
     bitrect::BitRect as _,
+    bitrect::{BitRectId, RectBitId, RectFrameId, TileBit},
     bits,
     bitvec::BitVec,
-    bsdata::{BitRectId, RectBitId, RectFrameId, TileBit},
 };
 use prjcombine_virtex2::bitstream::{BitRect, Reg};
 use prjcombine_virtex2::{

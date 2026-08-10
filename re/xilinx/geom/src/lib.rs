@@ -4,7 +4,7 @@ use prjcombine_interconnect::db::IntDb;
 use prjcombine_interconnect::grid::{DieId, ExpandedGrid, TileCoord};
 use prjcombine_re_xilinx_naming::db::NamingDb;
 use prjcombine_re_xilinx_naming::grid::ExpandedGridNaming;
-use prjcombine_types::bsdata::{BitRectId, RectBitId, RectFrameId};
+use prjcombine_types::bitrect::{BitRectId, RectBitId, RectFrameId};
 use prjcombine_types::db::{BondId, ChipId, DevBondId, DevSpeedId, InterposerId};
 use std::collections::{BTreeMap, BTreeSet, HashMap};
 use std::error::Error;

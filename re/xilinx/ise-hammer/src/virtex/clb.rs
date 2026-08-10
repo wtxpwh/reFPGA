@@ -1,6 +1,6 @@
 use prjcombine_re_collector::diff::{Diff, xlat_bit, xlat_enum_attr};
 use prjcombine_re_hammer::Session;
-use prjcombine_types::bsdata::TileBit;
+use prjcombine_types::bitrect::TileBit;
 use prjcombine_virtex::defs::{bcls::SLICE, bslots, enums, tcls};
 
 use crate::{

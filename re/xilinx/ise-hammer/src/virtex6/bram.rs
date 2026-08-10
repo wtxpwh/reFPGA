@@ -4,7 +4,7 @@ use prjcombine_interconnect::db::{BelInfo, SwitchBoxItem, WireSlotIdExt};
 use prjcombine_re_collector::diff::{xlat_bit, xlat_bit_wide_bi, xlat_bitvec, xlat_enum_attr};
 use prjcombine_re_hammer::Session;
 use prjcombine_re_xilinx_geom::ExpandedDevice;
-use prjcombine_types::{bits, bsdata::TileBit};
+use prjcombine_types::{bitrect::TileBit, bits};
 use prjcombine_virtex4::{
     chip::ChipKind,
     defs::{

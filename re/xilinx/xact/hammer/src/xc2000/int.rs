@@ -10,7 +10,7 @@ use prjcombine_interconnect::{
 use prjcombine_re_collector::diff::{Diff, DiffKey, OcdMode, xlat_bit_bi, xlat_enum_raw};
 use prjcombine_re_fpga_hammer::{FuzzerFeature, FuzzerProp};
 use prjcombine_re_hammer::{Fuzzer, Session};
-use prjcombine_types::bsdata::BitRectId;
+use prjcombine_types::bitrect::BitRectId;
 use prjcombine_xc2000::xc2000::{bcls, bslots, ccls, cslots, tcls, tslots, wires};
 
 use crate::{

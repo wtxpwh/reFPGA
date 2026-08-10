@@ -1,6 +1,6 @@
 use prjcombine_interconnect::db::{BelAttributeType, BelInputId, BelKind};
 use prjcombine_re_hammer::Session;
-use prjcombine_types::bsdata::TileBit;
+use prjcombine_types::bitrect::TileBit;
 use prjcombine_virtex4::defs::{
     bcls::{CRC32, GTP_DUAL, GTX_DUAL},
     bslots,

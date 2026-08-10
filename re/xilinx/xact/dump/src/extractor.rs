@@ -22,7 +22,7 @@ use prjcombine_re_xilinx_xact_naming::{
     db::{IntPipNaming, NamingDb, PipNaming, TileNamingId, TileRawCellId},
     grid::ExpandedGridNaming,
 };
-use prjcombine_types::bsdata::PolTileBit;
+use prjcombine_types::bitrect::PolTileBit;
 
 entity_id_u32!(pub NetId, NetTag tag, "NET");
 

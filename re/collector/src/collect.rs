@@ -5,13 +5,10 @@ use prjcombine_interconnect::db::{
     BelSlotId, ConnectorSlotId, DeviceDataId, EnumValueId, IntDb, Mux, PolTileWireCoord,
     SwitchBoxItem, TableFieldId, TableId, TableRowId, TableValue, TileClassId, TileWireCoord,
 };
-use prjcombine_types::{
-    bitvec::BitVec,
-    bsdata::{EnumData, PolTileBit},
-};
+use prjcombine_types::{bitrect::PolTileBit, bitvec::BitVec};
 
 use crate::{
-    bitdata::CollectorData,
+    bitdata::{CollectorData, EnumData},
     diff::{
         Diff, DiffKey, OcdMode, SpecialId, xlat_bit, xlat_bit_bi, xlat_bit_bi_default, xlat_bitvec,
         xlat_bitvec_sparse, xlat_enum_attr, xlat_enum_attr_ocd, xlat_enum_raw,
@@ -730,8 +727,7 @@ impl Collector<'_, '_> {
         }
     }
 
-    pub fn insert_devdata_bitvec(&mut self, ddid: DeviceDataId, val: BitVec) {
-        let val = TableValue::BitVec(val);
+    pub fn insert_devdata_raw(&mut self, ddid: DeviceDataId, val: TableValue) {
         let devdata = self
             .data
             .device_data
@@ -742,48 +738,26 @@ impl Collector<'_, '_> {
         } else {
             devdata.insert(ddid, val);
         }
+    }
+
+    pub fn insert_devdata_bitvec(&mut self, ddid: DeviceDataId, val: BitVec) {
+        let val = TableValue::BitVec(val);
+        self.insert_devdata_raw(ddid, val);
     }
 
     pub fn insert_devdata_bool(&mut self, ddid: DeviceDataId, val: bool) {
         let val = TableValue::BitVec(BitVec::from_iter([val]));
-        let devdata = self
-            .data
-            .device_data
-            .entry(self.dev_name.to_string())
-            .or_default();
-        if devdata.contains_id(ddid) {
-            assert_eq!(devdata[ddid], val);
-        } else {
-            devdata.insert(ddid, val);
-        }
+        self.insert_devdata_raw(ddid, val);
     }
 
     pub fn insert_devdata_enum(&mut self, ddid: DeviceDataId, val: EnumValueId) {
         let val = TableValue::Enum(val);
-        let devdata = self
-            .data
-            .device_data
-            .entry(self.dev_name.to_string())
-            .or_default();
-        if devdata.contains_id(ddid) {
-            assert_eq!(devdata[ddid], val);
-        } else {
-            devdata.insert(ddid, val);
-        }
+        self.insert_devdata_raw(ddid, val);
     }
 
     pub fn insert_devdata_u32(&mut self, ddid: DeviceDataId, val: u32) {
         let val = TableValue::U32(val);
-        let devdata = self
-            .data
-            .device_data
-            .entry(self.dev_name.to_string())
-            .or_default();
-        if devdata.contains_id(ddid) {
-            assert_eq!(devdata[ddid], val);
-        } else {
-            devdata.insert(ddid, val);
-        }
+        self.insert_devdata_raw(ddid, val);
     }
 }
 

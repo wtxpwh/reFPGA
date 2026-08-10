@@ -16,9 +16,12 @@ use prjcombine_re_xilinx_cpld::{
     types::{CeMuxVal, ClkMuxVal, FbnId, ImuxId, ImuxInput, OeMuxVal, RegMode, Slew, SrMuxVal, Ut},
 };
 use prjcombine_types::{
+    bitrect::{BitRectId, RectBitId, RectFrameId, TileBit},
     bitvec::BitVec,
-    bsdata::{BitRectId, RectBitId, RectFrameId, Tile, TileBit, TileItem, TileItemKind},
-    cpld::{BlockId, IoCoord, MacrocellCoord, MacrocellId, ProductTermId},
+    cpld::{
+        BlockId, IoCoord, MacrocellCoord, MacrocellId, ProductTermId,
+        bsdata::{Tile, TileItem, TileItemKind},
+    },
     db::DumpFlags,
 };
 use prjcombine_xpla3 as xpla3;

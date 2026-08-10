@@ -1,5 +1,5 @@
 use prjcombine_interconnect::db::PadKind;
-use prjcombine_types::{bitvec::BitVec, bsdata::BitRectGeometry};
+use prjcombine_types::{bitrect::BitRectGeometry, bitvec::BitVec};
 use proc_macro::{Ident, Literal, Span};
 
 #[derive(Debug)]

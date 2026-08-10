@@ -1,15 +1,6 @@
-use crate::{
-    DocgenContext,
-    bsdata::{FrameDirection, TileOrientation, gen_bstiles},
-    interconnect::gen_intdb,
-};
+use crate::{DocgenContext, interconnect::gen_intdb};
 
 pub fn gen_ecp(ctx: &mut DocgenContext) {
-    let tile_orientation = TileOrientation {
-        frame_direction: FrameDirection::Horizontal,
-        flip_frame: false,
-        flip_bit: false,
-    };
     for kind in [
         "scm",
         "ecp",
@@ -29,6 +20,5 @@ pub fn gen_ecp(ctx: &mut DocgenContext) {
         )
         .unwrap();
         gen_intdb(ctx, kind, &db.int);
-        gen_bstiles(ctx, kind, &db.bsdata, |_| tile_orientation);
     }
 }

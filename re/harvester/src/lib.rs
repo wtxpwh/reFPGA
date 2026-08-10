@@ -5,7 +5,7 @@ use std::{
 
 use prjcombine_entity::{EntityVec, entity_id_u32};
 use prjcombine_re_collector::diff::DiffKey;
-use prjcombine_types::bsdata::{BitRectId, RectBitId, RectFrameId, TileBit};
+use prjcombine_types::bitrect::{BitRectId, RectBitId, RectFrameId, TileBit};
 
 #[derive(Debug, Clone)]
 pub struct Sample<BitRect: Copy + Eq + Ord + Debug> {

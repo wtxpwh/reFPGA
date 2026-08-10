@@ -1,7 +1,7 @@
 use prjcombine_re_collector::diff::{Diff, xlat_bit, xlat_enum_attr};
 use prjcombine_re_hammer::Session;
 use prjcombine_re_xilinx_geom::ExpandedDevice;
-use prjcombine_types::bsdata::TileBit;
+use prjcombine_types::bitrect::TileBit;
 use prjcombine_xc2000::{
     chip::ChipKind,
     xc4000::{bslots, enums, xc4000::bcls, xc4000::tcls},

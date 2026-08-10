@@ -15,8 +15,8 @@ use prjcombine_re_xilinx_naming::grid::ExpandedGridNaming;
 use prjcombine_re_xilinx_xdl::{
     Design, Instance, Net, NetPin, NetPip, NetType, Pcf, Placement, run_bitgen,
 };
+use prjcombine_types::bitrect::BitRectId;
 use prjcombine_types::bitvec::BitVec;
-use prjcombine_types::bsdata::BitRectId;
 use prjcombine_virtex::bitstream::KeySeq;
 use rand::prelude::*;
 use std::collections::{HashMap, hash_map};

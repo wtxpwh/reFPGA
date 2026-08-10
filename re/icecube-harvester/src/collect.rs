@@ -19,8 +19,8 @@ use prjcombine_siliconblue::{
 };
 use prjcombine_types::{
     bimap::BiMap,
+    bitrect::{BitRectId, PolTileBit, RectBitId, TileBit},
     bits,
-    bsdata::{BitRectId, BsData, PolTileBit, RectBitId, TileBit},
 };
 
 use crate::specials;
@@ -783,8 +783,6 @@ pub fn collect(
     for (key, data) in &diffs {
         println!("uncollected: {key:?}: {data:?}");
     }
-
-    assert_eq!(data.bsdata, BsData::new());
 
     data
 }
