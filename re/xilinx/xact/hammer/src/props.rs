@@ -553,8 +553,7 @@ impl<'b> FuzzerProp<'b, XactBackend<'b>> for BondedIo {
         tcrd: TileCoord,
         fuzzer: Fuzzer<XactBackend<'a>>,
     ) -> Option<(Fuzzer<XactBackend<'a>>, bool)> {
-        let io = backend.edev.chip.get_io_crd(tcrd.bel(self.bel));
-        if backend.edev.chip.unbonded_io.contains(&io) {
+        if backend.edev.chip.unbonded_io.contains(&tcrd.bel(self.bel)) {
             None
         } else {
             Some((fuzzer, false))

@@ -1,4 +1,3 @@
-use prjcombine_interconnect::grid::EdgeIoCoord;
 use prjcombine_re_xilinx_naming::{db::NamingDb, grid::ExpandedGridNaming};
 use prjcombine_xc2000::{
     chip::{Chip, ChipKind},
@@ -9,13 +8,6 @@ pub struct ExpandedNamedDevice<'a> {
     pub edev: &'a ExpandedDevice<'a>,
     pub ngrid: ExpandedGridNaming<'a>,
     pub chip: &'a Chip,
-}
-
-impl<'a> ExpandedNamedDevice<'a> {
-    pub fn get_io_name(&'a self, io: EdgeIoCoord) -> &'a str {
-        let bel = self.chip.get_io_loc(io);
-        self.ngrid.get_bel_name(bel).unwrap()
-    }
 }
 
 mod xc4000;

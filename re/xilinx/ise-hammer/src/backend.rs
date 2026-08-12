@@ -275,14 +275,16 @@ impl<'a> Backend for IseBackend<'a> {
             let ExpandedNamedDevice::Xc2000(endev) = self.endev else {
                 unreachable!()
             };
-            for (k, v) in &bond.pins {
-                if let prjcombine_xc2000::bond::BondPad::Io(io) = v {
-                    let name = endev.get_io_name(*io);
+            for (k, pad) in &bond.pins {
+                if let Some(pad) = pad
+                    && endev.chip.bel_is_io(pad.bel)
+                {
+                    let name = endev.ngrid.get_bel_name(pad.bel).unwrap();
                     site_to_place.insert(name.to_string(), k.to_string());
                 }
             }
             for io in endev.chip.get_bonded_ios() {
-                let name = endev.get_io_name(io);
+                let name = endev.ngrid.get_bel_name(io.bel).unwrap();
                 match site_to_place.entry(name.to_string()) {
                     hash_map::Entry::Occupied(_) => (),
                     hash_map::Entry::Vacant(e) => {

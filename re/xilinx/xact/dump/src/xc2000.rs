@@ -3,13 +3,13 @@ use std::collections::{BTreeMap, BTreeSet};
 use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
     db::{BelInfo, IntDb, SwitchBoxItem, WireKind, WireSlotIdExt},
-    grid::{ColId, DieId, DieIdExt, EdgeIoCoord, RowId},
+    grid::{BelPadCoord, ColId, DieId, DieIdExt, RowId},
 };
 use prjcombine_re_xilinx_xact_data::die::Die;
 use prjcombine_re_xilinx_xact_naming::db::{NamingDb, TileNaming};
 use prjcombine_re_xilinx_xact_xc2000::{ExpandedNamedDevice, name_device};
 use prjcombine_xc2000::{
-    bond::{Bond, BondPad, CfgPad},
+    bond::Bond,
     chip::{Chip, ChipKind, SharedCfgPad},
     xc2000 as defs,
     xc2000::bcls,
@@ -422,19 +422,21 @@ pub fn make_bond(
     endev: &ExpandedNamedDevice,
     name: &str,
     pkg: &BTreeMap<String, String>,
-) -> (Bond, BTreeMap<SharedCfgPad, EdgeIoCoord>) {
+) -> (Bond, BTreeMap<SharedCfgPad, BelPadCoord>) {
+    let chip = &endev.edev.chip;
     let io_lookup: BTreeMap<_, _> = endev
         .chip
         .get_bonded_ios()
         .into_iter()
-        .map(|io| (endev.get_io_name(io), io))
+        .map(|io| (endev.ngrid.get_bel_name(io.bel).unwrap(), io))
         .collect();
     let mut bond = Bond {
+        kind: chip.kind,
         pins: Default::default(),
     };
     for (pin, pad) in pkg {
         let io = io_lookup[&**pad];
-        bond.pins.insert(pin.to_ascii_uppercase(), BondPad::Io(io));
+        bond.pins.insert(pin.to_ascii_uppercase(), Some(io));
     }
     let (pwrdwn, m1, m0, prog, done, cclk, gnd, vcc) = match name {
         "pd48" => (
@@ -521,28 +523,25 @@ pub fn make_bond(
     };
     assert_eq!(
         bond.pins
-            .insert(pwrdwn.into(), BondPad::Cfg(CfgPad::PwrdwnB)),
-        None
-    );
-    assert_eq!(bond.pins.insert(m0.into(), BondPad::Cfg(CfgPad::M0)), None);
-    assert_eq!(bond.pins.insert(m1.into(), BondPad::Cfg(CfgPad::M1)), None);
-    assert_eq!(
-        bond.pins.insert(prog.into(), BondPad::Cfg(CfgPad::ProgB)),
+            .insert(pwrdwn.into(), Some(chip.pad_pwrdwn_b().unwrap())),
         None
     );
     assert_eq!(
-        bond.pins.insert(done.into(), BondPad::Cfg(CfgPad::Done)),
+        bond.pins.insert(m0.into(), Some(chip.pad_mode(0).unwrap())),
         None
     );
     assert_eq!(
-        bond.pins.insert(cclk.into(), BondPad::Cfg(CfgPad::Cclk)),
+        bond.pins.insert(m1.into(), Some(chip.pad_mode(1).unwrap())),
         None
     );
+    assert_eq!(bond.pins.insert(prog.into(), Some(chip.pad_prog_b())), None);
+    assert_eq!(bond.pins.insert(done.into(), Some(chip.pad_done())), None);
+    assert_eq!(bond.pins.insert(cclk.into(), Some(chip.pad_cclk())), None);
     for &pin in gnd {
-        assert_eq!(bond.pins.insert(pin.into(), BondPad::Gnd), None);
+        assert_eq!(bond.pins.insert(pin.into(), Some(chip.pad_gnd())), None);
     }
     for &pin in vcc {
-        assert_eq!(bond.pins.insert(pin.into(), BondPad::Vcc), None);
+        assert_eq!(bond.pins.insert(pin.into(), Some(chip.pad_vccio())), None);
     }
     match name {
         "pd48" => assert_eq!(bond.pins.len(), 48),
@@ -552,7 +551,7 @@ pub fn make_bond(
         "vq64" => assert_eq!(bond.pins.len(), 64),
         "vq100" | "tq100" => {
             for i in 1..=100 {
-                bond.pins.entry(format!("P{i}")).or_insert(BondPad::Nc);
+                bond.pins.entry(format!("P{i}")).or_insert(None);
             }
         }
         "pg68" => assert_eq!(bond.pins.len(), 68),
@@ -593,10 +592,9 @@ pub fn make_bond(
             ("P67", SharedCfgPad::Addr(14)),
             ("P68", SharedCfgPad::Addr(5)),
         ] {
-            let BondPad::Io(io) = bond.pins[pin] else {
-                unreachable!()
-            };
-            cfg_io.insert(fun, io);
+            let pad = bond.pins[pin].unwrap();
+            assert!(chip.bel_is_io(pad.bel));
+            cfg_io.insert(fun, pad);
         }
     }
 

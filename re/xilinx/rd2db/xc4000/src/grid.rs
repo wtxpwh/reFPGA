@@ -2,7 +2,7 @@ use prjcombine_interconnect::grid::DieIdExt;
 use prjcombine_re_xilinx_rawdump::{Part, TkSiteSlot};
 use prjcombine_xc2000::{
     chip::{Chip, ChipKind, SharedCfgPad},
-    xc4000::bslots,
+    xc4000::{bcls, bslots},
 };
 use std::collections::{BTreeMap, BTreeSet, HashMap};
 
@@ -29,14 +29,13 @@ fn handle_spec_io(rd: &Part, chip: &mut Chip, int: &IntGrid) {
             {
                 io_lookup.insert(
                     v.clone(),
-                    chip.get_io_crd(
-                        Chip::DIE
-                            .cell(
-                                int.lookup_column(crd.x.into()),
-                                int.lookup_row(crd.y.into()),
-                            )
-                            .bel(bslots::IO[idx as usize - 1]),
-                    ),
+                    Chip::DIE
+                        .cell(
+                            int.lookup_column(crd.x.into()),
+                            int.lookup_row(crd.y.into()),
+                        )
+                        .bel(bslots::IO[idx as usize - 1])
+                        .pad(bcls::IO::PAD),
                 );
             }
         }

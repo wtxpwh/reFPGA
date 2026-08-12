@@ -4,14 +4,14 @@ use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
     db::{BelInfo, IntDb, ProgInv, SwitchBoxItem, WireKind, WireSlotId, WireSlotIdExt},
     dir::Dir,
-    grid::{DieId, DieIdExt, EdgeIoCoord},
+    grid::{BelPadCoord, DieId, DieIdExt},
 };
 use prjcombine_re_xilinx_xact_data::die::Die;
 use prjcombine_re_xilinx_xact_naming::db::{NamingDb, TileNaming};
 use prjcombine_re_xilinx_xact_xc2000::{ExpandedNamedDevice, name_device};
 use prjcombine_types::bitrect::PolTileBit;
 use prjcombine_xc2000::{
-    bond::{Bond, BondPad, CfgPad},
+    bond::Bond,
     chip::{Chip, ChipKind, SharedCfgPad},
     xc3000 as defs,
     xc3000::{bcls, wires},
@@ -739,19 +739,21 @@ pub fn make_bond(
     endev: &ExpandedNamedDevice,
     name: &str,
     pkg: &BTreeMap<String, String>,
-) -> (Bond, BTreeMap<SharedCfgPad, EdgeIoCoord>) {
+) -> (Bond, BTreeMap<SharedCfgPad, BelPadCoord>) {
+    let chip = &endev.edev.chip;
     let io_lookup: BTreeMap<_, _> = endev
         .chip
         .get_bonded_ios()
         .into_iter()
-        .map(|io| (endev.get_io_name(io), io))
+        .map(|io| (endev.ngrid.get_bel_name(io.bel).unwrap(), io))
         .collect();
     let mut bond = Bond {
+        kind: chip.kind,
         pins: Default::default(),
     };
     for (pin, pad) in pkg {
         let io = io_lookup[&**pad];
-        bond.pins.insert(pin.to_ascii_uppercase(), BondPad::Io(io));
+        bond.pins.insert(pin.to_ascii_uppercase(), Some(io));
     }
 
     let (pwrdwn, m1, m0, prog, done, cclk, gnd, vcc) = match name {
@@ -944,28 +946,25 @@ pub fn make_bond(
     };
     assert_eq!(
         bond.pins
-            .insert(pwrdwn.into(), BondPad::Cfg(CfgPad::PwrdwnB)),
-        None
-    );
-    assert_eq!(bond.pins.insert(m0.into(), BondPad::Cfg(CfgPad::M0)), None);
-    assert_eq!(bond.pins.insert(m1.into(), BondPad::Cfg(CfgPad::M1)), None);
-    assert_eq!(
-        bond.pins.insert(prog.into(), BondPad::Cfg(CfgPad::ProgB)),
+            .insert(pwrdwn.into(), Some(chip.pad_pwrdwn_b().unwrap())),
         None
     );
     assert_eq!(
-        bond.pins.insert(done.into(), BondPad::Cfg(CfgPad::Done)),
+        bond.pins.insert(m0.into(), Some(chip.pad_mode(0).unwrap())),
         None
     );
     assert_eq!(
-        bond.pins.insert(cclk.into(), BondPad::Cfg(CfgPad::Cclk)),
+        bond.pins.insert(m1.into(), Some(chip.pad_mode(1).unwrap())),
         None
     );
+    assert_eq!(bond.pins.insert(prog.into(), Some(chip.pad_prog_b())), None);
+    assert_eq!(bond.pins.insert(done.into(), Some(chip.pad_done())), None);
+    assert_eq!(bond.pins.insert(cclk.into(), Some(chip.pad_cclk())), None);
     for &pin in gnd {
-        assert_eq!(bond.pins.insert(pin.into(), BondPad::Gnd), None);
+        assert_eq!(bond.pins.insert(pin.into(), Some(chip.pad_gnd())), None);
     }
     for &pin in vcc {
-        assert_eq!(bond.pins.insert(pin.into(), BondPad::Vcc), None);
+        assert_eq!(bond.pins.insert(pin.into(), Some(chip.pad_vccio())), None);
     }
 
     let len1d = match name {
@@ -985,7 +984,7 @@ pub fn make_bond(
     };
     if let Some(len1d) = len1d {
         for i in 1..=len1d {
-            bond.pins.entry(format!("P{i}")).or_insert(BondPad::Nc);
+            bond.pins.entry(format!("P{i}")).or_insert(None);
         }
         assert_eq!(bond.pins.len(), len1d);
     }
@@ -994,22 +993,22 @@ pub fn make_bond(
         "pg84" => {
             for a in ["A", "B", "K", "L"] {
                 for i in 1..=11 {
-                    bond.pins.entry(format!("{a}{i}")).or_insert(BondPad::Nc);
+                    bond.pins.entry(format!("{a}{i}")).or_insert(None);
                 }
             }
             for a in ["C", "D", "E", "F", "G", "H", "J"] {
                 for i in (1..=2).chain(10..=11) {
-                    bond.pins.entry(format!("{a}{i}")).or_insert(BondPad::Nc);
+                    bond.pins.entry(format!("{a}{i}")).or_insert(None);
                 }
             }
             for a in ["C", "J"] {
                 for i in 5..=7 {
-                    bond.pins.entry(format!("{a}{i}")).or_insert(BondPad::Nc);
+                    bond.pins.entry(format!("{a}{i}")).or_insert(None);
                 }
             }
             for a in ["E", "F", "G"] {
                 for i in [3, 9] {
-                    bond.pins.entry(format!("{a}{i}")).or_insert(BondPad::Nc);
+                    bond.pins.entry(format!("{a}{i}")).or_insert(None);
                 }
             }
             assert_eq!(bond.pins.len(), 84);
@@ -1017,12 +1016,12 @@ pub fn make_bond(
         "pg132" | "pp132" => {
             for a in ["A", "B", "C", "M", "N", "P"] {
                 for i in 1..=14 {
-                    bond.pins.entry(format!("{a}{i}")).or_insert(BondPad::Nc);
+                    bond.pins.entry(format!("{a}{i}")).or_insert(None);
                 }
             }
             for a in ["D", "E", "F", "G", "H", "J", "K", "L"] {
                 for i in (1..=3).chain(12..=14) {
-                    bond.pins.entry(format!("{a}{i}")).or_insert(BondPad::Nc);
+                    bond.pins.entry(format!("{a}{i}")).or_insert(None);
                 }
             }
 
@@ -1030,32 +1029,32 @@ pub fn make_bond(
         }
         "pp175" | "pg175" => {
             for i in 2..=16 {
-                bond.pins.entry(format!("A{i}")).or_insert(BondPad::Nc);
+                bond.pins.entry(format!("A{i}")).or_insert(None);
             }
             for a in ["B", "C", "D", "N", "P", "R", "T"] {
                 for i in 1..=16 {
-                    bond.pins.entry(format!("{a}{i}")).or_insert(BondPad::Nc);
+                    bond.pins.entry(format!("{a}{i}")).or_insert(None);
                 }
             }
             for a in ["E", "F", "G", "H", "J", "K", "L", "M"] {
                 for i in (1..=3).chain(14..=16) {
-                    bond.pins.entry(format!("{a}{i}")).or_insert(BondPad::Nc);
+                    bond.pins.entry(format!("{a}{i}")).or_insert(None);
                 }
             }
             assert_eq!(bond.pins.len(), 175);
         }
         "pg223" => {
             for i in 2..=18 {
-                bond.pins.entry(format!("A{i}")).or_insert(BondPad::Nc);
+                bond.pins.entry(format!("A{i}")).or_insert(None);
             }
             for a in ["B", "C", "D", "R", "T", "U", "V"] {
                 for i in 1..=18 {
-                    bond.pins.entry(format!("{a}{i}")).or_insert(BondPad::Nc);
+                    bond.pins.entry(format!("{a}{i}")).or_insert(None);
                 }
             }
             for a in ["E", "F", "G", "H", "J", "K", "L", "M", "N", "P"] {
                 for i in (1..=4).chain(15..=18) {
-                    bond.pins.entry(format!("{a}{i}")).or_insert(BondPad::Nc);
+                    bond.pins.entry(format!("{a}{i}")).or_insert(None);
                 }
             }
             assert_eq!(bond.pins.len(), 223);
@@ -1099,10 +1098,9 @@ pub fn make_bond(
             ("P67", SharedCfgPad::Addr(14)),
             ("P68", SharedCfgPad::Addr(5)),
         ] {
-            let BondPad::Io(io) = bond.pins[pin] else {
-                unreachable!()
-            };
-            cfg_io.insert(fun, io);
+            let pad = bond.pins[pin].unwrap();
+            assert!(chip.bel_is_io(pad.bel));
+            cfg_io.insert(fun, pad);
         }
     } else if name == "pc84" && endev.chip.columns < 14 {
         for (pin, fun) in [
@@ -1139,10 +1137,9 @@ pub fn make_bond(
             ("P83", SharedCfgPad::Addr(14)),
             ("P84", SharedCfgPad::Addr(5)),
         ] {
-            let BondPad::Io(io) = bond.pins[pin] else {
-                unreachable!()
-            };
-            cfg_io.insert(fun, io);
+            let pad = bond.pins[pin].unwrap();
+            assert!(chip.bel_is_io(pad.bel));
+            cfg_io.insert(fun, pad);
         }
     } else if name == "pg132" {
         for (pin, fun) in [
@@ -1179,10 +1176,9 @@ pub fn make_bond(
             ("H1", SharedCfgPad::Addr(14)),
             ("H2", SharedCfgPad::Addr(5)),
         ] {
-            let BondPad::Io(io) = bond.pins[pin] else {
-                unreachable!()
-            };
-            cfg_io.insert(fun, io);
+            let pad = bond.pins[pin].unwrap();
+            assert!(chip.bel_is_io(pad.bel));
+            cfg_io.insert(fun, pad);
         }
     } else if name == "pq160" {
         for (pin, fun) in [
@@ -1219,10 +1215,9 @@ pub fn make_bond(
             ("P136", SharedCfgPad::Addr(14)),
             ("P137", SharedCfgPad::Addr(5)),
         ] {
-            let BondPad::Io(io) = bond.pins[pin] else {
-                unreachable!()
-            };
-            cfg_io.insert(fun, io);
+            let pad = bond.pins[pin].unwrap();
+            assert!(chip.bel_is_io(pad.bel));
+            cfg_io.insert(fun, pad);
         }
     }
 

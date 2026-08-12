@@ -25,9 +25,9 @@ pub enum Chip {
 }
 
 impl Chip {
-    pub fn dump(&self, o: &mut dyn std::io::Write) -> std::io::Result<()> {
+    pub fn dump(&self, o: &mut dyn std::io::Write, db: &IntDb) -> std::io::Result<()> {
         match self {
-            Chip::Xc2000(chip) => chip.dump(o),
+            Chip::Xc2000(chip) => chip.dump(o, db),
             Chip::Virtex(chip) => chip.dump(o),
             Chip::Virtex2(chip) => chip.dump(o),
             Chip::Spartan6(chip) => chip.dump(o),
@@ -116,9 +116,9 @@ pub enum Bond {
 }
 
 impl Bond {
-    pub fn dump(&self, o: &mut dyn std::io::Write) -> std::io::Result<()> {
+    pub fn dump(&self, o: &mut dyn std::io::Write, db: &IntDb) -> std::io::Result<()> {
         match self {
-            Bond::Xc2000(bond) => bond.dump(o),
+            Bond::Xc2000(bond) => bond.dump(o, db),
             Bond::Virtex(bond) => bond.dump(o),
             Bond::Virtex2(bond) => bond.dump(o),
             Bond::Spartan6(bond) => bond.dump(o),
@@ -437,6 +437,23 @@ impl<'a> ExpandedNamedDevice<'a> {
     }
 }
 
+fn xc2000_intdb_key(kind: prjcombine_xc2000::chip::ChipKind) -> &'static str {
+    match kind {
+        prjcombine_xc2000::chip::ChipKind::Xc2000 => "xc2000",
+        prjcombine_xc2000::chip::ChipKind::Xc3000 => "xc3000",
+        prjcombine_xc2000::chip::ChipKind::Xc3000A => "xc3000a",
+        prjcombine_xc2000::chip::ChipKind::Xc4000 => "xc4000",
+        prjcombine_xc2000::chip::ChipKind::Xc4000A => "xc4000a",
+        prjcombine_xc2000::chip::ChipKind::Xc4000H => "xc4000h",
+        prjcombine_xc2000::chip::ChipKind::Xc4000E => "xc4000e",
+        prjcombine_xc2000::chip::ChipKind::Xc4000Ex => "xc4000ex",
+        prjcombine_xc2000::chip::ChipKind::Xc4000Xla => "xc4000xla",
+        prjcombine_xc2000::chip::ChipKind::Xc4000Xv => "xc4000xv",
+        prjcombine_xc2000::chip::ChipKind::SpartanXl => "spartanxl",
+        prjcombine_xc2000::chip::ChipKind::Xc5200 => "xc5200",
+    }
+}
+
 impl GeomDb {
     pub fn from_file<P: AsRef<Path>>(path: P) -> Result<Self, Box<dyn Error>> {
         let f = File::open(path)?;
@@ -454,28 +471,75 @@ impl GeomDb {
         Ok(())
     }
 
+    pub fn intdb_key(&self, chip: &Chip) -> &'static str {
+        match chip {
+            Chip::Xc2000(chip) => xc2000_intdb_key(chip.kind),
+            Chip::Virtex(_) => "virtex",
+            Chip::Virtex2(chip) => {
+                if chip.kind.is_virtex2() {
+                    "virtex2"
+                } else {
+                    "spartan3"
+                }
+            }
+            Chip::Spartan6(_) => "spartan6",
+            Chip::Virtex4(chip) => match chip.kind {
+                prjcombine_virtex4::chip::ChipKind::Virtex4 => "virtex4",
+                prjcombine_virtex4::chip::ChipKind::Virtex5 => "virtex5",
+                prjcombine_virtex4::chip::ChipKind::Virtex6 => "virtex6",
+                prjcombine_virtex4::chip::ChipKind::Virtex7 => "virtex7",
+            },
+            Chip::Ultrascale(chip) => match chip.kind {
+                prjcombine_ultrascale::chip::ChipKind::Ultrascale => "ultrascale",
+                prjcombine_ultrascale::chip::ChipKind::UltrascalePlus => "ultrascaleplus",
+            },
+            Chip::Versal(_) => "versal",
+        }
+    }
+
+    pub fn bond_intdb_key(&self, bond: &Bond) -> &'static str {
+        match bond {
+            Bond::Xc2000(bond) => xc2000_intdb_key(bond.kind),
+            Bond::Virtex(_) => "virtex",
+            Bond::Virtex2(_) => {
+                // TODO: fix me
+                if self.ints.contains_key("virtex2") {
+                    "virtex2"
+                } else {
+                    "spartan3"
+                }
+            }
+            Bond::Spartan6(_) => "spartan6",
+            Bond::Virtex4(_) => {
+                // TODO: fix me
+                if self.ints.contains_key("virtex4") {
+                    "virtex4"
+                } else if self.ints.contains_key("virtex5") {
+                    "virtex5"
+                } else if self.ints.contains_key("virtex6") {
+                    "virtex6"
+                } else {
+                    "virtex7"
+                }
+            }
+            Bond::Ultrascale(_) => {
+                // TODO: fix me
+                if self.ints.contains_key("ultrascale") {
+                    "ultrascale"
+                } else {
+                    "ultrascaleplus"
+                }
+            }
+            Bond::Versal(_) => "versal",
+        }
+    }
+
     pub fn expand_grid(&self, dev: &Device) -> ExpandedDevice<'_> {
         let fchip = &self.chips[*dev.chips.first().unwrap()];
+        let intdb = &self.ints[self.intdb_key(fchip)];
         match fchip {
-            Chip::Xc2000(chip) => {
-                let intdb = &self.ints[match chip.kind {
-                    prjcombine_xc2000::chip::ChipKind::Xc2000 => "xc2000",
-                    prjcombine_xc2000::chip::ChipKind::Xc3000 => "xc3000",
-                    prjcombine_xc2000::chip::ChipKind::Xc3000A => "xc3000a",
-                    prjcombine_xc2000::chip::ChipKind::Xc4000 => "xc4000",
-                    prjcombine_xc2000::chip::ChipKind::Xc4000A => "xc4000a",
-                    prjcombine_xc2000::chip::ChipKind::Xc4000H => "xc4000h",
-                    prjcombine_xc2000::chip::ChipKind::Xc4000E => "xc4000e",
-                    prjcombine_xc2000::chip::ChipKind::Xc4000Ex => "xc4000ex",
-                    prjcombine_xc2000::chip::ChipKind::Xc4000Xla => "xc4000xla",
-                    prjcombine_xc2000::chip::ChipKind::Xc4000Xv => "xc4000xv",
-                    prjcombine_xc2000::chip::ChipKind::SpartanXl => "spartanxl",
-                    prjcombine_xc2000::chip::ChipKind::Xc5200 => "xc5200",
-                }];
-                ExpandedDevice::Xc2000(chip.expand_grid(intdb))
-            }
+            Chip::Xc2000(chip) => ExpandedDevice::Xc2000(chip.expand_grid(intdb)),
             Chip::Virtex(chip) => {
-                let intdb = &self.ints["virtex"];
                 let disabled = dev
                     .disabled
                     .iter()
@@ -486,16 +550,8 @@ impl GeomDb {
                     .collect();
                 ExpandedDevice::Virtex(chip.expand_grid(&disabled, intdb))
             }
-            Chip::Virtex2(chip) => {
-                let intdb = if chip.kind.is_virtex2() {
-                    &self.ints["virtex2"]
-                } else {
-                    &self.ints["spartan3"]
-                };
-                ExpandedDevice::Virtex2(chip.expand_grid(intdb))
-            }
+            Chip::Virtex2(chip) => ExpandedDevice::Virtex2(chip.expand_grid(intdb)),
             Chip::Spartan6(chip) => {
-                let intdb = &self.ints["spartan6"];
                 let disabled = dev
                     .disabled
                     .iter()
@@ -506,13 +562,7 @@ impl GeomDb {
                     .collect();
                 ExpandedDevice::Spartan6(chip.expand_grid(intdb, &disabled))
             }
-            Chip::Virtex4(chip) => {
-                let intdb = &self.ints[match chip.kind {
-                    prjcombine_virtex4::chip::ChipKind::Virtex4 => "virtex4",
-                    prjcombine_virtex4::chip::ChipKind::Virtex5 => "virtex5",
-                    prjcombine_virtex4::chip::ChipKind::Virtex6 => "virtex6",
-                    prjcombine_virtex4::chip::ChipKind::Virtex7 => "virtex7",
-                }];
+            Chip::Virtex4(_) => {
                 let disabled = dev
                     .disabled
                     .iter()
@@ -534,11 +584,7 @@ impl GeomDb {
                     &chips, interposer, &disabled, intdb,
                 ))
             }
-            Chip::Ultrascale(chip) => {
-                let intdb = &self.ints[match chip.kind {
-                    prjcombine_ultrascale::chip::ChipKind::Ultrascale => "ultrascale",
-                    prjcombine_ultrascale::chip::ChipKind::UltrascalePlus => "ultrascaleplus",
-                }];
+            Chip::Ultrascale(_) => {
                 let disabled = dev
                     .disabled
                     .iter()
@@ -560,7 +606,6 @@ impl GeomDb {
                 ))
             }
             Chip::Versal(_) => {
-                let intdb = &self.ints["versal"];
                 let disabled = dev
                     .disabled
                     .iter()

@@ -11,7 +11,7 @@ use prjcombine_re_xilinx_xact_data::{
     pkg::get_pkg,
 };
 use prjcombine_re_xilinx_xact_geom::{Device, DeviceBond, GeomDb};
-use prjcombine_xc2000::{bond::BondPad, chip::ChipKind};
+use prjcombine_xc2000::chip::ChipKind;
 
 mod extractor;
 mod xc2000;
@@ -190,8 +190,8 @@ fn main() {
                 let pin_xtl2 = &part.kv["OSCIOB2"][0];
                 let io_xtl1 = bond.pins[pin_xtl1];
                 let io_xtl2 = bond.pins[pin_xtl2];
-                assert_eq!(io_xtl1, BondPad::Io(endev.chip.io_xtl1()));
-                assert_eq!(io_xtl2, BondPad::Io(endev.chip.io_xtl2()));
+                assert_eq!(io_xtl1, Some(endev.chip.io_xtl1()));
+                assert_eq!(io_xtl2, Some(endev.chip.io_xtl2()));
                 if !cfg_io.is_empty() {
                     let chip = &mut db.chips[chip];
                     if chip.cfg_io.is_empty() {
@@ -208,14 +208,14 @@ fn main() {
                 let pin_xtl2 = &part.kv["OSCIOB2"][0];
                 let io_xtl1 = bond.pins[pin_xtl1];
                 let io_xtl2 = bond.pins[pin_xtl2];
-                assert_eq!(io_xtl1, BondPad::Io(endev.chip.io_xtl1()));
-                assert_eq!(io_xtl2, BondPad::Io(endev.chip.io_xtl2()));
+                assert_eq!(io_xtl1, Some(endev.chip.io_xtl1()));
+                assert_eq!(io_xtl2, Some(endev.chip.io_xtl2()));
                 let pad_tclk = &part.kv["TCLKIOB"][0];
                 assert_eq!(
                     pad_tclk,
                     endev
                         .ngrid
-                        .get_bel_name(endev.chip.bel_clock_io(0))
+                        .get_bel_name(endev.chip.io_clock(0).bel)
                         .unwrap()
                 );
                 let pad_bclk = &part.kv["BCLKIOB"][0];
@@ -223,7 +223,7 @@ fn main() {
                     pad_bclk,
                     endev
                         .ngrid
-                        .get_bel_name(endev.chip.bel_clock_io(1))
+                        .get_bel_name(endev.chip.io_clock(1).bel)
                         .unwrap()
                 );
                 if !cfg_io.is_empty() {

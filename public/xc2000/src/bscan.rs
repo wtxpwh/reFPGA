@@ -1,19 +1,17 @@
 use std::collections::BTreeMap;
 
-use prjcombine_entity::EntityId;
-use prjcombine_interconnect::grid::{EdgeIoCoord, TileIobId};
+use prjcombine_interconnect::{
+    dir::{DirH, DirV},
+    grid::BelPadCoord,
+};
 use prjcombine_types::bscan::{BScanBuilder, BScanPad};
 
-use crate::{
-    bond::CfgPad,
-    chip::{Chip, ChipKind},
-};
+use crate::chip::{Chip, ChipKind};
 
 #[derive(Debug)]
 pub struct BScan {
     pub bits: usize,
-    pub io: BTreeMap<EdgeIoCoord, BScanPad>,
-    pub cfg: BTreeMap<CfgPad, BScanPad>,
+    pub io: BTreeMap<BelPadCoord, BScanPad>,
     pub upd: usize,
 }
 
@@ -30,10 +28,9 @@ impl Chip {
             &[0, 1]
         };
         let mut io = BTreeMap::new();
-        let mut cfg = BTreeMap::new();
         let mut builder = BScanBuilder::new();
         if self.kind.is_xc4000() {
-            cfg.insert(CfgPad::Tdo, builder.get_to());
+            io.insert(self.pad_tdo().unwrap(), builder.get_to());
         }
         // top edge, right-to-left
         for col in self.columns() {
@@ -41,11 +38,11 @@ impl Chip {
                 continue;
             }
             for iob in iobs.iter().copied() {
-                let crd = EdgeIoCoord::N(col, TileIobId::from_idx(iob));
-                if self.unbonded_io.contains(&crd) {
+                let pad = self.pad_io_v(DirV::N, col, iob);
+                if self.unbonded_io.contains(&pad.bel) {
                     continue;
                 }
-                io.insert(crd, builder.get_toi());
+                io.insert(pad, builder.get_toi());
             }
         }
         // left edge, top-to-bottom
@@ -54,18 +51,18 @@ impl Chip {
                 continue;
             }
             for iob in iobs.iter().copied() {
-                let crd = EdgeIoCoord::E(row, TileIobId::from_idx(iob));
-                if self.unbonded_io.contains(&crd) {
+                let pad = self.pad_io_h(DirH::E, row, iob);
+                if self.unbonded_io.contains(&pad.bel) {
                     continue;
                 }
-                io.insert(crd, builder.get_toi());
+                io.insert(pad, builder.get_toi());
             }
         }
         if self.kind.is_xc4000() {
-            cfg.insert(CfgPad::M1, builder.get_toi());
-            cfg.insert(CfgPad::M0, builder.get_i());
+            io.insert(self.pad_mode(1).unwrap(), builder.get_toi());
+            io.insert(self.pad_mode(0).unwrap(), builder.get_i());
             if self.kind != ChipKind::SpartanXl {
-                cfg.insert(CfgPad::M2, builder.get_i());
+                io.insert(self.pad_mode(2).unwrap(), builder.get_i());
             }
         }
         // bottom edge, left-to-right
@@ -74,11 +71,11 @@ impl Chip {
                 continue;
             }
             for iob in iobs.iter().copied().rev() {
-                let crd = EdgeIoCoord::S(col, TileIobId::from_idx(iob));
-                if self.unbonded_io.contains(&crd) {
+                let pad = self.pad_io_v(DirV::S, col, iob);
+                if self.unbonded_io.contains(&pad.bel) {
                     continue;
                 }
-                io.insert(crd, builder.get_toi());
+                io.insert(pad, builder.get_toi());
             }
         }
         // right edge, bottom-to-top
@@ -87,11 +84,11 @@ impl Chip {
                 continue;
             }
             for iob in iobs.iter().copied().rev() {
-                let crd = EdgeIoCoord::W(row, TileIobId::from_idx(iob));
-                if self.unbonded_io.contains(&crd) {
+                let pad = self.pad_io_h(DirH::W, row, iob);
+                if self.unbonded_io.contains(&pad.bel) {
                     continue;
                 }
-                io.insert(crd, builder.get_toi());
+                io.insert(pad, builder.get_toi());
             }
         }
         let upd = builder.bits;
@@ -99,7 +96,6 @@ impl Chip {
         BScan {
             bits: builder.bits,
             io,
-            cfg,
             upd,
         }
     }

@@ -47,7 +47,8 @@ fn main() -> Result<(), Box<dyn Error>> {
             }
             println!();
             if args.chips {
-                chip.dump(&mut std::io::stdout())?;
+                let intdb = &geom.ints[geom.intdb_key(chip)];
+                chip.dump(&mut std::io::stdout(), intdb)?;
             }
         }
         for (ipid, ip) in &geom.interposers {
@@ -75,7 +76,8 @@ fn main() -> Result<(), Box<dyn Error>> {
             }
             println!();
             if args.pkgs {
-                bond.dump(&mut std::io::stdout())?;
+                let intdb = &geom.ints[geom.bond_intdb_key(bond)];
+                bond.dump(&mut std::io::stdout(), intdb)?;
             }
         }
     }

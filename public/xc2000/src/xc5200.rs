@@ -138,6 +138,10 @@ target_defs! {
         attribute TLC: bool;
     }
 
+    bel_class POWER {
+        pad GND, VCC: power;
+    }
+
     region_slot GCLK_H;
     region_slot GCLK_V;
     region_slot LONG_H;
@@ -531,6 +535,13 @@ target_defs! {
             bitrect LLV: LLV_E;
             bitrect MAIN: MAIN_E;
             switchbox LLV;
+        }
+    }
+
+    tile_slot GLOBALS {
+        bel_slot POWER: POWER;
+        tile_class GLOBALS {
+            bel POWER;
         }
     }
 

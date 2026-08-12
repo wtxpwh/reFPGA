@@ -76,6 +76,10 @@ target_defs! {
         attribute TLC: bool;
     }
 
+    bel_class POWER {
+        pad GND, VCC: power;
+    }
+
     region_slot GLOBAL;
     region_slot LONG_H;
     region_slot LONG_V;
@@ -475,6 +479,13 @@ target_defs! {
                     }
                 }
             }
+        }
+    }
+
+    tile_slot GLOBALS {
+        bel_slot POWER: POWER;
+        tile_class GLOBALS {
+            bel POWER;
         }
     }
 

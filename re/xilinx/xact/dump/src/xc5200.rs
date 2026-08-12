@@ -4,13 +4,13 @@ use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
     db::{BelInfo, IntDb, Mux, SwitchBoxItem, WireSlotIdExt},
     dir::Dir,
-    grid::{CellCoord, DieId, DieIdExt, EdgeIoCoord},
+    grid::{BelPadCoord, CellCoord, DieId, DieIdExt},
 };
 use prjcombine_re_xilinx_xact_data::die::Die;
 use prjcombine_re_xilinx_xact_naming::db::{NamingDb, TileNaming};
 use prjcombine_re_xilinx_xact_xc2000::{ExpandedNamedDevice, name_device};
 use prjcombine_xc2000::{
-    bond::{Bond, BondPad, CfgPad},
+    bond::Bond,
     chip::{Chip, ChipKind, SharedCfgPad},
     xc5200::{INIT, bcls, bslots, tcls, wires},
 };
@@ -675,19 +675,21 @@ pub fn make_bond(
     endev: &ExpandedNamedDevice,
     name: &str,
     pkg: &BTreeMap<String, String>,
-) -> (Bond, BTreeMap<SharedCfgPad, EdgeIoCoord>) {
+) -> (Bond, BTreeMap<SharedCfgPad, BelPadCoord>) {
+    let chip = endev.edev.chip;
     let io_lookup: BTreeMap<_, _> = endev
         .chip
         .get_bonded_ios()
         .into_iter()
-        .map(|io| (endev.get_io_name(io), io))
+        .map(|io| (endev.ngrid.get_bel_name(io.bel).unwrap(), io))
         .collect();
     let mut bond = Bond {
+        kind: chip.kind,
         pins: Default::default(),
     };
     for (pin, pad) in pkg {
         let io = io_lookup[&**pad];
-        bond.pins.insert(pin.into(), BondPad::Io(io));
+        bond.pins.insert(pin.into(), Some(io));
     }
 
     let (gnd, vcc, done, prog, cclk) = match name {
@@ -856,24 +858,27 @@ pub fn make_bond(
         _ => panic!("ummm {name}?"),
     };
     for &pin in gnd {
-        assert_eq!(bond.pins.insert(pin.to_string(), BondPad::Gnd), None);
+        assert_eq!(
+            bond.pins.insert(pin.to_string(), Some(chip.pad_gnd())),
+            None
+        );
     }
     for &pin in vcc {
-        assert_eq!(bond.pins.insert(pin.to_string(), BondPad::Vcc), None);
+        assert_eq!(
+            bond.pins.insert(pin.to_string(), Some(chip.pad_vccio())),
+            None
+        );
     }
     assert_eq!(
-        bond.pins
-            .insert(done.to_string(), BondPad::Cfg(CfgPad::Done)),
+        bond.pins.insert(done.to_string(), Some(chip.pad_done())),
         None
     );
     assert_eq!(
-        bond.pins
-            .insert(prog.to_string(), BondPad::Cfg(CfgPad::ProgB)),
+        bond.pins.insert(prog.to_string(), Some(chip.pad_prog_b())),
         None
     );
     assert_eq!(
-        bond.pins
-            .insert(cclk.to_string(), BondPad::Cfg(CfgPad::Cclk)),
+        bond.pins.insert(cclk.to_string(), Some(chip.pad_cclk())),
         None
     );
 
@@ -892,7 +897,7 @@ pub fn make_bond(
     };
     if let Some(len1d) = len1d {
         for i in 1..=len1d {
-            bond.pins.entry(format!("P{i}")).or_insert(BondPad::Nc);
+            bond.pins.entry(format!("P{i}")).or_insert(None);
         }
         assert_eq!(bond.pins.len(), len1d);
     }
@@ -903,7 +908,7 @@ pub fn make_bond(
         "bg352" => {
             for a in ["A", "B", "C", "D", "AC", "AD", "AE", "AF"] {
                 for i in 1..=26 {
-                    bond.pins.entry(format!("{a}{i}")).or_insert(BondPad::Nc);
+                    bond.pins.entry(format!("{a}{i}")).or_insert(None);
                 }
             }
             for a in [
@@ -911,7 +916,7 @@ pub fn make_bond(
                 "AA", "AB",
             ] {
                 for i in (1..=4).chain(23..=26) {
-                    bond.pins.entry(format!("{a}{i}")).or_insert(BondPad::Nc);
+                    bond.pins.entry(format!("{a}{i}")).or_insert(None);
                 }
             }
             assert_eq!(bond.pins.len(), 352);
@@ -919,70 +924,70 @@ pub fn make_bond(
         "pg156" => {
             for a in ["A", "B", "C", "P", "R", "T"] {
                 for i in 1..=16 {
-                    bond.pins.entry(format!("{a}{i}")).or_insert(BondPad::Nc);
+                    bond.pins.entry(format!("{a}{i}")).or_insert(None);
                 }
             }
             for a in ["D", "E", "F", "G", "H", "J", "K", "L", "M", "N"] {
                 for i in (1..=3).chain(14..=16) {
-                    bond.pins.entry(format!("{a}{i}")).or_insert(BondPad::Nc);
+                    bond.pins.entry(format!("{a}{i}")).or_insert(None);
                 }
             }
             assert_eq!(bond.pins.len(), 156);
         }
         "pg191" => {
             for i in 2..=18 {
-                bond.pins.entry(format!("A{i}")).or_insert(BondPad::Nc);
+                bond.pins.entry(format!("A{i}")).or_insert(None);
             }
             for a in ["B", "C", "T", "U", "V"] {
                 for i in 1..=18 {
-                    bond.pins.entry(format!("{a}{i}")).or_insert(BondPad::Nc);
+                    bond.pins.entry(format!("{a}{i}")).or_insert(None);
                 }
             }
             for a in ["D", "E", "F", "G", "H", "J", "K", "L", "M", "N", "P", "R"] {
                 for i in (1..=3).chain(16..=18) {
-                    bond.pins.entry(format!("{a}{i}")).or_insert(BondPad::Nc);
+                    bond.pins.entry(format!("{a}{i}")).or_insert(None);
                 }
             }
             for a in ["D", "R"] {
                 for i in [4, 9, 10, 15] {
-                    bond.pins.entry(format!("{a}{i}")).or_insert(BondPad::Nc);
+                    bond.pins.entry(format!("{a}{i}")).or_insert(None);
                 }
             }
             for a in ["J", "K"] {
                 for i in [4, 15] {
-                    bond.pins.entry(format!("{a}{i}")).or_insert(BondPad::Nc);
+                    bond.pins.entry(format!("{a}{i}")).or_insert(None);
                 }
             }
             assert_eq!(bond.pins.len(), 191);
         }
         "pg223" => {
             for i in 2..=18 {
-                bond.pins.entry(format!("A{i}")).or_insert(BondPad::Nc);
+                bond.pins.entry(format!("A{i}")).or_insert(None);
             }
             for a in ["B", "C", "D", "R", "T", "U", "V"] {
                 for i in 1..=18 {
-                    bond.pins.entry(format!("{a}{i}")).or_insert(BondPad::Nc);
+                    bond.pins.entry(format!("{a}{i}")).or_insert(None);
                 }
             }
             for a in ["E", "F", "G", "H", "J", "K", "L", "M", "N", "P"] {
                 for i in (1..=4).chain(15..=18) {
-                    bond.pins.entry(format!("{a}{i}")).or_insert(BondPad::Nc);
+                    bond.pins.entry(format!("{a}{i}")).or_insert(None);
                 }
             }
             assert_eq!(bond.pins.len(), 223);
         }
         "pg299" => {
             for i in 2..=20 {
-                bond.pins.entry(format!("A{i}")).or_insert(BondPad::Nc);
+                bond.pins.entry(format!("A{i}")).or_insert(None);
             }
             for a in ["B", "C", "D", "E", "T", "U", "V", "W", "X"] {
                 for i in 1..=20 {
-                    bond.pins.entry(format!("{a}{i}")).or_insert(BondPad::Nc);
+                    bond.pins.entry(format!("{a}{i}")).or_insert(None);
                 }
             }
             for a in ["F", "G", "H", "J", "K", "L", "M", "N", "P", "R"] {
                 for i in (1..=5).chain(16..=20) {
-                    bond.pins.entry(format!("{a}{i}")).or_insert(BondPad::Nc);
+                    bond.pins.entry(format!("{a}{i}")).or_insert(None);
                 }
             }
             assert_eq!(bond.pins.len(), 299);
@@ -1163,10 +1168,9 @@ pub fn make_bond(
     };
     let mut cfg_io = BTreeMap::new();
     for &(pin, fun) in pkg_cfg_io {
-        let BondPad::Io(io) = bond.pins[pin] else {
-            unreachable!()
-        };
-        cfg_io.insert(fun, io);
+        let pad = bond.pins[pin].unwrap();
+        assert!(chip.bel_is_io(pad.bel));
+        cfg_io.insert(fun, pad);
     }
 
     (bond, cfg_io)

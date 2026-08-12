@@ -34,6 +34,23 @@ pub struct GeomDb {
     pub namings: BTreeMap<String, NamingDb>,
 }
 
+fn xc2000_intdb_key(kind: ChipKind) -> &'static str {
+    match kind {
+        ChipKind::Xc2000 => "xc2000",
+        ChipKind::Xc3000 => "xc3000",
+        ChipKind::Xc3000A => "xc3000a",
+        ChipKind::Xc4000 => "xc4000",
+        ChipKind::Xc4000A => "xc4000a",
+        ChipKind::Xc4000H => "xc4000h",
+        ChipKind::Xc4000E => "xc4000e",
+        ChipKind::Xc4000Ex => "xc4000ex",
+        ChipKind::Xc4000Xla => "xc4000xla",
+        ChipKind::Xc4000Xv => "xc4000xv",
+        ChipKind::SpartanXl => "spartanxl",
+        ChipKind::Xc5200 => "xc5200",
+    }
+}
+
 impl GeomDb {
     pub fn from_file<P: AsRef<Path>>(path: P) -> Result<Self, Box<dyn Error>> {
         let f = File::open(path)?;
@@ -51,22 +68,17 @@ impl GeomDb {
         Ok(())
     }
 
+    pub fn intdb_key(&self, chip: &Chip) -> &'static str {
+        xc2000_intdb_key(chip.kind)
+    }
+
+    pub fn bond_intdb_key(&self, bond: &Bond) -> &'static str {
+        xc2000_intdb_key(bond.kind)
+    }
+
     pub fn expand_grid(&self, dev: &Device) -> ExpandedDevice<'_> {
         let chip = &self.chips[dev.chip];
-        let intdb = &self.ints[match chip.kind {
-            ChipKind::Xc2000 => "xc2000",
-            ChipKind::Xc3000 => "xc3000",
-            ChipKind::Xc3000A => "xc3000a",
-            ChipKind::Xc4000 => "xc4000",
-            ChipKind::Xc4000A => "xc4000a",
-            ChipKind::Xc4000H => "xc4000h",
-            ChipKind::Xc4000E => "xc4000e",
-            ChipKind::Xc4000Ex => "xc4000ex",
-            ChipKind::Xc4000Xla => "xc4000xla",
-            ChipKind::Xc4000Xv => "xc4000xv",
-            ChipKind::SpartanXl => "spartanxl",
-            ChipKind::Xc5200 => "xc5200",
-        }];
+        let intdb = &self.ints[self.intdb_key(chip)];
         chip.expand_grid(intdb)
     }
 

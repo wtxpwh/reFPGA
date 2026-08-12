@@ -1,7 +1,7 @@
 use std::ops::Range;
 
 use prjcombine_entity::EntityVec;
-use prjcombine_interconnect::grid::{ColId, EdgeIoCoord, RowId};
+use prjcombine_interconnect::grid::{ColId, RowId};
 use prjcombine_re_xilinx_xact_naming::{db::NamingDb, grid::ExpandedGridNaming};
 use prjcombine_xc2000::{
     chip::{Chip, ChipKind},
@@ -16,13 +16,6 @@ pub struct ExpandedNamedDevice<'a> {
     pub row_y: EntityVec<RowId, Range<usize>>,
     pub clk_x: Option<Range<usize>>,
     pub clk_y: Option<Range<usize>>,
-}
-
-impl<'a> ExpandedNamedDevice<'a> {
-    pub fn get_io_name(&'a self, io: EdgeIoCoord) -> &'a str {
-        let bel = self.chip.get_io_loc(io);
-        self.ngrid.get_bel_name(bel).unwrap()
-    }
 }
 
 mod xc2000;

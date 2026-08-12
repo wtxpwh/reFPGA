@@ -1,8 +1,8 @@
-use prjcombine_interconnect::grid::EdgeIoCoord;
+use prjcombine_interconnect::grid::BelPadCoord;
 use prjcombine_re_xilinx_naming_xc2000::ExpandedNamedDevice;
 use prjcombine_re_xilinx_rawdump::PkgPin;
 use prjcombine_xc2000::{
-    bond::{Bond, BondPad, CfgPad},
+    bond::Bond,
     chip::{ChipKind, SharedCfgPad},
 };
 use std::collections::{BTreeMap, HashMap, btree_map};
@@ -11,25 +11,26 @@ pub fn make_bond(
     endev: &ExpandedNamedDevice,
     pkg: &str,
     pins: &[PkgPin],
-    cfg_io: &mut BTreeMap<SharedCfgPad, EdgeIoCoord>,
+    cfg_io: &mut BTreeMap<SharedCfgPad, BelPadCoord>,
 ) -> Bond {
+    let chip = &endev.edev.chip;
     let mut bond_pins = BTreeMap::new();
     let io_lookup: HashMap<_, _> = endev
         .chip
         .get_bonded_ios()
         .into_iter()
-        .map(|io| (endev.get_io_name(io), io))
+        .map(|io| (endev.ngrid.get_bel_name(io.bel).unwrap(), io))
         .collect();
     for pin in pins {
         let bpin = if let Some(ref pad) = pin.pad {
             if let Some(&io) = io_lookup.get(&**pad) {
-                BondPad::Io(io)
+                Some(io)
             } else {
                 match &pad[..] {
-                    "TDO" => BondPad::Cfg(CfgPad::Tdo),
-                    "MD0" => BondPad::Cfg(CfgPad::M0),
-                    "MD1" => BondPad::Cfg(CfgPad::M1),
-                    "MD2" => BondPad::Cfg(CfgPad::M2),
+                    "TDO" => Some(chip.pad_tdo().unwrap()),
+                    "MD0" => Some(chip.pad_mode(0).unwrap()),
+                    "MD1" => Some(chip.pad_mode(1).unwrap()),
+                    "MD2" => Some(chip.pad_mode(2).unwrap()),
                     _ => {
                         println!("UNK PAD {pad}");
                         continue;
@@ -38,18 +39,17 @@ pub fn make_bond(
             }
         } else {
             match &pin.func[..] {
-                "NC" | "N.C." => BondPad::Nc,
-                "GND" => BondPad::Gnd,
-                "VCC" => BondPad::Vcc,
-                "VCCINT" => BondPad::VccInt,
-                "CCLK" => BondPad::Cfg(CfgPad::Cclk),
-                "DONE" => BondPad::Cfg(CfgPad::Done),
-                "/PROG" | "/PROGRAM" => BondPad::Cfg(CfgPad::ProgB),
-                "MODE" | "M0" => BondPad::Cfg(CfgPad::M0),
-                "M1" => BondPad::Cfg(CfgPad::M1),
-                "M2" => BondPad::Cfg(CfgPad::M2),
-                "M2_OPT" => BondPad::Cfg(CfgPad::M2),
-                "/PWRDOWN" | "LPWRB" => BondPad::Cfg(CfgPad::PwrdwnB),
+                "NC" | "N.C." => None,
+                "GND" => Some(chip.pad_gnd()),
+                "VCC" => Some(chip.pad_vccio()),
+                "VCCINT" => Some(chip.pad_vccint()),
+                "CCLK" => Some(chip.pad_cclk()),
+                "DONE" => Some(chip.pad_done()),
+                "/PROG" | "/PROGRAM" => Some(chip.pad_prog_b()),
+                "MODE" | "M0" => Some(chip.pad_mode(0).unwrap()),
+                "M1" => Some(chip.pad_mode(1).unwrap()),
+                "M2" | "M2_OPT" => Some(chip.pad_mode(2).unwrap()),
+                "/PWRDOWN" | "LPWRB" => Some(chip.pad_pwrdwn_b().unwrap()),
                 _ => {
                     println!("UNK FUNC {}", pin.func);
                     continue;
@@ -269,10 +269,7 @@ pub fn make_bond(
         _ => (),
     }
     for (pin, io) in pkg_cfg_io {
-        let pad = bond_pins[pin];
-        let BondPad::Io(crd) = pad else {
-            unreachable!()
-        };
+        let pad = bond_pins[pin].unwrap();
         if matches!(io, SharedCfgPad::Addr(18..=21))
             && !matches!(
                 endev.chip.kind,
@@ -293,13 +290,16 @@ pub fn make_bond(
         }
         match cfg_io.entry(io) {
             btree_map::Entry::Vacant(e) => {
-                e.insert(crd);
+                e.insert(pad);
             }
             btree_map::Entry::Occupied(e) => {
-                assert_eq!(*e.get(), crd);
+                assert_eq!(*e.get(), pad);
             }
         }
     }
 
-    Bond { pins: bond_pins }
+    Bond {
+        kind: chip.kind,
+        pins: bond_pins,
+    }
 }

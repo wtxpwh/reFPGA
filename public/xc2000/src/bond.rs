@@ -2,77 +2,44 @@ use std::collections::BTreeMap;
 
 use bincode::{Decode, Encode};
 use itertools::Itertools;
-use prjcombine_interconnect::grid::EdgeIoCoord;
+use prjcombine_interconnect::{db::IntDb, grid::BelPadCoord};
 
-#[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Encode, Decode)]
-pub enum CfgPad {
-    Cclk,
-    Done,
-    ProgB,
-    PwrdwnB,
-    M0,
-    M1,
-    // XC4000 only
-    Tdo,
-    M2,
-}
-
-impl std::fmt::Display for CfgPad {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            CfgPad::Cclk => write!(f, "CCLK"),
-            CfgPad::Done => write!(f, "DONE"),
-            CfgPad::ProgB => write!(f, "PROG_B"),
-            CfgPad::PwrdwnB => write!(f, "PWRDWN_B"),
-            CfgPad::M0 => write!(f, "M0"),
-            CfgPad::M1 => write!(f, "M1"),
-            CfgPad::Tdo => write!(f, "TDO"),
-            CfgPad::M2 => write!(f, "M2"),
-        }
-    }
-}
-
-#[derive(Copy, Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Encode, Decode)]
-pub enum BondPad {
-    Io(EdgeIoCoord),
-    Gnd,
-    Vcc,
-    Nc,
-    Cfg(CfgPad),
-    // XC4000XV only
-    VccInt,
-}
-
-impl std::fmt::Display for BondPad {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            BondPad::Io(io) => write!(f, "{io}"),
-            BondPad::Gnd => write!(f, "GND"),
-            BondPad::Vcc => write!(f, "VCC"),
-            BondPad::Nc => write!(f, "NC"),
-            BondPad::Cfg(cfg_pin) => write!(f, "{cfg_pin}"),
-            BondPad::VccInt => write!(f, "VCCINT"),
-        }
-    }
-}
+use crate::chip::ChipKind;
 
 #[derive(Clone, Debug, Eq, PartialEq, Hash, Encode, Decode)]
 pub struct Bond {
-    pub pins: BTreeMap<String, BondPad>,
+    pub kind: ChipKind,
+    pub pins: BTreeMap<String, Option<BelPadCoord>>,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct ExpandedBond<'a> {
     pub bond: &'a Bond,
-    pub ios: BTreeMap<EdgeIoCoord, String>,
+    pub ios: BTreeMap<BelPadCoord, String>,
 }
 
 impl Bond {
     pub fn expand(&self) -> ExpandedBond<'_> {
         let mut ios = BTreeMap::new();
-        for (name, pad) in &self.pins {
-            if let BondPad::Io(io) = *pad {
-                ios.insert(io, name.clone());
+        let power = match self.kind {
+            ChipKind::Xc2000 => crate::xc2000::bslots::POWER,
+            ChipKind::Xc3000 | ChipKind::Xc3000A => crate::xc3000::bslots::POWER,
+            ChipKind::Xc4000
+            | ChipKind::Xc4000A
+            | ChipKind::Xc4000H
+            | ChipKind::Xc4000E
+            | ChipKind::Xc4000Ex
+            | ChipKind::Xc4000Xla
+            | ChipKind::Xc4000Xv
+            | ChipKind::SpartanXl => crate::xc4000::bslots::POWER,
+            ChipKind::Xc5200 => crate::xc5200::bslots::POWER,
+        };
+        for (name, &pad) in &self.pins {
+            if let Some(pad) = pad {
+                if pad.slot == power {
+                    continue;
+                }
+                ios.insert(pad, name.clone());
             }
         }
         ExpandedBond { bond: self, ios }
@@ -85,9 +52,14 @@ fn pad_sort_key(name: &str) -> (usize, &str, u32) {
 }
 
 impl Bond {
-    pub fn dump(&self, o: &mut dyn std::io::Write) -> std::io::Result<()> {
+    pub fn dump(&self, o: &mut dyn std::io::Write, db: &IntDb) -> std::io::Result<()> {
+        writeln!(o, "\tkind {};", self.kind)?;
         for (pin, pad) in self.pins.iter().sorted_by_key(|(k, _)| pad_sort_key(k)) {
-            writeln!(o, "\tpin {pin} = {pad};")?;
+            if let Some(pad) = pad {
+                writeln!(o, "\tpin {pin} = {pad};", pad = pad.to_string(db))?;
+            } else {
+                writeln!(o, "\tpin {pin} = nc;")?;
+            }
         }
         Ok(())
     }

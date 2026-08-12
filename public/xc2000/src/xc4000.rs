@@ -319,6 +319,10 @@ target_defs! {
     }
 
     bel_class MISC_SW {
+        // ??? does it replace M2 or what
+        if variant spartanxl {
+            pad PWRDWN_B: input;
+        }
         attribute TM_BOT: bool;
         if variant [xc4000xla, xc4000xv] {
             attribute IO_5V_TOLERANT: bool;
@@ -389,6 +393,16 @@ target_defs! {
 
     bel_class MISC_E {
         attribute TLC: bool;
+    }
+
+    bel_class POWER {
+        pad GND: power;
+        if variant xc4000xv {
+            pad VCCINT: power;
+            pad VCCIO: power;
+        } else {
+            pad VCC: power;
+        }
     }
 
     region_slot GLOBAL;
@@ -1619,6 +1633,12 @@ target_defs! {
         }
     }
 
+    tile_slot GLOBALS {
+        bel_slot POWER: POWER;
+        tile_class GLOBALS {
+            bel POWER;
+        }
+    }
 
     connector_slot W {
         opposite E;
