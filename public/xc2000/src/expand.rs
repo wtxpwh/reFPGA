@@ -184,6 +184,7 @@ impl Chip {
                         }
                     }
                 }
+                egrid.add_tile(self.bel_power().cell, xc2000::tcls::GLOBALS, &[]);
                 for cell in egrid.die_cells(die) {
                     egrid[cell].region_root[xc2000::rslots::GLOBAL] =
                         cell.with_cr(self.col_w(), self.row_s());
@@ -380,6 +381,7 @@ impl Chip {
                 }
                 let cell = die.cell(self.col_e(), self.row_mid());
                 egrid.add_tile(cell, xc3000::tcls::MISC_E, &[]);
+                egrid.add_tile(self.bel_power().cell, xc3000::tcls::GLOBALS, &[]);
                 for cell in egrid.die_cells(die) {
                     egrid[cell].region_root[xc3000::rslots::GLOBAL] =
                         cell.with_cr(self.col_w(), self.row_s());
@@ -700,6 +702,7 @@ impl Chip {
                             cell.with_row(self.row_mid());
                     }
                 }
+                egrid.add_tile(self.bel_power().cell, xc4000::tcls::GLOBALS, &[]);
 
                 for cell in egrid.die_cells(die) {
                     if cell.col != self.col_w() {
@@ -852,6 +855,7 @@ impl Chip {
                     };
                     egrid.add_tile(cell, kind, &[cell.delta(-1, 0), cell]);
                 }
+                egrid.add_tile(self.bel_power().cell, xc5200::tcls::GLOBALS, &[]);
 
                 for cell in egrid.die_cells(die) {
                     egrid[cell].region_root[xc5200::rslots::GCLK_H] = cell.with_col(self.col_w());
