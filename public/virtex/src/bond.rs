@@ -1,107 +1,44 @@
 use bincode::{Decode, Encode};
 use itertools::Itertools;
-use prjcombine_interconnect::grid::EdgeIoCoord;
+use prjcombine_interconnect::{db::IntDb, grid::BelPadCoord};
 use std::collections::{BTreeMap, BTreeSet};
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Encode, Decode)]
-pub enum CfgPad {
-    Tck,
-    Tdi,
-    Tdo,
-    Tms,
-    Cclk,
-    Done,
-    ProgB,
-    M0,
-    M1,
-    M2,
-}
+use crate::defs::{bcls, bslots};
 
-impl std::fmt::Display for CfgPad {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            CfgPad::Cclk => write!(f, "CCLK"),
-            CfgPad::Done => write!(f, "DONE"),
-            CfgPad::ProgB => write!(f, "PROG_B"),
-            CfgPad::M0 => write!(f, "M0"),
-            CfgPad::M1 => write!(f, "M1"),
-            CfgPad::M2 => write!(f, "M2"),
-            CfgPad::Tck => write!(f, "TCK"),
-            CfgPad::Tms => write!(f, "TMS"),
-            CfgPad::Tdi => write!(f, "TDI"),
-            CfgPad::Tdo => write!(f, "TDO"),
-        }
-    }
-}
-
-#[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Encode, Decode)]
-pub enum BondPad {
-    Clk(u32),
-    Io(EdgeIoCoord),
-    Nc,
-    Gnd,
-    VccInt,
-    VccAux,
-    VccO(u32),
-    Cfg(CfgPad),
-    Dxn,
-    Dxp,
-}
-
-impl std::fmt::Display for BondPad {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            BondPad::Io(io) => write!(f, "{io}"),
-            BondPad::Clk(idx) => write!(f, "CLK{idx}"),
-            BondPad::Nc => write!(f, "NC"),
-            BondPad::Gnd => write!(f, "GND"),
-            BondPad::VccInt => write!(f, "VCCINT"),
-            BondPad::VccAux => write!(f, "VCCAUX"),
-            BondPad::VccO(bank) => write!(f, "VCCO{bank}"),
-            BondPad::Cfg(cfg_pad) => write!(f, "{cfg_pad}"),
-            BondPad::Dxn => write!(f, "DXN"),
-            BondPad::Dxp => write!(f, "DXP"),
-        }
-    }
-}
-
-#[derive(Clone, Debug, PartialEq, Eq, Hash, Encode, Decode)]
+#[derive(Clone, Debug, Eq, PartialEq, Hash, Encode, Decode)]
 pub struct Bond {
-    pub pins: BTreeMap<String, BondPad>,
-    // device bank -> pkg bank
-    pub io_banks: BTreeMap<u32, u32>,
-    pub vref: BTreeSet<EdgeIoCoord>,
-    pub diffp: BTreeSet<EdgeIoCoord>,
-    pub diffn: BTreeSet<EdgeIoCoord>,
+    pub pins: BTreeMap<String, Vec<BelPadCoord>>,
+    pub vref: BTreeSet<BelPadCoord>,
+    pub diffp: BTreeSet<BelPadCoord>,
+    pub diffn: BTreeSet<BelPadCoord>,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct ExpandedBond<'a> {
     pub bond: &'a Bond,
-    pub ios: BTreeMap<EdgeIoCoord, String>,
-    pub clks: BTreeMap<u32, String>,
+    pub ios: BTreeMap<BelPadCoord, String>,
 }
 
 impl Bond {
     pub fn expand(&self) -> ExpandedBond<'_> {
         let mut ios = BTreeMap::new();
-        let mut clks = BTreeMap::new();
-        for (name, pad) in &self.pins {
-            match *pad {
-                BondPad::Io(io) => {
-                    ios.insert(io, name.clone());
+        for (name, pads) in &self.pins {
+            for &pad in pads {
+                if pad.slot == bslots::BANK_WE || pad.slot == bslots::BANK_SN {
+                    continue;
                 }
-                BondPad::Clk(bank) => {
-                    clks.insert(bank, name.clone());
+                if pad.slot == bslots::GLOBAL
+                    && matches!(
+                        pad.pad,
+                        bcls::GLOBAL::GND | bcls::GLOBAL::VCCINT | bcls::GLOBAL::VCCAUX
+                    )
+                {
+                    continue;
                 }
-                _ => (),
+                ios.insert(pad, name.clone());
             }
         }
-        ExpandedBond {
-            bond: self,
-            ios,
-            clks,
-        }
+        ExpandedBond { bond: self, ios }
     }
 }
 
@@ -111,21 +48,26 @@ fn pad_sort_key(name: &str) -> (usize, &str, u32) {
 }
 
 impl Bond {
-    pub fn dump(&self, o: &mut dyn std::io::Write) -> std::io::Result<()> {
-        for (k, v) in &self.io_banks {
-            writeln!(o, "\tbank {k} = {v}")?;
+    pub fn dump(&self, o: &mut dyn std::io::Write, db: &IntDb) -> std::io::Result<()> {
+        for (pin, pads) in self.pins.iter().sorted_by_key(|(k, _)| pad_sort_key(k)) {
+            if pads.is_empty() {
+                writeln!(o, "\tpin {pin} = nc;")?;
+            } else {
+                writeln!(
+                    o,
+                    "\tpin {pin} = {pads};",
+                    pads = pads.iter().map(|x| x.to_string(db)).join(" + ")
+                )?;
+            }
         }
-        for (pin, pad) in self.pins.iter().sorted_by_key(|(k, _)| pad_sort_key(k)) {
-            writeln!(o, "\tpin {pin} = {pad};")?;
+        for pad in &self.vref {
+            writeln!(o, "\tvref {pad};", pad = pad.to_string(db))?;
         }
-        for v in &self.vref {
-            writeln!(o, "\tvref {v};")?;
+        for pad in &self.diffp {
+            writeln!(o, "\tdiffp {pad};", pad = pad.to_string(db))?;
         }
-        for v in &self.diffp {
-            writeln!(o, "\tdiffp {v};")?;
-        }
-        for v in &self.diffn {
-            writeln!(o, "\tdiffn {v};")?;
+        for pad in &self.diffn {
+            writeln!(o, "\tdiffn {pad};", pad = pad.to_string(db))?;
         }
         Ok(())
     }

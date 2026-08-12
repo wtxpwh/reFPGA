@@ -15,7 +15,7 @@ pub fn ingest(rd: &Part, verify: bool, pb: &ProgressBar) -> PreDevice {
     let edev = grid.expand_grid(&disabled, &intdb);
     let endev = name_device(&edev, &ndb);
     for (pkg, pins) in rd.packages.iter() {
-        let bond = bond::make_bond(&endev, pins);
+        let bond = bond::make_bond(&endev, pkg, pins);
         bonds.push((pkg.clone(), Bond::Virtex(bond)));
     }
     if verify {

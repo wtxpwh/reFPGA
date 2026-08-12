@@ -139,6 +139,8 @@ fn verify_bel(edev: &ExpandedDevice, vrf: &mut Verifier, bcrd: BelCoord) {
         | bslots::MISC_SE
         | bslots::MISC_NW
         | bslots::MISC_NE
+        | bslots::BANK_WE
+        | bslots::BANK_SN
         | bslots::GLOBAL => (),
         _ if bslots::SLICE.contains(bcrd.slot) => verify_slice(vrf, bcrd),
         _ if bslots::IOI.contains(bcrd.slot) => verify_iob(edev, vrf, bcrd),

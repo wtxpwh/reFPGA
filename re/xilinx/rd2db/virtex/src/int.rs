@@ -790,6 +790,8 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
         "CNR_SW",
         &[
             builder.bel_single(bslots::CAPTURE, "CAPTURE"),
+            builder.bel_virtual(bslots::BANK_WE),
+            builder.bel_virtual(bslots::BANK_SN),
             builder.bel_virtual(bslots::MISC_SW),
         ],
     );
@@ -798,7 +800,11 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
         bslots::INT,
         "LR",
         "CNR_SE",
-        &[builder.bel_virtual(bslots::MISC_SE)],
+        &[
+            builder.bel_virtual(bslots::BANK_WE),
+            builder.bel_virtual(bslots::BANK_SN),
+            builder.bel_virtual(bslots::MISC_SE),
+        ],
     );
     builder.extract_int_id(
         cnr_nw,
@@ -808,6 +814,8 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
         &[
             builder.bel_single(bslots::STARTUP, "STARTUP"),
             builder.bel_single(bslots::BSCAN, "BSCAN"),
+            builder.bel_virtual(bslots::BANK_WE),
+            builder.bel_virtual(bslots::BANK_SN),
             builder.bel_virtual(bslots::MISC_NW),
         ],
     );
@@ -816,7 +824,11 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
         bslots::INT,
         "UR",
         "CNR_NE",
-        &[builder.bel_virtual(bslots::MISC_NE)],
+        &[
+            builder.bel_virtual(bslots::BANK_WE),
+            builder.bel_virtual(bslots::BANK_SN),
+            builder.bel_virtual(bslots::MISC_NE),
+        ],
     );
 
     for (tcid, w) in [

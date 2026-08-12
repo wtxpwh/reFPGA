@@ -277,6 +277,7 @@ target_defs! {
     bel_class MISC_SW {
         pad M0, M1, M2: input;
         pad POWERDOWN_B: input;
+        pad DXN, DXP: analog;
 
         attribute M0_PULL: IOB_PULL;
         attribute M1_PULL: IOB_PULL;
@@ -320,11 +321,17 @@ target_defs! {
         attribute TDO_PULL: IOB_PULL;
     }
 
+    bel_class BANK {
+        pad VCCO: power;
+    }
+
     enum STARTUP_CYCLE { _0, _1, _2, _3, _4, _5, _6, DONE, KEEP, NOWAIT }
     enum STARTUP_CLOCK { CCLK, USERCLK, JTAGCLK }
     enum CONFIG_RATE { _4, _5, _7, _8, _9, _10, _13, _15, _20, _26, _30, _34, _41, _51, _55, _60, _130 }
     enum SECURITY { NONE, LEVEL1, LEVEL2 }
     bel_class GLOBAL {
+        pad GND, VCCINT, VCCAUX: power;
+
         // COR
         attribute GSR_CYCLE: STARTUP_CYCLE;
         attribute GWE_CYCLE: STARTUP_CYCLE;
@@ -609,6 +616,8 @@ target_defs! {
         bel_slot MISC_SE: MISC_SE;
         bel_slot MISC_NW: MISC_NW;
         bel_slot MISC_NE: MISC_NE;
+        bel_slot BANK_WE: BANK;
+        bel_slot BANK_SN: BANK;
         tile_class CNR_SW, CNR_SW_S2 {
             cell CELL;
             bitrect MAIN: IO_WE;
@@ -686,6 +695,7 @@ target_defs! {
 
     tile_slot CLK {
         bel_slot CLK_INT: routing;
+        // *careful*: for these three, index 0 is the east one, 1 is west; this follows Xilinx
         bel_slot GCLK_IOB[2]: GCLK_IOB;
         bel_slot IOFB[2]: IOFB;
         bel_slot BUFGCE[2]: BUFGCE;

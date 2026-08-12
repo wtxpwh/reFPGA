@@ -28,7 +28,7 @@ impl Chip {
     pub fn dump(&self, o: &mut dyn std::io::Write, db: &IntDb) -> std::io::Result<()> {
         match self {
             Chip::Xc2000(chip) => chip.dump(o, db),
-            Chip::Virtex(chip) => chip.dump(o),
+            Chip::Virtex(chip) => chip.dump(o, db),
             Chip::Virtex2(chip) => chip.dump(o),
             Chip::Spartan6(chip) => chip.dump(o),
             Chip::Virtex4(chip) => chip.dump(o),
@@ -119,7 +119,7 @@ impl Bond {
     pub fn dump(&self, o: &mut dyn std::io::Write, db: &IntDb) -> std::io::Result<()> {
         match self {
             Bond::Xc2000(bond) => bond.dump(o, db),
-            Bond::Virtex(bond) => bond.dump(o),
+            Bond::Virtex(bond) => bond.dump(o, db),
             Bond::Virtex2(bond) => bond.dump(o),
             Bond::Spartan6(bond) => bond.dump(o),
             Bond::Virtex4(bond) => bond.dump(o),

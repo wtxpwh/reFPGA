@@ -87,8 +87,8 @@ impl<'b> FuzzerProp<'b, IseBackend<'b>> for IsVref {
         let ExpandedNamedDevice::Virtex(endev) = backend.endev else {
             unreachable!()
         };
-        let crd = endev.grid.get_io_crd(tcrd.bel(self.0));
-        if !ebond.bond.vref.contains(&crd) {
+        let pad = endev.chip.io_to_pad(tcrd.bel(self.0));
+        if !ebond.bond.vref.contains(&pad) {
             return None;
         }
         Some((fuzzer, false))
@@ -119,8 +119,8 @@ impl<'b> FuzzerProp<'b, IseBackend<'b>> for IsDiff {
         let ExpandedNamedDevice::Virtex(endev) = backend.endev else {
             unreachable!()
         };
-        let crd = endev.grid.get_io_crd(tcrd.bel(self.0));
-        if !ebond.bond.diffp.contains(&crd) && !ebond.bond.diffn.contains(&crd) {
+        let pad = endev.chip.io_to_pad(tcrd.bel(self.0));
+        if !ebond.bond.diffp.contains(&pad) && !ebond.bond.diffn.contains(&pad) {
             return None;
         }
         Some((fuzzer, false))
@@ -153,23 +153,15 @@ impl<'b> FuzzerProp<'b, IseBackend<'b>> for VirtexOtherIobInput {
         let ExpandedNamedDevice::Virtex(endev) = backend.endev else {
             unreachable!()
         };
-        let (crd, orig_bank) = if bslots::IOI.contains(self.0) {
-            let crd = edev.chip.get_io_crd(tcrd.bel(self.0));
-            (Some(crd), edev.chip.get_io_bank(crd))
-        } else {
-            (
-                None,
-                if tcrd.row == edev.chip.row_s() {
-                    if self.0 == bslots::GCLK_IOB[0] { 4 } else { 5 }
-                } else {
-                    if self.0 == bslots::GCLK_IOB[0] { 1 } else { 0 }
-                },
-            )
-        };
-        for io in edev.chip.get_bonded_ios() {
-            let bank = edev.chip.get_io_bank(io);
-            if Some(io) != crd && bank == orig_bank && ebond.ios.contains_key(&io) {
-                let site = endev.get_io_name(io);
+        let orig_pad = edev.chip.io_to_pad(tcrd.bel(self.0));
+        let orig_bank = edev.chip.pad_to_vcco(orig_pad);
+        for pad in edev.chip.get_all_ios() {
+            if bslots::GCLK_IOB.contains(pad.slot) {
+                continue;
+            }
+            let bank = edev.chip.pad_to_vcco(pad);
+            if pad != orig_pad && bank == orig_bank && ebond.ios.contains_key(&pad) {
+                let site = endev.get_io_name(pad);
                 fuzzer = fuzzer.base(Key::SiteMode(site), "IOB");
                 fuzzer = fuzzer.base(Key::SiteAttr(site, "IOATTRBOX".into()), &self.1);
                 fuzzer = fuzzer.base(Key::SiteAttr(site, "IMUX".into()), "1");
@@ -201,8 +193,8 @@ fn has_any_vref<'a>(
         }
     }
     for &tcrd in &edev.tile_index[tcid] {
-        let crd = edev.chip.get_io_crd(tcrd.bel(slot));
-        if let Some(&pkg) = bonded_ios.get(&crd) {
+        let pad = edev.chip.io_to_pad(tcrd.bel(slot));
+        if let Some(&pkg) = bonded_ios.get(&pad) {
             return Some(pkg);
         }
     }

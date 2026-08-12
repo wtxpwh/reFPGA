@@ -1,7 +1,7 @@
 use std::collections::BTreeSet;
 
 use prjcombine_entity::{EntityId, EntityPartVec, EntityVec};
-use prjcombine_interconnect::grid::{ColId, EdgeIoCoord, ExpandedGrid, RowId, TileCoord};
+use prjcombine_interconnect::grid::{ColId, ExpandedGrid, RowId, TileCoord};
 use prjcombine_types::bitrect::BitRectId;
 
 use crate::{
@@ -9,12 +9,6 @@ use crate::{
     chip::{Chip, DisabledPart},
     defs::{tcls, tslots},
 };
-
-#[derive(Copy, Clone, Debug)]
-pub struct Io {
-    pub bank: u32,
-    pub coord: EdgeIoCoord,
-}
 
 pub struct ExpandedDevice<'a> {
     pub chip: &'a Chip,

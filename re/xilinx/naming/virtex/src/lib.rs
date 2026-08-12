@@ -1,21 +1,25 @@
 use prjcombine_entity::{EntityId, EntityPartVec, EntityVec};
-use prjcombine_interconnect::grid::{CellCoord, ColId, DieId, DieIdExt, EdgeIoCoord, RowId};
+use prjcombine_interconnect::grid::{BelPadCoord, CellCoord, ColId, DieId, DieIdExt, RowId};
 use prjcombine_re_xilinx_naming::{db::NamingDb, grid::ExpandedGridNaming};
 use prjcombine_virtex::{
     chip::{Chip, DisabledPart},
-    defs::{self, tcls},
+    defs::{self, bslots, tcls},
     expanded::ExpandedDevice,
 };
 
 pub struct ExpandedNamedDevice<'a> {
     pub edev: &'a ExpandedDevice<'a>,
     pub ngrid: ExpandedGridNaming<'a>,
-    pub grid: &'a Chip,
+    pub chip: &'a Chip,
 }
 
-impl<'a> ExpandedNamedDevice<'a> {
-    pub fn get_io_name(&'a self, io: EdgeIoCoord) -> &'a str {
-        let bel = self.grid.get_io_loc(io);
+impl ExpandedNamedDevice<'_> {
+    pub fn get_io_name(&self, pad: BelPadCoord) -> &str {
+        let bel = if bslots::IOB.contains(pad.slot) {
+            self.chip.iob_to_ioi(pad.bel)
+        } else {
+            pad.bel
+        };
         self.ngrid.get_bel_name(bel).unwrap()
     }
 }
@@ -451,6 +455,6 @@ pub fn name_device<'a>(edev: &'a ExpandedDevice<'a>, ndb: &'a NamingDb) -> Expan
     ExpandedNamedDevice {
         edev,
         ngrid: namer.ngrid,
-        grid: chip,
+        chip,
     }
 }

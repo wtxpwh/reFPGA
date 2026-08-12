@@ -1,11 +1,10 @@
 use std::collections::{BTreeMap, BTreeSet, HashMap};
 
-use prjcombine_entity::EntityId;
-use prjcombine_interconnect::grid::{ColId, DieIdExt, EdgeIoCoord};
+use prjcombine_interconnect::grid::{ColId, DieIdExt};
 use prjcombine_re_xilinx_rawdump::{Coord, Part, TkSiteSlot};
 use prjcombine_virtex::{
     chip::{Chip, ChipKind, DisabledPart, SharedCfgPad},
-    defs,
+    defs::{self, bslots},
 };
 
 use prjcombine_re_xilinx_rd2db_grid::{IntGrid, extract_int, find_columns};
@@ -88,7 +87,7 @@ fn handle_spec_io(rd: &Part, chip: &mut Chip, int: &IntGrid) {
             {
                 let col = int.lookup_column(crd.x.into());
                 let row = int.lookup_row(crd.y.into());
-                let io = chip.get_io_crd(
+                let io = chip.io_to_pad(
                     Chip::DIE
                         .cell(col, row)
                         .bel(defs::bslots::IOI[idx as usize]),
@@ -103,7 +102,7 @@ fn handle_spec_io(rd: &Part, chip: &mut Chip, int: &IntGrid) {
                 if pad.starts_with("GCLK") {
                     continue;
                 }
-                let coord = io_lookup[pad];
+                let pad = io_lookup[pad];
                 let mut func = &pin.func[..];
                 if let Some(pos) = func.find("_L") {
                     func = &func[..pos];
@@ -126,29 +125,19 @@ fn handle_spec_io(rd: &Part, chip: &mut Chip, int: &IntGrid) {
                         "IO_WRITE" => SharedCfgPad::RdWrB,
                         "IO_DOUT_BUSY" => SharedCfgPad::Dout,
                         "IO_IRDY" => {
-                            match coord {
-                                EdgeIoCoord::W(row, iob) | EdgeIoCoord::E(row, iob) => {
-                                    assert_eq!(iob.to_idx(), 3);
-                                    assert_eq!(row, chip.row_mid());
-                                }
-                                _ => unreachable!(),
-                            }
+                            assert_eq!(pad.row, chip.row_mid());
+                            assert_eq!(pad.slot, bslots::IOB[3]);
                             continue;
                         }
                         "IO_TRDY" => {
-                            match coord {
-                                EdgeIoCoord::W(row, iob) | EdgeIoCoord::E(row, iob) => {
-                                    assert_eq!(iob.to_idx(), 1);
-                                    assert_eq!(row, chip.row_mid() - 1);
-                                }
-                                _ => unreachable!(),
-                            }
+                            assert_eq!(pad.row, chip.row_mid() - 1);
+                            assert_eq!(pad.slot, bslots::IOB[1]);
                             continue;
                         }
-                        _ => panic!("UNK FUNC {func} {coord:?}"),
+                        _ => panic!("UNK FUNC {func} {pad:?}"),
                     };
-                    let old = chip.cfg_io.insert(cfg, coord);
-                    assert!(old.is_none() || old == Some(coord));
+                    let old = chip.cfg_io.insert(cfg, pad);
+                    assert!(old.is_none() || old == Some(pad));
                 }
             }
         }

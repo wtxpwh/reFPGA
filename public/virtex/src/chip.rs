@@ -2,12 +2,13 @@ use bincode::{Decode, Encode};
 use itertools::Itertools;
 use prjcombine_entity::{EntityId, EntityRange};
 use prjcombine_interconnect::{
+    db::IntDb,
     dir::{DirH, DirHV, DirV},
-    grid::{BelCoord, ColId, DieId, DieIdExt, EdgeIoCoord, RowId, TileCoord, TileIobId},
+    grid::{BelCoord, BelPadCoord, ColId, DieId, DieIdExt, RowId, TileCoord},
 };
 use std::collections::{BTreeMap, BTreeSet};
 
-use crate::defs::{bslots, tslots};
+use crate::defs::{bcls, bslots, tslots};
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Encode, Decode)]
 pub enum ChipKind {
@@ -62,7 +63,7 @@ pub struct Chip {
     pub cols_bram: BTreeSet<ColId>,
     pub cols_clkv: Vec<(ColId, ColId, ColId)>,
     pub rows: usize,
-    pub cfg_io: BTreeMap<SharedCfgPad, EdgeIoCoord>,
+    pub cfg_io: BTreeMap<SharedCfgPad, BelPadCoord>,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Encode, Decode)]
@@ -150,106 +151,167 @@ impl Chip {
             .tile(tslots::MAIN)
     }
 
-    pub fn get_io_bank(&self, io: EdgeIoCoord) -> u32 {
-        match io {
-            EdgeIoCoord::N(col, _) => {
-                if col < self.col_clk() {
-                    0
-                } else {
-                    1
-                }
-            }
-            EdgeIoCoord::E(row, _) => {
-                if row < self.row_mid() {
-                    3
-                } else {
-                    2
-                }
-            }
-            EdgeIoCoord::S(col, _) => {
-                if col < self.col_clk() {
-                    5
-                } else {
-                    4
-                }
-            }
-            EdgeIoCoord::W(row, _) => {
-                if row < self.row_mid() {
-                    6
-                } else {
-                    7
-                }
-            }
-        }
+    pub fn bel_corner_misc(&self, side: DirHV) -> BelCoord {
+        self.corner(side).bel(match side {
+            DirHV::SW => bslots::MISC_SW,
+            DirHV::SE => bslots::MISC_SE,
+            DirHV::NW => bslots::MISC_NW,
+            DirHV::NE => bslots::MISC_NE,
+        })
     }
 
-    pub fn get_io_loc(&self, io: EdgeIoCoord) -> BelCoord {
-        let (col, row, iob) = match io {
-            EdgeIoCoord::N(col, iob) => (col, self.row_n(), iob),
-            EdgeIoCoord::E(row, iob) => (self.col_e(), row, iob),
-            EdgeIoCoord::S(col, iob) => (col, self.row_s(), iob),
-            EdgeIoCoord::W(row, iob) => (self.col_w(), row, iob),
-        };
-        let slot = bslots::IOI[iob.to_idx()];
-        Self::DIE.cell(col, row).bel(slot)
-    }
-
-    pub fn get_io_crd(&self, bel: BelCoord) -> EdgeIoCoord {
-        let iob = TileIobId::from_idx(bslots::IOI.index_of(bel.slot).unwrap());
-        if bel.col == self.col_w() {
-            EdgeIoCoord::W(bel.row, iob)
-        } else if bel.col == self.col_e() {
-            EdgeIoCoord::E(bel.row, iob)
-        } else if bel.row == self.row_s() {
-            EdgeIoCoord::S(bel.col, iob)
-        } else if bel.row == self.row_n() {
-            EdgeIoCoord::N(bel.col, iob)
+    pub fn pad_to_vcco(&self, pad: BelPadCoord) -> BelPadCoord {
+        if bslots::IOB.contains(pad.slot) {
+            if pad.col == self.col_w() || pad.col == self.col_e() {
+                pad.with_row(if pad.row < self.row_mid() {
+                    self.row_s()
+                } else {
+                    self.row_n()
+                })
+                .bel(bslots::BANK_WE)
+                .pad(bcls::BANK::VCCO)
+            } else if pad.row == self.row_s() || pad.row == self.row_n() {
+                pad.with_col(if pad.col < self.col_clk() {
+                    self.col_w()
+                } else {
+                    self.col_e()
+                })
+                .bel(bslots::BANK_SN)
+                .pad(bcls::BANK::VCCO)
+            } else {
+                unreachable!()
+            }
+        } else if let Some(idx) = bslots::GCLK_IOB.index_of(pad.slot) {
+            pad.with_col([self.col_e(), self.col_w()][idx])
+                .bel(bslots::BANK_SN)
+                .pad(bcls::BANK::VCCO)
+        } else if pad == self.pad_tdo() || pad == self.pad_cclk() {
+            self.pad_bank_vcco(2)
+        } else if pad == self.pad_done() {
+            self.pad_bank_vcco(3)
         } else {
             unreachable!()
         }
     }
 
-    pub fn get_bonded_ios(&self) -> Vec<EdgeIoCoord> {
-        let mut res = vec![];
-        for col in self.columns() {
-            if self.cols_bram.contains(&col) {
-                continue;
-            }
-            if col == self.col_w() || col == self.col_e() {
-                continue;
-            }
-            for iob in [2, 1] {
-                res.push(EdgeIoCoord::N(col, TileIobId::from_idx(iob)));
-            }
+    pub fn pad_bank_vcco(&self, bank: u32) -> BelPadCoord {
+        let bel = match bank {
+            0 => self.corner(DirHV::NW).bel(bslots::BANK_SN),
+            1 => self.corner(DirHV::NE).bel(bslots::BANK_SN),
+            2 => self.corner(DirHV::NE).bel(bslots::BANK_WE),
+            3 => self.corner(DirHV::SE).bel(bslots::BANK_WE),
+            4 => self.corner(DirHV::SE).bel(bslots::BANK_SN),
+            5 => self.corner(DirHV::SW).bel(bslots::BANK_SN),
+            6 => self.corner(DirHV::SW).bel(bslots::BANK_WE),
+            7 => self.corner(DirHV::NW).bel(bslots::BANK_WE),
+            _ => unreachable!(),
+        };
+        bel.pad(bcls::BANK::VCCO)
+    }
+
+    pub fn pad_io_h(&self, edge: DirH, row: RowId, idx: usize) -> BelPadCoord {
+        Self::DIE
+            .cell(self.col_edge(edge), row)
+            .bel(bslots::IOB[idx])
+            .pad(bcls::IOB::PAD)
+    }
+
+    pub fn pad_io_v(&self, edge: DirV, col: ColId, idx: usize) -> BelPadCoord {
+        Self::DIE
+            .cell(col, self.row_edge(edge))
+            .bel(bslots::IOB[idx])
+            .pad(bcls::IOB::PAD)
+    }
+
+    pub fn pad_clk(&self, hv: DirHV) -> BelPadCoord {
+        Self::DIE
+            .cell(self.col_clk(), self.row_edge(hv.v))
+            .bel(
+                bslots::GCLK_IOB[match hv.h {
+                    // sigh.
+                    DirH::W => 1,
+                    DirH::E => 0,
+                }],
+            )
+            .pad(bcls::GCLK_IOB::PAD)
+    }
+
+    pub fn pad_mode(&self, idx: usize) -> BelPadCoord {
+        self.bel_corner_misc(DirHV::SW)
+            .pad([bcls::MISC_SW::M0, bcls::MISC_SW::M1, bcls::MISC_SW::M2][idx])
+    }
+
+    pub fn pad_done(&self) -> BelPadCoord {
+        self.bel_corner_misc(DirHV::SE).pad(bcls::MISC_SE::DONE)
+    }
+
+    pub fn pad_prog_b(&self) -> BelPadCoord {
+        self.bel_corner_misc(DirHV::SE).pad(bcls::MISC_SE::PROG_B)
+    }
+
+    pub fn pad_cclk(&self) -> BelPadCoord {
+        self.bel_corner_misc(DirHV::NE).pad(bcls::MISC_NE::CCLK)
+    }
+
+    pub fn pad_tck(&self) -> BelPadCoord {
+        self.bel_corner_misc(DirHV::NW).pad(bcls::MISC_NW::TCK)
+    }
+
+    pub fn pad_tms(&self) -> BelPadCoord {
+        self.bel_corner_misc(DirHV::NW).pad(bcls::MISC_NW::TMS)
+    }
+
+    pub fn pad_tdi(&self) -> BelPadCoord {
+        self.bel_corner_misc(DirHV::NE).pad(bcls::MISC_NE::TDI)
+    }
+
+    pub fn pad_tdo(&self) -> BelPadCoord {
+        self.bel_corner_misc(DirHV::NE).pad(bcls::MISC_NE::TDO)
+    }
+
+    pub fn pad_gnd(&self) -> BelPadCoord {
+        self.bel_global().pad(bcls::GLOBAL::GND)
+    }
+
+    pub fn pad_vccint(&self) -> BelPadCoord {
+        self.bel_global().pad(bcls::GLOBAL::VCCINT)
+    }
+
+    pub fn pad_vccaux(&self) -> BelPadCoord {
+        self.bel_global().pad(bcls::GLOBAL::VCCAUX)
+    }
+
+    pub fn pad_dxp(&self) -> BelPadCoord {
+        self.bel_corner_misc(DirHV::SW).pad(bcls::MISC_SW::DXP)
+    }
+
+    pub fn pad_dxn(&self) -> BelPadCoord {
+        self.bel_corner_misc(DirHV::SW).pad(bcls::MISC_SW::DXN)
+    }
+
+    pub fn iob_to_ioi(&self, iob: BelCoord) -> BelCoord {
+        let idx = bslots::IOB.index_of(iob.slot).unwrap();
+        iob.bel(bslots::IOI[idx])
+    }
+
+    pub fn io_to_pad(&self, bel: BelCoord) -> BelPadCoord {
+        if let Some(idx) = bslots::IOI.index_of(bel.slot) {
+            bel.bel(bslots::IOB[idx]).pad(bcls::IOB::PAD)
+        } else if bslots::IOB.contains(bel.slot) {
+            bel.pad(bcls::IOB::PAD)
+        } else if bslots::GCLK_IOB.contains(bel.slot) {
+            bel.pad(bcls::GCLK_IOB::PAD)
+        } else {
+            unreachable!()
         }
-        for row in self.rows().rev() {
-            if row == self.row_s() || row == self.row_n() {
-                continue;
-            }
-            for iob in [1, 2, 3] {
-                res.push(EdgeIoCoord::E(row, TileIobId::from_idx(iob)));
-            }
-        }
-        for col in self.columns().rev() {
-            if self.cols_bram.contains(&col) {
-                continue;
-            }
-            if col == self.col_w() || col == self.col_e() {
-                continue;
-            }
-            for iob in [1, 2] {
-                res.push(EdgeIoCoord::S(col, TileIobId::from_idx(iob)));
-            }
-        }
-        for row in self.rows() {
-            if row == self.row_s() || row == self.row_n() {
-                continue;
-            }
-            for iob in [3, 2, 1] {
-                res.push(EdgeIoCoord::W(row, TileIobId::from_idx(iob)));
-            }
-        }
-        res
+    }
+
+    pub fn get_all_ios(&self) -> Vec<BelPadCoord> {
+        self.get_bscan()
+            .io
+            .into_keys()
+            .filter(|pad| bslots::IOB.contains(pad.slot) || bslots::GCLK_IOB.contains(pad.slot))
+            .collect()
     }
 
     pub fn bel_pci(&self, side: DirH) -> BelCoord {
@@ -268,7 +330,7 @@ impl Chip {
 }
 
 impl Chip {
-    pub fn dump(&self, o: &mut dyn std::io::Write) -> std::io::Result<()> {
+    pub fn dump(&self, o: &mut dyn std::io::Write, db: &IntDb) -> std::io::Result<()> {
         writeln!(o, "\tkind {};", self.kind)?;
         writeln!(o, "\tcolumns {};", self.columns)?;
         writeln!(o, "\trows {};", self.rows)?;
@@ -280,8 +342,8 @@ impl Chip {
         for &(col_hclk, col_start, col_end) in &self.cols_clkv {
             writeln!(o, "\tcol_clkv {col_hclk} = {col_start}..{col_end};")?;
         }
-        for (k, v) in &self.cfg_io {
-            writeln!(o, "\tcfg_io {k} = {v};")?;
+        for (k, pad) in &self.cfg_io {
+            writeln!(o, "\tcfg_io {k} = {pad};", pad = pad.to_string(db))?;
         }
         Ok(())
     }

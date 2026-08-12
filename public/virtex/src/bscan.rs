@@ -1,25 +1,23 @@
 use std::collections::BTreeMap;
 
-use prjcombine_entity::EntityId;
-use prjcombine_interconnect::grid::{EdgeIoCoord, TileIobId};
+use prjcombine_interconnect::{
+    dir::{DirH, DirHV, DirV},
+    grid::BelPadCoord,
+};
 use prjcombine_types::bscan::{BScanBuilder, BScanPad};
 
-use crate::{bond::CfgPad, chip::Chip};
+use crate::chip::Chip;
 
 #[derive(Debug)]
 pub struct BScan {
     pub bits: usize,
-    pub io: BTreeMap<EdgeIoCoord, BScanPad>,
-    pub clk: BTreeMap<u32, BScanPad>,
-    pub cfg: BTreeMap<CfgPad, BScanPad>,
+    pub io: BTreeMap<BelPadCoord, BScanPad>,
 }
 
 impl Chip {
     pub fn get_bscan(&self) -> BScan {
         let mut builder = BScanBuilder::new();
         let mut io = BTreeMap::new();
-        let mut cfg = BTreeMap::new();
-        let mut clk = BTreeMap::new();
         for col in self.columns().rev() {
             if self.cols_bram.contains(&col) {
                 continue;
@@ -28,12 +26,12 @@ impl Chip {
                 continue;
             }
             for iob in [1, 2] {
-                let crd = EdgeIoCoord::N(col, TileIobId::from_idx(iob));
-                io.insert(crd, builder.get_toi());
+                let pad = self.pad_io_v(DirV::N, col, iob);
+                io.insert(pad, builder.get_toi());
             }
             if col == self.col_clk() {
-                clk.insert(1, builder.get_i());
-                clk.insert(0, builder.get_i());
+                io.insert(self.pad_clk(DirHV::NE), builder.get_i());
+                io.insert(self.pad_clk(DirHV::NW), builder.get_i());
             }
         }
         for row in self.rows().rev() {
@@ -41,12 +39,12 @@ impl Chip {
                 continue;
             }
             for iob in [1, 2, 3] {
-                let crd = EdgeIoCoord::W(row, TileIobId::from_idx(iob));
-                io.insert(crd, builder.get_toi());
+                let pad = self.pad_io_h(DirH::W, row, iob);
+                io.insert(pad, builder.get_toi());
             }
         }
-        for pin in [CfgPad::M1, CfgPad::M0, CfgPad::M2] {
-            cfg.insert(pin, builder.get_i());
+        for i in [1, 0, 2] {
+            io.insert(self.pad_mode(i), builder.get_i());
         }
         for col in self.columns() {
             if self.cols_bram.contains(&col) {
@@ -56,31 +54,29 @@ impl Chip {
                 continue;
             }
             if col == self.col_clk() {
-                clk.insert(5, builder.get_i());
-                clk.insert(4, builder.get_i());
+                io.insert(self.pad_clk(DirHV::SW), builder.get_i());
+                io.insert(self.pad_clk(DirHV::SE), builder.get_i());
             }
             for iob in [2, 1] {
-                let crd = EdgeIoCoord::S(col, TileIobId::from_idx(iob));
-                io.insert(crd, builder.get_toi());
+                let pad = self.pad_io_v(DirV::S, col, iob);
+                io.insert(pad, builder.get_toi());
             }
         }
-        cfg.insert(CfgPad::Done, builder.get_toi());
-        cfg.insert(CfgPad::ProgB, builder.get_i());
+        io.insert(self.pad_done(), builder.get_toi());
+        io.insert(self.pad_prog_b(), builder.get_i());
         for row in self.rows() {
             if row == self.row_s() || row == self.row_n() {
                 continue;
             }
             for iob in [3, 2, 1] {
-                let crd = EdgeIoCoord::E(row, TileIobId::from_idx(iob));
-                io.insert(crd, builder.get_toi());
+                let pad = self.pad_io_h(DirH::E, row, iob);
+                io.insert(pad, builder.get_toi());
             }
         }
-        cfg.insert(CfgPad::Cclk, builder.get_toi());
+        io.insert(self.pad_cclk(), builder.get_toi());
         BScan {
             bits: builder.bits,
             io,
-            clk,
-            cfg,
         }
     }
 }

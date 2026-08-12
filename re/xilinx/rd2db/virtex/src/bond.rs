@@ -1,83 +1,99 @@
 use prjcombine_re_xilinx_naming_virtex::ExpandedNamedDevice;
 use prjcombine_re_xilinx_rawdump::PkgPin;
-use prjcombine_virtex::bond::{Bond, BondPad, CfgPad};
+use prjcombine_virtex::bond::Bond;
 use std::collections::{BTreeMap, BTreeSet, HashMap};
 
-pub fn make_bond(endev: &ExpandedNamedDevice, pins: &[PkgPin]) -> Bond {
+pub fn make_bond(endev: &ExpandedNamedDevice, pkg: &str, pins: &[PkgPin]) -> Bond {
+    let chip = endev.chip;
     let mut bond_pins = BTreeMap::new();
     let mut io_banks = BTreeMap::new();
     let mut vref = BTreeSet::new();
     let mut diffp = BTreeSet::new();
     let mut diffn = BTreeSet::new();
-    let io_lookup: HashMap<_, _> = endev
-        .grid
-        .get_bonded_ios()
+    let io_lookup: HashMap<_, _> = chip
+        .get_all_ios()
         .into_iter()
-        .map(|io| (endev.get_io_name(io), io))
+        .map(|pad| (endev.get_io_name(pad), pad))
         .collect();
+    let mut vcco_pins = vec![];
     for pin in pins {
-        let bpin = if let Some(ref pad) = pin.pad {
-            if pad.starts_with("GCLKPAD") {
-                let bank = match &pad[..] {
-                    "GCLKPAD0" => 4,
-                    "GCLKPAD1" => 5,
-                    "GCLKPAD2" => 1,
-                    "GCLKPAD3" => 0,
-                    _ => panic!("unknown pad {pad}"),
-                };
-                let old = io_banks.insert(bank, pin.vcco_bank.unwrap());
-                assert!(old.is_none() || old == Some(pin.vcco_bank.unwrap()));
-                BondPad::Clk(bank)
-            } else {
-                let io = io_lookup[&**pad];
-                let bank = endev.grid.get_io_bank(io);
-                assert_eq!(pin.vref_bank, Some(bank));
-                let old = io_banks.insert(bank, pin.vcco_bank.unwrap());
-                assert!(old.is_none() || old == Some(pin.vcco_bank.unwrap()));
+        let bpin = if let Some(ref pad_name) = pin.pad {
+            let pad = io_lookup[&pad_name.as_str()];
+            let vcco = chip.pad_to_vcco(pad);
+            let old = io_banks.insert(vcco, pin.vcco_bank.unwrap());
+            assert!(old.is_none() || old == Some(pin.vcco_bank.unwrap()));
+            if !pad_name.starts_with("GCLKPAD") {
+                assert_eq!(vcco, chip.pad_bank_vcco(pin.vref_bank.unwrap()));
                 if pin.func.starts_with("IO_VREF_") {
-                    vref.insert(io);
+                    vref.insert(pad);
                 }
                 if let Some(pos) = pin.func.find("_L") {
                     let diff = &pin.func[pos..];
                     if diff.contains('P') {
-                        diffp.insert(io);
+                        diffp.insert(pad);
                     }
                     if diff.contains('N') {
-                        diffn.insert(io);
+                        diffn.insert(pad);
                     }
                 }
-                BondPad::Io(io)
             }
-        } else if pin.func.starts_with("VCCO_") {
-            let bank = pin.func[5..].parse().unwrap();
-            BondPad::VccO(bank)
+            vec![pad]
+        } else if let Some(bank) = pin.func.strip_prefix("VCCO_") {
+            let bank: u32 = bank.parse().unwrap();
+            vcco_pins.push((pin, bank));
+            continue;
         } else {
             match &pin.func[..] {
-                "NC" => BondPad::Nc,
-                "GND" => BondPad::Gnd,
-                "VCCINT" => BondPad::VccInt,
-                "VCCAUX" => BondPad::VccAux,
-                "VCCO" => BondPad::VccO(0),
-                "TCK" => BondPad::Cfg(CfgPad::Tck),
-                "TDI" => BondPad::Cfg(CfgPad::Tdi),
-                "TDO" => BondPad::Cfg(CfgPad::Tdo),
-                "TMS" => BondPad::Cfg(CfgPad::Tms),
-                "CCLK" => BondPad::Cfg(CfgPad::Cclk),
-                "DONE" => BondPad::Cfg(CfgPad::Done),
-                "PROGRAM" => BondPad::Cfg(CfgPad::ProgB),
-                "M0" => BondPad::Cfg(CfgPad::M0),
-                "M1" => BondPad::Cfg(CfgPad::M1),
-                "M2" => BondPad::Cfg(CfgPad::M2),
-                "DXN" => BondPad::Dxn,
-                "DXP" => BondPad::Dxp,
+                "NC" => vec![],
+                "GND" => vec![chip.pad_gnd()],
+                "VCCINT" => vec![chip.pad_vccint()],
+                "VCCAUX" => vec![chip.pad_vccaux()],
+                "VCCO" => {
+                    let bank = if let Some(bank) = pin.vcco_bank {
+                        bank
+                    } else {
+                        assert_eq!(pkg, "hq240");
+                        match pin.pin.as_str() {
+                            "P240" | "P15" | "P25" => 7,
+                            "P30" | "P44" | "P55" => 6,
+                            "P61" | "P76" | "P85" => 5,
+                            "P90" | "P105" | "P116" => 4,
+                            "P121" | "P136" | "P146" => 3,
+                            "P150" | "P165" | "P176" => 2,
+                            "P180" | "P197" | "P207" => 1,
+                            "P212" | "P226" | "P232" => 0,
+                            n => panic!("ummm VCCO {n}?"),
+                        }
+                    };
+                    vcco_pins.push((pin, bank));
+                    continue;
+                }
+                "TCK" => vec![chip.pad_tck()],
+                "TDI" => vec![chip.pad_tdi()],
+                "TDO" => vec![chip.pad_tdo()],
+                "TMS" => vec![chip.pad_tms()],
+                "CCLK" => vec![chip.pad_cclk()],
+                "DONE" => vec![chip.pad_done()],
+                "PROGRAM" => vec![chip.pad_prog_b()],
+                "M0" => vec![chip.pad_mode(0)],
+                "M1" => vec![chip.pad_mode(1)],
+                "M2" => vec![chip.pad_mode(2)],
+                "DXN" => vec![chip.pad_dxn()],
+                "DXP" => vec![chip.pad_dxp()],
                 _ => panic!("UNK FUNC {}", pin.func),
             }
         };
         bond_pins.insert(pin.pin.clone(), bpin);
     }
+    let mut bank_to_pads: BTreeMap<u32, Vec<_>> = BTreeMap::new();
+    for (pad, bank) in io_banks {
+        bank_to_pads.entry(bank).or_default().push(pad);
+    }
+    for (pin, bank) in vcco_pins {
+        bond_pins.insert(pin.pin.clone(), bank_to_pads[&bank].clone());
+    }
     Bond {
         pins: bond_pins,
-        io_banks,
         vref,
         diffp,
         diffn,
