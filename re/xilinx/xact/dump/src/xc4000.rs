@@ -112,7 +112,8 @@ pub fn dump_chip(die: &Die, noblock: &[String]) -> (Chip, IntDb, NamingDb) {
                 | bslots::MISC_SE
                 | bslots::MISC_NW
                 | bslots::MISC_NE
-                | bslots::MISC_E => (),
+                | bslots::MISC_E
+                | bslots::POWER => (),
                 _ if slot_name.starts_with("PULLUP") => {
                     let bel_names = &ntile.bels[slot];
                     let mut prim = extractor.grab_prim_ab(&bel_names[0], &bel_names[1]);

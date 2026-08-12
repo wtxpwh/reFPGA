@@ -265,7 +265,8 @@ fn verify_bel(endev: &ExpandedNamedDevice, vrf: &mut Verifier, bel: BelCoord) {
         | bslots::COUT
         | bslots::CIN
         | bslots::CLKQ
-        | bslots::CLKQC => (),
+        | bslots::CLKQC
+        | bslots::POWER => (),
         bslots::CLB => verify_clb(endev, vrf, bel),
         _ if bslots::IO.contains(bel.slot) => verify_iob(endev, vrf, bel),
         _ if bslots::TBUF.contains(bel.slot) => verify_tbuf(endev, vrf, bel),

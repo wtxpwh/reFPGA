@@ -152,6 +152,8 @@ pub fn name_device<'a>(edev: &'a ExpandedDevice<'a>, ndb: &'a NamingDb) -> Expan
             tcls::LLH => {
                 ngrid.name_tile(tcrd, "LLH", [format!("VMR{r}")]);
             }
+            tcls::GLOBALS => {}
+
             _ => unreachable!(),
         }
     }

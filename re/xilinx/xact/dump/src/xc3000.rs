@@ -159,7 +159,8 @@ pub fn dump_chip(die: &Die, kind: ChipKind) -> (Chip, IntDb, NamingDb) {
                 | defs::bslots::MISC_SE
                 | defs::bslots::MISC_NW
                 | defs::bslots::MISC_NE
-                | defs::bslots::MISC_E => (),
+                | defs::bslots::MISC_E
+                | defs::bslots::POWER => (),
                 defs::bslots::BUFG => {
                     let mut prim = extractor.grab_prim_a(&ntile.bels[slot][0]);
                     let BelInfo::SwitchBox(sb) = bel_info else {

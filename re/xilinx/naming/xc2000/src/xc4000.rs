@@ -717,6 +717,7 @@ pub fn name_device<'a>(edev: &'a ExpandedDevice<'a>, ndb: &'a NamingDb) -> Expan
                 };
                 ngrid.name_tile(tcrd, &format!("CLKQC_{sn}"), [format!("VMQ{bt}")]);
             }
+            tcls::GLOBALS => {}
 
             _ => unreachable!(),
         }

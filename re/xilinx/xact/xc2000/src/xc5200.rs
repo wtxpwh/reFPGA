@@ -341,6 +341,9 @@ pub fn name_device<'a>(edev: &'a ExpandedDevice<'a>, ndb: &'a NamingDb) -> Expan
             tcls::LLH | tcls::LLH_S | tcls::LLH_N => {
                 ngrid.name_tile(tcrd, kind, [(clk_x.clone(), row_y[row].clone())]);
             }
+            tcls::GLOBALS => {
+                ngrid.name_tile(tcrd, kind, []);
+            }
 
             _ => panic!("umm {kind}"),
         }

@@ -109,7 +109,7 @@ pub fn dump_chip(die: &Die) -> (Chip, IntDb, NamingDb) {
             let bel = cell.bel(slot);
             let slot_name = intdb.bel_slots[slot].name.as_str();
             match slot {
-                bslots::INT | bslots::LLH | bslots::LLV => (),
+                bslots::INT | bslots::LLH | bslots::LLV | bslots::POWER => (),
                 bslots::BUFG => {
                     let mut prim = extractor.grab_prim_a(&ntile.bels[slot][0]);
                     let BelInfo::SwitchBox(sb) = bel_info else {

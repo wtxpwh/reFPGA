@@ -155,7 +155,10 @@ pub fn verify_device(endev: &ExpandedNamedDevice, rd: &Part, pb: &ProgressBar) {
     for (tcrd, tile) in endev.edev.tiles() {
         let tcls = &endev.edev.db[tile.class];
         for slot in tcls.bels.ids() {
-            if matches!(slot, bslots::INT | bslots::LLV | bslots::LLH | bslots::BUFR) {
+            if matches!(
+                slot,
+                bslots::INT | bslots::LLV | bslots::LLH | bslots::BUFR | bslots::POWER
+            ) {
                 continue;
             }
             verify_bel(endev, &mut vrf, tcrd.bel(slot));

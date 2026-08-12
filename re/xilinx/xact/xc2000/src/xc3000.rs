@@ -205,7 +205,7 @@ pub fn name_device<'a>(edev: &'a ExpandedDevice<'a>, ndb: &'a NamingDb) -> Expan
             ngrid.name_tile(tcrd, kind, [(col_x[col].clone(), row_y[row].clone())]);
         } else if tcrd.slot == defs::tslots::LLV {
             ngrid.name_tile(tcrd, kind, [(col_x[col].clone(), row_y[row - 1].clone())]);
-        } else if tcrd.slot == defs::tslots::MISC_E {
+        } else if matches!(tcrd.slot, defs::tslots::MISC_E | defs::tslots::GLOBALS) {
             ngrid.name_tile(tcrd, kind, []);
         } else {
             panic!("ummmm {kind}?");
