@@ -1,14 +1,30 @@
 //! A map where each key-value pair is assigned a contiguous range of IDs.
 use crate::map::Entry;
-use crate::{EntityId, EntityMap, EntityRange, EntityVec, entity_id_u32};
+use crate::part_map::DuplicateKeyError;
+use crate::{EntityId, EntityMap, EntityPartVec, EntityRange, entity_id_u32};
+#[cfg(feature = "bincode")]
+use ::bincode::{Decode, Encode};
 
 /// Indices occupied by a given bundle.
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
+#[cfg_attr(feature = "bincode", derive(Encode, Decode))]
 pub enum EntityBundleIndices<I: EntityId> {
     /// Singular index occupied by a unit-shaped bundle.
     Single(I),
     /// Range of indices occupied by an array-shaped bundle.
     Array(EntityRange<I>),
+}
+
+impl<I: EntityId> From<I> for EntityBundleIndices<I> {
+    fn from(value: I) -> Self {
+        EntityBundleIndices::Single(value)
+    }
+}
+
+impl<I: EntityId> From<EntityRange<I>> for EntityBundleIndices<I> {
+    fn from(value: EntityRange<I>) -> Self {
+        EntityBundleIndices::Array(value)
+    }
 }
 
 /// An index within a particular bundle.
@@ -38,7 +54,7 @@ entity_id_u32!(BundleId, BundleTag tag, "BUNDLE");
 /// much like Rust makes a distinction between `u32` and `[u32; 1]`.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct EntityBundleMap<I: EntityId, T> {
-    ids: EntityVec<I, BundleId>,
+    ids: EntityPartVec<I, BundleId>,
     bundles: EntityMap<BundleId, String, (EntityBundleIndices<I>, T)>,
 }
 
@@ -50,16 +66,11 @@ impl<I: EntityId, T> EntityBundleMap<I, T> {
         }
     }
 
-    /// Returns the number of allocated IDs, i.e. the total size of all the bundles.
-    pub fn len(&self) -> usize {
-        self.ids.len()
-    }
-
     pub fn is_empty(&self) -> bool {
         self.ids.is_empty()
     }
 
-    pub fn ids(&self) -> EntityRange<I> {
+    pub fn ids(&self) -> impl DoubleEndedIterator<Item = I> + '_ {
         self.ids.ids()
     }
 
@@ -99,30 +110,37 @@ impl<I: EntityId, T> EntityBundleMap<I, T> {
         }
     }
 
-    /// Insert a unit-shaped bundle.
-    pub fn insert(&mut self, name: String, value: T) -> Option<I> {
+    /// Insert a bundle.
+    pub fn insert(
+        &mut self,
+        ids: impl Into<EntityBundleIndices<I>>,
+        name: String,
+        value: T,
+    ) -> Result<(), DuplicateKeyError> {
+        let ids = ids.into();
         match self.bundles.entry(name) {
-            Entry::Occupied(_) => None,
+            Entry::Occupied(_) => Err(DuplicateKeyError),
             Entry::Vacant(e) => {
-                let id = self.ids.push(e.index());
-                e.insert((EntityBundleIndices::Single(id), value));
-                Some(id)
-            }
-        }
-    }
-
-    /// Insert an array-shaped bundle.
-    pub fn insert_array(&mut self, name: String, num: usize, value: T) -> Option<EntityRange<I>> {
-        match self.bundles.entry(name) {
-            Entry::Occupied(_) => None,
-            Entry::Vacant(e) => {
-                let id = self.ids.next_id();
-                let range = EntityRange::new(id.to_idx(), id.to_idx() + num);
-                for _ in 0..num {
-                    self.ids.push(e.index());
+                match ids {
+                    EntityBundleIndices::Single(id) => {
+                        if self.ids.contains_id(id) {
+                            return Err(DuplicateKeyError);
+                        }
+                        self.ids.insert(id, e.index());
+                    }
+                    EntityBundleIndices::Array(range) => {
+                        for id in range {
+                            if self.ids.contains_id(id) {
+                                return Err(DuplicateKeyError);
+                            }
+                        }
+                        for id in range {
+                            self.ids.insert(id, e.index());
+                        }
+                    }
                 }
-                e.insert((EntityBundleIndices::Array(range), value));
-                Some(range)
+                e.insert((ids, value));
+                Ok(())
             }
         }
     }

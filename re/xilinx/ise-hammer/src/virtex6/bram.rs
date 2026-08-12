@@ -8,7 +8,7 @@ use prjcombine_types::{bitrect::TileBit, bits};
 use prjcombine_virtex4::{
     chip::ChipKind,
     defs::{
-        bcls::BRAM_V5 as BRAM,
+        bcls::BRAM,
         bslots, enums,
         virtex6::tcls as tcls_v6,
         virtex7::{tcls as tcls_v7, wires as wires_v7},
@@ -187,12 +187,12 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
                     continue;
                 }
                 for (val, vname) in [
-                    (enums::BRAM_V5_DATA_WIDTH::_1, "0"),
-                    (enums::BRAM_V5_DATA_WIDTH::_1, "2"),
-                    (enums::BRAM_V5_DATA_WIDTH::_2, "4"),
-                    (enums::BRAM_V5_DATA_WIDTH::_4, "9"),
-                    (enums::BRAM_V5_DATA_WIDTH::_9, "18"),
-                    (enums::BRAM_V5_DATA_WIDTH::_18, "36"),
+                    (enums::BRAM_DATA_WIDTH::_1, "0"),
+                    (enums::BRAM_DATA_WIDTH::_1, "2"),
+                    (enums::BRAM_DATA_WIDTH::_2, "4"),
+                    (enums::BRAM_DATA_WIDTH::_4, "9"),
+                    (enums::BRAM_DATA_WIDTH::_9, "18"),
+                    (enums::BRAM_DATA_WIDTH::_18, "36"),
                 ] {
                     bctx.mode(mode)
                         .global_mutex("BRAM_OPT", "NONE")
@@ -332,8 +332,8 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
                 .enumerate()
             {
                 for (attr, opt) in [
-                    (BRAM::V6_TWR_DLY_L, "TWR_DLY_L"),
-                    (BRAM::V6_TWR_DLY_U, "TWR_DLY_U"),
+                    (BRAM::TWR_DLY_L, "TWR_DLY_L"),
+                    (BRAM::TWR_DLY_U, "TWR_DLY_U"),
                 ] {
                     bctx.mode(mode)
                         .global_mutex_here("BRAM_OPT")
@@ -366,10 +366,10 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
             .enumerate()
             {
                 for (attr, opt) in [
-                    (BRAM::V7_TWR_DLY_A_L, "TWR_DLY_A_L"),
-                    (BRAM::V7_TWR_DLY_A_U, "TWR_DLY_A_U"),
-                    (BRAM::V7_TWR_DLY_B_L, "TWR_DLY_B_L"),
-                    (BRAM::V7_TWR_DLY_B_U, "TWR_DLY_B_U"),
+                    (BRAM::TWR_DLY_A_L, "TWR_DLY_A_L"),
+                    (BRAM::TWR_DLY_A_U, "TWR_DLY_A_U"),
+                    (BRAM::TWR_DLY_B_L, "TWR_DLY_B_L"),
+                    (BRAM::TWR_DLY_B_U, "TWR_DLY_B_U"),
                 ] {
                     bctx.mode(mode)
                         .global_mutex_here("BRAM_OPT")
@@ -514,11 +514,11 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
             );
 
         for (val, vname) in [
-            (enums::BRAM_V5_FIFO_WIDTH::_2, "4"),
-            (enums::BRAM_V5_FIFO_WIDTH::_4, "9"),
-            (enums::BRAM_V5_FIFO_WIDTH::_9, "18"),
-            (enums::BRAM_V5_FIFO_WIDTH::_18, "36"),
-            (enums::BRAM_V5_FIFO_WIDTH::_36, "72"),
+            (enums::BRAM_FIFO_WIDTH::_2, "4"),
+            (enums::BRAM_FIFO_WIDTH::_4, "9"),
+            (enums::BRAM_FIFO_WIDTH::_9, "18"),
+            (enums::BRAM_FIFO_WIDTH::_18, "36"),
+            (enums::BRAM_FIFO_WIDTH::_36, "72"),
         ] {
             bctx.mode(mode)
                 .global_mutex("BRAM_OPT", "NONE")
@@ -734,12 +734,12 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
                     continue;
                 }
                 for (val, vname) in [
-                    (enums::BRAM_V5_DATA_WIDTH::_1, "0"),
-                    (enums::BRAM_V5_DATA_WIDTH::_1, "1"),
-                    (enums::BRAM_V5_DATA_WIDTH::_2, "2"),
-                    (enums::BRAM_V5_DATA_WIDTH::_4, "4"),
-                    (enums::BRAM_V5_DATA_WIDTH::_9, "9"),
-                    (enums::BRAM_V5_DATA_WIDTH::_18, "18"),
+                    (enums::BRAM_DATA_WIDTH::_1, "0"),
+                    (enums::BRAM_DATA_WIDTH::_1, "1"),
+                    (enums::BRAM_DATA_WIDTH::_2, "2"),
+                    (enums::BRAM_DATA_WIDTH::_4, "4"),
+                    (enums::BRAM_DATA_WIDTH::_9, "9"),
+                    (enums::BRAM_DATA_WIDTH::_18, "18"),
                 ] {
                     bctx.mode(mode)
                         .global_mutex("BRAM_OPT", "NONE")
@@ -912,10 +912,10 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
                 );
 
             for (val, vname) in [
-                (enums::BRAM_V5_FIFO_WIDTH::_4, "4"),
-                (enums::BRAM_V5_FIFO_WIDTH::_9, "9"),
-                (enums::BRAM_V5_FIFO_WIDTH::_18, "18"),
-                (enums::BRAM_V5_FIFO_WIDTH::_36, "36"),
+                (enums::BRAM_FIFO_WIDTH::_4, "4"),
+                (enums::BRAM_FIFO_WIDTH::_9, "9"),
+                (enums::BRAM_FIFO_WIDTH::_18, "18"),
+                (enums::BRAM_FIFO_WIDTH::_36, "36"),
             ] {
                 bctx.mode(mode)
                     .global_mutex("BRAM_OPT", "NONE")
@@ -1017,14 +1017,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
     }
     let mut ctx = FuzzCtx::new_null(session, backend);
     ctx.build()
-        .extra_tiles_by_bel_attr_bits(
-            bslots::BRAM,
-            if edev.kind == ChipKind::Virtex6 {
-                BRAM::V6_TEST_ATTRIBUTES
-            } else {
-                BRAM::V7_TEST_ATTRIBUTES
-            },
-        )
+        .extra_tiles_by_bel_attr_bits(bslots::BRAM, BRAM::TEST_ATTRIBUTES)
         .test_global_special(specials::BRAM_TEST_ATTRIBUTES)
         .multi_global(
             "TEST_ATTRIBUTES",
@@ -1322,14 +1315,14 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
                 tcid,
                 bslot,
                 attr_a,
-                enums::BRAM_V5_DATA_WIDTH::_18,
+                enums::BRAM_DATA_WIDTH::_18,
             ));
         }
         diff = diff.combine(&!ctx.peek_diff_attr_val(
             tcid,
             bslot,
             attr_b,
-            enums::BRAM_V5_DATA_WIDTH::_18,
+            enums::BRAM_DATA_WIDTH::_18,
         ));
         ctx.insert_bel_attr_bool(tcid, bslot, attr, xlat_bit(diff));
     }
@@ -1354,14 +1347,14 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
             bslot,
             attr_a,
             specials::BRAM_RAMB36,
-            enums::BRAM_V5_DATA_WIDTH::_18,
+            enums::BRAM_DATA_WIDTH::_18,
         ));
         diff = diff.combine(&!ctx.peek_diff_attr_special_val(
             tcid,
             bslot,
             attr_b,
             specials::BRAM_RAMB36,
-            enums::BRAM_V5_DATA_WIDTH::_18,
+            enums::BRAM_DATA_WIDTH::_18,
         ));
         diff.apply_bit_diff(ctx.bel_attr_bit(tcid, bslot, attr), true, false);
         diff.apply_bit_diff(ctx.bel_attr_bit(tcid, bslot, attr_u), true, false);
@@ -1396,17 +1389,17 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
         ),
     ] {
         for val in [
-            enums::BRAM_V5_DATA_WIDTH::_1,
-            enums::BRAM_V5_DATA_WIDTH::_2,
-            enums::BRAM_V5_DATA_WIDTH::_4,
-            enums::BRAM_V5_DATA_WIDTH::_9,
-            enums::BRAM_V5_DATA_WIDTH::_18,
+            enums::BRAM_DATA_WIDTH::_1,
+            enums::BRAM_DATA_WIDTH::_2,
+            enums::BRAM_DATA_WIDTH::_4,
+            enums::BRAM_DATA_WIDTH::_9,
+            enums::BRAM_DATA_WIDTH::_18,
         ] {
             let mut diff =
                 ctx.get_diff_attr_special_val(tcid, bslot, attr_l, specials::BRAM_RAMB36, val);
             diff = diff.combine(&!ctx.peek_diff_attr_val(tcid, bslot, attr_l, val));
             diff = diff.combine(&!ctx.peek_diff_attr_val(tcid, bslot, attr_u, val));
-            if val == enums::BRAM_V5_DATA_WIDTH::_4 {
+            if val == enums::BRAM_DATA_WIDTH::_4 {
                 diff.apply_bit_diff(ctx.bel_attr_bit(tcid, bslot, attr_mux), true, false);
             }
             diff.assert_empty();
@@ -1425,16 +1418,10 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
 
     let mut diffs = vec![];
     for (val, width) in [
-        (enums::BRAM_V5_FIFO_WIDTH::_4, enums::BRAM_V5_DATA_WIDTH::_4),
-        (enums::BRAM_V5_FIFO_WIDTH::_9, enums::BRAM_V5_DATA_WIDTH::_9),
-        (
-            enums::BRAM_V5_FIFO_WIDTH::_18,
-            enums::BRAM_V5_DATA_WIDTH::_18,
-        ),
-        (
-            enums::BRAM_V5_FIFO_WIDTH::_36,
-            enums::BRAM_V5_DATA_WIDTH::_18,
-        ),
+        (enums::BRAM_FIFO_WIDTH::_4, enums::BRAM_DATA_WIDTH::_4),
+        (enums::BRAM_FIFO_WIDTH::_9, enums::BRAM_DATA_WIDTH::_9),
+        (enums::BRAM_FIFO_WIDTH::_18, enums::BRAM_DATA_WIDTH::_18),
+        (enums::BRAM_FIFO_WIDTH::_36, enums::BRAM_DATA_WIDTH::_18),
     ] {
         let mut diff = ctx.get_diff_attr_val(tcid, bslot, BRAM::FIFO_WIDTH, val);
         let mut diff_sdp = ctx.get_diff_attr_special_val(
@@ -1444,19 +1431,19 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
             specials::BRAM_FIFO18_36,
             val,
         );
-        if width == enums::BRAM_V5_DATA_WIDTH::_18 {
+        if width == enums::BRAM_DATA_WIDTH::_18 {
             diff_sdp.apply_enum_diff(
                 ctx.bel_attr_enum(tcid, bslot, BRAM::READ_WIDTH_B_L),
                 width,
-                enums::BRAM_V5_DATA_WIDTH::_1,
+                enums::BRAM_DATA_WIDTH::_1,
             );
             diff_sdp.apply_enum_diff(
                 ctx.bel_attr_enum(tcid, bslot, BRAM::WRITE_WIDTH_A_L),
                 width,
-                enums::BRAM_V5_DATA_WIDTH::_1,
+                enums::BRAM_DATA_WIDTH::_1,
             );
         }
-        if val == enums::BRAM_V5_FIFO_WIDTH::_36 {
+        if val == enums::BRAM_FIFO_WIDTH::_36 {
             diff_sdp.apply_bit_diff(ctx.bel_attr_bit(tcid, bslot, BRAM::READ_SDP_L), true, false);
             diff_sdp.apply_bit_diff(
                 ctx.bel_attr_bit(tcid, bslot, BRAM::WRITE_SDP_L),
@@ -1468,27 +1455,21 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
         diff.apply_enum_diff(
             ctx.bel_attr_enum(tcid, bslot, BRAM::READ_WIDTH_A_L),
             width,
-            enums::BRAM_V5_DATA_WIDTH::_1,
+            enums::BRAM_DATA_WIDTH::_1,
         );
         diff.apply_enum_diff(
             ctx.bel_attr_enum(tcid, bslot, BRAM::WRITE_WIDTH_B_L),
             width,
-            enums::BRAM_V5_DATA_WIDTH::_1,
+            enums::BRAM_DATA_WIDTH::_1,
         );
         diffs.push((val, diff));
     }
     for (val, width) in [
-        (enums::BRAM_V5_FIFO_WIDTH::_2, enums::BRAM_V5_DATA_WIDTH::_2),
-        (enums::BRAM_V5_FIFO_WIDTH::_4, enums::BRAM_V5_DATA_WIDTH::_4),
-        (enums::BRAM_V5_FIFO_WIDTH::_9, enums::BRAM_V5_DATA_WIDTH::_9),
-        (
-            enums::BRAM_V5_FIFO_WIDTH::_18,
-            enums::BRAM_V5_DATA_WIDTH::_18,
-        ),
-        (
-            enums::BRAM_V5_FIFO_WIDTH::_36,
-            enums::BRAM_V5_DATA_WIDTH::_18,
-        ),
+        (enums::BRAM_FIFO_WIDTH::_2, enums::BRAM_DATA_WIDTH::_2),
+        (enums::BRAM_FIFO_WIDTH::_4, enums::BRAM_DATA_WIDTH::_4),
+        (enums::BRAM_FIFO_WIDTH::_9, enums::BRAM_DATA_WIDTH::_9),
+        (enums::BRAM_FIFO_WIDTH::_18, enums::BRAM_DATA_WIDTH::_18),
+        (enums::BRAM_FIFO_WIDTH::_36, enums::BRAM_DATA_WIDTH::_18),
     ] {
         let mut diff = ctx.get_diff_attr_special_val(
             tcid,
@@ -1504,26 +1485,26 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
             specials::BRAM_FIFO36_72,
             val,
         );
-        if val == enums::BRAM_V5_FIFO_WIDTH::_36 {
+        if val == enums::BRAM_FIFO_WIDTH::_36 {
             diff_sdp.apply_enum_diff(
                 ctx.bel_attr_enum(tcid, bslot, BRAM::READ_WIDTH_B_L),
                 width,
-                enums::BRAM_V5_DATA_WIDTH::_1,
+                enums::BRAM_DATA_WIDTH::_1,
             );
             diff_sdp.apply_enum_diff(
                 ctx.bel_attr_enum(tcid, bslot, BRAM::READ_WIDTH_B_U),
                 width,
-                enums::BRAM_V5_DATA_WIDTH::_1,
+                enums::BRAM_DATA_WIDTH::_1,
             );
             diff_sdp.apply_enum_diff(
                 ctx.bel_attr_enum(tcid, bslot, BRAM::WRITE_WIDTH_A_L),
                 width,
-                enums::BRAM_V5_DATA_WIDTH::_1,
+                enums::BRAM_DATA_WIDTH::_1,
             );
             diff_sdp.apply_enum_diff(
                 ctx.bel_attr_enum(tcid, bslot, BRAM::WRITE_WIDTH_A_U),
                 width,
-                enums::BRAM_V5_DATA_WIDTH::_1,
+                enums::BRAM_DATA_WIDTH::_1,
             );
             diff.apply_bit_diff(ctx.bel_attr_bit(tcid, bslot, BRAM::READ_SDP_L), true, false);
             diff.apply_bit_diff(ctx.bel_attr_bit(tcid, bslot, BRAM::READ_SDP_U), true, false);
@@ -1550,7 +1531,7 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
                 false,
             );
         }
-        if val == enums::BRAM_V5_FIFO_WIDTH::_4 {
+        if val == enums::BRAM_FIFO_WIDTH::_4 {
             diff.apply_bit_diff(
                 ctx.bel_attr_bit(tcid, bslot, BRAM::READ_MUX_UL_A),
                 true,
@@ -1596,44 +1577,44 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
         diff.apply_enum_diff(
             ctx.bel_attr_enum(tcid, bslot, BRAM::READ_WIDTH_A_L),
             width,
-            enums::BRAM_V5_DATA_WIDTH::_1,
+            enums::BRAM_DATA_WIDTH::_1,
         );
-        if val != enums::BRAM_V5_FIFO_WIDTH::_36 {
+        if val != enums::BRAM_FIFO_WIDTH::_36 {
             diff.apply_enum_diff(
                 ctx.bel_attr_enum(tcid, bslot, BRAM::WRITE_WIDTH_B_L),
                 width,
-                enums::BRAM_V5_DATA_WIDTH::_1,
+                enums::BRAM_DATA_WIDTH::_1,
             );
             diff.apply_enum_diff(
                 ctx.bel_attr_enum(tcid, bslot, BRAM::READ_WIDTH_A_U),
                 width,
-                enums::BRAM_V5_DATA_WIDTH::_1,
+                enums::BRAM_DATA_WIDTH::_1,
             );
             diff.apply_enum_diff(
                 ctx.bel_attr_enum(tcid, bslot, BRAM::WRITE_WIDTH_B_U),
                 width,
-                enums::BRAM_V5_DATA_WIDTH::_1,
+                enums::BRAM_DATA_WIDTH::_1,
             );
         }
         diff_sdp.apply_enum_diff(
             ctx.bel_attr_enum(tcid, bslot, BRAM::READ_WIDTH_A_L),
             width,
-            enums::BRAM_V5_DATA_WIDTH::_1,
+            enums::BRAM_DATA_WIDTH::_1,
         );
         diff_sdp.apply_enum_diff(
             ctx.bel_attr_enum(tcid, bslot, BRAM::WRITE_WIDTH_B_L),
             width,
-            enums::BRAM_V5_DATA_WIDTH::_1,
+            enums::BRAM_DATA_WIDTH::_1,
         );
         diff_sdp.apply_enum_diff(
             ctx.bel_attr_enum(tcid, bslot, BRAM::READ_WIDTH_A_U),
             width,
-            enums::BRAM_V5_DATA_WIDTH::_1,
+            enums::BRAM_DATA_WIDTH::_1,
         );
         diff_sdp.apply_enum_diff(
             ctx.bel_attr_enum(tcid, bslot, BRAM::WRITE_WIDTH_B_U),
             width,
-            enums::BRAM_V5_DATA_WIDTH::_1,
+            enums::BRAM_DATA_WIDTH::_1,
         );
 
         assert_eq!(diff, diff_sdp);
@@ -1643,8 +1624,8 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
 
     if edev.kind == ChipKind::Virtex6 {
         for val in [
-            enums::BRAM_V5_RSTREG_PRIORITY::REGCE,
-            enums::BRAM_V5_RSTREG_PRIORITY::RSTREG,
+            enums::BRAM_RSTREG_PRIORITY::REGCE,
+            enums::BRAM_RSTREG_PRIORITY::RSTREG,
         ] {
             let diff_fifo = ctx.get_diff_attr_special_val(
                 tcid,
@@ -1686,8 +1667,8 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
         (BRAM::RSTREG_PRIORITY_B_L, BRAM::RSTREG_PRIORITY_B_U),
     ] {
         for val in [
-            enums::BRAM_V5_RSTREG_PRIORITY::REGCE,
-            enums::BRAM_V5_RSTREG_PRIORITY::RSTREG,
+            enums::BRAM_RSTREG_PRIORITY::REGCE,
+            enums::BRAM_RSTREG_PRIORITY::RSTREG,
         ] {
             let diff_f =
                 ctx.get_diff_attr_special_val(tcid, bslot, attr_l, specials::BRAM_RAMB36, val);
@@ -1714,8 +1695,8 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
     }
 
     for val in [
-        enums::BRAM_V5_RDADDR_COLLISION_HWCONFIG::PERFORMANCE,
-        enums::BRAM_V5_RDADDR_COLLISION_HWCONFIG::DELAYED_WRITE,
+        enums::BRAM_RDADDR_COLLISION_HWCONFIG::PERFORMANCE,
+        enums::BRAM_RDADDR_COLLISION_HWCONFIG::DELAYED_WRITE,
     ] {
         let diff_f = ctx.get_diff_attr_special_val(
             tcid,
@@ -1733,10 +1714,10 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
 
     if edev.kind == ChipKind::Virtex7 {
         for val in [
-            enums::BRAM_V5_EN_PWRGATE::NONE,
-            enums::BRAM_V5_EN_PWRGATE::LEFT,
-            enums::BRAM_V5_EN_PWRGATE::RIGHT,
-            enums::BRAM_V5_EN_PWRGATE::BOTH,
+            enums::BRAM_EN_PWRGATE::NONE,
+            enums::BRAM_EN_PWRGATE::LEFT,
+            enums::BRAM_EN_PWRGATE::RIGHT,
+            enums::BRAM_EN_PWRGATE::BOTH,
         ] {
             let diff_f = ctx.get_diff_attr_special_val(
                 tcid,
@@ -1775,8 +1756,8 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
         ctx.collect_bel_attr_sparse(tcid, bslot, attr, 0..8);
     }
     if edev.kind == ChipKind::Virtex6 {
-        ctx.collect_bel_attr(tcid, bslot, BRAM::V6_TEST_ATTRIBUTES);
-        for attr in [BRAM::V6_TWR_DLY_L, BRAM::V6_TWR_DLY_U] {
+        ctx.collect_bel_attr(tcid, bslot, BRAM::TEST_ATTRIBUTES);
+        for attr in [BRAM::TWR_DLY_L, BRAM::TWR_DLY_U] {
             ctx.collect_bel_attr_sparse(tcid, bslot, attr, 0..8);
         }
         for attr in [BRAM::EN_TSTREFBL, BRAM::EN_TSTRSRW] {
@@ -1784,12 +1765,12 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
         }
         ctx.collect_bel_attr_bi(tcid, bslot, BRAM::EN_TSTBLCLAMP);
     } else {
-        ctx.collect_bel_attr(tcid, bslot, BRAM::V7_TEST_ATTRIBUTES);
+        ctx.collect_bel_attr(tcid, bslot, BRAM::TEST_ATTRIBUTES);
         for attr in [
-            BRAM::V7_TWR_DLY_A_L,
-            BRAM::V7_TWR_DLY_A_U,
-            BRAM::V7_TWR_DLY_B_L,
-            BRAM::V7_TWR_DLY_B_U,
+            BRAM::TWR_DLY_A_L,
+            BRAM::TWR_DLY_A_U,
+            BRAM::TWR_DLY_B_L,
+            BRAM::TWR_DLY_B_U,
         ] {
             ctx.collect_bel_attr_sparse(tcid, bslot, attr, 0..16);
         }

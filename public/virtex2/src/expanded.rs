@@ -7,7 +7,7 @@ use prjcombine_types::bitrect::BitRectId;
 use crate::{
     bitstream::{BitRect, FrameAddr, Reg},
     chip::{Chip, ChipKind},
-    defs::{self, bslots},
+    defs::{bslots, tcls, tslots},
 };
 
 pub struct ExpandedDevice<'a> {
@@ -204,7 +204,7 @@ impl ExpandedDevice<'_> {
         let tcls = &self.db.tile_classes[tile.class];
         if tcls.bitrects.is_empty() {
             EntityVec::new()
-        } else if tcrd.slot == defs::tslots::GLOBAL {
+        } else if tcrd.slot == tslots::GLOBAL {
             if self.chip.kind.is_spartan3a() {
                 EntityVec::from_iter([
                     BitRect::Reg(Reg::Cor1),
@@ -223,7 +223,7 @@ impl ExpandedDevice<'_> {
             } else {
                 EntityVec::from_iter([BitRect::Reg(Reg::Cor0), BitRect::Reg(Reg::Ctl0)])
             }
-        } else if tcls.bels.contains_id(defs::bslots::BRAM) {
+        } else if tcls.bels.contains_id(bslots::BRAM) {
             EntityVec::from_iter([
                 self.btile_main(tcrd.delta(0, 0)),
                 self.btile_main(tcrd.delta(0, 1)),
@@ -231,7 +231,7 @@ impl ExpandedDevice<'_> {
                 self.btile_main(tcrd.delta(0, 3)),
                 self.btile_bram(tcrd.cell),
             ])
-        } else if tcls.bels.contains_id(defs::bslots::PCILOGICSE) {
+        } else if tcls.bels.contains_id(bslots::PCILOGICSE) {
             // CLK_W_*, CLK_E_*
             EntityVec::from_iter([
                 self.btile_main(tcrd.delta(0, -1)),
@@ -241,22 +241,17 @@ impl ExpandedDevice<'_> {
                 self.btile_term_h(tcrd.delta(0, 0)),
                 self.btile_term_h(tcrd.delta(0, 1)),
             ])
-        } else if tcls.bels.contains_id(defs::bslots::BUFGMUX[0]) {
+        } else if tcls.bels.contains_id(bslots::BUFGMUX[0]) {
             // CLK_S_*, CLK_N_*
             EntityVec::from_iter([self.btile_spine(row), self.btile_spine_end(row)])
-        } else if !self.chip.kind.is_virtex2() && tile.class == defs::spartan3::tcls::CLKC_50A {
+        } else if tile.class == tcls::CLKC_50A {
             EntityVec::from_iter([self.btile_spine(row - 1)])
-        } else if !self.chip.kind.is_virtex2()
-            && matches!(
-                tile.class,
-                defs::spartan3::tcls::CLKQC_S3 | defs::spartan3::tcls::CLKQC_S3E
-            )
-        {
+        } else if matches!(tile.class, tcls::CLKQC_S3 | tcls::CLKQC_S3E) {
             EntityVec::from_iter([
                 self.btile_clkv(tcrd.delta(0, -1)),
                 self.btile_clkv(tcrd.delta(0, 0)),
             ])
-        } else if tcrd.slot == defs::tslots::HROW {
+        } else if tcrd.slot == tslots::HROW {
             if row == self.chip.row_s() + 1 {
                 EntityVec::from_iter([
                     self.btile_spine_end(row - 1),
@@ -279,9 +274,9 @@ impl ExpandedDevice<'_> {
                     self.btile_spine(row + 1),
                 ])
             }
-        } else if tcrd.slot == defs::tslots::HCLK {
+        } else if tcrd.slot == tslots::HCLK {
             EntityVec::from_iter([self.btile_hclk(tcrd.cell)])
-        } else if tcrd.slot == defs::tslots::IOB {
+        } else if tcrd.slot == tslots::IOB {
             if col == self.chip.col_w() || col == self.chip.col_e() {
                 EntityVec::from_iter(
                     self.tile_cells(tcrd)
@@ -293,84 +288,66 @@ impl ExpandedDevice<'_> {
                         .map(|(_, cell)| self.btile_term_v(cell)),
                 )
             }
-        } else if self.chip.kind.is_virtex2()
-            && matches!(
-                tile.class,
-                defs::virtex2::tcls::TERM_W | defs::virtex2::tcls::TERM_E
-            )
-        {
+        } else if matches!(tile.class, tcls::TERM_W | tcls::TERM_E) {
             EntityVec::from_iter([self.btile_term_h(tcrd.cell)])
-        } else if self.chip.kind.is_virtex2()
-            && matches!(
-                tile.class,
-                defs::virtex2::tcls::TERM_S
-                    | defs::virtex2::tcls::TERM_N
-                    | defs::virtex2::tcls::DCMCONN_S
-                    | defs::virtex2::tcls::DCMCONN_N
-            )
-        {
+        } else if matches!(
+            tile.class,
+            tcls::TERM_S | tcls::TERM_N | tcls::DCMCONN_S | tcls::DCMCONN_N
+        ) {
             EntityVec::from_iter([self.btile_term_v(tcrd.cell)])
-        } else if tcls.bels.contains_id(defs::bslots::DCM) {
+        } else if tcls.bels.contains_id(bslots::DCM) {
             if self.chip.kind.is_virtex2() {
                 EntityVec::from_iter([self.btile_main(tcrd.cell), self.btile_term_v(tcrd.cell)])
             } else if self.chip.kind == ChipKind::Spartan3 {
                 EntityVec::from_iter([self.btile_main(tcrd.cell)])
             } else {
                 match tile.class {
-                    defs::spartan3::tcls::DCM_S3E_SW | defs::spartan3::tcls::DCM_S3E_EN => {
-                        EntityVec::from_iter([
-                            self.btile_main(tcrd.delta(0, 0)),
-                            self.btile_main(tcrd.delta(0, 1)),
-                            self.btile_main(tcrd.delta(0, 2)),
-                            self.btile_main(tcrd.delta(0, 3)),
-                            self.btile_main(tcrd.delta(-3, 0)),
-                            self.btile_main(tcrd.delta(-3, 1)),
-                            self.btile_main(tcrd.delta(-3, 2)),
-                            self.btile_main(tcrd.delta(-3, 3)),
-                        ])
-                    }
-                    defs::spartan3::tcls::DCM_S3E_SE | defs::spartan3::tcls::DCM_S3E_WN => {
-                        EntityVec::from_iter([
-                            self.btile_main(tcrd.delta(0, 0)),
-                            self.btile_main(tcrd.delta(0, 1)),
-                            self.btile_main(tcrd.delta(0, 2)),
-                            self.btile_main(tcrd.delta(0, 3)),
-                            self.btile_main(tcrd.delta(3, 0)),
-                            self.btile_main(tcrd.delta(3, 1)),
-                            self.btile_main(tcrd.delta(3, 2)),
-                            self.btile_main(tcrd.delta(3, 3)),
-                        ])
-                    }
-                    defs::spartan3::tcls::DCM_S3E_NW | defs::spartan3::tcls::DCM_S3E_ES => {
-                        EntityVec::from_iter([
-                            self.btile_main(tcrd.delta(0, 0)),
-                            self.btile_main(tcrd.delta(0, -3)),
-                            self.btile_main(tcrd.delta(0, -2)),
-                            self.btile_main(tcrd.delta(0, -1)),
-                            self.btile_main(tcrd.delta(-3, -3)),
-                            self.btile_main(tcrd.delta(-3, -2)),
-                            self.btile_main(tcrd.delta(-3, -1)),
-                            self.btile_main(tcrd.delta(-3, 0)),
-                        ])
-                    }
-                    defs::spartan3::tcls::DCM_S3E_NE | defs::spartan3::tcls::DCM_S3E_WS => {
-                        EntityVec::from_iter([
-                            self.btile_main(tcrd.delta(0, 0)),
-                            self.btile_main(tcrd.delta(0, -3)),
-                            self.btile_main(tcrd.delta(0, -2)),
-                            self.btile_main(tcrd.delta(0, -1)),
-                            self.btile_main(tcrd.delta(3, -3)),
-                            self.btile_main(tcrd.delta(3, -2)),
-                            self.btile_main(tcrd.delta(3, -1)),
-                            self.btile_main(tcrd.delta(3, 0)),
-                        ])
-                    }
+                    tcls::DCM_S3E_SW | tcls::DCM_S3E_EN => EntityVec::from_iter([
+                        self.btile_main(tcrd.delta(0, 0)),
+                        self.btile_main(tcrd.delta(0, 1)),
+                        self.btile_main(tcrd.delta(0, 2)),
+                        self.btile_main(tcrd.delta(0, 3)),
+                        self.btile_main(tcrd.delta(-3, 0)),
+                        self.btile_main(tcrd.delta(-3, 1)),
+                        self.btile_main(tcrd.delta(-3, 2)),
+                        self.btile_main(tcrd.delta(-3, 3)),
+                    ]),
+                    tcls::DCM_S3E_SE | tcls::DCM_S3E_WN => EntityVec::from_iter([
+                        self.btile_main(tcrd.delta(0, 0)),
+                        self.btile_main(tcrd.delta(0, 1)),
+                        self.btile_main(tcrd.delta(0, 2)),
+                        self.btile_main(tcrd.delta(0, 3)),
+                        self.btile_main(tcrd.delta(3, 0)),
+                        self.btile_main(tcrd.delta(3, 1)),
+                        self.btile_main(tcrd.delta(3, 2)),
+                        self.btile_main(tcrd.delta(3, 3)),
+                    ]),
+                    tcls::DCM_S3E_NW | tcls::DCM_S3E_ES => EntityVec::from_iter([
+                        self.btile_main(tcrd.delta(0, 0)),
+                        self.btile_main(tcrd.delta(0, -3)),
+                        self.btile_main(tcrd.delta(0, -2)),
+                        self.btile_main(tcrd.delta(0, -1)),
+                        self.btile_main(tcrd.delta(-3, -3)),
+                        self.btile_main(tcrd.delta(-3, -2)),
+                        self.btile_main(tcrd.delta(-3, -1)),
+                        self.btile_main(tcrd.delta(-3, 0)),
+                    ]),
+                    tcls::DCM_S3E_NE | tcls::DCM_S3E_WS => EntityVec::from_iter([
+                        self.btile_main(tcrd.delta(0, 0)),
+                        self.btile_main(tcrd.delta(0, -3)),
+                        self.btile_main(tcrd.delta(0, -2)),
+                        self.btile_main(tcrd.delta(0, -1)),
+                        self.btile_main(tcrd.delta(3, -3)),
+                        self.btile_main(tcrd.delta(3, -2)),
+                        self.btile_main(tcrd.delta(3, -1)),
+                        self.btile_main(tcrd.delta(3, 0)),
+                    ]),
                     _ => unreachable!(),
                 }
             }
-        } else if !self.chip.kind.is_virtex2() && tile.class == defs::spartan3::tcls::RANDOR_FC {
+        } else if tile.class == tcls::RANDOR_FC {
             EntityVec::from_iter([self.btile_term_v(tcrd.cell)])
-        } else if tcrd.slot == defs::tslots::BEL
+        } else if tcrd.slot == tslots::BEL
             && (col == self.chip.col_w() || col == self.chip.col_e())
             && (row == self.chip.row_s() || row == self.chip.row_n())
         {
@@ -380,19 +357,19 @@ impl ExpandedDevice<'_> {
             } else {
                 EntityVec::from_iter([self.btile_term_h(tcrd.cell)])
             }
-        } else if tcrd.slot == defs::tslots::RANDOR {
+        } else if tcrd.slot == tslots::RANDOR {
             EntityVec::from_iter([self.btile_main(tcrd.cell)])
-        } else if self.chip.kind.is_virtex2() && tile.class == defs::virtex2::tcls::PPC_TERM_N {
+        } else if tile.class == tcls::PPC_TERM_N {
             EntityVec::from_iter([self.btile_main(tcrd.delta(0, 1))])
-        } else if self.chip.kind.is_virtex2() && tile.class == defs::virtex2::tcls::PPC_TERM_S {
+        } else if tile.class == tcls::PPC_TERM_S {
             EntityVec::from_iter([self.btile_main(tcrd.delta(0, -1))])
-        } else if tcls.bels.contains_id(defs::bslots::LLV) {
+        } else if !self.chip.kind.is_virtex2() && tcrd.slot == tslots::TERM_V {
             if self.chip.kind == ChipKind::Spartan3E {
                 EntityVec::from_iter([self.btile_llv_s(col), self.btile_llv_n(col)])
             } else {
                 EntityVec::from_iter([self.btile_llv(col)])
             }
-        } else if tcls.bels.contains_id(defs::bslots::LLH) {
+        } else if !self.chip.kind.is_virtex2() && tcrd.slot == tslots::TERM_H {
             EntityVec::from_iter([self.btile_spine(row)])
         } else {
             EntityVec::from_iter(self.tile_cells(tcrd).map(|(_, cell)| self.btile_main(cell)))

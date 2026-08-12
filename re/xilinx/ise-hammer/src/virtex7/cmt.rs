@@ -13,12 +13,10 @@ use prjcombine_types::{
     bitvec::BitVec,
 };
 use prjcombine_virtex4::defs::{
-    bcls::{
-        self, BUFHCE, IN_FIFO, OUT_FIFO, PHASER_IN, PHASER_OUT, PHASER_REF, PHY_CONTROL,
-        PLL_V6 as PLL,
-    },
+    bcls::{self, BUFHCE, IN_FIFO, OUT_FIFO, PHASER_IN, PHASER_OUT, PHASER_REF, PHY_CONTROL, PLL},
     bslots, enums,
-    virtex7::{tables::PLL_MULT, tcls, wires},
+    tables::PLL_MULT,
+    virtex7::{tcls, wires},
 };
 
 use crate::{
@@ -848,7 +846,7 @@ fn add_fuzzers_phaser<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'
     {
         let mut bctx = ctx.bel(bslots::PHY_CONTROL);
         let mode = "PHY_CONTROL";
-        for (aid, _aname, attr) in &backend.edev.db[PHY_CONTROL].attributes {
+        for (aid, attr) in &backend.edev.db[PHY_CONTROL].attributes {
             if aid == PHY_CONTROL::AO_WRLVL_EN {
                 bctx.mode(mode).test_bel_attr_multi(aid, MultiValue::Bin);
             } else {
@@ -1138,7 +1136,7 @@ fn add_fuzzers_pll<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
         bctx.mode(mode)
             .mutex("MODE", "TEST")
             .global_xy(use_calc, "NO")
-            .test_bel_attr_bits(PLL::V7_IN_DLY_SET)
+            .test_bel_attr_bits(PLL::IN_DLY_SET)
             .multi_attr("IN_DLY_SET", MultiValue::Dec(0), 6);
 
         if idx == 0 {
@@ -1680,7 +1678,7 @@ fn collect_fuzzers_phaser(ctx: &mut CollectorCtx) {
     }
     {
         let bslot = bslots::PHY_CONTROL;
-        for (aid, _aname, attr) in &ctx.edev.db[PHY_CONTROL].attributes {
+        for (aid, attr) in &ctx.edev.db[PHY_CONTROL].attributes {
             if attr.typ == BelAttributeType::Bool {
                 ctx.collect_bel_attr_bi(tcid, bslot, aid);
             } else {
@@ -1867,7 +1865,7 @@ fn collect_fuzzers_pll(ctx: &mut CollectorCtx) {
             PLL::LOCK_SAT_HIGH,
             PLL::RES,
             PLL::UNLOCK_CNT,
-            PLL::V7_IN_DLY_SET,
+            PLL::IN_DLY_SET,
         ] {
             ctx.collect_bel_attr(tcid, bslot, attr);
         }

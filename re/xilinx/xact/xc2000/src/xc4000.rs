@@ -4,7 +4,7 @@ use prjcombine_re_xilinx_xact_naming::{db::NamingDb, grid::ExpandedGridNaming};
 use prjcombine_xc2000::{
     chip::{Chip, ChipKind},
     expanded::ExpandedDevice,
-    xc4000::{bslots, xc4000::tcls},
+    xc4000::{bslots, tcls},
 };
 
 use crate::ExpandedNamedDevice;

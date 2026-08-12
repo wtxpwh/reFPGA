@@ -75,7 +75,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
             .commit();
     }
 
-    for (aid, aname, attr) in &backend.edev.db[bcls::PLL].attributes {
+    for (aid, attr) in &backend.edev.db[bcls::PLL].attributes {
         match aid {
             bcls::PLL::DRP
             | bcls::PLL::ENABLE
@@ -93,7 +93,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
                     .global_mutex("CMT", "CP_REPL")
                     .global_xy("PLLADV_*_USE_CALC", "YES")
                     .test_bel_attr_bits(aid)
-                    .multi_attr(aname, MultiValue::Dec(0), width);
+                    .multi_attr(attr.name.clone(), MultiValue::Dec(0), width);
             }
             bcls::PLL::PLL_EN_CNTRL
             | bcls::PLL::PLL_IN_DLY_MX_SEL
@@ -139,7 +139,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
                     .global_mutex("CMT", "TEST")
                     .global_xy("PLLADV_*_USE_CALC", "NO")
                     .test_bel_attr_bits(aid)
-                    .multi_attr(aname, MultiValue::Bin, width);
+                    .multi_attr(attr.name.clone(), MultiValue::Bin, width);
             }
 
             _ => match attr.typ {
@@ -154,7 +154,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
                         .global_mutex("CMT", "TEST")
                         .global_xy("PLLADV_*_USE_CALC", "NO")
                         .test_bel_attr_bits(aid)
-                        .multi_attr(aname, MultiValue::Dec(0), width);
+                        .multi_attr(attr.name.clone(), MultiValue::Dec(0), width);
                 }
                 _ => unreachable!(),
             },
@@ -207,7 +207,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
             .commit();
     }
 
-    for (row, rname, _) in &backend.edev.db.tables[tables::PLL_MULT].rows {
+    for (rid, row) in &backend.edev.db.tables[tables::PLL_MULT].rows {
         for (bandwidth, spec) in [
             ("LOW", specials::PLL_TABLES_LOW),
             ("HIGH", specials::PLL_TABLES_HIGH),
@@ -215,8 +215,8 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
             bctx.mode(mode)
                 .global_mutex("CMT", "CALC")
                 .global_xy("PLLADV_*_USE_CALC", "NO")
-                .test_bel_special_row(spec, row)
-                .attr_diff("CLKFBOUT_MULT", "0", rname.strip_prefix('_').unwrap())
+                .test_bel_special_row(spec, rid)
+                .attr_diff("CLKFBOUT_MULT", "0", row.name.strip_prefix('_').unwrap())
                 .attr_diff("BANDWIDTH", "LOW", bandwidth)
                 .commit();
         }
@@ -415,7 +415,7 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx, skip_dcm: bool) {
             .assert_empty();
     }
 
-    for (aid, _, attr) in &ctx.edev.db[bcls::PLL].attributes {
+    for (aid, attr) in &ctx.edev.db[bcls::PLL].attributes {
         match aid {
             bcls::PLL::DRP
             | bcls::PLL::ENABLE

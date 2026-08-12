@@ -6684,10 +6684,13 @@ intdb {
 		PULLDOWN,
 	}
 
+	enum IO_STD {
+		CMOS,
+		TTL,
+	}
+
 	enum IO_SLEW {
 		FAST,
-		MEDFAST,
-		MEDSLOW,
 		SLOW,
 	}
 
@@ -6697,16 +6700,16 @@ intdb {
 		IQL,
 	}
 
+	enum IO_SYNC_D {
+		I,
+		DELAY,
+	}
+
 	enum IO_IFF_D {
 		I,
 		DELAY,
 		MEDDELAY,
 		SYNC,
-	}
-
-	enum IO_SYNC_D {
-		I,
-		DELAY,
 	}
 
 	enum IO_MUX_O {
@@ -6731,16 +6734,6 @@ intdb {
 	enum IO_DRIVE {
 		_12,
 		_24,
-	}
-
-	enum IO_STD {
-		CMOS,
-		TTL,
-	}
-
-	enum HIO_OMODE {
-		CAP,
-		RES,
 	}
 
 	enum CONFIG_RATE {
@@ -6789,11 +6782,6 @@ intdb {
 		_22,
 	}
 
-	enum PUMP {
-		INTERNAL,
-		EXTERNAL,
-	}
-
 	bel_class CLB {
 		input F1;
 		input F2;
@@ -6833,7 +6821,6 @@ intdb {
 		attribute FFY_SR_ENABLE: bool;
 		attribute FFX_CLK_INV: bool;
 		attribute FFY_CLK_INV: bool;
-		attribute MUX_CIN: CLB_MUX_CIN;
 		attribute CARRY_ADDSUB: CLB_CARRY_ADDSUB;
 		attribute CARRY_FPROP: CLB_CARRY_PROP;
 		attribute CARRY_FGEN: CLB_CARRY_FGEN;
@@ -6893,21 +6880,6 @@ intdb {
 		attribute IFF_CE_ENABLE_NO_IQ: bool;
 		attribute MUX_T: IO_MUX_T;
 		attribute DRIVE: IO_DRIVE;
-		attribute _5V_TOLERANT: bool;
-	}
-
-	bel_class HIO {
-		input O;
-		input T;
-		output I;
-		output CLKIN;
-		pad PAD: inout
-		attribute PULL: IO_PULL;
-		attribute ISTD: IO_STD;
-		attribute OSTD: IO_STD;
-		attribute OMODE: HIO_OMODE;
-		attribute I_INV: bool;
-		attribute READBACK_I: bitvec[1];
 	}
 
 	bel_class DEC {
@@ -6994,7 +6966,6 @@ intdb {
 		attribute BSCAN_STATUS: bool;
 		attribute T_ENABLE: bool;
 		attribute O_ENABLE: bool;
-		attribute _5V_TOLERANT: bool;
 	}
 
 	bel_class MD1 {
@@ -7004,14 +6975,12 @@ intdb {
 		attribute PULL: IO_PULL;
 		attribute T_ENABLE: bool;
 		attribute O_ENABLE: bool;
-		attribute _5V_TOLERANT: bool;
 	}
 
 	bel_class IBUF {
 		output I;
 		pad PAD: input
 		attribute PULL: IO_PULL;
-		attribute _5V_TOLERANT: bool;
 	}
 
 	bel_class RDBK {
@@ -7058,8 +7027,6 @@ intdb {
 		attribute TM_OSC: bool;
 		attribute OSC_CLK: OSC_CLK;
 		attribute FIX_DISCHARGE: bool;
-		attribute PROG_5V_TOLERANT: bool;
-		attribute DONE_5V_TOLERANT: bool;
 	}
 
 	bel_class MISC_NW {
@@ -7075,12 +7042,7 @@ intdb {
 		attribute TM_RIGHT: bool;
 		attribute TAC: bool;
 		attribute READCLK: RDBK_MUX_CLK;
-		attribute CCLK_5V_TOLERANT: bool;
 		attribute ADDRESS_LINES: ADDRESS_LINES;
-	}
-
-	bel_class MISC_W {
-		attribute PUMP: PUMP;
 	}
 
 	bel_class MISC_E {
@@ -7090,8 +7052,8 @@ intdb {
 	region_slot GLOBAL;
 	region_slot LONG_H;
 	region_slot LONG_H_TBUF;
-	region_slot DEC_H;
 	region_slot LONG_V;
+	region_slot DEC_H;
 	region_slot DEC_V;
 	region_slot GCLK;
 	region_slot BUFGE_V;
@@ -7383,14 +7345,6 @@ intdb {
 	wire IMUX_IO_IK[1]: mux;
 	wire IMUX_IO_T[0]: mux;
 	wire IMUX_IO_T[1]: mux;
-	wire IMUX_HIO_O[0]: mux;
-	wire IMUX_HIO_O[1]: mux;
-	wire IMUX_HIO_O[2]: mux;
-	wire IMUX_HIO_O[3]: mux;
-	wire IMUX_HIO_T[0]: mux;
-	wire IMUX_HIO_T[1]: mux;
-	wire IMUX_HIO_T[2]: mux;
-	wire IMUX_HIO_T[3]: mux;
 	wire IMUX_CIN: mux;
 	wire IMUX_STARTUP_CLK: mux;
 	wire IMUX_STARTUP_GSR: mux;
@@ -7431,10 +7385,6 @@ intdb {
 	wire OUT_IO_WE_I2[1]: bel;
 	wire OUT_IO_WE_I1_S1: branch N;
 	wire OUT_IO_WE_I2_S1: branch N;
-	wire OUT_HIO_I[0]: bel;
-	wire OUT_HIO_I[1]: bel;
-	wire OUT_HIO_I[2]: bel;
-	wire OUT_HIO_I[3]: bel;
 	wire OUT_IO_CLKIN: bel;
 	wire OUT_IO_CLKIN_W: branch E;
 	wire OUT_IO_CLKIN_E: branch W;
@@ -7461,10 +7411,6 @@ intdb {
 		bel_slot TBUF[1]: TBUF;
 		bel_slot IO[0]: IO;
 		bel_slot IO[1]: IO;
-		bel_slot HIO[0]: HIO;
-		bel_slot HIO[1]: HIO;
-		bel_slot HIO[2]: HIO;
-		bel_slot HIO[3]: HIO;
 		bel_slot DEC[0]: DEC;
 		bel_slot DEC[1]: DEC;
 		bel_slot DEC[2]: DEC;
@@ -7472,7 +7418,6 @@ intdb {
 		bel_slot PULLUP_TBUF[1]: PULLUP;
 		bel_slot CIN: CIN;
 		bel_slot COUT: COUT;
-		bel_slot MISC_W: MISC_W;
 		bel_slot PULLUP_DEC_H[0]: PULLUP;
 		bel_slot PULLUP_DEC_H[1]: PULLUP;
 		bel_slot PULLUP_DEC_H[2]: PULLUP;
@@ -36483,12 +36428,12 @@ intdb {
 
 	tile_slot LLH {
 		bel_slot LLH: routing;
+		bel_slot TBUF_SPLITTER[0]: TBUF_SPLITTER;
+		bel_slot TBUF_SPLITTER[1]: TBUF_SPLITTER;
 		bel_slot PULLUP_TBUF_W[0]: PULLUP;
 		bel_slot PULLUP_TBUF_W[1]: PULLUP;
 		bel_slot PULLUP_TBUF_E[0]: PULLUP;
 		bel_slot PULLUP_TBUF_E[1]: PULLUP;
-		bel_slot TBUF_SPLITTER[0]: TBUF_SPLITTER;
-		bel_slot TBUF_SPLITTER[1]: TBUF_SPLITTER;
 		bel_slot PULLUP_DEC_W[0]: PULLUP;
 		bel_slot PULLUP_DEC_W[1]: PULLUP;
 		bel_slot PULLUP_DEC_W[2]: PULLUP;
@@ -36515,6 +36460,22 @@ intdb {
 				progbuf E.LONG_H[5] = W.LONG_H[5] @!LLH[0][2];
 			}
 
+			bel TBUF_SPLITTER[0] {
+				bidir W = W.LONG_H[2];
+				bidir E = E.LONG_H[2];
+				attribute BUF_W @!LLH_S[1][9];
+				attribute BUF_E @!LLH_S[1][8];
+				attribute PASS @!LLH_S[1][6];
+			}
+
+			bel TBUF_SPLITTER[1] {
+				bidir W = W.LONG_H[3];
+				bidir E = E.LONG_H[3];
+				attribute BUF_W @!LLH[0][11];
+				attribute BUF_E @!LLH[0][10];
+				attribute PASS @!LLH[1][5];
+			}
+
 			bel PULLUP_TBUF_W[0] {
 				bidir O = W.LONG_H[2];
 				attribute ENABLE @!LLH_S[1][4];
@@ -36535,26 +36496,10 @@ intdb {
 				attribute ENABLE @!LLH[1][7];
 			}
 
-			bel TBUF_SPLITTER[0] {
-				bidir W = W.LONG_H[2];
-				bidir E = E.LONG_H[2];
-				attribute BUF_W @!LLH_S[1][9];
-				attribute BUF_E @!LLH_S[1][8];
-				attribute PASS @!LLH_S[1][6];
-			}
-
-			bel TBUF_SPLITTER[1] {
-				bidir W = W.LONG_H[3];
-				bidir E = E.LONG_H[3];
-				attribute BUF_W @!LLH[0][11];
-				attribute BUF_E @!LLH[0][10];
-				attribute PASS @!LLH[1][5];
-			}
-
-			// wire W.LONG_H[2]                    PULLUP_TBUF_W[0].O TBUF_SPLITTER[0].W
-			// wire W.LONG_H[3]                    PULLUP_TBUF_W[1].O TBUF_SPLITTER[1].W
-			// wire E.LONG_H[2]                    PULLUP_TBUF_E[0].O TBUF_SPLITTER[0].E
-			// wire E.LONG_H[3]                    PULLUP_TBUF_E[1].O TBUF_SPLITTER[1].E
+			// wire W.LONG_H[2]                    TBUF_SPLITTER[0].W PULLUP_TBUF_W[0].O
+			// wire W.LONG_H[3]                    TBUF_SPLITTER[1].W PULLUP_TBUF_W[1].O
+			// wire E.LONG_H[2]                    TBUF_SPLITTER[0].E PULLUP_TBUF_E[0].O
+			// wire E.LONG_H[3]                    TBUF_SPLITTER[1].E PULLUP_TBUF_E[1].O
 		}
 
 		tile_class LLHC_CLB_S {
@@ -36573,6 +36518,22 @@ intdb {
 				progbuf E.LONG_H[1] = W.LONG_H[1] @!LLH_S[1][14];
 				progbuf E.LONG_H[4] = W.LONG_H[4] @!LLH[0][0];
 				progbuf E.LONG_H[5] = W.LONG_H[5] @!LLH[0][2];
+			}
+
+			bel TBUF_SPLITTER[0] {
+				bidir W = W.LONG_H[2];
+				bidir E = E.LONG_H[2];
+				attribute BUF_W @!LLH_S[0][11];
+				attribute BUF_E @!LLH_S[1][11];
+				attribute PASS @!LLH_S[0][14];
+			}
+
+			bel TBUF_SPLITTER[1] {
+				bidir W = W.LONG_H[3];
+				bidir E = E.LONG_H[3];
+				attribute BUF_W @!LLH[0][11];
+				attribute BUF_E @!LLH[0][10];
+				attribute PASS @!LLH[1][5];
 			}
 
 			bel PULLUP_TBUF_W[0] {
@@ -36595,26 +36556,10 @@ intdb {
 				attribute ENABLE @!LLH[1][7];
 			}
 
-			bel TBUF_SPLITTER[0] {
-				bidir W = W.LONG_H[2];
-				bidir E = E.LONG_H[2];
-				attribute BUF_W @!LLH_S[0][11];
-				attribute BUF_E @!LLH_S[1][11];
-				attribute PASS @!LLH_S[0][14];
-			}
-
-			bel TBUF_SPLITTER[1] {
-				bidir W = W.LONG_H[3];
-				bidir E = E.LONG_H[3];
-				attribute BUF_W @!LLH[0][11];
-				attribute BUF_E @!LLH[0][10];
-				attribute PASS @!LLH[1][5];
-			}
-
-			// wire W.LONG_H[2]                    PULLUP_TBUF_W[0].O TBUF_SPLITTER[0].W
-			// wire W.LONG_H[3]                    PULLUP_TBUF_W[1].O TBUF_SPLITTER[1].W
-			// wire E.LONG_H[2]                    PULLUP_TBUF_E[0].O TBUF_SPLITTER[0].E
-			// wire E.LONG_H[3]                    PULLUP_TBUF_E[1].O TBUF_SPLITTER[1].E
+			// wire W.LONG_H[2]                    TBUF_SPLITTER[0].W PULLUP_TBUF_W[0].O
+			// wire W.LONG_H[3]                    TBUF_SPLITTER[1].W PULLUP_TBUF_W[1].O
+			// wire E.LONG_H[2]                    TBUF_SPLITTER[0].E PULLUP_TBUF_E[0].O
+			// wire E.LONG_H[3]                    TBUF_SPLITTER[1].E PULLUP_TBUF_E[1].O
 		}
 
 		tile_class LLHC_IO_S {
@@ -36954,6 +36899,7 @@ intdb {
 
 	tile_slot LLV {
 		bel_slot LLV: routing;
+		bel_slot MISC_E: MISC_E;
 		bel_slot BUFF: BUFF;
 		bel_slot PULLUP_DEC_S[0]: PULLUP;
 		bel_slot PULLUP_DEC_S[1]: PULLUP;
@@ -36963,7 +36909,6 @@ intdb {
 		bel_slot PULLUP_DEC_N[1]: PULLUP;
 		bel_slot PULLUP_DEC_N[2]: PULLUP;
 		bel_slot PULLUP_DEC_N[3]: PULLUP;
-		bel_slot MISC_E: MISC_E;
 
 		tile_class LLVC_CLB {
 			cell S;
@@ -37161,6 +37106,10 @@ intdb {
 				bipass S.DEC_V[3] = N.DEC_V[3] @!LLV[35][1];
 			}
 
+			bel MISC_E {
+				attribute TLC @!LLV[2][0];
+			}
+
 			bel PULLUP_DEC_S[0] {
 				bidir O = S.DEC_V[0];
 				attribute ENABLE @!LLV[4][1];
@@ -37199,10 +37148,6 @@ intdb {
 			bel PULLUP_DEC_N[3] {
 				bidir O = N.DEC_V[3];
 				attribute ENABLE @!LLV[31][1];
-			}
-
-			bel MISC_E {
-				attribute TLC @!LLV[2][0];
 			}
 
 			// wire S.DEC_V[0]                     PULLUP_DEC_S[0].O
@@ -37932,7 +37877,6 @@ intdb {
 	}
 
 	tile_slot CLKQ {
-		bel_slot CLKQC: routing;
 		bel_slot CLKQ: routing;
 
 		tile_class CLKQ {

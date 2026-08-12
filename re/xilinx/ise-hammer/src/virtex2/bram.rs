@@ -137,7 +137,9 @@ pub fn add_fuzzers<'a>(
                     .attr("SRVAL_A", "0")
                     .attr("SRVAL_B", "0")
                     .test_bel_attr_auto(attr);
-                let aname = backend.edev.db.bel_classes[bcls::BRAM].attributes.key(attr);
+                let aname = backend.edev.db.bel_classes[bcls::BRAM].attributes[attr]
+                    .name
+                    .clone();
                 bctx.mode(mode)
                     .null_bits()
                     .attr("INIT_A", "0")

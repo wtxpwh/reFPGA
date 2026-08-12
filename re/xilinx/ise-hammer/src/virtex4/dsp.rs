@@ -9,36 +9,36 @@ use crate::{
 
 fn dsp48_invpins_bel() -> Vec<BelInputId> {
     vec![
-        bcls::DSP_V4::CARRYINSEL[0],
-        bcls::DSP_V4::CARRYINSEL[1],
-        bcls::DSP_V4::CARRYIN,
-        bcls::DSP_V4::SUBTRACT,
-        bcls::DSP_V4::OPMODE[0],
-        bcls::DSP_V4::OPMODE[1],
-        bcls::DSP_V4::OPMODE[2],
-        bcls::DSP_V4::OPMODE[3],
-        bcls::DSP_V4::OPMODE[4],
-        bcls::DSP_V4::OPMODE[5],
-        bcls::DSP_V4::OPMODE[6],
+        bcls::DSP::CARRYINSEL[0],
+        bcls::DSP::CARRYINSEL[1],
+        bcls::DSP::CARRYIN,
+        bcls::DSP::SUBTRACT,
+        bcls::DSP::OPMODE[0],
+        bcls::DSP::OPMODE[1],
+        bcls::DSP::OPMODE[2],
+        bcls::DSP::OPMODE[3],
+        bcls::DSP::OPMODE[4],
+        bcls::DSP::OPMODE[5],
+        bcls::DSP::OPMODE[6],
     ]
 }
 
 fn dsp48_invpins_int() -> Vec<BelInputId> {
     vec![
-        bcls::DSP_V4::CLK,
-        bcls::DSP_V4::CEA,
-        bcls::DSP_V4::CEB,
-        bcls::DSP_V4::CEM,
-        bcls::DSP_V4::CEP,
-        bcls::DSP_V4::CECTRL,
-        bcls::DSP_V4::CECARRYIN,
-        bcls::DSP_V4::CECINSUB,
-        bcls::DSP_V4::RSTA,
-        bcls::DSP_V4::RSTB,
-        bcls::DSP_V4::RSTM,
-        bcls::DSP_V4::RSTP,
-        bcls::DSP_V4::RSTCTRL,
-        bcls::DSP_V4::RSTCARRYIN,
+        bcls::DSP::CLK,
+        bcls::DSP::CEA,
+        bcls::DSP::CEB,
+        bcls::DSP::CEM,
+        bcls::DSP::CEP,
+        bcls::DSP::CECTRL,
+        bcls::DSP::CECARRYIN,
+        bcls::DSP::CECINSUB,
+        bcls::DSP::RSTA,
+        bcls::DSP::RSTB,
+        bcls::DSP::RSTM,
+        bcls::DSP::RSTP,
+        bcls::DSP::RSTCTRL,
+        bcls::DSP::RSTCARRYIN,
     ]
 }
 
@@ -60,20 +60,20 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
         for pin in dsp48_invpins() {
             bctx.mode(mode).test_bel_input_inv_auto(pin);
         }
-        for attr in [bcls::DSP_V4::AREG, bcls::DSP_V4::BREG] {
+        for attr in [bcls::DSP::AREG, bcls::DSP::BREG] {
             bctx.mode(mode).test_bel_attr_auto(attr);
         }
         for attr in [
-            bcls::DSP_V4::MREG,
-            bcls::DSP_V4::PREG,
-            bcls::DSP_V4::OPMODEREG,
-            bcls::DSP_V4::CARRYINREG,
-            bcls::DSP_V4::CARRYINSELREG,
-            bcls::DSP_V4::SUBTRACTREG,
+            bcls::DSP::MREG,
+            bcls::DSP::PREG,
+            bcls::DSP::OPMODEREG,
+            bcls::DSP::CARRYINREG,
+            bcls::DSP::CARRYINSELREG,
+            bcls::DSP::SUBTRACTREG,
         ] {
             bctx.mode(mode).test_bel_attr_bool_auto(attr, "0", "1");
         }
-        bctx.mode(mode).test_bel_attr_auto(bcls::DSP_V4::B_INPUT);
+        bctx.mode(mode).test_bel_attr_auto(bcls::DSP::B_INPUT);
         for (spec, vname) in [(specials::DSP_CREG_0, "0"), (specials::DSP_CREG_1, "1")] {
             bctx.build()
                 .mode(mode)
@@ -126,24 +126,24 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
             ctx.collect_bel_input_inv_bi(tcid, bslot, pin);
         }
         let mut present = ctx.get_diff_bel_special(tcid, bslot, specials::PRESENT);
-        for attr in [bcls::DSP_V4::AREG, bcls::DSP_V4::BREG] {
+        for attr in [bcls::DSP::AREG, bcls::DSP::BREG] {
             ctx.collect_bel_attr(tcid, bslot, attr);
             present.discard_bits(&ctx.bel_attr_enum(tcid, bslot, attr).bits);
         }
         for attr in [
-            bcls::DSP_V4::MREG,
-            bcls::DSP_V4::PREG,
-            bcls::DSP_V4::OPMODEREG,
-            bcls::DSP_V4::CARRYINREG,
-            bcls::DSP_V4::CARRYINSELREG,
-            bcls::DSP_V4::SUBTRACTREG,
+            bcls::DSP::MREG,
+            bcls::DSP::PREG,
+            bcls::DSP::OPMODEREG,
+            bcls::DSP::CARRYINREG,
+            bcls::DSP::CARRYINSELREG,
+            bcls::DSP::SUBTRACTREG,
         ] {
             ctx.collect_bel_attr_bi(tcid, bslot, attr);
             present.discard_polbits(&[ctx.bel_attr_bit(tcid, bslot, attr)]);
         }
-        ctx.collect_bel_attr(tcid, bslot, bcls::DSP_V4::B_INPUT);
+        ctx.collect_bel_attr(tcid, bslot, bcls::DSP::B_INPUT);
         present.discard_polbits(&[ctx.bel_attr_bit(tcid, bslots::DSP_C, bcls::DSP_C::CREG)]);
         present.discard_polbits(&[ctx.bel_attr_bit(tcid, bslots::DSP_C, bcls::DSP_C::MUX_CLK)]);
-        ctx.insert_bel_attr_bool(tcid, bslot, bcls::DSP_V4::UNK_ENABLE, xlat_bit(present));
+        ctx.insert_bel_attr_bool(tcid, bslot, bcls::DSP::UNK_ENABLE, xlat_bit(present));
     }
 }

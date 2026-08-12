@@ -1,7 +1,7 @@
 use prjcombine_interconnect::dir::DirHV;
 use prjcombine_re_collector::diff::{Diff, xlat_bit, xlat_enum_attr};
 use prjcombine_re_hammer::Session;
-use prjcombine_xc2000::xc4000::{bslots, enums, xc4000::bcls, xc4000::tcls};
+use prjcombine_xc2000::xc4000::{bcls, bslots, enums, tcls};
 
 use crate::{
     backend::{Key, XactBackend},

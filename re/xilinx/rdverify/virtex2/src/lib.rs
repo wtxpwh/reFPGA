@@ -207,18 +207,10 @@ fn verify_bel(endev: &ExpandedNamedDevice<'_>, vrf: &mut Verifier, bcrd: BelCoor
             let name = endev.ngrid.get_bel_name(bcrd).unwrap();
             vrf.claim_site_dummy(crd, name);
         }
-        bslots::TERM_W
-        | bslots::TERM_E
-        | bslots::TERM_S
-        | bslots::TERM_N
+        bslots::TERM_H
+        | bslots::TERM_V
         | bslots::CLK_INT
         | bslots::DCM_INT
-        | bslots::PPC_TERM_W
-        | bslots::PPC_TERM_E
-        | bslots::PPC_TERM_S
-        | bslots::PPC_TERM_N
-        | bslots::LLH
-        | bslots::LLV
         | bslots::PTE2OMUX
         | bslots::INTF_TESTMUX
         | bslots::DSP_TESTMUX

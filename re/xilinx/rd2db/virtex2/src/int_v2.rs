@@ -1168,7 +1168,7 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
     ] {
         builder.extract_term_id(
             ccls::TERM_W,
-            Some((tcls::TERM_W, bslots::TERM_W)),
+            Some((tcls::TERM_W, bslots::TERM_H)),
             Dir::W,
             tkn,
             n,
@@ -1185,7 +1185,7 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
     ] {
         builder.extract_term_id(
             ccls::TERM_E,
-            Some((tcls::TERM_E, bslots::TERM_E)),
+            Some((tcls::TERM_E, bslots::TERM_H)),
             Dir::E,
             tkn,
             n,
@@ -1211,7 +1211,7 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
     ] {
         builder.extract_term_id(
             ccls::TERM_S,
-            Some((tcls::TERM_S, bslots::TERM_S)),
+            Some((tcls::TERM_S, bslots::TERM_V)),
             Dir::S,
             tkn,
             "TERM_S",
@@ -1219,14 +1219,14 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
     }
     builder.extract_term_id(
         ccls::TERM_S,
-        Some((tcls::TERM_S, bslots::TERM_S)),
+        Some((tcls::TERM_S, bslots::TERM_V)),
         Dir::S,
         "CNR_BTERM",
         "TERM_S_CNR",
     );
     builder.extract_term_id(
         ccls::TERM_S,
-        Some((tcls::TERM_S, bslots::TERM_S)),
+        Some((tcls::TERM_S, bslots::TERM_V)),
         Dir::S,
         "ML_CNR_BTERM",
         "TERM_S_CNR",
@@ -1251,7 +1251,7 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
     ] {
         builder.extract_term_id(
             ccls::TERM_N,
-            Some((tcls::TERM_N, bslots::TERM_N)),
+            Some((tcls::TERM_N, bslots::TERM_V)),
             Dir::N,
             tkn,
             "TERM_N",
@@ -1259,7 +1259,7 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
     }
     builder.extract_term_id(
         ccls::TERM_N,
-        Some((tcls::TERM_N, bslots::TERM_N)),
+        Some((tcls::TERM_N, bslots::TERM_V)),
         Dir::N,
         "CNR_TTERM",
         "TERM_N_CNR",
@@ -1276,7 +1276,7 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
             Some(xy_t),
             Some(xy_b),
             Some("PPC_S"),
-            Some((tcls::PPC_TERM_S, bslots::PPC_TERM_S, "PPC_TERM_S")),
+            Some((tcls::PPC_TERM_S, bslots::TERM_V, "PPC_TERM_S")),
             None,
             int_s_xy,
             &[],
@@ -1288,7 +1288,7 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
             Some(xy_b),
             Some(xy_t),
             Some("PPC_N"),
-            Some((tcls::PPC_TERM_N, bslots::PPC_TERM_N, "PPC_TERM_N")),
+            Some((tcls::PPC_TERM_N, bslots::TERM_V, "PPC_TERM_N")),
             None,
             int_n_xy,
             &[],
@@ -1305,7 +1305,7 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
                 Some(xy_r),
                 Some(int_w_xy),
                 Some("PPC_W"),
-                Some((tcls::PPC_TERM_W, bslots::PPC_TERM_W, "PPC_TERM_W")),
+                Some((tcls::PPC_TERM_W, bslots::TERM_H, "PPC_TERM_W")),
                 None,
                 int_w_xy,
                 &[],
@@ -1317,7 +1317,7 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
                 Some(int_w_xy),
                 Some(xy_r),
                 Some("PPC_E"),
-                Some((tcls::PPC_TERM_E, bslots::PPC_TERM_E, "PPC_TERM_E")),
+                Some((tcls::PPC_TERM_E, bslots::TERM_H, "PPC_TERM_E")),
                 None,
                 int_e_xy,
                 &[],
@@ -1388,30 +1388,30 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
             let xy_l = xy.delta(-1, 0);
             let xy_r = xy.delta(1, 0);
             let mut bels = vec![
-                builder.bel_indexed(defs::bslots::BUFGMUX[0], "BUFGMUX", 0),
-                builder.bel_indexed(defs::bslots::BUFGMUX[1], "BUFGMUX", 1),
-                builder.bel_indexed(defs::bslots::BUFGMUX[2], "BUFGMUX", 2),
-                builder.bel_indexed(defs::bslots::BUFGMUX[3], "BUFGMUX", 3),
-                builder.bel_indexed(defs::bslots::BUFGMUX[4], "BUFGMUX", 4),
-                builder.bel_indexed(defs::bslots::BUFGMUX[5], "BUFGMUX", 5),
-                builder.bel_indexed(defs::bslots::BUFGMUX[6], "BUFGMUX", 6),
-                builder.bel_indexed(defs::bslots::BUFGMUX[7], "BUFGMUX", 7),
+                builder.bel_indexed(bslots::BUFGMUX[0], "BUFGMUX", 0),
+                builder.bel_indexed(bslots::BUFGMUX[1], "BUFGMUX", 1),
+                builder.bel_indexed(bslots::BUFGMUX[2], "BUFGMUX", 2),
+                builder.bel_indexed(bslots::BUFGMUX[3], "BUFGMUX", 3),
+                builder.bel_indexed(bslots::BUFGMUX[4], "BUFGMUX", 4),
+                builder.bel_indexed(bslots::BUFGMUX[5], "BUFGMUX", 5),
+                builder.bel_indexed(bslots::BUFGMUX[6], "BUFGMUX", 6),
+                builder.bel_indexed(bslots::BUFGMUX[7], "BUFGMUX", 7),
             ];
             if tkn == "ML_CLKB" {
                 bels.extend([
                     builder
-                        .bel_virtual(defs::bslots::GLOBALSIG_BUFG[0])
+                        .bel_virtual(bslots::GLOBALSIG_BUFG[0])
                         .extra_wire("BREFCLK_I", &["ML_CLKB_CKIL2"])
                         .extra_wire("BREFCLK_O", &["ML_CLKB_BREFCLK"]),
                     builder
-                        .bel_virtual(defs::bslots::GLOBALSIG_BUFG[1])
+                        .bel_virtual(bslots::GLOBALSIG_BUFG[1])
                         .extra_wire("BREFCLK_I", &["ML_CLKB_CKIR0"])
                         .extra_wire("BREFCLK_O", &["ML_CLKB_BREFCLK2"]),
                 ]);
             } else {
                 bels.extend([
-                    builder.bel_virtual(defs::bslots::GLOBALSIG_BUFG[0]),
-                    builder.bel_virtual(defs::bslots::GLOBALSIG_BUFG[1]),
+                    builder.bel_virtual(bslots::GLOBALSIG_BUFG[0]),
+                    builder.bel_virtual(bslots::GLOBALSIG_BUFG[1]),
                 ]);
             }
             builder
@@ -1433,30 +1433,30 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
             let xy_l = xy.delta(-1, 0);
             let xy_r = xy.delta(1, 0);
             let mut bels = vec![
-                builder.bel_indexed(defs::bslots::BUFGMUX[0], "BUFGMUX", 0),
-                builder.bel_indexed(defs::bslots::BUFGMUX[1], "BUFGMUX", 1),
-                builder.bel_indexed(defs::bslots::BUFGMUX[2], "BUFGMUX", 2),
-                builder.bel_indexed(defs::bslots::BUFGMUX[3], "BUFGMUX", 3),
-                builder.bel_indexed(defs::bslots::BUFGMUX[4], "BUFGMUX", 4),
-                builder.bel_indexed(defs::bslots::BUFGMUX[5], "BUFGMUX", 5),
-                builder.bel_indexed(defs::bslots::BUFGMUX[6], "BUFGMUX", 6),
-                builder.bel_indexed(defs::bslots::BUFGMUX[7], "BUFGMUX", 7),
+                builder.bel_indexed(bslots::BUFGMUX[0], "BUFGMUX", 0),
+                builder.bel_indexed(bslots::BUFGMUX[1], "BUFGMUX", 1),
+                builder.bel_indexed(bslots::BUFGMUX[2], "BUFGMUX", 2),
+                builder.bel_indexed(bslots::BUFGMUX[3], "BUFGMUX", 3),
+                builder.bel_indexed(bslots::BUFGMUX[4], "BUFGMUX", 4),
+                builder.bel_indexed(bslots::BUFGMUX[5], "BUFGMUX", 5),
+                builder.bel_indexed(bslots::BUFGMUX[6], "BUFGMUX", 6),
+                builder.bel_indexed(bslots::BUFGMUX[7], "BUFGMUX", 7),
             ];
             if tkn == "ML_CLKT" {
                 bels.extend([
                     builder
-                        .bel_virtual(defs::bslots::GLOBALSIG_BUFG[0])
+                        .bel_virtual(bslots::GLOBALSIG_BUFG[0])
                         .extra_wire("BREFCLK_I", &["ML_CLKT_CKIL0"])
                         .extra_wire("BREFCLK_O", &["ML_CLKT_BREFCLK"]),
                     builder
-                        .bel_virtual(defs::bslots::GLOBALSIG_BUFG[1])
+                        .bel_virtual(bslots::GLOBALSIG_BUFG[1])
                         .extra_wire("BREFCLK_I", &["ML_CLKT_CKIR2"])
                         .extra_wire("BREFCLK_O", &["ML_CLKT_BREFCLK2"]),
                 ]);
             } else {
                 bels.extend([
-                    builder.bel_virtual(defs::bslots::GLOBALSIG_BUFG[0]),
-                    builder.bel_virtual(defs::bslots::GLOBALSIG_BUFG[1]),
+                    builder.bel_virtual(bslots::GLOBALSIG_BUFG[0]),
+                    builder.bel_virtual(bslots::GLOBALSIG_BUFG[1]),
                 ]);
             }
             builder

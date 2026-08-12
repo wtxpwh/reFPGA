@@ -15,7 +15,7 @@ pub trait EntityKey {
 }
 
 impl EntityKey for String {
-    type KeyType = str;
+    type KeyType = String;
     fn key(&self) -> &Self::KeyType {
         self
     }

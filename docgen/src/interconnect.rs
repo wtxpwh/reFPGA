@@ -510,7 +510,7 @@ impl<'a, 'b, 'c> TileClassGen<'a, 'b, 'c> {
                     dbname = self.dbname,
                     tname = self.tname,
                     bname = self.intdb.bel_slots[bslot].name,
-                    attr = bcls.attributes.key(aid),
+                    attr = bcls.attributes[aid].name,
                 )
             }
             BitInfo::BelAttrBitVec(bslot, aid, idx, _) => {
@@ -523,7 +523,7 @@ impl<'a, 'b, 'c> TileClassGen<'a, 'b, 'c> {
                     dbname = self.dbname,
                     tname = self.tname,
                     bname = self.intdb.bel_slots[bslot].name,
-                    attr = bcls.attributes.key(aid),
+                    attr = bcls.attributes[aid].name,
                 )
             }
             BitInfo::BelAttrBitVecArray(bslot, aid, row, idx, _) => {
@@ -536,7 +536,7 @@ impl<'a, 'b, 'c> TileClassGen<'a, 'b, 'c> {
                     dbname = self.dbname,
                     tname = self.tname,
                     bname = self.intdb.bel_slots[bslot].name,
-                    attr = bcls.attributes.key(aid),
+                    attr = bcls.attributes[aid].name,
                 )
             }
         }
@@ -1255,7 +1255,8 @@ fn gen_bels(tcgen: &mut TileClassGen, buf: &mut String, bcid: BelClassId, bslots
 
         let mut eattrs: IndexMap<_, Vec<_>> = IndexMap::new();
 
-        for (aid, aname, attr) in &bcls.attributes {
+        for (aid, attr) in &bcls.attributes {
+            let aname = &attr.name;
             if !bels.iter().any(|bel| bel.attributes.contains_id(aid)) {
                 continue;
             }
@@ -1390,7 +1391,7 @@ fn gen_bels(tcgen: &mut TileClassGen, buf: &mut String, bcid: BelClassId, bslots
                     buf,
                     r#"<tr id="{dbname}-{tname}-{bname}-{aname}"><th>{bname}.{aname}</th>"#,
                     bname = intdb.bel_slots[bslot].name,
-                    aname = bcls.attributes.key(aid),
+                    aname = bcls.attributes[aid].name,
                 )
                 .unwrap();
                 for (bidx, &bit) in attr.bits.iter().enumerate().rev() {
@@ -1603,7 +1604,7 @@ fn gen_bits(tcgen: &mut TileClassGen, buf: &mut String) {
                                 "{bname}: {inv} {attr}",
                                 bname = intdb.bel_slots[bslot].name,
                                 inv = if inv { "!" } else { "" },
-                                attr = bcls.attributes.key(aid),
+                                attr = bcls.attributes[aid].name,
                             )
                         }
                         BitInfo::BelAttrBitVec(bslot, aid, idx, inv) => {
@@ -1615,7 +1616,7 @@ fn gen_bits(tcgen: &mut TileClassGen, buf: &mut String) {
                                 "{bname}: {inv} {attr} bit {idx}",
                                 bname = intdb.bel_slots[bslot].name,
                                 inv = if inv { "!" } else { "" },
-                                attr = bcls.attributes.key(aid),
+                                attr = bcls.attributes[aid].name,
                             )
                         }
                         BitInfo::BelAttrBitVecArray(bslot, aid, row, idx, inv) => {
@@ -1627,7 +1628,7 @@ fn gen_bits(tcgen: &mut TileClassGen, buf: &mut String) {
                                 "{bname}: {inv} {attr}[{row}] bit {idx}",
                                 bname = intdb.bel_slots[bslot].name,
                                 inv = if inv { "!" } else { "" },
-                                attr = bcls.attributes.key(aid),
+                                attr = bcls.attributes[aid].name,
                             )
                         }
                     };
@@ -1872,7 +1873,8 @@ fn gen_table(ctx: &mut DocgenContext, dbname: &str, intdb: &IntDb, tid: TableId)
     writeln!(buf, r#"<caption>{dbname} table {tname}</caption>"#).unwrap();
     writeln!(buf, r#"<thead>"#).unwrap();
     writeln!(buf, r#"<tr><th>Row</th>"#).unwrap();
-    for fname in table.fields.keys() {
+    for field in table.fields.values() {
+        let fname = &field.name;
         writeln!(buf, r#"<th>{fname}</th>"#).unwrap();
     }
     writeln!(buf, r#"</tr>"#).unwrap();
@@ -1880,17 +1882,18 @@ fn gen_table(ctx: &mut DocgenContext, dbname: &str, intdb: &IntDb, tid: TableId)
     writeln!(buf, r#"<tbody>"#).unwrap();
 
     let mut anything = false;
-    for (_, rname, row) in &table.rows {
+    for row in table.rows.values() {
+        let rname = &row.name;
         writeln!(buf, r#"<tr><td>{rname}</td>"#).unwrap();
-        for (fid, _, &typ) in &table.fields {
-            if let Some(value) = row.get(fid) {
+        for (fid, field) in &table.fields {
+            if let Some(value) = row.fields.get(fid) {
                 anything = true;
                 match value {
                     TableValue::BitVec(bv) => {
                         writeln!(buf, r#"<td>0b{bv}</td>"#).unwrap();
                     }
                     TableValue::Enum(vid) => {
-                        let BelAttributeType::Enum(ecid) = typ else {
+                        let BelAttributeType::Enum(ecid) = field.typ else {
                             unreachable!()
                         };
                         writeln!(

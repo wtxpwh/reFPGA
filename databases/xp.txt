@@ -4982,44 +4982,19 @@ device LFXP20E {
 
 intdb {
 	bel_class SLICE {
-		input A0;
-		input B0;
-		input C0;
-		input D0;
-		input A1;
-		input B1;
-		input C1;
-		input D1;
-		input M0;
-		input M1;
+		input A[2];
+		input B[2];
+		input C[2];
+		input D[2];
+		input M[2];
 		input FXA;
 		input FXB;
 		input CLK;
 		input LSR;
 		input CE;
-		input WCK;
-		input WRE;
-		output F0;
-		output F1;
-		output Q0;
-		output Q1;
-		output OFX0;
-		output OFX1;
-	}
-
-	bel_class CIBTEST_SEL {
-		input TSEL0;
-		input TSEL1;
-	}
-
-	bel_class ECLK_TAP {
-		output ECLK0;
-		output ECLK1;
-	}
-
-	bel_class HSDCLK_ROOT {
-		output OUT_W[8];
-		output OUT_E[8];
+		output F[2];
+		output Q[2];
+		output OFX[2];
 	}
 
 	region_slot PCLK;
@@ -6275,134 +6250,134 @@ intdb {
 			cell CELL;
 
 			bel SLICE[0] {
-				input A0 = IMUX_A[0];
-				input B0 = IMUX_B[0];
-				input C0 = IMUX_C[0];
-				input D0 = IMUX_D[0];
-				input A1 = IMUX_A[1];
-				input B1 = IMUX_B[1];
-				input C1 = IMUX_C[1];
-				input D1 = IMUX_D[1];
-				input M0 = IMUX_M[0];
-				input M1 = IMUX_M[1];
+				input A[0] = IMUX_A[0];
+				input A[1] = IMUX_A[1];
+				input B[0] = IMUX_B[0];
+				input B[1] = IMUX_B[1];
+				input C[0] = IMUX_C[0];
+				input C[1] = IMUX_C[1];
+				input D[0] = IMUX_D[0];
+				input D[1] = IMUX_D[1];
+				input M[0] = IMUX_M[0];
+				input M[1] = IMUX_M[1];
 				input CLK = IMUX_CLK[0];
 				input LSR = IMUX_LSR[0];
 				input CE = IMUX_CE[0];
-				output F0 = OUT_F[0];
-				output F1 = OUT_F[1];
-				output Q0 = OUT_Q[0];
-				output Q1 = OUT_Q[1];
-				output OFX0 = OUT_OFX[0];
-				output OFX1 = OUT_OFX[1];
+				output F[0] = OUT_F[0];
+				output F[1] = OUT_F[1];
+				output Q[0] = OUT_Q[0];
+				output Q[1] = OUT_Q[1];
+				output OFX[0] = OUT_OFX[0];
+				output OFX[1] = OUT_OFX[1];
 			}
 
 			bel SLICE[1] {
-				input A0 = IMUX_A[2];
-				input B0 = IMUX_B[2];
-				input C0 = IMUX_C[2];
-				input D0 = IMUX_D[2];
-				input A1 = IMUX_A[3];
-				input B1 = IMUX_B[3];
-				input C1 = IMUX_C[3];
-				input D1 = IMUX_D[3];
-				input M0 = IMUX_M[2];
-				input M1 = IMUX_M[3];
+				input A[0] = IMUX_A[2];
+				input A[1] = IMUX_A[3];
+				input B[0] = IMUX_B[2];
+				input B[1] = IMUX_B[3];
+				input C[0] = IMUX_C[2];
+				input C[1] = IMUX_C[3];
+				input D[0] = IMUX_D[2];
+				input D[1] = IMUX_D[3];
+				input M[0] = IMUX_M[2];
+				input M[1] = IMUX_M[3];
 				input CLK = IMUX_CLK[1];
 				input LSR = IMUX_LSR[1];
 				input CE = IMUX_CE[1];
-				output F0 = OUT_F[2];
-				output F1 = OUT_F[3];
-				output Q0 = OUT_Q[2];
-				output Q1 = OUT_Q[3];
-				output OFX0 = OUT_OFX[2];
-				output OFX1 = OUT_OFX[3];
+				output F[0] = OUT_F[2];
+				output F[1] = OUT_F[3];
+				output Q[0] = OUT_Q[2];
+				output Q[1] = OUT_Q[3];
+				output OFX[0] = OUT_OFX[2];
+				output OFX[1] = OUT_OFX[3];
 			}
 
 			bel SLICE[2] {
-				input A0 = IMUX_A[4];
-				input B0 = IMUX_B[4];
-				input C0 = IMUX_C[4];
-				input D0 = IMUX_D[4];
-				input A1 = IMUX_A[5];
-				input B1 = IMUX_B[5];
-				input C1 = IMUX_C[5];
-				input D1 = IMUX_D[5];
-				input M0 = IMUX_M[4];
-				input M1 = IMUX_M[5];
+				input A[0] = IMUX_A[4];
+				input A[1] = IMUX_A[5];
+				input B[0] = IMUX_B[4];
+				input B[1] = IMUX_B[5];
+				input C[0] = IMUX_C[4];
+				input C[1] = IMUX_C[5];
+				input D[0] = IMUX_D[4];
+				input D[1] = IMUX_D[5];
+				input M[0] = IMUX_M[4];
+				input M[1] = IMUX_M[5];
 				input CLK = IMUX_CLK[2];
 				input LSR = IMUX_LSR[2];
 				input CE = IMUX_CE[2];
-				output F0 = OUT_F[4];
-				output F1 = OUT_F[5];
-				output Q0 = OUT_Q[4];
-				output Q1 = OUT_Q[5];
-				output OFX0 = OUT_OFX[4];
-				output OFX1 = OUT_OFX[5];
+				output F[0] = OUT_F[4];
+				output F[1] = OUT_F[5];
+				output Q[0] = OUT_Q[4];
+				output Q[1] = OUT_Q[5];
+				output OFX[0] = OUT_OFX[4];
+				output OFX[1] = OUT_OFX[5];
 			}
 
 			bel SLICE[3] {
-				input A0 = IMUX_A[6];
-				input B0 = IMUX_B[6];
-				input C0 = IMUX_C[6];
-				input D0 = IMUX_D[6];
-				input A1 = IMUX_A[7];
-				input B1 = IMUX_B[7];
-				input C1 = IMUX_C[7];
-				input D1 = IMUX_D[7];
-				input M0 = IMUX_M[6];
-				input M1 = IMUX_M[7];
+				input A[0] = IMUX_A[6];
+				input A[1] = IMUX_A[7];
+				input B[0] = IMUX_B[6];
+				input B[1] = IMUX_B[7];
+				input C[0] = IMUX_C[6];
+				input C[1] = IMUX_C[7];
+				input D[0] = IMUX_D[6];
+				input D[1] = IMUX_D[7];
+				input M[0] = IMUX_M[6];
+				input M[1] = IMUX_M[7];
 				input FXB = OUT_OFX_W[3];
 				input CLK = IMUX_CLK[3];
 				input LSR = IMUX_LSR[3];
 				input CE = IMUX_CE[3];
-				output F0 = OUT_F[6];
-				output F1 = OUT_F[7];
-				output Q0 = OUT_Q[6];
-				output Q1 = OUT_Q[7];
-				output OFX0 = OUT_OFX[6];
-				output OFX1 = OUT_OFX[7];
+				output F[0] = OUT_F[6];
+				output F[1] = OUT_F[7];
+				output Q[0] = OUT_Q[6];
+				output Q[1] = OUT_Q[7];
+				output OFX[0] = OUT_OFX[6];
+				output OFX[1] = OUT_OFX[7];
 			}
 
-			// wire IMUX_A[0]                      SLICE[0].A0
-			// wire IMUX_A[1]                      SLICE[0].A1
-			// wire IMUX_A[2]                      SLICE[1].A0
-			// wire IMUX_A[3]                      SLICE[1].A1
-			// wire IMUX_A[4]                      SLICE[2].A0
-			// wire IMUX_A[5]                      SLICE[2].A1
-			// wire IMUX_A[6]                      SLICE[3].A0
-			// wire IMUX_A[7]                      SLICE[3].A1
-			// wire IMUX_B[0]                      SLICE[0].B0
-			// wire IMUX_B[1]                      SLICE[0].B1
-			// wire IMUX_B[2]                      SLICE[1].B0
-			// wire IMUX_B[3]                      SLICE[1].B1
-			// wire IMUX_B[4]                      SLICE[2].B0
-			// wire IMUX_B[5]                      SLICE[2].B1
-			// wire IMUX_B[6]                      SLICE[3].B0
-			// wire IMUX_B[7]                      SLICE[3].B1
-			// wire IMUX_C[0]                      SLICE[0].C0
-			// wire IMUX_C[1]                      SLICE[0].C1
-			// wire IMUX_C[2]                      SLICE[1].C0
-			// wire IMUX_C[3]                      SLICE[1].C1
-			// wire IMUX_C[4]                      SLICE[2].C0
-			// wire IMUX_C[5]                      SLICE[2].C1
-			// wire IMUX_C[6]                      SLICE[3].C0
-			// wire IMUX_C[7]                      SLICE[3].C1
-			// wire IMUX_D[0]                      SLICE[0].D0
-			// wire IMUX_D[1]                      SLICE[0].D1
-			// wire IMUX_D[2]                      SLICE[1].D0
-			// wire IMUX_D[3]                      SLICE[1].D1
-			// wire IMUX_D[4]                      SLICE[2].D0
-			// wire IMUX_D[5]                      SLICE[2].D1
-			// wire IMUX_D[6]                      SLICE[3].D0
-			// wire IMUX_D[7]                      SLICE[3].D1
-			// wire IMUX_M[0]                      SLICE[0].M0
-			// wire IMUX_M[1]                      SLICE[0].M1
-			// wire IMUX_M[2]                      SLICE[1].M0
-			// wire IMUX_M[3]                      SLICE[1].M1
-			// wire IMUX_M[4]                      SLICE[2].M0
-			// wire IMUX_M[5]                      SLICE[2].M1
-			// wire IMUX_M[6]                      SLICE[3].M0
-			// wire IMUX_M[7]                      SLICE[3].M1
+			// wire IMUX_A[0]                      SLICE[0].A[0]
+			// wire IMUX_A[1]                      SLICE[0].A[1]
+			// wire IMUX_A[2]                      SLICE[1].A[0]
+			// wire IMUX_A[3]                      SLICE[1].A[1]
+			// wire IMUX_A[4]                      SLICE[2].A[0]
+			// wire IMUX_A[5]                      SLICE[2].A[1]
+			// wire IMUX_A[6]                      SLICE[3].A[0]
+			// wire IMUX_A[7]                      SLICE[3].A[1]
+			// wire IMUX_B[0]                      SLICE[0].B[0]
+			// wire IMUX_B[1]                      SLICE[0].B[1]
+			// wire IMUX_B[2]                      SLICE[1].B[0]
+			// wire IMUX_B[3]                      SLICE[1].B[1]
+			// wire IMUX_B[4]                      SLICE[2].B[0]
+			// wire IMUX_B[5]                      SLICE[2].B[1]
+			// wire IMUX_B[6]                      SLICE[3].B[0]
+			// wire IMUX_B[7]                      SLICE[3].B[1]
+			// wire IMUX_C[0]                      SLICE[0].C[0]
+			// wire IMUX_C[1]                      SLICE[0].C[1]
+			// wire IMUX_C[2]                      SLICE[1].C[0]
+			// wire IMUX_C[3]                      SLICE[1].C[1]
+			// wire IMUX_C[4]                      SLICE[2].C[0]
+			// wire IMUX_C[5]                      SLICE[2].C[1]
+			// wire IMUX_C[6]                      SLICE[3].C[0]
+			// wire IMUX_C[7]                      SLICE[3].C[1]
+			// wire IMUX_D[0]                      SLICE[0].D[0]
+			// wire IMUX_D[1]                      SLICE[0].D[1]
+			// wire IMUX_D[2]                      SLICE[1].D[0]
+			// wire IMUX_D[3]                      SLICE[1].D[1]
+			// wire IMUX_D[4]                      SLICE[2].D[0]
+			// wire IMUX_D[5]                      SLICE[2].D[1]
+			// wire IMUX_D[6]                      SLICE[3].D[0]
+			// wire IMUX_D[7]                      SLICE[3].D[1]
+			// wire IMUX_M[0]                      SLICE[0].M[0]
+			// wire IMUX_M[1]                      SLICE[0].M[1]
+			// wire IMUX_M[2]                      SLICE[1].M[0]
+			// wire IMUX_M[3]                      SLICE[1].M[1]
+			// wire IMUX_M[4]                      SLICE[2].M[0]
+			// wire IMUX_M[5]                      SLICE[2].M[1]
+			// wire IMUX_M[6]                      SLICE[3].M[0]
+			// wire IMUX_M[7]                      SLICE[3].M[1]
 			// wire IMUX_CLK[0]                    SLICE[0].CLK
 			// wire IMUX_CLK[1]                    SLICE[1].CLK
 			// wire IMUX_CLK[2]                    SLICE[2].CLK
@@ -6415,30 +6390,30 @@ intdb {
 			// wire IMUX_CE[1]                     SLICE[1].CE
 			// wire IMUX_CE[2]                     SLICE[2].CE
 			// wire IMUX_CE[3]                     SLICE[3].CE
-			// wire OUT_F[0]                       SLICE[0].F0
-			// wire OUT_F[1]                       SLICE[0].F1
-			// wire OUT_F[2]                       SLICE[1].F0
-			// wire OUT_F[3]                       SLICE[1].F1
-			// wire OUT_F[4]                       SLICE[2].F0
-			// wire OUT_F[5]                       SLICE[2].F1
-			// wire OUT_F[6]                       SLICE[3].F0
-			// wire OUT_F[7]                       SLICE[3].F1
-			// wire OUT_Q[0]                       SLICE[0].Q0
-			// wire OUT_Q[1]                       SLICE[0].Q1
-			// wire OUT_Q[2]                       SLICE[1].Q0
-			// wire OUT_Q[3]                       SLICE[1].Q1
-			// wire OUT_Q[4]                       SLICE[2].Q0
-			// wire OUT_Q[5]                       SLICE[2].Q1
-			// wire OUT_Q[6]                       SLICE[3].Q0
-			// wire OUT_Q[7]                       SLICE[3].Q1
-			// wire OUT_OFX[0]                     SLICE[0].OFX0
-			// wire OUT_OFX[1]                     SLICE[0].OFX1
-			// wire OUT_OFX[2]                     SLICE[1].OFX0
-			// wire OUT_OFX[3]                     SLICE[1].OFX1
-			// wire OUT_OFX[4]                     SLICE[2].OFX0
-			// wire OUT_OFX[5]                     SLICE[2].OFX1
-			// wire OUT_OFX[6]                     SLICE[3].OFX0
-			// wire OUT_OFX[7]                     SLICE[3].OFX1
+			// wire OUT_F[0]                       SLICE[0].F[0]
+			// wire OUT_F[1]                       SLICE[0].F[1]
+			// wire OUT_F[2]                       SLICE[1].F[0]
+			// wire OUT_F[3]                       SLICE[1].F[1]
+			// wire OUT_F[4]                       SLICE[2].F[0]
+			// wire OUT_F[5]                       SLICE[2].F[1]
+			// wire OUT_F[6]                       SLICE[3].F[0]
+			// wire OUT_F[7]                       SLICE[3].F[1]
+			// wire OUT_Q[0]                       SLICE[0].Q[0]
+			// wire OUT_Q[1]                       SLICE[0].Q[1]
+			// wire OUT_Q[2]                       SLICE[1].Q[0]
+			// wire OUT_Q[3]                       SLICE[1].Q[1]
+			// wire OUT_Q[4]                       SLICE[2].Q[0]
+			// wire OUT_Q[5]                       SLICE[2].Q[1]
+			// wire OUT_Q[6]                       SLICE[3].Q[0]
+			// wire OUT_Q[7]                       SLICE[3].Q[1]
+			// wire OUT_OFX[0]                     SLICE[0].OFX[0]
+			// wire OUT_OFX[1]                     SLICE[0].OFX[1]
+			// wire OUT_OFX[2]                     SLICE[1].OFX[0]
+			// wire OUT_OFX[3]                     SLICE[1].OFX[1]
+			// wire OUT_OFX[4]                     SLICE[2].OFX[0]
+			// wire OUT_OFX[5]                     SLICE[2].OFX[1]
+			// wire OUT_OFX[6]                     SLICE[3].OFX[0]
+			// wire OUT_OFX[7]                     SLICE[3].OFX[1]
 			// wire OUT_OFX_W[3]                   SLICE[3].FXB
 		}
 
@@ -6446,134 +6421,134 @@ intdb {
 			cell CELL;
 
 			bel SLICE[0] {
-				input A0 = IMUX_A[0];
-				input B0 = IMUX_B[0];
-				input C0 = IMUX_C[0];
-				input D0 = IMUX_D[0];
-				input A1 = IMUX_A[1];
-				input B1 = IMUX_B[1];
-				input C1 = IMUX_C[1];
-				input D1 = IMUX_D[1];
-				input M0 = IMUX_M[0];
-				input M1 = IMUX_M[1];
+				input A[0] = IMUX_A[0];
+				input A[1] = IMUX_A[1];
+				input B[0] = IMUX_B[0];
+				input B[1] = IMUX_B[1];
+				input C[0] = IMUX_C[0];
+				input C[1] = IMUX_C[1];
+				input D[0] = IMUX_D[0];
+				input D[1] = IMUX_D[1];
+				input M[0] = IMUX_M[0];
+				input M[1] = IMUX_M[1];
 				input CLK = IMUX_CLK[0];
 				input LSR = IMUX_LSR[0];
 				input CE = IMUX_CE[0];
-				output F0 = OUT_F[0];
-				output F1 = OUT_F[1];
-				output Q0 = OUT_Q[0];
-				output Q1 = OUT_Q[1];
-				output OFX0 = OUT_OFX[0];
-				output OFX1 = OUT_OFX[1];
+				output F[0] = OUT_F[0];
+				output F[1] = OUT_F[1];
+				output Q[0] = OUT_Q[0];
+				output Q[1] = OUT_Q[1];
+				output OFX[0] = OUT_OFX[0];
+				output OFX[1] = OUT_OFX[1];
 			}
 
 			bel SLICE[1] {
-				input A0 = IMUX_A[2];
-				input B0 = IMUX_B[2];
-				input C0 = IMUX_C[2];
-				input D0 = IMUX_D[2];
-				input A1 = IMUX_A[3];
-				input B1 = IMUX_B[3];
-				input C1 = IMUX_C[3];
-				input D1 = IMUX_D[3];
-				input M0 = IMUX_M[2];
-				input M1 = IMUX_M[3];
+				input A[0] = IMUX_A[2];
+				input A[1] = IMUX_A[3];
+				input B[0] = IMUX_B[2];
+				input B[1] = IMUX_B[3];
+				input C[0] = IMUX_C[2];
+				input C[1] = IMUX_C[3];
+				input D[0] = IMUX_D[2];
+				input D[1] = IMUX_D[3];
+				input M[0] = IMUX_M[2];
+				input M[1] = IMUX_M[3];
 				input CLK = IMUX_CLK[1];
 				input LSR = IMUX_LSR[1];
 				input CE = IMUX_CE[1];
-				output F0 = OUT_F[2];
-				output F1 = OUT_F[3];
-				output Q0 = OUT_Q[2];
-				output Q1 = OUT_Q[3];
-				output OFX0 = OUT_OFX[2];
-				output OFX1 = OUT_OFX[3];
+				output F[0] = OUT_F[2];
+				output F[1] = OUT_F[3];
+				output Q[0] = OUT_Q[2];
+				output Q[1] = OUT_Q[3];
+				output OFX[0] = OUT_OFX[2];
+				output OFX[1] = OUT_OFX[3];
 			}
 
 			bel SLICE[2] {
-				input A0 = IMUX_A[4];
-				input B0 = IMUX_B[4];
-				input C0 = IMUX_C[4];
-				input D0 = IMUX_D[4];
-				input A1 = IMUX_A[5];
-				input B1 = IMUX_B[5];
-				input C1 = IMUX_C[5];
-				input D1 = IMUX_D[5];
-				input M0 = IMUX_M[4];
-				input M1 = IMUX_M[5];
+				input A[0] = IMUX_A[4];
+				input A[1] = IMUX_A[5];
+				input B[0] = IMUX_B[4];
+				input B[1] = IMUX_B[5];
+				input C[0] = IMUX_C[4];
+				input C[1] = IMUX_C[5];
+				input D[0] = IMUX_D[4];
+				input D[1] = IMUX_D[5];
+				input M[0] = IMUX_M[4];
+				input M[1] = IMUX_M[5];
 				input CLK = IMUX_CLK[2];
 				input LSR = IMUX_LSR[2];
 				input CE = IMUX_CE[2];
-				output F0 = OUT_F[4];
-				output F1 = OUT_F[5];
-				output Q0 = OUT_Q[4];
-				output Q1 = OUT_Q[5];
-				output OFX0 = OUT_OFX[4];
-				output OFX1 = OUT_OFX[5];
+				output F[0] = OUT_F[4];
+				output F[1] = OUT_F[5];
+				output Q[0] = OUT_Q[4];
+				output Q[1] = OUT_Q[5];
+				output OFX[0] = OUT_OFX[4];
+				output OFX[1] = OUT_OFX[5];
 			}
 
 			bel SLICE[3] {
-				input A0 = IMUX_A[6];
-				input B0 = IMUX_B[6];
-				input C0 = IMUX_C[6];
-				input D0 = IMUX_D[6];
-				input A1 = IMUX_A[7];
-				input B1 = IMUX_B[7];
-				input C1 = IMUX_C[7];
-				input D1 = IMUX_D[7];
-				input M0 = IMUX_M[6];
-				input M1 = IMUX_M[7];
+				input A[0] = IMUX_A[6];
+				input A[1] = IMUX_A[7];
+				input B[0] = IMUX_B[6];
+				input B[1] = IMUX_B[7];
+				input C[0] = IMUX_C[6];
+				input C[1] = IMUX_C[7];
+				input D[0] = IMUX_D[6];
+				input D[1] = IMUX_D[7];
+				input M[0] = IMUX_M[6];
+				input M[1] = IMUX_M[7];
 				input FXB = OUT_OFX_W[3];
 				input CLK = IMUX_CLK[3];
 				input LSR = IMUX_LSR[3];
 				input CE = IMUX_CE[3];
-				output F0 = OUT_F[6];
-				output F1 = OUT_F[7];
-				output Q0 = OUT_Q[6];
-				output Q1 = OUT_Q[7];
-				output OFX0 = OUT_OFX[6];
-				output OFX1 = OUT_OFX[7];
+				output F[0] = OUT_F[6];
+				output F[1] = OUT_F[7];
+				output Q[0] = OUT_Q[6];
+				output Q[1] = OUT_Q[7];
+				output OFX[0] = OUT_OFX[6];
+				output OFX[1] = OUT_OFX[7];
 			}
 
-			// wire IMUX_A[0]                      SLICE[0].A0
-			// wire IMUX_A[1]                      SLICE[0].A1
-			// wire IMUX_A[2]                      SLICE[1].A0
-			// wire IMUX_A[3]                      SLICE[1].A1
-			// wire IMUX_A[4]                      SLICE[2].A0
-			// wire IMUX_A[5]                      SLICE[2].A1
-			// wire IMUX_A[6]                      SLICE[3].A0
-			// wire IMUX_A[7]                      SLICE[3].A1
-			// wire IMUX_B[0]                      SLICE[0].B0
-			// wire IMUX_B[1]                      SLICE[0].B1
-			// wire IMUX_B[2]                      SLICE[1].B0
-			// wire IMUX_B[3]                      SLICE[1].B1
-			// wire IMUX_B[4]                      SLICE[2].B0
-			// wire IMUX_B[5]                      SLICE[2].B1
-			// wire IMUX_B[6]                      SLICE[3].B0
-			// wire IMUX_B[7]                      SLICE[3].B1
-			// wire IMUX_C[0]                      SLICE[0].C0
-			// wire IMUX_C[1]                      SLICE[0].C1
-			// wire IMUX_C[2]                      SLICE[1].C0
-			// wire IMUX_C[3]                      SLICE[1].C1
-			// wire IMUX_C[4]                      SLICE[2].C0
-			// wire IMUX_C[5]                      SLICE[2].C1
-			// wire IMUX_C[6]                      SLICE[3].C0
-			// wire IMUX_C[7]                      SLICE[3].C1
-			// wire IMUX_D[0]                      SLICE[0].D0
-			// wire IMUX_D[1]                      SLICE[0].D1
-			// wire IMUX_D[2]                      SLICE[1].D0
-			// wire IMUX_D[3]                      SLICE[1].D1
-			// wire IMUX_D[4]                      SLICE[2].D0
-			// wire IMUX_D[5]                      SLICE[2].D1
-			// wire IMUX_D[6]                      SLICE[3].D0
-			// wire IMUX_D[7]                      SLICE[3].D1
-			// wire IMUX_M[0]                      SLICE[0].M0
-			// wire IMUX_M[1]                      SLICE[0].M1
-			// wire IMUX_M[2]                      SLICE[1].M0
-			// wire IMUX_M[3]                      SLICE[1].M1
-			// wire IMUX_M[4]                      SLICE[2].M0
-			// wire IMUX_M[5]                      SLICE[2].M1
-			// wire IMUX_M[6]                      SLICE[3].M0
-			// wire IMUX_M[7]                      SLICE[3].M1
+			// wire IMUX_A[0]                      SLICE[0].A[0]
+			// wire IMUX_A[1]                      SLICE[0].A[1]
+			// wire IMUX_A[2]                      SLICE[1].A[0]
+			// wire IMUX_A[3]                      SLICE[1].A[1]
+			// wire IMUX_A[4]                      SLICE[2].A[0]
+			// wire IMUX_A[5]                      SLICE[2].A[1]
+			// wire IMUX_A[6]                      SLICE[3].A[0]
+			// wire IMUX_A[7]                      SLICE[3].A[1]
+			// wire IMUX_B[0]                      SLICE[0].B[0]
+			// wire IMUX_B[1]                      SLICE[0].B[1]
+			// wire IMUX_B[2]                      SLICE[1].B[0]
+			// wire IMUX_B[3]                      SLICE[1].B[1]
+			// wire IMUX_B[4]                      SLICE[2].B[0]
+			// wire IMUX_B[5]                      SLICE[2].B[1]
+			// wire IMUX_B[6]                      SLICE[3].B[0]
+			// wire IMUX_B[7]                      SLICE[3].B[1]
+			// wire IMUX_C[0]                      SLICE[0].C[0]
+			// wire IMUX_C[1]                      SLICE[0].C[1]
+			// wire IMUX_C[2]                      SLICE[1].C[0]
+			// wire IMUX_C[3]                      SLICE[1].C[1]
+			// wire IMUX_C[4]                      SLICE[2].C[0]
+			// wire IMUX_C[5]                      SLICE[2].C[1]
+			// wire IMUX_C[6]                      SLICE[3].C[0]
+			// wire IMUX_C[7]                      SLICE[3].C[1]
+			// wire IMUX_D[0]                      SLICE[0].D[0]
+			// wire IMUX_D[1]                      SLICE[0].D[1]
+			// wire IMUX_D[2]                      SLICE[1].D[0]
+			// wire IMUX_D[3]                      SLICE[1].D[1]
+			// wire IMUX_D[4]                      SLICE[2].D[0]
+			// wire IMUX_D[5]                      SLICE[2].D[1]
+			// wire IMUX_D[6]                      SLICE[3].D[0]
+			// wire IMUX_D[7]                      SLICE[3].D[1]
+			// wire IMUX_M[0]                      SLICE[0].M[0]
+			// wire IMUX_M[1]                      SLICE[0].M[1]
+			// wire IMUX_M[2]                      SLICE[1].M[0]
+			// wire IMUX_M[3]                      SLICE[1].M[1]
+			// wire IMUX_M[4]                      SLICE[2].M[0]
+			// wire IMUX_M[5]                      SLICE[2].M[1]
+			// wire IMUX_M[6]                      SLICE[3].M[0]
+			// wire IMUX_M[7]                      SLICE[3].M[1]
 			// wire IMUX_CLK[0]                    SLICE[0].CLK
 			// wire IMUX_CLK[1]                    SLICE[1].CLK
 			// wire IMUX_CLK[2]                    SLICE[2].CLK
@@ -6586,30 +6561,30 @@ intdb {
 			// wire IMUX_CE[1]                     SLICE[1].CE
 			// wire IMUX_CE[2]                     SLICE[2].CE
 			// wire IMUX_CE[3]                     SLICE[3].CE
-			// wire OUT_F[0]                       SLICE[0].F0
-			// wire OUT_F[1]                       SLICE[0].F1
-			// wire OUT_F[2]                       SLICE[1].F0
-			// wire OUT_F[3]                       SLICE[1].F1
-			// wire OUT_F[4]                       SLICE[2].F0
-			// wire OUT_F[5]                       SLICE[2].F1
-			// wire OUT_F[6]                       SLICE[3].F0
-			// wire OUT_F[7]                       SLICE[3].F1
-			// wire OUT_Q[0]                       SLICE[0].Q0
-			// wire OUT_Q[1]                       SLICE[0].Q1
-			// wire OUT_Q[2]                       SLICE[1].Q0
-			// wire OUT_Q[3]                       SLICE[1].Q1
-			// wire OUT_Q[4]                       SLICE[2].Q0
-			// wire OUT_Q[5]                       SLICE[2].Q1
-			// wire OUT_Q[6]                       SLICE[3].Q0
-			// wire OUT_Q[7]                       SLICE[3].Q1
-			// wire OUT_OFX[0]                     SLICE[0].OFX0
-			// wire OUT_OFX[1]                     SLICE[0].OFX1
-			// wire OUT_OFX[2]                     SLICE[1].OFX0
-			// wire OUT_OFX[3]                     SLICE[1].OFX1
-			// wire OUT_OFX[4]                     SLICE[2].OFX0
-			// wire OUT_OFX[5]                     SLICE[2].OFX1
-			// wire OUT_OFX[6]                     SLICE[3].OFX0
-			// wire OUT_OFX[7]                     SLICE[3].OFX1
+			// wire OUT_F[0]                       SLICE[0].F[0]
+			// wire OUT_F[1]                       SLICE[0].F[1]
+			// wire OUT_F[2]                       SLICE[1].F[0]
+			// wire OUT_F[3]                       SLICE[1].F[1]
+			// wire OUT_F[4]                       SLICE[2].F[0]
+			// wire OUT_F[5]                       SLICE[2].F[1]
+			// wire OUT_F[6]                       SLICE[3].F[0]
+			// wire OUT_F[7]                       SLICE[3].F[1]
+			// wire OUT_Q[0]                       SLICE[0].Q[0]
+			// wire OUT_Q[1]                       SLICE[0].Q[1]
+			// wire OUT_Q[2]                       SLICE[1].Q[0]
+			// wire OUT_Q[3]                       SLICE[1].Q[1]
+			// wire OUT_Q[4]                       SLICE[2].Q[0]
+			// wire OUT_Q[5]                       SLICE[2].Q[1]
+			// wire OUT_Q[6]                       SLICE[3].Q[0]
+			// wire OUT_Q[7]                       SLICE[3].Q[1]
+			// wire OUT_OFX[0]                     SLICE[0].OFX[0]
+			// wire OUT_OFX[1]                     SLICE[0].OFX[1]
+			// wire OUT_OFX[2]                     SLICE[1].OFX[0]
+			// wire OUT_OFX[3]                     SLICE[1].OFX[1]
+			// wire OUT_OFX[4]                     SLICE[2].OFX[0]
+			// wire OUT_OFX[5]                     SLICE[2].OFX[1]
+			// wire OUT_OFX[6]                     SLICE[3].OFX[0]
+			// wire OUT_OFX[7]                     SLICE[3].OFX[1]
 			// wire OUT_OFX_W[3]                   SLICE[3].FXB
 		}
 

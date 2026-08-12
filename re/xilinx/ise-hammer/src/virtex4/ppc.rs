@@ -49,21 +49,21 @@ impl<'b> FuzzerProp<'b, IseBackend<'b>> for ForceBitRects {
 }
 
 const EMAC_INVPINS: &[BelInputId] = &[
-    bcls::EMAC_V4::CLIENTEMAC0RXCLIENTCLKIN,
-    bcls::EMAC_V4::CLIENTEMAC0TXCLIENTCLKIN,
-    bcls::EMAC_V4::CLIENTEMAC0TXGMIIMIICLKIN,
-    bcls::EMAC_V4::CLIENTEMAC1RXCLIENTCLKIN,
-    bcls::EMAC_V4::CLIENTEMAC1TXCLIENTCLKIN,
-    bcls::EMAC_V4::CLIENTEMAC1TXGMIIMIICLKIN,
-    bcls::EMAC_V4::HOSTCLK,
-    bcls::EMAC_V4::PHYEMAC0GTXCLK,
-    bcls::EMAC_V4::PHYEMAC0MCLKIN,
-    bcls::EMAC_V4::PHYEMAC0MIITXCLK,
-    bcls::EMAC_V4::PHYEMAC0RXCLK,
-    bcls::EMAC_V4::PHYEMAC1GTXCLK,
-    bcls::EMAC_V4::PHYEMAC1MCLKIN,
-    bcls::EMAC_V4::PHYEMAC1MIITXCLK,
-    bcls::EMAC_V4::PHYEMAC1RXCLK,
+    bcls::EMAC::CLIENTEMAC0RXCLIENTCLKIN,
+    bcls::EMAC::CLIENTEMAC0TXCLIENTCLKIN,
+    bcls::EMAC::CLIENTEMAC0TXGMIIMIICLKIN,
+    bcls::EMAC::CLIENTEMAC1RXCLIENTCLKIN,
+    bcls::EMAC::CLIENTEMAC1TXCLIENTCLKIN,
+    bcls::EMAC::CLIENTEMAC1TXGMIIMIICLKIN,
+    bcls::EMAC::HOSTCLK,
+    bcls::EMAC::PHYEMAC0GTXCLK,
+    bcls::EMAC::PHYEMAC0MCLKIN,
+    bcls::EMAC::PHYEMAC0MIITXCLK,
+    bcls::EMAC::PHYEMAC0RXCLK,
+    bcls::EMAC::PHYEMAC1GTXCLK,
+    bcls::EMAC::PHYEMAC1MCLKIN,
+    bcls::EMAC::PHYEMAC1MIITXCLK,
+    bcls::EMAC::PHYEMAC1RXCLK,
 ];
 
 pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a IseBackend<'a>) {
@@ -91,7 +91,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
         for (pin, wire) in &bel_data.inputs {
             if slot == bslots::EMAC
                 && !EMAC_INVPINS.contains(&pin)
-                && !bcls::EMAC_V4::TIEEMAC1UNICASTADDR.contains(pin)
+                && !bcls::EMAC::TIEEMAC1UNICASTADDR.contains(pin)
             {
                 continue;
             }
@@ -141,7 +141,7 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
         for (pin, wire) in &bel_data.inputs {
             if bslot == bslots::EMAC
                 && !EMAC_INVPINS.contains(&pin)
-                && !bcls::EMAC_V4::TIEEMAC1UNICASTADDR.contains(pin)
+                && !bcls::EMAC::TIEEMAC1UNICASTADDR.contains(pin)
             {
                 continue;
             }

@@ -1578,7 +1578,8 @@ pub fn make_sample(
                                     edev.db.enum_classes[ecid]
                                         .values
                                         .get(&val.to_uppercase())
-                                        .unwrap(),
+                                        .unwrap()
+                                        .0,
                                 ),
                             );
                         }

@@ -6,7 +6,7 @@ use prjcombine_re_hammer::Session;
 use prjcombine_re_xilinx_geom::ExpandedDevice;
 use prjcombine_types::{bitrect::TileBit, bits};
 use prjcombine_virtex4::defs::{
-    bcls::{self, GLOBAL, SYSMON_V5 as SYSMON},
+    bcls::{self, GLOBAL, SYSMON},
     bslots, enums, tslots,
     virtex7::tcls,
 };
@@ -116,7 +116,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
     if edev.chips.len() == 1 && !edev.chips.first().unwrap().has_ps {
         let mut bctx = ctx.bel(bslots::ICAP[1]);
         bctx.build()
-            .test_bel_attr_bits(bcls::ICAP_V6::ENABLE_TR)
+            .test_bel_attr_bits(bcls::ICAP::ENABLE_TR)
             .mode("ICAP")
             .commit();
         bctx.mode("ICAP")
@@ -135,7 +135,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
         let mut bctx = ctx.bel(bslots::ICAP[0]);
         bctx.build()
             .bel_mode(bslots::ICAP[1], "ICAP")
-            .test_bel_attr_bits(bcls::ICAP_V6::ENABLE_TR)
+            .test_bel_attr_bits(bcls::ICAP::ENABLE_TR)
             .mode("ICAP")
             .commit();
         bctx.mode("ICAP")
@@ -224,7 +224,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
         bctx.build()
             .no_global("CFGIOACCESS_TDO")
             .extra_tiles_by_bel_attr_bits(bslots::GLOBAL, GLOBAL::CFG_IO_ACCESS_TDO)
-            .test_bel_attr_bits(bcls::CFG_IO_ACCESS_V7::ENABLE_TR)
+            .test_bel_attr_bits(bcls::CFG_IO_ACCESS::ENABLE_TR)
             .mode("CFG_IO_ACCESS")
             .commit();
         bctx.mode("CFG_IO_ACCESS")
@@ -342,9 +342,9 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
         }
 
         if !edev.chips.first().unwrap().has_ps {
-            for (val, vname) in &backend.edev.db[enums::CONFIG_RATE_V7].values {
+            for (val, vname) in &backend.edev.db[enums::CONFIG_RATE].values {
                 ctx.build()
-                    .extra_tiles_by_bel_attr_val(bslots::GLOBAL, GLOBAL::CONFIG_RATE_V7, val)
+                    .extra_tiles_by_bel_attr_val(bslots::GLOBAL, GLOBAL::CONFIG_RATE, val)
                     .test_global_special(specials::MISC_CFG)
                     .global("CONFIGRATE", vname.strip_prefix('_').unwrap())
                     .commit();
@@ -595,7 +595,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
             }
             ctx.build()
                 .global("NEXT_CONFIG_REBOOT", "DISABLE")
-                .extra_tiles_by_bel_attr_bits(bslots::GLOBAL, GLOBAL::V7_NEXT_CONFIG_ADDR)
+                .extra_tiles_by_bel_attr_bits(bslots::GLOBAL, GLOBAL::NEXT_CONFIG_ADDR)
                 .test_global_special(specials::MISC_CFG)
                 .multi_global("NEXT_CONFIG_ADDR", MultiValue::HexPrefix, 29);
             ctx.build()
@@ -718,7 +718,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
         for i in 0x40..0x60 {
             bctx.mode("XADC")
                 .global_mutex("SYSMON", "SYSMON")
-                .test_bel_attr_bits_base(SYSMON::V7_INIT, (i - 0x40) * 16)
+                .test_bel_attr_bits_base(SYSMON::INIT, (i - 0x40) * 16)
                 .multi_attr(format!("INIT_{i:02X}"), MultiValue::Hex(0), 16);
         }
         for attr in [
@@ -826,8 +826,8 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
 
     if edev.chips.len() == 1 && !edev.chips.first().unwrap().has_ps {
         for bslot in bslots::ICAP {
-            let bits = xlat_bit_wide(ctx.get_diff_attr_bool(tcid, bslot, bcls::ICAP_V6::ENABLE_TR));
-            ctx.insert_bel_attr_bitvec(tcid, bslot, bcls::ICAP_V6::ENABLE_TR, bits);
+            let bits = xlat_bit_wide(ctx.get_diff_attr_bool(tcid, bslot, bcls::ICAP::ENABLE_TR));
+            ctx.insert_bel_attr_bitvec(tcid, bslot, bcls::ICAP::ENABLE_TR, bits);
         }
     }
 
@@ -864,8 +864,8 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
     if edev.chips.len() == 1 {
         let bslot = bslots::CFG_IO_ACCESS;
         let bits =
-            xlat_bit_wide(ctx.get_diff_attr_bool(tcid, bslot, bcls::CFG_IO_ACCESS_V7::ENABLE_TR));
-        ctx.insert_bel_attr_bitvec(tcid, bslot, bcls::CFG_IO_ACCESS_V7::ENABLE_TR, bits);
+            xlat_bit_wide(ctx.get_diff_attr_bool(tcid, bslot, bcls::CFG_IO_ACCESS::ENABLE_TR));
+        ctx.insert_bel_attr_bitvec(tcid, bslot, bcls::CFG_IO_ACCESS::ENABLE_TR, bits);
     }
     {
         let bslot = bslots::DNA_PORT;
@@ -957,7 +957,7 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
             ctx.collect_bel_attr_bi(tcid, bslot, GLOBAL::CAPTURE_ONESHOT);
         }
         if !edev.chips.first().unwrap().has_ps {
-            ctx.collect_bel_attr_ocd(tcid, bslot, GLOBAL::CONFIG_RATE_V7, OcdMode::BitOrder);
+            ctx.collect_bel_attr_ocd(tcid, bslot, GLOBAL::CONFIG_RATE, OcdMode::BitOrder);
         }
         ctx.collect_bel_attr_bi(tcid, bslot, GLOBAL::DRIVE_DONE);
         ctx.collect_bel_attr_bi(tcid, bslot, GLOBAL::DONE_PIPE);
@@ -1120,7 +1120,7 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
 
         // WBSTAR
         if !edev.chips.first().unwrap().has_ps {
-            ctx.collect_bel_attr(tcid, bslot, GLOBAL::V7_NEXT_CONFIG_ADDR);
+            ctx.collect_bel_attr(tcid, bslot, GLOBAL::NEXT_CONFIG_ADDR);
             ctx.collect_bel_attr(tcid, bslot, GLOBAL::REVISION_SELECT);
             ctx.collect_bel_attr_bi(tcid, bslot, GLOBAL::REVISION_SELECT_TRISTATE);
         }
@@ -1159,7 +1159,7 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
         let bslot = bslots::SYSMON;
         ctx.collect_bel_input_inv_bi(tcid, bslot, SYSMON::CONVSTCLK);
         ctx.collect_bel_input_inv_bi(tcid, bslot, SYSMON::DCLK);
-        ctx.collect_bel_attr(tcid, bslot, SYSMON::V7_INIT);
+        ctx.collect_bel_attr(tcid, bslot, SYSMON::INIT);
         ctx.collect_bel_attr(tcid, bslot, SYSMON::SYSMON_TEST_A);
         ctx.collect_bel_attr(tcid, bslot, SYSMON::SYSMON_TEST_B);
         ctx.collect_bel_attr(tcid, bslot, SYSMON::SYSMON_TEST_C);
@@ -1196,7 +1196,7 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
 
         let mut diff = ctx.get_diff_bel_special(tcid, bslot, specials::SYSMON_XADCPOWERDOWN_ENABLE);
         diff.apply_bitvec_diff_int(
-            &ctx.bel_attr_bitvec(tcid, bslot, SYSMON::V7_INIT)[2 * 16..3 * 16],
+            &ctx.bel_attr_bitvec(tcid, bslot, SYSMON::INIT)[2 * 16..3 * 16],
             0x30,
             0,
         );

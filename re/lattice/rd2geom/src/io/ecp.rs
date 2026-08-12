@@ -679,8 +679,8 @@ impl ChipContext<'_> {
             let bel_eclk = self.chip.bel_eclk_root(edge);
             let eclk0 = self.naming.bel_wire(bel_eclk, "ECLK0");
             let eclk1 = self.naming.bel_wire(bel_eclk, "ECLK1");
-            let eclk0_out = self.edev.get_bel_output(bcrd, bcls::ECLK_TAP::ECLK0)[0];
-            let eclk1_out = self.edev.get_bel_output(bcrd, bcls::ECLK_TAP::ECLK1)[0];
+            let eclk0_out = self.edev.get_bel_output(bcrd, bcls::ECLK_TAP::ECLK[0])[0];
+            let eclk1_out = self.edev.get_bel_output(bcrd, bcls::ECLK_TAP::ECLK[1])[0];
             self.claim_pip_int_out(eclk0_out, eclk0);
             self.claim_pip_int_out(eclk1_out, eclk1);
         }

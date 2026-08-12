@@ -195,7 +195,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
         for &pin in GTP_COMMON_INVPINS {
             bctx.mode(mode).test_bel_input_inv_auto(pin);
         }
-        for (aid, aname, attr) in &backend.edev.db[GTP_COMMON].attributes {
+        for (aid, attr) in &backend.edev.db[GTP_COMMON].attributes {
             match aid {
                 GTP_COMMON::DRP
                 | GTP_COMMON::CLKSWING_CFG
@@ -208,9 +208,11 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
                 | GTP_COMMON::EAST_REFCLK1_SEL
                 | GTP_COMMON::WEST_REFCLK0_SEL
                 | GTP_COMMON::WEST_REFCLK1_SEL => {
-                    bctx.mode(mode)
-                        .test_bel_attr_bits(aid)
-                        .multi_attr(aname, MultiValue::Bin, 2);
+                    bctx.mode(mode).test_bel_attr_bits(aid).multi_attr(
+                        attr.name.clone(),
+                        MultiValue::Bin,
+                        2,
+                    );
                 }
 
                 GTP_COMMON::BIAS_CFG
@@ -260,7 +262,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
             bctx.mode(mode).test_bel_input_inv_auto(pin);
         }
 
-        for (aid, _aname, attr) in &backend.edev.db[GTX_COMMON].attributes {
+        for (aid, attr) in &backend.edev.db[GTX_COMMON].attributes {
             match aid {
                 GTX_COMMON::DRP
                 | GTX_COMMON::CLKSWING_CFG
@@ -551,20 +553,20 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
             bctx.mode(mode).test_bel_input_inv_auto(pin);
         }
 
-        for (aid, aname, attr) in &backend.edev.db[GTP_CHANNEL].attributes {
+        for (aid, attr) in &backend.edev.db[GTP_CHANNEL].attributes {
             match aid {
                 GTP_CHANNEL::DRP => (),
 
                 GTP_CHANNEL::RXSLIDE_MODE => {
                     for (val, vname) in [
-                        (enums::GTX_RX_SLIDE_MODE::NONE, "#OFF"),
-                        (enums::GTX_RX_SLIDE_MODE::AUTO, "AUTO"),
-                        (enums::GTX_RX_SLIDE_MODE::PCS, "PCS"),
-                        (enums::GTX_RX_SLIDE_MODE::PMA, "PMA"),
+                        (enums::GT_RX_SLIDE_MODE::NONE, "#OFF"),
+                        (enums::GT_RX_SLIDE_MODE::AUTO, "AUTO"),
+                        (enums::GT_RX_SLIDE_MODE::PCS, "PCS"),
+                        (enums::GT_RX_SLIDE_MODE::PMA, "PMA"),
                     ] {
                         bctx.mode(mode)
                             .test_bel_attr_val(aid, val)
-                            .attr(aname, vname)
+                            .attr(attr.name.clone(), vname)
                             .commit();
                     }
                 }
@@ -615,7 +617,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
                     for val in 1..15 {
                         bctx.mode(mode)
                             .test_bel_attr_bitvec_u32(aid, val)
-                            .attr(aname, val.to_string())
+                            .attr(attr.name.clone(), val.to_string())
                             .commit();
                     }
                 }
@@ -623,7 +625,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
                     for val in 3..61 {
                         bctx.mode(mode)
                             .test_bel_attr_bitvec_u32(aid, val)
-                            .attr(aname, val.to_string())
+                            .attr(attr.name.clone(), val.to_string())
                             .commit();
                     }
                 }
@@ -631,7 +633,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
                     for val in 1..128 {
                         bctx.mode(mode)
                             .test_bel_attr_bitvec_u32(aid, val)
-                            .attr(aname, val.to_string())
+                            .attr(attr.name.clone(), val.to_string())
                             .commit();
                     }
                 }
@@ -644,7 +646,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
                     for val in 1..64 {
                         bctx.mode(mode)
                             .test_bel_attr_bitvec_u32(aid, val)
-                            .attr(aname, val.to_string())
+                            .attr(attr.name.clone(), val.to_string())
                             .commit();
                     }
                 }
@@ -652,7 +654,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
                     for val in 1..62 {
                         bctx.mode(mode)
                             .test_bel_attr_bitvec_u32(aid, val)
-                            .attr(aname, val.to_string())
+                            .attr(attr.name.clone(), val.to_string())
                             .commit();
                     }
                 }
@@ -690,7 +692,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
             bctx.mode(mode).test_bel_input_inv_auto(pin);
         }
 
-        for (aid, aname, attr) in &backend.edev.db[GTX_CHANNEL].attributes {
+        for (aid, attr) in &backend.edev.db[GTX_CHANNEL].attributes {
             match aid {
                 GTX_CHANNEL::DRP
                 | GTX_CHANNEL::CPLLREFCLKSEL_STATIC_VAL
@@ -698,14 +700,14 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
 
                 GTX_CHANNEL::RXSLIDE_MODE => {
                     for (val, vname) in [
-                        (enums::GTX_RX_SLIDE_MODE::NONE, "#OFF"),
-                        (enums::GTX_RX_SLIDE_MODE::AUTO, "AUTO"),
-                        (enums::GTX_RX_SLIDE_MODE::PCS, "PCS"),
-                        (enums::GTX_RX_SLIDE_MODE::PMA, "PMA"),
+                        (enums::GT_RX_SLIDE_MODE::NONE, "#OFF"),
+                        (enums::GT_RX_SLIDE_MODE::AUTO, "AUTO"),
+                        (enums::GT_RX_SLIDE_MODE::PCS, "PCS"),
+                        (enums::GT_RX_SLIDE_MODE::PMA, "PMA"),
                     ] {
                         bctx.mode(mode)
                             .test_bel_attr_val(aid, val)
-                            .attr(aname, vname)
+                            .attr(attr.name.clone(), vname)
                             .commit();
                     }
                 }
@@ -730,7 +732,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
                     for val in 1..15 {
                         bctx.mode(mode)
                             .test_bel_attr_bitvec_u32(aid, val)
-                            .attr(aname, val.to_string())
+                            .attr(attr.name.clone(), val.to_string())
                             .commit();
                     }
                 }
@@ -738,7 +740,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
                     for val in 3..61 {
                         bctx.mode(mode)
                             .test_bel_attr_bitvec_u32(aid, val)
-                            .attr(aname, val.to_string())
+                            .attr(attr.name.clone(), val.to_string())
                             .commit();
                     }
                 }
@@ -746,7 +748,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
                     for val in 1..128 {
                         bctx.mode(mode)
                             .test_bel_attr_bitvec_u32(aid, val)
-                            .attr(aname, val.to_string())
+                            .attr(attr.name.clone(), val.to_string())
                             .commit();
                     }
                 }
@@ -759,7 +761,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
                     for val in 1..64 {
                         bctx.mode(mode)
                             .test_bel_attr_bitvec_u32(aid, val)
-                            .attr(aname, val.to_string())
+                            .attr(attr.name.clone(), val.to_string())
                             .commit();
                     }
                 }
@@ -767,7 +769,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
                     for val in 1..62 {
                         bctx.mode(mode)
                             .test_bel_attr_bitvec_u32(aid, val)
-                            .attr(aname, val.to_string())
+                            .attr(attr.name.clone(), val.to_string())
                             .commit();
                     }
                 }
@@ -944,7 +946,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
                 | GTX_CHANNEL::TERM_RCAL_OVRD_GTX
                 | GTX_CHANNEL::TX_DEEMPH0_GTX
                 | GTX_CHANNEL::TX_DEEMPH1_GTX => {
-                    let aname = aname.strip_suffix("_GTX").unwrap();
+                    let aname = attr.name.strip_suffix("_GTX").unwrap();
                     bctx.mode(mode)
                         .test_bel_attr_multi_rename(aname, aid, MultiValue::Bin);
                 }
@@ -960,7 +962,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
                 | GTX_CHANNEL::TX_DEEMPH1_GTH
                 | GTX_CHANNEL::PMA_RSV2_GTH
                 | GTX_CHANNEL::PMA_RSV4_GTH => {
-                    let aname = aname.strip_suffix("_GTH").unwrap();
+                    let aname = attr.name.strip_suffix("_GTH").unwrap();
                     bctx.mode(mode)
                         .test_bel_attr_multi_rename(aname, aid, MultiValue::Bin);
                 }
@@ -969,13 +971,13 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
                 | GTX_CHANNEL::RXCDR_CFG_GTX
                 | GTX_CHANNEL::PMA_RSV2_GTX
                 | GTX_CHANNEL::PMA_RSV4_GTX => {
-                    let aname = aname.strip_suffix("_GTX").unwrap();
+                    let aname = attr.name.strip_suffix("_GTX").unwrap();
                     bctx.mode(mode)
                         .test_bel_attr_multi_rename(aname, aid, MultiValue::Hex(0));
                 }
 
                 GTX_CHANNEL::CPLL_CFG_GTH | GTX_CHANNEL::RXCDR_CFG_GTH => {
-                    let aname = aname.strip_suffix("_GTH").unwrap();
+                    let aname = attr.name.strip_suffix("_GTH").unwrap();
                     bctx.mode(mode)
                         .test_bel_attr_multi_rename(aname, aid, MultiValue::Hex(0));
                 }
@@ -1086,7 +1088,7 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
         }
         ctx.insert_bel_attr_bitvec(tcid, bslot, GTP_COMMON::DRP, drp);
 
-        for (aid, _aname, attr) in &ctx.edev.db[GTP_COMMON].attributes {
+        for (aid, attr) in &ctx.edev.db[GTP_COMMON].attributes {
             match aid {
                 GTP_COMMON::DRP
                 | GTP_COMMON::PLL0REFCLKSEL_STATIC_VAL
@@ -1227,7 +1229,7 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
         }
         ctx.insert_bel_attr_bitvec(tcid, bslot, GTX_COMMON::DRP, drp);
 
-        for (aid, _aname, attr) in &ctx.edev.db[GTX_COMMON].attributes {
+        for (aid, attr) in &ctx.edev.db[GTX_COMMON].attributes {
             match aid {
                 GTX_COMMON::DRP
                 | GTX_COMMON::QPLLREFCLKSEL_STATIC_VAL
@@ -1390,7 +1392,7 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
         }
         ctx.insert_bel_attr_bitvec(tcid, bslot, GTP_CHANNEL::DRP, drp);
 
-        for (aid, _aname, attr) in &ctx.edev.db[GTP_CHANNEL].attributes {
+        for (aid, attr) in &ctx.edev.db[GTP_CHANNEL].attributes {
             match aid {
                 GTP_CHANNEL::DRP => (),
 
@@ -1450,7 +1452,7 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
             ctx.collect_bel_input_inv_bi(tcid, bslot, pin);
         }
 
-        for (aid, _aname, attr) in &ctx.edev.db[GTX_CHANNEL].attributes {
+        for (aid, attr) in &ctx.edev.db[GTX_CHANNEL].attributes {
             match aid {
                 GTX_CHANNEL::DRP
                 | GTX_CHANNEL::CPLLREFCLKSEL_STATIC_VAL

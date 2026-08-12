@@ -350,8 +350,8 @@ fn verify_test_in(bel: &mut BelVerifier, pin: BelInputId) {
 
 fn verify_dcm(vrf: &mut Verifier, bcrd: BelCoord) {
     let mut bel = vrf.verify_bel(bcrd).kind("DCM_ADV");
-    verify_test_in(&mut bel, bcls::DCM_V4::CLKIN);
-    verify_test_in(&mut bel, bcls::DCM_V4::CLKFB);
+    verify_test_in(&mut bel, bcls::DCM::CLKIN);
+    verify_test_in(&mut bel, bcls::DCM::CLKFB);
 
     for (pin, bpin) in [
         ("CONCUR", "CONCUR_BUF"),
@@ -409,7 +409,7 @@ fn verify_sysmon(edev: &ExpandedDevice, vrf: &mut Verifier, bcrd: BelCoord) {
         }
     }
 
-    verify_test_in(&mut bel, bcls::SYSMON_V4::CONVST);
+    verify_test_in(&mut bel, bcls::SYSMON::CONVST);
 
     bel.commit();
 }

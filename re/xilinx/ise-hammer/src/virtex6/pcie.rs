@@ -2,7 +2,7 @@ use prjcombine_interconnect::db::BelAttributeType;
 use prjcombine_re_collector::diff::xlat_bit;
 use prjcombine_re_hammer::Session;
 use prjcombine_types::bitrect::TileBit;
-use prjcombine_virtex4::defs::{bcls, bcls::PCIE_V6 as PCIE, bslots, virtex6::tcls};
+use prjcombine_virtex4::defs::{bcls, bcls::PCIE, bslots, virtex6::tcls};
 
 use crate::{
     backend::{IseBackend, MultiValue},
@@ -32,7 +32,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
         .mode(mode)
         .commit();
 
-    for (aid, _, attr) in &backend.edev.db[PCIE].attributes {
+    for (aid, attr) in &backend.edev.db[PCIE].attributes {
         if aid == PCIE::DRP {
             continue;
         }
@@ -88,7 +88,7 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
     }
     ctx.insert_bel_attr_bitvec(tcid, bslot, PCIE::DRP, drp);
 
-    for (aid, _, attr) in &ctx.edev.db[PCIE].attributes {
+    for (aid, attr) in &ctx.edev.db[PCIE].attributes {
         if aid == PCIE::DRP {
             continue;
         }

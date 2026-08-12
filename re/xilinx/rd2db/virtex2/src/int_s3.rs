@@ -2139,7 +2139,7 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
                 None,
                 None,
                 None,
-                Some((tcid, bslots::LLV, naming)),
+                Some((tcid, bslots::TERM_V, naming)),
                 int_fwd_xy,
                 &[],
             );
@@ -2195,7 +2195,7 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
                 None,
                 None,
                 None,
-                Some((tcid, bslots::LLH, "LLH")),
+                Some((tcid, bslots::TERM_H, "LLH")),
                 int_fwd_xy,
                 &[],
             );

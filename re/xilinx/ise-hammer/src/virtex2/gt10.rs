@@ -270,7 +270,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
         }
         let skip_attrs: HashSet<_> =
             HashSet::from_iter(pma_reg_attrs().into_iter().map(|(attr, _, _)| attr));
-        for (aid, aname, attr) in &bcls.attributes {
+        for (aid, attr) in &bcls.attributes {
             if skip_attrs.contains(&aid) {
                 continue;
             }
@@ -308,7 +308,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
                     ] {
                         bctx.mode(mode)
                             .test_bel_attr_bitvec_u32(aid, val)
-                            .attr(aname, vname)
+                            .attr(attr.name.clone(), vname)
                             .commit();
                     }
                 }
@@ -317,8 +317,12 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
                         bctx.mode(mode).test_bel_attr_auto(aid);
                     }
                     BelAttributeType::Bool => {
-                        bctx.mode(mode)
-                            .test_bel_attr_bool_rename(aname, aid, "FALSE", "TRUE");
+                        bctx.mode(mode).test_bel_attr_bool_rename(
+                            attr.name.clone(),
+                            aid,
+                            "FALSE",
+                            "TRUE",
+                        );
                     }
                     BelAttributeType::BitVec(_) => {
                         bctx.mode(mode).test_bel_attr_multi(aid, MultiValue::Bin);
@@ -337,11 +341,11 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
                 .attr("PMA_SPEED_USE", val)
                 .commit();
         }
-        for (row, rname, _) in &intdb.tables[tables::GT10_PMA_SPEED].rows {
+        for (rid, row) in &intdb.tables[tables::GT10_PMA_SPEED].rows {
             bctx.mode(mode)
                 .attr("PMA_SPEED_USE", "PMA_SPEED")
-                .test_bel_special_row(specials::GT10_PMA_SPEED, row)
-                .attr("PMA_SPEED", rname.strip_prefix('_').unwrap())
+                .test_bel_special_row(specials::GT10_PMA_SPEED, rid)
+                .attr("PMA_SPEED", row.name.strip_prefix('_').unwrap())
                 .commit();
         }
         bctx.mode(mode)
@@ -385,7 +389,7 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
 
         let skip_attrs: HashSet<_> =
             HashSet::from_iter(pma_reg_attrs().into_iter().map(|(attr, _, _)| attr));
-        for (aid, _, attr) in &bcls.attributes {
+        for (aid, attr) in &bcls.attributes {
             if skip_attrs.contains(&aid) {
                 continue;
             }

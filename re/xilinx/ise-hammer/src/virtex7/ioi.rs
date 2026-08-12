@@ -579,29 +579,29 @@ fn add_fuzzers_ologic<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'
             }
 
             for (val, vname) in [
-                (enums::OLOGIC_V5_MUX_O::FF, "#FF"),
-                (enums::OLOGIC_V5_MUX_O::LATCH, "#LATCH"),
-                (enums::OLOGIC_V5_MUX_O::DDR, "DDR"),
+                (enums::OLOGIC_MUX_O::FF, "#FF"),
+                (enums::OLOGIC_MUX_O::LATCH, "#LATCH"),
+                (enums::OLOGIC_MUX_O::DDR, "DDR"),
             ] {
                 bctx.mode("OLOGICE2")
                     .pin("OQ")
-                    .test_bel_attr_val(OLOGIC::V5_MUX_O, val)
+                    .test_bel_attr_val(OLOGIC::MUX_O, val)
                     .attr("OUTFFTYPE", vname)
                     .commit();
             }
             for (val, vname) in [
-                (enums::OLOGIC_V5_MUX_T::FF, "#FF"),
-                (enums::OLOGIC_V5_MUX_T::LATCH, "#LATCH"),
-                (enums::OLOGIC_V5_MUX_T::DDR, "DDR"),
+                (enums::OLOGIC_MUX_T::FF, "#FF"),
+                (enums::OLOGIC_MUX_T::LATCH, "#LATCH"),
+                (enums::OLOGIC_MUX_T::DDR, "DDR"),
             ] {
                 bctx.mode("OLOGICE2")
                     .pin("TQ")
-                    .test_bel_attr_val(OLOGIC::V5_MUX_T, val)
+                    .test_bel_attr_val(OLOGIC::MUX_T, val)
                     .attr("TFFTYPE", vname)
                     .commit();
             }
             bctx.mode("OLOGICE2")
-                .test_bel_attr_val(OLOGIC::V5_MUX_O, enums::OLOGIC_V5_MUX_O::D1)
+                .test_bel_attr_val(OLOGIC::MUX_O, enums::OLOGIC_MUX_O::D1)
                 .attr("OQUSED", "0")
                 .attr("O1USED", "0")
                 .attr("D1INV", "D1")
@@ -611,21 +611,21 @@ fn add_fuzzers_ologic<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'
                 .commit();
 
             for (val, vname) in [
-                (enums::OLOGIC_V5_MUX_O::SERDES_SDR, "SDR"),
-                (enums::OLOGIC_V5_MUX_O::SERDES_DDR, "DDR"),
+                (enums::OLOGIC_MUX_O::SERDES_SDR, "SDR"),
+                (enums::OLOGIC_MUX_O::SERDES_DDR, "DDR"),
             ] {
                 bctx.mode("OSERDESE2")
-                    .test_bel_attr_val(OLOGIC::V5_MUX_O, val)
+                    .test_bel_attr_val(OLOGIC::MUX_O, val)
                     .attr("DATA_RATE_OQ", vname)
                     .commit();
             }
             for (val, vname) in [
-                (enums::OLOGIC_V5_MUX_T::T1, "BUF"),
-                (enums::OLOGIC_V5_MUX_T::SERDES_SDR, "SDR"),
-                (enums::OLOGIC_V5_MUX_T::SERDES_DDR, "DDR"),
+                (enums::OLOGIC_MUX_T::T1, "BUF"),
+                (enums::OLOGIC_MUX_T::SERDES_SDR, "SDR"),
+                (enums::OLOGIC_MUX_T::SERDES_DDR, "DDR"),
             ] {
                 bctx.mode("OSERDESE2")
-                    .test_bel_attr_val(OLOGIC::V5_MUX_T, val)
+                    .test_bel_attr_val(OLOGIC::MUX_T, val)
                     .attr("DATA_RATE_TQ", vname)
                     .commit();
             }
@@ -780,10 +780,10 @@ fn add_fuzzers_iodelay<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &
                 .attr("DELAYCHAIN_OSC", "TRUE")
                 .commit();
             for (val, vname) in [
-                (enums::IODELAY_V7_DELAY_TYPE::FIXED, "FIXED"),
-                (enums::IODELAY_V7_DELAY_TYPE::VARIABLE, "VARIABLE"),
-                (enums::IODELAY_V7_DELAY_TYPE::VAR_LOAD, "VAR_LOAD"),
-                (enums::IODELAY_V7_DELAY_TYPE::VAR_LOAD, "VAR_LOAD_PIPE"),
+                (enums::IODELAY_DELAY_TYPE::FIXED, "FIXED"),
+                (enums::IODELAY_DELAY_TYPE::VARIABLE, "VARIABLE"),
+                (enums::IODELAY_DELAY_TYPE::VAR_LOAD, "VAR_LOAD"),
+                (enums::IODELAY_DELAY_TYPE::VAR_LOAD, "VAR_LOAD_PIPE"),
             ] {
                 bctx.mode("IDELAYE2")
                     .props(setup_idelayctrl.clone())
@@ -1592,18 +1592,10 @@ fn collect_fuzzers_ologic(ctx: &mut CollectorCtx) {
             xlat_enum_attr(diffs_ratio),
         );
 
-        let mut diff_sdr = ctx.get_diff_attr_val(
-            tcid,
-            bslot,
-            OLOGIC::V5_MUX_O,
-            enums::OLOGIC_V5_MUX_O::SERDES_SDR,
-        );
-        let mut diff_ddr = ctx.get_diff_attr_val(
-            tcid,
-            bslot,
-            OLOGIC::V5_MUX_O,
-            enums::OLOGIC_V5_MUX_O::SERDES_DDR,
-        );
+        let mut diff_sdr =
+            ctx.get_diff_attr_val(tcid, bslot, OLOGIC::MUX_O, enums::OLOGIC_MUX_O::SERDES_SDR);
+        let mut diff_ddr =
+            ctx.get_diff_attr_val(tcid, bslot, OLOGIC::MUX_O, enums::OLOGIC_MUX_O::SERDES_DDR);
         diff_sdr.apply_bit_diff(
             ctx.bel_attr_bit(tcid, bslot, OLOGIC::FFO_SR_ENABLE),
             true,
@@ -1615,39 +1607,39 @@ fn collect_fuzzers_ologic(ctx: &mut CollectorCtx) {
             false,
         );
         let item = xlat_enum_attr(vec![
-            (enums::OLOGIC_V5_MUX_O::NONE, Diff::default()),
+            (enums::OLOGIC_MUX_O::NONE, Diff::default()),
             (
-                enums::OLOGIC_V5_MUX_O::D1,
-                ctx.get_diff_attr_val(tcid, bslot, OLOGIC::V5_MUX_O, enums::OLOGIC_V5_MUX_O::D1),
+                enums::OLOGIC_MUX_O::D1,
+                ctx.get_diff_attr_val(tcid, bslot, OLOGIC::MUX_O, enums::OLOGIC_MUX_O::D1),
             ),
-            (enums::OLOGIC_V5_MUX_O::SERDES_SDR, diff_sdr),
-            (enums::OLOGIC_V5_MUX_O::DDR, diff_ddr),
+            (enums::OLOGIC_MUX_O::SERDES_SDR, diff_sdr),
+            (enums::OLOGIC_MUX_O::DDR, diff_ddr),
             (
-                enums::OLOGIC_V5_MUX_O::FF,
-                ctx.get_diff_attr_val(tcid, bslot, OLOGIC::V5_MUX_O, enums::OLOGIC_V5_MUX_O::FF),
-            ),
-            (
-                enums::OLOGIC_V5_MUX_O::DDR,
-                ctx.get_diff_attr_val(tcid, bslot, OLOGIC::V5_MUX_O, enums::OLOGIC_V5_MUX_O::DDR),
+                enums::OLOGIC_MUX_O::FF,
+                ctx.get_diff_attr_val(tcid, bslot, OLOGIC::MUX_O, enums::OLOGIC_MUX_O::FF),
             ),
             (
-                enums::OLOGIC_V5_MUX_O::LATCH,
-                ctx.get_diff_attr_val(tcid, bslot, OLOGIC::V5_MUX_O, enums::OLOGIC_V5_MUX_O::LATCH),
+                enums::OLOGIC_MUX_O::DDR,
+                ctx.get_diff_attr_val(tcid, bslot, OLOGIC::MUX_O, enums::OLOGIC_MUX_O::DDR),
+            ),
+            (
+                enums::OLOGIC_MUX_O::LATCH,
+                ctx.get_diff_attr_val(tcid, bslot, OLOGIC::MUX_O, enums::OLOGIC_MUX_O::LATCH),
             ),
         ]);
-        ctx.insert_bel_attr_enum(tcid, bslot, OLOGIC::V5_MUX_O, item);
+        ctx.insert_bel_attr_enum(tcid, bslot, OLOGIC::MUX_O, item);
 
         let mut diff_sdr = ctx.get_diff_attr_val(
             tcid,
             bslot,
-            OLOGIC::V5_MUX_T,
-            enums::OLOGIC_V5_MUX_T::SERDES_SDR,
+            OLOGIC::MUX_T,
+            enums::OLOGIC_MUX_T::SERDES_SDR,
         );
         let mut diff_ddr = ctx.get_diff_attr_val(
             tcid,
             bslot,
-            OLOGIC::V5_MUX_T,
-            enums::OLOGIC_V5_MUX_T::SERDES_DDR,
+            OLOGIC::MUX_T,
+            enums::OLOGIC_MUX_T::SERDES_DDR,
         );
         diff_sdr.apply_bit_diff(
             ctx.bel_attr_bit(tcid, bslot, OLOGIC::FFT_SR_ENABLE),
@@ -1660,27 +1652,27 @@ fn collect_fuzzers_ologic(ctx: &mut CollectorCtx) {
             false,
         );
         let item = xlat_enum_attr(vec![
-            (enums::OLOGIC_V5_MUX_T::NONE, Diff::default()),
+            (enums::OLOGIC_MUX_T::NONE, Diff::default()),
             (
-                enums::OLOGIC_V5_MUX_T::T1,
-                ctx.get_diff_attr_val(tcid, bslot, OLOGIC::V5_MUX_T, enums::OLOGIC_V5_MUX_T::T1),
+                enums::OLOGIC_MUX_T::T1,
+                ctx.get_diff_attr_val(tcid, bslot, OLOGIC::MUX_T, enums::OLOGIC_MUX_T::T1),
             ),
-            (enums::OLOGIC_V5_MUX_T::SERDES_SDR, diff_sdr),
-            (enums::OLOGIC_V5_MUX_T::DDR, diff_ddr),
+            (enums::OLOGIC_MUX_T::SERDES_SDR, diff_sdr),
+            (enums::OLOGIC_MUX_T::DDR, diff_ddr),
             (
-                enums::OLOGIC_V5_MUX_T::FF,
-                ctx.get_diff_attr_val(tcid, bslot, OLOGIC::V5_MUX_T, enums::OLOGIC_V5_MUX_T::FF),
-            ),
-            (
-                enums::OLOGIC_V5_MUX_T::DDR,
-                ctx.get_diff_attr_val(tcid, bslot, OLOGIC::V5_MUX_T, enums::OLOGIC_V5_MUX_T::DDR),
+                enums::OLOGIC_MUX_T::FF,
+                ctx.get_diff_attr_val(tcid, bslot, OLOGIC::MUX_T, enums::OLOGIC_MUX_T::FF),
             ),
             (
-                enums::OLOGIC_V5_MUX_T::LATCH,
-                ctx.get_diff_attr_val(tcid, bslot, OLOGIC::V5_MUX_T, enums::OLOGIC_V5_MUX_T::LATCH),
+                enums::OLOGIC_MUX_T::DDR,
+                ctx.get_diff_attr_val(tcid, bslot, OLOGIC::MUX_T, enums::OLOGIC_MUX_T::DDR),
+            ),
+            (
+                enums::OLOGIC_MUX_T::LATCH,
+                ctx.get_diff_attr_val(tcid, bslot, OLOGIC::MUX_T, enums::OLOGIC_MUX_T::LATCH),
             ),
         ]);
-        ctx.insert_bel_attr_enum(tcid, bslot, OLOGIC::V5_MUX_T, item);
+        ctx.insert_bel_attr_enum(tcid, bslot, OLOGIC::MUX_T, item);
 
         let mut present_ologic = ctx.get_diff_bel_special(tcid, bslot, specials::OLOGIC);
         present_ologic.apply_bit_diff(
@@ -1689,9 +1681,9 @@ fn collect_fuzzers_ologic(ctx: &mut CollectorCtx) {
             true,
         );
         present_ologic.apply_enum_diff(
-            ctx.bel_attr_enum(tcid, bslot, OLOGIC::V5_MUX_T),
-            enums::OLOGIC_V5_MUX_T::T1,
-            enums::OLOGIC_V5_MUX_T::NONE,
+            ctx.bel_attr_enum(tcid, bslot, OLOGIC::MUX_T),
+            enums::OLOGIC_MUX_T::T1,
+            enums::OLOGIC_MUX_T::NONE,
         );
         present_ologic.assert_empty();
         let mut present_oserdes = ctx.get_diff_bel_special(tcid, bslot, specials::OSERDES);
@@ -1792,20 +1784,20 @@ fn collect_fuzzers_iodelay(ctx: &mut CollectorCtx) {
             tcid,
             bslot,
             ODELAY::DELAY_TYPE,
-            enums::IODELAY_V7_DELAY_TYPE::FIXED,
+            enums::IODELAY_DELAY_TYPE::FIXED,
         ));
         let mut diff_var = ctx.get_diff_attr_val(
             tcid,
             bslot,
             ODELAY::DELAY_TYPE,
-            enums::IODELAY_V7_DELAY_TYPE::VARIABLE,
+            enums::IODELAY_DELAY_TYPE::VARIABLE,
         );
         diff_var.apply_bit_diff(en, true, false);
         let mut diff_vl = ctx.get_diff_attr_val(
             tcid,
             bslot,
             ODELAY::DELAY_TYPE,
-            enums::IODELAY_V7_DELAY_TYPE::VAR_LOAD,
+            enums::IODELAY_DELAY_TYPE::VAR_LOAD,
         );
         diff_vl.apply_bit_diff(en, true, false);
         ctx.insert_bel_attr_bool(tcid, bslot, ODELAY::ENABLE, en);
@@ -1814,9 +1806,9 @@ fn collect_fuzzers_iodelay(ctx: &mut CollectorCtx) {
             bslot,
             ODELAY::DELAY_TYPE,
             xlat_enum_attr(vec![
-                (enums::IODELAY_V7_DELAY_TYPE::FIXED, Diff::default()),
-                (enums::IODELAY_V7_DELAY_TYPE::VARIABLE, diff_var),
-                (enums::IODELAY_V7_DELAY_TYPE::VAR_LOAD, diff_vl),
+                (enums::IODELAY_DELAY_TYPE::FIXED, Diff::default()),
+                (enums::IODELAY_DELAY_TYPE::VARIABLE, diff_var),
+                (enums::IODELAY_DELAY_TYPE::VAR_LOAD, diff_vl),
             ]),
         );
 

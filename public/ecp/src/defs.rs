@@ -15,28 +15,39 @@ target_defs! {
     variant crosslink;
 
     bel_class SLICE {
-        input A0, B0, C0, D0;
-        input A1, B1, C1, D1;
-        input M0, M1;
+        input A[2], B[2], C[2], D[2];
+        input M[2];
         input FXA, FXB;
         input CLK, LSR, CE;
-        input WCK, WRE;
-        output F0, F1, Q0, Q1, OFX0, OFX1;
+        if variant [ecp5, crosslink] {
+            input WCK, WRE;
+        }
+        output F[2], Q[2];
+        if variant [ecp5, crosslink] {
+            // skip
+        } else {
+            output OFX[2];
+        }
     }
 
-    // ???
-    bel_class CIBTEST_SEL {
-        input TSEL0, TSEL1;
+    if variant machxo {
+        // ???
+        bel_class CIBTEST_SEL {
+            input TSEL[2];
+        }
     }
 
     // TODO: convert to routing
-    bel_class ECLK_TAP {
-        output ECLK0;
-        output ECLK1;
+    if variant [ecp2, ecp2m, xp2, ecp3] {
+        bel_class ECLK_TAP {
+            output ECLK[2];
+        }
     }
-    bel_class HSDCLK_ROOT {
-        output OUT_W[8];
-        output OUT_E[8];
+    if variant [ecp2, ecp2m, xp2, ecp3, machxo2] {
+        bel_class HSDCLK_ROOT {
+            output OUT_W[8];
+            output OUT_E[8];
+        }
     }
 
     wire TIE0: tie 0;
@@ -507,19 +518,14 @@ target_defs! {
 
             for i in 0..4 {
                 bel SLICE[i] {
-                    input A0 = IMUX_A[2 * i];
-                    input A1 = IMUX_A[2 * i + 1];
-                    input B0 = IMUX_B[2 * i];
-                    input B1 = IMUX_B[2 * i + 1];
-                    input C0 = IMUX_C[2 * i];
-                    input C1 = IMUX_C[2 * i + 1];
-                    input D0 = IMUX_D[2 * i];
-                    input D1 = IMUX_D[2 * i + 1];
-                    input M0 = IMUX_M[2 * i];
-                    input M1 = IMUX_M[2 * i + 1];
-
-                    output F0 = OUT_F[2 * i];
-                    output F1 = OUT_F[2 * i + 1];
+                    for j in 0..2 {
+                        input A[j] = IMUX_A[2 * i + j];
+                        input B[j] = IMUX_B[2 * i + j];
+                        input C[j] = IMUX_C[2 * i + j];
+                        input D[j] = IMUX_D[2 * i + j];
+                        input M[j] = IMUX_M[2 * i + j];
+                        output F[j] = OUT_F[2 * i + j];
+                    }
 
                     if variant [scm, ecp, xp, machxo] {
                         if bel_slot SLICE[3] {
@@ -540,8 +546,9 @@ target_defs! {
                     if variant [ecp5, crosslink] {
                         // skip
                     } else {
-                        output OFX0 = OUT_OFX[2 * i];
-                        output OFX1 = OUT_OFX[2 * i + 1];
+                        for j in 0..2 {
+                            output OFX[j] = OUT_OFX[2 * i + j];
+                        }
                     }
 
                     if variant [ecp2, ecp2m, xp2, ecp3] {
@@ -551,8 +558,9 @@ target_defs! {
                             input CLK = IMUX_CLK[i];
                             input LSR = IMUX_LSR[i];
                             input CE = IMUX_CE[i];
-                            output Q0 = OUT_Q[2 * i];
-                            output Q1 = OUT_Q[2 * i + 1];
+                            for j in 0..2 {
+                                output Q[j] = OUT_Q[2 * i + j];
+                            }
                         }
                     } else {
                         if variant [ecp4, ecp5, crosslink] {
@@ -563,8 +571,9 @@ target_defs! {
                             input LSR = IMUX_LSR[i];
                         }
                         input CE = IMUX_CE[i];
-                        output Q0 = OUT_Q[2 * i];
-                        output Q1 = OUT_Q[2 * i + 1];
+                        for j in 0..2 {
+                            output Q[j] = OUT_Q[2 * i + j];
+                        }
                     }
 
                     if variant [ecp5, crosslink] {
@@ -1922,8 +1931,8 @@ target_defs! {
             tile_class ECLK_TAP {
                 cell CELL;
                 bel ECLK_TAP {
-                    output ECLK0 = OUT_F[6];
-                    output ECLK1 = OUT_F[7];
+                    output ECLK[0] = OUT_F[6];
+                    output ECLK[1] = OUT_F[7];
                 }
             }
         }
@@ -2015,7 +2024,10 @@ target_defs! {
             }
 
             pass OUT_F_W = OUT_F;
-            pass OUT_OFX_W = OUT_OFX;
+            if variant [ecp5, crosslink] {
+            } else {
+                pass OUT_OFX_W = OUT_OFX;
+            }
         }
         connector_class TERM_E {
             if variant [ecp5, crosslink] {

@@ -408,10 +408,10 @@ impl CollectorData {
 
         for ((tid, rid, fid), value) in self.table_data {
             let row = &mut intdb.tables[tid].rows[rid];
-            if row.contains_id(fid) {
+            if row.fields.contains_id(fid) {
                 assert_eq!(row[fid], value);
             } else {
-                row.insert(fid, value);
+                row.fields.insert(fid, value);
             }
         }
     }

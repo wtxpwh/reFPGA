@@ -16,11 +16,10 @@ use prjcombine_types::{bitrect::TileBit, bits, bitvec::BitVec};
 use prjcombine_virtex4::{
     defs::{
         bcls::{self, ILOGIC, IOB, OLOGIC},
-        bslots, enums, tslots,
-        virtex4::{
-            tables::{IOB_DATA, LVDS_DATA},
-            tcls,
-        },
+        bslots, enums,
+        tables::{IOB_DATA, LVDS_DATA},
+        tslots,
+        virtex4::tcls,
     },
     expanded::IoCoord,
 };
@@ -1070,10 +1069,10 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
         );
 
         for (val, vname) in [
-            (enums::OLOGIC_V4_MUX_O::D1, "D1"),
-            (enums::OLOGIC_V4_MUX_O::FFO1, "OFF1"),
-            (enums::OLOGIC_V4_MUX_O::FFODDR, "OFFDDRA"),
-            (enums::OLOGIC_V4_MUX_O::FFODDR, "OFFDDRB"),
+            (enums::OLOGIC_MUX_O::D1, "D1"),
+            (enums::OLOGIC_MUX_O::FFO1, "OFF1"),
+            (enums::OLOGIC_MUX_O::FFODDR, "OFFDDRA"),
+            (enums::OLOGIC_MUX_O::FFODDR, "OFFDDRB"),
         ] {
             bctx.mode("OLOGIC")
                 .attr("SRINV", "#OFF")
@@ -1085,15 +1084,15 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
                 .attr("D1INV", "D1")
                 .pin("D1")
                 .pin("OQ")
-                .test_bel_attr_val(OLOGIC::V4_MUX_O, val)
+                .test_bel_attr_val(OLOGIC::MUX_O, val)
                 .attr("OMUX", vname)
                 .commit();
         }
         for (val, vname) in [
-            (enums::OLOGIC_V4_MUX_T::T1, "T1"),
-            (enums::OLOGIC_V4_MUX_T::FFT1, "TFF1"),
-            (enums::OLOGIC_V4_MUX_T::FFTDDR, "TFFDDRA"),
-            (enums::OLOGIC_V4_MUX_T::FFTDDR, "TFFDDRB"),
+            (enums::OLOGIC_MUX_T::T1, "T1"),
+            (enums::OLOGIC_MUX_T::FFT1, "TFF1"),
+            (enums::OLOGIC_MUX_T::FFTDDR, "TFFDDRA"),
+            (enums::OLOGIC_MUX_T::FFTDDR, "TFFDDRB"),
         ] {
             bctx.mode("OLOGIC")
                 .attr("SRINV", "#OFF")
@@ -1105,7 +1104,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
                 .attr("T1INV", "T1")
                 .pin("T1")
                 .pin("TQ")
-                .test_bel_attr_val(OLOGIC::V4_MUX_T, val)
+                .test_bel_attr_val(OLOGIC::MUX_T, val)
                 .attr("TMUX", vname)
                 .commit();
         }
@@ -1143,16 +1142,16 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
                 .commit();
         }
         for (val, vname) in [
-            (enums::OLOGIC_V4_MUX_T::T1, "BUF"),
-            (enums::OLOGIC_V4_MUX_T::FFT1, "SDR"),
-            (enums::OLOGIC_V4_MUX_T::FFTDDR, "DDR"),
+            (enums::OLOGIC_MUX_T::T1, "BUF"),
+            (enums::OLOGIC_MUX_T::FFT1, "SDR"),
+            (enums::OLOGIC_MUX_T::FFTDDR, "DDR"),
         ] {
             bctx.mode("OSERDES")
                 .attr("TCEINV", "TCE_B")
                 .attr("T1INV", "T1")
                 .pin("TCE")
                 .pin("T1")
-                .test_bel_attr_val(OLOGIC::V4_MUX_T, val)
+                .test_bel_attr_val(OLOGIC::MUX_T, val)
                 .attr("DATA_RATE_TQ", vname)
                 .commit();
         }
@@ -2269,20 +2268,20 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
             BTreeSet::from([fft_sr_sync, fft_rank1_sr_sync,])
         );
 
-        ctx.collect_bel_attr_default(tcid, bslot, OLOGIC::V4_MUX_O, enums::OLOGIC_V4_MUX_O::NONE);
-        ctx.collect_bel_attr_default(tcid, bslot, OLOGIC::V4_MUX_T, enums::OLOGIC_V4_MUX_T::NONE);
+        ctx.collect_bel_attr_default(tcid, bslot, OLOGIC::MUX_O, enums::OLOGIC_MUX_O::NONE);
+        ctx.collect_bel_attr_default(tcid, bslot, OLOGIC::MUX_T, enums::OLOGIC_MUX_T::NONE);
 
         let mut diff_sdr = ctx.get_diff_bel_special(tcid, bslot, specials::OSERDES_SDR);
         let mut diff_ddr = ctx.get_diff_bel_special(tcid, bslot, specials::OSERDES_DDR);
         diff_sdr.apply_enum_diff(
-            ctx.bel_attr_enum(tcid, bslot, OLOGIC::V4_MUX_O),
-            enums::OLOGIC_V4_MUX_O::FFO1,
-            enums::OLOGIC_V4_MUX_O::D1,
+            ctx.bel_attr_enum(tcid, bslot, OLOGIC::MUX_O),
+            enums::OLOGIC_MUX_O::FFO1,
+            enums::OLOGIC_MUX_O::D1,
         );
         diff_ddr.apply_enum_diff(
-            ctx.bel_attr_enum(tcid, bslot, OLOGIC::V4_MUX_O),
-            enums::OLOGIC_V4_MUX_O::FFODDR,
-            enums::OLOGIC_V4_MUX_O::D1,
+            ctx.bel_attr_enum(tcid, bslot, OLOGIC::MUX_O),
+            enums::OLOGIC_MUX_O::FFODDR,
+            enums::OLOGIC_MUX_O::D1,
         );
         assert_eq!(diff_sdr, diff_ddr);
         diff_sdr.apply_bitvec_diff_int(&ffo_rank2_init, 0, 0xf);
@@ -2407,19 +2406,19 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
         let mut present_ologic = ctx.get_diff_bel_special(tcid, bslot, specials::OLOGIC);
         let mut present_oserdes = ctx.get_diff_bel_special(tcid, bslot, specials::OSERDES);
         present_ologic.apply_enum_diff(
-            ctx.bel_attr_enum(tcid, bslot, OLOGIC::V4_MUX_T),
-            enums::OLOGIC_V4_MUX_T::T1,
-            enums::OLOGIC_V4_MUX_T::NONE,
+            ctx.bel_attr_enum(tcid, bslot, OLOGIC::MUX_T),
+            enums::OLOGIC_MUX_T::T1,
+            enums::OLOGIC_MUX_T::NONE,
         );
         present_oserdes.apply_enum_diff(
-            ctx.bel_attr_enum(tcid, bslot, OLOGIC::V4_MUX_O),
-            enums::OLOGIC_V4_MUX_O::D1,
-            enums::OLOGIC_V4_MUX_O::NONE,
+            ctx.bel_attr_enum(tcid, bslot, OLOGIC::MUX_O),
+            enums::OLOGIC_MUX_O::D1,
+            enums::OLOGIC_MUX_O::NONE,
         );
         present_oserdes.apply_enum_diff(
-            ctx.bel_attr_enum(tcid, bslot, OLOGIC::V4_MUX_T),
-            enums::OLOGIC_V4_MUX_T::T1,
-            enums::OLOGIC_V4_MUX_T::NONE,
+            ctx.bel_attr_enum(tcid, bslot, OLOGIC::MUX_T),
+            enums::OLOGIC_MUX_T::T1,
+            enums::OLOGIC_MUX_T::NONE,
         );
         present_oserdes.apply_bit_diff(ctx.bel_input_inv(tcid, bslot, OLOGIC::D1), false, true);
         present_ologic.assert_empty();
@@ -2742,15 +2741,15 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
             IOB_DATA::NSLEW_FAST,
             BitVec::from_iter(nslew.iter().map(|bit| bit.inv)),
         );
-        ctx.insert_bel_attr_bitvec(tcid, bslot, IOB::V4_LVDS, lvds);
+        ctx.insert_bel_attr_bitvec(tcid, bslot, IOB::LVDS, lvds);
         ctx.insert_bel_attr_bool(tcid, bslot, IOB::DCI_T, dci_t);
         ctx.insert_bel_attr_enum(tcid, bslot, IOB::DCI_MODE, dci_mode);
-        ctx.insert_bel_attr_bitvec(tcid, bslot, IOB::V4_OUTPUT_MISC, output_misc);
+        ctx.insert_bel_attr_bitvec(tcid, bslot, IOB::OUTPUT_MISC, output_misc);
         ctx.insert_bel_attr_bitvec(tcid, bslot, IOB::DCI_MISC, dci_misc);
-        ctx.insert_bel_attr_bitvec(tcid, bslot, IOB::V4_PDRIVE, pdrive);
-        ctx.insert_bel_attr_bitvec(tcid, bslot, IOB::V4_NDRIVE, ndrive);
-        ctx.insert_bel_attr_bitvec(tcid, bslot, IOB::V4_PSLEW, pslew);
-        ctx.insert_bel_attr_bitvec(tcid, bslot, IOB::V4_NSLEW, nslew);
+        ctx.insert_bel_attr_bitvec(tcid, bslot, IOB::PDRIVE, pdrive);
+        ctx.insert_bel_attr_bitvec(tcid, bslot, IOB::NDRIVE, ndrive);
+        ctx.insert_bel_attr_bitvec(tcid, bslot, IOB::PSLEW, pslew);
+        ctx.insert_bel_attr_bitvec(tcid, bslot, IOB::NSLEW, nslew);
         present.assert_empty();
     }
     let diff1 = present_vr.split_bits_by(|bit| bit.bit.to_idx() >= 40);
@@ -2779,7 +2778,7 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
             ctx.insert_table_bitvec(LVDS_DATA, row, LVDS_DATA::LVDSBIAS, val);
         }
     }
-    ctx.insert_bel_attr_bitvec(tcid, bslot, bcls::LVDS_V4::LVDSBIAS, item);
+    ctx.insert_bel_attr_bitvec(tcid, bslot, bcls::LVDS::LVDSBIAS, item);
     ctx.insert_table_bitvec(LVDS_DATA, LVDS_DATA::OFF, LVDS_DATA::LVDSBIAS, bits![0; 10]);
 
     let hclk_center_cnt = ctx.edev.tile_index[tcls::HCLK_IO_CENTER].len();
@@ -2811,13 +2810,13 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
         ctx.insert_bel_attr_bitvec(
             tcid,
             bslot,
-            bcls::DCI::V4_LVDIV2,
+            bcls::DCI::LVDIV2,
             vec![TileBit::new(0, 27, 13).pos(), TileBit::new(0, 27, 14).pos()],
         );
         ctx.insert_bel_attr_bitvec(
             tcid,
             bslot,
-            bcls::DCI::V4_PMASK_TERM_VCC,
+            bcls::DCI::PMASK_TERM_VCC,
             vec![
                 TileBit::new(0, 4, 12).pos(),
                 TileBit::new(0, 4, 13).pos(),
@@ -2829,7 +2828,7 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
         ctx.insert_bel_attr_bitvec(
             tcid,
             bslot,
-            bcls::DCI::V4_PMASK_TERM_SPLIT,
+            bcls::DCI::PMASK_TERM_SPLIT,
             vec![
                 TileBit::new(0, 10, 13).pos(),
                 TileBit::new(0, 10, 14).pos(),
@@ -2841,7 +2840,7 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
         ctx.insert_bel_attr_bitvec(
             tcid,
             bslot,
-            bcls::DCI::V4_NMASK_TERM_SPLIT,
+            bcls::DCI::NMASK_TERM_SPLIT,
             vec![
                 TileBit::new(0, 12, 12).pos(),
                 TileBit::new(0, 12, 13).pos(),
@@ -2890,7 +2889,7 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
         match std.dci {
             DciKind::OutputHalf => {
                 let val = extract_bitvec_val_part(
-                    ctx.bel_attr_bitvec(tcid, bslot, bcls::DCI::V4_LVDIV2),
+                    ctx.bel_attr_bitvec(tcid, bslot, bcls::DCI::LVDIV2),
                     &bits![0; 2],
                     &mut diff,
                 );
@@ -2898,7 +2897,7 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
             }
             DciKind::InputVcc | DciKind::BiVcc => {
                 let val = extract_bitvec_val_part(
-                    ctx.bel_attr_bitvec(tcid, bslot, bcls::DCI::V4_PMASK_TERM_VCC),
+                    ctx.bel_attr_bitvec(tcid, bslot, bcls::DCI::PMASK_TERM_VCC),
                     &bits![0; 5],
                     &mut diff,
                 );
@@ -2906,13 +2905,13 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
             }
             DciKind::InputSplit | DciKind::BiSplit | DciKind::BiSplitT => {
                 let val = extract_bitvec_val_part(
-                    ctx.bel_attr_bitvec(tcid, bslot, bcls::DCI::V4_PMASK_TERM_SPLIT),
+                    ctx.bel_attr_bitvec(tcid, bslot, bcls::DCI::PMASK_TERM_SPLIT),
                     &bits![0; 5],
                     &mut diff,
                 );
                 ctx.insert_table_bitvec(IOB_DATA, row, IOB_DATA::PMASK_TERM_SPLIT, val);
                 let val = extract_bitvec_val_part(
-                    ctx.bel_attr_bitvec(tcid, bslot, bcls::DCI::V4_NMASK_TERM_SPLIT),
+                    ctx.bel_attr_bitvec(tcid, bslot, bcls::DCI::NMASK_TERM_SPLIT),
                     &bits![0; 5],
                     &mut diff,
                 );

@@ -56892,11 +56892,6 @@ intdb {
 		SOPIN,
 	}
 
-	enum RANDOR_MODE {
-		AND,
-		OR,
-	}
-
 	enum BRAM_DATA_WIDTH {
 		_1,
 		_2,
@@ -56921,16 +56916,6 @@ intdb {
 	enum BRAM_RSTTYPE {
 		SYNC,
 		ASYNC,
-	}
-
-	enum MULT_B_INPUT {
-		DIRECT,
-		CASCADE,
-	}
-
-	enum DSP_CARRYINSEL {
-		CARRYIN,
-		OPMODE5,
 	}
 
 	enum IOI_MUX_TSBYPASS {
@@ -56985,12 +56970,6 @@ intdb {
 		PAIR_FFO1,
 	}
 
-	enum OREG_MUX_O {
-		NONE,
-		O,
-		OQ,
-	}
-
 	enum IOB_PULL {
 		NONE,
 		PULLUP,
@@ -57010,14 +56989,6 @@ intdb {
 		CMOS_VCCO,
 		LOOPBACK_O,
 		LOOPBACK_T,
-	}
-
-	enum IOB_SUSPEND {
-		_3STATE,
-		_3STATE_PULLUP,
-		_3STATE_PULLDOWN,
-		_3STATE_KEEPER,
-		DRIVE_LAST_VALUE,
 	}
 
 	enum IOB_DCI_MODE {
@@ -57055,13 +57026,6 @@ intdb {
 		_180,
 		_270,
 		_360,
-	}
-
-	enum PCILOGICSE_DELAY {
-		NILL,
-		LOW,
-		MED,
-		HIGH,
 	}
 
 	enum MISC_TEMP_SENSOR {
@@ -57111,73 +57075,11 @@ intdb {
 		_130,
 	}
 
-	enum CONFIG_RATE_S3 {
-		_3,
-		_6,
-		_12,
-		_25,
-		_50,
-		_100,
-	}
-
-	enum CONFIG_RATE_S3E {
-		_1,
-		_3,
-		_6,
-		_12,
-		_25,
-		_50,
-	}
-
-	enum CONFIG_RATE_S3A {
-		_6,
-		_1,
-		_3,
-		_7,
-		_8,
-		_10,
-		_12,
-		_13,
-		_17,
-		_22,
-		_25,
-		_27,
-		_33,
-		_44,
-		_50,
-		_100,
-	}
-
-	enum BUSCLK_FREQ {
-		_25,
-		_50,
-		_100,
-		_200,
-	}
-
-	enum S3_VRDSEL {
-		_80,
-		_90,
-		_95,
-		_100,
-	}
-
-	enum S3E_VRDSEL {
-		_70,
-		_80,
-		_90,
-	}
-
 	enum SECURITY {
 		NONE,
 		LEVEL1,
 		LEVEL2,
 		LEVEL3,
-	}
-
-	enum SW_CLK {
-		INTERNALCLK,
-		STARTUPCLK,
 	}
 
 	enum GT_DATA_WIDTH {
@@ -57285,7 +57187,6 @@ intdb {
 		attribute F_SHIFT_ENABLE: bool;
 		attribute G_SHIFT_ENABLE: bool;
 		attribute SLICEWE0USED: bool;
-		attribute SLICEWE1USED: bool;
 		attribute BYOUTUSED: bool;
 		attribute CYINIT: SLICE_CYINIT;
 		attribute CY0F: SLICE_CY0F;
@@ -57321,18 +57222,6 @@ intdb {
 		attribute JOINER_E: bool;
 	}
 
-	bel_class RANDOR_INIT {
-		attribute MODE: RANDOR_MODE;
-	}
-
-	bel_class RANDOR {
-		attribute MODE: RANDOR_MODE;
-	}
-
-	bel_class RANDOR_OUT {
-		output O;
-	}
-
 	bel_class BRAM {
 		input CLKA;
 		input CLKB;
@@ -57340,10 +57229,8 @@ intdb {
 		input ENB;
 		input RSTA;
 		input RSTB;
-		input WEA[4];
-		input WEB[4];
-		input REGCEA;
-		input REGCEB;
+		input WEA[1];
+		input WEB[1];
 		input ADDRA[14];
 		input ADDRB[14];
 		input DIA[32];
@@ -57365,18 +57252,6 @@ intdb {
 		attribute DATA_WIDTH_B: BRAM_DATA_WIDTH;
 		attribute WRITE_MODE_A: BRAM_WRITE_MODE;
 		attribute WRITE_MODE_B: BRAM_WRITE_MODE;
-		attribute WDEL_A: bitvec[3];
-		attribute WDEL_B: bitvec[3];
-		attribute DDEL_A: bitvec[2];
-		attribute DDEL_B: bitvec[2];
-		attribute WW_VALUE_A: BRAM_WW_VALUE;
-		attribute WW_VALUE_B: BRAM_WW_VALUE;
-		attribute ENABLE_A: bool;
-		attribute ENABLE_B: bool;
-		attribute DOA_REG: bool;
-		attribute DOB_REG: bool;
-		attribute RSTTYPE_A: BRAM_RSTTYPE;
-		attribute RSTTYPE_B: BRAM_RSTTYPE;
 	}
 
 	bel_class MULT {
@@ -57385,55 +57260,8 @@ intdb {
 		input CLK;
 		input CEP;
 		input RSTP;
-		input CEA;
-		input RSTA;
-		input CEB;
-		input RSTB;
 		output P[36];
 		attribute PREG: bool;
-		attribute AREG: bool;
-		attribute BREG: bool;
-		attribute B_INPUT: MULT_B_INPUT;
-		attribute PREG_CLKINVERSION: bool;
-	}
-
-	bel_class DSP {
-		input A[18];
-		input B[18];
-		input C[48];
-		input D[18];
-		input OPMODE[8];
-		input CLK;
-		input CEA;
-		input CEB;
-		input CEC;
-		input CED;
-		input CEOPMODE;
-		input CECARRYIN;
-		input CEM;
-		input CEP;
-		input RSTA;
-		input RSTB;
-		input RSTC;
-		input RSTD;
-		input RSTOPMODE;
-		input RSTCARRYIN;
-		input RSTM;
-		input RSTP;
-		output P[48];
-		attribute B_INPUT: MULT_B_INPUT;
-		attribute CARRYINSEL: DSP_CARRYINSEL;
-		attribute A0REG: bool;
-		attribute A1REG: bool;
-		attribute B0REG: bool;
-		attribute B1REG: bool;
-		attribute CREG: bool;
-		attribute DREG: bool;
-		attribute MREG: bool;
-		attribute PREG: bool;
-		attribute OPMODEREG: bool;
-		attribute CARRYINREG: bool;
-		attribute RSTTYPE: BRAM_RSTTYPE;
 	}
 
 	bel_class IOI {
@@ -57450,9 +57278,6 @@ intdb {
 		input TCE;
 		input SR;
 		input REV;
-		input S1;
-		input S2;
-		input S3;
 		output I;
 		output IQ1;
 		output IQ2;
@@ -57473,11 +57298,6 @@ intdb {
 		attribute IQ_TSBYPASS_ENABLE: bool;
 		attribute READBACK_I: bitvec[1];
 		attribute MUX_TSBYPASS: IOI_MUX_TSBYPASS;
-		attribute MUX_FFI: IOI_MUX_FFI;
-		attribute DELAY_VARIABLE: bool;
-		attribute DELAY_COMMON: bitvec[1];
-		attribute IQ_DELAY: bitvec[2];
-		attribute I_DELAY: bitvec[3];
 		attribute FFO_INIT: bitvec[1];
 		attribute FFO1_SRVAL: bitvec[1];
 		attribute FFO2_SRVAL: bitvec[1];
@@ -57487,9 +57307,6 @@ intdb {
 		attribute FFO_SR_ENABLE: bool;
 		attribute FFO_REV_ENABLE: bool;
 		attribute MUX_O: IOI_MUX_O;
-		attribute MUX_OCE: IOI_MUX_OCE;
-		attribute MUX_FFO1: IOI_MUX_FFO1;
-		attribute MUX_FFO2: IOI_MUX_FFO2;
 		attribute FFT_INIT: bitvec[1];
 		attribute FFT1_SRVAL: bitvec[1];
 		attribute FFT2_SRVAL: bitvec[1];
@@ -57499,49 +57316,6 @@ intdb {
 		attribute FFT_SR_ENABLE: bool;
 		attribute FFT_REV_ENABLE: bool;
 		attribute MUX_T: IOI_MUX_T;
-		attribute MUX_MISR_CLOCK: IOI_MUX_MISR_CLOCK;
-		attribute MISR_ENABLE: bool;
-		attribute MISR_RESET: bool;
-	}
-
-	bel_class IREG {
-		input CLK;
-		input SR;
-		input REV;
-		input CE;
-		output I;
-		output IQ;
-		output CLKPAD;
-		pad PAD: input
-		attribute FF_INIT: bitvec[1];
-		attribute FF_SRVAL: bitvec[1];
-		attribute FF_LATCH: bool;
-		attribute FF_SR_SYNC: bool;
-		attribute FF_SR_ENABLE: bool;
-		attribute FF_REV_ENABLE: bool;
-		attribute O2I_ENABLE: bool;
-		attribute O2IQ_ENABLE: bool;
-		attribute O2I_O2IQ_ENABLE: bool;
-		attribute I_DELAY_ENABLE: bool;
-		attribute IQ_DELAY_ENABLE: bool;
-		attribute DELAY_ENABLE: bitvec[14];
-		attribute READBACK_I: bitvec[1];
-	}
-
-	bel_class OREG {
-		input O;
-		input CLK;
-		input SR;
-		input REV;
-		input CE;
-		pad PAD: output
-		attribute FF_INIT: bitvec[1];
-		attribute FF_SRVAL: bitvec[1];
-		attribute FF_LATCH: bool;
-		attribute FF_SR_SYNC: bool;
-		attribute FF_SR_ENABLE: bool;
-		attribute FF_REV_ENABLE: bool;
-		attribute MUX_O: OREG_MUX_O;
 	}
 
 	bel_class IOB {
@@ -57549,20 +57323,11 @@ intdb {
 		attribute VREF: bool;
 		attribute VR: bool;
 		attribute BREFCLK: bool;
-		attribute PCI_CLAMP: bool;
-		attribute PCI_INPUT: bool;
-		attribute SUSPEND: IOB_SUSPEND;
 		attribute IBUF_MODE: IOB_IBUF_MODE;
-		attribute DELAY_COMMON: bitvec[1];
-		attribute IQ_DELAY: bitvec[2];
-		attribute I_DELAY: bitvec[3];
-		attribute DELAY_VARIABLE: bool;
-		attribute IBUF_ENABLE: bool;
 		attribute OUTPUT_ENABLE: bitvec[2];
 		attribute DISABLE_GTS: bool;
 		attribute DCI_MODE: IOB_DCI_MODE;
 		attribute DCIUPDATEMODE_ASREQUIRED: bool;
-		attribute OUTPUT_DIFF_GROUP: bitvec[1];
 		attribute V2_PDRIVE: bitvec[5];
 		attribute V2_NDRIVE: bitvec[5];
 		attribute V2_SLEW: bitvec[4];
@@ -57573,31 +57338,6 @@ intdb {
 		attribute V2P_SLEW: bitvec[5];
 		attribute V2P_OUTPUT_MISC: bitvec[2];
 		attribute V2P_OUTPUT_DIFF: bitvec[4];
-		attribute S3_PDRIVE: bitvec[4];
-		attribute S3_NDRIVE: bitvec[4];
-		attribute S3_SLEW: bitvec[5];
-		attribute S3_OUTPUT_MISC: bitvec[2];
-		attribute S3_OUTPUT_DIFF: bitvec[3];
-		attribute S3E_PDRIVE: bitvec[4];
-		attribute S3E_NDRIVE: bitvec[4];
-		attribute S3E_SLEW: bitvec[6];
-		attribute S3E_OUTPUT_MISC: bitvec[1];
-		attribute S3E_OUTPUT_DIFF: bitvec[2];
-		attribute S3A_PDRIVE: bitvec[3];
-		attribute S3A_NDRIVE: bitvec[3];
-		attribute S3A_PSLEW: bitvec[4];
-		attribute S3A_NSLEW: bitvec[4];
-		attribute S3A_OUTPUT_DIFF: bitvec[4];
-	}
-
-	bel_class IBUF {
-		attribute ENABLE: bool;
-		attribute O2IPAD_ENABLE: bool;
-	}
-
-	bel_class OBUF {
-		attribute ENABLE: bitvec[2];
-		attribute MISR_ENABLE: bool;
 	}
 
 	bel_class DCI {
@@ -57615,25 +57355,16 @@ intdb {
 		attribute ENABLE: bool;
 		attribute TEST_ENABLE: bool;
 		attribute FORCE_DONE_HIGH: bool;
-		attribute V2_PMASK_TERM_SPLIT: bitvec[5];
-		attribute V2_NMASK_TERM_SPLIT: bitvec[5];
-		attribute V2_PMASK_TERM_VCC: bitvec[5];
-		attribute V2_LVDSBIAS: bitvec[9];
-		attribute S3_PMASK_TERM_SPLIT: bitvec[4];
-		attribute S3_NMASK_TERM_SPLIT: bitvec[4];
-		attribute S3_PMASK_TERM_VCC: bitvec[4];
-		attribute S3_LVDSBIAS: bitvec[13];
+		attribute PMASK_TERM_SPLIT: bitvec[5];
+		attribute NMASK_TERM_SPLIT: bitvec[5];
+		attribute PMASK_TERM_VCC: bitvec[5];
+		attribute LVDSBIAS: bitvec[9];
 		attribute QUIET: bool;
 	}
 
 	bel_class DCIRESET {
 		input RST;
 		attribute ENABLE: bool;
-	}
-
-	bel_class BANK {
-		attribute S3E_LVDSBIAS: bitvec[11][2];
-		attribute S3A_LVDSBIAS: bitvec[12][2];
 	}
 
 	bel_class DCM {
@@ -57727,36 +57458,6 @@ intdb {
 		attribute V2_VBG_PD: bitvec[2];
 		attribute ZD1_BY1: bool;
 		attribute RESET_PS_SEL: bool;
-		attribute CFG_DLL_LP: bitvec[3];
-		attribute CFG_DLL_PS: bitvec[9];
-		attribute S3_EN_DUMMY_OSC: bool;
-		attribute EN_OLD_OSCCTL: bool;
-		attribute EN_PWCTL: bool;
-		attribute EN_RELRST_B: bool;
-		attribute EXTENDED_FLUSH_TIME: bool;
-		attribute EXTENDED_HALT_TIME: bool;
-		attribute EXTENDED_RUN_TIME: bool;
-		attribute INVERT_ZD1_CUSTOM: bool;
-		attribute LPON_B_DFS: bitvec[2];
-		attribute M1D1: bool;
-		attribute MIS1: bool;
-		attribute SEL_HSYNC_B: bitvec[2];
-		attribute SPLY_IDC: bitvec[2];
-		attribute TRIM_LP_B: bool;
-		attribute VREG_PROBE: bitvec[5];
-		attribute PS_VARIABLE: bool;
-		attribute S3E_REG_DFS_C: bitvec[3];
-		attribute S3E_REG_DFS_S: bitvec[76];
-		attribute S3E_REG_DLL_C: bitvec[32];
-		attribute S3E_REG_DLL_S: bitvec[32];
-		attribute S3E_REG_INTERFACE: bitvec[16];
-		attribute S3E_REG_VREG: bitvec[20];
-		attribute S3E_CLKFX_MULTIPLY: bitvec[8];
-		attribute S3E_CLKFX_DIVIDE: bitvec[8];
-		attribute S3E_DUTY_CYCLE_CORRECTION: bool;
-		attribute S3E_VBG_SEL: bitvec[4];
-		attribute UNK_PERIOD_LF: bitvec[2];
-		attribute UNK_PERIOD_NOT_HF: bitvec[1];
 	}
 
 	bel_class BUFGMUX {
@@ -57771,15 +57472,11 @@ intdb {
 		attribute GWE_ENABLE: bool;
 	}
 
-	bel_class GLOBALSIG_HCLK_V2 {
+	bel_class GLOBALSIG_HCLK {
 		attribute GWE_GHIGH_S_ENABLE: bool;
 		attribute GWE_GHIGH_N_ENABLE: bool;
 		attribute GSR_S_ENABLE: bool;
 		attribute GSR_N_ENABLE: bool;
-	}
-
-	bel_class GLOBALSIG_HCLK_S3 {
-		attribute ENABLE: bool;
 	}
 
 	bel_class PCILOGIC {
@@ -57788,19 +57485,10 @@ intdb {
 		output OUT[6];
 	}
 
-	bel_class PCILOGICSE {
-		input I1;
-		input I2;
-		input I3;
-		attribute ENABLE: bool;
-		attribute DELAY: PCILOGICSE_DELAY;
-	}
-
 	bel_class STARTUP {
 		input CLK;
 		input GSR;
 		input GTS;
-		input MBT;
 		attribute USER_GTS_GSR_ENABLE: bool;
 		attribute GTS_SYNC: bool;
 		attribute GSR_SYNC: bool;
@@ -57822,26 +57510,10 @@ intdb {
 		attribute ENABLE: bool;
 	}
 
-	bel_class ISPI_ACCESS {
-		input CLK;
-		input CS_B;
-		input COPI;
-		output CIPO;
-		attribute ENABLE: bool;
-	}
-
 	bel_class PMV {
 		input A[6];
 		input EN;
 		output O;
-	}
-
-	bel_class DNA_PORT {
-		input CLK;
-		input DIN;
-		input READ;
-		input SHIFT;
-		output DOUT;
 	}
 
 	bel_class BSCAN {
@@ -57856,8 +57528,6 @@ intdb {
 		output CAPTURE;
 		output SHIFT;
 		output UPDATE;
-		output TCK;
-		output TMS;
 		attribute USER_TDO_ENABLE: bitvec[2];
 		attribute USERCODE: bitvec[32];
 	}
@@ -57875,13 +57545,9 @@ intdb {
 		pad M0: input
 		pad M1: input
 		pad M2: input
-		pad ISPI_CCLK: output
-		pad ISPI_COPI: output
 		attribute M0_PULL: IOB_PULL;
 		attribute M1_PULL: IOB_PULL;
 		attribute M2_PULL: IOB_PULL;
-		attribute ISPI_CCLK_PULL: IOB_PULL;
-		attribute ISPI_COPI_PULL: IOB_PULL;
 		attribute DCI_CLK_ENABLE: bool;
 		attribute DCI_ALTVR: bool;
 		attribute BCLK_N_DIV2: bitvec[5];
@@ -57889,35 +57555,24 @@ intdb {
 		attribute DISABLE_BANDGAP: bool;
 		attribute DISABLE_VGG_GENERATION: bool;
 		attribute RAISE_VGG: bitvec[2];
-		attribute DCI_OSC_SEL: bitvec[3];
-		attribute GATE_GHIGH: bool;
-		attribute SEND_VGG: bitvec[4];
-		attribute VGG_ENABLE_OFFCHIP: bool;
-		attribute VGG_SENDMAX: bool;
-		attribute TEMP_SENSOR: MISC_TEMP_SENSOR;
-		attribute UNK_ALWAYS_SET: bitvec[4];
 	}
 
 	bel_class MISC_SE {
 		pad CCLK: inout
 		pad DONE: inout
 		pad POWERDOWN_B: input
-		pad SUSPEND: input
 		attribute CCLK_PULL: IOB_PULL;
 		attribute DONE_PULL: IOB_PULL;
 		attribute POWERDOWN_PULL: IOB_PULL;
-		attribute ABUFF: bitvec[4];
 	}
 
 	bel_class MISC_NW {
 		pad HSWAPEN: input
 		pad PROG_B: input
 		pad TDI: input
-		pad TMS: input
 		attribute HSWAPEN_PULL: IOB_PULL;
 		attribute PROG_PULL: IOB_PULL;
 		attribute TDI_PULL: IOB_PULL;
-		attribute TMS_PULL: IOB_PULL;
 		attribute TEST_LL: bool;
 	}
 
@@ -57925,25 +57580,10 @@ intdb {
 		pad TCK: input
 		pad TMS: input
 		pad TDO: output
-		pad ISPI_CS_B: output
-		pad ISPI_CIPO: input
 		attribute TCK_PULL: IOB_PULL;
 		attribute TMS_PULL: IOB_PULL;
 		attribute TDO_PULL: IOB_PULL;
-		attribute ISPI_CS_B_PULL: IOB_PULL;
-		attribute ISPI_CIPO_PULL: IOB_PULL;
 		attribute TEST_LL: bool;
-	}
-
-	bel_class MISC_CNR_S3 {
-		attribute MUX_DCI_TEST: bitvec[1];
-		attribute DCM_ENABLE: bool;
-	}
-
-	bel_class MISR_FC {
-		input CLK;
-		attribute MISR_CLOCK: bool;
-		attribute MISR_RESET: bool;
 	}
 
 	bel_class GLOBAL {
@@ -57954,58 +57594,17 @@ intdb {
 		attribute DONE_CYCLE: STARTUP_CYCLE;
 		attribute STARTUP_CLOCK: STARTUP_CLOCK;
 		attribute CONFIG_RATE_V2: CONFIG_RATE_V2;
-		attribute CONFIG_RATE_S3: CONFIG_RATE_S3;
-		attribute CONFIG_RATE_S3E: CONFIG_RATE_S3E;
-		attribute CONFIG_RATE_S3A: CONFIG_RATE_S3A;
 		attribute CAPTURE_ONESHOT: bool;
 		attribute DRIVE_DONE: bool;
 		attribute DONE_PIPE: bool;
 		attribute DCM_SHUTDOWN: bool;
 		attribute POWERDOWN_STATUS: bool;
 		attribute CRC_ENABLE: bool;
-		attribute BUSCLK_FREQ: BUSCLK_FREQ;
-		attribute S3_VRDSEL: S3_VRDSEL;
-		attribute S3E_VRDSEL: S3E_VRDSEL;
-		attribute MULTIBOOT_ENABLE: bool;
 		attribute GTS_USR_B: bool;
 		attribute VGG_TEST: bool;
 		attribute BCLK_TEST: bool;
 		attribute SECURITY: SECURITY;
 		attribute PERSIST: bool;
-		attribute ICAP_ENABLE: bool;
-		attribute S3A_VRDSEL: bitvec[3];
-		attribute SEND_VGG: bitvec[4];
-		attribute VGG_ENABLE_OFFCHIP: bool;
-		attribute VGG_SENDMAX: bool;
-		attribute DRIVE_AWAKE: bool;
-		attribute BPI_DIV8: bool;
-		attribute ICAP_BYPASS: bool;
-		attribute RESET_ON_ERR: bool;
-		attribute CONFIG_RATE_DIV: bitvec[10];
-		attribute CCLK_DLY: bitvec[2];
-		attribute CCLK_SEP: bitvec[2];
-		attribute CLK_SWITCH_OPT: bitvec[2];
-		attribute HC_CYCLE: bitvec[4];
-		attribute TWO_ROUND: bool;
-		attribute BRAM_SKIP: bool;
-		attribute SW_CLK: SW_CLK;
-		attribute EN_PORB: bool;
-		attribute EN_SUSPEND: bool;
-		attribute EN_SW_GSR: bool;
-		attribute SUSPEND_FILTER: bool;
-		attribute WAKE_DELAY1: bitvec[3];
-		attribute WAKE_DELAY2: bitvec[5];
-		attribute SW_GWE_CYCLE: bitvec[10];
-		attribute SW_GTS_CYCLE: bitvec[10];
-		attribute BOOTVSEL: bitvec[3];
-		attribute NEXT_CONFIG_BOOT_MODE: bitvec[3];
-		attribute NEXT_CONFIG_NEW_MODE: bool;
-		attribute TESTMODE_EN: bool;
-		attribute NEXT_CONFIG_ADDR: bitvec[32];
-		attribute POST_CRC_EN: bool;
-		attribute GLUTMASK: bool;
-		attribute POST_CRC_KEEP: bool;
-		attribute POST_CRC_FREQ_DIV: bitvec[10];
 	}
 
 	bel_class GT {
@@ -59623,7 +59222,6 @@ intdb {
 
 	tile_slot INT {
 		bel_slot INT: routing;
-		bel_slot PTE2OMUX: routing;
 
 		tile_class INT_CLB {
 			cell CELL;
@@ -93095,19 +92693,9 @@ intdb {
 		bel_slot IOI[1]: IOI;
 		bel_slot IOI[2]: IOI;
 		bel_slot IOI[3]: IOI;
-		bel_slot IREG[0]: IREG;
-		bel_slot IREG[1]: IREG;
-		bel_slot IREG[2]: IREG;
-		bel_slot IREG[3]: IREG;
-		bel_slot OREG[0]: OREG;
-		bel_slot OREG[1]: OREG;
-		bel_slot OREG[2]: OREG;
-		bel_slot OREG[3]: OREG;
 		bel_slot BRAM: BRAM;
 		bel_slot MULT: MULT;
 		bel_slot MULT_INT: routing;
-		bel_slot DSP: DSP;
-		bel_slot DSP_TESTMUX: routing;
 		bel_slot DCM: DCM;
 		bel_slot DCM_INT: routing;
 		bel_slot GT: GT;
@@ -93120,19 +92708,13 @@ intdb {
 		bel_slot STARTUP: STARTUP;
 		bel_slot CAPTURE: CAPTURE;
 		bel_slot ICAP: ICAP;
-		bel_slot ISPI_ACCESS: ISPI_ACCESS;
 		bel_slot PMV: PMV;
-		bel_slot DNA_PORT: DNA_PORT;
 		bel_slot BSCAN: BSCAN;
 		bel_slot JTAGPPC: JTAGPPC;
-		bel_slot RANDOR_OUT: RANDOR_OUT;
-		bel_slot MISC_CNR_S3: MISC_CNR_S3;
-		bel_slot MISR_FC: MISR_FC;
 		bel_slot MISC_SW: MISC_SW;
 		bel_slot MISC_SE: MISC_SE;
 		bel_slot MISC_NW: MISC_NW;
 		bel_slot MISC_NE: MISC_NE;
-		bel_slot BANK: BANK;
 
 		tile_class CLB {
 			cell CELL;
@@ -104546,10 +104128,10 @@ intdb {
 				attribute ENABLE @TERM_H[2][42];
 				attribute TEST_ENABLE @TERM_H[2][31];
 				attribute FORCE_DONE_HIGH @TERM_H[3][31];
-				attribute V2_PMASK_TERM_SPLIT @[TERM_H[2][32], TERM_H[3][32], TERM_H[2][33], TERM_H[3][33], TERM_H[2][34]];
-				attribute V2_NMASK_TERM_SPLIT @[TERM_H[2][37], TERM_H[3][37], TERM_H[2][38], TERM_H[3][38], TERM_H[2][39]];
-				attribute V2_PMASK_TERM_VCC @[TERM_H[3][34], TERM_H[2][35], TERM_H[3][35], TERM_H[2][36], TERM_H[3][36]];
-				attribute V2_LVDSBIAS @[TERM_H[3][44], TERM_H[2][45], TERM_H[3][45], TERM_H[2][46], TERM_H[3][46], TERM_H[2][47], TERM_H[3][47], TERM_H[2][48], TERM_H[3][48]];
+				attribute PMASK_TERM_SPLIT @[TERM_H[2][32], TERM_H[3][32], TERM_H[2][33], TERM_H[3][33], TERM_H[2][34]];
+				attribute NMASK_TERM_SPLIT @[TERM_H[2][37], TERM_H[3][37], TERM_H[2][38], TERM_H[3][38], TERM_H[2][39]];
+				attribute PMASK_TERM_VCC @[TERM_H[3][34], TERM_H[2][35], TERM_H[3][35], TERM_H[2][36], TERM_H[3][36]];
+				attribute LVDSBIAS @[TERM_H[3][44], TERM_H[2][45], TERM_H[3][45], TERM_H[2][46], TERM_H[3][46], TERM_H[2][47], TERM_H[3][47], TERM_H[2][48], TERM_H[3][48]];
 			}
 
 			bel DCI[1] {
@@ -104568,10 +104150,10 @@ intdb {
 				attribute ENABLE @TERM_V[10][7];
 				attribute TEST_ENABLE @TERM_V[9][6];
 				attribute FORCE_DONE_HIGH @TERM_V[9][8];
-				attribute V2_PMASK_TERM_SPLIT @[TERM_V[9][10], TERM_V[9][7], TERM_V[9][11], TERM_V[9][9], TERM_V[8][9]];
-				attribute V2_NMASK_TERM_SPLIT @[TERM_V[11][6], TERM_V[11][8], TERM_V[11][10], TERM_V[11][7], TERM_V[11][11]];
-				attribute V2_PMASK_TERM_VCC @[TERM_V[8][10], TERM_V[8][11], TERM_V[8][7], TERM_V[8][6], TERM_V[8][8]];
-				attribute V2_LVDSBIAS @[TERM_V[13][7], TERM_V[13][11], TERM_V[13][9], TERM_V[12][9], TERM_V[12][11], TERM_V[12][10], TERM_V[12][7], TERM_V[12][6], TERM_V[12][8]];
+				attribute PMASK_TERM_SPLIT @[TERM_V[9][10], TERM_V[9][7], TERM_V[9][11], TERM_V[9][9], TERM_V[8][9]];
+				attribute NMASK_TERM_SPLIT @[TERM_V[11][6], TERM_V[11][8], TERM_V[11][10], TERM_V[11][7], TERM_V[11][11]];
+				attribute PMASK_TERM_VCC @[TERM_V[8][10], TERM_V[8][11], TERM_V[8][7], TERM_V[8][6], TERM_V[8][8]];
+				attribute LVDSBIAS @[TERM_V[13][7], TERM_V[13][11], TERM_V[13][9], TERM_V[12][9], TERM_V[12][11], TERM_V[12][10], TERM_V[12][7], TERM_V[12][6], TERM_V[12][8]];
 			}
 
 			bel MISC_SW {
@@ -104645,10 +104227,10 @@ intdb {
 				attribute ENABLE @TERM_H[2][42];
 				attribute TEST_ENABLE @TERM_H[2][31];
 				attribute FORCE_DONE_HIGH @TERM_H[3][31];
-				attribute V2_PMASK_TERM_SPLIT @[TERM_H[2][32], TERM_H[3][32], TERM_H[2][33], TERM_H[3][33], TERM_H[2][34]];
-				attribute V2_NMASK_TERM_SPLIT @[TERM_H[2][37], TERM_H[3][37], TERM_H[2][38], TERM_H[3][38], TERM_H[2][39]];
-				attribute V2_PMASK_TERM_VCC @[TERM_H[3][34], TERM_H[2][35], TERM_H[3][35], TERM_H[2][36], TERM_H[3][36]];
-				attribute V2_LVDSBIAS @[TERM_H[3][44], TERM_H[2][45], TERM_H[3][45], TERM_H[2][46], TERM_H[3][46], TERM_H[2][47], TERM_H[3][47], TERM_H[2][48], TERM_H[3][48]];
+				attribute PMASK_TERM_SPLIT @[TERM_H[2][32], TERM_H[3][32], TERM_H[2][33], TERM_H[3][33], TERM_H[2][34]];
+				attribute NMASK_TERM_SPLIT @[TERM_H[2][37], TERM_H[3][37], TERM_H[2][38], TERM_H[3][38], TERM_H[2][39]];
+				attribute PMASK_TERM_VCC @[TERM_H[3][34], TERM_H[2][35], TERM_H[3][35], TERM_H[2][36], TERM_H[3][36]];
+				attribute LVDSBIAS @[TERM_H[3][44], TERM_H[2][45], TERM_H[3][45], TERM_H[2][46], TERM_H[3][46], TERM_H[2][47], TERM_H[3][47], TERM_H[2][48], TERM_H[3][48]];
 				attribute QUIET @TERM_H[3][39];
 			}
 
@@ -104668,10 +104250,10 @@ intdb {
 				attribute ENABLE @TERM_V[10][7];
 				attribute TEST_ENABLE @TERM_V[9][6];
 				attribute FORCE_DONE_HIGH @TERM_V[9][8];
-				attribute V2_PMASK_TERM_SPLIT @[TERM_V[9][10], TERM_V[9][7], TERM_V[9][11], TERM_V[9][9], TERM_V[8][9]];
-				attribute V2_NMASK_TERM_SPLIT @[TERM_V[11][6], TERM_V[11][8], TERM_V[11][10], TERM_V[11][7], TERM_V[11][11]];
-				attribute V2_PMASK_TERM_VCC @[TERM_V[8][10], TERM_V[8][11], TERM_V[8][7], TERM_V[8][6], TERM_V[8][8]];
-				attribute V2_LVDSBIAS @[TERM_V[13][7], TERM_V[13][11], TERM_V[13][9], TERM_V[12][9], TERM_V[12][11], TERM_V[12][10], TERM_V[12][7], TERM_V[12][6], TERM_V[12][8]];
+				attribute PMASK_TERM_SPLIT @[TERM_V[9][10], TERM_V[9][7], TERM_V[9][11], TERM_V[9][9], TERM_V[8][9]];
+				attribute NMASK_TERM_SPLIT @[TERM_V[11][6], TERM_V[11][8], TERM_V[11][10], TERM_V[11][7], TERM_V[11][11]];
+				attribute PMASK_TERM_VCC @[TERM_V[8][10], TERM_V[8][11], TERM_V[8][7], TERM_V[8][6], TERM_V[8][8]];
+				attribute LVDSBIAS @[TERM_V[13][7], TERM_V[13][11], TERM_V[13][9], TERM_V[12][9], TERM_V[12][11], TERM_V[12][10], TERM_V[12][7], TERM_V[12][6], TERM_V[12][8]];
 				attribute QUIET @TERM_V[11][9];
 			}
 
@@ -104746,10 +104328,10 @@ intdb {
 				attribute ENABLE @TERM_H[2][42];
 				attribute TEST_ENABLE @TERM_H[2][31];
 				attribute FORCE_DONE_HIGH @TERM_H[3][31];
-				attribute V2_PMASK_TERM_SPLIT @[TERM_H[2][32], TERM_H[3][32], TERM_H[2][33], TERM_H[3][33], TERM_H[2][34]];
-				attribute V2_NMASK_TERM_SPLIT @[TERM_H[2][37], TERM_H[3][37], TERM_H[2][38], TERM_H[3][38], TERM_H[2][39]];
-				attribute V2_PMASK_TERM_VCC @[TERM_H[3][34], TERM_H[2][35], TERM_H[3][35], TERM_H[2][36], TERM_H[3][36]];
-				attribute V2_LVDSBIAS @[TERM_H[3][44], TERM_H[2][45], TERM_H[3][45], TERM_H[2][46], TERM_H[3][46], TERM_H[2][47], TERM_H[3][47], TERM_H[2][48], TERM_H[3][48]];
+				attribute PMASK_TERM_SPLIT @[TERM_H[2][32], TERM_H[3][32], TERM_H[2][33], TERM_H[3][33], TERM_H[2][34]];
+				attribute NMASK_TERM_SPLIT @[TERM_H[2][37], TERM_H[3][37], TERM_H[2][38], TERM_H[3][38], TERM_H[2][39]];
+				attribute PMASK_TERM_VCC @[TERM_H[3][34], TERM_H[2][35], TERM_H[3][35], TERM_H[2][36], TERM_H[3][36]];
+				attribute LVDSBIAS @[TERM_H[3][44], TERM_H[2][45], TERM_H[3][45], TERM_H[2][46], TERM_H[3][46], TERM_H[2][47], TERM_H[3][47], TERM_H[2][48], TERM_H[3][48]];
 			}
 
 			bel DCI[1] {
@@ -104768,10 +104350,10 @@ intdb {
 				attribute ENABLE @TERM_V[10][7];
 				attribute TEST_ENABLE @TERM_V[9][6];
 				attribute FORCE_DONE_HIGH @TERM_V[9][8];
-				attribute V2_PMASK_TERM_SPLIT @[TERM_V[9][10], TERM_V[9][7], TERM_V[9][11], TERM_V[9][9], TERM_V[8][9]];
-				attribute V2_NMASK_TERM_SPLIT @[TERM_V[11][6], TERM_V[11][8], TERM_V[11][10], TERM_V[11][7], TERM_V[11][11]];
-				attribute V2_PMASK_TERM_VCC @[TERM_V[8][10], TERM_V[8][11], TERM_V[8][7], TERM_V[8][6], TERM_V[8][8]];
-				attribute V2_LVDSBIAS @[TERM_V[13][7], TERM_V[13][11], TERM_V[13][9], TERM_V[12][9], TERM_V[12][11], TERM_V[12][10], TERM_V[12][7], TERM_V[12][6], TERM_V[12][8]];
+				attribute PMASK_TERM_SPLIT @[TERM_V[9][10], TERM_V[9][7], TERM_V[9][11], TERM_V[9][9], TERM_V[8][9]];
+				attribute NMASK_TERM_SPLIT @[TERM_V[11][6], TERM_V[11][8], TERM_V[11][10], TERM_V[11][7], TERM_V[11][11]];
+				attribute PMASK_TERM_VCC @[TERM_V[8][10], TERM_V[8][11], TERM_V[8][7], TERM_V[8][6], TERM_V[8][8]];
+				attribute LVDSBIAS @[TERM_V[13][7], TERM_V[13][11], TERM_V[13][9], TERM_V[12][9], TERM_V[12][11], TERM_V[12][10], TERM_V[12][7], TERM_V[12][6], TERM_V[12][8]];
 			}
 
 			bel STARTUP {
@@ -104900,10 +104482,10 @@ intdb {
 				attribute ENABLE @TERM_H[2][42];
 				attribute TEST_ENABLE @TERM_H[2][31];
 				attribute FORCE_DONE_HIGH @TERM_H[3][31];
-				attribute V2_PMASK_TERM_SPLIT @[TERM_H[2][32], TERM_H[3][32], TERM_H[2][33], TERM_H[3][33], TERM_H[2][34]];
-				attribute V2_NMASK_TERM_SPLIT @[TERM_H[2][37], TERM_H[3][37], TERM_H[2][38], TERM_H[3][38], TERM_H[2][39]];
-				attribute V2_PMASK_TERM_VCC @[TERM_H[3][34], TERM_H[2][35], TERM_H[3][35], TERM_H[2][36], TERM_H[3][36]];
-				attribute V2_LVDSBIAS @[TERM_H[3][44], TERM_H[2][45], TERM_H[3][45], TERM_H[2][46], TERM_H[3][46], TERM_H[2][47], TERM_H[3][47], TERM_H[2][48], TERM_H[3][48]];
+				attribute PMASK_TERM_SPLIT @[TERM_H[2][32], TERM_H[3][32], TERM_H[2][33], TERM_H[3][33], TERM_H[2][34]];
+				attribute NMASK_TERM_SPLIT @[TERM_H[2][37], TERM_H[3][37], TERM_H[2][38], TERM_H[3][38], TERM_H[2][39]];
+				attribute PMASK_TERM_VCC @[TERM_H[3][34], TERM_H[2][35], TERM_H[3][35], TERM_H[2][36], TERM_H[3][36]];
+				attribute LVDSBIAS @[TERM_H[3][44], TERM_H[2][45], TERM_H[3][45], TERM_H[2][46], TERM_H[3][46], TERM_H[2][47], TERM_H[3][47], TERM_H[2][48], TERM_H[3][48]];
 				attribute QUIET @TERM_H[3][39];
 			}
 
@@ -104923,10 +104505,10 @@ intdb {
 				attribute ENABLE @TERM_V[10][7];
 				attribute TEST_ENABLE @TERM_V[9][6];
 				attribute FORCE_DONE_HIGH @TERM_V[9][8];
-				attribute V2_PMASK_TERM_SPLIT @[TERM_V[9][10], TERM_V[9][7], TERM_V[9][11], TERM_V[9][9], TERM_V[8][9]];
-				attribute V2_NMASK_TERM_SPLIT @[TERM_V[11][6], TERM_V[11][8], TERM_V[11][10], TERM_V[11][7], TERM_V[11][11]];
-				attribute V2_PMASK_TERM_VCC @[TERM_V[8][10], TERM_V[8][11], TERM_V[8][7], TERM_V[8][6], TERM_V[8][8]];
-				attribute V2_LVDSBIAS @[TERM_V[13][7], TERM_V[13][11], TERM_V[13][9], TERM_V[12][9], TERM_V[12][11], TERM_V[12][10], TERM_V[12][7], TERM_V[12][6], TERM_V[12][8]];
+				attribute PMASK_TERM_SPLIT @[TERM_V[9][10], TERM_V[9][7], TERM_V[9][11], TERM_V[9][9], TERM_V[8][9]];
+				attribute NMASK_TERM_SPLIT @[TERM_V[11][6], TERM_V[11][8], TERM_V[11][10], TERM_V[11][7], TERM_V[11][11]];
+				attribute PMASK_TERM_VCC @[TERM_V[8][10], TERM_V[8][11], TERM_V[8][7], TERM_V[8][6], TERM_V[8][8]];
+				attribute LVDSBIAS @[TERM_V[13][7], TERM_V[13][11], TERM_V[13][9], TERM_V[12][9], TERM_V[12][11], TERM_V[12][10], TERM_V[12][7], TERM_V[12][6], TERM_V[12][8]];
 				attribute QUIET @TERM_V[11][9];
 			}
 
@@ -105056,10 +104638,10 @@ intdb {
 				attribute ENABLE @TERM_H[2][42];
 				attribute TEST_ENABLE @TERM_H[2][31];
 				attribute FORCE_DONE_HIGH @TERM_H[3][31];
-				attribute V2_PMASK_TERM_SPLIT @[TERM_H[2][32], TERM_H[3][32], TERM_H[2][33], TERM_H[3][33], TERM_H[2][34]];
-				attribute V2_NMASK_TERM_SPLIT @[TERM_H[2][37], TERM_H[3][37], TERM_H[2][38], TERM_H[3][38], TERM_H[2][39]];
-				attribute V2_PMASK_TERM_VCC @[TERM_H[3][34], TERM_H[2][35], TERM_H[3][35], TERM_H[2][36], TERM_H[3][36]];
-				attribute V2_LVDSBIAS @[TERM_H[3][44], TERM_H[2][45], TERM_H[3][45], TERM_H[2][46], TERM_H[3][46], TERM_H[2][47], TERM_H[3][47], TERM_H[2][48], TERM_H[3][48]];
+				attribute PMASK_TERM_SPLIT @[TERM_H[2][32], TERM_H[3][32], TERM_H[2][33], TERM_H[3][33], TERM_H[2][34]];
+				attribute NMASK_TERM_SPLIT @[TERM_H[2][37], TERM_H[3][37], TERM_H[2][38], TERM_H[3][38], TERM_H[2][39]];
+				attribute PMASK_TERM_VCC @[TERM_H[3][34], TERM_H[2][35], TERM_H[3][35], TERM_H[2][36], TERM_H[3][36]];
+				attribute LVDSBIAS @[TERM_H[3][44], TERM_H[2][45], TERM_H[3][45], TERM_H[2][46], TERM_H[3][46], TERM_H[2][47], TERM_H[3][47], TERM_H[2][48], TERM_H[3][48]];
 			}
 
 			bel DCI[1] {
@@ -105078,10 +104660,10 @@ intdb {
 				attribute ENABLE @TERM_V[10][7];
 				attribute TEST_ENABLE @TERM_V[9][6];
 				attribute FORCE_DONE_HIGH @TERM_V[9][8];
-				attribute V2_PMASK_TERM_SPLIT @[TERM_V[9][10], TERM_V[9][7], TERM_V[9][11], TERM_V[9][9], TERM_V[8][9]];
-				attribute V2_NMASK_TERM_SPLIT @[TERM_V[11][6], TERM_V[11][8], TERM_V[11][10], TERM_V[11][7], TERM_V[11][11]];
-				attribute V2_PMASK_TERM_VCC @[TERM_V[8][10], TERM_V[8][11], TERM_V[8][7], TERM_V[8][6], TERM_V[8][8]];
-				attribute V2_LVDSBIAS @[TERM_V[13][7], TERM_V[13][11], TERM_V[13][9], TERM_V[12][9], TERM_V[12][11], TERM_V[12][10], TERM_V[12][7], TERM_V[12][6], TERM_V[12][8]];
+				attribute PMASK_TERM_SPLIT @[TERM_V[9][10], TERM_V[9][7], TERM_V[9][11], TERM_V[9][9], TERM_V[8][9]];
+				attribute NMASK_TERM_SPLIT @[TERM_V[11][6], TERM_V[11][8], TERM_V[11][10], TERM_V[11][7], TERM_V[11][11]];
+				attribute PMASK_TERM_VCC @[TERM_V[8][10], TERM_V[8][11], TERM_V[8][7], TERM_V[8][6], TERM_V[8][8]];
+				attribute LVDSBIAS @[TERM_V[13][7], TERM_V[13][11], TERM_V[13][9], TERM_V[12][9], TERM_V[12][11], TERM_V[12][10], TERM_V[12][7], TERM_V[12][6], TERM_V[12][8]];
 			}
 
 			bel PMV {
@@ -105168,10 +104750,10 @@ intdb {
 				attribute ENABLE @TERM_H[2][42];
 				attribute TEST_ENABLE @TERM_H[2][31];
 				attribute FORCE_DONE_HIGH @TERM_H[3][31];
-				attribute V2_PMASK_TERM_SPLIT @[TERM_H[2][32], TERM_H[3][32], TERM_H[2][33], TERM_H[3][33], TERM_H[2][34]];
-				attribute V2_NMASK_TERM_SPLIT @[TERM_H[2][37], TERM_H[3][37], TERM_H[2][38], TERM_H[3][38], TERM_H[2][39]];
-				attribute V2_PMASK_TERM_VCC @[TERM_H[3][34], TERM_H[2][35], TERM_H[3][35], TERM_H[2][36], TERM_H[3][36]];
-				attribute V2_LVDSBIAS @[TERM_H[3][44], TERM_H[2][45], TERM_H[3][45], TERM_H[2][46], TERM_H[3][46], TERM_H[2][47], TERM_H[3][47], TERM_H[2][48], TERM_H[3][48]];
+				attribute PMASK_TERM_SPLIT @[TERM_H[2][32], TERM_H[3][32], TERM_H[2][33], TERM_H[3][33], TERM_H[2][34]];
+				attribute NMASK_TERM_SPLIT @[TERM_H[2][37], TERM_H[3][37], TERM_H[2][38], TERM_H[3][38], TERM_H[2][39]];
+				attribute PMASK_TERM_VCC @[TERM_H[3][34], TERM_H[2][35], TERM_H[3][35], TERM_H[2][36], TERM_H[3][36]];
+				attribute LVDSBIAS @[TERM_H[3][44], TERM_H[2][45], TERM_H[3][45], TERM_H[2][46], TERM_H[3][46], TERM_H[2][47], TERM_H[3][47], TERM_H[2][48], TERM_H[3][48]];
 				attribute QUIET @TERM_H[3][39];
 			}
 
@@ -105191,10 +104773,10 @@ intdb {
 				attribute ENABLE @TERM_V[10][7];
 				attribute TEST_ENABLE @TERM_V[9][6];
 				attribute FORCE_DONE_HIGH @TERM_V[9][8];
-				attribute V2_PMASK_TERM_SPLIT @[TERM_V[9][10], TERM_V[9][7], TERM_V[9][11], TERM_V[9][9], TERM_V[8][9]];
-				attribute V2_NMASK_TERM_SPLIT @[TERM_V[11][6], TERM_V[11][8], TERM_V[11][10], TERM_V[11][7], TERM_V[11][11]];
-				attribute V2_PMASK_TERM_VCC @[TERM_V[8][10], TERM_V[8][11], TERM_V[8][7], TERM_V[8][6], TERM_V[8][8]];
-				attribute V2_LVDSBIAS @[TERM_V[13][7], TERM_V[13][11], TERM_V[13][9], TERM_V[12][9], TERM_V[12][11], TERM_V[12][10], TERM_V[12][7], TERM_V[12][6], TERM_V[12][8]];
+				attribute PMASK_TERM_SPLIT @[TERM_V[9][10], TERM_V[9][7], TERM_V[9][11], TERM_V[9][9], TERM_V[8][9]];
+				attribute NMASK_TERM_SPLIT @[TERM_V[11][6], TERM_V[11][8], TERM_V[11][10], TERM_V[11][7], TERM_V[11][11]];
+				attribute PMASK_TERM_VCC @[TERM_V[8][10], TERM_V[8][11], TERM_V[8][7], TERM_V[8][6], TERM_V[8][8]];
+				attribute LVDSBIAS @[TERM_V[13][7], TERM_V[13][11], TERM_V[13][9], TERM_V[12][9], TERM_V[12][11], TERM_V[12][10], TERM_V[12][7], TERM_V[12][6], TERM_V[12][8]];
 				attribute QUIET @TERM_V[11][9];
 			}
 
@@ -105282,10 +104864,10 @@ intdb {
 				attribute ENABLE @TERM_H[2][42];
 				attribute TEST_ENABLE @TERM_H[2][31];
 				attribute FORCE_DONE_HIGH @TERM_H[3][31];
-				attribute V2_PMASK_TERM_SPLIT @[TERM_H[2][32], TERM_H[3][32], TERM_H[2][33], TERM_H[3][33], TERM_H[2][34]];
-				attribute V2_NMASK_TERM_SPLIT @[TERM_H[2][37], TERM_H[3][37], TERM_H[2][38], TERM_H[3][38], TERM_H[2][39]];
-				attribute V2_PMASK_TERM_VCC @[TERM_H[3][34], TERM_H[2][35], TERM_H[3][35], TERM_H[2][36], TERM_H[3][36]];
-				attribute V2_LVDSBIAS @[TERM_H[3][44], TERM_H[2][45], TERM_H[3][45], TERM_H[2][46], TERM_H[3][46], TERM_H[2][47], TERM_H[3][47], TERM_H[2][48], TERM_H[3][48]];
+				attribute PMASK_TERM_SPLIT @[TERM_H[2][32], TERM_H[3][32], TERM_H[2][33], TERM_H[3][33], TERM_H[2][34]];
+				attribute NMASK_TERM_SPLIT @[TERM_H[2][37], TERM_H[3][37], TERM_H[2][38], TERM_H[3][38], TERM_H[2][39]];
+				attribute PMASK_TERM_VCC @[TERM_H[3][34], TERM_H[2][35], TERM_H[3][35], TERM_H[2][36], TERM_H[3][36]];
+				attribute LVDSBIAS @[TERM_H[3][44], TERM_H[2][45], TERM_H[3][45], TERM_H[2][46], TERM_H[3][46], TERM_H[2][47], TERM_H[3][47], TERM_H[2][48], TERM_H[3][48]];
 			}
 
 			bel DCI[1] {
@@ -105304,10 +104886,10 @@ intdb {
 				attribute ENABLE @TERM_V[10][7];
 				attribute TEST_ENABLE @TERM_V[9][6];
 				attribute FORCE_DONE_HIGH @TERM_V[9][8];
-				attribute V2_PMASK_TERM_SPLIT @[TERM_V[9][10], TERM_V[9][7], TERM_V[9][11], TERM_V[9][9], TERM_V[8][9]];
-				attribute V2_NMASK_TERM_SPLIT @[TERM_V[11][6], TERM_V[11][8], TERM_V[11][10], TERM_V[11][7], TERM_V[11][11]];
-				attribute V2_PMASK_TERM_VCC @[TERM_V[8][10], TERM_V[8][11], TERM_V[8][7], TERM_V[8][6], TERM_V[8][8]];
-				attribute V2_LVDSBIAS @[TERM_V[13][7], TERM_V[13][11], TERM_V[13][9], TERM_V[12][9], TERM_V[12][11], TERM_V[12][10], TERM_V[12][7], TERM_V[12][6], TERM_V[12][8]];
+				attribute PMASK_TERM_SPLIT @[TERM_V[9][10], TERM_V[9][7], TERM_V[9][11], TERM_V[9][9], TERM_V[8][9]];
+				attribute NMASK_TERM_SPLIT @[TERM_V[11][6], TERM_V[11][8], TERM_V[11][10], TERM_V[11][7], TERM_V[11][11]];
+				attribute PMASK_TERM_VCC @[TERM_V[8][10], TERM_V[8][11], TERM_V[8][7], TERM_V[8][6], TERM_V[8][8]];
+				attribute LVDSBIAS @[TERM_V[13][7], TERM_V[13][11], TERM_V[13][9], TERM_V[12][9], TERM_V[12][11], TERM_V[12][10], TERM_V[12][7], TERM_V[12][6], TERM_V[12][8]];
 			}
 
 			bel BSCAN {
@@ -105403,10 +104985,10 @@ intdb {
 				attribute ENABLE @TERM_H[2][42];
 				attribute TEST_ENABLE @TERM_H[2][31];
 				attribute FORCE_DONE_HIGH @TERM_H[3][31];
-				attribute V2_PMASK_TERM_SPLIT @[TERM_H[2][32], TERM_H[3][32], TERM_H[2][33], TERM_H[3][33], TERM_H[2][34]];
-				attribute V2_NMASK_TERM_SPLIT @[TERM_H[2][37], TERM_H[3][37], TERM_H[2][38], TERM_H[3][38], TERM_H[2][39]];
-				attribute V2_PMASK_TERM_VCC @[TERM_H[3][34], TERM_H[2][35], TERM_H[3][35], TERM_H[2][36], TERM_H[3][36]];
-				attribute V2_LVDSBIAS @[TERM_H[3][44], TERM_H[2][45], TERM_H[3][45], TERM_H[2][46], TERM_H[3][46], TERM_H[2][47], TERM_H[3][47], TERM_H[2][48], TERM_H[3][48]];
+				attribute PMASK_TERM_SPLIT @[TERM_H[2][32], TERM_H[3][32], TERM_H[2][33], TERM_H[3][33], TERM_H[2][34]];
+				attribute NMASK_TERM_SPLIT @[TERM_H[2][37], TERM_H[3][37], TERM_H[2][38], TERM_H[3][38], TERM_H[2][39]];
+				attribute PMASK_TERM_VCC @[TERM_H[3][34], TERM_H[2][35], TERM_H[3][35], TERM_H[2][36], TERM_H[3][36]];
+				attribute LVDSBIAS @[TERM_H[3][44], TERM_H[2][45], TERM_H[3][45], TERM_H[2][46], TERM_H[3][46], TERM_H[2][47], TERM_H[3][47], TERM_H[2][48], TERM_H[3][48]];
 				attribute QUIET @TERM_H[3][39];
 			}
 
@@ -105426,10 +105008,10 @@ intdb {
 				attribute ENABLE @TERM_V[10][7];
 				attribute TEST_ENABLE @TERM_V[9][6];
 				attribute FORCE_DONE_HIGH @TERM_V[9][8];
-				attribute V2_PMASK_TERM_SPLIT @[TERM_V[9][10], TERM_V[9][7], TERM_V[9][11], TERM_V[9][9], TERM_V[8][9]];
-				attribute V2_NMASK_TERM_SPLIT @[TERM_V[11][6], TERM_V[11][8], TERM_V[11][10], TERM_V[11][7], TERM_V[11][11]];
-				attribute V2_PMASK_TERM_VCC @[TERM_V[8][10], TERM_V[8][11], TERM_V[8][7], TERM_V[8][6], TERM_V[8][8]];
-				attribute V2_LVDSBIAS @[TERM_V[13][7], TERM_V[13][11], TERM_V[13][9], TERM_V[12][9], TERM_V[12][11], TERM_V[12][10], TERM_V[12][7], TERM_V[12][6], TERM_V[12][8]];
+				attribute PMASK_TERM_SPLIT @[TERM_V[9][10], TERM_V[9][7], TERM_V[9][11], TERM_V[9][9], TERM_V[8][9]];
+				attribute NMASK_TERM_SPLIT @[TERM_V[11][6], TERM_V[11][8], TERM_V[11][10], TERM_V[11][7], TERM_V[11][11]];
+				attribute PMASK_TERM_VCC @[TERM_V[8][10], TERM_V[8][11], TERM_V[8][7], TERM_V[8][6], TERM_V[8][8]];
+				attribute LVDSBIAS @[TERM_V[13][7], TERM_V[13][11], TERM_V[13][9], TERM_V[12][9], TERM_V[12][11], TERM_V[12][10], TERM_V[12][7], TERM_V[12][6], TERM_V[12][8]];
 				attribute QUIET @TERM_V[11][9];
 			}
 
@@ -105521,17 +105103,13 @@ intdb {
 	}
 
 	tile_slot TERM_H {
-		bel_slot TERM_W: routing;
-		bel_slot TERM_E: routing;
-		bel_slot PPC_TERM_W: routing;
-		bel_slot PPC_TERM_E: routing;
-		bel_slot LLH: routing;
+		bel_slot TERM_H: routing;
 
 		tile_class TERM_W {
 			cell CELL;
 			bitrect TERM: Vertical (rev 4, rev 80);
 
-			switchbox TERM_W {
+			switchbox TERM_H {
 				mux HEX_E1[0] @[TERM[1][3], TERM[1][2]] {
 					HEX_W0[0] = 0b01,
 					LH[7] = 0b10,
@@ -105899,7 +105477,7 @@ intdb {
 			cell CELL;
 			bitrect TERM: Vertical (rev 4, rev 80);
 
-			switchbox TERM_E {
+			switchbox TERM_H {
 				mux HEX_W1[0] @[TERM[1][3], TERM[1][2]] {
 					HEX_E0[0] = 0b01,
 					LH[5] = 0b10,
@@ -106268,7 +105846,7 @@ intdb {
 			cell FAR;
 			bitrect MAIN: Vertical (rev 22, rev 80);
 
-			switchbox PPC_TERM_W {
+			switchbox TERM_H {
 				mux CELL.HEX_E1[0] @[MAIN[0][3], MAIN[0][2]] {
 					CELL.HEX_W0[0] = 0b01,
 					CELL.LH[7] = 0b10,
@@ -106637,7 +106215,7 @@ intdb {
 			cell FAR;
 			bitrect MAIN: Vertical (rev 22, rev 80);
 
-			switchbox PPC_TERM_E {
+			switchbox TERM_H {
 				mux CELL.HEX_W1[0] @[MAIN[3][3], MAIN[3][2]] {
 					CELL.HEX_E0[0] = 0b01,
 					CELL.LH[5] = 0b10,
@@ -107003,17 +106581,13 @@ intdb {
 	}
 
 	tile_slot TERM_V {
-		bel_slot TERM_S: routing;
-		bel_slot TERM_N: routing;
-		bel_slot PPC_TERM_S: routing;
-		bel_slot PPC_TERM_N: routing;
-		bel_slot LLV: routing;
+		bel_slot TERM_V: routing;
 
 		tile_class TERM_S {
 			cell CELL;
 			bitrect TERM: Vertical (rev 22, rev 12);
 
-			switchbox TERM_S {
+			switchbox TERM_V {
 				mux HEX_N1[0] @[TERM[9][4], TERM[9][5]] {
 					HEX_S0[0] = 0b01,
 					LV[11] = 0b11,
@@ -107381,7 +106955,7 @@ intdb {
 			cell CELL;
 			bitrect TERM: Vertical (rev 22, rev 12);
 
-			switchbox TERM_N {
+			switchbox TERM_V {
 				mux HEX_S1[0] @[TERM[9][4], TERM[9][5]] {
 					HEX_N0[0] = 0b01,
 					LV[1] = 0b10,
@@ -107750,7 +107324,7 @@ intdb {
 			cell FAR;
 			bitrect MAIN: Vertical (rev 22, rev 80);
 
-			switchbox PPC_TERM_S {
+			switchbox TERM_V {
 				mux CELL.HEX_N1[0] @[MAIN[9][75], MAIN[9][74]] {
 					CELL.HEX_S0[0] = 0b01,
 					CELL.LV[11] = 0b11,
@@ -108119,7 +107693,7 @@ intdb {
 			cell FAR;
 			bitrect MAIN: Vertical (rev 22, rev 80);
 
-			switchbox PPC_TERM_N {
+			switchbox TERM_V {
 				mux CELL.HEX_S1[0] @[MAIN[9][4], MAIN[9][5]] {
 					CELL.HEX_N0[0] = 0b01,
 					CELL.LV[1] = 0b10,
@@ -108491,16 +108065,6 @@ intdb {
 		bel_slot IOB[3]: IOB;
 		bel_slot IOB[4]: IOB;
 		bel_slot IOB[5]: IOB;
-		bel_slot IOB[6]: IOB;
-		bel_slot IOB[7]: IOB;
-		bel_slot IBUF[0]: IBUF;
-		bel_slot IBUF[1]: IBUF;
-		bel_slot IBUF[2]: IBUF;
-		bel_slot IBUF[3]: IBUF;
-		bel_slot OBUF[0]: OBUF;
-		bel_slot OBUF[1]: OBUF;
-		bel_slot OBUF[2]: OBUF;
-		bel_slot OBUF[3]: OBUF;
 
 		tile_class IOB_V2_SW2 {
 			cell CELL[0];
@@ -112473,11 +112037,10 @@ intdb {
 		bel_slot BUFGMUX[5]: BUFGMUX;
 		bel_slot BUFGMUX[6]: BUFGMUX;
 		bel_slot BUFGMUX[7]: BUFGMUX;
-		bel_slot PCILOGIC: PCILOGIC;
-		bel_slot PCILOGICSE: PCILOGICSE;
 		bel_slot GLOBALSIG_BUFG[0]: GLOBALSIG_BUFG;
 		bel_slot GLOBALSIG_BUFG[1]: GLOBALSIG_BUFG;
 		bel_slot DCMCONN: routing;
+		bel_slot PCILOGIC: PCILOGIC;
 
 		tile_class CLK_S {
 			cell CELL[0];
@@ -113798,7 +113361,7 @@ intdb {
 
 	tile_slot HCLK {
 		bel_slot HCLK: routing;
-		bel_slot GLOBALSIG_HCLK: GLOBALSIG_HCLK_V2;
+		bel_slot GLOBALSIG_HCLK: GLOBALSIG_HCLK;
 
 		tile_class HCLK {
 			cell S;
@@ -113831,11 +113394,6 @@ intdb {
 				attribute GSR_N_ENABLE @!MAIN[20][0];
 			}
 		}
-	}
-
-	tile_slot RANDOR {
-		bel_slot RANDOR: RANDOR;
-		bel_slot RANDOR_INIT: RANDOR_INIT;
 	}
 
 	tile_slot GLOBAL {
@@ -114779,30 +114337,6 @@ intdb {
 		field V2P_NMASK_TERM_SPLIT: bitvec[5];
 		field V2P_PMASK_TERM_VCC: bitvec[5];
 		field V2P_LVDSBIAS: bitvec[9];
-		field S3_PDRIVE: bitvec[4];
-		field S3_NDRIVE: bitvec[4];
-		field S3_SLEW: bitvec[5];
-		field S3_OUTPUT_MISC: bitvec[2];
-		field S3_OUTPUT_DIFF: bitvec[3];
-		field S3_PMASK_TERM_SPLIT: bitvec[4];
-		field S3_NMASK_TERM_SPLIT: bitvec[4];
-		field S3_PMASK_TERM_VCC: bitvec[4];
-		field S3_LVDSBIAS: bitvec[13];
-		field S3E_PDRIVE: bitvec[4];
-		field S3E_NDRIVE: bitvec[4];
-		field S3E_SLEW: bitvec[6];
-		field S3E_OUTPUT_MISC: bitvec[1];
-		field S3E_OUTPUT_DIFF: bitvec[2];
-		field S3E_LVDSBIAS: bitvec[11];
-		field S3A_WE_PDRIVE: bitvec[3];
-		field S3A_WE_NDRIVE: bitvec[3];
-		field S3A_SN_PDRIVE: bitvec[3];
-		field S3A_SN_NDRIVE: bitvec[3];
-		field S3A_PSLEW: bitvec[4];
-		field S3A_2V5_NSLEW: bitvec[4];
-		field S3A_3V3_NSLEW: bitvec[4];
-		field S3A_OUTPUT_DIFF: bitvec[4];
-		field S3A_LVDSBIAS: bitvec[12];
 
 		row OFF {
 			V2_PDRIVE = 0b00000;
@@ -115632,38 +115166,6 @@ intdb {
 			V2_NMASK_TERM_SPLIT = 0b00000;
 			V2_LVDSBIAS = 0b001010001;
 		}
-	}
-
-	table IOB_I_DELAY {
-		field DELAY_WSN: bitvec[4];
-		field DELAY_E: bitvec[4];
-
-		row DLY1;
-		row DLY2;
-		row DLY3;
-		row DLY4;
-		row DLY5;
-		row DLY6;
-		row DLY7;
-		row DLY8;
-		row DLY9;
-		row DLY10;
-		row DLY11;
-		row DLY12;
-		row DLY13;
-	}
-
-	table IOB_IQ_DELAY {
-		field DELAY_WSN: bitvec[3];
-		field DELAY_E: bitvec[3];
-
-		row DLY1;
-		row DLY2;
-		row DLY3;
-		row DLY4;
-		row DLY5;
-		row DLY6;
-		row DLY7;
 	}
 
 	table GT10_PMA_SPEED {
@@ -118702,14 +118204,9 @@ intdb {
 		}
 	}
 
-	device_data BRAM_WDEL_A: bitvec[3];
-	device_data BRAM_WDEL_B: bitvec[3];
-	device_data BRAM_DDEL_A: bitvec[2];
-	device_data BRAM_DDEL_B: bitvec[2];
 	device_data DCM_DESKEW_ADJUST: bitvec[4];
 	device_data DCM_V2_VBG_SEL: bitvec[3];
 	device_data DCM_V2_VBG_PD: bitvec[2];
-	device_data PCILOGICSE_DELAY: PCILOGICSE_DELAY;
 	device_data IDCODE: bitvec[32];
 	device_data DOUBLE_GRESTORE: bool;
 	device_data FREEZE_DCI_NOPS: u32;

@@ -300,12 +300,8 @@ impl TileClass {
                         writeln!(o, ";")?;
                     }
                     for (aid, attr) in &bel.attributes {
-                        write!(
-                            o,
-                            "\t\t\t\tattribute {aname} ",
-                            aname = bcls.attributes.key(aid)
-                        )?;
                         let bcattr = &bcls.attributes[aid];
+                        write!(o, "\t\t\t\tattribute {aname} ", aname = bcattr.name)?;
                         match attr {
                             BelAttribute::BitVec(bits) => match bcattr.typ {
                                 BelAttributeType::Enum(_) => unreachable!(),
@@ -629,10 +625,11 @@ impl IntDb {
                     }
                 )?;
             }
-            for (_, aname, attr) in &bcls.attributes {
+            for attr in bcls.attributes.values() {
                 writeln!(
                     o,
                     "\t\tattribute {aname}: {typ};",
+                    aname = attr.name,
                     typ = self.dump_typ(attr.typ)
                 )?;
             }
@@ -712,19 +709,25 @@ impl IntDb {
         for (_, table) in &self.tables {
             writeln!(o)?;
             writeln!(o, "\ttable {tname} {{", tname = table.name)?;
-            for (_, fname, &typ) in &table.fields {
-                writeln!(o, "\t\tfield {fname}: {typ};", typ = self.dump_typ(typ))?;
+            for field in table.fields.values() {
+                writeln!(
+                    o,
+                    "\t\tfield {fname}: {typ};",
+                    fname = field.name,
+                    typ = self.dump_typ(field.typ)
+                )?;
             }
             writeln!(o)?;
-            for (_, rname, row) in &table.rows {
-                if row.iter().next().is_some() {
+            for row in table.rows.values() {
+                let rname = &row.name;
+                if !row.fields.is_empty() {
                     writeln!(o, "\t\trow {rname} {{")?;
-                    for (fid, value) in row {
+                    for (fid, value) in &row.fields {
                         writeln!(
                             o,
                             "\t\t\t{fname} = {value};",
-                            fname = table.fields.key(fid),
-                            value = self.dump_value(table.fields[fid], value)
+                            fname = table[fid].name,
+                            value = self.dump_value(table[fid].typ, value)
                         )?;
                     }
                     writeln!(o, "\t\t}}")?;

@@ -1,7 +1,7 @@
 use bincode::{Decode, Encode};
 use prjcombine_entity::{
-    EntityBundleMap, EntityId, EntityKey, EntityMap, EntityPartMap, EntityPartVec, EntitySet,
-    EntityVec, entity_id_u8, entity_id_u16,
+    EntityBundleMap, EntityId, EntityKey, EntityPartMap, EntityPartVec, EntityVec, entity_id_u8,
+    entity_id_u16,
 };
 use prjcombine_types::{
     bitrect::{BitRectGeometry, BitRectId, PolTileBit, TileBit},
@@ -129,11 +129,11 @@ entity_id_u16!(pub EnumValueId, EnumValueTag tag, "EV");
 #[derive(Clone, Debug, Eq, PartialEq, Encode, Decode)]
 pub struct EnumClass {
     pub name: String,
-    pub values: EntitySet<EnumValueId, String>,
+    pub values: EntityPartMap<EnumValueId, String>,
 }
 
 impl EntityKey for EnumClass {
-    type KeyType = str;
+    type KeyType = String;
 
     fn key(&self) -> &Self::KeyType {
         &self.name
@@ -141,21 +141,73 @@ impl EntityKey for EnumClass {
 }
 
 entity_id_u16!(pub TableId, Table, "TABLE");
-entity_id_u8!(pub TableFieldId, TableFieldTag tag, "FIELD");
-entity_id_u16!(pub TableRowId, TableRowTag tag, "ROW");
+entity_id_u8!(pub TableFieldId, TableField, "FIELD");
+entity_id_u16!(pub TableRowId, TableRow, "ROW");
 
 #[derive(Clone, Debug, Eq, PartialEq, Encode, Decode)]
 pub struct Table {
     pub name: String,
-    pub fields: EntityMap<TableFieldId, String, BelAttributeType>,
-    pub rows: EntityMap<TableRowId, String, EntityPartVec<TableFieldId, TableValue>>,
+    pub fields: EntityPartMap<TableFieldId, TableField>,
+    pub rows: EntityPartMap<TableRowId, TableRow>,
 }
 
 impl EntityKey for Table {
-    type KeyType = str;
+    type KeyType = String;
 
     fn key(&self) -> &Self::KeyType {
         &self.name
+    }
+}
+
+impl std::ops::Index<TableFieldId> for Table {
+    type Output = TableField;
+
+    fn index(&self, index: TableFieldId) -> &Self::Output {
+        &self.fields[index]
+    }
+}
+
+impl std::ops::Index<TableRowId> for Table {
+    type Output = TableRow;
+
+    fn index(&self, index: TableRowId) -> &Self::Output {
+        &self.rows[index]
+    }
+}
+
+#[derive(Clone, Debug, Eq, PartialEq, Encode, Decode)]
+pub struct TableField {
+    pub name: String,
+    pub typ: BelAttributeType,
+}
+
+impl EntityKey for TableField {
+    type KeyType = String;
+
+    fn key(&self) -> &Self::KeyType {
+        &self.name
+    }
+}
+
+#[derive(Clone, Debug, Eq, PartialEq, Encode, Decode)]
+pub struct TableRow {
+    pub name: String,
+    pub fields: EntityPartVec<TableFieldId, TableValue>,
+}
+
+impl EntityKey for TableRow {
+    type KeyType = String;
+
+    fn key(&self) -> &Self::KeyType {
+        &self.name
+    }
+}
+
+impl std::ops::Index<TableFieldId> for TableRow {
+    type Output = TableValue;
+
+    fn index(&self, index: TableFieldId) -> &Self::Output {
+        &self.fields[index]
     }
 }
 
@@ -175,7 +227,7 @@ pub struct DeviceDataSlot {
 }
 
 impl EntityKey for DeviceDataSlot {
-    type KeyType = str;
+    type KeyType = String;
 
     fn key(&self) -> &Self::KeyType {
         &self.name
@@ -200,11 +252,11 @@ pub struct BelClass {
     pub outputs: EntityBundleMap<BelOutputId, BelClassOutput>,
     pub bidirs: EntityBundleMap<BelBidirId, BelClassBidir>,
     pub pads: EntityBundleMap<BelPadId, BelClassPad>,
-    pub attributes: EntityMap<BelAttributeId, String, BelClassAttribute>,
+    pub attributes: EntityPartMap<BelAttributeId, BelClassAttribute>,
 }
 
 impl EntityKey for BelClass {
-    type KeyType = str;
+    type KeyType = String;
 
     fn key(&self) -> &Self::KeyType {
         &self.name
@@ -284,7 +336,16 @@ pub struct BelClassPad {
 
 #[derive(Clone, Debug, Eq, PartialEq, Encode, Decode)]
 pub struct BelClassAttribute {
+    pub name: String,
     pub typ: BelAttributeType,
+}
+
+impl EntityKey for BelClassAttribute {
+    type KeyType = String;
+
+    fn key(&self) -> &Self::KeyType {
+        &self.name
+    }
 }
 
 #[derive(Copy, Clone, Debug, Eq, PartialEq, Encode, Decode)]
@@ -316,7 +377,7 @@ pub struct BelSlot {
 }
 
 impl EntityKey for BelSlot {
-    type KeyType = str;
+    type KeyType = String;
 
     fn key(&self) -> &Self::KeyType {
         &self.name
@@ -357,7 +418,7 @@ pub struct WireSlot {
 }
 
 impl EntityKey for WireSlot {
-    type KeyType = str;
+    type KeyType = String;
 
     fn key(&self) -> &Self::KeyType {
         &self.name
@@ -416,7 +477,7 @@ pub struct ConnectorClass {
 }
 
 impl EntityKey for ConnectorClass {
-    type KeyType = str;
+    type KeyType = String;
 
     fn key(&self) -> &Self::KeyType {
         &self.name
@@ -437,7 +498,7 @@ pub struct ConnectorSlot {
 }
 
 impl EntityKey for ConnectorSlot {
-    type KeyType = str;
+    type KeyType = String;
 
     fn key(&self) -> &Self::KeyType {
         &self.name
@@ -462,7 +523,7 @@ pub struct TileClass {
 }
 
 impl EntityKey for TileClass {
-    type KeyType = str;
+    type KeyType = String;
 
     fn key(&self) -> &Self::KeyType {
         &self.name

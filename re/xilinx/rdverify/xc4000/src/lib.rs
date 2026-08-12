@@ -11,7 +11,7 @@ use prjcombine_re_xilinx_rawdump::Part;
 use prjcombine_re_xilinx_rdverify::{RawWireCoord, SitePinDir, Verifier};
 use prjcombine_xc2000::{
     chip::ChipKind,
-    xc4000::{bslots, wires, xc4000::bcls, xc4000::tcls},
+    xc4000::{bcls, bslots, tcls, wires},
 };
 
 fn verify_clb(endev: &ExpandedNamedDevice, vrf: &mut Verifier, bcrd: BelCoord) {

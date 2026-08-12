@@ -4,7 +4,7 @@ use prjcombine_re_xilinx_geom::ExpandedDevice;
 use prjcombine_virtex4::{
     chip::ChipKind,
     defs::{
-        bcls::DSP_V6 as DSP,
+        bcls::DSP,
         bslots, enums,
         virtex6::{tcls as tcls_v6, wires as wires_v6},
         virtex7::{tcls as tcls_v7, wires as wires_v7},

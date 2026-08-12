@@ -59,8 +59,8 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
             .global_mutex("MCB", "TEST")
             .test_bel_input_inv_auto(pin);
     }
-    for (aid, aname, attr) in &backend.edev.db[bcls::MCB].attributes {
-        if aname.starts_with("MUI") {
+    for (aid, attr) in &backend.edev.db[bcls::MCB].attributes {
+        if attr.name.starts_with("MUI") {
             // extracted from other attributes through special handling
             continue;
         }
@@ -84,7 +84,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
                 bctx.mode(mode)
                     .global_mutex("MCB", "TEST")
                     .test_bel_attr_bits(aid)
-                    .multi_attr(aname, MultiValue::Dec(0), width);
+                    .multi_attr(attr.name.clone(), MultiValue::Dec(0), width);
             }
             bcls::MCB::CAL_CA | bcls::MCB::CAL_BA | bcls::MCB::CAL_RA => {
                 let BelAttributeType::BitVec(width) = attr.typ else {
@@ -93,7 +93,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
                 bctx.mode(mode)
                     .global_mutex("MCB", "TEST")
                     .test_bel_attr_bits(aid)
-                    .multi_attr(aname, MultiValue::Hex(0), width);
+                    .multi_attr(attr.name.clone(), MultiValue::Hex(0), width);
             }
             bcls::MCB::ARB_TIME_SLOT => {
                 for i in 0..12 {
@@ -169,7 +169,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
             bcls::MCB::MEM_CAS_LATENCY => {
                 for mt in ["DDR", "DDR2", "MDDR"] {
                     if let BelAttributeType::Enum(ecid) = attr.typ
-                        && let Some(vid) = backend.edev.db[ecid].values.get("NONE")
+                        && let Some((vid, _)) = backend.edev.db[ecid].values.get("NONE")
                     {
                         bctx.mode(mode)
                             .global_mutex("MCB", "TEST")
@@ -191,7 +191,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
             | bcls::MCB::MEM_DDR2_WRT_RECOVERY => {
                 let mt = "DDR2";
                 if let BelAttributeType::Enum(ecid) = attr.typ
-                    && let Some(vid) = backend.edev.db[ecid].values.get("NONE")
+                    && let Some((vid, _)) = backend.edev.db[ecid].values.get("NONE")
                 {
                     bctx.mode(mode)
                         .global_mutex("MCB", "TEST")
@@ -207,7 +207,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
             bcls::MCB::MEM_DDR2_3_HIGH_TEMP_SR | bcls::MCB::MEM_DDR2_3_PA_SR => {
                 for mt in ["DDR2", "DDR3"] {
                     if let BelAttributeType::Enum(ecid) = attr.typ
-                        && let Some(vid) = backend.edev.db[ecid].values.get("NONE")
+                        && let Some((vid, _)) = backend.edev.db[ecid].values.get("NONE")
                     {
                         bctx.mode(mode)
                             .global_mutex("MCB", "TEST")
@@ -231,7 +231,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
             | bcls::MCB::MEM_DDR3_DYN_WRT_ODT => {
                 let mt = "DDR3";
                 if let BelAttributeType::Enum(ecid) = attr.typ
-                    && let Some(vid) = backend.edev.db[ecid].values.get("NONE")
+                    && let Some((vid, _)) = backend.edev.db[ecid].values.get("NONE")
                 {
                     bctx.mode(mode)
                         .global_mutex("MCB", "TEST")
@@ -247,7 +247,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
             bcls::MCB::MEM_MDDR_ODS | bcls::MCB::MEM_MOBILE_PA_SR | bcls::MCB::MEM_MOBILE_TC_SR => {
                 let mt = "MDDR";
                 if let BelAttributeType::Enum(ecid) = attr.typ
-                    && let Some(vid) = backend.edev.db[ecid].values.get("NONE")
+                    && let Some((vid, _)) = backend.edev.db[ecid].values.get("NONE")
                 {
                     bctx.mode(mode)
                         .global_mutex("MCB", "TEST")
@@ -262,7 +262,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
             }
             _ => {
                 if let BelAttributeType::Enum(ecid) = attr.typ
-                    && let Some(vid) = backend.edev.db[ecid].values.get("NONE")
+                    && let Some((vid, _)) = backend.edev.db[ecid].values.get("NONE")
                 {
                     bctx.mode(mode)
                         .global_mutex("MCB", "TEST")
@@ -328,8 +328,8 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
     ] {
         ctx.collect_bel_input_inv_bi(tcid, bslot, pin);
     }
-    for (aid, aname, attr) in &ctx.edev.db[bcls::MCB].attributes {
-        if aname.starts_with("MUI") {
+    for (aid, attr) in &ctx.edev.db[bcls::MCB].attributes {
+        if attr.name.starts_with("MUI") {
             // extracted from other attributes through special handling
             continue;
         }
@@ -528,7 +528,7 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
             }
             _ => {
                 if let BelAttributeType::Enum(ecid) = attr.typ {
-                    if let Some(vid) = ctx.edev.db[ecid].values.get("NONE") {
+                    if let Some((vid, _)) = ctx.edev.db[ecid].values.get("NONE") {
                         ctx.collect_bel_attr_default_ocd(tcid, bslot, aid, vid, OcdMode::BitOrder);
                     } else {
                         ctx.collect_bel_attr_ocd(tcid, bslot, aid, OcdMode::BitOrder);

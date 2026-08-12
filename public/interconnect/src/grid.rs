@@ -526,6 +526,9 @@ impl<'a> ExpandedGrid<'a> {
     }
 
     pub fn has_bel(&self, bel: BelCoord) -> bool {
+        if !self.db.bel_slots.contains_id(bel.slot) {
+            return false;
+        }
         let tslot = self.db.bel_slots[bel.slot].tile_slot;
         if let Some(tile) = self[bel.cell].tiles.get(tslot) {
             let nk = &self.db[tile.class];

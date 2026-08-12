@@ -43,7 +43,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
                 .attr("IOSTANDARD", val)
                 .commit();
         }
-        for (aid, aname, attr) in &bcls.attributes {
+        for (aid, attr) in &bcls.attributes {
             match aid {
                 bcls::GT::ENABLE => {
                     bctx.build()
@@ -65,7 +65,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
                     for val in 1..=15 {
                         bctx.mode(mode)
                             .test_bel_attr_bitvec_u32(aid, val)
-                            .attr(aname, val.to_string())
+                            .attr(attr.name.clone(), val.to_string())
                             .commit();
                     }
                 }
@@ -73,7 +73,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
                     for val in 1..=31 {
                         bctx.mode(mode)
                             .test_bel_attr_bitvec_u32(aid, val)
-                            .attr(aname, val.to_string())
+                            .attr(attr.name.clone(), val.to_string())
                             .commit();
                     }
                 }
@@ -94,7 +94,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
                     ] {
                         bctx.mode(mode)
                             .test_bel_attr_bitvec_u32(aid, val)
-                            .attr(aname, vname)
+                            .attr(attr.name.clone(), vname)
                             .commit();
                     }
                 }
@@ -123,8 +123,12 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
                         bctx.mode(mode).test_bel_attr_auto(aid);
                     }
                     BelAttributeType::Bool => {
-                        bctx.mode(mode)
-                            .test_bel_attr_bool_rename(aname, aid, "FALSE", "TRUE");
+                        bctx.mode(mode).test_bel_attr_bool_rename(
+                            attr.name.clone(),
+                            aid,
+                            "FALSE",
+                            "TRUE",
+                        );
                     }
                     BelAttributeType::BitVec(_) => {
                         bctx.mode(mode).test_bel_attr_multi(aid, MultiValue::Bin);
@@ -160,7 +164,7 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
             ];
             ctx.collect_bel_input_inv_int_bi(int_tiles, tcid, bslot, pid);
         }
-        for (aid, _, attr) in &bcls.attributes {
+        for (aid, attr) in &bcls.attributes {
             match aid {
                 bcls::GT::ENABLE => {
                     ctx.collect_bel_attr(tcid, bslot, aid);

@@ -451,8 +451,8 @@ fn verify_pll(vrf: &mut Verifier, bcrd: BelCoord) {
     let mut bel = vrf
         .verify_bel(bcrd)
         .kind("MMCM_ADV")
-        .skip_in(bcls::PLL_V6::CLKIN_CASC)
-        .skip_in(bcls::PLL_V6::CLKFB_CASC);
+        .skip_in(bcls::PLL::CLKIN_CASC)
+        .skip_in(bcls::PLL::CLKFB_CASC);
     bel.claim_net(&[bel.wire("CLKFB")]);
     bel.claim_pip(bel.wire("CLKFB"), bel.wire("CLKFBOUT"));
     bel.claim_pip(bel.wire("CLKFBIN"), bel.wire("CLKFB"));

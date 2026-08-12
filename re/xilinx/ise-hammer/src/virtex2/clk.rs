@@ -265,10 +265,10 @@ pub fn add_fuzzers<'a>(
             .commit();
         if chip_kind.is_virtex2() {
             for (attr, aname) in [
-                (bcls::GLOBALSIG_HCLK_V2::GWE_GHIGH_S_ENABLE, "DOWN1MUX"),
-                (bcls::GLOBALSIG_HCLK_V2::GSR_N_ENABLE, "UP1MUX"),
-                (bcls::GLOBALSIG_HCLK_V2::GSR_S_ENABLE, "DOWN2MUX"),
-                (bcls::GLOBALSIG_HCLK_V2::GWE_GHIGH_N_ENABLE, "UP2MUX"),
+                (bcls::GLOBALSIG_HCLK::GWE_GHIGH_S_ENABLE, "DOWN1MUX"),
+                (bcls::GLOBALSIG_HCLK::GSR_N_ENABLE, "UP1MUX"),
+                (bcls::GLOBALSIG_HCLK::GSR_S_ENABLE, "DOWN2MUX"),
+                (bcls::GLOBALSIG_HCLK::GWE_GHIGH_N_ENABLE, "UP2MUX"),
             ] {
                 bctx.mode("GLOBALSIG")
                     .null_bits()
@@ -279,7 +279,7 @@ pub fn add_fuzzers<'a>(
                 .null_bits()
                 .test_bel_attr_bool_rename(
                     "ENABLE_GLOBALS",
-                    bcls::GLOBALSIG_HCLK_S3::ENABLE,
+                    bcls::GLOBALSIG_HCLK::ENABLE,
                     "0",
                     "1",
                 );
@@ -450,10 +450,10 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx, devdata_only: bool) {
     if chip_kind.is_virtex2() {
         let tcid = tcls_v2::HCLK;
         for (attr, frame) in [
-            (bcls::GLOBALSIG_HCLK_V2::GWE_GHIGH_N_ENABLE, 18),
-            (bcls::GLOBALSIG_HCLK_V2::GWE_GHIGH_S_ENABLE, 19),
-            (bcls::GLOBALSIG_HCLK_V2::GSR_N_ENABLE, 20),
-            (bcls::GLOBALSIG_HCLK_V2::GSR_S_ENABLE, 21),
+            (bcls::GLOBALSIG_HCLK::GWE_GHIGH_N_ENABLE, 18),
+            (bcls::GLOBALSIG_HCLK::GWE_GHIGH_S_ENABLE, 19),
+            (bcls::GLOBALSIG_HCLK::GSR_N_ENABLE, 20),
+            (bcls::GLOBALSIG_HCLK::GSR_S_ENABLE, 21),
         ] {
             ctx.insert_bel_attr_bool(
                 tcid,
@@ -467,7 +467,7 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx, devdata_only: bool) {
             ctx.insert_bel_attr_bool(
                 tcid,
                 bslots::GLOBALSIG_HCLK,
-                bcls::GLOBALSIG_HCLK_S3::ENABLE,
+                bcls::GLOBALSIG_HCLK::ENABLE,
                 TileBit::new(0, 0, 0).neg(),
             );
         }

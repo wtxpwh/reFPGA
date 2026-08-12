@@ -58,7 +58,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
             bctx.mode(mode).test_bel_input_inv_auto(pin);
         }
 
-        for (aid, aname, attr) in &backend.edev.db[GTX].attributes {
+        for (aid, attr) in &backend.edev.db[GTX].attributes {
             match aid {
                 GTX::DRP
                 | GTX::GTX_CFG_PWRUP
@@ -106,14 +106,14 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
 
                 GTX::RX_SLIDE_MODE => {
                     for (val, vname) in [
-                        (enums::GTX_RX_SLIDE_MODE::NONE, "#OFF"),
-                        (enums::GTX_RX_SLIDE_MODE::AUTO, "AUTO"),
-                        (enums::GTX_RX_SLIDE_MODE::PCS, "PCS"),
-                        (enums::GTX_RX_SLIDE_MODE::PMA, "PMA"),
+                        (enums::GT_RX_SLIDE_MODE::NONE, "#OFF"),
+                        (enums::GT_RX_SLIDE_MODE::AUTO, "AUTO"),
+                        (enums::GT_RX_SLIDE_MODE::PCS, "PCS"),
+                        (enums::GT_RX_SLIDE_MODE::PMA, "PMA"),
                     ] {
                         bctx.mode(mode)
                             .test_bel_attr_val(aid, val)
-                            .attr(aname, vname)
+                            .attr(attr.name.clone(), vname)
                             .commit();
                     }
                 }
@@ -122,7 +122,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
                     for val in 1..15 {
                         bctx.mode(mode)
                             .test_bel_attr_bitvec_u32(aid, val)
-                            .attr(aname, val.to_string())
+                            .attr(attr.name.clone(), val.to_string())
                             .commit();
                     }
                 }
@@ -130,7 +130,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
                     for val in 3..49 {
                         bctx.mode(mode)
                             .test_bel_attr_bitvec_u32(aid, val)
-                            .attr(aname, val.to_string())
+                            .attr(attr.name.clone(), val.to_string())
                             .commit();
                     }
                 }
@@ -145,7 +145,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
                     for val in 1..62 {
                         bctx.mode(mode)
                             .test_bel_attr_bitvec_u32(aid, val)
-                            .attr(aname, val.to_string())
+                            .attr(attr.name.clone(), val.to_string())
                             .commit();
                     }
                 }
@@ -402,7 +402,7 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
             ctx.collect_bel_input_inv_bi(tcid, bslot, pin);
         }
 
-        for (aid, _, attr) in &ctx.edev.db[GTX].attributes {
+        for (aid, attr) in &ctx.edev.db[GTX].attributes {
             match aid {
                 GTX::DRP
                 | GTX::PMA_CAS_CLK_EN

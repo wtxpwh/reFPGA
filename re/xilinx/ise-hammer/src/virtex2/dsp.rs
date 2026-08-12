@@ -24,10 +24,10 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
             bctx.mode(mode).test_bel_input_inv_auto(pid);
         }
     }
-    for (aid, aname, attr) in &backend.edev.db.bel_classes[bcls::DSP].attributes {
+    for (aid, attr) in &backend.edev.db.bel_classes[bcls::DSP].attributes {
         if attr.typ == BelAttributeType::Bool {
             bctx.mode(mode)
-                .test_bel_attr_bool_rename(aname, aid, "0", "1");
+                .test_bel_attr_bool_rename(attr.name.clone(), aid, "0", "1");
         } else {
             bctx.mode(mode).test_bel_attr_auto(aid);
         }
@@ -42,7 +42,7 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
             ctx.collect_bel_input_inv_int_bi(&[tcls::INT_BRAM_S3ADSP; 4], tcid, bslot, pid);
         }
     }
-    for (aid, _, attr) in &ctx.edev.db.bel_classes[bcls::DSP].attributes {
+    for (aid, attr) in &ctx.edev.db.bel_classes[bcls::DSP].attributes {
         if attr.typ == BelAttributeType::Bool {
             ctx.collect_bel_attr_bi(tcid, bslot, aid);
         } else {

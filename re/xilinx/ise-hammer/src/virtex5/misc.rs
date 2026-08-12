@@ -110,7 +110,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
     for i in 0..2 {
         let mut bctx = ctx.bel(defs::bslots::ICAP[i]);
         bctx.build()
-            .test_bel_attr_bits(bcls::ICAP_V4::ENABLE)
+            .test_bel_attr_bits(bcls::ICAP::ENABLE)
             .mode("ICAP")
             .commit();
         bctx.mode("ICAP")
@@ -162,7 +162,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
             .commit();
         for attr in [bcls::STARTUP::GSR_SYNC, bcls::STARTUP::GTS_SYNC] {
             bctx.build().test_global_attr_bool_rename(
-                backend.edev.db[bcls::STARTUP].attributes.key(attr),
+                backend.edev.db[bcls::STARTUP].attributes[attr].name.clone(),
                 attr,
                 "NO",
                 "YES",
@@ -252,21 +252,21 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
             .mode("SYSMON")
             .commit();
         bctx.mode("SYSMON")
-            .test_bel_input_inv_auto(bcls::SYSMON_V5::DCLK);
+            .test_bel_input_inv_auto(bcls::SYSMON::DCLK);
         bctx.mode("SYSMON")
-            .test_bel_input_inv_auto(bcls::SYSMON_V5::CONVSTCLK);
+            .test_bel_input_inv_auto(bcls::SYSMON::CONVSTCLK);
         for i in 0x40..0x58 {
             let base = (i - 0x40) * 0x10;
             bctx.mode("SYSMON")
-                .test_bel_attr_bits_base(bcls::SYSMON_V5::V5_INIT, base)
+                .test_bel_attr_bits_base(bcls::SYSMON::INIT, base)
                 .multi_attr(format!("INIT_{i:02X}"), MultiValue::Hex(0), 16);
         }
         for attr in [
-            bcls::SYSMON_V5::SYSMON_TEST_A,
-            bcls::SYSMON_V5::SYSMON_TEST_B,
-            bcls::SYSMON_V5::SYSMON_TEST_C,
-            bcls::SYSMON_V5::SYSMON_TEST_D,
-            bcls::SYSMON_V5::SYSMON_TEST_E,
+            bcls::SYSMON::SYSMON_TEST_A,
+            bcls::SYSMON::SYSMON_TEST_B,
+            bcls::SYSMON::SYSMON_TEST_C,
+            bcls::SYSMON::SYSMON_TEST_D,
+            bcls::SYSMON::SYSMON_TEST_E,
         ] {
             bctx.mode("SYSMON")
                 .test_bel_attr_multi(attr, MultiValue::Hex(0));
@@ -343,7 +343,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
             "ENABLE",
         );
         bctx.build()
-            .test_global_attr_rename("CONFIGRATE", bcls::GLOBAL::CONFIG_RATE_V5);
+            .test_global_attr_rename("CONFIGRATE", bcls::GLOBAL::CONFIG_RATE);
 
         // COR1
         bctx.build()
@@ -413,7 +413,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
             .test_global_attr_bool_rename("GLUTMASK_B", bcls::GLOBAL::GLUTMASK, "1", "0");
 
         for (attr, opt) in [
-            (bcls::GLOBAL::V5_VBG_SEL, "VBG_SEL"),
+            (bcls::GLOBAL::VBG_SEL, "VBG_SEL"),
             (bcls::GLOBAL::VBG_DLL_SEL, "VBG_DLL_SEL"),
             (bcls::GLOBAL::VGG_SEL, "VGG_SEL"),
         ] {
@@ -500,7 +500,7 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
         ctx.collect_bel_attr(tcid, bslot, bcls::BSCAN::ENABLE);
     }
     for bslot in bslots::ICAP {
-        ctx.collect_bel_attr(tcid, bslot, bcls::ICAP_V4::ENABLE);
+        ctx.collect_bel_attr(tcid, bslot, bcls::ICAP::ENABLE);
     }
     ctx.collect_bel_attr(tcid, bslots::DCIRESET, bcls::DCIRESET::ENABLE);
 
@@ -519,18 +519,18 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
 
     {
         let bslot = bslots::SYSMON;
-        ctx.collect_bel_input_inv_bi(tcid, bslot, bcls::SYSMON_V5::CONVSTCLK);
-        ctx.collect_bel_input_inv_bi(tcid, bslot, bcls::SYSMON_V5::DCLK);
-        ctx.collect_bel_attr(tcid, bslot, bcls::SYSMON_V5::V5_INIT);
-        ctx.collect_bel_attr(tcid, bslot, bcls::SYSMON_V5::SYSMON_TEST_A);
-        ctx.collect_bel_attr(tcid, bslot, bcls::SYSMON_V5::SYSMON_TEST_B);
-        ctx.collect_bel_attr(tcid, bslot, bcls::SYSMON_V5::SYSMON_TEST_C);
-        ctx.collect_bel_attr(tcid, bslot, bcls::SYSMON_V5::SYSMON_TEST_D);
-        ctx.collect_bel_attr(tcid, bslot, bcls::SYSMON_V5::SYSMON_TEST_E);
+        ctx.collect_bel_input_inv_bi(tcid, bslot, bcls::SYSMON::CONVSTCLK);
+        ctx.collect_bel_input_inv_bi(tcid, bslot, bcls::SYSMON::DCLK);
+        ctx.collect_bel_attr(tcid, bslot, bcls::SYSMON::INIT);
+        ctx.collect_bel_attr(tcid, bslot, bcls::SYSMON::SYSMON_TEST_A);
+        ctx.collect_bel_attr(tcid, bslot, bcls::SYSMON::SYSMON_TEST_B);
+        ctx.collect_bel_attr(tcid, bslot, bcls::SYSMON::SYSMON_TEST_C);
+        ctx.collect_bel_attr(tcid, bslot, bcls::SYSMON::SYSMON_TEST_D);
+        ctx.collect_bel_attr(tcid, bslot, bcls::SYSMON::SYSMON_TEST_E);
 
         let mut diff = ctx.get_diff_bel_special(tcid, bslot, specials::JTAG_SYSMON_DISABLE);
         diff.apply_bitvec_diff_int(
-            ctx.bel_attr_bitvec(tcid, bslot, bcls::SYSMON_V5::SYSMON_TEST_A),
+            ctx.bel_attr_bitvec(tcid, bslot, bcls::SYSMON::SYSMON_TEST_A),
             2,
             0,
         );
@@ -623,7 +623,7 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
             ],
         );
         ctx.collect_bel_attr(tcid, bslot, bcls::GLOBAL::STARTUP_CLOCK);
-        ctx.collect_bel_attr_ocd(tcid, bslot, bcls::GLOBAL::CONFIG_RATE_V5, OcdMode::BitOrder);
+        ctx.collect_bel_attr_ocd(tcid, bslot, bcls::GLOBAL::CONFIG_RATE, OcdMode::BitOrder);
         ctx.collect_bel_attr_bi(tcid, bslot, bcls::GLOBAL::DRIVE_DONE);
         ctx.collect_bel_attr_bi(tcid, bslot, bcls::GLOBAL::DONE_PIPE);
         ctx.collect_bel_attr_bi(tcid, bslot, bcls::GLOBAL::CRC_ENABLE);
@@ -652,7 +652,7 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
         ctx.collect_bel_attr_bi(tcid, bslot, bcls::GLOBAL::SELECTMAP_ABORT);
         ctx.collect_bel_attr_bi(tcid, bslot, bcls::GLOBAL::GLUTMASK);
         ctx.collect_bel_attr(tcid, bslot, bcls::GLOBAL::ENCRYPT_KEY_SELECT);
-        ctx.collect_bel_attr(tcid, bslot, bcls::GLOBAL::V5_VBG_SEL);
+        ctx.collect_bel_attr(tcid, bslot, bcls::GLOBAL::VBG_SEL);
         ctx.collect_bel_attr(tcid, bslot, bcls::GLOBAL::VBG_DLL_SEL);
         ctx.collect_bel_attr(tcid, bslot, bcls::GLOBAL::VGG_SEL);
         // these are too much trouble to deal with the normal way.
@@ -692,7 +692,7 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
         ctx.insert_bel_attr_bitvec(
             tcid,
             bslot,
-            bcls::GLOBAL::V5_NEXT_CONFIG_ADDR,
+            bcls::GLOBAL::NEXT_CONFIG_ADDR,
             (0..26).map(|i| TileBit::new(5, 0, i).pos()),
         );
         ctx.insert_bel_attr_bool(

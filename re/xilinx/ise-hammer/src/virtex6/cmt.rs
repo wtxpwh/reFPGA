@@ -12,9 +12,10 @@ use prjcombine_types::{
 };
 use prjcombine_virtex4::defs::{
     self,
-    bcls::{self, BUFHCE, PLL_V6 as PLL},
+    bcls::{self, BUFHCE, PLL},
     bslots, devdata,
-    virtex6::{tables::PLL_MULT, tcls, wires},
+    tables::PLL_MULT,
+    virtex6::{tcls, wires},
 };
 
 use crate::{
@@ -739,11 +740,11 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx, devdata_only: bool) {
             let bslot = bslots::PLL[idx];
             let mut diff = ctx.get_diff_bel_special(tcid, bslot, specials::PLL_COMPENSATION_ZHOLD);
             let dly_val = extract_bitvec_val_part(
-                ctx.bel_attr_bitvec(tcid, bslot, PLL::V6_IN_DLY_SET),
+                ctx.bel_attr_bitvec(tcid, bslot, PLL::IN_DLY_SET),
                 &bits![0; 5],
                 &mut diff,
             );
-            ctx.insert_devdata_bitvec(devdata::PLL_V6_IN_DLY_SET, dly_val);
+            ctx.insert_devdata_bitvec(devdata::PLL_IN_DLY_SET, dly_val);
         }
         return;
     }
@@ -950,7 +951,7 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx, devdata_only: bool) {
         ctx.insert_bel_attr_bitvec(
             tcid,
             bslot,
-            PLL::V6_IN_DLY_SET,
+            PLL::IN_DLY_SET,
             vec![
                 mmcm_drp_bit(i, 0x05, 10).pos(),
                 mmcm_drp_bit(i, 0x05, 11).pos(),
@@ -1068,11 +1069,11 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx, devdata_only: bool) {
             0,
         );
         let dly_val = extract_bitvec_val_part(
-            ctx.bel_attr_bitvec(tcid, bslot, PLL::V6_IN_DLY_SET),
+            ctx.bel_attr_bitvec(tcid, bslot, PLL::IN_DLY_SET),
             &bits![0; 5],
             &mut diff,
         );
-        ctx.insert_devdata_bitvec(devdata::PLL_V6_IN_DLY_SET, dly_val);
+        ctx.insert_devdata_bitvec(devdata::PLL_IN_DLY_SET, dly_val);
         diff.assert_empty();
 
         for mult in 1..=64 {

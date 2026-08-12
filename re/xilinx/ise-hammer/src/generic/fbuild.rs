@@ -745,7 +745,7 @@ impl<'sm, 'b> FuzzBuilderBel<'sm, 'b> {
         let prop = FuzzBelMultiAttr::new(
             self.bel,
             self.sub,
-            self.backend.edev.db[bcid].attributes.key(attr).to_string(),
+            self.backend.edev.db[bcid].attributes[attr].name.to_string(),
             value,
             width,
         );
@@ -1040,7 +1040,7 @@ impl<'sm, 'b> FuzzBuilderBel<'sm, 'b> {
         let BelKind::Class(bcid) = self.backend.edev.db.bel_slots[self.test_bel].kind else {
             unreachable!()
         };
-        let name = self.backend.edev.db[bcid].attributes.key(attr);
+        let name = self.backend.edev.db[bcid].attributes[attr].name.clone();
         self.test_bel_attr_bool_rename(name, attr, val0, val1);
     }
 
@@ -1073,7 +1073,7 @@ impl<'sm, 'b> FuzzBuilderBel<'sm, 'b> {
         let BelKind::Class(bcid) = self.backend.edev.db.bel_slots[self.test_bel].kind else {
             unreachable!()
         };
-        let name = self.backend.edev.db[bcid].attributes.key(attr);
+        let name = self.backend.edev.db[bcid].attributes[attr].name.clone();
         self.test_bel_attr_bool_special_rename(name, attr, spec, val0, val1);
     }
 
@@ -1220,7 +1220,7 @@ impl<'sm, 'b> FuzzBuilderBel<'sm, 'b> {
         let BelKind::Class(bcid) = self.backend.edev.db.bel_slots[self.test_bel].kind else {
             unreachable!()
         };
-        let rattr = self.backend.edev.db[bcid].attributes.key(attr);
+        let rattr = self.backend.edev.db[bcid].attributes[attr].name.clone();
         self.test_bel_attr_subset_rename(rattr, attr, vals)
     }
 
@@ -1286,7 +1286,7 @@ impl<'sm, 'b> FuzzBuilderBel<'sm, 'b> {
         let BelKind::Class(bcid) = self.backend.edev.db.bel_slots[self.test_bel].kind else {
             unreachable!()
         };
-        let rattr = self.backend.edev.db[bcid].attributes.key(attr);
+        let rattr = self.backend.edev.db[bcid].attributes[attr].name.clone();
         self.test_bel_attr_rename(rattr, attr)
     }
 
@@ -1294,7 +1294,7 @@ impl<'sm, 'b> FuzzBuilderBel<'sm, 'b> {
         let BelKind::Class(bcid) = self.backend.edev.db.bel_slots[self.test_bel].kind else {
             unreachable!()
         };
-        let rattr = self.backend.edev.db[bcid].attributes.key(attr);
+        let rattr = self.backend.edev.db[bcid].attributes[attr].name.clone();
         self.test_bel_attr_special_rename(rattr, attr, spec)
     }
 
@@ -1302,7 +1302,7 @@ impl<'sm, 'b> FuzzBuilderBel<'sm, 'b> {
         let BelKind::Class(bcid) = self.backend.edev.db.bel_slots[self.test_bel].kind else {
             unreachable!()
         };
-        let rattr = self.backend.edev.db[bcid].attributes.key(attr);
+        let rattr = self.backend.edev.db[bcid].attributes[attr].name.clone();
         self.test_bel_attr_default_rename(rattr, attr, val)
     }
 

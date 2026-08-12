@@ -10,22 +10,22 @@ use crate::{
 };
 
 const EMAC_INVPINS: &[BelInputId] = &[
-    bcls::EMAC_V4::CLIENTEMAC0RXCLIENTCLKIN,
-    bcls::EMAC_V4::CLIENTEMAC0TXCLIENTCLKIN,
-    bcls::EMAC_V4::CLIENTEMAC1RXCLIENTCLKIN,
-    bcls::EMAC_V4::CLIENTEMAC1TXCLIENTCLKIN,
-    bcls::EMAC_V4::DCREMACCLK,
-    bcls::EMAC_V4::HOSTCLK,
-    bcls::EMAC_V4::PHYEMAC0GTXCLK,
-    bcls::EMAC_V4::PHYEMAC0MCLKIN,
-    bcls::EMAC_V4::PHYEMAC0MIITXCLK,
-    bcls::EMAC_V4::PHYEMAC0RXCLK,
-    bcls::EMAC_V4::PHYEMAC0TXGMIIMIICLKIN,
-    bcls::EMAC_V4::PHYEMAC1GTXCLK,
-    bcls::EMAC_V4::PHYEMAC1MCLKIN,
-    bcls::EMAC_V4::PHYEMAC1MIITXCLK,
-    bcls::EMAC_V4::PHYEMAC1RXCLK,
-    bcls::EMAC_V4::PHYEMAC1TXGMIIMIICLKIN,
+    bcls::EMAC::CLIENTEMAC0RXCLIENTCLKIN,
+    bcls::EMAC::CLIENTEMAC0TXCLIENTCLKIN,
+    bcls::EMAC::CLIENTEMAC1RXCLIENTCLKIN,
+    bcls::EMAC::CLIENTEMAC1TXCLIENTCLKIN,
+    bcls::EMAC::DCREMACCLK,
+    bcls::EMAC::HOSTCLK,
+    bcls::EMAC::PHYEMAC0GTXCLK,
+    bcls::EMAC::PHYEMAC0MCLKIN,
+    bcls::EMAC::PHYEMAC0MIITXCLK,
+    bcls::EMAC::PHYEMAC0RXCLK,
+    bcls::EMAC::PHYEMAC0TXGMIIMIICLKIN,
+    bcls::EMAC::PHYEMAC1GTXCLK,
+    bcls::EMAC::PHYEMAC1MCLKIN,
+    bcls::EMAC::PHYEMAC1MIITXCLK,
+    bcls::EMAC::PHYEMAC1RXCLK,
+    bcls::EMAC::PHYEMAC1TXGMIIMIICLKIN,
 ];
 
 pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a IseBackend<'a>) {
@@ -43,7 +43,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
     for &pin in EMAC_INVPINS {
         bctx.mode(mode).test_bel_input_inv_auto(pin);
     }
-    for (aid, _, attr) in &backend.edev.db[bcls::EMAC_V4].attributes {
+    for (aid, attr) in &backend.edev.db[bcls::EMAC].attributes {
         match attr.typ {
             BelAttributeType::Bool => {
                 bctx.mode(mode)
@@ -66,7 +66,7 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
     for &pin in EMAC_INVPINS {
         ctx.collect_bel_input_inv_bi(tcid, bslot, pin);
     }
-    for (aid, _, attr) in &ctx.edev.db[bcls::EMAC_V4].attributes {
+    for (aid, attr) in &ctx.edev.db[bcls::EMAC].attributes {
         match attr.typ {
             BelAttributeType::Bool => {
                 ctx.collect_bel_attr_bi(tcid, bslot, aid);

@@ -134,7 +134,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
             bcls::BRAM::SRVAL_A,
             bcls::BRAM::SRVAL_B,
         ] {
-            let aname = backend.edev.db[bcls::BRAM].attributes.key(attr);
+            let aname = backend.edev.db[bcls::BRAM].attributes[attr].name.clone();
             bctx.mode(mode)
                 .global_mutex("BRAM", "MULTI")
                 .tile_mutex("MODE", "FULL")

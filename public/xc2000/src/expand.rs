@@ -686,14 +686,16 @@ impl Chip {
                         });
                         egrid[cell].region_root[xc4000::rslots::LONG_H] = root_h;
                         egrid[cell].region_root[xc4000::rslots::LONG_H_TBUF] = root_h;
-                        egrid[cell].region_root[xc4000::rslots::DEC_H] = root_h;
                         let root_v = cell.with_row(if cell.row < self.row_mid() {
                             self.row_s()
                         } else {
                             self.row_n()
                         });
                         egrid[cell].region_root[xc4000::rslots::LONG_V] = root_v;
-                        egrid[cell].region_root[xc4000::rslots::DEC_V] = root_v;
+                        if self.kind != ChipKind::SpartanXl {
+                            egrid[cell].region_root[xc4000::rslots::DEC_H] = root_h;
+                            egrid[cell].region_root[xc4000::rslots::DEC_V] = root_v;
+                        }
                         egrid[cell].region_root[xc4000::rslots::GCLK] =
                             cell.with_row(self.row_mid());
                     }

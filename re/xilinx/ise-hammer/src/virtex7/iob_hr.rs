@@ -15,10 +15,8 @@ use prjcombine_virtex4::{
     defs::{
         bcls::{BANK, IOB},
         bslots, enums,
-        virtex7::{
-            tables::{DRIVERBIAS, IOB_DATA_HR, LVDS_DATA_HR},
-            tcls,
-        },
+        tables::{DRIVERBIAS, IOB_DATA_HR, LVDS_DATA_HR},
+        virtex7::tcls,
     },
     expanded::IoCoord,
 };

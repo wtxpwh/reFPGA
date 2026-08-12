@@ -795,14 +795,7 @@ pub fn add_fuzzers<'a>(
                             .global_mutex("DIFF", "BANK")
                             .global_mutex("VREF", "NO")
                             .global_mutex("DCI", "YES")
-                            .test_bel_attr_row(
-                                if edev.chip.kind.is_virtex2() {
-                                    bcls::DCI::V2_LVDSBIAS
-                                } else {
-                                    bcls::DCI::S3_LVDSBIAS
-                                },
-                                rid,
-                            )
+                            .test_bel_attr_row(bcls::DCI::LVDSBIAS, rid)
                             .raw_diff(Key::SiteMode(site), None, "DIFFM")
                             .raw_diff(Key::SiteAttr(site, "OMUX".into()), None, "O1")
                             .raw_diff(Key::SiteAttr(site, "O1INV".into()), None, "O1")
@@ -948,7 +941,7 @@ pub fn add_fuzzers<'a>(
                         let gname = format!("LVDSBIAS_OPT{i}_{bank}");
                         bctx.build()
                             .global_mutex("DIFF", "MANUAL")
-                            .test_bel_attr_bits_base(bcls::DCI::S3_LVDSBIAS, i)
+                            .test_bel_attr_bits_base(bcls::DCI::LVDSBIAS, i)
                             .global_diff(gname, "0", "1")
                             .commit();
                     }
@@ -1820,11 +1813,6 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx, skip_io: bool, devdata_only: bool
     // I/O bank misc control
     if !skip_io && edev.chip.kind != ChipKind::FpgaCore {
         if !edev.chip.kind.is_spartan3ea() {
-            let lvdsbias = if edev.chip.kind.is_virtex2() {
-                bcls::DCI::V2_LVDSBIAS
-            } else {
-                bcls::DCI::S3_LVDSBIAS
-            };
             for (tcid, idx) in [
                 (cnr_nw, 0),
                 (cnr_nw, 1),
@@ -1843,7 +1831,7 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx, skip_io: bool, devdata_only: bool
                     if std.diff != DiffKind::True {
                         continue;
                     }
-                    let diff = ctx.get_diff_bel_attr_row(tcid, bslot, lvdsbias, rid);
+                    let diff = ctx.get_diff_bel_attr_row(tcid, bslot, bcls::DCI::LVDSBIAS, rid);
                     vals.push((
                         rid,
                         diff.filter_rects(&if edev.chip.kind.is_virtex2() {
@@ -1862,12 +1850,12 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx, skip_io: bool, devdata_only: bool
                 };
 
                 if edev.chip.kind == ChipKind::Spartan3 {
-                    ctx.collect_bel_attr(tcid, bslot, lvdsbias);
+                    ctx.collect_bel_attr(tcid, bslot, bcls::DCI::LVDSBIAS);
                 } else {
                     ctx.insert_bel_attr_bitvec(
                         tcid,
                         bslot,
-                        lvdsbias,
+                        bcls::DCI::LVDSBIAS,
                         match idx {
                             0 => vec![
                                 TileBit::new(0, 3, 48).pos(),
@@ -1895,7 +1883,9 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx, skip_io: bool, devdata_only: bool
                         },
                     );
                 }
-                let item = ctx.bel_attr_bitvec(tcid, bslot, lvdsbias).to_vec();
+                let item = ctx
+                    .bel_attr_bitvec(tcid, bslot, bcls::DCI::LVDSBIAS)
+                    .to_vec();
                 let base = BitVec::repeat(false, item.len());
                 for (rid, diff) in vals {
                     let val = extract_bitvec_val(&item, &base, diff);
@@ -2035,40 +2025,25 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx, skip_io: bool, devdata_only: bool
                         )
                     };
                 let item_en = ctx.bel_attr_bit(tcid, bslot, bcls::DCI::ENABLE);
-                let (
-                    attr_pmask_term_vcc,
-                    attr_pmask_term_split,
-                    attr_nmask_term_split,
-                    field_pmask_term_vcc,
-                    field_pmask_term_split,
-                    field_nmask_term_split,
-                ) = match edev.chip.kind {
-                    ChipKind::Virtex2 => (
-                        bcls::DCI::V2_PMASK_TERM_VCC,
-                        bcls::DCI::V2_PMASK_TERM_SPLIT,
-                        bcls::DCI::V2_NMASK_TERM_SPLIT,
-                        IOB_DATA::V2_PMASK_TERM_VCC,
-                        IOB_DATA::V2_PMASK_TERM_SPLIT,
-                        IOB_DATA::V2_NMASK_TERM_SPLIT,
-                    ),
-                    ChipKind::Virtex2P | ChipKind::Virtex2PX => (
-                        bcls::DCI::V2_PMASK_TERM_VCC,
-                        bcls::DCI::V2_PMASK_TERM_SPLIT,
-                        bcls::DCI::V2_NMASK_TERM_SPLIT,
-                        IOB_DATA::V2P_PMASK_TERM_VCC,
-                        IOB_DATA::V2P_PMASK_TERM_SPLIT,
-                        IOB_DATA::V2P_NMASK_TERM_SPLIT,
-                    ),
-                    ChipKind::Spartan3 => (
-                        bcls::DCI::S3_PMASK_TERM_VCC,
-                        bcls::DCI::S3_PMASK_TERM_SPLIT,
-                        bcls::DCI::S3_NMASK_TERM_SPLIT,
-                        IOB_DATA::S3_PMASK_TERM_VCC,
-                        IOB_DATA::S3_PMASK_TERM_SPLIT,
-                        IOB_DATA::S3_NMASK_TERM_SPLIT,
-                    ),
-                    _ => unreachable!(),
-                };
+                let (field_pmask_term_vcc, field_pmask_term_split, field_nmask_term_split) =
+                    match edev.chip.kind {
+                        ChipKind::Virtex2 => (
+                            IOB_DATA::V2_PMASK_TERM_VCC,
+                            IOB_DATA::V2_PMASK_TERM_SPLIT,
+                            IOB_DATA::V2_NMASK_TERM_SPLIT,
+                        ),
+                        ChipKind::Virtex2P | ChipKind::Virtex2PX => (
+                            IOB_DATA::V2P_PMASK_TERM_VCC,
+                            IOB_DATA::V2P_PMASK_TERM_SPLIT,
+                            IOB_DATA::V2P_NMASK_TERM_SPLIT,
+                        ),
+                        ChipKind::Spartan3 => (
+                            IOB_DATA::S3_PMASK_TERM_VCC,
+                            IOB_DATA::S3_PMASK_TERM_SPLIT,
+                            IOB_DATA::S3_NMASK_TERM_SPLIT,
+                        ),
+                        _ => unreachable!(),
+                    };
                 for std in get_iostds(edev, false) {
                     let rid = iostd_to_row(edev, &std);
                     if std.name.starts_with("DIFF_") {
@@ -2159,9 +2134,19 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx, skip_io: bool, devdata_only: bool
                     BitVec::repeat(false, nmask_term_split.len()),
                 );
 
-                ctx.insert_bel_attr_bitvec(tcid, bslot, attr_pmask_term_vcc, pmask_term_vcc);
-                ctx.insert_bel_attr_bitvec(tcid, bslot, attr_pmask_term_split, pmask_term_split);
-                ctx.insert_bel_attr_bitvec(tcid, bslot, attr_nmask_term_split, nmask_term_split);
+                ctx.insert_bel_attr_bitvec(tcid, bslot, bcls::DCI::PMASK_TERM_VCC, pmask_term_vcc);
+                ctx.insert_bel_attr_bitvec(
+                    tcid,
+                    bslot,
+                    bcls::DCI::PMASK_TERM_SPLIT,
+                    pmask_term_split,
+                );
+                ctx.insert_bel_attr_bitvec(
+                    tcid,
+                    bslot,
+                    bcls::DCI::NMASK_TERM_SPLIT,
+                    nmask_term_split,
+                );
             }
 
             if edev.chip.kind == ChipKind::Spartan3 {

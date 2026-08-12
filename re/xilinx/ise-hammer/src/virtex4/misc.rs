@@ -119,14 +119,12 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
             let obel = bslots::ICAP[i ^ 1];
             bctx.build()
                 .bel_unused(obel)
-                .test_bel_attr_bits(bcls::ICAP_V4::ENABLE)
+                .test_bel_attr_bits(bcls::ICAP::ENABLE)
                 .mode("ICAP")
                 .commit();
-            bctx.mode("ICAP")
-                .test_bel_input_inv_auto(bcls::ICAP_V4::CLK);
-            bctx.mode("ICAP").test_bel_input_inv_auto(bcls::ICAP_V4::CE);
-            bctx.mode("ICAP")
-                .test_bel_input_inv_auto(bcls::ICAP_V4::WRITE);
+            bctx.mode("ICAP").test_bel_input_inv_auto(bcls::ICAP::CLK);
+            bctx.mode("ICAP").test_bel_input_inv_auto(bcls::ICAP::CE);
+            bctx.mode("ICAP").test_bel_input_inv_auto(bcls::ICAP::WRITE);
             for (val, vname) in [
                 (enums::ICAP_WIDTH::X8, "X8"),
                 (enums::ICAP_WIDTH::X32, "X32"),
@@ -187,7 +185,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
                 bcls::STARTUP::GTS_SYNC,
             ] {
                 bctx.build().test_global_attr_bool_rename(
-                    backend.edev.db[bcls::STARTUP].attributes.key(attr),
+                    backend.edev.db[bcls::STARTUP].attributes[attr].name.clone(),
                     attr,
                     "NO",
                     "YES",
@@ -351,7 +349,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
             "ENABLE",
         );
         bctx.build()
-            .test_global_attr_rename("CONFIGRATE", bcls::GLOBAL::CONFIG_RATE_V4);
+            .test_global_attr_rename("CONFIGRATE", bcls::GLOBAL::CONFIG_RATE);
 
         // CTL
         bctx.build().test_global_attr_bool_rename(
@@ -400,42 +398,42 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
             .commit();
         for i in 0x40..0x70 {
             bctx.mode(mode)
-                .test_bel_attr_bits_base(bcls::SYSMON_V4::INIT, (i - 0x40) * 16)
+                .test_bel_attr_bits_base(bcls::SYSMON::INIT, (i - 0x40) * 16)
                 .multi_attr(format!("INIT_{i:02X}"), MultiValue::Hex(0), 16);
         }
         bctx.mode(mode)
             .global_mutex("MONITOR_GLOBAL", "NONE")
-            .test_bel_attr_auto(bcls::SYSMON_V4::MONITOR_MODE);
+            .test_bel_attr_auto(bcls::SYSMON::MONITOR_MODE);
         for pin in [
-            bcls::SYSMON_V4::DEN,
+            bcls::SYSMON::DEN,
             // DCLK?
-            bcls::SYSMON_V4::DWE,
-            bcls::SYSMON_V4::SCANTESTENA,
-            bcls::SYSMON_V4::SCANTESTENB,
+            bcls::SYSMON::DWE,
+            bcls::SYSMON::SCANTESTENA,
+            bcls::SYSMON::SCANTESTENB,
             // SCANMEMCLK?
-            bcls::SYSMON_V4::SCANMEMWE,
-            bcls::SYSMON_V4::ROMTESTENABLE,
-            bcls::SYSMON_V4::RST,
-            bcls::SYSMON_V4::CONVST,
+            bcls::SYSMON::SCANMEMWE,
+            bcls::SYSMON::ROMTESTENABLE,
+            bcls::SYSMON::RST,
+            bcls::SYSMON::CONVST,
             // SCLK[AB]?
-            bcls::SYSMON_V4::SEA,
-            bcls::SYSMON_V4::SEB,
+            bcls::SYSMON::SEA,
+            bcls::SYSMON::SEB,
         ] {
             bctx.mode(mode).test_bel_input_inv_auto(pin);
         }
         for (attr, width) in [
-            (bcls::SYSMON_V4::DCLK_DIVID_2, 1),
-            (bcls::SYSMON_V4::LW_DIVID_2_4, 1),
-            (bcls::SYSMON_V4::MCCLK_DIVID, 8),
-            (bcls::SYSMON_V4::OVER_TEMPERATURE, 10),
-            (bcls::SYSMON_V4::OVER_TEMPERATURE_OFF, 1),
-            (bcls::SYSMON_V4::OVER_TEMPERATURE_DELAY, 8),
-            (bcls::SYSMON_V4::BLOCK_ENABLE, 5),
-            (bcls::SYSMON_V4::DCLK_MISSING, 10),
-            (bcls::SYSMON_V4::FEATURE_ENABLE, 8),
-            (bcls::SYSMON_V4::PROM_DATA, 8),
+            (bcls::SYSMON::DCLK_DIVID_2, 1),
+            (bcls::SYSMON::LW_DIVID_2_4, 1),
+            (bcls::SYSMON::MCCLK_DIVID, 8),
+            (bcls::SYSMON::OVER_TEMPERATURE, 10),
+            (bcls::SYSMON::OVER_TEMPERATURE_OFF, 1),
+            (bcls::SYSMON::OVER_TEMPERATURE_DELAY, 8),
+            (bcls::SYSMON::BLOCK_ENABLE, 5),
+            (bcls::SYSMON::DCLK_MISSING, 10),
+            (bcls::SYSMON::FEATURE_ENABLE, 8),
+            (bcls::SYSMON::PROM_DATA, 8),
         ] {
-            let aname = backend.edev.db[bcls::SYSMON_V4].attributes.key(attr);
+            let aname = backend.edev.db[bcls::SYSMON].attributes[attr].name.clone();
             bctx.mode(mode)
                 .global_mutex_here("MONITOR_GLOBAL")
                 .attr("MONITOR_MODE", "ADC")
@@ -446,7 +444,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
         let BelInfo::Bel(ref bel) = tcls.bels[bslots::SYSMON] else {
             unreachable!()
         };
-        let mux = &muxes[&bel.inputs[bcls::SYSMON_V4::CONVST].wire()];
+        let mux = &muxes[&bel.inputs[bcls::SYSMON::CONVST].wire()];
 
         for out in ["CONVST", "CONVST_TEST"] {
             for &src in mux.src.keys() {
@@ -530,7 +528,7 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
             ctx.collect_bel_attr(tcid, bslot, bcls::BSCAN::ENABLE);
         }
         for bslot in bslots::ICAP {
-            ctx.collect_bel_attr(tcid, bslot, bcls::ICAP_V4::ENABLE);
+            ctx.collect_bel_attr(tcid, bslot, bcls::ICAP::ENABLE);
         }
         ctx.collect_bel_attr(tcid, bslots::JTAGPPC, bcls::JTAGPPC::ENABLE);
         ctx.collect_bel_attr(tcid, bslots::DCIRESET, bcls::DCIRESET::ENABLE);
@@ -554,7 +552,7 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
         }
 
         for bslot in bslots::ICAP {
-            for pin in [bcls::ICAP_V4::CLK, bcls::ICAP_V4::CE, bcls::ICAP_V4::WRITE] {
+            for pin in [bcls::ICAP::CLK, bcls::ICAP::CE, bcls::ICAP::WRITE] {
                 ctx.collect_bel_input_inv_int_bi(&[tcls::INT; 16], tcid, bslot, pin);
             }
         }
@@ -645,7 +643,7 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
             ],
         );
         ctx.collect_bel_attr(tcid, bslot, bcls::GLOBAL::STARTUP_CLOCK);
-        ctx.collect_bel_attr_ocd(tcid, bslot, bcls::GLOBAL::CONFIG_RATE_V4, OcdMode::BitOrder);
+        ctx.collect_bel_attr_ocd(tcid, bslot, bcls::GLOBAL::CONFIG_RATE, OcdMode::BitOrder);
         ctx.collect_bel_attr_bi(tcid, bslot, bcls::GLOBAL::DRIVE_DONE);
         ctx.collect_bel_attr_bi(tcid, bslot, bcls::GLOBAL::DONE_PIPE);
         ctx.collect_bel_attr_bi(tcid, bslot, bcls::GLOBAL::DCM_SHUTDOWN);
@@ -693,34 +691,34 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
         let muxes = &ctx.edev.db_index.tile_classes[tcid].muxes;
 
         let bslot = bslots::SYSMON;
-        ctx.collect_bel_attr(tcid, bslot, bcls::SYSMON_V4::MONITOR_MODE);
-        ctx.collect_bel_attr(tcid, bslot, bcls::SYSMON_V4::INIT);
+        ctx.collect_bel_attr(tcid, bslot, bcls::SYSMON::MONITOR_MODE);
+        ctx.collect_bel_attr(tcid, bslot, bcls::SYSMON::INIT);
         for pin in [
-            bcls::SYSMON_V4::DEN,
-            bcls::SYSMON_V4::DWE,
-            bcls::SYSMON_V4::SCANTESTENA,
-            bcls::SYSMON_V4::SCANTESTENB,
-            bcls::SYSMON_V4::SCANMEMWE,
-            bcls::SYSMON_V4::ROMTESTENABLE,
-            bcls::SYSMON_V4::RST,
-            bcls::SYSMON_V4::SEA,
-            bcls::SYSMON_V4::SEB,
+            bcls::SYSMON::DEN,
+            bcls::SYSMON::DWE,
+            bcls::SYSMON::SCANTESTENA,
+            bcls::SYSMON::SCANTESTENB,
+            bcls::SYSMON::SCANMEMWE,
+            bcls::SYSMON::ROMTESTENABLE,
+            bcls::SYSMON::RST,
+            bcls::SYSMON::SEA,
+            bcls::SYSMON::SEB,
         ] {
             ctx.collect_bel_input_inv_int_bi(&[tcls::INT; 8], tcid, bslot, pin);
         }
-        ctx.collect_bel_input_inv_bi(tcid, bslot, bcls::SYSMON_V4::CONVST);
+        ctx.collect_bel_input_inv_bi(tcid, bslot, bcls::SYSMON::CONVST);
         let mut present = ctx.get_diff_bel_special(tcid, bslot, specials::PRESENT);
         for (attr, val) in [
-            (bcls::SYSMON_V4::DCLK_DIVID_2, 0),
-            (bcls::SYSMON_V4::LW_DIVID_2_4, 0),
-            (bcls::SYSMON_V4::MCCLK_DIVID, 0xc8),
-            (bcls::SYSMON_V4::OVER_TEMPERATURE, 0x31e),
-            (bcls::SYSMON_V4::OVER_TEMPERATURE_OFF, 0),
-            (bcls::SYSMON_V4::OVER_TEMPERATURE_DELAY, 0),
-            (bcls::SYSMON_V4::BLOCK_ENABLE, 0x1e),
-            (bcls::SYSMON_V4::DCLK_MISSING, 0x320),
-            (bcls::SYSMON_V4::FEATURE_ENABLE, 0),
-            (bcls::SYSMON_V4::PROM_DATA, 0),
+            (bcls::SYSMON::DCLK_DIVID_2, 0),
+            (bcls::SYSMON::LW_DIVID_2_4, 0),
+            (bcls::SYSMON::MCCLK_DIVID, 0xc8),
+            (bcls::SYSMON::OVER_TEMPERATURE, 0x31e),
+            (bcls::SYSMON::OVER_TEMPERATURE_OFF, 0),
+            (bcls::SYSMON::OVER_TEMPERATURE_DELAY, 0),
+            (bcls::SYSMON::BLOCK_ENABLE, 0x1e),
+            (bcls::SYSMON::DCLK_MISSING, 0x320),
+            (bcls::SYSMON::FEATURE_ENABLE, 0),
+            (bcls::SYSMON::PROM_DATA, 0),
         ] {
             ctx.collect_bel_attr(tcid, bslot, attr);
             present.apply_bitvec_diff_int(ctx.bel_attr_bitvec(tcid, bslot, attr), val, 0);
@@ -730,7 +728,7 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
         let BelInfo::Bel(ref bel) = ctx.edev.db[tcid].bels[bslots::SYSMON] else {
             unreachable!()
         };
-        let mux = &muxes[&bel.inputs[bcls::SYSMON_V4::CONVST].wire()];
+        let mux = &muxes[&bel.inputs[bcls::SYSMON::CONVST].wire()];
 
         let mut diffs = vec![];
         for &src in mux.src.keys() {

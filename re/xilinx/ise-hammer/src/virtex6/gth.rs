@@ -54,7 +54,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
         bctx.mode(mode).test_bel_input_inv_auto(pin);
     }
 
-    for (aid, aname, attr) in &backend.edev.db[GTH_QUAD].attributes {
+    for (aid, attr) in &backend.edev.db[GTH_QUAD].attributes {
         match aid {
             GTH_QUAD::DRP | GTH_QUAD::ENABLE | GTH_QUAD::MUX_REFCLK => (),
             _ => match attr.typ {
@@ -76,7 +76,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
                     ] {
                         bctx.mode(mode)
                             .test_bel_attr_val(aid, val)
-                            .attr(aname, vname)
+                            .attr(attr.name.clone(), vname)
                             .commit();
                     }
                 }
@@ -138,7 +138,7 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
     }
     ctx.collect_bel_attr(tcid, bslot, GTH_QUAD::ENABLE);
 
-    for (aid, _, attr) in &ctx.edev.db[GTH_QUAD].attributes {
+    for (aid, attr) in &ctx.edev.db[GTH_QUAD].attributes {
         if matches!(aid, GTH_QUAD::DRP | GTH_QUAD::ENABLE) {
             continue;
         }

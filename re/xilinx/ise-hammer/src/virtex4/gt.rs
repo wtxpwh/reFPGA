@@ -127,7 +127,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
             bctx.mode(mode).test_bel_input_inv_auto(pin);
         }
 
-        for (aid, aname, attr) in &backend.edev.db[bcls::GT11].attributes {
+        for (aid, attr) in &backend.edev.db[bcls::GT11].attributes {
             match aid {
                 bcls::GT11::DRP | bcls::GT11::DRP_MASK => (),
 
@@ -144,7 +144,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
                         unreachable!()
                     };
                     bctx.mode(mode).test_bel_attr_bits(aid).multi_attr(
-                        aname,
+                        attr.name.clone(),
                         MultiValue::Hex(0),
                         width,
                     );
@@ -159,7 +159,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
                         unreachable!()
                     };
                     bctx.mode(mode).test_bel_attr_bits(aid).multi_attr(
-                        aname,
+                        attr.name.clone(),
                         MultiValue::Dec(0),
                         width,
                     );
@@ -194,7 +194,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
                     }
                     BelAttributeType::BitVec(width) => {
                         bctx.mode(mode).test_bel_attr_bits(aid).multi_attr(
-                            aname,
+                            attr.name.clone(),
                             MultiValue::Bin,
                             width,
                         );
@@ -223,7 +223,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
                 .commit();
         }
 
-        for (aid, aname, attr) in &backend.edev.db[bcls::GT11CLK].attributes {
+        for (aid, attr) in &backend.edev.db[bcls::GT11CLK].attributes {
             match aid {
                 bcls::GT11CLK::REFCLKSEL
                 | bcls::GT11CLK::SYNCLK1_DRIVE
@@ -239,29 +239,29 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
                         unreachable!()
                     };
                     bctx.mode(mode)
-                        .tile_mutex(aname, &bel)
+                        .tile_mutex(attr.name.clone(), &bel)
                         .test_bel(bslots::GT11CLK)
                         .test_bel_attr_bits(aid)
-                        .multi_attr(aname, MultiValue::Hex(0), width);
+                        .multi_attr(attr.name.clone(), MultiValue::Hex(0), width);
                 }
 
                 _ => match attr.typ {
                     BelAttributeType::Bool => {
                         bctx.mode(mode)
-                            .tile_mutex(aname, &bel)
+                            .tile_mutex(attr.name.clone(), &bel)
                             .test_bel(bslots::GT11CLK)
                             .test_bel_attr_bool_auto(aid, "FALSE", "TRUE");
                     }
                     BelAttributeType::BitVec(width) => {
                         bctx.mode(mode)
-                            .tile_mutex(aname, &bel)
+                            .tile_mutex(attr.name.clone(), &bel)
                             .test_bel(bslots::GT11CLK)
                             .test_bel_attr_bits(aid)
-                            .multi_attr(aname, MultiValue::Bin, width);
+                            .multi_attr(attr.name.clone(), MultiValue::Bin, width);
                     }
                     BelAttributeType::Enum(_) => {
                         bctx.mode(mode)
-                            .tile_mutex(aname, &bel)
+                            .tile_mutex(attr.name.clone(), &bel)
                             .test_bel(bslots::GT11CLK)
                             .test_bel_attr_auto(aid);
                     }
@@ -532,7 +532,7 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
         }
         present.assert_empty();
 
-        for (aid, _, attr) in &ctx.edev.db[bcls::GT11].attributes {
+        for (aid, attr) in &ctx.edev.db[bcls::GT11].attributes {
             match aid {
                 bcls::GT11::DRP | bcls::GT11::DRP_MASK => (),
 
@@ -605,7 +605,7 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
 
     {
         let bslot = bslots::GT11CLK;
-        for (aid, _, attr) in &ctx.edev.db[bcls::GT11CLK].attributes {
+        for (aid, attr) in &ctx.edev.db[bcls::GT11CLK].attributes {
             match aid {
                 bcls::GT11CLK::SYNCLK1_DRIVE => (),
                 bcls::GT11CLK::SYNCLK2_DRIVE => (),

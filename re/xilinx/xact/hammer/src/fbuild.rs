@@ -378,7 +378,7 @@ impl<'sm, 'b> FuzzBuilderBel<'sm, 'b> {
         let BelKind::Class(bcid) = self.backend.edev.db.bel_slots[self.bel].kind else {
             unreachable!()
         };
-        let opt = self.backend.edev.db[bcid].attributes.key(attr);
+        let opt = &self.backend.edev.db[bcid].attributes[attr].name;
         self.test_attr_global_as(opt, attr);
     }
 

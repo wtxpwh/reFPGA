@@ -69,7 +69,10 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
                         .pin("CX")
                         .pin("DX")
                         .test_bel_attr_bits(attr)
-                        .attr(backend.edev.db[bcls::SLICE].attributes.key(attr), "0")
+                        .attr(
+                            backend.edev.db[bcls::SLICE].attributes[attr].name.clone(),
+                            "0",
+                        )
                         .commit();
                 }
                 for (val, vname) in [

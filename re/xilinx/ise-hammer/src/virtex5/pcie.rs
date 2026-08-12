@@ -1,6 +1,6 @@
 use prjcombine_interconnect::db::{BelAttributeType, BelInputId};
 use prjcombine_re_hammer::Session;
-use prjcombine_virtex4::defs::{bcls::PCIE_V5 as PCIE, bslots, virtex5::tcls};
+use prjcombine_virtex4::defs::{bcls::PCIE, bslots, virtex5::tcls};
 
 use crate::{
     backend::{IseBackend, MultiValue},
@@ -35,7 +35,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
     for &pin in PCIE_INVPINS {
         bctx.mode(mode).test_bel_input_inv_auto(pin);
     }
-    for (aid, _, attr) in &backend.edev.db[PCIE].attributes {
+    for (aid, attr) in &backend.edev.db[PCIE].attributes {
         match attr.typ {
             BelAttributeType::Bool => {
                 bctx.mode(mode)
@@ -71,7 +71,7 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
     for &pin in PCIE_INVPINS {
         ctx.collect_bel_input_inv_bi(tcid, bslot, pin);
     }
-    for (aid, _, attr) in &ctx.edev.db[PCIE].attributes {
+    for (aid, attr) in &ctx.edev.db[PCIE].attributes {
         match attr.typ {
             BelAttributeType::Bool => {
                 ctx.collect_bel_attr_bi(tcid, bslot, aid);

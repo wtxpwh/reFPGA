@@ -11,9 +11,11 @@ use prjcombine_re_hammer::Session;
 use prjcombine_re_xilinx_geom::ExpandedDevice;
 use prjcombine_types::{bitrect::TileBit, bits, bitvec::BitVec};
 use prjcombine_virtex4::defs::{
-    bcls::{self, DCM_V5 as DCM, PLL_V5 as PLL},
-    bslots, devdata, enums, tslots,
-    virtex5::{tables::PLL_MULT, tcls, wires},
+    bcls::{self, DCM, PLL},
+    bslots, devdata, enums,
+    tables::PLL_MULT,
+    tslots,
+    virtex5::{tcls, wires},
 };
 
 use crate::{
@@ -920,7 +922,7 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx, skip_dcm: bool, skip_pll: bool, d
             &bits![0; 9],
             &mut enable,
         );
-        ctx.insert_devdata_bitvec(devdata::PLL_V5_IN_DLY_SET, dly_val);
+        ctx.insert_devdata_bitvec(devdata::PLL_IN_DLY_SET, dly_val);
 
         {
             let tcid = tcls::HCLK_CMT;
@@ -1907,7 +1909,7 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx, skip_dcm: bool, skip_pll: bool, d
             &dly_val,
         );
         diff.assert_empty();
-        ctx.insert_devdata_bitvec(devdata::PLL_V5_IN_DLY_SET, dly_val);
+        ctx.insert_devdata_bitvec(devdata::PLL_IN_DLY_SET, dly_val);
     }
     {
         let tcid = tcls::HCLK_CMT;

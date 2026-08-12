@@ -21,7 +21,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
         .mode(mode)
         .commit();
 
-    for (aid, _, attr) in &backend.edev.db[bcls::PCIE].attributes {
+    for (aid, attr) in &backend.edev.db[bcls::PCIE].attributes {
         match attr.typ {
             BelAttributeType::Bool => {
                 bctx.mode(mode)
@@ -103,7 +103,7 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
     if !ctx.has_tcls(tcid) {
         return;
     }
-    for (aid, _, attr) in &ctx.edev.db[bcls::PCIE].attributes {
+    for (aid, attr) in &ctx.edev.db[bcls::PCIE].attributes {
         match attr.typ {
             BelAttributeType::Bool => {
                 ctx.collect_bel_attr_bi(tcid, bslot, aid);

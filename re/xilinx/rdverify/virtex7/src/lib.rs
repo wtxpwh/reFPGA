@@ -12,7 +12,7 @@ use prjcombine_re_xilinx_rdverify::{RawWireCoord, Verifier};
 use prjcombine_virtex4::{
     chip::{ColumnKind, DisabledPart},
     defs::{
-        bcls::{self, BRAM_V5 as BRAM},
+        bcls::{self, BRAM},
         bslots, ccls, cslots, tcls, wires,
     },
     expanded::ExpandedDevice,

@@ -646,9 +646,7 @@ impl ChipContext<'_> {
             };
             for i in 0..2 {
                 let bel_eclksync = self.chip.bel_eclksync(edge, i);
-                let eclk_out = self
-                    .edev
-                    .get_bel_output(bcrd, [bcls::ECLK_TAP::ECLK0, bcls::ECLK_TAP::ECLK1][i])[0];
+                let eclk_out = self.edev.get_bel_output(bcrd, bcls::ECLK_TAP::ECLK[i])[0];
                 let eclk = self.naming.bel_wire(bel_eclksync, "ECLKO_OUT");
                 self.claim_pip_int_out(eclk_out, eclk);
             }

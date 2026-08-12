@@ -1,7 +1,7 @@
 use prjcombine_interconnect::db::BelInputId;
 use prjcombine_re_collector::diff::OcdMode;
 use prjcombine_re_hammer::Session;
-use prjcombine_virtex4::defs::{bcls::DSP_V5 as DSP, bslots, enums, virtex5::tcls};
+use prjcombine_virtex4::defs::{bcls::DSP, bslots, enums, virtex5::tcls};
 
 use crate::{
     backend::{IseBackend, MultiValue},

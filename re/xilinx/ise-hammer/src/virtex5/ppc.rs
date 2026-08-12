@@ -53,7 +53,7 @@ pub fn add_fuzzers<'a>(
                 .test_bel_input_inv_auto(pin);
         }
 
-        for (aid, _, attr) in &backend.edev.db[bcls::PPC440].attributes {
+        for (aid, attr) in &backend.edev.db[bcls::PPC440].attributes {
             match attr.typ {
                 BelAttributeType::Bool => {
                     bctx.mode(mode)
@@ -121,7 +121,7 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx, devdata_only: bool) {
         for &pin in PPC_INVPINS {
             ctx.collect_bel_input_inv_bi(tcid, bslot, pin);
         }
-        for (aid, _, attr) in &ctx.edev.db[bcls::PPC440].attributes {
+        for (aid, attr) in &ctx.edev.db[bcls::PPC440].attributes {
             match attr.typ {
                 BelAttributeType::Bool => {
                     ctx.collect_bel_attr_bi(tcid, bslot, aid);

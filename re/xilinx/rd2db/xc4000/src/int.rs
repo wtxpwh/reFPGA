@@ -14,7 +14,7 @@ use prjcombine_interconnect::{
 use prjcombine_re_xilinx_naming::db::{NamingDb, TileClassNamingId};
 use prjcombine_re_xilinx_rawdump::{Coord, Part};
 use prjcombine_types::bitrect::PolTileBit;
-use prjcombine_xc2000::xc4000::{self as defs, bslots, wires, xc4000::tcls};
+use prjcombine_xc2000::xc4000::{self as defs, bslots, tcls, wires};
 
 use prjcombine_re_xilinx_rd2db_interconnect::{ExtrBelInfo, IntBuilder, PipMode};
 

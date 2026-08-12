@@ -2254,28 +2254,28 @@ target_defs! {
             input "CH{i}_MODE1"[32];
 
             for j in 0..4 {
-              output "CH{i}_S_AXIS_DIN{j}_TREADY";
-              input "CH{i}_S_AXIS_DIN{j}_TVALID";
-              input "CH{i}_S_AXIS_DIN{j}_TDATA"[72];
-              input "CH{i}_S_AXIS_DIN{j}_TID"[8];
-              input "CH{i}_S_AXIS_DIN{j}_TKEEP"[2];
-              input "CH{i}_S_AXIS_DIN{j}_TLAST";
-              input "CH{i}_S_AXIS_DIN{j}_TUSER"[30];
-              output "CH{i}_S_AXIS_DIN{j}_CHAR";
+                output "CH{i}_S_AXIS_DIN{j}_TREADY";
+                input "CH{i}_S_AXIS_DIN{j}_TVALID";
+                input "CH{i}_S_AXIS_DIN{j}_TDATA"[72];
+                input "CH{i}_S_AXIS_DIN{j}_TID"[8];
+                input "CH{i}_S_AXIS_DIN{j}_TKEEP"[2];
+                input "CH{i}_S_AXIS_DIN{j}_TLAST";
+                input "CH{i}_S_AXIS_DIN{j}_TUSER"[30];
+                output "CH{i}_S_AXIS_DIN{j}_CHAR";
 
-              input "CH{i}_S_AXIS_COEFF{j}_TVALID";
-              output "CH{i}_S_AXIS_COEFF{j}_TREADY";
-              input "CH{i}_S_AXIS_COEFF{j}_TDATA"[32];
-              input "CH{i}_S_AXIS_COEFF{j}_TLAST";
-              input "CH{i}_S_AXIS_COEFF{j}_TUSER"[16];
-              output "CH{i}_S_AXIS_COEFF{j}_CHAR";
+                input "CH{i}_S_AXIS_COEFF{j}_TVALID";
+                output "CH{i}_S_AXIS_COEFF{j}_TREADY";
+                input "CH{i}_S_AXIS_COEFF{j}_TDATA"[32];
+                input "CH{i}_S_AXIS_COEFF{j}_TLAST";
+                input "CH{i}_S_AXIS_COEFF{j}_TUSER"[16];
+                output "CH{i}_S_AXIS_COEFF{j}_CHAR";
 
-              output "CH{i}_M_AXIS_DOUT{j}_TVALID";
-              output "CH{i}_M_AXIS_DOUT{j}_TDATA"[72];
-              output "CH{i}_M_AXIS_DOUT{j}_TID"[8];
-              output "CH{i}_M_AXIS_DOUT{j}_TKEEP"[2];
-              output "CH{i}_M_AXIS_DOUT{j}_TUSER"[32];
-              input "CH{i}_M_AXIS_DOUT{j}_CHAR";
+                output "CH{i}_M_AXIS_DOUT{j}_TVALID";
+                output "CH{i}_M_AXIS_DOUT{j}_TDATA"[72];
+                output "CH{i}_M_AXIS_DOUT{j}_TID"[8];
+                output "CH{i}_M_AXIS_DOUT{j}_TKEEP"[2];
+                output "CH{i}_M_AXIS_DOUT{j}_TUSER"[32];
+                input "CH{i}_M_AXIS_DOUT{j}_CHAR";
             }
 
             output "CH{i}_SPARE_OUT0"[6];
@@ -2506,9 +2506,9 @@ target_defs! {
         output TX_AXIS_ID_REQ_VLD;
         output TX_AXIS_ID_REQ[6];
         for i in 0..6 {
-              output "TX_AXIS_TREADY_{i}";
-                input "TX_AXIS_TVALID_{i}";
-              output "TX_AXIS_TAF_{i}";
+            output "TX_AXIS_TREADY_{i}";
+            input "TX_AXIS_TVALID_{i}";
+            output "TX_AXIS_TAF_{i}";
         }
         input TX_AXIS_TID[6];
         for i in 0..12 {

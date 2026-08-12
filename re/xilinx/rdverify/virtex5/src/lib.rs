@@ -247,7 +247,7 @@ fn verify_pll(vrf: &mut Verifier, bcrd: BelCoord) {
     let mut bel = vrf
         .verify_bel(bcrd)
         .kind("PLL_ADV")
-        .skip_out(bcls::PLL_V5::TEST_CLKIN);
+        .skip_out(bcls::PLL::TEST_CLKIN);
     bel.claim_pip(bel.wire("TEST_CLKIN"), bel.wire("CLKIN1"));
     bel.commit();
 }

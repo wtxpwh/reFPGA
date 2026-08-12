@@ -45,7 +45,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
             bctx.build().mode(mode).test_bel_input_inv_auto(pin);
         }
 
-        for (aid, _aname, attr) in &backend.edev.db[GTZ_OCTAL].attributes {
+        for (aid, attr) in &backend.edev.db[GTZ_OCTAL].attributes {
             match attr.typ {
                 BelAttributeType::Bool => {
                     bctx.mode(mode)
@@ -83,7 +83,7 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
             ctx.collect_bel_input_inv_bi(tcid, bslot, pin);
         }
 
-        for (aid, _, attr) in &ctx.edev.db[GTZ_OCTAL].attributes {
+        for (aid, attr) in &ctx.edev.db[GTZ_OCTAL].attributes {
             match attr.typ {
                 BelAttributeType::Bool => {
                     ctx.collect_bel_attr_bi(tcid, bslot, aid);

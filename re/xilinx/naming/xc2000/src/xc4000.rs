@@ -12,7 +12,7 @@ use prjcombine_re_xilinx_naming::{
 use prjcombine_xc2000::{
     chip::{Chip, ChipKind},
     expanded::ExpandedDevice,
-    xc4000::{bslots, xc4000::tcls},
+    xc4000::{bslots, tcls},
 };
 
 use crate::ExpandedNamedDevice;

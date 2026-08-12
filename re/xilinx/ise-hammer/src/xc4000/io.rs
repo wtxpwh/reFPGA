@@ -9,7 +9,7 @@ use prjcombine_re_xilinx_geom::ExpandedDevice;
 use prjcombine_types::bitrect::TileBit;
 use prjcombine_xc2000::{
     chip::ChipKind,
-    xc4000::{bslots, enums, tslots, wires, xc4000::bcls},
+    xc4000::{bcls, bslots, enums, tslots, wires},
 };
 
 use crate::{

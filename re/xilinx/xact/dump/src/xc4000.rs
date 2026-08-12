@@ -11,10 +11,7 @@ use prjcombine_re_xilinx_xact_xc2000::{ExpandedNamedDevice, name_device};
 use prjcombine_xc2000::{
     bond::{Bond, BondPad, CfgPad},
     chip::{Chip, ChipKind, SharedCfgPad},
-    xc4000::{
-        self as defs, bslots, tslots, wires,
-        xc4000::{bcls, tcls},
-    },
+    xc4000::{self as defs, bcls, bslots, tcls, tslots, wires},
 };
 
 use crate::extractor::{Extractor, NetBinding, PipMode};

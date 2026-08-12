@@ -45,7 +45,9 @@ target_defs! {
         attribute FFX_SR_ENABLE, FFY_SR_ENABLE: bool;
         attribute FFX_CLK_INV: bool;
         attribute FFY_CLK_INV: bool;
-        attribute MUX_CIN: CLB_MUX_CIN; // not present on xc4000ex/spartanxl and up
+        if variant [xc4000, xc4000h, xc4000a, xc4000e] {
+            attribute MUX_CIN: CLB_MUX_CIN;
+        }
         attribute CARRY_ADDSUB: CLB_CARRY_ADDSUB;
         attribute CARRY_FPROP: CLB_CARRY_PROP;
         attribute CARRY_FGEN: CLB_CARRY_FGEN;
@@ -56,15 +58,17 @@ target_defs! {
         attribute F_RAM_ENABLE: bool;
         attribute G_RAM_ENABLE: bool;
         attribute RAM_DIMS: CLB_RAM_DIMS;
-        // the following are xc4000e and up only
-        attribute RAM_DP_ENABLE: bool;
-        attribute RAM_SYNC_ENABLE: bool;
-        attribute RAM_CLK_INV: bool;
-        attribute MUX_H0: CLB_MUX_H0; // always G on older chips
-        attribute MUX_H2: CLB_MUX_H2; // always F on older chips
-        // the following are xc4000ex/spartanxl and up only
-        attribute FFX_MODE: CLB_FF_MODE;
-        attribute FFY_MODE: CLB_FF_MODE;
+        if variant [xc4000e, xc4000ex, xc4000xla, xc4000xv, spartanxl] {
+            attribute RAM_DP_ENABLE: bool;
+            attribute RAM_SYNC_ENABLE: bool;
+            attribute RAM_CLK_INV: bool;
+            attribute MUX_H0: CLB_MUX_H0; // always G on older chips
+            attribute MUX_H2: CLB_MUX_H2; // always F on older chips
+        }
+        if variant [xc4000ex, xc4000xla, xc4000xv, spartanxl] {
+            attribute FFX_MODE: CLB_FF_MODE;
+            attribute FFY_MODE: CLB_FF_MODE;
+        }
     }
 
     bel_class TBUF {
@@ -72,85 +76,112 @@ target_defs! {
         bidir O;
 
         attribute DRIVE1: bool;
-        // ?!? present on xc4000ex and up, in CLB and IO_E* tiles only
-        attribute DRIVE1_DUP: bool;
+        if variant [xc4000ex, xc4000xla, xc4000xv] {
+            // ?!? present in CLB and IO_E* tiles only
+            attribute DRIVE1_DUP: bool;
+        }
     }
 
     enum IO_PULL { NONE, PULLUP, PULLDOWN }
-    // MEDFAST and MEDSLOW only available on xc4000a
-    enum IO_SLEW { FAST, MEDFAST, MEDSLOW, SLOW }
-    enum IO_MUX_I { I, IQ, IQL }
-    // MEDDELAY and SYNC only supported on xc4000ex/spartanxl and up
-    enum IO_IFF_D { I, DELAY, MEDDELAY, SYNC }
-    enum IO_SYNC_D { I, DELAY }
-    // MUX only supported on xc4000ex/spartanxl and up
-    enum IO_MUX_O { O1, O1_INV, O2, O2_INV, OQ, MUX }
-    enum IO_MUX_OFF_D { O1, O2 }
-    enum IO_MUX_T { T, TQ }
-    enum IO_DRIVE { _12, _24 }
-    bel_class IO {
-        input IK, OK;
-        // O1 can be used as EC on xc4000e and up
-        input O1, O2;
-        input T;
-        output I1, I2;
-        output CLKIN;
-        pad PAD: inout;
-
-        attribute SLEW: IO_SLEW;
-        attribute PULL: IO_PULL;
-        attribute IFF_SRVAL, OFF_SRVAL: bitvec[1];
-        attribute READBACK_I1, READBACK_I2, READBACK_OQ: bitvec[1];
-        attribute MUX_I1, MUX_I2: IO_MUX_I;
-        attribute IFF_D: IO_IFF_D;
-        attribute OFF_D_INV: bool;
-        attribute MUX_OFF_D: IO_MUX_OFF_D;
-        attribute MUX_O: IO_MUX_O;
-        attribute OFF_USED: bool;
-
-        // the following are only supported on xc4000e and up
-        attribute IFF_CE_ENABLE: bool;
-        attribute OFF_CE_ENABLE: bool;
-
-        // the following are only supported on xc4000ex/spartanxl and up
-        attribute SYNC_D: IO_SYNC_D;
-        // ?!?
-        attribute IFF_CE_ENABLE_NO_IQ: bool;
-
-        // the following are only supported on xc4000xla, xc4000xv, spartanxl
-        attribute MUX_T: IO_MUX_T;
-        attribute DRIVE: IO_DRIVE;
-
-        // only on spartanxl
-        attribute _5V_TOLERANT: bool;
-    }
     enum IO_STD { CMOS, TTL }
-    enum HIO_OMODE { CAP, RES }
-    bel_class HIO {
-        input O, T;
-        output I;
-        output CLKIN;
-        pad PAD: inout;
+    if variant xc4000h {
+        enum HIO_OMODE { CAP, RES }
+        bel_class HIO {
+            input O, T;
+            output I;
+            output CLKIN;
+            pad PAD: inout;
 
-        attribute PULL: IO_PULL;
-        attribute ISTD: IO_STD;
-        attribute OSTD: IO_STD;
-        attribute OMODE: HIO_OMODE;
-        attribute I_INV: bool;
-        attribute READBACK_I: bitvec[1];
+            attribute PULL: IO_PULL;
+            attribute ISTD: IO_STD;
+            attribute OSTD: IO_STD;
+            attribute OMODE: HIO_OMODE;
+            attribute I_INV: bool;
+            attribute READBACK_I: bitvec[1];
+        }
+    } else {
+        if variant xc4000a {
+            enum IO_SLEW { FAST, MEDFAST, MEDSLOW, SLOW }
+        } else {
+            enum IO_SLEW { FAST, SLOW }
+        }
+        enum IO_MUX_I { I, IQ, IQL }
+        if variant [xc4000ex, xc4000xla, xc4000xv, spartanxl] {
+            enum IO_SYNC_D { I, DELAY }
+            enum IO_IFF_D { I, DELAY, MEDDELAY, SYNC }
+            enum IO_MUX_O { O1, O1_INV, O2, O2_INV, OQ, MUX }
+        } else {
+            enum IO_IFF_D { I, DELAY }
+            enum IO_MUX_O { O1, O1_INV, O2, O2_INV, OQ }
+        }
+        enum IO_MUX_OFF_D { O1, O2 }
+        if variant [xc4000xla, xc4000xv, spartanxl] {
+            enum IO_MUX_T { T, TQ }
+            enum IO_DRIVE { _12, _24 }
+        }
+        bel_class IO {
+            input IK, OK;
+            // O1 can be used as EC on xc4000e and up
+            input O1, O2;
+            input T;
+            output I1, I2;
+            output CLKIN;
+            pad PAD: inout;
+
+            attribute SLEW: IO_SLEW;
+            attribute PULL: IO_PULL;
+            attribute IFF_SRVAL, OFF_SRVAL: bitvec[1];
+            attribute READBACK_I1, READBACK_I2, READBACK_OQ: bitvec[1];
+            attribute MUX_I1, MUX_I2: IO_MUX_I;
+            attribute IFF_D: IO_IFF_D;
+            attribute OFF_D_INV: bool;
+            attribute MUX_OFF_D: IO_MUX_OFF_D;
+            attribute MUX_O: IO_MUX_O;
+            attribute OFF_USED: bool;
+
+            if variant [xc4000e, xc4000ex, xc4000xla, xc4000xv, spartanxl] {
+                attribute IFF_CE_ENABLE: bool;
+                attribute OFF_CE_ENABLE: bool;
+            }
+
+            if variant [xc4000ex, xc4000xla, xc4000xv, spartanxl] {
+                attribute SYNC_D: IO_SYNC_D;
+                // ?!?
+                attribute IFF_CE_ENABLE_NO_IQ: bool;
+            }
+
+            if variant [xc4000xla, xc4000xv, spartanxl] {
+                attribute MUX_T: IO_MUX_T;
+                attribute DRIVE: IO_DRIVE;
+            }
+
+            if variant spartanxl {
+                attribute _5V_TOLERANT: bool;
+            }
+        }
     }
 
-    bel_class DEC {
-        input I;
-        bidir O1, O2, O3, O4;
-        attribute O1_P: bool;
-        attribute O1_N: bool;
-        attribute O2_P: bool;
-        attribute O2_N: bool;
-        attribute O3_P: bool;
-        attribute O3_N: bool;
-        attribute O4_P: bool;
-        attribute O4_N: bool;
+    if variant spartanxl {
+    } else {
+        bel_class DEC {
+            input I;
+            if variant xc4000a {
+                bidir O1, O2;
+            } else {
+                bidir O1, O2, O3, O4;
+            }
+            attribute O1_P: bool;
+            attribute O1_N: bool;
+            attribute O2_P: bool;
+            attribute O2_N: bool;
+            if variant xc4000a {
+            } else {
+                attribute O3_P: bool;
+                attribute O3_N: bool;
+                attribute O4_P: bool;
+                attribute O4_N: bool;
+            }
+        }
     }
 
     bel_class PULLUP {
@@ -161,22 +192,30 @@ target_defs! {
     bel_class BUFG {
         input I;
         output O;
-        output O_BUFGE;
-        // ??? only on xc4000xla/spartanxl and up
-        attribute CLK_EN: bool;
-        attribute ALT_PAD: bool;
+        if variant [xc4000ex, xc4000xla, xc4000xv] {
+            output O_BUFGE;
+        }
+
+        if variant [xc4000xla, xc4000xv, spartanxl] {
+            // ???
+            attribute CLK_EN: bool;
+            attribute ALT_PAD: bool;
+        }
     }
 
-    bel_class BUFF {
-        output O;
+    if variant [xc4000ex, xc4000xla, xc4000xv] {
+        bel_class BUFF {
+            output O;
+        }
     }
 
-    bel_class TBUF_SPLITTER {
-        bidir W, E;
-        attribute BUF_W: bool;
-        attribute BUF_E: bool;
-        attribute PASS: bool;
-        // TODO
+    if variant [xc4000ex, xc4000xla, xc4000xv, spartanxl] {
+        bel_class TBUF_SPLITTER {
+            bidir W, E;
+            attribute BUF_W: bool;
+            attribute BUF_E: bool;
+            attribute PASS: bool;
+        }
     }
 
     enum CONFIG_RATE { SLOW, FAST }
@@ -197,8 +236,9 @@ target_defs! {
         attribute GSR_TIMING: GTS_GSR_TIMING;
         attribute SYNC_TO_DONE: bool;
         attribute MUX_CLK: STARTUP_MUX_CLK;
-        // xc4000ex/spartanxl and up only
-        attribute EXPRESS_MODE: bool;
+        if variant [xc4000ex, xc4000xla, xc4000xv, spartanxl] {
+            attribute EXPRESS_MODE: bool;
+        }
     }
 
     bel_class READCLK {
@@ -220,12 +260,14 @@ target_defs! {
         pad PAD: output;
         attribute PULL: IO_PULL;
         attribute BSCAN_ENABLE: bool;
-        // only on xc4000xla/spartanxl and up
-        attribute BSCAN_STATUS: bool;
+        if variant [xc4000xla, xc4000xv, spartanxl] {
+            attribute BSCAN_STATUS: bool;
+        }
         attribute T_ENABLE: bool;
         attribute O_ENABLE: bool;
-        // only on spartanxl
-        attribute _5V_TOLERANT: bool;
+        if variant spartanxl {
+            attribute _5V_TOLERANT: bool;
+        }
     }
 
     bel_class MD1 {
@@ -234,16 +276,20 @@ target_defs! {
         attribute PULL: IO_PULL;
         attribute T_ENABLE: bool;
         attribute O_ENABLE: bool;
-        attribute _5V_TOLERANT: bool;
+        if variant spartanxl {
+            attribute _5V_TOLERANT: bool;
+        }
     }
 
     bel_class IBUF {
         output I;
         pad PAD: input;
-        // only on xc4000e and up
-        attribute PULL: IO_PULL;
-        // only on spartanxl
-        attribute _5V_TOLERANT: bool;
+        if variant [xc4000e, xc4000ex, xc4000xla, xc4000xv, spartanxl] {
+            attribute PULL: IO_PULL;
+        }
+        if variant spartanxl {
+            attribute _5V_TOLERANT: bool;
+        }
     }
 
     bel_class RDBK {
@@ -262,18 +308,21 @@ target_defs! {
         attribute CONFIG: bool;
     }
 
-    bel_class CIN {
-        input I;
-    }
+    if variant [xc4000ex, xc4000xla, xc4000xv, spartanxl] {
+        bel_class CIN {
+            input I;
+        }
 
-    bel_class COUT {
-        output O;
+        bel_class COUT {
+            output O;
+        }
     }
 
     bel_class MISC_SW {
         attribute TM_BOT: bool;
-        // only on xc4000xla, xc4000xv
-        attribute IO_5V_TOLERANT: bool;
+        if variant [xc4000xla, xc4000xv] {
+            attribute IO_5V_TOLERANT: bool;
+        }
     }
 
     enum OSC_MUX_OUT { F500K, F16K, F490, F15 }
@@ -286,46 +335,56 @@ target_defs! {
         attribute OSC_MUX_OUT0: OSC_MUX_OUT;
         attribute OSC_MUX_OUT1: OSC_MUX_OUT;
         attribute TCTEST: bool;
-        // xc4000xla/spartanxl and up only
-        attribute TM_OSC: bool;
+        if variant [xc4000xla, xc4000xv, spartanxl] {
+            attribute TM_OSC: bool;
+        }
         attribute OSC_CLK: OSC_CLK;
-        // xc4000ex and up only
-        attribute FIX_DISCHARGE: bool;
-        // only on spartanxl
-        attribute PROG_5V_TOLERANT: bool;
-        attribute DONE_5V_TOLERANT: bool;
+        if variant [xc4000ex, xc4000xla, xc4000xv] {
+            attribute FIX_DISCHARGE: bool;
+        }
+        if variant spartanxl {
+            attribute PROG_5V_TOLERANT: bool;
+            attribute DONE_5V_TOLERANT: bool;
+        }
     }
 
     bel_class MISC_NW {
         attribute IO_ISTD: IO_STD;
-        // xc4000e and up only
-        attribute IO_OSTD: IO_STD;
+        if variant [xc4000e, xc4000ex, xc4000xla, xc4000xv, spartanxl] {
+            attribute IO_OSTD: IO_STD;
+        }
         attribute TM_LEFT: bool;
         attribute TM_TOP: bool;
-        // xc4000ex/spartanxl and up only
-        attribute _3V: bool;
+        if variant [xc4000ex, xc4000xla, xc4000xv, spartanxl] {
+            attribute _3V: bool;
+        }
     }
 
     enum RDBK_MUX_CLK { CCLK, RDBK }
-    enum ADDRESS_LINES { _18, _22 }
+    if variant [xc4000ex, xc4000xla, xc4000xv, spartanxl] {
+        enum ADDRESS_LINES { _18, _22 }
+    }
     bel_class MISC_NE {
         pad CCLK: inout;
         attribute TM_RIGHT: bool;
         attribute TAC: bool;
         attribute READCLK: RDBK_MUX_CLK;
-        // only on spartanxl
-        attribute CCLK_5V_TOLERANT: bool;
-        // only on xc4000ex/spartanxl and up
-        attribute ADDRESS_LINES: ADDRESS_LINES;
+        if variant spartanxl {
+            attribute CCLK_5V_TOLERANT: bool;
+        }
+        if variant [xc4000ex, xc4000xla, xc4000xv, spartanxl] {
+            attribute ADDRESS_LINES: ADDRESS_LINES;
+        }
     }
 
-    enum PUMP {
-        INTERNAL,
-        EXTERNAL,
-    }
-    bel_class MISC_W {
-        // xc4000ex only
-        attribute PUMP: PUMP;
+    if variant xc4000ex {
+        enum PUMP {
+            INTERNAL,
+            EXTERNAL,
+        }
+        bel_class MISC_W {
+            attribute PUMP: PUMP;
+        }
     }
 
     bel_class MISC_E {
@@ -335,22 +394,37 @@ target_defs! {
     region_slot GLOBAL;
     region_slot LONG_H;
     region_slot LONG_H_TBUF;
-    region_slot DEC_H;
     region_slot LONG_V;
-    region_slot DEC_V;
+    if variant spartanxl {
+    } else {
+        region_slot DEC_H;
+        region_slot DEC_V;
+    }
     region_slot GCLK;
-    region_slot BUFGE_V;
-    region_slot BUFGLS_H;
+    if variant [xc4000ex, xc4000xla, xc4000xv] {
+        region_slot BUFGE_V;
+    }
+    if variant [xc4000ex, xc4000xla, xc4000xv, spartanxl] {
+        region_slot BUFGLS_H;
+    }
 
     wire TIE_0: tie 0;
     wire TIE_1: tie 1;
     wire SPECIAL_CLB_CIN: special;
     wire SPECIAL_CLB_COUT0: special;
 
-    wire SINGLE_H[8]: multi_root;
-    wire SINGLE_H_E[8]: multi_branch W;
-    wire SINGLE_V[8]: multi_root;
-    wire SINGLE_V_S[8]: multi_branch N;
+    if variant xc4000a {
+        const NUM_SINGLE = 4;
+        const NUM_DOUBLE_IO = 2;
+    } else {
+        const NUM_SINGLE = 8;
+        const NUM_DOUBLE_IO = 4;
+    }
+
+    wire SINGLE_H[NUM_SINGLE]: multi_root;
+    wire SINGLE_H_E[NUM_SINGLE]: multi_branch W;
+    wire SINGLE_V[NUM_SINGLE]: multi_root;
+    wire SINGLE_V_S[NUM_SINGLE]: multi_branch N;
 
     wire DOUBLE_H0[2]: multi_root;
     wire DOUBLE_H1[2]: multi_branch W;
@@ -359,72 +433,105 @@ target_defs! {
     wire DOUBLE_V1[2]: multi_branch N;
     wire DOUBLE_V2[2]: multi_branch N;
 
-    wire DOUBLE_IO_S0[4]: multi_branch W;
-    wire DOUBLE_IO_S1[4]: multi_branch W;
-    wire DOUBLE_IO_S2[4]: multi_branch W;
-    wire DOUBLE_IO_E0[4]: multi_branch S;
-    wire DOUBLE_IO_E1[4]: multi_branch S;
-    wire DOUBLE_IO_E2[4]: multi_branch S;
-    wire DOUBLE_IO_N0[4]: multi_branch E;
-    wire DOUBLE_IO_N1[4]: multi_branch E;
-    wire DOUBLE_IO_N2[4]: multi_branch E;
-    wire DOUBLE_IO_W0[4]: multi_branch N;
-    wire DOUBLE_IO_W1[4]: multi_branch N;
-    wire DOUBLE_IO_W2[4]: multi_branch N;
+    wire DOUBLE_IO_S0[NUM_DOUBLE_IO]: multi_branch W;
+    wire DOUBLE_IO_S1[NUM_DOUBLE_IO]: multi_branch W;
+    wire DOUBLE_IO_S2[NUM_DOUBLE_IO]: multi_branch W;
+    wire DOUBLE_IO_E0[NUM_DOUBLE_IO]: multi_branch S;
+    wire DOUBLE_IO_E1[NUM_DOUBLE_IO]: multi_branch S;
+    wire DOUBLE_IO_E2[NUM_DOUBLE_IO]: multi_branch S;
+    wire DOUBLE_IO_N0[NUM_DOUBLE_IO]: multi_branch E;
+    wire DOUBLE_IO_N1[NUM_DOUBLE_IO]: multi_branch E;
+    wire DOUBLE_IO_N2[NUM_DOUBLE_IO]: multi_branch E;
+    wire DOUBLE_IO_W0[NUM_DOUBLE_IO]: multi_branch N;
+    wire DOUBLE_IO_W1[NUM_DOUBLE_IO]: multi_branch N;
+    wire DOUBLE_IO_W2[NUM_DOUBLE_IO]: multi_branch N;
 
     wire DBUF_IO_H[2]: mux;
     wire DBUF_IO_V[2]: mux;
 
-    wire QUAD_H0[3]: multi_root;
-    wire QUAD_H1[3]: multi_branch W;
-    wire QUAD_H2[3]: multi_branch W;
-    wire QUAD_H3[3]: multi_branch W;
-    wire QUAD_H4[3]: multi_branch W;
-    wire QUAD_V0[3]: multi_root;
-    wire QUAD_V1[3]: multi_branch N;
-    wire QUAD_V2[3]: multi_branch N;
-    wire QUAD_V3[3]: multi_branch N;
-    wire QUAD_V4[3]: multi_branch N;
+    if variant [xc4000ex, xc4000xla, xc4000xv] {
+        wire QUAD_H0[3]: multi_root;
+        wire QUAD_H1[3]: multi_branch W;
+        wire QUAD_H2[3]: multi_branch W;
+        wire QUAD_H3[3]: multi_branch W;
+        wire QUAD_H4[3]: multi_branch W;
+        wire QUAD_V0[3]: multi_root;
+        wire QUAD_V1[3]: multi_branch N;
+        wire QUAD_V2[3]: multi_branch N;
+        wire QUAD_V3[3]: multi_branch N;
+        wire QUAD_V4[3]: multi_branch N;
 
-    wire QBUF[3]: mux;
-
-    wire OCTAL_H[9] {
-        0 => multi_root,
-        1..9 => multi_branch W,
-    }
-    wire OCTAL_V[9] {
-        0 => multi_root,
-        1..9 => multi_branch N,
+        wire QBUF[3]: mux;
     }
 
-    wire OCTAL_IO_S[9]: multi_branch W;
-    wire OCTAL_IO_E[9]: multi_branch S;
-    wire OCTAL_IO_N[9]: multi_branch E;
-    wire OCTAL_IO_W[9]: multi_branch N;
+    if variant xc4000xv {
+        wire OCTAL_H[9] {
+            0 => multi_root,
+            1..9 => multi_branch W,
+        }
+        wire OCTAL_V[9] {
+            0 => multi_root,
+            1..9 => multi_branch N,
+        }
+    }
 
-    wire OBUF: mux;
+    if variant [xc4000ex, xc4000xla, xc4000xv] {
+        wire OCTAL_IO_S[9]: multi_branch W;
+        wire OCTAL_IO_E[9]: multi_branch S;
+        wire OCTAL_IO_N[9]: multi_branch E;
+        wire OCTAL_IO_W[9]: multi_branch N;
+    }
+
+    if variant xc4000xv {
+        wire OBUF: mux;
+    }
 
     wire LONG_H[6] {
         0..2 => regional LONG_H,
         2..4 => regional LONG_H_TBUF,
         4..6 => regional LONG_H,
     }
-    wire LONG_H_BUF[6]: mux;
-    wire LONG_V[10]: regional LONG_V;
-    wire LONG_IO_H[4]: regional LONG_H;
-    wire LONG_IO_V[4]: regional LONG_V;
+    if variant [xc4000xla, xc4000xv, spartanxl] {
+        wire LONG_H_BUF[6]: mux;
+    }
+    if variant xc4000a {
+        wire LONG_V[4]: regional LONG_V;
+    } else if variant [xc4000, xc4000h, xc4000e, spartanxl] {
+        wire LONG_V[6]: regional LONG_V;
+    } else {
+        wire LONG_V[10]: regional LONG_V;
+    }
+    if variant xc4000a {
+        wire LONG_IO_H[2]: regional LONG_H;
+        wire LONG_IO_V[2]: regional LONG_V;
+    } else {
+        wire LONG_IO_H[4]: regional LONG_H;
+        wire LONG_IO_V[4]: regional LONG_V;
+    }
 
-    wire DEC_H[4]: regional DEC_H;
-    wire DEC_V[4]: regional DEC_V;
+    if variant spartanxl {
+    } else if variant xc4000a {
+        wire DEC_H[2]: regional DEC_H;
+        wire DEC_V[2]: regional DEC_V;
+    } else {
+        wire DEC_H[4]: regional DEC_H;
+        wire DEC_V[4]: regional DEC_V;
+    }
 
-    wire GCLK[8]: regional GCLK;
-    wire VCLK: regional LONG_V;
-    wire ECLK_H: regional DEC_H;
-    wire ECLK_V: regional LONG_V;
-    wire BUFGE_H: regional DEC_H;
-    wire BUFGE_V[2]: regional BUFGE_V;
+    if variant [xc4000ex, xc4000xla, xc4000xv] {
+        wire GCLK[8]: regional GCLK;
+        wire VCLK: regional LONG_V;
+        wire ECLK_H: regional DEC_H;
+        wire ECLK_V: regional LONG_V;
+        wire BUFGE_H: regional DEC_H;
+        wire BUFGE_V[2]: regional BUFGE_V;
+    } else {
+        wire GCLK[4]: regional GCLK;
+    }
     wire BUFGLS[8]: regional GLOBAL;
-    wire BUFGLS_H[8]: regional BUFGLS_H;
+    if variant [xc4000ex, xc4000xla, xc4000xv, spartanxl] {
+        wire BUFGLS_H[8]: regional BUFGLS_H;
+    }
 
     wire IMUX_CLB_F1: mux;
     wire IMUX_CLB_F2: mux;
@@ -451,9 +558,13 @@ target_defs! {
     wire IMUX_IO_OK[2]: mux;
     wire IMUX_IO_IK[2]: mux;
     wire IMUX_IO_T[2]: mux;
-    wire IMUX_HIO_O[4]: mux;
-    wire IMUX_HIO_T[4]: mux;
-    wire IMUX_CIN: mux;
+    if variant xc4000h {
+        wire IMUX_HIO_O[4]: mux;
+        wire IMUX_HIO_T[4]: mux;
+    }
+    if variant [xc4000ex, xc4000xla, xc4000xv, spartanxl] {
+        wire IMUX_CIN: mux;
+    }
     wire IMUX_STARTUP_CLK: mux;
     wire IMUX_STARTUP_GSR: mux;
     wire IMUX_STARTUP_GTS: mux;
@@ -470,14 +581,16 @@ target_defs! {
     wire OUT_CLB_XQ: bel;
     wire OUT_CLB_Y: bel;
     wire OUT_CLB_YQ: bel;
-    wire OUT_CLB_X_H: mux;
-    wire OUT_CLB_XQ_H: mux;
-    wire OUT_CLB_Y_H: mux;
-    wire OUT_CLB_YQ_H: mux;
-    wire OUT_CLB_X_V: mux;
-    wire OUT_CLB_XQ_V: mux;
-    wire OUT_CLB_Y_V: mux;
-    wire OUT_CLB_YQ_V: mux;
+    if variant [xc4000ex, xc4000xla, xc4000xv, spartanxl] {
+        wire OUT_CLB_X_H: mux;
+        wire OUT_CLB_XQ_H: mux;
+        wire OUT_CLB_Y_H: mux;
+        wire OUT_CLB_YQ_H: mux;
+        wire OUT_CLB_X_V: mux;
+        wire OUT_CLB_XQ_V: mux;
+        wire OUT_CLB_Y_V: mux;
+        wire OUT_CLB_YQ_V: mux;
+    }
     wire OUT_CLB_X_S: branch N;
     wire OUT_CLB_XQ_S: branch N;
     wire OUT_CLB_Y_E: branch W;
@@ -492,7 +605,9 @@ target_defs! {
     wire OUT_IO_WE_I1_S1: branch N;
     wire OUT_IO_WE_I2_S1: branch N;
 
-    wire OUT_HIO_I[4]: bel;
+    if variant xc4000h {
+        wire OUT_HIO_I[4]: bel;
+    }
 
     wire OUT_IO_CLKIN: bel;
     wire OUT_IO_CLKIN_W: branch E;
@@ -509,12 +624,16 @@ target_defs! {
     wire OUT_MD0_I: bel;
     wire OUT_RDBK_DATA: bel;
 
-    wire OUT_COUT: bel;
-    wire OUT_COUT_E: branch W;
+    if variant [xc4000ex, xc4000xla, xc4000xv, spartanxl] {
+        wire OUT_COUT: bel;
+        wire OUT_COUT_E: branch W;
+    }
 
-    wire OUT_BUFGE_H: mux;
-    wire OUT_BUFGE_V: mux;
-    wire OUT_BUFF: mux;
+    if variant [xc4000ex, xc4000xla, xc4000xv] {
+        wire OUT_BUFGE_H: mux;
+        wire OUT_BUFGE_V: mux;
+        wire OUT_BUFF: mux;
+    }
 
     if variant [xc4000, xc4000h, xc4000e, spartanxl] {
         bitrect MAIN = vertical (rev 36, rev 10);
@@ -671,13 +790,23 @@ target_defs! {
             }
         }
 
-        bel_slot IO[2]: IO;
-        bel_slot HIO[4]: HIO;
-        bel_slot DEC[3]: DEC;
+        if variant xc4000h {
+            bel_slot HIO[4]: HIO;
+        } else {
+            bel_slot IO[2]: IO;
+        }
+        if variant spartanxl {
+        } else {
+            bel_slot DEC[3]: DEC;
+        }
         bel_slot PULLUP_TBUF[2]: PULLUP;
-        bel_slot CIN: CIN;
-        bel_slot COUT: COUT;
-        bel_slot MISC_W: MISC_W;
+        if variant [xc4000ex, xc4000xla, xc4000xv, spartanxl] {
+            bel_slot CIN: CIN;
+            bel_slot COUT: COUT;
+        }
+        if variant xc4000ex {
+            bel_slot MISC_W: MISC_W;
+        }
 
         tile_class IO_W0, IO_W1, IO_W0_N, IO_W1_S, IO_W0_F0, IO_W1_F0, IO_W0_F1, IO_W1_F1 {
             cell CELL, CELL_S, CELL_E, CELL_N;
@@ -1094,8 +1223,14 @@ target_defs! {
             }
         }
 
-        bel_slot PULLUP_DEC_H[4]: PULLUP;
-        bel_slot PULLUP_DEC_V[4]: PULLUP;
+        if variant spartanxl {
+        } else if variant xc4000a {
+            bel_slot PULLUP_DEC_H[2]: PULLUP;
+            bel_slot PULLUP_DEC_V[2]: PULLUP;
+        } else {
+            bel_slot PULLUP_DEC_H[4]: PULLUP;
+            bel_slot PULLUP_DEC_V[4]: PULLUP;
+        }
         bel_slot BUFG_H: BUFG;
         bel_slot BUFG_V: BUFG;
 
@@ -1256,11 +1391,9 @@ target_defs! {
 
     tile_slot LLH {
         bel_slot LLH: routing;
-        bel_slot PULLUP_TBUF_W[2]: PULLUP;
-        bel_slot PULLUP_TBUF_E[2]: PULLUP;
-        bel_slot TBUF_SPLITTER[2]: TBUF_SPLITTER;
-        bel_slot PULLUP_DEC_W[4]: PULLUP;
-        bel_slot PULLUP_DEC_E[4]: PULLUP;
+        if variant [xc4000ex, xc4000xla, xc4000xv, spartanxl] {
+            bel_slot TBUF_SPLITTER[2]: TBUF_SPLITTER;
+        }
 
         if variant [xc4000, xc4000a, xc4000h, xc4000e, spartanxl] {
             tile_class LLH_CLB, LLH_CLB_S, LLH_IO_S, LLH_IO_N {
@@ -1297,6 +1430,11 @@ target_defs! {
                 }
             }
         } else {
+            bel_slot PULLUP_TBUF_W[2]: PULLUP;
+            bel_slot PULLUP_TBUF_E[2]: PULLUP;
+            bel_slot PULLUP_DEC_W[4]: PULLUP;
+            bel_slot PULLUP_DEC_E[4]: PULLUP;
+
             tile_class LLHC_CLB, LLHC_CLB_S, LLHC_IO_S, LLHC_IO_N {
                 cell W, E;
                 if tile_class LLHC_CLB {
@@ -1382,9 +1520,6 @@ target_defs! {
 
     tile_slot LLV {
         bel_slot LLV: routing;
-        bel_slot BUFF: BUFF;
-        bel_slot PULLUP_DEC_S[4]: PULLUP;
-        bel_slot PULLUP_DEC_N[4]: PULLUP;
         bel_slot MISC_E: MISC_E;
 
         if variant [xc4000, xc4000a, xc4000h, xc4000e, spartanxl] {
@@ -1407,6 +1542,10 @@ target_defs! {
                 }
             }
         } else {
+            bel_slot BUFF: BUFF;
+            bel_slot PULLUP_DEC_S[4]: PULLUP;
+            bel_slot PULLUP_DEC_N[4]: PULLUP;
+
             tile_class LLVC_CLB, LLVC_IO_W, LLVC_IO_E {
                 cell S, N;
                 if tile_class LLVC_CLB {
@@ -1460,21 +1599,22 @@ target_defs! {
         }
     }
 
-    tile_slot CLKQ {
-        bel_slot CLKQC: routing;
-        bel_slot CLKQ: routing;
-
-        if variant [xc4000ex, xc4000xla] {
-            tile_class CLKQC {
-                cell CELL;
-                switchbox CLKQC;
+    if variant [xc4000ex, xc4000xla, xc4000xv] {
+        tile_slot CLKQ {
+            if variant [xc4000ex, xc4000xla] {
+                bel_slot CLKQC: routing;
+                tile_class CLKQC {
+                    cell CELL;
+                    switchbox CLKQC;
+                }
             }
-        }
 
-        if variant xc4000xv {
-            tile_class CLKQ {
-                cell W, E;
-                switchbox CLKQ;
+            if variant xc4000xv {
+                bel_slot CLKQ: routing;
+                tile_class CLKQ {
+                    cell W, E;
+                    switchbox CLKQ;
+                }
             }
         }
     }
@@ -1489,15 +1629,21 @@ target_defs! {
             pass DOUBLE_H2 = DOUBLE_H1;
             pass DOUBLE_IO_S1 = DOUBLE_IO_S0;
             pass DOUBLE_IO_S2 = DOUBLE_IO_S1;
-            pass QUAD_H1 = QUAD_H0;
-            pass QUAD_H2 = QUAD_H1;
-            pass QUAD_H3 = QUAD_H2;
-            pass QUAD_H4 = QUAD_H3;
-            for i in 0..8 {
-                pass OCTAL_H[i + 1] = OCTAL_H[i];
+            if variant [xc4000ex, xc4000xla, xc4000xv] {
+                pass QUAD_H1 = QUAD_H0;
+                pass QUAD_H2 = QUAD_H1;
+                pass QUAD_H3 = QUAD_H2;
+                pass QUAD_H4 = QUAD_H3;
             }
-            for i in 0..8 {
-                pass OCTAL_IO_S[i + 1] = OCTAL_IO_S[i];
+            if variant xc4000xv {
+                for i in 0..8 {
+                    pass OCTAL_H[i + 1] = OCTAL_H[i];
+                }
+            }
+            if variant [xc4000ex, xc4000xla, xc4000xv] {
+                for i in 0..8 {
+                    pass OCTAL_IO_S[i + 1] = OCTAL_IO_S[i];
+                }
             }
             if connector_class PASS_CLB_W_W {
                 pass OUT_CLB_Y_E = OUT_IO_WE_I2[1];
@@ -1512,13 +1658,17 @@ target_defs! {
             pass OUT_IO_SN_I1_E1 = OUT_IO_SN_I1[1];
             pass OUT_IO_SN_I2_E1 = OUT_IO_SN_I2[1];
             pass OUT_IO_CLKIN_E = OUT_IO_CLKIN;
-            pass OUT_COUT_E = OUT_COUT;
+            if variant [xc4000ex, xc4000xla, xc4000xv, spartanxl] {
+                pass OUT_COUT_E = OUT_COUT;
+            }
         }
 
         connector_class CNR_SW {
             reflect DOUBLE_IO_S1 = DOUBLE_IO_W1;
-            for i in 0..8 {
-                reflect OCTAL_IO_S[i] = OCTAL_IO_W[i + 1];
+            if variant [xc4000ex, xc4000xla, xc4000xv] {
+                for i in 0..8 {
+                    reflect OCTAL_IO_S[i] = OCTAL_IO_W[i + 1];
+                }
             }
         }
     }
@@ -1529,8 +1679,10 @@ target_defs! {
         connector_class PASS_E {
             pass DOUBLE_IO_N1 = DOUBLE_IO_N0;
             pass DOUBLE_IO_N2 = DOUBLE_IO_N1;
-            for i in 0..8 {
-                pass OCTAL_IO_N[i + 1] = OCTAL_IO_N[i];
+            if variant [xc4000ex, xc4000xla, xc4000xv] {
+                for i in 0..8 {
+                    pass OCTAL_IO_N[i + 1] = OCTAL_IO_N[i];
+                }
             }
             pass IMUX_CLB_F3_W = IMUX_CLB_F3;
             pass IMUX_CLB_G3_W = IMUX_CLB_G3;
@@ -1540,8 +1692,10 @@ target_defs! {
 
         connector_class CNR_NE {
             reflect DOUBLE_IO_N1 = DOUBLE_IO_E1;
-            for i in 0..8 {
-                reflect OCTAL_IO_N[i] = OCTAL_IO_E[i + 1];
+            if variant [xc4000ex, xc4000xla, xc4000xv] {
+                for i in 0..8 {
+                    reflect OCTAL_IO_N[i] = OCTAL_IO_E[i + 1];
+                }
             }
         }
     }
@@ -1552,8 +1706,10 @@ target_defs! {
         connector_class PASS_S {
             pass DOUBLE_IO_E1 = DOUBLE_IO_E0;
             pass DOUBLE_IO_E2 = DOUBLE_IO_E1;
-            for i in 0..8 {
-                pass OCTAL_IO_E[i + 1] = OCTAL_IO_E[i];
+            if variant [xc4000ex, xc4000xla, xc4000xv] {
+                for i in 0..8 {
+                    pass OCTAL_IO_E[i + 1] = OCTAL_IO_E[i];
+                }
             }
             pass IMUX_CLB_F2_N = IMUX_CLB_F2;
             pass IMUX_CLB_G2_N = IMUX_CLB_G2;
@@ -1562,8 +1718,10 @@ target_defs! {
         }
 
         connector_class CNR_SE {
-            for i in 0..8 {
-                reflect OCTAL_IO_E[i] = OCTAL_IO_S[i + 1];
+            if variant [xc4000ex, xc4000xla, xc4000xv] {
+                for i in 0..8 {
+                    reflect OCTAL_IO_E[i] = OCTAL_IO_S[i + 1];
+                }
             }
         }
     }
@@ -1577,15 +1735,21 @@ target_defs! {
             pass DOUBLE_V2 = DOUBLE_V1;
             pass DOUBLE_IO_W1 = DOUBLE_IO_W0;
             pass DOUBLE_IO_W2 = DOUBLE_IO_W1;
-            pass QUAD_V1 = QUAD_V0;
-            pass QUAD_V2 = QUAD_V1;
-            pass QUAD_V3 = QUAD_V2;
-            pass QUAD_V4 = QUAD_V3;
-            for i in 0..8 {
-                pass OCTAL_V[i + 1] = OCTAL_V[i];
+            if variant [xc4000ex, xc4000xla, xc4000xv] {
+                pass QUAD_V1 = QUAD_V0;
+                pass QUAD_V2 = QUAD_V1;
+                pass QUAD_V3 = QUAD_V2;
+                pass QUAD_V4 = QUAD_V3;
             }
-            for i in 0..8 {
-                pass OCTAL_IO_W[i + 1] = OCTAL_IO_W[i];
+            if variant xc4000xv {
+                for i in 0..8 {
+                    pass OCTAL_V[i + 1] = OCTAL_V[i];
+                }
+            }
+            if variant [xc4000ex, xc4000xla, xc4000xv] {
+                for i in 0..8 {
+                    pass OCTAL_IO_W[i + 1] = OCTAL_IO_W[i];
+                }
             }
             if connector_class PASS_CLB_N_N {
                 pass OUT_CLB_X_S = OUT_IO_SN_I2[0];
@@ -1605,8 +1769,10 @@ target_defs! {
         connector_class CNR_NW {
             reflect DOUBLE_IO_W0 = DOUBLE_IO_N1;
             reflect DOUBLE_IO_W1 = DOUBLE_IO_N2;
-            for i in 0..8 {
-                reflect OCTAL_IO_W[i] = OCTAL_IO_N[i + 1];
+            if variant [xc4000ex, xc4000xla, xc4000xv] {
+                for i in 0..8 {
+                    reflect OCTAL_IO_W[i] = OCTAL_IO_N[i + 1];
+                }
             }
         }
     }

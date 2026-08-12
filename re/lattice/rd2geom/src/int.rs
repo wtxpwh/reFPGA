@@ -83,10 +83,10 @@ impl ChipContext<'_> {
                     }
                     let bcrd = self.chip.bel_cibtest_sel();
                     let mut bel = Bel::default();
-                    for pin in [bcls::CIBTEST_SEL::TSEL0, bcls::CIBTEST_SEL::TSEL1] {
-                        let pname = self.intdb.bel_classes[bcls::CIBTEST_SEL].inputs.key(pin).0;
-                        let wire = self.rc_wire(cell, &format!("J{pname}_CIBTEST"));
-                        self.add_bel_wire(cell.bel(bslots::INT), pname, wire);
+                    for i in 0..2 {
+                        let pin = bcls::CIBTEST_SEL::TSEL[i];
+                        let wire = self.rc_wire(cell, &format!("JTSEL{i}_CIBTEST"));
+                        self.add_bel_wire(cell.bel(bslots::INT), format!("TSEL{i}"), wire);
                         bel.inputs.insert(pin, self.xlat_input(bcrd, wire));
                     }
                     self.insert_bel(bcrd, bel);

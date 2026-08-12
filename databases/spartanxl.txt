@@ -3831,10 +3831,13 @@ intdb {
 		PULLDOWN,
 	}
 
+	enum IO_STD {
+		CMOS,
+		TTL,
+	}
+
 	enum IO_SLEW {
 		FAST,
-		MEDFAST,
-		MEDSLOW,
 		SLOW,
 	}
 
@@ -3844,16 +3847,16 @@ intdb {
 		IQL,
 	}
 
+	enum IO_SYNC_D {
+		I,
+		DELAY,
+	}
+
 	enum IO_IFF_D {
 		I,
 		DELAY,
 		MEDDELAY,
 		SYNC,
-	}
-
-	enum IO_SYNC_D {
-		I,
-		DELAY,
 	}
 
 	enum IO_MUX_O {
@@ -3878,16 +3881,6 @@ intdb {
 	enum IO_DRIVE {
 		_12,
 		_24,
-	}
-
-	enum IO_STD {
-		CMOS,
-		TTL,
-	}
-
-	enum HIO_OMODE {
-		CAP,
-		RES,
 	}
 
 	enum CONFIG_RATE {
@@ -3936,11 +3929,6 @@ intdb {
 		_22,
 	}
 
-	enum PUMP {
-		INTERNAL,
-		EXTERNAL,
-	}
-
 	bel_class CLB {
 		input F1;
 		input F2;
@@ -3980,7 +3968,6 @@ intdb {
 		attribute FFY_SR_ENABLE: bool;
 		attribute FFX_CLK_INV: bool;
 		attribute FFY_CLK_INV: bool;
-		attribute MUX_CIN: CLB_MUX_CIN;
 		attribute CARRY_ADDSUB: CLB_CARRY_ADDSUB;
 		attribute CARRY_FPROP: CLB_CARRY_PROP;
 		attribute CARRY_FGEN: CLB_CARRY_FGEN;
@@ -4007,7 +3994,6 @@ intdb {
 		input T;
 		bidir O;
 		attribute DRIVE1: bool;
-		attribute DRIVE1_DUP: bool;
 	}
 
 	bel_class IO {
@@ -4043,36 +4029,6 @@ intdb {
 		attribute _5V_TOLERANT: bool;
 	}
 
-	bel_class HIO {
-		input O;
-		input T;
-		output I;
-		output CLKIN;
-		pad PAD: inout
-		attribute PULL: IO_PULL;
-		attribute ISTD: IO_STD;
-		attribute OSTD: IO_STD;
-		attribute OMODE: HIO_OMODE;
-		attribute I_INV: bool;
-		attribute READBACK_I: bitvec[1];
-	}
-
-	bel_class DEC {
-		input I;
-		bidir O1;
-		bidir O2;
-		bidir O3;
-		bidir O4;
-		attribute O1_P: bool;
-		attribute O1_N: bool;
-		attribute O2_P: bool;
-		attribute O2_N: bool;
-		attribute O3_P: bool;
-		attribute O3_N: bool;
-		attribute O4_P: bool;
-		attribute O4_N: bool;
-	}
-
 	bel_class PULLUP {
 		bidir O;
 		attribute ENABLE: bool;
@@ -4081,13 +4037,8 @@ intdb {
 	bel_class BUFG {
 		input I;
 		output O;
-		output O_BUFGE;
 		attribute CLK_EN: bool;
 		attribute ALT_PAD: bool;
-	}
-
-	bel_class BUFF {
-		output O;
 	}
 
 	bel_class TBUF_SPLITTER {
@@ -4191,7 +4142,6 @@ intdb {
 
 	bel_class MISC_SW {
 		attribute TM_BOT: bool;
-		attribute IO_5V_TOLERANT: bool;
 	}
 
 	bel_class MISC_SE {
@@ -4204,7 +4154,6 @@ intdb {
 		attribute TCTEST: bool;
 		attribute TM_OSC: bool;
 		attribute OSC_CLK: OSC_CLK;
-		attribute FIX_DISCHARGE: bool;
 		attribute PROG_5V_TOLERANT: bool;
 		attribute DONE_5V_TOLERANT: bool;
 	}
@@ -4226,10 +4175,6 @@ intdb {
 		attribute ADDRESS_LINES: ADDRESS_LINES;
 	}
 
-	bel_class MISC_W {
-		attribute PUMP: PUMP;
-	}
-
 	bel_class MISC_E {
 		attribute TLC: bool;
 	}
@@ -4237,11 +4182,8 @@ intdb {
 	region_slot GLOBAL;
 	region_slot LONG_H;
 	region_slot LONG_H_TBUF;
-	region_slot DEC_H;
 	region_slot LONG_V;
-	region_slot DEC_V;
 	region_slot GCLK;
-	region_slot BUFGE_V;
 	region_slot BUFGLS_H;
 	wire TIE_0: tie 0;
 	wire TIE_1: tie 1;
@@ -4343,94 +4285,6 @@ intdb {
 	wire DBUF_IO_H[1]: mux;
 	wire DBUF_IO_V[0]: mux;
 	wire DBUF_IO_V[1]: mux;
-	wire QUAD_H0[0]: multi_root;
-	wire QUAD_H0[1]: multi_root;
-	wire QUAD_H0[2]: multi_root;
-	wire QUAD_H1[0]: multi_branch W;
-	wire QUAD_H1[1]: multi_branch W;
-	wire QUAD_H1[2]: multi_branch W;
-	wire QUAD_H2[0]: multi_branch W;
-	wire QUAD_H2[1]: multi_branch W;
-	wire QUAD_H2[2]: multi_branch W;
-	wire QUAD_H3[0]: multi_branch W;
-	wire QUAD_H3[1]: multi_branch W;
-	wire QUAD_H3[2]: multi_branch W;
-	wire QUAD_H4[0]: multi_branch W;
-	wire QUAD_H4[1]: multi_branch W;
-	wire QUAD_H4[2]: multi_branch W;
-	wire QUAD_V0[0]: multi_root;
-	wire QUAD_V0[1]: multi_root;
-	wire QUAD_V0[2]: multi_root;
-	wire QUAD_V1[0]: multi_branch N;
-	wire QUAD_V1[1]: multi_branch N;
-	wire QUAD_V1[2]: multi_branch N;
-	wire QUAD_V2[0]: multi_branch N;
-	wire QUAD_V2[1]: multi_branch N;
-	wire QUAD_V2[2]: multi_branch N;
-	wire QUAD_V3[0]: multi_branch N;
-	wire QUAD_V3[1]: multi_branch N;
-	wire QUAD_V3[2]: multi_branch N;
-	wire QUAD_V4[0]: multi_branch N;
-	wire QUAD_V4[1]: multi_branch N;
-	wire QUAD_V4[2]: multi_branch N;
-	wire QBUF[0]: mux;
-	wire QBUF[1]: mux;
-	wire QBUF[2]: mux;
-	wire OCTAL_H[0]: multi_root;
-	wire OCTAL_H[1]: multi_branch W;
-	wire OCTAL_H[2]: multi_branch W;
-	wire OCTAL_H[3]: multi_branch W;
-	wire OCTAL_H[4]: multi_branch W;
-	wire OCTAL_H[5]: multi_branch W;
-	wire OCTAL_H[6]: multi_branch W;
-	wire OCTAL_H[7]: multi_branch W;
-	wire OCTAL_H[8]: multi_branch W;
-	wire OCTAL_V[0]: multi_root;
-	wire OCTAL_V[1]: multi_branch N;
-	wire OCTAL_V[2]: multi_branch N;
-	wire OCTAL_V[3]: multi_branch N;
-	wire OCTAL_V[4]: multi_branch N;
-	wire OCTAL_V[5]: multi_branch N;
-	wire OCTAL_V[6]: multi_branch N;
-	wire OCTAL_V[7]: multi_branch N;
-	wire OCTAL_V[8]: multi_branch N;
-	wire OCTAL_IO_S[0]: multi_branch W;
-	wire OCTAL_IO_S[1]: multi_branch W;
-	wire OCTAL_IO_S[2]: multi_branch W;
-	wire OCTAL_IO_S[3]: multi_branch W;
-	wire OCTAL_IO_S[4]: multi_branch W;
-	wire OCTAL_IO_S[5]: multi_branch W;
-	wire OCTAL_IO_S[6]: multi_branch W;
-	wire OCTAL_IO_S[7]: multi_branch W;
-	wire OCTAL_IO_S[8]: multi_branch W;
-	wire OCTAL_IO_E[0]: multi_branch S;
-	wire OCTAL_IO_E[1]: multi_branch S;
-	wire OCTAL_IO_E[2]: multi_branch S;
-	wire OCTAL_IO_E[3]: multi_branch S;
-	wire OCTAL_IO_E[4]: multi_branch S;
-	wire OCTAL_IO_E[5]: multi_branch S;
-	wire OCTAL_IO_E[6]: multi_branch S;
-	wire OCTAL_IO_E[7]: multi_branch S;
-	wire OCTAL_IO_E[8]: multi_branch S;
-	wire OCTAL_IO_N[0]: multi_branch E;
-	wire OCTAL_IO_N[1]: multi_branch E;
-	wire OCTAL_IO_N[2]: multi_branch E;
-	wire OCTAL_IO_N[3]: multi_branch E;
-	wire OCTAL_IO_N[4]: multi_branch E;
-	wire OCTAL_IO_N[5]: multi_branch E;
-	wire OCTAL_IO_N[6]: multi_branch E;
-	wire OCTAL_IO_N[7]: multi_branch E;
-	wire OCTAL_IO_N[8]: multi_branch E;
-	wire OCTAL_IO_W[0]: multi_branch N;
-	wire OCTAL_IO_W[1]: multi_branch N;
-	wire OCTAL_IO_W[2]: multi_branch N;
-	wire OCTAL_IO_W[3]: multi_branch N;
-	wire OCTAL_IO_W[4]: multi_branch N;
-	wire OCTAL_IO_W[5]: multi_branch N;
-	wire OCTAL_IO_W[6]: multi_branch N;
-	wire OCTAL_IO_W[7]: multi_branch N;
-	wire OCTAL_IO_W[8]: multi_branch N;
-	wire OBUF: mux;
 	wire LONG_H[0]: regional LONG_H;
 	wire LONG_H[1]: regional LONG_H;
 	wire LONG_H[2]: regional LONG_H_TBUF;
@@ -4449,10 +4303,6 @@ intdb {
 	wire LONG_V[3]: regional LONG_V;
 	wire LONG_V[4]: regional LONG_V;
 	wire LONG_V[5]: regional LONG_V;
-	wire LONG_V[6]: regional LONG_V;
-	wire LONG_V[7]: regional LONG_V;
-	wire LONG_V[8]: regional LONG_V;
-	wire LONG_V[9]: regional LONG_V;
 	wire LONG_IO_H[0]: regional LONG_H;
 	wire LONG_IO_H[1]: regional LONG_H;
 	wire LONG_IO_H[2]: regional LONG_H;
@@ -4461,28 +4311,10 @@ intdb {
 	wire LONG_IO_V[1]: regional LONG_V;
 	wire LONG_IO_V[2]: regional LONG_V;
 	wire LONG_IO_V[3]: regional LONG_V;
-	wire DEC_H[0]: regional DEC_H;
-	wire DEC_H[1]: regional DEC_H;
-	wire DEC_H[2]: regional DEC_H;
-	wire DEC_H[3]: regional DEC_H;
-	wire DEC_V[0]: regional DEC_V;
-	wire DEC_V[1]: regional DEC_V;
-	wire DEC_V[2]: regional DEC_V;
-	wire DEC_V[3]: regional DEC_V;
 	wire GCLK[0]: regional GCLK;
 	wire GCLK[1]: regional GCLK;
 	wire GCLK[2]: regional GCLK;
 	wire GCLK[3]: regional GCLK;
-	wire GCLK[4]: regional GCLK;
-	wire GCLK[5]: regional GCLK;
-	wire GCLK[6]: regional GCLK;
-	wire GCLK[7]: regional GCLK;
-	wire VCLK: regional LONG_V;
-	wire ECLK_H: regional DEC_H;
-	wire ECLK_V: regional LONG_V;
-	wire BUFGE_H: regional DEC_H;
-	wire BUFGE_V[0]: regional BUFGE_V;
-	wire BUFGE_V[1]: regional BUFGE_V;
 	wire BUFGLS[0]: regional GLOBAL;
 	wire BUFGLS[1]: regional GLOBAL;
 	wire BUFGLS[2]: regional GLOBAL;
@@ -4530,14 +4362,6 @@ intdb {
 	wire IMUX_IO_IK[1]: mux;
 	wire IMUX_IO_T[0]: mux;
 	wire IMUX_IO_T[1]: mux;
-	wire IMUX_HIO_O[0]: mux;
-	wire IMUX_HIO_O[1]: mux;
-	wire IMUX_HIO_O[2]: mux;
-	wire IMUX_HIO_O[3]: mux;
-	wire IMUX_HIO_T[0]: mux;
-	wire IMUX_HIO_T[1]: mux;
-	wire IMUX_HIO_T[2]: mux;
-	wire IMUX_HIO_T[3]: mux;
 	wire IMUX_CIN: mux;
 	wire IMUX_STARTUP_CLK: mux;
 	wire IMUX_STARTUP_GSR: mux;
@@ -4578,10 +4402,6 @@ intdb {
 	wire OUT_IO_WE_I2[1]: bel;
 	wire OUT_IO_WE_I1_S1: branch N;
 	wire OUT_IO_WE_I2_S1: branch N;
-	wire OUT_HIO_I[0]: bel;
-	wire OUT_HIO_I[1]: bel;
-	wire OUT_HIO_I[2]: bel;
-	wire OUT_HIO_I[3]: bel;
 	wire OUT_IO_CLKIN: bel;
 	wire OUT_IO_CLKIN_W: branch E;
 	wire OUT_IO_CLKIN_E: branch W;
@@ -4597,9 +4417,6 @@ intdb {
 	wire OUT_RDBK_DATA: bel;
 	wire OUT_COUT: bel;
 	wire OUT_COUT_E: branch W;
-	wire OUT_BUFGE_H: mux;
-	wire OUT_BUFGE_V: mux;
-	wire OUT_BUFF: mux;
 
 	tile_slot MAIN {
 		bel_slot INT: routing;
@@ -4608,26 +4425,10 @@ intdb {
 		bel_slot TBUF[1]: TBUF;
 		bel_slot IO[0]: IO;
 		bel_slot IO[1]: IO;
-		bel_slot HIO[0]: HIO;
-		bel_slot HIO[1]: HIO;
-		bel_slot HIO[2]: HIO;
-		bel_slot HIO[3]: HIO;
-		bel_slot DEC[0]: DEC;
-		bel_slot DEC[1]: DEC;
-		bel_slot DEC[2]: DEC;
 		bel_slot PULLUP_TBUF[0]: PULLUP;
 		bel_slot PULLUP_TBUF[1]: PULLUP;
 		bel_slot CIN: CIN;
 		bel_slot COUT: COUT;
-		bel_slot MISC_W: MISC_W;
-		bel_slot PULLUP_DEC_H[0]: PULLUP;
-		bel_slot PULLUP_DEC_H[1]: PULLUP;
-		bel_slot PULLUP_DEC_H[2]: PULLUP;
-		bel_slot PULLUP_DEC_H[3]: PULLUP;
-		bel_slot PULLUP_DEC_V[0]: PULLUP;
-		bel_slot PULLUP_DEC_V[1]: PULLUP;
-		bel_slot PULLUP_DEC_V[2]: PULLUP;
-		bel_slot PULLUP_DEC_V[3]: PULLUP;
 		bel_slot BUFG_H: BUFG;
 		bel_slot BUFG_V: BUFG;
 		bel_slot STARTUP: STARTUP;
@@ -18741,20 +18542,8 @@ intdb {
 
 	tile_slot LLH {
 		bel_slot LLH: routing;
-		bel_slot PULLUP_TBUF_W[0]: PULLUP;
-		bel_slot PULLUP_TBUF_W[1]: PULLUP;
-		bel_slot PULLUP_TBUF_E[0]: PULLUP;
-		bel_slot PULLUP_TBUF_E[1]: PULLUP;
 		bel_slot TBUF_SPLITTER[0]: TBUF_SPLITTER;
 		bel_slot TBUF_SPLITTER[1]: TBUF_SPLITTER;
-		bel_slot PULLUP_DEC_W[0]: PULLUP;
-		bel_slot PULLUP_DEC_W[1]: PULLUP;
-		bel_slot PULLUP_DEC_W[2]: PULLUP;
-		bel_slot PULLUP_DEC_W[3]: PULLUP;
-		bel_slot PULLUP_DEC_E[0]: PULLUP;
-		bel_slot PULLUP_DEC_E[1]: PULLUP;
-		bel_slot PULLUP_DEC_E[2]: PULLUP;
-		bel_slot PULLUP_DEC_E[3]: PULLUP;
 
 		tile_class LLH_CLB {
 			cell W;
@@ -18887,15 +18676,6 @@ intdb {
 
 	tile_slot LLV {
 		bel_slot LLV: routing;
-		bel_slot BUFF: BUFF;
-		bel_slot PULLUP_DEC_S[0]: PULLUP;
-		bel_slot PULLUP_DEC_S[1]: PULLUP;
-		bel_slot PULLUP_DEC_S[2]: PULLUP;
-		bel_slot PULLUP_DEC_S[3]: PULLUP;
-		bel_slot PULLUP_DEC_N[0]: PULLUP;
-		bel_slot PULLUP_DEC_N[1]: PULLUP;
-		bel_slot PULLUP_DEC_N[2]: PULLUP;
-		bel_slot PULLUP_DEC_N[3]: PULLUP;
 		bel_slot MISC_E: MISC_E;
 
 		tile_class LLV_CLB {
@@ -19127,11 +18907,6 @@ intdb {
 		}
 	}
 
-	tile_slot CLKQ {
-		bel_slot CLKQC: routing;
-		bel_slot CLKQ: routing;
-	}
-
 	connector_slot W {
 		opposite E;
 
@@ -19156,34 +18931,6 @@ intdb {
 			pass DOUBLE_IO_S2[1] = DOUBLE_IO_S1[1];
 			pass DOUBLE_IO_S2[2] = DOUBLE_IO_S1[2];
 			pass DOUBLE_IO_S2[3] = DOUBLE_IO_S1[3];
-			pass QUAD_H1[0] = QUAD_H0[0];
-			pass QUAD_H1[1] = QUAD_H0[1];
-			pass QUAD_H1[2] = QUAD_H0[2];
-			pass QUAD_H2[0] = QUAD_H1[0];
-			pass QUAD_H2[1] = QUAD_H1[1];
-			pass QUAD_H2[2] = QUAD_H1[2];
-			pass QUAD_H3[0] = QUAD_H2[0];
-			pass QUAD_H3[1] = QUAD_H2[1];
-			pass QUAD_H3[2] = QUAD_H2[2];
-			pass QUAD_H4[0] = QUAD_H3[0];
-			pass QUAD_H4[1] = QUAD_H3[1];
-			pass QUAD_H4[2] = QUAD_H3[2];
-			pass OCTAL_H[1] = OCTAL_H[0];
-			pass OCTAL_H[2] = OCTAL_H[1];
-			pass OCTAL_H[3] = OCTAL_H[2];
-			pass OCTAL_H[4] = OCTAL_H[3];
-			pass OCTAL_H[5] = OCTAL_H[4];
-			pass OCTAL_H[6] = OCTAL_H[5];
-			pass OCTAL_H[7] = OCTAL_H[6];
-			pass OCTAL_H[8] = OCTAL_H[7];
-			pass OCTAL_IO_S[1] = OCTAL_IO_S[0];
-			pass OCTAL_IO_S[2] = OCTAL_IO_S[1];
-			pass OCTAL_IO_S[3] = OCTAL_IO_S[2];
-			pass OCTAL_IO_S[4] = OCTAL_IO_S[3];
-			pass OCTAL_IO_S[5] = OCTAL_IO_S[4];
-			pass OCTAL_IO_S[6] = OCTAL_IO_S[5];
-			pass OCTAL_IO_S[7] = OCTAL_IO_S[6];
-			pass OCTAL_IO_S[8] = OCTAL_IO_S[7];
 			pass OUT_CLB_Y_E = OUT_CLB_Y_H;
 			pass OUT_CLB_YQ_E = OUT_CLB_YQ_H;
 			pass OUT_IO_SN_I1_E1 = OUT_IO_SN_I1[1];
@@ -19213,34 +18960,6 @@ intdb {
 			pass DOUBLE_IO_S2[1] = DOUBLE_IO_S1[1];
 			pass DOUBLE_IO_S2[2] = DOUBLE_IO_S1[2];
 			pass DOUBLE_IO_S2[3] = DOUBLE_IO_S1[3];
-			pass QUAD_H1[0] = QUAD_H0[0];
-			pass QUAD_H1[1] = QUAD_H0[1];
-			pass QUAD_H1[2] = QUAD_H0[2];
-			pass QUAD_H2[0] = QUAD_H1[0];
-			pass QUAD_H2[1] = QUAD_H1[1];
-			pass QUAD_H2[2] = QUAD_H1[2];
-			pass QUAD_H3[0] = QUAD_H2[0];
-			pass QUAD_H3[1] = QUAD_H2[1];
-			pass QUAD_H3[2] = QUAD_H2[2];
-			pass QUAD_H4[0] = QUAD_H3[0];
-			pass QUAD_H4[1] = QUAD_H3[1];
-			pass QUAD_H4[2] = QUAD_H3[2];
-			pass OCTAL_H[1] = OCTAL_H[0];
-			pass OCTAL_H[2] = OCTAL_H[1];
-			pass OCTAL_H[3] = OCTAL_H[2];
-			pass OCTAL_H[4] = OCTAL_H[3];
-			pass OCTAL_H[5] = OCTAL_H[4];
-			pass OCTAL_H[6] = OCTAL_H[5];
-			pass OCTAL_H[7] = OCTAL_H[6];
-			pass OCTAL_H[8] = OCTAL_H[7];
-			pass OCTAL_IO_S[1] = OCTAL_IO_S[0];
-			pass OCTAL_IO_S[2] = OCTAL_IO_S[1];
-			pass OCTAL_IO_S[3] = OCTAL_IO_S[2];
-			pass OCTAL_IO_S[4] = OCTAL_IO_S[3];
-			pass OCTAL_IO_S[5] = OCTAL_IO_S[4];
-			pass OCTAL_IO_S[6] = OCTAL_IO_S[5];
-			pass OCTAL_IO_S[7] = OCTAL_IO_S[6];
-			pass OCTAL_IO_S[8] = OCTAL_IO_S[7];
 			pass OUT_CLB_Y_E = OUT_IO_WE_I2[1];
 			pass OUT_CLB_YQ_E = OUT_IO_WE_I2[0];
 			pass OUT_IO_SN_I1_E1 = OUT_IO_SN_I1[1];
@@ -19254,14 +18973,6 @@ intdb {
 			reflect DOUBLE_IO_S1[1] = DOUBLE_IO_W1[1];
 			reflect DOUBLE_IO_S1[2] = DOUBLE_IO_W1[2];
 			reflect DOUBLE_IO_S1[3] = DOUBLE_IO_W1[3];
-			reflect OCTAL_IO_S[0] = OCTAL_IO_W[1];
-			reflect OCTAL_IO_S[1] = OCTAL_IO_W[2];
-			reflect OCTAL_IO_S[2] = OCTAL_IO_W[3];
-			reflect OCTAL_IO_S[3] = OCTAL_IO_W[4];
-			reflect OCTAL_IO_S[4] = OCTAL_IO_W[5];
-			reflect OCTAL_IO_S[5] = OCTAL_IO_W[6];
-			reflect OCTAL_IO_S[6] = OCTAL_IO_W[7];
-			reflect OCTAL_IO_S[7] = OCTAL_IO_W[8];
 		}
 	}
 
@@ -19277,14 +18988,6 @@ intdb {
 			pass DOUBLE_IO_N2[1] = DOUBLE_IO_N1[1];
 			pass DOUBLE_IO_N2[2] = DOUBLE_IO_N1[2];
 			pass DOUBLE_IO_N2[3] = DOUBLE_IO_N1[3];
-			pass OCTAL_IO_N[1] = OCTAL_IO_N[0];
-			pass OCTAL_IO_N[2] = OCTAL_IO_N[1];
-			pass OCTAL_IO_N[3] = OCTAL_IO_N[2];
-			pass OCTAL_IO_N[4] = OCTAL_IO_N[3];
-			pass OCTAL_IO_N[5] = OCTAL_IO_N[4];
-			pass OCTAL_IO_N[6] = OCTAL_IO_N[5];
-			pass OCTAL_IO_N[7] = OCTAL_IO_N[6];
-			pass OCTAL_IO_N[8] = OCTAL_IO_N[7];
 			pass IMUX_CLB_F3_W = IMUX_CLB_F3;
 			pass IMUX_CLB_G3_W = IMUX_CLB_G3;
 			pass IMUX_CLB_C3_W = IMUX_CLB_C3;
@@ -19296,14 +18999,6 @@ intdb {
 			reflect DOUBLE_IO_N1[1] = DOUBLE_IO_E1[1];
 			reflect DOUBLE_IO_N1[2] = DOUBLE_IO_E1[2];
 			reflect DOUBLE_IO_N1[3] = DOUBLE_IO_E1[3];
-			reflect OCTAL_IO_N[0] = OCTAL_IO_E[1];
-			reflect OCTAL_IO_N[1] = OCTAL_IO_E[2];
-			reflect OCTAL_IO_N[2] = OCTAL_IO_E[3];
-			reflect OCTAL_IO_N[3] = OCTAL_IO_E[4];
-			reflect OCTAL_IO_N[4] = OCTAL_IO_E[5];
-			reflect OCTAL_IO_N[5] = OCTAL_IO_E[6];
-			reflect OCTAL_IO_N[6] = OCTAL_IO_E[7];
-			reflect OCTAL_IO_N[7] = OCTAL_IO_E[8];
 		}
 	}
 
@@ -19319,14 +19014,6 @@ intdb {
 			pass DOUBLE_IO_E2[1] = DOUBLE_IO_E1[1];
 			pass DOUBLE_IO_E2[2] = DOUBLE_IO_E1[2];
 			pass DOUBLE_IO_E2[3] = DOUBLE_IO_E1[3];
-			pass OCTAL_IO_E[1] = OCTAL_IO_E[0];
-			pass OCTAL_IO_E[2] = OCTAL_IO_E[1];
-			pass OCTAL_IO_E[3] = OCTAL_IO_E[2];
-			pass OCTAL_IO_E[4] = OCTAL_IO_E[3];
-			pass OCTAL_IO_E[5] = OCTAL_IO_E[4];
-			pass OCTAL_IO_E[6] = OCTAL_IO_E[5];
-			pass OCTAL_IO_E[7] = OCTAL_IO_E[6];
-			pass OCTAL_IO_E[8] = OCTAL_IO_E[7];
 			pass IMUX_CLB_F2_N = IMUX_CLB_F2;
 			pass IMUX_CLB_G2_N = IMUX_CLB_G2;
 			pass IMUX_CLB_C2_N = IMUX_CLB_C2;
@@ -19334,14 +19021,6 @@ intdb {
 		}
 
 		connector_class CNR_SE {
-			reflect OCTAL_IO_E[0] = OCTAL_IO_S[1];
-			reflect OCTAL_IO_E[1] = OCTAL_IO_S[2];
-			reflect OCTAL_IO_E[2] = OCTAL_IO_S[3];
-			reflect OCTAL_IO_E[3] = OCTAL_IO_S[4];
-			reflect OCTAL_IO_E[4] = OCTAL_IO_S[5];
-			reflect OCTAL_IO_E[5] = OCTAL_IO_S[6];
-			reflect OCTAL_IO_E[6] = OCTAL_IO_S[7];
-			reflect OCTAL_IO_E[7] = OCTAL_IO_S[8];
 		}
 	}
 
@@ -19369,34 +19048,6 @@ intdb {
 			pass DOUBLE_IO_W2[1] = DOUBLE_IO_W1[1];
 			pass DOUBLE_IO_W2[2] = DOUBLE_IO_W1[2];
 			pass DOUBLE_IO_W2[3] = DOUBLE_IO_W1[3];
-			pass QUAD_V1[0] = QUAD_V0[0];
-			pass QUAD_V1[1] = QUAD_V0[1];
-			pass QUAD_V1[2] = QUAD_V0[2];
-			pass QUAD_V2[0] = QUAD_V1[0];
-			pass QUAD_V2[1] = QUAD_V1[1];
-			pass QUAD_V2[2] = QUAD_V1[2];
-			pass QUAD_V3[0] = QUAD_V2[0];
-			pass QUAD_V3[1] = QUAD_V2[1];
-			pass QUAD_V3[2] = QUAD_V2[2];
-			pass QUAD_V4[0] = QUAD_V3[0];
-			pass QUAD_V4[1] = QUAD_V3[1];
-			pass QUAD_V4[2] = QUAD_V3[2];
-			pass OCTAL_V[1] = OCTAL_V[0];
-			pass OCTAL_V[2] = OCTAL_V[1];
-			pass OCTAL_V[3] = OCTAL_V[2];
-			pass OCTAL_V[4] = OCTAL_V[3];
-			pass OCTAL_V[5] = OCTAL_V[4];
-			pass OCTAL_V[6] = OCTAL_V[5];
-			pass OCTAL_V[7] = OCTAL_V[6];
-			pass OCTAL_V[8] = OCTAL_V[7];
-			pass OCTAL_IO_W[1] = OCTAL_IO_W[0];
-			pass OCTAL_IO_W[2] = OCTAL_IO_W[1];
-			pass OCTAL_IO_W[3] = OCTAL_IO_W[2];
-			pass OCTAL_IO_W[4] = OCTAL_IO_W[3];
-			pass OCTAL_IO_W[5] = OCTAL_IO_W[4];
-			pass OCTAL_IO_W[6] = OCTAL_IO_W[5];
-			pass OCTAL_IO_W[7] = OCTAL_IO_W[6];
-			pass OCTAL_IO_W[8] = OCTAL_IO_W[7];
 			pass OUT_CLB_X_S = OUT_CLB_X_V;
 			pass OUT_CLB_XQ_S = OUT_CLB_XQ_V;
 			pass OUT_IO_WE_I1_S1 = OUT_IO_WE_I1[1];
@@ -19425,34 +19076,6 @@ intdb {
 			pass DOUBLE_IO_W2[1] = DOUBLE_IO_W1[1];
 			pass DOUBLE_IO_W2[2] = DOUBLE_IO_W1[2];
 			pass DOUBLE_IO_W2[3] = DOUBLE_IO_W1[3];
-			pass QUAD_V1[0] = QUAD_V0[0];
-			pass QUAD_V1[1] = QUAD_V0[1];
-			pass QUAD_V1[2] = QUAD_V0[2];
-			pass QUAD_V2[0] = QUAD_V1[0];
-			pass QUAD_V2[1] = QUAD_V1[1];
-			pass QUAD_V2[2] = QUAD_V1[2];
-			pass QUAD_V3[0] = QUAD_V2[0];
-			pass QUAD_V3[1] = QUAD_V2[1];
-			pass QUAD_V3[2] = QUAD_V2[2];
-			pass QUAD_V4[0] = QUAD_V3[0];
-			pass QUAD_V4[1] = QUAD_V3[1];
-			pass QUAD_V4[2] = QUAD_V3[2];
-			pass OCTAL_V[1] = OCTAL_V[0];
-			pass OCTAL_V[2] = OCTAL_V[1];
-			pass OCTAL_V[3] = OCTAL_V[2];
-			pass OCTAL_V[4] = OCTAL_V[3];
-			pass OCTAL_V[5] = OCTAL_V[4];
-			pass OCTAL_V[6] = OCTAL_V[5];
-			pass OCTAL_V[7] = OCTAL_V[6];
-			pass OCTAL_V[8] = OCTAL_V[7];
-			pass OCTAL_IO_W[1] = OCTAL_IO_W[0];
-			pass OCTAL_IO_W[2] = OCTAL_IO_W[1];
-			pass OCTAL_IO_W[3] = OCTAL_IO_W[2];
-			pass OCTAL_IO_W[4] = OCTAL_IO_W[3];
-			pass OCTAL_IO_W[5] = OCTAL_IO_W[4];
-			pass OCTAL_IO_W[6] = OCTAL_IO_W[5];
-			pass OCTAL_IO_W[7] = OCTAL_IO_W[6];
-			pass OCTAL_IO_W[8] = OCTAL_IO_W[7];
 			pass OUT_CLB_X_S = OUT_IO_SN_I2[0];
 			pass OUT_CLB_XQ_S = OUT_IO_SN_I2[1];
 			pass OUT_IO_WE_I1_S1 = OUT_IO_WE_I1[1];
@@ -19469,14 +19092,6 @@ intdb {
 			reflect DOUBLE_IO_W1[1] = DOUBLE_IO_N2[1];
 			reflect DOUBLE_IO_W1[2] = DOUBLE_IO_N2[2];
 			reflect DOUBLE_IO_W1[3] = DOUBLE_IO_N2[3];
-			reflect OCTAL_IO_W[0] = OCTAL_IO_N[1];
-			reflect OCTAL_IO_W[1] = OCTAL_IO_N[2];
-			reflect OCTAL_IO_W[2] = OCTAL_IO_N[3];
-			reflect OCTAL_IO_W[3] = OCTAL_IO_N[4];
-			reflect OCTAL_IO_W[4] = OCTAL_IO_N[5];
-			reflect OCTAL_IO_W[5] = OCTAL_IO_N[6];
-			reflect OCTAL_IO_W[6] = OCTAL_IO_N[7];
-			reflect OCTAL_IO_W[7] = OCTAL_IO_N[8];
 		}
 	}
 }

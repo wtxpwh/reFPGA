@@ -93,7 +93,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
         bctx.mode(mode).test_bel_input_inv_auto(pin);
     }
 
-    for (aid, aname, attr) in &backend.edev.db[bcls::GTP].attributes {
+    for (aid, attr) in &backend.edev.db[bcls::GTP].attributes {
         match aid {
             bcls::GTP::DRP => (),
             bcls::GTP::CB2_INH_CC_PERIOD_0
@@ -104,7 +104,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
                     unreachable!()
                 };
                 bctx.mode(mode).test_bel_attr_bits(aid).multi_attr(
-                    aname,
+                    attr.name.clone(),
                     MultiValue::Dec(0),
                     width,
                 );
@@ -137,7 +137,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
                     unreachable!()
                 };
                 bctx.mode(mode).test_bel_attr_bits(aid).multi_attr(
-                    aname,
+                    attr.name.clone(),
                     MultiValue::Hex(0),
                     width,
                 );
@@ -149,7 +149,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
                 for val in 1..15 {
                     bctx.mode(mode)
                         .test_bel_attr_bitvec_u32(aid, val)
-                        .attr(aname, val.to_string())
+                        .attr(attr.name.clone(), val.to_string())
                         .commit();
                 }
             }
@@ -160,7 +160,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
                 for val in 3..49 {
                     bctx.mode(mode)
                         .test_bel_attr_bitvec_u32(aid, val)
-                        .attr(aname, val.to_string())
+                        .attr(attr.name.clone(), val.to_string())
                         .commit();
                 }
             }
@@ -179,7 +179,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
                 for val in 1..62 {
                     bctx.mode(mode)
                         .test_bel_attr_bitvec_u32(aid, val)
-                        .attr(aname, val.to_string())
+                        .attr(attr.name.clone(), val.to_string())
                         .commit();
                 }
             }
@@ -252,7 +252,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
                 }
                 BelAttributeType::BitVec(width) => {
                     bctx.mode(mode).test_bel_attr_bits(aid).multi_attr(
-                        aname,
+                        attr.name.clone(),
                         MultiValue::Bin,
                         width,
                     );
@@ -297,7 +297,7 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
         ctx.collect_bel_input_inv_bi(tcid, bslot, pin);
     }
 
-    for (aid, _, attr) in &ctx.edev.db[bcls::GTP].attributes {
+    for (aid, attr) in &ctx.edev.db[bcls::GTP].attributes {
         if aid == bcls::GTP::MUX_CLKOUT_WEST
             && !matches!(edev.chip.gts, Gts::Double(..) | Gts::Quad(..))
         {

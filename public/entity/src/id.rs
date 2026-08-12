@@ -326,6 +326,7 @@ macro_rules! entity_id_u32 {
 
 /// A range of IDs.
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
+#[cfg_attr(feature = "bincode", derive(Encode, Decode))]
 pub struct EntityRange<I: EntityId> {
     start: usize,
     end: usize,

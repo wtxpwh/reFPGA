@@ -6,8 +6,8 @@ use prjcombine_re_xilinx_geom::ExpandedDevice;
 use prjcombine_virtex4::{
     chip::ChipKind,
     defs::{
-        bcls::SLICE_V5 as SLICE, bslots, enums, tslots, virtex5::tcls as tcls_v5,
-        virtex6::tcls as tcls_v6, virtex7::tcls as tcls_v7,
+        bcls::SLICE, bslots, enums, tslots, virtex5::tcls as tcls_v5, virtex6::tcls as tcls_v6,
+        virtex7::tcls as tcls_v7,
     },
 };
 
@@ -79,7 +79,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
                         .pin("CX")
                         .pin("DX")
                         .test_bel_attr_bits(attr)
-                        .attr(backend.edev.db[SLICE].attributes.key(attr), "0")
+                        .attr(backend.edev.db[SLICE].attributes[attr].name.clone(), "0")
                         .commit();
                 }
                 if matches!(edev.kind, ChipKind::Virtex5) {

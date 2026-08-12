@@ -4,7 +4,7 @@ use prjcombine_re_hammer::Session;
 use prjcombine_re_xilinx_geom::ExpandedDevice;
 use prjcombine_types::bitrect::TileBit;
 use prjcombine_virtex4::defs::{
-    bcls::{self, PCIE_V7 as PCIE, PCIE3},
+    bcls::{self, PCIE, PCIE3},
     bslots, tslots,
     virtex7::tcls,
 };
@@ -53,7 +53,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
             .pin("DRPWE")
             .commit();
 
-        for (aid, _, attr) in &backend.edev.db[PCIE].attributes {
+        for (aid, attr) in &backend.edev.db[PCIE].attributes {
             if aid == PCIE::DRP {
                 continue;
             }
@@ -153,7 +153,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
             .pin("DRPWE")
             .commit();
 
-        for (aid, _, attr) in &backend.edev.db[PCIE3].attributes {
+        for (aid, attr) in &backend.edev.db[PCIE3].attributes {
             match attr.typ {
                 BelAttributeType::Bool => {
                     bctx.mode(mode)
@@ -205,7 +205,7 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
         }
         ctx.insert_bel_attr_bitvec(tcid, bslot, PCIE::DRP, drp);
 
-        for (aid, _, attr) in &ctx.edev.db[PCIE].attributes {
+        for (aid, attr) in &ctx.edev.db[PCIE].attributes {
             if aid == PCIE::DRP {
                 continue;
             }
@@ -225,7 +225,7 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
     if ctx.has_tcls(tcls::PCIE3) {
         let tcid = tcls::PCIE3;
         let bslot = bslots::PCIE3;
-        for (aid, _, attr) in &ctx.edev.db[PCIE3].attributes {
+        for (aid, attr) in &ctx.edev.db[PCIE3].attributes {
             match attr.typ {
                 BelAttributeType::Bool => {
                     ctx.collect_bel_attr_bi(tcid, bslot, aid);

@@ -16,7 +16,7 @@ use prjcombine_re_xilinx_naming::db::RawTileId;
 use prjcombine_types::bitrect::{BitRectId, TileBit};
 use prjcombine_xc2000::{
     chip::ChipKind,
-    xc4000::{bslots, enums, tslots, wires, xc4000::bcls, xc4000::tcls},
+    xc4000::{bcls, bslots, enums, tcls, tslots, wires},
 };
 
 use crate::{

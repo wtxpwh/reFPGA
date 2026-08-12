@@ -31,16 +31,16 @@ impl ChipContext<'_> {
 
                     // plain inputs
                     for (pin, wn, wire) in [
-                        (bcls::SLICE::A0, "A0", format!("A{i0}_SLICE")),
-                        (bcls::SLICE::A1, "A1", format!("A{i1}_SLICE")),
-                        (bcls::SLICE::B0, "B0", format!("B{i0}_SLICE")),
-                        (bcls::SLICE::B1, "B1", format!("B{i1}_SLICE")),
-                        (bcls::SLICE::C0, "C0", format!("C{i0}_SLICE")),
-                        (bcls::SLICE::C1, "C1", format!("C{i1}_SLICE")),
-                        (bcls::SLICE::D0, "D0", format!("D{i0}_SLICE")),
-                        (bcls::SLICE::D1, "D1", format!("D{i1}_SLICE")),
-                        (bcls::SLICE::M0, "M0", format!("M{i0}_SLICE")),
-                        (bcls::SLICE::M1, "M1", format!("M{i1}_SLICE")),
+                        (bcls::SLICE::A[0], "A0", format!("A{i0}_SLICE")),
+                        (bcls::SLICE::A[1], "A1", format!("A{i1}_SLICE")),
+                        (bcls::SLICE::B[0], "B0", format!("B{i0}_SLICE")),
+                        (bcls::SLICE::B[1], "B1", format!("B{i1}_SLICE")),
+                        (bcls::SLICE::C[0], "C0", format!("C{i0}_SLICE")),
+                        (bcls::SLICE::C[1], "C1", format!("C{i1}_SLICE")),
+                        (bcls::SLICE::D[0], "D0", format!("D{i0}_SLICE")),
+                        (bcls::SLICE::D[1], "D1", format!("D{i1}_SLICE")),
+                        (bcls::SLICE::M[0], "M0", format!("M{i0}_SLICE")),
+                        (bcls::SLICE::M[1], "M1", format!("M{i1}_SLICE")),
                         (bcls::SLICE::CLK, "CLK", format!("CLK{i}_SLICE")),
                         (bcls::SLICE::LSR, "LSR", format!("LSR{i}_SLICE")),
                         (bcls::SLICE::CE, "CE", format!("CE{i}_SLICE")),
@@ -69,10 +69,10 @@ impl ChipContext<'_> {
 
                     // plain outputs
                     for (pin, wn, wire) in [
-                        (bcls::SLICE::F0, "F0", format!("F{i0}")),
-                        (bcls::SLICE::F1, "F1", format!("F{i1}")),
-                        (bcls::SLICE::Q0, "Q0", format!("Q{i0}")),
-                        (bcls::SLICE::Q1, "Q1", format!("Q{i1}")),
+                        (bcls::SLICE::F[0], "F0", format!("F{i0}")),
+                        (bcls::SLICE::F[1], "F1", format!("F{i1}")),
+                        (bcls::SLICE::Q[0], "Q0", format!("Q{i0}")),
+                        (bcls::SLICE::Q[1], "Q1", format!("Q{i1}")),
                     ] {
                         let wire_int = self.edev.get_bel_output(slices[i], pin)[0];
                         let wire_slice = self.rc_wire(
@@ -94,8 +94,8 @@ impl ChipContext<'_> {
                     }
 
                     // F5, FX
-                    let ofx0_int = self.edev.get_bel_output(slices[i], bcls::SLICE::OFX0)[0];
-                    let ofx1_int = self.edev.get_bel_output(slices[i], bcls::SLICE::OFX1)[0];
+                    let ofx0_int = self.edev.get_bel_output(slices[i], bcls::SLICE::OFX[0])[0];
+                    let ofx1_int = self.edev.get_bel_output(slices[i], bcls::SLICE::OFX[1])[0];
                     let ofx0_slice = self.rc_wire(cell, &format!("F5{abcd}_SLICE"));
                     let ofx1_slice = self.rc_wire(cell, &format!("FX{abcd}_SLICE"));
                     self.add_bel_wire(slices[i], "OFX0", ofx0_slice);
@@ -140,8 +140,8 @@ impl ChipContext<'_> {
                     self.add_bel_wire(slices[i], "DI1", di1);
                     self.add_bel_wire(slices[i], "DI0_SLICE", di0_slice);
                     self.add_bel_wire(slices[i], "DI1_SLICE", di1_slice);
-                    let f0 = self.edev.get_bel_output(slices[i], bcls::SLICE::F0)[0];
-                    let f1 = self.edev.get_bel_output(slices[i], bcls::SLICE::F1)[0];
+                    let f0 = self.edev.get_bel_output(slices[i], bcls::SLICE::F[0])[0];
+                    let f1 = self.edev.get_bel_output(slices[i], bcls::SLICE::F[1])[0];
                     self.claim_pip(di0_slice, di0);
                     self.claim_pip(di1_slice, di1);
                     self.claim_pip_int_in(di0, f0);
@@ -205,7 +205,7 @@ impl ChipContext<'_> {
                         self.claim_pip(wt, wf);
                     }
                     for (i, wf) in ["FCOA", "FCOB", "FCOC", "FCO"].into_iter().enumerate() {
-                        let ofx1_int = self.edev.get_bel_output(slices[i], bcls::SLICE::OFX1)[0];
+                        let ofx1_int = self.edev.get_bel_output(slices[i], bcls::SLICE::OFX[1])[0];
                         let wf = self.rc_wire(cell, wf);
                         self.claim_pip_int_out(ofx1_int, wf);
                     }
@@ -305,16 +305,16 @@ impl ChipContext<'_> {
 
                     // plain inputs
                     for (pin, wn, wire) in [
-                        (bcls::SLICE::A0, "A0", format!("A{i0}_SLICE")),
-                        (bcls::SLICE::A1, "A1", format!("A{i1}_SLICE")),
-                        (bcls::SLICE::B0, "B0", format!("B{i0}_SLICE")),
-                        (bcls::SLICE::B1, "B1", format!("B{i1}_SLICE")),
-                        (bcls::SLICE::C0, "C0", format!("C{i0}_SLICE")),
-                        (bcls::SLICE::C1, "C1", format!("C{i1}_SLICE")),
-                        (bcls::SLICE::D0, "D0", format!("D{i0}_SLICE")),
-                        (bcls::SLICE::D1, "D1", format!("D{i1}_SLICE")),
-                        (bcls::SLICE::M0, "M0", format!("M{i0}_SLICE")),
-                        (bcls::SLICE::M1, "M1", format!("M{i1}_SLICE")),
+                        (bcls::SLICE::A[0], "A0", format!("A{i0}_SLICE")),
+                        (bcls::SLICE::A[1], "A1", format!("A{i1}_SLICE")),
+                        (bcls::SLICE::B[0], "B0", format!("B{i0}_SLICE")),
+                        (bcls::SLICE::B[1], "B1", format!("B{i1}_SLICE")),
+                        (bcls::SLICE::C[0], "C0", format!("C{i0}_SLICE")),
+                        (bcls::SLICE::C[1], "C1", format!("C{i1}_SLICE")),
+                        (bcls::SLICE::D[0], "D0", format!("D{i0}_SLICE")),
+                        (bcls::SLICE::D[1], "D1", format!("D{i1}_SLICE")),
+                        (bcls::SLICE::M[0], "M0", format!("M{i0}_SLICE")),
+                        (bcls::SLICE::M[1], "M1", format!("M{i1}_SLICE")),
                         (bcls::SLICE::CLK, "CLK", format!("CLK{i}_SLICE")),
                         (bcls::SLICE::LSR, "LSR", format!("LSR{i}_SLICE")),
                         (bcls::SLICE::CE, "CE", format!("CE{i}_SLICE")),
@@ -332,10 +332,10 @@ impl ChipContext<'_> {
 
                     // plain outputs
                     for (pin, wn, wire) in [
-                        (bcls::SLICE::F0, "F0", format!("F{i0}")),
-                        (bcls::SLICE::F1, "F1", format!("F{i1}")),
-                        (bcls::SLICE::Q0, "Q0", format!("Q{i0}")),
-                        (bcls::SLICE::Q1, "Q1", format!("Q{i1}")),
+                        (bcls::SLICE::F[0], "F0", format!("F{i0}")),
+                        (bcls::SLICE::F[1], "F1", format!("F{i1}")),
+                        (bcls::SLICE::Q[0], "Q0", format!("Q{i0}")),
+                        (bcls::SLICE::Q[1], "Q1", format!("Q{i1}")),
                     ] {
                         if wn.starts_with('Q') && i == 3 {
                             continue;
@@ -347,8 +347,8 @@ impl ChipContext<'_> {
                     }
 
                     // F5, FX
-                    let ofx0_int = self.edev.get_bel_output(slices[i], bcls::SLICE::OFX0)[0];
-                    let ofx1_int = self.edev.get_bel_output(slices[i], bcls::SLICE::OFX1)[0];
+                    let ofx0_int = self.edev.get_bel_output(slices[i], bcls::SLICE::OFX[0])[0];
+                    let ofx1_int = self.edev.get_bel_output(slices[i], bcls::SLICE::OFX[1])[0];
                     let ofx0_slice = self.rc_wire(cell, &format!("F5{abcd}_SLICE"));
                     let ofx1_slice = self.rc_wire(cell, &format!("FX{abcd}_SLICE"));
                     self.add_bel_wire(slices[i], "OFX0", ofx0_slice);
@@ -415,8 +415,8 @@ impl ChipContext<'_> {
                     self.claim_pip(di0_slice, di0);
                     self.claim_pip(di1_slice, di1);
                     if i != 3 {
-                        let f0 = self.edev.get_bel_output(slices[i], bcls::SLICE::F0)[0];
-                        let f1 = self.edev.get_bel_output(slices[i], bcls::SLICE::F1)[0];
+                        let f0 = self.edev.get_bel_output(slices[i], bcls::SLICE::F[0])[0];
+                        let f1 = self.edev.get_bel_output(slices[i], bcls::SLICE::F[1])[0];
                         self.claim_pip_int_in(di0, f0);
                         self.claim_pip_int_in(di0, ofx0_int);
                         self.claim_pip_int_in(di1, f1);
@@ -589,16 +589,16 @@ impl ChipContext<'_> {
 
                 // plain inputs
                 for (pin, wn, wire) in [
-                    (bcls::SLICE::A0, "A0", format!("A{i0}_SLICE")),
-                    (bcls::SLICE::A1, "A1", format!("A{i1}_SLICE")),
-                    (bcls::SLICE::B0, "B0", format!("B{i0}_SLICE")),
-                    (bcls::SLICE::B1, "B1", format!("B{i1}_SLICE")),
-                    (bcls::SLICE::C0, "C0", format!("C{i0}_SLICE")),
-                    (bcls::SLICE::C1, "C1", format!("C{i1}_SLICE")),
-                    (bcls::SLICE::D0, "D0", format!("D{i0}_SLICE")),
-                    (bcls::SLICE::D1, "D1", format!("D{i1}_SLICE")),
-                    (bcls::SLICE::M0, "M0", format!("M{i0}_SLICE")),
-                    (bcls::SLICE::M1, "M1", format!("M{i1}_SLICE")),
+                    (bcls::SLICE::A[0], "A0", format!("A{i0}_SLICE")),
+                    (bcls::SLICE::A[1], "A1", format!("A{i1}_SLICE")),
+                    (bcls::SLICE::B[0], "B0", format!("B{i0}_SLICE")),
+                    (bcls::SLICE::B[1], "B1", format!("B{i1}_SLICE")),
+                    (bcls::SLICE::C[0], "C0", format!("C{i0}_SLICE")),
+                    (bcls::SLICE::C[1], "C1", format!("C{i1}_SLICE")),
+                    (bcls::SLICE::D[0], "D0", format!("D{i0}_SLICE")),
+                    (bcls::SLICE::D[1], "D1", format!("D{i1}_SLICE")),
+                    (bcls::SLICE::M[0], "M0", format!("M{i0}_SLICE")),
+                    (bcls::SLICE::M[1], "M1", format!("M{i1}_SLICE")),
                     (bcls::SLICE::CE, "CE", format!("CE{i}_SLICE")),
                 ] {
                     let wire_int = self.edev.get_bel_input(slices[i], pin).wire;
@@ -615,10 +615,10 @@ impl ChipContext<'_> {
 
                 // plain outputs
                 for (pin, wn, wire) in [
-                    (bcls::SLICE::F0, "F0", format!("F{i0}")),
-                    (bcls::SLICE::F1, "F1", format!("F{i1}")),
-                    (bcls::SLICE::Q0, "Q0", format!("Q{i0}")),
-                    (bcls::SLICE::Q1, "Q1", format!("Q{i1}")),
+                    (bcls::SLICE::F[0], "F0", format!("F{i0}")),
+                    (bcls::SLICE::F[1], "F1", format!("F{i1}")),
+                    (bcls::SLICE::Q[0], "Q0", format!("Q{i0}")),
+                    (bcls::SLICE::Q[1], "Q1", format!("Q{i1}")),
                 ] {
                     let wire_int = self.edev.get_bel_output(slices[i], pin)[0];
                     let wire_slice = self.rc_wire(cell, &format!("{wire}_SLICE"));
@@ -630,17 +630,17 @@ impl ChipContext<'_> {
                 let ofx0_int = self.edev.get_bel_output(
                     slices[i],
                     if is_ecp5 {
-                        bcls::SLICE::F0
+                        bcls::SLICE::F[0]
                     } else {
-                        bcls::SLICE::OFX0
+                        bcls::SLICE::OFX[0]
                     },
                 )[0];
                 let ofx1_int = self.edev.get_bel_output(
                     slices[i],
                     if is_ecp5 {
-                        bcls::SLICE::F1
+                        bcls::SLICE::F[1]
                     } else {
-                        bcls::SLICE::OFX1
+                        bcls::SLICE::OFX[1]
                     },
                 )[0];
                 let ofx0_slice = self.rc_wire(cell, &format!("F5{abcd}_SLICE"));
@@ -697,8 +697,8 @@ impl ChipContext<'_> {
                 self.add_bel_wire(slices[i], "DI1_SLICE", di1_slice);
                 self.claim_pip(di0_slice, di0);
                 self.claim_pip(di1_slice, di1);
-                let f0 = self.edev.get_bel_output(slices[i], bcls::SLICE::F0)[0];
-                let f1 = self.edev.get_bel_output(slices[i], bcls::SLICE::F1)[0];
+                let f0 = self.edev.get_bel_output(slices[i], bcls::SLICE::F[0])[0];
+                let f1 = self.edev.get_bel_output(slices[i], bcls::SLICE::F[1])[0];
                 self.claim_pip_int_in(di0, f0);
                 self.claim_pip_int_in(di1, f1);
                 if !is_ecp5 {

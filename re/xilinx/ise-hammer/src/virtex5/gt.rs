@@ -57,7 +57,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
         let BelKind::Class(bcid) = backend.edev.db.bel_slots[bslot].kind else {
             unreachable!()
         };
-        for (aid, aname, attr) in &backend.edev.db[bcid].attributes {
+        for (aid, attr) in &backend.edev.db[bcid].attributes {
             match (bcid, aid) {
                 (GTP_DUAL, GTP_DUAL::DRP) | (GTX_DUAL, GTX_DUAL::DRP) => (),
                 (GTP_DUAL, GTP_DUAL::DRP_MASK) | (GTX_DUAL, GTX_DUAL::DRP_MASK) => {
@@ -152,7 +152,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
                     for val in 1..15 {
                         bctx.mode(mode)
                             .test_bel_attr_bitvec_u32(aid, val)
-                            .attr(aname, val.to_string())
+                            .attr(attr.name.clone(), val.to_string())
                             .commit();
                     }
                 }
@@ -173,7 +173,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
                     for val in 3..49 {
                         bctx.mode(mode)
                             .test_bel_attr_bitvec_u32(aid, val)
-                            .attr(aname, val.to_string())
+                            .attr(attr.name.clone(), val.to_string())
                             .commit();
                     }
                 }
@@ -210,7 +210,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
                     for val in 1..62 {
                         bctx.mode(mode)
                             .test_bel_attr_bitvec_u32(aid, val)
-                            .attr(aname, val.to_string())
+                            .attr(attr.name.clone(), val.to_string())
                             .commit();
                     }
                 }
@@ -380,7 +380,7 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
         let BelKind::Class(bcid) = ctx.edev.db.bel_slots[bslot].kind else {
             unreachable!()
         };
-        for (aid, _aname, attr) in &ctx.edev.db[bcid].attributes {
+        for (aid, attr) in &ctx.edev.db[bcid].attributes {
             match (bcid, aid) {
                 (GTP_DUAL, GTP_DUAL::DRP) | (GTX_DUAL, GTX_DUAL::DRP) => (),
                 (GTP_DUAL, GTP_DUAL::DRP_MASK)

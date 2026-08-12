@@ -27,7 +27,7 @@ pub fn gen_virtex4(ctx: &mut DocgenContext) {
                     &db.int,
                     "iodelay-default",
                     &devdata,
-                    &[devdata::IODELAY_V5_IDELAY_DEFAULT],
+                    &[devdata::IODELAY_IDELAY_DEFAULT],
                 );
                 gen_devdata(
                     ctx,
@@ -43,7 +43,7 @@ pub fn gen_virtex4(ctx: &mut DocgenContext) {
                     &db.int,
                     "pll-in-dly-set",
                     &devdata,
-                    &[devdata::PLL_V5_IN_DLY_SET],
+                    &[devdata::PLL_IN_DLY_SET],
                 );
             }
             "virtex6" => {
@@ -53,7 +53,7 @@ pub fn gen_virtex4(ctx: &mut DocgenContext) {
                     &db.int,
                     "iodelay-default",
                     &devdata,
-                    &[devdata::IODELAY_V6_IDELAY_DEFAULT],
+                    &[devdata::IODELAY_IDELAY_DEFAULT],
                 );
                 gen_devdata(
                     ctx,
@@ -61,7 +61,7 @@ pub fn gen_virtex4(ctx: &mut DocgenContext) {
                     &db.int,
                     "pll-in-dly-set",
                     &devdata,
-                    &[devdata::PLL_V6_IN_DLY_SET],
+                    &[devdata::PLL_IN_DLY_SET],
                 );
             }
             "virtex7" => {}
