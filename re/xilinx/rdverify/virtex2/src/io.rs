@@ -11,11 +11,12 @@ use prjcombine_virtex2::iob::IobKind;
 pub fn verify_ioi(endev: &ExpandedNamedDevice, vrf: &mut Verifier, bcrd: BelCoord) {
     let idx = bslots::IOI.index_of(bcrd.slot).unwrap();
     let mut bel = vrf.verify_bel(bcrd);
-    let io = endev.chip.get_io_crd(bcrd);
-    let io_info = endev.chip.get_io_info(io);
+    let pad = bcrd.pad(bcls::IOI::PAD);
+    let edge = endev.chip.get_io_edge(pad);
+    let io_info = endev.chip.get_io_info(pad);
     if io_info.pad_kind == Some(IobKind::Clk) {
         bel = bel
-            .kind(["CLK_P", "CLK_N"][io.iob().to_idx() % 2])
+            .kind(["CLK_P", "CLK_N"][bslots::IOI.index_of(bcrd.slot).unwrap() % 2])
             .extra_out("BREFCLK")
             .skip_out(bcls::IOI::I);
         bel.claim_net(&[bel.wire("BREFCLK")]);
@@ -93,14 +94,12 @@ pub fn verify_ioi(endev: &ExpandedNamedDevice, vrf: &mut Verifier, bcrd: BelCoor
                 bel.claim_net(&[bel.wire(pin)]);
             }
             match io_info.diff {
-                IoDiffKind::P(oiob) => {
-                    let obel = endev.chip.get_io_loc(io.with_iob(oiob));
-                    bel.claim_pip(bel.wire("DIFFI_IN"), bel.bel_wire(obel, "PADOUT"));
+                IoDiffKind::P(opad) => {
+                    bel.claim_pip(bel.wire("DIFFI_IN"), bel.bel_wire(opad.bel, "PADOUT"));
                 }
-                IoDiffKind::N(oiob) => {
-                    let obel = endev.chip.get_io_loc(io.with_iob(oiob));
-                    bel.claim_pip(bel.wire("DIFFI_IN"), bel.bel_wire(obel, "PADOUT"));
-                    bel.claim_pip(bel.wire("DIFFO_IN"), bel.bel_wire(obel, "DIFFO_OUT"));
+                IoDiffKind::N(opad) => {
+                    bel.claim_pip(bel.wire("DIFFI_IN"), bel.bel_wire(opad.bel, "PADOUT"));
+                    bel.claim_pip(bel.wire("DIFFO_IN"), bel.bel_wire(opad.bel, "DIFFO_OUT"));
                 }
                 IoDiffKind::None => (),
             }
@@ -116,12 +115,11 @@ pub fn verify_ioi(endev: &ExpandedNamedDevice, vrf: &mut Verifier, bcrd: BelCoor
                 bel.claim_net(&[bel.wire(pin)]);
             }
             // ODDR, IDDR
-            if let IoDiffKind::P(oiob) | IoDiffKind::N(oiob) = io_info.diff {
-                let obel = endev.chip.get_io_loc(io.with_iob(oiob));
-                bel.claim_pip(bel.wire("ODDRIN1"), bel.bel_wire(obel, "ODDROUT2"));
-                bel.claim_pip(bel.wire("ODDRIN2"), bel.bel_wire(obel, "ODDROUT1"));
-                bel.claim_pip(bel.wire("IDDRIN1"), bel.bel_wire(obel, "IQ1"));
-                bel.claim_pip(bel.wire("IDDRIN2"), bel.bel_wire(obel, "IQ2"));
+            if let IoDiffKind::P(opad) | IoDiffKind::N(opad) = io_info.diff {
+                bel.claim_pip(bel.wire("ODDRIN1"), bel.bel_wire(opad.bel, "ODDROUT2"));
+                bel.claim_pip(bel.wire("ODDRIN2"), bel.bel_wire(opad.bel, "ODDROUT1"));
+                bel.claim_pip(bel.wire("IDDRIN1"), bel.bel_wire(opad.bel, "IQ1"));
+                bel.claim_pip(bel.wire("IDDRIN2"), bel.bel_wire(opad.bel, "IQ2"));
             }
             bel.claim_pip(bel.wire("PCI_CE"), bel.wire_far("PCI_CE"));
             let scol = if bcrd.col < endev.chip.col_clk {
@@ -147,7 +145,7 @@ pub fn verify_ioi(endev: &ExpandedNamedDevice, vrf: &mut Verifier, bcrd: BelCoor
         } else if !endev.chip.kind.is_spartan3ea() {
             (bcrd.col == endev.chip.col_clk - 1 || bcrd.col == endev.chip.col_clk) && idx < 2
         } else {
-            (0..8).any(|idx| endev.chip.get_clk_io(io.edge(), idx) == Some(io))
+            (0..8).any(|idx| endev.chip.get_clk_io(edge, idx) == Some(pad))
         };
         if is_clock {
             bel.claim_pip(bel.wire("CLKPAD"), bel.wire("I"));
@@ -170,14 +168,13 @@ pub fn verify_pcilogicse(endev: &ExpandedNamedDevice, vrf: &mut Verifier, bcrd: 
         unreachable!()
     };
     let pci_rdy = endev.chip.get_pci_io(edge);
-    for (pin, crd) in ["IRDY", "TRDY"].into_iter().zip(pci_rdy) {
+    for (pin, opad) in ["IRDY", "TRDY"].into_iter().zip(pci_rdy) {
         bel.claim_net(&[bel.wire(pin)]);
         bel.claim_pip(bel.wire(pin), bel.wire_far(pin));
-        let obel = endev.chip.get_io_loc(crd);
-        bel.claim_net(&[bel.wire_far(pin), bel.bel_wire(obel, "PCI_RDY_IN")]);
+        bel.claim_net(&[bel.wire_far(pin), bel.bel_wire(opad.bel, "PCI_RDY_IN")]);
         bel.claim_pip(
-            bel.bel_wire(obel, "PCI_RDY_IN"),
-            bel.bel_wire(obel, "PCI_RDY"),
+            bel.bel_wire(opad.bel, "PCI_RDY_IN"),
+            bel.bel_wire(opad.bel, "PCI_RDY"),
         );
     }
     let (wt, wf) = bel.pip("PCI_CE", 0);

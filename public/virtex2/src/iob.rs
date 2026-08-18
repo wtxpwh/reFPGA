@@ -2,7 +2,6 @@ use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
     db::{BelSlotId, CellSlotId, TileClassId},
     dir::Dir,
-    grid::TileIobId,
 };
 
 use crate::{
@@ -29,7 +28,6 @@ pub enum IobKind {
 pub struct IobData {
     pub iob: BelSlotId,
     pub cell: CellSlotId,
-    pub iob_id: TileIobId,
     pub ioi: BelSlotId,
     pub diff: IobDiff,
     pub kind: IobKind,
@@ -49,7 +47,6 @@ fn iob(tile: usize, iob: usize) -> IobData {
         kind: IobKind::Iob,
         diff: IobDiff::None,
         cell: CellSlotId::from_idx(tile),
-        iob_id: TileIobId::from_idx(iob),
         ioi: defs::bslots::IOI[iob],
     }
 }
@@ -59,7 +56,6 @@ fn iobt(tile: usize, iob: usize, other: usize) -> IobData {
         kind: IobKind::Iob,
         diff: IobDiff::True(bslots::IOB[other]),
         cell: CellSlotId::from_idx(tile),
-        iob_id: TileIobId::from_idx(iob),
         ioi: defs::bslots::IOI[iob],
     }
 }
@@ -69,7 +65,6 @@ fn iobc(tile: usize, iob: usize, other: usize) -> IobData {
         kind: IobKind::Iob,
         diff: IobDiff::Comp(bslots::IOB[other]),
         cell: CellSlotId::from_idx(tile),
-        iob_id: TileIobId::from_idx(iob),
         ioi: defs::bslots::IOI[iob],
     }
 }
@@ -79,7 +74,6 @@ fn ibuf(tile: usize, iob: usize) -> IobData {
         kind: IobKind::Ibuf,
         diff: IobDiff::None,
         cell: CellSlotId::from_idx(tile),
-        iob_id: TileIobId::from_idx(iob),
         ioi: defs::bslots::IOI[iob],
     }
 }
@@ -89,7 +83,6 @@ fn ibuft(tile: usize, iob: usize, other: usize) -> IobData {
         kind: IobKind::Ibuf,
         diff: IobDiff::True(bslots::IOB[other]),
         cell: CellSlotId::from_idx(tile),
-        iob_id: TileIobId::from_idx(iob),
         ioi: defs::bslots::IOI[iob],
     }
 }
@@ -99,7 +92,6 @@ fn ibufc(tile: usize, iob: usize, other: usize) -> IobData {
         kind: IobKind::Ibuf,
         diff: IobDiff::Comp(bslots::IOB[other]),
         cell: CellSlotId::from_idx(tile),
-        iob_id: TileIobId::from_idx(iob),
         ioi: defs::bslots::IOI[iob],
     }
 }
@@ -109,8 +101,7 @@ fn fc_ibuf(tile: usize, iob: usize) -> IobData {
         kind: IobKind::Ibuf,
         diff: IobDiff::None,
         cell: CellSlotId::from_idx(tile),
-        iob_id: TileIobId::from_idx(iob),
-        ioi: defs::bslots::IBUF[iob],
+        ioi: defs::bslots::IREG[iob],
     }
 }
 fn fc_obuf(tile: usize, iob: usize) -> IobData {
@@ -119,8 +110,7 @@ fn fc_obuf(tile: usize, iob: usize) -> IobData {
         kind: IobKind::Obuf,
         diff: IobDiff::None,
         cell: CellSlotId::from_idx(tile),
-        iob_id: TileIobId::from_idx(iob + 4),
-        ioi: defs::bslots::OBUF[iob],
+        ioi: defs::bslots::OREG[iob],
     }
 }
 fn clkt(tile: usize, iob: usize, other: usize) -> IobData {
@@ -129,7 +119,6 @@ fn clkt(tile: usize, iob: usize, other: usize) -> IobData {
         kind: IobKind::Clk,
         diff: IobDiff::True(bslots::IOB[other]),
         cell: CellSlotId::from_idx(tile),
-        iob_id: TileIobId::from_idx(iob),
         ioi: defs::bslots::IOI[iob],
     }
 }
@@ -139,7 +128,6 @@ fn clkc(tile: usize, iob: usize, other: usize) -> IobData {
         kind: IobKind::Clk,
         diff: IobDiff::Comp(bslots::IOB[other]),
         cell: CellSlotId::from_idx(tile),
-        iob_id: TileIobId::from_idx(iob),
         ioi: defs::bslots::IOI[iob],
     }
 }

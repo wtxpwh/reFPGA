@@ -236,9 +236,13 @@ impl Chip {
             .pad(bcls::GCLK_IOB::PAD)
     }
 
-    pub fn pad_mode(&self, idx: usize) -> BelPadCoord {
-        self.bel_corner_misc(DirHV::SW)
-            .pad([bcls::MISC_SW::M0, bcls::MISC_SW::M1, bcls::MISC_SW::M2][idx])
+    pub fn pads_mode(&self) -> [BelPadCoord; 3] {
+        let bel = self.bel_corner_misc(DirHV::SW);
+        [
+            bel.pad(bcls::MISC_SW::M0),
+            bel.pad(bcls::MISC_SW::M1),
+            bel.pad(bcls::MISC_SW::M2),
+        ]
     }
 
     pub fn pad_done(&self) -> BelPadCoord {

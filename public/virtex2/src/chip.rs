@@ -1,13 +1,14 @@
 use bincode::{Decode, Encode};
 use prjcombine_entity::{EntityId, EntityVec};
-use prjcombine_interconnect::db::CellSlotId;
+use prjcombine_interconnect::db::{BelSlotId, CellSlotId, IntDb};
 use prjcombine_interconnect::dir::{Dir, DirH, DirHV, DirV};
 use prjcombine_interconnect::grid::{
-    BelCoord, CellCoord, ColId, DieId, DieIdExt, EdgeIoCoord, RowId, TileCoord, TileIobId,
+    BelCoord, BelPadCoord, CellCoord, ColId, DieId, DieIdExt, RowId, TileCoord,
 };
+use prjcombine_types::Polarity;
 use std::collections::BTreeMap;
 
-use crate::defs::{self, bslots, tslots};
+use crate::defs::{bcls, bslots, tslots};
 use crate::iob::{
     IobKind, IobTileData, get_iob_data_e, get_iob_data_n, get_iob_data_s, get_iob_data_w,
 };
@@ -75,9 +76,9 @@ pub struct Chip {
     pub dcms: Option<Dcms>,
     pub has_ll: bool,
     pub has_small_int: bool,
-    pub cfg_io: BTreeMap<SharedCfgPad, EdgeIoCoord>,
-    pub dci_io: BTreeMap<u32, (EdgeIoCoord, EdgeIoCoord)>,
-    pub dci_io_alt: BTreeMap<u32, (EdgeIoCoord, EdgeIoCoord)>,
+    pub cfg_io: BTreeMap<SharedCfgPad, BelPadCoord>,
+    pub dci_io: BTreeMap<u32, (BelPadCoord, BelPadCoord)>,
+    pub dci_io_alt: BTreeMap<u32, (BelPadCoord, BelPadCoord)>,
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Hash, Encode, Decode)]
@@ -245,15 +246,16 @@ pub struct DcmPair {
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Encode, Decode)]
 pub enum IoDiffKind {
-    P(TileIobId),
-    N(TileIobId),
+    P(BelPadCoord),
+    N(BelPadCoord),
     None,
 }
 
 #[derive(Clone, Copy, Debug)]
 pub struct IoInfo {
-    pub coord: EdgeIoCoord,
+    pub coord: BelPadCoord,
     pub bank: u32,
+    pub vcco: Option<BelPadCoord>,
     pub diff: IoDiffKind,
     pub pad_kind: Option<IobKind>,
 }
@@ -388,33 +390,293 @@ impl Chip {
         res
     }
 
-    pub fn get_io_info(&self, io: EdgeIoCoord) -> IoInfo {
+    pub fn bel_corner_misc(&self, side: DirHV) -> BelCoord {
+        self.corner(side).bel(match side {
+            DirHV::SW => bslots::MISC_SW,
+            DirHV::SE => bslots::MISC_SE,
+            DirHV::NW => bslots::MISC_NW,
+            DirHV::NE => bslots::MISC_NE,
+        })
+    }
+
+    pub fn pad_io_h(&self, edge: DirH, row: RowId, slot: BelSlotId) -> BelPadCoord {
+        let pad = if bslots::IOI.contains(slot) {
+            bcls::IOI::PAD
+        } else if bslots::IREG.contains(slot) {
+            bcls::IREG::PAD
+        } else if bslots::OREG.contains(slot) {
+            bcls::OREG::PAD
+        } else {
+            unreachable!()
+        };
+        Self::DIE.cell(self.col_edge(edge), row).bel(slot).pad(pad)
+    }
+
+    pub fn pad_io_v(&self, edge: DirV, col: ColId, slot: BelSlotId) -> BelPadCoord {
+        let pad = if bslots::IOI.contains(slot) {
+            bcls::IOI::PAD
+        } else if bslots::IREG.contains(slot) {
+            bcls::IREG::PAD
+        } else if bslots::OREG.contains(slot) {
+            bcls::OREG::PAD
+        } else {
+            unreachable!()
+        };
+        Self::DIE.cell(col, self.row_edge(edge)).bel(slot).pad(pad)
+    }
+
+    pub fn bel_gt(&self, edge: DirV, col: ColId) -> BelCoord {
+        let slot = match self.kind {
+            ChipKind::Virtex2P => bslots::GT,
+            ChipKind::Virtex2PX => bslots::GT10,
+            _ => unreachable!(),
+        };
+        Self::DIE.cell(col, self.row_edge(edge)).bel(slot)
+    }
+
+    pub fn pad_gt_rx(&self, bel: BelCoord, pol: Polarity) -> BelPadCoord {
+        let pad = match (bel.slot, pol) {
+            (bslots::GT, Polarity::P) => bcls::GT::RXP,
+            (bslots::GT, Polarity::N) => bcls::GT::RXN,
+            (bslots::GT10, Polarity::P) => bcls::GT10::RXP,
+            (bslots::GT10, Polarity::N) => bcls::GT10::RXN,
+            _ => unreachable!(),
+        };
+        bel.pad(pad)
+    }
+
+    pub fn pad_gt_tx(&self, bel: BelCoord, pol: Polarity) -> BelPadCoord {
+        let pad = match (bel.slot, pol) {
+            (bslots::GT, Polarity::P) => bcls::GT::TXP,
+            (bslots::GT, Polarity::N) => bcls::GT::TXN,
+            (bslots::GT10, Polarity::P) => bcls::GT10::TXP,
+            (bslots::GT10, Polarity::N) => bcls::GT10::TXN,
+            _ => unreachable!(),
+        };
+        bel.pad(pad)
+    }
+
+    pub fn pad_gt_gnda(&self, bel: BelCoord) -> BelPadCoord {
+        let pad = match bel.slot {
+            bslots::GT => bcls::GT::GNDA,
+            bslots::GT10 => bcls::GT10::GNDA,
+            _ => unreachable!(),
+        };
+        bel.pad(pad)
+    }
+
+    pub fn pad_gt_vtrx(&self, bel: BelCoord) -> BelPadCoord {
+        let pad = match bel.slot {
+            bslots::GT => bcls::GT::VTRX,
+            bslots::GT10 => bcls::GT10::VTRX,
+            _ => unreachable!(),
+        };
+        bel.pad(pad)
+    }
+
+    pub fn pad_gt_vttx(&self, bel: BelCoord) -> BelPadCoord {
+        let pad = match bel.slot {
+            bslots::GT => bcls::GT::VTTX,
+            bslots::GT10 => bcls::GT10::VTTX,
+            _ => unreachable!(),
+        };
+        bel.pad(pad)
+    }
+
+    pub fn pad_gt_avccauxrx(&self, bel: BelCoord) -> BelPadCoord {
+        let pad = match bel.slot {
+            bslots::GT => bcls::GT::AVCCAUXRX,
+            bslots::GT10 => bcls::GT10::AVCCAUXRX,
+            _ => unreachable!(),
+        };
+        bel.pad(pad)
+    }
+
+    pub fn pad_gt_avccauxtx(&self, bel: BelCoord) -> BelPadCoord {
+        let pad = match bel.slot {
+            bslots::GT => bcls::GT::AVCCAUXTX,
+            bslots::GT10 => bcls::GT10::AVCCAUXTX,
+            _ => unreachable!(),
+        };
+        bel.pad(pad)
+    }
+
+    pub fn pads_mode(&self) -> [BelPadCoord; 3] {
+        if self.kind.is_spartan3ea() {
+            [
+                self.cfg_io[&SharedCfgPad::M0],
+                self.cfg_io[&SharedCfgPad::M1],
+                self.cfg_io[&SharedCfgPad::M2],
+            ]
+        } else {
+            let bel = self.bel_corner_misc(DirHV::SW);
+            [
+                bel.pad(bcls::MISC_SW::M0),
+                bel.pad(bcls::MISC_SW::M1),
+                bel.pad(bcls::MISC_SW::M2),
+            ]
+        }
+    }
+
+    pub fn pad_cclk(&self) -> BelPadCoord {
+        if self.kind.is_spartan3ea() {
+            self.cfg_io[&SharedCfgPad::Cclk]
+        } else {
+            self.bel_corner_misc(DirHV::SE).pad(bcls::MISC_SE::CCLK)
+        }
+    }
+
+    pub fn pad_hswap_en(&self) -> BelPadCoord {
+        assert_ne!(self.kind, ChipKind::FpgaCore);
+        if self.kind.is_spartan3ea() {
+            self.cfg_io[&SharedCfgPad::HswapEn]
+        } else {
+            self.bel_corner_misc(DirHV::NW).pad(bcls::MISC_NW::HSWAPEN)
+        }
+    }
+
+    pub fn pad_done(&self) -> BelPadCoord {
+        self.bel_corner_misc(DirHV::SE).pad(bcls::MISC_SE::DONE)
+    }
+
+    pub fn pad_prog_b(&self) -> BelPadCoord {
+        self.bel_corner_misc(DirHV::NW).pad(bcls::MISC_NW::PROG_B)
+    }
+
+    pub fn pad_suspend(&self) -> BelPadCoord {
+        assert!(self.kind.is_spartan3a());
+        self.bel_corner_misc(DirHV::SE).pad(bcls::MISC_SE::SUSPEND)
+    }
+
+    pub fn pad_tdi(&self) -> BelPadCoord {
+        self.bel_corner_misc(DirHV::NW).pad(bcls::MISC_NW::TDI)
+    }
+
+    pub fn pad_tms(&self) -> BelPadCoord {
+        if self.kind.is_spartan3a() {
+            self.bel_corner_misc(DirHV::NW).pad(bcls::MISC_NW::TMS)
+        } else {
+            self.bel_corner_misc(DirHV::NE).pad(bcls::MISC_NE::TMS)
+        }
+    }
+
+    pub fn pad_tdo(&self) -> BelPadCoord {
+        self.bel_corner_misc(DirHV::NE).pad(bcls::MISC_NE::TDO)
+    }
+
+    pub fn pad_tck(&self) -> BelPadCoord {
+        self.bel_corner_misc(DirHV::NE).pad(bcls::MISC_NE::TCK)
+    }
+
+    pub fn pad_powerdown_b(&self) -> BelPadCoord {
+        self.bel_corner_misc(DirHV::SE)
+            .pad(bcls::MISC_SE::POWERDOWN_B)
+    }
+
+    pub fn pad_vccbatt(&self) -> BelPadCoord {
+        self.bel_corner_misc(DirHV::NE).pad(bcls::MISC_NE::VCCBATT)
+    }
+
+    pub fn pad_dx(&self, pol: Polarity) -> BelPadCoord {
+        self.bel_corner_misc(DirHV::NW).pad(match pol {
+            Polarity::P => bcls::MISC_NW::DXP,
+            Polarity::N => bcls::MISC_NW::DXN,
+        })
+    }
+
+    pub fn pad_gnd(&self) -> BelPadCoord {
+        self.bel_global().pad(bcls::GLOBAL::GND)
+    }
+
+    pub fn pad_vccint(&self) -> BelPadCoord {
+        self.bel_global().pad(bcls::GLOBAL::VCCINT)
+    }
+
+    pub fn pad_vccaux(&self) -> BelPadCoord {
+        self.bel_global().pad(bcls::GLOBAL::VCCAUX)
+    }
+
+    pub fn pad_bank_vcco(&self, bank: u32) -> Option<BelPadCoord> {
+        match self.kind {
+            ChipKind::Virtex2 | ChipKind::Virtex2P | ChipKind::Virtex2PX | ChipKind::Spartan3 => {
+                let bel = match bank {
+                    0 => self.corner(DirHV::NW).bel(bslots::DCI_SN),
+                    1 => self.corner(DirHV::NE).bel(bslots::DCI_SN),
+                    2 => self.corner(DirHV::NE).bel(bslots::DCI_WE),
+                    3 => self.corner(DirHV::SE).bel(bslots::DCI_WE),
+                    4 => self.corner(DirHV::SE).bel(bslots::DCI_SN),
+                    5 => self.corner(DirHV::SW).bel(bslots::DCI_SN),
+                    6 => self.corner(DirHV::SW).bel(bslots::DCI_WE),
+                    7 => self.corner(DirHV::NW).bel(bslots::DCI_WE),
+                    _ => unreachable!(),
+                };
+                Some(bel.pad(bcls::DCI::VCCO))
+            }
+            ChipKind::FpgaCore => None,
+            ChipKind::Spartan3E => {
+                let bel = match bank {
+                    0 => self.corner(DirHV::NW).bel(bslots::BANK_SN),
+                    1 => self.corner(DirHV::NE).bel(bslots::BANK_WE),
+                    2 => self.corner(DirHV::SE).bel(bslots::BANK_SN),
+                    3 => self.corner(DirHV::SW).bel(bslots::BANK_WE),
+                    _ => unreachable!(),
+                };
+                Some(bel.pad(bcls::BANK::VCCO))
+            }
+            ChipKind::Spartan3A | ChipKind::Spartan3ADsp => {
+                let bel = match bank {
+                    0 => self.corner(DirHV::NW).bel(bslots::BANK_SN),
+                    1 => self.corner(DirHV::SE).bel(bslots::BANK_WE),
+                    2 => self.corner(DirHV::SW).bel(bslots::BANK_SN),
+                    3 => self.corner(DirHV::SW).bel(bslots::BANK_WE),
+                    _ => unreachable!(),
+                };
+                Some(bel.pad(bcls::BANK::VCCO))
+            }
+        }
+    }
+
+    pub fn get_io_edge(&self, io: BelPadCoord) -> Dir {
+        if io.row == self.row_n() {
+            Dir::N
+        } else if io.row == self.row_s() {
+            Dir::S
+        } else if io.col == self.col_w() {
+            Dir::W
+        } else if io.col == self.col_e() {
+            Dir::E
+        } else {
+            unreachable!()
+        }
+    }
+
+    pub fn get_io_info(&self, io: BelPadCoord) -> IoInfo {
         let bank = match self.kind {
             ChipKind::Virtex2 | ChipKind::Virtex2P | ChipKind::Virtex2PX | ChipKind::Spartan3 => {
-                match io {
-                    EdgeIoCoord::N(col, _) => {
-                        if col < self.col_clk {
+                match self.get_io_edge(io) {
+                    Dir::N => {
+                        if io.col < self.col_clk {
                             0
                         } else {
                             1
                         }
                     }
-                    EdgeIoCoord::E(row, _) => {
-                        if row < self.row_mid() {
+                    Dir::E => {
+                        if io.row < self.row_mid() {
                             3
                         } else {
                             2
                         }
                     }
-                    EdgeIoCoord::S(col, _) => {
-                        if col < self.col_clk {
+                    Dir::S => {
+                        if io.col < self.col_clk {
                             5
                         } else {
                             4
                         }
                     }
-                    EdgeIoCoord::W(row, _) => {
-                        if row < self.row_mid() {
+                    Dir::W => {
+                        if io.row < self.row_mid() {
                             6
                         } else {
                             7
@@ -423,78 +685,85 @@ impl Chip {
                 }
             }
             ChipKind::FpgaCore => 0,
-            ChipKind::Spartan3E | ChipKind::Spartan3A | ChipKind::Spartan3ADsp => match io {
-                EdgeIoCoord::N(_, _) => 0,
-                EdgeIoCoord::E(_, _) => 1,
-                EdgeIoCoord::S(_, _) => 2,
-                EdgeIoCoord::W(_, _) => 3,
-            },
+            ChipKind::Spartan3E | ChipKind::Spartan3A | ChipKind::Spartan3ADsp => {
+                match self.get_io_edge(io) {
+                    Dir::N => 0,
+                    Dir::E => 1,
+                    Dir::S => 2,
+                    Dir::W => 3,
+                }
+            }
         };
-        let iob = io.iob();
         let diff = match self.kind {
             ChipKind::Virtex2 | ChipKind::Virtex2P | ChipKind::Virtex2PX => {
-                let is_single = if let EdgeIoCoord::S(col, _) | EdgeIoCoord::N(col, _) = io {
+                let idx = bslots::IOI.index_of(io.slot).unwrap();
+                let is_single = if io.row == self.row_s() || io.row == self.row_n() {
                     matches!(
-                        self.columns[col].io,
+                        self.columns[io.col].io,
                         ColumnIoKind::SingleWAlt | ColumnIoKind::SingleEAlt
                     )
                 } else {
                     false
                 };
                 if is_single {
-                    match iob.to_idx() {
+                    match idx {
                         0 => IoDiffKind::None,
-                        1 => IoDiffKind::P(TileIobId::from_idx(2)),
-                        2 => IoDiffKind::N(TileIobId::from_idx(1)),
+                        1 => IoDiffKind::P(io.bel(bslots::IOI[2]).pad(bcls::IOI::PAD)),
+                        2 => IoDiffKind::N(io.bel(bslots::IOI[1]).pad(bcls::IOI::PAD)),
                         3 => IoDiffKind::None,
                         _ => unreachable!(),
                     }
                 } else {
-                    match iob.to_idx() {
-                        0 => IoDiffKind::P(TileIobId::from_idx(1)),
-                        1 => IoDiffKind::N(TileIobId::from_idx(0)),
-                        2 => IoDiffKind::P(TileIobId::from_idx(3)),
-                        3 => IoDiffKind::N(TileIobId::from_idx(2)),
+                    match idx {
+                        0 => IoDiffKind::P(io.bel(bslots::IOI[1]).pad(bcls::IOI::PAD)),
+                        1 => IoDiffKind::N(io.bel(bslots::IOI[0]).pad(bcls::IOI::PAD)),
+                        2 => IoDiffKind::P(io.bel(bslots::IOI[3]).pad(bcls::IOI::PAD)),
+                        3 => IoDiffKind::N(io.bel(bslots::IOI[2]).pad(bcls::IOI::PAD)),
                         _ => unreachable!(),
                     }
                 }
             }
             ChipKind::Spartan3 => {
-                if matches!(io, EdgeIoCoord::W(..)) {
-                    match iob.to_idx() {
-                        0 => IoDiffKind::N(TileIobId::from_idx(1)),
-                        1 => IoDiffKind::P(TileIobId::from_idx(0)),
+                let idx = bslots::IOI.index_of(io.slot).unwrap();
+                if io.col == self.col_w() {
+                    match idx {
+                        0 => IoDiffKind::N(io.bel(bslots::IOI[1]).pad(bcls::IOI::PAD)),
+                        1 => IoDiffKind::P(io.bel(bslots::IOI[0]).pad(bcls::IOI::PAD)),
                         2 => IoDiffKind::None,
                         _ => unreachable!(),
                     }
                 } else {
-                    match iob.to_idx() {
-                        0 => IoDiffKind::P(TileIobId::from_idx(1)),
-                        1 => IoDiffKind::N(TileIobId::from_idx(0)),
+                    match idx {
+                        0 => IoDiffKind::P(io.bel(bslots::IOI[1]).pad(bcls::IOI::PAD)),
+                        1 => IoDiffKind::N(io.bel(bslots::IOI[0]).pad(bcls::IOI::PAD)),
                         2 => IoDiffKind::None,
                         _ => unreachable!(),
                     }
                 }
             }
             ChipKind::FpgaCore => IoDiffKind::None,
-            ChipKind::Spartan3E => match iob.to_idx() {
-                0 => IoDiffKind::P(TileIobId::from_idx(1)),
-                1 => IoDiffKind::N(TileIobId::from_idx(0)),
-                2 => IoDiffKind::None,
-                _ => unreachable!(),
-            },
+            ChipKind::Spartan3E => {
+                let idx = bslots::IOI.index_of(io.slot).unwrap();
+                match idx {
+                    0 => IoDiffKind::P(io.bel(bslots::IOI[1]).pad(bcls::IOI::PAD)),
+                    1 => IoDiffKind::N(io.bel(bslots::IOI[0]).pad(bcls::IOI::PAD)),
+                    2 => IoDiffKind::None,
+                    _ => unreachable!(),
+                }
+            }
             ChipKind::Spartan3A | ChipKind::Spartan3ADsp => {
-                if matches!(io, EdgeIoCoord::N(..) | EdgeIoCoord::W(..)) {
-                    match iob.to_idx() {
-                        0 => IoDiffKind::N(TileIobId::from_idx(1)),
-                        1 => IoDiffKind::P(TileIobId::from_idx(0)),
+                let idx = bslots::IOI.index_of(io.slot).unwrap();
+                if io.col == self.col_w() || io.row == self.row_n() {
+                    match idx {
+                        0 => IoDiffKind::N(io.bel(bslots::IOI[1]).pad(bcls::IOI::PAD)),
+                        1 => IoDiffKind::P(io.bel(bslots::IOI[0]).pad(bcls::IOI::PAD)),
                         2 => IoDiffKind::None,
                         _ => unreachable!(),
                     }
                 } else {
-                    match iob.to_idx() {
-                        0 => IoDiffKind::P(TileIobId::from_idx(1)),
-                        1 => IoDiffKind::N(TileIobId::from_idx(0)),
+                    match idx {
+                        0 => IoDiffKind::P(io.bel(bslots::IOI[1]).pad(bcls::IOI::PAD)),
+                        1 => IoDiffKind::N(io.bel(bslots::IOI[0]).pad(bcls::IOI::PAD)),
                         2 => IoDiffKind::None,
                         _ => unreachable!(),
                     }
@@ -502,33 +771,30 @@ impl Chip {
             }
         };
         let mut pad_kind = None;
-        let bel = self.get_io_loc(io);
-        if let Some((data, tidx)) = self.get_iob_tile_data(bel.cell) {
+        if let Some((data, tidx)) = self.get_iob_tile_data(io.cell) {
             for &iob_data in &data.iobs {
-                if iob_data.cell == tidx && iob_data.iob_id == iob {
+                if iob_data.cell == tidx && iob_data.ioi == io.slot {
                     pad_kind = Some(iob_data.kind);
                 }
             }
         }
         IoInfo {
             coord: io,
+            vcco: self.pad_bank_vcco(bank),
             bank,
             diff,
             pad_kind,
         }
     }
 
-    pub fn get_bonded_ios(&self) -> Vec<EdgeIoCoord> {
+    pub fn get_bonded_ios(&self) -> Vec<BelPadCoord> {
         let mut res = vec![];
         for col in self.columns.ids() {
             let row = self.row_n();
             if let Some((data, tidx)) = self.get_iob_tile_data(Self::DIE.cell(col, row)) {
                 for &iob in &data.iobs {
                     if iob.cell == tidx {
-                        res.push(EdgeIoCoord::N(
-                            col,
-                            TileIobId::from_idx(iob.iob_id.to_idx()),
-                        ));
+                        res.push(self.pad_io_v(DirV::N, col, iob.ioi));
                     }
                 }
             }
@@ -538,10 +804,7 @@ impl Chip {
             if let Some((data, tidx)) = self.get_iob_tile_data(Self::DIE.cell(col, row)) {
                 for &iob in &data.iobs {
                     if iob.cell == tidx {
-                        res.push(EdgeIoCoord::E(
-                            row,
-                            TileIobId::from_idx(iob.iob_id.to_idx()),
-                        ));
+                        res.push(self.pad_io_h(DirH::E, row, iob.ioi));
                     }
                 }
             }
@@ -551,10 +814,7 @@ impl Chip {
             if let Some((data, tidx)) = self.get_iob_tile_data(Self::DIE.cell(col, row)) {
                 for &iob in &data.iobs {
                     if iob.cell == tidx {
-                        res.push(EdgeIoCoord::S(
-                            col,
-                            TileIobId::from_idx(iob.iob_id.to_idx()),
-                        ));
+                        res.push(self.pad_io_v(DirV::S, col, iob.ioi));
                     }
                 }
             }
@@ -564,10 +824,7 @@ impl Chip {
             if let Some((data, tidx)) = self.get_iob_tile_data(Self::DIE.cell(col, row)) {
                 for &iob in &data.iobs {
                     if iob.cell == tidx {
-                        res.push(EdgeIoCoord::W(
-                            row,
-                            TileIobId::from_idx(iob.iob_id.to_idx()),
-                        ));
+                        res.push(self.pad_io_h(DirH::W, row, iob.ioi));
                     }
                 }
             }
@@ -575,47 +832,7 @@ impl Chip {
         res
     }
 
-    pub fn get_io_loc(&self, io: EdgeIoCoord) -> BelCoord {
-        let (col, row, iob) = match io {
-            EdgeIoCoord::N(col, iob) => (col, self.row_n(), iob),
-            EdgeIoCoord::E(row, iob) => (self.col_e(), row, iob),
-            EdgeIoCoord::S(col, iob) => (col, self.row_s(), iob),
-            EdgeIoCoord::W(row, iob) => (self.col_w(), row, iob),
-        };
-        let slot = if self.kind == ChipKind::FpgaCore {
-            if iob.to_idx() < 4 {
-                defs::bslots::IREG[iob.to_idx()]
-            } else {
-                defs::bslots::OREG[iob.to_idx() - 4]
-            }
-        } else {
-            defs::bslots::IOI[iob.to_idx()]
-        };
-        Self::DIE.cell(col, row).bel(slot)
-    }
-
-    pub fn get_io_crd(&self, bel: BelCoord) -> EdgeIoCoord {
-        let iob = TileIobId::from_idx(if self.kind == ChipKind::FpgaCore {
-            defs::bslots::IREG
-                .index_of(bel.slot)
-                .unwrap_or_else(|| defs::bslots::OREG.index_of(bel.slot).unwrap() + 4)
-        } else {
-            defs::bslots::IOI.index_of(bel.slot).unwrap()
-        });
-        if bel.col == self.col_w() {
-            EdgeIoCoord::W(bel.row, iob)
-        } else if bel.col == self.col_e() {
-            EdgeIoCoord::E(bel.row, iob)
-        } else if bel.row == self.row_s() {
-            EdgeIoCoord::S(bel.col, iob)
-        } else if bel.row == self.row_n() {
-            EdgeIoCoord::N(bel.col, iob)
-        } else {
-            unreachable!()
-        }
-    }
-
-    pub fn get_clk_io(&self, edge: Dir, idx: usize) -> Option<EdgeIoCoord> {
+    pub fn get_clk_io(&self, edge: Dir, idx: usize) -> Option<BelPadCoord> {
         if self.kind.is_virtex2() {
             match edge {
                 Dir::S => {
@@ -623,12 +840,9 @@ impl Chip {
                         return None;
                     }
                     if idx < 4 {
-                        Some(EdgeIoCoord::S(self.col_clk, TileIobId::from_idx(idx)))
+                        Some(self.pad_io_v(DirV::S, self.col_clk, bslots::IOI[idx]))
                     } else if idx < 8 {
-                        Some(EdgeIoCoord::S(
-                            self.col_clk - 1,
-                            TileIobId::from_idx(idx - 4),
-                        ))
+                        Some(self.pad_io_v(DirV::S, self.col_clk - 1, bslots::IOI[idx - 4]))
                     } else {
                         None
                     }
@@ -638,40 +852,53 @@ impl Chip {
                         return None;
                     }
                     if idx < 4 {
-                        Some(EdgeIoCoord::N(self.col_clk, TileIobId::from_idx(idx)))
+                        Some(self.pad_io_v(DirV::N, self.col_clk, bslots::IOI[idx]))
                     } else if idx < 8 {
-                        Some(EdgeIoCoord::N(
-                            self.col_clk - 1,
-                            TileIobId::from_idx(idx - 4),
-                        ))
+                        Some(self.pad_io_v(DirV::N, self.col_clk - 1, bslots::IOI[idx - 4]))
                     } else {
                         None
                     }
                 }
                 _ => None,
             }
-        } else if matches!(self.kind, ChipKind::Spartan3 | ChipKind::FpgaCore) {
+        } else if self.kind == ChipKind::Spartan3 {
             match edge {
                 Dir::S => {
                     if idx < 2 {
-                        Some(EdgeIoCoord::S(self.col_clk, TileIobId::from_idx(idx)))
+                        Some(self.pad_io_v(DirV::S, self.col_clk, bslots::IOI[idx]))
                     } else if idx < 4 {
-                        Some(EdgeIoCoord::S(
-                            self.col_clk - 1,
-                            TileIobId::from_idx(idx - 2),
-                        ))
+                        Some(self.pad_io_v(DirV::S, self.col_clk - 1, bslots::IOI[idx - 2]))
                     } else {
                         None
                     }
                 }
                 Dir::N => {
                     if idx < 2 {
-                        Some(EdgeIoCoord::N(self.col_clk, TileIobId::from_idx(idx)))
+                        Some(self.pad_io_v(DirV::N, self.col_clk, bslots::IOI[idx]))
                     } else if idx < 4 {
-                        Some(EdgeIoCoord::N(
-                            self.col_clk - 1,
-                            TileIobId::from_idx(idx - 2),
-                        ))
+                        Some(self.pad_io_v(DirV::N, self.col_clk - 1, bslots::IOI[idx - 2]))
+                    } else {
+                        None
+                    }
+                }
+                _ => None,
+            }
+        } else if self.kind == ChipKind::FpgaCore {
+            match edge {
+                Dir::S => {
+                    if idx < 2 {
+                        Some(self.pad_io_v(DirV::S, self.col_clk, bslots::IREG[idx]))
+                    } else if idx < 4 {
+                        Some(self.pad_io_v(DirV::S, self.col_clk - 1, bslots::IREG[idx - 2]))
+                    } else {
+                        None
+                    }
+                }
+                Dir::N => {
+                    if idx < 2 {
+                        Some(self.pad_io_v(DirV::N, self.col_clk, bslots::IREG[idx]))
+                    } else if idx < 4 {
+                        Some(self.pad_io_v(DirV::N, self.col_clk - 1, bslots::IREG[idx - 2]))
                     } else {
                         None
                     }
@@ -680,163 +907,137 @@ impl Chip {
             }
         } else if self.kind == ChipKind::Spartan3E {
             match (edge, idx) {
-                (Dir::S, 0 | 1) => Some(EdgeIoCoord::S(self.col_clk, TileIobId::from_idx(idx % 2))),
-                (Dir::S, 2 | 3) => Some(EdgeIoCoord::S(
-                    self.col_clk + 1,
-                    TileIobId::from_idx(idx % 2),
-                )),
-                (Dir::S, 4 | 5) => Some(EdgeIoCoord::S(
-                    self.col_clk - 3,
-                    TileIobId::from_idx(idx % 2),
-                )),
-                (Dir::S, 6 | 7) => Some(EdgeIoCoord::S(
-                    self.col_clk - 1,
-                    TileIobId::from_idx(idx % 2),
-                )),
-                (Dir::N, 0 | 1) => Some(EdgeIoCoord::N(
-                    self.col_clk + 2,
-                    TileIobId::from_idx(idx % 2),
-                )),
-                (Dir::N, 2 | 3) => Some(EdgeIoCoord::N(self.col_clk, TileIobId::from_idx(idx % 2))),
-                (Dir::N, 4 | 5) => Some(EdgeIoCoord::N(
-                    self.col_clk - 1,
-                    TileIobId::from_idx(idx % 2),
-                )),
-                (Dir::N, 6 | 7) => Some(EdgeIoCoord::N(
-                    self.col_clk - 2,
-                    TileIobId::from_idx(idx % 2),
-                )),
-                (Dir::W, 0 | 1) => Some(EdgeIoCoord::W(
-                    self.row_mid() + 3,
-                    TileIobId::from_idx(idx % 2),
-                )),
-                (Dir::W, 2 | 3) => Some(EdgeIoCoord::W(
-                    self.row_mid() + 1,
-                    TileIobId::from_idx(idx % 2),
-                )),
-                (Dir::W, 4 | 5) => Some(EdgeIoCoord::W(
-                    self.row_mid() - 1,
-                    TileIobId::from_idx(idx % 2),
-                )),
-                (Dir::W, 6 | 7) => Some(EdgeIoCoord::W(
-                    self.row_mid() - 3,
-                    TileIobId::from_idx(idx % 2),
-                )),
-                (Dir::E, 0 | 1) => {
-                    Some(EdgeIoCoord::E(self.row_mid(), TileIobId::from_idx(idx % 2)))
+                (Dir::S, 0 | 1) => Some(self.pad_io_v(DirV::S, self.col_clk, bslots::IOI[idx % 2])),
+                (Dir::S, 2 | 3) => {
+                    Some(self.pad_io_v(DirV::S, self.col_clk + 1, bslots::IOI[idx % 2]))
                 }
-                (Dir::E, 2 | 3) => Some(EdgeIoCoord::E(
-                    self.row_mid() + 2,
-                    TileIobId::from_idx(idx % 2),
-                )),
-                (Dir::E, 4 | 5) => Some(EdgeIoCoord::E(
-                    self.row_mid() - 4,
-                    TileIobId::from_idx(idx % 2),
-                )),
-                (Dir::E, 6 | 7) => Some(EdgeIoCoord::E(
-                    self.row_mid() - 2,
-                    TileIobId::from_idx(idx % 2),
-                )),
+                (Dir::S, 4 | 5) => {
+                    Some(self.pad_io_v(DirV::S, self.col_clk - 3, bslots::IOI[idx % 2]))
+                }
+                (Dir::S, 6 | 7) => {
+                    Some(self.pad_io_v(DirV::S, self.col_clk - 1, bslots::IOI[idx % 2]))
+                }
+                (Dir::N, 0 | 1) => {
+                    Some(self.pad_io_v(DirV::N, self.col_clk + 2, bslots::IOI[idx % 2]))
+                }
+                (Dir::N, 2 | 3) => Some(self.pad_io_v(DirV::N, self.col_clk, bslots::IOI[idx % 2])),
+                (Dir::N, 4 | 5) => {
+                    Some(self.pad_io_v(DirV::N, self.col_clk - 1, bslots::IOI[idx % 2]))
+                }
+                (Dir::N, 6 | 7) => {
+                    Some(self.pad_io_v(DirV::N, self.col_clk - 2, bslots::IOI[idx % 2]))
+                }
+                (Dir::W, 0 | 1) => {
+                    Some(self.pad_io_h(DirH::W, self.row_mid() + 3, bslots::IOI[idx % 2]))
+                }
+                (Dir::W, 2 | 3) => {
+                    Some(self.pad_io_h(DirH::W, self.row_mid() + 1, bslots::IOI[idx % 2]))
+                }
+                (Dir::W, 4 | 5) => {
+                    Some(self.pad_io_h(DirH::W, self.row_mid() - 1, bslots::IOI[idx % 2]))
+                }
+                (Dir::W, 6 | 7) => {
+                    Some(self.pad_io_h(DirH::W, self.row_mid() - 3, bslots::IOI[idx % 2]))
+                }
+                (Dir::E, 0 | 1) => {
+                    Some(self.pad_io_h(DirH::E, self.row_mid(), bslots::IOI[idx % 2]))
+                }
+                (Dir::E, 2 | 3) => {
+                    Some(self.pad_io_h(DirH::E, self.row_mid() + 2, bslots::IOI[idx % 2]))
+                }
+                (Dir::E, 4 | 5) => {
+                    Some(self.pad_io_h(DirH::E, self.row_mid() - 4, bslots::IOI[idx % 2]))
+                }
+                (Dir::E, 6 | 7) => {
+                    Some(self.pad_io_h(DirH::E, self.row_mid() - 2, bslots::IOI[idx % 2]))
+                }
                 _ => None,
             }
         } else {
             match (edge, idx) {
-                (Dir::S, 0 | 1) => Some(EdgeIoCoord::S(self.col_clk, TileIobId::from_idx(idx % 2))),
-                (Dir::S, 2 | 3) => Some(EdgeIoCoord::S(
-                    self.col_clk + 1,
-                    TileIobId::from_idx(idx % 2),
-                )),
-                (Dir::S, 4 | 5) => Some(EdgeIoCoord::S(
-                    self.col_clk - 2,
-                    TileIobId::from_idx(idx % 2),
-                )),
-                (Dir::S, 6 | 7) => Some(EdgeIoCoord::S(
-                    self.col_clk - 1,
-                    TileIobId::from_idx(idx % 2),
-                )),
-                (Dir::N, 0 | 1) => Some(EdgeIoCoord::N(
-                    self.col_clk + 1,
-                    TileIobId::from_idx(idx % 2),
-                )),
-                (Dir::N, 2 | 3) => Some(EdgeIoCoord::N(self.col_clk, TileIobId::from_idx(idx % 2))),
-                (Dir::N, 4 | 5) => Some(EdgeIoCoord::N(
-                    self.col_clk - 1,
-                    TileIobId::from_idx(idx % 2),
-                )),
-                (Dir::N, 6 | 7) => Some(EdgeIoCoord::N(
-                    self.col_clk - 2,
-                    TileIobId::from_idx(idx % 2),
-                )),
-                (Dir::W, 0 | 1) => Some(EdgeIoCoord::W(
-                    self.row_mid() + 2,
-                    TileIobId::from_idx((idx % 2) ^ 1),
-                )),
-                (Dir::W, 2 | 3) => Some(EdgeIoCoord::W(
-                    self.row_mid() + 1,
-                    TileIobId::from_idx((idx % 2) ^ 1),
-                )),
-                (Dir::W, 4 | 5) => Some(EdgeIoCoord::W(
-                    self.row_mid() - 1,
-                    TileIobId::from_idx((idx % 2) ^ 1),
-                )),
-                (Dir::W, 6 | 7) => Some(EdgeIoCoord::W(
-                    self.row_mid() - 2,
-                    TileIobId::from_idx((idx % 2) ^ 1),
-                )),
-                (Dir::E, 0 | 1) => {
-                    Some(EdgeIoCoord::E(self.row_mid(), TileIobId::from_idx(idx % 2)))
+                (Dir::S, 0 | 1) => Some(self.pad_io_v(DirV::S, self.col_clk, bslots::IOI[idx % 2])),
+                (Dir::S, 2 | 3) => {
+                    Some(self.pad_io_v(DirV::S, self.col_clk + 1, bslots::IOI[idx % 2]))
                 }
-                (Dir::E, 2 | 3) => Some(EdgeIoCoord::E(
-                    self.row_mid() + 1,
-                    TileIobId::from_idx(idx % 2),
-                )),
-                (Dir::E, 4 | 5) => Some(EdgeIoCoord::E(
-                    self.row_mid() - 3,
-                    TileIobId::from_idx(idx % 2),
-                )),
-                (Dir::E, 6 | 7) => Some(EdgeIoCoord::E(
-                    self.row_mid() - 2,
-                    TileIobId::from_idx(idx % 2),
-                )),
+                (Dir::S, 4 | 5) => {
+                    Some(self.pad_io_v(DirV::S, self.col_clk - 2, bslots::IOI[idx % 2]))
+                }
+                (Dir::S, 6 | 7) => {
+                    Some(self.pad_io_v(DirV::S, self.col_clk - 1, bslots::IOI[idx % 2]))
+                }
+                (Dir::N, 0 | 1) => {
+                    Some(self.pad_io_v(DirV::N, self.col_clk + 1, bslots::IOI[idx % 2]))
+                }
+                (Dir::N, 2 | 3) => Some(self.pad_io_v(DirV::N, self.col_clk, bslots::IOI[idx % 2])),
+                (Dir::N, 4 | 5) => {
+                    Some(self.pad_io_v(DirV::N, self.col_clk - 1, bslots::IOI[idx % 2]))
+                }
+                (Dir::N, 6 | 7) => {
+                    Some(self.pad_io_v(DirV::N, self.col_clk - 2, bslots::IOI[idx % 2]))
+                }
+                (Dir::W, 0 | 1) => {
+                    Some(self.pad_io_h(DirH::W, self.row_mid() + 2, bslots::IOI[(idx % 2) ^ 1]))
+                }
+                (Dir::W, 2 | 3) => {
+                    Some(self.pad_io_h(DirH::W, self.row_mid() + 1, bslots::IOI[(idx % 2) ^ 1]))
+                }
+                (Dir::W, 4 | 5) => {
+                    Some(self.pad_io_h(DirH::W, self.row_mid() - 1, bslots::IOI[(idx % 2) ^ 1]))
+                }
+                (Dir::W, 6 | 7) => {
+                    Some(self.pad_io_h(DirH::W, self.row_mid() - 2, bslots::IOI[(idx % 2) ^ 1]))
+                }
+                (Dir::E, 0 | 1) => {
+                    Some(self.pad_io_h(DirH::E, self.row_mid(), bslots::IOI[idx % 2]))
+                }
+                (Dir::E, 2 | 3) => {
+                    Some(self.pad_io_h(DirH::E, self.row_mid() + 1, bslots::IOI[idx % 2]))
+                }
+                (Dir::E, 4 | 5) => {
+                    Some(self.pad_io_h(DirH::E, self.row_mid() - 3, bslots::IOI[idx % 2]))
+                }
+                (Dir::E, 6 | 7) => {
+                    Some(self.pad_io_h(DirH::E, self.row_mid() - 2, bslots::IOI[idx % 2]))
+                }
                 _ => None,
             }
         }
     }
 
-    pub fn get_brefclk_io(&self, edge: DirV) -> [EdgeIoCoord; 2] {
+    pub fn get_brefclk_io(&self, edge: DirV) -> [BelPadCoord; 2] {
         assert_eq!(self.kind, ChipKind::Virtex2P);
         match edge {
             DirV::S => [
-                EdgeIoCoord::S(self.col_clk - 1, TileIobId::from_idx(2)),
-                EdgeIoCoord::S(self.col_clk, TileIobId::from_idx(0)),
+                self.pad_io_v(DirV::S, self.col_clk - 1, bslots::IOI[2]),
+                self.pad_io_v(DirV::S, self.col_clk, bslots::IOI[0]),
             ],
             DirV::N => [
-                EdgeIoCoord::N(self.col_clk - 1, TileIobId::from_idx(0)),
-                EdgeIoCoord::N(self.col_clk, TileIobId::from_idx(2)),
+                self.pad_io_v(DirV::N, self.col_clk - 1, bslots::IOI[0]),
+                self.pad_io_v(DirV::N, self.col_clk, bslots::IOI[2]),
             ],
         }
     }
 
-    pub fn get_pci_io(&self, edge: DirH) -> [EdgeIoCoord; 2] {
+    pub fn get_pci_io(&self, edge: DirH) -> [BelPadCoord; 2] {
         match self.kind {
             ChipKind::Spartan3E => match edge {
                 DirH::W => [
-                    EdgeIoCoord::W(self.row_mid() + 1, TileIobId::from_idx(1)),
-                    EdgeIoCoord::W(self.row_mid() - 1, TileIobId::from_idx(0)),
+                    self.pad_io_h(DirH::W, self.row_mid() + 1, bslots::IOI[1]),
+                    self.pad_io_h(DirH::W, self.row_mid() - 1, bslots::IOI[0]),
                 ],
                 DirH::E => [
-                    EdgeIoCoord::E(self.row_mid(), TileIobId::from_idx(0)),
-                    EdgeIoCoord::E(self.row_mid() - 2, TileIobId::from_idx(1)),
+                    self.pad_io_h(DirH::E, self.row_mid(), bslots::IOI[0]),
+                    self.pad_io_h(DirH::E, self.row_mid() - 2, bslots::IOI[1]),
                 ],
             },
             ChipKind::Spartan3A | ChipKind::Spartan3ADsp => match edge {
                 DirH::W => [
-                    EdgeIoCoord::W(self.row_mid() + 1, TileIobId::from_idx(0)),
-                    EdgeIoCoord::W(self.row_mid() - 2, TileIobId::from_idx(1)),
+                    self.pad_io_h(DirH::W, self.row_mid() + 1, bslots::IOI[0]),
+                    self.pad_io_h(DirH::W, self.row_mid() - 2, bslots::IOI[1]),
                 ],
                 DirH::E => [
-                    EdgeIoCoord::E(self.row_mid() + 1, TileIobId::from_idx(0)),
-                    EdgeIoCoord::E(self.row_mid() - 2, TileIobId::from_idx(1)),
+                    self.pad_io_h(DirH::E, self.row_mid() + 1, bslots::IOI[0]),
+                    self.pad_io_h(DirH::E, self.row_mid() - 2, bslots::IOI[1]),
                 ],
             },
             _ => unreachable!(),
@@ -887,7 +1088,7 @@ impl Chip {
 }
 
 impl Chip {
-    pub fn dump(&self, o: &mut dyn std::io::Write) -> std::io::Result<()> {
+    pub fn dump(&self, o: &mut dyn std::io::Write, db: &IntDb) -> std::io::Result<()> {
         writeln!(o, "\tkind {};", self.kind)?;
         writeln!(o, "\tcolumns {{")?;
         for (col, cd) in &self.columns {
@@ -1004,15 +1205,25 @@ impl Chip {
         if self.has_small_int {
             writeln!(o, "\thas_small_int;")?;
         }
-        for (k, v) in &self.cfg_io {
-            writeln!(o, "\tcfg_io {k} = {v};")?;
+        for (k, pad) in &self.cfg_io {
+            writeln!(o, "\tcfg_io {k} = {pad};", pad = pad.to_string(db))?;
         }
         for k in 0..8 {
             if let Some(&(vp, vn)) = self.dci_io.get(&k) {
-                writeln!(o, "\tdci {k} = vp {vp}, vn {vn};")?;
+                writeln!(
+                    o,
+                    "\tdci {k} = vp {vp}, vn {vn};",
+                    vp = vp.to_string(db),
+                    vn = vn.to_string(db)
+                )?;
             }
             if let Some(&(vp, vn)) = self.dci_io_alt.get(&k) {
-                writeln!(o, "\tdci alt {k} = vp {vp}, vn {vn};")?;
+                writeln!(
+                    o,
+                    "\tdci alt {k} = vp {vp}, vn {vn};",
+                    vp = vp.to_string(db),
+                    vn = vn.to_string(db)
+                )?;
             }
         }
         Ok(())

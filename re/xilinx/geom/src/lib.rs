@@ -29,7 +29,7 @@ impl Chip {
         match self {
             Chip::Xc2000(chip) => chip.dump(o, db),
             Chip::Virtex(chip) => chip.dump(o, db),
-            Chip::Virtex2(chip) => chip.dump(o),
+            Chip::Virtex2(chip) => chip.dump(o, db),
             Chip::Spartan6(chip) => chip.dump(o),
             Chip::Virtex4(chip) => chip.dump(o),
             Chip::Ultrascale(chip) => chip.dump(o),
@@ -120,7 +120,7 @@ impl Bond {
         match self {
             Bond::Xc2000(bond) => bond.dump(o, db),
             Bond::Virtex(bond) => bond.dump(o, db),
-            Bond::Virtex2(bond) => bond.dump(o),
+            Bond::Virtex2(bond) => bond.dump(o, db),
             Bond::Spartan6(bond) => bond.dump(o),
             Bond::Virtex4(bond) => bond.dump(o),
             Bond::Ultrascale(bond) => bond.dump(o),

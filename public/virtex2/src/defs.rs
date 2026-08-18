@@ -450,6 +450,8 @@ target_defs! {
     }
 
     bel_class DCI {
+        pad VCCO: power;
+
         input DCI_CLK, DCI_RESET;
         input HI_LO_P, HI_LO_N;
         output SCLK;
@@ -485,7 +487,9 @@ target_defs! {
     }
 
     if variant spartan3 {
+        // spartan3e+ only; on earlier chips, we use the DCI bel as bank
         bel_class BANK {
+            pad VCCO: power;
             attribute S3E_LVDSBIAS: bitvec[11][2];
             attribute S3A_LVDSBIAS: bitvec[12][2];
         }
@@ -958,6 +962,14 @@ target_defs! {
             pad SUSPEND: input;
         }
 
+        // fpgacore only
+        pad CS_B, WRITE_B, POR_EN_B: input;
+        pad DIN[8]: input;
+        pad DOUT[8]: output;
+        pad DONE_I: input;
+        pad DONE_O: output;
+        pad INIT: output;
+
         attribute CCLK_PULL: IOB_PULL;
         attribute DONE_PULL: IOB_PULL;
         if variant virtex2 {
@@ -975,6 +987,9 @@ target_defs! {
         pad HSWAPEN: input;
         pad PROG_B: input;
         pad TDI: input;
+        if variant virtex2 {
+            pad DXP, DXN: analog;
+        }
         if variant spartan3 {
             // spartan3a only (is at MISC_NE otherwise)
             pad TMS: input;
@@ -994,6 +1009,10 @@ target_defs! {
         pad TCK, TMS: input;
         pad TDO: output;
 
+        if variant virtex2 {
+            pad VCCBATT: power;
+        }
+
         if variant spartan3 {
             // spartan3a only
             pad ISPI_CS_B: output;
@@ -1012,9 +1031,10 @@ target_defs! {
         }
     }
 
+    enum MUX_DCI_TEST { DCI_WE, DCI_SN }
     if variant spartan3 {
         bel_class MISC_CNR_S3 {
-            attribute MUX_DCI_TEST: bitvec[1];
+            attribute MUX_DCI_TEST: MUX_DCI_TEST;
             attribute DCM_ENABLE: bool;
         }
 
@@ -1044,6 +1064,8 @@ target_defs! {
         enum SW_CLK { INTERNALCLK, STARTUPCLK }
     }
     bel_class GLOBAL {
+        pad GND, VCCINT, VCCAUX: power;
+
         // COR
         attribute GWE_CYCLE: STARTUP_CYCLE;
         attribute GTS_CYCLE: STARTUP_CYCLE;
@@ -2354,8 +2376,10 @@ target_defs! {
             }
         }
 
-        bel_slot DCI[2]: DCI;
-        bel_slot DCIRESET[2]: DCIRESET;
+        bel_slot DCI_WE: DCI;
+        bel_slot DCI_SN: DCI;
+        bel_slot DCIRESET_WE: DCIRESET;
+        bel_slot DCIRESET_SN: DCIRESET;
         bel_slot STARTUP: STARTUP;
         bel_slot CAPTURE: CAPTURE;
         bel_slot ICAP: ICAP;
@@ -2395,7 +2419,8 @@ target_defs! {
                 bitrect TERM_V: TERM_V;
             }
         } else {
-            bel_slot BANK: BANK;
+            bel_slot BANK_WE: BANK;
+            bel_slot BANK_SN: BANK;
             tile_class
                 CNR_SW_S3,
                 CNR_SW_FC,

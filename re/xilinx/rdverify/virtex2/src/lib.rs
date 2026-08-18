@@ -222,7 +222,8 @@ fn verify_bel(endev: &ExpandedNamedDevice<'_>, vrf: &mut Verifier, bcrd: BelCoor
         | bslots::MISC_SE
         | bslots::MISC_NW
         | bslots::MISC_NE
-        | bslots::BANK
+        | bslots::BANK_WE
+        | bslots::BANK_SN
         | bslots::MISR_FC
         | bslots::GLOBAL => (),
         _ if bslots::SLICE.contains(bcrd.slot) => {
@@ -316,7 +317,7 @@ fn verify_bel(endev: &ExpandedNamedDevice<'_>, vrf: &mut Verifier, bcrd: BelCoor
         _ if bslots::GLOBALSIG_BUFG.contains(bcrd.slot) => {
             clk::verify_globalsig_bufg(endev, vrf, bcrd);
         }
-        _ if bslots::DCIRESET.contains(bcrd.slot) || bslots::DCI.contains(bcrd.slot) => {
+        bslots::DCI_WE | bslots::DCI_SN | bslots::DCIRESET_WE | bslots::DCIRESET_SN => {
             vrf.verify_bel(bcrd).commit();
         }
 

@@ -44,7 +44,7 @@ impl Chip {
             }
         }
         for i in [1, 0, 2] {
-            io.insert(self.pad_mode(i), builder.get_i());
+            io.insert(self.pads_mode()[i], builder.get_i());
         }
         for col in self.columns() {
             if self.cols_bram.contains(&col) {

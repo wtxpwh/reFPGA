@@ -90,11 +90,8 @@ impl<'b> FuzzerProp<'b, IseBackend<'b>> for IsVref {
         let ExpandedBond::Virtex2(ref ebond) = backend.ebonds[pkg] else {
             unreachable!()
         };
-        let ExpandedDevice::Virtex2(edev) = backend.edev else {
-            unreachable!()
-        };
-        let crd = edev.chip.get_io_crd(tcrd.bel(self.0));
-        if !ebond.bond.vref.contains(&crd) {
+        let pad = tcrd.bel(self.0).pad(bcls::IOI::PAD);
+        if !ebond.bond.vref.contains(&pad) {
             return None;
         }
         Some((fuzzer, false))
@@ -124,10 +121,10 @@ impl<'b> FuzzerProp<'b, IseBackend<'b>> for IsVr {
         let ExpandedDevice::Virtex2(edev) = backend.edev else {
             unreachable!()
         };
-        let crd = edev.chip.get_io_crd(tcrd.bel(self.0));
+        let pad = tcrd.bel(self.0).pad(bcls::IOI::PAD);
         let mut is_vr = false;
         for (bank, vr) in &edev.chip.dci_io {
-            if vr.0 == crd || vr.1 == crd {
+            if vr.0 == pad || vr.1 == pad {
                 if edev.chip.dci_io_alt.contains_key(bank) {
                     let &FuzzerValue::Base(Value::Bool(alt)) = &fuzzer.kv[&Key::AltVr] else {
                         unreachable!()
@@ -139,7 +136,7 @@ impl<'b> FuzzerProp<'b, IseBackend<'b>> for IsVr {
             }
         }
         for (bank, vr) in &edev.chip.dci_io_alt {
-            if vr.0 == crd || vr.1 == crd {
+            if vr.0 == pad || vr.1 == pad {
                 if edev.chip.dci_io.contains_key(bank) {
                     let &FuzzerValue::Base(Value::Bool(alt)) = &fuzzer.kv[&Key::AltVr] else {
                         unreachable!()
@@ -153,7 +150,7 @@ impl<'b> FuzzerProp<'b, IseBackend<'b>> for IsVr {
         if !is_vr {
             return None;
         }
-        if !ebond.ios.contains_key(&crd) {
+        if !ebond.ios.contains_key(&pad) {
             return None;
         }
         Some((fuzzer, false))
@@ -184,16 +181,16 @@ impl<'b> FuzzerProp<'b, IseBackend<'b>> for OtherIobInput {
             unreachable!()
         };
         let edev = endev.edev;
-        let crd = edev.chip.get_io_crd(tcrd.bel(self.0));
-        let orig_io_info = edev.chip.get_io_info(crd);
+        let pad = tcrd.bel(self.0).pad(bcls::IOI::PAD);
+        let orig_io_info = edev.chip.get_io_info(pad);
         for io in edev.chip.get_bonded_ios() {
             let io_info = edev.chip.get_io_info(io);
-            if io != crd
+            if io != pad
                 && orig_io_info.bank == io_info.bank
                 && io_info.pad_kind != Some(IobKind::Clk)
                 && ebond.ios.contains_key(&io)
             {
-                let site = endev.get_io_name(io);
+                let site = endev.ngrid.get_bel_name(io.bel).unwrap();
                 fuzzer = fuzzer.base(
                     Key::SiteMode(site),
                     if edev.chip.kind.is_spartan3ea() {
@@ -242,17 +239,17 @@ impl<'b> FuzzerProp<'b, IseBackend<'b>> for OtherIobDiffOutput {
         };
         let edev = endev.edev;
 
-        let crd = edev.chip.get_io_crd(tcrd.bel(self.0));
-        let orig_io_info = edev.chip.get_io_info(crd);
+        let pad = tcrd.bel(self.0).pad(bcls::IOI::PAD);
+        let orig_io_info = edev.chip.get_io_info(pad);
         for io in edev.chip.get_bonded_ios() {
             let io_info = edev.chip.get_io_info(io);
-            if io != crd
+            if io != pad
                 && orig_io_info.bank == io_info.bank
                 && io_info.pad_kind != Some(IobKind::Clk)
                 && io_info.diff != IoDiffKind::None
                 && ebond.ios.contains_key(&io)
             {
-                let site = endev.get_io_name(io);
+                let site = endev.ngrid.get_bel_name(io.bel).unwrap();
 
                 fuzzer = fuzzer.base(
                     Key::SiteMode(site),
@@ -316,20 +313,20 @@ impl<'b> FuzzerProp<'b, IseBackend<'b>> for BankDiffOutput {
         };
         let edev = endev.edev;
 
-        let crd = edev.chip.get_io_crd(tcrd.bel(self.0));
+        let pad = tcrd.bel(self.0).pad(bcls::IOI::PAD);
         let stds = if let Some(ref stdb) = self.2 {
             &[&self.1, stdb][..]
         } else {
             &[&self.1][..]
         };
-        let bank = edev.chip.get_io_info(crd).bank;
+        let bank = edev.chip.get_io_info(pad).bank;
         let mut done = 0;
         let mut ios = edev.chip.get_bonded_ios();
         if edev.chip.kind != ChipKind::Spartan3ADsp {
             ios.reverse();
         }
         for &io in &ios {
-            if io == crd {
+            if io == pad {
                 if edev.chip.kind.is_spartan3ea() {
                     // too much thinking. just pick a different loc.
                     return None;
@@ -344,13 +341,12 @@ impl<'b> FuzzerProp<'b, IseBackend<'b>> for BankDiffOutput {
             {
                 continue;
             }
-            let IoDiffKind::P(other_iob) = io_info.diff else {
+            let IoDiffKind::P(other_io) = io_info.diff else {
                 continue;
             };
             // okay, got a pair.
-            let other_io = io.with_iob(other_iob);
-            let site_p = endev.get_io_name(io);
-            let site_n = endev.get_io_name(other_io);
+            let site_p = endev.ngrid.get_bel_name(io.bel).unwrap();
+            let site_n = endev.ngrid.get_bel_name(other_io.bel).unwrap();
             let std = stds[done];
             fuzzer = fuzzer
                 .base(
@@ -490,8 +486,8 @@ fn has_any_vref<'a>(
     }
     for &tcrd in &edev.tile_index[tcid] {
         let cell = edev.tile_cell(tcrd, ioi_cell);
-        let crd = edev.chip.get_io_crd(cell.bel(ioi_bel));
-        if let Some(&pkg) = bonded_ios.get(&crd) {
+        let pad = cell.bel(ioi_bel).pad(bcls::IOI::PAD);
+        if let Some(&pkg) = bonded_ios.get(&pad) {
             return Some(pkg);
         }
     }
@@ -515,28 +511,28 @@ fn has_any_vr<'a>(
         let Bond::Virtex2(bond) = bond else {
             unreachable!()
         };
-        for pin in bond.pins.values() {
-            if let prjcombine_virtex2::bond::BondPad::Io(io) = pin {
-                bonded_ios.insert(io, &devbond.name[..]);
+        for pads in bond.pins.values() {
+            if pads.len() == 1 {
+                bonded_ios.insert(pads[0], &devbond.name[..]);
             }
         }
     }
     for &tcrd in &edev.tile_index[tcid] {
         let cell = edev.tile_cell(tcrd, ioi_cell);
-        let crd = edev.chip.get_io_crd(cell.bel(ioi_bel));
-        if let Some(&pkg) = bonded_ios.get(&crd) {
+        let pad = cell.bel(ioi_bel).pad(bcls::IOI::PAD);
+        if let Some(&pkg) = bonded_ios.get(&pad) {
             for bank in 0..8 {
                 if let Some(alt_vr) = edev.chip.dci_io_alt.get(&bank) {
-                    if crd == alt_vr.0 || crd == alt_vr.1 {
+                    if pad == alt_vr.0 || pad == alt_vr.1 {
                         return Some((pkg, Some(true)));
                     }
                     if let Some(vr) = edev.chip.dci_io_alt.get(&bank)
-                        && (crd == vr.0 || crd == vr.1)
+                        && (pad == vr.0 || pad == vr.1)
                     {
                         return Some((pkg, Some(false)));
                     }
                 } else if let Some(vr) = edev.chip.dci_io.get(&bank)
-                    && (crd == vr.0 || crd == vr.1)
+                    && (pad == vr.0 || pad == vr.1)
                 {
                     return Some((pkg, None));
                 }

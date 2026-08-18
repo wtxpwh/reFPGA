@@ -5,7 +5,7 @@ use prjcombine_interconnect::grid::{ColId, DieIdExt, RowId};
 use prjcombine_re_xilinx_rawdump::{Coord, Part, TkSiteSlot};
 use prjcombine_virtex2::{
     chip::{Chip, ChipKind, Column, ColumnIoKind, ColumnKind, Dcms, RowIoKind, SharedCfgPad},
-    defs,
+    defs::{bcls, bslots},
 };
 
 use prjcombine_re_xilinx_rd2db_grid::{
@@ -423,11 +423,10 @@ fn handle_spec_io(rd: &Part, chip: &mut Chip, int: &IntGrid) {
             {
                 let col = int.lookup_column(crd.x.into());
                 let row = int.lookup_row(crd.y.into());
-                let io = chip.get_io_crd(
-                    Chip::DIE
-                        .cell(col, row)
-                        .bel(defs::bslots::IOI[idx as usize]),
-                );
+                let io = Chip::DIE
+                    .cell(col, row)
+                    .bel(bslots::IOI[idx as usize])
+                    .pad(bcls::IOI::PAD);
                 io_lookup.insert(v.clone(), io);
             }
         }

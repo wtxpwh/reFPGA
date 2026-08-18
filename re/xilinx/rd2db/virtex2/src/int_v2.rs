@@ -1077,8 +1077,8 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
         "LL",
         n_ll,
         &[
-            builder.bel_indexed(bslots::DCI[0], "DCI", 6),
-            builder.bel_indexed(bslots::DCI[1], "DCI", 5),
+            builder.bel_indexed(bslots::DCI_WE, "DCI", 6),
+            builder.bel_indexed(bslots::DCI_SN, "DCI", 5),
             builder.bel_virtual(bslots::MISC_SW),
         ],
     );
@@ -1088,8 +1088,8 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
         "LR",
         n_lr,
         &[
-            builder.bel_indexed(bslots::DCI[0], "DCI", 3),
-            builder.bel_indexed(bslots::DCI[1], "DCI", 4),
+            builder.bel_indexed(bslots::DCI_WE, "DCI", 3),
+            builder.bel_indexed(bslots::DCI_SN, "DCI", 4),
             builder.bel_single(bslots::STARTUP, "STARTUP"),
             builder.bel_single(bslots::CAPTURE, "CAPTURE"),
             builder.bel_single(bslots::ICAP, "ICAP"),
@@ -1101,8 +1101,8 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
         "UL",
         n_ul,
         &[
-            builder.bel_indexed(bslots::DCI[0], "DCI", 7),
-            builder.bel_indexed(bslots::DCI[1], "DCI", 0),
+            builder.bel_indexed(bslots::DCI_WE, "DCI", 7),
+            builder.bel_indexed(bslots::DCI_SN, "DCI", 0),
             builder.bel_single(bslots::PMV, "PMV"),
             builder.bel_virtual(bslots::MISC_NW),
         ],
@@ -1113,8 +1113,8 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
             "UR",
             n_ur,
             &[
-                builder.bel_indexed(bslots::DCI[0], "DCI", 2),
-                builder.bel_indexed(bslots::DCI[1], "DCI", 1),
+                builder.bel_indexed(bslots::DCI_WE, "DCI", 2),
+                builder.bel_indexed(bslots::DCI_SN, "DCI", 1),
                 builder.bel_single(bslots::BSCAN, "BSCAN"),
                 builder.bel_single(bslots::JTAGPPC, "JTAGPPC"),
                 builder.bel_virtual(bslots::MISC_NE),
@@ -1126,8 +1126,8 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
             "UR",
             n_ur,
             &[
-                builder.bel_indexed(bslots::DCI[0], "DCI", 2),
-                builder.bel_indexed(bslots::DCI[1], "DCI", 1),
+                builder.bel_indexed(bslots::DCI_WE, "DCI", 2),
+                builder.bel_indexed(bslots::DCI_SN, "DCI", 1),
                 builder.bel_single(bslots::BSCAN, "BSCAN"),
                 builder.bel_virtual(bslots::MISC_NE),
             ],

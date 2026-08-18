@@ -54,8 +54,7 @@ pub fn verify_globalsig_bufg(endev: &ExpandedNamedDevice, vrf: &mut Verifier, bc
             DirV::N
         };
         let io = endev.chip.get_brefclk_io(edge)[idx];
-        let io = endev.chip.get_io_loc(io);
-        bel.verify_net(&[bel.wire("BREFCLK_I"), bel.bel_wire(io, "CLKPAD")]);
+        bel.verify_net(&[bel.wire("BREFCLK_I"), bel.bel_wire(io.bel, "CLKPAD")]);
     }
     bel.commit();
 }

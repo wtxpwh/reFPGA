@@ -1731,10 +1731,10 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
             "LL",
             "CNR_SW_S3",
             &[
-                builder.bel_indexed(bslots::DCI[0], "DCI", 6),
-                builder.bel_indexed(bslots::DCI[1], "DCI", 5),
-                builder.bel_indexed(bslots::DCIRESET[0], "DCIRESET", 6),
-                builder.bel_indexed(bslots::DCIRESET[1], "DCIRESET", 5),
+                builder.bel_indexed(bslots::DCI_WE, "DCI", 6),
+                builder.bel_indexed(bslots::DCI_SN, "DCI", 5),
+                builder.bel_indexed(bslots::DCIRESET_WE, "DCIRESET", 6),
+                builder.bel_indexed(bslots::DCIRESET_SN, "DCIRESET", 5),
                 builder.bel_virtual(bslots::MISC_CNR_S3),
                 builder.bel_virtual(bslots::MISC_SW),
             ],
@@ -1744,10 +1744,10 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
             "LR",
             "CNR_SE_S3",
             &[
-                builder.bel_indexed(bslots::DCI[0], "DCI", 3),
-                builder.bel_indexed(bslots::DCI[1], "DCI", 4),
-                builder.bel_indexed(bslots::DCIRESET[0], "DCIRESET", 3),
-                builder.bel_indexed(bslots::DCIRESET[1], "DCIRESET", 4),
+                builder.bel_indexed(bslots::DCI_WE, "DCI", 3),
+                builder.bel_indexed(bslots::DCI_SN, "DCI", 4),
+                builder.bel_indexed(bslots::DCIRESET_WE, "DCIRESET", 3),
+                builder.bel_indexed(bslots::DCIRESET_SN, "DCIRESET", 4),
                 builder.bel_single(bslots::STARTUP, "STARTUP"),
                 builder.bel_single(bslots::CAPTURE, "CAPTURE"),
                 builder.bel_single(bslots::ICAP, "ICAP"),
@@ -1760,10 +1760,10 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
             "UL",
             "CNR_NW_S3",
             &[
-                builder.bel_indexed(bslots::DCI[0], "DCI", 7),
-                builder.bel_indexed(bslots::DCI[1], "DCI", 0),
-                builder.bel_indexed(bslots::DCIRESET[0], "DCIRESET", 7),
-                builder.bel_indexed(bslots::DCIRESET[1], "DCIRESET", 0),
+                builder.bel_indexed(bslots::DCI_WE, "DCI", 7),
+                builder.bel_indexed(bslots::DCI_SN, "DCI", 0),
+                builder.bel_indexed(bslots::DCIRESET_WE, "DCIRESET", 7),
+                builder.bel_indexed(bslots::DCIRESET_SN, "DCIRESET", 0),
                 builder.bel_single(bslots::PMV, "PMV"),
                 builder.bel_virtual(bslots::MISC_CNR_S3),
                 builder.bel_virtual(bslots::MISC_NW),
@@ -1774,10 +1774,10 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
             "UR",
             "CNR_NE_S3",
             &[
-                builder.bel_indexed(bslots::DCI[0], "DCI", 2),
-                builder.bel_indexed(bslots::DCI[1], "DCI", 1),
-                builder.bel_indexed(bslots::DCIRESET[0], "DCIRESET", 2),
-                builder.bel_indexed(bslots::DCIRESET[1], "DCIRESET", 1),
+                builder.bel_indexed(bslots::DCI_WE, "DCI", 2),
+                builder.bel_indexed(bslots::DCI_SN, "DCI", 1),
+                builder.bel_indexed(bslots::DCIRESET_WE, "DCIRESET", 2),
+                builder.bel_indexed(bslots::DCIRESET_SN, "DCIRESET", 1),
                 builder.bel_single(bslots::BSCAN, "BSCAN"),
                 builder
                     .bel_virtual(bslots::RANDOR_OUT)
@@ -1862,7 +1862,7 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
             "CNR_SW_S3E",
             &[
                 builder.bel_virtual(bslots::MISC_SW),
-                builder.bel_virtual(bslots::BANK),
+                builder.bel_virtual(bslots::BANK_WE),
             ],
         );
         builder.extract_int_bels_id(
@@ -1878,7 +1878,7 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
                     "CNR_DATA_IN2",
                 ),
                 builder.bel_virtual(bslots::MISC_SE),
-                builder.bel_virtual(bslots::BANK),
+                builder.bel_virtual(bslots::BANK_SN),
             ],
         );
         builder.extract_int_bels_id(
@@ -1888,7 +1888,7 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
             &[
                 builder.bel_single(bslots::PMV, "PMV"),
                 builder.bel_virtual(bslots::MISC_NW),
-                builder.bel_virtual(bslots::BANK),
+                builder.bel_virtual(bslots::BANK_SN),
             ],
         );
         builder.extract_int_bels_id(
@@ -1901,7 +1901,7 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
                     .bel_virtual(bslots::RANDOR_OUT)
                     .extra_int_out("O", &["UR_CARRY_IN"]),
                 builder.bel_virtual(bslots::MISC_NE),
-                builder.bel_virtual(bslots::BANK),
+                builder.bel_virtual(bslots::BANK_WE),
             ],
         );
     } else {
@@ -1911,7 +1911,8 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
             "CNR_SW_S3A",
             &[
                 builder.bel_virtual(bslots::MISC_SW),
-                builder.bel_virtual(bslots::BANK),
+                builder.bel_virtual(bslots::BANK_WE),
+                builder.bel_virtual(bslots::BANK_SN),
             ],
         );
         builder.extract_int_bels_id(
@@ -1928,6 +1929,7 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
                     .pin_rename("MISO", "CIPO")
                     .pin_rename("MOSI", "COPI"),
                 builder.bel_virtual(bslots::MISC_SE),
+                builder.bel_virtual(bslots::BANK_WE),
             ],
         );
         builder.extract_int_bels_id(
@@ -1938,7 +1940,7 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
                 builder.bel_single(bslots::PMV, "PMV"),
                 builder.bel_single(bslots::DNA_PORT, "DNA_PORT"),
                 builder.bel_virtual(bslots::MISC_NW),
-                builder.bel_virtual(bslots::BANK),
+                builder.bel_virtual(bslots::BANK_SN),
             ],
         );
         builder.extract_int_bels_id(

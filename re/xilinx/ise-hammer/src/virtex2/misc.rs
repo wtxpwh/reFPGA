@@ -4,7 +4,7 @@ use prjcombine_entity::{EntityId, EntityVec};
 use prjcombine_interconnect::{db::BelAttributeId, dir::DirHV, grid::TileCoord};
 use prjcombine_re_collector::diff::{
     Diff, DiffKey, OcdMode, extract_bitvec_val, extract_bitvec_val_part, xlat_bit, xlat_bit_bi,
-    xlat_bit_wide, xlat_bit_wide_bi,
+    xlat_bit_wide, xlat_bit_wide_bi, xlat_enum_attr,
 };
 use prjcombine_re_fpga_hammer::{FuzzerFeature, FuzzerProp};
 use prjcombine_re_hammer::{Fuzzer, Session};
@@ -237,7 +237,7 @@ pub fn add_fuzzers<'a>(
     if edev.chip.kind == ChipKind::Spartan3 {
         for tile in [cnr_sw, cnr_nw, cnr_se, cnr_ne] {
             let mut ctx = FuzzCtx::new(session, backend, tile);
-            for bel in bslots::DCIRESET {
+            for bel in [bslots::DCIRESET_WE, bslots::DCIRESET_SN] {
                 let mut bctx = ctx.bel(bel);
                 bctx.build()
                     .test_bel_attr_bits(bcls::DCIRESET::ENABLE)
@@ -723,18 +723,18 @@ pub fn add_fuzzers<'a>(
             unreachable!()
         };
         if !edev.chip.kind.is_spartan3ea() {
-            for (dir, tile_name, bidx, bank) in [
-                (DirHV::NW, cnr_nw, 0, 7),
-                (DirHV::NW, cnr_nw, 1, 0),
-                (DirHV::NE, cnr_ne, 1, 1),
-                (DirHV::NE, cnr_ne, 0, 2),
-                (DirHV::SE, cnr_se, 0, 3),
-                (DirHV::SE, cnr_se, 1, 4),
-                (DirHV::SW, cnr_sw, 1, 5),
-                (DirHV::SW, cnr_sw, 0, 6),
+            for (dir, tile_name, bslot, bank) in [
+                (DirHV::NW, cnr_nw, bslots::DCI_WE, 7),
+                (DirHV::NW, cnr_nw, bslots::DCI_SN, 0),
+                (DirHV::NE, cnr_ne, bslots::DCI_SN, 1),
+                (DirHV::NE, cnr_ne, bslots::DCI_WE, 2),
+                (DirHV::SE, cnr_se, bslots::DCI_WE, 3),
+                (DirHV::SE, cnr_se, bslots::DCI_SN, 4),
+                (DirHV::SW, cnr_sw, bslots::DCI_SN, 5),
+                (DirHV::SW, cnr_sw, bslots::DCI_WE, 6),
             ] {
                 let mut ctx = FuzzCtx::new(session, backend, tile_name);
-                let mut bctx = ctx.bel(bslots::DCI[bidx]);
+                let mut bctx = ctx.bel(bslot);
 
                 let mut btiles =
                     EntityVec::from_iter([edev.btile_term_h(edev.chip.corner(dir).cell)]);
@@ -756,11 +756,11 @@ pub fn add_fuzzers<'a>(
                     io_vr = Some(edev.chip.dci_io_alt[&bank]);
                 }
                 let (io_vrp, io_vrn) = io_vr.unwrap();
-                let site_vrp = endev.get_io_name(io_vrp);
-                let site_vrn = endev.get_io_name(io_vrn);
+                let site_vrp = endev.ngrid.get_bel_name(io_vrp.bel).unwrap();
+                let site_vrn = endev.ngrid.get_bel_name(io_vrn.bel).unwrap();
                 for io in edev.chip.get_bonded_ios().into_iter().rev() {
                     let ioinfo = edev.chip.get_io_info(io);
-                    let bcrd = edev.chip.get_io_loc(io);
+                    let bcrd = io.bel;
                     if ioinfo.bank == bank && coords.insert(bcrd.cell) {
                         btiles.push(edev.btile_main(bcrd.cell));
                         if bcrd.cell.col == edev.chip.col_w() || bcrd.cell.col == edev.chip.col_e()
@@ -777,10 +777,10 @@ pub fn add_fuzzers<'a>(
                         && io != io_vrn
                     {
                         if ioinfo.bank == bank && site.is_none() {
-                            site = Some(endev.get_io_name(io));
+                            site = Some(endev.ngrid.get_bel_name(io.bel).unwrap());
                         }
                         if ioinfo.bank == other_bank && site_other.is_none() {
-                            site_other = Some(endev.get_io_name(io));
+                            site_other = Some(endev.ngrid.get_bel_name(io.bel).unwrap());
                         }
                     }
                 }
@@ -899,8 +899,8 @@ pub fn add_fuzzers<'a>(
                         .commit();
                 } else if bank == 5 && edev.chip.dci_io_alt.contains_key(&5) {
                     let (io_alt_vrp, io_alt_vrn) = edev.chip.dci_io_alt[&5];
-                    let site_alt_vrp = endev.get_io_name(io_alt_vrp);
-                    let site_alt_vrn = endev.get_io_name(io_alt_vrn);
+                    let site_alt_vrp = endev.ngrid.get_bel_name(io_alt_vrp.bel).unwrap();
+                    let site_alt_vrn = endev.ngrid.get_bel_name(io_alt_vrn.bel).unwrap();
                     let mut builder = bctx
                         .build()
                         .prop(ForceBits(btiles.clone()))
@@ -932,7 +932,7 @@ pub fn add_fuzzers<'a>(
                         .commit();
                     bctx.build()
                         .global_mutex("DCI", "PRESENT")
-                        .global_mutex("DCI_SELECT", format!("DCI{bidx}"))
+                        .global_mutex("DCI_SELECT", backend.edev.db[bslot].name.clone())
                         .mode("DCI")
                         .test_bel_special(specials::DCI_SELECT)
                         .pip((PinFar, "DATA"), "DATA")
@@ -1004,21 +1004,25 @@ pub fn add_fuzzers<'a>(
                 &[
                     (
                         cnr_nw,
+                        bslots::BANK_SN,
                         edev.btile_term_h(edev.chip.corner(DirHV::NW).cell),
                         0,
                     ),
                     (
                         cnr_ne,
+                        bslots::BANK_WE,
                         edev.btile_term_h(edev.chip.corner(DirHV::NE).cell),
                         1,
                     ),
                     (
                         cnr_se,
+                        bslots::BANK_SN,
                         edev.btile_term_h(edev.chip.corner(DirHV::SE).cell),
                         2,
                     ),
                     (
                         cnr_sw,
+                        bslots::BANK_WE,
                         edev.btile_term_h(edev.chip.corner(DirHV::SW).cell),
                         3,
                     ),
@@ -1027,19 +1031,21 @@ pub fn add_fuzzers<'a>(
                 &[
                     (
                         cnr_nw,
+                        bslots::BANK_SN,
                         edev.btile_term_h(edev.chip.corner(DirHV::NW).cell),
                         0,
                     ),
                     (
                         cnr_sw,
+                        bslots::BANK_SN,
                         edev.btile_term_h(edev.chip.corner(DirHV::SW).cell),
                         2,
                     ),
                 ][..]
             };
-            for &(tile_name, btile, bank) in banks {
+            for &(tile_name, bslot, btile, bank) in banks {
                 let mut ctx = FuzzCtx::new(session, backend, tile_name);
-                let mut bctx = ctx.bel(bslots::BANK);
+                let mut bctx = ctx.bel(bslot);
                 let mut btiles = EntityVec::from_iter([btile]);
                 match bank {
                     0 => {
@@ -1091,8 +1097,8 @@ pub fn add_fuzzers<'a>(
                 if edev.chip.kind == ChipKind::Spartan3ADsp {
                     ios.reverse();
                 }
-                let site_a = endev.get_io_name(ios[0]);
-                let site_b = endev.get_io_name(ios[1]);
+                let site_a = endev.ngrid.get_bel_name(ios[0].bel).unwrap();
+                let site_b = endev.ngrid.get_bel_name(ios[1].bel).unwrap();
                 let diffm = if edev.chip.kind == ChipKind::Spartan3E {
                     "DIFFM"
                 } else {
@@ -1579,7 +1585,7 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx, skip_io: bool, devdata_only: bool
 
     if edev.chip.kind == ChipKind::Spartan3 {
         for tcid in [cnr_sw, cnr_nw, cnr_se, cnr_ne] {
-            for bslot in bslots::DCIRESET {
+            for bslot in [bslots::DCIRESET_WE, bslots::DCIRESET_SN] {
                 ctx.collect_bel_attr(tcid, bslot, bcls::DCIRESET::ENABLE);
             }
         }
@@ -1813,17 +1819,16 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx, skip_io: bool, devdata_only: bool
     // I/O bank misc control
     if !skip_io && edev.chip.kind != ChipKind::FpgaCore {
         if !edev.chip.kind.is_spartan3ea() {
-            for (tcid, idx) in [
-                (cnr_nw, 0),
-                (cnr_nw, 1),
-                (cnr_ne, 1),
-                (cnr_ne, 0),
-                (cnr_se, 0),
-                (cnr_se, 1),
-                (cnr_sw, 1),
-                (cnr_sw, 0),
+            for (tcid, bslot) in [
+                (cnr_nw, bslots::DCI_WE),
+                (cnr_nw, bslots::DCI_SN),
+                (cnr_ne, bslots::DCI_SN),
+                (cnr_ne, bslots::DCI_WE),
+                (cnr_se, bslots::DCI_WE),
+                (cnr_se, bslots::DCI_SN),
+                (cnr_sw, bslots::DCI_SN),
+                (cnr_sw, bslots::DCI_WE),
             ] {
-                let bslot = bslots::DCI[idx];
                 // LVDS
                 let mut vals = vec![];
                 for std in get_iostds(edev, false) {
@@ -1856,8 +1861,8 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx, skip_io: bool, devdata_only: bool
                         tcid,
                         bslot,
                         bcls::DCI::LVDSBIAS,
-                        match idx {
-                            0 => vec![
+                        match bslot {
+                            bslots::DCI_WE => vec![
                                 TileBit::new(0, 3, 48).pos(),
                                 TileBit::new(0, 2, 48).pos(),
                                 TileBit::new(0, 3, 47).pos(),
@@ -1868,7 +1873,7 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx, skip_io: bool, devdata_only: bool
                                 TileBit::new(0, 2, 45).pos(),
                                 TileBit::new(0, 3, 44).pos(),
                             ],
-                            1 => vec![
+                            bslots::DCI_SN => vec![
                                 TileBit::new(1, 12, 8).pos(),
                                 TileBit::new(1, 12, 6).pos(),
                                 TileBit::new(1, 12, 7).pos(),
@@ -1937,15 +1942,15 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx, skip_io: bool, devdata_only: bool
                 let (pmask_term_vcc, pmask_term_split, nmask_term_split) =
                     if edev.chip.kind == ChipKind::Spartan3 {
                         let frame = if tcid == cnr_sw {
-                            match idx {
-                                0 => 1,
-                                1 => 0,
+                            match bslot {
+                                bslots::DCI_WE => 1,
+                                bslots::DCI_SN => 0,
                                 _ => unreachable!(),
                             }
                         } else {
-                            match idx {
-                                0 => 0,
-                                1 => 1,
+                            match bslot {
+                                bslots::DCI_WE => 0,
+                                bslots::DCI_SN => 1,
                                 _ => unreachable!(),
                             }
                         };
@@ -1971,15 +1976,15 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx, skip_io: bool, devdata_only: bool
                         )
                     } else {
                         (
-                            match idx {
-                                0 => vec![
+                            match bslot {
+                                bslots::DCI_WE => vec![
                                     TileBit::new(0, 3, 36).pos(),
                                     TileBit::new(0, 2, 36).pos(),
                                     TileBit::new(0, 3, 35).pos(),
                                     TileBit::new(0, 2, 35).pos(),
                                     TileBit::new(0, 3, 34).pos(),
                                 ],
-                                1 => vec![
+                                bslots::DCI_SN => vec![
                                     TileBit::new(1, 8, 8).pos(),
                                     TileBit::new(1, 8, 6).pos(),
                                     TileBit::new(1, 8, 7).pos(),
@@ -1988,15 +1993,15 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx, skip_io: bool, devdata_only: bool
                                 ],
                                 _ => unreachable!(),
                             },
-                            match idx {
-                                0 => vec![
+                            match bslot {
+                                bslots::DCI_WE => vec![
                                     TileBit::new(0, 2, 34).pos(),
                                     TileBit::new(0, 3, 33).pos(),
                                     TileBit::new(0, 2, 33).pos(),
                                     TileBit::new(0, 3, 32).pos(),
                                     TileBit::new(0, 2, 32).pos(),
                                 ],
-                                1 => vec![
+                                bslots::DCI_SN => vec![
                                     TileBit::new(1, 8, 9).pos(),
                                     TileBit::new(1, 9, 9).pos(),
                                     TileBit::new(1, 9, 11).pos(),
@@ -2005,15 +2010,15 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx, skip_io: bool, devdata_only: bool
                                 ],
                                 _ => unreachable!(),
                             },
-                            match idx {
-                                0 => vec![
+                            match bslot {
+                                bslots::DCI_WE => vec![
                                     TileBit::new(0, 2, 39).pos(),
                                     TileBit::new(0, 3, 38).pos(),
                                     TileBit::new(0, 2, 38).pos(),
                                     TileBit::new(0, 3, 37).pos(),
                                     TileBit::new(0, 2, 37).pos(),
                                 ],
-                                1 => vec![
+                                bslots::DCI_SN => vec![
                                     TileBit::new(1, 11, 11).pos(),
                                     TileBit::new(1, 11, 7).pos(),
                                     TileBit::new(1, 11, 10).pos(),
@@ -2151,11 +2156,17 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx, skip_io: bool, devdata_only: bool
 
             if edev.chip.kind == ChipKind::Spartan3 {
                 for tcid in [cnr_sw, cnr_nw, cnr_se, cnr_ne] {
-                    let item = xlat_bit_bi(
-                        ctx.get_diff_bel_special(tcid, bslots::DCI[0], specials::DCI_SELECT),
-                        ctx.get_diff_bel_special(tcid, bslots::DCI[1], specials::DCI_SELECT),
-                    );
-                    ctx.insert_bel_attr_bool(
+                    let item = xlat_enum_attr(vec![
+                        (
+                            enums::MUX_DCI_TEST::DCI_WE,
+                            ctx.get_diff_bel_special(tcid, bslots::DCI_WE, specials::DCI_SELECT),
+                        ),
+                        (
+                            enums::MUX_DCI_TEST::DCI_SN,
+                            ctx.get_diff_bel_special(tcid, bslots::DCI_SN, specials::DCI_SELECT),
+                        ),
+                    ]);
+                    ctx.insert_bel_attr_enum(
                         tcid,
                         bslots::MISC_CNR_S3,
                         bcls::MISC_CNR_S3::MUX_DCI_TEST,
@@ -2188,18 +2199,18 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx, skip_io: bool, devdata_only: bool
                 ]));
                 let diff6 = diff.filter_rects(&EntityVec::from_iter([BitRectId::from_idx(6)]));
                 let diff7 = diff.filter_rects(&EntityVec::from_iter([BitRectId::from_idx(7)]));
-                ctx.insert_bel_attr_bool(cnr_nw, bslots::DCI[1], bcls::DCI::QUIET, xlat_bit(diff0));
-                ctx.insert_bel_attr_bool(cnr_ne, bslots::DCI[1], bcls::DCI::QUIET, xlat_bit(diff1));
-                ctx.insert_bel_attr_bool(cnr_ne, bslots::DCI[0], bcls::DCI::QUIET, xlat_bit(diff2));
-                ctx.insert_bel_attr_bool(cnr_se, bslots::DCI[0], bcls::DCI::QUIET, xlat_bit(diff3));
-                ctx.insert_bel_attr_bool(cnr_se, bslots::DCI[1], bcls::DCI::QUIET, xlat_bit(diff4));
-                ctx.insert_bel_attr_bool(cnr_sw, bslots::DCI[1], bcls::DCI::QUIET, xlat_bit(diff5));
-                ctx.insert_bel_attr_bool(cnr_sw, bslots::DCI[0], bcls::DCI::QUIET, xlat_bit(diff6));
-                ctx.insert_bel_attr_bool(cnr_nw, bslots::DCI[0], bcls::DCI::QUIET, xlat_bit(diff7));
+                ctx.insert_bel_attr_bool(cnr_nw, bslots::DCI_SN, bcls::DCI::QUIET, xlat_bit(diff0));
+                ctx.insert_bel_attr_bool(cnr_ne, bslots::DCI_SN, bcls::DCI::QUIET, xlat_bit(diff1));
+                ctx.insert_bel_attr_bool(cnr_ne, bslots::DCI_WE, bcls::DCI::QUIET, xlat_bit(diff2));
+                ctx.insert_bel_attr_bool(cnr_se, bslots::DCI_WE, bcls::DCI::QUIET, xlat_bit(diff3));
+                ctx.insert_bel_attr_bool(cnr_se, bslots::DCI_SN, bcls::DCI::QUIET, xlat_bit(diff4));
+                ctx.insert_bel_attr_bool(cnr_sw, bslots::DCI_SN, bcls::DCI::QUIET, xlat_bit(diff5));
+                ctx.insert_bel_attr_bool(cnr_sw, bslots::DCI_WE, bcls::DCI::QUIET, xlat_bit(diff6));
+                ctx.insert_bel_attr_bool(cnr_nw, bslots::DCI_WE, bcls::DCI::QUIET, xlat_bit(diff7));
             }
 
             let tcid = cnr_sw;
-            let bslot = bslots::DCI[0];
+            let bslot = bslots::DCI_WE;
             let mut diff = ctx
                 .get_diff_bel_special(tcid, bslot, specials::DCI_OUT_ALONE)
                 .filter_rects(&if edev.chip.kind.is_virtex2() {
@@ -2213,7 +2224,7 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx, skip_io: bool, devdata_only: bool
                 false,
             );
             if edev.chip.dci_io_alt.contains_key(&5) {
-                let bslot = bslots::DCI[1];
+                let bslot = bslots::DCI_SN;
                 let mut alt_diff = ctx
                     .get_diff_bel_special(tcid, bslot, specials::DCI_OUT_ALONE)
                     .filter_rects(&if edev.chip.kind.is_virtex2() {
@@ -2252,6 +2263,7 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx, skip_io: bool, devdata_only: bool
                 vec![
                     (
                         cnr_nw,
+                        bslots::BANK_SN,
                         vec![
                             TileBit::new(0, 0, 44).pos(),
                             TileBit::new(0, 0, 39).pos(),
@@ -2281,6 +2293,7 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx, skip_io: bool, devdata_only: bool
                     ),
                     (
                         cnr_ne,
+                        bslots::BANK_WE,
                         vec![
                             TileBit::new(0, 1, 10).pos(),
                             TileBit::new(0, 1, 48).pos(),
@@ -2310,6 +2323,7 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx, skip_io: bool, devdata_only: bool
                     ),
                     (
                         cnr_se,
+                        bslots::BANK_SN,
                         vec![
                             TileBit::new(0, 1, 12).pos(),
                             TileBit::new(0, 1, 7).pos(),
@@ -2339,6 +2353,7 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx, skip_io: bool, devdata_only: bool
                     ),
                     (
                         cnr_sw,
+                        bslots::BANK_WE,
                         vec![
                             TileBit::new(0, 1, 31).pos(),
                             TileBit::new(0, 1, 26).pos(),
@@ -2371,6 +2386,7 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx, skip_io: bool, devdata_only: bool
                 vec![
                     (
                         cnr_nw,
+                        bslots::BANK_SN,
                         vec![
                             TileBit::new(0, 1, 62).pos(),
                             TileBit::new(0, 1, 60).pos(),
@@ -2402,6 +2418,7 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx, skip_io: bool, devdata_only: bool
                     ),
                     (
                         cnr_sw,
+                        bslots::BANK_SN,
                         vec![
                             TileBit::new(0, 1, 32).pos(),
                             TileBit::new(0, 0, 27).pos(),
@@ -2433,8 +2450,7 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx, skip_io: bool, devdata_only: bool
                     ),
                 ]
             };
-            for (tcid, lvdsbias_0, lvdsbias_1) in banks {
-                let bslot = bslots::BANK;
+            for (tcid, bslot, lvdsbias_0, lvdsbias_1) in banks {
                 let field = if edev.chip.kind == ChipKind::Spartan3E {
                     IOB_DATA::S3E_LVDSBIAS
                 } else {
@@ -2479,11 +2495,27 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx, skip_io: bool, devdata_only: bool
         }
 
         if edev.chip.kind.is_spartan3ea() {
-            for (tcid, btile) in [
-                (cnr_sw, edev.btile_term_h(edev.chip.corner(DirHV::SW).cell)),
-                (cnr_nw, edev.btile_term_h(edev.chip.corner(DirHV::NW).cell)),
-                (cnr_se, edev.btile_term_h(edev.chip.corner(DirHV::SE).cell)),
-                (cnr_ne, edev.btile_term_h(edev.chip.corner(DirHV::NE).cell)),
+            for (tcid, bank, btile) in [
+                (
+                    cnr_sw,
+                    bslots::BANK_WE,
+                    edev.btile_term_h(edev.chip.corner(DirHV::SW).cell),
+                ),
+                (
+                    cnr_nw,
+                    bslots::BANK_SN,
+                    edev.btile_term_h(edev.chip.corner(DirHV::NW).cell),
+                ),
+                (
+                    cnr_se,
+                    bslots::BANK_SN,
+                    edev.btile_term_h(edev.chip.corner(DirHV::SE).cell),
+                ),
+                (
+                    cnr_ne,
+                    bslots::BANK_WE,
+                    edev.btile_term_h(edev.chip.corner(DirHV::NE).cell),
+                ),
             ] {
                 let mut diff = Diff::default();
                 let BitRect::Main(_, width, _, height, _) = btile else {
@@ -2512,11 +2544,7 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx, skip_io: bool, devdata_only: bool
                     }
                 }
                 if edev.chip.kind == ChipKind::Spartan3E {
-                    diff.discard_polbits(ctx.bel_attr_bitvec(
-                        tcid,
-                        bslots::BANK,
-                        bcls::BANK::S3E_LVDSBIAS,
-                    ));
+                    diff.discard_polbits(ctx.bel_attr_bitvec(tcid, bank, bcls::BANK::S3E_LVDSBIAS));
                 }
                 if !diff.bits.is_empty() {
                     assert_eq!(tcid, cnr_sw);
