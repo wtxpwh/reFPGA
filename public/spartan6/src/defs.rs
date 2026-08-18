@@ -1416,19 +1416,18 @@ target_defs! {
         pad AVTTRCAL: power;
         pad RREF: analog;
 
-        for i in 0..2 {
-            pad "CLKP{i}": input;
-            pad "CLKN{i}": input;
-        }
+        pad CLKP[2]: input;
+        pad CLKN[2]: input;
+
+        // per channel
+        pad TXP[2]: output;
+        pad TXN[2]: output;
+        pad RXP[2]: input;
+        pad RXN[2]: input;
+
+        pad AVCCPLL[2]: power;
 
         for ch in 0..2 {
-            pad "TXP{ch}": output;
-            pad "TXN{ch}": output;
-            pad "RXP{ch}": input;
-            pad "RXN{ch}": input;
-
-            pad "AVCCPLL{ch}": power;
-
             input "GCLK0{ch}";
             input "GCLK1{ch}";
             input "PLLCLK0{ch}";
@@ -1733,13 +1732,11 @@ target_defs! {
 
     enum OCT_CAL_VREF_VALUE { NONE, _0P25, _0P5, _0P75 }
     enum OCT_CAL_ACCESS_MODE { STATIC, USER }
-    bel_class OCT_CAL {
+    bel_class BANK {
+        pad VCCO: power;
         input S[2];
         attribute VREF_VALUE: OCT_CAL_VREF_VALUE;
         attribute ACCESS_MODE: OCT_CAL_ACCESS_MODE;
-    }
-
-    bel_class BANK {
         attribute LVDSBIAS: bitvec[12][2];
     }
 
@@ -1834,6 +1831,10 @@ target_defs! {
         pad ISPI_CCLK: output;
         pad ISPI_COPI: output;
 
+        pad VCCBATT: power;
+        pad VFS: power;
+        pad RFUSE: analog;
+
         attribute DONE_PULL: IOB_PULL;
         attribute TSPI_CS_B_PULL: IOB_PULL;
         attribute ISPI_CCLK_PULL: IOB_PULL;
@@ -1873,6 +1874,9 @@ target_defs! {
     enum SW_CLK { INTERNALCLK, STARTUPCLK }
     enum SPI_BUSWIDTH { _1, _2, _4 }
     bel_class GLOBAL {
+        pad GND: power;
+        pad VCCINT: power;
+        pad VCCAUX: power;
         // COR
         attribute GWE_CYCLE: STARTUP_CYCLE;
         attribute GTS_CYCLE: STARTUP_CYCLE;
@@ -2342,7 +2346,6 @@ target_defs! {
             bitrect MAIN: CLEXL;
         }
 
-        bel_slot OCT_CAL[6]: OCT_CAL;
         bel_slot PMV: PMV;
         bel_slot DNA_PORT: DNA_PORT;
         bel_slot ICAP: ICAP;
@@ -2354,7 +2357,8 @@ target_defs! {
         bel_slot BSCAN[4]: BSCAN;
         bel_slot MISR_CNR_H: MISR;
         bel_slot MISR_CNR_V: MISR;
-        bel_slot BANK[6]: BANK;
+        bel_slot BANK_WE: BANK;
+        bel_slot BANK_SN: BANK;
         bel_slot MISC_SW: MISC_SW;
         bel_slot MISC_SE: MISC_SE;
         bel_slot MISC_NW: MISC_NW;

@@ -212,14 +212,11 @@ impl<'b> FuzzerProp<'b, IseBackend<'b>> for IsVref {
         let FuzzerValue::Base(Value::String(pkg)) = &fuzzer.kv[&Key::Package] else {
             unreachable!()
         };
-        let ExpandedDevice::Spartan6(edev) = backend.edev else {
-            unreachable!()
-        };
         let ExpandedBond::Spartan6(ref ebond) = backend.ebonds[pkg] else {
             unreachable!()
         };
-        let crd = edev.chip.get_io_crd(tcrd.bel(self.0));
-        if !ebond.bond.vref.contains(&crd) {
+        let pad = tcrd.bel(self.0).pad(bcls::IOB::PAD);
+        if !ebond.bond.vref.contains(&pad) {
             return None;
         }
         Some((fuzzer, false))
@@ -243,14 +240,11 @@ impl<'b> FuzzerProp<'b, IseBackend<'b>> for IsBonded {
         let FuzzerValue::Base(Value::String(pkg)) = &fuzzer.kv[&Key::Package] else {
             unreachable!()
         };
-        let ExpandedDevice::Spartan6(edev) = backend.edev else {
-            unreachable!()
-        };
         let ExpandedBond::Spartan6(ref ebond) = backend.ebonds[pkg] else {
             unreachable!()
         };
-        let crd = edev.chip.get_io_crd(tcrd.bel(self.0));
-        if !ebond.ios.contains_key(&crd) {
+        let pad = tcrd.bel(self.0).pad(bcls::IOB::PAD);
+        if !ebond.ios.contains_key(&pad) {
             return None;
         }
         Some((fuzzer, false))
@@ -274,8 +268,7 @@ impl<'b> FuzzerProp<'b, IseBackend<'b>> for IsBank {
         let ExpandedDevice::Spartan6(edev) = backend.edev else {
             unreachable!()
         };
-        let crd = edev.chip.get_io_crd(tcrd.bel(self.0));
-        if edev.chip.get_io_bank(crd) != self.1 {
+        if edev.chip.get_io_bank(tcrd.bel(self.0).pad(bcls::IOB::PAD)) != self.1 {
             return None;
         }
         Some((fuzzer, false))
@@ -1375,7 +1368,6 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
         let cnr_sw = edev.chip.corner(DirHV::SW);
         let cnr_nw = edev.chip.corner(DirHV::NW);
         let cnr_se = edev.chip.corner(DirHV::SE);
-        let cnr_ne = edev.chip.corner(DirHV::NE);
 
         bctx.build()
             .global("GLUTMASK", "YES")
@@ -1400,17 +1392,17 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
             .attr_diff("ISTANDARD", "SSTL3_I", "SSTL18_I")
             .commit();
 
-        let banks = [cnr_nw, cnr_se, cnr_sw, cnr_sw, cnr_nw, cnr_ne];
         for bank in 0..6 {
             if bank >= 4 && edev.chip.row_mcb_split.is_none() {
                 continue;
             }
+            let bel_bank = edev.chip.pad_bank_vcco(bank).bel;
             bctx.build()
                 .global_mutex_here("IOB")
                 .raw(Key::VccAux, "3.3")
                 .raw(Key::Package, package.name.clone())
                 .prop(IsBonded(bel))
-                .prop(IsBank(bel, bank as u32))
+                .prop(IsBank(bel, bank))
                 .mode("IOB")
                 .pin("O")
                 .pin("T")
@@ -1418,9 +1410,9 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
                 .attr("OUSED", "0")
                 .attr("OSTANDARD", "SSTL2_I")
                 .extra_fixed_bel_attr_val(
-                    banks[bank],
-                    bslots::OCT_CAL[bank],
-                    bcls::OCT_CAL::VREF_VALUE,
+                    edev.bel_tile(bel_bank),
+                    bel_bank.slot,
+                    bcls::BANK::VREF_VALUE,
                     enums::OCT_CAL_VREF_VALUE::_0P5,
                 )
                 .test_bel_sss_row(
@@ -1433,11 +1425,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
                 .attr("IMUX", "I")
                 .attr("BYPASS_MUX", "I")
                 .attr("ISTANDARD", "SSTL2_I")
-                .raw_diff(
-                    Key::InternalVref(bank as u32),
-                    Value::None,
-                    Value::U32(1250),
-                )
+                .raw_diff(Key::InternalVref(bank), Value::None, Value::U32(1250))
                 .commit();
         }
 
@@ -1679,8 +1667,8 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
                         let (row, spec) = iostd_to_row(edev, std, 2);
                         let row_lvds = iostd_to_lvdsbias_row(edev, std);
                         for (dir, corner, corner_name, bank_bslot, dx) in [
-                            (DirV::S, cnr_sw, "CNR_SW", bslots::BANK[2], 1),
-                            (DirV::N, cnr_nw, "CNR_NW", bslots::BANK[0], -1),
+                            (DirV::S, cnr_sw, "CNR_SW", bslots::BANK_SN, 1),
+                            (DirV::N, cnr_nw, "CNR_NW", bslots::BANK_SN, -1),
                         ] {
                             bctx.build()
                                 .global_mutex("IOB", "SHARED")
@@ -1703,7 +1691,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
                                 .pin("O")
                                 .extra_fixed_bel_special_row(
                                     corner,
-                                    bank_bslot,
+                                    bslots::BANK_SN,
                                     specials::BANK_LVDSBIAS_0,
                                     row_lvds,
                                 )
@@ -3932,7 +3920,7 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
     }
     {
         let tcid = tcls::CNR_SW;
-        let bslot = bslots::BANK[2];
+        let bslot = bslots::BANK_SN;
         ctx.insert_bel_attr_bitvec(
             tcid,
             bslot,
@@ -3950,7 +3938,7 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
         let bslot = bslots::MISC_NW;
         let item = xlat_bit_wide(ctx.get_diff_attr_bool(tcid, bslot, bcls::MISC_NW::VREF_LV));
         ctx.insert_bel_attr_bitvec(tcid, bslot, bcls::MISC_NW::VREF_LV, item);
-        let bslot = bslots::BANK[0];
+        let bslot = bslots::BANK_SN;
         ctx.insert_bel_attr_bitvec(
             tcid,
             bslot,
@@ -3990,10 +3978,7 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
         tables::LVDSBIAS::LVDSBIAS,
         bits![0; 12],
     );
-    for (tcid, bslot) in [
-        (tcls::CNR_SW, bslots::BANK[2]),
-        (tcls::CNR_NW, bslots::BANK[0]),
-    ] {
+    for tcid in [tcls::CNR_SW, tcls::CNR_NW] {
         for std in IOSTDS_SN {
             if std.diff != DiffKind::True {
                 continue;
@@ -4002,12 +3987,12 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
             for i in 0..2 {
                 let diff = ctx.get_diff_bel_special_row(
                     tcid,
-                    bslot,
+                    bslots::BANK_SN,
                     [specials::BANK_LVDSBIAS_0, specials::BANK_LVDSBIAS_1][i],
                     row,
                 );
-                let item =
-                    &ctx.bel_attr_bitvec(tcid, bslot, bcls::BANK::LVDSBIAS)[i * 12..(i + 1) * 12];
+                let item = &ctx.bel_attr_bitvec(tcid, bslots::BANK_SN, bcls::BANK::LVDSBIAS)
+                    [i * 12..(i + 1) * 12];
                 let val = extract_bitvec_val(item, &BitVec::repeat(false, 12), diff);
                 ctx.insert_table_bitvec(tables::LVDSBIAS, row, tables::LVDSBIAS::LVDSBIAS, val);
             }
@@ -4051,7 +4036,7 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
             TileBit::new(1, 22, 52),
         ),
     ] {
-        let bslot = bslots::OCT_CAL[bank];
+        let bslot = edev.chip.pad_bank_vcco(bank).slot;
         let item = BelAttributeEnum {
             bits: vec![bit_25, bit_75],
             values: [
@@ -4067,7 +4052,7 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
             let mut diff = ctx.get_diff_attr_val(
                 tcid,
                 bslot,
-                bcls::OCT_CAL::VREF_VALUE,
+                bcls::BANK::VREF_VALUE,
                 enums::OCT_CAL_VREF_VALUE::_0P5,
             );
             diff.apply_enum_diff(
@@ -4077,6 +4062,6 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
             );
             diff.assert_empty();
         }
-        ctx.insert_bel_attr_enum(tcid, bslot, bcls::OCT_CAL::VREF_VALUE, item);
+        ctx.insert_bel_attr_enum(tcid, bslot, bcls::BANK::VREF_VALUE, item);
     }
 }

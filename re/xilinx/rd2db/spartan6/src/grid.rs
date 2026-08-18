@@ -1,10 +1,17 @@
 use std::collections::{BTreeMap, BTreeSet, HashMap};
 
 use prjcombine_entity::{EntityId, EntityVec};
-use prjcombine_interconnect::grid::{ColId, EdgeIoCoord, RowId, TileIobId};
+use prjcombine_interconnect::{
+    dir::{DirH, DirV},
+    grid::{BelPadCoord, ColId, RowId},
+};
 use prjcombine_re_xilinx_rawdump::{Coord, Part, TkSiteSlot};
-use prjcombine_spartan6::chip::{
-    Chip, Column, ColumnIoKind, ColumnKind, DisabledPart, Gts, Mcb, McbIo, RegId, Row, SharedCfgPad,
+use prjcombine_spartan6::{
+    chip::{
+        Chip, Column, ColumnIoKind, ColumnKind, DisabledPart, Gts, Mcb, McbIo, RegId, Row,
+        SharedCfgPad,
+    },
+    defs::bslots,
 };
 
 use prjcombine_re_xilinx_rd2db_grid::{
@@ -150,7 +157,7 @@ fn get_mcbs(rd: &Part, int: &IntGrid) -> Vec<Mcb> {
     #[allow(non_snake_case)]
     let P = |row, bel| McbIo {
         row,
-        iob: TileIobId::from_idx(bel),
+        iob: bslots::IOB[bel],
     };
     for r in find_rows(rd, &["MCB_L", "MCB_DUMMY"]) {
         let row_mcb = int.lookup_row(r - 6);
@@ -273,12 +280,12 @@ fn has_encrypt(rd: &Part) -> bool {
     false
 }
 
-fn set_cfg(grid: &mut Chip, cfg: SharedCfgPad, coord: EdgeIoCoord) {
+fn set_cfg(grid: &mut Chip, cfg: SharedCfgPad, coord: BelPadCoord) {
     let old = grid.cfg_io.insert(cfg, coord);
     assert!(old.is_none() || old == Some(coord));
 }
 
-fn handle_spec_io(rd: &Part, grid: &mut Chip, int: &IntGrid) {
+fn handle_spec_io(rd: &Part, chip: &mut Chip, int: &IntGrid) {
     let mut io_lookup = HashMap::new();
     for (&crd, tile) in &rd.tiles {
         let tkn = rd.tile_kinds.key(tile.kind);
@@ -287,30 +294,22 @@ fn handle_spec_io(rd: &Part, grid: &mut Chip, int: &IntGrid) {
             if let &TkSiteSlot::Indexed(sn, idx) = tk.sites.key(k)
                 && rd.slot_kinds[sn] == "IOB"
             {
-                let crd = if tkn.starts_with('T') {
-                    EdgeIoCoord::N(
-                        int.lookup_column(crd.x.into()),
-                        TileIobId::from_idx(3 - (idx as usize)),
-                    )
+                let pad = if tkn.starts_with('T') {
+                    chip.pad_io_v(DirV::N, int.lookup_column(crd.x.into()), 3 - (idx as usize))
                 } else if tkn.starts_with('B') {
-                    EdgeIoCoord::S(
+                    chip.pad_io_v(
+                        DirV::S,
                         int.lookup_column(crd.x.into()),
-                        TileIobId::from_idx([1, 0, 2, 3][idx as usize]),
+                        [1, 0, 2, 3][idx as usize],
                     )
                 } else if tkn.starts_with('L') {
-                    EdgeIoCoord::W(
-                        int.lookup_row(crd.y.into()),
-                        TileIobId::from_idx(idx as usize ^ 1),
-                    )
+                    chip.pad_io_h(DirH::W, int.lookup_row(crd.y.into()), idx as usize ^ 1)
                 } else if tkn.starts_with('R') {
-                    EdgeIoCoord::E(
-                        int.lookup_row(crd.y.into()),
-                        TileIobId::from_idx(idx as usize ^ 1),
-                    )
+                    chip.pad_io_h(DirH::E, int.lookup_row(crd.y.into()), idx as usize ^ 1)
                 } else {
                     unreachable!();
                 };
-                io_lookup.insert(v.clone(), crd);
+                io_lookup.insert(v.clone(), pad);
             }
         }
     }
@@ -320,7 +319,7 @@ fn handle_spec_io(rd: &Part, grid: &mut Chip, int: &IntGrid) {
                 if !pad.starts_with("PAD") {
                     continue;
                 }
-                let coord = io_lookup[pad];
+                let pad = io_lookup[pad];
                 let mut f = pin.func.strip_prefix("IO_L").unwrap();
                 f = &f[f.find('_').unwrap() + 1..];
                 if f.starts_with("GCLK") {
@@ -356,25 +355,25 @@ fn handle_spec_io(rd: &Part, grid: &mut Chip, int: &IntGrid) {
                 ] {
                     if let Some(nf) = f.strip_prefix(p) {
                         f = nf;
-                        set_cfg(grid, c, coord);
+                        set_cfg(chip, c, pad);
                     }
                 }
                 if f.starts_with('A') {
                     let pos = f.find('_').unwrap();
                     let a = f[1..pos].parse().unwrap();
-                    set_cfg(grid, SharedCfgPad::Addr(a), coord);
+                    set_cfg(chip, SharedCfgPad::Addr(a), pad);
                     f = &f[pos + 1..];
                 }
                 if f.starts_with('D') {
                     let pos = f.find('_').unwrap();
                     let a = f[1..pos].parse().unwrap();
-                    set_cfg(grid, SharedCfgPad::Data(a), coord);
+                    set_cfg(chip, SharedCfgPad::Data(a), pad);
                     f = &f[pos + 1..];
                 }
                 if f.starts_with("SCP") {
                     let pos = f.find('_').unwrap();
                     let a = f[3..pos].parse().unwrap();
-                    set_cfg(grid, SharedCfgPad::Scp(a), coord);
+                    set_cfg(chip, SharedCfgPad::Scp(a), pad);
                     f = &f[pos + 1..];
                 }
                 if let Some(nf) = f.strip_prefix("VREF_") {
@@ -382,91 +381,87 @@ fn handle_spec_io(rd: &Part, grid: &mut Chip, int: &IntGrid) {
                 }
                 if f.starts_with('M') {
                     let (col, mi) = match &f[0..2] {
-                        "M1" => (grid.columns.last_id().unwrap(), 0),
-                        "M3" => (grid.columns.first_id().unwrap(), 0),
-                        "M4" => (grid.columns.first_id().unwrap(), 1),
-                        "M5" => (grid.columns.last_id().unwrap(), 1),
+                        "M1" => (chip.columns.last_id().unwrap(), 0),
+                        "M3" => (chip.columns.first_id().unwrap(), 0),
+                        "M4" => (chip.columns.first_id().unwrap(), 1),
+                        "M5" => (chip.columns.last_id().unwrap(), 1),
                         _ => unreachable!(),
                     };
-                    let (io_col, io_row, iob) = match coord {
-                        EdgeIoCoord::W(row, iob) => (grid.col_w(), row, iob),
-                        EdgeIoCoord::E(row, iob) => (grid.col_e(), row, iob),
-                        _ => unreachable!(),
-                    };
-                    assert_eq!(io_col, col);
-                    let mcb = &grid.mcbs[mi];
+
+                    assert_eq!(pad.col, col);
+                    let mcb = &chip.mcbs[mi];
                     let epos = f.find('_').unwrap();
                     let mf = &f[2..epos];
                     match mf {
                         "RASN" => {
-                            assert_eq!(io_row, mcb.io_ras.row);
-                            assert_eq!(iob, mcb.io_ras.iob);
+                            assert_eq!(pad.row, mcb.io_ras.row);
+                            assert_eq!(pad.slot, mcb.io_ras.iob);
                         }
                         "CASN" => {
-                            assert_eq!(io_row, mcb.io_cas.row);
-                            assert_eq!(iob, mcb.io_cas.iob);
+                            assert_eq!(pad.row, mcb.io_cas.row);
+                            assert_eq!(pad.slot, mcb.io_cas.iob);
                         }
                         "WE" => {
-                            assert_eq!(io_row, mcb.io_we.row);
-                            assert_eq!(iob, mcb.io_we.iob);
+                            assert_eq!(pad.row, mcb.io_we.row);
+                            assert_eq!(pad.slot, mcb.io_we.iob);
                         }
                         "ODT" => {
-                            assert_eq!(io_row, mcb.io_odt.row);
-                            assert_eq!(iob, mcb.io_odt.iob);
+                            assert_eq!(pad.row, mcb.io_odt.row);
+                            assert_eq!(pad.slot, mcb.io_odt.iob);
                         }
                         "CKE" => {
-                            assert_eq!(io_row, mcb.io_cke.row);
-                            assert_eq!(iob, mcb.io_cke.iob);
+                            assert_eq!(pad.row, mcb.io_cke.row);
+                            assert_eq!(pad.slot, mcb.io_cke.iob);
                         }
                         "RESET" => {
-                            assert_eq!(io_row, mcb.io_reset.row);
-                            assert_eq!(iob, mcb.io_reset.iob);
+                            assert_eq!(pad.row, mcb.io_reset.row);
+                            assert_eq!(pad.slot, mcb.io_reset.iob);
                         }
                         "LDM" => {
-                            assert_eq!(io_row, mcb.io_dm[0].row);
-                            assert_eq!(iob, mcb.io_dm[0].iob);
+                            assert_eq!(pad.row, mcb.io_dm[0].row);
+                            assert_eq!(pad.slot, mcb.io_dm[0].iob);
                         }
                         "UDM" => {
-                            assert_eq!(io_row, mcb.io_dm[1].row);
-                            assert_eq!(iob, mcb.io_dm[1].iob);
+                            assert_eq!(pad.row, mcb.io_dm[1].row);
+                            assert_eq!(pad.slot, mcb.io_dm[1].iob);
                         }
                         "LDQS" => {
-                            assert_eq!(io_row, mcb.iop_dqs[0]);
-                            assert_eq!(iob.to_idx(), 1);
+                            assert_eq!(pad.row, mcb.iop_dqs[0]);
+                            assert_eq!(pad.slot, bslots::IOB[1]);
                         }
                         "LDQSN" => {
-                            assert_eq!(io_row, mcb.iop_dqs[0]);
-                            assert_eq!(iob.to_idx(), 0);
+                            assert_eq!(pad.row, mcb.iop_dqs[0]);
+                            assert_eq!(pad.slot, bslots::IOB[0]);
                         }
                         "UDQS" => {
-                            assert_eq!(io_row, mcb.iop_dqs[1]);
-                            assert_eq!(iob.to_idx(), 1);
+                            assert_eq!(pad.row, mcb.iop_dqs[1]);
+                            assert_eq!(pad.slot, bslots::IOB[1]);
                         }
                         "UDQSN" => {
-                            assert_eq!(io_row, mcb.iop_dqs[1]);
-                            assert_eq!(iob.to_idx(), 0);
+                            assert_eq!(pad.row, mcb.iop_dqs[1]);
+                            assert_eq!(pad.slot, bslots::IOB[0]);
                         }
                         "CLK" => {
-                            assert_eq!(io_row, mcb.iop_clk);
-                            assert_eq!(iob.to_idx(), 1);
+                            assert_eq!(pad.row, mcb.iop_clk);
+                            assert_eq!(pad.slot, bslots::IOB[1]);
                         }
                         "CLKN" => {
-                            assert_eq!(io_row, mcb.iop_clk);
-                            assert_eq!(iob.to_idx(), 0);
+                            assert_eq!(pad.row, mcb.iop_clk);
+                            assert_eq!(pad.slot, bslots::IOB[0]);
                         }
                         _ => {
                             if let Some(i) = mf.strip_prefix('A') {
                                 let i: usize = i.parse().unwrap();
-                                assert_eq!(io_row, mcb.io_addr[i].row);
-                                assert_eq!(iob, mcb.io_addr[i].iob);
+                                assert_eq!(pad.row, mcb.io_addr[i].row);
+                                assert_eq!(pad.slot, mcb.io_addr[i].iob);
                             } else if let Some(i) = mf.strip_prefix("BA") {
                                 let i: usize = i.parse().unwrap();
-                                assert_eq!(io_row, mcb.io_ba[i].row);
-                                assert_eq!(iob, mcb.io_ba[i].iob);
+                                assert_eq!(pad.row, mcb.io_ba[i].row);
+                                assert_eq!(pad.slot, mcb.io_ba[i].iob);
                             } else if let Some(i) = mf.strip_prefix("DQ") {
                                 let i: usize = i.parse().unwrap();
-                                assert_eq!(io_row, mcb.iop_dq[i / 2]);
-                                assert_eq!(iob.to_idx(), (i % 2) ^ 1);
+                                assert_eq!(pad.row, mcb.iop_dq[i / 2]);
+                                assert_eq!(pad.slot, bslots::IOB[(i % 2) ^ 1]);
                             } else {
                                 println!("MCB {mf}");
                             }

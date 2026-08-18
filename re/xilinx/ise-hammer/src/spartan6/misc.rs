@@ -41,12 +41,12 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
         }
     }
     for (tcid, bslot) in [
-        (tcls::CNR_NW, bslots::OCT_CAL[0]),
-        (tcls::CNR_SE, bslots::OCT_CAL[1]),
-        (tcls::CNR_SW, bslots::OCT_CAL[2]),
-        (tcls::CNR_SW, bslots::OCT_CAL[3]),
-        (tcls::CNR_NW, bslots::OCT_CAL[4]),
-        (tcls::CNR_NE, bslots::OCT_CAL[5]),
+        (tcls::CNR_NW, bslots::BANK_SN),
+        (tcls::CNR_SE, bslots::BANK_WE),
+        (tcls::CNR_SW, bslots::BANK_SN),
+        (tcls::CNR_SW, bslots::BANK_WE),
+        (tcls::CNR_NW, bslots::BANK_WE),
+        (tcls::CNR_NE, bslots::BANK_WE),
     ] {
         let mut ctx = FuzzCtx::new(session, backend, tcid);
         let mut bctx = ctx.bel(bslot);
@@ -56,7 +56,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
             .mode("OCT_CALIBRATE")
             .commit();
         bctx.mode("OCT_CALIBRATE")
-            .test_bel_attr_auto(bcls::OCT_CAL::ACCESS_MODE);
+            .test_bel_attr_auto(bcls::BANK::ACCESS_MODE);
         for (val, vname) in [
             (enums::OCT_CAL_VREF_VALUE::_0P25, "0.25"),
             (enums::OCT_CAL_VREF_VALUE::_0P5, "0.5"),
@@ -64,7 +64,7 @@ pub fn add_fuzzers<'a>(session: &mut Session<'a, IseBackend<'a>>, backend: &'a I
         ] {
             bctx.mode("OCT_CALIBRATE")
                 .null_bits()
-                .test_bel_attr_val(bcls::OCT_CAL::VREF_VALUE, val)
+                .test_bel_attr_val(bcls::BANK::VREF_VALUE, val)
                 .attr("VREF_VALUE", vname)
                 .commit();
         }
@@ -575,14 +575,14 @@ pub fn collect_fuzzers(ctx: &mut CollectorCtx) {
         unreachable!()
     };
     for (tcid, bslot) in [
-        (tcls::CNR_NW, bslots::OCT_CAL[0]),
-        (tcls::CNR_SE, bslots::OCT_CAL[1]),
-        (tcls::CNR_SW, bslots::OCT_CAL[2]),
-        (tcls::CNR_SW, bslots::OCT_CAL[3]),
-        (tcls::CNR_NW, bslots::OCT_CAL[4]),
-        (tcls::CNR_NE, bslots::OCT_CAL[5]),
+        (tcls::CNR_NW, bslots::BANK_SN),
+        (tcls::CNR_SE, bslots::BANK_WE),
+        (tcls::CNR_SW, bslots::BANK_SN),
+        (tcls::CNR_SW, bslots::BANK_WE),
+        (tcls::CNR_NW, bslots::BANK_WE),
+        (tcls::CNR_NE, bslots::BANK_WE),
     ] {
-        ctx.collect_bel_attr(tcid, bslot, bcls::OCT_CAL::ACCESS_MODE);
+        ctx.collect_bel_attr(tcid, bslot, bcls::BANK::ACCESS_MODE);
     }
 
     for tcid in [tcls::CNR_SW, tcls::CNR_NW, tcls::CNR_SE, tcls::CNR_NE] {

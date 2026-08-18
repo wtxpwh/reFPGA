@@ -1465,13 +1465,11 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
             "CNR_SW",
             "LL",
             vec![
-                builder.bel_xy(bslots::OCT_CAL[2], "OCT_CAL", 0, 0),
-                builder.bel_xy(bslots::OCT_CAL[3], "OCT_CAL", 0, 1),
+                builder.bel_xy(bslots::BANK_SN, "OCT_CAL", 0, 0),
+                builder.bel_xy(bslots::BANK_WE, "OCT_CAL", 0, 1),
                 builder.bel_virtual(bslots::MISR_CNR_H),
                 builder.bel_virtual(bslots::MISR_CNR_V),
                 builder.bel_virtual(bslots::MISC_SW),
-                builder.bel_virtual(bslots::BANK[2]),
-                builder.bel_virtual(bslots::BANK[3]),
             ],
         ),
         (
@@ -1479,15 +1477,13 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
             "CNR_NW",
             "UL",
             vec![
-                builder.bel_xy(bslots::OCT_CAL[0], "OCT_CAL", 0, 0),
-                builder.bel_xy(bslots::OCT_CAL[4], "OCT_CAL", 0, 1),
+                builder.bel_xy(bslots::BANK_SN, "OCT_CAL", 0, 0),
+                builder.bel_xy(bslots::BANK_WE, "OCT_CAL", 0, 1),
                 builder.bel_single(bslots::PMV, "PMV"),
                 builder.bel_single(bslots::DNA_PORT, "DNA_PORT"),
                 builder.bel_virtual(bslots::MISR_CNR_H),
                 builder.bel_virtual(bslots::MISR_CNR_V),
                 builder.bel_virtual(bslots::MISC_NW),
-                builder.bel_virtual(bslots::BANK[0]),
-                builder.bel_virtual(bslots::BANK[4]),
             ],
         ),
     ] {
@@ -1501,7 +1497,7 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
     }
     if let Some(&xy) = rd.tiles_by_kind_name("LR_LOWER").iter().next() {
         let bels = vec![
-            builder.bel_xy(bslots::OCT_CAL[1], "OCT_CAL", 0, 0),
+            builder.bel_xy(bslots::BANK_WE, "OCT_CAL", 0, 0),
             builder.bel_xy(bslots::ICAP, "ICAP", 0, 0),
             builder
                 .bel_single(bslots::ISPI_ACCESS, "SPI_ACCESS")
@@ -1526,7 +1522,6 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
             builder.bel_virtual(bslots::MISR_CNR_H),
             builder.bel_virtual(bslots::MISR_CNR_V),
             builder.bel_virtual(bslots::MISC_SE),
-            builder.bel_virtual(bslots::BANK[1]),
         ];
         builder
             .xtile_id(tcls::CNR_SE, "CNR_SE", xy)
@@ -1538,7 +1533,7 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
     }
     if let Some(&xy) = rd.tiles_by_kind_name("UR_LOWER").iter().next() {
         let bels = vec![
-            builder.bel_xy(bslots::OCT_CAL[5], "OCT_CAL", 0, 0),
+            builder.bel_xy(bslots::BANK_WE, "OCT_CAL", 0, 0),
             builder.bel_xy(bslots::BSCAN[0], "BSCAN", 0, 0).raw_tile(1),
             builder.bel_xy(bslots::BSCAN[1], "BSCAN", 0, 1).raw_tile(1),
             builder.bel_xy(bslots::BSCAN[2], "BSCAN", 0, 0),
@@ -1546,7 +1541,6 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
             builder.bel_virtual(bslots::MISR_CNR_H),
             builder.bel_virtual(bslots::MISR_CNR_V),
             builder.bel_virtual(bslots::MISC_NE),
-            builder.bel_virtual(bslots::BANK[5]),
         ];
         builder
             .xtile_id(tcls::CNR_NE, "CNR_NE", xy)

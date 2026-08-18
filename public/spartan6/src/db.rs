@@ -58,7 +58,7 @@ impl Database {
                 writeln!(o)?;
                 if flags.chip {
                     writeln!(o, "chip {cid} {{")?;
-                    chip.dump(o)?;
+                    chip.dump(o, &self.int)?;
                     writeln!(o, "}}")?;
                     writeln!(o)?;
                 } else {
@@ -83,7 +83,7 @@ impl Database {
                 writeln!(o)?;
                 if flags.bond {
                     writeln!(o, "bond {bid} {{")?;
-                    bond.dump(o)?;
+                    bond.dump(o, &self.int)?;
                     writeln!(o, "}}")?;
                     writeln!(o)?;
                 } else {

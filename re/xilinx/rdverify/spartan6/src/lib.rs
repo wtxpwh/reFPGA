@@ -1,5 +1,4 @@
 use indicatif::ProgressBar;
-use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
     db::{BelInfo, SwitchBoxItem, WireSlotIdExt},
     dir::{DirH, DirHV, DirV},
@@ -526,7 +525,7 @@ fn verify_mcb(endev: &ExpandedNamedDevice, vrf: &mut Verifier, bcrd: BelCoord) {
         let obel = bcrd
             .cell
             .with_row(io.row)
-            .bel(bslots::OLOGIC[io.iob.to_idx()]);
+            .bel(bslots::OLOGIC[bslots::IOB.index_of(io.iob).unwrap()]);
         bel.claim_net(&[
             bel.wire_far(&pin),
             bel.bel_wire(obel, "MCB_D1"),
@@ -583,7 +582,9 @@ fn verify_mcb(endev: &ExpandedNamedDevice, vrf: &mut Verifier, bcrd: BelCoord) {
             bel.claim_net(&[bel.wire(pin), pi]);
         }
         rows_handled.insert(io.row);
-        let obel = bcrd.with_row(io.row).bel(bslots::OLOGIC[io.iob.to_idx()]);
+        let obel = bcrd
+            .with_row(io.row)
+            .bel(bslots::OLOGIC[bslots::IOB.index_of(io.iob).unwrap()]);
         bel.claim_net(&[bel.wire_far(op), bel.bel_wire(obel, "MCB_D1")]);
         bel.claim_net(&[bel.wire_far(on), bel.bel_wire(obel, "MCB_D2")]);
         let obel = bcrd.with_row(io.row).bel(bslots::MISC_IOI);
@@ -1183,6 +1184,7 @@ fn verify_bel(endev: &ExpandedNamedDevice, vrf: &mut Verifier, bcrd: BelCoord) {
         | bslots::MISC_SE
         | bslots::MISC_NW
         | bslots::MISC_NE
+        | bslots::MISC_NE
         | bslots::GLUTMASK_HCLK
         | bslots::GLOBAL => {}
         _ if bcrd.slot == bslots::SLICE[0] => verify_sliceml(endev, vrf, bcrd),
@@ -1191,10 +1193,7 @@ fn verify_bel(endev: &ExpandedNamedDevice, vrf: &mut Verifier, bcrd: BelCoord) {
         bslots::DSP => verify_dsp(endev, vrf, bcrd),
         bslots::PCIE => vrf.verify_bel(bcrd).kind("PCIE_A1").commit(),
 
-        _ if bslots::OCT_CAL.contains(bcrd.slot) => {
-            vrf.verify_bel(bcrd).kind("OCT_CALIBRATE").commit()
-        }
-        _ if bslots::BANK.contains(bcrd.slot) => (),
+        bslots::BANK_WE | bslots::BANK_SN => vrf.verify_bel(bcrd).kind("OCT_CALIBRATE").commit(),
         _ if bslots::BSCAN.contains(bcrd.slot) => vrf.verify_bel(bcrd).commit(),
         bslots::PMV
         | bslots::DNA_PORT
