@@ -531,6 +531,27 @@ intdb {
 		output Q[2];
 	}
 
+	bel_class EBR {
+		input CLKA;
+		input CLKB;
+		input RSTA;
+		input RSTB;
+		input CEA;
+		input CEB;
+		input WEA;
+		input WEB;
+		input OCEA;
+		input OCEB;
+		input CSA[3];
+		input CSB[3];
+		input ADA[13];
+		input ADB[13];
+		input DIA[9];
+		input DIB[9];
+		output DOA[9];
+		output DOB[9];
+	}
+
 	region_slot PCLK;
 	wire TIE0: tie 0;
 	wire TIE1: tie 1;
@@ -1679,10 +1700,10 @@ intdb {
 		bel_slot SLICE[1]: SLICE;
 		bel_slot SLICE[2]: SLICE;
 		bel_slot SLICE[3]: SLICE;
-		bel_slot EBR[0]: legacy;
-		bel_slot EBR[1]: legacy;
-		bel_slot EBR[2]: legacy;
-		bel_slot EBR[3]: legacy;
+		bel_slot EBR[0]: EBR;
+		bel_slot EBR[1]: EBR;
+		bel_slot EBR[2]: EBR;
+		bel_slot EBR[3]: EBR;
 		bel_slot MIPI: legacy;
 		bel_slot CLKTEST_MIPI: legacy;
 		bel_slot PLL[0]: legacy;
@@ -1869,641 +1890,641 @@ intdb {
 			cell CELL[8];
 
 			bel EBR[0] {
-				input ADA0 = CELL[0].IMUX_B[2];
-				input ADA1 = CELL[0].IMUX_B[4];
-				input ADA10 = CELL[0].IMUX_D[5];
-				input ADA11 = CELL[0].IMUX_B[6];
-				input ADA12 = CELL[0].IMUX_C[7];
-				input ADA2 = CELL[0].IMUX_D[7];
-				input ADA3 = CELL[0].IMUX_A[7];
-				input ADA4 = CELL[0].IMUX_C[0];
-				input ADA5 = CELL[0].IMUX_A[1];
-				input ADA6 = CELL[0].IMUX_C[2];
-				input ADA7 = CELL[0].IMUX_A[3];
-				input ADA8 = CELL[0].IMUX_D[1];
-				input ADA9 = CELL[0].IMUX_B[0];
-				input ADB0 = CELL[1].IMUX_D[3];
-				input ADB1 = CELL[1].IMUX_D[7];
-				input ADB10 = CELL[1].IMUX_D[5];
-				input ADB11 = CELL[1].IMUX_B[6];
-				input ADB12 = CELL[1].IMUX_C[7];
-				input ADB2 = CELL[1].IMUX_B[4];
-				input ADB3 = CELL[1].IMUX_A[7];
-				input ADB4 = CELL[1].IMUX_C[0];
-				input ADB5 = CELL[1].IMUX_A[0];
-				input ADB6 = CELL[1].IMUX_C[4];
-				input ADB7 = CELL[1].IMUX_A[4];
-				input ADB8 = CELL[1].IMUX_D[1];
-				input ADB9 = CELL[1].IMUX_B[0];
-				input CEA = CELL[0].IMUX_CE[1];
-				input CEB = CELL[1].IMUX_CE[1];
 				input CLKA = CELL[0].IMUX_CLK[0];
 				input CLKB = CELL[1].IMUX_CLK[0];
-				input CSA0 = CELL[0].IMUX_CE[2];
-				input CSA1 = CELL[0].IMUX_CE[3];
-				input CSA2 = CELL[1].IMUX_CE[3];
-				input CSB0 = CELL[1].IMUX_CE[2];
-				input CSB1 = CELL[2].IMUX_CE[2];
-				input CSB2 = CELL[2].IMUX_CE[3];
-				input DIA0 = CELL[0].IMUX_D[0];
-				input DIA1 = CELL[0].IMUX_B[1];
-				input DIA2 = CELL[0].IMUX_D[2];
-				input DIA3 = CELL[0].IMUX_B[3];
-				input DIA4 = CELL[0].IMUX_D[4];
-				input DIA5 = CELL[0].IMUX_B[5];
-				input DIA6 = CELL[0].IMUX_D[6];
-				input DIA7 = CELL[0].IMUX_B[7];
-				input DIA8 = CELL[1].IMUX_D[0];
-				input DIB0 = CELL[1].IMUX_B[1];
-				input DIB1 = CELL[1].IMUX_D[2];
-				input DIB2 = CELL[1].IMUX_B[3];
-				input DIB3 = CELL[1].IMUX_D[4];
-				input DIB4 = CELL[1].IMUX_B[5];
-				input DIB5 = CELL[1].IMUX_D[6];
-				input DIB6 = CELL[1].IMUX_B[7];
-				input DIB7 = CELL[2].IMUX_D[0];
-				input DIB8 = CELL[2].IMUX_B[1];
-				output DOA0 = CELL[0].OUT_F[0];
-				output DOA1 = CELL[0].OUT_F[1];
-				output DOA2 = CELL[0].OUT_F[2];
-				output DOA3 = CELL[0].OUT_F[3];
-				output DOA4 = CELL[0].OUT_F[4];
-				output DOA5 = CELL[0].OUT_F[5];
-				output DOA6 = CELL[0].OUT_F[6];
-				output DOA7 = CELL[0].OUT_F[7];
-				output DOA8 = CELL[1].OUT_F[0];
-				output DOB0 = CELL[1].OUT_F[1];
-				output DOB1 = CELL[1].OUT_F[2];
-				output DOB2 = CELL[1].OUT_F[3];
-				output DOB3 = CELL[1].OUT_F[4];
-				output DOB4 = CELL[1].OUT_F[5];
-				output DOB5 = CELL[1].OUT_F[6];
-				output DOB6 = CELL[1].OUT_F[7];
-				output DOB7 = CELL[2].OUT_F[0];
-				output DOB8 = CELL[2].OUT_F[1];
-				input OCEA = CELL[0].IMUX_CE[0];
-				input OCEB = CELL[1].IMUX_CE[0];
 				input RSTA = CELL[0].IMUX_LSR[0];
 				input RSTB = CELL[1].IMUX_LSR[0];
+				input CEA = CELL[0].IMUX_CE[1];
+				input CEB = CELL[1].IMUX_CE[1];
 				input WEA = CELL[0].IMUX_LSR[1];
 				input WEB = CELL[1].IMUX_LSR[1];
+				input OCEA = CELL[0].IMUX_CE[0];
+				input OCEB = CELL[1].IMUX_CE[0];
+				input CSA[0] = CELL[0].IMUX_CE[2];
+				input CSA[1] = CELL[0].IMUX_CE[3];
+				input CSA[2] = CELL[1].IMUX_CE[3];
+				input CSB[0] = CELL[1].IMUX_CE[2];
+				input CSB[1] = CELL[2].IMUX_CE[2];
+				input CSB[2] = CELL[2].IMUX_CE[3];
+				input ADA[0] = CELL[0].IMUX_B[2];
+				input ADA[1] = CELL[0].IMUX_B[4];
+				input ADA[2] = CELL[0].IMUX_D[7];
+				input ADA[3] = CELL[0].IMUX_A[7];
+				input ADA[4] = CELL[0].IMUX_C[0];
+				input ADA[5] = CELL[0].IMUX_A[1];
+				input ADA[6] = CELL[0].IMUX_C[2];
+				input ADA[7] = CELL[0].IMUX_A[3];
+				input ADA[8] = CELL[0].IMUX_D[1];
+				input ADA[9] = CELL[0].IMUX_B[0];
+				input ADA[10] = CELL[0].IMUX_D[5];
+				input ADA[11] = CELL[0].IMUX_B[6];
+				input ADA[12] = CELL[0].IMUX_C[7];
+				input ADB[0] = CELL[1].IMUX_D[3];
+				input ADB[1] = CELL[1].IMUX_D[7];
+				input ADB[2] = CELL[1].IMUX_B[4];
+				input ADB[3] = CELL[1].IMUX_A[7];
+				input ADB[4] = CELL[1].IMUX_C[0];
+				input ADB[5] = CELL[1].IMUX_A[0];
+				input ADB[6] = CELL[1].IMUX_C[4];
+				input ADB[7] = CELL[1].IMUX_A[4];
+				input ADB[8] = CELL[1].IMUX_D[1];
+				input ADB[9] = CELL[1].IMUX_B[0];
+				input ADB[10] = CELL[1].IMUX_D[5];
+				input ADB[11] = CELL[1].IMUX_B[6];
+				input ADB[12] = CELL[1].IMUX_C[7];
+				input DIA[0] = CELL[0].IMUX_D[0];
+				input DIA[1] = CELL[0].IMUX_B[1];
+				input DIA[2] = CELL[0].IMUX_D[2];
+				input DIA[3] = CELL[0].IMUX_B[3];
+				input DIA[4] = CELL[0].IMUX_D[4];
+				input DIA[5] = CELL[0].IMUX_B[5];
+				input DIA[6] = CELL[0].IMUX_D[6];
+				input DIA[7] = CELL[0].IMUX_B[7];
+				input DIA[8] = CELL[1].IMUX_D[0];
+				input DIB[0] = CELL[1].IMUX_B[1];
+				input DIB[1] = CELL[1].IMUX_D[2];
+				input DIB[2] = CELL[1].IMUX_B[3];
+				input DIB[3] = CELL[1].IMUX_D[4];
+				input DIB[4] = CELL[1].IMUX_B[5];
+				input DIB[5] = CELL[1].IMUX_D[6];
+				input DIB[6] = CELL[1].IMUX_B[7];
+				input DIB[7] = CELL[2].IMUX_D[0];
+				input DIB[8] = CELL[2].IMUX_B[1];
+				output DOA[0] = CELL[0].OUT_F[0];
+				output DOA[1] = CELL[0].OUT_F[1];
+				output DOA[2] = CELL[0].OUT_F[2];
+				output DOA[3] = CELL[0].OUT_F[3];
+				output DOA[4] = CELL[0].OUT_F[4];
+				output DOA[5] = CELL[0].OUT_F[5];
+				output DOA[6] = CELL[0].OUT_F[6];
+				output DOA[7] = CELL[0].OUT_F[7];
+				output DOA[8] = CELL[1].OUT_F[0];
+				output DOB[0] = CELL[1].OUT_F[1];
+				output DOB[1] = CELL[1].OUT_F[2];
+				output DOB[2] = CELL[1].OUT_F[3];
+				output DOB[3] = CELL[1].OUT_F[4];
+				output DOB[4] = CELL[1].OUT_F[5];
+				output DOB[5] = CELL[1].OUT_F[6];
+				output DOB[6] = CELL[1].OUT_F[7];
+				output DOB[7] = CELL[2].OUT_F[0];
+				output DOB[8] = CELL[2].OUT_F[1];
 			}
 
 			bel EBR[1] {
-				input ADA0 = CELL[2].IMUX_B[2];
-				input ADA1 = CELL[2].IMUX_B[4];
-				input ADA10 = CELL[2].IMUX_D[5];
-				input ADA11 = CELL[2].IMUX_B[6];
-				input ADA12 = CELL[2].IMUX_C[7];
-				input ADA2 = CELL[2].IMUX_D[7];
-				input ADA3 = CELL[2].IMUX_A[7];
-				input ADA4 = CELL[2].IMUX_C[0];
-				input ADA5 = CELL[2].IMUX_A[1];
-				input ADA6 = CELL[2].IMUX_C[2];
-				input ADA7 = CELL[2].IMUX_A[3];
-				input ADA8 = CELL[2].IMUX_D[1];
-				input ADA9 = CELL[2].IMUX_B[0];
-				input ADB0 = CELL[4].IMUX_D[3];
-				input ADB1 = CELL[4].IMUX_D[7];
-				input ADB10 = CELL[3].IMUX_D[5];
-				input ADB11 = CELL[3].IMUX_B[6];
-				input ADB12 = CELL[3].IMUX_C[7];
-				input ADB2 = CELL[4].IMUX_B[2];
-				input ADB3 = CELL[4].IMUX_A[7];
-				input ADB4 = CELL[3].IMUX_C[0];
-				input ADB5 = CELL[3].IMUX_A[0];
-				input ADB6 = CELL[3].IMUX_C[4];
-				input ADB7 = CELL[3].IMUX_A[4];
-				input ADB8 = CELL[3].IMUX_D[1];
-				input ADB9 = CELL[3].IMUX_B[0];
-				input CEA = CELL[2].IMUX_CE[1];
-				input CEB = CELL[3].IMUX_CE[1];
 				input CLKA = CELL[2].IMUX_CLK[0];
 				input CLKB = CELL[3].IMUX_CLK[0];
-				input CSA0 = CELL[3].IMUX_CE[2];
-				input CSA1 = CELL[3].IMUX_CE[3];
-				input CSA2 = CELL[4].IMUX_CLK[0];
-				input CSB0 = CELL[4].IMUX_CE[0];
-				input CSB1 = CELL[4].IMUX_CE[1];
-				input CSB2 = CELL[4].IMUX_LSR[0];
-				input DIA0 = CELL[2].IMUX_D[2];
-				input DIA1 = CELL[2].IMUX_B[3];
-				input DIA2 = CELL[2].IMUX_D[4];
-				input DIA3 = CELL[2].IMUX_B[5];
-				input DIA4 = CELL[2].IMUX_D[6];
-				input DIA5 = CELL[2].IMUX_B[7];
-				input DIA6 = CELL[3].IMUX_D[0];
-				input DIA7 = CELL[3].IMUX_B[1];
-				input DIA8 = CELL[3].IMUX_D[2];
-				input DIB0 = CELL[3].IMUX_B[3];
-				input DIB1 = CELL[3].IMUX_D[4];
-				input DIB2 = CELL[3].IMUX_B[5];
-				input DIB3 = CELL[3].IMUX_D[6];
-				input DIB4 = CELL[3].IMUX_B[7];
-				input DIB5 = CELL[4].IMUX_D[0];
-				input DIB6 = CELL[4].IMUX_B[1];
-				input DIB7 = CELL[4].IMUX_D[2];
-				input DIB8 = CELL[4].IMUX_B[3];
-				output DOA0 = CELL[2].OUT_F[2];
-				output DOA1 = CELL[2].OUT_F[3];
-				output DOA2 = CELL[2].OUT_F[4];
-				output DOA3 = CELL[2].OUT_F[5];
-				output DOA4 = CELL[2].OUT_F[6];
-				output DOA5 = CELL[2].OUT_F[7];
-				output DOA6 = CELL[3].OUT_F[0];
-				output DOA7 = CELL[3].OUT_F[1];
-				output DOA8 = CELL[3].OUT_F[2];
-				output DOB0 = CELL[3].OUT_F[3];
-				output DOB1 = CELL[3].OUT_F[4];
-				output DOB2 = CELL[3].OUT_F[5];
-				output DOB3 = CELL[3].OUT_F[6];
-				output DOB4 = CELL[3].OUT_F[7];
-				output DOB5 = CELL[4].OUT_F[0];
-				output DOB6 = CELL[4].OUT_F[1];
-				output DOB7 = CELL[4].OUT_F[2];
-				output DOB8 = CELL[4].OUT_F[3];
-				input OCEA = CELL[2].IMUX_CE[0];
-				input OCEB = CELL[3].IMUX_CE[0];
 				input RSTA = CELL[2].IMUX_LSR[0];
 				input RSTB = CELL[3].IMUX_LSR[0];
+				input CEA = CELL[2].IMUX_CE[1];
+				input CEB = CELL[3].IMUX_CE[1];
 				input WEA = CELL[2].IMUX_LSR[1];
 				input WEB = CELL[3].IMUX_LSR[1];
+				input OCEA = CELL[2].IMUX_CE[0];
+				input OCEB = CELL[3].IMUX_CE[0];
+				input CSA[0] = CELL[3].IMUX_CE[2];
+				input CSA[1] = CELL[3].IMUX_CE[3];
+				input CSA[2] = CELL[4].IMUX_CLK[0];
+				input CSB[0] = CELL[4].IMUX_CE[0];
+				input CSB[1] = CELL[4].IMUX_CE[1];
+				input CSB[2] = CELL[4].IMUX_LSR[0];
+				input ADA[0] = CELL[2].IMUX_B[2];
+				input ADA[1] = CELL[2].IMUX_B[4];
+				input ADA[2] = CELL[2].IMUX_D[7];
+				input ADA[3] = CELL[2].IMUX_A[7];
+				input ADA[4] = CELL[2].IMUX_C[0];
+				input ADA[5] = CELL[2].IMUX_A[1];
+				input ADA[6] = CELL[2].IMUX_C[2];
+				input ADA[7] = CELL[2].IMUX_A[3];
+				input ADA[8] = CELL[2].IMUX_D[1];
+				input ADA[9] = CELL[2].IMUX_B[0];
+				input ADA[10] = CELL[2].IMUX_D[5];
+				input ADA[11] = CELL[2].IMUX_B[6];
+				input ADA[12] = CELL[2].IMUX_C[7];
+				input ADB[0] = CELL[4].IMUX_D[3];
+				input ADB[1] = CELL[4].IMUX_D[7];
+				input ADB[2] = CELL[4].IMUX_B[2];
+				input ADB[3] = CELL[4].IMUX_A[7];
+				input ADB[4] = CELL[3].IMUX_C[0];
+				input ADB[5] = CELL[3].IMUX_A[0];
+				input ADB[6] = CELL[3].IMUX_C[4];
+				input ADB[7] = CELL[3].IMUX_A[4];
+				input ADB[8] = CELL[3].IMUX_D[1];
+				input ADB[9] = CELL[3].IMUX_B[0];
+				input ADB[10] = CELL[3].IMUX_D[5];
+				input ADB[11] = CELL[3].IMUX_B[6];
+				input ADB[12] = CELL[3].IMUX_C[7];
+				input DIA[0] = CELL[2].IMUX_D[2];
+				input DIA[1] = CELL[2].IMUX_B[3];
+				input DIA[2] = CELL[2].IMUX_D[4];
+				input DIA[3] = CELL[2].IMUX_B[5];
+				input DIA[4] = CELL[2].IMUX_D[6];
+				input DIA[5] = CELL[2].IMUX_B[7];
+				input DIA[6] = CELL[3].IMUX_D[0];
+				input DIA[7] = CELL[3].IMUX_B[1];
+				input DIA[8] = CELL[3].IMUX_D[2];
+				input DIB[0] = CELL[3].IMUX_B[3];
+				input DIB[1] = CELL[3].IMUX_D[4];
+				input DIB[2] = CELL[3].IMUX_B[5];
+				input DIB[3] = CELL[3].IMUX_D[6];
+				input DIB[4] = CELL[3].IMUX_B[7];
+				input DIB[5] = CELL[4].IMUX_D[0];
+				input DIB[6] = CELL[4].IMUX_B[1];
+				input DIB[7] = CELL[4].IMUX_D[2];
+				input DIB[8] = CELL[4].IMUX_B[3];
+				output DOA[0] = CELL[2].OUT_F[2];
+				output DOA[1] = CELL[2].OUT_F[3];
+				output DOA[2] = CELL[2].OUT_F[4];
+				output DOA[3] = CELL[2].OUT_F[5];
+				output DOA[4] = CELL[2].OUT_F[6];
+				output DOA[5] = CELL[2].OUT_F[7];
+				output DOA[6] = CELL[3].OUT_F[0];
+				output DOA[7] = CELL[3].OUT_F[1];
+				output DOA[8] = CELL[3].OUT_F[2];
+				output DOB[0] = CELL[3].OUT_F[3];
+				output DOB[1] = CELL[3].OUT_F[4];
+				output DOB[2] = CELL[3].OUT_F[5];
+				output DOB[3] = CELL[3].OUT_F[6];
+				output DOB[4] = CELL[3].OUT_F[7];
+				output DOB[5] = CELL[4].OUT_F[0];
+				output DOB[6] = CELL[4].OUT_F[1];
+				output DOB[7] = CELL[4].OUT_F[2];
+				output DOB[8] = CELL[4].OUT_F[3];
 			}
 
 			bel EBR[2] {
-				input ADA0 = CELL[5].IMUX_D[3];
-				input ADA1 = CELL[5].IMUX_B[4];
-				input ADA10 = CELL[5].IMUX_D[5];
-				input ADA11 = CELL[5].IMUX_B[6];
-				input ADA12 = CELL[5].IMUX_C[7];
-				input ADA2 = CELL[5].IMUX_D[7];
-				input ADA3 = CELL[5].IMUX_A[7];
-				input ADA4 = CELL[5].IMUX_C[0];
-				input ADA5 = CELL[5].IMUX_A[1];
-				input ADA6 = CELL[5].IMUX_C[2];
-				input ADA7 = CELL[5].IMUX_A[3];
-				input ADA8 = CELL[5].IMUX_D[1];
-				input ADA9 = CELL[5].IMUX_B[1];
-				input ADB0 = CELL[6].IMUX_D[3];
-				input ADB1 = CELL[6].IMUX_D[7];
-				input ADB10 = CELL[6].IMUX_D[5];
-				input ADB11 = CELL[6].IMUX_B[6];
-				input ADB12 = CELL[6].IMUX_C[7];
-				input ADB2 = CELL[6].IMUX_B[4];
-				input ADB3 = CELL[6].IMUX_A[7];
-				input ADB4 = CELL[6].IMUX_C[0];
-				input ADB5 = CELL[6].IMUX_A[0];
-				input ADB6 = CELL[6].IMUX_C[4];
-				input ADB7 = CELL[6].IMUX_A[4];
-				input ADB8 = CELL[6].IMUX_D[1];
-				input ADB9 = CELL[6].IMUX_B[0];
-				input CEA = CELL[5].IMUX_CE[1];
-				input CEB = CELL[6].IMUX_CE[1];
 				input CLKA = CELL[5].IMUX_CLK[0];
 				input CLKB = CELL[6].IMUX_CLK[0];
-				input CSA0 = CELL[4].IMUX_CE[2];
-				input CSA1 = CELL[4].IMUX_CE[3];
-				input CSA2 = CELL[4].IMUX_CLK[1];
-				input CSB0 = CELL[5].IMUX_CE[2];
-				input CSB1 = CELL[5].IMUX_CE[3];
-				input CSB2 = CELL[4].IMUX_LSR[1];
-				input DIA0 = CELL[4].IMUX_D[4];
-				input DIA1 = CELL[4].IMUX_B[5];
-				input DIA2 = CELL[4].IMUX_D[6];
-				input DIA3 = CELL[4].IMUX_B[7];
-				input DIA4 = CELL[5].IMUX_D[0];
-				input DIA5 = CELL[5].IMUX_B[0];
-				input DIA6 = CELL[5].IMUX_D[2];
-				input DIA7 = CELL[5].IMUX_B[2];
-				input DIA8 = CELL[5].IMUX_D[4];
-				input DIB0 = CELL[5].IMUX_B[5];
-				input DIB1 = CELL[5].IMUX_D[6];
-				input DIB2 = CELL[5].IMUX_B[7];
-				input DIB3 = CELL[6].IMUX_D[0];
-				input DIB4 = CELL[6].IMUX_B[1];
-				input DIB5 = CELL[6].IMUX_D[2];
-				input DIB6 = CELL[6].IMUX_B[3];
-				input DIB7 = CELL[6].IMUX_D[4];
-				input DIB8 = CELL[6].IMUX_B[5];
-				output DOA0 = CELL[4].OUT_F[4];
-				output DOA1 = CELL[4].OUT_F[5];
-				output DOA2 = CELL[4].OUT_F[6];
-				output DOA3 = CELL[4].OUT_F[7];
-				output DOA4 = CELL[5].OUT_F[0];
-				output DOA5 = CELL[5].OUT_F[1];
-				output DOA6 = CELL[5].OUT_F[2];
-				output DOA7 = CELL[5].OUT_F[3];
-				output DOA8 = CELL[5].OUT_F[4];
-				output DOB0 = CELL[5].OUT_F[5];
-				output DOB1 = CELL[5].OUT_F[6];
-				output DOB2 = CELL[5].OUT_F[7];
-				output DOB3 = CELL[6].OUT_F[0];
-				output DOB4 = CELL[6].OUT_F[1];
-				output DOB5 = CELL[6].OUT_F[2];
-				output DOB6 = CELL[6].OUT_F[3];
-				output DOB7 = CELL[6].OUT_F[4];
-				output DOB8 = CELL[6].OUT_F[5];
-				input OCEA = CELL[5].IMUX_CE[0];
-				input OCEB = CELL[6].IMUX_CE[0];
 				input RSTA = CELL[5].IMUX_LSR[0];
 				input RSTB = CELL[6].IMUX_LSR[0];
+				input CEA = CELL[5].IMUX_CE[1];
+				input CEB = CELL[6].IMUX_CE[1];
 				input WEA = CELL[5].IMUX_LSR[1];
 				input WEB = CELL[6].IMUX_LSR[1];
+				input OCEA = CELL[5].IMUX_CE[0];
+				input OCEB = CELL[6].IMUX_CE[0];
+				input CSA[0] = CELL[4].IMUX_CE[2];
+				input CSA[1] = CELL[4].IMUX_CE[3];
+				input CSA[2] = CELL[4].IMUX_CLK[1];
+				input CSB[0] = CELL[5].IMUX_CE[2];
+				input CSB[1] = CELL[5].IMUX_CE[3];
+				input CSB[2] = CELL[4].IMUX_LSR[1];
+				input ADA[0] = CELL[5].IMUX_D[3];
+				input ADA[1] = CELL[5].IMUX_B[4];
+				input ADA[2] = CELL[5].IMUX_D[7];
+				input ADA[3] = CELL[5].IMUX_A[7];
+				input ADA[4] = CELL[5].IMUX_C[0];
+				input ADA[5] = CELL[5].IMUX_A[1];
+				input ADA[6] = CELL[5].IMUX_C[2];
+				input ADA[7] = CELL[5].IMUX_A[3];
+				input ADA[8] = CELL[5].IMUX_D[1];
+				input ADA[9] = CELL[5].IMUX_B[1];
+				input ADA[10] = CELL[5].IMUX_D[5];
+				input ADA[11] = CELL[5].IMUX_B[6];
+				input ADA[12] = CELL[5].IMUX_C[7];
+				input ADB[0] = CELL[6].IMUX_D[3];
+				input ADB[1] = CELL[6].IMUX_D[7];
+				input ADB[2] = CELL[6].IMUX_B[4];
+				input ADB[3] = CELL[6].IMUX_A[7];
+				input ADB[4] = CELL[6].IMUX_C[0];
+				input ADB[5] = CELL[6].IMUX_A[0];
+				input ADB[6] = CELL[6].IMUX_C[4];
+				input ADB[7] = CELL[6].IMUX_A[4];
+				input ADB[8] = CELL[6].IMUX_D[1];
+				input ADB[9] = CELL[6].IMUX_B[0];
+				input ADB[10] = CELL[6].IMUX_D[5];
+				input ADB[11] = CELL[6].IMUX_B[6];
+				input ADB[12] = CELL[6].IMUX_C[7];
+				input DIA[0] = CELL[4].IMUX_D[4];
+				input DIA[1] = CELL[4].IMUX_B[5];
+				input DIA[2] = CELL[4].IMUX_D[6];
+				input DIA[3] = CELL[4].IMUX_B[7];
+				input DIA[4] = CELL[5].IMUX_D[0];
+				input DIA[5] = CELL[5].IMUX_B[0];
+				input DIA[6] = CELL[5].IMUX_D[2];
+				input DIA[7] = CELL[5].IMUX_B[2];
+				input DIA[8] = CELL[5].IMUX_D[4];
+				input DIB[0] = CELL[5].IMUX_B[5];
+				input DIB[1] = CELL[5].IMUX_D[6];
+				input DIB[2] = CELL[5].IMUX_B[7];
+				input DIB[3] = CELL[6].IMUX_D[0];
+				input DIB[4] = CELL[6].IMUX_B[1];
+				input DIB[5] = CELL[6].IMUX_D[2];
+				input DIB[6] = CELL[6].IMUX_B[3];
+				input DIB[7] = CELL[6].IMUX_D[4];
+				input DIB[8] = CELL[6].IMUX_B[5];
+				output DOA[0] = CELL[4].OUT_F[4];
+				output DOA[1] = CELL[4].OUT_F[5];
+				output DOA[2] = CELL[4].OUT_F[6];
+				output DOA[3] = CELL[4].OUT_F[7];
+				output DOA[4] = CELL[5].OUT_F[0];
+				output DOA[5] = CELL[5].OUT_F[1];
+				output DOA[6] = CELL[5].OUT_F[2];
+				output DOA[7] = CELL[5].OUT_F[3];
+				output DOA[8] = CELL[5].OUT_F[4];
+				output DOB[0] = CELL[5].OUT_F[5];
+				output DOB[1] = CELL[5].OUT_F[6];
+				output DOB[2] = CELL[5].OUT_F[7];
+				output DOB[3] = CELL[6].OUT_F[0];
+				output DOB[4] = CELL[6].OUT_F[1];
+				output DOB[5] = CELL[6].OUT_F[2];
+				output DOB[6] = CELL[6].OUT_F[3];
+				output DOB[7] = CELL[6].OUT_F[4];
+				output DOB[8] = CELL[6].OUT_F[5];
 			}
 
 			bel EBR[3] {
-				input ADA0 = CELL[7].IMUX_B[2];
-				input ADA1 = CELL[7].IMUX_B[4];
-				input ADA10 = CELL[7].IMUX_D[5];
-				input ADA11 = CELL[7].IMUX_B[6];
-				input ADA12 = CELL[7].IMUX_C[7];
-				input ADA2 = CELL[7].IMUX_D[7];
-				input ADA3 = CELL[7].IMUX_A[7];
-				input ADA4 = CELL[7].IMUX_C[0];
-				input ADA5 = CELL[7].IMUX_A[1];
-				input ADA6 = CELL[7].IMUX_C[2];
-				input ADA7 = CELL[7].IMUX_A[3];
-				input ADA8 = CELL[7].IMUX_D[1];
-				input ADA9 = CELL[7].IMUX_B[0];
-				input ADB0 = CELL[8].IMUX_D[3];
-				input ADB1 = CELL[8].IMUX_D[7];
-				input ADB10 = CELL[8].IMUX_D[5];
-				input ADB11 = CELL[8].IMUX_B[6];
-				input ADB12 = CELL[8].IMUX_C[7];
-				input ADB2 = CELL[8].IMUX_B[4];
-				input ADB3 = CELL[8].IMUX_A[7];
-				input ADB4 = CELL[8].IMUX_C[0];
-				input ADB5 = CELL[8].IMUX_A[0];
-				input ADB6 = CELL[8].IMUX_C[4];
-				input ADB7 = CELL[8].IMUX_A[4];
-				input ADB8 = CELL[8].IMUX_D[1];
-				input ADB9 = CELL[8].IMUX_B[0];
-				input CEA = CELL[7].IMUX_CE[1];
-				input CEB = CELL[8].IMUX_CE[1];
 				input CLKA = CELL[7].IMUX_CLK[0];
 				input CLKB = CELL[8].IMUX_CLK[0];
-				input CSA0 = CELL[7].IMUX_CE[2];
-				input CSA1 = CELL[6].IMUX_CE[2];
-				input CSA2 = CELL[6].IMUX_CE[3];
-				input CSB0 = CELL[8].IMUX_CE[2];
-				input CSB1 = CELL[8].IMUX_CE[3];
-				input CSB2 = CELL[7].IMUX_CE[3];
-				input DIA0 = CELL[6].IMUX_D[6];
-				input DIA1 = CELL[6].IMUX_B[7];
-				input DIA2 = CELL[7].IMUX_D[0];
-				input DIA3 = CELL[7].IMUX_B[1];
-				input DIA4 = CELL[7].IMUX_D[2];
-				input DIA5 = CELL[7].IMUX_B[3];
-				input DIA6 = CELL[7].IMUX_D[4];
-				input DIA7 = CELL[7].IMUX_B[5];
-				input DIA8 = CELL[7].IMUX_D[6];
-				input DIB0 = CELL[7].IMUX_B[7];
-				input DIB1 = CELL[8].IMUX_D[0];
-				input DIB2 = CELL[8].IMUX_B[1];
-				input DIB3 = CELL[8].IMUX_D[2];
-				input DIB4 = CELL[8].IMUX_B[3];
-				input DIB5 = CELL[8].IMUX_D[4];
-				input DIB6 = CELL[8].IMUX_B[5];
-				input DIB7 = CELL[8].IMUX_D[6];
-				input DIB8 = CELL[8].IMUX_B[7];
-				output DOA0 = CELL[6].OUT_F[6];
-				output DOA1 = CELL[6].OUT_F[7];
-				output DOA2 = CELL[7].OUT_F[0];
-				output DOA3 = CELL[7].OUT_F[1];
-				output DOA4 = CELL[7].OUT_F[2];
-				output DOA5 = CELL[7].OUT_F[3];
-				output DOA6 = CELL[7].OUT_F[4];
-				output DOA7 = CELL[7].OUT_F[5];
-				output DOA8 = CELL[7].OUT_F[6];
-				output DOB0 = CELL[7].OUT_F[7];
-				output DOB1 = CELL[8].OUT_F[0];
-				output DOB2 = CELL[8].OUT_F[1];
-				output DOB3 = CELL[8].OUT_F[2];
-				output DOB4 = CELL[8].OUT_F[3];
-				output DOB5 = CELL[8].OUT_F[4];
-				output DOB6 = CELL[8].OUT_F[5];
-				output DOB7 = CELL[8].OUT_F[6];
-				output DOB8 = CELL[8].OUT_F[7];
-				input OCEA = CELL[7].IMUX_CE[0];
-				input OCEB = CELL[8].IMUX_CE[0];
 				input RSTA = CELL[7].IMUX_LSR[0];
 				input RSTB = CELL[8].IMUX_LSR[0];
+				input CEA = CELL[7].IMUX_CE[1];
+				input CEB = CELL[8].IMUX_CE[1];
 				input WEA = CELL[7].IMUX_LSR[1];
 				input WEB = CELL[8].IMUX_LSR[1];
+				input OCEA = CELL[7].IMUX_CE[0];
+				input OCEB = CELL[8].IMUX_CE[0];
+				input CSA[0] = CELL[7].IMUX_CE[2];
+				input CSA[1] = CELL[6].IMUX_CE[2];
+				input CSA[2] = CELL[6].IMUX_CE[3];
+				input CSB[0] = CELL[8].IMUX_CE[2];
+				input CSB[1] = CELL[8].IMUX_CE[3];
+				input CSB[2] = CELL[7].IMUX_CE[3];
+				input ADA[0] = CELL[7].IMUX_B[2];
+				input ADA[1] = CELL[7].IMUX_B[4];
+				input ADA[2] = CELL[7].IMUX_D[7];
+				input ADA[3] = CELL[7].IMUX_A[7];
+				input ADA[4] = CELL[7].IMUX_C[0];
+				input ADA[5] = CELL[7].IMUX_A[1];
+				input ADA[6] = CELL[7].IMUX_C[2];
+				input ADA[7] = CELL[7].IMUX_A[3];
+				input ADA[8] = CELL[7].IMUX_D[1];
+				input ADA[9] = CELL[7].IMUX_B[0];
+				input ADA[10] = CELL[7].IMUX_D[5];
+				input ADA[11] = CELL[7].IMUX_B[6];
+				input ADA[12] = CELL[7].IMUX_C[7];
+				input ADB[0] = CELL[8].IMUX_D[3];
+				input ADB[1] = CELL[8].IMUX_D[7];
+				input ADB[2] = CELL[8].IMUX_B[4];
+				input ADB[3] = CELL[8].IMUX_A[7];
+				input ADB[4] = CELL[8].IMUX_C[0];
+				input ADB[5] = CELL[8].IMUX_A[0];
+				input ADB[6] = CELL[8].IMUX_C[4];
+				input ADB[7] = CELL[8].IMUX_A[4];
+				input ADB[8] = CELL[8].IMUX_D[1];
+				input ADB[9] = CELL[8].IMUX_B[0];
+				input ADB[10] = CELL[8].IMUX_D[5];
+				input ADB[11] = CELL[8].IMUX_B[6];
+				input ADB[12] = CELL[8].IMUX_C[7];
+				input DIA[0] = CELL[6].IMUX_D[6];
+				input DIA[1] = CELL[6].IMUX_B[7];
+				input DIA[2] = CELL[7].IMUX_D[0];
+				input DIA[3] = CELL[7].IMUX_B[1];
+				input DIA[4] = CELL[7].IMUX_D[2];
+				input DIA[5] = CELL[7].IMUX_B[3];
+				input DIA[6] = CELL[7].IMUX_D[4];
+				input DIA[7] = CELL[7].IMUX_B[5];
+				input DIA[8] = CELL[7].IMUX_D[6];
+				input DIB[0] = CELL[7].IMUX_B[7];
+				input DIB[1] = CELL[8].IMUX_D[0];
+				input DIB[2] = CELL[8].IMUX_B[1];
+				input DIB[3] = CELL[8].IMUX_D[2];
+				input DIB[4] = CELL[8].IMUX_B[3];
+				input DIB[5] = CELL[8].IMUX_D[4];
+				input DIB[6] = CELL[8].IMUX_B[5];
+				input DIB[7] = CELL[8].IMUX_D[6];
+				input DIB[8] = CELL[8].IMUX_B[7];
+				output DOA[0] = CELL[6].OUT_F[6];
+				output DOA[1] = CELL[6].OUT_F[7];
+				output DOA[2] = CELL[7].OUT_F[0];
+				output DOA[3] = CELL[7].OUT_F[1];
+				output DOA[4] = CELL[7].OUT_F[2];
+				output DOA[5] = CELL[7].OUT_F[3];
+				output DOA[6] = CELL[7].OUT_F[4];
+				output DOA[7] = CELL[7].OUT_F[5];
+				output DOA[8] = CELL[7].OUT_F[6];
+				output DOB[0] = CELL[7].OUT_F[7];
+				output DOB[1] = CELL[8].OUT_F[0];
+				output DOB[2] = CELL[8].OUT_F[1];
+				output DOB[3] = CELL[8].OUT_F[2];
+				output DOB[4] = CELL[8].OUT_F[3];
+				output DOB[5] = CELL[8].OUT_F[4];
+				output DOB[6] = CELL[8].OUT_F[5];
+				output DOB[7] = CELL[8].OUT_F[6];
+				output DOB[8] = CELL[8].OUT_F[7];
 			}
 
-			// wire CELL[0].IMUX_A[1]              EBR[0].ADA5
-			// wire CELL[0].IMUX_A[3]              EBR[0].ADA7
-			// wire CELL[0].IMUX_A[7]              EBR[0].ADA3
-			// wire CELL[0].IMUX_B[0]              EBR[0].ADA9
-			// wire CELL[0].IMUX_B[1]              EBR[0].DIA1
-			// wire CELL[0].IMUX_B[2]              EBR[0].ADA0
-			// wire CELL[0].IMUX_B[3]              EBR[0].DIA3
-			// wire CELL[0].IMUX_B[4]              EBR[0].ADA1
-			// wire CELL[0].IMUX_B[5]              EBR[0].DIA5
-			// wire CELL[0].IMUX_B[6]              EBR[0].ADA11
-			// wire CELL[0].IMUX_B[7]              EBR[0].DIA7
-			// wire CELL[0].IMUX_C[0]              EBR[0].ADA4
-			// wire CELL[0].IMUX_C[2]              EBR[0].ADA6
-			// wire CELL[0].IMUX_C[7]              EBR[0].ADA12
-			// wire CELL[0].IMUX_D[0]              EBR[0].DIA0
-			// wire CELL[0].IMUX_D[1]              EBR[0].ADA8
-			// wire CELL[0].IMUX_D[2]              EBR[0].DIA2
-			// wire CELL[0].IMUX_D[4]              EBR[0].DIA4
-			// wire CELL[0].IMUX_D[5]              EBR[0].ADA10
-			// wire CELL[0].IMUX_D[6]              EBR[0].DIA6
-			// wire CELL[0].IMUX_D[7]              EBR[0].ADA2
+			// wire CELL[0].IMUX_A[1]              EBR[0].ADA[5]
+			// wire CELL[0].IMUX_A[3]              EBR[0].ADA[7]
+			// wire CELL[0].IMUX_A[7]              EBR[0].ADA[3]
+			// wire CELL[0].IMUX_B[0]              EBR[0].ADA[9]
+			// wire CELL[0].IMUX_B[1]              EBR[0].DIA[1]
+			// wire CELL[0].IMUX_B[2]              EBR[0].ADA[0]
+			// wire CELL[0].IMUX_B[3]              EBR[0].DIA[3]
+			// wire CELL[0].IMUX_B[4]              EBR[0].ADA[1]
+			// wire CELL[0].IMUX_B[5]              EBR[0].DIA[5]
+			// wire CELL[0].IMUX_B[6]              EBR[0].ADA[11]
+			// wire CELL[0].IMUX_B[7]              EBR[0].DIA[7]
+			// wire CELL[0].IMUX_C[0]              EBR[0].ADA[4]
+			// wire CELL[0].IMUX_C[2]              EBR[0].ADA[6]
+			// wire CELL[0].IMUX_C[7]              EBR[0].ADA[12]
+			// wire CELL[0].IMUX_D[0]              EBR[0].DIA[0]
+			// wire CELL[0].IMUX_D[1]              EBR[0].ADA[8]
+			// wire CELL[0].IMUX_D[2]              EBR[0].DIA[2]
+			// wire CELL[0].IMUX_D[4]              EBR[0].DIA[4]
+			// wire CELL[0].IMUX_D[5]              EBR[0].ADA[10]
+			// wire CELL[0].IMUX_D[6]              EBR[0].DIA[6]
+			// wire CELL[0].IMUX_D[7]              EBR[0].ADA[2]
 			// wire CELL[0].IMUX_CLK[0]            EBR[0].CLKA
 			// wire CELL[0].IMUX_LSR[0]            EBR[0].RSTA
 			// wire CELL[0].IMUX_LSR[1]            EBR[0].WEA
 			// wire CELL[0].IMUX_CE[0]             EBR[0].OCEA
 			// wire CELL[0].IMUX_CE[1]             EBR[0].CEA
-			// wire CELL[0].IMUX_CE[2]             EBR[0].CSA0
-			// wire CELL[0].IMUX_CE[3]             EBR[0].CSA1
-			// wire CELL[0].OUT_F[0]               EBR[0].DOA0
-			// wire CELL[0].OUT_F[1]               EBR[0].DOA1
-			// wire CELL[0].OUT_F[2]               EBR[0].DOA2
-			// wire CELL[0].OUT_F[3]               EBR[0].DOA3
-			// wire CELL[0].OUT_F[4]               EBR[0].DOA4
-			// wire CELL[0].OUT_F[5]               EBR[0].DOA5
-			// wire CELL[0].OUT_F[6]               EBR[0].DOA6
-			// wire CELL[0].OUT_F[7]               EBR[0].DOA7
-			// wire CELL[1].IMUX_A[0]              EBR[0].ADB5
-			// wire CELL[1].IMUX_A[4]              EBR[0].ADB7
-			// wire CELL[1].IMUX_A[7]              EBR[0].ADB3
-			// wire CELL[1].IMUX_B[0]              EBR[0].ADB9
-			// wire CELL[1].IMUX_B[1]              EBR[0].DIB0
-			// wire CELL[1].IMUX_B[3]              EBR[0].DIB2
-			// wire CELL[1].IMUX_B[4]              EBR[0].ADB2
-			// wire CELL[1].IMUX_B[5]              EBR[0].DIB4
-			// wire CELL[1].IMUX_B[6]              EBR[0].ADB11
-			// wire CELL[1].IMUX_B[7]              EBR[0].DIB6
-			// wire CELL[1].IMUX_C[0]              EBR[0].ADB4
-			// wire CELL[1].IMUX_C[4]              EBR[0].ADB6
-			// wire CELL[1].IMUX_C[7]              EBR[0].ADB12
-			// wire CELL[1].IMUX_D[0]              EBR[0].DIA8
-			// wire CELL[1].IMUX_D[1]              EBR[0].ADB8
-			// wire CELL[1].IMUX_D[2]              EBR[0].DIB1
-			// wire CELL[1].IMUX_D[3]              EBR[0].ADB0
-			// wire CELL[1].IMUX_D[4]              EBR[0].DIB3
-			// wire CELL[1].IMUX_D[5]              EBR[0].ADB10
-			// wire CELL[1].IMUX_D[6]              EBR[0].DIB5
-			// wire CELL[1].IMUX_D[7]              EBR[0].ADB1
+			// wire CELL[0].IMUX_CE[2]             EBR[0].CSA[0]
+			// wire CELL[0].IMUX_CE[3]             EBR[0].CSA[1]
+			// wire CELL[0].OUT_F[0]               EBR[0].DOA[0]
+			// wire CELL[0].OUT_F[1]               EBR[0].DOA[1]
+			// wire CELL[0].OUT_F[2]               EBR[0].DOA[2]
+			// wire CELL[0].OUT_F[3]               EBR[0].DOA[3]
+			// wire CELL[0].OUT_F[4]               EBR[0].DOA[4]
+			// wire CELL[0].OUT_F[5]               EBR[0].DOA[5]
+			// wire CELL[0].OUT_F[6]               EBR[0].DOA[6]
+			// wire CELL[0].OUT_F[7]               EBR[0].DOA[7]
+			// wire CELL[1].IMUX_A[0]              EBR[0].ADB[5]
+			// wire CELL[1].IMUX_A[4]              EBR[0].ADB[7]
+			// wire CELL[1].IMUX_A[7]              EBR[0].ADB[3]
+			// wire CELL[1].IMUX_B[0]              EBR[0].ADB[9]
+			// wire CELL[1].IMUX_B[1]              EBR[0].DIB[0]
+			// wire CELL[1].IMUX_B[3]              EBR[0].DIB[2]
+			// wire CELL[1].IMUX_B[4]              EBR[0].ADB[2]
+			// wire CELL[1].IMUX_B[5]              EBR[0].DIB[4]
+			// wire CELL[1].IMUX_B[6]              EBR[0].ADB[11]
+			// wire CELL[1].IMUX_B[7]              EBR[0].DIB[6]
+			// wire CELL[1].IMUX_C[0]              EBR[0].ADB[4]
+			// wire CELL[1].IMUX_C[4]              EBR[0].ADB[6]
+			// wire CELL[1].IMUX_C[7]              EBR[0].ADB[12]
+			// wire CELL[1].IMUX_D[0]              EBR[0].DIA[8]
+			// wire CELL[1].IMUX_D[1]              EBR[0].ADB[8]
+			// wire CELL[1].IMUX_D[2]              EBR[0].DIB[1]
+			// wire CELL[1].IMUX_D[3]              EBR[0].ADB[0]
+			// wire CELL[1].IMUX_D[4]              EBR[0].DIB[3]
+			// wire CELL[1].IMUX_D[5]              EBR[0].ADB[10]
+			// wire CELL[1].IMUX_D[6]              EBR[0].DIB[5]
+			// wire CELL[1].IMUX_D[7]              EBR[0].ADB[1]
 			// wire CELL[1].IMUX_CLK[0]            EBR[0].CLKB
 			// wire CELL[1].IMUX_LSR[0]            EBR[0].RSTB
 			// wire CELL[1].IMUX_LSR[1]            EBR[0].WEB
 			// wire CELL[1].IMUX_CE[0]             EBR[0].OCEB
 			// wire CELL[1].IMUX_CE[1]             EBR[0].CEB
-			// wire CELL[1].IMUX_CE[2]             EBR[0].CSB0
-			// wire CELL[1].IMUX_CE[3]             EBR[0].CSA2
-			// wire CELL[1].OUT_F[0]               EBR[0].DOA8
-			// wire CELL[1].OUT_F[1]               EBR[0].DOB0
-			// wire CELL[1].OUT_F[2]               EBR[0].DOB1
-			// wire CELL[1].OUT_F[3]               EBR[0].DOB2
-			// wire CELL[1].OUT_F[4]               EBR[0].DOB3
-			// wire CELL[1].OUT_F[5]               EBR[0].DOB4
-			// wire CELL[1].OUT_F[6]               EBR[0].DOB5
-			// wire CELL[1].OUT_F[7]               EBR[0].DOB6
-			// wire CELL[2].IMUX_A[1]              EBR[1].ADA5
-			// wire CELL[2].IMUX_A[3]              EBR[1].ADA7
-			// wire CELL[2].IMUX_A[7]              EBR[1].ADA3
-			// wire CELL[2].IMUX_B[0]              EBR[1].ADA9
-			// wire CELL[2].IMUX_B[1]              EBR[0].DIB8
-			// wire CELL[2].IMUX_B[2]              EBR[1].ADA0
-			// wire CELL[2].IMUX_B[3]              EBR[1].DIA1
-			// wire CELL[2].IMUX_B[4]              EBR[1].ADA1
-			// wire CELL[2].IMUX_B[5]              EBR[1].DIA3
-			// wire CELL[2].IMUX_B[6]              EBR[1].ADA11
-			// wire CELL[2].IMUX_B[7]              EBR[1].DIA5
-			// wire CELL[2].IMUX_C[0]              EBR[1].ADA4
-			// wire CELL[2].IMUX_C[2]              EBR[1].ADA6
-			// wire CELL[2].IMUX_C[7]              EBR[1].ADA12
-			// wire CELL[2].IMUX_D[0]              EBR[0].DIB7
-			// wire CELL[2].IMUX_D[1]              EBR[1].ADA8
-			// wire CELL[2].IMUX_D[2]              EBR[1].DIA0
-			// wire CELL[2].IMUX_D[4]              EBR[1].DIA2
-			// wire CELL[2].IMUX_D[5]              EBR[1].ADA10
-			// wire CELL[2].IMUX_D[6]              EBR[1].DIA4
-			// wire CELL[2].IMUX_D[7]              EBR[1].ADA2
+			// wire CELL[1].IMUX_CE[2]             EBR[0].CSB[0]
+			// wire CELL[1].IMUX_CE[3]             EBR[0].CSA[2]
+			// wire CELL[1].OUT_F[0]               EBR[0].DOA[8]
+			// wire CELL[1].OUT_F[1]               EBR[0].DOB[0]
+			// wire CELL[1].OUT_F[2]               EBR[0].DOB[1]
+			// wire CELL[1].OUT_F[3]               EBR[0].DOB[2]
+			// wire CELL[1].OUT_F[4]               EBR[0].DOB[3]
+			// wire CELL[1].OUT_F[5]               EBR[0].DOB[4]
+			// wire CELL[1].OUT_F[6]               EBR[0].DOB[5]
+			// wire CELL[1].OUT_F[7]               EBR[0].DOB[6]
+			// wire CELL[2].IMUX_A[1]              EBR[1].ADA[5]
+			// wire CELL[2].IMUX_A[3]              EBR[1].ADA[7]
+			// wire CELL[2].IMUX_A[7]              EBR[1].ADA[3]
+			// wire CELL[2].IMUX_B[0]              EBR[1].ADA[9]
+			// wire CELL[2].IMUX_B[1]              EBR[0].DIB[8]
+			// wire CELL[2].IMUX_B[2]              EBR[1].ADA[0]
+			// wire CELL[2].IMUX_B[3]              EBR[1].DIA[1]
+			// wire CELL[2].IMUX_B[4]              EBR[1].ADA[1]
+			// wire CELL[2].IMUX_B[5]              EBR[1].DIA[3]
+			// wire CELL[2].IMUX_B[6]              EBR[1].ADA[11]
+			// wire CELL[2].IMUX_B[7]              EBR[1].DIA[5]
+			// wire CELL[2].IMUX_C[0]              EBR[1].ADA[4]
+			// wire CELL[2].IMUX_C[2]              EBR[1].ADA[6]
+			// wire CELL[2].IMUX_C[7]              EBR[1].ADA[12]
+			// wire CELL[2].IMUX_D[0]              EBR[0].DIB[7]
+			// wire CELL[2].IMUX_D[1]              EBR[1].ADA[8]
+			// wire CELL[2].IMUX_D[2]              EBR[1].DIA[0]
+			// wire CELL[2].IMUX_D[4]              EBR[1].DIA[2]
+			// wire CELL[2].IMUX_D[5]              EBR[1].ADA[10]
+			// wire CELL[2].IMUX_D[6]              EBR[1].DIA[4]
+			// wire CELL[2].IMUX_D[7]              EBR[1].ADA[2]
 			// wire CELL[2].IMUX_CLK[0]            EBR[1].CLKA
 			// wire CELL[2].IMUX_LSR[0]            EBR[1].RSTA
 			// wire CELL[2].IMUX_LSR[1]            EBR[1].WEA
 			// wire CELL[2].IMUX_CE[0]             EBR[1].OCEA
 			// wire CELL[2].IMUX_CE[1]             EBR[1].CEA
-			// wire CELL[2].IMUX_CE[2]             EBR[0].CSB1
-			// wire CELL[2].IMUX_CE[3]             EBR[0].CSB2
-			// wire CELL[2].OUT_F[0]               EBR[0].DOB7
-			// wire CELL[2].OUT_F[1]               EBR[0].DOB8
-			// wire CELL[2].OUT_F[2]               EBR[1].DOA0
-			// wire CELL[2].OUT_F[3]               EBR[1].DOA1
-			// wire CELL[2].OUT_F[4]               EBR[1].DOA2
-			// wire CELL[2].OUT_F[5]               EBR[1].DOA3
-			// wire CELL[2].OUT_F[6]               EBR[1].DOA4
-			// wire CELL[2].OUT_F[7]               EBR[1].DOA5
-			// wire CELL[3].IMUX_A[0]              EBR[1].ADB5
-			// wire CELL[3].IMUX_A[4]              EBR[1].ADB7
-			// wire CELL[3].IMUX_B[0]              EBR[1].ADB9
-			// wire CELL[3].IMUX_B[1]              EBR[1].DIA7
-			// wire CELL[3].IMUX_B[3]              EBR[1].DIB0
-			// wire CELL[3].IMUX_B[5]              EBR[1].DIB2
-			// wire CELL[3].IMUX_B[6]              EBR[1].ADB11
-			// wire CELL[3].IMUX_B[7]              EBR[1].DIB4
-			// wire CELL[3].IMUX_C[0]              EBR[1].ADB4
-			// wire CELL[3].IMUX_C[4]              EBR[1].ADB6
-			// wire CELL[3].IMUX_C[7]              EBR[1].ADB12
-			// wire CELL[3].IMUX_D[0]              EBR[1].DIA6
-			// wire CELL[3].IMUX_D[1]              EBR[1].ADB8
-			// wire CELL[3].IMUX_D[2]              EBR[1].DIA8
-			// wire CELL[3].IMUX_D[4]              EBR[1].DIB1
-			// wire CELL[3].IMUX_D[5]              EBR[1].ADB10
-			// wire CELL[3].IMUX_D[6]              EBR[1].DIB3
+			// wire CELL[2].IMUX_CE[2]             EBR[0].CSB[1]
+			// wire CELL[2].IMUX_CE[3]             EBR[0].CSB[2]
+			// wire CELL[2].OUT_F[0]               EBR[0].DOB[7]
+			// wire CELL[2].OUT_F[1]               EBR[0].DOB[8]
+			// wire CELL[2].OUT_F[2]               EBR[1].DOA[0]
+			// wire CELL[2].OUT_F[3]               EBR[1].DOA[1]
+			// wire CELL[2].OUT_F[4]               EBR[1].DOA[2]
+			// wire CELL[2].OUT_F[5]               EBR[1].DOA[3]
+			// wire CELL[2].OUT_F[6]               EBR[1].DOA[4]
+			// wire CELL[2].OUT_F[7]               EBR[1].DOA[5]
+			// wire CELL[3].IMUX_A[0]              EBR[1].ADB[5]
+			// wire CELL[3].IMUX_A[4]              EBR[1].ADB[7]
+			// wire CELL[3].IMUX_B[0]              EBR[1].ADB[9]
+			// wire CELL[3].IMUX_B[1]              EBR[1].DIA[7]
+			// wire CELL[3].IMUX_B[3]              EBR[1].DIB[0]
+			// wire CELL[3].IMUX_B[5]              EBR[1].DIB[2]
+			// wire CELL[3].IMUX_B[6]              EBR[1].ADB[11]
+			// wire CELL[3].IMUX_B[7]              EBR[1].DIB[4]
+			// wire CELL[3].IMUX_C[0]              EBR[1].ADB[4]
+			// wire CELL[3].IMUX_C[4]              EBR[1].ADB[6]
+			// wire CELL[3].IMUX_C[7]              EBR[1].ADB[12]
+			// wire CELL[3].IMUX_D[0]              EBR[1].DIA[6]
+			// wire CELL[3].IMUX_D[1]              EBR[1].ADB[8]
+			// wire CELL[3].IMUX_D[2]              EBR[1].DIA[8]
+			// wire CELL[3].IMUX_D[4]              EBR[1].DIB[1]
+			// wire CELL[3].IMUX_D[5]              EBR[1].ADB[10]
+			// wire CELL[3].IMUX_D[6]              EBR[1].DIB[3]
 			// wire CELL[3].IMUX_CLK[0]            EBR[1].CLKB
 			// wire CELL[3].IMUX_LSR[0]            EBR[1].RSTB
 			// wire CELL[3].IMUX_LSR[1]            EBR[1].WEB
 			// wire CELL[3].IMUX_CE[0]             EBR[1].OCEB
 			// wire CELL[3].IMUX_CE[1]             EBR[1].CEB
-			// wire CELL[3].IMUX_CE[2]             EBR[1].CSA0
-			// wire CELL[3].IMUX_CE[3]             EBR[1].CSA1
-			// wire CELL[3].OUT_F[0]               EBR[1].DOA6
-			// wire CELL[3].OUT_F[1]               EBR[1].DOA7
-			// wire CELL[3].OUT_F[2]               EBR[1].DOA8
-			// wire CELL[3].OUT_F[3]               EBR[1].DOB0
-			// wire CELL[3].OUT_F[4]               EBR[1].DOB1
-			// wire CELL[3].OUT_F[5]               EBR[1].DOB2
-			// wire CELL[3].OUT_F[6]               EBR[1].DOB3
-			// wire CELL[3].OUT_F[7]               EBR[1].DOB4
-			// wire CELL[4].IMUX_A[7]              EBR[1].ADB3
-			// wire CELL[4].IMUX_B[1]              EBR[1].DIB6
-			// wire CELL[4].IMUX_B[2]              EBR[1].ADB2
-			// wire CELL[4].IMUX_B[3]              EBR[1].DIB8
-			// wire CELL[4].IMUX_B[5]              EBR[2].DIA1
-			// wire CELL[4].IMUX_B[7]              EBR[2].DIA3
-			// wire CELL[4].IMUX_D[0]              EBR[1].DIB5
-			// wire CELL[4].IMUX_D[2]              EBR[1].DIB7
-			// wire CELL[4].IMUX_D[3]              EBR[1].ADB0
-			// wire CELL[4].IMUX_D[4]              EBR[2].DIA0
-			// wire CELL[4].IMUX_D[6]              EBR[2].DIA2
-			// wire CELL[4].IMUX_D[7]              EBR[1].ADB1
-			// wire CELL[4].IMUX_CLK[0]            EBR[1].CSA2
-			// wire CELL[4].IMUX_CLK[1]            EBR[2].CSA2
-			// wire CELL[4].IMUX_LSR[0]            EBR[1].CSB2
-			// wire CELL[4].IMUX_LSR[1]            EBR[2].CSB2
-			// wire CELL[4].IMUX_CE[0]             EBR[1].CSB0
-			// wire CELL[4].IMUX_CE[1]             EBR[1].CSB1
-			// wire CELL[4].IMUX_CE[2]             EBR[2].CSA0
-			// wire CELL[4].IMUX_CE[3]             EBR[2].CSA1
-			// wire CELL[4].OUT_F[0]               EBR[1].DOB5
-			// wire CELL[4].OUT_F[1]               EBR[1].DOB6
-			// wire CELL[4].OUT_F[2]               EBR[1].DOB7
-			// wire CELL[4].OUT_F[3]               EBR[1].DOB8
-			// wire CELL[4].OUT_F[4]               EBR[2].DOA0
-			// wire CELL[4].OUT_F[5]               EBR[2].DOA1
-			// wire CELL[4].OUT_F[6]               EBR[2].DOA2
-			// wire CELL[4].OUT_F[7]               EBR[2].DOA3
-			// wire CELL[5].IMUX_A[1]              EBR[2].ADA5
-			// wire CELL[5].IMUX_A[3]              EBR[2].ADA7
-			// wire CELL[5].IMUX_A[7]              EBR[2].ADA3
-			// wire CELL[5].IMUX_B[0]              EBR[2].DIA5
-			// wire CELL[5].IMUX_B[1]              EBR[2].ADA9
-			// wire CELL[5].IMUX_B[2]              EBR[2].DIA7
-			// wire CELL[5].IMUX_B[4]              EBR[2].ADA1
-			// wire CELL[5].IMUX_B[5]              EBR[2].DIB0
-			// wire CELL[5].IMUX_B[6]              EBR[2].ADA11
-			// wire CELL[5].IMUX_B[7]              EBR[2].DIB2
-			// wire CELL[5].IMUX_C[0]              EBR[2].ADA4
-			// wire CELL[5].IMUX_C[2]              EBR[2].ADA6
-			// wire CELL[5].IMUX_C[7]              EBR[2].ADA12
-			// wire CELL[5].IMUX_D[0]              EBR[2].DIA4
-			// wire CELL[5].IMUX_D[1]              EBR[2].ADA8
-			// wire CELL[5].IMUX_D[2]              EBR[2].DIA6
-			// wire CELL[5].IMUX_D[3]              EBR[2].ADA0
-			// wire CELL[5].IMUX_D[4]              EBR[2].DIA8
-			// wire CELL[5].IMUX_D[5]              EBR[2].ADA10
-			// wire CELL[5].IMUX_D[6]              EBR[2].DIB1
-			// wire CELL[5].IMUX_D[7]              EBR[2].ADA2
+			// wire CELL[3].IMUX_CE[2]             EBR[1].CSA[0]
+			// wire CELL[3].IMUX_CE[3]             EBR[1].CSA[1]
+			// wire CELL[3].OUT_F[0]               EBR[1].DOA[6]
+			// wire CELL[3].OUT_F[1]               EBR[1].DOA[7]
+			// wire CELL[3].OUT_F[2]               EBR[1].DOA[8]
+			// wire CELL[3].OUT_F[3]               EBR[1].DOB[0]
+			// wire CELL[3].OUT_F[4]               EBR[1].DOB[1]
+			// wire CELL[3].OUT_F[5]               EBR[1].DOB[2]
+			// wire CELL[3].OUT_F[6]               EBR[1].DOB[3]
+			// wire CELL[3].OUT_F[7]               EBR[1].DOB[4]
+			// wire CELL[4].IMUX_A[7]              EBR[1].ADB[3]
+			// wire CELL[4].IMUX_B[1]              EBR[1].DIB[6]
+			// wire CELL[4].IMUX_B[2]              EBR[1].ADB[2]
+			// wire CELL[4].IMUX_B[3]              EBR[1].DIB[8]
+			// wire CELL[4].IMUX_B[5]              EBR[2].DIA[1]
+			// wire CELL[4].IMUX_B[7]              EBR[2].DIA[3]
+			// wire CELL[4].IMUX_D[0]              EBR[1].DIB[5]
+			// wire CELL[4].IMUX_D[2]              EBR[1].DIB[7]
+			// wire CELL[4].IMUX_D[3]              EBR[1].ADB[0]
+			// wire CELL[4].IMUX_D[4]              EBR[2].DIA[0]
+			// wire CELL[4].IMUX_D[6]              EBR[2].DIA[2]
+			// wire CELL[4].IMUX_D[7]              EBR[1].ADB[1]
+			// wire CELL[4].IMUX_CLK[0]            EBR[1].CSA[2]
+			// wire CELL[4].IMUX_CLK[1]            EBR[2].CSA[2]
+			// wire CELL[4].IMUX_LSR[0]            EBR[1].CSB[2]
+			// wire CELL[4].IMUX_LSR[1]            EBR[2].CSB[2]
+			// wire CELL[4].IMUX_CE[0]             EBR[1].CSB[0]
+			// wire CELL[4].IMUX_CE[1]             EBR[1].CSB[1]
+			// wire CELL[4].IMUX_CE[2]             EBR[2].CSA[0]
+			// wire CELL[4].IMUX_CE[3]             EBR[2].CSA[1]
+			// wire CELL[4].OUT_F[0]               EBR[1].DOB[5]
+			// wire CELL[4].OUT_F[1]               EBR[1].DOB[6]
+			// wire CELL[4].OUT_F[2]               EBR[1].DOB[7]
+			// wire CELL[4].OUT_F[3]               EBR[1].DOB[8]
+			// wire CELL[4].OUT_F[4]               EBR[2].DOA[0]
+			// wire CELL[4].OUT_F[5]               EBR[2].DOA[1]
+			// wire CELL[4].OUT_F[6]               EBR[2].DOA[2]
+			// wire CELL[4].OUT_F[7]               EBR[2].DOA[3]
+			// wire CELL[5].IMUX_A[1]              EBR[2].ADA[5]
+			// wire CELL[5].IMUX_A[3]              EBR[2].ADA[7]
+			// wire CELL[5].IMUX_A[7]              EBR[2].ADA[3]
+			// wire CELL[5].IMUX_B[0]              EBR[2].DIA[5]
+			// wire CELL[5].IMUX_B[1]              EBR[2].ADA[9]
+			// wire CELL[5].IMUX_B[2]              EBR[2].DIA[7]
+			// wire CELL[5].IMUX_B[4]              EBR[2].ADA[1]
+			// wire CELL[5].IMUX_B[5]              EBR[2].DIB[0]
+			// wire CELL[5].IMUX_B[6]              EBR[2].ADA[11]
+			// wire CELL[5].IMUX_B[7]              EBR[2].DIB[2]
+			// wire CELL[5].IMUX_C[0]              EBR[2].ADA[4]
+			// wire CELL[5].IMUX_C[2]              EBR[2].ADA[6]
+			// wire CELL[5].IMUX_C[7]              EBR[2].ADA[12]
+			// wire CELL[5].IMUX_D[0]              EBR[2].DIA[4]
+			// wire CELL[5].IMUX_D[1]              EBR[2].ADA[8]
+			// wire CELL[5].IMUX_D[2]              EBR[2].DIA[6]
+			// wire CELL[5].IMUX_D[3]              EBR[2].ADA[0]
+			// wire CELL[5].IMUX_D[4]              EBR[2].DIA[8]
+			// wire CELL[5].IMUX_D[5]              EBR[2].ADA[10]
+			// wire CELL[5].IMUX_D[6]              EBR[2].DIB[1]
+			// wire CELL[5].IMUX_D[7]              EBR[2].ADA[2]
 			// wire CELL[5].IMUX_CLK[0]            EBR[2].CLKA
 			// wire CELL[5].IMUX_LSR[0]            EBR[2].RSTA
 			// wire CELL[5].IMUX_LSR[1]            EBR[2].WEA
 			// wire CELL[5].IMUX_CE[0]             EBR[2].OCEA
 			// wire CELL[5].IMUX_CE[1]             EBR[2].CEA
-			// wire CELL[5].IMUX_CE[2]             EBR[2].CSB0
-			// wire CELL[5].IMUX_CE[3]             EBR[2].CSB1
-			// wire CELL[5].OUT_F[0]               EBR[2].DOA4
-			// wire CELL[5].OUT_F[1]               EBR[2].DOA5
-			// wire CELL[5].OUT_F[2]               EBR[2].DOA6
-			// wire CELL[5].OUT_F[3]               EBR[2].DOA7
-			// wire CELL[5].OUT_F[4]               EBR[2].DOA8
-			// wire CELL[5].OUT_F[5]               EBR[2].DOB0
-			// wire CELL[5].OUT_F[6]               EBR[2].DOB1
-			// wire CELL[5].OUT_F[7]               EBR[2].DOB2
-			// wire CELL[6].IMUX_A[0]              EBR[2].ADB5
-			// wire CELL[6].IMUX_A[4]              EBR[2].ADB7
-			// wire CELL[6].IMUX_A[7]              EBR[2].ADB3
-			// wire CELL[6].IMUX_B[0]              EBR[2].ADB9
-			// wire CELL[6].IMUX_B[1]              EBR[2].DIB4
-			// wire CELL[6].IMUX_B[3]              EBR[2].DIB6
-			// wire CELL[6].IMUX_B[4]              EBR[2].ADB2
-			// wire CELL[6].IMUX_B[5]              EBR[2].DIB8
-			// wire CELL[6].IMUX_B[6]              EBR[2].ADB11
-			// wire CELL[6].IMUX_B[7]              EBR[3].DIA1
-			// wire CELL[6].IMUX_C[0]              EBR[2].ADB4
-			// wire CELL[6].IMUX_C[4]              EBR[2].ADB6
-			// wire CELL[6].IMUX_C[7]              EBR[2].ADB12
-			// wire CELL[6].IMUX_D[0]              EBR[2].DIB3
-			// wire CELL[6].IMUX_D[1]              EBR[2].ADB8
-			// wire CELL[6].IMUX_D[2]              EBR[2].DIB5
-			// wire CELL[6].IMUX_D[3]              EBR[2].ADB0
-			// wire CELL[6].IMUX_D[4]              EBR[2].DIB7
-			// wire CELL[6].IMUX_D[5]              EBR[2].ADB10
-			// wire CELL[6].IMUX_D[6]              EBR[3].DIA0
-			// wire CELL[6].IMUX_D[7]              EBR[2].ADB1
+			// wire CELL[5].IMUX_CE[2]             EBR[2].CSB[0]
+			// wire CELL[5].IMUX_CE[3]             EBR[2].CSB[1]
+			// wire CELL[5].OUT_F[0]               EBR[2].DOA[4]
+			// wire CELL[5].OUT_F[1]               EBR[2].DOA[5]
+			// wire CELL[5].OUT_F[2]               EBR[2].DOA[6]
+			// wire CELL[5].OUT_F[3]               EBR[2].DOA[7]
+			// wire CELL[5].OUT_F[4]               EBR[2].DOA[8]
+			// wire CELL[5].OUT_F[5]               EBR[2].DOB[0]
+			// wire CELL[5].OUT_F[6]               EBR[2].DOB[1]
+			// wire CELL[5].OUT_F[7]               EBR[2].DOB[2]
+			// wire CELL[6].IMUX_A[0]              EBR[2].ADB[5]
+			// wire CELL[6].IMUX_A[4]              EBR[2].ADB[7]
+			// wire CELL[6].IMUX_A[7]              EBR[2].ADB[3]
+			// wire CELL[6].IMUX_B[0]              EBR[2].ADB[9]
+			// wire CELL[6].IMUX_B[1]              EBR[2].DIB[4]
+			// wire CELL[6].IMUX_B[3]              EBR[2].DIB[6]
+			// wire CELL[6].IMUX_B[4]              EBR[2].ADB[2]
+			// wire CELL[6].IMUX_B[5]              EBR[2].DIB[8]
+			// wire CELL[6].IMUX_B[6]              EBR[2].ADB[11]
+			// wire CELL[6].IMUX_B[7]              EBR[3].DIA[1]
+			// wire CELL[6].IMUX_C[0]              EBR[2].ADB[4]
+			// wire CELL[6].IMUX_C[4]              EBR[2].ADB[6]
+			// wire CELL[6].IMUX_C[7]              EBR[2].ADB[12]
+			// wire CELL[6].IMUX_D[0]              EBR[2].DIB[3]
+			// wire CELL[6].IMUX_D[1]              EBR[2].ADB[8]
+			// wire CELL[6].IMUX_D[2]              EBR[2].DIB[5]
+			// wire CELL[6].IMUX_D[3]              EBR[2].ADB[0]
+			// wire CELL[6].IMUX_D[4]              EBR[2].DIB[7]
+			// wire CELL[6].IMUX_D[5]              EBR[2].ADB[10]
+			// wire CELL[6].IMUX_D[6]              EBR[3].DIA[0]
+			// wire CELL[6].IMUX_D[7]              EBR[2].ADB[1]
 			// wire CELL[6].IMUX_CLK[0]            EBR[2].CLKB
 			// wire CELL[6].IMUX_LSR[0]            EBR[2].RSTB
 			// wire CELL[6].IMUX_LSR[1]            EBR[2].WEB
 			// wire CELL[6].IMUX_CE[0]             EBR[2].OCEB
 			// wire CELL[6].IMUX_CE[1]             EBR[2].CEB
-			// wire CELL[6].IMUX_CE[2]             EBR[3].CSA1
-			// wire CELL[6].IMUX_CE[3]             EBR[3].CSA2
-			// wire CELL[6].OUT_F[0]               EBR[2].DOB3
-			// wire CELL[6].OUT_F[1]               EBR[2].DOB4
-			// wire CELL[6].OUT_F[2]               EBR[2].DOB5
-			// wire CELL[6].OUT_F[3]               EBR[2].DOB6
-			// wire CELL[6].OUT_F[4]               EBR[2].DOB7
-			// wire CELL[6].OUT_F[5]               EBR[2].DOB8
-			// wire CELL[6].OUT_F[6]               EBR[3].DOA0
-			// wire CELL[6].OUT_F[7]               EBR[3].DOA1
-			// wire CELL[7].IMUX_A[1]              EBR[3].ADA5
-			// wire CELL[7].IMUX_A[3]              EBR[3].ADA7
-			// wire CELL[7].IMUX_A[7]              EBR[3].ADA3
-			// wire CELL[7].IMUX_B[0]              EBR[3].ADA9
-			// wire CELL[7].IMUX_B[1]              EBR[3].DIA3
-			// wire CELL[7].IMUX_B[2]              EBR[3].ADA0
-			// wire CELL[7].IMUX_B[3]              EBR[3].DIA5
-			// wire CELL[7].IMUX_B[4]              EBR[3].ADA1
-			// wire CELL[7].IMUX_B[5]              EBR[3].DIA7
-			// wire CELL[7].IMUX_B[6]              EBR[3].ADA11
-			// wire CELL[7].IMUX_B[7]              EBR[3].DIB0
-			// wire CELL[7].IMUX_C[0]              EBR[3].ADA4
-			// wire CELL[7].IMUX_C[2]              EBR[3].ADA6
-			// wire CELL[7].IMUX_C[7]              EBR[3].ADA12
-			// wire CELL[7].IMUX_D[0]              EBR[3].DIA2
-			// wire CELL[7].IMUX_D[1]              EBR[3].ADA8
-			// wire CELL[7].IMUX_D[2]              EBR[3].DIA4
-			// wire CELL[7].IMUX_D[4]              EBR[3].DIA6
-			// wire CELL[7].IMUX_D[5]              EBR[3].ADA10
-			// wire CELL[7].IMUX_D[6]              EBR[3].DIA8
-			// wire CELL[7].IMUX_D[7]              EBR[3].ADA2
+			// wire CELL[6].IMUX_CE[2]             EBR[3].CSA[1]
+			// wire CELL[6].IMUX_CE[3]             EBR[3].CSA[2]
+			// wire CELL[6].OUT_F[0]               EBR[2].DOB[3]
+			// wire CELL[6].OUT_F[1]               EBR[2].DOB[4]
+			// wire CELL[6].OUT_F[2]               EBR[2].DOB[5]
+			// wire CELL[6].OUT_F[3]               EBR[2].DOB[6]
+			// wire CELL[6].OUT_F[4]               EBR[2].DOB[7]
+			// wire CELL[6].OUT_F[5]               EBR[2].DOB[8]
+			// wire CELL[6].OUT_F[6]               EBR[3].DOA[0]
+			// wire CELL[6].OUT_F[7]               EBR[3].DOA[1]
+			// wire CELL[7].IMUX_A[1]              EBR[3].ADA[5]
+			// wire CELL[7].IMUX_A[3]              EBR[3].ADA[7]
+			// wire CELL[7].IMUX_A[7]              EBR[3].ADA[3]
+			// wire CELL[7].IMUX_B[0]              EBR[3].ADA[9]
+			// wire CELL[7].IMUX_B[1]              EBR[3].DIA[3]
+			// wire CELL[7].IMUX_B[2]              EBR[3].ADA[0]
+			// wire CELL[7].IMUX_B[3]              EBR[3].DIA[5]
+			// wire CELL[7].IMUX_B[4]              EBR[3].ADA[1]
+			// wire CELL[7].IMUX_B[5]              EBR[3].DIA[7]
+			// wire CELL[7].IMUX_B[6]              EBR[3].ADA[11]
+			// wire CELL[7].IMUX_B[7]              EBR[3].DIB[0]
+			// wire CELL[7].IMUX_C[0]              EBR[3].ADA[4]
+			// wire CELL[7].IMUX_C[2]              EBR[3].ADA[6]
+			// wire CELL[7].IMUX_C[7]              EBR[3].ADA[12]
+			// wire CELL[7].IMUX_D[0]              EBR[3].DIA[2]
+			// wire CELL[7].IMUX_D[1]              EBR[3].ADA[8]
+			// wire CELL[7].IMUX_D[2]              EBR[3].DIA[4]
+			// wire CELL[7].IMUX_D[4]              EBR[3].DIA[6]
+			// wire CELL[7].IMUX_D[5]              EBR[3].ADA[10]
+			// wire CELL[7].IMUX_D[6]              EBR[3].DIA[8]
+			// wire CELL[7].IMUX_D[7]              EBR[3].ADA[2]
 			// wire CELL[7].IMUX_CLK[0]            EBR[3].CLKA
 			// wire CELL[7].IMUX_LSR[0]            EBR[3].RSTA
 			// wire CELL[7].IMUX_LSR[1]            EBR[3].WEA
 			// wire CELL[7].IMUX_CE[0]             EBR[3].OCEA
 			// wire CELL[7].IMUX_CE[1]             EBR[3].CEA
-			// wire CELL[7].IMUX_CE[2]             EBR[3].CSA0
-			// wire CELL[7].IMUX_CE[3]             EBR[3].CSB2
-			// wire CELL[7].OUT_F[0]               EBR[3].DOA2
-			// wire CELL[7].OUT_F[1]               EBR[3].DOA3
-			// wire CELL[7].OUT_F[2]               EBR[3].DOA4
-			// wire CELL[7].OUT_F[3]               EBR[3].DOA5
-			// wire CELL[7].OUT_F[4]               EBR[3].DOA6
-			// wire CELL[7].OUT_F[5]               EBR[3].DOA7
-			// wire CELL[7].OUT_F[6]               EBR[3].DOA8
-			// wire CELL[7].OUT_F[7]               EBR[3].DOB0
-			// wire CELL[8].IMUX_A[0]              EBR[3].ADB5
-			// wire CELL[8].IMUX_A[4]              EBR[3].ADB7
-			// wire CELL[8].IMUX_A[7]              EBR[3].ADB3
-			// wire CELL[8].IMUX_B[0]              EBR[3].ADB9
-			// wire CELL[8].IMUX_B[1]              EBR[3].DIB2
-			// wire CELL[8].IMUX_B[3]              EBR[3].DIB4
-			// wire CELL[8].IMUX_B[4]              EBR[3].ADB2
-			// wire CELL[8].IMUX_B[5]              EBR[3].DIB6
-			// wire CELL[8].IMUX_B[6]              EBR[3].ADB11
-			// wire CELL[8].IMUX_B[7]              EBR[3].DIB8
-			// wire CELL[8].IMUX_C[0]              EBR[3].ADB4
-			// wire CELL[8].IMUX_C[4]              EBR[3].ADB6
-			// wire CELL[8].IMUX_C[7]              EBR[3].ADB12
-			// wire CELL[8].IMUX_D[0]              EBR[3].DIB1
-			// wire CELL[8].IMUX_D[1]              EBR[3].ADB8
-			// wire CELL[8].IMUX_D[2]              EBR[3].DIB3
-			// wire CELL[8].IMUX_D[3]              EBR[3].ADB0
-			// wire CELL[8].IMUX_D[4]              EBR[3].DIB5
-			// wire CELL[8].IMUX_D[5]              EBR[3].ADB10
-			// wire CELL[8].IMUX_D[6]              EBR[3].DIB7
-			// wire CELL[8].IMUX_D[7]              EBR[3].ADB1
+			// wire CELL[7].IMUX_CE[2]             EBR[3].CSA[0]
+			// wire CELL[7].IMUX_CE[3]             EBR[3].CSB[2]
+			// wire CELL[7].OUT_F[0]               EBR[3].DOA[2]
+			// wire CELL[7].OUT_F[1]               EBR[3].DOA[3]
+			// wire CELL[7].OUT_F[2]               EBR[3].DOA[4]
+			// wire CELL[7].OUT_F[3]               EBR[3].DOA[5]
+			// wire CELL[7].OUT_F[4]               EBR[3].DOA[6]
+			// wire CELL[7].OUT_F[5]               EBR[3].DOA[7]
+			// wire CELL[7].OUT_F[6]               EBR[3].DOA[8]
+			// wire CELL[7].OUT_F[7]               EBR[3].DOB[0]
+			// wire CELL[8].IMUX_A[0]              EBR[3].ADB[5]
+			// wire CELL[8].IMUX_A[4]              EBR[3].ADB[7]
+			// wire CELL[8].IMUX_A[7]              EBR[3].ADB[3]
+			// wire CELL[8].IMUX_B[0]              EBR[3].ADB[9]
+			// wire CELL[8].IMUX_B[1]              EBR[3].DIB[2]
+			// wire CELL[8].IMUX_B[3]              EBR[3].DIB[4]
+			// wire CELL[8].IMUX_B[4]              EBR[3].ADB[2]
+			// wire CELL[8].IMUX_B[5]              EBR[3].DIB[6]
+			// wire CELL[8].IMUX_B[6]              EBR[3].ADB[11]
+			// wire CELL[8].IMUX_B[7]              EBR[3].DIB[8]
+			// wire CELL[8].IMUX_C[0]              EBR[3].ADB[4]
+			// wire CELL[8].IMUX_C[4]              EBR[3].ADB[6]
+			// wire CELL[8].IMUX_C[7]              EBR[3].ADB[12]
+			// wire CELL[8].IMUX_D[0]              EBR[3].DIB[1]
+			// wire CELL[8].IMUX_D[1]              EBR[3].ADB[8]
+			// wire CELL[8].IMUX_D[2]              EBR[3].DIB[3]
+			// wire CELL[8].IMUX_D[3]              EBR[3].ADB[0]
+			// wire CELL[8].IMUX_D[4]              EBR[3].DIB[5]
+			// wire CELL[8].IMUX_D[5]              EBR[3].ADB[10]
+			// wire CELL[8].IMUX_D[6]              EBR[3].DIB[7]
+			// wire CELL[8].IMUX_D[7]              EBR[3].ADB[1]
 			// wire CELL[8].IMUX_CLK[0]            EBR[3].CLKB
 			// wire CELL[8].IMUX_LSR[0]            EBR[3].RSTB
 			// wire CELL[8].IMUX_LSR[1]            EBR[3].WEB
 			// wire CELL[8].IMUX_CE[0]             EBR[3].OCEB
 			// wire CELL[8].IMUX_CE[1]             EBR[3].CEB
-			// wire CELL[8].IMUX_CE[2]             EBR[3].CSB0
-			// wire CELL[8].IMUX_CE[3]             EBR[3].CSB1
-			// wire CELL[8].OUT_F[0]               EBR[3].DOB1
-			// wire CELL[8].OUT_F[1]               EBR[3].DOB2
-			// wire CELL[8].OUT_F[2]               EBR[3].DOB3
-			// wire CELL[8].OUT_F[3]               EBR[3].DOB4
-			// wire CELL[8].OUT_F[4]               EBR[3].DOB5
-			// wire CELL[8].OUT_F[5]               EBR[3].DOB6
-			// wire CELL[8].OUT_F[6]               EBR[3].DOB7
-			// wire CELL[8].OUT_F[7]               EBR[3].DOB8
+			// wire CELL[8].IMUX_CE[2]             EBR[3].CSB[0]
+			// wire CELL[8].IMUX_CE[3]             EBR[3].CSB[1]
+			// wire CELL[8].OUT_F[0]               EBR[3].DOB[1]
+			// wire CELL[8].OUT_F[1]               EBR[3].DOB[2]
+			// wire CELL[8].OUT_F[2]               EBR[3].DOB[3]
+			// wire CELL[8].OUT_F[3]               EBR[3].DOB[4]
+			// wire CELL[8].OUT_F[4]               EBR[3].DOB[5]
+			// wire CELL[8].OUT_F[5]               EBR[3].DOB[6]
+			// wire CELL[8].OUT_F[6]               EBR[3].DOB[7]
+			// wire CELL[8].OUT_F[7]               EBR[3].DOB[8]
 		}
 
 		tile_class MIPI_W {

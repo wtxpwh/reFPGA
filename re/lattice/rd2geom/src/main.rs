@@ -25,11 +25,13 @@ use prjcombine_types::db::DeviceCombo;
 use rayon::iter::{IntoParallelIterator, ParallelIterator};
 
 use crate::{
+    bel::BelExtractor,
     chip::{ChipExt, make_chip},
     pkg::process_bond,
 };
 
 mod archive;
+mod bel;
 mod chip;
 mod clk;
 mod config;
@@ -43,12 +45,12 @@ mod plc;
 mod pll;
 mod serdes;
 
-struct ChipContext<'a> {
-    name: &'a str,
-    grid: &'a Grid,
-    chip: &'a Chip,
-    intdb: &'a IntDb,
-    edev: &'a ExpandedDevice<'a>,
+struct ChipContext<'dev> {
+    name: &'dev str,
+    grid: &'dev Grid,
+    chip: &'dev Chip,
+    intdb: &'dev IntDb,
+    edev: &'dev ExpandedDevice<'dev>,
     naming: ChipNaming,
     nodes: EntityVec<NodeId, WireName>,
     has_v01b: BTreeSet<CellCoord>,
@@ -70,7 +72,7 @@ struct ChipContext<'a> {
     ebr_wires: BTreeMap<WireCoord, WireName>,
 }
 
-impl ChipContext<'_> {
+impl<'dev> ChipContext<'dev> {
     fn rc(&self, cell: CellCoord) -> (u8, u8) {
         let c = (cell.col.to_idx() + 1).try_into().unwrap();
         let r = (self.chip.rows.len() - cell.row.to_idx())
@@ -432,6 +434,19 @@ impl ChipContext<'_> {
             bel.pins.insert(pin, bpin);
         }
         bel
+    }
+
+    fn extract_bel(&mut self, bcrd: BelCoord, cell: CellCoord) -> BelExtractor<'dev, '_> {
+        let intdb = self.intdb;
+        let bcid = intdb.bel_class(bcrd.slot);
+        BelExtractor {
+            ctx: self,
+            intdb,
+            bcid,
+            bcrd,
+            cell,
+            bel: Bel::default(),
+        }
     }
 
     fn insert_simple_legacy_bel(&mut self, bcrd: BelCoord, cell: CellCoord, suffix: &'static str) {

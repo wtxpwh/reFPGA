@@ -1,5 +1,5 @@
-use prjcombine_ecp::defs::{bslots, tcls};
-use prjcombine_interconnect::db::LegacyBel;
+use prjcombine_ecp::defs::{bcls, bslots, tcls};
+use prjcombine_interconnect::db::Bel;
 
 use crate::ChipContext;
 
@@ -26,62 +26,67 @@ impl ChipContext<'_> {
                 let cell_mult = [cell_base, cell_base.delta(1, 0)];
                 let cell_alu24 = cell_base.delta(2, 0);
                 let cell_alu54 = cell_base.delta(3, 0);
-                let mut bel = LegacyBel::default();
+                let mut bel = Bel::default();
 
-                for pin in [
-                    "CLK0", "CLK1", "CLK2", "CLK3", "CE0", "CE1", "CE2", "CE3", "RST0", "RST1",
-                    "RST2", "RST3",
-                ] {
-                    let wire = self.rc_wire(cell_alu54, &format!("J{pin}_ALU54"));
-                    self.add_bel_wire(bcrd, format!("{pin}_ALU54"), wire);
-                    let bpin = self.xlat_int_wire(bcrd, wire);
+                for pins in [bcls::DSP::CLK, bcls::DSP::RST, bcls::DSP::CE] {
+                    for (i, pin) in pins.into_iter().enumerate() {
+                        let (pname_root, _) = self.intdb[bcls::DSP].inputs.key(pin);
+                        let pname = format!("{pname_root}{i}");
+                        let wire = self.rc_wire(cell_alu54, &format!("J{pname}_ALU54"));
+                        self.add_bel_wire(bcrd, format!("{pname}_ALU54"), wire);
+                        let bpin = self.xlat_input(bcrd, wire);
 
-                    let wire = self.rc_wire(cell_alu24, &format!("J{pin}_ALU24"));
-                    self.add_bel_wire(bcrd, format!("{pin}_ALU24"), wire);
-                    assert_eq!(bpin, self.xlat_int_wire(bcrd, wire));
+                        let wire = self.rc_wire(cell_alu24, &format!("J{pname}_ALU24"));
+                        self.add_bel_wire(bcrd, format!("{pname}_ALU24"), wire);
+                        assert_eq!(bpin, self.xlat_input(bcrd, wire));
 
-                    for (i, cell) in cell_mult.into_iter().enumerate() {
-                        let wire = self.rc_wire(cell, &format!("J{pin}_MULT9"));
-                        self.add_bel_wire(bcrd, format!("{pin}_MULT9_{i}"), wire);
-                        assert_eq!(bpin, self.xlat_int_wire(bcrd, wire));
+                        for (i, cell) in cell_mult.into_iter().enumerate() {
+                            let wire = self.rc_wire(cell, &format!("J{pname}_MULT9"));
+                            self.add_bel_wire(bcrd, format!("{pname}_MULT9_{i}"), wire);
+                            assert_eq!(bpin, self.xlat_input(bcrd, wire));
 
-                        let wire = self.rc_wire(cell, &format!("J{pin}_MULT18"));
-                        self.add_bel_wire(bcrd, format!("{pin}_MULT18_{i}"), wire);
-                        assert_eq!(bpin, self.xlat_int_wire(bcrd, wire));
+                            let wire = self.rc_wire(cell, &format!("J{pname}_MULT18"));
+                            self.add_bel_wire(bcrd, format!("{pname}_MULT18_{i}"), wire);
+                            assert_eq!(bpin, self.xlat_input(bcrd, wire));
+                        }
+
+                        bel.inputs.insert(pin, bpin);
                     }
-
-                    bel.pins.insert(pin.into(), bpin);
                 }
 
                 for i in 0..11 {
+                    let pin = bcls::DSP::OP[i];
                     let wire = self.rc_wire(cell_alu54, &format!("JOP{i}_ALU54"));
                     self.add_bel_wire(bcrd, format!("OP{i}_ALU54"), wire);
-                    let bpin = self.xlat_int_wire(bcrd, wire);
+                    let bpin = self.xlat_input(bcrd, wire);
 
                     if matches!(i, 5 | 7) {
                         let wire = self.rc_wire(cell_alu24, &format!("JOP{i}_ALU24"));
                         self.add_bel_wire(bcrd, format!("OP{i}_ALU24"), wire);
-                        assert_eq!(bpin, self.xlat_int_wire(bcrd, wire));
+                        assert_eq!(bpin, self.xlat_input(bcrd, wire));
                     }
 
-                    bel.pins.insert(format!("OP{i}"), bpin);
+                    bel.inputs.insert(pin, bpin);
                 }
 
-                for pin in ["SIGNED", "SOURCE"] {
+                for pins in [
+                    bcls::DSP::SIGNEDA,
+                    bcls::DSP::SIGNEDB,
+                    bcls::DSP::SOURCEA,
+                    bcls::DSP::SOURCEB,
+                ] {
                     for i in 0..2 {
-                        for ab in ['A', 'B'] {
-                            let wire_mult18 =
-                                self.rc_wire(cell_mult[i], &format!("J{pin}{ab}_MULT18"));
-                            self.add_bel_wire(bcrd, format!("{pin}{ab}_MULT18_{i}"), wire_mult18);
-                            let bpin = self.xlat_int_wire(bcrd, wire_mult18);
+                        let pin = pins[i];
+                        let (pname, _) = self.intdb[bcls::DSP].inputs.key(pin);
+                        let wire_mult18 = self.rc_wire(cell_mult[i], &format!("J{pname}_MULT18"));
+                        self.add_bel_wire(bcrd, format!("{pname}_MULT18_{i}"), wire_mult18);
+                        let bpin = self.xlat_input(bcrd, wire_mult18);
 
-                            let wire_mult9 =
-                                self.rc_wire(cell_mult[i], &format!("J{pin}{ab}_MULT9"));
-                            self.add_bel_wire(bcrd, format!("{pin}{ab}_MULT9_{i}"), wire_mult9);
-                            assert_eq!(bpin, self.xlat_int_wire(bcrd, wire_mult9));
+                        let wire_mult9 = self.rc_wire(cell_mult[i], &format!("J{pname}_MULT9"));
+                        self.add_bel_wire(bcrd, format!("{pname}_MULT9_{i}"), wire_mult9);
+                        assert_eq!(bpin, self.xlat_input(bcrd, wire_mult9));
 
-                            bel.pins.insert(format!("{pin}{ab}_{i}"), bpin);
-                        }
+                        bel.inputs.insert(pin, bpin);
                     }
                 }
 
@@ -103,71 +108,66 @@ impl ChipContext<'_> {
                     self.claim_pip(wire_alu24, wire_mult9);
                 }
 
-                for mult_idx in 0..2 {
+                for (pins, mult_idx, inp_idx) in [
+                    (bcls::DSP::A0, 0, 0),
+                    (bcls::DSP::B0, 0, 1),
+                    (bcls::DSP::A1, 1, 0),
+                    (bcls::DSP::B1, 1, 1),
+                ] {
                     let mult_ab = ['A', 'B'][mult_idx];
-                    for inp_idx in 0..2 {
-                        let ab = ['A', 'B'][inp_idx];
-                        for i in 0..18 {
-                            let alu_pin = i + inp_idx * 18;
-                            let wire_alu54 =
-                                self.rc_wire(cell_alu54, &format!("J{mult_ab}{alu_pin}_ALU54"));
+                    let ab = ['A', 'B'][inp_idx];
+                    for i in 0..18 {
+                        let alu_pin = i + inp_idx * 18;
+                        let wire_alu54 =
+                            self.rc_wire(cell_alu54, &format!("J{mult_ab}{alu_pin}_ALU54"));
+                        self.add_bel_wire(bcrd, format!("{mult_ab}{alu_pin}_ALU54"), wire_alu54);
+
+                        let wire_mult18 =
+                            self.rc_wire(cell_mult[mult_idx], &format!("J{ab}{i}_MULT18"));
+                        self.add_bel_wire(bcrd, format!("{ab}{i}_MULT18_{mult_idx}"), wire_mult18);
+                        let bpin = self.xlat_input(bcrd, wire_mult18);
+
+                        let wire_mult18_ro =
+                            self.rc_wire(cell_mult[mult_idx], &format!("JRO{ab}{i}_MULT18"));
+                        self.add_bel_wire(
+                            bcrd,
+                            format!("RO{ab}{i}_MULT18_{mult_idx}"),
+                            wire_mult18_ro,
+                        );
+                        self.claim_pip(wire_mult18_ro, wire_mult18);
+                        self.claim_pip(wire_alu54, wire_mult18_ro);
+
+                        if i < 9 {
+                            let wire_mult9 =
+                                self.rc_wire(cell_mult[mult_idx], &format!("J{ab}{i}_MULT9"));
                             self.add_bel_wire(
                                 bcrd,
-                                format!("{mult_ab}{alu_pin}_ALU54"),
-                                wire_alu54,
+                                format!("{ab}{i}_MULT9_{mult_idx}"),
+                                wire_mult9,
                             );
+                            assert_eq!(bpin, self.xlat_input(bcrd, wire_mult9));
 
-                            let wire_mult18 =
-                                self.rc_wire(cell_mult[mult_idx], &format!("J{ab}{i}_MULT18"));
+                            let wire_mult9_ro =
+                                self.rc_wire(cell_mult[mult_idx], &format!("JRO{ab}{i}_MULT9"));
                             self.add_bel_wire(
                                 bcrd,
-                                format!("{ab}{i}_MULT18_{mult_idx}"),
-                                wire_mult18,
+                                format!("RO{ab}{i}_MULT9_{mult_idx}"),
+                                wire_mult9_ro,
                             );
-                            let bpin = self.xlat_int_wire(bcrd, wire_mult18);
-
-                            let wire_mult18_ro =
-                                self.rc_wire(cell_mult[mult_idx], &format!("JRO{ab}{i}_MULT18"));
-                            self.add_bel_wire(
-                                bcrd,
-                                format!("RO{ab}{i}_MULT18_{mult_idx}"),
-                                wire_mult18_ro,
-                            );
-                            self.claim_pip(wire_mult18_ro, wire_mult18);
-                            self.claim_pip(wire_alu54, wire_mult18_ro);
-
-                            if i < 9 {
-                                let wire_mult9 =
-                                    self.rc_wire(cell_mult[mult_idx], &format!("J{ab}{i}_MULT9"));
-                                self.add_bel_wire(
-                                    bcrd,
-                                    format!("{ab}{i}_MULT9_{mult_idx}"),
-                                    wire_mult9,
-                                );
-                                assert_eq!(bpin, self.xlat_int_wire(bcrd, wire_mult9));
-
-                                let wire_mult9_ro =
-                                    self.rc_wire(cell_mult[mult_idx], &format!("JRO{ab}{i}_MULT9"));
-                                self.add_bel_wire(
-                                    bcrd,
-                                    format!("RO{ab}{i}_MULT9_{mult_idx}"),
-                                    wire_mult9_ro,
-                                );
-                                self.claim_pip(wire_mult9_ro, wire_mult9);
-                                self.claim_pip(wire_alu54, wire_mult9_ro);
-                            }
-
-                            bel.pins.insert(format!("{ab}{i}_{mult_idx}"), bpin);
+                            self.claim_pip(wire_mult9_ro, wire_mult9);
+                            self.claim_pip(wire_alu54, wire_mult9_ro);
                         }
+
+                        bel.inputs.insert(pins[i], bpin);
                     }
                 }
 
                 for i in 0..54 {
                     let wire = self.rc_wire(cell_alu54, &format!("JC{i}_ALU54"));
                     self.add_bel_wire(bcrd, format!("C{i}_ALU54"), wire);
-                    let bpin = self.xlat_int_wire(bcrd, wire);
+                    let bpin = self.xlat_input(bcrd, wire);
 
-                    bel.pins.insert(format!("C{i}"), bpin);
+                    bel.inputs.insert(bcls::DSP::C[i], bpin);
                 }
 
                 for i in 0..72 {
@@ -178,7 +178,7 @@ impl ChipContext<'_> {
                     let wire_mult18 =
                         self.rc_wire(cell_mult[mult_idx], &format!("JP{mult_pin}_MULT18"));
                     self.add_bel_wire(bcrd, format!("P{mult_pin}_MULT18_{mult_idx}"), wire_mult18);
-                    let bpin = self.xlat_int_wire(bcrd, wire_mult18);
+                    let bpin = self.xlat_output(bcrd, wire_mult18);
 
                     let wire_alu54 =
                         self.rc_wire(cell_alu54, &format!("JM{mult_ab}{mult_pin}_ALU54"));
@@ -193,7 +193,7 @@ impl ChipContext<'_> {
                             format!("P{mult_pin}_MULT9_{mult_idx}"),
                             wire_mult9,
                         );
-                        assert_eq!(bpin, self.xlat_int_wire(bcrd, wire_mult9));
+                        assert_eq!(bpin, self.xlat_output(bcrd, wire_mult9));
 
                         self.claim_pip(wire_alu54, wire_mult9);
 
@@ -206,32 +206,32 @@ impl ChipContext<'_> {
                     if i < 54 {
                         let wire_r_alu54 = self.rc_wire(cell_alu54, &format!("JR{i}_ALU54"));
                         self.add_bel_wire(bcrd, format!("R{i}_ALU54"), wire_r_alu54);
-                        assert_eq!(bpin, self.xlat_int_wire(bcrd, wire_r_alu54));
+                        assert_eq!(bpin, self.xlat_output(bcrd, wire_r_alu54));
                     }
                     if i < 24 {
                         let wire_r_alu24 = self.rc_wire(cell_alu24, &format!("JR{i}_ALU24"));
                         self.add_bel_wire(bcrd, format!("R{i}_ALU24"), wire_r_alu24);
-                        assert_eq!(bpin, self.xlat_int_wire(bcrd, wire_r_alu24));
+                        assert_eq!(bpin, self.xlat_output(bcrd, wire_r_alu24));
                     }
 
-                    bel.pins.insert(format!("R{i}"), bpin);
+                    bel.outputs.insert(bcls::DSP::R[i], bpin);
                 }
 
-                for pin in [
-                    "OVERUNDER",
-                    "UNDER",
-                    "OVER",
-                    "EQZ",
-                    "EQZM",
-                    "EQOM",
-                    "EQPAT",
-                    "EQPATB",
+                for (idx, pin) in [
+                    (54, "OVERUNDER"),
+                    (55, "UNDER"),
+                    (56, "OVER"),
+                    (57, "EQPATB"),
+                    (58, "EQPAT"),
+                    (59, "EQOM"),
+                    (60, "EQZM"),
+                    (61, "EQZ"),
                 ] {
                     let wire = self.rc_wire(cell_alu54, &format!("J{pin}_ALU54"));
                     self.add_bel_wire(bcrd, format!("{pin}_ALU54"), wire);
-                    let bpin = self.xlat_int_wire(bcrd, wire);
+                    let bpin = self.xlat_output(bcrd, wire);
 
-                    bel.pins.insert(pin.into(), bpin);
+                    assert_eq!(bel.outputs[bcls::DSP::R[idx]], bpin);
                 }
 
                 for mult_idx in 0..2 {
@@ -296,8 +296,8 @@ impl ChipContext<'_> {
                             }
 
                             if mult_idx == 1 && ab == 'A' {
-                                let bpin = self.xlat_int_wire(bcrd, wire_sro_mult18);
-                                assert_eq!(bel.pins[&format!("R{ii}", ii = 54 + i)], bpin);
+                                let bpin = self.xlat_output(bcrd, wire_sro_mult18);
+                                assert_eq!(bel.outputs[bcls::DSP::R[54 + i]], bpin);
                             }
                         }
                     }
@@ -331,7 +331,7 @@ impl ChipContext<'_> {
                     self.claim_pip(wire, wire_src);
                 }
 
-                self.insert_legacy_bel(bcrd, bel);
+                self.insert_bel(bcrd, bel);
             }
         }
     }

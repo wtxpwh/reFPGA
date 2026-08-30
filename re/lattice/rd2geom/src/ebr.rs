@@ -2,10 +2,11 @@ use std::collections::{BTreeMap, BTreeSet, btree_map};
 
 use prjcombine_ecp::{
     chip::ChipKind,
-    defs::{bslots, tcls, wires},
+    defs::{bcls, bslots, tcls, wires},
 };
+use prjcombine_entity::EntityBundleItemIndex;
 use prjcombine_interconnect::{
-    db::{BelInfo, BelPin, LegacyBel, Mux, PinDir, SwitchBox, SwitchBoxItem, WireSlotIdExt},
+    db::{Bel, BelInfo, BelInput, Mux, SwitchBox, SwitchBoxItem, WireSlotIdExt},
     dir::DirH,
 };
 
@@ -13,31 +14,39 @@ use crate::ChipContext;
 
 impl ChipContext<'_> {
     fn process_ebr_scm(&mut self) {
-        let mut pins_out = vec![];
-        let mut pins_in = vec![];
-        for pin in ["DIA", "DIB"] {
-            for i in 0..18 {
-                pins_in.push(format!("{pin}{i}"));
-            }
+        let mut pins_out = vec![
+            (bcls::EBR::EF, wires::OUT_EBR_EF),
+            (bcls::EBR::FF, wires::OUT_EBR_FF),
+            (bcls::EBR::AE, wires::OUT_EBR_AE),
+            (bcls::EBR::AF, wires::OUT_EBR_AF),
+        ];
+        for i in 0..18 {
+            pins_out.extend([
+                (bcls::EBR::DOA[i], wires::OUT_EBR_DOA[i]),
+                (bcls::EBR::DOB[i], wires::OUT_EBR_DOB[i]),
+            ]);
         }
-        for pin in ["ADA", "ADB"] {
-            for i in 3..14 {
-                pins_in.push(format!("{pin}{i}"));
-            }
+        let mut pins_in = vec![
+            (bcls::EBR::CLKA, wires::IMUX_EBR_CLKA),
+            (bcls::EBR::CLKB, wires::IMUX_EBR_CLKB),
+            (bcls::EBR::RSTA, wires::IMUX_EBR_RSTA),
+            (bcls::EBR::RSTB, wires::IMUX_EBR_RSTB),
+            (bcls::EBR::CEA, wires::IMUX_EBR_CEA),
+            (bcls::EBR::CEB, wires::IMUX_EBR_CEB),
+            (bcls::EBR::WEA, wires::IMUX_EBR_WEA),
+            (bcls::EBR::WEB, wires::IMUX_EBR_WEB),
+        ];
+        for i in 0..18 {
+            pins_in.extend([
+                (bcls::EBR::DIA[i], wires::IMUX_EBR_DIA[i]),
+                (bcls::EBR::DIB[i], wires::IMUX_EBR_DIB[i]),
+            ]);
         }
-        for pin in ["CLKA", "CLKB", "RSTA", "RSTB", "CEA", "CEB", "WEA", "WEB"] {
-            pins_in.push(pin.to_string());
-        }
-        for pin in ["DOA", "DOB"] {
-            for i in 0..18 {
-                pins_out.push(format!("{pin}{i}"));
-            }
-        }
-        for pin in ["AE", "FF", "AF", "EF"] {
-            pins_out.push(pin.to_string());
-        }
-        for i in 0..8 {
-            pins_out.push(format!("EXTRA{i}"));
+        for i in 3..14 {
+            pins_in.extend([
+                (bcls::EBR::ADA[i], wires::IMUX_EBR_ADA[i - 3]),
+                (bcls::EBR::ADB[i], wires::IMUX_EBR_ADB[i - 3]),
+            ]);
         }
         for tcid in [tcls::EBR_W, tcls::EBR_E] {
             let tcls = &self.intdb[tcid];
@@ -78,7 +87,7 @@ impl ChipContext<'_> {
                 self.name_bel(bcrd, [format!("EBR_R{r}C{c}")]);
                 self.name_bel_null(bcrd_int);
 
-                let mut bel = LegacyBel::default();
+                let mut bel = Bel::default();
 
                 let mut x10_out_wires = BTreeMap::new();
                 let mut cur_x10_out = BTreeMap::new();
@@ -104,12 +113,18 @@ impl ChipContext<'_> {
                     }
                 }
 
-                for pin in &pins_out {
-                    let wire_eint = self.rc_wire(cell_e, &format!("JCIB_{pin}"));
-                    let bpin = self.xlat_int_wire(bcrd_int, wire_eint);
-                    assert_eq!(bpin.dir, PinDir::Output);
-                    assert_eq!(bpin.wires.len(), 1);
-                    let int_wire = bpin.wires.into_iter().next().unwrap();
+                for &(pin, wslot) in &pins_out {
+                    let (pname_root, pin_idx) = self.intdb[bcls::EBR].outputs.key(pin);
+                    let pname = match pin_idx {
+                        EntityBundleItemIndex::Single => pname_root.to_string(),
+                        EntityBundleItemIndex::Array { index, .. } => {
+                            format!("{pname_root}{index}")
+                        }
+                    };
+                    let wire_eint = self.rc_wire(cell_e, &format!("JCIB_{pname}"));
+                    let wires = self.xlat_output(bcrd_int, wire_eint);
+                    assert_eq!(wires.len(), 1);
+                    let int_wire = wires.into_iter().next().unwrap();
                     self.add_bel_wire(bcrd_int, int_wire.to_string(self.intdb, tcls), wire_eint);
 
                     for wn in self.pips_bwd.get(&wire_eint).cloned().into_iter().flatten() {
@@ -119,55 +134,58 @@ impl ChipContext<'_> {
                         }
                     }
 
-                    if !pin.starts_with("EXTRA") {
-                        let out_wire = if let Some(idx) = pin.strip_prefix("DOA") {
-                            let idx: usize = idx.parse().unwrap();
-                            wires::OUT_EBR_DOA[idx]
-                        } else if let Some(idx) = pin.strip_prefix("DOB") {
-                            let idx: usize = idx.parse().unwrap();
-                            wires::OUT_EBR_DOB[idx]
-                        } else {
-                            match pin.as_str() {
-                                "FF" => wires::OUT_EBR_FF,
-                                "EF" => wires::OUT_EBR_EF,
-                                "AF" => wires::OUT_EBR_AF,
-                                "AE" => wires::OUT_EBR_AE,
-                                _ => panic!("umm {pin}"),
-                            }
+                    let out_wire = wslot.cell(0);
+                    bel.outputs.insert(pin, BTreeSet::from_iter([out_wire]));
+                    match ebr_to_int.entry(out_wire) {
+                        btree_map::Entry::Vacant(e) => {
+                            e.insert(int_wire);
                         }
-                        .cell(0);
-                        bel.pins.insert(pin.into(), BelPin::new_out(out_wire));
-                        match ebr_to_int.entry(out_wire) {
-                            btree_map::Entry::Vacant(e) => {
-                                e.insert(int_wire);
-                            }
-                            btree_map::Entry::Occupied(e) => {
-                                assert_eq!(*e.get(), int_wire);
-                            }
+                        btree_map::Entry::Occupied(e) => {
+                            assert_eq!(*e.get(), int_wire);
                         }
+                    }
 
-                        let wire = self.rc_wire(cell_w, &format!("J{pin}_EBR"));
-                        self.add_bel_wire(bcrd, pin, wire);
-                        let wire_out = self.rc_wire(cell_e, &format!("J{pin}"));
-                        self.add_bel_wire(bcrd, format!("{pin}_OUT"), wire_out);
-                        self.claim_pip(wire_out, wire);
-                        self.claim_pip(wire_eint, wire_out);
+                    let wire = self.rc_wire(cell_w, &format!("J{pname}_EBR"));
+                    self.add_bel_wire(bcrd, &pname, wire);
+                    let wire_out = self.rc_wire(cell_e, &format!("J{pname}"));
+                    self.add_bel_wire(bcrd, format!("{pname}_OUT"), wire_out);
+                    self.claim_pip(wire_out, wire);
+                    self.claim_pip(wire_eint, wire_out);
 
-                        for wn in self.pips_fwd[&wire_out].clone() {
-                            if let Some(&x10_iwire) = x10_out_wires.get(&wn) {
-                                cur_x10_out.get_mut(&x10_iwire).unwrap().push(out_wire);
-                                self.claim_pip(wn, wire_out);
-                            }
+                    for wn in self.pips_fwd[&wire_out].clone() {
+                        if let Some(&x10_iwire) = x10_out_wires.get(&wn) {
+                            cur_x10_out.get_mut(&x10_iwire).unwrap().push(out_wire);
+                            self.claim_pip(wn, wire_out);
                         }
                     }
                 }
 
-                for pin in &pins_in {
-                    let wire_eint = self.rc_wire(cell_e, &format!("JCIB_{pin}"));
-                    let bpin = self.xlat_int_wire(bcrd_int, wire_eint);
-                    assert_eq!(bpin.dir, PinDir::Input);
-                    assert_eq!(bpin.wires.len(), 1);
-                    let int_wire = bpin.wires.into_iter().next().unwrap();
+                for i in 0..8 {
+                    let wire_eint = self.rc_wire(cell_e, &format!("JCIB_EXTRA{i}"));
+                    let wires = self.xlat_output(bcrd_int, wire_eint);
+                    assert_eq!(wires.len(), 1);
+                    let int_wire = wires.into_iter().next().unwrap();
+                    self.add_bel_wire(bcrd_int, int_wire.to_string(self.intdb, tcls), wire_eint);
+
+                    for wn in self.pips_bwd.get(&wire_eint).cloned().into_iter().flatten() {
+                        if let Some(&x10_iwire) = x10_in_wires.get(&wn) {
+                            cur_x10_in.get_mut(&x10_iwire).unwrap().push(int_wire);
+                            self.claim_pip(wire_eint, wn);
+                        }
+                    }
+                }
+
+                for &(pin, wslot) in &pins_in {
+                    let (pname_root, pin_idx) = self.intdb[bcls::EBR].inputs.key(pin);
+                    let pname = match pin_idx {
+                        EntityBundleItemIndex::Single => pname_root.to_string(),
+                        EntityBundleItemIndex::Array { index, .. } => {
+                            format!("{pname_root}{index}")
+                        }
+                    };
+                    let wire_eint = self.rc_wire(cell_e, &format!("JCIB_{pname}"));
+                    let bpin = self.xlat_input(bcrd_int, wire_eint);
+                    let int_wire = bpin.wire();
                     self.add_bel_wire(bcrd_int, int_wire.to_string(self.intdb, tcls), wire_eint);
 
                     for wn in self.pips_fwd[&wire_eint].clone() {
@@ -177,34 +195,9 @@ impl ChipContext<'_> {
                         }
                     }
 
-                    let imux_wire = if let Some(idx) = pin.strip_prefix("DIA") {
-                        let idx: usize = idx.parse().unwrap();
-                        wires::IMUX_EBR_DIA[idx]
-                    } else if let Some(idx) = pin.strip_prefix("DIB") {
-                        let idx: usize = idx.parse().unwrap();
-                        wires::IMUX_EBR_DIB[idx]
-                    } else if let Some(idx) = pin.strip_prefix("ADA") {
-                        let idx: usize = idx.parse().unwrap();
-                        wires::IMUX_EBR_ADA[idx - 3]
-                    } else if let Some(idx) = pin.strip_prefix("ADB") {
-                        let idx: usize = idx.parse().unwrap();
-                        wires::IMUX_EBR_ADB[idx - 3]
-                    } else {
-                        match pin.as_str() {
-                            "CLKA" => wires::IMUX_EBR_CLKA,
-                            "CLKB" => wires::IMUX_EBR_CLKB,
-                            "RSTA" => wires::IMUX_EBR_RSTA,
-                            "RSTB" => wires::IMUX_EBR_RSTB,
-                            "CEA" => wires::IMUX_EBR_CEA,
-                            "CEB" => wires::IMUX_EBR_CEB,
-                            "WEA" => wires::IMUX_EBR_WEA,
-                            "WEB" => wires::IMUX_EBR_WEB,
-                            _ => panic!("umm {pin}"),
-                        }
-                    }
-                    .cell(0);
+                    let imux_wire = wslot.cell(0);
 
-                    bel.pins.insert(pin.into(), BelPin::new_out(imux_wire));
+                    bel.inputs.insert(pin, BelInput::Fixed(imux_wire.pos()));
                     match ebr_from_int.entry(imux_wire) {
                         btree_map::Entry::Vacant(e) => {
                             e.insert(int_wire);
@@ -214,10 +207,10 @@ impl ChipContext<'_> {
                         }
                     }
 
-                    let wire = self.rc_wire(cell_w, &format!("J{pin}_EBR"));
-                    self.add_bel_wire(bcrd, pin, wire);
-                    let wire_in = self.rc_wire(cell_e, &format!("J{pin}"));
-                    self.add_bel_wire(bcrd, format!("{pin}_IN"), wire_in);
+                    let wire = self.rc_wire(cell_w, &format!("J{pname}_EBR"));
+                    self.add_bel_wire(bcrd, &pname, wire);
+                    let wire_in = self.rc_wire(cell_e, &format!("J{pname}"));
+                    self.add_bel_wire(bcrd, format!("{pname}_IN"), wire_in);
                     self.claim_pip(wire, wire_in);
                     self.claim_pip(wire_in, wire_eint);
 
@@ -230,19 +223,35 @@ impl ChipContext<'_> {
                 }
 
                 for pin in [
-                    "ADA0", "ADA1", "ADA2", "ADB0", "ADB1", "ADB2", "CSA0", "CSA1", "CSA2", "CSB0",
-                    "CSB1", "CSB2",
+                    bcls::EBR::ADA[0],
+                    bcls::EBR::ADA[1],
+                    bcls::EBR::ADA[2],
+                    bcls::EBR::ADB[0],
+                    bcls::EBR::ADB[1],
+                    bcls::EBR::ADB[2],
+                    bcls::EBR::CSA[0],
+                    bcls::EBR::CSA[1],
+                    bcls::EBR::CSA[2],
+                    bcls::EBR::CSB[0],
+                    bcls::EBR::CSB[1],
+                    bcls::EBR::CSB[2],
                 ] {
-                    let wire = self.rc_wire(cell_w, &format!("J{pin}_EBR"));
-                    self.add_bel_wire(bcrd, pin, wire);
-                    let wire_in = self.rc_wire(cell_e, &format!("J{pin}"));
-                    self.add_bel_wire(bcrd, format!("{pin}_IN"), wire_in);
-                    let wire_cib = self.rc_wire(cell_e, &format!("JCIB_{pin}"));
-                    self.add_bel_wire(bcrd, format!("{pin}_CIB"), wire_cib);
+                    let (pname_root, pin_idx) = self.intdb[bcls::EBR].inputs.key(pin);
+                    let pname = match pin_idx {
+                        EntityBundleItemIndex::Single => pname_root.to_string(),
+                        EntityBundleItemIndex::Array { index, .. } => {
+                            format!("{pname_root}{index}")
+                        }
+                    };
+                    let wire = self.rc_wire(cell_w, &format!("J{pname}_EBR"));
+                    self.add_bel_wire(bcrd, &pname, wire);
+                    let wire_in = self.rc_wire(cell_e, &format!("J{pname}"));
+                    self.add_bel_wire(bcrd, format!("{pname}_IN"), wire_in);
+                    let wire_cib = self.rc_wire(cell_e, &format!("JCIB_{pname}"));
+                    self.add_bel_wire(bcrd, format!("{pname}_CIB"), wire_cib);
                     self.claim_pip(wire, wire_in);
                     self.claim_pip(wire_in, wire_cib);
-                    bel.pins
-                        .insert(pin.into(), self.xlat_int_wire(bcrd, wire_cib));
+                    bel.inputs.insert(pin, self.xlat_input(bcrd, wire_cib));
                 }
 
                 for (iwire, wires) in cur_x10_in {
@@ -266,7 +275,7 @@ impl ChipContext<'_> {
                     }
                 }
 
-                self.insert_legacy_bel(bcrd, bel);
+                self.insert_bel(bcrd, bel);
             }
             let mut sb = SwitchBox::default();
             let mut muxes: BTreeMap<_, BTreeSet<_>> = BTreeMap::new();
@@ -319,7 +328,7 @@ impl ChipContext<'_> {
                 };
                 let (r, c) = self.rc(cell);
                 self.name_bel(bcrd, [format!("EBR_R{r}C{c}")]);
-                self.insert_simple_legacy_bel(bcrd, cell, "EBR");
+                self.extract_bel(bcrd, cell).suffix("EBR");
             }
         }
     }
@@ -332,7 +341,7 @@ impl ChipContext<'_> {
                 let cell = tcrd.delta(2 * (i as i32), 0);
                 let (r, c) = self.rc(cell);
                 self.name_bel(bcrd, [format!("EBR_R{r}C{c}")]);
-                self.insert_simple_legacy_bel(bcrd, cell, "EBR");
+                self.extract_bel(bcrd, cell).suffix("EBR");
             }
         }
     }

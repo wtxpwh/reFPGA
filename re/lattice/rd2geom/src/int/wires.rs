@@ -817,4 +817,53 @@ impl ChipContext<'_> {
     pub fn xlat_input(&mut self, bcrd: BelCoord, wire: WireName) -> BelInput {
         self.try_xlat_input(bcrd, wire, false).unwrap()
     }
+
+    pub fn try_xlat_output(
+        &mut self,
+        bcrd: BelCoord,
+        wire: WireName,
+        filter: bool,
+    ) -> Option<BTreeSet<TileWireCoord>> {
+        let tcrd = self.edev.bel_tile(bcrd);
+        let tile = &self.edev[tcrd];
+        let mut out_wires = BTreeSet::new();
+        for wtn in self.pips_fwd.get(&wire).cloned().into_iter().flatten() {
+            if let Some(wires_t) = self
+                .int_wires
+                .get(&wtn)
+                .or_else(|| self.io_int_wires.get(&wtn))
+            {
+                let wt = wires_t[0];
+                if !self.intdb.wires[wt.slot].name.starts_with("OUT") {
+                    continue;
+                }
+                let Some((cell, _)) = tile.cells.iter().find(|&(_cid, &cell)| cell == wt.cell)
+                else {
+                    if !filter {
+                        println!(
+                            "{name}: fail to xlat int wire {wt} in {bel}",
+                            name = self.name,
+                            wt = wt.to_string(self.intdb),
+                            bel = bcrd.to_string(self.intdb)
+                        );
+                    }
+                    continue;
+                };
+                self.claim_pip(wtn, wire);
+                out_wires.insert(TileWireCoord {
+                    cell,
+                    wire: wt.slot,
+                });
+            }
+        }
+        if !out_wires.is_empty() {
+            Some(out_wires)
+        } else {
+            None
+        }
+    }
+
+    pub fn xlat_output(&mut self, bcrd: BelCoord, wire: WireName) -> BTreeSet<TileWireCoord> {
+        self.try_xlat_output(bcrd, wire, false).unwrap()
+    }
 }

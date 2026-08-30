@@ -37,6 +37,219 @@ target_defs! {
         }
     }
 
+    bel_class EBR {
+        input CLKA, CLKB;
+        input RSTA, RSTB;
+        input CEA, CEB;
+        input WEA, WEB;
+        if variant [ecp, xp, machxo, ecp2, ecp2m, xp2] {
+            input MORCLKA, MORCLKB;
+        }
+        if variant ecp3 {
+            input OCLKA, OCLKB;
+        }
+        if variant [ecp3, machxo2, ecp4, ecp5, crosslink] {
+            input OCEA, OCEB;
+        }
+        input CSA[3], CSB[3];
+        if variant [ecp, xp, machxo, machxo2, crosslink] {
+            input ADA[13], ADB[13];
+        } else {
+            input ADA[14], ADB[14];
+        }
+        if variant [ecp2, ecp2m, xp2, ecp3] {
+            input ADB3W; // ?!?
+            input BLENABLE, BHENABLE;
+        }
+        if variant [machxo2, crosslink] {
+            input DIA[9], DIB[9];
+            output DOA[9], DOB[9];
+        } else {
+            input DIA[18], DIB[18];
+            output DOA[18], DOB[18];
+        }
+        if variant [machxo, machxo2, scm, ecp4] {
+            output EF, FF, AE, AF;
+        }
+    }
+
+    if variant [ecp, ecp2, ecp2m, xp2] {
+        if variant ecp {
+            enum DSP_MODE {
+                MULT9X9,
+                MULT9X9MAC,
+                MULT9X9ADDSUB,
+                MULT9X9ADDSUBSUM,
+                MULT18X18,
+                MULT18X18MAC,
+                MULT18X18ADDSUB,
+                MULT18X18ADDSUBSUM,
+                MULT36X36,
+            }
+        } else {
+            // missing the MULT9X9MAC mode (which was wholly redundant with MULT18X18MAC anyway)
+            enum DSP_MODE {
+                MULT9X9,
+                MULT9X9ADDSUB,
+                MULT9X9ADDSUBSUM,
+                MULT18X18,
+                MULT18X18MAC,
+                MULT18X18ADDSUB,
+                MULT18X18ADDSUBSUM,
+                MULT36X36,
+            }
+        }
+
+        if variant ecp {
+        } else {
+            enum DSP_MUX_P3 {
+                P,
+                SRO,
+            }
+        }
+
+        bel_class DSP {
+            // CLK, CE, ADDNSUB, ACCUMSLOAD, SOURCE* invertible via INT tile
+            // RST, SIGNED* invertible within bel
+            input CLK[4];
+            input RST[4];
+            input CE[4];
+            input A0[18];
+            input A1[18];
+            input A2[18];
+            input A3[18];
+            input B0[18];
+            input B1[18];
+            input B2[18];
+            input B3[18];
+            input ACCUMSLOAD1, ACCUMSLOAD3;
+            input ADDNSUB1, ADDNSUB3;
+            if variant ecp {
+                input SIGNEDAB[4];
+            } else {
+                input SIGNEDA[4];
+                input SIGNEDB[4];
+                input SOURCEA[4];
+                input SOURCEB[4];
+                input LD1[16];
+                input LD3[16];
+            }
+            if variant ecp {
+                // on ecp, these are independent outputs
+                // on ecp2, {SROB,SROA} is multiplexed onto P3 instead
+                output SROA[18];
+                output SROB[18];
+            }
+            output P0[36];
+            output P1[36];
+            output P2[36];
+            output P3[36];
+
+            attribute MODE: DSP_MODE;
+            attribute GSR: bool;
+
+            if variant ecp {
+            } else {
+                attribute MUX_P3: DSP_MUX_P3;
+            }
+
+            for i in 0..8 {
+                if variant ecp {
+                    // replaced by SOURCE[AB] on ecp2
+                    attribute "SHIFT_IN_A{i}": bool;
+                    attribute "SHIFT_IN_B{i}": bool;
+                }
+
+                attribute "MUX_CLK_A{i}": bitvec[2];
+                attribute "MUX_RST_A{i}": bitvec[2];
+                attribute "MUX_CE_A{i}": bitvec[2];
+                attribute "REG_A{i}": bool;
+                attribute "MUX_CLK_B{i}": bitvec[2];
+                attribute "MUX_RST_B{i}": bitvec[2];
+                attribute "MUX_CE_B{i}": bitvec[2];
+                attribute "REG_B{i}": bool;
+
+                attribute "MUX_CLK_M{i}": bitvec[2];
+                attribute "MUX_RST_M{i}": bitvec[2];
+                attribute "MUX_CE_M{i}": bitvec[2];
+                attribute "REG_M{i}": bool;
+
+                attribute "MUX_CLK_P{i}": bitvec[2];
+                attribute "MUX_RST_P{i}": bitvec[2];
+                attribute "MUX_CE_P{i}": bitvec[2];
+                attribute "REG_P{i}": bool;
+            }
+
+            for j in 0..2 {
+                for i in 0..4 {
+                    if variant ecp {
+                        attribute "MUX_CLK_SIGNEDAB_S{j}_{i}": bitvec[2];
+                        attribute "MUX_RST_SIGNEDAB_S{j}_{i}": bitvec[2];
+                        attribute "MUX_CE_SIGNEDAB_S{j}_{i}": bitvec[2];
+                        attribute "REG_SIGNEDAB_S{j}_{i}": bool;
+                    } else {
+                        attribute "MUX_CLK_SIGNEDA_S{j}_{i}": bitvec[2];
+                        attribute "MUX_RST_SIGNEDA_S{j}_{i}": bitvec[2];
+                        attribute "MUX_CE_SIGNEDA_S{j}_{i}": bitvec[2];
+                        attribute "REG_SIGNEDA_S{j}_{i}": bool;
+
+                        attribute "MUX_CLK_SIGNEDB_S{j}_{i}": bitvec[2];
+                        attribute "MUX_RST_SIGNEDB_S{j}_{i}": bitvec[2];
+                        attribute "MUX_CE_SIGNEDB_S{j}_{i}": bitvec[2];
+                        attribute "REG_SIGNEDB_S{j}_{i}": bool;
+                    }
+                }
+            }
+
+            for j in 0..2 {
+                for i in 0..2 {
+                    attribute "MUX_CLK_ADDNSUB_S{j}_{i}": bitvec[2];
+                    attribute "MUX_RST_ADDNSUB_S{j}_{i}": bitvec[2];
+                    attribute "MUX_CE_ADDNSUB_S{j}_{i}": bitvec[2];
+                    attribute "REG_ADDNSUB_S{j}_{i}": bool;
+
+                    attribute "MUX_CLK_ACCUMSLOAD_S{j}_{i}": bitvec[2];
+                    attribute "MUX_RST_ACCUMSLOAD_S{j}_{i}": bitvec[2];
+                    attribute "MUX_CE_ACCUMSLOAD_S{j}_{i}": bitvec[2];
+                    attribute "REG_ACCUMSLOAD_S{j}_{i}": bool;
+                }
+            }
+        }
+    } else if variant [ecp3, ecp4, ecp5] {
+        bel_class DSP {
+            input CLK[4];
+            input RST[4];
+            input CE[4];
+            input A0[18], A1[18];
+            input B0[18], B1[18];
+            input C[54];
+            input SIGNEDA[2], SIGNEDB[2];
+            input SOURCEA[2], SOURCEB[2];
+            input OP[11];
+            if variant [ecp4, ecp5] {
+                input OPPRE[2];
+            }
+            // in mult mode:
+            // - ecp3: R[35:0] is P0, R[71:36] is P1
+            // - ecp[45]:
+            //   - R[17:0] == P0[17:0]
+            //   - R[26:18] == P1[8:0]
+            //   - R[44:27] == P0[35:18]
+            //   - R[71:45] == P1[35:9]
+            // SROA, when used, is mapped to bits 71:54
+            // in alu mode, low 54 bits are ALU out, some high bits are flags:
+            // - 54: OVERUNDER
+            // - 55: UNDER
+            // - 56: OVER
+            // - 57: EQPATB
+            // - 58: EQPAT
+            // - 59: EQOM
+            // - 60: EQZM
+            // - 61: EQZ
+            output R[72];
+        }
+    }
+
     // TODO: convert to routing
     if variant [ecp2, ecp2m, xp2, ecp3] {
         bel_class ECLK_TAP {
@@ -605,38 +818,38 @@ target_defs! {
         // EBR & DSP
         if variant scm {
             bel_slot EBR_INT: routing;
-            bel_slot EBR[1]: legacy;
+            bel_slot EBR[1]: EBR;
             tile_class EBR_W, EBR_E {
                 cell CELL[2];
                 switchbox EBR_INT;
                 bel EBR[0];
             }
         } else if variant [ecp, xp] {
-            bel_slot EBR[1]: legacy;
+            bel_slot EBR[1]: EBR;
             tile_class EBR {
                 cell CELL[2];
                 bel EBR[0];
             }
         } else if variant machxo {
-            bel_slot EBR[1]: legacy;
+            bel_slot EBR[1]: EBR;
             tile_class EBR {
                 cell CELL[4];
                 bel EBR[0];
             }
         } else if variant [ecp2, ecp2m, xp2, ecp3] {
-            bel_slot EBR[1]: legacy;
+            bel_slot EBR[1]: EBR;
             tile_class EBR {
                 cell CELL[3];
                 bel EBR[0];
             }
         } else if variant machxo2 {
-            bel_slot EBR[1]: legacy;
+            bel_slot EBR[1]: EBR;
             tile_class EBR, EBR_N {
                 cell CELL[3];
                 bel EBR[0];
             }
         } else if variant [ecp4, ecp5, crosslink] {
-            bel_slot EBR[4]: legacy;
+            bel_slot EBR[4]: EBR;
             tile_class EBR {
                 cell CELL[9];
                 for i in 0..4 {
@@ -645,19 +858,19 @@ target_defs! {
             }
         }
         if variant ecp {
-            bel_slot DSP[1]: legacy;
+            bel_slot DSP[1]: DSP;
             tile_class DSP {
                 cell CELL[8];
                 bel DSP[0];
             }
         } else if variant [ecp2, ecp2m, xp2] {
-            bel_slot DSP[1]: legacy;
+            bel_slot DSP[1]: DSP;
             tile_class DSP {
                 cell CELL[9];
                 bel DSP[0];
             }
         } else if variant [ecp3, ecp4, ecp5] {
-            bel_slot DSP[2]: legacy;
+            bel_slot DSP[2]: DSP;
             tile_class DSP {
                 cell CELL[9];
                 for i in 0..2 {
