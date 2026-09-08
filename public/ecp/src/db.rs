@@ -53,7 +53,7 @@ impl Database {
                 writeln!(o)?;
                 if flags.chip {
                     writeln!(o, "chip {cid} {{")?;
-                    chip.dump(o)?;
+                    chip.dump(o, &self.int)?;
                     writeln!(o, "}}")?;
                     writeln!(o)?;
                 } else {

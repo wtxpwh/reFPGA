@@ -250,6 +250,44 @@ target_defs! {
         }
     }
 
+    if variant machxo {
+        bel_class IO {
+            input PADDO, PADDT;
+            output PADDI;
+        }
+        bel_class PICTEST {
+            input C[2], D[2];
+            output Q[2];
+        }
+    }
+
+    if variant machxo {
+        bel_class PLL {
+            input CLKI, CLKFB;
+            output CLKOP, CLKOS, CLKOK, CLKINTFB;
+            input RESETM, RESETK;
+            output LOCK, DNLOCK, UPLOCK;
+            input CNTRST, PWD;
+            input DDAMODE, DDAIZR, DDAILAG, DDAIDEL[3];
+            output DDAOZR, DDAOLAG, DDAODEL[3];
+            input TCLKI;
+            output TESTOUT;
+        }
+    }
+
+    if variant machxo {
+        bel_class GSR {
+            input GSR;
+        }
+        bel_class JTAG {
+            input JTDO1, JTDO2;
+            output JTDI, JTCK, JRST, JSHIFT, JUPDATE, JCE1, JCE2, JRTI1, JRTI2;
+        }
+        bel_class OSC {
+            output CFGCLK;
+        }
+    }
+
     // TODO: convert to routing
     if variant [ecp2, ecp2m, xp2, ecp3] {
         bel_class ECLK_TAP {
@@ -339,6 +377,7 @@ target_defs! {
     }
 
     // Clocking
+    region_slot GLOBAL;
 
     // The primary clocks, connected to all cells.
     if variant scm {
@@ -453,12 +492,38 @@ target_defs! {
     }
 
     if variant machxo {
-        // MachXO only (purpose unclear)
+        wire OUT_F_PLC_IO[6]: branch IO_FROM_PLC;
+        wire OUT_Q_PLC_IO[6]: branch IO_FROM_PLC;
+        // mux of the above two
+        wire PLC_IO[6]: mux;
+
+        // alias of PLC_IO, but with complex mapping
+        wire IMUX_IO_O_PLC[6]: mux;
+        wire IMUX_IO_O[6]: mux;
+        wire IMUX_IO_T[6]: mux;
+        wire OUT_IO_CLK[6]: bel;
+
+        // alias of OUT_IO_CLK
+        wire IO_GCLK_S[2]: regional GLOBAL;
+        wire IO_GCLK_N[2]: regional GLOBAL;
+
+        // test wires (purpose unclear)
         wire OUT_TI[12]: bel;
+
+        wire IMUX_PLL_CLKI: mux;
+        wire IMUX_PLL_CLKFB: mux;
+        wire OUT_PLL_CLKINTFB: bel;
+        wire OUT_PLL_CLKOP: bel;
+        wire OUT_PLL_CLKOS: bel;
+        wire OUT_PLL_CLKOK: bel;
+
+        // aliases of OUT_IO_CLK
+        wire IO_PLL_CLKI: mux;
+        wire IO_PLL_CLKFB: mux;
     }
 
     if variant scm {
-        // SCM special: EBR interconnect
+        // EBR interconnect
         wire IMUX_EBR_DIA[18]: mux;
         wire IMUX_EBR_DIB[18]: mux;
         wire IMUX_EBR_ADA[11]: mux;
@@ -483,7 +548,7 @@ target_defs! {
         wire EBR_E0[64]: mux;
         wire EBR_E1[64]: branch EBR_W;
 
-        // SCM special: IO interconnect
+        // IO interconnect
         wire IMUX_IO[32]: mux;
         wire OUT_IO[24]: bel;
         for i in 0..8 {
@@ -617,7 +682,9 @@ target_defs! {
                 }
             }
         } else if variant machxo {
-            bel_slot IO[6]: legacy;
+            bel_slot IO[6]: IO;
+            bel_slot PICTEST[1]: PICTEST;
+            bel_slot IO_INT: routing;
             tile_class
                 SIO_S_W2, SIO_S_W4, SIO_S_E2, SIO_S_E4,
                 SIO_S_S4, SIO_S_S6, SIO_S_N4, SIO_S_N6,
@@ -625,10 +692,16 @@ target_defs! {
                 SIO_L_S4, SIO_L_S6, SIO_L_N4, SIO_L_N6
             {
                 cell CELL;
+                switchbox IO_INT;
                 if tile_class [SIO_S_S6, SIO_S_N6, SIO_L_S6, SIO_L_N6] {
                     for i in 0..6 {
                         bel IO[i];
                     }
+                } else if tile_class [SIO_S_W2, SIO_S_E2, SIO_L_W2, SIO_L_E2] {
+                    for i in 0..2 {
+                        bel IO[i];
+                    }
+                    bel PICTEST[0];
                 } else {
                     for i in 0..4 {
                         bel IO[i];
@@ -719,6 +792,8 @@ target_defs! {
     }
 
     tile_slot BEL {
+        bel_slot BEL_INT: routing;
+
         bel_slot SLICE[4]: SLICE;
 
         tile_class PLC, FPLC {
@@ -817,11 +892,10 @@ target_defs! {
 
         // EBR & DSP
         if variant scm {
-            bel_slot EBR_INT: routing;
             bel_slot EBR[1]: EBR;
             tile_class EBR_W, EBR_E {
                 cell CELL[2];
-                switchbox EBR_INT;
+                switchbox BEL_INT;
                 bel EBR[0];
             }
         } else if variant [ecp, xp] {
@@ -882,12 +956,11 @@ target_defs! {
         // MACO, SERDES
         if variant scm {
             bel_slot MACO: legacy;
-            bel_slot MACO_INT: routing;
             tile_class MACO_W, MACO_E {
                 cell CELL[4];
                 cell CELL_IO[2];
                 cell CELL_EBR[10];
-                switchbox MACO_INT;
+                switchbox BEL_INT;
                 bel MACO;
             }
 
@@ -1017,9 +1090,10 @@ target_defs! {
                 bel DQSDLL;
             }
         } else if variant machxo {
-            bel_slot PLL[1]: legacy;
+            bel_slot PLL[1]: PLL;
             tile_class PLL_S, PLL_N {
                 cell CELL;
+                switchbox BEL_INT;
                 bel PLL[0];
             }
         } else if variant [ecp2, ecp2m] {
@@ -1276,14 +1350,14 @@ target_defs! {
                 // RDBK and OSC exist as stubs?
             }
         } else if variant machxo {
-            bel_slot OSC: legacy;
+            bel_slot OSC: OSC;
             tile_class OSC, OSC_X {
                 cell CELL;
                 bel OSC;
             }
 
-            bel_slot JTAG: legacy;
-            bel_slot GSR: legacy;
+            bel_slot JTAG: JTAG;
+            bel_slot GSR: GSR;
             tile_class CONFIG {
                 cell CELL[5];
                 bel JTAG;
@@ -1525,43 +1599,16 @@ target_defs! {
     }
 
     tile_slot CLK {
-        if variant scm {
-            bel_slot ECLK_ROOT: legacy;
-            bel_slot CLKDIV[4]: legacy;
-            bel_slot DCS[2]: legacy;
-            bel_slot CLK_EDGE: legacy;
-            bel_slot CLK_ROOT: legacy;
-            bel_slot CLKTEST: legacy;
-            tile_class CLK_W, CLK_E, CLK_N {
-                cell CELL[2];
-                bel ECLK_ROOT;
-                for i in 0..4 {
-                    bel CLKDIV[i];
+        bel_slot CLK_INT: routing;
+        if variant machxo {
+            tile_class CLK_ROOT_0PLL, CLK_ROOT_1PLL, CLK_ROOT_2PLL {
+                cell CELL[6];
+                if tile_class CLK_ROOT_1PLL {
+                    cell PLL[1];
+                } else if tile_class CLK_ROOT_2PLL {
+                    cell PLL[2];
                 }
-                for i in 0..2 {
-                    bel DCS[i];
-                }
-                bel CLK_EDGE;
-            }
-            tile_class CLK_S {
-                cell CELL[2];
-                for i in 0..2 {
-                    bel DCS[i];
-                }
-                bel CLK_EDGE;
-            }
-            tile_class CLK_SW, CLK_SE {
-                cell CELL[2];
-                bel ECLK_ROOT;
-                for i in 0..4 {
-                    bel CLKDIV[i];
-                }
-            }
-            tile_class CLK_ROOT {
-                cell CELL_S[2];
-                cell CELL_N[2];
-                bel CLK_ROOT;
-                bel CLKTEST;
+                switchbox CLK_INT;
             }
         } else if variant [ecp, xp, ecp2, ecp2m, xp2] {
             bel_slot CLK_ROOT: legacy;
@@ -1639,12 +1686,6 @@ target_defs! {
                         bel DCS_NE[i];
                     }
                 }
-            }
-        } else if variant machxo {
-            bel_slot CLK_ROOT: legacy;
-            tile_class CLK_ROOT_0PLL, CLK_ROOT_1PLL, CLK_ROOT_2PLL {
-                cell CELL[6];
-                bel CLK_ROOT;
             }
         } else if variant ecp3 {
             bel_slot CLK_ROOT: legacy;
@@ -1747,6 +1788,44 @@ target_defs! {
                 for i in 0..2 {
                     bel DQS[i];
                 }
+            }
+        } else if variant scm {
+            bel_slot ECLK_ROOT: legacy;
+            bel_slot CLKDIV[4]: legacy;
+            bel_slot DCS[2]: legacy;
+            bel_slot CLK_EDGE: legacy;
+            bel_slot CLK_ROOT: legacy;
+            bel_slot CLKTEST: legacy;
+            tile_class CLK_W, CLK_E, CLK_N {
+                cell CELL[2];
+                bel ECLK_ROOT;
+                for i in 0..4 {
+                    bel CLKDIV[i];
+                }
+                for i in 0..2 {
+                    bel DCS[i];
+                }
+                bel CLK_EDGE;
+            }
+            tile_class CLK_S {
+                cell CELL[2];
+                for i in 0..2 {
+                    bel DCS[i];
+                }
+                bel CLK_EDGE;
+            }
+            tile_class CLK_SW, CLK_SE {
+                cell CELL[2];
+                bel ECLK_ROOT;
+                for i in 0..4 {
+                    bel CLKDIV[i];
+                }
+            }
+            tile_class CLK_ROOT {
+                cell CELL_S[2];
+                cell CELL_N[2];
+                bel CLK_ROOT;
+                bel CLKTEST;
             }
         } else if variant ecp4 {
             bel_slot CLK_ROOT: legacy;
@@ -2309,6 +2388,23 @@ target_defs! {
             for i in 0..6 {
                 reflect "X6_S{i+1}" = "X6_N{i}";
             }
+        }
+    }
+
+    if variant machxo {
+        connector_slot IO_FROM_PLC {
+            opposite PLC_TO_IO;
+            connector_class IO_FROM_PLC {
+                for i in 0..6 {
+                    pass OUT_F_PLC_IO[i] = OUT_F[i];
+                    pass OUT_Q_PLC_IO[i] = OUT_Q[i];
+                }
+            }
+        }
+
+        connector_slot PLC_TO_IO {
+            opposite IO_FROM_PLC;
+            connector_class PLC_TO_IO;
         }
     }
 

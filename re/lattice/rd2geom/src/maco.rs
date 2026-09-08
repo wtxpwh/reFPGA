@@ -173,7 +173,7 @@ impl ChipContext<'_> {
             let tcls = &self.intdb[tcid];
             for &tcrd in &self.edev.tile_index[tcid] {
                 let bcrd = tcrd.bel(bslots::MACO);
-                let bcrd_int = tcrd.bel(bslots::MACO_INT);
+                let bcrd_int = tcrd.bel(bslots::BEL_INT);
                 let cell = bcrd.delta(0, 1);
                 let (ul, idx) = maco_rows[bcrd.row];
                 self.name_bel(bcrd, [format!("{lr}{ul}MACO{idx}")]);

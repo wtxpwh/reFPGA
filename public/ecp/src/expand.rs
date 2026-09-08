@@ -4,12 +4,15 @@ use prjcombine_entity::{EntityId, EntityPartVec, EntityVec};
 use prjcombine_interconnect::{
     db::IntDb,
     dir::{Dir, DirH, DirHV, DirV},
-    grid::{CellCoord, ColId, DieId, DieIdExt, Rect, RowId, builder::GridBuilder},
+    grid::{CellCoord, ColId, DieId, DieIdExt, Rect, RowId, WireCoord, builder::GridBuilder},
 };
 
 use crate::{
-    chip::{Chip, ChipKind, IoGroupKind, MachXo2Kind, PllLoc, RowKind, SpecialLocKey},
-    defs::{bslots, ccls, rslots, tcls, tiledata, tslots},
+    chip::{
+        Chip, ChipKind, IoGroupKind, MachXo2Kind, PllLoc, PllPad, RowKind, SpecialIoKey,
+        SpecialLocKey,
+    },
+    defs::{bslots, ccls, rslots, tcls, tiledata, tslots, wires},
     expanded::ExpandedDevice,
 };
 
@@ -58,6 +61,15 @@ impl Expander<'_, '_> {
                 self.egrid.add_tile_single(cell, tcls_plc);
             }
         }
+    }
+
+    fn add_io_conn(&mut self, wire: WireCoord, key: SpecialIoKey) {
+        let io = self.chip.special_io[&key];
+        let io = self.chip.get_io_loc(io);
+        let ioidx = bslots::IO.index_of(io.slot).unwrap();
+        self.egrid
+            .extra_conns
+            .insert(wire, io.wire(wires::OUT_IO_CLK[ioidx]));
     }
 
     fn fill_config_scm(&mut self) {
@@ -2985,6 +2997,48 @@ impl Expander<'_, '_> {
     }
 
     fn fill_io_machxo(&mut self) {
+        for col in self.egrid.cols(self.die) {
+            if col != self.chip.col_w() && col != self.chip.col_e() {
+                let cell_s = self.die.cell(col, self.chip.row_s());
+                self.egrid.fill_conn_pair(
+                    cell_s,
+                    cell_s.delta(0, 1),
+                    ccls::IO_FROM_PLC,
+                    ccls::PLC_TO_IO,
+                );
+                let cell_n = self.die.cell(col, self.chip.row_n());
+                self.egrid.fill_conn_pair(
+                    cell_n,
+                    cell_n.delta(0, -1),
+                    ccls::IO_FROM_PLC,
+                    ccls::PLC_TO_IO,
+                );
+            }
+        }
+        for row in self.egrid.rows(self.die) {
+            if row > self.chip.row_s() + 1 && row < self.chip.row_n() - 1 {
+                let cell_w = self.die.cell(self.chip.col_w(), row);
+                self.egrid.fill_conn_pair(
+                    cell_w,
+                    cell_w.delta(1, 0),
+                    ccls::IO_FROM_PLC,
+                    ccls::PLC_TO_IO,
+                );
+                let cell_e = self.die.cell(self.chip.col_e(), row);
+                self.egrid.fill_conn_pair(
+                    cell_e,
+                    cell_e.delta(-1, 0),
+                    ccls::IO_FROM_PLC,
+                    ccls::PLC_TO_IO,
+                );
+            }
+        }
+        for (&io, &(src_cell, plc_lut)) in &self.chip.io_direct_plc {
+            let io_idx = bslots::IO.index_of(io.slot).unwrap();
+            let dst_wire = io.wire(wires::IMUX_IO_O_PLC[io_idx]);
+            let src_wire = src_cell.wire(wires::PLC_IO[plc_lut]);
+            self.egrid.extra_conns.insert(dst_wire, src_wire);
+        }
         let has_ebr = self.chip.special_loc.contains_key(&SpecialLocKey::Ebr(0));
         for cell in self.egrid.column(self.die, self.chip.col_w()) {
             let rd = &self.chip.rows[cell.row];
@@ -3086,6 +3140,12 @@ impl Expander<'_, '_> {
                         DirV::N => tcls::PLL_N,
                     };
                     self.egrid.add_tile_single(cell, kind);
+                    for (wire, pad) in [
+                        (wires::IO_PLL_CLKI, PllPad::PllIn0),
+                        (wires::IO_PLL_CLKFB, PllPad::PllFb),
+                    ] {
+                        self.add_io_conn(cell.wire(wire), SpecialIoKey::Pll(pad, which));
+                    }
                 }
                 SpecialLocKey::Ebr(_) => {
                     self.egrid.add_tile_n(cell, tcls::EBR, 4);
@@ -3111,28 +3171,52 @@ impl Expander<'_, '_> {
             self.egrid[cell].region_root[rslots::PCLK] =
                 self.die.cell(self.chip.col_clk, self.chip.row_clk);
         }
+        for &key in self.chip.special_io.keys() {
+            let SpecialIoKey::Clock(edge, cidx) = key else {
+                continue;
+            };
+            let wire = match edge {
+                Dir::N => wires::IO_GCLK_N[usize::from(cidx)],
+                Dir::S => wires::IO_GCLK_S[usize::from(cidx)],
+                _ => unreachable!(),
+            };
+            self.add_io_conn(self.chip.clk_root().wire(wire), key);
+        }
+        let mut tcells = self
+            .die
+            .cell(self.chip.col_w(), self.chip.row_clk - 3)
+            .cells_n(6);
         let kind = if self
             .chip
             .special_loc
             .contains_key(&SpecialLocKey::Pll(PllLoc::new(DirHV::NW, 0)))
         {
+            tcells.extend([
+                self.chip.special_loc[&SpecialLocKey::Pll(PllLoc::new(DirHV::SW, 0))],
+                self.chip.special_loc[&SpecialLocKey::Pll(PllLoc::new(DirHV::NW, 0))],
+            ]);
             tcls::CLK_ROOT_2PLL
         } else if self
             .chip
             .special_loc
             .contains_key(&SpecialLocKey::Pll(PllLoc::new(DirHV::SW, 0)))
         {
+            tcells.extend([self.chip.special_loc[&SpecialLocKey::Pll(PllLoc::new(DirHV::SW, 0))]]);
             tcls::CLK_ROOT_1PLL
         } else {
             tcls::CLK_ROOT_0PLL
         };
-        let tcells: [_; 6] =
-            core::array::from_fn(|i| self.die.cell(self.chip.col_w(), self.chip.row_clk - 3 + i));
         self.egrid.add_tile(
             self.die.cell(self.chip.col_clk, self.chip.row_clk),
             kind,
             &tcells,
         );
+    }
+
+    fn fill_clk_global(&mut self) {
+        for cell in self.egrid.die_cells(self.die) {
+            self.egrid[cell].region_root[rslots::GLOBAL] = self.chip.bel_clk_root().cell;
+        }
     }
 
     fn fill_conns(&mut self) {
@@ -3321,6 +3405,7 @@ impl Chip {
                 expander.fill_clk_crosslink();
             }
         }
+        expander.fill_clk_global();
         expander.fill_conns();
 
         let bel_holes = expander.bel_holes;

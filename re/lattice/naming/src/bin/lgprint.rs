@@ -27,6 +27,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     }
     if args.chips || args.devices || args.namings {
         for (cid, (chip, naming)) in &db.chips {
+            let edev = chip.expand_grid(&db.int);
             print!("CHIP {cid}:");
             for dev in &db.devices {
                 if dev.chip == cid {
@@ -35,7 +36,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             }
             println!();
             if args.chips {
-                chip.dump(&mut std::io::stdout())?;
+                chip.dump(&mut std::io::stdout(), &db.int)?;
             }
             if args.namings {
                 for (&wire, &name) in &naming.interconnect {
@@ -55,6 +56,14 @@ fn main() -> Result<(), Box<dyn Error>> {
                         println!(
                             "\t\t{p}: {n}",
                             p = naming.strings[pin],
+                            n = name.to_string(naming)
+                        );
+                    }
+                    for (&tw, &name) in &bnaming.int_wires {
+                        let tcls = &db.int[edev[edev.bel_tile(bel)].class];
+                        println!(
+                            "\t\t{tw}: {n}",
+                            tw = tw.to_string(&db.int, tcls),
                             n = name.to_string(naming)
                         );
                     }

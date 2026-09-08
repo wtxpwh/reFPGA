@@ -3516,21 +3516,14 @@ impl ChipBuilder<'_> {
             if let Some(&iob) = xlat.get(&wtn.suffix) {
                 let io_cell = self.chip.xlat_rc_wire(wtn);
                 let io = io_cell.bel(bslots::IO[iob]);
-                let io = self.chip.get_io_crd(io);
                 let wfn = self.nodes[wf];
-                let stage_cell = self.chip.xlat_rc_wire(wfn);
-                let plc_cell = match io.edge() {
-                    Dir::W => stage_cell.delta(1, 0),
-                    Dir::E => stage_cell.delta(-1, 0),
-                    Dir::S => stage_cell.delta(0, 1),
-                    Dir::N => stage_cell.delta(0, -1),
-                };
+                let src_cell = self.chip.xlat_rc_wire(wfn);
                 let lut = self.naming.strings[wfn.suffix]
                     .strip_prefix("JDD")
                     .unwrap()
                     .parse()
                     .unwrap();
-                self.chip.io_direct_plc.insert(io, (plc_cell, lut));
+                self.chip.io_direct_plc.insert(io, (src_cell, lut));
             }
         }
     }

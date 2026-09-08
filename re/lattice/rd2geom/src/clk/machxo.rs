@@ -1,9 +1,11 @@
+use std::collections::BTreeMap;
+
 use prjcombine_ecp::{
     chip::{Chip, PllLoc, SpecialIoKey, SpecialLocKey},
     defs::wires,
 };
 use prjcombine_interconnect::{
-    db::{BelPin, LegacyBel, WireSlotIdExt},
+    db::WireSlotIdExt,
     dir::{Dir, DirHV},
     grid::DieIdExt,
 };
@@ -18,19 +20,14 @@ impl ChipContext<'_> {
         } else {
             Chip::DIE.cell(self.chip.col_clk - 1, self.chip.row_clk)
         };
-        self.name_bel_null(bcrd);
-        let mut bel = LegacyBel::default();
 
-        let mut inputs_pclk = vec![];
-        let mut inputs_sclk = vec![];
+        let mut inputs = BTreeMap::new();
+
         for i in 0..3 {
             for j in 0..4 {
-                let wire = self.rc_wire(cell, &format!("JCIBCTL{i}{j}"));
-                let pin = format!("CIBCTL{i}{j}");
-                self.add_bel_wire(bcrd, &pin, wire);
-                let bpin = self.xlat_int_wire(bcrd, wire);
-                bel.pins.insert(pin, bpin);
-                inputs_sclk.push(wire);
+                let wname = self.rc_wire(cell, &format!("JCIBCTL{i}{j}"));
+                let wire = self.xlat_input(bcrd, wname).wire();
+                inputs.insert(wname, wire);
                 if j == 2
                     && self
                         .chip
@@ -47,38 +44,52 @@ impl ChipContext<'_> {
                 {
                     continue;
                 }
-                let wire = self.rc_wire(cell, &format!("JCIBCLK{i}{j}"));
-                let pin = format!("CIBCLK{i}{j}");
-                self.add_bel_wire(bcrd, &pin, wire);
-                let bpin = self.xlat_int_wire(bcrd, wire);
-                bel.pins.insert(pin, bpin);
-                inputs_pclk.push(wire);
+                let wname = self.rc_wire(cell, &format!("JCIBCLK{i}{j}"));
+                let wire = self.xlat_input(bcrd, wname).wire();
+                inputs.insert(wname, wire);
             }
         }
 
-        for (wire, key) in [
-            ("JGCLK0", SpecialIoKey::Clock(Dir::N, 0)),
-            ("JGCLK1", SpecialIoKey::Clock(Dir::N, 1)),
-            ("JGCLK2", SpecialIoKey::Clock(Dir::S, 0)),
-            ("JGCLK3", SpecialIoKey::Clock(Dir::S, 1)),
+        for (wire, key, gwire) in [
+            (
+                "JGCLK0",
+                SpecialIoKey::Clock(Dir::N, 0),
+                wires::IO_GCLK_N[0],
+            ),
+            (
+                "JGCLK1",
+                SpecialIoKey::Clock(Dir::N, 1),
+                wires::IO_GCLK_N[1],
+            ),
+            (
+                "JGCLK2",
+                SpecialIoKey::Clock(Dir::S, 0),
+                wires::IO_GCLK_S[0],
+            ),
+            (
+                "JGCLK3",
+                SpecialIoKey::Clock(Dir::S, 1),
+                wires::IO_GCLK_S[1],
+            ),
         ] {
+            let gwire = gwire.cell(3);
             let wire = self.rc_wire(cell, wire);
-            self.add_bel_wire(bcrd, key.to_string(), wire);
             let wire_io = self.get_special_io_wire_in(key);
             self.claim_pip(wire, wire_io);
-            inputs_pclk.push(wire);
-            inputs_sclk.push(wire);
+            inputs.insert(wire, gwire);
         }
 
-        for (loc, clkop, clkos, clkok) in [
+        for (loc, cidx, clkop, clkos, clkok) in [
             (
                 PllLoc::new(DirHV::SW, 0),
+                6,
                 "JLLMMCLKA",
                 "JLLMNCLKA",
                 "JLFPSC1",
             ),
             (
                 PllLoc::new(DirHV::NW, 0),
+                7,
                 "JULMMCLKA",
                 "JULMNCLKA",
                 "JLFPSC0",
@@ -90,40 +101,24 @@ impl ChipContext<'_> {
             let clkop = self.rc_wire(cell, clkop);
             let clkos = self.rc_wire(cell, clkos);
             let clkok = self.rc_wire(cell, clkok);
-            self.add_bel_wire(bcrd, format!("PLL_{loc}_CLKOP"), clkop);
-            self.add_bel_wire(bcrd, format!("PLL_{loc}_CLKOS"), clkos);
-            self.add_bel_wire(bcrd, format!("PLL_{loc}_CLKOK"), clkok);
             let clkop_pll = self.rc_wire(pll_cell, "JCLKOP_PLL");
             let clkos_pll = self.rc_wire(pll_cell, "JCLKOS_PLL");
             let clkok_pll = self.rc_wire(pll_cell, "JCLKOK_PLL");
             self.claim_pip(clkop, clkop_pll);
             self.claim_pip(clkos, clkos_pll);
             self.claim_pip(clkok, clkok_pll);
-            inputs_pclk.push(clkop);
-            inputs_pclk.push(clkos);
-            inputs_pclk.push(clkok);
+            inputs.insert(clkop, wires::OUT_PLL_CLKOP.cell(cidx));
+            inputs.insert(clkos, wires::OUT_PLL_CLKOS.cell(cidx));
+            inputs.insert(clkok, wires::OUT_PLL_CLKOK.cell(cidx));
         }
 
-        for idx in 0..8 {
-            let wire = wires::PCLK[idx];
-            let pin = if idx < 4 {
-                format!("PCLK{idx}")
-            } else {
-                format!("SCLK{ii}", ii = idx - 4)
-            };
-            bel.pins.insert(pin, BelPin::new_in(wire.cell(0)));
-            let wire = bcrd.cell.wire(wire);
-            if idx < 4 {
-                for &wf in &inputs_pclk {
-                    self.claim_pip_int_out(wire, wf);
-                }
-            } else {
-                for &wf in &inputs_sclk {
-                    self.claim_pip_int_out(wire, wf);
-                }
-            }
+        let mut extractor = self.extract_switchbox(bcrd);
+        for (name, wire) in inputs {
+            extractor.input(name, wire);
         }
 
-        self.insert_legacy_bel(bcrd, bel);
+        for i in 0..8 {
+            extractor.output_int(wires::PCLK[i].cell(3));
+        }
     }
 }

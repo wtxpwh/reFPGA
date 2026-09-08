@@ -16,7 +16,7 @@ use prjcombine_ecp::{
 };
 use prjcombine_entity::{EntityId, EntityVec};
 use prjcombine_interconnect::{
-    db::{Bel, BelInfo, BelSlotId, IntDb, LegacyBel, TileClassId},
+    db::{Bel, BelInfo, BelSlotId, IntDb, LegacyBel, SwitchBox, TileClassId, TileWireCoord},
     grid::{BelCoord, CellCoord, ColId, WireCoord},
 };
 use prjcombine_re_lattice_naming::{BelNaming, ChipNaming, Database, WireName};
@@ -25,7 +25,7 @@ use prjcombine_types::db::DeviceCombo;
 use rayon::iter::{IntoParallelIterator, ParallelIterator};
 
 use crate::{
-    bel::BelExtractor,
+    bel::{BelExtractor, SwitchBoxExtractor},
     chip::{ChipExt, make_chip},
     pkg::process_bond,
 };
@@ -290,6 +290,7 @@ impl<'dev> ChipContext<'dev> {
                     BelNaming {
                         names,
                         wires: Default::default(),
+                        int_wires: Default::default(),
                     },
                 )
                 .is_none()
@@ -313,6 +314,20 @@ impl<'dev> ChipContext<'dev> {
             .unwrap()
             .wires
             .insert(pin, wire);
+    }
+
+    fn add_sb_wire(&mut self, bel: BelCoord, tw: TileWireCoord, wire: WireName) {
+        self.add_sb_wire_no_claim(bel, tw, wire);
+        self.claim_node(wire);
+    }
+
+    fn add_sb_wire_no_claim(&mut self, bel: BelCoord, tw: TileWireCoord, wire: WireName) {
+        self.naming
+            .bels
+            .get_mut(&bel)
+            .unwrap()
+            .int_wires
+            .insert(tw, wire);
     }
 
     fn sort_bel_wires(&mut self) {
@@ -418,6 +433,10 @@ impl<'dev> ChipContext<'dev> {
         self.insert_bel_generic(bcrd, BelInfo::Legacy(bel));
     }
 
+    fn insert_switchbox(&mut self, bcrd: BelCoord, sb: SwitchBox) {
+        self.insert_bel_generic(bcrd, BelInfo::SwitchBox(sb));
+    }
+
     fn extract_simple_legacy_bel(
         &mut self,
         bcrd: BelCoord,
@@ -446,6 +465,16 @@ impl<'dev> ChipContext<'dev> {
             bcrd,
             cell,
             bel: Bel::default(),
+        }
+    }
+
+    fn extract_switchbox(&mut self, bcrd: BelCoord) -> SwitchBoxExtractor<'dev, '_> {
+        self.name_bel_null(bcrd);
+        SwitchBoxExtractor {
+            ctx: self,
+            bcrd,
+            inputs: BTreeMap::new(),
+            outputs: BTreeMap::new(),
         }
     }
 

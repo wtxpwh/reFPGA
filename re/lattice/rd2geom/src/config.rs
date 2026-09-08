@@ -329,7 +329,7 @@ impl ChipContext<'_> {
 
         let bcrd = cell.bel(bslots::JTAG);
         self.name_bel(bcrd, ["JTAG", "TCK", "TMS", "TDI", "TDO", "TSALL"]);
-        self.insert_simple_legacy_bel(bcrd, cell, "JTAG");
+        self.extract_bel(bcrd, cell).suffix("JTAG");
         for pin in ["TCK", "TMS", "TDI", "TDO"] {
             let wire = self.rc_wire(cell, &format!("J{pin}_JTAG"));
             let wire_pin = WireName {
@@ -354,7 +354,7 @@ impl ChipContext<'_> {
 
         let bcrd = cell.bel(bslots::GSR);
         self.name_bel(bcrd, ["GSR"]);
-        self.insert_simple_legacy_bel(bcrd, cell, "GSR");
+        self.extract_bel(bcrd, cell).suffix("GSR");
         let gsrpadn = self.rc_wire(cell, "JGSRPADN_GSR");
         self.add_bel_wire(bcrd, "GSRPADN", gsrpadn);
         let wire_io = self.get_special_io_wire_in(SpecialIoKey::Gsr);
@@ -365,7 +365,7 @@ impl ChipContext<'_> {
         let cell = self.chip.special_loc[&SpecialLocKey::Osc];
         let bcrd = cell.bel(bslots::OSC);
         self.name_bel(bcrd, ["OSC"]);
-        self.insert_simple_legacy_bel(bcrd, cell, "OSC");
+        self.extract_bel(bcrd, cell).suffix("OSC");
     }
 
     fn process_config_ecp2(&mut self) {

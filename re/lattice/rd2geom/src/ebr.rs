@@ -80,7 +80,7 @@ impl ChipContext<'_> {
 
             for &tcrd in &self.edev.tile_index[tcid] {
                 let bcrd = tcrd.bel(bslots::EBR[0]);
-                let bcrd_int = tcrd.bel(bslots::EBR_INT);
+                let bcrd_int = tcrd.bel(bslots::BEL_INT);
                 let cell_w = bcrd.cell;
                 let cell_e = bcrd.cell.delta(1, 0);
                 let (r, c) = self.rc(cell_w);
@@ -308,7 +308,7 @@ impl ChipContext<'_> {
                 sb.items.push(SwitchBoxItem::Mux(mux));
             }
             self.bels
-                .insert((tcid, bslots::EBR_INT), BelInfo::SwitchBox(sb));
+                .insert((tcid, bslots::BEL_INT), BelInfo::SwitchBox(sb));
         }
     }
 

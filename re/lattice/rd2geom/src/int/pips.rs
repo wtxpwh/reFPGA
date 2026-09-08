@@ -528,6 +528,19 @@ impl ChipContext<'_> {
                     }));
                 }
             }
+            if self.chip.kind == ChipKind::MachXo && tcid != tcls::INT_PLC {
+                for i in 0..6 {
+                    sb.items.push(SwitchBoxItem::Mux(Mux {
+                        dst: wires::PLC_IO[i].cell(0),
+                        bits: Default::default(),
+                        src: BTreeMap::from_iter([
+                            (wires::OUT_F_PLC_IO[i].cell(0).pos(), Default::default()),
+                            (wires::OUT_Q_PLC_IO[i].cell(0).pos(), Default::default()),
+                        ]),
+                        bits_off: None,
+                    }));
+                }
+            }
             self.bels
                 .insert((tcid, bslots::INT), BelInfo::SwitchBox(sb));
         }

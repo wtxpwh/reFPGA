@@ -34,86 +34,86 @@ chip CHIP0 {
 	special_io GSR = IOB_W5_3;
 	special_io TSALL = IOB_W4_1;
 	special_io SLEEP_N = IOB_S4_1;
-	io_direct IOB_W1_0 = D0X1Y2_2;
-	io_direct IOB_W1_1 = D0X1Y2_3;
-	io_direct IOB_W2_0 = D0X1Y2_0;
-	io_direct IOB_W2_1 = D0X1Y2_1;
-	io_direct IOB_W3_0 = D0X1Y3_0;
-	io_direct IOB_W3_1 = D0X1Y3_1;
-	io_direct IOB_W3_2 = D0X1Y3_2;
-	io_direct IOB_W3_3 = D0X1Y3_3;
-	io_direct IOB_W4_0 = D0X1Y4_1;
-	io_direct IOB_W4_1 = D0X1Y4_2;
-	io_direct IOB_W5_0 = D0X1Y5_0;
-	io_direct IOB_W5_1 = D0X1Y5_1;
-	io_direct IOB_W5_2 = D0X1Y5_2;
-	io_direct IOB_W5_3 = D0X1Y4_0;
-	io_direct IOB_W6_0 = D0X1Y6_2;
-	io_direct IOB_W6_1 = D0X1Y6_3;
-	io_direct IOB_W7_0 = D0X1Y7_2;
-	io_direct IOB_W7_1 = D0X1Y7_3;
-	io_direct IOB_W7_2 = D0X1Y6_0;
-	io_direct IOB_W7_3 = D0X1Y6_1;
-	io_direct IOB_W8_0 = D0X1Y7_0;
-	io_direct IOB_W8_1 = D0X1Y7_1;
-	io_direct IOB_E1_0 = D0X4Y2_2;
-	io_direct IOB_E1_1 = D0X4Y2_3;
-	io_direct IOB_E2_0 = D0X4Y2_0;
-	io_direct IOB_E2_1 = D0X4Y2_1;
-	io_direct IOB_E3_0 = D0X4Y3_0;
-	io_direct IOB_E3_1 = D0X4Y3_1;
-	io_direct IOB_E3_2 = D0X4Y3_2;
-	io_direct IOB_E3_3 = D0X4Y3_3;
-	io_direct IOB_E4_0 = D0X4Y4_1;
-	io_direct IOB_E4_1 = D0X4Y4_2;
-	io_direct IOB_E5_0 = D0X4Y5_0;
-	io_direct IOB_E5_1 = D0X4Y5_1;
-	io_direct IOB_E5_2 = D0X4Y5_2;
-	io_direct IOB_E5_3 = D0X4Y4_0;
-	io_direct IOB_E6_0 = D0X4Y6_2;
-	io_direct IOB_E6_1 = D0X4Y6_3;
-	io_direct IOB_E7_0 = D0X4Y7_2;
-	io_direct IOB_E7_1 = D0X4Y7_3;
-	io_direct IOB_E7_2 = D0X4Y6_0;
-	io_direct IOB_E7_3 = D0X4Y6_1;
-	io_direct IOB_E8_0 = D0X4Y7_0;
-	io_direct IOB_E8_1 = D0X4Y7_1;
-	io_direct IOB_S1_0 = D0X1Y1_0;
-	io_direct IOB_S1_1 = D0X1Y1_1;
-	io_direct IOB_S1_2 = D0X1Y1_2;
-	io_direct IOB_S1_3 = D0X1Y1_3;
-	io_direct IOB_S2_0 = D0X2Y1_0;
-	io_direct IOB_S2_1 = D0X2Y1_1;
-	io_direct IOB_S2_2 = D0X2Y1_2;
-	io_direct IOB_S2_3 = D0X2Y1_3;
-	io_direct IOB_S3_0 = D0X3Y1_0;
-	io_direct IOB_S3_1 = D0X3Y1_1;
-	io_direct IOB_S3_2 = D0X3Y1_2;
-	io_direct IOB_S3_3 = D0X3Y1_3;
-	io_direct IOB_S4_0 = D0X4Y1_0;
-	io_direct IOB_S4_1 = D0X4Y1_1;
-	io_direct IOB_S4_2 = D0X4Y1_2;
-	io_direct IOB_S4_3 = D0X4Y1_3;
-	io_direct IOB_N1_0 = D0X1Y8_0;
-	io_direct IOB_N1_1 = D0X1Y8_1;
-	io_direct IOB_N1_2 = D0X1Y8_2;
-	io_direct IOB_N1_3 = D0X1Y8_3;
-	io_direct IOB_N1_4 = D0X1Y8_4;
-	io_direct IOB_N1_5 = D0X1Y8_5;
-	io_direct IOB_N2_0 = D0X2Y8_0;
-	io_direct IOB_N2_1 = D0X2Y8_1;
-	io_direct IOB_N2_2 = D0X2Y8_2;
-	io_direct IOB_N2_3 = D0X2Y8_3;
-	io_direct IOB_N3_0 = D0X3Y8_0;
-	io_direct IOB_N3_1 = D0X3Y8_1;
-	io_direct IOB_N3_2 = D0X3Y8_2;
-	io_direct IOB_N3_3 = D0X3Y8_3;
-	io_direct IOB_N3_4 = D0X3Y8_4;
-	io_direct IOB_N3_5 = D0X3Y8_5;
-	io_direct IOB_N4_0 = D0X4Y8_0;
-	io_direct IOB_N4_1 = D0X4Y8_1;
-	io_direct IOB_N4_2 = D0X4Y8_2;
-	io_direct IOB_N4_3 = D0X4Y8_3;
+	io_direct D0X0Y1.IO[0] = D0X0Y2_2;
+	io_direct D0X0Y1.IO[1] = D0X0Y2_3;
+	io_direct D0X0Y2.IO[0] = D0X0Y2_0;
+	io_direct D0X0Y2.IO[1] = D0X0Y2_1;
+	io_direct D0X0Y3.IO[0] = D0X0Y3_0;
+	io_direct D0X0Y3.IO[1] = D0X0Y3_1;
+	io_direct D0X0Y3.IO[2] = D0X0Y3_2;
+	io_direct D0X0Y3.IO[3] = D0X0Y3_3;
+	io_direct D0X0Y4.IO[0] = D0X0Y4_1;
+	io_direct D0X0Y4.IO[1] = D0X0Y4_2;
+	io_direct D0X0Y5.IO[0] = D0X0Y5_0;
+	io_direct D0X0Y5.IO[1] = D0X0Y5_1;
+	io_direct D0X0Y5.IO[2] = D0X0Y5_2;
+	io_direct D0X0Y5.IO[3] = D0X0Y4_0;
+	io_direct D0X0Y6.IO[0] = D0X0Y6_2;
+	io_direct D0X0Y6.IO[1] = D0X0Y6_3;
+	io_direct D0X0Y7.IO[0] = D0X0Y7_2;
+	io_direct D0X0Y7.IO[1] = D0X0Y7_3;
+	io_direct D0X0Y7.IO[2] = D0X0Y6_0;
+	io_direct D0X0Y7.IO[3] = D0X0Y6_1;
+	io_direct D0X0Y8.IO[0] = D0X0Y7_0;
+	io_direct D0X0Y8.IO[1] = D0X0Y7_1;
+	io_direct D0X1Y0.IO[0] = D0X1Y0_0;
+	io_direct D0X1Y0.IO[1] = D0X1Y0_1;
+	io_direct D0X1Y0.IO[2] = D0X1Y0_2;
+	io_direct D0X1Y0.IO[3] = D0X1Y0_3;
+	io_direct D0X1Y9.IO[0] = D0X1Y9_0;
+	io_direct D0X1Y9.IO[1] = D0X1Y9_1;
+	io_direct D0X1Y9.IO[2] = D0X1Y9_2;
+	io_direct D0X1Y9.IO[3] = D0X1Y9_3;
+	io_direct D0X1Y9.IO[4] = D0X1Y9_4;
+	io_direct D0X1Y9.IO[5] = D0X1Y9_5;
+	io_direct D0X2Y0.IO[0] = D0X2Y0_0;
+	io_direct D0X2Y0.IO[1] = D0X2Y0_1;
+	io_direct D0X2Y0.IO[2] = D0X2Y0_2;
+	io_direct D0X2Y0.IO[3] = D0X2Y0_3;
+	io_direct D0X2Y9.IO[0] = D0X2Y9_0;
+	io_direct D0X2Y9.IO[1] = D0X2Y9_1;
+	io_direct D0X2Y9.IO[2] = D0X2Y9_2;
+	io_direct D0X2Y9.IO[3] = D0X2Y9_3;
+	io_direct D0X3Y0.IO[0] = D0X3Y0_0;
+	io_direct D0X3Y0.IO[1] = D0X3Y0_1;
+	io_direct D0X3Y0.IO[2] = D0X3Y0_2;
+	io_direct D0X3Y0.IO[3] = D0X3Y0_3;
+	io_direct D0X3Y9.IO[0] = D0X3Y9_0;
+	io_direct D0X3Y9.IO[1] = D0X3Y9_1;
+	io_direct D0X3Y9.IO[2] = D0X3Y9_2;
+	io_direct D0X3Y9.IO[3] = D0X3Y9_3;
+	io_direct D0X3Y9.IO[4] = D0X3Y9_4;
+	io_direct D0X3Y9.IO[5] = D0X3Y9_5;
+	io_direct D0X4Y0.IO[0] = D0X4Y0_0;
+	io_direct D0X4Y0.IO[1] = D0X4Y0_1;
+	io_direct D0X4Y0.IO[2] = D0X4Y0_2;
+	io_direct D0X4Y0.IO[3] = D0X4Y0_3;
+	io_direct D0X4Y9.IO[0] = D0X4Y9_0;
+	io_direct D0X4Y9.IO[1] = D0X4Y9_1;
+	io_direct D0X4Y9.IO[2] = D0X4Y9_2;
+	io_direct D0X4Y9.IO[3] = D0X4Y9_3;
+	io_direct D0X5Y1.IO[0] = D0X5Y2_2;
+	io_direct D0X5Y1.IO[1] = D0X5Y2_3;
+	io_direct D0X5Y2.IO[0] = D0X5Y2_0;
+	io_direct D0X5Y2.IO[1] = D0X5Y2_1;
+	io_direct D0X5Y3.IO[0] = D0X5Y3_0;
+	io_direct D0X5Y3.IO[1] = D0X5Y3_1;
+	io_direct D0X5Y3.IO[2] = D0X5Y3_2;
+	io_direct D0X5Y3.IO[3] = D0X5Y3_3;
+	io_direct D0X5Y4.IO[0] = D0X5Y4_1;
+	io_direct D0X5Y4.IO[1] = D0X5Y4_2;
+	io_direct D0X5Y5.IO[0] = D0X5Y5_0;
+	io_direct D0X5Y5.IO[1] = D0X5Y5_1;
+	io_direct D0X5Y5.IO[2] = D0X5Y5_2;
+	io_direct D0X5Y5.IO[3] = D0X5Y4_0;
+	io_direct D0X5Y6.IO[0] = D0X5Y6_2;
+	io_direct D0X5Y6.IO[1] = D0X5Y6_3;
+	io_direct D0X5Y7.IO[0] = D0X5Y7_2;
+	io_direct D0X5Y7.IO[1] = D0X5Y7_3;
+	io_direct D0X5Y7.IO[2] = D0X5Y6_0;
+	io_direct D0X5Y7.IO[3] = D0X5Y6_1;
+	io_direct D0X5Y8.IO[0] = D0X5Y7_0;
+	io_direct D0X5Y8.IO[1] = D0X5Y7_1;
 }
 
 // LAMXO640C LAMXO640E LCMXO640C LCMXO640E LPTM10-12107 LPTM10-1247
@@ -158,166 +158,166 @@ chip CHIP1 {
 	special_io GSR = IOB_W7_1;
 	special_io TSALL = IOB_W4_2;
 	special_io SLEEP_N = IOB_S8_4;
-	io_direct IOB_W1_0 = D0X1Y2_1;
-	io_direct IOB_W1_1 = D0X1Y2_2;
-	io_direct IOB_W1_2 = D0X1Y2_3;
-	io_direct IOB_W1_3 = D0X1Y2_4;
-	io_direct IOB_W2_0 = D0X1Y3_2;
-	io_direct IOB_W2_1 = D0X1Y3_3;
-	io_direct IOB_W2_2 = D0X1Y3_4;
-	io_direct IOB_W2_3 = D0X1Y2_0;
-	io_direct IOB_W3_0 = D0X1Y4_3;
-	io_direct IOB_W3_1 = D0X1Y4_4;
-	io_direct IOB_W3_2 = D0X1Y3_0;
-	io_direct IOB_W3_3 = D0X1Y3_1;
-	io_direct IOB_W4_0 = D0X1Y5_4;
-	io_direct IOB_W4_1 = D0X1Y4_0;
-	io_direct IOB_W4_2 = D0X1Y4_1;
-	io_direct IOB_W4_3 = D0X1Y4_2;
-	io_direct IOB_W5_0 = D0X1Y5_0;
-	io_direct IOB_W5_1 = D0X1Y5_1;
-	io_direct IOB_W5_2 = D0X1Y5_2;
-	io_direct IOB_W5_3 = D0X1Y5_3;
-	io_direct IOB_W6_0 = D0X1Y6_1;
-	io_direct IOB_W6_1 = D0X1Y6_2;
-	io_direct IOB_W6_2 = D0X1Y6_3;
-	io_direct IOB_W6_3 = D0X1Y6_4;
-	io_direct IOB_W7_0 = D0X1Y7_2;
-	io_direct IOB_W7_1 = D0X1Y7_3;
-	io_direct IOB_W7_2 = D0X1Y7_4;
-	io_direct IOB_W7_3 = D0X1Y6_0;
-	io_direct IOB_W8_0 = D0X1Y8_3;
-	io_direct IOB_W8_1 = D0X1Y8_4;
-	io_direct IOB_W8_2 = D0X1Y7_0;
-	io_direct IOB_W8_3 = D0X1Y7_1;
-	io_direct IOB_W9_0 = D0X1Y9_4;
-	io_direct IOB_W9_1 = D0X1Y8_0;
-	io_direct IOB_W9_2 = D0X1Y8_1;
-	io_direct IOB_W9_3 = D0X1Y8_2;
-	io_direct IOB_W10_0 = D0X1Y9_0;
-	io_direct IOB_W10_1 = D0X1Y9_1;
-	io_direct IOB_W10_2 = D0X1Y9_2;
-	io_direct IOB_W10_3 = D0X1Y9_3;
-	io_direct IOB_E1_0 = D0X8Y2_1;
-	io_direct IOB_E1_1 = D0X8Y2_2;
-	io_direct IOB_E1_2 = D0X8Y2_3;
-	io_direct IOB_E1_3 = D0X8Y2_4;
-	io_direct IOB_E2_0 = D0X8Y3_2;
-	io_direct IOB_E2_1 = D0X8Y3_3;
-	io_direct IOB_E2_2 = D0X8Y3_4;
-	io_direct IOB_E2_3 = D0X8Y2_0;
-	io_direct IOB_E3_0 = D0X8Y4_3;
-	io_direct IOB_E3_1 = D0X8Y4_4;
-	io_direct IOB_E3_2 = D0X8Y3_0;
-	io_direct IOB_E3_3 = D0X8Y3_1;
-	io_direct IOB_E4_0 = D0X8Y5_4;
-	io_direct IOB_E4_1 = D0X8Y4_0;
-	io_direct IOB_E4_2 = D0X8Y4_1;
-	io_direct IOB_E4_3 = D0X8Y4_2;
-	io_direct IOB_E5_0 = D0X8Y5_0;
-	io_direct IOB_E5_1 = D0X8Y5_1;
-	io_direct IOB_E5_2 = D0X8Y5_2;
-	io_direct IOB_E5_3 = D0X8Y5_3;
-	io_direct IOB_E6_0 = D0X8Y6_1;
-	io_direct IOB_E6_1 = D0X8Y6_2;
-	io_direct IOB_E6_2 = D0X8Y6_3;
-	io_direct IOB_E6_3 = D0X8Y6_4;
-	io_direct IOB_E7_0 = D0X8Y7_2;
-	io_direct IOB_E7_1 = D0X8Y7_3;
-	io_direct IOB_E7_2 = D0X8Y7_4;
-	io_direct IOB_E7_3 = D0X8Y6_0;
-	io_direct IOB_E8_0 = D0X8Y8_3;
-	io_direct IOB_E8_1 = D0X8Y8_4;
-	io_direct IOB_E8_2 = D0X8Y7_0;
-	io_direct IOB_E8_3 = D0X8Y7_1;
-	io_direct IOB_E9_0 = D0X8Y9_4;
-	io_direct IOB_E9_1 = D0X8Y8_0;
-	io_direct IOB_E9_2 = D0X8Y8_1;
-	io_direct IOB_E9_3 = D0X8Y8_2;
-	io_direct IOB_E10_0 = D0X8Y9_0;
-	io_direct IOB_E10_1 = D0X8Y9_1;
-	io_direct IOB_E10_2 = D0X8Y9_2;
-	io_direct IOB_E10_3 = D0X8Y9_3;
-	io_direct IOB_S1_0 = D0X1Y1_0;
-	io_direct IOB_S1_1 = D0X1Y1_1;
-	io_direct IOB_S1_2 = D0X1Y1_2;
-	io_direct IOB_S1_3 = D0X1Y1_3;
-	io_direct IOB_S2_0 = D0X2Y1_0;
-	io_direct IOB_S2_1 = D0X2Y1_1;
-	io_direct IOB_S2_2 = D0X2Y1_2;
-	io_direct IOB_S2_3 = D0X2Y1_3;
-	io_direct IOB_S3_0 = D0X3Y1_0;
-	io_direct IOB_S3_1 = D0X3Y1_1;
-	io_direct IOB_S3_2 = D0X3Y1_2;
-	io_direct IOB_S3_3 = D0X3Y1_3;
-	io_direct IOB_S3_4 = D0X3Y1_4;
-	io_direct IOB_S3_5 = D0X3Y1_5;
-	io_direct IOB_S4_0 = D0X4Y1_0;
-	io_direct IOB_S4_1 = D0X4Y1_1;
-	io_direct IOB_S4_2 = D0X4Y1_2;
-	io_direct IOB_S4_3 = D0X4Y1_3;
-	io_direct IOB_S5_0 = D0X5Y1_0;
-	io_direct IOB_S5_1 = D0X5Y1_1;
-	io_direct IOB_S5_2 = D0X5Y1_2;
-	io_direct IOB_S5_3 = D0X5Y1_3;
-	io_direct IOB_S6_0 = D0X6Y1_0;
-	io_direct IOB_S6_1 = D0X6Y1_1;
-	io_direct IOB_S6_2 = D0X6Y1_2;
-	io_direct IOB_S6_3 = D0X6Y1_3;
-	io_direct IOB_S6_4 = D0X6Y1_4;
-	io_direct IOB_S6_5 = D0X6Y1_5;
-	io_direct IOB_S7_0 = D0X7Y1_0;
-	io_direct IOB_S7_1 = D0X7Y1_1;
-	io_direct IOB_S7_2 = D0X7Y1_2;
-	io_direct IOB_S7_3 = D0X7Y1_3;
-	io_direct IOB_S8_0 = D0X8Y1_0;
-	io_direct IOB_S8_1 = D0X8Y1_1;
-	io_direct IOB_S8_2 = D0X8Y1_2;
-	io_direct IOB_S8_3 = D0X8Y1_3;
-	io_direct IOB_S8_4 = D0X8Y1_4;
-	io_direct IOB_S8_5 = D0X8Y1_5;
-	io_direct IOB_N1_0 = D0X1Y10_0;
-	io_direct IOB_N1_1 = D0X1Y10_1;
-	io_direct IOB_N1_2 = D0X1Y10_2;
-	io_direct IOB_N1_3 = D0X1Y10_3;
-	io_direct IOB_N1_4 = D0X1Y10_4;
-	io_direct IOB_N1_5 = D0X1Y10_5;
-	io_direct IOB_N2_0 = D0X2Y10_0;
-	io_direct IOB_N2_1 = D0X2Y10_1;
-	io_direct IOB_N2_2 = D0X2Y10_2;
-	io_direct IOB_N2_3 = D0X2Y10_3;
-	io_direct IOB_N2_4 = D0X2Y10_4;
-	io_direct IOB_N2_5 = D0X2Y10_5;
-	io_direct IOB_N3_0 = D0X3Y10_0;
-	io_direct IOB_N3_1 = D0X3Y10_1;
-	io_direct IOB_N3_2 = D0X3Y10_2;
-	io_direct IOB_N3_3 = D0X3Y10_3;
-	io_direct IOB_N3_4 = D0X3Y10_4;
-	io_direct IOB_N3_5 = D0X3Y10_5;
-	io_direct IOB_N4_0 = D0X4Y10_0;
-	io_direct IOB_N4_1 = D0X4Y10_1;
-	io_direct IOB_N4_2 = D0X4Y10_2;
-	io_direct IOB_N4_3 = D0X4Y10_3;
-	io_direct IOB_N5_0 = D0X5Y10_0;
-	io_direct IOB_N5_1 = D0X5Y10_1;
-	io_direct IOB_N5_2 = D0X5Y10_2;
-	io_direct IOB_N5_3 = D0X5Y10_3;
-	io_direct IOB_N6_0 = D0X6Y10_0;
-	io_direct IOB_N6_1 = D0X6Y10_1;
-	io_direct IOB_N6_2 = D0X6Y10_2;
-	io_direct IOB_N6_3 = D0X6Y10_3;
-	io_direct IOB_N6_4 = D0X6Y10_4;
-	io_direct IOB_N6_5 = D0X6Y10_5;
-	io_direct IOB_N7_0 = D0X7Y10_0;
-	io_direct IOB_N7_1 = D0X7Y10_1;
-	io_direct IOB_N7_2 = D0X7Y10_2;
-	io_direct IOB_N7_3 = D0X7Y10_3;
-	io_direct IOB_N8_0 = D0X8Y10_0;
-	io_direct IOB_N8_1 = D0X8Y10_1;
-	io_direct IOB_N8_2 = D0X8Y10_2;
-	io_direct IOB_N8_3 = D0X8Y10_3;
-	io_direct IOB_N8_4 = D0X8Y10_4;
-	io_direct IOB_N8_5 = D0X8Y10_5;
+	io_direct D0X0Y1.IO[0] = D0X0Y2_1;
+	io_direct D0X0Y1.IO[1] = D0X0Y2_2;
+	io_direct D0X0Y1.IO[2] = D0X0Y2_3;
+	io_direct D0X0Y1.IO[3] = D0X0Y2_4;
+	io_direct D0X0Y2.IO[0] = D0X0Y3_2;
+	io_direct D0X0Y2.IO[1] = D0X0Y3_3;
+	io_direct D0X0Y2.IO[2] = D0X0Y3_4;
+	io_direct D0X0Y2.IO[3] = D0X0Y2_0;
+	io_direct D0X0Y3.IO[0] = D0X0Y4_3;
+	io_direct D0X0Y3.IO[1] = D0X0Y4_4;
+	io_direct D0X0Y3.IO[2] = D0X0Y3_0;
+	io_direct D0X0Y3.IO[3] = D0X0Y3_1;
+	io_direct D0X0Y4.IO[0] = D0X0Y5_4;
+	io_direct D0X0Y4.IO[1] = D0X0Y4_0;
+	io_direct D0X0Y4.IO[2] = D0X0Y4_1;
+	io_direct D0X0Y4.IO[3] = D0X0Y4_2;
+	io_direct D0X0Y5.IO[0] = D0X0Y5_0;
+	io_direct D0X0Y5.IO[1] = D0X0Y5_1;
+	io_direct D0X0Y5.IO[2] = D0X0Y5_2;
+	io_direct D0X0Y5.IO[3] = D0X0Y5_3;
+	io_direct D0X0Y6.IO[0] = D0X0Y6_1;
+	io_direct D0X0Y6.IO[1] = D0X0Y6_2;
+	io_direct D0X0Y6.IO[2] = D0X0Y6_3;
+	io_direct D0X0Y6.IO[3] = D0X0Y6_4;
+	io_direct D0X0Y7.IO[0] = D0X0Y7_2;
+	io_direct D0X0Y7.IO[1] = D0X0Y7_3;
+	io_direct D0X0Y7.IO[2] = D0X0Y7_4;
+	io_direct D0X0Y7.IO[3] = D0X0Y6_0;
+	io_direct D0X0Y8.IO[0] = D0X0Y8_3;
+	io_direct D0X0Y8.IO[1] = D0X0Y8_4;
+	io_direct D0X0Y8.IO[2] = D0X0Y7_0;
+	io_direct D0X0Y8.IO[3] = D0X0Y7_1;
+	io_direct D0X0Y9.IO[0] = D0X0Y9_4;
+	io_direct D0X0Y9.IO[1] = D0X0Y8_0;
+	io_direct D0X0Y9.IO[2] = D0X0Y8_1;
+	io_direct D0X0Y9.IO[3] = D0X0Y8_2;
+	io_direct D0X0Y10.IO[0] = D0X0Y9_0;
+	io_direct D0X0Y10.IO[1] = D0X0Y9_1;
+	io_direct D0X0Y10.IO[2] = D0X0Y9_2;
+	io_direct D0X0Y10.IO[3] = D0X0Y9_3;
+	io_direct D0X1Y0.IO[0] = D0X1Y0_0;
+	io_direct D0X1Y0.IO[1] = D0X1Y0_1;
+	io_direct D0X1Y0.IO[2] = D0X1Y0_2;
+	io_direct D0X1Y0.IO[3] = D0X1Y0_3;
+	io_direct D0X1Y11.IO[0] = D0X1Y11_0;
+	io_direct D0X1Y11.IO[1] = D0X1Y11_1;
+	io_direct D0X1Y11.IO[2] = D0X1Y11_2;
+	io_direct D0X1Y11.IO[3] = D0X1Y11_3;
+	io_direct D0X1Y11.IO[4] = D0X1Y11_4;
+	io_direct D0X1Y11.IO[5] = D0X1Y11_5;
+	io_direct D0X2Y0.IO[0] = D0X2Y0_0;
+	io_direct D0X2Y0.IO[1] = D0X2Y0_1;
+	io_direct D0X2Y0.IO[2] = D0X2Y0_2;
+	io_direct D0X2Y0.IO[3] = D0X2Y0_3;
+	io_direct D0X2Y11.IO[0] = D0X2Y11_0;
+	io_direct D0X2Y11.IO[1] = D0X2Y11_1;
+	io_direct D0X2Y11.IO[2] = D0X2Y11_2;
+	io_direct D0X2Y11.IO[3] = D0X2Y11_3;
+	io_direct D0X2Y11.IO[4] = D0X2Y11_4;
+	io_direct D0X2Y11.IO[5] = D0X2Y11_5;
+	io_direct D0X3Y0.IO[0] = D0X3Y0_0;
+	io_direct D0X3Y0.IO[1] = D0X3Y0_1;
+	io_direct D0X3Y0.IO[2] = D0X3Y0_2;
+	io_direct D0X3Y0.IO[3] = D0X3Y0_3;
+	io_direct D0X3Y0.IO[4] = D0X3Y0_4;
+	io_direct D0X3Y0.IO[5] = D0X3Y0_5;
+	io_direct D0X3Y11.IO[0] = D0X3Y11_0;
+	io_direct D0X3Y11.IO[1] = D0X3Y11_1;
+	io_direct D0X3Y11.IO[2] = D0X3Y11_2;
+	io_direct D0X3Y11.IO[3] = D0X3Y11_3;
+	io_direct D0X3Y11.IO[4] = D0X3Y11_4;
+	io_direct D0X3Y11.IO[5] = D0X3Y11_5;
+	io_direct D0X4Y0.IO[0] = D0X4Y0_0;
+	io_direct D0X4Y0.IO[1] = D0X4Y0_1;
+	io_direct D0X4Y0.IO[2] = D0X4Y0_2;
+	io_direct D0X4Y0.IO[3] = D0X4Y0_3;
+	io_direct D0X4Y11.IO[0] = D0X4Y11_0;
+	io_direct D0X4Y11.IO[1] = D0X4Y11_1;
+	io_direct D0X4Y11.IO[2] = D0X4Y11_2;
+	io_direct D0X4Y11.IO[3] = D0X4Y11_3;
+	io_direct D0X5Y0.IO[0] = D0X5Y0_0;
+	io_direct D0X5Y0.IO[1] = D0X5Y0_1;
+	io_direct D0X5Y0.IO[2] = D0X5Y0_2;
+	io_direct D0X5Y0.IO[3] = D0X5Y0_3;
+	io_direct D0X5Y11.IO[0] = D0X5Y11_0;
+	io_direct D0X5Y11.IO[1] = D0X5Y11_1;
+	io_direct D0X5Y11.IO[2] = D0X5Y11_2;
+	io_direct D0X5Y11.IO[3] = D0X5Y11_3;
+	io_direct D0X6Y0.IO[0] = D0X6Y0_0;
+	io_direct D0X6Y0.IO[1] = D0X6Y0_1;
+	io_direct D0X6Y0.IO[2] = D0X6Y0_2;
+	io_direct D0X6Y0.IO[3] = D0X6Y0_3;
+	io_direct D0X6Y0.IO[4] = D0X6Y0_4;
+	io_direct D0X6Y0.IO[5] = D0X6Y0_5;
+	io_direct D0X6Y11.IO[0] = D0X6Y11_0;
+	io_direct D0X6Y11.IO[1] = D0X6Y11_1;
+	io_direct D0X6Y11.IO[2] = D0X6Y11_2;
+	io_direct D0X6Y11.IO[3] = D0X6Y11_3;
+	io_direct D0X6Y11.IO[4] = D0X6Y11_4;
+	io_direct D0X6Y11.IO[5] = D0X6Y11_5;
+	io_direct D0X7Y0.IO[0] = D0X7Y0_0;
+	io_direct D0X7Y0.IO[1] = D0X7Y0_1;
+	io_direct D0X7Y0.IO[2] = D0X7Y0_2;
+	io_direct D0X7Y0.IO[3] = D0X7Y0_3;
+	io_direct D0X7Y11.IO[0] = D0X7Y11_0;
+	io_direct D0X7Y11.IO[1] = D0X7Y11_1;
+	io_direct D0X7Y11.IO[2] = D0X7Y11_2;
+	io_direct D0X7Y11.IO[3] = D0X7Y11_3;
+	io_direct D0X8Y0.IO[0] = D0X8Y0_0;
+	io_direct D0X8Y0.IO[1] = D0X8Y0_1;
+	io_direct D0X8Y0.IO[2] = D0X8Y0_2;
+	io_direct D0X8Y0.IO[3] = D0X8Y0_3;
+	io_direct D0X8Y0.IO[4] = D0X8Y0_4;
+	io_direct D0X8Y0.IO[5] = D0X8Y0_5;
+	io_direct D0X8Y11.IO[0] = D0X8Y11_0;
+	io_direct D0X8Y11.IO[1] = D0X8Y11_1;
+	io_direct D0X8Y11.IO[2] = D0X8Y11_2;
+	io_direct D0X8Y11.IO[3] = D0X8Y11_3;
+	io_direct D0X8Y11.IO[4] = D0X8Y11_4;
+	io_direct D0X8Y11.IO[5] = D0X8Y11_5;
+	io_direct D0X9Y1.IO[0] = D0X9Y2_1;
+	io_direct D0X9Y1.IO[1] = D0X9Y2_2;
+	io_direct D0X9Y1.IO[2] = D0X9Y2_3;
+	io_direct D0X9Y1.IO[3] = D0X9Y2_4;
+	io_direct D0X9Y2.IO[0] = D0X9Y3_2;
+	io_direct D0X9Y2.IO[1] = D0X9Y3_3;
+	io_direct D0X9Y2.IO[2] = D0X9Y3_4;
+	io_direct D0X9Y2.IO[3] = D0X9Y2_0;
+	io_direct D0X9Y3.IO[0] = D0X9Y4_3;
+	io_direct D0X9Y3.IO[1] = D0X9Y4_4;
+	io_direct D0X9Y3.IO[2] = D0X9Y3_0;
+	io_direct D0X9Y3.IO[3] = D0X9Y3_1;
+	io_direct D0X9Y4.IO[0] = D0X9Y5_4;
+	io_direct D0X9Y4.IO[1] = D0X9Y4_0;
+	io_direct D0X9Y4.IO[2] = D0X9Y4_1;
+	io_direct D0X9Y4.IO[3] = D0X9Y4_2;
+	io_direct D0X9Y5.IO[0] = D0X9Y5_0;
+	io_direct D0X9Y5.IO[1] = D0X9Y5_1;
+	io_direct D0X9Y5.IO[2] = D0X9Y5_2;
+	io_direct D0X9Y5.IO[3] = D0X9Y5_3;
+	io_direct D0X9Y6.IO[0] = D0X9Y6_1;
+	io_direct D0X9Y6.IO[1] = D0X9Y6_2;
+	io_direct D0X9Y6.IO[2] = D0X9Y6_3;
+	io_direct D0X9Y6.IO[3] = D0X9Y6_4;
+	io_direct D0X9Y7.IO[0] = D0X9Y7_2;
+	io_direct D0X9Y7.IO[1] = D0X9Y7_3;
+	io_direct D0X9Y7.IO[2] = D0X9Y7_4;
+	io_direct D0X9Y7.IO[3] = D0X9Y6_0;
+	io_direct D0X9Y8.IO[0] = D0X9Y8_3;
+	io_direct D0X9Y8.IO[1] = D0X9Y8_4;
+	io_direct D0X9Y8.IO[2] = D0X9Y7_0;
+	io_direct D0X9Y8.IO[3] = D0X9Y7_1;
+	io_direct D0X9Y9.IO[0] = D0X9Y9_4;
+	io_direct D0X9Y9.IO[1] = D0X9Y8_0;
+	io_direct D0X9Y9.IO[2] = D0X9Y8_1;
+	io_direct D0X9Y9.IO[3] = D0X9Y8_2;
+	io_direct D0X9Y10.IO[0] = D0X9Y9_0;
+	io_direct D0X9Y10.IO[1] = D0X9Y9_1;
+	io_direct D0X9Y10.IO[2] = D0X9Y9_2;
+	io_direct D0X9Y10.IO[3] = D0X9Y9_3;
 }
 
 // LAMXO1200E LCMXO1200C LCMXO1200E
@@ -373,218 +373,218 @@ chip CHIP2 {
 	special_io GSR = IOB_W11_1;
 	special_io TSALL = IOB_W6_2;
 	special_io SLEEP_N = IOB_S9_4;
-	io_direct IOB_W1_0 = D0X1Y2_2;
-	io_direct IOB_W1_1 = D0X1Y2_3;
-	io_direct IOB_W2_0 = D0X1Y2_0;
-	io_direct IOB_W2_1 = D0X1Y2_1;
-	io_direct IOB_W3_0 = D0X1Y3_0;
-	io_direct IOB_W3_1 = D0X1Y3_1;
-	io_direct IOB_W3_2 = D0X1Y3_2;
-	io_direct IOB_W3_3 = D0X1Y3_3;
-	io_direct IOB_W4_0 = D0X1Y4_0;
-	io_direct IOB_W4_1 = D0X1Y4_1;
-	io_direct IOB_W4_2 = D0X1Y4_2;
-	io_direct IOB_W4_3 = D0X1Y4_3;
-	io_direct IOB_W5_0 = D0X1Y5_0;
-	io_direct IOB_W5_1 = D0X1Y5_1;
-	io_direct IOB_W5_2 = D0X1Y5_2;
-	io_direct IOB_W5_3 = D0X1Y5_3;
-	io_direct IOB_W6_0 = D0X1Y6_0;
-	io_direct IOB_W6_1 = D0X1Y6_1;
-	io_direct IOB_W6_2 = D0X1Y6_2;
-	io_direct IOB_W6_3 = D0X1Y6_3;
-	io_direct IOB_W7_0 = D0X1Y7_0;
-	io_direct IOB_W7_1 = D0X1Y7_1;
-	io_direct IOB_W7_2 = D0X1Y7_2;
-	io_direct IOB_W7_3 = D0X1Y7_3;
-	io_direct IOB_W8_0 = D0X1Y8_0;
-	io_direct IOB_W8_1 = D0X1Y8_1;
-	io_direct IOB_W8_2 = D0X1Y8_2;
-	io_direct IOB_W8_3 = D0X1Y8_3;
-	io_direct IOB_W9_0 = D0X1Y9_0;
-	io_direct IOB_W9_1 = D0X1Y9_1;
-	io_direct IOB_W9_2 = D0X1Y9_2;
-	io_direct IOB_W9_3 = D0X1Y9_3;
-	io_direct IOB_W10_0 = D0X1Y10_0;
-	io_direct IOB_W10_1 = D0X1Y10_1;
-	io_direct IOB_W10_2 = D0X1Y10_2;
-	io_direct IOB_W10_3 = D0X1Y10_3;
-	io_direct IOB_W11_0 = D0X1Y11_0;
-	io_direct IOB_W11_1 = D0X1Y11_1;
-	io_direct IOB_W11_2 = D0X1Y11_2;
-	io_direct IOB_W11_3 = D0X1Y11_3;
-	io_direct IOB_W12_0 = D0X1Y12_0;
-	io_direct IOB_W12_1 = D0X1Y12_1;
-	io_direct IOB_W12_2 = D0X1Y12_2;
-	io_direct IOB_W12_3 = D0X1Y12_3;
-	io_direct IOB_W13_0 = D0X1Y13_1;
-	io_direct IOB_W13_1 = D0X1Y13_2;
-	io_direct IOB_W13_2 = D0X1Y13_3;
-	io_direct IOB_W13_3 = D0X1Y13_4;
-	io_direct IOB_W14_0 = D0X1Y14_2;
-	io_direct IOB_W14_1 = D0X1Y14_3;
-	io_direct IOB_W14_2 = D0X1Y14_4;
-	io_direct IOB_W14_3 = D0X1Y13_0;
-	io_direct IOB_W15_0 = D0X1Y14_0;
-	io_direct IOB_W15_1 = D0X1Y14_1;
-	io_direct IOB_E1_0 = D0X10Y2_2;
-	io_direct IOB_E1_1 = D0X10Y2_3;
-	io_direct IOB_E2_0 = D0X10Y2_0;
-	io_direct IOB_E2_1 = D0X10Y2_1;
-	io_direct IOB_E3_0 = D0X10Y3_0;
-	io_direct IOB_E3_1 = D0X10Y3_1;
-	io_direct IOB_E3_2 = D0X10Y3_2;
-	io_direct IOB_E3_3 = D0X10Y3_3;
-	io_direct IOB_E4_0 = D0X10Y4_0;
-	io_direct IOB_E4_1 = D0X10Y4_1;
-	io_direct IOB_E4_2 = D0X10Y4_2;
-	io_direct IOB_E4_3 = D0X10Y4_3;
-	io_direct IOB_E5_0 = D0X10Y5_0;
-	io_direct IOB_E5_1 = D0X10Y5_1;
-	io_direct IOB_E5_2 = D0X10Y5_2;
-	io_direct IOB_E5_3 = D0X10Y5_3;
-	io_direct IOB_E6_0 = D0X10Y6_0;
-	io_direct IOB_E6_1 = D0X10Y6_1;
-	io_direct IOB_E6_2 = D0X10Y6_2;
-	io_direct IOB_E6_3 = D0X10Y6_3;
-	io_direct IOB_E7_0 = D0X10Y7_0;
-	io_direct IOB_E7_1 = D0X10Y7_1;
-	io_direct IOB_E7_2 = D0X10Y7_2;
-	io_direct IOB_E7_3 = D0X10Y7_3;
-	io_direct IOB_E8_0 = D0X10Y8_0;
-	io_direct IOB_E8_1 = D0X10Y8_1;
-	io_direct IOB_E8_2 = D0X10Y8_2;
-	io_direct IOB_E8_3 = D0X10Y8_3;
-	io_direct IOB_E9_0 = D0X10Y9_0;
-	io_direct IOB_E9_1 = D0X10Y9_1;
-	io_direct IOB_E9_2 = D0X10Y9_2;
-	io_direct IOB_E9_3 = D0X10Y9_3;
-	io_direct IOB_E10_0 = D0X10Y10_0;
-	io_direct IOB_E10_1 = D0X10Y10_1;
-	io_direct IOB_E10_2 = D0X10Y10_2;
-	io_direct IOB_E10_3 = D0X10Y10_3;
-	io_direct IOB_E11_0 = D0X10Y11_0;
-	io_direct IOB_E11_1 = D0X10Y11_1;
-	io_direct IOB_E11_2 = D0X10Y11_2;
-	io_direct IOB_E11_3 = D0X10Y11_3;
-	io_direct IOB_E12_0 = D0X10Y12_0;
-	io_direct IOB_E12_1 = D0X10Y12_1;
-	io_direct IOB_E12_2 = D0X10Y12_2;
-	io_direct IOB_E12_3 = D0X10Y12_3;
-	io_direct IOB_E13_0 = D0X10Y13_1;
-	io_direct IOB_E13_1 = D0X10Y13_2;
-	io_direct IOB_E13_2 = D0X10Y13_3;
-	io_direct IOB_E13_3 = D0X10Y13_4;
-	io_direct IOB_E14_0 = D0X10Y14_2;
-	io_direct IOB_E14_1 = D0X10Y14_3;
-	io_direct IOB_E14_2 = D0X10Y14_4;
-	io_direct IOB_E14_3 = D0X10Y13_0;
-	io_direct IOB_E15_0 = D0X10Y14_0;
-	io_direct IOB_E15_1 = D0X10Y14_1;
-	io_direct IOB_S1_0 = D0X1Y1_0;
-	io_direct IOB_S1_1 = D0X1Y1_1;
-	io_direct IOB_S1_2 = D0X1Y1_2;
-	io_direct IOB_S1_3 = D0X1Y1_3;
-	io_direct IOB_S2_0 = D0X2Y1_0;
-	io_direct IOB_S2_1 = D0X2Y1_1;
-	io_direct IOB_S2_2 = D0X2Y1_2;
-	io_direct IOB_S2_3 = D0X2Y1_3;
-	io_direct IOB_S3_0 = D0X3Y1_0;
-	io_direct IOB_S3_1 = D0X3Y1_1;
-	io_direct IOB_S3_2 = D0X3Y1_2;
-	io_direct IOB_S3_3 = D0X3Y1_3;
-	io_direct IOB_S4_0 = D0X4Y1_0;
-	io_direct IOB_S4_1 = D0X4Y1_1;
-	io_direct IOB_S4_2 = D0X4Y1_2;
-	io_direct IOB_S4_3 = D0X4Y1_3;
-	io_direct IOB_S5_0 = D0X5Y1_0;
-	io_direct IOB_S5_1 = D0X5Y1_1;
-	io_direct IOB_S5_2 = D0X5Y1_2;
-	io_direct IOB_S5_3 = D0X5Y1_3;
-	io_direct IOB_S5_4 = D0X5Y1_4;
-	io_direct IOB_S5_5 = D0X5Y1_5;
-	io_direct IOB_S6_0 = D0X6Y1_0;
-	io_direct IOB_S6_1 = D0X6Y1_1;
-	io_direct IOB_S6_2 = D0X6Y1_2;
-	io_direct IOB_S6_3 = D0X6Y1_3;
-	io_direct IOB_S6_4 = D0X6Y1_4;
-	io_direct IOB_S6_5 = D0X6Y1_5;
-	io_direct IOB_S7_0 = D0X7Y1_0;
-	io_direct IOB_S7_1 = D0X7Y1_1;
-	io_direct IOB_S7_2 = D0X7Y1_2;
-	io_direct IOB_S7_3 = D0X7Y1_3;
-	io_direct IOB_S7_4 = D0X7Y1_4;
-	io_direct IOB_S7_5 = D0X7Y1_5;
-	io_direct IOB_S8_0 = D0X8Y1_0;
-	io_direct IOB_S8_1 = D0X8Y1_1;
-	io_direct IOB_S8_2 = D0X8Y1_2;
-	io_direct IOB_S8_3 = D0X8Y1_3;
-	io_direct IOB_S8_4 = D0X8Y1_4;
-	io_direct IOB_S8_5 = D0X8Y1_5;
-	io_direct IOB_S9_0 = D0X9Y1_0;
-	io_direct IOB_S9_1 = D0X9Y1_1;
-	io_direct IOB_S9_2 = D0X9Y1_2;
-	io_direct IOB_S9_3 = D0X9Y1_3;
-	io_direct IOB_S9_4 = D0X9Y1_4;
-	io_direct IOB_S9_5 = D0X9Y1_5;
-	io_direct IOB_S10_0 = D0X10Y1_0;
-	io_direct IOB_S10_1 = D0X10Y1_1;
-	io_direct IOB_S10_2 = D0X10Y1_2;
-	io_direct IOB_S10_3 = D0X10Y1_3;
-	io_direct IOB_N1_0 = D0X1Y15_0;
-	io_direct IOB_N1_1 = D0X1Y15_1;
-	io_direct IOB_N1_2 = D0X1Y15_2;
-	io_direct IOB_N1_3 = D0X1Y15_3;
-	io_direct IOB_N2_0 = D0X2Y15_0;
-	io_direct IOB_N2_1 = D0X2Y15_1;
-	io_direct IOB_N2_2 = D0X2Y15_2;
-	io_direct IOB_N2_3 = D0X2Y15_3;
-	io_direct IOB_N2_4 = D0X2Y15_4;
-	io_direct IOB_N2_5 = D0X2Y15_5;
-	io_direct IOB_N3_0 = D0X3Y15_0;
-	io_direct IOB_N3_1 = D0X3Y15_1;
-	io_direct IOB_N3_2 = D0X3Y15_2;
-	io_direct IOB_N3_3 = D0X3Y15_3;
-	io_direct IOB_N4_0 = D0X4Y15_0;
-	io_direct IOB_N4_1 = D0X4Y15_1;
-	io_direct IOB_N4_2 = D0X4Y15_2;
-	io_direct IOB_N4_3 = D0X4Y15_3;
-	io_direct IOB_N4_4 = D0X4Y15_4;
-	io_direct IOB_N4_5 = D0X4Y15_5;
-	io_direct IOB_N5_0 = D0X5Y15_0;
-	io_direct IOB_N5_1 = D0X5Y15_1;
-	io_direct IOB_N5_2 = D0X5Y15_2;
-	io_direct IOB_N5_3 = D0X5Y15_3;
-	io_direct IOB_N5_4 = D0X5Y15_4;
-	io_direct IOB_N5_5 = D0X5Y15_5;
-	io_direct IOB_N6_0 = D0X6Y15_0;
-	io_direct IOB_N6_1 = D0X6Y15_1;
-	io_direct IOB_N6_2 = D0X6Y15_2;
-	io_direct IOB_N6_3 = D0X6Y15_3;
-	io_direct IOB_N6_4 = D0X6Y15_4;
-	io_direct IOB_N6_5 = D0X6Y15_5;
-	io_direct IOB_N7_0 = D0X7Y15_0;
-	io_direct IOB_N7_1 = D0X7Y15_1;
-	io_direct IOB_N7_2 = D0X7Y15_2;
-	io_direct IOB_N7_3 = D0X7Y15_3;
-	io_direct IOB_N7_4 = D0X7Y15_4;
-	io_direct IOB_N7_5 = D0X7Y15_5;
-	io_direct IOB_N8_0 = D0X8Y15_0;
-	io_direct IOB_N8_1 = D0X8Y15_1;
-	io_direct IOB_N8_2 = D0X8Y15_2;
-	io_direct IOB_N8_3 = D0X8Y15_3;
-	io_direct IOB_N8_4 = D0X8Y15_4;
-	io_direct IOB_N8_5 = D0X8Y15_5;
-	io_direct IOB_N9_0 = D0X9Y15_0;
-	io_direct IOB_N9_1 = D0X9Y15_1;
-	io_direct IOB_N9_2 = D0X9Y15_2;
-	io_direct IOB_N9_3 = D0X9Y15_3;
-	io_direct IOB_N9_4 = D0X9Y15_4;
-	io_direct IOB_N9_5 = D0X9Y15_5;
-	io_direct IOB_N10_0 = D0X10Y15_0;
-	io_direct IOB_N10_1 = D0X10Y15_1;
-	io_direct IOB_N10_2 = D0X10Y15_2;
-	io_direct IOB_N10_3 = D0X10Y15_3;
+	io_direct D0X0Y1.IO[0] = D0X0Y2_2;
+	io_direct D0X0Y1.IO[1] = D0X0Y2_3;
+	io_direct D0X0Y2.IO[0] = D0X0Y2_0;
+	io_direct D0X0Y2.IO[1] = D0X0Y2_1;
+	io_direct D0X0Y3.IO[0] = D0X0Y3_0;
+	io_direct D0X0Y3.IO[1] = D0X0Y3_1;
+	io_direct D0X0Y3.IO[2] = D0X0Y3_2;
+	io_direct D0X0Y3.IO[3] = D0X0Y3_3;
+	io_direct D0X0Y4.IO[0] = D0X0Y4_0;
+	io_direct D0X0Y4.IO[1] = D0X0Y4_1;
+	io_direct D0X0Y4.IO[2] = D0X0Y4_2;
+	io_direct D0X0Y4.IO[3] = D0X0Y4_3;
+	io_direct D0X0Y5.IO[0] = D0X0Y5_0;
+	io_direct D0X0Y5.IO[1] = D0X0Y5_1;
+	io_direct D0X0Y5.IO[2] = D0X0Y5_2;
+	io_direct D0X0Y5.IO[3] = D0X0Y5_3;
+	io_direct D0X0Y6.IO[0] = D0X0Y6_0;
+	io_direct D0X0Y6.IO[1] = D0X0Y6_1;
+	io_direct D0X0Y6.IO[2] = D0X0Y6_2;
+	io_direct D0X0Y6.IO[3] = D0X0Y6_3;
+	io_direct D0X0Y7.IO[0] = D0X0Y7_0;
+	io_direct D0X0Y7.IO[1] = D0X0Y7_1;
+	io_direct D0X0Y7.IO[2] = D0X0Y7_2;
+	io_direct D0X0Y7.IO[3] = D0X0Y7_3;
+	io_direct D0X0Y8.IO[0] = D0X0Y8_0;
+	io_direct D0X0Y8.IO[1] = D0X0Y8_1;
+	io_direct D0X0Y8.IO[2] = D0X0Y8_2;
+	io_direct D0X0Y8.IO[3] = D0X0Y8_3;
+	io_direct D0X0Y9.IO[0] = D0X0Y9_0;
+	io_direct D0X0Y9.IO[1] = D0X0Y9_1;
+	io_direct D0X0Y9.IO[2] = D0X0Y9_2;
+	io_direct D0X0Y9.IO[3] = D0X0Y9_3;
+	io_direct D0X0Y10.IO[0] = D0X0Y10_0;
+	io_direct D0X0Y10.IO[1] = D0X0Y10_1;
+	io_direct D0X0Y10.IO[2] = D0X0Y10_2;
+	io_direct D0X0Y10.IO[3] = D0X0Y10_3;
+	io_direct D0X0Y11.IO[0] = D0X0Y11_0;
+	io_direct D0X0Y11.IO[1] = D0X0Y11_1;
+	io_direct D0X0Y11.IO[2] = D0X0Y11_2;
+	io_direct D0X0Y11.IO[3] = D0X0Y11_3;
+	io_direct D0X0Y12.IO[0] = D0X0Y12_0;
+	io_direct D0X0Y12.IO[1] = D0X0Y12_1;
+	io_direct D0X0Y12.IO[2] = D0X0Y12_2;
+	io_direct D0X0Y12.IO[3] = D0X0Y12_3;
+	io_direct D0X0Y13.IO[0] = D0X0Y13_1;
+	io_direct D0X0Y13.IO[1] = D0X0Y13_2;
+	io_direct D0X0Y13.IO[2] = D0X0Y13_3;
+	io_direct D0X0Y13.IO[3] = D0X0Y13_4;
+	io_direct D0X0Y14.IO[0] = D0X0Y14_2;
+	io_direct D0X0Y14.IO[1] = D0X0Y14_3;
+	io_direct D0X0Y14.IO[2] = D0X0Y14_4;
+	io_direct D0X0Y14.IO[3] = D0X0Y13_0;
+	io_direct D0X0Y15.IO[0] = D0X0Y14_0;
+	io_direct D0X0Y15.IO[1] = D0X0Y14_1;
+	io_direct D0X1Y0.IO[0] = D0X1Y0_0;
+	io_direct D0X1Y0.IO[1] = D0X1Y0_1;
+	io_direct D0X1Y0.IO[2] = D0X1Y0_2;
+	io_direct D0X1Y0.IO[3] = D0X1Y0_3;
+	io_direct D0X1Y16.IO[0] = D0X1Y16_0;
+	io_direct D0X1Y16.IO[1] = D0X1Y16_1;
+	io_direct D0X1Y16.IO[2] = D0X1Y16_2;
+	io_direct D0X1Y16.IO[3] = D0X1Y16_3;
+	io_direct D0X2Y0.IO[0] = D0X2Y0_0;
+	io_direct D0X2Y0.IO[1] = D0X2Y0_1;
+	io_direct D0X2Y0.IO[2] = D0X2Y0_2;
+	io_direct D0X2Y0.IO[3] = D0X2Y0_3;
+	io_direct D0X2Y16.IO[0] = D0X2Y16_0;
+	io_direct D0X2Y16.IO[1] = D0X2Y16_1;
+	io_direct D0X2Y16.IO[2] = D0X2Y16_2;
+	io_direct D0X2Y16.IO[3] = D0X2Y16_3;
+	io_direct D0X2Y16.IO[4] = D0X2Y16_4;
+	io_direct D0X2Y16.IO[5] = D0X2Y16_5;
+	io_direct D0X3Y0.IO[0] = D0X3Y0_0;
+	io_direct D0X3Y0.IO[1] = D0X3Y0_1;
+	io_direct D0X3Y0.IO[2] = D0X3Y0_2;
+	io_direct D0X3Y0.IO[3] = D0X3Y0_3;
+	io_direct D0X3Y16.IO[0] = D0X3Y16_0;
+	io_direct D0X3Y16.IO[1] = D0X3Y16_1;
+	io_direct D0X3Y16.IO[2] = D0X3Y16_2;
+	io_direct D0X3Y16.IO[3] = D0X3Y16_3;
+	io_direct D0X4Y0.IO[0] = D0X4Y0_0;
+	io_direct D0X4Y0.IO[1] = D0X4Y0_1;
+	io_direct D0X4Y0.IO[2] = D0X4Y0_2;
+	io_direct D0X4Y0.IO[3] = D0X4Y0_3;
+	io_direct D0X4Y16.IO[0] = D0X4Y16_0;
+	io_direct D0X4Y16.IO[1] = D0X4Y16_1;
+	io_direct D0X4Y16.IO[2] = D0X4Y16_2;
+	io_direct D0X4Y16.IO[3] = D0X4Y16_3;
+	io_direct D0X4Y16.IO[4] = D0X4Y16_4;
+	io_direct D0X4Y16.IO[5] = D0X4Y16_5;
+	io_direct D0X5Y0.IO[0] = D0X5Y0_0;
+	io_direct D0X5Y0.IO[1] = D0X5Y0_1;
+	io_direct D0X5Y0.IO[2] = D0X5Y0_2;
+	io_direct D0X5Y0.IO[3] = D0X5Y0_3;
+	io_direct D0X5Y0.IO[4] = D0X5Y0_4;
+	io_direct D0X5Y0.IO[5] = D0X5Y0_5;
+	io_direct D0X5Y16.IO[0] = D0X5Y16_0;
+	io_direct D0X5Y16.IO[1] = D0X5Y16_1;
+	io_direct D0X5Y16.IO[2] = D0X5Y16_2;
+	io_direct D0X5Y16.IO[3] = D0X5Y16_3;
+	io_direct D0X5Y16.IO[4] = D0X5Y16_4;
+	io_direct D0X5Y16.IO[5] = D0X5Y16_5;
+	io_direct D0X6Y0.IO[0] = D0X6Y0_0;
+	io_direct D0X6Y0.IO[1] = D0X6Y0_1;
+	io_direct D0X6Y0.IO[2] = D0X6Y0_2;
+	io_direct D0X6Y0.IO[3] = D0X6Y0_3;
+	io_direct D0X6Y0.IO[4] = D0X6Y0_4;
+	io_direct D0X6Y0.IO[5] = D0X6Y0_5;
+	io_direct D0X6Y16.IO[0] = D0X6Y16_0;
+	io_direct D0X6Y16.IO[1] = D0X6Y16_1;
+	io_direct D0X6Y16.IO[2] = D0X6Y16_2;
+	io_direct D0X6Y16.IO[3] = D0X6Y16_3;
+	io_direct D0X6Y16.IO[4] = D0X6Y16_4;
+	io_direct D0X6Y16.IO[5] = D0X6Y16_5;
+	io_direct D0X7Y0.IO[0] = D0X7Y0_0;
+	io_direct D0X7Y0.IO[1] = D0X7Y0_1;
+	io_direct D0X7Y0.IO[2] = D0X7Y0_2;
+	io_direct D0X7Y0.IO[3] = D0X7Y0_3;
+	io_direct D0X7Y0.IO[4] = D0X7Y0_4;
+	io_direct D0X7Y0.IO[5] = D0X7Y0_5;
+	io_direct D0X7Y16.IO[0] = D0X7Y16_0;
+	io_direct D0X7Y16.IO[1] = D0X7Y16_1;
+	io_direct D0X7Y16.IO[2] = D0X7Y16_2;
+	io_direct D0X7Y16.IO[3] = D0X7Y16_3;
+	io_direct D0X7Y16.IO[4] = D0X7Y16_4;
+	io_direct D0X7Y16.IO[5] = D0X7Y16_5;
+	io_direct D0X8Y0.IO[0] = D0X8Y0_0;
+	io_direct D0X8Y0.IO[1] = D0X8Y0_1;
+	io_direct D0X8Y0.IO[2] = D0X8Y0_2;
+	io_direct D0X8Y0.IO[3] = D0X8Y0_3;
+	io_direct D0X8Y0.IO[4] = D0X8Y0_4;
+	io_direct D0X8Y0.IO[5] = D0X8Y0_5;
+	io_direct D0X8Y16.IO[0] = D0X8Y16_0;
+	io_direct D0X8Y16.IO[1] = D0X8Y16_1;
+	io_direct D0X8Y16.IO[2] = D0X8Y16_2;
+	io_direct D0X8Y16.IO[3] = D0X8Y16_3;
+	io_direct D0X8Y16.IO[4] = D0X8Y16_4;
+	io_direct D0X8Y16.IO[5] = D0X8Y16_5;
+	io_direct D0X9Y0.IO[0] = D0X9Y0_0;
+	io_direct D0X9Y0.IO[1] = D0X9Y0_1;
+	io_direct D0X9Y0.IO[2] = D0X9Y0_2;
+	io_direct D0X9Y0.IO[3] = D0X9Y0_3;
+	io_direct D0X9Y0.IO[4] = D0X9Y0_4;
+	io_direct D0X9Y0.IO[5] = D0X9Y0_5;
+	io_direct D0X9Y16.IO[0] = D0X9Y16_0;
+	io_direct D0X9Y16.IO[1] = D0X9Y16_1;
+	io_direct D0X9Y16.IO[2] = D0X9Y16_2;
+	io_direct D0X9Y16.IO[3] = D0X9Y16_3;
+	io_direct D0X9Y16.IO[4] = D0X9Y16_4;
+	io_direct D0X9Y16.IO[5] = D0X9Y16_5;
+	io_direct D0X10Y0.IO[0] = D0X10Y0_0;
+	io_direct D0X10Y0.IO[1] = D0X10Y0_1;
+	io_direct D0X10Y0.IO[2] = D0X10Y0_2;
+	io_direct D0X10Y0.IO[3] = D0X10Y0_3;
+	io_direct D0X10Y16.IO[0] = D0X10Y16_0;
+	io_direct D0X10Y16.IO[1] = D0X10Y16_1;
+	io_direct D0X10Y16.IO[2] = D0X10Y16_2;
+	io_direct D0X10Y16.IO[3] = D0X10Y16_3;
+	io_direct D0X11Y1.IO[0] = D0X11Y2_2;
+	io_direct D0X11Y1.IO[1] = D0X11Y2_3;
+	io_direct D0X11Y2.IO[0] = D0X11Y2_0;
+	io_direct D0X11Y2.IO[1] = D0X11Y2_1;
+	io_direct D0X11Y3.IO[0] = D0X11Y3_0;
+	io_direct D0X11Y3.IO[1] = D0X11Y3_1;
+	io_direct D0X11Y3.IO[2] = D0X11Y3_2;
+	io_direct D0X11Y3.IO[3] = D0X11Y3_3;
+	io_direct D0X11Y4.IO[0] = D0X11Y4_0;
+	io_direct D0X11Y4.IO[1] = D0X11Y4_1;
+	io_direct D0X11Y4.IO[2] = D0X11Y4_2;
+	io_direct D0X11Y4.IO[3] = D0X11Y4_3;
+	io_direct D0X11Y5.IO[0] = D0X11Y5_0;
+	io_direct D0X11Y5.IO[1] = D0X11Y5_1;
+	io_direct D0X11Y5.IO[2] = D0X11Y5_2;
+	io_direct D0X11Y5.IO[3] = D0X11Y5_3;
+	io_direct D0X11Y6.IO[0] = D0X11Y6_0;
+	io_direct D0X11Y6.IO[1] = D0X11Y6_1;
+	io_direct D0X11Y6.IO[2] = D0X11Y6_2;
+	io_direct D0X11Y6.IO[3] = D0X11Y6_3;
+	io_direct D0X11Y7.IO[0] = D0X11Y7_0;
+	io_direct D0X11Y7.IO[1] = D0X11Y7_1;
+	io_direct D0X11Y7.IO[2] = D0X11Y7_2;
+	io_direct D0X11Y7.IO[3] = D0X11Y7_3;
+	io_direct D0X11Y8.IO[0] = D0X11Y8_0;
+	io_direct D0X11Y8.IO[1] = D0X11Y8_1;
+	io_direct D0X11Y8.IO[2] = D0X11Y8_2;
+	io_direct D0X11Y8.IO[3] = D0X11Y8_3;
+	io_direct D0X11Y9.IO[0] = D0X11Y9_0;
+	io_direct D0X11Y9.IO[1] = D0X11Y9_1;
+	io_direct D0X11Y9.IO[2] = D0X11Y9_2;
+	io_direct D0X11Y9.IO[3] = D0X11Y9_3;
+	io_direct D0X11Y10.IO[0] = D0X11Y10_0;
+	io_direct D0X11Y10.IO[1] = D0X11Y10_1;
+	io_direct D0X11Y10.IO[2] = D0X11Y10_2;
+	io_direct D0X11Y10.IO[3] = D0X11Y10_3;
+	io_direct D0X11Y11.IO[0] = D0X11Y11_0;
+	io_direct D0X11Y11.IO[1] = D0X11Y11_1;
+	io_direct D0X11Y11.IO[2] = D0X11Y11_2;
+	io_direct D0X11Y11.IO[3] = D0X11Y11_3;
+	io_direct D0X11Y12.IO[0] = D0X11Y12_0;
+	io_direct D0X11Y12.IO[1] = D0X11Y12_1;
+	io_direct D0X11Y12.IO[2] = D0X11Y12_2;
+	io_direct D0X11Y12.IO[3] = D0X11Y12_3;
+	io_direct D0X11Y13.IO[0] = D0X11Y13_1;
+	io_direct D0X11Y13.IO[1] = D0X11Y13_2;
+	io_direct D0X11Y13.IO[2] = D0X11Y13_3;
+	io_direct D0X11Y13.IO[3] = D0X11Y13_4;
+	io_direct D0X11Y14.IO[0] = D0X11Y14_2;
+	io_direct D0X11Y14.IO[1] = D0X11Y14_3;
+	io_direct D0X11Y14.IO[2] = D0X11Y14_4;
+	io_direct D0X11Y14.IO[3] = D0X11Y13_0;
+	io_direct D0X11Y15.IO[0] = D0X11Y14_0;
+	io_direct D0X11Y15.IO[1] = D0X11Y14_1;
 }
 
 // LAMXO2280E LCMXO2280C LCMXO2280E
@@ -654,278 +654,278 @@ chip CHIP3 {
 	special_io GSR = IOB_W14_1;
 	special_io TSALL = IOB_W7_2;
 	special_io SLEEP_N = IOB_S14_2;
-	io_direct IOB_W1_0 = D0X1Y2_0;
-	io_direct IOB_W1_1 = D0X1Y2_1;
-	io_direct IOB_W2_0 = D0X1Y3_2;
-	io_direct IOB_W2_1 = D0X1Y3_3;
-	io_direct IOB_W3_0 = D0X1Y3_0;
-	io_direct IOB_W3_1 = D0X1Y3_1;
-	io_direct IOB_W4_0 = D0X1Y4_0;
-	io_direct IOB_W4_1 = D0X1Y4_1;
-	io_direct IOB_W4_2 = D0X1Y4_2;
-	io_direct IOB_W4_3 = D0X1Y4_3;
-	io_direct IOB_W5_0 = D0X1Y5_0;
-	io_direct IOB_W5_1 = D0X1Y5_1;
-	io_direct IOB_W5_2 = D0X1Y5_2;
-	io_direct IOB_W5_3 = D0X1Y5_3;
-	io_direct IOB_W6_0 = D0X1Y6_0;
-	io_direct IOB_W6_1 = D0X1Y6_1;
-	io_direct IOB_W6_2 = D0X1Y6_2;
-	io_direct IOB_W6_3 = D0X1Y6_3;
-	io_direct IOB_W7_0 = D0X1Y7_0;
-	io_direct IOB_W7_1 = D0X1Y7_1;
-	io_direct IOB_W7_2 = D0X1Y7_2;
-	io_direct IOB_W7_3 = D0X1Y7_3;
-	io_direct IOB_W8_0 = D0X1Y8_0;
-	io_direct IOB_W8_1 = D0X1Y8_1;
-	io_direct IOB_W8_2 = D0X1Y8_2;
-	io_direct IOB_W8_3 = D0X1Y8_3;
-	io_direct IOB_W9_0 = D0X1Y9_0;
-	io_direct IOB_W9_1 = D0X1Y9_1;
-	io_direct IOB_W9_2 = D0X1Y9_2;
-	io_direct IOB_W9_3 = D0X1Y9_3;
-	io_direct IOB_W10_0 = D0X1Y10_0;
-	io_direct IOB_W10_1 = D0X1Y10_1;
-	io_direct IOB_W10_2 = D0X1Y10_2;
-	io_direct IOB_W10_3 = D0X1Y10_3;
-	io_direct IOB_W11_0 = D0X1Y11_0;
-	io_direct IOB_W11_1 = D0X1Y11_1;
-	io_direct IOB_W11_2 = D0X1Y11_2;
-	io_direct IOB_W11_3 = D0X1Y11_3;
-	io_direct IOB_W12_0 = D0X1Y12_0;
-	io_direct IOB_W12_1 = D0X1Y12_1;
-	io_direct IOB_W12_2 = D0X1Y12_2;
-	io_direct IOB_W12_3 = D0X1Y12_3;
-	io_direct IOB_W13_0 = D0X1Y13_0;
-	io_direct IOB_W13_1 = D0X1Y13_1;
-	io_direct IOB_W13_2 = D0X1Y13_2;
-	io_direct IOB_W13_3 = D0X1Y13_3;
-	io_direct IOB_W14_0 = D0X1Y14_0;
-	io_direct IOB_W14_1 = D0X1Y14_1;
-	io_direct IOB_W14_2 = D0X1Y14_2;
-	io_direct IOB_W14_3 = D0X1Y14_3;
-	io_direct IOB_W15_0 = D0X1Y15_0;
-	io_direct IOB_W15_1 = D0X1Y15_1;
-	io_direct IOB_W15_2 = D0X1Y15_2;
-	io_direct IOB_W15_3 = D0X1Y15_3;
-	io_direct IOB_W16_0 = D0X1Y16_0;
-	io_direct IOB_W16_1 = D0X1Y16_1;
-	io_direct IOB_W16_2 = D0X1Y16_2;
-	io_direct IOB_W16_3 = D0X1Y16_3;
-	io_direct IOB_W17_0 = D0X1Y17_1;
-	io_direct IOB_W17_1 = D0X1Y17_2;
-	io_direct IOB_W17_2 = D0X1Y17_3;
-	io_direct IOB_W17_3 = D0X1Y17_4;
-	io_direct IOB_W18_0 = D0X1Y18_2;
-	io_direct IOB_W18_1 = D0X1Y18_3;
-	io_direct IOB_W18_2 = D0X1Y18_4;
-	io_direct IOB_W18_3 = D0X1Y17_0;
-	io_direct IOB_W19_0 = D0X1Y18_0;
-	io_direct IOB_W19_1 = D0X1Y18_1;
-	io_direct IOB_E1_0 = D0X15Y2_0;
-	io_direct IOB_E1_1 = D0X15Y2_1;
-	io_direct IOB_E2_0 = D0X15Y3_2;
-	io_direct IOB_E2_1 = D0X15Y3_3;
-	io_direct IOB_E3_0 = D0X15Y3_0;
-	io_direct IOB_E3_1 = D0X15Y3_1;
-	io_direct IOB_E4_0 = D0X15Y4_0;
-	io_direct IOB_E4_1 = D0X15Y4_1;
-	io_direct IOB_E4_2 = D0X15Y4_2;
-	io_direct IOB_E4_3 = D0X15Y4_3;
-	io_direct IOB_E5_0 = D0X15Y5_0;
-	io_direct IOB_E5_1 = D0X15Y5_1;
-	io_direct IOB_E5_2 = D0X15Y5_2;
-	io_direct IOB_E5_3 = D0X15Y5_3;
-	io_direct IOB_E6_0 = D0X15Y6_0;
-	io_direct IOB_E6_1 = D0X15Y6_1;
-	io_direct IOB_E6_2 = D0X15Y6_2;
-	io_direct IOB_E6_3 = D0X15Y6_3;
-	io_direct IOB_E7_0 = D0X15Y7_0;
-	io_direct IOB_E7_1 = D0X15Y7_1;
-	io_direct IOB_E7_2 = D0X15Y7_2;
-	io_direct IOB_E7_3 = D0X15Y7_3;
-	io_direct IOB_E8_0 = D0X15Y8_0;
-	io_direct IOB_E8_1 = D0X15Y8_1;
-	io_direct IOB_E8_2 = D0X15Y8_2;
-	io_direct IOB_E8_3 = D0X15Y8_3;
-	io_direct IOB_E9_0 = D0X15Y9_0;
-	io_direct IOB_E9_1 = D0X15Y9_1;
-	io_direct IOB_E9_2 = D0X15Y9_2;
-	io_direct IOB_E9_3 = D0X15Y9_3;
-	io_direct IOB_E10_0 = D0X15Y10_0;
-	io_direct IOB_E10_1 = D0X15Y10_1;
-	io_direct IOB_E10_2 = D0X15Y10_2;
-	io_direct IOB_E10_3 = D0X15Y10_3;
-	io_direct IOB_E11_0 = D0X15Y11_0;
-	io_direct IOB_E11_1 = D0X15Y11_1;
-	io_direct IOB_E11_2 = D0X15Y11_2;
-	io_direct IOB_E11_3 = D0X15Y11_3;
-	io_direct IOB_E12_0 = D0X15Y12_0;
-	io_direct IOB_E12_1 = D0X15Y12_1;
-	io_direct IOB_E12_2 = D0X15Y12_2;
-	io_direct IOB_E12_3 = D0X15Y12_3;
-	io_direct IOB_E13_0 = D0X15Y13_0;
-	io_direct IOB_E13_1 = D0X15Y13_1;
-	io_direct IOB_E13_2 = D0X15Y13_2;
-	io_direct IOB_E13_3 = D0X15Y13_3;
-	io_direct IOB_E14_0 = D0X15Y14_0;
-	io_direct IOB_E14_1 = D0X15Y14_1;
-	io_direct IOB_E14_2 = D0X15Y14_2;
-	io_direct IOB_E14_3 = D0X15Y14_3;
-	io_direct IOB_E15_0 = D0X15Y15_0;
-	io_direct IOB_E15_1 = D0X15Y15_1;
-	io_direct IOB_E15_2 = D0X15Y15_2;
-	io_direct IOB_E15_3 = D0X15Y15_3;
-	io_direct IOB_E16_0 = D0X15Y16_0;
-	io_direct IOB_E16_1 = D0X15Y16_1;
-	io_direct IOB_E16_2 = D0X15Y16_2;
-	io_direct IOB_E16_3 = D0X15Y16_3;
-	io_direct IOB_E17_0 = D0X15Y17_1;
-	io_direct IOB_E17_1 = D0X15Y17_2;
-	io_direct IOB_E17_2 = D0X15Y17_3;
-	io_direct IOB_E17_3 = D0X15Y17_4;
-	io_direct IOB_E18_0 = D0X15Y18_2;
-	io_direct IOB_E18_1 = D0X15Y18_3;
-	io_direct IOB_E18_2 = D0X15Y18_4;
-	io_direct IOB_E18_3 = D0X15Y17_0;
-	io_direct IOB_E19_0 = D0X15Y18_0;
-	io_direct IOB_E19_1 = D0X15Y18_1;
-	io_direct IOB_S1_0 = D0X1Y1_0;
-	io_direct IOB_S1_1 = D0X1Y1_1;
-	io_direct IOB_S1_2 = D0X1Y1_2;
-	io_direct IOB_S1_3 = D0X1Y1_3;
-	io_direct IOB_S2_0 = D0X2Y1_0;
-	io_direct IOB_S2_1 = D0X2Y1_1;
-	io_direct IOB_S2_2 = D0X2Y1_2;
-	io_direct IOB_S2_3 = D0X2Y1_3;
-	io_direct IOB_S3_0 = D0X3Y1_0;
-	io_direct IOB_S3_1 = D0X3Y1_1;
-	io_direct IOB_S3_2 = D0X3Y1_2;
-	io_direct IOB_S3_3 = D0X3Y1_3;
-	io_direct IOB_S4_0 = D0X4Y1_0;
-	io_direct IOB_S4_1 = D0X4Y1_1;
-	io_direct IOB_S4_2 = D0X4Y1_2;
-	io_direct IOB_S4_3 = D0X4Y1_3;
-	io_direct IOB_S5_0 = D0X5Y1_0;
-	io_direct IOB_S5_1 = D0X5Y1_1;
-	io_direct IOB_S5_2 = D0X5Y1_2;
-	io_direct IOB_S5_3 = D0X5Y1_3;
-	io_direct IOB_S6_0 = D0X6Y1_0;
-	io_direct IOB_S6_1 = D0X6Y1_1;
-	io_direct IOB_S6_2 = D0X6Y1_2;
-	io_direct IOB_S6_3 = D0X6Y1_3;
-	io_direct IOB_S7_0 = D0X7Y1_0;
-	io_direct IOB_S7_1 = D0X7Y1_1;
-	io_direct IOB_S7_2 = D0X7Y1_2;
-	io_direct IOB_S7_3 = D0X7Y1_3;
-	io_direct IOB_S7_4 = D0X7Y1_4;
-	io_direct IOB_S7_5 = D0X7Y1_5;
-	io_direct IOB_S8_0 = D0X8Y1_0;
-	io_direct IOB_S8_1 = D0X8Y1_1;
-	io_direct IOB_S8_2 = D0X8Y1_2;
-	io_direct IOB_S8_3 = D0X8Y1_3;
-	io_direct IOB_S9_0 = D0X9Y1_0;
-	io_direct IOB_S9_1 = D0X9Y1_1;
-	io_direct IOB_S9_2 = D0X9Y1_2;
-	io_direct IOB_S9_3 = D0X9Y1_3;
-	io_direct IOB_S9_4 = D0X9Y1_4;
-	io_direct IOB_S9_5 = D0X9Y1_5;
-	io_direct IOB_S10_0 = D0X10Y1_0;
-	io_direct IOB_S10_1 = D0X10Y1_1;
-	io_direct IOB_S10_2 = D0X10Y1_2;
-	io_direct IOB_S10_3 = D0X10Y1_3;
-	io_direct IOB_S11_0 = D0X11Y1_0;
-	io_direct IOB_S11_1 = D0X11Y1_1;
-	io_direct IOB_S11_2 = D0X11Y1_2;
-	io_direct IOB_S11_3 = D0X11Y1_3;
-	io_direct IOB_S11_4 = D0X11Y1_4;
-	io_direct IOB_S11_5 = D0X11Y1_5;
-	io_direct IOB_S12_0 = D0X12Y1_0;
-	io_direct IOB_S12_1 = D0X12Y1_1;
-	io_direct IOB_S12_2 = D0X12Y1_2;
-	io_direct IOB_S12_3 = D0X12Y1_3;
-	io_direct IOB_S13_0 = D0X13Y1_0;
-	io_direct IOB_S13_1 = D0X13Y1_1;
-	io_direct IOB_S13_2 = D0X13Y1_2;
-	io_direct IOB_S13_3 = D0X13Y1_3;
-	io_direct IOB_S14_0 = D0X14Y1_0;
-	io_direct IOB_S14_1 = D0X14Y1_1;
-	io_direct IOB_S14_2 = D0X14Y1_2;
-	io_direct IOB_S14_3 = D0X14Y1_3;
-	io_direct IOB_S15_0 = D0X15Y1_0;
-	io_direct IOB_S15_1 = D0X15Y1_1;
-	io_direct IOB_S15_2 = D0X15Y1_2;
-	io_direct IOB_S15_3 = D0X15Y1_3;
-	io_direct IOB_N1_0 = D0X1Y19_0;
-	io_direct IOB_N1_1 = D0X1Y19_1;
-	io_direct IOB_N1_2 = D0X1Y19_2;
-	io_direct IOB_N1_3 = D0X1Y19_3;
-	io_direct IOB_N2_0 = D0X2Y19_0;
-	io_direct IOB_N2_1 = D0X2Y19_1;
-	io_direct IOB_N2_2 = D0X2Y19_2;
-	io_direct IOB_N2_3 = D0X2Y19_3;
-	io_direct IOB_N3_0 = D0X3Y19_0;
-	io_direct IOB_N3_1 = D0X3Y19_1;
-	io_direct IOB_N3_2 = D0X3Y19_2;
-	io_direct IOB_N3_3 = D0X3Y19_3;
-	io_direct IOB_N3_4 = D0X3Y19_4;
-	io_direct IOB_N3_5 = D0X3Y19_5;
-	io_direct IOB_N4_0 = D0X4Y19_0;
-	io_direct IOB_N4_1 = D0X4Y19_1;
-	io_direct IOB_N4_2 = D0X4Y19_2;
-	io_direct IOB_N4_3 = D0X4Y19_3;
-	io_direct IOB_N5_0 = D0X5Y19_0;
-	io_direct IOB_N5_1 = D0X5Y19_1;
-	io_direct IOB_N5_2 = D0X5Y19_2;
-	io_direct IOB_N5_3 = D0X5Y19_3;
-	io_direct IOB_N5_4 = D0X5Y19_4;
-	io_direct IOB_N5_5 = D0X5Y19_5;
-	io_direct IOB_N6_0 = D0X6Y19_0;
-	io_direct IOB_N6_1 = D0X6Y19_1;
-	io_direct IOB_N6_2 = D0X6Y19_2;
-	io_direct IOB_N6_3 = D0X6Y19_3;
-	io_direct IOB_N7_0 = D0X7Y19_0;
-	io_direct IOB_N7_1 = D0X7Y19_1;
-	io_direct IOB_N7_2 = D0X7Y19_2;
-	io_direct IOB_N7_3 = D0X7Y19_3;
-	io_direct IOB_N7_4 = D0X7Y19_4;
-	io_direct IOB_N7_5 = D0X7Y19_5;
-	io_direct IOB_N8_0 = D0X8Y19_0;
-	io_direct IOB_N8_1 = D0X8Y19_1;
-	io_direct IOB_N8_2 = D0X8Y19_2;
-	io_direct IOB_N8_3 = D0X8Y19_3;
-	io_direct IOB_N9_0 = D0X9Y19_0;
-	io_direct IOB_N9_1 = D0X9Y19_1;
-	io_direct IOB_N9_2 = D0X9Y19_2;
-	io_direct IOB_N9_3 = D0X9Y19_3;
-	io_direct IOB_N9_4 = D0X9Y19_4;
-	io_direct IOB_N9_5 = D0X9Y19_5;
-	io_direct IOB_N10_0 = D0X10Y19_0;
-	io_direct IOB_N10_1 = D0X10Y19_1;
-	io_direct IOB_N10_2 = D0X10Y19_2;
-	io_direct IOB_N10_3 = D0X10Y19_3;
-	io_direct IOB_N11_0 = D0X11Y19_0;
-	io_direct IOB_N11_1 = D0X11Y19_1;
-	io_direct IOB_N11_2 = D0X11Y19_2;
-	io_direct IOB_N11_3 = D0X11Y19_3;
-	io_direct IOB_N11_4 = D0X11Y19_4;
-	io_direct IOB_N11_5 = D0X11Y19_5;
-	io_direct IOB_N12_0 = D0X12Y19_0;
-	io_direct IOB_N12_1 = D0X12Y19_1;
-	io_direct IOB_N12_2 = D0X12Y19_2;
-	io_direct IOB_N12_3 = D0X12Y19_3;
-	io_direct IOB_N13_0 = D0X13Y19_0;
-	io_direct IOB_N13_1 = D0X13Y19_1;
-	io_direct IOB_N13_2 = D0X13Y19_2;
-	io_direct IOB_N13_3 = D0X13Y19_3;
-	io_direct IOB_N14_0 = D0X14Y19_0;
-	io_direct IOB_N14_1 = D0X14Y19_1;
-	io_direct IOB_N14_2 = D0X14Y19_2;
-	io_direct IOB_N14_3 = D0X14Y19_3;
-	io_direct IOB_N15_0 = D0X15Y19_0;
-	io_direct IOB_N15_1 = D0X15Y19_1;
-	io_direct IOB_N15_2 = D0X15Y19_2;
-	io_direct IOB_N15_3 = D0X15Y19_3;
+	io_direct D0X0Y1.IO[0] = D0X0Y2_0;
+	io_direct D0X0Y1.IO[1] = D0X0Y2_1;
+	io_direct D0X0Y2.IO[0] = D0X0Y3_2;
+	io_direct D0X0Y2.IO[1] = D0X0Y3_3;
+	io_direct D0X0Y3.IO[0] = D0X0Y3_0;
+	io_direct D0X0Y3.IO[1] = D0X0Y3_1;
+	io_direct D0X0Y4.IO[0] = D0X0Y4_0;
+	io_direct D0X0Y4.IO[1] = D0X0Y4_1;
+	io_direct D0X0Y4.IO[2] = D0X0Y4_2;
+	io_direct D0X0Y4.IO[3] = D0X0Y4_3;
+	io_direct D0X0Y5.IO[0] = D0X0Y5_0;
+	io_direct D0X0Y5.IO[1] = D0X0Y5_1;
+	io_direct D0X0Y5.IO[2] = D0X0Y5_2;
+	io_direct D0X0Y5.IO[3] = D0X0Y5_3;
+	io_direct D0X0Y6.IO[0] = D0X0Y6_0;
+	io_direct D0X0Y6.IO[1] = D0X0Y6_1;
+	io_direct D0X0Y6.IO[2] = D0X0Y6_2;
+	io_direct D0X0Y6.IO[3] = D0X0Y6_3;
+	io_direct D0X0Y7.IO[0] = D0X0Y7_0;
+	io_direct D0X0Y7.IO[1] = D0X0Y7_1;
+	io_direct D0X0Y7.IO[2] = D0X0Y7_2;
+	io_direct D0X0Y7.IO[3] = D0X0Y7_3;
+	io_direct D0X0Y8.IO[0] = D0X0Y8_0;
+	io_direct D0X0Y8.IO[1] = D0X0Y8_1;
+	io_direct D0X0Y8.IO[2] = D0X0Y8_2;
+	io_direct D0X0Y8.IO[3] = D0X0Y8_3;
+	io_direct D0X0Y9.IO[0] = D0X0Y9_0;
+	io_direct D0X0Y9.IO[1] = D0X0Y9_1;
+	io_direct D0X0Y9.IO[2] = D0X0Y9_2;
+	io_direct D0X0Y9.IO[3] = D0X0Y9_3;
+	io_direct D0X0Y10.IO[0] = D0X0Y10_0;
+	io_direct D0X0Y10.IO[1] = D0X0Y10_1;
+	io_direct D0X0Y10.IO[2] = D0X0Y10_2;
+	io_direct D0X0Y10.IO[3] = D0X0Y10_3;
+	io_direct D0X0Y11.IO[0] = D0X0Y11_0;
+	io_direct D0X0Y11.IO[1] = D0X0Y11_1;
+	io_direct D0X0Y11.IO[2] = D0X0Y11_2;
+	io_direct D0X0Y11.IO[3] = D0X0Y11_3;
+	io_direct D0X0Y12.IO[0] = D0X0Y12_0;
+	io_direct D0X0Y12.IO[1] = D0X0Y12_1;
+	io_direct D0X0Y12.IO[2] = D0X0Y12_2;
+	io_direct D0X0Y12.IO[3] = D0X0Y12_3;
+	io_direct D0X0Y13.IO[0] = D0X0Y13_0;
+	io_direct D0X0Y13.IO[1] = D0X0Y13_1;
+	io_direct D0X0Y13.IO[2] = D0X0Y13_2;
+	io_direct D0X0Y13.IO[3] = D0X0Y13_3;
+	io_direct D0X0Y14.IO[0] = D0X0Y14_0;
+	io_direct D0X0Y14.IO[1] = D0X0Y14_1;
+	io_direct D0X0Y14.IO[2] = D0X0Y14_2;
+	io_direct D0X0Y14.IO[3] = D0X0Y14_3;
+	io_direct D0X0Y15.IO[0] = D0X0Y15_0;
+	io_direct D0X0Y15.IO[1] = D0X0Y15_1;
+	io_direct D0X0Y15.IO[2] = D0X0Y15_2;
+	io_direct D0X0Y15.IO[3] = D0X0Y15_3;
+	io_direct D0X0Y16.IO[0] = D0X0Y16_0;
+	io_direct D0X0Y16.IO[1] = D0X0Y16_1;
+	io_direct D0X0Y16.IO[2] = D0X0Y16_2;
+	io_direct D0X0Y16.IO[3] = D0X0Y16_3;
+	io_direct D0X0Y17.IO[0] = D0X0Y17_1;
+	io_direct D0X0Y17.IO[1] = D0X0Y17_2;
+	io_direct D0X0Y17.IO[2] = D0X0Y17_3;
+	io_direct D0X0Y17.IO[3] = D0X0Y17_4;
+	io_direct D0X0Y18.IO[0] = D0X0Y18_2;
+	io_direct D0X0Y18.IO[1] = D0X0Y18_3;
+	io_direct D0X0Y18.IO[2] = D0X0Y18_4;
+	io_direct D0X0Y18.IO[3] = D0X0Y17_0;
+	io_direct D0X0Y19.IO[0] = D0X0Y18_0;
+	io_direct D0X0Y19.IO[1] = D0X0Y18_1;
+	io_direct D0X1Y0.IO[0] = D0X1Y0_0;
+	io_direct D0X1Y0.IO[1] = D0X1Y0_1;
+	io_direct D0X1Y0.IO[2] = D0X1Y0_2;
+	io_direct D0X1Y0.IO[3] = D0X1Y0_3;
+	io_direct D0X1Y20.IO[0] = D0X1Y20_0;
+	io_direct D0X1Y20.IO[1] = D0X1Y20_1;
+	io_direct D0X1Y20.IO[2] = D0X1Y20_2;
+	io_direct D0X1Y20.IO[3] = D0X1Y20_3;
+	io_direct D0X2Y0.IO[0] = D0X2Y0_0;
+	io_direct D0X2Y0.IO[1] = D0X2Y0_1;
+	io_direct D0X2Y0.IO[2] = D0X2Y0_2;
+	io_direct D0X2Y0.IO[3] = D0X2Y0_3;
+	io_direct D0X2Y20.IO[0] = D0X2Y20_0;
+	io_direct D0X2Y20.IO[1] = D0X2Y20_1;
+	io_direct D0X2Y20.IO[2] = D0X2Y20_2;
+	io_direct D0X2Y20.IO[3] = D0X2Y20_3;
+	io_direct D0X3Y0.IO[0] = D0X3Y0_0;
+	io_direct D0X3Y0.IO[1] = D0X3Y0_1;
+	io_direct D0X3Y0.IO[2] = D0X3Y0_2;
+	io_direct D0X3Y0.IO[3] = D0X3Y0_3;
+	io_direct D0X3Y20.IO[0] = D0X3Y20_0;
+	io_direct D0X3Y20.IO[1] = D0X3Y20_1;
+	io_direct D0X3Y20.IO[2] = D0X3Y20_2;
+	io_direct D0X3Y20.IO[3] = D0X3Y20_3;
+	io_direct D0X3Y20.IO[4] = D0X3Y20_4;
+	io_direct D0X3Y20.IO[5] = D0X3Y20_5;
+	io_direct D0X4Y0.IO[0] = D0X4Y0_0;
+	io_direct D0X4Y0.IO[1] = D0X4Y0_1;
+	io_direct D0X4Y0.IO[2] = D0X4Y0_2;
+	io_direct D0X4Y0.IO[3] = D0X4Y0_3;
+	io_direct D0X4Y20.IO[0] = D0X4Y20_0;
+	io_direct D0X4Y20.IO[1] = D0X4Y20_1;
+	io_direct D0X4Y20.IO[2] = D0X4Y20_2;
+	io_direct D0X4Y20.IO[3] = D0X4Y20_3;
+	io_direct D0X5Y0.IO[0] = D0X5Y0_0;
+	io_direct D0X5Y0.IO[1] = D0X5Y0_1;
+	io_direct D0X5Y0.IO[2] = D0X5Y0_2;
+	io_direct D0X5Y0.IO[3] = D0X5Y0_3;
+	io_direct D0X5Y20.IO[0] = D0X5Y20_0;
+	io_direct D0X5Y20.IO[1] = D0X5Y20_1;
+	io_direct D0X5Y20.IO[2] = D0X5Y20_2;
+	io_direct D0X5Y20.IO[3] = D0X5Y20_3;
+	io_direct D0X5Y20.IO[4] = D0X5Y20_4;
+	io_direct D0X5Y20.IO[5] = D0X5Y20_5;
+	io_direct D0X6Y0.IO[0] = D0X6Y0_0;
+	io_direct D0X6Y0.IO[1] = D0X6Y0_1;
+	io_direct D0X6Y0.IO[2] = D0X6Y0_2;
+	io_direct D0X6Y0.IO[3] = D0X6Y0_3;
+	io_direct D0X6Y20.IO[0] = D0X6Y20_0;
+	io_direct D0X6Y20.IO[1] = D0X6Y20_1;
+	io_direct D0X6Y20.IO[2] = D0X6Y20_2;
+	io_direct D0X6Y20.IO[3] = D0X6Y20_3;
+	io_direct D0X7Y0.IO[0] = D0X7Y0_0;
+	io_direct D0X7Y0.IO[1] = D0X7Y0_1;
+	io_direct D0X7Y0.IO[2] = D0X7Y0_2;
+	io_direct D0X7Y0.IO[3] = D0X7Y0_3;
+	io_direct D0X7Y0.IO[4] = D0X7Y0_4;
+	io_direct D0X7Y0.IO[5] = D0X7Y0_5;
+	io_direct D0X7Y20.IO[0] = D0X7Y20_0;
+	io_direct D0X7Y20.IO[1] = D0X7Y20_1;
+	io_direct D0X7Y20.IO[2] = D0X7Y20_2;
+	io_direct D0X7Y20.IO[3] = D0X7Y20_3;
+	io_direct D0X7Y20.IO[4] = D0X7Y20_4;
+	io_direct D0X7Y20.IO[5] = D0X7Y20_5;
+	io_direct D0X8Y0.IO[0] = D0X8Y0_0;
+	io_direct D0X8Y0.IO[1] = D0X8Y0_1;
+	io_direct D0X8Y0.IO[2] = D0X8Y0_2;
+	io_direct D0X8Y0.IO[3] = D0X8Y0_3;
+	io_direct D0X8Y20.IO[0] = D0X8Y20_0;
+	io_direct D0X8Y20.IO[1] = D0X8Y20_1;
+	io_direct D0X8Y20.IO[2] = D0X8Y20_2;
+	io_direct D0X8Y20.IO[3] = D0X8Y20_3;
+	io_direct D0X9Y0.IO[0] = D0X9Y0_0;
+	io_direct D0X9Y0.IO[1] = D0X9Y0_1;
+	io_direct D0X9Y0.IO[2] = D0X9Y0_2;
+	io_direct D0X9Y0.IO[3] = D0X9Y0_3;
+	io_direct D0X9Y0.IO[4] = D0X9Y0_4;
+	io_direct D0X9Y0.IO[5] = D0X9Y0_5;
+	io_direct D0X9Y20.IO[0] = D0X9Y20_0;
+	io_direct D0X9Y20.IO[1] = D0X9Y20_1;
+	io_direct D0X9Y20.IO[2] = D0X9Y20_2;
+	io_direct D0X9Y20.IO[3] = D0X9Y20_3;
+	io_direct D0X9Y20.IO[4] = D0X9Y20_4;
+	io_direct D0X9Y20.IO[5] = D0X9Y20_5;
+	io_direct D0X10Y0.IO[0] = D0X10Y0_0;
+	io_direct D0X10Y0.IO[1] = D0X10Y0_1;
+	io_direct D0X10Y0.IO[2] = D0X10Y0_2;
+	io_direct D0X10Y0.IO[3] = D0X10Y0_3;
+	io_direct D0X10Y20.IO[0] = D0X10Y20_0;
+	io_direct D0X10Y20.IO[1] = D0X10Y20_1;
+	io_direct D0X10Y20.IO[2] = D0X10Y20_2;
+	io_direct D0X10Y20.IO[3] = D0X10Y20_3;
+	io_direct D0X11Y0.IO[0] = D0X11Y0_0;
+	io_direct D0X11Y0.IO[1] = D0X11Y0_1;
+	io_direct D0X11Y0.IO[2] = D0X11Y0_2;
+	io_direct D0X11Y0.IO[3] = D0X11Y0_3;
+	io_direct D0X11Y0.IO[4] = D0X11Y0_4;
+	io_direct D0X11Y0.IO[5] = D0X11Y0_5;
+	io_direct D0X11Y20.IO[0] = D0X11Y20_0;
+	io_direct D0X11Y20.IO[1] = D0X11Y20_1;
+	io_direct D0X11Y20.IO[2] = D0X11Y20_2;
+	io_direct D0X11Y20.IO[3] = D0X11Y20_3;
+	io_direct D0X11Y20.IO[4] = D0X11Y20_4;
+	io_direct D0X11Y20.IO[5] = D0X11Y20_5;
+	io_direct D0X12Y0.IO[0] = D0X12Y0_0;
+	io_direct D0X12Y0.IO[1] = D0X12Y0_1;
+	io_direct D0X12Y0.IO[2] = D0X12Y0_2;
+	io_direct D0X12Y0.IO[3] = D0X12Y0_3;
+	io_direct D0X12Y20.IO[0] = D0X12Y20_0;
+	io_direct D0X12Y20.IO[1] = D0X12Y20_1;
+	io_direct D0X12Y20.IO[2] = D0X12Y20_2;
+	io_direct D0X12Y20.IO[3] = D0X12Y20_3;
+	io_direct D0X13Y0.IO[0] = D0X13Y0_0;
+	io_direct D0X13Y0.IO[1] = D0X13Y0_1;
+	io_direct D0X13Y0.IO[2] = D0X13Y0_2;
+	io_direct D0X13Y0.IO[3] = D0X13Y0_3;
+	io_direct D0X13Y20.IO[0] = D0X13Y20_0;
+	io_direct D0X13Y20.IO[1] = D0X13Y20_1;
+	io_direct D0X13Y20.IO[2] = D0X13Y20_2;
+	io_direct D0X13Y20.IO[3] = D0X13Y20_3;
+	io_direct D0X14Y0.IO[0] = D0X14Y0_0;
+	io_direct D0X14Y0.IO[1] = D0X14Y0_1;
+	io_direct D0X14Y0.IO[2] = D0X14Y0_2;
+	io_direct D0X14Y0.IO[3] = D0X14Y0_3;
+	io_direct D0X14Y20.IO[0] = D0X14Y20_0;
+	io_direct D0X14Y20.IO[1] = D0X14Y20_1;
+	io_direct D0X14Y20.IO[2] = D0X14Y20_2;
+	io_direct D0X14Y20.IO[3] = D0X14Y20_3;
+	io_direct D0X15Y0.IO[0] = D0X15Y0_0;
+	io_direct D0X15Y0.IO[1] = D0X15Y0_1;
+	io_direct D0X15Y0.IO[2] = D0X15Y0_2;
+	io_direct D0X15Y0.IO[3] = D0X15Y0_3;
+	io_direct D0X15Y20.IO[0] = D0X15Y20_0;
+	io_direct D0X15Y20.IO[1] = D0X15Y20_1;
+	io_direct D0X15Y20.IO[2] = D0X15Y20_2;
+	io_direct D0X15Y20.IO[3] = D0X15Y20_3;
+	io_direct D0X16Y1.IO[0] = D0X16Y2_0;
+	io_direct D0X16Y1.IO[1] = D0X16Y2_1;
+	io_direct D0X16Y2.IO[0] = D0X16Y3_2;
+	io_direct D0X16Y2.IO[1] = D0X16Y3_3;
+	io_direct D0X16Y3.IO[0] = D0X16Y3_0;
+	io_direct D0X16Y3.IO[1] = D0X16Y3_1;
+	io_direct D0X16Y4.IO[0] = D0X16Y4_0;
+	io_direct D0X16Y4.IO[1] = D0X16Y4_1;
+	io_direct D0X16Y4.IO[2] = D0X16Y4_2;
+	io_direct D0X16Y4.IO[3] = D0X16Y4_3;
+	io_direct D0X16Y5.IO[0] = D0X16Y5_0;
+	io_direct D0X16Y5.IO[1] = D0X16Y5_1;
+	io_direct D0X16Y5.IO[2] = D0X16Y5_2;
+	io_direct D0X16Y5.IO[3] = D0X16Y5_3;
+	io_direct D0X16Y6.IO[0] = D0X16Y6_0;
+	io_direct D0X16Y6.IO[1] = D0X16Y6_1;
+	io_direct D0X16Y6.IO[2] = D0X16Y6_2;
+	io_direct D0X16Y6.IO[3] = D0X16Y6_3;
+	io_direct D0X16Y7.IO[0] = D0X16Y7_0;
+	io_direct D0X16Y7.IO[1] = D0X16Y7_1;
+	io_direct D0X16Y7.IO[2] = D0X16Y7_2;
+	io_direct D0X16Y7.IO[3] = D0X16Y7_3;
+	io_direct D0X16Y8.IO[0] = D0X16Y8_0;
+	io_direct D0X16Y8.IO[1] = D0X16Y8_1;
+	io_direct D0X16Y8.IO[2] = D0X16Y8_2;
+	io_direct D0X16Y8.IO[3] = D0X16Y8_3;
+	io_direct D0X16Y9.IO[0] = D0X16Y9_0;
+	io_direct D0X16Y9.IO[1] = D0X16Y9_1;
+	io_direct D0X16Y9.IO[2] = D0X16Y9_2;
+	io_direct D0X16Y9.IO[3] = D0X16Y9_3;
+	io_direct D0X16Y10.IO[0] = D0X16Y10_0;
+	io_direct D0X16Y10.IO[1] = D0X16Y10_1;
+	io_direct D0X16Y10.IO[2] = D0X16Y10_2;
+	io_direct D0X16Y10.IO[3] = D0X16Y10_3;
+	io_direct D0X16Y11.IO[0] = D0X16Y11_0;
+	io_direct D0X16Y11.IO[1] = D0X16Y11_1;
+	io_direct D0X16Y11.IO[2] = D0X16Y11_2;
+	io_direct D0X16Y11.IO[3] = D0X16Y11_3;
+	io_direct D0X16Y12.IO[0] = D0X16Y12_0;
+	io_direct D0X16Y12.IO[1] = D0X16Y12_1;
+	io_direct D0X16Y12.IO[2] = D0X16Y12_2;
+	io_direct D0X16Y12.IO[3] = D0X16Y12_3;
+	io_direct D0X16Y13.IO[0] = D0X16Y13_0;
+	io_direct D0X16Y13.IO[1] = D0X16Y13_1;
+	io_direct D0X16Y13.IO[2] = D0X16Y13_2;
+	io_direct D0X16Y13.IO[3] = D0X16Y13_3;
+	io_direct D0X16Y14.IO[0] = D0X16Y14_0;
+	io_direct D0X16Y14.IO[1] = D0X16Y14_1;
+	io_direct D0X16Y14.IO[2] = D0X16Y14_2;
+	io_direct D0X16Y14.IO[3] = D0X16Y14_3;
+	io_direct D0X16Y15.IO[0] = D0X16Y15_0;
+	io_direct D0X16Y15.IO[1] = D0X16Y15_1;
+	io_direct D0X16Y15.IO[2] = D0X16Y15_2;
+	io_direct D0X16Y15.IO[3] = D0X16Y15_3;
+	io_direct D0X16Y16.IO[0] = D0X16Y16_0;
+	io_direct D0X16Y16.IO[1] = D0X16Y16_1;
+	io_direct D0X16Y16.IO[2] = D0X16Y16_2;
+	io_direct D0X16Y16.IO[3] = D0X16Y16_3;
+	io_direct D0X16Y17.IO[0] = D0X16Y17_1;
+	io_direct D0X16Y17.IO[1] = D0X16Y17_2;
+	io_direct D0X16Y17.IO[2] = D0X16Y17_3;
+	io_direct D0X16Y17.IO[3] = D0X16Y17_4;
+	io_direct D0X16Y18.IO[0] = D0X16Y18_2;
+	io_direct D0X16Y18.IO[1] = D0X16Y18_3;
+	io_direct D0X16Y18.IO[2] = D0X16Y18_4;
+	io_direct D0X16Y18.IO[3] = D0X16Y17_0;
+	io_direct D0X16Y19.IO[0] = D0X16Y18_0;
+	io_direct D0X16Y19.IO[1] = D0X16Y18_1;
 }
 
 // LAMXO256C-TQFP100 LAMXO256E-TQFP100 LCMXO256C-TQFP100 LCMXO256E-TQFP100
@@ -4248,6 +4248,66 @@ intdb {
 		output AF;
 	}
 
+	bel_class IO {
+		input PADDO;
+		input PADDT;
+		output PADDI;
+	}
+
+	bel_class PICTEST {
+		input C[2];
+		input D[2];
+		output Q[2];
+	}
+
+	bel_class PLL {
+		input CLKI;
+		input CLKFB;
+		input RESETM;
+		input RESETK;
+		input CNTRST;
+		input PWD;
+		input DDAMODE;
+		input DDAIZR;
+		input DDAILAG;
+		input DDAIDEL[3];
+		input TCLKI;
+		output CLKOP;
+		output CLKOS;
+		output CLKOK;
+		output CLKINTFB;
+		output LOCK;
+		output DNLOCK;
+		output UPLOCK;
+		output DDAOZR;
+		output DDAOLAG;
+		output DDAODEL[3];
+		output TESTOUT;
+	}
+
+	bel_class GSR {
+		input GSR;
+	}
+
+	bel_class JTAG {
+		input JTDO1;
+		input JTDO2;
+		output JTDI;
+		output JTCK;
+		output JRST;
+		output JSHIFT;
+		output JUPDATE;
+		output JCE1;
+		output JCE2;
+		output JRTI1;
+		output JRTI2;
+	}
+
+	bel_class OSC {
+		output CFGCLK;
+	}
+
+	region_slot GLOBAL;
 	region_slot PCLK;
 	wire TIE0: tie 0;
 	wire TIE1: tie 1;
@@ -4599,6 +4659,52 @@ intdb {
 	wire OUT_OFX_W[5]: branch E;
 	wire OUT_OFX_W[6]: branch E;
 	wire OUT_OFX_W[7]: branch E;
+	wire OUT_F_PLC_IO[0]: branch IO_FROM_PLC;
+	wire OUT_F_PLC_IO[1]: branch IO_FROM_PLC;
+	wire OUT_F_PLC_IO[2]: branch IO_FROM_PLC;
+	wire OUT_F_PLC_IO[3]: branch IO_FROM_PLC;
+	wire OUT_F_PLC_IO[4]: branch IO_FROM_PLC;
+	wire OUT_F_PLC_IO[5]: branch IO_FROM_PLC;
+	wire OUT_Q_PLC_IO[0]: branch IO_FROM_PLC;
+	wire OUT_Q_PLC_IO[1]: branch IO_FROM_PLC;
+	wire OUT_Q_PLC_IO[2]: branch IO_FROM_PLC;
+	wire OUT_Q_PLC_IO[3]: branch IO_FROM_PLC;
+	wire OUT_Q_PLC_IO[4]: branch IO_FROM_PLC;
+	wire OUT_Q_PLC_IO[5]: branch IO_FROM_PLC;
+	wire PLC_IO[0]: mux;
+	wire PLC_IO[1]: mux;
+	wire PLC_IO[2]: mux;
+	wire PLC_IO[3]: mux;
+	wire PLC_IO[4]: mux;
+	wire PLC_IO[5]: mux;
+	wire IMUX_IO_O_PLC[0]: mux;
+	wire IMUX_IO_O_PLC[1]: mux;
+	wire IMUX_IO_O_PLC[2]: mux;
+	wire IMUX_IO_O_PLC[3]: mux;
+	wire IMUX_IO_O_PLC[4]: mux;
+	wire IMUX_IO_O_PLC[5]: mux;
+	wire IMUX_IO_O[0]: mux;
+	wire IMUX_IO_O[1]: mux;
+	wire IMUX_IO_O[2]: mux;
+	wire IMUX_IO_O[3]: mux;
+	wire IMUX_IO_O[4]: mux;
+	wire IMUX_IO_O[5]: mux;
+	wire IMUX_IO_T[0]: mux;
+	wire IMUX_IO_T[1]: mux;
+	wire IMUX_IO_T[2]: mux;
+	wire IMUX_IO_T[3]: mux;
+	wire IMUX_IO_T[4]: mux;
+	wire IMUX_IO_T[5]: mux;
+	wire OUT_IO_CLK[0]: bel;
+	wire OUT_IO_CLK[1]: bel;
+	wire OUT_IO_CLK[2]: bel;
+	wire OUT_IO_CLK[3]: bel;
+	wire OUT_IO_CLK[4]: bel;
+	wire OUT_IO_CLK[5]: bel;
+	wire IO_GCLK_S[0]: regional GLOBAL;
+	wire IO_GCLK_S[1]: regional GLOBAL;
+	wire IO_GCLK_N[0]: regional GLOBAL;
+	wire IO_GCLK_N[1]: regional GLOBAL;
 	wire OUT_TI[0]: bel;
 	wire OUT_TI[1]: bel;
 	wire OUT_TI[2]: bel;
@@ -4611,6 +4717,14 @@ intdb {
 	wire OUT_TI[9]: bel;
 	wire OUT_TI[10]: bel;
 	wire OUT_TI[11]: bel;
+	wire IMUX_PLL_CLKI: mux;
+	wire IMUX_PLL_CLKFB: mux;
+	wire OUT_PLL_CLKINTFB: bel;
+	wire OUT_PLL_CLKOP: bel;
+	wire OUT_PLL_CLKOS: bel;
+	wire OUT_PLL_CLKOK: bel;
+	wire IO_PLL_CLKI: mux;
+	wire IO_PLL_CLKFB: mux;
 
 	tile_slot INT {
 		bel_slot INT: routing;
@@ -4786,6 +4900,12 @@ intdb {
 				mux IMUX_C[1] = X1_W1[1] | X1_E1[1] | X2_W1[0] | X2_W1[1] | X2_W1[2] | X2_W1[3] | X2_W2[0] | X2_W2[1] | X2_W2[2] | X2_W2[3] | X2_E1[0] | X2_E1[1] | X2_E1[2] | X2_E1[3] | X2_E2[0] | X2_E2[1] | X2_E2[2] | X2_E2[3] | X6_W3[0] | X6_W3[1] | X6_W6[0] | X6_W6[1] | IMUX_C[0];
 				mux IMUX_D[0] = X1_W1[1] | X1_E1[1] | X2_W1[4] | X2_W1[5] | X2_W1[6] | X2_W1[7] | X2_W2[4] | X2_W2[5] | X2_W2[6] | X2_W2[7] | X2_E1[4] | X2_E1[5] | X2_E1[6] | X2_E1[7] | X2_E2[4] | X2_E2[5] | X2_E2[6] | X2_E2[7] | X6_W3[2] | X6_W3[3] | X6_W6[2] | X6_W6[3];
 				mux IMUX_D[1] = X1_W1[0] | X1_E1[0] | X2_W1[4] | X2_W1[5] | X2_W1[6] | X2_W1[7] | X2_W2[4] | X2_W2[5] | X2_W2[6] | X2_W2[7] | X2_E1[4] | X2_E1[5] | X2_E1[6] | X2_E1[7] | X2_E2[4] | X2_E2[5] | X2_E2[6] | X2_E2[7] | X6_W3[2] | X6_W3[3] | X6_W6[2] | X6_W6[3] | IMUX_D[0];
+				mux PLC_IO[0] = OUT_F_PLC_IO[0] | OUT_Q_PLC_IO[0];
+				mux PLC_IO[1] = OUT_F_PLC_IO[1] | OUT_Q_PLC_IO[1];
+				mux PLC_IO[2] = OUT_F_PLC_IO[2] | OUT_Q_PLC_IO[2];
+				mux PLC_IO[3] = OUT_F_PLC_IO[3] | OUT_Q_PLC_IO[3];
+				mux PLC_IO[4] = OUT_F_PLC_IO[4] | OUT_Q_PLC_IO[4];
+				mux PLC_IO[5] = OUT_F_PLC_IO[5] | OUT_Q_PLC_IO[5];
 			}
 		}
 
@@ -4833,6 +4953,12 @@ intdb {
 				mux IMUX_D[0] = X1_W1[1] | X1_E1[1] | X2_W1[4] | X2_W1[5] | X2_W1[6] | X2_W1[7] | X2_W2[4] | X2_W2[5] | X2_W2[6] | X2_W2[7] | X2_E1[4] | X2_E1[5] | X2_E1[6] | X2_E1[7] | X2_E2[4] | X2_E2[5] | X2_E2[6] | X2_E2[7] | X6_W3[2] | X6_W3[3] | X6_W6[2] | X6_W6[3] | IMUX_D[2];
 				mux IMUX_D[1] = X1_W1[0] | X1_E1[0] | X2_W1[4] | X2_W1[5] | X2_W1[6] | X2_W1[7] | X2_W2[4] | X2_W2[5] | X2_W2[6] | X2_W2[7] | X2_E1[4] | X2_E1[5] | X2_E1[6] | X2_E1[7] | X2_E2[4] | X2_E2[5] | X2_E2[6] | X2_E2[7] | X6_W3[2] | X6_W3[3] | X6_W6[2] | X6_W6[3] | IMUX_D[0];
 				mux IMUX_D[2] = X1_W1[1] | X1_E1[1] | X2_W1[4] | X2_W1[5] | X2_W1[6] | X2_W1[7] | X2_W2[4] | X2_W2[5] | X2_W2[6] | X2_W2[7] | X2_E1[4] | X2_E1[5] | X2_E1[6] | X2_E1[7] | X2_E2[4] | X2_E2[5] | X2_E2[6] | X2_E2[7] | X6_W3[2] | X6_W3[3] | X6_W6[2] | X6_W6[3] | IMUX_D[1];
+				mux PLC_IO[0] = OUT_F_PLC_IO[0] | OUT_Q_PLC_IO[0];
+				mux PLC_IO[1] = OUT_F_PLC_IO[1] | OUT_Q_PLC_IO[1];
+				mux PLC_IO[2] = OUT_F_PLC_IO[2] | OUT_Q_PLC_IO[2];
+				mux PLC_IO[3] = OUT_F_PLC_IO[3] | OUT_Q_PLC_IO[3];
+				mux PLC_IO[4] = OUT_F_PLC_IO[4] | OUT_Q_PLC_IO[4];
+				mux PLC_IO[5] = OUT_F_PLC_IO[5] | OUT_Q_PLC_IO[5];
 			}
 		}
 
@@ -4876,6 +5002,12 @@ intdb {
 				mux IMUX_C[1] = X1_W1[1] | X1_E1[1] | X2_W1[0] | X2_W1[1] | X2_W1[2] | X2_W1[3] | X2_W2[0] | X2_W2[1] | X2_W2[2] | X2_W2[3] | X2_E1[0] | X2_E1[1] | X2_E1[2] | X2_E1[3] | X2_E2[0] | X2_E2[1] | X2_E2[2] | X2_E2[3] | X6_W3[0] | X6_W3[1] | X6_W6[0] | X6_W6[1] | IMUX_C[0];
 				mux IMUX_D[0] = X1_W1[1] | X1_E1[1] | X2_W1[4] | X2_W1[5] | X2_W1[6] | X2_W1[7] | X2_W2[4] | X2_W2[5] | X2_W2[6] | X2_W2[7] | X2_E1[4] | X2_E1[5] | X2_E1[6] | X2_E1[7] | X2_E2[4] | X2_E2[5] | X2_E2[6] | X2_E2[7] | X6_W3[2] | X6_W3[3] | X6_W6[2] | X6_W6[3];
 				mux IMUX_D[1] = X1_W1[0] | X1_E1[0] | X2_W1[4] | X2_W1[5] | X2_W1[6] | X2_W1[7] | X2_W2[4] | X2_W2[5] | X2_W2[6] | X2_W2[7] | X2_E1[4] | X2_E1[5] | X2_E1[6] | X2_E1[7] | X2_E2[4] | X2_E2[5] | X2_E2[6] | X2_E2[7] | X6_W3[2] | X6_W3[3] | X6_W6[2] | X6_W6[3] | IMUX_D[0];
+				mux PLC_IO[0] = OUT_F_PLC_IO[0] | OUT_Q_PLC_IO[0];
+				mux PLC_IO[1] = OUT_F_PLC_IO[1] | OUT_Q_PLC_IO[1];
+				mux PLC_IO[2] = OUT_F_PLC_IO[2] | OUT_Q_PLC_IO[2];
+				mux PLC_IO[3] = OUT_F_PLC_IO[3] | OUT_Q_PLC_IO[3];
+				mux PLC_IO[4] = OUT_F_PLC_IO[4] | OUT_Q_PLC_IO[4];
+				mux PLC_IO[5] = OUT_F_PLC_IO[5] | OUT_Q_PLC_IO[5];
 			}
 		}
 
@@ -4922,6 +5054,12 @@ intdb {
 				mux IMUX_C[2] = X1_W1[0] | X1_E1[0] | X2_W1[0] | X2_W1[1] | X2_W1[2] | X2_W1[3] | X2_W2[0] | X2_W2[1] | X2_W2[2] | X2_W2[3] | X2_E1[0] | X2_E1[1] | X2_E1[2] | X2_E1[3] | X2_E2[0] | X2_E2[1] | X2_E2[2] | X2_E2[3] | X6_W3[0] | X6_W3[1] | X6_W6[0] | X6_W6[1] | IMUX_C[1];
 				mux IMUX_D[0] = X1_W1[1] | X1_E1[1] | X2_W1[4] | X2_W1[5] | X2_W1[6] | X2_W1[7] | X2_W2[4] | X2_W2[5] | X2_W2[6] | X2_W2[7] | X2_E1[4] | X2_E1[5] | X2_E1[6] | X2_E1[7] | X2_E2[4] | X2_E2[5] | X2_E2[6] | X2_E2[7] | X6_W3[2] | X6_W3[3] | X6_W6[2] | X6_W6[3];
 				mux IMUX_D[1] = X1_W1[0] | X1_E1[0] | X2_W1[4] | X2_W1[5] | X2_W1[6] | X2_W1[7] | X2_W2[4] | X2_W2[5] | X2_W2[6] | X2_W2[7] | X2_E1[4] | X2_E1[5] | X2_E1[6] | X2_E1[7] | X2_E2[4] | X2_E2[5] | X2_E2[6] | X2_E2[7] | X6_W3[2] | X6_W3[3] | X6_W6[2] | X6_W6[3] | IMUX_D[0];
+				mux PLC_IO[0] = OUT_F_PLC_IO[0] | OUT_Q_PLC_IO[0];
+				mux PLC_IO[1] = OUT_F_PLC_IO[1] | OUT_Q_PLC_IO[1];
+				mux PLC_IO[2] = OUT_F_PLC_IO[2] | OUT_Q_PLC_IO[2];
+				mux PLC_IO[3] = OUT_F_PLC_IO[3] | OUT_Q_PLC_IO[3];
+				mux PLC_IO[4] = OUT_F_PLC_IO[4] | OUT_Q_PLC_IO[4];
+				mux PLC_IO[5] = OUT_F_PLC_IO[5] | OUT_Q_PLC_IO[5];
 			}
 		}
 
@@ -4965,6 +5103,12 @@ intdb {
 				mux IMUX_C[1] = X1_S1[1] | X1_N1[1] | X2_S1[0] | X2_S1[1] | X2_S1[2] | X2_S1[3] | X2_S2[0] | X2_S2[1] | X2_S2[2] | X2_S2[3] | X2_N1[0] | X2_N1[1] | X2_N1[2] | X2_N1[3] | X2_N2[0] | X2_N2[1] | X2_N2[2] | X2_N2[3] | X6_S3[0] | X6_S3[1] | X6_S6[0] | X6_S6[1] | IMUX_C[0];
 				mux IMUX_D[0] = X1_S1[1] | X1_N1[1] | X2_S1[4] | X2_S1[5] | X2_S1[6] | X2_S1[7] | X2_S2[4] | X2_S2[5] | X2_S2[6] | X2_S2[7] | X2_N1[4] | X2_N1[5] | X2_N1[6] | X2_N1[7] | X2_N2[4] | X2_N2[5] | X2_N2[6] | X2_N2[7] | X6_S3[2] | X6_S3[3] | X6_S6[2] | X6_S6[3];
 				mux IMUX_D[1] = X1_S1[0] | X1_N1[0] | X2_S1[4] | X2_S1[5] | X2_S1[6] | X2_S1[7] | X2_S2[4] | X2_S2[5] | X2_S2[6] | X2_S2[7] | X2_N1[4] | X2_N1[5] | X2_N1[6] | X2_N1[7] | X2_N2[4] | X2_N2[5] | X2_N2[6] | X2_N2[7] | X6_S3[2] | X6_S3[3] | X6_S6[2] | X6_S6[3] | IMUX_D[0];
+				mux PLC_IO[0] = OUT_F_PLC_IO[0] | OUT_Q_PLC_IO[0];
+				mux PLC_IO[1] = OUT_F_PLC_IO[1] | OUT_Q_PLC_IO[1];
+				mux PLC_IO[2] = OUT_F_PLC_IO[2] | OUT_Q_PLC_IO[2];
+				mux PLC_IO[3] = OUT_F_PLC_IO[3] | OUT_Q_PLC_IO[3];
+				mux PLC_IO[4] = OUT_F_PLC_IO[4] | OUT_Q_PLC_IO[4];
+				mux PLC_IO[5] = OUT_F_PLC_IO[5] | OUT_Q_PLC_IO[5];
 			}
 		}
 
@@ -5012,6 +5156,12 @@ intdb {
 				mux IMUX_D[0] = X1_S1[1] | X1_N1[1] | X2_S1[4] | X2_S1[5] | X2_S1[6] | X2_S1[7] | X2_S2[4] | X2_S2[5] | X2_S2[6] | X2_S2[7] | X2_N1[4] | X2_N1[5] | X2_N1[6] | X2_N1[7] | X2_N2[4] | X2_N2[5] | X2_N2[6] | X2_N2[7] | X6_S3[2] | X6_S3[3] | X6_S6[2] | X6_S6[3] | IMUX_D[2];
 				mux IMUX_D[1] = X1_S1[0] | X1_N1[0] | X2_S1[4] | X2_S1[5] | X2_S1[6] | X2_S1[7] | X2_S2[4] | X2_S2[5] | X2_S2[6] | X2_S2[7] | X2_N1[4] | X2_N1[5] | X2_N1[6] | X2_N1[7] | X2_N2[4] | X2_N2[5] | X2_N2[6] | X2_N2[7] | X6_S3[2] | X6_S3[3] | X6_S6[2] | X6_S6[3] | IMUX_D[0];
 				mux IMUX_D[2] = X1_S1[1] | X1_N1[1] | X2_S1[4] | X2_S1[5] | X2_S1[6] | X2_S1[7] | X2_S2[4] | X2_S2[5] | X2_S2[6] | X2_S2[7] | X2_N1[4] | X2_N1[5] | X2_N1[6] | X2_N1[7] | X2_N2[4] | X2_N2[5] | X2_N2[6] | X2_N2[7] | X6_S3[2] | X6_S3[3] | X6_S6[2] | X6_S6[3] | IMUX_D[1];
+				mux PLC_IO[0] = OUT_F_PLC_IO[0] | OUT_Q_PLC_IO[0];
+				mux PLC_IO[1] = OUT_F_PLC_IO[1] | OUT_Q_PLC_IO[1];
+				mux PLC_IO[2] = OUT_F_PLC_IO[2] | OUT_Q_PLC_IO[2];
+				mux PLC_IO[3] = OUT_F_PLC_IO[3] | OUT_Q_PLC_IO[3];
+				mux PLC_IO[4] = OUT_F_PLC_IO[4] | OUT_Q_PLC_IO[4];
+				mux PLC_IO[5] = OUT_F_PLC_IO[5] | OUT_Q_PLC_IO[5];
 			}
 		}
 
@@ -5055,6 +5205,12 @@ intdb {
 				mux IMUX_C[1] = X1_S1[1] | X1_N1[1] | X2_S1[0] | X2_S1[1] | X2_S1[2] | X2_S1[3] | X2_S2[0] | X2_S2[1] | X2_S2[2] | X2_S2[3] | X2_N1[0] | X2_N1[1] | X2_N1[2] | X2_N1[3] | X2_N2[0] | X2_N2[1] | X2_N2[2] | X2_N2[3] | X6_S3[0] | X6_S3[1] | X6_S6[0] | X6_S6[1] | IMUX_C[0];
 				mux IMUX_D[0] = X1_S1[1] | X1_N1[1] | X2_S1[4] | X2_S1[5] | X2_S1[6] | X2_S1[7] | X2_S2[4] | X2_S2[5] | X2_S2[6] | X2_S2[7] | X2_N1[4] | X2_N1[5] | X2_N1[6] | X2_N1[7] | X2_N2[4] | X2_N2[5] | X2_N2[6] | X2_N2[7] | X6_S3[2] | X6_S3[3] | X6_S6[2] | X6_S6[3];
 				mux IMUX_D[1] = X1_S1[0] | X1_N1[0] | X2_S1[4] | X2_S1[5] | X2_S1[6] | X2_S1[7] | X2_S2[4] | X2_S2[5] | X2_S2[6] | X2_S2[7] | X2_N1[4] | X2_N1[5] | X2_N1[6] | X2_N1[7] | X2_N2[4] | X2_N2[5] | X2_N2[6] | X2_N2[7] | X6_S3[2] | X6_S3[3] | X6_S6[2] | X6_S6[3] | IMUX_D[0];
+				mux PLC_IO[0] = OUT_F_PLC_IO[0] | OUT_Q_PLC_IO[0];
+				mux PLC_IO[1] = OUT_F_PLC_IO[1] | OUT_Q_PLC_IO[1];
+				mux PLC_IO[2] = OUT_F_PLC_IO[2] | OUT_Q_PLC_IO[2];
+				mux PLC_IO[3] = OUT_F_PLC_IO[3] | OUT_Q_PLC_IO[3];
+				mux PLC_IO[4] = OUT_F_PLC_IO[4] | OUT_Q_PLC_IO[4];
+				mux PLC_IO[5] = OUT_F_PLC_IO[5] | OUT_Q_PLC_IO[5];
 			}
 		}
 
@@ -5102,6 +5258,12 @@ intdb {
 				mux IMUX_D[0] = X1_S1[1] | X1_N1[1] | X2_S1[4] | X2_S1[5] | X2_S1[6] | X2_S1[7] | X2_S2[4] | X2_S2[5] | X2_S2[6] | X2_S2[7] | X2_N1[4] | X2_N1[5] | X2_N1[6] | X2_N1[7] | X2_N2[4] | X2_N2[5] | X2_N2[6] | X2_N2[7] | X6_S3[2] | X6_S3[3] | X6_S6[2] | X6_S6[3] | IMUX_D[2];
 				mux IMUX_D[1] = X1_S1[0] | X1_N1[0] | X2_S1[4] | X2_S1[5] | X2_S1[6] | X2_S1[7] | X2_S2[4] | X2_S2[5] | X2_S2[6] | X2_S2[7] | X2_N1[4] | X2_N1[5] | X2_N1[6] | X2_N1[7] | X2_N2[4] | X2_N2[5] | X2_N2[6] | X2_N2[7] | X6_S3[2] | X6_S3[3] | X6_S6[2] | X6_S6[3] | IMUX_D[0];
 				mux IMUX_D[2] = X1_S1[1] | X1_N1[1] | X2_S1[4] | X2_S1[5] | X2_S1[6] | X2_S1[7] | X2_S2[4] | X2_S2[5] | X2_S2[6] | X2_S2[7] | X2_N1[4] | X2_N1[5] | X2_N1[6] | X2_N1[7] | X2_N2[4] | X2_N2[5] | X2_N2[6] | X2_N2[7] | X6_S3[2] | X6_S3[3] | X6_S6[2] | X6_S6[3] | IMUX_D[1];
+				mux PLC_IO[0] = OUT_F_PLC_IO[0] | OUT_Q_PLC_IO[0];
+				mux PLC_IO[1] = OUT_F_PLC_IO[1] | OUT_Q_PLC_IO[1];
+				mux PLC_IO[2] = OUT_F_PLC_IO[2] | OUT_Q_PLC_IO[2];
+				mux PLC_IO[3] = OUT_F_PLC_IO[3] | OUT_Q_PLC_IO[3];
+				mux PLC_IO[4] = OUT_F_PLC_IO[4] | OUT_Q_PLC_IO[4];
+				mux PLC_IO[5] = OUT_F_PLC_IO[5] | OUT_Q_PLC_IO[5];
 			}
 		}
 
@@ -5215,6 +5377,12 @@ intdb {
 				mux IMUX_CLK[1] = X0_W[1] | X0_W[3] | X0_E[1] | X0_E[3] | X0_S[1] | X0_S[3] | X0_N[1] | X0_N[3] | X2_W1[3] | X2_W2[3] | X2_E1[3] | X2_E2[3] | X2_S1[3] | X2_S2[3] | X2_N1[3] | X2_N2[3] | PCLK[0] | PCLK[1] | PCLK[2] | PCLK[3] | PCLK[4] | PCLK[5] | PCLK[6] | PCLK[7];
 				mux IMUX_LSR[0] = X0_S[0] | X0_S[2] | X0_N[0] | X0_N[2] | X2_W1[0] | X2_W1[1] | X2_W2[0] | X2_W2[1] | X2_E1[0] | X2_E1[1] | X2_E2[0] | X2_E2[1] | X2_S1[1] | X2_S2[1] | X2_N1[1] | X2_N2[1] | PCLK[5] | PCLK[6] | PCLK[7];
 				mux IMUX_CE[0] = X0_W[0] | X0_W[1] | X0_W[2] | X0_W[3] | X0_E[0] | X0_E[1] | X0_E[2] | X0_E[3] | X0_S[0] | X0_S[2] | X0_N[0] | X0_N[2] | X2_S1[1] | X2_S2[1] | X2_N1[1] | X2_N2[1] | PCLK[4] | PCLK[6] | PCLK[7];
+				mux PLC_IO[0] = OUT_F_PLC_IO[0] | OUT_Q_PLC_IO[0];
+				mux PLC_IO[1] = OUT_F_PLC_IO[1] | OUT_Q_PLC_IO[1];
+				mux PLC_IO[2] = OUT_F_PLC_IO[2] | OUT_Q_PLC_IO[2];
+				mux PLC_IO[3] = OUT_F_PLC_IO[3] | OUT_Q_PLC_IO[3];
+				mux PLC_IO[4] = OUT_F_PLC_IO[4] | OUT_Q_PLC_IO[4];
+				mux PLC_IO[5] = OUT_F_PLC_IO[5] | OUT_Q_PLC_IO[5];
 			}
 		}
 
@@ -5258,6 +5426,12 @@ intdb {
 				mux IMUX_C[1] = X1_W1[1] | X1_E1[1] | X2_W1[0] | X2_W1[1] | X2_W1[2] | X2_W1[3] | X2_W2[0] | X2_W2[1] | X2_W2[2] | X2_W2[3] | X2_E1[0] | X2_E1[1] | X2_E1[2] | X2_E1[3] | X2_E2[0] | X2_E2[1] | X2_E2[2] | X2_E2[3] | X6_W3[0] | X6_W3[1] | X6_W6[0] | X6_W6[1] | IMUX_C[0];
 				mux IMUX_D[0] = X1_W1[1] | X1_E1[1] | X2_W1[4] | X2_W1[5] | X2_W1[6] | X2_W1[7] | X2_W2[4] | X2_W2[5] | X2_W2[6] | X2_W2[7] | X2_E1[4] | X2_E1[5] | X2_E1[6] | X2_E1[7] | X2_E2[4] | X2_E2[5] | X2_E2[6] | X2_E2[7] | X6_W3[2] | X6_W3[3] | X6_W6[2] | X6_W6[3];
 				mux IMUX_D[1] = X1_W1[0] | X1_E1[0] | X2_W1[4] | X2_W1[5] | X2_W1[6] | X2_W1[7] | X2_W2[4] | X2_W2[5] | X2_W2[6] | X2_W2[7] | X2_E1[4] | X2_E1[5] | X2_E1[6] | X2_E1[7] | X2_E2[4] | X2_E2[5] | X2_E2[6] | X2_E2[7] | X6_W3[2] | X6_W3[3] | X6_W6[2] | X6_W6[3] | IMUX_D[0];
+				mux PLC_IO[0] = OUT_F_PLC_IO[0] | OUT_Q_PLC_IO[0];
+				mux PLC_IO[1] = OUT_F_PLC_IO[1] | OUT_Q_PLC_IO[1];
+				mux PLC_IO[2] = OUT_F_PLC_IO[2] | OUT_Q_PLC_IO[2];
+				mux PLC_IO[3] = OUT_F_PLC_IO[3] | OUT_Q_PLC_IO[3];
+				mux PLC_IO[4] = OUT_F_PLC_IO[4] | OUT_Q_PLC_IO[4];
+				mux PLC_IO[5] = OUT_F_PLC_IO[5] | OUT_Q_PLC_IO[5];
 			}
 		}
 
@@ -5304,6 +5478,12 @@ intdb {
 				mux IMUX_C[2] = X1_W1[0] | X1_E1[0] | X2_W1[0] | X2_W1[1] | X2_W1[2] | X2_W1[3] | X2_W2[0] | X2_W2[1] | X2_W2[2] | X2_W2[3] | X2_E1[0] | X2_E1[1] | X2_E1[2] | X2_E1[3] | X2_E2[0] | X2_E2[1] | X2_E2[2] | X2_E2[3] | X6_W3[0] | X6_W3[1] | X6_W6[0] | X6_W6[1] | IMUX_C[1];
 				mux IMUX_D[0] = X1_W1[1] | X1_E1[1] | X2_W1[4] | X2_W1[5] | X2_W1[6] | X2_W1[7] | X2_W2[4] | X2_W2[5] | X2_W2[6] | X2_W2[7] | X2_E1[4] | X2_E1[5] | X2_E1[6] | X2_E1[7] | X2_E2[4] | X2_E2[5] | X2_E2[6] | X2_E2[7] | X6_W3[2] | X6_W3[3] | X6_W6[2] | X6_W6[3];
 				mux IMUX_D[1] = X1_W1[0] | X1_E1[0] | X2_W1[4] | X2_W1[5] | X2_W1[6] | X2_W1[7] | X2_W2[4] | X2_W2[5] | X2_W2[6] | X2_W2[7] | X2_E1[4] | X2_E1[5] | X2_E1[6] | X2_E1[7] | X2_E2[4] | X2_E2[5] | X2_E2[6] | X2_E2[7] | X6_W3[2] | X6_W3[3] | X6_W6[2] | X6_W6[3] | IMUX_D[0];
+				mux PLC_IO[0] = OUT_F_PLC_IO[0] | OUT_Q_PLC_IO[0];
+				mux PLC_IO[1] = OUT_F_PLC_IO[1] | OUT_Q_PLC_IO[1];
+				mux PLC_IO[2] = OUT_F_PLC_IO[2] | OUT_Q_PLC_IO[2];
+				mux PLC_IO[3] = OUT_F_PLC_IO[3] | OUT_Q_PLC_IO[3];
+				mux PLC_IO[4] = OUT_F_PLC_IO[4] | OUT_Q_PLC_IO[4];
+				mux PLC_IO[5] = OUT_F_PLC_IO[5] | OUT_Q_PLC_IO[5];
 			}
 		}
 
@@ -5347,6 +5527,12 @@ intdb {
 				mux IMUX_C[1] = X1_S1[1] | X1_N1[1] | X2_S1[0] | X2_S1[1] | X2_S1[2] | X2_S1[3] | X2_S2[0] | X2_S2[1] | X2_S2[2] | X2_S2[3] | X2_N1[0] | X2_N1[1] | X2_N1[2] | X2_N1[3] | X2_N2[0] | X2_N2[1] | X2_N2[2] | X2_N2[3] | X6_S3[0] | X6_S3[1] | X6_S6[0] | X6_S6[1] | IMUX_C[0];
 				mux IMUX_D[0] = X1_S1[1] | X1_N1[1] | X2_S1[4] | X2_S1[5] | X2_S1[6] | X2_S1[7] | X2_S2[4] | X2_S2[5] | X2_S2[6] | X2_S2[7] | X2_N1[4] | X2_N1[5] | X2_N1[6] | X2_N1[7] | X2_N2[4] | X2_N2[5] | X2_N2[6] | X2_N2[7] | X6_S3[2] | X6_S3[3] | X6_S6[2] | X6_S6[3];
 				mux IMUX_D[1] = X1_S1[0] | X1_N1[0] | X2_S1[4] | X2_S1[5] | X2_S1[6] | X2_S1[7] | X2_S2[4] | X2_S2[5] | X2_S2[6] | X2_S2[7] | X2_N1[4] | X2_N1[5] | X2_N1[6] | X2_N1[7] | X2_N2[4] | X2_N2[5] | X2_N2[6] | X2_N2[7] | X6_S3[2] | X6_S3[3] | X6_S6[2] | X6_S6[3] | IMUX_D[0];
+				mux PLC_IO[0] = OUT_F_PLC_IO[0] | OUT_Q_PLC_IO[0];
+				mux PLC_IO[1] = OUT_F_PLC_IO[1] | OUT_Q_PLC_IO[1];
+				mux PLC_IO[2] = OUT_F_PLC_IO[2] | OUT_Q_PLC_IO[2];
+				mux PLC_IO[3] = OUT_F_PLC_IO[3] | OUT_Q_PLC_IO[3];
+				mux PLC_IO[4] = OUT_F_PLC_IO[4] | OUT_Q_PLC_IO[4];
+				mux PLC_IO[5] = OUT_F_PLC_IO[5] | OUT_Q_PLC_IO[5];
 			}
 		}
 
@@ -5394,6 +5580,12 @@ intdb {
 				mux IMUX_D[0] = X1_S1[1] | X1_N1[1] | X2_S1[4] | X2_S1[5] | X2_S1[6] | X2_S1[7] | X2_S2[4] | X2_S2[5] | X2_S2[6] | X2_S2[7] | X2_N1[4] | X2_N1[5] | X2_N1[6] | X2_N1[7] | X2_N2[4] | X2_N2[5] | X2_N2[6] | X2_N2[7] | X6_S3[2] | X6_S3[3] | X6_S6[2] | X6_S6[3] | IMUX_D[2];
 				mux IMUX_D[1] = X1_S1[0] | X1_N1[0] | X2_S1[4] | X2_S1[5] | X2_S1[6] | X2_S1[7] | X2_S2[4] | X2_S2[5] | X2_S2[6] | X2_S2[7] | X2_N1[4] | X2_N1[5] | X2_N1[6] | X2_N1[7] | X2_N2[4] | X2_N2[5] | X2_N2[6] | X2_N2[7] | X6_S3[2] | X6_S3[3] | X6_S6[2] | X6_S6[3] | IMUX_D[0];
 				mux IMUX_D[2] = X1_S1[1] | X1_N1[1] | X2_S1[4] | X2_S1[5] | X2_S1[6] | X2_S1[7] | X2_S2[4] | X2_S2[5] | X2_S2[6] | X2_S2[7] | X2_N1[4] | X2_N1[5] | X2_N1[6] | X2_N1[7] | X2_N2[4] | X2_N2[5] | X2_N2[6] | X2_N2[7] | X6_S3[2] | X6_S3[3] | X6_S6[2] | X6_S6[3] | IMUX_D[1];
+				mux PLC_IO[0] = OUT_F_PLC_IO[0] | OUT_Q_PLC_IO[0];
+				mux PLC_IO[1] = OUT_F_PLC_IO[1] | OUT_Q_PLC_IO[1];
+				mux PLC_IO[2] = OUT_F_PLC_IO[2] | OUT_Q_PLC_IO[2];
+				mux PLC_IO[3] = OUT_F_PLC_IO[3] | OUT_Q_PLC_IO[3];
+				mux PLC_IO[4] = OUT_F_PLC_IO[4] | OUT_Q_PLC_IO[4];
+				mux PLC_IO[5] = OUT_F_PLC_IO[5] | OUT_Q_PLC_IO[5];
 			}
 		}
 
@@ -5437,6 +5629,12 @@ intdb {
 				mux IMUX_C[1] = X1_S1[1] | X1_N1[1] | X2_S1[0] | X2_S1[1] | X2_S1[2] | X2_S1[3] | X2_S2[0] | X2_S2[1] | X2_S2[2] | X2_S2[3] | X2_N1[0] | X2_N1[1] | X2_N1[2] | X2_N1[3] | X2_N2[0] | X2_N2[1] | X2_N2[2] | X2_N2[3] | X6_S3[0] | X6_S3[1] | X6_S6[0] | X6_S6[1] | IMUX_C[0];
 				mux IMUX_D[0] = X1_S1[1] | X1_N1[1] | X2_S1[4] | X2_S1[5] | X2_S1[6] | X2_S1[7] | X2_S2[4] | X2_S2[5] | X2_S2[6] | X2_S2[7] | X2_N1[4] | X2_N1[5] | X2_N1[6] | X2_N1[7] | X2_N2[4] | X2_N2[5] | X2_N2[6] | X2_N2[7] | X6_S3[2] | X6_S3[3] | X6_S6[2] | X6_S6[3];
 				mux IMUX_D[1] = X1_S1[0] | X1_N1[0] | X2_S1[4] | X2_S1[5] | X2_S1[6] | X2_S1[7] | X2_S2[4] | X2_S2[5] | X2_S2[6] | X2_S2[7] | X2_N1[4] | X2_N1[5] | X2_N1[6] | X2_N1[7] | X2_N2[4] | X2_N2[5] | X2_N2[6] | X2_N2[7] | X6_S3[2] | X6_S3[3] | X6_S6[2] | X6_S6[3] | IMUX_D[0];
+				mux PLC_IO[0] = OUT_F_PLC_IO[0] | OUT_Q_PLC_IO[0];
+				mux PLC_IO[1] = OUT_F_PLC_IO[1] | OUT_Q_PLC_IO[1];
+				mux PLC_IO[2] = OUT_F_PLC_IO[2] | OUT_Q_PLC_IO[2];
+				mux PLC_IO[3] = OUT_F_PLC_IO[3] | OUT_Q_PLC_IO[3];
+				mux PLC_IO[4] = OUT_F_PLC_IO[4] | OUT_Q_PLC_IO[4];
+				mux PLC_IO[5] = OUT_F_PLC_IO[5] | OUT_Q_PLC_IO[5];
 			}
 		}
 
@@ -5484,758 +5682,995 @@ intdb {
 				mux IMUX_D[0] = X1_S1[1] | X1_N1[1] | X2_S1[4] | X2_S1[5] | X2_S1[6] | X2_S1[7] | X2_S2[4] | X2_S2[5] | X2_S2[6] | X2_S2[7] | X2_N1[4] | X2_N1[5] | X2_N1[6] | X2_N1[7] | X2_N2[4] | X2_N2[5] | X2_N2[6] | X2_N2[7] | X6_S3[2] | X6_S3[3] | X6_S6[2] | X6_S6[3] | IMUX_D[2];
 				mux IMUX_D[1] = X1_S1[0] | X1_N1[0] | X2_S1[4] | X2_S1[5] | X2_S1[6] | X2_S1[7] | X2_S2[4] | X2_S2[5] | X2_S2[6] | X2_S2[7] | X2_N1[4] | X2_N1[5] | X2_N1[6] | X2_N1[7] | X2_N2[4] | X2_N2[5] | X2_N2[6] | X2_N2[7] | X6_S3[2] | X6_S3[3] | X6_S6[2] | X6_S6[3] | IMUX_D[0];
 				mux IMUX_D[2] = X1_S1[1] | X1_N1[1] | X2_S1[4] | X2_S1[5] | X2_S1[6] | X2_S1[7] | X2_S2[4] | X2_S2[5] | X2_S2[6] | X2_S2[7] | X2_N1[4] | X2_N1[5] | X2_N1[6] | X2_N1[7] | X2_N2[4] | X2_N2[5] | X2_N2[6] | X2_N2[7] | X6_S3[2] | X6_S3[3] | X6_S6[2] | X6_S6[3] | IMUX_D[1];
+				mux PLC_IO[0] = OUT_F_PLC_IO[0] | OUT_Q_PLC_IO[0];
+				mux PLC_IO[1] = OUT_F_PLC_IO[1] | OUT_Q_PLC_IO[1];
+				mux PLC_IO[2] = OUT_F_PLC_IO[2] | OUT_Q_PLC_IO[2];
+				mux PLC_IO[3] = OUT_F_PLC_IO[3] | OUT_Q_PLC_IO[3];
+				mux PLC_IO[4] = OUT_F_PLC_IO[4] | OUT_Q_PLC_IO[4];
+				mux PLC_IO[5] = OUT_F_PLC_IO[5] | OUT_Q_PLC_IO[5];
 			}
 		}
 	}
 
 	tile_slot IO {
-		bel_slot IO[0]: legacy;
-		bel_slot IO[1]: legacy;
-		bel_slot IO[2]: legacy;
-		bel_slot IO[3]: legacy;
-		bel_slot IO[4]: legacy;
-		bel_slot IO[5]: legacy;
+		bel_slot IO[0]: IO;
+		bel_slot IO[1]: IO;
+		bel_slot IO[2]: IO;
+		bel_slot IO[3]: IO;
+		bel_slot IO[4]: IO;
+		bel_slot IO[5]: IO;
+		bel_slot PICTEST[0]: PICTEST;
+		bel_slot IO_INT: routing;
 
 		tile_class SIO_S_W2 {
 			cell CELL;
 
 			bel IO[0] {
-				input DDTD0 = IMUX_A[0];
-				input DDTD1 = IMUX_B[0];
-				output PADDI = OUT_F[0];
+				input PADDO = IMUX_IO_O[0];
+				input PADDT = IMUX_IO_T[0];
+				output PADDI = OUT_F[0], OUT_IO_CLK[0];
 			}
 
 			bel IO[1] {
-				input DDTD0 = IMUX_C[0];
-				input DDTD1 = IMUX_D[0];
-				output PADDI = OUT_F[1];
+				input PADDO = IMUX_IO_O[1];
+				input PADDT = IMUX_IO_T[1];
+				output PADDI = OUT_F[1], OUT_IO_CLK[1];
 			}
 
-			bel IO[2] {
-				input DDTD0 = IMUX_A[1];
-				input DDTD1 = IMUX_B[1];
-				output PADDI = OUT_F[2];
+			bel PICTEST[0] {
+				input C[0] = IMUX_A[1];
+				input C[1] = IMUX_B[1];
+				input D[0] = IMUX_C[1];
+				input D[1] = IMUX_D[1];
+				output Q[0] = OUT_F[2];
+				output Q[1] = OUT_F[3];
 			}
 
-			bel IO[3] {
-				input DDTD0 = IMUX_C[1];
-				input DDTD1 = IMUX_D[1];
-				output PADDI = OUT_F[3];
+			switchbox IO_INT {
+				mux IMUX_IO_O[0] = IMUX_A[0] | IMUX_B[0] | IMUX_IO_O_PLC[0];
+				mux IMUX_IO_T[0] = IMUX_A[0] | IMUX_B[0];
+				mux IMUX_IO_O[1] = IMUX_C[0] | IMUX_D[0] | IMUX_IO_O_PLC[1];
+				mux IMUX_IO_T[1] = IMUX_C[0] | IMUX_D[0];
 			}
 
-			// wire IMUX_A[0]                      IO[0].DDTD0
-			// wire IMUX_A[1]                      IO[2].DDTD0
-			// wire IMUX_B[0]                      IO[0].DDTD1
-			// wire IMUX_B[1]                      IO[2].DDTD1
-			// wire IMUX_C[0]                      IO[1].DDTD0
-			// wire IMUX_C[1]                      IO[3].DDTD0
-			// wire IMUX_D[0]                      IO[1].DDTD1
-			// wire IMUX_D[1]                      IO[3].DDTD1
+			// wire IMUX_A[1]                      PICTEST[0].C[0]
+			// wire IMUX_B[1]                      PICTEST[0].C[1]
+			// wire IMUX_C[1]                      PICTEST[0].D[0]
+			// wire IMUX_D[1]                      PICTEST[0].D[1]
 			// wire OUT_F[0]                       IO[0].PADDI
 			// wire OUT_F[1]                       IO[1].PADDI
-			// wire OUT_F[2]                       IO[2].PADDI
-			// wire OUT_F[3]                       IO[3].PADDI
+			// wire OUT_F[2]                       PICTEST[0].Q[0]
+			// wire OUT_F[3]                       PICTEST[0].Q[1]
+			// wire IMUX_IO_O[0]                   IO[0].PADDO
+			// wire IMUX_IO_O[1]                   IO[1].PADDO
+			// wire IMUX_IO_T[0]                   IO[0].PADDT
+			// wire IMUX_IO_T[1]                   IO[1].PADDT
+			// wire OUT_IO_CLK[0]                  IO[0].PADDI
+			// wire OUT_IO_CLK[1]                  IO[1].PADDI
 		}
 
 		tile_class SIO_S_W4 {
 			cell CELL;
 
 			bel IO[0] {
-				input DDTD0 = IMUX_A[0];
-				input DDTD1 = IMUX_B[0];
-				output PADDI = OUT_F[0];
+				input PADDO = IMUX_IO_O[0];
+				input PADDT = IMUX_IO_T[0];
+				output PADDI = OUT_F[0], OUT_IO_CLK[0];
 			}
 
 			bel IO[1] {
-				input DDTD0 = IMUX_C[0];
-				input DDTD1 = IMUX_D[0];
-				output PADDI = OUT_F[1];
+				input PADDO = IMUX_IO_O[1];
+				input PADDT = IMUX_IO_T[1];
+				output PADDI = OUT_F[1], OUT_IO_CLK[1];
 			}
 
 			bel IO[2] {
-				input DDTD0 = IMUX_A[1];
-				input DDTD1 = IMUX_B[1];
-				output PADDI = OUT_F[2];
+				input PADDO = IMUX_IO_O[2];
+				input PADDT = IMUX_IO_T[2];
+				output PADDI = OUT_F[2], OUT_IO_CLK[2];
 			}
 
 			bel IO[3] {
-				input DDTD0 = IMUX_C[1];
-				input DDTD1 = IMUX_D[1];
-				output PADDI = OUT_F[3];
+				input PADDO = IMUX_IO_O[3];
+				input PADDT = IMUX_IO_T[3];
+				output PADDI = OUT_F[3], OUT_IO_CLK[3];
 			}
 
-			// wire IMUX_A[0]                      IO[0].DDTD0
-			// wire IMUX_A[1]                      IO[2].DDTD0
-			// wire IMUX_B[0]                      IO[0].DDTD1
-			// wire IMUX_B[1]                      IO[2].DDTD1
-			// wire IMUX_C[0]                      IO[1].DDTD0
-			// wire IMUX_C[1]                      IO[3].DDTD0
-			// wire IMUX_D[0]                      IO[1].DDTD1
-			// wire IMUX_D[1]                      IO[3].DDTD1
+			switchbox IO_INT {
+				mux IMUX_IO_O[0] = IMUX_A[0] | IMUX_B[0] | IMUX_IO_O_PLC[0];
+				mux IMUX_IO_T[0] = IMUX_A[0] | IMUX_B[0];
+				mux IMUX_IO_O[1] = IMUX_C[0] | IMUX_D[0] | IMUX_IO_O_PLC[1];
+				mux IMUX_IO_T[1] = IMUX_C[0] | IMUX_D[0];
+				mux IMUX_IO_O[2] = IMUX_A[1] | IMUX_B[1] | IMUX_IO_O_PLC[2];
+				mux IMUX_IO_T[2] = IMUX_A[1] | IMUX_B[1];
+				mux IMUX_IO_O[3] = IMUX_C[1] | IMUX_D[1] | IMUX_IO_O_PLC[3];
+				mux IMUX_IO_T[3] = IMUX_C[1] | IMUX_D[1];
+			}
+
 			// wire OUT_F[0]                       IO[0].PADDI
 			// wire OUT_F[1]                       IO[1].PADDI
 			// wire OUT_F[2]                       IO[2].PADDI
 			// wire OUT_F[3]                       IO[3].PADDI
+			// wire IMUX_IO_O[0]                   IO[0].PADDO
+			// wire IMUX_IO_O[1]                   IO[1].PADDO
+			// wire IMUX_IO_O[2]                   IO[2].PADDO
+			// wire IMUX_IO_O[3]                   IO[3].PADDO
+			// wire IMUX_IO_T[0]                   IO[0].PADDT
+			// wire IMUX_IO_T[1]                   IO[1].PADDT
+			// wire IMUX_IO_T[2]                   IO[2].PADDT
+			// wire IMUX_IO_T[3]                   IO[3].PADDT
+			// wire OUT_IO_CLK[0]                  IO[0].PADDI
+			// wire OUT_IO_CLK[1]                  IO[1].PADDI
+			// wire OUT_IO_CLK[2]                  IO[2].PADDI
+			// wire OUT_IO_CLK[3]                  IO[3].PADDI
 		}
 
 		tile_class SIO_S_E2 {
 			cell CELL;
 
 			bel IO[0] {
-				input DDTD0 = IMUX_A[0];
-				input DDTD1 = IMUX_B[0];
-				output PADDI = OUT_F[0];
+				input PADDO = IMUX_IO_O[0];
+				input PADDT = IMUX_IO_T[0];
+				output PADDI = OUT_F[0], OUT_IO_CLK[0];
 			}
 
 			bel IO[1] {
-				input DDTD0 = IMUX_C[0];
-				input DDTD1 = IMUX_D[0];
-				output PADDI = OUT_F[1];
+				input PADDO = IMUX_IO_O[1];
+				input PADDT = IMUX_IO_T[1];
+				output PADDI = OUT_F[1], OUT_IO_CLK[1];
 			}
 
-			bel IO[2] {
-				input DDTD0 = IMUX_A[1];
-				input DDTD1 = IMUX_B[1];
-				output PADDI = OUT_F[2];
+			bel PICTEST[0] {
+				input C[0] = IMUX_A[1];
+				input C[1] = IMUX_B[1];
+				input D[0] = IMUX_C[1];
+				input D[1] = IMUX_D[1];
+				output Q[0] = OUT_F[2];
+				output Q[1] = OUT_F[3];
 			}
 
-			bel IO[3] {
-				input DDTD0 = IMUX_C[1];
-				input DDTD1 = IMUX_D[1];
-				output PADDI = OUT_F[3];
+			switchbox IO_INT {
+				mux IMUX_IO_O[0] = IMUX_A[0] | IMUX_B[0] | IMUX_IO_O_PLC[0];
+				mux IMUX_IO_T[0] = IMUX_A[0] | IMUX_B[0];
+				mux IMUX_IO_O[1] = IMUX_C[0] | IMUX_D[0] | IMUX_IO_O_PLC[1];
+				mux IMUX_IO_T[1] = IMUX_C[0] | IMUX_D[0];
 			}
 
-			// wire IMUX_A[0]                      IO[0].DDTD0
-			// wire IMUX_A[1]                      IO[2].DDTD0
-			// wire IMUX_B[0]                      IO[0].DDTD1
-			// wire IMUX_B[1]                      IO[2].DDTD1
-			// wire IMUX_C[0]                      IO[1].DDTD0
-			// wire IMUX_C[1]                      IO[3].DDTD0
-			// wire IMUX_D[0]                      IO[1].DDTD1
-			// wire IMUX_D[1]                      IO[3].DDTD1
+			// wire IMUX_A[1]                      PICTEST[0].C[0]
+			// wire IMUX_B[1]                      PICTEST[0].C[1]
+			// wire IMUX_C[1]                      PICTEST[0].D[0]
+			// wire IMUX_D[1]                      PICTEST[0].D[1]
 			// wire OUT_F[0]                       IO[0].PADDI
 			// wire OUT_F[1]                       IO[1].PADDI
-			// wire OUT_F[2]                       IO[2].PADDI
-			// wire OUT_F[3]                       IO[3].PADDI
+			// wire OUT_F[2]                       PICTEST[0].Q[0]
+			// wire OUT_F[3]                       PICTEST[0].Q[1]
+			// wire IMUX_IO_O[0]                   IO[0].PADDO
+			// wire IMUX_IO_O[1]                   IO[1].PADDO
+			// wire IMUX_IO_T[0]                   IO[0].PADDT
+			// wire IMUX_IO_T[1]                   IO[1].PADDT
+			// wire OUT_IO_CLK[0]                  IO[0].PADDI
+			// wire OUT_IO_CLK[1]                  IO[1].PADDI
 		}
 
 		tile_class SIO_S_E4 {
 			cell CELL;
 
 			bel IO[0] {
-				input DDTD0 = IMUX_A[0];
-				input DDTD1 = IMUX_B[0];
-				output PADDI = OUT_F[0];
+				input PADDO = IMUX_IO_O[0];
+				input PADDT = IMUX_IO_T[0];
+				output PADDI = OUT_F[0], OUT_IO_CLK[0];
 			}
 
 			bel IO[1] {
-				input DDTD0 = IMUX_C[0];
-				input DDTD1 = IMUX_D[0];
-				output PADDI = OUT_F[1];
+				input PADDO = IMUX_IO_O[1];
+				input PADDT = IMUX_IO_T[1];
+				output PADDI = OUT_F[1], OUT_IO_CLK[1];
 			}
 
 			bel IO[2] {
-				input DDTD0 = IMUX_A[1];
-				input DDTD1 = IMUX_B[1];
-				output PADDI = OUT_F[2];
+				input PADDO = IMUX_IO_O[2];
+				input PADDT = IMUX_IO_T[2];
+				output PADDI = OUT_F[2], OUT_IO_CLK[2];
 			}
 
 			bel IO[3] {
-				input DDTD0 = IMUX_C[1];
-				input DDTD1 = IMUX_D[1];
-				output PADDI = OUT_F[3];
+				input PADDO = IMUX_IO_O[3];
+				input PADDT = IMUX_IO_T[3];
+				output PADDI = OUT_F[3], OUT_IO_CLK[3];
 			}
 
-			// wire IMUX_A[0]                      IO[0].DDTD0
-			// wire IMUX_A[1]                      IO[2].DDTD0
-			// wire IMUX_B[0]                      IO[0].DDTD1
-			// wire IMUX_B[1]                      IO[2].DDTD1
-			// wire IMUX_C[0]                      IO[1].DDTD0
-			// wire IMUX_C[1]                      IO[3].DDTD0
-			// wire IMUX_D[0]                      IO[1].DDTD1
-			// wire IMUX_D[1]                      IO[3].DDTD1
+			switchbox IO_INT {
+				mux IMUX_IO_O[0] = IMUX_A[0] | IMUX_B[0] | IMUX_IO_O_PLC[0];
+				mux IMUX_IO_T[0] = IMUX_A[0] | IMUX_B[0];
+				mux IMUX_IO_O[1] = IMUX_C[0] | IMUX_D[0] | IMUX_IO_O_PLC[1];
+				mux IMUX_IO_T[1] = IMUX_C[0] | IMUX_D[0];
+				mux IMUX_IO_O[2] = IMUX_A[1] | IMUX_B[1] | IMUX_IO_O_PLC[2];
+				mux IMUX_IO_T[2] = IMUX_A[1] | IMUX_B[1];
+				mux IMUX_IO_O[3] = IMUX_C[1] | IMUX_D[1] | IMUX_IO_O_PLC[3];
+				mux IMUX_IO_T[3] = IMUX_C[1] | IMUX_D[1];
+			}
+
 			// wire OUT_F[0]                       IO[0].PADDI
 			// wire OUT_F[1]                       IO[1].PADDI
 			// wire OUT_F[2]                       IO[2].PADDI
 			// wire OUT_F[3]                       IO[3].PADDI
+			// wire IMUX_IO_O[0]                   IO[0].PADDO
+			// wire IMUX_IO_O[1]                   IO[1].PADDO
+			// wire IMUX_IO_O[2]                   IO[2].PADDO
+			// wire IMUX_IO_O[3]                   IO[3].PADDO
+			// wire IMUX_IO_T[0]                   IO[0].PADDT
+			// wire IMUX_IO_T[1]                   IO[1].PADDT
+			// wire IMUX_IO_T[2]                   IO[2].PADDT
+			// wire IMUX_IO_T[3]                   IO[3].PADDT
+			// wire OUT_IO_CLK[0]                  IO[0].PADDI
+			// wire OUT_IO_CLK[1]                  IO[1].PADDI
+			// wire OUT_IO_CLK[2]                  IO[2].PADDI
+			// wire OUT_IO_CLK[3]                  IO[3].PADDI
 		}
 
 		tile_class SIO_S_S4 {
 			cell CELL;
 
 			bel IO[0] {
-				input DDTD0 = IMUX_A[0];
-				input DDTD1 = IMUX_B[0];
-				output PADDI = OUT_F[0];
+				input PADDO = IMUX_IO_O[0];
+				input PADDT = IMUX_IO_T[0];
+				output PADDI = OUT_F[0], OUT_IO_CLK[0];
 			}
 
 			bel IO[1] {
-				input DDTD0 = IMUX_C[0];
-				input DDTD1 = IMUX_D[0];
-				output PADDI = OUT_F[1];
+				input PADDO = IMUX_IO_O[1];
+				input PADDT = IMUX_IO_T[1];
+				output PADDI = OUT_F[1], OUT_IO_CLK[1];
 			}
 
 			bel IO[2] {
-				input DDTD0 = IMUX_A[1];
-				input DDTD1 = IMUX_B[1];
-				output PADDI = OUT_F[2];
+				input PADDO = IMUX_IO_O[2];
+				input PADDT = IMUX_IO_T[2];
+				output PADDI = OUT_F[2], OUT_IO_CLK[2];
 			}
 
 			bel IO[3] {
-				input DDTD0 = IMUX_C[1];
-				input DDTD1 = IMUX_D[1];
-				output PADDI = OUT_F[3];
+				input PADDO = IMUX_IO_O[3];
+				input PADDT = IMUX_IO_T[3];
+				output PADDI = OUT_F[3], OUT_IO_CLK[3];
 			}
 
-			// wire IMUX_A[0]                      IO[0].DDTD0
-			// wire IMUX_A[1]                      IO[2].DDTD0
-			// wire IMUX_B[0]                      IO[0].DDTD1
-			// wire IMUX_B[1]                      IO[2].DDTD1
-			// wire IMUX_C[0]                      IO[1].DDTD0
-			// wire IMUX_C[1]                      IO[3].DDTD0
-			// wire IMUX_D[0]                      IO[1].DDTD1
-			// wire IMUX_D[1]                      IO[3].DDTD1
+			switchbox IO_INT {
+				mux IMUX_IO_O[0] = IMUX_A[0] | IMUX_B[0] | IMUX_IO_O_PLC[0];
+				mux IMUX_IO_T[0] = IMUX_A[0] | IMUX_B[0];
+				mux IMUX_IO_O[1] = IMUX_C[0] | IMUX_D[0] | IMUX_IO_O_PLC[1];
+				mux IMUX_IO_T[1] = IMUX_C[0] | IMUX_D[0];
+				mux IMUX_IO_O[2] = IMUX_A[1] | IMUX_B[1] | IMUX_IO_O_PLC[2];
+				mux IMUX_IO_T[2] = IMUX_A[1] | IMUX_B[1];
+				mux IMUX_IO_O[3] = IMUX_C[1] | IMUX_D[1] | IMUX_IO_O_PLC[3];
+				mux IMUX_IO_T[3] = IMUX_C[1] | IMUX_D[1];
+			}
+
 			// wire OUT_F[0]                       IO[0].PADDI
 			// wire OUT_F[1]                       IO[1].PADDI
 			// wire OUT_F[2]                       IO[2].PADDI
 			// wire OUT_F[3]                       IO[3].PADDI
+			// wire IMUX_IO_O[0]                   IO[0].PADDO
+			// wire IMUX_IO_O[1]                   IO[1].PADDO
+			// wire IMUX_IO_O[2]                   IO[2].PADDO
+			// wire IMUX_IO_O[3]                   IO[3].PADDO
+			// wire IMUX_IO_T[0]                   IO[0].PADDT
+			// wire IMUX_IO_T[1]                   IO[1].PADDT
+			// wire IMUX_IO_T[2]                   IO[2].PADDT
+			// wire IMUX_IO_T[3]                   IO[3].PADDT
+			// wire OUT_IO_CLK[0]                  IO[0].PADDI
+			// wire OUT_IO_CLK[1]                  IO[1].PADDI
+			// wire OUT_IO_CLK[2]                  IO[2].PADDI
+			// wire OUT_IO_CLK[3]                  IO[3].PADDI
 		}
 
 		tile_class SIO_S_S6 {
 			cell CELL;
 
 			bel IO[0] {
-				input DDTD0 = IMUX_A[0];
-				input DDTD1 = IMUX_B[0];
-				output PADDI = OUT_F[0];
+				input PADDO = IMUX_IO_O[0];
+				input PADDT = IMUX_IO_T[0];
+				output PADDI = OUT_F[0], OUT_IO_CLK[0];
 			}
 
 			bel IO[1] {
-				input DDTD0 = IMUX_C[0];
-				input DDTD1 = IMUX_D[0];
-				output PADDI = OUT_F[1];
+				input PADDO = IMUX_IO_O[1];
+				input PADDT = IMUX_IO_T[1];
+				output PADDI = OUT_F[1], OUT_IO_CLK[1];
 			}
 
 			bel IO[2] {
-				input DDTD0 = IMUX_A[1];
-				input DDTD1 = IMUX_B[1];
-				output PADDI = OUT_F[2];
+				input PADDO = IMUX_IO_O[2];
+				input PADDT = IMUX_IO_T[2];
+				output PADDI = OUT_F[2], OUT_IO_CLK[2];
 			}
 
 			bel IO[3] {
-				input DDTD0 = IMUX_C[1];
-				input DDTD1 = IMUX_D[1];
-				output PADDI = OUT_F[3];
+				input PADDO = IMUX_IO_O[3];
+				input PADDT = IMUX_IO_T[3];
+				output PADDI = OUT_F[3], OUT_IO_CLK[3];
 			}
 
 			bel IO[4] {
-				input DDTD0 = IMUX_A[2];
-				input DDTD1 = IMUX_B[2];
-				output PADDI = OUT_F[4];
+				input PADDO = IMUX_IO_O[4];
+				input PADDT = IMUX_IO_T[4];
+				output PADDI = OUT_F[4], OUT_IO_CLK[4];
 			}
 
 			bel IO[5] {
-				input DDTD0 = IMUX_C[2];
-				input DDTD1 = IMUX_D[2];
-				output PADDI = OUT_F[5];
+				input PADDO = IMUX_IO_O[5];
+				input PADDT = IMUX_IO_T[5];
+				output PADDI = OUT_F[5], OUT_IO_CLK[5];
 			}
 
-			// wire IMUX_A[0]                      IO[0].DDTD0
-			// wire IMUX_A[1]                      IO[2].DDTD0
-			// wire IMUX_A[2]                      IO[4].DDTD0
-			// wire IMUX_B[0]                      IO[0].DDTD1
-			// wire IMUX_B[1]                      IO[2].DDTD1
-			// wire IMUX_B[2]                      IO[4].DDTD1
-			// wire IMUX_C[0]                      IO[1].DDTD0
-			// wire IMUX_C[1]                      IO[3].DDTD0
-			// wire IMUX_C[2]                      IO[5].DDTD0
-			// wire IMUX_D[0]                      IO[1].DDTD1
-			// wire IMUX_D[1]                      IO[3].DDTD1
-			// wire IMUX_D[2]                      IO[5].DDTD1
+			switchbox IO_INT {
+				mux IMUX_IO_O[0] = IMUX_A[0] | IMUX_B[0] | IMUX_IO_O_PLC[0];
+				mux IMUX_IO_T[0] = IMUX_A[0] | IMUX_B[0];
+				mux IMUX_IO_O[1] = IMUX_C[0] | IMUX_D[0] | IMUX_IO_O_PLC[1];
+				mux IMUX_IO_T[1] = IMUX_C[0] | IMUX_D[0];
+				mux IMUX_IO_O[2] = IMUX_A[1] | IMUX_B[1] | IMUX_IO_O_PLC[2];
+				mux IMUX_IO_T[2] = IMUX_A[1] | IMUX_B[1];
+				mux IMUX_IO_O[3] = IMUX_C[1] | IMUX_D[1] | IMUX_IO_O_PLC[3];
+				mux IMUX_IO_T[3] = IMUX_C[1] | IMUX_D[1];
+				mux IMUX_IO_O[4] = IMUX_A[2] | IMUX_B[2] | IMUX_IO_O_PLC[4];
+				mux IMUX_IO_T[4] = IMUX_A[2] | IMUX_B[2];
+				mux IMUX_IO_O[5] = IMUX_C[2] | IMUX_D[2] | IMUX_IO_O_PLC[5];
+				mux IMUX_IO_T[5] = IMUX_C[2] | IMUX_D[2];
+			}
+
 			// wire OUT_F[0]                       IO[0].PADDI
 			// wire OUT_F[1]                       IO[1].PADDI
 			// wire OUT_F[2]                       IO[2].PADDI
 			// wire OUT_F[3]                       IO[3].PADDI
 			// wire OUT_F[4]                       IO[4].PADDI
 			// wire OUT_F[5]                       IO[5].PADDI
+			// wire IMUX_IO_O[0]                   IO[0].PADDO
+			// wire IMUX_IO_O[1]                   IO[1].PADDO
+			// wire IMUX_IO_O[2]                   IO[2].PADDO
+			// wire IMUX_IO_O[3]                   IO[3].PADDO
+			// wire IMUX_IO_O[4]                   IO[4].PADDO
+			// wire IMUX_IO_O[5]                   IO[5].PADDO
+			// wire IMUX_IO_T[0]                   IO[0].PADDT
+			// wire IMUX_IO_T[1]                   IO[1].PADDT
+			// wire IMUX_IO_T[2]                   IO[2].PADDT
+			// wire IMUX_IO_T[3]                   IO[3].PADDT
+			// wire IMUX_IO_T[4]                   IO[4].PADDT
+			// wire IMUX_IO_T[5]                   IO[5].PADDT
+			// wire OUT_IO_CLK[0]                  IO[0].PADDI
+			// wire OUT_IO_CLK[1]                  IO[1].PADDI
+			// wire OUT_IO_CLK[2]                  IO[2].PADDI
+			// wire OUT_IO_CLK[3]                  IO[3].PADDI
+			// wire OUT_IO_CLK[4]                  IO[4].PADDI
+			// wire OUT_IO_CLK[5]                  IO[5].PADDI
 		}
 
 		tile_class SIO_S_N4 {
 			cell CELL;
 
 			bel IO[0] {
-				input DDTD0 = IMUX_A[0];
-				input DDTD1 = IMUX_B[0];
-				output PADDI = OUT_F[0];
+				input PADDO = IMUX_IO_O[0];
+				input PADDT = IMUX_IO_T[0];
+				output PADDI = OUT_F[0], OUT_IO_CLK[0];
 			}
 
 			bel IO[1] {
-				input DDTD0 = IMUX_C[0];
-				input DDTD1 = IMUX_D[0];
-				output PADDI = OUT_F[1];
+				input PADDO = IMUX_IO_O[1];
+				input PADDT = IMUX_IO_T[1];
+				output PADDI = OUT_F[1], OUT_IO_CLK[1];
 			}
 
 			bel IO[2] {
-				input DDTD0 = IMUX_A[1];
-				input DDTD1 = IMUX_B[1];
-				output PADDI = OUT_F[2];
+				input PADDO = IMUX_IO_O[2];
+				input PADDT = IMUX_IO_T[2];
+				output PADDI = OUT_F[2], OUT_IO_CLK[2];
 			}
 
 			bel IO[3] {
-				input DDTD0 = IMUX_C[1];
-				input DDTD1 = IMUX_D[1];
-				output PADDI = OUT_F[3];
+				input PADDO = IMUX_IO_O[3];
+				input PADDT = IMUX_IO_T[3];
+				output PADDI = OUT_F[3], OUT_IO_CLK[3];
 			}
 
-			// wire IMUX_A[0]                      IO[0].DDTD0
-			// wire IMUX_A[1]                      IO[2].DDTD0
-			// wire IMUX_B[0]                      IO[0].DDTD1
-			// wire IMUX_B[1]                      IO[2].DDTD1
-			// wire IMUX_C[0]                      IO[1].DDTD0
-			// wire IMUX_C[1]                      IO[3].DDTD0
-			// wire IMUX_D[0]                      IO[1].DDTD1
-			// wire IMUX_D[1]                      IO[3].DDTD1
+			switchbox IO_INT {
+				mux IMUX_IO_O[0] = IMUX_A[0] | IMUX_B[0] | IMUX_IO_O_PLC[0];
+				mux IMUX_IO_T[0] = IMUX_A[0] | IMUX_B[0];
+				mux IMUX_IO_O[1] = IMUX_C[0] | IMUX_D[0] | IMUX_IO_O_PLC[1];
+				mux IMUX_IO_T[1] = IMUX_C[0] | IMUX_D[0];
+				mux IMUX_IO_O[2] = IMUX_A[1] | IMUX_B[1] | IMUX_IO_O_PLC[2];
+				mux IMUX_IO_T[2] = IMUX_A[1] | IMUX_B[1];
+				mux IMUX_IO_O[3] = IMUX_C[1] | IMUX_D[1] | IMUX_IO_O_PLC[3];
+				mux IMUX_IO_T[3] = IMUX_C[1] | IMUX_D[1];
+			}
+
 			// wire OUT_F[0]                       IO[0].PADDI
 			// wire OUT_F[1]                       IO[1].PADDI
 			// wire OUT_F[2]                       IO[2].PADDI
 			// wire OUT_F[3]                       IO[3].PADDI
+			// wire IMUX_IO_O[0]                   IO[0].PADDO
+			// wire IMUX_IO_O[1]                   IO[1].PADDO
+			// wire IMUX_IO_O[2]                   IO[2].PADDO
+			// wire IMUX_IO_O[3]                   IO[3].PADDO
+			// wire IMUX_IO_T[0]                   IO[0].PADDT
+			// wire IMUX_IO_T[1]                   IO[1].PADDT
+			// wire IMUX_IO_T[2]                   IO[2].PADDT
+			// wire IMUX_IO_T[3]                   IO[3].PADDT
+			// wire OUT_IO_CLK[0]                  IO[0].PADDI
+			// wire OUT_IO_CLK[1]                  IO[1].PADDI
+			// wire OUT_IO_CLK[2]                  IO[2].PADDI
+			// wire OUT_IO_CLK[3]                  IO[3].PADDI
 		}
 
 		tile_class SIO_S_N6 {
 			cell CELL;
 
 			bel IO[0] {
-				input DDTD0 = IMUX_A[0];
-				input DDTD1 = IMUX_B[0];
-				output PADDI = OUT_F[0];
+				input PADDO = IMUX_IO_O[0];
+				input PADDT = IMUX_IO_T[0];
+				output PADDI = OUT_F[0], OUT_IO_CLK[0];
 			}
 
 			bel IO[1] {
-				input DDTD0 = IMUX_C[0];
-				input DDTD1 = IMUX_D[0];
-				output PADDI = OUT_F[1];
+				input PADDO = IMUX_IO_O[1];
+				input PADDT = IMUX_IO_T[1];
+				output PADDI = OUT_F[1], OUT_IO_CLK[1];
 			}
 
 			bel IO[2] {
-				input DDTD0 = IMUX_A[1];
-				input DDTD1 = IMUX_B[1];
-				output PADDI = OUT_F[2];
+				input PADDO = IMUX_IO_O[2];
+				input PADDT = IMUX_IO_T[2];
+				output PADDI = OUT_F[2], OUT_IO_CLK[2];
 			}
 
 			bel IO[3] {
-				input DDTD0 = IMUX_C[1];
-				input DDTD1 = IMUX_D[1];
-				output PADDI = OUT_F[3];
+				input PADDO = IMUX_IO_O[3];
+				input PADDT = IMUX_IO_T[3];
+				output PADDI = OUT_F[3], OUT_IO_CLK[3];
 			}
 
 			bel IO[4] {
-				input DDTD0 = IMUX_A[2];
-				input DDTD1 = IMUX_B[2];
-				output PADDI = OUT_F[4];
+				input PADDO = IMUX_IO_O[4];
+				input PADDT = IMUX_IO_T[4];
+				output PADDI = OUT_F[4], OUT_IO_CLK[4];
 			}
 
 			bel IO[5] {
-				input DDTD0 = IMUX_C[2];
-				input DDTD1 = IMUX_D[2];
-				output PADDI = OUT_F[5];
+				input PADDO = IMUX_IO_O[5];
+				input PADDT = IMUX_IO_T[5];
+				output PADDI = OUT_F[5], OUT_IO_CLK[5];
 			}
 
-			// wire IMUX_A[0]                      IO[0].DDTD0
-			// wire IMUX_A[1]                      IO[2].DDTD0
-			// wire IMUX_A[2]                      IO[4].DDTD0
-			// wire IMUX_B[0]                      IO[0].DDTD1
-			// wire IMUX_B[1]                      IO[2].DDTD1
-			// wire IMUX_B[2]                      IO[4].DDTD1
-			// wire IMUX_C[0]                      IO[1].DDTD0
-			// wire IMUX_C[1]                      IO[3].DDTD0
-			// wire IMUX_C[2]                      IO[5].DDTD0
-			// wire IMUX_D[0]                      IO[1].DDTD1
-			// wire IMUX_D[1]                      IO[3].DDTD1
-			// wire IMUX_D[2]                      IO[5].DDTD1
+			switchbox IO_INT {
+				mux IMUX_IO_O[0] = IMUX_A[0] | IMUX_B[0] | IMUX_IO_O_PLC[0];
+				mux IMUX_IO_T[0] = IMUX_A[0] | IMUX_B[0];
+				mux IMUX_IO_O[1] = IMUX_C[0] | IMUX_D[0] | IMUX_IO_O_PLC[1];
+				mux IMUX_IO_T[1] = IMUX_C[0] | IMUX_D[0];
+				mux IMUX_IO_O[2] = IMUX_A[1] | IMUX_B[1] | IMUX_IO_O_PLC[2];
+				mux IMUX_IO_T[2] = IMUX_A[1] | IMUX_B[1];
+				mux IMUX_IO_O[3] = IMUX_C[1] | IMUX_D[1] | IMUX_IO_O_PLC[3];
+				mux IMUX_IO_T[3] = IMUX_C[1] | IMUX_D[1];
+				mux IMUX_IO_O[4] = IMUX_A[2] | IMUX_B[2] | IMUX_IO_O_PLC[4];
+				mux IMUX_IO_T[4] = IMUX_A[2] | IMUX_B[2];
+				mux IMUX_IO_O[5] = IMUX_C[2] | IMUX_D[2] | IMUX_IO_O_PLC[5];
+				mux IMUX_IO_T[5] = IMUX_C[2] | IMUX_D[2];
+			}
+
 			// wire OUT_F[0]                       IO[0].PADDI
 			// wire OUT_F[1]                       IO[1].PADDI
 			// wire OUT_F[2]                       IO[2].PADDI
 			// wire OUT_F[3]                       IO[3].PADDI
 			// wire OUT_F[4]                       IO[4].PADDI
 			// wire OUT_F[5]                       IO[5].PADDI
+			// wire IMUX_IO_O[0]                   IO[0].PADDO
+			// wire IMUX_IO_O[1]                   IO[1].PADDO
+			// wire IMUX_IO_O[2]                   IO[2].PADDO
+			// wire IMUX_IO_O[3]                   IO[3].PADDO
+			// wire IMUX_IO_O[4]                   IO[4].PADDO
+			// wire IMUX_IO_O[5]                   IO[5].PADDO
+			// wire IMUX_IO_T[0]                   IO[0].PADDT
+			// wire IMUX_IO_T[1]                   IO[1].PADDT
+			// wire IMUX_IO_T[2]                   IO[2].PADDT
+			// wire IMUX_IO_T[3]                   IO[3].PADDT
+			// wire IMUX_IO_T[4]                   IO[4].PADDT
+			// wire IMUX_IO_T[5]                   IO[5].PADDT
+			// wire OUT_IO_CLK[0]                  IO[0].PADDI
+			// wire OUT_IO_CLK[1]                  IO[1].PADDI
+			// wire OUT_IO_CLK[2]                  IO[2].PADDI
+			// wire OUT_IO_CLK[3]                  IO[3].PADDI
+			// wire OUT_IO_CLK[4]                  IO[4].PADDI
+			// wire OUT_IO_CLK[5]                  IO[5].PADDI
 		}
 
 		tile_class SIO_L_W2 {
 			cell CELL;
 
 			bel IO[0] {
-				input DDTD0 = IMUX_A[4];
-				input DDTD1 = IMUX_B[4];
-				output PADDI = OUT_Q[0];
+				input PADDO = IMUX_IO_O[0];
+				input PADDT = IMUX_IO_T[0];
+				output PADDI = OUT_Q[0], OUT_IO_CLK[0];
 			}
 
 			bel IO[1] {
-				input DDTD0 = IMUX_C[4];
-				input DDTD1 = IMUX_D[4];
-				output PADDI = OUT_Q[1];
+				input PADDO = IMUX_IO_O[1];
+				input PADDT = IMUX_IO_T[1];
+				output PADDI = OUT_Q[1], OUT_IO_CLK[1];
 			}
 
-			bel IO[2] {
-				input DDTD0 = IMUX_A[5];
-				input DDTD1 = IMUX_B[5];
-				output PADDI = OUT_OFX[6];
+			bel PICTEST[0] {
+				input C[0] = IMUX_A[5];
+				input C[1] = IMUX_B[5];
+				input D[0] = IMUX_C[5];
+				input D[1] = IMUX_D[5];
+				output Q[0] = OUT_OFX[6];
+				output Q[1] = OUT_OFX[7];
 			}
 
-			bel IO[3] {
-				input DDTD0 = IMUX_C[5];
-				input DDTD1 = IMUX_D[5];
-				output PADDI = OUT_OFX[7];
+			switchbox IO_INT {
+				mux IMUX_IO_O[0] = IMUX_A[4] | IMUX_B[4] | IMUX_IO_O_PLC[0];
+				mux IMUX_IO_T[0] = IMUX_A[4] | IMUX_B[4];
+				mux IMUX_IO_O[1] = IMUX_C[4] | IMUX_D[4] | IMUX_IO_O_PLC[1];
+				mux IMUX_IO_T[1] = IMUX_C[4] | IMUX_D[4];
 			}
 
-			// wire IMUX_A[4]                      IO[0].DDTD0
-			// wire IMUX_A[5]                      IO[2].DDTD0
-			// wire IMUX_B[4]                      IO[0].DDTD1
-			// wire IMUX_B[5]                      IO[2].DDTD1
-			// wire IMUX_C[4]                      IO[1].DDTD0
-			// wire IMUX_C[5]                      IO[3].DDTD0
-			// wire IMUX_D[4]                      IO[1].DDTD1
-			// wire IMUX_D[5]                      IO[3].DDTD1
+			// wire IMUX_A[5]                      PICTEST[0].C[0]
+			// wire IMUX_B[5]                      PICTEST[0].C[1]
+			// wire IMUX_C[5]                      PICTEST[0].D[0]
+			// wire IMUX_D[5]                      PICTEST[0].D[1]
 			// wire OUT_Q[0]                       IO[0].PADDI
 			// wire OUT_Q[1]                       IO[1].PADDI
-			// wire OUT_OFX[6]                     IO[2].PADDI
-			// wire OUT_OFX[7]                     IO[3].PADDI
+			// wire OUT_OFX[6]                     PICTEST[0].Q[0]
+			// wire OUT_OFX[7]                     PICTEST[0].Q[1]
+			// wire IMUX_IO_O[0]                   IO[0].PADDO
+			// wire IMUX_IO_O[1]                   IO[1].PADDO
+			// wire IMUX_IO_T[0]                   IO[0].PADDT
+			// wire IMUX_IO_T[1]                   IO[1].PADDT
+			// wire OUT_IO_CLK[0]                  IO[0].PADDI
+			// wire OUT_IO_CLK[1]                  IO[1].PADDI
 		}
 
 		tile_class SIO_L_W4 {
 			cell CELL;
 
 			bel IO[0] {
-				input DDTD0 = IMUX_A[4];
-				input DDTD1 = IMUX_B[4];
-				output PADDI = OUT_Q[0];
+				input PADDO = IMUX_IO_O[0];
+				input PADDT = IMUX_IO_T[0];
+				output PADDI = OUT_Q[0], OUT_IO_CLK[0];
 			}
 
 			bel IO[1] {
-				input DDTD0 = IMUX_C[4];
-				input DDTD1 = IMUX_D[4];
-				output PADDI = OUT_Q[1];
+				input PADDO = IMUX_IO_O[1];
+				input PADDT = IMUX_IO_T[1];
+				output PADDI = OUT_Q[1], OUT_IO_CLK[1];
 			}
 
 			bel IO[2] {
-				input DDTD0 = IMUX_A[5];
-				input DDTD1 = IMUX_B[5];
-				output PADDI = OUT_OFX[6];
+				input PADDO = IMUX_IO_O[2];
+				input PADDT = IMUX_IO_T[2];
+				output PADDI = OUT_OFX[6], OUT_IO_CLK[2];
 			}
 
 			bel IO[3] {
-				input DDTD0 = IMUX_C[5];
-				input DDTD1 = IMUX_D[5];
-				output PADDI = OUT_OFX[7];
+				input PADDO = IMUX_IO_O[3];
+				input PADDT = IMUX_IO_T[3];
+				output PADDI = OUT_OFX[7], OUT_IO_CLK[3];
 			}
 
-			// wire IMUX_A[4]                      IO[0].DDTD0
-			// wire IMUX_A[5]                      IO[2].DDTD0
-			// wire IMUX_B[4]                      IO[0].DDTD1
-			// wire IMUX_B[5]                      IO[2].DDTD1
-			// wire IMUX_C[4]                      IO[1].DDTD0
-			// wire IMUX_C[5]                      IO[3].DDTD0
-			// wire IMUX_D[4]                      IO[1].DDTD1
-			// wire IMUX_D[5]                      IO[3].DDTD1
+			switchbox IO_INT {
+				mux IMUX_IO_O[0] = IMUX_A[4] | IMUX_B[4] | IMUX_IO_O_PLC[0];
+				mux IMUX_IO_T[0] = IMUX_A[4] | IMUX_B[4];
+				mux IMUX_IO_O[1] = IMUX_C[4] | IMUX_D[4] | IMUX_IO_O_PLC[1];
+				mux IMUX_IO_T[1] = IMUX_C[4] | IMUX_D[4];
+				mux IMUX_IO_O[2] = IMUX_A[5] | IMUX_B[5] | IMUX_IO_O_PLC[2];
+				mux IMUX_IO_T[2] = IMUX_A[5] | IMUX_B[5];
+				mux IMUX_IO_O[3] = IMUX_C[5] | IMUX_D[5] | IMUX_IO_O_PLC[3];
+				mux IMUX_IO_T[3] = IMUX_C[5] | IMUX_D[5];
+			}
+
 			// wire OUT_Q[0]                       IO[0].PADDI
 			// wire OUT_Q[1]                       IO[1].PADDI
 			// wire OUT_OFX[6]                     IO[2].PADDI
 			// wire OUT_OFX[7]                     IO[3].PADDI
+			// wire IMUX_IO_O[0]                   IO[0].PADDO
+			// wire IMUX_IO_O[1]                   IO[1].PADDO
+			// wire IMUX_IO_O[2]                   IO[2].PADDO
+			// wire IMUX_IO_O[3]                   IO[3].PADDO
+			// wire IMUX_IO_T[0]                   IO[0].PADDT
+			// wire IMUX_IO_T[1]                   IO[1].PADDT
+			// wire IMUX_IO_T[2]                   IO[2].PADDT
+			// wire IMUX_IO_T[3]                   IO[3].PADDT
+			// wire OUT_IO_CLK[0]                  IO[0].PADDI
+			// wire OUT_IO_CLK[1]                  IO[1].PADDI
+			// wire OUT_IO_CLK[2]                  IO[2].PADDI
+			// wire OUT_IO_CLK[3]                  IO[3].PADDI
 		}
 
 		tile_class SIO_L_E2 {
 			cell CELL;
 
 			bel IO[0] {
-				input DDTD0 = IMUX_A[0];
-				input DDTD1 = IMUX_B[0];
-				output PADDI = OUT_F[0];
+				input PADDO = IMUX_IO_O[0];
+				input PADDT = IMUX_IO_T[0];
+				output PADDI = OUT_F[0], OUT_IO_CLK[0];
 			}
 
 			bel IO[1] {
-				input DDTD0 = IMUX_C[0];
-				input DDTD1 = IMUX_D[0];
-				output PADDI = OUT_F[1];
+				input PADDO = IMUX_IO_O[1];
+				input PADDT = IMUX_IO_T[1];
+				output PADDI = OUT_F[1], OUT_IO_CLK[1];
 			}
 
-			bel IO[2] {
-				input DDTD0 = IMUX_A[1];
-				input DDTD1 = IMUX_B[1];
-				output PADDI = OUT_F[2];
+			bel PICTEST[0] {
+				input C[0] = IMUX_A[1];
+				input C[1] = IMUX_B[1];
+				input D[0] = IMUX_C[1];
+				input D[1] = IMUX_D[1];
+				output Q[0] = OUT_F[2];
+				output Q[1] = OUT_F[3];
 			}
 
-			bel IO[3] {
-				input DDTD0 = IMUX_C[1];
-				input DDTD1 = IMUX_D[1];
-				output PADDI = OUT_F[3];
+			switchbox IO_INT {
+				mux IMUX_IO_O[0] = IMUX_A[0] | IMUX_B[0] | IMUX_IO_O_PLC[0];
+				mux IMUX_IO_T[0] = IMUX_A[0] | IMUX_B[0];
+				mux IMUX_IO_O[1] = IMUX_C[0] | IMUX_D[0] | IMUX_IO_O_PLC[1];
+				mux IMUX_IO_T[1] = IMUX_C[0] | IMUX_D[0];
 			}
 
-			// wire IMUX_A[0]                      IO[0].DDTD0
-			// wire IMUX_A[1]                      IO[2].DDTD0
-			// wire IMUX_B[0]                      IO[0].DDTD1
-			// wire IMUX_B[1]                      IO[2].DDTD1
-			// wire IMUX_C[0]                      IO[1].DDTD0
-			// wire IMUX_C[1]                      IO[3].DDTD0
-			// wire IMUX_D[0]                      IO[1].DDTD1
-			// wire IMUX_D[1]                      IO[3].DDTD1
+			// wire IMUX_A[1]                      PICTEST[0].C[0]
+			// wire IMUX_B[1]                      PICTEST[0].C[1]
+			// wire IMUX_C[1]                      PICTEST[0].D[0]
+			// wire IMUX_D[1]                      PICTEST[0].D[1]
 			// wire OUT_F[0]                       IO[0].PADDI
 			// wire OUT_F[1]                       IO[1].PADDI
-			// wire OUT_F[2]                       IO[2].PADDI
-			// wire OUT_F[3]                       IO[3].PADDI
+			// wire OUT_F[2]                       PICTEST[0].Q[0]
+			// wire OUT_F[3]                       PICTEST[0].Q[1]
+			// wire IMUX_IO_O[0]                   IO[0].PADDO
+			// wire IMUX_IO_O[1]                   IO[1].PADDO
+			// wire IMUX_IO_T[0]                   IO[0].PADDT
+			// wire IMUX_IO_T[1]                   IO[1].PADDT
+			// wire OUT_IO_CLK[0]                  IO[0].PADDI
+			// wire OUT_IO_CLK[1]                  IO[1].PADDI
 		}
 
 		tile_class SIO_L_E4 {
 			cell CELL;
 
 			bel IO[0] {
-				input DDTD0 = IMUX_A[0];
-				input DDTD1 = IMUX_B[0];
-				output PADDI = OUT_F[0];
+				input PADDO = IMUX_IO_O[0];
+				input PADDT = IMUX_IO_T[0];
+				output PADDI = OUT_F[0], OUT_IO_CLK[0];
 			}
 
 			bel IO[1] {
-				input DDTD0 = IMUX_C[0];
-				input DDTD1 = IMUX_D[0];
-				output PADDI = OUT_F[1];
+				input PADDO = IMUX_IO_O[1];
+				input PADDT = IMUX_IO_T[1];
+				output PADDI = OUT_F[1], OUT_IO_CLK[1];
 			}
 
 			bel IO[2] {
-				input DDTD0 = IMUX_A[1];
-				input DDTD1 = IMUX_B[1];
-				output PADDI = OUT_F[2];
+				input PADDO = IMUX_IO_O[2];
+				input PADDT = IMUX_IO_T[2];
+				output PADDI = OUT_F[2], OUT_IO_CLK[2];
 			}
 
 			bel IO[3] {
-				input DDTD0 = IMUX_C[1];
-				input DDTD1 = IMUX_D[1];
-				output PADDI = OUT_F[3];
+				input PADDO = IMUX_IO_O[3];
+				input PADDT = IMUX_IO_T[3];
+				output PADDI = OUT_F[3], OUT_IO_CLK[3];
 			}
 
-			// wire IMUX_A[0]                      IO[0].DDTD0
-			// wire IMUX_A[1]                      IO[2].DDTD0
-			// wire IMUX_B[0]                      IO[0].DDTD1
-			// wire IMUX_B[1]                      IO[2].DDTD1
-			// wire IMUX_C[0]                      IO[1].DDTD0
-			// wire IMUX_C[1]                      IO[3].DDTD0
-			// wire IMUX_D[0]                      IO[1].DDTD1
-			// wire IMUX_D[1]                      IO[3].DDTD1
+			switchbox IO_INT {
+				mux IMUX_IO_O[0] = IMUX_A[0] | IMUX_B[0] | IMUX_IO_O_PLC[0];
+				mux IMUX_IO_T[0] = IMUX_A[0] | IMUX_B[0];
+				mux IMUX_IO_O[1] = IMUX_C[0] | IMUX_D[0] | IMUX_IO_O_PLC[1];
+				mux IMUX_IO_T[1] = IMUX_C[0] | IMUX_D[0];
+				mux IMUX_IO_O[2] = IMUX_A[1] | IMUX_B[1] | IMUX_IO_O_PLC[2];
+				mux IMUX_IO_T[2] = IMUX_A[1] | IMUX_B[1];
+				mux IMUX_IO_O[3] = IMUX_C[1] | IMUX_D[1] | IMUX_IO_O_PLC[3];
+				mux IMUX_IO_T[3] = IMUX_C[1] | IMUX_D[1];
+			}
+
 			// wire OUT_F[0]                       IO[0].PADDI
 			// wire OUT_F[1]                       IO[1].PADDI
 			// wire OUT_F[2]                       IO[2].PADDI
 			// wire OUT_F[3]                       IO[3].PADDI
+			// wire IMUX_IO_O[0]                   IO[0].PADDO
+			// wire IMUX_IO_O[1]                   IO[1].PADDO
+			// wire IMUX_IO_O[2]                   IO[2].PADDO
+			// wire IMUX_IO_O[3]                   IO[3].PADDO
+			// wire IMUX_IO_T[0]                   IO[0].PADDT
+			// wire IMUX_IO_T[1]                   IO[1].PADDT
+			// wire IMUX_IO_T[2]                   IO[2].PADDT
+			// wire IMUX_IO_T[3]                   IO[3].PADDT
+			// wire OUT_IO_CLK[0]                  IO[0].PADDI
+			// wire OUT_IO_CLK[1]                  IO[1].PADDI
+			// wire OUT_IO_CLK[2]                  IO[2].PADDI
+			// wire OUT_IO_CLK[3]                  IO[3].PADDI
 		}
 
 		tile_class SIO_L_S4 {
 			cell CELL;
 
 			bel IO[0] {
-				input DDTD0 = IMUX_A[0];
-				input DDTD1 = IMUX_B[0];
-				output PADDI = OUT_F[0];
+				input PADDO = IMUX_IO_O[0];
+				input PADDT = IMUX_IO_T[0];
+				output PADDI = OUT_F[0], OUT_IO_CLK[0];
 			}
 
 			bel IO[1] {
-				input DDTD0 = IMUX_C[0];
-				input DDTD1 = IMUX_D[0];
-				output PADDI = OUT_F[1];
+				input PADDO = IMUX_IO_O[1];
+				input PADDT = IMUX_IO_T[1];
+				output PADDI = OUT_F[1], OUT_IO_CLK[1];
 			}
 
 			bel IO[2] {
-				input DDTD0 = IMUX_A[1];
-				input DDTD1 = IMUX_B[1];
-				output PADDI = OUT_F[2];
+				input PADDO = IMUX_IO_O[2];
+				input PADDT = IMUX_IO_T[2];
+				output PADDI = OUT_F[2], OUT_IO_CLK[2];
 			}
 
 			bel IO[3] {
-				input DDTD0 = IMUX_C[1];
-				input DDTD1 = IMUX_D[1];
-				output PADDI = OUT_F[3];
+				input PADDO = IMUX_IO_O[3];
+				input PADDT = IMUX_IO_T[3];
+				output PADDI = OUT_F[3], OUT_IO_CLK[3];
 			}
 
-			// wire IMUX_A[0]                      IO[0].DDTD0
-			// wire IMUX_A[1]                      IO[2].DDTD0
-			// wire IMUX_B[0]                      IO[0].DDTD1
-			// wire IMUX_B[1]                      IO[2].DDTD1
-			// wire IMUX_C[0]                      IO[1].DDTD0
-			// wire IMUX_C[1]                      IO[3].DDTD0
-			// wire IMUX_D[0]                      IO[1].DDTD1
-			// wire IMUX_D[1]                      IO[3].DDTD1
+			switchbox IO_INT {
+				mux IMUX_IO_O[0] = IMUX_A[0] | IMUX_B[0] | IMUX_IO_O_PLC[0];
+				mux IMUX_IO_T[0] = IMUX_A[0] | IMUX_B[0];
+				mux IMUX_IO_O[1] = IMUX_C[0] | IMUX_D[0] | IMUX_IO_O_PLC[1];
+				mux IMUX_IO_T[1] = IMUX_C[0] | IMUX_D[0];
+				mux IMUX_IO_O[2] = IMUX_A[1] | IMUX_B[1] | IMUX_IO_O_PLC[2];
+				mux IMUX_IO_T[2] = IMUX_A[1] | IMUX_B[1];
+				mux IMUX_IO_O[3] = IMUX_C[1] | IMUX_D[1] | IMUX_IO_O_PLC[3];
+				mux IMUX_IO_T[3] = IMUX_C[1] | IMUX_D[1];
+			}
+
 			// wire OUT_F[0]                       IO[0].PADDI
 			// wire OUT_F[1]                       IO[1].PADDI
 			// wire OUT_F[2]                       IO[2].PADDI
 			// wire OUT_F[3]                       IO[3].PADDI
+			// wire IMUX_IO_O[0]                   IO[0].PADDO
+			// wire IMUX_IO_O[1]                   IO[1].PADDO
+			// wire IMUX_IO_O[2]                   IO[2].PADDO
+			// wire IMUX_IO_O[3]                   IO[3].PADDO
+			// wire IMUX_IO_T[0]                   IO[0].PADDT
+			// wire IMUX_IO_T[1]                   IO[1].PADDT
+			// wire IMUX_IO_T[2]                   IO[2].PADDT
+			// wire IMUX_IO_T[3]                   IO[3].PADDT
+			// wire OUT_IO_CLK[0]                  IO[0].PADDI
+			// wire OUT_IO_CLK[1]                  IO[1].PADDI
+			// wire OUT_IO_CLK[2]                  IO[2].PADDI
+			// wire OUT_IO_CLK[3]                  IO[3].PADDI
 		}
 
 		tile_class SIO_L_S6 {
 			cell CELL;
 
 			bel IO[0] {
-				input DDTD0 = IMUX_A[0];
-				input DDTD1 = IMUX_B[0];
-				output PADDI = OUT_F[0];
+				input PADDO = IMUX_IO_O[0];
+				input PADDT = IMUX_IO_T[0];
+				output PADDI = OUT_F[0], OUT_IO_CLK[0];
 			}
 
 			bel IO[1] {
-				input DDTD0 = IMUX_C[0];
-				input DDTD1 = IMUX_D[0];
-				output PADDI = OUT_F[1];
+				input PADDO = IMUX_IO_O[1];
+				input PADDT = IMUX_IO_T[1];
+				output PADDI = OUT_F[1], OUT_IO_CLK[1];
 			}
 
 			bel IO[2] {
-				input DDTD0 = IMUX_A[1];
-				input DDTD1 = IMUX_B[1];
-				output PADDI = OUT_F[2];
+				input PADDO = IMUX_IO_O[2];
+				input PADDT = IMUX_IO_T[2];
+				output PADDI = OUT_F[2], OUT_IO_CLK[2];
 			}
 
 			bel IO[3] {
-				input DDTD0 = IMUX_C[1];
-				input DDTD1 = IMUX_D[1];
-				output PADDI = OUT_F[3];
+				input PADDO = IMUX_IO_O[3];
+				input PADDT = IMUX_IO_T[3];
+				output PADDI = OUT_F[3], OUT_IO_CLK[3];
 			}
 
 			bel IO[4] {
-				input DDTD0 = IMUX_A[2];
-				input DDTD1 = IMUX_B[2];
-				output PADDI = OUT_F[4];
+				input PADDO = IMUX_IO_O[4];
+				input PADDT = IMUX_IO_T[4];
+				output PADDI = OUT_F[4], OUT_IO_CLK[4];
 			}
 
 			bel IO[5] {
-				input DDTD0 = IMUX_C[2];
-				input DDTD1 = IMUX_D[2];
-				output PADDI = OUT_F[5];
+				input PADDO = IMUX_IO_O[5];
+				input PADDT = IMUX_IO_T[5];
+				output PADDI = OUT_F[5], OUT_IO_CLK[5];
 			}
 
-			// wire IMUX_A[0]                      IO[0].DDTD0
-			// wire IMUX_A[1]                      IO[2].DDTD0
-			// wire IMUX_A[2]                      IO[4].DDTD0
-			// wire IMUX_B[0]                      IO[0].DDTD1
-			// wire IMUX_B[1]                      IO[2].DDTD1
-			// wire IMUX_B[2]                      IO[4].DDTD1
-			// wire IMUX_C[0]                      IO[1].DDTD0
-			// wire IMUX_C[1]                      IO[3].DDTD0
-			// wire IMUX_C[2]                      IO[5].DDTD0
-			// wire IMUX_D[0]                      IO[1].DDTD1
-			// wire IMUX_D[1]                      IO[3].DDTD1
-			// wire IMUX_D[2]                      IO[5].DDTD1
+			switchbox IO_INT {
+				mux IMUX_IO_O[0] = IMUX_A[0] | IMUX_B[0] | IMUX_IO_O_PLC[0];
+				mux IMUX_IO_T[0] = IMUX_A[0] | IMUX_B[0];
+				mux IMUX_IO_O[1] = IMUX_C[0] | IMUX_D[0] | IMUX_IO_O_PLC[1];
+				mux IMUX_IO_T[1] = IMUX_C[0] | IMUX_D[0];
+				mux IMUX_IO_O[2] = IMUX_A[1] | IMUX_B[1] | IMUX_IO_O_PLC[2];
+				mux IMUX_IO_T[2] = IMUX_A[1] | IMUX_B[1];
+				mux IMUX_IO_O[3] = IMUX_C[1] | IMUX_D[1] | IMUX_IO_O_PLC[3];
+				mux IMUX_IO_T[3] = IMUX_C[1] | IMUX_D[1];
+				mux IMUX_IO_O[4] = IMUX_A[2] | IMUX_B[2] | IMUX_IO_O_PLC[4];
+				mux IMUX_IO_T[4] = IMUX_A[2] | IMUX_B[2];
+				mux IMUX_IO_O[5] = IMUX_C[2] | IMUX_D[2] | IMUX_IO_O_PLC[5];
+				mux IMUX_IO_T[5] = IMUX_C[2] | IMUX_D[2];
+			}
+
 			// wire OUT_F[0]                       IO[0].PADDI
 			// wire OUT_F[1]                       IO[1].PADDI
 			// wire OUT_F[2]                       IO[2].PADDI
 			// wire OUT_F[3]                       IO[3].PADDI
 			// wire OUT_F[4]                       IO[4].PADDI
 			// wire OUT_F[5]                       IO[5].PADDI
+			// wire IMUX_IO_O[0]                   IO[0].PADDO
+			// wire IMUX_IO_O[1]                   IO[1].PADDO
+			// wire IMUX_IO_O[2]                   IO[2].PADDO
+			// wire IMUX_IO_O[3]                   IO[3].PADDO
+			// wire IMUX_IO_O[4]                   IO[4].PADDO
+			// wire IMUX_IO_O[5]                   IO[5].PADDO
+			// wire IMUX_IO_T[0]                   IO[0].PADDT
+			// wire IMUX_IO_T[1]                   IO[1].PADDT
+			// wire IMUX_IO_T[2]                   IO[2].PADDT
+			// wire IMUX_IO_T[3]                   IO[3].PADDT
+			// wire IMUX_IO_T[4]                   IO[4].PADDT
+			// wire IMUX_IO_T[5]                   IO[5].PADDT
+			// wire OUT_IO_CLK[0]                  IO[0].PADDI
+			// wire OUT_IO_CLK[1]                  IO[1].PADDI
+			// wire OUT_IO_CLK[2]                  IO[2].PADDI
+			// wire OUT_IO_CLK[3]                  IO[3].PADDI
+			// wire OUT_IO_CLK[4]                  IO[4].PADDI
+			// wire OUT_IO_CLK[5]                  IO[5].PADDI
 		}
 
 		tile_class SIO_L_N4 {
 			cell CELL;
 
 			bel IO[0] {
-				input DDTD0 = IMUX_A[0];
-				input DDTD1 = IMUX_B[0];
-				output PADDI = OUT_F[0];
+				input PADDO = IMUX_IO_O[0];
+				input PADDT = IMUX_IO_T[0];
+				output PADDI = OUT_F[0], OUT_IO_CLK[0];
 			}
 
 			bel IO[1] {
-				input DDTD0 = IMUX_C[0];
-				input DDTD1 = IMUX_D[0];
-				output PADDI = OUT_F[1];
+				input PADDO = IMUX_IO_O[1];
+				input PADDT = IMUX_IO_T[1];
+				output PADDI = OUT_F[1], OUT_IO_CLK[1];
 			}
 
 			bel IO[2] {
-				input DDTD0 = IMUX_A[1];
-				input DDTD1 = IMUX_B[1];
-				output PADDI = OUT_F[2];
+				input PADDO = IMUX_IO_O[2];
+				input PADDT = IMUX_IO_T[2];
+				output PADDI = OUT_F[2], OUT_IO_CLK[2];
 			}
 
 			bel IO[3] {
-				input DDTD0 = IMUX_C[1];
-				input DDTD1 = IMUX_D[1];
-				output PADDI = OUT_F[3];
+				input PADDO = IMUX_IO_O[3];
+				input PADDT = IMUX_IO_T[3];
+				output PADDI = OUT_F[3], OUT_IO_CLK[3];
 			}
 
-			// wire IMUX_A[0]                      IO[0].DDTD0
-			// wire IMUX_A[1]                      IO[2].DDTD0
-			// wire IMUX_B[0]                      IO[0].DDTD1
-			// wire IMUX_B[1]                      IO[2].DDTD1
-			// wire IMUX_C[0]                      IO[1].DDTD0
-			// wire IMUX_C[1]                      IO[3].DDTD0
-			// wire IMUX_D[0]                      IO[1].DDTD1
-			// wire IMUX_D[1]                      IO[3].DDTD1
+			switchbox IO_INT {
+				mux IMUX_IO_O[0] = IMUX_A[0] | IMUX_B[0] | IMUX_IO_O_PLC[0];
+				mux IMUX_IO_T[0] = IMUX_A[0] | IMUX_B[0];
+				mux IMUX_IO_O[1] = IMUX_C[0] | IMUX_D[0] | IMUX_IO_O_PLC[1];
+				mux IMUX_IO_T[1] = IMUX_C[0] | IMUX_D[0];
+				mux IMUX_IO_O[2] = IMUX_A[1] | IMUX_B[1] | IMUX_IO_O_PLC[2];
+				mux IMUX_IO_T[2] = IMUX_A[1] | IMUX_B[1];
+				mux IMUX_IO_O[3] = IMUX_C[1] | IMUX_D[1] | IMUX_IO_O_PLC[3];
+				mux IMUX_IO_T[3] = IMUX_C[1] | IMUX_D[1];
+			}
+
 			// wire OUT_F[0]                       IO[0].PADDI
 			// wire OUT_F[1]                       IO[1].PADDI
 			// wire OUT_F[2]                       IO[2].PADDI
 			// wire OUT_F[3]                       IO[3].PADDI
+			// wire IMUX_IO_O[0]                   IO[0].PADDO
+			// wire IMUX_IO_O[1]                   IO[1].PADDO
+			// wire IMUX_IO_O[2]                   IO[2].PADDO
+			// wire IMUX_IO_O[3]                   IO[3].PADDO
+			// wire IMUX_IO_T[0]                   IO[0].PADDT
+			// wire IMUX_IO_T[1]                   IO[1].PADDT
+			// wire IMUX_IO_T[2]                   IO[2].PADDT
+			// wire IMUX_IO_T[3]                   IO[3].PADDT
+			// wire OUT_IO_CLK[0]                  IO[0].PADDI
+			// wire OUT_IO_CLK[1]                  IO[1].PADDI
+			// wire OUT_IO_CLK[2]                  IO[2].PADDI
+			// wire OUT_IO_CLK[3]                  IO[3].PADDI
 		}
 
 		tile_class SIO_L_N6 {
 			cell CELL;
 
 			bel IO[0] {
-				input DDTD0 = IMUX_A[0];
-				input DDTD1 = IMUX_B[0];
-				output PADDI = OUT_F[0];
+				input PADDO = IMUX_IO_O[0];
+				input PADDT = IMUX_IO_T[0];
+				output PADDI = OUT_F[0], OUT_IO_CLK[0];
 			}
 
 			bel IO[1] {
-				input DDTD0 = IMUX_C[0];
-				input DDTD1 = IMUX_D[0];
-				output PADDI = OUT_F[1];
+				input PADDO = IMUX_IO_O[1];
+				input PADDT = IMUX_IO_T[1];
+				output PADDI = OUT_F[1], OUT_IO_CLK[1];
 			}
 
 			bel IO[2] {
-				input DDTD0 = IMUX_A[1];
-				input DDTD1 = IMUX_B[1];
-				output PADDI = OUT_F[2];
+				input PADDO = IMUX_IO_O[2];
+				input PADDT = IMUX_IO_T[2];
+				output PADDI = OUT_F[2], OUT_IO_CLK[2];
 			}
 
 			bel IO[3] {
-				input DDTD0 = IMUX_C[1];
-				input DDTD1 = IMUX_D[1];
-				output PADDI = OUT_F[3];
+				input PADDO = IMUX_IO_O[3];
+				input PADDT = IMUX_IO_T[3];
+				output PADDI = OUT_F[3], OUT_IO_CLK[3];
 			}
 
 			bel IO[4] {
-				input DDTD0 = IMUX_A[2];
-				input DDTD1 = IMUX_B[2];
-				output PADDI = OUT_F[4];
+				input PADDO = IMUX_IO_O[4];
+				input PADDT = IMUX_IO_T[4];
+				output PADDI = OUT_F[4], OUT_IO_CLK[4];
 			}
 
 			bel IO[5] {
-				input DDTD0 = IMUX_C[2];
-				input DDTD1 = IMUX_D[2];
-				output PADDI = OUT_F[5];
+				input PADDO = IMUX_IO_O[5];
+				input PADDT = IMUX_IO_T[5];
+				output PADDI = OUT_F[5], OUT_IO_CLK[5];
 			}
 
-			// wire IMUX_A[0]                      IO[0].DDTD0
-			// wire IMUX_A[1]                      IO[2].DDTD0
-			// wire IMUX_A[2]                      IO[4].DDTD0
-			// wire IMUX_B[0]                      IO[0].DDTD1
-			// wire IMUX_B[1]                      IO[2].DDTD1
-			// wire IMUX_B[2]                      IO[4].DDTD1
-			// wire IMUX_C[0]                      IO[1].DDTD0
-			// wire IMUX_C[1]                      IO[3].DDTD0
-			// wire IMUX_C[2]                      IO[5].DDTD0
-			// wire IMUX_D[0]                      IO[1].DDTD1
-			// wire IMUX_D[1]                      IO[3].DDTD1
-			// wire IMUX_D[2]                      IO[5].DDTD1
+			switchbox IO_INT {
+				mux IMUX_IO_O[0] = IMUX_A[0] | IMUX_B[0] | IMUX_IO_O_PLC[0];
+				mux IMUX_IO_T[0] = IMUX_A[0] | IMUX_B[0];
+				mux IMUX_IO_O[1] = IMUX_C[0] | IMUX_D[0] | IMUX_IO_O_PLC[1];
+				mux IMUX_IO_T[1] = IMUX_C[0] | IMUX_D[0];
+				mux IMUX_IO_O[2] = IMUX_A[1] | IMUX_B[1] | IMUX_IO_O_PLC[2];
+				mux IMUX_IO_T[2] = IMUX_A[1] | IMUX_B[1];
+				mux IMUX_IO_O[3] = IMUX_C[1] | IMUX_D[1] | IMUX_IO_O_PLC[3];
+				mux IMUX_IO_T[3] = IMUX_C[1] | IMUX_D[1];
+				mux IMUX_IO_O[4] = IMUX_A[2] | IMUX_B[2] | IMUX_IO_O_PLC[4];
+				mux IMUX_IO_T[4] = IMUX_A[2] | IMUX_B[2];
+				mux IMUX_IO_O[5] = IMUX_C[2] | IMUX_D[2] | IMUX_IO_O_PLC[5];
+				mux IMUX_IO_T[5] = IMUX_C[2] | IMUX_D[2];
+			}
+
 			// wire OUT_F[0]                       IO[0].PADDI
 			// wire OUT_F[1]                       IO[1].PADDI
 			// wire OUT_F[2]                       IO[2].PADDI
 			// wire OUT_F[3]                       IO[3].PADDI
 			// wire OUT_F[4]                       IO[4].PADDI
 			// wire OUT_F[5]                       IO[5].PADDI
+			// wire IMUX_IO_O[0]                   IO[0].PADDO
+			// wire IMUX_IO_O[1]                   IO[1].PADDO
+			// wire IMUX_IO_O[2]                   IO[2].PADDO
+			// wire IMUX_IO_O[3]                   IO[3].PADDO
+			// wire IMUX_IO_O[4]                   IO[4].PADDO
+			// wire IMUX_IO_O[5]                   IO[5].PADDO
+			// wire IMUX_IO_T[0]                   IO[0].PADDT
+			// wire IMUX_IO_T[1]                   IO[1].PADDT
+			// wire IMUX_IO_T[2]                   IO[2].PADDT
+			// wire IMUX_IO_T[3]                   IO[3].PADDT
+			// wire IMUX_IO_T[4]                   IO[4].PADDT
+			// wire IMUX_IO_T[5]                   IO[5].PADDT
+			// wire OUT_IO_CLK[0]                  IO[0].PADDI
+			// wire OUT_IO_CLK[1]                  IO[1].PADDI
+			// wire OUT_IO_CLK[2]                  IO[2].PADDI
+			// wire OUT_IO_CLK[3]                  IO[3].PADDI
+			// wire OUT_IO_CLK[4]                  IO[4].PADDI
+			// wire OUT_IO_CLK[5]                  IO[5].PADDI
 		}
 	}
 
 	tile_slot BEL {
+		bel_slot BEL_INT: routing;
 		bel_slot SLICE[0]: SLICE;
 		bel_slot SLICE[1]: SLICE;
 		bel_slot SLICE[2]: SLICE;
 		bel_slot SLICE[3]: SLICE;
 		bel_slot CIBTEST_SEL: CIBTEST_SEL;
 		bel_slot EBR[0]: EBR;
-		bel_slot PLL[0]: legacy;
-		bel_slot GSR: legacy;
-		bel_slot JTAG: legacy;
-		bel_slot OSC: legacy;
+		bel_slot PLL[0]: PLL;
+		bel_slot GSR: GSR;
+		bel_slot JTAG: JTAG;
+		bel_slot OSC: OSC;
 
 		tile_class PLC {
 			cell CELL;
@@ -6841,57 +7276,55 @@ intdb {
 		tile_class PLL_S {
 			cell CELL;
 
-			bel PLL[0] {
-				input CLKFB0 = IMUX_C[0];
-				input CLKFB1 = IMUX_CLK[1];
-				input CLKI0 = IMUX_B[0];
-				input CLKI1 = IMUX_A[0];
-				input CLKI2 = IMUX_CLK[0];
-				output CLKOK = OUT_F[7];
-				output CLKOP = OUT_F[5];
-				output CLKOS = OUT_F[6];
-				input CNTRST = IMUX_D[0];
-				input DDAIDEL0 = IMUX_D[2];
-				input DDAIDEL1 = IMUX_C[2];
-				input DDAIDEL2 = IMUX_B[2];
-				input DDAILAG = IMUX_A[3];
-				input DDAIZR = IMUX_A[2];
-				input DDAMODE = IMUX_B[3];
-				output DDAODEL0 = OUT_F[3];
-				output DDAODEL1 = OUT_F[2];
-				output DDAODEL2 = OUT_F[1];
-				output DDAOLAG = OUT_F[4];
-				output DDAOZR = OUT_F[0];
-				output DNLOCK = OUT_OFX[3];
-				output LOCK = OUT_OFX[0];
-				input PWD = IMUX_C[1];
-				input RESETK = IMUX_B[1];
-				input RESETM = IMUX_A[1];
-				input TCLKI = IMUX_D[1];
-				output TESTOUT = OUT_OFX[1];
-				output UPLOCK = OUT_OFX[2];
+			switchbox BEL_INT {
+				mux IMUX_PLL_CLKFB = IMUX_C[0] | IMUX_CLK[1] | OUT_PLL_CLKINTFB | IO_PLL_CLKFB;
+				mux IMUX_PLL_CLKI = IMUX_A[0] | IMUX_B[0] | IMUX_CLK[0] | IO_PLL_CLKI;
 			}
 
-			// wire IMUX_A[0]                      PLL[0].CLKI1
+			bel PLL[0] {
+				input CLKI = IMUX_PLL_CLKI;
+				input CLKFB = IMUX_PLL_CLKFB;
+				input RESETM = IMUX_A[1];
+				input RESETK = IMUX_B[1];
+				input CNTRST = IMUX_D[0];
+				input PWD = IMUX_C[1];
+				input DDAMODE = IMUX_B[3];
+				input DDAIZR = IMUX_A[2];
+				input DDAILAG = IMUX_A[3];
+				input DDAIDEL[0] = IMUX_D[2];
+				input DDAIDEL[1] = IMUX_C[2];
+				input DDAIDEL[2] = IMUX_B[2];
+				input TCLKI = IMUX_D[1];
+				output CLKOP = OUT_F[5], OUT_PLL_CLKOP;
+				output CLKOS = OUT_F[6], OUT_PLL_CLKOS;
+				output CLKOK = OUT_F[7], OUT_PLL_CLKOK;
+				output CLKINTFB = OUT_PLL_CLKINTFB;
+				output LOCK = OUT_OFX[0];
+				output DNLOCK = OUT_OFX[3];
+				output UPLOCK = OUT_OFX[2];
+				output DDAOZR = OUT_F[0];
+				output DDAOLAG = OUT_F[4];
+				output DDAODEL[0] = OUT_F[3];
+				output DDAODEL[1] = OUT_F[2];
+				output DDAODEL[2] = OUT_F[1];
+				output TESTOUT = OUT_OFX[1];
+			}
+
 			// wire IMUX_A[1]                      PLL[0].RESETM
 			// wire IMUX_A[2]                      PLL[0].DDAIZR
 			// wire IMUX_A[3]                      PLL[0].DDAILAG
-			// wire IMUX_B[0]                      PLL[0].CLKI0
 			// wire IMUX_B[1]                      PLL[0].RESETK
-			// wire IMUX_B[2]                      PLL[0].DDAIDEL2
+			// wire IMUX_B[2]                      PLL[0].DDAIDEL[2]
 			// wire IMUX_B[3]                      PLL[0].DDAMODE
-			// wire IMUX_C[0]                      PLL[0].CLKFB0
 			// wire IMUX_C[1]                      PLL[0].PWD
-			// wire IMUX_C[2]                      PLL[0].DDAIDEL1
+			// wire IMUX_C[2]                      PLL[0].DDAIDEL[1]
 			// wire IMUX_D[0]                      PLL[0].CNTRST
 			// wire IMUX_D[1]                      PLL[0].TCLKI
-			// wire IMUX_D[2]                      PLL[0].DDAIDEL0
-			// wire IMUX_CLK[0]                    PLL[0].CLKI2
-			// wire IMUX_CLK[1]                    PLL[0].CLKFB1
+			// wire IMUX_D[2]                      PLL[0].DDAIDEL[0]
 			// wire OUT_F[0]                       PLL[0].DDAOZR
-			// wire OUT_F[1]                       PLL[0].DDAODEL2
-			// wire OUT_F[2]                       PLL[0].DDAODEL1
-			// wire OUT_F[3]                       PLL[0].DDAODEL0
+			// wire OUT_F[1]                       PLL[0].DDAODEL[2]
+			// wire OUT_F[2]                       PLL[0].DDAODEL[1]
+			// wire OUT_F[3]                       PLL[0].DDAODEL[0]
 			// wire OUT_F[4]                       PLL[0].DDAOLAG
 			// wire OUT_F[5]                       PLL[0].CLKOP
 			// wire OUT_F[6]                       PLL[0].CLKOS
@@ -6900,62 +7333,66 @@ intdb {
 			// wire OUT_OFX[1]                     PLL[0].TESTOUT
 			// wire OUT_OFX[2]                     PLL[0].UPLOCK
 			// wire OUT_OFX[3]                     PLL[0].DNLOCK
+			// wire IMUX_PLL_CLKI                  PLL[0].CLKI
+			// wire IMUX_PLL_CLKFB                 PLL[0].CLKFB
+			// wire OUT_PLL_CLKINTFB               PLL[0].CLKINTFB
+			// wire OUT_PLL_CLKOP                  PLL[0].CLKOP
+			// wire OUT_PLL_CLKOS                  PLL[0].CLKOS
+			// wire OUT_PLL_CLKOK                  PLL[0].CLKOK
 		}
 
 		tile_class PLL_N {
 			cell CELL;
 
-			bel PLL[0] {
-				input CLKFB0 = IMUX_C[0];
-				input CLKFB1 = IMUX_CLK[1];
-				input CLKI0 = IMUX_B[0];
-				input CLKI1 = IMUX_A[0];
-				input CLKI2 = IMUX_CLK[0];
-				output CLKOK = OUT_F[7];
-				output CLKOP = OUT_F[5];
-				output CLKOS = OUT_F[6];
-				input CNTRST = IMUX_D[0];
-				input DDAIDEL0 = IMUX_D[2];
-				input DDAIDEL1 = IMUX_C[2];
-				input DDAIDEL2 = IMUX_B[2];
-				input DDAILAG = IMUX_A[3];
-				input DDAIZR = IMUX_A[2];
-				input DDAMODE = IMUX_B[3];
-				output DDAODEL0 = OUT_F[3];
-				output DDAODEL1 = OUT_F[2];
-				output DDAODEL2 = OUT_F[1];
-				output DDAOLAG = OUT_F[4];
-				output DDAOZR = OUT_F[0];
-				output DNLOCK = OUT_OFX[3];
-				output LOCK = OUT_OFX[0];
-				input PWD = IMUX_C[1];
-				input RESETK = IMUX_B[1];
-				input RESETM = IMUX_A[1];
-				input TCLKI = IMUX_D[1];
-				output TESTOUT = OUT_OFX[1];
-				output UPLOCK = OUT_OFX[2];
+			switchbox BEL_INT {
+				mux IMUX_PLL_CLKFB = IMUX_C[0] | IMUX_CLK[1] | OUT_PLL_CLKINTFB | IO_PLL_CLKFB;
+				mux IMUX_PLL_CLKI = IMUX_A[0] | IMUX_B[0] | IMUX_CLK[0] | IO_PLL_CLKI;
 			}
 
-			// wire IMUX_A[0]                      PLL[0].CLKI1
+			bel PLL[0] {
+				input CLKI = IMUX_PLL_CLKI;
+				input CLKFB = IMUX_PLL_CLKFB;
+				input RESETM = IMUX_A[1];
+				input RESETK = IMUX_B[1];
+				input CNTRST = IMUX_D[0];
+				input PWD = IMUX_C[1];
+				input DDAMODE = IMUX_B[3];
+				input DDAIZR = IMUX_A[2];
+				input DDAILAG = IMUX_A[3];
+				input DDAIDEL[0] = IMUX_D[2];
+				input DDAIDEL[1] = IMUX_C[2];
+				input DDAIDEL[2] = IMUX_B[2];
+				input TCLKI = IMUX_D[1];
+				output CLKOP = OUT_F[5], OUT_PLL_CLKOP;
+				output CLKOS = OUT_F[6], OUT_PLL_CLKOS;
+				output CLKOK = OUT_F[7], OUT_PLL_CLKOK;
+				output CLKINTFB = OUT_PLL_CLKINTFB;
+				output LOCK = OUT_OFX[0];
+				output DNLOCK = OUT_OFX[3];
+				output UPLOCK = OUT_OFX[2];
+				output DDAOZR = OUT_F[0];
+				output DDAOLAG = OUT_F[4];
+				output DDAODEL[0] = OUT_F[3];
+				output DDAODEL[1] = OUT_F[2];
+				output DDAODEL[2] = OUT_F[1];
+				output TESTOUT = OUT_OFX[1];
+			}
+
 			// wire IMUX_A[1]                      PLL[0].RESETM
 			// wire IMUX_A[2]                      PLL[0].DDAIZR
 			// wire IMUX_A[3]                      PLL[0].DDAILAG
-			// wire IMUX_B[0]                      PLL[0].CLKI0
 			// wire IMUX_B[1]                      PLL[0].RESETK
-			// wire IMUX_B[2]                      PLL[0].DDAIDEL2
+			// wire IMUX_B[2]                      PLL[0].DDAIDEL[2]
 			// wire IMUX_B[3]                      PLL[0].DDAMODE
-			// wire IMUX_C[0]                      PLL[0].CLKFB0
 			// wire IMUX_C[1]                      PLL[0].PWD
-			// wire IMUX_C[2]                      PLL[0].DDAIDEL1
+			// wire IMUX_C[2]                      PLL[0].DDAIDEL[1]
 			// wire IMUX_D[0]                      PLL[0].CNTRST
 			// wire IMUX_D[1]                      PLL[0].TCLKI
-			// wire IMUX_D[2]                      PLL[0].DDAIDEL0
-			// wire IMUX_CLK[0]                    PLL[0].CLKI2
-			// wire IMUX_CLK[1]                    PLL[0].CLKFB1
+			// wire IMUX_D[2]                      PLL[0].DDAIDEL[0]
 			// wire OUT_F[0]                       PLL[0].DDAOZR
-			// wire OUT_F[1]                       PLL[0].DDAODEL2
-			// wire OUT_F[2]                       PLL[0].DDAODEL1
-			// wire OUT_F[3]                       PLL[0].DDAODEL0
+			// wire OUT_F[1]                       PLL[0].DDAODEL[2]
+			// wire OUT_F[2]                       PLL[0].DDAODEL[1]
+			// wire OUT_F[3]                       PLL[0].DDAODEL[0]
 			// wire OUT_F[4]                       PLL[0].DDAOLAG
 			// wire OUT_F[5]                       PLL[0].CLKOP
 			// wire OUT_F[6]                       PLL[0].CLKOS
@@ -6964,6 +7401,12 @@ intdb {
 			// wire OUT_OFX[1]                     PLL[0].TESTOUT
 			// wire OUT_OFX[2]                     PLL[0].UPLOCK
 			// wire OUT_OFX[3]                     PLL[0].DNLOCK
+			// wire IMUX_PLL_CLKI                  PLL[0].CLKI
+			// wire IMUX_PLL_CLKFB                 PLL[0].CLKFB
+			// wire OUT_PLL_CLKINTFB               PLL[0].CLKINTFB
+			// wire OUT_PLL_CLKOP                  PLL[0].CLKOP
+			// wire OUT_PLL_CLKOS                  PLL[0].CLKOS
+			// wire OUT_PLL_CLKOK                  PLL[0].CLKOK
 		}
 
 		tile_class CONFIG {
@@ -6978,17 +7421,17 @@ intdb {
 			}
 
 			bel JTAG {
-				output JCE1 = CELL[3].OUT_F[5];
-				output JCE2 = CELL[4].OUT_F[4];
-				output JRST = CELL[3].OUT_F[4];
-				output JRTI1 = CELL[0].OUT_F[4];
-				output JRTI2 = CELL[0].OUT_F[5];
-				output JSHIFT = CELL[2].OUT_F[4];
-				output JTCK = CELL[1].OUT_F[5];
-				output JTDI = CELL[1].OUT_F[4];
 				input JTDO1 = CELL[0].IMUX_B[2];
 				input JTDO2 = CELL[0].IMUX_A[2];
+				output JTDI = CELL[1].OUT_F[4];
+				output JTCK = CELL[1].OUT_F[5];
+				output JRST = CELL[3].OUT_F[4];
+				output JSHIFT = CELL[2].OUT_F[4];
 				output JUPDATE = CELL[2].OUT_F[5];
+				output JCE1 = CELL[3].OUT_F[5];
+				output JCE2 = CELL[4].OUT_F[4];
+				output JRTI1 = CELL[0].OUT_F[4];
+				output JRTI2 = CELL[0].OUT_F[5];
 			}
 
 			// wire CELL[0].IMUX_A[2]              JTAG.JTDO2
@@ -7027,72 +7470,7 @@ intdb {
 	}
 
 	tile_slot CLK {
-		bel_slot CLK_ROOT: legacy;
-
-		tile_class CLK_ROOT_2PLL {
-			cell CELL[0];
-			cell CELL[1];
-			cell CELL[2];
-			cell CELL[3];
-			cell CELL[4];
-			cell CELL[5];
-
-			bel CLK_ROOT {
-				input CIBCLK00 = CELL[5].IMUX_A[6];
-				input CIBCLK01 = CELL[5].IMUX_B[6];
-				input CIBCLK10 = CELL[4].IMUX_A[6];
-				input CIBCLK11 = CELL[4].IMUX_B[6];
-				input CIBCLK20 = CELL[3].IMUX_A[6];
-				input CIBCLK21 = CELL[3].IMUX_B[6];
-				input CIBCTL00 = CELL[2].IMUX_A[6];
-				input CIBCTL01 = CELL[2].IMUX_B[6];
-				input CIBCTL02 = CELL[2].IMUX_C[6];
-				input CIBCTL03 = CELL[2].IMUX_D[6];
-				input CIBCTL10 = CELL[1].IMUX_A[6];
-				input CIBCTL11 = CELL[1].IMUX_B[6];
-				input CIBCTL12 = CELL[1].IMUX_C[6];
-				input CIBCTL13 = CELL[1].IMUX_D[6];
-				input CIBCTL20 = CELL[0].IMUX_A[6];
-				input CIBCTL21 = CELL[0].IMUX_B[6];
-				input CIBCTL22 = CELL[0].IMUX_C[6];
-				input CIBCTL23 = CELL[0].IMUX_D[6];
-				input PCLK0 = CELL[0].PCLK[0];
-				input PCLK1 = CELL[0].PCLK[1];
-				input PCLK2 = CELL[0].PCLK[2];
-				input PCLK3 = CELL[0].PCLK[3];
-				input SCLK0 = CELL[0].PCLK[4];
-				input SCLK1 = CELL[0].PCLK[5];
-				input SCLK2 = CELL[0].PCLK[6];
-				input SCLK3 = CELL[0].PCLK[7];
-			}
-
-			// wire CELL[0].PCLK[0]                CLK_ROOT.PCLK0
-			// wire CELL[0].PCLK[1]                CLK_ROOT.PCLK1
-			// wire CELL[0].PCLK[2]                CLK_ROOT.PCLK2
-			// wire CELL[0].PCLK[3]                CLK_ROOT.PCLK3
-			// wire CELL[0].PCLK[4]                CLK_ROOT.SCLK0
-			// wire CELL[0].PCLK[5]                CLK_ROOT.SCLK1
-			// wire CELL[0].PCLK[6]                CLK_ROOT.SCLK2
-			// wire CELL[0].PCLK[7]                CLK_ROOT.SCLK3
-			// wire CELL[0].IMUX_A[6]              CLK_ROOT.CIBCTL20
-			// wire CELL[0].IMUX_B[6]              CLK_ROOT.CIBCTL21
-			// wire CELL[0].IMUX_C[6]              CLK_ROOT.CIBCTL22
-			// wire CELL[0].IMUX_D[6]              CLK_ROOT.CIBCTL23
-			// wire CELL[1].IMUX_A[6]              CLK_ROOT.CIBCTL10
-			// wire CELL[1].IMUX_B[6]              CLK_ROOT.CIBCTL11
-			// wire CELL[1].IMUX_C[6]              CLK_ROOT.CIBCTL12
-			// wire CELL[1].IMUX_D[6]              CLK_ROOT.CIBCTL13
-			// wire CELL[2].IMUX_A[6]              CLK_ROOT.CIBCTL00
-			// wire CELL[2].IMUX_B[6]              CLK_ROOT.CIBCTL01
-			// wire CELL[2].IMUX_C[6]              CLK_ROOT.CIBCTL02
-			// wire CELL[2].IMUX_D[6]              CLK_ROOT.CIBCTL03
-			// wire CELL[3].IMUX_A[6]              CLK_ROOT.CIBCLK20
-			// wire CELL[3].IMUX_B[6]              CLK_ROOT.CIBCLK21
-			// wire CELL[4].IMUX_A[6]              CLK_ROOT.CIBCLK10
-			// wire CELL[4].IMUX_B[6]              CLK_ROOT.CIBCLK11
-			// wire CELL[5].IMUX_A[6]              CLK_ROOT.CIBCLK00
-			// wire CELL[5].IMUX_B[6]              CLK_ROOT.CIBCLK01
-		}
+		bel_slot CLK_INT: routing;
 
 		tile_class CLK_ROOT_0PLL {
 			cell CELL[0];
@@ -7102,73 +7480,16 @@ intdb {
 			cell CELL[4];
 			cell CELL[5];
 
-			bel CLK_ROOT {
-				input CIBCLK00 = CELL[5].IMUX_A[2];
-				input CIBCLK01 = CELL[5].IMUX_B[2];
-				input CIBCLK02 = CELL[5].IMUX_C[2];
-				input CIBCLK03 = CELL[5].IMUX_D[2];
-				input CIBCLK10 = CELL[4].IMUX_A[2];
-				input CIBCLK11 = CELL[4].IMUX_B[2];
-				input CIBCLK12 = CELL[4].IMUX_C[2];
-				input CIBCLK13 = CELL[4].IMUX_D[2];
-				input CIBCLK20 = CELL[3].IMUX_A[2];
-				input CIBCLK21 = CELL[3].IMUX_B[2];
-				input CIBCLK22 = CELL[3].IMUX_C[2];
-				input CIBCLK23 = CELL[3].IMUX_D[2];
-				input CIBCTL00 = CELL[2].IMUX_A[2];
-				input CIBCTL01 = CELL[2].IMUX_B[2];
-				input CIBCTL02 = CELL[2].IMUX_C[2];
-				input CIBCTL03 = CELL[2].IMUX_D[2];
-				input CIBCTL10 = CELL[1].IMUX_A[2];
-				input CIBCTL11 = CELL[1].IMUX_B[2];
-				input CIBCTL12 = CELL[1].IMUX_C[2];
-				input CIBCTL13 = CELL[1].IMUX_D[2];
-				input CIBCTL20 = CELL[0].IMUX_A[2];
-				input CIBCTL21 = CELL[0].IMUX_B[2];
-				input CIBCTL22 = CELL[0].IMUX_C[2];
-				input CIBCTL23 = CELL[0].IMUX_D[2];
-				input PCLK0 = CELL[0].PCLK[0];
-				input PCLK1 = CELL[0].PCLK[1];
-				input PCLK2 = CELL[0].PCLK[2];
-				input PCLK3 = CELL[0].PCLK[3];
-				input SCLK0 = CELL[0].PCLK[4];
-				input SCLK1 = CELL[0].PCLK[5];
-				input SCLK2 = CELL[0].PCLK[6];
-				input SCLK3 = CELL[0].PCLK[7];
+			switchbox CLK_INT {
+				mux CELL[3].PCLK[0] = CELL[3].IMUX_A[2] | CELL[3].IMUX_B[2] | CELL[3].IMUX_C[2] | CELL[3].IMUX_D[2] | CELL[3].IO_GCLK_S[0] | CELL[3].IO_GCLK_S[1] | CELL[3].IO_GCLK_N[0] | CELL[3].IO_GCLK_N[1] | CELL[4].IMUX_A[2] | CELL[4].IMUX_B[2] | CELL[4].IMUX_C[2] | CELL[4].IMUX_D[2] | CELL[5].IMUX_A[2] | CELL[5].IMUX_B[2] | CELL[5].IMUX_C[2] | CELL[5].IMUX_D[2];
+				mux CELL[3].PCLK[1] = CELL[3].IMUX_A[2] | CELL[3].IMUX_B[2] | CELL[3].IMUX_C[2] | CELL[3].IMUX_D[2] | CELL[3].IO_GCLK_S[0] | CELL[3].IO_GCLK_S[1] | CELL[3].IO_GCLK_N[0] | CELL[3].IO_GCLK_N[1] | CELL[4].IMUX_A[2] | CELL[4].IMUX_B[2] | CELL[4].IMUX_C[2] | CELL[4].IMUX_D[2] | CELL[5].IMUX_A[2] | CELL[5].IMUX_B[2] | CELL[5].IMUX_C[2] | CELL[5].IMUX_D[2];
+				mux CELL[3].PCLK[2] = CELL[3].IMUX_A[2] | CELL[3].IMUX_B[2] | CELL[3].IMUX_C[2] | CELL[3].IMUX_D[2] | CELL[3].IO_GCLK_S[0] | CELL[3].IO_GCLK_S[1] | CELL[3].IO_GCLK_N[0] | CELL[3].IO_GCLK_N[1] | CELL[4].IMUX_A[2] | CELL[4].IMUX_B[2] | CELL[4].IMUX_C[2] | CELL[4].IMUX_D[2] | CELL[5].IMUX_A[2] | CELL[5].IMUX_B[2] | CELL[5].IMUX_C[2] | CELL[5].IMUX_D[2];
+				mux CELL[3].PCLK[3] = CELL[3].IMUX_A[2] | CELL[3].IMUX_B[2] | CELL[3].IMUX_C[2] | CELL[3].IMUX_D[2] | CELL[3].IO_GCLK_S[0] | CELL[3].IO_GCLK_S[1] | CELL[3].IO_GCLK_N[0] | CELL[3].IO_GCLK_N[1] | CELL[4].IMUX_A[2] | CELL[4].IMUX_B[2] | CELL[4].IMUX_C[2] | CELL[4].IMUX_D[2] | CELL[5].IMUX_A[2] | CELL[5].IMUX_B[2] | CELL[5].IMUX_C[2] | CELL[5].IMUX_D[2];
+				mux CELL[3].PCLK[4] = CELL[0].IMUX_A[2] | CELL[0].IMUX_B[2] | CELL[0].IMUX_C[2] | CELL[0].IMUX_D[2] | CELL[1].IMUX_A[2] | CELL[1].IMUX_B[2] | CELL[1].IMUX_C[2] | CELL[1].IMUX_D[2] | CELL[2].IMUX_A[2] | CELL[2].IMUX_B[2] | CELL[2].IMUX_C[2] | CELL[2].IMUX_D[2] | CELL[3].IO_GCLK_S[0] | CELL[3].IO_GCLK_S[1] | CELL[3].IO_GCLK_N[0] | CELL[3].IO_GCLK_N[1];
+				mux CELL[3].PCLK[5] = CELL[0].IMUX_A[2] | CELL[0].IMUX_B[2] | CELL[0].IMUX_C[2] | CELL[0].IMUX_D[2] | CELL[1].IMUX_A[2] | CELL[1].IMUX_B[2] | CELL[1].IMUX_C[2] | CELL[1].IMUX_D[2] | CELL[2].IMUX_A[2] | CELL[2].IMUX_B[2] | CELL[2].IMUX_C[2] | CELL[2].IMUX_D[2] | CELL[3].IO_GCLK_S[0] | CELL[3].IO_GCLK_S[1] | CELL[3].IO_GCLK_N[0] | CELL[3].IO_GCLK_N[1];
+				mux CELL[3].PCLK[6] = CELL[0].IMUX_A[2] | CELL[0].IMUX_B[2] | CELL[0].IMUX_C[2] | CELL[0].IMUX_D[2] | CELL[1].IMUX_A[2] | CELL[1].IMUX_B[2] | CELL[1].IMUX_C[2] | CELL[1].IMUX_D[2] | CELL[2].IMUX_A[2] | CELL[2].IMUX_B[2] | CELL[2].IMUX_C[2] | CELL[2].IMUX_D[2] | CELL[3].IO_GCLK_S[0] | CELL[3].IO_GCLK_S[1] | CELL[3].IO_GCLK_N[0] | CELL[3].IO_GCLK_N[1];
+				mux CELL[3].PCLK[7] = CELL[0].IMUX_A[2] | CELL[0].IMUX_B[2] | CELL[0].IMUX_C[2] | CELL[0].IMUX_D[2] | CELL[1].IMUX_A[2] | CELL[1].IMUX_B[2] | CELL[1].IMUX_C[2] | CELL[1].IMUX_D[2] | CELL[2].IMUX_A[2] | CELL[2].IMUX_B[2] | CELL[2].IMUX_C[2] | CELL[2].IMUX_D[2] | CELL[3].IO_GCLK_S[0] | CELL[3].IO_GCLK_S[1] | CELL[3].IO_GCLK_N[0] | CELL[3].IO_GCLK_N[1];
 			}
-
-			// wire CELL[0].PCLK[0]                CLK_ROOT.PCLK0
-			// wire CELL[0].PCLK[1]                CLK_ROOT.PCLK1
-			// wire CELL[0].PCLK[2]                CLK_ROOT.PCLK2
-			// wire CELL[0].PCLK[3]                CLK_ROOT.PCLK3
-			// wire CELL[0].PCLK[4]                CLK_ROOT.SCLK0
-			// wire CELL[0].PCLK[5]                CLK_ROOT.SCLK1
-			// wire CELL[0].PCLK[6]                CLK_ROOT.SCLK2
-			// wire CELL[0].PCLK[7]                CLK_ROOT.SCLK3
-			// wire CELL[0].IMUX_A[2]              CLK_ROOT.CIBCTL20
-			// wire CELL[0].IMUX_B[2]              CLK_ROOT.CIBCTL21
-			// wire CELL[0].IMUX_C[2]              CLK_ROOT.CIBCTL22
-			// wire CELL[0].IMUX_D[2]              CLK_ROOT.CIBCTL23
-			// wire CELL[1].IMUX_A[2]              CLK_ROOT.CIBCTL10
-			// wire CELL[1].IMUX_B[2]              CLK_ROOT.CIBCTL11
-			// wire CELL[1].IMUX_C[2]              CLK_ROOT.CIBCTL12
-			// wire CELL[1].IMUX_D[2]              CLK_ROOT.CIBCTL13
-			// wire CELL[2].IMUX_A[2]              CLK_ROOT.CIBCTL00
-			// wire CELL[2].IMUX_B[2]              CLK_ROOT.CIBCTL01
-			// wire CELL[2].IMUX_C[2]              CLK_ROOT.CIBCTL02
-			// wire CELL[2].IMUX_D[2]              CLK_ROOT.CIBCTL03
-			// wire CELL[3].IMUX_A[2]              CLK_ROOT.CIBCLK20
-			// wire CELL[3].IMUX_B[2]              CLK_ROOT.CIBCLK21
-			// wire CELL[3].IMUX_C[2]              CLK_ROOT.CIBCLK22
-			// wire CELL[3].IMUX_D[2]              CLK_ROOT.CIBCLK23
-			// wire CELL[4].IMUX_A[2]              CLK_ROOT.CIBCLK10
-			// wire CELL[4].IMUX_B[2]              CLK_ROOT.CIBCLK11
-			// wire CELL[4].IMUX_C[2]              CLK_ROOT.CIBCLK12
-			// wire CELL[4].IMUX_D[2]              CLK_ROOT.CIBCLK13
-			// wire CELL[5].IMUX_A[2]              CLK_ROOT.CIBCLK00
-			// wire CELL[5].IMUX_B[2]              CLK_ROOT.CIBCLK01
-			// wire CELL[5].IMUX_C[2]              CLK_ROOT.CIBCLK02
-			// wire CELL[5].IMUX_D[2]              CLK_ROOT.CIBCLK03
 		}
 
 		tile_class CLK_ROOT_1PLL {
@@ -7178,68 +7499,40 @@ intdb {
 			cell CELL[3];
 			cell CELL[4];
 			cell CELL[5];
+			cell PLL[0];
 
-			bel CLK_ROOT {
-				input CIBCLK00 = CELL[5].IMUX_A[6];
-				input CIBCLK01 = CELL[5].IMUX_B[6];
-				input CIBCLK02 = CELL[5].IMUX_C[6];
-				input CIBCLK10 = CELL[4].IMUX_A[6];
-				input CIBCLK11 = CELL[4].IMUX_B[6];
-				input CIBCLK12 = CELL[4].IMUX_C[6];
-				input CIBCLK20 = CELL[3].IMUX_A[6];
-				input CIBCLK21 = CELL[3].IMUX_B[6];
-				input CIBCLK22 = CELL[3].IMUX_C[6];
-				input CIBCTL00 = CELL[2].IMUX_A[6];
-				input CIBCTL01 = CELL[2].IMUX_B[6];
-				input CIBCTL02 = CELL[2].IMUX_C[6];
-				input CIBCTL03 = CELL[2].IMUX_D[6];
-				input CIBCTL10 = CELL[1].IMUX_A[6];
-				input CIBCTL11 = CELL[1].IMUX_B[6];
-				input CIBCTL12 = CELL[1].IMUX_C[6];
-				input CIBCTL13 = CELL[1].IMUX_D[6];
-				input CIBCTL20 = CELL[0].IMUX_A[6];
-				input CIBCTL21 = CELL[0].IMUX_B[6];
-				input CIBCTL22 = CELL[0].IMUX_C[6];
-				input CIBCTL23 = CELL[0].IMUX_D[6];
-				input PCLK0 = CELL[0].PCLK[0];
-				input PCLK1 = CELL[0].PCLK[1];
-				input PCLK2 = CELL[0].PCLK[2];
-				input PCLK3 = CELL[0].PCLK[3];
-				input SCLK0 = CELL[0].PCLK[4];
-				input SCLK1 = CELL[0].PCLK[5];
-				input SCLK2 = CELL[0].PCLK[6];
-				input SCLK3 = CELL[0].PCLK[7];
+			switchbox CLK_INT {
+				mux CELL[3].PCLK[0] = CELL[3].IMUX_A[6] | CELL[3].IMUX_B[6] | CELL[3].IMUX_C[6] | CELL[3].IO_GCLK_S[0] | CELL[3].IO_GCLK_S[1] | CELL[3].IO_GCLK_N[0] | CELL[3].IO_GCLK_N[1] | CELL[4].IMUX_A[6] | CELL[4].IMUX_B[6] | CELL[4].IMUX_C[6] | CELL[5].IMUX_A[6] | CELL[5].IMUX_B[6] | CELL[5].IMUX_C[6] | PLL[0].OUT_PLL_CLKOP | PLL[0].OUT_PLL_CLKOS | PLL[0].OUT_PLL_CLKOK;
+				mux CELL[3].PCLK[1] = CELL[3].IMUX_A[6] | CELL[3].IMUX_B[6] | CELL[3].IMUX_C[6] | CELL[3].IO_GCLK_S[0] | CELL[3].IO_GCLK_S[1] | CELL[3].IO_GCLK_N[0] | CELL[3].IO_GCLK_N[1] | CELL[4].IMUX_A[6] | CELL[4].IMUX_B[6] | CELL[4].IMUX_C[6] | CELL[5].IMUX_A[6] | CELL[5].IMUX_B[6] | CELL[5].IMUX_C[6] | PLL[0].OUT_PLL_CLKOP | PLL[0].OUT_PLL_CLKOS | PLL[0].OUT_PLL_CLKOK;
+				mux CELL[3].PCLK[2] = CELL[3].IMUX_A[6] | CELL[3].IMUX_B[6] | CELL[3].IMUX_C[6] | CELL[3].IO_GCLK_S[0] | CELL[3].IO_GCLK_S[1] | CELL[3].IO_GCLK_N[0] | CELL[3].IO_GCLK_N[1] | CELL[4].IMUX_A[6] | CELL[4].IMUX_B[6] | CELL[4].IMUX_C[6] | CELL[5].IMUX_A[6] | CELL[5].IMUX_B[6] | CELL[5].IMUX_C[6] | PLL[0].OUT_PLL_CLKOP | PLL[0].OUT_PLL_CLKOS | PLL[0].OUT_PLL_CLKOK;
+				mux CELL[3].PCLK[3] = CELL[3].IMUX_A[6] | CELL[3].IMUX_B[6] | CELL[3].IMUX_C[6] | CELL[3].IO_GCLK_S[0] | CELL[3].IO_GCLK_S[1] | CELL[3].IO_GCLK_N[0] | CELL[3].IO_GCLK_N[1] | CELL[4].IMUX_A[6] | CELL[4].IMUX_B[6] | CELL[4].IMUX_C[6] | CELL[5].IMUX_A[6] | CELL[5].IMUX_B[6] | CELL[5].IMUX_C[6] | PLL[0].OUT_PLL_CLKOP | PLL[0].OUT_PLL_CLKOS | PLL[0].OUT_PLL_CLKOK;
+				mux CELL[3].PCLK[4] = CELL[0].IMUX_A[6] | CELL[0].IMUX_B[6] | CELL[0].IMUX_C[6] | CELL[0].IMUX_D[6] | CELL[1].IMUX_A[6] | CELL[1].IMUX_B[6] | CELL[1].IMUX_C[6] | CELL[1].IMUX_D[6] | CELL[2].IMUX_A[6] | CELL[2].IMUX_B[6] | CELL[2].IMUX_C[6] | CELL[2].IMUX_D[6] | CELL[3].IO_GCLK_S[0] | CELL[3].IO_GCLK_S[1] | CELL[3].IO_GCLK_N[0] | CELL[3].IO_GCLK_N[1];
+				mux CELL[3].PCLK[5] = CELL[0].IMUX_A[6] | CELL[0].IMUX_B[6] | CELL[0].IMUX_C[6] | CELL[0].IMUX_D[6] | CELL[1].IMUX_A[6] | CELL[1].IMUX_B[6] | CELL[1].IMUX_C[6] | CELL[1].IMUX_D[6] | CELL[2].IMUX_A[6] | CELL[2].IMUX_B[6] | CELL[2].IMUX_C[6] | CELL[2].IMUX_D[6] | CELL[3].IO_GCLK_S[0] | CELL[3].IO_GCLK_S[1] | CELL[3].IO_GCLK_N[0] | CELL[3].IO_GCLK_N[1];
+				mux CELL[3].PCLK[6] = CELL[0].IMUX_A[6] | CELL[0].IMUX_B[6] | CELL[0].IMUX_C[6] | CELL[0].IMUX_D[6] | CELL[1].IMUX_A[6] | CELL[1].IMUX_B[6] | CELL[1].IMUX_C[6] | CELL[1].IMUX_D[6] | CELL[2].IMUX_A[6] | CELL[2].IMUX_B[6] | CELL[2].IMUX_C[6] | CELL[2].IMUX_D[6] | CELL[3].IO_GCLK_S[0] | CELL[3].IO_GCLK_S[1] | CELL[3].IO_GCLK_N[0] | CELL[3].IO_GCLK_N[1];
+				mux CELL[3].PCLK[7] = CELL[0].IMUX_A[6] | CELL[0].IMUX_B[6] | CELL[0].IMUX_C[6] | CELL[0].IMUX_D[6] | CELL[1].IMUX_A[6] | CELL[1].IMUX_B[6] | CELL[1].IMUX_C[6] | CELL[1].IMUX_D[6] | CELL[2].IMUX_A[6] | CELL[2].IMUX_B[6] | CELL[2].IMUX_C[6] | CELL[2].IMUX_D[6] | CELL[3].IO_GCLK_S[0] | CELL[3].IO_GCLK_S[1] | CELL[3].IO_GCLK_N[0] | CELL[3].IO_GCLK_N[1];
 			}
+		}
 
-			// wire CELL[0].PCLK[0]                CLK_ROOT.PCLK0
-			// wire CELL[0].PCLK[1]                CLK_ROOT.PCLK1
-			// wire CELL[0].PCLK[2]                CLK_ROOT.PCLK2
-			// wire CELL[0].PCLK[3]                CLK_ROOT.PCLK3
-			// wire CELL[0].PCLK[4]                CLK_ROOT.SCLK0
-			// wire CELL[0].PCLK[5]                CLK_ROOT.SCLK1
-			// wire CELL[0].PCLK[6]                CLK_ROOT.SCLK2
-			// wire CELL[0].PCLK[7]                CLK_ROOT.SCLK3
-			// wire CELL[0].IMUX_A[6]              CLK_ROOT.CIBCTL20
-			// wire CELL[0].IMUX_B[6]              CLK_ROOT.CIBCTL21
-			// wire CELL[0].IMUX_C[6]              CLK_ROOT.CIBCTL22
-			// wire CELL[0].IMUX_D[6]              CLK_ROOT.CIBCTL23
-			// wire CELL[1].IMUX_A[6]              CLK_ROOT.CIBCTL10
-			// wire CELL[1].IMUX_B[6]              CLK_ROOT.CIBCTL11
-			// wire CELL[1].IMUX_C[6]              CLK_ROOT.CIBCTL12
-			// wire CELL[1].IMUX_D[6]              CLK_ROOT.CIBCTL13
-			// wire CELL[2].IMUX_A[6]              CLK_ROOT.CIBCTL00
-			// wire CELL[2].IMUX_B[6]              CLK_ROOT.CIBCTL01
-			// wire CELL[2].IMUX_C[6]              CLK_ROOT.CIBCTL02
-			// wire CELL[2].IMUX_D[6]              CLK_ROOT.CIBCTL03
-			// wire CELL[3].IMUX_A[6]              CLK_ROOT.CIBCLK20
-			// wire CELL[3].IMUX_B[6]              CLK_ROOT.CIBCLK21
-			// wire CELL[3].IMUX_C[6]              CLK_ROOT.CIBCLK22
-			// wire CELL[4].IMUX_A[6]              CLK_ROOT.CIBCLK10
-			// wire CELL[4].IMUX_B[6]              CLK_ROOT.CIBCLK11
-			// wire CELL[4].IMUX_C[6]              CLK_ROOT.CIBCLK12
-			// wire CELL[5].IMUX_A[6]              CLK_ROOT.CIBCLK00
-			// wire CELL[5].IMUX_B[6]              CLK_ROOT.CIBCLK01
-			// wire CELL[5].IMUX_C[6]              CLK_ROOT.CIBCLK02
+		tile_class CLK_ROOT_2PLL {
+			cell CELL[0];
+			cell CELL[1];
+			cell CELL[2];
+			cell CELL[3];
+			cell CELL[4];
+			cell CELL[5];
+			cell PLL[0];
+			cell PLL[1];
+
+			switchbox CLK_INT {
+				mux CELL[3].PCLK[0] = CELL[3].IMUX_A[6] | CELL[3].IMUX_B[6] | CELL[3].IO_GCLK_S[0] | CELL[3].IO_GCLK_S[1] | CELL[3].IO_GCLK_N[0] | CELL[3].IO_GCLK_N[1] | CELL[4].IMUX_A[6] | CELL[4].IMUX_B[6] | CELL[5].IMUX_A[6] | CELL[5].IMUX_B[6] | PLL[0].OUT_PLL_CLKOP | PLL[0].OUT_PLL_CLKOS | PLL[0].OUT_PLL_CLKOK | PLL[1].OUT_PLL_CLKOP | PLL[1].OUT_PLL_CLKOS | PLL[1].OUT_PLL_CLKOK;
+				mux CELL[3].PCLK[1] = CELL[3].IMUX_A[6] | CELL[3].IMUX_B[6] | CELL[3].IO_GCLK_S[0] | CELL[3].IO_GCLK_S[1] | CELL[3].IO_GCLK_N[0] | CELL[3].IO_GCLK_N[1] | CELL[4].IMUX_A[6] | CELL[4].IMUX_B[6] | CELL[5].IMUX_A[6] | CELL[5].IMUX_B[6] | PLL[0].OUT_PLL_CLKOP | PLL[0].OUT_PLL_CLKOS | PLL[0].OUT_PLL_CLKOK | PLL[1].OUT_PLL_CLKOP | PLL[1].OUT_PLL_CLKOS | PLL[1].OUT_PLL_CLKOK;
+				mux CELL[3].PCLK[2] = CELL[3].IMUX_A[6] | CELL[3].IMUX_B[6] | CELL[3].IO_GCLK_S[0] | CELL[3].IO_GCLK_S[1] | CELL[3].IO_GCLK_N[0] | CELL[3].IO_GCLK_N[1] | CELL[4].IMUX_A[6] | CELL[4].IMUX_B[6] | CELL[5].IMUX_A[6] | CELL[5].IMUX_B[6] | PLL[0].OUT_PLL_CLKOP | PLL[0].OUT_PLL_CLKOS | PLL[0].OUT_PLL_CLKOK | PLL[1].OUT_PLL_CLKOP | PLL[1].OUT_PLL_CLKOS | PLL[1].OUT_PLL_CLKOK;
+				mux CELL[3].PCLK[3] = CELL[3].IMUX_A[6] | CELL[3].IMUX_B[6] | CELL[3].IO_GCLK_S[0] | CELL[3].IO_GCLK_S[1] | CELL[3].IO_GCLK_N[0] | CELL[3].IO_GCLK_N[1] | CELL[4].IMUX_A[6] | CELL[4].IMUX_B[6] | CELL[5].IMUX_A[6] | CELL[5].IMUX_B[6] | PLL[0].OUT_PLL_CLKOP | PLL[0].OUT_PLL_CLKOS | PLL[0].OUT_PLL_CLKOK | PLL[1].OUT_PLL_CLKOP | PLL[1].OUT_PLL_CLKOS | PLL[1].OUT_PLL_CLKOK;
+				mux CELL[3].PCLK[4] = CELL[0].IMUX_A[6] | CELL[0].IMUX_B[6] | CELL[0].IMUX_C[6] | CELL[0].IMUX_D[6] | CELL[1].IMUX_A[6] | CELL[1].IMUX_B[6] | CELL[1].IMUX_C[6] | CELL[1].IMUX_D[6] | CELL[2].IMUX_A[6] | CELL[2].IMUX_B[6] | CELL[2].IMUX_C[6] | CELL[2].IMUX_D[6] | CELL[3].IO_GCLK_S[0] | CELL[3].IO_GCLK_S[1] | CELL[3].IO_GCLK_N[0] | CELL[3].IO_GCLK_N[1];
+				mux CELL[3].PCLK[5] = CELL[0].IMUX_A[6] | CELL[0].IMUX_B[6] | CELL[0].IMUX_C[6] | CELL[0].IMUX_D[6] | CELL[1].IMUX_A[6] | CELL[1].IMUX_B[6] | CELL[1].IMUX_C[6] | CELL[1].IMUX_D[6] | CELL[2].IMUX_A[6] | CELL[2].IMUX_B[6] | CELL[2].IMUX_C[6] | CELL[2].IMUX_D[6] | CELL[3].IO_GCLK_S[0] | CELL[3].IO_GCLK_S[1] | CELL[3].IO_GCLK_N[0] | CELL[3].IO_GCLK_N[1];
+				mux CELL[3].PCLK[6] = CELL[0].IMUX_A[6] | CELL[0].IMUX_B[6] | CELL[0].IMUX_C[6] | CELL[0].IMUX_D[6] | CELL[1].IMUX_A[6] | CELL[1].IMUX_B[6] | CELL[1].IMUX_C[6] | CELL[1].IMUX_D[6] | CELL[2].IMUX_A[6] | CELL[2].IMUX_B[6] | CELL[2].IMUX_C[6] | CELL[2].IMUX_D[6] | CELL[3].IO_GCLK_S[0] | CELL[3].IO_GCLK_S[1] | CELL[3].IO_GCLK_N[0] | CELL[3].IO_GCLK_N[1];
+				mux CELL[3].PCLK[7] = CELL[0].IMUX_A[6] | CELL[0].IMUX_B[6] | CELL[0].IMUX_C[6] | CELL[0].IMUX_D[6] | CELL[1].IMUX_A[6] | CELL[1].IMUX_B[6] | CELL[1].IMUX_C[6] | CELL[1].IMUX_D[6] | CELL[2].IMUX_A[6] | CELL[2].IMUX_B[6] | CELL[2].IMUX_C[6] | CELL[2].IMUX_D[6] | CELL[3].IO_GCLK_S[0] | CELL[3].IO_GCLK_S[1] | CELL[3].IO_GCLK_N[0] | CELL[3].IO_GCLK_N[1];
+			}
 		}
 	}
 
@@ -7632,6 +7925,32 @@ intdb {
 			reflect X6_S6[1] = X6_N5[1];
 			reflect X6_S6[2] = X6_N5[2];
 			reflect X6_S6[3] = X6_N5[3];
+		}
+	}
+
+	connector_slot IO_FROM_PLC {
+		opposite PLC_TO_IO;
+
+		connector_class IO_FROM_PLC {
+			pass OUT_F_PLC_IO[0] = OUT_F[0];
+			pass OUT_F_PLC_IO[1] = OUT_F[1];
+			pass OUT_F_PLC_IO[2] = OUT_F[2];
+			pass OUT_F_PLC_IO[3] = OUT_F[3];
+			pass OUT_F_PLC_IO[4] = OUT_F[4];
+			pass OUT_F_PLC_IO[5] = OUT_F[5];
+			pass OUT_Q_PLC_IO[0] = OUT_Q[0];
+			pass OUT_Q_PLC_IO[1] = OUT_Q[1];
+			pass OUT_Q_PLC_IO[2] = OUT_Q[2];
+			pass OUT_Q_PLC_IO[3] = OUT_Q[3];
+			pass OUT_Q_PLC_IO[4] = OUT_Q[4];
+			pass OUT_Q_PLC_IO[5] = OUT_Q[5];
+		}
+	}
+
+	connector_slot PLC_TO_IO {
+		opposite IO_FROM_PLC;
+
+		connector_class PLC_TO_IO {
 		}
 	}
 }

@@ -3,6 +3,7 @@ use std::{collections::BTreeMap, fmt::Display};
 use bincode::{Decode, Encode};
 use prjcombine_entity::{EntityId, EntityVec};
 use prjcombine_interconnect::{
+    db::IntDb,
     dir::{Dir, DirH, DirHV, DirV},
     grid::{BelCoord, CellCoord, ColId, DieId, DieIdExt, EdgeIoCoord, RowId, TileIobId},
 };
@@ -131,7 +132,7 @@ pub struct Chip {
     pub row_clk: RowId,
     pub special_loc: BTreeMap<SpecialLocKey, CellCoord>,
     pub special_io: BTreeMap<SpecialIoKey, EdgeIoCoord>,
-    pub io_direct_plc: BTreeMap<EdgeIoCoord, (CellCoord, u8)>,
+    pub io_direct_plc: BTreeMap<BelCoord, (CellCoord, usize)>,
     pub extra_frames_w: usize,
     pub extra_frames_e: usize,
     pub double_frames: bool,
@@ -653,10 +654,16 @@ impl Chip {
             .bel(bslots::CIBTEST_SEL)
     }
 
+    pub fn clk_root(&self) -> CellCoord {
+        Self::DIE.cell(self.col_clk, self.row_clk)
+    }
+
     pub fn bel_clk_root(&self) -> BelCoord {
-        Self::DIE
-            .cell(self.col_clk, self.row_clk)
-            .bel(bslots::CLK_ROOT)
+        self.clk_root().bel(if self.kind == ChipKind::MachXo {
+            bslots::CLK_INT
+        } else {
+            bslots::CLK_ROOT
+        })
     }
 
     pub fn bel_dqsdll(&self, io: CellCoord) -> BelCoord {
@@ -948,7 +955,7 @@ impl Chip {
 }
 
 impl Chip {
-    pub fn dump(&self, o: &mut dyn std::io::Write) -> std::io::Result<()> {
+    pub fn dump(&self, o: &mut dyn std::io::Write, db: &IntDb) -> std::io::Result<()> {
         writeln!(o, "\tkind {};", self.kind)?;
         writeln!(o, "\tcolumns {{")?;
         for (col, cd) in &self.columns {
@@ -1068,8 +1075,8 @@ impl Chip {
         for (k, v) in &self.special_io {
             writeln!(o, "\tspecial_io {k} = {v};")?;
         }
-        for (k, (cell, lut)) in &self.io_direct_plc {
-            writeln!(o, "\tio_direct {k} = {cell}_{lut};")?;
+        for (io, (cell, lut)) in &self.io_direct_plc {
+            writeln!(o, "\tio_direct {io} = {cell}_{lut};", io = io.to_string(db))?;
         }
         Ok(())
     }

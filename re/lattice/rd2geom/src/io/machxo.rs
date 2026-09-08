@@ -1,9 +1,9 @@
 use prjcombine_ecp::{
     chip::{Chip, IoGroupKind},
-    defs::bslots,
+    defs::{bcls, bslots, cslots, wires},
 };
 use prjcombine_interconnect::{
-    db::LegacyBel,
+    db::{Bel, BelInput, Mux, SwitchBox, SwitchBoxItem, WireSlotIdExt},
     dir::Dir,
     grid::{BelCoord, CellCoord, DieIdExt},
 };
@@ -11,12 +11,10 @@ use prjcombine_interconnect::{
 use crate::{ChipContext, chip::ChipExt};
 
 impl ChipContext<'_> {
-    fn process_single_io_machxo(&mut self, bcrd: BelCoord) {
-        let idx = bslots::IO
-            .iter()
-            .position(|&slot| slot == bcrd.slot)
-            .unwrap();
+    fn process_single_io_machxo(&mut self, bcrd: BelCoord, sb: &mut SwitchBox) {
+        let idx = bslots::IO.index_of(bcrd.slot).unwrap();
         let cell = bcrd.cell;
+        let bcrd_int = bcrd.bel(bslots::IO_INT);
         let abcd = ['A', 'B', 'C', 'D', 'E', 'F'][idx];
         let io = self.chip.get_io_crd(bcrd);
         let (r, c) = self.rc(cell);
@@ -28,24 +26,28 @@ impl ChipContext<'_> {
         };
         self.name_bel(bcrd, [name]);
 
-        let mut bel = LegacyBel::default();
+        let mut bel = Bel::default();
 
         let ddtd0 = self.rc_io_wire(cell, &format!("JDDTD0{abcd}"));
         let ddtd1 = self.rc_io_wire(cell, &format!("JDDTD1{abcd}"));
-        self.add_bel_wire(bcrd, "DDTD0", ddtd0);
-        self.add_bel_wire(bcrd, "DDTD1", ddtd1);
-        bel.pins
-            .insert("DDTD0".into(), self.xlat_int_wire(bcrd, ddtd0));
-        bel.pins
-            .insert("DDTD1".into(), self.xlat_int_wire(bcrd, ddtd1));
+        let wire_ddtd0 = self.xlat_input(bcrd, ddtd0).wire();
+        let wire_ddtd1 = self.xlat_input(bcrd, ddtd1).wire();
+        self.add_sb_wire(bcrd_int, wire_ddtd0, ddtd0);
+        self.add_sb_wire(bcrd_int, wire_ddtd1, ddtd1);
 
-        let dd2 = self.rc_io_wire(cell, &format!("JDD2{abcd}"));
-        self.add_bel_wire(bcrd, "DD2", dd2);
-
-        let (plc_cell, plc_idx) = self.chip.io_direct_plc[&io];
-        let slice = plc_cell.bel(bslots::SLICE[usize::from(plc_idx / 2)]);
+        let (src_cell, plc_idx) = self.chip.io_direct_plc[&bcrd];
+        let plc_cell = self.edev[src_cell].conns[cslots::IO_FROM_PLC]
+            .target
+            .unwrap();
+        let slice = plc_cell.bel(bslots::SLICE[plc_idx / 2]);
         let plcf = self.naming.bel_wire(slice, &format!("F{}_IO", plc_idx % 2));
         let plcq = self.naming.bel_wire(slice, &format!("Q{}_IO", plc_idx % 2));
+
+        let wire_o_plc = wires::IMUX_IO_O_PLC[idx].cell(0);
+        let wire_o = wires::IMUX_IO_O[idx].cell(0);
+        let wire_t = wires::IMUX_IO_T[idx].cell(0);
+
+        let dd2 = self.rc_io_wire(cell, &format!("JDD2{abcd}"));
 
         let dd = self.rc_wire(self.chip.xlat_rc_wire(plcf), &format!("JDD{plc_idx}"));
         self.add_bel_wire(bcrd, "DD", dd);
@@ -55,13 +57,33 @@ impl ChipContext<'_> {
 
         let paddo = self.rc_io_wire(cell, &format!("JPADDO{abcd}"));
         let paddt = self.rc_io_wire(cell, &format!("JPADDT{abcd}"));
-        self.add_bel_wire(bcrd, "PADDO", paddo);
-        self.add_bel_wire(bcrd, "PADDT", paddt);
+        self.add_sb_wire(bcrd_int, wire_o_plc, dd2);
+        self.add_sb_wire(bcrd_int, wire_o, paddo);
+        self.add_sb_wire(bcrd_int, wire_t, paddt);
         self.claim_pip(paddo, dd2);
         self.claim_pip(paddo, ddtd0);
         self.claim_pip(paddo, ddtd1);
         self.claim_pip(paddt, ddtd0);
         self.claim_pip(paddt, ddtd1);
+
+        sb.items.push(SwitchBoxItem::Mux(Mux {
+            dst: wire_o,
+            bits: vec![],
+            src: [wire_ddtd0, wire_ddtd1, wire_o_plc]
+                .into_iter()
+                .map(|k| (k.pos(), Default::default()))
+                .collect(),
+            bits_off: None,
+        }));
+        sb.items.push(SwitchBoxItem::Mux(Mux {
+            dst: wire_t,
+            bits: vec![],
+            src: [wire_ddtd0, wire_ddtd1]
+                .into_iter()
+                .map(|k| (k.pos(), Default::default()))
+                .collect(),
+            bits_off: None,
+        }));
 
         let paddo_pio = self.rc_io_wire(cell, &format!("JPADDO{abcd}_PIO"));
         let paddt_pio = self.rc_io_wire(cell, &format!("JPADDT{abcd}_PIO"));
@@ -70,51 +92,27 @@ impl ChipContext<'_> {
         self.claim_pip(paddo_pio, paddo);
         self.claim_pip(paddt_pio, paddt);
 
+        bel.inputs
+            .insert(bcls::IO::PADDO, BelInput::Fixed(wire_o.pos()));
+        bel.inputs
+            .insert(bcls::IO::PADDT, BelInput::Fixed(wire_t.pos()));
+
         let paddi_pio = self.rc_io_wire(cell, &format!("JPADDI{abcd}_PIO"));
         self.add_bel_wire(bcrd, "PADDI_PIO", paddi_pio);
-        bel.pins
-            .insert("PADDI".into(), self.xlat_int_wire(bcrd, paddi_pio));
+        let mut paddi_wires = self.xlat_output(bcrd, paddi_pio);
+        paddi_wires.insert(wires::OUT_IO_CLK[idx].cell(0));
+        bel.outputs.insert(bcls::IO::PADDI, paddi_wires);
 
-        self.insert_legacy_bel(bcrd, bel);
+        self.insert_bel(bcrd, bel);
     }
 
     fn process_pictest(&mut self, cell: CellCoord) {
         let (r, c) = self.rc(cell);
         let lr = if c == 1 { 'L' } else { 'R' };
-        let bcrd2 = cell.bel(bslots::IO[2]);
-        let bcrd3 = cell.bel(bslots::IO[3]);
-        self.name_bel(bcrd2, [format!("{lr}PICTEST{r}")]);
-        self.name_bel_null(bcrd3);
+        let bcrd = cell.bel(bslots::PICTEST[0]);
+        self.name_bel(bcrd, [format!("{lr}PICTEST{r}")]);
 
-        let mut bel = LegacyBel::default();
-        let ddtd0 = self.rc_io_wire(cell, "JC0_PICTEST");
-        let ddtd1 = self.rc_io_wire(cell, "JC1_PICTEST");
-        self.add_bel_wire(bcrd2, "DDTD0", ddtd0);
-        self.add_bel_wire(bcrd2, "DDTD1", ddtd1);
-        bel.pins
-            .insert("DDTD0".into(), self.xlat_int_wire(bcrd2, ddtd0));
-        bel.pins
-            .insert("DDTD1".into(), self.xlat_int_wire(bcrd2, ddtd1));
-        let paddi_pio = self.rc_io_wire(cell, "JQ0_PICTEST");
-        self.add_bel_wire(bcrd2, "PADDI_PIO", paddi_pio);
-        bel.pins
-            .insert("PADDI".into(), self.xlat_int_wire(bcrd2, paddi_pio));
-        self.insert_legacy_bel(bcrd2, bel);
-
-        let mut bel = LegacyBel::default();
-        let ddtd0 = self.rc_io_wire(cell, "JD0_PICTEST");
-        let ddtd1 = self.rc_io_wire(cell, "JD1_PICTEST");
-        self.add_bel_wire(bcrd3, "DDTD0", ddtd0);
-        self.add_bel_wire(bcrd3, "DDTD1", ddtd1);
-        bel.pins
-            .insert("DDTD0".into(), self.xlat_int_wire(bcrd3, ddtd0));
-        bel.pins
-            .insert("DDTD1".into(), self.xlat_int_wire(bcrd3, ddtd1));
-        let paddi_pio = self.rc_io_wire(cell, "JQ1_PICTEST");
-        self.add_bel_wire(bcrd3, "PADDI_PIO", paddi_pio);
-        bel.pins
-            .insert("PADDI".into(), self.xlat_int_wire(bcrd3, paddi_pio));
-        self.insert_legacy_bel(bcrd3, bel);
+        self.extract_bel(bcrd, cell).suffix("PICTEST");
     }
 
     pub(super) fn process_io_machxo(&mut self) {
@@ -125,12 +123,17 @@ impl ChipContext<'_> {
                 IoGroupKind::Quad | IoGroupKind::QuadReverse => 4,
                 _ => unreachable!(),
             };
-            let cell = Chip::DIE.cell(self.chip.col_w(), row);
-            for i in 0..num_io {
-                self.process_single_io_machxo(cell.bel(bslots::IO[i]));
-            }
-            if num_io == 2 {
-                self.process_pictest(cell);
+            if num_io != 0 {
+                let cell = Chip::DIE.cell(self.chip.col_w(), row);
+                self.name_bel_null(cell.bel(bslots::IO_INT));
+                let mut sb = SwitchBox::default();
+                for i in 0..num_io {
+                    self.process_single_io_machxo(cell.bel(bslots::IO[i]), &mut sb);
+                }
+                self.insert_switchbox(cell.bel(bslots::IO_INT), sb);
+                if num_io == 2 {
+                    self.process_pictest(cell);
+                }
             }
             let num_io = match rd.io_e {
                 IoGroupKind::None => 0,
@@ -138,12 +141,17 @@ impl ChipContext<'_> {
                 IoGroupKind::Quad | IoGroupKind::QuadReverse => 4,
                 _ => unreachable!(),
             };
-            let cell = Chip::DIE.cell(self.chip.col_e(), row);
-            for i in 0..num_io {
-                self.process_single_io_machxo(cell.bel(bslots::IO[i]));
-            }
-            if num_io == 2 {
-                self.process_pictest(cell);
+            if num_io != 0 {
+                let cell = Chip::DIE.cell(self.chip.col_e(), row);
+                self.name_bel_null(cell.bel(bslots::IO_INT));
+                let mut sb = SwitchBox::default();
+                for i in 0..num_io {
+                    self.process_single_io_machxo(cell.bel(bslots::IO[i]), &mut sb);
+                }
+                self.insert_switchbox(cell.bel(bslots::IO_INT), sb);
+                if num_io == 2 {
+                    self.process_pictest(cell);
+                }
             }
         }
         for (col, cd) in &self.chip.columns {
@@ -153,9 +161,14 @@ impl ChipContext<'_> {
                 IoGroupKind::Hex | IoGroupKind::HexReverse => 6,
                 _ => unreachable!(),
             };
-            let cell = Chip::DIE.cell(col, self.chip.row_s());
-            for i in 0..num_io {
-                self.process_single_io_machxo(cell.bel(bslots::IO[i]));
+            if num_io != 0 {
+                let cell = Chip::DIE.cell(col, self.chip.row_s());
+                self.name_bel_null(cell.bel(bslots::IO_INT));
+                let mut sb = SwitchBox::default();
+                for i in 0..num_io {
+                    self.process_single_io_machxo(cell.bel(bslots::IO[i]), &mut sb);
+                }
+                self.insert_switchbox(cell.bel(bslots::IO_INT), sb);
             }
             let num_io = match cd.io_n {
                 IoGroupKind::None => 0,
@@ -163,9 +176,14 @@ impl ChipContext<'_> {
                 IoGroupKind::Hex | IoGroupKind::HexReverse => 6,
                 _ => unreachable!(),
             };
-            let cell = Chip::DIE.cell(col, self.chip.row_n());
-            for i in 0..num_io {
-                self.process_single_io_machxo(cell.bel(bslots::IO[i]));
+            if num_io != 0 {
+                let cell = Chip::DIE.cell(col, self.chip.row_n());
+                self.name_bel_null(cell.bel(bslots::IO_INT));
+                let mut sb = SwitchBox::default();
+                for i in 0..num_io {
+                    self.process_single_io_machxo(cell.bel(bslots::IO[i]), &mut sb);
+                }
+                self.insert_switchbox(cell.bel(bslots::IO_INT), sb);
             }
         }
     }
