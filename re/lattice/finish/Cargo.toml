@@ -13,7 +13,6 @@ prjcombine-interconnect.workspace = true
 prjcombine-ecp.workspace = true
 prjcombine-re-lattice-naming.workspace = true
 itertools.workspace = true
-regex.workspace = true
 clap.workspace = true
 prjcombine-entity.workspace = true
 

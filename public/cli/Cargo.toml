@@ -16,7 +16,6 @@ prjcombine-virtex2.workspace = true
 prjcombine-spartan6.workspace = true
 prjcombine-virtex4.workspace = true
 prjcombine-ultrascale.workspace = true
-prjcombine-versal.workspace = true
 prjcombine-siliconblue.workspace = true
 prjcombine-ecp.workspace = true
 prjcombine-xc9500.workspace = true

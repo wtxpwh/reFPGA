@@ -13,3 +13,6 @@ hashbrown = { version = "0.17.1", optional = true }
 map = ["dep:indexmap", "dep:hashbrown"]
 bitvec = ["dep:bitvec"]
 bincode = ["dep:bincode"]
+
+[lints]
+workspace = true
