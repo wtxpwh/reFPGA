@@ -1,6 +1,6 @@
 use prjcombine_ecp::{
     chip::{ChipKind, IoGroupKind, IoKind, PllLoc, SpecialIoKey, SpecialLocKey},
-    defs::{bcls, bslots, tcls},
+    defs::{bslots, tcls, wires},
 };
 use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
@@ -179,7 +179,7 @@ impl ChipContext<'_> {
         }
 
         if kind != IoKind::Xsio {
-            let bcrd_dqs = self.edev.dqs[&bcrd.cell].bel(bslots::DQS[0]);
+            let bcrd_dqs = self.edev.bel_io_dqs(bcrd).unwrap();
             let mut pins = vec!["DQCLK1", "DDRCLKPOL", "DDRLAT"];
             if self.chip.kind == ChipKind::Ecp3A {
                 pins.push("ECLKDQSR");
@@ -634,7 +634,6 @@ impl ChipContext<'_> {
     pub(super) fn process_eclk_tap_ecp3(&mut self) {
         let tcid = tcls::ECLK_TAP;
         for &tcrd in &self.edev.tile_index[tcid] {
-            let bcrd = tcrd.bel(bslots::ECLK_TAP);
             let edge = if tcrd.col == self.chip.col_w() {
                 Dir::W
             } else if tcrd.col == self.chip.col_e() {
@@ -646,7 +645,7 @@ impl ChipContext<'_> {
             };
             for i in 0..2 {
                 let bel_eclksync = self.chip.bel_eclksync(edge, i);
-                let eclk_out = self.edev.get_bel_output(bcrd, bcls::ECLK_TAP::ECLK[i])[0];
+                let eclk_out = tcrd.wire(wires::OUT_F[6 + i]);
                 let eclk = self.naming.bel_wire(bel_eclksync, "ECLKO_OUT");
                 self.claim_pip_int_out(eclk_out, eclk);
             }

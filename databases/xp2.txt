@@ -6963,8 +6963,129 @@ intdb {
 		attribute REG_ACCUMSLOAD_S1_1: bool;
 	}
 
-	bel_class ECLK_TAP {
-		output ECLK[2];
+	bel_class IO {
+		input CLK;
+		input LSR;
+		input CE;
+		input OPOS[2];
+		input ONEG[2];
+		input TD;
+		input ECLKI;
+		input ECLKO;
+		input DEL[4];
+		output PADDI;
+		output IPOS[2];
+		output DI;
+		output QPOS[2];
+	}
+
+	bel_class DQS {
+		input CLK;
+		input READ;
+		output DDRCLKPOL;
+		output PRMBDET;
+		output DATAVALID;
+	}
+
+	bel_class DQSDLL {
+		input CLK;
+		input RST;
+		input UDDCNTL;
+		output LOCK;
+	}
+
+	bel_class DCS {
+		input CLK[2];
+		input SEL;
+		output DCSOUT;
+	}
+
+	bel_class PLL {
+		input CLKI;
+		input CLKFB;
+		input RESETM;
+		input RESETK;
+		input CNTRST;
+		input PWD;
+		input DPAMODE;
+		input DRPAI[4];
+		input DFPAI[4];
+		input TCLKI;
+		output CLKOP;
+		output CLKOS;
+		output CLKOK;
+		output CLKOK2;
+		output CLKINTFB;
+		output LOCK;
+		output DNLOCK;
+		output UPLOCK;
+		output DRPAO[4];
+		output DFPAO[4];
+		output TESTOUT;
+	}
+
+	bel_class CLKDIV {
+		input CLKI;
+		input RST;
+		input RELEASE;
+		output CDIV1;
+		output CDIV2;
+		output CDIV4;
+		output CDIV8;
+	}
+
+	bel_class GSR {
+		input CLK;
+		input GSR;
+	}
+
+	bel_class JTAG {
+		input JTDO1;
+		input JTDO2;
+		output JTDI;
+		output JTCK;
+		output JSHIFT;
+		output JUPDATE;
+		output JRSTN;
+		output JCE1;
+		output JRTI1;
+		output JCE2;
+		output JRTI2;
+	}
+
+	bel_class START {
+		input STARTCLK;
+	}
+
+	bel_class OSC {
+		output CFGCLK;
+	}
+
+	bel_class SED {
+		input SEDENABLE;
+		input SEDSTART;
+		input SEDFRCERR;
+		output SEDCLKOUT;
+		output SEDINPROG;
+		output SEDDONE;
+		output SEDERR;
+	}
+
+	bel_class SSPI {
+		input CLK;
+		input CS;
+		input SI;
+		output SO;
+	}
+
+	bel_class STF {
+		input STOREN;
+		output UFMBUSYN;
+		output UFMFAIL;
+	}
+
+	bel_class WAKEUP {
+		input USRGOE;
 	}
 
 	bel_class HSDCLK_ROOT {
@@ -6978,6 +7099,9 @@ intdb {
 	region_slot RSCLK[2];
 	region_slot RSCLK[3];
 	region_slot RSCLK_V;
+	region_slot ECLK;
+	region_slot DQS;
+	region_slot DQSDLL;
 	wire TIE0: tie 0;
 	wire TIE1: tie 1;
 	wire X0_W[0]: mux;
@@ -7316,6 +7440,12 @@ intdb {
 	wire RSCLK_V_N[5]: branch S;
 	wire RSCLK_V_N[6]: branch S;
 	wire RSCLK_V_N[7]: branch S;
+	wire ECLK[0]: regional ECLK;
+	wire ECLK[1]: regional ECLK;
+	wire IMUX_IO_ECLKI[0]: mux;
+	wire IMUX_IO_ECLKI[1]: mux;
+	wire IMUX_IO_ECLKO[0]: mux;
+	wire IMUX_IO_ECLKO[1]: mux;
 	wire IMUX_A[0]: mux;
 	wire IMUX_A[1]: mux;
 	wire IMUX_A[2]: mux;
@@ -7416,6 +7546,20 @@ intdb {
 	wire OUT_OFX_W[5]: branch E;
 	wire OUT_OFX_W[6]: branch E;
 	wire OUT_OFX_W[7]: branch E;
+	wire OUT_IO_PADDI[0]: bel;
+	wire OUT_IO_PADDI[1]: bel;
+	wire IMUX_PLL_CLKI: mux;
+	wire IMUX_PLL_CLKFB: mux;
+	wire OUT_PLL_CLKINTFB: bel;
+	wire OUT_PLL_CLKOP: bel;
+	wire OUT_PLL_CLKOS: bel;
+	wire OUT_PLL_CLKOK: bel;
+	wire OUT_PLL_CLKOK2: bel;
+	wire IMUX_CLKDIV_CLKI: mux;
+	wire OUT_CLKDIV_CDIV1: bel;
+	wire OUT_CLKDIV_CDIV2: bel;
+	wire OUT_CLKDIV_CDIV4: bel;
+	wire OUT_CLKDIV_CDIV8: bel;
 
 	tile_slot INT {
 		bel_slot INT: routing;
@@ -8177,74 +8321,80 @@ intdb {
 	}
 
 	tile_slot IO {
-		bel_slot IO[0]: legacy;
-		bel_slot IO[1]: legacy;
+		bel_slot IO[0]: IO;
+		bel_slot IO[1]: IO;
+		bel_slot IO_INT: routing;
 
 		tile_class IO_W {
 			cell CELL;
 
 			bel IO[0] {
-				input CE = IMUX_CE[0];
 				input CLK = IMUX_CLK[0];
-				input DEL0 = IMUX_D[4];
-				input DEL1 = IMUX_C[4];
-				input DEL2 = IMUX_B[4];
-				input DEL3 = IMUX_A[4];
-				output DI = OUT_F[0];
-				output IPOS0 = OUT_F[2];
-				output IPOS1 = OUT_F[3];
 				input LSR = IMUX_LSR[0];
-				input ONEG0 = IMUX_D[0];
-				input ONEG1 = IMUX_D[2];
-				input ONEG2 = IMUX_C[0];
-				input OPOS0 = IMUX_B[0];
-				input OPOS1 = IMUX_B[1];
-				input OPOS2 = IMUX_A[0];
-				output QNEG0 = OUT_Q[2];
-				output QNEG1 = OUT_Q[3];
-				output QPOS0 = OUT_Q[0];
-				output QPOS1 = OUT_Q[1];
+				input CE = IMUX_CE[0];
+				input OPOS[0] = IMUX_B[0];
+				input OPOS[1] = IMUX_B[1];
+				input ONEG[0] = IMUX_D[0];
+				input ONEG[1] = IMUX_D[2];
 				input TD = IMUX_A[2];
+				input DEL[0] = IMUX_D[4];
+				input DEL[1] = IMUX_C[4];
+				input DEL[2] = IMUX_B[4];
+				input DEL[3] = IMUX_A[4];
+				output PADDI = OUT_IO_PADDI[0];
+				output IPOS[0] = OUT_F[2];
+				output IPOS[1] = OUT_F[3];
+				output DI = OUT_F[0];
+				output QPOS[0] = OUT_Q[0];
+				output QPOS[1] = OUT_Q[1];
 			}
 
 			bel IO[1] {
-				input CE = IMUX_CE[1];
 				input CLK = IMUX_CLK[1];
-				input DEL0 = IMUX_D[5];
-				input DEL1 = IMUX_C[5];
-				input DEL2 = IMUX_B[5];
-				input DEL3 = IMUX_A[5];
-				output DI = OUT_F[1];
-				output IPOS0 = OUT_F[4];
-				output IPOS1 = OUT_F[5];
 				input LSR = IMUX_LSR[1];
-				input ONEG0 = IMUX_C[0];
-				input ONEG1 = IMUX_C[2];
-				input OPOS0 = IMUX_A[0];
-				input OPOS1 = IMUX_A[1];
-				output QPOS0 = OUT_Q[2];
-				output QPOS1 = OUT_Q[3];
+				input CE = IMUX_CE[1];
+				input OPOS[0] = IMUX_A[0];
+				input OPOS[1] = IMUX_A[1];
+				input ONEG[0] = IMUX_C[0];
+				input ONEG[1] = IMUX_C[2];
 				input TD = IMUX_A[3];
+				input DEL[0] = IMUX_D[5];
+				input DEL[1] = IMUX_C[5];
+				input DEL[2] = IMUX_B[5];
+				input DEL[3] = IMUX_A[5];
+				output PADDI = OUT_IO_PADDI[1];
+				output IPOS[0] = OUT_F[4];
+				output IPOS[1] = OUT_F[5];
+				output DI = OUT_F[1];
+				output QPOS[0] = OUT_Q[2];
+				output QPOS[1] = OUT_Q[3];
 			}
 
-			// wire IMUX_A[0]                      IO[0].OPOS2 IO[1].OPOS0
-			// wire IMUX_A[1]                      IO[1].OPOS1
+			switchbox IO_INT {
+				mux IMUX_IO_ECLKI[0] = ECLK[0] | ECLK[1];
+				mux IMUX_IO_ECLKI[1] = ECLK[0] | ECLK[1];
+				mux IMUX_IO_ECLKO[0] = ECLK[0] | ECLK[1];
+				mux IMUX_IO_ECLKO[1] = ECLK[0] | ECLK[1];
+			}
+
+			// wire IMUX_A[0]                      IO[1].OPOS[0]
+			// wire IMUX_A[1]                      IO[1].OPOS[1]
 			// wire IMUX_A[2]                      IO[0].TD
 			// wire IMUX_A[3]                      IO[1].TD
-			// wire IMUX_A[4]                      IO[0].DEL3
-			// wire IMUX_A[5]                      IO[1].DEL3
-			// wire IMUX_B[0]                      IO[0].OPOS0
-			// wire IMUX_B[1]                      IO[0].OPOS1
-			// wire IMUX_B[4]                      IO[0].DEL2
-			// wire IMUX_B[5]                      IO[1].DEL2
-			// wire IMUX_C[0]                      IO[0].ONEG2 IO[1].ONEG0
-			// wire IMUX_C[2]                      IO[1].ONEG1
-			// wire IMUX_C[4]                      IO[0].DEL1
-			// wire IMUX_C[5]                      IO[1].DEL1
-			// wire IMUX_D[0]                      IO[0].ONEG0
-			// wire IMUX_D[2]                      IO[0].ONEG1
-			// wire IMUX_D[4]                      IO[0].DEL0
-			// wire IMUX_D[5]                      IO[1].DEL0
+			// wire IMUX_A[4]                      IO[0].DEL[3]
+			// wire IMUX_A[5]                      IO[1].DEL[3]
+			// wire IMUX_B[0]                      IO[0].OPOS[0]
+			// wire IMUX_B[1]                      IO[0].OPOS[1]
+			// wire IMUX_B[4]                      IO[0].DEL[2]
+			// wire IMUX_B[5]                      IO[1].DEL[2]
+			// wire IMUX_C[0]                      IO[1].ONEG[0]
+			// wire IMUX_C[2]                      IO[1].ONEG[1]
+			// wire IMUX_C[4]                      IO[0].DEL[1]
+			// wire IMUX_C[5]                      IO[1].DEL[1]
+			// wire IMUX_D[0]                      IO[0].ONEG[0]
+			// wire IMUX_D[2]                      IO[0].ONEG[1]
+			// wire IMUX_D[4]                      IO[0].DEL[0]
+			// wire IMUX_D[5]                      IO[1].DEL[0]
 			// wire IMUX_CLK[0]                    IO[0].CLK
 			// wire IMUX_CLK[1]                    IO[1].CLK
 			// wire IMUX_LSR[0]                    IO[0].LSR
@@ -8253,81 +8403,88 @@ intdb {
 			// wire IMUX_CE[1]                     IO[1].CE
 			// wire OUT_F[0]                       IO[0].DI
 			// wire OUT_F[1]                       IO[1].DI
-			// wire OUT_F[2]                       IO[0].IPOS0
-			// wire OUT_F[3]                       IO[0].IPOS1
-			// wire OUT_F[4]                       IO[1].IPOS0
-			// wire OUT_F[5]                       IO[1].IPOS1
-			// wire OUT_Q[0]                       IO[0].QPOS0
-			// wire OUT_Q[1]                       IO[0].QPOS1
-			// wire OUT_Q[2]                       IO[0].QNEG0 IO[1].QPOS0
-			// wire OUT_Q[3]                       IO[0].QNEG1 IO[1].QPOS1
+			// wire OUT_F[2]                       IO[0].IPOS[0]
+			// wire OUT_F[3]                       IO[0].IPOS[1]
+			// wire OUT_F[4]                       IO[1].IPOS[0]
+			// wire OUT_F[5]                       IO[1].IPOS[1]
+			// wire OUT_Q[0]                       IO[0].QPOS[0]
+			// wire OUT_Q[1]                       IO[0].QPOS[1]
+			// wire OUT_Q[2]                       IO[1].QPOS[0]
+			// wire OUT_Q[3]                       IO[1].QPOS[1]
+			// wire OUT_IO_PADDI[0]                IO[0].PADDI
+			// wire OUT_IO_PADDI[1]                IO[1].PADDI
 		}
 
 		tile_class IO_E {
 			cell CELL;
 
 			bel IO[0] {
-				input CE = IMUX_CE[0];
 				input CLK = IMUX_CLK[0];
-				input DEL0 = IMUX_D[4];
-				input DEL1 = IMUX_C[4];
-				input DEL2 = IMUX_B[4];
-				input DEL3 = IMUX_A[4];
-				output DI = OUT_F[0];
-				output IPOS0 = OUT_F[2];
-				output IPOS1 = OUT_F[3];
 				input LSR = IMUX_LSR[0];
-				input ONEG0 = IMUX_D[0];
-				input ONEG1 = IMUX_D[2];
-				input ONEG2 = IMUX_C[0];
-				input OPOS0 = IMUX_B[0];
-				input OPOS1 = IMUX_B[1];
-				input OPOS2 = IMUX_A[0];
-				output QNEG0 = OUT_Q[2];
-				output QNEG1 = OUT_Q[3];
-				output QPOS0 = OUT_Q[0];
-				output QPOS1 = OUT_Q[1];
+				input CE = IMUX_CE[0];
+				input OPOS[0] = IMUX_B[0];
+				input OPOS[1] = IMUX_B[1];
+				input ONEG[0] = IMUX_D[0];
+				input ONEG[1] = IMUX_D[2];
 				input TD = IMUX_A[2];
+				input DEL[0] = IMUX_D[4];
+				input DEL[1] = IMUX_C[4];
+				input DEL[2] = IMUX_B[4];
+				input DEL[3] = IMUX_A[4];
+				output PADDI = OUT_IO_PADDI[0];
+				output IPOS[0] = OUT_F[2];
+				output IPOS[1] = OUT_F[3];
+				output DI = OUT_F[0];
+				output QPOS[0] = OUT_Q[0];
+				output QPOS[1] = OUT_Q[1];
 			}
 
 			bel IO[1] {
-				input CE = IMUX_CE[1];
 				input CLK = IMUX_CLK[1];
-				input DEL0 = IMUX_D[5];
-				input DEL1 = IMUX_C[5];
-				input DEL2 = IMUX_B[5];
-				input DEL3 = IMUX_A[5];
-				output DI = OUT_F[1];
-				output IPOS0 = OUT_F[4];
-				output IPOS1 = OUT_F[5];
 				input LSR = IMUX_LSR[1];
-				input ONEG0 = IMUX_C[0];
-				input ONEG1 = IMUX_C[2];
-				input OPOS0 = IMUX_A[0];
-				input OPOS1 = IMUX_A[1];
-				output QPOS0 = OUT_Q[2];
-				output QPOS1 = OUT_Q[3];
+				input CE = IMUX_CE[1];
+				input OPOS[0] = IMUX_A[0];
+				input OPOS[1] = IMUX_A[1];
+				input ONEG[0] = IMUX_C[0];
+				input ONEG[1] = IMUX_C[2];
 				input TD = IMUX_A[3];
+				input DEL[0] = IMUX_D[5];
+				input DEL[1] = IMUX_C[5];
+				input DEL[2] = IMUX_B[5];
+				input DEL[3] = IMUX_A[5];
+				output PADDI = OUT_IO_PADDI[1];
+				output IPOS[0] = OUT_F[4];
+				output IPOS[1] = OUT_F[5];
+				output DI = OUT_F[1];
+				output QPOS[0] = OUT_Q[2];
+				output QPOS[1] = OUT_Q[3];
 			}
 
-			// wire IMUX_A[0]                      IO[0].OPOS2 IO[1].OPOS0
-			// wire IMUX_A[1]                      IO[1].OPOS1
+			switchbox IO_INT {
+				mux IMUX_IO_ECLKI[0] = ECLK[0] | ECLK[1];
+				mux IMUX_IO_ECLKI[1] = ECLK[0] | ECLK[1];
+				mux IMUX_IO_ECLKO[0] = ECLK[0] | ECLK[1];
+				mux IMUX_IO_ECLKO[1] = ECLK[0] | ECLK[1];
+			}
+
+			// wire IMUX_A[0]                      IO[1].OPOS[0]
+			// wire IMUX_A[1]                      IO[1].OPOS[1]
 			// wire IMUX_A[2]                      IO[0].TD
 			// wire IMUX_A[3]                      IO[1].TD
-			// wire IMUX_A[4]                      IO[0].DEL3
-			// wire IMUX_A[5]                      IO[1].DEL3
-			// wire IMUX_B[0]                      IO[0].OPOS0
-			// wire IMUX_B[1]                      IO[0].OPOS1
-			// wire IMUX_B[4]                      IO[0].DEL2
-			// wire IMUX_B[5]                      IO[1].DEL2
-			// wire IMUX_C[0]                      IO[0].ONEG2 IO[1].ONEG0
-			// wire IMUX_C[2]                      IO[1].ONEG1
-			// wire IMUX_C[4]                      IO[0].DEL1
-			// wire IMUX_C[5]                      IO[1].DEL1
-			// wire IMUX_D[0]                      IO[0].ONEG0
-			// wire IMUX_D[2]                      IO[0].ONEG1
-			// wire IMUX_D[4]                      IO[0].DEL0
-			// wire IMUX_D[5]                      IO[1].DEL0
+			// wire IMUX_A[4]                      IO[0].DEL[3]
+			// wire IMUX_A[5]                      IO[1].DEL[3]
+			// wire IMUX_B[0]                      IO[0].OPOS[0]
+			// wire IMUX_B[1]                      IO[0].OPOS[1]
+			// wire IMUX_B[4]                      IO[0].DEL[2]
+			// wire IMUX_B[5]                      IO[1].DEL[2]
+			// wire IMUX_C[0]                      IO[1].ONEG[0]
+			// wire IMUX_C[2]                      IO[1].ONEG[1]
+			// wire IMUX_C[4]                      IO[0].DEL[1]
+			// wire IMUX_C[5]                      IO[1].DEL[1]
+			// wire IMUX_D[0]                      IO[0].ONEG[0]
+			// wire IMUX_D[2]                      IO[0].ONEG[1]
+			// wire IMUX_D[4]                      IO[0].DEL[0]
+			// wire IMUX_D[5]                      IO[1].DEL[0]
 			// wire IMUX_CLK[0]                    IO[0].CLK
 			// wire IMUX_CLK[1]                    IO[1].CLK
 			// wire IMUX_LSR[0]                    IO[0].LSR
@@ -8336,81 +8493,88 @@ intdb {
 			// wire IMUX_CE[1]                     IO[1].CE
 			// wire OUT_F[0]                       IO[0].DI
 			// wire OUT_F[1]                       IO[1].DI
-			// wire OUT_F[2]                       IO[0].IPOS0
-			// wire OUT_F[3]                       IO[0].IPOS1
-			// wire OUT_F[4]                       IO[1].IPOS0
-			// wire OUT_F[5]                       IO[1].IPOS1
-			// wire OUT_Q[0]                       IO[0].QPOS0
-			// wire OUT_Q[1]                       IO[0].QPOS1
-			// wire OUT_Q[2]                       IO[0].QNEG0 IO[1].QPOS0
-			// wire OUT_Q[3]                       IO[0].QNEG1 IO[1].QPOS1
+			// wire OUT_F[2]                       IO[0].IPOS[0]
+			// wire OUT_F[3]                       IO[0].IPOS[1]
+			// wire OUT_F[4]                       IO[1].IPOS[0]
+			// wire OUT_F[5]                       IO[1].IPOS[1]
+			// wire OUT_Q[0]                       IO[0].QPOS[0]
+			// wire OUT_Q[1]                       IO[0].QPOS[1]
+			// wire OUT_Q[2]                       IO[1].QPOS[0]
+			// wire OUT_Q[3]                       IO[1].QPOS[1]
+			// wire OUT_IO_PADDI[0]                IO[0].PADDI
+			// wire OUT_IO_PADDI[1]                IO[1].PADDI
 		}
 
 		tile_class IO_S {
 			cell CELL;
 
 			bel IO[0] {
-				input CE = IMUX_CE[0];
 				input CLK = IMUX_CLK[0];
-				input DEL0 = IMUX_D[4];
-				input DEL1 = IMUX_C[4];
-				input DEL2 = IMUX_B[4];
-				input DEL3 = IMUX_A[4];
-				output DI = OUT_F[0];
-				output IPOS0 = OUT_F[2];
-				output IPOS1 = OUT_F[3];
 				input LSR = IMUX_LSR[0];
-				input ONEG0 = IMUX_D[0];
-				input ONEG1 = IMUX_D[2];
-				input ONEG2 = IMUX_C[0];
-				input OPOS0 = IMUX_B[0];
-				input OPOS1 = IMUX_B[1];
-				input OPOS2 = IMUX_A[0];
-				output QNEG0 = OUT_Q[2];
-				output QNEG1 = OUT_Q[3];
-				output QPOS0 = OUT_Q[0];
-				output QPOS1 = OUT_Q[1];
+				input CE = IMUX_CE[0];
+				input OPOS[0] = IMUX_B[0];
+				input OPOS[1] = IMUX_B[1];
+				input ONEG[0] = IMUX_D[0];
+				input ONEG[1] = IMUX_D[2];
 				input TD = IMUX_A[2];
+				input DEL[0] = IMUX_D[4];
+				input DEL[1] = IMUX_C[4];
+				input DEL[2] = IMUX_B[4];
+				input DEL[3] = IMUX_A[4];
+				output PADDI = OUT_IO_PADDI[0];
+				output IPOS[0] = OUT_F[2];
+				output IPOS[1] = OUT_F[3];
+				output DI = OUT_F[0];
+				output QPOS[0] = OUT_Q[0];
+				output QPOS[1] = OUT_Q[1];
 			}
 
 			bel IO[1] {
-				input CE = IMUX_CE[1];
 				input CLK = IMUX_CLK[1];
-				input DEL0 = IMUX_D[5];
-				input DEL1 = IMUX_C[5];
-				input DEL2 = IMUX_B[5];
-				input DEL3 = IMUX_A[5];
-				output DI = OUT_F[1];
-				output IPOS0 = OUT_F[4];
-				output IPOS1 = OUT_F[5];
 				input LSR = IMUX_LSR[1];
-				input ONEG0 = IMUX_C[0];
-				input ONEG1 = IMUX_C[2];
-				input OPOS0 = IMUX_A[0];
-				input OPOS1 = IMUX_A[1];
-				output QPOS0 = OUT_Q[2];
-				output QPOS1 = OUT_Q[3];
+				input CE = IMUX_CE[1];
+				input OPOS[0] = IMUX_A[0];
+				input OPOS[1] = IMUX_A[1];
+				input ONEG[0] = IMUX_C[0];
+				input ONEG[1] = IMUX_C[2];
 				input TD = IMUX_A[3];
+				input DEL[0] = IMUX_D[5];
+				input DEL[1] = IMUX_C[5];
+				input DEL[2] = IMUX_B[5];
+				input DEL[3] = IMUX_A[5];
+				output PADDI = OUT_IO_PADDI[1];
+				output IPOS[0] = OUT_F[4];
+				output IPOS[1] = OUT_F[5];
+				output DI = OUT_F[1];
+				output QPOS[0] = OUT_Q[2];
+				output QPOS[1] = OUT_Q[3];
 			}
 
-			// wire IMUX_A[0]                      IO[0].OPOS2 IO[1].OPOS0
-			// wire IMUX_A[1]                      IO[1].OPOS1
+			switchbox IO_INT {
+				mux IMUX_IO_ECLKI[0] = ECLK[0] | ECLK[1];
+				mux IMUX_IO_ECLKI[1] = ECLK[0] | ECLK[1];
+				mux IMUX_IO_ECLKO[0] = ECLK[0] | ECLK[1];
+				mux IMUX_IO_ECLKO[1] = ECLK[0] | ECLK[1];
+			}
+
+			// wire IMUX_A[0]                      IO[1].OPOS[0]
+			// wire IMUX_A[1]                      IO[1].OPOS[1]
 			// wire IMUX_A[2]                      IO[0].TD
 			// wire IMUX_A[3]                      IO[1].TD
-			// wire IMUX_A[4]                      IO[0].DEL3
-			// wire IMUX_A[5]                      IO[1].DEL3
-			// wire IMUX_B[0]                      IO[0].OPOS0
-			// wire IMUX_B[1]                      IO[0].OPOS1
-			// wire IMUX_B[4]                      IO[0].DEL2
-			// wire IMUX_B[5]                      IO[1].DEL2
-			// wire IMUX_C[0]                      IO[0].ONEG2 IO[1].ONEG0
-			// wire IMUX_C[2]                      IO[1].ONEG1
-			// wire IMUX_C[4]                      IO[0].DEL1
-			// wire IMUX_C[5]                      IO[1].DEL1
-			// wire IMUX_D[0]                      IO[0].ONEG0
-			// wire IMUX_D[2]                      IO[0].ONEG1
-			// wire IMUX_D[4]                      IO[0].DEL0
-			// wire IMUX_D[5]                      IO[1].DEL0
+			// wire IMUX_A[4]                      IO[0].DEL[3]
+			// wire IMUX_A[5]                      IO[1].DEL[3]
+			// wire IMUX_B[0]                      IO[0].OPOS[0]
+			// wire IMUX_B[1]                      IO[0].OPOS[1]
+			// wire IMUX_B[4]                      IO[0].DEL[2]
+			// wire IMUX_B[5]                      IO[1].DEL[2]
+			// wire IMUX_C[0]                      IO[1].ONEG[0]
+			// wire IMUX_C[2]                      IO[1].ONEG[1]
+			// wire IMUX_C[4]                      IO[0].DEL[1]
+			// wire IMUX_C[5]                      IO[1].DEL[1]
+			// wire IMUX_D[0]                      IO[0].ONEG[0]
+			// wire IMUX_D[2]                      IO[0].ONEG[1]
+			// wire IMUX_D[4]                      IO[0].DEL[0]
+			// wire IMUX_D[5]                      IO[1].DEL[0]
 			// wire IMUX_CLK[0]                    IO[0].CLK
 			// wire IMUX_CLK[1]                    IO[1].CLK
 			// wire IMUX_LSR[0]                    IO[0].LSR
@@ -8419,81 +8583,88 @@ intdb {
 			// wire IMUX_CE[1]                     IO[1].CE
 			// wire OUT_F[0]                       IO[0].DI
 			// wire OUT_F[1]                       IO[1].DI
-			// wire OUT_F[2]                       IO[0].IPOS0
-			// wire OUT_F[3]                       IO[0].IPOS1
-			// wire OUT_F[4]                       IO[1].IPOS0
-			// wire OUT_F[5]                       IO[1].IPOS1
-			// wire OUT_Q[0]                       IO[0].QPOS0
-			// wire OUT_Q[1]                       IO[0].QPOS1
-			// wire OUT_Q[2]                       IO[0].QNEG0 IO[1].QPOS0
-			// wire OUT_Q[3]                       IO[0].QNEG1 IO[1].QPOS1
+			// wire OUT_F[2]                       IO[0].IPOS[0]
+			// wire OUT_F[3]                       IO[0].IPOS[1]
+			// wire OUT_F[4]                       IO[1].IPOS[0]
+			// wire OUT_F[5]                       IO[1].IPOS[1]
+			// wire OUT_Q[0]                       IO[0].QPOS[0]
+			// wire OUT_Q[1]                       IO[0].QPOS[1]
+			// wire OUT_Q[2]                       IO[1].QPOS[0]
+			// wire OUT_Q[3]                       IO[1].QPOS[1]
+			// wire OUT_IO_PADDI[0]                IO[0].PADDI
+			// wire OUT_IO_PADDI[1]                IO[1].PADDI
 		}
 
 		tile_class IO_N {
 			cell CELL;
 
 			bel IO[0] {
-				input CE = IMUX_CE[0];
 				input CLK = IMUX_CLK[0];
-				input DEL0 = IMUX_D[4];
-				input DEL1 = IMUX_C[4];
-				input DEL2 = IMUX_B[4];
-				input DEL3 = IMUX_A[4];
-				output DI = OUT_F[0];
-				output IPOS0 = OUT_F[2];
-				output IPOS1 = OUT_F[3];
 				input LSR = IMUX_LSR[0];
-				input ONEG0 = IMUX_D[0];
-				input ONEG1 = IMUX_D[2];
-				input ONEG2 = IMUX_C[0];
-				input OPOS0 = IMUX_B[0];
-				input OPOS1 = IMUX_B[1];
-				input OPOS2 = IMUX_A[0];
-				output QNEG0 = OUT_Q[2];
-				output QNEG1 = OUT_Q[3];
-				output QPOS0 = OUT_Q[0];
-				output QPOS1 = OUT_Q[1];
+				input CE = IMUX_CE[0];
+				input OPOS[0] = IMUX_B[0];
+				input OPOS[1] = IMUX_B[1];
+				input ONEG[0] = IMUX_D[0];
+				input ONEG[1] = IMUX_D[2];
 				input TD = IMUX_A[2];
+				input DEL[0] = IMUX_D[4];
+				input DEL[1] = IMUX_C[4];
+				input DEL[2] = IMUX_B[4];
+				input DEL[3] = IMUX_A[4];
+				output PADDI = OUT_IO_PADDI[0];
+				output IPOS[0] = OUT_F[2];
+				output IPOS[1] = OUT_F[3];
+				output DI = OUT_F[0];
+				output QPOS[0] = OUT_Q[0];
+				output QPOS[1] = OUT_Q[1];
 			}
 
 			bel IO[1] {
-				input CE = IMUX_CE[1];
 				input CLK = IMUX_CLK[1];
-				input DEL0 = IMUX_D[5];
-				input DEL1 = IMUX_C[5];
-				input DEL2 = IMUX_B[5];
-				input DEL3 = IMUX_A[5];
-				output DI = OUT_F[1];
-				output IPOS0 = OUT_F[4];
-				output IPOS1 = OUT_F[5];
 				input LSR = IMUX_LSR[1];
-				input ONEG0 = IMUX_C[0];
-				input ONEG1 = IMUX_C[2];
-				input OPOS0 = IMUX_A[0];
-				input OPOS1 = IMUX_A[1];
-				output QPOS0 = OUT_Q[2];
-				output QPOS1 = OUT_Q[3];
+				input CE = IMUX_CE[1];
+				input OPOS[0] = IMUX_A[0];
+				input OPOS[1] = IMUX_A[1];
+				input ONEG[0] = IMUX_C[0];
+				input ONEG[1] = IMUX_C[2];
 				input TD = IMUX_A[3];
+				input DEL[0] = IMUX_D[5];
+				input DEL[1] = IMUX_C[5];
+				input DEL[2] = IMUX_B[5];
+				input DEL[3] = IMUX_A[5];
+				output PADDI = OUT_IO_PADDI[1];
+				output IPOS[0] = OUT_F[4];
+				output IPOS[1] = OUT_F[5];
+				output DI = OUT_F[1];
+				output QPOS[0] = OUT_Q[2];
+				output QPOS[1] = OUT_Q[3];
 			}
 
-			// wire IMUX_A[0]                      IO[0].OPOS2 IO[1].OPOS0
-			// wire IMUX_A[1]                      IO[1].OPOS1
+			switchbox IO_INT {
+				mux IMUX_IO_ECLKI[0] = ECLK[0] | ECLK[1];
+				mux IMUX_IO_ECLKI[1] = ECLK[0] | ECLK[1];
+				mux IMUX_IO_ECLKO[0] = ECLK[0] | ECLK[1];
+				mux IMUX_IO_ECLKO[1] = ECLK[0] | ECLK[1];
+			}
+
+			// wire IMUX_A[0]                      IO[1].OPOS[0]
+			// wire IMUX_A[1]                      IO[1].OPOS[1]
 			// wire IMUX_A[2]                      IO[0].TD
 			// wire IMUX_A[3]                      IO[1].TD
-			// wire IMUX_A[4]                      IO[0].DEL3
-			// wire IMUX_A[5]                      IO[1].DEL3
-			// wire IMUX_B[0]                      IO[0].OPOS0
-			// wire IMUX_B[1]                      IO[0].OPOS1
-			// wire IMUX_B[4]                      IO[0].DEL2
-			// wire IMUX_B[5]                      IO[1].DEL2
-			// wire IMUX_C[0]                      IO[0].ONEG2 IO[1].ONEG0
-			// wire IMUX_C[2]                      IO[1].ONEG1
-			// wire IMUX_C[4]                      IO[0].DEL1
-			// wire IMUX_C[5]                      IO[1].DEL1
-			// wire IMUX_D[0]                      IO[0].ONEG0
-			// wire IMUX_D[2]                      IO[0].ONEG1
-			// wire IMUX_D[4]                      IO[0].DEL0
-			// wire IMUX_D[5]                      IO[1].DEL0
+			// wire IMUX_A[4]                      IO[0].DEL[3]
+			// wire IMUX_A[5]                      IO[1].DEL[3]
+			// wire IMUX_B[0]                      IO[0].OPOS[0]
+			// wire IMUX_B[1]                      IO[0].OPOS[1]
+			// wire IMUX_B[4]                      IO[0].DEL[2]
+			// wire IMUX_B[5]                      IO[1].DEL[2]
+			// wire IMUX_C[0]                      IO[1].ONEG[0]
+			// wire IMUX_C[2]                      IO[1].ONEG[1]
+			// wire IMUX_C[4]                      IO[0].DEL[1]
+			// wire IMUX_C[5]                      IO[1].DEL[1]
+			// wire IMUX_D[0]                      IO[0].ONEG[0]
+			// wire IMUX_D[2]                      IO[0].ONEG[1]
+			// wire IMUX_D[4]                      IO[0].DEL[0]
+			// wire IMUX_D[5]                      IO[1].DEL[0]
 			// wire IMUX_CLK[0]                    IO[0].CLK
 			// wire IMUX_CLK[1]                    IO[1].CLK
 			// wire IMUX_LSR[0]                    IO[0].LSR
@@ -8502,36 +8673,39 @@ intdb {
 			// wire IMUX_CE[1]                     IO[1].CE
 			// wire OUT_F[0]                       IO[0].DI
 			// wire OUT_F[1]                       IO[1].DI
-			// wire OUT_F[2]                       IO[0].IPOS0
-			// wire OUT_F[3]                       IO[0].IPOS1
-			// wire OUT_F[4]                       IO[1].IPOS0
-			// wire OUT_F[5]                       IO[1].IPOS1
-			// wire OUT_Q[0]                       IO[0].QPOS0
-			// wire OUT_Q[1]                       IO[0].QPOS1
-			// wire OUT_Q[2]                       IO[0].QNEG0 IO[1].QPOS0
-			// wire OUT_Q[3]                       IO[0].QNEG1 IO[1].QPOS1
+			// wire OUT_F[2]                       IO[0].IPOS[0]
+			// wire OUT_F[3]                       IO[0].IPOS[1]
+			// wire OUT_F[4]                       IO[1].IPOS[0]
+			// wire OUT_F[5]                       IO[1].IPOS[1]
+			// wire OUT_Q[0]                       IO[0].QPOS[0]
+			// wire OUT_Q[1]                       IO[0].QPOS[1]
+			// wire OUT_Q[2]                       IO[1].QPOS[0]
+			// wire OUT_Q[3]                       IO[1].QPOS[1]
+			// wire OUT_IO_PADDI[0]                IO[0].PADDI
+			// wire OUT_IO_PADDI[1]                IO[1].PADDI
 		}
 	}
 
 	tile_slot BEL {
+		bel_slot BEL_INT: routing;
 		bel_slot SLICE[0]: SLICE;
 		bel_slot SLICE[1]: SLICE;
 		bel_slot SLICE[2]: SLICE;
 		bel_slot SLICE[3]: SLICE;
 		bel_slot EBR[0]: EBR;
 		bel_slot DSP[0]: DSP;
-		bel_slot PLL[0]: legacy;
-		bel_slot DQSDLL: legacy;
-		bel_slot CLKDIV[0]: legacy;
-		bel_slot START: legacy;
-		bel_slot GSR: legacy;
-		bel_slot SSPI: legacy;
-		bel_slot STF: legacy;
-		bel_slot WAKEUP: legacy;
-		bel_slot DQS[0]: legacy;
-		bel_slot JTAG: legacy;
-		bel_slot OSC: legacy;
-		bel_slot SED: legacy;
+		bel_slot PLL[0]: PLL;
+		bel_slot DQSDLL: DQSDLL;
+		bel_slot CLKDIV[0]: CLKDIV;
+		bel_slot START: START;
+		bel_slot GSR: GSR;
+		bel_slot SSPI: SSPI;
+		bel_slot STF: STF;
+		bel_slot WAKEUP: WAKEUP;
+		bel_slot DQS[0]: DQS;
+		bel_slot JTAG: JTAG;
+		bel_slot OSC: OSC;
+		bel_slot SED: SED;
 
 		tile_class PLC {
 			cell CELL;
@@ -9818,206 +9992,243 @@ intdb {
 		tile_class PLL_S {
 			cell CELL[0];
 			cell CELL[1];
+			cell IO_CLKI;
+			cell IO_CLKFB;
 
-			bel PLL[0] {
-				input CLKFB0 = CELL[0].IMUX_CLK[1];
-				input CLKI0 = CELL[0].IMUX_B[0];
-				input CLKI1 = CELL[0].IMUX_A[0];
-				input CLKI2 = CELL[0].IMUX_CLK[0];
-				output CLKOK = CELL[0].OUT_F[2];
-				output CLKOK2 = CELL[1].OUT_Q[5];
-				output CLKOP = CELL[0].OUT_F[5];
-				output CLKOS = CELL[0].OUT_F[6];
-				input CNTRST = CELL[0].IMUX_LSR[0];
-				input DFPAI0 = CELL[0].IMUX_A[1];
-				input DFPAI1 = CELL[0].IMUX_C[1];
-				input DFPAI2 = CELL[0].IMUX_A[2];
-				input DFPAI3 = CELL[0].IMUX_C[2];
-				output DFPAO0 = CELL[0].OUT_F[4];
-				output DFPAO1 = CELL[0].OUT_Q[5];
-				output DFPAO2 = CELL[1].OUT_F[6];
-				output DFPAO3 = CELL[0].OUT_F[7];
-				output DNLOCK = CELL[0].OUT_Q[3];
-				input DPAMODE = CELL[0].IMUX_A[3];
-				input DRPAI0 = CELL[0].IMUX_B[1];
-				input DRPAI1 = CELL[0].IMUX_D[1];
-				input DRPAI2 = CELL[0].IMUX_B[2];
-				input DRPAI3 = CELL[0].IMUX_D[2];
-				output DRPAO0 = CELL[0].OUT_F[0];
-				output DRPAO1 = CELL[0].OUT_F[1];
-				output DRPAO2 = CELL[0].OUT_Q[4];
-				output DRPAO3 = CELL[0].OUT_F[3];
-				output LOCK = CELL[0].OUT_Q[0];
-				input PWD = CELL[0].IMUX_A[4];
-				input RESETK = CELL[0].IMUX_CE[0];
-				input RESETM = CELL[0].IMUX_LSR[1];
-				input TCLKI = CELL[0].IMUX_B[4];
-				output TESTOUT = CELL[0].OUT_Q[1];
-				output UPLOCK = CELL[0].OUT_Q[2];
+			switchbox BEL_INT {
+				mux CELL[0].IMUX_PLL_CLKI = CELL[0].IMUX_A[0] | CELL[0].IMUX_B[0] | CELL[0].IMUX_CLK[0] | IO_CLKI.OUT_IO_PADDI[0];
+				mux CELL[0].IMUX_PLL_CLKFB = CELL[0].ECLK[0] | CELL[0].IMUX_CLK[1] | CELL[0].OUT_PLL_CLKINTFB | IO_CLKFB.OUT_IO_PADDI[0];
 			}
 
-			// wire CELL[0].IMUX_A[0]              PLL[0].CLKI1
-			// wire CELL[0].IMUX_A[1]              PLL[0].DFPAI0
-			// wire CELL[0].IMUX_A[2]              PLL[0].DFPAI2
+			bel PLL[0] {
+				input CLKI = CELL[0].IMUX_PLL_CLKI;
+				input CLKFB = CELL[0].IMUX_PLL_CLKFB;
+				input RESETM = CELL[0].IMUX_LSR[1];
+				input RESETK = CELL[0].IMUX_CE[0];
+				input CNTRST = CELL[0].IMUX_LSR[0];
+				input PWD = CELL[0].IMUX_A[4];
+				input DPAMODE = CELL[0].IMUX_A[3];
+				input DRPAI[0] = CELL[0].IMUX_B[1];
+				input DRPAI[1] = CELL[0].IMUX_D[1];
+				input DRPAI[2] = CELL[0].IMUX_B[2];
+				input DRPAI[3] = CELL[0].IMUX_D[2];
+				input DFPAI[0] = CELL[0].IMUX_A[1];
+				input DFPAI[1] = CELL[0].IMUX_C[1];
+				input DFPAI[2] = CELL[0].IMUX_A[2];
+				input DFPAI[3] = CELL[0].IMUX_C[2];
+				input TCLKI = CELL[0].IMUX_B[4];
+				output CLKOP = CELL[0].OUT_F[5], CELL[0].OUT_PLL_CLKOP;
+				output CLKOS = CELL[0].OUT_F[6], CELL[0].OUT_PLL_CLKOS;
+				output CLKOK = CELL[0].OUT_F[2], CELL[0].OUT_PLL_CLKOK;
+				output CLKOK2 = CELL[0].OUT_PLL_CLKOK2, CELL[1].OUT_Q[5];
+				output CLKINTFB = CELL[0].OUT_PLL_CLKINTFB;
+				output LOCK = CELL[0].OUT_Q[0];
+				output DNLOCK = CELL[0].OUT_Q[3];
+				output UPLOCK = CELL[0].OUT_Q[2];
+				output DRPAO[0] = CELL[0].OUT_F[0];
+				output DRPAO[1] = CELL[0].OUT_F[1];
+				output DRPAO[2] = CELL[0].OUT_Q[4];
+				output DRPAO[3] = CELL[0].OUT_F[3];
+				output DFPAO[0] = CELL[0].OUT_F[4];
+				output DFPAO[1] = CELL[0].OUT_Q[5];
+				output DFPAO[2] = CELL[1].OUT_F[6];
+				output DFPAO[3] = CELL[0].OUT_F[7];
+				output TESTOUT = CELL[0].OUT_Q[1];
+			}
+
+			// wire CELL[0].IMUX_A[1]              PLL[0].DFPAI[0]
+			// wire CELL[0].IMUX_A[2]              PLL[0].DFPAI[2]
 			// wire CELL[0].IMUX_A[3]              PLL[0].DPAMODE
 			// wire CELL[0].IMUX_A[4]              PLL[0].PWD
-			// wire CELL[0].IMUX_B[0]              PLL[0].CLKI0
-			// wire CELL[0].IMUX_B[1]              PLL[0].DRPAI0
-			// wire CELL[0].IMUX_B[2]              PLL[0].DRPAI2
+			// wire CELL[0].IMUX_B[1]              PLL[0].DRPAI[0]
+			// wire CELL[0].IMUX_B[2]              PLL[0].DRPAI[2]
 			// wire CELL[0].IMUX_B[4]              PLL[0].TCLKI
-			// wire CELL[0].IMUX_C[1]              PLL[0].DFPAI1
-			// wire CELL[0].IMUX_C[2]              PLL[0].DFPAI3
-			// wire CELL[0].IMUX_D[1]              PLL[0].DRPAI1
-			// wire CELL[0].IMUX_D[2]              PLL[0].DRPAI3
-			// wire CELL[0].IMUX_CLK[0]            PLL[0].CLKI2
-			// wire CELL[0].IMUX_CLK[1]            PLL[0].CLKFB0
+			// wire CELL[0].IMUX_C[1]              PLL[0].DFPAI[1]
+			// wire CELL[0].IMUX_C[2]              PLL[0].DFPAI[3]
+			// wire CELL[0].IMUX_D[1]              PLL[0].DRPAI[1]
+			// wire CELL[0].IMUX_D[2]              PLL[0].DRPAI[3]
 			// wire CELL[0].IMUX_LSR[0]            PLL[0].CNTRST
 			// wire CELL[0].IMUX_LSR[1]            PLL[0].RESETM
 			// wire CELL[0].IMUX_CE[0]             PLL[0].RESETK
-			// wire CELL[0].OUT_F[0]               PLL[0].DRPAO0
-			// wire CELL[0].OUT_F[1]               PLL[0].DRPAO1
+			// wire CELL[0].OUT_F[0]               PLL[0].DRPAO[0]
+			// wire CELL[0].OUT_F[1]               PLL[0].DRPAO[1]
 			// wire CELL[0].OUT_F[2]               PLL[0].CLKOK
-			// wire CELL[0].OUT_F[3]               PLL[0].DRPAO3
-			// wire CELL[0].OUT_F[4]               PLL[0].DFPAO0
+			// wire CELL[0].OUT_F[3]               PLL[0].DRPAO[3]
+			// wire CELL[0].OUT_F[4]               PLL[0].DFPAO[0]
 			// wire CELL[0].OUT_F[5]               PLL[0].CLKOP
 			// wire CELL[0].OUT_F[6]               PLL[0].CLKOS
-			// wire CELL[0].OUT_F[7]               PLL[0].DFPAO3
+			// wire CELL[0].OUT_F[7]               PLL[0].DFPAO[3]
 			// wire CELL[0].OUT_Q[0]               PLL[0].LOCK
 			// wire CELL[0].OUT_Q[1]               PLL[0].TESTOUT
 			// wire CELL[0].OUT_Q[2]               PLL[0].UPLOCK
 			// wire CELL[0].OUT_Q[3]               PLL[0].DNLOCK
-			// wire CELL[0].OUT_Q[4]               PLL[0].DRPAO2
-			// wire CELL[0].OUT_Q[5]               PLL[0].DFPAO1
-			// wire CELL[1].OUT_F[6]               PLL[0].DFPAO2
+			// wire CELL[0].OUT_Q[4]               PLL[0].DRPAO[2]
+			// wire CELL[0].OUT_Q[5]               PLL[0].DFPAO[1]
+			// wire CELL[0].IMUX_PLL_CLKI          PLL[0].CLKI
+			// wire CELL[0].IMUX_PLL_CLKFB         PLL[0].CLKFB
+			// wire CELL[0].OUT_PLL_CLKINTFB       PLL[0].CLKINTFB
+			// wire CELL[0].OUT_PLL_CLKOP          PLL[0].CLKOP
+			// wire CELL[0].OUT_PLL_CLKOS          PLL[0].CLKOS
+			// wire CELL[0].OUT_PLL_CLKOK          PLL[0].CLKOK
+			// wire CELL[0].OUT_PLL_CLKOK2         PLL[0].CLKOK2
+			// wire CELL[1].OUT_F[6]               PLL[0].DFPAO[2]
 			// wire CELL[1].OUT_Q[5]               PLL[0].CLKOK2
 		}
 
 		tile_class PLL_N {
 			cell CELL[0];
 			cell CELL[1];
+			cell IO_CLKI;
+			cell IO_CLKFB;
 
-			bel PLL[0] {
-				input CLKFB0 = CELL[0].IMUX_CLK[1];
-				input CLKI0 = CELL[0].IMUX_B[0];
-				input CLKI1 = CELL[0].IMUX_A[0];
-				input CLKI2 = CELL[0].IMUX_CLK[0];
-				output CLKOK = CELL[0].OUT_F[2];
-				output CLKOK2 = CELL[1].OUT_Q[5];
-				output CLKOP = CELL[0].OUT_F[5];
-				output CLKOS = CELL[0].OUT_F[6];
-				input CNTRST = CELL[0].IMUX_LSR[0];
-				input DFPAI0 = CELL[0].IMUX_A[1];
-				input DFPAI1 = CELL[0].IMUX_C[1];
-				input DFPAI2 = CELL[0].IMUX_A[2];
-				input DFPAI3 = CELL[0].IMUX_C[2];
-				output DFPAO0 = CELL[0].OUT_F[4];
-				output DFPAO1 = CELL[0].OUT_Q[5];
-				output DFPAO2 = CELL[1].OUT_F[6];
-				output DFPAO3 = CELL[0].OUT_F[7];
-				output DNLOCK = CELL[0].OUT_Q[3];
-				input DPAMODE = CELL[0].IMUX_A[3];
-				input DRPAI0 = CELL[0].IMUX_B[1];
-				input DRPAI1 = CELL[0].IMUX_D[1];
-				input DRPAI2 = CELL[0].IMUX_B[2];
-				input DRPAI3 = CELL[0].IMUX_D[2];
-				output DRPAO0 = CELL[0].OUT_F[0];
-				output DRPAO1 = CELL[0].OUT_F[1];
-				output DRPAO2 = CELL[0].OUT_Q[4];
-				output DRPAO3 = CELL[0].OUT_F[3];
-				output LOCK = CELL[0].OUT_Q[0];
-				input PWD = CELL[0].IMUX_A[4];
-				input RESETK = CELL[0].IMUX_CE[0];
-				input RESETM = CELL[0].IMUX_LSR[1];
-				input TCLKI = CELL[0].IMUX_B[4];
-				output TESTOUT = CELL[0].OUT_Q[1];
-				output UPLOCK = CELL[0].OUT_Q[2];
+			switchbox BEL_INT {
+				mux CELL[0].IMUX_PLL_CLKI = CELL[0].IMUX_A[0] | CELL[0].IMUX_B[0] | CELL[0].IMUX_CLK[0] | IO_CLKI.OUT_IO_PADDI[0];
+				mux CELL[0].IMUX_PLL_CLKFB = CELL[0].ECLK[0] | CELL[0].IMUX_CLK[1] | CELL[0].OUT_PLL_CLKINTFB | IO_CLKFB.OUT_IO_PADDI[0];
 			}
 
-			// wire CELL[0].IMUX_A[0]              PLL[0].CLKI1
-			// wire CELL[0].IMUX_A[1]              PLL[0].DFPAI0
-			// wire CELL[0].IMUX_A[2]              PLL[0].DFPAI2
+			bel PLL[0] {
+				input CLKI = CELL[0].IMUX_PLL_CLKI;
+				input CLKFB = CELL[0].IMUX_PLL_CLKFB;
+				input RESETM = CELL[0].IMUX_LSR[1];
+				input RESETK = CELL[0].IMUX_CE[0];
+				input CNTRST = CELL[0].IMUX_LSR[0];
+				input PWD = CELL[0].IMUX_A[4];
+				input DPAMODE = CELL[0].IMUX_A[3];
+				input DRPAI[0] = CELL[0].IMUX_B[1];
+				input DRPAI[1] = CELL[0].IMUX_D[1];
+				input DRPAI[2] = CELL[0].IMUX_B[2];
+				input DRPAI[3] = CELL[0].IMUX_D[2];
+				input DFPAI[0] = CELL[0].IMUX_A[1];
+				input DFPAI[1] = CELL[0].IMUX_C[1];
+				input DFPAI[2] = CELL[0].IMUX_A[2];
+				input DFPAI[3] = CELL[0].IMUX_C[2];
+				input TCLKI = CELL[0].IMUX_B[4];
+				output CLKOP = CELL[0].OUT_F[5], CELL[0].OUT_PLL_CLKOP;
+				output CLKOS = CELL[0].OUT_F[6], CELL[0].OUT_PLL_CLKOS;
+				output CLKOK = CELL[0].OUT_F[2], CELL[0].OUT_PLL_CLKOK;
+				output CLKOK2 = CELL[0].OUT_PLL_CLKOK2, CELL[1].OUT_Q[5];
+				output CLKINTFB = CELL[0].OUT_PLL_CLKINTFB;
+				output LOCK = CELL[0].OUT_Q[0];
+				output DNLOCK = CELL[0].OUT_Q[3];
+				output UPLOCK = CELL[0].OUT_Q[2];
+				output DRPAO[0] = CELL[0].OUT_F[0];
+				output DRPAO[1] = CELL[0].OUT_F[1];
+				output DRPAO[2] = CELL[0].OUT_Q[4];
+				output DRPAO[3] = CELL[0].OUT_F[3];
+				output DFPAO[0] = CELL[0].OUT_F[4];
+				output DFPAO[1] = CELL[0].OUT_Q[5];
+				output DFPAO[2] = CELL[1].OUT_F[6];
+				output DFPAO[3] = CELL[0].OUT_F[7];
+				output TESTOUT = CELL[0].OUT_Q[1];
+			}
+
+			// wire CELL[0].IMUX_A[1]              PLL[0].DFPAI[0]
+			// wire CELL[0].IMUX_A[2]              PLL[0].DFPAI[2]
 			// wire CELL[0].IMUX_A[3]              PLL[0].DPAMODE
 			// wire CELL[0].IMUX_A[4]              PLL[0].PWD
-			// wire CELL[0].IMUX_B[0]              PLL[0].CLKI0
-			// wire CELL[0].IMUX_B[1]              PLL[0].DRPAI0
-			// wire CELL[0].IMUX_B[2]              PLL[0].DRPAI2
+			// wire CELL[0].IMUX_B[1]              PLL[0].DRPAI[0]
+			// wire CELL[0].IMUX_B[2]              PLL[0].DRPAI[2]
 			// wire CELL[0].IMUX_B[4]              PLL[0].TCLKI
-			// wire CELL[0].IMUX_C[1]              PLL[0].DFPAI1
-			// wire CELL[0].IMUX_C[2]              PLL[0].DFPAI3
-			// wire CELL[0].IMUX_D[1]              PLL[0].DRPAI1
-			// wire CELL[0].IMUX_D[2]              PLL[0].DRPAI3
-			// wire CELL[0].IMUX_CLK[0]            PLL[0].CLKI2
-			// wire CELL[0].IMUX_CLK[1]            PLL[0].CLKFB0
+			// wire CELL[0].IMUX_C[1]              PLL[0].DFPAI[1]
+			// wire CELL[0].IMUX_C[2]              PLL[0].DFPAI[3]
+			// wire CELL[0].IMUX_D[1]              PLL[0].DRPAI[1]
+			// wire CELL[0].IMUX_D[2]              PLL[0].DRPAI[3]
 			// wire CELL[0].IMUX_LSR[0]            PLL[0].CNTRST
 			// wire CELL[0].IMUX_LSR[1]            PLL[0].RESETM
 			// wire CELL[0].IMUX_CE[0]             PLL[0].RESETK
-			// wire CELL[0].OUT_F[0]               PLL[0].DRPAO0
-			// wire CELL[0].OUT_F[1]               PLL[0].DRPAO1
+			// wire CELL[0].OUT_F[0]               PLL[0].DRPAO[0]
+			// wire CELL[0].OUT_F[1]               PLL[0].DRPAO[1]
 			// wire CELL[0].OUT_F[2]               PLL[0].CLKOK
-			// wire CELL[0].OUT_F[3]               PLL[0].DRPAO3
-			// wire CELL[0].OUT_F[4]               PLL[0].DFPAO0
+			// wire CELL[0].OUT_F[3]               PLL[0].DRPAO[3]
+			// wire CELL[0].OUT_F[4]               PLL[0].DFPAO[0]
 			// wire CELL[0].OUT_F[5]               PLL[0].CLKOP
 			// wire CELL[0].OUT_F[6]               PLL[0].CLKOS
-			// wire CELL[0].OUT_F[7]               PLL[0].DFPAO3
+			// wire CELL[0].OUT_F[7]               PLL[0].DFPAO[3]
 			// wire CELL[0].OUT_Q[0]               PLL[0].LOCK
 			// wire CELL[0].OUT_Q[1]               PLL[0].TESTOUT
 			// wire CELL[0].OUT_Q[2]               PLL[0].UPLOCK
 			// wire CELL[0].OUT_Q[3]               PLL[0].DNLOCK
-			// wire CELL[0].OUT_Q[4]               PLL[0].DRPAO2
-			// wire CELL[0].OUT_Q[5]               PLL[0].DFPAO1
-			// wire CELL[1].OUT_F[6]               PLL[0].DFPAO2
+			// wire CELL[0].OUT_Q[4]               PLL[0].DRPAO[2]
+			// wire CELL[0].OUT_Q[5]               PLL[0].DFPAO[1]
+			// wire CELL[0].IMUX_PLL_CLKI          PLL[0].CLKI
+			// wire CELL[0].IMUX_PLL_CLKFB         PLL[0].CLKFB
+			// wire CELL[0].OUT_PLL_CLKINTFB       PLL[0].CLKINTFB
+			// wire CELL[0].OUT_PLL_CLKOP          PLL[0].CLKOP
+			// wire CELL[0].OUT_PLL_CLKOS          PLL[0].CLKOS
+			// wire CELL[0].OUT_PLL_CLKOK          PLL[0].CLKOK
+			// wire CELL[0].OUT_PLL_CLKOK2         PLL[0].CLKOK2
+			// wire CELL[1].OUT_F[6]               PLL[0].DFPAO[2]
 			// wire CELL[1].OUT_Q[5]               PLL[0].CLKOK2
 		}
 
 		tile_class CLK_W {
 			cell CELL;
+			cell CELL_PLL_S;
+			cell CELL_PLL_N;
+
+			switchbox BEL_INT {
+				mux CELL.IMUX_CLKDIV_CLKI = CELL.ECLK[0] | CELL.ECLK[1] | CELL_PLL_S.OUT_PLL_CLKOP | CELL_PLL_N.OUT_PLL_CLKOP;
+			}
 
 			bel DQSDLL {
-				input CLK = IMUX_CLK[0];
-				output LOCK = OUT_F[4];
-				input RST = IMUX_B[0];
-				input UDDCNTL = IMUX_A[0];
+				input CLK = CELL.IMUX_CLK[0];
+				input RST = CELL.IMUX_B[0];
+				input UDDCNTL = CELL.IMUX_A[0];
+				output LOCK = CELL.OUT_F[4];
 			}
 
 			bel CLKDIV[0] {
-				output CDIV1 = OUT_F[0];
-				output CDIV2 = OUT_F[2];
-				output CDIV4 = OUT_F[1];
-				output CDIV8 = OUT_F[3];
-				input RELEASE = IMUX_CE[0];
-				input RST = IMUX_LSR[0];
+				input CLKI = CELL.IMUX_CLKDIV_CLKI;
+				input RST = CELL.IMUX_LSR[0];
+				input RELEASE = CELL.IMUX_CE[0];
+				output CDIV1 = CELL.OUT_F[0], CELL.OUT_CLKDIV_CDIV1;
+				output CDIV2 = CELL.OUT_F[2], CELL.OUT_CLKDIV_CDIV2;
+				output CDIV4 = CELL.OUT_F[1], CELL.OUT_CLKDIV_CDIV4;
+				output CDIV8 = CELL.OUT_F[3], CELL.OUT_CLKDIV_CDIV8;
 			}
 
-			// wire IMUX_A[0]                      DQSDLL.UDDCNTL
-			// wire IMUX_B[0]                      DQSDLL.RST
-			// wire IMUX_CLK[0]                    DQSDLL.CLK
-			// wire IMUX_LSR[0]                    CLKDIV[0].RST
-			// wire IMUX_CE[0]                     CLKDIV[0].RELEASE
-			// wire OUT_F[0]                       CLKDIV[0].CDIV1
-			// wire OUT_F[1]                       CLKDIV[0].CDIV4
-			// wire OUT_F[2]                       CLKDIV[0].CDIV2
-			// wire OUT_F[3]                       CLKDIV[0].CDIV8
-			// wire OUT_F[4]                       DQSDLL.LOCK
+			// wire CELL.IMUX_A[0]                 DQSDLL.UDDCNTL
+			// wire CELL.IMUX_B[0]                 DQSDLL.RST
+			// wire CELL.IMUX_CLK[0]               DQSDLL.CLK
+			// wire CELL.IMUX_LSR[0]               CLKDIV[0].RST
+			// wire CELL.IMUX_CE[0]                CLKDIV[0].RELEASE
+			// wire CELL.OUT_F[0]                  CLKDIV[0].CDIV1
+			// wire CELL.OUT_F[1]                  CLKDIV[0].CDIV4
+			// wire CELL.OUT_F[2]                  CLKDIV[0].CDIV2
+			// wire CELL.OUT_F[3]                  CLKDIV[0].CDIV8
+			// wire CELL.OUT_F[4]                  DQSDLL.LOCK
+			// wire CELL.IMUX_CLKDIV_CLKI          CLKDIV[0].CLKI
+			// wire CELL.OUT_CLKDIV_CDIV1          CLKDIV[0].CDIV1
+			// wire CELL.OUT_CLKDIV_CDIV2          CLKDIV[0].CDIV2
+			// wire CELL.OUT_CLKDIV_CDIV4          CLKDIV[0].CDIV4
+			// wire CELL.OUT_CLKDIV_CDIV8          CLKDIV[0].CDIV8
 		}
 
 		tile_class CLK_E {
 			cell CELL;
+			cell CELL_PLL_S;
+			cell CELL_PLL_N;
 			cell CELL_CLK;
+
+			switchbox BEL_INT {
+				mux CELL.IMUX_CLKDIV_CLKI = CELL.ECLK[0] | CELL.ECLK[1] | CELL_PLL_S.OUT_PLL_CLKOP | CELL_PLL_N.OUT_PLL_CLKOP;
+			}
 
 			bel DQSDLL {
 				input CLK = CELL.IMUX_CLK[0];
-				output LOCK = CELL.OUT_F[4];
 				input RST = CELL.IMUX_B[0];
 				input UDDCNTL = CELL.IMUX_A[0];
+				output LOCK = CELL.OUT_F[4];
 			}
 
 			bel CLKDIV[0] {
-				output CDIV1 = CELL.OUT_F[0];
-				output CDIV2 = CELL.OUT_F[2];
-				output CDIV4 = CELL.OUT_F[1];
-				output CDIV8 = CELL.OUT_F[3];
-				input RELEASE = CELL.IMUX_CE[0];
+				input CLKI = CELL.IMUX_CLKDIV_CLKI;
 				input RST = CELL.IMUX_LSR[0];
+				input RELEASE = CELL.IMUX_CE[0];
+				output CDIV1 = CELL.OUT_F[0], CELL.OUT_CLKDIV_CDIV1;
+				output CDIV2 = CELL.OUT_F[2], CELL.OUT_CLKDIV_CDIV2;
+				output CDIV4 = CELL.OUT_F[1], CELL.OUT_CLKDIV_CDIV4;
+				output CDIV8 = CELL.OUT_F[3], CELL.OUT_CLKDIV_CDIV8;
 			}
 
 			bel START {
@@ -10066,6 +10277,11 @@ intdb {
 			// wire CELL.OUT_F[5]                  STF.UFMBUSYN
 			// wire CELL.OUT_Q[0]                  STF.UFMFAIL
 			// wire CELL.OUT_Q[1]                  SSPI.SO
+			// wire CELL.IMUX_CLKDIV_CLKI          CLKDIV[0].CLKI
+			// wire CELL.OUT_CLKDIV_CDIV1          CLKDIV[0].CDIV1
+			// wire CELL.OUT_CLKDIV_CDIV2          CLKDIV[0].CDIV2
+			// wire CELL.OUT_CLKDIV_CDIV4          CLKDIV[0].CDIV4
+			// wire CELL.OUT_CLKDIV_CDIV8          CLKDIV[0].CDIV8
 			// wire CELL_CLK.IMUX_CLK[1]           GSR.CLK
 		}
 
@@ -10074,10 +10290,10 @@ intdb {
 
 			bel DQS[0] {
 				input CLK = IMUX_CLK[0];
-				output DATAVALID = OUT_Q[4];
+				input READ = IMUX_B[2];
 				output DDRCLKPOL = OUT_F[7];
 				output PRMBDET = OUT_F[6];
-				input READ = IMUX_B[2];
+				output DATAVALID = OUT_Q[4];
 			}
 
 			// wire IMUX_B[2]                      DQS[0].READ
@@ -10092,10 +10308,10 @@ intdb {
 
 			bel DQS[0] {
 				input CLK = IMUX_CLK[0];
-				output DATAVALID = OUT_Q[4];
+				input READ = IMUX_B[2];
 				output DDRCLKPOL = OUT_F[7];
 				output PRMBDET = OUT_F[6];
-				input READ = IMUX_B[2];
+				output DATAVALID = OUT_Q[4];
 			}
 
 			// wire IMUX_B[2]                      DQS[0].READ
@@ -10110,10 +10326,10 @@ intdb {
 
 			bel DQS[0] {
 				input CLK = IMUX_CLK[0];
-				output DATAVALID = OUT_Q[4];
+				input READ = IMUX_B[2];
 				output DDRCLKPOL = OUT_F[7];
 				output PRMBDET = OUT_F[6];
-				input READ = IMUX_B[2];
+				output DATAVALID = OUT_Q[4];
 			}
 
 			// wire IMUX_B[2]                      DQS[0].READ
@@ -10128,10 +10344,10 @@ intdb {
 
 			bel DQS[0] {
 				input CLK = IMUX_CLK[0];
-				output DATAVALID = OUT_Q[4];
+				input READ = IMUX_B[2];
 				output DDRCLKPOL = OUT_F[7];
 				output PRMBDET = OUT_F[6];
-				input READ = IMUX_B[2];
+				output DATAVALID = OUT_Q[4];
 			}
 
 			// wire IMUX_B[2]                      DQS[0].READ
@@ -10145,27 +10361,27 @@ intdb {
 			cell CELL;
 
 			bel JTAG {
-				output JCE1 = OUT_Q[1];
-				output JCE2 = OUT_Q[2];
-				output JRSTN = OUT_Q[0];
-				output JRTI1 = OUT_F[1];
-				output JRTI2 = OUT_F[2];
-				output JSHIFT = OUT_F[4];
-				output JTCK = OUT_F[0];
-				output JTDI = OUT_F[3];
 				input JTDO1 = IMUX_A[0];
 				input JTDO2 = IMUX_B[0];
+				output JTDI = OUT_F[3];
+				output JTCK = OUT_F[0];
+				output JSHIFT = OUT_F[4];
 				output JUPDATE = OUT_F[5];
+				output JRSTN = OUT_Q[0];
+				output JCE1 = OUT_Q[1];
+				output JRTI1 = OUT_F[1];
+				output JCE2 = OUT_Q[2];
+				output JRTI2 = OUT_F[2];
 			}
 
 			bel SED {
-				output SEDCLKOUT = OUT_Q[5];
-				output SEDDONE = OUT_Q[3];
 				input SEDENABLE = IMUX_CE[2];
-				output SEDERR = OUT_Q[4];
-				input SEDFRCERR = IMUX_CLK[0];
-				output SEDINPROG = OUT_Q[6];
 				input SEDSTART = IMUX_CE[0];
+				input SEDFRCERR = IMUX_CLK[0];
+				output SEDCLKOUT = OUT_Q[5];
+				output SEDINPROG = OUT_Q[6];
+				output SEDDONE = OUT_Q[3];
+				output SEDERR = OUT_Q[4];
 			}
 
 			// wire IMUX_A[0]                      JTAG.JTDO1
@@ -10200,7 +10416,7 @@ intdb {
 	}
 
 	tile_slot CLK {
-		bel_slot ECLK_ROOT: legacy;
+		bel_slot CLK_INT: routing;
 		bel_slot CLK_ROOT: legacy;
 		bel_slot DCS_SW[0]: legacy;
 		bel_slot DCS_SW[1]: legacy;
@@ -10567,76 +10783,68 @@ intdb {
 
 		tile_class ECLK_ROOT_W {
 			cell CELL;
+			cell IO[0];
+			cell IO[1];
+			cell PLL_S;
+			cell PLL_N;
+			cell PLL_IO_S;
+			cell PLL_IO_N;
 
-			bel ECLK_ROOT {
-				input ECLK0_IN = IMUX_B[2];
-				input ECLK1_IN = IMUX_B[3];
-				output PAD0_OUT = OUT_F[6];
-				output PAD1_OUT = OUT_F[7];
+			switchbox CLK_INT {
+				mux CELL.ECLK[0] = CELL.IMUX_B[2] | IO[0].OUT_IO_PADDI[0] | PLL_S.OUT_PLL_CLKOP | PLL_N.OUT_PLL_CLKOP | PLL_IO_S.OUT_IO_PADDI[0] | PLL_IO_N.OUT_IO_PADDI[0];
+				mux CELL.ECLK[1] = CELL.IMUX_B[3] | IO[1].OUT_IO_PADDI[0] | PLL_S.OUT_PLL_CLKOS | PLL_N.OUT_PLL_CLKOS | PLL_IO_S.OUT_IO_PADDI[0] | PLL_IO_N.OUT_IO_PADDI[0];
+				permabuf CELL.OUT_F[6] = IO[0].OUT_IO_PADDI[0];
+				permabuf CELL.OUT_F[7] = IO[1].OUT_IO_PADDI[0];
 			}
-
-			// wire IMUX_B[2]                      ECLK_ROOT.ECLK0_IN
-			// wire IMUX_B[3]                      ECLK_ROOT.ECLK1_IN
-			// wire OUT_F[6]                       ECLK_ROOT.PAD0_OUT
-			// wire OUT_F[7]                       ECLK_ROOT.PAD1_OUT
 		}
 
 		tile_class ECLK_ROOT_E {
 			cell CELL;
+			cell IO[0];
+			cell IO[1];
+			cell PLL_S;
+			cell PLL_N;
+			cell PLL_IO_S;
+			cell PLL_IO_N;
 
-			bel ECLK_ROOT {
-				input ECLK0_IN = IMUX_B[2];
-				input ECLK1_IN = IMUX_B[3];
-				output PAD0_OUT = OUT_F[6];
-				output PAD1_OUT = OUT_F[7];
+			switchbox CLK_INT {
+				mux CELL.ECLK[0] = CELL.IMUX_B[2] | IO[0].OUT_IO_PADDI[0] | PLL_S.OUT_PLL_CLKOP | PLL_N.OUT_PLL_CLKOP | PLL_IO_S.OUT_IO_PADDI[0] | PLL_IO_N.OUT_IO_PADDI[0];
+				mux CELL.ECLK[1] = CELL.IMUX_B[3] | IO[1].OUT_IO_PADDI[0] | PLL_S.OUT_PLL_CLKOS | PLL_N.OUT_PLL_CLKOS | PLL_IO_S.OUT_IO_PADDI[0] | PLL_IO_N.OUT_IO_PADDI[0];
+				permabuf CELL.OUT_F[6] = IO[0].OUT_IO_PADDI[0];
+				permabuf CELL.OUT_F[7] = IO[1].OUT_IO_PADDI[0];
 			}
-
-			// wire IMUX_B[2]                      ECLK_ROOT.ECLK0_IN
-			// wire IMUX_B[3]                      ECLK_ROOT.ECLK1_IN
-			// wire OUT_F[6]                       ECLK_ROOT.PAD0_OUT
-			// wire OUT_F[7]                       ECLK_ROOT.PAD1_OUT
 		}
 
 		tile_class ECLK_ROOT_S {
 			cell CELL[0];
 			cell CELL[1];
+			cell IO[0];
+			cell IO[1];
 
-			bel ECLK_ROOT {
-				input ECLK0_IN = CELL[0].IMUX_B[2];
-				input ECLK1_IN = CELL[0].IMUX_B[3];
-				output PAD0_OUT0 = CELL[0].OUT_F[6];
-				output PAD0_OUT1 = CELL[1].OUT_F[6];
-				output PAD1_OUT0 = CELL[0].OUT_F[7];
-				output PAD1_OUT1 = CELL[1].OUT_F[7];
+			switchbox CLK_INT {
+				mux CELL[0].ECLK[0] = CELL[0].IMUX_B[2] | IO[0].OUT_IO_PADDI[0];
+				mux CELL[0].ECLK[1] = CELL[0].IMUX_B[3] | IO[1].OUT_IO_PADDI[0];
+				permabuf CELL[0].OUT_F[6] = IO[0].OUT_IO_PADDI[0];
+				permabuf CELL[0].OUT_F[7] = IO[1].OUT_IO_PADDI[0];
+				permabuf CELL[1].OUT_F[6] = IO[0].OUT_IO_PADDI[0];
+				permabuf CELL[1].OUT_F[7] = IO[1].OUT_IO_PADDI[0];
 			}
-
-			// wire CELL[0].IMUX_B[2]              ECLK_ROOT.ECLK0_IN
-			// wire CELL[0].IMUX_B[3]              ECLK_ROOT.ECLK1_IN
-			// wire CELL[0].OUT_F[6]               ECLK_ROOT.PAD0_OUT0
-			// wire CELL[0].OUT_F[7]               ECLK_ROOT.PAD1_OUT0
-			// wire CELL[1].OUT_F[6]               ECLK_ROOT.PAD0_OUT1
-			// wire CELL[1].OUT_F[7]               ECLK_ROOT.PAD1_OUT1
 		}
 
 		tile_class ECLK_ROOT_N {
 			cell CELL[0];
 			cell CELL[1];
+			cell IO[0];
+			cell IO[1];
 
-			bel ECLK_ROOT {
-				input ECLK0_IN = CELL[0].IMUX_B[2];
-				input ECLK1_IN = CELL[0].IMUX_B[3];
-				output PAD0_OUT0 = CELL[0].OUT_F[6];
-				output PAD0_OUT1 = CELL[1].OUT_F[6];
-				output PAD1_OUT0 = CELL[0].OUT_F[7];
-				output PAD1_OUT1 = CELL[1].OUT_F[7];
+			switchbox CLK_INT {
+				mux CELL[0].ECLK[0] = CELL[0].IMUX_B[2] | IO[0].OUT_IO_PADDI[0];
+				mux CELL[0].ECLK[1] = CELL[0].IMUX_B[3] | IO[1].OUT_IO_PADDI[0];
+				permabuf CELL[0].OUT_F[6] = IO[0].OUT_IO_PADDI[0];
+				permabuf CELL[0].OUT_F[7] = IO[1].OUT_IO_PADDI[0];
+				permabuf CELL[1].OUT_F[6] = IO[0].OUT_IO_PADDI[0];
+				permabuf CELL[1].OUT_F[7] = IO[1].OUT_IO_PADDI[0];
 			}
-
-			// wire CELL[0].IMUX_B[2]              ECLK_ROOT.ECLK0_IN
-			// wire CELL[0].IMUX_B[3]              ECLK_ROOT.ECLK1_IN
-			// wire CELL[0].OUT_F[6]               ECLK_ROOT.PAD0_OUT0
-			// wire CELL[0].OUT_F[7]               ECLK_ROOT.PAD1_OUT0
-			// wire CELL[1].OUT_F[6]               ECLK_ROOT.PAD0_OUT1
-			// wire CELL[1].OUT_F[7]               ECLK_ROOT.PAD1_OUT1
 		}
 	}
 
@@ -10681,18 +10889,15 @@ intdb {
 	}
 
 	tile_slot ECLK_TAP {
-		bel_slot ECLK_TAP: ECLK_TAP;
+		bel_slot ECLK_TAP: routing;
 
 		tile_class ECLK_TAP {
 			cell CELL;
 
-			bel ECLK_TAP {
-				output ECLK[0] = OUT_F[6];
-				output ECLK[1] = OUT_F[7];
+			switchbox ECLK_TAP {
+				permabuf OUT_F[6] = ECLK[0];
+				permabuf OUT_F[7] = ECLK[1];
 			}
-
-			// wire OUT_F[6]                       ECLK_TAP.ECLK[0]
-			// wire OUT_F[7]                       ECLK_TAP.ECLK[1]
 		}
 	}
 

@@ -43,6 +43,7 @@ pub struct BelNaming {
     pub names: Vec<StringId>,
     pub wires: BTreeMap<StringId, WireName>,
     pub int_wires: BTreeMap<TileWireCoord, WireName>,
+    pub int_inputs: BTreeMap<(TileWireCoord, TileWireCoord), WireName>,
 }
 
 #[derive(Clone, Debug, Encode, Decode, Default)]

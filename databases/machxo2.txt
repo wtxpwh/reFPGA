@@ -14069,6 +14069,56 @@ intdb {
 		output AF;
 	}
 
+	bel_class DCS {
+		input CLK[2];
+		input SEL;
+		output DCSOUT;
+	}
+
+	bel_class GSR {
+		input CLK;
+		input GSR;
+	}
+
+	bel_class JTAG {
+		input JTDO1;
+		input JTDO2;
+		output JTDI;
+		output JTCK;
+		output JSHIFT;
+		output JUPDATE;
+		output JRSTN;
+		output JCE1;
+		output JRTI1;
+		output JCE2;
+		output JRTI2;
+	}
+
+	bel_class START {
+		input STARTCLK;
+	}
+
+	bel_class OSC {
+		input STDBY;
+		output OSC;
+	}
+
+	bel_class TSALL {
+		input TSALLI;
+	}
+
+	bel_class SED {
+		input SEDENABLE;
+		input SEDSTART;
+		input SEDFRCERR;
+		input SEDEXCLK;
+		output SEDCLKOUT;
+		output SEDINPROG;
+		output SEDDONE;
+		output SEDERR;
+		output AUTODONE;
+	}
+
 	bel_class HSDCLK_ROOT {
 		output OUT_W[8];
 		output OUT_E[8];
@@ -16066,6 +16116,7 @@ intdb {
 	}
 
 	tile_slot BEL {
+		bel_slot BEL_INT: routing;
 		bel_slot SLICE[0]: SLICE;
 		bel_slot SLICE[1]: SLICE;
 		bel_slot SLICE[2]: SLICE;
@@ -16073,15 +16124,15 @@ intdb {
 		bel_slot EBR[0]: EBR;
 		bel_slot PLL[0]: legacy;
 		bel_slot DQSDLL: legacy;
-		bel_slot START: legacy;
-		bel_slot GSR: legacy;
+		bel_slot START: START;
+		bel_slot GSR: GSR;
 		bel_slot DQSDLLTEST: legacy;
 		bel_slot PLLREFCS[0]: legacy;
-		bel_slot JTAG: legacy;
-		bel_slot OSC: legacy;
-		bel_slot SED: legacy;
+		bel_slot JTAG: JTAG;
+		bel_slot OSC: OSC;
+		bel_slot TSALL: TSALL;
+		bel_slot SED: SED;
 		bel_slot PCNTR: legacy;
-		bel_slot TSALL: legacy;
 		bel_slot EFB: legacy;
 		bel_slot ESB: legacy;
 
@@ -16834,34 +16885,38 @@ intdb {
 			}
 
 			bel JTAG {
-				output JCE1 = CELL[0].OUT_Q[1];
-				output JCE2 = CELL[0].OUT_Q[3];
-				output JRSTN = CELL[0].OUT_F[6];
-				output JRTI1 = CELL[0].OUT_Q[2];
-				output JRTI2 = CELL[0].OUT_Q[4];
-				output JSHIFT = CELL[0].OUT_F[7];
-				output JTCK = CELL[0].OUT_F[4];
-				output JTDI = CELL[0].OUT_F[5];
 				input JTDO1 = CELL[0].IMUX_A[4];
 				input JTDO2 = CELL[0].IMUX_B[4];
+				output JTDI = CELL[0].OUT_F[5];
+				output JTCK = CELL[0].OUT_F[4];
+				output JSHIFT = CELL[0].OUT_F[7];
 				output JUPDATE = CELL[0].OUT_Q[0];
+				output JRSTN = CELL[0].OUT_F[6];
+				output JCE1 = CELL[0].OUT_Q[1];
+				output JRTI1 = CELL[0].OUT_Q[2];
+				output JCE2 = CELL[0].OUT_Q[3];
+				output JRTI2 = CELL[0].OUT_Q[4];
 			}
 
 			bel OSC {
-				output OSC = CELL[0].OUT_Q[5];
 				input STDBY = CELL[0].IMUX_LSR[1];
+				output OSC = CELL[0].OUT_Q[5];
+			}
+
+			bel TSALL {
+				input TSALLI = CELL[2].IMUX_LSR[0];
 			}
 
 			bel SED {
-				output AUTODONE = CELL[1].OUT_F[4];
-				output SEDCLKOUT = CELL[1].OUT_F[5];
-				output SEDDONE = CELL[1].OUT_F[6];
 				input SEDENABLE = CELL[1].IMUX_LSR[0];
-				output SEDERR = CELL[1].OUT_F[7];
-				input SEDEXCLK = CELL[1].IMUX_CLK[0];
-				input SEDFRCERR = CELL[1].IMUX_A[0];
-				output SEDINPROG = CELL[1].OUT_Q[0];
 				input SEDSTART = CELL[1].IMUX_LSR[1];
+				input SEDFRCERR = CELL[1].IMUX_A[0];
+				input SEDEXCLK = CELL[1].IMUX_CLK[0];
+				output SEDCLKOUT = CELL[1].OUT_F[5];
+				output SEDINPROG = CELL[1].OUT_Q[0];
+				output SEDDONE = CELL[1].OUT_F[6];
+				output SEDERR = CELL[1].OUT_F[7];
+				output AUTODONE = CELL[1].OUT_F[4];
 			}
 
 			bel PCNTR {
@@ -16872,10 +16927,6 @@ intdb {
 				output STOP = CELL[3].OUT_Q[4];
 				input USERSTDBY = CELL[3].IMUX_LSR[1];
 				input USERTIMEOUT = CELL[3].IMUX_C[0];
-			}
-
-			bel TSALL {
-				input TSALLI = CELL[2].IMUX_LSR[0];
 			}
 
 			bel EFB {
@@ -17044,34 +17095,38 @@ intdb {
 			}
 
 			bel JTAG {
-				output JCE1 = CELL[0].OUT_Q[1];
-				output JCE2 = CELL[0].OUT_Q[3];
-				output JRSTN = CELL[0].OUT_F[6];
-				output JRTI1 = CELL[0].OUT_Q[2];
-				output JRTI2 = CELL[0].OUT_Q[4];
-				output JSHIFT = CELL[0].OUT_F[7];
-				output JTCK = CELL[0].OUT_F[4];
-				output JTDI = CELL[0].OUT_F[5];
 				input JTDO1 = CELL[0].IMUX_A[4];
 				input JTDO2 = CELL[0].IMUX_B[4];
+				output JTDI = CELL[0].OUT_F[5];
+				output JTCK = CELL[0].OUT_F[4];
+				output JSHIFT = CELL[0].OUT_F[7];
 				output JUPDATE = CELL[0].OUT_Q[0];
+				output JRSTN = CELL[0].OUT_F[6];
+				output JCE1 = CELL[0].OUT_Q[1];
+				output JRTI1 = CELL[0].OUT_Q[2];
+				output JCE2 = CELL[0].OUT_Q[3];
+				output JRTI2 = CELL[0].OUT_Q[4];
 			}
 
 			bel OSC {
-				output OSC = CELL[0].OUT_Q[5];
 				input STDBY = CELL[0].IMUX_LSR[1];
+				output OSC = CELL[0].OUT_Q[5];
+			}
+
+			bel TSALL {
+				input TSALLI = CELL[2].IMUX_LSR[0];
 			}
 
 			bel SED {
-				output AUTODONE = CELL[1].OUT_F[4];
-				output SEDCLKOUT = CELL[1].OUT_F[5];
-				output SEDDONE = CELL[1].OUT_F[6];
 				input SEDENABLE = CELL[1].IMUX_LSR[0];
-				output SEDERR = CELL[1].OUT_F[7];
-				input SEDEXCLK = CELL[1].IMUX_CLK[0];
-				input SEDFRCERR = CELL[1].IMUX_A[0];
-				output SEDINPROG = CELL[1].OUT_Q[0];
 				input SEDSTART = CELL[1].IMUX_LSR[1];
+				input SEDFRCERR = CELL[1].IMUX_A[0];
+				input SEDEXCLK = CELL[1].IMUX_CLK[0];
+				output SEDCLKOUT = CELL[1].OUT_F[5];
+				output SEDINPROG = CELL[1].OUT_Q[0];
+				output SEDDONE = CELL[1].OUT_F[6];
+				output SEDERR = CELL[1].OUT_F[7];
+				output AUTODONE = CELL[1].OUT_F[4];
 			}
 
 			bel PCNTR {
@@ -17082,10 +17137,6 @@ intdb {
 				output STOP = CELL[3].OUT_Q[4];
 				input USERSTDBY = CELL[3].IMUX_LSR[1];
 				input USERTIMEOUT = CELL[3].IMUX_C[0];
-			}
-
-			bel TSALL {
-				input TSALLI = CELL[2].IMUX_LSR[0];
 			}
 
 			bel EFB {
@@ -17578,6 +17629,7 @@ intdb {
 		bel_slot CLKDIV[3]: legacy;
 		bel_slot DQS[0]: legacy;
 		bel_slot DQS[1]: legacy;
+		bel_slot CLK_INT: routing;
 		bel_slot CLK_ROOT: legacy;
 		bel_slot CLKTEST: legacy;
 		bel_slot DCC[0]: legacy;
@@ -17615,114 +17667,6 @@ intdb {
 
 			bel DLLDEL[0] {
 			}
-		}
-
-		tile_class CLK_N {
-			cell CELL;
-
-			bel DLLDEL[0] {
-			}
-
-			bel DLLDEL[1] {
-			}
-
-			bel CLKDIV[0] {
-				input ALIGNWD = IMUX_A[0];
-				output CDIV1 = OUT_F[1];
-				output CDIVX = OUT_F[0];
-				input RST = IMUX_A[2];
-			}
-
-			bel CLKDIV[1] {
-				input ALIGNWD = IMUX_A[1];
-				output CDIV1 = OUT_F[3];
-				output CDIVX = OUT_F[2];
-				input RST = IMUX_A[3];
-			}
-
-			bel ECLKSYNC[0] {
-				input ECLKI = IMUX_CLK[2];
-				output ECLKO = OUT_Q[4];
-				input STOP = IMUX_C[5];
-			}
-
-			bel ECLKSYNC[1] {
-				input ECLKI = IMUX_CLK[3];
-				output ECLKO = OUT_Q[5];
-				input STOP = IMUX_D[5];
-			}
-
-			// wire IMUX_A[0]                      CLKDIV[0].ALIGNWD
-			// wire IMUX_A[1]                      CLKDIV[1].ALIGNWD
-			// wire IMUX_A[2]                      CLKDIV[0].RST
-			// wire IMUX_A[3]                      CLKDIV[1].RST
-			// wire IMUX_C[5]                      ECLKSYNC[0].STOP
-			// wire IMUX_D[5]                      ECLKSYNC[1].STOP
-			// wire IMUX_CLK[2]                    ECLKSYNC[0].ECLKI
-			// wire IMUX_CLK[3]                    ECLKSYNC[1].ECLKI
-			// wire OUT_F[0]                       CLKDIV[0].CDIVX
-			// wire OUT_F[1]                       CLKDIV[0].CDIV1
-			// wire OUT_F[2]                       CLKDIV[1].CDIVX
-			// wire OUT_F[3]                       CLKDIV[1].CDIV1
-			// wire OUT_Q[4]                       ECLKSYNC[0].ECLKO
-			// wire OUT_Q[5]                       ECLKSYNC[1].ECLKO
-		}
-
-		tile_class CLK_S {
-			cell CELL;
-
-			bel DLLDEL[0] {
-			}
-
-			bel DLLDEL[1] {
-			}
-
-			bel CLKDIV[0] {
-				input ALIGNWD = IMUX_A[0];
-				output CDIV1 = OUT_F[1];
-				output CDIVX = OUT_F[0];
-				input RST = IMUX_A[2];
-			}
-
-			bel CLKDIV[1] {
-				input ALIGNWD = IMUX_A[1];
-				output CDIV1 = OUT_F[3];
-				output CDIVX = OUT_F[2];
-				input RST = IMUX_A[3];
-			}
-
-			bel ECLKSYNC[0] {
-				input ECLKI = IMUX_CLK[2];
-				output ECLKO = OUT_Q[4];
-				input STOP = IMUX_C[5];
-			}
-
-			bel ECLKSYNC[1] {
-				input ECLKI = IMUX_CLK[3];
-				output ECLKO = OUT_Q[5];
-				input STOP = IMUX_D[5];
-			}
-
-			bel CLKFBBUF[0] {
-			}
-
-			bel CLKFBBUF[1] {
-			}
-
-			// wire IMUX_A[0]                      CLKDIV[0].ALIGNWD
-			// wire IMUX_A[1]                      CLKDIV[1].ALIGNWD
-			// wire IMUX_A[2]                      CLKDIV[0].RST
-			// wire IMUX_A[3]                      CLKDIV[1].RST
-			// wire IMUX_C[5]                      ECLKSYNC[0].STOP
-			// wire IMUX_D[5]                      ECLKSYNC[1].STOP
-			// wire IMUX_CLK[2]                    ECLKSYNC[0].ECLKI
-			// wire IMUX_CLK[3]                    ECLKSYNC[1].ECLKI
-			// wire OUT_F[0]                       CLKDIV[0].CDIVX
-			// wire OUT_F[1]                       CLKDIV[0].CDIV1
-			// wire OUT_F[2]                       CLKDIV[1].CDIVX
-			// wire OUT_F[3]                       CLKDIV[1].CDIV1
-			// wire OUT_Q[4]                       ECLKSYNC[0].ECLKO
-			// wire OUT_Q[5]                       ECLKSYNC[1].ECLKO
 		}
 
 		tile_class CLK_ROOT_0EBR {
@@ -18376,6 +18320,114 @@ intdb {
 			// wire EBR_SW.IMUX_CLK[1]             CLK_ROOT.PCLK_IN_W1
 			// wire EBR_SE.IMUX_CLK[0]             CLK_ROOT.PCLK_IN_E0
 			// wire EBR_SE.IMUX_CLK[1]             CLK_ROOT.PCLK_IN_E1
+		}
+
+		tile_class CLK_S {
+			cell CELL;
+
+			bel DLLDEL[0] {
+			}
+
+			bel DLLDEL[1] {
+			}
+
+			bel CLKDIV[0] {
+				input ALIGNWD = IMUX_A[0];
+				output CDIV1 = OUT_F[1];
+				output CDIVX = OUT_F[0];
+				input RST = IMUX_A[2];
+			}
+
+			bel CLKDIV[1] {
+				input ALIGNWD = IMUX_A[1];
+				output CDIV1 = OUT_F[3];
+				output CDIVX = OUT_F[2];
+				input RST = IMUX_A[3];
+			}
+
+			bel ECLKSYNC[0] {
+				input ECLKI = IMUX_CLK[2];
+				output ECLKO = OUT_Q[4];
+				input STOP = IMUX_C[5];
+			}
+
+			bel ECLKSYNC[1] {
+				input ECLKI = IMUX_CLK[3];
+				output ECLKO = OUT_Q[5];
+				input STOP = IMUX_D[5];
+			}
+
+			bel CLKFBBUF[0] {
+			}
+
+			bel CLKFBBUF[1] {
+			}
+
+			// wire IMUX_A[0]                      CLKDIV[0].ALIGNWD
+			// wire IMUX_A[1]                      CLKDIV[1].ALIGNWD
+			// wire IMUX_A[2]                      CLKDIV[0].RST
+			// wire IMUX_A[3]                      CLKDIV[1].RST
+			// wire IMUX_C[5]                      ECLKSYNC[0].STOP
+			// wire IMUX_D[5]                      ECLKSYNC[1].STOP
+			// wire IMUX_CLK[2]                    ECLKSYNC[0].ECLKI
+			// wire IMUX_CLK[3]                    ECLKSYNC[1].ECLKI
+			// wire OUT_F[0]                       CLKDIV[0].CDIVX
+			// wire OUT_F[1]                       CLKDIV[0].CDIV1
+			// wire OUT_F[2]                       CLKDIV[1].CDIVX
+			// wire OUT_F[3]                       CLKDIV[1].CDIV1
+			// wire OUT_Q[4]                       ECLKSYNC[0].ECLKO
+			// wire OUT_Q[5]                       ECLKSYNC[1].ECLKO
+		}
+
+		tile_class CLK_N {
+			cell CELL;
+
+			bel DLLDEL[0] {
+			}
+
+			bel DLLDEL[1] {
+			}
+
+			bel CLKDIV[0] {
+				input ALIGNWD = IMUX_A[0];
+				output CDIV1 = OUT_F[1];
+				output CDIVX = OUT_F[0];
+				input RST = IMUX_A[2];
+			}
+
+			bel CLKDIV[1] {
+				input ALIGNWD = IMUX_A[1];
+				output CDIV1 = OUT_F[3];
+				output CDIVX = OUT_F[2];
+				input RST = IMUX_A[3];
+			}
+
+			bel ECLKSYNC[0] {
+				input ECLKI = IMUX_CLK[2];
+				output ECLKO = OUT_Q[4];
+				input STOP = IMUX_C[5];
+			}
+
+			bel ECLKSYNC[1] {
+				input ECLKI = IMUX_CLK[3];
+				output ECLKO = OUT_Q[5];
+				input STOP = IMUX_D[5];
+			}
+
+			// wire IMUX_A[0]                      CLKDIV[0].ALIGNWD
+			// wire IMUX_A[1]                      CLKDIV[1].ALIGNWD
+			// wire IMUX_A[2]                      CLKDIV[0].RST
+			// wire IMUX_A[3]                      CLKDIV[1].RST
+			// wire IMUX_C[5]                      ECLKSYNC[0].STOP
+			// wire IMUX_D[5]                      ECLKSYNC[1].STOP
+			// wire IMUX_CLK[2]                    ECLKSYNC[0].ECLKI
+			// wire IMUX_CLK[3]                    ECLKSYNC[1].ECLKI
+			// wire OUT_F[0]                       CLKDIV[0].CDIVX
+			// wire OUT_F[1]                       CLKDIV[0].CDIV1
+			// wire OUT_F[2]                       CLKDIV[1].CDIVX
+			// wire OUT_F[3]                       CLKDIV[1].CDIV1
+			// wire OUT_Q[4]                       ECLKSYNC[0].ECLKO
+			// wire OUT_Q[5]                       ECLKSYNC[1].ECLKO
 		}
 
 		tile_class CLK_E_DQS {

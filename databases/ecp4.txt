@@ -8845,7 +8845,54 @@ intdb {
 		output R[72];
 	}
 
+	bel_class DCS {
+		input CLK[2];
+		input SEL;
+		output DCSOUT;
+	}
+
+	bel_class GSR {
+		input CLK;
+		input GSR;
+	}
+
+	bel_class JTAG {
+		input JTDO1;
+		input JTDO2;
+		output JTDI;
+		output JTCK;
+		output JSHIFT;
+		output JUPDATE;
+		output JRSTN;
+		output JCE1;
+		output JRTI1;
+		output JCE2;
+		output JRTI2;
+	}
+
+	bel_class START {
+		input STARTCLK;
+	}
+
+	bel_class OSC {
+		input STDBY;
+		output OSC;
+	}
+
+	bel_class SED {
+		input SEDENABLE;
+		input SEDSTART;
+		input SEDFRCERR;
+		input SEDEXCLK;
+		output SEDCLKOUT;
+		output SEDINPROG;
+		output SEDDONE;
+		output SEDERR;
+		output AUTODONE;
+	}
+
 	region_slot PCLK;
+	region_slot DQS;
 	wire TIE0: tie 0;
 	wire TIE1: tie 1;
 	wire X0_W[0]: mux;
@@ -13714,6 +13761,7 @@ intdb {
 	}
 
 	tile_slot BEL {
+		bel_slot BEL_INT: routing;
 		bel_slot SLICE[0]: SLICE;
 		bel_slot SLICE[1]: SLICE;
 		bel_slot SLICE[2]: SLICE;
@@ -13727,16 +13775,16 @@ intdb {
 		bel_slot SERDES: legacy;
 		bel_slot PLL[0]: legacy;
 		bel_slot PLL[1]: legacy;
-		bel_slot START: legacy;
-		bel_slot GSR: legacy;
+		bel_slot START: START;
+		bel_slot GSR: GSR;
 		bel_slot PLLREFCS[0]: legacy;
 		bel_slot PLLREFCS[1]: legacy;
 		bel_slot DDRDLL: legacy;
 		bel_slot DTR: legacy;
 		bel_slot DQS[0]: legacy;
-		bel_slot JTAG: legacy;
-		bel_slot OSC: legacy;
-		bel_slot SED: legacy;
+		bel_slot JTAG: JTAG;
+		bel_slot OSC: OSC;
+		bel_slot SED: SED;
 		bel_slot PCNTR: legacy;
 		bel_slot EFB: legacy;
 		bel_slot PVTTEST: legacy;
@@ -39827,34 +39875,34 @@ intdb {
 			}
 
 			bel JTAG {
-				output JCE1 = CELL[0].OUT_Q[1];
-				output JCE2 = CELL[0].OUT_Q[3];
-				output JRSTN = CELL[0].OUT_F[6];
-				output JRTI1 = CELL[0].OUT_Q[2];
-				output JRTI2 = CELL[0].OUT_Q[4];
-				output JSHIFT = CELL[0].OUT_F[7];
-				output JTCK = CELL_CLK[1].OUT_Q[0];
-				output JTDI = CELL[0].OUT_F[5];
 				input JTDO1 = CELL[0].IMUX_A[4];
 				input JTDO2 = CELL[0].IMUX_B[4];
+				output JTDI = CELL[0].OUT_F[5];
+				output JTCK = CELL_CLK[1].OUT_Q[0];
+				output JSHIFT = CELL[0].OUT_F[7];
 				output JUPDATE = CELL[0].OUT_Q[0];
+				output JRSTN = CELL[0].OUT_F[6];
+				output JCE1 = CELL[0].OUT_Q[1];
+				output JRTI1 = CELL[0].OUT_Q[2];
+				output JCE2 = CELL[0].OUT_Q[3];
+				output JRTI2 = CELL[0].OUT_Q[4];
 			}
 
 			bel OSC {
-				output OSC = CELL_CLK[0].OUT_Q[0];
 				input STDBY = CELL[0].IMUX_LSR[1];
+				output OSC = CELL_CLK[0].OUT_Q[0];
 			}
 
 			bel SED {
-				output AUTODONE = CELL[1].OUT_F[4];
-				output SEDCLKOUT = CELL_CLK[3].OUT_Q[0];
-				output SEDDONE = CELL[1].OUT_F[6];
 				input SEDENABLE = CELL[1].IMUX_LSR[0];
-				output SEDERR = CELL[1].OUT_F[7];
-				input SEDEXCLK = CELL[1].IMUX_CLK_DELAY[0];
-				input SEDFRCERR = CELL[1].IMUX_A[0];
-				output SEDINPROG = CELL[1].OUT_Q[0];
 				input SEDSTART = CELL[1].IMUX_LSR[1];
+				input SEDFRCERR = CELL[1].IMUX_A[0];
+				input SEDEXCLK = CELL[1].IMUX_CLK_DELAY[0];
+				output SEDCLKOUT = CELL_CLK[3].OUT_Q[0];
+				output SEDINPROG = CELL[1].OUT_Q[0];
+				output SEDDONE = CELL[1].OUT_F[6];
+				output SEDERR = CELL[1].OUT_F[7];
+				output AUTODONE = CELL[1].OUT_F[4];
 			}
 
 			bel PCNTR {
@@ -40273,15 +40321,13 @@ intdb {
 		bel_slot CLKDIV[1]: legacy;
 		bel_slot CLKDIV[2]: legacy;
 		bel_slot CLKDIV[3]: legacy;
-		bel_slot DCS[0]: legacy;
-		bel_slot DCS[1]: legacy;
-		bel_slot CLK_EDGE: legacy;
+		bel_slot CLK_INT: routing;
 		bel_slot CLK_ROOT: legacy;
-		bel_slot CLKTEST: legacy;
 		bel_slot DCC_SW[0]: legacy;
 		bel_slot DCC_SE[0]: legacy;
 		bel_slot DCC_NW[0]: legacy;
 		bel_slot DCC_NE[0]: legacy;
+		bel_slot CLKTEST: legacy;
 		bel_slot DCC[0]: legacy;
 		bel_slot DCC[1]: legacy;
 		bel_slot DCC[2]: legacy;
@@ -40316,6 +40362,9 @@ intdb {
 		bel_slot ECLKSYNC[13]: legacy;
 		bel_slot ECLKSYNC[14]: legacy;
 		bel_slot ECLKSYNC[15]: legacy;
+		bel_slot DCS[0]: legacy;
+		bel_slot DCS[1]: legacy;
+		bel_slot CLK_EDGE: legacy;
 		bel_slot CLKTEST_ECLK: legacy;
 		bel_slot BRGECLKSYNC[0]: legacy;
 		bel_slot BRGECLKSYNC[1]: legacy;
@@ -40329,22 +40378,6 @@ intdb {
 			cell ROOT_SE;
 			cell ROOT_NW;
 			cell ROOT_NE;
-
-			bel DCS[0] {
-				input MODESEL = ROOT_NW.IMUX_C[0];
-				input SEL0 = ROOT_NW.IMUX_B[4];
-				input SEL1 = ROOT_NW.IMUX_B[5];
-				input SEL2 = ROOT_NW.IMUX_A[3];
-				input SEL3 = ROOT_NW.IMUX_A[4];
-			}
-
-			bel DCS[1] {
-				input MODESEL = ROOT_NW.IMUX_C[1];
-				input SEL0 = ROOT_NW.IMUX_B[6];
-				input SEL1 = ROOT_NW.IMUX_B[7];
-				input SEL2 = ROOT_NW.IMUX_A[5];
-				input SEL3 = ROOT_NW.IMUX_A[6];
-			}
 
 			bel CLK_ROOT {
 				output PCLK0_NE = ROOT_NE.PCLK[0];
@@ -40429,6 +40462,26 @@ intdb {
 				output PCLK9_SW = ROOT_SW.PCLK[9];
 			}
 
+			bel DCC_SW[0] {
+				input CE = ROOT_SW.IMUX_A[0];
+				input CLKI = ROOT_SW.IMUX_D[7];
+			}
+
+			bel DCC_SE[0] {
+				input CE = ROOT_SE.IMUX_A[0];
+				input CLKI = ROOT_SE.IMUX_D[7];
+			}
+
+			bel DCC_NW[0] {
+				input CE = ROOT_NW.IMUX_A[0];
+				input CLKI = ROOT_NW.IMUX_D[7];
+			}
+
+			bel DCC_NE[0] {
+				input CE = ROOT_NE.IMUX_A[0];
+				input CLKI = ROOT_NE.IMUX_D[7];
+			}
+
 			bel CLKTEST {
 				input TESTIN0 = ROOT_NW.IMUX_A[1];
 				input TESTIN1 = ROOT_NW.IMUX_A[2];
@@ -40456,24 +40509,20 @@ intdb {
 				input TESTIN9 = ROOT_NE.IMUX_B[1];
 			}
 
-			bel DCC_SW[0] {
-				input CE = ROOT_SW.IMUX_A[0];
-				input CLKI = ROOT_SW.IMUX_D[7];
+			bel DCS[0] {
+				input MODESEL = ROOT_NW.IMUX_C[0];
+				input SEL0 = ROOT_NW.IMUX_B[4];
+				input SEL1 = ROOT_NW.IMUX_B[5];
+				input SEL2 = ROOT_NW.IMUX_A[3];
+				input SEL3 = ROOT_NW.IMUX_A[4];
 			}
 
-			bel DCC_SE[0] {
-				input CE = ROOT_SE.IMUX_A[0];
-				input CLKI = ROOT_SE.IMUX_D[7];
-			}
-
-			bel DCC_NW[0] {
-				input CE = ROOT_NW.IMUX_A[0];
-				input CLKI = ROOT_NW.IMUX_D[7];
-			}
-
-			bel DCC_NE[0] {
-				input CE = ROOT_NE.IMUX_A[0];
-				input CLKI = ROOT_NE.IMUX_D[7];
+			bel DCS[1] {
+				input MODESEL = ROOT_NW.IMUX_C[1];
+				input SEL0 = ROOT_NW.IMUX_B[6];
+				input SEL1 = ROOT_NW.IMUX_B[7];
+				input SEL2 = ROOT_NW.IMUX_A[5];
+				input SEL3 = ROOT_NW.IMUX_A[6];
 			}
 
 			// wire ROOT_SW.PCLK[0]                CLK_ROOT.PCLK0_SW
@@ -40662,13 +40711,6 @@ intdb {
 				input RST = CELL[4].IMUX_LSR[1];
 			}
 
-			bel CLK_EDGE {
-				input INT_IN_0 = CELL[2].IMUX_D[7];
-				input INT_IN_1 = CELL[3].IMUX_D[7];
-				input INT_IN_2 = CELL[4].IMUX_D[7];
-				input INT_IN_3 = CELL[5].IMUX_D[7];
-			}
-
 			bel CLKTEST {
 				input TESTIN0 = CELL[2].IMUX_A[5];
 				input TESTIN1 = CELL[2].IMUX_B[5];
@@ -40786,6 +40828,13 @@ intdb {
 				output ECLK = CELL[4].OUT_F[3];
 				input ECLKI = CELL[6].IMUX_CLK_DELAY[1];
 				input STOP = CELL[4].IMUX_D[1];
+			}
+
+			bel CLK_EDGE {
+				input INT_IN_0 = CELL[2].IMUX_D[7];
+				input INT_IN_1 = CELL[3].IMUX_D[7];
+				input INT_IN_2 = CELL[4].IMUX_D[7];
+				input INT_IN_3 = CELL[5].IMUX_D[7];
 			}
 
 			bel CLKTEST_ECLK {
@@ -40947,15 +40996,6 @@ intdb {
 				input RST = CELL[4].IMUX_LSR[1];
 			}
 
-			bel CLK_EDGE {
-				input INT_IN_0 = CELL[2].IMUX_D[7];
-				input INT_IN_1 = CELL[3].IMUX_D[7];
-				input INT_IN_2 = CELL[4].IMUX_D[7];
-				input INT_IN_3 = CELL[5].IMUX_D[7];
-				input INT_IN_4 = FABRIC_IN[0].IMUX_C[5];
-				input INT_IN_5 = FABRIC_IN[1].IMUX_C[5];
-			}
-
 			bel CLKTEST {
 				input TESTIN0 = CELL[2].IMUX_A[5];
 				input TESTIN1 = CELL[2].IMUX_B[5];
@@ -41073,6 +41113,15 @@ intdb {
 				output ECLK = CELL[4].OUT_F[3];
 				input ECLKI = CELL[6].IMUX_CLK_DELAY[1];
 				input STOP = CELL[4].IMUX_D[1];
+			}
+
+			bel CLK_EDGE {
+				input INT_IN_0 = CELL[2].IMUX_D[7];
+				input INT_IN_1 = CELL[3].IMUX_D[7];
+				input INT_IN_2 = CELL[4].IMUX_D[7];
+				input INT_IN_3 = CELL[5].IMUX_D[7];
+				input INT_IN_4 = FABRIC_IN[0].IMUX_C[5];
+				input INT_IN_5 = FABRIC_IN[1].IMUX_C[5];
 			}
 
 			bel CLKTEST_ECLK {
@@ -41276,17 +41325,6 @@ intdb {
 				input RST = CELL[8].IMUX_LSR[1];
 			}
 
-			bel CLK_EDGE {
-				input INT_IN_0 = CELL[6].IMUX_D[7];
-				input INT_IN_1 = CELL[7].IMUX_D[7];
-				input INT_IN_2 = CELL[8].IMUX_D[7];
-				input INT_IN_3 = CELL[9].IMUX_D[7];
-				input INT_IN_4 = FABRIC_IN[0].IMUX_C[5];
-				input INT_IN_5 = FABRIC_IN[2].IMUX_C[5];
-				input INT_IN_6 = FABRIC_IN[1].IMUX_C[5];
-				input INT_IN_7 = FABRIC_IN[3].IMUX_C[5];
-			}
-
 			bel CLKTEST {
 				input TESTIN0 = CELL[6].IMUX_A[5];
 				input TESTIN1 = CELL[6].IMUX_B[5];
@@ -41452,6 +41490,17 @@ intdb {
 				output ECLK = BC2.OUT_F[3];
 				input ECLKI = CELL[10].IMUX_CLK_DELAY[1];
 				input STOP = CELL[8].IMUX_D[1];
+			}
+
+			bel CLK_EDGE {
+				input INT_IN_0 = CELL[6].IMUX_D[7];
+				input INT_IN_1 = CELL[7].IMUX_D[7];
+				input INT_IN_2 = CELL[8].IMUX_D[7];
+				input INT_IN_3 = CELL[9].IMUX_D[7];
+				input INT_IN_4 = FABRIC_IN[0].IMUX_C[5];
+				input INT_IN_5 = FABRIC_IN[2].IMUX_C[5];
+				input INT_IN_6 = FABRIC_IN[1].IMUX_C[5];
+				input INT_IN_7 = FABRIC_IN[3].IMUX_C[5];
 			}
 
 			bel CLKTEST_ECLK {
@@ -41655,13 +41704,6 @@ intdb {
 				input RST = CELL[3].IMUX_LSR[1];
 			}
 
-			bel CLK_EDGE {
-				input INT_IN_0 = CELL[3].IMUX_D[7];
-				input INT_IN_1 = CELL[2].IMUX_D[7];
-				input INT_IN_2 = CELL[5].IMUX_D[7];
-				input INT_IN_3 = CELL[4].IMUX_D[7];
-			}
-
 			bel CLKTEST {
 				input TESTIN0 = CELL[4].IMUX_D[2];
 				input TESTIN1 = CELL[4].IMUX_D[4];
@@ -41779,6 +41821,13 @@ intdb {
 				output ECLK = CELL[4].OUT_F[3];
 				input ECLKI = CELL[6].IMUX_CLK_DELAY[1];
 				input STOP = CELL[4].IMUX_D[0];
+			}
+
+			bel CLK_EDGE {
+				input INT_IN_0 = CELL[3].IMUX_D[7];
+				input INT_IN_1 = CELL[2].IMUX_D[7];
+				input INT_IN_2 = CELL[5].IMUX_D[7];
+				input INT_IN_3 = CELL[4].IMUX_D[7];
 			}
 
 			bel CLKTEST_ECLK {
@@ -41960,15 +42009,6 @@ intdb {
 				input RST = CELL[3].IMUX_LSR[1];
 			}
 
-			bel CLK_EDGE {
-				input INT_IN_0 = CELL[3].IMUX_D[7];
-				input INT_IN_1 = CELL[2].IMUX_D[7];
-				input INT_IN_2 = CELL[5].IMUX_D[7];
-				input INT_IN_3 = CELL[4].IMUX_D[7];
-				input INT_IN_4 = FABRIC_IN[0].IMUX_C[5];
-				input INT_IN_5 = FABRIC_IN[1].IMUX_C[5];
-			}
-
 			bel CLKTEST {
 				input TESTIN0 = CELL[4].IMUX_D[2];
 				input TESTIN1 = CELL[4].IMUX_D[4];
@@ -42086,6 +42126,15 @@ intdb {
 				output ECLK = CELL[4].OUT_F[3];
 				input ECLKI = CELL[6].IMUX_CLK_DELAY[1];
 				input STOP = CELL[4].IMUX_D[0];
+			}
+
+			bel CLK_EDGE {
+				input INT_IN_0 = CELL[3].IMUX_D[7];
+				input INT_IN_1 = CELL[2].IMUX_D[7];
+				input INT_IN_2 = CELL[5].IMUX_D[7];
+				input INT_IN_3 = CELL[4].IMUX_D[7];
+				input INT_IN_4 = FABRIC_IN[0].IMUX_C[5];
+				input INT_IN_5 = FABRIC_IN[1].IMUX_C[5];
 			}
 
 			bel CLKTEST_ECLK {
@@ -42271,17 +42320,6 @@ intdb {
 				input RST = CELL[3].IMUX_LSR[1];
 			}
 
-			bel CLK_EDGE {
-				input INT_IN_0 = CELL[3].IMUX_D[7];
-				input INT_IN_1 = CELL[2].IMUX_D[7];
-				input INT_IN_2 = CELL[5].IMUX_D[7];
-				input INT_IN_3 = CELL[4].IMUX_D[7];
-				input INT_IN_4 = FABRIC_IN[0].IMUX_C[5];
-				input INT_IN_5 = FABRIC_IN[2].IMUX_C[5];
-				input INT_IN_6 = FABRIC_IN[1].IMUX_C[5];
-				input INT_IN_7 = FABRIC_IN[3].IMUX_C[5];
-			}
-
 			bel CLKTEST {
 				input TESTIN0 = CELL[4].IMUX_D[2];
 				input TESTIN1 = CELL[4].IMUX_D[4];
@@ -42399,6 +42437,17 @@ intdb {
 				output ECLK = CELL[4].OUT_F[3];
 				input ECLKI = CELL[6].IMUX_CLK_DELAY[1];
 				input STOP = CELL[4].IMUX_D[0];
+			}
+
+			bel CLK_EDGE {
+				input INT_IN_0 = CELL[3].IMUX_D[7];
+				input INT_IN_1 = CELL[2].IMUX_D[7];
+				input INT_IN_2 = CELL[5].IMUX_D[7];
+				input INT_IN_3 = CELL[4].IMUX_D[7];
+				input INT_IN_4 = FABRIC_IN[0].IMUX_C[5];
+				input INT_IN_5 = FABRIC_IN[2].IMUX_C[5];
+				input INT_IN_6 = FABRIC_IN[1].IMUX_C[5];
+				input INT_IN_7 = FABRIC_IN[3].IMUX_C[5];
 			}
 
 			bel CLKTEST_ECLK {
@@ -42582,13 +42631,6 @@ intdb {
 				input RST = CELL[3].IMUX_LSR[1];
 			}
 
-			bel CLK_EDGE {
-				input INT_IN_0 = CELL[3].IMUX_D[7];
-				input INT_IN_1 = CELL[2].IMUX_D[7];
-				input INT_IN_2 = CELL[5].IMUX_D[7];
-				input INT_IN_3 = CELL[4].IMUX_D[7];
-			}
-
 			bel CLKTEST {
 				input TESTIN0 = CELL[4].IMUX_D[2];
 				input TESTIN1 = CELL[4].IMUX_D[4];
@@ -42706,6 +42748,13 @@ intdb {
 				output ECLK = CELL[4].OUT_F[3];
 				input ECLKI = CELL[6].IMUX_CLK_DELAY[1];
 				input STOP = CELL[4].IMUX_D[0];
+			}
+
+			bel CLK_EDGE {
+				input INT_IN_0 = CELL[3].IMUX_D[7];
+				input INT_IN_1 = CELL[2].IMUX_D[7];
+				input INT_IN_2 = CELL[5].IMUX_D[7];
+				input INT_IN_3 = CELL[4].IMUX_D[7];
 			}
 
 			bel CLKTEST_ECLK {
@@ -42887,15 +42936,6 @@ intdb {
 				input RST = CELL[3].IMUX_LSR[1];
 			}
 
-			bel CLK_EDGE {
-				input INT_IN_0 = CELL[3].IMUX_D[7];
-				input INT_IN_1 = CELL[2].IMUX_D[7];
-				input INT_IN_2 = CELL[5].IMUX_D[7];
-				input INT_IN_3 = CELL[4].IMUX_D[7];
-				input INT_IN_4 = FABRIC_IN[0].IMUX_C[5];
-				input INT_IN_5 = FABRIC_IN[1].IMUX_C[5];
-			}
-
 			bel CLKTEST {
 				input TESTIN0 = CELL[4].IMUX_D[2];
 				input TESTIN1 = CELL[4].IMUX_D[4];
@@ -43013,6 +43053,15 @@ intdb {
 				output ECLK = CELL[4].OUT_F[3];
 				input ECLKI = CELL[6].IMUX_CLK_DELAY[1];
 				input STOP = CELL[4].IMUX_D[0];
+			}
+
+			bel CLK_EDGE {
+				input INT_IN_0 = CELL[3].IMUX_D[7];
+				input INT_IN_1 = CELL[2].IMUX_D[7];
+				input INT_IN_2 = CELL[5].IMUX_D[7];
+				input INT_IN_3 = CELL[4].IMUX_D[7];
+				input INT_IN_4 = FABRIC_IN[0].IMUX_C[5];
+				input INT_IN_5 = FABRIC_IN[1].IMUX_C[5];
 			}
 
 			bel CLKTEST_ECLK {
@@ -43198,17 +43247,6 @@ intdb {
 				input RST = CELL[3].IMUX_LSR[1];
 			}
 
-			bel CLK_EDGE {
-				input INT_IN_0 = CELL[3].IMUX_D[7];
-				input INT_IN_1 = CELL[2].IMUX_D[7];
-				input INT_IN_2 = CELL[5].IMUX_D[7];
-				input INT_IN_3 = CELL[4].IMUX_D[7];
-				input INT_IN_4 = FABRIC_IN[0].IMUX_C[5];
-				input INT_IN_5 = FABRIC_IN[2].IMUX_C[5];
-				input INT_IN_6 = FABRIC_IN[1].IMUX_C[5];
-				input INT_IN_7 = FABRIC_IN[3].IMUX_C[5];
-			}
-
 			bel CLKTEST {
 				input TESTIN0 = CELL[4].IMUX_D[2];
 				input TESTIN1 = CELL[4].IMUX_D[4];
@@ -43326,6 +43364,17 @@ intdb {
 				output ECLK = CELL[4].OUT_F[3];
 				input ECLKI = CELL[6].IMUX_CLK_DELAY[1];
 				input STOP = CELL[4].IMUX_D[0];
+			}
+
+			bel CLK_EDGE {
+				input INT_IN_0 = CELL[3].IMUX_D[7];
+				input INT_IN_1 = CELL[2].IMUX_D[7];
+				input INT_IN_2 = CELL[5].IMUX_D[7];
+				input INT_IN_3 = CELL[4].IMUX_D[7];
+				input INT_IN_4 = FABRIC_IN[0].IMUX_C[5];
+				input INT_IN_5 = FABRIC_IN[2].IMUX_C[5];
+				input INT_IN_6 = FABRIC_IN[1].IMUX_C[5];
+				input INT_IN_7 = FABRIC_IN[3].IMUX_C[5];
 			}
 
 			bel CLKTEST_ECLK {
@@ -43451,13 +43500,6 @@ intdb {
 			cell CELL[0];
 			cell CELL[1];
 
-			bel CLK_EDGE {
-				input INT_IN_0 = CELL[0].IMUX_D[6];
-				input INT_IN_1 = CELL[0].IMUX_D[7];
-				input INT_IN_2 = CELL[1].IMUX_D[6];
-				input INT_IN_3 = CELL[1].IMUX_D[7];
-			}
-
 			bel CLKTEST {
 				input TESTIN0 = CELL[0].IMUX_A[0];
 				input TESTIN1 = CELL[0].IMUX_A[1];
@@ -43527,6 +43569,13 @@ intdb {
 
 			bel DCC[15] {
 				input CE = CELL[1].IMUX_C[7];
+			}
+
+			bel CLK_EDGE {
+				input INT_IN_0 = CELL[0].IMUX_D[6];
+				input INT_IN_1 = CELL[0].IMUX_D[7];
+				input INT_IN_2 = CELL[1].IMUX_D[6];
+				input INT_IN_3 = CELL[1].IMUX_D[7];
 			}
 
 			bel PCSCLKDIV[0] {
@@ -43574,15 +43623,6 @@ intdb {
 			cell FABRIC_IN[0];
 			cell FABRIC_IN[1];
 
-			bel CLK_EDGE {
-				input INT_IN_0 = CELL[0].IMUX_D[6];
-				input INT_IN_1 = CELL[0].IMUX_D[7];
-				input INT_IN_2 = CELL[1].IMUX_D[6];
-				input INT_IN_3 = CELL[1].IMUX_D[7];
-				input INT_IN_4 = FABRIC_IN[0].IMUX_C[5];
-				input INT_IN_5 = FABRIC_IN[1].IMUX_C[5];
-			}
-
 			bel CLKTEST {
 				input TESTIN0 = CELL[0].IMUX_A[0];
 				input TESTIN1 = CELL[0].IMUX_A[1];
@@ -43652,6 +43692,15 @@ intdb {
 
 			bel DCC[15] {
 				input CE = CELL[1].IMUX_C[7];
+			}
+
+			bel CLK_EDGE {
+				input INT_IN_0 = CELL[0].IMUX_D[6];
+				input INT_IN_1 = CELL[0].IMUX_D[7];
+				input INT_IN_2 = CELL[1].IMUX_D[6];
+				input INT_IN_3 = CELL[1].IMUX_D[7];
+				input INT_IN_4 = FABRIC_IN[0].IMUX_C[5];
+				input INT_IN_5 = FABRIC_IN[1].IMUX_C[5];
 			}
 
 			bel PCSCLKDIV[0] {
@@ -43716,17 +43765,6 @@ intdb {
 			cell FABRIC_IN[2];
 			cell FABRIC_IN[3];
 
-			bel CLK_EDGE {
-				input INT_IN_0 = CELL[0].IMUX_D[6];
-				input INT_IN_1 = CELL[0].IMUX_D[7];
-				input INT_IN_2 = CELL[1].IMUX_D[6];
-				input INT_IN_3 = CELL[1].IMUX_D[7];
-				input INT_IN_4 = FABRIC_IN[0].IMUX_C[5];
-				input INT_IN_5 = FABRIC_IN[2].IMUX_C[5];
-				input INT_IN_6 = FABRIC_IN[1].IMUX_C[5];
-				input INT_IN_7 = FABRIC_IN[3].IMUX_C[5];
-			}
-
 			bel CLKTEST {
 				input TESTIN0 = CELL[0].IMUX_A[0];
 				input TESTIN1 = CELL[0].IMUX_A[1];
@@ -43796,6 +43834,17 @@ intdb {
 
 			bel DCC[15] {
 				input CE = CELL[1].IMUX_C[7];
+			}
+
+			bel CLK_EDGE {
+				input INT_IN_0 = CELL[0].IMUX_D[6];
+				input INT_IN_1 = CELL[0].IMUX_D[7];
+				input INT_IN_2 = CELL[1].IMUX_D[6];
+				input INT_IN_3 = CELL[1].IMUX_D[7];
+				input INT_IN_4 = FABRIC_IN[0].IMUX_C[5];
+				input INT_IN_5 = FABRIC_IN[2].IMUX_C[5];
+				input INT_IN_6 = FABRIC_IN[1].IMUX_C[5];
+				input INT_IN_7 = FABRIC_IN[3].IMUX_C[5];
 			}
 
 			bel PCSCLKDIV[0] {

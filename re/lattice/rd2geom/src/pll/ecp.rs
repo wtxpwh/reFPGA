@@ -1,78 +1,68 @@
 use prjcombine_ecp::{
-    chip::{PllPad, SpecialIoKey, SpecialLocKey},
-    defs::bslots,
+    chip::SpecialLocKey,
+    defs::{bcls, bslots, wires},
 };
+use prjcombine_interconnect::db::WireSlotIdExt;
 
 use crate::ChipContext;
 
 impl ChipContext<'_> {
     pub(super) fn process_pll_ecp(&mut self) {
         for (&loc, &cell) in &self.chip.special_loc {
-            let SpecialLocKey::Pll(loc) = loc else {
+            let SpecialLocKey::Pll(_) = loc else {
                 continue;
             };
             let bcrd = cell.bel(bslots::PLL[0]);
-            let (r, c) = self.rc(cell);
-            self.name_bel(bcrd, [format!("PLL3_R{r}C{c}")]);
-            let mut bel = self.extract_simple_legacy_bel(bcrd, cell, "PLL3");
 
+            let clkop_pll = self.rc_wire(cell, "CLKOP_PLL3");
+            let clkop = self.rc_wire(cell, "JCLKOP");
+            self.claim_pip(clkop, clkop_pll);
+
+            let clki_pll = self.rc_wire(cell, "CLKI_PLL3");
             let clki = self.rc_wire(cell, "CLKI");
+            self.claim_pip(clki_pll, clki);
+
+            let clkfb_pll = self.rc_wire(cell, "CLKFB_PLL3");
+            let clkfb = self.rc_wire(cell, "CLKFB");
+            self.claim_pip(clkfb_pll, clkfb);
+
+            let wire_clki = wires::IMUX_PLL_CLKI.cell(0);
+            let wire_clkfb = wires::IMUX_PLL_CLKFB.cell(0);
+            let wire_clkop = wires::OUT_PLL_CLKOP.cell(0);
+            let wire_clkos = wires::OUT_PLL_CLKOS.cell(0);
+            let wire_clkok = wires::OUT_PLL_CLKOK.cell(0);
+            self.extract_bel(bcrd, cell)
+                .name_rc("PLL3")
+                .suffix("PLL3")
+                .add_wire("CLKOP", clkop_pll)
+                .input(bcls::PLL::CLKI, wire_clki)
+                .input(bcls::PLL::CLKFB, wire_clkfb)
+                .xlat_output(bcls::PLL::CLKOP, clkop)
+                .output_extra(bcls::PLL::CLKOP, wire_clkop)
+                .output_extra(bcls::PLL::CLKOS, wire_clkos)
+                .output_extra(bcls::PLL::CLKOK, wire_clkok)
+                .add_wire("CLKI_PLL", clki_pll)
+                .add_wire("CLKFB_PLL", clkfb_pll);
+
             let clki0 = self.rc_wire(cell, "JCLKI0");
             let clki1 = self.rc_wire(cell, "JCLKI1");
             let clki2 = self.rc_wire(cell, "JCLKI2");
             let clki3 = self.rc_wire(cell, "JCLKI3");
-            let clki_pll = self.rc_wire(cell, "CLKI_PLL3");
-            self.add_bel_wire(bcrd, "CLKI", clki);
-            self.add_bel_wire(bcrd, "CLKI0", clki0);
-            self.add_bel_wire(bcrd, "CLKI1", clki1);
-            self.add_bel_wire(bcrd, "CLKI2", clki2);
-            self.add_bel_wire(bcrd, "CLKI3", clki3);
-            self.add_bel_wire(bcrd, "CLKI_PLL", clki_pll);
-            bel.pins
-                .insert("CLKI0".into(), self.xlat_int_wire(bcrd, clki0));
-            bel.pins
-                .insert("CLKI1".into(), self.xlat_int_wire(bcrd, clki1));
-            bel.pins
-                .insert("CLKI2".into(), self.xlat_int_wire(bcrd, clki2));
-            let wire_io = self.get_special_io_wire_in(SpecialIoKey::Pll(PllPad::PllIn0, loc));
-            self.claim_pip(clki3, wire_io);
-            self.claim_pip(clki, clki0);
-            self.claim_pip(clki, clki1);
-            self.claim_pip(clki, clki2);
-            self.claim_pip(clki, clki3);
-            self.claim_pip(clki_pll, clki);
-
-            let clkop_pll = self.rc_wire(cell, "CLKOP_PLL3");
-            let clkop = self.rc_wire(cell, "JCLKOP");
-            self.add_bel_wire(bcrd, "CLKOP_PLL", clkop_pll);
-            self.add_bel_wire(bcrd, "CLKOP", clkop);
-            self.claim_pip(clkop, clkop_pll);
-            bel.pins
-                .insert("CLKOP".into(), self.xlat_int_wire(bcrd, clkop));
-
-            let clkfb = self.rc_wire(cell, "CLKFB");
             let clkfb0 = self.rc_wire(cell, "JCLKFB0");
             let clkfb1 = self.rc_wire(cell, "JCLKFB1");
             let clkfb3 = self.rc_wire(cell, "JCLKFB3");
-            let clkfb_pll = self.rc_wire(cell, "CLKFB_PLL3");
-            self.add_bel_wire(bcrd, "CLKFB", clkfb);
-            self.add_bel_wire(bcrd, "CLKFB0", clkfb0);
-            self.add_bel_wire(bcrd, "CLKFB1", clkfb1);
-            self.add_bel_wire(bcrd, "CLKFB3", clkfb3);
-            self.add_bel_wire(bcrd, "CLKFB_PLL", clkfb_pll);
-            bel.pins
-                .insert("CLKFB0".into(), self.xlat_int_wire(bcrd, clkfb0));
-            bel.pins
-                .insert("CLKFB1".into(), self.xlat_int_wire(bcrd, clkfb1));
-            let wire_io = self.get_special_io_wire_in(SpecialIoKey::Pll(PllPad::PllFb, loc));
-            self.claim_pip(clkfb3, wire_io);
-            self.claim_pip(clkfb, clkfb0);
-            self.claim_pip(clkfb, clkfb1);
-            self.claim_pip(clkfb, clkop);
-            self.claim_pip(clkfb, clkfb3);
-            self.claim_pip(clkfb_pll, clkfb);
 
-            self.insert_legacy_bel(bcrd, bel);
+            self.extract_switchbox(cell.bel(bslots::BEL_INT))
+                .output(clki, wire_clki)
+                .input_xlat(clki0)
+                .input_xlat(clki1)
+                .input_xlat(clki2)
+                .input_io(clki3, wires::OUT_IO_PADDI[0].cell(1))
+                .output(clkfb, wire_clkfb)
+                .input_xlat(clkfb0)
+                .input_xlat(clkfb1)
+                .input(clkop, wires::OUT_PLL_CLKOP.cell(0))
+                .input_io(clkfb3, wires::OUT_IO_PADDI[0].cell(2));
         }
     }
 }

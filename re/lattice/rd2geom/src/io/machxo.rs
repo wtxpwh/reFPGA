@@ -3,7 +3,7 @@ use prjcombine_ecp::{
     defs::{bcls, bslots, cslots, wires},
 };
 use prjcombine_interconnect::{
-    db::{Bel, BelInput, Mux, SwitchBox, SwitchBoxItem, WireSlotIdExt},
+    db::{Mux, SwitchBox, SwitchBoxItem, WireSlotIdExt},
     dir::Dir,
     grid::{BelCoord, CellCoord, DieIdExt},
 };
@@ -24,14 +24,11 @@ impl ChipContext<'_> {
             Dir::S => format!("PB{c}{abcd}"),
             Dir::N => format!("PT{c}{abcd}"),
         };
-        self.name_bel(bcrd, [name]);
-
-        let mut bel = Bel::default();
 
         let ddtd0 = self.rc_io_wire(cell, &format!("JDDTD0{abcd}"));
         let ddtd1 = self.rc_io_wire(cell, &format!("JDDTD1{abcd}"));
-        let wire_ddtd0 = self.xlat_input(bcrd, ddtd0).wire();
-        let wire_ddtd1 = self.xlat_input(bcrd, ddtd1).wire();
+        let wire_ddtd0 = self.xlat_input(bcrd_int, ddtd0).wire();
+        let wire_ddtd1 = self.xlat_input(bcrd_int, ddtd1).wire();
         self.add_sb_wire(bcrd_int, wire_ddtd0, ddtd0);
         self.add_sb_wire(bcrd_int, wire_ddtd1, ddtd1);
 
@@ -50,7 +47,6 @@ impl ChipContext<'_> {
         let dd2 = self.rc_io_wire(cell, &format!("JDD2{abcd}"));
 
         let dd = self.rc_wire(self.chip.xlat_rc_wire(plcf), &format!("JDD{plc_idx}"));
-        self.add_bel_wire(bcrd, "DD", dd);
         self.claim_pip(dd, plcf);
         self.claim_pip(dd, plcq);
         self.claim_pip(dd2, dd);
@@ -87,32 +83,26 @@ impl ChipContext<'_> {
 
         let paddo_pio = self.rc_io_wire(cell, &format!("JPADDO{abcd}_PIO"));
         let paddt_pio = self.rc_io_wire(cell, &format!("JPADDT{abcd}_PIO"));
-        self.add_bel_wire(bcrd, "PADDO_PIO", paddo_pio);
-        self.add_bel_wire(bcrd, "PADDT_PIO", paddt_pio);
         self.claim_pip(paddo_pio, paddo);
         self.claim_pip(paddt_pio, paddt);
 
-        bel.inputs
-            .insert(bcls::IO::PADDO, BelInput::Fixed(wire_o.pos()));
-        bel.inputs
-            .insert(bcls::IO::PADDT, BelInput::Fixed(wire_t.pos()));
-
-        let paddi_pio = self.rc_io_wire(cell, &format!("JPADDI{abcd}_PIO"));
-        self.add_bel_wire(bcrd, "PADDI_PIO", paddi_pio);
-        let mut paddi_wires = self.xlat_output(bcrd, paddi_pio);
-        paddi_wires.insert(wires::OUT_IO_CLK[idx].cell(0));
-        bel.outputs.insert(bcls::IO::PADDI, paddi_wires);
-
-        self.insert_bel(bcrd, bel);
+        self.extract_bel(bcrd, cell)
+            .name(name)
+            .add_wire("DD", dd)
+            .add_wire("PADDO_PIO", paddo_pio)
+            .add_wire("PADDT_PIO", paddt_pio)
+            .input(bcls::IO::PADDO, wire_o)
+            .input(bcls::IO::PADDT, wire_t)
+            .xlat_name_output_rc_io(bcls::IO::PADDI, format!("JPADDI{abcd}_PIO"))
+            .output_extra(bcls::IO::PADDI, wires::OUT_IO_PADDI[idx].cell(0));
     }
 
     fn process_pictest(&mut self, cell: CellCoord) {
         let (r, c) = self.rc(cell);
         let lr = if c == 1 { 'L' } else { 'R' };
-        let bcrd = cell.bel(bslots::PICTEST[0]);
-        self.name_bel(bcrd, [format!("{lr}PICTEST{r}")]);
-
-        self.extract_bel(bcrd, cell).suffix("PICTEST");
+        self.extract_bel(cell.bel(bslots::PICTEST[0]), cell)
+            .name(format!("{lr}PICTEST{r}"))
+            .suffix("PICTEST");
     }
 
     pub(super) fn process_io_machxo(&mut self) {

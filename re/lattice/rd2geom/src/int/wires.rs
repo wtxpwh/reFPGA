@@ -866,4 +866,12 @@ impl ChipContext<'_> {
     pub fn xlat_output(&mut self, bcrd: BelCoord, wire: WireName) -> BTreeSet<TileWireCoord> {
         self.try_xlat_output(bcrd, wire, false).unwrap()
     }
+
+    pub fn xlat_output_filter(
+        &mut self,
+        bcrd: BelCoord,
+        wire: WireName,
+    ) -> BTreeSet<TileWireCoord> {
+        self.try_xlat_output(bcrd, wire, true).unwrap()
+    }
 }

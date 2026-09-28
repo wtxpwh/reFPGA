@@ -1,6 +1,12 @@
-use prjcombine_ecp::chip::{ChipKind, SpecialIoKey};
+use prjcombine_ecp::{
+    chip::{ChipKind, SpecialIoKey},
+    defs::wires,
+};
 use prjcombine_entity::EntityId;
-use prjcombine_interconnect::{dir::Dir, grid::EdgeIoCoord};
+use prjcombine_interconnect::{
+    dir::Dir,
+    grid::{EdgeIoCoord, WireCoord},
+};
 use prjcombine_re_lattice_naming::WireName;
 
 use crate::ChipContext;
@@ -130,5 +136,43 @@ impl ChipContext<'_> {
 
     pub fn get_special_io_wire_out(&self, key: SpecialIoKey) -> WireName {
         self.get_io_wire_out(self.chip.special_io[&key])
+    }
+
+    pub fn get_paddi_wire(&self, wire: WireCoord) -> WireName {
+        let wire = self.edev.resolve_wire(wire).unwrap();
+        let idx = wires::OUT_IO_PADDI.index_of(wire.slot).unwrap();
+        match self.chip.kind {
+            ChipKind::Ecp3 | ChipKind::Ecp3A => {
+                if wire.row == self.chip.row_s() || wire.row == self.chip.row_n() {
+                    let cell = if idx >= 2 {
+                        wire.cell.delta(2, 0)
+                    } else {
+                        wire.cell
+                    };
+                    let abcd = ['A', 'B'][idx % 2];
+                    self.rc_io_wire(cell, &format!("JPADDI{abcd}_PIO"))
+                } else if wire.col == self.chip.col_w() || wire.col == self.chip.col_e() {
+                    let cell = if idx >= 2 {
+                        wire.cell
+                    } else {
+                        wire.cell.delta(0, 2)
+                    };
+                    let abcd = ['A', 'B'][idx % 2];
+                    self.rc_io_wire(cell, &format!("JPADDI{abcd}_PIO"))
+                } else {
+                    let cell = if wire.col < self.chip.col_clk {
+                        wire.cell.delta(-1, 0)
+                    } else {
+                        wire.cell.delta(1, 0)
+                    };
+                    let abcd = ['A', 'B', 'C', 'D'][idx];
+                    self.rc_io_wire(cell, &format!("JPADDIE{abcd}_PIO"))
+                }
+            }
+            _ => {
+                let abcd = ['A', 'B', 'C', 'D', 'E', 'F'][idx];
+                self.rc_io_wire(wire.cell, &format!("JPADDI{abcd}_PIO"))
+            }
+        }
     }
 }

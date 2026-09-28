@@ -4260,6 +4260,12 @@ intdb {
 		output Q[2];
 	}
 
+	bel_class DCS {
+		input CLK[2];
+		input SEL;
+		output DCSOUT;
+	}
+
 	bel_class PLL {
 		input CLKI;
 		input CLKFB;
@@ -4294,12 +4300,12 @@ intdb {
 		input JTDO2;
 		output JTDI;
 		output JTCK;
-		output JRST;
 		output JSHIFT;
 		output JUPDATE;
+		output JRST;
 		output JCE1;
-		output JCE2;
 		output JRTI1;
+		output JCE2;
 		output JRTI2;
 	}
 
@@ -4307,7 +4313,9 @@ intdb {
 		output CFGCLK;
 	}
 
-	region_slot GLOBAL;
+	bel_class TSALL {
+	}
+
 	region_slot PCLK;
 	wire TIE0: tie 0;
 	wire TIE1: tie 1;
@@ -4659,6 +4667,18 @@ intdb {
 	wire OUT_OFX_W[5]: branch E;
 	wire OUT_OFX_W[6]: branch E;
 	wire OUT_OFX_W[7]: branch E;
+	wire OUT_TI[0]: bel;
+	wire OUT_TI[1]: bel;
+	wire OUT_TI[2]: bel;
+	wire OUT_TI[3]: bel;
+	wire OUT_TI[4]: bel;
+	wire OUT_TI[5]: bel;
+	wire OUT_TI[6]: bel;
+	wire OUT_TI[7]: bel;
+	wire OUT_TI[8]: bel;
+	wire OUT_TI[9]: bel;
+	wire OUT_TI[10]: bel;
+	wire OUT_TI[11]: bel;
 	wire OUT_F_PLC_IO[0]: branch IO_FROM_PLC;
 	wire OUT_F_PLC_IO[1]: branch IO_FROM_PLC;
 	wire OUT_F_PLC_IO[2]: branch IO_FROM_PLC;
@@ -4695,28 +4715,16 @@ intdb {
 	wire IMUX_IO_T[3]: mux;
 	wire IMUX_IO_T[4]: mux;
 	wire IMUX_IO_T[5]: mux;
-	wire OUT_IO_CLK[0]: bel;
-	wire OUT_IO_CLK[1]: bel;
-	wire OUT_IO_CLK[2]: bel;
-	wire OUT_IO_CLK[3]: bel;
-	wire OUT_IO_CLK[4]: bel;
-	wire OUT_IO_CLK[5]: bel;
-	wire IO_GCLK_S[0]: regional GLOBAL;
-	wire IO_GCLK_S[1]: regional GLOBAL;
-	wire IO_GCLK_N[0]: regional GLOBAL;
-	wire IO_GCLK_N[1]: regional GLOBAL;
-	wire OUT_TI[0]: bel;
-	wire OUT_TI[1]: bel;
-	wire OUT_TI[2]: bel;
-	wire OUT_TI[3]: bel;
-	wire OUT_TI[4]: bel;
-	wire OUT_TI[5]: bel;
-	wire OUT_TI[6]: bel;
-	wire OUT_TI[7]: bel;
-	wire OUT_TI[8]: bel;
-	wire OUT_TI[9]: bel;
-	wire OUT_TI[10]: bel;
-	wire OUT_TI[11]: bel;
+	wire OUT_IO_PADDI[0]: bel;
+	wire OUT_IO_PADDI[1]: bel;
+	wire OUT_IO_PADDI[2]: bel;
+	wire OUT_IO_PADDI[3]: bel;
+	wire OUT_IO_PADDI[4]: bel;
+	wire OUT_IO_PADDI[5]: bel;
+	wire IO_GCLK_S[0]: mux;
+	wire IO_GCLK_S[1]: mux;
+	wire IO_GCLK_N[0]: mux;
+	wire IO_GCLK_N[1]: mux;
 	wire IMUX_PLL_CLKI: mux;
 	wire IMUX_PLL_CLKFB: mux;
 	wire OUT_PLL_CLKINTFB: bel;
@@ -5708,13 +5716,13 @@ intdb {
 			bel IO[0] {
 				input PADDO = IMUX_IO_O[0];
 				input PADDT = IMUX_IO_T[0];
-				output PADDI = OUT_F[0], OUT_IO_CLK[0];
+				output PADDI = OUT_F[0], OUT_IO_PADDI[0];
 			}
 
 			bel IO[1] {
 				input PADDO = IMUX_IO_O[1];
 				input PADDT = IMUX_IO_T[1];
-				output PADDI = OUT_F[1], OUT_IO_CLK[1];
+				output PADDI = OUT_F[1], OUT_IO_PADDI[1];
 			}
 
 			bel PICTEST[0] {
@@ -5745,8 +5753,8 @@ intdb {
 			// wire IMUX_IO_O[1]                   IO[1].PADDO
 			// wire IMUX_IO_T[0]                   IO[0].PADDT
 			// wire IMUX_IO_T[1]                   IO[1].PADDT
-			// wire OUT_IO_CLK[0]                  IO[0].PADDI
-			// wire OUT_IO_CLK[1]                  IO[1].PADDI
+			// wire OUT_IO_PADDI[0]                IO[0].PADDI
+			// wire OUT_IO_PADDI[1]                IO[1].PADDI
 		}
 
 		tile_class SIO_S_W4 {
@@ -5755,25 +5763,25 @@ intdb {
 			bel IO[0] {
 				input PADDO = IMUX_IO_O[0];
 				input PADDT = IMUX_IO_T[0];
-				output PADDI = OUT_F[0], OUT_IO_CLK[0];
+				output PADDI = OUT_F[0], OUT_IO_PADDI[0];
 			}
 
 			bel IO[1] {
 				input PADDO = IMUX_IO_O[1];
 				input PADDT = IMUX_IO_T[1];
-				output PADDI = OUT_F[1], OUT_IO_CLK[1];
+				output PADDI = OUT_F[1], OUT_IO_PADDI[1];
 			}
 
 			bel IO[2] {
 				input PADDO = IMUX_IO_O[2];
 				input PADDT = IMUX_IO_T[2];
-				output PADDI = OUT_F[2], OUT_IO_CLK[2];
+				output PADDI = OUT_F[2], OUT_IO_PADDI[2];
 			}
 
 			bel IO[3] {
 				input PADDO = IMUX_IO_O[3];
 				input PADDT = IMUX_IO_T[3];
-				output PADDI = OUT_F[3], OUT_IO_CLK[3];
+				output PADDI = OUT_F[3], OUT_IO_PADDI[3];
 			}
 
 			switchbox IO_INT {
@@ -5799,10 +5807,10 @@ intdb {
 			// wire IMUX_IO_T[1]                   IO[1].PADDT
 			// wire IMUX_IO_T[2]                   IO[2].PADDT
 			// wire IMUX_IO_T[3]                   IO[3].PADDT
-			// wire OUT_IO_CLK[0]                  IO[0].PADDI
-			// wire OUT_IO_CLK[1]                  IO[1].PADDI
-			// wire OUT_IO_CLK[2]                  IO[2].PADDI
-			// wire OUT_IO_CLK[3]                  IO[3].PADDI
+			// wire OUT_IO_PADDI[0]                IO[0].PADDI
+			// wire OUT_IO_PADDI[1]                IO[1].PADDI
+			// wire OUT_IO_PADDI[2]                IO[2].PADDI
+			// wire OUT_IO_PADDI[3]                IO[3].PADDI
 		}
 
 		tile_class SIO_S_E2 {
@@ -5811,13 +5819,13 @@ intdb {
 			bel IO[0] {
 				input PADDO = IMUX_IO_O[0];
 				input PADDT = IMUX_IO_T[0];
-				output PADDI = OUT_F[0], OUT_IO_CLK[0];
+				output PADDI = OUT_F[0], OUT_IO_PADDI[0];
 			}
 
 			bel IO[1] {
 				input PADDO = IMUX_IO_O[1];
 				input PADDT = IMUX_IO_T[1];
-				output PADDI = OUT_F[1], OUT_IO_CLK[1];
+				output PADDI = OUT_F[1], OUT_IO_PADDI[1];
 			}
 
 			bel PICTEST[0] {
@@ -5848,8 +5856,8 @@ intdb {
 			// wire IMUX_IO_O[1]                   IO[1].PADDO
 			// wire IMUX_IO_T[0]                   IO[0].PADDT
 			// wire IMUX_IO_T[1]                   IO[1].PADDT
-			// wire OUT_IO_CLK[0]                  IO[0].PADDI
-			// wire OUT_IO_CLK[1]                  IO[1].PADDI
+			// wire OUT_IO_PADDI[0]                IO[0].PADDI
+			// wire OUT_IO_PADDI[1]                IO[1].PADDI
 		}
 
 		tile_class SIO_S_E4 {
@@ -5858,25 +5866,25 @@ intdb {
 			bel IO[0] {
 				input PADDO = IMUX_IO_O[0];
 				input PADDT = IMUX_IO_T[0];
-				output PADDI = OUT_F[0], OUT_IO_CLK[0];
+				output PADDI = OUT_F[0], OUT_IO_PADDI[0];
 			}
 
 			bel IO[1] {
 				input PADDO = IMUX_IO_O[1];
 				input PADDT = IMUX_IO_T[1];
-				output PADDI = OUT_F[1], OUT_IO_CLK[1];
+				output PADDI = OUT_F[1], OUT_IO_PADDI[1];
 			}
 
 			bel IO[2] {
 				input PADDO = IMUX_IO_O[2];
 				input PADDT = IMUX_IO_T[2];
-				output PADDI = OUT_F[2], OUT_IO_CLK[2];
+				output PADDI = OUT_F[2], OUT_IO_PADDI[2];
 			}
 
 			bel IO[3] {
 				input PADDO = IMUX_IO_O[3];
 				input PADDT = IMUX_IO_T[3];
-				output PADDI = OUT_F[3], OUT_IO_CLK[3];
+				output PADDI = OUT_F[3], OUT_IO_PADDI[3];
 			}
 
 			switchbox IO_INT {
@@ -5902,10 +5910,10 @@ intdb {
 			// wire IMUX_IO_T[1]                   IO[1].PADDT
 			// wire IMUX_IO_T[2]                   IO[2].PADDT
 			// wire IMUX_IO_T[3]                   IO[3].PADDT
-			// wire OUT_IO_CLK[0]                  IO[0].PADDI
-			// wire OUT_IO_CLK[1]                  IO[1].PADDI
-			// wire OUT_IO_CLK[2]                  IO[2].PADDI
-			// wire OUT_IO_CLK[3]                  IO[3].PADDI
+			// wire OUT_IO_PADDI[0]                IO[0].PADDI
+			// wire OUT_IO_PADDI[1]                IO[1].PADDI
+			// wire OUT_IO_PADDI[2]                IO[2].PADDI
+			// wire OUT_IO_PADDI[3]                IO[3].PADDI
 		}
 
 		tile_class SIO_S_S4 {
@@ -5914,25 +5922,25 @@ intdb {
 			bel IO[0] {
 				input PADDO = IMUX_IO_O[0];
 				input PADDT = IMUX_IO_T[0];
-				output PADDI = OUT_F[0], OUT_IO_CLK[0];
+				output PADDI = OUT_F[0], OUT_IO_PADDI[0];
 			}
 
 			bel IO[1] {
 				input PADDO = IMUX_IO_O[1];
 				input PADDT = IMUX_IO_T[1];
-				output PADDI = OUT_F[1], OUT_IO_CLK[1];
+				output PADDI = OUT_F[1], OUT_IO_PADDI[1];
 			}
 
 			bel IO[2] {
 				input PADDO = IMUX_IO_O[2];
 				input PADDT = IMUX_IO_T[2];
-				output PADDI = OUT_F[2], OUT_IO_CLK[2];
+				output PADDI = OUT_F[2], OUT_IO_PADDI[2];
 			}
 
 			bel IO[3] {
 				input PADDO = IMUX_IO_O[3];
 				input PADDT = IMUX_IO_T[3];
-				output PADDI = OUT_F[3], OUT_IO_CLK[3];
+				output PADDI = OUT_F[3], OUT_IO_PADDI[3];
 			}
 
 			switchbox IO_INT {
@@ -5958,10 +5966,10 @@ intdb {
 			// wire IMUX_IO_T[1]                   IO[1].PADDT
 			// wire IMUX_IO_T[2]                   IO[2].PADDT
 			// wire IMUX_IO_T[3]                   IO[3].PADDT
-			// wire OUT_IO_CLK[0]                  IO[0].PADDI
-			// wire OUT_IO_CLK[1]                  IO[1].PADDI
-			// wire OUT_IO_CLK[2]                  IO[2].PADDI
-			// wire OUT_IO_CLK[3]                  IO[3].PADDI
+			// wire OUT_IO_PADDI[0]                IO[0].PADDI
+			// wire OUT_IO_PADDI[1]                IO[1].PADDI
+			// wire OUT_IO_PADDI[2]                IO[2].PADDI
+			// wire OUT_IO_PADDI[3]                IO[3].PADDI
 		}
 
 		tile_class SIO_S_S6 {
@@ -5970,37 +5978,37 @@ intdb {
 			bel IO[0] {
 				input PADDO = IMUX_IO_O[0];
 				input PADDT = IMUX_IO_T[0];
-				output PADDI = OUT_F[0], OUT_IO_CLK[0];
+				output PADDI = OUT_F[0], OUT_IO_PADDI[0];
 			}
 
 			bel IO[1] {
 				input PADDO = IMUX_IO_O[1];
 				input PADDT = IMUX_IO_T[1];
-				output PADDI = OUT_F[1], OUT_IO_CLK[1];
+				output PADDI = OUT_F[1], OUT_IO_PADDI[1];
 			}
 
 			bel IO[2] {
 				input PADDO = IMUX_IO_O[2];
 				input PADDT = IMUX_IO_T[2];
-				output PADDI = OUT_F[2], OUT_IO_CLK[2];
+				output PADDI = OUT_F[2], OUT_IO_PADDI[2];
 			}
 
 			bel IO[3] {
 				input PADDO = IMUX_IO_O[3];
 				input PADDT = IMUX_IO_T[3];
-				output PADDI = OUT_F[3], OUT_IO_CLK[3];
+				output PADDI = OUT_F[3], OUT_IO_PADDI[3];
 			}
 
 			bel IO[4] {
 				input PADDO = IMUX_IO_O[4];
 				input PADDT = IMUX_IO_T[4];
-				output PADDI = OUT_F[4], OUT_IO_CLK[4];
+				output PADDI = OUT_F[4], OUT_IO_PADDI[4];
 			}
 
 			bel IO[5] {
 				input PADDO = IMUX_IO_O[5];
 				input PADDT = IMUX_IO_T[5];
-				output PADDI = OUT_F[5], OUT_IO_CLK[5];
+				output PADDI = OUT_F[5], OUT_IO_PADDI[5];
 			}
 
 			switchbox IO_INT {
@@ -6036,12 +6044,12 @@ intdb {
 			// wire IMUX_IO_T[3]                   IO[3].PADDT
 			// wire IMUX_IO_T[4]                   IO[4].PADDT
 			// wire IMUX_IO_T[5]                   IO[5].PADDT
-			// wire OUT_IO_CLK[0]                  IO[0].PADDI
-			// wire OUT_IO_CLK[1]                  IO[1].PADDI
-			// wire OUT_IO_CLK[2]                  IO[2].PADDI
-			// wire OUT_IO_CLK[3]                  IO[3].PADDI
-			// wire OUT_IO_CLK[4]                  IO[4].PADDI
-			// wire OUT_IO_CLK[5]                  IO[5].PADDI
+			// wire OUT_IO_PADDI[0]                IO[0].PADDI
+			// wire OUT_IO_PADDI[1]                IO[1].PADDI
+			// wire OUT_IO_PADDI[2]                IO[2].PADDI
+			// wire OUT_IO_PADDI[3]                IO[3].PADDI
+			// wire OUT_IO_PADDI[4]                IO[4].PADDI
+			// wire OUT_IO_PADDI[5]                IO[5].PADDI
 		}
 
 		tile_class SIO_S_N4 {
@@ -6050,25 +6058,25 @@ intdb {
 			bel IO[0] {
 				input PADDO = IMUX_IO_O[0];
 				input PADDT = IMUX_IO_T[0];
-				output PADDI = OUT_F[0], OUT_IO_CLK[0];
+				output PADDI = OUT_F[0], OUT_IO_PADDI[0];
 			}
 
 			bel IO[1] {
 				input PADDO = IMUX_IO_O[1];
 				input PADDT = IMUX_IO_T[1];
-				output PADDI = OUT_F[1], OUT_IO_CLK[1];
+				output PADDI = OUT_F[1], OUT_IO_PADDI[1];
 			}
 
 			bel IO[2] {
 				input PADDO = IMUX_IO_O[2];
 				input PADDT = IMUX_IO_T[2];
-				output PADDI = OUT_F[2], OUT_IO_CLK[2];
+				output PADDI = OUT_F[2], OUT_IO_PADDI[2];
 			}
 
 			bel IO[3] {
 				input PADDO = IMUX_IO_O[3];
 				input PADDT = IMUX_IO_T[3];
-				output PADDI = OUT_F[3], OUT_IO_CLK[3];
+				output PADDI = OUT_F[3], OUT_IO_PADDI[3];
 			}
 
 			switchbox IO_INT {
@@ -6094,10 +6102,10 @@ intdb {
 			// wire IMUX_IO_T[1]                   IO[1].PADDT
 			// wire IMUX_IO_T[2]                   IO[2].PADDT
 			// wire IMUX_IO_T[3]                   IO[3].PADDT
-			// wire OUT_IO_CLK[0]                  IO[0].PADDI
-			// wire OUT_IO_CLK[1]                  IO[1].PADDI
-			// wire OUT_IO_CLK[2]                  IO[2].PADDI
-			// wire OUT_IO_CLK[3]                  IO[3].PADDI
+			// wire OUT_IO_PADDI[0]                IO[0].PADDI
+			// wire OUT_IO_PADDI[1]                IO[1].PADDI
+			// wire OUT_IO_PADDI[2]                IO[2].PADDI
+			// wire OUT_IO_PADDI[3]                IO[3].PADDI
 		}
 
 		tile_class SIO_S_N6 {
@@ -6106,37 +6114,37 @@ intdb {
 			bel IO[0] {
 				input PADDO = IMUX_IO_O[0];
 				input PADDT = IMUX_IO_T[0];
-				output PADDI = OUT_F[0], OUT_IO_CLK[0];
+				output PADDI = OUT_F[0], OUT_IO_PADDI[0];
 			}
 
 			bel IO[1] {
 				input PADDO = IMUX_IO_O[1];
 				input PADDT = IMUX_IO_T[1];
-				output PADDI = OUT_F[1], OUT_IO_CLK[1];
+				output PADDI = OUT_F[1], OUT_IO_PADDI[1];
 			}
 
 			bel IO[2] {
 				input PADDO = IMUX_IO_O[2];
 				input PADDT = IMUX_IO_T[2];
-				output PADDI = OUT_F[2], OUT_IO_CLK[2];
+				output PADDI = OUT_F[2], OUT_IO_PADDI[2];
 			}
 
 			bel IO[3] {
 				input PADDO = IMUX_IO_O[3];
 				input PADDT = IMUX_IO_T[3];
-				output PADDI = OUT_F[3], OUT_IO_CLK[3];
+				output PADDI = OUT_F[3], OUT_IO_PADDI[3];
 			}
 
 			bel IO[4] {
 				input PADDO = IMUX_IO_O[4];
 				input PADDT = IMUX_IO_T[4];
-				output PADDI = OUT_F[4], OUT_IO_CLK[4];
+				output PADDI = OUT_F[4], OUT_IO_PADDI[4];
 			}
 
 			bel IO[5] {
 				input PADDO = IMUX_IO_O[5];
 				input PADDT = IMUX_IO_T[5];
-				output PADDI = OUT_F[5], OUT_IO_CLK[5];
+				output PADDI = OUT_F[5], OUT_IO_PADDI[5];
 			}
 
 			switchbox IO_INT {
@@ -6172,12 +6180,12 @@ intdb {
 			// wire IMUX_IO_T[3]                   IO[3].PADDT
 			// wire IMUX_IO_T[4]                   IO[4].PADDT
 			// wire IMUX_IO_T[5]                   IO[5].PADDT
-			// wire OUT_IO_CLK[0]                  IO[0].PADDI
-			// wire OUT_IO_CLK[1]                  IO[1].PADDI
-			// wire OUT_IO_CLK[2]                  IO[2].PADDI
-			// wire OUT_IO_CLK[3]                  IO[3].PADDI
-			// wire OUT_IO_CLK[4]                  IO[4].PADDI
-			// wire OUT_IO_CLK[5]                  IO[5].PADDI
+			// wire OUT_IO_PADDI[0]                IO[0].PADDI
+			// wire OUT_IO_PADDI[1]                IO[1].PADDI
+			// wire OUT_IO_PADDI[2]                IO[2].PADDI
+			// wire OUT_IO_PADDI[3]                IO[3].PADDI
+			// wire OUT_IO_PADDI[4]                IO[4].PADDI
+			// wire OUT_IO_PADDI[5]                IO[5].PADDI
 		}
 
 		tile_class SIO_L_W2 {
@@ -6186,13 +6194,13 @@ intdb {
 			bel IO[0] {
 				input PADDO = IMUX_IO_O[0];
 				input PADDT = IMUX_IO_T[0];
-				output PADDI = OUT_Q[0], OUT_IO_CLK[0];
+				output PADDI = OUT_Q[0], OUT_IO_PADDI[0];
 			}
 
 			bel IO[1] {
 				input PADDO = IMUX_IO_O[1];
 				input PADDT = IMUX_IO_T[1];
-				output PADDI = OUT_Q[1], OUT_IO_CLK[1];
+				output PADDI = OUT_Q[1], OUT_IO_PADDI[1];
 			}
 
 			bel PICTEST[0] {
@@ -6223,8 +6231,8 @@ intdb {
 			// wire IMUX_IO_O[1]                   IO[1].PADDO
 			// wire IMUX_IO_T[0]                   IO[0].PADDT
 			// wire IMUX_IO_T[1]                   IO[1].PADDT
-			// wire OUT_IO_CLK[0]                  IO[0].PADDI
-			// wire OUT_IO_CLK[1]                  IO[1].PADDI
+			// wire OUT_IO_PADDI[0]                IO[0].PADDI
+			// wire OUT_IO_PADDI[1]                IO[1].PADDI
 		}
 
 		tile_class SIO_L_W4 {
@@ -6233,25 +6241,25 @@ intdb {
 			bel IO[0] {
 				input PADDO = IMUX_IO_O[0];
 				input PADDT = IMUX_IO_T[0];
-				output PADDI = OUT_Q[0], OUT_IO_CLK[0];
+				output PADDI = OUT_Q[0], OUT_IO_PADDI[0];
 			}
 
 			bel IO[1] {
 				input PADDO = IMUX_IO_O[1];
 				input PADDT = IMUX_IO_T[1];
-				output PADDI = OUT_Q[1], OUT_IO_CLK[1];
+				output PADDI = OUT_Q[1], OUT_IO_PADDI[1];
 			}
 
 			bel IO[2] {
 				input PADDO = IMUX_IO_O[2];
 				input PADDT = IMUX_IO_T[2];
-				output PADDI = OUT_OFX[6], OUT_IO_CLK[2];
+				output PADDI = OUT_OFX[6], OUT_IO_PADDI[2];
 			}
 
 			bel IO[3] {
 				input PADDO = IMUX_IO_O[3];
 				input PADDT = IMUX_IO_T[3];
-				output PADDI = OUT_OFX[7], OUT_IO_CLK[3];
+				output PADDI = OUT_OFX[7], OUT_IO_PADDI[3];
 			}
 
 			switchbox IO_INT {
@@ -6277,10 +6285,10 @@ intdb {
 			// wire IMUX_IO_T[1]                   IO[1].PADDT
 			// wire IMUX_IO_T[2]                   IO[2].PADDT
 			// wire IMUX_IO_T[3]                   IO[3].PADDT
-			// wire OUT_IO_CLK[0]                  IO[0].PADDI
-			// wire OUT_IO_CLK[1]                  IO[1].PADDI
-			// wire OUT_IO_CLK[2]                  IO[2].PADDI
-			// wire OUT_IO_CLK[3]                  IO[3].PADDI
+			// wire OUT_IO_PADDI[0]                IO[0].PADDI
+			// wire OUT_IO_PADDI[1]                IO[1].PADDI
+			// wire OUT_IO_PADDI[2]                IO[2].PADDI
+			// wire OUT_IO_PADDI[3]                IO[3].PADDI
 		}
 
 		tile_class SIO_L_E2 {
@@ -6289,13 +6297,13 @@ intdb {
 			bel IO[0] {
 				input PADDO = IMUX_IO_O[0];
 				input PADDT = IMUX_IO_T[0];
-				output PADDI = OUT_F[0], OUT_IO_CLK[0];
+				output PADDI = OUT_F[0], OUT_IO_PADDI[0];
 			}
 
 			bel IO[1] {
 				input PADDO = IMUX_IO_O[1];
 				input PADDT = IMUX_IO_T[1];
-				output PADDI = OUT_F[1], OUT_IO_CLK[1];
+				output PADDI = OUT_F[1], OUT_IO_PADDI[1];
 			}
 
 			bel PICTEST[0] {
@@ -6326,8 +6334,8 @@ intdb {
 			// wire IMUX_IO_O[1]                   IO[1].PADDO
 			// wire IMUX_IO_T[0]                   IO[0].PADDT
 			// wire IMUX_IO_T[1]                   IO[1].PADDT
-			// wire OUT_IO_CLK[0]                  IO[0].PADDI
-			// wire OUT_IO_CLK[1]                  IO[1].PADDI
+			// wire OUT_IO_PADDI[0]                IO[0].PADDI
+			// wire OUT_IO_PADDI[1]                IO[1].PADDI
 		}
 
 		tile_class SIO_L_E4 {
@@ -6336,25 +6344,25 @@ intdb {
 			bel IO[0] {
 				input PADDO = IMUX_IO_O[0];
 				input PADDT = IMUX_IO_T[0];
-				output PADDI = OUT_F[0], OUT_IO_CLK[0];
+				output PADDI = OUT_F[0], OUT_IO_PADDI[0];
 			}
 
 			bel IO[1] {
 				input PADDO = IMUX_IO_O[1];
 				input PADDT = IMUX_IO_T[1];
-				output PADDI = OUT_F[1], OUT_IO_CLK[1];
+				output PADDI = OUT_F[1], OUT_IO_PADDI[1];
 			}
 
 			bel IO[2] {
 				input PADDO = IMUX_IO_O[2];
 				input PADDT = IMUX_IO_T[2];
-				output PADDI = OUT_F[2], OUT_IO_CLK[2];
+				output PADDI = OUT_F[2], OUT_IO_PADDI[2];
 			}
 
 			bel IO[3] {
 				input PADDO = IMUX_IO_O[3];
 				input PADDT = IMUX_IO_T[3];
-				output PADDI = OUT_F[3], OUT_IO_CLK[3];
+				output PADDI = OUT_F[3], OUT_IO_PADDI[3];
 			}
 
 			switchbox IO_INT {
@@ -6380,10 +6388,10 @@ intdb {
 			// wire IMUX_IO_T[1]                   IO[1].PADDT
 			// wire IMUX_IO_T[2]                   IO[2].PADDT
 			// wire IMUX_IO_T[3]                   IO[3].PADDT
-			// wire OUT_IO_CLK[0]                  IO[0].PADDI
-			// wire OUT_IO_CLK[1]                  IO[1].PADDI
-			// wire OUT_IO_CLK[2]                  IO[2].PADDI
-			// wire OUT_IO_CLK[3]                  IO[3].PADDI
+			// wire OUT_IO_PADDI[0]                IO[0].PADDI
+			// wire OUT_IO_PADDI[1]                IO[1].PADDI
+			// wire OUT_IO_PADDI[2]                IO[2].PADDI
+			// wire OUT_IO_PADDI[3]                IO[3].PADDI
 		}
 
 		tile_class SIO_L_S4 {
@@ -6392,25 +6400,25 @@ intdb {
 			bel IO[0] {
 				input PADDO = IMUX_IO_O[0];
 				input PADDT = IMUX_IO_T[0];
-				output PADDI = OUT_F[0], OUT_IO_CLK[0];
+				output PADDI = OUT_F[0], OUT_IO_PADDI[0];
 			}
 
 			bel IO[1] {
 				input PADDO = IMUX_IO_O[1];
 				input PADDT = IMUX_IO_T[1];
-				output PADDI = OUT_F[1], OUT_IO_CLK[1];
+				output PADDI = OUT_F[1], OUT_IO_PADDI[1];
 			}
 
 			bel IO[2] {
 				input PADDO = IMUX_IO_O[2];
 				input PADDT = IMUX_IO_T[2];
-				output PADDI = OUT_F[2], OUT_IO_CLK[2];
+				output PADDI = OUT_F[2], OUT_IO_PADDI[2];
 			}
 
 			bel IO[3] {
 				input PADDO = IMUX_IO_O[3];
 				input PADDT = IMUX_IO_T[3];
-				output PADDI = OUT_F[3], OUT_IO_CLK[3];
+				output PADDI = OUT_F[3], OUT_IO_PADDI[3];
 			}
 
 			switchbox IO_INT {
@@ -6436,10 +6444,10 @@ intdb {
 			// wire IMUX_IO_T[1]                   IO[1].PADDT
 			// wire IMUX_IO_T[2]                   IO[2].PADDT
 			// wire IMUX_IO_T[3]                   IO[3].PADDT
-			// wire OUT_IO_CLK[0]                  IO[0].PADDI
-			// wire OUT_IO_CLK[1]                  IO[1].PADDI
-			// wire OUT_IO_CLK[2]                  IO[2].PADDI
-			// wire OUT_IO_CLK[3]                  IO[3].PADDI
+			// wire OUT_IO_PADDI[0]                IO[0].PADDI
+			// wire OUT_IO_PADDI[1]                IO[1].PADDI
+			// wire OUT_IO_PADDI[2]                IO[2].PADDI
+			// wire OUT_IO_PADDI[3]                IO[3].PADDI
 		}
 
 		tile_class SIO_L_S6 {
@@ -6448,37 +6456,37 @@ intdb {
 			bel IO[0] {
 				input PADDO = IMUX_IO_O[0];
 				input PADDT = IMUX_IO_T[0];
-				output PADDI = OUT_F[0], OUT_IO_CLK[0];
+				output PADDI = OUT_F[0], OUT_IO_PADDI[0];
 			}
 
 			bel IO[1] {
 				input PADDO = IMUX_IO_O[1];
 				input PADDT = IMUX_IO_T[1];
-				output PADDI = OUT_F[1], OUT_IO_CLK[1];
+				output PADDI = OUT_F[1], OUT_IO_PADDI[1];
 			}
 
 			bel IO[2] {
 				input PADDO = IMUX_IO_O[2];
 				input PADDT = IMUX_IO_T[2];
-				output PADDI = OUT_F[2], OUT_IO_CLK[2];
+				output PADDI = OUT_F[2], OUT_IO_PADDI[2];
 			}
 
 			bel IO[3] {
 				input PADDO = IMUX_IO_O[3];
 				input PADDT = IMUX_IO_T[3];
-				output PADDI = OUT_F[3], OUT_IO_CLK[3];
+				output PADDI = OUT_F[3], OUT_IO_PADDI[3];
 			}
 
 			bel IO[4] {
 				input PADDO = IMUX_IO_O[4];
 				input PADDT = IMUX_IO_T[4];
-				output PADDI = OUT_F[4], OUT_IO_CLK[4];
+				output PADDI = OUT_F[4], OUT_IO_PADDI[4];
 			}
 
 			bel IO[5] {
 				input PADDO = IMUX_IO_O[5];
 				input PADDT = IMUX_IO_T[5];
-				output PADDI = OUT_F[5], OUT_IO_CLK[5];
+				output PADDI = OUT_F[5], OUT_IO_PADDI[5];
 			}
 
 			switchbox IO_INT {
@@ -6514,12 +6522,12 @@ intdb {
 			// wire IMUX_IO_T[3]                   IO[3].PADDT
 			// wire IMUX_IO_T[4]                   IO[4].PADDT
 			// wire IMUX_IO_T[5]                   IO[5].PADDT
-			// wire OUT_IO_CLK[0]                  IO[0].PADDI
-			// wire OUT_IO_CLK[1]                  IO[1].PADDI
-			// wire OUT_IO_CLK[2]                  IO[2].PADDI
-			// wire OUT_IO_CLK[3]                  IO[3].PADDI
-			// wire OUT_IO_CLK[4]                  IO[4].PADDI
-			// wire OUT_IO_CLK[5]                  IO[5].PADDI
+			// wire OUT_IO_PADDI[0]                IO[0].PADDI
+			// wire OUT_IO_PADDI[1]                IO[1].PADDI
+			// wire OUT_IO_PADDI[2]                IO[2].PADDI
+			// wire OUT_IO_PADDI[3]                IO[3].PADDI
+			// wire OUT_IO_PADDI[4]                IO[4].PADDI
+			// wire OUT_IO_PADDI[5]                IO[5].PADDI
 		}
 
 		tile_class SIO_L_N4 {
@@ -6528,25 +6536,25 @@ intdb {
 			bel IO[0] {
 				input PADDO = IMUX_IO_O[0];
 				input PADDT = IMUX_IO_T[0];
-				output PADDI = OUT_F[0], OUT_IO_CLK[0];
+				output PADDI = OUT_F[0], OUT_IO_PADDI[0];
 			}
 
 			bel IO[1] {
 				input PADDO = IMUX_IO_O[1];
 				input PADDT = IMUX_IO_T[1];
-				output PADDI = OUT_F[1], OUT_IO_CLK[1];
+				output PADDI = OUT_F[1], OUT_IO_PADDI[1];
 			}
 
 			bel IO[2] {
 				input PADDO = IMUX_IO_O[2];
 				input PADDT = IMUX_IO_T[2];
-				output PADDI = OUT_F[2], OUT_IO_CLK[2];
+				output PADDI = OUT_F[2], OUT_IO_PADDI[2];
 			}
 
 			bel IO[3] {
 				input PADDO = IMUX_IO_O[3];
 				input PADDT = IMUX_IO_T[3];
-				output PADDI = OUT_F[3], OUT_IO_CLK[3];
+				output PADDI = OUT_F[3], OUT_IO_PADDI[3];
 			}
 
 			switchbox IO_INT {
@@ -6572,10 +6580,10 @@ intdb {
 			// wire IMUX_IO_T[1]                   IO[1].PADDT
 			// wire IMUX_IO_T[2]                   IO[2].PADDT
 			// wire IMUX_IO_T[3]                   IO[3].PADDT
-			// wire OUT_IO_CLK[0]                  IO[0].PADDI
-			// wire OUT_IO_CLK[1]                  IO[1].PADDI
-			// wire OUT_IO_CLK[2]                  IO[2].PADDI
-			// wire OUT_IO_CLK[3]                  IO[3].PADDI
+			// wire OUT_IO_PADDI[0]                IO[0].PADDI
+			// wire OUT_IO_PADDI[1]                IO[1].PADDI
+			// wire OUT_IO_PADDI[2]                IO[2].PADDI
+			// wire OUT_IO_PADDI[3]                IO[3].PADDI
 		}
 
 		tile_class SIO_L_N6 {
@@ -6584,37 +6592,37 @@ intdb {
 			bel IO[0] {
 				input PADDO = IMUX_IO_O[0];
 				input PADDT = IMUX_IO_T[0];
-				output PADDI = OUT_F[0], OUT_IO_CLK[0];
+				output PADDI = OUT_F[0], OUT_IO_PADDI[0];
 			}
 
 			bel IO[1] {
 				input PADDO = IMUX_IO_O[1];
 				input PADDT = IMUX_IO_T[1];
-				output PADDI = OUT_F[1], OUT_IO_CLK[1];
+				output PADDI = OUT_F[1], OUT_IO_PADDI[1];
 			}
 
 			bel IO[2] {
 				input PADDO = IMUX_IO_O[2];
 				input PADDT = IMUX_IO_T[2];
-				output PADDI = OUT_F[2], OUT_IO_CLK[2];
+				output PADDI = OUT_F[2], OUT_IO_PADDI[2];
 			}
 
 			bel IO[3] {
 				input PADDO = IMUX_IO_O[3];
 				input PADDT = IMUX_IO_T[3];
-				output PADDI = OUT_F[3], OUT_IO_CLK[3];
+				output PADDI = OUT_F[3], OUT_IO_PADDI[3];
 			}
 
 			bel IO[4] {
 				input PADDO = IMUX_IO_O[4];
 				input PADDT = IMUX_IO_T[4];
-				output PADDI = OUT_F[4], OUT_IO_CLK[4];
+				output PADDI = OUT_F[4], OUT_IO_PADDI[4];
 			}
 
 			bel IO[5] {
 				input PADDO = IMUX_IO_O[5];
 				input PADDT = IMUX_IO_T[5];
-				output PADDI = OUT_F[5], OUT_IO_CLK[5];
+				output PADDI = OUT_F[5], OUT_IO_PADDI[5];
 			}
 
 			switchbox IO_INT {
@@ -6650,12 +6658,12 @@ intdb {
 			// wire IMUX_IO_T[3]                   IO[3].PADDT
 			// wire IMUX_IO_T[4]                   IO[4].PADDT
 			// wire IMUX_IO_T[5]                   IO[5].PADDT
-			// wire OUT_IO_CLK[0]                  IO[0].PADDI
-			// wire OUT_IO_CLK[1]                  IO[1].PADDI
-			// wire OUT_IO_CLK[2]                  IO[2].PADDI
-			// wire OUT_IO_CLK[3]                  IO[3].PADDI
-			// wire OUT_IO_CLK[4]                  IO[4].PADDI
-			// wire OUT_IO_CLK[5]                  IO[5].PADDI
+			// wire OUT_IO_PADDI[0]                IO[0].PADDI
+			// wire OUT_IO_PADDI[1]                IO[1].PADDI
+			// wire OUT_IO_PADDI[2]                IO[2].PADDI
+			// wire OUT_IO_PADDI[3]                IO[3].PADDI
+			// wire OUT_IO_PADDI[4]                IO[4].PADDI
+			// wire OUT_IO_PADDI[5]                IO[5].PADDI
 		}
 	}
 
@@ -6671,6 +6679,7 @@ intdb {
 		bel_slot GSR: GSR;
 		bel_slot JTAG: JTAG;
 		bel_slot OSC: OSC;
+		bel_slot TSALL: TSALL;
 
 		tile_class PLC {
 			cell CELL;
@@ -7277,8 +7286,8 @@ intdb {
 			cell CELL;
 
 			switchbox BEL_INT {
-				mux IMUX_PLL_CLKFB = IMUX_C[0] | IMUX_CLK[1] | OUT_PLL_CLKINTFB | IO_PLL_CLKFB;
 				mux IMUX_PLL_CLKI = IMUX_A[0] | IMUX_B[0] | IMUX_CLK[0] | IO_PLL_CLKI;
+				mux IMUX_PLL_CLKFB = IMUX_C[0] | IMUX_CLK[1] | OUT_PLL_CLKINTFB | IO_PLL_CLKFB;
 			}
 
 			bel PLL[0] {
@@ -7345,8 +7354,8 @@ intdb {
 			cell CELL;
 
 			switchbox BEL_INT {
-				mux IMUX_PLL_CLKFB = IMUX_C[0] | IMUX_CLK[1] | OUT_PLL_CLKINTFB | IO_PLL_CLKFB;
 				mux IMUX_PLL_CLKI = IMUX_A[0] | IMUX_B[0] | IMUX_CLK[0] | IO_PLL_CLKI;
+				mux IMUX_PLL_CLKFB = IMUX_C[0] | IMUX_CLK[1] | OUT_PLL_CLKINTFB | IO_PLL_CLKFB;
 			}
 
 			bel PLL[0] {
@@ -7425,13 +7434,16 @@ intdb {
 				input JTDO2 = CELL[0].IMUX_A[2];
 				output JTDI = CELL[1].OUT_F[4];
 				output JTCK = CELL[1].OUT_F[5];
-				output JRST = CELL[3].OUT_F[4];
 				output JSHIFT = CELL[2].OUT_F[4];
 				output JUPDATE = CELL[2].OUT_F[5];
+				output JRST = CELL[3].OUT_F[4];
 				output JCE1 = CELL[3].OUT_F[5];
-				output JCE2 = CELL[4].OUT_F[4];
 				output JRTI1 = CELL[0].OUT_F[4];
+				output JCE2 = CELL[4].OUT_F[4];
 				output JRTI2 = CELL[0].OUT_F[5];
+			}
+
+			bel TSALL {
 			}
 
 			// wire CELL[0].IMUX_A[2]              JTAG.JTDO2

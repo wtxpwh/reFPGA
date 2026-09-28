@@ -1,8 +1,11 @@
 use prjcombine_ecp::{
-    chip::{PllLoc, PllPad, SpecialIoKey, SpecialLocKey},
-    defs::bslots,
+    chip::{PllLoc, SpecialLocKey},
+    defs::{bcls, bslots, wires},
 };
-use prjcombine_interconnect::dir::{Dir, DirH, DirHV, DirV};
+use prjcombine_interconnect::{
+    db::WireSlotIdExt,
+    dir::{Dir, DirH, DirHV, DirV},
+};
 
 use crate::ChipContext;
 
@@ -12,75 +15,70 @@ impl ChipContext<'_> {
             let SpecialLocKey::Pll(loc) = loc else {
                 continue;
             };
-            let bcrd = cell.bel(bslots::PLL[0]);
-            self.name_bel(
-                bcrd,
-                [match loc.quad {
-                    DirHV::SW => "LLPLL",
-                    DirHV::SE => "LRPLL",
-                    DirHV::NW => "ULPLL",
-                    DirHV::NE => "URPLL",
-                }],
-            );
-            let mut bel = self.extract_simple_legacy_bel(bcrd, cell, "PLL");
 
-            let io_pll_in0 = self.get_special_io_wire_in(SpecialIoKey::Pll(PllPad::PllIn0, loc));
-            let io_pll_fb = self.get_special_io_wire_in(SpecialIoKey::Pll(PllPad::PllFb, loc));
+            let clkintfb_pll = self.rc_wire(cell, "CLKINTFB_PLL");
+            let clkintfb = self.rc_wire(cell, "PLLCLKINTFB");
+            self.claim_pip(clkintfb, clkintfb_pll);
 
-            let bel_eclk_root = self.chip.bel_eclk_root(Dir::H(loc.quad.h));
-            let eclk0_in = self.naming.bel_wire(bel_eclk_root, "ECLK0_IN");
-
+            let clki_pll = self.rc_wire(cell, "CLKI_PLL");
             let clki = self.rc_wire(cell, "CLKI");
+            self.claim_pip(clki_pll, clki);
+
+            let clkfb_pll = self.rc_wire(cell, "CLKFB_PLL");
+            let clkfb = self.rc_wire(cell, "CLKFB");
+            self.claim_pip(clkfb_pll, clkfb);
+
+            let wire_clki = wires::IMUX_PLL_CLKI.cell(0);
+            let wire_clkfb = wires::IMUX_PLL_CLKFB.cell(0);
+            let wire_clkintfb = wires::OUT_PLL_CLKINTFB.cell(0);
+            let wire_clkop = wires::OUT_PLL_CLKOP.cell(0);
+            let wire_clkos = wires::OUT_PLL_CLKOS.cell(0);
+            let wire_clkok = wires::OUT_PLL_CLKOK.cell(0);
+            let wire_clkok2 = wires::OUT_PLL_CLKOK2.cell(0);
+
+            let name = match loc.quad {
+                DirHV::SW => "LLPLL",
+                DirHV::SE => "LRPLL",
+                DirHV::NW => "ULPLL",
+                DirHV::NE => "URPLL",
+            };
+            self.extract_bel(cell.bel(bslots::PLL[0]), cell)
+                .name(name)
+                .suffix("PLL")
+                .input(bcls::PLL::CLKI, wire_clki)
+                .input(bcls::PLL::CLKFB, wire_clkfb)
+                .output(bcls::PLL::CLKINTFB, wire_clkintfb)
+                .output_extra(bcls::PLL::CLKOP, wire_clkop)
+                .output_extra(bcls::PLL::CLKOS, wire_clkos)
+                .output_extra(bcls::PLL::CLKOK, wire_clkok)
+                .output_extra(bcls::PLL::CLKOK2, wire_clkok2)
+                .add_wire("CLKINTFB_PLL", clkintfb_pll)
+                .add_wire("CLKI_PLL", clki_pll)
+                .add_wire("CLKFB_PLL", clkfb_pll);
+
             let clki0 = self.rc_wire(cell, "JPLLCLKI0");
             let clki1 = self.rc_wire(cell, "JPLLCLKI1");
             let clki2 = self.rc_wire(cell, "JPLLCLKI2");
             let clki3 = self.rc_wire(cell, "JPLLCLKI3");
-            let clki_pll = self.rc_wire(cell, "CLKI_PLL");
-            self.add_bel_wire(bcrd, "CLKI", clki);
-            self.add_bel_wire(bcrd, "CLKI0", clki0);
-            self.add_bel_wire(bcrd, "CLKI1", clki1);
-            self.add_bel_wire(bcrd, "CLKI2", clki2);
-            self.add_bel_wire(bcrd, "CLKI3", clki3);
-            self.add_bel_wire(bcrd, "CLKI_PLL", clki_pll);
-            bel.pins
-                .insert("CLKI0".into(), self.xlat_int_wire(bcrd, clki0));
-            bel.pins
-                .insert("CLKI1".into(), self.xlat_int_wire(bcrd, clki1));
-            bel.pins
-                .insert("CLKI2".into(), self.xlat_int_wire(bcrd, clki2));
-            self.claim_pip(clki3, io_pll_in0);
-            self.claim_pip(clki, clki0);
-            self.claim_pip(clki, clki1);
-            self.claim_pip(clki, clki2);
-            self.claim_pip(clki, clki3);
-            self.claim_pip(clki_pll, clki);
-
-            let clkfb = self.rc_wire(cell, "CLKFB");
             let clkfb0 = self.rc_wire(cell, "JPLLCLKFB0");
             let clkfb1 = self.rc_wire(cell, "JPLLCLKFB1");
             let clkfb3 = self.rc_wire(cell, "JPLLCLKFB3");
-            let clkfb_pll = self.rc_wire(cell, "CLKFB_PLL");
-            let clkintfb = self.rc_wire(cell, "PLLCLKINTFB");
-            let clkintfb_pll = self.rc_wire(cell, "CLKINTFB_PLL");
-            self.add_bel_wire(bcrd, "CLKFB", clkfb);
-            self.add_bel_wire(bcrd, "CLKFB0", clkfb0);
-            self.add_bel_wire(bcrd, "CLKFB1", clkfb1);
-            self.add_bel_wire(bcrd, "CLKFB3", clkfb3);
-            self.add_bel_wire(bcrd, "CLKFB_PLL", clkfb_pll);
-            self.add_bel_wire(bcrd, "CLKINTFB", clkintfb);
-            self.add_bel_wire(bcrd, "CLKINTFB_PLL", clkintfb_pll);
-            bel.pins
-                .insert("CLKFB0".into(), self.xlat_int_wire(bcrd, clkfb0));
-            self.claim_pip(clkfb1, io_pll_fb);
-            self.claim_pip(clkfb3, eclk0_in);
-            self.claim_pip(clkfb, clkfb0);
-            self.claim_pip(clkfb, clkfb1);
-            self.claim_pip(clkfb, clkfb3);
-            self.claim_pip(clkfb, clkintfb);
-            self.claim_pip(clkfb_pll, clkfb);
-            self.claim_pip(clkintfb, clkintfb_pll);
 
-            self.insert_legacy_bel(bcrd, bel);
+            let bel_eclk_root = self.chip.bel_eclk_root(Dir::H(loc.quad.h));
+            let eclk0_in = self.naming.bel_wire(bel_eclk_root, "ECLK0_IN");
+            self.claim_pip(clkfb3, eclk0_in);
+
+            self.extract_switchbox(cell.bel(bslots::BEL_INT))
+                .output(clki, wire_clki)
+                .input_xlat(clki0)
+                .input_xlat(clki1)
+                .input_xlat(clki2)
+                .input_io(clki3, wires::OUT_IO_PADDI[0].cell(2))
+                .output(clkfb, wire_clkfb)
+                .input_xlat(clkfb0)
+                .input_io(clkfb1, wires::OUT_IO_PADDI[0].cell(3))
+                .input(clkintfb, wire_clkintfb)
+                .input(clkfb3, wires::ECLK[0].cell(0));
         }
     }
 
@@ -88,55 +86,61 @@ impl ChipContext<'_> {
         for edge in [DirH::W, DirH::E] {
             let bcrd = self.chip.bel_dqsdll_ecp2(edge).bel(bslots::CLKDIV[0]);
             let cell = bcrd.cell;
-            self.name_bel(
-                bcrd,
-                [match edge {
+
+            let clki = self.rc_wire(cell, "CLKI_CLKDIV");
+            let clki_in = self.rc_wire(cell, "CLKDIVCLKI");
+            self.claim_pip(clki, clki_in);
+
+            let wire_clki = wires::IMUX_CLKDIV_CLKI.cell(0);
+            let wire_cdiv1 = wires::OUT_CLKDIV_CDIV1.cell(0);
+            let wire_cdiv2 = wires::OUT_CLKDIV_CDIV2.cell(0);
+            let wire_cdiv4 = wires::OUT_CLKDIV_CDIV4.cell(0);
+            let wire_cdiv8 = wires::OUT_CLKDIV_CDIV8.cell(0);
+
+            self.extract_bel(bcrd, cell)
+                .name(match edge {
                     DirH::W => "LCLKDIV",
                     DirH::E => "RCLKDIV",
-                }],
-            );
-            self.insert_simple_legacy_bel(bcrd, cell, "CLKDIV");
+                })
+                .suffix("CLKDIV")
+                .input(bcls::CLKDIV::CLKI, wire_clki)
+                .add_wire("CLKI", clki)
+                .output_extra(bcls::CLKDIV::CDIV1, wire_cdiv1)
+                .output_extra(bcls::CLKDIV::CDIV2, wire_cdiv2)
+                .output_extra(bcls::CLKDIV::CDIV4, wire_cdiv4)
+                .output_extra(bcls::CLKDIV::CDIV8, wire_cdiv8);
 
             let bel_eclk_root = self.chip.bel_eclk_root(Dir::H(edge));
             let eclk0_in = self.naming.bel_wire(bel_eclk_root, "ECLK0_IN");
             let eclk1_in = self.naming.bel_wire(bel_eclk_root, "ECLK1_IN");
-
             let eclk0 = self.rc_wire(cell, "JFRC0");
             let eclk1 = self.rc_wire(cell, "JFRC1");
-            self.add_bel_wire(bcrd, "ECLK0", eclk0);
-            self.add_bel_wire(bcrd, "ECLK1", eclk1);
             self.claim_pip(eclk0, eclk0_in);
             self.claim_pip(eclk1, eclk1_in);
 
-            let clki_in = self.rc_wire(cell, "CLKDIVCLKI");
-            self.add_bel_wire(bcrd, "CLKI_IN", clki_in);
-            self.claim_pip(clki_in, eclk0);
-            self.claim_pip(clki_in, eclk1);
+            let mut ex = self.extract_switchbox(cell.bel(bslots::BEL_INT));
+            ex.output(clki_in, wire_clki)
+                .input(eclk0, wires::ECLK[0].cell(0))
+                .input(eclk1, wires::ECLK[1].cell(0));
 
-            for v in [DirV::S, DirV::N] {
+            for (v, ci) in [(DirV::S, 1), (DirV::N, 2)] {
                 let pll_loc = PllLoc::new_hv(edge, v, 0);
-                if let Some(&cell_pll) = self.chip.special_loc.get(&SpecialLocKey::Pll(pll_loc)) {
-                    let clkop_in = self.rc_wire(cell_pll, "JCLKOP_PLL");
+                let wire_clkop = wires::OUT_PLL_CLKOP.cell(ci);
+                if let Some(&cell_pll) = ex.ctx.chip.special_loc.get(&SpecialLocKey::Pll(pll_loc)) {
+                    let clkop_in = ex.ctx.rc_wire(cell_pll, "JCLKOP_PLL");
                     let idx = match pll_loc.quad {
                         DirHV::SW => 1,
                         DirHV::SE => 0,
                         DirHV::NW => 0,
                         DirHV::NE => 1,
                     };
-                    let clkop = self.rc_wire(cell, &format!("JCLKOP{idx}"));
-                    self.add_bel_wire(
-                        bcrd,
-                        format!("PLL_{quad}_CLKOP", quad = pll_loc.quad),
-                        clkop,
-                    );
-                    self.claim_pip(clkop, clkop_in);
-                    self.claim_pip(clki_in, clkop);
+                    let clkop = ex.ctx.rc_wire(cell, &format!("JCLKOP{idx}"));
+                    ex.ctx.claim_pip(clkop, clkop_in);
+                    ex.input(clkop, wire_clkop);
+                } else {
+                    ex.edge(wire_clki, wire_clkop);
                 }
             }
-
-            let clki = self.rc_wire(cell, "CLKI_CLKDIV");
-            self.add_bel_wire(bcrd, "CLKI", clki);
-            self.claim_pip(clki, clki_in);
         }
     }
 }

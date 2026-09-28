@@ -730,16 +730,16 @@ impl Chip {
         match edge {
             Dir::W => Self::DIE
                 .cell(self.col_w(), self.row_clk)
-                .bel(bslots::ECLK_ROOT),
+                .bel(bslots::CLK_INT),
             Dir::E => Self::DIE
                 .cell(self.col_e(), self.row_clk)
-                .bel(bslots::ECLK_ROOT),
+                .bel(bslots::CLK_INT),
             Dir::S => Self::DIE
                 .cell(self.col_clk, self.row_s())
-                .bel(bslots::ECLK_ROOT),
+                .bel(bslots::CLK_INT),
             Dir::N => Self::DIE
                 .cell(self.col_clk, self.row_n())
-                .bel(bslots::ECLK_ROOT),
+                .bel(bslots::CLK_INT),
         }
     }
 

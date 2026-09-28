@@ -67,6 +67,15 @@ fn main() -> Result<(), Box<dyn Error>> {
                             n = name.to_string(naming)
                         );
                     }
+                    for (&(tw_dst, tw_src), &name) in &bnaming.int_inputs {
+                        let tcls = &db.int[edev[edev.bel_tile(bel)].class];
+                        println!(
+                            "\t\t{tw_dst} <- {tw_src}: {n}",
+                            tw_dst = tw_dst.to_string(&db.int, tcls),
+                            tw_src = tw_src.to_string(&db.int, tcls),
+                            n = name.to_string(naming)
+                        );
+                    }
                 }
             }
         }

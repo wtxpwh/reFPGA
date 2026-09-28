@@ -873,8 +873,7 @@ impl ChipContext<'_> {
                 self.rc_io_wire(cell, &format!("{pin}{abcd}_IOLOGIC"))
             };
             self.add_bel_wire(bcrd, pin, wire);
-            if let Some(&cell_dqs) = self.edev.dqs.get(&bcrd.cell) {
-                let bcrd_dqs = cell_dqs.bel(bslots::DQS[0]);
+            if let Some(bcrd_dqs) = self.edev.bel_io_dqs(bcrd) {
                 let wire_dqs = self.naming.bel_wire(bcrd_dqs, &format!("{pin}_OUT"));
                 self.claim_pip(wire, wire_dqs);
             }
@@ -892,8 +891,7 @@ impl ChipContext<'_> {
             self.claim_pip(eclk_in, wire_eclk);
         }
 
-        if let Some(&cell_dqs) = self.edev.dqs.get(&bcrd.cell) {
-            let bcrd_dqs = cell_dqs.bel(bslots::DQS[0]);
+        if let Some(bcrd_dqs) = self.edev.bel_io_dqs(bcrd) {
             let nextclk = self.naming.bel_wire(bcrd_dqs, "NEXTCLK_OUT");
             self.claim_pip(eclk_in, nextclk);
             let cruclk = self.naming.bel_wire(bcrd_dqs, "CRUCLK_OUT");

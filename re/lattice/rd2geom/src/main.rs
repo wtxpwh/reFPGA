@@ -291,6 +291,7 @@ impl<'dev> ChipContext<'dev> {
                         names,
                         wires: Default::default(),
                         int_wires: Default::default(),
+                        int_inputs: Default::default(),
                     },
                 )
                 .is_none()
@@ -465,6 +466,7 @@ impl<'dev> ChipContext<'dev> {
             bcrd,
             cell,
             bel: Bel::default(),
+            discard: false,
         }
     }
 
@@ -475,6 +477,8 @@ impl<'dev> ChipContext<'dev> {
             bcrd,
             inputs: BTreeMap::new(),
             outputs: BTreeMap::new(),
+            edges: vec![],
+            extra: vec![],
         }
     }
 

@@ -8579,8 +8579,49 @@ intdb {
 		output R[72];
 	}
 
-	bel_class ECLK_TAP {
-		output ECLK[2];
+	bel_class DCS {
+		input CLK[2];
+		input SEL;
+		output DCSOUT;
+	}
+
+	bel_class GSR {
+		input CLK;
+		input GSR;
+	}
+
+	bel_class JTAG {
+		input JTDO1;
+		input JTDO2;
+		output JTDI;
+		output JTCK;
+		output JSHIFT;
+		output JUPDATE;
+		output JRSTN;
+		output JCE1;
+		output JRTI1;
+		output JCE2;
+		output JRTI2;
+	}
+
+	bel_class START {
+		input STARTCLK;
+	}
+
+	bel_class OSC {
+		output CFGCLK;
+	}
+
+	bel_class SED {
+		input SEDENABLE;
+		input SEDSTART;
+		input SEDFRCERR;
+		input SEDMODE;
+		output SEDCLKOUT;
+		output SEDINPROG;
+		output SEDDONE;
+		output SEDERR;
+		output AUTODONE;
 	}
 
 	bel_class HSDCLK_ROOT {
@@ -8597,6 +8638,8 @@ intdb {
 	region_slot RSCLK[2];
 	region_slot RSCLK[3];
 	region_slot RSCLK_V;
+	region_slot ECLK;
+	region_slot DQS;
 	wire TIE0: tie 0;
 	wire TIE1: tie 1;
 	wire X0_W[0]: mux;
@@ -8935,6 +8978,8 @@ intdb {
 	wire RSCLK_V_N[5]: branch S;
 	wire RSCLK_V_N[6]: branch S;
 	wire RSCLK_V_N[7]: branch S;
+	wire ECLK[0]: regional ECLK;
+	wire ECLK[1]: regional ECLK;
 	wire IMUX_A[0]: mux;
 	wire IMUX_A[1]: mux;
 	wire IMUX_A[2]: mux;
@@ -11853,6 +11898,7 @@ intdb {
 	}
 
 	tile_slot BEL {
+		bel_slot BEL_INT: routing;
 		bel_slot SLICE[0]: SLICE;
 		bel_slot SLICE[1]: SLICE;
 		bel_slot SLICE[2]: SLICE;
@@ -11866,15 +11912,15 @@ intdb {
 		bel_slot DQSDLL: legacy;
 		bel_slot DLLDEL[0]: legacy;
 		bel_slot CLKDIV[0]: legacy;
-		bel_slot ECLK_ALT_ROOT: legacy;
-		bel_slot START: legacy;
-		bel_slot GSR: legacy;
+		bel_slot START: START;
+		bel_slot GSR: GSR;
 		bel_slot DQSDLLTEST: legacy;
+		bel_slot ECLK_ALT_ROOT: legacy;
 		bel_slot DQS[0]: legacy;
 		bel_slot DQSTEST: legacy;
-		bel_slot JTAG: legacy;
-		bel_slot OSC: legacy;
-		bel_slot SED: legacy;
+		bel_slot JTAG: JTAG;
+		bel_slot OSC: OSC;
+		bel_slot SED: SED;
 		bel_slot AMBOOT: legacy;
 		bel_slot PERREG: legacy;
 		bel_slot TESTIN: legacy;
@@ -14683,11 +14729,6 @@ intdb {
 				input RST = CELL[13].IMUX_CE[1];
 			}
 
-			bel ECLK_ALT_ROOT {
-				input ECLK0_IN = CELL[14].IMUX_CLK[0];
-				input ECLK1_IN = CELL[14].IMUX_CLK[1];
-			}
-
 			bel DQSDLLTEST {
 				output SDOUT0 = CELL_WE[1].OUT_F[2];
 				output SDOUT1 = CELL_WE[1].OUT_Q[2];
@@ -14696,6 +14737,11 @@ intdb {
 				output SDOUT4 = CELL_WE[1].OUT_Q[3];
 				output SDOUT5 = CELL_WE[1].OUT_Q[1];
 				output SDOUT6 = CELL_WE[1].OUT_F[3];
+			}
+
+			bel ECLK_ALT_ROOT {
+				input ECLK0_IN = CELL[14].IMUX_CLK[0];
+				input ECLK1_IN = CELL[14].IMUX_CLK[1];
 			}
 
 			// wire CELL[2].IMUX_CLK[0]            DQSDLL.CLK
@@ -14912,11 +14958,6 @@ intdb {
 				input RST = CELL[13].IMUX_CE[1];
 			}
 
-			bel ECLK_ALT_ROOT {
-				input ECLK0_IN = CELL[14].IMUX_CLK[0];
-				input ECLK1_IN = CELL[14].IMUX_CLK[1];
-			}
-
 			bel DQSDLLTEST {
 				output SDOUT0 = CELL_WE[1].OUT_F[2];
 				output SDOUT1 = CELL_WE[1].OUT_Q[2];
@@ -14925,6 +14966,11 @@ intdb {
 				output SDOUT4 = CELL_WE[1].OUT_Q[3];
 				output SDOUT5 = CELL_WE[1].OUT_Q[1];
 				output SDOUT6 = CELL_WE[1].OUT_F[3];
+			}
+
+			bel ECLK_ALT_ROOT {
+				input ECLK0_IN = CELL[14].IMUX_CLK[0];
+				input ECLK1_IN = CELL[14].IMUX_CLK[1];
 			}
 
 			// wire CELL[2].IMUX_CLK[0]            DQSDLL.CLK
@@ -15145,11 +15191,6 @@ intdb {
 				input RST = CELL[13].IMUX_CE[1];
 			}
 
-			bel ECLK_ALT_ROOT {
-				input ECLK0_IN = CELL[14].IMUX_CLK[0];
-				input ECLK1_IN = CELL[14].IMUX_CLK[1];
-			}
-
 			bel DQSDLLTEST {
 				output SDOUT0 = CELL_WE[1].OUT_F[2];
 				output SDOUT1 = CELL_WE[1].OUT_Q[2];
@@ -15158,6 +15199,11 @@ intdb {
 				output SDOUT4 = CELL_WE[1].OUT_Q[3];
 				output SDOUT5 = CELL_WE[1].OUT_Q[1];
 				output SDOUT6 = CELL_WE[1].OUT_F[3];
+			}
+
+			bel ECLK_ALT_ROOT {
+				input ECLK0_IN = CELL[14].IMUX_CLK[0];
+				input ECLK1_IN = CELL[14].IMUX_CLK[1];
 			}
 
 			// wire CELL[2].IMUX_CLK[0]            DQSDLL.CLK
@@ -15382,11 +15428,6 @@ intdb {
 				input RST = CELL[13].IMUX_CE[1];
 			}
 
-			bel ECLK_ALT_ROOT {
-				input ECLK0_IN = CELL[14].IMUX_CLK[0];
-				input ECLK1_IN = CELL[14].IMUX_CLK[1];
-			}
-
 			bel DQSDLLTEST {
 				output SDOUT0 = CELL_WE[1].OUT_F[2];
 				output SDOUT1 = CELL_WE[1].OUT_Q[2];
@@ -15395,6 +15436,11 @@ intdb {
 				output SDOUT4 = CELL_WE[1].OUT_Q[3];
 				output SDOUT5 = CELL_WE[1].OUT_Q[1];
 				output SDOUT6 = CELL_WE[1].OUT_F[3];
+			}
+
+			bel ECLK_ALT_ROOT {
+				input ECLK0_IN = CELL[14].IMUX_CLK[0];
+				input ECLK1_IN = CELL[14].IMUX_CLK[1];
 			}
 
 			// wire CELL[2].IMUX_CLK[0]            DQSDLL.CLK
@@ -16024,17 +16070,17 @@ intdb {
 			}
 
 			bel JTAG {
-				output JCE1 = CELL[3].OUT_F[0];
-				output JCE2 = CELL[3].OUT_F[1];
-				output JRSTN = CELL[3].OUT_F[2];
-				output JRTI1 = CELL[3].OUT_F[6];
-				output JRTI2 = CELL[3].OUT_F[7];
-				output JSHIFT = CELL[3].OUT_F[3];
-				output JTCK = CELL[3].OUT_F[5];
-				output JTDI = CELL[3].OUT_Q[0];
 				input JTDO1 = CELL[3].IMUX_A[0];
 				input JTDO2 = CELL[3].IMUX_B[0];
+				output JTDI = CELL[3].OUT_Q[0];
+				output JTCK = CELL[3].OUT_F[5];
+				output JSHIFT = CELL[3].OUT_F[3];
 				output JUPDATE = CELL[3].OUT_F[4];
+				output JRSTN = CELL[3].OUT_F[2];
+				output JCE1 = CELL[3].OUT_F[0];
+				output JRTI1 = CELL[3].OUT_F[6];
+				output JCE2 = CELL[3].OUT_F[1];
+				output JRTI2 = CELL[3].OUT_F[7];
 			}
 
 			bel OSC {
@@ -16042,15 +16088,15 @@ intdb {
 			}
 
 			bel SED {
-				output AUTODONE = CELL[4].OUT_Q[5];
-				output SEDCLKOUT = CELL[12].OUT_Q[4];
-				output SEDDONE = CELL[4].OUT_Q[3];
 				input SEDENABLE = CELL[12].IMUX_CLK[0];
-				output SEDERR = CELL[4].OUT_Q[1];
-				input SEDFRCERR = CELL[4].IMUX_CLK[0];
-				output SEDINPROG = CELL[4].OUT_Q[2];
-				input SEDMODE = CELL[4].IMUX_CLK[1];
 				input SEDSTART = CELL[3].IMUX_CLK[1];
+				input SEDFRCERR = CELL[4].IMUX_CLK[0];
+				input SEDMODE = CELL[4].IMUX_CLK[1];
+				output SEDCLKOUT = CELL[12].OUT_Q[4];
+				output SEDINPROG = CELL[4].OUT_Q[2];
+				output SEDDONE = CELL[4].OUT_Q[3];
+				output SEDERR = CELL[4].OUT_Q[1];
+				output AUTODONE = CELL[4].OUT_Q[5];
 			}
 
 			bel AMBOOT {
@@ -16684,6 +16730,7 @@ intdb {
 	}
 
 	tile_slot CLK {
+		bel_slot CLK_INT: routing;
 		bel_slot CLK_ROOT: legacy;
 		bel_slot DCS_SW[0]: legacy;
 		bel_slot DCS_SW[1]: legacy;
@@ -17493,18 +17540,15 @@ intdb {
 	}
 
 	tile_slot ECLK_TAP {
-		bel_slot ECLK_TAP: ECLK_TAP;
+		bel_slot ECLK_TAP: routing;
 
 		tile_class ECLK_TAP {
 			cell CELL;
 
-			bel ECLK_TAP {
-				output ECLK[0] = OUT_F[6];
-				output ECLK[1] = OUT_F[7];
+			switchbox ECLK_TAP {
+				permabuf OUT_F[6] = ECLK[0];
+				permabuf OUT_F[7] = ECLK[1];
 			}
-
-			// wire OUT_F[6]                       ECLK_TAP.ECLK[0]
-			// wire OUT_F[7]                       ECLK_TAP.ECLK[1]
 		}
 	}
 

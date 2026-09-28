@@ -326,9 +326,7 @@ impl ChipContext<'_> {
                 } else {
                     tcrd.cell
                 };
-                let (r, c) = self.rc(cell);
-                self.name_bel(bcrd, [format!("EBR_R{r}C{c}")]);
-                self.extract_bel(bcrd, cell).suffix("EBR");
+                self.extract_bel(bcrd, cell).name_rc("EBR").suffix("EBR");
             }
         }
     }
@@ -339,9 +337,7 @@ impl ChipContext<'_> {
             for i in 0..4 {
                 let bcrd = tcrd.bel(bslots::EBR[i]);
                 let cell = tcrd.delta(2 * (i as i32), 0);
-                let (r, c) = self.rc(cell);
-                self.name_bel(bcrd, [format!("EBR_R{r}C{c}")]);
-                self.extract_bel(bcrd, cell).suffix("EBR");
+                self.extract_bel(bcrd, cell).name_rc("EBR").suffix("EBR");
             }
         }
     }
