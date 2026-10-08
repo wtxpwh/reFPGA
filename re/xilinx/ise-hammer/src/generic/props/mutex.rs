@@ -28,7 +28,7 @@ impl<'b> FuzzerProp<'b, IseBackend<'b>> for IntMutex {
         tcrd: TileCoord,
         mut fuzzer: Fuzzer<IseBackend<'a>>,
     ) -> Option<(Fuzzer<IseBackend<'a>>, bool)> {
-        for (_, cell) in backend.edev.tile_cells(tcrd) {
+        for &cell in backend.edev[tcrd].cells.values() {
             fuzzer = fuzzer.base(Key::IntMutex(cell), self.val.clone());
         }
         Some((fuzzer, false))

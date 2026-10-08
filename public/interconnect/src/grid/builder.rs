@@ -4,7 +4,7 @@ use bimap::BiHashMap;
 use prjcombine_entity::{EntityId, EntityPartVec, EntityVec};
 
 use crate::{
-    db::{ConnectorClassId, IntDb, IntDbIndex, TileClassId},
+    db::{CellSlotId, ConnectorClassId, IntDb, IntDbIndex, TileClassId},
     grid::{
         Cell, CellCoord, ColId, Connector, DieId, DieIdExt, ExpandedDie, ExpandedGrid, RowId, Tile,
     },
@@ -105,6 +105,25 @@ impl<'db> GridBuilder<'db> {
         die
     }
 
+    pub fn add_tile_part(
+        &mut self,
+        anchor: CellCoord,
+        tcid: TileClassId,
+        cells: impl Into<EntityPartVec<CellSlotId, CellCoord>>,
+    ) -> &mut Tile {
+        let cells = cells.into();
+        let tcls = &self.db[tcid];
+        let slot = tcls.slot;
+        assert!(!self[anchor].tiles.contains_id(slot));
+        let tcrd = anchor.tile(slot);
+        for (cid, &cell) in &cells {
+            let _ = tcls.cells[cid];
+            self[cell].tile_index.push((tcrd, cid));
+        }
+        self[anchor].tiles.insert(slot, Tile { class: tcid, cells });
+        &mut self[anchor].tiles[slot]
+    }
+
     pub fn add_tile(
         &mut self,
         anchor: CellCoord,
@@ -112,22 +131,13 @@ impl<'db> GridBuilder<'db> {
         cells: &[CellCoord],
     ) -> &mut Tile {
         let tcls = &self.db[tcid];
-        let slot = tcls.slot;
-        assert!(!self[anchor].tiles.contains_id(slot));
-        let tcrd = anchor.tile(slot);
-        let cells: EntityVec<_, _> = cells.iter().copied().collect();
         assert_eq!(cells.len(), tcls.cells.len());
-        self[anchor].tiles.insert(
-            slot,
-            Tile {
-                class: tcid,
-                cells: cells.clone(),
-            },
-        );
-        for (cid, cell) in cells {
-            self[cell].tile_index.push((tcrd, cid))
-        }
-        &mut self[anchor].tiles[slot]
+        let cells: EntityPartVec<_, _> = cells
+            .iter()
+            .enumerate()
+            .map(|(idx, &cell)| (CellSlotId::from_idx(idx), cell))
+            .collect();
+        self.add_tile_part(anchor, tcid, cells)
     }
 
     pub fn add_tile_single(&mut self, cell: CellCoord, tcid: TileClassId) -> &mut Tile {

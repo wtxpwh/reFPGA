@@ -279,13 +279,17 @@ impl ExpandedDevice<'_> {
         } else if tcrd.slot == tslots::IOB {
             if col == self.chip.col_w() || col == self.chip.col_e() {
                 EntityVec::from_iter(
-                    self.tile_cells(tcrd)
-                        .map(|(_, cell)| self.btile_term_h(cell)),
+                    self[tcrd]
+                        .cells
+                        .values()
+                        .map(|&cell| self.btile_term_h(cell)),
                 )
             } else {
                 EntityVec::from_iter(
-                    self.tile_cells(tcrd)
-                        .map(|(_, cell)| self.btile_term_v(cell)),
+                    self[tcrd]
+                        .cells
+                        .values()
+                        .map(|&cell| self.btile_term_v(cell)),
                 )
             }
         } else if matches!(tile.class, tcls::TERM_W | tcls::TERM_E) {
@@ -372,7 +376,7 @@ impl ExpandedDevice<'_> {
         } else if !self.chip.kind.is_virtex2() && tcrd.slot == tslots::TERM_H {
             EntityVec::from_iter([self.btile_spine(row)])
         } else {
-            EntityVec::from_iter(self.tile_cells(tcrd).map(|(_, cell)| self.btile_main(cell)))
+            EntityVec::from_iter(self[tcrd].cells.values().map(|&cell| self.btile_main(cell)))
         }
     }
 

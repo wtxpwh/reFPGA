@@ -1290,7 +1290,7 @@ pub fn name_device<'a>(edev: &'a ExpandedDevice<'a>, ndb: &'a NamingDb) -> Expan
                         let tcrd_n = die_n
                             .cell(edev.col_clk, edev.rows(die_n).last().unwrap())
                             .tile(tslots::GTZ);
-                        let lcol = edev[tcrd_n].cells.last().unwrap().col;
+                        let lcol = edev[tcrd_n].cells.values().next_back().unwrap().col;
                         let x = raw_grid.xlut[lcol + 1];
                         let y = if tile.class == tcls::GTZ_S {
                             0

@@ -644,12 +644,12 @@ impl<'a> Extractor<'a> {
         }
         for (tcrd, tile) in self.egrid.tiles() {
             let mut net_dict = BTreeMap::new();
-            for (tid, tcell) in self.egrid.tile_cells(tcrd) {
+            for (cid, &tcell) in &self.egrid[tcrd].cells {
                 if let Some(nbt) = net_by_cell.get(&tcell) {
                     for (&net, &wire) in nbt {
                         net_dict
                             .entry(net)
-                            .or_insert(TileWireCoord { cell: tid, wire });
+                            .or_insert(TileWireCoord { cell: cid, wire });
                     }
                 }
             }

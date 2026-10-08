@@ -174,7 +174,7 @@ impl ExpandedDevice<'_> {
             EntityVec::from_iter(
                 tile.cells
                     .values()
-                    .take(tile.cells.len() - 2)
+                    .take(tcls.cells.len() - 2)
                     .map(|&cell| self.btile_main(cell.col, cell.row)),
             )
         } else {

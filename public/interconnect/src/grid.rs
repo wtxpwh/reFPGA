@@ -437,8 +437,15 @@ impl<'a> ExpandedGrid<'a> {
         }
     }
 
+    pub fn try_tile_wire(&self, tcrd: TileCoord, wire: TileWireCoord) -> Option<WireCoord> {
+        Some(WireCoord {
+            cell: self.try_tile_cell(tcrd, wire.cell)?,
+            slot: wire.wire,
+        })
+    }
+
     pub fn resolve_tile_wire(&self, tcrd: TileCoord, wire: TileWireCoord) -> Option<WireCoord> {
-        self.resolve_wire(self.tile_wire(tcrd, wire))
+        self.resolve_wire(self.try_tile_wire(tcrd, wire)?)
     }
 
     pub fn cells(&self) -> impl Iterator<Item = (CellCoord, &Cell)> + '_ {
@@ -469,18 +476,12 @@ impl<'a> ExpandedGrid<'a> {
         })
     }
 
-    pub fn tile_cells(
-        &self,
-        tcrd: TileCoord,
-    ) -> impl DoubleEndedIterator<Item = (CellSlotId, CellCoord)> + ExactSizeIterator + '_ {
-        self[tcrd]
-            .cells
-            .iter()
-            .map(move |(slot, &cell)| (slot, cell))
-    }
-
     pub fn tile_cell(&self, tcrd: TileCoord, slot: CellSlotId) -> CellCoord {
         self[tcrd].cells[slot]
+    }
+
+    pub fn try_tile_cell(&self, tcrd: TileCoord, slot: CellSlotId) -> Option<CellCoord> {
+        self[tcrd].cells.get(slot).copied()
     }
 
     pub fn get_tile(&self, tcrd: TileCoord) -> Option<&Tile> {
@@ -828,7 +829,7 @@ pub struct Cell {
 #[derive(Clone, Debug)]
 pub struct Tile {
     pub class: TileClassId,
-    pub cells: EntityVec<CellSlotId, CellCoord>,
+    pub cells: EntityPartVec<CellSlotId, CellCoord>,
 }
 
 #[derive(Clone, Debug)]
