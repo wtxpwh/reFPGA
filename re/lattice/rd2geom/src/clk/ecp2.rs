@@ -153,10 +153,8 @@ impl ChipContext<'_> {
             }
         }
         let mut pll_in = BTreeMap::new();
-        for (&loc, &cell_loc) in &self.chip.special_loc {
-            let SpecialLocKey::Pll(loc) = loc else {
-                continue;
-            };
+        for (loc, bel_pll) in self.chip.plls() {
+            let cell_loc = bel_pll.cell;
             if self.chip.kind == ChipKind::Xp2 {
                 let wire_clkop_pll_in = self.rc_wire(cell_loc, "JCLKOP_PLL");
                 let wire_clkos_pll_in = self.rc_wire(cell_loc, "JCLKOS_PLL");

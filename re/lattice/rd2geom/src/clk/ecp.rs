@@ -73,10 +73,8 @@ impl ChipContext<'_> {
             io_in.insert(dir, wire);
         }
         let mut pll_in = BTreeMap::new();
-        for (&loc, &pll_cell) in &self.chip.special_loc {
-            let SpecialLocKey::Pll(loc) = loc else {
-                continue;
-            };
+        for (loc, bel_pll) in self.chip.plls() {
+            let pll_cell = bel_pll.cell;
             let wire_clkop_pll = self.rc_wire(pll_cell, "JCLKOP");
             let wire_clkos_pll = self.rc_wire(pll_cell, "JCLKOS_PLL3");
             let wire_clkok_pll = self.rc_wire(pll_cell, "JCLKOK_PLL3");

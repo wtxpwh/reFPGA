@@ -550,10 +550,8 @@ impl Chip {
             ChipKind::Ecp3 | ChipKind::Ecp3A => {
                 let row_cfg = self.special_loc[&SpecialLocKey::Config].row;
                 let mut pll_rows = BTreeSet::new();
-                for (&loc, &cell) in &self.special_loc {
-                    if matches!(loc, SpecialLocKey::Pll(..)) {
-                        pll_rows.insert(cell.row);
-                    }
+                for (_, bcrd) in self.plls() {
+                    pll_rows.insert(bcrd.row);
                 }
                 for (row, rd) in &self.rows {
                     if row < row_cfg {

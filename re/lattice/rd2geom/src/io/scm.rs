@@ -249,7 +249,7 @@ impl ChipContext<'_> {
                 DirHV::NW => "UL",
                 DirHV::NE => "UR",
             };
-            let cell_tile = &self.chip.special_loc[&SpecialLocKey::Pll(PllLoc::new(hv, 0))];
+            let cell_tile = self.chip.bel_pll(hv, 0).cell;
             let cell = cell_tile.with_row(self.chip.row_edge(hv.v));
             {
                 let bcrd = cell_tile.bel(bslots::PLL_SMI);
@@ -708,7 +708,7 @@ impl ChipContext<'_> {
             7 => (DirHV::NW, 'V'),
             _ => unreachable!(),
         };
-        let cell_dll_dcntl = self.chip.special_loc[&SpecialLocKey::Pll(PllLoc::new(hv, 0))];
+        let cell_dll_dcntl = self.chip.bel_pll(hv, 0).cell;
         for i in 0..9 {
             let wire = self.rc_io_wire(cell, &format!("JDCNTL{i}{abcd}_{iol}"));
             self.add_bel_wire(bcrd, format!("DCNTL{i}"), wire);

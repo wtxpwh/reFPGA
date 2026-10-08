@@ -1,5 +1,5 @@
 use prjcombine_ecp::{
-    chip::{Chip, IoKind, PllLoc, SpecialIoKey, SpecialLocKey},
+    chip::{Chip, IoKind, SpecialIoKey, SpecialLocKey},
     defs::{bslots, tcls},
 };
 use prjcombine_entity::EntityId;
@@ -104,8 +104,7 @@ impl ChipContext<'_> {
                     self.claim_pip(eclki_in, eclki_pll);
                     if bank_idx == 0 && eclk_idx == 0 {
                         self.claim_node(eclki_pll);
-                        let cell_pll =
-                            self.chip.special_loc[&SpecialLocKey::Pll(PllLoc::new(DirHV::SE, 0))];
+                        let cell_pll = self.chip.bel_pll(DirHV::SE, 0).cell;
                         let wire_pll = self.rc_wire(cell_pll, &format!("J{pin}_PLL"));
                         self.claim_pip(eclki_pll, wire_pll);
                         self.claim_pip(wire_eclkfb, eclki_pll);

@@ -1,5 +1,5 @@
 use prjcombine_ecp::{
-    chip::{PllLoc, PllPad, SpecialIoKey, SpecialLocKey},
+    chip::{PllPad, SpecialIoKey},
     defs::bslots,
 };
 use prjcombine_interconnect::{
@@ -11,14 +11,9 @@ use crate::ChipContext;
 
 impl ChipContext<'_> {
     pub(super) fn process_pll_ecp5(&mut self) {
-        for hv in DirHV::DIRS {
-            let Some(&cell) = self
-                .chip
-                .special_loc
-                .get(&SpecialLocKey::Pll(PllLoc::new(hv, 0)))
-            else {
-                continue;
-            };
+        for (loc, bcrd) in self.chip.plls() {
+            let hv = loc.quad;
+            let cell = bcrd.cell;
             let corner = match hv {
                 DirHV::SW => "BL",
                 DirHV::SE => "BR",
@@ -52,8 +47,7 @@ impl ChipContext<'_> {
                 );
                 self.claim_pip(clk_in, clk_int);
 
-                let mut io_sources =
-                    vec![(3, SpecialIoKey::Pll(PllPad::PllIn0, PllLoc::new(hv, 0)))];
+                let mut io_sources = vec![(3, SpecialIoKey::Pll(PllPad::PllIn0, loc))];
                 match hv.v {
                     DirV::S => {
                         io_sources.extend([
@@ -65,7 +59,7 @@ impl ChipContext<'_> {
                         io_sources.extend([
                             (1, SpecialIoKey::Clock(Dir::H(hv.h), 2)),
                             (2, SpecialIoKey::Clock(Dir::H(hv.h), 3)),
-                            (4, SpecialIoKey::Pll(PllPad::PllIn1, PllLoc::new(hv, 0))),
+                            (4, SpecialIoKey::Pll(PllPad::PllIn1, loc)),
                             (
                                 5,
                                 SpecialIoKey::Clock(

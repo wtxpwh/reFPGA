@@ -1,7 +1,4 @@
-use prjcombine_ecp::{
-    chip::{PllLoc, SpecialLocKey},
-    defs::{bcls, bslots, wires},
-};
+use prjcombine_ecp::defs::{bcls, bslots, wires};
 use prjcombine_interconnect::{
     db::WireSlotIdExt,
     dir::{Dir, DirH, DirHV, DirV},
@@ -11,10 +8,8 @@ use crate::ChipContext;
 
 impl ChipContext<'_> {
     pub(super) fn process_pll_xp2(&mut self) {
-        for (&loc, &cell) in &self.chip.special_loc {
-            let SpecialLocKey::Pll(loc) = loc else {
-                continue;
-            };
+        for (loc, bcrd) in self.chip.plls() {
+            let cell = bcrd.cell;
 
             let clkintfb_pll = self.rc_wire(cell, "CLKINTFB_PLL");
             let clkintfb = self.rc_wire(cell, "PLLCLKINTFB");
@@ -124,11 +119,11 @@ impl ChipContext<'_> {
                 .input(eclk1, wires::ECLK[1].cell(0));
 
             for (v, ci) in [(DirV::S, 1), (DirV::N, 2)] {
-                let pll_loc = PllLoc::new_hv(edge, v, 0);
                 let wire_clkop = wires::OUT_PLL_CLKOP.cell(ci);
-                if let Some(&cell_pll) = ex.ctx.chip.special_loc.get(&SpecialLocKey::Pll(pll_loc)) {
+                if let Some(bel_pll) = ex.ctx.chip.try_bel_pll(edge & v, 0) {
+                    let cell_pll = bel_pll.cell;
                     let clkop_in = ex.ctx.rc_wire(cell_pll, "JCLKOP_PLL");
-                    let idx = match pll_loc.quad {
+                    let idx = match edge & v {
                         DirHV::SW => 1,
                         DirHV::SE => 0,
                         DirHV::NW => 0,

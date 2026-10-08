@@ -234,10 +234,8 @@ impl ChipContext<'_> {
         let mut pll_in = BTreeMap::new();
         let mut dll_in = BTreeMap::new();
         let mut clkdiv_in = BTreeMap::new();
-        for (&loc, &cell_loc) in &self.chip.special_loc {
-            let SpecialLocKey::Pll(loc) = loc else {
-                continue;
-            };
+        for (loc, bel_pll) in self.chip.plls() {
+            let cell_loc = bel_pll.cell;
             let mut wires = vec![];
             let cell_pll = match loc.quad.h {
                 DirH::W => cell_loc.delta(3, 0),

@@ -1,7 +1,7 @@
 use std::collections::BTreeMap;
 
 use prjcombine_ecp::{
-    chip::{Chip, PllLoc, SpecialIoKey, SpecialLocKey},
+    chip::{Chip, SpecialIoKey},
     defs::wires,
 };
 use prjcombine_interconnect::{
@@ -28,20 +28,10 @@ impl ChipContext<'_> {
                 let wname = self.rc_wire(cell, &format!("JCIBCTL{i}{j}"));
                 let wire = self.xlat_input(bcrd, wname).wire();
                 inputs.insert(wname, wire);
-                if j == 2
-                    && self
-                        .chip
-                        .special_loc
-                        .contains_key(&SpecialLocKey::Pll(PllLoc::new(DirHV::NW, 0)))
-                {
+                if j == 2 && self.chip.try_bel_pll(DirHV::NW, 0).is_some() {
                     continue;
                 }
-                if j == 3
-                    && self
-                        .chip
-                        .special_loc
-                        .contains_key(&SpecialLocKey::Pll(PllLoc::new(DirHV::SW, 0)))
-                {
+                if j == 3 && self.chip.try_bel_pll(DirHV::SW, 0).is_some() {
                     continue;
                 }
                 let wname = self.rc_wire(cell, &format!("JCIBCLK{i}{j}"));
@@ -79,25 +69,14 @@ impl ChipContext<'_> {
             inputs.insert(wire, gwire);
         }
 
-        for (loc, cidx, clkop, clkos, clkok) in [
-            (
-                PllLoc::new(DirHV::SW, 0),
-                6,
-                "JLLMMCLKA",
-                "JLLMNCLKA",
-                "JLFPSC1",
-            ),
-            (
-                PllLoc::new(DirHV::NW, 0),
-                7,
-                "JULMMCLKA",
-                "JULMNCLKA",
-                "JLFPSC0",
-            ),
+        for (quad, cidx, clkop, clkos, clkok) in [
+            (DirHV::SW, 6, "JLLMMCLKA", "JLLMNCLKA", "JLFPSC1"),
+            (DirHV::NW, 7, "JULMMCLKA", "JULMNCLKA", "JLFPSC0"),
         ] {
-            let Some(&pll_cell) = self.chip.special_loc.get(&SpecialLocKey::Pll(loc)) else {
+            let Some(bel_pll) = self.chip.try_bel_pll(quad, 0) else {
                 continue;
             };
+            let pll_cell = bel_pll.cell;
             let clkop = self.rc_wire(cell, clkop);
             let clkos = self.rc_wire(cell, clkos);
             let clkok = self.rc_wire(cell, clkok);

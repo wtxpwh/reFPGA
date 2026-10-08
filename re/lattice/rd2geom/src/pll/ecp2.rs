@@ -1,5 +1,5 @@
 use prjcombine_ecp::{
-    chip::{PllPad, SpecialIoKey, SpecialLocKey},
+    chip::{PllPad, SpecialIoKey},
     defs::{bcls, bslots, wires},
 };
 use prjcombine_interconnect::{
@@ -11,10 +11,8 @@ use crate::ChipContext;
 
 impl ChipContext<'_> {
     pub(super) fn process_pll_ecp2(&mut self) {
-        for (&loc, &cell) in &self.chip.special_loc {
-            let SpecialLocKey::Pll(loc) = loc else {
-                continue;
-            };
+        for (loc, bcrd) in self.chip.plls() {
+            let cell = bcrd.cell;
             if loc.quad.v == DirV::S && loc.idx == 0 {
                 // GPLL + DLL + CLKDIV + DLLDEL
                 let cell_pll = match loc.quad.h {

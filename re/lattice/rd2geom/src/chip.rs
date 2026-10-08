@@ -688,7 +688,7 @@ impl ChipBuilder<'_> {
                     _ => unreachable!(),
                 };
                 self.chip.special_loc.insert(
-                    SpecialLocKey::Pll(PllLoc::new_hv(edge, sn, 0)),
+                    SpecialLocKey::Pll(PllLoc::new(edge & sn, 0)),
                     Chip::DIE.cell(self.chip.col_edge(edge), row),
                 );
             }
@@ -2281,7 +2281,7 @@ impl ChipBuilder<'_> {
                 } else {
                     unreachable!()
                 };
-                SpecialIoKey::Pll(pad, PllLoc::new_hv(h, v, 0))
+                SpecialIoKey::Pll(pad, PllLoc::new(h & v, 0))
             } else if let Some(suffix) = suffix.strip_prefix("JMPIWRDATA")
                 && let Some(idx) = suffix.strip_suffix("_SYSBUS")
             {
@@ -2436,18 +2436,18 @@ impl ChipBuilder<'_> {
         );
         for edge in [DirH::W, DirH::E] {
             self.chip.special_loc.insert(
-                SpecialLocKey::Pll(PllLoc::new_hv(edge, DirV::S, 0)),
+                SpecialLocKey::Pll(PllLoc::new(edge & DirV::S, 0)),
                 Chip::DIE.cell(self.chip.col_edge(edge), ebr_rows[0]),
             );
             if ebr_rows.len() == 2 {
                 self.chip.special_loc.insert(
-                    SpecialLocKey::Pll(PllLoc::new_hv(edge, DirV::N, 0)),
+                    SpecialLocKey::Pll(PllLoc::new(edge & DirV::N, 0)),
                     Chip::DIE.cell(self.chip.col_edge(edge), ebr_rows[1]),
                 );
             }
             if !dsp_rows.is_empty() {
                 self.chip.special_loc.insert(
-                    SpecialLocKey::Pll(PllLoc::new_hv(edge, DirV::N, 1)),
+                    SpecialLocKey::Pll(PllLoc::new(edge & DirV::N, 1)),
                     Chip::DIE.cell(self.chip.col_edge(edge), dsp_rows[0]),
                 );
             }
@@ -2471,24 +2471,24 @@ impl ChipBuilder<'_> {
         );
         for edge in [DirH::W, DirH::E] {
             self.chip.special_loc.insert(
-                SpecialLocKey::Pll(PllLoc::new_hv(edge, DirV::S, 0)),
+                SpecialLocKey::Pll(PllLoc::new(edge & DirV::S, 0)),
                 Chip::DIE.cell(self.chip.col_edge(edge), bot_rows[0]),
             );
             if bot_rows.len() > 1 {
                 self.chip.special_loc.insert(
-                    SpecialLocKey::Pll(PllLoc::new_hv(edge, DirV::S, 1)),
+                    SpecialLocKey::Pll(PllLoc::new(edge & DirV::S, 1)),
                     Chip::DIE.cell(self.chip.col_edge(edge), *bot_rows.last().unwrap()),
                 );
             }
             if top_rows.len() > 1 {
                 self.chip.special_loc.insert(
-                    SpecialLocKey::Pll(PllLoc::new_hv(edge, DirV::N, 1)),
+                    SpecialLocKey::Pll(PllLoc::new(edge & DirV::N, 1)),
                     Chip::DIE.cell(self.chip.col_edge(edge), top_rows[0]),
                 );
             }
             if !top_rows.is_empty() {
                 self.chip.special_loc.insert(
-                    SpecialLocKey::Pll(PllLoc::new_hv(edge, DirV::N, 0)),
+                    SpecialLocKey::Pll(PllLoc::new(edge & DirV::N, 0)),
                     Chip::DIE.cell(self.chip.col_edge(edge), *top_rows.last().unwrap()),
                 );
             }
@@ -2509,7 +2509,7 @@ impl ChipBuilder<'_> {
                 } else {
                     DirH::E
                 };
-                let loc = SpecialLocKey::Pll(PllLoc::new_hv(h, v, 0));
+                let loc = SpecialLocKey::Pll(PllLoc::new(h & v, 0));
                 self.chip.special_loc.insert(loc, cell);
             }
         }
@@ -2663,14 +2663,12 @@ impl ChipBuilder<'_> {
     }
 
     fn fill_special_io_ecp2(&mut self) {
-        let pll_xlat =
-            BTreeMap::from_iter(self.chip.special_loc.iter().filter_map(|(&key, &cell)| {
-                if let SpecialLocKey::Pll(loc) = key {
-                    Some((cell, loc))
-                } else {
-                    None
-                }
-            }));
+        let pll_xlat = BTreeMap::from_iter(
+            self.chip
+                .plls()
+                .into_iter()
+                .map(|(loc, bcrd)| (bcrd.cell, loc)),
+        );
         for (wn, io) in self.gather_special_io() {
             let suffix = self.naming.strings[wn.suffix].as_str();
             if let Some((edge, i)) = match suffix {
@@ -3168,14 +3166,14 @@ impl ChipBuilder<'_> {
         for h in [DirH::W, DirH::E] {
             let iob = TileIobId::from_idx(2);
             self.chip.special_io.insert(
-                SpecialIoKey::Pll(PllPad::PllIn0, PllLoc::new_hv(h, DirV::S, 0)),
+                SpecialIoKey::Pll(PllPad::PllIn0, PllLoc::new(h & DirV::S, 0)),
                 match h {
                     DirH::W => EdgeIoCoord::W(self.chip.row_s(), iob),
                     DirH::E => EdgeIoCoord::E(self.chip.row_s(), iob),
                 },
             );
 
-            let loc = PllLoc::new_hv(h, DirV::N, 0);
+            let loc = PllLoc::new(h & DirV::N, 0);
             if self.chip.special_loc.contains_key(&SpecialLocKey::Pll(loc)) {
                 let iob = TileIobId::from_idx(0);
                 self.chip.special_io.insert(

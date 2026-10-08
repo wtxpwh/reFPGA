@@ -1,5 +1,5 @@
 use prjcombine_ecp::{
-    chip::{Chip, ChipKind, MachXo2Kind, PllLoc, SpecialIoKey, SpecialLocKey},
+    chip::{Chip, ChipKind, MachXo2Kind, SpecialIoKey, SpecialLocKey},
     defs::{bcls, bslots, tcls},
 };
 use prjcombine_entity::EntityId;
@@ -728,10 +728,7 @@ impl ChipContext<'_> {
             self.add_bel_wire(bcrd_efb, pin, wire);
         }
 
-        let has_2pll = self
-            .chip
-            .special_loc
-            .contains_key(&SpecialLocKey::Pll(PllLoc::new(DirHV::NE, 0)));
+        let has_2pll = self.chip.try_bel_pll(DirHV::NE, 0).is_some();
 
         let has_mux = matches!(
             self.chip.kind,
@@ -750,13 +747,10 @@ impl ChipContext<'_> {
             ("DATI7", "DATO7"),
         ] {
             for (i, hv) in [(0, DirHV::NW), (1, DirHV::NE)] {
-                let Some(&cell_pll) = self
-                    .chip
-                    .special_loc
-                    .get(&SpecialLocKey::Pll(PllLoc::new(hv, 0)))
-                else {
+                let Some(bel_pll) = self.chip.try_bel_pll(hv, 0) else {
                     continue;
                 };
+                let cell_pll = bel_pll.cell;
                 let wire_pll = self.rc_wire(cell_pll, &format!("JPLL{pin_pll}_PLL"));
                 if has_mux {
                     let wire = self.rc_wire(cell, &format!("JPLL{i}{pin}"));

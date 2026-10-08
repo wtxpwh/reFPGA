@@ -1,7 +1,7 @@
 use std::collections::{BTreeMap, btree_map};
 
 use prjcombine_ecp::{
-    chip::{Chip, IoGroupKind, PllLoc, SpecialIoKey, SpecialLocKey},
+    chip::{Chip, IoGroupKind, SpecialIoKey, SpecialLocKey},
     defs::{bslots, wires},
 };
 use prjcombine_interconnect::{
@@ -143,8 +143,7 @@ impl ChipContext<'_> {
 
             let mut pll_ins = BTreeMap::new();
             if edge == DirV::S {
-                let cell_pll =
-                    self.chip.special_loc[&SpecialLocKey::Pll(PllLoc::new(DirHV::SE, 0))];
+                let cell_pll = self.chip.bel_pll(DirHV::SE, 0).cell;
                 for pin in ["CLKOP", "CLKOS", "CLKOS2", "CLKOS3"] {
                     let wire = self.rc_wire(cell, &format!("J{pin}"));
                     self.add_bel_wire(bcrd, "PLL_IN_{pin}", wire);

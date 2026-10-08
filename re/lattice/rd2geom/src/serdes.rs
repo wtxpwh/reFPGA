@@ -1,5 +1,5 @@
 use prjcombine_ecp::{
-    chip::{ChipKind, IoGroupKind, PllLoc, SpecialIoKey, SpecialLocKey},
+    chip::{ChipKind, IoGroupKind, SpecialIoKey, SpecialLocKey},
     defs::{bslots, tcls, wiredata, wires},
 };
 use prjcombine_interconnect::{
@@ -235,8 +235,7 @@ impl ChipContext<'_> {
             }
         }
         for hv in [DirHV::NW, DirHV::NE] {
-            let bcrd = self.chip.special_loc[&SpecialLocKey::Pll(PllLoc::new(hv, 0))]
-                .bel(bslots::SERDES_CORNER);
+            let bcrd = self.chip.bel_pll(hv, 0).bel(bslots::SERDES_CORNER);
             let tcrd = self.edev.bel_tile(bcrd);
             let tcls = &self.intdb[self.edev[tcrd].class];
             let cell = bcrd.with_row(self.chip.row_n());

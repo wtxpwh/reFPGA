@@ -1,5 +1,5 @@
 use prjcombine_ecp::{
-    chip::{Chip, IoGroupKind, IoKind, PllLoc, SpecialIoKey, SpecialLocKey},
+    chip::{Chip, IoGroupKind, IoKind, SpecialIoKey, SpecialLocKey},
     defs::{bslots, tcls},
 };
 use prjcombine_entity::EntityId;
@@ -137,13 +137,10 @@ impl ChipContext<'_> {
                     DirH::E => [DirHV::SE, DirHV::NE],
                 };
                 for hv in plls {
-                    let Some(&cell_pll) = self
-                        .chip
-                        .special_loc
-                        .get(&SpecialLocKey::Pll(PllLoc::new(hv, 0)))
-                    else {
+                    let Some(bel_pll) = self.chip.try_bel_pll(hv, 0) else {
                         continue;
                     };
+                    let cell_pll = bel_pll.cell;
                     let corner = match hv {
                         DirHV::SW => "LL",
                         DirHV::SE => "LR",

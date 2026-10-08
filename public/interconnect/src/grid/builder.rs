@@ -105,7 +105,7 @@ impl<'db> GridBuilder<'db> {
         die
     }
 
-    pub fn add_tile_part(
+    pub fn add_tile_inner(
         &mut self,
         anchor: CellCoord,
         tcid: TileClassId,
@@ -137,7 +137,23 @@ impl<'db> GridBuilder<'db> {
             .enumerate()
             .map(|(idx, &cell)| (CellSlotId::from_idx(idx), cell))
             .collect();
-        self.add_tile_part(anchor, tcid, cells)
+        self.add_tile_inner(anchor, tcid, cells)
+    }
+
+    pub fn add_tile_part(
+        &mut self,
+        anchor: CellCoord,
+        tcid: TileClassId,
+        cells: &[Option<CellCoord>],
+    ) -> &mut Tile {
+        let tcls = &self.db[tcid];
+        assert_eq!(cells.len(), tcls.cells.len());
+        let cells: EntityPartVec<_, _> = cells
+            .iter()
+            .enumerate()
+            .filter_map(|(idx, &cell)| cell.map(|cell| (CellSlotId::from_idx(idx), cell)))
+            .collect();
+        self.add_tile_inner(anchor, tcid, cells)
     }
 
     pub fn add_tile_single(&mut self, cell: CellCoord, tcid: TileClassId) -> &mut Tile {

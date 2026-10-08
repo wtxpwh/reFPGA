@@ -1,5 +1,5 @@
 use prjcombine_ecp::{
-    chip::{Chip, ChipKind, PllLoc, PllPad, SpecialIoKey, SpecialLocKey},
+    chip::{Chip, ChipKind, PllLoc, PllPad, SpecialIoKey},
     defs::bslots,
 };
 use prjcombine_interconnect::{
@@ -12,14 +12,10 @@ use crate::ChipContext;
 
 impl ChipContext<'_> {
     pub(super) fn process_pll_ecp3(&mut self) {
-        for (&loc, &cell) in &self.chip.special_loc {
-            let SpecialLocKey::Pll(loc) = loc else {
-                continue;
-            };
-            let bcrd = cell.bel(bslots::PLL[0]);
+        for (loc, bcrd) in self.chip.plls() {
             let cell = match loc.quad.h {
-                DirH::W => cell.delta(3, 0),
-                DirH::E => cell.delta(-3, 0),
+                DirH::W => bcrd.delta(3, 0),
+                DirH::E => bcrd.delta(-3, 0),
             };
             let (r, c) = self.rc(cell);
             self.name_bel(bcrd, [format!("PLL_R{r}C{c}")]);
@@ -45,11 +41,7 @@ impl ChipContext<'_> {
                 io_ins.push((0, SpecialIoKey::Pll(PllPad::DllIn0, loc)));
             }
             if loc.quad.v == DirV::N
-                && (loc.idx == 1
-                    || !self
-                        .chip
-                        .special_loc
-                        .contains_key(&SpecialLocKey::Pll(PllLoc::new(loc.quad, 1))))
+                && (loc.idx == 1 || self.chip.try_bel_pll(loc.quad, 1).is_none())
             {
                 io_ins.push((
                     4,
@@ -102,11 +94,7 @@ impl ChipContext<'_> {
 
             let mut eclk_fb = vec![(3, Dir::H(loc.quad.h), 0)];
             if loc.quad.v == DirV::N
-                && (loc.idx == 1
-                    || !self
-                        .chip
-                        .special_loc
-                        .contains_key(&SpecialLocKey::Pll(PllLoc::new(loc.quad, 1))))
+                && (loc.idx == 1 || self.chip.try_bel_pll(loc.quad, 1).is_none())
             {
                 eclk_fb.extend([(4, Dir::N, 0), (5, Dir::N, 1)]);
             }
@@ -181,7 +169,7 @@ impl ChipContext<'_> {
                     .pins
                     .insert(format!("CLKI{i}"), self.xlat_int_wire(bcrd_dll, clki_int));
             }
-            let loc = PllLoc::new_hv(edge, DirV::N, 0);
+            let loc = PllLoc::new(edge & DirV::N, 0);
             let io_ins = [
                 (0, SpecialIoKey::Pll(PllPad::DllIn0, loc)),
                 (3, SpecialIoKey::Pll(PllPad::PllIn0, loc)),

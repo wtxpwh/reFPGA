@@ -1,7 +1,7 @@
 use std::collections::{BTreeMap, btree_map};
 
 use prjcombine_ecp::{
-    chip::{Chip, PllLoc, RowKind, SpecialIoKey, SpecialLocKey},
+    chip::{Chip, RowKind, SpecialIoKey, SpecialLocKey},
     defs::{bcls, bslots, wires},
 };
 use prjcombine_entity::EntityId;
@@ -466,20 +466,18 @@ impl ChipContext<'_> {
                     }
                 }
             }
-            for (lr, loc) in [
-                ('L', PllLoc::new(DirHV::NW, 0)),
-                ('R', PllLoc::new(DirHV::NE, 0)),
-            ] {
-                let Some(&cell_pll) = self.chip.special_loc.get(&SpecialLocKey::Pll(loc)) else {
+            for (lr, quad) in [('L', DirHV::NW), ('R', DirHV::NE)] {
+                let Some(bel_pll) = self.chip.try_bel_pll(quad, 0) else {
                     continue;
                 };
+                let cell_pll = bel_pll.cell;
                 for (i, pin) in ["CLKOP", "CLKOS", "CLKOS2", "CLKOS3"]
                     .into_iter()
                     .enumerate()
                 {
                     let wire = self.rc_wire(cell, &format!("J{lr}PLLCLK{i}"));
                     let wire_pll = self.rc_wire(cell_pll, &format!("J{pin}_PLL"));
-                    self.add_bel_wire(bcrd, format!("PLL_IN_{loc}_{pin}"), wire);
+                    self.add_bel_wire(bcrd, format!("PLL_IN_{quad}_{pin}"), wire);
                     self.claim_pip(wire, wire_pll);
                     pll_cdiv_in.push(wire);
                 }
@@ -743,11 +741,7 @@ impl ChipContext<'_> {
 
                     let wire_pll = self.rc_wire(cell, &format!("JLPLLCLK{j}"));
                     self.claim_pip(clk_in, wire_pll);
-                    if self
-                        .chip
-                        .special_loc
-                        .contains_key(&SpecialLocKey::Pll(PllLoc::new(DirHV::NE, 0)))
-                    {
+                    if self.chip.try_bel_pll(DirHV::NE, 0).is_some() {
                         let wire_pll = self.rc_wire(cell, &format!("JRPLLCLK{jj}", jj = j ^ 1));
                         self.claim_pip(clk_in, wire_pll);
                     }

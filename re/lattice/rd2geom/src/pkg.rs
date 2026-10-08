@@ -761,10 +761,8 @@ fn parse_io_special(
             }))
         };
         let mut pll_xlat = BTreeMap::new();
-        for (&loc, &cell) in &chip.special_loc {
-            if let SpecialLocKey::Pll(loc) = loc {
-                pll_xlat.insert(cell, loc);
-            }
+        for (loc, bel_pll) in chip.plls() {
+            pll_xlat.insert(bel_pll.cell, loc);
         }
 
         let (loc, sig) = func.split_once('_').unwrap();

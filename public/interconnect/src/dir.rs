@@ -127,7 +127,7 @@ pub struct DirHV {
 }
 
 impl DirHV {
-    pub fn new(h: DirH, v: DirV) -> Self {
+    pub const fn new(h: DirH, v: DirV) -> Self {
         Self { h, v }
     }
 
@@ -171,6 +171,22 @@ impl std::fmt::Display for DirHV {
                 DirHV::NE => "NE",
             }
         )
+    }
+}
+
+impl core::ops::BitAnd<DirV> for DirH {
+    type Output = DirHV;
+
+    fn bitand(self, rhs: DirV) -> Self::Output {
+        DirHV { h: self, v: rhs }
+    }
+}
+
+impl core::ops::BitAnd<DirH> for DirV {
+    type Output = DirHV;
+
+    fn bitand(self, rhs: DirH) -> Self::Output {
+        DirHV { h: rhs, v: self }
     }
 }
 

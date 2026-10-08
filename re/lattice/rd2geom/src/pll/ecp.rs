@@ -1,18 +1,12 @@
-use prjcombine_ecp::{
-    chip::SpecialLocKey,
-    defs::{bcls, bslots, wires},
-};
+use prjcombine_ecp::defs::{bcls, bslots, wires};
 use prjcombine_interconnect::db::WireSlotIdExt;
 
 use crate::ChipContext;
 
 impl ChipContext<'_> {
     pub(super) fn process_pll_ecp(&mut self) {
-        for (&loc, &cell) in &self.chip.special_loc {
-            let SpecialLocKey::Pll(_) = loc else {
-                continue;
-            };
-            let bcrd = cell.bel(bslots::PLL[0]);
+        for (_loc, bcrd) in self.chip.plls() {
+            let cell = bcrd.cell;
 
             let clkop_pll = self.rc_wire(cell, "CLKOP_PLL3");
             let clkop = self.rc_wire(cell, "JCLKOP");

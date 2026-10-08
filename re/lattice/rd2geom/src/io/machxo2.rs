@@ -1,7 +1,5 @@
 use prjcombine_ecp::{
-    chip::{
-        Chip, ChipKind, IoGroupKind, MachXo2Kind, PllLoc, RowKind, SpecialIoKey, SpecialLocKey,
-    },
+    chip::{Chip, ChipKind, IoGroupKind, MachXo2Kind, RowKind, SpecialIoKey, SpecialLocKey},
     defs::{bslots, wires},
 };
 use prjcombine_entity::EntityId;
@@ -142,13 +140,10 @@ impl ChipContext<'_> {
                 self.claim_pip(eclki_io, wire_io);
 
                 for (plli, hv) in [(0, DirHV::NW), (1, DirHV::NE)] {
-                    let Some(&cell_pll) = self
-                        .chip
-                        .special_loc
-                        .get(&SpecialLocKey::Pll(PllLoc::new(hv, 0)))
-                    else {
+                    let Some(bel_pll) = self.chip.try_bel_pll(hv, 0) else {
                         continue;
                     };
+                    let cell_pll = bel_pll.cell;
                     for pin in ["CLKOP", "CLKOS"] {
                         let eclki_pll = self.rc_wire(cell, &format!("JPLL{pin}{plli}"));
                         self.add_bel_wire_no_claim(bcrd, format!("ECLK_PLL_{hv}_{pin}"), eclki_pll);
@@ -172,12 +167,8 @@ impl ChipContext<'_> {
                     self.add_bel_wire(bcrd, "A", a);
 
                     let hv = [DirHV::NW, DirHV::NE][idx];
-                    if let Some(&cell_pll) = self
-                        .chip
-                        .special_loc
-                        .get(&SpecialLocKey::Pll(PllLoc::new(hv, 0)))
-                    {
-                        let wire_pll = self.rc_wire(cell_pll, "JCLKOP_PLL");
+                    if let Some(bel_pll) = self.chip.try_bel_pll(hv, 0) {
+                        let wire_pll = self.rc_wire(bel_pll.cell, "JCLKOP_PLL");
                         self.claim_pip(a, wire_pll);
                     }
 

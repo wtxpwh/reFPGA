@@ -1,5 +1,5 @@
 use prjcombine_ecp::{
-    chip::{PllLoc, PllPad, SpecialIoKey, SpecialLocKey},
+    chip::{PllLoc, PllPad, SpecialIoKey},
     defs::bslots,
 };
 use prjcombine_interconnect::{
@@ -11,7 +11,7 @@ use crate::ChipContext;
 
 impl ChipContext<'_> {
     pub(super) fn process_pll_crosslink(&mut self) {
-        let cell = self.chip.special_loc[&SpecialLocKey::Pll(PllLoc::new(DirHV::SE, 0))];
+        let cell = self.chip.bel_pll(DirHV::SE, 0).cell;
 
         let bcrd_pllrefcs = cell.bel(bslots::PLLREFCS[0]);
 

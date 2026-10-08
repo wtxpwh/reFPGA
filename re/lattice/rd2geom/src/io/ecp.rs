@@ -1,7 +1,7 @@
 use std::collections::BTreeMap;
 
 use prjcombine_ecp::{
-    chip::{ChipKind, IoGroupKind, PllLoc, RowKind, SpecialLocKey},
+    chip::{ChipKind, IoGroupKind, RowKind},
     defs::{bcls, bslots, tcls, wires},
 };
 use prjcombine_entity::EntityId;
@@ -568,30 +568,29 @@ impl ChipContext<'_> {
 
             if let Dir::H(h) = edge {
                 for (v, ci, ci_io) in [(DirV::S, 3, 5), (DirV::N, 4, 6)] {
-                    let pll_loc = PllLoc::new_hv(h, v, 0);
-                    if let Some(&cell_pll) =
-                        ex.ctx.chip.special_loc.get(&SpecialLocKey::Pll(pll_loc))
-                    {
-                        let idx = match (h, v) {
-                            (DirH::W, DirV::S) => 1,
-                            (DirH::W, DirV::N) => 0,
-                            (DirH::E, DirV::S) => 0,
-                            (DirH::E, DirV::N) => 1,
-                        };
+                    let Some(bel_pll) = ex.ctx.chip.try_bel_pll(h & v, 0) else {
+                        continue;
+                    };
+                    let cell_pll = bel_pll.cell;
+                    let idx = match (h, v) {
+                        (DirH::W, DirV::S) => 1,
+                        (DirH::W, DirV::N) => 0,
+                        (DirH::E, DirV::S) => 0,
+                        (DirH::E, DirV::N) => 1,
+                    };
 
-                        let wire_io = ex.ctx.rc_wire(cell, &format!("JPLLPIO{idx}"));
-                        ex.input_io(wire_io, wires::OUT_IO_PADDI[0].cell(ci_io));
+                    let wire_io = ex.ctx.rc_wire(cell, &format!("JPLLPIO{idx}"));
+                    ex.input_io(wire_io, wires::OUT_IO_PADDI[0].cell(ci_io));
 
-                        let wire_clkop_pll = ex.ctx.rc_wire(cell_pll, "JCLKOP_PLL");
-                        let wire_clkop = ex.ctx.rc_wire(cell, &format!("JPLLCLKOP{idx}"));
-                        ex.ctx.claim_pip(wire_clkop, wire_clkop_pll);
-                        ex.input(wire_clkop, wires::OUT_PLL_CLKOP.cell(ci));
+                    let wire_clkop_pll = ex.ctx.rc_wire(cell_pll, "JCLKOP_PLL");
+                    let wire_clkop = ex.ctx.rc_wire(cell, &format!("JPLLCLKOP{idx}"));
+                    ex.ctx.claim_pip(wire_clkop, wire_clkop_pll);
+                    ex.input(wire_clkop, wires::OUT_PLL_CLKOP.cell(ci));
 
-                        let wire_clkos_pll = ex.ctx.rc_wire(cell_pll, "JCLKOS_PLL");
-                        let wire_clkos = ex.ctx.rc_wire(cell, &format!("JPLLCLKOS{idx}"));
-                        ex.ctx.claim_pip(wire_clkos, wire_clkos_pll);
-                        ex.input(wire_clkos, wires::OUT_PLL_CLKOS.cell(ci));
-                    }
+                    let wire_clkos_pll = ex.ctx.rc_wire(cell_pll, "JCLKOS_PLL");
+                    let wire_clkos = ex.ctx.rc_wire(cell, &format!("JPLLCLKOS{idx}"));
+                    ex.ctx.claim_pip(wire_clkos, wire_clkos_pll);
+                    ex.input(wire_clkos, wires::OUT_PLL_CLKOS.cell(ci));
                 }
             }
 
@@ -623,13 +622,7 @@ impl ChipContext<'_> {
 
                 if let Dir::H(h) = edge {
                     for (v, ci, ci_io) in [(DirV::S, 3, 5), (DirV::N, 4, 6)] {
-                        let pll_loc = PllLoc::new_hv(h, v, 0);
-                        if !ex
-                            .ctx
-                            .chip
-                            .special_loc
-                            .contains_key(&SpecialLocKey::Pll(pll_loc))
-                        {
+                        if ex.ctx.chip.try_bel_pll(h & v, 0).is_none() {
                             ex.edge(wire_eclk, wires::OUT_IO_PADDI[0].cell(ci_io));
                             if i == 0 {
                                 ex.edge(wire_eclk, wires::OUT_PLL_CLKOP.cell(ci));

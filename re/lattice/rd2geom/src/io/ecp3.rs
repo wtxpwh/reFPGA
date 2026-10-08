@@ -1,5 +1,5 @@
 use prjcombine_ecp::{
-    chip::{ChipKind, IoGroupKind, IoKind, PllLoc, SpecialIoKey, SpecialLocKey},
+    chip::{ChipKind, IoGroupKind, IoKind, SpecialIoKey},
     defs::{bslots, tcls, wires},
 };
 use prjcombine_entity::EntityId;
@@ -394,14 +394,11 @@ impl ChipContext<'_> {
                 _ => (),
             }
         }
-        for (&loc, &cell) in &self.chip.special_loc {
-            let SpecialLocKey::Pll(loc) = loc else {
-                continue;
-            };
+        for (loc, bel_pll) in self.chip.plls() {
             for iob in 4..8 {
                 let io = match loc.quad.h {
-                    DirH::W => EdgeIoCoord::W(cell.row, TileIobId::from_idx(iob)),
-                    DirH::E => EdgeIoCoord::E(cell.row, TileIobId::from_idx(iob)),
+                    DirH::W => EdgeIoCoord::W(bel_pll.row, TileIobId::from_idx(iob)),
+                    DirH::E => EdgeIoCoord::E(bel_pll.row, TileIobId::from_idx(iob)),
                 };
                 let bcrd = self.chip.get_io_loc(io);
                 self.process_single_io_ecp3(bcrd);
@@ -466,22 +463,18 @@ impl ChipContext<'_> {
                 }
 
                 if edge == Dir::N {
-                    let cell_dll_w =
-                        self.chip.special_loc[&SpecialLocKey::Pll(PllLoc::new(DirHV::NW, 0))];
-                    let cell_dll_e =
-                        self.chip.special_loc[&SpecialLocKey::Pll(PllLoc::new(DirHV::NE, 0))];
+                    let cell_dll_w = self.chip.bel_pll(DirHV::NW, 0).cell;
+                    let cell_dll_e = self.chip.bel_pll(DirHV::NE, 0).cell;
                     let cell_pll_w = self
                         .chip
-                        .special_loc
-                        .get(&SpecialLocKey::Pll(PllLoc::new(DirHV::NW, 1)))
-                        .copied()
+                        .try_bel_pll(DirHV::NW, 1)
+                        .map(|bcrd| bcrd.cell)
                         .unwrap_or(cell_dll_w)
                         .delta(3, 0);
                     let cell_pll_e = self
                         .chip
-                        .special_loc
-                        .get(&SpecialLocKey::Pll(PllLoc::new(DirHV::NE, 1)))
-                        .copied()
+                        .try_bel_pll(DirHV::NE, 1)
+                        .map(|bcrd| bcrd.cell)
                         .unwrap_or(cell_dll_e)
                         .delta(-3, 0);
                     let cell_dll_w = cell_dll_w.delta(13, 0);
@@ -556,14 +549,11 @@ impl ChipContext<'_> {
                     self.claim_pip(eclki_dll, wire_dll);
 
                     if self.chip.kind == ChipKind::Ecp3A
-                        && let Some(cell_pll) = self
-                            .chip
-                            .special_loc
-                            .get(&SpecialLocKey::Pll(PllLoc::new_hv(edge, DirV::S, 0)))
+                        && let Some(bel_pll) = self.chip.try_bel_pll(edge & DirV::S, 0)
                     {
                         let cell_pll = match edge {
-                            DirH::W => cell_pll.delta(3, 0),
-                            DirH::E => cell_pll.delta(-3, 0),
+                            DirH::W => bel_pll.delta(3, 0),
+                            DirH::E => bel_pll.delta(-3, 0),
                         };
                         let pin = ["CLKOS", "CLKOP"][idx];
                         let eclki_pll = self.rc_wire(cell, &format!("JPLL{pin}"));

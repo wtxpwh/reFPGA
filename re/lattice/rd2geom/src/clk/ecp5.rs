@@ -1,7 +1,7 @@
 use std::collections::{BTreeMap, btree_map};
 
 use prjcombine_ecp::{
-    chip::{Chip, IoGroupKind, PllLoc, SpecialLocKey},
+    chip::{Chip, IoGroupKind, SpecialLocKey},
     defs::{bslots, wires},
 };
 use prjcombine_interconnect::{
@@ -113,13 +113,10 @@ impl ChipContext<'_> {
                 Dir::S => [].as_slice(),
             };
             for &hv in plls {
-                let Some(&cell_pll) = self
-                    .chip
-                    .special_loc
-                    .get(&SpecialLocKey::Pll(PllLoc::new(hv, 0)))
-                else {
+                let Some(bel_pll) = self.chip.try_bel_pll(hv, 0) else {
                     continue;
                 };
+                let cell_pll = bel_pll.cell;
                 let corner = match hv {
                     DirHV::SW => "LL",
                     DirHV::SE => "LR",

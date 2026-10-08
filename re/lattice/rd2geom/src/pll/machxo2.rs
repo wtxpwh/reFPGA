@@ -12,13 +12,12 @@ use crate::ChipContext;
 
 impl ChipContext<'_> {
     pub(super) fn process_pll_machxo2(&mut self) {
-        for (lr, idx, loc) in [
-            ('L', 0, PllLoc::new(DirHV::NW, 0)),
-            ('R', 1, PllLoc::new(DirHV::NE, 0)),
-        ] {
-            let Some(&cell) = self.chip.special_loc.get(&SpecialLocKey::Pll(loc)) else {
+        for (lr, idx, quad) in [('L', 0, DirHV::NW), ('R', 1, DirHV::NE)] {
+            let loc = PllLoc::new(quad, 0);
+            let Some(bcrd) = self.chip.try_bel_pll(quad, 0) else {
                 continue;
             };
+            let cell = bcrd.cell;
 
             let bcrd_pllrefcs = cell.bel(bslots::PLLREFCS[0]);
             self.name_bel(bcrd_pllrefcs, [format!("{lr}PLLREFCS")]);
@@ -197,10 +196,7 @@ impl ChipContext<'_> {
             let has_mux = matches!(
                 self.chip.kind,
                 ChipKind::MachXo2(MachXo2Kind::MachXo2 | MachXo2Kind::MachXo3L)
-            ) && self
-                .chip
-                .special_loc
-                .contains_key(&SpecialLocKey::Pll(PllLoc::new(DirHV::NE, 0)));
+            ) && self.chip.try_bel_pll(DirHV::NE, 0).is_some();
             let wire = self.rc_wire(cell, "JPLLSTB_PLL");
             self.add_bel_wire(bcrd, "PLLSTB", wire);
             let wire_efb = self.rc_wire(

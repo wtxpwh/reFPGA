@@ -258,13 +258,6 @@ impl PllLoc {
     pub fn new(quad: DirHV, idx: u8) -> Self {
         Self { quad, idx }
     }
-
-    pub fn new_hv(h: DirH, v: DirV, idx: u8) -> Self {
-        Self {
-            quad: DirHV::new(h, v),
-            idx,
-        }
-    }
 }
 
 impl Display for PllLoc {
@@ -484,6 +477,18 @@ impl Chip {
         }
     }
 
+    pub fn try_get_io_cell(&self, key: SpecialIoKey) -> Option<CellCoord> {
+        Some(self.get_io_loc(*self.special_io.get(&key)?).cell)
+    }
+
+    pub fn get_io_cell(&self, key: SpecialIoKey) -> CellCoord {
+        self.get_io_loc(self.special_io[&key]).cell
+    }
+
+    pub fn try_get_spec_cell(&self, key: SpecialLocKey) -> Option<CellCoord> {
+        self.special_loc.get(&key).copied()
+    }
+
     pub fn get_io_loc(&self, io: EdgeIoCoord) -> BelCoord {
         if matches!(self.kind, ChipKind::Ecp3 | ChipKind::Ecp3A | ChipKind::Ecp4)
             && io.iob().to_idx() >= 4
@@ -646,6 +651,38 @@ impl Chip {
         }
     }
 
+    pub fn try_bel_pll(&self, quad: DirHV, idx: u8) -> Option<BelCoord> {
+        if matches!(self.kind, ChipKind::Scm | ChipKind::Ecp4) {
+            if idx < 2 {
+                let cell = self.try_get_spec_cell(SpecialLocKey::Pll(PllLoc::new(quad, 0)))?;
+                Some(cell.bel(bslots::PLL[usize::from(idx)]))
+            } else {
+                None
+            }
+        } else {
+            let cell = self.try_get_spec_cell(SpecialLocKey::Pll(PllLoc::new(quad, idx)))?;
+            Some(cell.bel(bslots::PLL[0]))
+        }
+    }
+
+    pub fn bel_pll(&self, quad: DirHV, idx: u8) -> BelCoord {
+        self.try_bel_pll(quad, idx).unwrap()
+    }
+
+    pub fn plls(&self) -> Vec<(PllLoc, BelCoord)> {
+        let mut res = vec![];
+        for (&loc, &cell) in &self.special_loc {
+            let SpecialLocKey::Pll(loc) = loc else {
+                continue;
+            };
+            res.push((loc, cell.bel(bslots::PLL[0])));
+            if matches!(self.kind, ChipKind::Scm | ChipKind::Ecp4) {
+                res.push((PllLoc { idx: 1, ..loc }, cell.bel(bslots::PLL[1])));
+            }
+        }
+        res
+    }
+
     pub fn bel_cibtest_sel(&self) -> BelCoord {
         assert_eq!(self.kind, ChipKind::MachXo);
         assert!(self.special_loc.contains_key(&SpecialLocKey::Ebr(0)));
@@ -703,9 +740,7 @@ impl Chip {
 
     pub fn bel_dqsdll_ecp2(&self, edge: DirH) -> BelCoord {
         match self.kind {
-            ChipKind::Ecp2 | ChipKind::Ecp2M => self.special_loc
-                [&SpecialLocKey::Pll(PllLoc::new_hv(edge, DirV::S, 0))]
-                .bel(bslots::DQSDLL),
+            ChipKind::Ecp2 | ChipKind::Ecp2M =>self.bel_pll(edge & DirV::S, 0).bel(bslots::DQSDLL),
             ChipKind::Xp2 => Self::DIE
                 .cell(self.col_edge(edge), self.row_clk)
                 .bel(bslots::DQSDLL),
