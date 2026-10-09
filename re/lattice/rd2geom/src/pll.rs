@@ -13,6 +13,15 @@ mod machxo2;
 mod xp2;
 
 impl ChipContext<'_> {
+    pub fn prep_pll(&mut self) {
+        match self.chip.kind {
+            ChipKind::Ecp | ChipKind::Xp => self.prep_pll_ecp(),
+            ChipKind::Ecp2 | ChipKind::Ecp2M => self.prep_pll_ecp2(),
+            ChipKind::Xp2 => self.prep_pll_xp2(),
+            _ => (),
+        }
+    }
+
     pub fn process_pll(&mut self) {
         match self.chip.kind {
             ChipKind::Scm => {

@@ -70,12 +70,8 @@ impl<'b> FuzzerProp<'b, IseBackend<'b>> for WireIntDistinct {
         tcrd: TileCoord,
         fuzzer: Fuzzer<IseBackend<'a>>,
     ) -> Option<(Fuzzer<IseBackend<'a>>, bool)> {
-        let a = backend
-            .edev
-            .resolve_wire(backend.edev.tile_wire(tcrd, self.wire_a))?;
-        let b = backend
-            .edev
-            .resolve_wire(backend.edev.tile_wire(tcrd, self.wire_b))?;
+        let a = backend.edev.resolve_tile_wire(tcrd, self.wire_a)?;
+        let b = backend.edev.resolve_tile_wire(tcrd, self.wire_b)?;
         if a == b {
             return None;
         }
@@ -366,12 +362,8 @@ pub fn resolve_int_pip<'a>(
     let ntile = &backend.ngrid.tiles[&tcrd];
     let ndb = backend.ngrid.db;
     let tile_naming = &ndb.tile_class_namings[ntile.naming];
-    backend
-        .edev
-        .resolve_wire(backend.edev.tile_wire(tcrd, wire_to))?;
-    backend
-        .edev
-        .resolve_wire(backend.edev.tile_wire(tcrd, wire_from))?;
+    backend.edev.resolve_tile_wire(tcrd, wire_to)?;
+    backend.edev.resolve_tile_wire(tcrd, wire_from)?;
     Some(
         if let Some(ext) = tile_naming.ext_pips.get(&(wire_to, wire_from)) {
             (&ntile.names[ext.tile], &ext.wire_to, &ext.wire_from)
@@ -476,9 +468,7 @@ impl<'b> FuzzerProp<'b, IseBackend<'b>> for DriveLLH {
         match backend.edev {
             ExpandedDevice::Xc2000(edev) => {
                 assert_eq!(edev.chip.kind, prjcombine_xc2000::chip::ChipKind::Xc5200);
-                let rwire = backend
-                    .edev
-                    .resolve_wire(backend.edev.tile_wire(tcrd, self.wire))?;
+                let rwire = backend.edev.resolve_tile_wire(tcrd, self.wire)?;
                 let mut src_col =
                     if backend.edev.tile_cell(tcrd, self.wire.cell).col < edev.chip.col_mid() {
                         edev.chip.col_mid() - 1
@@ -495,9 +485,7 @@ impl<'b> FuzzerProp<'b, IseBackend<'b>> for DriveLLH {
                         if let Some(ins) =
                             backend.edev.db_index[src_tile.class].pips_bwd.get(&dwire)
                         {
-                            let Some(drwire) = backend
-                                .edev
-                                .resolve_wire(backend.edev.tile_wire(int_tcrd, dwire))
+                            let Some(drwire) = backend.edev.resolve_tile_wire(int_tcrd, dwire)
                             else {
                                 continue;
                             };
@@ -519,9 +507,7 @@ impl<'b> FuzzerProp<'b, IseBackend<'b>> for DriveLLH {
                 }
             }
             ExpandedDevice::Virtex2(edev) => {
-                let rwire = backend
-                    .edev
-                    .resolve_wire(backend.edev.tile_wire(tcrd, self.wire))?;
+                let rwire = backend.edev.resolve_tile_wire(tcrd, self.wire)?;
                 let mut src_col = backend.edev.tile_cell(tcrd, self.wire.cell).col;
                 loop {
                     let int_tcrd = tcrd
@@ -533,9 +519,7 @@ impl<'b> FuzzerProp<'b, IseBackend<'b>> for DriveLLH {
                             if !backend.edev.db.wires[dwire.wire].name.starts_with("LH") {
                                 continue;
                             }
-                            let Some(drwire) = backend
-                                .edev
-                                .resolve_wire(backend.edev.tile_wire(int_tcrd, dwire))
+                            let Some(drwire) = backend.edev.resolve_tile_wire(int_tcrd, dwire)
                             else {
                                 continue;
                             };
@@ -588,9 +572,7 @@ impl<'b> FuzzerProp<'b, IseBackend<'b>> for DriveLLV {
         match backend.edev {
             ExpandedDevice::Xc2000(edev) => {
                 assert_eq!(edev.chip.kind, prjcombine_xc2000::chip::ChipKind::Xc5200);
-                let rwire = backend
-                    .edev
-                    .resolve_wire(backend.edev.tile_wire(tcrd, self.wire))?;
+                let rwire = backend.edev.resolve_tile_wire(tcrd, self.wire)?;
                 let mut src_row =
                     if backend.edev.tile_cell(tcrd, self.wire.cell).row < edev.chip.row_mid() {
                         edev.chip.row_mid() - 1
@@ -607,9 +589,7 @@ impl<'b> FuzzerProp<'b, IseBackend<'b>> for DriveLLV {
                         if let Some(ins) =
                             backend.edev.db_index[src_tile.class].pips_bwd.get(&dwire)
                         {
-                            let Some(drwire) = backend
-                                .edev
-                                .resolve_wire(backend.edev.tile_wire(int_tcrd, dwire))
+                            let Some(drwire) = backend.edev.resolve_tile_wire(int_tcrd, dwire)
                             else {
                                 continue;
                             };
@@ -631,9 +611,7 @@ impl<'b> FuzzerProp<'b, IseBackend<'b>> for DriveLLV {
                 }
             }
             ExpandedDevice::Virtex2(edev) => {
-                let rwire = backend
-                    .edev
-                    .resolve_wire(backend.edev.tile_wire(tcrd, self.wire))?;
+                let rwire = backend.edev.resolve_tile_wire(tcrd, self.wire)?;
                 let mut src_row = backend.edev.tile_cell(tcrd, self.wire.cell).row;
                 loop {
                     let int_tcrd = tcrd
@@ -645,9 +623,7 @@ impl<'b> FuzzerProp<'b, IseBackend<'b>> for DriveLLV {
                             if !backend.edev.db.wires[dwire.wire].name.starts_with("LV") {
                                 continue;
                             }
-                            let Some(drwire) = backend
-                                .edev
-                                .resolve_wire(backend.edev.tile_wire(int_tcrd, dwire))
+                            let Some(drwire) = backend.edev.resolve_tile_wire(int_tcrd, dwire)
                             else {
                                 continue;
                             };
@@ -683,12 +659,8 @@ fn resolve_intf_delay<'a>(
     let ntile = &backend.ngrid.tiles[&tcrd];
     let ndb = backend.ngrid.db;
     let tile_naming = &ndb.tile_class_namings[ntile.naming];
-    backend
-        .edev
-        .resolve_wire(backend.edev.tile_wire(tcrd, delay.dst))?;
-    backend
-        .edev
-        .resolve_wire(backend.edev.tile_wire(tcrd, delay.src.tw))?;
+    backend.edev.resolve_tile_wire(tcrd, delay.dst)?;
+    backend.edev.resolve_tile_wire(tcrd, delay.src.tw)?;
     let name_out = tile_naming.wires[&delay.dst].name.as_str();
     let name_delay = tile_naming.delay_wires[&delay.dst].as_str();
     let name_in = tile_naming.wires[&delay.src.tw].name.as_str();

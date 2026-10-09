@@ -86,21 +86,21 @@ impl ChipContext<'_> {
         self.claim_pip(paddo_pio, paddo);
         self.claim_pip(paddt_pio, paddt);
 
-        self.extract_bel(bcrd, cell)
+        self.extract_bel(bcrd)
             .name(name)
             .add_wire("DD", dd)
             .add_wire("PADDO_PIO", paddo_pio)
             .add_wire("PADDT_PIO", paddt_pio)
-            .input(bcls::IO::PADDO, wire_o)
-            .input(bcls::IO::PADDT, wire_t)
-            .xlat_name_output_rc_io(bcls::IO::PADDI, format!("JPADDI{abcd}_PIO"))
+            .input_raw(bcls::IO::PADDO, wire_o)
+            .input_raw(bcls::IO::PADDT, wire_t)
+            .output_xlat_rc_io(bcls::IO::PADDI, format!("JPADDI{abcd}_PIO"))
             .output_extra(bcls::IO::PADDI, wires::OUT_IO_PADDI[idx].cell(0));
     }
 
     fn process_pictest(&mut self, cell: CellCoord) {
         let (r, c) = self.rc(cell);
         let lr = if c == 1 { 'L' } else { 'R' };
-        self.extract_bel(cell.bel(bslots::PICTEST[0]), cell)
+        self.extract_bel(cell.bel(bslots::PICTEST[0]))
             .name(format!("{lr}PICTEST{r}"))
             .suffix("PICTEST");
     }

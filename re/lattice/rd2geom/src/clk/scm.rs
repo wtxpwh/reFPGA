@@ -4,11 +4,10 @@ use prjcombine_ecp::{
     chip::{Chip, IoGroupKind, SpecialIoKey},
     defs::{bslots, wires},
 };
-use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
     db::{BelPin, LegacyBel, WireSlotIdExt},
     dir::{Dir, DirH, DirHV, DirV},
-    grid::{DieId, DieIdExt},
+    grid::DieIdExt,
 };
 use prjcombine_re_lattice_naming::WireName;
 
@@ -21,7 +20,7 @@ impl ChipContext<'_> {
         let mut vpsx = BTreeMap::new();
         for i in 0..12 {
             let pclk = wires::PCLK[i];
-            for cell in self.edev.die_cells(DieId::from_idx(0)) {
+            for cell in self.edev.die_cells(Chip::DIE) {
                 if !self.edev.has_bel(cell.bel(bslots::INT)) {
                     continue;
                 }
@@ -38,7 +37,7 @@ impl ChipContext<'_> {
                     }
                 }
             }
-            for cell in self.edev.die_cells(DieId::from_idx(0)) {
+            for cell in self.edev.die_cells(Chip::DIE) {
                 if !self.chip.columns[cell.col].pclk_drive {
                     continue;
                 }

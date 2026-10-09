@@ -57,6 +57,7 @@ struct ChipContext<'dev> {
     int_wires: BTreeMap<WireName, Vec<WireCoord>>,
     io_int_wires: BTreeMap<WireName, Vec<WireCoord>>,
     io_int_names: BTreeMap<WireCoord, WireName>,
+    hybrid_out: BTreeMap<WireName, (BelCoord, WireCoord, BTreeSet<TileWireCoord>)>,
     sorted_wires: BTreeMap<(CellCoord, &'static str), BTreeMap<String, WireName>>,
     pclk_cols: EntityVec<ColId, (ColId, ColId)>,
     hsdclk_locs: BTreeMap<WireName, CellCoord>,
@@ -456,7 +457,7 @@ impl<'dev> ChipContext<'dev> {
         bel
     }
 
-    fn extract_bel(&mut self, bcrd: BelCoord, cell: CellCoord) -> BelExtractor<'dev, '_> {
+    fn extract_bel_cell(&mut self, bcrd: BelCoord, cell: CellCoord) -> BelExtractor<'dev, '_> {
         let intdb = self.intdb;
         let bcid = intdb.bel_class(bcrd.slot);
         BelExtractor {
@@ -470,11 +471,16 @@ impl<'dev> ChipContext<'dev> {
         }
     }
 
+    fn extract_bel(&mut self, bcrd: BelCoord) -> BelExtractor<'dev, '_> {
+        self.extract_bel_cell(bcrd, bcrd.cell)
+    }
+
     fn extract_switchbox(&mut self, bcrd: BelCoord) -> SwitchBoxExtractor<'dev, '_> {
         self.name_bel_null(bcrd);
         SwitchBoxExtractor {
             ctx: self,
             bcrd,
+            cell: bcrd.cell,
             inputs: BTreeMap::new(),
             outputs: BTreeMap::new(),
             edges: vec![],
@@ -550,6 +556,7 @@ fn process_chip(name: &str, grid: &Grid, kind: ChipKind, intdb: &IntDb) -> ChipR
         int_wires: Default::default(),
         io_int_wires: Default::default(),
         io_int_names: Default::default(),
+        hybrid_out: Default::default(),
         sorted_wires: Default::default(),
         pclk_cols: Default::default(),
         hsdclk_locs: Default::default(),
@@ -567,6 +574,7 @@ fn process_chip(name: &str, grid: &Grid, kind: ChipKind, intdb: &IntDb) -> ChipR
     ctx.process_int();
     ctx.sort_bel_wires();
     ctx.process_plc();
+    ctx.prep_pll();
     ctx.process_io();
     ctx.process_maco();
     ctx.process_ebr();

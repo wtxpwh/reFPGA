@@ -269,7 +269,7 @@ impl ChipContext<'_> {
                 }
                 .cell(2);
                 bel.pins.insert(format!("CIN_{i}"), BelPin::new_in(twire));
-                let wire_int = self.io_int_names[&self.edev.tile_wire(tcrd, twire)];
+                let wire_int = self.io_int_names[&self.edev.bel_wire(bcrd, twire)];
                 let wire = self.rc_corner_wire(cell, &format!("JVMAN01{i:02}"));
                 self.claim_pip_bi(wire, wire_int);
                 self.add_bel_wire(bcrd, twire.to_string(self.intdb, tcls), wire);
@@ -286,7 +286,7 @@ impl ChipContext<'_> {
                 .cell(2);
                 bel.pins
                     .insert("TESTCLK_MACO".into(), BelPin::new_in(twire));
-                let wire_int = self.io_int_names[&self.edev.tile_wire(tcrd, twire)];
+                let wire_int = self.io_int_names[&self.edev.bel_wire(bcrd, twire)];
                 let wire = self.rc_corner_wire(cell, "JVMAN0114");
                 self.claim_pip_bi(wire, wire_int);
                 self.add_bel_wire(bcrd, twire.to_string(self.intdb, tcls), wire);
@@ -343,7 +343,7 @@ impl ChipContext<'_> {
                 .cell(2);
                 bel.pins.insert(pin, BelPin::new_out(twire));
                 if let Some(cell_serdes) = cell_serdes {
-                    let wire_int = self.io_int_names[&self.edev.tile_wire(tcrd, twire)];
+                    let wire_int = self.io_int_names[&self.edev.bel_wire(bcrd, twire)];
                     let wire = self.rc_corner_wire(cell, &format!("JVMAS{seg:02}{idx:02}"));
                     self.claim_pip_bi(wire, wire_int);
                     self.add_bel_wire(bcrd, twire.to_string(self.intdb, tcls), wire);

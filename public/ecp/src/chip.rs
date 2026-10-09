@@ -696,11 +696,13 @@ impl Chip {
     }
 
     pub fn bel_clk_root(&self) -> BelCoord {
-        self.clk_root().bel(if self.kind == ChipKind::MachXo {
-            bslots::CLK_INT
-        } else {
-            bslots::CLK_ROOT
-        })
+        self.clk_root().bel(
+            if matches!(self.kind, ChipKind::MachXo | ChipKind::Ecp | ChipKind::Xp) {
+                bslots::CLK_INT
+            } else {
+                bslots::CLK_ROOT
+            },
+        )
     }
 
     pub fn bel_dqsdll(&self, io: CellCoord) -> BelCoord {
@@ -740,7 +742,7 @@ impl Chip {
 
     pub fn bel_dqsdll_ecp2(&self, edge: DirH) -> BelCoord {
         match self.kind {
-            ChipKind::Ecp2 | ChipKind::Ecp2M =>self.bel_pll(edge & DirV::S, 0).bel(bslots::DQSDLL),
+            ChipKind::Ecp2 | ChipKind::Ecp2M => self.bel_pll(edge & DirV::S, 0).bel(bslots::DQSDLL),
             ChipKind::Xp2 => Self::DIE
                 .cell(self.col_edge(edge), self.row_clk)
                 .bel(bslots::DQSDLL),

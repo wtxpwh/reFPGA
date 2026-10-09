@@ -53,7 +53,7 @@ impl<'dev, 'ctx> BelExtractor<'dev, 'ctx> {
             match idx {
                 EntityBundleIndices::Single(id) => {
                     if let Some(&wire) = wires.get(name)
-                        && let Some(bpin) = self.ctx.try_xlat_output(self.bcrd, wire, true)
+                        && let Some(bpin) = self.ctx.try_xlat_output(self.bcrd, wire, false, true)
                     {
                         self.ctx.add_bel_wire(self.bcrd, name, wire);
                         self.bel.outputs.insert(id, bpin);
@@ -64,7 +64,8 @@ impl<'dev, 'ctx> BelExtractor<'dev, 'ctx> {
                         let vi = output.indexing.phys_to_virt(pi);
                         let iname = &format!("{name}{vi}");
                         if let Some(&wire) = wires.get(iname)
-                            && let Some(bpin) = self.ctx.try_xlat_output(self.bcrd, wire, true)
+                            && let Some(bpin) =
+                                self.ctx.try_xlat_output(self.bcrd, wire, false, true)
                         {
                             self.ctx.add_bel_wire(self.bcrd, iname, wire);
                             self.bel.outputs.insert(id, bpin);
@@ -94,29 +95,34 @@ impl<'dev, 'ctx> BelExtractor<'dev, 'ctx> {
         self.name(format!("{prefix}_R{r}C{c}"))
     }
 
-    pub fn input(&mut self, pin: BelInputId, wire: TileWireCoord) -> &mut Self {
+    pub fn input_raw(&mut self, pin: BelInputId, wire: TileWireCoord) -> &mut Self {
         self.bel.inputs.insert(pin, BelInput::Fixed(wire.pos()));
         self
     }
 
-    pub fn xlat_input(&mut self, pin: BelInputId, wire: WireName) -> &mut Self {
+    pub fn input_xlat_no_name(&mut self, pin: BelInputId, wire: WireName) -> &mut Self {
         let bpin = self.ctx.xlat_input(self.bcrd, wire);
         self.bel.inputs.insert(pin, bpin);
         self
     }
 
-    pub fn xlat_name_input(&mut self, pin: BelInputId, wire: WireName) -> &mut Self {
+    pub fn input_xlat(&mut self, pin: BelInputId, wire: WireName) -> &mut Self {
         let pname = match self.ctx.intdb[self.bcid].inputs.key(pin) {
             (pname, EntityBundleItemIndex::Single) => pname.to_string(),
             (pname, EntityBundleItemIndex::Array { index, .. }) => format!("{pname}{index}"),
         };
         self.add_wire(pname, wire);
-        self.xlat_input(pin, wire)
+        self.input_xlat_no_name(pin, wire)
     }
 
-    pub fn xlat_name_input_rc_io(&mut self, pin: BelInputId, suffix: impl AsRef<str>) -> &mut Self {
+    pub fn input_xlat_rc(&mut self, pin: BelInputId, suffix: impl AsRef<str>) -> &mut Self {
+        let wire = self.ctx.rc_wire(self.cell, suffix.as_ref());
+        self.input_xlat(pin, wire)
+    }
+
+    pub fn input_xlat_rc_io(&mut self, pin: BelInputId, suffix: impl AsRef<str>) -> &mut Self {
         let wire = self.ctx.rc_io_wire(self.cell, suffix.as_ref());
-        self.xlat_name_input(pin, wire)
+        self.input_xlat(pin, wire)
     }
 
     pub fn output(&mut self, pin: BelOutputId, wire: TileWireCoord) -> &mut Self {
@@ -124,34 +130,35 @@ impl<'dev, 'ctx> BelExtractor<'dev, 'ctx> {
         self
     }
 
-    pub fn xlat_output(&mut self, pin: BelOutputId, wire: WireName) -> &mut Self {
+    pub fn output_xlat_no_name(&mut self, pin: BelOutputId, wire: WireName) -> &mut Self {
         let bpin = self.ctx.xlat_output(self.bcrd, wire);
         self.bel.outputs.insert(pin, bpin);
         self
     }
 
-    pub fn xlat_output_filter(&mut self, pin: BelOutputId, wire: WireName) -> &mut Self {
-        let bpin = self.ctx.xlat_output_filter(self.bcrd, wire);
+    pub fn output_xlat_quiet_no_name(&mut self, pin: BelOutputId, wire: WireName) -> &mut Self {
+        let bpin = self.ctx.xlat_output_quiet(self.bcrd, wire);
         self.bel.outputs.insert(pin, bpin);
         self
     }
 
-    pub fn xlat_name_output(&mut self, pin: BelOutputId, wire: WireName) -> &mut Self {
+    pub fn output_xlat(&mut self, pin: BelOutputId, wire: WireName) -> &mut Self {
         let pname = match self.ctx.intdb[self.bcid].outputs.key(pin) {
             (pname, EntityBundleItemIndex::Single) => pname.to_string(),
             (pname, EntityBundleItemIndex::Array { index, .. }) => format!("{pname}{index}"),
         };
         self.add_wire(pname, wire);
-        self.xlat_output(pin, wire)
+        self.output_xlat_no_name(pin, wire)
     }
 
-    pub fn xlat_name_output_rc_io(
-        &mut self,
-        pin: BelOutputId,
-        suffix: impl AsRef<str>,
-    ) -> &mut Self {
+    pub fn output_xlat_rc(&mut self, pin: BelOutputId, suffix: impl AsRef<str>) -> &mut Self {
+        let wire = self.ctx.rc_wire(self.cell, suffix.as_ref());
+        self.output_xlat(pin, wire)
+    }
+
+    pub fn output_xlat_rc_io(&mut self, pin: BelOutputId, suffix: impl AsRef<str>) -> &mut Self {
         let wire = self.ctx.rc_io_wire(self.cell, suffix.as_ref());
-        self.xlat_name_output(pin, wire)
+        self.output_xlat(pin, wire)
     }
 
     pub fn output_extra(&mut self, pin: BelOutputId, wire: TileWireCoord) -> &mut Self {
@@ -164,8 +171,19 @@ impl<'dev, 'ctx> BelExtractor<'dev, 'ctx> {
         self
     }
 
+    pub fn add_wire_rc(&mut self, pin: impl AsRef<str>, suffix: impl AsRef<str>) -> &mut Self {
+        let name = self.ctx.rc_wire(self.cell, suffix.as_ref());
+        self.add_wire(pin, name)
+    }
+
     pub fn add_wire_no_claim(&mut self, pin: impl AsRef<str>, wire: WireName) -> &mut Self {
         self.ctx.add_bel_wire_no_claim(self.bcrd, pin, wire);
+        self
+    }
+
+    pub fn bind_wire(&mut self, name: WireName, wire: TileWireCoord) -> &mut Self {
+        let fw = self.ctx.edev.resolve_bel_wire(self.bcrd, wire).unwrap();
+        self.ctx.bind_wire(name, fw);
         self
     }
 
@@ -186,6 +204,7 @@ impl<'dev, 'ctx> Drop for BelExtractor<'dev, 'ctx> {
 pub struct SwitchBoxExtractor<'dev, 'ctx> {
     pub ctx: &'ctx mut ChipContext<'dev>,
     pub bcrd: BelCoord,
+    pub cell: CellCoord,
     pub inputs: BTreeMap<WireName, TileWireCoord>,
     pub outputs: BTreeMap<WireName, TileWireCoord>,
     pub edges: Vec<(TileWireCoord, TileWireCoord)>,
@@ -193,50 +212,135 @@ pub struct SwitchBoxExtractor<'dev, 'ctx> {
 }
 
 impl<'dev, 'ctx> SwitchBoxExtractor<'dev, 'ctx> {
-    pub fn input(&mut self, name: WireName, wire: TileWireCoord) -> &mut Self {
+    pub fn cell(&mut self, cell: CellCoord) -> &mut Self {
+        self.cell = cell;
+        self
+    }
+
+    pub fn input_raw(&mut self, name: WireName, wire: TileWireCoord) -> &mut Self {
         self.ctx.add_sb_wire(self.bcrd, wire, name);
         self.inputs.insert(name, wire);
         self
     }
 
-    pub fn input_no_claim(&mut self, name: WireName, wire: TileWireCoord) -> &mut Self {
+    pub fn input_raw_no_claim(&mut self, name: WireName, wire: TileWireCoord) -> &mut Self {
+        self.ctx.add_sb_wire_no_claim(self.bcrd, wire, name);
+        self.inputs.insert(name, wire);
+        self
+    }
+
+    pub fn input_bind(&mut self, name: WireName, wire: TileWireCoord) -> &mut Self {
+        self.bind_wire(name, wire);
+        self.input_raw(name, wire)
+    }
+
+    pub fn input_bind_rc(&mut self, name: impl AsRef<str>, wire: TileWireCoord) -> &mut Self {
+        let name = self.ctx.rc_wire(self.cell, name.as_ref());
+        self.input_bind(name, wire)
+    }
+
+    pub fn input_bind_no_claim(&mut self, name: WireName, wire: TileWireCoord) -> &mut Self {
+        self.bind_wire(name, wire);
         self.ctx.add_sb_wire_no_claim(self.bcrd, wire, name);
         self.inputs.insert(name, wire);
         self
     }
 
     pub fn input_xlat(&mut self, name: WireName) -> &mut Self {
-        let wire = self.ctx.xlat_input(self.bcrd, name).wire();
-        self.input(name, wire)
+        if let Some(wires) = self.ctx.io_int_wires.get(&name) {
+            let tw = self.ctx.wire_to_tw(self.bcrd, wires[0]).unwrap();
+            self.input_raw_no_claim(name, tw)
+        } else {
+            let wire = self.ctx.xlat_input(self.bcrd, name).wire();
+            self.input_raw(name, wire)
+        }
+    }
+
+    pub fn input_xlat_rc_cell(&mut self, cell: CellCoord, name: impl AsRef<str>) -> &mut Self {
+        let name = self.ctx.rc_wire(cell, name.as_ref());
+        self.input_xlat(name)
+    }
+
+    pub fn input_xlat_rc(&mut self, name: impl AsRef<str>) -> &mut Self {
+        self.input_xlat_rc_cell(self.cell, name)
     }
 
     pub fn input_io(&mut self, name: WireName, wire: TileWireCoord) -> &mut Self {
-        let rwire = self
-            .ctx
-            .edev
-            .tile_wire(self.ctx.edev.bel_tile(self.bcrd), wire);
+        let rwire = self.ctx.edev.bel_wire(self.bcrd, wire);
         let name_io = self.ctx.get_paddi_wire(rwire);
         self.ctx.claim_pip(name, name_io);
-        self.input(name, wire)
+        self.input_raw(name, wire)
     }
 
-    pub fn output(&mut self, name: WireName, wire: TileWireCoord) -> &mut Self {
+    pub fn input_io_rc_cell(
+        &mut self,
+        cell: CellCoord,
+        name: impl AsRef<str>,
+        wire: TileWireCoord,
+    ) -> &mut Self {
+        let name = self.ctx.rc_wire(cell, name.as_ref());
+        self.input_io(name, wire)
+    }
+
+    pub fn input_io_rc(&mut self, name: impl AsRef<str>, wire: TileWireCoord) -> &mut Self {
+        self.input_io_rc_cell(self.cell, name, wire)
+    }
+
+    pub fn bind_wire(&mut self, name: WireName, wire: TileWireCoord) -> &mut Self {
+        let fw = self.ctx.edev.resolve_bel_wire(self.bcrd, wire).unwrap();
+        self.ctx.bind_wire(name, fw);
+        self
+    }
+
+    pub fn output_raw_no_claim(&mut self, name: WireName, wire: TileWireCoord) -> &mut Self {
+        self.ctx.add_sb_wire_no_claim(self.bcrd, wire, name);
+        self.outputs.insert(name, wire);
+        self
+    }
+
+    pub fn output_raw(&mut self, name: WireName, wire: TileWireCoord) -> &mut Self {
+        self.ctx.add_sb_wire(self.bcrd, wire, name);
+        self.outputs.insert(name, wire);
+        self
+    }
+
+    pub fn output_bind(&mut self, name: WireName, wire: TileWireCoord) -> &mut Self {
+        self.bind_wire(name, wire);
         self.ctx.add_sb_wire(self.bcrd, wire, name);
         self.outputs.insert(name, wire);
         self.inputs.insert(name, wire);
         self
     }
 
+    pub fn output_bind_rc(&mut self, name: impl AsRef<str>, wire: TileWireCoord) -> &mut Self {
+        let name = self.ctx.rc_wire(self.cell, name.as_ref());
+        self.output_bind(name, wire)
+    }
+
     pub fn output_int(&mut self, wire: TileWireCoord) -> &mut Self {
-        let gwire = self
-            .ctx
-            .edev
-            .resolve_tile_wire(self.ctx.edev.bel_tile(self.bcrd), wire)
-            .unwrap();
+        let gwire = self.ctx.edev.resolve_bel_wire(self.bcrd, wire).unwrap();
         let name = self.ctx.naming.interconnect[&gwire];
-        self.ctx.add_sb_wire_no_claim(self.bcrd, wire, name);
-        self.outputs.insert(name, wire);
-        self
+        self.output_raw_no_claim(name, wire)
+    }
+
+    pub fn output_xlat(&mut self, name: WireName) -> &mut Self {
+        if let Some(wires) = self.ctx.io_int_wires.get(&name) {
+            let tw = self.ctx.wire_to_tw(self.bcrd, wires[0]).unwrap();
+            self.output_raw(name, tw)
+        } else {
+            let wires = self.ctx.xlat_output(self.bcrd, name);
+            assert_eq!(wires.len(), 1);
+            self.output_raw(name, wires.into_iter().next().unwrap())
+        }
+    }
+
+    pub fn output_xlat_rc_cell(&mut self, cell: CellCoord, name: impl AsRef<str>) -> &mut Self {
+        let name = self.ctx.rc_wire(cell, name.as_ref());
+        self.output_xlat(name)
+    }
+
+    pub fn output_xlat_rc(&mut self, name: impl AsRef<str>) -> &mut Self {
+        self.output_xlat_rc_cell(self.cell, name)
     }
 
     pub fn edge(&mut self, dst: TileWireCoord, src: TileWireCoord) -> &mut Self {
@@ -252,6 +356,15 @@ impl<'dev, 'ctx> SwitchBoxExtractor<'dev, 'ctx> {
     pub fn add_wire_no_claim(&mut self, pin: impl AsRef<str>, wire: WireName) -> &mut Self {
         self.ctx.add_bel_wire_no_claim(self.bcrd, pin, wire);
         self
+    }
+
+    pub fn permabuf_int_io(&mut self, dst: TileWireCoord, src: TileWireCoord) -> &mut Self {
+        let wname_io = self
+            .ctx
+            .get_paddi_wire(self.ctx.edev.bel_wire(self.bcrd, src));
+        let wire_dst = self.ctx.edev.bel_wire(self.bcrd, dst);
+        self.ctx.claim_pip_int_out(wire_dst, wname_io);
+        self.permabuf(dst, src)
     }
 
     pub fn permabuf(&mut self, dst: TileWireCoord, src: TileWireCoord) -> &mut Self {

@@ -16731,7 +16731,6 @@ intdb {
 
 	tile_slot CLK {
 		bel_slot CLK_INT: routing;
-		bel_slot CLK_ROOT: legacy;
 		bel_slot DCS_SW[0]: legacy;
 		bel_slot DCS_SW[1]: legacy;
 		bel_slot DCS_SE[0]: legacy;
@@ -16740,6 +16739,7 @@ intdb {
 		bel_slot DCS_NW[1]: legacy;
 		bel_slot DCS_NE[0]: legacy;
 		bel_slot DCS_NE[1]: legacy;
+		bel_slot CLK_ROOT: legacy;
 		bel_slot DCC_SW[0]: legacy;
 		bel_slot DCC_SW[1]: legacy;
 		bel_slot DCC_SW[2]: legacy;
@@ -16799,6 +16799,38 @@ intdb {
 			cell CELL[28];
 			cell CELL[29];
 
+			bel DCS_SW[0] {
+				input SEL = CELL[12].IMUX_D[2];
+			}
+
+			bel DCS_SW[1] {
+				input SEL = CELL[11].IMUX_D[2];
+			}
+
+			bel DCS_SE[0] {
+				input SEL = CELL[12].IMUX_D[0];
+			}
+
+			bel DCS_SE[1] {
+				input SEL = CELL[11].IMUX_D[0];
+			}
+
+			bel DCS_NW[0] {
+				input SEL = CELL[12].IMUX_D[3];
+			}
+
+			bel DCS_NW[1] {
+				input SEL = CELL[11].IMUX_D[3];
+			}
+
+			bel DCS_NE[0] {
+				input SEL = CELL[12].IMUX_D[1];
+			}
+
+			bel DCS_NE[1] {
+				input SEL = CELL[11].IMUX_D[1];
+			}
+
 			bel CLK_ROOT {
 				input PCLK_IN_E0 = CELL[2].IMUX_D[5];
 				input PCLK_IN_E1 = CELL[3].IMUX_D[5];
@@ -16834,38 +16866,6 @@ intdb {
 				input SCLK_IN_W1 = CELL[15].IMUX_D[5];
 				input SCLK_IN_W2 = CELL[16].IMUX_D[5];
 				input SCLK_IN_W3 = CELL[17].IMUX_D[5];
-			}
-
-			bel DCS_SW[0] {
-				input SEL = CELL[12].IMUX_D[2];
-			}
-
-			bel DCS_SW[1] {
-				input SEL = CELL[11].IMUX_D[2];
-			}
-
-			bel DCS_SE[0] {
-				input SEL = CELL[12].IMUX_D[0];
-			}
-
-			bel DCS_SE[1] {
-				input SEL = CELL[11].IMUX_D[0];
-			}
-
-			bel DCS_NW[0] {
-				input SEL = CELL[12].IMUX_D[3];
-			}
-
-			bel DCS_NW[1] {
-				input SEL = CELL[11].IMUX_D[3];
-			}
-
-			bel DCS_NE[0] {
-				input SEL = CELL[12].IMUX_D[1];
-			}
-
-			bel DCS_NE[1] {
-				input SEL = CELL[11].IMUX_D[1];
 			}
 
 			bel DCC_SW[0] {

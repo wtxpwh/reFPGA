@@ -37,12 +37,8 @@ fn resolve_intf_test_pip<'a>(
     let intdb = backend.edev.db;
     let ndb = backend.ngrid.db;
     let tile_naming = &ndb.tile_class_namings[ntile.naming];
-    backend
-        .edev
-        .resolve_wire(backend.edev.tile_wire(tcrd, wire_to))?;
-    backend
-        .edev
-        .resolve_wire(backend.edev.tile_wire(tcrd, wire_from))?;
+    backend.edev.resolve_tile_wire(tcrd, wire_to)?;
+    backend.edev.resolve_tile_wire(tcrd, wire_from)?;
     if let ExpandedDevice::Virtex4(edev) = backend.edev
         && edev.kind == prjcombine_virtex4::chip::ChipKind::Virtex5
         && ndb.tile_class_namings.key(ntile.naming) == "INTF_PPC_R"

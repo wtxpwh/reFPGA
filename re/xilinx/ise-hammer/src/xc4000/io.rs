@@ -64,10 +64,7 @@ impl<'b> FuzzerProp<'b, IseBackend<'b>> for Xc4000DriveImux {
             let wt = res_wire.slot.cell(0);
             let ins = &otcls.pips_bwd[&wt];
             let wf = ins.iter().find(|w| w.wire != wires::TIE_0).unwrap().tw;
-            let res_wf = backend
-                .edev
-                .resolve_wire(backend.edev.tile_wire(otcrd, wf))
-                .unwrap();
+            let res_wf = backend.edev.resolve_tile_wire(otcrd, wf).unwrap();
             let (tile, wt, wf) = resolve_int_pip(backend, otcrd, wt, wf).unwrap();
             fuzzer = fuzzer.base(Key::Pip(tile, wf, wt), true).fuzz(
                 Key::WireMutex(res_wf),

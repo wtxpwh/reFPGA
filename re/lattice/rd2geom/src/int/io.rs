@@ -4,11 +4,11 @@ use prjcombine_ecp::{
     chip::{Chip, RowKind},
     defs::{bslots, cslots, tcls, tslots, wiredata, wires},
 };
-use prjcombine_entity::{EntityId, EntityVec};
+use prjcombine_entity::EntityVec;
 use prjcombine_interconnect::{
     db::{BelInfo, ConnectorWire, Mux, SwitchBox, SwitchBoxItem, TileWireCoord, WireSlotIdExt},
     dir::DirH,
-    grid::{DieId, DieIdExt},
+    grid::DieIdExt,
 };
 
 use crate::{ChipContext, chip::ChipExt};
@@ -23,7 +23,7 @@ impl ChipContext<'_> {
             }
             col_group.push(idx);
         }
-        for cell in self.edev.die_cells(DieId::from_idx(0)) {
+        for cell in self.edev.die_cells(Chip::DIE) {
             let bcrd = cell.bel(bslots::IO_INT);
             if self.edev.has_bel(bcrd) {
                 self.name_bel_null(bcrd);

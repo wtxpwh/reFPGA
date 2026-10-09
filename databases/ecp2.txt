@@ -9876,11 +9876,6 @@ intdb {
 		input SEL;
 	}
 
-	bel_class HSDCLK_ROOT {
-		output OUT_W[8];
-		output OUT_E[8];
-	}
-
 	region_slot PCLK;
 	region_slot RSCLK[0];
 	region_slot RSCLK[1];
@@ -10196,6 +10191,14 @@ intdb {
 	wire PCLK[5]: regional PCLK;
 	wire PCLK[6]: regional PCLK;
 	wire PCLK[7]: regional PCLK;
+	wire SCLK_ROOT[0]: regional PCLK;
+	wire SCLK_ROOT[1]: regional PCLK;
+	wire SCLK_ROOT[2]: regional PCLK;
+	wire SCLK_ROOT[3]: regional PCLK;
+	wire SCLK_ROOT[4]: regional PCLK;
+	wire SCLK_ROOT[5]: regional PCLK;
+	wire SCLK_ROOT[6]: regional PCLK;
+	wire SCLK_ROOT[7]: regional PCLK;
 	wire RSCLK[0]: regional RSCLK[0];
 	wire RSCLK[1]: regional RSCLK[1];
 	wire RSCLK[2]: regional RSCLK[2];
@@ -10228,6 +10231,10 @@ intdb {
 	wire RSCLK_V_N[5]: branch S;
 	wire RSCLK_V_N[6]: branch S;
 	wire RSCLK_V_N[7]: branch S;
+	wire IMUX_DCS_CLKA[0]: mux;
+	wire IMUX_DCS_CLKA[1]: mux;
+	wire IMUX_DCS_CLKB[0]: mux;
+	wire IMUX_DCS_CLKB[1]: mux;
 	wire ECLK[0]: regional ECLK;
 	wire ECLK[1]: regional ECLK;
 	wire IMUX_IO_ECLKI[0]: mux;
@@ -13568,7 +13575,6 @@ intdb {
 
 	tile_slot CLK {
 		bel_slot CLK_INT: routing;
-		bel_slot CLK_ROOT: legacy;
 		bel_slot DCS_SW[0]: legacy;
 		bel_slot DCS_SW[1]: legacy;
 		bel_slot DCS_SE[0]: legacy;
@@ -13577,6 +13583,7 @@ intdb {
 		bel_slot DCS_NW[1]: legacy;
 		bel_slot DCS_NE[0]: legacy;
 		bel_slot DCS_NE[1]: legacy;
+		bel_slot CLK_ROOT: legacy;
 
 		tile_class CLK_ROOT_2PLL {
 			cell ROOT_SW;
@@ -13609,6 +13616,38 @@ intdb {
 			cell FABRIC_IN[23];
 			cell FABRIC_IN[24];
 			cell FABRIC_IN[25];
+
+			bel DCS_SW[0] {
+				input OUT = ROOT_SW.PCLK[6];
+			}
+
+			bel DCS_SW[1] {
+				input OUT = ROOT_SW.PCLK[7];
+			}
+
+			bel DCS_SE[0] {
+				input OUT = ROOT_SE.PCLK[6];
+			}
+
+			bel DCS_SE[1] {
+				input OUT = ROOT_SE.PCLK[7];
+			}
+
+			bel DCS_NW[0] {
+				input OUT = ROOT_NW.PCLK[6];
+			}
+
+			bel DCS_NW[1] {
+				input OUT = ROOT_NW.PCLK[7];
+			}
+
+			bel DCS_NE[0] {
+				input OUT = ROOT_NE.PCLK[6];
+			}
+
+			bel DCS_NE[1] {
+				input OUT = ROOT_NE.PCLK[7];
+			}
 
 			bel CLK_ROOT {
 				input PCLK0_NE = ROOT_NE.PCLK[0];
@@ -13661,38 +13700,6 @@ intdb {
 				input SCLK_IN_W1 = FABRIC_IN[11].IMUX_C[3];
 				input SCLK_IN_W2 = FABRIC_IN[12].IMUX_C[3];
 				input SCLK_IN_W3 = FABRIC_IN[13].IMUX_C[3];
-			}
-
-			bel DCS_SW[0] {
-				input OUT = ROOT_SW.PCLK[6];
-			}
-
-			bel DCS_SW[1] {
-				input OUT = ROOT_SW.PCLK[7];
-			}
-
-			bel DCS_SE[0] {
-				input OUT = ROOT_SE.PCLK[6];
-			}
-
-			bel DCS_SE[1] {
-				input OUT = ROOT_SE.PCLK[7];
-			}
-
-			bel DCS_NW[0] {
-				input OUT = ROOT_NW.PCLK[6];
-			}
-
-			bel DCS_NW[1] {
-				input OUT = ROOT_NW.PCLK[7];
-			}
-
-			bel DCS_NE[0] {
-				input OUT = ROOT_NE.PCLK[6];
-			}
-
-			bel DCS_NE[1] {
-				input OUT = ROOT_NE.PCLK[7];
 			}
 
 			// wire ROOT_SW.PCLK[0]                CLK_ROOT.PCLK0_SW
@@ -13787,6 +13794,38 @@ intdb {
 			cell FABRIC_IN[24];
 			cell FABRIC_IN[25];
 
+			bel DCS_SW[0] {
+				input OUT = ROOT_SW.PCLK[6];
+			}
+
+			bel DCS_SW[1] {
+				input OUT = ROOT_SW.PCLK[7];
+			}
+
+			bel DCS_SE[0] {
+				input OUT = ROOT_SE.PCLK[6];
+			}
+
+			bel DCS_SE[1] {
+				input OUT = ROOT_SE.PCLK[7];
+			}
+
+			bel DCS_NW[0] {
+				input OUT = ROOT_NW.PCLK[6];
+			}
+
+			bel DCS_NW[1] {
+				input OUT = ROOT_NW.PCLK[7];
+			}
+
+			bel DCS_NE[0] {
+				input OUT = ROOT_NE.PCLK[6];
+			}
+
+			bel DCS_NE[1] {
+				input OUT = ROOT_NE.PCLK[7];
+			}
+
 			bel CLK_ROOT {
 				input PCLK0_NE = ROOT_NE.PCLK[0];
 				input PCLK0_NW = ROOT_NW.PCLK[0];
@@ -13838,38 +13877,6 @@ intdb {
 				input SCLK_IN_W1 = FABRIC_IN[11].IMUX_C[3];
 				input SCLK_IN_W2 = FABRIC_IN[12].IMUX_C[3];
 				input SCLK_IN_W3 = FABRIC_IN[13].IMUX_C[3];
-			}
-
-			bel DCS_SW[0] {
-				input OUT = ROOT_SW.PCLK[6];
-			}
-
-			bel DCS_SW[1] {
-				input OUT = ROOT_SW.PCLK[7];
-			}
-
-			bel DCS_SE[0] {
-				input OUT = ROOT_SE.PCLK[6];
-			}
-
-			bel DCS_SE[1] {
-				input OUT = ROOT_SE.PCLK[7];
-			}
-
-			bel DCS_NW[0] {
-				input OUT = ROOT_NW.PCLK[6];
-			}
-
-			bel DCS_NW[1] {
-				input OUT = ROOT_NW.PCLK[7];
-			}
-
-			bel DCS_NE[0] {
-				input OUT = ROOT_NE.PCLK[6];
-			}
-
-			bel DCS_NE[1] {
-				input OUT = ROOT_NE.PCLK[7];
 			}
 
 			// wire ROOT_SW.PCLK[0]                CLK_ROOT.PCLK0_SW
@@ -13964,6 +13971,38 @@ intdb {
 			cell FABRIC_IN[24];
 			cell FABRIC_IN[25];
 
+			bel DCS_SW[0] {
+				input OUT = ROOT_SW.PCLK[6];
+			}
+
+			bel DCS_SW[1] {
+				input OUT = ROOT_SW.PCLK[7];
+			}
+
+			bel DCS_SE[0] {
+				input OUT = ROOT_SE.PCLK[6];
+			}
+
+			bel DCS_SE[1] {
+				input OUT = ROOT_SE.PCLK[7];
+			}
+
+			bel DCS_NW[0] {
+				input OUT = ROOT_NW.PCLK[6];
+			}
+
+			bel DCS_NW[1] {
+				input OUT = ROOT_NW.PCLK[7];
+			}
+
+			bel DCS_NE[0] {
+				input OUT = ROOT_NE.PCLK[6];
+			}
+
+			bel DCS_NE[1] {
+				input OUT = ROOT_NE.PCLK[7];
+			}
+
 			bel CLK_ROOT {
 				input PCLK0_NE = ROOT_NE.PCLK[0];
 				input PCLK0_NW = ROOT_NW.PCLK[0];
@@ -14015,38 +14054,6 @@ intdb {
 				input SCLK_IN_W1 = FABRIC_IN[11].IMUX_C[3];
 				input SCLK_IN_W2 = FABRIC_IN[12].IMUX_C[3];
 				input SCLK_IN_W3 = FABRIC_IN[13].IMUX_C[3];
-			}
-
-			bel DCS_SW[0] {
-				input OUT = ROOT_SW.PCLK[6];
-			}
-
-			bel DCS_SW[1] {
-				input OUT = ROOT_SW.PCLK[7];
-			}
-
-			bel DCS_SE[0] {
-				input OUT = ROOT_SE.PCLK[6];
-			}
-
-			bel DCS_SE[1] {
-				input OUT = ROOT_SE.PCLK[7];
-			}
-
-			bel DCS_NW[0] {
-				input OUT = ROOT_NW.PCLK[6];
-			}
-
-			bel DCS_NW[1] {
-				input OUT = ROOT_NW.PCLK[7];
-			}
-
-			bel DCS_NE[0] {
-				input OUT = ROOT_NE.PCLK[6];
-			}
-
-			bel DCS_NE[1] {
-				input OUT = ROOT_NE.PCLK[7];
 			}
 
 			// wire ROOT_SW.PCLK[0]                CLK_ROOT.PCLK0_SW
@@ -14224,7 +14231,6 @@ intdb {
 	}
 
 	tile_slot HSDCLK_SPLITTER {
-		bel_slot HSDCLK_ROOT: HSDCLK_ROOT;
 		bel_slot HSDCLK_SPLITTER: routing;
 
 		tile_class HSDCLK_SPLITTER {
@@ -14267,25 +14273,6 @@ intdb {
 			cell E[2];
 			cell E[3];
 
-			bel HSDCLK_ROOT {
-				output OUT_W[0] = W[0].RSCLK_H[0];
-				output OUT_W[1] = W[1].RSCLK_H[0];
-				output OUT_W[2] = W[2].RSCLK_H[0];
-				output OUT_W[3] = W[3].RSCLK_H[0];
-				output OUT_W[4] = W[0].RSCLK_H[4];
-				output OUT_W[5] = W[1].RSCLK_H[4];
-				output OUT_W[6] = W[2].RSCLK_H[4];
-				output OUT_W[7] = W[3].RSCLK_H[4];
-				output OUT_E[0] = E[0].RSCLK_H[0];
-				output OUT_E[1] = E[1].RSCLK_H[0];
-				output OUT_E[2] = E[2].RSCLK_H[0];
-				output OUT_E[3] = E[3].RSCLK_H[0];
-				output OUT_E[4] = E[0].RSCLK_H[4];
-				output OUT_E[5] = E[1].RSCLK_H[4];
-				output OUT_E[6] = E[2].RSCLK_H[4];
-				output OUT_E[7] = E[3].RSCLK_H[4];
-			}
-
 			switchbox HSDCLK_SPLITTER {
 				progbuf W[0].RSCLK_H[0] = E[0].RSCLK_H[0] @XXX57005[57005][57005];
 				progbuf E[0].RSCLK_H[0] = W[0].RSCLK_H[0] @XXX57005[57005][57005];
@@ -14303,24 +14290,23 @@ intdb {
 				progbuf E[2].RSCLK_H[4] = W[2].RSCLK_H[4] @XXX57005[57005][57005];
 				progbuf W[3].RSCLK_H[4] = E[3].RSCLK_H[4] @XXX57005[57005][57005];
 				progbuf E[3].RSCLK_H[4] = W[3].RSCLK_H[4] @XXX57005[57005][57005];
+				progbuf W[0].RSCLK_H[0] = W[0].SCLK_ROOT[0] @XXX57005[57005][57005];
+				progbuf E[0].RSCLK_H[0] = E[0].SCLK_ROOT[0] @XXX57005[57005][57005];
+				progbuf W[1].RSCLK_H[0] = W[0].SCLK_ROOT[1] @XXX57005[57005][57005];
+				progbuf E[1].RSCLK_H[0] = E[0].SCLK_ROOT[1] @XXX57005[57005][57005];
+				progbuf W[2].RSCLK_H[0] = W[0].SCLK_ROOT[2] @XXX57005[57005][57005];
+				progbuf E[2].RSCLK_H[0] = E[0].SCLK_ROOT[2] @XXX57005[57005][57005];
+				progbuf W[3].RSCLK_H[0] = W[0].SCLK_ROOT[3] @XXX57005[57005][57005];
+				progbuf E[3].RSCLK_H[0] = E[0].SCLK_ROOT[3] @XXX57005[57005][57005];
+				progbuf W[0].RSCLK_H[4] = W[0].SCLK_ROOT[4] @XXX57005[57005][57005];
+				progbuf E[0].RSCLK_H[4] = E[0].SCLK_ROOT[4] @XXX57005[57005][57005];
+				progbuf W[1].RSCLK_H[4] = W[0].SCLK_ROOT[5] @XXX57005[57005][57005];
+				progbuf E[1].RSCLK_H[4] = E[0].SCLK_ROOT[5] @XXX57005[57005][57005];
+				progbuf W[2].RSCLK_H[4] = W[0].SCLK_ROOT[6] @XXX57005[57005][57005];
+				progbuf E[2].RSCLK_H[4] = E[0].SCLK_ROOT[6] @XXX57005[57005][57005];
+				progbuf W[3].RSCLK_H[4] = W[0].SCLK_ROOT[7] @XXX57005[57005][57005];
+				progbuf E[3].RSCLK_H[4] = E[0].SCLK_ROOT[7] @XXX57005[57005][57005];
 			}
-
-			// wire W[0].RSCLK_H[0]                HSDCLK_ROOT.OUT_W[0]
-			// wire W[0].RSCLK_H[4]                HSDCLK_ROOT.OUT_W[4]
-			// wire W[1].RSCLK_H[0]                HSDCLK_ROOT.OUT_W[1]
-			// wire W[1].RSCLK_H[4]                HSDCLK_ROOT.OUT_W[5]
-			// wire W[2].RSCLK_H[0]                HSDCLK_ROOT.OUT_W[2]
-			// wire W[2].RSCLK_H[4]                HSDCLK_ROOT.OUT_W[6]
-			// wire W[3].RSCLK_H[0]                HSDCLK_ROOT.OUT_W[3]
-			// wire W[3].RSCLK_H[4]                HSDCLK_ROOT.OUT_W[7]
-			// wire E[0].RSCLK_H[0]                HSDCLK_ROOT.OUT_E[0]
-			// wire E[0].RSCLK_H[4]                HSDCLK_ROOT.OUT_E[4]
-			// wire E[1].RSCLK_H[0]                HSDCLK_ROOT.OUT_E[1]
-			// wire E[1].RSCLK_H[4]                HSDCLK_ROOT.OUT_E[5]
-			// wire E[2].RSCLK_H[0]                HSDCLK_ROOT.OUT_E[2]
-			// wire E[2].RSCLK_H[4]                HSDCLK_ROOT.OUT_E[6]
-			// wire E[3].RSCLK_H[0]                HSDCLK_ROOT.OUT_E[3]
-			// wire E[3].RSCLK_H[4]                HSDCLK_ROOT.OUT_E[7]
 		}
 	}
 

@@ -1984,63 +1984,72 @@ impl Expander<'_, '_> {
         );
         let mut cells = vec![
             // actual clock root cells
-            self.die.cell(self.chip.col_w(), self.chip.row_s()),
-            self.die.cell(self.chip.col_e(), self.chip.row_s()),
-            self.die.cell(self.chip.col_w(), self.chip.row_n()),
-            self.die.cell(self.chip.col_e(), self.chip.row_n()),
+            Some(self.die.cell(self.chip.col_w(), self.chip.row_s())),
+            Some(self.die.cell(self.chip.col_e(), self.chip.row_s())),
+            Some(self.die.cell(self.chip.col_w(), self.chip.row_n())),
+            Some(self.die.cell(self.chip.col_e(), self.chip.row_n())),
         ];
-        // DCS select inputs
+        // fabric clock inputs
+        for edge in Dir::DIRS {
+            cells.push(self.chip.try_get_spec_cell(SpecialLocKey::PclkIn(edge, 0)));
+        }
+        for edge in Dir::DIRS {
+            for i in 0..4 {
+                cells.push(self.chip.try_get_spec_cell(SpecialLocKey::SclkIn(edge, i)));
+            }
+        }
+        // IO inputs
+        for edge in Dir::DIRS {
+            cells.push(self.chip.try_get_io_cell(SpecialIoKey::Clock(edge, 0)));
+        }
+        // PLLs & DCS select inputs
         match self.chip.kind {
             ChipKind::Ecp if ebr_rows.len() == 1 => {
                 cells.extend([
-                    self.die.cell(self.chip.col_w(), ebr_rows[0]),
-                    self.die.cell(self.chip.col_e(), ebr_rows[0]),
+                    Some(self.die.cell(self.chip.col_w(), ebr_rows[0])),
+                    Some(self.die.cell(self.chip.col_e(), ebr_rows[0])),
                 ]);
             }
             ChipKind::Ecp if ebr_rows.len() == 2 => {
                 cells.extend([
-                    self.die.cell(self.chip.col_w() + 5, ebr_rows[0]),
-                    self.die.cell(self.chip.col_w() + 6, ebr_rows[0]),
-                    self.die.cell(self.chip.col_e() - 6, ebr_rows[0]),
-                    self.die.cell(self.chip.col_e() - 5, ebr_rows[0]),
-                    self.die.cell(self.chip.col_w() + 5, ebr_rows[1]),
-                    self.die.cell(self.chip.col_w() + 6, ebr_rows[1]),
-                    self.die.cell(self.chip.col_e() - 6, ebr_rows[1]),
-                    self.die.cell(self.chip.col_e() - 5, ebr_rows[1]),
+                    Some(self.die.cell(self.chip.col_w(), ebr_rows[0])),
+                    Some(self.die.cell(self.chip.col_e(), ebr_rows[0])),
+                    Some(self.die.cell(self.chip.col_w(), ebr_rows[1])),
+                    Some(self.die.cell(self.chip.col_e(), ebr_rows[1])),
+                    Some(self.die.cell(self.chip.col_w() + 5, ebr_rows[0])),
+                    Some(self.die.cell(self.chip.col_w() + 6, ebr_rows[0])),
+                    Some(self.die.cell(self.chip.col_e() - 6, ebr_rows[0])),
+                    Some(self.die.cell(self.chip.col_e() - 5, ebr_rows[0])),
+                    Some(self.die.cell(self.chip.col_w() + 5, ebr_rows[1])),
+                    Some(self.die.cell(self.chip.col_w() + 6, ebr_rows[1])),
+                    Some(self.die.cell(self.chip.col_e() - 6, ebr_rows[1])),
+                    Some(self.die.cell(self.chip.col_e() - 5, ebr_rows[1])),
                 ]);
             }
             ChipKind::Xp if ebr_rows.len() == 1 => {
                 cells.extend([
-                    self.die.cell(self.chip.col_w(), ebr_rows[0]),
-                    self.die.cell(self.chip.col_w() + 1, ebr_rows[0]),
-                    self.die.cell(self.chip.col_e() - 1, ebr_rows[0]),
-                    self.die.cell(self.chip.col_e(), ebr_rows[0]),
+                    Some(self.die.cell(self.chip.col_w(), ebr_rows[0])),
+                    Some(self.die.cell(self.chip.col_w() + 1, ebr_rows[0])),
+                    Some(self.die.cell(self.chip.col_e(), ebr_rows[0])),
+                    Some(self.die.cell(self.chip.col_e() - 1, ebr_rows[0])),
                 ]);
             }
             ChipKind::Xp if ebr_rows.len() == 2 => {
                 cells.extend([
-                    self.die.cell(self.chip.col_w(), ebr_rows[0]),
-                    self.die.cell(self.chip.col_w() + 1, ebr_rows[0]),
-                    self.die.cell(self.chip.col_e() - 1, ebr_rows[0]),
-                    self.die.cell(self.chip.col_e(), ebr_rows[0]),
-                    self.die.cell(self.chip.col_w(), ebr_rows[1]),
-                    self.die.cell(self.chip.col_w() + 1, ebr_rows[1]),
-                    self.die.cell(self.chip.col_e() - 1, ebr_rows[1]),
-                    self.die.cell(self.chip.col_e(), ebr_rows[1]),
+                    Some(self.die.cell(self.chip.col_w(), ebr_rows[0])),
+                    Some(self.die.cell(self.chip.col_w() + 1, ebr_rows[0])),
+                    Some(self.die.cell(self.chip.col_e(), ebr_rows[0])),
+                    Some(self.die.cell(self.chip.col_e() - 1, ebr_rows[0])),
+                    Some(self.die.cell(self.chip.col_w(), ebr_rows[1])),
+                    Some(self.die.cell(self.chip.col_w() + 1, ebr_rows[1])),
+                    Some(self.die.cell(self.chip.col_e(), ebr_rows[1])),
+                    Some(self.die.cell(self.chip.col_e() - 1, ebr_rows[1])),
                 ]);
             }
             _ => unreachable!(),
         }
-        // fabric clock inputs
-        for (&key, &cell) in &self.chip.special_loc {
-            if !matches!(key, SpecialLocKey::PclkIn(..) | SpecialLocKey::SclkIn(..)) {
-                continue;
-            }
-            cells.push(cell);
-        }
         let kind = match (self.chip.kind, ebr_rows.len()) {
             (ChipKind::Ecp, 1) => tcls::CLK_ROOT_2PLL,
-            (ChipKind::Ecp, 2) => tcls::CLK_ROOT_4PLL,
             (ChipKind::Xp, 1) => {
                 if self.chip.special_loc[&SpecialLocKey::SclkIn(Dir::E, 2)].col == self.chip.col_clk
                 {
@@ -2049,10 +2058,10 @@ impl Expander<'_, '_> {
                     tcls::CLK_ROOT_2PLL_B
                 }
             }
-            (ChipKind::Xp, 2) => tcls::CLK_ROOT_4PLL,
+            (_, 2) => tcls::CLK_ROOT_4PLL,
             _ => unreachable!(),
         };
-        self.egrid.add_tile(
+        self.egrid.add_tile_part(
             self.die.cell(self.chip.col_clk, self.chip.row_clk),
             kind,
             &cells,

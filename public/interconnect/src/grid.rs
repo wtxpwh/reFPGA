@@ -448,6 +448,18 @@ impl<'a> ExpandedGrid<'a> {
         self.resolve_wire(self.try_tile_wire(tcrd, wire)?)
     }
 
+    pub fn bel_wire(&self, bcrd: BelCoord, wire: TileWireCoord) -> WireCoord {
+        self.tile_wire(self.bel_tile(bcrd), wire)
+    }
+
+    pub fn try_bel_wire(&self, bcrd: BelCoord, wire: TileWireCoord) -> Option<WireCoord> {
+        self.try_tile_wire(self.bel_tile(bcrd), wire)
+    }
+
+    pub fn resolve_bel_wire(&self, bcrd: BelCoord, wire: TileWireCoord) -> Option<WireCoord> {
+        self.resolve_tile_wire(self.bel_tile(bcrd), wire)
+    }
+
     pub fn cells(&self) -> impl Iterator<Item = (CellCoord, &Cell)> + '_ {
         self.die().into_iter().flat_map(move |die| {
             self.cols(die).into_iter().flat_map(move |col| {

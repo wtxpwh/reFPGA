@@ -146,9 +146,7 @@ impl<'b> FuzzerProp<'b, IseBackend<'b>> for WireMutexShared {
         tcrd: TileCoord,
         fuzzer: Fuzzer<IseBackend<'a>>,
     ) -> Option<(Fuzzer<IseBackend<'a>>, bool)> {
-        let wire = backend
-            .edev
-            .resolve_wire(backend.edev.tile_wire(tcrd, self.wire))?;
+        let wire = backend.edev.resolve_tile_wire(tcrd, self.wire)?;
         Some((fuzzer.base(Key::WireMutex(wire), "SHARED"), false))
     }
 }
@@ -175,9 +173,7 @@ impl<'b> FuzzerProp<'b, IseBackend<'b>> for WireMutexExclusive {
         tcrd: TileCoord,
         fuzzer: Fuzzer<IseBackend<'a>>,
     ) -> Option<(Fuzzer<IseBackend<'a>>, bool)> {
-        let wire = backend
-            .edev
-            .resolve_wire(backend.edev.tile_wire(tcrd, self.wire))?;
+        let wire = backend.edev.resolve_tile_wire(tcrd, self.wire)?;
         Some((fuzzer.fuzz(Key::WireMutex(wire), None, "EXCLUSIVE"), false))
     }
 }

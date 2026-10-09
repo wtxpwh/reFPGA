@@ -19,7 +19,7 @@ impl ChipContext<'_> {
         let cell_nw = cell.with_cr(self.chip.col_w(), self.chip.row_n());
         let cell_ne = cell.with_cr(self.chip.col_e(), self.chip.row_n());
 
-        self.extract_bel(cell.bel(bslots::START), cell)
+        self.extract_bel(cell.bel(bslots::START))
             .name("START")
             .suffix("START");
 
@@ -35,7 +35,7 @@ impl ChipContext<'_> {
             self.insert_legacy_bel(bcrd, bel);
         }
 
-        self.extract_bel(cell.bel(bslots::OSC), cell)
+        self.extract_bel(cell.bel(bslots::OSC))
             .name("OSC")
             .suffix("OSC");
 
@@ -49,7 +49,7 @@ impl ChipContext<'_> {
             self.claim_pip(gsr, rstn);
             self.claim_pip(gsr, usr);
 
-            self.extract_bel(cell.bel(bslots::GSR), cell)
+            self.extract_bel(cell.bel(bslots::GSR))
                 .name("GSR")
                 .suffix("GSR")
                 .add_wire("RSTN", rstn)
@@ -74,14 +74,14 @@ impl ChipContext<'_> {
             self.claim_pip(tdo_mux, tdo_int);
             self.claim_pip(tdo_io, tdo_mux);
 
-            let mut bel = self.extract_bel(bcrd, cell_jtag);
+            let mut bel = self.extract_bel_cell(bcrd, cell_jtag);
             bel.names([name, "TDO"])
                 .suffix("JTAG")
                 .add_wire("TDO", tdo)
                 .add_wire("TDO_MUX", tdo_mux)
                 .add_wire("TDO_INT", tdo_int)
                 .add_wire("TDO_IO", tdo_io)
-                .xlat_input(bcls::JTAG::TDO, tdo_int);
+                .input_xlat_no_name(bcls::JTAG::TDO, tdo_int);
 
             for pin in [bcls::JTAG::TCK, bcls::JTAG::TMS, bcls::JTAG::TDI] {
                 let pname = bel.intdb[bcls::JTAG].outputs.key(pin).0;
@@ -91,7 +91,7 @@ impl ChipContext<'_> {
                     .ctx
                     .rc_corner_wire(cell_ne, &format!("J{pname}_{pname}"));
                 bel.ctx.claim_pip(wire, wire_io);
-                bel.xlat_output_filter(pin, wire_io);
+                bel.output_xlat_quiet_no_name(pin, wire_io);
             }
         }
 
@@ -277,8 +277,7 @@ impl ChipContext<'_> {
         let chip = self.chip;
         let cell = chip.special_loc[&SpecialLocKey::Config];
 
-        let bcrd = cell.bel(bslots::JTAG);
-        let mut bel = self.extract_bel(bcrd, cell);
+        let mut bel = self.extract_bel(cell.bel(bslots::JTAG));
         bel.names(["JTAG", "TCK", "TMS", "TDI", "TDO"])
             .suffix("JTAG");
         for pin in ["TCK", "TMS", "TDI", "TDO"] {
@@ -304,7 +303,7 @@ impl ChipContext<'_> {
         core::mem::drop(bel);
 
         {
-            let mut bel = self.extract_bel(cell.bel(bslots::START), cell);
+            let mut bel = self.extract_bel(cell.bel(bslots::START));
 
             if chip.kind == ChipKind::Ecp {
                 bel.name("START");
@@ -328,12 +327,12 @@ impl ChipContext<'_> {
         }
 
         if chip.kind == ChipKind::Ecp {
-            self.extract_bel(cell.bel(bslots::OSC), cell)
+            self.extract_bel(cell.bel(bslots::OSC))
                 .name("OSC")
                 .suffix("OSC");
         }
 
-        self.extract_bel(cell.bel(bslots::GSR), cell)
+        self.extract_bel(cell.bel(bslots::GSR))
             .name("GSR")
             .suffix("GSR");
     }
@@ -342,7 +341,7 @@ impl ChipContext<'_> {
         let chip = self.chip;
         let cell = chip.special_loc[&SpecialLocKey::Config];
 
-        let mut bel = self.extract_bel(cell.bel(bslots::JTAG), cell);
+        let mut bel = self.extract_bel(cell.bel(bslots::JTAG));
         bel.names(["JTAG", "TCK", "TMS", "TDI", "TDO"])
             .suffix("JTAG");
         for pin in ["TCK", "TMS", "TDI", "TDO"] {
@@ -372,14 +371,14 @@ impl ChipContext<'_> {
         let tsalli = self.rc_wire(tsall_cell, "JTSALLI_TSALL");
         let wire_io = self.get_special_io_wire_in(SpecialIoKey::TsAll);
         self.claim_pip(tsalli, wire_io);
-        self.extract_bel(cell.bel(bslots::TSALL), cell)
+        self.extract_bel(cell.bel(bslots::TSALL))
             .name("TSALL")
             .add_wire("TSALLI", tsalli);
 
         let gsrpadn = self.rc_wire(cell, "JGSRPADN_GSR");
         let wire_io = self.get_special_io_wire_in(SpecialIoKey::Gsr);
         self.claim_pip(gsrpadn, wire_io);
-        self.extract_bel(cell.bel(bslots::GSR), cell)
+        self.extract_bel(cell.bel(bslots::GSR))
             .name("GSR")
             .suffix("GSR")
             .add_wire("GSRPADN", gsrpadn);
@@ -387,7 +386,7 @@ impl ChipContext<'_> {
 
     fn process_osc_machxo(&mut self) {
         let cell = self.chip.special_loc[&SpecialLocKey::Osc];
-        self.extract_bel(cell.bel(bslots::OSC), cell)
+        self.extract_bel(cell.bel(bslots::OSC))
             .name("OSC")
             .suffix("OSC");
     }
@@ -396,8 +395,7 @@ impl ChipContext<'_> {
         let chip = self.chip;
         let cell = chip.special_loc[&SpecialLocKey::Config];
 
-        let bcrd = cell.bel(bslots::JTAG);
-        let mut bel = self.extract_bel(bcrd, cell);
+        let mut bel = self.extract_bel(cell.bel(bslots::JTAG));
         bel.names(["JTAG", "TCK", "TMS", "TDI", "TDO"])
             .suffix("JTAG");
         for pin in ["TCK", "TMS", "TDI", "TDO"] {
@@ -422,53 +420,53 @@ impl ChipContext<'_> {
         }
         core::mem::drop(bel);
 
-        self.extract_bel(cell.bel(bslots::START), cell)
+        self.extract_bel(cell.bel(bslots::START))
             .name("START")
             .suffix("START");
 
-        self.extract_bel(cell.bel(bslots::OSC), cell)
+        self.extract_bel(cell.bel(bslots::OSC))
             .name("OSC")
             .suffix("OSC");
 
-        self.extract_bel(cell.bel(bslots::GSR), cell)
+        self.extract_bel(cell.bel(bslots::GSR))
             .name("GSR")
             .suffix("GSR");
 
-        self.extract_bel(cell.bel(bslots::SED), cell)
+        self.extract_bel(cell.bel(bslots::SED))
             .name("SED")
             .suffix("SED");
 
-        self.extract_bel(cell.bel(bslots::SPIM), cell)
+        self.extract_bel(cell.bel(bslots::SPIM))
             .name("SPIM")
             .suffix("SPIM");
     }
 
     fn process_config_xp2(&mut self) {
         let cell = self.chip.special_loc[&SpecialLocKey::Osc];
-        self.extract_bel(cell.bel(bslots::OSC), cell.delta(0, 1))
+        self.extract_bel_cell(cell.bel(bslots::OSC), cell.delta(0, 1))
             .name("OSC")
             .suffix("OSC");
 
         let cell = self.chip.bel_dqsdll_ecp2(DirH::E).cell;
 
-        self.extract_bel(cell.bel(bslots::WAKEUP), cell)
+        self.extract_bel(cell.bel(bslots::WAKEUP))
             .name("WAKEUP")
             .suffix("WAKEUP");
 
-        self.extract_bel(cell.bel(bslots::GSR), cell)
+        self.extract_bel(cell.bel(bslots::GSR))
             .name("GSR")
             .suffix("GSR");
 
-        self.extract_bel(cell.bel(bslots::STF), cell)
+        self.extract_bel(cell.bel(bslots::STF))
             .name("STF")
             .suffix("STF");
 
-        self.extract_bel(cell.bel(bslots::START), cell)
+        self.extract_bel(cell.bel(bslots::START))
             .name("START")
             .suffix("START");
 
         {
-            let mut bel = self.extract_bel(cell.bel(bslots::SSPI), cell);
+            let mut bel = self.extract_bel(cell.bel(bslots::SSPI));
             bel.names(["SSPICIB", "SSPIPIN"]).suffix("SSPICIB");
             for (pin, key) in [
                 ("CLK", SpecialIoKey::Cclk),
@@ -490,11 +488,11 @@ impl ChipContext<'_> {
 
         let cell_cfg = self.chip.special_loc[&SpecialLocKey::Config];
 
-        self.extract_bel(cell_cfg.bel(bslots::SED), cell)
+        self.extract_bel_cell(cell_cfg.bel(bslots::SED), cell)
             .name("SED")
             .suffix("SED");
 
-        let mut bel = self.extract_bel(cell_cfg.bel(bslots::JTAG), cell);
+        let mut bel = self.extract_bel_cell(cell_cfg.bel(bslots::JTAG), cell);
         bel.names(["JTAG", "TCK", "TMS", "TDI", "TDO"])
             .suffix("JTAG");
         for pin in ["TCK", "TMS", "TDI", "TDO"] {
@@ -513,7 +511,7 @@ impl ChipContext<'_> {
     fn process_config_ecp3(&mut self) {
         let cell = self.chip.special_loc[&SpecialLocKey::Config];
 
-        let mut bel = self.extract_bel(cell.bel(bslots::JTAG), cell.delta(3, 0));
+        let mut bel = self.extract_bel_cell(cell.bel(bslots::JTAG), cell.delta(3, 0));
         bel.names(["JTAG", "TCK", "TMS", "TDI", "TDO"])
             .suffix("JTAG");
         for pin in ["TCK", "TMS", "TDI", "TDO"] {
@@ -539,19 +537,19 @@ impl ChipContext<'_> {
         }
         core::mem::drop(bel);
 
-        self.extract_bel(cell.bel(bslots::START), cell.delta(3, 0))
+        self.extract_bel_cell(cell.bel(bslots::START), cell.delta(3, 0))
             .name("START")
             .suffix("START");
 
-        self.extract_bel(cell.bel(bslots::OSC), cell.delta(3, 0))
+        self.extract_bel_cell(cell.bel(bslots::OSC), cell.delta(3, 0))
             .name("OSC")
             .suffix("OSC");
 
-        self.extract_bel(cell.bel(bslots::GSR), cell.delta(3, 0))
+        self.extract_bel_cell(cell.bel(bslots::GSR), cell.delta(3, 0))
             .name("GSR")
             .suffix("GSR");
 
-        self.extract_bel(cell.bel(bslots::SED), cell.delta(4, 0))
+        self.extract_bel_cell(cell.bel(bslots::SED), cell.delta(4, 0))
             .name("SED")
             .suffix("SED");
 
@@ -593,7 +591,7 @@ impl ChipContext<'_> {
     fn process_config_machxo2(&mut self) {
         let cell = self.chip.special_loc[&SpecialLocKey::Config];
 
-        let mut bel = self.extract_bel(cell.bel(bslots::JTAG), cell);
+        let mut bel = self.extract_bel(cell.bel(bslots::JTAG));
         bel.name("JTAG").suffix("JTAG");
         for (pin, key) in [
             ("TCK", SpecialIoKey::Tck),
@@ -623,13 +621,13 @@ impl ChipContext<'_> {
         core::mem::drop(bel);
 
         let bcrd_osc = cell.bel(bslots::OSC);
-        self.extract_bel(bcrd_osc, cell).name("OSC").suffix("OSC");
+        self.extract_bel(bcrd_osc).name("OSC").suffix("OSC");
 
-        self.extract_bel(cell.bel(bslots::START), cell)
+        self.extract_bel(cell.bel(bslots::START))
             .name("START")
             .suffix("START");
 
-        self.extract_bel(cell.bel(bslots::GSR), cell)
+        self.extract_bel(cell.bel(bslots::GSR))
             .name("GSR")
             .suffix("GSR");
 
@@ -823,12 +821,12 @@ impl ChipContext<'_> {
         self.claim_pip(clk_osc, wire_osc);
         self.insert_legacy_bel(bcrd, bel);
 
-        self.extract_bel(cell.bel(bslots::TSALL), cell)
+        self.extract_bel(cell.bel(bslots::TSALL))
             .name("TSALL")
             .suffix("TSALL");
 
         let bcrd_sed = cell.bel(bslots::SED);
-        self.extract_bel(bcrd_sed, cell).name("SED").suffix("SED");
+        self.extract_bel(bcrd_sed).name("SED").suffix("SED");
 
         let wire_osc = self.rc_wire(bcrd_osc.cell, "SEDSTDBY_OSC");
         self.add_bel_wire(bcrd_osc, "SEDSTDBY", wire_osc);
@@ -859,7 +857,7 @@ impl ChipContext<'_> {
     fn process_config_ecp4(&mut self) {
         let cell = self.chip.special_loc[&SpecialLocKey::Config];
 
-        let mut bel = self.extract_bel(cell.bel(bslots::JTAG), cell);
+        let mut bel = self.extract_bel(cell.bel(bslots::JTAG));
         bel.names(["JTAG", "TCK", "TMS", "TDI", "TDO"])
             .suffix("JTAG");
         for pin in ["TCK", "TMS", "TDI", "TDO"] {
@@ -885,13 +883,13 @@ impl ChipContext<'_> {
         core::mem::drop(bel);
 
         let bcrd_osc = cell.bel(bslots::OSC);
-        self.extract_bel(bcrd_osc, cell).name("OSC").suffix("OSC");
+        self.extract_bel(bcrd_osc).name("OSC").suffix("OSC");
 
-        self.extract_bel(cell.bel(bslots::START), cell)
+        self.extract_bel(cell.bel(bslots::START))
             .name("START")
             .suffix("START");
 
-        self.extract_bel(cell.bel(bslots::GSR), cell)
+        self.extract_bel(cell.bel(bslots::GSR))
             .name("GSR")
             .suffix("GSR");
 
@@ -1026,7 +1024,7 @@ impl ChipContext<'_> {
         self.insert_legacy_bel(bcrd, bel);
 
         let bcrd_sed = cell.bel(bslots::SED);
-        self.extract_bel(bcrd_sed, cell).name("SED").suffix("SED");
+        self.extract_bel(bcrd_sed).name("SED").suffix("SED");
 
         let wire_osc = self.rc_wire(bcrd_osc.cell, "SEDSTDBY_OSC");
         self.add_bel_wire(bcrd_osc, "SEDSTDBY", wire_osc);
@@ -1040,7 +1038,7 @@ impl ChipContext<'_> {
     fn process_config_ecp5(&mut self) {
         let cell = self.chip.special_loc[&SpecialLocKey::Config];
 
-        let mut bel = self.extract_bel(cell.bel(bslots::JTAG), cell);
+        let mut bel = self.extract_bel(cell.bel(bslots::JTAG));
         bel.names(["JTAG", "TCK", "TMS", "TDI", "TDO"])
             .suffix("JTAG");
         for pin in ["TCK", "TMS", "TDI", "TDO"] {
@@ -1066,22 +1064,22 @@ impl ChipContext<'_> {
         core::mem::drop(bel);
 
         let bcrd_osc = cell.bel(bslots::OSC);
-        self.extract_bel(bcrd_osc, cell).name("OSC").suffix("OSC");
+        self.extract_bel(bcrd_osc).name("OSC").suffix("OSC");
 
-        self.extract_bel(cell.bel(bslots::START), cell)
+        self.extract_bel(cell.bel(bslots::START))
             .name("START")
             .suffix("START");
 
-        self.extract_bel(cell.bel(bslots::GSR), cell)
+        self.extract_bel(cell.bel(bslots::GSR))
             .name("GSR")
             .suffix("GSR");
 
-        self.extract_bel(cell.bel(bslots::CCLK), cell.with_col(self.chip.col_w()))
+        self.extract_bel_cell(cell.bel(bslots::CCLK), cell.with_col(self.chip.col_w()))
             .name("CCLK")
             .suffix("CCLK");
 
         let bcrd_sed = cell.bel(bslots::SED);
-        self.extract_bel(bcrd_sed, cell).name("SED").suffix("SED");
+        self.extract_bel(bcrd_sed).name("SED").suffix("SED");
 
         let wire_osc = self.rc_wire(cell, "SEDSTDBY_OSC");
         self.add_bel_wire(bcrd_osc, "SEDSTDBY", wire_osc);
@@ -1136,7 +1134,7 @@ impl ChipContext<'_> {
 
         {
             let cell = self.chip.special_loc[&SpecialLocKey::Osc];
-            self.extract_bel(cell.bel(bslots::OSC), cell)
+            self.extract_bel(cell.bel(bslots::OSC))
                 .name("OSC")
                 .suffix("OSC");
         }
@@ -1175,7 +1173,7 @@ impl ChipContext<'_> {
         {
             let cell = self.chip.special_loc[&SpecialLocKey::Config];
 
-            self.extract_bel(cell.bel(bslots::GSR), cell)
+            self.extract_bel(cell.bel(bslots::GSR))
                 .name("GSR")
                 .suffix("GSR");
 

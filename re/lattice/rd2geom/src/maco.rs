@@ -1,7 +1,7 @@
 use std::collections::{BTreeMap, BTreeSet, btree_map};
 
 use prjcombine_ecp::{
-    chip::{ChipKind, RowKind},
+    chip::{Chip, ChipKind, RowKind},
     defs::{bslots, ccls, cslots, tcls, wiredata, wires},
 };
 use prjcombine_entity::{EntityId, EntityPartVec};
@@ -11,7 +11,6 @@ use prjcombine_interconnect::{
         WireSlotIdExt,
     },
     dir::{DirH, DirV},
-    grid::DieId,
 };
 
 use crate::ChipContext;
@@ -25,7 +24,7 @@ impl ChipContext<'_> {
             if row == self.chip.row_n() - 12 {
                 continue;
             }
-            for cell in self.edev.row(DieId::from_idx(0), row) {
+            for cell in self.edev.row(Chip::DIE, row) {
                 if cell.col < self.chip.col_w() + 4 {
                     continue;
                 }
@@ -228,7 +227,7 @@ impl ChipContext<'_> {
                         .cell(15 - i);
                         bel.pins
                             .insert(format!("EBRO{i}{j:02}"), BelPin::new_out(int_wire));
-                        let wire_ebr = self.ebr_wires[&self.edev.tile_wire(tcrd, int_wire)];
+                        let wire_ebr = self.ebr_wires[&self.edev.bel_wire(bcrd, int_wire)];
                         self.claim_pip(wire_ebr, wire_out_out);
                     }
                     for j in 0..48 {
@@ -245,7 +244,7 @@ impl ChipContext<'_> {
                         .cell(6 + i);
                         bel.pins
                             .insert(format!("EBRI{i}{j:02}"), BelPin::new_in(int_wire));
-                        match self.ebr_wires.entry(self.edev.tile_wire(tcrd, int_wire)) {
+                        match self.ebr_wires.entry(self.edev.bel_wire(bcrd, int_wire)) {
                             btree_map::Entry::Vacant(e) => {
                                 e.insert(wire_ebr);
                             }
@@ -312,7 +311,7 @@ impl ChipContext<'_> {
                             });
                             let wire_out = self
                                 .io_int_names
-                                .get(&self.edev.tile_wire(tcrd, twire_out))
+                                .get(&self.edev.bel_wire(bcrd, twire_out))
                                 .copied();
                             if let Some(wire_out) = wire_out {
                                 self.add_bel_wire_no_claim(
@@ -332,7 +331,7 @@ impl ChipContext<'_> {
                             });
                             let wire_in = self
                                 .io_int_names
-                                .get(&self.edev.tile_wire(tcrd, twire_in))
+                                .get(&self.edev.bel_wire(bcrd, twire_in))
                                 .copied();
                             if let Some(wire_in) = wire_in {
                                 self.add_bel_wire_no_claim(
@@ -409,7 +408,7 @@ impl ChipContext<'_> {
                         DirV::S => 4,
                         DirV::N => 5,
                     });
-                    let wire_out = self.io_int_names[&self.edev.tile_wire(tcrd, twire_out)];
+                    let wire_out = self.io_int_names[&self.edev.bel_wire(bcrd, twire_out)];
                     self.add_bel_wire_no_claim(
                         bcrd_int,
                         twire_out.to_string(self.intdb, tcls),
@@ -420,7 +419,7 @@ impl ChipContext<'_> {
                         DirV::S => 5,
                         DirV::N => 4,
                     });
-                    let wire_in = self.io_int_names[&self.edev.tile_wire(tcrd, twire_in)];
+                    let wire_in = self.io_int_names[&self.edev.bel_wire(bcrd, twire_in)];
                     self.add_bel_wire_no_claim(
                         bcrd_int,
                         twire_in.to_string(self.intdb, tcls),

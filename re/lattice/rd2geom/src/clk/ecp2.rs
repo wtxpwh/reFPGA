@@ -2,18 +2,19 @@ use std::collections::BTreeMap;
 
 use prjcombine_ecp::{
     chip::{Chip, ChipKind, RowKind, SpecialIoKey, SpecialLocKey},
-    defs::{bcls, bslots, tcls, wires},
+    defs::{bslots, tcls, wires},
 };
 use prjcombine_interconnect::{
     db::{BelPin, LegacyBel, WireSlotIdExt},
     dir::{Dir, DirH, DirHV, DirV},
-    grid::DieIdExt,
+    grid::{DieIdExt, WireCoord},
 };
+use prjcombine_re_lattice_naming::WireName;
 
 use crate::ChipContext;
 
 impl ChipContext<'_> {
-    pub(super) fn process_clk_ecp2(&mut self) {
+    pub(super) fn process_sclk_root_ecp2(&mut self) -> BTreeMap<WireCoord, WireName> {
         let mut sdclk_root_out = BTreeMap::new();
         let mut prev_row = BTreeMap::new();
         let mut prev = self.chip.row_s();
@@ -23,51 +24,46 @@ impl ChipContext<'_> {
                 prev = row;
                 let bcrd = Chip::DIE
                     .cell(self.chip.col_clk, row)
-                    .bel(bslots::HSDCLK_ROOT);
-                self.name_bel_null(bcrd);
-                for h in [DirH::W, DirH::E] {
+                    .bel(bslots::HSDCLK_SPLITTER);
+                for (h, ci_base) in [(DirH::W, 0), (DirH::E, 4)] {
                     for i in 0..8 {
-                        let wire = self.edev.get_bel_output(
-                            bcrd,
-                            match h {
-                                DirH::W => bcls::HSDCLK_ROOT::OUT_W[i],
-                                DirH::E => bcls::HSDCLK_ROOT::OUT_E[i],
-                            },
-                        )[0];
-                        let wire = self.naming.interconnect[&wire];
-                        let wire_out = self.pips_bwd[&wire]
+                        let wire = wires::RSCLK_H[i / 4 * 4].cell(ci_base + i % 4);
+                        let wire = self.edev.bel_wire(bcrd, wire);
+                        let wname = self.naming.interconnect[&wire];
+                        let wname_out = self.pips_bwd[&wname]
                             .iter()
                             .copied()
                             .find(|wn| self.naming.strings[wn.suffix].starts_with("VSC"))
                             .unwrap();
-                        sdclk_root_out.insert((row, h, i), wire_out);
-                        self.add_bel_wire(bcrd, format!("OUT_{h}{i}"), wire_out);
-                        self.claim_pip(wire, wire_out);
+                        sdclk_root_out.insert((row, h, i), wname_out);
+                        self.add_sb_wire(bcrd, wires::SCLK_ROOT[i].cell(ci_base), wname_out);
+                        self.claim_pip(wname, wname_out);
                     }
                 }
             }
         }
 
-        let bcrd = self.chip.bel_clk_root();
-        let tcrd = self.edev.bel_tile(bcrd);
-        let cell = Chip::DIE.cell(self.chip.col_clk - 1, self.chip.row_clk);
-        self.name_bel_null(bcrd);
-
-        let mut bel = LegacyBel::default();
-
-        let mut sdclk_root = BTreeMap::new();
+        let mut sclk_root = BTreeMap::new();
         for h in [DirH::W, DirH::E] {
+            let col = self.chip.col_edge(h);
             for i in 0..8 {
                 let wire = sdclk_root_out[&(self.chip.row_clk, h, i)];
-                let hv = DirHV { h, v: DirV::N };
-                sdclk_root.insert((hv, i), wire);
-                self.add_bel_wire_no_claim(bcrd, format!("SDCLK_ROOT_{hv}{i}"), wire);
+                sclk_root.insert(
+                    Chip::DIE
+                        .cell(col, self.chip.row_n())
+                        .wire(wires::SCLK_ROOT[i]),
+                    wire,
+                );
 
                 let wire = sdclk_root_out[&(prev_row[&self.chip.row_clk], h, i)];
-                let hv = DirHV { h, v: DirV::S };
                 let wire = self.find_single_in(wire);
-                self.add_bel_wire(bcrd, format!("SDCLK_ROOT_{hv}{i}"), wire);
-                sdclk_root.insert((hv, i), wire);
+                self.claim_node(wire);
+                sclk_root.insert(
+                    Chip::DIE
+                        .cell(col, self.chip.row_s())
+                        .wire(wires::SCLK_ROOT[i]),
+                    wire,
+                );
             }
         }
 
@@ -82,13 +78,34 @@ impl ChipContext<'_> {
                         if row < self.chip.row_clk {
                             self.claim_pip(wire_s, wire_n);
                         } else if row == self.chip.row_clk {
-                            let wire_n = sdclk_root[&(DirHV { h, v: DirV::S }, i)];
+                            let wire_n = sclk_root[&Chip::DIE
+                                .cell(self.chip.col_edge(h), self.chip.row_s())
+                                .wire(wires::SCLK_ROOT[i])];
                             self.claim_pip(wire_s, wire_n);
                         } else {
                             self.claim_pip(wire_n, wire_s);
                         }
                     }
                 }
+            }
+        }
+
+        sclk_root
+    }
+
+    pub(super) fn process_clk_ecp2(&mut self, sclk_root: BTreeMap<WireCoord, WireName>) {
+        let bcrd = self.chip.bel_clk_root();
+        let tcrd = self.edev.bel_tile(bcrd);
+        let cell = Chip::DIE.cell(self.chip.col_clk - 1, self.chip.row_clk);
+        self.name_bel_null(bcrd);
+
+        let mut bel = LegacyBel::default();
+
+        for hv in DirHV::DIRS {
+            let root = Chip::DIE.cell(self.chip.col_edge(hv.h), self.chip.row_edge(hv.v));
+            for i in 0..8 {
+                let wire = sclk_root[&root.wire(wires::SCLK_ROOT[i])];
+                self.add_bel_wire_no_claim(bcrd, format!("SCLK_ROOT_{hv}{i}"), wire);
             }
         }
 
@@ -405,7 +422,7 @@ impl ChipContext<'_> {
                 let wire = wires::PCLK[i].cell(cell_idx);
                 bel.pins
                     .insert(format!("PCLK{i}_{hv}"), BelPin::new_in(wire));
-                let wire = self.edev.tile_wire(tcrd, wire);
+                let wire = self.edev.bel_wire(bcrd, wire);
                 let wire = self.naming.interconnect[&wire];
                 let wire_out = self.find_single_in(wire);
                 self.add_bel_wire(bcrd, format!("PCLK{i}_{hv}"), wire_out);
@@ -467,7 +484,8 @@ impl ChipContext<'_> {
 
             let sel = self.rc_wire(cell, &format!("{ll}SEL{i}_DCS"));
             self.add_bel_wire(bcrd, "SEL", sel);
-            self.claim_pip(sel, sdclk_root[&(hv, [3, 7][i])]);
+            let root = Chip::DIE.cell(self.chip.col_edge(hv.h), self.chip.row_edge(hv.v));
+            self.claim_pip(sel, sclk_root[&root.wire(wires::SCLK_ROOT[[3, 7][i]])]);
 
             let out = self.rc_wire(cell, &format!("{ll}DCSOUT{i}_DCS"));
             self.add_bel_wire(bcrd, "OUT", out);
@@ -567,8 +585,9 @@ impl ChipContext<'_> {
         }
 
         for hv in DirHV::DIRS {
+            let root = Chip::DIE.cell(self.chip.col_edge(hv.h), self.chip.row_edge(hv.v));
             for i in 0..8 {
-                let sdclk_out = sdclk_root[&(hv, i)];
+                let sdclk_out = sclk_root[&root.wire(wires::SCLK_ROOT[i])];
                 let (edge, idx) = [
                     (Dir::W, 0),
                     (Dir::W, 1),

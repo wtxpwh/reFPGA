@@ -8,7 +8,7 @@ use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
     db::{BelPin, LegacyBel, WireSlotIdExt},
     dir::{Dir, DirH, DirHV, DirV},
-    grid::{ColId, DieId, DieIdExt},
+    grid::{ColId, DieIdExt},
 };
 use prjcombine_re_lattice_naming::WireName;
 
@@ -646,7 +646,7 @@ impl ChipContext<'_> {
             let mut vptx_wires_s: BTreeMap<(ColId, usize), WireName> = BTreeMap::new();
             let mut vptx_wires_ss: BTreeMap<(ColId, usize), WireName> = BTreeMap::new();
             let mut col_hpsx = self.chip.col_w();
-            for cell in self.edev.row(DieId::from_idx(0), row) {
+            for cell in self.edev.row(Chip::DIE, row) {
                 if self.chip.columns[cell.col].sdclk_break {
                     col_hpsx = cell.col;
                 }
@@ -824,7 +824,7 @@ impl ChipContext<'_> {
             }
 
             let mut col_hpsx = self.chip.col_w();
-            for cell in self.edev.row(DieId::from_idx(0), row) {
+            for cell in self.edev.row(Chip::DIE, row) {
                 if self.chip.columns[cell.col].sdclk_break {
                     col_hpsx = cell.col;
                 }

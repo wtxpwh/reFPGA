@@ -86,9 +86,7 @@ impl<'b> FuzzerProp<'b, IseBackend<'b>> for VirtexPinBramLv {
         tcrd: TileCoord,
         mut fuzzer: Fuzzer<IseBackend<'a>>,
     ) -> Option<(Fuzzer<IseBackend<'a>>, bool)> {
-        let wire = backend
-            .edev
-            .resolve_wire(backend.edev.tile_wire(tcrd, self.0))?;
+        let wire = backend.edev.resolve_tile_wire(tcrd, self.0)?;
         let mut tcrd = tcrd;
         tcrd.row = RowId::from_idx(1);
         tcrd.slot = defs::tslots::MAIN;
@@ -122,9 +120,7 @@ impl<'b> FuzzerProp<'b, IseBackend<'b>> for VirtexPinLh {
         tcrd: TileCoord,
         mut fuzzer: Fuzzer<IseBackend<'a>>,
     ) -> Option<(Fuzzer<IseBackend<'a>>, bool)> {
-        let resolved_wire = backend
-            .edev
-            .resolve_wire(backend.edev.tile_wire(tcrd, self.0))?;
+        let resolved_wire = backend.edev.resolve_tile_wire(tcrd, self.0)?;
         let tcrd = backend
             .edev
             .tile_cell(tcrd, self.0.cell)
@@ -164,9 +160,7 @@ impl<'b> FuzzerProp<'b, IseBackend<'b>> for VirtexPinIoLh {
         tcrd: TileCoord,
         fuzzer: Fuzzer<IseBackend<'a>>,
     ) -> Option<(Fuzzer<IseBackend<'a>>, bool)> {
-        let resolved_wire = backend
-            .edev
-            .resolve_wire(backend.edev.tile_wire(tcrd, self.0))?;
+        let resolved_wire = backend.edev.resolve_tile_wire(tcrd, self.0)?;
         let mut tcrd = resolved_wire
             .with_col(ColId::from_idx(0))
             .tile(defs::tslots::MAIN);
@@ -201,9 +195,7 @@ impl<'b> FuzzerProp<'b, IseBackend<'b>> for VirtexPinHexH {
         tcrd: TileCoord,
         mut fuzzer: Fuzzer<IseBackend<'a>>,
     ) -> Option<(Fuzzer<IseBackend<'a>>, bool)> {
-        let resolved_wire = backend
-            .edev
-            .resolve_wire(backend.edev.tile_wire(tcrd, self.0))?;
+        let resolved_wire = backend.edev.resolve_tile_wire(tcrd, self.0)?;
         let wire_name = backend.edev.db[self.0.wire].name.as_str();
         let h = wire_name[4..5].chars().next().unwrap();
         let i: usize = wire_name[7..8].parse().unwrap();
@@ -277,9 +269,7 @@ impl<'b> FuzzerProp<'b, IseBackend<'b>> for VirtexPinHexV {
         tcrd: TileCoord,
         mut fuzzer: Fuzzer<IseBackend<'a>>,
     ) -> Option<(Fuzzer<IseBackend<'a>>, bool)> {
-        let resolved_wire = backend
-            .edev
-            .resolve_wire(backend.edev.tile_wire(tcrd, self.0))?;
+        let resolved_wire = backend.edev.resolve_tile_wire(tcrd, self.0)?;
         let wire_name = backend.edev.db[self.0.wire].name.as_str();
         let v = wire_name[4..5].chars().next().unwrap();
         let i: usize = wire_name[7..8].parse().unwrap();
@@ -346,9 +336,7 @@ impl<'b> FuzzerProp<'b, IseBackend<'b>> for VirtexDriveHexH {
         tcrd: TileCoord,
         mut fuzzer: Fuzzer<IseBackend<'a>>,
     ) -> Option<(Fuzzer<IseBackend<'a>>, bool)> {
-        let resolved_wire = backend
-            .edev
-            .resolve_wire(backend.edev.tile_wire(tcrd, self.0))?;
+        let resolved_wire = backend.edev.resolve_tile_wire(tcrd, self.0)?;
         let wire_name = backend.edev.db[self.0.wire].name.as_str();
         let h = wire_name[4..5].chars().next().unwrap();
         let i: usize = wire_name[7..8].parse().unwrap();
@@ -417,9 +405,7 @@ impl<'b> FuzzerProp<'b, IseBackend<'b>> for VirtexDriveHexV {
         tcrd: TileCoord,
         mut fuzzer: Fuzzer<IseBackend<'a>>,
     ) -> Option<(Fuzzer<IseBackend<'a>>, bool)> {
-        let resolved_wire = backend
-            .edev
-            .resolve_wire(backend.edev.tile_wire(tcrd, self.0))?;
+        let resolved_wire = backend.edev.resolve_tile_wire(tcrd, self.0)?;
         let wire_name = backend.edev.db[self.0.wire].name.as_str();
         let v = wire_name[4..5].chars().next().unwrap();
         let i: usize = wire_name[7..8].parse().unwrap();

@@ -665,8 +665,7 @@ impl ChipContext<'_> {
             for w in [wires::IO_T_W, wires::IO_T_E] {
                 let wire = w.cell(0);
                 bpin.wires.insert(wire);
-                let tcrd = self.edev.bel_tile(bcrd);
-                let wire = self.io_int_names[&self.edev.tile_wire(tcrd, wire)];
+                let wire = self.io_int_names[&self.edev.bel_wire(bcrd, wire)];
                 self.claim_pip(td_int, wire);
             }
         }

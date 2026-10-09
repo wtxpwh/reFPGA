@@ -74,13 +74,10 @@ impl ChipContext<'_> {
             }
             ChipKind::Ecp | ChipKind::Xp => self.process_clk_ecp(),
             ChipKind::MachXo => self.process_clk_machxo(),
-            ChipKind::Ecp2 | ChipKind::Ecp2M => {
+            ChipKind::Ecp2 | ChipKind::Ecp2M | ChipKind::Xp2 => {
                 self.process_hsdclk_splitter();
-                self.process_clk_ecp2();
-            }
-            ChipKind::Xp2 => {
-                self.process_hsdclk_splitter();
-                self.process_clk_ecp2();
+                let sclk_root = self.process_sclk_root_ecp2();
+                self.process_clk_ecp2(sclk_root);
             }
             ChipKind::Ecp3 | ChipKind::Ecp3A => {
                 self.process_hsdclk_splitter();

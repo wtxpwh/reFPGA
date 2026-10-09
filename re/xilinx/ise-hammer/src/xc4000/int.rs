@@ -44,12 +44,8 @@ pub fn resolve_int_pip_no_alt<'a>(
     let ntile = &backend.ngrid.tiles[&tcrd];
     let ndb = backend.ngrid.db;
     let tile_naming = &ndb.tile_class_namings[ntile.naming];
-    backend
-        .edev
-        .resolve_wire(backend.edev.tile_wire(tcrd, wire_to))?;
-    backend
-        .edev
-        .resolve_wire(backend.edev.tile_wire(tcrd, wire_from))?;
+    backend.edev.resolve_tile_wire(tcrd, wire_to)?;
+    backend.edev.resolve_tile_wire(tcrd, wire_from)?;
     Some(
         if let Some(ext) = tile_naming.ext_pips.get(&(wire_to, wire_from)) {
             (&ntile.names[ext.tile], &ext.wire_to, &ext.wire_from)
@@ -565,10 +561,7 @@ fn drive_xc4000_wire<'a>(
             cell: twt,
             wire: wt,
         };
-        let res = backend
-            .edev
-            .resolve_wire(backend.edev.tile_wire(tcrd, mwt))
-            .unwrap();
+        let res = backend.edev.resolve_tile_wire(tcrd, mwt).unwrap();
         assert_eq!(res, wire_target);
         let mut ins = backend.edev.db_index[tile.class].pips_bwd[&mwt].clone();
         if backend.edev.db[tile.class].bels.contains_id(bslots::IO[0])
@@ -594,10 +587,7 @@ fn drive_xc4000_wire<'a>(
                     continue;
                 }
             }
-            let nwt = backend
-                .edev
-                .resolve_wire(backend.edev.tile_wire(tcrd, mwf.tw))
-                .unwrap();
+            let nwt = backend.edev.resolve_tile_wire(tcrd, mwf.tw).unwrap();
             if nwt == wire_avoid {
                 continue;
             }
@@ -623,10 +613,7 @@ fn drive_xc4000_wire<'a>(
             if !wfname.starts_with("SINGLE") {
                 continue;
             }
-            let nwt = backend
-                .edev
-                .resolve_wire(backend.edev.tile_wire(tcrd, mwf.tw))
-                .unwrap();
+            let nwt = backend.edev.resolve_tile_wire(tcrd, mwf.tw).unwrap();
             let (fuzzer, site_name, pin_name) =
                 drive_xc4000_wire(backend, fuzzer, nwt, None, wire_avoid);
             let (tile, wt, wf) = resolve_int_pip_no_alt(backend, tcrd, mwt, mwf.tw).unwrap();
@@ -672,16 +659,10 @@ impl<'b> FuzzerProp<'b, IseBackend<'b>> for Xc4000DoublePip {
     ) -> Option<(Fuzzer<IseBackend<'a>>, bool)> {
         let res_from = backend
             .edev
-            .resolve_wire(backend.edev.tile_wire(tcrd, self.wire_from))
+            .resolve_tile_wire(tcrd, self.wire_from)
             .unwrap();
-        let res_mid = backend
-            .edev
-            .resolve_wire(backend.edev.tile_wire(tcrd, self.wire_mid))
-            .unwrap();
-        let res_to = backend
-            .edev
-            .resolve_wire(backend.edev.tile_wire(tcrd, self.wire_to))
-            .unwrap();
+        let res_mid = backend.edev.resolve_tile_wire(tcrd, self.wire_mid).unwrap();
+        let res_to = backend.edev.resolve_tile_wire(tcrd, self.wire_to).unwrap();
         let fuzzer = fuzzer
             .fuzz(Key::WireMutex(res_to), None, "EXCLUSIVE-TGT")
             .fuzz(Key::WireMutex(res_mid), None, "EXCLUSIVE-MID");
@@ -737,12 +718,9 @@ impl<'b> FuzzerProp<'b, IseBackend<'b>> for Xc4000BiPip {
     ) -> Option<(Fuzzer<IseBackend<'a>>, bool)> {
         let res_from = backend
             .edev
-            .resolve_wire(backend.edev.tile_wire(tcrd, self.wire_from))
+            .resolve_tile_wire(tcrd, self.wire_from)
             .unwrap();
-        let res_to = backend
-            .edev
-            .resolve_wire(backend.edev.tile_wire(tcrd, self.wire_to))
-            .unwrap();
+        let res_to = backend.edev.resolve_tile_wire(tcrd, self.wire_to).unwrap();
         let fuzzer = fuzzer.fuzz(Key::WireMutex(res_to), None, "EXCLUSIVE-TGT");
         let (fuzzer, src_site, src_pin) = drive_xc4000_wire(
             backend,
@@ -826,12 +804,8 @@ impl<'b> FuzzerProp<'b, IseBackend<'b>> for Xc4000SimplePip {
         tcrd: TileCoord,
         fuzzer: Fuzzer<IseBackend<'a>>,
     ) -> Option<(Fuzzer<IseBackend<'a>>, bool)> {
-        backend
-            .edev
-            .resolve_wire(backend.edev.tile_wire(tcrd, self.wire_from))?;
-        backend
-            .edev
-            .resolve_wire(backend.edev.tile_wire(tcrd, self.wire_to))?;
+        backend.edev.resolve_tile_wire(tcrd, self.wire_from)?;
+        backend.edev.resolve_tile_wire(tcrd, self.wire_to)?;
         let ntile = &backend.ngrid.tiles[&tcrd];
         let ntcls = &backend.ngrid.db.tile_class_namings[ntile.naming];
         let (tile, wt, wf) = resolve_int_pip_no_alt(backend, tcrd, self.wire_to, self.wire_from)?;

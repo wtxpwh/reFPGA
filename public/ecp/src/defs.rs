@@ -490,7 +490,7 @@ target_defs! {
     }
 
     // TODO: convert to routing
-    if variant [ecp2, ecp2m, xp2, ecp3, machxo2] {
+    if variant [ecp3, machxo2] {
         bel_class HSDCLK_ROOT {
             output OUT_W[8];
             output OUT_E[8];
@@ -586,6 +586,7 @@ target_defs! {
         // per quadrant
         region_slot PCLK;
         wire PCLK[8]: regional PCLK;
+        wire SCLK_ROOT[8]: regional PCLK;
     } else if variant [ecp3, machxo2] {
         // Rotating primary clocks.
         region_slot RPCLK[4];
@@ -650,6 +651,11 @@ target_defs! {
             3 => multi_root,
             4..7 => multi_branch W,
         }
+    }
+
+    if variant [ecp, xp, ecp2, ecp2m, xp2] {
+        wire IMUX_DCS_CLKA[2]: mux;
+        wire IMUX_DCS_CLKB[2]: mux;
     }
 
     // Edge clocks.
@@ -1863,45 +1869,45 @@ target_defs! {
                 switchbox CLK_INT;
             }
         } else if variant [ecp, xp, ecp2, ecp2m, xp2] {
-            bel_slot CLK_ROOT: legacy;
-            bel_slot DCS_SW[2]: legacy;
-            bel_slot DCS_SE[2]: legacy;
-            bel_slot DCS_NW[2]: legacy;
-            bel_slot DCS_NE[2]: legacy;
-            if variant ecp {
-                tile_class CLK_ROOT_2PLL, CLK_ROOT_4PLL {
+            if variant [ecp, xp] {
+                bel_slot DCS_SW[2]: DCS;
+                bel_slot DCS_SE[2]: DCS;
+                bel_slot DCS_NW[2]: DCS;
+                bel_slot DCS_NE[2]: DCS;
+                tile_class CLK_ROOT_2PLL, CLK_ROOT_2PLL_A, CLK_ROOT_2PLL_B, CLK_ROOT_4PLL {
+                    if variant ecp {
+                        if tile_class [CLK_ROOT_2PLL_A, CLK_ROOT_2PLL_B] {
+                            skip;
+                        }
+                    } else {
+                        if tile_class CLK_ROOT_2PLL {
+                            skip;
+                        }
+                    }
+
                     // actual clock root cells
                     cell ROOT_SW, ROOT_SE, ROOT_NW, ROOT_NE;
-                    if tile_class CLK_ROOT_2PLL {
-                        // DCS select inputs
-                        cell DCS_SEL[2];
-                        // fabric clock inputs
-                        cell FABRIC_IN[16];
-                    } else {
-                        cell DCS_SEL[8];
-                        cell FABRIC_IN[20];
-                    }
-                    bel CLK_ROOT;
-                    for i in 0..2 {
-                        bel DCS_SW[i];
-                        bel DCS_SE[i];
-                        bel DCS_NW[i];
-                        bel DCS_NE[i];
-                    }
-                }
-            } else if variant xp {
-                tile_class CLK_ROOT_2PLL_A, CLK_ROOT_2PLL_B, CLK_ROOT_4PLL {
-                    // actual clock root cells
-                    cell ROOT_SW, ROOT_SE, ROOT_NW, ROOT_NE;
-                    // DCS select inputs
-                    if tile_class [CLK_ROOT_2PLL_A, CLK_ROOT_2PLL_B] {
-                        cell DCS_SEL[4];
-                    } else {
-                        cell DCS_SEL[8];
-                    }
                     // fabric clock inputs
-                    cell FABRIC_IN[20];
-                    bel CLK_ROOT;
+                    cell PCLK_IN_W, PCLK_IN_E, PCLK_IN_S, PCLK_IN_N;
+                    cell SCLK_IN_W[4], SCLK_IN_E[4], SCLK_IN_S[4], SCLK_IN_N[4];
+                    // I/O inputs
+                    cell IO_IN_W, IO_IN_E, IO_IN_S, IO_IN_N;
+                    if variant ecp {
+                        if tile_class CLK_ROOT_2PLL {
+                            cell PLL_SW, PLL_SE;
+                        } else {
+                            cell PLL_SW, PLL_SE, PLL_NW, PLL_NE;
+                            cell DCS_SEL[8];
+                        }
+                    } else {
+                        if tile_class [CLK_ROOT_2PLL_A, CLK_ROOT_2PLL_B] {
+                            cell PLL_SW[2], PLL_SE[2];
+                        } else {
+                            cell PLL_SW[2], PLL_SE[2], PLL_NW[2], PLL_NE[2];
+                        }
+                    }
+
+                    switchbox CLK_INT;
                     for i in 0..2 {
                         bel DCS_SW[i];
                         bel DCS_SE[i];
@@ -1910,6 +1916,11 @@ target_defs! {
                     }
                 }
             } else {
+                bel_slot CLK_ROOT: legacy;
+                bel_slot DCS_SW[2]: legacy;
+                bel_slot DCS_SE[2]: legacy;
+                bel_slot DCS_NW[2]: legacy;
+                bel_slot DCS_NE[2]: legacy;
                 tile_class CLK_ROOT_2PLL, CLK_ROOT_4PLL, CLK_ROOT_6PLL, CLK_ROOT_8PLL {
                     if variant ecp2 {
                         if tile_class CLK_ROOT_8PLL {
@@ -1930,6 +1941,19 @@ target_defs! {
                     cell ROOT_SW, ROOT_SE, ROOT_NW, ROOT_NE;
                     // fabric clock inputs
                     cell FABRIC_IN[26];
+                    // I/O inputs
+                    // cell IO_W[2], IO_E[2], IO_S[2], IO_N[2];
+
+                    // if variant xp2 {
+                    //     cell PLL_SW, PLL_SE, PLL_NW, PLL_NE;
+                    //     cell CLK_W, CLK_E;
+                    // } else {
+                    //     cell PLL_SW[2], PLL_SE[2], PLL_NW[2], PLL_NE[2];
+                    // }
+                    // if variant ecp2m {
+                    //     cell SERDES_SW, SERDES_SE, SERDES_NW, SERDES_NE;
+                    // }
+
                     bel CLK_ROOT;
                     for i in 0..2 {
                         bel DCS_SW[i];
@@ -2488,7 +2512,9 @@ target_defs! {
 
     if variant [ecp2, ecp2m, xp2, ecp3, machxo2] {
         tile_slot HSDCLK_SPLITTER {
-            bel_slot HSDCLK_ROOT: HSDCLK_ROOT;
+            if variant [ecp3, machxo2] {
+                bel_slot HSDCLK_ROOT: HSDCLK_ROOT;
+            }
             bel_slot HSDCLK_SPLITTER: routing;
 
             tile_class HSDCLK_SPLITTER, HSDCLK_ROOT {
@@ -2505,12 +2531,22 @@ target_defs! {
                             progbuf E[j].RSCLK_H[i * 4] = W[j].RSCLK_H[i * 4];
                         }
                     }
+                    if tile_class HSDCLK_ROOT {
+                        if variant [ecp2, ecp2m, xp2] {
+                            for i in 0..8 {
+                                progbuf W[i % 4].RSCLK_H[i / 4 * 4] = W[0].SCLK_ROOT[i];
+                                progbuf E[i % 4].RSCLK_H[i / 4 * 4] = E[0].SCLK_ROOT[i];
+                            }
+                        }
+                    }
                 }
                 if tile_class HSDCLK_ROOT {
-                    bel HSDCLK_ROOT {
-                        for i in 0..8 {
-                            output OUT_W[i] = W[i % 4].RSCLK_H[i / 4 * 4];
-                            output OUT_E[i] = E[i % 4].RSCLK_H[i / 4 * 4];
+                    if variant [ecp3, machxo2] {
+                        bel HSDCLK_ROOT {
+                            for i in 0..8 {
+                                output OUT_W[i] = W[i % 4].RSCLK_H[i / 4 * 4];
+                                output OUT_E[i] = E[i % 4].RSCLK_H[i / 4 * 4];
+                            }
                         }
                     }
                 }

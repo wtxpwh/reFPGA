@@ -132,18 +132,14 @@ impl PipWire {
         let tile_naming = &ndb.tile_class_namings[ntile.naming];
         Some(match self {
             PipWire::Int(wire) => {
-                backend
-                    .edev
-                    .resolve_wire(backend.edev.tile_wire(tcrd, *wire))?;
+                backend.edev.resolve_tile_wire(tcrd, *wire)?;
                 (
                     &ntile.names[RawTileId::from_idx(0)],
                     &tile_naming.wires.get(wire)?.name,
                 )
             }
             PipWire::AltInt(wire) => {
-                backend
-                    .edev
-                    .resolve_wire(backend.edev.tile_wire(tcrd, *wire))?;
+                backend.edev.resolve_tile_wire(tcrd, *wire)?;
                 let wn = &tile_naming.wires.get(wire)?;
                 (
                     &ntile.names[RawTileId::from_idx(0)],

@@ -29,17 +29,20 @@ impl ChipContext<'_> {
                 self.process_io_scm();
             }
             ChipKind::Ecp | ChipKind::Xp => {
+                self.prep_io_ecp();
                 self.process_dqsdll_ecp();
                 self.process_io_ecp();
             }
             ChipKind::MachXo => self.process_io_machxo(),
             ChipKind::Ecp2 | ChipKind::Ecp2M => {
+                self.prep_io_ecp();
                 self.process_eclk_ecp2();
                 self.process_eclk_tap_ecp2();
                 self.process_dqsdll_ecp2();
                 self.process_io_ecp();
             }
             ChipKind::Xp2 => {
+                self.prep_io_ecp();
                 self.process_eclk_xp2();
                 self.process_eclk_tap_ecp2();
                 self.process_dqsdll_ecp2();

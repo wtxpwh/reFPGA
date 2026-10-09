@@ -80,9 +80,7 @@ impl<'b> FuzzerProp<'b, IseBackend<'b>> for PinWireMutexShared {
             unreachable!()
         };
         let wire = bel_data.inputs[self.1].wire();
-        let wire = backend
-            .edev
-            .resolve_wire(backend.edev.tile_wire(tcrd, wire))?;
+        let wire = backend.edev.resolve_tile_wire(tcrd, wire)?;
         fuzzer = fuzzer.base(Key::WireMutex(wire), "SHARED");
         Some((fuzzer, false))
     }
