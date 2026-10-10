@@ -1,6 +1,6 @@
 # Clock interconnect
 
-{{tile ecp2m CLK_ROOT_8PLL}}
+{{tile ecp2m CLK_ROOT}}
 {{tile ecp2m ECLK_ROOT_E}}
 {{tile ecp2m ECLK_ROOT_N}}
 {{tile ecp2m ECLK_ROOT_S}}
