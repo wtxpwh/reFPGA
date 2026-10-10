@@ -2,7 +2,6 @@ use prjcombine_ecp::{
     chip::{ChipKind, MachXo2Kind, PllLoc, PllPad, SpecialIoKey, SpecialLocKey},
     defs::bslots,
 };
-use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
     db::LegacyBel,
     dir::{Dir, DirHV},
@@ -72,10 +71,10 @@ impl ChipContext<'_> {
                 let refclk = self.rc_wire(cell, &format!("JREFCLK{i}"));
                 self.add_bel_wire(bcrd_pllrefcs, format!("REFCLK{i}"), refclk);
                 let io = self.chip.special_io[&key];
-                let cell_io = self.chip.get_io_loc(io).cell;
+                let io_idx = bslots::IO.index_of(io.slot).unwrap();
                 let wire_io = self.rc_io_wire(
-                    cell_io,
-                    &format!("JDI{abcd}", abcd = ['A', 'B', 'C', 'D'][io.iob().to_idx()]),
+                    io.cell,
+                    &format!("JDI{abcd}", abcd = ['A', 'B', 'C', 'D'][io_idx]),
                 );
                 self.claim_pip(refclk, wire_io);
                 refclk_io.push(refclk);
@@ -131,10 +130,10 @@ impl ChipContext<'_> {
             let clkfb0 = self.rc_wire(cell, "JCLKFB0");
             self.add_bel_wire(bcrd, "CLKFB0", clkfb0);
             let io = self.chip.special_io[&SpecialIoKey::Pll(PllPad::PllFb, loc)];
-            let cell_io = self.chip.get_io_loc(io).cell;
+            let io_idx = bslots::IO.index_of(io.slot).unwrap();
             let wire_io = self.rc_io_wire(
-                cell_io,
-                &format!("JDI{abcd}", abcd = ['A', 'B', 'C', 'D'][io.iob().to_idx()]),
+                io.cell,
+                &format!("JDI{abcd}", abcd = ['A', 'B', 'C', 'D'][io_idx]),
             );
             self.claim_pip(clkfb0, wire_io);
 

@@ -9,9 +9,9 @@ use prjcombine_ecp::{
 };
 use prjcombine_entity::{EntityId, EntityVec};
 use prjcombine_interconnect::{
-    db::PinDir,
+    db::{IntDb, PinDir},
     dir::{Dir, DirH, DirHV, DirV},
-    grid::{CellCoord, ColId, DieIdExt, EdgeIoCoord, RowId, TileIobId},
+    grid::{BelCoord, CellCoord, ColId, DieIdExt, RowId},
 };
 use prjcombine_re_lattice_naming::{ChipNaming, WireName};
 use prjcombine_re_lattice_rawdump::{Grid, NodeId};
@@ -63,6 +63,7 @@ struct ChipBuilder<'a> {
     grid: &'a Grid,
     naming: &'a ChipNaming,
     nodes: &'a EntityVec<NodeId, WireName>,
+    intdb: &'a IntDb,
 }
 
 impl ChipBuilder<'_> {
@@ -1786,7 +1787,7 @@ impl ChipBuilder<'_> {
         }
     }
 
-    fn gather_special_io_scm(&mut self) -> BTreeMap<WireName, (EdgeIoCoord, PinDir)> {
+    fn gather_special_io_scm(&mut self) -> BTreeMap<WireName, (BelCoord, PinDir)> {
         let jinddcka = self.naming.strings.get("JINDDCKA").unwrap();
         let jinddckb = self.naming.strings.get("JINDDCKB").unwrap();
         let jinddckc = self.naming.strings.get("JINDDCKC").unwrap();
@@ -1860,7 +1861,7 @@ impl ChipBuilder<'_> {
                 }
                 bslots::IO[idx]
             };
-            let io = self.chip.get_io_crd(cell.bel(bel));
+            let io = cell.bel(bel);
             pad_nodes.insert(node, (io, dir));
         }
         let mut result = BTreeMap::new();
@@ -1913,7 +1914,7 @@ impl ChipBuilder<'_> {
         result
     }
 
-    fn gather_special_io(&mut self) -> BTreeMap<WireName, EdgeIoCoord> {
+    fn gather_special_io(&mut self) -> BTreeMap<WireName, BelCoord> {
         let jpaddia_pio = self.naming.strings.get("JPADDIA_PIO");
         let jpaddib_pio = self.naming.strings.get("JPADDIB_PIO");
         let jpaddic_pio = self.naming.strings.get("JPADDIC_PIO");
@@ -1927,26 +1928,26 @@ impl ChipBuilder<'_> {
         let mut pad_nodes = HashMap::new();
         for (node, &wn) in self.nodes {
             let mut cell = self.chip.xlat_rc_wire(wn);
-            let (bel, e) = if Some(wn.suffix) == jpaddia_pio {
-                (bslots::IO[0], false)
+            let (mut idx, e) = if Some(wn.suffix) == jpaddia_pio {
+                (0, false)
             } else if Some(wn.suffix) == jpaddib_pio {
-                (bslots::IO[1], false)
+                (1, false)
             } else if Some(wn.suffix) == jpaddic_pio {
-                (bslots::IO[2], false)
+                (2, false)
             } else if Some(wn.suffix) == jpaddid_pio {
-                (bslots::IO[3], false)
+                (3, false)
             } else if Some(wn.suffix) == jpaddie_pio {
-                (bslots::IO[4], false)
+                (4, false)
             } else if Some(wn.suffix) == jpaddif_pio {
-                (bslots::IO[5], false)
+                (5, false)
             } else if Some(wn.suffix) == jpaddiea_pio {
-                (bslots::IO[0], true)
+                (0, true)
             } else if Some(wn.suffix) == jpaddieb_pio {
-                (bslots::IO[1], true)
+                (1, true)
             } else if Some(wn.suffix) == jpaddiec_pio {
-                (bslots::IO[2], true)
+                (2, true)
             } else if Some(wn.suffix) == jpaddied_pio {
-                (bslots::IO[3], true)
+                (3, true)
             } else {
                 continue;
             };
@@ -1959,44 +1960,32 @@ impl ChipBuilder<'_> {
                     } else {
                         unreachable!();
                     }
-                }
-                let mut io = self.chip.get_io_crd(cell.bel(bel));
-                if !e {
-                    match io {
-                        EdgeIoCoord::W(ref mut row, ref mut iob) => {
-                            if self.chip.rows[*row].io_w == IoGroupKind::None {
-                                *row -= 2;
-                            } else {
-                                *iob = TileIobId::from_idx(iob.to_idx() + 2);
-                            }
-                        }
-                        EdgeIoCoord::E(ref mut row, ref mut iob) => {
-                            if self.chip.rows[*row].io_e == IoGroupKind::None {
-                                *row -= 2;
-                            } else {
-                                *iob = TileIobId::from_idx(iob.to_idx() + 2);
-                            }
-                        }
-                        EdgeIoCoord::S(ref mut col, ref mut iob) => {
-                            if self.chip.columns[*col].io_s == IoGroupKind::None {
-                                *iob = TileIobId::from_idx(iob.to_idx() + 2);
-                                *col -= 2;
-                            }
-                        }
-                        EdgeIoCoord::N(ref mut col, ref mut iob) => {
-                            if self.chip.columns[*col].io_n == IoGroupKind::None {
-                                *iob = TileIobId::from_idx(iob.to_idx() + 2);
-                                *col -= 2;
-                            }
-                        }
+                } else if cell.col == self.chip.col_w() || cell.col == self.chip.col_e() {
+                    let kind = if cell.col == self.chip.col_w() {
+                        self.chip.rows[cell.row].io_w
+                    } else {
+                        self.chip.rows[cell.row].io_e
+                    };
+                    if kind == IoGroupKind::None {
+                        cell.row -= 2;
+                    } else {
+                        idx += 2;
+                    }
+                } else {
+                    let kind = if cell.row == self.chip.row_s() {
+                        self.chip.columns[cell.col].io_s
+                    } else {
+                        self.chip.columns[cell.col].io_n
+                    };
+                    if kind == IoGroupKind::None {
+                        idx += 2;
+                        cell.col -= 2;
                     }
                 }
-                pad_nodes.insert(node, io);
             } else {
                 assert!(!e);
-                let io = self.chip.get_io_crd(cell.bel(bel));
-                pad_nodes.insert(node, io);
             }
+            pad_nodes.insert(node, cell.bel(bslots::IO[idx]));
         }
         let mut result = BTreeMap::new();
         for &(wf, wt) in self.grid.pips.keys() {
@@ -2043,7 +2032,7 @@ impl ChipBuilder<'_> {
         result
     }
 
-    fn gather_special_io_machxo2(&mut self) -> BTreeMap<WireName, (EdgeIoCoord, PinDir)> {
+    fn gather_special_io_machxo2(&mut self) -> BTreeMap<WireName, (BelCoord, PinDir)> {
         let jpaddia_pio = self.naming.strings.get("JPADDIA_PIO").unwrap();
         let jpaddib_pio = self.naming.strings.get("JPADDIB_PIO").unwrap();
         let jpaddic_pio = self.naming.strings.get("JPADDIC_PIO").unwrap();
@@ -2058,73 +2047,27 @@ impl ChipBuilder<'_> {
         let jpaddod = self.naming.strings.get("JPADDOD").unwrap();
         let mut pad_nodes = HashMap::new();
         for (node, &wn) in self.nodes {
-            let mut cell = self.chip.xlat_rc_wire(wn);
-            let (bel, e, dir) = if wn.suffix == jpaddia_pio || wn.suffix == jdia {
-                (bslots::IO[0], false, PinDir::Input)
+            let cell = self.chip.xlat_rc_wire(wn);
+            let (bel, dir) = if wn.suffix == jpaddia_pio || wn.suffix == jdia {
+                (bslots::IO[0], PinDir::Input)
             } else if wn.suffix == jpaddib_pio || wn.suffix == jdib {
-                (bslots::IO[1], false, PinDir::Input)
+                (bslots::IO[1], PinDir::Input)
             } else if wn.suffix == jpaddic_pio || wn.suffix == jdic {
-                (bslots::IO[2], false, PinDir::Input)
+                (bslots::IO[2], PinDir::Input)
             } else if wn.suffix == jpaddid_pio || wn.suffix == jdid {
-                (bslots::IO[3], false, PinDir::Input)
+                (bslots::IO[3], PinDir::Input)
             } else if wn.suffix == jpaddoa {
-                (bslots::IO[0], false, PinDir::Output)
+                (bslots::IO[0], PinDir::Output)
             } else if wn.suffix == jpaddob {
-                (bslots::IO[1], false, PinDir::Output)
+                (bslots::IO[1], PinDir::Output)
             } else if wn.suffix == jpaddoc {
-                (bslots::IO[2], false, PinDir::Output)
+                (bslots::IO[2], PinDir::Output)
             } else if wn.suffix == jpaddod {
-                (bslots::IO[3], false, PinDir::Output)
+                (bslots::IO[3], PinDir::Output)
             } else {
                 continue;
             };
-            if matches!(self.chip.kind, ChipKind::Ecp3 | ChipKind::Ecp3A) {
-                if e {
-                    if cell.col == self.chip.col_w() {
-                        cell.col += 1;
-                    } else if cell.col == self.chip.col_e() {
-                        cell.col -= 1;
-                    } else {
-                        unreachable!();
-                    }
-                }
-                let mut io = self.chip.get_io_crd(cell.bel(bel));
-                if !e {
-                    match io {
-                        EdgeIoCoord::W(ref mut row, ref mut iob) => {
-                            if self.chip.rows[*row].io_w == IoGroupKind::None {
-                                *row -= 2;
-                            } else {
-                                *iob = TileIobId::from_idx(iob.to_idx() + 2);
-                            }
-                        }
-                        EdgeIoCoord::E(ref mut row, ref mut iob) => {
-                            if self.chip.rows[*row].io_e == IoGroupKind::None {
-                                *row -= 2;
-                            } else {
-                                *iob = TileIobId::from_idx(iob.to_idx() + 2);
-                            }
-                        }
-                        EdgeIoCoord::S(ref mut col, ref mut iob) => {
-                            if self.chip.columns[*col].io_s == IoGroupKind::None {
-                                *iob = TileIobId::from_idx(iob.to_idx() + 2);
-                                *col -= 2;
-                            }
-                        }
-                        EdgeIoCoord::N(ref mut col, ref mut iob) => {
-                            if self.chip.columns[*col].io_n == IoGroupKind::None {
-                                *iob = TileIobId::from_idx(iob.to_idx() + 2);
-                                *col -= 2;
-                            }
-                        }
-                    }
-                }
-                pad_nodes.insert(node, (io, dir));
-            } else {
-                assert!(!e);
-                let io = self.chip.get_io_crd(cell.bel(bel));
-                pad_nodes.insert(node, (io, dir));
-            }
+            pad_nodes.insert(node, (cell.bel(bel), dir));
         }
         let mut result = BTreeMap::new();
         for &(wf, wt) in self.grid.pips.keys() {
@@ -2263,7 +2206,12 @@ impl ChipBuilder<'_> {
                     "JPIO_FB_E" => PllPad::DllIn3,
                     "JPIO_FB_F" => PllPad::DllIn2,
                     _ => {
-                        println!("WEIRD SPECIO: R{r}C{c}_{suffix} {io}", r = wn.r, c = wn.c);
+                        println!(
+                            "WEIRD SPECIO: R{r}C{c}_{suffix} {io}",
+                            r = wn.r,
+                            c = wn.c,
+                            io = io.to_string(self.intdb)
+                        );
                         continue;
                     }
                 };
@@ -2328,7 +2276,12 @@ impl ChipBuilder<'_> {
                     "JEXTCLKP1O_SYSBUS" => SpecialIoKey::ExtClkO(1),
                     "JEXTCLKP2O_SYSBUS" => SpecialIoKey::ExtClkO(2),
                     _ => {
-                        println!("WEIRD SPECIO: R{r}C{c}_{suffix} {io}", r = wn.r, c = wn.c);
+                        println!(
+                            "WEIRD SPECIO: R{r}C{c}_{suffix} {io}",
+                            r = wn.r,
+                            c = wn.c,
+                            io = io.to_string(self.intdb)
+                        );
                         continue;
                     }
                 }
@@ -2414,7 +2367,12 @@ impl ChipBuilder<'_> {
                 let key = SpecialIoKey::Pll(pad, PllLoc::new(hv, 0));
                 self.chip.special_io.insert(key, io);
             } else {
-                panic!("WEIRD SPECIO: R{r}C{c}_{suffix} {io}", r = wn.r, c = wn.c);
+                panic!(
+                    "WEIRD SPECIO: R{r}C{c}_{suffix} {io}",
+                    r = wn.r,
+                    c = wn.c,
+                    io = io.to_string(self.intdb)
+                );
             }
         }
     }
@@ -2723,6 +2681,7 @@ impl ChipBuilder<'_> {
                     name = self.name,
                     r = wn.r,
                     c = wn.c,
+                    io = io.to_string(self.intdb)
                 );
             }
         }
@@ -2785,6 +2744,7 @@ impl ChipBuilder<'_> {
                     name = self.name,
                     r = wn.r,
                     c = wn.c,
+                    io = io.to_string(self.intdb)
                 );
             }
         }
@@ -2855,6 +2815,7 @@ impl ChipBuilder<'_> {
                         name = self.name,
                         r = wn.r,
                         c = wn.c,
+                        io = io.to_string(self.intdb)
                     );
                     continue;
                 }
@@ -2883,9 +2844,9 @@ impl ChipBuilder<'_> {
             (7, 5, 0, has_bank0),
         ] {
             if cond {
-                let col = self.chip.col_clk + dx;
-                let iob = TileIobId::from_idx(iob);
-                let io = EdgeIoCoord::N(col, iob);
+                let io = Chip::DIE
+                    .cell(self.chip.col_clk + dx, self.chip.row_n())
+                    .bel(bslots::IO[iob]);
                 self.chip
                     .special_io
                     .insert(SpecialIoKey::Clock(Dir::N, idx), io);
@@ -2893,12 +2854,11 @@ impl ChipBuilder<'_> {
         }
         for (idx, dy, iob) in [(0, -5, 2), (1, -5, 0), (2, 1, 2), (3, 1, 0)] {
             let row = self.chip.row_clk + dy;
-            let iob = TileIobId::from_idx(iob);
-            let io = EdgeIoCoord::W(row, iob);
+            let io = Chip::DIE.cell(self.chip.col_w(), row).bel(bslots::IO[iob]);
             self.chip
                 .special_io
                 .insert(SpecialIoKey::Clock(Dir::W, idx), io);
-            let io = EdgeIoCoord::E(row, iob);
+            let io = Chip::DIE.cell(self.chip.col_e(), row).bel(bslots::IO[iob]);
             self.chip
                 .special_io
                 .insert(SpecialIoKey::Clock(Dir::E, idx), io);
@@ -2908,26 +2868,26 @@ impl ChipBuilder<'_> {
         let mut quads_e = vec![];
         for (row, rd) in &self.chip.rows {
             if rd.kind == RowKind::Ebr {
-                quads_w.push((row, 4));
-                quads_e.push((row, 4));
+                quads_w.push(Chip::DIE.cell(self.chip.col_w() + 1, row));
+                quads_e.push(Chip::DIE.cell(self.chip.col_e() - 1, row));
             }
             if matches!(
                 rd.io_w,
                 IoGroupKind::Quad | IoGroupKind::QuadDqs | IoGroupKind::QuadEbrDqs
             ) {
-                quads_w.push((row, 0));
+                quads_w.push(Chip::DIE.cell(self.chip.col_w(), row));
             }
             if matches!(
                 rd.io_e,
                 IoGroupKind::Quad | IoGroupKind::QuadDqs | IoGroupKind::QuadEbrDqs
             ) {
-                quads_e.push((row, 0));
+                quads_e.push(Chip::DIE.cell(self.chip.col_e(), row));
             }
         }
         let mut quads_n = vec![];
         for (col, cd) in &self.chip.columns {
             if matches!(cd.io_n, IoGroupKind::Quad | IoGroupKind::QuadDqs) {
-                quads_n.push(col);
+                quads_n.push(Chip::DIE.cell(col, self.chip.row_n()));
             }
         }
 
@@ -2935,7 +2895,7 @@ impl ChipBuilder<'_> {
             quads_w
                 .iter()
                 .copied()
-                .filter(|&(row, _)| row < self.chip.row_clk),
+                .filter(|&cell| cell.row < self.chip.row_clk),
         );
 
         let quad_q = match self.chip.rows.len() {
@@ -2944,7 +2904,7 @@ impl ChipBuilder<'_> {
             _ => unreachable!(),
         };
 
-        for ((row, iob), keys) in [
+        for (cell, keys) in [
             (
                 quads_w[0],
                 [
@@ -3038,14 +2998,12 @@ impl ChipBuilder<'_> {
         ] {
             for (i, key) in keys.into_iter().enumerate() {
                 if let Some(key) = key {
-                    self.chip
-                        .special_io
-                        .insert(key, EdgeIoCoord::W(row, TileIobId::from_idx(iob + i)));
+                    self.chip.special_io.insert(key, cell.bel(bslots::IO[i]));
                 }
             }
         }
 
-        for ((row, iob), keys) in [
+        for (cell, keys) in [
             (
                 quads_e[0],
                 [
@@ -3076,13 +3034,11 @@ impl ChipBuilder<'_> {
         ] {
             for (i, key) in keys.into_iter().enumerate() {
                 if let Some(key) = key {
-                    self.chip
-                        .special_io
-                        .insert(key, EdgeIoCoord::E(row, TileIobId::from_idx(iob + i)));
+                    self.chip.special_io.insert(key, cell.bel(bslots::IO[i]));
                 }
             }
         }
-        for (col, hv) in [
+        for (cell, hv) in [
             (quads_n[0], DirHV::NW),
             (quads_n[quads_n.len() - 1], DirHV::NE),
         ] {
@@ -3090,9 +3046,7 @@ impl ChipBuilder<'_> {
                 (0, SpecialIoKey::Pll(PllPad::PllFb, PllLoc::new(hv, 1))),
                 (2, SpecialIoKey::Pll(PllPad::PllIn0, PllLoc::new(hv, 1))),
             ] {
-                self.chip
-                    .special_io
-                    .insert(key, EdgeIoCoord::N(col, TileIobId::from_idx(iob)));
+                self.chip.special_io.insert(key, cell.bel(bslots::IO[iob]));
             }
         }
 
@@ -3107,20 +3061,18 @@ impl ChipBuilder<'_> {
     fn fill_special_io_ecp5(&mut self) {
         for (idx, dx) in [(0, -3), (1, -5), (2, 3), (3, 1)] {
             let col = self.chip.col_clk + dx;
-            let iob = TileIobId::from_idx(0);
-            let io = EdgeIoCoord::N(col, iob);
+            let io = Chip::DIE.cell(col, self.chip.row_n()).bel(bslots::IO[0]);
             self.chip
                 .special_io
                 .insert(SpecialIoKey::Clock(Dir::N, idx), io);
         }
         for (idx, dy, iob) in [(0, -3, 2), (1, -3, 0), (2, 0, 2), (3, 0, 0)] {
             let row = self.chip.row_clk + dy;
-            let iob = TileIobId::from_idx(iob);
-            let io = EdgeIoCoord::W(row, iob);
+            let io = Chip::DIE.cell(self.chip.col_w(), row).bel(bslots::IO[iob]);
             self.chip
                 .special_io
                 .insert(SpecialIoKey::Clock(Dir::W, idx), io);
-            let io = EdgeIoCoord::E(row, iob);
+            let io = Chip::DIE.cell(self.chip.col_e(), row).bel(bslots::IO[iob]);
             self.chip
                 .special_io
                 .insert(SpecialIoKey::Clock(Dir::E, idx), io);
@@ -3142,8 +3094,7 @@ impl ChipBuilder<'_> {
             (SpecialIoKey::WriteN, 17, 0),
         ] {
             let col = self.chip.col_w() + dx;
-            let iob = TileIobId::from_idx(iob);
-            let io = EdgeIoCoord::S(col, iob);
+            let io = Chip::DIE.cell(col, self.chip.row_s()).bel(bslots::IO[iob]);
             self.chip.special_io.insert(key, io);
         }
 
@@ -3158,37 +3109,37 @@ impl ChipBuilder<'_> {
             (SpecialIoKey::D(15), 9, 2),
         ] {
             let row = self.chip.row_s() + dy;
-            let iob = TileIobId::from_idx(iob);
-            let io = EdgeIoCoord::W(row, iob);
+            let io = Chip::DIE.cell(self.chip.col_w(), row).bel(bslots::IO[iob]);
             self.chip.special_io.insert(key, io);
         }
 
         for h in [DirH::W, DirH::E] {
-            let iob = TileIobId::from_idx(2);
             self.chip.special_io.insert(
                 SpecialIoKey::Pll(PllPad::PllIn0, PllLoc::new(h & DirV::S, 0)),
-                match h {
-                    DirH::W => EdgeIoCoord::W(self.chip.row_s(), iob),
-                    DirH::E => EdgeIoCoord::E(self.chip.row_s(), iob),
-                },
+                Chip::DIE
+                    .cell(self.chip.col_edge(h), self.chip.row_s())
+                    .bel(bslots::IO[2]),
             );
 
             let loc = PllLoc::new(h & DirV::N, 0);
             if self.chip.special_loc.contains_key(&SpecialLocKey::Pll(loc)) {
-                let iob = TileIobId::from_idx(0);
                 self.chip.special_io.insert(
                     SpecialIoKey::Pll(PllPad::PllIn0, loc),
-                    match h {
-                        DirH::W => EdgeIoCoord::W(self.chip.row_n() - 12, iob),
-                        DirH::E => EdgeIoCoord::E(self.chip.row_n() - 12, iob),
-                    },
+                    Chip::DIE
+                        .cell(self.chip.col_edge(h), self.chip.row_n() - 12)
+                        .bel(bslots::IO[0]),
                 );
                 self.chip.special_io.insert(
                     SpecialIoKey::Pll(PllPad::PllIn1, loc),
-                    match h {
-                        DirH::W => EdgeIoCoord::N(self.chip.col_w() + 3, iob),
-                        DirH::E => EdgeIoCoord::N(self.chip.col_e() - 4, iob),
-                    },
+                    Chip::DIE
+                        .cell(
+                            match h {
+                                DirH::W => self.chip.col_w() + 3,
+                                DirH::E => self.chip.col_e() - 4,
+                            },
+                            self.chip.row_n(),
+                        )
+                        .bel(bslots::IO[0]),
                 );
             }
         }
@@ -3217,8 +3168,12 @@ impl ChipBuilder<'_> {
             (51, 0, SpecialIoKey::CsN),
             (52, 0, SpecialIoKey::Cclk),
         ] {
-            let io = EdgeIoCoord::S(ColId::from_idx(col), TileIobId::from_idx(iob));
-            self.chip.special_io.insert(key, io);
+            self.chip.special_io.insert(
+                key,
+                Chip::DIE
+                    .cell(ColId::from_idx(col), self.chip.row_s())
+                    .bel(bslots::IO[iob]),
+            );
         }
         for (col, key) in [
             (5, SpecialLocKey::PclkIn(Dir::S, 0)),
@@ -3486,7 +3441,12 @@ impl ChipBuilder<'_> {
                 let key = SpecialIoKey::Pll(pad, PllLoc::new(hv, 0));
                 self.chip.special_io.insert(key, io);
             } else {
-                panic!("WEIRD SPECIO: R{r}C{c}_{suffix} {io}", r = wn.r, c = wn.c,);
+                panic!(
+                    "WEIRD SPECIO: R{r}C{c}_{suffix} {io}",
+                    r = wn.r,
+                    c = wn.c,
+                    io = io.to_string(self.intdb)
+                );
             }
         }
         let (col, iob) = match self.chip.rows.len() {
@@ -3497,8 +3457,7 @@ impl ChipBuilder<'_> {
             _ => unreachable!(),
         };
         let col = ColId::from_idx(col);
-        let iob = TileIobId::from_idx(iob);
-        let io = EdgeIoCoord::S(col, iob);
+        let io = Chip::DIE.cell(col, self.chip.row_s()).bel(bslots::IO[iob]);
         self.chip.special_io.insert(SpecialIoKey::SleepN, io);
     }
 
@@ -3539,7 +3498,9 @@ impl ChipBuilder<'_> {
             (SpecialIoKey::D(5), 6, 1),
             (SpecialIoKey::D(6), 7, 1),
         ] {
-            let io = EdgeIoCoord::S(self.chip.col_clk + dx, TileIobId::from_idx(iob));
+            let io = Chip::DIE
+                .cell(self.chip.col_clk + dx, self.chip.row_s())
+                .bel(bslots::IO[iob]);
             self.chip.special_io.insert(key, io);
         }
         let row_cfg = self
@@ -3555,7 +3516,9 @@ impl ChipBuilder<'_> {
             (SpecialIoKey::Busy, -1, 1),
             (SpecialIoKey::D(7), -1, 0),
         ] {
-            let io = EdgeIoCoord::E(row_cfg + dy, TileIobId::from_idx(iob));
+            let io = Chip::DIE
+                .cell(self.chip.col_e(), row_cfg + dy)
+                .bel(bslots::IO[iob]);
             self.chip.special_io.insert(key, io);
         }
     }
@@ -3577,7 +3540,9 @@ impl ChipBuilder<'_> {
             (SpecialIoKey::D(1), 8, 1),
             (SpecialIoKey::D(0), 9, 0),
         ] {
-            let io = EdgeIoCoord::N(self.chip.col_clk + dx, TileIobId::from_idx(iob));
+            let io = Chip::DIE
+                .cell(self.chip.col_clk + dx, self.chip.row_n())
+                .bel(bslots::IO[iob]);
             self.chip.special_io.insert(key, io);
         }
     }
@@ -3602,7 +3567,9 @@ impl ChipBuilder<'_> {
             (SpecialIoKey::Dout, 8, 1),
             (SpecialIoKey::Busy, 8, 0),
         ] {
-            let io = EdgeIoCoord::E(self.chip.row_s() + dy, TileIobId::from_idx(iob));
+            let io = Chip::DIE
+                .cell(self.chip.col_e(), self.chip.row_s() + dy)
+                .bel(bslots::IO[iob]);
             self.chip.special_io.insert(key, io);
         }
     }
@@ -3619,7 +3586,9 @@ impl ChipBuilder<'_> {
             (SpecialIoKey::Done, 7, 1),
             (SpecialIoKey::ProgB, 7, 0),
         ] {
-            let io = EdgeIoCoord::W(self.chip.row_clk + dy, TileIobId::from_idx(iob));
+            let io = Chip::DIE
+                .cell(self.chip.col_w(), self.chip.row_clk + dy)
+                .bel(bslots::IO[iob]);
             self.chip.special_io.insert(key, io);
         }
     }
@@ -3643,7 +3612,9 @@ impl ChipBuilder<'_> {
             (SpecialIoKey::Cs1N, 9, 2),
             (SpecialIoKey::Di, 9, 1),
         ] {
-            let io = EdgeIoCoord::E(row_cfg + dy, TileIobId::from_idx(iob));
+            let io = Chip::DIE
+                .cell(self.chip.col_e(), row_cfg + dy)
+                .bel(bslots::IO[iob]);
             self.chip.special_io.insert(key, io);
         }
     }
@@ -3701,6 +3672,7 @@ pub fn make_chip(
     kind: ChipKind,
     naming: &ChipNaming,
     nodes: &EntityVec<NodeId, WireName>,
+    intdb: &IntDb,
 ) -> Chip {
     let chip = init_chip(kind, naming, nodes);
     let mut builder = ChipBuilder {
@@ -3709,6 +3681,7 @@ pub fn make_chip(
         grid,
         naming,
         nodes,
+        intdb,
     };
     builder.fill_ebr_dsp_rows();
     builder.fill_plc_rows();

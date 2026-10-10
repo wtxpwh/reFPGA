@@ -131,7 +131,7 @@ pub struct Chip {
     pub col_clk: ColId,
     pub row_clk: RowId,
     pub special_loc: BTreeMap<SpecialLocKey, CellCoord>,
-    pub special_io: BTreeMap<SpecialIoKey, EdgeIoCoord>,
+    pub special_io: BTreeMap<SpecialIoKey, BelCoord>,
     pub io_direct_plc: BTreeMap<BelCoord, (CellCoord, usize)>,
     pub extra_frames_w: usize,
     pub extra_frames_e: usize,
@@ -478,11 +478,11 @@ impl Chip {
     }
 
     pub fn try_get_io_cell(&self, key: SpecialIoKey) -> Option<CellCoord> {
-        Some(self.get_io_loc(*self.special_io.get(&key)?).cell)
+        Some(self.special_io.get(&key)?.cell)
     }
 
     pub fn get_io_cell(&self, key: SpecialIoKey) -> CellCoord {
-        self.get_io_loc(self.special_io[&key]).cell
+        self.special_io[&key].cell
     }
 
     pub fn try_get_spec_cell(&self, key: SpecialLocKey) -> Option<CellCoord> {
@@ -512,8 +512,30 @@ impl Chip {
         }
     }
 
+    pub fn get_io_edge(&self, bcrd: BelCoord) -> Dir {
+        if bcrd.col == self.col_w() && self.kind != ChipKind::Crosslink {
+            Dir::W
+        } else if bcrd.col == self.col_e() && self.kind != ChipKind::Crosslink {
+            Dir::E
+        } else if bcrd.row == self.row_s() {
+            Dir::S
+        } else if bcrd.row == self.row_n() {
+            Dir::N
+        } else if matches!(self.kind, ChipKind::Ecp3 | ChipKind::Ecp3A | ChipKind::Ecp4) {
+            if bcrd.col == self.col_w() + 1 {
+                Dir::W
+            } else if bcrd.col == self.col_e() - 1 {
+                Dir::E
+            } else {
+                unreachable!()
+            }
+        } else {
+            unreachable!()
+        }
+    }
+
     pub fn get_io_crd(&self, bel: BelCoord) -> EdgeIoCoord {
-        let iob = TileIobId::from_idx(bslots::IO.iter().position(|&x| x == bel.slot).unwrap());
+        let iob = TileIobId::from_idx(bslots::IO.index_of(bel.slot).unwrap());
         if bel.col == self.col_w() && self.kind != ChipKind::Crosslink {
             EdgeIoCoord::W(bel.row, iob)
         } else if bel.col == self.col_e() && self.kind != ChipKind::Crosslink {
@@ -524,14 +546,10 @@ impl Chip {
             EdgeIoCoord::N(bel.col, iob)
         } else if matches!(self.kind, ChipKind::Ecp3 | ChipKind::Ecp3A | ChipKind::Ecp4) {
             if bel.col == self.col_w() + 1 {
-                let iob = TileIobId::from_idx(
-                    bslots::IO.iter().position(|&x| x == bel.slot).unwrap() + 4,
-                );
+                let iob = TileIobId::from_idx(bslots::IO.index_of(bel.slot).unwrap() + 4);
                 EdgeIoCoord::W(bel.row, iob)
             } else if bel.col == self.col_e() - 1 {
-                let iob = TileIobId::from_idx(
-                    bslots::IO.iter().position(|&x| x == bel.slot).unwrap() + 4,
-                );
+                let iob = TileIobId::from_idx(bslots::IO.index_of(bel.slot).unwrap() + 4);
                 EdgeIoCoord::E(bel.row, iob)
             } else {
                 unreachable!()
@@ -541,44 +559,45 @@ impl Chip {
         }
     }
 
-    pub fn get_io_bank(&self, io: EdgeIoCoord) -> u32 {
-        match io {
-            EdgeIoCoord::W(row, _) => self.rows[row].bank_w,
-            EdgeIoCoord::E(row, _) => self.rows[row].bank_e,
-            EdgeIoCoord::S(col, _) => self.columns[col].bank_s,
-            EdgeIoCoord::N(col, _) => self.columns[col].bank_n,
+    pub fn get_io_bank(&self, bcrd: BelCoord) -> u32 {
+        match self.get_io_edge(bcrd) {
+            Dir::W => self.rows[bcrd.row].bank_w,
+            Dir::E => self.rows[bcrd.row].bank_e,
+            Dir::S => self.columns[bcrd.col].bank_s,
+            Dir::N => self.columns[bcrd.col].bank_n,
         }
         .unwrap()
     }
 
-    pub fn get_io_kind(&self, io: EdgeIoCoord) -> IoKind {
+    pub fn get_io_kind(&self, bcrd: BelCoord) -> IoKind {
+        let idx = bslots::IO.index_of(bcrd.slot).unwrap();
         match self.kind {
             ChipKind::Scm => IoKind::Io,
             ChipKind::MachXo => IoKind::Io,
             ChipKind::Ecp | ChipKind::Xp | ChipKind::Ecp2 | ChipKind::Ecp2M | ChipKind::Xp2 => {
-                match io {
-                    EdgeIoCoord::W(row, iob) => match (self.rows[row].io_w, iob.to_idx()) {
+                match self.get_io_edge(bcrd) {
+                    Dir::W => match (self.rows[bcrd.row].io_w, idx) {
                         (IoGroupKind::DoubleDqs, 0) => IoKind::Dqs,
                         (IoGroupKind::DoubleA, 1) => IoKind::Dummy,
                         (IoGroupKind::DoubleB, 0) => IoKind::Dummy,
                         (IoGroupKind::DoubleDummy, _) => IoKind::Dummy,
                         _ => IoKind::Io,
                     },
-                    EdgeIoCoord::E(row, iob) => match (self.rows[row].io_e, iob.to_idx()) {
+                    Dir::E => match (self.rows[bcrd.row].io_e, idx) {
                         (IoGroupKind::DoubleDqs, 0) => IoKind::Dqs,
                         (IoGroupKind::DoubleA, 1) => IoKind::Dummy,
                         (IoGroupKind::DoubleB, 0) => IoKind::Dummy,
                         (IoGroupKind::DoubleDummy, _) => IoKind::Dummy,
                         _ => IoKind::Io,
                     },
-                    EdgeIoCoord::S(col, iob) => match (self.columns[col].io_s, iob.to_idx()) {
+                    Dir::S => match (self.columns[bcrd.col].io_s, idx) {
                         (IoGroupKind::DoubleDqs, 0) => IoKind::Dqs,
                         (IoGroupKind::DoubleA, 1) => IoKind::Dummy,
                         (IoGroupKind::DoubleB, 0) => IoKind::Dummy,
                         (IoGroupKind::DoubleDummy, _) => IoKind::Dummy,
                         _ => IoKind::Io,
                     },
-                    EdgeIoCoord::N(col, iob) => match (self.columns[col].io_n, iob.to_idx()) {
+                    Dir::N => match (self.columns[bcrd.col].io_n, idx) {
                         (IoGroupKind::DoubleDqs, 0) => IoKind::Dqs,
                         (IoGroupKind::DoubleA, 1) => IoKind::Dummy,
                         (IoGroupKind::DoubleB, 0) => IoKind::Dummy,
@@ -587,29 +606,40 @@ impl Chip {
                     },
                 }
             }
-            ChipKind::Ecp3 | ChipKind::Ecp3A => match io {
-                EdgeIoCoord::W(row, iob) => match (self.rows[row].io_w, iob.to_idx()) {
-                    (_, 4..8) => IoKind::IoPll,
-                    (IoGroupKind::QuadDqs, 2) => IoKind::Dqs,
-                    (IoGroupKind::QuadDqs, 3) => IoKind::Xsio,
-                    _ => IoKind::Io,
-                },
-                EdgeIoCoord::E(row, iob) => match (
-                    self.rows[row].io_e,
-                    self.rows[row].bank_e.unwrap(),
-                    iob.to_idx(),
-                ) {
-                    (_, _, 4..8) => IoKind::IoPll,
-                    (_, 8, _) => IoKind::Xsio,
-                    (IoGroupKind::QuadDqs, _, 2) => IoKind::Dqs,
-                    (IoGroupKind::QuadDqs, _, 3) => IoKind::Xsio,
-                    _ => IoKind::Io,
-                },
-                EdgeIoCoord::S(..) => IoKind::Xsio,
-                EdgeIoCoord::N(col, iob) => match (
-                    self.columns[col].io_n,
-                    self.columns[col].bank_n.unwrap(),
-                    iob.to_idx(),
+            ChipKind::Ecp3 | ChipKind::Ecp3A => match self.get_io_edge(bcrd) {
+                Dir::W => {
+                    if bcrd.col == self.col_w() {
+                        match (self.rows[bcrd.row].io_w, idx) {
+                            (IoGroupKind::QuadDqs, 2) => IoKind::Dqs,
+                            (IoGroupKind::QuadDqs, 3) => IoKind::Xsio,
+                            _ => IoKind::Io,
+                        }
+                    } else {
+                        IoKind::IoPll
+                    }
+                }
+                Dir::E => {
+                    if bcrd.col == self.col_e() {
+                        match (
+                            self.rows[bcrd.row].io_e,
+                            self.rows[bcrd.row].bank_e.unwrap(),
+                            idx,
+                        ) {
+                            (_, 8, _) => IoKind::Xsio,
+                            (IoGroupKind::QuadDqs, _, 2) => IoKind::Dqs,
+                            (IoGroupKind::QuadDqs, _, 3) => IoKind::Xsio,
+                            _ => IoKind::Io,
+                        }
+                    } else {
+                        IoKind::IoPll
+                    }
+                }
+
+                Dir::S => IoKind::Xsio,
+                Dir::N => match (
+                    self.columns[bcrd.col].io_n,
+                    self.columns[bcrd.col].bank_n.unwrap(),
+                    idx,
                 ) {
                     (_, 8, _) => IoKind::Xsio,
                     (IoGroupKind::QuadDqs, _, 2) => IoKind::SDqs,
@@ -619,15 +649,12 @@ impl Chip {
             },
             ChipKind::MachXo2(_) => IoKind::Io,
             ChipKind::Ecp4 => IoKind::Io,
-            ChipKind::Ecp5 => match io.edge() {
+            ChipKind::Ecp5 => match self.get_io_edge(bcrd) {
                 Dir::H(_) => IoKind::Io,
                 Dir::V(_) => IoKind::Sio,
             },
             ChipKind::Crosslink => {
-                let EdgeIoCoord::S(col, _) = io else {
-                    unreachable!()
-                };
-                if self.columns[col].bank_s == Some(0) {
+                if self.columns[bcrd.col].bank_s == Some(0) {
                     IoKind::Sio
                 } else {
                     IoKind::Io
@@ -1139,8 +1166,8 @@ impl Chip {
         for (k, v) in &self.special_loc {
             writeln!(o, "\tspecial_loc {k} = {v};")?;
         }
-        for (k, v) in &self.special_io {
-            writeln!(o, "\tspecial_io {k} = {v};")?;
+        for (k, io) in &self.special_io {
+            writeln!(o, "\tspecial_io {k} = {io};", io = io.to_string(db))?;
         }
         for (io, (cell, lut)) in &self.io_direct_plc {
             writeln!(o, "\tio_direct {io} = {cell}_{lut};", io = io.to_string(db))?;

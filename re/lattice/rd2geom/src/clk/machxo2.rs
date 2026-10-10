@@ -299,10 +299,10 @@ impl ChipContext<'_> {
             self.name_bel(bcrd, [format!("{lrbt}DLLDEL{idx}")]);
 
             let io = self.chip.special_io[&SpecialIoKey::Clock(edge, idx as u8)];
-            let cell_io = self.chip.get_io_loc(io).cell;
+            let io_idx = bslots::IO.index_of(io.slot).unwrap();
             let wire_io = self.rc_io_wire(
-                cell_io,
-                &format!("JDI{abcd}", abcd = ['A', 'B', 'C', 'D'][io.iob().to_idx()]),
+                io.cell,
+                &format!("JDI{abcd}", abcd = ['A', 'B', 'C', 'D'][io_idx]),
             );
 
             let paddi = self.rc_io_wire(cell, &format!("JPADDI{idx}"));
@@ -395,10 +395,10 @@ impl ChipContext<'_> {
 
             if is_smol {
                 let io = self.chip.special_io[&SpecialIoKey::Clock(edge, i)];
-                let bcrd_io = self.chip.get_io_loc(io);
+                let io_idx = bslots::IO.index_of(io.slot).unwrap();
                 let wire_io = self.rc_io_wire(
-                    bcrd_io.cell,
-                    &format!("JDI{abcd}", abcd = ['A', 'B', 'C', 'D'][io.iob().to_idx()]),
+                    io.cell,
+                    &format!("JDI{abcd}", abcd = ['A', 'B', 'C', 'D'][io_idx]),
                 );
                 self.claim_pip(wire, wire_io);
             } else {

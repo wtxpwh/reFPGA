@@ -99,56 +99,56 @@ chip CHIP0 {
 	special_loc SCLK_IN_N2 = D0X12Y31;
 	special_loc SCLK_IN_N3 = D0X13Y31;
 	special_loc CONFIG = D0X10Y13;
-	special_io CLOCK_W0 = IOB_W19_0;
-	special_io CLOCK_W1 = IOB_W17_0;
-	special_io CLOCK_E0 = IOB_E19_0;
-	special_io CLOCK_E1 = IOB_E17_0;
-	special_io CLOCK_S0 = IOB_S7_0;
-	special_io CLOCK_S1 = IOB_S12_0;
-	special_io CLOCK_N0 = IOB_N9_0;
-	special_io CLOCK_N1 = IOB_N11_0;
-	special_io PLL_IN0_SW0 = IOB_W12_0;
-	special_io PLL_IN0_SE0 = IOB_E12_0;
-	special_io PLL_IN1_SW0 = IOB_W15_0;
-	special_io PLL_IN1_SE0 = IOB_E15_0;
-	special_io PLL_FB_SW0 = IOB_W11_0;
-	special_io PLL_FB_SE0 = IOB_E11_0;
-	special_io DLL_IN0_SW0 = IOB_W15_0;
-	special_io DLL_IN0_SE0 = IOB_E15_0;
-	special_io DLL_IN1_SW0 = IOB_W12_0;
-	special_io DLL_IN1_SE0 = IOB_E12_0;
-	special_io DLL_FB_SW0 = IOB_W14_0;
-	special_io DLL_FB_SE0 = IOB_E14_0;
-	special_io VREF1_0 = IOB_N1_0;
-	special_io VREF1_1 = IOB_N27_0;
-	special_io VREF1_2 = IOB_E30_0;
-	special_io VREF1_3 = IOB_E16_0;
-	special_io VREF1_4 = IOB_S27_1;
-	special_io VREF1_5 = IOB_S1_1;
-	special_io VREF1_6 = IOB_W16_1;
-	special_io VREF1_7 = IOB_W30_1;
-	special_io VREF2_0 = IOB_N1_1;
-	special_io VREF2_1 = IOB_N27_1;
-	special_io VREF2_2 = IOB_E30_1;
-	special_io VREF2_3 = IOB_E16_1;
-	special_io VREF2_4 = IOB_S27_0;
-	special_io VREF2_5 = IOB_S1_0;
-	special_io VREF2_6 = IOB_W16_0;
-	special_io VREF2_7 = IOB_W30_0;
-	special_io WRITE_N = IOB_E2_1;
-	special_io CS_N = IOB_E3_1;
-	special_io CS1_N = IOB_E2_0;
-	special_io D0 = IOB_E3_0;
-	special_io D1 = IOB_E4_1;
-	special_io D2 = IOB_E4_0;
-	special_io D3 = IOB_E5_1;
-	special_io D4 = IOB_E5_0;
-	special_io D5 = IOB_E6_1;
-	special_io D6 = IOB_E6_0;
-	special_io D7 = IOB_E7_1;
-	special_io DOUT = IOB_E8_1;
-	special_io DI = IOB_E7_0;
-	special_io BUSY = IOB_E8_0;
+	special_io CLOCK_W0 = D0X0Y19.IO[0];
+	special_io CLOCK_W1 = D0X0Y17.IO[0];
+	special_io CLOCK_E0 = D0X28Y19.IO[0];
+	special_io CLOCK_E1 = D0X28Y17.IO[0];
+	special_io CLOCK_S0 = D0X7Y0.IO[0];
+	special_io CLOCK_S1 = D0X12Y0.IO[0];
+	special_io CLOCK_N0 = D0X9Y31.IO[0];
+	special_io CLOCK_N1 = D0X11Y31.IO[0];
+	special_io PLL_IN0_SW0 = D0X0Y12.IO[0];
+	special_io PLL_IN0_SE0 = D0X28Y12.IO[0];
+	special_io PLL_IN1_SW0 = D0X0Y15.IO[0];
+	special_io PLL_IN1_SE0 = D0X28Y15.IO[0];
+	special_io PLL_FB_SW0 = D0X0Y11.IO[0];
+	special_io PLL_FB_SE0 = D0X28Y11.IO[0];
+	special_io DLL_IN0_SW0 = D0X0Y15.IO[0];
+	special_io DLL_IN0_SE0 = D0X28Y15.IO[0];
+	special_io DLL_IN1_SW0 = D0X0Y12.IO[0];
+	special_io DLL_IN1_SE0 = D0X28Y12.IO[0];
+	special_io DLL_FB_SW0 = D0X0Y14.IO[0];
+	special_io DLL_FB_SE0 = D0X28Y14.IO[0];
+	special_io VREF1_0 = D0X1Y31.IO[0];
+	special_io VREF1_1 = D0X27Y31.IO[0];
+	special_io VREF1_2 = D0X28Y30.IO[0];
+	special_io VREF1_3 = D0X28Y16.IO[0];
+	special_io VREF1_4 = D0X27Y0.IO[1];
+	special_io VREF1_5 = D0X1Y0.IO[1];
+	special_io VREF1_6 = D0X0Y16.IO[1];
+	special_io VREF1_7 = D0X0Y30.IO[1];
+	special_io VREF2_0 = D0X1Y31.IO[1];
+	special_io VREF2_1 = D0X27Y31.IO[1];
+	special_io VREF2_2 = D0X28Y30.IO[1];
+	special_io VREF2_3 = D0X28Y16.IO[1];
+	special_io VREF2_4 = D0X27Y0.IO[0];
+	special_io VREF2_5 = D0X1Y0.IO[0];
+	special_io VREF2_6 = D0X0Y16.IO[0];
+	special_io VREF2_7 = D0X0Y30.IO[0];
+	special_io WRITE_N = D0X28Y2.IO[1];
+	special_io CS_N = D0X28Y3.IO[1];
+	special_io CS1_N = D0X28Y2.IO[0];
+	special_io D0 = D0X28Y3.IO[0];
+	special_io D1 = D0X28Y4.IO[1];
+	special_io D2 = D0X28Y4.IO[0];
+	special_io D3 = D0X28Y5.IO[1];
+	special_io D4 = D0X28Y5.IO[0];
+	special_io D5 = D0X28Y6.IO[1];
+	special_io D6 = D0X28Y6.IO[0];
+	special_io D7 = D0X28Y7.IO[1];
+	special_io DOUT = D0X28Y8.IO[1];
+	special_io DI = D0X28Y7.IO[0];
+	special_io BUSY = D0X28Y8.IO[0];
 }
 
 // LFE2-12E
@@ -279,56 +279,56 @@ chip CHIP1 {
 	special_loc SCLK_IN_N2 = D0X30Y31;
 	special_loc SCLK_IN_N3 = D0X31Y31;
 	special_loc CONFIG = D0X28Y13;
-	special_io CLOCK_W0 = IOB_W19_0;
-	special_io CLOCK_W1 = IOB_W17_0;
-	special_io CLOCK_E0 = IOB_E19_0;
-	special_io CLOCK_E1 = IOB_E17_0;
-	special_io CLOCK_S0 = IOB_S25_0;
-	special_io CLOCK_S1 = IOB_S30_0;
-	special_io CLOCK_N0 = IOB_N27_0;
-	special_io CLOCK_N1 = IOB_N29_0;
-	special_io PLL_IN0_SW0 = IOB_W12_0;
-	special_io PLL_IN0_SE0 = IOB_E12_0;
-	special_io PLL_IN1_SW0 = IOB_W15_0;
-	special_io PLL_IN1_SE0 = IOB_E15_0;
-	special_io PLL_FB_SW0 = IOB_W11_0;
-	special_io PLL_FB_SE0 = IOB_E11_0;
-	special_io DLL_IN0_SW0 = IOB_W15_0;
-	special_io DLL_IN0_SE0 = IOB_E15_0;
-	special_io DLL_IN1_SW0 = IOB_W12_0;
-	special_io DLL_IN1_SE0 = IOB_E12_0;
-	special_io DLL_FB_SW0 = IOB_W14_0;
-	special_io DLL_FB_SE0 = IOB_E14_0;
-	special_io VREF1_0 = IOB_N1_0;
-	special_io VREF1_1 = IOB_N54_0;
-	special_io VREF1_2 = IOB_E30_0;
-	special_io VREF1_3 = IOB_E16_0;
-	special_io VREF1_4 = IOB_S54_1;
-	special_io VREF1_5 = IOB_S1_1;
-	special_io VREF1_6 = IOB_W16_1;
-	special_io VREF1_7 = IOB_W30_1;
-	special_io VREF2_0 = IOB_N1_1;
-	special_io VREF2_1 = IOB_N54_1;
-	special_io VREF2_2 = IOB_E30_1;
-	special_io VREF2_3 = IOB_E16_1;
-	special_io VREF2_4 = IOB_S54_0;
-	special_io VREF2_5 = IOB_S1_0;
-	special_io VREF2_6 = IOB_W16_0;
-	special_io VREF2_7 = IOB_W30_0;
-	special_io WRITE_N = IOB_E2_1;
-	special_io CS_N = IOB_E3_1;
-	special_io CS1_N = IOB_E2_0;
-	special_io D0 = IOB_E3_0;
-	special_io D1 = IOB_E4_1;
-	special_io D2 = IOB_E4_0;
-	special_io D3 = IOB_E5_1;
-	special_io D4 = IOB_E5_0;
-	special_io D5 = IOB_E6_1;
-	special_io D6 = IOB_E6_0;
-	special_io D7 = IOB_E7_1;
-	special_io DOUT = IOB_E8_1;
-	special_io DI = IOB_E7_0;
-	special_io BUSY = IOB_E8_0;
+	special_io CLOCK_W0 = D0X0Y19.IO[0];
+	special_io CLOCK_W1 = D0X0Y17.IO[0];
+	special_io CLOCK_E0 = D0X55Y19.IO[0];
+	special_io CLOCK_E1 = D0X55Y17.IO[0];
+	special_io CLOCK_S0 = D0X25Y0.IO[0];
+	special_io CLOCK_S1 = D0X30Y0.IO[0];
+	special_io CLOCK_N0 = D0X27Y31.IO[0];
+	special_io CLOCK_N1 = D0X29Y31.IO[0];
+	special_io PLL_IN0_SW0 = D0X0Y12.IO[0];
+	special_io PLL_IN0_SE0 = D0X55Y12.IO[0];
+	special_io PLL_IN1_SW0 = D0X0Y15.IO[0];
+	special_io PLL_IN1_SE0 = D0X55Y15.IO[0];
+	special_io PLL_FB_SW0 = D0X0Y11.IO[0];
+	special_io PLL_FB_SE0 = D0X55Y11.IO[0];
+	special_io DLL_IN0_SW0 = D0X0Y15.IO[0];
+	special_io DLL_IN0_SE0 = D0X55Y15.IO[0];
+	special_io DLL_IN1_SW0 = D0X0Y12.IO[0];
+	special_io DLL_IN1_SE0 = D0X55Y12.IO[0];
+	special_io DLL_FB_SW0 = D0X0Y14.IO[0];
+	special_io DLL_FB_SE0 = D0X55Y14.IO[0];
+	special_io VREF1_0 = D0X1Y31.IO[0];
+	special_io VREF1_1 = D0X54Y31.IO[0];
+	special_io VREF1_2 = D0X55Y30.IO[0];
+	special_io VREF1_3 = D0X55Y16.IO[0];
+	special_io VREF1_4 = D0X54Y0.IO[1];
+	special_io VREF1_5 = D0X1Y0.IO[1];
+	special_io VREF1_6 = D0X0Y16.IO[1];
+	special_io VREF1_7 = D0X0Y30.IO[1];
+	special_io VREF2_0 = D0X1Y31.IO[1];
+	special_io VREF2_1 = D0X54Y31.IO[1];
+	special_io VREF2_2 = D0X55Y30.IO[1];
+	special_io VREF2_3 = D0X55Y16.IO[1];
+	special_io VREF2_4 = D0X54Y0.IO[0];
+	special_io VREF2_5 = D0X1Y0.IO[0];
+	special_io VREF2_6 = D0X0Y16.IO[0];
+	special_io VREF2_7 = D0X0Y30.IO[0];
+	special_io WRITE_N = D0X55Y2.IO[1];
+	special_io CS_N = D0X55Y3.IO[1];
+	special_io CS1_N = D0X55Y2.IO[0];
+	special_io D0 = D0X55Y3.IO[0];
+	special_io D1 = D0X55Y4.IO[1];
+	special_io D2 = D0X55Y4.IO[0];
+	special_io D3 = D0X55Y5.IO[1];
+	special_io D4 = D0X55Y5.IO[0];
+	special_io D5 = D0X55Y6.IO[1];
+	special_io D6 = D0X55Y6.IO[0];
+	special_io D7 = D0X55Y7.IO[1];
+	special_io DOUT = D0X55Y8.IO[1];
+	special_io DI = D0X55Y7.IO[0];
+	special_io BUSY = D0X55Y8.IO[0];
 }
 
 // LFE2-20E
@@ -482,56 +482,56 @@ chip CHIP2 {
 	special_loc SCLK_IN_N2 = D0X39Y45;
 	special_loc SCLK_IN_N3 = D0X40Y45;
 	special_loc CONFIG = D0X37Y17;
-	special_io CLOCK_W0 = IOB_W27_0;
-	special_io CLOCK_W1 = IOB_W25_0;
-	special_io CLOCK_E0 = IOB_E27_0;
-	special_io CLOCK_E1 = IOB_E25_0;
-	special_io CLOCK_S0 = IOB_S34_0;
-	special_io CLOCK_S1 = IOB_S39_0;
-	special_io CLOCK_N0 = IOB_N36_0;
-	special_io CLOCK_N1 = IOB_N38_0;
-	special_io PLL_IN0_SW0 = IOB_W16_0;
-	special_io PLL_IN0_SE0 = IOB_E16_0;
-	special_io PLL_IN1_SW0 = IOB_W19_0;
-	special_io PLL_IN1_SE0 = IOB_E19_0;
-	special_io PLL_FB_SW0 = IOB_W15_0;
-	special_io PLL_FB_SE0 = IOB_E15_0;
-	special_io DLL_IN0_SW0 = IOB_W19_0;
-	special_io DLL_IN0_SE0 = IOB_E19_0;
-	special_io DLL_IN1_SW0 = IOB_W16_0;
-	special_io DLL_IN1_SE0 = IOB_E16_0;
-	special_io DLL_FB_SW0 = IOB_W18_0;
-	special_io DLL_FB_SE0 = IOB_E18_0;
-	special_io VREF1_0 = IOB_N1_0;
-	special_io VREF1_1 = IOB_N63_0;
-	special_io VREF1_2 = IOB_E44_0;
-	special_io VREF1_3 = IOB_E24_0;
-	special_io VREF1_4 = IOB_S63_1;
-	special_io VREF1_5 = IOB_S1_1;
-	special_io VREF1_6 = IOB_W24_1;
-	special_io VREF1_7 = IOB_W44_1;
-	special_io VREF2_0 = IOB_N1_1;
-	special_io VREF2_1 = IOB_N63_1;
-	special_io VREF2_2 = IOB_E44_1;
-	special_io VREF2_3 = IOB_E24_1;
-	special_io VREF2_4 = IOB_S63_0;
-	special_io VREF2_5 = IOB_S1_0;
-	special_io VREF2_6 = IOB_W24_0;
-	special_io VREF2_7 = IOB_W44_0;
-	special_io WRITE_N = IOB_E2_1;
-	special_io CS_N = IOB_E3_1;
-	special_io CS1_N = IOB_E2_0;
-	special_io D0 = IOB_E3_0;
-	special_io D1 = IOB_E4_1;
-	special_io D2 = IOB_E4_0;
-	special_io D3 = IOB_E5_1;
-	special_io D4 = IOB_E5_0;
-	special_io D5 = IOB_E6_1;
-	special_io D6 = IOB_E6_0;
-	special_io D7 = IOB_E7_1;
-	special_io DOUT = IOB_E8_1;
-	special_io DI = IOB_E7_0;
-	special_io BUSY = IOB_E8_0;
+	special_io CLOCK_W0 = D0X0Y27.IO[0];
+	special_io CLOCK_W1 = D0X0Y25.IO[0];
+	special_io CLOCK_E0 = D0X64Y27.IO[0];
+	special_io CLOCK_E1 = D0X64Y25.IO[0];
+	special_io CLOCK_S0 = D0X34Y0.IO[0];
+	special_io CLOCK_S1 = D0X39Y0.IO[0];
+	special_io CLOCK_N0 = D0X36Y45.IO[0];
+	special_io CLOCK_N1 = D0X38Y45.IO[0];
+	special_io PLL_IN0_SW0 = D0X0Y16.IO[0];
+	special_io PLL_IN0_SE0 = D0X64Y16.IO[0];
+	special_io PLL_IN1_SW0 = D0X0Y19.IO[0];
+	special_io PLL_IN1_SE0 = D0X64Y19.IO[0];
+	special_io PLL_FB_SW0 = D0X0Y15.IO[0];
+	special_io PLL_FB_SE0 = D0X64Y15.IO[0];
+	special_io DLL_IN0_SW0 = D0X0Y19.IO[0];
+	special_io DLL_IN0_SE0 = D0X64Y19.IO[0];
+	special_io DLL_IN1_SW0 = D0X0Y16.IO[0];
+	special_io DLL_IN1_SE0 = D0X64Y16.IO[0];
+	special_io DLL_FB_SW0 = D0X0Y18.IO[0];
+	special_io DLL_FB_SE0 = D0X64Y18.IO[0];
+	special_io VREF1_0 = D0X1Y45.IO[0];
+	special_io VREF1_1 = D0X63Y45.IO[0];
+	special_io VREF1_2 = D0X64Y44.IO[0];
+	special_io VREF1_3 = D0X64Y24.IO[0];
+	special_io VREF1_4 = D0X63Y0.IO[1];
+	special_io VREF1_5 = D0X1Y0.IO[1];
+	special_io VREF1_6 = D0X0Y24.IO[1];
+	special_io VREF1_7 = D0X0Y44.IO[1];
+	special_io VREF2_0 = D0X1Y45.IO[1];
+	special_io VREF2_1 = D0X63Y45.IO[1];
+	special_io VREF2_2 = D0X64Y44.IO[1];
+	special_io VREF2_3 = D0X64Y24.IO[1];
+	special_io VREF2_4 = D0X63Y0.IO[0];
+	special_io VREF2_5 = D0X1Y0.IO[0];
+	special_io VREF2_6 = D0X0Y24.IO[0];
+	special_io VREF2_7 = D0X0Y44.IO[0];
+	special_io WRITE_N = D0X64Y2.IO[1];
+	special_io CS_N = D0X64Y3.IO[1];
+	special_io CS1_N = D0X64Y2.IO[0];
+	special_io D0 = D0X64Y3.IO[0];
+	special_io D1 = D0X64Y4.IO[1];
+	special_io D2 = D0X64Y4.IO[0];
+	special_io D3 = D0X64Y5.IO[1];
+	special_io D4 = D0X64Y5.IO[0];
+	special_io D5 = D0X64Y6.IO[1];
+	special_io D6 = D0X64Y6.IO[0];
+	special_io D7 = D0X64Y7.IO[1];
+	special_io DOUT = D0X64Y8.IO[1];
+	special_io DI = D0X64Y7.IO[0];
+	special_io BUSY = D0X64Y8.IO[0];
 }
 
 // LFE2-35E
@@ -708,56 +708,56 @@ chip CHIP3 {
 	special_loc SCLK_IN_N2 = D0X39Y59;
 	special_loc SCLK_IN_N3 = D0X40Y59;
 	special_loc CONFIG = D0X37Y17;
-	special_io CLOCK_W0 = IOB_W35_0;
-	special_io CLOCK_W1 = IOB_W33_0;
-	special_io CLOCK_E0 = IOB_E35_0;
-	special_io CLOCK_E1 = IOB_E33_0;
-	special_io CLOCK_S0 = IOB_S34_0;
-	special_io CLOCK_S1 = IOB_S39_0;
-	special_io CLOCK_N0 = IOB_N36_0;
-	special_io CLOCK_N1 = IOB_N38_0;
-	special_io PLL_IN0_SW0 = IOB_W16_0;
-	special_io PLL_IN0_SE0 = IOB_E16_0;
-	special_io PLL_IN1_SW0 = IOB_W19_0;
-	special_io PLL_IN1_SE0 = IOB_E19_0;
-	special_io PLL_FB_SW0 = IOB_W15_0;
-	special_io PLL_FB_SE0 = IOB_E15_0;
-	special_io DLL_IN0_SW0 = IOB_W19_0;
-	special_io DLL_IN0_SE0 = IOB_E19_0;
-	special_io DLL_IN1_SW0 = IOB_W16_0;
-	special_io DLL_IN1_SE0 = IOB_E16_0;
-	special_io DLL_FB_SW0 = IOB_W18_0;
-	special_io DLL_FB_SE0 = IOB_E18_0;
-	special_io VREF1_0 = IOB_N1_0;
-	special_io VREF1_1 = IOB_N72_0;
-	special_io VREF1_2 = IOB_E58_0;
-	special_io VREF1_3 = IOB_E32_0;
-	special_io VREF1_4 = IOB_S72_1;
-	special_io VREF1_5 = IOB_S1_1;
-	special_io VREF1_6 = IOB_W32_1;
-	special_io VREF1_7 = IOB_W58_1;
-	special_io VREF2_0 = IOB_N1_1;
-	special_io VREF2_1 = IOB_N72_1;
-	special_io VREF2_2 = IOB_E58_1;
-	special_io VREF2_3 = IOB_E32_1;
-	special_io VREF2_4 = IOB_S72_0;
-	special_io VREF2_5 = IOB_S1_0;
-	special_io VREF2_6 = IOB_W32_0;
-	special_io VREF2_7 = IOB_W58_0;
-	special_io WRITE_N = IOB_E2_1;
-	special_io CS_N = IOB_E3_1;
-	special_io CS1_N = IOB_E2_0;
-	special_io D0 = IOB_E3_0;
-	special_io D1 = IOB_E4_1;
-	special_io D2 = IOB_E4_0;
-	special_io D3 = IOB_E5_1;
-	special_io D4 = IOB_E5_0;
-	special_io D5 = IOB_E6_1;
-	special_io D6 = IOB_E6_0;
-	special_io D7 = IOB_E7_1;
-	special_io DOUT = IOB_E8_1;
-	special_io DI = IOB_E7_0;
-	special_io BUSY = IOB_E8_0;
+	special_io CLOCK_W0 = D0X0Y35.IO[0];
+	special_io CLOCK_W1 = D0X0Y33.IO[0];
+	special_io CLOCK_E0 = D0X73Y35.IO[0];
+	special_io CLOCK_E1 = D0X73Y33.IO[0];
+	special_io CLOCK_S0 = D0X34Y0.IO[0];
+	special_io CLOCK_S1 = D0X39Y0.IO[0];
+	special_io CLOCK_N0 = D0X36Y59.IO[0];
+	special_io CLOCK_N1 = D0X38Y59.IO[0];
+	special_io PLL_IN0_SW0 = D0X0Y16.IO[0];
+	special_io PLL_IN0_SE0 = D0X73Y16.IO[0];
+	special_io PLL_IN1_SW0 = D0X0Y19.IO[0];
+	special_io PLL_IN1_SE0 = D0X73Y19.IO[0];
+	special_io PLL_FB_SW0 = D0X0Y15.IO[0];
+	special_io PLL_FB_SE0 = D0X73Y15.IO[0];
+	special_io DLL_IN0_SW0 = D0X0Y19.IO[0];
+	special_io DLL_IN0_SE0 = D0X73Y19.IO[0];
+	special_io DLL_IN1_SW0 = D0X0Y16.IO[0];
+	special_io DLL_IN1_SE0 = D0X73Y16.IO[0];
+	special_io DLL_FB_SW0 = D0X0Y18.IO[0];
+	special_io DLL_FB_SE0 = D0X73Y18.IO[0];
+	special_io VREF1_0 = D0X1Y59.IO[0];
+	special_io VREF1_1 = D0X72Y59.IO[0];
+	special_io VREF1_2 = D0X73Y58.IO[0];
+	special_io VREF1_3 = D0X73Y32.IO[0];
+	special_io VREF1_4 = D0X72Y0.IO[1];
+	special_io VREF1_5 = D0X1Y0.IO[1];
+	special_io VREF1_6 = D0X0Y32.IO[1];
+	special_io VREF1_7 = D0X0Y58.IO[1];
+	special_io VREF2_0 = D0X1Y59.IO[1];
+	special_io VREF2_1 = D0X72Y59.IO[1];
+	special_io VREF2_2 = D0X73Y58.IO[1];
+	special_io VREF2_3 = D0X73Y32.IO[1];
+	special_io VREF2_4 = D0X72Y0.IO[0];
+	special_io VREF2_5 = D0X1Y0.IO[0];
+	special_io VREF2_6 = D0X0Y32.IO[0];
+	special_io VREF2_7 = D0X0Y58.IO[0];
+	special_io WRITE_N = D0X73Y2.IO[1];
+	special_io CS_N = D0X73Y3.IO[1];
+	special_io CS1_N = D0X73Y2.IO[0];
+	special_io D0 = D0X73Y3.IO[0];
+	special_io D1 = D0X73Y4.IO[1];
+	special_io D2 = D0X73Y4.IO[0];
+	special_io D3 = D0X73Y5.IO[1];
+	special_io D4 = D0X73Y5.IO[0];
+	special_io D5 = D0X73Y6.IO[1];
+	special_io D6 = D0X73Y6.IO[0];
+	special_io D7 = D0X73Y7.IO[1];
+	special_io DOUT = D0X73Y8.IO[1];
+	special_io DI = D0X73Y7.IO[0];
+	special_io BUSY = D0X73Y8.IO[0];
 }
 
 // LFE2-50E
@@ -964,62 +964,62 @@ chip CHIP4 {
 	special_loc SCLK_IN_N2 = D0X48Y78;
 	special_loc SCLK_IN_N3 = D0X49Y78;
 	special_loc CONFIG = D0X46Y17;
-	special_io CLOCK_W0 = IOB_W35_0;
-	special_io CLOCK_W1 = IOB_W33_0;
-	special_io CLOCK_E0 = IOB_E35_0;
-	special_io CLOCK_E1 = IOB_E33_0;
-	special_io CLOCK_S0 = IOB_S43_0;
-	special_io CLOCK_S1 = IOB_S48_0;
-	special_io CLOCK_N0 = IOB_N45_0;
-	special_io CLOCK_N1 = IOB_N47_0;
-	special_io PLL_IN0_SW0 = IOB_W16_0;
-	special_io PLL_IN0_NW1 = IOB_W54_0;
-	special_io PLL_IN0_SE0 = IOB_E16_0;
-	special_io PLL_IN0_NE1 = IOB_E54_0;
-	special_io PLL_IN1_SW0 = IOB_W19_0;
-	special_io PLL_IN1_NW1 = IOB_W16_0;
-	special_io PLL_IN1_SE0 = IOB_E19_0;
-	special_io PLL_IN1_NE1 = IOB_E16_0;
-	special_io PLL_FB_SW0 = IOB_W15_0;
-	special_io PLL_FB_NW1 = IOB_W53_0;
-	special_io PLL_FB_SE0 = IOB_E15_0;
-	special_io PLL_FB_NE1 = IOB_E53_0;
-	special_io DLL_IN0_SW0 = IOB_W19_0;
-	special_io DLL_IN0_SE0 = IOB_E19_0;
-	special_io DLL_IN1_SW0 = IOB_W16_0;
-	special_io DLL_IN1_SE0 = IOB_E16_0;
-	special_io DLL_FB_SW0 = IOB_W18_0;
-	special_io DLL_FB_SE0 = IOB_E18_0;
-	special_io VREF1_0 = IOB_N1_0;
-	special_io VREF1_1 = IOB_N81_0;
-	special_io VREF1_2 = IOB_E77_0;
-	special_io VREF1_3 = IOB_E32_0;
-	special_io VREF1_4 = IOB_S81_1;
-	special_io VREF1_5 = IOB_S1_1;
-	special_io VREF1_6 = IOB_W32_1;
-	special_io VREF1_7 = IOB_W77_1;
-	special_io VREF2_0 = IOB_N1_1;
-	special_io VREF2_1 = IOB_N81_1;
-	special_io VREF2_2 = IOB_E77_1;
-	special_io VREF2_3 = IOB_E32_1;
-	special_io VREF2_4 = IOB_S81_0;
-	special_io VREF2_5 = IOB_S1_0;
-	special_io VREF2_6 = IOB_W32_0;
-	special_io VREF2_7 = IOB_W77_0;
-	special_io WRITE_N = IOB_E2_1;
-	special_io CS_N = IOB_E3_1;
-	special_io CS1_N = IOB_E2_0;
-	special_io D0 = IOB_E3_0;
-	special_io D1 = IOB_E4_1;
-	special_io D2 = IOB_E4_0;
-	special_io D3 = IOB_E5_1;
-	special_io D4 = IOB_E5_0;
-	special_io D5 = IOB_E6_1;
-	special_io D6 = IOB_E6_0;
-	special_io D7 = IOB_E7_1;
-	special_io DOUT = IOB_E8_1;
-	special_io DI = IOB_E7_0;
-	special_io BUSY = IOB_E8_0;
+	special_io CLOCK_W0 = D0X0Y35.IO[0];
+	special_io CLOCK_W1 = D0X0Y33.IO[0];
+	special_io CLOCK_E0 = D0X82Y35.IO[0];
+	special_io CLOCK_E1 = D0X82Y33.IO[0];
+	special_io CLOCK_S0 = D0X43Y0.IO[0];
+	special_io CLOCK_S1 = D0X48Y0.IO[0];
+	special_io CLOCK_N0 = D0X45Y78.IO[0];
+	special_io CLOCK_N1 = D0X47Y78.IO[0];
+	special_io PLL_IN0_SW0 = D0X0Y16.IO[0];
+	special_io PLL_IN0_NW1 = D0X0Y54.IO[0];
+	special_io PLL_IN0_SE0 = D0X82Y16.IO[0];
+	special_io PLL_IN0_NE1 = D0X82Y54.IO[0];
+	special_io PLL_IN1_SW0 = D0X0Y19.IO[0];
+	special_io PLL_IN1_NW1 = D0X0Y16.IO[0];
+	special_io PLL_IN1_SE0 = D0X82Y19.IO[0];
+	special_io PLL_IN1_NE1 = D0X82Y16.IO[0];
+	special_io PLL_FB_SW0 = D0X0Y15.IO[0];
+	special_io PLL_FB_NW1 = D0X0Y53.IO[0];
+	special_io PLL_FB_SE0 = D0X82Y15.IO[0];
+	special_io PLL_FB_NE1 = D0X82Y53.IO[0];
+	special_io DLL_IN0_SW0 = D0X0Y19.IO[0];
+	special_io DLL_IN0_SE0 = D0X82Y19.IO[0];
+	special_io DLL_IN1_SW0 = D0X0Y16.IO[0];
+	special_io DLL_IN1_SE0 = D0X82Y16.IO[0];
+	special_io DLL_FB_SW0 = D0X0Y18.IO[0];
+	special_io DLL_FB_SE0 = D0X82Y18.IO[0];
+	special_io VREF1_0 = D0X1Y78.IO[0];
+	special_io VREF1_1 = D0X81Y78.IO[0];
+	special_io VREF1_2 = D0X82Y77.IO[0];
+	special_io VREF1_3 = D0X82Y32.IO[0];
+	special_io VREF1_4 = D0X81Y0.IO[1];
+	special_io VREF1_5 = D0X1Y0.IO[1];
+	special_io VREF1_6 = D0X0Y32.IO[1];
+	special_io VREF1_7 = D0X0Y77.IO[1];
+	special_io VREF2_0 = D0X1Y78.IO[1];
+	special_io VREF2_1 = D0X81Y78.IO[1];
+	special_io VREF2_2 = D0X82Y77.IO[1];
+	special_io VREF2_3 = D0X82Y32.IO[1];
+	special_io VREF2_4 = D0X81Y0.IO[0];
+	special_io VREF2_5 = D0X1Y0.IO[0];
+	special_io VREF2_6 = D0X0Y32.IO[0];
+	special_io VREF2_7 = D0X0Y77.IO[0];
+	special_io WRITE_N = D0X82Y2.IO[1];
+	special_io CS_N = D0X82Y3.IO[1];
+	special_io CS1_N = D0X82Y2.IO[0];
+	special_io D0 = D0X82Y3.IO[0];
+	special_io D1 = D0X82Y4.IO[1];
+	special_io D2 = D0X82Y4.IO[0];
+	special_io D3 = D0X82Y5.IO[1];
+	special_io D4 = D0X82Y5.IO[0];
+	special_io D5 = D0X82Y6.IO[1];
+	special_io D6 = D0X82Y6.IO[0];
+	special_io D7 = D0X82Y7.IO[1];
+	special_io DOUT = D0X82Y8.IO[1];
+	special_io DI = D0X82Y7.IO[0];
+	special_io BUSY = D0X82Y8.IO[0];
 }
 
 // LFE2-70E
@@ -1259,68 +1259,68 @@ chip CHIP5 {
 	special_loc SCLK_IN_N2 = D0X57Y91;
 	special_loc SCLK_IN_N3 = D0X58Y91;
 	special_loc CONFIG = D0X55Y17;
-	special_io CLOCK_W0 = IOB_W35_0;
-	special_io CLOCK_W1 = IOB_W33_0;
-	special_io CLOCK_E0 = IOB_E35_0;
-	special_io CLOCK_E1 = IOB_E33_0;
-	special_io CLOCK_S0 = IOB_S52_0;
-	special_io CLOCK_S1 = IOB_S57_0;
-	special_io CLOCK_N0 = IOB_N54_0;
-	special_io CLOCK_N1 = IOB_N56_0;
-	special_io PLL_IN0_SW0 = IOB_W16_0;
-	special_io PLL_IN0_NW0 = IOB_W54_0;
-	special_io PLL_IN0_NW1 = IOB_W78_0;
-	special_io PLL_IN0_SE0 = IOB_E16_0;
-	special_io PLL_IN0_NE0 = IOB_E54_0;
-	special_io PLL_IN0_NE1 = IOB_E78_0;
-	special_io PLL_IN1_SW0 = IOB_W19_0;
-	special_io PLL_IN1_NW0 = IOB_W78_0;
-	special_io PLL_IN1_NW1 = IOB_W54_0;
-	special_io PLL_IN1_SE0 = IOB_E19_0;
-	special_io PLL_IN1_NE0 = IOB_E78_0;
-	special_io PLL_IN1_NE1 = IOB_E54_0;
-	special_io PLL_FB_SW0 = IOB_W15_0;
-	special_io PLL_FB_NW0 = IOB_W53_0;
-	special_io PLL_FB_NW1 = IOB_W77_0;
-	special_io PLL_FB_SE0 = IOB_E15_0;
-	special_io PLL_FB_NE0 = IOB_E53_0;
-	special_io PLL_FB_NE1 = IOB_E77_0;
-	special_io DLL_IN0_SW0 = IOB_W19_0;
-	special_io DLL_IN0_SE0 = IOB_E19_0;
-	special_io DLL_IN1_SW0 = IOB_W16_0;
-	special_io DLL_IN1_SE0 = IOB_E16_0;
-	special_io DLL_FB_SW0 = IOB_W18_0;
-	special_io DLL_FB_SE0 = IOB_E18_0;
-	special_io VREF1_0 = IOB_N1_0;
-	special_io VREF1_1 = IOB_N99_0;
-	special_io VREF1_2 = IOB_E90_0;
-	special_io VREF1_3 = IOB_E32_0;
-	special_io VREF1_4 = IOB_S99_1;
-	special_io VREF1_5 = IOB_S1_1;
-	special_io VREF1_6 = IOB_W32_1;
-	special_io VREF1_7 = IOB_W90_1;
-	special_io VREF2_0 = IOB_N1_1;
-	special_io VREF2_1 = IOB_N99_1;
-	special_io VREF2_2 = IOB_E90_1;
-	special_io VREF2_3 = IOB_E32_1;
-	special_io VREF2_4 = IOB_S99_0;
-	special_io VREF2_5 = IOB_S1_0;
-	special_io VREF2_6 = IOB_W32_0;
-	special_io VREF2_7 = IOB_W90_0;
-	special_io WRITE_N = IOB_E2_1;
-	special_io CS_N = IOB_E3_1;
-	special_io CS1_N = IOB_E2_0;
-	special_io D0 = IOB_E3_0;
-	special_io D1 = IOB_E4_1;
-	special_io D2 = IOB_E4_0;
-	special_io D3 = IOB_E5_1;
-	special_io D4 = IOB_E5_0;
-	special_io D5 = IOB_E6_1;
-	special_io D6 = IOB_E6_0;
-	special_io D7 = IOB_E7_1;
-	special_io DOUT = IOB_E8_1;
-	special_io DI = IOB_E7_0;
-	special_io BUSY = IOB_E8_0;
+	special_io CLOCK_W0 = D0X0Y35.IO[0];
+	special_io CLOCK_W1 = D0X0Y33.IO[0];
+	special_io CLOCK_E0 = D0X100Y35.IO[0];
+	special_io CLOCK_E1 = D0X100Y33.IO[0];
+	special_io CLOCK_S0 = D0X52Y0.IO[0];
+	special_io CLOCK_S1 = D0X57Y0.IO[0];
+	special_io CLOCK_N0 = D0X54Y91.IO[0];
+	special_io CLOCK_N1 = D0X56Y91.IO[0];
+	special_io PLL_IN0_SW0 = D0X0Y16.IO[0];
+	special_io PLL_IN0_NW0 = D0X0Y54.IO[0];
+	special_io PLL_IN0_NW1 = D0X0Y78.IO[0];
+	special_io PLL_IN0_SE0 = D0X100Y16.IO[0];
+	special_io PLL_IN0_NE0 = D0X100Y54.IO[0];
+	special_io PLL_IN0_NE1 = D0X100Y78.IO[0];
+	special_io PLL_IN1_SW0 = D0X0Y19.IO[0];
+	special_io PLL_IN1_NW0 = D0X0Y78.IO[0];
+	special_io PLL_IN1_NW1 = D0X0Y54.IO[0];
+	special_io PLL_IN1_SE0 = D0X100Y19.IO[0];
+	special_io PLL_IN1_NE0 = D0X100Y78.IO[0];
+	special_io PLL_IN1_NE1 = D0X100Y54.IO[0];
+	special_io PLL_FB_SW0 = D0X0Y15.IO[0];
+	special_io PLL_FB_NW0 = D0X0Y53.IO[0];
+	special_io PLL_FB_NW1 = D0X0Y77.IO[0];
+	special_io PLL_FB_SE0 = D0X100Y15.IO[0];
+	special_io PLL_FB_NE0 = D0X100Y53.IO[0];
+	special_io PLL_FB_NE1 = D0X100Y77.IO[0];
+	special_io DLL_IN0_SW0 = D0X0Y19.IO[0];
+	special_io DLL_IN0_SE0 = D0X100Y19.IO[0];
+	special_io DLL_IN1_SW0 = D0X0Y16.IO[0];
+	special_io DLL_IN1_SE0 = D0X100Y16.IO[0];
+	special_io DLL_FB_SW0 = D0X0Y18.IO[0];
+	special_io DLL_FB_SE0 = D0X100Y18.IO[0];
+	special_io VREF1_0 = D0X1Y91.IO[0];
+	special_io VREF1_1 = D0X99Y91.IO[0];
+	special_io VREF1_2 = D0X100Y90.IO[0];
+	special_io VREF1_3 = D0X100Y32.IO[0];
+	special_io VREF1_4 = D0X99Y0.IO[1];
+	special_io VREF1_5 = D0X1Y0.IO[1];
+	special_io VREF1_6 = D0X0Y32.IO[1];
+	special_io VREF1_7 = D0X0Y90.IO[1];
+	special_io VREF2_0 = D0X1Y91.IO[1];
+	special_io VREF2_1 = D0X99Y91.IO[1];
+	special_io VREF2_2 = D0X100Y90.IO[1];
+	special_io VREF2_3 = D0X100Y32.IO[1];
+	special_io VREF2_4 = D0X99Y0.IO[0];
+	special_io VREF2_5 = D0X1Y0.IO[0];
+	special_io VREF2_6 = D0X0Y32.IO[0];
+	special_io VREF2_7 = D0X0Y90.IO[0];
+	special_io WRITE_N = D0X100Y2.IO[1];
+	special_io CS_N = D0X100Y3.IO[1];
+	special_io CS1_N = D0X100Y2.IO[0];
+	special_io D0 = D0X100Y3.IO[0];
+	special_io D1 = D0X100Y4.IO[1];
+	special_io D2 = D0X100Y4.IO[0];
+	special_io D3 = D0X100Y5.IO[1];
+	special_io D4 = D0X100Y5.IO[0];
+	special_io D5 = D0X100Y6.IO[1];
+	special_io D6 = D0X100Y6.IO[0];
+	special_io D7 = D0X100Y7.IO[1];
+	special_io DOUT = D0X100Y8.IO[1];
+	special_io DI = D0X100Y7.IO[0];
+	special_io BUSY = D0X100Y8.IO[0];
 }
 
 // LFE2-6E-TQFP144
@@ -9727,12 +9727,12 @@ intdb {
 	}
 
 	bel_class IO {
+		input PADDT;
 		input CLK;
 		input LSR;
 		input CE;
 		input OPOS[2];
 		input ONEG[2];
-		input TD;
 		input ECLKI;
 		input ECLKO;
 		input DEL[4];
@@ -11133,6 +11133,7 @@ intdb {
 			cell CELL;
 
 			bel IO[0] {
+				input PADDT = IMUX_A[2];
 				input CLK = IMUX_CLK[0];
 				input LSR = IMUX_LSR[0];
 				input CE = IMUX_CE[0];
@@ -11140,7 +11141,8 @@ intdb {
 				input OPOS[1] = IMUX_B[1];
 				input ONEG[0] = IMUX_D[0];
 				input ONEG[1] = IMUX_D[2];
-				input TD = IMUX_A[2];
+				input ECLKI = IMUX_IO_ECLKI[0];
+				input ECLKO = IMUX_IO_ECLKO[0];
 				input DEL[0] = IMUX_D[4];
 				input DEL[1] = IMUX_C[4];
 				input DEL[2] = IMUX_B[4];
@@ -11154,6 +11156,7 @@ intdb {
 			}
 
 			bel IO[1] {
+				input PADDT = IMUX_A[3];
 				input CLK = IMUX_CLK[1];
 				input LSR = IMUX_LSR[1];
 				input CE = IMUX_CE[1];
@@ -11161,7 +11164,8 @@ intdb {
 				input OPOS[1] = IMUX_A[1];
 				input ONEG[0] = IMUX_C[0];
 				input ONEG[1] = IMUX_C[2];
-				input TD = IMUX_A[3];
+				input ECLKI = IMUX_IO_ECLKI[1];
+				input ECLKO = IMUX_IO_ECLKO[1];
 				input DEL[0] = IMUX_D[5];
 				input DEL[1] = IMUX_C[5];
 				input DEL[2] = IMUX_B[5];
@@ -11181,10 +11185,14 @@ intdb {
 				mux IMUX_IO_ECLKO[1] = ECLK[0] | ECLK[1];
 			}
 
+			// wire IMUX_IO_ECLKI[0]               IO[0].ECLKI
+			// wire IMUX_IO_ECLKI[1]               IO[1].ECLKI
+			// wire IMUX_IO_ECLKO[0]               IO[0].ECLKO
+			// wire IMUX_IO_ECLKO[1]               IO[1].ECLKO
 			// wire IMUX_A[0]                      IO[1].OPOS[0]
 			// wire IMUX_A[1]                      IO[1].OPOS[1]
-			// wire IMUX_A[2]                      IO[0].TD
-			// wire IMUX_A[3]                      IO[1].TD
+			// wire IMUX_A[2]                      IO[0].PADDT
+			// wire IMUX_A[3]                      IO[1].PADDT
 			// wire IMUX_A[4]                      IO[0].DEL[3]
 			// wire IMUX_A[5]                      IO[1].DEL[3]
 			// wire IMUX_B[0]                      IO[0].OPOS[0]
@@ -11223,6 +11231,7 @@ intdb {
 			cell CELL;
 
 			bel IO[0] {
+				input PADDT = IMUX_A[2];
 				input CLK = IMUX_CLK[0];
 				input LSR = IMUX_LSR[0];
 				input CE = IMUX_CE[0];
@@ -11230,7 +11239,8 @@ intdb {
 				input OPOS[1] = IMUX_B[1];
 				input ONEG[0] = IMUX_D[0];
 				input ONEG[1] = IMUX_D[2];
-				input TD = IMUX_A[2];
+				input ECLKI = IMUX_IO_ECLKI[0];
+				input ECLKO = IMUX_IO_ECLKO[0];
 				input DEL[0] = IMUX_D[4];
 				input DEL[1] = IMUX_C[4];
 				input DEL[2] = IMUX_B[4];
@@ -11244,6 +11254,7 @@ intdb {
 			}
 
 			bel IO[1] {
+				input PADDT = IMUX_A[3];
 				input CLK = IMUX_CLK[1];
 				input LSR = IMUX_LSR[1];
 				input CE = IMUX_CE[1];
@@ -11251,7 +11262,8 @@ intdb {
 				input OPOS[1] = IMUX_A[1];
 				input ONEG[0] = IMUX_C[0];
 				input ONEG[1] = IMUX_C[2];
-				input TD = IMUX_A[3];
+				input ECLKI = IMUX_IO_ECLKI[1];
+				input ECLKO = IMUX_IO_ECLKO[1];
 				input DEL[0] = IMUX_D[5];
 				input DEL[1] = IMUX_C[5];
 				input DEL[2] = IMUX_B[5];
@@ -11271,10 +11283,14 @@ intdb {
 				mux IMUX_IO_ECLKO[1] = ECLK[0] | ECLK[1];
 			}
 
+			// wire IMUX_IO_ECLKI[0]               IO[0].ECLKI
+			// wire IMUX_IO_ECLKI[1]               IO[1].ECLKI
+			// wire IMUX_IO_ECLKO[0]               IO[0].ECLKO
+			// wire IMUX_IO_ECLKO[1]               IO[1].ECLKO
 			// wire IMUX_A[0]                      IO[1].OPOS[0]
 			// wire IMUX_A[1]                      IO[1].OPOS[1]
-			// wire IMUX_A[2]                      IO[0].TD
-			// wire IMUX_A[3]                      IO[1].TD
+			// wire IMUX_A[2]                      IO[0].PADDT
+			// wire IMUX_A[3]                      IO[1].PADDT
 			// wire IMUX_A[4]                      IO[0].DEL[3]
 			// wire IMUX_A[5]                      IO[1].DEL[3]
 			// wire IMUX_B[0]                      IO[0].OPOS[0]
@@ -11313,6 +11329,7 @@ intdb {
 			cell CELL;
 
 			bel IO[0] {
+				input PADDT = IMUX_A[2];
 				input CLK = IMUX_CLK[0];
 				input LSR = IMUX_LSR[0];
 				input CE = IMUX_CE[0];
@@ -11320,7 +11337,8 @@ intdb {
 				input OPOS[1] = IMUX_B[1];
 				input ONEG[0] = IMUX_D[0];
 				input ONEG[1] = IMUX_D[2];
-				input TD = IMUX_A[2];
+				input ECLKI = IMUX_IO_ECLKI[0];
+				input ECLKO = IMUX_IO_ECLKO[0];
 				input DEL[0] = IMUX_D[4];
 				input DEL[1] = IMUX_C[4];
 				input DEL[2] = IMUX_B[4];
@@ -11334,6 +11352,7 @@ intdb {
 			}
 
 			bel IO[1] {
+				input PADDT = IMUX_A[3];
 				input CLK = IMUX_CLK[1];
 				input LSR = IMUX_LSR[1];
 				input CE = IMUX_CE[1];
@@ -11341,7 +11360,8 @@ intdb {
 				input OPOS[1] = IMUX_A[1];
 				input ONEG[0] = IMUX_C[0];
 				input ONEG[1] = IMUX_C[2];
-				input TD = IMUX_A[3];
+				input ECLKI = IMUX_IO_ECLKI[1];
+				input ECLKO = IMUX_IO_ECLKO[1];
 				input DEL[0] = IMUX_D[5];
 				input DEL[1] = IMUX_C[5];
 				input DEL[2] = IMUX_B[5];
@@ -11361,10 +11381,14 @@ intdb {
 				mux IMUX_IO_ECLKO[1] = ECLK[0] | ECLK[1];
 			}
 
+			// wire IMUX_IO_ECLKI[0]               IO[0].ECLKI
+			// wire IMUX_IO_ECLKI[1]               IO[1].ECLKI
+			// wire IMUX_IO_ECLKO[0]               IO[0].ECLKO
+			// wire IMUX_IO_ECLKO[1]               IO[1].ECLKO
 			// wire IMUX_A[0]                      IO[1].OPOS[0]
 			// wire IMUX_A[1]                      IO[1].OPOS[1]
-			// wire IMUX_A[2]                      IO[0].TD
-			// wire IMUX_A[3]                      IO[1].TD
+			// wire IMUX_A[2]                      IO[0].PADDT
+			// wire IMUX_A[3]                      IO[1].PADDT
 			// wire IMUX_A[4]                      IO[0].DEL[3]
 			// wire IMUX_A[5]                      IO[1].DEL[3]
 			// wire IMUX_B[0]                      IO[0].OPOS[0]
@@ -11403,6 +11427,7 @@ intdb {
 			cell CELL;
 
 			bel IO[0] {
+				input PADDT = IMUX_A[2];
 				input CLK = IMUX_CLK[0];
 				input LSR = IMUX_LSR[0];
 				input CE = IMUX_CE[0];
@@ -11410,7 +11435,8 @@ intdb {
 				input OPOS[1] = IMUX_B[1];
 				input ONEG[0] = IMUX_D[0];
 				input ONEG[1] = IMUX_D[2];
-				input TD = IMUX_A[2];
+				input ECLKI = IMUX_IO_ECLKI[0];
+				input ECLKO = IMUX_IO_ECLKO[0];
 				input DEL[0] = IMUX_D[4];
 				input DEL[1] = IMUX_C[4];
 				input DEL[2] = IMUX_B[4];
@@ -11424,6 +11450,7 @@ intdb {
 			}
 
 			bel IO[1] {
+				input PADDT = IMUX_A[3];
 				input CLK = IMUX_CLK[1];
 				input LSR = IMUX_LSR[1];
 				input CE = IMUX_CE[1];
@@ -11431,7 +11458,8 @@ intdb {
 				input OPOS[1] = IMUX_A[1];
 				input ONEG[0] = IMUX_C[0];
 				input ONEG[1] = IMUX_C[2];
-				input TD = IMUX_A[3];
+				input ECLKI = IMUX_IO_ECLKI[1];
+				input ECLKO = IMUX_IO_ECLKO[1];
 				input DEL[0] = IMUX_D[5];
 				input DEL[1] = IMUX_C[5];
 				input DEL[2] = IMUX_B[5];
@@ -11451,10 +11479,14 @@ intdb {
 				mux IMUX_IO_ECLKO[1] = ECLK[0] | ECLK[1];
 			}
 
+			// wire IMUX_IO_ECLKI[0]               IO[0].ECLKI
+			// wire IMUX_IO_ECLKI[1]               IO[1].ECLKI
+			// wire IMUX_IO_ECLKO[0]               IO[0].ECLKO
+			// wire IMUX_IO_ECLKO[1]               IO[1].ECLKO
 			// wire IMUX_A[0]                      IO[1].OPOS[0]
 			// wire IMUX_A[1]                      IO[1].OPOS[1]
-			// wire IMUX_A[2]                      IO[0].TD
-			// wire IMUX_A[3]                      IO[1].TD
+			// wire IMUX_A[2]                      IO[0].PADDT
+			// wire IMUX_A[3]                      IO[1].PADDT
 			// wire IMUX_A[4]                      IO[0].DEL[3]
 			// wire IMUX_A[5]                      IO[1].DEL[3]
 			// wire IMUX_B[0]                      IO[0].OPOS[0]

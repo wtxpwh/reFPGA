@@ -2,7 +2,6 @@ use prjcombine_ecp::{
     chip::{Chip, ChipKind, MachXo2Kind, SpecialIoKey, SpecialLocKey},
     defs::{bcls, bslots, tcls},
 };
-use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
     db::LegacyBel,
     dir::{DirH, DirHV, DirV},
@@ -367,8 +366,7 @@ impl ChipContext<'_> {
         core::mem::drop(bel);
 
         let tsall_io = chip.special_io[&SpecialIoKey::TsAll];
-        let tsall_cell = chip.get_io_loc(tsall_io).cell;
-        let tsalli = self.rc_wire(tsall_cell, "JTSALLI_TSALL");
+        let tsalli = self.rc_wire(tsall_io.cell, "JTSALLI_TSALL");
         let wire_io = self.get_special_io_wire_in(SpecialIoKey::TsAll);
         self.claim_pip(tsalli, wire_io);
         self.extract_bel(cell.bel(bslots::TSALL))
@@ -602,14 +600,11 @@ impl ChipContext<'_> {
             let wire = bel.ctx.rc_wire(cell, &format!("J{pin}_JTAG"));
             bel.add_wire(pin, wire);
             if pin == "TDO" {
-                let io = bel.ctx.chip.special_io[&key];
-                let bcrd_io = bel.ctx.chip.get_io_loc(io);
+                let bcrd_io = bel.ctx.chip.special_io[&key];
+                let io_idx = bslots::IO.index_of(bcrd_io.slot).unwrap();
                 let wire_io = bel.ctx.rc_io_wire(
                     bcrd_io.cell,
-                    &format!(
-                        "JPADDO{abcd}",
-                        abcd = ['A', 'B', 'C', 'D'][io.iob().to_idx()],
-                    ),
+                    &format!("JPADDO{abcd}", abcd = ['A', 'B', 'C', 'D'][io_idx],),
                 );
                 bel.ctx.claim_pip(wire, wire_io);
             } else {
@@ -661,22 +656,16 @@ impl ChipContext<'_> {
             if wire_o != wire_oe {
                 self.add_bel_wire(bcrd_efb, pin_oe, wire_oe);
             }
-            let io = self.chip.special_io[&key];
-            let bcrd_io = self.chip.get_io_loc(io);
+            let bcrd_io = self.chip.special_io[&key];
+            let io_idx = bslots::IO.index_of(bcrd_io.slot).unwrap();
             let wire_io_o = self.rc_io_wire(
                 bcrd_io.cell,
-                &format!(
-                    "JPADDO{abcd}",
-                    abcd = ['A', 'B', 'C', 'D'][io.iob().to_idx()],
-                ),
+                &format!("JPADDO{abcd}", abcd = ['A', 'B', 'C', 'D'][io_idx],),
             );
             self.claim_pip(wire_io_o, wire_o);
             let wire_io_oe = self.rc_io_wire(
                 bcrd_io.cell,
-                &format!(
-                    "JPADDT{abcd}",
-                    abcd = ['A', 'B', 'C', 'D'][io.iob().to_idx()],
-                ),
+                &format!("JPADDT{abcd}", abcd = ['A', 'B', 'C', 'D'][io_idx],),
             );
             self.claim_pip(wire_io_oe, wire_oe);
         }

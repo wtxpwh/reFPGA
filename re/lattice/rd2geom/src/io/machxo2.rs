@@ -6,7 +6,7 @@ use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
     db::{BelPin, LegacyBel, WireSlotIdExt},
     dir::{Dir, DirHV, DirV},
-    grid::{BelCoord, CellCoord, ColId, DieIdExt, EdgeIoCoord, RowId, TileIobId},
+    grid::{BelCoord, CellCoord, ColId, DieIdExt, RowId},
 };
 
 use crate::ChipContext;
@@ -234,15 +234,16 @@ impl ChipContext<'_> {
         }
     }
 
-    fn is_machnx_io(&self, io: EdgeIoCoord) -> bool {
+    fn is_machnx_io(&self, bcrd: BelCoord) -> bool {
         if self.chip.kind != ChipKind::MachXo2(MachXo2Kind::MachNx) {
             return false;
         }
-        let EdgeIoCoord::W(row, iob) = io else {
+        if bcrd.col != self.chip.col_w() {
             return false;
-        };
+        }
+        let idx = bslots::IO.index_of(bcrd.slot).unwrap();
         matches!(
-            (row.to_idx(), iob.to_idx()),
+            (bcrd.row.to_idx(), idx),
             (2 | 3 | 4 | 5 | 6 | 9 | 10, _)
                 | (11, 1 | 2)
                 | (12, 1)
@@ -322,10 +323,10 @@ impl ChipContext<'_> {
                 let dqsi = self.rc_io_wire(cell, &format!("JDQSI{i}_DQS"));
                 self.add_bel_wire(bcrd, "DQSI", dqsi);
                 let io = self.chip.special_io[&SpecialIoKey::DqsE(i as u8)];
-                let cell_io = self.chip.get_io_loc(io).cell;
+                let io_idx = bslots::IO.index_of(io.slot).unwrap();
                 let wire_io = self.rc_io_wire(
-                    cell_io,
-                    &format!("JDI{abcd}", abcd = ['A', 'B', 'C', 'D'][io.iob().to_idx()]),
+                    io.cell,
+                    &format!("JDI{abcd}", abcd = ['A', 'B', 'C', 'D'][io_idx]),
                 );
                 self.claim_pip(dqsi, wire_io);
 
@@ -336,20 +337,20 @@ impl ChipContext<'_> {
 
     fn process_single_io_machxo2(&mut self, bcrd: BelCoord) {
         let is_smol = self.chip.rows[self.chip.row_clk].kind != RowKind::Ebr;
-        let io = self.chip.get_io_crd(bcrd);
-        let idx = io.iob().to_idx();
+        let idx = bslots::IO.index_of(bcrd.slot).unwrap();
         let abcd = ['A', 'B', 'C', 'D'][idx];
         let cell = bcrd.cell;
         let (r, c) = self.rc(cell);
-        let mut names = match io.edge() {
+        let edge = self.chip.get_io_edge(bcrd);
+        let mut names = match edge {
             Dir::W => [format!("PL{r}{abcd}"), format!("IOL_L{r}{abcd}")],
             Dir::E => [format!("PR{r}{abcd}"), format!("IOL_R{r}{abcd}")],
             Dir::S => [format!("PB{c}{abcd}"), format!("IOL_B{c}{abcd}")],
             Dir::N => [format!("PT{c}{abcd}"), format!("IOL_T{c}{abcd}")],
         };
         if self.chip.kind == ChipKind::MachXo2(MachXo2Kind::MachNx)
-            && let EdgeIoCoord::W(row, iob) = io
-            && let Some(name) = match (row.to_idx(), iob.to_idx()) {
+            && bcrd.col == self.chip.col_w()
+            && let Some(name) = match (bcrd.row.to_idx(), idx) {
                 (16, 1) => Some("NXBOOT_MCSN"),
                 (11, 1) => Some("NX_PROGRAMN"),
                 (11, 2) => Some("NX_JTAGEN"),
@@ -387,13 +388,16 @@ impl ChipContext<'_> {
             names[0] = name.to_string();
         }
         if self.chip.kind == ChipKind::MachXo2(MachXo2Kind::MachNx)
-            && io == EdgeIoCoord::N(ColId::from_idx(14), TileIobId::from_idx(2))
+            && bcrd
+                == Chip::DIE
+                    .cell(ColId::from_idx(14), self.chip.row_n())
+                    .bel(bslots::IO[2])
         {
             // what. this is actually the XO3 TDO -> XO5 TDI pad btw.
             names[0] = "Unused".to_string();
         }
         self.name_bel(bcrd, names);
-        let bank = self.chip.get_io_bank(io);
+        let bank = self.chip.get_io_bank(bcrd);
         let iol = if is_smol {
             "IOLOGIC"
         } else {
@@ -455,7 +459,7 @@ impl ChipContext<'_> {
         self.claim_pip(di_iol, di);
         self.claim_pip(di, indd);
         self.claim_pip(di, paddi_pio);
-        if self.is_machnx_io(io) {
+        if self.is_machnx_io(bcrd) {
             let wire = wires::OUT_Q[idx];
             let wire = wire.cell(0);
             bel.pins.insert("DI".into(), BelPin::new_out(wire));
@@ -468,7 +472,7 @@ impl ChipContext<'_> {
         let paddt_pio = self.rc_io_wire(cell, &format!("PADDT{abcd}_PIO"));
         self.add_bel_wire(bcrd, "PADDT_PIO", paddt_pio);
 
-        if !self.is_machnx_io(io) {
+        if !self.is_machnx_io(bcrd) {
             let paddo = self.rc_io_wire(cell, &format!("JPADDO{abcd}"));
             self.add_bel_wire(bcrd, "PADDO", paddo);
             let paddt = self.rc_io_wire(cell, &format!("JPADDT{abcd}"));
@@ -525,7 +529,7 @@ impl ChipContext<'_> {
             self.claim_pip(eclk_iol, eclk);
 
             for i in 0..2 {
-                let bcrd_eclksync = self.chip.bel_eclksync(io.edge(), i);
+                let bcrd_eclksync = self.chip.bel_eclksync(edge, i);
                 let wire_eclk = self.naming.bel_wire(bcrd_eclksync, "ECLKO_OUT");
                 self.claim_pip(eclk, wire_eclk);
             }
@@ -559,9 +563,8 @@ impl ChipContext<'_> {
                 MachXo2Kind::MachXo3Lfp | MachXo2Kind::MachXo3D | MachXo2Kind::MachNx
             )
         ) {
-            let is_i3c = io.edge() == Dir::W
-                && self.chip.rows[cell.row].io_w == IoGroupKind::QuadI3c
-                && idx < 2;
+            let is_i3c =
+                edge == Dir::W && self.chip.rows[cell.row].io_w == IoGroupKind::QuadI3c && idx < 2;
 
             for pin in ["RESEN", "PULLUPEN"] {
                 let wire = self.rc_io_wire(cell, &format!("J{pin}{abcd}_PIO"));
@@ -583,8 +586,7 @@ impl ChipContext<'_> {
                 _ => 0,
             };
             for iob in 0..num_io {
-                let io = EdgeIoCoord::W(row, TileIobId::from_idx(iob));
-                let bcrd = self.chip.get_io_loc(io);
+                let bcrd = Chip::DIE.cell(self.chip.col_w(), row).bel(bslots::IO[iob]);
                 self.process_single_io_machxo2(bcrd);
             }
             let num_io = match rd.io_e {
@@ -593,8 +595,7 @@ impl ChipContext<'_> {
                 _ => 0,
             };
             for iob in 0..num_io {
-                let io = EdgeIoCoord::E(row, TileIobId::from_idx(iob));
-                let bcrd = self.chip.get_io_loc(io);
+                let bcrd = Chip::DIE.cell(self.chip.col_e(), row).bel(bslots::IO[iob]);
                 self.process_single_io_machxo2(bcrd);
             }
         }
@@ -605,8 +606,7 @@ impl ChipContext<'_> {
                 _ => 0,
             };
             for iob in 0..num_io {
-                let io = EdgeIoCoord::S(col, TileIobId::from_idx(iob));
-                let bcrd = self.chip.get_io_loc(io);
+                let bcrd = Chip::DIE.cell(col, self.chip.row_s()).bel(bslots::IO[iob]);
                 self.process_single_io_machxo2(bcrd);
             }
             let num_io = match cd.io_n {
@@ -615,8 +615,7 @@ impl ChipContext<'_> {
                 _ => 0,
             };
             for iob in 0..num_io {
-                let io = EdgeIoCoord::N(col, TileIobId::from_idx(iob));
-                let bcrd = self.chip.get_io_loc(io);
+                let bcrd = Chip::DIE.cell(col, self.chip.row_n()).bel(bslots::IO[iob]);
                 self.process_single_io_machxo2(bcrd);
             }
         }

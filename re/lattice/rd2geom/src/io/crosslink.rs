@@ -6,7 +6,7 @@ use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
     db::LegacyBel,
     dir::{Dir, DirHV},
-    grid::{BelCoord, CellCoord, ColId, DieIdExt, EdgeIoCoord},
+    grid::{BelCoord, CellCoord, ColId, DieIdExt},
 };
 
 use crate::ChipContext;
@@ -257,23 +257,22 @@ impl ChipContext<'_> {
         }
     }
 
-    pub fn xlat_io_loc_crosslink(&self, io: EdgeIoCoord) -> (CellCoord, &'static str) {
-        let bcrd = self.chip.get_io_loc(io);
-        if self.chip.get_io_kind(io) == IoKind::Io {
-            (bcrd.cell, ["A", "B", "C", "D"][io.iob().to_idx()])
+    pub fn xlat_io_loc_crosslink(&self, bcrd: BelCoord) -> (CellCoord, &'static str) {
+        if self.chip.get_io_kind(bcrd) == IoKind::Io {
+            let idx = bslots::IO.index_of(bcrd.slot).unwrap();
+            (bcrd.cell, ["A", "B", "C", "D"][idx])
         } else {
             (bcrd.cell, "")
         }
     }
 
     fn process_single_io_crosslink(&mut self, bcrd: BelCoord) {
-        let io = self.chip.get_io_crd(bcrd);
-        let bank = self.chip.get_io_bank(io);
-        let idx = io.iob().to_idx();
-        let (cell, abcd) = self.xlat_io_loc_crosslink(io);
+        let bank = self.chip.get_io_bank(bcrd);
+        let idx = bslots::IO.index_of(bcrd.slot).unwrap();
+        let (cell, abcd) = self.xlat_io_loc_crosslink(bcrd);
         let (_r, c) = self.rc(cell);
         self.name_bel(bcrd, [format!("PB{c}{abcd}"), format!("IOL_B{c}{abcd}")]);
-        let kind = self.chip.get_io_kind(io);
+        let kind = self.chip.get_io_kind(bcrd);
         let iol = match kind {
             IoKind::Io => "IOLOGIC",
             IoKind::Sio => "SIOLOGIC",

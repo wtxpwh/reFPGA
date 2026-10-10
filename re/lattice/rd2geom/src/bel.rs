@@ -184,6 +184,21 @@ impl<'dev, 'ctx> BelExtractor<'dev, 'ctx> {
         self.add_wire(pin, name)
     }
 
+    pub fn add_wire_rc_io(&mut self, pin: impl AsRef<str>, suffix: impl AsRef<str>) -> &mut Self {
+        let name = self.ctx.rc_io_wire(self.cell, suffix.as_ref());
+        self.add_wire(pin, name)
+    }
+
+    pub fn add_wire_rc_io_get(
+        &mut self,
+        pin: impl AsRef<str>,
+        suffix: impl AsRef<str>,
+    ) -> WireName {
+        let name = self.ctx.rc_io_wire(self.cell, suffix.as_ref());
+        self.add_wire(pin, name);
+        name
+    }
+
     pub fn add_wire_no_claim(&mut self, pin: impl AsRef<str>, wire: WireName) -> &mut Self {
         self.ctx.add_bel_wire_no_claim(self.bcrd, pin, wire);
         self
@@ -349,6 +364,11 @@ impl<'dev, 'ctx> SwitchBoxExtractor<'dev, 'ctx> {
 
     pub fn output_bind_rc(&mut self, name: impl AsRef<str>, wire: TileWireCoord) -> &mut Self {
         let name = self.ctx.rc_wire(self.cell, name.as_ref());
+        self.output_bind(name, wire)
+    }
+
+    pub fn output_bind_rc_io(&mut self, name: impl AsRef<str>, wire: TileWireCoord) -> &mut Self {
+        let name = self.ctx.rc_io_wire(self.cell, name.as_ref());
         self.output_bind(name, wire)
     }
 

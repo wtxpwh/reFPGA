@@ -542,7 +542,7 @@ fn init_nodes(grid: &Grid) -> (ChipNaming, EntityVec<NodeId, WireName>) {
 
 fn process_chip(name: &str, grid: &Grid, kind: ChipKind, intdb: &IntDb) -> ChipResult {
     let (naming, nodes) = init_nodes(grid);
-    let chip = make_chip(name, grid, kind, &naming, &nodes);
+    let chip = make_chip(name, grid, kind, &naming, &nodes, intdb);
     let edev = chip.expand_grid(intdb);
     let mut ctx = ChipContext {
         name,
@@ -688,7 +688,8 @@ fn main() -> Result<(), Box<dyn Error>> {
                 int.tile_classes[tcid].bels.insert(bid, bel);
             } else {
                 if !int[tcid].bels.contains_id(bid) {
-                    panic!("EXTRA BEL {chip_id} {tc} {bel}",
+                    panic!(
+                        "EXTRA BEL {chip_id} {tc} {bel}",
                         tc = int.tile_classes[tcid].name,
                         bel = int.bel_slots[bid].name,
                     );
@@ -726,12 +727,12 @@ fn main() -> Result<(), Box<dyn Error>> {
                     | BondPad::IoAsc(io, _)
                     | BondPad::IoPfr(io, _)
                     | BondPad::IoCdone(io) => {
+                        let bcrd = chip.get_io_loc(io);
                         if chip.kind == ChipKind::MachXo
-                            && io == chip.special_io[&SpecialIoKey::SleepN]
+                            && bcrd == chip.special_io[&SpecialIoKey::SleepN]
                         {
                             continue;
                         }
-                        let bcrd = chip.get_io_loc(io);
                         let Some(bnaming) = naming.bels.get(&bcrd) else {
                             continue;
                         };
@@ -877,6 +878,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                 bonds.push(bres.bond)
             };
             for (key, io) in bres.special_io {
+                let io = chip.get_io_loc(io);
                 match chip.special_io.entry(key) {
                     btree_map::Entry::Vacant(e) => {
                         e.insert(io);

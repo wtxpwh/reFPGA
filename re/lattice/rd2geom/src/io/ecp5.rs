@@ -2,11 +2,10 @@ use prjcombine_ecp::{
     chip::{Chip, IoGroupKind, IoKind, SpecialIoKey, SpecialLocKey},
     defs::{bslots, tcls},
 };
-use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
     db::LegacyBel,
     dir::{Dir, DirH, DirHV, DirV},
-    grid::{BelCoord, CellCoord, DieIdExt, EdgeIoCoord},
+    grid::{BelCoord, CellCoord, DieIdExt},
 };
 
 use crate::ChipContext;
@@ -382,7 +381,7 @@ impl ChipContext<'_> {
             self.add_bel_wire(bcrd, "DDRDEL_IN", ddrdel_in);
             self.claim_pip(ddrdel, ddrdel_in);
 
-            let ddrdll_sources = match io.edge() {
+            let ddrdll_sources = match self.chip.get_io_edge(io) {
                 Dir::W => [DirHV::SW, DirHV::NW],
                 Dir::E => [DirHV::SE, DirHV::NE],
                 Dir::N => [DirHV::NW, DirHV::NE],
@@ -408,21 +407,22 @@ impl ChipContext<'_> {
         }
     }
 
-    pub fn xlat_io_loc_ecp5(&self, io: EdgeIoCoord) -> (CellCoord, &'static str) {
-        let bcrd = self.chip.get_io_loc(io);
-        let abcd = ["A", "B", "C", "D"][io.iob().to_idx()];
-        match io.edge() {
+    pub fn xlat_io_loc_ecp5(&self, bcrd: BelCoord) -> (CellCoord, &'static str) {
+        let idx = bslots::IO.index_of(bcrd.slot).unwrap();
+        let abcd = ["A", "B", "C", "D"][idx];
+        match self.chip.get_io_edge(bcrd) {
             Dir::H(_) => (bcrd.cell.delta(0, 2), abcd),
             Dir::V(_) => (bcrd.cell, abcd),
         }
     }
 
     fn process_dqs_ecp5(&mut self, bcrd: BelCoord) {
-        let io = self.chip.get_io_crd(bcrd.bel(bslots::IO[0]));
-        let bank = self.chip.get_io_bank(io);
+        let bcrd_io = bcrd.bel(bslots::IO[0]);
+        let edge = self.chip.get_io_edge(bcrd_io);
+        let bank = self.chip.get_io_bank(bcrd_io);
         let cell = bcrd.cell.delta(0, 2);
         let (r, _c) = self.rc(cell);
-        match io.edge() {
+        match edge {
             Dir::W => {
                 self.name_bel(bcrd, [format!("LDQS{r}")]);
             }
@@ -445,7 +445,7 @@ impl ChipContext<'_> {
         self.add_bel_wire(bcrd, "DDRDEL_IN", ddrdel_in);
         self.claim_pip(ddrdel, ddrdel_in);
 
-        let ddrdll_sources = match io.edge() {
+        let ddrdll_sources = match edge {
             Dir::W => [DirHV::SW, DirHV::NW],
             Dir::E => [DirHV::SE, DirHV::NE],
             _ => unreachable!(),
@@ -489,16 +489,16 @@ impl ChipContext<'_> {
     }
 
     fn process_single_io_ecp5(&mut self, bcrd: BelCoord) {
-        let io = self.chip.get_io_crd(bcrd);
-        let bank = self.chip.get_io_bank(io);
-        let idx = io.iob().to_idx();
-        let cell = match io.edge() {
+        let edge = self.chip.get_io_edge(bcrd);
+        let bank = self.chip.get_io_bank(bcrd);
+        let idx = bslots::IO.index_of(bcrd.slot).unwrap();
+        let cell = match edge {
             Dir::H(_) => bcrd.cell.delta(0, 2),
             Dir::V(_) => bcrd.cell,
         };
         let abcd = ["A", "B", "C", "D"][idx];
         let (r, c) = self.rc(cell);
-        match io.edge() {
+        match edge {
             Dir::W => {
                 self.name_bel(bcrd, [format!("PL{r}{abcd}"), format!("IOL_L{r}{abcd}")]);
             }
@@ -512,7 +512,7 @@ impl ChipContext<'_> {
                 self.name_bel(bcrd, [format!("PT{c}{abcd}"), format!("IOL_T{c}{abcd}")]);
             }
         }
-        let kind = self.chip.get_io_kind(io);
+        let kind = self.chip.get_io_kind(bcrd);
         let iol = match kind {
             IoKind::Io => "IOLOGIC",
             IoKind::Sio => "SIOLOGIC",

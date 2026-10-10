@@ -2,21 +2,20 @@ use prjcombine_ecp::{
     chip::{IoGroupKind, PllLoc, PllPad, SpecialIoKey, SpecialLocKey},
     defs::{bslots, tcls, wires},
 };
-use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
     db::{LegacyBel, WireSlotIdExt},
     dir::{Dir, DirH, DirHV, DirV},
-    grid::{BelCoord, CellCoord, EdgeIoCoord},
+    grid::{BelCoord, CellCoord},
 };
 
 use crate::ChipContext;
 
 impl ChipContext<'_> {
-    pub fn xlat_io_loc_scm(&self, io: EdgeIoCoord) -> (CellCoord, &'static str) {
-        let bcrd = self.chip.get_io_loc(io);
-        let abcd = ["A", "B", "C", "D"][io.iob().to_idx() % 4];
-        let cidx = io.iob().to_idx() / 4;
-        match io.edge() {
+    pub fn xlat_io_loc_scm(&self, bcrd: BelCoord) -> (CellCoord, &'static str) {
+        let idx = bslots::IO.index_of(bcrd.slot).unwrap();
+        let abcd = ["A", "B", "C", "D"][idx % 4];
+        let cidx = idx / 4;
+        match self.chip.get_io_edge(bcrd) {
             Dir::H(edge) => {
                 let kind = match edge {
                     DirH::W => self.chip.rows[bcrd.row].io_w,
@@ -585,12 +584,12 @@ impl ChipContext<'_> {
     }
 
     fn process_single_io_scm(&mut self, bcrd: BelCoord) {
-        let io = self.chip.get_io_crd(bcrd);
-        let bank = self.chip.get_io_bank(io);
-        let idx = io.iob().to_idx();
-        let (cell, abcd) = self.xlat_io_loc_scm(io);
+        let edge = self.chip.get_io_edge(bcrd);
+        let bank = self.chip.get_io_bank(bcrd);
+        let idx = bslots::IO.index_of(bcrd.slot).unwrap();
+        let (cell, abcd) = self.xlat_io_loc_scm(bcrd);
         let (r, c) = self.rc(cell);
-        match io.edge() {
+        match edge {
             Dir::W => {
                 self.name_bel(bcrd, [format!("PL{r}{abcd}"), format!("IOLOGICL{r}{abcd}")]);
             }
@@ -604,7 +603,7 @@ impl ChipContext<'_> {
                 self.name_bel(bcrd, [format!("PT{c}{abcd}"), format!("IOLOGICT{c}{abcd}")]);
             }
         }
-        let iol = if idx.is_multiple_of(2) && io.edge() != Dir::N {
+        let iol = if idx.is_multiple_of(2) && edge != Dir::N {
             "IOLOGICE"
         } else {
             "IOLOGIC"
@@ -661,7 +660,7 @@ impl ChipContext<'_> {
         self.add_bel_wire(bcrd, "TD", td);
         self.claim_pip(td_int, td);
         let mut bpin = self.xlat_int_wire(bcrd, td);
-        if io.edge() != Dir::N {
+        if edge != Dir::N {
             for w in [wires::IO_T_W, wires::IO_T_E] {
                 let wire = w.cell(0);
                 bpin.wires.insert(wire);

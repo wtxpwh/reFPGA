@@ -19,9 +19,8 @@ impl ChipContext<'_> {
         let idx = bslots::IO.index_of(bcrd.slot).unwrap();
         let cell = bcrd.cell;
         let ab = ['A', 'B'][idx];
-        let io = self.chip.get_io_crd(bcrd);
         let (r, c) = self.rc(cell);
-        let names = match io.edge() {
+        let names = match self.chip.get_io_edge(bcrd) {
             Dir::W => [format!("PL{r}{ab}"), format!("IOL_L{r}{ab}")],
             Dir::E => [format!("PR{r}{ab}"), format!("IOL_R{r}{ab}")],
             Dir::S => [format!("PB{c}{ab}"), format!("IOL_B{c}{ab}")],
@@ -51,92 +50,60 @@ impl ChipContext<'_> {
 
         let mut bel = self.extract_bel(bcrd);
         bel.names(names);
-        let td_iologic = bel.ctx.rc_io_wire(cell, &format!("JTD{ab}_IOLOGIC"));
-        let opos0_iologic = bel.ctx.rc_io_wire(cell, &format!("JOPOS0{ab}_IOLOGIC"));
-        let opos1_iologic = bel.ctx.rc_io_wire(cell, &format!("JOPOS1{ab}_IOLOGIC"));
-        let oneg0_iologic = bel.ctx.rc_io_wire(cell, &format!("JONEG0{ab}_IOLOGIC"));
-        let oneg1_iologic = bel.ctx.rc_io_wire(cell, &format!("JONEG1{ab}_IOLOGIC"));
-        let ipos0_iologic = bel.ctx.rc_io_wire(cell, &format!("JIPOS0{ab}_IOLOGIC"));
-        let ipos1_iologic = bel.ctx.rc_io_wire(cell, &format!("JIPOS1{ab}_IOLOGIC"));
-        let inff_iologic = bel.ctx.rc_io_wire(cell, &format!("JINFF{ab}_IOLOGIC"));
-        let clk_iologic = bel.ctx.rc_io_wire(cell, &format!("JCLK{ab}_IOLOGIC"));
-        let lsr_iologic = bel.ctx.rc_io_wire(cell, &format!("JLSR{ab}_IOLOGIC"));
-        let ce_iologic = bel.ctx.rc_io_wire(cell, &format!("JCE{ab}_IOLOGIC"));
-        let di_iologic = bel.ctx.rc_io_wire(cell, &format!("DI{ab}_IOLOGIC"));
-        let indd_iologic = bel.ctx.rc_io_wire(cell, &format!("JINDD{ab}_IOLOGIC"));
-        let dqs_iologic = bel.ctx.rc_io_wire(cell, &format!("JDQS{ab}_IOLOGIC"));
-        let ddrclkpol_iologic = bel.ctx.rc_io_wire(cell, &format!("JDDRCLKPOL{ab}_IOLOGIC"));
-        let paddo_pio = bel.ctx.rc_io_wire(cell, &format!("JPADDO{ab}_PIO"));
-        let paddt_pio = bel.ctx.rc_io_wire(cell, &format!("JPADDT{ab}_PIO"));
-        let paddi_pio = bel.ctx.rc_io_wire(cell, &format!("JPADDI{ab}_PIO"));
-        let iolto_pio = bel.ctx.rc_io_wire(cell, &format!("IOLTO{ab}_PIO"));
-        let ioldo_pio = bel.ctx.rc_io_wire(cell, &format!("IOLDO{ab}_PIO"));
-        let iolto_iologic = bel.ctx.rc_io_wire(cell, &format!("IOLTO{ab}_IOLOGIC"));
-        let ioldo_iologic = bel.ctx.rc_io_wire(cell, &format!("IOLDO{ab}_IOLOGIC"));
 
-        bel.add_wire("TD_IOLOGIC", td_iologic);
-        bel.add_wire("OPOS0", opos0_iologic);
-        bel.add_wire("OPOS1", opos1_iologic);
-        bel.add_wire("ONEG0", oneg0_iologic);
-        bel.add_wire("ONEG1", oneg1_iologic);
-        bel.add_wire("IPOS0", ipos0_iologic);
-        bel.add_wire("IPOS1", ipos1_iologic);
-        bel.add_wire("INFF", inff_iologic);
-        bel.add_wire("CLK", clk_iologic);
-        bel.add_wire("LSR", lsr_iologic);
-        bel.add_wire("CE", ce_iologic);
-        bel.add_wire("DI_IOLOGIC", di_iologic);
-        bel.add_wire("INDD_IOLOGIC", indd_iologic);
-        bel.add_wire("DQS_IOLOGIC", dqs_iologic);
-        bel.add_wire("DDRCLKPOLA_IOLOGIC", ddrclkpol_iologic);
-        bel.add_wire("PADDO_PIO", paddo_pio);
-        bel.add_wire("PADDT_PIO", paddt_pio);
-        bel.add_wire("PADDI_PIO", paddi_pio);
-        bel.add_wire("IOLTO_PIO", iolto_pio);
-        bel.add_wire("IOLDO_PIO", ioldo_pio);
-        bel.add_wire("IOLTO_IOLOGIC", iolto_iologic);
-        bel.add_wire("IOLDO_IOLOGIC", ioldo_iologic);
+        let di_iologic = bel.add_wire_rc_io_get("DI_IOLOGIC", format!("DI{ab}_IOLOGIC"));
+        let indd_iologic = bel.add_wire_rc_io_get("INDD_IOLOGIC", format!("JINDD{ab}_IOLOGIC"));
+        let dqs_iologic = bel.add_wire_rc_io_get("DQS_IOLOGIC", format!("JDQS{ab}_IOLOGIC"));
+        let ddrclkpol_iologic =
+            bel.add_wire_rc_io_get("DDRCLKPOLA_IOLOGIC", format!("JDDRCLKPOL{ab}_IOLOGIC"));
+        let paddo_pio = bel.add_wire_rc_io_get("PADDO_PIO", format!("JPADDO{ab}_PIO"));
+        let paddi_pio = bel.add_wire_rc_io_get("PADDI_PIO", format!("JPADDI{ab}_PIO"));
+        let iolto_pio = bel.add_wire_rc_io_get("IOLTO_PIO", format!("IOLTO{ab}_PIO"));
+        let ioldo_pio = bel.add_wire_rc_io_get("IOLDO_PIO", format!("IOLDO{ab}_PIO"));
+        let iolto_iologic = bel.add_wire_rc_io_get("IOLTO_IOLOGIC", format!("IOLTO{ab}_IOLOGIC"));
+        let ioldo_iologic = bel.add_wire_rc_io_get("IOLDO_IOLOGIC", format!("IOLDO{ab}_IOLOGIC"));
+        let td_iologic = bel.add_wire_rc_io_get("TD_IOLOGIC", format!("JTD{ab}_IOLOGIC"));
+        let inff_iologic = bel.add_wire_rc_io_get("INFF", format!("JINFF{ab}_IOLOGIC"));
 
         if is_ecp2 {
-            let dqsxfer_iologic = bel.ctx.rc_io_wire(cell, &format!("JDQSXFER{ab}_IOLOGIC"));
-            bel.add_wire("DQSXFER_IOLOGIC", dqsxfer_iologic);
+            bel.add_wire_rc_io("DQSXFER_IOLOGIC", format!("JDQSXFER{ab}_IOLOGIC"));
+            bel.add_wire_rc_io("XCLK", format!("JXCLK{ab}_IOLOGIC"));
+            bel.input_xlat_rc_io(bcls::IO::ECLKI, format!("JECLKI{ab}_IOLOGIC"));
+            bel.input_xlat_rc_io(bcls::IO::ECLKO, format!("JECLKO{ab}_IOLOGIC"));
+        }
 
-            let xclk = bel.ctx.rc_io_wire(cell, &format!("JXCLK{ab}_IOLOGIC"));
-            bel.add_wire("XCLK", xclk);
+        if very_dummy {
+            bel.add_wire_rc_io("CLK", format!("JCLK{ab}_IOLOGIC"));
+            bel.add_wire_rc_io("LSR", format!("JLSR{ab}_IOLOGIC"));
+            bel.add_wire_rc_io("CE", format!("JCE{ab}_IOLOGIC"));
+            bel.add_wire_rc_io("OPOS0", format!("JOPOS0{ab}_IOLOGIC"));
+            bel.add_wire_rc_io("OPOS1", format!("JOPOS1{ab}_IOLOGIC"));
+            bel.add_wire_rc_io("ONEG0", format!("JONEG0{ab}_IOLOGIC"));
+            bel.add_wire_rc_io("ONEG1", format!("JONEG1{ab}_IOLOGIC"));
+            bel.add_wire_rc_io("IPOS0", format!("JIPOS0{ab}_IOLOGIC"));
+            bel.add_wire_rc_io("IPOS1", format!("JIPOS1{ab}_IOLOGIC"));
+            bel.add_wire_rc_io("PADDT", format!("JPADDT{ab}_PIO"));
+        } else {
+            bel.input_xlat_rc_io(bcls::IO::CLK, format!("JCLK{ab}_IOLOGIC"));
+            bel.input_xlat_rc_io(bcls::IO::LSR, format!("JLSR{ab}_IOLOGIC"));
+            bel.input_xlat_rc_io(bcls::IO::CE, format!("JCE{ab}_IOLOGIC"));
+            bel.input_xlat_rc_io(bcls::IO::OPOS[0], format!("JOPOS0{ab}_IOLOGIC"));
+            bel.input_xlat_rc_io(bcls::IO::OPOS[1], format!("JOPOS1{ab}_IOLOGIC"));
+            bel.input_xlat_rc_io(bcls::IO::ONEG[0], format!("JONEG0{ab}_IOLOGIC"));
+            bel.input_xlat_rc_io(bcls::IO::ONEG[1], format!("JONEG1{ab}_IOLOGIC"));
+            bel.output_xlat_rc_io(bcls::IO::IPOS[0], format!("JIPOS0{ab}_IOLOGIC"));
+            bel.output_xlat_rc_io(bcls::IO::IPOS[1], format!("JIPOS1{ab}_IOLOGIC"));
+            bel.input_xlat_rc_io(bcls::IO::PADDT, format!("JPADDT{ab}_PIO"));
 
-            let eclki_iologic = bel.ctx.rc_io_wire(cell, &format!("JECLKI{ab}_IOLOGIC"));
-            let eclko_iologic = bel.ctx.rc_io_wire(cell, &format!("JECLKO{ab}_IOLOGIC"));
-            let eclki = bel.ctx.rc_io_wire(cell, &format!("JECLKI{ab}"));
-            let eclko = bel.ctx.rc_io_wire(cell, &format!("JECLKO{ab}"));
-            bel.add_wire("ECLKI_IOLOGIC", eclki_iologic);
-            bel.add_wire("ECLKO_IOLOGIC", eclko_iologic);
-            bel.ctx.claim_pip(eclki_iologic, eclki);
-            bel.ctx.claim_pip(eclko_iologic, eclko);
-        };
-
-        if !very_dummy {
-            let di = bel.ctx.rc_io_wire(cell, &format!("JDI{ab}"));
-            bel.add_wire("DI", di);
-
-            bel.input_xlat_no_name(bcls::IO::OPOS[0], opos0_iologic);
-            bel.input_xlat_no_name(bcls::IO::OPOS[1], opos1_iologic);
-            bel.input_xlat_no_name(bcls::IO::ONEG[0], oneg0_iologic);
-            bel.input_xlat_no_name(bcls::IO::ONEG[1], oneg1_iologic);
             let bpin_oneg1_alt = bel.ctx.xlat_input(bcrd, td_iologic);
             assert_eq!(bel.bel.inputs[bcls::IO::ONEG[1]], bpin_oneg1_alt);
             let bpin_oneg0_alt = bel.ctx.xlat_input(bcrd, paddo_pio);
             assert_eq!(bel.bel.inputs[bcls::IO::ONEG[0]], bpin_oneg0_alt);
-            bel.input_xlat_no_name(bcls::IO::TD, paddt_pio);
-
-            bel.output_xlat_no_name(bcls::IO::IPOS[0], ipos0_iologic);
-            bel.output_xlat_no_name(bcls::IO::IPOS[1], ipos1_iologic);
-            bel.output_xlat_no_name(bcls::IO::DI, di);
             let bpin_inff = bel.ctx.xlat_output(bcrd, inff_iologic);
             assert_eq!(bel.bel.outputs[bcls::IO::IPOS[0]], bpin_inff);
 
-            bel.input_xlat_no_name(bcls::IO::CLK, clk_iologic);
-            bel.input_xlat_no_name(bcls::IO::LSR, lsr_iologic);
-            bel.input_xlat_no_name(bcls::IO::CE, ce_iologic);
+            let di = bel.add_wire_rc_io_get("DI", format!("JDI{ab}"));
+            bel.output_xlat_no_name(bcls::IO::DI, di);
 
             if is_ecp2 {
                 for i in 0..4 {
@@ -161,16 +128,13 @@ impl ChipContext<'_> {
                     }
                 }
                 for pin in ["QNEG0", "QNEG1", "OPOS2", "ONEG2"] {
-                    let wire = bel.ctx.rc_io_wire(cell, &format!("J{pin}{ab}_IOLOGIC"));
-                    bel.add_wire(pin, wire);
+                    bel.add_wire_rc_io(pin, format!("J{pin}{ab}_IOLOGIC"));
                 }
             }
 
             if !dummy {
-                let indd = bel.ctx.rc_io_wire(cell, &format!("JINDD{ab}"));
-                let paddi = bel.ctx.rc_io_wire(cell, &format!("JPADDI{ab}"));
-                bel.add_wire("INDD", indd);
-                bel.add_wire("PADDI", paddi);
+                let indd = bel.add_wire_rc_io_get("INDD", format!("JINDD{ab}"));
+                let paddi = bel.add_wire_rc_io_get("PADDI", format!("JPADDI{ab}"));
                 bel.ctx.claim_pip(indd, indd_iologic);
                 bel.ctx.claim_pip(paddi, paddi_pio);
                 bel.ctx.claim_pip(di, indd);
@@ -181,7 +145,7 @@ impl ChipContext<'_> {
                 || bel.ctx.chip.kind == ChipKind::Ecp
                 || bel.ctx.chip.kind == ChipKind::Xp2
                 || (matches!(bel.ctx.chip.kind, ChipKind::Ecp2 | ChipKind::Ecp2M)
-                    && io.edge() != Dir::N)
+                    && bel.ctx.chip.get_io_edge(bcrd) != Dir::N)
                 || (bel.ctx.chip.kind == ChipKind::Xp
                     && bel.ctx.chip.rows.len() == 48
                     && matches!(cell.row.to_idx(), 22..26))
@@ -244,9 +208,10 @@ impl ChipContext<'_> {
     fn process_dqs_ecp(&mut self, bcrd: BelCoord) {
         let is_ecp2 = !matches!(self.chip.kind, ChipKind::Ecp | ChipKind::Xp);
         let cell = bcrd.cell;
-        let io = self.chip.get_io_crd(bcrd.bel(bslots::IO[0]));
+        let bcrd_io = bcrd.bel(bslots::IO[0]);
+        let edge = self.chip.get_io_edge(bcrd_io);
         let (r, c) = self.rc(cell);
-        let name = match io.edge() {
+        let name = match edge {
             Dir::W => format!("LDQS{r}"),
             Dir::E => format!("RDQS{r}"),
             Dir::S => format!("BDQS{c}"),
@@ -269,7 +234,7 @@ impl ChipContext<'_> {
             .unwrap();
         let mut bel = self.extract_bel(bcrd);
         bel.name(name).suffix("DQS");
-        if io.edge() == Dir::S || (is_ecp2 && io.edge() == Dir::W) {
+        if edge == Dir::S || (is_ecp2 && edge == Dir::W) {
             // fuck this shit.
             bel.output_xlat_no_name(bcls::DQS::DDRCLKPOL, ddrclkpol_out);
             bel.add_wire("DDRCLKPOL", ddrclkpol);
@@ -292,7 +257,7 @@ impl ChipContext<'_> {
             bel.add_wire("DQSO_TREE", dqso_tree);
             bel.add_wire("DDRCLKPOL_TREE", ddrclkpol_tree);
         }
-        let wire_io = bel.ctx.get_io_wire_in(io);
+        let wire_io = bel.ctx.get_io_wire_in(bcrd_io);
         bel.ctx.claim_pip(dqsi, wire_io);
         bel.ctx.claim_pip(indqsa, dqsc);
         bel.ctx.claim_pip(io0_di, indqsa);
@@ -329,30 +294,26 @@ impl ChipContext<'_> {
     pub(super) fn process_dqsdll_ecp(&mut self) {
         for edge in [DirV::S, DirV::N] {
             let bcrd = self.chip.bel_dqsdll_ecp(edge);
-            let cell = bcrd.cell.with_col(self.chip.col_clk - 1);
-            let dqsdel = self.rc_io_wire(cell, "JDQSDEL_DQSDLL");
-            self.extract_bel_cell(bcrd, cell)
+            self.extract_bel_cell(bcrd, bcrd.with_col(self.chip.col_clk - 1))
                 .name(match edge {
                     DirV::S => "BDLL",
                     DirV::N => "TDLL",
                 })
                 .suffix("DQSDLL")
-                .add_wire("DQSDEL", dqsdel);
+                .add_wire_rc_io("DQSDEL", "JDQSDEL_DQSDLL");
         }
     }
 
     pub(super) fn process_dqsdll_ecp2(&mut self) {
         for edge in [DirH::W, DirH::E] {
             let bcrd = self.chip.bel_dqsdll_ecp2(edge);
-            let cell = bcrd.cell;
-            let dqsdel = self.rc_io_wire(cell, "JDQSDEL_DQSDLL");
             self.extract_bel(bcrd)
                 .name(match edge {
                     DirH::W => "LDQSDLL",
                     DirH::E => "RDQSDLL",
                 })
                 .suffix("DQSDLL")
-                .add_wire("DQSDEL", dqsdel);
+                .add_wire_rc_io("DQSDEL", "JDQSDEL_DQSDLL");
         }
     }
 
@@ -361,21 +322,7 @@ impl ChipContext<'_> {
         if is_ecp2 && matches!(kind, IoGroupKind::None | IoGroupKind::Serdes) {
             return;
         }
-        self.process_single_io_ecp(
-            cell.bel(bslots::IO[0]),
-            matches!(kind, IoGroupKind::DoubleB | IoGroupKind::None),
-            kind == IoGroupKind::DoubleDqs,
-        );
-        self.process_single_io_ecp(
-            cell.bel(bslots::IO[1]),
-            matches!(kind, IoGroupKind::DoubleA | IoGroupKind::None),
-            false,
-        );
         if is_ecp2 {
-            let eclkia = self.rc_io_wire(cell, "JECLKIA");
-            let eclkib = self.rc_io_wire(cell, "JECLKIB");
-            let eclkoa = self.rc_io_wire(cell, "JECLKOA");
-            let eclkob = self.rc_io_wire(cell, "JECLKOB");
             let edge = if cell.col == self.chip.col_w() {
                 Dir::W
             } else if cell.col == self.chip.col_e() {
@@ -391,13 +338,23 @@ impl ChipContext<'_> {
             let eclk0 = self.naming.bel_wire(bel_eclk, "ECLK0");
             let eclk1 = self.naming.bel_wire(bel_eclk, "ECLK1");
             self.extract_switchbox(cell.bel(bslots::IO_INT))
-                .output_bind(eclkia, wires::IMUX_IO_ECLKI[0].cell(0))
-                .output_bind(eclkib, wires::IMUX_IO_ECLKI[1].cell(0))
-                .output_bind(eclkoa, wires::IMUX_IO_ECLKO[0].cell(0))
-                .output_bind(eclkob, wires::IMUX_IO_ECLKO[1].cell(0))
+                .output_bind_rc_io("JECLKIA", wires::IMUX_IO_ECLKI[0].cell(0))
+                .output_bind_rc_io("JECLKIB", wires::IMUX_IO_ECLKI[1].cell(0))
+                .output_bind_rc_io("JECLKOA", wires::IMUX_IO_ECLKO[0].cell(0))
+                .output_bind_rc_io("JECLKOB", wires::IMUX_IO_ECLKO[1].cell(0))
                 .input_bind_no_claim(eclk0, wires::ECLK[0].cell(0))
                 .input_bind_no_claim(eclk1, wires::ECLK[1].cell(0));
         }
+        self.process_single_io_ecp(
+            cell.bel(bslots::IO[0]),
+            matches!(kind, IoGroupKind::DoubleB | IoGroupKind::None),
+            kind == IoGroupKind::DoubleDqs,
+        );
+        self.process_single_io_ecp(
+            cell.bel(bslots::IO[1]),
+            matches!(kind, IoGroupKind::DoubleA | IoGroupKind::None),
+            false,
+        );
     }
 
     fn prep_io_cell_ecp(&mut self, cell: CellCoord, kind: IoGroupKind) {

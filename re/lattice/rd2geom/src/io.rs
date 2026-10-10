@@ -1,11 +1,10 @@
 use prjcombine_ecp::{
     chip::{ChipKind, SpecialIoKey},
-    defs::wires,
+    defs::{bslots, wires},
 };
-use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
     dir::Dir,
-    grid::{EdgeIoCoord, WireCoord},
+    grid::{BelCoord, WireCoord},
 };
 use prjcombine_re_lattice_naming::WireName;
 
@@ -49,6 +48,7 @@ impl ChipContext<'_> {
                 self.process_io_ecp();
             }
             ChipKind::Ecp3 | ChipKind::Ecp3A => {
+                self.prep_io_ecp3();
                 self.process_eclk_ecp3();
                 self.process_eclk_tap_ecp3();
                 self.process_dqsdll_ecp3();
@@ -92,37 +92,43 @@ impl ChipContext<'_> {
         }
     }
 
-    pub fn get_io_wire_in(&self, io: EdgeIoCoord) -> WireName {
-        let bel = self.chip.get_io_loc(io);
+    pub fn get_io_wire_in(&self, bcrd: BelCoord) -> WireName {
+        let idx = bslots::IO.index_of(bcrd.slot).unwrap();
         match self.chip.kind {
             ChipKind::Ecp3 | ChipKind::Ecp3A => {
-                if io.iob().to_idx() >= 4 {
-                    let cell = match io.edge() {
-                        Dir::W => bel.cell.delta(-1, 0),
-                        Dir::E => bel.cell.delta(1, 0),
-                        _ => unreachable!(),
-                    };
-                    let abcd = ['A', 'B', 'C', 'D'][io.iob().to_idx() - 4];
-                    self.rc_io_wire(cell, &format!("JPADDIE{abcd}_PIO"))
-                } else if io.iob().to_idx() >= 2 {
-                    let cell = match io.edge() {
-                        Dir::H(_) => bel.cell,
-                        Dir::V(_) => bel.cell.delta(2, 0),
-                    };
-                    let abcd = ['A', 'B', 'C', 'D'][io.iob().to_idx() - 2];
-                    self.rc_io_wire(cell, &format!("JPADDI{abcd}_PIO"))
-                } else {
-                    let cell = match io.edge() {
-                        Dir::H(_) => bel.cell.delta(0, 2),
-                        Dir::V(_) => bel.cell,
-                    };
-                    let abcd = ['A', 'B', 'C', 'D'][io.iob().to_idx()];
-                    self.rc_io_wire(cell, &format!("JPADDI{abcd}_PIO"))
+                match self.chip.get_io_edge(bcrd) {
+                    Dir::H(h) => {
+                        if bcrd.col != self.chip.col_edge(h) {
+                            // PLL special
+                            let abcd = ['A', 'B', 'C', 'D'][idx];
+                            self.rc_io_wire(
+                                bcrd.with_col(self.chip.col_edge(h)),
+                                &format!("JPADDIE{abcd}_PIO"),
+                            )
+                        } else {
+                            let abcd = ['A', 'B'][idx % 2];
+                            let cell = if idx >= 2 {
+                                bcrd.cell
+                            } else {
+                                bcrd.cell.delta(0, 2)
+                            };
+                            self.rc_io_wire(cell, &format!("JPADDI{abcd}_PIO"))
+                        }
+                    }
+                    Dir::V(_) => {
+                        let abcd = ['A', 'B'][idx % 2];
+                        let cell = if idx >= 2 {
+                            bcrd.cell.delta(2, 0)
+                        } else {
+                            bcrd.cell
+                        };
+                        self.rc_io_wire(cell, &format!("JPADDI{abcd}_PIO"))
+                    }
                 }
             }
             _ => {
-                let abcd = ['A', 'B', 'C', 'D', 'E', 'F'][io.iob().to_idx()];
-                self.rc_io_wire(bel.cell, &format!("JPADDI{abcd}_PIO"))
+                let abcd = ['A', 'B', 'C', 'D', 'E', 'F'][idx];
+                self.rc_io_wire(bcrd.cell, &format!("JPADDI{abcd}_PIO"))
             }
         }
     }
@@ -131,10 +137,10 @@ impl ChipContext<'_> {
         self.get_io_wire_in(self.chip.special_io[&key])
     }
 
-    pub fn get_io_wire_out(&self, io: EdgeIoCoord) -> WireName {
-        let bel = self.chip.get_io_loc(io);
-        let abcd = ['A', 'B', 'C', 'D', 'E', 'F'][io.iob().to_idx()];
-        self.rc_io_wire(bel.cell, &format!("JPADDO{abcd}_PIO"))
+    pub fn get_io_wire_out(&self, bcrd: BelCoord) -> WireName {
+        let idx = bslots::IO.index_of(bcrd.slot).unwrap();
+        let abcd = ['A', 'B', 'C', 'D', 'E', 'F'][idx];
+        self.rc_io_wire(bcrd.cell, &format!("JPADDO{abcd}_PIO"))
     }
 
     pub fn get_special_io_wire_out(&self, key: SpecialIoKey) -> WireName {

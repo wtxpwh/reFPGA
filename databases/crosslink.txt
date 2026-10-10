@@ -87,22 +87,22 @@ chip CHIP0 {
 	special_loc BC2 = D0X10Y0;
 	special_loc OSC = D0X26Y0;
 	special_loc PMU = D0X52Y0;
-	special_io CLOCK_S0 = IOB_S15_0;
-	special_io CLOCK_S1 = IOB_S15_2;
-	special_io CLOCK_S2 = IOB_S28_0;
-	special_io CLOCK_S3 = IOB_S28_2;
-	special_io CLOCK_S4 = IOB_S46_0;
-	special_io CLOCK_S5 = IOB_S47_0;
-	special_io PLL_IN0_SE0 = IOB_S11_0;
-	special_io CS_N = IOB_S51_0;
-	special_io D0 = IOB_S49_0;
-	special_io D1 = IOB_S50_0;
-	special_io D2 = IOB_S46_0;
-	special_io D3 = IOB_S47_0;
-	special_io CCLK = IOB_S52_0;
-	special_io PMU_WAKEUP_N = IOB_S48_0;
-	special_io MIPI_CLK_W = IOB_S1_2;
-	special_io MIPI_CLK_E = IOB_S33_2;
+	special_io CLOCK_S0 = D0X15Y0.IO[0];
+	special_io CLOCK_S1 = D0X15Y0.IO[2];
+	special_io CLOCK_S2 = D0X28Y0.IO[0];
+	special_io CLOCK_S3 = D0X28Y0.IO[2];
+	special_io CLOCK_S4 = D0X46Y0.IO[0];
+	special_io CLOCK_S5 = D0X47Y0.IO[0];
+	special_io PLL_IN0_SE0 = D0X11Y0.IO[0];
+	special_io CS_N = D0X51Y0.IO[0];
+	special_io D0 = D0X49Y0.IO[0];
+	special_io D1 = D0X50Y0.IO[0];
+	special_io D2 = D0X46Y0.IO[0];
+	special_io D3 = D0X47Y0.IO[0];
+	special_io CCLK = D0X52Y0.IO[0];
+	special_io PMU_WAKEUP_N = D0X48Y0.IO[0];
+	special_io MIPI_CLK_W = D0X1Y0.IO[2];
+	special_io MIPI_CLK_E = D0X33Y0.IO[2];
 }
 
 // LIA-MD6000-WLCSP36 LIF-MD6000-WLCSP36

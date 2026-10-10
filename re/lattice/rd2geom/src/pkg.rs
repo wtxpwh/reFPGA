@@ -1185,7 +1185,8 @@ pub fn process_bond(datadir: &Path, part: &Part, chip: &Chip, _naming: &ChipNami
                     assert_eq!(prev_io, spec_io, "fail on {spec}");
                 }
             }
-            let io_bank = chip.get_io_bank(io);
+            let bcrd = chip.get_io_loc(io);
+            let io_bank = chip.get_io_bank(bcrd);
             assert_eq!(io_bank as i32, bank);
             BondPad::Io(io)
         } else if bond.kind == BondKind::MachNx
@@ -1533,7 +1534,7 @@ pub fn process_bond(datadir: &Path, part: &Part, chip: &Chip, _naming: &ChipNami
                 "SLEEPN/NC" if chip.kind == ChipKind::MachXo => {
                     // AAAAAAAAAAAAAAAAAAAAAAAa
                     let io = chip.special_io[&SpecialIoKey::SleepN];
-                    BondPad::Io(io)
+                    BondPad::Io(chip.get_io_crd(io))
                 }
                 // Crosslink
                 "CDONE" => BondPad::Cfg(CfgPad::Done),
@@ -1776,7 +1777,7 @@ pub fn process_bond(datadir: &Path, part: &Part, chip: &Chip, _naming: &ChipNami
         if pad == BondPad::Nc && chip.kind == ChipKind::MachXo {
             // sigh. sigh. sigh.
             let io = chip.special_io[&SpecialIoKey::SleepN];
-            pad = BondPad::Io(io);
+            pad = BondPad::Io(chip.get_io_crd(io));
         }
         if part.name == "LFE2M70E" {
             // toolchain bug I guess? I don't believe the bscan register actually does this shit

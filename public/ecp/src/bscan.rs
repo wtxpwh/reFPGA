@@ -658,10 +658,10 @@ impl Chip {
             }
             ChipKind::MachXo2(_) => {
                 let skip_io = [
-                    self.special_io[&SpecialIoKey::Tck],
-                    self.special_io[&SpecialIoKey::Tms],
-                    self.special_io[&SpecialIoKey::Tdi],
-                    self.special_io[&SpecialIoKey::Tdo],
+                    self.get_io_crd(self.special_io[&SpecialIoKey::Tck]),
+                    self.get_io_crd(self.special_io[&SpecialIoKey::Tms]),
+                    self.get_io_crd(self.special_io[&SpecialIoKey::Tdi]),
+                    self.get_io_crd(self.special_io[&SpecialIoKey::Tdo]),
                 ];
                 for (row, rd) in self.rows.iter().rev() {
                     let num_io = match rd.io_w {

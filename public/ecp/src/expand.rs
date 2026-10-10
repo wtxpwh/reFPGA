@@ -62,7 +62,6 @@ impl Expander<'_, '_> {
 
     fn add_io_conn(&mut self, wire: WireCoord, key: SpecialIoKey) {
         let io = self.chip.special_io[&key];
-        let io = self.chip.get_io_loc(io);
         let ioidx = bslots::IO.index_of(io.slot).unwrap();
         self.egrid
             .extra_conns
@@ -327,6 +326,7 @@ impl Expander<'_, '_> {
     }
 
     fn fill_pll_ecp3(&mut self) {
+        let is_a = self.chip.kind == ChipKind::Ecp3A;
         for (loc, bcrd) in self.chip.plls() {
             let cell = bcrd.cell;
             match loc.quad.h {
@@ -338,7 +338,7 @@ impl Expander<'_, '_> {
                         tcells.push(cell.delta(-1, 3));
                         self.egrid.add_tile(
                             cell,
-                            if self.chip.kind == ChipKind::Ecp3A {
+                            if is_a {
                                 tcls::PLL_DLL_A_W
                             } else {
                                 tcls::PLL_DLL_W
@@ -351,16 +351,20 @@ impl Expander<'_, '_> {
                         tcells.push(cell.delta(-1, -3));
                         self.egrid.add_tile(
                             cell,
-                            if self.chip.kind == ChipKind::Ecp3A {
-                                tcls::PLL_A_W
-                            } else {
-                                tcls::PLL_W
-                            },
+                            if is_a { tcls::PLL_A_W } else { tcls::PLL_W },
                             &tcells,
                         );
                         self.bel_holes.push(cell.rect(12, 1));
                     }
-                    self.egrid.add_tile_e(cell, tcls::IO_PLL_W, 2);
+                    self.egrid.add_tile_e(
+                        cell,
+                        if is_a {
+                            tcls::IO_A_PLL_W
+                        } else {
+                            tcls::IO_PLL_W
+                        },
+                        2,
+                    );
                 }
                 DirH::E => {
                     if cell.row == self.chip.row_clk {
@@ -370,7 +374,7 @@ impl Expander<'_, '_> {
                         tcells.push(cell.delta(1, 3));
                         self.egrid.add_tile(
                             cell,
-                            if self.chip.kind == ChipKind::Ecp3A {
+                            if is_a {
                                 tcls::PLL_DLL_A_E
                             } else {
                                 tcls::PLL_DLL_E
@@ -383,17 +387,20 @@ impl Expander<'_, '_> {
                         tcells.push(cell.delta(1, -3));
                         self.egrid.add_tile(
                             cell,
-                            if self.chip.kind == ChipKind::Ecp3A {
-                                tcls::PLL_A_E
-                            } else {
-                                tcls::PLL_E
-                            },
+                            if is_a { tcls::PLL_A_E } else { tcls::PLL_E },
                             &tcells,
                         );
                         self.bel_holes.push(cell.delta(-11, 0).rect(12, 1));
                     }
-                    self.egrid
-                        .add_tile(cell, tcls::IO_PLL_E, &[cell, cell.delta(-1, 0)]);
+                    self.egrid.add_tile(
+                        cell,
+                        if is_a {
+                            tcls::IO_A_PLL_E
+                        } else {
+                            tcls::IO_PLL_E
+                        },
+                        &[cell, cell.delta(-1, 0)],
+                    );
                 }
             }
         }
@@ -1192,17 +1199,24 @@ impl Expander<'_, '_> {
                     self.egrid.add_tile_e(cell, tcls::XSIO_N, 3);
                 }
                 (IoGroupKind::Quad, _) => {
-                    if is_a {
-                        self.egrid.add_tile_e(cell, tcls::SIO_A_N, 3);
-                    } else {
-                        self.egrid.add_tile_e(cell, tcls::SIO_N, 3);
-                    }
+                    self.egrid
+                        .add_tile_e(cell, if is_a { tcls::SIO_A_N } else { tcls::SIO_N }, 3);
                 }
                 (IoGroupKind::QuadDqs, _) => {
-                    self.egrid.add_tile_e(cell, tcls::SIO_DQS_N, 3);
+                    self.egrid.add_tile_e(
+                        cell,
+                        if is_a {
+                            tcls::SIO_A_DQS_N
+                        } else {
+                            tcls::SIO_DQS_N
+                        },
+                        3,
+                    );
                     self.egrid.add_tile_e(cell, tcls::DQS_N, 6);
                     for col_io in cell.delta(-3, 0).col.range(cell.col + 6) {
                         self.egrid[cell.with_col(col_io)].region_root[rslots::DQS] = cell;
+                        self.egrid[cell.with_col(col_io)].region_root[rslots::DQSDLL] =
+                            self.chip.bel_dqsdll(cell).cell;
                     }
                 }
                 _ => (),
@@ -1214,29 +1228,44 @@ impl Expander<'_, '_> {
             }
             match self.chip.rows[cell.row].io_w {
                 IoGroupKind::Quad => {
-                    self.egrid.add_tile_n(cell, tcls::IO_W, 3);
+                    self.egrid
+                        .add_tile_n(cell, if is_a { tcls::IO_A_W } else { tcls::IO_W }, 3);
                 }
                 IoGroupKind::QuadDqs => {
-                    self.egrid.add_tile_n(cell, tcls::IO_DQS_W, 3);
-                    if is_a {
-                        self.egrid.add_tile_n(cell, tcls::DQS_A_W, 3);
-                    } else {
-                        self.egrid.add_tile_n(cell, tcls::DQS_W, 3);
-                    }
+                    self.egrid.add_tile_n(
+                        cell,
+                        if is_a {
+                            tcls::IO_A_DQS_W
+                        } else {
+                            tcls::IO_DQS_W
+                        },
+                        3,
+                    );
+                    self.egrid
+                        .add_tile_n(cell, if is_a { tcls::DQS_A_W } else { tcls::DQS_W }, 3);
                     for row_io in cell.delta(0, -3).row.range(cell.row + 6) {
                         self.egrid[cell.with_row(row_io)].region_root[rslots::DQS] = cell;
+                        self.egrid[cell.with_row(row_io)].region_root[rslots::DQSDLL] =
+                            self.chip.bel_dqsdll(cell).cell;
                     }
                     self.egrid[cell.delta(1, -3)].region_root[rslots::DQS] = cell;
                 }
                 IoGroupKind::QuadDqsDummy => {
-                    self.egrid.add_tile_n(cell, tcls::IO_DQS_DUMMY_W, 3);
-                    if is_a {
-                        self.egrid.add_tile_n(cell, tcls::DQS_A_W, 3);
-                    } else {
-                        self.egrid.add_tile_n(cell, tcls::DQS_W, 3);
-                    }
+                    self.egrid.add_tile_n(
+                        cell,
+                        if is_a {
+                            tcls::IO_A_DQS_DUMMY_W
+                        } else {
+                            tcls::IO_DQS_DUMMY_W
+                        },
+                        3,
+                    );
+                    self.egrid
+                        .add_tile_n(cell, if is_a { tcls::DQS_A_W } else { tcls::DQS_W }, 3);
                     for row_io in cell.delta(0, -3).row.range(cell.row + 3) {
                         self.egrid[cell.with_row(row_io)].region_root[rslots::DQS] = cell;
+                        self.egrid[cell.with_row(row_io)].region_root[rslots::DQSDLL] =
+                            self.chip.bel_dqsdll(cell).cell;
                     }
                 }
                 _ => (),
@@ -1254,17 +1283,25 @@ impl Expander<'_, '_> {
                     self.egrid.add_tile_n(cell, tcls::XSIO_E, 3);
                 }
                 (IoGroupKind::Quad, _) => {
-                    self.egrid.add_tile_n(cell, tcls::IO_E, 3);
+                    self.egrid
+                        .add_tile_n(cell, if is_a { tcls::IO_A_E } else { tcls::IO_E }, 3);
                 }
                 (IoGroupKind::QuadDqs, _) => {
-                    self.egrid.add_tile_n(cell, tcls::IO_DQS_E, 3);
-                    if is_a {
-                        self.egrid.add_tile_n(cell, tcls::DQS_A_E, 3);
-                    } else {
-                        self.egrid.add_tile_n(cell, tcls::DQS_E, 3);
-                    }
+                    self.egrid.add_tile_n(
+                        cell,
+                        if is_a {
+                            tcls::IO_A_DQS_E
+                        } else {
+                            tcls::IO_DQS_E
+                        },
+                        3,
+                    );
+                    self.egrid
+                        .add_tile_n(cell, if is_a { tcls::DQS_A_E } else { tcls::DQS_E }, 3);
                     for row_io in cell.delta(0, -3).row.range(cell.row + 6) {
                         self.egrid[cell.with_row(row_io)].region_root[rslots::DQS] = cell;
+                        self.egrid[cell.with_row(row_io)].region_root[rslots::DQSDLL] =
+                            self.chip.bel_dqsdll(cell).cell;
                     }
                     self.egrid[cell.delta(-1, -3)].region_root[rslots::DQS] = cell;
                 }
@@ -2581,9 +2618,23 @@ impl Expander<'_, '_> {
 
     fn fill_clk_ecp3(&mut self) {
         for cell in self.egrid.row(self.die, self.chip.row_n()) {
+            if cell.col != self.chip.col_w() && cell.col != self.chip.col_e() {
+                self.egrid[cell].region_root[rslots::ECLK] = cell.with_col(self.chip.col_clk - 1);
+            }
             if self.chip.columns[cell.col].eclk_tap_n {
                 self.egrid.add_tile_single(cell, tcls::ECLK_TAP);
             }
+        }
+
+        for col in [self.chip.col_w(), self.chip.col_e()] {
+            for cell in self.egrid.column(self.die, col) {
+                self.egrid[cell].region_root[rslots::ECLK] = cell.with_row(self.chip.row_clk);
+            }
+        }
+        for (loc, bcrd) in self.chip.plls() {
+            self.egrid[bcrd.cell].region_root[rslots::ECLK] = self
+                .die
+                .cell(self.chip.col_edge(loc.quad.h), self.chip.row_clk);
         }
 
         let mut cells = vec![];

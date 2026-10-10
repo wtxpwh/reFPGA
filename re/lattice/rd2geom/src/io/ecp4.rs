@@ -6,7 +6,7 @@ use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
     db::{CellSlotId, LegacyBel},
     dir::{Dir, DirHV, DirV},
-    grid::{BelCoord, CellCoord, DieIdExt, EdgeIoCoord},
+    grid::{BelCoord, CellCoord, DieIdExt},
 };
 
 use crate::ChipContext;
@@ -590,31 +590,32 @@ impl ChipContext<'_> {
         }
     }
 
-    pub fn xlat_io_loc_ecp4(&self, io: EdgeIoCoord) -> (CellCoord, &'static str) {
-        let bcrd = self.chip.get_io_loc(io);
+    pub fn xlat_io_loc_ecp4(&self, bcrd: BelCoord) -> (CellCoord, &'static str) {
+        let idx = bslots::IO.index_of(bcrd.slot).unwrap();
         let tcrd = self.edev.bel_tile(bcrd);
-        let mut cell = self.edev[tcrd].cells[CellSlotId::from_idx(io.iob().to_idx() % 4)];
-        let mut abcd = "";
-        if let Dir::H(edge) = io.edge()
+        let cell = self.edev[tcrd].cells[CellSlotId::from_idx(idx)];
+        if let Dir::H(edge) = self.chip.get_io_edge(bcrd)
             && cell.col != self.chip.col_edge(edge)
         {
-            abcd = match self.chip.rows[cell.row].kind {
-                RowKind::Ebr => ["EA", "EB", "EC", "ED"][io.iob().to_idx() % 4],
-                RowKind::Dsp => ["EA", "EB"][io.iob().to_idx() % 2],
+            let abcd = match self.chip.rows[cell.row].kind {
+                RowKind::Ebr => ["EA", "EB", "EC", "ED"][idx],
+                RowKind::Dsp => ["EA", "EB"][idx % 2],
                 _ => unreachable!(),
             };
-            cell = cell.with_col(self.chip.col_edge(edge))
+            (cell.with_col(self.chip.col_edge(edge)), abcd)
+        } else {
+            (cell, "")
         }
-        (cell, abcd)
     }
 
     fn process_dqs_ecp4(&mut self, bcrd: BelCoord) {
-        let io = self.chip.get_io_crd(bcrd.bel(bslots::IO[0]));
-        let bank = self.chip.get_io_bank(io);
-        let (cell, abcd) = self.xlat_io_loc_ecp4(io);
+        let bcrd_io = bcrd.bel(bslots::IO[0]);
+        let edge = self.chip.get_io_edge(bcrd_io);
+        let bank = self.chip.get_io_bank(bcrd_io);
+        let (cell, abcd) = self.xlat_io_loc_ecp4(bcrd_io);
 
         let (r, c) = self.rc(cell);
-        match io.edge() {
+        match edge {
             Dir::W => {
                 self.name_bel(bcrd, [format!("LDQS{r}")]);
             }
@@ -639,7 +640,7 @@ impl ChipContext<'_> {
         self.add_bel_wire(bcrd, "DDRDEL_IN", ddrdel_in);
         self.claim_pip(ddrdel, ddrdel_in);
 
-        let ddrdll_sources = match io.edge() {
+        let ddrdll_sources = match edge {
             Dir::W => [
                 (self.chip.col_w() + 2, self.chip.row_s()),
                 (self.chip.col_w() + 3, self.chip.row_s()),
@@ -706,12 +707,12 @@ impl ChipContext<'_> {
     }
 
     fn process_single_io_ecp4(&mut self, bcrd: BelCoord) {
-        let io = self.chip.get_io_crd(bcrd);
-        let idx = io.iob().to_idx() % 4;
-        let (cell, abcd) = self.xlat_io_loc_ecp4(io);
+        let edge = self.chip.get_io_edge(bcrd);
+        let idx = bslots::IO.index_of(bcrd.slot).unwrap();
+        let (cell, abcd) = self.xlat_io_loc_ecp4(bcrd);
 
         let (r, c) = self.rc(cell);
-        match io.edge() {
+        match edge {
             Dir::W => {
                 self.name_bel(bcrd, [format!("PL{r}{abcd}"), format!("IOL_L{r}{abcd}")]);
             }
@@ -786,8 +787,7 @@ impl ChipContext<'_> {
         self.claim_pip(di_iol, di);
         if idx == 3 {
             let bcrd2 = bcrd.bel(bslots::IO[2]);
-            let io2 = self.chip.get_io_crd(bcrd2);
-            let (cell2, abcd2) = self.xlat_io_loc_ecp4(io2);
+            let (cell2, abcd2) = self.xlat_io_loc_ecp4(bcrd2);
             let paddi_pio2 = self.rc_io_wire(cell2, &format!("JPADDI{abcd2}_PIO"));
             self.claim_pip(paddi_iol, paddi_pio2);
             self.claim_pip(di, paddi_pio2);
@@ -832,8 +832,8 @@ impl ChipContext<'_> {
         self.add_bel_wire(bcrd, "IOLTO_PIO", iolto_pio);
         self.claim_pip(iolto_pio, iolto_iol);
 
-        let bank = self.chip.get_io_bank(io);
-        let has_fucked_pusl = io.edge() == Dir::W
+        let bank = self.chip.get_io_bank(bcrd);
+        let has_fucked_pusl = edge == Dir::W
             && abcd.is_empty()
             && if cell.row < self.chip.row_clk {
                 self.chip.rows[cell.row].kind == RowKind::Ebr
