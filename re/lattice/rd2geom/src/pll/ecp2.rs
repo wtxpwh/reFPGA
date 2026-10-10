@@ -1,6 +1,6 @@
 use prjcombine_ecp::{
-    chip::{PllPad, SpecialIoKey},
-    defs::{bcls, bslots, wires},
+    chip::{ChipKind, PllPad, SpecialIoKey},
+    defs::{bcls, bslots, tcls, wires},
 };
 use prjcombine_interconnect::{
     db::WireSlotIdExt,
@@ -41,6 +41,30 @@ impl ChipContext<'_> {
                 self.hybrid_out_rc(bcrd, "JCLKOP_SPLL", wires::OUT_PLL_CLKOP.cell(0));
                 self.hybrid_out_rc(bcrd, "JCLKOS_SPLL", wires::OUT_PLL_CLKOS.cell(0));
                 self.hybrid_out_rc(bcrd, "JCLKOK_SPLL", wires::OUT_PLL_CLKOK.cell(0));
+            }
+        }
+
+        if self.chip.kind == ChipKind::Ecp2M {
+            for tcid in [tcls::SERDES_S, tcls::SERDES_N] {
+                for &tcrd in &self.edev.tile_index[tcid] {
+                    let bcrd = tcrd.bel(bslots::SERDES);
+                    let cell = bcrd.cell.delta(
+                        if bcrd.col < self.chip.col_clk { 12 } else { 13 },
+                        if bcrd.row < self.chip.row_clk { -1 } else { 1 },
+                    );
+                    self.hybrid_out_rc_cell(
+                        bcrd,
+                        cell,
+                        "JFF_TX_F_CLK_PCS",
+                        wires::OUT_SERDES_FF_TX_F_CLK.cell(0),
+                    );
+                    self.hybrid_out_rc_cell(
+                        bcrd,
+                        cell,
+                        "JFF_TX_H_CLK_PCS",
+                        wires::OUT_SERDES_FF_TX_H_CLK.cell(0),
+                    );
+                }
             }
         }
     }

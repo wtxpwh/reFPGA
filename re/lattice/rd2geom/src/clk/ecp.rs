@@ -14,10 +14,9 @@ impl ChipContext<'_> {
     pub(super) fn process_clk_ecp(&mut self) {
         let chip = self.chip;
         let bcrd = chip.bel_clk_root();
-        let tcrd = self.edev.bel_tile(bcrd);
         let cell = Chip::DIE.cell(chip.col_clk - 1, chip.row_clk);
 
-        let mut ex = self.extract_switchbox(tcrd.bel(bslots::CLK_INT));
+        let mut ex = self.extract_switchbox(bcrd);
 
         ex.cell(cell)
             .input_io_rc("JLPIO", wires::OUT_IO_PADDI[0].cell(24))
@@ -85,7 +84,7 @@ impl ChipContext<'_> {
             ("UR", bslots::DCS_NE),
         ] {
             for i in 0..2 {
-                self.extract_bel_cell(tcrd.bel(slots[i]), cell)
+                self.extract_bel_cell(bcrd.bel(slots[i]), cell)
                     .name(format!("{prefix}DCS{i}"))
                     .input_xlat_rc(bcls::DCS::CLK[0], format!("{prefix}CLK{i}A_DCS"))
                     .input_xlat_rc(bcls::DCS::CLK[1], format!("{prefix}CLK{i}B_DCS"))

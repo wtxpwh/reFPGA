@@ -489,6 +489,73 @@ target_defs! {
         }
     }
 
+    if variant ecp2m {
+        bel_class SERDES {
+            input CIN[12];
+            output COUT[20];
+            input CYAWSTN;
+
+            input FFC_CK_CORE_RX;
+            input FFC_CK_CORE_TX;
+            input FFC_MACRO_RST;
+            input FFC_QUAD_RST;
+            input FFC_TRST;
+            output FFS_PLOL;
+            output FF_TX_F_CLK;
+            output FF_TX_H_CLK;
+            output FF_TX_Q_CLK;
+            output REFCK2CORE;
+
+            for ch in 0..4 {
+                input "FFC_EI_EN_{ch}";
+                input "FFC_ENABLE_CGALIGN_{ch}";
+                input "FFC_FB_LOOPBACK_{ch}";
+                input "FFC_LANE_RX_RST_{ch}";
+                input "FFC_LANE_TX_RST_{ch}";
+                input "FFC_PCIE_CT_{ch}";
+                input "FFC_PCI_DET_EN_{ch}";
+                input "FFC_PFIFO_CLR_{ch}";
+                input "FFC_RRST_{ch}";
+                input "FFC_RXPWDNB_{ch}";
+                input "FFC_SB_INV_RX_{ch}";
+                input "FFC_SB_PFIFO_LP_{ch}";
+                input "FFC_SIGNAL_DETECT_{ch}";
+                input "FFC_TXPWDNB_{ch}";
+
+                output "FFS_CC_OVERRUN_{ch}";
+                output "FFS_CC_UNDERRUN_{ch}";
+                output "FFS_LS_SYNC_STATUS_{ch}";
+                output "FFS_PCIE_CON_{ch}";
+                output "FFS_PCIE_DONE_{ch}";
+                output "FFS_RLOL_{ch}";
+                output "FFS_RLOS_LO_{ch}";
+                output "FFS_RXFBFIFO_ERROR_{ch}";
+                output "FFS_TXFBFIFO_ERROR_{ch}";
+
+                input "FF_EBRD_CLK_{ch}";
+                input "FF_RXI_CLK_{ch}";
+                input "FF_TX_D_{ch}"[24];
+                output "FF_RX_D_{ch}"[24];
+                output "FF_RX_F_CLK_{ch}";
+                output "FF_RX_H_CLK_{ch}";
+                output "FF_RX_Q_CLK_{ch}";
+                input "FF_TXI_CLK_{ch}";
+                output "OOB_OUT_{ch}";
+            }
+
+            input SCIADDR[6];
+            input SCISELAUX;
+            input SCISELCH[4];
+            input SCIENAUX;
+            input SCIENCH[4];
+            input SCIRD;
+            input SCIWSTN;
+            input SCIWDATA[8];
+            output SCIRDATA[8];
+            output SCIINT;
+        }
+    }
+
     // TODO: convert to routing
     if variant [ecp3, machxo2] {
         bel_class HSDCLK_ROOT {
@@ -793,6 +860,11 @@ target_defs! {
         if variant xp2 {
             wire OUT_PLL_CLKOK2: bel;
         }
+    }
+
+    if variant ecp2m {
+        wire OUT_SERDES_FF_TX_F_CLK: bel;
+        wire OUT_SERDES_FF_TX_H_CLK: bel;
     }
 
     if variant machxo {
@@ -1224,7 +1296,7 @@ target_defs! {
                 bel SERDES;
             }
         } else if variant ecp2m {
-            bel_slot SERDES: legacy;
+            bel_slot SERDES: SERDES;
             tile_class SERDES_S, SERDES_N {
                 cell CELL[27];
                 bel SERDES;

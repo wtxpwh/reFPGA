@@ -38,7 +38,11 @@ impl<'dev, 'ctx> BelExtractor<'dev, 'ctx> {
                 EntityBundleIndices::Array(range) => {
                     for (pi, id) in range.into_iter().enumerate() {
                         let vi = input.indexing.phys_to_virt(pi);
-                        let iname = &format!("{name}{vi}");
+                        let iname = &if name.ends_with(|c: char| c.is_ascii_digit()) {
+                            format!("{name}_{vi}")
+                        } else {
+                            format!("{name}{vi}")
+                        };
                         if let Some(&wire) = wires.get(iname)
                             && let Some(bpin) = self.ctx.try_xlat_input(self.bcrd, wire, true)
                         {
@@ -62,7 +66,11 @@ impl<'dev, 'ctx> BelExtractor<'dev, 'ctx> {
                 EntityBundleIndices::Array(range) => {
                     for (pi, id) in range.into_iter().enumerate() {
                         let vi = output.indexing.phys_to_virt(pi);
-                        let iname = &format!("{name}{vi}");
+                        let iname = &if name.ends_with(|c: char| c.is_ascii_digit()) {
+                            format!("{name}_{vi}")
+                        } else {
+                            format!("{name}{vi}")
+                        };
                         if let Some(&wire) = wires.get(iname)
                             && let Some(bpin) =
                                 self.ctx.try_xlat_output(self.bcrd, wire, false, true)
