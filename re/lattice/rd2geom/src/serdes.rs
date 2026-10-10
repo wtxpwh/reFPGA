@@ -1,6 +1,6 @@
 use prjcombine_ecp::{
     chip::{ChipKind, IoGroupKind, SpecialIoKey, SpecialLocKey},
-    defs::{bslots, tcls, wiredata, wires},
+    defs::{bcls, bslots, tcls, wiredata, wires},
 };
 use prjcombine_interconnect::{
     db::{BelPin, LegacyBel, WireSlotIdExt},
@@ -480,8 +480,7 @@ impl ChipContext<'_> {
     }
 
     fn process_serdes_ecp3(&mut self) {
-        let tcid = tcls::SERDES;
-        for &tcrd in &self.edev.tile_index[tcid] {
+        for &tcrd in &self.edev.tile_index[tcls::SERDES] {
             let bcrd = tcrd.bel(bslots::SERDES);
             let bank = self.chip.columns[bcrd.cell.col].bank_s.unwrap();
             let name = match bank {
@@ -492,30 +491,29 @@ impl ChipContext<'_> {
                 _ => unreachable!(),
             };
             let cell = bcrd.cell.delta(0, -1);
-            self.name_bel(
-                bcrd,
-                [
-                    name.to_string(),
-                    format!("{name}_REFCLKP"),
-                    format!("{name}_REFCLKN"),
-                    format!("{name}_HDINP0"),
-                    format!("{name}_HDINN0"),
-                    format!("{name}_HDINP1"),
-                    format!("{name}_HDINN1"),
-                    format!("{name}_HDINP2"),
-                    format!("{name}_HDINN2"),
-                    format!("{name}_HDINP3"),
-                    format!("{name}_HDINN3"),
-                    format!("{name}_HDOUTP0"),
-                    format!("{name}_HDOUTN0"),
-                    format!("{name}_HDOUTP1"),
-                    format!("{name}_HDOUTN1"),
-                    format!("{name}_HDOUTP2"),
-                    format!("{name}_HDOUTN2"),
-                    format!("{name}_HDOUTP3"),
-                    format!("{name}_HDOUTN3"),
-                ],
-            );
+            let mut bel = self.extract_bel_cell(bcrd, cell);
+            bel.names([
+                name.to_string(),
+                format!("{name}_REFCLKP"),
+                format!("{name}_REFCLKN"),
+                format!("{name}_HDINP0"),
+                format!("{name}_HDINN0"),
+                format!("{name}_HDINP1"),
+                format!("{name}_HDINN1"),
+                format!("{name}_HDINP2"),
+                format!("{name}_HDINN2"),
+                format!("{name}_HDINP3"),
+                format!("{name}_HDINN3"),
+                format!("{name}_HDOUTP0"),
+                format!("{name}_HDOUTN0"),
+                format!("{name}_HDOUTP1"),
+                format!("{name}_HDOUTN1"),
+                format!("{name}_HDOUTP2"),
+                format!("{name}_HDOUTN2"),
+                format!("{name}_HDOUTP3"),
+                format!("{name}_HDOUTN3"),
+            ])
+            .suffix("PCS");
             for (dx, name) in [
                 (0, "IN3"),
                 (1, "OUT3"),
@@ -535,8 +533,8 @@ impl ChipContext<'_> {
                     "JOUTPUTB_APIO",
                     "JCLOCKB_APIO",
                 ] {
-                    let wire = self.rc_io_wire(cell.delta(dx, -8), pin);
-                    self.add_bel_wire(bcrd, format!("{name}_{pin}"), wire);
+                    let wire = bel.ctx.rc_io_wire(cell.delta(dx, -8), pin);
+                    bel.add_wire(format!("{name}_{pin}"), wire);
                 }
             }
             for (dx, wp, wn) in [
@@ -546,14 +544,14 @@ impl ChipContext<'_> {
                 (5, "HDINP1", "HDINN1"),
                 (8, "HDINN0", "HDINP0"),
             ] {
-                let wire_apio = self.rc_io_wire(cell.delta(dx, -8), "JINPUTA_APIO");
-                let wire_pcs = self.rc_wire(cell, &format!("J{wp}_PCS"));
-                self.claim_pip(wire_pcs, wire_apio);
-                self.add_bel_wire(bcrd, wp, wire_pcs);
-                let wire_apio = self.rc_io_wire(cell.delta(dx, -8), "JINPUTB_APIO");
-                let wire_pcs = self.rc_wire(cell, &format!("J{wn}_PCS"));
-                self.claim_pip(wire_pcs, wire_apio);
-                self.add_bel_wire(bcrd, wn, wire_pcs);
+                let wire_apio = bel.ctx.rc_io_wire(cell.delta(dx, -8), "JINPUTA_APIO");
+                let wire_pcs = bel.ctx.rc_wire(cell, &format!("J{wp}_PCS"));
+                bel.ctx.claim_pip(wire_pcs, wire_apio);
+                bel.add_wire(wp, wire_pcs);
+                let wire_apio = bel.ctx.rc_io_wire(cell.delta(dx, -8), "JINPUTB_APIO");
+                let wire_pcs = bel.ctx.rc_wire(cell, &format!("J{wn}_PCS"));
+                bel.ctx.claim_pip(wire_pcs, wire_apio);
+                bel.add_wire(wn, wire_pcs);
             }
             for (dx, wp, wn) in [
                 (1, "HDOUTP3", "HDOUTN3"),
@@ -561,26 +559,31 @@ impl ChipContext<'_> {
                 (6, "HDOUTP1", "HDOUTN1"),
                 (7, "HDOUTN0", "HDOUTP0"),
             ] {
-                let wire_apio = self.rc_io_wire(cell.delta(dx, -8), "JOUTPUTA_APIO");
-                let wire_pcs = self.rc_wire(cell, &format!("J{wp}_PCS"));
-                self.claim_pip(wire_apio, wire_pcs);
-                self.add_bel_wire(bcrd, wp, wire_pcs);
-                let wire_apio = self.rc_io_wire(cell.delta(dx, -8), "JOUTPUTB_APIO");
-                let wire_pcs = self.rc_wire(cell, &format!("J{wn}_PCS"));
-                self.claim_pip(wire_apio, wire_pcs);
-                self.add_bel_wire(bcrd, wn, wire_pcs);
+                let wire_apio = bel.ctx.rc_io_wire(cell.delta(dx, -8), "JOUTPUTA_APIO");
+                let wire_pcs = bel.ctx.rc_wire(cell, &format!("J{wp}_PCS"));
+                bel.ctx.claim_pip(wire_apio, wire_pcs);
+                bel.add_wire(wp, wire_pcs);
+                let wire_apio = bel.ctx.rc_io_wire(cell.delta(dx, -8), "JOUTPUTB_APIO");
+                let wire_pcs = bel.ctx.rc_wire(cell, &format!("J{wn}_PCS"));
+                bel.ctx.claim_pip(wire_apio, wire_pcs);
+                bel.add_wire(wn, wire_pcs);
             }
-            let wire = self.rc_wire(cell, "JREFCLK_TO_NQ_PCS");
-            self.add_bel_wire(bcrd, "REFCLK_TO_NQ_PCS", wire);
-            let wire = self.rc_wire(cell, "JREFCLK_FROM_NQ_PCS");
-            self.add_bel_wire(bcrd, "REFCLK_FROM_NQ_PCS", wire);
-            if let Some(cell_prev) = self.edev.cell_delta(bcrd.cell, -36, 0)
-                && self.edev.has_bel(cell_prev.bel(bslots::SERDES))
+            let wire = bel.ctx.rc_wire(cell, "JREFCLK_TO_NQ_PCS");
+            bel.add_wire("REFCLK_TO_NQ_PCS", wire);
+            let wire = bel.ctx.rc_wire(cell, "JREFCLK_FROM_NQ_PCS");
+            bel.add_wire("REFCLK_FROM_NQ_PCS", wire);
+            if let Some(cell_prev) = bel.ctx.edev.cell_delta(bcrd.cell, -36, 0)
+                && bel.ctx.edev.has_bel(cell_prev.bel(bslots::SERDES))
             {
-                let wire_prev = self.rc_wire(cell.delta(-36, 0), "JREFCLK_TO_NQ_PCS");
-                self.claim_pip(wire, wire_prev);
+                let wire_prev = bel.ctx.rc_wire(cell.delta(-36, 0), "JREFCLK_TO_NQ_PCS");
+                bel.ctx.claim_pip(wire, wire_prev);
             }
-            self.insert_simple_legacy_bel(bcrd, cell, "PCS");
+            for i in 0..16 {
+                bel.output_xlat_rc(
+                    bcls::SERDES::FFS_BIST_RPT[i],
+                    format!("JFFS_BIST_RPT_{i}_PCS"),
+                );
+            }
         }
     }
 

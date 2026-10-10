@@ -1,9 +1,9 @@
 use prjcombine_ecp::{
     chip::{Chip, ChipKind, PllLoc, PllPad, SpecialIoKey},
-    defs::bslots,
+    defs::{bslots, tcls, wires},
 };
 use prjcombine_interconnect::{
-    db::LegacyBel,
+    db::{LegacyBel, WireSlotIdExt},
     dir::{Dir, DirH, DirV},
     grid::DieIdExt,
 };
@@ -11,6 +11,25 @@ use prjcombine_interconnect::{
 use crate::ChipContext;
 
 impl ChipContext<'_> {
+    pub(super) fn prep_pll_ecp3(&mut self) {
+        for &tcrd in &self.edev.tile_index[tcls::SERDES] {
+            let bcrd = tcrd.bel(bslots::SERDES);
+            let cell = bcrd.cell.delta(0, -1);
+            self.hybrid_out_rc_cell(
+                bcrd,
+                cell,
+                "JFF_TX_F_CLK_0_PCS",
+                wires::OUT_SERDES_FF_TX_F_CLK.cell(0),
+            );
+            self.hybrid_out_rc_cell(
+                bcrd,
+                cell,
+                "JFF_TX_H_CLK_0_PCS",
+                wires::OUT_SERDES_FF_TX_H_CLK.cell(0),
+            );
+        }
+    }
+
     pub(super) fn process_pll_ecp3(&mut self) {
         for (loc, bcrd) in self.chip.plls() {
             let cell = match loc.quad.h {

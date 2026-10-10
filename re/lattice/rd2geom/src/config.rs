@@ -553,13 +553,13 @@ impl ChipContext<'_> {
             .name("SED")
             .suffix("SED");
 
-        let bcrd = cell.bel(bslots::AMBOOT);
-        self.name_bel(bcrd, ["AMBOOT"]);
-        self.insert_simple_legacy_bel(bcrd, cell.delta(4, 0), "AMBOOT");
+        self.extract_bel_cell(cell.bel(bslots::AMBOOT), cell.delta(4, 0))
+            .name("AMBOOT")
+            .suffix("AMBOOT");
 
-        let bcrd = cell.bel(bslots::PERREG);
-        self.name_bel(bcrd, ["PERREG"]);
-        self.insert_simple_legacy_bel(bcrd, cell.delta(5, 0), "PERREG");
+        self.extract_bel_cell(cell.bel(bslots::PERREG), cell.delta(5, 0))
+            .name("PERREG")
+            .suffix("PERREG");
 
         for h in [DirH::W, DirH::E] {
             let col = self.chip.col_edge(h);
@@ -574,15 +574,15 @@ impl ChipContext<'_> {
                 };
                 let row = self.chip.row_edge(v);
                 let cell = Chip::DIE.cell(col, row);
-                for (bel, name) in [(bslots::TESTIN, "TESTIN"), (bslots::TESTOUT, "TESTOUT")] {
-                    let bcrd = cell.bel(bel);
-                    self.name_bel(bcrd, [format!("{lu}{lr}{name}")]);
-                    self.insert_simple_legacy_bel(bcrd, bcrd.cell, name);
+                for (bslot, name) in [(bslots::TESTIN, "TESTIN"), (bslots::TESTOUT, "TESTOUT")] {
+                    self.extract_bel(cell.bel(bslot))
+                        .name(format!("{lu}{lr}{name}"))
+                        .suffix(name);
                 }
                 if h == DirH::E && v == DirV::S {
-                    let bcrd = cell.bel(bslots::DTS);
-                    self.name_bel(bcrd, ["DTS"]);
-                    self.insert_simple_legacy_bel(bcrd, bcrd.cell, "DTS");
+                    self.extract_bel(cell.bel(bslots::DTS))
+                        .name("DTS")
+                        .suffix("DTS");
                 }
             }
         }
