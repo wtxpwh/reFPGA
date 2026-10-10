@@ -697,10 +697,19 @@ impl Chip {
 
     pub fn bel_clk_root(&self) -> BelCoord {
         self.clk_root().bel(
-            if matches!(self.kind, ChipKind::MachXo | ChipKind::Ecp | ChipKind::Xp) {
-                bslots::CLK_INT
-            } else {
+            if matches!(
+                self.kind,
+                ChipKind::MachXo2(_)
+                    | ChipKind::Scm
+                    | ChipKind::Ecp3
+                    | ChipKind::Ecp3A
+                    | ChipKind::Ecp4
+                    | ChipKind::Ecp5
+                    | ChipKind::Crosslink
+            ) {
                 bslots::CLK_ROOT
+            } else {
+                bslots::CLK_INT
             },
         )
     }
@@ -861,6 +870,27 @@ impl Chip {
                 .cell(self.col_e(), self.row_clk)
                 .bel(bslots::DLLDEL[idx]),
             _ => unreachable!(),
+        }
+    }
+
+    pub fn try_bel_serdes_ecp2(&self, hv: DirHV) -> Option<BelCoord> {
+        let col = match hv.h {
+            DirH::W => self.col_w() + 1,
+            DirH::E => self.col_e() - 27,
+        };
+        let row = match hv.v {
+            DirV::S => self.row_s() + 7,
+            DirV::N => self.row_n() - 7,
+        };
+        let cell = Self::DIE.cell(col, row);
+        let io_kind = match hv.v {
+            DirV::S => self.columns[col].io_s,
+            DirV::N => self.columns[col].io_n,
+        };
+        if io_kind != IoGroupKind::Serdes {
+            None
+        } else {
+            Some(cell.bel(bslots::SERDES))
         }
     }
 

@@ -3,8 +3,8 @@ use std::collections::{BTreeMap, BTreeSet};
 use prjcombine_entity::{EntityBundleIndices, EntityBundleItemIndex};
 use prjcombine_interconnect::{
     db::{
-        Bel, BelClassId, BelInput, BelInputId, BelOutputId, IntDb, Mux, PermaBuf, SwitchBox,
-        SwitchBoxItem, TileWireCoord,
+        Bel, BelClassId, BelInput, BelInputId, BelOutputId, CellSlotId, IntDb, Mux, PermaBuf,
+        SwitchBox, SwitchBoxItem, TileWireCoord,
     },
     grid::{BelCoord, CellCoord},
 };
@@ -29,7 +29,7 @@ impl<'dev, 'ctx> BelExtractor<'dev, 'ctx> {
             match idx {
                 EntityBundleIndices::Single(id) => {
                     if let Some(&wire) = wires.get(name)
-                        && let Some(bpin) = self.ctx.try_xlat_input(self.bcrd, wire, true)
+                        && let Some(bpin) = self.ctx.try_xlat_input(self.bcrd, wire, true, None)
                     {
                         self.ctx.add_bel_wire(self.bcrd, name, wire);
                         self.bel.inputs.insert(id, bpin);
@@ -44,7 +44,7 @@ impl<'dev, 'ctx> BelExtractor<'dev, 'ctx> {
                             format!("{name}{vi}")
                         };
                         if let Some(&wire) = wires.get(iname)
-                            && let Some(bpin) = self.ctx.try_xlat_input(self.bcrd, wire, true)
+                            && let Some(bpin) = self.ctx.try_xlat_input(self.bcrd, wire, true, None)
                         {
                             self.ctx.add_bel_wire(self.bcrd, iname, wire);
                             self.bel.inputs.insert(id, bpin);
@@ -256,7 +256,7 @@ impl<'dev, 'ctx> SwitchBoxExtractor<'dev, 'ctx> {
 
     pub fn input_xlat(&mut self, name: WireName) -> &mut Self {
         if let Some(wires) = self.ctx.io_int_wires.get(&name) {
-            let tw = self.ctx.wire_to_tw(self.bcrd, wires[0]).unwrap();
+            let tw = self.ctx.wire_to_tw(self.bcrd, wires[0], None).unwrap();
             self.input_raw_no_claim(name, tw)
         } else {
             let wire = self.ctx.xlat_input(self.bcrd, name).wire();
@@ -271,6 +271,33 @@ impl<'dev, 'ctx> SwitchBoxExtractor<'dev, 'ctx> {
 
     pub fn input_xlat_rc(&mut self, name: impl AsRef<str>) -> &mut Self {
         self.input_xlat_rc_cell(self.cell, name)
+    }
+
+    pub fn input_xlat_nudge(&mut self, name: WireName, cslot: CellSlotId) -> &mut Self {
+        if let Some(wires) = self.ctx.io_int_wires.get(&name) {
+            let tw = self
+                .ctx
+                .wire_to_tw(self.bcrd, wires[0], Some(cslot))
+                .unwrap();
+            self.input_raw_no_claim(name, tw)
+        } else {
+            let wire = self.ctx.xlat_input_nudge(self.bcrd, name, cslot).wire();
+            self.input_raw(name, wire)
+        }
+    }
+
+    pub fn input_xlat_rc_cell_nudge(
+        &mut self,
+        cell: CellCoord,
+        name: impl AsRef<str>,
+        cslot: CellSlotId,
+    ) -> &mut Self {
+        let name = self.ctx.rc_wire(cell, name.as_ref());
+        self.input_xlat_nudge(name, cslot)
+    }
+
+    pub fn input_xlat_rc_nudge(&mut self, name: impl AsRef<str>, cslot: CellSlotId) -> &mut Self {
+        self.input_xlat_rc_cell_nudge(self.cell, name, cslot)
     }
 
     pub fn input_io(&mut self, name: WireName, wire: TileWireCoord) -> &mut Self {
@@ -333,12 +360,23 @@ impl<'dev, 'ctx> SwitchBoxExtractor<'dev, 'ctx> {
 
     pub fn output_xlat(&mut self, name: WireName) -> &mut Self {
         if let Some(wires) = self.ctx.io_int_wires.get(&name) {
-            let tw = self.ctx.wire_to_tw(self.bcrd, wires[0]).unwrap();
+            let tw = self.ctx.wire_to_tw(self.bcrd, wires[0], None).unwrap();
             self.output_raw(name, tw)
         } else {
             let wires = self.ctx.xlat_output(self.bcrd, name);
             assert_eq!(wires.len(), 1);
             self.output_raw(name, wires.into_iter().next().unwrap())
+        }
+    }
+
+    pub fn output_xlat_no_claim(&mut self, name: WireName) -> &mut Self {
+        if let Some(wires) = self.ctx.io_int_wires.get(&name) {
+            let tw = self.ctx.wire_to_tw(self.bcrd, wires[0], None).unwrap();
+            self.output_raw_no_claim(name, tw)
+        } else {
+            let wires = self.ctx.xlat_output(self.bcrd, name);
+            assert_eq!(wires.len(), 1);
+            self.output_raw_no_claim(name, wires.into_iter().next().unwrap())
         }
     }
 

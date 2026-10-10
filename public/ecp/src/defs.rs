@@ -1941,11 +1941,11 @@ target_defs! {
                 switchbox CLK_INT;
             }
         } else if variant [ecp, xp, ecp2, ecp2m, xp2] {
+            bel_slot DCS_SW[2]: DCS;
+            bel_slot DCS_SE[2]: DCS;
+            bel_slot DCS_NW[2]: DCS;
+            bel_slot DCS_NE[2]: DCS;
             if variant [ecp, xp] {
-                bel_slot DCS_SW[2]: DCS;
-                bel_slot DCS_SE[2]: DCS;
-                bel_slot DCS_NW[2]: DCS;
-                bel_slot DCS_NE[2]: DCS;
                 tile_class CLK_ROOT_2PLL, CLK_ROOT_2PLL_A, CLK_ROOT_2PLL_B, CLK_ROOT_4PLL {
                     if variant ecp {
                         if tile_class [CLK_ROOT_2PLL_A, CLK_ROOT_2PLL_B] {
@@ -1988,45 +1988,26 @@ target_defs! {
                     }
                 }
             } else {
-                bel_slot CLK_ROOT: legacy;
-                bel_slot DCS_SW[2]: legacy;
-                bel_slot DCS_SE[2]: legacy;
-                bel_slot DCS_NW[2]: legacy;
-                bel_slot DCS_NE[2]: legacy;
-                tile_class CLK_ROOT_2PLL, CLK_ROOT_4PLL, CLK_ROOT_6PLL, CLK_ROOT_8PLL {
-                    if variant ecp2 {
-                        if tile_class CLK_ROOT_8PLL {
-                            skip;
-                        }
-                    } else if variant ecp2m {
-                        if tile_class CLK_ROOT_8PLL {
-                            // skip
-                        } else {
-                            skip;
-                        }
-                    } else if variant xp2 {
-                        if tile_class [CLK_ROOT_6PLL, CLK_ROOT_8PLL] {
-                            skip;
-                        }
-                    }
+                tile_class CLK_ROOT {
                     // actual clock root cells
                     cell ROOT_SW, ROOT_SE, ROOT_NW, ROOT_NE;
                     // fabric clock inputs
-                    cell FABRIC_IN[26];
+                    cell PCLK_IN_W[2], PCLK_IN_E[4], PCLK_IN_S[2], PCLK_IN_N[2];
+                    cell SCLK_IN_W[4], SCLK_IN_E[4], SCLK_IN_S[4], SCLK_IN_N[4];
                     // I/O inputs
-                    // cell IO_W[2], IO_E[2], IO_S[2], IO_N[2];
+                    cell IO_W[2], IO_E[2], IO_S[2], IO_N[2];
 
-                    // if variant xp2 {
-                    //     cell PLL_SW, PLL_SE, PLL_NW, PLL_NE;
-                    //     cell CLK_W, CLK_E;
-                    // } else {
-                    //     cell PLL_SW[2], PLL_SE[2], PLL_NW[2], PLL_NE[2];
-                    // }
-                    // if variant ecp2m {
-                    //     cell SERDES_SW, SERDES_SE, SERDES_NW, SERDES_NE;
-                    // }
+                    if variant xp2 {
+                        cell PLL_SW, PLL_SE, PLL_NW, PLL_NE;
+                        cell CLK_W, CLK_E;
+                    } else if variant ecp2 {
+                        cell PLL_SW, PLL_SE, PLL_NW[2], PLL_NE[2];
+                    } else if variant ecp2m {
+                        cell PLL_SW[2], PLL_SE[2], PLL_NW[2], PLL_NE[2];
+                        cell SERDES_SW, SERDES_SE, SERDES_NW, SERDES_NE;
+                    }
 
-                    bel CLK_ROOT;
+                    switchbox CLK_INT;
                     for i in 0..2 {
                         bel DCS_SW[i];
                         bel DCS_SE[i];

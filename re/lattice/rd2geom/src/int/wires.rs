@@ -6,7 +6,7 @@ use prjcombine_ecp::{
 };
 use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
-    db::{BelInput, BelPin, TileWireCoord, WireKind},
+    db::{BelInput, BelPin, CellSlotId, TileWireCoord, WireKind},
     dir::Dir,
     grid::{BelCoord, CellCoord, WireCoord},
 };
@@ -686,11 +686,19 @@ impl ChipContext<'_> {
         }
     }
 
-    pub fn wire_to_tw(&self, bcrd: BelCoord, wire: WireCoord) -> Option<TileWireCoord> {
+    pub fn wire_to_tw(
+        &self,
+        bcrd: BelCoord,
+        wire: WireCoord,
+        nudge: Option<CellSlotId>,
+    ) -> Option<TileWireCoord> {
         let tcrd = self.edev.bel_tile(bcrd);
         for (cslot, &cell) in &self.edev[tcrd].cells {
+            if nudge.is_some() && nudge != Some(cslot) {
+                continue;
+            }
             let found = if let WireKind::Regional(rslot) = self.edev.db[wire.slot].kind {
-                self.edev[cell].region_root[rslot] == wire.cell
+                self.edev[cell].region_root[rslot] == self.edev[wire.cell].region_root[rslot]
             } else {
                 cell == wire.cell
             };
@@ -720,7 +728,7 @@ impl ChipContext<'_> {
                 if !self.intdb.wires[wf.slot].name.starts_with("IMUX") {
                     continue;
                 }
-                let Some(wf) = self.wire_to_tw(bcrd, wf) else {
+                let Some(wf) = self.wire_to_tw(bcrd, wf, None) else {
                     if !filter {
                         println!(
                             "{name}: fail to xlat int wire {wf} in {bel}",
@@ -746,7 +754,7 @@ impl ChipContext<'_> {
                 if !self.intdb.wires[wt.slot].name.starts_with("OUT") {
                     continue;
                 }
-                let Some(wt) = self.wire_to_tw(bcrd, wt) else {
+                let Some(wt) = self.wire_to_tw(bcrd, wt, None) else {
                     if !filter {
                         println!(
                             "{name}: fail to xlat int wire {wt} in {bel}",
@@ -785,6 +793,7 @@ impl ChipContext<'_> {
         bcrd: BelCoord,
         wire: WireName,
         filter: bool,
+        nudge: Option<CellSlotId>,
     ) -> Option<BelInput> {
         for &wfn in self.pips_bwd.get(&wire).into_iter().flatten() {
             if let Some(wires_f) = self
@@ -793,7 +802,7 @@ impl ChipContext<'_> {
                 .or_else(|| self.io_int_wires.get(&wfn))
             {
                 let wf = wires_f[0];
-                let Some(wf) = self.wire_to_tw(bcrd, wf) else {
+                let Some(wf) = self.wire_to_tw(bcrd, wf, nudge) else {
                     if !filter {
                         println!(
                             "{name}: fail to xlat int wire {wf} in {bel}",
@@ -812,7 +821,16 @@ impl ChipContext<'_> {
     }
 
     pub fn xlat_input(&mut self, bcrd: BelCoord, wire: WireName) -> BelInput {
-        self.try_xlat_input(bcrd, wire, false).unwrap()
+        self.try_xlat_input(bcrd, wire, false, None).unwrap()
+    }
+
+    pub fn xlat_input_nudge(
+        &mut self,
+        bcrd: BelCoord,
+        wire: WireName,
+        cslot: CellSlotId,
+    ) -> BelInput {
+        self.try_xlat_input(bcrd, wire, false, Some(cslot)).unwrap()
     }
 
     pub fn try_xlat_output(
@@ -843,7 +861,7 @@ impl ChipContext<'_> {
                 if filter && !self.intdb.wires[wt.slot].name.starts_with("OUT") {
                     continue;
                 }
-                let Some(wt) = self.wire_to_tw(bcrd, wt) else {
+                let Some(wt) = self.wire_to_tw(bcrd, wt, None) else {
                     if !quiet {
                         println!(
                             "{name}: fail to xlat int wire {wt} in {bel}",

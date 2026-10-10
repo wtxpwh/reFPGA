@@ -2291,12 +2291,13 @@ impl Expander<'_, '_> {
 
         let mut cells = vec![
             // actual clock root cells
-            self.die.cell(self.chip.col_w(), self.chip.row_s()),
-            self.die.cell(self.chip.col_e(), self.chip.row_s()),
-            self.die.cell(self.chip.col_w(), self.chip.row_n()),
-            self.die.cell(self.chip.col_e(), self.chip.row_n()),
+            Some(self.die.cell(self.chip.col_w(), self.chip.row_s())),
+            Some(self.die.cell(self.chip.col_e(), self.chip.row_s())),
+            Some(self.die.cell(self.chip.col_w(), self.chip.row_n())),
+            Some(self.die.cell(self.chip.col_e(), self.chip.row_n())),
         ];
         for cell in &mut cells {
+            let cell = cell.as_mut().unwrap();
             if !self.egrid.has_bel(cell.bel(bslots::INT)) {
                 if cell.row == self.chip.row_s() {
                     cell.row += 7;
@@ -2308,24 +2309,54 @@ impl Expander<'_, '_> {
             }
         }
         // fabric clock inputs
-        for (&key, &cell) in &self.chip.special_loc {
-            match key {
-                SpecialLocKey::PclkIn(..) | SpecialLocKey::SclkIn(..) => {
-                    cells.push(cell);
-                }
-                _ => (),
+        for edge in Dir::DIRS {
+            let num = if edge == Dir::E { 4 } else { 2 };
+            for i in 0..num {
+                cells.push(self.chip.try_get_spec_cell(SpecialLocKey::PclkIn(edge, i)));
             }
         }
-        let kind = match self.chip.plls().len() {
-            2 => tcls::CLK_ROOT_2PLL,
-            4 => tcls::CLK_ROOT_4PLL,
-            6 => tcls::CLK_ROOT_6PLL,
-            8 => tcls::CLK_ROOT_8PLL,
-            _ => unreachable!(),
-        };
-        self.egrid.add_tile(
+        for edge in Dir::DIRS {
+            for i in 0..4 {
+                cells.push(self.chip.try_get_spec_cell(SpecialLocKey::SclkIn(edge, i)));
+            }
+        }
+        // IO inputs
+        for edge in Dir::DIRS {
+            for i in 0..2 {
+                cells.push(self.chip.try_get_io_cell(SpecialIoKey::Clock(edge, i)));
+            }
+        }
+        // PLL inputs
+        for hv in [DirHV::SW, DirHV::SE, DirHV::NW, DirHV::NE] {
+            let num = if self.chip.kind == ChipKind::Xp2
+                || (self.chip.kind == ChipKind::Ecp2 && hv.v == DirV::S)
+            {
+                1
+            } else {
+                2
+            };
+            for i in 0..num {
+                cells.push(self.chip.try_bel_pll(hv, i).map(|bcrd| bcrd.cell));
+            }
+        }
+        // CLKDIV inputs
+        if self.chip.kind == ChipKind::Xp2 {
+            for edge in [DirH::W, DirH::E] {
+                cells.push(Some(
+                    self.die.cell(self.chip.col_edge(edge), self.chip.row_clk),
+                ));
+            }
+        }
+        // SERDES inputs
+        if self.chip.kind == ChipKind::Ecp2M {
+            for hv in [DirHV::SW, DirHV::SE, DirHV::NW, DirHV::NE] {
+                cells.push(self.chip.try_bel_serdes_ecp2(hv).map(|bcrd| bcrd.cell));
+            }
+        }
+
+        self.egrid.add_tile_part(
             self.die.cell(self.chip.col_clk, self.chip.row_clk),
-            kind,
+            tcls::CLK_ROOT,
             &cells,
         );
     }

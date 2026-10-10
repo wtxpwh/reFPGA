@@ -687,6 +687,12 @@ fn main() -> Result<(), Box<dyn Error>> {
             if missing_bels.remove(&(tcid, bid)) {
                 int.tile_classes[tcid].bels.insert(bid, bel);
             } else {
+                if !int[tcid].bels.contains_id(bid) {
+                    panic!("EXTRA BEL {chip_id} {tc} {bel}",
+                        tc = int.tile_classes[tcid].name,
+                        bel = int.bel_slots[bid].name,
+                    );
+                }
                 assert_eq!(
                     int[tcid].bels[bid],
                     bel,
