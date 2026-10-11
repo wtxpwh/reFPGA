@@ -333,17 +333,23 @@ target_defs! {
         }
     }
 
+    bel_class DCC {
+        input CLKI;
+        input CE;
+        output CLKO;
+    }
+
     bel_class DCS {
         input CLK[2];
         input SEL;
         output DCSOUT;
     }
 
-    if variant [machxo, ecp, xp, ecp2, ecp2m, xp2] {
+    if variant [machxo, ecp, xp, ecp2, ecp2m, xp2, ecp3] {
         bel_class PLL {
             input CLKI, CLKFB;
             output CLKOP, CLKOS, CLKOK;
-            if variant xp2 {
+            if variant [xp2, ecp3] {
                 output CLKOK2;
             }
             if variant [ecp, xp] {
@@ -354,27 +360,39 @@ target_defs! {
             input RESETM, RESETK;
             output LOCK, DNLOCK, UPLOCK;
             input CNTRST, PWD;
-            if variant xp2 {
+            if variant [xp2, ecp3] {
             } else {
                 // on ecp2, only present on plain PLL, not SPLL
                 input DDAMODE, DDAIZR, DDAILAG, DDAIDEL[3];
                 output DDAOZR, DDAOLAG, DDAODEL[3];
             }
             if variant [ecp2, ecp2m, xp2] {
-                input DPAMODE, DRPAI[4], DFPAI[4];
+                input DPAMODE;
+            }
+            if variant [ecp2, ecp2m, xp2, ecp3] {
+                input DRPAI[4], DFPAI[4];
                 output DRPAO[4], DFPAO[4];
 
+            }
+            if variant ecp3 {
+                input FDA[4];
+                input WRDEL;
             }
             input TCLKI;
             output TESTOUT;
         }
     }
 
-    if variant [ecp2, ecp2m, xp2] {
+    if variant [ecp2, ecp2m, xp2, ecp3] {
         bel_class CLKDIV {
             input CLKI;
             output CDIV1, CDIV2, CDIV4, CDIV8;
             input RST, RELEASE;
+            if variant ecp3 {
+                // hrm. is this just passthru?
+                input TEST_CLKI1, TEST_CLKI2;
+                output TEST_CLKO1, TEST_CLKO2;
+            }
         }
     }
 
@@ -393,6 +411,27 @@ target_defs! {
             output SMIRDATA;
         }
 
+    }
+
+    if variant ecp3 {
+        bel_class DLL {
+            input CLKI, CLKFB;
+            output CLKOP, CLKOS;
+            output DCNTL[6];
+            input RSTN;
+            input UDDCNTL;
+            output LOCK;
+            input GRAYI[6];
+            output GRAYO[6];
+            input INCI;
+            output INCO;
+            input ALUHOLD;
+            input CIB_DCPS[6];
+            output DIFF;
+        }
+    }
+
+    if variant [ecp2, ecp2m, ecp3] {
         bel_class DLLDEL {
             input CLKI;
             output BYPASS;
@@ -670,14 +709,6 @@ target_defs! {
         }
     }
 
-    // TODO: convert to routing
-    if variant [ecp3, machxo2] {
-        bel_class HSDCLK_ROOT {
-            output OUT_W[8];
-            output OUT_E[8];
-        }
-    }
-
     wire TIE0: tie 0;
     wire TIE1: tie 1;
 
@@ -769,6 +800,10 @@ target_defs! {
         wire PCLK[8]: regional PCLK;
         wire SCLK_ROOT[8]: regional PCLK;
     } else if variant [ecp3, machxo2] {
+        // ecp3: per quadrant; machxo2: global
+        region_slot PCLK;
+        wire PCLK_ROOT[8]: regional PCLK;
+        wire SCLK_ROOT[8]: regional PCLK;
         // Rotating primary clocks.
         region_slot RPCLK[4];
         wire RPCLK[8] {
@@ -834,7 +869,10 @@ target_defs! {
         }
     }
 
-    if variant [ecp, xp, ecp2, ecp2m, xp2] {
+    if variant ecp3 {
+        wire IMUX_DCC_CLKI[6]: mux;
+    }
+    if variant [ecp, xp, ecp2, ecp2m, xp2, ecp3] {
         wire IMUX_DCS_CLKA[2]: mux;
         wire IMUX_DCS_CLKB[2]: mux;
     }
@@ -848,6 +886,8 @@ target_defs! {
             wire IMUX_IO_ECLKI[2]: mux;
             wire IMUX_IO_ECLKO[2]: mux;
         } else {
+            wire IMUX_ECLKSYNC_ECLKI[2]: mux;
+            wire BRGECLK[2]: mux;
             wire IMUX_IO_ECLK[4]: mux;
             wire IMUX_IO_ECLKDQSR[4]: mux;
         }
@@ -993,6 +1033,9 @@ target_defs! {
 
     if variant [ecp2, ecp2m, ecp3] {
         wire PLL_TO_ECLK[2]: mux;
+        if variant ecp3 {
+            wire PLL_TO_ECLK_TEST[2]: bel;
+        }
         wire IMUX_DLL_CLKI: mux;
         wire IMUX_DLL_CLKFB: mux;
         wire OUT_DLL_CLKOP: bel;
@@ -1003,7 +1046,7 @@ target_defs! {
             wire OUT_DLLDEL_BYPASS: bel;
         }
     }
-    if variant [ecp2, ecp2m, xp2] {
+    if variant [ecp2, ecp2m, xp2, ecp3] {
         wire IMUX_CLKDIV_CLKI: mux;
         wire OUT_CLKDIV_CDIV1: bel;
         wire OUT_CLKDIV_CDIV2: bel;
@@ -1608,27 +1651,30 @@ target_defs! {
                 }
             }
         } else if variant ecp3 {
-            bel_slot PLL[1]: legacy;
-            bel_slot DLL[1]: legacy;
-            bel_slot DLLDEL[1]: legacy;
-            bel_slot DQSDLL: legacy;
-            bel_slot DQSDLLTEST: legacy;
-            bel_slot ECLK_ALT_ROOT: legacy;
-            bel_slot CLKDIV[1]: legacy;
+            bel_slot PLL[1]: PLL;
+            bel_slot DLL[1]: DLL;
+            bel_slot DLLDEL[1]: DLLDEL;
+            bel_slot DQSDLL: DQSDLL;
+            bel_slot CLKDIV[1]: CLKDIV;
             tile_class PLL_DLL_W, PLL_DLL_E, PLL_DLL_A_W, PLL_DLL_A_E {
                 cell CELL[15];
-                cell CELL_WE[3];
+                cell CELL_WE[4];
+                cell IO_N_DLL;
+                cell IO_N_PLL;
+
+                switchbox BEL_INT;
                 bel PLL[0];
                 bel DLL[0];
                 bel DLLDEL[0];
                 bel DQSDLL;
-                bel DQSDLLTEST;
-                bel ECLK_ALT_ROOT;
                 bel CLKDIV[0];
             }
             tile_class PLL_W, PLL_E, PLL_A_W, PLL_A_E {
                 cell CELL[12];
                 cell CELL_WE;
+                cell IO_N;
+
+                switchbox BEL_INT;
                 bel PLL[0];
             }
         } else if variant machxo2 {
@@ -2148,18 +2194,21 @@ target_defs! {
                 }
             }
         } else if variant ecp3 {
-            bel_slot CLK_ROOT: legacy;
-            bel_slot DCC_SW[6]: legacy;
-            bel_slot DCC_SE[6]: legacy;
-            bel_slot DCC_NW[6]: legacy;
-            bel_slot DCC_NE[6]: legacy;
-            bel_slot DCS_SW[2]: legacy;
-            bel_slot DCS_SE[2]: legacy;
-            bel_slot DCS_NW[2]: legacy;
-            bel_slot DCS_NE[2]: legacy;
+            bel_slot DCC_SW[6]: DCC;
+            bel_slot DCC_SE[6]: DCC;
+            bel_slot DCC_NW[6]: DCC;
+            bel_slot DCC_NE[6]: DCC;
+            bel_slot DCS_SW[2]: DCS;
+            bel_slot DCS_SE[2]: DCS;
+            bel_slot DCS_NW[2]: DCS;
+            bel_slot DCS_NE[2]: DCS;
             tile_class CLK_ROOT {
-                cell CELL[30];
-                bel CLK_ROOT;
+                cell CENTER_S[2], CENTER_M[2], CENTER_N[2];
+                cell EDGE_W[6], EDGE_E[8], EDGE_S[6], EDGE_N[6];
+                cell PLL_SW[3], PLL_SE[3], PLL_NW[2], PLL_NE[2];
+                cell SERDES[4];
+
+                switchbox CLK_INT;
                 for i in 0..6 {
                     bel DCC_SW[i];
                     bel DCC_SE[i];
@@ -2546,9 +2595,24 @@ target_defs! {
         }
 
         if variant ecp3 {
-            bel_slot ECLKSYNC[2]: legacy;
-            tile_class ECLK_ROOT_W, ECLK_ROOT_E, ECLK_ROOT_N {
-                cell CELL;
+            bel_slot ECLKSYNC[2]: ECLKSYNC;
+            tile_class
+                ECLK_ROOT_W, ECLK_ROOT_E, ECLK_ROOT_N,
+                ECLK_ROOT_W_A, ECLK_ROOT_E_A, ECLK_ROOT_N_A
+            {
+                cell CELL, ROOT, IO[2];
+
+                if tile_class [ECLK_ROOT_N, ECLK_ROOT_N_A] {
+                    cell PLL_W, PLL_E;
+                    cell DLL_W, DLL_E;
+                } else {
+                    cell PLL;
+                    if tile_class [ECLK_ROOT_W_A, ECLK_ROOT_E_A] {
+                        cell PLL_S;
+                    }
+                }
+
+                switchbox CLK_INT;
                 for i in 0..2 {
                     bel ECLKSYNC[i];
                 }
@@ -2557,77 +2621,80 @@ target_defs! {
     }
 
     if variant [ecp3, machxo2] {
-        tile_slot PCLK_SOURCE {
-            bel_slot PCLK_SOURCE_W: legacy;
-            bel_slot PCLK_SOURCE_E: legacy;
-            bel_slot PCLK_DCC[2]: legacy;
+        tile_slot RPCLK_DRIVER {
+            bel_slot RPCLK_DRIVER: routing;
+            bel_slot RPCLK_DCC_S[2]: DCC;
+            bel_slot RPCLK_DCC_N[2]: DCC;
 
             for i in 0..4 {
                 if variant machxo2 {
-                    tile_class "PCLK{i}_SOURCE_IO_N", "PCLK{i}_SOURCE_N" {
+                    tile_class "RPCLK{i}_DRIVER_IO_N" {
                         cell CELL;
                         for j in 0..2 {
-                            bel PCLK_DCC[j];
+                            bel RPCLK_DCC_N[j];
                         }
                     }
-                    tile_class "PCLK{i}_SOURCE_IO_N_W", "PCLK{i}_SOURCE_N_W" {
-                        if tile_class [PCLK0_SOURCE_IO_N_W, PCLK3_SOURCE_IO_N_W, PCLK1_SOURCE_N_W] {
+                    tile_class "RPCLK{i}_DRIVER_IO_N_W" {
+                        if tile_class [RPCLK0_DRIVER_IO_N_W, RPCLK3_DRIVER_IO_N_W] {
                             // keep
                         } else {
                             skip;
                         }
                         cell CELL;
-                        bel PCLK_SOURCE_W;
+                        switchbox RPCLK_DRIVER;
                         for j in 0..2 {
-                            bel PCLK_DCC[j];
+                            bel RPCLK_DCC_N[j];
                         }
                     }
-                    tile_class "PCLK{i}_SOURCE_IO_N_E", "PCLK{i}_SOURCE_N_E" {
-                        if tile_class [PCLK0_SOURCE_IO_N_E, PCLK1_SOURCE_IO_N_E, PCLK1_SOURCE_N_E] {
+                    tile_class "RPCLK{i}_DRIVER_IO_N_E" {
+                        if tile_class [RPCLK0_DRIVER_IO_N_E, RPCLK1_DRIVER_IO_N_E] {
                             // keep
                         } else {
                             skip;
                         }
                         cell CELL;
-                        bel PCLK_SOURCE_E;
+                        switchbox RPCLK_DRIVER;
                         for j in 0..2 {
-                            bel PCLK_DCC[j];
+                            bel RPCLK_DCC_N[j];
                         }
                     }
                 }
 
-                tile_class "PCLK{i}_SOURCE" {
+                tile_class "RPCLK{i}_DRIVER" {
                     cell N, S;
                     for j in 0..2 {
-                        bel PCLK_DCC[j];
+                        bel RPCLK_DCC_S[j];
+                        bel RPCLK_DCC_N[j];
                     }
                 }
-                tile_class "PCLK{i}_SOURCE_W" {
+                tile_class "RPCLK{i}_DRIVER_W" {
                     if variant ecp3 {
-                        if tile_class PCLK2_SOURCE_W {
+                        if tile_class RPCLK2_DRIVER_W {
                             skip;
                         }
                     }
                     cell N, S;
-                    bel PCLK_SOURCE_W;
+                    switchbox RPCLK_DRIVER;
                     for j in 0..2 {
-                        bel PCLK_DCC[j];
+                        bel RPCLK_DCC_S[j];
+                        bel RPCLK_DCC_N[j];
                     }
                 }
-                tile_class "PCLK{i}_SOURCE_E" {
+                tile_class "RPCLK{i}_DRIVER_E" {
                     if variant ecp3 {
-                        if tile_class PCLK1_SOURCE_E {
+                        if tile_class RPCLK1_DRIVER_E {
                             skip;
                         }
                     } else {
-                        if tile_class PCLK2_SOURCE_E {
+                        if tile_class RPCLK2_DRIVER_E {
                             skip;
                         }
                     }
                     cell N, S;
-                    bel PCLK_SOURCE_E;
+                    switchbox RPCLK_DRIVER;
                     for j in 0..2 {
-                        bel PCLK_DCC[j];
+                        bel RPCLK_DCC_S[j];
+                        bel RPCLK_DCC_N[j];
                     }
                 }
             }
@@ -2696,9 +2763,6 @@ target_defs! {
 
     if variant [ecp2, ecp2m, xp2, ecp3, machxo2] {
         tile_slot HSDCLK_SPLITTER {
-            if variant [ecp3, machxo2] {
-                bel_slot HSDCLK_ROOT: HSDCLK_ROOT;
-            }
             bel_slot HSDCLK_SPLITTER: routing;
 
             tile_class HSDCLK_SPLITTER, HSDCLK_ROOT {
@@ -2716,21 +2780,9 @@ target_defs! {
                         }
                     }
                     if tile_class HSDCLK_ROOT {
-                        if variant [ecp2, ecp2m, xp2] {
-                            for i in 0..8 {
-                                progbuf W[i % 4].RSCLK_H[i / 4 * 4] = W[0].SCLK_ROOT[i];
-                                progbuf E[i % 4].RSCLK_H[i / 4 * 4] = E[0].SCLK_ROOT[i];
-                            }
-                        }
-                    }
-                }
-                if tile_class HSDCLK_ROOT {
-                    if variant [ecp3, machxo2] {
-                        bel HSDCLK_ROOT {
-                            for i in 0..8 {
-                                output OUT_W[i] = W[i % 4].RSCLK_H[i / 4 * 4];
-                                output OUT_E[i] = E[i % 4].RSCLK_H[i / 4 * 4];
-                            }
+                        for i in 0..8 {
+                            progbuf W[i % 4].RSCLK_H[i / 4 * 4] = W[0].SCLK_ROOT[i];
+                            progbuf E[i % 4].RSCLK_H[i / 4 * 4] = E[0].SCLK_ROOT[i];
                         }
                     }
                 }
@@ -3087,61 +3139,42 @@ pub mod tiledata {
 
     use crate::defs::tcls;
 
-    pub const PCLK_SOURCE: [TileClassId; 4] = [
-        tcls::PCLK0_SOURCE,
-        tcls::PCLK1_SOURCE,
-        tcls::PCLK2_SOURCE,
-        tcls::PCLK3_SOURCE,
+    pub const RPCLK_DRIVER: [TileClassId; 4] = [
+        tcls::RPCLK0_DRIVER,
+        tcls::RPCLK1_DRIVER,
+        tcls::RPCLK2_DRIVER,
+        tcls::RPCLK3_DRIVER,
     ];
-    pub const PCLK_SOURCE_W: [TileClassId; 4] = [
-        tcls::PCLK0_SOURCE_W,
-        tcls::PCLK1_SOURCE_W,
-        tcls::PCLK2_SOURCE_W,
-        tcls::PCLK3_SOURCE_W,
+    pub const RPCLK_DRIVER_W: [TileClassId; 4] = [
+        tcls::RPCLK0_DRIVER_W,
+        tcls::RPCLK1_DRIVER_W,
+        tcls::RPCLK2_DRIVER_W,
+        tcls::RPCLK3_DRIVER_W,
     ];
-    pub const PCLK_SOURCE_E: [TileClassId; 4] = [
-        tcls::PCLK0_SOURCE_E,
-        tcls::PCLK1_SOURCE_E,
-        tcls::PCLK2_SOURCE_E,
-        tcls::PCLK3_SOURCE_E,
-    ];
-
-    pub const PCLK_SOURCE_N: [TileClassId; 4] = [
-        tcls::PCLK0_SOURCE_N,
-        tcls::PCLK1_SOURCE_N,
-        tcls::PCLK2_SOURCE_N,
-        tcls::PCLK3_SOURCE_N,
-    ];
-    pub const PCLK_SOURCE_N_W: [TileClassId; 4] = [
-        tcls::PCLK0_SOURCE_N_W,
-        tcls::PCLK1_SOURCE_N_W,
-        tcls::PCLK2_SOURCE_N_W,
-        tcls::PCLK3_SOURCE_N_W,
-    ];
-    pub const PCLK_SOURCE_N_E: [TileClassId; 4] = [
-        tcls::PCLK0_SOURCE_N_E,
-        tcls::PCLK1_SOURCE_N_E,
-        tcls::PCLK2_SOURCE_N_E,
-        tcls::PCLK3_SOURCE_N_E,
+    pub const RPCLK_DRIVER_E: [TileClassId; 4] = [
+        tcls::RPCLK0_DRIVER_E,
+        tcls::RPCLK1_DRIVER_E,
+        tcls::RPCLK2_DRIVER_E,
+        tcls::RPCLK3_DRIVER_E,
     ];
 
-    pub const PCLK_SOURCE_IO_N: [TileClassId; 4] = [
-        tcls::PCLK0_SOURCE_IO_N,
-        tcls::PCLK1_SOURCE_IO_N,
-        tcls::PCLK2_SOURCE_IO_N,
-        tcls::PCLK3_SOURCE_IO_N,
+    pub const RPCLK_DRIVER_IO_N: [TileClassId; 4] = [
+        tcls::RPCLK0_DRIVER_IO_N,
+        tcls::RPCLK1_DRIVER_IO_N,
+        tcls::RPCLK2_DRIVER_IO_N,
+        tcls::RPCLK3_DRIVER_IO_N,
     ];
-    pub const PCLK_SOURCE_IO_N_W: [TileClassId; 4] = [
-        tcls::PCLK0_SOURCE_IO_N_W,
-        tcls::PCLK1_SOURCE_IO_N_W,
-        tcls::PCLK2_SOURCE_IO_N_W,
-        tcls::PCLK3_SOURCE_IO_N_W,
+    pub const RPCLK_DRIVER_IO_N_W: [TileClassId; 4] = [
+        tcls::RPCLK0_DRIVER_IO_N_W,
+        tcls::RPCLK1_DRIVER_IO_N_W,
+        tcls::RPCLK2_DRIVER_IO_N_W,
+        tcls::RPCLK3_DRIVER_IO_N_W,
     ];
-    pub const PCLK_SOURCE_IO_N_E: [TileClassId; 4] = [
-        tcls::PCLK0_SOURCE_IO_N_E,
-        tcls::PCLK1_SOURCE_IO_N_E,
-        tcls::PCLK2_SOURCE_IO_N_E,
-        tcls::PCLK3_SOURCE_IO_N_E,
+    pub const RPCLK_DRIVER_IO_N_E: [TileClassId; 4] = [
+        tcls::RPCLK0_DRIVER_IO_N_E,
+        tcls::RPCLK1_DRIVER_IO_N_E,
+        tcls::RPCLK2_DRIVER_IO_N_E,
+        tcls::RPCLK3_DRIVER_IO_N_E,
     ];
 
     pub const SCLK_SOURCE: [TileClassId; 4] = [

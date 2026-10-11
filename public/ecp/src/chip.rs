@@ -678,21 +678,21 @@ impl Chip {
         }
     }
 
-    pub fn try_bel_pll(&self, quad: DirHV, idx: u8) -> Option<BelCoord> {
+    pub fn try_bel_pll(&self, quad: DirHV, idx: usize) -> Option<BelCoord> {
         if matches!(self.kind, ChipKind::Scm | ChipKind::Ecp4) {
             if idx < 2 {
                 let cell = self.try_get_spec_cell(SpecialLocKey::Pll(PllLoc::new(quad, 0)))?;
-                Some(cell.bel(bslots::PLL[usize::from(idx)]))
+                Some(cell.bel(bslots::PLL[idx]))
             } else {
                 None
             }
         } else {
-            let cell = self.try_get_spec_cell(SpecialLocKey::Pll(PllLoc::new(quad, idx)))?;
+            let cell = self.try_get_spec_cell(SpecialLocKey::Pll(PllLoc::new(quad, idx as u8)))?;
             Some(cell.bel(bslots::PLL[0]))
         }
     }
 
-    pub fn bel_pll(&self, quad: DirHV, idx: u8) -> BelCoord {
+    pub fn bel_pll(&self, quad: DirHV, idx: usize) -> BelCoord {
         self.try_bel_pll(quad, idx).unwrap()
     }
 
@@ -728,8 +728,6 @@ impl Chip {
                 self.kind,
                 ChipKind::MachXo2(_)
                     | ChipKind::Scm
-                    | ChipKind::Ecp3
-                    | ChipKind::Ecp3A
                     | ChipKind::Ecp4
                     | ChipKind::Ecp5
                     | ChipKind::Crosslink

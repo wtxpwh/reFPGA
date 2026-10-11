@@ -6,8 +6,8 @@ use prjcombine_ecp::{
 };
 use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
-    db::{BelPin, LegacyBel, WireSlotIdExt},
-    dir::{Dir, DirH, DirHV, DirV},
+    db::{LegacyBel, WireSlotIdExt},
+    dir::{Dir, DirHV, DirV},
     grid::{ColId, DieIdExt},
 };
 use prjcombine_re_lattice_naming::WireName;
@@ -15,48 +15,28 @@ use prjcombine_re_lattice_naming::WireName;
 use crate::ChipContext;
 
 impl ChipContext<'_> {
-    pub(super) fn process_hsdclk_root_machxo2(&mut self) -> BTreeMap<usize, WireName> {
-        let mut roots = BTreeMap::new();
+    pub(super) fn process_hsdclk_root_machxo2(&mut self) {
         for (row, rd) in &self.chip.rows {
             if !matches!(rd.kind, RowKind::Io | RowKind::Ebr) {
                 continue;
             }
             let bcrd = Chip::DIE
                 .cell(self.chip.col_clk, row)
-                .bel(bslots::HSDCLK_ROOT);
-            self.name_bel_null(bcrd);
+                .bel(bslots::HSDCLK_SPLITTER);
             for i in 0..8 {
-                for h in [DirH::W, DirH::E] {
-                    let wire = self.edev.get_bel_output(
-                        bcrd,
-                        match h {
-                            DirH::W => bcls::HSDCLK_ROOT::OUT_W[i],
-                            DirH::E => bcls::HSDCLK_ROOT::OUT_E[i],
-                        },
-                    )[0];
-                    let wire = self.naming.interconnect[&wire];
-                    let wire_out = self.pips_bwd[&wire]
-                        .iter()
-                        .copied()
-                        .find(|&wn| self.naming.strings[wn.suffix].starts_with("VSRX"))
-                        .unwrap();
-                    match roots.entry(i) {
-                        btree_map::Entry::Vacant(e) => {
-                            e.insert(wire_out);
-                        }
-                        btree_map::Entry::Occupied(e) => {
-                            assert_eq!(*e.get(), wire_out);
-                        }
-                    }
-                    self.claim_pip(wire, wire_out);
+                for ci_base in [0, 4] {
+                    let wire = wires::RSCLK_H[i / 4 * 4].cell(ci_base + i % 4);
+                    let wire = self.edev.bel_wire(bcrd, wire);
+                    let wname = self.naming.interconnect[&wire];
+                    let wname_root =
+                        self.naming.interconnect[&self.chip.clk_root().wire(wires::SCLK_ROOT[i])];
+                    self.claim_pip(wname, wname_root);
                 }
             }
         }
-        roots
     }
 
-    pub(super) fn process_pclk_machxo2(&mut self) -> BTreeMap<usize, WireName> {
-        let mut roots = BTreeMap::new();
+    pub(super) fn process_pclk_machxo2(&mut self) {
         for (row, rd) in &self.chip.rows {
             if !rd.pclk_drive {
                 continue;
@@ -91,16 +71,17 @@ impl ChipContext<'_> {
                 }
                 let idx = self.chip.col_sclk_idx(cell.col);
                 let mut pclk_idx = vec![idx, idx + 4];
-                if self.edev.has_bel(cell.bel(bslots::PCLK_SOURCE_W)) {
-                    pclk_idx.extend([
-                        (idx + 3) % 4,
-                        (idx + 3) % 4 + 4,
-                        (idx + 2) % 4,
-                        (idx + 2) % 4 + 4,
-                    ]);
-                }
-                if self.edev.has_bel(cell.bel(bslots::PCLK_SOURCE_E)) {
-                    pclk_idx.extend([(idx + 1) % 4, (idx + 1) % 4 + 4]);
+                if self.edev.has_bel(cell.bel(bslots::RPCLK_DRIVER)) {
+                    if cell.col == self.chip.col_w() {
+                        pclk_idx.extend([
+                            (idx + 3) % 4,
+                            (idx + 3) % 4 + 4,
+                            (idx + 2) % 4,
+                            (idx + 2) % 4 + 4,
+                        ]);
+                    } else {
+                        pclk_idx.extend([(idx + 1) % 4, (idx + 1) % 4 + 4]);
+                    }
                 }
                 for &i in &pclk_idx {
                     let wire_n = self.naming.interconnect[&cell.wire(wires::RPCLK[i])];
@@ -112,6 +93,10 @@ impl ChipContext<'_> {
                             self.naming.interconnect[&cell.with_row(row).wire(wires::RPCLK[i])];
                         self.claim_pip(wire, wire_n);
                     }
+                    self.bind_wire(
+                        wire_n,
+                        self.edev.resolve_wire(cell.wire(wires::RPCLK[i])).unwrap(),
+                    );
 
                     if row_s != cell.row {
                         let wire_s =
@@ -124,103 +109,82 @@ impl ChipContext<'_> {
                                 self.naming.interconnect[&cell.with_row(row).wire(wires::RPCLK[i])];
                             self.claim_pip(wire, wire_s);
                         }
+                        self.bind_wire(
+                            wire_s,
+                            self.edev
+                                .resolve_wire(cell.delta(0, -1).wire(wires::RPCLK[i]))
+                                .unwrap(),
+                        );
                     }
                 }
 
                 let (r, c) = self.rc(cell_nom);
                 for i in 0..2 {
                     let pclk_i = pclk_idx[i];
-                    let bcrd = cell.bel(bslots::PCLK_DCC[i]);
-                    if cell.row == self.chip.row_s() {
-                        self.name_bel(bcrd, [format!("DCC_R{r}C{c}_{i}")]);
+
+                    let (name_s, name_n) = if cell.row == self.chip.row_s() {
+                        (None, format!("DCC_R{r}C{c}_{i}"))
                     } else if self.chip.rows.len() == 26 && row.to_idx() == 6 {
                         // ??? sigh.
                         if i == 0 {
-                            self.name_bel(
-                                bcrd,
-                                [format!("DCC_R{r}C{c}A"), format!("DCC_R{r}C{c}B")],
-                            );
+                            (Some(format!("DCC_R{r}C{c}A")), format!("DCC_R{r}C{c}B"))
                         } else {
-                            self.name_bel(
-                                bcrd,
-                                [format!("DCC_R{r}C{c}C"), format!("DCC_R{r}C{c}D")],
-                            );
+                            (Some(format!("DCC_R{r}C{c}C")), format!("DCC_R{r}C{c}D"))
                         }
                     } else {
-                        self.name_bel(
-                            bcrd,
-                            [format!("DCC_R{r}C{c}_{i}B"), format!("DCC_R{r}C{c}_{i}T")],
-                        );
-                    }
-                    let mut bel = LegacyBel::default();
+                        (
+                            Some(format!("DCC_R{r}C{c}_{i}B")),
+                            format!("DCC_R{r}C{c}_{i}T"),
+                        )
+                    };
 
-                    let pclk = wires::RPCLK[pclk_i];
-                    if row_s != cell.row {
-                        bel.pins
-                            .insert("OUT_S".into(), BelPin::new_out(pclk.cell(1)));
-                    }
-                    bel.pins
-                        .insert("OUT_N".into(), BelPin::new_out(pclk.cell(0)));
-
-                    let out_n = self.rc_wire(cell_nom, &format!("CLKO{pclk_i}T_DCC"));
-                    self.add_bel_wire(bcrd, "OUT_N", out_n);
-                    self.claim_pip(vptx_wires_n[&(cell.col, pclk_i)], out_n);
-
-                    // CE
-                    let wire_n = self.rc_wire(cell_nom, &format!("JCE{pclk_i}T_DCC"));
-                    self.add_bel_wire(bcrd, "CE_N", wire_n);
-                    let bpin = self.xlat_int_wire(bcrd, wire_n);
-                    if cell.row != self.chip.row_s() {
-                        let wire_s = self.rc_wire(cell_nom, &format!("JCE{pclk_i}B_DCC"));
-                        self.add_bel_wire(bcrd, "CE_S", wire_s);
-                        assert_eq!(bpin, self.xlat_int_wire(bcrd, wire_s));
-                    }
-                    bel.pins.insert("CE".into(), bpin);
-
-                    // IN
                     let in_n = self.rc_wire(cell_nom, &format!("CLKI{pclk_i}T_DCC"));
-                    self.add_bel_wire(bcrd, "IN_N", in_n);
-                    self.claim_pip(out_n, in_n);
-
                     let hpsx = self.find_single_in(in_n);
-                    self.claim_pip(in_n, hpsx);
-                    self.add_bel_wire_no_claim(bcrd, "IN", hpsx);
+                    self.bind_wire(
+                        hpsx,
+                        self.edev
+                            .resolve_wire(cell.wire(wires::PCLK_ROOT[pclk_i]))
+                            .unwrap(),
+                    );
 
-                    if cell.row != self.chip.row_s() {
-                        let out_s = self.rc_wire(cell_nom, &format!("CLKO{pclk_i}B_DCC"));
-                        self.add_bel_wire(bcrd, "OUT_S", out_s);
+                    self.extract_bel_cell(cell.bel(bslots::RPCLK_DCC_N[i]), cell_nom)
+                        .name(name_n)
+                        .input_xlat(bcls::DCC::CLKI, in_n)
+                        .input_xlat_rc(bcls::DCC::CE, format!("JCE{pclk_i}T_DCC"))
+                        .output_xlat_rc(bcls::DCC::CLKO, format!("CLKO{pclk_i}T_DCC"))
+                        .claim_pip("CLKO", "CLKI")
+                        .add_wire_no_claim("HPSX", hpsx);
+
+                    if let Some(name_s) = name_s {
+                        let mut bel =
+                            self.extract_bel_cell(cell.bel(bslots::RPCLK_DCC_S[i]), cell_nom);
+                        bel.name(name_s)
+                            .input_xlat_rc(bcls::DCC::CLKI, format!("CLKI{pclk_i}B_DCC"))
+                            .input_xlat_rc(bcls::DCC::CE, format!("JCE{pclk_i}B_DCC"));
+
+                        let out = bel.ctx.rc_wire(cell_nom, &format!("CLKO{pclk_i}B_DCC"));
                         if row_s != cell.row {
-                            self.claim_pip(vptx_wires_s[&(cell.col, pclk_i)], out_s);
+                            bel.output_xlat(bcls::DCC::CLKO, out);
+                        } else {
+                            bel.output(bcls::DCC::CLKO, wires::RPCLK[pclk_i].cell(1))
+                                .add_wire("CLKO", out);
                         }
-                        let in_s = self.rc_wire(cell_nom, &format!("CLKI{pclk_i}B_DCC"));
-                        self.add_bel_wire(bcrd, "IN_S", in_s);
-                        self.claim_pip(out_s, in_s);
-                        self.claim_pip(in_s, hpsx);
+                        bel.claim_pip("CLKO", "CLKI")
+                            .add_wire_no_claim("HPSX", hpsx);
                     }
-
-                    let vprx = self.find_single_in(hpsx);
 
                     match hpsx_wires.entry((col_hpsx, pclk_i)) {
                         btree_map::Entry::Vacant(e) => {
                             e.insert(hpsx);
                             self.claim_node(hpsx);
+                            let vprx = self.naming.interconnect
+                                [&self.chip.clk_root().wire(wires::PCLK_ROOT[pclk_i])];
                             self.claim_pip(hpsx, vprx);
                         }
                         btree_map::Entry::Occupied(e) => {
                             assert_eq!(*e.get(), hpsx);
                         }
                     }
-
-                    match roots.entry(pclk_i) {
-                        btree_map::Entry::Vacant(e) => {
-                            e.insert(vprx);
-                        }
-                        btree_map::Entry::Occupied(e) => {
-                            assert_eq!(*e.get(), vprx);
-                        }
-                    }
-
-                    self.insert_legacy_bel(bcrd, bel);
                 }
             }
 
@@ -230,44 +194,35 @@ impl ChipContext<'_> {
                     col_hpsx = cell.col;
                 }
                 let idx = self.chip.col_sclk_idx(cell.col);
-                let (bcrd, pclk_idx) = if self.edev.has_bel(cell.bel(bslots::PCLK_SOURCE_W)) {
-                    (
-                        cell.bel(bslots::PCLK_SOURCE_W),
-                        vec![
-                            (idx + 3) % 4,
-                            (idx + 3) % 4 + 4,
-                            (idx + 2) % 4,
-                            (idx + 2) % 4 + 4,
-                        ],
-                    )
-                } else if self.edev.has_bel(cell.bel(bslots::PCLK_SOURCE_E)) {
-                    (
-                        cell.bel(bslots::PCLK_SOURCE_E),
-                        vec![(idx + 1) % 4, (idx + 1) % 4 + 4],
-                    )
-                } else {
+                let bcrd = cell.bel(bslots::RPCLK_DRIVER);
+                if !self.edev.has_bel(bcrd) {
                     continue;
-                };
-                self.name_bel_null(bcrd);
-                let mut bel = LegacyBel::default();
-                for i in pclk_idx {
-                    let pclk = wires::RPCLK[i];
-                    if row_s != cell.row {
-                        bel.pins
-                            .insert(format!("OUT_S{i}"), BelPin::new_out(pclk.cell(1)));
-                    }
-                    bel.pins
-                        .insert(format!("OUT_N{i}"), BelPin::new_out(pclk.cell(0)));
-                    let hpsx = hpsx_wires[&(col_hpsx, i)];
-                    if row_s != cell.row {
-                        self.claim_pip(vptx_wires_s[&(cell.col, i)], hpsx);
-                    }
-                    self.claim_pip(vptx_wires_n[&(cell.col, i)], hpsx);
                 }
-                self.insert_legacy_bel(bcrd, bel);
+                let pclk_idx = if cell.col == self.chip.col_w() {
+                    vec![
+                        (idx + 3) % 4,
+                        (idx + 3) % 4 + 4,
+                        (idx + 2) % 4,
+                        (idx + 2) % 4 + 4,
+                    ]
+                } else {
+                    vec![(idx + 1) % 4, (idx + 1) % 4 + 4]
+                };
+
+                let mut ex = self.extract_switchbox(bcrd);
+                for i in pclk_idx {
+                    ex.input_xlat(hpsx_wires[&(col_hpsx, i)])
+                        .permabuf_output_xlat_no_claim(vptx_wires_n[&(cell.col, i)]);
+                    if cell.row != ex.ctx.chip.row_s() {
+                        if row_s != cell.row {
+                            ex.permabuf_output_xlat_no_claim(vptx_wires_s[&(cell.col, i)]);
+                        } else {
+                            ex.permabuf(wires::RPCLK[i].cell(1), wires::PCLK_ROOT[i].cell(0));
+                        }
+                    }
+                }
             }
         }
-        roots
     }
 
     pub(super) fn process_dlldel_machxo2(&mut self) {
@@ -340,11 +295,7 @@ impl ChipContext<'_> {
         }
     }
 
-    pub(super) fn process_clk_machxo2(
-        &mut self,
-        pclk_roots: BTreeMap<usize, WireName>,
-        sclk_roots: BTreeMap<usize, WireName>,
-    ) {
+    pub(super) fn process_clk_machxo2(&mut self) {
         let is_smol = self.chip.rows[self.chip.row_clk].kind != RowKind::Ebr;
         let has_bank4 = self.chip.special_loc.contains_key(&SpecialLocKey::Bc(4));
         let has_2ebr = self
@@ -485,8 +436,8 @@ impl ChipContext<'_> {
         }
 
         for i in 0..8 {
-            let wire_out = pclk_roots[&i];
-            self.add_bel_wire(bcrd, format!("PCLK{i}"), wire_out);
+            let wire_out =
+                self.naming.interconnect[&self.chip.clk_root().wire(wires::PCLK_ROOT[i])];
 
             let bcrd_dcc = bcrd.bel(bslots::DCC[i]);
             self.name_bel(bcrd_dcc, [format!("DCC{i}")]);
@@ -613,8 +564,8 @@ impl ChipContext<'_> {
         }
 
         for i in 0..8 {
-            let wire_out = sclk_roots[&i];
-            self.add_bel_wire(bcrd, format!("SCLK{i}"), wire_out);
+            let wire_out =
+                self.naming.interconnect[&self.chip.clk_root().wire(wires::SCLK_ROOT[i])];
 
             let (edge, idx) = [
                 (Dir::W, 0),

@@ -375,6 +375,44 @@ impl ChipContext<'_> {
             let wire = cell.wire(wire);
             let wire = self.edev.resolve_wire(wire).unwrap();
             self.edev.wire_tree(wire)
+        } else if (suffix.starts_with("BPCX")
+            || suffix.starts_with("TPCX")
+            || suffix.starts_with("BSCX")
+            || suffix.starts_with("TSCX"))
+            && suffix.len() == 8
+            && suffix.ends_with("00")
+            && matches!(self.chip.kind, ChipKind::Ecp3 | ChipKind::Ecp3A)
+        {
+            let idx: usize = suffix[4..6].parse().unwrap();
+            let wire = if &suffix[1..2] == "P" {
+                wires::PCLK_ROOT
+            } else {
+                wires::SCLK_ROOT
+            }[idx];
+            let cell = self
+                .chip
+                .xlat_rc_wire(wn)
+                .with_row(if suffix.starts_with("B") {
+                    self.chip.row_s()
+                } else {
+                    self.chip.row_n()
+                });
+            let wire = self.edev.resolve_wire(cell.wire(wire)).unwrap();
+            self.edev.wire_tree(wire)
+        } else if (suffix.starts_with("VPRX") || suffix.starts_with("VSRX"))
+            && suffix.len() == 8
+            && suffix.ends_with("00")
+            && matches!(self.chip.kind, ChipKind::MachXo2(_))
+        {
+            let idx: usize = suffix[4..6].parse().unwrap();
+            let wire = if &suffix[1..2] == "P" {
+                wires::PCLK_ROOT
+            } else {
+                wires::SCLK_ROOT
+            }[idx];
+            let cell = self.chip.xlat_rc_wire(wn);
+            let wire = self.edev.resolve_wire(cell.wire(wire)).unwrap();
+            self.edev.wire_tree(wire)
         } else if let Some(w) = match suffix.as_str() {
             "HL7W0000" if self.chip.kind.has_ecp_plc() && self.chip.kind.has_out_ofx_branch() => {
                 Some(wires::OUT_OFX_W[3])

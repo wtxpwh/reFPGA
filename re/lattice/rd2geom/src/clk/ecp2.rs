@@ -297,7 +297,7 @@ impl ChipContext<'_> {
             if chip.kind == ChipKind::Ecp2 {
                 for (ci_base, hv) in [(40, DirHV::NW), (42, DirHV::NE)] {
                     for idx in 0..2 {
-                        let ci_pll = ci_base + usize::from(idx);
+                        let ci_pll = ci_base + idx;
                         if chip.try_bel_pll(hv, idx).is_none() {
                             for ci in 0..4 {
                                 for i in 0..6 {
@@ -384,17 +384,14 @@ impl ChipContext<'_> {
             ("UR", bslots::DCS_NE),
         ] {
             for i in 0..2 {
-                let dcsout = self.rc_wire(cell, &format!("{prefix}DCSOUT{i}_DCS"));
-                let clka = self.rc_wire(cell, &format!("{prefix}CLK{i}A_DCS"));
-                let clkb = self.rc_wire(cell, &format!("{prefix}CLK{i}B_DCS"));
                 self.extract_bel_cell(bcrd.bel(slots[i]), cell)
                     .name(format!("{prefix}DCS{i}"))
-                    .input_xlat(bcls::DCS::CLK[0], clka)
-                    .input_xlat(bcls::DCS::CLK[1], clkb)
+                    .input_xlat_rc(bcls::DCS::CLK[0], format!("{prefix}CLK{i}A_DCS"))
+                    .input_xlat_rc(bcls::DCS::CLK[1], format!("{prefix}CLK{i}B_DCS"))
                     .input_xlat_rc(bcls::DCS::SEL, format!("{prefix}SEL{i}_DCS"))
-                    .output_xlat(bcls::DCS::DCSOUT, dcsout);
-                self.claim_pip(dcsout, clka);
-                self.claim_pip(dcsout, clkb);
+                    .output_xlat_rc(bcls::DCS::DCSOUT, format!("{prefix}DCSOUT{i}_DCS"))
+                    .claim_pip("DCSOUT", "CLK0")
+                    .claim_pip("DCSOUT", "CLK1");
             }
         }
 

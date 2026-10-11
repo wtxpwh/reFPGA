@@ -15240,6 +15240,12 @@ intdb {
 		output AF;
 	}
 
+	bel_class DCC {
+		input CLKI;
+		input CE;
+		output CLKO;
+	}
+
 	bel_class DCS {
 		input CLK[2];
 		input SEL;

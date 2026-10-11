@@ -513,6 +513,16 @@ entity_id_u8!(pub TileSlotId, TileSlotTag tag, "TSLOT");
 entity_id_u16!(pub TileClassId, TileClass, "TCLS");
 entity_id_u16!(pub CellSlotId, CellSlotTag tag, "TCELL");
 
+pub trait CellSlotIdExt {
+    fn wire(self, wire: WireSlotId) -> TileWireCoord;
+}
+
+impl CellSlotIdExt for CellSlotId {
+    fn wire(self, wire: WireSlotId) -> TileWireCoord {
+        TileWireCoord { cell: self, wire }
+    }
+}
+
 #[derive(Clone, Debug, Eq, PartialEq, Encode, Decode)]
 pub struct TileClass {
     pub name: String,

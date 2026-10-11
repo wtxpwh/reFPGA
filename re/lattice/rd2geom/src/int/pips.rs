@@ -164,6 +164,8 @@ impl ChipContext<'_> {
                 && !wires::RSCLK.contains(wt.slot)
                 && !(wires::RSCLK_H.contains(wt.slot) && self.intdb[wires_f[0].slot].kind.is_tie())
                 && !wires::IMUX_CLK_DELAY.contains(wt.slot)
+                && !wires::PCLK_ROOT.contains(wires_f[0].slot)
+                && !wires::SCLK_ROOT.contains(wires_f[0].slot)
             {
                 if matches!(self.intdb[wt.slot].kind, WireKind::Branch(_))
                     && !wires::RSCLK_H.contains(wt.slot)

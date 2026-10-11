@@ -1,5 +1,3 @@
-#![recursion_limit = "1024"]
-
 use std::{
     collections::{BTreeMap, BTreeSet, btree_map},
     error::Error,
@@ -16,16 +14,15 @@ use prjcombine_ecp::{
 };
 use prjcombine_entity::{EntityId, EntityVec};
 use prjcombine_interconnect::{
-    db::{Bel, BelInfo, BelSlotId, IntDb, LegacyBel, SwitchBox, TileClassId, TileWireCoord},
+    db::{BelInfo, BelSlotId, IntDb, TileClassId, TileWireCoord},
     grid::{BelCoord, CellCoord, ColId, WireCoord},
 };
-use prjcombine_re_lattice_naming::{BelNaming, ChipNaming, Database, WireName};
+use prjcombine_re_lattice_naming::{ChipNaming, Database, WireName};
 use prjcombine_re_lattice_rawdump::{Grid, GridId, NodeId};
 use prjcombine_types::db::DeviceCombo;
 use rayon::iter::{IntoParallelIterator, ParallelIterator};
 
 use crate::{
-    bel::{BelExtractor, SwitchBoxExtractor},
     chip::{ChipExt, make_chip},
     pkg::process_bond,
 };
@@ -277,61 +274,6 @@ impl<'dev> ChipContext<'dev> {
         self.claim_pip(wt, wf);
     }
 
-    fn name_bel<T: AsRef<str>>(&mut self, bel: BelCoord, names: impl IntoIterator<Item = T>) {
-        let names = Vec::from_iter(
-            names
-                .into_iter()
-                .map(|x| self.naming.strings.get_or_insert(x.as_ref())),
-        );
-        assert!(
-            self.naming
-                .bels
-                .insert(
-                    bel,
-                    BelNaming {
-                        names,
-                        wires: Default::default(),
-                        int_wires: Default::default(),
-                        int_inputs: Default::default(),
-                    },
-                )
-                .is_none()
-        );
-    }
-
-    fn name_bel_null(&mut self, bel: BelCoord) {
-        self.name_bel::<&str>(bel, []);
-    }
-
-    fn add_bel_wire(&mut self, bel: BelCoord, pin: impl AsRef<str>, wire: WireName) {
-        self.add_bel_wire_no_claim(bel, pin, wire);
-        self.claim_node(wire);
-    }
-
-    fn add_bel_wire_no_claim(&mut self, bel: BelCoord, pin: impl AsRef<str>, wire: WireName) {
-        let pin = self.naming.strings.get_or_insert(pin.as_ref());
-        self.naming
-            .bels
-            .get_mut(&bel)
-            .unwrap()
-            .wires
-            .insert(pin, wire);
-    }
-
-    fn add_sb_wire(&mut self, bel: BelCoord, tw: TileWireCoord, wire: WireName) {
-        self.add_sb_wire_no_claim(bel, tw, wire);
-        self.claim_node(wire);
-    }
-
-    fn add_sb_wire_no_claim(&mut self, bel: BelCoord, tw: TileWireCoord, wire: WireName) {
-        self.naming
-            .bels
-            .get_mut(&bel)
-            .unwrap()
-            .int_wires
-            .insert(tw, wire);
-    }
-
     fn sort_bel_wires(&mut self) {
         for &wn in &self.unclaimed_nodes {
             let name = self.naming.strings[wn.suffix].as_str();
@@ -413,84 +355,6 @@ impl<'dev> ChipContext<'dev> {
                 }
             }
         }
-    }
-
-    fn insert_bel_generic(&mut self, bcrd: BelCoord, bel: BelInfo) {
-        let tcrd = self.edev.bel_tile(bcrd);
-        match self.bels.entry((self.edev[tcrd].class, bcrd.slot)) {
-            btree_map::Entry::Vacant(e) => {
-                e.insert(bel);
-            }
-            btree_map::Entry::Occupied(e) => {
-                assert_eq!(*e.get(), bel);
-            }
-        }
-    }
-
-    fn insert_bel(&mut self, bcrd: BelCoord, bel: Bel) {
-        self.insert_bel_generic(bcrd, BelInfo::Bel(bel));
-    }
-
-    fn insert_legacy_bel(&mut self, bcrd: BelCoord, bel: LegacyBel) {
-        self.insert_bel_generic(bcrd, BelInfo::Legacy(bel));
-    }
-
-    fn insert_switchbox(&mut self, bcrd: BelCoord, sb: SwitchBox) {
-        self.insert_bel_generic(bcrd, BelInfo::SwitchBox(sb));
-    }
-
-    fn extract_simple_legacy_bel(
-        &mut self,
-        bcrd: BelCoord,
-        cell: CellCoord,
-        suffix: &'static str,
-    ) -> LegacyBel {
-        let wires = self.sorted_wires[&(cell, suffix)].clone();
-        let mut bel = LegacyBel::default();
-        for (pin, wire) in wires {
-            let Some(bpin) = self.try_xlat_int_wire(bcrd, wire) else {
-                continue;
-            };
-            self.add_bel_wire(bcrd, &pin, wire);
-            bel.pins.insert(pin, bpin);
-        }
-        bel
-    }
-
-    fn extract_bel_cell(&mut self, bcrd: BelCoord, cell: CellCoord) -> BelExtractor<'dev, '_> {
-        let intdb = self.intdb;
-        let bcid = intdb.bel_class(bcrd.slot);
-        BelExtractor {
-            ctx: self,
-            intdb,
-            bcid,
-            bcrd,
-            cell,
-            bel: Bel::default(),
-            discard: false,
-        }
-    }
-
-    fn extract_bel(&mut self, bcrd: BelCoord) -> BelExtractor<'dev, '_> {
-        self.extract_bel_cell(bcrd, bcrd.cell)
-    }
-
-    fn extract_switchbox(&mut self, bcrd: BelCoord) -> SwitchBoxExtractor<'dev, '_> {
-        self.name_bel_null(bcrd);
-        SwitchBoxExtractor {
-            ctx: self,
-            bcrd,
-            cell: bcrd.cell,
-            inputs: BTreeMap::new(),
-            outputs: BTreeMap::new(),
-            edges: vec![],
-            extra: vec![],
-        }
-    }
-
-    fn insert_simple_legacy_bel(&mut self, bcrd: BelCoord, cell: CellCoord, suffix: &'static str) {
-        let bel = self.extract_simple_legacy_bel(bcrd, cell, suffix);
-        self.insert_legacy_bel(bcrd, bel);
     }
 
     fn print_unclaimed(&self) {

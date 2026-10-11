@@ -1,10 +1,11 @@
 use prjcombine_ecp::{
-    chip::{Chip, ChipKind, PllLoc, PllPad, SpecialIoKey},
-    defs::{bslots, tcls, wires},
+    chip::{Chip, ChipKind},
+    defs::{bcls, bslots, tcls, wires},
 };
+use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
-    db::{LegacyBel, WireSlotIdExt},
-    dir::{Dir, DirH, DirV},
+    db::{CellSlotId, CellSlotIdExt, WireSlotIdExt},
+    dir::DirH,
     grid::DieIdExt,
 };
 
@@ -12,6 +13,83 @@ use crate::ChipContext;
 
 impl ChipContext<'_> {
     pub(super) fn prep_pll_ecp3(&mut self) {
+        for (loc, bcrd) in self.chip.plls() {
+            let is_main = bcrd.row == self.chip.row_clk;
+            let cell_dqsdll = match loc.quad.h {
+                DirH::W => bcrd.delta(2, 0),
+                DirH::E => bcrd.delta(-2, 0),
+            };
+            let cell_pll = match loc.quad.h {
+                DirH::W => bcrd.delta(3, 0),
+                DirH::E => bcrd.delta(-3, 0),
+            };
+            let cell_dll = match loc.quad.h {
+                DirH::W => bcrd.delta(13, 0),
+                DirH::E => bcrd.delta(-13, 0),
+            };
+
+            self.hybrid_out_rc_cell(bcrd, cell_pll, "JCLKOP_PLL", wires::OUT_PLL_CLKOP.cell(0));
+            self.hybrid_out_rc_cell(bcrd, cell_pll, "JCLKOS_PLL", wires::OUT_PLL_CLKOS.cell(0));
+            self.hybrid_out_rc_cell(bcrd, cell_pll, "JCLKOK_PLL", wires::OUT_PLL_CLKOK.cell(0));
+            self.hybrid_out_rc_cell(bcrd, cell_pll, "JCLKOK2_PLL", wires::OUT_PLL_CLKOK2.cell(0));
+
+            if is_main {
+                let bcrd = bcrd.bel(bslots::DLL[0]);
+                self.hybrid_out_rc_cell(bcrd, cell_dll, "JCLKOP_DLL", wires::OUT_DLL_CLKOP.cell(0));
+                self.hybrid_out_rc_cell(bcrd, cell_dll, "JCLKOS_DLL", wires::OUT_DLL_CLKOS.cell(0));
+
+                let bcrd = bcrd.bel(bslots::CLKDIV[0]);
+                self.hybrid_out_rc_cell(
+                    bcrd,
+                    cell_dll,
+                    "JCDIV1_CLKDIV",
+                    wires::OUT_CLKDIV_CDIV1.cell(0),
+                );
+                self.hybrid_out_rc_cell(
+                    bcrd,
+                    cell_dll,
+                    "JCDIV2_CLKDIV",
+                    wires::OUT_CLKDIV_CDIV2.cell(0),
+                );
+                self.hybrid_out_rc_cell(
+                    bcrd,
+                    cell_dll,
+                    "JCDIV4_CLKDIV",
+                    wires::OUT_CLKDIV_CDIV4.cell(0),
+                );
+                self.hybrid_out_rc_cell(
+                    bcrd,
+                    cell_dll,
+                    "JCDIV8_CLKDIV",
+                    wires::OUT_CLKDIV_CDIV8.cell(0),
+                );
+
+                if self.chip.kind == ChipKind::Ecp3A {
+                    let dqsdllclk = self.rc_wire(cell_dqsdll, "DQSDLLCLK");
+                    self.bind_wire(dqsdllclk, bcrd.cell.wire(wires::IMUX_DQSDLL_CLK));
+                }
+
+                self.hybrid_out_rc_cell(
+                    bcrd.bel(bslots::DLLDEL[0]),
+                    cell_dll,
+                    "JCLKO_DLLDEL",
+                    wires::OUT_DLLDEL_CLKO.cell(0),
+                );
+
+                let eclk1 = self.rc_wire(cell_dll, "DLLECLKI1");
+                self.claim_node(eclk1);
+                self.bind_wire(eclk1, bcrd.cell.wire(wires::PLL_TO_ECLK_TEST[0]));
+                let eclk2 = self.rc_wire(cell_dll, "DLLECLKI2");
+                self.claim_node(eclk2);
+                self.bind_wire(eclk2, bcrd.cell.wire(wires::PLL_TO_ECLK_TEST[1]));
+
+                let eclk1 = self.rc_wire(cell_dll, "JDLLECLK1");
+                self.bind_wire(eclk1, bcrd.cell.wire(wires::PLL_TO_ECLK[0]));
+                let eclk2 = self.rc_wire(cell_dll, "JDLLECLK2");
+                self.bind_wire(eclk2, bcrd.cell.wire(wires::PLL_TO_ECLK[1]));
+            }
+        }
+
         for &tcrd in &self.edev.tile_index[tcls::SERDES] {
             let bcrd = tcrd.bel(bslots::SERDES);
             let cell = bcrd.cell.delta(0, -1);
@@ -30,108 +108,122 @@ impl ChipContext<'_> {
         }
     }
 
+    pub(super) fn process_pll_int_ecp3(&mut self) {
+        let chip = self.chip;
+        for (loc, bcrd) in chip.plls() {
+            let is_main = bcrd.row == chip.row_clk;
+            let cell_dqsdll = match loc.quad.h {
+                DirH::W => bcrd.delta(2, 0),
+                DirH::E => bcrd.delta(-2, 0),
+            };
+            let cell_pll = match loc.quad.h {
+                DirH::W => bcrd.delta(3, 0),
+                DirH::E => bcrd.delta(-3, 0),
+            };
+            let cell_dll = match loc.quad.h {
+                DirH::W => bcrd.delta(13, 0),
+                DirH::E => bcrd.delta(-13, 0),
+            };
+
+            let mut ex = self.extract_switchbox(bcrd.bel(bslots::BEL_INT));
+            // north clock input
+            let cslot_n = if is_main {
+                CellSlotId::from_idx(20)
+            } else {
+                CellSlotId::from_idx(13)
+            };
+            // PLL
+            let wire_clki = wires::IMUX_PLL_CLKI.cell(0);
+            let wire_clkfb = wires::IMUX_PLL_CLKFB.cell(0);
+            ex.cell(cell_pll)
+                .output_bind_rc("CLKI", wire_clki)
+                .output_bind_rc("CLKFB", wire_clkfb)
+                .input_xlat_rc("JPLLCLKI1")
+                .input_xlat_rc("JPLLCLKI2")
+                .input_xlat_rc("JPLLCLKI3")
+                .input_xlat_rc("JPLLCLKFB0")
+                .input_xlat_rc("JPLLCLKFB1")
+                .input_bind_rc("PLLCLKINTFB", wires::OUT_PLL_CLKINTFB.cell(0))
+                .input_xlat_rc("JPLLCLKFB3");
+            if is_main {
+                // DLL's input
+                ex.input_xlat_rc("JPLLCLKI0");
+            }
+            if ex.ctx.edev[ex.ctx.edev.bel_tile(bcrd)]
+                .cells
+                .contains_id(cslot_n)
+            {
+                ex.input_xlat_rc_nudge("JPLLCLKI4", cslot_n);
+                ex.input_xlat_rc_nudge("JPLLCLKFB4", cslot_n);
+                ex.input_xlat_rc_nudge("JPLLCLKFB5", cslot_n);
+            } else {
+                ex.edge(wire_clki, cslot_n.wire(wires::OUT_IO_PADDI[2]));
+                ex.edge(wire_clkfb, cslot_n.wire(wires::ECLK[0]));
+                ex.edge(wire_clkfb, cslot_n.wire(wires::ECLK[1]));
+            }
+            if chip.kind == ChipKind::Ecp3A {
+                ex.input_xlat_rc("JPLLCLKI5").input_xlat_rc("JPLLCLKFB6");
+            }
+            if is_main {
+                ex.cell(cell_dll)
+                    .output_bind_rc("DLLCLKI", wires::IMUX_DLL_CLKI.cell(0))
+                    .output_bind_rc("DLLCLKFB", wires::IMUX_DLL_CLKFB.cell(0))
+                    .input_xlat_rc("JDLLCLKI0")
+                    .input_xlat_rc("JDLLCLKI1")
+                    .input_xlat_rc("JDLLCLKI2")
+                    .input_xlat_rc("JDLLCLKI3")
+                    .input_xlat_rc("JDLLCLKI4")
+                    .input_xlat_rc("JDLLCLKFB0")
+                    .input_xlat_rc("JDLLCLKFB1")
+                    .input_xlat_rc("JDLLCLKFB2")
+                    .input_xlat_rc("JDLLCLKFB3")
+                    .input_xlat_rc("JDLLCLKFB4")
+                    .output_xlat_rc("JDLLECLK1")
+                    .output_xlat_rc("JDLLECLK2")
+                    .input_xlat_rc("JCIBCLK1")
+                    .input_xlat_rc("JCIBCLK2")
+                    .input_xlat_rc("JPLLPIO1")
+                    .input_xlat_rc("JPLLPIO2")
+                    .input_xlat_rc("JPLLCLKOP")
+                    .input_xlat_rc("JPLLCLKOS")
+                    .input_xlat_rc("DLLCLKOP")
+                    .input_xlat_rc("DLLCLKOS")
+                    .input_xlat_rc("DLLDEL")
+                    .output_bind_rc("CLKDIVCLKI", wires::IMUX_CLKDIV_CLKI.cell(0))
+                    .input_xlat_rc("JECLK1")
+                    .input_xlat_rc("JECLK2")
+                    .input_xlat_rc("DLLECLKI1")
+                    .input_xlat_rc("DLLECLKI2");
+                if chip.kind == ChipKind::Ecp3A {
+                    ex.input_xlat_rc("JDLLCLKI5")
+                        .input_xlat_rc("JDLLCLKI6")
+                        .input_xlat_rc("JDLLCLKFB5");
+
+                    ex.cell(cell_dqsdll)
+                        .output_xlat_rc("DQSDLLCLK")
+                        .input_xlat_rc("JCIBCLK")
+                        .input_xlat_rc("JECLK");
+                }
+            }
+        }
+    }
+
     pub(super) fn process_pll_ecp3(&mut self) {
         for (loc, bcrd) in self.chip.plls() {
             let cell = match loc.quad.h {
                 DirH::W => bcrd.delta(3, 0),
                 DirH::E => bcrd.delta(-3, 0),
             };
-            let (r, c) = self.rc(cell);
-            self.name_bel(bcrd, [format!("PLL_R{r}C{c}")]);
-            let mut bel = self.extract_simple_legacy_bel(bcrd, cell, "PLL");
 
-            let clki_pll = self.rc_wire(cell, "CLKI_PLL");
-            let clki = self.rc_wire(cell, "CLKI");
-            self.add_bel_wire(bcrd, "CLKI_PLL", clki_pll);
-            self.add_bel_wire(bcrd, "CLKI", clki);
-            self.claim_pip(clki_pll, clki);
-            for i in [1, 2, 5] {
-                if i == 5 && self.chip.kind == ChipKind::Ecp3 {
-                    continue;
-                }
-                let clki_int = self.rc_wire(cell, &format!("JPLLCLKI{i}"));
-                self.add_bel_wire(bcrd, format!("CLKI{i}"), clki_int);
-                self.claim_pip(clki, clki_int);
-                bel.pins
-                    .insert(format!("CLKI{i}"), self.xlat_int_wire(bcrd, clki_int));
-            }
-            let mut io_ins = vec![(3, SpecialIoKey::Pll(PllPad::PllIn0, loc))];
-            if loc.quad.v == DirV::N && loc.idx == 0 {
-                io_ins.push((0, SpecialIoKey::Pll(PllPad::DllIn0, loc)));
-            }
-            if loc.quad.v == DirV::N
-                && (loc.idx == 1 || self.chip.try_bel_pll(loc.quad, 1).is_none())
-            {
-                io_ins.push((
-                    4,
-                    SpecialIoKey::Clock(
-                        Dir::N,
-                        match loc.quad.h {
-                            DirH::W => 0,
-                            DirH::E => 1,
-                        },
-                    ),
-                ));
-            }
-            for (i, key) in io_ins {
-                let clki_io = self.rc_wire(cell, &format!("JPLLCLKI{i}"));
-                self.add_bel_wire(bcrd, format!("CLKI{i}"), clki_io);
-                self.claim_pip(clki, clki_io);
-                let wire_io = self.get_special_io_wire_in(key);
-                self.claim_pip(clki_io, wire_io);
-            }
-
-            let clkfb_pll = self.rc_wire(cell, "CLKFB_PLL");
-            let clkfb = self.rc_wire(cell, "CLKFB");
-            self.add_bel_wire(bcrd, "CLKFB_PLL", clkfb_pll);
-            self.add_bel_wire(bcrd, "CLKFB", clkfb);
-            self.claim_pip(clkfb_pll, clkfb);
-
-            for i in [0, 6] {
-                if i == 6 && self.chip.kind == ChipKind::Ecp3 {
-                    continue;
-                }
-                let clkfb_int = self.rc_wire(cell, &format!("JPLLCLKFB{i}"));
-                self.add_bel_wire(bcrd, format!("CLKFB{i}"), clkfb_int);
-                self.claim_pip(clkfb, clkfb_int);
-                bel.pins
-                    .insert(format!("CLKFB{i}"), self.xlat_int_wire(bcrd, clkfb_int));
-            }
-
-            let clkfb_io = self.rc_wire(cell, "JPLLCLKFB1");
-            self.add_bel_wire(bcrd, "CLKFB1", clkfb_io);
-            self.claim_pip(clkfb, clkfb_io);
-            let wire_io = self.get_special_io_wire_in(SpecialIoKey::Pll(PllPad::PllFb, loc));
-            self.claim_pip(clkfb_io, wire_io);
-
-            let clkintfb_pll = self.rc_wire(cell, "CLKINTFB_PLL");
-            self.add_bel_wire(bcrd, "CLKINTFB_PLL", clkintfb_pll);
-            let clkintfb = self.rc_wire(cell, "PLLCLKINTFB");
-            self.add_bel_wire(bcrd, "CLKINTFB", clkintfb);
-            self.claim_pip(clkintfb, clkintfb_pll);
-            self.claim_pip(clkfb, clkintfb);
-
-            let mut eclk_fb = vec![(3, Dir::H(loc.quad.h), 0)];
-            if loc.quad.v == DirV::N
-                && (loc.idx == 1 || self.chip.try_bel_pll(loc.quad, 1).is_none())
-            {
-                eclk_fb.extend([(4, Dir::N, 0), (5, Dir::N, 1)]);
-            }
-            for (i, edge, ei) in eclk_fb {
-                let clkfb_eclk = self.rc_wire(cell, &format!("JPLLCLKFB{i}"));
-                self.add_bel_wire(bcrd, format!("CLKFB{i}"), clkfb_eclk);
-                self.claim_pip(clkfb, clkfb_eclk);
-                let bcrd_eclk = self.chip.bel_eclksync(edge, ei);
-                let wire_eclk = self.naming.bel_wire(bcrd_eclk, "ECLKO");
-                self.claim_pip(clkfb_eclk, wire_eclk);
-            }
-
-            for pin in ["CLKOP", "CLKOS", "CLKOK"] {
-                let wire = self.rc_wire(cell, &format!("J{pin}_PLL"));
-                self.claim_pip(wire, clki_pll);
-            }
-
-            self.insert_legacy_bel(bcrd, bel);
+            self.extract_bel_cell(bcrd, cell)
+                .name_rc("PLL")
+                .suffix("PLL")
+                .input_xlat_rc(bcls::PLL::CLKI, "CLKI_PLL")
+                .input_xlat_rc(bcls::PLL::CLKFB, "CLKFB_PLL")
+                .output_xlat_rc(bcls::PLL::CLKINTFB, "CLKINTFB_PLL")
+                .claim_pip("CLKOP", "CLKI")
+                .claim_pip("CLKOS", "CLKI")
+                .claim_pip("CLKOK", "CLKI");
         }
     }
 
@@ -151,169 +243,29 @@ impl ChipContext<'_> {
                 DirH::W => bcrd_dll.cell.delta(13, 0),
                 DirH::E => bcrd_dll.cell.delta(-13, 0),
             };
-            let cell_pll = match edge {
-                DirH::W => bcrd_dll.cell.delta(3, 0),
-                DirH::E => bcrd_dll.cell.delta(-3, 0),
-            };
-            let (r, c) = self.rc(cell);
-            self.name_bel(bcrd_dll, [format!("DLL_R{r}C{c}")]);
-            self.name_bel(bcrd_dlldel, [format!("DLLDEL_R{r}C{c}")]);
-            let mut bel_dll = self.extract_simple_legacy_bel(bcrd_dll, cell, "DLL");
-            self.insert_simple_legacy_bel(bcrd_dlldel, cell, "DLLDEL");
 
+            self.extract_bel_cell(bcrd_dll, cell)
+                .name_rc("DLL")
+                .suffix("DLL")
+                .input_xlat_rc(bcls::DLL::CLKI, "CLKI_DLL")
+                .input_xlat_rc(bcls::DLL::CLKFB, "CLKFB_DLL")
+                .input_xlat_rc(bcls::DLL::CIB_DCPS[0], "JCIB_DCPS_0_DLL")
+                .input_xlat_rc(bcls::DLL::CIB_DCPS[1], "JCIB_DCPS_1_DLL")
+                .input_xlat_rc(bcls::DLL::CIB_DCPS[2], "JCIB_DCPS_2_DLL")
+                .input_xlat_rc(bcls::DLL::CIB_DCPS[3], "JCIB_DCPS_3_DLL")
+                .input_xlat_rc(bcls::DLL::CIB_DCPS[4], "JCIB_DCPS_4_DLL")
+                .input_xlat_rc(bcls::DLL::CIB_DCPS[5], "JCIB_DCPS_5_DLL");
+
+            let mut bel = self.extract_bel_cell(bcrd_dlldel, cell);
+            bel.name_rc("DLLDEL")
+                .suffix("DLLDEL")
+                .input_xlat_rc(bcls::DLLDEL::CLKI, "CLKI_DLLDEL");
             for i in 0..6 {
-                let wire_dll = self.rc_wire(cell, &format!("JDCNTL{i}_DLL"));
-                let wire_dlldel = self.rc_wire(cell, &format!("JDCNTL{i}_DLLDEL"));
-                self.add_bel_wire(bcrd_dlldel, format!("DCNTL{i}"), wire_dlldel);
-                self.claim_pip(wire_dlldel, wire_dll);
+                let wire_dll = bel.ctx.rc_wire(cell, &format!("JDCNTL{i}_DLL"));
+                let wire_dlldel = bel.ctx.rc_wire(cell, &format!("JDCNTL{i}_DLLDEL"));
+                bel.add_wire(format!("DCNTL{i}"), wire_dlldel);
+                bel.ctx.claim_pip(wire_dlldel, wire_dll);
             }
-
-            let clki_dll = self.rc_wire(cell, "CLKI_DLL");
-            self.add_bel_wire(bcrd_dll, "CLKI_DLL", clki_dll);
-            let clki_dlldel = self.rc_wire(cell, "CLKI_DLLDEL");
-            self.add_bel_wire(bcrd_dlldel, "CLKI", clki_dlldel);
-            let clki = self.rc_wire(cell, "DLLCLKI");
-            self.add_bel_wire(bcrd_dll, "CLKI", clki);
-            self.claim_pip(clki_dll, clki);
-            self.claim_pip(clki_dlldel, clki);
-
-            for i in [1, 2, 5] {
-                if i == 5 && self.chip.kind == ChipKind::Ecp3 {
-                    continue;
-                }
-                let clki_int = self.rc_wire(cell, &format!("JDLLCLKI{i}"));
-                self.add_bel_wire(bcrd_dll, format!("CLKI{i}"), clki_int);
-                self.claim_pip(clki, clki_int);
-                bel_dll
-                    .pins
-                    .insert(format!("CLKI{i}"), self.xlat_int_wire(bcrd_dll, clki_int));
-            }
-            let loc = PllLoc::new(edge & DirV::N, 0);
-            let io_ins = [
-                (0, SpecialIoKey::Pll(PllPad::DllIn0, loc)),
-                (3, SpecialIoKey::Pll(PllPad::PllIn0, loc)),
-                (
-                    4,
-                    SpecialIoKey::Clock(
-                        Dir::N,
-                        match loc.quad.h {
-                            DirH::W => 0,
-                            DirH::E => 1,
-                        },
-                    ),
-                ),
-            ];
-            for (i, key) in io_ins {
-                let clki_io = self.rc_wire(cell, &format!("JDLLCLKI{i}"));
-                self.add_bel_wire(bcrd_dll, format!("CLKI{i}"), clki_io);
-                self.claim_pip(clki, clki_io);
-                let wire_io = self.get_special_io_wire_in(key);
-                self.claim_pip(clki_io, wire_io);
-            }
-            if self.chip.kind == ChipKind::Ecp3A {
-                let clki_pll = self.rc_wire(cell, "JDLLCLKI6");
-                self.add_bel_wire(bcrd_dll, "CLKI6", clki_pll);
-                self.claim_pip(clki, clki_pll);
-                let wire_pll = self.rc_wire(cell_pll, "JCLKOP_PLL");
-                self.claim_pip(clki_pll, wire_pll);
-            }
-
-            let clkfb_dll = self.rc_wire(cell, "CLKFB_DLL");
-            let clkfb = self.rc_wire(cell, "DLLCLKFB");
-            self.add_bel_wire(bcrd_dll, "CLKFB_DLL", clkfb_dll);
-            self.add_bel_wire(bcrd_dll, "CLKFB", clkfb);
-            self.claim_pip(clkfb_dll, clkfb);
-
-            for i in [3, 5] {
-                if i == 5 && self.chip.kind == ChipKind::Ecp3 {
-                    continue;
-                }
-                let clkfb_int = self.rc_wire(cell, &format!("JDLLCLKFB{i}"));
-                self.add_bel_wire(bcrd_dll, format!("CLKFB{i}"), clkfb_int);
-                self.claim_pip(clkfb, clkfb_int);
-                bel_dll
-                    .pins
-                    .insert(format!("CLKFB{i}"), self.xlat_int_wire(bcrd_dll, clkfb_int));
-            }
-
-            let clkfb_io = self.rc_wire(cell, "JDLLCLKFB1");
-            self.add_bel_wire(bcrd_dll, "CLKFB1", clkfb_io);
-            self.claim_pip(clkfb, clkfb_io);
-            let wire_io = self.get_special_io_wire_in(SpecialIoKey::Pll(PllPad::DllFb, loc));
-            self.claim_pip(clkfb_io, wire_io);
-
-            let clkfb_clkop = self.rc_wire(cell, "JDLLCLKFB2");
-            self.add_bel_wire(bcrd_dll, "CLKFB2", clkfb_clkop);
-            self.claim_pip(clkfb, clkfb_clkop);
-            let clkop = self.rc_wire(cell, "JCLKOP_DLL");
-            self.claim_pip(clkfb_clkop, clkop);
-
-            let eclk_fb = [
-                (0, Dir::H(loc.quad.h), 0),
-                (
-                    4,
-                    Dir::N,
-                    match loc.quad.h {
-                        DirH::W => 0,
-                        DirH::E => 1,
-                    },
-                ),
-            ];
-            for (i, edge, ei) in eclk_fb {
-                let clkfb_eclk = self.rc_wire(cell, &format!("JDLLCLKFB{i}"));
-                self.add_bel_wire(bcrd_dll, format!("CLKFB{i}"), clkfb_eclk);
-                self.claim_pip(clkfb, clkfb_eclk);
-                let bcrd_eclk = self.chip.bel_eclksync(edge, ei);
-                let wire_eclk = self.naming.bel_wire(bcrd_eclk, "ECLKO");
-                self.claim_pip(clkfb_eclk, wire_eclk);
-            }
-
-            let clko_dlldel = self.rc_wire(cell, "JCLKO_DLLDEL");
-            let dlldel = self.rc_wire(cell, "DLLDEL");
-            self.add_bel_wire(bcrd_dlldel, "CLKO_OUT", dlldel);
-            self.claim_pip(dlldel, clko_dlldel);
-
-            self.insert_legacy_bel(bcrd_dll, bel_dll);
-
-            let bcrd = bcrd_dll.bel(bslots::ECLK_ALT_ROOT);
-            let mut bel = LegacyBel::default();
-            self.name_bel_null(bcrd);
-
-            for ei in 0..2 {
-                let eip1 = ei + 1;
-                let eclk_out = self.rc_wire(cell, &format!("JDLLECLK{eip1}"));
-                self.add_bel_wire(bcrd, format!("ECLK{ei}_OUT"), eclk_out);
-
-                let eclk_int = self.rc_wire(cell, &format!("JCIBCLK{eip1}"));
-                self.add_bel_wire(bcrd, format!("ECLK{ei}_INT"), eclk_int);
-                self.claim_pip(eclk_out, eclk_int);
-                bel.pins
-                    .insert(format!("ECLK{ei}_IN"), self.xlat_int_wire(bcrd, eclk_int));
-
-                let eclk_io = self.rc_wire(cell, &format!("JPLLPIO{eip1}"));
-                self.add_bel_wire(bcrd, format!("ECLK{ei}_IO"), eclk_io);
-                self.claim_pip(eclk_out, eclk_io);
-                let wire_io = self.get_special_io_wire_in(SpecialIoKey::Pll(PllPad::PllIn0, loc));
-                self.claim_pip(eclk_io, wire_io);
-
-                let pin = ["CLKOP", "CLKOS"][ei];
-
-                let eclk_pll = self.rc_wire(cell, &format!("JPLL{pin}"));
-                self.add_bel_wire(bcrd, format!("ECLK{ei}_PLL_{pin}"), eclk_pll);
-                self.claim_pip(eclk_out, eclk_pll);
-                let wire_pll = self.rc_wire(cell_pll, &format!("J{pin}_PLL"));
-                self.claim_pip(eclk_pll, wire_pll);
-
-                let eclk_dll = self.rc_wire(cell, &format!("DLL{pin}"));
-                self.add_bel_wire(bcrd, format!("ECLK{ei}_DLL_{pin}"), eclk_dll);
-                self.claim_pip(eclk_out, eclk_dll);
-                let wire_dll = self.rc_wire(cell, &format!("J{pin}_DLL"));
-                self.claim_pip(eclk_dll, wire_dll);
-
-                self.claim_pip(eclk_out, dlldel);
-            }
-
-            self.insert_legacy_bel(bcrd, bel);
         }
     }
 
@@ -333,45 +285,14 @@ impl ChipContext<'_> {
                 DirH::E => bcrd.cell.delta(-13, 0),
             };
             let (r, c) = self.rc(cell);
-            self.name_bel(
-                bcrd,
-                [format!("CLKDIV_R{r}C{c}"), format!("CLKDIVTEST_R{r}C{c}")],
-            );
-            self.insert_simple_legacy_bel(bcrd, cell, "CLKDIV");
-
-            let clk = self.rc_wire(cell, "CLKI_CLKDIV");
-            self.add_bel_wire(bcrd, "CLK", clk);
-            let clk_in = self.rc_wire(cell, "CLKDIVCLKI");
-            self.add_bel_wire(bcrd, "CLK_IN", clk_in);
-            self.claim_pip(clk, clk_in);
-
-            for ei in 0..2 {
-                let eip1 = ei + 1;
-                let clk_eclk = self.rc_wire(cell, &format!("JECLK{eip1}"));
-                self.add_bel_wire(bcrd, format!("CLK_ECLK{ei}"), clk_eclk);
-                self.claim_pip(clk_in, clk_eclk);
-                let bcrd_eclk = self.chip.bel_eclksync(Dir::H(edge), ei);
-                let wire_eclk = self.naming.bel_wire(bcrd_eclk, "ECLKO");
-                self.claim_pip(clk_eclk, wire_eclk);
-
-                let dlleclk = self.rc_wire(cell, &format!("JDLLECLK{eip1}"));
-                let clki_test = self.rc_wire(cell, &format!("CLKI{eip1}_CLKDIVTEST"));
-                self.add_bel_wire(bcrd, format!("CLKI{eip1}_CLKDIVTEST"), clki_test);
-                self.claim_pip(clki_test, dlleclk);
-
-                let clko_test = self.rc_wire(cell, &format!("CLKO{eip1}_CLKDIVTEST"));
-                self.add_bel_wire(bcrd, format!("CLKO{eip1}_CLKDIVTEST"), clko_test);
-                let clk_dlleclk = self.rc_wire(cell, &format!("DLLECLKI{eip1}"));
-                self.add_bel_wire(bcrd, format!("CLK_DLLECLK{ei}"), clk_dlleclk);
-                self.claim_pip(clk_dlleclk, clko_test);
-                self.claim_pip(clk_in, clk_dlleclk);
-            }
-
-            let clk_pll = self.rc_wire(cell, "JPLLCLKOP");
-            self.claim_pip(clk_in, clk_pll);
-
-            let clk_dll = self.rc_wire(cell, "DLLCLKOP");
-            self.claim_pip(clk_in, clk_dll);
+            self.extract_bel_cell(bcrd, cell)
+                .names([format!("CLKDIV_R{r}C{c}"), format!("CLKDIVTEST_R{r}C{c}")])
+                .suffix("CLKDIV")
+                .input_xlat_rc(bcls::CLKDIV::CLKI, "CLKI_CLKDIV")
+                .input_xlat_rc(bcls::CLKDIV::TEST_CLKI1, "CLKI1_CLKDIVTEST")
+                .input_xlat_rc(bcls::CLKDIV::TEST_CLKI2, "CLKI2_CLKDIVTEST")
+                .output_xlat_rc(bcls::CLKDIV::TEST_CLKO1, "CLKO1_CLKDIVTEST")
+                .output_xlat_rc(bcls::CLKDIV::TEST_CLKO2, "CLKO2_CLKDIVTEST");
         }
     }
 }

@@ -8845,6 +8845,12 @@ intdb {
 		output R[72];
 	}
 
+	bel_class DCC {
+		input CLKI;
+		input CE;
+		output CLKO;
+	}
+
 	bel_class DCS {
 		input CLK[2];
 		input SEL;
@@ -40322,11 +40328,11 @@ intdb {
 		bel_slot CLKDIV[2]: legacy;
 		bel_slot CLKDIV[3]: legacy;
 		bel_slot CLK_INT: routing;
-		bel_slot CLK_ROOT: legacy;
 		bel_slot DCC_SW[0]: legacy;
 		bel_slot DCC_SE[0]: legacy;
 		bel_slot DCC_NW[0]: legacy;
 		bel_slot DCC_NE[0]: legacy;
+		bel_slot CLK_ROOT: legacy;
 		bel_slot CLKTEST: legacy;
 		bel_slot DCC[0]: legacy;
 		bel_slot DCC[1]: legacy;
@@ -40378,6 +40384,26 @@ intdb {
 			cell ROOT_SE;
 			cell ROOT_NW;
 			cell ROOT_NE;
+
+			bel DCC_SW[0] {
+				input CE = ROOT_SW.IMUX_A[0];
+				input CLKI = ROOT_SW.IMUX_D[7];
+			}
+
+			bel DCC_SE[0] {
+				input CE = ROOT_SE.IMUX_A[0];
+				input CLKI = ROOT_SE.IMUX_D[7];
+			}
+
+			bel DCC_NW[0] {
+				input CE = ROOT_NW.IMUX_A[0];
+				input CLKI = ROOT_NW.IMUX_D[7];
+			}
+
+			bel DCC_NE[0] {
+				input CE = ROOT_NE.IMUX_A[0];
+				input CLKI = ROOT_NE.IMUX_D[7];
+			}
 
 			bel CLK_ROOT {
 				output PCLK0_NE = ROOT_NE.PCLK[0];
@@ -40460,26 +40486,6 @@ intdb {
 				output PCLK9_NW = ROOT_NW.PCLK[9];
 				output PCLK9_SE = ROOT_SE.PCLK[9];
 				output PCLK9_SW = ROOT_SW.PCLK[9];
-			}
-
-			bel DCC_SW[0] {
-				input CE = ROOT_SW.IMUX_A[0];
-				input CLKI = ROOT_SW.IMUX_D[7];
-			}
-
-			bel DCC_SE[0] {
-				input CE = ROOT_SE.IMUX_A[0];
-				input CLKI = ROOT_SE.IMUX_D[7];
-			}
-
-			bel DCC_NW[0] {
-				input CE = ROOT_NW.IMUX_A[0];
-				input CLKI = ROOT_NW.IMUX_D[7];
-			}
-
-			bel DCC_NE[0] {
-				input CE = ROOT_NE.IMUX_A[0];
-				input CLKI = ROOT_NE.IMUX_D[7];
 			}
 
 			bel CLKTEST {

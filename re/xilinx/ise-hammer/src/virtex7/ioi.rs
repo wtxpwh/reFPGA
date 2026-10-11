@@ -1629,18 +1629,10 @@ fn collect_fuzzers_ologic(ctx: &mut CollectorCtx) {
         ]);
         ctx.insert_bel_attr_enum(tcid, bslot, OLOGIC::MUX_O, item);
 
-        let mut diff_sdr = ctx.get_diff_attr_val(
-            tcid,
-            bslot,
-            OLOGIC::MUX_T,
-            enums::OLOGIC_MUX_T::SERDES_SDR,
-        );
-        let mut diff_ddr = ctx.get_diff_attr_val(
-            tcid,
-            bslot,
-            OLOGIC::MUX_T,
-            enums::OLOGIC_MUX_T::SERDES_DDR,
-        );
+        let mut diff_sdr =
+            ctx.get_diff_attr_val(tcid, bslot, OLOGIC::MUX_T, enums::OLOGIC_MUX_T::SERDES_SDR);
+        let mut diff_ddr =
+            ctx.get_diff_attr_val(tcid, bslot, OLOGIC::MUX_T, enums::OLOGIC_MUX_T::SERDES_DDR);
         diff_sdr.apply_bit_diff(
             ctx.bel_attr_bit(tcid, bslot, OLOGIC::FFT_SR_ENABLE),
             true,

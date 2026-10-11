@@ -36,6 +36,7 @@ impl ChipContext<'_> {
                 self.process_clkdiv_xp2();
             }
             ChipKind::Ecp3 | ChipKind::Ecp3A => {
+                self.process_pll_int_ecp3();
                 self.process_pll_ecp3();
                 self.process_dll_ecp3();
                 self.process_clkdiv_ecp3();

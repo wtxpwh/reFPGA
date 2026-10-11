@@ -1,14 +1,14 @@
-use std::collections::{BTreeMap, BTreeSet};
+use std::collections::{BTreeMap, BTreeSet, btree_map};
 
 use prjcombine_entity::{EntityBundleIndices, EntityBundleItemIndex};
 use prjcombine_interconnect::{
     db::{
-        Bel, BelClassId, BelInput, BelInputId, BelOutputId, CellSlotId, IntDb, Mux, PermaBuf,
-        SwitchBox, SwitchBoxItem, TileWireCoord,
+        Bel, BelClassId, BelInfo, BelInput, BelInputId, BelOutputId, CellSlotId, IntDb, LegacyBel,
+        Mux, PermaBuf, SwitchBox, SwitchBoxItem, TileWireCoord,
     },
     grid::{BelCoord, CellCoord},
 };
-use prjcombine_re_lattice_naming::WireName;
+use prjcombine_re_lattice_naming::{BelNaming, WireName};
 
 use crate::ChipContext;
 
@@ -155,8 +155,15 @@ impl<'dev, 'ctx> BelExtractor<'dev, 'ctx> {
             (pname, EntityBundleItemIndex::Single) => pname.to_string(),
             (pname, EntityBundleItemIndex::Array { index, .. }) => format!("{pname}{index}"),
         };
-        self.add_wire(pname, wire);
-        self.output_xlat_no_name(pin, wire)
+
+        if let Some(wires) = self.ctx.io_int_wires.get(&wire) {
+            let tw = self.ctx.wire_to_tw(self.bcrd, wires[0], None).unwrap();
+            self.add_wire_no_claim(pname, wire);
+            self.output(pin, tw)
+        } else {
+            self.add_wire(pname, wire);
+            self.output_xlat_no_name(pin, wire)
+        }
     }
 
     pub fn output_xlat_rc(&mut self, pin: BelOutputId, suffix: impl AsRef<str>) -> &mut Self {
@@ -210,6 +217,13 @@ impl<'dev, 'ctx> BelExtractor<'dev, 'ctx> {
         self
     }
 
+    pub fn claim_pip(&mut self, dst: impl AsRef<str>, src: impl AsRef<str>) -> &mut Self {
+        let dst = self.ctx.naming.bel_wire(self.bcrd, dst.as_ref());
+        let src = self.ctx.naming.bel_wire(self.bcrd, src.as_ref());
+        self.ctx.claim_pip(dst, src);
+        self
+    }
+
     pub fn discard(mut self) {
         self.discard = true;
     }
@@ -230,6 +244,7 @@ pub struct SwitchBoxExtractor<'dev, 'ctx> {
     pub cell: CellCoord,
     pub inputs: BTreeMap<WireName, TileWireCoord>,
     pub outputs: BTreeMap<WireName, TileWireCoord>,
+    pub outputs_permabuf: BTreeMap<WireName, TileWireCoord>,
     pub edges: Vec<(TileWireCoord, TileWireCoord)>,
     pub extra: Vec<SwitchBoxItem>,
 }
@@ -409,6 +424,49 @@ impl<'dev, 'ctx> SwitchBoxExtractor<'dev, 'ctx> {
         self.output_xlat_rc_cell(self.cell, name)
     }
 
+    pub fn permabuf_output_raw(&mut self, name: WireName, wire: TileWireCoord) -> &mut Self {
+        self.ctx.add_sb_wire(self.bcrd, wire, name);
+        self.outputs_permabuf.insert(name, wire);
+        self
+    }
+
+    pub fn permabuf_output_raw_no_claim(
+        &mut self,
+        name: WireName,
+        wire: TileWireCoord,
+    ) -> &mut Self {
+        self.ctx.add_sb_wire_no_claim(self.bcrd, wire, name);
+        self.outputs_permabuf.insert(name, wire);
+        self
+    }
+
+    pub fn permabuf_output_xlat(&mut self, name: WireName) -> &mut Self {
+        if let Some(wires) = self.ctx.io_int_wires.get(&name) {
+            let tw = self.ctx.wire_to_tw(self.bcrd, wires[0], None).unwrap();
+            self.permabuf_output_raw(name, tw)
+        } else {
+            let wires = self.ctx.xlat_output(self.bcrd, name);
+            assert_eq!(wires.len(), 1);
+            self.permabuf_output_raw(name, wires.into_iter().next().unwrap())
+        }
+    }
+
+    pub fn permabuf_output_xlat_no_claim(&mut self, name: WireName) -> &mut Self {
+        if let Some(wires) = self.ctx.io_int_wires.get(&name) {
+            let tw = self.ctx.wire_to_tw(self.bcrd, wires[0], None).unwrap();
+            self.permabuf_output_raw_no_claim(name, tw)
+        } else {
+            let wires = self.ctx.xlat_output(self.bcrd, name);
+            assert_eq!(wires.len(), 1);
+            self.permabuf_output_raw_no_claim(name, wires.into_iter().next().unwrap())
+        }
+    }
+
+    pub fn permabuf_output_xlat_rc(&mut self, name: impl AsRef<str>) -> &mut Self {
+        let name = self.ctx.rc_wire(self.cell, name.as_ref());
+        self.permabuf_output_xlat(name)
+    }
+
     pub fn edge(&mut self, dst: TileWireCoord, src: TileWireCoord) -> &mut Self {
         self.edges.push((dst, src));
         self
@@ -486,7 +544,171 @@ impl<'dev, 'ctx> Drop for SwitchBoxExtractor<'dev, 'ctx> {
         for mux in muxes.into_values() {
             sb.items.push(SwitchBoxItem::Mux(mux));
         }
+        for (&name_out, &wire_out) in &self.outputs_permabuf {
+            let name_in = self.ctx.claim_single_in(name_out);
+            let wire_in = self.inputs[&name_in];
+            sb.items.push(SwitchBoxItem::PermaBuf(PermaBuf {
+                dst: wire_out,
+                src: wire_in.pos(),
+            }));
+            self.ctx
+                .naming
+                .bels
+                .get_mut(&self.bcrd)
+                .unwrap()
+                .int_inputs
+                .insert((wire_out, wire_in), name_in);
+        }
         sb.items.sort();
         self.ctx.insert_switchbox(self.bcrd, sb);
+    }
+}
+
+impl<'dev> ChipContext<'dev> {
+    pub fn name_bel<T: AsRef<str>>(&mut self, bel: BelCoord, names: impl IntoIterator<Item = T>) {
+        let names = Vec::from_iter(
+            names
+                .into_iter()
+                .map(|x| self.naming.strings.get_or_insert(x.as_ref())),
+        );
+        assert!(
+            self.naming
+                .bels
+                .insert(
+                    bel,
+                    BelNaming {
+                        names,
+                        wires: Default::default(),
+                        int_wires: Default::default(),
+                        int_inputs: Default::default(),
+                    },
+                )
+                .is_none()
+        );
+    }
+
+    pub fn name_bel_null(&mut self, bel: BelCoord) {
+        self.name_bel::<&str>(bel, []);
+    }
+
+    pub fn add_bel_wire(&mut self, bel: BelCoord, pin: impl AsRef<str>, wire: WireName) {
+        self.add_bel_wire_no_claim(bel, pin, wire);
+        self.claim_node(wire);
+    }
+
+    pub fn add_bel_wire_no_claim(&mut self, bel: BelCoord, pin: impl AsRef<str>, wire: WireName) {
+        let pin = self.naming.strings.get_or_insert(pin.as_ref());
+        self.naming
+            .bels
+            .get_mut(&bel)
+            .unwrap()
+            .wires
+            .insert(pin, wire);
+    }
+
+    pub fn add_sb_wire(&mut self, bel: BelCoord, tw: TileWireCoord, wire: WireName) {
+        self.add_sb_wire_no_claim(bel, tw, wire);
+        self.claim_node(wire);
+    }
+
+    pub fn add_sb_wire_no_claim(&mut self, bel: BelCoord, tw: TileWireCoord, wire: WireName) {
+        self.naming
+            .bels
+            .get_mut(&bel)
+            .unwrap()
+            .int_wires
+            .insert(tw, wire);
+    }
+
+    pub fn extract_bel_cell(&mut self, bcrd: BelCoord, cell: CellCoord) -> BelExtractor<'dev, '_> {
+        let intdb = self.intdb;
+        let bcid = intdb.bel_class(bcrd.slot);
+        BelExtractor {
+            ctx: self,
+            intdb,
+            bcid,
+            bcrd,
+            cell,
+            bel: Bel::default(),
+            discard: false,
+        }
+    }
+
+    pub fn extract_bel(&mut self, bcrd: BelCoord) -> BelExtractor<'dev, '_> {
+        self.extract_bel_cell(bcrd, bcrd.cell)
+    }
+
+    pub fn extract_switchbox(&mut self, bcrd: BelCoord) -> SwitchBoxExtractor<'dev, '_> {
+        self.extract_switchbox_names::<&str>(bcrd, [])
+    }
+
+    pub fn extract_switchbox_names<T: AsRef<str>>(
+        &mut self,
+        bcrd: BelCoord,
+        names: impl IntoIterator<Item = T>,
+    ) -> SwitchBoxExtractor<'dev, '_> {
+        self.name_bel(bcrd, names);
+        SwitchBoxExtractor {
+            ctx: self,
+            bcrd,
+            cell: bcrd.cell,
+            inputs: BTreeMap::new(),
+            outputs: BTreeMap::new(),
+            outputs_permabuf: BTreeMap::new(),
+            edges: vec![],
+            extra: vec![],
+        }
+    }
+
+    pub fn insert_bel_generic(&mut self, bcrd: BelCoord, bel: BelInfo) {
+        let tcrd = self.edev.bel_tile(bcrd);
+        match self.bels.entry((self.edev[tcrd].class, bcrd.slot)) {
+            btree_map::Entry::Vacant(e) => {
+                e.insert(bel);
+            }
+            btree_map::Entry::Occupied(e) => {
+                assert_eq!(*e.get(), bel);
+            }
+        }
+    }
+
+    pub fn insert_bel(&mut self, bcrd: BelCoord, bel: Bel) {
+        self.insert_bel_generic(bcrd, BelInfo::Bel(bel));
+    }
+
+    pub fn insert_legacy_bel(&mut self, bcrd: BelCoord, bel: LegacyBel) {
+        self.insert_bel_generic(bcrd, BelInfo::Legacy(bel));
+    }
+
+    pub fn insert_switchbox(&mut self, bcrd: BelCoord, sb: SwitchBox) {
+        self.insert_bel_generic(bcrd, BelInfo::SwitchBox(sb));
+    }
+
+    pub fn extract_simple_legacy_bel(
+        &mut self,
+        bcrd: BelCoord,
+        cell: CellCoord,
+        suffix: &'static str,
+    ) -> LegacyBel {
+        let wires = self.sorted_wires[&(cell, suffix)].clone();
+        let mut bel = LegacyBel::default();
+        for (pin, wire) in wires {
+            let Some(bpin) = self.try_xlat_int_wire(bcrd, wire) else {
+                continue;
+            };
+            self.add_bel_wire(bcrd, &pin, wire);
+            bel.pins.insert(pin, bpin);
+        }
+        bel
+    }
+
+    pub fn insert_simple_legacy_bel(
+        &mut self,
+        bcrd: BelCoord,
+        cell: CellCoord,
+        suffix: &'static str,
+    ) {
+        let bel = self.extract_simple_legacy_bel(bcrd, cell, suffix);
+        self.insert_legacy_bel(bcrd, bel);
     }
 }

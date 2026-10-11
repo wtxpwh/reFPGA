@@ -10525,6 +10525,12 @@ intdb {
 		output R[72];
 	}
 
+	bel_class DCC {
+		input CLKI;
+		input CE;
+		output CLKO;
+	}
+
 	bel_class DCS {
 		input CLK[2];
 		input SEL;
@@ -15746,11 +15752,11 @@ intdb {
 		bel_slot CLKDIV[0]: legacy;
 		bel_slot CLKDIV[1]: legacy;
 		bel_slot CLK_INT: routing;
-		bel_slot CLK_ROOT: legacy;
 		bel_slot DCC_SW[0]: legacy;
 		bel_slot DCC_SE[0]: legacy;
 		bel_slot DCC_NW[0]: legacy;
 		bel_slot DCC_NE[0]: legacy;
+		bel_slot CLK_ROOT: legacy;
 		bel_slot CLKTEST: legacy;
 		bel_slot DCC[0]: legacy;
 		bel_slot DCC[1]: legacy;
@@ -17331,6 +17337,26 @@ intdb {
 			cell NW;
 			cell NE;
 
+			bel DCC_SW[0] {
+				input CE = SW.IMUX_A[0];
+				input CLKI = SW.IMUX_D[7];
+			}
+
+			bel DCC_SE[0] {
+				input CE = SE.IMUX_A[0];
+				input CLKI = SE.IMUX_D[7];
+			}
+
+			bel DCC_NW[0] {
+				input CE = NW.IMUX_A[0];
+				input CLKI = NW.IMUX_D[7];
+			}
+
+			bel DCC_NE[0] {
+				input CE = NE.IMUX_A[0];
+				input CLKI = NE.IMUX_D[7];
+			}
+
 			bel CLK_ROOT {
 				output PCLK0_NE = NE.PCLK[0];
 				output PCLK0_NW = NW.PCLK[0];
@@ -17396,26 +17422,6 @@ intdb {
 				output PCLK9_NW = NW.PCLK[9];
 				output PCLK9_SE = SE.PCLK[9];
 				output PCLK9_SW = SW.PCLK[9];
-			}
-
-			bel DCC_SW[0] {
-				input CE = SW.IMUX_A[0];
-				input CLKI = SW.IMUX_D[7];
-			}
-
-			bel DCC_SE[0] {
-				input CE = SE.IMUX_A[0];
-				input CLKI = SE.IMUX_D[7];
-			}
-
-			bel DCC_NW[0] {
-				input CE = NW.IMUX_A[0];
-				input CLKI = NW.IMUX_D[7];
-			}
-
-			bel DCC_NE[0] {
-				input CE = NE.IMUX_A[0];
-				input CLKI = NE.IMUX_D[7];
 			}
 
 			bel CLKTEST {
@@ -17571,6 +17577,26 @@ intdb {
 			cell QNW;
 			cell QNE;
 
+			bel DCC_SW[0] {
+				input CE = SW.IMUX_A[0];
+				input CLKI = SW.IMUX_D[7];
+			}
+
+			bel DCC_SE[0] {
+				input CE = SE.IMUX_A[0];
+				input CLKI = SE.IMUX_D[7];
+			}
+
+			bel DCC_NW[0] {
+				input CE = NW.IMUX_A[0];
+				input CLKI = NW.IMUX_D[7];
+			}
+
+			bel DCC_NE[0] {
+				input CE = NE.IMUX_A[0];
+				input CLKI = NE.IMUX_D[7];
+			}
+
 			bel CLK_ROOT {
 				output PCLK0_NE = SE.PCLK[0];
 				output PCLK0_NW = SW.PCLK[0];
@@ -17636,26 +17662,6 @@ intdb {
 				output PCLK9_NW = SW.PCLK[9];
 				output PCLK9_SE = QSE.PCLK[9];
 				output PCLK9_SW = QSW.PCLK[9];
-			}
-
-			bel DCC_SW[0] {
-				input CE = SW.IMUX_A[0];
-				input CLKI = SW.IMUX_D[7];
-			}
-
-			bel DCC_SE[0] {
-				input CE = SE.IMUX_A[0];
-				input CLKI = SE.IMUX_D[7];
-			}
-
-			bel DCC_NW[0] {
-				input CE = NW.IMUX_A[0];
-				input CLKI = NW.IMUX_D[7];
-			}
-
-			bel DCC_NE[0] {
-				input CE = NE.IMUX_A[0];
-				input CLKI = NE.IMUX_D[7];
 			}
 
 			bel CLKTEST {

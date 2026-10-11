@@ -14069,6 +14069,12 @@ intdb {
 		output AF;
 	}
 
+	bel_class DCC {
+		input CLKI;
+		input CE;
+		output CLKO;
+	}
+
 	bel_class DCS {
 		input CLK[2];
 		input SEL;
@@ -14119,11 +14125,7 @@ intdb {
 		output AUTODONE;
 	}
 
-	bel_class HSDCLK_ROOT {
-		output OUT_W[8];
-		output OUT_E[8];
-	}
-
+	region_slot PCLK;
 	region_slot RPCLK[0];
 	region_slot RPCLK[1];
 	region_slot RPCLK[2];
@@ -14375,6 +14377,22 @@ intdb {
 	wire X6_N6[1]: branch S;
 	wire X6_N6[2]: branch S;
 	wire X6_N6[3]: branch S;
+	wire SCLK_ROOT[0]: regional PCLK;
+	wire SCLK_ROOT[1]: regional PCLK;
+	wire SCLK_ROOT[2]: regional PCLK;
+	wire SCLK_ROOT[3]: regional PCLK;
+	wire SCLK_ROOT[4]: regional PCLK;
+	wire SCLK_ROOT[5]: regional PCLK;
+	wire SCLK_ROOT[6]: regional PCLK;
+	wire SCLK_ROOT[7]: regional PCLK;
+	wire PCLK_ROOT[0]: regional PCLK;
+	wire PCLK_ROOT[1]: regional PCLK;
+	wire PCLK_ROOT[2]: regional PCLK;
+	wire PCLK_ROOT[3]: regional PCLK;
+	wire PCLK_ROOT[4]: regional PCLK;
+	wire PCLK_ROOT[5]: regional PCLK;
+	wire PCLK_ROOT[6]: regional PCLK;
+	wire PCLK_ROOT[7]: regional PCLK;
 	wire RPCLK[0]: regional RPCLK[0];
 	wire RPCLK[1]: regional RPCLK[1];
 	wire RPCLK[2]: regional RPCLK[2];
@@ -16126,8 +16144,8 @@ intdb {
 		bel_slot DQSDLL: legacy;
 		bel_slot START: START;
 		bel_slot GSR: GSR;
-		bel_slot DQSDLLTEST: legacy;
 		bel_slot PLLREFCS[0]: legacy;
+		bel_slot DQSDLLTEST: legacy;
 		bel_slot JTAG: JTAG;
 		bel_slot OSC: OSC;
 		bel_slot TSALL: TSALL;
@@ -18489,703 +18507,702 @@ intdb {
 		}
 	}
 
-	tile_slot PCLK_SOURCE {
-		bel_slot PCLK_SOURCE_W: legacy;
-		bel_slot PCLK_SOURCE_E: legacy;
-		bel_slot PCLK_DCC[0]: legacy;
-		bel_slot PCLK_DCC[1]: legacy;
+	tile_slot RPCLK_DRIVER {
+		bel_slot RPCLK_DRIVER: routing;
+		bel_slot RPCLK_DCC_S[0]: DCC;
+		bel_slot RPCLK_DCC_S[1]: DCC;
+		bel_slot RPCLK_DCC_N[0]: DCC;
+		bel_slot RPCLK_DCC_N[1]: DCC;
 
-		tile_class PCLK0_SOURCE_IO_N {
+		tile_class RPCLK0_DRIVER_IO_N {
 			cell CELL;
 
-			bel PCLK_DCC[0] {
+			bel RPCLK_DCC_N[0] {
+				input CLKI = PCLK_ROOT[0];
 				input CE = IMUX_D[6];
-				output OUT_N = RPCLK[0];
+				output CLKO = RPCLK[0];
 			}
 
-			bel PCLK_DCC[1] {
+			bel RPCLK_DCC_N[1] {
+				input CLKI = PCLK_ROOT[4];
 				input CE = IMUX_D[7];
-				output OUT_N = RPCLK[4];
+				output CLKO = RPCLK[4];
 			}
 
-			// wire RPCLK[0]                       PCLK_DCC[0].OUT_N
-			// wire RPCLK[4]                       PCLK_DCC[1].OUT_N
-			// wire IMUX_D[6]                      PCLK_DCC[0].CE
-			// wire IMUX_D[7]                      PCLK_DCC[1].CE
+			// wire PCLK_ROOT[0]                   RPCLK_DCC_N[0].CLKI
+			// wire PCLK_ROOT[4]                   RPCLK_DCC_N[1].CLKI
+			// wire RPCLK[0]                       RPCLK_DCC_N[0].CLKO
+			// wire RPCLK[4]                       RPCLK_DCC_N[1].CLKO
+			// wire IMUX_D[6]                      RPCLK_DCC_N[0].CE
+			// wire IMUX_D[7]                      RPCLK_DCC_N[1].CE
 		}
 
-		tile_class PCLK0_SOURCE_N {
+		tile_class RPCLK0_DRIVER_IO_N_W {
 			cell CELL;
 
-			bel PCLK_DCC[0] {
+			switchbox RPCLK_DRIVER {
+				permabuf RPCLK[2] = PCLK_ROOT[2];
+				permabuf RPCLK[3] = PCLK_ROOT[3];
+				permabuf RPCLK[6] = PCLK_ROOT[6];
+				permabuf RPCLK[7] = PCLK_ROOT[7];
+			}
+
+			bel RPCLK_DCC_N[0] {
+				input CLKI = PCLK_ROOT[0];
 				input CE = IMUX_D[6];
-				output OUT_N = RPCLK[0];
+				output CLKO = RPCLK[0];
 			}
 
-			bel PCLK_DCC[1] {
+			bel RPCLK_DCC_N[1] {
+				input CLKI = PCLK_ROOT[4];
 				input CE = IMUX_D[7];
-				output OUT_N = RPCLK[4];
+				output CLKO = RPCLK[4];
 			}
 
-			// wire RPCLK[0]                       PCLK_DCC[0].OUT_N
-			// wire RPCLK[4]                       PCLK_DCC[1].OUT_N
-			// wire IMUX_D[6]                      PCLK_DCC[0].CE
-			// wire IMUX_D[7]                      PCLK_DCC[1].CE
+			// wire PCLK_ROOT[0]                   RPCLK_DCC_N[0].CLKI
+			// wire PCLK_ROOT[4]                   RPCLK_DCC_N[1].CLKI
+			// wire RPCLK[0]                       RPCLK_DCC_N[0].CLKO
+			// wire RPCLK[4]                       RPCLK_DCC_N[1].CLKO
+			// wire IMUX_D[6]                      RPCLK_DCC_N[0].CE
+			// wire IMUX_D[7]                      RPCLK_DCC_N[1].CE
 		}
 
-		tile_class PCLK0_SOURCE_IO_N_W {
+		tile_class RPCLK0_DRIVER_IO_N_E {
 			cell CELL;
 
-			bel PCLK_SOURCE_W {
-				output OUT_N2 = RPCLK[2];
-				output OUT_N3 = RPCLK[3];
-				output OUT_N6 = RPCLK[6];
-				output OUT_N7 = RPCLK[7];
+			switchbox RPCLK_DRIVER {
+				permabuf RPCLK[1] = PCLK_ROOT[1];
+				permabuf RPCLK[5] = PCLK_ROOT[5];
 			}
 
-			bel PCLK_DCC[0] {
+			bel RPCLK_DCC_N[0] {
+				input CLKI = PCLK_ROOT[0];
 				input CE = IMUX_D[6];
-				output OUT_N = RPCLK[0];
+				output CLKO = RPCLK[0];
 			}
 
-			bel PCLK_DCC[1] {
+			bel RPCLK_DCC_N[1] {
+				input CLKI = PCLK_ROOT[4];
 				input CE = IMUX_D[7];
-				output OUT_N = RPCLK[4];
+				output CLKO = RPCLK[4];
 			}
 
-			// wire RPCLK[0]                       PCLK_DCC[0].OUT_N
-			// wire RPCLK[2]                       PCLK_SOURCE_W.OUT_N2
-			// wire RPCLK[3]                       PCLK_SOURCE_W.OUT_N3
-			// wire RPCLK[4]                       PCLK_DCC[1].OUT_N
-			// wire RPCLK[6]                       PCLK_SOURCE_W.OUT_N6
-			// wire RPCLK[7]                       PCLK_SOURCE_W.OUT_N7
-			// wire IMUX_D[6]                      PCLK_DCC[0].CE
-			// wire IMUX_D[7]                      PCLK_DCC[1].CE
+			// wire PCLK_ROOT[0]                   RPCLK_DCC_N[0].CLKI
+			// wire PCLK_ROOT[4]                   RPCLK_DCC_N[1].CLKI
+			// wire RPCLK[0]                       RPCLK_DCC_N[0].CLKO
+			// wire RPCLK[4]                       RPCLK_DCC_N[1].CLKO
+			// wire IMUX_D[6]                      RPCLK_DCC_N[0].CE
+			// wire IMUX_D[7]                      RPCLK_DCC_N[1].CE
 		}
 
-		tile_class PCLK0_SOURCE_IO_N_E {
-			cell CELL;
-
-			bel PCLK_SOURCE_E {
-				output OUT_N1 = RPCLK[1];
-				output OUT_N5 = RPCLK[5];
-			}
-
-			bel PCLK_DCC[0] {
-				input CE = IMUX_D[6];
-				output OUT_N = RPCLK[0];
-			}
-
-			bel PCLK_DCC[1] {
-				input CE = IMUX_D[7];
-				output OUT_N = RPCLK[4];
-			}
-
-			// wire RPCLK[0]                       PCLK_DCC[0].OUT_N
-			// wire RPCLK[1]                       PCLK_SOURCE_E.OUT_N1
-			// wire RPCLK[4]                       PCLK_DCC[1].OUT_N
-			// wire RPCLK[5]                       PCLK_SOURCE_E.OUT_N5
-			// wire IMUX_D[6]                      PCLK_DCC[0].CE
-			// wire IMUX_D[7]                      PCLK_DCC[1].CE
-		}
-
-		tile_class PCLK0_SOURCE {
+		tile_class RPCLK0_DRIVER {
 			cell N;
 			cell S;
 
-			bel PCLK_DCC[0] {
+			bel RPCLK_DCC_S[0] {
+				input CLKI = N.PCLK_ROOT[0];
 				input CE = N.IMUX_D[6];
-				output OUT_N = N.RPCLK[0];
-				output OUT_S = S.RPCLK[0];
+				output CLKO = S.RPCLK[0];
 			}
 
-			bel PCLK_DCC[1] {
+			bel RPCLK_DCC_S[1] {
+				input CLKI = N.PCLK_ROOT[4];
 				input CE = N.IMUX_D[7];
-				output OUT_N = N.RPCLK[4];
-				output OUT_S = S.RPCLK[4];
+				output CLKO = S.RPCLK[4];
 			}
 
-			// wire N.RPCLK[0]                     PCLK_DCC[0].OUT_N
-			// wire N.RPCLK[4]                     PCLK_DCC[1].OUT_N
-			// wire N.IMUX_D[6]                    PCLK_DCC[0].CE
-			// wire N.IMUX_D[7]                    PCLK_DCC[1].CE
-			// wire S.RPCLK[0]                     PCLK_DCC[0].OUT_S
-			// wire S.RPCLK[4]                     PCLK_DCC[1].OUT_S
+			bel RPCLK_DCC_N[0] {
+				input CLKI = N.PCLK_ROOT[0];
+				input CE = N.IMUX_D[6];
+				output CLKO = N.RPCLK[0];
+			}
+
+			bel RPCLK_DCC_N[1] {
+				input CLKI = N.PCLK_ROOT[4];
+				input CE = N.IMUX_D[7];
+				output CLKO = N.RPCLK[4];
+			}
+
+			// wire N.PCLK_ROOT[0]                 RPCLK_DCC_S[0].CLKI RPCLK_DCC_N[0].CLKI
+			// wire N.PCLK_ROOT[4]                 RPCLK_DCC_S[1].CLKI RPCLK_DCC_N[1].CLKI
+			// wire N.RPCLK[0]                     RPCLK_DCC_N[0].CLKO
+			// wire N.RPCLK[4]                     RPCLK_DCC_N[1].CLKO
+			// wire N.IMUX_D[6]                    RPCLK_DCC_S[0].CE RPCLK_DCC_N[0].CE
+			// wire N.IMUX_D[7]                    RPCLK_DCC_S[1].CE RPCLK_DCC_N[1].CE
+			// wire S.RPCLK[0]                     RPCLK_DCC_S[0].CLKO
+			// wire S.RPCLK[4]                     RPCLK_DCC_S[1].CLKO
 		}
 
-		tile_class PCLK0_SOURCE_W {
+		tile_class RPCLK0_DRIVER_W {
 			cell N;
 			cell S;
 
-			bel PCLK_SOURCE_W {
-				output OUT_N2 = N.RPCLK[2];
-				output OUT_N3 = N.RPCLK[3];
-				output OUT_N6 = N.RPCLK[6];
-				output OUT_N7 = N.RPCLK[7];
-				output OUT_S2 = S.RPCLK[2];
-				output OUT_S3 = S.RPCLK[3];
-				output OUT_S6 = S.RPCLK[6];
-				output OUT_S7 = S.RPCLK[7];
+			switchbox RPCLK_DRIVER {
+				permabuf N.RPCLK[2] = N.PCLK_ROOT[2];
+				permabuf N.RPCLK[3] = N.PCLK_ROOT[3];
+				permabuf N.RPCLK[6] = N.PCLK_ROOT[6];
+				permabuf N.RPCLK[7] = N.PCLK_ROOT[7];
+				permabuf S.RPCLK[2] = N.PCLK_ROOT[2];
+				permabuf S.RPCLK[3] = N.PCLK_ROOT[3];
+				permabuf S.RPCLK[6] = N.PCLK_ROOT[6];
+				permabuf S.RPCLK[7] = N.PCLK_ROOT[7];
 			}
 
-			bel PCLK_DCC[0] {
+			bel RPCLK_DCC_S[0] {
+				input CLKI = N.PCLK_ROOT[0];
 				input CE = N.IMUX_D[6];
-				output OUT_N = N.RPCLK[0];
-				output OUT_S = S.RPCLK[0];
+				output CLKO = S.RPCLK[0];
 			}
 
-			bel PCLK_DCC[1] {
+			bel RPCLK_DCC_S[1] {
+				input CLKI = N.PCLK_ROOT[4];
 				input CE = N.IMUX_D[7];
-				output OUT_N = N.RPCLK[4];
-				output OUT_S = S.RPCLK[4];
+				output CLKO = S.RPCLK[4];
 			}
 
-			// wire N.RPCLK[0]                     PCLK_DCC[0].OUT_N
-			// wire N.RPCLK[2]                     PCLK_SOURCE_W.OUT_N2
-			// wire N.RPCLK[3]                     PCLK_SOURCE_W.OUT_N3
-			// wire N.RPCLK[4]                     PCLK_DCC[1].OUT_N
-			// wire N.RPCLK[6]                     PCLK_SOURCE_W.OUT_N6
-			// wire N.RPCLK[7]                     PCLK_SOURCE_W.OUT_N7
-			// wire N.IMUX_D[6]                    PCLK_DCC[0].CE
-			// wire N.IMUX_D[7]                    PCLK_DCC[1].CE
-			// wire S.RPCLK[0]                     PCLK_DCC[0].OUT_S
-			// wire S.RPCLK[2]                     PCLK_SOURCE_W.OUT_S2
-			// wire S.RPCLK[3]                     PCLK_SOURCE_W.OUT_S3
-			// wire S.RPCLK[4]                     PCLK_DCC[1].OUT_S
-			// wire S.RPCLK[6]                     PCLK_SOURCE_W.OUT_S6
-			// wire S.RPCLK[7]                     PCLK_SOURCE_W.OUT_S7
+			bel RPCLK_DCC_N[0] {
+				input CLKI = N.PCLK_ROOT[0];
+				input CE = N.IMUX_D[6];
+				output CLKO = N.RPCLK[0];
+			}
+
+			bel RPCLK_DCC_N[1] {
+				input CLKI = N.PCLK_ROOT[4];
+				input CE = N.IMUX_D[7];
+				output CLKO = N.RPCLK[4];
+			}
+
+			// wire N.PCLK_ROOT[0]                 RPCLK_DCC_S[0].CLKI RPCLK_DCC_N[0].CLKI
+			// wire N.PCLK_ROOT[4]                 RPCLK_DCC_S[1].CLKI RPCLK_DCC_N[1].CLKI
+			// wire N.RPCLK[0]                     RPCLK_DCC_N[0].CLKO
+			// wire N.RPCLK[4]                     RPCLK_DCC_N[1].CLKO
+			// wire N.IMUX_D[6]                    RPCLK_DCC_S[0].CE RPCLK_DCC_N[0].CE
+			// wire N.IMUX_D[7]                    RPCLK_DCC_S[1].CE RPCLK_DCC_N[1].CE
+			// wire S.RPCLK[0]                     RPCLK_DCC_S[0].CLKO
+			// wire S.RPCLK[4]                     RPCLK_DCC_S[1].CLKO
 		}
 
-		tile_class PCLK0_SOURCE_E {
+		tile_class RPCLK0_DRIVER_E {
 			cell N;
 			cell S;
 
-			bel PCLK_SOURCE_E {
-				output OUT_N1 = N.RPCLK[1];
-				output OUT_N5 = N.RPCLK[5];
-				output OUT_S1 = S.RPCLK[1];
-				output OUT_S5 = S.RPCLK[5];
+			switchbox RPCLK_DRIVER {
+				permabuf N.RPCLK[1] = N.PCLK_ROOT[1];
+				permabuf N.RPCLK[5] = N.PCLK_ROOT[5];
+				permabuf S.RPCLK[1] = N.PCLK_ROOT[1];
+				permabuf S.RPCLK[5] = N.PCLK_ROOT[5];
 			}
 
-			bel PCLK_DCC[0] {
+			bel RPCLK_DCC_S[0] {
+				input CLKI = N.PCLK_ROOT[0];
 				input CE = N.IMUX_D[6];
-				output OUT_N = N.RPCLK[0];
-				output OUT_S = S.RPCLK[0];
+				output CLKO = S.RPCLK[0];
 			}
 
-			bel PCLK_DCC[1] {
+			bel RPCLK_DCC_S[1] {
+				input CLKI = N.PCLK_ROOT[4];
 				input CE = N.IMUX_D[7];
-				output OUT_N = N.RPCLK[4];
-				output OUT_S = S.RPCLK[4];
+				output CLKO = S.RPCLK[4];
 			}
 
-			// wire N.RPCLK[0]                     PCLK_DCC[0].OUT_N
-			// wire N.RPCLK[1]                     PCLK_SOURCE_E.OUT_N1
-			// wire N.RPCLK[4]                     PCLK_DCC[1].OUT_N
-			// wire N.RPCLK[5]                     PCLK_SOURCE_E.OUT_N5
-			// wire N.IMUX_D[6]                    PCLK_DCC[0].CE
-			// wire N.IMUX_D[7]                    PCLK_DCC[1].CE
-			// wire S.RPCLK[0]                     PCLK_DCC[0].OUT_S
-			// wire S.RPCLK[1]                     PCLK_SOURCE_E.OUT_S1
-			// wire S.RPCLK[4]                     PCLK_DCC[1].OUT_S
-			// wire S.RPCLK[5]                     PCLK_SOURCE_E.OUT_S5
+			bel RPCLK_DCC_N[0] {
+				input CLKI = N.PCLK_ROOT[0];
+				input CE = N.IMUX_D[6];
+				output CLKO = N.RPCLK[0];
+			}
+
+			bel RPCLK_DCC_N[1] {
+				input CLKI = N.PCLK_ROOT[4];
+				input CE = N.IMUX_D[7];
+				output CLKO = N.RPCLK[4];
+			}
+
+			// wire N.PCLK_ROOT[0]                 RPCLK_DCC_S[0].CLKI RPCLK_DCC_N[0].CLKI
+			// wire N.PCLK_ROOT[4]                 RPCLK_DCC_S[1].CLKI RPCLK_DCC_N[1].CLKI
+			// wire N.RPCLK[0]                     RPCLK_DCC_N[0].CLKO
+			// wire N.RPCLK[4]                     RPCLK_DCC_N[1].CLKO
+			// wire N.IMUX_D[6]                    RPCLK_DCC_S[0].CE RPCLK_DCC_N[0].CE
+			// wire N.IMUX_D[7]                    RPCLK_DCC_S[1].CE RPCLK_DCC_N[1].CE
+			// wire S.RPCLK[0]                     RPCLK_DCC_S[0].CLKO
+			// wire S.RPCLK[4]                     RPCLK_DCC_S[1].CLKO
 		}
 
-		tile_class PCLK1_SOURCE_IO_N {
+		tile_class RPCLK1_DRIVER_IO_N {
 			cell CELL;
 
-			bel PCLK_DCC[0] {
+			bel RPCLK_DCC_N[0] {
+				input CLKI = PCLK_ROOT[1];
 				input CE = IMUX_D[6];
-				output OUT_N = RPCLK[1];
+				output CLKO = RPCLK[1];
 			}
 
-			bel PCLK_DCC[1] {
+			bel RPCLK_DCC_N[1] {
+				input CLKI = PCLK_ROOT[5];
 				input CE = IMUX_D[7];
-				output OUT_N = RPCLK[5];
+				output CLKO = RPCLK[5];
 			}
 
-			// wire RPCLK[1]                       PCLK_DCC[0].OUT_N
-			// wire RPCLK[5]                       PCLK_DCC[1].OUT_N
-			// wire IMUX_D[6]                      PCLK_DCC[0].CE
-			// wire IMUX_D[7]                      PCLK_DCC[1].CE
+			// wire PCLK_ROOT[1]                   RPCLK_DCC_N[0].CLKI
+			// wire PCLK_ROOT[5]                   RPCLK_DCC_N[1].CLKI
+			// wire RPCLK[1]                       RPCLK_DCC_N[0].CLKO
+			// wire RPCLK[5]                       RPCLK_DCC_N[1].CLKO
+			// wire IMUX_D[6]                      RPCLK_DCC_N[0].CE
+			// wire IMUX_D[7]                      RPCLK_DCC_N[1].CE
 		}
 
-		tile_class PCLK1_SOURCE_N {
+		tile_class RPCLK1_DRIVER_IO_N_E {
 			cell CELL;
 
-			bel PCLK_DCC[0] {
+			switchbox RPCLK_DRIVER {
+				permabuf RPCLK[2] = PCLK_ROOT[2];
+				permabuf RPCLK[6] = PCLK_ROOT[6];
+			}
+
+			bel RPCLK_DCC_N[0] {
+				input CLKI = PCLK_ROOT[1];
 				input CE = IMUX_D[6];
-				output OUT_N = RPCLK[1];
+				output CLKO = RPCLK[1];
 			}
 
-			bel PCLK_DCC[1] {
+			bel RPCLK_DCC_N[1] {
+				input CLKI = PCLK_ROOT[5];
 				input CE = IMUX_D[7];
-				output OUT_N = RPCLK[5];
+				output CLKO = RPCLK[5];
 			}
 
-			// wire RPCLK[1]                       PCLK_DCC[0].OUT_N
-			// wire RPCLK[5]                       PCLK_DCC[1].OUT_N
-			// wire IMUX_D[6]                      PCLK_DCC[0].CE
-			// wire IMUX_D[7]                      PCLK_DCC[1].CE
+			// wire PCLK_ROOT[1]                   RPCLK_DCC_N[0].CLKI
+			// wire PCLK_ROOT[5]                   RPCLK_DCC_N[1].CLKI
+			// wire RPCLK[1]                       RPCLK_DCC_N[0].CLKO
+			// wire RPCLK[5]                       RPCLK_DCC_N[1].CLKO
+			// wire IMUX_D[6]                      RPCLK_DCC_N[0].CE
+			// wire IMUX_D[7]                      RPCLK_DCC_N[1].CE
 		}
 
-		tile_class PCLK1_SOURCE_N_W {
-			cell CELL;
-
-			bel PCLK_SOURCE_W {
-				output OUT_N0 = RPCLK[0];
-				output OUT_N3 = RPCLK[3];
-				output OUT_N4 = RPCLK[4];
-				output OUT_N7 = RPCLK[7];
-			}
-
-			bel PCLK_DCC[0] {
-				input CE = IMUX_D[6];
-				output OUT_N = RPCLK[1];
-			}
-
-			bel PCLK_DCC[1] {
-				input CE = IMUX_D[7];
-				output OUT_N = RPCLK[5];
-			}
-
-			// wire RPCLK[0]                       PCLK_SOURCE_W.OUT_N0
-			// wire RPCLK[1]                       PCLK_DCC[0].OUT_N
-			// wire RPCLK[3]                       PCLK_SOURCE_W.OUT_N3
-			// wire RPCLK[4]                       PCLK_SOURCE_W.OUT_N4
-			// wire RPCLK[5]                       PCLK_DCC[1].OUT_N
-			// wire RPCLK[7]                       PCLK_SOURCE_W.OUT_N7
-			// wire IMUX_D[6]                      PCLK_DCC[0].CE
-			// wire IMUX_D[7]                      PCLK_DCC[1].CE
-		}
-
-		tile_class PCLK1_SOURCE_IO_N_E {
-			cell CELL;
-
-			bel PCLK_SOURCE_E {
-				output OUT_N2 = RPCLK[2];
-				output OUT_N6 = RPCLK[6];
-			}
-
-			bel PCLK_DCC[0] {
-				input CE = IMUX_D[6];
-				output OUT_N = RPCLK[1];
-			}
-
-			bel PCLK_DCC[1] {
-				input CE = IMUX_D[7];
-				output OUT_N = RPCLK[5];
-			}
-
-			// wire RPCLK[1]                       PCLK_DCC[0].OUT_N
-			// wire RPCLK[2]                       PCLK_SOURCE_E.OUT_N2
-			// wire RPCLK[5]                       PCLK_DCC[1].OUT_N
-			// wire RPCLK[6]                       PCLK_SOURCE_E.OUT_N6
-			// wire IMUX_D[6]                      PCLK_DCC[0].CE
-			// wire IMUX_D[7]                      PCLK_DCC[1].CE
-		}
-
-		tile_class PCLK1_SOURCE_N_E {
-			cell CELL;
-
-			bel PCLK_SOURCE_E {
-				output OUT_N2 = RPCLK[2];
-				output OUT_N6 = RPCLK[6];
-			}
-
-			bel PCLK_DCC[0] {
-				input CE = IMUX_D[6];
-				output OUT_N = RPCLK[1];
-			}
-
-			bel PCLK_DCC[1] {
-				input CE = IMUX_D[7];
-				output OUT_N = RPCLK[5];
-			}
-
-			// wire RPCLK[1]                       PCLK_DCC[0].OUT_N
-			// wire RPCLK[2]                       PCLK_SOURCE_E.OUT_N2
-			// wire RPCLK[5]                       PCLK_DCC[1].OUT_N
-			// wire RPCLK[6]                       PCLK_SOURCE_E.OUT_N6
-			// wire IMUX_D[6]                      PCLK_DCC[0].CE
-			// wire IMUX_D[7]                      PCLK_DCC[1].CE
-		}
-
-		tile_class PCLK1_SOURCE {
+		tile_class RPCLK1_DRIVER {
 			cell N;
 			cell S;
 
-			bel PCLK_DCC[0] {
+			bel RPCLK_DCC_S[0] {
+				input CLKI = N.PCLK_ROOT[1];
 				input CE = N.IMUX_D[6];
-				output OUT_N = N.RPCLK[1];
-				output OUT_S = S.RPCLK[1];
+				output CLKO = S.RPCLK[1];
 			}
 
-			bel PCLK_DCC[1] {
+			bel RPCLK_DCC_S[1] {
+				input CLKI = N.PCLK_ROOT[5];
 				input CE = N.IMUX_D[7];
-				output OUT_N = N.RPCLK[5];
-				output OUT_S = S.RPCLK[5];
+				output CLKO = S.RPCLK[5];
 			}
 
-			// wire N.RPCLK[1]                     PCLK_DCC[0].OUT_N
-			// wire N.RPCLK[5]                     PCLK_DCC[1].OUT_N
-			// wire N.IMUX_D[6]                    PCLK_DCC[0].CE
-			// wire N.IMUX_D[7]                    PCLK_DCC[1].CE
-			// wire S.RPCLK[1]                     PCLK_DCC[0].OUT_S
-			// wire S.RPCLK[5]                     PCLK_DCC[1].OUT_S
+			bel RPCLK_DCC_N[0] {
+				input CLKI = N.PCLK_ROOT[1];
+				input CE = N.IMUX_D[6];
+				output CLKO = N.RPCLK[1];
+			}
+
+			bel RPCLK_DCC_N[1] {
+				input CLKI = N.PCLK_ROOT[5];
+				input CE = N.IMUX_D[7];
+				output CLKO = N.RPCLK[5];
+			}
+
+			// wire N.PCLK_ROOT[1]                 RPCLK_DCC_S[0].CLKI RPCLK_DCC_N[0].CLKI
+			// wire N.PCLK_ROOT[5]                 RPCLK_DCC_S[1].CLKI RPCLK_DCC_N[1].CLKI
+			// wire N.RPCLK[1]                     RPCLK_DCC_N[0].CLKO
+			// wire N.RPCLK[5]                     RPCLK_DCC_N[1].CLKO
+			// wire N.IMUX_D[6]                    RPCLK_DCC_S[0].CE RPCLK_DCC_N[0].CE
+			// wire N.IMUX_D[7]                    RPCLK_DCC_S[1].CE RPCLK_DCC_N[1].CE
+			// wire S.RPCLK[1]                     RPCLK_DCC_S[0].CLKO
+			// wire S.RPCLK[5]                     RPCLK_DCC_S[1].CLKO
 		}
 
-		tile_class PCLK1_SOURCE_W {
+		tile_class RPCLK1_DRIVER_W {
 			cell N;
 			cell S;
 
-			bel PCLK_SOURCE_W {
-				output OUT_N0 = N.RPCLK[0];
-				output OUT_N3 = N.RPCLK[3];
-				output OUT_N4 = N.RPCLK[4];
-				output OUT_N7 = N.RPCLK[7];
-				output OUT_S0 = S.RPCLK[0];
-				output OUT_S3 = S.RPCLK[3];
-				output OUT_S4 = S.RPCLK[4];
-				output OUT_S7 = S.RPCLK[7];
+			switchbox RPCLK_DRIVER {
+				permabuf N.RPCLK[0] = N.PCLK_ROOT[0];
+				permabuf N.RPCLK[3] = N.PCLK_ROOT[3];
+				permabuf N.RPCLK[4] = N.PCLK_ROOT[4];
+				permabuf N.RPCLK[7] = N.PCLK_ROOT[7];
+				permabuf S.RPCLK[0] = N.PCLK_ROOT[0];
+				permabuf S.RPCLK[3] = N.PCLK_ROOT[3];
+				permabuf S.RPCLK[4] = N.PCLK_ROOT[4];
+				permabuf S.RPCLK[7] = N.PCLK_ROOT[7];
 			}
 
-			bel PCLK_DCC[0] {
+			bel RPCLK_DCC_S[0] {
+				input CLKI = N.PCLK_ROOT[1];
 				input CE = N.IMUX_D[6];
-				output OUT_N = N.RPCLK[1];
-				output OUT_S = S.RPCLK[1];
+				output CLKO = S.RPCLK[1];
 			}
 
-			bel PCLK_DCC[1] {
+			bel RPCLK_DCC_S[1] {
+				input CLKI = N.PCLK_ROOT[5];
 				input CE = N.IMUX_D[7];
-				output OUT_N = N.RPCLK[5];
-				output OUT_S = S.RPCLK[5];
+				output CLKO = S.RPCLK[5];
 			}
 
-			// wire N.RPCLK[0]                     PCLK_SOURCE_W.OUT_N0
-			// wire N.RPCLK[1]                     PCLK_DCC[0].OUT_N
-			// wire N.RPCLK[3]                     PCLK_SOURCE_W.OUT_N3
-			// wire N.RPCLK[4]                     PCLK_SOURCE_W.OUT_N4
-			// wire N.RPCLK[5]                     PCLK_DCC[1].OUT_N
-			// wire N.RPCLK[7]                     PCLK_SOURCE_W.OUT_N7
-			// wire N.IMUX_D[6]                    PCLK_DCC[0].CE
-			// wire N.IMUX_D[7]                    PCLK_DCC[1].CE
-			// wire S.RPCLK[0]                     PCLK_SOURCE_W.OUT_S0
-			// wire S.RPCLK[1]                     PCLK_DCC[0].OUT_S
-			// wire S.RPCLK[3]                     PCLK_SOURCE_W.OUT_S3
-			// wire S.RPCLK[4]                     PCLK_SOURCE_W.OUT_S4
-			// wire S.RPCLK[5]                     PCLK_DCC[1].OUT_S
-			// wire S.RPCLK[7]                     PCLK_SOURCE_W.OUT_S7
+			bel RPCLK_DCC_N[0] {
+				input CLKI = N.PCLK_ROOT[1];
+				input CE = N.IMUX_D[6];
+				output CLKO = N.RPCLK[1];
+			}
+
+			bel RPCLK_DCC_N[1] {
+				input CLKI = N.PCLK_ROOT[5];
+				input CE = N.IMUX_D[7];
+				output CLKO = N.RPCLK[5];
+			}
+
+			// wire N.PCLK_ROOT[1]                 RPCLK_DCC_S[0].CLKI RPCLK_DCC_N[0].CLKI
+			// wire N.PCLK_ROOT[5]                 RPCLK_DCC_S[1].CLKI RPCLK_DCC_N[1].CLKI
+			// wire N.RPCLK[1]                     RPCLK_DCC_N[0].CLKO
+			// wire N.RPCLK[5]                     RPCLK_DCC_N[1].CLKO
+			// wire N.IMUX_D[6]                    RPCLK_DCC_S[0].CE RPCLK_DCC_N[0].CE
+			// wire N.IMUX_D[7]                    RPCLK_DCC_S[1].CE RPCLK_DCC_N[1].CE
+			// wire S.RPCLK[1]                     RPCLK_DCC_S[0].CLKO
+			// wire S.RPCLK[5]                     RPCLK_DCC_S[1].CLKO
 		}
 
-		tile_class PCLK1_SOURCE_E {
+		tile_class RPCLK1_DRIVER_E {
 			cell N;
 			cell S;
 
-			bel PCLK_SOURCE_E {
-				output OUT_N2 = N.RPCLK[2];
-				output OUT_N6 = N.RPCLK[6];
-				output OUT_S2 = S.RPCLK[2];
-				output OUT_S6 = S.RPCLK[6];
+			switchbox RPCLK_DRIVER {
+				permabuf N.RPCLK[2] = N.PCLK_ROOT[2];
+				permabuf N.RPCLK[6] = N.PCLK_ROOT[6];
+				permabuf S.RPCLK[2] = N.PCLK_ROOT[2];
+				permabuf S.RPCLK[6] = N.PCLK_ROOT[6];
 			}
 
-			bel PCLK_DCC[0] {
+			bel RPCLK_DCC_S[0] {
+				input CLKI = N.PCLK_ROOT[1];
 				input CE = N.IMUX_D[6];
-				output OUT_N = N.RPCLK[1];
-				output OUT_S = S.RPCLK[1];
+				output CLKO = S.RPCLK[1];
 			}
 
-			bel PCLK_DCC[1] {
+			bel RPCLK_DCC_S[1] {
+				input CLKI = N.PCLK_ROOT[5];
 				input CE = N.IMUX_D[7];
-				output OUT_N = N.RPCLK[5];
-				output OUT_S = S.RPCLK[5];
+				output CLKO = S.RPCLK[5];
 			}
 
-			// wire N.RPCLK[1]                     PCLK_DCC[0].OUT_N
-			// wire N.RPCLK[2]                     PCLK_SOURCE_E.OUT_N2
-			// wire N.RPCLK[5]                     PCLK_DCC[1].OUT_N
-			// wire N.RPCLK[6]                     PCLK_SOURCE_E.OUT_N6
-			// wire N.IMUX_D[6]                    PCLK_DCC[0].CE
-			// wire N.IMUX_D[7]                    PCLK_DCC[1].CE
-			// wire S.RPCLK[1]                     PCLK_DCC[0].OUT_S
-			// wire S.RPCLK[2]                     PCLK_SOURCE_E.OUT_S2
-			// wire S.RPCLK[5]                     PCLK_DCC[1].OUT_S
-			// wire S.RPCLK[6]                     PCLK_SOURCE_E.OUT_S6
+			bel RPCLK_DCC_N[0] {
+				input CLKI = N.PCLK_ROOT[1];
+				input CE = N.IMUX_D[6];
+				output CLKO = N.RPCLK[1];
+			}
+
+			bel RPCLK_DCC_N[1] {
+				input CLKI = N.PCLK_ROOT[5];
+				input CE = N.IMUX_D[7];
+				output CLKO = N.RPCLK[5];
+			}
+
+			// wire N.PCLK_ROOT[1]                 RPCLK_DCC_S[0].CLKI RPCLK_DCC_N[0].CLKI
+			// wire N.PCLK_ROOT[5]                 RPCLK_DCC_S[1].CLKI RPCLK_DCC_N[1].CLKI
+			// wire N.RPCLK[1]                     RPCLK_DCC_N[0].CLKO
+			// wire N.RPCLK[5]                     RPCLK_DCC_N[1].CLKO
+			// wire N.IMUX_D[6]                    RPCLK_DCC_S[0].CE RPCLK_DCC_N[0].CE
+			// wire N.IMUX_D[7]                    RPCLK_DCC_S[1].CE RPCLK_DCC_N[1].CE
+			// wire S.RPCLK[1]                     RPCLK_DCC_S[0].CLKO
+			// wire S.RPCLK[5]                     RPCLK_DCC_S[1].CLKO
 		}
 
-		tile_class PCLK2_SOURCE_IO_N {
+		tile_class RPCLK2_DRIVER_IO_N {
 			cell CELL;
 
-			bel PCLK_DCC[0] {
+			bel RPCLK_DCC_N[0] {
+				input CLKI = PCLK_ROOT[2];
 				input CE = IMUX_D[6];
-				output OUT_N = RPCLK[2];
+				output CLKO = RPCLK[2];
 			}
 
-			bel PCLK_DCC[1] {
+			bel RPCLK_DCC_N[1] {
+				input CLKI = PCLK_ROOT[6];
 				input CE = IMUX_D[7];
-				output OUT_N = RPCLK[6];
+				output CLKO = RPCLK[6];
 			}
 
-			// wire RPCLK[2]                       PCLK_DCC[0].OUT_N
-			// wire RPCLK[6]                       PCLK_DCC[1].OUT_N
-			// wire IMUX_D[6]                      PCLK_DCC[0].CE
-			// wire IMUX_D[7]                      PCLK_DCC[1].CE
+			// wire PCLK_ROOT[2]                   RPCLK_DCC_N[0].CLKI
+			// wire PCLK_ROOT[6]                   RPCLK_DCC_N[1].CLKI
+			// wire RPCLK[2]                       RPCLK_DCC_N[0].CLKO
+			// wire RPCLK[6]                       RPCLK_DCC_N[1].CLKO
+			// wire IMUX_D[6]                      RPCLK_DCC_N[0].CE
+			// wire IMUX_D[7]                      RPCLK_DCC_N[1].CE
 		}
 
-		tile_class PCLK2_SOURCE_N {
+		tile_class RPCLK2_DRIVER {
+			cell N;
+			cell S;
+
+			bel RPCLK_DCC_S[0] {
+				input CLKI = N.PCLK_ROOT[2];
+				input CE = N.IMUX_D[6];
+				output CLKO = S.RPCLK[2];
+			}
+
+			bel RPCLK_DCC_S[1] {
+				input CLKI = N.PCLK_ROOT[6];
+				input CE = N.IMUX_D[7];
+				output CLKO = S.RPCLK[6];
+			}
+
+			bel RPCLK_DCC_N[0] {
+				input CLKI = N.PCLK_ROOT[2];
+				input CE = N.IMUX_D[6];
+				output CLKO = N.RPCLK[2];
+			}
+
+			bel RPCLK_DCC_N[1] {
+				input CLKI = N.PCLK_ROOT[6];
+				input CE = N.IMUX_D[7];
+				output CLKO = N.RPCLK[6];
+			}
+
+			// wire N.PCLK_ROOT[2]                 RPCLK_DCC_S[0].CLKI RPCLK_DCC_N[0].CLKI
+			// wire N.PCLK_ROOT[6]                 RPCLK_DCC_S[1].CLKI RPCLK_DCC_N[1].CLKI
+			// wire N.RPCLK[2]                     RPCLK_DCC_N[0].CLKO
+			// wire N.RPCLK[6]                     RPCLK_DCC_N[1].CLKO
+			// wire N.IMUX_D[6]                    RPCLK_DCC_S[0].CE RPCLK_DCC_N[0].CE
+			// wire N.IMUX_D[7]                    RPCLK_DCC_S[1].CE RPCLK_DCC_N[1].CE
+			// wire S.RPCLK[2]                     RPCLK_DCC_S[0].CLKO
+			// wire S.RPCLK[6]                     RPCLK_DCC_S[1].CLKO
+		}
+
+		tile_class RPCLK2_DRIVER_W {
+			cell N;
+			cell S;
+
+			switchbox RPCLK_DRIVER {
+				permabuf N.RPCLK[0] = N.PCLK_ROOT[0];
+				permabuf N.RPCLK[1] = N.PCLK_ROOT[1];
+				permabuf N.RPCLK[4] = N.PCLK_ROOT[4];
+				permabuf N.RPCLK[5] = N.PCLK_ROOT[5];
+				permabuf S.RPCLK[0] = N.PCLK_ROOT[0];
+				permabuf S.RPCLK[1] = N.PCLK_ROOT[1];
+				permabuf S.RPCLK[4] = N.PCLK_ROOT[4];
+				permabuf S.RPCLK[5] = N.PCLK_ROOT[5];
+			}
+
+			bel RPCLK_DCC_S[0] {
+				input CLKI = N.PCLK_ROOT[2];
+				input CE = N.IMUX_D[6];
+				output CLKO = S.RPCLK[2];
+			}
+
+			bel RPCLK_DCC_S[1] {
+				input CLKI = N.PCLK_ROOT[6];
+				input CE = N.IMUX_D[7];
+				output CLKO = S.RPCLK[6];
+			}
+
+			bel RPCLK_DCC_N[0] {
+				input CLKI = N.PCLK_ROOT[2];
+				input CE = N.IMUX_D[6];
+				output CLKO = N.RPCLK[2];
+			}
+
+			bel RPCLK_DCC_N[1] {
+				input CLKI = N.PCLK_ROOT[6];
+				input CE = N.IMUX_D[7];
+				output CLKO = N.RPCLK[6];
+			}
+
+			// wire N.PCLK_ROOT[2]                 RPCLK_DCC_S[0].CLKI RPCLK_DCC_N[0].CLKI
+			// wire N.PCLK_ROOT[6]                 RPCLK_DCC_S[1].CLKI RPCLK_DCC_N[1].CLKI
+			// wire N.RPCLK[2]                     RPCLK_DCC_N[0].CLKO
+			// wire N.RPCLK[6]                     RPCLK_DCC_N[1].CLKO
+			// wire N.IMUX_D[6]                    RPCLK_DCC_S[0].CE RPCLK_DCC_N[0].CE
+			// wire N.IMUX_D[7]                    RPCLK_DCC_S[1].CE RPCLK_DCC_N[1].CE
+			// wire S.RPCLK[2]                     RPCLK_DCC_S[0].CLKO
+			// wire S.RPCLK[6]                     RPCLK_DCC_S[1].CLKO
+		}
+
+		tile_class RPCLK3_DRIVER_IO_N {
 			cell CELL;
 
-			bel PCLK_DCC[0] {
+			bel RPCLK_DCC_N[0] {
+				input CLKI = PCLK_ROOT[3];
 				input CE = IMUX_D[6];
-				output OUT_N = RPCLK[2];
+				output CLKO = RPCLK[3];
 			}
 
-			bel PCLK_DCC[1] {
+			bel RPCLK_DCC_N[1] {
+				input CLKI = PCLK_ROOT[7];
 				input CE = IMUX_D[7];
-				output OUT_N = RPCLK[6];
+				output CLKO = RPCLK[7];
 			}
 
-			// wire RPCLK[2]                       PCLK_DCC[0].OUT_N
-			// wire RPCLK[6]                       PCLK_DCC[1].OUT_N
-			// wire IMUX_D[6]                      PCLK_DCC[0].CE
-			// wire IMUX_D[7]                      PCLK_DCC[1].CE
+			// wire PCLK_ROOT[3]                   RPCLK_DCC_N[0].CLKI
+			// wire PCLK_ROOT[7]                   RPCLK_DCC_N[1].CLKI
+			// wire RPCLK[3]                       RPCLK_DCC_N[0].CLKO
+			// wire RPCLK[7]                       RPCLK_DCC_N[1].CLKO
+			// wire IMUX_D[6]                      RPCLK_DCC_N[0].CE
+			// wire IMUX_D[7]                      RPCLK_DCC_N[1].CE
 		}
 
-		tile_class PCLK2_SOURCE {
-			cell N;
-			cell S;
-
-			bel PCLK_DCC[0] {
-				input CE = N.IMUX_D[6];
-				output OUT_N = N.RPCLK[2];
-				output OUT_S = S.RPCLK[2];
-			}
-
-			bel PCLK_DCC[1] {
-				input CE = N.IMUX_D[7];
-				output OUT_N = N.RPCLK[6];
-				output OUT_S = S.RPCLK[6];
-			}
-
-			// wire N.RPCLK[2]                     PCLK_DCC[0].OUT_N
-			// wire N.RPCLK[6]                     PCLK_DCC[1].OUT_N
-			// wire N.IMUX_D[6]                    PCLK_DCC[0].CE
-			// wire N.IMUX_D[7]                    PCLK_DCC[1].CE
-			// wire S.RPCLK[2]                     PCLK_DCC[0].OUT_S
-			// wire S.RPCLK[6]                     PCLK_DCC[1].OUT_S
-		}
-
-		tile_class PCLK2_SOURCE_W {
-			cell N;
-			cell S;
-
-			bel PCLK_SOURCE_W {
-				output OUT_N0 = N.RPCLK[0];
-				output OUT_N1 = N.RPCLK[1];
-				output OUT_N4 = N.RPCLK[4];
-				output OUT_N5 = N.RPCLK[5];
-				output OUT_S0 = S.RPCLK[0];
-				output OUT_S1 = S.RPCLK[1];
-				output OUT_S4 = S.RPCLK[4];
-				output OUT_S5 = S.RPCLK[5];
-			}
-
-			bel PCLK_DCC[0] {
-				input CE = N.IMUX_D[6];
-				output OUT_N = N.RPCLK[2];
-				output OUT_S = S.RPCLK[2];
-			}
-
-			bel PCLK_DCC[1] {
-				input CE = N.IMUX_D[7];
-				output OUT_N = N.RPCLK[6];
-				output OUT_S = S.RPCLK[6];
-			}
-
-			// wire N.RPCLK[0]                     PCLK_SOURCE_W.OUT_N0
-			// wire N.RPCLK[1]                     PCLK_SOURCE_W.OUT_N1
-			// wire N.RPCLK[2]                     PCLK_DCC[0].OUT_N
-			// wire N.RPCLK[4]                     PCLK_SOURCE_W.OUT_N4
-			// wire N.RPCLK[5]                     PCLK_SOURCE_W.OUT_N5
-			// wire N.RPCLK[6]                     PCLK_DCC[1].OUT_N
-			// wire N.IMUX_D[6]                    PCLK_DCC[0].CE
-			// wire N.IMUX_D[7]                    PCLK_DCC[1].CE
-			// wire S.RPCLK[0]                     PCLK_SOURCE_W.OUT_S0
-			// wire S.RPCLK[1]                     PCLK_SOURCE_W.OUT_S1
-			// wire S.RPCLK[2]                     PCLK_DCC[0].OUT_S
-			// wire S.RPCLK[4]                     PCLK_SOURCE_W.OUT_S4
-			// wire S.RPCLK[5]                     PCLK_SOURCE_W.OUT_S5
-			// wire S.RPCLK[6]                     PCLK_DCC[1].OUT_S
-		}
-
-		tile_class PCLK3_SOURCE_IO_N {
+		tile_class RPCLK3_DRIVER_IO_N_W {
 			cell CELL;
 
-			bel PCLK_DCC[0] {
+			switchbox RPCLK_DRIVER {
+				permabuf RPCLK[1] = PCLK_ROOT[1];
+				permabuf RPCLK[2] = PCLK_ROOT[2];
+				permabuf RPCLK[5] = PCLK_ROOT[5];
+				permabuf RPCLK[6] = PCLK_ROOT[6];
+			}
+
+			bel RPCLK_DCC_N[0] {
+				input CLKI = PCLK_ROOT[3];
 				input CE = IMUX_D[6];
-				output OUT_N = RPCLK[3];
+				output CLKO = RPCLK[3];
 			}
 
-			bel PCLK_DCC[1] {
+			bel RPCLK_DCC_N[1] {
+				input CLKI = PCLK_ROOT[7];
 				input CE = IMUX_D[7];
-				output OUT_N = RPCLK[7];
+				output CLKO = RPCLK[7];
 			}
 
-			// wire RPCLK[3]                       PCLK_DCC[0].OUT_N
-			// wire RPCLK[7]                       PCLK_DCC[1].OUT_N
-			// wire IMUX_D[6]                      PCLK_DCC[0].CE
-			// wire IMUX_D[7]                      PCLK_DCC[1].CE
+			// wire PCLK_ROOT[3]                   RPCLK_DCC_N[0].CLKI
+			// wire PCLK_ROOT[7]                   RPCLK_DCC_N[1].CLKI
+			// wire RPCLK[3]                       RPCLK_DCC_N[0].CLKO
+			// wire RPCLK[7]                       RPCLK_DCC_N[1].CLKO
+			// wire IMUX_D[6]                      RPCLK_DCC_N[0].CE
+			// wire IMUX_D[7]                      RPCLK_DCC_N[1].CE
 		}
 
-		tile_class PCLK3_SOURCE_N {
-			cell CELL;
-
-			bel PCLK_DCC[0] {
-				input CE = IMUX_D[6];
-				output OUT_N = RPCLK[3];
-			}
-
-			bel PCLK_DCC[1] {
-				input CE = IMUX_D[7];
-				output OUT_N = RPCLK[7];
-			}
-
-			// wire RPCLK[3]                       PCLK_DCC[0].OUT_N
-			// wire RPCLK[7]                       PCLK_DCC[1].OUT_N
-			// wire IMUX_D[6]                      PCLK_DCC[0].CE
-			// wire IMUX_D[7]                      PCLK_DCC[1].CE
-		}
-
-		tile_class PCLK3_SOURCE_IO_N_W {
-			cell CELL;
-
-			bel PCLK_SOURCE_W {
-				output OUT_N1 = RPCLK[1];
-				output OUT_N2 = RPCLK[2];
-				output OUT_N5 = RPCLK[5];
-				output OUT_N6 = RPCLK[6];
-			}
-
-			bel PCLK_DCC[0] {
-				input CE = IMUX_D[6];
-				output OUT_N = RPCLK[3];
-			}
-
-			bel PCLK_DCC[1] {
-				input CE = IMUX_D[7];
-				output OUT_N = RPCLK[7];
-			}
-
-			// wire RPCLK[1]                       PCLK_SOURCE_W.OUT_N1
-			// wire RPCLK[2]                       PCLK_SOURCE_W.OUT_N2
-			// wire RPCLK[3]                       PCLK_DCC[0].OUT_N
-			// wire RPCLK[5]                       PCLK_SOURCE_W.OUT_N5
-			// wire RPCLK[6]                       PCLK_SOURCE_W.OUT_N6
-			// wire RPCLK[7]                       PCLK_DCC[1].OUT_N
-			// wire IMUX_D[6]                      PCLK_DCC[0].CE
-			// wire IMUX_D[7]                      PCLK_DCC[1].CE
-		}
-
-		tile_class PCLK3_SOURCE {
+		tile_class RPCLK3_DRIVER {
 			cell N;
 			cell S;
 
-			bel PCLK_DCC[0] {
+			bel RPCLK_DCC_S[0] {
+				input CLKI = N.PCLK_ROOT[3];
 				input CE = N.IMUX_D[6];
-				output OUT_N = N.RPCLK[3];
-				output OUT_S = S.RPCLK[3];
+				output CLKO = S.RPCLK[3];
 			}
 
-			bel PCLK_DCC[1] {
+			bel RPCLK_DCC_S[1] {
+				input CLKI = N.PCLK_ROOT[7];
 				input CE = N.IMUX_D[7];
-				output OUT_N = N.RPCLK[7];
-				output OUT_S = S.RPCLK[7];
+				output CLKO = S.RPCLK[7];
 			}
 
-			// wire N.RPCLK[3]                     PCLK_DCC[0].OUT_N
-			// wire N.RPCLK[7]                     PCLK_DCC[1].OUT_N
-			// wire N.IMUX_D[6]                    PCLK_DCC[0].CE
-			// wire N.IMUX_D[7]                    PCLK_DCC[1].CE
-			// wire S.RPCLK[3]                     PCLK_DCC[0].OUT_S
-			// wire S.RPCLK[7]                     PCLK_DCC[1].OUT_S
+			bel RPCLK_DCC_N[0] {
+				input CLKI = N.PCLK_ROOT[3];
+				input CE = N.IMUX_D[6];
+				output CLKO = N.RPCLK[3];
+			}
+
+			bel RPCLK_DCC_N[1] {
+				input CLKI = N.PCLK_ROOT[7];
+				input CE = N.IMUX_D[7];
+				output CLKO = N.RPCLK[7];
+			}
+
+			// wire N.PCLK_ROOT[3]                 RPCLK_DCC_S[0].CLKI RPCLK_DCC_N[0].CLKI
+			// wire N.PCLK_ROOT[7]                 RPCLK_DCC_S[1].CLKI RPCLK_DCC_N[1].CLKI
+			// wire N.RPCLK[3]                     RPCLK_DCC_N[0].CLKO
+			// wire N.RPCLK[7]                     RPCLK_DCC_N[1].CLKO
+			// wire N.IMUX_D[6]                    RPCLK_DCC_S[0].CE RPCLK_DCC_N[0].CE
+			// wire N.IMUX_D[7]                    RPCLK_DCC_S[1].CE RPCLK_DCC_N[1].CE
+			// wire S.RPCLK[3]                     RPCLK_DCC_S[0].CLKO
+			// wire S.RPCLK[7]                     RPCLK_DCC_S[1].CLKO
 		}
 
-		tile_class PCLK3_SOURCE_W {
+		tile_class RPCLK3_DRIVER_W {
 			cell N;
 			cell S;
 
-			bel PCLK_SOURCE_W {
-				output OUT_N1 = N.RPCLK[1];
-				output OUT_N2 = N.RPCLK[2];
-				output OUT_N5 = N.RPCLK[5];
-				output OUT_N6 = N.RPCLK[6];
-				output OUT_S1 = S.RPCLK[1];
-				output OUT_S2 = S.RPCLK[2];
-				output OUT_S5 = S.RPCLK[5];
-				output OUT_S6 = S.RPCLK[6];
+			switchbox RPCLK_DRIVER {
+				permabuf N.RPCLK[1] = N.PCLK_ROOT[1];
+				permabuf N.RPCLK[2] = N.PCLK_ROOT[2];
+				permabuf N.RPCLK[5] = N.PCLK_ROOT[5];
+				permabuf N.RPCLK[6] = N.PCLK_ROOT[6];
+				permabuf S.RPCLK[1] = N.PCLK_ROOT[1];
+				permabuf S.RPCLK[2] = N.PCLK_ROOT[2];
+				permabuf S.RPCLK[5] = N.PCLK_ROOT[5];
+				permabuf S.RPCLK[6] = N.PCLK_ROOT[6];
 			}
 
-			bel PCLK_DCC[0] {
+			bel RPCLK_DCC_S[0] {
+				input CLKI = N.PCLK_ROOT[3];
 				input CE = N.IMUX_D[6];
-				output OUT_N = N.RPCLK[3];
-				output OUT_S = S.RPCLK[3];
+				output CLKO = S.RPCLK[3];
 			}
 
-			bel PCLK_DCC[1] {
+			bel RPCLK_DCC_S[1] {
+				input CLKI = N.PCLK_ROOT[7];
 				input CE = N.IMUX_D[7];
-				output OUT_N = N.RPCLK[7];
-				output OUT_S = S.RPCLK[7];
+				output CLKO = S.RPCLK[7];
 			}
 
-			// wire N.RPCLK[1]                     PCLK_SOURCE_W.OUT_N1
-			// wire N.RPCLK[2]                     PCLK_SOURCE_W.OUT_N2
-			// wire N.RPCLK[3]                     PCLK_DCC[0].OUT_N
-			// wire N.RPCLK[5]                     PCLK_SOURCE_W.OUT_N5
-			// wire N.RPCLK[6]                     PCLK_SOURCE_W.OUT_N6
-			// wire N.RPCLK[7]                     PCLK_DCC[1].OUT_N
-			// wire N.IMUX_D[6]                    PCLK_DCC[0].CE
-			// wire N.IMUX_D[7]                    PCLK_DCC[1].CE
-			// wire S.RPCLK[1]                     PCLK_SOURCE_W.OUT_S1
-			// wire S.RPCLK[2]                     PCLK_SOURCE_W.OUT_S2
-			// wire S.RPCLK[3]                     PCLK_DCC[0].OUT_S
-			// wire S.RPCLK[5]                     PCLK_SOURCE_W.OUT_S5
-			// wire S.RPCLK[6]                     PCLK_SOURCE_W.OUT_S6
-			// wire S.RPCLK[7]                     PCLK_DCC[1].OUT_S
+			bel RPCLK_DCC_N[0] {
+				input CLKI = N.PCLK_ROOT[3];
+				input CE = N.IMUX_D[6];
+				output CLKO = N.RPCLK[3];
+			}
+
+			bel RPCLK_DCC_N[1] {
+				input CLKI = N.PCLK_ROOT[7];
+				input CE = N.IMUX_D[7];
+				output CLKO = N.RPCLK[7];
+			}
+
+			// wire N.PCLK_ROOT[3]                 RPCLK_DCC_S[0].CLKI RPCLK_DCC_N[0].CLKI
+			// wire N.PCLK_ROOT[7]                 RPCLK_DCC_S[1].CLKI RPCLK_DCC_N[1].CLKI
+			// wire N.RPCLK[3]                     RPCLK_DCC_N[0].CLKO
+			// wire N.RPCLK[7]                     RPCLK_DCC_N[1].CLKO
+			// wire N.IMUX_D[6]                    RPCLK_DCC_S[0].CE RPCLK_DCC_N[0].CE
+			// wire N.IMUX_D[7]                    RPCLK_DCC_S[1].CE RPCLK_DCC_N[1].CE
+			// wire S.RPCLK[3]                     RPCLK_DCC_S[0].CLKO
+			// wire S.RPCLK[7]                     RPCLK_DCC_S[1].CLKO
 		}
 
-		tile_class PCLK3_SOURCE_E {
+		tile_class RPCLK3_DRIVER_E {
 			cell N;
 			cell S;
 
-			bel PCLK_SOURCE_E {
-				output OUT_N0 = N.RPCLK[0];
-				output OUT_N4 = N.RPCLK[4];
-				output OUT_S0 = S.RPCLK[0];
-				output OUT_S4 = S.RPCLK[4];
+			switchbox RPCLK_DRIVER {
+				permabuf N.RPCLK[0] = N.PCLK_ROOT[0];
+				permabuf N.RPCLK[4] = N.PCLK_ROOT[4];
+				permabuf S.RPCLK[0] = N.PCLK_ROOT[0];
+				permabuf S.RPCLK[4] = N.PCLK_ROOT[4];
 			}
 
-			bel PCLK_DCC[0] {
+			bel RPCLK_DCC_S[0] {
+				input CLKI = N.PCLK_ROOT[3];
 				input CE = N.IMUX_D[6];
-				output OUT_N = N.RPCLK[3];
-				output OUT_S = S.RPCLK[3];
+				output CLKO = S.RPCLK[3];
 			}
 
-			bel PCLK_DCC[1] {
+			bel RPCLK_DCC_S[1] {
+				input CLKI = N.PCLK_ROOT[7];
 				input CE = N.IMUX_D[7];
-				output OUT_N = N.RPCLK[7];
-				output OUT_S = S.RPCLK[7];
+				output CLKO = S.RPCLK[7];
 			}
 
-			// wire N.RPCLK[0]                     PCLK_SOURCE_E.OUT_N0
-			// wire N.RPCLK[3]                     PCLK_DCC[0].OUT_N
-			// wire N.RPCLK[4]                     PCLK_SOURCE_E.OUT_N4
-			// wire N.RPCLK[7]                     PCLK_DCC[1].OUT_N
-			// wire N.IMUX_D[6]                    PCLK_DCC[0].CE
-			// wire N.IMUX_D[7]                    PCLK_DCC[1].CE
-			// wire S.RPCLK[0]                     PCLK_SOURCE_E.OUT_S0
-			// wire S.RPCLK[3]                     PCLK_DCC[0].OUT_S
-			// wire S.RPCLK[4]                     PCLK_SOURCE_E.OUT_S4
-			// wire S.RPCLK[7]                     PCLK_DCC[1].OUT_S
+			bel RPCLK_DCC_N[0] {
+				input CLKI = N.PCLK_ROOT[3];
+				input CE = N.IMUX_D[6];
+				output CLKO = N.RPCLK[3];
+			}
+
+			bel RPCLK_DCC_N[1] {
+				input CLKI = N.PCLK_ROOT[7];
+				input CE = N.IMUX_D[7];
+				output CLKO = N.RPCLK[7];
+			}
+
+			// wire N.PCLK_ROOT[3]                 RPCLK_DCC_S[0].CLKI RPCLK_DCC_N[0].CLKI
+			// wire N.PCLK_ROOT[7]                 RPCLK_DCC_S[1].CLKI RPCLK_DCC_N[1].CLKI
+			// wire N.RPCLK[3]                     RPCLK_DCC_N[0].CLKO
+			// wire N.RPCLK[7]                     RPCLK_DCC_N[1].CLKO
+			// wire N.IMUX_D[6]                    RPCLK_DCC_S[0].CE RPCLK_DCC_N[0].CE
+			// wire N.IMUX_D[7]                    RPCLK_DCC_S[1].CE RPCLK_DCC_N[1].CE
+			// wire S.RPCLK[3]                     RPCLK_DCC_S[0].CLKO
+			// wire S.RPCLK[7]                     RPCLK_DCC_S[1].CLKO
 		}
 	}
 
@@ -19326,7 +19343,6 @@ intdb {
 	}
 
 	tile_slot HSDCLK_SPLITTER {
-		bel_slot HSDCLK_ROOT: HSDCLK_ROOT;
 		bel_slot HSDCLK_SPLITTER: routing;
 
 		tile_class HSDCLK_ROOT {
@@ -19338,25 +19354,6 @@ intdb {
 			cell E[1];
 			cell E[2];
 			cell E[3];
-
-			bel HSDCLK_ROOT {
-				output OUT_W[0] = W[0].RSCLK_H[0];
-				output OUT_W[1] = W[1].RSCLK_H[0];
-				output OUT_W[2] = W[2].RSCLK_H[0];
-				output OUT_W[3] = W[3].RSCLK_H[0];
-				output OUT_W[4] = W[0].RSCLK_H[4];
-				output OUT_W[5] = W[1].RSCLK_H[4];
-				output OUT_W[6] = W[2].RSCLK_H[4];
-				output OUT_W[7] = W[3].RSCLK_H[4];
-				output OUT_E[0] = E[0].RSCLK_H[0];
-				output OUT_E[1] = E[1].RSCLK_H[0];
-				output OUT_E[2] = E[2].RSCLK_H[0];
-				output OUT_E[3] = E[3].RSCLK_H[0];
-				output OUT_E[4] = E[0].RSCLK_H[4];
-				output OUT_E[5] = E[1].RSCLK_H[4];
-				output OUT_E[6] = E[2].RSCLK_H[4];
-				output OUT_E[7] = E[3].RSCLK_H[4];
-			}
 
 			switchbox HSDCLK_SPLITTER {
 				progbuf W[0].RSCLK_H[0] = E[0].RSCLK_H[0] @XXX57005[57005][57005];
@@ -19375,24 +19372,23 @@ intdb {
 				progbuf E[2].RSCLK_H[4] = W[2].RSCLK_H[4] @XXX57005[57005][57005];
 				progbuf W[3].RSCLK_H[4] = E[3].RSCLK_H[4] @XXX57005[57005][57005];
 				progbuf E[3].RSCLK_H[4] = W[3].RSCLK_H[4] @XXX57005[57005][57005];
+				progbuf W[0].RSCLK_H[0] = W[0].SCLK_ROOT[0] @XXX57005[57005][57005];
+				progbuf E[0].RSCLK_H[0] = E[0].SCLK_ROOT[0] @XXX57005[57005][57005];
+				progbuf W[1].RSCLK_H[0] = W[0].SCLK_ROOT[1] @XXX57005[57005][57005];
+				progbuf E[1].RSCLK_H[0] = E[0].SCLK_ROOT[1] @XXX57005[57005][57005];
+				progbuf W[2].RSCLK_H[0] = W[0].SCLK_ROOT[2] @XXX57005[57005][57005];
+				progbuf E[2].RSCLK_H[0] = E[0].SCLK_ROOT[2] @XXX57005[57005][57005];
+				progbuf W[3].RSCLK_H[0] = W[0].SCLK_ROOT[3] @XXX57005[57005][57005];
+				progbuf E[3].RSCLK_H[0] = E[0].SCLK_ROOT[3] @XXX57005[57005][57005];
+				progbuf W[0].RSCLK_H[4] = W[0].SCLK_ROOT[4] @XXX57005[57005][57005];
+				progbuf E[0].RSCLK_H[4] = E[0].SCLK_ROOT[4] @XXX57005[57005][57005];
+				progbuf W[1].RSCLK_H[4] = W[0].SCLK_ROOT[5] @XXX57005[57005][57005];
+				progbuf E[1].RSCLK_H[4] = E[0].SCLK_ROOT[5] @XXX57005[57005][57005];
+				progbuf W[2].RSCLK_H[4] = W[0].SCLK_ROOT[6] @XXX57005[57005][57005];
+				progbuf E[2].RSCLK_H[4] = E[0].SCLK_ROOT[6] @XXX57005[57005][57005];
+				progbuf W[3].RSCLK_H[4] = W[0].SCLK_ROOT[7] @XXX57005[57005][57005];
+				progbuf E[3].RSCLK_H[4] = E[0].SCLK_ROOT[7] @XXX57005[57005][57005];
 			}
-
-			// wire W[0].RSCLK_H[0]                HSDCLK_ROOT.OUT_W[0]
-			// wire W[0].RSCLK_H[4]                HSDCLK_ROOT.OUT_W[4]
-			// wire W[1].RSCLK_H[0]                HSDCLK_ROOT.OUT_W[1]
-			// wire W[1].RSCLK_H[4]                HSDCLK_ROOT.OUT_W[5]
-			// wire W[2].RSCLK_H[0]                HSDCLK_ROOT.OUT_W[2]
-			// wire W[2].RSCLK_H[4]                HSDCLK_ROOT.OUT_W[6]
-			// wire W[3].RSCLK_H[0]                HSDCLK_ROOT.OUT_W[3]
-			// wire W[3].RSCLK_H[4]                HSDCLK_ROOT.OUT_W[7]
-			// wire E[0].RSCLK_H[0]                HSDCLK_ROOT.OUT_E[0]
-			// wire E[0].RSCLK_H[4]                HSDCLK_ROOT.OUT_E[4]
-			// wire E[1].RSCLK_H[0]                HSDCLK_ROOT.OUT_E[1]
-			// wire E[1].RSCLK_H[4]                HSDCLK_ROOT.OUT_E[5]
-			// wire E[2].RSCLK_H[0]                HSDCLK_ROOT.OUT_E[2]
-			// wire E[2].RSCLK_H[4]                HSDCLK_ROOT.OUT_E[6]
-			// wire E[3].RSCLK_H[0]                HSDCLK_ROOT.OUT_E[3]
-			// wire E[3].RSCLK_H[4]                HSDCLK_ROOT.OUT_E[7]
 		}
 	}
 

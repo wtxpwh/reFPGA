@@ -82,16 +82,16 @@ impl ChipContext<'_> {
             ChipKind::Ecp3 | ChipKind::Ecp3A => {
                 self.process_hsdclk_splitter();
                 self.process_hsdclk_vcc();
-                let roots = self.process_hsdclk_root_ecp3();
-                self.process_clk_ecp3(roots);
+                self.process_hsdclk_root_ecp3();
+                self.process_clk_ecp3();
                 self.process_pclk_ecp3();
             }
             ChipKind::MachXo2(_) => {
                 self.process_hsdclk_splitter();
-                let sclk_roots = self.process_hsdclk_root_machxo2();
-                let pclk_roots = self.process_pclk_machxo2();
+                self.process_hsdclk_root_machxo2();
+                self.process_pclk_machxo2();
                 self.process_dlldel_machxo2();
-                self.process_clk_machxo2(pclk_roots, sclk_roots);
+                self.process_clk_machxo2();
             }
             ChipKind::Ecp4 => {
                 let pclk_roots = self.process_pclk_ecp4();
