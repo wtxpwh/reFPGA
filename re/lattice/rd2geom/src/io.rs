@@ -55,6 +55,7 @@ impl ChipContext<'_> {
                 self.process_io_ecp3();
             }
             ChipKind::MachXo2(_) => {
+                self.prep_io_machxo2();
                 self.process_bc_machxo2();
                 self.process_eclk_machxo2();
                 self.process_dqsdll_machxo2();
@@ -82,6 +83,7 @@ impl ChipContext<'_> {
                 self.process_clkdiv_ecp5();
             }
             ChipKind::Crosslink => {
+                self.prep_io_crosslink();
                 self.process_bc_crosslink();
                 self.process_eclk_crosslink();
                 self.process_ddrdll_crosslink();

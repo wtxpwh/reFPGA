@@ -1,10 +1,10 @@
 use prjcombine_ecp::{
-    chip::{ChipKind, IoGroupKind, SpecialIoKey, SpecialLocKey},
+    chip::{ChipKind, IoGroupKind, SpecialLocKey},
     defs::{bcls, bslots, tcls, wiredata, wires},
 };
 use prjcombine_interconnect::{
     db::{BelPin, LegacyBel, WireSlotIdExt},
-    dir::{Dir, DirH, DirHV, DirV},
+    dir::{DirH, DirHV, DirV},
 };
 
 use crate::ChipContext;
@@ -1304,7 +1304,6 @@ impl ChipContext<'_> {
         for tcid in [tcls::MIPI_W, tcls::MIPI_E] {
             for &tcrd in &self.edev.tile_index[tcid] {
                 let bcrd = tcrd.bel(bslots::MIPI);
-                let cell = bcrd.cell;
                 let bank = self.chip.columns[bcrd.cell.col].bank_n.unwrap();
                 let idx = match bank {
                     60 => 0,
@@ -1312,80 +1311,63 @@ impl ChipContext<'_> {
                     _ => unreachable!(),
                 };
 
-                self.name_bel(
+                self.hybrid_out_rc_io(
                     bcrd,
-                    [
-                        format!("MIPIDPHY{idx}"),
-                        format!("DPHY{idx}_CKP"),
-                        format!("DPHY{idx}_CKN"),
-                        format!("DPHY{idx}_DP0"),
-                        format!("DPHY{idx}_DN0"),
-                        format!("DPHY{idx}_DP1"),
-                        format!("DPHY{idx}_DN1"),
-                        format!("DPHY{idx}_DP2"),
-                        format!("DPHY{idx}_DN2"),
-                        format!("DPHY{idx}_DP3"),
-                        format!("DPHY{idx}_DN3"),
-                    ],
+                    "JCLKHSBYTE_MIPIDPHY",
+                    wires::OUT_MIPI_CLKHSBYTE.cell(0),
                 );
-                let mut bel = self.extract_simple_legacy_bel(bcrd, cell, "MIPIDPHY");
+
+                self.extract_switchbox(bcrd.bel(bslots::BEL_INT))
+                    .output_bind_rc_io("CLKREF", wires::IMUX_MIPI_CLKREF.cell(0))
+                    .input_xlat_rc_io("JREFCLK1")
+                    .input_xlat_rc_io("JREFCLK2")
+                    .input_xlat_rc_io("JREFCLK3");
+
+                let mut bel = self.extract_bel(bcrd);
+                bel.names([
+                    format!("MIPIDPHY{idx}"),
+                    format!("CLKTEST_MIPIDPHY{idx}"),
+                    format!("DPHY{idx}_CKP"),
+                    format!("DPHY{idx}_CKN"),
+                    format!("DPHY{idx}_DP0"),
+                    format!("DPHY{idx}_DN0"),
+                    format!("DPHY{idx}_DP1"),
+                    format!("DPHY{idx}_DN1"),
+                    format!("DPHY{idx}_DP2"),
+                    format!("DPHY{idx}_DN2"),
+                    format!("DPHY{idx}_DP3"),
+                    format!("DPHY{idx}_DN3"),
+                ])
+                .suffix("MIPIDPHY")
+                .input_xlat_rc_io(bcls::MIPI::CLKREF, "CLKREF_MIPIDPHY")
+                .output_bind_rc_io(
+                    bcls::MIPI::HSBYTECLKD,
+                    "JHSBYTECLKD_MIPIDPHY",
+                    wires::OUT_MIPI_HSBYTECLKD.cell(0),
+                )
+                .output_bind_rc_io(
+                    bcls::MIPI::HSBYTECLKS,
+                    "JHSBYTECLKS_MIPIDPHY",
+                    wires::OUT_MIPI_HSBYTECLKS.cell(0),
+                );
 
                 for pin in [
                     "DP0", "DN0", "DP1", "DN1", "DP2", "DN2", "DP3", "DN3", "CKP", "CKN",
                 ] {
-                    let wire_abpio = self.rc_io_wire(cell, &format!("PAD{pin}_ABPIO"));
-                    self.add_bel_wire(bcrd, format!("PAD{pin}"), wire_abpio);
-                    let wire = self.rc_io_wire(cell, &format!("{pin}_MIPIDPHY"));
-                    self.add_bel_wire(bcrd, format!("PAD{pin}"), wire);
-                    self.claim_pip(wire_abpio, wire);
+                    bel.add_wire_rc_io(format!("PAD{pin}"), format!("PAD{pin}_ABPIO"))
+                        .add_wire_rc_io(pin, format!("{pin}_MIPIDPHY"))
+                        .claim_pip(format!("PAD{pin}"), pin);
                 }
-
-                for pin in ["HSBYTECLKD", "HSBYTECLKS"] {
-                    let wire = self.rc_io_wire(cell, &format!("J{pin}_MIPIDPHY"));
-                    self.add_bel_wire(bcrd, format!("PAD{pin}"), wire);
-                }
-
-                let clkref = self.rc_io_wire(cell, "CLKREF_MIPIDPHY");
-                self.add_bel_wire(bcrd, "CLKREF", clkref);
-                let clkref_in = self.rc_io_wire(cell, "CLKREF");
-                self.add_bel_wire(bcrd, "CLKREF_IN", clkref_in);
-                self.claim_pip(clkref, clkref_in);
-                let clkref_int = self.rc_io_wire(cell, "JREFCLK1");
-                self.add_bel_wire(bcrd, "CLKREF_INT", clkref_int);
-                self.claim_pip(clkref_in, clkref_int);
-                bel.pins
-                    .insert("CLKREF".into(), self.xlat_int_wire(bcrd, clkref_int));
-                for (i, key) in [
-                    (2, SpecialIoKey::MipiClk([DirH::W, DirH::E][idx])),
-                    (3, SpecialIoKey::Clock(Dir::S, 4 + (idx as u8))),
-                ] {
-                    let clkref_io = self.rc_io_wire(cell, &format!("JREFCLK{i}"));
-                    self.add_bel_wire(bcrd, format!("REFCLK{i}"), clkref_io);
-                    let io = self.chip.special_io[&key];
-                    let (cell_io, abcd) = self.xlat_io_loc_crosslink(io);
-                    let paddi = self.rc_io_wire(cell_io, &format!("JPADDI{abcd}_PIO"));
-                    self.claim_pip(clkref_io, paddi);
-                    self.claim_pip(clkref_in, clkref_io);
-                }
-
-                self.insert_legacy_bel(bcrd, bel);
-
-                let bcrd = bcrd.bel(bslots::CLKTEST_MIPI);
-                self.name_bel(bcrd, [format!("CLKTEST_MIPIDPHY{idx}")]);
-                let mut bel = LegacyBel::default();
 
                 for i in 0..2 {
-                    let wire = self.rc_io_wire(cell, &format!("JTESTIN{i}_CLKTEST"));
-                    self.add_bel_wire(bcrd, format!("TESTIN{i}"), wire);
-                    bel.pins
-                        .insert(format!("TESTIN{i}"), self.xlat_int_wire(bcrd, wire));
+                    bel.input_xlat_rc_io(
+                        bcls::MIPI::CLKTEST_TESTIN[i],
+                        format!("JTESTIN{i}_CLKTEST"),
+                    );
                 }
                 for i in 2..6 {
-                    let wire = self.rc_io_wire(cell, &format!("TESTIN{i}_CLKTEST"));
-                    self.add_bel_wire(bcrd, format!("TESTIN{i}"), wire);
+                    bel.add_wire_rc_io(format!("CLKTEST_TESTIN{i}"), format!("TESTIN{i}_CLKTEST"));
                 }
-
-                self.insert_legacy_bel(bcrd, bel);
             }
         }
     }

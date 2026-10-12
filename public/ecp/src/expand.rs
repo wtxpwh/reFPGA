@@ -2019,14 +2019,27 @@ impl Expander<'_, '_> {
         for cell in self.egrid.row(self.die, self.chip.row_n()) {
             self.egrid.add_tile_single(cell, tcls::INT_IO_N);
             if self.chip.columns[cell.col].io_n == IoGroupKind::Mipi {
-                self.egrid.add_tile_e(
+                let mut tcells = cell.cells_e(24);
+                tcells.extend([
+                    self.chip
+                        .get_io_cell(SpecialIoKey::MipiClk(if cell.col < self.chip.col_clk {
+                            DirH::W
+                        } else {
+                            DirH::E
+                        })),
+                    self.chip.get_io_cell(SpecialIoKey::Clock(
+                        Dir::S,
+                        if cell.col < self.chip.col_clk { 4 } else { 5 },
+                    )),
+                ]);
+                self.egrid.add_tile(
                     cell,
                     if cell.col < self.chip.col_clk {
                         tcls::MIPI_W
                     } else {
                         tcls::MIPI_E
                     },
-                    24,
+                    &tcells,
                 );
             }
         }
@@ -2737,6 +2750,11 @@ impl Expander<'_, '_> {
     }
 
     fn fill_clk_machxo2(&mut self) {
+        for row in [self.chip.row_s(), self.chip.row_n()] {
+            for cell in self.egrid.row(self.die, row) {
+                self.egrid[cell].region_root[rslots::ECLK] = cell.with_col(self.chip.col_clk - 1);
+            }
+        }
         let ebr_rows = Vec::from_iter(
             self.chip
                 .rows
@@ -3132,6 +3150,15 @@ impl Expander<'_, '_> {
 
         let cell = self.chip.bel_clk_root().cell;
         self.egrid.add_tile_single(cell, tcls::CLK_ROOT);
+
+        for cell in self.egrid.row(self.die, self.chip.row_s()) {
+            self.egrid[cell].region_root[rslots::ECLK] =
+                cell.with_col(if cell.col < self.chip.col_clk {
+                    self.chip.col_clk - 1
+                } else {
+                    self.chip.col_clk
+                });
+        }
     }
 
     fn fill_config_xp(&mut self) {

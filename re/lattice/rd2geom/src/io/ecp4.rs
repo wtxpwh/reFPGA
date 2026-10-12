@@ -1,6 +1,6 @@
 use prjcombine_ecp::{
     chip::{Chip, RowKind, SpecialIoKey, SpecialLocKey},
-    defs::{bslots, tcls},
+    defs::{bcls, bslots, tcls},
 };
 use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
@@ -32,65 +32,85 @@ impl ChipContext<'_> {
                 _ => unreachable!(),
             };
             let cell = Chip::DIE.cell(col, row);
-            for (bel, name, pin_out, pin_in) in [
-                (bslots::BCPG, "BCPG", "PGENO", "PGENI"),
-                (bslots::BCINRD, "BCINRD", "INRDENO", "INRDENI"),
-                (bslots::BCLVDSO, "BCLVDSO", "LVDSENO", "LVDSENI"),
-                (bslots::BCPUSL, "BCPUSL", "PUSLENO", "PUSLENI"),
+            for (bel, name, pin_out, pin_in, pname_in) in [
+                (bslots::BCPG, "BCPG", "PGENO", bcls::BCPG::PGENI, "PGENI"),
+                (
+                    bslots::BCINRD,
+                    "BCINRD",
+                    "INRDENO",
+                    bcls::BCINRD::INRDENI,
+                    "INRDENI",
+                ),
+                (
+                    bslots::BCLVDSO,
+                    "BCLVDSO",
+                    "LVDSENO",
+                    bcls::BCLVDSO::LVDSENI,
+                    "LVDSENI",
+                ),
+                (
+                    bslots::BCPUSL,
+                    "BCPUSL",
+                    "PUSLENO",
+                    bcls::BCPUSL::PUSLENI,
+                    "PUSLENI",
+                ),
             ] {
                 let bcrd = cell_loc.bel(bel);
-                self.name_bel(bcrd, [format!("{name}{bank}")]);
 
                 let wire_in = if is_corner {
-                    self.rc_corner_wire(cell, &format!("J{pin_in}_{name}_{suffix}"))
+                    self.rc_corner_wire(cell, &format!("J{pname_in}_{name}_{suffix}"))
                 } else {
-                    self.rc_io_wire(cell, &format!("J{pin_in}_{name}_{suffix}"))
+                    self.rc_io_wire(cell, &format!("J{pname_in}_{name}_{suffix}"))
                 };
-                self.add_bel_wire(bcrd, pin_in, wire_in);
-                let mut bel = LegacyBel::default();
-                bel.pins
-                    .insert(pin_in.into(), self.xlat_int_wire(bcrd, wire_in));
-                self.insert_legacy_bel(bcrd, bel);
-
                 let wire_out = if is_corner {
                     self.rc_corner_wire(cell, &format!("{pin_out}_{name}_{suffix}"))
                 } else {
                     self.rc_io_wire(cell, &format!("{pin_out}_{name}_{suffix}"))
                 };
-                self.add_bel_wire(bcrd, pin_out, wire_out);
                 self.claim_pip(wire_out, wire_in);
-
                 let wire_out_out = self.claim_single_out(wire_out);
-                self.add_bel_wire(bcrd, format!("{pin_out}_OUT"), wire_out_out);
+
+                self.extract_bel_cell(bcrd, cell)
+                    .name(format!("{name}{bank}"))
+                    .input_xlat(pin_in, wire_in)
+                    .add_wire(pin_out, wire_out)
+                    .add_wire(format!("{pin_out}_OUT"), wire_out_out);
             }
             {
                 let bcrd = cell_loc.bel(bslots::BREFTEST);
-                self.name_bel(bcrd, [format!("BREFTEST{bank}")]);
-                let mut bel = LegacyBel::default();
 
-                for pin in [
-                    "TESTIN0", "TESTIN1", "TESTIN2", "TESTIN3", "TESTIN4", "TESTIN5", "TESTOUT0",
-                    "TESTOUT1", "TESTOUT2", "TESTOUT3", "TESTOUT4", "TESTOUT5",
-                ] {
-                    let wire = if is_corner {
-                        self.rc_corner_wire(cell, &format!("J{pin}_BREFTEST_{suffix}"))
+                let mut bel = self.extract_bel_cell(bcrd, cell);
+                bel.name(format!("BREFTEST{bank}"));
+
+                for i in 0..6 {
+                    let wire_in = if is_corner {
+                        bel.ctx
+                            .rc_corner_wire(cell, &format!("JTESTIN{i}_BREFTEST_{suffix}"))
                     } else {
-                        self.rc_io_wire(cell, &format!("J{pin}_BREFTEST_{suffix}"))
+                        bel.ctx
+                            .rc_io_wire(cell, &format!("JTESTIN{i}_BREFTEST_{suffix}"))
                     };
-                    self.add_bel_wire(bcrd, pin, wire);
-                    bel.pins.insert(pin.into(), self.xlat_int_wire(bcrd, wire));
+                    let wire_out = if is_corner {
+                        bel.ctx
+                            .rc_corner_wire(cell, &format!("JTESTOUT{i}_BREFTEST_{suffix}"))
+                    } else {
+                        bel.ctx
+                            .rc_io_wire(cell, &format!("JTESTOUT{i}_BREFTEST_{suffix}"))
+                    };
+                    bel.input_xlat(bcls::BREFTEST::TESTIN[i], wire_in)
+                        .output_xlat(bcls::BREFTEST::TESTOUT[i], wire_out);
                 }
-                self.insert_legacy_bel(bcrd, bel);
             }
         }
         {
             let cell = self.chip.special_loc[&SpecialLocKey::Bc(if has_bank0 { 3 } else { 2 })];
-            let bcrd = cell.bel(bslots::PVTTEST);
-            self.name_bel(bcrd, ["PVTTEST"]);
-            self.insert_simple_legacy_bel(bcrd, cell, "PVTTEST");
-            let bcrd = cell.bel(bslots::PVTCAL);
-            self.name_bel(bcrd, ["PVTCAL"]);
-            self.insert_simple_legacy_bel(bcrd, cell, "PVTCAL");
+            self.extract_bel(cell.bel(bslots::PVTTEST))
+                .name("PVTTEST")
+                .suffix("PVTTEST");
+            self.extract_bel(cell.bel(bslots::PVTCAL))
+                .name("PVTCAL")
+                .suffix("PVTCAL");
         }
     }
 
@@ -583,9 +603,9 @@ impl ChipContext<'_> {
     pub(super) fn process_dtr_ecp4(&mut self) {
         for (tcid, name) in [(tcls::DTR_S, "DTR_BR"), (tcls::DTR_N, "DTR_TL")] {
             for &tcrd in &self.edev.tile_index[tcid] {
-                let bcrd = tcrd.bel(bslots::DTR);
-                self.name_bel(bcrd, [name]);
-                self.insert_simple_legacy_bel(bcrd, bcrd.cell, "DTR");
+                self.extract_bel(tcrd.bel(bslots::DTR))
+                    .name(name)
+                    .suffix("DTR");
             }
         }
     }

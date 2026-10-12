@@ -1,9 +1,9 @@
 use prjcombine_ecp::{
     chip::{Chip, ChipKind, MachXo2Kind, SpecialIoKey, SpecialLocKey},
-    defs::{bcls, bslots, tcls},
+    defs::{bcls, bslots, tcls, wires},
 };
 use prjcombine_interconnect::{
-    db::LegacyBel,
+    db::WireSlotIdExt,
     dir::{DirH, DirHV, DirV},
     grid::DieIdExt,
 };
@@ -22,17 +22,9 @@ impl ChipContext<'_> {
             .name("START")
             .suffix("START");
 
-        {
-            let bcrd = cell.bel(bslots::RDBK);
-            self.name_bel(bcrd, ["RDBK"]);
-            let mut bel = LegacyBel::default();
-            for pin in ["FFRDCFG", "FFRDCFGCLK", "RDDATA"] {
-                let wire = self.rc_wire(cell, &format!("J{pin}_RDBK"));
-                self.add_bel_wire(bcrd, pin, wire);
-                bel.pins.insert(pin.into(), self.xlat_int_wire(bcrd, wire));
-            }
-            self.insert_legacy_bel(bcrd, bel);
-        }
+        self.extract_bel(cell.bel(bslots::RDBK))
+            .name("RDBK")
+            .suffix("RDBK");
 
         self.extract_bel(cell.bel(bslots::OSC))
             .name("OSC")
@@ -97,8 +89,8 @@ impl ChipContext<'_> {
         {
             let bcrd = cell.bel(bslots::SYSBUS);
             let cell_sysbus = cell.delta(2, 0);
-            self.name_bel(bcrd, ["SYSBUS", "MPIIRQN"]);
-            let mut bel = self.extract_simple_legacy_bel(bcrd, cell_sysbus, "SYSBUS");
+            let mut bel = self.extract_bel_cell(bcrd, cell_sysbus);
+            bel.names(["SYSBUS", "MPIIRQN"]).suffix("SYSBUS");
             for pin in [
                 "LPCSQ0",
                 "LPCSQ1",
@@ -117,19 +109,18 @@ impl ChipContext<'_> {
                 "MPIDPTS2",
                 "MPICNTLTS",
             ] {
-                let wire = self.rc_wire(cell_sysbus, &format!("J{pin}_SYSBUS"));
-                self.add_bel_wire(bcrd, pin, wire);
+                bel.add_wire_rc(pin, format!("J{pin}_SYSBUS"));
             }
             for i in 0..32 {
-                let io = self.chip.special_io[&SpecialIoKey::D(i)];
-                let (cell_io, abcd) = self.xlat_io_loc_scm(io);
+                let io = bel.ctx.chip.special_io[&SpecialIoKey::D(i)];
+                let (cell_io, abcd) = bel.ctx.xlat_io_loc_scm(io);
 
-                let rddata = self.rc_wire(cell_sysbus, &format!("JMPIRDDATA{i}_SYSBUS"));
-                self.add_bel_wire(bcrd, format!("MPIRDDATA{i}"), rddata);
-                let paddo = self.rc_io_wire(cell_io, &format!("JPADDO{abcd}_PIO"));
-                self.claim_pip(paddo, rddata);
+                let rddata =
+                    bel.add_wire_rc_get(format!("MPIRDDATA{i}"), format!("JMPIRDDATA{i}_SYSBUS"));
+                let paddo = bel.ctx.rc_io_wire(cell_io, &format!("JPADDO{abcd}_PIO"));
+                bel.ctx.claim_pip(paddo, rddata);
 
-                let pdts = self.rc_wire(
+                let pdts = bel.ctx.rc_wire(
                     cell_sysbus,
                     match i {
                         0..3 => "JPD20TS_SYSBUS",
@@ -138,24 +129,24 @@ impl ChipContext<'_> {
                         16.. => "JPD3116TS_SYSBUS",
                     },
                 );
-                let paddt = self.rc_io_wire(cell_io, &format!("JPADDT{abcd}_PIO"));
-                self.claim_pip(paddt, pdts);
+                let paddt = bel.ctx.rc_io_wire(cell_io, &format!("JPADDT{abcd}_PIO"));
+                bel.ctx.claim_pip(paddt, pdts);
 
-                let wrdata = self.rc_wire(cell_sysbus, &format!("JMPIWRDATA{i}_SYSBUS"));
-                self.add_bel_wire(bcrd, format!("MPIWRDATA{i}"), wrdata);
-                let inddck = self.rc_io_wire(cell_io, &format!("JINDDCK{abcd}"));
-                self.claim_pip(wrdata, inddck);
+                let wrdata =
+                    bel.add_wire_rc_get(format!("MPIWRDATA{i}"), format!("JMPIWRDATA{i}_SYSBUS"));
+                let inddck = bel.ctx.rc_io_wire(cell_io, &format!("JINDDCK{abcd}"));
+                bel.ctx.claim_pip(wrdata, inddck);
             }
             for i in 0..4 {
-                let io = self.chip.special_io[&SpecialIoKey::DP(i)];
-                let (cell_io, abcd) = self.xlat_io_loc_scm(io);
+                let io = bel.ctx.chip.special_io[&SpecialIoKey::DP(i)];
+                let (cell_io, abcd) = bel.ctx.xlat_io_loc_scm(io);
 
-                let rddata = self.rc_wire(cell_sysbus, &format!("JMPIRDPARITY{i}_SYSBUS"));
-                self.add_bel_wire(bcrd, format!("MPIRDPARITY{i}"), rddata);
-                let paddo = self.rc_io_wire(cell_io, &format!("JPADDO{abcd}_PIO"));
-                self.claim_pip(paddo, rddata);
+                let rddata = bel
+                    .add_wire_rc_get(format!("MPIRDPARITY{i}"), format!("JMPIRDPARITY{i}_SYSBUS"));
+                let paddo = bel.ctx.rc_io_wire(cell_io, &format!("JPADDO{abcd}_PIO"));
+                bel.ctx.claim_pip(paddo, rddata);
 
-                let pdts = self.rc_wire(
+                let pdts = bel.ctx.rc_wire(
                     cell_sysbus,
                     match i {
                         0 => "JMPIDPTS0_SYSBUS",
@@ -163,45 +154,43 @@ impl ChipContext<'_> {
                         _ => "JMPIDPTS2_SYSBUS",
                     },
                 );
-                let paddt = self.rc_io_wire(cell_io, &format!("JPADDT{abcd}_PIO"));
-                self.claim_pip(paddt, pdts);
+                let paddt = bel.ctx.rc_io_wire(cell_io, &format!("JPADDT{abcd}_PIO"));
+                bel.ctx.claim_pip(paddt, pdts);
 
-                let wrdata = self.rc_wire(cell_sysbus, &format!("JMPIWRPARITY{i}_SYSBUS"));
-                self.add_bel_wire(bcrd, format!("MPIWRPARITY{i}"), wrdata);
-                let inddck = self.rc_io_wire(cell_io, &format!("JINDDCK{abcd}"));
-                self.claim_pip(wrdata, inddck);
+                let wrdata = bel
+                    .add_wire_rc_get(format!("MPIWRPARITY{i}"), format!("JMPIWRPARITY{i}_SYSBUS"));
+                let inddck = bel.ctx.rc_io_wire(cell_io, &format!("JINDDCK{abcd}"));
+                bel.ctx.claim_pip(wrdata, inddck);
             }
 
-            let mpicntlts = self.rc_wire(cell_sysbus, "JMPICNTLTS_SYSBUS");
+            let mpicntlts = bel.ctx.rc_wire(cell_sysbus, "JMPICNTLTS_SYSBUS");
             for (pin, key) in [
                 ("MPITEA", SpecialIoKey::MpiTeaN),
                 ("MPITA", SpecialIoKey::MpiAckN),
                 ("MPIRETRY", SpecialIoKey::MpiRetryN),
             ] {
-                let wire = self.rc_wire(cell_sysbus, &format!("J{pin}_SYSBUS"));
-                self.add_bel_wire(bcrd, pin, wire);
+                let wire = bel.add_wire_rc_get(pin, format!("J{pin}_SYSBUS"));
 
-                let io = self.chip.special_io[&key];
-                let (cell_io, abcd) = self.xlat_io_loc_scm(io);
+                let io = bel.ctx.chip.special_io[&key];
+                let (cell_io, abcd) = bel.ctx.xlat_io_loc_scm(io);
 
-                let paddo = self.rc_io_wire(cell_io, &format!("JPADDO{abcd}_PIO"));
-                self.claim_pip(paddo, wire);
-                let paddt = self.rc_io_wire(cell_io, &format!("JPADDT{abcd}_PIO"));
-                self.claim_pip(paddt, mpicntlts);
+                let paddo = bel.ctx.rc_io_wire(cell_io, &format!("JPADDO{abcd}_PIO"));
+                bel.ctx.claim_pip(paddo, wire);
+                let paddt = bel.ctx.rc_io_wire(cell_io, &format!("JPADDT{abcd}_PIO"));
+                bel.ctx.claim_pip(paddt, mpicntlts);
             }
             for (pin, key) in [
                 ("EXTDONEO", SpecialIoKey::ExtDoneO),
                 ("EXTCLKP1O", SpecialIoKey::ExtClkO(1)),
                 ("EXTCLKP2O", SpecialIoKey::ExtClkO(2)),
             ] {
-                let wire = self.rc_wire(cell_sysbus, &format!("J{pin}_SYSBUS"));
-                self.add_bel_wire(bcrd, pin, wire);
+                let wire = bel.add_wire_rc_get(pin, format!("J{pin}_SYSBUS"));
 
-                let io = self.chip.special_io[&key];
-                let (cell_io, abcd) = self.xlat_io_loc_scm(io);
+                let io = bel.ctx.chip.special_io[&key];
+                let (cell_io, abcd) = bel.ctx.xlat_io_loc_scm(io);
 
-                let paddo = self.rc_io_wire(cell_io, &format!("JPADDO{abcd}_PIO"));
-                self.claim_pip(paddo, wire);
+                let paddo = bel.ctx.rc_io_wire(cell_io, &format!("JPADDO{abcd}_PIO"));
+                bel.ctx.claim_pip(paddo, wire);
             }
             for (pin, key) in [
                 ("CS0N", SpecialIoKey::CsN),
@@ -235,40 +224,34 @@ impl ChipContext<'_> {
                 ("EXTCLKP1I", SpecialIoKey::ExtClkI(1)),
                 ("EXTCLKP2I", SpecialIoKey::ExtClkI(2)),
             ] {
-                let wire = self.rc_wire(cell_sysbus, &format!("J{pin}_SYSBUS"));
-                self.add_bel_wire(bcrd, pin, wire);
+                let wire = bel.add_wire_rc_get(pin, format!("J{pin}_SYSBUS"));
 
-                let io = self.chip.special_io[&key];
-                let (cell_io, abcd) = self.xlat_io_loc_scm(io);
+                let io = bel.ctx.chip.special_io[&key];
+                let (cell_io, abcd) = bel.ctx.xlat_io_loc_scm(io);
 
-                let inddck = self.rc_io_wire(cell_io, &format!("JINDDCK{abcd}"));
-                self.claim_pip(wire, inddck);
+                let inddck = bel.ctx.rc_io_wire(cell_io, &format!("JINDDCK{abcd}"));
+                bel.ctx.claim_pip(wire, inddck);
             }
 
-            for pin in ["MPIRSTN", "SYSRSTN"] {
-                let wire = self.rc_wire(cell_sysbus, &format!("{pin}_SYSBUS"));
-                self.add_bel_wire(bcrd, pin, wire);
+            for (pin, pname) in [
+                (bcls::SYSBUS::MPIRSTN, "MPIRSTN"),
+                (bcls::SYSBUS::SYSRSTN, "SYSRSTN"),
+            ] {
+                let wire_rstn =
+                    bel.add_wire_rc_get(format!("{pname}_RSTN"), format!("JRSTN_{pname}"));
+                bel.add_wire_rc(pname, format!("{pname}_SYSBUS"))
+                    .input_xlat_rename_rc(pin, format!("{pname}_INT"), format!("JUSR_{pname}"))
+                    .claim_pip(pname, format!("{pname}_INT"))
+                    .claim_pip(pname, format!("{pname}_RSTN"));
 
-                let wire_int = self.rc_wire(cell_sysbus, &format!("JUSR_{pin}"));
-                self.add_bel_wire(bcrd, format!("{pin}_INT"), wire_int);
-                self.claim_pip(wire, wire_int);
-                bel.pins
-                    .insert(pin.into(), self.xlat_int_wire(bcrd, wire_int));
-
-                let wire_rstn = self.rc_wire(cell_sysbus, &format!("JRSTN_{pin}"));
-                self.add_bel_wire(bcrd, format!("{pin}_RSTN"), wire_rstn);
-                self.claim_pip(wire, wire_rstn);
-                let wire_io = self.rc_corner_wire(cell_nw, "JRSTN_RSTN");
-                self.claim_pip(wire_rstn, wire_io);
+                let wire_io = bel.ctx.rc_corner_wire(cell_nw, "JRSTN_RSTN");
+                bel.ctx.claim_pip(wire_rstn, wire_io);
             }
 
-            let mpiirq = self.rc_wire(cell_sysbus, "JMPIIRQN_SYSBUS");
-            self.add_bel_wire(bcrd, "MPIIRQN", mpiirq);
-            let mpiirq_out = self.rc_corner_wire(cell_ne, "JMPIIRQN_MPIIRQN");
-            self.add_bel_wire(bcrd, "MPIIRQN_OUT", mpiirq_out);
-            self.claim_pip(mpiirq_out, mpiirq);
-
-            self.insert_legacy_bel(bcrd, bel);
+            let mpiirq_out = bel.ctx.rc_corner_wire(cell_ne, "JMPIIRQN_MPIIRQN");
+            bel.add_wire_rc("MPIIRQN", "JMPIIRQN_SYSBUS")
+                .add_wire("MPIIRQN_OUT", mpiirq_out)
+                .claim_pip("MPIIRQN_OUT", "MPIIRQN");
         }
     }
 
@@ -589,6 +572,17 @@ impl ChipContext<'_> {
     fn process_config_machxo2(&mut self) {
         let cell = self.chip.special_loc[&SpecialLocKey::Config];
 
+        self.hybrid_out_rc(
+            cell.bel(bslots::OSC),
+            "JOSC_OSC",
+            wires::OUT_OSC_OSC.cell(0),
+        );
+
+        self.extract_switchbox(cell.bel(bslots::BEL_INT))
+            .output_bind_rc("PCNTRCLK", wires::IMUX_PCNTR_CLK.cell(0))
+            .input_xlat_rc("JOSCCLK")
+            .input_xlat_rc("JCIBCLK");
+
         let mut bel = self.extract_bel(cell.bel(bslots::JTAG));
         bel.name("JTAG").suffix("JTAG");
         for (pin, key) in [
@@ -627,188 +621,173 @@ impl ChipContext<'_> {
             .suffix("GSR");
 
         let bcrd_efb = cell.bel(bslots::EFB);
-        self.name_bel(bcrd_efb, ["EFB"]);
-        self.insert_simple_legacy_bel(bcrd_efb, cell, "EFB");
-        for (pin, key) in [
-            ("UFMSN", SpecialIoKey::SpiPCsB),
-            ("SPIMOSII", SpecialIoKey::D(0)),
-            ("SPIMISOI", SpecialIoKey::D(1)),
-            ("SPISCKI", SpecialIoKey::Cclk),
-            ("I2C1SCLI", SpecialIoKey::D(2)),
-            ("I2C1SDAI", SpecialIoKey::D(3)),
-        ] {
-            let wire = self.rc_wire(cell, &format!("J{pin}_EFB"));
-            self.add_bel_wire(bcrd_efb, pin, wire);
-            let wire_io = self.get_special_io_wire_in(key);
-            self.claim_pip(wire, wire_io);
-        }
-        for (pin_o, pin_oe, key) in [
-            ("I2C1SCLO", "I2C1SCLOEN", SpecialIoKey::D(2)),
-            ("I2C1SDAO", "I2C1SDAOEN", SpecialIoKey::D(3)),
-            ("SPIMCSN0", "SPIMCSN0", SpecialIoKey::SpiCCsB),
-            ("SPISCKO", "SPISCKEN", SpecialIoKey::Cclk),
-            ("SPIMISOO", "SPIMISOEN", SpecialIoKey::D(1)),
-            ("SPIMOSIO", "SPIMOSIEN", SpecialIoKey::D(0)),
-        ] {
-            let wire_o = self.rc_wire(cell, &format!("J{pin_o}_EFB"));
-            let wire_oe = self.rc_wire(cell, &format!("J{pin_oe}_EFB"));
-            self.add_bel_wire(bcrd_efb, pin_o, wire_o);
-            if wire_o != wire_oe {
-                self.add_bel_wire(bcrd_efb, pin_oe, wire_oe);
+        {
+            let mut bel = self.extract_bel(bcrd_efb);
+            bel.name("EFB").suffix("EFB");
+            for (pin, key) in [
+                ("UFMSN", SpecialIoKey::SpiPCsB),
+                ("SPIMOSII", SpecialIoKey::D(0)),
+                ("SPIMISOI", SpecialIoKey::D(1)),
+                ("SPISCKI", SpecialIoKey::Cclk),
+                ("I2C1SCLI", SpecialIoKey::D(2)),
+                ("I2C1SDAI", SpecialIoKey::D(3)),
+            ] {
+                let wire = bel.add_wire_rc_get(pin, format!("J{pin}_EFB"));
+                let wire_io = bel.ctx.get_special_io_wire_in(key);
+                bel.ctx.claim_pip(wire, wire_io);
             }
-            let bcrd_io = self.chip.special_io[&key];
-            let io_idx = bslots::IO.index_of(bcrd_io.slot).unwrap();
-            let wire_io_o = self.rc_io_wire(
-                bcrd_io.cell,
-                &format!("JPADDO{abcd}", abcd = ['A', 'B', 'C', 'D'][io_idx],),
-            );
-            self.claim_pip(wire_io_o, wire_o);
-            let wire_io_oe = self.rc_io_wire(
-                bcrd_io.cell,
-                &format!("JPADDT{abcd}", abcd = ['A', 'B', 'C', 'D'][io_idx],),
-            );
-            self.claim_pip(wire_io_oe, wire_oe);
-        }
-        // bug? idk perhaps.
-        let wire = self.rc_wire(cell, "JSPICSNEN_EFB");
-        self.add_bel_wire(bcrd_efb, "SPICSNEN", wire);
-
-        for pin in [
-            "PLLDATO0",
-            "PLLDATO1",
-            "PLLDATO2",
-            "PLLDATO3",
-            "PLLDATO4",
-            "PLLDATO5",
-            "PLLDATO6",
-            "PLLDATO7",
-            "PLLADRO0",
-            "PLLADRO1",
-            "PLLADRO2",
-            "PLLADRO3",
-            "PLLADRO4",
-            "PLLWEO",
-            "PLLCLKO",
-            "PLLRSTO",
-            "PLL0STBO",
-            "PLL0ACKI",
-            "PLL0DATI0",
-            "PLL0DATI1",
-            "PLL0DATI2",
-            "PLL0DATI3",
-            "PLL0DATI4",
-            "PLL0DATI5",
-            "PLL0DATI6",
-            "PLL0DATI7",
-            "PLL1STBO",
-            "PLL1ACKI",
-            "PLL1DATI0",
-            "PLL1DATI1",
-            "PLL1DATI2",
-            "PLL1DATI3",
-            "PLL1DATI4",
-            "PLL1DATI5",
-            "PLL1DATI6",
-            "PLL1DATI7",
-        ] {
-            let wire = self.rc_wire(cell, &format!("J{pin}_EFB"));
-            self.add_bel_wire(bcrd_efb, pin, wire);
-        }
-
-        let has_2pll = self.chip.try_bel_pll(DirHV::NE, 0).is_some();
-
-        let has_mux = matches!(
-            self.chip.kind,
-            ChipKind::MachXo2(MachXo2Kind::MachXo2 | MachXo2Kind::MachXo3L)
-        ) && has_2pll;
-
-        for (pin, pin_pll) in [
-            ("ACKI", "ACK"),
-            ("DATI0", "DATO0"),
-            ("DATI1", "DATO1"),
-            ("DATI2", "DATO2"),
-            ("DATI3", "DATO3"),
-            ("DATI4", "DATO4"),
-            ("DATI5", "DATO5"),
-            ("DATI6", "DATO6"),
-            ("DATI7", "DATO7"),
-        ] {
-            for (i, hv) in [(0, DirHV::NW), (1, DirHV::NE)] {
-                let Some(bel_pll) = self.chip.try_bel_pll(hv, 0) else {
-                    continue;
-                };
-                let cell_pll = bel_pll.cell;
-                let wire_pll = self.rc_wire(cell_pll, &format!("JPLL{pin_pll}_PLL"));
-                if has_mux {
-                    let wire = self.rc_wire(cell, &format!("JPLL{i}{pin}"));
-                    self.add_bel_wire(bcrd_efb, format!("PLL{i}{pin}_IN"), wire);
-                    self.claim_pip(wire, wire_pll);
+            for (pin_o, pin_oe, key) in [
+                ("I2C1SCLO", "I2C1SCLOEN", SpecialIoKey::D(2)),
+                ("I2C1SDAO", "I2C1SDAOEN", SpecialIoKey::D(3)),
+                ("SPIMCSN0", "SPIMCSN0", SpecialIoKey::SpiCCsB),
+                ("SPISCKO", "SPISCKEN", SpecialIoKey::Cclk),
+                ("SPIMISOO", "SPIMISOEN", SpecialIoKey::D(1)),
+                ("SPIMOSIO", "SPIMOSIEN", SpecialIoKey::D(0)),
+            ] {
+                let wire_o = bel.add_wire_rc_get(pin_o, format!("J{pin_o}_EFB"));
+                let wire_oe = if pin_o != pin_oe {
+                    bel.add_wire_rc_get(pin_oe, format!("J{pin_oe}_EFB"))
                 } else {
-                    let wire = self.rc_wire(cell, &format!("JPLL{i}{pin}_EFB"));
-                    self.claim_pip(wire, wire_pll);
+                    wire_o
+                };
+                let bcrd_io = bel.ctx.chip.special_io[&key];
+                let io_idx = bslots::IO.index_of(bcrd_io.slot).unwrap();
+                let wire_io_o = bel.ctx.rc_io_wire(
+                    bcrd_io.cell,
+                    &format!("JPADDO{abcd}", abcd = ['A', 'B', 'C', 'D'][io_idx],),
+                );
+                bel.ctx.claim_pip(wire_io_o, wire_o);
+                let wire_io_oe = bel.ctx.rc_io_wire(
+                    bcrd_io.cell,
+                    &format!("JPADDT{abcd}", abcd = ['A', 'B', 'C', 'D'][io_idx],),
+                );
+                bel.ctx.claim_pip(wire_io_oe, wire_oe);
+            }
+            // bug? idk perhaps.
+            bel.add_wire_rc("SPICSNEN", "JSPICSNEN_EFB");
+
+            for pin in [
+                "PLLDATO0",
+                "PLLDATO1",
+                "PLLDATO2",
+                "PLLDATO3",
+                "PLLDATO4",
+                "PLLDATO5",
+                "PLLDATO6",
+                "PLLDATO7",
+                "PLLADRO0",
+                "PLLADRO1",
+                "PLLADRO2",
+                "PLLADRO3",
+                "PLLADRO4",
+                "PLLWEO",
+                "PLLCLKO",
+                "PLLRSTO",
+                "PLL0STBO",
+                "PLL0ACKI",
+                "PLL0DATI0",
+                "PLL0DATI1",
+                "PLL0DATI2",
+                "PLL0DATI3",
+                "PLL0DATI4",
+                "PLL0DATI5",
+                "PLL0DATI6",
+                "PLL0DATI7",
+                "PLL1STBO",
+                "PLL1ACKI",
+                "PLL1DATI0",
+                "PLL1DATI1",
+                "PLL1DATI2",
+                "PLL1DATI3",
+                "PLL1DATI4",
+                "PLL1DATI5",
+                "PLL1DATI6",
+                "PLL1DATI7",
+            ] {
+                bel.add_wire_rc(pin, format!("J{pin}_EFB"));
+            }
+
+            let has_2pll = bel.ctx.chip.try_bel_pll(DirHV::NE, 0).is_some();
+
+            let has_mux = matches!(
+                bel.ctx.chip.kind,
+                ChipKind::MachXo2(MachXo2Kind::MachXo2 | MachXo2Kind::MachXo3L)
+            ) && has_2pll;
+
+            for (pin, pin_pll) in [
+                ("ACKI", "ACK"),
+                ("DATI0", "DATO0"),
+                ("DATI1", "DATO1"),
+                ("DATI2", "DATO2"),
+                ("DATI3", "DATO3"),
+                ("DATI4", "DATO4"),
+                ("DATI5", "DATO5"),
+                ("DATI6", "DATO6"),
+                ("DATI7", "DATO7"),
+            ] {
+                for (i, hv) in [(0, DirHV::NW), (1, DirHV::NE)] {
+                    let Some(bel_pll) = bel.ctx.chip.try_bel_pll(hv, 0) else {
+                        continue;
+                    };
+                    let cell_pll = bel_pll.cell;
+                    let wire_pll = bel.ctx.rc_wire(cell_pll, &format!("JPLL{pin_pll}_PLL"));
+                    if has_mux {
+                        let wire =
+                            bel.add_wire_rc_get(format!("PLL{i}{pin}_IN"), format!("JPLL{i}{pin}"));
+                        bel.ctx.claim_pip(wire, wire_pll);
+                    } else {
+                        let wire = bel.ctx.rc_wire(cell, &format!("JPLL{i}{pin}_EFB"));
+                        bel.ctx.claim_pip(wire, wire_pll);
+                    }
+                }
+                if has_2pll {
+                    for i in 0..2 {
+                        let wire = bel.ctx.rc_wire(cell, &format!("JPLL{i}{pin}_EFB"));
+                        let wire_mux = bel
+                            .add_wire_rc_get(format!("PLL{i}{pin}_MUX"), format!("PLL{i}{pin}MUX"));
+                        bel.ctx.claim_pip(wire, wire_mux);
+                        if has_mux {
+                            for j in 0..2 {
+                                let wire_in = bel.ctx.rc_wire(cell, &format!("JPLL{j}{pin}"));
+                                bel.ctx.claim_pip(wire_mux, wire_in);
+                            }
+                        }
+                    }
                 }
             }
+
             if has_2pll {
                 for i in 0..2 {
-                    let wire = self.rc_wire(cell, &format!("JPLL{i}{pin}_EFB"));
-                    let wire_mux = self.rc_wire(cell, &format!("PLL{i}{pin}MUX"));
-                    self.add_bel_wire(bcrd_efb, format!("PLL{i}{pin}_MUX"), wire_mux);
-                    self.claim_pip(wire, wire_mux);
-                    if has_mux {
-                        for j in 0..2 {
-                            let wire_in = self.rc_wire(cell, &format!("JPLL{j}{pin}"));
-                            self.claim_pip(wire_mux, wire_in);
-                        }
+                    let wire = bel.ctx.rc_wire(cell, &format!("JPLL{i}STBO_EFB"));
+                    let wire_out =
+                        bel.add_wire_rc_get(format!("PLL{i}STBO_OUT"), format!("PLL{i}STBO"));
+                    bel.ctx.claim_pip(wire_out, wire);
+                }
+            }
+            if has_mux {
+                for i in 0..2 {
+                    let wire_mux =
+                        bel.add_wire_rc_get(format!("PLL{i}STBO_MUX"), format!("JPLL{i}STBOMUX"));
+                    for j in 0..2 {
+                        let wire_out = bel.ctx.rc_wire(cell, &format!("PLL{j}STBO"));
+                        bel.ctx.claim_pip(wire_mux, wire_out);
                     }
                 }
             }
         }
 
-        if has_2pll {
-            for i in 0..2 {
-                let wire = self.rc_wire(cell, &format!("JPLL{i}STBO_EFB"));
-                let wire_out = self.rc_wire(cell, &format!("PLL{i}STBO"));
-                self.add_bel_wire(bcrd_efb, format!("PLL{i}STBO_OUT"), wire_out);
-                self.claim_pip(wire_out, wire);
+        {
+            let mut bel = self.extract_bel(cell.bel(bslots::PCNTR));
+            bel.name("PCNTR")
+                .suffix("PCNTR")
+                .input_xlat_rc(bcls::PCNTR::CLK, "CLK_PCNTR");
+            for pin in ["CFGWAKE", "CFGSTDBY"] {
+                let wire_efb = bel.ctx.rc_wire(cell, &format!("{pin}_EFB"));
+                bel.ctx.add_bel_wire(bcrd_efb, pin, wire_efb);
+                let wire = bel.add_wire_rc_get(pin, format!("{pin}_PCNTR"));
+                bel.ctx.claim_pip(wire, wire_efb);
             }
         }
-        if has_mux {
-            for i in 0..2 {
-                let wire_mux = self.rc_wire(cell, &format!("JPLL{i}STBOMUX"));
-                self.add_bel_wire(bcrd_efb, format!("PLL{i}STBO_MUX"), wire_mux);
-                for j in 0..2 {
-                    let wire_out = self.rc_wire(cell, &format!("PLL{j}STBO"));
-                    self.claim_pip(wire_mux, wire_out);
-                }
-            }
-        }
-
-        let bcrd = cell.bel(bslots::PCNTR);
-        self.name_bel(bcrd, ["PCNTR"]);
-        let mut bel = self.extract_simple_legacy_bel(bcrd, cell, "PCNTR");
-        for pin in ["CFGWAKE", "CFGSTDBY"] {
-            let wire_efb = self.rc_wire(cell, &format!("{pin}_EFB"));
-            self.add_bel_wire(bcrd_efb, pin, wire_efb);
-            let wire = self.rc_wire(cell, &format!("{pin}_PCNTR"));
-            self.add_bel_wire(bcrd, pin, wire);
-            self.claim_pip(wire, wire_efb);
-        }
-        let clk = self.rc_wire(cell, "CLK_PCNTR");
-        self.add_bel_wire(bcrd, "CLK", clk);
-        let clk_in = self.rc_wire(cell, "PCNTRCLK");
-        self.add_bel_wire(bcrd, "CLK_IN", clk_in);
-        self.claim_pip(clk, clk_in);
-        let clk_int = self.rc_wire(cell, "JCIBCLK");
-        self.add_bel_wire(bcrd, "CLK_INT", clk_int);
-        self.claim_pip(clk_in, clk_int);
-        bel.pins
-            .insert("CLK".into(), self.xlat_int_wire(bcrd, clk_int));
-        let clk_osc = self.rc_wire(cell, "JOSCCLK");
-        self.add_bel_wire(bcrd, "CLK_OSC", clk_osc);
-        self.claim_pip(clk_in, clk_osc);
-        let wire_osc = self.rc_wire(cell, "JOSC_OSC");
-        self.claim_pip(clk_osc, wire_osc);
-        self.insert_legacy_bel(bcrd, bel);
 
         self.extract_bel(cell.bel(bslots::TSALL))
             .name("TSALL")
@@ -831,20 +810,30 @@ impl ChipContext<'_> {
         ) {
             let bcrd = cell.bel(bslots::ESB);
             let cell = cell.delta(1, 0);
-            let (r, c) = self.rc(cell);
-            self.name_bel(bcrd, [format!("ESB_R{r}C{c}")]);
-            self.insert_simple_legacy_bel(bcrd, cell, "ESB");
+            let mut bel = self.extract_bel_cell(bcrd, cell);
+            bel.name_rc("ESB").suffix("ESB");
+            let wire = bel.add_wire_rc_get("OSCCLK", "JOSCCLK_ESB");
+            core::mem::drop(bel);
 
             let wire_osc = self.rc_wire(bcrd_osc.cell, "JOSCESB_OSC");
             self.add_bel_wire(bcrd_osc, "OSCESB", wire_osc);
-            let wire = self.rc_wire(cell, "JOSCCLK_ESB");
-            self.add_bel_wire(bcrd, "OSCCLK", wire);
             self.claim_pip(wire, wire_osc);
         }
     }
 
     fn process_config_ecp4(&mut self) {
         let cell = self.chip.special_loc[&SpecialLocKey::Config];
+
+        self.hybrid_out_rc(
+            cell.bel(bslots::OSC),
+            "JOSC_OSC",
+            wires::OUT_OSC_OSC.cell(0),
+        );
+
+        self.extract_switchbox(cell.bel(bslots::BEL_INT))
+            .output_bind_rc("PCNTRCLK", wires::IMUX_PCNTR_CLK.cell(0))
+            .input_xlat_rc("JOSCCLK")
+            .input_xlat_rc("JCIBCLK");
 
         let mut bel = self.extract_bel(cell.bel(bslots::JTAG));
         bel.names(["JTAG", "TCK", "TMS", "TDI", "TDO"])
@@ -883,8 +872,9 @@ impl ChipContext<'_> {
             .suffix("GSR");
 
         let bcrd_efb = cell.bel(bslots::EFB);
-        self.name_bel(bcrd_efb, ["EFB", "CCLK"]);
-        self.insert_simple_legacy_bel(bcrd_efb, cell, "EFB");
+        self.extract_bel(bcrd_efb)
+            .names(["EFB", "CCLK"])
+            .suffix("EFB");
 
         let cell_cclk = cell.with_col(self.chip.col_w());
         for (pin, pin_cclk) in [
@@ -985,32 +975,19 @@ impl ChipContext<'_> {
             }
         }
 
-        let bcrd = cell.bel(bslots::PCNTR);
-        self.name_bel(bcrd, ["PCNTR"]);
-        let mut bel = self.extract_simple_legacy_bel(bcrd, cell, "PCNTR");
-        for pin in ["CFGWAKE", "CFGSTDBY"] {
-            let wire_efb = self.rc_io_wire(cell, &format!("J{pin}_EFB"));
-            self.add_bel_wire(bcrd_efb, pin, wire_efb);
-            let wire = self.rc_wire(cell, &format!("J{pin}_PCNTR"));
-            self.add_bel_wire(bcrd, pin, wire);
-            self.claim_pip(wire, wire_efb);
+        {
+            let mut bel = self.extract_bel(cell.bel(bslots::PCNTR));
+            bel.name("PCNTR")
+                .suffix("PCNTR")
+                .input_xlat_rc(bcls::PCNTR::CLK, "CLK_PCNTR");
+
+            for pin in ["CFGWAKE", "CFGSTDBY"] {
+                let wire_efb = bel.ctx.rc_io_wire(cell, &format!("J{pin}_EFB"));
+                bel.ctx.add_bel_wire(bcrd_efb, pin, wire_efb);
+                let wire = bel.add_wire_rc_get(pin, format!("J{pin}_PCNTR"));
+                bel.ctx.claim_pip(wire, wire_efb);
+            }
         }
-        let clk = self.rc_wire(cell, "CLK_PCNTR");
-        self.add_bel_wire(bcrd, "CLK", clk);
-        let clk_in = self.rc_wire(cell, "PCNTRCLK");
-        self.add_bel_wire(bcrd, "CLK_IN", clk_in);
-        self.claim_pip(clk, clk_in);
-        let clk_int = self.rc_wire(cell, "JCIBCLK");
-        self.add_bel_wire(bcrd, "CLK_INT", clk_int);
-        self.claim_pip(clk_in, clk_int);
-        bel.pins
-            .insert("CLK".into(), self.xlat_int_wire(bcrd, clk_int));
-        let clk_osc = self.rc_wire(cell, "JOSCCLK");
-        self.add_bel_wire(bcrd, "CLK_OSC", clk_osc);
-        self.claim_pip(clk_in, clk_osc);
-        let wire_osc = self.rc_wire(cell, "JOSC_OSC");
-        self.claim_pip(clk_osc, wire_osc);
-        self.insert_legacy_bel(bcrd, bel);
 
         let bcrd_sed = cell.bel(bslots::SED);
         self.extract_bel(bcrd_sed).name("SED").suffix("SED");
@@ -1026,6 +1003,12 @@ impl ChipContext<'_> {
 
     fn process_config_ecp5(&mut self) {
         let cell = self.chip.special_loc[&SpecialLocKey::Config];
+
+        self.hybrid_out_rc(
+            cell.bel(bslots::OSC),
+            "JOSC_OSC",
+            wires::OUT_OSC_OSC.cell(0),
+        );
 
         let mut bel = self.extract_bel(cell.bel(bslots::JTAG));
         bel.names(["JTAG", "TCK", "TMS", "TDI", "TDO"])
@@ -1082,41 +1065,40 @@ impl ChipContext<'_> {
     fn process_config_crosslink(&mut self) {
         for tcid in [tcls::I2C_W, tcls::I2C_E] {
             for &tcrd in &self.edev.tile_index[tcid] {
-                let bcrd = tcrd.bel(bslots::I2C);
-                let cell = bcrd.cell;
-                self.name_bel(bcrd, [if tcid == tcls::I2C_W { "I2C1" } else { "I2C0" }]);
-                self.insert_simple_legacy_bel(bcrd, cell, "I2C");
                 {
-                    let wire = self.rc_wire(cell, "JPMUWKUP_I2C");
-                    self.add_bel_wire(bcrd, "PMUWKUP", wire);
-                }
-                if tcid == tcls::I2C_E {
-                    for (pin, key) in [("SDA", SpecialIoKey::D(2)), ("SCL", SpecialIoKey::D(3))] {
-                        let io = self.chip.special_io[&key];
-                        let (cell_io, abcd) = self.xlat_io_loc_crosslink(io);
+                    let mut bel = self.extract_bel(tcrd.bel(bslots::I2C));
+                    bel.name(if tcid == tcls::I2C_W { "I2C1" } else { "I2C0" })
+                        .suffix("I2C")
+                        .add_wire_rc("PMUWKUP", "JPMUWKUP_I2C");
+                    if tcid == tcls::I2C_E {
+                        for (pin, key) in [("SDA", SpecialIoKey::D(2)), ("SCL", SpecialIoKey::D(3))]
+                        {
+                            let io = bel.ctx.chip.special_io[&key];
+                            let (cell_io, abcd) = bel.ctx.xlat_io_loc_crosslink(io);
 
-                        let wire_i = self.rc_wire(cell, &format!("J{pin}I_I2C"));
-                        self.add_bel_wire(bcrd, format!("{pin}I"), wire_i);
-                        let wire_paddi = self.rc_io_wire(cell_io, &format!("JPADDI{abcd}_PIO"));
-                        self.claim_pip(wire_i, wire_paddi);
+                            let wire_i =
+                                bel.add_wire_rc_get(format!("{pin}I"), format!("J{pin}I_I2C"));
+                            let wire_paddi =
+                                bel.ctx.rc_io_wire(cell_io, &format!("JPADDI{abcd}_PIO"));
+                            bel.ctx.claim_pip(wire_i, wire_paddi);
 
-                        let wire_o = self.rc_wire(cell, &format!("J{pin}O_I2C"));
-                        self.add_bel_wire(bcrd, format!("{pin}O"), wire_o);
-                        let wire_paddo = self.rc_io_wire(cell_io, &format!("JPADDO{abcd}"));
-                        self.claim_pip(wire_paddo, wire_o);
+                            let wire_o =
+                                bel.add_wire_rc_get(format!("{pin}O"), format!("J{pin}O_I2C"));
+                            let wire_paddo = bel.ctx.rc_io_wire(cell_io, &format!("JPADDO{abcd}"));
+                            bel.ctx.claim_pip(wire_paddo, wire_o);
 
-                        let wire_oen = self.rc_wire(cell, &format!("J{pin}OEN_I2C"));
-                        self.add_bel_wire(bcrd, format!("{pin}OEN"), wire_oen);
-                        let wire_paddt = self.rc_io_wire(cell_io, &format!("JPADDT{abcd}"));
-                        self.claim_pip(wire_paddt, wire_oen);
+                            let wire_oen =
+                                bel.add_wire_rc_get(format!("{pin}OEN"), format!("J{pin}OEN_I2C"));
+                            let wire_paddt = bel.ctx.rc_io_wire(cell_io, &format!("JPADDT{abcd}"));
+                            bel.ctx.claim_pip(wire_paddt, wire_oen);
+                        }
                     }
                 }
 
                 if tcid == tcls::I2C_E {
-                    let bcrd = tcrd.bel(bslots::NVCMTEST);
-                    let cell = bcrd.cell;
-                    self.name_bel(bcrd, ["NVCMTEST"]);
-                    self.insert_simple_legacy_bel(bcrd, cell.delta(1, 0), "NVCMTEST");
+                    self.extract_bel_cell(tcrd.bel(bslots::NVCMTEST), tcrd.delta(1, 0))
+                        .name("NVCMTEST")
+                        .suffix("NVCMTEST");
                 }
             }
         }
@@ -1129,35 +1111,28 @@ impl ChipContext<'_> {
         }
         {
             let cell = self.chip.special_loc[&SpecialLocKey::Pmu];
-            let bcrd = cell.bel(bslots::PMU);
-            self.name_bel(bcrd, ["PMU"]);
-            self.insert_simple_legacy_bel(bcrd, cell, "PMU");
+            let mut bel = self.extract_bel(cell.bel(bslots::PMU));
+            bel.names(["PMU", "PMUTEST"])
+                .suffix("PMU")
+                .suffix("PMUTEST");
 
-            let wire = self.rc_wire(cell, "JPMUCLK_PMU");
-            self.add_bel_wire(bcrd, "PMUCLK", wire);
-            let cell_osc = self.chip.special_loc[&SpecialLocKey::Osc];
-            let wire_osc = self.rc_wire(cell_osc, "JLFCLKOUT_OSC");
-            self.claim_pip(wire, wire_osc);
+            let wire = bel.add_wire_rc_get("PMUCLK", "JPMUCLK_PMU");
+            let cell_osc = bel.ctx.chip.special_loc[&SpecialLocKey::Osc];
+            let wire_osc = bel.ctx.rc_wire(cell_osc, "JLFCLKOUT_OSC");
+            bel.ctx.claim_pip(wire, wire_osc);
 
-            let wire = self.rc_wire(cell, "JPMUWKUP_PMU");
-            self.add_bel_wire(bcrd, "PMUWKUP", wire);
-            let cell_i2c = cell.with_cr(self.chip.col_e() - 1, self.chip.row_n());
-            let wire_i2c = self.rc_wire(cell_i2c, "JPMUWKUP_I2C");
-            self.claim_pip(wire, wire_i2c);
+            let wire = bel.add_wire_rc_get("PMUWKUP", "JPMUWKUP_PMU");
+            let cell_i2c = cell.with_cr(bel.ctx.chip.col_e() - 1, bel.ctx.chip.row_n());
+            let wire_i2c = bel.ctx.rc_wire(cell_i2c, "JPMUWKUP_I2C");
+            bel.ctx.claim_pip(wire, wire_i2c);
 
-            let wire = self.rc_wire(cell, "JUSRWKUPN_PMU");
-            self.add_bel_wire(bcrd, "USRWKUPN", wire);
-            let io = self.chip.special_io[&SpecialIoKey::PmuWakeupN];
-            let (cell_io, abcd) = self.xlat_io_loc_crosslink(io);
-            let wire_paddi = self.rc_io_wire(cell_io, &format!("JPADDI{abcd}_PIO"));
-            self.claim_pip(wire, wire_paddi);
+            let wire = bel.add_wire_rc_get("USRWKUPN", "JUSRWKUPN_PMU");
+            let io = bel.ctx.chip.special_io[&SpecialIoKey::PmuWakeupN];
+            let (cell_io, abcd) = bel.ctx.xlat_io_loc_crosslink(io);
+            let wire_paddi = bel.ctx.rc_io_wire(cell_io, &format!("JPADDI{abcd}_PIO"));
+            bel.ctx.claim_pip(wire, wire_paddi);
 
-            let wire = self.rc_wire(cell, "SLEEPSTATUS_PMU");
-            self.add_bel_wire(bcrd, "SLEEPSTATUS", wire);
-
-            let bcrd = cell.bel(bslots::PMUTEST);
-            self.name_bel(bcrd, ["PMUTEST"]);
-            self.insert_simple_legacy_bel(bcrd, cell, "PMUTEST");
+            bel.add_wire_rc("SLEEPSTATUS", "SLEEPSTATUS_PMU");
         }
         {
             let cell = self.chip.special_loc[&SpecialLocKey::Config];
@@ -1166,9 +1141,9 @@ impl ChipContext<'_> {
                 .name("GSR")
                 .suffix("GSR");
 
-            let bcrd = cell.bel(bslots::CFGTEST);
-            self.name_bel(bcrd, ["CFGTEST"]);
-            self.insert_simple_legacy_bel(bcrd, cell, "CFGTEST");
+            self.extract_bel(cell.bel(bslots::CFGTEST))
+                .name("CFGTEST")
+                .suffix("CFGTEST");
         }
     }
 

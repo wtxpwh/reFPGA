@@ -665,16 +665,16 @@ fn main() -> Result<(), Box<dyn Error>> {
                             continue;
                         };
                         let idx = match mpad {
-                            MipiPad::ClkP => 1,
-                            MipiPad::ClkN => 2,
-                            MipiPad::DataP(0) => 3,
-                            MipiPad::DataN(0) => 4,
-                            MipiPad::DataP(1) => 5,
-                            MipiPad::DataN(1) => 6,
-                            MipiPad::DataP(2) => 7,
-                            MipiPad::DataN(2) => 8,
-                            MipiPad::DataP(3) => 9,
-                            MipiPad::DataN(3) => 10,
+                            MipiPad::ClkP => 2,
+                            MipiPad::ClkN => 3,
+                            MipiPad::DataP(0) => 4,
+                            MipiPad::DataN(0) => 5,
+                            MipiPad::DataP(1) => 6,
+                            MipiPad::DataN(1) => 7,
+                            MipiPad::DataP(2) => 8,
+                            MipiPad::DataN(2) => 9,
+                            MipiPad::DataP(3) => 10,
+                            MipiPad::DataN(3) => 11,
                             _ => continue,
                         };
                         let name = &naming.strings[bnaming.names[idx]];

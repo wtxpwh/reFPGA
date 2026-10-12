@@ -4252,6 +4252,7 @@ intdb {
 		input PADDO;
 		input PADDT;
 		output PADDI;
+		pad PAD: inout
 	}
 
 	bel_class PICTEST {

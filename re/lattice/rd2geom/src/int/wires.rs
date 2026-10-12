@@ -822,10 +822,6 @@ impl ChipContext<'_> {
         self.try_xlat_int_wire(bcrd, wire).unwrap()
     }
 
-    pub fn xlat_int_wire_filter(&mut self, bcrd: BelCoord, wire: WireName) -> BelPin {
-        self.try_xlat_int_wire_inner(bcrd, wire, true).unwrap()
-    }
-
     pub fn try_xlat_input(
         &mut self,
         bcrd: BelCoord,
@@ -961,5 +957,25 @@ impl ChipContext<'_> {
 
     pub fn hybrid_out_rc(&mut self, bcrd: BelCoord, suffix: impl AsRef<str>, wire: TileWireCoord) {
         self.hybrid_out_rc_cell(bcrd, bcrd.cell, suffix, wire);
+    }
+
+    pub fn hybrid_out_rc_io_cell(
+        &mut self,
+        bcrd: BelCoord,
+        cell: CellCoord,
+        suffix: impl AsRef<str>,
+        wire: TileWireCoord,
+    ) {
+        let name = self.rc_io_wire(cell, suffix.as_ref());
+        self.hybrid_out(bcrd, name, wire);
+    }
+
+    pub fn hybrid_out_rc_io(
+        &mut self,
+        bcrd: BelCoord,
+        suffix: impl AsRef<str>,
+        wire: TileWireCoord,
+    ) {
+        self.hybrid_out_rc_io_cell(bcrd, bcrd.cell, suffix, wire);
     }
 }

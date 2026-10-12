@@ -1,6 +1,6 @@
 use prjcombine_ecp::{
     chip::{Chip, IoGroupKind, IoKind, SpecialIoKey, SpecialLocKey},
-    defs::{bslots, tcls},
+    defs::{bcls, bslots, tcls},
 };
 use prjcombine_interconnect::{
     db::LegacyBel,
@@ -24,44 +24,62 @@ impl ChipContext<'_> {
                 _ => unreachable!(),
             };
             let cell = Chip::DIE.cell(col, row);
-            for (bel, name, pin_out, pin_in) in [
-                (bslots::BCINRD, "BCINRD", "INRDENO", "INRDENI"),
-                (bslots::BCLVDSO, "BCLVDSO", "LVDSENO", "LVDSENI"),
+            for (bel, name, pin_out, pin_in, pname_in) in [
+                (
+                    bslots::BCINRD,
+                    "BCINRD",
+                    "INRDENO",
+                    bcls::BCINRD::INRDENI,
+                    "INRDENI",
+                ),
+                (
+                    bslots::BCLVDSO,
+                    "BCLVDSO",
+                    "LVDSENO",
+                    bcls::BCLVDSO::LVDSENI,
+                    "LVDSENI",
+                ),
             ] {
                 let bcrd = cell_loc.bel(bel);
                 if !self.edev.has_bel(bcrd) {
                     continue;
                 }
-                self.name_bel(bcrd, [format!("{name}{bank}")]);
 
-                let wire_in = self.rc_corner_wire(cell, &format!("J{pin_in}_{name}_{suffix}"));
-                self.add_bel_wire(bcrd, pin_in, wire_in);
-                let mut bel = LegacyBel::default();
-                bel.pins
-                    .insert(pin_in.into(), self.xlat_int_wire(bcrd, wire_in));
-                self.insert_legacy_bel(bcrd, bel);
-
+                let wire_in = self.rc_corner_wire(cell, &format!("J{pname_in}_{name}_{suffix}"));
                 let wire_out = self.rc_corner_wire(cell, &format!("{pin_out}_{name}_{suffix}"));
-                self.add_bel_wire(bcrd, pin_out, wire_out);
+                let wire_out_out = self.claim_single_out(wire_out);
                 self.claim_pip(wire_out, wire_in);
 
-                let wire_out_out = self.claim_single_out(wire_out);
-                self.add_bel_wire(bcrd, format!("{pin_out}_OUT"), wire_out_out);
+                self.extract_bel_cell(bcrd, cell)
+                    .name(format!("{name}{bank}"))
+                    .input_xlat(pin_in, wire_in)
+                    .add_wire(pin_out, wire_out)
+                    .add_wire(format!("{pin_out}_OUT"), wire_out_out);
             }
             {
                 let bcrd = cell_loc.bel(bslots::BREFTEST);
-                self.name_bel(bcrd, [format!("BREFTEST{bank}")]);
-                let mut bel = LegacyBel::default();
 
-                for pin in ["PVT_SRC_IN", "PVT_SNK_IN", "PVT_SRC_OUT", "PVT_SNK_OUT"] {
-                    for i in 0..6 {
-                        let wire = self.rc_corner_wire(cell, &format!("J{pin}{i}_BREFTEST{bank}"));
-                        self.add_bel_wire(bcrd, format!("{pin}{i}"), wire);
-                        bel.pins
-                            .insert(format!("{pin}{i}"), self.xlat_int_wire(bcrd, wire));
-                    }
+                let mut bel = self.extract_bel_cell(bcrd, cell);
+                bel.name(format!("BREFTEST{bank}"));
+
+                for i in 0..6 {
+                    let wire_src_in = bel
+                        .ctx
+                        .rc_corner_wire(cell, &format!("JPVT_SRC_IN{i}_BREFTEST{bank}"));
+                    let wire_snk_in = bel
+                        .ctx
+                        .rc_corner_wire(cell, &format!("JPVT_SNK_IN{i}_BREFTEST{bank}"));
+                    let wire_src_out = bel
+                        .ctx
+                        .rc_corner_wire(cell, &format!("JPVT_SRC_OUT{i}_BREFTEST{bank}"));
+                    let wire_snk_out = bel
+                        .ctx
+                        .rc_corner_wire(cell, &format!("JPVT_SNK_OUT{i}_BREFTEST{bank}"));
+                    bel.input_xlat(bcls::BREFTEST::PVT_SRC_IN[i], wire_src_in)
+                        .input_xlat(bcls::BREFTEST::PVT_SNK_IN[i], wire_snk_in)
+                        .output_xlat(bcls::BREFTEST::PVT_SRC_OUT[i], wire_src_out)
+                        .output_xlat(bcls::BREFTEST::PVT_SNK_OUT[i], wire_snk_out);
                 }
-                self.insert_legacy_bel(bcrd, bel);
             }
         }
         if !self.chip.special_loc.contains_key(&SpecialLocKey::Bc(4)) {
@@ -401,9 +419,12 @@ impl ChipContext<'_> {
     pub(super) fn process_dtr_ecp5(&mut self) {
         let tcid = tcls::DTR;
         for &tcrd in &self.edev.tile_index[tcid] {
-            let bcrd = tcrd.bel(bslots::DTR);
-            self.name_bel(bcrd, ["DTR"]);
-            self.insert_simple_legacy_bel(bcrd, bcrd.cell, "DTR");
+            let mut bel = self.extract_bel(tcrd.bel(bslots::DTR));
+            bel.name("DTR")
+                .input_xlat_rc(bcls::DTR::START_PULSE, "JSTARTPULSE_DTR");
+            for i in 0..8 {
+                bel.output_xlat_rc(bcls::DTR::DTR_OUT[i], format!("JDTROUT{i}_DTR"));
+            }
         }
     }
 

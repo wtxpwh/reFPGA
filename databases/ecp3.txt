@@ -8597,6 +8597,7 @@ intdb {
 		output INA;
 		output INB;
 		output INDD;
+		pad PAD: inout
 	}
 
 	bel_class DQS {

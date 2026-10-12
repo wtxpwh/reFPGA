@@ -6977,6 +6977,7 @@ intdb {
 		output IPOS[2];
 		output DI;
 		output QPOS[2];
+		pad PAD: inout
 	}
 
 	bel_class DQS {

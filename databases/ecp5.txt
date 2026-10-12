@@ -10525,6 +10525,21 @@ intdb {
 		output R[72];
 	}
 
+	bel_class BCINRD {
+		input INRDENI;
+	}
+
+	bel_class BCLVDSO {
+		input LVDSENI;
+	}
+
+	bel_class BREFTEST {
+		input PVT_SRC_IN[6];
+		input PVT_SNK_IN[6];
+		output PVT_SRC_OUT[6];
+		output PVT_SNK_OUT[6];
+	}
+
 	bel_class DCC {
 		input CLKI;
 		input CE;
@@ -10575,6 +10590,11 @@ intdb {
 		output SEDDONE;
 		output SEDERR;
 		output AUTODONE;
+	}
+
+	bel_class DTR {
+		input START_PULSE;
+		output DTR_OUT[8];
 	}
 
 	bel_class CCLK {
@@ -10923,6 +10943,7 @@ intdb {
 	wire OUT_Q[5]: bel;
 	wire OUT_Q[6]: bel;
 	wire OUT_Q[7]: bel;
+	wire OUT_OSC_OSC: bel;
 
 	tile_slot INT {
 		bel_slot INT: routing;
@@ -12111,7 +12132,7 @@ intdb {
 		bel_slot GSR: GSR;
 		bel_slot PLLREFCS[0]: legacy;
 		bel_slot DDRDLL: legacy;
-		bel_slot DTR: legacy;
+		bel_slot DTR: DTR;
 		bel_slot DQS[0]: legacy;
 		bel_slot JTAG: JTAG;
 		bel_slot OSC: OSC;
@@ -15003,26 +15024,26 @@ intdb {
 			cell CELL;
 
 			bel DTR {
-				output DTROUT0 = OUT_F[0];
-				output DTROUT1 = OUT_F[1];
-				output DTROUT2 = OUT_F[2];
-				output DTROUT3 = OUT_F[3];
-				output DTROUT4 = OUT_F[4];
-				output DTROUT5 = OUT_F[5];
-				output DTROUT6 = OUT_F[6];
-				output DTROUT7 = OUT_F[7];
-				input STARTPULSE = IMUX_A[0];
+				input START_PULSE = IMUX_A[0];
+				output DTR_OUT[0] = OUT_F[0];
+				output DTR_OUT[1] = OUT_F[1];
+				output DTR_OUT[2] = OUT_F[2];
+				output DTR_OUT[3] = OUT_F[3];
+				output DTR_OUT[4] = OUT_F[4];
+				output DTR_OUT[5] = OUT_F[5];
+				output DTR_OUT[6] = OUT_F[6];
+				output DTR_OUT[7] = OUT_F[7];
 			}
 
-			// wire IMUX_A[0]                      DTR.STARTPULSE
-			// wire OUT_F[0]                       DTR.DTROUT0
-			// wire OUT_F[1]                       DTR.DTROUT1
-			// wire OUT_F[2]                       DTR.DTROUT2
-			// wire OUT_F[3]                       DTR.DTROUT3
-			// wire OUT_F[4]                       DTR.DTROUT4
-			// wire OUT_F[5]                       DTR.DTROUT5
-			// wire OUT_F[6]                       DTR.DTROUT6
-			// wire OUT_F[7]                       DTR.DTROUT7
+			// wire IMUX_A[0]                      DTR.START_PULSE
+			// wire OUT_F[0]                       DTR.DTR_OUT[0]
+			// wire OUT_F[1]                       DTR.DTR_OUT[1]
+			// wire OUT_F[2]                       DTR.DTR_OUT[2]
+			// wire OUT_F[3]                       DTR.DTR_OUT[3]
+			// wire OUT_F[4]                       DTR.DTR_OUT[4]
+			// wire OUT_F[5]                       DTR.DTR_OUT[5]
+			// wire OUT_F[6]                       DTR.DTR_OUT[6]
+			// wire OUT_F[7]                       DTR.DTR_OUT[7]
 		}
 
 		tile_class DQS_W {
@@ -15204,7 +15225,7 @@ intdb {
 
 			bel OSC {
 				input STDBY = CELL[1].IMUX_CE[1];
-				output OSC = CELL[2].OUT_Q[1];
+				output OSC = CELL[0].OUT_OSC_OSC, CELL[2].OUT_Q[1];
 			}
 
 			bel SED {
@@ -15232,6 +15253,7 @@ intdb {
 			// wire CELL[0].OUT_Q[3]               JTAG.JCE2
 			// wire CELL[0].OUT_Q[4]               JTAG.JRTI2
 			// wire CELL[0].OUT_Q[5]               JTAG.JUPDATE
+			// wire CELL[0].OUT_OSC_OSC            OSC.OSC
 			// wire CELL[1].IMUX_A[4]              CCLK.PADDO
 			// wire CELL[1].IMUX_B[4]              CCLK.PADDT
 			// wire CELL[1].IMUX_CE[1]             OSC.STDBY
@@ -15251,120 +15273,120 @@ intdb {
 	}
 
 	tile_slot BC {
-		bel_slot BCINRD: legacy;
-		bel_slot BCLVDSO: legacy;
-		bel_slot BREFTEST: legacy;
+		bel_slot BCINRD: BCINRD;
+		bel_slot BCLVDSO: BCLVDSO;
+		bel_slot BREFTEST: BREFTEST;
 
 		tile_class BC0 {
 			cell CELL;
 
 			bel BREFTEST {
-				input PVT_SNK_IN0 = IMUX_A[2];
-				input PVT_SNK_IN1 = IMUX_B[2];
-				input PVT_SNK_IN2 = IMUX_C[2];
-				input PVT_SNK_IN3 = IMUX_D[2];
-				input PVT_SNK_IN4 = IMUX_C[3];
-				input PVT_SNK_IN5 = IMUX_D[3];
-				output PVT_SNK_OUT0 = OUT_Q[0];
-				output PVT_SNK_OUT1 = OUT_Q[1];
-				output PVT_SNK_OUT2 = OUT_Q[2];
-				output PVT_SNK_OUT3 = OUT_Q[3];
-				output PVT_SNK_OUT4 = OUT_Q[4];
-				output PVT_SNK_OUT5 = OUT_Q[5];
-				input PVT_SRC_IN0 = IMUX_C[0];
-				input PVT_SRC_IN1 = IMUX_D[0];
-				input PVT_SRC_IN2 = IMUX_A[1];
-				input PVT_SRC_IN3 = IMUX_B[1];
-				input PVT_SRC_IN4 = IMUX_C[1];
-				input PVT_SRC_IN5 = IMUX_D[1];
-				output PVT_SRC_OUT0 = OUT_F[0];
-				output PVT_SRC_OUT1 = OUT_F[1];
-				output PVT_SRC_OUT2 = OUT_F[2];
-				output PVT_SRC_OUT3 = OUT_F[3];
-				output PVT_SRC_OUT4 = OUT_F[4];
-				output PVT_SRC_OUT5 = OUT_F[5];
+				input PVT_SRC_IN[0] = IMUX_C[0];
+				input PVT_SRC_IN[1] = IMUX_D[0];
+				input PVT_SRC_IN[2] = IMUX_A[1];
+				input PVT_SRC_IN[3] = IMUX_B[1];
+				input PVT_SRC_IN[4] = IMUX_C[1];
+				input PVT_SRC_IN[5] = IMUX_D[1];
+				input PVT_SNK_IN[0] = IMUX_A[2];
+				input PVT_SNK_IN[1] = IMUX_B[2];
+				input PVT_SNK_IN[2] = IMUX_C[2];
+				input PVT_SNK_IN[3] = IMUX_D[2];
+				input PVT_SNK_IN[4] = IMUX_C[3];
+				input PVT_SNK_IN[5] = IMUX_D[3];
+				output PVT_SRC_OUT[0] = OUT_F[0];
+				output PVT_SRC_OUT[1] = OUT_F[1];
+				output PVT_SRC_OUT[2] = OUT_F[2];
+				output PVT_SRC_OUT[3] = OUT_F[3];
+				output PVT_SRC_OUT[4] = OUT_F[4];
+				output PVT_SRC_OUT[5] = OUT_F[5];
+				output PVT_SNK_OUT[0] = OUT_Q[0];
+				output PVT_SNK_OUT[1] = OUT_Q[1];
+				output PVT_SNK_OUT[2] = OUT_Q[2];
+				output PVT_SNK_OUT[3] = OUT_Q[3];
+				output PVT_SNK_OUT[4] = OUT_Q[4];
+				output PVT_SNK_OUT[5] = OUT_Q[5];
 			}
 
-			// wire IMUX_A[1]                      BREFTEST.PVT_SRC_IN2
-			// wire IMUX_A[2]                      BREFTEST.PVT_SNK_IN0
-			// wire IMUX_B[1]                      BREFTEST.PVT_SRC_IN3
-			// wire IMUX_B[2]                      BREFTEST.PVT_SNK_IN1
-			// wire IMUX_C[0]                      BREFTEST.PVT_SRC_IN0
-			// wire IMUX_C[1]                      BREFTEST.PVT_SRC_IN4
-			// wire IMUX_C[2]                      BREFTEST.PVT_SNK_IN2
-			// wire IMUX_C[3]                      BREFTEST.PVT_SNK_IN4
-			// wire IMUX_D[0]                      BREFTEST.PVT_SRC_IN1
-			// wire IMUX_D[1]                      BREFTEST.PVT_SRC_IN5
-			// wire IMUX_D[2]                      BREFTEST.PVT_SNK_IN3
-			// wire IMUX_D[3]                      BREFTEST.PVT_SNK_IN5
-			// wire OUT_F[0]                       BREFTEST.PVT_SRC_OUT0
-			// wire OUT_F[1]                       BREFTEST.PVT_SRC_OUT1
-			// wire OUT_F[2]                       BREFTEST.PVT_SRC_OUT2
-			// wire OUT_F[3]                       BREFTEST.PVT_SRC_OUT3
-			// wire OUT_F[4]                       BREFTEST.PVT_SRC_OUT4
-			// wire OUT_F[5]                       BREFTEST.PVT_SRC_OUT5
-			// wire OUT_Q[0]                       BREFTEST.PVT_SNK_OUT0
-			// wire OUT_Q[1]                       BREFTEST.PVT_SNK_OUT1
-			// wire OUT_Q[2]                       BREFTEST.PVT_SNK_OUT2
-			// wire OUT_Q[3]                       BREFTEST.PVT_SNK_OUT3
-			// wire OUT_Q[4]                       BREFTEST.PVT_SNK_OUT4
-			// wire OUT_Q[5]                       BREFTEST.PVT_SNK_OUT5
+			// wire IMUX_A[1]                      BREFTEST.PVT_SRC_IN[2]
+			// wire IMUX_A[2]                      BREFTEST.PVT_SNK_IN[0]
+			// wire IMUX_B[1]                      BREFTEST.PVT_SRC_IN[3]
+			// wire IMUX_B[2]                      BREFTEST.PVT_SNK_IN[1]
+			// wire IMUX_C[0]                      BREFTEST.PVT_SRC_IN[0]
+			// wire IMUX_C[1]                      BREFTEST.PVT_SRC_IN[4]
+			// wire IMUX_C[2]                      BREFTEST.PVT_SNK_IN[2]
+			// wire IMUX_C[3]                      BREFTEST.PVT_SNK_IN[4]
+			// wire IMUX_D[0]                      BREFTEST.PVT_SRC_IN[1]
+			// wire IMUX_D[1]                      BREFTEST.PVT_SRC_IN[5]
+			// wire IMUX_D[2]                      BREFTEST.PVT_SNK_IN[3]
+			// wire IMUX_D[3]                      BREFTEST.PVT_SNK_IN[5]
+			// wire OUT_F[0]                       BREFTEST.PVT_SRC_OUT[0]
+			// wire OUT_F[1]                       BREFTEST.PVT_SRC_OUT[1]
+			// wire OUT_F[2]                       BREFTEST.PVT_SRC_OUT[2]
+			// wire OUT_F[3]                       BREFTEST.PVT_SRC_OUT[3]
+			// wire OUT_F[4]                       BREFTEST.PVT_SRC_OUT[4]
+			// wire OUT_F[5]                       BREFTEST.PVT_SRC_OUT[5]
+			// wire OUT_Q[0]                       BREFTEST.PVT_SNK_OUT[0]
+			// wire OUT_Q[1]                       BREFTEST.PVT_SNK_OUT[1]
+			// wire OUT_Q[2]                       BREFTEST.PVT_SNK_OUT[2]
+			// wire OUT_Q[3]                       BREFTEST.PVT_SNK_OUT[3]
+			// wire OUT_Q[4]                       BREFTEST.PVT_SNK_OUT[4]
+			// wire OUT_Q[5]                       BREFTEST.PVT_SNK_OUT[5]
 		}
 
 		tile_class BC1 {
 			cell CELL;
 
 			bel BREFTEST {
-				input PVT_SNK_IN0 = IMUX_A[2];
-				input PVT_SNK_IN1 = IMUX_B[2];
-				input PVT_SNK_IN2 = IMUX_C[2];
-				input PVT_SNK_IN3 = IMUX_D[2];
-				input PVT_SNK_IN4 = IMUX_C[3];
-				input PVT_SNK_IN5 = IMUX_D[3];
-				output PVT_SNK_OUT0 = OUT_Q[0];
-				output PVT_SNK_OUT1 = OUT_Q[1];
-				output PVT_SNK_OUT2 = OUT_Q[2];
-				output PVT_SNK_OUT3 = OUT_Q[3];
-				output PVT_SNK_OUT4 = OUT_Q[4];
-				output PVT_SNK_OUT5 = OUT_Q[5];
-				input PVT_SRC_IN0 = IMUX_C[0];
-				input PVT_SRC_IN1 = IMUX_D[0];
-				input PVT_SRC_IN2 = IMUX_A[1];
-				input PVT_SRC_IN3 = IMUX_B[1];
-				input PVT_SRC_IN4 = IMUX_C[1];
-				input PVT_SRC_IN5 = IMUX_D[1];
-				output PVT_SRC_OUT0 = OUT_F[0];
-				output PVT_SRC_OUT1 = OUT_F[1];
-				output PVT_SRC_OUT2 = OUT_F[2];
-				output PVT_SRC_OUT3 = OUT_F[3];
-				output PVT_SRC_OUT4 = OUT_F[4];
-				output PVT_SRC_OUT5 = OUT_F[5];
+				input PVT_SRC_IN[0] = IMUX_C[0];
+				input PVT_SRC_IN[1] = IMUX_D[0];
+				input PVT_SRC_IN[2] = IMUX_A[1];
+				input PVT_SRC_IN[3] = IMUX_B[1];
+				input PVT_SRC_IN[4] = IMUX_C[1];
+				input PVT_SRC_IN[5] = IMUX_D[1];
+				input PVT_SNK_IN[0] = IMUX_A[2];
+				input PVT_SNK_IN[1] = IMUX_B[2];
+				input PVT_SNK_IN[2] = IMUX_C[2];
+				input PVT_SNK_IN[3] = IMUX_D[2];
+				input PVT_SNK_IN[4] = IMUX_C[3];
+				input PVT_SNK_IN[5] = IMUX_D[3];
+				output PVT_SRC_OUT[0] = OUT_F[0];
+				output PVT_SRC_OUT[1] = OUT_F[1];
+				output PVT_SRC_OUT[2] = OUT_F[2];
+				output PVT_SRC_OUT[3] = OUT_F[3];
+				output PVT_SRC_OUT[4] = OUT_F[4];
+				output PVT_SRC_OUT[5] = OUT_F[5];
+				output PVT_SNK_OUT[0] = OUT_Q[0];
+				output PVT_SNK_OUT[1] = OUT_Q[1];
+				output PVT_SNK_OUT[2] = OUT_Q[2];
+				output PVT_SNK_OUT[3] = OUT_Q[3];
+				output PVT_SNK_OUT[4] = OUT_Q[4];
+				output PVT_SNK_OUT[5] = OUT_Q[5];
 			}
 
-			// wire IMUX_A[1]                      BREFTEST.PVT_SRC_IN2
-			// wire IMUX_A[2]                      BREFTEST.PVT_SNK_IN0
-			// wire IMUX_B[1]                      BREFTEST.PVT_SRC_IN3
-			// wire IMUX_B[2]                      BREFTEST.PVT_SNK_IN1
-			// wire IMUX_C[0]                      BREFTEST.PVT_SRC_IN0
-			// wire IMUX_C[1]                      BREFTEST.PVT_SRC_IN4
-			// wire IMUX_C[2]                      BREFTEST.PVT_SNK_IN2
-			// wire IMUX_C[3]                      BREFTEST.PVT_SNK_IN4
-			// wire IMUX_D[0]                      BREFTEST.PVT_SRC_IN1
-			// wire IMUX_D[1]                      BREFTEST.PVT_SRC_IN5
-			// wire IMUX_D[2]                      BREFTEST.PVT_SNK_IN3
-			// wire IMUX_D[3]                      BREFTEST.PVT_SNK_IN5
-			// wire OUT_F[0]                       BREFTEST.PVT_SRC_OUT0
-			// wire OUT_F[1]                       BREFTEST.PVT_SRC_OUT1
-			// wire OUT_F[2]                       BREFTEST.PVT_SRC_OUT2
-			// wire OUT_F[3]                       BREFTEST.PVT_SRC_OUT3
-			// wire OUT_F[4]                       BREFTEST.PVT_SRC_OUT4
-			// wire OUT_F[5]                       BREFTEST.PVT_SRC_OUT5
-			// wire OUT_Q[0]                       BREFTEST.PVT_SNK_OUT0
-			// wire OUT_Q[1]                       BREFTEST.PVT_SNK_OUT1
-			// wire OUT_Q[2]                       BREFTEST.PVT_SNK_OUT2
-			// wire OUT_Q[3]                       BREFTEST.PVT_SNK_OUT3
-			// wire OUT_Q[4]                       BREFTEST.PVT_SNK_OUT4
-			// wire OUT_Q[5]                       BREFTEST.PVT_SNK_OUT5
+			// wire IMUX_A[1]                      BREFTEST.PVT_SRC_IN[2]
+			// wire IMUX_A[2]                      BREFTEST.PVT_SNK_IN[0]
+			// wire IMUX_B[1]                      BREFTEST.PVT_SRC_IN[3]
+			// wire IMUX_B[2]                      BREFTEST.PVT_SNK_IN[1]
+			// wire IMUX_C[0]                      BREFTEST.PVT_SRC_IN[0]
+			// wire IMUX_C[1]                      BREFTEST.PVT_SRC_IN[4]
+			// wire IMUX_C[2]                      BREFTEST.PVT_SNK_IN[2]
+			// wire IMUX_C[3]                      BREFTEST.PVT_SNK_IN[4]
+			// wire IMUX_D[0]                      BREFTEST.PVT_SRC_IN[1]
+			// wire IMUX_D[1]                      BREFTEST.PVT_SRC_IN[5]
+			// wire IMUX_D[2]                      BREFTEST.PVT_SNK_IN[3]
+			// wire IMUX_D[3]                      BREFTEST.PVT_SNK_IN[5]
+			// wire OUT_F[0]                       BREFTEST.PVT_SRC_OUT[0]
+			// wire OUT_F[1]                       BREFTEST.PVT_SRC_OUT[1]
+			// wire OUT_F[2]                       BREFTEST.PVT_SRC_OUT[2]
+			// wire OUT_F[3]                       BREFTEST.PVT_SRC_OUT[3]
+			// wire OUT_F[4]                       BREFTEST.PVT_SRC_OUT[4]
+			// wire OUT_F[5]                       BREFTEST.PVT_SRC_OUT[5]
+			// wire OUT_Q[0]                       BREFTEST.PVT_SNK_OUT[0]
+			// wire OUT_Q[1]                       BREFTEST.PVT_SNK_OUT[1]
+			// wire OUT_Q[2]                       BREFTEST.PVT_SNK_OUT[2]
+			// wire OUT_Q[3]                       BREFTEST.PVT_SNK_OUT[3]
+			// wire OUT_Q[4]                       BREFTEST.PVT_SNK_OUT[4]
+			// wire OUT_Q[5]                       BREFTEST.PVT_SNK_OUT[5]
 		}
 
 		tile_class BC2 {
@@ -15379,58 +15401,58 @@ intdb {
 			}
 
 			bel BREFTEST {
-				input PVT_SNK_IN0 = IMUX_A[2];
-				input PVT_SNK_IN1 = IMUX_B[2];
-				input PVT_SNK_IN2 = IMUX_C[2];
-				input PVT_SNK_IN3 = IMUX_D[2];
-				input PVT_SNK_IN4 = IMUX_C[3];
-				input PVT_SNK_IN5 = IMUX_D[3];
-				output PVT_SNK_OUT0 = OUT_Q[0];
-				output PVT_SNK_OUT1 = OUT_Q[1];
-				output PVT_SNK_OUT2 = OUT_Q[2];
-				output PVT_SNK_OUT3 = OUT_Q[3];
-				output PVT_SNK_OUT4 = OUT_Q[4];
-				output PVT_SNK_OUT5 = OUT_Q[5];
-				input PVT_SRC_IN0 = IMUX_C[0];
-				input PVT_SRC_IN1 = IMUX_D[0];
-				input PVT_SRC_IN2 = IMUX_A[1];
-				input PVT_SRC_IN3 = IMUX_B[1];
-				input PVT_SRC_IN4 = IMUX_C[1];
-				input PVT_SRC_IN5 = IMUX_D[1];
-				output PVT_SRC_OUT0 = OUT_F[0];
-				output PVT_SRC_OUT1 = OUT_F[1];
-				output PVT_SRC_OUT2 = OUT_F[2];
-				output PVT_SRC_OUT3 = OUT_F[3];
-				output PVT_SRC_OUT4 = OUT_F[4];
-				output PVT_SRC_OUT5 = OUT_F[5];
+				input PVT_SRC_IN[0] = IMUX_C[0];
+				input PVT_SRC_IN[1] = IMUX_D[0];
+				input PVT_SRC_IN[2] = IMUX_A[1];
+				input PVT_SRC_IN[3] = IMUX_B[1];
+				input PVT_SRC_IN[4] = IMUX_C[1];
+				input PVT_SRC_IN[5] = IMUX_D[1];
+				input PVT_SNK_IN[0] = IMUX_A[2];
+				input PVT_SNK_IN[1] = IMUX_B[2];
+				input PVT_SNK_IN[2] = IMUX_C[2];
+				input PVT_SNK_IN[3] = IMUX_D[2];
+				input PVT_SNK_IN[4] = IMUX_C[3];
+				input PVT_SNK_IN[5] = IMUX_D[3];
+				output PVT_SRC_OUT[0] = OUT_F[0];
+				output PVT_SRC_OUT[1] = OUT_F[1];
+				output PVT_SRC_OUT[2] = OUT_F[2];
+				output PVT_SRC_OUT[3] = OUT_F[3];
+				output PVT_SRC_OUT[4] = OUT_F[4];
+				output PVT_SRC_OUT[5] = OUT_F[5];
+				output PVT_SNK_OUT[0] = OUT_Q[0];
+				output PVT_SNK_OUT[1] = OUT_Q[1];
+				output PVT_SNK_OUT[2] = OUT_Q[2];
+				output PVT_SNK_OUT[3] = OUT_Q[3];
+				output PVT_SNK_OUT[4] = OUT_Q[4];
+				output PVT_SNK_OUT[5] = OUT_Q[5];
 			}
 
-			// wire IMUX_A[1]                      BREFTEST.PVT_SRC_IN2
-			// wire IMUX_A[2]                      BREFTEST.PVT_SNK_IN0
+			// wire IMUX_A[1]                      BREFTEST.PVT_SRC_IN[2]
+			// wire IMUX_A[2]                      BREFTEST.PVT_SNK_IN[0]
 			// wire IMUX_A[4]                      BCLVDSO.LVDSENI
-			// wire IMUX_B[1]                      BREFTEST.PVT_SRC_IN3
-			// wire IMUX_B[2]                      BREFTEST.PVT_SNK_IN1
+			// wire IMUX_B[1]                      BREFTEST.PVT_SRC_IN[3]
+			// wire IMUX_B[2]                      BREFTEST.PVT_SNK_IN[1]
 			// wire IMUX_B[4]                      BCINRD.INRDENI
-			// wire IMUX_C[0]                      BREFTEST.PVT_SRC_IN0
-			// wire IMUX_C[1]                      BREFTEST.PVT_SRC_IN4
-			// wire IMUX_C[2]                      BREFTEST.PVT_SNK_IN2
-			// wire IMUX_C[3]                      BREFTEST.PVT_SNK_IN4
-			// wire IMUX_D[0]                      BREFTEST.PVT_SRC_IN1
-			// wire IMUX_D[1]                      BREFTEST.PVT_SRC_IN5
-			// wire IMUX_D[2]                      BREFTEST.PVT_SNK_IN3
-			// wire IMUX_D[3]                      BREFTEST.PVT_SNK_IN5
-			// wire OUT_F[0]                       BREFTEST.PVT_SRC_OUT0
-			// wire OUT_F[1]                       BREFTEST.PVT_SRC_OUT1
-			// wire OUT_F[2]                       BREFTEST.PVT_SRC_OUT2
-			// wire OUT_F[3]                       BREFTEST.PVT_SRC_OUT3
-			// wire OUT_F[4]                       BREFTEST.PVT_SRC_OUT4
-			// wire OUT_F[5]                       BREFTEST.PVT_SRC_OUT5
-			// wire OUT_Q[0]                       BREFTEST.PVT_SNK_OUT0
-			// wire OUT_Q[1]                       BREFTEST.PVT_SNK_OUT1
-			// wire OUT_Q[2]                       BREFTEST.PVT_SNK_OUT2
-			// wire OUT_Q[3]                       BREFTEST.PVT_SNK_OUT3
-			// wire OUT_Q[4]                       BREFTEST.PVT_SNK_OUT4
-			// wire OUT_Q[5]                       BREFTEST.PVT_SNK_OUT5
+			// wire IMUX_C[0]                      BREFTEST.PVT_SRC_IN[0]
+			// wire IMUX_C[1]                      BREFTEST.PVT_SRC_IN[4]
+			// wire IMUX_C[2]                      BREFTEST.PVT_SNK_IN[2]
+			// wire IMUX_C[3]                      BREFTEST.PVT_SNK_IN[4]
+			// wire IMUX_D[0]                      BREFTEST.PVT_SRC_IN[1]
+			// wire IMUX_D[1]                      BREFTEST.PVT_SRC_IN[5]
+			// wire IMUX_D[2]                      BREFTEST.PVT_SNK_IN[3]
+			// wire IMUX_D[3]                      BREFTEST.PVT_SNK_IN[5]
+			// wire OUT_F[0]                       BREFTEST.PVT_SRC_OUT[0]
+			// wire OUT_F[1]                       BREFTEST.PVT_SRC_OUT[1]
+			// wire OUT_F[2]                       BREFTEST.PVT_SRC_OUT[2]
+			// wire OUT_F[3]                       BREFTEST.PVT_SRC_OUT[3]
+			// wire OUT_F[4]                       BREFTEST.PVT_SRC_OUT[4]
+			// wire OUT_F[5]                       BREFTEST.PVT_SRC_OUT[5]
+			// wire OUT_Q[0]                       BREFTEST.PVT_SNK_OUT[0]
+			// wire OUT_Q[1]                       BREFTEST.PVT_SNK_OUT[1]
+			// wire OUT_Q[2]                       BREFTEST.PVT_SNK_OUT[2]
+			// wire OUT_Q[3]                       BREFTEST.PVT_SNK_OUT[3]
+			// wire OUT_Q[4]                       BREFTEST.PVT_SNK_OUT[4]
+			// wire OUT_Q[5]                       BREFTEST.PVT_SNK_OUT[5]
 		}
 
 		tile_class BC3 {
@@ -15445,114 +15467,114 @@ intdb {
 			}
 
 			bel BREFTEST {
-				input PVT_SNK_IN0 = IMUX_A[2];
-				input PVT_SNK_IN1 = IMUX_B[2];
-				input PVT_SNK_IN2 = IMUX_C[2];
-				input PVT_SNK_IN3 = IMUX_D[2];
-				input PVT_SNK_IN4 = IMUX_C[3];
-				input PVT_SNK_IN5 = IMUX_D[3];
-				output PVT_SNK_OUT0 = OUT_Q[0];
-				output PVT_SNK_OUT1 = OUT_Q[1];
-				output PVT_SNK_OUT2 = OUT_Q[2];
-				output PVT_SNK_OUT3 = OUT_Q[3];
-				output PVT_SNK_OUT4 = OUT_Q[4];
-				output PVT_SNK_OUT5 = OUT_Q[5];
-				input PVT_SRC_IN0 = IMUX_C[0];
-				input PVT_SRC_IN1 = IMUX_D[0];
-				input PVT_SRC_IN2 = IMUX_A[1];
-				input PVT_SRC_IN3 = IMUX_B[1];
-				input PVT_SRC_IN4 = IMUX_C[1];
-				input PVT_SRC_IN5 = IMUX_D[1];
-				output PVT_SRC_OUT0 = OUT_F[0];
-				output PVT_SRC_OUT1 = OUT_F[1];
-				output PVT_SRC_OUT2 = OUT_F[2];
-				output PVT_SRC_OUT3 = OUT_F[3];
-				output PVT_SRC_OUT4 = OUT_F[4];
-				output PVT_SRC_OUT5 = OUT_F[5];
+				input PVT_SRC_IN[0] = IMUX_C[0];
+				input PVT_SRC_IN[1] = IMUX_D[0];
+				input PVT_SRC_IN[2] = IMUX_A[1];
+				input PVT_SRC_IN[3] = IMUX_B[1];
+				input PVT_SRC_IN[4] = IMUX_C[1];
+				input PVT_SRC_IN[5] = IMUX_D[1];
+				input PVT_SNK_IN[0] = IMUX_A[2];
+				input PVT_SNK_IN[1] = IMUX_B[2];
+				input PVT_SNK_IN[2] = IMUX_C[2];
+				input PVT_SNK_IN[3] = IMUX_D[2];
+				input PVT_SNK_IN[4] = IMUX_C[3];
+				input PVT_SNK_IN[5] = IMUX_D[3];
+				output PVT_SRC_OUT[0] = OUT_F[0];
+				output PVT_SRC_OUT[1] = OUT_F[1];
+				output PVT_SRC_OUT[2] = OUT_F[2];
+				output PVT_SRC_OUT[3] = OUT_F[3];
+				output PVT_SRC_OUT[4] = OUT_F[4];
+				output PVT_SRC_OUT[5] = OUT_F[5];
+				output PVT_SNK_OUT[0] = OUT_Q[0];
+				output PVT_SNK_OUT[1] = OUT_Q[1];
+				output PVT_SNK_OUT[2] = OUT_Q[2];
+				output PVT_SNK_OUT[3] = OUT_Q[3];
+				output PVT_SNK_OUT[4] = OUT_Q[4];
+				output PVT_SNK_OUT[5] = OUT_Q[5];
 			}
 
-			// wire IMUX_A[1]                      BREFTEST.PVT_SRC_IN2
-			// wire IMUX_A[2]                      BREFTEST.PVT_SNK_IN0
+			// wire IMUX_A[1]                      BREFTEST.PVT_SRC_IN[2]
+			// wire IMUX_A[2]                      BREFTEST.PVT_SNK_IN[0]
 			// wire IMUX_A[4]                      BCLVDSO.LVDSENI
-			// wire IMUX_B[1]                      BREFTEST.PVT_SRC_IN3
-			// wire IMUX_B[2]                      BREFTEST.PVT_SNK_IN1
+			// wire IMUX_B[1]                      BREFTEST.PVT_SRC_IN[3]
+			// wire IMUX_B[2]                      BREFTEST.PVT_SNK_IN[1]
 			// wire IMUX_B[4]                      BCINRD.INRDENI
-			// wire IMUX_C[0]                      BREFTEST.PVT_SRC_IN0
-			// wire IMUX_C[1]                      BREFTEST.PVT_SRC_IN4
-			// wire IMUX_C[2]                      BREFTEST.PVT_SNK_IN2
-			// wire IMUX_C[3]                      BREFTEST.PVT_SNK_IN4
-			// wire IMUX_D[0]                      BREFTEST.PVT_SRC_IN1
-			// wire IMUX_D[1]                      BREFTEST.PVT_SRC_IN5
-			// wire IMUX_D[2]                      BREFTEST.PVT_SNK_IN3
-			// wire IMUX_D[3]                      BREFTEST.PVT_SNK_IN5
-			// wire OUT_F[0]                       BREFTEST.PVT_SRC_OUT0
-			// wire OUT_F[1]                       BREFTEST.PVT_SRC_OUT1
-			// wire OUT_F[2]                       BREFTEST.PVT_SRC_OUT2
-			// wire OUT_F[3]                       BREFTEST.PVT_SRC_OUT3
-			// wire OUT_F[4]                       BREFTEST.PVT_SRC_OUT4
-			// wire OUT_F[5]                       BREFTEST.PVT_SRC_OUT5
-			// wire OUT_Q[0]                       BREFTEST.PVT_SNK_OUT0
-			// wire OUT_Q[1]                       BREFTEST.PVT_SNK_OUT1
-			// wire OUT_Q[2]                       BREFTEST.PVT_SNK_OUT2
-			// wire OUT_Q[3]                       BREFTEST.PVT_SNK_OUT3
-			// wire OUT_Q[4]                       BREFTEST.PVT_SNK_OUT4
-			// wire OUT_Q[5]                       BREFTEST.PVT_SNK_OUT5
+			// wire IMUX_C[0]                      BREFTEST.PVT_SRC_IN[0]
+			// wire IMUX_C[1]                      BREFTEST.PVT_SRC_IN[4]
+			// wire IMUX_C[2]                      BREFTEST.PVT_SNK_IN[2]
+			// wire IMUX_C[3]                      BREFTEST.PVT_SNK_IN[4]
+			// wire IMUX_D[0]                      BREFTEST.PVT_SRC_IN[1]
+			// wire IMUX_D[1]                      BREFTEST.PVT_SRC_IN[5]
+			// wire IMUX_D[2]                      BREFTEST.PVT_SNK_IN[3]
+			// wire IMUX_D[3]                      BREFTEST.PVT_SNK_IN[5]
+			// wire OUT_F[0]                       BREFTEST.PVT_SRC_OUT[0]
+			// wire OUT_F[1]                       BREFTEST.PVT_SRC_OUT[1]
+			// wire OUT_F[2]                       BREFTEST.PVT_SRC_OUT[2]
+			// wire OUT_F[3]                       BREFTEST.PVT_SRC_OUT[3]
+			// wire OUT_F[4]                       BREFTEST.PVT_SRC_OUT[4]
+			// wire OUT_F[5]                       BREFTEST.PVT_SRC_OUT[5]
+			// wire OUT_Q[0]                       BREFTEST.PVT_SNK_OUT[0]
+			// wire OUT_Q[1]                       BREFTEST.PVT_SNK_OUT[1]
+			// wire OUT_Q[2]                       BREFTEST.PVT_SNK_OUT[2]
+			// wire OUT_Q[3]                       BREFTEST.PVT_SNK_OUT[3]
+			// wire OUT_Q[4]                       BREFTEST.PVT_SNK_OUT[4]
+			// wire OUT_Q[5]                       BREFTEST.PVT_SNK_OUT[5]
 		}
 
 		tile_class BC4 {
 			cell CELL;
 
 			bel BREFTEST {
-				input PVT_SNK_IN0 = IMUX_A[2];
-				input PVT_SNK_IN1 = IMUX_B[2];
-				input PVT_SNK_IN2 = IMUX_C[2];
-				input PVT_SNK_IN3 = IMUX_D[2];
-				input PVT_SNK_IN4 = IMUX_C[3];
-				input PVT_SNK_IN5 = IMUX_D[3];
-				output PVT_SNK_OUT0 = OUT_Q[0];
-				output PVT_SNK_OUT1 = OUT_Q[1];
-				output PVT_SNK_OUT2 = OUT_Q[2];
-				output PVT_SNK_OUT3 = OUT_Q[3];
-				output PVT_SNK_OUT4 = OUT_Q[4];
-				output PVT_SNK_OUT5 = OUT_Q[5];
-				input PVT_SRC_IN0 = IMUX_C[0];
-				input PVT_SRC_IN1 = IMUX_D[0];
-				input PVT_SRC_IN2 = IMUX_A[1];
-				input PVT_SRC_IN3 = IMUX_B[1];
-				input PVT_SRC_IN4 = IMUX_C[1];
-				input PVT_SRC_IN5 = IMUX_D[1];
-				output PVT_SRC_OUT0 = OUT_F[0];
-				output PVT_SRC_OUT1 = OUT_F[1];
-				output PVT_SRC_OUT2 = OUT_F[2];
-				output PVT_SRC_OUT3 = OUT_F[3];
-				output PVT_SRC_OUT4 = OUT_F[4];
-				output PVT_SRC_OUT5 = OUT_F[5];
+				input PVT_SRC_IN[0] = IMUX_C[0];
+				input PVT_SRC_IN[1] = IMUX_D[0];
+				input PVT_SRC_IN[2] = IMUX_A[1];
+				input PVT_SRC_IN[3] = IMUX_B[1];
+				input PVT_SRC_IN[4] = IMUX_C[1];
+				input PVT_SRC_IN[5] = IMUX_D[1];
+				input PVT_SNK_IN[0] = IMUX_A[2];
+				input PVT_SNK_IN[1] = IMUX_B[2];
+				input PVT_SNK_IN[2] = IMUX_C[2];
+				input PVT_SNK_IN[3] = IMUX_D[2];
+				input PVT_SNK_IN[4] = IMUX_C[3];
+				input PVT_SNK_IN[5] = IMUX_D[3];
+				output PVT_SRC_OUT[0] = OUT_F[0];
+				output PVT_SRC_OUT[1] = OUT_F[1];
+				output PVT_SRC_OUT[2] = OUT_F[2];
+				output PVT_SRC_OUT[3] = OUT_F[3];
+				output PVT_SRC_OUT[4] = OUT_F[4];
+				output PVT_SRC_OUT[5] = OUT_F[5];
+				output PVT_SNK_OUT[0] = OUT_Q[0];
+				output PVT_SNK_OUT[1] = OUT_Q[1];
+				output PVT_SNK_OUT[2] = OUT_Q[2];
+				output PVT_SNK_OUT[3] = OUT_Q[3];
+				output PVT_SNK_OUT[4] = OUT_Q[4];
+				output PVT_SNK_OUT[5] = OUT_Q[5];
 			}
 
-			// wire IMUX_A[1]                      BREFTEST.PVT_SRC_IN2
-			// wire IMUX_A[2]                      BREFTEST.PVT_SNK_IN0
-			// wire IMUX_B[1]                      BREFTEST.PVT_SRC_IN3
-			// wire IMUX_B[2]                      BREFTEST.PVT_SNK_IN1
-			// wire IMUX_C[0]                      BREFTEST.PVT_SRC_IN0
-			// wire IMUX_C[1]                      BREFTEST.PVT_SRC_IN4
-			// wire IMUX_C[2]                      BREFTEST.PVT_SNK_IN2
-			// wire IMUX_C[3]                      BREFTEST.PVT_SNK_IN4
-			// wire IMUX_D[0]                      BREFTEST.PVT_SRC_IN1
-			// wire IMUX_D[1]                      BREFTEST.PVT_SRC_IN5
-			// wire IMUX_D[2]                      BREFTEST.PVT_SNK_IN3
-			// wire IMUX_D[3]                      BREFTEST.PVT_SNK_IN5
-			// wire OUT_F[0]                       BREFTEST.PVT_SRC_OUT0
-			// wire OUT_F[1]                       BREFTEST.PVT_SRC_OUT1
-			// wire OUT_F[2]                       BREFTEST.PVT_SRC_OUT2
-			// wire OUT_F[3]                       BREFTEST.PVT_SRC_OUT3
-			// wire OUT_F[4]                       BREFTEST.PVT_SRC_OUT4
-			// wire OUT_F[5]                       BREFTEST.PVT_SRC_OUT5
-			// wire OUT_Q[0]                       BREFTEST.PVT_SNK_OUT0
-			// wire OUT_Q[1]                       BREFTEST.PVT_SNK_OUT1
-			// wire OUT_Q[2]                       BREFTEST.PVT_SNK_OUT2
-			// wire OUT_Q[3]                       BREFTEST.PVT_SNK_OUT3
-			// wire OUT_Q[4]                       BREFTEST.PVT_SNK_OUT4
-			// wire OUT_Q[5]                       BREFTEST.PVT_SNK_OUT5
+			// wire IMUX_A[1]                      BREFTEST.PVT_SRC_IN[2]
+			// wire IMUX_A[2]                      BREFTEST.PVT_SNK_IN[0]
+			// wire IMUX_B[1]                      BREFTEST.PVT_SRC_IN[3]
+			// wire IMUX_B[2]                      BREFTEST.PVT_SNK_IN[1]
+			// wire IMUX_C[0]                      BREFTEST.PVT_SRC_IN[0]
+			// wire IMUX_C[1]                      BREFTEST.PVT_SRC_IN[4]
+			// wire IMUX_C[2]                      BREFTEST.PVT_SNK_IN[2]
+			// wire IMUX_C[3]                      BREFTEST.PVT_SNK_IN[4]
+			// wire IMUX_D[0]                      BREFTEST.PVT_SRC_IN[1]
+			// wire IMUX_D[1]                      BREFTEST.PVT_SRC_IN[5]
+			// wire IMUX_D[2]                      BREFTEST.PVT_SNK_IN[3]
+			// wire IMUX_D[3]                      BREFTEST.PVT_SNK_IN[5]
+			// wire OUT_F[0]                       BREFTEST.PVT_SRC_OUT[0]
+			// wire OUT_F[1]                       BREFTEST.PVT_SRC_OUT[1]
+			// wire OUT_F[2]                       BREFTEST.PVT_SRC_OUT[2]
+			// wire OUT_F[3]                       BREFTEST.PVT_SRC_OUT[3]
+			// wire OUT_F[4]                       BREFTEST.PVT_SRC_OUT[4]
+			// wire OUT_F[5]                       BREFTEST.PVT_SRC_OUT[5]
+			// wire OUT_Q[0]                       BREFTEST.PVT_SNK_OUT[0]
+			// wire OUT_Q[1]                       BREFTEST.PVT_SNK_OUT[1]
+			// wire OUT_Q[2]                       BREFTEST.PVT_SNK_OUT[2]
+			// wire OUT_Q[3]                       BREFTEST.PVT_SNK_OUT[3]
+			// wire OUT_Q[4]                       BREFTEST.PVT_SNK_OUT[4]
+			// wire OUT_Q[5]                       BREFTEST.PVT_SNK_OUT[5]
 		}
 
 		tile_class BC6 {
@@ -15567,58 +15589,58 @@ intdb {
 			}
 
 			bel BREFTEST {
-				input PVT_SNK_IN0 = IMUX_A[2];
-				input PVT_SNK_IN1 = IMUX_B[2];
-				input PVT_SNK_IN2 = IMUX_C[2];
-				input PVT_SNK_IN3 = IMUX_D[2];
-				input PVT_SNK_IN4 = IMUX_C[3];
-				input PVT_SNK_IN5 = IMUX_D[3];
-				output PVT_SNK_OUT0 = OUT_Q[0];
-				output PVT_SNK_OUT1 = OUT_Q[1];
-				output PVT_SNK_OUT2 = OUT_Q[2];
-				output PVT_SNK_OUT3 = OUT_Q[3];
-				output PVT_SNK_OUT4 = OUT_Q[4];
-				output PVT_SNK_OUT5 = OUT_Q[5];
-				input PVT_SRC_IN0 = IMUX_C[0];
-				input PVT_SRC_IN1 = IMUX_D[0];
-				input PVT_SRC_IN2 = IMUX_A[1];
-				input PVT_SRC_IN3 = IMUX_B[1];
-				input PVT_SRC_IN4 = IMUX_C[1];
-				input PVT_SRC_IN5 = IMUX_D[1];
-				output PVT_SRC_OUT0 = OUT_F[0];
-				output PVT_SRC_OUT1 = OUT_F[1];
-				output PVT_SRC_OUT2 = OUT_F[2];
-				output PVT_SRC_OUT3 = OUT_F[3];
-				output PVT_SRC_OUT4 = OUT_F[4];
-				output PVT_SRC_OUT5 = OUT_F[5];
+				input PVT_SRC_IN[0] = IMUX_C[0];
+				input PVT_SRC_IN[1] = IMUX_D[0];
+				input PVT_SRC_IN[2] = IMUX_A[1];
+				input PVT_SRC_IN[3] = IMUX_B[1];
+				input PVT_SRC_IN[4] = IMUX_C[1];
+				input PVT_SRC_IN[5] = IMUX_D[1];
+				input PVT_SNK_IN[0] = IMUX_A[2];
+				input PVT_SNK_IN[1] = IMUX_B[2];
+				input PVT_SNK_IN[2] = IMUX_C[2];
+				input PVT_SNK_IN[3] = IMUX_D[2];
+				input PVT_SNK_IN[4] = IMUX_C[3];
+				input PVT_SNK_IN[5] = IMUX_D[3];
+				output PVT_SRC_OUT[0] = OUT_F[0];
+				output PVT_SRC_OUT[1] = OUT_F[1];
+				output PVT_SRC_OUT[2] = OUT_F[2];
+				output PVT_SRC_OUT[3] = OUT_F[3];
+				output PVT_SRC_OUT[4] = OUT_F[4];
+				output PVT_SRC_OUT[5] = OUT_F[5];
+				output PVT_SNK_OUT[0] = OUT_Q[0];
+				output PVT_SNK_OUT[1] = OUT_Q[1];
+				output PVT_SNK_OUT[2] = OUT_Q[2];
+				output PVT_SNK_OUT[3] = OUT_Q[3];
+				output PVT_SNK_OUT[4] = OUT_Q[4];
+				output PVT_SNK_OUT[5] = OUT_Q[5];
 			}
 
-			// wire IMUX_A[1]                      BREFTEST.PVT_SRC_IN2
-			// wire IMUX_A[2]                      BREFTEST.PVT_SNK_IN0
+			// wire IMUX_A[1]                      BREFTEST.PVT_SRC_IN[2]
+			// wire IMUX_A[2]                      BREFTEST.PVT_SNK_IN[0]
 			// wire IMUX_A[4]                      BCLVDSO.LVDSENI
-			// wire IMUX_B[1]                      BREFTEST.PVT_SRC_IN3
-			// wire IMUX_B[2]                      BREFTEST.PVT_SNK_IN1
+			// wire IMUX_B[1]                      BREFTEST.PVT_SRC_IN[3]
+			// wire IMUX_B[2]                      BREFTEST.PVT_SNK_IN[1]
 			// wire IMUX_B[4]                      BCINRD.INRDENI
-			// wire IMUX_C[0]                      BREFTEST.PVT_SRC_IN0
-			// wire IMUX_C[1]                      BREFTEST.PVT_SRC_IN4
-			// wire IMUX_C[2]                      BREFTEST.PVT_SNK_IN2
-			// wire IMUX_C[3]                      BREFTEST.PVT_SNK_IN4
-			// wire IMUX_D[0]                      BREFTEST.PVT_SRC_IN1
-			// wire IMUX_D[1]                      BREFTEST.PVT_SRC_IN5
-			// wire IMUX_D[2]                      BREFTEST.PVT_SNK_IN3
-			// wire IMUX_D[3]                      BREFTEST.PVT_SNK_IN5
-			// wire OUT_F[0]                       BREFTEST.PVT_SRC_OUT0
-			// wire OUT_F[1]                       BREFTEST.PVT_SRC_OUT1
-			// wire OUT_F[2]                       BREFTEST.PVT_SRC_OUT2
-			// wire OUT_F[3]                       BREFTEST.PVT_SRC_OUT3
-			// wire OUT_F[4]                       BREFTEST.PVT_SRC_OUT4
-			// wire OUT_F[5]                       BREFTEST.PVT_SRC_OUT5
-			// wire OUT_Q[0]                       BREFTEST.PVT_SNK_OUT0
-			// wire OUT_Q[1]                       BREFTEST.PVT_SNK_OUT1
-			// wire OUT_Q[2]                       BREFTEST.PVT_SNK_OUT2
-			// wire OUT_Q[3]                       BREFTEST.PVT_SNK_OUT3
-			// wire OUT_Q[4]                       BREFTEST.PVT_SNK_OUT4
-			// wire OUT_Q[5]                       BREFTEST.PVT_SNK_OUT5
+			// wire IMUX_C[0]                      BREFTEST.PVT_SRC_IN[0]
+			// wire IMUX_C[1]                      BREFTEST.PVT_SRC_IN[4]
+			// wire IMUX_C[2]                      BREFTEST.PVT_SNK_IN[2]
+			// wire IMUX_C[3]                      BREFTEST.PVT_SNK_IN[4]
+			// wire IMUX_D[0]                      BREFTEST.PVT_SRC_IN[1]
+			// wire IMUX_D[1]                      BREFTEST.PVT_SRC_IN[5]
+			// wire IMUX_D[2]                      BREFTEST.PVT_SNK_IN[3]
+			// wire IMUX_D[3]                      BREFTEST.PVT_SNK_IN[5]
+			// wire OUT_F[0]                       BREFTEST.PVT_SRC_OUT[0]
+			// wire OUT_F[1]                       BREFTEST.PVT_SRC_OUT[1]
+			// wire OUT_F[2]                       BREFTEST.PVT_SRC_OUT[2]
+			// wire OUT_F[3]                       BREFTEST.PVT_SRC_OUT[3]
+			// wire OUT_F[4]                       BREFTEST.PVT_SRC_OUT[4]
+			// wire OUT_F[5]                       BREFTEST.PVT_SRC_OUT[5]
+			// wire OUT_Q[0]                       BREFTEST.PVT_SNK_OUT[0]
+			// wire OUT_Q[1]                       BREFTEST.PVT_SNK_OUT[1]
+			// wire OUT_Q[2]                       BREFTEST.PVT_SNK_OUT[2]
+			// wire OUT_Q[3]                       BREFTEST.PVT_SNK_OUT[3]
+			// wire OUT_Q[4]                       BREFTEST.PVT_SNK_OUT[4]
+			// wire OUT_Q[5]                       BREFTEST.PVT_SNK_OUT[5]
 		}
 
 		tile_class BC7 {
@@ -15633,114 +15655,114 @@ intdb {
 			}
 
 			bel BREFTEST {
-				input PVT_SNK_IN0 = IMUX_A[2];
-				input PVT_SNK_IN1 = IMUX_B[2];
-				input PVT_SNK_IN2 = IMUX_C[2];
-				input PVT_SNK_IN3 = IMUX_D[2];
-				input PVT_SNK_IN4 = IMUX_C[3];
-				input PVT_SNK_IN5 = IMUX_D[3];
-				output PVT_SNK_OUT0 = OUT_Q[0];
-				output PVT_SNK_OUT1 = OUT_Q[1];
-				output PVT_SNK_OUT2 = OUT_Q[2];
-				output PVT_SNK_OUT3 = OUT_Q[3];
-				output PVT_SNK_OUT4 = OUT_Q[4];
-				output PVT_SNK_OUT5 = OUT_Q[5];
-				input PVT_SRC_IN0 = IMUX_C[0];
-				input PVT_SRC_IN1 = IMUX_D[0];
-				input PVT_SRC_IN2 = IMUX_A[1];
-				input PVT_SRC_IN3 = IMUX_B[1];
-				input PVT_SRC_IN4 = IMUX_C[1];
-				input PVT_SRC_IN5 = IMUX_D[1];
-				output PVT_SRC_OUT0 = OUT_F[0];
-				output PVT_SRC_OUT1 = OUT_F[1];
-				output PVT_SRC_OUT2 = OUT_F[2];
-				output PVT_SRC_OUT3 = OUT_F[3];
-				output PVT_SRC_OUT4 = OUT_F[4];
-				output PVT_SRC_OUT5 = OUT_F[5];
+				input PVT_SRC_IN[0] = IMUX_C[0];
+				input PVT_SRC_IN[1] = IMUX_D[0];
+				input PVT_SRC_IN[2] = IMUX_A[1];
+				input PVT_SRC_IN[3] = IMUX_B[1];
+				input PVT_SRC_IN[4] = IMUX_C[1];
+				input PVT_SRC_IN[5] = IMUX_D[1];
+				input PVT_SNK_IN[0] = IMUX_A[2];
+				input PVT_SNK_IN[1] = IMUX_B[2];
+				input PVT_SNK_IN[2] = IMUX_C[2];
+				input PVT_SNK_IN[3] = IMUX_D[2];
+				input PVT_SNK_IN[4] = IMUX_C[3];
+				input PVT_SNK_IN[5] = IMUX_D[3];
+				output PVT_SRC_OUT[0] = OUT_F[0];
+				output PVT_SRC_OUT[1] = OUT_F[1];
+				output PVT_SRC_OUT[2] = OUT_F[2];
+				output PVT_SRC_OUT[3] = OUT_F[3];
+				output PVT_SRC_OUT[4] = OUT_F[4];
+				output PVT_SRC_OUT[5] = OUT_F[5];
+				output PVT_SNK_OUT[0] = OUT_Q[0];
+				output PVT_SNK_OUT[1] = OUT_Q[1];
+				output PVT_SNK_OUT[2] = OUT_Q[2];
+				output PVT_SNK_OUT[3] = OUT_Q[3];
+				output PVT_SNK_OUT[4] = OUT_Q[4];
+				output PVT_SNK_OUT[5] = OUT_Q[5];
 			}
 
-			// wire IMUX_A[1]                      BREFTEST.PVT_SRC_IN2
-			// wire IMUX_A[2]                      BREFTEST.PVT_SNK_IN0
+			// wire IMUX_A[1]                      BREFTEST.PVT_SRC_IN[2]
+			// wire IMUX_A[2]                      BREFTEST.PVT_SNK_IN[0]
 			// wire IMUX_A[4]                      BCLVDSO.LVDSENI
-			// wire IMUX_B[1]                      BREFTEST.PVT_SRC_IN3
-			// wire IMUX_B[2]                      BREFTEST.PVT_SNK_IN1
+			// wire IMUX_B[1]                      BREFTEST.PVT_SRC_IN[3]
+			// wire IMUX_B[2]                      BREFTEST.PVT_SNK_IN[1]
 			// wire IMUX_B[4]                      BCINRD.INRDENI
-			// wire IMUX_C[0]                      BREFTEST.PVT_SRC_IN0
-			// wire IMUX_C[1]                      BREFTEST.PVT_SRC_IN4
-			// wire IMUX_C[2]                      BREFTEST.PVT_SNK_IN2
-			// wire IMUX_C[3]                      BREFTEST.PVT_SNK_IN4
-			// wire IMUX_D[0]                      BREFTEST.PVT_SRC_IN1
-			// wire IMUX_D[1]                      BREFTEST.PVT_SRC_IN5
-			// wire IMUX_D[2]                      BREFTEST.PVT_SNK_IN3
-			// wire IMUX_D[3]                      BREFTEST.PVT_SNK_IN5
-			// wire OUT_F[0]                       BREFTEST.PVT_SRC_OUT0
-			// wire OUT_F[1]                       BREFTEST.PVT_SRC_OUT1
-			// wire OUT_F[2]                       BREFTEST.PVT_SRC_OUT2
-			// wire OUT_F[3]                       BREFTEST.PVT_SRC_OUT3
-			// wire OUT_F[4]                       BREFTEST.PVT_SRC_OUT4
-			// wire OUT_F[5]                       BREFTEST.PVT_SRC_OUT5
-			// wire OUT_Q[0]                       BREFTEST.PVT_SNK_OUT0
-			// wire OUT_Q[1]                       BREFTEST.PVT_SNK_OUT1
-			// wire OUT_Q[2]                       BREFTEST.PVT_SNK_OUT2
-			// wire OUT_Q[3]                       BREFTEST.PVT_SNK_OUT3
-			// wire OUT_Q[4]                       BREFTEST.PVT_SNK_OUT4
-			// wire OUT_Q[5]                       BREFTEST.PVT_SNK_OUT5
+			// wire IMUX_C[0]                      BREFTEST.PVT_SRC_IN[0]
+			// wire IMUX_C[1]                      BREFTEST.PVT_SRC_IN[4]
+			// wire IMUX_C[2]                      BREFTEST.PVT_SNK_IN[2]
+			// wire IMUX_C[3]                      BREFTEST.PVT_SNK_IN[4]
+			// wire IMUX_D[0]                      BREFTEST.PVT_SRC_IN[1]
+			// wire IMUX_D[1]                      BREFTEST.PVT_SRC_IN[5]
+			// wire IMUX_D[2]                      BREFTEST.PVT_SNK_IN[3]
+			// wire IMUX_D[3]                      BREFTEST.PVT_SNK_IN[5]
+			// wire OUT_F[0]                       BREFTEST.PVT_SRC_OUT[0]
+			// wire OUT_F[1]                       BREFTEST.PVT_SRC_OUT[1]
+			// wire OUT_F[2]                       BREFTEST.PVT_SRC_OUT[2]
+			// wire OUT_F[3]                       BREFTEST.PVT_SRC_OUT[3]
+			// wire OUT_F[4]                       BREFTEST.PVT_SRC_OUT[4]
+			// wire OUT_F[5]                       BREFTEST.PVT_SRC_OUT[5]
+			// wire OUT_Q[0]                       BREFTEST.PVT_SNK_OUT[0]
+			// wire OUT_Q[1]                       BREFTEST.PVT_SNK_OUT[1]
+			// wire OUT_Q[2]                       BREFTEST.PVT_SNK_OUT[2]
+			// wire OUT_Q[3]                       BREFTEST.PVT_SNK_OUT[3]
+			// wire OUT_Q[4]                       BREFTEST.PVT_SNK_OUT[4]
+			// wire OUT_Q[5]                       BREFTEST.PVT_SNK_OUT[5]
 		}
 
 		tile_class BC8 {
 			cell CELL;
 
 			bel BREFTEST {
-				input PVT_SNK_IN0 = IMUX_A[2];
-				input PVT_SNK_IN1 = IMUX_B[2];
-				input PVT_SNK_IN2 = IMUX_C[2];
-				input PVT_SNK_IN3 = IMUX_D[2];
-				input PVT_SNK_IN4 = IMUX_C[3];
-				input PVT_SNK_IN5 = IMUX_D[3];
-				output PVT_SNK_OUT0 = OUT_Q[0];
-				output PVT_SNK_OUT1 = OUT_Q[1];
-				output PVT_SNK_OUT2 = OUT_Q[2];
-				output PVT_SNK_OUT3 = OUT_Q[3];
-				output PVT_SNK_OUT4 = OUT_Q[4];
-				output PVT_SNK_OUT5 = OUT_Q[5];
-				input PVT_SRC_IN0 = IMUX_C[0];
-				input PVT_SRC_IN1 = IMUX_D[0];
-				input PVT_SRC_IN2 = IMUX_A[1];
-				input PVT_SRC_IN3 = IMUX_B[1];
-				input PVT_SRC_IN4 = IMUX_C[1];
-				input PVT_SRC_IN5 = IMUX_D[1];
-				output PVT_SRC_OUT0 = OUT_F[0];
-				output PVT_SRC_OUT1 = OUT_F[1];
-				output PVT_SRC_OUT2 = OUT_F[2];
-				output PVT_SRC_OUT3 = OUT_F[3];
-				output PVT_SRC_OUT4 = OUT_F[4];
-				output PVT_SRC_OUT5 = OUT_F[5];
+				input PVT_SRC_IN[0] = IMUX_C[0];
+				input PVT_SRC_IN[1] = IMUX_D[0];
+				input PVT_SRC_IN[2] = IMUX_A[1];
+				input PVT_SRC_IN[3] = IMUX_B[1];
+				input PVT_SRC_IN[4] = IMUX_C[1];
+				input PVT_SRC_IN[5] = IMUX_D[1];
+				input PVT_SNK_IN[0] = IMUX_A[2];
+				input PVT_SNK_IN[1] = IMUX_B[2];
+				input PVT_SNK_IN[2] = IMUX_C[2];
+				input PVT_SNK_IN[3] = IMUX_D[2];
+				input PVT_SNK_IN[4] = IMUX_C[3];
+				input PVT_SNK_IN[5] = IMUX_D[3];
+				output PVT_SRC_OUT[0] = OUT_F[0];
+				output PVT_SRC_OUT[1] = OUT_F[1];
+				output PVT_SRC_OUT[2] = OUT_F[2];
+				output PVT_SRC_OUT[3] = OUT_F[3];
+				output PVT_SRC_OUT[4] = OUT_F[4];
+				output PVT_SRC_OUT[5] = OUT_F[5];
+				output PVT_SNK_OUT[0] = OUT_Q[0];
+				output PVT_SNK_OUT[1] = OUT_Q[1];
+				output PVT_SNK_OUT[2] = OUT_Q[2];
+				output PVT_SNK_OUT[3] = OUT_Q[3];
+				output PVT_SNK_OUT[4] = OUT_Q[4];
+				output PVT_SNK_OUT[5] = OUT_Q[5];
 			}
 
-			// wire IMUX_A[1]                      BREFTEST.PVT_SRC_IN2
-			// wire IMUX_A[2]                      BREFTEST.PVT_SNK_IN0
-			// wire IMUX_B[1]                      BREFTEST.PVT_SRC_IN3
-			// wire IMUX_B[2]                      BREFTEST.PVT_SNK_IN1
-			// wire IMUX_C[0]                      BREFTEST.PVT_SRC_IN0
-			// wire IMUX_C[1]                      BREFTEST.PVT_SRC_IN4
-			// wire IMUX_C[2]                      BREFTEST.PVT_SNK_IN2
-			// wire IMUX_C[3]                      BREFTEST.PVT_SNK_IN4
-			// wire IMUX_D[0]                      BREFTEST.PVT_SRC_IN1
-			// wire IMUX_D[1]                      BREFTEST.PVT_SRC_IN5
-			// wire IMUX_D[2]                      BREFTEST.PVT_SNK_IN3
-			// wire IMUX_D[3]                      BREFTEST.PVT_SNK_IN5
-			// wire OUT_F[0]                       BREFTEST.PVT_SRC_OUT0
-			// wire OUT_F[1]                       BREFTEST.PVT_SRC_OUT1
-			// wire OUT_F[2]                       BREFTEST.PVT_SRC_OUT2
-			// wire OUT_F[3]                       BREFTEST.PVT_SRC_OUT3
-			// wire OUT_F[4]                       BREFTEST.PVT_SRC_OUT4
-			// wire OUT_F[5]                       BREFTEST.PVT_SRC_OUT5
-			// wire OUT_Q[0]                       BREFTEST.PVT_SNK_OUT0
-			// wire OUT_Q[1]                       BREFTEST.PVT_SNK_OUT1
-			// wire OUT_Q[2]                       BREFTEST.PVT_SNK_OUT2
-			// wire OUT_Q[3]                       BREFTEST.PVT_SNK_OUT3
-			// wire OUT_Q[4]                       BREFTEST.PVT_SNK_OUT4
-			// wire OUT_Q[5]                       BREFTEST.PVT_SNK_OUT5
+			// wire IMUX_A[1]                      BREFTEST.PVT_SRC_IN[2]
+			// wire IMUX_A[2]                      BREFTEST.PVT_SNK_IN[0]
+			// wire IMUX_B[1]                      BREFTEST.PVT_SRC_IN[3]
+			// wire IMUX_B[2]                      BREFTEST.PVT_SNK_IN[1]
+			// wire IMUX_C[0]                      BREFTEST.PVT_SRC_IN[0]
+			// wire IMUX_C[1]                      BREFTEST.PVT_SRC_IN[4]
+			// wire IMUX_C[2]                      BREFTEST.PVT_SNK_IN[2]
+			// wire IMUX_C[3]                      BREFTEST.PVT_SNK_IN[4]
+			// wire IMUX_D[0]                      BREFTEST.PVT_SRC_IN[1]
+			// wire IMUX_D[1]                      BREFTEST.PVT_SRC_IN[5]
+			// wire IMUX_D[2]                      BREFTEST.PVT_SNK_IN[3]
+			// wire IMUX_D[3]                      BREFTEST.PVT_SNK_IN[5]
+			// wire OUT_F[0]                       BREFTEST.PVT_SRC_OUT[0]
+			// wire OUT_F[1]                       BREFTEST.PVT_SRC_OUT[1]
+			// wire OUT_F[2]                       BREFTEST.PVT_SRC_OUT[2]
+			// wire OUT_F[3]                       BREFTEST.PVT_SRC_OUT[3]
+			// wire OUT_F[4]                       BREFTEST.PVT_SRC_OUT[4]
+			// wire OUT_F[5]                       BREFTEST.PVT_SRC_OUT[5]
+			// wire OUT_Q[0]                       BREFTEST.PVT_SNK_OUT[0]
+			// wire OUT_Q[1]                       BREFTEST.PVT_SNK_OUT[1]
+			// wire OUT_Q[2]                       BREFTEST.PVT_SNK_OUT[2]
+			// wire OUT_Q[3]                       BREFTEST.PVT_SNK_OUT[3]
+			// wire OUT_Q[4]                       BREFTEST.PVT_SNK_OUT[4]
+			// wire OUT_Q[5]                       BREFTEST.PVT_SNK_OUT[5]
 		}
 	}
 

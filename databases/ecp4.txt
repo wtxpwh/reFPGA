@@ -8845,6 +8845,36 @@ intdb {
 		output R[72];
 	}
 
+	bel_class BCINRD {
+		input INRDENI;
+	}
+
+	bel_class BCLVDSO {
+		input LVDSENI;
+	}
+
+	bel_class BCPG {
+		input PGENI;
+	}
+
+	bel_class BCPUSL {
+		input PUSLENI;
+	}
+
+	bel_class BREFTEST {
+		input TESTIN[6];
+		output TESTOUT[6];
+	}
+
+	bel_class PVTTEST {
+		input TESTIN[7];
+		output TESTOUT[7];
+	}
+
+	bel_class PVTCAL {
+		input STARTCAL;
+	}
+
 	bel_class DCC {
 		input CLKI;
 		input CE;
@@ -8895,6 +8925,70 @@ intdb {
 		output SEDDONE;
 		output SEDERR;
 		output AUTODONE;
+	}
+
+	bel_class PCNTR {
+		input CLK;
+		input CLRFLAG;
+		input USERSTDBY;
+		input USERTIMEOUT;
+		output SFLAG;
+		output STDBY;
+		output STOP;
+	}
+
+	bel_class EFB {
+		input WBCLKI;
+		input WBRSTI;
+		input WBCYCI;
+		input WBSTBI;
+		input WBWEI;
+		input WBADRI[16];
+		input WBDATI[8];
+		input I2C2SCLI;
+		input I2C2SDAI;
+		input SMIRDATAI;
+		input SPISCSN;
+		input TCCLKI;
+		input TCRSTN;
+		input TCIC;
+		output WBDATO[8];
+		output WBACKO;
+		output WBERRO;
+		output WBRTYO;
+		output WBCFGINT;
+		output I2C1IRQO;
+		output I2C2IRQO;
+		output I2C2SCLO;
+		output I2C2SCLOEN;
+		output I2C2SDAO;
+		output I2C2SDAOEN;
+		output PCS0INT;
+		output PCS1INT;
+		output PCS2INT;
+		output PCS3INT;
+		output PCS4INT;
+		output SMICLKO;
+		output SMIADO;
+		output SMIRDO;
+		output SMIWRO;
+		output SMIRSTNO;
+		output SMIWDATAO;
+		output SPIIRQO;
+		output SPIMCSN1;
+		output SPIMCSN2;
+		output SPIMCSN3;
+		output SPIMCSN4;
+		output SPIMCSN5;
+		output SPIMCSN6;
+		output SPIMCSN7;
+		output TCOC;
+		output TCINT;
+	}
+
+	bel_class DTR {
+		input START_PULSE;
+		output DTR_OUT[8];
 	}
 
 	region_slot PCLK;
@@ -9419,6 +9513,12 @@ intdb {
 	wire OUT_OFX_W[5]: branch E;
 	wire OUT_OFX_W[6]: branch E;
 	wire OUT_OFX_W[7]: branch E;
+	wire OUT_IO_PADDI[0]: bel;
+	wire OUT_IO_PADDI[1]: bel;
+	wire OUT_IO_PADDI[2]: bel;
+	wire OUT_IO_PADDI[3]: bel;
+	wire OUT_OSC_OSC: bel;
+	wire IMUX_PCNTR_CLK: mux;
 
 	tile_slot INT {
 		bel_slot INT: routing;
@@ -13786,15 +13886,15 @@ intdb {
 		bel_slot PLLREFCS[0]: legacy;
 		bel_slot PLLREFCS[1]: legacy;
 		bel_slot DDRDLL: legacy;
-		bel_slot DTR: legacy;
+		bel_slot DTR: DTR;
 		bel_slot DQS[0]: legacy;
 		bel_slot JTAG: JTAG;
 		bel_slot OSC: OSC;
 		bel_slot SED: SED;
-		bel_slot PCNTR: legacy;
-		bel_slot EFB: legacy;
-		bel_slot PVTTEST: legacy;
-		bel_slot PVTCAL: legacy;
+		bel_slot PCNTR: PCNTR;
+		bel_slot EFB: EFB;
+		bel_slot PVTTEST: PVTTEST;
+		bel_slot PVTCAL: PVTCAL;
 
 		tile_class PLC {
 			cell CELL;
@@ -38145,52 +38245,52 @@ intdb {
 			cell CELL;
 
 			bel DTR {
-				output DTR_OUT0 = OUT_F[0];
-				output DTR_OUT1 = OUT_F[1];
-				output DTR_OUT2 = OUT_F[2];
-				output DTR_OUT3 = OUT_F[3];
-				output DTR_OUT4 = OUT_F[4];
-				output DTR_OUT5 = OUT_F[5];
-				output DTR_OUT6 = OUT_F[6];
-				output DTR_OUT7 = OUT_F[7];
 				input START_PULSE = IMUX_A[0];
+				output DTR_OUT[0] = OUT_F[0];
+				output DTR_OUT[1] = OUT_F[1];
+				output DTR_OUT[2] = OUT_F[2];
+				output DTR_OUT[3] = OUT_F[3];
+				output DTR_OUT[4] = OUT_F[4];
+				output DTR_OUT[5] = OUT_F[5];
+				output DTR_OUT[6] = OUT_F[6];
+				output DTR_OUT[7] = OUT_F[7];
 			}
 
 			// wire IMUX_A[0]                      DTR.START_PULSE
-			// wire OUT_F[0]                       DTR.DTR_OUT0
-			// wire OUT_F[1]                       DTR.DTR_OUT1
-			// wire OUT_F[2]                       DTR.DTR_OUT2
-			// wire OUT_F[3]                       DTR.DTR_OUT3
-			// wire OUT_F[4]                       DTR.DTR_OUT4
-			// wire OUT_F[5]                       DTR.DTR_OUT5
-			// wire OUT_F[6]                       DTR.DTR_OUT6
-			// wire OUT_F[7]                       DTR.DTR_OUT7
+			// wire OUT_F[0]                       DTR.DTR_OUT[0]
+			// wire OUT_F[1]                       DTR.DTR_OUT[1]
+			// wire OUT_F[2]                       DTR.DTR_OUT[2]
+			// wire OUT_F[3]                       DTR.DTR_OUT[3]
+			// wire OUT_F[4]                       DTR.DTR_OUT[4]
+			// wire OUT_F[5]                       DTR.DTR_OUT[5]
+			// wire OUT_F[6]                       DTR.DTR_OUT[6]
+			// wire OUT_F[7]                       DTR.DTR_OUT[7]
 		}
 
 		tile_class DTR_N {
 			cell CELL;
 
 			bel DTR {
-				output DTR_OUT0 = OUT_F[0];
-				output DTR_OUT1 = OUT_F[1];
-				output DTR_OUT2 = OUT_F[2];
-				output DTR_OUT3 = OUT_F[3];
-				output DTR_OUT4 = OUT_F[4];
-				output DTR_OUT5 = OUT_F[5];
-				output DTR_OUT6 = OUT_F[6];
-				output DTR_OUT7 = OUT_F[7];
 				input START_PULSE = IMUX_A[0];
+				output DTR_OUT[0] = OUT_F[0];
+				output DTR_OUT[1] = OUT_F[1];
+				output DTR_OUT[2] = OUT_F[2];
+				output DTR_OUT[3] = OUT_F[3];
+				output DTR_OUT[4] = OUT_F[4];
+				output DTR_OUT[5] = OUT_F[5];
+				output DTR_OUT[6] = OUT_F[6];
+				output DTR_OUT[7] = OUT_F[7];
 			}
 
 			// wire IMUX_A[0]                      DTR.START_PULSE
-			// wire OUT_F[0]                       DTR.DTR_OUT0
-			// wire OUT_F[1]                       DTR.DTR_OUT1
-			// wire OUT_F[2]                       DTR.DTR_OUT2
-			// wire OUT_F[3]                       DTR.DTR_OUT3
-			// wire OUT_F[4]                       DTR.DTR_OUT4
-			// wire OUT_F[5]                       DTR.DTR_OUT5
-			// wire OUT_F[6]                       DTR.DTR_OUT6
-			// wire OUT_F[7]                       DTR.DTR_OUT7
+			// wire OUT_F[0]                       DTR.DTR_OUT[0]
+			// wire OUT_F[1]                       DTR.DTR_OUT[1]
+			// wire OUT_F[2]                       DTR.DTR_OUT[2]
+			// wire OUT_F[3]                       DTR.DTR_OUT[3]
+			// wire OUT_F[4]                       DTR.DTR_OUT[4]
+			// wire OUT_F[5]                       DTR.DTR_OUT[5]
+			// wire OUT_F[6]                       DTR.DTR_OUT[6]
+			// wire OUT_F[7]                       DTR.DTR_OUT[7]
 		}
 
 		tile_class DQS_W {
@@ -39871,6 +39971,10 @@ intdb {
 			cell CELL_CLK[3];
 			cell CELL_CLK[4];
 
+			switchbox BEL_INT {
+				mux CELL[0].IMUX_PCNTR_CLK = CELL[0].OUT_OSC_OSC | CELL[3].IMUX_CLK_DELAY[1];
+			}
+
 			bel START {
 				input STARTCLK = CELL[0].IMUX_CLK_DELAY[0];
 			}
@@ -39896,7 +40000,7 @@ intdb {
 
 			bel OSC {
 				input STDBY = CELL[0].IMUX_LSR[1];
-				output OSC = CELL_CLK[0].OUT_Q[0];
+				output OSC = CELL[0].OUT_OSC_OSC, CELL_CLK[0].OUT_Q[0];
 			}
 
 			bel SED {
@@ -39912,22 +40016,68 @@ intdb {
 			}
 
 			bel PCNTR {
-				input CLK = CELL[3].IMUX_CLK_DELAY[1];
+				input CLK = CELL[0].IMUX_PCNTR_CLK;
 				input CLRFLAG = CELL[3].IMUX_B[0];
+				input USERSTDBY = CELL[3].IMUX_LSR[1];
+				input USERTIMEOUT = CELL[3].IMUX_C[0];
 				output SFLAG = CELL[3].OUT_Q[5];
 				output STDBY = CELL[3].OUT_Q[3];
 				output STOP = CELL[3].OUT_Q[4];
-				input USERSTDBY = CELL[3].IMUX_LSR[1];
-				input USERTIMEOUT = CELL[3].IMUX_C[0];
 			}
 
 			bel EFB {
+				input WBCLKI = CELL[2].IMUX_CLK_DELAY[1];
+				input WBRSTI = CELL[2].IMUX_CE[0];
+				input WBCYCI = CELL[2].IMUX_A[4];
+				input WBSTBI = CELL[2].IMUX_LSR[1];
+				input WBWEI = CELL[2].IMUX_B[4];
+				input WBADRI[0] = CELL[1].IMUX_A[2];
+				input WBADRI[1] = CELL[1].IMUX_B[2];
+				input WBADRI[2] = CELL[1].IMUX_C[2];
+				input WBADRI[3] = CELL[1].IMUX_D[2];
+				input WBADRI[4] = CELL[1].IMUX_A[3];
+				input WBADRI[5] = CELL[1].IMUX_B[3];
+				input WBADRI[6] = CELL[1].IMUX_C[3];
+				input WBADRI[7] = CELL[1].IMUX_D[3];
+				input WBADRI[8] = CELL[1].IMUX_A[4];
+				input WBADRI[9] = CELL[1].IMUX_B[4];
+				input WBADRI[10] = CELL[1].IMUX_C[4];
+				input WBADRI[11] = CELL[1].IMUX_D[4];
+				input WBADRI[12] = CELL[1].IMUX_A[5];
+				input WBADRI[13] = CELL[1].IMUX_B[5];
+				input WBADRI[14] = CELL[1].IMUX_C[5];
+				input WBADRI[15] = CELL[1].IMUX_D[5];
+				input WBDATI[0] = CELL[2].IMUX_A[0];
+				input WBDATI[1] = CELL[2].IMUX_B[0];
+				input WBDATI[2] = CELL[2].IMUX_C[0];
+				input WBDATI[3] = CELL[2].IMUX_D[0];
+				input WBDATI[4] = CELL[2].IMUX_A[2];
+				input WBDATI[5] = CELL[2].IMUX_B[2];
+				input WBDATI[6] = CELL[2].IMUX_C[2];
+				input WBDATI[7] = CELL[2].IMUX_D[2];
+				input I2C2SCLI = CELL[1].IMUX_CLK_DELAY[1];
+				input I2C2SDAI = CELL[1].IMUX_C[0];
+				input SMIRDATAI = CELL[5].IMUX_A[0];
+				input SPISCSN = CELL[3].IMUX_CE[0];
+				input TCCLKI = CELL[3].IMUX_CLK_DELAY[0];
+				input TCRSTN = CELL[3].IMUX_LSR[0];
+				input TCIC = CELL[3].IMUX_A[0];
+				output WBDATO[0] = CELL[2].OUT_F[0];
+				output WBDATO[1] = CELL[2].OUT_F[1];
+				output WBDATO[2] = CELL[2].OUT_F[2];
+				output WBDATO[3] = CELL[2].OUT_F[3];
+				output WBDATO[4] = CELL[2].OUT_F[4];
+				output WBDATO[5] = CELL[2].OUT_F[5];
+				output WBDATO[6] = CELL[2].OUT_F[6];
+				output WBDATO[7] = CELL[2].OUT_F[7];
+				output WBACKO = CELL[2].OUT_Q[0];
+				output WBERRO = CELL[2].OUT_Q[5];
+				output WBRTYO = CELL[2].OUT_Q[6];
+				output WBCFGINT = CELL[2].OUT_Q[1];
 				output I2C1IRQO = CELL[1].OUT_Q[3];
 				output I2C2IRQO = CELL[1].OUT_Q[4];
-				input I2C2SCLI = CELL[1].IMUX_CLK_DELAY[1];
 				output I2C2SCLO = CELL[1].OUT_Q[1];
 				output I2C2SCLOEN = CELL[1].OUT_Q[5];
-				input I2C2SDAI = CELL[1].IMUX_C[0];
 				output I2C2SDAO = CELL[1].OUT_Q[2];
 				output I2C2SDAOEN = CELL[1].OUT_Q[6];
 				output PCS0INT = CELL[5].OUT_F[0];
@@ -39935,13 +40085,12 @@ intdb {
 				output PCS2INT = CELL[5].OUT_F[2];
 				output PCS3INT = CELL[5].OUT_F[3];
 				output PCS4INT = CELL[5].OUT_F[4];
-				output SMIADO = CELL[5].OUT_Q[0];
 				output SMICLKO = CELL_CLK[2].OUT_Q[0];
-				input SMIRDATAI = CELL[5].IMUX_A[0];
+				output SMIADO = CELL[5].OUT_Q[0];
 				output SMIRDO = CELL[5].OUT_Q[2];
+				output SMIWRO = CELL[5].OUT_Q[5];
 				output SMIRSTNO = CELL[5].OUT_Q[3];
 				output SMIWDATAO = CELL[5].OUT_Q[4];
-				output SMIWRO = CELL[5].OUT_Q[5];
 				output SPIIRQO = CELL[3].OUT_Q[0];
 				output SPIMCSN1 = CELL[2].OUT_Q[2];
 				output SPIMCSN2 = CELL[2].OUT_Q[3];
@@ -39950,53 +40099,8 @@ intdb {
 				output SPIMCSN5 = CELL[3].OUT_F[1];
 				output SPIMCSN6 = CELL[3].OUT_F[2];
 				output SPIMCSN7 = CELL[3].OUT_F[3];
-				input SPISCSN = CELL[3].IMUX_CE[0];
-				input TCCLKI = CELL[3].IMUX_CLK_DELAY[0];
-				input TCIC = CELL[3].IMUX_A[0];
-				output TCINT = CELL[3].OUT_Q[1];
 				output TCOC = CELL[3].OUT_Q[2];
-				input TCRSTN = CELL[3].IMUX_LSR[0];
-				output WBACKO = CELL[2].OUT_Q[0];
-				input WBADRI0 = CELL[1].IMUX_A[2];
-				input WBADRI1 = CELL[1].IMUX_B[2];
-				input WBADRI10 = CELL[1].IMUX_C[4];
-				input WBADRI11 = CELL[1].IMUX_D[4];
-				input WBADRI12 = CELL[1].IMUX_A[5];
-				input WBADRI13 = CELL[1].IMUX_B[5];
-				input WBADRI14 = CELL[1].IMUX_C[5];
-				input WBADRI15 = CELL[1].IMUX_D[5];
-				input WBADRI2 = CELL[1].IMUX_C[2];
-				input WBADRI3 = CELL[1].IMUX_D[2];
-				input WBADRI4 = CELL[1].IMUX_A[3];
-				input WBADRI5 = CELL[1].IMUX_B[3];
-				input WBADRI6 = CELL[1].IMUX_C[3];
-				input WBADRI7 = CELL[1].IMUX_D[3];
-				input WBADRI8 = CELL[1].IMUX_A[4];
-				input WBADRI9 = CELL[1].IMUX_B[4];
-				output WBCFGINT = CELL[2].OUT_Q[1];
-				input WBCLKI = CELL[2].IMUX_CLK_DELAY[1];
-				input WBCYCI = CELL[2].IMUX_A[4];
-				input WBDATI0 = CELL[2].IMUX_A[0];
-				input WBDATI1 = CELL[2].IMUX_B[0];
-				input WBDATI2 = CELL[2].IMUX_C[0];
-				input WBDATI3 = CELL[2].IMUX_D[0];
-				input WBDATI4 = CELL[2].IMUX_A[2];
-				input WBDATI5 = CELL[2].IMUX_B[2];
-				input WBDATI6 = CELL[2].IMUX_C[2];
-				input WBDATI7 = CELL[2].IMUX_D[2];
-				output WBDATO0 = CELL[2].OUT_F[0];
-				output WBDATO1 = CELL[2].OUT_F[1];
-				output WBDATO2 = CELL[2].OUT_F[2];
-				output WBDATO3 = CELL[2].OUT_F[3];
-				output WBDATO4 = CELL[2].OUT_F[4];
-				output WBDATO5 = CELL[2].OUT_F[5];
-				output WBDATO6 = CELL[2].OUT_F[6];
-				output WBDATO7 = CELL[2].OUT_F[7];
-				output WBERRO = CELL[2].OUT_Q[5];
-				input WBRSTI = CELL[2].IMUX_CE[0];
-				output WBRTYO = CELL[2].OUT_Q[6];
-				input WBSTBI = CELL[2].IMUX_LSR[1];
-				input WBWEI = CELL[2].IMUX_B[4];
+				output TCINT = CELL[3].OUT_Q[1];
 			}
 
 			// wire CELL[0].IMUX_A[4]              JTAG.JTDO1
@@ -40011,24 +40115,26 @@ intdb {
 			// wire CELL[0].OUT_Q[2]               JTAG.JRTI1
 			// wire CELL[0].OUT_Q[3]               JTAG.JCE2
 			// wire CELL[0].OUT_Q[4]               JTAG.JRTI2
+			// wire CELL[0].OUT_OSC_OSC            OSC.OSC
+			// wire CELL[0].IMUX_PCNTR_CLK         PCNTR.CLK
 			// wire CELL[1].IMUX_A[0]              SED.SEDFRCERR
-			// wire CELL[1].IMUX_A[2]              EFB.WBADRI0
-			// wire CELL[1].IMUX_A[3]              EFB.WBADRI4
-			// wire CELL[1].IMUX_A[4]              EFB.WBADRI8
-			// wire CELL[1].IMUX_A[5]              EFB.WBADRI12
-			// wire CELL[1].IMUX_B[2]              EFB.WBADRI1
-			// wire CELL[1].IMUX_B[3]              EFB.WBADRI5
-			// wire CELL[1].IMUX_B[4]              EFB.WBADRI9
-			// wire CELL[1].IMUX_B[5]              EFB.WBADRI13
+			// wire CELL[1].IMUX_A[2]              EFB.WBADRI[0]
+			// wire CELL[1].IMUX_A[3]              EFB.WBADRI[4]
+			// wire CELL[1].IMUX_A[4]              EFB.WBADRI[8]
+			// wire CELL[1].IMUX_A[5]              EFB.WBADRI[12]
+			// wire CELL[1].IMUX_B[2]              EFB.WBADRI[1]
+			// wire CELL[1].IMUX_B[3]              EFB.WBADRI[5]
+			// wire CELL[1].IMUX_B[4]              EFB.WBADRI[9]
+			// wire CELL[1].IMUX_B[5]              EFB.WBADRI[13]
 			// wire CELL[1].IMUX_C[0]              EFB.I2C2SDAI
-			// wire CELL[1].IMUX_C[2]              EFB.WBADRI2
-			// wire CELL[1].IMUX_C[3]              EFB.WBADRI6
-			// wire CELL[1].IMUX_C[4]              EFB.WBADRI10
-			// wire CELL[1].IMUX_C[5]              EFB.WBADRI14
-			// wire CELL[1].IMUX_D[2]              EFB.WBADRI3
-			// wire CELL[1].IMUX_D[3]              EFB.WBADRI7
-			// wire CELL[1].IMUX_D[4]              EFB.WBADRI11
-			// wire CELL[1].IMUX_D[5]              EFB.WBADRI15
+			// wire CELL[1].IMUX_C[2]              EFB.WBADRI[2]
+			// wire CELL[1].IMUX_C[3]              EFB.WBADRI[6]
+			// wire CELL[1].IMUX_C[4]              EFB.WBADRI[10]
+			// wire CELL[1].IMUX_C[5]              EFB.WBADRI[14]
+			// wire CELL[1].IMUX_D[2]              EFB.WBADRI[3]
+			// wire CELL[1].IMUX_D[3]              EFB.WBADRI[7]
+			// wire CELL[1].IMUX_D[4]              EFB.WBADRI[11]
+			// wire CELL[1].IMUX_D[5]              EFB.WBADRI[15]
 			// wire CELL[1].IMUX_LSR[0]            SED.SEDENABLE
 			// wire CELL[1].IMUX_LSR[1]            SED.SEDSTART
 			// wire CELL[1].IMUX_CLK_DELAY[0]      SED.SEDEXCLK
@@ -40043,28 +40149,28 @@ intdb {
 			// wire CELL[1].OUT_Q[4]               EFB.I2C2IRQO
 			// wire CELL[1].OUT_Q[5]               EFB.I2C2SCLOEN
 			// wire CELL[1].OUT_Q[6]               EFB.I2C2SDAOEN
-			// wire CELL[2].IMUX_A[0]              EFB.WBDATI0
-			// wire CELL[2].IMUX_A[2]              EFB.WBDATI4
+			// wire CELL[2].IMUX_A[0]              EFB.WBDATI[0]
+			// wire CELL[2].IMUX_A[2]              EFB.WBDATI[4]
 			// wire CELL[2].IMUX_A[4]              EFB.WBCYCI
-			// wire CELL[2].IMUX_B[0]              EFB.WBDATI1
-			// wire CELL[2].IMUX_B[2]              EFB.WBDATI5
+			// wire CELL[2].IMUX_B[0]              EFB.WBDATI[1]
+			// wire CELL[2].IMUX_B[2]              EFB.WBDATI[5]
 			// wire CELL[2].IMUX_B[4]              EFB.WBWEI
-			// wire CELL[2].IMUX_C[0]              EFB.WBDATI2
-			// wire CELL[2].IMUX_C[2]              EFB.WBDATI6
+			// wire CELL[2].IMUX_C[0]              EFB.WBDATI[2]
+			// wire CELL[2].IMUX_C[2]              EFB.WBDATI[6]
 			// wire CELL[2].IMUX_C[4]              GSR.GSR
-			// wire CELL[2].IMUX_D[0]              EFB.WBDATI3
-			// wire CELL[2].IMUX_D[2]              EFB.WBDATI7
+			// wire CELL[2].IMUX_D[0]              EFB.WBDATI[3]
+			// wire CELL[2].IMUX_D[2]              EFB.WBDATI[7]
 			// wire CELL[2].IMUX_LSR[1]            EFB.WBSTBI
 			// wire CELL[2].IMUX_CLK_DELAY[1]      EFB.WBCLKI
 			// wire CELL[2].IMUX_CE[0]             EFB.WBRSTI
-			// wire CELL[2].OUT_F[0]               EFB.WBDATO0
-			// wire CELL[2].OUT_F[1]               EFB.WBDATO1
-			// wire CELL[2].OUT_F[2]               EFB.WBDATO2
-			// wire CELL[2].OUT_F[3]               EFB.WBDATO3
-			// wire CELL[2].OUT_F[4]               EFB.WBDATO4
-			// wire CELL[2].OUT_F[5]               EFB.WBDATO5
-			// wire CELL[2].OUT_F[6]               EFB.WBDATO6
-			// wire CELL[2].OUT_F[7]               EFB.WBDATO7
+			// wire CELL[2].OUT_F[0]               EFB.WBDATO[0]
+			// wire CELL[2].OUT_F[1]               EFB.WBDATO[1]
+			// wire CELL[2].OUT_F[2]               EFB.WBDATO[2]
+			// wire CELL[2].OUT_F[3]               EFB.WBDATO[3]
+			// wire CELL[2].OUT_F[4]               EFB.WBDATO[4]
+			// wire CELL[2].OUT_F[5]               EFB.WBDATO[5]
+			// wire CELL[2].OUT_F[6]               EFB.WBDATO[6]
+			// wire CELL[2].OUT_F[7]               EFB.WBDATO[7]
 			// wire CELL[2].OUT_Q[0]               EFB.WBACKO
 			// wire CELL[2].OUT_Q[1]               EFB.WBCFGINT
 			// wire CELL[2].OUT_Q[2]               EFB.SPIMCSN1
@@ -40078,7 +40184,6 @@ intdb {
 			// wire CELL[3].IMUX_LSR[0]            EFB.TCRSTN
 			// wire CELL[3].IMUX_LSR[1]            PCNTR.USERSTDBY
 			// wire CELL[3].IMUX_CLK_DELAY[0]      EFB.TCCLKI
-			// wire CELL[3].IMUX_CLK_DELAY[1]      PCNTR.CLK
 			// wire CELL[3].IMUX_CE[0]             EFB.SPISCSN
 			// wire CELL[3].OUT_F[0]               EFB.SPIMCSN4
 			// wire CELL[3].OUT_F[1]               EFB.SPIMCSN5
@@ -40112,50 +40217,50 @@ intdb {
 			cell CELL;
 
 			bel PVTTEST {
-				input TESTIN0 = IMUX_A[0];
-				input TESTIN1 = IMUX_A[1];
-				input TESTIN2 = IMUX_A[2];
-				input TESTIN3 = IMUX_A[3];
-				input TESTIN4 = IMUX_A[4];
-				input TESTIN5 = IMUX_B[2];
-				input TESTIN6 = IMUX_B[0];
-				output TESTOUT0 = OUT_F[0];
-				output TESTOUT1 = OUT_F[1];
-				output TESTOUT2 = OUT_F[2];
-				output TESTOUT3 = OUT_F[3];
-				output TESTOUT4 = OUT_F[4];
-				output TESTOUT5 = OUT_F[5];
-				output TESTOUT6 = OUT_F[6];
+				input TESTIN[0] = IMUX_A[0];
+				input TESTIN[1] = IMUX_A[1];
+				input TESTIN[2] = IMUX_A[2];
+				input TESTIN[3] = IMUX_A[3];
+				input TESTIN[4] = IMUX_A[4];
+				input TESTIN[5] = IMUX_B[2];
+				input TESTIN[6] = IMUX_B[0];
+				output TESTOUT[0] = OUT_F[0];
+				output TESTOUT[1] = OUT_F[1];
+				output TESTOUT[2] = OUT_F[2];
+				output TESTOUT[3] = OUT_F[3];
+				output TESTOUT[4] = OUT_F[4];
+				output TESTOUT[5] = OUT_F[5];
+				output TESTOUT[6] = OUT_F[6];
 			}
 
 			bel PVTCAL {
 				input STARTCAL = IMUX_B[1];
 			}
 
-			// wire IMUX_A[0]                      PVTTEST.TESTIN0
-			// wire IMUX_A[1]                      PVTTEST.TESTIN1
-			// wire IMUX_A[2]                      PVTTEST.TESTIN2
-			// wire IMUX_A[3]                      PVTTEST.TESTIN3
-			// wire IMUX_A[4]                      PVTTEST.TESTIN4
-			// wire IMUX_B[0]                      PVTTEST.TESTIN6
+			// wire IMUX_A[0]                      PVTTEST.TESTIN[0]
+			// wire IMUX_A[1]                      PVTTEST.TESTIN[1]
+			// wire IMUX_A[2]                      PVTTEST.TESTIN[2]
+			// wire IMUX_A[3]                      PVTTEST.TESTIN[3]
+			// wire IMUX_A[4]                      PVTTEST.TESTIN[4]
+			// wire IMUX_B[0]                      PVTTEST.TESTIN[6]
 			// wire IMUX_B[1]                      PVTCAL.STARTCAL
-			// wire IMUX_B[2]                      PVTTEST.TESTIN5
-			// wire OUT_F[0]                       PVTTEST.TESTOUT0
-			// wire OUT_F[1]                       PVTTEST.TESTOUT1
-			// wire OUT_F[2]                       PVTTEST.TESTOUT2
-			// wire OUT_F[3]                       PVTTEST.TESTOUT3
-			// wire OUT_F[4]                       PVTTEST.TESTOUT4
-			// wire OUT_F[5]                       PVTTEST.TESTOUT5
-			// wire OUT_F[6]                       PVTTEST.TESTOUT6
+			// wire IMUX_B[2]                      PVTTEST.TESTIN[5]
+			// wire OUT_F[0]                       PVTTEST.TESTOUT[0]
+			// wire OUT_F[1]                       PVTTEST.TESTOUT[1]
+			// wire OUT_F[2]                       PVTTEST.TESTOUT[2]
+			// wire OUT_F[3]                       PVTTEST.TESTOUT[3]
+			// wire OUT_F[4]                       PVTTEST.TESTOUT[4]
+			// wire OUT_F[5]                       PVTTEST.TESTOUT[5]
+			// wire OUT_F[6]                       PVTTEST.TESTOUT[6]
 		}
 	}
 
 	tile_slot BC {
-		bel_slot BCINRD: legacy;
-		bel_slot BCLVDSO: legacy;
-		bel_slot BCPG: legacy;
-		bel_slot BCPUSL: legacy;
-		bel_slot BREFTEST: legacy;
+		bel_slot BCINRD: BCINRD;
+		bel_slot BCLVDSO: BCLVDSO;
+		bel_slot BCPG: BCPG;
+		bel_slot BCPUSL: BCPUSL;
+		bel_slot BREFTEST: BREFTEST;
 
 		tile_class BC_N {
 			cell CELL;
@@ -40177,36 +40282,36 @@ intdb {
 			}
 
 			bel BREFTEST {
-				input TESTIN0 = IMUX_C[0];
-				input TESTIN1 = IMUX_D[0];
-				input TESTIN2 = IMUX_C[1];
-				input TESTIN3 = IMUX_D[1];
-				input TESTIN4 = IMUX_C[2];
-				input TESTIN5 = IMUX_D[2];
-				output TESTOUT0 = OUT_Q[0];
-				output TESTOUT1 = OUT_Q[1];
-				output TESTOUT2 = OUT_Q[2];
-				output TESTOUT3 = OUT_Q[3];
-				output TESTOUT4 = OUT_Q[4];
-				output TESTOUT5 = OUT_Q[5];
+				input TESTIN[0] = IMUX_C[0];
+				input TESTIN[1] = IMUX_D[0];
+				input TESTIN[2] = IMUX_C[1];
+				input TESTIN[3] = IMUX_D[1];
+				input TESTIN[4] = IMUX_C[2];
+				input TESTIN[5] = IMUX_D[2];
+				output TESTOUT[0] = OUT_Q[0];
+				output TESTOUT[1] = OUT_Q[1];
+				output TESTOUT[2] = OUT_Q[2];
+				output TESTOUT[3] = OUT_Q[3];
+				output TESTOUT[4] = OUT_Q[4];
+				output TESTOUT[5] = OUT_Q[5];
 			}
 
 			// wire IMUX_A[6]                      BCPG.PGENI
 			// wire IMUX_B[5]                      BCLVDSO.LVDSENI
-			// wire IMUX_C[0]                      BREFTEST.TESTIN0
-			// wire IMUX_C[1]                      BREFTEST.TESTIN2
-			// wire IMUX_C[2]                      BREFTEST.TESTIN4
+			// wire IMUX_C[0]                      BREFTEST.TESTIN[0]
+			// wire IMUX_C[1]                      BREFTEST.TESTIN[2]
+			// wire IMUX_C[2]                      BREFTEST.TESTIN[4]
 			// wire IMUX_C[5]                      BCINRD.INRDENI
-			// wire IMUX_D[0]                      BREFTEST.TESTIN1
-			// wire IMUX_D[1]                      BREFTEST.TESTIN3
-			// wire IMUX_D[2]                      BREFTEST.TESTIN5
+			// wire IMUX_D[0]                      BREFTEST.TESTIN[1]
+			// wire IMUX_D[1]                      BREFTEST.TESTIN[3]
+			// wire IMUX_D[2]                      BREFTEST.TESTIN[5]
 			// wire IMUX_D[5]                      BCPUSL.PUSLENI
-			// wire OUT_Q[0]                       BREFTEST.TESTOUT0
-			// wire OUT_Q[1]                       BREFTEST.TESTOUT1
-			// wire OUT_Q[2]                       BREFTEST.TESTOUT2
-			// wire OUT_Q[3]                       BREFTEST.TESTOUT3
-			// wire OUT_Q[4]                       BREFTEST.TESTOUT4
-			// wire OUT_Q[5]                       BREFTEST.TESTOUT5
+			// wire OUT_Q[0]                       BREFTEST.TESTOUT[0]
+			// wire OUT_Q[1]                       BREFTEST.TESTOUT[1]
+			// wire OUT_Q[2]                       BREFTEST.TESTOUT[2]
+			// wire OUT_Q[3]                       BREFTEST.TESTOUT[3]
+			// wire OUT_Q[4]                       BREFTEST.TESTOUT[4]
+			// wire OUT_Q[5]                       BREFTEST.TESTOUT[5]
 		}
 
 		tile_class BC_W {
@@ -40229,36 +40334,36 @@ intdb {
 			}
 
 			bel BREFTEST {
-				input TESTIN0 = IMUX_C[0];
-				input TESTIN1 = IMUX_D[0];
-				input TESTIN2 = IMUX_C[1];
-				input TESTIN3 = IMUX_D[1];
-				input TESTIN4 = IMUX_C[2];
-				input TESTIN5 = IMUX_D[2];
-				output TESTOUT0 = OUT_Q[0];
-				output TESTOUT1 = OUT_Q[1];
-				output TESTOUT2 = OUT_Q[2];
-				output TESTOUT3 = OUT_Q[3];
-				output TESTOUT4 = OUT_Q[4];
-				output TESTOUT5 = OUT_Q[5];
+				input TESTIN[0] = IMUX_C[0];
+				input TESTIN[1] = IMUX_D[0];
+				input TESTIN[2] = IMUX_C[1];
+				input TESTIN[3] = IMUX_D[1];
+				input TESTIN[4] = IMUX_C[2];
+				input TESTIN[5] = IMUX_D[2];
+				output TESTOUT[0] = OUT_Q[0];
+				output TESTOUT[1] = OUT_Q[1];
+				output TESTOUT[2] = OUT_Q[2];
+				output TESTOUT[3] = OUT_Q[3];
+				output TESTOUT[4] = OUT_Q[4];
+				output TESTOUT[5] = OUT_Q[5];
 			}
 
 			// wire IMUX_A[6]                      BCPG.PGENI
 			// wire IMUX_B[5]                      BCLVDSO.LVDSENI
-			// wire IMUX_C[0]                      BREFTEST.TESTIN0
-			// wire IMUX_C[1]                      BREFTEST.TESTIN2
-			// wire IMUX_C[2]                      BREFTEST.TESTIN4
+			// wire IMUX_C[0]                      BREFTEST.TESTIN[0]
+			// wire IMUX_C[1]                      BREFTEST.TESTIN[2]
+			// wire IMUX_C[2]                      BREFTEST.TESTIN[4]
 			// wire IMUX_C[5]                      BCINRD.INRDENI
-			// wire IMUX_D[0]                      BREFTEST.TESTIN1
-			// wire IMUX_D[1]                      BREFTEST.TESTIN3
-			// wire IMUX_D[2]                      BREFTEST.TESTIN5
+			// wire IMUX_D[0]                      BREFTEST.TESTIN[1]
+			// wire IMUX_D[1]                      BREFTEST.TESTIN[3]
+			// wire IMUX_D[2]                      BREFTEST.TESTIN[5]
 			// wire IMUX_D[5]                      BCPUSL.PUSLENI
-			// wire OUT_Q[0]                       BREFTEST.TESTOUT0
-			// wire OUT_Q[1]                       BREFTEST.TESTOUT1
-			// wire OUT_Q[2]                       BREFTEST.TESTOUT2
-			// wire OUT_Q[3]                       BREFTEST.TESTOUT3
-			// wire OUT_Q[4]                       BREFTEST.TESTOUT4
-			// wire OUT_Q[5]                       BREFTEST.TESTOUT5
+			// wire OUT_Q[0]                       BREFTEST.TESTOUT[0]
+			// wire OUT_Q[1]                       BREFTEST.TESTOUT[1]
+			// wire OUT_Q[2]                       BREFTEST.TESTOUT[2]
+			// wire OUT_Q[3]                       BREFTEST.TESTOUT[3]
+			// wire OUT_Q[4]                       BREFTEST.TESTOUT[4]
+			// wire OUT_Q[5]                       BREFTEST.TESTOUT[5]
 		}
 
 		tile_class BC_E {
@@ -40281,36 +40386,36 @@ intdb {
 			}
 
 			bel BREFTEST {
-				input TESTIN0 = IMUX_C[0];
-				input TESTIN1 = IMUX_D[0];
-				input TESTIN2 = IMUX_C[1];
-				input TESTIN3 = IMUX_D[1];
-				input TESTIN4 = IMUX_C[2];
-				input TESTIN5 = IMUX_D[2];
-				output TESTOUT0 = OUT_Q[0];
-				output TESTOUT1 = OUT_Q[1];
-				output TESTOUT2 = OUT_Q[2];
-				output TESTOUT3 = OUT_Q[3];
-				output TESTOUT4 = OUT_Q[4];
-				output TESTOUT5 = OUT_Q[5];
+				input TESTIN[0] = IMUX_C[0];
+				input TESTIN[1] = IMUX_D[0];
+				input TESTIN[2] = IMUX_C[1];
+				input TESTIN[3] = IMUX_D[1];
+				input TESTIN[4] = IMUX_C[2];
+				input TESTIN[5] = IMUX_D[2];
+				output TESTOUT[0] = OUT_Q[0];
+				output TESTOUT[1] = OUT_Q[1];
+				output TESTOUT[2] = OUT_Q[2];
+				output TESTOUT[3] = OUT_Q[3];
+				output TESTOUT[4] = OUT_Q[4];
+				output TESTOUT[5] = OUT_Q[5];
 			}
 
 			// wire IMUX_A[6]                      BCPG.PGENI
 			// wire IMUX_B[5]                      BCLVDSO.LVDSENI
-			// wire IMUX_C[0]                      BREFTEST.TESTIN0
-			// wire IMUX_C[1]                      BREFTEST.TESTIN2
-			// wire IMUX_C[2]                      BREFTEST.TESTIN4
+			// wire IMUX_C[0]                      BREFTEST.TESTIN[0]
+			// wire IMUX_C[1]                      BREFTEST.TESTIN[2]
+			// wire IMUX_C[2]                      BREFTEST.TESTIN[4]
 			// wire IMUX_C[5]                      BCINRD.INRDENI
-			// wire IMUX_D[0]                      BREFTEST.TESTIN1
-			// wire IMUX_D[1]                      BREFTEST.TESTIN3
-			// wire IMUX_D[2]                      BREFTEST.TESTIN5
+			// wire IMUX_D[0]                      BREFTEST.TESTIN[1]
+			// wire IMUX_D[1]                      BREFTEST.TESTIN[3]
+			// wire IMUX_D[2]                      BREFTEST.TESTIN[5]
 			// wire IMUX_D[5]                      BCPUSL.PUSLENI
-			// wire OUT_Q[0]                       BREFTEST.TESTOUT0
-			// wire OUT_Q[1]                       BREFTEST.TESTOUT1
-			// wire OUT_Q[2]                       BREFTEST.TESTOUT2
-			// wire OUT_Q[3]                       BREFTEST.TESTOUT3
-			// wire OUT_Q[4]                       BREFTEST.TESTOUT4
-			// wire OUT_Q[5]                       BREFTEST.TESTOUT5
+			// wire OUT_Q[0]                       BREFTEST.TESTOUT[0]
+			// wire OUT_Q[1]                       BREFTEST.TESTOUT[1]
+			// wire OUT_Q[2]                       BREFTEST.TESTOUT[2]
+			// wire OUT_Q[3]                       BREFTEST.TESTOUT[3]
+			// wire OUT_Q[4]                       BREFTEST.TESTOUT[4]
+			// wire OUT_Q[5]                       BREFTEST.TESTOUT[5]
 		}
 	}
 

@@ -5028,6 +5028,7 @@ intdb {
 		output PADDI;
 		output IPOS[2];
 		output DI;
+		pad PAD: inout
 	}
 
 	bel_class DQS {

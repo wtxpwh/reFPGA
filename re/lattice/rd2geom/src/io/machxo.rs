@@ -3,9 +3,7 @@ use prjcombine_ecp::{
     defs::{bcls, bslots, cslots, wires},
 };
 use prjcombine_interconnect::{
-    db::{Mux, SwitchBox, SwitchBoxItem, WireSlotIdExt},
-    dir::Dir,
-    grid::{BelCoord, CellCoord, DieIdExt},
+    db::{BelInput, Mux, SwitchBox, SwitchBoxItem, WireSlotIdExt}, dir::Dir, grid::{BelCoord, CellCoord, DieIdExt},
 };
 
 use crate::{ChipContext, chip::ChipExt};
@@ -90,8 +88,8 @@ impl ChipContext<'_> {
             .add_wire("DD", dd)
             .add_wire("PADDO_PIO", paddo_pio)
             .add_wire("PADDT_PIO", paddt_pio)
-            .input_raw(bcls::IO::PADDO, wire_o)
-            .input_raw(bcls::IO::PADDT, wire_t)
+            .input_raw(bcls::IO::PADDO, BelInput::Fixed(wire_o.pos()))
+            .input_raw(bcls::IO::PADDT, BelInput::Fixed(wire_t.pos()))
             .output_xlat_rc_io(bcls::IO::PADDI, format!("JPADDI{abcd}_PIO"))
             .output_extra(bcls::IO::PADDI, wires::OUT_IO_PADDI[idx].cell(0));
     }

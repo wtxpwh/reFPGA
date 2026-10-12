@@ -15311,6 +15311,83 @@ intdb {
 		output TDI;
 	}
 
+	bel_class IPAD {
+		output PADDI;
+		pad PAD: input
+	}
+
+	bel_class RDBK {
+		input FFRDCFGCLK;
+		input FFRDCFG;
+		output RDDATA;
+	}
+
+	bel_class RDCFGN {
+		input TSALLN;
+		output RDCFGN;
+	}
+
+	bel_class RNET {
+		input RNETUPD;
+		input RNETI[6];
+		output RNETO[6];
+	}
+
+	bel_class PROMON {
+		input PROCHK;
+		output PROMON;
+	}
+
+	bel_class SYSBUS {
+		input SYSRSTN;
+		input MPIRSTN;
+		input USRCLK;
+		input USERIRQI;
+		input DMARDDATA[32];
+		input DMARDPARITY[4];
+		input DMARETRY;
+		input DMATA;
+		input DMATEA;
+		input DMATRICTL;
+		input DMATRIDATA;
+		input FMIRQ;
+		input FMCLK;
+		input FMRSTN;
+		input FMLOCK;
+		input FMRDY;
+		input FMWRN;
+		input FMBURST;
+		input FMSIZE[2];
+		input FMADDR[18];
+		input FMWDATA[36];
+		input FSIRQ;
+		input FSCLK;
+		input FSRSTN;
+		input FSRDATA[36];
+		input FSACK;
+		input FSERR;
+		input FSRETRY;
+		input SMIRDATA[64];
+		output HCLKCIB;
+		output USERIRQO;
+		output SYSBDEBUG[24];
+		output FMRDATA[36];
+		output FMACK;
+		output FMERR;
+		output FMRETRY;
+		output FSRDY;
+		output FSWRN;
+		output FSSIZE[2];
+		output FSADDR[18];
+		output FSWDATA[36];
+		output SMICLK;
+		output SMIRSTN;
+		output SMIRD;
+		output SMIWR;
+		output SMIADDR[10];
+		output SMIWDATA;
+	}
+
 	bel_class START {
 		input STARTCLK;
 	}
@@ -21194,25 +21271,25 @@ intdb {
 		bel_slot DLL[3]: legacy;
 		bel_slot DLL_DCNTL[0]: legacy;
 		bel_slot DLL_DCNTL[1]: legacy;
-		bel_slot PROMON: legacy;
-		bel_slot RNET: legacy;
+		bel_slot PROMON: PROMON;
+		bel_slot RNET: RNET;
 		bel_slot SERDES_CORNER: legacy;
-		bel_slot M0: legacy;
-		bel_slot M1: legacy;
-		bel_slot M2: legacy;
-		bel_slot M3: legacy;
-		bel_slot RESETN: legacy;
-		bel_slot RDCFGN: legacy;
-		bel_slot CCLK: legacy;
-		bel_slot TCK: legacy;
-		bel_slot TMS: legacy;
-		bel_slot TDI: legacy;
+		bel_slot M0: IPAD;
+		bel_slot M1: IPAD;
+		bel_slot M2: IPAD;
+		bel_slot M3: IPAD;
+		bel_slot RESETN: IPAD;
+		bel_slot RDCFGN: RDCFGN;
+		bel_slot CCLK: IPAD;
+		bel_slot TCK: IPAD;
+		bel_slot TMS: IPAD;
+		bel_slot TDI: IPAD;
 		bel_slot START: START;
 		bel_slot GSR: GSR;
 		bel_slot JTAG: JTAG;
-		bel_slot RDBK: legacy;
+		bel_slot RDBK: RDBK;
 		bel_slot OSC: OSC;
-		bel_slot SYSBUS: legacy;
+		bel_slot SYSBUS: SYSBUS;
 		bel_slot SERDES_CENTER: legacy;
 
 		tile_class PLC {
@@ -34487,19 +34564,19 @@ intdb {
 			}
 
 			bel RNET {
-				input RNETI0 = CELL_S[1].IMUX_D[5];
-				input RNETI1 = CELL_S[1].IMUX_D[4];
-				input RNETI2 = CELL_S[1].IMUX_C[4];
-				input RNETI3 = CELL_S[1].IMUX_A[5];
-				input RNETI4 = CELL_S[1].IMUX_B[5];
-				input RNETI5 = CELL_S[1].IMUX_C[5];
-				output RNETO0 = CELL_WE[0].OUT_IO[7];
-				output RNETO1 = CELL_WE[0].OUT_IO[5];
-				output RNETO2 = CELL_S[3].OUT_IO[1];
-				output RNETO3 = CELL_S[2].OUT_IO[7];
-				output RNETO4 = CELL_S[2].OUT_IO[1];
-				output RNETO5 = CELL_S[1].OUT_OFX[5];
 				input RNETUPD = CELL_S[1].IMUX_CE[3];
+				input RNETI[0] = CELL_S[1].IMUX_D[5];
+				input RNETI[1] = CELL_S[1].IMUX_D[4];
+				input RNETI[2] = CELL_S[1].IMUX_C[4];
+				input RNETI[3] = CELL_S[1].IMUX_A[5];
+				input RNETI[4] = CELL_S[1].IMUX_B[5];
+				input RNETI[5] = CELL_S[1].IMUX_C[5];
+				output RNETO[0] = CELL_WE[0].OUT_IO[7];
+				output RNETO[1] = CELL_WE[0].OUT_IO[5];
+				output RNETO[2] = CELL_S[3].OUT_IO[1];
+				output RNETO[3] = CELL_S[2].OUT_IO[7];
+				output RNETO[4] = CELL_S[2].OUT_IO[1];
+				output RNETO[5] = CELL_S[1].OUT_OFX[5];
 			}
 
 			// wire CELL_S[0].IMUX_A[0]            PLL_SMI.SMIADDR9
@@ -34569,22 +34646,22 @@ intdb {
 			// wire CELL_S[1].IMUX_A[0]            DLL_DCNTL[1].DCNTL_IN8
 			// wire CELL_S[1].IMUX_A[1]            DLL_DCNTL[0].DCNTL_IN4
 			// wire CELL_S[1].IMUX_A[2]            DLL_DCNTL[0].DCNTL_IN5
-			// wire CELL_S[1].IMUX_A[5]            RNET.RNETI3
+			// wire CELL_S[1].IMUX_A[5]            RNET.RNETI[3]
 			// wire CELL_S[1].IMUX_B[0]            DLL_DCNTL[1].DCNTL_IN7
 			// wire CELL_S[1].IMUX_B[1]            DLL_DCNTL[0].DCNTL_IN3
 			// wire CELL_S[1].IMUX_B[2]            DLL_DCNTL[0].DCNTL_IN8
 			// wire CELL_S[1].IMUX_B[4]            PROMON.PROCHK
-			// wire CELL_S[1].IMUX_B[5]            RNET.RNETI4
+			// wire CELL_S[1].IMUX_B[5]            RNET.RNETI[4]
 			// wire CELL_S[1].IMUX_C[0]            DLL_DCNTL[1].DCNTL_IN6
 			// wire CELL_S[1].IMUX_C[1]            DLL_DCNTL[0].DCNTL_IN2
 			// wire CELL_S[1].IMUX_C[2]            DLL_DCNTL[0].DCNTL_IN7
-			// wire CELL_S[1].IMUX_C[4]            RNET.RNETI2
-			// wire CELL_S[1].IMUX_C[5]            RNET.RNETI5
+			// wire CELL_S[1].IMUX_C[4]            RNET.RNETI[2]
+			// wire CELL_S[1].IMUX_C[5]            RNET.RNETI[5]
 			// wire CELL_S[1].IMUX_D[0]            DLL_DCNTL[0].DCNTL_IN0
 			// wire CELL_S[1].IMUX_D[1]            DLL_DCNTL[0].DCNTL_IN1
 			// wire CELL_S[1].IMUX_D[2]            DLL_DCNTL[0].DCNTL_IN6
-			// wire CELL_S[1].IMUX_D[4]            RNET.RNETI1
-			// wire CELL_S[1].IMUX_D[5]            RNET.RNETI0
+			// wire CELL_S[1].IMUX_D[4]            RNET.RNETI[1]
+			// wire CELL_S[1].IMUX_D[5]            RNET.RNETI[0]
 			// wire CELL_S[1].IMUX_CLK[0]          PLL[0].CLKI
 			// wire CELL_S[1].IMUX_CLK[1]          PLL[0].CLKFB
 			// wire CELL_S[1].IMUX_CLK[2]          PLL[1].CLKI
@@ -34614,17 +34691,17 @@ intdb {
 			// wire CELL_S[1].OUT_OFX[2]           PLL[1].SMIRDATA
 			// wire CELL_S[1].OUT_OFX[3]           PLL[0].SMIRDATA
 			// wire CELL_S[1].OUT_OFX[4]           PLL[1].LOCK
-			// wire CELL_S[1].OUT_OFX[5]           RNET.RNETO5
+			// wire CELL_S[1].OUT_OFX[5]           RNET.RNETO[5]
 			// wire CELL_S[1].OUT_OFX[6]           PLL[0].LOCK
 			// wire CELL_S[1].OUT_OFX[7]           DLL[1].CLKOP
 			// wire CELL_S[2].IMUX_CLK[2]          DLL[1].CLKFB
-			// wire CELL_S[2].OUT_IO[1]            RNET.RNETO4
-			// wire CELL_S[2].OUT_IO[7]            RNET.RNETO3
+			// wire CELL_S[2].OUT_IO[1]            RNET.RNETO[4]
+			// wire CELL_S[2].OUT_IO[7]            RNET.RNETO[3]
 			// wire CELL_S[3].IMUX_CLK[2]          DLL[1].CLKI
-			// wire CELL_S[3].OUT_IO[1]            RNET.RNETO2
+			// wire CELL_S[3].OUT_IO[1]            RNET.RNETO[2]
 			// wire CELL_WE[0].IMUX_CLK[1]         DLL[3].CLKI
-			// wire CELL_WE[0].OUT_IO[5]           RNET.RNETO1
-			// wire CELL_WE[0].OUT_IO[7]           RNET.RNETO0
+			// wire CELL_WE[0].OUT_IO[5]           RNET.RNETO[1]
+			// wire CELL_WE[0].OUT_IO[7]           RNET.RNETO[0]
 			// wire CELL_WE[1].IMUX_CLK[1]         DLL[3].CLKFB
 		}
 
@@ -35062,28 +35139,28 @@ intdb {
 			}
 
 			bel M0 {
-				output M0 = CELL_N[1].OUT_F[2];
+				output PADDI = CELL_N[1].OUT_F[2];
 			}
 
 			bel M1 {
-				output M1 = CELL_N[1].OUT_F[3];
+				output PADDI = CELL_N[1].OUT_F[3];
 			}
 
 			bel M2 {
-				output M2 = CELL_N[1].OUT_F[4];
+				output PADDI = CELL_N[1].OUT_F[4];
 			}
 
 			bel M3 {
-				output M3 = CELL_N[1].OUT_F[5];
+				output PADDI = CELL_N[1].OUT_F[5];
 			}
 
 			bel RESETN {
-				output RSTN = CELL_N[1].OUT_F[0];
+				output PADDI = CELL_N[1].OUT_F[0];
 			}
 
 			bel RDCFGN {
-				output RDCFGN = CELL_N[1].OUT_F[1];
 				input TSALLN = CELL_N[0].IMUX_CE[0];
+				output RDCFGN = CELL_N[1].OUT_F[1];
 			}
 
 			// wire CELL_N[0].IMUX_A[1]            PLL_SMI.SMIADDR0
@@ -35158,12 +35235,12 @@ intdb {
 			// wire CELL_N[1].IMUX_CLK[2]          DLL[1].CLKI
 			// wire CELL_N[1].IMUX_CLK[3]          DLL[1].CLKFB
 			// wire CELL_N[1].IMUX_LSR[0]          PLL_SMI.SMIRSTN
-			// wire CELL_N[1].OUT_F[0]             RESETN.RSTN
+			// wire CELL_N[1].OUT_F[0]             RESETN.PADDI
 			// wire CELL_N[1].OUT_F[1]             RDCFGN.RDCFGN
-			// wire CELL_N[1].OUT_F[2]             M0.M0
-			// wire CELL_N[1].OUT_F[3]             M1.M1
-			// wire CELL_N[1].OUT_F[4]             M2.M2
-			// wire CELL_N[1].OUT_F[5]             M3.M3
+			// wire CELL_N[1].OUT_F[2]             M0.PADDI
+			// wire CELL_N[1].OUT_F[3]             M1.PADDI
+			// wire CELL_N[1].OUT_F[4]             M2.PADDI
+			// wire CELL_N[1].OUT_F[5]             M3.PADDI
 			// wire CELL_N[1].OUT_F[6]             DLL_DCNTL[0].DCNTL_OUT0
 			// wire CELL_N[1].OUT_F[7]             DLL_DCNTL[0].DCNTL_OUT1
 			// wire CELL_N[1].OUT_Q[0]             DLL_DCNTL[0].DCNTL_OUT2
@@ -35409,19 +35486,19 @@ intdb {
 			}
 
 			bel CCLK {
-				output CCLK = CELL_N[1].OUT_F[7];
+				output PADDI = CELL_N[1].OUT_F[7];
 			}
 
 			bel TCK {
-				output TCK = CELL_N[1].OUT_F[6];
+				output PADDI = CELL_N[1].OUT_F[6];
 			}
 
 			bel TMS {
-				output TMS = CELL_N[1].OUT_F[4];
+				output PADDI = CELL_N[1].OUT_F[4];
 			}
 
 			bel TDI {
-				output TDI = CELL_N[1].OUT_F[5];
+				output PADDI = CELL_N[1].OUT_F[5];
 			}
 
 			// wire CELL_N[0].IMUX_A[0]            PLL_SMI.SMIADDR6
@@ -35497,10 +35574,10 @@ intdb {
 			// wire CELL_N[1].IMUX_LSR[3]          PLL_SMI.SMIRSTN
 			// wire CELL_N[1].OUT_F[0]             DLL_DCNTL[0].DCNTL_OUT1
 			// wire CELL_N[1].OUT_F[1]             DLL_DCNTL[0].DCNTL_OUT0
-			// wire CELL_N[1].OUT_F[4]             TMS.TMS
-			// wire CELL_N[1].OUT_F[5]             TDI.TDI
-			// wire CELL_N[1].OUT_F[6]             TCK.TCK
-			// wire CELL_N[1].OUT_F[7]             CCLK.CCLK
+			// wire CELL_N[1].OUT_F[4]             TMS.PADDI
+			// wire CELL_N[1].OUT_F[5]             TDI.PADDI
+			// wire CELL_N[1].OUT_F[6]             TCK.PADDI
+			// wire CELL_N[1].OUT_F[7]             CCLK.PADDI
 			// wire CELL_N[1].OUT_Q[0]             DLL_DCNTL[1].DCNTL_OUT0
 			// wire CELL_N[1].OUT_Q[1]             DLL_DCNTL[0].DCNTL_OUT8
 			// wire CELL_N[1].OUT_Q[2]             DLL_DCNTL[0].DCNTL_OUT7
@@ -35651,8 +35728,8 @@ intdb {
 			}
 
 			bel RDBK {
-				input FFRDCFG = CELL[9].IMUX_LSR[0];
 				input FFRDCFGCLK = CELL[9].IMUX_CLK[0];
+				input FFRDCFG = CELL[9].IMUX_LSR[0];
 				output RDDATA = CELL[9].OUT_OFX[4];
 			}
 
@@ -35661,612 +35738,612 @@ intdb {
 			}
 
 			bel SYSBUS {
-				input DMARDDATA0 = CELL[4].IMUX_A[0];
-				input DMARDDATA1 = CELL[4].IMUX_A[1];
-				input DMARDDATA10 = CELL[4].IMUX_B[2];
-				input DMARDDATA11 = CELL[4].IMUX_B[3];
-				input DMARDDATA12 = CELL[4].IMUX_B[4];
-				input DMARDDATA13 = CELL[4].IMUX_B[5];
-				input DMARDDATA14 = CELL[4].IMUX_B[6];
-				input DMARDDATA15 = CELL[4].IMUX_B[7];
-				input DMARDDATA16 = CELL[4].IMUX_C[0];
-				input DMARDDATA17 = CELL[4].IMUX_C[1];
-				input DMARDDATA18 = CELL[4].IMUX_C[2];
-				input DMARDDATA19 = CELL[4].IMUX_C[3];
-				input DMARDDATA2 = CELL[4].IMUX_A[2];
-				input DMARDDATA20 = CELL[4].IMUX_C[4];
-				input DMARDDATA21 = CELL[4].IMUX_C[5];
-				input DMARDDATA22 = CELL[4].IMUX_C[6];
-				input DMARDDATA23 = CELL[4].IMUX_C[7];
-				input DMARDDATA24 = CELL[4].IMUX_D[0];
-				input DMARDDATA25 = CELL[4].IMUX_D[1];
-				input DMARDDATA26 = CELL[4].IMUX_D[2];
-				input DMARDDATA27 = CELL[4].IMUX_D[3];
-				input DMARDDATA28 = CELL[5].IMUX_A[0];
-				input DMARDDATA29 = CELL[5].IMUX_A[1];
-				input DMARDDATA3 = CELL[4].IMUX_A[3];
-				input DMARDDATA30 = CELL[5].IMUX_A[2];
-				input DMARDDATA31 = CELL[5].IMUX_A[3];
-				input DMARDDATA4 = CELL[4].IMUX_A[4];
-				input DMARDDATA5 = CELL[4].IMUX_A[5];
-				input DMARDDATA6 = CELL[4].IMUX_A[6];
-				input DMARDDATA7 = CELL[4].IMUX_A[7];
-				input DMARDDATA8 = CELL[4].IMUX_B[0];
-				input DMARDDATA9 = CELL[4].IMUX_B[1];
-				input DMARDPARITY0 = CELL[5].IMUX_A[4];
-				input DMARDPARITY1 = CELL[5].IMUX_A[5];
-				input DMARDPARITY2 = CELL[5].IMUX_A[6];
-				input DMARDPARITY3 = CELL[5].IMUX_A[7];
+				input SYSRSTN = CELL[7].IMUX_LSR[0];
+				input MPIRSTN = CELL[6].IMUX_LSR[0];
+				input USRCLK = CELL[6].IMUX_CLK[0];
+				input USERIRQI = CELL[11].IMUX_LSR[0];
+				input DMARDDATA[0] = CELL[4].IMUX_A[0];
+				input DMARDDATA[1] = CELL[4].IMUX_A[1];
+				input DMARDDATA[2] = CELL[4].IMUX_A[2];
+				input DMARDDATA[3] = CELL[4].IMUX_A[3];
+				input DMARDDATA[4] = CELL[4].IMUX_A[4];
+				input DMARDDATA[5] = CELL[4].IMUX_A[5];
+				input DMARDDATA[6] = CELL[4].IMUX_A[6];
+				input DMARDDATA[7] = CELL[4].IMUX_A[7];
+				input DMARDDATA[8] = CELL[4].IMUX_B[0];
+				input DMARDDATA[9] = CELL[4].IMUX_B[1];
+				input DMARDDATA[10] = CELL[4].IMUX_B[2];
+				input DMARDDATA[11] = CELL[4].IMUX_B[3];
+				input DMARDDATA[12] = CELL[4].IMUX_B[4];
+				input DMARDDATA[13] = CELL[4].IMUX_B[5];
+				input DMARDDATA[14] = CELL[4].IMUX_B[6];
+				input DMARDDATA[15] = CELL[4].IMUX_B[7];
+				input DMARDDATA[16] = CELL[4].IMUX_C[0];
+				input DMARDDATA[17] = CELL[4].IMUX_C[1];
+				input DMARDDATA[18] = CELL[4].IMUX_C[2];
+				input DMARDDATA[19] = CELL[4].IMUX_C[3];
+				input DMARDDATA[20] = CELL[4].IMUX_C[4];
+				input DMARDDATA[21] = CELL[4].IMUX_C[5];
+				input DMARDDATA[22] = CELL[4].IMUX_C[6];
+				input DMARDDATA[23] = CELL[4].IMUX_C[7];
+				input DMARDDATA[24] = CELL[4].IMUX_D[0];
+				input DMARDDATA[25] = CELL[4].IMUX_D[1];
+				input DMARDDATA[26] = CELL[4].IMUX_D[2];
+				input DMARDDATA[27] = CELL[4].IMUX_D[3];
+				input DMARDDATA[28] = CELL[5].IMUX_A[0];
+				input DMARDDATA[29] = CELL[5].IMUX_A[1];
+				input DMARDDATA[30] = CELL[5].IMUX_A[2];
+				input DMARDDATA[31] = CELL[5].IMUX_A[3];
+				input DMARDPARITY[0] = CELL[5].IMUX_A[4];
+				input DMARDPARITY[1] = CELL[5].IMUX_A[5];
+				input DMARDPARITY[2] = CELL[5].IMUX_A[6];
+				input DMARDPARITY[3] = CELL[5].IMUX_A[7];
 				input DMARETRY = CELL[5].IMUX_B[0];
 				input DMATA = CELL[5].IMUX_B[1];
 				input DMATEA = CELL[5].IMUX_B[2];
 				input DMATRICTL = CELL[5].IMUX_B[3];
 				input DMATRIDATA = CELL[5].IMUX_B[4];
-				output FMACK = CELL[4].OUT_F[1];
-				input FMADDR0 = CELL[6].IMUX_A[2];
-				input FMADDR1 = CELL[6].IMUX_A[1];
-				input FMADDR10 = CELL[5].IMUX_C[4];
-				input FMADDR11 = CELL[5].IMUX_C[3];
-				input FMADDR12 = CELL[5].IMUX_C[2];
-				input FMADDR13 = CELL[5].IMUX_C[1];
-				input FMADDR14 = CELL[5].IMUX_C[0];
-				input FMADDR15 = CELL[5].IMUX_B[7];
-				input FMADDR16 = CELL[5].IMUX_B[6];
-				input FMADDR17 = CELL[5].IMUX_B[5];
-				input FMADDR2 = CELL[6].IMUX_A[0];
-				input FMADDR3 = CELL[5].IMUX_D[3];
-				input FMADDR4 = CELL[5].IMUX_D[2];
-				input FMADDR5 = CELL[5].IMUX_D[1];
-				input FMADDR6 = CELL[5].IMUX_D[0];
-				input FMADDR7 = CELL[5].IMUX_C[7];
-				input FMADDR8 = CELL[5].IMUX_C[6];
-				input FMADDR9 = CELL[5].IMUX_C[5];
-				input FMBURST = CELL[6].IMUX_A[3];
-				input FMCLK = CELL[4].IMUX_CLK[0];
-				output FMERR = CELL[4].OUT_F[2];
 				input FMIRQ = CELL[4].IMUX_LSR[0];
-				input FMLOCK = CELL[6].IMUX_A[4];
-				output FMRDATA0 = CELL[5].OUT_Q[7];
-				output FMRDATA1 = CELL[5].OUT_Q[6];
-				output FMRDATA10 = CELL[5].OUT_F[5];
-				output FMRDATA11 = CELL[5].OUT_F[4];
-				output FMRDATA12 = CELL[5].OUT_F[3];
-				output FMRDATA13 = CELL[5].OUT_F[2];
-				output FMRDATA14 = CELL[5].OUT_F[1];
-				output FMRDATA15 = CELL[5].OUT_F[0];
-				output FMRDATA16 = CELL[4].OUT_OFX[6];
-				output FMRDATA17 = CELL[4].OUT_OFX[5];
-				output FMRDATA18 = CELL[4].OUT_OFX[4];
-				output FMRDATA19 = CELL[4].OUT_OFX[3];
-				output FMRDATA2 = CELL[5].OUT_Q[5];
-				output FMRDATA20 = CELL[4].OUT_OFX[2];
-				output FMRDATA21 = CELL[4].OUT_OFX[1];
-				output FMRDATA22 = CELL[4].OUT_OFX[0];
-				output FMRDATA23 = CELL[4].OUT_Q[7];
-				output FMRDATA24 = CELL[4].OUT_Q[6];
-				output FMRDATA25 = CELL[4].OUT_Q[5];
-				output FMRDATA26 = CELL[4].OUT_Q[4];
-				output FMRDATA27 = CELL[4].OUT_Q[3];
-				output FMRDATA28 = CELL[4].OUT_Q[2];
-				output FMRDATA29 = CELL[4].OUT_Q[1];
-				output FMRDATA3 = CELL[5].OUT_Q[4];
-				output FMRDATA30 = CELL[4].OUT_Q[0];
-				output FMRDATA31 = CELL[4].OUT_F[7];
-				output FMRDATA32 = CELL[4].OUT_F[6];
-				output FMRDATA33 = CELL[4].OUT_F[5];
-				output FMRDATA34 = CELL[4].OUT_F[4];
-				output FMRDATA35 = CELL[4].OUT_F[3];
-				output FMRDATA4 = CELL[5].OUT_Q[3];
-				output FMRDATA5 = CELL[5].OUT_Q[2];
-				output FMRDATA6 = CELL[5].OUT_Q[1];
-				output FMRDATA7 = CELL[5].OUT_Q[0];
-				output FMRDATA8 = CELL[5].OUT_F[7];
-				output FMRDATA9 = CELL[5].OUT_F[6];
-				input FMRDY = CELL[6].IMUX_A[5];
-				output FMRETRY = CELL[5].OUT_OFX[0];
+				input FMCLK = CELL[4].IMUX_CLK[0];
 				input FMRSTN = CELL[4].IMUX_LSR[2];
-				input FMSIZE0 = CELL[6].IMUX_A[7];
-				input FMSIZE1 = CELL[6].IMUX_A[6];
-				input FMWDATA0 = CELL[7].IMUX_B[7];
-				input FMWDATA1 = CELL[7].IMUX_B[6];
-				input FMWDATA10 = CELL[7].IMUX_A[5];
-				input FMWDATA11 = CELL[7].IMUX_A[4];
-				input FMWDATA12 = CELL[7].IMUX_A[3];
-				input FMWDATA13 = CELL[7].IMUX_A[2];
-				input FMWDATA14 = CELL[7].IMUX_A[1];
-				input FMWDATA15 = CELL[7].IMUX_A[0];
-				input FMWDATA16 = CELL[6].IMUX_D[3];
-				input FMWDATA17 = CELL[6].IMUX_D[2];
-				input FMWDATA18 = CELL[6].IMUX_D[1];
-				input FMWDATA19 = CELL[6].IMUX_D[0];
-				input FMWDATA2 = CELL[7].IMUX_B[5];
-				input FMWDATA20 = CELL[6].IMUX_C[7];
-				input FMWDATA21 = CELL[6].IMUX_C[6];
-				input FMWDATA22 = CELL[6].IMUX_C[5];
-				input FMWDATA23 = CELL[6].IMUX_C[4];
-				input FMWDATA24 = CELL[6].IMUX_C[3];
-				input FMWDATA25 = CELL[6].IMUX_C[2];
-				input FMWDATA26 = CELL[6].IMUX_C[1];
-				input FMWDATA27 = CELL[6].IMUX_C[0];
-				input FMWDATA28 = CELL[6].IMUX_B[7];
-				input FMWDATA29 = CELL[6].IMUX_B[6];
-				input FMWDATA3 = CELL[7].IMUX_B[4];
-				input FMWDATA30 = CELL[6].IMUX_B[5];
-				input FMWDATA31 = CELL[6].IMUX_B[4];
-				input FMWDATA32 = CELL[6].IMUX_B[3];
-				input FMWDATA33 = CELL[6].IMUX_B[2];
-				input FMWDATA34 = CELL[6].IMUX_B[1];
-				input FMWDATA35 = CELL[6].IMUX_B[0];
-				input FMWDATA4 = CELL[7].IMUX_B[3];
-				input FMWDATA5 = CELL[7].IMUX_B[2];
-				input FMWDATA6 = CELL[7].IMUX_B[1];
-				input FMWDATA7 = CELL[7].IMUX_B[0];
-				input FMWDATA8 = CELL[7].IMUX_A[7];
-				input FMWDATA9 = CELL[7].IMUX_A[6];
+				input FMLOCK = CELL[6].IMUX_A[4];
+				input FMRDY = CELL[6].IMUX_A[5];
 				input FMWRN = CELL[7].IMUX_C[0];
-				input FSACK = CELL[7].IMUX_C[1];
-				output FSADDR0 = CELL[6].OUT_Q[3];
-				output FSADDR1 = CELL[6].OUT_Q[2];
-				output FSADDR10 = CELL[6].OUT_F[1];
-				output FSADDR11 = CELL[6].OUT_F[0];
-				output FSADDR12 = CELL[5].OUT_OFX[6];
-				output FSADDR13 = CELL[5].OUT_OFX[5];
-				output FSADDR14 = CELL[5].OUT_OFX[4];
-				output FSADDR15 = CELL[5].OUT_OFX[3];
-				output FSADDR16 = CELL[5].OUT_OFX[2];
-				output FSADDR17 = CELL[5].OUT_OFX[1];
-				output FSADDR2 = CELL[6].OUT_Q[1];
-				output FSADDR3 = CELL[6].OUT_Q[0];
-				output FSADDR4 = CELL[6].OUT_F[7];
-				output FSADDR5 = CELL[6].OUT_F[6];
-				output FSADDR6 = CELL[6].OUT_F[5];
-				output FSADDR7 = CELL[6].OUT_F[4];
-				output FSADDR8 = CELL[6].OUT_F[3];
-				output FSADDR9 = CELL[6].OUT_F[2];
-				input FSCLK = CELL[5].IMUX_CLK[0];
-				input FSERR = CELL[7].IMUX_C[2];
+				input FMBURST = CELL[6].IMUX_A[3];
+				input FMSIZE[0] = CELL[6].IMUX_A[7];
+				input FMSIZE[1] = CELL[6].IMUX_A[6];
+				input FMADDR[0] = CELL[6].IMUX_A[2];
+				input FMADDR[1] = CELL[6].IMUX_A[1];
+				input FMADDR[2] = CELL[6].IMUX_A[0];
+				input FMADDR[3] = CELL[5].IMUX_D[3];
+				input FMADDR[4] = CELL[5].IMUX_D[2];
+				input FMADDR[5] = CELL[5].IMUX_D[1];
+				input FMADDR[6] = CELL[5].IMUX_D[0];
+				input FMADDR[7] = CELL[5].IMUX_C[7];
+				input FMADDR[8] = CELL[5].IMUX_C[6];
+				input FMADDR[9] = CELL[5].IMUX_C[5];
+				input FMADDR[10] = CELL[5].IMUX_C[4];
+				input FMADDR[11] = CELL[5].IMUX_C[3];
+				input FMADDR[12] = CELL[5].IMUX_C[2];
+				input FMADDR[13] = CELL[5].IMUX_C[1];
+				input FMADDR[14] = CELL[5].IMUX_C[0];
+				input FMADDR[15] = CELL[5].IMUX_B[7];
+				input FMADDR[16] = CELL[5].IMUX_B[6];
+				input FMADDR[17] = CELL[5].IMUX_B[5];
+				input FMWDATA[0] = CELL[7].IMUX_B[7];
+				input FMWDATA[1] = CELL[7].IMUX_B[6];
+				input FMWDATA[2] = CELL[7].IMUX_B[5];
+				input FMWDATA[3] = CELL[7].IMUX_B[4];
+				input FMWDATA[4] = CELL[7].IMUX_B[3];
+				input FMWDATA[5] = CELL[7].IMUX_B[2];
+				input FMWDATA[6] = CELL[7].IMUX_B[1];
+				input FMWDATA[7] = CELL[7].IMUX_B[0];
+				input FMWDATA[8] = CELL[7].IMUX_A[7];
+				input FMWDATA[9] = CELL[7].IMUX_A[6];
+				input FMWDATA[10] = CELL[7].IMUX_A[5];
+				input FMWDATA[11] = CELL[7].IMUX_A[4];
+				input FMWDATA[12] = CELL[7].IMUX_A[3];
+				input FMWDATA[13] = CELL[7].IMUX_A[2];
+				input FMWDATA[14] = CELL[7].IMUX_A[1];
+				input FMWDATA[15] = CELL[7].IMUX_A[0];
+				input FMWDATA[16] = CELL[6].IMUX_D[3];
+				input FMWDATA[17] = CELL[6].IMUX_D[2];
+				input FMWDATA[18] = CELL[6].IMUX_D[1];
+				input FMWDATA[19] = CELL[6].IMUX_D[0];
+				input FMWDATA[20] = CELL[6].IMUX_C[7];
+				input FMWDATA[21] = CELL[6].IMUX_C[6];
+				input FMWDATA[22] = CELL[6].IMUX_C[5];
+				input FMWDATA[23] = CELL[6].IMUX_C[4];
+				input FMWDATA[24] = CELL[6].IMUX_C[3];
+				input FMWDATA[25] = CELL[6].IMUX_C[2];
+				input FMWDATA[26] = CELL[6].IMUX_C[1];
+				input FMWDATA[27] = CELL[6].IMUX_C[0];
+				input FMWDATA[28] = CELL[6].IMUX_B[7];
+				input FMWDATA[29] = CELL[6].IMUX_B[6];
+				input FMWDATA[30] = CELL[6].IMUX_B[5];
+				input FMWDATA[31] = CELL[6].IMUX_B[4];
+				input FMWDATA[32] = CELL[6].IMUX_B[3];
+				input FMWDATA[33] = CELL[6].IMUX_B[2];
+				input FMWDATA[34] = CELL[6].IMUX_B[1];
+				input FMWDATA[35] = CELL[6].IMUX_B[0];
 				input FSIRQ = CELL[5].IMUX_LSR[0];
-				input FSRDATA0 = CELL[8].IMUX_D[2];
-				input FSRDATA1 = CELL[8].IMUX_D[1];
-				input FSRDATA10 = CELL[8].IMUX_C[0];
-				input FSRDATA11 = CELL[8].IMUX_B[7];
-				input FSRDATA12 = CELL[8].IMUX_B[6];
-				input FSRDATA13 = CELL[8].IMUX_B[5];
-				input FSRDATA14 = CELL[8].IMUX_B[4];
-				input FSRDATA15 = CELL[8].IMUX_B[3];
-				input FSRDATA16 = CELL[8].IMUX_B[2];
-				input FSRDATA17 = CELL[8].IMUX_B[1];
-				input FSRDATA18 = CELL[8].IMUX_B[0];
-				input FSRDATA19 = CELL[8].IMUX_A[7];
-				input FSRDATA2 = CELL[8].IMUX_D[0];
-				input FSRDATA20 = CELL[8].IMUX_A[6];
-				input FSRDATA21 = CELL[8].IMUX_A[5];
-				input FSRDATA22 = CELL[8].IMUX_A[4];
-				input FSRDATA23 = CELL[8].IMUX_A[3];
-				input FSRDATA24 = CELL[8].IMUX_A[2];
-				input FSRDATA25 = CELL[8].IMUX_A[1];
-				input FSRDATA26 = CELL[8].IMUX_A[0];
-				input FSRDATA27 = CELL[7].IMUX_D[3];
-				input FSRDATA28 = CELL[7].IMUX_D[2];
-				input FSRDATA29 = CELL[7].IMUX_D[1];
-				input FSRDATA3 = CELL[8].IMUX_C[7];
-				input FSRDATA30 = CELL[7].IMUX_D[0];
-				input FSRDATA31 = CELL[7].IMUX_C[7];
-				input FSRDATA32 = CELL[7].IMUX_C[6];
-				input FSRDATA33 = CELL[7].IMUX_C[5];
-				input FSRDATA34 = CELL[7].IMUX_C[4];
-				input FSRDATA35 = CELL[7].IMUX_C[3];
-				input FSRDATA4 = CELL[8].IMUX_C[6];
-				input FSRDATA5 = CELL[8].IMUX_C[5];
-				input FSRDATA6 = CELL[8].IMUX_C[4];
-				input FSRDATA7 = CELL[8].IMUX_C[3];
-				input FSRDATA8 = CELL[8].IMUX_C[2];
-				input FSRDATA9 = CELL[8].IMUX_C[1];
-				output FSRDY = CELL[6].OUT_Q[4];
-				input FSRETRY = CELL[8].IMUX_D[3];
+				input FSCLK = CELL[5].IMUX_CLK[0];
 				input FSRSTN = CELL[5].IMUX_LSR[2];
-				output FSSIZE0 = CELL[6].OUT_Q[6];
-				output FSSIZE1 = CELL[6].OUT_Q[5];
-				output FSWDATA0 = CELL[8].OUT_F[4];
-				output FSWDATA1 = CELL[8].OUT_F[3];
-				output FSWDATA10 = CELL[7].OUT_OFX[1];
-				output FSWDATA11 = CELL[7].OUT_OFX[0];
-				output FSWDATA12 = CELL[7].OUT_Q[7];
-				output FSWDATA13 = CELL[7].OUT_Q[6];
-				output FSWDATA14 = CELL[7].OUT_Q[5];
-				output FSWDATA15 = CELL[7].OUT_Q[4];
-				output FSWDATA16 = CELL[7].OUT_Q[3];
-				output FSWDATA17 = CELL[7].OUT_Q[2];
-				output FSWDATA18 = CELL[7].OUT_Q[1];
-				output FSWDATA19 = CELL[7].OUT_Q[0];
-				output FSWDATA2 = CELL[8].OUT_F[2];
-				output FSWDATA20 = CELL[7].OUT_F[7];
-				output FSWDATA21 = CELL[7].OUT_F[6];
-				output FSWDATA22 = CELL[7].OUT_F[5];
-				output FSWDATA23 = CELL[7].OUT_F[4];
-				output FSWDATA24 = CELL[7].OUT_F[3];
-				output FSWDATA25 = CELL[7].OUT_F[2];
-				output FSWDATA26 = CELL[7].OUT_F[1];
-				output FSWDATA27 = CELL[7].OUT_F[0];
-				output FSWDATA28 = CELL[6].OUT_OFX[6];
-				output FSWDATA29 = CELL[6].OUT_OFX[5];
-				output FSWDATA3 = CELL[8].OUT_F[1];
-				output FSWDATA30 = CELL[6].OUT_OFX[4];
-				output FSWDATA31 = CELL[6].OUT_OFX[3];
-				output FSWDATA32 = CELL[6].OUT_OFX[2];
-				output FSWDATA33 = CELL[6].OUT_OFX[1];
-				output FSWDATA34 = CELL[6].OUT_OFX[0];
-				output FSWDATA35 = CELL[6].OUT_Q[7];
-				output FSWDATA4 = CELL[8].OUT_F[0];
-				output FSWDATA5 = CELL[7].OUT_OFX[6];
-				output FSWDATA6 = CELL[7].OUT_OFX[5];
-				output FSWDATA7 = CELL[7].OUT_OFX[4];
-				output FSWDATA8 = CELL[7].OUT_OFX[3];
-				output FSWDATA9 = CELL[7].OUT_OFX[2];
-				output FSWRN = CELL[8].OUT_F[5];
+				input FSRDATA[0] = CELL[8].IMUX_D[2];
+				input FSRDATA[1] = CELL[8].IMUX_D[1];
+				input FSRDATA[2] = CELL[8].IMUX_D[0];
+				input FSRDATA[3] = CELL[8].IMUX_C[7];
+				input FSRDATA[4] = CELL[8].IMUX_C[6];
+				input FSRDATA[5] = CELL[8].IMUX_C[5];
+				input FSRDATA[6] = CELL[8].IMUX_C[4];
+				input FSRDATA[7] = CELL[8].IMUX_C[3];
+				input FSRDATA[8] = CELL[8].IMUX_C[2];
+				input FSRDATA[9] = CELL[8].IMUX_C[1];
+				input FSRDATA[10] = CELL[8].IMUX_C[0];
+				input FSRDATA[11] = CELL[8].IMUX_B[7];
+				input FSRDATA[12] = CELL[8].IMUX_B[6];
+				input FSRDATA[13] = CELL[8].IMUX_B[5];
+				input FSRDATA[14] = CELL[8].IMUX_B[4];
+				input FSRDATA[15] = CELL[8].IMUX_B[3];
+				input FSRDATA[16] = CELL[8].IMUX_B[2];
+				input FSRDATA[17] = CELL[8].IMUX_B[1];
+				input FSRDATA[18] = CELL[8].IMUX_B[0];
+				input FSRDATA[19] = CELL[8].IMUX_A[7];
+				input FSRDATA[20] = CELL[8].IMUX_A[6];
+				input FSRDATA[21] = CELL[8].IMUX_A[5];
+				input FSRDATA[22] = CELL[8].IMUX_A[4];
+				input FSRDATA[23] = CELL[8].IMUX_A[3];
+				input FSRDATA[24] = CELL[8].IMUX_A[2];
+				input FSRDATA[25] = CELL[8].IMUX_A[1];
+				input FSRDATA[26] = CELL[8].IMUX_A[0];
+				input FSRDATA[27] = CELL[7].IMUX_D[3];
+				input FSRDATA[28] = CELL[7].IMUX_D[2];
+				input FSRDATA[29] = CELL[7].IMUX_D[1];
+				input FSRDATA[30] = CELL[7].IMUX_D[0];
+				input FSRDATA[31] = CELL[7].IMUX_C[7];
+				input FSRDATA[32] = CELL[7].IMUX_C[6];
+				input FSRDATA[33] = CELL[7].IMUX_C[5];
+				input FSRDATA[34] = CELL[7].IMUX_C[4];
+				input FSRDATA[35] = CELL[7].IMUX_C[3];
+				input FSACK = CELL[7].IMUX_C[1];
+				input FSERR = CELL[7].IMUX_C[2];
+				input FSRETRY = CELL[8].IMUX_D[3];
+				input SMIRDATA[0] = CELL[11].IMUX_C[2];
+				input SMIRDATA[1] = CELL[11].IMUX_C[1];
+				input SMIRDATA[2] = CELL[11].IMUX_C[0];
+				input SMIRDATA[3] = CELL[11].IMUX_B[7];
+				input SMIRDATA[4] = CELL[11].IMUX_B[6];
+				input SMIRDATA[5] = CELL[11].IMUX_B[5];
+				input SMIRDATA[6] = CELL[11].IMUX_B[4];
+				input SMIRDATA[7] = CELL[11].IMUX_B[3];
+				input SMIRDATA[8] = CELL[11].IMUX_B[2];
+				input SMIRDATA[9] = CELL[11].IMUX_B[1];
+				input SMIRDATA[10] = CELL[11].IMUX_B[0];
+				input SMIRDATA[11] = CELL[11].IMUX_A[7];
+				input SMIRDATA[12] = CELL[11].IMUX_A[6];
+				input SMIRDATA[13] = CELL[11].IMUX_A[5];
+				input SMIRDATA[14] = CELL[11].IMUX_A[4];
+				input SMIRDATA[15] = CELL[11].IMUX_A[3];
+				input SMIRDATA[16] = CELL[11].IMUX_A[2];
+				input SMIRDATA[17] = CELL[11].IMUX_A[1];
+				input SMIRDATA[18] = CELL[11].IMUX_A[0];
+				input SMIRDATA[19] = CELL[10].IMUX_D[3];
+				input SMIRDATA[20] = CELL[10].IMUX_D[2];
+				input SMIRDATA[21] = CELL[10].IMUX_D[1];
+				input SMIRDATA[22] = CELL[10].IMUX_D[0];
+				input SMIRDATA[23] = CELL[10].IMUX_C[7];
+				input SMIRDATA[24] = CELL[10].IMUX_C[6];
+				input SMIRDATA[25] = CELL[10].IMUX_C[5];
+				input SMIRDATA[26] = CELL[10].IMUX_C[4];
+				input SMIRDATA[27] = CELL[10].IMUX_C[3];
+				input SMIRDATA[28] = CELL[10].IMUX_C[2];
+				input SMIRDATA[29] = CELL[10].IMUX_C[1];
+				input SMIRDATA[30] = CELL[10].IMUX_C[0];
+				input SMIRDATA[31] = CELL[10].IMUX_B[7];
+				input SMIRDATA[32] = CELL[10].IMUX_B[6];
+				input SMIRDATA[33] = CELL[10].IMUX_B[5];
+				input SMIRDATA[34] = CELL[10].IMUX_B[4];
+				input SMIRDATA[35] = CELL[10].IMUX_B[3];
+				input SMIRDATA[36] = CELL[10].IMUX_B[2];
+				input SMIRDATA[37] = CELL[10].IMUX_B[1];
+				input SMIRDATA[38] = CELL[10].IMUX_B[0];
+				input SMIRDATA[39] = CELL[10].IMUX_A[7];
+				input SMIRDATA[40] = CELL[10].IMUX_A[6];
+				input SMIRDATA[41] = CELL[10].IMUX_A[5];
+				input SMIRDATA[42] = CELL[10].IMUX_A[4];
+				input SMIRDATA[43] = CELL[10].IMUX_A[3];
+				input SMIRDATA[44] = CELL[10].IMUX_A[2];
+				input SMIRDATA[45] = CELL[10].IMUX_A[1];
+				input SMIRDATA[46] = CELL[10].IMUX_A[0];
+				input SMIRDATA[47] = CELL[9].IMUX_D[3];
+				input SMIRDATA[48] = CELL[9].IMUX_D[2];
+				input SMIRDATA[49] = CELL[9].IMUX_D[1];
+				input SMIRDATA[50] = CELL[9].IMUX_D[0];
+				input SMIRDATA[51] = CELL[9].IMUX_C[7];
+				input SMIRDATA[52] = CELL[9].IMUX_C[6];
+				input SMIRDATA[53] = CELL[9].IMUX_C[5];
+				input SMIRDATA[54] = CELL[9].IMUX_C[4];
+				input SMIRDATA[55] = CELL[9].IMUX_C[3];
+				input SMIRDATA[56] = CELL[9].IMUX_C[2];
+				input SMIRDATA[57] = CELL[9].IMUX_C[1];
+				input SMIRDATA[58] = CELL[9].IMUX_C[0];
+				input SMIRDATA[59] = CELL[9].IMUX_B[7];
+				input SMIRDATA[60] = CELL[9].IMUX_B[6];
+				input SMIRDATA[61] = CELL[9].IMUX_B[5];
+				input SMIRDATA[62] = CELL[9].IMUX_B[4];
+				input SMIRDATA[63] = CELL[9].IMUX_B[3];
 				output HCLKCIB = CELL[8].OUT_F[6];
-				input MPIRSTN = CELL[6].IMUX_LSR[0];
-				output SMIADDR0 = CELL[10].OUT_F[7];
-				output SMIADDR1 = CELL[10].OUT_F[6];
-				output SMIADDR2 = CELL[10].OUT_F[5];
-				output SMIADDR3 = CELL[10].OUT_F[4];
-				output SMIADDR4 = CELL[10].OUT_F[3];
-				output SMIADDR5 = CELL[10].OUT_F[2];
-				output SMIADDR6 = CELL[10].OUT_F[1];
-				output SMIADDR7 = CELL[10].OUT_F[0];
-				output SMIADDR8 = CELL[9].OUT_OFX[6];
-				output SMIADDR9 = CELL[9].OUT_OFX[5];
-				output SMICLK = CELL[10].OUT_Q[0];
-				output SMIRD = CELL[10].OUT_Q[1];
-				input SMIRDATA0 = CELL[11].IMUX_C[2];
-				input SMIRDATA1 = CELL[11].IMUX_C[1];
-				input SMIRDATA10 = CELL[11].IMUX_B[0];
-				input SMIRDATA11 = CELL[11].IMUX_A[7];
-				input SMIRDATA12 = CELL[11].IMUX_A[6];
-				input SMIRDATA13 = CELL[11].IMUX_A[5];
-				input SMIRDATA14 = CELL[11].IMUX_A[4];
-				input SMIRDATA15 = CELL[11].IMUX_A[3];
-				input SMIRDATA16 = CELL[11].IMUX_A[2];
-				input SMIRDATA17 = CELL[11].IMUX_A[1];
-				input SMIRDATA18 = CELL[11].IMUX_A[0];
-				input SMIRDATA19 = CELL[10].IMUX_D[3];
-				input SMIRDATA2 = CELL[11].IMUX_C[0];
-				input SMIRDATA20 = CELL[10].IMUX_D[2];
-				input SMIRDATA21 = CELL[10].IMUX_D[1];
-				input SMIRDATA22 = CELL[10].IMUX_D[0];
-				input SMIRDATA23 = CELL[10].IMUX_C[7];
-				input SMIRDATA24 = CELL[10].IMUX_C[6];
-				input SMIRDATA25 = CELL[10].IMUX_C[5];
-				input SMIRDATA26 = CELL[10].IMUX_C[4];
-				input SMIRDATA27 = CELL[10].IMUX_C[3];
-				input SMIRDATA28 = CELL[10].IMUX_C[2];
-				input SMIRDATA29 = CELL[10].IMUX_C[1];
-				input SMIRDATA3 = CELL[11].IMUX_B[7];
-				input SMIRDATA30 = CELL[10].IMUX_C[0];
-				input SMIRDATA31 = CELL[10].IMUX_B[7];
-				input SMIRDATA32 = CELL[10].IMUX_B[6];
-				input SMIRDATA33 = CELL[10].IMUX_B[5];
-				input SMIRDATA34 = CELL[10].IMUX_B[4];
-				input SMIRDATA35 = CELL[10].IMUX_B[3];
-				input SMIRDATA36 = CELL[10].IMUX_B[2];
-				input SMIRDATA37 = CELL[10].IMUX_B[1];
-				input SMIRDATA38 = CELL[10].IMUX_B[0];
-				input SMIRDATA39 = CELL[10].IMUX_A[7];
-				input SMIRDATA4 = CELL[11].IMUX_B[6];
-				input SMIRDATA40 = CELL[10].IMUX_A[6];
-				input SMIRDATA41 = CELL[10].IMUX_A[5];
-				input SMIRDATA42 = CELL[10].IMUX_A[4];
-				input SMIRDATA43 = CELL[10].IMUX_A[3];
-				input SMIRDATA44 = CELL[10].IMUX_A[2];
-				input SMIRDATA45 = CELL[10].IMUX_A[1];
-				input SMIRDATA46 = CELL[10].IMUX_A[0];
-				input SMIRDATA47 = CELL[9].IMUX_D[3];
-				input SMIRDATA48 = CELL[9].IMUX_D[2];
-				input SMIRDATA49 = CELL[9].IMUX_D[1];
-				input SMIRDATA5 = CELL[11].IMUX_B[5];
-				input SMIRDATA50 = CELL[9].IMUX_D[0];
-				input SMIRDATA51 = CELL[9].IMUX_C[7];
-				input SMIRDATA52 = CELL[9].IMUX_C[6];
-				input SMIRDATA53 = CELL[9].IMUX_C[5];
-				input SMIRDATA54 = CELL[9].IMUX_C[4];
-				input SMIRDATA55 = CELL[9].IMUX_C[3];
-				input SMIRDATA56 = CELL[9].IMUX_C[2];
-				input SMIRDATA57 = CELL[9].IMUX_C[1];
-				input SMIRDATA58 = CELL[9].IMUX_C[0];
-				input SMIRDATA59 = CELL[9].IMUX_B[7];
-				input SMIRDATA6 = CELL[11].IMUX_B[4];
-				input SMIRDATA60 = CELL[9].IMUX_B[6];
-				input SMIRDATA61 = CELL[9].IMUX_B[5];
-				input SMIRDATA62 = CELL[9].IMUX_B[4];
-				input SMIRDATA63 = CELL[9].IMUX_B[3];
-				input SMIRDATA7 = CELL[11].IMUX_B[3];
-				input SMIRDATA8 = CELL[11].IMUX_B[2];
-				input SMIRDATA9 = CELL[11].IMUX_B[1];
-				output SMIRSTN = CELL[10].OUT_Q[2];
-				output SMIWDATA = CELL[10].OUT_Q[3];
-				output SMIWR = CELL[10].OUT_Q[4];
-				output SYSBDEBUG0 = CELL[11].OUT_Q[5];
-				output SYSBDEBUG1 = CELL[11].OUT_Q[4];
-				output SYSBDEBUG10 = CELL[11].OUT_F[3];
-				output SYSBDEBUG11 = CELL[11].OUT_F[2];
-				output SYSBDEBUG12 = CELL[11].OUT_F[1];
-				output SYSBDEBUG13 = CELL[11].OUT_F[0];
-				output SYSBDEBUG14 = CELL[10].OUT_OFX[6];
-				output SYSBDEBUG15 = CELL[10].OUT_OFX[5];
-				output SYSBDEBUG16 = CELL[10].OUT_OFX[4];
-				output SYSBDEBUG17 = CELL[10].OUT_OFX[3];
-				output SYSBDEBUG18 = CELL[10].OUT_OFX[2];
-				output SYSBDEBUG19 = CELL[10].OUT_OFX[1];
-				output SYSBDEBUG2 = CELL[11].OUT_Q[3];
-				output SYSBDEBUG20 = CELL[10].OUT_OFX[0];
-				output SYSBDEBUG21 = CELL[10].OUT_Q[7];
-				output SYSBDEBUG22 = CELL[10].OUT_Q[6];
-				output SYSBDEBUG23 = CELL[10].OUT_Q[5];
-				output SYSBDEBUG3 = CELL[11].OUT_Q[2];
-				output SYSBDEBUG4 = CELL[11].OUT_Q[1];
-				output SYSBDEBUG5 = CELL[11].OUT_Q[0];
-				output SYSBDEBUG6 = CELL[11].OUT_F[7];
-				output SYSBDEBUG7 = CELL[11].OUT_F[6];
-				output SYSBDEBUG8 = CELL[11].OUT_F[5];
-				output SYSBDEBUG9 = CELL[11].OUT_F[4];
-				input SYSRSTN = CELL[7].IMUX_LSR[0];
-				input USERIRQI = CELL[11].IMUX_LSR[0];
 				output USERIRQO = CELL[11].OUT_OFX[1];
-				input USRCLK = CELL[6].IMUX_CLK[0];
+				output SYSBDEBUG[0] = CELL[11].OUT_Q[5];
+				output SYSBDEBUG[1] = CELL[11].OUT_Q[4];
+				output SYSBDEBUG[2] = CELL[11].OUT_Q[3];
+				output SYSBDEBUG[3] = CELL[11].OUT_Q[2];
+				output SYSBDEBUG[4] = CELL[11].OUT_Q[1];
+				output SYSBDEBUG[5] = CELL[11].OUT_Q[0];
+				output SYSBDEBUG[6] = CELL[11].OUT_F[7];
+				output SYSBDEBUG[7] = CELL[11].OUT_F[6];
+				output SYSBDEBUG[8] = CELL[11].OUT_F[5];
+				output SYSBDEBUG[9] = CELL[11].OUT_F[4];
+				output SYSBDEBUG[10] = CELL[11].OUT_F[3];
+				output SYSBDEBUG[11] = CELL[11].OUT_F[2];
+				output SYSBDEBUG[12] = CELL[11].OUT_F[1];
+				output SYSBDEBUG[13] = CELL[11].OUT_F[0];
+				output SYSBDEBUG[14] = CELL[10].OUT_OFX[6];
+				output SYSBDEBUG[15] = CELL[10].OUT_OFX[5];
+				output SYSBDEBUG[16] = CELL[10].OUT_OFX[4];
+				output SYSBDEBUG[17] = CELL[10].OUT_OFX[3];
+				output SYSBDEBUG[18] = CELL[10].OUT_OFX[2];
+				output SYSBDEBUG[19] = CELL[10].OUT_OFX[1];
+				output SYSBDEBUG[20] = CELL[10].OUT_OFX[0];
+				output SYSBDEBUG[21] = CELL[10].OUT_Q[7];
+				output SYSBDEBUG[22] = CELL[10].OUT_Q[6];
+				output SYSBDEBUG[23] = CELL[10].OUT_Q[5];
+				output FMRDATA[0] = CELL[5].OUT_Q[7];
+				output FMRDATA[1] = CELL[5].OUT_Q[6];
+				output FMRDATA[2] = CELL[5].OUT_Q[5];
+				output FMRDATA[3] = CELL[5].OUT_Q[4];
+				output FMRDATA[4] = CELL[5].OUT_Q[3];
+				output FMRDATA[5] = CELL[5].OUT_Q[2];
+				output FMRDATA[6] = CELL[5].OUT_Q[1];
+				output FMRDATA[7] = CELL[5].OUT_Q[0];
+				output FMRDATA[8] = CELL[5].OUT_F[7];
+				output FMRDATA[9] = CELL[5].OUT_F[6];
+				output FMRDATA[10] = CELL[5].OUT_F[5];
+				output FMRDATA[11] = CELL[5].OUT_F[4];
+				output FMRDATA[12] = CELL[5].OUT_F[3];
+				output FMRDATA[13] = CELL[5].OUT_F[2];
+				output FMRDATA[14] = CELL[5].OUT_F[1];
+				output FMRDATA[15] = CELL[5].OUT_F[0];
+				output FMRDATA[16] = CELL[4].OUT_OFX[6];
+				output FMRDATA[17] = CELL[4].OUT_OFX[5];
+				output FMRDATA[18] = CELL[4].OUT_OFX[4];
+				output FMRDATA[19] = CELL[4].OUT_OFX[3];
+				output FMRDATA[20] = CELL[4].OUT_OFX[2];
+				output FMRDATA[21] = CELL[4].OUT_OFX[1];
+				output FMRDATA[22] = CELL[4].OUT_OFX[0];
+				output FMRDATA[23] = CELL[4].OUT_Q[7];
+				output FMRDATA[24] = CELL[4].OUT_Q[6];
+				output FMRDATA[25] = CELL[4].OUT_Q[5];
+				output FMRDATA[26] = CELL[4].OUT_Q[4];
+				output FMRDATA[27] = CELL[4].OUT_Q[3];
+				output FMRDATA[28] = CELL[4].OUT_Q[2];
+				output FMRDATA[29] = CELL[4].OUT_Q[1];
+				output FMRDATA[30] = CELL[4].OUT_Q[0];
+				output FMRDATA[31] = CELL[4].OUT_F[7];
+				output FMRDATA[32] = CELL[4].OUT_F[6];
+				output FMRDATA[33] = CELL[4].OUT_F[5];
+				output FMRDATA[34] = CELL[4].OUT_F[4];
+				output FMRDATA[35] = CELL[4].OUT_F[3];
+				output FMACK = CELL[4].OUT_F[1];
+				output FMERR = CELL[4].OUT_F[2];
+				output FMRETRY = CELL[5].OUT_OFX[0];
+				output FSRDY = CELL[6].OUT_Q[4];
+				output FSWRN = CELL[8].OUT_F[5];
+				output FSSIZE[0] = CELL[6].OUT_Q[6];
+				output FSSIZE[1] = CELL[6].OUT_Q[5];
+				output FSADDR[0] = CELL[6].OUT_Q[3];
+				output FSADDR[1] = CELL[6].OUT_Q[2];
+				output FSADDR[2] = CELL[6].OUT_Q[1];
+				output FSADDR[3] = CELL[6].OUT_Q[0];
+				output FSADDR[4] = CELL[6].OUT_F[7];
+				output FSADDR[5] = CELL[6].OUT_F[6];
+				output FSADDR[6] = CELL[6].OUT_F[5];
+				output FSADDR[7] = CELL[6].OUT_F[4];
+				output FSADDR[8] = CELL[6].OUT_F[3];
+				output FSADDR[9] = CELL[6].OUT_F[2];
+				output FSADDR[10] = CELL[6].OUT_F[1];
+				output FSADDR[11] = CELL[6].OUT_F[0];
+				output FSADDR[12] = CELL[5].OUT_OFX[6];
+				output FSADDR[13] = CELL[5].OUT_OFX[5];
+				output FSADDR[14] = CELL[5].OUT_OFX[4];
+				output FSADDR[15] = CELL[5].OUT_OFX[3];
+				output FSADDR[16] = CELL[5].OUT_OFX[2];
+				output FSADDR[17] = CELL[5].OUT_OFX[1];
+				output FSWDATA[0] = CELL[8].OUT_F[4];
+				output FSWDATA[1] = CELL[8].OUT_F[3];
+				output FSWDATA[2] = CELL[8].OUT_F[2];
+				output FSWDATA[3] = CELL[8].OUT_F[1];
+				output FSWDATA[4] = CELL[8].OUT_F[0];
+				output FSWDATA[5] = CELL[7].OUT_OFX[6];
+				output FSWDATA[6] = CELL[7].OUT_OFX[5];
+				output FSWDATA[7] = CELL[7].OUT_OFX[4];
+				output FSWDATA[8] = CELL[7].OUT_OFX[3];
+				output FSWDATA[9] = CELL[7].OUT_OFX[2];
+				output FSWDATA[10] = CELL[7].OUT_OFX[1];
+				output FSWDATA[11] = CELL[7].OUT_OFX[0];
+				output FSWDATA[12] = CELL[7].OUT_Q[7];
+				output FSWDATA[13] = CELL[7].OUT_Q[6];
+				output FSWDATA[14] = CELL[7].OUT_Q[5];
+				output FSWDATA[15] = CELL[7].OUT_Q[4];
+				output FSWDATA[16] = CELL[7].OUT_Q[3];
+				output FSWDATA[17] = CELL[7].OUT_Q[2];
+				output FSWDATA[18] = CELL[7].OUT_Q[1];
+				output FSWDATA[19] = CELL[7].OUT_Q[0];
+				output FSWDATA[20] = CELL[7].OUT_F[7];
+				output FSWDATA[21] = CELL[7].OUT_F[6];
+				output FSWDATA[22] = CELL[7].OUT_F[5];
+				output FSWDATA[23] = CELL[7].OUT_F[4];
+				output FSWDATA[24] = CELL[7].OUT_F[3];
+				output FSWDATA[25] = CELL[7].OUT_F[2];
+				output FSWDATA[26] = CELL[7].OUT_F[1];
+				output FSWDATA[27] = CELL[7].OUT_F[0];
+				output FSWDATA[28] = CELL[6].OUT_OFX[6];
+				output FSWDATA[29] = CELL[6].OUT_OFX[5];
+				output FSWDATA[30] = CELL[6].OUT_OFX[4];
+				output FSWDATA[31] = CELL[6].OUT_OFX[3];
+				output FSWDATA[32] = CELL[6].OUT_OFX[2];
+				output FSWDATA[33] = CELL[6].OUT_OFX[1];
+				output FSWDATA[34] = CELL[6].OUT_OFX[0];
+				output FSWDATA[35] = CELL[6].OUT_Q[7];
+				output SMICLK = CELL[10].OUT_Q[0];
+				output SMIRSTN = CELL[10].OUT_Q[2];
+				output SMIRD = CELL[10].OUT_Q[1];
+				output SMIWR = CELL[10].OUT_Q[4];
+				output SMIADDR[0] = CELL[10].OUT_F[7];
+				output SMIADDR[1] = CELL[10].OUT_F[6];
+				output SMIADDR[2] = CELL[10].OUT_F[5];
+				output SMIADDR[3] = CELL[10].OUT_F[4];
+				output SMIADDR[4] = CELL[10].OUT_F[3];
+				output SMIADDR[5] = CELL[10].OUT_F[2];
+				output SMIADDR[6] = CELL[10].OUT_F[1];
+				output SMIADDR[7] = CELL[10].OUT_F[0];
+				output SMIADDR[8] = CELL[9].OUT_OFX[6];
+				output SMIADDR[9] = CELL[9].OUT_OFX[5];
+				output SMIWDATA = CELL[10].OUT_Q[3];
 			}
 
 			bel SERDES_CENTER {
 				input FFC_CK_CORE_TX = CELL[11].IMUX_CLK[0];
 			}
 
-			// wire CELL[4].IMUX_A[0]              SYSBUS.DMARDDATA0
-			// wire CELL[4].IMUX_A[1]              SYSBUS.DMARDDATA1
-			// wire CELL[4].IMUX_A[2]              SYSBUS.DMARDDATA2
-			// wire CELL[4].IMUX_A[3]              SYSBUS.DMARDDATA3
-			// wire CELL[4].IMUX_A[4]              SYSBUS.DMARDDATA4
-			// wire CELL[4].IMUX_A[5]              SYSBUS.DMARDDATA5
-			// wire CELL[4].IMUX_A[6]              SYSBUS.DMARDDATA6
-			// wire CELL[4].IMUX_A[7]              SYSBUS.DMARDDATA7
-			// wire CELL[4].IMUX_B[0]              SYSBUS.DMARDDATA8
-			// wire CELL[4].IMUX_B[1]              SYSBUS.DMARDDATA9
-			// wire CELL[4].IMUX_B[2]              SYSBUS.DMARDDATA10
-			// wire CELL[4].IMUX_B[3]              SYSBUS.DMARDDATA11
-			// wire CELL[4].IMUX_B[4]              SYSBUS.DMARDDATA12
-			// wire CELL[4].IMUX_B[5]              SYSBUS.DMARDDATA13
-			// wire CELL[4].IMUX_B[6]              SYSBUS.DMARDDATA14
-			// wire CELL[4].IMUX_B[7]              SYSBUS.DMARDDATA15
-			// wire CELL[4].IMUX_C[0]              SYSBUS.DMARDDATA16
-			// wire CELL[4].IMUX_C[1]              SYSBUS.DMARDDATA17
-			// wire CELL[4].IMUX_C[2]              SYSBUS.DMARDDATA18
-			// wire CELL[4].IMUX_C[3]              SYSBUS.DMARDDATA19
-			// wire CELL[4].IMUX_C[4]              SYSBUS.DMARDDATA20
-			// wire CELL[4].IMUX_C[5]              SYSBUS.DMARDDATA21
-			// wire CELL[4].IMUX_C[6]              SYSBUS.DMARDDATA22
-			// wire CELL[4].IMUX_C[7]              SYSBUS.DMARDDATA23
-			// wire CELL[4].IMUX_D[0]              SYSBUS.DMARDDATA24
-			// wire CELL[4].IMUX_D[1]              SYSBUS.DMARDDATA25
-			// wire CELL[4].IMUX_D[2]              SYSBUS.DMARDDATA26
-			// wire CELL[4].IMUX_D[3]              SYSBUS.DMARDDATA27
+			// wire CELL[4].IMUX_A[0]              SYSBUS.DMARDDATA[0]
+			// wire CELL[4].IMUX_A[1]              SYSBUS.DMARDDATA[1]
+			// wire CELL[4].IMUX_A[2]              SYSBUS.DMARDDATA[2]
+			// wire CELL[4].IMUX_A[3]              SYSBUS.DMARDDATA[3]
+			// wire CELL[4].IMUX_A[4]              SYSBUS.DMARDDATA[4]
+			// wire CELL[4].IMUX_A[5]              SYSBUS.DMARDDATA[5]
+			// wire CELL[4].IMUX_A[6]              SYSBUS.DMARDDATA[6]
+			// wire CELL[4].IMUX_A[7]              SYSBUS.DMARDDATA[7]
+			// wire CELL[4].IMUX_B[0]              SYSBUS.DMARDDATA[8]
+			// wire CELL[4].IMUX_B[1]              SYSBUS.DMARDDATA[9]
+			// wire CELL[4].IMUX_B[2]              SYSBUS.DMARDDATA[10]
+			// wire CELL[4].IMUX_B[3]              SYSBUS.DMARDDATA[11]
+			// wire CELL[4].IMUX_B[4]              SYSBUS.DMARDDATA[12]
+			// wire CELL[4].IMUX_B[5]              SYSBUS.DMARDDATA[13]
+			// wire CELL[4].IMUX_B[6]              SYSBUS.DMARDDATA[14]
+			// wire CELL[4].IMUX_B[7]              SYSBUS.DMARDDATA[15]
+			// wire CELL[4].IMUX_C[0]              SYSBUS.DMARDDATA[16]
+			// wire CELL[4].IMUX_C[1]              SYSBUS.DMARDDATA[17]
+			// wire CELL[4].IMUX_C[2]              SYSBUS.DMARDDATA[18]
+			// wire CELL[4].IMUX_C[3]              SYSBUS.DMARDDATA[19]
+			// wire CELL[4].IMUX_C[4]              SYSBUS.DMARDDATA[20]
+			// wire CELL[4].IMUX_C[5]              SYSBUS.DMARDDATA[21]
+			// wire CELL[4].IMUX_C[6]              SYSBUS.DMARDDATA[22]
+			// wire CELL[4].IMUX_C[7]              SYSBUS.DMARDDATA[23]
+			// wire CELL[4].IMUX_D[0]              SYSBUS.DMARDDATA[24]
+			// wire CELL[4].IMUX_D[1]              SYSBUS.DMARDDATA[25]
+			// wire CELL[4].IMUX_D[2]              SYSBUS.DMARDDATA[26]
+			// wire CELL[4].IMUX_D[3]              SYSBUS.DMARDDATA[27]
 			// wire CELL[4].IMUX_CLK[0]            SYSBUS.FMCLK
 			// wire CELL[4].IMUX_LSR[0]            SYSBUS.FMIRQ
 			// wire CELL[4].IMUX_LSR[2]            SYSBUS.FMRSTN
 			// wire CELL[4].OUT_F[0]               OSC.CFGCLK
 			// wire CELL[4].OUT_F[1]               SYSBUS.FMACK
 			// wire CELL[4].OUT_F[2]               SYSBUS.FMERR
-			// wire CELL[4].OUT_F[3]               SYSBUS.FMRDATA35
-			// wire CELL[4].OUT_F[4]               SYSBUS.FMRDATA34
-			// wire CELL[4].OUT_F[5]               SYSBUS.FMRDATA33
-			// wire CELL[4].OUT_F[6]               SYSBUS.FMRDATA32
-			// wire CELL[4].OUT_F[7]               SYSBUS.FMRDATA31
-			// wire CELL[4].OUT_Q[0]               SYSBUS.FMRDATA30
-			// wire CELL[4].OUT_Q[1]               SYSBUS.FMRDATA29
-			// wire CELL[4].OUT_Q[2]               SYSBUS.FMRDATA28
-			// wire CELL[4].OUT_Q[3]               SYSBUS.FMRDATA27
-			// wire CELL[4].OUT_Q[4]               SYSBUS.FMRDATA26
-			// wire CELL[4].OUT_Q[5]               SYSBUS.FMRDATA25
-			// wire CELL[4].OUT_Q[6]               SYSBUS.FMRDATA24
-			// wire CELL[4].OUT_Q[7]               SYSBUS.FMRDATA23
-			// wire CELL[4].OUT_OFX[0]             SYSBUS.FMRDATA22
-			// wire CELL[4].OUT_OFX[1]             SYSBUS.FMRDATA21
-			// wire CELL[4].OUT_OFX[2]             SYSBUS.FMRDATA20
-			// wire CELL[4].OUT_OFX[3]             SYSBUS.FMRDATA19
-			// wire CELL[4].OUT_OFX[4]             SYSBUS.FMRDATA18
-			// wire CELL[4].OUT_OFX[5]             SYSBUS.FMRDATA17
-			// wire CELL[4].OUT_OFX[6]             SYSBUS.FMRDATA16
-			// wire CELL[5].IMUX_A[0]              SYSBUS.DMARDDATA28
-			// wire CELL[5].IMUX_A[1]              SYSBUS.DMARDDATA29
-			// wire CELL[5].IMUX_A[2]              SYSBUS.DMARDDATA30
-			// wire CELL[5].IMUX_A[3]              SYSBUS.DMARDDATA31
-			// wire CELL[5].IMUX_A[4]              SYSBUS.DMARDPARITY0
-			// wire CELL[5].IMUX_A[5]              SYSBUS.DMARDPARITY1
-			// wire CELL[5].IMUX_A[6]              SYSBUS.DMARDPARITY2
-			// wire CELL[5].IMUX_A[7]              SYSBUS.DMARDPARITY3
+			// wire CELL[4].OUT_F[3]               SYSBUS.FMRDATA[35]
+			// wire CELL[4].OUT_F[4]               SYSBUS.FMRDATA[34]
+			// wire CELL[4].OUT_F[5]               SYSBUS.FMRDATA[33]
+			// wire CELL[4].OUT_F[6]               SYSBUS.FMRDATA[32]
+			// wire CELL[4].OUT_F[7]               SYSBUS.FMRDATA[31]
+			// wire CELL[4].OUT_Q[0]               SYSBUS.FMRDATA[30]
+			// wire CELL[4].OUT_Q[1]               SYSBUS.FMRDATA[29]
+			// wire CELL[4].OUT_Q[2]               SYSBUS.FMRDATA[28]
+			// wire CELL[4].OUT_Q[3]               SYSBUS.FMRDATA[27]
+			// wire CELL[4].OUT_Q[4]               SYSBUS.FMRDATA[26]
+			// wire CELL[4].OUT_Q[5]               SYSBUS.FMRDATA[25]
+			// wire CELL[4].OUT_Q[6]               SYSBUS.FMRDATA[24]
+			// wire CELL[4].OUT_Q[7]               SYSBUS.FMRDATA[23]
+			// wire CELL[4].OUT_OFX[0]             SYSBUS.FMRDATA[22]
+			// wire CELL[4].OUT_OFX[1]             SYSBUS.FMRDATA[21]
+			// wire CELL[4].OUT_OFX[2]             SYSBUS.FMRDATA[20]
+			// wire CELL[4].OUT_OFX[3]             SYSBUS.FMRDATA[19]
+			// wire CELL[4].OUT_OFX[4]             SYSBUS.FMRDATA[18]
+			// wire CELL[4].OUT_OFX[5]             SYSBUS.FMRDATA[17]
+			// wire CELL[4].OUT_OFX[6]             SYSBUS.FMRDATA[16]
+			// wire CELL[5].IMUX_A[0]              SYSBUS.DMARDDATA[28]
+			// wire CELL[5].IMUX_A[1]              SYSBUS.DMARDDATA[29]
+			// wire CELL[5].IMUX_A[2]              SYSBUS.DMARDDATA[30]
+			// wire CELL[5].IMUX_A[3]              SYSBUS.DMARDDATA[31]
+			// wire CELL[5].IMUX_A[4]              SYSBUS.DMARDPARITY[0]
+			// wire CELL[5].IMUX_A[5]              SYSBUS.DMARDPARITY[1]
+			// wire CELL[5].IMUX_A[6]              SYSBUS.DMARDPARITY[2]
+			// wire CELL[5].IMUX_A[7]              SYSBUS.DMARDPARITY[3]
 			// wire CELL[5].IMUX_B[0]              SYSBUS.DMARETRY
 			// wire CELL[5].IMUX_B[1]              SYSBUS.DMATA
 			// wire CELL[5].IMUX_B[2]              SYSBUS.DMATEA
 			// wire CELL[5].IMUX_B[3]              SYSBUS.DMATRICTL
 			// wire CELL[5].IMUX_B[4]              SYSBUS.DMATRIDATA
-			// wire CELL[5].IMUX_B[5]              SYSBUS.FMADDR17
-			// wire CELL[5].IMUX_B[6]              SYSBUS.FMADDR16
-			// wire CELL[5].IMUX_B[7]              SYSBUS.FMADDR15
-			// wire CELL[5].IMUX_C[0]              SYSBUS.FMADDR14
-			// wire CELL[5].IMUX_C[1]              SYSBUS.FMADDR13
-			// wire CELL[5].IMUX_C[2]              SYSBUS.FMADDR12
-			// wire CELL[5].IMUX_C[3]              SYSBUS.FMADDR11
-			// wire CELL[5].IMUX_C[4]              SYSBUS.FMADDR10
-			// wire CELL[5].IMUX_C[5]              SYSBUS.FMADDR9
-			// wire CELL[5].IMUX_C[6]              SYSBUS.FMADDR8
-			// wire CELL[5].IMUX_C[7]              SYSBUS.FMADDR7
-			// wire CELL[5].IMUX_D[0]              SYSBUS.FMADDR6
-			// wire CELL[5].IMUX_D[1]              SYSBUS.FMADDR5
-			// wire CELL[5].IMUX_D[2]              SYSBUS.FMADDR4
-			// wire CELL[5].IMUX_D[3]              SYSBUS.FMADDR3
+			// wire CELL[5].IMUX_B[5]              SYSBUS.FMADDR[17]
+			// wire CELL[5].IMUX_B[6]              SYSBUS.FMADDR[16]
+			// wire CELL[5].IMUX_B[7]              SYSBUS.FMADDR[15]
+			// wire CELL[5].IMUX_C[0]              SYSBUS.FMADDR[14]
+			// wire CELL[5].IMUX_C[1]              SYSBUS.FMADDR[13]
+			// wire CELL[5].IMUX_C[2]              SYSBUS.FMADDR[12]
+			// wire CELL[5].IMUX_C[3]              SYSBUS.FMADDR[11]
+			// wire CELL[5].IMUX_C[4]              SYSBUS.FMADDR[10]
+			// wire CELL[5].IMUX_C[5]              SYSBUS.FMADDR[9]
+			// wire CELL[5].IMUX_C[6]              SYSBUS.FMADDR[8]
+			// wire CELL[5].IMUX_C[7]              SYSBUS.FMADDR[7]
+			// wire CELL[5].IMUX_D[0]              SYSBUS.FMADDR[6]
+			// wire CELL[5].IMUX_D[1]              SYSBUS.FMADDR[5]
+			// wire CELL[5].IMUX_D[2]              SYSBUS.FMADDR[4]
+			// wire CELL[5].IMUX_D[3]              SYSBUS.FMADDR[3]
 			// wire CELL[5].IMUX_CLK[0]            SYSBUS.FSCLK
 			// wire CELL[5].IMUX_LSR[0]            SYSBUS.FSIRQ
 			// wire CELL[5].IMUX_LSR[2]            SYSBUS.FSRSTN
-			// wire CELL[5].OUT_F[0]               SYSBUS.FMRDATA15
-			// wire CELL[5].OUT_F[1]               SYSBUS.FMRDATA14
-			// wire CELL[5].OUT_F[2]               SYSBUS.FMRDATA13
-			// wire CELL[5].OUT_F[3]               SYSBUS.FMRDATA12
-			// wire CELL[5].OUT_F[4]               SYSBUS.FMRDATA11
-			// wire CELL[5].OUT_F[5]               SYSBUS.FMRDATA10
-			// wire CELL[5].OUT_F[6]               SYSBUS.FMRDATA9
-			// wire CELL[5].OUT_F[7]               SYSBUS.FMRDATA8
-			// wire CELL[5].OUT_Q[0]               SYSBUS.FMRDATA7
-			// wire CELL[5].OUT_Q[1]               SYSBUS.FMRDATA6
-			// wire CELL[5].OUT_Q[2]               SYSBUS.FMRDATA5
-			// wire CELL[5].OUT_Q[3]               SYSBUS.FMRDATA4
-			// wire CELL[5].OUT_Q[4]               SYSBUS.FMRDATA3
-			// wire CELL[5].OUT_Q[5]               SYSBUS.FMRDATA2
-			// wire CELL[5].OUT_Q[6]               SYSBUS.FMRDATA1
-			// wire CELL[5].OUT_Q[7]               SYSBUS.FMRDATA0
+			// wire CELL[5].OUT_F[0]               SYSBUS.FMRDATA[15]
+			// wire CELL[5].OUT_F[1]               SYSBUS.FMRDATA[14]
+			// wire CELL[5].OUT_F[2]               SYSBUS.FMRDATA[13]
+			// wire CELL[5].OUT_F[3]               SYSBUS.FMRDATA[12]
+			// wire CELL[5].OUT_F[4]               SYSBUS.FMRDATA[11]
+			// wire CELL[5].OUT_F[5]               SYSBUS.FMRDATA[10]
+			// wire CELL[5].OUT_F[6]               SYSBUS.FMRDATA[9]
+			// wire CELL[5].OUT_F[7]               SYSBUS.FMRDATA[8]
+			// wire CELL[5].OUT_Q[0]               SYSBUS.FMRDATA[7]
+			// wire CELL[5].OUT_Q[1]               SYSBUS.FMRDATA[6]
+			// wire CELL[5].OUT_Q[2]               SYSBUS.FMRDATA[5]
+			// wire CELL[5].OUT_Q[3]               SYSBUS.FMRDATA[4]
+			// wire CELL[5].OUT_Q[4]               SYSBUS.FMRDATA[3]
+			// wire CELL[5].OUT_Q[5]               SYSBUS.FMRDATA[2]
+			// wire CELL[5].OUT_Q[6]               SYSBUS.FMRDATA[1]
+			// wire CELL[5].OUT_Q[7]               SYSBUS.FMRDATA[0]
 			// wire CELL[5].OUT_OFX[0]             SYSBUS.FMRETRY
-			// wire CELL[5].OUT_OFX[1]             SYSBUS.FSADDR17
-			// wire CELL[5].OUT_OFX[2]             SYSBUS.FSADDR16
-			// wire CELL[5].OUT_OFX[3]             SYSBUS.FSADDR15
-			// wire CELL[5].OUT_OFX[4]             SYSBUS.FSADDR14
-			// wire CELL[5].OUT_OFX[5]             SYSBUS.FSADDR13
-			// wire CELL[5].OUT_OFX[6]             SYSBUS.FSADDR12
-			// wire CELL[6].IMUX_A[0]              SYSBUS.FMADDR2
-			// wire CELL[6].IMUX_A[1]              SYSBUS.FMADDR1
-			// wire CELL[6].IMUX_A[2]              SYSBUS.FMADDR0
+			// wire CELL[5].OUT_OFX[1]             SYSBUS.FSADDR[17]
+			// wire CELL[5].OUT_OFX[2]             SYSBUS.FSADDR[16]
+			// wire CELL[5].OUT_OFX[3]             SYSBUS.FSADDR[15]
+			// wire CELL[5].OUT_OFX[4]             SYSBUS.FSADDR[14]
+			// wire CELL[5].OUT_OFX[5]             SYSBUS.FSADDR[13]
+			// wire CELL[5].OUT_OFX[6]             SYSBUS.FSADDR[12]
+			// wire CELL[6].IMUX_A[0]              SYSBUS.FMADDR[2]
+			// wire CELL[6].IMUX_A[1]              SYSBUS.FMADDR[1]
+			// wire CELL[6].IMUX_A[2]              SYSBUS.FMADDR[0]
 			// wire CELL[6].IMUX_A[3]              SYSBUS.FMBURST
 			// wire CELL[6].IMUX_A[4]              SYSBUS.FMLOCK
 			// wire CELL[6].IMUX_A[5]              SYSBUS.FMRDY
-			// wire CELL[6].IMUX_A[6]              SYSBUS.FMSIZE1
-			// wire CELL[6].IMUX_A[7]              SYSBUS.FMSIZE0
-			// wire CELL[6].IMUX_B[0]              SYSBUS.FMWDATA35
-			// wire CELL[6].IMUX_B[1]              SYSBUS.FMWDATA34
-			// wire CELL[6].IMUX_B[2]              SYSBUS.FMWDATA33
-			// wire CELL[6].IMUX_B[3]              SYSBUS.FMWDATA32
-			// wire CELL[6].IMUX_B[4]              SYSBUS.FMWDATA31
-			// wire CELL[6].IMUX_B[5]              SYSBUS.FMWDATA30
-			// wire CELL[6].IMUX_B[6]              SYSBUS.FMWDATA29
-			// wire CELL[6].IMUX_B[7]              SYSBUS.FMWDATA28
-			// wire CELL[6].IMUX_C[0]              SYSBUS.FMWDATA27
-			// wire CELL[6].IMUX_C[1]              SYSBUS.FMWDATA26
-			// wire CELL[6].IMUX_C[2]              SYSBUS.FMWDATA25
-			// wire CELL[6].IMUX_C[3]              SYSBUS.FMWDATA24
-			// wire CELL[6].IMUX_C[4]              SYSBUS.FMWDATA23
-			// wire CELL[6].IMUX_C[5]              SYSBUS.FMWDATA22
-			// wire CELL[6].IMUX_C[6]              SYSBUS.FMWDATA21
-			// wire CELL[6].IMUX_C[7]              SYSBUS.FMWDATA20
-			// wire CELL[6].IMUX_D[0]              SYSBUS.FMWDATA19
-			// wire CELL[6].IMUX_D[1]              SYSBUS.FMWDATA18
-			// wire CELL[6].IMUX_D[2]              SYSBUS.FMWDATA17
-			// wire CELL[6].IMUX_D[3]              SYSBUS.FMWDATA16
+			// wire CELL[6].IMUX_A[6]              SYSBUS.FMSIZE[1]
+			// wire CELL[6].IMUX_A[7]              SYSBUS.FMSIZE[0]
+			// wire CELL[6].IMUX_B[0]              SYSBUS.FMWDATA[35]
+			// wire CELL[6].IMUX_B[1]              SYSBUS.FMWDATA[34]
+			// wire CELL[6].IMUX_B[2]              SYSBUS.FMWDATA[33]
+			// wire CELL[6].IMUX_B[3]              SYSBUS.FMWDATA[32]
+			// wire CELL[6].IMUX_B[4]              SYSBUS.FMWDATA[31]
+			// wire CELL[6].IMUX_B[5]              SYSBUS.FMWDATA[30]
+			// wire CELL[6].IMUX_B[6]              SYSBUS.FMWDATA[29]
+			// wire CELL[6].IMUX_B[7]              SYSBUS.FMWDATA[28]
+			// wire CELL[6].IMUX_C[0]              SYSBUS.FMWDATA[27]
+			// wire CELL[6].IMUX_C[1]              SYSBUS.FMWDATA[26]
+			// wire CELL[6].IMUX_C[2]              SYSBUS.FMWDATA[25]
+			// wire CELL[6].IMUX_C[3]              SYSBUS.FMWDATA[24]
+			// wire CELL[6].IMUX_C[4]              SYSBUS.FMWDATA[23]
+			// wire CELL[6].IMUX_C[5]              SYSBUS.FMWDATA[22]
+			// wire CELL[6].IMUX_C[6]              SYSBUS.FMWDATA[21]
+			// wire CELL[6].IMUX_C[7]              SYSBUS.FMWDATA[20]
+			// wire CELL[6].IMUX_D[0]              SYSBUS.FMWDATA[19]
+			// wire CELL[6].IMUX_D[1]              SYSBUS.FMWDATA[18]
+			// wire CELL[6].IMUX_D[2]              SYSBUS.FMWDATA[17]
+			// wire CELL[6].IMUX_D[3]              SYSBUS.FMWDATA[16]
 			// wire CELL[6].IMUX_D[7]              GSR.USR
 			// wire CELL[6].IMUX_CLK[0]            SYSBUS.USRCLK
 			// wire CELL[6].IMUX_LSR[0]            SYSBUS.MPIRSTN
-			// wire CELL[6].OUT_F[0]               SYSBUS.FSADDR11
-			// wire CELL[6].OUT_F[1]               SYSBUS.FSADDR10
-			// wire CELL[6].OUT_F[2]               SYSBUS.FSADDR9
-			// wire CELL[6].OUT_F[3]               SYSBUS.FSADDR8
-			// wire CELL[6].OUT_F[4]               SYSBUS.FSADDR7
-			// wire CELL[6].OUT_F[5]               SYSBUS.FSADDR6
-			// wire CELL[6].OUT_F[6]               SYSBUS.FSADDR5
-			// wire CELL[6].OUT_F[7]               SYSBUS.FSADDR4
-			// wire CELL[6].OUT_Q[0]               SYSBUS.FSADDR3
-			// wire CELL[6].OUT_Q[1]               SYSBUS.FSADDR2
-			// wire CELL[6].OUT_Q[2]               SYSBUS.FSADDR1
-			// wire CELL[6].OUT_Q[3]               SYSBUS.FSADDR0
+			// wire CELL[6].OUT_F[0]               SYSBUS.FSADDR[11]
+			// wire CELL[6].OUT_F[1]               SYSBUS.FSADDR[10]
+			// wire CELL[6].OUT_F[2]               SYSBUS.FSADDR[9]
+			// wire CELL[6].OUT_F[3]               SYSBUS.FSADDR[8]
+			// wire CELL[6].OUT_F[4]               SYSBUS.FSADDR[7]
+			// wire CELL[6].OUT_F[5]               SYSBUS.FSADDR[6]
+			// wire CELL[6].OUT_F[6]               SYSBUS.FSADDR[5]
+			// wire CELL[6].OUT_F[7]               SYSBUS.FSADDR[4]
+			// wire CELL[6].OUT_Q[0]               SYSBUS.FSADDR[3]
+			// wire CELL[6].OUT_Q[1]               SYSBUS.FSADDR[2]
+			// wire CELL[6].OUT_Q[2]               SYSBUS.FSADDR[1]
+			// wire CELL[6].OUT_Q[3]               SYSBUS.FSADDR[0]
 			// wire CELL[6].OUT_Q[4]               SYSBUS.FSRDY
-			// wire CELL[6].OUT_Q[5]               SYSBUS.FSSIZE1
-			// wire CELL[6].OUT_Q[6]               SYSBUS.FSSIZE0
-			// wire CELL[6].OUT_Q[7]               SYSBUS.FSWDATA35
-			// wire CELL[6].OUT_OFX[0]             SYSBUS.FSWDATA34
-			// wire CELL[6].OUT_OFX[1]             SYSBUS.FSWDATA33
-			// wire CELL[6].OUT_OFX[2]             SYSBUS.FSWDATA32
-			// wire CELL[6].OUT_OFX[3]             SYSBUS.FSWDATA31
-			// wire CELL[6].OUT_OFX[4]             SYSBUS.FSWDATA30
-			// wire CELL[6].OUT_OFX[5]             SYSBUS.FSWDATA29
-			// wire CELL[6].OUT_OFX[6]             SYSBUS.FSWDATA28
-			// wire CELL[7].IMUX_A[0]              SYSBUS.FMWDATA15
-			// wire CELL[7].IMUX_A[1]              SYSBUS.FMWDATA14
-			// wire CELL[7].IMUX_A[2]              SYSBUS.FMWDATA13
-			// wire CELL[7].IMUX_A[3]              SYSBUS.FMWDATA12
-			// wire CELL[7].IMUX_A[4]              SYSBUS.FMWDATA11
-			// wire CELL[7].IMUX_A[5]              SYSBUS.FMWDATA10
-			// wire CELL[7].IMUX_A[6]              SYSBUS.FMWDATA9
-			// wire CELL[7].IMUX_A[7]              SYSBUS.FMWDATA8
-			// wire CELL[7].IMUX_B[0]              SYSBUS.FMWDATA7
-			// wire CELL[7].IMUX_B[1]              SYSBUS.FMWDATA6
-			// wire CELL[7].IMUX_B[2]              SYSBUS.FMWDATA5
-			// wire CELL[7].IMUX_B[3]              SYSBUS.FMWDATA4
-			// wire CELL[7].IMUX_B[4]              SYSBUS.FMWDATA3
-			// wire CELL[7].IMUX_B[5]              SYSBUS.FMWDATA2
-			// wire CELL[7].IMUX_B[6]              SYSBUS.FMWDATA1
-			// wire CELL[7].IMUX_B[7]              SYSBUS.FMWDATA0
+			// wire CELL[6].OUT_Q[5]               SYSBUS.FSSIZE[1]
+			// wire CELL[6].OUT_Q[6]               SYSBUS.FSSIZE[0]
+			// wire CELL[6].OUT_Q[7]               SYSBUS.FSWDATA[35]
+			// wire CELL[6].OUT_OFX[0]             SYSBUS.FSWDATA[34]
+			// wire CELL[6].OUT_OFX[1]             SYSBUS.FSWDATA[33]
+			// wire CELL[6].OUT_OFX[2]             SYSBUS.FSWDATA[32]
+			// wire CELL[6].OUT_OFX[3]             SYSBUS.FSWDATA[31]
+			// wire CELL[6].OUT_OFX[4]             SYSBUS.FSWDATA[30]
+			// wire CELL[6].OUT_OFX[5]             SYSBUS.FSWDATA[29]
+			// wire CELL[6].OUT_OFX[6]             SYSBUS.FSWDATA[28]
+			// wire CELL[7].IMUX_A[0]              SYSBUS.FMWDATA[15]
+			// wire CELL[7].IMUX_A[1]              SYSBUS.FMWDATA[14]
+			// wire CELL[7].IMUX_A[2]              SYSBUS.FMWDATA[13]
+			// wire CELL[7].IMUX_A[3]              SYSBUS.FMWDATA[12]
+			// wire CELL[7].IMUX_A[4]              SYSBUS.FMWDATA[11]
+			// wire CELL[7].IMUX_A[5]              SYSBUS.FMWDATA[10]
+			// wire CELL[7].IMUX_A[6]              SYSBUS.FMWDATA[9]
+			// wire CELL[7].IMUX_A[7]              SYSBUS.FMWDATA[8]
+			// wire CELL[7].IMUX_B[0]              SYSBUS.FMWDATA[7]
+			// wire CELL[7].IMUX_B[1]              SYSBUS.FMWDATA[6]
+			// wire CELL[7].IMUX_B[2]              SYSBUS.FMWDATA[5]
+			// wire CELL[7].IMUX_B[3]              SYSBUS.FMWDATA[4]
+			// wire CELL[7].IMUX_B[4]              SYSBUS.FMWDATA[3]
+			// wire CELL[7].IMUX_B[5]              SYSBUS.FMWDATA[2]
+			// wire CELL[7].IMUX_B[6]              SYSBUS.FMWDATA[1]
+			// wire CELL[7].IMUX_B[7]              SYSBUS.FMWDATA[0]
 			// wire CELL[7].IMUX_C[0]              SYSBUS.FMWRN
 			// wire CELL[7].IMUX_C[1]              SYSBUS.FSACK
 			// wire CELL[7].IMUX_C[2]              SYSBUS.FSERR
-			// wire CELL[7].IMUX_C[3]              SYSBUS.FSRDATA35
-			// wire CELL[7].IMUX_C[4]              SYSBUS.FSRDATA34
-			// wire CELL[7].IMUX_C[5]              SYSBUS.FSRDATA33
-			// wire CELL[7].IMUX_C[6]              SYSBUS.FSRDATA32
-			// wire CELL[7].IMUX_C[7]              SYSBUS.FSRDATA31
-			// wire CELL[7].IMUX_D[0]              SYSBUS.FSRDATA30
-			// wire CELL[7].IMUX_D[1]              SYSBUS.FSRDATA29
-			// wire CELL[7].IMUX_D[2]              SYSBUS.FSRDATA28
-			// wire CELL[7].IMUX_D[3]              SYSBUS.FSRDATA27
+			// wire CELL[7].IMUX_C[3]              SYSBUS.FSRDATA[35]
+			// wire CELL[7].IMUX_C[4]              SYSBUS.FSRDATA[34]
+			// wire CELL[7].IMUX_C[5]              SYSBUS.FSRDATA[33]
+			// wire CELL[7].IMUX_C[6]              SYSBUS.FSRDATA[32]
+			// wire CELL[7].IMUX_C[7]              SYSBUS.FSRDATA[31]
+			// wire CELL[7].IMUX_D[0]              SYSBUS.FSRDATA[30]
+			// wire CELL[7].IMUX_D[1]              SYSBUS.FSRDATA[29]
+			// wire CELL[7].IMUX_D[2]              SYSBUS.FSRDATA[28]
+			// wire CELL[7].IMUX_D[3]              SYSBUS.FSRDATA[27]
 			// wire CELL[7].IMUX_CLK[0]            START.STARTCLK
 			// wire CELL[7].IMUX_LSR[0]            SYSBUS.SYSRSTN
-			// wire CELL[7].OUT_F[0]               SYSBUS.FSWDATA27
-			// wire CELL[7].OUT_F[1]               SYSBUS.FSWDATA26
-			// wire CELL[7].OUT_F[2]               SYSBUS.FSWDATA25
-			// wire CELL[7].OUT_F[3]               SYSBUS.FSWDATA24
-			// wire CELL[7].OUT_F[4]               SYSBUS.FSWDATA23
-			// wire CELL[7].OUT_F[5]               SYSBUS.FSWDATA22
-			// wire CELL[7].OUT_F[6]               SYSBUS.FSWDATA21
-			// wire CELL[7].OUT_F[7]               SYSBUS.FSWDATA20
-			// wire CELL[7].OUT_Q[0]               SYSBUS.FSWDATA19
-			// wire CELL[7].OUT_Q[1]               SYSBUS.FSWDATA18
-			// wire CELL[7].OUT_Q[2]               SYSBUS.FSWDATA17
-			// wire CELL[7].OUT_Q[3]               SYSBUS.FSWDATA16
-			// wire CELL[7].OUT_Q[4]               SYSBUS.FSWDATA15
-			// wire CELL[7].OUT_Q[5]               SYSBUS.FSWDATA14
-			// wire CELL[7].OUT_Q[6]               SYSBUS.FSWDATA13
-			// wire CELL[7].OUT_Q[7]               SYSBUS.FSWDATA12
-			// wire CELL[7].OUT_OFX[0]             SYSBUS.FSWDATA11
-			// wire CELL[7].OUT_OFX[1]             SYSBUS.FSWDATA10
-			// wire CELL[7].OUT_OFX[2]             SYSBUS.FSWDATA9
-			// wire CELL[7].OUT_OFX[3]             SYSBUS.FSWDATA8
-			// wire CELL[7].OUT_OFX[4]             SYSBUS.FSWDATA7
-			// wire CELL[7].OUT_OFX[5]             SYSBUS.FSWDATA6
-			// wire CELL[7].OUT_OFX[6]             SYSBUS.FSWDATA5
-			// wire CELL[8].IMUX_A[0]              SYSBUS.FSRDATA26
-			// wire CELL[8].IMUX_A[1]              SYSBUS.FSRDATA25
-			// wire CELL[8].IMUX_A[2]              SYSBUS.FSRDATA24
-			// wire CELL[8].IMUX_A[3]              SYSBUS.FSRDATA23
-			// wire CELL[8].IMUX_A[4]              SYSBUS.FSRDATA22
-			// wire CELL[8].IMUX_A[5]              SYSBUS.FSRDATA21
-			// wire CELL[8].IMUX_A[6]              SYSBUS.FSRDATA20
-			// wire CELL[8].IMUX_A[7]              SYSBUS.FSRDATA19
-			// wire CELL[8].IMUX_B[0]              SYSBUS.FSRDATA18
-			// wire CELL[8].IMUX_B[1]              SYSBUS.FSRDATA17
-			// wire CELL[8].IMUX_B[2]              SYSBUS.FSRDATA16
-			// wire CELL[8].IMUX_B[3]              SYSBUS.FSRDATA15
-			// wire CELL[8].IMUX_B[4]              SYSBUS.FSRDATA14
-			// wire CELL[8].IMUX_B[5]              SYSBUS.FSRDATA13
-			// wire CELL[8].IMUX_B[6]              SYSBUS.FSRDATA12
-			// wire CELL[8].IMUX_B[7]              SYSBUS.FSRDATA11
-			// wire CELL[8].IMUX_C[0]              SYSBUS.FSRDATA10
-			// wire CELL[8].IMUX_C[1]              SYSBUS.FSRDATA9
-			// wire CELL[8].IMUX_C[2]              SYSBUS.FSRDATA8
-			// wire CELL[8].IMUX_C[3]              SYSBUS.FSRDATA7
-			// wire CELL[8].IMUX_C[4]              SYSBUS.FSRDATA6
-			// wire CELL[8].IMUX_C[5]              SYSBUS.FSRDATA5
-			// wire CELL[8].IMUX_C[6]              SYSBUS.FSRDATA4
-			// wire CELL[8].IMUX_C[7]              SYSBUS.FSRDATA3
-			// wire CELL[8].IMUX_D[0]              SYSBUS.FSRDATA2
-			// wire CELL[8].IMUX_D[1]              SYSBUS.FSRDATA1
-			// wire CELL[8].IMUX_D[2]              SYSBUS.FSRDATA0
+			// wire CELL[7].OUT_F[0]               SYSBUS.FSWDATA[27]
+			// wire CELL[7].OUT_F[1]               SYSBUS.FSWDATA[26]
+			// wire CELL[7].OUT_F[2]               SYSBUS.FSWDATA[25]
+			// wire CELL[7].OUT_F[3]               SYSBUS.FSWDATA[24]
+			// wire CELL[7].OUT_F[4]               SYSBUS.FSWDATA[23]
+			// wire CELL[7].OUT_F[5]               SYSBUS.FSWDATA[22]
+			// wire CELL[7].OUT_F[6]               SYSBUS.FSWDATA[21]
+			// wire CELL[7].OUT_F[7]               SYSBUS.FSWDATA[20]
+			// wire CELL[7].OUT_Q[0]               SYSBUS.FSWDATA[19]
+			// wire CELL[7].OUT_Q[1]               SYSBUS.FSWDATA[18]
+			// wire CELL[7].OUT_Q[2]               SYSBUS.FSWDATA[17]
+			// wire CELL[7].OUT_Q[3]               SYSBUS.FSWDATA[16]
+			// wire CELL[7].OUT_Q[4]               SYSBUS.FSWDATA[15]
+			// wire CELL[7].OUT_Q[5]               SYSBUS.FSWDATA[14]
+			// wire CELL[7].OUT_Q[6]               SYSBUS.FSWDATA[13]
+			// wire CELL[7].OUT_Q[7]               SYSBUS.FSWDATA[12]
+			// wire CELL[7].OUT_OFX[0]             SYSBUS.FSWDATA[11]
+			// wire CELL[7].OUT_OFX[1]             SYSBUS.FSWDATA[10]
+			// wire CELL[7].OUT_OFX[2]             SYSBUS.FSWDATA[9]
+			// wire CELL[7].OUT_OFX[3]             SYSBUS.FSWDATA[8]
+			// wire CELL[7].OUT_OFX[4]             SYSBUS.FSWDATA[7]
+			// wire CELL[7].OUT_OFX[5]             SYSBUS.FSWDATA[6]
+			// wire CELL[7].OUT_OFX[6]             SYSBUS.FSWDATA[5]
+			// wire CELL[8].IMUX_A[0]              SYSBUS.FSRDATA[26]
+			// wire CELL[8].IMUX_A[1]              SYSBUS.FSRDATA[25]
+			// wire CELL[8].IMUX_A[2]              SYSBUS.FSRDATA[24]
+			// wire CELL[8].IMUX_A[3]              SYSBUS.FSRDATA[23]
+			// wire CELL[8].IMUX_A[4]              SYSBUS.FSRDATA[22]
+			// wire CELL[8].IMUX_A[5]              SYSBUS.FSRDATA[21]
+			// wire CELL[8].IMUX_A[6]              SYSBUS.FSRDATA[20]
+			// wire CELL[8].IMUX_A[7]              SYSBUS.FSRDATA[19]
+			// wire CELL[8].IMUX_B[0]              SYSBUS.FSRDATA[18]
+			// wire CELL[8].IMUX_B[1]              SYSBUS.FSRDATA[17]
+			// wire CELL[8].IMUX_B[2]              SYSBUS.FSRDATA[16]
+			// wire CELL[8].IMUX_B[3]              SYSBUS.FSRDATA[15]
+			// wire CELL[8].IMUX_B[4]              SYSBUS.FSRDATA[14]
+			// wire CELL[8].IMUX_B[5]              SYSBUS.FSRDATA[13]
+			// wire CELL[8].IMUX_B[6]              SYSBUS.FSRDATA[12]
+			// wire CELL[8].IMUX_B[7]              SYSBUS.FSRDATA[11]
+			// wire CELL[8].IMUX_C[0]              SYSBUS.FSRDATA[10]
+			// wire CELL[8].IMUX_C[1]              SYSBUS.FSRDATA[9]
+			// wire CELL[8].IMUX_C[2]              SYSBUS.FSRDATA[8]
+			// wire CELL[8].IMUX_C[3]              SYSBUS.FSRDATA[7]
+			// wire CELL[8].IMUX_C[4]              SYSBUS.FSRDATA[6]
+			// wire CELL[8].IMUX_C[5]              SYSBUS.FSRDATA[5]
+			// wire CELL[8].IMUX_C[6]              SYSBUS.FSRDATA[4]
+			// wire CELL[8].IMUX_C[7]              SYSBUS.FSRDATA[3]
+			// wire CELL[8].IMUX_D[0]              SYSBUS.FSRDATA[2]
+			// wire CELL[8].IMUX_D[1]              SYSBUS.FSRDATA[1]
+			// wire CELL[8].IMUX_D[2]              SYSBUS.FSRDATA[0]
 			// wire CELL[8].IMUX_D[3]              SYSBUS.FSRETRY
-			// wire CELL[8].OUT_F[0]               SYSBUS.FSWDATA4
-			// wire CELL[8].OUT_F[1]               SYSBUS.FSWDATA3
-			// wire CELL[8].OUT_F[2]               SYSBUS.FSWDATA2
-			// wire CELL[8].OUT_F[3]               SYSBUS.FSWDATA1
-			// wire CELL[8].OUT_F[4]               SYSBUS.FSWDATA0
+			// wire CELL[8].OUT_F[0]               SYSBUS.FSWDATA[4]
+			// wire CELL[8].OUT_F[1]               SYSBUS.FSWDATA[3]
+			// wire CELL[8].OUT_F[2]               SYSBUS.FSWDATA[2]
+			// wire CELL[8].OUT_F[3]               SYSBUS.FSWDATA[1]
+			// wire CELL[8].OUT_F[4]               SYSBUS.FSWDATA[0]
 			// wire CELL[8].OUT_F[5]               SYSBUS.FSWRN
 			// wire CELL[8].OUT_F[6]               SYSBUS.HCLKCIB
 			// wire CELL[8].OUT_F[7]               JTAG.JCE8
@@ -36296,23 +36373,23 @@ intdb {
 			// wire CELL[9].IMUX_B[0]              JTAG.PSROUT1
 			// wire CELL[9].IMUX_B[1]              JTAG.PSROUT2
 			// wire CELL[9].IMUX_B[2]              JTAG.PSROUT3
-			// wire CELL[9].IMUX_B[3]              SYSBUS.SMIRDATA63
-			// wire CELL[9].IMUX_B[4]              SYSBUS.SMIRDATA62
-			// wire CELL[9].IMUX_B[5]              SYSBUS.SMIRDATA61
-			// wire CELL[9].IMUX_B[6]              SYSBUS.SMIRDATA60
-			// wire CELL[9].IMUX_B[7]              SYSBUS.SMIRDATA59
-			// wire CELL[9].IMUX_C[0]              SYSBUS.SMIRDATA58
-			// wire CELL[9].IMUX_C[1]              SYSBUS.SMIRDATA57
-			// wire CELL[9].IMUX_C[2]              SYSBUS.SMIRDATA56
-			// wire CELL[9].IMUX_C[3]              SYSBUS.SMIRDATA55
-			// wire CELL[9].IMUX_C[4]              SYSBUS.SMIRDATA54
-			// wire CELL[9].IMUX_C[5]              SYSBUS.SMIRDATA53
-			// wire CELL[9].IMUX_C[6]              SYSBUS.SMIRDATA52
-			// wire CELL[9].IMUX_C[7]              SYSBUS.SMIRDATA51
-			// wire CELL[9].IMUX_D[0]              SYSBUS.SMIRDATA50
-			// wire CELL[9].IMUX_D[1]              SYSBUS.SMIRDATA49
-			// wire CELL[9].IMUX_D[2]              SYSBUS.SMIRDATA48
-			// wire CELL[9].IMUX_D[3]              SYSBUS.SMIRDATA47
+			// wire CELL[9].IMUX_B[3]              SYSBUS.SMIRDATA[63]
+			// wire CELL[9].IMUX_B[4]              SYSBUS.SMIRDATA[62]
+			// wire CELL[9].IMUX_B[5]              SYSBUS.SMIRDATA[61]
+			// wire CELL[9].IMUX_B[6]              SYSBUS.SMIRDATA[60]
+			// wire CELL[9].IMUX_B[7]              SYSBUS.SMIRDATA[59]
+			// wire CELL[9].IMUX_C[0]              SYSBUS.SMIRDATA[58]
+			// wire CELL[9].IMUX_C[1]              SYSBUS.SMIRDATA[57]
+			// wire CELL[9].IMUX_C[2]              SYSBUS.SMIRDATA[56]
+			// wire CELL[9].IMUX_C[3]              SYSBUS.SMIRDATA[55]
+			// wire CELL[9].IMUX_C[4]              SYSBUS.SMIRDATA[54]
+			// wire CELL[9].IMUX_C[5]              SYSBUS.SMIRDATA[53]
+			// wire CELL[9].IMUX_C[6]              SYSBUS.SMIRDATA[52]
+			// wire CELL[9].IMUX_C[7]              SYSBUS.SMIRDATA[51]
+			// wire CELL[9].IMUX_D[0]              SYSBUS.SMIRDATA[50]
+			// wire CELL[9].IMUX_D[1]              SYSBUS.SMIRDATA[49]
+			// wire CELL[9].IMUX_D[2]              SYSBUS.SMIRDATA[48]
+			// wire CELL[9].IMUX_D[3]              SYSBUS.SMIRDATA[47]
 			// wire CELL[9].IMUX_CLK[0]            RDBK.FFRDCFGCLK
 			// wire CELL[9].IMUX_LSR[0]            RDBK.FFRDCFG
 			// wire CELL[9].OUT_F[0]               JTAG.JRTI1
@@ -36336,95 +36413,95 @@ intdb {
 			// wire CELL[9].OUT_OFX[2]             JTAG.PSRSFTN
 			// wire CELL[9].OUT_OFX[3]             JTAG.TRESET
 			// wire CELL[9].OUT_OFX[4]             RDBK.RDDATA
-			// wire CELL[9].OUT_OFX[5]             SYSBUS.SMIADDR9
-			// wire CELL[9].OUT_OFX[6]             SYSBUS.SMIADDR8
-			// wire CELL[10].IMUX_A[0]             SYSBUS.SMIRDATA46
-			// wire CELL[10].IMUX_A[1]             SYSBUS.SMIRDATA45
-			// wire CELL[10].IMUX_A[2]             SYSBUS.SMIRDATA44
-			// wire CELL[10].IMUX_A[3]             SYSBUS.SMIRDATA43
-			// wire CELL[10].IMUX_A[4]             SYSBUS.SMIRDATA42
-			// wire CELL[10].IMUX_A[5]             SYSBUS.SMIRDATA41
-			// wire CELL[10].IMUX_A[6]             SYSBUS.SMIRDATA40
-			// wire CELL[10].IMUX_A[7]             SYSBUS.SMIRDATA39
-			// wire CELL[10].IMUX_B[0]             SYSBUS.SMIRDATA38
-			// wire CELL[10].IMUX_B[1]             SYSBUS.SMIRDATA37
-			// wire CELL[10].IMUX_B[2]             SYSBUS.SMIRDATA36
-			// wire CELL[10].IMUX_B[3]             SYSBUS.SMIRDATA35
-			// wire CELL[10].IMUX_B[4]             SYSBUS.SMIRDATA34
-			// wire CELL[10].IMUX_B[5]             SYSBUS.SMIRDATA33
-			// wire CELL[10].IMUX_B[6]             SYSBUS.SMIRDATA32
-			// wire CELL[10].IMUX_B[7]             SYSBUS.SMIRDATA31
-			// wire CELL[10].IMUX_C[0]             SYSBUS.SMIRDATA30
-			// wire CELL[10].IMUX_C[1]             SYSBUS.SMIRDATA29
-			// wire CELL[10].IMUX_C[2]             SYSBUS.SMIRDATA28
-			// wire CELL[10].IMUX_C[3]             SYSBUS.SMIRDATA27
-			// wire CELL[10].IMUX_C[4]             SYSBUS.SMIRDATA26
-			// wire CELL[10].IMUX_C[5]             SYSBUS.SMIRDATA25
-			// wire CELL[10].IMUX_C[6]             SYSBUS.SMIRDATA24
-			// wire CELL[10].IMUX_C[7]             SYSBUS.SMIRDATA23
-			// wire CELL[10].IMUX_D[0]             SYSBUS.SMIRDATA22
-			// wire CELL[10].IMUX_D[1]             SYSBUS.SMIRDATA21
-			// wire CELL[10].IMUX_D[2]             SYSBUS.SMIRDATA20
-			// wire CELL[10].IMUX_D[3]             SYSBUS.SMIRDATA19
-			// wire CELL[10].OUT_F[0]              SYSBUS.SMIADDR7
-			// wire CELL[10].OUT_F[1]              SYSBUS.SMIADDR6
-			// wire CELL[10].OUT_F[2]              SYSBUS.SMIADDR5
-			// wire CELL[10].OUT_F[3]              SYSBUS.SMIADDR4
-			// wire CELL[10].OUT_F[4]              SYSBUS.SMIADDR3
-			// wire CELL[10].OUT_F[5]              SYSBUS.SMIADDR2
-			// wire CELL[10].OUT_F[6]              SYSBUS.SMIADDR1
-			// wire CELL[10].OUT_F[7]              SYSBUS.SMIADDR0
+			// wire CELL[9].OUT_OFX[5]             SYSBUS.SMIADDR[9]
+			// wire CELL[9].OUT_OFX[6]             SYSBUS.SMIADDR[8]
+			// wire CELL[10].IMUX_A[0]             SYSBUS.SMIRDATA[46]
+			// wire CELL[10].IMUX_A[1]             SYSBUS.SMIRDATA[45]
+			// wire CELL[10].IMUX_A[2]             SYSBUS.SMIRDATA[44]
+			// wire CELL[10].IMUX_A[3]             SYSBUS.SMIRDATA[43]
+			// wire CELL[10].IMUX_A[4]             SYSBUS.SMIRDATA[42]
+			// wire CELL[10].IMUX_A[5]             SYSBUS.SMIRDATA[41]
+			// wire CELL[10].IMUX_A[6]             SYSBUS.SMIRDATA[40]
+			// wire CELL[10].IMUX_A[7]             SYSBUS.SMIRDATA[39]
+			// wire CELL[10].IMUX_B[0]             SYSBUS.SMIRDATA[38]
+			// wire CELL[10].IMUX_B[1]             SYSBUS.SMIRDATA[37]
+			// wire CELL[10].IMUX_B[2]             SYSBUS.SMIRDATA[36]
+			// wire CELL[10].IMUX_B[3]             SYSBUS.SMIRDATA[35]
+			// wire CELL[10].IMUX_B[4]             SYSBUS.SMIRDATA[34]
+			// wire CELL[10].IMUX_B[5]             SYSBUS.SMIRDATA[33]
+			// wire CELL[10].IMUX_B[6]             SYSBUS.SMIRDATA[32]
+			// wire CELL[10].IMUX_B[7]             SYSBUS.SMIRDATA[31]
+			// wire CELL[10].IMUX_C[0]             SYSBUS.SMIRDATA[30]
+			// wire CELL[10].IMUX_C[1]             SYSBUS.SMIRDATA[29]
+			// wire CELL[10].IMUX_C[2]             SYSBUS.SMIRDATA[28]
+			// wire CELL[10].IMUX_C[3]             SYSBUS.SMIRDATA[27]
+			// wire CELL[10].IMUX_C[4]             SYSBUS.SMIRDATA[26]
+			// wire CELL[10].IMUX_C[5]             SYSBUS.SMIRDATA[25]
+			// wire CELL[10].IMUX_C[6]             SYSBUS.SMIRDATA[24]
+			// wire CELL[10].IMUX_C[7]             SYSBUS.SMIRDATA[23]
+			// wire CELL[10].IMUX_D[0]             SYSBUS.SMIRDATA[22]
+			// wire CELL[10].IMUX_D[1]             SYSBUS.SMIRDATA[21]
+			// wire CELL[10].IMUX_D[2]             SYSBUS.SMIRDATA[20]
+			// wire CELL[10].IMUX_D[3]             SYSBUS.SMIRDATA[19]
+			// wire CELL[10].OUT_F[0]              SYSBUS.SMIADDR[7]
+			// wire CELL[10].OUT_F[1]              SYSBUS.SMIADDR[6]
+			// wire CELL[10].OUT_F[2]              SYSBUS.SMIADDR[5]
+			// wire CELL[10].OUT_F[3]              SYSBUS.SMIADDR[4]
+			// wire CELL[10].OUT_F[4]              SYSBUS.SMIADDR[3]
+			// wire CELL[10].OUT_F[5]              SYSBUS.SMIADDR[2]
+			// wire CELL[10].OUT_F[6]              SYSBUS.SMIADDR[1]
+			// wire CELL[10].OUT_F[7]              SYSBUS.SMIADDR[0]
 			// wire CELL[10].OUT_Q[0]              SYSBUS.SMICLK
 			// wire CELL[10].OUT_Q[1]              SYSBUS.SMIRD
 			// wire CELL[10].OUT_Q[2]              SYSBUS.SMIRSTN
 			// wire CELL[10].OUT_Q[3]              SYSBUS.SMIWDATA
 			// wire CELL[10].OUT_Q[4]              SYSBUS.SMIWR
-			// wire CELL[10].OUT_Q[5]              SYSBUS.SYSBDEBUG23
-			// wire CELL[10].OUT_Q[6]              SYSBUS.SYSBDEBUG22
-			// wire CELL[10].OUT_Q[7]              SYSBUS.SYSBDEBUG21
-			// wire CELL[10].OUT_OFX[0]            SYSBUS.SYSBDEBUG20
-			// wire CELL[10].OUT_OFX[1]            SYSBUS.SYSBDEBUG19
-			// wire CELL[10].OUT_OFX[2]            SYSBUS.SYSBDEBUG18
-			// wire CELL[10].OUT_OFX[3]            SYSBUS.SYSBDEBUG17
-			// wire CELL[10].OUT_OFX[4]            SYSBUS.SYSBDEBUG16
-			// wire CELL[10].OUT_OFX[5]            SYSBUS.SYSBDEBUG15
-			// wire CELL[10].OUT_OFX[6]            SYSBUS.SYSBDEBUG14
-			// wire CELL[11].IMUX_A[0]             SYSBUS.SMIRDATA18
-			// wire CELL[11].IMUX_A[1]             SYSBUS.SMIRDATA17
-			// wire CELL[11].IMUX_A[2]             SYSBUS.SMIRDATA16
-			// wire CELL[11].IMUX_A[3]             SYSBUS.SMIRDATA15
-			// wire CELL[11].IMUX_A[4]             SYSBUS.SMIRDATA14
-			// wire CELL[11].IMUX_A[5]             SYSBUS.SMIRDATA13
-			// wire CELL[11].IMUX_A[6]             SYSBUS.SMIRDATA12
-			// wire CELL[11].IMUX_A[7]             SYSBUS.SMIRDATA11
-			// wire CELL[11].IMUX_B[0]             SYSBUS.SMIRDATA10
-			// wire CELL[11].IMUX_B[1]             SYSBUS.SMIRDATA9
-			// wire CELL[11].IMUX_B[2]             SYSBUS.SMIRDATA8
-			// wire CELL[11].IMUX_B[3]             SYSBUS.SMIRDATA7
-			// wire CELL[11].IMUX_B[4]             SYSBUS.SMIRDATA6
-			// wire CELL[11].IMUX_B[5]             SYSBUS.SMIRDATA5
-			// wire CELL[11].IMUX_B[6]             SYSBUS.SMIRDATA4
-			// wire CELL[11].IMUX_B[7]             SYSBUS.SMIRDATA3
-			// wire CELL[11].IMUX_C[0]             SYSBUS.SMIRDATA2
-			// wire CELL[11].IMUX_C[1]             SYSBUS.SMIRDATA1
-			// wire CELL[11].IMUX_C[2]             SYSBUS.SMIRDATA0
+			// wire CELL[10].OUT_Q[5]              SYSBUS.SYSBDEBUG[23]
+			// wire CELL[10].OUT_Q[6]              SYSBUS.SYSBDEBUG[22]
+			// wire CELL[10].OUT_Q[7]              SYSBUS.SYSBDEBUG[21]
+			// wire CELL[10].OUT_OFX[0]            SYSBUS.SYSBDEBUG[20]
+			// wire CELL[10].OUT_OFX[1]            SYSBUS.SYSBDEBUG[19]
+			// wire CELL[10].OUT_OFX[2]            SYSBUS.SYSBDEBUG[18]
+			// wire CELL[10].OUT_OFX[3]            SYSBUS.SYSBDEBUG[17]
+			// wire CELL[10].OUT_OFX[4]            SYSBUS.SYSBDEBUG[16]
+			// wire CELL[10].OUT_OFX[5]            SYSBUS.SYSBDEBUG[15]
+			// wire CELL[10].OUT_OFX[6]            SYSBUS.SYSBDEBUG[14]
+			// wire CELL[11].IMUX_A[0]             SYSBUS.SMIRDATA[18]
+			// wire CELL[11].IMUX_A[1]             SYSBUS.SMIRDATA[17]
+			// wire CELL[11].IMUX_A[2]             SYSBUS.SMIRDATA[16]
+			// wire CELL[11].IMUX_A[3]             SYSBUS.SMIRDATA[15]
+			// wire CELL[11].IMUX_A[4]             SYSBUS.SMIRDATA[14]
+			// wire CELL[11].IMUX_A[5]             SYSBUS.SMIRDATA[13]
+			// wire CELL[11].IMUX_A[6]             SYSBUS.SMIRDATA[12]
+			// wire CELL[11].IMUX_A[7]             SYSBUS.SMIRDATA[11]
+			// wire CELL[11].IMUX_B[0]             SYSBUS.SMIRDATA[10]
+			// wire CELL[11].IMUX_B[1]             SYSBUS.SMIRDATA[9]
+			// wire CELL[11].IMUX_B[2]             SYSBUS.SMIRDATA[8]
+			// wire CELL[11].IMUX_B[3]             SYSBUS.SMIRDATA[7]
+			// wire CELL[11].IMUX_B[4]             SYSBUS.SMIRDATA[6]
+			// wire CELL[11].IMUX_B[5]             SYSBUS.SMIRDATA[5]
+			// wire CELL[11].IMUX_B[6]             SYSBUS.SMIRDATA[4]
+			// wire CELL[11].IMUX_B[7]             SYSBUS.SMIRDATA[3]
+			// wire CELL[11].IMUX_C[0]             SYSBUS.SMIRDATA[2]
+			// wire CELL[11].IMUX_C[1]             SYSBUS.SMIRDATA[1]
+			// wire CELL[11].IMUX_C[2]             SYSBUS.SMIRDATA[0]
 			// wire CELL[11].IMUX_C[4]             JTAG.TDO
 			// wire CELL[11].IMUX_CLK[0]           SERDES_CENTER.FFC_CK_CORE_TX
 			// wire CELL[11].IMUX_LSR[0]           SYSBUS.USERIRQI
-			// wire CELL[11].OUT_F[0]              SYSBUS.SYSBDEBUG13
-			// wire CELL[11].OUT_F[1]              SYSBUS.SYSBDEBUG12
-			// wire CELL[11].OUT_F[2]              SYSBUS.SYSBDEBUG11
-			// wire CELL[11].OUT_F[3]              SYSBUS.SYSBDEBUG10
-			// wire CELL[11].OUT_F[4]              SYSBUS.SYSBDEBUG9
-			// wire CELL[11].OUT_F[5]              SYSBUS.SYSBDEBUG8
-			// wire CELL[11].OUT_F[6]              SYSBUS.SYSBDEBUG7
-			// wire CELL[11].OUT_F[7]              SYSBUS.SYSBDEBUG6
-			// wire CELL[11].OUT_Q[0]              SYSBUS.SYSBDEBUG5
-			// wire CELL[11].OUT_Q[1]              SYSBUS.SYSBDEBUG4
-			// wire CELL[11].OUT_Q[2]              SYSBUS.SYSBDEBUG3
-			// wire CELL[11].OUT_Q[3]              SYSBUS.SYSBDEBUG2
-			// wire CELL[11].OUT_Q[4]              SYSBUS.SYSBDEBUG1
-			// wire CELL[11].OUT_Q[5]              SYSBUS.SYSBDEBUG0
+			// wire CELL[11].OUT_F[0]              SYSBUS.SYSBDEBUG[13]
+			// wire CELL[11].OUT_F[1]              SYSBUS.SYSBDEBUG[12]
+			// wire CELL[11].OUT_F[2]              SYSBUS.SYSBDEBUG[11]
+			// wire CELL[11].OUT_F[3]              SYSBUS.SYSBDEBUG[10]
+			// wire CELL[11].OUT_F[4]              SYSBUS.SYSBDEBUG[9]
+			// wire CELL[11].OUT_F[5]              SYSBUS.SYSBDEBUG[8]
+			// wire CELL[11].OUT_F[6]              SYSBUS.SYSBDEBUG[7]
+			// wire CELL[11].OUT_F[7]              SYSBUS.SYSBDEBUG[6]
+			// wire CELL[11].OUT_Q[0]              SYSBUS.SYSBDEBUG[5]
+			// wire CELL[11].OUT_Q[1]              SYSBUS.SYSBDEBUG[4]
+			// wire CELL[11].OUT_Q[2]              SYSBUS.SYSBDEBUG[3]
+			// wire CELL[11].OUT_Q[3]              SYSBUS.SYSBDEBUG[2]
+			// wire CELL[11].OUT_Q[4]              SYSBUS.SYSBDEBUG[1]
+			// wire CELL[11].OUT_Q[5]              SYSBUS.SYSBDEBUG[0]
 			// wire CELL[11].OUT_Q[6]              JTAG.TCK
 			// wire CELL[11].OUT_Q[7]              JTAG.TDI
 			// wire CELL[11].OUT_OFX[0]            JTAG.TMS

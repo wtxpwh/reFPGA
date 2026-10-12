@@ -1,6 +1,6 @@
 use prjcombine_ecp::{
     chip::{IoGroupKind, PllLoc, PllPad, SpecialIoKey, SpecialLocKey},
-    defs::{bslots, tcls, wires},
+    defs::{bcls, bslots, tcls, wires},
 };
 use prjcombine_interconnect::{
     db::{LegacyBel, WireSlotIdExt},
@@ -504,9 +504,9 @@ impl ChipContext<'_> {
                 self.insert_legacy_bel(bcrd, bel);
             }
             if hv == DirHV::SW {
-                let bcrd = cell_tile.bel(bslots::RNET);
-                self.name_bel(bcrd, ["RNET"]);
-                self.insert_simple_legacy_bel(bcrd, cell, "RNET");
+                self.extract_bel_cell(cell_tile.bel(bslots::RNET), cell)
+                    .name("RNET")
+                    .suffix("RNET");
             }
             if hv == DirHV::NW {
                 for (slot, name, suffix) in [
@@ -515,60 +515,40 @@ impl ChipContext<'_> {
                     (bslots::M2, "M2PAD", "M2"),
                     (bslots::M3, "M3PAD", "M3"),
                 ] {
-                    let bcrd = cell_tile.bel(slot);
-                    self.name_bel(bcrd, [name]);
-                    self.insert_simple_legacy_bel(bcrd, cell, suffix);
+                    self.extract_bel_cell(cell_tile.bel(slot), cell)
+                        .name(name)
+                        .output_xlat_rc_corner(bcls::IPAD::PADDI, format!("J{suffix}_{suffix}"));
                 }
                 {
-                    let bcrd = cell_tile.bel(bslots::RESETN);
-                    self.name_bel(bcrd, ["RESETN"]);
-                    self.insert_simple_legacy_bel(bcrd, cell, "RSTN");
+                    self.extract_bel_cell(cell_tile.bel(bslots::RESETN), cell)
+                        .name("RESETN")
+                        .output_xlat_rc_corner(bcls::IPAD::PADDI, "JRSTN_RSTN");
                 }
                 {
-                    let bcrd = cell_tile.bel(bslots::RDCFGN);
-                    self.name_bel(bcrd, ["RDCFGN"]);
-                    let mut bel = LegacyBel::default();
-
-                    let rdcfgn = self.rc_corner_wire(cell, "RDCFGN_RDCFGN");
-                    self.add_bel_wire(bcrd, "RDCFGN", rdcfgn);
-
-                    let rdcfgn_out = self.rc_corner_wire(cell, "JRDCFGN");
-                    self.add_bel_wire(bcrd, "RDCFGN_OUT", rdcfgn_out);
-                    self.claim_pip(rdcfgn_out, rdcfgn);
-                    bel.pins
-                        .insert("RDCFGN".into(), self.xlat_int_wire(bcrd, rdcfgn_out));
-
-                    let tsalln_io = self.rc_corner_wire(cell, "JTSALLN");
-                    self.add_bel_wire(bcrd, "TSALLN_IO", tsalln_io);
-                    self.claim_pip(tsalln_io, rdcfgn);
-
                     let cell_rdbk = self.chip.special_loc[&SpecialLocKey::Config];
                     let tsalln = self.rc_wire(cell_rdbk, "JTSALLN_RDBK");
-                    self.add_bel_wire(bcrd, "TSALLN", tsalln);
-                    self.claim_pip(tsalln, tsalln_io);
-                    bel.pins
-                        .insert("TSALLN".into(), self.xlat_int_wire(bcrd, tsalln));
-
-                    self.insert_legacy_bel(bcrd, bel);
+                    self.extract_bel_cell(cell_tile.bel(bslots::RDCFGN), cell)
+                        .name("RDCFGN")
+                        .add_wire_rc_corner("RDCFGN", "RDCFGN_RDCFGN")
+                        .output_xlat_rename_rc_corner(bcls::RDCFGN::RDCFGN, "RDCFGN_OUT", "JRDCFGN")
+                        .add_wire_rc_corner("TSALLN_IO", "JTSALLN")
+                        .input_xlat(bcls::RDCFGN::TSALLN, tsalln)
+                        .claim_pip("RDCFGN_OUT", "RDCFGN")
+                        .claim_pip("TSALLN_IO", "RDCFGN")
+                        .claim_pip("TSALLN", "TSALLN_IO");
                 }
             }
             if hv == DirHV::NE {
-                let bcrd = cell_tile.bel(bslots::CCLK);
-                self.name_bel(bcrd, ["CCLK"]);
-                self.insert_simple_legacy_bel(bcrd, cell, "CCLK");
                 for (slot, name) in [
                     (bslots::TCK, "TCK"),
                     (bslots::TMS, "TMS"),
                     (bslots::TDI, "TDI"),
+                    (bslots::CCLK, "CCLK"),
                 ] {
                     let bcrd = cell_tile.bel(slot);
-                    self.name_bel(bcrd, [name]);
-                    let wire = self.rc_corner_wire(cell, &format!("J{name}_{name}"));
-                    self.add_bel_wire(bcrd, name, wire);
-                    let mut bel = LegacyBel::default();
-                    bel.pins
-                        .insert(name.into(), self.xlat_int_wire_filter(bcrd, wire));
-                    self.insert_legacy_bel(bcrd, bel);
+                    self.extract_bel_cell(bcrd, cell)
+                        .name(name)
+                        .output_xlat_rc_corner_quiet(bcls::IPAD::PADDI, format!("J{name}_{name}"));
                 }
             }
             if let Some(name) = match hv {
@@ -576,9 +556,9 @@ impl ChipContext<'_> {
                 DirHV::SE => Some("PROMON1V"),
                 _ => None,
             } {
-                let bcrd = cell_tile.bel(bslots::PROMON);
-                self.name_bel(bcrd, [name]);
-                self.insert_simple_legacy_bel(bcrd, cell, name);
+                self.extract_bel_cell(cell_tile.bel(bslots::PROMON), cell)
+                    .name(name)
+                    .suffix(name);
             }
         }
     }

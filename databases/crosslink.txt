@@ -552,6 +552,34 @@ intdb {
 		output DOB[9];
 	}
 
+	bel_class IO {
+		input CLK;
+		input LSR;
+		input CE;
+		input ECLK;
+		input SLIP;
+		input TSDATA;
+		input TXDATA[16];
+		input DIRECTION;
+		input HSSEL;
+		input LOADN;
+		input MOVE;
+		output PADDI;
+		output DI;
+		output RXDATA[16];
+		output INFF;
+		output CFLAG;
+		pad PAD: inout
+	}
+
+	bel_class BCINRD {
+		input INRDENI;
+	}
+
+	bel_class BCLVDSO {
+		input LVDSENI;
+	}
+
 	bel_class DCC {
 		input CLKI;
 		input CE;
@@ -576,7 +604,180 @@ intdb {
 		output HFCLKOUT;
 	}
 
+	bel_class PMU {
+		input SLEEP;
+		input USRCLK;
+		input USRCS;
+		input USRSTB;
+		input USRADR[4];
+		input USRDATA[8];
+		input PMUSCANCLK;
+		input PMUSCANRESET;
+		input PMUSCANSHIFTEN;
+		input PMUSCANSDI;
+		output USRWDTDONE;
+		output USRWDTINT;
+		output PMUSCANSDO;
+	}
+
+	bel_class I2C {
+		input CLKI;
+		input CSI;
+		input STBI;
+		input WEI;
+		input ADRI[4];
+		input DATI[10];
+		input FIFORST;
+		input SCLI;
+		input SDAI;
+		output DATO[10];
+		output ACKO;
+		output RXFIFOAF;
+		output RXFIFOE;
+		output RXFIFOF;
+		output TXFIFOAE;
+		output TXFIFOE;
+		output TXFIFOF;
+		output MRDCMPL;
+		output SRDWR;
+		output I2CIRQ;
+		output I2CWKUP;
+		output SCLO;
+		output SCLOEN;
+		output SDAO;
+		output SDAOEN;
+	}
+
+	bel_class NVCMTEST {
+		input NVSCANCLK;
+		input NVSCANRESET;
+		input NVSCANSHIFTEN;
+		input NVSCANSDI;
+		output NVSCANSDO;
+		output SCANTESTMODE;
+	}
+
+	bel_class CFGTEST {
+		input CFGSCANCLK;
+		input CFGSCANRESET;
+		input CFGSCANSDI;
+		input CFGSCANSHIFTEN;
+		output CFGSCANSDO;
+	}
+
+	bel_class MIPI {
+		input CLKREF;
+		input CLKCDEN;
+		input CLKDTXLPN;
+		input CLKDTXLPP;
+		input CLKRXHSEN;
+		input CLKRXLPEN;
+		input CLKTXHSEN;
+		input CLKTXHSGATE;
+		input CLKTXHSPD;
+		input CLKTXLPEN;
+		input CM[8];
+		input CN[5];
+		input CO[2];
+		input D0CDEN;
+		input D0DTXLPN;
+		input D0DTXLPP;
+		input D0HSDESEREN;
+		input D0HSSEREN;
+		input D0HSTXDATA[16];
+		input D0RXHSEN;
+		input D0RXLPEN;
+		input D0TXHSEN;
+		input D0TXHSPD;
+		input D0TXLPEN;
+		input D1CDEN;
+		input D1DTXLPN;
+		input D1DTXLPP;
+		input D1HSDESEREN;
+		input D1HSSEREN;
+		input D1HSTXDATA[16];
+		input D1RXHSEN;
+		input D1RXLPEN;
+		input D1TXHSEN;
+		input D1TXHSPD;
+		input D1TXLPEN;
+		input D2CDEN;
+		input D2DTXLPN;
+		input D2DTXLPP;
+		input D2HSDESEREN;
+		input D2HSSEREN;
+		input D2HSTXDATA[16];
+		input D2RXHSEN;
+		input D2RXLPEN;
+		input D2TXHSEN;
+		input D2TXHSPD;
+		input D2TXLPEN;
+		input D3CDEN;
+		input D3DTXLPN;
+		input D3DTXLPP;
+		input D3HSDESEREN;
+		input D3HSSEREN;
+		input D3HSTXDATA[16];
+		input D3RXHSEN;
+		input D3RXLPEN;
+		input D3TXHSEN;
+		input D3TXHSPD;
+		input D3TXLPEN;
+		input LBEN;
+		input PDBIAS;
+		input PDCKG;
+		input PDDPHY;
+		input PDPLL;
+		input TST[4];
+		input CLKTEST_TESTIN[2];
+		output CLKHSBYTE;
+		output HSBYTECLKS;
+		output HSBYTECLKD;
+		output CLKDCDN;
+		output CLKDRXHS;
+		output CLKDRXLPN;
+		output CLKDRXLPP;
+		output D0DCDN;
+		output D0DCDP;
+		output D0DRXHS;
+		output D0DRXLPN;
+		output D0DRXLPP;
+		output D0ERRSYNC;
+		output D0HSRXDATA[16];
+		output D0NOSYNC;
+		output D0SYNC;
+		output D1DCDN;
+		output D1DCDP;
+		output D1DRXHS;
+		output D1DRXLPN;
+		output D1DRXLPP;
+		output D1ERRSYNC;
+		output D1HSRXDATA[16];
+		output D1NOSYNC;
+		output D1SYNC;
+		output D2DCDN;
+		output D2DCDP;
+		output D2DRXHS;
+		output D2DRXLPN;
+		output D2DRXLPP;
+		output D2ERRSYNC;
+		output D2HSRXDATA[16];
+		output D2NOSYNC;
+		output D2SYNC;
+		output D3DCDN;
+		output D3DCDP;
+		output D3DRXHS;
+		output D3DRXLPN;
+		output D3DRXLPP;
+		output D3ERRSYNC;
+		output D3HSRXDATA[16];
+		output D3NOSYNC;
+		output D3SYNC;
+		output LOCK;
+	}
+
 	region_slot PCLK;
+	region_slot ECLK;
 	wire TIE0: tie 0;
 	wire TIE1: tie 1;
 	wire X0_W[0]: mux;
@@ -819,6 +1020,12 @@ intdb {
 	wire PCLK[5]: regional PCLK;
 	wire PCLK[6]: regional PCLK;
 	wire PCLK[7]: regional PCLK;
+	wire ECLK[0]: regional ECLK;
+	wire ECLK[1]: regional ECLK;
+	wire IMUX_IO_ECLK[0]: mux;
+	wire IMUX_IO_ECLK[1]: mux;
+	wire IMUX_IO_ECLK[2]: mux;
+	wire IMUX_IO_ECLK[3]: mux;
 	wire IMUX_A[0]: mux;
 	wire IMUX_A[1]: mux;
 	wire IMUX_A[2]: mux;
@@ -907,6 +1114,14 @@ intdb {
 	wire OUT_Q[5]: bel;
 	wire OUT_Q[6]: bel;
 	wire OUT_Q[7]: bel;
+	wire OUT_IO_PADDI[0]: bel;
+	wire OUT_IO_PADDI[1]: bel;
+	wire OUT_IO_PADDI[2]: bel;
+	wire OUT_IO_PADDI[3]: bel;
+	wire IMUX_MIPI_CLKREF: mux;
+	wire OUT_MIPI_CLKHSBYTE: bel;
+	wire OUT_MIPI_HSBYTECLKS: bel;
+	wire OUT_MIPI_HSBYTECLKD: bel;
 
 	tile_slot INT {
 		bel_slot INT: routing;
@@ -1397,10 +1612,11 @@ intdb {
 	}
 
 	tile_slot IO {
-		bel_slot IO[0]: legacy;
-		bel_slot IO[1]: legacy;
-		bel_slot IO[2]: legacy;
-		bel_slot IO[3]: legacy;
+		bel_slot IO[0]: IO;
+		bel_slot IO[1]: IO;
+		bel_slot IO[2]: IO;
+		bel_slot IO[3]: IO;
+		bel_slot IO_INT: routing;
 
 		tile_class IO_S4 {
 			cell CELL[0];
@@ -1409,266 +1625,281 @@ intdb {
 			cell CELL[3];
 
 			bel IO[0] {
-				input CE = CELL[0].IMUX_CE[0];
-				output CFLAG = CELL[0].OUT_Q[1];
 				input CLK = CELL[0].IMUX_CLK[0];
-				output DI = CELL[0].OUT_Q[5];
-				input DIRECTION = CELL[0].IMUX_A[0];
-				input HSSEL = CELL[0].IMUX_A[4];
-				output INFF = CELL[0].OUT_Q[0];
-				input LOADN = CELL[0].IMUX_C[6];
 				input LSR = CELL[0].IMUX_LSR[0];
-				input MOVE = CELL[0].IMUX_A[6];
-				output RXDATA0 = CELL[0].OUT_F[0];
-				output RXDATA1 = CELL[0].OUT_F[1];
-				output RXDATA10 = CELL[1].OUT_F[2];
-				output RXDATA11 = CELL[1].OUT_F[3];
-				output RXDATA12 = CELL[1].OUT_F[4];
-				output RXDATA13 = CELL[1].OUT_F[5];
-				output RXDATA14 = CELL[1].OUT_F[6];
-				output RXDATA15 = CELL[1].OUT_F[7];
-				output RXDATA2 = CELL[0].OUT_F[2];
-				output RXDATA3 = CELL[0].OUT_F[3];
-				output RXDATA4 = CELL[0].OUT_F[4];
-				output RXDATA5 = CELL[0].OUT_F[5];
-				output RXDATA6 = CELL[0].OUT_F[6];
-				output RXDATA7 = CELL[0].OUT_F[7];
-				output RXDATA8 = CELL[1].OUT_F[0];
-				output RXDATA9 = CELL[1].OUT_F[1];
+				input CE = CELL[0].IMUX_CE[0];
+				input ECLK = CELL[0].IMUX_IO_ECLK[0];
 				input SLIP = CELL[0].IMUX_C[0];
 				input TSDATA = CELL[0].IMUX_C[4];
-				input TXDATA0 = CELL[0].IMUX_D[0];
-				input TXDATA1 = CELL[0].IMUX_B[0];
-				input TXDATA10 = CELL[1].IMUX_D[2];
-				input TXDATA11 = CELL[1].IMUX_B[2];
-				input TXDATA12 = CELL[1].IMUX_D[4];
-				input TXDATA13 = CELL[1].IMUX_B[4];
-				input TXDATA14 = CELL[1].IMUX_D[6];
-				input TXDATA15 = CELL[1].IMUX_B[6];
-				input TXDATA2 = CELL[0].IMUX_D[2];
-				input TXDATA3 = CELL[0].IMUX_B[2];
-				input TXDATA4 = CELL[0].IMUX_D[4];
-				input TXDATA5 = CELL[0].IMUX_B[4];
-				input TXDATA6 = CELL[0].IMUX_D[6];
-				input TXDATA7 = CELL[0].IMUX_B[6];
-				input TXDATA8 = CELL[1].IMUX_D[0];
-				input TXDATA9 = CELL[1].IMUX_B[0];
+				input TXDATA[0] = CELL[0].IMUX_D[0];
+				input TXDATA[1] = CELL[0].IMUX_B[0];
+				input TXDATA[2] = CELL[0].IMUX_D[2];
+				input TXDATA[3] = CELL[0].IMUX_B[2];
+				input TXDATA[4] = CELL[0].IMUX_D[4];
+				input TXDATA[5] = CELL[0].IMUX_B[4];
+				input TXDATA[6] = CELL[0].IMUX_D[6];
+				input TXDATA[7] = CELL[0].IMUX_B[6];
+				input TXDATA[8] = CELL[1].IMUX_D[0];
+				input TXDATA[9] = CELL[1].IMUX_B[0];
+				input TXDATA[10] = CELL[1].IMUX_D[2];
+				input TXDATA[11] = CELL[1].IMUX_B[2];
+				input TXDATA[12] = CELL[1].IMUX_D[4];
+				input TXDATA[13] = CELL[1].IMUX_B[4];
+				input TXDATA[14] = CELL[1].IMUX_D[6];
+				input TXDATA[15] = CELL[1].IMUX_B[6];
+				input DIRECTION = CELL[0].IMUX_A[0];
+				input HSSEL = CELL[0].IMUX_A[4];
+				input LOADN = CELL[0].IMUX_C[6];
+				input MOVE = CELL[0].IMUX_A[6];
+				output DI = CELL[0].OUT_Q[5];
+				output RXDATA[0] = CELL[0].OUT_F[0];
+				output RXDATA[1] = CELL[0].OUT_F[1];
+				output RXDATA[2] = CELL[0].OUT_F[2];
+				output RXDATA[3] = CELL[0].OUT_F[3];
+				output RXDATA[4] = CELL[0].OUT_F[4];
+				output RXDATA[5] = CELL[0].OUT_F[5];
+				output RXDATA[6] = CELL[0].OUT_F[6];
+				output RXDATA[7] = CELL[0].OUT_F[7];
+				output RXDATA[8] = CELL[1].OUT_F[0];
+				output RXDATA[9] = CELL[1].OUT_F[1];
+				output RXDATA[10] = CELL[1].OUT_F[2];
+				output RXDATA[11] = CELL[1].OUT_F[3];
+				output RXDATA[12] = CELL[1].OUT_F[4];
+				output RXDATA[13] = CELL[1].OUT_F[5];
+				output RXDATA[14] = CELL[1].OUT_F[6];
+				output RXDATA[15] = CELL[1].OUT_F[7];
+				output INFF = CELL[0].OUT_Q[0];
+				output CFLAG = CELL[0].OUT_Q[1];
 			}
 
 			bel IO[1] {
-				input CE = CELL[1].IMUX_CE[0];
-				output CFLAG = CELL[1].OUT_Q[1];
 				input CLK = CELL[1].IMUX_CLK[0];
-				output DI = CELL[1].OUT_Q[5];
-				input DIRECTION = CELL[1].IMUX_A[0];
-				output INFF = CELL[1].OUT_Q[0];
-				input LOADN = CELL[1].IMUX_C[6];
 				input LSR = CELL[1].IMUX_LSR[0];
-				input MOVE = CELL[1].IMUX_A[6];
-				output RXDATA0 = CELL[1].OUT_F[0];
-				output RXDATA1 = CELL[1].OUT_F[1];
-				output RXDATA2 = CELL[1].OUT_F[2];
-				output RXDATA3 = CELL[1].OUT_F[3];
-				output RXDATA4 = CELL[1].OUT_F[4];
-				output RXDATA5 = CELL[1].OUT_F[5];
-				output RXDATA6 = CELL[1].OUT_F[6];
-				output RXDATA7 = CELL[1].OUT_F[7];
+				input CE = CELL[1].IMUX_CE[0];
+				input ECLK = CELL[0].IMUX_IO_ECLK[1];
 				input SLIP = CELL[1].IMUX_C[0];
 				input TSDATA = CELL[1].IMUX_C[4];
-				input TXDATA0 = CELL[1].IMUX_D[0];
-				input TXDATA1 = CELL[1].IMUX_B[0];
-				input TXDATA2 = CELL[1].IMUX_D[2];
-				input TXDATA3 = CELL[1].IMUX_B[2];
-				input TXDATA4 = CELL[1].IMUX_D[4];
-				input TXDATA5 = CELL[1].IMUX_B[4];
-				input TXDATA6 = CELL[1].IMUX_D[6];
-				input TXDATA7 = CELL[1].IMUX_B[6];
+				input TXDATA[0] = CELL[1].IMUX_D[0];
+				input TXDATA[1] = CELL[1].IMUX_B[0];
+				input TXDATA[2] = CELL[1].IMUX_D[2];
+				input TXDATA[3] = CELL[1].IMUX_B[2];
+				input TXDATA[4] = CELL[1].IMUX_D[4];
+				input TXDATA[5] = CELL[1].IMUX_B[4];
+				input TXDATA[6] = CELL[1].IMUX_D[6];
+				input TXDATA[7] = CELL[1].IMUX_B[6];
+				input DIRECTION = CELL[1].IMUX_A[0];
+				input LOADN = CELL[1].IMUX_C[6];
+				input MOVE = CELL[1].IMUX_A[6];
+				output DI = CELL[1].OUT_Q[5];
+				output RXDATA[0] = CELL[1].OUT_F[0];
+				output RXDATA[1] = CELL[1].OUT_F[1];
+				output RXDATA[2] = CELL[1].OUT_F[2];
+				output RXDATA[3] = CELL[1].OUT_F[3];
+				output RXDATA[4] = CELL[1].OUT_F[4];
+				output RXDATA[5] = CELL[1].OUT_F[5];
+				output RXDATA[6] = CELL[1].OUT_F[6];
+				output RXDATA[7] = CELL[1].OUT_F[7];
+				output INFF = CELL[1].OUT_Q[0];
+				output CFLAG = CELL[1].OUT_Q[1];
 			}
 
 			bel IO[2] {
-				input CE = CELL[2].IMUX_CE[0];
-				output CFLAG = CELL[2].OUT_Q[1];
 				input CLK = CELL[2].IMUX_CLK[0];
-				output DI = CELL[2].OUT_Q[5];
-				input DIRECTION = CELL[2].IMUX_A[0];
-				input HSSEL = CELL[2].IMUX_A[4];
-				output INFF = CELL[2].OUT_Q[0];
-				input LOADN = CELL[2].IMUX_C[6];
 				input LSR = CELL[2].IMUX_LSR[0];
-				input MOVE = CELL[2].IMUX_A[6];
-				output RXDATA0 = CELL[2].OUT_F[0];
-				output RXDATA1 = CELL[2].OUT_F[1];
-				output RXDATA10 = CELL[3].OUT_F[2];
-				output RXDATA11 = CELL[3].OUT_F[3];
-				output RXDATA12 = CELL[3].OUT_F[4];
-				output RXDATA13 = CELL[3].OUT_F[5];
-				output RXDATA14 = CELL[3].OUT_F[6];
-				output RXDATA15 = CELL[3].OUT_F[7];
-				output RXDATA2 = CELL[2].OUT_F[2];
-				output RXDATA3 = CELL[2].OUT_F[3];
-				output RXDATA4 = CELL[2].OUT_F[4];
-				output RXDATA5 = CELL[2].OUT_F[5];
-				output RXDATA6 = CELL[2].OUT_F[6];
-				output RXDATA7 = CELL[2].OUT_F[7];
-				output RXDATA8 = CELL[3].OUT_F[0];
-				output RXDATA9 = CELL[3].OUT_F[1];
+				input CE = CELL[2].IMUX_CE[0];
+				input ECLK = CELL[0].IMUX_IO_ECLK[2];
 				input SLIP = CELL[2].IMUX_C[0];
 				input TSDATA = CELL[2].IMUX_C[4];
-				input TXDATA0 = CELL[2].IMUX_D[0];
-				input TXDATA1 = CELL[2].IMUX_B[0];
-				input TXDATA10 = CELL[3].IMUX_D[2];
-				input TXDATA11 = CELL[3].IMUX_B[2];
-				input TXDATA12 = CELL[3].IMUX_D[4];
-				input TXDATA13 = CELL[3].IMUX_B[4];
-				input TXDATA14 = CELL[3].IMUX_D[6];
-				input TXDATA15 = CELL[3].IMUX_B[6];
-				input TXDATA2 = CELL[2].IMUX_D[2];
-				input TXDATA3 = CELL[2].IMUX_B[2];
-				input TXDATA4 = CELL[2].IMUX_D[4];
-				input TXDATA5 = CELL[2].IMUX_B[4];
-				input TXDATA6 = CELL[2].IMUX_D[6];
-				input TXDATA7 = CELL[2].IMUX_B[6];
-				input TXDATA8 = CELL[3].IMUX_D[0];
-				input TXDATA9 = CELL[3].IMUX_B[0];
+				input TXDATA[0] = CELL[2].IMUX_D[0];
+				input TXDATA[1] = CELL[2].IMUX_B[0];
+				input TXDATA[2] = CELL[2].IMUX_D[2];
+				input TXDATA[3] = CELL[2].IMUX_B[2];
+				input TXDATA[4] = CELL[2].IMUX_D[4];
+				input TXDATA[5] = CELL[2].IMUX_B[4];
+				input TXDATA[6] = CELL[2].IMUX_D[6];
+				input TXDATA[7] = CELL[2].IMUX_B[6];
+				input TXDATA[8] = CELL[3].IMUX_D[0];
+				input TXDATA[9] = CELL[3].IMUX_B[0];
+				input TXDATA[10] = CELL[3].IMUX_D[2];
+				input TXDATA[11] = CELL[3].IMUX_B[2];
+				input TXDATA[12] = CELL[3].IMUX_D[4];
+				input TXDATA[13] = CELL[3].IMUX_B[4];
+				input TXDATA[14] = CELL[3].IMUX_D[6];
+				input TXDATA[15] = CELL[3].IMUX_B[6];
+				input DIRECTION = CELL[2].IMUX_A[0];
+				input HSSEL = CELL[2].IMUX_A[4];
+				input LOADN = CELL[2].IMUX_C[6];
+				input MOVE = CELL[2].IMUX_A[6];
+				output DI = CELL[2].OUT_Q[5];
+				output RXDATA[0] = CELL[2].OUT_F[0];
+				output RXDATA[1] = CELL[2].OUT_F[1];
+				output RXDATA[2] = CELL[2].OUT_F[2];
+				output RXDATA[3] = CELL[2].OUT_F[3];
+				output RXDATA[4] = CELL[2].OUT_F[4];
+				output RXDATA[5] = CELL[2].OUT_F[5];
+				output RXDATA[6] = CELL[2].OUT_F[6];
+				output RXDATA[7] = CELL[2].OUT_F[7];
+				output RXDATA[8] = CELL[3].OUT_F[0];
+				output RXDATA[9] = CELL[3].OUT_F[1];
+				output RXDATA[10] = CELL[3].OUT_F[2];
+				output RXDATA[11] = CELL[3].OUT_F[3];
+				output RXDATA[12] = CELL[3].OUT_F[4];
+				output RXDATA[13] = CELL[3].OUT_F[5];
+				output RXDATA[14] = CELL[3].OUT_F[6];
+				output RXDATA[15] = CELL[3].OUT_F[7];
+				output INFF = CELL[2].OUT_Q[0];
+				output CFLAG = CELL[2].OUT_Q[1];
 			}
 
 			bel IO[3] {
-				input CE = CELL[3].IMUX_CE[0];
-				output CFLAG = CELL[3].OUT_Q[1];
 				input CLK = CELL[3].IMUX_CLK[0];
-				output DI = CELL[3].OUT_Q[5];
-				input DIRECTION = CELL[3].IMUX_A[0];
-				output INFF = CELL[3].OUT_Q[0];
-				input LOADN = CELL[3].IMUX_C[6];
 				input LSR = CELL[3].IMUX_LSR[0];
-				input MOVE = CELL[3].IMUX_A[6];
-				output RXDATA0 = CELL[3].OUT_F[0];
-				output RXDATA1 = CELL[3].OUT_F[1];
-				output RXDATA2 = CELL[3].OUT_F[2];
-				output RXDATA3 = CELL[3].OUT_F[3];
-				output RXDATA4 = CELL[3].OUT_F[4];
-				output RXDATA5 = CELL[3].OUT_F[5];
-				output RXDATA6 = CELL[3].OUT_F[6];
-				output RXDATA7 = CELL[3].OUT_F[7];
+				input CE = CELL[3].IMUX_CE[0];
+				input ECLK = CELL[0].IMUX_IO_ECLK[3];
 				input SLIP = CELL[3].IMUX_C[0];
 				input TSDATA = CELL[3].IMUX_C[4];
-				input TXDATA0 = CELL[3].IMUX_D[0];
-				input TXDATA1 = CELL[3].IMUX_B[0];
-				input TXDATA2 = CELL[3].IMUX_D[2];
-				input TXDATA3 = CELL[3].IMUX_B[2];
-				input TXDATA4 = CELL[3].IMUX_D[4];
-				input TXDATA5 = CELL[3].IMUX_B[4];
-				input TXDATA6 = CELL[3].IMUX_D[6];
-				input TXDATA7 = CELL[3].IMUX_B[6];
+				input TXDATA[0] = CELL[3].IMUX_D[0];
+				input TXDATA[1] = CELL[3].IMUX_B[0];
+				input TXDATA[2] = CELL[3].IMUX_D[2];
+				input TXDATA[3] = CELL[3].IMUX_B[2];
+				input TXDATA[4] = CELL[3].IMUX_D[4];
+				input TXDATA[5] = CELL[3].IMUX_B[4];
+				input TXDATA[6] = CELL[3].IMUX_D[6];
+				input TXDATA[7] = CELL[3].IMUX_B[6];
+				input DIRECTION = CELL[3].IMUX_A[0];
+				input LOADN = CELL[3].IMUX_C[6];
+				input MOVE = CELL[3].IMUX_A[6];
+				output DI = CELL[3].OUT_Q[5];
+				output RXDATA[0] = CELL[3].OUT_F[0];
+				output RXDATA[1] = CELL[3].OUT_F[1];
+				output RXDATA[2] = CELL[3].OUT_F[2];
+				output RXDATA[3] = CELL[3].OUT_F[3];
+				output RXDATA[4] = CELL[3].OUT_F[4];
+				output RXDATA[5] = CELL[3].OUT_F[5];
+				output RXDATA[6] = CELL[3].OUT_F[6];
+				output RXDATA[7] = CELL[3].OUT_F[7];
+				output INFF = CELL[3].OUT_Q[0];
+				output CFLAG = CELL[3].OUT_Q[1];
 			}
 
+			switchbox IO_INT {
+				mux CELL[0].IMUX_IO_ECLK[0] = CELL[0].ECLK[0] | CELL[0].ECLK[1];
+				mux CELL[0].IMUX_IO_ECLK[1] = CELL[0].ECLK[0] | CELL[0].ECLK[1];
+				mux CELL[0].IMUX_IO_ECLK[2] = CELL[0].ECLK[0] | CELL[0].ECLK[1];
+				mux CELL[0].IMUX_IO_ECLK[3] = CELL[0].ECLK[0] | CELL[0].ECLK[1];
+			}
+
+			// wire CELL[0].IMUX_IO_ECLK[0]        IO[0].ECLK
+			// wire CELL[0].IMUX_IO_ECLK[1]        IO[1].ECLK
+			// wire CELL[0].IMUX_IO_ECLK[2]        IO[2].ECLK
+			// wire CELL[0].IMUX_IO_ECLK[3]        IO[3].ECLK
 			// wire CELL[0].IMUX_A[0]              IO[0].DIRECTION
 			// wire CELL[0].IMUX_A[4]              IO[0].HSSEL
 			// wire CELL[0].IMUX_A[6]              IO[0].MOVE
-			// wire CELL[0].IMUX_B[0]              IO[0].TXDATA1
-			// wire CELL[0].IMUX_B[2]              IO[0].TXDATA3
-			// wire CELL[0].IMUX_B[4]              IO[0].TXDATA5
-			// wire CELL[0].IMUX_B[6]              IO[0].TXDATA7
+			// wire CELL[0].IMUX_B[0]              IO[0].TXDATA[1]
+			// wire CELL[0].IMUX_B[2]              IO[0].TXDATA[3]
+			// wire CELL[0].IMUX_B[4]              IO[0].TXDATA[5]
+			// wire CELL[0].IMUX_B[6]              IO[0].TXDATA[7]
 			// wire CELL[0].IMUX_C[0]              IO[0].SLIP
 			// wire CELL[0].IMUX_C[4]              IO[0].TSDATA
 			// wire CELL[0].IMUX_C[6]              IO[0].LOADN
-			// wire CELL[0].IMUX_D[0]              IO[0].TXDATA0
-			// wire CELL[0].IMUX_D[2]              IO[0].TXDATA2
-			// wire CELL[0].IMUX_D[4]              IO[0].TXDATA4
-			// wire CELL[0].IMUX_D[6]              IO[0].TXDATA6
+			// wire CELL[0].IMUX_D[0]              IO[0].TXDATA[0]
+			// wire CELL[0].IMUX_D[2]              IO[0].TXDATA[2]
+			// wire CELL[0].IMUX_D[4]              IO[0].TXDATA[4]
+			// wire CELL[0].IMUX_D[6]              IO[0].TXDATA[6]
 			// wire CELL[0].IMUX_CLK[0]            IO[0].CLK
 			// wire CELL[0].IMUX_LSR[0]            IO[0].LSR
 			// wire CELL[0].IMUX_CE[0]             IO[0].CE
-			// wire CELL[0].OUT_F[0]               IO[0].RXDATA0
-			// wire CELL[0].OUT_F[1]               IO[0].RXDATA1
-			// wire CELL[0].OUT_F[2]               IO[0].RXDATA2
-			// wire CELL[0].OUT_F[3]               IO[0].RXDATA3
-			// wire CELL[0].OUT_F[4]               IO[0].RXDATA4
-			// wire CELL[0].OUT_F[5]               IO[0].RXDATA5
-			// wire CELL[0].OUT_F[6]               IO[0].RXDATA6
-			// wire CELL[0].OUT_F[7]               IO[0].RXDATA7
+			// wire CELL[0].OUT_F[0]               IO[0].RXDATA[0]
+			// wire CELL[0].OUT_F[1]               IO[0].RXDATA[1]
+			// wire CELL[0].OUT_F[2]               IO[0].RXDATA[2]
+			// wire CELL[0].OUT_F[3]               IO[0].RXDATA[3]
+			// wire CELL[0].OUT_F[4]               IO[0].RXDATA[4]
+			// wire CELL[0].OUT_F[5]               IO[0].RXDATA[5]
+			// wire CELL[0].OUT_F[6]               IO[0].RXDATA[6]
+			// wire CELL[0].OUT_F[7]               IO[0].RXDATA[7]
 			// wire CELL[0].OUT_Q[0]               IO[0].INFF
 			// wire CELL[0].OUT_Q[1]               IO[0].CFLAG
 			// wire CELL[0].OUT_Q[5]               IO[0].DI
 			// wire CELL[1].IMUX_A[0]              IO[1].DIRECTION
 			// wire CELL[1].IMUX_A[6]              IO[1].MOVE
-			// wire CELL[1].IMUX_B[0]              IO[0].TXDATA9 IO[1].TXDATA1
-			// wire CELL[1].IMUX_B[2]              IO[0].TXDATA11 IO[1].TXDATA3
-			// wire CELL[1].IMUX_B[4]              IO[0].TXDATA13 IO[1].TXDATA5
-			// wire CELL[1].IMUX_B[6]              IO[0].TXDATA15 IO[1].TXDATA7
+			// wire CELL[1].IMUX_B[0]              IO[0].TXDATA[9] IO[1].TXDATA[1]
+			// wire CELL[1].IMUX_B[2]              IO[0].TXDATA[11] IO[1].TXDATA[3]
+			// wire CELL[1].IMUX_B[4]              IO[0].TXDATA[13] IO[1].TXDATA[5]
+			// wire CELL[1].IMUX_B[6]              IO[0].TXDATA[15] IO[1].TXDATA[7]
 			// wire CELL[1].IMUX_C[0]              IO[1].SLIP
 			// wire CELL[1].IMUX_C[4]              IO[1].TSDATA
 			// wire CELL[1].IMUX_C[6]              IO[1].LOADN
-			// wire CELL[1].IMUX_D[0]              IO[0].TXDATA8 IO[1].TXDATA0
-			// wire CELL[1].IMUX_D[2]              IO[0].TXDATA10 IO[1].TXDATA2
-			// wire CELL[1].IMUX_D[4]              IO[0].TXDATA12 IO[1].TXDATA4
-			// wire CELL[1].IMUX_D[6]              IO[0].TXDATA14 IO[1].TXDATA6
+			// wire CELL[1].IMUX_D[0]              IO[0].TXDATA[8] IO[1].TXDATA[0]
+			// wire CELL[1].IMUX_D[2]              IO[0].TXDATA[10] IO[1].TXDATA[2]
+			// wire CELL[1].IMUX_D[4]              IO[0].TXDATA[12] IO[1].TXDATA[4]
+			// wire CELL[1].IMUX_D[6]              IO[0].TXDATA[14] IO[1].TXDATA[6]
 			// wire CELL[1].IMUX_CLK[0]            IO[1].CLK
 			// wire CELL[1].IMUX_LSR[0]            IO[1].LSR
 			// wire CELL[1].IMUX_CE[0]             IO[1].CE
-			// wire CELL[1].OUT_F[0]               IO[0].RXDATA8 IO[1].RXDATA0
-			// wire CELL[1].OUT_F[1]               IO[0].RXDATA9 IO[1].RXDATA1
-			// wire CELL[1].OUT_F[2]               IO[0].RXDATA10 IO[1].RXDATA2
-			// wire CELL[1].OUT_F[3]               IO[0].RXDATA11 IO[1].RXDATA3
-			// wire CELL[1].OUT_F[4]               IO[0].RXDATA12 IO[1].RXDATA4
-			// wire CELL[1].OUT_F[5]               IO[0].RXDATA13 IO[1].RXDATA5
-			// wire CELL[1].OUT_F[6]               IO[0].RXDATA14 IO[1].RXDATA6
-			// wire CELL[1].OUT_F[7]               IO[0].RXDATA15 IO[1].RXDATA7
+			// wire CELL[1].OUT_F[0]               IO[0].RXDATA[8] IO[1].RXDATA[0]
+			// wire CELL[1].OUT_F[1]               IO[0].RXDATA[9] IO[1].RXDATA[1]
+			// wire CELL[1].OUT_F[2]               IO[0].RXDATA[10] IO[1].RXDATA[2]
+			// wire CELL[1].OUT_F[3]               IO[0].RXDATA[11] IO[1].RXDATA[3]
+			// wire CELL[1].OUT_F[4]               IO[0].RXDATA[12] IO[1].RXDATA[4]
+			// wire CELL[1].OUT_F[5]               IO[0].RXDATA[13] IO[1].RXDATA[5]
+			// wire CELL[1].OUT_F[6]               IO[0].RXDATA[14] IO[1].RXDATA[6]
+			// wire CELL[1].OUT_F[7]               IO[0].RXDATA[15] IO[1].RXDATA[7]
 			// wire CELL[1].OUT_Q[0]               IO[1].INFF
 			// wire CELL[1].OUT_Q[1]               IO[1].CFLAG
 			// wire CELL[1].OUT_Q[5]               IO[1].DI
 			// wire CELL[2].IMUX_A[0]              IO[2].DIRECTION
 			// wire CELL[2].IMUX_A[4]              IO[2].HSSEL
 			// wire CELL[2].IMUX_A[6]              IO[2].MOVE
-			// wire CELL[2].IMUX_B[0]              IO[2].TXDATA1
-			// wire CELL[2].IMUX_B[2]              IO[2].TXDATA3
-			// wire CELL[2].IMUX_B[4]              IO[2].TXDATA5
-			// wire CELL[2].IMUX_B[6]              IO[2].TXDATA7
+			// wire CELL[2].IMUX_B[0]              IO[2].TXDATA[1]
+			// wire CELL[2].IMUX_B[2]              IO[2].TXDATA[3]
+			// wire CELL[2].IMUX_B[4]              IO[2].TXDATA[5]
+			// wire CELL[2].IMUX_B[6]              IO[2].TXDATA[7]
 			// wire CELL[2].IMUX_C[0]              IO[2].SLIP
 			// wire CELL[2].IMUX_C[4]              IO[2].TSDATA
 			// wire CELL[2].IMUX_C[6]              IO[2].LOADN
-			// wire CELL[2].IMUX_D[0]              IO[2].TXDATA0
-			// wire CELL[2].IMUX_D[2]              IO[2].TXDATA2
-			// wire CELL[2].IMUX_D[4]              IO[2].TXDATA4
-			// wire CELL[2].IMUX_D[6]              IO[2].TXDATA6
+			// wire CELL[2].IMUX_D[0]              IO[2].TXDATA[0]
+			// wire CELL[2].IMUX_D[2]              IO[2].TXDATA[2]
+			// wire CELL[2].IMUX_D[4]              IO[2].TXDATA[4]
+			// wire CELL[2].IMUX_D[6]              IO[2].TXDATA[6]
 			// wire CELL[2].IMUX_CLK[0]            IO[2].CLK
 			// wire CELL[2].IMUX_LSR[0]            IO[2].LSR
 			// wire CELL[2].IMUX_CE[0]             IO[2].CE
-			// wire CELL[2].OUT_F[0]               IO[2].RXDATA0
-			// wire CELL[2].OUT_F[1]               IO[2].RXDATA1
-			// wire CELL[2].OUT_F[2]               IO[2].RXDATA2
-			// wire CELL[2].OUT_F[3]               IO[2].RXDATA3
-			// wire CELL[2].OUT_F[4]               IO[2].RXDATA4
-			// wire CELL[2].OUT_F[5]               IO[2].RXDATA5
-			// wire CELL[2].OUT_F[6]               IO[2].RXDATA6
-			// wire CELL[2].OUT_F[7]               IO[2].RXDATA7
+			// wire CELL[2].OUT_F[0]               IO[2].RXDATA[0]
+			// wire CELL[2].OUT_F[1]               IO[2].RXDATA[1]
+			// wire CELL[2].OUT_F[2]               IO[2].RXDATA[2]
+			// wire CELL[2].OUT_F[3]               IO[2].RXDATA[3]
+			// wire CELL[2].OUT_F[4]               IO[2].RXDATA[4]
+			// wire CELL[2].OUT_F[5]               IO[2].RXDATA[5]
+			// wire CELL[2].OUT_F[6]               IO[2].RXDATA[6]
+			// wire CELL[2].OUT_F[7]               IO[2].RXDATA[7]
 			// wire CELL[2].OUT_Q[0]               IO[2].INFF
 			// wire CELL[2].OUT_Q[1]               IO[2].CFLAG
 			// wire CELL[2].OUT_Q[5]               IO[2].DI
 			// wire CELL[3].IMUX_A[0]              IO[3].DIRECTION
 			// wire CELL[3].IMUX_A[6]              IO[3].MOVE
-			// wire CELL[3].IMUX_B[0]              IO[2].TXDATA9 IO[3].TXDATA1
-			// wire CELL[3].IMUX_B[2]              IO[2].TXDATA11 IO[3].TXDATA3
-			// wire CELL[3].IMUX_B[4]              IO[2].TXDATA13 IO[3].TXDATA5
-			// wire CELL[3].IMUX_B[6]              IO[2].TXDATA15 IO[3].TXDATA7
+			// wire CELL[3].IMUX_B[0]              IO[2].TXDATA[9] IO[3].TXDATA[1]
+			// wire CELL[3].IMUX_B[2]              IO[2].TXDATA[11] IO[3].TXDATA[3]
+			// wire CELL[3].IMUX_B[4]              IO[2].TXDATA[13] IO[3].TXDATA[5]
+			// wire CELL[3].IMUX_B[6]              IO[2].TXDATA[15] IO[3].TXDATA[7]
 			// wire CELL[3].IMUX_C[0]              IO[3].SLIP
 			// wire CELL[3].IMUX_C[4]              IO[3].TSDATA
 			// wire CELL[3].IMUX_C[6]              IO[3].LOADN
-			// wire CELL[3].IMUX_D[0]              IO[2].TXDATA8 IO[3].TXDATA0
-			// wire CELL[3].IMUX_D[2]              IO[2].TXDATA10 IO[3].TXDATA2
-			// wire CELL[3].IMUX_D[4]              IO[2].TXDATA12 IO[3].TXDATA4
-			// wire CELL[3].IMUX_D[6]              IO[2].TXDATA14 IO[3].TXDATA6
+			// wire CELL[3].IMUX_D[0]              IO[2].TXDATA[8] IO[3].TXDATA[0]
+			// wire CELL[3].IMUX_D[2]              IO[2].TXDATA[10] IO[3].TXDATA[2]
+			// wire CELL[3].IMUX_D[4]              IO[2].TXDATA[12] IO[3].TXDATA[4]
+			// wire CELL[3].IMUX_D[6]              IO[2].TXDATA[14] IO[3].TXDATA[6]
 			// wire CELL[3].IMUX_CLK[0]            IO[3].CLK
 			// wire CELL[3].IMUX_LSR[0]            IO[3].LSR
 			// wire CELL[3].IMUX_CE[0]             IO[3].CE
-			// wire CELL[3].OUT_F[0]               IO[2].RXDATA8 IO[3].RXDATA0
-			// wire CELL[3].OUT_F[1]               IO[2].RXDATA9 IO[3].RXDATA1
-			// wire CELL[3].OUT_F[2]               IO[2].RXDATA10 IO[3].RXDATA2
-			// wire CELL[3].OUT_F[3]               IO[2].RXDATA11 IO[3].RXDATA3
-			// wire CELL[3].OUT_F[4]               IO[2].RXDATA12 IO[3].RXDATA4
-			// wire CELL[3].OUT_F[5]               IO[2].RXDATA13 IO[3].RXDATA5
-			// wire CELL[3].OUT_F[6]               IO[2].RXDATA14 IO[3].RXDATA6
-			// wire CELL[3].OUT_F[7]               IO[2].RXDATA15 IO[3].RXDATA7
+			// wire CELL[3].OUT_F[0]               IO[2].RXDATA[8] IO[3].RXDATA[0]
+			// wire CELL[3].OUT_F[1]               IO[2].RXDATA[9] IO[3].RXDATA[1]
+			// wire CELL[3].OUT_F[2]               IO[2].RXDATA[10] IO[3].RXDATA[2]
+			// wire CELL[3].OUT_F[3]               IO[2].RXDATA[11] IO[3].RXDATA[3]
+			// wire CELL[3].OUT_F[4]               IO[2].RXDATA[12] IO[3].RXDATA[4]
+			// wire CELL[3].OUT_F[5]               IO[2].RXDATA[13] IO[3].RXDATA[5]
+			// wire CELL[3].OUT_F[6]               IO[2].RXDATA[14] IO[3].RXDATA[6]
+			// wire CELL[3].OUT_F[7]               IO[2].RXDATA[15] IO[3].RXDATA[7]
 			// wire CELL[3].OUT_Q[0]               IO[3].INFF
 			// wire CELL[3].OUT_Q[1]               IO[3].CFLAG
 			// wire CELL[3].OUT_Q[5]               IO[3].DI
@@ -1678,16 +1909,16 @@ intdb {
 			cell CELL;
 
 			bel IO[0] {
-				input CE = IMUX_CE[0];
 				input CLK = IMUX_CLK[0];
+				input LSR = IMUX_LSR[0];
+				input CE = IMUX_CE[0];
+				input TSDATA = IMUX_B[0];
+				input TXDATA[0] = IMUX_A[3];
 				output DI = OUT_Q[5];
 				output INFF = OUT_F[1];
-				input LSR = IMUX_LSR[0];
-				input TSDATA = IMUX_B[0];
-				input TXDATA0 = IMUX_A[3];
 			}
 
-			// wire IMUX_A[3]                      IO[0].TXDATA0
+			// wire IMUX_A[3]                      IO[0].TXDATA[0]
 			// wire IMUX_B[0]                      IO[0].TSDATA
 			// wire IMUX_CLK[0]                    IO[0].CLK
 			// wire IMUX_LSR[0]                    IO[0].LSR
@@ -1700,16 +1931,16 @@ intdb {
 			cell CELL;
 
 			bel IO[0] {
-				input CE = IMUX_CE[0];
 				input CLK = IMUX_CLK[0];
+				input LSR = IMUX_LSR[0];
+				input CE = IMUX_CE[0];
+				input TSDATA = IMUX_B[0];
+				input TXDATA[0] = IMUX_A[0];
 				output DI = OUT_F[5];
 				output INFF = OUT_F[1];
-				input LSR = IMUX_LSR[0];
-				input TSDATA = IMUX_B[0];
-				input TXDATA0 = IMUX_A[0];
 			}
 
-			// wire IMUX_A[0]                      IO[0].TXDATA0
+			// wire IMUX_A[0]                      IO[0].TXDATA[0]
 			// wire IMUX_B[0]                      IO[0].TSDATA
 			// wire IMUX_CLK[0]                    IO[0].CLK
 			// wire IMUX_LSR[0]                    IO[0].LSR
@@ -1729,20 +1960,18 @@ intdb {
 		bel_slot EBR[1]: EBR;
 		bel_slot EBR[2]: EBR;
 		bel_slot EBR[3]: EBR;
-		bel_slot MIPI: legacy;
-		bel_slot CLKTEST_MIPI: legacy;
+		bel_slot MIPI: MIPI;
 		bel_slot PLL[0]: legacy;
 		bel_slot GSR: GSR;
 		bel_slot PLLREFCS[0]: legacy;
 		bel_slot DDRDLL: legacy;
-		bel_slot BCINRD: legacy;
-		bel_slot BCLVDSO: legacy;
+		bel_slot BCINRD: BCINRD;
+		bel_slot BCLVDSO: BCLVDSO;
 		bel_slot OSC: OSC;
-		bel_slot CFGTEST: legacy;
-		bel_slot PMU: legacy;
-		bel_slot PMUTEST: legacy;
-		bel_slot I2C: legacy;
-		bel_slot NVCMTEST: legacy;
+		bel_slot CFGTEST: CFGTEST;
+		bel_slot PMU: PMU;
+		bel_slot I2C: I2C;
+		bel_slot NVCMTEST: NVCMTEST;
 
 		tile_class PLC {
 			cell CELL;
@@ -2577,312 +2806,321 @@ intdb {
 			cell CELL[21];
 			cell CELL[22];
 			cell CELL[23];
+			cell IO[0];
+			cell IO[1];
+
+			switchbox BEL_INT {
+				mux CELL[0].IMUX_MIPI_CLKREF = CELL[11].IMUX_CLK[0] | IO[0].OUT_IO_PADDI[2] | IO[1].OUT_IO_PADDI[0];
+			}
 
 			bel MIPI {
+				input CLKREF = CELL[0].IMUX_MIPI_CLKREF;
 				input CLKCDEN = CELL[12].IMUX_D[4];
-				output CLKDCDN = CELL[12].OUT_F[4];
-				output CLKDRXHS = CELL[14].OUT_F[6];
-				output CLKDRXLPN = CELL[12].OUT_F[0];
-				output CLKDRXLPP = CELL[12].OUT_F[1];
 				input CLKDTXLPN = CELL[11].IMUX_C[0];
 				input CLKDTXLPP = CELL[11].IMUX_D[4];
-				output CLKHSBYTE = CELL[14].OUT_F[4];
-				input CLKREF = CELL[11].IMUX_CLK[0];
 				input CLKRXHSEN = CELL[13].IMUX_C[4];
 				input CLKRXLPEN = CELL[12].IMUX_C[4];
 				input CLKTXHSEN = CELL[12].IMUX_D[0];
 				input CLKTXHSGATE = CELL[10].IMUX_B[4];
 				input CLKTXHSPD = CELL[11].IMUX_C[4];
 				input CLKTXLPEN = CELL[10].IMUX_D[6];
-				input CM0 = CELL[11].IMUX_A[0];
-				input CM1 = CELL[11].IMUX_A[4];
-				input CM2 = CELL[11].IMUX_B[0];
-				input CM3 = CELL[11].IMUX_B[4];
-				input CM4 = CELL[12].IMUX_A[0];
-				input CM5 = CELL[12].IMUX_A[4];
-				input CM6 = CELL[12].IMUX_B[0];
-				input CM7 = CELL[12].IMUX_B[4];
-				input CN0 = CELL[9].IMUX_C[0];
-				input CN1 = CELL[9].IMUX_C[4];
-				input CN2 = CELL[10].IMUX_C[0];
-				input CN3 = CELL[10].IMUX_C[4];
-				input CN4 = CELL[10].IMUX_C[6];
-				input CO0 = CELL[14].IMUX_A[0];
-				input CO1 = CELL[14].IMUX_A[4];
+				input CM[0] = CELL[11].IMUX_A[0];
+				input CM[1] = CELL[11].IMUX_A[4];
+				input CM[2] = CELL[11].IMUX_B[0];
+				input CM[3] = CELL[11].IMUX_B[4];
+				input CM[4] = CELL[12].IMUX_A[0];
+				input CM[5] = CELL[12].IMUX_A[4];
+				input CM[6] = CELL[12].IMUX_B[0];
+				input CM[7] = CELL[12].IMUX_B[4];
+				input CN[0] = CELL[9].IMUX_C[0];
+				input CN[1] = CELL[9].IMUX_C[4];
+				input CN[2] = CELL[10].IMUX_C[0];
+				input CN[3] = CELL[10].IMUX_C[4];
+				input CN[4] = CELL[10].IMUX_C[6];
+				input CO[0] = CELL[14].IMUX_A[0];
+				input CO[1] = CELL[14].IMUX_A[4];
 				input D0CDEN = CELL[17].IMUX_A[3];
+				input D0DTXLPN = CELL[15].IMUX_C[4];
+				input D0DTXLPP = CELL[16].IMUX_A[4];
+				input D0HSDESEREN = CELL[18].IMUX_A[7];
+				input D0HSSEREN = CELL[14].IMUX_C[4];
+				input D0HSTXDATA[0] = CELL[15].IMUX_D[0];
+				input D0HSTXDATA[1] = CELL[15].IMUX_B[0];
+				input D0HSTXDATA[2] = CELL[15].IMUX_D[2];
+				input D0HSTXDATA[3] = CELL[15].IMUX_B[2];
+				input D0HSTXDATA[4] = CELL[15].IMUX_D[4];
+				input D0HSTXDATA[5] = CELL[15].IMUX_B[4];
+				input D0HSTXDATA[6] = CELL[15].IMUX_D[6];
+				input D0HSTXDATA[7] = CELL[15].IMUX_B[6];
+				input D0HSTXDATA[8] = CELL[16].IMUX_D[0];
+				input D0HSTXDATA[9] = CELL[16].IMUX_B[0];
+				input D0HSTXDATA[10] = CELL[16].IMUX_D[2];
+				input D0HSTXDATA[11] = CELL[16].IMUX_B[2];
+				input D0HSTXDATA[12] = CELL[16].IMUX_D[4];
+				input D0HSTXDATA[13] = CELL[16].IMUX_B[4];
+				input D0HSTXDATA[14] = CELL[16].IMUX_D[6];
+				input D0HSTXDATA[15] = CELL[16].IMUX_B[6];
+				input D0RXHSEN = CELL[18].IMUX_A[3];
+				input D0RXLPEN = CELL[16].IMUX_A[0];
+				input D0TXHSEN = CELL[16].IMUX_C[0];
+				input D0TXHSPD = CELL[15].IMUX_A[4];
+				input D0TXLPEN = CELL[15].IMUX_A[0];
+				input D1CDEN = CELL[8].IMUX_A[0];
+				input D1DTXLPN = CELL[6].IMUX_A[5];
+				input D1DTXLPP = CELL[6].IMUX_C[2];
+				input D1HSDESEREN = CELL[9].IMUX_A[4];
+				input D1HSSEREN = CELL[5].IMUX_A[0];
+				input D1HSTXDATA[0] = CELL[5].IMUX_D[0];
+				input D1HSTXDATA[1] = CELL[5].IMUX_B[0];
+				input D1HSTXDATA[2] = CELL[5].IMUX_D[2];
+				input D1HSTXDATA[3] = CELL[5].IMUX_B[2];
+				input D1HSTXDATA[4] = CELL[5].IMUX_D[4];
+				input D1HSTXDATA[5] = CELL[5].IMUX_B[4];
+				input D1HSTXDATA[6] = CELL[5].IMUX_D[6];
+				input D1HSTXDATA[7] = CELL[5].IMUX_B[6];
+				input D1HSTXDATA[8] = CELL[6].IMUX_D[0];
+				input D1HSTXDATA[9] = CELL[6].IMUX_B[0];
+				input D1HSTXDATA[10] = CELL[6].IMUX_D[2];
+				input D1HSTXDATA[11] = CELL[6].IMUX_B[2];
+				input D1HSTXDATA[12] = CELL[6].IMUX_D[4];
+				input D1HSTXDATA[13] = CELL[6].IMUX_B[4];
+				input D1HSTXDATA[14] = CELL[6].IMUX_D[6];
+				input D1HSTXDATA[15] = CELL[6].IMUX_B[6];
+				input D1RXHSEN = CELL[9].IMUX_A[0];
+				input D1RXLPEN = CELL[7].IMUX_C[2];
+				input D1TXHSEN = CELL[7].IMUX_D[0];
+				input D1TXHSPD = CELL[6].IMUX_A[2];
+				input D1TXLPEN = CELL[6].IMUX_A[0];
+				input D2CDEN = CELL[22].IMUX_A[4];
+				input D2DTXLPN = CELL[20].IMUX_C[4];
+				input D2DTXLPP = CELL[21].IMUX_A[5];
+				input D2HSDESEREN = CELL[23].IMUX_A[0];
+				input D2HSSEREN = CELL[19].IMUX_A[6];
+				input D2HSTXDATA[0] = CELL[20].IMUX_D[0];
+				input D2HSTXDATA[1] = CELL[20].IMUX_B[0];
+				input D2HSTXDATA[2] = CELL[20].IMUX_D[2];
+				input D2HSTXDATA[3] = CELL[20].IMUX_B[2];
+				input D2HSTXDATA[4] = CELL[20].IMUX_D[4];
+				input D2HSTXDATA[5] = CELL[20].IMUX_B[4];
+				input D2HSTXDATA[6] = CELL[20].IMUX_D[6];
+				input D2HSTXDATA[7] = CELL[20].IMUX_B[6];
+				input D2HSTXDATA[8] = CELL[21].IMUX_D[0];
+				input D2HSTXDATA[9] = CELL[21].IMUX_B[0];
+				input D2HSTXDATA[10] = CELL[21].IMUX_D[2];
+				input D2HSTXDATA[11] = CELL[21].IMUX_B[2];
+				input D2HSTXDATA[12] = CELL[21].IMUX_D[4];
+				input D2HSTXDATA[13] = CELL[21].IMUX_B[4];
+				input D2HSTXDATA[14] = CELL[21].IMUX_D[6];
+				input D2HSTXDATA[15] = CELL[21].IMUX_B[6];
+				input D2RXHSEN = CELL[23].IMUX_C[4];
+				input D2RXLPEN = CELL[21].IMUX_A[3];
+				input D2TXHSEN = CELL[21].IMUX_C[3];
+				input D2TXHSPD = CELL[20].IMUX_C[0];
+				input D2TXLPEN = CELL[20].IMUX_A[4];
+				input D3CDEN = CELL[3].IMUX_B[0];
+				input D3DTXLPN = CELL[1].IMUX_C[4];
+				input D3DTXLPP = CELL[2].IMUX_A[4];
+				input D3HSDESEREN = CELL[4].IMUX_C[4];
+				input D3HSSEREN = CELL[0].IMUX_A[4];
+				input D3HSTXDATA[0] = CELL[1].IMUX_D[0];
+				input D3HSTXDATA[1] = CELL[1].IMUX_B[0];
+				input D3HSTXDATA[2] = CELL[1].IMUX_D[2];
+				input D3HSTXDATA[3] = CELL[1].IMUX_B[2];
+				input D3HSTXDATA[4] = CELL[1].IMUX_D[4];
+				input D3HSTXDATA[5] = CELL[1].IMUX_B[4];
+				input D3HSTXDATA[6] = CELL[1].IMUX_D[6];
+				input D3HSTXDATA[7] = CELL[1].IMUX_B[6];
+				input D3HSTXDATA[8] = CELL[2].IMUX_D[0];
+				input D3HSTXDATA[9] = CELL[2].IMUX_B[0];
+				input D3HSTXDATA[10] = CELL[2].IMUX_D[2];
+				input D3HSTXDATA[11] = CELL[2].IMUX_B[2];
+				input D3HSTXDATA[12] = CELL[2].IMUX_D[4];
+				input D3HSTXDATA[13] = CELL[2].IMUX_B[4];
+				input D3HSTXDATA[14] = CELL[2].IMUX_D[6];
+				input D3HSTXDATA[15] = CELL[2].IMUX_B[6];
+				input D3RXHSEN = CELL[4].IMUX_C[0];
+				input D3RXLPEN = CELL[2].IMUX_C[4];
+				input D3TXHSEN = CELL[3].IMUX_A[1];
+				input D3TXHSPD = CELL[1].IMUX_C[2];
+				input D3TXLPEN = CELL[1].IMUX_A[2];
+				input LBEN = CELL[9].IMUX_B[0];
+				input PDBIAS = CELL[0].IMUX_C[4];
+				input PDCKG = CELL[9].IMUX_B[4];
+				input PDDPHY = CELL[10].IMUX_B[0];
+				input PDPLL = CELL[14].IMUX_C[0];
+				input TST[0] = CELL[9].IMUX_D[0];
+				input TST[1] = CELL[9].IMUX_D[4];
+				input TST[2] = CELL[10].IMUX_D[0];
+				input TST[3] = CELL[10].IMUX_D[4];
+				input CLKTEST_TESTIN[0] = CELL[11].IMUX_B[7];
+				input CLKTEST_TESTIN[1] = CELL[11].IMUX_C[7];
+				output CLKHSBYTE = CELL[0].OUT_MIPI_CLKHSBYTE, CELL[14].OUT_F[4];
+				output HSBYTECLKS = CELL[0].OUT_MIPI_HSBYTECLKS;
+				output HSBYTECLKD = CELL[0].OUT_MIPI_HSBYTECLKD;
+				output CLKDCDN = CELL[12].OUT_F[4];
+				output CLKDRXHS = CELL[14].OUT_F[6];
+				output CLKDRXLPN = CELL[12].OUT_F[0];
+				output CLKDRXLPP = CELL[12].OUT_F[1];
 				output D0DCDN = CELL[17].OUT_Q[1];
 				output D0DCDP = CELL[17].OUT_Q[0];
 				output D0DRXHS = CELL[19].OUT_F[1];
 				output D0DRXLPN = CELL[16].OUT_F[0];
 				output D0DRXLPP = CELL[16].OUT_F[1];
-				input D0DTXLPN = CELL[15].IMUX_C[4];
-				input D0DTXLPP = CELL[16].IMUX_A[4];
 				output D0ERRSYNC = CELL[18].OUT_Q[5];
-				input D0HSDESEREN = CELL[18].IMUX_A[7];
-				output D0HSRXDATA0 = CELL[17].OUT_F[0];
-				output D0HSRXDATA1 = CELL[17].OUT_F[1];
-				output D0HSRXDATA10 = CELL[18].OUT_F[2];
-				output D0HSRXDATA11 = CELL[18].OUT_F[3];
-				output D0HSRXDATA12 = CELL[18].OUT_F[4];
-				output D0HSRXDATA13 = CELL[18].OUT_F[5];
-				output D0HSRXDATA14 = CELL[18].OUT_F[6];
-				output D0HSRXDATA15 = CELL[18].OUT_F[7];
-				output D0HSRXDATA2 = CELL[17].OUT_F[2];
-				output D0HSRXDATA3 = CELL[17].OUT_F[3];
-				output D0HSRXDATA4 = CELL[17].OUT_F[4];
-				output D0HSRXDATA5 = CELL[17].OUT_F[5];
-				output D0HSRXDATA6 = CELL[17].OUT_F[6];
-				output D0HSRXDATA7 = CELL[17].OUT_F[7];
-				output D0HSRXDATA8 = CELL[18].OUT_F[0];
-				output D0HSRXDATA9 = CELL[18].OUT_F[1];
-				input D0HSSEREN = CELL[14].IMUX_C[4];
-				input D0HSTXDATA0 = CELL[15].IMUX_D[0];
-				input D0HSTXDATA1 = CELL[15].IMUX_B[0];
-				input D0HSTXDATA10 = CELL[16].IMUX_D[2];
-				input D0HSTXDATA11 = CELL[16].IMUX_B[2];
-				input D0HSTXDATA12 = CELL[16].IMUX_D[4];
-				input D0HSTXDATA13 = CELL[16].IMUX_B[4];
-				input D0HSTXDATA14 = CELL[16].IMUX_D[6];
-				input D0HSTXDATA15 = CELL[16].IMUX_B[6];
-				input D0HSTXDATA2 = CELL[15].IMUX_D[2];
-				input D0HSTXDATA3 = CELL[15].IMUX_B[2];
-				input D0HSTXDATA4 = CELL[15].IMUX_D[4];
-				input D0HSTXDATA5 = CELL[15].IMUX_B[4];
-				input D0HSTXDATA6 = CELL[15].IMUX_D[6];
-				input D0HSTXDATA7 = CELL[15].IMUX_B[6];
-				input D0HSTXDATA8 = CELL[16].IMUX_D[0];
-				input D0HSTXDATA9 = CELL[16].IMUX_B[0];
+				output D0HSRXDATA[0] = CELL[17].OUT_F[0];
+				output D0HSRXDATA[1] = CELL[17].OUT_F[1];
+				output D0HSRXDATA[2] = CELL[17].OUT_F[2];
+				output D0HSRXDATA[3] = CELL[17].OUT_F[3];
+				output D0HSRXDATA[4] = CELL[17].OUT_F[4];
+				output D0HSRXDATA[5] = CELL[17].OUT_F[5];
+				output D0HSRXDATA[6] = CELL[17].OUT_F[6];
+				output D0HSRXDATA[7] = CELL[17].OUT_F[7];
+				output D0HSRXDATA[8] = CELL[18].OUT_F[0];
+				output D0HSRXDATA[9] = CELL[18].OUT_F[1];
+				output D0HSRXDATA[10] = CELL[18].OUT_F[2];
+				output D0HSRXDATA[11] = CELL[18].OUT_F[3];
+				output D0HSRXDATA[12] = CELL[18].OUT_F[4];
+				output D0HSRXDATA[13] = CELL[18].OUT_F[5];
+				output D0HSRXDATA[14] = CELL[18].OUT_F[6];
+				output D0HSRXDATA[15] = CELL[18].OUT_F[7];
 				output D0NOSYNC = CELL[16].OUT_F[3];
-				input D0RXHSEN = CELL[18].IMUX_A[3];
-				input D0RXLPEN = CELL[16].IMUX_A[0];
 				output D0SYNC = CELL[18].OUT_Q[4];
-				input D0TXHSEN = CELL[16].IMUX_C[0];
-				input D0TXHSPD = CELL[15].IMUX_A[4];
-				input D0TXLPEN = CELL[15].IMUX_A[0];
-				input D1CDEN = CELL[8].IMUX_A[0];
 				output D1DCDN = CELL[7].OUT_F[4];
 				output D1DCDP = CELL[7].OUT_F[3];
 				output D1DRXHS = CELL[5].OUT_F[1];
 				output D1DRXLPN = CELL[7].OUT_F[0];
 				output D1DRXLPP = CELL[7].OUT_F[1];
-				input D1DTXLPN = CELL[6].IMUX_A[5];
-				input D1DTXLPP = CELL[6].IMUX_C[2];
 				output D1ERRSYNC = CELL[9].OUT_Q[1];
-				input D1HSDESEREN = CELL[9].IMUX_A[4];
-				output D1HSRXDATA0 = CELL[8].OUT_F[0];
-				output D1HSRXDATA1 = CELL[8].OUT_F[1];
-				output D1HSRXDATA10 = CELL[9].OUT_F[2];
-				output D1HSRXDATA11 = CELL[9].OUT_F[3];
-				output D1HSRXDATA12 = CELL[9].OUT_F[4];
-				output D1HSRXDATA13 = CELL[9].OUT_F[5];
-				output D1HSRXDATA14 = CELL[9].OUT_F[6];
-				output D1HSRXDATA15 = CELL[9].OUT_F[7];
-				output D1HSRXDATA2 = CELL[8].OUT_F[2];
-				output D1HSRXDATA3 = CELL[8].OUT_F[3];
-				output D1HSRXDATA4 = CELL[8].OUT_F[4];
-				output D1HSRXDATA5 = CELL[8].OUT_F[5];
-				output D1HSRXDATA6 = CELL[8].OUT_F[6];
-				output D1HSRXDATA7 = CELL[8].OUT_F[7];
-				output D1HSRXDATA8 = CELL[9].OUT_F[0];
-				output D1HSRXDATA9 = CELL[9].OUT_F[1];
-				input D1HSSEREN = CELL[5].IMUX_A[0];
-				input D1HSTXDATA0 = CELL[5].IMUX_D[0];
-				input D1HSTXDATA1 = CELL[5].IMUX_B[0];
-				input D1HSTXDATA10 = CELL[6].IMUX_D[2];
-				input D1HSTXDATA11 = CELL[6].IMUX_B[2];
-				input D1HSTXDATA12 = CELL[6].IMUX_D[4];
-				input D1HSTXDATA13 = CELL[6].IMUX_B[4];
-				input D1HSTXDATA14 = CELL[6].IMUX_D[6];
-				input D1HSTXDATA15 = CELL[6].IMUX_B[6];
-				input D1HSTXDATA2 = CELL[5].IMUX_D[2];
-				input D1HSTXDATA3 = CELL[5].IMUX_B[2];
-				input D1HSTXDATA4 = CELL[5].IMUX_D[4];
-				input D1HSTXDATA5 = CELL[5].IMUX_B[4];
-				input D1HSTXDATA6 = CELL[5].IMUX_D[6];
-				input D1HSTXDATA7 = CELL[5].IMUX_B[6];
-				input D1HSTXDATA8 = CELL[6].IMUX_D[0];
-				input D1HSTXDATA9 = CELL[6].IMUX_B[0];
+				output D1HSRXDATA[0] = CELL[8].OUT_F[0];
+				output D1HSRXDATA[1] = CELL[8].OUT_F[1];
+				output D1HSRXDATA[2] = CELL[8].OUT_F[2];
+				output D1HSRXDATA[3] = CELL[8].OUT_F[3];
+				output D1HSRXDATA[4] = CELL[8].OUT_F[4];
+				output D1HSRXDATA[5] = CELL[8].OUT_F[5];
+				output D1HSRXDATA[6] = CELL[8].OUT_F[6];
+				output D1HSRXDATA[7] = CELL[8].OUT_F[7];
+				output D1HSRXDATA[8] = CELL[9].OUT_F[0];
+				output D1HSRXDATA[9] = CELL[9].OUT_F[1];
+				output D1HSRXDATA[10] = CELL[9].OUT_F[2];
+				output D1HSRXDATA[11] = CELL[9].OUT_F[3];
+				output D1HSRXDATA[12] = CELL[9].OUT_F[4];
+				output D1HSRXDATA[13] = CELL[9].OUT_F[5];
+				output D1HSRXDATA[14] = CELL[9].OUT_F[6];
+				output D1HSRXDATA[15] = CELL[9].OUT_F[7];
 				output D1NOSYNC = CELL[7].OUT_F[2];
-				input D1RXHSEN = CELL[9].IMUX_A[0];
-				input D1RXLPEN = CELL[7].IMUX_C[2];
 				output D1SYNC = CELL[9].OUT_Q[0];
-				input D1TXHSEN = CELL[7].IMUX_D[0];
-				input D1TXHSPD = CELL[6].IMUX_A[2];
-				input D1TXLPEN = CELL[6].IMUX_A[0];
-				input D2CDEN = CELL[22].IMUX_A[4];
 				output D2DCDN = CELL[22].OUT_Q[4];
 				output D2DCDP = CELL[22].OUT_Q[1];
 				output D2DRXHS = CELL[19].OUT_F[6];
 				output D2DRXLPN = CELL[21].OUT_F[0];
 				output D2DRXLPP = CELL[21].OUT_F[1];
-				input D2DTXLPN = CELL[20].IMUX_C[4];
-				input D2DTXLPP = CELL[21].IMUX_A[5];
 				output D2ERRSYNC = CELL[23].OUT_Q[4];
-				input D2HSDESEREN = CELL[23].IMUX_A[0];
-				output D2HSRXDATA0 = CELL[22].OUT_F[0];
-				output D2HSRXDATA1 = CELL[22].OUT_F[1];
-				output D2HSRXDATA10 = CELL[23].OUT_F[2];
-				output D2HSRXDATA11 = CELL[23].OUT_F[3];
-				output D2HSRXDATA12 = CELL[23].OUT_F[4];
-				output D2HSRXDATA13 = CELL[23].OUT_F[5];
-				output D2HSRXDATA14 = CELL[23].OUT_F[6];
-				output D2HSRXDATA15 = CELL[23].OUT_F[7];
-				output D2HSRXDATA2 = CELL[22].OUT_F[2];
-				output D2HSRXDATA3 = CELL[22].OUT_F[3];
-				output D2HSRXDATA4 = CELL[22].OUT_F[4];
-				output D2HSRXDATA5 = CELL[22].OUT_F[5];
-				output D2HSRXDATA6 = CELL[22].OUT_F[6];
-				output D2HSRXDATA7 = CELL[22].OUT_F[7];
-				output D2HSRXDATA8 = CELL[23].OUT_F[0];
-				output D2HSRXDATA9 = CELL[23].OUT_F[1];
-				input D2HSSEREN = CELL[19].IMUX_A[6];
-				input D2HSTXDATA0 = CELL[20].IMUX_D[0];
-				input D2HSTXDATA1 = CELL[20].IMUX_B[0];
-				input D2HSTXDATA10 = CELL[21].IMUX_D[2];
-				input D2HSTXDATA11 = CELL[21].IMUX_B[2];
-				input D2HSTXDATA12 = CELL[21].IMUX_D[4];
-				input D2HSTXDATA13 = CELL[21].IMUX_B[4];
-				input D2HSTXDATA14 = CELL[21].IMUX_D[6];
-				input D2HSTXDATA15 = CELL[21].IMUX_B[6];
-				input D2HSTXDATA2 = CELL[20].IMUX_D[2];
-				input D2HSTXDATA3 = CELL[20].IMUX_B[2];
-				input D2HSTXDATA4 = CELL[20].IMUX_D[4];
-				input D2HSTXDATA5 = CELL[20].IMUX_B[4];
-				input D2HSTXDATA6 = CELL[20].IMUX_D[6];
-				input D2HSTXDATA7 = CELL[20].IMUX_B[6];
-				input D2HSTXDATA8 = CELL[21].IMUX_D[0];
-				input D2HSTXDATA9 = CELL[21].IMUX_B[0];
+				output D2HSRXDATA[0] = CELL[22].OUT_F[0];
+				output D2HSRXDATA[1] = CELL[22].OUT_F[1];
+				output D2HSRXDATA[2] = CELL[22].OUT_F[2];
+				output D2HSRXDATA[3] = CELL[22].OUT_F[3];
+				output D2HSRXDATA[4] = CELL[22].OUT_F[4];
+				output D2HSRXDATA[5] = CELL[22].OUT_F[5];
+				output D2HSRXDATA[6] = CELL[22].OUT_F[6];
+				output D2HSRXDATA[7] = CELL[22].OUT_F[7];
+				output D2HSRXDATA[8] = CELL[23].OUT_F[0];
+				output D2HSRXDATA[9] = CELL[23].OUT_F[1];
+				output D2HSRXDATA[10] = CELL[23].OUT_F[2];
+				output D2HSRXDATA[11] = CELL[23].OUT_F[3];
+				output D2HSRXDATA[12] = CELL[23].OUT_F[4];
+				output D2HSRXDATA[13] = CELL[23].OUT_F[5];
+				output D2HSRXDATA[14] = CELL[23].OUT_F[6];
+				output D2HSRXDATA[15] = CELL[23].OUT_F[7];
 				output D2NOSYNC = CELL[22].OUT_Q[0];
-				input D2RXHSEN = CELL[23].IMUX_C[4];
-				input D2RXLPEN = CELL[21].IMUX_A[3];
 				output D2SYNC = CELL[23].OUT_Q[3];
-				input D2TXHSEN = CELL[21].IMUX_C[3];
-				input D2TXHSPD = CELL[20].IMUX_C[0];
-				input D2TXLPEN = CELL[20].IMUX_A[4];
-				input D3CDEN = CELL[3].IMUX_B[0];
 				output D3DCDN = CELL[3].OUT_Q[4];
 				output D3DCDP = CELL[3].OUT_Q[1];
 				output D3DRXHS = CELL[5].OUT_F[6];
 				output D3DRXLPN = CELL[2].OUT_F[0];
 				output D3DRXLPP = CELL[2].OUT_F[1];
-				input D3DTXLPN = CELL[1].IMUX_C[4];
-				input D3DTXLPP = CELL[2].IMUX_A[4];
 				output D3ERRSYNC = CELL[5].OUT_F[0];
-				input D3HSDESEREN = CELL[4].IMUX_C[4];
-				output D3HSRXDATA0 = CELL[3].OUT_F[0];
-				output D3HSRXDATA1 = CELL[3].OUT_F[1];
-				output D3HSRXDATA10 = CELL[4].OUT_F[2];
-				output D3HSRXDATA11 = CELL[4].OUT_F[3];
-				output D3HSRXDATA12 = CELL[4].OUT_F[4];
-				output D3HSRXDATA13 = CELL[4].OUT_F[5];
-				output D3HSRXDATA14 = CELL[4].OUT_F[6];
-				output D3HSRXDATA15 = CELL[4].OUT_F[7];
-				output D3HSRXDATA2 = CELL[3].OUT_F[2];
-				output D3HSRXDATA3 = CELL[3].OUT_F[3];
-				output D3HSRXDATA4 = CELL[3].OUT_F[4];
-				output D3HSRXDATA5 = CELL[3].OUT_F[5];
-				output D3HSRXDATA6 = CELL[3].OUT_F[6];
-				output D3HSRXDATA7 = CELL[3].OUT_F[7];
-				output D3HSRXDATA8 = CELL[4].OUT_F[0];
-				output D3HSRXDATA9 = CELL[4].OUT_F[1];
-				input D3HSSEREN = CELL[0].IMUX_A[4];
-				input D3HSTXDATA0 = CELL[1].IMUX_D[0];
-				input D3HSTXDATA1 = CELL[1].IMUX_B[0];
-				input D3HSTXDATA10 = CELL[2].IMUX_D[2];
-				input D3HSTXDATA11 = CELL[2].IMUX_B[2];
-				input D3HSTXDATA12 = CELL[2].IMUX_D[4];
-				input D3HSTXDATA13 = CELL[2].IMUX_B[4];
-				input D3HSTXDATA14 = CELL[2].IMUX_D[6];
-				input D3HSTXDATA15 = CELL[2].IMUX_B[6];
-				input D3HSTXDATA2 = CELL[1].IMUX_D[2];
-				input D3HSTXDATA3 = CELL[1].IMUX_B[2];
-				input D3HSTXDATA4 = CELL[1].IMUX_D[4];
-				input D3HSTXDATA5 = CELL[1].IMUX_B[4];
-				input D3HSTXDATA6 = CELL[1].IMUX_D[6];
-				input D3HSTXDATA7 = CELL[1].IMUX_B[6];
-				input D3HSTXDATA8 = CELL[2].IMUX_D[0];
-				input D3HSTXDATA9 = CELL[2].IMUX_B[0];
+				output D3HSRXDATA[0] = CELL[3].OUT_F[0];
+				output D3HSRXDATA[1] = CELL[3].OUT_F[1];
+				output D3HSRXDATA[2] = CELL[3].OUT_F[2];
+				output D3HSRXDATA[3] = CELL[3].OUT_F[3];
+				output D3HSRXDATA[4] = CELL[3].OUT_F[4];
+				output D3HSRXDATA[5] = CELL[3].OUT_F[5];
+				output D3HSRXDATA[6] = CELL[3].OUT_F[6];
+				output D3HSRXDATA[7] = CELL[3].OUT_F[7];
+				output D3HSRXDATA[8] = CELL[4].OUT_F[0];
+				output D3HSRXDATA[9] = CELL[4].OUT_F[1];
+				output D3HSRXDATA[10] = CELL[4].OUT_F[2];
+				output D3HSRXDATA[11] = CELL[4].OUT_F[3];
+				output D3HSRXDATA[12] = CELL[4].OUT_F[4];
+				output D3HSRXDATA[13] = CELL[4].OUT_F[5];
+				output D3HSRXDATA[14] = CELL[4].OUT_F[6];
+				output D3HSRXDATA[15] = CELL[4].OUT_F[7];
 				output D3NOSYNC = CELL[3].OUT_Q[0];
-				input D3RXHSEN = CELL[4].IMUX_C[0];
-				input D3RXLPEN = CELL[2].IMUX_C[4];
 				output D3SYNC = CELL[5].OUT_F[4];
-				input D3TXHSEN = CELL[3].IMUX_A[1];
-				input D3TXHSPD = CELL[1].IMUX_C[2];
-				input D3TXLPEN = CELL[1].IMUX_A[2];
-				input LBEN = CELL[9].IMUX_B[0];
 				output LOCK = CELL[13].OUT_F[0];
-				input PDBIAS = CELL[0].IMUX_C[4];
-				input PDCKG = CELL[9].IMUX_B[4];
-				input PDDPHY = CELL[10].IMUX_B[0];
-				input PDPLL = CELL[14].IMUX_C[0];
-				input TST0 = CELL[9].IMUX_D[0];
-				input TST1 = CELL[9].IMUX_D[4];
-				input TST2 = CELL[10].IMUX_D[0];
-				input TST3 = CELL[10].IMUX_D[4];
-			}
-
-			bel CLKTEST_MIPI {
-				input TESTIN0 = CELL[11].IMUX_B[7];
-				input TESTIN1 = CELL[11].IMUX_C[7];
 			}
 
 			// wire CELL[0].IMUX_A[4]              MIPI.D3HSSEREN
 			// wire CELL[0].IMUX_C[4]              MIPI.PDBIAS
+			// wire CELL[0].IMUX_MIPI_CLKREF       MIPI.CLKREF
+			// wire CELL[0].OUT_MIPI_CLKHSBYTE     MIPI.CLKHSBYTE
+			// wire CELL[0].OUT_MIPI_HSBYTECLKS    MIPI.HSBYTECLKS
+			// wire CELL[0].OUT_MIPI_HSBYTECLKD    MIPI.HSBYTECLKD
 			// wire CELL[1].IMUX_A[2]              MIPI.D3TXLPEN
-			// wire CELL[1].IMUX_B[0]              MIPI.D3HSTXDATA1
-			// wire CELL[1].IMUX_B[2]              MIPI.D3HSTXDATA3
-			// wire CELL[1].IMUX_B[4]              MIPI.D3HSTXDATA5
-			// wire CELL[1].IMUX_B[6]              MIPI.D3HSTXDATA7
+			// wire CELL[1].IMUX_B[0]              MIPI.D3HSTXDATA[1]
+			// wire CELL[1].IMUX_B[2]              MIPI.D3HSTXDATA[3]
+			// wire CELL[1].IMUX_B[4]              MIPI.D3HSTXDATA[5]
+			// wire CELL[1].IMUX_B[6]              MIPI.D3HSTXDATA[7]
 			// wire CELL[1].IMUX_C[2]              MIPI.D3TXHSPD
 			// wire CELL[1].IMUX_C[4]              MIPI.D3DTXLPN
-			// wire CELL[1].IMUX_D[0]              MIPI.D3HSTXDATA0
-			// wire CELL[1].IMUX_D[2]              MIPI.D3HSTXDATA2
-			// wire CELL[1].IMUX_D[4]              MIPI.D3HSTXDATA4
-			// wire CELL[1].IMUX_D[6]              MIPI.D3HSTXDATA6
+			// wire CELL[1].IMUX_D[0]              MIPI.D3HSTXDATA[0]
+			// wire CELL[1].IMUX_D[2]              MIPI.D3HSTXDATA[2]
+			// wire CELL[1].IMUX_D[4]              MIPI.D3HSTXDATA[4]
+			// wire CELL[1].IMUX_D[6]              MIPI.D3HSTXDATA[6]
 			// wire CELL[2].IMUX_A[4]              MIPI.D3DTXLPP
-			// wire CELL[2].IMUX_B[0]              MIPI.D3HSTXDATA9
-			// wire CELL[2].IMUX_B[2]              MIPI.D3HSTXDATA11
-			// wire CELL[2].IMUX_B[4]              MIPI.D3HSTXDATA13
-			// wire CELL[2].IMUX_B[6]              MIPI.D3HSTXDATA15
+			// wire CELL[2].IMUX_B[0]              MIPI.D3HSTXDATA[9]
+			// wire CELL[2].IMUX_B[2]              MIPI.D3HSTXDATA[11]
+			// wire CELL[2].IMUX_B[4]              MIPI.D3HSTXDATA[13]
+			// wire CELL[2].IMUX_B[6]              MIPI.D3HSTXDATA[15]
 			// wire CELL[2].IMUX_C[4]              MIPI.D3RXLPEN
-			// wire CELL[2].IMUX_D[0]              MIPI.D3HSTXDATA8
-			// wire CELL[2].IMUX_D[2]              MIPI.D3HSTXDATA10
-			// wire CELL[2].IMUX_D[4]              MIPI.D3HSTXDATA12
-			// wire CELL[2].IMUX_D[6]              MIPI.D3HSTXDATA14
+			// wire CELL[2].IMUX_D[0]              MIPI.D3HSTXDATA[8]
+			// wire CELL[2].IMUX_D[2]              MIPI.D3HSTXDATA[10]
+			// wire CELL[2].IMUX_D[4]              MIPI.D3HSTXDATA[12]
+			// wire CELL[2].IMUX_D[6]              MIPI.D3HSTXDATA[14]
 			// wire CELL[2].OUT_F[0]               MIPI.D3DRXLPN
 			// wire CELL[2].OUT_F[1]               MIPI.D3DRXLPP
 			// wire CELL[3].IMUX_A[1]              MIPI.D3TXHSEN
 			// wire CELL[3].IMUX_B[0]              MIPI.D3CDEN
-			// wire CELL[3].OUT_F[0]               MIPI.D3HSRXDATA0
-			// wire CELL[3].OUT_F[1]               MIPI.D3HSRXDATA1
-			// wire CELL[3].OUT_F[2]               MIPI.D3HSRXDATA2
-			// wire CELL[3].OUT_F[3]               MIPI.D3HSRXDATA3
-			// wire CELL[3].OUT_F[4]               MIPI.D3HSRXDATA4
-			// wire CELL[3].OUT_F[5]               MIPI.D3HSRXDATA5
-			// wire CELL[3].OUT_F[6]               MIPI.D3HSRXDATA6
-			// wire CELL[3].OUT_F[7]               MIPI.D3HSRXDATA7
+			// wire CELL[3].OUT_F[0]               MIPI.D3HSRXDATA[0]
+			// wire CELL[3].OUT_F[1]               MIPI.D3HSRXDATA[1]
+			// wire CELL[3].OUT_F[2]               MIPI.D3HSRXDATA[2]
+			// wire CELL[3].OUT_F[3]               MIPI.D3HSRXDATA[3]
+			// wire CELL[3].OUT_F[4]               MIPI.D3HSRXDATA[4]
+			// wire CELL[3].OUT_F[5]               MIPI.D3HSRXDATA[5]
+			// wire CELL[3].OUT_F[6]               MIPI.D3HSRXDATA[6]
+			// wire CELL[3].OUT_F[7]               MIPI.D3HSRXDATA[7]
 			// wire CELL[3].OUT_Q[0]               MIPI.D3NOSYNC
 			// wire CELL[3].OUT_Q[1]               MIPI.D3DCDP
 			// wire CELL[3].OUT_Q[4]               MIPI.D3DCDN
 			// wire CELL[4].IMUX_C[0]              MIPI.D3RXHSEN
 			// wire CELL[4].IMUX_C[4]              MIPI.D3HSDESEREN
-			// wire CELL[4].OUT_F[0]               MIPI.D3HSRXDATA8
-			// wire CELL[4].OUT_F[1]               MIPI.D3HSRXDATA9
-			// wire CELL[4].OUT_F[2]               MIPI.D3HSRXDATA10
-			// wire CELL[4].OUT_F[3]               MIPI.D3HSRXDATA11
-			// wire CELL[4].OUT_F[4]               MIPI.D3HSRXDATA12
-			// wire CELL[4].OUT_F[5]               MIPI.D3HSRXDATA13
-			// wire CELL[4].OUT_F[6]               MIPI.D3HSRXDATA14
-			// wire CELL[4].OUT_F[7]               MIPI.D3HSRXDATA15
+			// wire CELL[4].OUT_F[0]               MIPI.D3HSRXDATA[8]
+			// wire CELL[4].OUT_F[1]               MIPI.D3HSRXDATA[9]
+			// wire CELL[4].OUT_F[2]               MIPI.D3HSRXDATA[10]
+			// wire CELL[4].OUT_F[3]               MIPI.D3HSRXDATA[11]
+			// wire CELL[4].OUT_F[4]               MIPI.D3HSRXDATA[12]
+			// wire CELL[4].OUT_F[5]               MIPI.D3HSRXDATA[13]
+			// wire CELL[4].OUT_F[6]               MIPI.D3HSRXDATA[14]
+			// wire CELL[4].OUT_F[7]               MIPI.D3HSRXDATA[15]
 			// wire CELL[5].IMUX_A[0]              MIPI.D1HSSEREN
-			// wire CELL[5].IMUX_B[0]              MIPI.D1HSTXDATA1
-			// wire CELL[5].IMUX_B[2]              MIPI.D1HSTXDATA3
-			// wire CELL[5].IMUX_B[4]              MIPI.D1HSTXDATA5
-			// wire CELL[5].IMUX_B[6]              MIPI.D1HSTXDATA7
-			// wire CELL[5].IMUX_D[0]              MIPI.D1HSTXDATA0
-			// wire CELL[5].IMUX_D[2]              MIPI.D1HSTXDATA2
-			// wire CELL[5].IMUX_D[4]              MIPI.D1HSTXDATA4
-			// wire CELL[5].IMUX_D[6]              MIPI.D1HSTXDATA6
+			// wire CELL[5].IMUX_B[0]              MIPI.D1HSTXDATA[1]
+			// wire CELL[5].IMUX_B[2]              MIPI.D1HSTXDATA[3]
+			// wire CELL[5].IMUX_B[4]              MIPI.D1HSTXDATA[5]
+			// wire CELL[5].IMUX_B[6]              MIPI.D1HSTXDATA[7]
+			// wire CELL[5].IMUX_D[0]              MIPI.D1HSTXDATA[0]
+			// wire CELL[5].IMUX_D[2]              MIPI.D1HSTXDATA[2]
+			// wire CELL[5].IMUX_D[4]              MIPI.D1HSTXDATA[4]
+			// wire CELL[5].IMUX_D[6]              MIPI.D1HSTXDATA[6]
 			// wire CELL[5].OUT_F[0]               MIPI.D3ERRSYNC
 			// wire CELL[5].OUT_F[1]               MIPI.D1DRXHS
 			// wire CELL[5].OUT_F[4]               MIPI.D3SYNC
@@ -2890,15 +3128,15 @@ intdb {
 			// wire CELL[6].IMUX_A[0]              MIPI.D1TXLPEN
 			// wire CELL[6].IMUX_A[2]              MIPI.D1TXHSPD
 			// wire CELL[6].IMUX_A[5]              MIPI.D1DTXLPN
-			// wire CELL[6].IMUX_B[0]              MIPI.D1HSTXDATA9
-			// wire CELL[6].IMUX_B[2]              MIPI.D1HSTXDATA11
-			// wire CELL[6].IMUX_B[4]              MIPI.D1HSTXDATA13
-			// wire CELL[6].IMUX_B[6]              MIPI.D1HSTXDATA15
+			// wire CELL[6].IMUX_B[0]              MIPI.D1HSTXDATA[9]
+			// wire CELL[6].IMUX_B[2]              MIPI.D1HSTXDATA[11]
+			// wire CELL[6].IMUX_B[4]              MIPI.D1HSTXDATA[13]
+			// wire CELL[6].IMUX_B[6]              MIPI.D1HSTXDATA[15]
 			// wire CELL[6].IMUX_C[2]              MIPI.D1DTXLPP
-			// wire CELL[6].IMUX_D[0]              MIPI.D1HSTXDATA8
-			// wire CELL[6].IMUX_D[2]              MIPI.D1HSTXDATA10
-			// wire CELL[6].IMUX_D[4]              MIPI.D1HSTXDATA12
-			// wire CELL[6].IMUX_D[6]              MIPI.D1HSTXDATA14
+			// wire CELL[6].IMUX_D[0]              MIPI.D1HSTXDATA[8]
+			// wire CELL[6].IMUX_D[2]              MIPI.D1HSTXDATA[10]
+			// wire CELL[6].IMUX_D[4]              MIPI.D1HSTXDATA[12]
+			// wire CELL[6].IMUX_D[6]              MIPI.D1HSTXDATA[14]
 			// wire CELL[7].IMUX_C[2]              MIPI.D1RXLPEN
 			// wire CELL[7].IMUX_D[0]              MIPI.D1TXHSEN
 			// wire CELL[7].OUT_F[0]               MIPI.D1DRXLPN
@@ -2907,54 +3145,53 @@ intdb {
 			// wire CELL[7].OUT_F[3]               MIPI.D1DCDP
 			// wire CELL[7].OUT_F[4]               MIPI.D1DCDN
 			// wire CELL[8].IMUX_A[0]              MIPI.D1CDEN
-			// wire CELL[8].OUT_F[0]               MIPI.D1HSRXDATA0
-			// wire CELL[8].OUT_F[1]               MIPI.D1HSRXDATA1
-			// wire CELL[8].OUT_F[2]               MIPI.D1HSRXDATA2
-			// wire CELL[8].OUT_F[3]               MIPI.D1HSRXDATA3
-			// wire CELL[8].OUT_F[4]               MIPI.D1HSRXDATA4
-			// wire CELL[8].OUT_F[5]               MIPI.D1HSRXDATA5
-			// wire CELL[8].OUT_F[6]               MIPI.D1HSRXDATA6
-			// wire CELL[8].OUT_F[7]               MIPI.D1HSRXDATA7
+			// wire CELL[8].OUT_F[0]               MIPI.D1HSRXDATA[0]
+			// wire CELL[8].OUT_F[1]               MIPI.D1HSRXDATA[1]
+			// wire CELL[8].OUT_F[2]               MIPI.D1HSRXDATA[2]
+			// wire CELL[8].OUT_F[3]               MIPI.D1HSRXDATA[3]
+			// wire CELL[8].OUT_F[4]               MIPI.D1HSRXDATA[4]
+			// wire CELL[8].OUT_F[5]               MIPI.D1HSRXDATA[5]
+			// wire CELL[8].OUT_F[6]               MIPI.D1HSRXDATA[6]
+			// wire CELL[8].OUT_F[7]               MIPI.D1HSRXDATA[7]
 			// wire CELL[9].IMUX_A[0]              MIPI.D1RXHSEN
 			// wire CELL[9].IMUX_A[4]              MIPI.D1HSDESEREN
 			// wire CELL[9].IMUX_B[0]              MIPI.LBEN
 			// wire CELL[9].IMUX_B[4]              MIPI.PDCKG
-			// wire CELL[9].IMUX_C[0]              MIPI.CN0
-			// wire CELL[9].IMUX_C[4]              MIPI.CN1
-			// wire CELL[9].IMUX_D[0]              MIPI.TST0
-			// wire CELL[9].IMUX_D[4]              MIPI.TST1
-			// wire CELL[9].OUT_F[0]               MIPI.D1HSRXDATA8
-			// wire CELL[9].OUT_F[1]               MIPI.D1HSRXDATA9
-			// wire CELL[9].OUT_F[2]               MIPI.D1HSRXDATA10
-			// wire CELL[9].OUT_F[3]               MIPI.D1HSRXDATA11
-			// wire CELL[9].OUT_F[4]               MIPI.D1HSRXDATA12
-			// wire CELL[9].OUT_F[5]               MIPI.D1HSRXDATA13
-			// wire CELL[9].OUT_F[6]               MIPI.D1HSRXDATA14
-			// wire CELL[9].OUT_F[7]               MIPI.D1HSRXDATA15
+			// wire CELL[9].IMUX_C[0]              MIPI.CN[0]
+			// wire CELL[9].IMUX_C[4]              MIPI.CN[1]
+			// wire CELL[9].IMUX_D[0]              MIPI.TST[0]
+			// wire CELL[9].IMUX_D[4]              MIPI.TST[1]
+			// wire CELL[9].OUT_F[0]               MIPI.D1HSRXDATA[8]
+			// wire CELL[9].OUT_F[1]               MIPI.D1HSRXDATA[9]
+			// wire CELL[9].OUT_F[2]               MIPI.D1HSRXDATA[10]
+			// wire CELL[9].OUT_F[3]               MIPI.D1HSRXDATA[11]
+			// wire CELL[9].OUT_F[4]               MIPI.D1HSRXDATA[12]
+			// wire CELL[9].OUT_F[5]               MIPI.D1HSRXDATA[13]
+			// wire CELL[9].OUT_F[6]               MIPI.D1HSRXDATA[14]
+			// wire CELL[9].OUT_F[7]               MIPI.D1HSRXDATA[15]
 			// wire CELL[9].OUT_Q[0]               MIPI.D1SYNC
 			// wire CELL[9].OUT_Q[1]               MIPI.D1ERRSYNC
 			// wire CELL[10].IMUX_B[0]             MIPI.PDDPHY
 			// wire CELL[10].IMUX_B[4]             MIPI.CLKTXHSGATE
-			// wire CELL[10].IMUX_C[0]             MIPI.CN2
-			// wire CELL[10].IMUX_C[4]             MIPI.CN3
-			// wire CELL[10].IMUX_C[6]             MIPI.CN4
-			// wire CELL[10].IMUX_D[0]             MIPI.TST2
-			// wire CELL[10].IMUX_D[4]             MIPI.TST3
+			// wire CELL[10].IMUX_C[0]             MIPI.CN[2]
+			// wire CELL[10].IMUX_C[4]             MIPI.CN[3]
+			// wire CELL[10].IMUX_C[6]             MIPI.CN[4]
+			// wire CELL[10].IMUX_D[0]             MIPI.TST[2]
+			// wire CELL[10].IMUX_D[4]             MIPI.TST[3]
 			// wire CELL[10].IMUX_D[6]             MIPI.CLKTXLPEN
-			// wire CELL[11].IMUX_A[0]             MIPI.CM0
-			// wire CELL[11].IMUX_A[4]             MIPI.CM1
-			// wire CELL[11].IMUX_B[0]             MIPI.CM2
-			// wire CELL[11].IMUX_B[4]             MIPI.CM3
-			// wire CELL[11].IMUX_B[7]             CLKTEST_MIPI.TESTIN0
+			// wire CELL[11].IMUX_A[0]             MIPI.CM[0]
+			// wire CELL[11].IMUX_A[4]             MIPI.CM[1]
+			// wire CELL[11].IMUX_B[0]             MIPI.CM[2]
+			// wire CELL[11].IMUX_B[4]             MIPI.CM[3]
+			// wire CELL[11].IMUX_B[7]             MIPI.CLKTEST_TESTIN[0]
 			// wire CELL[11].IMUX_C[0]             MIPI.CLKDTXLPN
 			// wire CELL[11].IMUX_C[4]             MIPI.CLKTXHSPD
-			// wire CELL[11].IMUX_C[7]             CLKTEST_MIPI.TESTIN1
+			// wire CELL[11].IMUX_C[7]             MIPI.CLKTEST_TESTIN[1]
 			// wire CELL[11].IMUX_D[4]             MIPI.CLKDTXLPP
-			// wire CELL[11].IMUX_CLK[0]           MIPI.CLKREF
-			// wire CELL[12].IMUX_A[0]             MIPI.CM4
-			// wire CELL[12].IMUX_A[4]             MIPI.CM5
-			// wire CELL[12].IMUX_B[0]             MIPI.CM6
-			// wire CELL[12].IMUX_B[4]             MIPI.CM7
+			// wire CELL[12].IMUX_A[0]             MIPI.CM[4]
+			// wire CELL[12].IMUX_A[4]             MIPI.CM[5]
+			// wire CELL[12].IMUX_B[0]             MIPI.CM[6]
+			// wire CELL[12].IMUX_B[4]             MIPI.CM[7]
 			// wire CELL[12].IMUX_C[4]             MIPI.CLKRXLPEN
 			// wire CELL[12].IMUX_D[0]             MIPI.CLKTXHSEN
 			// wire CELL[12].IMUX_D[4]             MIPI.CLKCDEN
@@ -2963,109 +3200,109 @@ intdb {
 			// wire CELL[12].OUT_F[4]              MIPI.CLKDCDN
 			// wire CELL[13].IMUX_C[4]             MIPI.CLKRXHSEN
 			// wire CELL[13].OUT_F[0]              MIPI.LOCK
-			// wire CELL[14].IMUX_A[0]             MIPI.CO0
-			// wire CELL[14].IMUX_A[4]             MIPI.CO1
+			// wire CELL[14].IMUX_A[0]             MIPI.CO[0]
+			// wire CELL[14].IMUX_A[4]             MIPI.CO[1]
 			// wire CELL[14].IMUX_C[0]             MIPI.PDPLL
 			// wire CELL[14].IMUX_C[4]             MIPI.D0HSSEREN
 			// wire CELL[14].OUT_F[4]              MIPI.CLKHSBYTE
 			// wire CELL[14].OUT_F[6]              MIPI.CLKDRXHS
 			// wire CELL[15].IMUX_A[0]             MIPI.D0TXLPEN
 			// wire CELL[15].IMUX_A[4]             MIPI.D0TXHSPD
-			// wire CELL[15].IMUX_B[0]             MIPI.D0HSTXDATA1
-			// wire CELL[15].IMUX_B[2]             MIPI.D0HSTXDATA3
-			// wire CELL[15].IMUX_B[4]             MIPI.D0HSTXDATA5
-			// wire CELL[15].IMUX_B[6]             MIPI.D0HSTXDATA7
+			// wire CELL[15].IMUX_B[0]             MIPI.D0HSTXDATA[1]
+			// wire CELL[15].IMUX_B[2]             MIPI.D0HSTXDATA[3]
+			// wire CELL[15].IMUX_B[4]             MIPI.D0HSTXDATA[5]
+			// wire CELL[15].IMUX_B[6]             MIPI.D0HSTXDATA[7]
 			// wire CELL[15].IMUX_C[4]             MIPI.D0DTXLPN
-			// wire CELL[15].IMUX_D[0]             MIPI.D0HSTXDATA0
-			// wire CELL[15].IMUX_D[2]             MIPI.D0HSTXDATA2
-			// wire CELL[15].IMUX_D[4]             MIPI.D0HSTXDATA4
-			// wire CELL[15].IMUX_D[6]             MIPI.D0HSTXDATA6
+			// wire CELL[15].IMUX_D[0]             MIPI.D0HSTXDATA[0]
+			// wire CELL[15].IMUX_D[2]             MIPI.D0HSTXDATA[2]
+			// wire CELL[15].IMUX_D[4]             MIPI.D0HSTXDATA[4]
+			// wire CELL[15].IMUX_D[6]             MIPI.D0HSTXDATA[6]
 			// wire CELL[16].IMUX_A[0]             MIPI.D0RXLPEN
 			// wire CELL[16].IMUX_A[4]             MIPI.D0DTXLPP
-			// wire CELL[16].IMUX_B[0]             MIPI.D0HSTXDATA9
-			// wire CELL[16].IMUX_B[2]             MIPI.D0HSTXDATA11
-			// wire CELL[16].IMUX_B[4]             MIPI.D0HSTXDATA13
-			// wire CELL[16].IMUX_B[6]             MIPI.D0HSTXDATA15
+			// wire CELL[16].IMUX_B[0]             MIPI.D0HSTXDATA[9]
+			// wire CELL[16].IMUX_B[2]             MIPI.D0HSTXDATA[11]
+			// wire CELL[16].IMUX_B[4]             MIPI.D0HSTXDATA[13]
+			// wire CELL[16].IMUX_B[6]             MIPI.D0HSTXDATA[15]
 			// wire CELL[16].IMUX_C[0]             MIPI.D0TXHSEN
-			// wire CELL[16].IMUX_D[0]             MIPI.D0HSTXDATA8
-			// wire CELL[16].IMUX_D[2]             MIPI.D0HSTXDATA10
-			// wire CELL[16].IMUX_D[4]             MIPI.D0HSTXDATA12
-			// wire CELL[16].IMUX_D[6]             MIPI.D0HSTXDATA14
+			// wire CELL[16].IMUX_D[0]             MIPI.D0HSTXDATA[8]
+			// wire CELL[16].IMUX_D[2]             MIPI.D0HSTXDATA[10]
+			// wire CELL[16].IMUX_D[4]             MIPI.D0HSTXDATA[12]
+			// wire CELL[16].IMUX_D[6]             MIPI.D0HSTXDATA[14]
 			// wire CELL[16].OUT_F[0]              MIPI.D0DRXLPN
 			// wire CELL[16].OUT_F[1]              MIPI.D0DRXLPP
 			// wire CELL[16].OUT_F[3]              MIPI.D0NOSYNC
 			// wire CELL[17].IMUX_A[3]             MIPI.D0CDEN
-			// wire CELL[17].OUT_F[0]              MIPI.D0HSRXDATA0
-			// wire CELL[17].OUT_F[1]              MIPI.D0HSRXDATA1
-			// wire CELL[17].OUT_F[2]              MIPI.D0HSRXDATA2
-			// wire CELL[17].OUT_F[3]              MIPI.D0HSRXDATA3
-			// wire CELL[17].OUT_F[4]              MIPI.D0HSRXDATA4
-			// wire CELL[17].OUT_F[5]              MIPI.D0HSRXDATA5
-			// wire CELL[17].OUT_F[6]              MIPI.D0HSRXDATA6
-			// wire CELL[17].OUT_F[7]              MIPI.D0HSRXDATA7
+			// wire CELL[17].OUT_F[0]              MIPI.D0HSRXDATA[0]
+			// wire CELL[17].OUT_F[1]              MIPI.D0HSRXDATA[1]
+			// wire CELL[17].OUT_F[2]              MIPI.D0HSRXDATA[2]
+			// wire CELL[17].OUT_F[3]              MIPI.D0HSRXDATA[3]
+			// wire CELL[17].OUT_F[4]              MIPI.D0HSRXDATA[4]
+			// wire CELL[17].OUT_F[5]              MIPI.D0HSRXDATA[5]
+			// wire CELL[17].OUT_F[6]              MIPI.D0HSRXDATA[6]
+			// wire CELL[17].OUT_F[7]              MIPI.D0HSRXDATA[7]
 			// wire CELL[17].OUT_Q[0]              MIPI.D0DCDP
 			// wire CELL[17].OUT_Q[1]              MIPI.D0DCDN
 			// wire CELL[18].IMUX_A[3]             MIPI.D0RXHSEN
 			// wire CELL[18].IMUX_A[7]             MIPI.D0HSDESEREN
-			// wire CELL[18].OUT_F[0]              MIPI.D0HSRXDATA8
-			// wire CELL[18].OUT_F[1]              MIPI.D0HSRXDATA9
-			// wire CELL[18].OUT_F[2]              MIPI.D0HSRXDATA10
-			// wire CELL[18].OUT_F[3]              MIPI.D0HSRXDATA11
-			// wire CELL[18].OUT_F[4]              MIPI.D0HSRXDATA12
-			// wire CELL[18].OUT_F[5]              MIPI.D0HSRXDATA13
-			// wire CELL[18].OUT_F[6]              MIPI.D0HSRXDATA14
-			// wire CELL[18].OUT_F[7]              MIPI.D0HSRXDATA15
+			// wire CELL[18].OUT_F[0]              MIPI.D0HSRXDATA[8]
+			// wire CELL[18].OUT_F[1]              MIPI.D0HSRXDATA[9]
+			// wire CELL[18].OUT_F[2]              MIPI.D0HSRXDATA[10]
+			// wire CELL[18].OUT_F[3]              MIPI.D0HSRXDATA[11]
+			// wire CELL[18].OUT_F[4]              MIPI.D0HSRXDATA[12]
+			// wire CELL[18].OUT_F[5]              MIPI.D0HSRXDATA[13]
+			// wire CELL[18].OUT_F[6]              MIPI.D0HSRXDATA[14]
+			// wire CELL[18].OUT_F[7]              MIPI.D0HSRXDATA[15]
 			// wire CELL[18].OUT_Q[4]              MIPI.D0SYNC
 			// wire CELL[18].OUT_Q[5]              MIPI.D0ERRSYNC
 			// wire CELL[19].IMUX_A[6]             MIPI.D2HSSEREN
 			// wire CELL[19].OUT_F[1]              MIPI.D0DRXHS
 			// wire CELL[19].OUT_F[6]              MIPI.D2DRXHS
 			// wire CELL[20].IMUX_A[4]             MIPI.D2TXLPEN
-			// wire CELL[20].IMUX_B[0]             MIPI.D2HSTXDATA1
-			// wire CELL[20].IMUX_B[2]             MIPI.D2HSTXDATA3
-			// wire CELL[20].IMUX_B[4]             MIPI.D2HSTXDATA5
-			// wire CELL[20].IMUX_B[6]             MIPI.D2HSTXDATA7
+			// wire CELL[20].IMUX_B[0]             MIPI.D2HSTXDATA[1]
+			// wire CELL[20].IMUX_B[2]             MIPI.D2HSTXDATA[3]
+			// wire CELL[20].IMUX_B[4]             MIPI.D2HSTXDATA[5]
+			// wire CELL[20].IMUX_B[6]             MIPI.D2HSTXDATA[7]
 			// wire CELL[20].IMUX_C[0]             MIPI.D2TXHSPD
 			// wire CELL[20].IMUX_C[4]             MIPI.D2DTXLPN
-			// wire CELL[20].IMUX_D[0]             MIPI.D2HSTXDATA0
-			// wire CELL[20].IMUX_D[2]             MIPI.D2HSTXDATA2
-			// wire CELL[20].IMUX_D[4]             MIPI.D2HSTXDATA4
-			// wire CELL[20].IMUX_D[6]             MIPI.D2HSTXDATA6
+			// wire CELL[20].IMUX_D[0]             MIPI.D2HSTXDATA[0]
+			// wire CELL[20].IMUX_D[2]             MIPI.D2HSTXDATA[2]
+			// wire CELL[20].IMUX_D[4]             MIPI.D2HSTXDATA[4]
+			// wire CELL[20].IMUX_D[6]             MIPI.D2HSTXDATA[6]
 			// wire CELL[21].IMUX_A[3]             MIPI.D2RXLPEN
 			// wire CELL[21].IMUX_A[5]             MIPI.D2DTXLPP
-			// wire CELL[21].IMUX_B[0]             MIPI.D2HSTXDATA9
-			// wire CELL[21].IMUX_B[2]             MIPI.D2HSTXDATA11
-			// wire CELL[21].IMUX_B[4]             MIPI.D2HSTXDATA13
-			// wire CELL[21].IMUX_B[6]             MIPI.D2HSTXDATA15
+			// wire CELL[21].IMUX_B[0]             MIPI.D2HSTXDATA[9]
+			// wire CELL[21].IMUX_B[2]             MIPI.D2HSTXDATA[11]
+			// wire CELL[21].IMUX_B[4]             MIPI.D2HSTXDATA[13]
+			// wire CELL[21].IMUX_B[6]             MIPI.D2HSTXDATA[15]
 			// wire CELL[21].IMUX_C[3]             MIPI.D2TXHSEN
-			// wire CELL[21].IMUX_D[0]             MIPI.D2HSTXDATA8
-			// wire CELL[21].IMUX_D[2]             MIPI.D2HSTXDATA10
-			// wire CELL[21].IMUX_D[4]             MIPI.D2HSTXDATA12
-			// wire CELL[21].IMUX_D[6]             MIPI.D2HSTXDATA14
+			// wire CELL[21].IMUX_D[0]             MIPI.D2HSTXDATA[8]
+			// wire CELL[21].IMUX_D[2]             MIPI.D2HSTXDATA[10]
+			// wire CELL[21].IMUX_D[4]             MIPI.D2HSTXDATA[12]
+			// wire CELL[21].IMUX_D[6]             MIPI.D2HSTXDATA[14]
 			// wire CELL[21].OUT_F[0]              MIPI.D2DRXLPN
 			// wire CELL[21].OUT_F[1]              MIPI.D2DRXLPP
 			// wire CELL[22].IMUX_A[4]             MIPI.D2CDEN
-			// wire CELL[22].OUT_F[0]              MIPI.D2HSRXDATA0
-			// wire CELL[22].OUT_F[1]              MIPI.D2HSRXDATA1
-			// wire CELL[22].OUT_F[2]              MIPI.D2HSRXDATA2
-			// wire CELL[22].OUT_F[3]              MIPI.D2HSRXDATA3
-			// wire CELL[22].OUT_F[4]              MIPI.D2HSRXDATA4
-			// wire CELL[22].OUT_F[5]              MIPI.D2HSRXDATA5
-			// wire CELL[22].OUT_F[6]              MIPI.D2HSRXDATA6
-			// wire CELL[22].OUT_F[7]              MIPI.D2HSRXDATA7
+			// wire CELL[22].OUT_F[0]              MIPI.D2HSRXDATA[0]
+			// wire CELL[22].OUT_F[1]              MIPI.D2HSRXDATA[1]
+			// wire CELL[22].OUT_F[2]              MIPI.D2HSRXDATA[2]
+			// wire CELL[22].OUT_F[3]              MIPI.D2HSRXDATA[3]
+			// wire CELL[22].OUT_F[4]              MIPI.D2HSRXDATA[4]
+			// wire CELL[22].OUT_F[5]              MIPI.D2HSRXDATA[5]
+			// wire CELL[22].OUT_F[6]              MIPI.D2HSRXDATA[6]
+			// wire CELL[22].OUT_F[7]              MIPI.D2HSRXDATA[7]
 			// wire CELL[22].OUT_Q[0]              MIPI.D2NOSYNC
 			// wire CELL[22].OUT_Q[1]              MIPI.D2DCDP
 			// wire CELL[22].OUT_Q[4]              MIPI.D2DCDN
 			// wire CELL[23].IMUX_A[0]             MIPI.D2HSDESEREN
 			// wire CELL[23].IMUX_C[4]             MIPI.D2RXHSEN
-			// wire CELL[23].OUT_F[0]              MIPI.D2HSRXDATA8
-			// wire CELL[23].OUT_F[1]              MIPI.D2HSRXDATA9
-			// wire CELL[23].OUT_F[2]              MIPI.D2HSRXDATA10
-			// wire CELL[23].OUT_F[3]              MIPI.D2HSRXDATA11
-			// wire CELL[23].OUT_F[4]              MIPI.D2HSRXDATA12
-			// wire CELL[23].OUT_F[5]              MIPI.D2HSRXDATA13
-			// wire CELL[23].OUT_F[6]              MIPI.D2HSRXDATA14
-			// wire CELL[23].OUT_F[7]              MIPI.D2HSRXDATA15
+			// wire CELL[23].OUT_F[0]              MIPI.D2HSRXDATA[8]
+			// wire CELL[23].OUT_F[1]              MIPI.D2HSRXDATA[9]
+			// wire CELL[23].OUT_F[2]              MIPI.D2HSRXDATA[10]
+			// wire CELL[23].OUT_F[3]              MIPI.D2HSRXDATA[11]
+			// wire CELL[23].OUT_F[4]              MIPI.D2HSRXDATA[12]
+			// wire CELL[23].OUT_F[5]              MIPI.D2HSRXDATA[13]
+			// wire CELL[23].OUT_F[6]              MIPI.D2HSRXDATA[14]
+			// wire CELL[23].OUT_F[7]              MIPI.D2HSRXDATA[15]
 			// wire CELL[23].OUT_Q[3]              MIPI.D2SYNC
 			// wire CELL[23].OUT_Q[4]              MIPI.D2ERRSYNC
 		}
@@ -3095,312 +3332,321 @@ intdb {
 			cell CELL[21];
 			cell CELL[22];
 			cell CELL[23];
+			cell IO[0];
+			cell IO[1];
+
+			switchbox BEL_INT {
+				mux CELL[0].IMUX_MIPI_CLKREF = CELL[13].IMUX_CLK[0] | IO[0].OUT_IO_PADDI[2] | IO[1].OUT_IO_PADDI[0];
+			}
 
 			bel MIPI {
+				input CLKREF = CELL[0].IMUX_MIPI_CLKREF;
 				input CLKCDEN = CELL[12].IMUX_D[4];
-				output CLKDCDN = CELL[12].OUT_F[4];
-				output CLKDRXHS = CELL[14].OUT_F[6];
-				output CLKDRXLPN = CELL[12].OUT_F[0];
-				output CLKDRXLPP = CELL[12].OUT_F[1];
 				input CLKDTXLPN = CELL[11].IMUX_C[0];
 				input CLKDTXLPP = CELL[11].IMUX_D[4];
-				output CLKHSBYTE = CELL[14].OUT_F[4];
-				input CLKREF = CELL[13].IMUX_CLK[0];
 				input CLKRXHSEN = CELL[13].IMUX_C[4];
 				input CLKRXLPEN = CELL[12].IMUX_C[4];
 				input CLKTXHSEN = CELL[12].IMUX_D[0];
 				input CLKTXHSGATE = CELL[10].IMUX_B[4];
 				input CLKTXHSPD = CELL[11].IMUX_C[4];
 				input CLKTXLPEN = CELL[10].IMUX_D[6];
-				input CM0 = CELL[11].IMUX_A[0];
-				input CM1 = CELL[11].IMUX_A[4];
-				input CM2 = CELL[11].IMUX_B[0];
-				input CM3 = CELL[11].IMUX_B[4];
-				input CM4 = CELL[12].IMUX_A[0];
-				input CM5 = CELL[12].IMUX_A[4];
-				input CM6 = CELL[12].IMUX_B[0];
-				input CM7 = CELL[12].IMUX_B[4];
-				input CN0 = CELL[9].IMUX_C[0];
-				input CN1 = CELL[9].IMUX_C[4];
-				input CN2 = CELL[10].IMUX_C[0];
-				input CN3 = CELL[10].IMUX_C[4];
-				input CN4 = CELL[10].IMUX_C[6];
-				input CO0 = CELL[14].IMUX_A[0];
-				input CO1 = CELL[14].IMUX_A[4];
+				input CM[0] = CELL[11].IMUX_A[0];
+				input CM[1] = CELL[11].IMUX_A[4];
+				input CM[2] = CELL[11].IMUX_B[0];
+				input CM[3] = CELL[11].IMUX_B[4];
+				input CM[4] = CELL[12].IMUX_A[0];
+				input CM[5] = CELL[12].IMUX_A[4];
+				input CM[6] = CELL[12].IMUX_B[0];
+				input CM[7] = CELL[12].IMUX_B[4];
+				input CN[0] = CELL[9].IMUX_C[0];
+				input CN[1] = CELL[9].IMUX_C[4];
+				input CN[2] = CELL[10].IMUX_C[0];
+				input CN[3] = CELL[10].IMUX_C[4];
+				input CN[4] = CELL[10].IMUX_C[6];
+				input CO[0] = CELL[14].IMUX_A[0];
+				input CO[1] = CELL[14].IMUX_A[4];
 				input D0CDEN = CELL[17].IMUX_A[3];
+				input D0DTXLPN = CELL[15].IMUX_C[4];
+				input D0DTXLPP = CELL[16].IMUX_A[4];
+				input D0HSDESEREN = CELL[18].IMUX_A[7];
+				input D0HSSEREN = CELL[14].IMUX_C[4];
+				input D0HSTXDATA[0] = CELL[15].IMUX_D[0];
+				input D0HSTXDATA[1] = CELL[15].IMUX_B[0];
+				input D0HSTXDATA[2] = CELL[15].IMUX_D[2];
+				input D0HSTXDATA[3] = CELL[15].IMUX_B[2];
+				input D0HSTXDATA[4] = CELL[15].IMUX_D[4];
+				input D0HSTXDATA[5] = CELL[15].IMUX_B[4];
+				input D0HSTXDATA[6] = CELL[15].IMUX_D[6];
+				input D0HSTXDATA[7] = CELL[15].IMUX_B[6];
+				input D0HSTXDATA[8] = CELL[16].IMUX_D[0];
+				input D0HSTXDATA[9] = CELL[16].IMUX_B[0];
+				input D0HSTXDATA[10] = CELL[16].IMUX_D[2];
+				input D0HSTXDATA[11] = CELL[16].IMUX_B[2];
+				input D0HSTXDATA[12] = CELL[16].IMUX_D[4];
+				input D0HSTXDATA[13] = CELL[16].IMUX_B[4];
+				input D0HSTXDATA[14] = CELL[16].IMUX_D[6];
+				input D0HSTXDATA[15] = CELL[16].IMUX_B[6];
+				input D0RXHSEN = CELL[18].IMUX_A[3];
+				input D0RXLPEN = CELL[16].IMUX_A[0];
+				input D0TXHSEN = CELL[16].IMUX_C[0];
+				input D0TXHSPD = CELL[15].IMUX_A[4];
+				input D0TXLPEN = CELL[15].IMUX_A[0];
+				input D1CDEN = CELL[8].IMUX_A[0];
+				input D1DTXLPN = CELL[6].IMUX_A[5];
+				input D1DTXLPP = CELL[6].IMUX_C[2];
+				input D1HSDESEREN = CELL[9].IMUX_A[4];
+				input D1HSSEREN = CELL[5].IMUX_A[0];
+				input D1HSTXDATA[0] = CELL[5].IMUX_D[0];
+				input D1HSTXDATA[1] = CELL[5].IMUX_B[0];
+				input D1HSTXDATA[2] = CELL[5].IMUX_D[2];
+				input D1HSTXDATA[3] = CELL[5].IMUX_B[2];
+				input D1HSTXDATA[4] = CELL[5].IMUX_D[4];
+				input D1HSTXDATA[5] = CELL[5].IMUX_B[4];
+				input D1HSTXDATA[6] = CELL[5].IMUX_D[6];
+				input D1HSTXDATA[7] = CELL[5].IMUX_B[6];
+				input D1HSTXDATA[8] = CELL[6].IMUX_D[0];
+				input D1HSTXDATA[9] = CELL[6].IMUX_B[0];
+				input D1HSTXDATA[10] = CELL[6].IMUX_D[2];
+				input D1HSTXDATA[11] = CELL[6].IMUX_B[2];
+				input D1HSTXDATA[12] = CELL[6].IMUX_D[4];
+				input D1HSTXDATA[13] = CELL[6].IMUX_B[4];
+				input D1HSTXDATA[14] = CELL[6].IMUX_D[6];
+				input D1HSTXDATA[15] = CELL[6].IMUX_B[6];
+				input D1RXHSEN = CELL[9].IMUX_A[0];
+				input D1RXLPEN = CELL[7].IMUX_C[2];
+				input D1TXHSEN = CELL[7].IMUX_D[0];
+				input D1TXHSPD = CELL[6].IMUX_A[2];
+				input D1TXLPEN = CELL[6].IMUX_A[0];
+				input D2CDEN = CELL[22].IMUX_A[4];
+				input D2DTXLPN = CELL[20].IMUX_C[4];
+				input D2DTXLPP = CELL[21].IMUX_A[5];
+				input D2HSDESEREN = CELL[23].IMUX_A[0];
+				input D2HSSEREN = CELL[19].IMUX_A[6];
+				input D2HSTXDATA[0] = CELL[20].IMUX_D[0];
+				input D2HSTXDATA[1] = CELL[20].IMUX_B[0];
+				input D2HSTXDATA[2] = CELL[20].IMUX_D[2];
+				input D2HSTXDATA[3] = CELL[20].IMUX_B[2];
+				input D2HSTXDATA[4] = CELL[20].IMUX_D[4];
+				input D2HSTXDATA[5] = CELL[20].IMUX_B[4];
+				input D2HSTXDATA[6] = CELL[20].IMUX_D[6];
+				input D2HSTXDATA[7] = CELL[20].IMUX_B[6];
+				input D2HSTXDATA[8] = CELL[21].IMUX_D[0];
+				input D2HSTXDATA[9] = CELL[21].IMUX_B[0];
+				input D2HSTXDATA[10] = CELL[21].IMUX_D[2];
+				input D2HSTXDATA[11] = CELL[21].IMUX_B[2];
+				input D2HSTXDATA[12] = CELL[21].IMUX_D[4];
+				input D2HSTXDATA[13] = CELL[21].IMUX_B[4];
+				input D2HSTXDATA[14] = CELL[21].IMUX_D[6];
+				input D2HSTXDATA[15] = CELL[21].IMUX_B[6];
+				input D2RXHSEN = CELL[23].IMUX_C[4];
+				input D2RXLPEN = CELL[21].IMUX_A[3];
+				input D2TXHSEN = CELL[21].IMUX_C[3];
+				input D2TXHSPD = CELL[20].IMUX_C[0];
+				input D2TXLPEN = CELL[20].IMUX_A[4];
+				input D3CDEN = CELL[3].IMUX_B[0];
+				input D3DTXLPN = CELL[1].IMUX_C[4];
+				input D3DTXLPP = CELL[2].IMUX_A[4];
+				input D3HSDESEREN = CELL[4].IMUX_C[4];
+				input D3HSSEREN = CELL[0].IMUX_A[4];
+				input D3HSTXDATA[0] = CELL[1].IMUX_D[0];
+				input D3HSTXDATA[1] = CELL[1].IMUX_B[0];
+				input D3HSTXDATA[2] = CELL[1].IMUX_D[2];
+				input D3HSTXDATA[3] = CELL[1].IMUX_B[2];
+				input D3HSTXDATA[4] = CELL[1].IMUX_D[4];
+				input D3HSTXDATA[5] = CELL[1].IMUX_B[4];
+				input D3HSTXDATA[6] = CELL[1].IMUX_D[6];
+				input D3HSTXDATA[7] = CELL[1].IMUX_B[6];
+				input D3HSTXDATA[8] = CELL[2].IMUX_D[0];
+				input D3HSTXDATA[9] = CELL[2].IMUX_B[0];
+				input D3HSTXDATA[10] = CELL[2].IMUX_D[2];
+				input D3HSTXDATA[11] = CELL[2].IMUX_B[2];
+				input D3HSTXDATA[12] = CELL[2].IMUX_D[4];
+				input D3HSTXDATA[13] = CELL[2].IMUX_B[4];
+				input D3HSTXDATA[14] = CELL[2].IMUX_D[6];
+				input D3HSTXDATA[15] = CELL[2].IMUX_B[6];
+				input D3RXHSEN = CELL[4].IMUX_C[0];
+				input D3RXLPEN = CELL[2].IMUX_C[4];
+				input D3TXHSEN = CELL[3].IMUX_A[1];
+				input D3TXHSPD = CELL[1].IMUX_C[2];
+				input D3TXLPEN = CELL[1].IMUX_A[2];
+				input LBEN = CELL[9].IMUX_B[0];
+				input PDBIAS = CELL[0].IMUX_C[4];
+				input PDCKG = CELL[9].IMUX_B[4];
+				input PDDPHY = CELL[10].IMUX_B[0];
+				input PDPLL = CELL[14].IMUX_C[0];
+				input TST[0] = CELL[9].IMUX_D[0];
+				input TST[1] = CELL[9].IMUX_D[4];
+				input TST[2] = CELL[10].IMUX_D[0];
+				input TST[3] = CELL[10].IMUX_D[4];
+				input CLKTEST_TESTIN[0] = CELL[13].IMUX_B[7];
+				input CLKTEST_TESTIN[1] = CELL[13].IMUX_C[7];
+				output CLKHSBYTE = CELL[0].OUT_MIPI_CLKHSBYTE, CELL[14].OUT_F[4];
+				output HSBYTECLKS = CELL[0].OUT_MIPI_HSBYTECLKS;
+				output HSBYTECLKD = CELL[0].OUT_MIPI_HSBYTECLKD;
+				output CLKDCDN = CELL[12].OUT_F[4];
+				output CLKDRXHS = CELL[14].OUT_F[6];
+				output CLKDRXLPN = CELL[12].OUT_F[0];
+				output CLKDRXLPP = CELL[12].OUT_F[1];
 				output D0DCDN = CELL[17].OUT_Q[1];
 				output D0DCDP = CELL[17].OUT_Q[0];
 				output D0DRXHS = CELL[19].OUT_F[1];
 				output D0DRXLPN = CELL[16].OUT_F[0];
 				output D0DRXLPP = CELL[16].OUT_F[1];
-				input D0DTXLPN = CELL[15].IMUX_C[4];
-				input D0DTXLPP = CELL[16].IMUX_A[4];
 				output D0ERRSYNC = CELL[18].OUT_Q[5];
-				input D0HSDESEREN = CELL[18].IMUX_A[7];
-				output D0HSRXDATA0 = CELL[17].OUT_F[0];
-				output D0HSRXDATA1 = CELL[17].OUT_F[1];
-				output D0HSRXDATA10 = CELL[18].OUT_F[2];
-				output D0HSRXDATA11 = CELL[18].OUT_F[3];
-				output D0HSRXDATA12 = CELL[18].OUT_F[4];
-				output D0HSRXDATA13 = CELL[18].OUT_F[5];
-				output D0HSRXDATA14 = CELL[18].OUT_F[6];
-				output D0HSRXDATA15 = CELL[18].OUT_F[7];
-				output D0HSRXDATA2 = CELL[17].OUT_F[2];
-				output D0HSRXDATA3 = CELL[17].OUT_F[3];
-				output D0HSRXDATA4 = CELL[17].OUT_F[4];
-				output D0HSRXDATA5 = CELL[17].OUT_F[5];
-				output D0HSRXDATA6 = CELL[17].OUT_F[6];
-				output D0HSRXDATA7 = CELL[17].OUT_F[7];
-				output D0HSRXDATA8 = CELL[18].OUT_F[0];
-				output D0HSRXDATA9 = CELL[18].OUT_F[1];
-				input D0HSSEREN = CELL[14].IMUX_C[4];
-				input D0HSTXDATA0 = CELL[15].IMUX_D[0];
-				input D0HSTXDATA1 = CELL[15].IMUX_B[0];
-				input D0HSTXDATA10 = CELL[16].IMUX_D[2];
-				input D0HSTXDATA11 = CELL[16].IMUX_B[2];
-				input D0HSTXDATA12 = CELL[16].IMUX_D[4];
-				input D0HSTXDATA13 = CELL[16].IMUX_B[4];
-				input D0HSTXDATA14 = CELL[16].IMUX_D[6];
-				input D0HSTXDATA15 = CELL[16].IMUX_B[6];
-				input D0HSTXDATA2 = CELL[15].IMUX_D[2];
-				input D0HSTXDATA3 = CELL[15].IMUX_B[2];
-				input D0HSTXDATA4 = CELL[15].IMUX_D[4];
-				input D0HSTXDATA5 = CELL[15].IMUX_B[4];
-				input D0HSTXDATA6 = CELL[15].IMUX_D[6];
-				input D0HSTXDATA7 = CELL[15].IMUX_B[6];
-				input D0HSTXDATA8 = CELL[16].IMUX_D[0];
-				input D0HSTXDATA9 = CELL[16].IMUX_B[0];
+				output D0HSRXDATA[0] = CELL[17].OUT_F[0];
+				output D0HSRXDATA[1] = CELL[17].OUT_F[1];
+				output D0HSRXDATA[2] = CELL[17].OUT_F[2];
+				output D0HSRXDATA[3] = CELL[17].OUT_F[3];
+				output D0HSRXDATA[4] = CELL[17].OUT_F[4];
+				output D0HSRXDATA[5] = CELL[17].OUT_F[5];
+				output D0HSRXDATA[6] = CELL[17].OUT_F[6];
+				output D0HSRXDATA[7] = CELL[17].OUT_F[7];
+				output D0HSRXDATA[8] = CELL[18].OUT_F[0];
+				output D0HSRXDATA[9] = CELL[18].OUT_F[1];
+				output D0HSRXDATA[10] = CELL[18].OUT_F[2];
+				output D0HSRXDATA[11] = CELL[18].OUT_F[3];
+				output D0HSRXDATA[12] = CELL[18].OUT_F[4];
+				output D0HSRXDATA[13] = CELL[18].OUT_F[5];
+				output D0HSRXDATA[14] = CELL[18].OUT_F[6];
+				output D0HSRXDATA[15] = CELL[18].OUT_F[7];
 				output D0NOSYNC = CELL[16].OUT_F[3];
-				input D0RXHSEN = CELL[18].IMUX_A[3];
-				input D0RXLPEN = CELL[16].IMUX_A[0];
 				output D0SYNC = CELL[18].OUT_Q[4];
-				input D0TXHSEN = CELL[16].IMUX_C[0];
-				input D0TXHSPD = CELL[15].IMUX_A[4];
-				input D0TXLPEN = CELL[15].IMUX_A[0];
-				input D1CDEN = CELL[8].IMUX_A[0];
 				output D1DCDN = CELL[7].OUT_F[4];
 				output D1DCDP = CELL[7].OUT_F[3];
 				output D1DRXHS = CELL[5].OUT_F[1];
 				output D1DRXLPN = CELL[7].OUT_F[0];
 				output D1DRXLPP = CELL[7].OUT_F[1];
-				input D1DTXLPN = CELL[6].IMUX_A[5];
-				input D1DTXLPP = CELL[6].IMUX_C[2];
 				output D1ERRSYNC = CELL[9].OUT_Q[1];
-				input D1HSDESEREN = CELL[9].IMUX_A[4];
-				output D1HSRXDATA0 = CELL[8].OUT_F[0];
-				output D1HSRXDATA1 = CELL[8].OUT_F[1];
-				output D1HSRXDATA10 = CELL[9].OUT_F[2];
-				output D1HSRXDATA11 = CELL[9].OUT_F[3];
-				output D1HSRXDATA12 = CELL[9].OUT_F[4];
-				output D1HSRXDATA13 = CELL[9].OUT_F[5];
-				output D1HSRXDATA14 = CELL[9].OUT_F[6];
-				output D1HSRXDATA15 = CELL[9].OUT_F[7];
-				output D1HSRXDATA2 = CELL[8].OUT_F[2];
-				output D1HSRXDATA3 = CELL[8].OUT_F[3];
-				output D1HSRXDATA4 = CELL[8].OUT_F[4];
-				output D1HSRXDATA5 = CELL[8].OUT_F[5];
-				output D1HSRXDATA6 = CELL[8].OUT_F[6];
-				output D1HSRXDATA7 = CELL[8].OUT_F[7];
-				output D1HSRXDATA8 = CELL[9].OUT_F[0];
-				output D1HSRXDATA9 = CELL[9].OUT_F[1];
-				input D1HSSEREN = CELL[5].IMUX_A[0];
-				input D1HSTXDATA0 = CELL[5].IMUX_D[0];
-				input D1HSTXDATA1 = CELL[5].IMUX_B[0];
-				input D1HSTXDATA10 = CELL[6].IMUX_D[2];
-				input D1HSTXDATA11 = CELL[6].IMUX_B[2];
-				input D1HSTXDATA12 = CELL[6].IMUX_D[4];
-				input D1HSTXDATA13 = CELL[6].IMUX_B[4];
-				input D1HSTXDATA14 = CELL[6].IMUX_D[6];
-				input D1HSTXDATA15 = CELL[6].IMUX_B[6];
-				input D1HSTXDATA2 = CELL[5].IMUX_D[2];
-				input D1HSTXDATA3 = CELL[5].IMUX_B[2];
-				input D1HSTXDATA4 = CELL[5].IMUX_D[4];
-				input D1HSTXDATA5 = CELL[5].IMUX_B[4];
-				input D1HSTXDATA6 = CELL[5].IMUX_D[6];
-				input D1HSTXDATA7 = CELL[5].IMUX_B[6];
-				input D1HSTXDATA8 = CELL[6].IMUX_D[0];
-				input D1HSTXDATA9 = CELL[6].IMUX_B[0];
+				output D1HSRXDATA[0] = CELL[8].OUT_F[0];
+				output D1HSRXDATA[1] = CELL[8].OUT_F[1];
+				output D1HSRXDATA[2] = CELL[8].OUT_F[2];
+				output D1HSRXDATA[3] = CELL[8].OUT_F[3];
+				output D1HSRXDATA[4] = CELL[8].OUT_F[4];
+				output D1HSRXDATA[5] = CELL[8].OUT_F[5];
+				output D1HSRXDATA[6] = CELL[8].OUT_F[6];
+				output D1HSRXDATA[7] = CELL[8].OUT_F[7];
+				output D1HSRXDATA[8] = CELL[9].OUT_F[0];
+				output D1HSRXDATA[9] = CELL[9].OUT_F[1];
+				output D1HSRXDATA[10] = CELL[9].OUT_F[2];
+				output D1HSRXDATA[11] = CELL[9].OUT_F[3];
+				output D1HSRXDATA[12] = CELL[9].OUT_F[4];
+				output D1HSRXDATA[13] = CELL[9].OUT_F[5];
+				output D1HSRXDATA[14] = CELL[9].OUT_F[6];
+				output D1HSRXDATA[15] = CELL[9].OUT_F[7];
 				output D1NOSYNC = CELL[7].OUT_F[2];
-				input D1RXHSEN = CELL[9].IMUX_A[0];
-				input D1RXLPEN = CELL[7].IMUX_C[2];
 				output D1SYNC = CELL[9].OUT_Q[0];
-				input D1TXHSEN = CELL[7].IMUX_D[0];
-				input D1TXHSPD = CELL[6].IMUX_A[2];
-				input D1TXLPEN = CELL[6].IMUX_A[0];
-				input D2CDEN = CELL[22].IMUX_A[4];
 				output D2DCDN = CELL[22].OUT_Q[4];
 				output D2DCDP = CELL[22].OUT_Q[1];
 				output D2DRXHS = CELL[19].OUT_F[6];
 				output D2DRXLPN = CELL[21].OUT_F[0];
 				output D2DRXLPP = CELL[21].OUT_F[1];
-				input D2DTXLPN = CELL[20].IMUX_C[4];
-				input D2DTXLPP = CELL[21].IMUX_A[5];
 				output D2ERRSYNC = CELL[23].OUT_Q[4];
-				input D2HSDESEREN = CELL[23].IMUX_A[0];
-				output D2HSRXDATA0 = CELL[22].OUT_F[0];
-				output D2HSRXDATA1 = CELL[22].OUT_F[1];
-				output D2HSRXDATA10 = CELL[23].OUT_F[2];
-				output D2HSRXDATA11 = CELL[23].OUT_F[3];
-				output D2HSRXDATA12 = CELL[23].OUT_F[4];
-				output D2HSRXDATA13 = CELL[23].OUT_F[5];
-				output D2HSRXDATA14 = CELL[23].OUT_F[6];
-				output D2HSRXDATA15 = CELL[23].OUT_F[7];
-				output D2HSRXDATA2 = CELL[22].OUT_F[2];
-				output D2HSRXDATA3 = CELL[22].OUT_F[3];
-				output D2HSRXDATA4 = CELL[22].OUT_F[4];
-				output D2HSRXDATA5 = CELL[22].OUT_F[5];
-				output D2HSRXDATA6 = CELL[22].OUT_F[6];
-				output D2HSRXDATA7 = CELL[22].OUT_F[7];
-				output D2HSRXDATA8 = CELL[23].OUT_F[0];
-				output D2HSRXDATA9 = CELL[23].OUT_F[1];
-				input D2HSSEREN = CELL[19].IMUX_A[6];
-				input D2HSTXDATA0 = CELL[20].IMUX_D[0];
-				input D2HSTXDATA1 = CELL[20].IMUX_B[0];
-				input D2HSTXDATA10 = CELL[21].IMUX_D[2];
-				input D2HSTXDATA11 = CELL[21].IMUX_B[2];
-				input D2HSTXDATA12 = CELL[21].IMUX_D[4];
-				input D2HSTXDATA13 = CELL[21].IMUX_B[4];
-				input D2HSTXDATA14 = CELL[21].IMUX_D[6];
-				input D2HSTXDATA15 = CELL[21].IMUX_B[6];
-				input D2HSTXDATA2 = CELL[20].IMUX_D[2];
-				input D2HSTXDATA3 = CELL[20].IMUX_B[2];
-				input D2HSTXDATA4 = CELL[20].IMUX_D[4];
-				input D2HSTXDATA5 = CELL[20].IMUX_B[4];
-				input D2HSTXDATA6 = CELL[20].IMUX_D[6];
-				input D2HSTXDATA7 = CELL[20].IMUX_B[6];
-				input D2HSTXDATA8 = CELL[21].IMUX_D[0];
-				input D2HSTXDATA9 = CELL[21].IMUX_B[0];
+				output D2HSRXDATA[0] = CELL[22].OUT_F[0];
+				output D2HSRXDATA[1] = CELL[22].OUT_F[1];
+				output D2HSRXDATA[2] = CELL[22].OUT_F[2];
+				output D2HSRXDATA[3] = CELL[22].OUT_F[3];
+				output D2HSRXDATA[4] = CELL[22].OUT_F[4];
+				output D2HSRXDATA[5] = CELL[22].OUT_F[5];
+				output D2HSRXDATA[6] = CELL[22].OUT_F[6];
+				output D2HSRXDATA[7] = CELL[22].OUT_F[7];
+				output D2HSRXDATA[8] = CELL[23].OUT_F[0];
+				output D2HSRXDATA[9] = CELL[23].OUT_F[1];
+				output D2HSRXDATA[10] = CELL[23].OUT_F[2];
+				output D2HSRXDATA[11] = CELL[23].OUT_F[3];
+				output D2HSRXDATA[12] = CELL[23].OUT_F[4];
+				output D2HSRXDATA[13] = CELL[23].OUT_F[5];
+				output D2HSRXDATA[14] = CELL[23].OUT_F[6];
+				output D2HSRXDATA[15] = CELL[23].OUT_F[7];
 				output D2NOSYNC = CELL[22].OUT_Q[0];
-				input D2RXHSEN = CELL[23].IMUX_C[4];
-				input D2RXLPEN = CELL[21].IMUX_A[3];
 				output D2SYNC = CELL[23].OUT_Q[3];
-				input D2TXHSEN = CELL[21].IMUX_C[3];
-				input D2TXHSPD = CELL[20].IMUX_C[0];
-				input D2TXLPEN = CELL[20].IMUX_A[4];
-				input D3CDEN = CELL[3].IMUX_B[0];
 				output D3DCDN = CELL[3].OUT_Q[4];
 				output D3DCDP = CELL[3].OUT_Q[1];
 				output D3DRXHS = CELL[5].OUT_F[6];
 				output D3DRXLPN = CELL[2].OUT_F[0];
 				output D3DRXLPP = CELL[2].OUT_F[1];
-				input D3DTXLPN = CELL[1].IMUX_C[4];
-				input D3DTXLPP = CELL[2].IMUX_A[4];
 				output D3ERRSYNC = CELL[5].OUT_F[0];
-				input D3HSDESEREN = CELL[4].IMUX_C[4];
-				output D3HSRXDATA0 = CELL[3].OUT_F[0];
-				output D3HSRXDATA1 = CELL[3].OUT_F[1];
-				output D3HSRXDATA10 = CELL[4].OUT_F[2];
-				output D3HSRXDATA11 = CELL[4].OUT_F[3];
-				output D3HSRXDATA12 = CELL[4].OUT_F[4];
-				output D3HSRXDATA13 = CELL[4].OUT_F[5];
-				output D3HSRXDATA14 = CELL[4].OUT_F[6];
-				output D3HSRXDATA15 = CELL[4].OUT_F[7];
-				output D3HSRXDATA2 = CELL[3].OUT_F[2];
-				output D3HSRXDATA3 = CELL[3].OUT_F[3];
-				output D3HSRXDATA4 = CELL[3].OUT_F[4];
-				output D3HSRXDATA5 = CELL[3].OUT_F[5];
-				output D3HSRXDATA6 = CELL[3].OUT_F[6];
-				output D3HSRXDATA7 = CELL[3].OUT_F[7];
-				output D3HSRXDATA8 = CELL[4].OUT_F[0];
-				output D3HSRXDATA9 = CELL[4].OUT_F[1];
-				input D3HSSEREN = CELL[0].IMUX_A[4];
-				input D3HSTXDATA0 = CELL[1].IMUX_D[0];
-				input D3HSTXDATA1 = CELL[1].IMUX_B[0];
-				input D3HSTXDATA10 = CELL[2].IMUX_D[2];
-				input D3HSTXDATA11 = CELL[2].IMUX_B[2];
-				input D3HSTXDATA12 = CELL[2].IMUX_D[4];
-				input D3HSTXDATA13 = CELL[2].IMUX_B[4];
-				input D3HSTXDATA14 = CELL[2].IMUX_D[6];
-				input D3HSTXDATA15 = CELL[2].IMUX_B[6];
-				input D3HSTXDATA2 = CELL[1].IMUX_D[2];
-				input D3HSTXDATA3 = CELL[1].IMUX_B[2];
-				input D3HSTXDATA4 = CELL[1].IMUX_D[4];
-				input D3HSTXDATA5 = CELL[1].IMUX_B[4];
-				input D3HSTXDATA6 = CELL[1].IMUX_D[6];
-				input D3HSTXDATA7 = CELL[1].IMUX_B[6];
-				input D3HSTXDATA8 = CELL[2].IMUX_D[0];
-				input D3HSTXDATA9 = CELL[2].IMUX_B[0];
+				output D3HSRXDATA[0] = CELL[3].OUT_F[0];
+				output D3HSRXDATA[1] = CELL[3].OUT_F[1];
+				output D3HSRXDATA[2] = CELL[3].OUT_F[2];
+				output D3HSRXDATA[3] = CELL[3].OUT_F[3];
+				output D3HSRXDATA[4] = CELL[3].OUT_F[4];
+				output D3HSRXDATA[5] = CELL[3].OUT_F[5];
+				output D3HSRXDATA[6] = CELL[3].OUT_F[6];
+				output D3HSRXDATA[7] = CELL[3].OUT_F[7];
+				output D3HSRXDATA[8] = CELL[4].OUT_F[0];
+				output D3HSRXDATA[9] = CELL[4].OUT_F[1];
+				output D3HSRXDATA[10] = CELL[4].OUT_F[2];
+				output D3HSRXDATA[11] = CELL[4].OUT_F[3];
+				output D3HSRXDATA[12] = CELL[4].OUT_F[4];
+				output D3HSRXDATA[13] = CELL[4].OUT_F[5];
+				output D3HSRXDATA[14] = CELL[4].OUT_F[6];
+				output D3HSRXDATA[15] = CELL[4].OUT_F[7];
 				output D3NOSYNC = CELL[3].OUT_Q[0];
-				input D3RXHSEN = CELL[4].IMUX_C[0];
-				input D3RXLPEN = CELL[2].IMUX_C[4];
 				output D3SYNC = CELL[5].OUT_F[4];
-				input D3TXHSEN = CELL[3].IMUX_A[1];
-				input D3TXHSPD = CELL[1].IMUX_C[2];
-				input D3TXLPEN = CELL[1].IMUX_A[2];
-				input LBEN = CELL[9].IMUX_B[0];
 				output LOCK = CELL[13].OUT_F[0];
-				input PDBIAS = CELL[0].IMUX_C[4];
-				input PDCKG = CELL[9].IMUX_B[4];
-				input PDDPHY = CELL[10].IMUX_B[0];
-				input PDPLL = CELL[14].IMUX_C[0];
-				input TST0 = CELL[9].IMUX_D[0];
-				input TST1 = CELL[9].IMUX_D[4];
-				input TST2 = CELL[10].IMUX_D[0];
-				input TST3 = CELL[10].IMUX_D[4];
-			}
-
-			bel CLKTEST_MIPI {
-				input TESTIN0 = CELL[13].IMUX_B[7];
-				input TESTIN1 = CELL[13].IMUX_C[7];
 			}
 
 			// wire CELL[0].IMUX_A[4]              MIPI.D3HSSEREN
 			// wire CELL[0].IMUX_C[4]              MIPI.PDBIAS
+			// wire CELL[0].IMUX_MIPI_CLKREF       MIPI.CLKREF
+			// wire CELL[0].OUT_MIPI_CLKHSBYTE     MIPI.CLKHSBYTE
+			// wire CELL[0].OUT_MIPI_HSBYTECLKS    MIPI.HSBYTECLKS
+			// wire CELL[0].OUT_MIPI_HSBYTECLKD    MIPI.HSBYTECLKD
 			// wire CELL[1].IMUX_A[2]              MIPI.D3TXLPEN
-			// wire CELL[1].IMUX_B[0]              MIPI.D3HSTXDATA1
-			// wire CELL[1].IMUX_B[2]              MIPI.D3HSTXDATA3
-			// wire CELL[1].IMUX_B[4]              MIPI.D3HSTXDATA5
-			// wire CELL[1].IMUX_B[6]              MIPI.D3HSTXDATA7
+			// wire CELL[1].IMUX_B[0]              MIPI.D3HSTXDATA[1]
+			// wire CELL[1].IMUX_B[2]              MIPI.D3HSTXDATA[3]
+			// wire CELL[1].IMUX_B[4]              MIPI.D3HSTXDATA[5]
+			// wire CELL[1].IMUX_B[6]              MIPI.D3HSTXDATA[7]
 			// wire CELL[1].IMUX_C[2]              MIPI.D3TXHSPD
 			// wire CELL[1].IMUX_C[4]              MIPI.D3DTXLPN
-			// wire CELL[1].IMUX_D[0]              MIPI.D3HSTXDATA0
-			// wire CELL[1].IMUX_D[2]              MIPI.D3HSTXDATA2
-			// wire CELL[1].IMUX_D[4]              MIPI.D3HSTXDATA4
-			// wire CELL[1].IMUX_D[6]              MIPI.D3HSTXDATA6
+			// wire CELL[1].IMUX_D[0]              MIPI.D3HSTXDATA[0]
+			// wire CELL[1].IMUX_D[2]              MIPI.D3HSTXDATA[2]
+			// wire CELL[1].IMUX_D[4]              MIPI.D3HSTXDATA[4]
+			// wire CELL[1].IMUX_D[6]              MIPI.D3HSTXDATA[6]
 			// wire CELL[2].IMUX_A[4]              MIPI.D3DTXLPP
-			// wire CELL[2].IMUX_B[0]              MIPI.D3HSTXDATA9
-			// wire CELL[2].IMUX_B[2]              MIPI.D3HSTXDATA11
-			// wire CELL[2].IMUX_B[4]              MIPI.D3HSTXDATA13
-			// wire CELL[2].IMUX_B[6]              MIPI.D3HSTXDATA15
+			// wire CELL[2].IMUX_B[0]              MIPI.D3HSTXDATA[9]
+			// wire CELL[2].IMUX_B[2]              MIPI.D3HSTXDATA[11]
+			// wire CELL[2].IMUX_B[4]              MIPI.D3HSTXDATA[13]
+			// wire CELL[2].IMUX_B[6]              MIPI.D3HSTXDATA[15]
 			// wire CELL[2].IMUX_C[4]              MIPI.D3RXLPEN
-			// wire CELL[2].IMUX_D[0]              MIPI.D3HSTXDATA8
-			// wire CELL[2].IMUX_D[2]              MIPI.D3HSTXDATA10
-			// wire CELL[2].IMUX_D[4]              MIPI.D3HSTXDATA12
-			// wire CELL[2].IMUX_D[6]              MIPI.D3HSTXDATA14
+			// wire CELL[2].IMUX_D[0]              MIPI.D3HSTXDATA[8]
+			// wire CELL[2].IMUX_D[2]              MIPI.D3HSTXDATA[10]
+			// wire CELL[2].IMUX_D[4]              MIPI.D3HSTXDATA[12]
+			// wire CELL[2].IMUX_D[6]              MIPI.D3HSTXDATA[14]
 			// wire CELL[2].OUT_F[0]               MIPI.D3DRXLPN
 			// wire CELL[2].OUT_F[1]               MIPI.D3DRXLPP
 			// wire CELL[3].IMUX_A[1]              MIPI.D3TXHSEN
 			// wire CELL[3].IMUX_B[0]              MIPI.D3CDEN
-			// wire CELL[3].OUT_F[0]               MIPI.D3HSRXDATA0
-			// wire CELL[3].OUT_F[1]               MIPI.D3HSRXDATA1
-			// wire CELL[3].OUT_F[2]               MIPI.D3HSRXDATA2
-			// wire CELL[3].OUT_F[3]               MIPI.D3HSRXDATA3
-			// wire CELL[3].OUT_F[4]               MIPI.D3HSRXDATA4
-			// wire CELL[3].OUT_F[5]               MIPI.D3HSRXDATA5
-			// wire CELL[3].OUT_F[6]               MIPI.D3HSRXDATA6
-			// wire CELL[3].OUT_F[7]               MIPI.D3HSRXDATA7
+			// wire CELL[3].OUT_F[0]               MIPI.D3HSRXDATA[0]
+			// wire CELL[3].OUT_F[1]               MIPI.D3HSRXDATA[1]
+			// wire CELL[3].OUT_F[2]               MIPI.D3HSRXDATA[2]
+			// wire CELL[3].OUT_F[3]               MIPI.D3HSRXDATA[3]
+			// wire CELL[3].OUT_F[4]               MIPI.D3HSRXDATA[4]
+			// wire CELL[3].OUT_F[5]               MIPI.D3HSRXDATA[5]
+			// wire CELL[3].OUT_F[6]               MIPI.D3HSRXDATA[6]
+			// wire CELL[3].OUT_F[7]               MIPI.D3HSRXDATA[7]
 			// wire CELL[3].OUT_Q[0]               MIPI.D3NOSYNC
 			// wire CELL[3].OUT_Q[1]               MIPI.D3DCDP
 			// wire CELL[3].OUT_Q[4]               MIPI.D3DCDN
 			// wire CELL[4].IMUX_C[0]              MIPI.D3RXHSEN
 			// wire CELL[4].IMUX_C[4]              MIPI.D3HSDESEREN
-			// wire CELL[4].OUT_F[0]               MIPI.D3HSRXDATA8
-			// wire CELL[4].OUT_F[1]               MIPI.D3HSRXDATA9
-			// wire CELL[4].OUT_F[2]               MIPI.D3HSRXDATA10
-			// wire CELL[4].OUT_F[3]               MIPI.D3HSRXDATA11
-			// wire CELL[4].OUT_F[4]               MIPI.D3HSRXDATA12
-			// wire CELL[4].OUT_F[5]               MIPI.D3HSRXDATA13
-			// wire CELL[4].OUT_F[6]               MIPI.D3HSRXDATA14
-			// wire CELL[4].OUT_F[7]               MIPI.D3HSRXDATA15
+			// wire CELL[4].OUT_F[0]               MIPI.D3HSRXDATA[8]
+			// wire CELL[4].OUT_F[1]               MIPI.D3HSRXDATA[9]
+			// wire CELL[4].OUT_F[2]               MIPI.D3HSRXDATA[10]
+			// wire CELL[4].OUT_F[3]               MIPI.D3HSRXDATA[11]
+			// wire CELL[4].OUT_F[4]               MIPI.D3HSRXDATA[12]
+			// wire CELL[4].OUT_F[5]               MIPI.D3HSRXDATA[13]
+			// wire CELL[4].OUT_F[6]               MIPI.D3HSRXDATA[14]
+			// wire CELL[4].OUT_F[7]               MIPI.D3HSRXDATA[15]
 			// wire CELL[5].IMUX_A[0]              MIPI.D1HSSEREN
-			// wire CELL[5].IMUX_B[0]              MIPI.D1HSTXDATA1
-			// wire CELL[5].IMUX_B[2]              MIPI.D1HSTXDATA3
-			// wire CELL[5].IMUX_B[4]              MIPI.D1HSTXDATA5
-			// wire CELL[5].IMUX_B[6]              MIPI.D1HSTXDATA7
-			// wire CELL[5].IMUX_D[0]              MIPI.D1HSTXDATA0
-			// wire CELL[5].IMUX_D[2]              MIPI.D1HSTXDATA2
-			// wire CELL[5].IMUX_D[4]              MIPI.D1HSTXDATA4
-			// wire CELL[5].IMUX_D[6]              MIPI.D1HSTXDATA6
+			// wire CELL[5].IMUX_B[0]              MIPI.D1HSTXDATA[1]
+			// wire CELL[5].IMUX_B[2]              MIPI.D1HSTXDATA[3]
+			// wire CELL[5].IMUX_B[4]              MIPI.D1HSTXDATA[5]
+			// wire CELL[5].IMUX_B[6]              MIPI.D1HSTXDATA[7]
+			// wire CELL[5].IMUX_D[0]              MIPI.D1HSTXDATA[0]
+			// wire CELL[5].IMUX_D[2]              MIPI.D1HSTXDATA[2]
+			// wire CELL[5].IMUX_D[4]              MIPI.D1HSTXDATA[4]
+			// wire CELL[5].IMUX_D[6]              MIPI.D1HSTXDATA[6]
 			// wire CELL[5].OUT_F[0]               MIPI.D3ERRSYNC
 			// wire CELL[5].OUT_F[1]               MIPI.D1DRXHS
 			// wire CELL[5].OUT_F[4]               MIPI.D3SYNC
@@ -3408,15 +3654,15 @@ intdb {
 			// wire CELL[6].IMUX_A[0]              MIPI.D1TXLPEN
 			// wire CELL[6].IMUX_A[2]              MIPI.D1TXHSPD
 			// wire CELL[6].IMUX_A[5]              MIPI.D1DTXLPN
-			// wire CELL[6].IMUX_B[0]              MIPI.D1HSTXDATA9
-			// wire CELL[6].IMUX_B[2]              MIPI.D1HSTXDATA11
-			// wire CELL[6].IMUX_B[4]              MIPI.D1HSTXDATA13
-			// wire CELL[6].IMUX_B[6]              MIPI.D1HSTXDATA15
+			// wire CELL[6].IMUX_B[0]              MIPI.D1HSTXDATA[9]
+			// wire CELL[6].IMUX_B[2]              MIPI.D1HSTXDATA[11]
+			// wire CELL[6].IMUX_B[4]              MIPI.D1HSTXDATA[13]
+			// wire CELL[6].IMUX_B[6]              MIPI.D1HSTXDATA[15]
 			// wire CELL[6].IMUX_C[2]              MIPI.D1DTXLPP
-			// wire CELL[6].IMUX_D[0]              MIPI.D1HSTXDATA8
-			// wire CELL[6].IMUX_D[2]              MIPI.D1HSTXDATA10
-			// wire CELL[6].IMUX_D[4]              MIPI.D1HSTXDATA12
-			// wire CELL[6].IMUX_D[6]              MIPI.D1HSTXDATA14
+			// wire CELL[6].IMUX_D[0]              MIPI.D1HSTXDATA[8]
+			// wire CELL[6].IMUX_D[2]              MIPI.D1HSTXDATA[10]
+			// wire CELL[6].IMUX_D[4]              MIPI.D1HSTXDATA[12]
+			// wire CELL[6].IMUX_D[6]              MIPI.D1HSTXDATA[14]
 			// wire CELL[7].IMUX_C[2]              MIPI.D1RXLPEN
 			// wire CELL[7].IMUX_D[0]              MIPI.D1TXHSEN
 			// wire CELL[7].OUT_F[0]               MIPI.D1DRXLPN
@@ -3425,165 +3671,164 @@ intdb {
 			// wire CELL[7].OUT_F[3]               MIPI.D1DCDP
 			// wire CELL[7].OUT_F[4]               MIPI.D1DCDN
 			// wire CELL[8].IMUX_A[0]              MIPI.D1CDEN
-			// wire CELL[8].OUT_F[0]               MIPI.D1HSRXDATA0
-			// wire CELL[8].OUT_F[1]               MIPI.D1HSRXDATA1
-			// wire CELL[8].OUT_F[2]               MIPI.D1HSRXDATA2
-			// wire CELL[8].OUT_F[3]               MIPI.D1HSRXDATA3
-			// wire CELL[8].OUT_F[4]               MIPI.D1HSRXDATA4
-			// wire CELL[8].OUT_F[5]               MIPI.D1HSRXDATA5
-			// wire CELL[8].OUT_F[6]               MIPI.D1HSRXDATA6
-			// wire CELL[8].OUT_F[7]               MIPI.D1HSRXDATA7
+			// wire CELL[8].OUT_F[0]               MIPI.D1HSRXDATA[0]
+			// wire CELL[8].OUT_F[1]               MIPI.D1HSRXDATA[1]
+			// wire CELL[8].OUT_F[2]               MIPI.D1HSRXDATA[2]
+			// wire CELL[8].OUT_F[3]               MIPI.D1HSRXDATA[3]
+			// wire CELL[8].OUT_F[4]               MIPI.D1HSRXDATA[4]
+			// wire CELL[8].OUT_F[5]               MIPI.D1HSRXDATA[5]
+			// wire CELL[8].OUT_F[6]               MIPI.D1HSRXDATA[6]
+			// wire CELL[8].OUT_F[7]               MIPI.D1HSRXDATA[7]
 			// wire CELL[9].IMUX_A[0]              MIPI.D1RXHSEN
 			// wire CELL[9].IMUX_A[4]              MIPI.D1HSDESEREN
 			// wire CELL[9].IMUX_B[0]              MIPI.LBEN
 			// wire CELL[9].IMUX_B[4]              MIPI.PDCKG
-			// wire CELL[9].IMUX_C[0]              MIPI.CN0
-			// wire CELL[9].IMUX_C[4]              MIPI.CN1
-			// wire CELL[9].IMUX_D[0]              MIPI.TST0
-			// wire CELL[9].IMUX_D[4]              MIPI.TST1
-			// wire CELL[9].OUT_F[0]               MIPI.D1HSRXDATA8
-			// wire CELL[9].OUT_F[1]               MIPI.D1HSRXDATA9
-			// wire CELL[9].OUT_F[2]               MIPI.D1HSRXDATA10
-			// wire CELL[9].OUT_F[3]               MIPI.D1HSRXDATA11
-			// wire CELL[9].OUT_F[4]               MIPI.D1HSRXDATA12
-			// wire CELL[9].OUT_F[5]               MIPI.D1HSRXDATA13
-			// wire CELL[9].OUT_F[6]               MIPI.D1HSRXDATA14
-			// wire CELL[9].OUT_F[7]               MIPI.D1HSRXDATA15
+			// wire CELL[9].IMUX_C[0]              MIPI.CN[0]
+			// wire CELL[9].IMUX_C[4]              MIPI.CN[1]
+			// wire CELL[9].IMUX_D[0]              MIPI.TST[0]
+			// wire CELL[9].IMUX_D[4]              MIPI.TST[1]
+			// wire CELL[9].OUT_F[0]               MIPI.D1HSRXDATA[8]
+			// wire CELL[9].OUT_F[1]               MIPI.D1HSRXDATA[9]
+			// wire CELL[9].OUT_F[2]               MIPI.D1HSRXDATA[10]
+			// wire CELL[9].OUT_F[3]               MIPI.D1HSRXDATA[11]
+			// wire CELL[9].OUT_F[4]               MIPI.D1HSRXDATA[12]
+			// wire CELL[9].OUT_F[5]               MIPI.D1HSRXDATA[13]
+			// wire CELL[9].OUT_F[6]               MIPI.D1HSRXDATA[14]
+			// wire CELL[9].OUT_F[7]               MIPI.D1HSRXDATA[15]
 			// wire CELL[9].OUT_Q[0]               MIPI.D1SYNC
 			// wire CELL[9].OUT_Q[1]               MIPI.D1ERRSYNC
 			// wire CELL[10].IMUX_B[0]             MIPI.PDDPHY
 			// wire CELL[10].IMUX_B[4]             MIPI.CLKTXHSGATE
-			// wire CELL[10].IMUX_C[0]             MIPI.CN2
-			// wire CELL[10].IMUX_C[4]             MIPI.CN3
-			// wire CELL[10].IMUX_C[6]             MIPI.CN4
-			// wire CELL[10].IMUX_D[0]             MIPI.TST2
-			// wire CELL[10].IMUX_D[4]             MIPI.TST3
+			// wire CELL[10].IMUX_C[0]             MIPI.CN[2]
+			// wire CELL[10].IMUX_C[4]             MIPI.CN[3]
+			// wire CELL[10].IMUX_C[6]             MIPI.CN[4]
+			// wire CELL[10].IMUX_D[0]             MIPI.TST[2]
+			// wire CELL[10].IMUX_D[4]             MIPI.TST[3]
 			// wire CELL[10].IMUX_D[6]             MIPI.CLKTXLPEN
-			// wire CELL[11].IMUX_A[0]             MIPI.CM0
-			// wire CELL[11].IMUX_A[4]             MIPI.CM1
-			// wire CELL[11].IMUX_B[0]             MIPI.CM2
-			// wire CELL[11].IMUX_B[4]             MIPI.CM3
+			// wire CELL[11].IMUX_A[0]             MIPI.CM[0]
+			// wire CELL[11].IMUX_A[4]             MIPI.CM[1]
+			// wire CELL[11].IMUX_B[0]             MIPI.CM[2]
+			// wire CELL[11].IMUX_B[4]             MIPI.CM[3]
 			// wire CELL[11].IMUX_C[0]             MIPI.CLKDTXLPN
 			// wire CELL[11].IMUX_C[4]             MIPI.CLKTXHSPD
 			// wire CELL[11].IMUX_D[4]             MIPI.CLKDTXLPP
-			// wire CELL[12].IMUX_A[0]             MIPI.CM4
-			// wire CELL[12].IMUX_A[4]             MIPI.CM5
-			// wire CELL[12].IMUX_B[0]             MIPI.CM6
-			// wire CELL[12].IMUX_B[4]             MIPI.CM7
+			// wire CELL[12].IMUX_A[0]             MIPI.CM[4]
+			// wire CELL[12].IMUX_A[4]             MIPI.CM[5]
+			// wire CELL[12].IMUX_B[0]             MIPI.CM[6]
+			// wire CELL[12].IMUX_B[4]             MIPI.CM[7]
 			// wire CELL[12].IMUX_C[4]             MIPI.CLKRXLPEN
 			// wire CELL[12].IMUX_D[0]             MIPI.CLKTXHSEN
 			// wire CELL[12].IMUX_D[4]             MIPI.CLKCDEN
 			// wire CELL[12].OUT_F[0]              MIPI.CLKDRXLPN
 			// wire CELL[12].OUT_F[1]              MIPI.CLKDRXLPP
 			// wire CELL[12].OUT_F[4]              MIPI.CLKDCDN
-			// wire CELL[13].IMUX_B[7]             CLKTEST_MIPI.TESTIN0
+			// wire CELL[13].IMUX_B[7]             MIPI.CLKTEST_TESTIN[0]
 			// wire CELL[13].IMUX_C[4]             MIPI.CLKRXHSEN
-			// wire CELL[13].IMUX_C[7]             CLKTEST_MIPI.TESTIN1
-			// wire CELL[13].IMUX_CLK[0]           MIPI.CLKREF
+			// wire CELL[13].IMUX_C[7]             MIPI.CLKTEST_TESTIN[1]
 			// wire CELL[13].OUT_F[0]              MIPI.LOCK
-			// wire CELL[14].IMUX_A[0]             MIPI.CO0
-			// wire CELL[14].IMUX_A[4]             MIPI.CO1
+			// wire CELL[14].IMUX_A[0]             MIPI.CO[0]
+			// wire CELL[14].IMUX_A[4]             MIPI.CO[1]
 			// wire CELL[14].IMUX_C[0]             MIPI.PDPLL
 			// wire CELL[14].IMUX_C[4]             MIPI.D0HSSEREN
 			// wire CELL[14].OUT_F[4]              MIPI.CLKHSBYTE
 			// wire CELL[14].OUT_F[6]              MIPI.CLKDRXHS
 			// wire CELL[15].IMUX_A[0]             MIPI.D0TXLPEN
 			// wire CELL[15].IMUX_A[4]             MIPI.D0TXHSPD
-			// wire CELL[15].IMUX_B[0]             MIPI.D0HSTXDATA1
-			// wire CELL[15].IMUX_B[2]             MIPI.D0HSTXDATA3
-			// wire CELL[15].IMUX_B[4]             MIPI.D0HSTXDATA5
-			// wire CELL[15].IMUX_B[6]             MIPI.D0HSTXDATA7
+			// wire CELL[15].IMUX_B[0]             MIPI.D0HSTXDATA[1]
+			// wire CELL[15].IMUX_B[2]             MIPI.D0HSTXDATA[3]
+			// wire CELL[15].IMUX_B[4]             MIPI.D0HSTXDATA[5]
+			// wire CELL[15].IMUX_B[6]             MIPI.D0HSTXDATA[7]
 			// wire CELL[15].IMUX_C[4]             MIPI.D0DTXLPN
-			// wire CELL[15].IMUX_D[0]             MIPI.D0HSTXDATA0
-			// wire CELL[15].IMUX_D[2]             MIPI.D0HSTXDATA2
-			// wire CELL[15].IMUX_D[4]             MIPI.D0HSTXDATA4
-			// wire CELL[15].IMUX_D[6]             MIPI.D0HSTXDATA6
+			// wire CELL[15].IMUX_D[0]             MIPI.D0HSTXDATA[0]
+			// wire CELL[15].IMUX_D[2]             MIPI.D0HSTXDATA[2]
+			// wire CELL[15].IMUX_D[4]             MIPI.D0HSTXDATA[4]
+			// wire CELL[15].IMUX_D[6]             MIPI.D0HSTXDATA[6]
 			// wire CELL[16].IMUX_A[0]             MIPI.D0RXLPEN
 			// wire CELL[16].IMUX_A[4]             MIPI.D0DTXLPP
-			// wire CELL[16].IMUX_B[0]             MIPI.D0HSTXDATA9
-			// wire CELL[16].IMUX_B[2]             MIPI.D0HSTXDATA11
-			// wire CELL[16].IMUX_B[4]             MIPI.D0HSTXDATA13
-			// wire CELL[16].IMUX_B[6]             MIPI.D0HSTXDATA15
+			// wire CELL[16].IMUX_B[0]             MIPI.D0HSTXDATA[9]
+			// wire CELL[16].IMUX_B[2]             MIPI.D0HSTXDATA[11]
+			// wire CELL[16].IMUX_B[4]             MIPI.D0HSTXDATA[13]
+			// wire CELL[16].IMUX_B[6]             MIPI.D0HSTXDATA[15]
 			// wire CELL[16].IMUX_C[0]             MIPI.D0TXHSEN
-			// wire CELL[16].IMUX_D[0]             MIPI.D0HSTXDATA8
-			// wire CELL[16].IMUX_D[2]             MIPI.D0HSTXDATA10
-			// wire CELL[16].IMUX_D[4]             MIPI.D0HSTXDATA12
-			// wire CELL[16].IMUX_D[6]             MIPI.D0HSTXDATA14
+			// wire CELL[16].IMUX_D[0]             MIPI.D0HSTXDATA[8]
+			// wire CELL[16].IMUX_D[2]             MIPI.D0HSTXDATA[10]
+			// wire CELL[16].IMUX_D[4]             MIPI.D0HSTXDATA[12]
+			// wire CELL[16].IMUX_D[6]             MIPI.D0HSTXDATA[14]
 			// wire CELL[16].OUT_F[0]              MIPI.D0DRXLPN
 			// wire CELL[16].OUT_F[1]              MIPI.D0DRXLPP
 			// wire CELL[16].OUT_F[3]              MIPI.D0NOSYNC
 			// wire CELL[17].IMUX_A[3]             MIPI.D0CDEN
-			// wire CELL[17].OUT_F[0]              MIPI.D0HSRXDATA0
-			// wire CELL[17].OUT_F[1]              MIPI.D0HSRXDATA1
-			// wire CELL[17].OUT_F[2]              MIPI.D0HSRXDATA2
-			// wire CELL[17].OUT_F[3]              MIPI.D0HSRXDATA3
-			// wire CELL[17].OUT_F[4]              MIPI.D0HSRXDATA4
-			// wire CELL[17].OUT_F[5]              MIPI.D0HSRXDATA5
-			// wire CELL[17].OUT_F[6]              MIPI.D0HSRXDATA6
-			// wire CELL[17].OUT_F[7]              MIPI.D0HSRXDATA7
+			// wire CELL[17].OUT_F[0]              MIPI.D0HSRXDATA[0]
+			// wire CELL[17].OUT_F[1]              MIPI.D0HSRXDATA[1]
+			// wire CELL[17].OUT_F[2]              MIPI.D0HSRXDATA[2]
+			// wire CELL[17].OUT_F[3]              MIPI.D0HSRXDATA[3]
+			// wire CELL[17].OUT_F[4]              MIPI.D0HSRXDATA[4]
+			// wire CELL[17].OUT_F[5]              MIPI.D0HSRXDATA[5]
+			// wire CELL[17].OUT_F[6]              MIPI.D0HSRXDATA[6]
+			// wire CELL[17].OUT_F[7]              MIPI.D0HSRXDATA[7]
 			// wire CELL[17].OUT_Q[0]              MIPI.D0DCDP
 			// wire CELL[17].OUT_Q[1]              MIPI.D0DCDN
 			// wire CELL[18].IMUX_A[3]             MIPI.D0RXHSEN
 			// wire CELL[18].IMUX_A[7]             MIPI.D0HSDESEREN
-			// wire CELL[18].OUT_F[0]              MIPI.D0HSRXDATA8
-			// wire CELL[18].OUT_F[1]              MIPI.D0HSRXDATA9
-			// wire CELL[18].OUT_F[2]              MIPI.D0HSRXDATA10
-			// wire CELL[18].OUT_F[3]              MIPI.D0HSRXDATA11
-			// wire CELL[18].OUT_F[4]              MIPI.D0HSRXDATA12
-			// wire CELL[18].OUT_F[5]              MIPI.D0HSRXDATA13
-			// wire CELL[18].OUT_F[6]              MIPI.D0HSRXDATA14
-			// wire CELL[18].OUT_F[7]              MIPI.D0HSRXDATA15
+			// wire CELL[18].OUT_F[0]              MIPI.D0HSRXDATA[8]
+			// wire CELL[18].OUT_F[1]              MIPI.D0HSRXDATA[9]
+			// wire CELL[18].OUT_F[2]              MIPI.D0HSRXDATA[10]
+			// wire CELL[18].OUT_F[3]              MIPI.D0HSRXDATA[11]
+			// wire CELL[18].OUT_F[4]              MIPI.D0HSRXDATA[12]
+			// wire CELL[18].OUT_F[5]              MIPI.D0HSRXDATA[13]
+			// wire CELL[18].OUT_F[6]              MIPI.D0HSRXDATA[14]
+			// wire CELL[18].OUT_F[7]              MIPI.D0HSRXDATA[15]
 			// wire CELL[18].OUT_Q[4]              MIPI.D0SYNC
 			// wire CELL[18].OUT_Q[5]              MIPI.D0ERRSYNC
 			// wire CELL[19].IMUX_A[6]             MIPI.D2HSSEREN
 			// wire CELL[19].OUT_F[1]              MIPI.D0DRXHS
 			// wire CELL[19].OUT_F[6]              MIPI.D2DRXHS
 			// wire CELL[20].IMUX_A[4]             MIPI.D2TXLPEN
-			// wire CELL[20].IMUX_B[0]             MIPI.D2HSTXDATA1
-			// wire CELL[20].IMUX_B[2]             MIPI.D2HSTXDATA3
-			// wire CELL[20].IMUX_B[4]             MIPI.D2HSTXDATA5
-			// wire CELL[20].IMUX_B[6]             MIPI.D2HSTXDATA7
+			// wire CELL[20].IMUX_B[0]             MIPI.D2HSTXDATA[1]
+			// wire CELL[20].IMUX_B[2]             MIPI.D2HSTXDATA[3]
+			// wire CELL[20].IMUX_B[4]             MIPI.D2HSTXDATA[5]
+			// wire CELL[20].IMUX_B[6]             MIPI.D2HSTXDATA[7]
 			// wire CELL[20].IMUX_C[0]             MIPI.D2TXHSPD
 			// wire CELL[20].IMUX_C[4]             MIPI.D2DTXLPN
-			// wire CELL[20].IMUX_D[0]             MIPI.D2HSTXDATA0
-			// wire CELL[20].IMUX_D[2]             MIPI.D2HSTXDATA2
-			// wire CELL[20].IMUX_D[4]             MIPI.D2HSTXDATA4
-			// wire CELL[20].IMUX_D[6]             MIPI.D2HSTXDATA6
+			// wire CELL[20].IMUX_D[0]             MIPI.D2HSTXDATA[0]
+			// wire CELL[20].IMUX_D[2]             MIPI.D2HSTXDATA[2]
+			// wire CELL[20].IMUX_D[4]             MIPI.D2HSTXDATA[4]
+			// wire CELL[20].IMUX_D[6]             MIPI.D2HSTXDATA[6]
 			// wire CELL[21].IMUX_A[3]             MIPI.D2RXLPEN
 			// wire CELL[21].IMUX_A[5]             MIPI.D2DTXLPP
-			// wire CELL[21].IMUX_B[0]             MIPI.D2HSTXDATA9
-			// wire CELL[21].IMUX_B[2]             MIPI.D2HSTXDATA11
-			// wire CELL[21].IMUX_B[4]             MIPI.D2HSTXDATA13
-			// wire CELL[21].IMUX_B[6]             MIPI.D2HSTXDATA15
+			// wire CELL[21].IMUX_B[0]             MIPI.D2HSTXDATA[9]
+			// wire CELL[21].IMUX_B[2]             MIPI.D2HSTXDATA[11]
+			// wire CELL[21].IMUX_B[4]             MIPI.D2HSTXDATA[13]
+			// wire CELL[21].IMUX_B[6]             MIPI.D2HSTXDATA[15]
 			// wire CELL[21].IMUX_C[3]             MIPI.D2TXHSEN
-			// wire CELL[21].IMUX_D[0]             MIPI.D2HSTXDATA8
-			// wire CELL[21].IMUX_D[2]             MIPI.D2HSTXDATA10
-			// wire CELL[21].IMUX_D[4]             MIPI.D2HSTXDATA12
-			// wire CELL[21].IMUX_D[6]             MIPI.D2HSTXDATA14
+			// wire CELL[21].IMUX_D[0]             MIPI.D2HSTXDATA[8]
+			// wire CELL[21].IMUX_D[2]             MIPI.D2HSTXDATA[10]
+			// wire CELL[21].IMUX_D[4]             MIPI.D2HSTXDATA[12]
+			// wire CELL[21].IMUX_D[6]             MIPI.D2HSTXDATA[14]
 			// wire CELL[21].OUT_F[0]              MIPI.D2DRXLPN
 			// wire CELL[21].OUT_F[1]              MIPI.D2DRXLPP
 			// wire CELL[22].IMUX_A[4]             MIPI.D2CDEN
-			// wire CELL[22].OUT_F[0]              MIPI.D2HSRXDATA0
-			// wire CELL[22].OUT_F[1]              MIPI.D2HSRXDATA1
-			// wire CELL[22].OUT_F[2]              MIPI.D2HSRXDATA2
-			// wire CELL[22].OUT_F[3]              MIPI.D2HSRXDATA3
-			// wire CELL[22].OUT_F[4]              MIPI.D2HSRXDATA4
-			// wire CELL[22].OUT_F[5]              MIPI.D2HSRXDATA5
-			// wire CELL[22].OUT_F[6]              MIPI.D2HSRXDATA6
-			// wire CELL[22].OUT_F[7]              MIPI.D2HSRXDATA7
+			// wire CELL[22].OUT_F[0]              MIPI.D2HSRXDATA[0]
+			// wire CELL[22].OUT_F[1]              MIPI.D2HSRXDATA[1]
+			// wire CELL[22].OUT_F[2]              MIPI.D2HSRXDATA[2]
+			// wire CELL[22].OUT_F[3]              MIPI.D2HSRXDATA[3]
+			// wire CELL[22].OUT_F[4]              MIPI.D2HSRXDATA[4]
+			// wire CELL[22].OUT_F[5]              MIPI.D2HSRXDATA[5]
+			// wire CELL[22].OUT_F[6]              MIPI.D2HSRXDATA[6]
+			// wire CELL[22].OUT_F[7]              MIPI.D2HSRXDATA[7]
 			// wire CELL[22].OUT_Q[0]              MIPI.D2NOSYNC
 			// wire CELL[22].OUT_Q[1]              MIPI.D2DCDP
 			// wire CELL[22].OUT_Q[4]              MIPI.D2DCDN
 			// wire CELL[23].IMUX_A[0]             MIPI.D2HSDESEREN
 			// wire CELL[23].IMUX_C[4]             MIPI.D2RXHSEN
-			// wire CELL[23].OUT_F[0]              MIPI.D2HSRXDATA8
-			// wire CELL[23].OUT_F[1]              MIPI.D2HSRXDATA9
-			// wire CELL[23].OUT_F[2]              MIPI.D2HSRXDATA10
-			// wire CELL[23].OUT_F[3]              MIPI.D2HSRXDATA11
-			// wire CELL[23].OUT_F[4]              MIPI.D2HSRXDATA12
-			// wire CELL[23].OUT_F[5]              MIPI.D2HSRXDATA13
-			// wire CELL[23].OUT_F[6]              MIPI.D2HSRXDATA14
-			// wire CELL[23].OUT_F[7]              MIPI.D2HSRXDATA15
+			// wire CELL[23].OUT_F[0]              MIPI.D2HSRXDATA[8]
+			// wire CELL[23].OUT_F[1]              MIPI.D2HSRXDATA[9]
+			// wire CELL[23].OUT_F[2]              MIPI.D2HSRXDATA[10]
+			// wire CELL[23].OUT_F[3]              MIPI.D2HSRXDATA[11]
+			// wire CELL[23].OUT_F[4]              MIPI.D2HSRXDATA[12]
+			// wire CELL[23].OUT_F[5]              MIPI.D2HSRXDATA[13]
+			// wire CELL[23].OUT_F[6]              MIPI.D2HSRXDATA[14]
+			// wire CELL[23].OUT_F[7]              MIPI.D2HSRXDATA[15]
 			// wire CELL[23].OUT_Q[3]              MIPI.D2SYNC
 			// wire CELL[23].OUT_Q[4]              MIPI.D2ERRSYNC
 		}
@@ -3711,8 +3956,8 @@ intdb {
 				input CFGSCANCLK = CELL_W.IMUX_B[4];
 				input CFGSCANRESET = CELL_W.IMUX_D[5];
 				input CFGSCANSDI = CELL_W.IMUX_B[5];
-				output CFGSCANSDO = CELL[1].OUT_F[7];
 				input CFGSCANSHIFTEN = CELL_W.IMUX_D[4];
+				output CFGSCANSDO = CELL[1].OUT_F[7];
 			}
 
 			// wire CELL[0].IMUX_D[4]              GSR.GSR
@@ -3747,56 +3992,53 @@ intdb {
 
 			bel PMU {
 				input SLEEP = IMUX_B[7];
-				input USRADR0 = IMUX_C[2];
-				input USRADR1 = IMUX_D[3];
-				input USRADR2 = IMUX_B[3];
-				input USRADR3 = IMUX_C[3];
 				input USRCLK = IMUX_CLK[1];
 				input USRCS = IMUX_A[2];
-				input USRDATA0 = IMUX_C[4];
-				input USRDATA1 = IMUX_A[5];
-				input USRDATA2 = IMUX_B[5];
-				input USRDATA3 = IMUX_C[5];
-				input USRDATA4 = IMUX_A[6];
-				input USRDATA5 = IMUX_C[6];
-				input USRDATA6 = IMUX_A[7];
-				input USRDATA7 = IMUX_C[7];
 				input USRSTB = IMUX_B[2];
-				output USRWDTDONE = OUT_F[0];
-				output USRWDTINT = OUT_F[2];
-			}
-
-			bel PMUTEST {
+				input USRADR[0] = IMUX_C[2];
+				input USRADR[1] = IMUX_D[3];
+				input USRADR[2] = IMUX_B[3];
+				input USRADR[3] = IMUX_C[3];
+				input USRDATA[0] = IMUX_C[4];
+				input USRDATA[1] = IMUX_A[5];
+				input USRDATA[2] = IMUX_B[5];
+				input USRDATA[3] = IMUX_C[5];
+				input USRDATA[4] = IMUX_A[6];
+				input USRDATA[5] = IMUX_C[6];
+				input USRDATA[6] = IMUX_A[7];
+				input USRDATA[7] = IMUX_C[7];
 				input PMUSCANCLK = IMUX_D[6];
 				input PMUSCANRESET = IMUX_LSR[1];
-				input PMUSCANSDI = IMUX_B[6];
-				output PMUSCANSDO = OUT_F[3];
 				input PMUSCANSHIFTEN = IMUX_D[7];
+				input PMUSCANSDI = IMUX_B[6];
+				output USRWDTDONE = OUT_F[0];
+				output USRWDTINT = OUT_F[2];
+				output PMUSCANSDO = OUT_F[3];
 			}
 
 			// wire IMUX_A[2]                      PMU.USRCS
-			// wire IMUX_A[5]                      PMU.USRDATA1
-			// wire IMUX_A[6]                      PMU.USRDATA4
-			// wire IMUX_A[7]                      PMU.USRDATA6
+			// wire IMUX_A[5]                      PMU.USRDATA[1]
+			// wire IMUX_A[6]                      PMU.USRDATA[4]
+			// wire IMUX_A[7]                      PMU.USRDATA[6]
 			// wire IMUX_B[2]                      PMU.USRSTB
-			// wire IMUX_B[3]                      PMU.USRADR2
-			// wire IMUX_B[5]                      PMU.USRDATA2
-			// wire IMUX_B[6]                      PMUTEST.PMUSCANSDI
+			// wire IMUX_B[3]                      PMU.USRADR[2]
+			// wire IMUX_B[5]                      PMU.USRDATA[2]
+			// wire IMUX_B[6]                      PMU.PMUSCANSDI
 			// wire IMUX_B[7]                      PMU.SLEEP
-			// wire IMUX_C[2]                      PMU.USRADR0
-			// wire IMUX_C[3]                      PMU.USRADR3
-			// wire IMUX_C[4]                      PMU.USRDATA0
-			// wire IMUX_C[5]                      PMU.USRDATA3
-			// wire IMUX_C[6]                      PMU.USRDATA5
-			// wire IMUX_C[7]                      PMU.USRDATA7
-			// wire IMUX_D[3]                      PMU.USRADR1
-			// wire IMUX_D[6]                      PMUTEST.PMUSCANCLK
-			// wire IMUX_D[7]                      PMUTEST.PMUSCANSHIFTEN
+			// wire IMUX_C[2]                      PMU.USRADR[0]
+			// wire IMUX_C[3]                      PMU.USRADR[3]
+			// wire IMUX_C[4]                      PMU.USRDATA[0]
+			// wire IMUX_C[5]                      PMU.USRDATA[3]
+			// wire IMUX_C[6]                      PMU.USRDATA[5]
+			// wire IMUX_C[7]                      PMU.USRDATA[7]
+			// wire IMUX_D[3]                      PMU.USRADR[1]
+			// wire IMUX_D[6]                      PMU.PMUSCANCLK
+			// wire IMUX_D[7]                      PMU.PMUSCANSHIFTEN
 			// wire IMUX_CLK[1]                    PMU.USRCLK
-			// wire IMUX_LSR[1]                    PMUTEST.PMUSCANRESET
+			// wire IMUX_LSR[1]                    PMU.PMUSCANRESET
 			// wire OUT_F[0]                       PMU.USRWDTDONE
 			// wire OUT_F[2]                       PMU.USRWDTINT
-			// wire OUT_F[3]                       PMUTEST.PMUSCANSDO
+			// wire OUT_F[3]                       PMU.PMUSCANSDO
 		}
 
 		tile_class I2C_W {
@@ -3804,89 +4046,89 @@ intdb {
 			cell CELL[1];
 
 			bel I2C {
-				output ACKO = CELL[1].OUT_Q[3];
-				input ADRI0 = CELL[1].IMUX_C[4];
-				input ADRI1 = CELL[1].IMUX_A[4];
-				input ADRI2 = CELL[1].IMUX_C[6];
-				input ADRI3 = CELL[1].IMUX_A[6];
 				input CLKI = CELL[0].IMUX_CLK[0];
 				input CSI = CELL[1].IMUX_A[0];
-				input DATI0 = CELL[0].IMUX_D[0];
-				input DATI1 = CELL[0].IMUX_B[0];
-				input DATI2 = CELL[0].IMUX_D[2];
-				input DATI3 = CELL[0].IMUX_B[2];
-				input DATI4 = CELL[0].IMUX_D[4];
-				input DATI5 = CELL[0].IMUX_B[4];
-				input DATI6 = CELL[0].IMUX_D[6];
-				input DATI7 = CELL[0].IMUX_B[6];
-				input DATI8 = CELL[1].IMUX_D[0];
-				input DATI9 = CELL[1].IMUX_B[0];
-				output DATO0 = CELL[0].OUT_F[0];
-				output DATO1 = CELL[0].OUT_F[1];
-				output DATO2 = CELL[0].OUT_F[2];
-				output DATO3 = CELL[0].OUT_F[3];
-				output DATO4 = CELL[0].OUT_F[4];
-				output DATO5 = CELL[0].OUT_F[5];
-				output DATO6 = CELL[0].OUT_F[6];
-				output DATO7 = CELL[0].OUT_F[7];
-				output DATO8 = CELL[1].OUT_F[0];
-				output DATO9 = CELL[1].OUT_F[1];
+				input STBI = CELL[1].IMUX_B[2];
+				input WEI = CELL[1].IMUX_D[4];
+				input ADRI[0] = CELL[1].IMUX_C[4];
+				input ADRI[1] = CELL[1].IMUX_A[4];
+				input ADRI[2] = CELL[1].IMUX_C[6];
+				input ADRI[3] = CELL[1].IMUX_A[6];
+				input DATI[0] = CELL[0].IMUX_D[0];
+				input DATI[1] = CELL[0].IMUX_B[0];
+				input DATI[2] = CELL[0].IMUX_D[2];
+				input DATI[3] = CELL[0].IMUX_B[2];
+				input DATI[4] = CELL[0].IMUX_D[4];
+				input DATI[5] = CELL[0].IMUX_B[4];
+				input DATI[6] = CELL[0].IMUX_D[6];
+				input DATI[7] = CELL[0].IMUX_B[6];
+				input DATI[8] = CELL[1].IMUX_D[0];
+				input DATI[9] = CELL[1].IMUX_B[0];
 				input FIFORST = CELL[0].IMUX_LSR[0];
-				output I2CIRQ = CELL[1].OUT_F[7];
-				output I2CWKUP = CELL[0].OUT_Q[0];
-				output MRDCMPL = CELL[1].OUT_Q[2];
+				input SCLI = CELL[0].IMUX_C[4];
+				input SDAI = CELL[0].IMUX_A[4];
+				output DATO[0] = CELL[0].OUT_F[0];
+				output DATO[1] = CELL[0].OUT_F[1];
+				output DATO[2] = CELL[0].OUT_F[2];
+				output DATO[3] = CELL[0].OUT_F[3];
+				output DATO[4] = CELL[0].OUT_F[4];
+				output DATO[5] = CELL[0].OUT_F[5];
+				output DATO[6] = CELL[0].OUT_F[6];
+				output DATO[7] = CELL[0].OUT_F[7];
+				output DATO[8] = CELL[1].OUT_F[0];
+				output DATO[9] = CELL[1].OUT_F[1];
+				output ACKO = CELL[1].OUT_Q[3];
 				output RXFIFOAF = CELL[0].OUT_Q[1];
 				output RXFIFOE = CELL[0].OUT_Q[4];
 				output RXFIFOF = CELL[0].OUT_Q[5];
-				input SCLI = CELL[0].IMUX_C[4];
-				output SCLO = CELL[1].OUT_F[3];
-				output SCLOEN = CELL[1].OUT_F[2];
-				input SDAI = CELL[0].IMUX_A[4];
-				output SDAO = CELL[1].OUT_F[5];
-				output SDAOEN = CELL[1].OUT_F[4];
-				output SRDWR = CELL[1].OUT_F[6];
-				input STBI = CELL[1].IMUX_B[2];
 				output TXFIFOAE = CELL[1].OUT_Q[5];
 				output TXFIFOE = CELL[1].OUT_Q[6];
 				output TXFIFOF = CELL[1].OUT_Q[7];
-				input WEI = CELL[1].IMUX_D[4];
+				output MRDCMPL = CELL[1].OUT_Q[2];
+				output SRDWR = CELL[1].OUT_F[6];
+				output I2CIRQ = CELL[1].OUT_F[7];
+				output I2CWKUP = CELL[0].OUT_Q[0];
+				output SCLO = CELL[1].OUT_F[3];
+				output SCLOEN = CELL[1].OUT_F[2];
+				output SDAO = CELL[1].OUT_F[5];
+				output SDAOEN = CELL[1].OUT_F[4];
 			}
 
 			// wire CELL[0].IMUX_A[4]              I2C.SDAI
-			// wire CELL[0].IMUX_B[0]              I2C.DATI1
-			// wire CELL[0].IMUX_B[2]              I2C.DATI3
-			// wire CELL[0].IMUX_B[4]              I2C.DATI5
-			// wire CELL[0].IMUX_B[6]              I2C.DATI7
+			// wire CELL[0].IMUX_B[0]              I2C.DATI[1]
+			// wire CELL[0].IMUX_B[2]              I2C.DATI[3]
+			// wire CELL[0].IMUX_B[4]              I2C.DATI[5]
+			// wire CELL[0].IMUX_B[6]              I2C.DATI[7]
 			// wire CELL[0].IMUX_C[4]              I2C.SCLI
-			// wire CELL[0].IMUX_D[0]              I2C.DATI0
-			// wire CELL[0].IMUX_D[2]              I2C.DATI2
-			// wire CELL[0].IMUX_D[4]              I2C.DATI4
-			// wire CELL[0].IMUX_D[6]              I2C.DATI6
+			// wire CELL[0].IMUX_D[0]              I2C.DATI[0]
+			// wire CELL[0].IMUX_D[2]              I2C.DATI[2]
+			// wire CELL[0].IMUX_D[4]              I2C.DATI[4]
+			// wire CELL[0].IMUX_D[6]              I2C.DATI[6]
 			// wire CELL[0].IMUX_CLK[0]            I2C.CLKI
 			// wire CELL[0].IMUX_LSR[0]            I2C.FIFORST
-			// wire CELL[0].OUT_F[0]               I2C.DATO0
-			// wire CELL[0].OUT_F[1]               I2C.DATO1
-			// wire CELL[0].OUT_F[2]               I2C.DATO2
-			// wire CELL[0].OUT_F[3]               I2C.DATO3
-			// wire CELL[0].OUT_F[4]               I2C.DATO4
-			// wire CELL[0].OUT_F[5]               I2C.DATO5
-			// wire CELL[0].OUT_F[6]               I2C.DATO6
-			// wire CELL[0].OUT_F[7]               I2C.DATO7
+			// wire CELL[0].OUT_F[0]               I2C.DATO[0]
+			// wire CELL[0].OUT_F[1]               I2C.DATO[1]
+			// wire CELL[0].OUT_F[2]               I2C.DATO[2]
+			// wire CELL[0].OUT_F[3]               I2C.DATO[3]
+			// wire CELL[0].OUT_F[4]               I2C.DATO[4]
+			// wire CELL[0].OUT_F[5]               I2C.DATO[5]
+			// wire CELL[0].OUT_F[6]               I2C.DATO[6]
+			// wire CELL[0].OUT_F[7]               I2C.DATO[7]
 			// wire CELL[0].OUT_Q[0]               I2C.I2CWKUP
 			// wire CELL[0].OUT_Q[1]               I2C.RXFIFOAF
 			// wire CELL[0].OUT_Q[4]               I2C.RXFIFOE
 			// wire CELL[0].OUT_Q[5]               I2C.RXFIFOF
 			// wire CELL[1].IMUX_A[0]              I2C.CSI
-			// wire CELL[1].IMUX_A[4]              I2C.ADRI1
-			// wire CELL[1].IMUX_A[6]              I2C.ADRI3
-			// wire CELL[1].IMUX_B[0]              I2C.DATI9
+			// wire CELL[1].IMUX_A[4]              I2C.ADRI[1]
+			// wire CELL[1].IMUX_A[6]              I2C.ADRI[3]
+			// wire CELL[1].IMUX_B[0]              I2C.DATI[9]
 			// wire CELL[1].IMUX_B[2]              I2C.STBI
-			// wire CELL[1].IMUX_C[4]              I2C.ADRI0
-			// wire CELL[1].IMUX_C[6]              I2C.ADRI2
-			// wire CELL[1].IMUX_D[0]              I2C.DATI8
+			// wire CELL[1].IMUX_C[4]              I2C.ADRI[0]
+			// wire CELL[1].IMUX_C[6]              I2C.ADRI[2]
+			// wire CELL[1].IMUX_D[0]              I2C.DATI[8]
 			// wire CELL[1].IMUX_D[4]              I2C.WEI
-			// wire CELL[1].OUT_F[0]               I2C.DATO8
-			// wire CELL[1].OUT_F[1]               I2C.DATO9
+			// wire CELL[1].OUT_F[0]               I2C.DATO[8]
+			// wire CELL[1].OUT_F[1]               I2C.DATO[9]
 			// wire CELL[1].OUT_F[2]               I2C.SCLOEN
 			// wire CELL[1].OUT_F[3]               I2C.SCLO
 			// wire CELL[1].OUT_F[4]               I2C.SDAOEN
@@ -3905,94 +4147,94 @@ intdb {
 			cell CELL[1];
 
 			bel I2C {
-				output ACKO = CELL[1].OUT_Q[3];
-				input ADRI0 = CELL[1].IMUX_C[4];
-				input ADRI1 = CELL[1].IMUX_A[4];
-				input ADRI2 = CELL[1].IMUX_C[6];
-				input ADRI3 = CELL[1].IMUX_A[6];
 				input CLKI = CELL[0].IMUX_CLK[0];
 				input CSI = CELL[1].IMUX_A[0];
-				input DATI0 = CELL[0].IMUX_D[0];
-				input DATI1 = CELL[0].IMUX_B[0];
-				input DATI2 = CELL[0].IMUX_D[2];
-				input DATI3 = CELL[0].IMUX_B[2];
-				input DATI4 = CELL[0].IMUX_D[4];
-				input DATI5 = CELL[0].IMUX_B[4];
-				input DATI6 = CELL[0].IMUX_D[6];
-				input DATI7 = CELL[0].IMUX_B[6];
-				input DATI8 = CELL[1].IMUX_D[0];
-				input DATI9 = CELL[1].IMUX_B[0];
-				output DATO0 = CELL[0].OUT_F[0];
-				output DATO1 = CELL[0].OUT_F[1];
-				output DATO2 = CELL[0].OUT_F[2];
-				output DATO3 = CELL[0].OUT_F[3];
-				output DATO4 = CELL[0].OUT_F[4];
-				output DATO5 = CELL[0].OUT_F[5];
-				output DATO6 = CELL[0].OUT_F[6];
-				output DATO7 = CELL[0].OUT_F[7];
-				output DATO8 = CELL[1].OUT_F[0];
-				output DATO9 = CELL[1].OUT_F[1];
+				input STBI = CELL[1].IMUX_B[2];
+				input WEI = CELL[1].IMUX_D[4];
+				input ADRI[0] = CELL[1].IMUX_C[4];
+				input ADRI[1] = CELL[1].IMUX_A[4];
+				input ADRI[2] = CELL[1].IMUX_C[6];
+				input ADRI[3] = CELL[1].IMUX_A[6];
+				input DATI[0] = CELL[0].IMUX_D[0];
+				input DATI[1] = CELL[0].IMUX_B[0];
+				input DATI[2] = CELL[0].IMUX_D[2];
+				input DATI[3] = CELL[0].IMUX_B[2];
+				input DATI[4] = CELL[0].IMUX_D[4];
+				input DATI[5] = CELL[0].IMUX_B[4];
+				input DATI[6] = CELL[0].IMUX_D[6];
+				input DATI[7] = CELL[0].IMUX_B[6];
+				input DATI[8] = CELL[1].IMUX_D[0];
+				input DATI[9] = CELL[1].IMUX_B[0];
 				input FIFORST = CELL[0].IMUX_LSR[0];
-				output I2CIRQ = CELL[1].OUT_F[7];
-				output I2CWKUP = CELL[0].OUT_Q[0];
-				output MRDCMPL = CELL[1].OUT_Q[2];
+				output DATO[0] = CELL[0].OUT_F[0];
+				output DATO[1] = CELL[0].OUT_F[1];
+				output DATO[2] = CELL[0].OUT_F[2];
+				output DATO[3] = CELL[0].OUT_F[3];
+				output DATO[4] = CELL[0].OUT_F[4];
+				output DATO[5] = CELL[0].OUT_F[5];
+				output DATO[6] = CELL[0].OUT_F[6];
+				output DATO[7] = CELL[0].OUT_F[7];
+				output DATO[8] = CELL[1].OUT_F[0];
+				output DATO[9] = CELL[1].OUT_F[1];
+				output ACKO = CELL[1].OUT_Q[3];
 				output RXFIFOAF = CELL[0].OUT_Q[1];
 				output RXFIFOE = CELL[0].OUT_Q[4];
 				output RXFIFOF = CELL[0].OUT_Q[5];
-				output SRDWR = CELL[1].OUT_F[6];
-				input STBI = CELL[1].IMUX_B[2];
 				output TXFIFOAE = CELL[1].OUT_Q[5];
 				output TXFIFOE = CELL[1].OUT_Q[6];
 				output TXFIFOF = CELL[1].OUT_Q[7];
-				input WEI = CELL[1].IMUX_D[4];
+				output MRDCMPL = CELL[1].OUT_Q[2];
+				output SRDWR = CELL[1].OUT_F[6];
+				output I2CIRQ = CELL[1].OUT_F[7];
+				output I2CWKUP = CELL[0].OUT_Q[0];
 			}
 
 			bel NVCMTEST {
 				input NVSCANCLK = CELL[1].IMUX_A[7];
 				input NVSCANRESET = CELL[1].IMUX_LSR[0];
+				input NVSCANSHIFTEN = CELL[1].IMUX_C[5];
 				input NVSCANSDI = CELL[1].IMUX_A[5];
 				output NVSCANSDO = CELL[1].OUT_Q[4];
-				input NVSCANSHIFTEN = CELL[1].IMUX_C[5];
 				output SCANTESTMODE = CELL[1].OUT_Q[1];
 			}
 
-			// wire CELL[0].IMUX_B[0]              I2C.DATI1
-			// wire CELL[0].IMUX_B[2]              I2C.DATI3
-			// wire CELL[0].IMUX_B[4]              I2C.DATI5
-			// wire CELL[0].IMUX_B[6]              I2C.DATI7
-			// wire CELL[0].IMUX_D[0]              I2C.DATI0
-			// wire CELL[0].IMUX_D[2]              I2C.DATI2
-			// wire CELL[0].IMUX_D[4]              I2C.DATI4
-			// wire CELL[0].IMUX_D[6]              I2C.DATI6
+			// wire CELL[0].IMUX_B[0]              I2C.DATI[1]
+			// wire CELL[0].IMUX_B[2]              I2C.DATI[3]
+			// wire CELL[0].IMUX_B[4]              I2C.DATI[5]
+			// wire CELL[0].IMUX_B[6]              I2C.DATI[7]
+			// wire CELL[0].IMUX_D[0]              I2C.DATI[0]
+			// wire CELL[0].IMUX_D[2]              I2C.DATI[2]
+			// wire CELL[0].IMUX_D[4]              I2C.DATI[4]
+			// wire CELL[0].IMUX_D[6]              I2C.DATI[6]
 			// wire CELL[0].IMUX_CLK[0]            I2C.CLKI
 			// wire CELL[0].IMUX_LSR[0]            I2C.FIFORST
-			// wire CELL[0].OUT_F[0]               I2C.DATO0
-			// wire CELL[0].OUT_F[1]               I2C.DATO1
-			// wire CELL[0].OUT_F[2]               I2C.DATO2
-			// wire CELL[0].OUT_F[3]               I2C.DATO3
-			// wire CELL[0].OUT_F[4]               I2C.DATO4
-			// wire CELL[0].OUT_F[5]               I2C.DATO5
-			// wire CELL[0].OUT_F[6]               I2C.DATO6
-			// wire CELL[0].OUT_F[7]               I2C.DATO7
+			// wire CELL[0].OUT_F[0]               I2C.DATO[0]
+			// wire CELL[0].OUT_F[1]               I2C.DATO[1]
+			// wire CELL[0].OUT_F[2]               I2C.DATO[2]
+			// wire CELL[0].OUT_F[3]               I2C.DATO[3]
+			// wire CELL[0].OUT_F[4]               I2C.DATO[4]
+			// wire CELL[0].OUT_F[5]               I2C.DATO[5]
+			// wire CELL[0].OUT_F[6]               I2C.DATO[6]
+			// wire CELL[0].OUT_F[7]               I2C.DATO[7]
 			// wire CELL[0].OUT_Q[0]               I2C.I2CWKUP
 			// wire CELL[0].OUT_Q[1]               I2C.RXFIFOAF
 			// wire CELL[0].OUT_Q[4]               I2C.RXFIFOE
 			// wire CELL[0].OUT_Q[5]               I2C.RXFIFOF
 			// wire CELL[1].IMUX_A[0]              I2C.CSI
-			// wire CELL[1].IMUX_A[4]              I2C.ADRI1
+			// wire CELL[1].IMUX_A[4]              I2C.ADRI[1]
 			// wire CELL[1].IMUX_A[5]              NVCMTEST.NVSCANSDI
-			// wire CELL[1].IMUX_A[6]              I2C.ADRI3
+			// wire CELL[1].IMUX_A[6]              I2C.ADRI[3]
 			// wire CELL[1].IMUX_A[7]              NVCMTEST.NVSCANCLK
-			// wire CELL[1].IMUX_B[0]              I2C.DATI9
+			// wire CELL[1].IMUX_B[0]              I2C.DATI[9]
 			// wire CELL[1].IMUX_B[2]              I2C.STBI
-			// wire CELL[1].IMUX_C[4]              I2C.ADRI0
+			// wire CELL[1].IMUX_C[4]              I2C.ADRI[0]
 			// wire CELL[1].IMUX_C[5]              NVCMTEST.NVSCANSHIFTEN
-			// wire CELL[1].IMUX_C[6]              I2C.ADRI2
-			// wire CELL[1].IMUX_D[0]              I2C.DATI8
+			// wire CELL[1].IMUX_C[6]              I2C.ADRI[2]
+			// wire CELL[1].IMUX_D[0]              I2C.DATI[8]
 			// wire CELL[1].IMUX_D[4]              I2C.WEI
 			// wire CELL[1].IMUX_LSR[0]            NVCMTEST.NVSCANRESET
-			// wire CELL[1].OUT_F[0]               I2C.DATO8
-			// wire CELL[1].OUT_F[1]               I2C.DATO9
+			// wire CELL[1].OUT_F[0]               I2C.DATO[8]
+			// wire CELL[1].OUT_F[1]               I2C.DATO[9]
 			// wire CELL[1].OUT_F[6]               I2C.SRDWR
 			// wire CELL[1].OUT_F[7]               I2C.I2CIRQ
 			// wire CELL[1].OUT_Q[1]               NVCMTEST.SCANTESTMODE
