@@ -572,12 +572,6 @@ impl ChipContext<'_> {
     fn process_config_machxo2(&mut self) {
         let cell = self.chip.special_loc[&SpecialLocKey::Config];
 
-        self.hybrid_out_rc(
-            cell.bel(bslots::OSC),
-            "JOSC_OSC",
-            wires::OUT_OSC_OSC.cell(0),
-        );
-
         self.extract_switchbox(cell.bel(bslots::BEL_INT))
             .output_bind_rc("PCNTRCLK", wires::IMUX_PCNTR_CLK.cell(0))
             .input_xlat_rc("JOSCCLK")

@@ -3,7 +3,9 @@ use prjcombine_ecp::{
     defs::{bcls, bslots, cslots, wires},
 };
 use prjcombine_interconnect::{
-    db::{BelInput, Mux, SwitchBox, SwitchBoxItem, WireSlotIdExt}, dir::Dir, grid::{BelCoord, CellCoord, DieIdExt},
+    db::{BelInput, Mux, SwitchBox, SwitchBoxItem, WireSlotIdExt},
+    dir::Dir,
+    grid::{BelCoord, CellCoord, DieIdExt},
 };
 
 use crate::{ChipContext, chip::ChipExt};

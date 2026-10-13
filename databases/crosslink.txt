@@ -613,6 +613,16 @@ intdb {
 		output DCSOUT;
 	}
 
+	bel_class DCM {
+		input CLK[2];
+		input SEL;
+		output DCMOUT;
+	}
+
+	bel_class CLKTEST {
+		input TESTIN[24];
+	}
+
 	bel_class CLKDIV {
 		input CLKI;
 		input RST;
@@ -4300,7 +4310,6 @@ intdb {
 		bel_slot CLKDIV[2]: CLKDIV;
 		bel_slot CLKDIV[3]: CLKDIV;
 		bel_slot CLK_INT: routing;
-		bel_slot CLK_ROOT: legacy;
 		bel_slot CLKTEST: legacy;
 		bel_slot DCC[0]: legacy;
 		bel_slot DCC[1]: legacy;
@@ -4316,21 +4325,11 @@ intdb {
 		bel_slot ECLKSYNC[3]: legacy;
 		bel_slot DCS[0]: legacy;
 		bel_slot CLK_EDGE: legacy;
+		bel_slot CLK_ROOT: legacy;
 		bel_slot CLKTEST_ECLK: legacy;
 
 		tile_class CLK_ROOT {
 			cell CELL;
-
-			bel CLK_ROOT {
-				output PCLK0 = PCLK[0];
-				output PCLK1 = PCLK[1];
-				output PCLK2 = PCLK[2];
-				output PCLK3 = PCLK[3];
-				output PCLK4 = PCLK[4];
-				output PCLK5 = PCLK[5];
-				output PCLK6 = PCLK[6];
-				output PCLK7 = PCLK[7];
-			}
 
 			bel CLKTEST {
 				input TESTIN0 = IMUX_B[0];
@@ -4343,6 +4342,17 @@ intdb {
 				input MODESEL = IMUX_A[2];
 				input SEL0 = IMUX_A[0];
 				input SEL1 = IMUX_A[1];
+			}
+
+			bel CLK_ROOT {
+				output PCLK0 = PCLK[0];
+				output PCLK1 = PCLK[1];
+				output PCLK2 = PCLK[2];
+				output PCLK3 = PCLK[3];
+				output PCLK4 = PCLK[4];
+				output PCLK5 = PCLK[5];
+				output PCLK6 = PCLK[6];
+				output PCLK7 = PCLK[7];
 			}
 
 			// wire PCLK[0]                        CLK_ROOT.PCLK0

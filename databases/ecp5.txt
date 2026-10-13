@@ -10615,6 +10615,16 @@ intdb {
 		output DCSOUT;
 	}
 
+	bel_class DCM {
+		input CLK[2];
+		input SEL;
+		output DCMOUT;
+	}
+
+	bel_class CLKTEST {
+		input TESTIN[24];
+	}
+
 	bel_class CLKDIV {
 		input CLKI;
 		input RST;
@@ -10677,6 +10687,7 @@ intdb {
 	region_slot ECLK;
 	region_slot DQS;
 	region_slot DDRDLL;
+	region_slot GLOBAL;
 	wire TIE0: tie 0;
 	wire TIE1: tie 1;
 	wire X0_W[0]: mux;
@@ -11038,7 +11049,7 @@ intdb {
 	wire OUT_CLKDIV_CDIVX[0]: bel;
 	wire OUT_CLKDIV_CDIVX[1]: bel;
 	wire IMUX_DDRDLL_CLK: mux;
-	wire OUT_OSC_OSC: bel;
+	wire OUT_OSC_OSC: regional GLOBAL;
 
 	tile_slot INT {
 		bel_slot INT: routing;
@@ -15954,7 +15965,6 @@ intdb {
 		bel_slot DCC_SE[0]: legacy;
 		bel_slot DCC_NW[0]: legacy;
 		bel_slot DCC_NE[0]: legacy;
-		bel_slot CLK_ROOT: legacy;
 		bel_slot CLKTEST: legacy;
 		bel_slot DCC[0]: legacy;
 		bel_slot DCC[1]: legacy;
@@ -15980,6 +15990,7 @@ intdb {
 		bel_slot DCS[0]: legacy;
 		bel_slot DCS[1]: legacy;
 		bel_slot CLK_EDGE: legacy;
+		bel_slot CLK_ROOT: legacy;
 		bel_slot CLKTEST_ECLK: legacy;
 		bel_slot BRGECLKSYNC[0]: legacy;
 		bel_slot PCSCLKDIV[0]: legacy;
@@ -17867,6 +17878,45 @@ intdb {
 				input CLKI = NE.IMUX_D[7];
 			}
 
+			bel CLKTEST {
+				input TESTIN0 = NW.IMUX_A[1];
+				input TESTIN1 = NW.IMUX_A[2];
+				input TESTIN10 = NE.IMUX_B[2];
+				input TESTIN11 = NE.IMUX_B[3];
+				input TESTIN12 = SW.IMUX_A[1];
+				input TESTIN13 = SW.IMUX_A[2];
+				input TESTIN14 = SW.IMUX_B[0];
+				input TESTIN15 = SW.IMUX_B[1];
+				input TESTIN16 = SW.IMUX_B[2];
+				input TESTIN17 = SW.IMUX_B[3];
+				input TESTIN18 = SE.IMUX_A[1];
+				input TESTIN19 = SE.IMUX_A[2];
+				input TESTIN2 = NW.IMUX_B[0];
+				input TESTIN20 = SE.IMUX_B[0];
+				input TESTIN21 = SE.IMUX_B[1];
+				input TESTIN22 = SE.IMUX_B[2];
+				input TESTIN23 = SE.IMUX_B[3];
+				input TESTIN3 = NW.IMUX_B[1];
+				input TESTIN4 = NW.IMUX_B[2];
+				input TESTIN5 = NW.IMUX_B[3];
+				input TESTIN6 = NE.IMUX_A[1];
+				input TESTIN7 = NE.IMUX_A[2];
+				input TESTIN8 = NE.IMUX_B[0];
+				input TESTIN9 = NE.IMUX_B[1];
+			}
+
+			bel DCS[0] {
+				input MODESEL = NW.IMUX_C[0];
+				input SEL0 = NW.IMUX_A[3];
+				input SEL1 = NW.IMUX_A[4];
+			}
+
+			bel DCS[1] {
+				input MODESEL = SW.IMUX_C[0];
+				input SEL0 = SW.IMUX_A[3];
+				input SEL1 = SW.IMUX_A[4];
+			}
+
 			bel CLK_ROOT {
 				output PCLK0_NE = NE.PCLK[0];
 				output PCLK0_NW = NW.PCLK[0];
@@ -17932,45 +17982,6 @@ intdb {
 				output PCLK9_NW = NW.PCLK[9];
 				output PCLK9_SE = SE.PCLK[9];
 				output PCLK9_SW = SW.PCLK[9];
-			}
-
-			bel CLKTEST {
-				input TESTIN0 = NW.IMUX_A[1];
-				input TESTIN1 = NW.IMUX_A[2];
-				input TESTIN10 = NE.IMUX_B[2];
-				input TESTIN11 = NE.IMUX_B[3];
-				input TESTIN12 = SW.IMUX_A[1];
-				input TESTIN13 = SW.IMUX_A[2];
-				input TESTIN14 = SW.IMUX_B[0];
-				input TESTIN15 = SW.IMUX_B[1];
-				input TESTIN16 = SW.IMUX_B[2];
-				input TESTIN17 = SW.IMUX_B[3];
-				input TESTIN18 = SE.IMUX_A[1];
-				input TESTIN19 = SE.IMUX_A[2];
-				input TESTIN2 = NW.IMUX_B[0];
-				input TESTIN20 = SE.IMUX_B[0];
-				input TESTIN21 = SE.IMUX_B[1];
-				input TESTIN22 = SE.IMUX_B[2];
-				input TESTIN23 = SE.IMUX_B[3];
-				input TESTIN3 = NW.IMUX_B[1];
-				input TESTIN4 = NW.IMUX_B[2];
-				input TESTIN5 = NW.IMUX_B[3];
-				input TESTIN6 = NE.IMUX_A[1];
-				input TESTIN7 = NE.IMUX_A[2];
-				input TESTIN8 = NE.IMUX_B[0];
-				input TESTIN9 = NE.IMUX_B[1];
-			}
-
-			bel DCS[0] {
-				input MODESEL = NW.IMUX_C[0];
-				input SEL0 = NW.IMUX_A[3];
-				input SEL1 = NW.IMUX_A[4];
-			}
-
-			bel DCS[1] {
-				input MODESEL = SW.IMUX_C[0];
-				input SEL0 = SW.IMUX_A[3];
-				input SEL1 = SW.IMUX_A[4];
 			}
 
 			// wire SW.PCLK[0]                     CLK_ROOT.PCLK0_SW
@@ -18107,6 +18118,45 @@ intdb {
 				input CLKI = NE.IMUX_D[7];
 			}
 
+			bel CLKTEST {
+				input TESTIN0 = NW.IMUX_A[1];
+				input TESTIN1 = NW.IMUX_A[2];
+				input TESTIN10 = NE.IMUX_B[2];
+				input TESTIN11 = NE.IMUX_B[3];
+				input TESTIN12 = SW.IMUX_A[1];
+				input TESTIN13 = SW.IMUX_A[2];
+				input TESTIN14 = SW.IMUX_B[0];
+				input TESTIN15 = SW.IMUX_B[1];
+				input TESTIN16 = SW.IMUX_B[2];
+				input TESTIN17 = SW.IMUX_B[3];
+				input TESTIN18 = SE.IMUX_A[1];
+				input TESTIN19 = SE.IMUX_A[2];
+				input TESTIN2 = NW.IMUX_B[0];
+				input TESTIN20 = SE.IMUX_B[0];
+				input TESTIN21 = SE.IMUX_B[1];
+				input TESTIN22 = SE.IMUX_B[2];
+				input TESTIN23 = SE.IMUX_B[3];
+				input TESTIN3 = NW.IMUX_B[1];
+				input TESTIN4 = NW.IMUX_B[2];
+				input TESTIN5 = NW.IMUX_B[3];
+				input TESTIN6 = NE.IMUX_A[1];
+				input TESTIN7 = NE.IMUX_A[2];
+				input TESTIN8 = NE.IMUX_B[0];
+				input TESTIN9 = NE.IMUX_B[1];
+			}
+
+			bel DCS[0] {
+				input MODESEL = NW.IMUX_C[0];
+				input SEL0 = NW.IMUX_A[3];
+				input SEL1 = NW.IMUX_A[4];
+			}
+
+			bel DCS[1] {
+				input MODESEL = SW.IMUX_C[0];
+				input SEL0 = SW.IMUX_A[3];
+				input SEL1 = SW.IMUX_A[4];
+			}
+
 			bel CLK_ROOT {
 				output PCLK0_NE = SE.PCLK[0];
 				output PCLK0_NW = SW.PCLK[0];
@@ -18172,45 +18222,6 @@ intdb {
 				output PCLK9_NW = SW.PCLK[9];
 				output PCLK9_SE = QSE.PCLK[9];
 				output PCLK9_SW = QSW.PCLK[9];
-			}
-
-			bel CLKTEST {
-				input TESTIN0 = NW.IMUX_A[1];
-				input TESTIN1 = NW.IMUX_A[2];
-				input TESTIN10 = NE.IMUX_B[2];
-				input TESTIN11 = NE.IMUX_B[3];
-				input TESTIN12 = SW.IMUX_A[1];
-				input TESTIN13 = SW.IMUX_A[2];
-				input TESTIN14 = SW.IMUX_B[0];
-				input TESTIN15 = SW.IMUX_B[1];
-				input TESTIN16 = SW.IMUX_B[2];
-				input TESTIN17 = SW.IMUX_B[3];
-				input TESTIN18 = SE.IMUX_A[1];
-				input TESTIN19 = SE.IMUX_A[2];
-				input TESTIN2 = NW.IMUX_B[0];
-				input TESTIN20 = SE.IMUX_B[0];
-				input TESTIN21 = SE.IMUX_B[1];
-				input TESTIN22 = SE.IMUX_B[2];
-				input TESTIN23 = SE.IMUX_B[3];
-				input TESTIN3 = NW.IMUX_B[1];
-				input TESTIN4 = NW.IMUX_B[2];
-				input TESTIN5 = NW.IMUX_B[3];
-				input TESTIN6 = NE.IMUX_A[1];
-				input TESTIN7 = NE.IMUX_A[2];
-				input TESTIN8 = NE.IMUX_B[0];
-				input TESTIN9 = NE.IMUX_B[1];
-			}
-
-			bel DCS[0] {
-				input MODESEL = NW.IMUX_C[0];
-				input SEL0 = NW.IMUX_A[3];
-				input SEL1 = NW.IMUX_A[4];
-			}
-
-			bel DCS[1] {
-				input MODESEL = SW.IMUX_C[0];
-				input SEL0 = SW.IMUX_A[3];
-				input SEL1 = SW.IMUX_A[4];
 			}
 
 			// wire QSW.PCLK[0]                    CLK_ROOT.PCLK0_SW

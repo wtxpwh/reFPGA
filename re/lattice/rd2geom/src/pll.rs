@@ -19,6 +19,8 @@ impl ChipContext<'_> {
             ChipKind::Ecp2 | ChipKind::Ecp2M => self.prep_pll_ecp2(),
             ChipKind::Xp2 => self.prep_pll_xp2(),
             ChipKind::Ecp3 | ChipKind::Ecp3A => self.prep_pll_ecp3(),
+            ChipKind::MachXo2(_) => self.prep_pll_machxo2(),
+            ChipKind::Ecp4 => self.prep_pll_ecp4(),
             _ => (),
         }
     }

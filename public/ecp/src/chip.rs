@@ -726,11 +726,7 @@ impl Chip {
         self.clk_root().bel(
             if matches!(
                 self.kind,
-                ChipKind::MachXo2(_)
-                    | ChipKind::Scm
-                    | ChipKind::Ecp4
-                    | ChipKind::Ecp5
-                    | ChipKind::Crosslink
+                ChipKind::Scm | ChipKind::Ecp4 | ChipKind::Ecp5 | ChipKind::Crosslink
             ) {
                 bslots::CLK_ROOT
             } else {

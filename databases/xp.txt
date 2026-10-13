@@ -5057,6 +5057,12 @@ intdb {
 		output DCSOUT;
 	}
 
+	bel_class DCM {
+		input CLK[2];
+		input SEL;
+		output DCMOUT;
+	}
+
 	bel_class PLL {
 		input CLKI;
 		input CLKFB;
@@ -5465,7 +5471,7 @@ intdb {
 	wire OUT_IO_PADDI[1]: bel;
 	wire IMUX_PLL_CLKI[0]: mux;
 	wire IMUX_PLL_CLKFB[0]: mux;
-	wire OUT_PLL_CLKINTFB: bel;
+	wire OUT_PLL_CLKINTFB[0]: bel;
 	wire OUT_PLL_CLKOP[0]: bel;
 	wire OUT_PLL_CLKOS[0]: bel;
 	wire OUT_PLL_CLKOK: bel;

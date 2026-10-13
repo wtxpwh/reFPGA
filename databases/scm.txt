@@ -15252,6 +15252,12 @@ intdb {
 		output DCSOUT;
 	}
 
+	bel_class DCM {
+		input CLK[2];
+		input SEL;
+		output DCMOUT;
+	}
+
 	bel_class GSR {
 		input CLK;
 		input USR;
@@ -36516,12 +36522,12 @@ intdb {
 		bel_slot CLKDIV[2]: legacy;
 		bel_slot CLKDIV[3]: legacy;
 		bel_slot CLK_INT: routing;
-		bel_slot CLK_ROOT: legacy;
 		bel_slot CLKTEST: legacy;
 		bel_slot ECLK_ROOT: legacy;
 		bel_slot DCS[0]: legacy;
 		bel_slot DCS[1]: legacy;
 		bel_slot CLK_EDGE: legacy;
+		bel_slot CLK_ROOT: legacy;
 
 		tile_class CLK_W {
 			cell CELL[0];
@@ -36637,6 +36643,21 @@ intdb {
 			cell CELL_N[0];
 			cell CELL_N[1];
 
+			bel CLKTEST {
+				input CIBTESTB0 = CELL_S[0].IMUX_LSR[3];
+				input CIBTESTB1 = CELL_S[0].IMUX_CLK[2];
+				input CIBTESTB2 = CELL_S[0].IMUX_CLK[3];
+				input CIBTESTB3 = CELL_S[1].IMUX_LSR[0];
+				input CIBTESTB4 = CELL_S[1].IMUX_LSR[1];
+				input CIBTESTB5 = CELL_S[1].IMUX_CLK[0];
+				input CIBTESTT0 = CELL_N[0].IMUX_LSR[3];
+				input CIBTESTT1 = CELL_N[0].IMUX_CLK[2];
+				input CIBTESTT2 = CELL_N[0].IMUX_CLK[3];
+				input CIBTESTT3 = CELL_N[1].IMUX_LSR[1];
+				input CIBTESTT4 = CELL_N[1].IMUX_CLK[0];
+				input CIBTESTT5 = CELL_N[1].IMUX_CLK[1];
+			}
+
 			bel CLK_ROOT {
 				input IN_CIBLLQ = CELL_S[0].IMUX_LSR[2];
 				input IN_CIBULQ = CELL_N[0].IMUX_LSR[2];
@@ -36689,21 +36710,6 @@ intdb {
 				input PCLK9_NW = CELL_N[0].PCLK[9];
 				input PCLK9_SE = CELL_S[1].PCLK[9];
 				input PCLK9_SW = CELL_S[0].PCLK[9];
-			}
-
-			bel CLKTEST {
-				input CIBTESTB0 = CELL_S[0].IMUX_LSR[3];
-				input CIBTESTB1 = CELL_S[0].IMUX_CLK[2];
-				input CIBTESTB2 = CELL_S[0].IMUX_CLK[3];
-				input CIBTESTB3 = CELL_S[1].IMUX_LSR[0];
-				input CIBTESTB4 = CELL_S[1].IMUX_LSR[1];
-				input CIBTESTB5 = CELL_S[1].IMUX_CLK[0];
-				input CIBTESTT0 = CELL_N[0].IMUX_LSR[3];
-				input CIBTESTT1 = CELL_N[0].IMUX_CLK[2];
-				input CIBTESTT2 = CELL_N[0].IMUX_CLK[3];
-				input CIBTESTT3 = CELL_N[1].IMUX_LSR[1];
-				input CIBTESTT4 = CELL_N[1].IMUX_CLK[0];
-				input CIBTESTT5 = CELL_N[1].IMUX_CLK[1];
 			}
 
 			// wire CELL_S[0].PCLK[0]              CLK_ROOT.PCLK0_SW

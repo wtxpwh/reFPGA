@@ -36,7 +36,7 @@ impl ChipContext<'_> {
                 .output_bind_rc("CLKFB", wires::IMUX_PLL_CLKFB[0].cell(0))
                 .input_xlat_rc("JPLLCLKFB0")
                 .input_xlat_rc("JPLLCLKFB1")
-                .input_bind_rc("PLLCLKINTFB", wires::OUT_PLL_CLKINTFB.cell(0))
+                .input_bind_rc("PLLCLKINTFB", wires::OUT_PLL_CLKINTFB[0].cell(0))
                 .input_xlat_rc("JPLLCLKFB3");
 
             let name = match loc.quad {

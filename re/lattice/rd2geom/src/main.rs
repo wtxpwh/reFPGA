@@ -302,6 +302,7 @@ impl<'dev> ChipContext<'dev> {
                 "CENTEST",
                 "DTS",
                 "PLL",
+                "PLLREFCS",
                 "PLL3",
                 "DLL",
                 "DLLDEL",

@@ -504,16 +504,14 @@ impl ChipContext<'_> {
                 self.bind_wire(eclko_out, wire_eclk);
                 self.claim_pip(eclko_out, eclko);
 
-                let eclki = self.rc_wire(bcrd.cell, &format!("ECLKI{idxp1}_ECLKSYNC"));
-                self.claim_pip(eclko, eclki);
-
                 self.extract_bel(bcrd)
                     .name(format!("{lrt}ECLKSYNC{idxp1}"))
                     .input_xlat_rc(bcls::ECLKSYNC::STOP, format!("JSTOP{idxp1}_ECLKSYNC"))
-                    .input_xlat(bcls::ECLKSYNC::ECLKI, eclki)
+                    .input_xlat_rc(bcls::ECLKSYNC::ECLKI, format!("ECLKI{idxp1}_ECLKSYNC"))
                     .output_xlat(bcls::ECLKSYNC::ECLKO, eclko)
                     .add_wire("ECLKO_OUT", eclko_out)
-                    .add_wire("ECLKO", eclko);
+                    .add_wire("ECLKO", eclko)
+                    .claim_pip("ECLKO", "ECLKI");
             }
         }
     }

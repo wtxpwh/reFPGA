@@ -10,6 +10,10 @@ use prjcombine_interconnect::{
 use crate::ChipContext;
 
 impl ChipContext<'_> {
+    pub(super) fn prep_pll_ecp4(&mut self) {
+        //
+    }
+
     pub(super) fn process_pll_ecp4(&mut self) {
         for (loc, bcrd) in self.chip.plls() {
             let hv = loc.quad;

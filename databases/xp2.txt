@@ -7007,6 +7007,12 @@ intdb {
 		output DCSOUT;
 	}
 
+	bel_class DCM {
+		input CLK[2];
+		input SEL;
+		output DCMOUT;
+	}
+
 	bel_class PLL {
 		input CLKI;
 		input CLKFB;
@@ -7564,7 +7570,7 @@ intdb {
 	wire IMUX_IO_ECLKO[1]: mux;
 	wire IMUX_PLL_CLKI[0]: mux;
 	wire IMUX_PLL_CLKFB[0]: mux;
-	wire OUT_PLL_CLKINTFB: bel;
+	wire OUT_PLL_CLKINTFB[0]: bel;
 	wire OUT_PLL_CLKOP[0]: bel;
 	wire OUT_PLL_CLKOS[0]: bel;
 	wire OUT_PLL_CLKOK: bel;
@@ -10043,7 +10049,7 @@ intdb {
 
 			switchbox BEL_INT {
 				mux CELL[0].IMUX_PLL_CLKI[0] = CELL[0].IMUX_A[0] | CELL[0].IMUX_B[0] | CELL[0].IMUX_CLK[0] | IO_CLKI.OUT_IO_PADDI[0];
-				mux CELL[0].IMUX_PLL_CLKFB[0] = CELL[0].IMUX_CLK[1] | CELL[0].ECLK[0] | CELL[0].OUT_PLL_CLKINTFB | IO_CLKFB.OUT_IO_PADDI[0];
+				mux CELL[0].IMUX_PLL_CLKFB[0] = CELL[0].IMUX_CLK[1] | CELL[0].ECLK[0] | CELL[0].OUT_PLL_CLKINTFB[0] | IO_CLKFB.OUT_IO_PADDI[0];
 			}
 
 			bel PLL[0] {
@@ -10067,7 +10073,7 @@ intdb {
 				output CLKOS = CELL[0].OUT_F[6], CELL[0].OUT_PLL_CLKOS[0];
 				output CLKOK = CELL[0].OUT_F[2], CELL[0].OUT_PLL_CLKOK;
 				output CLKOK2 = CELL[0].OUT_PLL_CLKOK2, CELL[1].OUT_Q[5];
-				output CLKINTFB = CELL[0].OUT_PLL_CLKINTFB;
+				output CLKINTFB = CELL[0].OUT_PLL_CLKINTFB[0];
 				output LOCK = CELL[0].OUT_Q[0];
 				output DNLOCK = CELL[0].OUT_Q[3];
 				output UPLOCK = CELL[0].OUT_Q[2];
@@ -10112,7 +10118,7 @@ intdb {
 			// wire CELL[0].OUT_Q[5]               PLL[0].DFPAO[1]
 			// wire CELL[0].IMUX_PLL_CLKI[0]       PLL[0].CLKI
 			// wire CELL[0].IMUX_PLL_CLKFB[0]      PLL[0].CLKFB
-			// wire CELL[0].OUT_PLL_CLKINTFB       PLL[0].CLKINTFB
+			// wire CELL[0].OUT_PLL_CLKINTFB[0]    PLL[0].CLKINTFB
 			// wire CELL[0].OUT_PLL_CLKOP[0]       PLL[0].CLKOP
 			// wire CELL[0].OUT_PLL_CLKOS[0]       PLL[0].CLKOS
 			// wire CELL[0].OUT_PLL_CLKOK          PLL[0].CLKOK
@@ -10129,7 +10135,7 @@ intdb {
 
 			switchbox BEL_INT {
 				mux CELL[0].IMUX_PLL_CLKI[0] = CELL[0].IMUX_A[0] | CELL[0].IMUX_B[0] | CELL[0].IMUX_CLK[0] | IO_CLKI.OUT_IO_PADDI[0];
-				mux CELL[0].IMUX_PLL_CLKFB[0] = CELL[0].IMUX_CLK[1] | CELL[0].ECLK[0] | CELL[0].OUT_PLL_CLKINTFB | IO_CLKFB.OUT_IO_PADDI[0];
+				mux CELL[0].IMUX_PLL_CLKFB[0] = CELL[0].IMUX_CLK[1] | CELL[0].ECLK[0] | CELL[0].OUT_PLL_CLKINTFB[0] | IO_CLKFB.OUT_IO_PADDI[0];
 			}
 
 			bel PLL[0] {
@@ -10153,7 +10159,7 @@ intdb {
 				output CLKOS = CELL[0].OUT_F[6], CELL[0].OUT_PLL_CLKOS[0];
 				output CLKOK = CELL[0].OUT_F[2], CELL[0].OUT_PLL_CLKOK;
 				output CLKOK2 = CELL[0].OUT_PLL_CLKOK2, CELL[1].OUT_Q[5];
-				output CLKINTFB = CELL[0].OUT_PLL_CLKINTFB;
+				output CLKINTFB = CELL[0].OUT_PLL_CLKINTFB[0];
 				output LOCK = CELL[0].OUT_Q[0];
 				output DNLOCK = CELL[0].OUT_Q[3];
 				output UPLOCK = CELL[0].OUT_Q[2];
@@ -10198,7 +10204,7 @@ intdb {
 			// wire CELL[0].OUT_Q[5]               PLL[0].DFPAO[1]
 			// wire CELL[0].IMUX_PLL_CLKI[0]       PLL[0].CLKI
 			// wire CELL[0].IMUX_PLL_CLKFB[0]      PLL[0].CLKFB
-			// wire CELL[0].OUT_PLL_CLKINTFB       PLL[0].CLKINTFB
+			// wire CELL[0].OUT_PLL_CLKINTFB[0]    PLL[0].CLKINTFB
 			// wire CELL[0].OUT_PLL_CLKOP[0]       PLL[0].CLKOP
 			// wire CELL[0].OUT_PLL_CLKOS[0]       PLL[0].CLKOS
 			// wire CELL[0].OUT_PLL_CLKOK          PLL[0].CLKOK

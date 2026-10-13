@@ -22,7 +22,7 @@ impl ChipContext<'_> {
                     .output_bind_rc("CLKFB", wires::IMUX_PLL_CLKFB[0].cell(0))
                     .input_xlat_rc("JCLKFB0")
                     .input_xlat_rc("JCLKFB1")
-                    .input_bind_rc("CLKINTFB", wires::OUT_PLL_CLKINTFB.cell(0))
+                    .input_bind_rc("CLKINTFB", wires::OUT_PLL_CLKINTFB[0].cell(0))
                     .input_io_rc("JCLKFB3", wires::IO_PLL_CLKFB.cell(0));
 
                 self.extract_bel(bcrd)

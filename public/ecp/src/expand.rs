@@ -450,12 +450,36 @@ impl Expander<'_, '_> {
             };
             match loc.quad.h {
                 DirH::W => {
-                    self.egrid.add_tile(cell, kind, &[cell, cell.delta(1, 0)]);
+                    self.egrid.add_tile(
+                        cell,
+                        kind,
+                        &[
+                            cell,
+                            cell.delta(1, 0),
+                            self.die.cell(self.chip.col_clk - 1, self.chip.row_s()),
+                        ],
+                    );
                 }
                 DirH::E => {
-                    self.egrid.add_tile(cell, kind, &[cell, cell.delta(-1, 0)]);
+                    self.egrid.add_tile(
+                        cell,
+                        kind,
+                        &[
+                            cell,
+                            cell.delta(-1, 0),
+                            self.die.cell(self.chip.col_clk - 1, self.chip.row_s()),
+                        ],
+                    );
                 }
             }
+            self.add_io_conn(
+                cell.wire(wires::IO_PLL_IN),
+                SpecialIoKey::Pll(PllPad::PllIn0, loc),
+            );
+            self.add_io_conn(
+                cell.wire(wires::IO_PLL_FB),
+                SpecialIoKey::Pll(PllPad::PllFb, loc),
+            );
         }
     }
 
@@ -2805,6 +2829,9 @@ impl Expander<'_, '_> {
     }
 
     fn fill_clk_machxo2(&mut self) {
+        for cell in self.egrid.die_cells(self.die) {
+            self.egrid[cell].region_root[rslots::GLOBAL] = self.chip.clk_root();
+        }
         for row in [self.chip.row_s(), self.chip.row_n()] {
             for cell in self.egrid.row(self.die, row) {
                 self.egrid[cell].region_root[rslots::ECLK] = cell.with_col(self.chip.col_clk - 1);
@@ -2835,18 +2862,20 @@ impl Expander<'_, '_> {
                 );
             }
             1 => {
-                self.egrid.add_tile(
+                self.egrid.add_tile_part(
                     cell,
                     tcls::CLK_ROOT_1EBR,
                     &[
-                        cell.delta(-4, 0),
-                        cell.delta(-2, 0),
-                        cell.delta(-1, 0),
-                        cell,
-                        cell.with_col(self.chip.col_w()),
-                        cell.with_col(self.chip.col_e()),
-                        cell.with_row(self.chip.row_s()).delta(-1, 0),
-                        cell.with_row(self.chip.row_n()).delta(-1, 0),
+                        Some(cell.delta(-4, 0)),
+                        Some(cell.delta(-2, 0)),
+                        Some(cell.delta(-1, 0)),
+                        Some(cell),
+                        Some(cell.with_col(self.chip.col_w())),
+                        Some(cell.with_col(self.chip.col_e())),
+                        Some(cell.with_row(self.chip.row_s()).delta(-1, 0)),
+                        Some(cell.with_row(self.chip.row_n()).delta(-1, 0)),
+                        self.chip.try_bel_pll(DirHV::NW, 0).map(|bcrd| bcrd.cell),
+                        self.chip.try_bel_pll(DirHV::NE, 0).map(|bcrd| bcrd.cell),
                     ],
                 );
             }
@@ -2868,6 +2897,8 @@ impl Expander<'_, '_> {
                         cell.with_row(ebr_rows[0]),
                         cell.with_row(ebr_rows[0]).with_col(self.chip.col_w()),
                         cell.with_row(ebr_rows[0]).with_col(self.chip.col_e()),
+                        self.chip.bel_pll(DirHV::NW, 0).cell,
+                        self.chip.bel_pll(DirHV::NE, 0).cell,
                     ],
                 );
             }
@@ -2878,6 +2909,7 @@ impl Expander<'_, '_> {
                     &[
                         cell.delta(-4, 0),
                         cell.delta(-1, 0),
+                        cell,
                         cell.with_col(self.chip.col_w()),
                         cell.with_col(self.chip.col_e()),
                         cell.with_row(self.chip.row_s()).delta(-1, 0),
@@ -2890,43 +2922,49 @@ impl Expander<'_, '_> {
                         cell.with_row(ebr_rows[2]),
                         cell.with_row(ebr_rows[0]).with_col(self.chip.col_w()),
                         cell.with_row(ebr_rows[0]).with_col(self.chip.col_e()),
+                        self.chip.bel_pll(DirHV::NW, 0).cell,
+                        self.chip.bel_pll(DirHV::NE, 0).cell,
                     ],
                 );
             }
             _ => unreachable!(),
         }
-        if !ebr_rows.is_empty() {
-            for i in 0..3 {
-                self.add_io_conn(
-                    cell.with_col(self.chip.col_w()).wire(wires::IO_GCLK[i]),
-                    SpecialIoKey::Clock(Dir::W, i as u8),
-                );
-            }
+        for i in 0..3 {
             self.add_io_conn(
-                cell.with_col(self.chip.col_e()).wire(wires::IO_GCLK[0]),
-                SpecialIoKey::Clock(Dir::E, 0),
+                self.chip.clk_root().wire(wires::IO_GCLK_W[i]),
+                SpecialIoKey::Clock(Dir::W, i as u8),
             );
-            for i in 0..2 {
-                self.add_io_conn(
-                    cell.with_row(self.chip.row_s())
-                        .delta(-1, 0)
-                        .wire(wires::IO_GCLK[i]),
-                    SpecialIoKey::Clock(Dir::S, i as u8),
+        }
+        self.add_io_conn(
+            self.chip.clk_root().wire(wires::IO_GCLK_E[0]),
+            SpecialIoKey::Clock(Dir::E, 0),
+        );
+        for i in 0..2 {
+            self.add_io_conn(
+                self.chip.clk_root().wire(wires::IO_GCLK_S[i]),
+                SpecialIoKey::Clock(Dir::S, i as u8),
+            );
+        }
+        for i in 0..2 {
+            self.add_io_conn(
+                self.chip.clk_root().wire(wires::IO_GCLK_N[i]),
+                SpecialIoKey::Clock(Dir::N, i as u8),
+            );
+        }
+        if !ebr_rows.is_empty() {
+            for (edge, tcls) in [(DirV::S, tcls::CLK_S), (DirV::N, tcls::CLK_N)] {
+                let cell = cell.with_row(self.chip.row_edge(edge)).delta(-1, 0);
+                self.egrid.add_tile_part(
+                    cell,
+                    tcls,
+                    &[
+                        Some(cell),
+                        Some(self.chip.clk_root()),
+                        self.chip.try_bel_pll(DirHV::NW, 0).map(|bcrd| bcrd.cell),
+                        self.chip.try_bel_pll(DirHV::NE, 0).map(|bcrd| bcrd.cell),
+                    ],
                 );
             }
-            for i in 0..2 {
-                self.add_io_conn(
-                    cell.with_row(self.chip.row_n())
-                        .delta(-1, 0)
-                        .wire(wires::IO_GCLK[i]),
-                    SpecialIoKey::Clock(Dir::N, i as u8),
-                );
-            }
-
-            self.egrid
-                .add_tile_single(cell.with_row(self.chip.row_s()).delta(-1, 0), tcls::CLK_S);
-            self.egrid
-                .add_tile_single(cell.with_row(self.chip.row_n()).delta(-1, 0), tcls::CLK_N);
             self.egrid
                 .add_tile_single(cell.with_col(self.chip.col_w()), tcls::CLK_W);
             if self.chip.kind == ChipKind::MachXo2(MachXo2Kind::MachXo2) {
@@ -3127,6 +3165,9 @@ impl Expander<'_, '_> {
     }
 
     fn fill_clk_ecp5(&mut self) {
+        for cell in self.egrid.die_cells(self.die) {
+            self.egrid[cell].region_root[rslots::GLOBAL] = self.chip.clk_root();
+        }
         for col in [self.chip.col_w(), self.chip.col_e()] {
             for cell in self.egrid.column(self.die, col) {
                 self.egrid[cell].region_root[rslots::ECLK] =

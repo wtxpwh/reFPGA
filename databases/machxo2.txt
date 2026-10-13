@@ -14133,6 +14133,23 @@ intdb {
 		input SLEWRATEENI;
 	}
 
+	bel_class ECLKSYNC {
+		input ECLKI;
+		input STOP;
+		output ECLKO;
+	}
+
+	bel_class ECLKBRIDGECS {
+		input CLK[2];
+		input SEL;
+		output ECSOUT;
+	}
+
+	bel_class CLKFBBUF {
+		input A;
+		output Z;
+	}
+
 	bel_class DCC {
 		input CLKI;
 		input CE;
@@ -14143,6 +14160,45 @@ intdb {
 		input CLK[2];
 		input SEL;
 		output DCSOUT;
+	}
+
+	bel_class DCM {
+		input CLK[2];
+		input SEL;
+		output DCMOUT;
+	}
+
+	bel_class CLKTEST {
+		input TESTIN[24];
+	}
+
+	bel_class PLL {
+		input CLKFB;
+		input RESETM;
+		input CLK[2];
+		input SEL;
+		input RST;
+		input LOADREG;
+		input PHASEDIR;
+		input PHASESEL[2];
+		input PHASESTEP;
+		input PLLWAKESYNC;
+		input RESETC;
+		input RESETD;
+		input STDBY;
+		input ENCLKOP;
+		input ENCLKOS;
+		input ENCLKOS2;
+		input ENCLKOS3;
+		output CLKOP;
+		output CLKOS;
+		output CLKINTFB;
+		output LOCK;
+		output CLKOS2;
+		output CLKOS3;
+		output REFCLK;
+		output DPHSRC;
+		output INTLOCK;
 	}
 
 	bel_class CLKDIV {
@@ -14277,6 +14333,7 @@ intdb {
 	region_slot RSCLK[3];
 	region_slot RSCLK_V;
 	region_slot ECLK;
+	region_slot GLOBAL;
 	wire TIE0: tie 0;
 	wire TIE1: tie 1;
 	wire X0_W[0]: mux;
@@ -14675,29 +14732,68 @@ intdb {
 	wire OUT_OFX_W[5]: branch E;
 	wire OUT_OFX_W[6]: branch E;
 	wire OUT_OFX_W[7]: branch E;
+	wire IMUX_DCC_CLKI[0]: mux;
+	wire IMUX_DCC_CLKI[1]: mux;
+	wire IMUX_DCC_CLKI[2]: mux;
+	wire IMUX_DCC_CLKI[3]: mux;
+	wire IMUX_DCC_CLKI[4]: mux;
+	wire IMUX_DCC_CLKI[5]: mux;
+	wire OUT_DCM_DCMOUT[0]: bel;
+	wire OUT_DCM_DCMOUT[1]: bel;
+	wire IMUX_DCM_CLK0[0]: mux;
+	wire IMUX_DCM_CLK0[1]: mux;
+	wire IMUX_DCM_CLK1[0]: mux;
+	wire IMUX_DCM_CLK1[1]: mux;
+	wire IMUX_ECLKBRIDGECS_CLK0[0]: mux;
+	wire IMUX_ECLKBRIDGECS_CLK0[1]: mux;
+	wire IMUX_ECLKBRIDGECS_CLK1[0]: mux;
+	wire IMUX_ECLKBRIDGECS_CLK1[1]: mux;
 	wire ECLK[0]: regional ECLK;
 	wire ECLK[1]: regional ECLK;
+	wire IMUX_ECLKSYNC_ECLKI[0]: mux;
+	wire IMUX_ECLKSYNC_ECLKI[1]: mux;
+	wire BRGECLK[0]: mux;
+	wire BRGECLK[1]: mux;
 	wire OUT_IO_PADDI[0]: bel;
 	wire OUT_IO_PADDI[1]: bel;
 	wire OUT_IO_PADDI[2]: bel;
 	wire OUT_IO_PADDI[3]: bel;
+	wire IO_GCLK_S[0]: regional GLOBAL;
+	wire IO_GCLK_S[1]: regional GLOBAL;
+	wire IO_GCLK_N[0]: regional GLOBAL;
+	wire IO_GCLK_N[1]: regional GLOBAL;
 	wire IMUX_IO_ECLK[0]: mux;
 	wire IMUX_IO_ECLK[1]: mux;
-	wire IO_GCLK[0]: mux;
-	wire IO_GCLK[1]: mux;
-	wire IO_GCLK[2]: mux;
+	wire OUT_CLKFBBUF_Z[0]: bel;
+	wire OUT_CLKFBBUF_Z[1]: bel;
+	wire PLLCLKFB[0]: mux;
+	wire PLLCLKFB[1]: mux;
+	wire IO_GCLK_W[0]: regional GLOBAL;
+	wire IO_GCLK_W[1]: regional GLOBAL;
+	wire IO_GCLK_W[2]: regional GLOBAL;
+	wire IO_GCLK_E[0]: regional GLOBAL;
+	wire IO_PLL_IN: mux;
+	wire IO_PLL_FB: mux;
 	wire OUT_DLLDEL_CLKO[0]: bel;
 	wire OUT_DLLDEL_CLKO[1]: bel;
 	wire OUT_DLLDEL_CLKO[2]: bel;
 	wire INCK[0]: mux;
 	wire INCK[1]: mux;
 	wire INCK[2]: mux;
+	wire IMUX_PLL_CLKI[0]: mux;
+	wire IMUX_PLL_CLKI[1]: mux;
+	wire IMUX_PLL_CLKFB[0]: mux;
+	wire OUT_PLL_CLKINTFB[0]: bel;
+	wire OUT_PLL_CLKOP[0]: bel;
+	wire OUT_PLL_CLKOS[0]: bel;
+	wire OUT_PLL_CLKOS2[0]: bel;
+	wire OUT_PLL_CLKOS3[0]: bel;
 	wire OUT_CLKDIV_CDIV1[0]: bel;
 	wire OUT_CLKDIV_CDIV1[1]: bel;
 	wire OUT_CLKDIV_CDIVX[0]: bel;
 	wire OUT_CLKDIV_CDIVX[1]: bel;
 	wire IMUX_DDRDLL_CLK: mux;
-	wire OUT_OSC_OSC: bel;
+	wire OUT_OSC_OSC: regional GLOBAL;
 	wire IMUX_PCNTR_CLK: mux;
 
 	tile_slot INT {
@@ -16361,11 +16457,10 @@ intdb {
 		bel_slot SLICE[2]: SLICE;
 		bel_slot SLICE[3]: SLICE;
 		bel_slot EBR[0]: EBR;
-		bel_slot PLL[0]: legacy;
+		bel_slot PLL[0]: PLL;
 		bel_slot DQSDLL: DDRDLL;
 		bel_slot START: START;
 		bel_slot GSR: GSR;
-		bel_slot PLLREFCS[0]: legacy;
 		bel_slot JTAG: JTAG;
 		bel_slot OSC: OSC;
 		bel_slot TSALL: TSALL;
@@ -16896,50 +16991,52 @@ intdb {
 		tile_class PLL_W {
 			cell CELL[0];
 			cell CELL[1];
+			cell CLK_S;
+
+			switchbox BEL_INT {
+				mux CELL[0].IMUX_PLL_CLKI[0] = CELL[0].IMUX_A[0] | CELL[0].IMUX_CLK[0] | CELL[0].IO_GCLK_S[0] | CELL[0].IO_GCLK_S[1] | CELL[0].IO_GCLK_N[0] | CELL[0].IO_GCLK_N[1] | CELL[0].IO_PLL_IN | CELL[0].OUT_OSC_OSC;
+				mux CELL[0].IMUX_PLL_CLKI[1] = CELL[0].IO_GCLK_S[0] | CELL[0].IO_GCLK_S[1] | CELL[0].IO_GCLK_N[0] | CELL[0].IO_GCLK_N[1] | CELL[0].IO_PLL_IN | CELL[0].OUT_OSC_OSC | CELL[1].IMUX_A[0] | CELL[1].IMUX_CLK[0];
+				mux CELL[0].IMUX_PLL_CLKFB[0] = CELL[0].IMUX_CLK[1] | CELL[0].ECLK[0] | CELL[0].ECLK[1] | CELL[0].IO_PLL_FB | CELL[0].OUT_PLL_CLKINTFB[0] | CLK_S.PLLCLKFB[0] | CLK_S.PLLCLKFB[1];
+			}
 
 			bel PLL[0] {
-				input CLKFB1 = CELL[0].IMUX_CLK[1];
-				output CLKOP = CELL[0].OUT_F[0];
-				output CLKOS = CELL[0].OUT_F[2];
-				output CLKOS2 = CELL[0].OUT_F[4];
-				output CLKOS3 = CELL[0].OUT_F[6];
-				output DPHSRC = CELL[0].OUT_Q[6];
+				input CLKFB = CELL[0].IMUX_PLL_CLKFB[0];
+				input RESETM = CELL[0].IMUX_C[1];
+				input CLK[0] = CELL[0].IMUX_PLL_CLKI[0];
+				input CLK[1] = CELL[0].IMUX_PLL_CLKI[1];
+				input SEL = CELL[0].IMUX_B[2];
+				input RST = CELL[0].IMUX_B[1];
+				input LOADREG = CELL[0].IMUX_D[3];
+				input PHASEDIR = CELL[0].IMUX_D[4];
+				input PHASESEL[0] = CELL[0].IMUX_B[4];
+				input PHASESEL[1] = CELL[0].IMUX_A[4];
+				input PHASESTEP = CELL[0].IMUX_C[4];
+				input PLLWAKESYNC = CELL[0].IMUX_C[2];
+				input RESETC = CELL[0].IMUX_D[1];
+				input RESETD = CELL[0].IMUX_A[2];
+				input STDBY = CELL[0].IMUX_LSR[0];
 				input ENCLKOP = CELL[0].IMUX_D[2];
 				input ENCLKOS = CELL[0].IMUX_A[3];
 				input ENCLKOS2 = CELL[0].IMUX_B[3];
 				input ENCLKOS3 = CELL[0].IMUX_C[3];
-				output INTLOCK = CELL[0].OUT_Q[4];
-				input LOADREG = CELL[0].IMUX_D[3];
+				output CLKOP = CELL[0].OUT_F[0], CELL[0].OUT_PLL_CLKOP[0];
+				output CLKOS = CELL[0].OUT_F[2], CELL[0].OUT_PLL_CLKOS[0];
+				output CLKINTFB = CELL[0].OUT_PLL_CLKINTFB[0];
 				output LOCK = CELL[0].OUT_Q[2];
-				input PHASEDIR = CELL[0].IMUX_D[4];
-				input PHASESEL0 = CELL[0].IMUX_B[4];
-				input PHASESEL1 = CELL[0].IMUX_A[4];
-				input PHASESTEP = CELL[0].IMUX_C[4];
-				input PLLWAKESYNC = CELL[0].IMUX_C[2];
+				output CLKOS2 = CELL[0].OUT_F[4], CELL[0].OUT_PLL_CLKOS2[0];
+				output CLKOS3 = CELL[0].OUT_F[6], CELL[0].OUT_PLL_CLKOS3[0];
 				output REFCLK = CELL[0].OUT_Q[0];
-				input RESETC = CELL[0].IMUX_D[1];
-				input RESETD = CELL[0].IMUX_A[2];
-				input RESETM = CELL[0].IMUX_C[1];
-				input RST = CELL[0].IMUX_B[1];
-				input STDBY = CELL[0].IMUX_LSR[0];
+				output DPHSRC = CELL[0].OUT_Q[6];
+				output INTLOCK = CELL[0].OUT_Q[4];
 			}
 
-			bel PLLREFCS[0] {
-				input REFCLK1_0 = CELL[0].IMUX_A[0];
-				input REFCLK1_1 = CELL[1].IMUX_A[0];
-				input REFCLK2_0 = CELL[0].IMUX_CLK[0];
-				input REFCLK2_1 = CELL[1].IMUX_CLK[0];
-				input SEL = CELL[0].IMUX_B[2];
-			}
-
-			// wire CELL[0].IMUX_A[0]              PLLREFCS[0].REFCLK1_0
 			// wire CELL[0].IMUX_A[2]              PLL[0].RESETD
 			// wire CELL[0].IMUX_A[3]              PLL[0].ENCLKOS
-			// wire CELL[0].IMUX_A[4]              PLL[0].PHASESEL1
+			// wire CELL[0].IMUX_A[4]              PLL[0].PHASESEL[1]
 			// wire CELL[0].IMUX_B[1]              PLL[0].RST
-			// wire CELL[0].IMUX_B[2]              PLLREFCS[0].SEL
+			// wire CELL[0].IMUX_B[2]              PLL[0].SEL
 			// wire CELL[0].IMUX_B[3]              PLL[0].ENCLKOS2
-			// wire CELL[0].IMUX_B[4]              PLL[0].PHASESEL0
+			// wire CELL[0].IMUX_B[4]              PLL[0].PHASESEL[0]
 			// wire CELL[0].IMUX_C[1]              PLL[0].RESETM
 			// wire CELL[0].IMUX_C[2]              PLL[0].PLLWAKESYNC
 			// wire CELL[0].IMUX_C[3]              PLL[0].ENCLKOS3
@@ -16948,8 +17045,6 @@ intdb {
 			// wire CELL[0].IMUX_D[2]              PLL[0].ENCLKOP
 			// wire CELL[0].IMUX_D[3]              PLL[0].LOADREG
 			// wire CELL[0].IMUX_D[4]              PLL[0].PHASEDIR
-			// wire CELL[0].IMUX_CLK[0]            PLLREFCS[0].REFCLK2_0
-			// wire CELL[0].IMUX_CLK[1]            PLL[0].CLKFB1
 			// wire CELL[0].IMUX_LSR[0]            PLL[0].STDBY
 			// wire CELL[0].OUT_F[0]               PLL[0].CLKOP
 			// wire CELL[0].OUT_F[2]               PLL[0].CLKOS
@@ -16959,57 +17054,65 @@ intdb {
 			// wire CELL[0].OUT_Q[2]               PLL[0].LOCK
 			// wire CELL[0].OUT_Q[4]               PLL[0].INTLOCK
 			// wire CELL[0].OUT_Q[6]               PLL[0].DPHSRC
-			// wire CELL[1].IMUX_A[0]              PLLREFCS[0].REFCLK1_1
-			// wire CELL[1].IMUX_CLK[0]            PLLREFCS[0].REFCLK2_1
+			// wire CELL[0].IMUX_PLL_CLKI[0]       PLL[0].CLK[0]
+			// wire CELL[0].IMUX_PLL_CLKI[1]       PLL[0].CLK[1]
+			// wire CELL[0].IMUX_PLL_CLKFB[0]      PLL[0].CLKFB
+			// wire CELL[0].OUT_PLL_CLKINTFB[0]    PLL[0].CLKINTFB
+			// wire CELL[0].OUT_PLL_CLKOP[0]       PLL[0].CLKOP
+			// wire CELL[0].OUT_PLL_CLKOS[0]       PLL[0].CLKOS
+			// wire CELL[0].OUT_PLL_CLKOS2[0]      PLL[0].CLKOS2
+			// wire CELL[0].OUT_PLL_CLKOS3[0]      PLL[0].CLKOS3
 		}
 
 		tile_class PLL_E {
 			cell CELL[0];
 			cell CELL[1];
+			cell CLK_S;
+
+			switchbox BEL_INT {
+				mux CELL[0].IMUX_PLL_CLKI[0] = CELL[0].IMUX_A[0] | CELL[0].IMUX_CLK[0] | CELL[0].IO_GCLK_S[0] | CELL[0].IO_GCLK_S[1] | CELL[0].IO_GCLK_N[0] | CELL[0].IO_GCLK_N[1] | CELL[0].IO_PLL_IN | CELL[0].OUT_OSC_OSC;
+				mux CELL[0].IMUX_PLL_CLKI[1] = CELL[0].IO_GCLK_S[0] | CELL[0].IO_GCLK_S[1] | CELL[0].IO_GCLK_N[0] | CELL[0].IO_GCLK_N[1] | CELL[0].IO_PLL_IN | CELL[0].OUT_OSC_OSC | CELL[1].IMUX_A[0] | CELL[1].IMUX_CLK[0];
+				mux CELL[0].IMUX_PLL_CLKFB[0] = CELL[0].IMUX_CLK[1] | CELL[0].ECLK[0] | CELL[0].ECLK[1] | CELL[0].IO_PLL_FB | CELL[0].OUT_PLL_CLKINTFB[0] | CLK_S.PLLCLKFB[0] | CLK_S.PLLCLKFB[1];
+			}
 
 			bel PLL[0] {
-				input CLKFB1 = CELL[0].IMUX_CLK[1];
-				output CLKOP = CELL[0].OUT_F[0];
-				output CLKOS = CELL[0].OUT_F[2];
-				output CLKOS2 = CELL[0].OUT_F[4];
-				output CLKOS3 = CELL[0].OUT_F[6];
-				output DPHSRC = CELL[0].OUT_Q[6];
+				input CLKFB = CELL[0].IMUX_PLL_CLKFB[0];
+				input RESETM = CELL[0].IMUX_C[1];
+				input CLK[0] = CELL[0].IMUX_PLL_CLKI[0];
+				input CLK[1] = CELL[0].IMUX_PLL_CLKI[1];
+				input SEL = CELL[0].IMUX_B[2];
+				input RST = CELL[0].IMUX_B[1];
+				input LOADREG = CELL[0].IMUX_D[3];
+				input PHASEDIR = CELL[0].IMUX_D[4];
+				input PHASESEL[0] = CELL[0].IMUX_B[4];
+				input PHASESEL[1] = CELL[0].IMUX_A[4];
+				input PHASESTEP = CELL[0].IMUX_C[4];
+				input PLLWAKESYNC = CELL[0].IMUX_C[2];
+				input RESETC = CELL[0].IMUX_D[1];
+				input RESETD = CELL[0].IMUX_A[2];
+				input STDBY = CELL[0].IMUX_LSR[0];
 				input ENCLKOP = CELL[0].IMUX_D[2];
 				input ENCLKOS = CELL[0].IMUX_A[3];
 				input ENCLKOS2 = CELL[0].IMUX_B[3];
 				input ENCLKOS3 = CELL[0].IMUX_C[3];
-				output INTLOCK = CELL[0].OUT_Q[4];
-				input LOADREG = CELL[0].IMUX_D[3];
+				output CLKOP = CELL[0].OUT_F[0], CELL[0].OUT_PLL_CLKOP[0];
+				output CLKOS = CELL[0].OUT_F[2], CELL[0].OUT_PLL_CLKOS[0];
+				output CLKINTFB = CELL[0].OUT_PLL_CLKINTFB[0];
 				output LOCK = CELL[0].OUT_Q[2];
-				input PHASEDIR = CELL[0].IMUX_D[4];
-				input PHASESEL0 = CELL[0].IMUX_B[4];
-				input PHASESEL1 = CELL[0].IMUX_A[4];
-				input PHASESTEP = CELL[0].IMUX_C[4];
-				input PLLWAKESYNC = CELL[0].IMUX_C[2];
+				output CLKOS2 = CELL[0].OUT_F[4], CELL[0].OUT_PLL_CLKOS2[0];
+				output CLKOS3 = CELL[0].OUT_F[6], CELL[0].OUT_PLL_CLKOS3[0];
 				output REFCLK = CELL[0].OUT_Q[0];
-				input RESETC = CELL[0].IMUX_D[1];
-				input RESETD = CELL[0].IMUX_A[2];
-				input RESETM = CELL[0].IMUX_C[1];
-				input RST = CELL[0].IMUX_B[1];
-				input STDBY = CELL[0].IMUX_LSR[0];
+				output DPHSRC = CELL[0].OUT_Q[6];
+				output INTLOCK = CELL[0].OUT_Q[4];
 			}
 
-			bel PLLREFCS[0] {
-				input REFCLK1_0 = CELL[0].IMUX_A[0];
-				input REFCLK1_1 = CELL[1].IMUX_A[0];
-				input REFCLK2_0 = CELL[0].IMUX_CLK[0];
-				input REFCLK2_1 = CELL[1].IMUX_CLK[0];
-				input SEL = CELL[0].IMUX_B[2];
-			}
-
-			// wire CELL[0].IMUX_A[0]              PLLREFCS[0].REFCLK1_0
 			// wire CELL[0].IMUX_A[2]              PLL[0].RESETD
 			// wire CELL[0].IMUX_A[3]              PLL[0].ENCLKOS
-			// wire CELL[0].IMUX_A[4]              PLL[0].PHASESEL1
+			// wire CELL[0].IMUX_A[4]              PLL[0].PHASESEL[1]
 			// wire CELL[0].IMUX_B[1]              PLL[0].RST
-			// wire CELL[0].IMUX_B[2]              PLLREFCS[0].SEL
+			// wire CELL[0].IMUX_B[2]              PLL[0].SEL
 			// wire CELL[0].IMUX_B[3]              PLL[0].ENCLKOS2
-			// wire CELL[0].IMUX_B[4]              PLL[0].PHASESEL0
+			// wire CELL[0].IMUX_B[4]              PLL[0].PHASESEL[0]
 			// wire CELL[0].IMUX_C[1]              PLL[0].RESETM
 			// wire CELL[0].IMUX_C[2]              PLL[0].PLLWAKESYNC
 			// wire CELL[0].IMUX_C[3]              PLL[0].ENCLKOS3
@@ -17018,8 +17121,6 @@ intdb {
 			// wire CELL[0].IMUX_D[2]              PLL[0].ENCLKOP
 			// wire CELL[0].IMUX_D[3]              PLL[0].LOADREG
 			// wire CELL[0].IMUX_D[4]              PLL[0].PHASEDIR
-			// wire CELL[0].IMUX_CLK[0]            PLLREFCS[0].REFCLK2_0
-			// wire CELL[0].IMUX_CLK[1]            PLL[0].CLKFB1
 			// wire CELL[0].IMUX_LSR[0]            PLL[0].STDBY
 			// wire CELL[0].OUT_F[0]               PLL[0].CLKOP
 			// wire CELL[0].OUT_F[2]               PLL[0].CLKOS
@@ -17029,8 +17130,14 @@ intdb {
 			// wire CELL[0].OUT_Q[2]               PLL[0].LOCK
 			// wire CELL[0].OUT_Q[4]               PLL[0].INTLOCK
 			// wire CELL[0].OUT_Q[6]               PLL[0].DPHSRC
-			// wire CELL[1].IMUX_A[0]              PLLREFCS[0].REFCLK1_1
-			// wire CELL[1].IMUX_CLK[0]            PLLREFCS[0].REFCLK2_1
+			// wire CELL[0].IMUX_PLL_CLKI[0]       PLL[0].CLK[0]
+			// wire CELL[0].IMUX_PLL_CLKI[1]       PLL[0].CLK[1]
+			// wire CELL[0].IMUX_PLL_CLKFB[0]      PLL[0].CLKFB
+			// wire CELL[0].OUT_PLL_CLKINTFB[0]    PLL[0].CLKINTFB
+			// wire CELL[0].OUT_PLL_CLKOP[0]       PLL[0].CLKOP
+			// wire CELL[0].OUT_PLL_CLKOS[0]       PLL[0].CLKOS
+			// wire CELL[0].OUT_PLL_CLKOS2[0]      PLL[0].CLKOS2
+			// wire CELL[0].OUT_PLL_CLKOS3[0]      PLL[0].CLKOS3
 		}
 
 		tile_class DQSDLL_S {
@@ -17880,52 +17987,51 @@ intdb {
 		bel_slot DQS[0]: DQS;
 		bel_slot DQS[1]: DQS;
 		bel_slot CLK_INT: routing;
-		bel_slot CLK_ROOT: legacy;
-		bel_slot CLKTEST: legacy;
-		bel_slot DCC[0]: legacy;
-		bel_slot DCC[1]: legacy;
-		bel_slot DCC[2]: legacy;
-		bel_slot DCC[3]: legacy;
-		bel_slot DCC[4]: legacy;
-		bel_slot DCC[5]: legacy;
-		bel_slot DCC[6]: legacy;
-		bel_slot DCC[7]: legacy;
-		bel_slot DCM[0]: legacy;
-		bel_slot DCM[1]: legacy;
-		bel_slot ECLKBRIDGECS[0]: legacy;
-		bel_slot ECLKBRIDGECS[1]: legacy;
-		bel_slot ECLKSYNC[0]: legacy;
-		bel_slot ECLKSYNC[1]: legacy;
-		bel_slot CLKFBBUF[0]: legacy;
-		bel_slot CLKFBBUF[1]: legacy;
+		bel_slot CLKTEST: CLKTEST;
+		bel_slot DCC[0]: DCC;
+		bel_slot DCC[1]: DCC;
+		bel_slot DCC[2]: DCC;
+		bel_slot DCC[3]: DCC;
+		bel_slot DCC[4]: DCC;
+		bel_slot DCC[5]: DCC;
+		bel_slot DCC[6]: DCC;
+		bel_slot DCC[7]: DCC;
+		bel_slot DCM[0]: DCM;
+		bel_slot DCM[1]: DCM;
+		bel_slot ECLKBRIDGECS[0]: ECLKBRIDGECS;
+		bel_slot ECLKBRIDGECS[1]: ECLKBRIDGECS;
+		bel_slot ECLKSYNC[0]: ECLKSYNC;
+		bel_slot ECLKSYNC[1]: ECLKSYNC;
+		bel_slot CLKFBBUF[0]: CLKFBBUF;
+		bel_slot CLKFBBUF[1]: CLKFBBUF;
 
 		tile_class CLK_W {
 			cell CELL;
 
 			bel DLLDEL[0] {
-				input CLKI = IO_GCLK[0];
+				input CLKI = IO_GCLK_W[0];
 				output CLKO = OUT_DLLDEL_CLKO[0];
 			}
 
 			bel DLLDEL[1] {
-				input CLKI = IO_GCLK[1];
+				input CLKI = IO_GCLK_W[1];
 				output CLKO = OUT_DLLDEL_CLKO[1];
 			}
 
 			bel DLLDEL[2] {
-				input CLKI = IO_GCLK[2];
+				input CLKI = IO_GCLK_W[2];
 				output CLKO = OUT_DLLDEL_CLKO[2];
 			}
 
 			switchbox CLK_INT {
-				mux INCK[0] = IO_GCLK[0] | OUT_DLLDEL_CLKO[0];
-				mux INCK[1] = IO_GCLK[1] | OUT_DLLDEL_CLKO[1];
-				mux INCK[2] = IO_GCLK[2] | OUT_DLLDEL_CLKO[2];
+				mux INCK[0] = IO_GCLK_W[0] | OUT_DLLDEL_CLKO[0];
+				mux INCK[1] = IO_GCLK_W[1] | OUT_DLLDEL_CLKO[1];
+				mux INCK[2] = IO_GCLK_W[2] | OUT_DLLDEL_CLKO[2];
 			}
 
-			// wire IO_GCLK[0]                     DLLDEL[0].CLKI
-			// wire IO_GCLK[1]                     DLLDEL[1].CLKI
-			// wire IO_GCLK[2]                     DLLDEL[2].CLKI
+			// wire IO_GCLK_W[0]                   DLLDEL[0].CLKI
+			// wire IO_GCLK_W[1]                   DLLDEL[1].CLKI
+			// wire IO_GCLK_W[2]                   DLLDEL[2].CLKI
 			// wire OUT_DLLDEL_CLKO[0]             DLLDEL[0].CLKO
 			// wire OUT_DLLDEL_CLKO[1]             DLLDEL[1].CLKO
 			// wire OUT_DLLDEL_CLKO[2]             DLLDEL[2].CLKO
@@ -17935,15 +18041,15 @@ intdb {
 			cell CELL;
 
 			bel DLLDEL[0] {
-				input CLKI = IO_GCLK[0];
+				input CLKI = IO_GCLK_E[0];
 				output CLKO = OUT_DLLDEL_CLKO[0];
 			}
 
 			switchbox CLK_INT {
-				mux INCK[0] = IO_GCLK[0] | OUT_DLLDEL_CLKO[0];
+				mux INCK[0] = IO_GCLK_E[0] | OUT_DLLDEL_CLKO[0];
 			}
 
-			// wire IO_GCLK[0]                     DLLDEL[0].CLKI
+			// wire IO_GCLK_E[0]                   DLLDEL[0].CLKI
 			// wire OUT_DLLDEL_CLKO[0]             DLLDEL[0].CLKO
 		}
 
@@ -17957,132 +18063,144 @@ intdb {
 			cell EDGE_N[0];
 			cell EDGE_N[1];
 
-			bel CLK_ROOT {
-				input PCLK_IN_E0 = EDGE_E[1].IMUX_CLK[0];
-				input PCLK_IN_E1 = EDGE_E[1].IMUX_CLK[1];
-				input PCLK_IN_N0 = EDGE_N[0].IMUX_CLK[0];
-				input PCLK_IN_N1 = EDGE_N[0].IMUX_CLK[1];
-				input PCLK_IN_S0 = EDGE_S[0].IMUX_CLK[0];
-				input PCLK_IN_S1 = EDGE_S[0].IMUX_CLK[1];
-				input PCLK_IN_W0 = EDGE_W[1].IMUX_CLK[0];
-				input PCLK_IN_W1 = EDGE_W[1].IMUX_CLK[1];
-				input SCLK_IN_E0 = EDGE_E[1].IMUX_A[5];
-				input SCLK_IN_E1 = EDGE_E[1].IMUX_B[5];
-				input SCLK_IN_M0 = EDGE_W[0].IMUX_A[5];
-				input SCLK_IN_M1 = EDGE_W[0].IMUX_B[5];
-				input SCLK_IN_M2 = EDGE_S[0].IMUX_C[5];
-				input SCLK_IN_M3 = EDGE_S[0].IMUX_D[5];
-				input SCLK_IN_M4 = EDGE_N[1].IMUX_A[5];
-				input SCLK_IN_M5 = EDGE_N[1].IMUX_B[5];
-				input SCLK_IN_M6 = EDGE_E[0].IMUX_C[5];
-				input SCLK_IN_M7 = EDGE_E[0].IMUX_D[5];
-				input SCLK_IN_N0 = EDGE_N[0].IMUX_A[5];
-				input SCLK_IN_N1 = EDGE_N[0].IMUX_B[5];
-				input SCLK_IN_S0 = EDGE_S[0].IMUX_A[5];
-				input SCLK_IN_S1 = EDGE_S[0].IMUX_B[5];
-				input SCLK_IN_W0 = EDGE_W[1].IMUX_A[5];
-				input SCLK_IN_W1 = EDGE_W[1].IMUX_B[5];
+			switchbox CLK_INT {
+				mux EDGE_W[0].SCLK_ROOT[0] = EDGE_W[0].IMUX_B[5] | EDGE_W[0].IO_GCLK_W[0] | EDGE_W[1].IMUX_B[5] | EDGE_E[0].IMUX_D[5] | EDGE_E[1].IMUX_A[5] | EDGE_S[0].IMUX_B[5] | EDGE_S[0].IMUX_C[5] | EDGE_N[0].IMUX_A[5];
+				mux EDGE_W[0].SCLK_ROOT[1] = EDGE_W[0].IMUX_A[5] | EDGE_W[0].IO_GCLK_W[1] | EDGE_W[1].IMUX_A[5] | EDGE_E[0].IMUX_C[5] | EDGE_E[1].IMUX_B[5] | EDGE_S[0].IMUX_A[5] | EDGE_N[0].IMUX_B[5] | EDGE_N[1].IMUX_B[5];
+				mux EDGE_W[0].SCLK_ROOT[2] = EDGE_W[0].IMUX_B[5] | EDGE_W[0].IO_GCLK_E[0] | EDGE_W[1].IMUX_B[5] | EDGE_E[0].IMUX_D[5] | EDGE_E[1].IMUX_A[5] | EDGE_S[0].IMUX_C[5] | EDGE_N[0].IMUX_A[5] | EDGE_N[1].IMUX_A[5];
+				mux EDGE_W[0].SCLK_ROOT[3] = EDGE_W[0].IMUX_A[5] | EDGE_W[0].IO_GCLK_W[2] | EDGE_E[0].IMUX_C[5] | EDGE_E[1].IMUX_B[5] | EDGE_S[0].IMUX_A[5] | EDGE_S[0].IMUX_D[5] | EDGE_N[0].IMUX_B[5] | EDGE_N[1].IMUX_B[5];
+				mux EDGE_W[0].SCLK_ROOT[4] = EDGE_W[0].IMUX_B[5] | EDGE_W[0].IO_GCLK_N[0] | EDGE_W[1].IMUX_B[5] | EDGE_E[0].IMUX_D[5] | EDGE_E[1].IMUX_A[5] | EDGE_S[0].IMUX_B[5] | EDGE_S[0].IMUX_C[5] | EDGE_N[1].IMUX_A[5];
+				mux EDGE_W[0].SCLK_ROOT[5] = EDGE_W[0].IMUX_A[5] | EDGE_W[0].IO_GCLK_N[1] | EDGE_W[1].IMUX_A[5] | EDGE_E[0].IMUX_C[5] | EDGE_S[0].IMUX_A[5] | EDGE_S[0].IMUX_D[5] | EDGE_N[0].IMUX_B[5] | EDGE_N[1].IMUX_B[5];
+				mux EDGE_W[0].SCLK_ROOT[6] = EDGE_W[0].IMUX_B[5] | EDGE_W[0].IO_GCLK_S[0] | EDGE_W[1].IMUX_B[5] | EDGE_E[1].IMUX_A[5] | EDGE_S[0].IMUX_B[5] | EDGE_S[0].IMUX_C[5] | EDGE_N[0].IMUX_A[5] | EDGE_N[1].IMUX_A[5];
+				mux EDGE_W[0].SCLK_ROOT[7] = EDGE_W[0].IO_GCLK_S[1] | EDGE_W[1].IMUX_A[5] | EDGE_E[0].IMUX_C[5] | EDGE_E[1].IMUX_B[5] | EDGE_S[0].IMUX_A[5] | EDGE_S[0].IMUX_D[5] | EDGE_N[0].IMUX_B[5] | EDGE_N[1].IMUX_B[5];
+				mux EDGE_W[0].IMUX_DCC_CLKI[0] = EDGE_W[0].IO_GCLK_S[0] | EDGE_W[0].IO_GCLK_S[1] | EDGE_W[0].IO_GCLK_N[0] | EDGE_W[0].IO_GCLK_N[1] | EDGE_W[0].IO_GCLK_W[0] | EDGE_W[0].IO_GCLK_W[1] | EDGE_W[0].IO_GCLK_W[2] | EDGE_W[0].IO_GCLK_E[0] | EDGE_W[1].IMUX_CLK[0] | EDGE_W[1].IMUX_CLK[1] | EDGE_E[1].IMUX_CLK[0] | EDGE_E[1].IMUX_CLK[1] | EDGE_S[0].IMUX_CLK[0] | EDGE_S[0].IMUX_CLK[1] | EDGE_N[0].IMUX_CLK[0] | EDGE_N[0].IMUX_CLK[1];
+				mux EDGE_W[0].IMUX_DCC_CLKI[1] = EDGE_W[0].IO_GCLK_S[0] | EDGE_W[0].IO_GCLK_S[1] | EDGE_W[0].IO_GCLK_N[0] | EDGE_W[0].IO_GCLK_N[1] | EDGE_W[0].IO_GCLK_W[0] | EDGE_W[0].IO_GCLK_W[1] | EDGE_W[0].IO_GCLK_W[2] | EDGE_W[0].IO_GCLK_E[0] | EDGE_W[1].IMUX_CLK[0] | EDGE_W[1].IMUX_CLK[1] | EDGE_E[1].IMUX_CLK[0] | EDGE_E[1].IMUX_CLK[1] | EDGE_S[0].IMUX_CLK[0] | EDGE_S[0].IMUX_CLK[1] | EDGE_N[0].IMUX_CLK[0] | EDGE_N[0].IMUX_CLK[1];
+				mux EDGE_W[0].IMUX_DCC_CLKI[2] = EDGE_W[0].IO_GCLK_S[0] | EDGE_W[0].IO_GCLK_S[1] | EDGE_W[0].IO_GCLK_N[0] | EDGE_W[0].IO_GCLK_N[1] | EDGE_W[0].IO_GCLK_W[0] | EDGE_W[0].IO_GCLK_W[1] | EDGE_W[0].IO_GCLK_W[2] | EDGE_W[0].IO_GCLK_E[0] | EDGE_W[1].IMUX_CLK[0] | EDGE_W[1].IMUX_CLK[1] | EDGE_E[1].IMUX_CLK[0] | EDGE_E[1].IMUX_CLK[1] | EDGE_S[0].IMUX_CLK[0] | EDGE_S[0].IMUX_CLK[1] | EDGE_N[0].IMUX_CLK[0] | EDGE_N[0].IMUX_CLK[1];
+				mux EDGE_W[0].IMUX_DCC_CLKI[3] = EDGE_W[0].IO_GCLK_S[0] | EDGE_W[0].IO_GCLK_S[1] | EDGE_W[0].IO_GCLK_N[0] | EDGE_W[0].IO_GCLK_N[1] | EDGE_W[0].IO_GCLK_W[0] | EDGE_W[0].IO_GCLK_W[1] | EDGE_W[0].IO_GCLK_W[2] | EDGE_W[0].IO_GCLK_E[0] | EDGE_W[1].IMUX_CLK[0] | EDGE_W[1].IMUX_CLK[1] | EDGE_E[1].IMUX_CLK[0] | EDGE_E[1].IMUX_CLK[1] | EDGE_S[0].IMUX_CLK[0] | EDGE_S[0].IMUX_CLK[1] | EDGE_N[0].IMUX_CLK[0] | EDGE_N[0].IMUX_CLK[1];
+				mux EDGE_W[0].IMUX_DCC_CLKI[4] = EDGE_W[0].IO_GCLK_S[0] | EDGE_W[0].IO_GCLK_S[1] | EDGE_W[0].IO_GCLK_N[0] | EDGE_W[0].IO_GCLK_N[1] | EDGE_W[0].IO_GCLK_W[0] | EDGE_W[0].IO_GCLK_W[1] | EDGE_W[0].IO_GCLK_W[2] | EDGE_W[0].IO_GCLK_E[0] | EDGE_W[1].IMUX_CLK[0] | EDGE_W[1].IMUX_CLK[1] | EDGE_E[1].IMUX_CLK[0] | EDGE_E[1].IMUX_CLK[1] | EDGE_S[0].IMUX_CLK[0] | EDGE_S[0].IMUX_CLK[1] | EDGE_N[0].IMUX_CLK[0] | EDGE_N[0].IMUX_CLK[1];
+				mux EDGE_W[0].IMUX_DCC_CLKI[5] = EDGE_W[0].IO_GCLK_S[0] | EDGE_W[0].IO_GCLK_S[1] | EDGE_W[0].IO_GCLK_N[0] | EDGE_W[0].IO_GCLK_N[1] | EDGE_W[0].IO_GCLK_W[0] | EDGE_W[0].IO_GCLK_W[1] | EDGE_W[0].IO_GCLK_W[2] | EDGE_W[0].IO_GCLK_E[0] | EDGE_W[1].IMUX_CLK[0] | EDGE_W[1].IMUX_CLK[1] | EDGE_E[1].IMUX_CLK[0] | EDGE_E[1].IMUX_CLK[1] | EDGE_S[0].IMUX_CLK[0] | EDGE_S[0].IMUX_CLK[1] | EDGE_N[0].IMUX_CLK[0] | EDGE_N[0].IMUX_CLK[1];
+				mux EDGE_W[0].IMUX_DCM_CLK0[0] = EDGE_W[0].IO_GCLK_S[0] | EDGE_W[0].IO_GCLK_S[1] | EDGE_W[0].IO_GCLK_N[0] | EDGE_W[0].IO_GCLK_N[1] | EDGE_W[0].IO_GCLK_W[0] | EDGE_W[0].IO_GCLK_W[1] | EDGE_W[0].IO_GCLK_W[2] | EDGE_W[0].IO_GCLK_E[0] | EDGE_W[1].IMUX_CLK[0] | EDGE_W[1].IMUX_CLK[1] | EDGE_E[1].IMUX_CLK[0] | EDGE_E[1].IMUX_CLK[1] | EDGE_S[0].IMUX_CLK[0] | EDGE_S[0].IMUX_CLK[1] | EDGE_N[0].IMUX_CLK[0] | EDGE_N[0].IMUX_CLK[1];
+				mux EDGE_W[0].IMUX_DCM_CLK0[1] = EDGE_W[0].IO_GCLK_S[0] | EDGE_W[0].IO_GCLK_S[1] | EDGE_W[0].IO_GCLK_N[0] | EDGE_W[0].IO_GCLK_N[1] | EDGE_W[0].IO_GCLK_W[0] | EDGE_W[0].IO_GCLK_W[1] | EDGE_W[0].IO_GCLK_W[2] | EDGE_W[0].IO_GCLK_E[0] | EDGE_W[1].IMUX_CLK[0] | EDGE_W[1].IMUX_CLK[1] | EDGE_E[1].IMUX_CLK[0] | EDGE_E[1].IMUX_CLK[1] | EDGE_S[0].IMUX_CLK[0] | EDGE_S[0].IMUX_CLK[1] | EDGE_N[0].IMUX_CLK[0] | EDGE_N[0].IMUX_CLK[1];
+				mux EDGE_W[0].IMUX_DCM_CLK1[0] = EDGE_W[0].IO_GCLK_S[0] | EDGE_W[0].IO_GCLK_S[1] | EDGE_W[0].IO_GCLK_N[0] | EDGE_W[0].IO_GCLK_N[1] | EDGE_W[0].IO_GCLK_W[0] | EDGE_W[0].IO_GCLK_W[1] | EDGE_W[0].IO_GCLK_W[2] | EDGE_W[0].IO_GCLK_E[0] | EDGE_W[1].IMUX_CLK[0] | EDGE_W[1].IMUX_CLK[1] | EDGE_E[1].IMUX_CLK[0] | EDGE_E[1].IMUX_CLK[1] | EDGE_S[0].IMUX_CLK[0] | EDGE_S[0].IMUX_CLK[1] | EDGE_N[0].IMUX_CLK[0] | EDGE_N[0].IMUX_CLK[1];
+				mux EDGE_W[0].IMUX_DCM_CLK1[1] = EDGE_W[0].IO_GCLK_S[0] | EDGE_W[0].IO_GCLK_S[1] | EDGE_W[0].IO_GCLK_N[0] | EDGE_W[0].IO_GCLK_N[1] | EDGE_W[0].IO_GCLK_W[0] | EDGE_W[0].IO_GCLK_W[1] | EDGE_W[0].IO_GCLK_W[2] | EDGE_W[0].IO_GCLK_E[0] | EDGE_W[1].IMUX_CLK[0] | EDGE_W[1].IMUX_CLK[1] | EDGE_E[1].IMUX_CLK[0] | EDGE_E[1].IMUX_CLK[1] | EDGE_S[0].IMUX_CLK[0] | EDGE_S[0].IMUX_CLK[1] | EDGE_N[0].IMUX_CLK[0] | EDGE_N[0].IMUX_CLK[1];
 			}
 
 			bel CLKTEST {
-				input TESTIN0 = EDGE_N[0].IMUX_A[2];
-				input TESTIN1 = EDGE_N[0].IMUX_B[2];
-				input TESTIN10 = EDGE_N[0].IMUX_C[4];
-				input TESTIN2 = EDGE_N[0].IMUX_C[2];
-				input TESTIN3 = EDGE_N[0].IMUX_D[2];
-				input TESTIN4 = EDGE_N[0].IMUX_A[3];
-				input TESTIN5 = EDGE_N[0].IMUX_B[3];
-				input TESTIN6 = EDGE_N[0].IMUX_C[3];
-				input TESTIN7 = EDGE_N[0].IMUX_D[3];
-				input TESTIN8 = EDGE_N[0].IMUX_A[4];
-				input TESTIN9 = EDGE_N[0].IMUX_B[4];
+				input TESTIN[0] = EDGE_N[0].IMUX_A[2];
+				input TESTIN[1] = EDGE_N[0].IMUX_B[2];
+				input TESTIN[2] = EDGE_N[0].IMUX_C[2];
+				input TESTIN[3] = EDGE_N[0].IMUX_D[2];
+				input TESTIN[4] = EDGE_N[0].IMUX_A[3];
+				input TESTIN[5] = EDGE_N[0].IMUX_B[3];
+				input TESTIN[6] = EDGE_N[0].IMUX_C[3];
+				input TESTIN[7] = EDGE_N[0].IMUX_D[3];
+				input TESTIN[8] = EDGE_N[0].IMUX_A[4];
+				input TESTIN[9] = EDGE_N[0].IMUX_B[4];
+				input TESTIN[10] = EDGE_N[0].IMUX_C[4];
 			}
 
 			bel DCC[0] {
+				input CLKI = EDGE_W[0].IMUX_DCC_CLKI[0];
 				input CE = EDGE_N[0].IMUX_A[0];
+				output CLKO = EDGE_W[0].PCLK_ROOT[0];
 			}
 
 			bel DCC[1] {
+				input CLKI = EDGE_W[0].IMUX_DCC_CLKI[1];
 				input CE = EDGE_N[0].IMUX_B[0];
+				output CLKO = EDGE_W[0].PCLK_ROOT[1];
 			}
 
 			bel DCC[2] {
+				input CLKI = EDGE_W[0].IMUX_DCC_CLKI[2];
 				input CE = EDGE_N[0].IMUX_C[0];
+				output CLKO = EDGE_W[0].PCLK_ROOT[2];
 			}
 
 			bel DCC[3] {
+				input CLKI = EDGE_W[0].IMUX_DCC_CLKI[3];
 				input CE = EDGE_N[0].IMUX_D[0];
+				output CLKO = EDGE_W[0].PCLK_ROOT[3];
 			}
 
 			bel DCC[4] {
+				input CLKI = EDGE_W[0].IMUX_DCC_CLKI[4];
 				input CE = EDGE_N[0].IMUX_A[1];
+				output CLKO = EDGE_W[0].PCLK_ROOT[4];
 			}
 
 			bel DCC[5] {
+				input CLKI = EDGE_W[0].IMUX_DCC_CLKI[5];
 				input CE = EDGE_N[0].IMUX_B[1];
+				output CLKO = EDGE_W[0].PCLK_ROOT[5];
 			}
 
 			bel DCC[6] {
+				input CLKI = EDGE_W[0].OUT_DCM_DCMOUT[0];
 				input CE = EDGE_N[0].IMUX_C[1];
+				output CLKO = EDGE_W[0].PCLK_ROOT[6];
 			}
 
 			bel DCC[7] {
+				input CLKI = EDGE_W[0].OUT_DCM_DCMOUT[1];
 				input CE = EDGE_N[0].IMUX_D[1];
+				output CLKO = EDGE_W[0].PCLK_ROOT[7];
 			}
 
 			bel DCM[0] {
+				input CLK[0] = EDGE_W[0].IMUX_DCM_CLK0[0];
+				input CLK[1] = EDGE_W[0].IMUX_DCM_CLK1[0];
 				input SEL = EDGE_S[1].IMUX_A[5];
+				output DCMOUT = EDGE_W[0].OUT_DCM_DCMOUT[0];
 			}
 
 			bel DCM[1] {
+				input CLK[0] = EDGE_W[0].IMUX_DCM_CLK0[1];
+				input CLK[1] = EDGE_W[0].IMUX_DCM_CLK1[1];
 				input SEL = EDGE_S[1].IMUX_B[5];
+				output DCMOUT = EDGE_W[0].OUT_DCM_DCMOUT[1];
 			}
 
-			// wire EDGE_W[0].IMUX_A[5]            CLK_ROOT.SCLK_IN_M0
-			// wire EDGE_W[0].IMUX_B[5]            CLK_ROOT.SCLK_IN_M1
-			// wire EDGE_W[1].IMUX_A[5]            CLK_ROOT.SCLK_IN_W0
-			// wire EDGE_W[1].IMUX_B[5]            CLK_ROOT.SCLK_IN_W1
-			// wire EDGE_W[1].IMUX_CLK[0]          CLK_ROOT.PCLK_IN_W0
-			// wire EDGE_W[1].IMUX_CLK[1]          CLK_ROOT.PCLK_IN_W1
-			// wire EDGE_E[0].IMUX_C[5]            CLK_ROOT.SCLK_IN_M6
-			// wire EDGE_E[0].IMUX_D[5]            CLK_ROOT.SCLK_IN_M7
-			// wire EDGE_E[1].IMUX_A[5]            CLK_ROOT.SCLK_IN_E0
-			// wire EDGE_E[1].IMUX_B[5]            CLK_ROOT.SCLK_IN_E1
-			// wire EDGE_E[1].IMUX_CLK[0]          CLK_ROOT.PCLK_IN_E0
-			// wire EDGE_E[1].IMUX_CLK[1]          CLK_ROOT.PCLK_IN_E1
-			// wire EDGE_S[0].IMUX_A[5]            CLK_ROOT.SCLK_IN_S0
-			// wire EDGE_S[0].IMUX_B[5]            CLK_ROOT.SCLK_IN_S1
-			// wire EDGE_S[0].IMUX_C[5]            CLK_ROOT.SCLK_IN_M2
-			// wire EDGE_S[0].IMUX_D[5]            CLK_ROOT.SCLK_IN_M3
-			// wire EDGE_S[0].IMUX_CLK[0]          CLK_ROOT.PCLK_IN_S0
-			// wire EDGE_S[0].IMUX_CLK[1]          CLK_ROOT.PCLK_IN_S1
+			// wire EDGE_W[0].PCLK_ROOT[0]         DCC[0].CLKO
+			// wire EDGE_W[0].PCLK_ROOT[1]         DCC[1].CLKO
+			// wire EDGE_W[0].PCLK_ROOT[2]         DCC[2].CLKO
+			// wire EDGE_W[0].PCLK_ROOT[3]         DCC[3].CLKO
+			// wire EDGE_W[0].PCLK_ROOT[4]         DCC[4].CLKO
+			// wire EDGE_W[0].PCLK_ROOT[5]         DCC[5].CLKO
+			// wire EDGE_W[0].PCLK_ROOT[6]         DCC[6].CLKO
+			// wire EDGE_W[0].PCLK_ROOT[7]         DCC[7].CLKO
+			// wire EDGE_W[0].IMUX_DCC_CLKI[0]     DCC[0].CLKI
+			// wire EDGE_W[0].IMUX_DCC_CLKI[1]     DCC[1].CLKI
+			// wire EDGE_W[0].IMUX_DCC_CLKI[2]     DCC[2].CLKI
+			// wire EDGE_W[0].IMUX_DCC_CLKI[3]     DCC[3].CLKI
+			// wire EDGE_W[0].IMUX_DCC_CLKI[4]     DCC[4].CLKI
+			// wire EDGE_W[0].IMUX_DCC_CLKI[5]     DCC[5].CLKI
+			// wire EDGE_W[0].OUT_DCM_DCMOUT[0]    DCC[6].CLKI DCM[0].DCMOUT
+			// wire EDGE_W[0].OUT_DCM_DCMOUT[1]    DCC[7].CLKI DCM[1].DCMOUT
+			// wire EDGE_W[0].IMUX_DCM_CLK0[0]     DCM[0].CLK[0]
+			// wire EDGE_W[0].IMUX_DCM_CLK0[1]     DCM[1].CLK[0]
+			// wire EDGE_W[0].IMUX_DCM_CLK1[0]     DCM[0].CLK[1]
+			// wire EDGE_W[0].IMUX_DCM_CLK1[1]     DCM[1].CLK[1]
 			// wire EDGE_S[1].IMUX_A[5]            DCM[0].SEL
 			// wire EDGE_S[1].IMUX_B[5]            DCM[1].SEL
 			// wire EDGE_N[0].IMUX_A[0]            DCC[0].CE
 			// wire EDGE_N[0].IMUX_A[1]            DCC[4].CE
-			// wire EDGE_N[0].IMUX_A[2]            CLKTEST.TESTIN0
-			// wire EDGE_N[0].IMUX_A[3]            CLKTEST.TESTIN4
-			// wire EDGE_N[0].IMUX_A[4]            CLKTEST.TESTIN8
-			// wire EDGE_N[0].IMUX_A[5]            CLK_ROOT.SCLK_IN_N0
+			// wire EDGE_N[0].IMUX_A[2]            CLKTEST.TESTIN[0]
+			// wire EDGE_N[0].IMUX_A[3]            CLKTEST.TESTIN[4]
+			// wire EDGE_N[0].IMUX_A[4]            CLKTEST.TESTIN[8]
 			// wire EDGE_N[0].IMUX_B[0]            DCC[1].CE
 			// wire EDGE_N[0].IMUX_B[1]            DCC[5].CE
-			// wire EDGE_N[0].IMUX_B[2]            CLKTEST.TESTIN1
-			// wire EDGE_N[0].IMUX_B[3]            CLKTEST.TESTIN5
-			// wire EDGE_N[0].IMUX_B[4]            CLKTEST.TESTIN9
-			// wire EDGE_N[0].IMUX_B[5]            CLK_ROOT.SCLK_IN_N1
+			// wire EDGE_N[0].IMUX_B[2]            CLKTEST.TESTIN[1]
+			// wire EDGE_N[0].IMUX_B[3]            CLKTEST.TESTIN[5]
+			// wire EDGE_N[0].IMUX_B[4]            CLKTEST.TESTIN[9]
 			// wire EDGE_N[0].IMUX_C[0]            DCC[2].CE
 			// wire EDGE_N[0].IMUX_C[1]            DCC[6].CE
-			// wire EDGE_N[0].IMUX_C[2]            CLKTEST.TESTIN2
-			// wire EDGE_N[0].IMUX_C[3]            CLKTEST.TESTIN6
-			// wire EDGE_N[0].IMUX_C[4]            CLKTEST.TESTIN10
+			// wire EDGE_N[0].IMUX_C[2]            CLKTEST.TESTIN[2]
+			// wire EDGE_N[0].IMUX_C[3]            CLKTEST.TESTIN[6]
+			// wire EDGE_N[0].IMUX_C[4]            CLKTEST.TESTIN[10]
 			// wire EDGE_N[0].IMUX_D[0]            DCC[3].CE
 			// wire EDGE_N[0].IMUX_D[1]            DCC[7].CE
-			// wire EDGE_N[0].IMUX_D[2]            CLKTEST.TESTIN3
-			// wire EDGE_N[0].IMUX_D[3]            CLKTEST.TESTIN7
-			// wire EDGE_N[0].IMUX_CLK[0]          CLK_ROOT.PCLK_IN_N0
-			// wire EDGE_N[0].IMUX_CLK[1]          CLK_ROOT.PCLK_IN_N1
-			// wire EDGE_N[1].IMUX_A[5]            CLK_ROOT.SCLK_IN_M4
-			// wire EDGE_N[1].IMUX_B[5]            CLK_ROOT.SCLK_IN_M5
+			// wire EDGE_N[0].IMUX_D[2]            CLKTEST.TESTIN[3]
+			// wire EDGE_N[0].IMUX_D[3]            CLKTEST.TESTIN[7]
 		}
 
 		tile_class CLK_ROOT_1EBR {
@@ -18094,155 +18212,173 @@ intdb {
 			cell EDGE_E;
 			cell EDGE_S;
 			cell EDGE_N;
+			cell PLL_NW;
+			cell PLL_NE;
 
-			bel CLK_ROOT {
-				input PCLK_IN_E0 = EDGE_E.IMUX_CLK[0];
-				input PCLK_IN_E1 = EDGE_E.IMUX_CLK[1];
-				input PCLK_IN_M2 = CELL[2].IMUX_CLK[0];
-				input PCLK_IN_M3 = CELL[2].IMUX_CLK[1];
-				input PCLK_IN_N0 = EDGE_N.IMUX_CLK[0];
-				input PCLK_IN_N1 = EDGE_N.IMUX_CLK[1];
-				input PCLK_IN_S0 = EDGE_S.IMUX_CLK[0];
-				input PCLK_IN_S1 = EDGE_S.IMUX_CLK[1];
-				input PCLK_IN_W0 = EDGE_W.IMUX_CLK[0];
-				input PCLK_IN_W1 = EDGE_W.IMUX_CLK[1];
-				input SCLK_IN_E0 = EDGE_E.IMUX_A[5];
-				input SCLK_IN_E1 = EDGE_E.IMUX_B[5];
-				input SCLK_IN_M0 = CELL[1].IMUX_A[5];
-				input SCLK_IN_M1 = CELL[1].IMUX_B[5];
-				input SCLK_IN_M2 = CELL[1].IMUX_C[5];
-				input SCLK_IN_M3 = CELL[1].IMUX_D[5];
-				input SCLK_IN_M4 = CELL[3].IMUX_A[5];
-				input SCLK_IN_M5 = CELL[3].IMUX_B[5];
-				input SCLK_IN_M6 = CELL[3].IMUX_C[5];
-				input SCLK_IN_M7 = CELL[3].IMUX_D[5];
-				input SCLK_IN_N0 = EDGE_N.IMUX_A[5];
-				input SCLK_IN_N1 = EDGE_N.IMUX_B[5];
-				input SCLK_IN_S0 = EDGE_S.IMUX_A[5];
-				input SCLK_IN_S1 = EDGE_S.IMUX_B[5];
-				input SCLK_IN_W0 = EDGE_W.IMUX_A[5];
-				input SCLK_IN_W1 = EDGE_W.IMUX_B[5];
+			switchbox CLK_INT {
+				mux CELL[0].SCLK_ROOT[0] = CELL[1].IMUX_B[5] | CELL[1].IMUX_C[5] | CELL[3].IMUX_D[5] | EDGE_W.IMUX_B[5] | EDGE_W.INCK[0] | EDGE_E.IMUX_A[5] | EDGE_S.IMUX_B[5] | EDGE_N.IMUX_A[5];
+				mux CELL[0].SCLK_ROOT[1] = CELL[1].IMUX_A[5] | CELL[3].IMUX_B[5] | CELL[3].IMUX_C[5] | EDGE_W.IMUX_A[5] | EDGE_W.INCK[1] | EDGE_E.IMUX_B[5] | EDGE_S.IMUX_A[5] | EDGE_N.IMUX_B[5];
+				mux CELL[0].SCLK_ROOT[2] = CELL[1].IMUX_B[5] | CELL[1].IMUX_C[5] | CELL[3].IMUX_A[5] | CELL[3].IMUX_D[5] | EDGE_W.IMUX_B[5] | EDGE_E.IMUX_A[5] | EDGE_E.INCK[0] | EDGE_N.IMUX_A[5];
+				mux CELL[0].SCLK_ROOT[3] = CELL[1].IMUX_A[5] | CELL[1].IMUX_D[5] | CELL[3].IMUX_B[5] | CELL[3].IMUX_C[5] | EDGE_W.INCK[2] | EDGE_E.IMUX_B[5] | EDGE_S.IMUX_A[5] | EDGE_N.IMUX_B[5];
+				mux CELL[0].SCLK_ROOT[4] = CELL[1].IMUX_B[5] | CELL[1].IMUX_C[5] | CELL[3].IMUX_A[5] | CELL[3].IMUX_D[5] | EDGE_W.IMUX_B[5] | EDGE_E.IMUX_A[5] | EDGE_S.IMUX_B[5] | EDGE_N.INCK[0];
+				mux CELL[0].SCLK_ROOT[5] = CELL[1].IMUX_A[5] | CELL[1].IMUX_D[5] | CELL[3].IMUX_B[5] | CELL[3].IMUX_C[5] | EDGE_W.IMUX_A[5] | EDGE_S.IMUX_A[5] | EDGE_N.IMUX_B[5] | EDGE_N.INCK[1];
+				mux CELL[0].SCLK_ROOT[6] = CELL[1].IMUX_B[5] | CELL[1].IMUX_C[5] | CELL[3].IMUX_A[5] | EDGE_W.IMUX_B[5] | EDGE_E.IMUX_A[5] | EDGE_S.IMUX_B[5] | EDGE_S.INCK[0] | EDGE_N.IMUX_A[5];
+				mux CELL[0].SCLK_ROOT[7] = CELL[1].IMUX_D[5] | CELL[3].IMUX_B[5] | CELL[3].IMUX_C[5] | EDGE_W.IMUX_A[5] | EDGE_E.IMUX_B[5] | EDGE_S.IMUX_A[5] | EDGE_S.INCK[1] | EDGE_N.IMUX_B[5];
+				mux CELL[0].IMUX_DCC_CLKI[0] = EDGE_W.INCK[0] | EDGE_W.INCK[1] | EDGE_W.INCK[2] | EDGE_E.INCK[0] | EDGE_S.INCK[0] | EDGE_S.INCK[1] | EDGE_S.OUT_CLKDIV_CDIV1[0] | EDGE_S.OUT_CLKDIV_CDIV1[1] | EDGE_S.OUT_CLKDIV_CDIVX[0] | EDGE_S.OUT_CLKDIV_CDIVX[1] | EDGE_N.IMUX_CLK[0] | EDGE_N.INCK[0] | EDGE_N.INCK[1] | EDGE_N.OUT_CLKDIV_CDIV1[0] | EDGE_N.OUT_CLKDIV_CDIV1[1] | EDGE_N.OUT_CLKDIV_CDIVX[0] | EDGE_N.OUT_CLKDIV_CDIVX[1] | PLL_NW.OUT_PLL_CLKOP[0] | PLL_NW.OUT_PLL_CLKOS[0] | PLL_NW.OUT_PLL_CLKOS2[0] | PLL_NW.OUT_PLL_CLKOS3[0] | PLL_NE.OUT_PLL_CLKOP[0] | PLL_NE.OUT_PLL_CLKOS[0] | PLL_NE.OUT_PLL_CLKOS2[0] | PLL_NE.OUT_PLL_CLKOS3[0];
+				mux CELL[0].IMUX_DCC_CLKI[1] = EDGE_W.IMUX_CLK[0] | EDGE_W.INCK[0] | EDGE_W.INCK[1] | EDGE_W.INCK[2] | EDGE_E.INCK[0] | EDGE_S.INCK[0] | EDGE_S.INCK[1] | EDGE_S.OUT_CLKDIV_CDIV1[0] | EDGE_S.OUT_CLKDIV_CDIV1[1] | EDGE_S.OUT_CLKDIV_CDIVX[0] | EDGE_S.OUT_CLKDIV_CDIVX[1] | EDGE_N.INCK[0] | EDGE_N.INCK[1] | EDGE_N.OUT_CLKDIV_CDIV1[0] | EDGE_N.OUT_CLKDIV_CDIV1[1] | EDGE_N.OUT_CLKDIV_CDIVX[0] | EDGE_N.OUT_CLKDIV_CDIVX[1] | PLL_NW.OUT_PLL_CLKOP[0] | PLL_NW.OUT_PLL_CLKOS[0] | PLL_NW.OUT_PLL_CLKOS2[0] | PLL_NW.OUT_PLL_CLKOS3[0] | PLL_NE.OUT_PLL_CLKOP[0] | PLL_NE.OUT_PLL_CLKOS[0] | PLL_NE.OUT_PLL_CLKOS2[0] | PLL_NE.OUT_PLL_CLKOS3[0];
+				mux CELL[0].IMUX_DCC_CLKI[2] = EDGE_W.INCK[0] | EDGE_W.INCK[1] | EDGE_W.INCK[2] | EDGE_E.INCK[0] | EDGE_S.INCK[0] | EDGE_S.INCK[1] | EDGE_S.OUT_CLKDIV_CDIV1[0] | EDGE_S.OUT_CLKDIV_CDIV1[1] | EDGE_S.OUT_CLKDIV_CDIVX[0] | EDGE_S.OUT_CLKDIV_CDIVX[1] | EDGE_N.IMUX_CLK[1] | EDGE_N.INCK[0] | EDGE_N.INCK[1] | EDGE_N.OUT_CLKDIV_CDIV1[0] | EDGE_N.OUT_CLKDIV_CDIV1[1] | EDGE_N.OUT_CLKDIV_CDIVX[0] | EDGE_N.OUT_CLKDIV_CDIVX[1] | PLL_NW.OUT_PLL_CLKOP[0] | PLL_NW.OUT_PLL_CLKOS[0] | PLL_NW.OUT_PLL_CLKOS2[0] | PLL_NW.OUT_PLL_CLKOS3[0] | PLL_NE.OUT_PLL_CLKOP[0] | PLL_NE.OUT_PLL_CLKOS[0] | PLL_NE.OUT_PLL_CLKOS2[0] | PLL_NE.OUT_PLL_CLKOS3[0];
+				mux CELL[0].IMUX_DCC_CLKI[3] = EDGE_W.INCK[0] | EDGE_W.INCK[1] | EDGE_W.INCK[2] | EDGE_E.IMUX_CLK[0] | EDGE_E.INCK[0] | EDGE_S.INCK[0] | EDGE_S.INCK[1] | EDGE_S.OUT_CLKDIV_CDIV1[0] | EDGE_S.OUT_CLKDIV_CDIV1[1] | EDGE_S.OUT_CLKDIV_CDIVX[0] | EDGE_S.OUT_CLKDIV_CDIVX[1] | EDGE_N.INCK[0] | EDGE_N.INCK[1] | EDGE_N.OUT_CLKDIV_CDIV1[0] | EDGE_N.OUT_CLKDIV_CDIV1[1] | EDGE_N.OUT_CLKDIV_CDIVX[0] | EDGE_N.OUT_CLKDIV_CDIVX[1] | PLL_NW.OUT_PLL_CLKOP[0] | PLL_NW.OUT_PLL_CLKOS[0] | PLL_NW.OUT_PLL_CLKOS2[0] | PLL_NW.OUT_PLL_CLKOS3[0] | PLL_NE.OUT_PLL_CLKOP[0] | PLL_NE.OUT_PLL_CLKOS[0] | PLL_NE.OUT_PLL_CLKOS2[0] | PLL_NE.OUT_PLL_CLKOS3[0];
+				mux CELL[0].IMUX_DCC_CLKI[4] = EDGE_W.INCK[0] | EDGE_W.INCK[1] | EDGE_W.INCK[2] | EDGE_E.INCK[0] | EDGE_S.IMUX_CLK[0] | EDGE_S.INCK[0] | EDGE_S.INCK[1] | EDGE_S.OUT_CLKDIV_CDIV1[0] | EDGE_S.OUT_CLKDIV_CDIV1[1] | EDGE_S.OUT_CLKDIV_CDIVX[0] | EDGE_S.OUT_CLKDIV_CDIVX[1] | EDGE_N.INCK[0] | EDGE_N.INCK[1] | EDGE_N.OUT_CLKDIV_CDIV1[0] | EDGE_N.OUT_CLKDIV_CDIV1[1] | EDGE_N.OUT_CLKDIV_CDIVX[0] | EDGE_N.OUT_CLKDIV_CDIVX[1] | PLL_NW.OUT_PLL_CLKOP[0] | PLL_NW.OUT_PLL_CLKOS[0] | PLL_NW.OUT_PLL_CLKOS2[0] | PLL_NW.OUT_PLL_CLKOS3[0] | PLL_NE.OUT_PLL_CLKOP[0] | PLL_NE.OUT_PLL_CLKOS[0] | PLL_NE.OUT_PLL_CLKOS2[0] | PLL_NE.OUT_PLL_CLKOS3[0];
+				mux CELL[0].IMUX_DCC_CLKI[5] = CELL[2].IMUX_CLK[0] | EDGE_W.IMUX_CLK[1] | EDGE_W.INCK[0] | EDGE_W.INCK[1] | EDGE_W.INCK[2] | EDGE_E.INCK[0] | EDGE_S.INCK[0] | EDGE_S.INCK[1] | EDGE_S.OUT_CLKDIV_CDIV1[0] | EDGE_S.OUT_CLKDIV_CDIV1[1] | EDGE_S.OUT_CLKDIV_CDIVX[0] | EDGE_S.OUT_CLKDIV_CDIVX[1] | EDGE_N.INCK[0] | EDGE_N.INCK[1] | EDGE_N.OUT_CLKDIV_CDIV1[0] | EDGE_N.OUT_CLKDIV_CDIV1[1] | EDGE_N.OUT_CLKDIV_CDIVX[0] | EDGE_N.OUT_CLKDIV_CDIVX[1] | PLL_NW.OUT_PLL_CLKOP[0] | PLL_NW.OUT_PLL_CLKOS[0] | PLL_NW.OUT_PLL_CLKOS2[0] | PLL_NW.OUT_PLL_CLKOS3[0] | PLL_NE.OUT_PLL_CLKOP[0] | PLL_NE.OUT_PLL_CLKOS[0] | PLL_NE.OUT_PLL_CLKOS2[0] | PLL_NE.OUT_PLL_CLKOS3[0];
+				mux CELL[0].IMUX_DCM_CLK0[0] = CELL[2].IMUX_CLK[0] | EDGE_W.INCK[0] | EDGE_W.INCK[1] | EDGE_W.INCK[2] | EDGE_E.INCK[0] | EDGE_S.IMUX_CLK[1] | EDGE_S.INCK[0] | EDGE_S.INCK[1] | EDGE_S.OUT_CLKDIV_CDIV1[0] | EDGE_S.OUT_CLKDIV_CDIV1[1] | EDGE_S.OUT_CLKDIV_CDIVX[0] | EDGE_S.OUT_CLKDIV_CDIVX[1] | EDGE_N.INCK[0] | EDGE_N.INCK[1] | EDGE_N.OUT_CLKDIV_CDIV1[0] | EDGE_N.OUT_CLKDIV_CDIV1[1] | EDGE_N.OUT_CLKDIV_CDIVX[0] | EDGE_N.OUT_CLKDIV_CDIVX[1] | PLL_NW.OUT_PLL_CLKOP[0] | PLL_NW.OUT_PLL_CLKOS[0] | PLL_NW.OUT_PLL_CLKOS2[0] | PLL_NW.OUT_PLL_CLKOS3[0] | PLL_NE.OUT_PLL_CLKOP[0] | PLL_NE.OUT_PLL_CLKOS[0] | PLL_NE.OUT_PLL_CLKOS2[0] | PLL_NE.OUT_PLL_CLKOS3[0];
+				mux CELL[0].IMUX_DCM_CLK0[1] = CELL[2].IMUX_CLK[1] | EDGE_W.INCK[0] | EDGE_W.INCK[1] | EDGE_W.INCK[2] | EDGE_E.IMUX_CLK[1] | EDGE_E.INCK[0] | EDGE_S.INCK[0] | EDGE_S.INCK[1] | EDGE_S.OUT_CLKDIV_CDIV1[0] | EDGE_S.OUT_CLKDIV_CDIV1[1] | EDGE_S.OUT_CLKDIV_CDIVX[0] | EDGE_S.OUT_CLKDIV_CDIVX[1] | EDGE_N.INCK[0] | EDGE_N.INCK[1] | EDGE_N.OUT_CLKDIV_CDIV1[0] | EDGE_N.OUT_CLKDIV_CDIV1[1] | EDGE_N.OUT_CLKDIV_CDIVX[0] | EDGE_N.OUT_CLKDIV_CDIVX[1] | PLL_NW.OUT_PLL_CLKOP[0] | PLL_NW.OUT_PLL_CLKOS[0] | PLL_NW.OUT_PLL_CLKOS2[0] | PLL_NW.OUT_PLL_CLKOS3[0] | PLL_NE.OUT_PLL_CLKOP[0] | PLL_NE.OUT_PLL_CLKOS[0] | PLL_NE.OUT_PLL_CLKOS2[0] | PLL_NE.OUT_PLL_CLKOS3[0];
+				mux CELL[0].IMUX_DCM_CLK1[0] = CELL[2].IMUX_CLK[1] | EDGE_W.INCK[0] | EDGE_W.INCK[1] | EDGE_W.INCK[2] | EDGE_E.IMUX_CLK[1] | EDGE_E.INCK[0] | EDGE_S.INCK[0] | EDGE_S.INCK[1] | EDGE_S.OUT_CLKDIV_CDIV1[0] | EDGE_S.OUT_CLKDIV_CDIV1[1] | EDGE_S.OUT_CLKDIV_CDIVX[0] | EDGE_S.OUT_CLKDIV_CDIVX[1] | EDGE_N.INCK[0] | EDGE_N.INCK[1] | EDGE_N.OUT_CLKDIV_CDIV1[0] | EDGE_N.OUT_CLKDIV_CDIV1[1] | EDGE_N.OUT_CLKDIV_CDIVX[0] | EDGE_N.OUT_CLKDIV_CDIVX[1] | PLL_NW.OUT_PLL_CLKOP[0] | PLL_NW.OUT_PLL_CLKOS[0] | PLL_NW.OUT_PLL_CLKOS2[0] | PLL_NW.OUT_PLL_CLKOS3[0] | PLL_NE.OUT_PLL_CLKOP[0] | PLL_NE.OUT_PLL_CLKOS[0] | PLL_NE.OUT_PLL_CLKOS2[0] | PLL_NE.OUT_PLL_CLKOS3[0];
+				mux CELL[0].IMUX_DCM_CLK1[1] = CELL[2].IMUX_CLK[0] | EDGE_W.INCK[0] | EDGE_W.INCK[1] | EDGE_W.INCK[2] | EDGE_E.INCK[0] | EDGE_S.IMUX_CLK[1] | EDGE_S.INCK[0] | EDGE_S.INCK[1] | EDGE_S.OUT_CLKDIV_CDIV1[0] | EDGE_S.OUT_CLKDIV_CDIV1[1] | EDGE_S.OUT_CLKDIV_CDIVX[0] | EDGE_S.OUT_CLKDIV_CDIVX[1] | EDGE_N.INCK[0] | EDGE_N.INCK[1] | EDGE_N.OUT_CLKDIV_CDIV1[0] | EDGE_N.OUT_CLKDIV_CDIV1[1] | EDGE_N.OUT_CLKDIV_CDIVX[0] | EDGE_N.OUT_CLKDIV_CDIVX[1] | PLL_NW.OUT_PLL_CLKOP[0] | PLL_NW.OUT_PLL_CLKOS[0] | PLL_NW.OUT_PLL_CLKOS2[0] | PLL_NW.OUT_PLL_CLKOS3[0] | PLL_NE.OUT_PLL_CLKOP[0] | PLL_NE.OUT_PLL_CLKOS[0] | PLL_NE.OUT_PLL_CLKOS2[0] | PLL_NE.OUT_PLL_CLKOS3[0];
+				mux CELL[0].IMUX_ECLKBRIDGECS_CLK0[0] = EDGE_S.IMUX_CLK[2] | EDGE_S.INCK[0] | PLL_NW.OUT_PLL_CLKOP[0] | PLL_NE.OUT_PLL_CLKOS[0];
+				mux CELL[0].IMUX_ECLKBRIDGECS_CLK0[1] = EDGE_N.IMUX_CLK[2] | EDGE_N.INCK[0] | PLL_NW.OUT_PLL_CLKOP[0] | PLL_NE.OUT_PLL_CLKOS[0];
+				mux CELL[0].IMUX_ECLKBRIDGECS_CLK1[0] = EDGE_S.IMUX_CLK[3] | EDGE_S.INCK[1] | PLL_NW.OUT_PLL_CLKOS[0] | PLL_NE.OUT_PLL_CLKOP[0];
+				mux CELL[0].IMUX_ECLKBRIDGECS_CLK1[1] = EDGE_N.IMUX_CLK[3] | EDGE_N.INCK[1] | PLL_NW.OUT_PLL_CLKOS[0] | PLL_NE.OUT_PLL_CLKOP[0];
 			}
 
 			bel CLKTEST {
-				input TESTIN0 = CELL[2].IMUX_A[2];
-				input TESTIN1 = CELL[2].IMUX_B[2];
-				input TESTIN10 = CELL[2].IMUX_C[4];
-				input TESTIN2 = CELL[2].IMUX_C[2];
-				input TESTIN3 = CELL[2].IMUX_D[2];
-				input TESTIN4 = CELL[2].IMUX_A[3];
-				input TESTIN5 = CELL[2].IMUX_B[3];
-				input TESTIN6 = CELL[2].IMUX_C[3];
-				input TESTIN7 = CELL[2].IMUX_D[3];
-				input TESTIN8 = CELL[2].IMUX_A[4];
-				input TESTIN9 = CELL[2].IMUX_B[4];
+				input TESTIN[0] = CELL[2].IMUX_A[2];
+				input TESTIN[1] = CELL[2].IMUX_B[2];
+				input TESTIN[2] = CELL[2].IMUX_C[2];
+				input TESTIN[3] = CELL[2].IMUX_D[2];
+				input TESTIN[4] = CELL[2].IMUX_A[3];
+				input TESTIN[5] = CELL[2].IMUX_B[3];
+				input TESTIN[6] = CELL[2].IMUX_C[3];
+				input TESTIN[7] = CELL[2].IMUX_D[3];
+				input TESTIN[8] = CELL[2].IMUX_A[4];
+				input TESTIN[9] = CELL[2].IMUX_B[4];
+				input TESTIN[10] = CELL[2].IMUX_C[4];
 			}
 
 			bel DCC[0] {
+				input CLKI = CELL[0].IMUX_DCC_CLKI[0];
 				input CE = CELL[2].IMUX_A[0];
+				output CLKO = CELL[0].PCLK_ROOT[0];
 			}
 
 			bel DCC[1] {
+				input CLKI = CELL[0].IMUX_DCC_CLKI[1];
 				input CE = CELL[2].IMUX_B[0];
+				output CLKO = CELL[0].PCLK_ROOT[1];
 			}
 
 			bel DCC[2] {
+				input CLKI = CELL[0].IMUX_DCC_CLKI[2];
 				input CE = CELL[2].IMUX_C[0];
+				output CLKO = CELL[0].PCLK_ROOT[2];
 			}
 
 			bel DCC[3] {
+				input CLKI = CELL[0].IMUX_DCC_CLKI[3];
 				input CE = CELL[2].IMUX_D[0];
+				output CLKO = CELL[0].PCLK_ROOT[3];
 			}
 
 			bel DCC[4] {
+				input CLKI = CELL[0].IMUX_DCC_CLKI[4];
 				input CE = CELL[2].IMUX_A[1];
+				output CLKO = CELL[0].PCLK_ROOT[4];
 			}
 
 			bel DCC[5] {
+				input CLKI = CELL[0].IMUX_DCC_CLKI[5];
 				input CE = CELL[2].IMUX_B[1];
+				output CLKO = CELL[0].PCLK_ROOT[5];
 			}
 
 			bel DCC[6] {
+				input CLKI = CELL[0].OUT_DCM_DCMOUT[0];
 				input CE = CELL[2].IMUX_C[1];
+				output CLKO = CELL[0].PCLK_ROOT[6];
 			}
 
 			bel DCC[7] {
+				input CLKI = CELL[0].OUT_DCM_DCMOUT[1];
 				input CE = CELL[2].IMUX_D[1];
+				output CLKO = CELL[0].PCLK_ROOT[7];
 			}
 
 			bel DCM[0] {
+				input CLK[0] = CELL[0].IMUX_DCM_CLK0[0];
+				input CLK[1] = CELL[0].IMUX_DCM_CLK1[0];
 				input SEL = CELL[2].IMUX_A[5];
+				output DCMOUT = CELL[0].OUT_DCM_DCMOUT[0];
 			}
 
 			bel DCM[1] {
+				input CLK[0] = CELL[0].IMUX_DCM_CLK0[1];
+				input CLK[1] = CELL[0].IMUX_DCM_CLK1[1];
 				input SEL = CELL[2].IMUX_B[5];
+				output DCMOUT = CELL[0].OUT_DCM_DCMOUT[1];
 			}
 
 			bel ECLKBRIDGECS[0] {
-				input CLK0 = EDGE_S.IMUX_CLK[2];
-				input CLK1 = EDGE_S.IMUX_CLK[3];
+				input CLK[0] = CELL[0].IMUX_ECLKBRIDGECS_CLK0[0];
+				input CLK[1] = CELL[0].IMUX_ECLKBRIDGECS_CLK1[0];
 				input SEL = CELL[0].IMUX_A[5];
+				output ECSOUT = CELL[3].BRGECLK[0];
 			}
 
 			bel ECLKBRIDGECS[1] {
-				input CLK0 = EDGE_N.IMUX_CLK[2];
-				input CLK1 = EDGE_N.IMUX_CLK[3];
+				input CLK[0] = CELL[0].IMUX_ECLKBRIDGECS_CLK0[1];
+				input CLK[1] = CELL[0].IMUX_ECLKBRIDGECS_CLK1[1];
 				input SEL = CELL[0].IMUX_B[5];
+				output ECSOUT = CELL[3].BRGECLK[1];
 			}
 
+			// wire CELL[0].PCLK_ROOT[0]           DCC[0].CLKO
+			// wire CELL[0].PCLK_ROOT[1]           DCC[1].CLKO
+			// wire CELL[0].PCLK_ROOT[2]           DCC[2].CLKO
+			// wire CELL[0].PCLK_ROOT[3]           DCC[3].CLKO
+			// wire CELL[0].PCLK_ROOT[4]           DCC[4].CLKO
+			// wire CELL[0].PCLK_ROOT[5]           DCC[5].CLKO
+			// wire CELL[0].PCLK_ROOT[6]           DCC[6].CLKO
+			// wire CELL[0].PCLK_ROOT[7]           DCC[7].CLKO
 			// wire CELL[0].IMUX_A[5]              ECLKBRIDGECS[0].SEL
 			// wire CELL[0].IMUX_B[5]              ECLKBRIDGECS[1].SEL
-			// wire CELL[1].IMUX_A[5]              CLK_ROOT.SCLK_IN_M0
-			// wire CELL[1].IMUX_B[5]              CLK_ROOT.SCLK_IN_M1
-			// wire CELL[1].IMUX_C[5]              CLK_ROOT.SCLK_IN_M2
-			// wire CELL[1].IMUX_D[5]              CLK_ROOT.SCLK_IN_M3
+			// wire CELL[0].IMUX_DCC_CLKI[0]       DCC[0].CLKI
+			// wire CELL[0].IMUX_DCC_CLKI[1]       DCC[1].CLKI
+			// wire CELL[0].IMUX_DCC_CLKI[2]       DCC[2].CLKI
+			// wire CELL[0].IMUX_DCC_CLKI[3]       DCC[3].CLKI
+			// wire CELL[0].IMUX_DCC_CLKI[4]       DCC[4].CLKI
+			// wire CELL[0].IMUX_DCC_CLKI[5]       DCC[5].CLKI
+			// wire CELL[0].OUT_DCM_DCMOUT[0]      DCC[6].CLKI DCM[0].DCMOUT
+			// wire CELL[0].OUT_DCM_DCMOUT[1]      DCC[7].CLKI DCM[1].DCMOUT
+			// wire CELL[0].IMUX_DCM_CLK0[0]       DCM[0].CLK[0]
+			// wire CELL[0].IMUX_DCM_CLK0[1]       DCM[1].CLK[0]
+			// wire CELL[0].IMUX_DCM_CLK1[0]       DCM[0].CLK[1]
+			// wire CELL[0].IMUX_DCM_CLK1[1]       DCM[1].CLK[1]
+			// wire CELL[0].IMUX_ECLKBRIDGECS_CLK0[0] ECLKBRIDGECS[0].CLK[0]
+			// wire CELL[0].IMUX_ECLKBRIDGECS_CLK0[1] ECLKBRIDGECS[1].CLK[0]
+			// wire CELL[0].IMUX_ECLKBRIDGECS_CLK1[0] ECLKBRIDGECS[0].CLK[1]
+			// wire CELL[0].IMUX_ECLKBRIDGECS_CLK1[1] ECLKBRIDGECS[1].CLK[1]
 			// wire CELL[2].IMUX_A[0]              DCC[0].CE
 			// wire CELL[2].IMUX_A[1]              DCC[4].CE
-			// wire CELL[2].IMUX_A[2]              CLKTEST.TESTIN0
-			// wire CELL[2].IMUX_A[3]              CLKTEST.TESTIN4
-			// wire CELL[2].IMUX_A[4]              CLKTEST.TESTIN8
+			// wire CELL[2].IMUX_A[2]              CLKTEST.TESTIN[0]
+			// wire CELL[2].IMUX_A[3]              CLKTEST.TESTIN[4]
+			// wire CELL[2].IMUX_A[4]              CLKTEST.TESTIN[8]
 			// wire CELL[2].IMUX_A[5]              DCM[0].SEL
 			// wire CELL[2].IMUX_B[0]              DCC[1].CE
 			// wire CELL[2].IMUX_B[1]              DCC[5].CE
-			// wire CELL[2].IMUX_B[2]              CLKTEST.TESTIN1
-			// wire CELL[2].IMUX_B[3]              CLKTEST.TESTIN5
-			// wire CELL[2].IMUX_B[4]              CLKTEST.TESTIN9
+			// wire CELL[2].IMUX_B[2]              CLKTEST.TESTIN[1]
+			// wire CELL[2].IMUX_B[3]              CLKTEST.TESTIN[5]
+			// wire CELL[2].IMUX_B[4]              CLKTEST.TESTIN[9]
 			// wire CELL[2].IMUX_B[5]              DCM[1].SEL
 			// wire CELL[2].IMUX_C[0]              DCC[2].CE
 			// wire CELL[2].IMUX_C[1]              DCC[6].CE
-			// wire CELL[2].IMUX_C[2]              CLKTEST.TESTIN2
-			// wire CELL[2].IMUX_C[3]              CLKTEST.TESTIN6
-			// wire CELL[2].IMUX_C[4]              CLKTEST.TESTIN10
+			// wire CELL[2].IMUX_C[2]              CLKTEST.TESTIN[2]
+			// wire CELL[2].IMUX_C[3]              CLKTEST.TESTIN[6]
+			// wire CELL[2].IMUX_C[4]              CLKTEST.TESTIN[10]
 			// wire CELL[2].IMUX_D[0]              DCC[3].CE
 			// wire CELL[2].IMUX_D[1]              DCC[7].CE
-			// wire CELL[2].IMUX_D[2]              CLKTEST.TESTIN3
-			// wire CELL[2].IMUX_D[3]              CLKTEST.TESTIN7
-			// wire CELL[2].IMUX_CLK[0]            CLK_ROOT.PCLK_IN_M2
-			// wire CELL[2].IMUX_CLK[1]            CLK_ROOT.PCLK_IN_M3
-			// wire CELL[3].IMUX_A[5]              CLK_ROOT.SCLK_IN_M4
-			// wire CELL[3].IMUX_B[5]              CLK_ROOT.SCLK_IN_M5
-			// wire CELL[3].IMUX_C[5]              CLK_ROOT.SCLK_IN_M6
-			// wire CELL[3].IMUX_D[5]              CLK_ROOT.SCLK_IN_M7
-			// wire EDGE_W.IMUX_A[5]               CLK_ROOT.SCLK_IN_W0
-			// wire EDGE_W.IMUX_B[5]               CLK_ROOT.SCLK_IN_W1
-			// wire EDGE_W.IMUX_CLK[0]             CLK_ROOT.PCLK_IN_W0
-			// wire EDGE_W.IMUX_CLK[1]             CLK_ROOT.PCLK_IN_W1
-			// wire EDGE_E.IMUX_A[5]               CLK_ROOT.SCLK_IN_E0
-			// wire EDGE_E.IMUX_B[5]               CLK_ROOT.SCLK_IN_E1
-			// wire EDGE_E.IMUX_CLK[0]             CLK_ROOT.PCLK_IN_E0
-			// wire EDGE_E.IMUX_CLK[1]             CLK_ROOT.PCLK_IN_E1
-			// wire EDGE_S.IMUX_A[5]               CLK_ROOT.SCLK_IN_S0
-			// wire EDGE_S.IMUX_B[5]               CLK_ROOT.SCLK_IN_S1
-			// wire EDGE_S.IMUX_CLK[0]             CLK_ROOT.PCLK_IN_S0
-			// wire EDGE_S.IMUX_CLK[1]             CLK_ROOT.PCLK_IN_S1
-			// wire EDGE_S.IMUX_CLK[2]             ECLKBRIDGECS[0].CLK0
-			// wire EDGE_S.IMUX_CLK[3]             ECLKBRIDGECS[0].CLK1
-			// wire EDGE_N.IMUX_A[5]               CLK_ROOT.SCLK_IN_N0
-			// wire EDGE_N.IMUX_B[5]               CLK_ROOT.SCLK_IN_N1
-			// wire EDGE_N.IMUX_CLK[0]             CLK_ROOT.PCLK_IN_N0
-			// wire EDGE_N.IMUX_CLK[1]             CLK_ROOT.PCLK_IN_N1
-			// wire EDGE_N.IMUX_CLK[2]             ECLKBRIDGECS[1].CLK0
-			// wire EDGE_N.IMUX_CLK[3]             ECLKBRIDGECS[1].CLK1
+			// wire CELL[2].IMUX_D[2]              CLKTEST.TESTIN[3]
+			// wire CELL[2].IMUX_D[3]              CLKTEST.TESTIN[7]
+			// wire CELL[3].BRGECLK[0]             ECLKBRIDGECS[0].ECSOUT
+			// wire CELL[3].BRGECLK[1]             ECLKBRIDGECS[1].ECSOUT
 		}
 
 		tile_class CLK_ROOT_2EBR {
@@ -18259,172 +18395,179 @@ intdb {
 			cell EBR[2];
 			cell EBR_W;
 			cell EBR_E;
+			cell PLL_NW;
+			cell PLL_NE;
 
-			bel CLK_ROOT {
-				input PCLK_IN_E0 = EBR_E.IMUX_CLK[0];
-				input PCLK_IN_E1 = EBR_E.IMUX_CLK[1];
-				input PCLK_IN_E2 = EDGE_E.IMUX_CLK[0];
-				input PCLK_IN_E3 = EDGE_E.IMUX_CLK[1];
-				input PCLK_IN_M0 = CELL[2].IMUX_CLK[0];
-				input PCLK_IN_M1 = CELL[2].IMUX_CLK[1];
-				input PCLK_IN_M2 = EBR[1].IMUX_CLK[0];
-				input PCLK_IN_M3 = EBR[1].IMUX_CLK[1];
-				input PCLK_IN_N0 = EDGE_N.IMUX_CLK[0];
-				input PCLK_IN_N1 = EDGE_N.IMUX_CLK[1];
-				input PCLK_IN_S0 = EDGE_S.IMUX_CLK[0];
-				input PCLK_IN_S1 = EDGE_S.IMUX_CLK[1];
-				input PCLK_IN_W0 = EBR_W.IMUX_CLK[0];
-				input PCLK_IN_W1 = EBR_W.IMUX_CLK[1];
-				input PCLK_IN_W2 = EDGE_W.IMUX_CLK[0];
-				input PCLK_IN_W3 = EDGE_W.IMUX_CLK[1];
-				input SCLK_IN_E0 = EDGE_E.IMUX_A[5];
-				input SCLK_IN_E1 = EDGE_E.IMUX_B[5];
-				input SCLK_IN_M0 = CELL[1].IMUX_A[5];
-				input SCLK_IN_M1 = CELL[1].IMUX_B[5];
-				input SCLK_IN_M2 = EBR[0].IMUX_C[5];
-				input SCLK_IN_M3 = EBR[0].IMUX_D[5];
-				input SCLK_IN_M4 = CELL[3].IMUX_A[5];
-				input SCLK_IN_M5 = CELL[3].IMUX_B[5];
-				input SCLK_IN_M6 = EBR[2].IMUX_C[5];
-				input SCLK_IN_M7 = EBR[2].IMUX_D[5];
-				input SCLK_IN_N0 = EDGE_N.IMUX_A[5];
-				input SCLK_IN_N1 = EDGE_N.IMUX_B[5];
-				input SCLK_IN_S0 = EDGE_S.IMUX_A[5];
-				input SCLK_IN_S1 = EDGE_S.IMUX_B[5];
-				input SCLK_IN_W0 = EDGE_W.IMUX_A[5];
-				input SCLK_IN_W1 = EDGE_W.IMUX_B[5];
+			switchbox CLK_INT {
+				mux CELL[0].SCLK_ROOT[0] = CELL[1].IMUX_B[5] | EDGE_W.IMUX_B[5] | EDGE_W.INCK[0] | EDGE_E.IMUX_A[5] | EDGE_S.IMUX_B[5] | EDGE_N.IMUX_A[5] | EBR[0].IMUX_C[5] | EBR[2].IMUX_D[5];
+				mux CELL[0].SCLK_ROOT[1] = CELL[1].IMUX_A[5] | CELL[3].IMUX_B[5] | EDGE_W.IMUX_A[5] | EDGE_W.INCK[1] | EDGE_E.IMUX_B[5] | EDGE_S.IMUX_A[5] | EDGE_N.IMUX_B[5] | EBR[2].IMUX_C[5];
+				mux CELL[0].SCLK_ROOT[2] = CELL[1].IMUX_B[5] | CELL[3].IMUX_A[5] | EDGE_W.IMUX_B[5] | EDGE_E.IMUX_A[5] | EDGE_E.INCK[0] | EDGE_N.IMUX_A[5] | EBR[0].IMUX_C[5] | EBR[2].IMUX_D[5];
+				mux CELL[0].SCLK_ROOT[3] = CELL[1].IMUX_A[5] | CELL[3].IMUX_B[5] | EDGE_W.INCK[2] | EDGE_E.IMUX_B[5] | EDGE_S.IMUX_A[5] | EDGE_N.IMUX_B[5] | EBR[0].IMUX_D[5] | EBR[2].IMUX_C[5];
+				mux CELL[0].SCLK_ROOT[4] = CELL[1].IMUX_B[5] | CELL[3].IMUX_A[5] | EDGE_W.IMUX_B[5] | EDGE_E.IMUX_A[5] | EDGE_S.IMUX_B[5] | EDGE_N.INCK[0] | EBR[0].IMUX_C[5] | EBR[2].IMUX_D[5];
+				mux CELL[0].SCLK_ROOT[5] = CELL[1].IMUX_A[5] | CELL[3].IMUX_B[5] | EDGE_W.IMUX_A[5] | EDGE_S.IMUX_A[5] | EDGE_N.IMUX_B[5] | EDGE_N.INCK[1] | EBR[0].IMUX_D[5] | EBR[2].IMUX_C[5];
+				mux CELL[0].SCLK_ROOT[6] = CELL[1].IMUX_B[5] | CELL[3].IMUX_A[5] | EDGE_W.IMUX_B[5] | EDGE_E.IMUX_A[5] | EDGE_S.IMUX_B[5] | EDGE_S.INCK[0] | EDGE_N.IMUX_A[5] | EBR[0].IMUX_C[5];
+				mux CELL[0].SCLK_ROOT[7] = CELL[3].IMUX_B[5] | EDGE_W.IMUX_A[5] | EDGE_E.IMUX_B[5] | EDGE_S.IMUX_A[5] | EDGE_S.INCK[1] | EDGE_N.IMUX_B[5] | EBR[0].IMUX_D[5] | EBR[2].IMUX_C[5];
+				mux CELL[0].IMUX_DCC_CLKI[0] = EDGE_W.IMUX_CLK[0] | EDGE_W.INCK[0] | EDGE_W.INCK[1] | EDGE_W.INCK[2] | EDGE_E.INCK[0] | EDGE_S.INCK[0] | EDGE_S.INCK[1] | EDGE_S.OUT_CLKDIV_CDIV1[0] | EDGE_S.OUT_CLKDIV_CDIV1[1] | EDGE_S.OUT_CLKDIV_CDIVX[0] | EDGE_S.OUT_CLKDIV_CDIVX[1] | EDGE_N.IMUX_CLK[0] | EDGE_N.INCK[0] | EDGE_N.INCK[1] | EDGE_N.OUT_CLKDIV_CDIV1[0] | EDGE_N.OUT_CLKDIV_CDIV1[1] | EDGE_N.OUT_CLKDIV_CDIVX[0] | EDGE_N.OUT_CLKDIV_CDIVX[1] | PLL_NW.OUT_PLL_CLKOP[0] | PLL_NW.OUT_PLL_CLKOS[0] | PLL_NW.OUT_PLL_CLKOS2[0] | PLL_NW.OUT_PLL_CLKOS3[0] | PLL_NE.OUT_PLL_CLKOP[0] | PLL_NE.OUT_PLL_CLKOS[0] | PLL_NE.OUT_PLL_CLKOS2[0] | PLL_NE.OUT_PLL_CLKOS3[0];
+				mux CELL[0].IMUX_DCC_CLKI[1] = CELL[2].IMUX_CLK[0] | EDGE_W.INCK[0] | EDGE_W.INCK[1] | EDGE_W.INCK[2] | EDGE_E.INCK[0] | EDGE_S.INCK[0] | EDGE_S.INCK[1] | EDGE_S.OUT_CLKDIV_CDIV1[0] | EDGE_S.OUT_CLKDIV_CDIV1[1] | EDGE_S.OUT_CLKDIV_CDIVX[0] | EDGE_S.OUT_CLKDIV_CDIVX[1] | EDGE_N.INCK[0] | EDGE_N.INCK[1] | EDGE_N.OUT_CLKDIV_CDIV1[0] | EDGE_N.OUT_CLKDIV_CDIV1[1] | EDGE_N.OUT_CLKDIV_CDIVX[0] | EDGE_N.OUT_CLKDIV_CDIVX[1] | EBR_W.IMUX_CLK[0] | PLL_NW.OUT_PLL_CLKOP[0] | PLL_NW.OUT_PLL_CLKOS[0] | PLL_NW.OUT_PLL_CLKOS2[0] | PLL_NW.OUT_PLL_CLKOS3[0] | PLL_NE.OUT_PLL_CLKOP[0] | PLL_NE.OUT_PLL_CLKOS[0] | PLL_NE.OUT_PLL_CLKOS2[0] | PLL_NE.OUT_PLL_CLKOS3[0];
+				mux CELL[0].IMUX_DCC_CLKI[2] = EDGE_W.INCK[0] | EDGE_W.INCK[1] | EDGE_W.INCK[2] | EDGE_E.IMUX_CLK[0] | EDGE_E.INCK[0] | EDGE_S.INCK[0] | EDGE_S.INCK[1] | EDGE_S.OUT_CLKDIV_CDIV1[0] | EDGE_S.OUT_CLKDIV_CDIV1[1] | EDGE_S.OUT_CLKDIV_CDIVX[0] | EDGE_S.OUT_CLKDIV_CDIVX[1] | EDGE_N.IMUX_CLK[1] | EDGE_N.INCK[0] | EDGE_N.INCK[1] | EDGE_N.OUT_CLKDIV_CDIV1[0] | EDGE_N.OUT_CLKDIV_CDIV1[1] | EDGE_N.OUT_CLKDIV_CDIVX[0] | EDGE_N.OUT_CLKDIV_CDIVX[1] | PLL_NW.OUT_PLL_CLKOP[0] | PLL_NW.OUT_PLL_CLKOS[0] | PLL_NW.OUT_PLL_CLKOS2[0] | PLL_NW.OUT_PLL_CLKOS3[0] | PLL_NE.OUT_PLL_CLKOP[0] | PLL_NE.OUT_PLL_CLKOS[0] | PLL_NE.OUT_PLL_CLKOS2[0] | PLL_NE.OUT_PLL_CLKOS3[0];
+				mux CELL[0].IMUX_DCC_CLKI[3] = CELL[2].IMUX_CLK[1] | EDGE_W.INCK[0] | EDGE_W.INCK[1] | EDGE_W.INCK[2] | EDGE_E.INCK[0] | EDGE_S.INCK[0] | EDGE_S.INCK[1] | EDGE_S.OUT_CLKDIV_CDIV1[0] | EDGE_S.OUT_CLKDIV_CDIV1[1] | EDGE_S.OUT_CLKDIV_CDIVX[0] | EDGE_S.OUT_CLKDIV_CDIVX[1] | EDGE_N.INCK[0] | EDGE_N.INCK[1] | EDGE_N.OUT_CLKDIV_CDIV1[0] | EDGE_N.OUT_CLKDIV_CDIV1[1] | EDGE_N.OUT_CLKDIV_CDIVX[0] | EDGE_N.OUT_CLKDIV_CDIVX[1] | EBR_E.IMUX_CLK[0] | PLL_NW.OUT_PLL_CLKOP[0] | PLL_NW.OUT_PLL_CLKOS[0] | PLL_NW.OUT_PLL_CLKOS2[0] | PLL_NW.OUT_PLL_CLKOS3[0] | PLL_NE.OUT_PLL_CLKOP[0] | PLL_NE.OUT_PLL_CLKOS[0] | PLL_NE.OUT_PLL_CLKOS2[0] | PLL_NE.OUT_PLL_CLKOS3[0];
+				mux CELL[0].IMUX_DCC_CLKI[4] = EDGE_W.IMUX_CLK[1] | EDGE_W.INCK[0] | EDGE_W.INCK[1] | EDGE_W.INCK[2] | EDGE_E.INCK[0] | EDGE_S.IMUX_CLK[0] | EDGE_S.INCK[0] | EDGE_S.INCK[1] | EDGE_S.OUT_CLKDIV_CDIV1[0] | EDGE_S.OUT_CLKDIV_CDIV1[1] | EDGE_S.OUT_CLKDIV_CDIVX[0] | EDGE_S.OUT_CLKDIV_CDIVX[1] | EDGE_N.INCK[0] | EDGE_N.INCK[1] | EDGE_N.OUT_CLKDIV_CDIV1[0] | EDGE_N.OUT_CLKDIV_CDIV1[1] | EDGE_N.OUT_CLKDIV_CDIVX[0] | EDGE_N.OUT_CLKDIV_CDIVX[1] | PLL_NW.OUT_PLL_CLKOP[0] | PLL_NW.OUT_PLL_CLKOS[0] | PLL_NW.OUT_PLL_CLKOS2[0] | PLL_NW.OUT_PLL_CLKOS3[0] | PLL_NE.OUT_PLL_CLKOP[0] | PLL_NE.OUT_PLL_CLKOS[0] | PLL_NE.OUT_PLL_CLKOS2[0] | PLL_NE.OUT_PLL_CLKOS3[0];
+				mux CELL[0].IMUX_DCC_CLKI[5] = EDGE_W.INCK[0] | EDGE_W.INCK[1] | EDGE_W.INCK[2] | EDGE_E.INCK[0] | EDGE_S.INCK[0] | EDGE_S.INCK[1] | EDGE_S.OUT_CLKDIV_CDIV1[0] | EDGE_S.OUT_CLKDIV_CDIV1[1] | EDGE_S.OUT_CLKDIV_CDIVX[0] | EDGE_S.OUT_CLKDIV_CDIVX[1] | EDGE_N.INCK[0] | EDGE_N.INCK[1] | EDGE_N.OUT_CLKDIV_CDIV1[0] | EDGE_N.OUT_CLKDIV_CDIV1[1] | EDGE_N.OUT_CLKDIV_CDIVX[0] | EDGE_N.OUT_CLKDIV_CDIVX[1] | EBR[1].IMUX_CLK[0] | EBR_W.IMUX_CLK[1] | PLL_NW.OUT_PLL_CLKOP[0] | PLL_NW.OUT_PLL_CLKOS[0] | PLL_NW.OUT_PLL_CLKOS2[0] | PLL_NW.OUT_PLL_CLKOS3[0] | PLL_NE.OUT_PLL_CLKOP[0] | PLL_NE.OUT_PLL_CLKOS[0] | PLL_NE.OUT_PLL_CLKOS2[0] | PLL_NE.OUT_PLL_CLKOS3[0];
+				mux CELL[0].IMUX_DCM_CLK0[0] = EDGE_W.INCK[0] | EDGE_W.INCK[1] | EDGE_W.INCK[2] | EDGE_E.IMUX_CLK[1] | EDGE_E.INCK[0] | EDGE_S.IMUX_CLK[1] | EDGE_S.INCK[0] | EDGE_S.INCK[1] | EDGE_S.OUT_CLKDIV_CDIV1[0] | EDGE_S.OUT_CLKDIV_CDIV1[1] | EDGE_S.OUT_CLKDIV_CDIVX[0] | EDGE_S.OUT_CLKDIV_CDIVX[1] | EDGE_N.INCK[0] | EDGE_N.INCK[1] | EDGE_N.OUT_CLKDIV_CDIV1[0] | EDGE_N.OUT_CLKDIV_CDIV1[1] | EDGE_N.OUT_CLKDIV_CDIVX[0] | EDGE_N.OUT_CLKDIV_CDIVX[1] | EBR[1].IMUX_CLK[0] | PLL_NW.OUT_PLL_CLKOP[0] | PLL_NW.OUT_PLL_CLKOS[0] | PLL_NW.OUT_PLL_CLKOS2[0] | PLL_NW.OUT_PLL_CLKOS3[0] | PLL_NE.OUT_PLL_CLKOP[0] | PLL_NE.OUT_PLL_CLKOS[0] | PLL_NE.OUT_PLL_CLKOS2[0] | PLL_NE.OUT_PLL_CLKOS3[0];
+				mux CELL[0].IMUX_DCM_CLK0[1] = EDGE_W.INCK[0] | EDGE_W.INCK[1] | EDGE_W.INCK[2] | EDGE_E.INCK[0] | EDGE_S.INCK[0] | EDGE_S.INCK[1] | EDGE_S.OUT_CLKDIV_CDIV1[0] | EDGE_S.OUT_CLKDIV_CDIV1[1] | EDGE_S.OUT_CLKDIV_CDIVX[0] | EDGE_S.OUT_CLKDIV_CDIVX[1] | EDGE_N.INCK[0] | EDGE_N.INCK[1] | EDGE_N.OUT_CLKDIV_CDIV1[0] | EDGE_N.OUT_CLKDIV_CDIV1[1] | EDGE_N.OUT_CLKDIV_CDIVX[0] | EDGE_N.OUT_CLKDIV_CDIVX[1] | EBR[1].IMUX_CLK[1] | EBR_E.IMUX_CLK[1] | PLL_NW.OUT_PLL_CLKOP[0] | PLL_NW.OUT_PLL_CLKOS[0] | PLL_NW.OUT_PLL_CLKOS2[0] | PLL_NW.OUT_PLL_CLKOS3[0] | PLL_NE.OUT_PLL_CLKOP[0] | PLL_NE.OUT_PLL_CLKOS[0] | PLL_NE.OUT_PLL_CLKOS2[0] | PLL_NE.OUT_PLL_CLKOS3[0];
+				mux CELL[0].IMUX_DCM_CLK1[0] = EDGE_W.INCK[0] | EDGE_W.INCK[1] | EDGE_W.INCK[2] | EDGE_E.INCK[0] | EDGE_S.INCK[0] | EDGE_S.INCK[1] | EDGE_S.OUT_CLKDIV_CDIV1[0] | EDGE_S.OUT_CLKDIV_CDIV1[1] | EDGE_S.OUT_CLKDIV_CDIVX[0] | EDGE_S.OUT_CLKDIV_CDIVX[1] | EDGE_N.INCK[0] | EDGE_N.INCK[1] | EDGE_N.OUT_CLKDIV_CDIV1[0] | EDGE_N.OUT_CLKDIV_CDIV1[1] | EDGE_N.OUT_CLKDIV_CDIVX[0] | EDGE_N.OUT_CLKDIV_CDIVX[1] | EBR[1].IMUX_CLK[1] | EBR_E.IMUX_CLK[1] | PLL_NW.OUT_PLL_CLKOP[0] | PLL_NW.OUT_PLL_CLKOS[0] | PLL_NW.OUT_PLL_CLKOS2[0] | PLL_NW.OUT_PLL_CLKOS3[0] | PLL_NE.OUT_PLL_CLKOP[0] | PLL_NE.OUT_PLL_CLKOS[0] | PLL_NE.OUT_PLL_CLKOS2[0] | PLL_NE.OUT_PLL_CLKOS3[0];
+				mux CELL[0].IMUX_DCM_CLK1[1] = EDGE_W.INCK[0] | EDGE_W.INCK[1] | EDGE_W.INCK[2] | EDGE_E.IMUX_CLK[1] | EDGE_E.INCK[0] | EDGE_S.IMUX_CLK[1] | EDGE_S.INCK[0] | EDGE_S.INCK[1] | EDGE_S.OUT_CLKDIV_CDIV1[0] | EDGE_S.OUT_CLKDIV_CDIV1[1] | EDGE_S.OUT_CLKDIV_CDIVX[0] | EDGE_S.OUT_CLKDIV_CDIVX[1] | EDGE_N.INCK[0] | EDGE_N.INCK[1] | EDGE_N.OUT_CLKDIV_CDIV1[0] | EDGE_N.OUT_CLKDIV_CDIV1[1] | EDGE_N.OUT_CLKDIV_CDIVX[0] | EDGE_N.OUT_CLKDIV_CDIVX[1] | EBR[1].IMUX_CLK[0] | PLL_NW.OUT_PLL_CLKOP[0] | PLL_NW.OUT_PLL_CLKOS[0] | PLL_NW.OUT_PLL_CLKOS2[0] | PLL_NW.OUT_PLL_CLKOS3[0] | PLL_NE.OUT_PLL_CLKOP[0] | PLL_NE.OUT_PLL_CLKOS[0] | PLL_NE.OUT_PLL_CLKOS2[0] | PLL_NE.OUT_PLL_CLKOS3[0];
+				mux CELL[0].IMUX_ECLKBRIDGECS_CLK0[0] = EDGE_S.IMUX_CLK[2] | EDGE_S.INCK[0] | PLL_NW.OUT_PLL_CLKOP[0] | PLL_NE.OUT_PLL_CLKOS[0];
+				mux CELL[0].IMUX_ECLKBRIDGECS_CLK0[1] = EDGE_N.IMUX_CLK[2] | EDGE_N.INCK[0] | PLL_NW.OUT_PLL_CLKOP[0] | PLL_NE.OUT_PLL_CLKOS[0];
+				mux CELL[0].IMUX_ECLKBRIDGECS_CLK1[0] = EDGE_S.IMUX_CLK[3] | EDGE_S.INCK[1] | PLL_NW.OUT_PLL_CLKOS[0] | PLL_NE.OUT_PLL_CLKOP[0];
+				mux CELL[0].IMUX_ECLKBRIDGECS_CLK1[1] = EDGE_N.IMUX_CLK[3] | EDGE_N.INCK[1] | PLL_NW.OUT_PLL_CLKOS[0] | PLL_NE.OUT_PLL_CLKOP[0];
 			}
 
 			bel CLKTEST {
-				input TESTIN0 = CELL[2].IMUX_A[2];
-				input TESTIN1 = CELL[2].IMUX_B[2];
-				input TESTIN10 = CELL[2].IMUX_C[4];
-				input TESTIN2 = CELL[2].IMUX_C[2];
-				input TESTIN3 = CELL[2].IMUX_D[2];
-				input TESTIN4 = CELL[2].IMUX_A[3];
-				input TESTIN5 = CELL[2].IMUX_B[3];
-				input TESTIN6 = CELL[2].IMUX_C[3];
-				input TESTIN7 = CELL[2].IMUX_D[3];
-				input TESTIN8 = CELL[2].IMUX_A[4];
-				input TESTIN9 = CELL[2].IMUX_B[4];
+				input TESTIN[0] = CELL[2].IMUX_A[2];
+				input TESTIN[1] = CELL[2].IMUX_B[2];
+				input TESTIN[2] = CELL[2].IMUX_C[2];
+				input TESTIN[3] = CELL[2].IMUX_D[2];
+				input TESTIN[4] = CELL[2].IMUX_A[3];
+				input TESTIN[5] = CELL[2].IMUX_B[3];
+				input TESTIN[6] = CELL[2].IMUX_C[3];
+				input TESTIN[7] = CELL[2].IMUX_D[3];
+				input TESTIN[8] = CELL[2].IMUX_A[4];
+				input TESTIN[9] = CELL[2].IMUX_B[4];
+				input TESTIN[10] = CELL[2].IMUX_C[4];
 			}
 
 			bel DCC[0] {
+				input CLKI = CELL[0].IMUX_DCC_CLKI[0];
 				input CE = CELL[2].IMUX_A[0];
+				output CLKO = CELL[0].PCLK_ROOT[0];
 			}
 
 			bel DCC[1] {
+				input CLKI = CELL[0].IMUX_DCC_CLKI[1];
 				input CE = CELL[2].IMUX_B[0];
+				output CLKO = CELL[0].PCLK_ROOT[1];
 			}
 
 			bel DCC[2] {
+				input CLKI = CELL[0].IMUX_DCC_CLKI[2];
 				input CE = CELL[2].IMUX_C[0];
+				output CLKO = CELL[0].PCLK_ROOT[2];
 			}
 
 			bel DCC[3] {
+				input CLKI = CELL[0].IMUX_DCC_CLKI[3];
 				input CE = CELL[2].IMUX_D[0];
+				output CLKO = CELL[0].PCLK_ROOT[3];
 			}
 
 			bel DCC[4] {
+				input CLKI = CELL[0].IMUX_DCC_CLKI[4];
 				input CE = CELL[2].IMUX_A[1];
+				output CLKO = CELL[0].PCLK_ROOT[4];
 			}
 
 			bel DCC[5] {
+				input CLKI = CELL[0].IMUX_DCC_CLKI[5];
 				input CE = CELL[2].IMUX_B[1];
+				output CLKO = CELL[0].PCLK_ROOT[5];
 			}
 
 			bel DCC[6] {
+				input CLKI = CELL[0].OUT_DCM_DCMOUT[0];
 				input CE = CELL[2].IMUX_C[1];
+				output CLKO = CELL[0].PCLK_ROOT[6];
 			}
 
 			bel DCC[7] {
+				input CLKI = CELL[0].OUT_DCM_DCMOUT[1];
 				input CE = CELL[2].IMUX_D[1];
+				output CLKO = CELL[0].PCLK_ROOT[7];
 			}
 
 			bel DCM[0] {
+				input CLK[0] = CELL[0].IMUX_DCM_CLK0[0];
+				input CLK[1] = CELL[0].IMUX_DCM_CLK1[0];
 				input SEL = CELL[2].IMUX_A[5];
+				output DCMOUT = CELL[0].OUT_DCM_DCMOUT[0];
 			}
 
 			bel DCM[1] {
+				input CLK[0] = CELL[0].IMUX_DCM_CLK0[1];
+				input CLK[1] = CELL[0].IMUX_DCM_CLK1[1];
 				input SEL = CELL[2].IMUX_B[5];
+				output DCMOUT = CELL[0].OUT_DCM_DCMOUT[1];
 			}
 
 			bel ECLKBRIDGECS[0] {
-				input CLK0 = EDGE_S.IMUX_CLK[2];
-				input CLK1 = EDGE_S.IMUX_CLK[3];
+				input CLK[0] = CELL[0].IMUX_ECLKBRIDGECS_CLK0[0];
+				input CLK[1] = CELL[0].IMUX_ECLKBRIDGECS_CLK1[0];
 				input SEL = CELL[0].IMUX_A[5];
+				output ECSOUT = CELL[3].BRGECLK[0];
 			}
 
 			bel ECLKBRIDGECS[1] {
-				input CLK0 = EDGE_N.IMUX_CLK[2];
-				input CLK1 = EDGE_N.IMUX_CLK[3];
+				input CLK[0] = CELL[0].IMUX_ECLKBRIDGECS_CLK0[1];
+				input CLK[1] = CELL[0].IMUX_ECLKBRIDGECS_CLK1[1];
 				input SEL = CELL[0].IMUX_B[5];
+				output ECSOUT = CELL[3].BRGECLK[1];
 			}
 
+			// wire CELL[0].PCLK_ROOT[0]           DCC[0].CLKO
+			// wire CELL[0].PCLK_ROOT[1]           DCC[1].CLKO
+			// wire CELL[0].PCLK_ROOT[2]           DCC[2].CLKO
+			// wire CELL[0].PCLK_ROOT[3]           DCC[3].CLKO
+			// wire CELL[0].PCLK_ROOT[4]           DCC[4].CLKO
+			// wire CELL[0].PCLK_ROOT[5]           DCC[5].CLKO
+			// wire CELL[0].PCLK_ROOT[6]           DCC[6].CLKO
+			// wire CELL[0].PCLK_ROOT[7]           DCC[7].CLKO
 			// wire CELL[0].IMUX_A[5]              ECLKBRIDGECS[0].SEL
 			// wire CELL[0].IMUX_B[5]              ECLKBRIDGECS[1].SEL
-			// wire CELL[1].IMUX_A[5]              CLK_ROOT.SCLK_IN_M0
-			// wire CELL[1].IMUX_B[5]              CLK_ROOT.SCLK_IN_M1
+			// wire CELL[0].IMUX_DCC_CLKI[0]       DCC[0].CLKI
+			// wire CELL[0].IMUX_DCC_CLKI[1]       DCC[1].CLKI
+			// wire CELL[0].IMUX_DCC_CLKI[2]       DCC[2].CLKI
+			// wire CELL[0].IMUX_DCC_CLKI[3]       DCC[3].CLKI
+			// wire CELL[0].IMUX_DCC_CLKI[4]       DCC[4].CLKI
+			// wire CELL[0].IMUX_DCC_CLKI[5]       DCC[5].CLKI
+			// wire CELL[0].OUT_DCM_DCMOUT[0]      DCC[6].CLKI DCM[0].DCMOUT
+			// wire CELL[0].OUT_DCM_DCMOUT[1]      DCC[7].CLKI DCM[1].DCMOUT
+			// wire CELL[0].IMUX_DCM_CLK0[0]       DCM[0].CLK[0]
+			// wire CELL[0].IMUX_DCM_CLK0[1]       DCM[1].CLK[0]
+			// wire CELL[0].IMUX_DCM_CLK1[0]       DCM[0].CLK[1]
+			// wire CELL[0].IMUX_DCM_CLK1[1]       DCM[1].CLK[1]
+			// wire CELL[0].IMUX_ECLKBRIDGECS_CLK0[0] ECLKBRIDGECS[0].CLK[0]
+			// wire CELL[0].IMUX_ECLKBRIDGECS_CLK0[1] ECLKBRIDGECS[1].CLK[0]
+			// wire CELL[0].IMUX_ECLKBRIDGECS_CLK1[0] ECLKBRIDGECS[0].CLK[1]
+			// wire CELL[0].IMUX_ECLKBRIDGECS_CLK1[1] ECLKBRIDGECS[1].CLK[1]
 			// wire CELL[2].IMUX_A[0]              DCC[0].CE
 			// wire CELL[2].IMUX_A[1]              DCC[4].CE
-			// wire CELL[2].IMUX_A[2]              CLKTEST.TESTIN0
-			// wire CELL[2].IMUX_A[3]              CLKTEST.TESTIN4
-			// wire CELL[2].IMUX_A[4]              CLKTEST.TESTIN8
+			// wire CELL[2].IMUX_A[2]              CLKTEST.TESTIN[0]
+			// wire CELL[2].IMUX_A[3]              CLKTEST.TESTIN[4]
+			// wire CELL[2].IMUX_A[4]              CLKTEST.TESTIN[8]
 			// wire CELL[2].IMUX_A[5]              DCM[0].SEL
 			// wire CELL[2].IMUX_B[0]              DCC[1].CE
 			// wire CELL[2].IMUX_B[1]              DCC[5].CE
-			// wire CELL[2].IMUX_B[2]              CLKTEST.TESTIN1
-			// wire CELL[2].IMUX_B[3]              CLKTEST.TESTIN5
-			// wire CELL[2].IMUX_B[4]              CLKTEST.TESTIN9
+			// wire CELL[2].IMUX_B[2]              CLKTEST.TESTIN[1]
+			// wire CELL[2].IMUX_B[3]              CLKTEST.TESTIN[5]
+			// wire CELL[2].IMUX_B[4]              CLKTEST.TESTIN[9]
 			// wire CELL[2].IMUX_B[5]              DCM[1].SEL
 			// wire CELL[2].IMUX_C[0]              DCC[2].CE
 			// wire CELL[2].IMUX_C[1]              DCC[6].CE
-			// wire CELL[2].IMUX_C[2]              CLKTEST.TESTIN2
-			// wire CELL[2].IMUX_C[3]              CLKTEST.TESTIN6
-			// wire CELL[2].IMUX_C[4]              CLKTEST.TESTIN10
+			// wire CELL[2].IMUX_C[2]              CLKTEST.TESTIN[2]
+			// wire CELL[2].IMUX_C[3]              CLKTEST.TESTIN[6]
+			// wire CELL[2].IMUX_C[4]              CLKTEST.TESTIN[10]
 			// wire CELL[2].IMUX_D[0]              DCC[3].CE
 			// wire CELL[2].IMUX_D[1]              DCC[7].CE
-			// wire CELL[2].IMUX_D[2]              CLKTEST.TESTIN3
-			// wire CELL[2].IMUX_D[3]              CLKTEST.TESTIN7
-			// wire CELL[2].IMUX_CLK[0]            CLK_ROOT.PCLK_IN_M0
-			// wire CELL[2].IMUX_CLK[1]            CLK_ROOT.PCLK_IN_M1
-			// wire CELL[3].IMUX_A[5]              CLK_ROOT.SCLK_IN_M4
-			// wire CELL[3].IMUX_B[5]              CLK_ROOT.SCLK_IN_M5
-			// wire EDGE_W.IMUX_A[5]               CLK_ROOT.SCLK_IN_W0
-			// wire EDGE_W.IMUX_B[5]               CLK_ROOT.SCLK_IN_W1
-			// wire EDGE_W.IMUX_CLK[0]             CLK_ROOT.PCLK_IN_W2
-			// wire EDGE_W.IMUX_CLK[1]             CLK_ROOT.PCLK_IN_W3
-			// wire EDGE_E.IMUX_A[5]               CLK_ROOT.SCLK_IN_E0
-			// wire EDGE_E.IMUX_B[5]               CLK_ROOT.SCLK_IN_E1
-			// wire EDGE_E.IMUX_CLK[0]             CLK_ROOT.PCLK_IN_E2
-			// wire EDGE_E.IMUX_CLK[1]             CLK_ROOT.PCLK_IN_E3
-			// wire EDGE_S.IMUX_A[5]               CLK_ROOT.SCLK_IN_S0
-			// wire EDGE_S.IMUX_B[5]               CLK_ROOT.SCLK_IN_S1
-			// wire EDGE_S.IMUX_CLK[0]             CLK_ROOT.PCLK_IN_S0
-			// wire EDGE_S.IMUX_CLK[1]             CLK_ROOT.PCLK_IN_S1
-			// wire EDGE_S.IMUX_CLK[2]             ECLKBRIDGECS[0].CLK0
-			// wire EDGE_S.IMUX_CLK[3]             ECLKBRIDGECS[0].CLK1
-			// wire EDGE_N.IMUX_A[5]               CLK_ROOT.SCLK_IN_N0
-			// wire EDGE_N.IMUX_B[5]               CLK_ROOT.SCLK_IN_N1
-			// wire EDGE_N.IMUX_CLK[0]             CLK_ROOT.PCLK_IN_N0
-			// wire EDGE_N.IMUX_CLK[1]             CLK_ROOT.PCLK_IN_N1
-			// wire EDGE_N.IMUX_CLK[2]             ECLKBRIDGECS[1].CLK0
-			// wire EDGE_N.IMUX_CLK[3]             ECLKBRIDGECS[1].CLK1
-			// wire EBR[0].IMUX_C[5]               CLK_ROOT.SCLK_IN_M2
-			// wire EBR[0].IMUX_D[5]               CLK_ROOT.SCLK_IN_M3
-			// wire EBR[1].IMUX_CLK[0]             CLK_ROOT.PCLK_IN_M2
-			// wire EBR[1].IMUX_CLK[1]             CLK_ROOT.PCLK_IN_M3
-			// wire EBR[2].IMUX_C[5]               CLK_ROOT.SCLK_IN_M6
-			// wire EBR[2].IMUX_D[5]               CLK_ROOT.SCLK_IN_M7
-			// wire EBR_W.IMUX_CLK[0]              CLK_ROOT.PCLK_IN_W0
-			// wire EBR_W.IMUX_CLK[1]              CLK_ROOT.PCLK_IN_W1
-			// wire EBR_E.IMUX_CLK[0]              CLK_ROOT.PCLK_IN_E0
-			// wire EBR_E.IMUX_CLK[1]              CLK_ROOT.PCLK_IN_E1
+			// wire CELL[2].IMUX_D[2]              CLKTEST.TESTIN[3]
+			// wire CELL[2].IMUX_D[3]              CLKTEST.TESTIN[7]
+			// wire CELL[3].BRGECLK[0]             ECLKBRIDGECS[0].ECSOUT
+			// wire CELL[3].BRGECLK[1]             ECLKBRIDGECS[1].ECSOUT
 		}
 
 		tile_class CLK_ROOT_3EBR {
 			cell CELL[0];
 			cell CELL[1];
+			cell CELL[2];
 			cell EDGE_W;
 			cell EDGE_E;
 			cell EDGE_S;
@@ -18437,317 +18580,343 @@ intdb {
 			cell EBR_N[2];
 			cell EBR_SW;
 			cell EBR_SE;
+			cell PLL_NW;
+			cell PLL_NE;
 
-			bel CLK_ROOT {
-				input PCLK_IN_E0 = EBR_SE.IMUX_CLK[0];
-				input PCLK_IN_E1 = EBR_SE.IMUX_CLK[1];
-				input PCLK_IN_E2 = EDGE_E.IMUX_CLK[0];
-				input PCLK_IN_E3 = EDGE_E.IMUX_CLK[1];
-				input PCLK_IN_M0 = EBR_N[1].IMUX_CLK[0];
-				input PCLK_IN_M1 = EBR_N[1].IMUX_CLK[1];
-				input PCLK_IN_M2 = EBR_S[1].IMUX_CLK[0];
-				input PCLK_IN_M3 = EBR_S[1].IMUX_CLK[1];
-				input PCLK_IN_N0 = EDGE_N.IMUX_CLK[0];
-				input PCLK_IN_N1 = EDGE_N.IMUX_CLK[1];
-				input PCLK_IN_S0 = EDGE_S.IMUX_CLK[0];
-				input PCLK_IN_S1 = EDGE_S.IMUX_CLK[1];
-				input PCLK_IN_W0 = EBR_SW.IMUX_CLK[0];
-				input PCLK_IN_W1 = EBR_SW.IMUX_CLK[1];
-				input PCLK_IN_W2 = EDGE_W.IMUX_CLK[0];
-				input PCLK_IN_W3 = EDGE_W.IMUX_CLK[1];
-				input SCLK_IN_E0 = EDGE_E.IMUX_A[5];
-				input SCLK_IN_E1 = EDGE_E.IMUX_B[5];
-				input SCLK_IN_M0 = EBR_N[0].IMUX_A[5];
-				input SCLK_IN_M1 = EBR_N[0].IMUX_B[5];
-				input SCLK_IN_M2 = EBR_S[0].IMUX_C[5];
-				input SCLK_IN_M3 = EBR_S[0].IMUX_D[5];
-				input SCLK_IN_M4 = EBR_N[2].IMUX_A[5];
-				input SCLK_IN_M5 = EBR_N[2].IMUX_B[5];
-				input SCLK_IN_M6 = EBR_S[2].IMUX_C[5];
-				input SCLK_IN_M7 = EBR_S[2].IMUX_D[5];
-				input SCLK_IN_N0 = EDGE_N.IMUX_A[5];
-				input SCLK_IN_N1 = EDGE_N.IMUX_B[5];
-				input SCLK_IN_S0 = EDGE_S.IMUX_A[5];
-				input SCLK_IN_S1 = EDGE_S.IMUX_B[5];
-				input SCLK_IN_W0 = EDGE_W.IMUX_A[5];
-				input SCLK_IN_W1 = EDGE_W.IMUX_B[5];
+			switchbox CLK_INT {
+				mux CELL[0].SCLK_ROOT[0] = EDGE_W.IMUX_B[5] | EDGE_W.INCK[0] | EDGE_E.IMUX_A[5] | EDGE_S.IMUX_B[5] | EDGE_N.IMUX_A[5] | EBR_S[0].IMUX_C[5] | EBR_S[2].IMUX_D[5] | EBR_N[0].IMUX_B[5];
+				mux CELL[0].SCLK_ROOT[1] = EDGE_W.IMUX_A[5] | EDGE_W.INCK[1] | EDGE_E.IMUX_B[5] | EDGE_S.IMUX_A[5] | EDGE_N.IMUX_B[5] | EBR_S[2].IMUX_C[5] | EBR_N[0].IMUX_A[5] | EBR_N[2].IMUX_B[5];
+				mux CELL[0].SCLK_ROOT[2] = EDGE_W.IMUX_B[5] | EDGE_E.IMUX_A[5] | EDGE_E.INCK[0] | EDGE_N.IMUX_A[5] | EBR_S[0].IMUX_C[5] | EBR_S[2].IMUX_D[5] | EBR_N[0].IMUX_B[5] | EBR_N[2].IMUX_A[5];
+				mux CELL[0].SCLK_ROOT[3] = EDGE_W.INCK[2] | EDGE_E.IMUX_B[5] | EDGE_S.IMUX_A[5] | EDGE_N.IMUX_B[5] | EBR_S[0].IMUX_D[5] | EBR_S[2].IMUX_C[5] | EBR_N[0].IMUX_A[5] | EBR_N[2].IMUX_B[5];
+				mux CELL[0].SCLK_ROOT[4] = EDGE_W.IMUX_B[5] | EDGE_E.IMUX_A[5] | EDGE_S.IMUX_B[5] | EDGE_N.INCK[0] | EBR_S[0].IMUX_C[5] | EBR_S[2].IMUX_D[5] | EBR_N[0].IMUX_B[5] | EBR_N[2].IMUX_A[5];
+				mux CELL[0].SCLK_ROOT[5] = EDGE_W.IMUX_A[5] | EDGE_S.IMUX_A[5] | EDGE_N.IMUX_B[5] | EDGE_N.INCK[1] | EBR_S[0].IMUX_D[5] | EBR_S[2].IMUX_C[5] | EBR_N[0].IMUX_A[5] | EBR_N[2].IMUX_B[5];
+				mux CELL[0].SCLK_ROOT[6] = EDGE_W.IMUX_B[5] | EDGE_E.IMUX_A[5] | EDGE_S.IMUX_B[5] | EDGE_S.INCK[0] | EDGE_N.IMUX_A[5] | EBR_S[0].IMUX_C[5] | EBR_N[0].IMUX_B[5] | EBR_N[2].IMUX_A[5];
+				mux CELL[0].SCLK_ROOT[7] = EDGE_W.IMUX_A[5] | EDGE_E.IMUX_B[5] | EDGE_S.IMUX_A[5] | EDGE_S.INCK[1] | EDGE_N.IMUX_B[5] | EBR_S[0].IMUX_D[5] | EBR_S[2].IMUX_C[5] | EBR_N[2].IMUX_B[5];
+				mux CELL[0].IMUX_DCC_CLKI[0] = EDGE_W.IMUX_CLK[0] | EDGE_W.INCK[0] | EDGE_W.INCK[1] | EDGE_W.INCK[2] | EDGE_E.INCK[0] | EDGE_S.INCK[0] | EDGE_S.INCK[1] | EDGE_S.OUT_CLKDIV_CDIV1[0] | EDGE_S.OUT_CLKDIV_CDIV1[1] | EDGE_S.OUT_CLKDIV_CDIVX[0] | EDGE_S.OUT_CLKDIV_CDIVX[1] | EDGE_N.IMUX_CLK[0] | EDGE_N.INCK[0] | EDGE_N.INCK[1] | EDGE_N.OUT_CLKDIV_CDIV1[0] | EDGE_N.OUT_CLKDIV_CDIV1[1] | EDGE_N.OUT_CLKDIV_CDIVX[0] | EDGE_N.OUT_CLKDIV_CDIVX[1] | PLL_NW.OUT_PLL_CLKOP[0] | PLL_NW.OUT_PLL_CLKOS[0] | PLL_NW.OUT_PLL_CLKOS2[0] | PLL_NW.OUT_PLL_CLKOS3[0] | PLL_NE.OUT_PLL_CLKOP[0] | PLL_NE.OUT_PLL_CLKOS[0] | PLL_NE.OUT_PLL_CLKOS2[0] | PLL_NE.OUT_PLL_CLKOS3[0];
+				mux CELL[0].IMUX_DCC_CLKI[1] = EDGE_W.INCK[0] | EDGE_W.INCK[1] | EDGE_W.INCK[2] | EDGE_E.INCK[0] | EDGE_S.INCK[0] | EDGE_S.INCK[1] | EDGE_S.OUT_CLKDIV_CDIV1[0] | EDGE_S.OUT_CLKDIV_CDIV1[1] | EDGE_S.OUT_CLKDIV_CDIVX[0] | EDGE_S.OUT_CLKDIV_CDIVX[1] | EDGE_N.INCK[0] | EDGE_N.INCK[1] | EDGE_N.OUT_CLKDIV_CDIV1[0] | EDGE_N.OUT_CLKDIV_CDIV1[1] | EDGE_N.OUT_CLKDIV_CDIVX[0] | EDGE_N.OUT_CLKDIV_CDIVX[1] | EBR_N[1].IMUX_CLK[0] | EBR_SW.IMUX_CLK[0] | PLL_NW.OUT_PLL_CLKOP[0] | PLL_NW.OUT_PLL_CLKOS[0] | PLL_NW.OUT_PLL_CLKOS2[0] | PLL_NW.OUT_PLL_CLKOS3[0] | PLL_NE.OUT_PLL_CLKOP[0] | PLL_NE.OUT_PLL_CLKOS[0] | PLL_NE.OUT_PLL_CLKOS2[0] | PLL_NE.OUT_PLL_CLKOS3[0];
+				mux CELL[0].IMUX_DCC_CLKI[2] = EDGE_W.INCK[0] | EDGE_W.INCK[1] | EDGE_W.INCK[2] | EDGE_E.IMUX_CLK[0] | EDGE_E.INCK[0] | EDGE_S.INCK[0] | EDGE_S.INCK[1] | EDGE_S.OUT_CLKDIV_CDIV1[0] | EDGE_S.OUT_CLKDIV_CDIV1[1] | EDGE_S.OUT_CLKDIV_CDIVX[0] | EDGE_S.OUT_CLKDIV_CDIVX[1] | EDGE_N.IMUX_CLK[1] | EDGE_N.INCK[0] | EDGE_N.INCK[1] | EDGE_N.OUT_CLKDIV_CDIV1[0] | EDGE_N.OUT_CLKDIV_CDIV1[1] | EDGE_N.OUT_CLKDIV_CDIVX[0] | EDGE_N.OUT_CLKDIV_CDIVX[1] | PLL_NW.OUT_PLL_CLKOP[0] | PLL_NW.OUT_PLL_CLKOS[0] | PLL_NW.OUT_PLL_CLKOS2[0] | PLL_NW.OUT_PLL_CLKOS3[0] | PLL_NE.OUT_PLL_CLKOP[0] | PLL_NE.OUT_PLL_CLKOS[0] | PLL_NE.OUT_PLL_CLKOS2[0] | PLL_NE.OUT_PLL_CLKOS3[0];
+				mux CELL[0].IMUX_DCC_CLKI[3] = EDGE_W.INCK[0] | EDGE_W.INCK[1] | EDGE_W.INCK[2] | EDGE_E.INCK[0] | EDGE_S.INCK[0] | EDGE_S.INCK[1] | EDGE_S.OUT_CLKDIV_CDIV1[0] | EDGE_S.OUT_CLKDIV_CDIV1[1] | EDGE_S.OUT_CLKDIV_CDIVX[0] | EDGE_S.OUT_CLKDIV_CDIVX[1] | EDGE_N.INCK[0] | EDGE_N.INCK[1] | EDGE_N.OUT_CLKDIV_CDIV1[0] | EDGE_N.OUT_CLKDIV_CDIV1[1] | EDGE_N.OUT_CLKDIV_CDIVX[0] | EDGE_N.OUT_CLKDIV_CDIVX[1] | EBR_N[1].IMUX_CLK[1] | EBR_SE.IMUX_CLK[0] | PLL_NW.OUT_PLL_CLKOP[0] | PLL_NW.OUT_PLL_CLKOS[0] | PLL_NW.OUT_PLL_CLKOS2[0] | PLL_NW.OUT_PLL_CLKOS3[0] | PLL_NE.OUT_PLL_CLKOP[0] | PLL_NE.OUT_PLL_CLKOS[0] | PLL_NE.OUT_PLL_CLKOS2[0] | PLL_NE.OUT_PLL_CLKOS3[0];
+				mux CELL[0].IMUX_DCC_CLKI[4] = EDGE_W.IMUX_CLK[1] | EDGE_W.INCK[0] | EDGE_W.INCK[1] | EDGE_W.INCK[2] | EDGE_E.INCK[0] | EDGE_S.IMUX_CLK[0] | EDGE_S.INCK[0] | EDGE_S.INCK[1] | EDGE_S.OUT_CLKDIV_CDIV1[0] | EDGE_S.OUT_CLKDIV_CDIV1[1] | EDGE_S.OUT_CLKDIV_CDIVX[0] | EDGE_S.OUT_CLKDIV_CDIVX[1] | EDGE_N.INCK[0] | EDGE_N.INCK[1] | EDGE_N.OUT_CLKDIV_CDIV1[0] | EDGE_N.OUT_CLKDIV_CDIV1[1] | EDGE_N.OUT_CLKDIV_CDIVX[0] | EDGE_N.OUT_CLKDIV_CDIVX[1] | PLL_NW.OUT_PLL_CLKOP[0] | PLL_NW.OUT_PLL_CLKOS[0] | PLL_NW.OUT_PLL_CLKOS2[0] | PLL_NW.OUT_PLL_CLKOS3[0] | PLL_NE.OUT_PLL_CLKOP[0] | PLL_NE.OUT_PLL_CLKOS[0] | PLL_NE.OUT_PLL_CLKOS2[0] | PLL_NE.OUT_PLL_CLKOS3[0];
+				mux CELL[0].IMUX_DCC_CLKI[5] = EDGE_W.INCK[0] | EDGE_W.INCK[1] | EDGE_W.INCK[2] | EDGE_E.INCK[0] | EDGE_S.INCK[0] | EDGE_S.INCK[1] | EDGE_S.OUT_CLKDIV_CDIV1[0] | EDGE_S.OUT_CLKDIV_CDIV1[1] | EDGE_S.OUT_CLKDIV_CDIVX[0] | EDGE_S.OUT_CLKDIV_CDIVX[1] | EDGE_N.INCK[0] | EDGE_N.INCK[1] | EDGE_N.OUT_CLKDIV_CDIV1[0] | EDGE_N.OUT_CLKDIV_CDIV1[1] | EDGE_N.OUT_CLKDIV_CDIVX[0] | EDGE_N.OUT_CLKDIV_CDIVX[1] | EBR_S[1].IMUX_CLK[0] | EBR_SW.IMUX_CLK[1] | PLL_NW.OUT_PLL_CLKOP[0] | PLL_NW.OUT_PLL_CLKOS[0] | PLL_NW.OUT_PLL_CLKOS2[0] | PLL_NW.OUT_PLL_CLKOS3[0] | PLL_NE.OUT_PLL_CLKOP[0] | PLL_NE.OUT_PLL_CLKOS[0] | PLL_NE.OUT_PLL_CLKOS2[0] | PLL_NE.OUT_PLL_CLKOS3[0];
+				mux CELL[0].IMUX_DCM_CLK0[0] = EDGE_W.INCK[0] | EDGE_W.INCK[1] | EDGE_W.INCK[2] | EDGE_E.IMUX_CLK[1] | EDGE_E.INCK[0] | EDGE_S.IMUX_CLK[1] | EDGE_S.INCK[0] | EDGE_S.INCK[1] | EDGE_S.OUT_CLKDIV_CDIV1[0] | EDGE_S.OUT_CLKDIV_CDIV1[1] | EDGE_S.OUT_CLKDIV_CDIVX[0] | EDGE_S.OUT_CLKDIV_CDIVX[1] | EDGE_N.INCK[0] | EDGE_N.INCK[1] | EDGE_N.OUT_CLKDIV_CDIV1[0] | EDGE_N.OUT_CLKDIV_CDIV1[1] | EDGE_N.OUT_CLKDIV_CDIVX[0] | EDGE_N.OUT_CLKDIV_CDIVX[1] | EBR_S[1].IMUX_CLK[0] | PLL_NW.OUT_PLL_CLKOP[0] | PLL_NW.OUT_PLL_CLKOS[0] | PLL_NW.OUT_PLL_CLKOS2[0] | PLL_NW.OUT_PLL_CLKOS3[0] | PLL_NE.OUT_PLL_CLKOP[0] | PLL_NE.OUT_PLL_CLKOS[0] | PLL_NE.OUT_PLL_CLKOS2[0] | PLL_NE.OUT_PLL_CLKOS3[0];
+				mux CELL[0].IMUX_DCM_CLK0[1] = EDGE_W.INCK[0] | EDGE_W.INCK[1] | EDGE_W.INCK[2] | EDGE_E.INCK[0] | EDGE_S.INCK[0] | EDGE_S.INCK[1] | EDGE_S.OUT_CLKDIV_CDIV1[0] | EDGE_S.OUT_CLKDIV_CDIV1[1] | EDGE_S.OUT_CLKDIV_CDIVX[0] | EDGE_S.OUT_CLKDIV_CDIVX[1] | EDGE_N.INCK[0] | EDGE_N.INCK[1] | EDGE_N.OUT_CLKDIV_CDIV1[0] | EDGE_N.OUT_CLKDIV_CDIV1[1] | EDGE_N.OUT_CLKDIV_CDIVX[0] | EDGE_N.OUT_CLKDIV_CDIVX[1] | EBR_S[1].IMUX_CLK[1] | EBR_SE.IMUX_CLK[1] | PLL_NW.OUT_PLL_CLKOP[0] | PLL_NW.OUT_PLL_CLKOS[0] | PLL_NW.OUT_PLL_CLKOS2[0] | PLL_NW.OUT_PLL_CLKOS3[0] | PLL_NE.OUT_PLL_CLKOP[0] | PLL_NE.OUT_PLL_CLKOS[0] | PLL_NE.OUT_PLL_CLKOS2[0] | PLL_NE.OUT_PLL_CLKOS3[0];
+				mux CELL[0].IMUX_DCM_CLK1[0] = EDGE_W.INCK[0] | EDGE_W.INCK[1] | EDGE_W.INCK[2] | EDGE_E.INCK[0] | EDGE_S.INCK[0] | EDGE_S.INCK[1] | EDGE_S.OUT_CLKDIV_CDIV1[0] | EDGE_S.OUT_CLKDIV_CDIV1[1] | EDGE_S.OUT_CLKDIV_CDIVX[0] | EDGE_S.OUT_CLKDIV_CDIVX[1] | EDGE_N.INCK[0] | EDGE_N.INCK[1] | EDGE_N.OUT_CLKDIV_CDIV1[0] | EDGE_N.OUT_CLKDIV_CDIV1[1] | EDGE_N.OUT_CLKDIV_CDIVX[0] | EDGE_N.OUT_CLKDIV_CDIVX[1] | EBR_S[1].IMUX_CLK[1] | EBR_SE.IMUX_CLK[1] | PLL_NW.OUT_PLL_CLKOP[0] | PLL_NW.OUT_PLL_CLKOS[0] | PLL_NW.OUT_PLL_CLKOS2[0] | PLL_NW.OUT_PLL_CLKOS3[0] | PLL_NE.OUT_PLL_CLKOP[0] | PLL_NE.OUT_PLL_CLKOS[0] | PLL_NE.OUT_PLL_CLKOS2[0] | PLL_NE.OUT_PLL_CLKOS3[0];
+				mux CELL[0].IMUX_DCM_CLK1[1] = EDGE_W.INCK[0] | EDGE_W.INCK[1] | EDGE_W.INCK[2] | EDGE_E.IMUX_CLK[1] | EDGE_E.INCK[0] | EDGE_S.IMUX_CLK[1] | EDGE_S.INCK[0] | EDGE_S.INCK[1] | EDGE_S.OUT_CLKDIV_CDIV1[0] | EDGE_S.OUT_CLKDIV_CDIV1[1] | EDGE_S.OUT_CLKDIV_CDIVX[0] | EDGE_S.OUT_CLKDIV_CDIVX[1] | EDGE_N.INCK[0] | EDGE_N.INCK[1] | EDGE_N.OUT_CLKDIV_CDIV1[0] | EDGE_N.OUT_CLKDIV_CDIV1[1] | EDGE_N.OUT_CLKDIV_CDIVX[0] | EDGE_N.OUT_CLKDIV_CDIVX[1] | EBR_S[1].IMUX_CLK[0] | PLL_NW.OUT_PLL_CLKOP[0] | PLL_NW.OUT_PLL_CLKOS[0] | PLL_NW.OUT_PLL_CLKOS2[0] | PLL_NW.OUT_PLL_CLKOS3[0] | PLL_NE.OUT_PLL_CLKOP[0] | PLL_NE.OUT_PLL_CLKOS[0] | PLL_NE.OUT_PLL_CLKOS2[0] | PLL_NE.OUT_PLL_CLKOS3[0];
+				mux CELL[0].IMUX_ECLKBRIDGECS_CLK0[0] = EDGE_S.IMUX_CLK[2] | EDGE_S.INCK[0] | PLL_NW.OUT_PLL_CLKOP[0] | PLL_NE.OUT_PLL_CLKOS[0];
+				mux CELL[0].IMUX_ECLKBRIDGECS_CLK0[1] = EDGE_N.IMUX_CLK[2] | EDGE_N.INCK[0] | PLL_NW.OUT_PLL_CLKOP[0] | PLL_NE.OUT_PLL_CLKOS[0];
+				mux CELL[0].IMUX_ECLKBRIDGECS_CLK1[0] = EDGE_S.IMUX_CLK[3] | EDGE_S.INCK[1] | PLL_NW.OUT_PLL_CLKOS[0] | PLL_NE.OUT_PLL_CLKOP[0];
+				mux CELL[0].IMUX_ECLKBRIDGECS_CLK1[1] = EDGE_N.IMUX_CLK[3] | EDGE_N.INCK[1] | PLL_NW.OUT_PLL_CLKOS[0] | PLL_NE.OUT_PLL_CLKOP[0];
 			}
 
 			bel CLKTEST {
-				input TESTIN0 = CELL[1].IMUX_A[2];
-				input TESTIN1 = CELL[1].IMUX_B[2];
-				input TESTIN10 = CELL[1].IMUX_C[4];
-				input TESTIN2 = CELL[1].IMUX_C[2];
-				input TESTIN3 = CELL[1].IMUX_D[2];
-				input TESTIN4 = CELL[1].IMUX_A[3];
-				input TESTIN5 = CELL[1].IMUX_B[3];
-				input TESTIN6 = CELL[1].IMUX_C[3];
-				input TESTIN7 = CELL[1].IMUX_D[3];
-				input TESTIN8 = CELL[1].IMUX_A[4];
-				input TESTIN9 = CELL[1].IMUX_B[4];
+				input TESTIN[0] = CELL[1].IMUX_A[2];
+				input TESTIN[1] = CELL[1].IMUX_B[2];
+				input TESTIN[2] = CELL[1].IMUX_C[2];
+				input TESTIN[3] = CELL[1].IMUX_D[2];
+				input TESTIN[4] = CELL[1].IMUX_A[3];
+				input TESTIN[5] = CELL[1].IMUX_B[3];
+				input TESTIN[6] = CELL[1].IMUX_C[3];
+				input TESTIN[7] = CELL[1].IMUX_D[3];
+				input TESTIN[8] = CELL[1].IMUX_A[4];
+				input TESTIN[9] = CELL[1].IMUX_B[4];
+				input TESTIN[10] = CELL[1].IMUX_C[4];
 			}
 
 			bel DCC[0] {
+				input CLKI = CELL[0].IMUX_DCC_CLKI[0];
 				input CE = CELL[1].IMUX_A[0];
+				output CLKO = CELL[0].PCLK_ROOT[0];
 			}
 
 			bel DCC[1] {
+				input CLKI = CELL[0].IMUX_DCC_CLKI[1];
 				input CE = CELL[1].IMUX_B[0];
+				output CLKO = CELL[0].PCLK_ROOT[1];
 			}
 
 			bel DCC[2] {
+				input CLKI = CELL[0].IMUX_DCC_CLKI[2];
 				input CE = CELL[1].IMUX_C[0];
+				output CLKO = CELL[0].PCLK_ROOT[2];
 			}
 
 			bel DCC[3] {
+				input CLKI = CELL[0].IMUX_DCC_CLKI[3];
 				input CE = CELL[1].IMUX_D[0];
+				output CLKO = CELL[0].PCLK_ROOT[3];
 			}
 
 			bel DCC[4] {
+				input CLKI = CELL[0].IMUX_DCC_CLKI[4];
 				input CE = CELL[1].IMUX_A[1];
+				output CLKO = CELL[0].PCLK_ROOT[4];
 			}
 
 			bel DCC[5] {
+				input CLKI = CELL[0].IMUX_DCC_CLKI[5];
 				input CE = CELL[1].IMUX_B[1];
+				output CLKO = CELL[0].PCLK_ROOT[5];
 			}
 
 			bel DCC[6] {
+				input CLKI = CELL[0].OUT_DCM_DCMOUT[0];
 				input CE = CELL[1].IMUX_C[1];
+				output CLKO = CELL[0].PCLK_ROOT[6];
 			}
 
 			bel DCC[7] {
+				input CLKI = CELL[0].OUT_DCM_DCMOUT[1];
 				input CE = CELL[1].IMUX_D[1];
+				output CLKO = CELL[0].PCLK_ROOT[7];
 			}
 
 			bel DCM[0] {
+				input CLK[0] = CELL[0].IMUX_DCM_CLK0[0];
+				input CLK[1] = CELL[0].IMUX_DCM_CLK1[0];
 				input SEL = CELL[1].IMUX_A[5];
+				output DCMOUT = CELL[0].OUT_DCM_DCMOUT[0];
 			}
 
 			bel DCM[1] {
+				input CLK[0] = CELL[0].IMUX_DCM_CLK0[1];
+				input CLK[1] = CELL[0].IMUX_DCM_CLK1[1];
 				input SEL = CELL[1].IMUX_B[5];
+				output DCMOUT = CELL[0].OUT_DCM_DCMOUT[1];
 			}
 
 			bel ECLKBRIDGECS[0] {
-				input CLK0 = EDGE_S.IMUX_CLK[2];
-				input CLK1 = EDGE_S.IMUX_CLK[3];
+				input CLK[0] = CELL[0].IMUX_ECLKBRIDGECS_CLK0[0];
+				input CLK[1] = CELL[0].IMUX_ECLKBRIDGECS_CLK1[0];
 				input SEL = CELL[0].IMUX_A[5];
+				output ECSOUT = CELL[2].BRGECLK[0];
 			}
 
 			bel ECLKBRIDGECS[1] {
-				input CLK0 = EDGE_N.IMUX_CLK[2];
-				input CLK1 = EDGE_N.IMUX_CLK[3];
+				input CLK[0] = CELL[0].IMUX_ECLKBRIDGECS_CLK0[1];
+				input CLK[1] = CELL[0].IMUX_ECLKBRIDGECS_CLK1[1];
 				input SEL = CELL[0].IMUX_B[5];
+				output ECSOUT = CELL[2].BRGECLK[1];
 			}
 
+			// wire CELL[0].PCLK_ROOT[0]           DCC[0].CLKO
+			// wire CELL[0].PCLK_ROOT[1]           DCC[1].CLKO
+			// wire CELL[0].PCLK_ROOT[2]           DCC[2].CLKO
+			// wire CELL[0].PCLK_ROOT[3]           DCC[3].CLKO
+			// wire CELL[0].PCLK_ROOT[4]           DCC[4].CLKO
+			// wire CELL[0].PCLK_ROOT[5]           DCC[5].CLKO
+			// wire CELL[0].PCLK_ROOT[6]           DCC[6].CLKO
+			// wire CELL[0].PCLK_ROOT[7]           DCC[7].CLKO
 			// wire CELL[0].IMUX_A[5]              ECLKBRIDGECS[0].SEL
 			// wire CELL[0].IMUX_B[5]              ECLKBRIDGECS[1].SEL
+			// wire CELL[0].IMUX_DCC_CLKI[0]       DCC[0].CLKI
+			// wire CELL[0].IMUX_DCC_CLKI[1]       DCC[1].CLKI
+			// wire CELL[0].IMUX_DCC_CLKI[2]       DCC[2].CLKI
+			// wire CELL[0].IMUX_DCC_CLKI[3]       DCC[3].CLKI
+			// wire CELL[0].IMUX_DCC_CLKI[4]       DCC[4].CLKI
+			// wire CELL[0].IMUX_DCC_CLKI[5]       DCC[5].CLKI
+			// wire CELL[0].OUT_DCM_DCMOUT[0]      DCC[6].CLKI DCM[0].DCMOUT
+			// wire CELL[0].OUT_DCM_DCMOUT[1]      DCC[7].CLKI DCM[1].DCMOUT
+			// wire CELL[0].IMUX_DCM_CLK0[0]       DCM[0].CLK[0]
+			// wire CELL[0].IMUX_DCM_CLK0[1]       DCM[1].CLK[0]
+			// wire CELL[0].IMUX_DCM_CLK1[0]       DCM[0].CLK[1]
+			// wire CELL[0].IMUX_DCM_CLK1[1]       DCM[1].CLK[1]
+			// wire CELL[0].IMUX_ECLKBRIDGECS_CLK0[0] ECLKBRIDGECS[0].CLK[0]
+			// wire CELL[0].IMUX_ECLKBRIDGECS_CLK0[1] ECLKBRIDGECS[1].CLK[0]
+			// wire CELL[0].IMUX_ECLKBRIDGECS_CLK1[0] ECLKBRIDGECS[0].CLK[1]
+			// wire CELL[0].IMUX_ECLKBRIDGECS_CLK1[1] ECLKBRIDGECS[1].CLK[1]
 			// wire CELL[1].IMUX_A[0]              DCC[0].CE
 			// wire CELL[1].IMUX_A[1]              DCC[4].CE
-			// wire CELL[1].IMUX_A[2]              CLKTEST.TESTIN0
-			// wire CELL[1].IMUX_A[3]              CLKTEST.TESTIN4
-			// wire CELL[1].IMUX_A[4]              CLKTEST.TESTIN8
+			// wire CELL[1].IMUX_A[2]              CLKTEST.TESTIN[0]
+			// wire CELL[1].IMUX_A[3]              CLKTEST.TESTIN[4]
+			// wire CELL[1].IMUX_A[4]              CLKTEST.TESTIN[8]
 			// wire CELL[1].IMUX_A[5]              DCM[0].SEL
 			// wire CELL[1].IMUX_B[0]              DCC[1].CE
 			// wire CELL[1].IMUX_B[1]              DCC[5].CE
-			// wire CELL[1].IMUX_B[2]              CLKTEST.TESTIN1
-			// wire CELL[1].IMUX_B[3]              CLKTEST.TESTIN5
-			// wire CELL[1].IMUX_B[4]              CLKTEST.TESTIN9
+			// wire CELL[1].IMUX_B[2]              CLKTEST.TESTIN[1]
+			// wire CELL[1].IMUX_B[3]              CLKTEST.TESTIN[5]
+			// wire CELL[1].IMUX_B[4]              CLKTEST.TESTIN[9]
 			// wire CELL[1].IMUX_B[5]              DCM[1].SEL
 			// wire CELL[1].IMUX_C[0]              DCC[2].CE
 			// wire CELL[1].IMUX_C[1]              DCC[6].CE
-			// wire CELL[1].IMUX_C[2]              CLKTEST.TESTIN2
-			// wire CELL[1].IMUX_C[3]              CLKTEST.TESTIN6
-			// wire CELL[1].IMUX_C[4]              CLKTEST.TESTIN10
+			// wire CELL[1].IMUX_C[2]              CLKTEST.TESTIN[2]
+			// wire CELL[1].IMUX_C[3]              CLKTEST.TESTIN[6]
+			// wire CELL[1].IMUX_C[4]              CLKTEST.TESTIN[10]
 			// wire CELL[1].IMUX_D[0]              DCC[3].CE
 			// wire CELL[1].IMUX_D[1]              DCC[7].CE
-			// wire CELL[1].IMUX_D[2]              CLKTEST.TESTIN3
-			// wire CELL[1].IMUX_D[3]              CLKTEST.TESTIN7
-			// wire EDGE_W.IMUX_A[5]               CLK_ROOT.SCLK_IN_W0
-			// wire EDGE_W.IMUX_B[5]               CLK_ROOT.SCLK_IN_W1
-			// wire EDGE_W.IMUX_CLK[0]             CLK_ROOT.PCLK_IN_W2
-			// wire EDGE_W.IMUX_CLK[1]             CLK_ROOT.PCLK_IN_W3
-			// wire EDGE_E.IMUX_A[5]               CLK_ROOT.SCLK_IN_E0
-			// wire EDGE_E.IMUX_B[5]               CLK_ROOT.SCLK_IN_E1
-			// wire EDGE_E.IMUX_CLK[0]             CLK_ROOT.PCLK_IN_E2
-			// wire EDGE_E.IMUX_CLK[1]             CLK_ROOT.PCLK_IN_E3
-			// wire EDGE_S.IMUX_A[5]               CLK_ROOT.SCLK_IN_S0
-			// wire EDGE_S.IMUX_B[5]               CLK_ROOT.SCLK_IN_S1
-			// wire EDGE_S.IMUX_CLK[0]             CLK_ROOT.PCLK_IN_S0
-			// wire EDGE_S.IMUX_CLK[1]             CLK_ROOT.PCLK_IN_S1
-			// wire EDGE_S.IMUX_CLK[2]             ECLKBRIDGECS[0].CLK0
-			// wire EDGE_S.IMUX_CLK[3]             ECLKBRIDGECS[0].CLK1
-			// wire EDGE_N.IMUX_A[5]               CLK_ROOT.SCLK_IN_N0
-			// wire EDGE_N.IMUX_B[5]               CLK_ROOT.SCLK_IN_N1
-			// wire EDGE_N.IMUX_CLK[0]             CLK_ROOT.PCLK_IN_N0
-			// wire EDGE_N.IMUX_CLK[1]             CLK_ROOT.PCLK_IN_N1
-			// wire EDGE_N.IMUX_CLK[2]             ECLKBRIDGECS[1].CLK0
-			// wire EDGE_N.IMUX_CLK[3]             ECLKBRIDGECS[1].CLK1
-			// wire EBR_S[0].IMUX_C[5]             CLK_ROOT.SCLK_IN_M2
-			// wire EBR_S[0].IMUX_D[5]             CLK_ROOT.SCLK_IN_M3
-			// wire EBR_S[1].IMUX_CLK[0]           CLK_ROOT.PCLK_IN_M2
-			// wire EBR_S[1].IMUX_CLK[1]           CLK_ROOT.PCLK_IN_M3
-			// wire EBR_S[2].IMUX_C[5]             CLK_ROOT.SCLK_IN_M6
-			// wire EBR_S[2].IMUX_D[5]             CLK_ROOT.SCLK_IN_M7
-			// wire EBR_N[0].IMUX_A[5]             CLK_ROOT.SCLK_IN_M0
-			// wire EBR_N[0].IMUX_B[5]             CLK_ROOT.SCLK_IN_M1
-			// wire EBR_N[1].IMUX_CLK[0]           CLK_ROOT.PCLK_IN_M0
-			// wire EBR_N[1].IMUX_CLK[1]           CLK_ROOT.PCLK_IN_M1
-			// wire EBR_N[2].IMUX_A[5]             CLK_ROOT.SCLK_IN_M4
-			// wire EBR_N[2].IMUX_B[5]             CLK_ROOT.SCLK_IN_M5
-			// wire EBR_SW.IMUX_CLK[0]             CLK_ROOT.PCLK_IN_W0
-			// wire EBR_SW.IMUX_CLK[1]             CLK_ROOT.PCLK_IN_W1
-			// wire EBR_SE.IMUX_CLK[0]             CLK_ROOT.PCLK_IN_E0
-			// wire EBR_SE.IMUX_CLK[1]             CLK_ROOT.PCLK_IN_E1
+			// wire CELL[1].IMUX_D[2]              CLKTEST.TESTIN[3]
+			// wire CELL[1].IMUX_D[3]              CLKTEST.TESTIN[7]
+			// wire CELL[2].BRGECLK[0]             ECLKBRIDGECS[0].ECSOUT
+			// wire CELL[2].BRGECLK[1]             ECLKBRIDGECS[1].ECSOUT
 		}
 
 		tile_class CLK_S {
 			cell CELL;
+			cell ROOT;
+			cell PLL_NW;
+			cell PLL_NE;
 
 			bel DLLDEL[0] {
-				input CLKI = IO_GCLK[0];
-				output CLKO = OUT_DLLDEL_CLKO[0];
+				input CLKI = CELL.IO_GCLK_S[0];
+				output CLKO = CELL.OUT_DLLDEL_CLKO[0];
 			}
 
 			bel DLLDEL[1] {
-				input CLKI = IO_GCLK[1];
-				output CLKO = OUT_DLLDEL_CLKO[1];
+				input CLKI = CELL.IO_GCLK_S[1];
+				output CLKO = CELL.OUT_DLLDEL_CLKO[1];
 			}
 
 			bel CLKDIV[0] {
-				input CLKI = ECLK[0];
-				input RST = IMUX_A[2];
-				input ALIGNWD = IMUX_A[0];
-				output CDIV1 = OUT_F[1], OUT_CLKDIV_CDIV1[0];
-				output CDIVX = OUT_F[0], OUT_CLKDIV_CDIVX[0];
+				input CLKI = CELL.ECLK[0];
+				input RST = CELL.IMUX_A[2];
+				input ALIGNWD = CELL.IMUX_A[0];
+				output CDIV1 = CELL.OUT_F[1], CELL.OUT_CLKDIV_CDIV1[0];
+				output CDIVX = CELL.OUT_F[0], CELL.OUT_CLKDIV_CDIVX[0];
 			}
 
 			bel CLKDIV[1] {
-				input CLKI = ECLK[1];
-				input RST = IMUX_A[3];
-				input ALIGNWD = IMUX_A[1];
-				output CDIV1 = OUT_F[3], OUT_CLKDIV_CDIV1[1];
-				output CDIVX = OUT_F[2], OUT_CLKDIV_CDIVX[1];
+				input CLKI = CELL.ECLK[1];
+				input RST = CELL.IMUX_A[3];
+				input ALIGNWD = CELL.IMUX_A[1];
+				output CDIV1 = CELL.OUT_F[3], CELL.OUT_CLKDIV_CDIV1[1];
+				output CDIVX = CELL.OUT_F[2], CELL.OUT_CLKDIV_CDIVX[1];
 			}
 
 			switchbox CLK_INT {
-				mux INCK[0] = IO_GCLK[0] | OUT_DLLDEL_CLKO[0];
-				mux INCK[1] = IO_GCLK[1] | OUT_DLLDEL_CLKO[1];
+				mux CELL.IMUX_ECLKSYNC_ECLKI[0] = CELL.IMUX_CLK[2] | CELL.INCK[0] | ROOT.BRGECLK[0] | PLL_NW.OUT_PLL_CLKOP[0] | PLL_NW.OUT_PLL_CLKOS[0] | PLL_NE.OUT_PLL_CLKOP[0] | PLL_NE.OUT_PLL_CLKOS[0];
+				mux CELL.IMUX_ECLKSYNC_ECLKI[1] = CELL.IMUX_CLK[3] | CELL.INCK[1] | ROOT.BRGECLK[1] | PLL_NW.OUT_PLL_CLKOP[0] | PLL_NW.OUT_PLL_CLKOS[0] | PLL_NE.OUT_PLL_CLKOP[0] | PLL_NE.OUT_PLL_CLKOS[0];
+				mux CELL.PLLCLKFB[0] = CELL.ECLK[0] | CELL.OUT_CLKFBBUF_Z[0];
+				mux CELL.PLLCLKFB[1] = CELL.ECLK[1] | CELL.OUT_CLKFBBUF_Z[1];
+				mux CELL.INCK[0] = CELL.IO_GCLK_S[0] | CELL.OUT_DLLDEL_CLKO[0];
+				mux CELL.INCK[1] = CELL.IO_GCLK_S[1] | CELL.OUT_DLLDEL_CLKO[1];
 			}
 
 			bel ECLKSYNC[0] {
-				input ECLKI = IMUX_CLK[2];
-				output ECLKO = OUT_Q[4];
-				input STOP = IMUX_C[5];
+				input ECLKI = CELL.IMUX_ECLKSYNC_ECLKI[0];
+				input STOP = CELL.IMUX_C[5];
+				output ECLKO = CELL.OUT_Q[4], CELL.ECLK[0];
 			}
 
 			bel ECLKSYNC[1] {
-				input ECLKI = IMUX_CLK[3];
-				output ECLKO = OUT_Q[5];
-				input STOP = IMUX_D[5];
+				input ECLKI = CELL.IMUX_ECLKSYNC_ECLKI[1];
+				input STOP = CELL.IMUX_D[5];
+				output ECLKO = CELL.OUT_Q[5], CELL.ECLK[1];
 			}
 
 			bel CLKFBBUF[0] {
+				input A = PLL_NW.OUT_PLL_CLKOP[0];
+				output Z = CELL.OUT_CLKFBBUF_Z[0];
 			}
 
 			bel CLKFBBUF[1] {
+				input A = PLL_NE.OUT_PLL_CLKOP[0];
+				output Z = CELL.OUT_CLKFBBUF_Z[1];
 			}
 
-			// wire IMUX_A[0]                      CLKDIV[0].ALIGNWD
-			// wire IMUX_A[1]                      CLKDIV[1].ALIGNWD
-			// wire IMUX_A[2]                      CLKDIV[0].RST
-			// wire IMUX_A[3]                      CLKDIV[1].RST
-			// wire IMUX_C[5]                      ECLKSYNC[0].STOP
-			// wire IMUX_D[5]                      ECLKSYNC[1].STOP
-			// wire IMUX_CLK[2]                    ECLKSYNC[0].ECLKI
-			// wire IMUX_CLK[3]                    ECLKSYNC[1].ECLKI
-			// wire OUT_F[0]                       CLKDIV[0].CDIVX
-			// wire OUT_F[1]                       CLKDIV[0].CDIV1
-			// wire OUT_F[2]                       CLKDIV[1].CDIVX
-			// wire OUT_F[3]                       CLKDIV[1].CDIV1
-			// wire OUT_Q[4]                       ECLKSYNC[0].ECLKO
-			// wire OUT_Q[5]                       ECLKSYNC[1].ECLKO
-			// wire ECLK[0]                        CLKDIV[0].CLKI
-			// wire ECLK[1]                        CLKDIV[1].CLKI
-			// wire IO_GCLK[0]                     DLLDEL[0].CLKI
-			// wire IO_GCLK[1]                     DLLDEL[1].CLKI
-			// wire OUT_DLLDEL_CLKO[0]             DLLDEL[0].CLKO
-			// wire OUT_DLLDEL_CLKO[1]             DLLDEL[1].CLKO
-			// wire OUT_CLKDIV_CDIV1[0]            CLKDIV[0].CDIV1
-			// wire OUT_CLKDIV_CDIV1[1]            CLKDIV[1].CDIV1
-			// wire OUT_CLKDIV_CDIVX[0]            CLKDIV[0].CDIVX
-			// wire OUT_CLKDIV_CDIVX[1]            CLKDIV[1].CDIVX
+			// wire CELL.IMUX_A[0]                 CLKDIV[0].ALIGNWD
+			// wire CELL.IMUX_A[1]                 CLKDIV[1].ALIGNWD
+			// wire CELL.IMUX_A[2]                 CLKDIV[0].RST
+			// wire CELL.IMUX_A[3]                 CLKDIV[1].RST
+			// wire CELL.IMUX_C[5]                 ECLKSYNC[0].STOP
+			// wire CELL.IMUX_D[5]                 ECLKSYNC[1].STOP
+			// wire CELL.OUT_F[0]                  CLKDIV[0].CDIVX
+			// wire CELL.OUT_F[1]                  CLKDIV[0].CDIV1
+			// wire CELL.OUT_F[2]                  CLKDIV[1].CDIVX
+			// wire CELL.OUT_F[3]                  CLKDIV[1].CDIV1
+			// wire CELL.OUT_Q[4]                  ECLKSYNC[0].ECLKO
+			// wire CELL.OUT_Q[5]                  ECLKSYNC[1].ECLKO
+			// wire CELL.ECLK[0]                   CLKDIV[0].CLKI ECLKSYNC[0].ECLKO
+			// wire CELL.ECLK[1]                   CLKDIV[1].CLKI ECLKSYNC[1].ECLKO
+			// wire CELL.IMUX_ECLKSYNC_ECLKI[0]    ECLKSYNC[0].ECLKI
+			// wire CELL.IMUX_ECLKSYNC_ECLKI[1]    ECLKSYNC[1].ECLKI
+			// wire CELL.IO_GCLK_S[0]              DLLDEL[0].CLKI
+			// wire CELL.IO_GCLK_S[1]              DLLDEL[1].CLKI
+			// wire CELL.OUT_CLKFBBUF_Z[0]         CLKFBBUF[0].Z
+			// wire CELL.OUT_CLKFBBUF_Z[1]         CLKFBBUF[1].Z
+			// wire CELL.OUT_DLLDEL_CLKO[0]        DLLDEL[0].CLKO
+			// wire CELL.OUT_DLLDEL_CLKO[1]        DLLDEL[1].CLKO
+			// wire CELL.OUT_CLKDIV_CDIV1[0]       CLKDIV[0].CDIV1
+			// wire CELL.OUT_CLKDIV_CDIV1[1]       CLKDIV[1].CDIV1
+			// wire CELL.OUT_CLKDIV_CDIVX[0]       CLKDIV[0].CDIVX
+			// wire CELL.OUT_CLKDIV_CDIVX[1]       CLKDIV[1].CDIVX
+			// wire PLL_NW.OUT_PLL_CLKOP[0]        CLKFBBUF[0].A
+			// wire PLL_NE.OUT_PLL_CLKOP[0]        CLKFBBUF[1].A
 		}
 
 		tile_class CLK_N {
 			cell CELL;
+			cell ROOT;
+			cell PLL_NW;
+			cell PLL_NE;
 
 			bel DLLDEL[0] {
-				input CLKI = IO_GCLK[0];
-				output CLKO = OUT_DLLDEL_CLKO[0];
+				input CLKI = CELL.IO_GCLK_N[0];
+				output CLKO = CELL.OUT_DLLDEL_CLKO[0];
 			}
 
 			bel DLLDEL[1] {
-				input CLKI = IO_GCLK[1];
-				output CLKO = OUT_DLLDEL_CLKO[1];
+				input CLKI = CELL.IO_GCLK_N[1];
+				output CLKO = CELL.OUT_DLLDEL_CLKO[1];
 			}
 
 			bel CLKDIV[0] {
-				input CLKI = ECLK[0];
-				input RST = IMUX_A[2];
-				input ALIGNWD = IMUX_A[0];
-				output CDIV1 = OUT_F[1], OUT_CLKDIV_CDIV1[0];
-				output CDIVX = OUT_F[0], OUT_CLKDIV_CDIVX[0];
+				input CLKI = CELL.ECLK[0];
+				input RST = CELL.IMUX_A[2];
+				input ALIGNWD = CELL.IMUX_A[0];
+				output CDIV1 = CELL.OUT_F[1], CELL.OUT_CLKDIV_CDIV1[0];
+				output CDIVX = CELL.OUT_F[0], CELL.OUT_CLKDIV_CDIVX[0];
 			}
 
 			bel CLKDIV[1] {
-				input CLKI = ECLK[1];
-				input RST = IMUX_A[3];
-				input ALIGNWD = IMUX_A[1];
-				output CDIV1 = OUT_F[3], OUT_CLKDIV_CDIV1[1];
-				output CDIVX = OUT_F[2], OUT_CLKDIV_CDIVX[1];
+				input CLKI = CELL.ECLK[1];
+				input RST = CELL.IMUX_A[3];
+				input ALIGNWD = CELL.IMUX_A[1];
+				output CDIV1 = CELL.OUT_F[3], CELL.OUT_CLKDIV_CDIV1[1];
+				output CDIVX = CELL.OUT_F[2], CELL.OUT_CLKDIV_CDIVX[1];
 			}
 
 			switchbox CLK_INT {
-				mux INCK[0] = IO_GCLK[0] | OUT_DLLDEL_CLKO[0];
-				mux INCK[1] = IO_GCLK[1] | OUT_DLLDEL_CLKO[1];
+				mux CELL.IMUX_ECLKSYNC_ECLKI[0] = CELL.IMUX_CLK[2] | CELL.INCK[0] | ROOT.BRGECLK[0] | PLL_NW.OUT_PLL_CLKOP[0] | PLL_NW.OUT_PLL_CLKOS[0] | PLL_NE.OUT_PLL_CLKOP[0] | PLL_NE.OUT_PLL_CLKOS[0];
+				mux CELL.IMUX_ECLKSYNC_ECLKI[1] = CELL.IMUX_CLK[3] | CELL.INCK[1] | ROOT.BRGECLK[1] | PLL_NW.OUT_PLL_CLKOP[0] | PLL_NW.OUT_PLL_CLKOS[0] | PLL_NE.OUT_PLL_CLKOP[0] | PLL_NE.OUT_PLL_CLKOS[0];
+				mux CELL.INCK[0] = CELL.IO_GCLK_N[0] | CELL.OUT_DLLDEL_CLKO[0];
+				mux CELL.INCK[1] = CELL.IO_GCLK_N[1] | CELL.OUT_DLLDEL_CLKO[1];
 			}
 
 			bel ECLKSYNC[0] {
-				input ECLKI = IMUX_CLK[2];
-				output ECLKO = OUT_Q[4];
-				input STOP = IMUX_C[5];
+				input ECLKI = CELL.IMUX_ECLKSYNC_ECLKI[0];
+				input STOP = CELL.IMUX_C[5];
+				output ECLKO = CELL.OUT_Q[4], CELL.ECLK[0];
 			}
 
 			bel ECLKSYNC[1] {
-				input ECLKI = IMUX_CLK[3];
-				output ECLKO = OUT_Q[5];
-				input STOP = IMUX_D[5];
+				input ECLKI = CELL.IMUX_ECLKSYNC_ECLKI[1];
+				input STOP = CELL.IMUX_D[5];
+				output ECLKO = CELL.OUT_Q[5], CELL.ECLK[1];
 			}
 
-			// wire IMUX_A[0]                      CLKDIV[0].ALIGNWD
-			// wire IMUX_A[1]                      CLKDIV[1].ALIGNWD
-			// wire IMUX_A[2]                      CLKDIV[0].RST
-			// wire IMUX_A[3]                      CLKDIV[1].RST
-			// wire IMUX_C[5]                      ECLKSYNC[0].STOP
-			// wire IMUX_D[5]                      ECLKSYNC[1].STOP
-			// wire IMUX_CLK[2]                    ECLKSYNC[0].ECLKI
-			// wire IMUX_CLK[3]                    ECLKSYNC[1].ECLKI
-			// wire OUT_F[0]                       CLKDIV[0].CDIVX
-			// wire OUT_F[1]                       CLKDIV[0].CDIV1
-			// wire OUT_F[2]                       CLKDIV[1].CDIVX
-			// wire OUT_F[3]                       CLKDIV[1].CDIV1
-			// wire OUT_Q[4]                       ECLKSYNC[0].ECLKO
-			// wire OUT_Q[5]                       ECLKSYNC[1].ECLKO
-			// wire ECLK[0]                        CLKDIV[0].CLKI
-			// wire ECLK[1]                        CLKDIV[1].CLKI
-			// wire IO_GCLK[0]                     DLLDEL[0].CLKI
-			// wire IO_GCLK[1]                     DLLDEL[1].CLKI
-			// wire OUT_DLLDEL_CLKO[0]             DLLDEL[0].CLKO
-			// wire OUT_DLLDEL_CLKO[1]             DLLDEL[1].CLKO
-			// wire OUT_CLKDIV_CDIV1[0]            CLKDIV[0].CDIV1
-			// wire OUT_CLKDIV_CDIV1[1]            CLKDIV[1].CDIV1
-			// wire OUT_CLKDIV_CDIVX[0]            CLKDIV[0].CDIVX
-			// wire OUT_CLKDIV_CDIVX[1]            CLKDIV[1].CDIVX
+			// wire CELL.IMUX_A[0]                 CLKDIV[0].ALIGNWD
+			// wire CELL.IMUX_A[1]                 CLKDIV[1].ALIGNWD
+			// wire CELL.IMUX_A[2]                 CLKDIV[0].RST
+			// wire CELL.IMUX_A[3]                 CLKDIV[1].RST
+			// wire CELL.IMUX_C[5]                 ECLKSYNC[0].STOP
+			// wire CELL.IMUX_D[5]                 ECLKSYNC[1].STOP
+			// wire CELL.OUT_F[0]                  CLKDIV[0].CDIVX
+			// wire CELL.OUT_F[1]                  CLKDIV[0].CDIV1
+			// wire CELL.OUT_F[2]                  CLKDIV[1].CDIVX
+			// wire CELL.OUT_F[3]                  CLKDIV[1].CDIV1
+			// wire CELL.OUT_Q[4]                  ECLKSYNC[0].ECLKO
+			// wire CELL.OUT_Q[5]                  ECLKSYNC[1].ECLKO
+			// wire CELL.ECLK[0]                   CLKDIV[0].CLKI ECLKSYNC[0].ECLKO
+			// wire CELL.ECLK[1]                   CLKDIV[1].CLKI ECLKSYNC[1].ECLKO
+			// wire CELL.IMUX_ECLKSYNC_ECLKI[0]    ECLKSYNC[0].ECLKI
+			// wire CELL.IMUX_ECLKSYNC_ECLKI[1]    ECLKSYNC[1].ECLKI
+			// wire CELL.IO_GCLK_N[0]              DLLDEL[0].CLKI
+			// wire CELL.IO_GCLK_N[1]              DLLDEL[1].CLKI
+			// wire CELL.OUT_DLLDEL_CLKO[0]        DLLDEL[0].CLKO
+			// wire CELL.OUT_DLLDEL_CLKO[1]        DLLDEL[1].CLKO
+			// wire CELL.OUT_CLKDIV_CDIV1[0]       CLKDIV[0].CDIV1
+			// wire CELL.OUT_CLKDIV_CDIV1[1]       CLKDIV[1].CDIV1
+			// wire CELL.OUT_CLKDIV_CDIVX[0]       CLKDIV[0].CDIVX
+			// wire CELL.OUT_CLKDIV_CDIVX[1]       CLKDIV[1].CDIVX
 		}
 
 		tile_class CLK_E_DQS {
@@ -18758,7 +18927,7 @@ intdb {
 			cell CELL[4];
 
 			bel DLLDEL[0] {
-				input CLKI = CELL[2].IO_GCLK[0];
+				input CLKI = CELL[2].IO_GCLK_E[0];
 				output CLKO = CELL[2].OUT_DLLDEL_CLKO[0];
 			}
 
@@ -18789,7 +18958,7 @@ intdb {
 			}
 
 			switchbox CLK_INT {
-				mux CELL[2].INCK[0] = CELL[2].IO_GCLK[0] | CELL[2].OUT_DLLDEL_CLKO[0];
+				mux CELL[2].INCK[0] = CELL[2].IO_GCLK_E[0] | CELL[2].OUT_DLLDEL_CLKO[0];
 			}
 
 			// wire CELL[0].IMUX_D[5]              DQS[1].RST
@@ -18803,7 +18972,7 @@ intdb {
 			// wire CELL[1].OUT_Q[7]               DQS[1].DATAVALID
 			// wire CELL[2].IMUX_CLK[2]            DQS[0].SCLK
 			// wire CELL[2].IMUX_CLK[3]            DQS[1].SCLK
-			// wire CELL[2].IO_GCLK[0]             DLLDEL[0].CLKI
+			// wire CELL[2].IO_GCLK_E[0]           DLLDEL[0].CLKI
 			// wire CELL[2].OUT_DLLDEL_CLKO[0]     DLLDEL[0].CLKO
 			// wire CELL[3].IMUX_A[5]              DQS[0].READ[0]
 			// wire CELL[3].IMUX_B[5]              DQS[0].READCLKSEL[0]
