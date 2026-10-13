@@ -1,17 +1,30 @@
 use prjcombine_ecp::{
     chip::{Chip, RowKind, SpecialIoKey, SpecialLocKey},
-    defs::{bcls, bslots, tcls},
+    defs::{bcls, bslots, tcls, wires},
 };
 use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
-    db::{CellSlotId, LegacyBel},
+    db::{CellSlotId, CellSlotIdExt, LegacyBel, WireSlotIdExt},
     dir::{Dir, DirHV, DirV},
     grid::{BelCoord, CellCoord, DieIdExt},
 };
 
-use crate::ChipContext;
+use crate::{ChipContext, RcMode};
 
 impl ChipContext<'_> {
+    pub(super) fn prep_io_ecp4(&mut self) {
+        for cell in self.edev.die_cells(Chip::DIE) {
+            for iob in 0..4 {
+                let bcrd = cell.bel(bslots::IO[iob]);
+                if self.edev.has_bel(bcrd) {
+                    let (cell_io, abcd) = self.xlat_io_loc_ecp4(bcrd);
+                    let paddi_pio = self.rc_io_wire(cell_io, &format!("JPADDI{abcd}_PIO"));
+                    self.bind_wire(paddi_pio, bcrd.wire(wires::OUT_IO_PADDI[iob]));
+                }
+            }
+        }
+    }
+
     pub(super) fn process_bc_ecp4(&mut self) {
         let has_bank0 = self.chip.special_loc.contains_key(&SpecialLocKey::Bc(0));
         for (&key, &cell_loc) in &self.chip.special_loc {
@@ -255,6 +268,13 @@ impl ChipContext<'_> {
                 self.add_bel_wire(bcrd, "ECLK", eclk);
                 self.claim_pip(eclk, eclk_mux);
 
+                let cell_eclk = match bank {
+                    0 => self.chip.special_loc[&SpecialLocKey::Bc(1)].delta(1, 0),
+                    3 => self.chip.special_loc[&SpecialLocKey::Bc(2)].delta(1, 0),
+                    _ => cell,
+                };
+                self.bind_wire(eclk, cell_eclk.wire(wires::ECLK[eclk_idx]));
+
                 if edge == Dir::N {
                     if bank_idx != 0
                         && self
@@ -371,141 +391,98 @@ impl ChipContext<'_> {
     }
 
     pub(super) fn process_ddrdll_ecp4(&mut self) {
-        for (col, row, ncol, idx, is_corner, name, eclk_banks) in [
+        for (cols, row, ncol, is_corner, name, eclk_banks) in [
             (
-                self.chip.col_w() + 2,
+                [self.chip.col_w() + 2, self.chip.col_w() + 3],
                 self.chip.row_s(),
                 self.chip.col_w(),
-                0,
                 false,
-                "DDRDLL_BL0",
+                "DDRDLL_BL",
                 [6].as_slice(),
             ),
             (
-                self.chip.col_w() + 3,
-                self.chip.row_s(),
-                self.chip.col_w(),
-                1,
-                false,
-                "DDRDLL_BL1",
-                [6].as_slice(),
-            ),
-            (
-                self.chip.col_e() - 3,
+                [self.chip.col_e() - 3, self.chip.col_e() - 2],
                 self.chip.row_s(),
                 self.chip.col_e(),
-                0,
                 false,
-                "DDRDLL_BR0",
+                "DDRDLL_BR",
                 [5].as_slice(),
             ),
             (
-                self.chip.col_e() - 2,
-                self.chip.row_s(),
-                self.chip.col_e(),
-                1,
-                false,
-                "DDRDLL_BR1",
-                [5].as_slice(),
-            ),
-            (
-                self.chip.col_w() + 2,
+                [self.chip.col_w() + 2, self.chip.col_w() + 3],
                 self.chip.row_n(),
                 self.chip.col_w(),
-                0,
                 true,
-                "DDRDLL_TL0",
+                "DDRDLL_TL",
                 [7, 1].as_slice(),
             ),
             (
-                self.chip.col_w() + 3,
-                self.chip.row_n(),
-                self.chip.col_w(),
-                1,
-                true,
-                "DDRDLL_TL1",
-                [7, 1].as_slice(),
-            ),
-            (
-                self.chip.col_e() - 3,
+                [self.chip.col_e() - 3, self.chip.col_e() - 2],
                 self.chip.row_n(),
                 self.chip.col_e(),
-                0,
                 true,
-                "DDRDLL_TR0",
-                [2, 4].as_slice(),
-            ),
-            (
-                self.chip.col_e() - 2,
-                self.chip.row_n(),
-                self.chip.col_e(),
-                1,
-                true,
-                "DDRDLL_TR1",
+                "DDRDLL_TR",
                 [2, 4].as_slice(),
             ),
         ] {
-            let bcrd = Chip::DIE.cell(col, row).bel(bslots::DDRDLL);
-            let cell = Chip::DIE.cell(ncol, row);
-            self.name_bel(bcrd, [name]);
-            let mut bel = LegacyBel::default();
-            for pin in [
-                "RST", "FREEZE", "UDDCNTLN", "DIVOSC", "DCNTL0", "DCNTL1", "DCNTL2", "DCNTL3",
-                "DCNTL4", "DCNTL5", "DCNTL6", "DCNTL7", "LOCK",
-            ] {
-                let wire = if is_corner {
-                    self.rc_corner_wire(cell, &format!("J{pin}_DDRDLL{idx}"))
+            for idx in 0..2 {
+                let bcrd = Chip::DIE.cell(cols[idx], row).bel(bslots::DDRDLL);
+                let cell = Chip::DIE.cell(ncol, row);
+                let mode = if is_corner {
+                    RcMode::Corner
                 } else {
-                    self.rc_io_wire(cell, &format!("J{pin}_DDRDLL{idx}"))
+                    RcMode::Io
                 };
-                self.add_bel_wire(bcrd, pin, wire);
-                bel.pins.insert(pin.into(), self.xlat_int_wire(bcrd, wire));
-            }
+                {
+                    let clk = self.rc_wire_mode(cell, &format!("JCLK_DDRDLL{idx}"), mode);
+                    let clk_in = self.find_single_in(clk);
+                    let mut ex = self.extract_switchbox(bcrd.bel(bslots::BEL_INT));
+                    ex.cell(cell)
+                        .output_bind(clk_in, wires::IMUX_DDRDLL_CLK.cell(0))
+                        .input_xlat_rc_mode(format!("JCIBCLK{idx}"), mode);
+                    for &bank in eclk_banks {
+                        for i in 0..4 {
+                            let bcrd_eclk = ex.ctx.chip.bel_eclksync_bank(bank, i);
+                            let wire_eclk = ex.ctx.naming.bel_wire(bcrd_eclk, "ECLK");
+                            ex.input_xlat(wire_eclk);
+                        }
+                    }
+                }
 
-            let clk = if is_corner {
-                self.rc_corner_wire(cell, &format!("JCLK_DDRDLL{idx}"))
-            } else {
-                self.rc_io_wire(cell, &format!("JCLK_DDRDLL{idx}"))
-            };
-            self.add_bel_wire(bcrd, "CLK", clk);
-            let clk_in = self.claim_single_in(clk);
-            self.add_bel_wire(bcrd, "CLK_IN", clk_in);
-
-            let clk_int = if is_corner {
-                self.rc_corner_wire(cell, &format!("JCIBCLK{idx}"))
-            } else {
-                self.rc_io_wire(cell, &format!("JCIBCLK{idx}"))
-            };
-            self.add_bel_wire(bcrd, "CLK_INT", clk_int);
-            self.claim_pip(clk_in, clk_int);
-            bel.pins
-                .insert("CLK".into(), self.xlat_int_wire(bcrd, clk_int));
-
-            for &bank in eclk_banks {
-                for i in 0..4 {
-                    let bcrd_eclk = self.chip.bel_eclksync_bank(bank, i);
-                    let wire_eclk = self.naming.bel_wire(bcrd_eclk, "ECLK");
-                    self.claim_pip(clk_in, wire_eclk);
+                let mut bel = self.extract_bel_cell(bcrd, cell);
+                bel.name(format!("{name}{idx}"))
+                    .input_xlat_rc_mode(bcls::DDRDLL::CLK, format!("JCLK_DDRDLL{idx}"), mode)
+                    .input_xlat_rc_mode(bcls::DDRDLL::RST, format!("JRST_DDRDLL{idx}"), mode)
+                    .input_xlat_rc_mode(
+                        bcls::DDRDLL::UDDCNTLN,
+                        format!("JUDDCNTLN_DDRDLL{idx}"),
+                        mode,
+                    )
+                    .input_xlat_rc_mode(bcls::DDRDLL::FREEZE, format!("JFREEZE_DDRDLL{idx}"), mode)
+                    .output_xlat_rc_mode(bcls::DDRDLL::LOCK, format!("JLOCK_DDRDLL{idx}"), mode)
+                    .output_xlat_rc_mode(bcls::DDRDLL::DIVOSC, format!("JDIVOSC_DDRDLL{idx}"), mode)
+                    .output_bind_step_rc_mode(
+                        bcls::DDRDLL::DDRDEL,
+                        format!("DDRDEL_DDRDLL{idx}"),
+                        mode,
+                        wires::OUT_DDRDLL_DDRDEL.cell(0),
+                    );
+                for i in 0..8 {
+                    bel.output_xlat_rc_mode(
+                        bcls::DDRDLL::DCNTL[i],
+                        format!("JDCNTL{i}_DDRDLL{idx}"),
+                        mode,
+                    );
                 }
             }
-
-            let ddrdel = if is_corner {
-                self.rc_corner_wire(cell, &format!("DDRDEL_DDRDLL{idx}"))
-            } else {
-                self.rc_io_wire(cell, &format!("DDRDEL_DDRDLL{idx}"))
-            };
-            self.add_bel_wire(bcrd, "DDRDEL", ddrdel);
-            let ddrdel_out = self.claim_single_out(ddrdel);
-            self.add_bel_wire(bcrd, "DDRDEL_OUT", ddrdel_out);
-
-            self.insert_legacy_bel(bcrd, bel);
         }
     }
 
     pub(super) fn process_dlldel_ecp4(&mut self) {
-        let cell_n = Chip::DIE.cell(self.chip.col_clk, self.chip.row_n());
-        let cell_w = Chip::DIE.cell(self.chip.col_w(), self.chip.row_clk);
-        let cell_e = Chip::DIE.cell(self.chip.col_e(), self.chip.row_clk);
+        let chip = self.chip;
+        let cell_n = Chip::DIE.cell(chip.col_clk, chip.row_n());
+        let cell_w = Chip::DIE.cell(chip.col_w(), chip.row_clk);
+        let cell_e = Chip::DIE.cell(chip.col_e(), chip.row_clk);
         for (name, edge, idx) in [
             ("00", Dir::N, 0),
             ("01", Dir::N, 1),
@@ -524,79 +501,68 @@ impl ChipContext<'_> {
             ("40", Dir::E, 2),
             ("41", Dir::E, 3),
         ] {
-            let Some(&io) = self
+            if !self
                 .chip
                 .special_io
-                .get(&SpecialIoKey::Clock(edge, idx as u8))
-            else {
+                .contains_key(&SpecialIoKey::Clock(edge, idx as u8))
+            {
                 continue;
-            };
+            }
             let (cell, cell_tile) = match edge {
                 Dir::N => (cell_n.delta(-4 + (idx as i32), 0), cell_n),
                 Dir::W => (cell_w.delta(0, -2 + (idx as i32)), cell_w),
                 Dir::E => (cell_e.delta(0, -2 + ((idx ^ 1) as i32)), cell_e),
                 Dir::S => unreachable!(),
             };
+
             let bcrd = cell_tile.bel(bslots::DLLDEL[idx]);
-            self.name_bel(bcrd, [format!("DLLDEL_{name}")]);
 
-            let (cell_io, abcd) = self.xlat_io_loc_ecp4(io);
-            let paddi_pio = self.rc_io_wire(cell_io, &format!("JPADDI{abcd}_PIO"));
-
-            let paddi = self.rc_io_wire(cell, "JPADDI");
-            self.add_bel_wire(bcrd, "PADDI", paddi);
-            self.claim_pip(paddi, paddi_pio);
-
-            let a = self.rc_io_wire(cell, "JA_DLLDEL");
-            self.add_bel_wire(bcrd, "A", a);
-            self.claim_pip(a, paddi_pio);
-
-            let z = self.rc_io_wire(cell, "Z_DLLDEL");
-            self.add_bel_wire(bcrd, "Z", z);
-
-            let z_out = self.rc_io_wire(cell, "DLLDEL");
-            self.add_bel_wire(bcrd, "Z_OUT", z_out);
-            self.claim_pip(z_out, z);
-
-            let inck = self.rc_io_wire(cell, "JINCK");
-            self.add_bel_wire(bcrd, "INCK", inck);
-            self.claim_pip(inck, paddi);
-            self.claim_pip(inck, z_out);
-
-            let ddrdel = self.rc_io_wire(cell, "DDRDEL_DLLDEL");
-            self.add_bel_wire(bcrd, "DDRDEL", ddrdel);
-            let ddrdel_in = self.rc_io_wire(cell, "DDRDEL");
-            self.add_bel_wire(bcrd, "DDRDEL_IN", ddrdel_in);
-            self.claim_pip(ddrdel, ddrdel_in);
-
-            let ddrdll_sources = match edge {
-                Dir::W => [
-                    (self.chip.col_w() + 2, self.chip.row_s()),
-                    (self.chip.col_w() + 3, self.chip.row_s()),
-                    (self.chip.col_w() + 2, self.chip.row_n()),
-                    (self.chip.col_w() + 3, self.chip.row_n()),
-                ],
-                Dir::E => [
-                    (self.chip.col_e() - 3, self.chip.row_s()),
-                    (self.chip.col_e() - 2, self.chip.row_s()),
-                    (self.chip.col_e() - 3, self.chip.row_n()),
-                    (self.chip.col_e() - 2, self.chip.row_n()),
-                ],
-                Dir::N => [
-                    (self.chip.col_w() + 2, self.chip.row_n()),
-                    (self.chip.col_w() + 3, self.chip.row_n()),
-                    (self.chip.col_e() - 3, self.chip.row_n()),
-                    (self.chip.col_e() - 2, self.chip.row_n()),
-                ],
-                Dir::S => unreachable!(),
-            };
-            for (col, row) in ddrdll_sources {
-                let bcrd_ddrdll = cell.with_cr(col, row).bel(bslots::DDRDLL);
-                let wire_ddrdll = self.naming.bel_wire(bcrd_ddrdll, "DDRDEL_OUT");
-                self.claim_pip(ddrdel_in, wire_ddrdll);
+            {
+                let cslot = self.edev[self.edev.bel_tile(bcrd)]
+                    .cells
+                    .iter()
+                    .find(|&(_, &tcell)| tcell == cell)
+                    .unwrap()
+                    .0;
+                let mut ex = self.extract_switchbox(cell_tile.bel(bslots::CLK_INT));
+                ex.cell(cell)
+                    .output_bind_rc_io("DDRDEL", cslot.wire(wires::IMUX_DLLDEL_DDRDEL))
+                    .output_bind_rc_io("JINCK", cslot.wire(wires::INCK[0]))
+                    .input_xlat_rc_io("JPADDI")
+                    .input_bind_rc_io("DLLDEL", cslot.wire(wires::OUT_DLLDEL_Z));
+                let ddrdll_sources = match edge {
+                    Dir::W => [
+                        (chip.col_w() + 2, chip.row_s()),
+                        (chip.col_w() + 3, chip.row_s()),
+                        (chip.col_w() + 2, chip.row_n()),
+                        (chip.col_w() + 3, chip.row_n()),
+                    ],
+                    Dir::E => [
+                        (chip.col_e() - 3, chip.row_s()),
+                        (chip.col_e() - 2, chip.row_s()),
+                        (chip.col_e() - 3, chip.row_n()),
+                        (chip.col_e() - 2, chip.row_n()),
+                    ],
+                    Dir::N => [
+                        (chip.col_w() + 2, chip.row_n()),
+                        (chip.col_w() + 3, chip.row_n()),
+                        (chip.col_e() - 3, chip.row_n()),
+                        (chip.col_e() - 2, chip.row_n()),
+                    ],
+                    Dir::S => unreachable!(),
+                };
+                for (col, row) in ddrdll_sources {
+                    let bcrd_ddrdll = Chip::DIE.cell(col, row).bel(bslots::DDRDLL);
+                    let wire_ddrdll = ex.ctx.naming.bel_wire(bcrd_ddrdll, "DDRDEL_OUT");
+                    ex.input_xlat(wire_ddrdll);
+                }
             }
 
-            self.insert_simple_legacy_bel(bcrd, cell, "DLLDEL");
+            self.extract_bel_cell(bcrd, cell)
+                .name(format!("DLLDEL_{name}"))
+                .suffix("DLLDEL")
+                .input_xlat_rc_io(bcls::DLLDEL::DDRDEL, "DDRDEL_DLLDEL")
+                .output_xlat_rc_io(bcls::DLLDEL::Z, "Z_DLLDEL");
         }
     }
 
@@ -629,100 +595,100 @@ impl ChipContext<'_> {
     }
 
     fn process_dqs_ecp4(&mut self, bcrd: BelCoord) {
+        let chip = self.chip;
         let bcrd_io = bcrd.bel(bslots::IO[0]);
-        let edge = self.chip.get_io_edge(bcrd_io);
-        let bank = self.chip.get_io_bank(bcrd_io);
+        let edge = chip.get_io_edge(bcrd_io);
+        let bank = chip.get_io_bank(bcrd_io);
         let (cell, abcd) = self.xlat_io_loc_ecp4(bcrd_io);
 
         let (r, c) = self.rc(cell);
-        match edge {
-            Dir::W => {
-                self.name_bel(bcrd, [format!("LDQS{r}")]);
-            }
-            Dir::E => {
-                self.name_bel(bcrd, [format!("RDQS{r}")]);
-            }
-            Dir::N => {
-                self.name_bel(bcrd, [format!("TDQS{c}")]);
-            }
-            Dir::S => unreachable!(),
-        }
-        self.insert_simple_legacy_bel(bcrd, cell, "DQS");
-
-        let dqsi = self.rc_io_wire(cell, "JDQSI_DQS");
-        self.add_bel_wire(bcrd, "DQSI", dqsi);
-        let paddi = self.rc_io_wire(cell, &format!("JPADDI{abcd}_PIO"));
-        self.claim_pip(dqsi, paddi);
-
-        let ddrdel = self.rc_io_wire(cell, "DDRDEL_DQS");
-        self.add_bel_wire(bcrd, "DDRDEL", ddrdel);
-        let ddrdel_in = self.rc_io_wire(cell, "DDRDEL");
-        self.add_bel_wire(bcrd, "DDRDEL_IN", ddrdel_in);
-        self.claim_pip(ddrdel, ddrdel_in);
-
-        let ddrdll_sources = match edge {
-            Dir::W => [
-                (self.chip.col_w() + 2, self.chip.row_s()),
-                (self.chip.col_w() + 3, self.chip.row_s()),
-                (self.chip.col_w() + 2, self.chip.row_n()),
-                (self.chip.col_w() + 3, self.chip.row_n()),
-            ],
-            Dir::E => [
-                (self.chip.col_e() - 3, self.chip.row_s()),
-                (self.chip.col_e() - 2, self.chip.row_s()),
-                (self.chip.col_e() - 3, self.chip.row_n()),
-                (self.chip.col_e() - 2, self.chip.row_n()),
-            ],
-            Dir::N => [
-                (self.chip.col_w() + 2, self.chip.row_n()),
-                (self.chip.col_w() + 3, self.chip.row_n()),
-                (self.chip.col_e() - 3, self.chip.row_n()),
-                (self.chip.col_e() - 2, self.chip.row_n()),
-            ],
+        let name = match edge {
+            Dir::W => format!("LDQS{r}"),
+            Dir::E => format!("RDQS{r}"),
+            Dir::N => format!("TDQS{c}"),
             Dir::S => unreachable!(),
         };
-        for (col, row) in ddrdll_sources {
-            let bcrd_ddrdll = cell.with_cr(col, row).bel(bslots::DDRDLL);
-            let wire_ddrdll = self.naming.bel_wire(bcrd_ddrdll, "DDRDEL_OUT");
-            self.claim_pip(ddrdel_in, wire_ddrdll);
+
+        {
+            let mut ex = self.extract_switchbox(bcrd.bel(bslots::BEL_INT));
+            ex.cell(cell)
+                .output_bind_rc_io("DDRDEL", wires::IMUX_DQS_DDRDEL.cell(0))
+                .output_bind_rc_io("DQSECLK", wires::IMUX_DQS_ECLK.cell(0))
+                .output_bind_rc_io("ECLK90", wires::IMUX_DQS_ECLK90.cell(0));
+
+            let ddrdll_sources = match edge {
+                Dir::W => [
+                    (chip.col_w() + 2, chip.row_s()),
+                    (chip.col_w() + 3, chip.row_s()),
+                    (chip.col_w() + 2, chip.row_n()),
+                    (chip.col_w() + 3, chip.row_n()),
+                ],
+                Dir::E => [
+                    (chip.col_e() - 3, chip.row_s()),
+                    (chip.col_e() - 2, chip.row_s()),
+                    (chip.col_e() - 3, chip.row_n()),
+                    (chip.col_e() - 2, chip.row_n()),
+                ],
+                Dir::N => [
+                    (chip.col_w() + 2, chip.row_n()),
+                    (chip.col_w() + 3, chip.row_n()),
+                    (chip.col_e() - 3, chip.row_n()),
+                    (chip.col_e() - 2, chip.row_n()),
+                ],
+                Dir::S => unreachable!(),
+            };
+            for (col, row) in ddrdll_sources {
+                let bcrd_ddrdll = cell.with_cr(col, row).bel(bslots::DDRDLL);
+                let wire_ddrdll = ex.ctx.naming.bel_wire(bcrd_ddrdll, "DDRDEL_OUT");
+                ex.input_xlat(wire_ddrdll);
+            }
+
+            for i in 0..4 {
+                let bcrd_eclk = chip.bel_eclksync_bank(bank, i);
+                let wire_eclk = ex.ctx.naming.bel_wire(bcrd_eclk, "ECLK");
+                ex.input_xlat(wire_eclk);
+            }
         }
 
-        let eclk = self.rc_io_wire(cell, "ECLK_DQS");
-        self.add_bel_wire(bcrd, "ECLK", eclk);
-        let eclk_in = self.rc_io_wire(cell, "DQSECLK");
-        self.add_bel_wire(bcrd, "ECLK_IN", eclk_in);
-        self.claim_pip(eclk, eclk_in);
+        let paddi = self.rc_io_wire(cell, &format!("JPADDI{abcd}_PIO"));
 
-        let eclk90 = self.rc_io_wire(cell, "ECLK90_DQS");
-        self.add_bel_wire(bcrd, "ECLK90", eclk90);
-        let eclk90_in = self.rc_io_wire(cell, "ECLK90");
-        self.add_bel_wire(bcrd, "ECLK90_IN", eclk90_in);
-        self.claim_pip(eclk90, eclk90_in);
+        let nextclk = self.rc_io_wire(cell, "NEXTCLK_DQS");
+        let nextclk_out = self.find_single_out(nextclk);
+        self.bind_wire(nextclk_out, bcrd.wire(wires::OUT_DQS_NEXTCLK));
 
-        for i in 0..4 {
-            let bcrd_eclk = self.chip.bel_eclksync_bank(bank, i);
-            let wire_eclk = self.naming.bel_wire(bcrd_eclk, "ECLK");
-            self.claim_pip(eclk_in, wire_eclk);
-            self.claim_pip(eclk90_in, wire_eclk);
-        }
+        self.hybrid_out_rc_io_cell(bcrd, cell, "JCRUCLK_DQS", wires::OUT_DQS_CRUCLK.cell(0));
+
+        let mut bel = self.extract_bel_cell(bcrd, cell);
+        bel.name(name)
+            .suffix("DQS")
+            .add_wire_rc_io("DQSI", "JDQSI_DQS")
+            .claim_pip_from("DQSI", paddi)
+            .input_xlat_rc_io(bcls::DQS::DDRDEL, "DDRDEL_DQS")
+            .input_xlat_rc_io(bcls::DQS::ECLK, "ECLK_DQS")
+            .input_xlat_rc_io(bcls::DQS::ECLK90, "ECLK90_DQS")
+            .output_xlat_rc_io(bcls::DQS::NEXTCLK, "NEXTCLK_DQS")
+            .add_wire("NEXTCLK_OUT", nextclk_out);
 
         for pin in [
-            "NEXTCLK", "RDPNTR0", "RDPNTR1", "RDPNTR2", "WRPNTR0", "WRPNTR1", "WRPNTR2",
+            "RDPNTR0", "RDPNTR1", "RDPNTR2", "WRPNTR0", "WRPNTR1", "WRPNTR2",
         ] {
-            let wire = self.rc_io_wire(cell, &format!("{pin}_DQS"));
-            self.add_bel_wire(bcrd, pin, wire);
-            let wire_out = self.claim_single_out(wire);
-            self.add_bel_wire(bcrd, format!("{pin}_OUT"), wire_out);
+            let wire = bel.add_wire_rc_io_get(pin, format!("{pin}_DQS"));
+            let wire_out = bel.ctx.claim_single_out(wire);
+            bel.add_wire(format!("{pin}_OUT"), wire_out);
         }
         for pin in ["CRUCLK", "DQSR90", "DQSW270", "DQSW"] {
-            let wire = self.rc_io_wire(cell, &format!("J{pin}_DQS"));
-            let wire_out = self.pips_fwd[&wire]
+            let wire = bel.ctx.rc_io_wire(cell, &format!("J{pin}_DQS"));
+            let wire_out = bel.ctx.pips_fwd[&wire]
                 .iter()
                 .copied()
-                .find(|w| !self.int_wires.contains_key(w))
+                .find(|w| !bel.ctx.int_wires.contains_key(w))
                 .unwrap();
-            self.add_bel_wire(bcrd, format!("{pin}_OUT"), wire_out);
-            self.claim_pip(wire_out, wire);
+            bel.add_wire(format!("{pin}_OUT"), wire_out);
+            bel.ctx.claim_pip(wire_out, wire);
+            if pin == "CRUCLK" {
+                bel.ctx
+                    .bind_wire(wire_out, bcrd.wire(wires::OUT_DQS_CRUCLK));
+            }
         }
     }
 
@@ -732,133 +698,96 @@ impl ChipContext<'_> {
         let (cell, abcd) = self.xlat_io_loc_ecp4(bcrd);
 
         let (r, c) = self.rc(cell);
-        match edge {
-            Dir::W => {
-                self.name_bel(bcrd, [format!("PL{r}{abcd}"), format!("IOL_L{r}{abcd}")]);
-            }
-            Dir::E => {
-                self.name_bel(bcrd, [format!("PR{r}{abcd}"), format!("IOL_R{r}{abcd}")]);
-            }
-            Dir::N => {
-                self.name_bel(bcrd, [format!("PT{c}"), format!("IOL_T{c}")]);
-            }
+        let names = match edge {
+            Dir::W => [format!("PL{r}{abcd}"), format!("IOL_L{r}{abcd}")],
+            Dir::E => [format!("PR{r}{abcd}"), format!("IOL_R{r}{abcd}")],
+            Dir::N => [format!("PT{c}"), format!("IOL_T{c}")],
             Dir::S => unreachable!(),
-        }
-        let mut bel = LegacyBel::default();
+        };
+        let cslot = self.edev[self.edev.bel_tile(bcrd)]
+            .cells
+            .iter()
+            .find(|&(_, &cell)| cell == bcrd.cell)
+            .unwrap()
+            .0;
 
-        for pin in [
-            "CLK",
-            "LSR",
-            "CE",
-            "LOADN",
-            "MOVE",
-            "DIRECTION",
-            "WINDOWSIZE0",
-            "WINDOWSIZE1",
-            "ACK",
-            "TXDATA0",
-            "TXDATA1",
-            "TXDATA2",
-            "TXDATA3",
-            "TXDATA4",
-            "TXDATA5",
-            "TXDATA6",
-            "TXDATA7",
-            "TXDATA8",
-            "TXDATA9",
-            "TSDATA0",
-            "TSDATA1",
-            "TSDATA2",
-            "TSDATA3",
-            "SLIP",
-            "RXDATA0",
-            "RXDATA1",
-            "RXDATA2",
-            "RXDATA3",
-            "RXDATA4",
-            "RXDATA5",
-            "RXDATA6",
-            "RXDATA7",
-            "RXDATA8",
-            "RXDATA9",
-            "MINUS",
-            "PLUS",
-            "CFLAG",
-        ] {
-            let wire = self.rc_io_wire(cell, &format!("J{pin}{abcd}_IOLOGIC"));
-            self.add_bel_wire(bcrd, pin, wire);
-            bel.pins.insert(pin.into(), self.xlat_int_wire(bcrd, wire));
+        let mut bel = self.extract_bel_cell(bcrd, cell);
+        bel.names(names)
+            .input_xlat_rc_io(bcls::IO::CLK, format!("JCLK{abcd}_IOLOGIC"))
+            .input_xlat_rc_io(bcls::IO::LSR, format!("JLSR{abcd}_IOLOGIC"))
+            .input_xlat_rc_io(bcls::IO::CE, format!("JCE{abcd}_IOLOGIC"))
+            .input_xlat_rc_io(bcls::IO::ECLK, format!("ECLK{abcd}_IOLOGIC"))
+            .input_xlat_rc_io(bcls::IO::LOADN, format!("JLOADN{abcd}_IOLOGIC"))
+            .input_xlat_rc_io(bcls::IO::MOVE, format!("JMOVE{abcd}_IOLOGIC"))
+            .input_xlat_rc_io(bcls::IO::DIRECTION, format!("JDIRECTION{abcd}_IOLOGIC"))
+            .input_xlat_rc_io(bcls::IO::SLIP, format!("JSLIP{abcd}_IOLOGIC"))
+            .input_xlat_rc_io(bcls::IO::ACK, format!("JACK{abcd}_IOLOGIC"))
+            .input_xlat_rc_io(
+                bcls::IO::WINDOWSIZE[0],
+                format!("JWINDOWSIZE0{abcd}_IOLOGIC"),
+            )
+            .input_xlat_rc_io(
+                bcls::IO::WINDOWSIZE[1],
+                format!("JWINDOWSIZE1{abcd}_IOLOGIC"),
+            )
+            .output_xlat_rc_io(bcls::IO::PLUS, format!("JPLUS{abcd}_IOLOGIC"))
+            .output_xlat_rc_io(bcls::IO::MINUS, format!("JMINUS{abcd}_IOLOGIC"))
+            .output_xlat_rc_io(bcls::IO::CFLAG, format!("JCFLAG{abcd}_IOLOGIC"));
+        for i in 0..4 {
+            bel.input_xlat_rc_io(bcls::IO::TSDATA[i], format!("JTSDATA{i}{abcd}_IOLOGIC"));
+        }
+        for i in 0..10 {
+            bel.input_xlat_rc_io(bcls::IO::TXDATA[i], format!("JTXDATA{i}{abcd}_IOLOGIC"))
+                .output_xlat_rc_io(bcls::IO::RXDATA[i], format!("JRXDATA{i}{abcd}_IOLOGIC"));
         }
 
-        let paddi_pio = self.rc_io_wire(cell, &format!("JPADDI{abcd}_PIO"));
-        self.add_bel_wire(bcrd, "PADDI_PIO", paddi_pio);
-        let paddi_iol = self.rc_io_wire(cell, &format!("JPADDI{abcd}_IOLOGIC"));
-        self.add_bel_wire(bcrd, "PADDI_IOLOGIC", paddi_iol);
-        self.claim_pip(paddi_iol, paddi_pio);
-        let indd_iol = self.rc_io_wire(cell, &format!("INDD{abcd}_IOLOGIC"));
-        self.add_bel_wire(bcrd, "INDD_IOLOGIC", indd_iol);
-        let di = self.rc_io_wire(cell, &format!("JDI{abcd}"));
-        self.add_bel_wire(bcrd, "DI", di);
-        self.claim_pip(di, paddi_pio);
-        self.claim_pip(di, indd_iol);
-        bel.pins.insert("DI".into(), self.xlat_int_wire(bcrd, di));
-        let di_iol = self.rc_io_wire(cell, &format!("DI{abcd}_IOLOGIC"));
-        self.add_bel_wire(bcrd, "DI_IOLOGIC", di_iol);
-        self.claim_pip(di_iol, di);
+        bel.add_wire_rc_io("PADDI_PIO", format!("JPADDI{abcd}_PIO"))
+            .add_wire_rc_io("PADDI_IOLOGIC", format!("JPADDI{abcd}_IOLOGIC"))
+            .claim_pip("PADDI_IOLOGIC", "PADDI_PIO")
+            .add_wire_rc_io("INDD_IOLOGIC", format!("INDD{abcd}_IOLOGIC"))
+            .output_xlat_rc_io(bcls::IO::DI, format!("JDI{abcd}"))
+            .claim_pip("DI", "PADDI_PIO")
+            .claim_pip("DI", "INDD_IOLOGIC")
+            .add_wire_rc_io("DI_IOLOGIC", format!("DI{abcd}_IOLOGIC"))
+            .claim_pip("DI_IOLOGIC", "DI");
+
         if idx == 3 {
             let bcrd2 = bcrd.bel(bslots::IO[2]);
-            let (cell2, abcd2) = self.xlat_io_loc_ecp4(bcrd2);
-            let paddi_pio2 = self.rc_io_wire(cell2, &format!("JPADDI{abcd2}_PIO"));
-            self.claim_pip(paddi_iol, paddi_pio2);
-            self.claim_pip(di, paddi_pio2);
+            let (cell2, abcd2) = bel.ctx.xlat_io_loc_ecp4(bcrd2);
+            let paddi_pio2 = bel.ctx.rc_io_wire(cell2, &format!("JPADDI{abcd2}_PIO"));
+            bel.claim_pip_from("PADDI_IOLOGIC", paddi_pio2)
+                .claim_pip_from("DI", paddi_pio2);
         }
 
-        let inff = self.rc_io_wire(cell, &format!("JINFF{abcd}_IOLOGIC"));
-        self.add_bel_wire(bcrd, "INFF", inff);
-        assert_eq!(self.xlat_int_wire(bcrd, inff), bel.pins["RXDATA0"]);
+        bel.output_xlat_rename_rc_io(bcls::IO::RXDATA[0], "INFF", format!("JINFF{abcd}_IOLOGIC"))
+            .input_xlat_rename_rc_io(bcls::IO::TXDATA[0], "PADDO", format!("JPADDO{abcd}"))
+            .add_wire_rc_io("PADDO_PIO", format!("PADDO{abcd}_PIO"))
+            .claim_pip("PADDO_PIO", "PADDO")
+            .input_xlat_rename_rc_io(bcls::IO::TSDATA[0], "PADDT", format!("JPADDT{abcd}"))
+            .add_wire_rc_io("PADDT_PIO", format!("PADDT{abcd}_PIO"))
+            .claim_pip("PADDT_PIO", "PADDT");
 
-        let paddo_pio = self.rc_io_wire(cell, &format!("PADDO{abcd}_PIO"));
-        self.add_bel_wire(bcrd, "PADDO_PIO", paddo_pio);
-        let paddo = self.rc_io_wire(cell, &format!("JPADDO{abcd}"));
-        self.add_bel_wire(bcrd, "PADDO", paddo);
-        self.claim_pip(paddo_pio, paddo);
-        assert_eq!(self.xlat_int_wire(bcrd, paddo), bel.pins["TXDATA0"]);
+        bel.add_wire_rc_io("IOLDO_IOLOGIC", format!("IOLDO{abcd}_IOLOGIC"))
+            .add_wire_rc_io("IOLDOI_IOLOGIC", format!("IOLDOI{abcd}_IOLOGIC"))
+            .claim_pip("IOLDOI_IOLOGIC", "IOLDO_IOLOGIC")
+            .add_wire_rc_io("IOLDOD_IOLOGIC", format!("IOLDOD{abcd}_IOLOGIC"))
+            .add_wire_rc_io("IOLDO", format!("IOLDO{abcd}"))
+            .claim_pip("IOLDO", "IOLDO_IOLOGIC")
+            .claim_pip("IOLDO", "IOLDOD_IOLOGIC")
+            .add_wire_rc_io("IOLDO_PIO", format!("IOLDO{abcd}_PIO"))
+            .claim_pip("IOLDO_PIO", "IOLDO")
+            .add_wire_rc_io("IOLTO_IOLOGIC", format!("IOLTO{abcd}_IOLOGIC"))
+            .add_wire_rc_io("IOLTO_PIO", format!("IOLTO{abcd}_PIO"))
+            .claim_pip("IOLTO_PIO", "IOLTO_IOLOGIC")
+            .output(bcls::IO::PADDI, cslot.wire(wires::OUT_IO_PADDI[idx]));
 
-        let paddt_pio = self.rc_io_wire(cell, &format!("PADDT{abcd}_PIO"));
-        self.add_bel_wire(bcrd, "PADDT_PIO", paddt_pio);
-        let paddt = self.rc_io_wire(cell, &format!("JPADDT{abcd}"));
-        self.add_bel_wire(bcrd, "PADDT", paddt);
-        self.claim_pip(paddt_pio, paddt);
-        assert_eq!(self.xlat_int_wire(bcrd, paddt), bel.pins["TSDATA0"]);
-
-        let ioldo_iol = self.rc_io_wire(cell, &format!("IOLDO{abcd}_IOLOGIC"));
-        self.add_bel_wire(bcrd, "IOLDO_IOLOGIC", ioldo_iol);
-        let ioldoi_iol = self.rc_io_wire(cell, &format!("IOLDOI{abcd}_IOLOGIC"));
-        self.add_bel_wire(bcrd, "IOLDOI_IOLOGIC", ioldoi_iol);
-        self.claim_pip(ioldoi_iol, ioldo_iol);
-        let ioldod_iol = self.rc_io_wire(cell, &format!("IOLDOD{abcd}_IOLOGIC"));
-        self.add_bel_wire(bcrd, "IOLDOD_IOLOGIC", ioldod_iol);
-        let ioldo = self.rc_io_wire(cell, &format!("IOLDO{abcd}"));
-        self.add_bel_wire(bcrd, "IOLDO", ioldo);
-        self.claim_pip(ioldo, ioldo_iol);
-        self.claim_pip(ioldo, ioldod_iol);
-        let ioldo_pio = self.rc_io_wire(cell, &format!("IOLDO{abcd}_PIO"));
-        self.add_bel_wire(bcrd, "IOLDO_PIO", ioldo_pio);
-        self.claim_pip(ioldo_pio, ioldo);
-
-        let iolto_iol = self.rc_io_wire(cell, &format!("IOLTO{abcd}_IOLOGIC"));
-        self.add_bel_wire(bcrd, "IOLTO_IOLOGIC", iolto_iol);
-        let iolto_pio = self.rc_io_wire(cell, &format!("IOLTO{abcd}_PIO"));
-        self.add_bel_wire(bcrd, "IOLTO_PIO", iolto_pio);
-        self.claim_pip(iolto_pio, iolto_iol);
-
-        let bank = self.chip.get_io_bank(bcrd);
+        let bank = bel.ctx.chip.get_io_bank(bcrd);
         let has_fucked_pusl = edge == Dir::W
             && abcd.is_empty()
-            && if cell.row < self.chip.row_clk {
-                self.chip.rows[cell.row].kind == RowKind::Ebr
+            && if cell.row < bel.ctx.chip.row_clk {
+                bel.ctx.chip.rows[cell.row].kind == RowKind::Ebr
             } else {
-                self.chip.rows[cell.row].kind == RowKind::Dsp
+                bel.ctx.chip.rows[cell.row].kind == RowKind::Dsp
             };
         for (pin, bslot_rc, pin_src) in [
             ("PG", bslots::BCPG, "PGENO_OUT"),
@@ -868,57 +797,33 @@ impl ChipContext<'_> {
         ] {
             let wire = if has_fucked_pusl && pin == "PUSL" {
                 // what in *fuck's* name
-                self.rc_io_wire(cell, &format!("LVDS{abcd}_PIO"))
+                bel.ctx.rc_io_wire(cell, &format!("LVDS{abcd}_PIO"))
             } else {
-                let wire = self.rc_io_wire(cell, &format!("{pin}{abcd}_PIO"));
-                self.add_bel_wire(bcrd, pin, wire);
-                wire
+                bel.add_wire_rc_io_get(pin, format!("{pin}{abcd}_PIO"))
             };
-            let cell_rc = self.chip.special_loc[&SpecialLocKey::Bc(bank)];
+            let cell_rc = bel.ctx.chip.special_loc[&SpecialLocKey::Bc(bank)];
             let bcrd_rc = cell_rc.bel(bslot_rc);
-            let wire_src = self.naming.bel_wire(bcrd_rc, pin_src);
-            self.claim_pip(wire, wire_src);
+            let wire_src = bel.ctx.naming.bel_wire(bcrd_rc, pin_src);
+            bel.ctx.claim_pip(wire, wire_src);
         }
 
         for pin in [
             "DQSW", "DQSR90", "DQSW270", "RDPNTR0", "RDPNTR1", "RDPNTR2", "WRPNTR0", "WRPNTR1",
             "WRPNTR2",
         ] {
-            let wire = if bcrd.col == self.chip.col_e() - 1
+            if bcrd.col == bel.ctx.chip.col_e() - 1
                 && let Some(idx) = pin.strip_prefix("RDPNTR")
             {
                 // fuck's sake fuck's sake fuck's sake
-                self.rc_io_wire(cell, &format!("REPNTR{idx}{abcd}_IOLOGIC"))
+                bel.add_wire_rc_io(pin, format!("REPNTR{idx}{abcd}_IOLOGIC"));
             } else {
-                self.rc_io_wire(cell, &format!("{pin}{abcd}_IOLOGIC"))
-            };
-            self.add_bel_wire(bcrd, pin, wire);
-            if let Some(bcrd_dqs) = self.edev.bel_io_dqs(bcrd) {
-                let wire_dqs = self.naming.bel_wire(bcrd_dqs, &format!("{pin}_OUT"));
-                self.claim_pip(wire, wire_dqs);
+                bel.add_wire_rc_io(pin, format!("{pin}{abcd}_IOLOGIC"));
+            }
+            if let Some(bcrd_dqs) = bel.ctx.edev.bel_io_dqs(bcrd) {
+                let wire_dqs = bel.ctx.naming.bel_wire(bcrd_dqs, &format!("{pin}_OUT"));
+                bel.claim_pip_from(pin, wire_dqs);
             }
         }
-
-        let eclk = self.rc_io_wire(cell, &format!("ECLK{abcd}_IOLOGIC"));
-        self.add_bel_wire(bcrd, "ECLK", eclk);
-        let eclk_in = self.rc_io_wire(cell, &format!("ECLK{abcd}"));
-        self.add_bel_wire(bcrd, "ECLK_IN", eclk_in);
-        self.claim_pip(eclk, eclk_in);
-
-        for i in 0..4 {
-            let bcrd_eclk = self.chip.bel_eclksync_bank(bank, i);
-            let wire_eclk = self.naming.bel_wire(bcrd_eclk, "ECLK");
-            self.claim_pip(eclk_in, wire_eclk);
-        }
-
-        if let Some(bcrd_dqs) = self.edev.bel_io_dqs(bcrd) {
-            let nextclk = self.naming.bel_wire(bcrd_dqs, "NEXTCLK_OUT");
-            self.claim_pip(eclk_in, nextclk);
-            let cruclk = self.naming.bel_wire(bcrd_dqs, "CRUCLK_OUT");
-            self.claim_pip(eclk_in, cruclk);
-        }
-
-        self.insert_legacy_bel(bcrd, bel);
     }
 
     pub(super) fn process_io_ecp4(&mut self) {
@@ -958,6 +863,44 @@ impl ChipContext<'_> {
             tcls::IO_N,
         ] {
             for &tcrd in &self.edev.tile_index[tcid] {
+                let cslot = self.edev[tcrd]
+                    .cells
+                    .iter()
+                    .find(|&(_, &cell)| cell == tcrd.cell)
+                    .unwrap()
+                    .0;
+                let io0 = tcrd.bel(bslots::IO[0]);
+                let bank = self.chip.get_io_bank(io0);
+                {
+                    let mut ex = self.extract_switchbox(tcrd.bel(bslots::IO_INT));
+                    for i in 0..4 {
+                        let bcrd_io = tcrd.bel(bslots::IO[i]);
+                        let (cell_io, abcd) = ex.ctx.xlat_io_loc_ecp4(bcrd_io);
+                        let eclk = ex.ctx.rc_io_wire(cell_io, &format!("ECLK{abcd}"));
+                        ex.output_bind(eclk, cslot.wire(wires::IMUX_IO_ECLK[i]));
+                    }
+                    for i in 0..4 {
+                        let bcrd_eclk = ex.ctx.chip.bel_eclksync_bank(bank, i);
+                        let wire_eclk = ex.ctx.naming.bel_wire(bcrd_eclk, "ECLK");
+                        ex.input_xlat(wire_eclk);
+                    }
+                    if let Some(bcrd_dqs) = ex.ctx.edev.bel_io_dqs(io0) {
+                        let nextclk = ex.ctx.naming.bel_wire(bcrd_dqs, "NEXTCLK_OUT");
+                        let cruclk = ex.ctx.naming.bel_wire(bcrd_dqs, "CRUCLK_OUT");
+                        ex.input_xlat(nextclk).input_xlat(cruclk);
+                    } else {
+                        for i in 0..4 {
+                            ex.edge(
+                                cslot.wire(wires::IMUX_IO_ECLK[i]),
+                                cslot.wire(wires::OUT_DQS_NEXTCLK),
+                            )
+                            .edge(
+                                cslot.wire(wires::IMUX_IO_ECLK[i]),
+                                cslot.wire(wires::OUT_DQS_CRUCLK),
+                            );
+                        }
+                    }
+                }
                 for i in 0..4 {
                     let bcrd = tcrd.bel(bslots::IO[i]);
                     self.process_single_io_ecp4(bcrd);
@@ -975,35 +918,50 @@ impl ChipContext<'_> {
             ('L', cell_w, cell_w),
             ('R', cell_e, cell_e),
         ] {
+            let bcrd_int = cell_tile.bel(bslots::CLK_INT);
+            let ci_base = if self.edev[self.edev.bel_tile(bcrd_int)].class == tcls::CLK_N_L {
+                9
+            } else {
+                5
+            };
+            {
+                let mut ex = self.extract_switchbox(bcrd_int);
+                ex.cell(cell)
+                    .output_bind_rc_io("CLKI0", wires::IMUX_CLKDIV_CLKI[0].cell(ci_base))
+                    .output_bind_rc_io("CLKI1", wires::IMUX_CLKDIV_CLKI[1].cell(ci_base))
+                    .output_bind_rc_io("CLKI2", wires::IMUX_CLKDIV_CLKI[2].cell(ci_base))
+                    .output_bind_rc_io("CLKI3", wires::IMUX_CLKDIV_CLKI[3].cell(ci_base));
+                for i in 0..4 {
+                    for bank_idx in 0..4 {
+                        let bcrd_eclk = bcrd_int.bel(bslots::ECLKSYNC[bank_idx * 4 + i]);
+                        if !ex.ctx.edev.has_bel(bcrd_eclk) {
+                            continue;
+                        }
+                        let wire_eclk = ex.ctx.naming.bel_wire(bcrd_eclk, "ECLK");
+                        ex.input_xlat(wire_eclk);
+                    }
+                }
+            }
             for i in 0..4 {
                 let bcrd = cell_tile.bel(bslots::CLKDIV[i]);
-                self.name_bel(bcrd, [format!("CLKDIV_{lrt}{i}")]);
-                let mut bel = LegacyBel::default();
+                self.hybrid_out_rc_io_cell(
+                    bcrd,
+                    cell,
+                    format!("JCDIVX_CLKDIV{i}"),
+                    wires::OUT_CLKDIV_CDIVX[i].cell(ci_base),
+                );
 
-                for pin in ["ALIGNWD", "RST", "CDIVX"] {
-                    let wire = self.rc_io_wire(cell, &format!("J{pin}_CLKDIV{i}"));
-                    self.add_bel_wire(bcrd, pin, wire);
-                    bel.pins.insert(pin.into(), self.xlat_int_wire(bcrd, wire));
-                }
-
-                let clki = self.rc_io_wire(cell, &format!("CLKI_CLKDIV{i}"));
-                self.add_bel_wire(bcrd, "CLKI", clki);
-                let clki_in = self.claim_single_in(clki);
-                self.add_bel_wire(bcrd, "CLKI_IN", clki_in);
-
-                for bank_idx in 0..4 {
-                    let bcrd_eclk = bcrd.bel(bslots::ECLKSYNC[bank_idx * 4 + i]);
-                    if !self.edev.has_bel(bcrd_eclk) {
-                        continue;
-                    }
-                    let wire_eclk = self.naming.bel_wire(bcrd_eclk, "ECLK");
-                    self.claim_pip(clki_in, wire_eclk);
-                }
-
-                self.insert_legacy_bel(bcrd, bel);
+                self.extract_bel_cell(bcrd, cell)
+                    .name(format!("CLKDIV_{lrt}{i}"))
+                    .input_xlat_rc_io(bcls::CLKDIV::CLKI, format!("CLKI_CLKDIV{i}"))
+                    .input_xlat_rc_io(bcls::CLKDIV::RST, format!("JRST_CLKDIV{i}"))
+                    .input_xlat_rc_io(bcls::CLKDIV::ALIGNWD, format!("JALIGNWD_CLKDIV{i}"))
+                    .output_xlat_rc_io(bcls::CLKDIV::CDIVX, format!("JCDIVX_CLKDIV{i}"));
             }
         }
+    }
 
+    pub(super) fn process_pcsclkdiv_ecp4(&mut self) {
         let num_quads = if self
             .chip
             .special_loc

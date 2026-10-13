@@ -28,8 +28,18 @@ impl ChipContext<'_> {
                 DirH::E => bcrd.delta(-13, 0),
             };
 
-            self.hybrid_out_rc_cell(bcrd, cell_pll, "JCLKOP_PLL", wires::OUT_PLL_CLKOP.cell(0));
-            self.hybrid_out_rc_cell(bcrd, cell_pll, "JCLKOS_PLL", wires::OUT_PLL_CLKOS.cell(0));
+            self.hybrid_out_rc_cell(
+                bcrd,
+                cell_pll,
+                "JCLKOP_PLL",
+                wires::OUT_PLL_CLKOP[0].cell(0),
+            );
+            self.hybrid_out_rc_cell(
+                bcrd,
+                cell_pll,
+                "JCLKOS_PLL",
+                wires::OUT_PLL_CLKOS[0].cell(0),
+            );
             self.hybrid_out_rc_cell(bcrd, cell_pll, "JCLKOK_PLL", wires::OUT_PLL_CLKOK.cell(0));
             self.hybrid_out_rc_cell(bcrd, cell_pll, "JCLKOK2_PLL", wires::OUT_PLL_CLKOK2.cell(0));
 
@@ -43,37 +53,37 @@ impl ChipContext<'_> {
                     bcrd,
                     cell_dll,
                     "JCDIV1_CLKDIV",
-                    wires::OUT_CLKDIV_CDIV1.cell(0),
+                    wires::OUT_CLKDIV_CDIV1[0].cell(0),
                 );
                 self.hybrid_out_rc_cell(
                     bcrd,
                     cell_dll,
                     "JCDIV2_CLKDIV",
-                    wires::OUT_CLKDIV_CDIV2.cell(0),
+                    wires::OUT_CLKDIV_CDIV2[0].cell(0),
                 );
                 self.hybrid_out_rc_cell(
                     bcrd,
                     cell_dll,
                     "JCDIV4_CLKDIV",
-                    wires::OUT_CLKDIV_CDIV4.cell(0),
+                    wires::OUT_CLKDIV_CDIV4[0].cell(0),
                 );
                 self.hybrid_out_rc_cell(
                     bcrd,
                     cell_dll,
                     "JCDIV8_CLKDIV",
-                    wires::OUT_CLKDIV_CDIV8.cell(0),
+                    wires::OUT_CLKDIV_CDIV8[0].cell(0),
                 );
 
                 if self.chip.kind == ChipKind::Ecp3A {
                     let dqsdllclk = self.rc_wire(cell_dqsdll, "DQSDLLCLK");
-                    self.bind_wire(dqsdllclk, bcrd.cell.wire(wires::IMUX_DQSDLL_CLK));
+                    self.bind_wire(dqsdllclk, bcrd.cell.wire(wires::IMUX_DDRDLL_CLK));
                 }
 
                 self.hybrid_out_rc_cell(
                     bcrd.bel(bslots::DLLDEL[0]),
                     cell_dll,
                     "JCLKO_DLLDEL",
-                    wires::OUT_DLLDEL_CLKO.cell(0),
+                    wires::OUT_DLLDEL_CLKO[0].cell(0),
                 );
 
                 let eclk1 = self.rc_wire(cell_dll, "DLLECLKI1");
@@ -133,8 +143,8 @@ impl ChipContext<'_> {
                 CellSlotId::from_idx(13)
             };
             // PLL
-            let wire_clki = wires::IMUX_PLL_CLKI.cell(0);
-            let wire_clkfb = wires::IMUX_PLL_CLKFB.cell(0);
+            let wire_clki = wires::IMUX_PLL_CLKI[0].cell(0);
+            let wire_clkfb = wires::IMUX_PLL_CLKFB[0].cell(0);
             ex.cell(cell_pll)
                 .output_bind_rc("CLKI", wire_clki)
                 .output_bind_rc("CLKFB", wire_clkfb)
@@ -189,7 +199,7 @@ impl ChipContext<'_> {
                     .input_xlat_rc("DLLCLKOP")
                     .input_xlat_rc("DLLCLKOS")
                     .input_xlat_rc("DLLDEL")
-                    .output_bind_rc("CLKDIVCLKI", wires::IMUX_CLKDIV_CLKI.cell(0))
+                    .output_bind_rc("CLKDIVCLKI", wires::IMUX_CLKDIV_CLKI[0].cell(0))
                     .input_xlat_rc("JECLK1")
                     .input_xlat_rc("JECLK2")
                     .input_xlat_rc("DLLECLKI1")

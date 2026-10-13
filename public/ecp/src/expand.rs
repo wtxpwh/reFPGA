@@ -1509,18 +1509,56 @@ impl Expander<'_, '_> {
                 .unwrap_or(self.chip.special_loc[&SpecialLocKey::Bc(2)]);
             self.egrid.add_tile_single(cell, tcls::PVTTEST);
         }
-        for col in [
-            self.chip.col_w() + 2,
-            self.chip.col_w() + 3,
-            self.chip.col_e() - 3,
-            self.chip.col_e() - 2,
+        for (col, wire_s, wire_n) in [
+            (
+                self.chip.col_w() + 2,
+                wires::DDRDEL_SW[0],
+                wires::DDRDEL_NW[0],
+            ),
+            (
+                self.chip.col_w() + 3,
+                wires::DDRDEL_SW[1],
+                wires::DDRDEL_NW[1],
+            ),
+            (
+                self.chip.col_e() - 3,
+                wires::DDRDEL_SE[0],
+                wires::DDRDEL_NE[0],
+            ),
+            (
+                self.chip.col_e() - 2,
+                wires::DDRDEL_SE[1],
+                wires::DDRDEL_NE[1],
+            ),
         ] {
-            for (row, kind) in [
-                (self.chip.row_s(), tcls::DDRDLL_S),
-                (self.chip.row_n(), tcls::DDRDLL_N),
+            for (row, kind, wire) in [
+                (self.chip.row_s(), tcls::DDRDLL_S, wire_s),
+                (self.chip.row_n(), tcls::DDRDLL_N, wire_n),
             ] {
                 let cell = self.die.cell(col, row);
-                self.egrid.add_tile_single(cell, kind);
+                self.egrid.add_tile(
+                    cell,
+                    kind,
+                    &[
+                        cell,
+                        self.die.cell(
+                            if cell.col < self.chip.col_clk {
+                                self.chip.col_w()
+                            } else {
+                                self.chip.col_e()
+                            },
+                            if cell.row < self.chip.row_clk {
+                                self.chip.row_clk - 1
+                            } else {
+                                self.chip.row_clk
+                            },
+                        ),
+                    ],
+                );
+                self.egrid.extra_conns.insert(
+                    cell.wire(wires::OUT_DDRDLL_DDRDEL),
+                    self.chip.clk_root().wire(wire),
+                );
             }
         }
         for (col, row, kind) in [
@@ -1924,6 +1962,23 @@ impl Expander<'_, '_> {
         for hv in DirHV::DIRS {
             let cell = self.chip.special_loc[&SpecialLocKey::DdrDll(hv)];
             self.egrid.add_tile_single(cell, tcls::DDRDLL);
+            self.egrid[cell].region_root[rslots::ECLK] = Chip::DIE.cell(
+                self.chip.col_edge(hv.h),
+                match hv.v {
+                    DirV::S => self.chip.row_clk - 1,
+                    DirV::N => self.chip.row_clk,
+                },
+            );
+            self.egrid.extra_conns.insert(
+                cell.wire(wires::OUT_DDRDLL_DDRDEL),
+                self.chip
+                    .clk_root()
+                    .with_col(self.chip.col_edge(hv.h))
+                    .wire(match hv.v {
+                        DirV::S => wires::DDRDEL_S,
+                        DirV::N => wires::DDRDEL_N,
+                    }),
+            );
         }
 
         for cell in self.egrid.row(self.die, self.chip.row_s()) {
@@ -2841,6 +2896,33 @@ impl Expander<'_, '_> {
             _ => unreachable!(),
         }
         if !ebr_rows.is_empty() {
+            for i in 0..3 {
+                self.add_io_conn(
+                    cell.with_col(self.chip.col_w()).wire(wires::IO_GCLK[i]),
+                    SpecialIoKey::Clock(Dir::W, i as u8),
+                );
+            }
+            self.add_io_conn(
+                cell.with_col(self.chip.col_e()).wire(wires::IO_GCLK[0]),
+                SpecialIoKey::Clock(Dir::E, 0),
+            );
+            for i in 0..2 {
+                self.add_io_conn(
+                    cell.with_row(self.chip.row_s())
+                        .delta(-1, 0)
+                        .wire(wires::IO_GCLK[i]),
+                    SpecialIoKey::Clock(Dir::S, i as u8),
+                );
+            }
+            for i in 0..2 {
+                self.add_io_conn(
+                    cell.with_row(self.chip.row_n())
+                        .delta(-1, 0)
+                        .wire(wires::IO_GCLK[i]),
+                    SpecialIoKey::Clock(Dir::N, i as u8),
+                );
+            }
+
             self.egrid
                 .add_tile_single(cell.with_row(self.chip.row_s()).delta(-1, 0), tcls::CLK_S);
             self.egrid
@@ -2868,6 +2950,10 @@ impl Expander<'_, '_> {
     }
 
     fn fill_clk_ecp4(&mut self) {
+        for cell in self.egrid.die_cells(self.die) {
+            self.egrid[cell].region_root[rslots::GLOBAL] = self.chip.clk_root();
+        }
+
         let num_quads = if self
             .chip
             .special_loc
@@ -2900,56 +2986,70 @@ impl Expander<'_, '_> {
         let has_bank0 = self.chip.special_loc.contains_key(&SpecialLocKey::Bc(0));
         let cell = self.die.cell(self.chip.col_clk, self.chip.row_n());
         let mut tcells = if !has_bank0 {
-            vec![
-                cell.delta(-4, 0),
-                cell.delta(-3, 0),
-                cell.delta(-2, 0),
-                cell.delta(-1, 0),
-                cell,
-                cell.delta(1, 0),
-                cell.delta(2, 0),
-                cell.delta(3, 0),
-            ]
+            cell.delta(-5, 0).cells_e(10)
         } else {
-            vec![
-                cell.delta(-8, 0),
-                cell.delta(-7, 0),
-                cell.delta(-6, 0),
-                cell.delta(-5, 0),
-                cell.delta(-4, 0),
-                cell.delta(-3, 0),
-                cell.delta(-2, 0),
-                cell.delta(-1, 0),
-                cell,
-                cell.delta(1, 0),
-                cell.delta(2, 0),
-                cell.delta(3, 0),
-                cell.delta(4, 0),
-                cell.delta(5, 0),
-                cell.delta(6, 0),
-                cell.delta(7, 0),
+            cell.delta(-9, 0).cells_e(18)
+        };
+        if has_bank0 {
+            tcells.extend([
                 self.chip.special_loc[&SpecialLocKey::Bc(1)].delta(1, 0),
                 self.chip.special_loc[&SpecialLocKey::Bc(2)].delta(1, 0),
-            ]
-        };
+            ]);
+        }
         for i in 0..4 {
             if let Some(&cell) = self.chip.special_loc.get(&SpecialLocKey::PclkIn(Dir::N, i)) {
                 tcells.push(cell);
             }
         }
         self.egrid.add_tile(cell, kind_n, &tcells);
+        if has_bank0 {
+            let col0: ColId = self.chip.col_w() + 5;
+            let col1: ColId = self.chip.special_loc[&SpecialLocKey::Bc(1)].col + 3;
+            let col3: ColId = self.chip.special_loc[&SpecialLocKey::Bc(2)].col - 1;
+            let col4: ColId = self.chip.col_e() - 5;
+            let root0 = self.chip.special_loc[&SpecialLocKey::Bc(1)].delta(1, 0);
+            let root1 = self.die.cell(self.chip.col_clk - 1, self.chip.row_n());
+            let root2 = self.die.cell(self.chip.col_clk, self.chip.row_n());
+            let root3 = self.chip.special_loc[&SpecialLocKey::Bc(2)].delta(1, 0);
+            for cell in self.egrid.row(self.die, self.chip.row_n()) {
+                if cell.col == self.chip.col_w() || cell.col == self.chip.col_e() {
+                    continue;
+                }
+                let root = if cell.col < col0 {
+                    // for PLL
+                    root1
+                } else if cell.col < col1 {
+                    root0
+                } else if cell.col < self.chip.col_clk {
+                    root1
+                } else if cell.col < col3 {
+                    root2
+                } else if cell.col < col4 {
+                    root3
+                } else {
+                    // for PLL
+                    root2
+                };
+                self.egrid[cell].region_root[rslots::ECLK] = root;
+            }
+        } else {
+            let root1 = self.die.cell(self.chip.col_clk - 1, self.chip.row_n());
+            let root2 = self.die.cell(self.chip.col_clk, self.chip.row_n());
+            for cell in self.egrid.row(self.die, self.chip.row_n()) {
+                if cell.col == self.chip.col_w() || cell.col == self.chip.col_e() {
+                    continue;
+                }
+                let root = if cell.col < self.chip.col_clk {
+                    root1
+                } else {
+                    root2
+                };
+                self.egrid[cell].region_root[rslots::ECLK] = root;
+            }
+        }
 
         let cell = self.die.cell(self.chip.col_w(), self.chip.row_clk);
-        let mut tcells = vec![
-            cell.delta(0, -4),
-            cell.delta(0, -3),
-            cell.delta(0, -2),
-            cell.delta(0, -1),
-            cell,
-            cell.delta(0, 1),
-            cell.delta(0, 2),
-            cell.delta(0, 3),
-        ];
+        let mut tcells = cell.delta(0, -5).cells_n(10);
         for i in 0..4 {
             if let Some(&cell) = self.chip.special_loc.get(&SpecialLocKey::PclkIn(Dir::W, i)) {
                 tcells.push(cell);
@@ -2957,22 +3057,37 @@ impl Expander<'_, '_> {
         }
         self.egrid.add_tile(cell, kind_w, &tcells);
         let cell = self.die.cell(self.chip.col_e(), self.chip.row_clk);
-        let mut tcells = vec![
-            cell.delta(0, -4),
-            cell.delta(0, -3),
-            cell.delta(0, -2),
-            cell.delta(0, -1),
-            cell,
-            cell.delta(0, 1),
-            cell.delta(0, 2),
-            cell.delta(0, 3),
-        ];
+        let mut tcells = cell.delta(0, -5).cells_n(10);
         for i in 0..4 {
             if let Some(&cell) = self.chip.special_loc.get(&SpecialLocKey::PclkIn(Dir::E, i)) {
                 tcells.push(cell);
             }
         }
         self.egrid.add_tile(cell, kind_e, &tcells);
+
+        for (col, dx) in [(self.chip.col_w(), 1), (self.chip.col_e(), -1)] {
+            for cell in self.egrid.column(self.die, col) {
+                let root = cell.with_row(if cell.row < self.chip.row_clk {
+                    self.chip.row_clk - 1
+                } else {
+                    self.chip.row_clk
+                });
+                self.egrid[cell].region_root[rslots::ECLK] = root;
+                match self.chip.rows[cell.row].kind {
+                    RowKind::Ebr => {
+                        for i in 1..5 {
+                            self.egrid[cell.delta(dx * i, 0)].region_root[rslots::ECLK] = root;
+                        }
+                    }
+                    RowKind::Dsp => {
+                        for i in 1..3 {
+                            self.egrid[cell.delta(dx * i, 0)].region_root[rslots::ECLK] = root;
+                        }
+                    }
+                    _ => (),
+                }
+            }
+        }
 
         let cell = self.die.cell(self.chip.col_clk, self.chip.row_s());
         let mut tcells = vec![cell.delta(-1, 0), cell];
@@ -3012,87 +3127,84 @@ impl Expander<'_, '_> {
     }
 
     fn fill_clk_ecp5(&mut self) {
-        let cell = self.die.cell(self.chip.col_w(), self.chip.row_clk);
-        let mut tcells = vec![
-            cell.delta(0, -2),
-            cell.delta(0, -1),
-            cell,
-            cell.delta(0, 1),
-            cell.delta(1, 0),
-            cell.delta(2, 0),
-        ];
-        for i in 0..8 {
-            if let Some(&cell) = self.chip.special_loc.get(&SpecialLocKey::PclkIn(Dir::W, i)) {
-                tcells.push(cell);
+        for col in [self.chip.col_w(), self.chip.col_e()] {
+            for cell in self.egrid.column(self.die, col) {
+                self.egrid[cell].region_root[rslots::ECLK] =
+                    cell.with_row(if cell.row < self.chip.row_clk {
+                        self.chip.row_clk - 1
+                    } else {
+                        self.chip.row_clk
+                    });
+                self.egrid[cell].region_root[rslots::DDRDLL] = cell.with_row(self.chip.row_clk);
             }
         }
-        self.egrid.add_tile(
-            cell,
-            match tcells.len() {
-                12 => tcls::CLK_W_S,
-                14 => tcls::CLK_W_L,
-                _ => unreachable!(),
-            },
-            &tcells,
-        );
 
-        let cell = self.die.cell(self.chip.col_e(), self.chip.row_clk);
-        let mut tcells = vec![
-            cell.delta(0, -2),
-            cell.delta(0, -1),
-            cell,
-            cell.delta(0, 1),
-            cell.delta(-1, 0),
-            cell.delta(-2, 0),
-        ];
-        for i in 0..8 {
-            if let Some(&cell) = self.chip.special_loc.get(&SpecialLocKey::PclkIn(Dir::E, i)) {
-                tcells.push(cell);
+        for (edge, dx, tcls_s, tcls_l) in [
+            (DirH::W, 1, tcls::CLK_W_S, tcls::CLK_W_L),
+            (DirH::E, -1, tcls::CLK_E_S, tcls::CLK_E_L),
+        ] {
+            let cell = self.die.cell(self.chip.col_edge(edge), self.chip.row_clk);
+            let mut tcells = cell.delta(0, -6).cells_n(12);
+            tcells.extend([cell.delta(dx, 0), cell.delta(dx * 2, 0)]);
+            let mut tcells = Vec::from_iter(tcells.into_iter().map(Some));
+            for i in 4..8 {
+                tcells.push(
+                    self.chip
+                        .special_loc
+                        .get(&SpecialLocKey::PclkIn(edge.into(), i))
+                        .copied(),
+                );
             }
+            self.egrid.add_tile_part(
+                cell,
+                if self
+                    .chip
+                    .special_loc
+                    .contains_key(&SpecialLocKey::PclkIn(edge.into(), 5))
+                {
+                    tcls_l
+                } else {
+                    tcls_s
+                },
+                &tcells,
+            );
         }
-        self.egrid.add_tile(
-            cell,
-            match tcells.len() {
-                12 => tcls::CLK_E_S,
-                14 => tcls::CLK_E_L,
-                _ => unreachable!(),
-            },
-            &tcells,
-        );
+        for (edge, tcls_s, tcls_l) in [
+            (DirV::S, tcls::CLK_S_S, tcls::CLK_S_L),
+            (DirV::N, tcls::CLK_N_S, tcls::CLK_N_L),
+        ] {
+            let cell = self.die.cell(self.chip.col_clk, self.chip.row_edge(edge));
+            let tcells = cell.delta(-8, 0).cells_e(16);
+            let mut tcells = Vec::from_iter(tcells.into_iter().map(Some));
+            for i in 4..8 {
+                tcells.push(
+                    self.chip
+                        .special_loc
+                        .get(&SpecialLocKey::PclkIn(edge.into(), i))
+                        .copied(),
+                );
+            }
 
-        let cell = self.die.cell(self.chip.col_clk, self.chip.row_n());
-        let mut tcells = cell.delta(-2, 0).cells_e(4);
-        for i in 0..8 {
-            if let Some(&cell) = self.chip.special_loc.get(&SpecialLocKey::PclkIn(Dir::N, i)) {
-                tcells.push(cell);
+            if edge == DirV::N {
+                for hv in [DirHV::NW, DirHV::NE] {
+                    tcells.push(Some(self.chip.special_loc[&SpecialLocKey::DdrDll(hv)]));
+                }
             }
-        }
-        self.egrid.add_tile(
-            cell,
-            match tcells.len() {
-                10 => tcls::CLK_N_S,
-                12 => tcls::CLK_N_L,
-                _ => unreachable!(),
-            },
-            &tcells,
-        );
 
-        let cell = self.die.cell(self.chip.col_clk, self.chip.row_s());
-        let mut tcells = cell.delta(-1, 0).cells_e(2);
-        for i in 0..8 {
-            if let Some(&cell) = self.chip.special_loc.get(&SpecialLocKey::PclkIn(Dir::S, i)) {
-                tcells.push(cell);
-            }
+            self.egrid.add_tile_part(
+                cell,
+                if self
+                    .chip
+                    .special_loc
+                    .contains_key(&SpecialLocKey::PclkIn(edge.into(), 5))
+                {
+                    tcls_l
+                } else {
+                    tcls_s
+                },
+                &tcells,
+            );
         }
-        self.egrid.add_tile(
-            cell,
-            match tcells.len() {
-                8 => tcls::CLK_S_S,
-                10 => tcls::CLK_S_L,
-                _ => unreachable!(),
-            },
-            &tcells,
-        );
 
         let cell = self.chip.bel_clk_root().cell;
         let cell_s = self.chip.special_loc[&SpecialLocKey::ClkQuarter(DirV::S)];
@@ -3142,6 +3254,9 @@ impl Expander<'_, '_> {
         let mut tcells = cell.delta(-2, 0).cells_e(4);
         for i in 0..2 {
             tcells.push(self.chip.special_loc[&SpecialLocKey::PclkIn(Dir::S, i)]);
+        }
+        for i in [0, 2] {
+            tcells.push(self.chip.get_io_cell(SpecialIoKey::Clock(Dir::S, i)));
         }
         self.egrid.add_tile(cell, tcls::CLK_S, &tcells);
 

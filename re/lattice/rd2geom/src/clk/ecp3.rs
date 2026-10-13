@@ -206,8 +206,8 @@ impl ChipContext<'_> {
                     for ci in 0..4 {
                         for i in 0..6 {
                             for w in [
-                                wires::OUT_PLL_CLKOP,
-                                wires::OUT_PLL_CLKOS,
+                                wires::OUT_PLL_CLKOP[0],
+                                wires::OUT_PLL_CLKOS[0],
                                 wires::OUT_PLL_CLKOK,
                                 wires::OUT_PLL_CLKOK2,
                             ] {
@@ -216,7 +216,7 @@ impl ChipContext<'_> {
                         }
                         for i in 0..2 {
                             for w in [
-                                wires::OUT_PLL_CLKOS,
+                                wires::OUT_PLL_CLKOS[0],
                                 wires::OUT_PLL_CLKOK,
                                 wires::OUT_PLL_CLKOK2,
                             ] {
@@ -227,7 +227,7 @@ impl ChipContext<'_> {
                                 DirH::W => wires::IMUX_DCS_CLKA,
                                 DirH::E => wires::IMUX_DCS_CLKB,
                             };
-                            ex.edge(out[i].cell(ci), cslot.wire(wires::OUT_PLL_CLKOP));
+                            ex.edge(out[i].cell(ci), cslot.wire(wires::OUT_PLL_CLKOP[0]));
                         }
                     }
                 }

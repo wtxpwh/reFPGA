@@ -14,7 +14,7 @@ use prjcombine_ecp::{
 };
 use prjcombine_entity::{EntityId, EntityVec};
 use prjcombine_interconnect::{
-    db::{BelInfo, BelSlotId, IntDb, TileClassId, TileWireCoord},
+    db::{BelInfo, BelSlotId, IntDb, SwitchBox, SwitchBoxItem, TileClassId, TileWireCoord},
     grid::{BelCoord, CellCoord, ColId, WireCoord},
 };
 use prjcombine_re_lattice_naming::{ChipNaming, Database, WireName};
@@ -42,6 +42,14 @@ mod plc;
 mod pll;
 mod serdes;
 
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+enum RcMode {
+    Base,
+    Io,
+    IoSn,
+    Corner,
+}
+
 struct ChipContext<'dev> {
     name: &'dev str,
     grid: &'dev Grid,
@@ -68,103 +76,76 @@ struct ChipContext<'dev> {
     dummy_sites: BTreeSet<String>,
     skip_serdes: bool,
     ebr_wires: BTreeMap<WireCoord, WireName>,
+    switchboxes: BTreeMap<BelCoord, Vec<SwitchBoxItem>>,
 }
 
 impl<'dev> ChipContext<'dev> {
+    fn rc_mode(&self, cell: CellCoord, mode: RcMode) -> (u8, u8) {
+        let mut c = (cell.col.to_idx() + 1).try_into().unwrap();
+        let mut r = (self.chip.rows.len() - cell.row.to_idx())
+            .try_into()
+            .unwrap();
+        let (adjust_r, adjust_c) = match mode {
+            RcMode::Base => (false, false),
+            RcMode::Io => {
+                if self.chip.kind != ChipKind::Crosslink
+                    && (cell.col == self.chip.col_w() || cell.col == self.chip.col_e())
+                {
+                    (false, true)
+                } else {
+                    (true, false)
+                }
+            }
+            RcMode::IoSn => (true, false),
+            RcMode::Corner => (true, true),
+        };
+        if adjust_c {
+            if cell.col == self.chip.col_w() {
+                c -= 1;
+            } else if cell.col == self.chip.col_e() {
+                c += 1;
+            } else {
+                unreachable!()
+            }
+        }
+        if adjust_r {
+            if cell.row == self.chip.row_s() {
+                r += 1;
+            } else if cell.row == self.chip.row_n() {
+                r -= 1;
+            } else {
+                unreachable!()
+            }
+        }
+        (r, c)
+    }
+
     fn rc(&self, cell: CellCoord) -> (u8, u8) {
-        let c = (cell.col.to_idx() + 1).try_into().unwrap();
-        let r = (self.chip.rows.len() - cell.row.to_idx())
-            .try_into()
-            .unwrap();
-        (r, c)
+        self.rc_mode(cell, RcMode::Base)
     }
 
-    fn rc_io(&self, cell: CellCoord) -> (u8, u8) {
-        let mut c = (cell.col.to_idx() + 1).try_into().unwrap();
-        let mut r = (self.chip.rows.len() - cell.row.to_idx())
-            .try_into()
-            .unwrap();
-        if cell.col == self.chip.col_w() && self.chip.kind != ChipKind::Crosslink {
-            c -= 1;
-        } else if cell.col == self.chip.col_e() && self.chip.kind != ChipKind::Crosslink {
-            c += 1;
-        } else if cell.row == self.chip.row_s() {
-            r += 1;
-        } else if cell.row == self.chip.row_n() {
-            r -= 1;
-        } else {
-            unreachable!()
-        }
-        (r, c)
-    }
-
-    fn rc_io_sn(&self, cell: CellCoord) -> (u8, u8) {
-        let c = (cell.col.to_idx() + 1).try_into().unwrap();
-        let mut r = (self.chip.rows.len() - cell.row.to_idx())
-            .try_into()
-            .unwrap();
-        if cell.row == self.chip.row_s() {
-            r += 1;
-        } else if cell.row == self.chip.row_n() {
-            r -= 1;
-        } else {
-            unreachable!()
-        }
-        (r, c)
-    }
-
-    fn rc_corner(&self, cell: CellCoord) -> (u8, u8) {
-        let mut c = (cell.col.to_idx() + 1).try_into().unwrap();
-        let mut r = (self.chip.rows.len() - cell.row.to_idx())
-            .try_into()
-            .unwrap();
-        if cell.col == self.chip.col_w() {
-            c -= 1;
-        } else if cell.col == self.chip.col_e() {
-            c += 1;
-        } else {
-            unreachable!()
-        }
-        if cell.row == self.chip.row_s() {
-            r += 1;
-        } else if cell.row == self.chip.row_n() {
-            r -= 1;
-        } else {
-            unreachable!()
-        }
-        (r, c)
+    fn rc_wire_mode(&self, cell: CellCoord, suffix: &str, mode: RcMode) -> WireName {
+        let Some(suffix) = self.naming.strings.get(suffix) else {
+            panic!("{name}: no suffix {suffix}", name = self.name)
+        };
+        let (r, c) = self.rc_mode(cell, mode);
+        WireName { r, c, suffix }
     }
 
     fn rc_wire(&self, cell: CellCoord, suffix: &str) -> WireName {
-        let Some(suffix) = self.naming.strings.get(suffix) else {
-            panic!("{name}: no suffix {suffix}", name = self.name)
-        };
-        let (r, c) = self.rc(cell);
-        WireName { r, c, suffix }
+        self.rc_wire_mode(cell, suffix, RcMode::Base)
     }
 
     fn rc_io_wire(&self, cell: CellCoord, suffix: &str) -> WireName {
-        let Some(suffix) = self.naming.strings.get(suffix) else {
-            panic!("{name}: no suffix {suffix}", name = self.name)
-        };
-        let (r, c) = self.rc_io(cell);
-        WireName { r, c, suffix }
+        self.rc_wire_mode(cell, suffix, RcMode::Io)
     }
 
     fn rc_io_sn_wire(&self, cell: CellCoord, suffix: &str) -> WireName {
-        let Some(suffix) = self.naming.strings.get(suffix) else {
-            panic!("{name}: no suffix {suffix}", name = self.name)
-        };
-        let (r, c) = self.rc_io_sn(cell);
-        WireName { r, c, suffix }
+        self.rc_wire_mode(cell, suffix, RcMode::IoSn)
     }
 
     fn rc_corner_wire(&self, cell: CellCoord, suffix: &str) -> WireName {
-        let Some(suffix) = self.naming.strings.get(suffix) else {
-            panic!("{name}: no suffix {suffix}", name = self.name)
-        };
-        let (r, c) = self.rc_corner(cell);
-        WireName { r, c, suffix }
+        self.rc_wire_mode(cell, suffix, RcMode::Corner)
     }
 
     fn find_single_in(&self, w: WireName) -> WireName {
@@ -374,6 +355,13 @@ impl<'dev> ChipContext<'dev> {
             );
         }
     }
+
+    fn flush_switchboxes(&mut self) {
+        for (bcrd, mut items) in core::mem::take(&mut self.switchboxes) {
+            items.sort();
+            self.insert_switchbox(bcrd, SwitchBox { items });
+        }
+    }
 }
 
 struct ChipResult {
@@ -434,6 +422,7 @@ fn process_chip(name: &str, grid: &Grid, kind: ChipKind, intdb: &IntDb) -> ChipR
         dummy_sites: Default::default(),
         skip_serdes: false,
         ebr_wires: Default::default(),
+        switchboxes: Default::default(),
     };
     ctx.process_int();
     ctx.sort_bel_wires();
@@ -448,6 +437,7 @@ fn process_chip(name: &str, grid: &Grid, kind: ChipKind, intdb: &IntDb) -> ChipR
     ctx.process_config();
     ctx.process_clk();
     ctx.print_unclaimed();
+    ctx.flush_switchboxes();
     println!("{name}: DONE");
     let naming = ctx.naming;
     let bels = ctx.bels;

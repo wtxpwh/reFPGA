@@ -18,8 +18,18 @@ impl ChipContext<'_> {
                     DirH::E => bcrd.cell.delta(-2, 0),
                 };
 
-                self.hybrid_out_rc_cell(bcrd, cell_pll, "JCLKOP_PLL", wires::OUT_PLL_CLKOP.cell(0));
-                self.hybrid_out_rc_cell(bcrd, cell_pll, "JCLKOS_PLL", wires::OUT_PLL_CLKOS.cell(0));
+                self.hybrid_out_rc_cell(
+                    bcrd,
+                    cell_pll,
+                    "JCLKOP_PLL",
+                    wires::OUT_PLL_CLKOP[0].cell(0),
+                );
+                self.hybrid_out_rc_cell(
+                    bcrd,
+                    cell_pll,
+                    "JCLKOS_PLL",
+                    wires::OUT_PLL_CLKOS[0].cell(0),
+                );
                 self.hybrid_out_rc_cell(bcrd, cell_pll, "JCLKOK_PLL", wires::OUT_PLL_CLKOK.cell(0));
 
                 let bcrd = bcrd.bel(bslots::DLL[0]);
@@ -27,10 +37,10 @@ impl ChipContext<'_> {
                 self.hybrid_out_rc(bcrd, "JCLKOS_DLL", wires::OUT_DLL_CLKOS.cell(0));
 
                 let bcrd = bcrd.bel(bslots::CLKDIV[0]);
-                self.hybrid_out_rc(bcrd, "JCDIV1_CLKDIV", wires::OUT_CLKDIV_CDIV1.cell(0));
-                self.hybrid_out_rc(bcrd, "JCDIV2_CLKDIV", wires::OUT_CLKDIV_CDIV2.cell(0));
-                self.hybrid_out_rc(bcrd, "JCDIV4_CLKDIV", wires::OUT_CLKDIV_CDIV4.cell(0));
-                self.hybrid_out_rc(bcrd, "JCDIV8_CLKDIV", wires::OUT_CLKDIV_CDIV8.cell(0));
+                self.hybrid_out_rc(bcrd, "JCDIV1_CLKDIV", wires::OUT_CLKDIV_CDIV1[0].cell(0));
+                self.hybrid_out_rc(bcrd, "JCDIV2_CLKDIV", wires::OUT_CLKDIV_CDIV2[0].cell(0));
+                self.hybrid_out_rc(bcrd, "JCDIV4_CLKDIV", wires::OUT_CLKDIV_CDIV4[0].cell(0));
+                self.hybrid_out_rc(bcrd, "JCDIV8_CLKDIV", wires::OUT_CLKDIV_CDIV8[0].cell(0));
 
                 let cell = bcrd.cell;
                 let eclk0_out = self.rc_wire(cell, "JFRC0");
@@ -38,8 +48,8 @@ impl ChipContext<'_> {
                 self.bind_wire(eclk0_out, cell.wire(wires::PLL_TO_ECLK[0]));
                 self.bind_wire(eclk1_out, cell.wire(wires::PLL_TO_ECLK[1]));
             } else {
-                self.hybrid_out_rc(bcrd, "JCLKOP_SPLL", wires::OUT_PLL_CLKOP.cell(0));
-                self.hybrid_out_rc(bcrd, "JCLKOS_SPLL", wires::OUT_PLL_CLKOS.cell(0));
+                self.hybrid_out_rc(bcrd, "JCLKOP_SPLL", wires::OUT_PLL_CLKOP[0].cell(0));
+                self.hybrid_out_rc(bcrd, "JCLKOS_SPLL", wires::OUT_PLL_CLKOS[0].cell(0));
                 self.hybrid_out_rc(bcrd, "JCLKOK_SPLL", wires::OUT_PLL_CLKOK.cell(0));
             }
         }
@@ -84,13 +94,13 @@ impl ChipContext<'_> {
                 self.extract_switchbox(cell.bel(bslots::BEL_INT))
                     // PLL.CLKI
                     .cell(cell_pll)
-                    .output_bind_rc("CLKI", wires::IMUX_PLL_CLKI.cell(0))
+                    .output_bind_rc("CLKI", wires::IMUX_PLL_CLKI[0].cell(0))
                     .input_xlat_rc("JPLLCLKI0")
                     .input_xlat_rc("JPLLCLKI1")
                     .input_xlat_rc("JPLLCLKI2")
                     .input_io_rc("JPLLCLKI3", wires::OUT_IO_PADDI[0].cell(4))
                     // PLL.CLKFB
-                    .output_bind_rc("CLKFB", wires::IMUX_PLL_CLKFB.cell(0))
+                    .output_bind_rc("CLKFB", wires::IMUX_PLL_CLKFB[0].cell(0))
                     .input_xlat_rc("JPLLCLKFB0")
                     .input_xlat_rc("JPLLCLKFB1")
                     .input_bind_rc("PLLCLKINTFB", wires::OUT_PLL_CLKINTFB.cell(0))
@@ -116,13 +126,13 @@ impl ChipContext<'_> {
                     .input_io_rc("JPIO1", wires::OUT_IO_PADDI[0].cell(4))
                     .input_xlat_rc("JCIBCLK0")
                     .input_xlat_rc("JCIBCLK1")
-                    .input_bind_rc("DLLDEL", wires::OUT_DLLDEL_CLKO.cell(0))
+                    .input_bind_rc("DLLDEL", wires::OUT_DLLDEL_CLKO[0].cell(0))
                     .input_bind_rc("BYPASS", wires::OUT_DLLDEL_BYPASS.cell(0))
                     .input_xlat_rc("JPLLCLKOP")
                     .input_xlat_rc("JPLLCLKOS")
                     .input_xlat_rc("DLLCLKOP")
                     .input_xlat_rc("DLLCLKOS")
-                    .output_bind_rc("CLKDIVCLKI", wires::IMUX_CLKDIV_CLKI.cell(0))
+                    .output_bind_rc("CLKDIVCLKI", wires::IMUX_CLKDIV_CLKI[0].cell(0))
                     .input_xlat_rc("JFRC0")
                     .input_xlat_rc("JFRC1");
 
@@ -185,12 +195,12 @@ impl ChipContext<'_> {
                 // SPLL
 
                 self.extract_switchbox(cell.bel(bslots::BEL_INT))
-                    .output_bind_rc("CLKI", wires::IMUX_PLL_CLKI.cell(0))
+                    .output_bind_rc("CLKI", wires::IMUX_PLL_CLKI[0].cell(0))
                     .input_xlat_rc("JSPLLCLKI0")
                     .input_xlat_rc("JSPLLCLKI1")
                     .input_xlat_rc("JSPLLCLKI2")
                     .input_xlat_rc("JSPLLCLKI3")
-                    .output_bind_rc("CLKFB", wires::IMUX_PLL_CLKFB.cell(0))
+                    .output_bind_rc("CLKFB", wires::IMUX_PLL_CLKFB[0].cell(0))
                     .input_xlat_rc("JSPLLCLKFB0")
                     .input_io_rc("JSPLLCLKFB1", wires::OUT_IO_PADDI[0].cell(4))
                     .input_bind_rc("SPLLCLKINTFB", wires::OUT_PLL_CLKINTFB.cell(0));

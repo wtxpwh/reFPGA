@@ -282,18 +282,12 @@ target_defs! {
 
         bel_class DQS {
             input CLK;
-            input READ;
+            input READ[1];
             output DDRCLKPOL;
             output PRMBDET;
             if variant [ecp2, ecp2m, xp2] {
                 output DATAVALID;
             }
-        }
-
-        bel_class DQSDLL {
-            input CLK, RST;
-            input UDDCNTL;
-            output LOCK;
         }
     } else if variant ecp3 {
         bel_class IO {
@@ -311,7 +305,7 @@ target_defs! {
         bel_class DQS {
             input SCLK, RST;
             input ECLK, ECLKW;
-            input READ;
+            input READ[1];
             input DCA[7];
             input DYNDELAY[8];
             output DQSW, ECLKDQSR, DDRCLKPOL;
@@ -320,13 +314,6 @@ target_defs! {
             output DATAVALID;
             output TEST_DQSCNT[2];
             output TEST_ECLKCNT;
-        }
-
-        bel_class DQSDLL {
-            input CLK, RST;
-            input UDDCNTLN;
-            output LOCK;
-            output TEST_SDOUT[7];
         }
     } else if variant machxo2 {
         bel_class IO {
@@ -354,28 +341,82 @@ target_defs! {
 
         bel_class DQS {
             input SCLK, RST;
-            input READ;
+            input READ[1];
             input READCLKSEL[2];
             output BURSTDET, DATAVALID, DDRCLKPOL;
             output DQSR90, DQSW90;
         }
-
-        bel_class DQSDLL {
-            input CLK, RST;
-            input UDDCNTLN, FREEZE;
-            output LOCK;
-            output TEST_DIVOSC;
-            output TEST_SDOUT[7];
-        }
     } else if variant ecp4 {
-        // TODO
+        bel_class IO {
+            input CLK, LSR, CE;
+            input ECLK;
+            input TXDATA[10];
+            input TSDATA[4];
+            output RXDATA[10];
+            output DI;
+            output PADDI;
+            input DIRECTION;
+            input LOADN;
+            input MOVE;
+            input SLIP;
+            input ACK;
+            input WINDOWSIZE[2];
+            output CFLAG;
+            output PLUS, MINUS;
+
+            pad PAD: inout;
+        }
+
+        bel_class DQS {
+            input SCLK, RST;
+            input ECLK, ECLK90;
+            input DDRDEL;
+            input READ[4], READCLKSEL[3];
+            input ALIGNWD, PAUSE, SWITCH;
+            input SELA[11], SELB[11];
+            input RDDIRECTION, RDLOADN, RDMOVE;
+            output RDCFLAG;
+            input WRDIRECTION, WRLOADN, WRMOVE;
+            output WRCFLAG;
+            output BURSTDET, DATAVALID;
+            output CRUCLK, NEXTCLK, DIVCLK;
+            output DQSR90, DQSW, DQSW270;
+        }
     } else if variant ecp5 {
-        // TODO
+        bel_class IO {
+            input CLK, LSR, CE;
+            input ECLK;
+            input TXDATA[7];
+            input TSDATA[2];
+            output RXDATA[7];
+            output INFF, DI;
+            output PADDI;
+            input DIRECTION;
+            input LOADN;
+            input MOVE;
+            input SLIP;
+            output CFLAG;
+        }
+
+        bel_class DQS {
+            input SCLK, RST;
+            input ECLK;
+            input DDRDEL;
+            input READ[2], READCLKSEL[3];
+            input PAUSE;
+            input DYNDELAY[8];
+            input RDDIRECTION, RDLOADN, RDMOVE;
+            output RDCFLAG;
+            input WRDIRECTION, WRLOADN, WRMOVE;
+            output WRCFLAG;
+            output BURSTDET, DATAVALID;
+            output DQSR90, DQSW, DQSW270;
+        }
     } else if variant crosslink {
         bel_class IO {
             input CLK, LSR, CE;
             input ECLK;
-            input TSDATA;
+            input TSDATA[1];
             input TXDATA[16];
             output RXDATA[16];
             output INFF;
@@ -391,6 +432,47 @@ target_defs! {
             pad PAD: inout;
         }
     }
+
+    if variant [ecp, xp, ecp2, ecp2m, xp2, ecp3, machxo2, ecp4, ecp5, crosslink] {
+        // named DQSDLL on ecp thru ecp3 and machxo2; named DDRDLL on ecp4, ecp5, crosslink
+        bel_class DDRDLL {
+            input CLK, RST;
+            if variant [ecp, xp, ecp2, ecp2m, xp2] {
+                input UDDCNTL;
+            } else {
+                input UDDCNTLN;
+            }
+            output LOCK;
+            if variant [machxo2, ecp4, ecp5, crosslink] {
+                input FREEZE;
+            }
+            if variant machxo2 {
+                output TEST_DIVOSC;
+            }
+            if variant [machxo2, ecp3] {
+                output TEST_SDOUT[7];
+            }
+            if variant [ecp4, ecp5, crosslink] {
+                output DCNTL[8];
+                output DIVOSC;
+                output DDRDEL;
+            }
+        }
+    }
+    if variant machxo2 {
+        bel_class DLLDEL {
+            input CLKI;
+            output CLKO;
+        }
+    } else if variant [ecp4, ecp5, crosslink] {
+        bel_class DLLDEL {
+            input A, DDRDEL;
+            output Z;
+            input DIRECTION, LOADN, MOVE;
+            output CFLAG;
+        }
+    }
+
 
     if variant [machxo2, ecp4, ecp5, crosslink] {
         bel_class BCINRD {
@@ -500,6 +582,15 @@ target_defs! {
                 // hrm. is this just passthru?
                 input TEST_CLKI1, TEST_CLKI2;
                 output TEST_CLKO1, TEST_CLKO2;
+            }
+        }
+    } else if variant [machxo2, ecp4, ecp5, crosslink] {
+        bel_class CLKDIV {
+            input CLKI;
+            input RST, ALIGNWD;
+            output CDIVX;
+            if variant machxo2 {
+                output CDIV1;
             }
         }
     }
@@ -1280,34 +1371,6 @@ target_defs! {
         }
     }
 
-    if variant ecp3 {
-        wire IMUX_DCC_CLKI[6]: mux;
-    }
-    if variant [ecp, xp, ecp2, ecp2m, xp2, ecp3] {
-        wire IMUX_DCS_CLKA[2]: mux;
-        wire IMUX_DCS_CLKB[2]: mux;
-    }
-
-    // Edge clocks.
-    if variant [ecp2, ecp2m, xp2, ecp3, machxo2, crosslink] {
-        region_slot ECLK;
-        wire ECLK[2]: regional ECLK;
-
-        if variant [ecp2, ecp2m, xp2] {
-            wire IMUX_IO_ECLKI[2]: mux;
-            wire IMUX_IO_ECLKO[2]: mux;
-        } else if variant ecp3  {
-            wire IMUX_ECLKSYNC_ECLKI[2]: mux;
-            wire BRGECLK[2]: mux;
-            wire IMUX_IO_ECLK[4]: mux;
-            wire IMUX_IO_ECLKDQSR[4]: mux;
-        } else if variant machxo2 {
-            wire IMUX_IO_ECLK[2]: mux;
-        } else if variant crosslink {
-            wire IMUX_IO_ECLK[4]: mux;
-        }
-    }
-
     wire IMUX_A[8]: mux;
     wire IMUX_B[8]: mux;
     wire IMUX_C[8]: mux;
@@ -1392,6 +1455,28 @@ target_defs! {
         wire IO_T_E: branch IO_W;
     }
 
+    if variant ecp3 {
+        wire IMUX_DCC_CLKI[6]: mux;
+    }
+    if variant [ecp, xp, ecp2, ecp2m, xp2, ecp3] {
+        wire IMUX_DCS_CLKA[2]: mux;
+        wire IMUX_DCS_CLKB[2]: mux;
+    }
+
+    // Edge clocks.
+    if variant [ecp2, ecp2m, xp2, ecp3, machxo2, ecp5, crosslink] {
+        region_slot ECLK;
+        wire ECLK[2]: regional ECLK;
+
+        if variant ecp3  {
+            wire IMUX_ECLKSYNC_ECLKI[2]: mux;
+            wire BRGECLK[2]: mux;
+        }
+    } else if variant ecp4 {
+        region_slot ECLK;
+        wire ECLK[4]: regional ECLK;
+    }
+
     if variant machxo {
         wire OUT_F_PLC_IO[6]: branch IO_FROM_PLC;
         wire OUT_Q_PLC_IO[6]: branch IO_FROM_PLC;
@@ -1403,52 +1488,95 @@ target_defs! {
         wire IMUX_IO_O[6]: mux;
         wire IMUX_IO_T[6]: mux;
         wire OUT_IO_PADDI[6]: bel;
+
+        // alias of OUT_IO_PADDI
+        wire IO_GCLK_S[2]: mux;
+        wire IO_GCLK_N[2]: mux;
+        wire IO_PLL_CLKI: mux;
+        wire IO_PLL_CLKFB: mux;
     } else if variant [ecp, xp, ecp2, ecp2m, xp2] {
         region_slot DQS;
         region_slot DQSDLL;
 
         wire OUT_IO_PADDI[2]: bel;
+        if variant [ecp2, ecp2m, xp2] {
+            wire IMUX_IO_ECLKI[2]: mux;
+            wire IMUX_IO_ECLKO[2]: mux;
+        }
     } else if variant ecp3 {
         region_slot DQS;
         region_slot DQSDLL;
 
         wire OUT_IO_PADDI[4]: bel;
+        wire IMUX_IO_ECLK[4]: mux;
+        wire IMUX_IO_ECLKDQSR[4]: mux;
+
         wire OUT_DQS_ECLKDQSR: regional DQS;
         wire IMUX_DQS_ECLK: mux;
         wire IMUX_DQS_ECLKW: mux;
     } else if variant machxo2 {
         wire OUT_IO_PADDI[4]: bel;
+        wire IMUX_IO_ECLK[2]: mux;
+
     } else if variant ecp4 {
         region_slot DQS;
         wire OUT_IO_PADDI[4]: bel;
+        wire IMUX_IO_ECLK[4]: mux;
+        wire IMUX_DQS_ECLK: mux;
+        wire IMUX_DQS_ECLK90: mux;
+        wire IMUX_DQS_DDRDEL: mux;
+        wire OUT_DQS_CRUCLK: regional DQS;
+        wire OUT_DQS_NEXTCLK: regional DQS;
+
+        // aliased to one of the below global wires
+        wire OUT_DDRDLL_DDRDEL: bel;
+        region_slot GLOBAL;
+        wire DDRDEL_SW[2]: regional GLOBAL;
+        wire DDRDEL_SE[2]: regional GLOBAL;
+        wire DDRDEL_NW[2]: regional GLOBAL;
+        wire DDRDEL_NE[2]: regional GLOBAL;
+
     } else if variant ecp5 {
         region_slot DQS;
+        wire OUT_IO_PADDI[4]: bel;
+        wire IMUX_IO_ECLK[4]: mux;
+        wire IMUX_DQS_ECLK: mux;
+        wire IMUX_DQS_DDRDEL: mux;
+
+        // aliased to one of the below regional wires
+        wire OUT_DDRDLL_DDRDEL: bel;
+        region_slot DDRDLL;
+        wire DDRDEL_S: regional DDRDLL;
+        wire DDRDEL_N: regional DDRDLL;
+
     } else if variant crosslink {
         wire OUT_IO_PADDI[4]: bel;
+        wire IMUX_IO_ECLK[4]: mux;
+        wire OUT_DDRDLL_DDRDEL: regional ECLK;
+
     }
 
-    if variant machxo {
-        // alias of OUT_IO_PADDI
-        wire IO_GCLK_S[2]: mux;
-        wire IO_GCLK_N[2]: mux;
+    if variant machxo2 {
+        // aliased to OUT_IO_PADDI
+        wire IO_GCLK[3]: mux;
+        wire OUT_DLLDEL_CLKO[3]: bel;
+        wire INCK[3]: mux;
+    } else if variant [ecp4, ecp5, crosslink] {
+        wire IMUX_DLLDEL_DDRDEL: mux;
+        wire OUT_DLLDEL_Z: bel;
+        wire INCK[1]: mux;
     }
 
     if variant [machxo, ecp, xp, ecp2, ecp2m, xp2, ecp3] {
-        wire IMUX_PLL_CLKI: mux;
-        wire IMUX_PLL_CLKFB: mux;
+        wire IMUX_PLL_CLKI[1]: mux;
+        wire IMUX_PLL_CLKFB[1]: mux;
         wire OUT_PLL_CLKINTFB: bel;
-        wire OUT_PLL_CLKOP: bel;
-        wire OUT_PLL_CLKOS: bel;
+        wire OUT_PLL_CLKOP[1]: bel;
+        wire OUT_PLL_CLKOS[1]: bel;
         wire OUT_PLL_CLKOK: bel;
         if variant [xp2, ecp3] {
             wire OUT_PLL_CLKOK2: bel;
         }
-    }
-
-    if variant machxo {
-        // aliases of OUT_IO_PADDI
-        wire IO_PLL_CLKI: mux;
-        wire IO_PLL_CLKFB: mux;
     }
 
     if variant [ecp2, ecp2m, ecp3] {
@@ -1461,20 +1589,31 @@ target_defs! {
         wire OUT_DLL_CLKOP: bel;
         wire OUT_DLL_CLKOS: bel;
         wire IMUX_DLLDEL_CLKI: mux;
-        wire OUT_DLLDEL_CLKO: bel;
+        wire OUT_DLLDEL_CLKO[1]: bel;
         if variant [ecp2, ecp2m] {
             wire OUT_DLLDEL_BYPASS: bel;
         }
     }
     if variant [ecp2, ecp2m, xp2, ecp3] {
-        wire IMUX_CLKDIV_CLKI: mux;
-        wire OUT_CLKDIV_CDIV1: bel;
-        wire OUT_CLKDIV_CDIV2: bel;
-        wire OUT_CLKDIV_CDIV4: bel;
-        wire OUT_CLKDIV_CDIV8: bel;
+        wire IMUX_CLKDIV_CLKI[1]: mux;
+        wire OUT_CLKDIV_CDIV1[1]: bel;
+        wire OUT_CLKDIV_CDIV2[1]: bel;
+        wire OUT_CLKDIV_CDIV4[1]: bel;
+        wire OUT_CLKDIV_CDIV8[1]: bel;
+    } else if variant machxo2 {
+        wire OUT_CLKDIV_CDIVX[2]: bel;
+        wire OUT_CLKDIV_CDIV1[2]: bel;
+    } else if variant ecp4 {
+        wire IMUX_CLKDIV_CLKI[4]: mux;
+        wire OUT_CLKDIV_CDIVX[4]: bel;
+    } else if variant ecp5 {
+        wire IMUX_CLKDIV_CLKI[2]: mux;
+        wire OUT_CLKDIV_CDIVX[2]: bel;
+    } else if variant crosslink {
+        wire OUT_CLKDIV_CDIVX[4]: bel;
     }
-    if variant [ecp3, machxo2] {
-        wire IMUX_DQSDLL_CLK: mux;
+    if variant [ecp3, machxo2, ecp4, ecp5, crosslink] {
+        wire IMUX_DDRDLL_CLK: mux;
     }
 
     if variant [ecp2m, ecp3] {
@@ -1688,21 +1827,25 @@ target_defs! {
                 }
             }
         } else if variant ecp4 {
-            bel_slot IO[4]: legacy;
+            bel_slot IO[4]: IO;
+            bel_slot IO_INT: routing;
             tile_class
                 IO_W, IO_W_EBR_S, IO_W_EBR_N, IO_W_DSP_S, IO_W_DSP_N,
                 IO_E, IO_E_EBR_S, IO_E_EBR_N, IO_E_DSP_S, IO_E_DSP_N,
                 IO_N
             {
                 cell CELL[4];
+                switchbox IO_INT;
                 for i in 0..4 {
                     bel IO[i];
                 }
             }
         } else if variant ecp5 {
-            bel_slot IO[4]: legacy;
+            bel_slot IO[4]: IO;
+            bel_slot IO_INT: routing;
             tile_class IO_W4, IO_E4 {
                 cell CELL[3];
+                switchbox IO_INT;
                 for i in 0..4 {
                     bel IO[i];
                 }
@@ -2028,7 +2171,7 @@ target_defs! {
                 bel PLL[0];
             }
 
-            bel_slot DQSDLL: DQSDLL;
+            bel_slot DQSDLL: DDRDLL;
             tile_class DQSDLL_S, DQSDLL_N {
                 cell CELL;
                 bel DQSDLL;
@@ -2045,7 +2188,7 @@ target_defs! {
             bel_slot DLL[1]: DLL;
             bel_slot DLLDEL[1]: DLLDEL;
             bel_slot CLKDIV[1]: CLKDIV;
-            bel_slot DQSDLL: DQSDLL;
+            bel_slot DQSDLL: DDRDLL;
             tile_class PLL_W, PLL_E {
                 cell CELL[4], IO_CLKI[2], IO_CLKFB[2];
                 switchbox BEL_INT;
@@ -2069,7 +2212,7 @@ target_defs! {
                 bel PLL[0];
             }
 
-            bel_slot DQSDLL: DQSDLL;
+            bel_slot DQSDLL: DDRDLL;
             bel_slot CLKDIV[1]: CLKDIV;
             bel_slot START: START;
             bel_slot GSR: GSR;
@@ -2094,7 +2237,7 @@ target_defs! {
             bel_slot PLL[1]: PLL;
             bel_slot DLL[1]: DLL;
             bel_slot DLLDEL[1]: DLLDEL;
-            bel_slot DQSDLL: DQSDLL;
+            bel_slot DQSDLL: DDRDLL;
             bel_slot CLKDIV[1]: CLKDIV;
             tile_class PLL_DLL_W, PLL_DLL_E, PLL_DLL_A_W, PLL_DLL_A_E {
                 cell CELL[15];
@@ -2126,7 +2269,7 @@ target_defs! {
                 bel PLLREFCS[0];
             }
 
-            bel_slot DQSDLL: DQSDLL;
+            bel_slot DQSDLL: DDRDLL;
             tile_class DQSDLL_S, DQSDLL_N {
                 cell CELL;
                 switchbox BEL_INT;
@@ -2143,9 +2286,11 @@ target_defs! {
                 }
             }
 
-            bel_slot DDRDLL: legacy;
+            bel_slot DDRDLL: DDRDLL;
             tile_class DDRDLL_S, DDRDLL_N {
                 cell CELL;
+                cell WE;
+                switchbox BEL_INT;
                 bel DDRDLL;
             }
 
@@ -2163,9 +2308,10 @@ target_defs! {
                 bel PLLREFCS[0];
             }
 
-            bel_slot DDRDLL: legacy;
+            bel_slot DDRDLL: DDRDLL;
             tile_class DDRDLL {
                 cell CELL;
+                switchbox BEL_INT;
                 bel DDRDLL;
             }
 
@@ -2185,9 +2331,10 @@ target_defs! {
 
             bel_slot BCINRD: BCINRD;
             bel_slot BCLVDSO: BCLVDSO;
-            bel_slot DDRDLL: legacy;
+            bel_slot DDRDLL: DDRDLL;
             tile_class BC {
                 cell CELL;
+                switchbox BEL_INT;
                 bel BCINRD;
                 bel BCLVDSO;
                 bel DDRDLL;
@@ -2217,7 +2364,7 @@ target_defs! {
                 bel DQS[0];
             }
         } else if variant ecp4 {
-            bel_slot DQS[1]: legacy;
+            bel_slot DQS[1]: DQS;
             tile_class
                 DQS_W,
                 DQS_W_BELOW_DSP_N,
@@ -2236,12 +2383,14 @@ target_defs! {
                 DQS_N
             {
                 cell CELL[5];
+                switchbox BEL_INT;
                 bel DQS[0];
             }
         } else if variant ecp5 {
-            bel_slot DQS[1]: legacy;
+            bel_slot DQS[1]: DQS;
             tile_class DQS_W, DQS_E {
                 cell CELL[6];
+                switchbox BEL_INT;
                 bel DQS[0];
             }
         }
@@ -2704,13 +2853,14 @@ target_defs! {
                 }
             }
 
-            bel_slot DLLDEL[3]: legacy;
-            bel_slot CLKDIV[4]: legacy;
+            bel_slot DLLDEL[3]: DLLDEL;
+            bel_slot CLKDIV[4]: CLKDIV;
             bel_slot DQS[2]: DQS;
             bel_slot ECLKSYNC[2]: legacy;
             bel_slot CLKFBBUF[2]: legacy;
             tile_class CLK_S, CLK_N {
                 cell CELL;
+                switchbox CLK_INT;
                 for i in 0..2 {
                     bel ECLKSYNC[i];
                     bel DLLDEL[i];
@@ -2722,16 +2872,19 @@ target_defs! {
             }
             tile_class CLK_W {
                 cell CELL;
+                switchbox CLK_INT;
                 for i in 0..3 {
                     bel DLLDEL[i];
                 }
             }
             tile_class CLK_E {
                 cell CELL;
+                switchbox CLK_INT;
                 bel DLLDEL[0];
             }
             tile_class CLK_E_DQS {
                 cell CELL[5];
+                switchbox CLK_INT;
                 bel DLLDEL[0];
                 for i in 0..2 {
                     bel DQS[i];
@@ -2799,8 +2952,8 @@ target_defs! {
             bel_slot CLK_EDGE: legacy;
             bel_slot CLKTEST_ECLK: legacy;
             bel_slot DCC[16]: legacy;
-            bel_slot DLLDEL[8]: legacy;
-            bel_slot CLKDIV[4]: legacy;
+            bel_slot DLLDEL[8]: DLLDEL;
+            bel_slot CLKDIV[4]: CLKDIV;
             bel_slot ECLKSYNC[16]: legacy;
             bel_slot BRGECLKSYNC[2]: legacy;
             bel_slot ECLKBRIDGECS[2]: legacy;
@@ -2810,16 +2963,18 @@ target_defs! {
                 CLK_E_S, CLK_E_M, CLK_E_L
             {
                 if tile_class CLK_N_L {
-                    cell CELL[16];
+                    cell CELL[18];
                     cell BC1, BC2;
                 } else {
-                    cell CELL[8];
+                    cell CELL[10];
                 }
                 if tile_class [CLK_N_M, CLK_W_M, CLK_E_M] {
                     cell FABRIC_IN[2];
                 } else if tile_class [CLK_N_L, CLK_W_L, CLK_E_L] {
                     cell FABRIC_IN[4];
                 }
+
+                switchbox CLK_INT;
                 bel CLKTEST;
                 bel CLK_EDGE;
                 bel CLKTEST_ECLK;
@@ -2913,19 +3068,17 @@ target_defs! {
             bel_slot CLK_EDGE: legacy;
             bel_slot CLKTEST_ECLK: legacy;
             bel_slot ECLKSYNC[4]: legacy;
-            bel_slot DLLDEL[4]: legacy;
-            bel_slot CLKDIV[2]: legacy;
+            bel_slot DLLDEL[4]: DLLDEL;
+            bel_slot CLKDIV[2]: CLKDIV;
             bel_slot PCSCLKDIV[2]: legacy;
             bel_slot BRGECLKSYNC[1]: legacy;
             bel_slot ECLKBRIDGECS[1]: legacy;
             tile_class CLK_W_S, CLK_W_L, CLK_E_S, CLK_E_L {
-                cell CELL_EDGE[4];
+                cell CELL_EDGE[12];
                 cell CELL_EBR[2];
-                if tile_class [CLK_W_S, CLK_E_S] {
-                    cell FABRIC_IN[6];
-                } else {
-                    cell FABRIC_IN[8];
-                }
+                cell FABRIC_IN_M[4];
+
+                switchbox CLK_INT;
                 for i in 0..14 {
                     bel DCC[i];
                 }
@@ -2943,12 +3096,11 @@ target_defs! {
                 bel ECLKBRIDGECS[0];
             }
             tile_class CLK_N_S, CLK_N_L {
-                cell CELL[4];
-                if tile_class CLK_N_S {
-                    cell FABRIC_IN[6];
-                } else {
-                    cell FABRIC_IN[8];
-                }
+                cell CELL[16];
+                cell FABRIC_IN_M[4];
+                cell DDRDLL_NW, DDRDLL_NE;
+
+                switchbox CLK_INT;
                 for i in 0..12 {
                     bel DCC[i];
                 }
@@ -2959,12 +3111,10 @@ target_defs! {
                 }
             }
             tile_class CLK_S_S, CLK_S_L {
-                cell CELL[2];
-                if tile_class CLK_S_S {
-                    cell FABRIC_IN[6];
-                } else {
-                    cell FABRIC_IN[8];
-                }
+                cell CELL[16];
+                cell FABRIC_IN_M[4];
+
+                switchbox CLK_INT;
                 for i in 0..16 {
                     bel DCC[i];
                 }
@@ -2988,12 +3138,15 @@ target_defs! {
             bel_slot DCC[8]: legacy;
             bel_slot CLK_EDGE: legacy;
             bel_slot ECLKSYNC[4]: legacy;
-            bel_slot DLLDEL[4]: legacy;
-            bel_slot CLKDIV[4]: legacy;
+            bel_slot DLLDEL[4]: DLLDEL;
+            bel_slot CLKDIV[4]: CLKDIV;
             bel_slot CLKTEST_ECLK: legacy;
             tile_class CLK_S {
                 cell CELL[4];
                 cell FABRIC_IN[2];
+                cell IO_IN[2];
+
+                switchbox CLK_INT;
                 for i in 0..8 {
                     bel DCC[i];
                 }

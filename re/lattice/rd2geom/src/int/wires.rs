@@ -926,6 +926,7 @@ impl ChipContext<'_> {
     }
 
     pub fn bind_wire(&mut self, name: WireName, wire: WireCoord) {
+        let wire = self.edev.resolve_wire(wire).unwrap();
         match self.io_int_wires.entry(name) {
             btree_map::Entry::Vacant(e) => {
                 e.insert(vec![wire]);

@@ -134,8 +134,9 @@ impl ChipContext<'_> {
                     })
                     .unwrap();
                 self.add_bel_wire(bcrd, "ECLKO_OUT", eclko_out);
-                self.bind_wire(eclko_out, cell.wire(wires::ECLK[idx]));
                 self.claim_pip(eclko_out, eclko);
+                self.bind_wire(eclko, cell.wire(wires::ECLK[idx]));
+                self.bind_wire(eclko_out, cell.wire(wires::ECLK[idx]));
 
                 let eclki_int = self.rc_wire(cell, &format!("JECLKCIB{idx}"));
                 self.add_bel_wire(bcrd, "ECLKI_INT", eclki_int);
@@ -227,7 +228,7 @@ impl ChipContext<'_> {
             let eclk1 = self.naming.bel_wire(bcrd_eclksync, "ECLKO_OUT");
 
             self.extract_switchbox(cell.bel(bslots::BEL_INT))
-                .output_bind_rc("DQSDLLCLK", wires::IMUX_DQSDLL_CLK.cell(0))
+                .output_bind_rc("DQSDLLCLK", wires::IMUX_DDRDLL_CLK.cell(0))
                 .input_xlat_rc("JDQSDLLSCLK")
                 .input_xlat(eclk0)
                 .input_xlat(eclk1);
@@ -237,10 +238,10 @@ impl ChipContext<'_> {
             bel.names([format!("{bt}DQSDLL"), format!("{bt}DQSDLLTEST")])
                 .suffix("DQSDLL")
                 .add_wire_rc("DQSDEL", "JDQSDEL_DQSDLL")
-                .input_xlat_rc(bcls::DQSDLL::CLK, "CLK_DQSDLL")
-                .output_xlat_rc(bcls::DQSDLL::TEST_DIVOSC, "JDIVOSC_DQSDLLTEST");
+                .input_xlat_rc(bcls::DDRDLL::CLK, "CLK_DQSDLL")
+                .output_xlat_rc(bcls::DDRDLL::TEST_DIVOSC, "JDIVOSC_DQSDLLTEST");
             for i in 0..7 {
-                bel.output_xlat_rc(bcls::DQSDLL::TEST_SDOUT[i], format!("JSDOUT{i}_DQSDLLTEST"));
+                bel.output_xlat_rc(bcls::DDRDLL::TEST_SDOUT[i], format!("JSDOUT{i}_DQSDLLTEST"));
             }
         }
     }
@@ -289,7 +290,7 @@ impl ChipContext<'_> {
                 bel.name(format!("DQS{i}"))
                     .input_xlat_rc_io(bcls::DQS::SCLK, format!("JSCLK{i}_DQS"))
                     .input_xlat_rc_io(bcls::DQS::RST, format!("JRST{i}_DQS"))
-                    .input_xlat_rc_io(bcls::DQS::READ, format!("JREAD{i}_DQS"))
+                    .input_xlat_rc_io(bcls::DQS::READ[0], format!("JREAD{i}_DQS"))
                     .input_xlat_rc_io(bcls::DQS::READCLKSEL[0], format!("JREADCLKSEL0_{i}_DQS"))
                     .input_xlat_rc_io(bcls::DQS::READCLKSEL[1], format!("JREADCLKSEL1_{i}_DQS"))
                     .output_xlat_rc_io(bcls::DQS::DATAVALID, format!("JDATAVALID{i}_DQS"))
@@ -632,29 +633,31 @@ impl ChipContext<'_> {
                     .chip
                     .bel_eclksync(Dir::V(edge), 0)
                     .bel(bslots::CLKDIV[idx]);
-                let cell = bcrd.cell;
-                self.name_bel(
+
+                self.hybrid_out_rc(
                     bcrd,
-                    [format!(
+                    format!("JCDIV1{idx}_CLKDIV"),
+                    wires::OUT_CLKDIV_CDIV1[idx].cell(0),
+                );
+                self.hybrid_out_rc(
+                    bcrd,
+                    format!("JCDIVX{idx}_CLKDIV"),
+                    wires::OUT_CLKDIV_CDIVX[idx].cell(0),
+                );
+
+                self.extract_bel(bcrd)
+                    .name(format!(
                         "{bt}CLKDIV{idx}",
                         bt = match edge {
                             DirV::S => 'B',
                             DirV::N => 'T',
                         }
-                    )],
-                );
-                let mut bel = LegacyBel::default();
-                for pin in ["ALIGNWD", "RST", "CDIV1", "CDIVX"] {
-                    let wire = self.rc_wire(cell, &format!("J{pin}{idx}_CLKDIV"));
-                    self.add_bel_wire(bcrd, pin, wire);
-                    bel.pins.insert(pin.into(), self.xlat_int_wire(bcrd, wire));
-                }
-                self.insert_legacy_bel(bcrd, bel);
-
-                let clki = self.rc_wire(cell, &format!("CLKI{idx}_CLKDIV"));
-                self.add_bel_wire(bcrd, "CLKI", clki);
-                let wire_eclk = self.rc_wire(cell, &format!("JECLKO{idx}_ECLKSYNC"));
-                self.claim_pip(clki, wire_eclk);
+                    ))
+                    .input_xlat_rc(bcls::CLKDIV::CLKI, format!("CLKI{idx}_CLKDIV"))
+                    .input_xlat_rc(bcls::CLKDIV::RST, format!("JRST{idx}_CLKDIV"))
+                    .input_xlat_rc(bcls::CLKDIV::ALIGNWD, format!("JALIGNWD{idx}_CLKDIV"))
+                    .output_xlat_rc(bcls::CLKDIV::CDIV1, format!("JCDIV1{idx}_CLKDIV"))
+                    .output_xlat_rc(bcls::CLKDIV::CDIVX, format!("JCDIVX{idx}_CLKDIV"));
             }
         }
     }

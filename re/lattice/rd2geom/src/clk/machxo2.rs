@@ -1,7 +1,7 @@
 use std::collections::{BTreeMap, btree_map};
 
 use prjcombine_ecp::{
-    chip::{Chip, RowKind, SpecialIoKey, SpecialLocKey},
+    chip::{Chip, ChipKind, MachXo2Kind, RowKind, SpecialIoKey, SpecialLocKey},
     defs::{bcls, bslots, wires},
 };
 use prjcombine_entity::EntityId;
@@ -244,6 +244,18 @@ impl ChipContext<'_> {
                 Dir::H(edge) => Chip::DIE.cell(self.chip.col_edge(edge), self.chip.row_clk),
                 Dir::V(edge) => Chip::DIE.cell(self.chip.col_clk - 1, self.chip.row_edge(edge)),
             };
+            let ci = if edge == Dir::E && self.chip.kind == ChipKind::MachXo2(MachXo2Kind::MachXo2)
+            {
+                2
+            } else {
+                0
+            };
+            {
+                self.extract_switchbox(cell.bel(bslots::CLK_INT))
+                    .output_bind_rc_io(format!("JINCK{idx}"), wires::INCK[idx].cell(ci))
+                    .input_io_rc_io(format!("JPADDI{idx}"), wires::IO_GCLK[idx].cell(ci))
+                    .input_bind_rc_io(format!("DLLDEL{idx}"), wires::OUT_DLLDEL_CLKO[idx].cell(ci));
+            }
             let bcrd = cell.bel(bslots::DLLDEL[idx]);
             let lrbt = match edge {
                 Dir::W => 'L',
@@ -251,47 +263,24 @@ impl ChipContext<'_> {
                 Dir::S => 'B',
                 Dir::N => 'T',
             };
-            self.name_bel(bcrd, [format!("{lrbt}DLLDEL{idx}")]);
+            let mut bel = self.extract_bel(bcrd);
+            bel.name(format!("{lrbt}DLLDEL{idx}"))
+                .input_io_rc_io(
+                    bcls::DLLDEL::CLKI,
+                    format!("JCLKI{idx}_DLLDEL"),
+                    wires::IO_GCLK[idx].cell(ci),
+                )
+                .output_xlat_rc_io(bcls::DLLDEL::CLKO, format!("CLKO{idx}_DLLDEL"));
 
-            let io = self.chip.special_io[&SpecialIoKey::Clock(edge, idx as u8)];
-            let io_idx = bslots::IO.index_of(io.slot).unwrap();
-            let wire_io = self.rc_io_wire(
-                io.cell,
-                &format!("JDI{abcd}", abcd = ['A', 'B', 'C', 'D'][io_idx]),
-            );
-
-            let paddi = self.rc_io_wire(cell, &format!("JPADDI{idx}"));
-            self.add_bel_wire(bcrd, "PADDI", paddi);
-            self.claim_pip(paddi, wire_io);
-
-            let clki = self.rc_io_wire(cell, &format!("JCLKI{idx}_DLLDEL"));
-            self.add_bel_wire(bcrd, "CLKI", clki);
-            self.claim_pip(clki, wire_io);
-
-            let clko = self.rc_io_wire(cell, &format!("CLKO{idx}_DLLDEL"));
-            self.add_bel_wire(bcrd, "CLKO", clko);
-
-            let dlldel = self.rc_io_wire(cell, &format!("DLLDEL{idx}"));
-            self.add_bel_wire(bcrd, "DLLDEL", dlldel);
-            self.claim_pip(dlldel, clko);
-
-            let inck = self.rc_io_wire(cell, &format!("JINCK{idx}"));
-            self.add_bel_wire(bcrd, "INCK", inck);
-            self.claim_pip(inck, paddi);
-            self.claim_pip(inck, dlldel);
-
-            let cell_dqsdll = self.chip.special_loc[&SpecialLocKey::DqsDll(match edge {
+            let cell_dqsdll = bel.ctx.chip.special_loc[&SpecialLocKey::DqsDll(match edge {
                 Dir::W => Dir::S,
                 Dir::E => Dir::N,
                 Dir::S => Dir::S,
                 Dir::N => Dir::N,
             })];
-            let dqsdel = self.rc_io_wire(cell, &format!("JDQSDEL{idx}_DLLDEL"));
-            self.add_bel_wire(bcrd, "DQSDEL", dqsdel);
-            let wire_dqsdll = self.rc_wire(cell_dqsdll, "JDQSDEL_DQSDLL");
-            self.claim_pip(dqsdel, wire_dqsdll);
-
-            self.insert_legacy_bel(bcrd, LegacyBel::default());
+            bel.add_wire_rc_io("DQSDEL", format!("JDQSDEL{idx}_DLLDEL"));
+            let wire_dqsdll = bel.ctx.rc_wire(cell_dqsdll, "JDQSDEL_DQSDLL");
+            bel.claim_pip_from("DQSDEL", wire_dqsdll);
         }
     }
 

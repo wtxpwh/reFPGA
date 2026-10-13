@@ -65,6 +65,7 @@ impl ChipContext<'_> {
                 self.process_icc_machxo2();
             }
             ChipKind::Ecp4 => {
+                self.prep_io_ecp4();
                 self.process_bc_ecp4();
                 self.process_eclk_ecp4();
                 self.process_ddrdll_ecp4();
@@ -72,8 +73,10 @@ impl ChipContext<'_> {
                 self.process_dtr_ecp4();
                 self.process_io_ecp4();
                 self.process_clkdiv_ecp4();
+                self.process_pcsclkdiv_ecp4();
             }
             ChipKind::Ecp5 => {
+                self.prep_io_ecp5();
                 self.process_bc_ecp5();
                 self.process_eclk_ecp5();
                 self.process_ddrdll_ecp5();
@@ -81,6 +84,7 @@ impl ChipContext<'_> {
                 self.process_dtr_ecp5();
                 self.process_io_ecp5();
                 self.process_clkdiv_ecp5();
+                self.process_pcsclkdiv_ecp5();
             }
             ChipKind::Crosslink => {
                 self.prep_io_crosslink();
@@ -179,6 +183,10 @@ impl ChipContext<'_> {
                     let abcd = ['A', 'B', 'C', 'D'][idx];
                     self.rc_io_wire(cell, &format!("JPADDIE{abcd}_PIO"))
                 }
+            }
+            ChipKind::MachXo2(_) => {
+                let abcd = ['A', 'B', 'C', 'D'][idx];
+                self.rc_io_wire(wire.cell, &format!("JDI{abcd}"))
             }
             _ => {
                 let abcd = ['A', 'B', 'C', 'D', 'E', 'F'][idx];

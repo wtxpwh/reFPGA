@@ -602,9 +602,9 @@ impl ChipContext<'_> {
                         if ex.ctx.chip.try_bel_pll(h & v, 0).is_none() {
                             ex.edge(wire_eclk, wires::OUT_IO_PADDI[0].cell(ci_io));
                             if i == 0 {
-                                ex.edge(wire_eclk, wires::OUT_PLL_CLKOP.cell(ci));
+                                ex.edge(wire_eclk, wires::OUT_PLL_CLKOP[0].cell(ci));
                             } else {
-                                ex.edge(wire_eclk, wires::OUT_PLL_CLKOS.cell(ci));
+                                ex.edge(wire_eclk, wires::OUT_PLL_CLKOS[0].cell(ci));
                             }
                         }
                     }

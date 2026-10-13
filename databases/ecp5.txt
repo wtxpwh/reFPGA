@@ -10525,6 +10525,69 @@ intdb {
 		output R[72];
 	}
 
+	bel_class IO {
+		input CLK;
+		input LSR;
+		input CE;
+		input ECLK;
+		input SLIP;
+		input TXDATA[7];
+		input TSDATA[2];
+		input DIRECTION;
+		input LOADN;
+		input MOVE;
+		output PADDI;
+		output DI;
+		output RXDATA[7];
+		output CFLAG;
+		output INFF;
+	}
+
+	bel_class DQS {
+		input READ[2];
+		input SCLK;
+		input RST;
+		input ECLK;
+		input DYNDELAY[8];
+		input READCLKSEL[3];
+		input DDRDEL;
+		input PAUSE;
+		input RDDIRECTION;
+		input RDLOADN;
+		input RDMOVE;
+		input WRDIRECTION;
+		input WRLOADN;
+		input WRMOVE;
+		output DATAVALID;
+		output DQSW;
+		output BURSTDET;
+		output DQSR90;
+		output RDCFLAG;
+		output WRCFLAG;
+		output DQSW270;
+	}
+
+	bel_class DDRDLL {
+		input CLK;
+		input RST;
+		input UDDCNTLN;
+		input FREEZE;
+		output LOCK;
+		output DCNTL[8];
+		output DIVOSC;
+		output DDRDEL;
+	}
+
+	bel_class DLLDEL {
+		input A;
+		input DDRDEL;
+		input DIRECTION;
+		input LOADN;
+		input MOVE;
+		output Z;
+		output CFLAG;
+	}
+
 	bel_class BCINRD {
 		input INRDENI;
 	}
@@ -10550,6 +10613,13 @@ intdb {
 		input CLK[2];
 		input SEL;
 		output DCSOUT;
+	}
+
+	bel_class CLKDIV {
+		input CLKI;
+		input RST;
+		input ALIGNWD;
+		output CDIVX;
 	}
 
 	bel_class GSR {
@@ -10604,7 +10674,9 @@ intdb {
 	}
 
 	region_slot PCLK;
+	region_slot ECLK;
 	region_slot DQS;
+	region_slot DDRDLL;
 	wire TIE0: tie 0;
 	wire TIE1: tie 1;
 	wire X0_W[0]: mux;
@@ -10943,6 +11015,29 @@ intdb {
 	wire OUT_Q[5]: bel;
 	wire OUT_Q[6]: bel;
 	wire OUT_Q[7]: bel;
+	wire ECLK[0]: regional ECLK;
+	wire ECLK[1]: regional ECLK;
+	wire OUT_IO_PADDI[0]: bel;
+	wire OUT_IO_PADDI[1]: bel;
+	wire OUT_IO_PADDI[2]: bel;
+	wire OUT_IO_PADDI[3]: bel;
+	wire IMUX_IO_ECLK[0]: mux;
+	wire IMUX_IO_ECLK[1]: mux;
+	wire IMUX_IO_ECLK[2]: mux;
+	wire IMUX_IO_ECLK[3]: mux;
+	wire IMUX_DQS_ECLK: mux;
+	wire IMUX_DQS_DDRDEL: mux;
+	wire OUT_DDRDLL_DDRDEL: bel;
+	wire DDRDEL_S: regional DDRDLL;
+	wire DDRDEL_N: regional DDRDLL;
+	wire INCK[0]: mux;
+	wire IMUX_DLLDEL_DDRDEL: mux;
+	wire OUT_DLLDEL_Z: bel;
+	wire IMUX_CLKDIV_CLKI[0]: mux;
+	wire IMUX_CLKDIV_CLKI[1]: mux;
+	wire OUT_CLKDIV_CDIVX[0]: bel;
+	wire OUT_CLKDIV_CDIVX[1]: bel;
+	wire IMUX_DDRDLL_CLK: mux;
 	wire OUT_OSC_OSC: bel;
 
 	tile_slot INT {
@@ -11553,10 +11648,11 @@ intdb {
 	}
 
 	tile_slot IO {
-		bel_slot IO[0]: legacy;
-		bel_slot IO[1]: legacy;
-		bel_slot IO[2]: legacy;
-		bel_slot IO[3]: legacy;
+		bel_slot IO[0]: IO;
+		bel_slot IO[1]: IO;
+		bel_slot IO[2]: IO;
+		bel_slot IO[3]: IO;
+		bel_slot IO_INT: routing;
 
 		tile_class IO_W4 {
 			cell CELL[0];
@@ -11564,187 +11660,210 @@ intdb {
 			cell CELL[2];
 
 			bel IO[0] {
-				input CE = CELL[2].IMUX_CE[0];
-				output CFLAG = CELL[2].OUT_F[6];
 				input CLK = CELL[2].IMUX_CLK[0];
-				output DI = CELL[2].OUT_F[5];
-				input DIRECTION = CELL[2].IMUX_A[2];
-				output INFF = CELL[2].OUT_F[4];
-				input LOADN = CELL[2].IMUX_C[2];
 				input LSR = CELL[2].IMUX_LSR[0];
-				input MOVE = CELL[2].IMUX_B[2];
-				output RXDATA0 = CELL[2].OUT_F[0];
-				output RXDATA1 = CELL[2].OUT_F[1];
-				output RXDATA2 = CELL[2].OUT_F[2];
-				output RXDATA3 = CELL[2].OUT_F[3];
-				output RXDATA4 = CELL[2].OUT_Q[1];
-				output RXDATA5 = CELL[2].OUT_Q[2];
-				output RXDATA6 = CELL[2].OUT_Q[3];
+				input CE = CELL[2].IMUX_CE[0];
+				input ECLK = CELL[0].IMUX_IO_ECLK[0];
 				input SLIP = CELL[2].IMUX_B[1];
-				input TSDATA0 = CELL[2].IMUX_B[0];
-				input TSDATA1 = CELL[2].IMUX_C[1];
-				input TXDATA0 = CELL[2].IMUX_A[0];
-				input TXDATA1 = CELL[2].IMUX_C[0];
-				input TXDATA2 = CELL[2].IMUX_D[0];
-				input TXDATA3 = CELL[2].IMUX_A[1];
-				input TXDATA4 = CELL[2].IMUX_A[3];
-				input TXDATA5 = CELL[2].IMUX_C[3];
-				input TXDATA6 = CELL[2].IMUX_D[3];
+				input TXDATA[0] = CELL[2].IMUX_A[0];
+				input TXDATA[1] = CELL[2].IMUX_C[0];
+				input TXDATA[2] = CELL[2].IMUX_D[0];
+				input TXDATA[3] = CELL[2].IMUX_A[1];
+				input TXDATA[4] = CELL[2].IMUX_A[3];
+				input TXDATA[5] = CELL[2].IMUX_C[3];
+				input TXDATA[6] = CELL[2].IMUX_D[3];
+				input TSDATA[0] = CELL[2].IMUX_B[0];
+				input TSDATA[1] = CELL[2].IMUX_C[1];
+				input DIRECTION = CELL[2].IMUX_A[2];
+				input LOADN = CELL[2].IMUX_C[2];
+				input MOVE = CELL[2].IMUX_B[2];
+				output PADDI = CELL[0].OUT_IO_PADDI[0];
+				output DI = CELL[2].OUT_F[5];
+				output RXDATA[0] = CELL[2].OUT_F[0];
+				output RXDATA[1] = CELL[2].OUT_F[1];
+				output RXDATA[2] = CELL[2].OUT_F[2];
+				output RXDATA[3] = CELL[2].OUT_F[3];
+				output RXDATA[4] = CELL[2].OUT_Q[1];
+				output RXDATA[5] = CELL[2].OUT_Q[2];
+				output RXDATA[6] = CELL[2].OUT_Q[3];
+				output CFLAG = CELL[2].OUT_F[6];
+				output INFF = CELL[2].OUT_F[4];
 			}
 
 			bel IO[1] {
-				input CE = CELL[2].IMUX_CE[1];
-				output CFLAG = CELL[2].OUT_F[7];
 				input CLK = CELL[2].IMUX_CLK[1];
-				output DI = CELL[2].OUT_Q[5];
-				input DIRECTION = CELL[2].IMUX_A[5];
-				output INFF = CELL[2].OUT_Q[4];
-				input LOADN = CELL[2].IMUX_C[5];
 				input LSR = CELL[2].IMUX_LSR[1];
-				input MOVE = CELL[2].IMUX_B[5];
-				output RXDATA0 = CELL[2].OUT_Q[0];
-				output RXDATA1 = CELL[2].OUT_Q[1];
-				output RXDATA2 = CELL[2].OUT_Q[2];
-				output RXDATA3 = CELL[2].OUT_Q[3];
+				input CE = CELL[2].IMUX_CE[1];
+				input ECLK = CELL[0].IMUX_IO_ECLK[1];
 				input SLIP = CELL[2].IMUX_B[4];
-				input TSDATA0 = CELL[2].IMUX_B[3];
-				input TSDATA1 = CELL[2].IMUX_C[4];
-				input TXDATA0 = CELL[2].IMUX_A[3];
-				input TXDATA1 = CELL[2].IMUX_C[3];
-				input TXDATA2 = CELL[2].IMUX_D[3];
-				input TXDATA3 = CELL[2].IMUX_A[4];
+				input TXDATA[0] = CELL[2].IMUX_A[3];
+				input TXDATA[1] = CELL[2].IMUX_C[3];
+				input TXDATA[2] = CELL[2].IMUX_D[3];
+				input TXDATA[3] = CELL[2].IMUX_A[4];
+				input TSDATA[0] = CELL[2].IMUX_B[3];
+				input TSDATA[1] = CELL[2].IMUX_C[4];
+				input DIRECTION = CELL[2].IMUX_A[5];
+				input LOADN = CELL[2].IMUX_C[5];
+				input MOVE = CELL[2].IMUX_B[5];
+				output PADDI = CELL[0].OUT_IO_PADDI[1];
+				output DI = CELL[2].OUT_Q[5];
+				output RXDATA[0] = CELL[2].OUT_Q[0];
+				output RXDATA[1] = CELL[2].OUT_Q[1];
+				output RXDATA[2] = CELL[2].OUT_Q[2];
+				output RXDATA[3] = CELL[2].OUT_Q[3];
+				output CFLAG = CELL[2].OUT_F[7];
+				output INFF = CELL[2].OUT_Q[4];
 			}
 
 			bel IO[2] {
-				input CE = CELL[0].IMUX_CE[0];
-				output CFLAG = CELL[0].OUT_F[6];
 				input CLK = CELL[0].IMUX_CLK[0];
-				output DI = CELL[0].OUT_F[5];
-				input DIRECTION = CELL[0].IMUX_A[2];
-				output INFF = CELL[0].OUT_F[4];
-				input LOADN = CELL[0].IMUX_C[2];
 				input LSR = CELL[0].IMUX_LSR[0];
-				input MOVE = CELL[0].IMUX_B[2];
-				output RXDATA0 = CELL[0].OUT_F[0];
-				output RXDATA1 = CELL[0].OUT_F[1];
-				output RXDATA2 = CELL[0].OUT_F[2];
-				output RXDATA3 = CELL[0].OUT_F[3];
-				output RXDATA4 = CELL[0].OUT_Q[1];
-				output RXDATA5 = CELL[0].OUT_Q[2];
-				output RXDATA6 = CELL[0].OUT_Q[3];
+				input CE = CELL[0].IMUX_CE[0];
+				input ECLK = CELL[0].IMUX_IO_ECLK[2];
 				input SLIP = CELL[0].IMUX_B[1];
-				input TSDATA0 = CELL[0].IMUX_B[0];
-				input TSDATA1 = CELL[0].IMUX_C[1];
-				input TXDATA0 = CELL[0].IMUX_A[0];
-				input TXDATA1 = CELL[0].IMUX_C[0];
-				input TXDATA2 = CELL[0].IMUX_D[0];
-				input TXDATA3 = CELL[0].IMUX_A[1];
-				input TXDATA4 = CELL[0].IMUX_A[3];
-				input TXDATA5 = CELL[0].IMUX_C[3];
-				input TXDATA6 = CELL[0].IMUX_D[3];
+				input TXDATA[0] = CELL[0].IMUX_A[0];
+				input TXDATA[1] = CELL[0].IMUX_C[0];
+				input TXDATA[2] = CELL[0].IMUX_D[0];
+				input TXDATA[3] = CELL[0].IMUX_A[1];
+				input TXDATA[4] = CELL[0].IMUX_A[3];
+				input TXDATA[5] = CELL[0].IMUX_C[3];
+				input TXDATA[6] = CELL[0].IMUX_D[3];
+				input TSDATA[0] = CELL[0].IMUX_B[0];
+				input TSDATA[1] = CELL[0].IMUX_C[1];
+				input DIRECTION = CELL[0].IMUX_A[2];
+				input LOADN = CELL[0].IMUX_C[2];
+				input MOVE = CELL[0].IMUX_B[2];
+				output PADDI = CELL[0].OUT_IO_PADDI[2];
+				output DI = CELL[0].OUT_F[5];
+				output RXDATA[0] = CELL[0].OUT_F[0];
+				output RXDATA[1] = CELL[0].OUT_F[1];
+				output RXDATA[2] = CELL[0].OUT_F[2];
+				output RXDATA[3] = CELL[0].OUT_F[3];
+				output RXDATA[4] = CELL[0].OUT_Q[1];
+				output RXDATA[5] = CELL[0].OUT_Q[2];
+				output RXDATA[6] = CELL[0].OUT_Q[3];
+				output CFLAG = CELL[0].OUT_F[6];
+				output INFF = CELL[0].OUT_F[4];
 			}
 
 			bel IO[3] {
-				input CE = CELL[0].IMUX_CE[1];
-				output CFLAG = CELL[0].OUT_F[7];
 				input CLK = CELL[0].IMUX_CLK[1];
-				output DI = CELL[0].OUT_Q[5];
-				input DIRECTION = CELL[0].IMUX_A[5];
-				output INFF = CELL[0].OUT_Q[4];
-				input LOADN = CELL[0].IMUX_C[5];
 				input LSR = CELL[0].IMUX_LSR[1];
-				input MOVE = CELL[0].IMUX_B[5];
-				output RXDATA0 = CELL[0].OUT_Q[0];
-				output RXDATA1 = CELL[0].OUT_Q[1];
-				output RXDATA2 = CELL[0].OUT_Q[2];
-				output RXDATA3 = CELL[0].OUT_Q[3];
+				input CE = CELL[0].IMUX_CE[1];
+				input ECLK = CELL[0].IMUX_IO_ECLK[3];
 				input SLIP = CELL[0].IMUX_B[4];
-				input TSDATA0 = CELL[0].IMUX_B[3];
-				input TSDATA1 = CELL[0].IMUX_C[4];
-				input TXDATA0 = CELL[0].IMUX_A[3];
-				input TXDATA1 = CELL[0].IMUX_C[3];
-				input TXDATA2 = CELL[0].IMUX_D[3];
-				input TXDATA3 = CELL[0].IMUX_A[4];
+				input TXDATA[0] = CELL[0].IMUX_A[3];
+				input TXDATA[1] = CELL[0].IMUX_C[3];
+				input TXDATA[2] = CELL[0].IMUX_D[3];
+				input TXDATA[3] = CELL[0].IMUX_A[4];
+				input TSDATA[0] = CELL[0].IMUX_B[3];
+				input TSDATA[1] = CELL[0].IMUX_C[4];
+				input DIRECTION = CELL[0].IMUX_A[5];
+				input LOADN = CELL[0].IMUX_C[5];
+				input MOVE = CELL[0].IMUX_B[5];
+				output PADDI = CELL[0].OUT_IO_PADDI[3];
+				output DI = CELL[0].OUT_Q[5];
+				output RXDATA[0] = CELL[0].OUT_Q[0];
+				output RXDATA[1] = CELL[0].OUT_Q[1];
+				output RXDATA[2] = CELL[0].OUT_Q[2];
+				output RXDATA[3] = CELL[0].OUT_Q[3];
+				output CFLAG = CELL[0].OUT_F[7];
+				output INFF = CELL[0].OUT_Q[4];
 			}
 
-			// wire CELL[0].IMUX_A[0]              IO[2].TXDATA0
-			// wire CELL[0].IMUX_A[1]              IO[2].TXDATA3
+			switchbox IO_INT {
+				mux CELL[0].IMUX_IO_ECLK[0] = CELL[0].ECLK[0] | CELL[0].ECLK[1];
+				mux CELL[0].IMUX_IO_ECLK[1] = CELL[0].ECLK[0] | CELL[0].ECLK[1];
+				mux CELL[0].IMUX_IO_ECLK[2] = CELL[0].ECLK[0] | CELL[0].ECLK[1];
+				mux CELL[0].IMUX_IO_ECLK[3] = CELL[0].ECLK[0] | CELL[0].ECLK[1];
+			}
+
+			// wire CELL[0].IMUX_A[0]              IO[2].TXDATA[0]
+			// wire CELL[0].IMUX_A[1]              IO[2].TXDATA[3]
 			// wire CELL[0].IMUX_A[2]              IO[2].DIRECTION
-			// wire CELL[0].IMUX_A[3]              IO[2].TXDATA4 IO[3].TXDATA0
-			// wire CELL[0].IMUX_A[4]              IO[3].TXDATA3
+			// wire CELL[0].IMUX_A[3]              IO[2].TXDATA[4] IO[3].TXDATA[0]
+			// wire CELL[0].IMUX_A[4]              IO[3].TXDATA[3]
 			// wire CELL[0].IMUX_A[5]              IO[3].DIRECTION
-			// wire CELL[0].IMUX_B[0]              IO[2].TSDATA0
+			// wire CELL[0].IMUX_B[0]              IO[2].TSDATA[0]
 			// wire CELL[0].IMUX_B[1]              IO[2].SLIP
 			// wire CELL[0].IMUX_B[2]              IO[2].MOVE
-			// wire CELL[0].IMUX_B[3]              IO[3].TSDATA0
+			// wire CELL[0].IMUX_B[3]              IO[3].TSDATA[0]
 			// wire CELL[0].IMUX_B[4]              IO[3].SLIP
 			// wire CELL[0].IMUX_B[5]              IO[3].MOVE
-			// wire CELL[0].IMUX_C[0]              IO[2].TXDATA1
-			// wire CELL[0].IMUX_C[1]              IO[2].TSDATA1
+			// wire CELL[0].IMUX_C[0]              IO[2].TXDATA[1]
+			// wire CELL[0].IMUX_C[1]              IO[2].TSDATA[1]
 			// wire CELL[0].IMUX_C[2]              IO[2].LOADN
-			// wire CELL[0].IMUX_C[3]              IO[2].TXDATA5 IO[3].TXDATA1
-			// wire CELL[0].IMUX_C[4]              IO[3].TSDATA1
+			// wire CELL[0].IMUX_C[3]              IO[2].TXDATA[5] IO[3].TXDATA[1]
+			// wire CELL[0].IMUX_C[4]              IO[3].TSDATA[1]
 			// wire CELL[0].IMUX_C[5]              IO[3].LOADN
-			// wire CELL[0].IMUX_D[0]              IO[2].TXDATA2
-			// wire CELL[0].IMUX_D[3]              IO[2].TXDATA6 IO[3].TXDATA2
+			// wire CELL[0].IMUX_D[0]              IO[2].TXDATA[2]
+			// wire CELL[0].IMUX_D[3]              IO[2].TXDATA[6] IO[3].TXDATA[2]
 			// wire CELL[0].IMUX_CLK[0]            IO[2].CLK
 			// wire CELL[0].IMUX_CLK[1]            IO[3].CLK
 			// wire CELL[0].IMUX_LSR[0]            IO[2].LSR
 			// wire CELL[0].IMUX_LSR[1]            IO[3].LSR
 			// wire CELL[0].IMUX_CE[0]             IO[2].CE
 			// wire CELL[0].IMUX_CE[1]             IO[3].CE
-			// wire CELL[0].OUT_F[0]               IO[2].RXDATA0
-			// wire CELL[0].OUT_F[1]               IO[2].RXDATA1
-			// wire CELL[0].OUT_F[2]               IO[2].RXDATA2
-			// wire CELL[0].OUT_F[3]               IO[2].RXDATA3
+			// wire CELL[0].OUT_F[0]               IO[2].RXDATA[0]
+			// wire CELL[0].OUT_F[1]               IO[2].RXDATA[1]
+			// wire CELL[0].OUT_F[2]               IO[2].RXDATA[2]
+			// wire CELL[0].OUT_F[3]               IO[2].RXDATA[3]
 			// wire CELL[0].OUT_F[4]               IO[2].INFF
 			// wire CELL[0].OUT_F[5]               IO[2].DI
 			// wire CELL[0].OUT_F[6]               IO[2].CFLAG
 			// wire CELL[0].OUT_F[7]               IO[3].CFLAG
-			// wire CELL[0].OUT_Q[0]               IO[3].RXDATA0
-			// wire CELL[0].OUT_Q[1]               IO[2].RXDATA4 IO[3].RXDATA1
-			// wire CELL[0].OUT_Q[2]               IO[2].RXDATA5 IO[3].RXDATA2
-			// wire CELL[0].OUT_Q[3]               IO[2].RXDATA6 IO[3].RXDATA3
+			// wire CELL[0].OUT_Q[0]               IO[3].RXDATA[0]
+			// wire CELL[0].OUT_Q[1]               IO[2].RXDATA[4] IO[3].RXDATA[1]
+			// wire CELL[0].OUT_Q[2]               IO[2].RXDATA[5] IO[3].RXDATA[2]
+			// wire CELL[0].OUT_Q[3]               IO[2].RXDATA[6] IO[3].RXDATA[3]
 			// wire CELL[0].OUT_Q[4]               IO[3].INFF
 			// wire CELL[0].OUT_Q[5]               IO[3].DI
-			// wire CELL[2].IMUX_A[0]              IO[0].TXDATA0
-			// wire CELL[2].IMUX_A[1]              IO[0].TXDATA3
+			// wire CELL[0].OUT_IO_PADDI[0]        IO[0].PADDI
+			// wire CELL[0].OUT_IO_PADDI[1]        IO[1].PADDI
+			// wire CELL[0].OUT_IO_PADDI[2]        IO[2].PADDI
+			// wire CELL[0].OUT_IO_PADDI[3]        IO[3].PADDI
+			// wire CELL[0].IMUX_IO_ECLK[0]        IO[0].ECLK
+			// wire CELL[0].IMUX_IO_ECLK[1]        IO[1].ECLK
+			// wire CELL[0].IMUX_IO_ECLK[2]        IO[2].ECLK
+			// wire CELL[0].IMUX_IO_ECLK[3]        IO[3].ECLK
+			// wire CELL[2].IMUX_A[0]              IO[0].TXDATA[0]
+			// wire CELL[2].IMUX_A[1]              IO[0].TXDATA[3]
 			// wire CELL[2].IMUX_A[2]              IO[0].DIRECTION
-			// wire CELL[2].IMUX_A[3]              IO[0].TXDATA4 IO[1].TXDATA0
-			// wire CELL[2].IMUX_A[4]              IO[1].TXDATA3
+			// wire CELL[2].IMUX_A[3]              IO[0].TXDATA[4] IO[1].TXDATA[0]
+			// wire CELL[2].IMUX_A[4]              IO[1].TXDATA[3]
 			// wire CELL[2].IMUX_A[5]              IO[1].DIRECTION
-			// wire CELL[2].IMUX_B[0]              IO[0].TSDATA0
+			// wire CELL[2].IMUX_B[0]              IO[0].TSDATA[0]
 			// wire CELL[2].IMUX_B[1]              IO[0].SLIP
 			// wire CELL[2].IMUX_B[2]              IO[0].MOVE
-			// wire CELL[2].IMUX_B[3]              IO[1].TSDATA0
+			// wire CELL[2].IMUX_B[3]              IO[1].TSDATA[0]
 			// wire CELL[2].IMUX_B[4]              IO[1].SLIP
 			// wire CELL[2].IMUX_B[5]              IO[1].MOVE
-			// wire CELL[2].IMUX_C[0]              IO[0].TXDATA1
-			// wire CELL[2].IMUX_C[1]              IO[0].TSDATA1
+			// wire CELL[2].IMUX_C[0]              IO[0].TXDATA[1]
+			// wire CELL[2].IMUX_C[1]              IO[0].TSDATA[1]
 			// wire CELL[2].IMUX_C[2]              IO[0].LOADN
-			// wire CELL[2].IMUX_C[3]              IO[0].TXDATA5 IO[1].TXDATA1
-			// wire CELL[2].IMUX_C[4]              IO[1].TSDATA1
+			// wire CELL[2].IMUX_C[3]              IO[0].TXDATA[5] IO[1].TXDATA[1]
+			// wire CELL[2].IMUX_C[4]              IO[1].TSDATA[1]
 			// wire CELL[2].IMUX_C[5]              IO[1].LOADN
-			// wire CELL[2].IMUX_D[0]              IO[0].TXDATA2
-			// wire CELL[2].IMUX_D[3]              IO[0].TXDATA6 IO[1].TXDATA2
+			// wire CELL[2].IMUX_D[0]              IO[0].TXDATA[2]
+			// wire CELL[2].IMUX_D[3]              IO[0].TXDATA[6] IO[1].TXDATA[2]
 			// wire CELL[2].IMUX_CLK[0]            IO[0].CLK
 			// wire CELL[2].IMUX_CLK[1]            IO[1].CLK
 			// wire CELL[2].IMUX_LSR[0]            IO[0].LSR
 			// wire CELL[2].IMUX_LSR[1]            IO[1].LSR
 			// wire CELL[2].IMUX_CE[0]             IO[0].CE
 			// wire CELL[2].IMUX_CE[1]             IO[1].CE
-			// wire CELL[2].OUT_F[0]               IO[0].RXDATA0
-			// wire CELL[2].OUT_F[1]               IO[0].RXDATA1
-			// wire CELL[2].OUT_F[2]               IO[0].RXDATA2
-			// wire CELL[2].OUT_F[3]               IO[0].RXDATA3
+			// wire CELL[2].OUT_F[0]               IO[0].RXDATA[0]
+			// wire CELL[2].OUT_F[1]               IO[0].RXDATA[1]
+			// wire CELL[2].OUT_F[2]               IO[0].RXDATA[2]
+			// wire CELL[2].OUT_F[3]               IO[0].RXDATA[3]
 			// wire CELL[2].OUT_F[4]               IO[0].INFF
 			// wire CELL[2].OUT_F[5]               IO[0].DI
 			// wire CELL[2].OUT_F[6]               IO[0].CFLAG
 			// wire CELL[2].OUT_F[7]               IO[1].CFLAG
-			// wire CELL[2].OUT_Q[0]               IO[1].RXDATA0
-			// wire CELL[2].OUT_Q[1]               IO[0].RXDATA4 IO[1].RXDATA1
-			// wire CELL[2].OUT_Q[2]               IO[0].RXDATA5 IO[1].RXDATA2
-			// wire CELL[2].OUT_Q[3]               IO[0].RXDATA6 IO[1].RXDATA3
+			// wire CELL[2].OUT_Q[0]               IO[1].RXDATA[0]
+			// wire CELL[2].OUT_Q[1]               IO[0].RXDATA[4] IO[1].RXDATA[1]
+			// wire CELL[2].OUT_Q[2]               IO[0].RXDATA[5] IO[1].RXDATA[2]
+			// wire CELL[2].OUT_Q[3]               IO[0].RXDATA[6] IO[1].RXDATA[3]
 			// wire CELL[2].OUT_Q[4]               IO[1].INFF
 			// wire CELL[2].OUT_Q[5]               IO[1].DI
 		}
@@ -11755,187 +11874,210 @@ intdb {
 			cell CELL[2];
 
 			bel IO[0] {
-				input CE = CELL[2].IMUX_CE[0];
-				output CFLAG = CELL[2].OUT_F[6];
 				input CLK = CELL[2].IMUX_CLK[0];
-				output DI = CELL[2].OUT_F[5];
-				input DIRECTION = CELL[2].IMUX_A[2];
-				output INFF = CELL[2].OUT_F[4];
-				input LOADN = CELL[2].IMUX_C[2];
 				input LSR = CELL[2].IMUX_LSR[0];
-				input MOVE = CELL[2].IMUX_B[2];
-				output RXDATA0 = CELL[2].OUT_F[0];
-				output RXDATA1 = CELL[2].OUT_F[1];
-				output RXDATA2 = CELL[2].OUT_F[2];
-				output RXDATA3 = CELL[2].OUT_F[3];
-				output RXDATA4 = CELL[2].OUT_Q[1];
-				output RXDATA5 = CELL[2].OUT_Q[2];
-				output RXDATA6 = CELL[2].OUT_Q[3];
+				input CE = CELL[2].IMUX_CE[0];
+				input ECLK = CELL[0].IMUX_IO_ECLK[0];
 				input SLIP = CELL[2].IMUX_B[1];
-				input TSDATA0 = CELL[2].IMUX_B[0];
-				input TSDATA1 = CELL[2].IMUX_C[1];
-				input TXDATA0 = CELL[2].IMUX_A[0];
-				input TXDATA1 = CELL[2].IMUX_C[0];
-				input TXDATA2 = CELL[2].IMUX_D[0];
-				input TXDATA3 = CELL[2].IMUX_A[1];
-				input TXDATA4 = CELL[2].IMUX_A[3];
-				input TXDATA5 = CELL[2].IMUX_C[3];
-				input TXDATA6 = CELL[2].IMUX_D[3];
+				input TXDATA[0] = CELL[2].IMUX_A[0];
+				input TXDATA[1] = CELL[2].IMUX_C[0];
+				input TXDATA[2] = CELL[2].IMUX_D[0];
+				input TXDATA[3] = CELL[2].IMUX_A[1];
+				input TXDATA[4] = CELL[2].IMUX_A[3];
+				input TXDATA[5] = CELL[2].IMUX_C[3];
+				input TXDATA[6] = CELL[2].IMUX_D[3];
+				input TSDATA[0] = CELL[2].IMUX_B[0];
+				input TSDATA[1] = CELL[2].IMUX_C[1];
+				input DIRECTION = CELL[2].IMUX_A[2];
+				input LOADN = CELL[2].IMUX_C[2];
+				input MOVE = CELL[2].IMUX_B[2];
+				output PADDI = CELL[0].OUT_IO_PADDI[0];
+				output DI = CELL[2].OUT_F[5];
+				output RXDATA[0] = CELL[2].OUT_F[0];
+				output RXDATA[1] = CELL[2].OUT_F[1];
+				output RXDATA[2] = CELL[2].OUT_F[2];
+				output RXDATA[3] = CELL[2].OUT_F[3];
+				output RXDATA[4] = CELL[2].OUT_Q[1];
+				output RXDATA[5] = CELL[2].OUT_Q[2];
+				output RXDATA[6] = CELL[2].OUT_Q[3];
+				output CFLAG = CELL[2].OUT_F[6];
+				output INFF = CELL[2].OUT_F[4];
 			}
 
 			bel IO[1] {
-				input CE = CELL[2].IMUX_CE[1];
-				output CFLAG = CELL[2].OUT_F[7];
 				input CLK = CELL[2].IMUX_CLK[1];
-				output DI = CELL[2].OUT_Q[5];
-				input DIRECTION = CELL[2].IMUX_A[5];
-				output INFF = CELL[2].OUT_Q[4];
-				input LOADN = CELL[2].IMUX_C[5];
 				input LSR = CELL[2].IMUX_LSR[1];
-				input MOVE = CELL[2].IMUX_B[5];
-				output RXDATA0 = CELL[2].OUT_Q[0];
-				output RXDATA1 = CELL[2].OUT_Q[1];
-				output RXDATA2 = CELL[2].OUT_Q[2];
-				output RXDATA3 = CELL[2].OUT_Q[3];
+				input CE = CELL[2].IMUX_CE[1];
+				input ECLK = CELL[0].IMUX_IO_ECLK[1];
 				input SLIP = CELL[2].IMUX_B[4];
-				input TSDATA0 = CELL[2].IMUX_B[3];
-				input TSDATA1 = CELL[2].IMUX_C[4];
-				input TXDATA0 = CELL[2].IMUX_A[3];
-				input TXDATA1 = CELL[2].IMUX_C[3];
-				input TXDATA2 = CELL[2].IMUX_D[3];
-				input TXDATA3 = CELL[2].IMUX_A[4];
+				input TXDATA[0] = CELL[2].IMUX_A[3];
+				input TXDATA[1] = CELL[2].IMUX_C[3];
+				input TXDATA[2] = CELL[2].IMUX_D[3];
+				input TXDATA[3] = CELL[2].IMUX_A[4];
+				input TSDATA[0] = CELL[2].IMUX_B[3];
+				input TSDATA[1] = CELL[2].IMUX_C[4];
+				input DIRECTION = CELL[2].IMUX_A[5];
+				input LOADN = CELL[2].IMUX_C[5];
+				input MOVE = CELL[2].IMUX_B[5];
+				output PADDI = CELL[0].OUT_IO_PADDI[1];
+				output DI = CELL[2].OUT_Q[5];
+				output RXDATA[0] = CELL[2].OUT_Q[0];
+				output RXDATA[1] = CELL[2].OUT_Q[1];
+				output RXDATA[2] = CELL[2].OUT_Q[2];
+				output RXDATA[3] = CELL[2].OUT_Q[3];
+				output CFLAG = CELL[2].OUT_F[7];
+				output INFF = CELL[2].OUT_Q[4];
 			}
 
 			bel IO[2] {
-				input CE = CELL[0].IMUX_CE[0];
-				output CFLAG = CELL[0].OUT_F[6];
 				input CLK = CELL[0].IMUX_CLK[0];
-				output DI = CELL[0].OUT_F[5];
-				input DIRECTION = CELL[0].IMUX_A[2];
-				output INFF = CELL[0].OUT_F[4];
-				input LOADN = CELL[0].IMUX_C[2];
 				input LSR = CELL[0].IMUX_LSR[0];
-				input MOVE = CELL[0].IMUX_B[2];
-				output RXDATA0 = CELL[0].OUT_F[0];
-				output RXDATA1 = CELL[0].OUT_F[1];
-				output RXDATA2 = CELL[0].OUT_F[2];
-				output RXDATA3 = CELL[0].OUT_F[3];
-				output RXDATA4 = CELL[0].OUT_Q[1];
-				output RXDATA5 = CELL[0].OUT_Q[2];
-				output RXDATA6 = CELL[0].OUT_Q[3];
+				input CE = CELL[0].IMUX_CE[0];
+				input ECLK = CELL[0].IMUX_IO_ECLK[2];
 				input SLIP = CELL[0].IMUX_B[1];
-				input TSDATA0 = CELL[0].IMUX_B[0];
-				input TSDATA1 = CELL[0].IMUX_C[1];
-				input TXDATA0 = CELL[0].IMUX_A[0];
-				input TXDATA1 = CELL[0].IMUX_C[0];
-				input TXDATA2 = CELL[0].IMUX_D[0];
-				input TXDATA3 = CELL[0].IMUX_A[1];
-				input TXDATA4 = CELL[0].IMUX_A[3];
-				input TXDATA5 = CELL[0].IMUX_C[3];
-				input TXDATA6 = CELL[0].IMUX_D[3];
+				input TXDATA[0] = CELL[0].IMUX_A[0];
+				input TXDATA[1] = CELL[0].IMUX_C[0];
+				input TXDATA[2] = CELL[0].IMUX_D[0];
+				input TXDATA[3] = CELL[0].IMUX_A[1];
+				input TXDATA[4] = CELL[0].IMUX_A[3];
+				input TXDATA[5] = CELL[0].IMUX_C[3];
+				input TXDATA[6] = CELL[0].IMUX_D[3];
+				input TSDATA[0] = CELL[0].IMUX_B[0];
+				input TSDATA[1] = CELL[0].IMUX_C[1];
+				input DIRECTION = CELL[0].IMUX_A[2];
+				input LOADN = CELL[0].IMUX_C[2];
+				input MOVE = CELL[0].IMUX_B[2];
+				output PADDI = CELL[0].OUT_IO_PADDI[2];
+				output DI = CELL[0].OUT_F[5];
+				output RXDATA[0] = CELL[0].OUT_F[0];
+				output RXDATA[1] = CELL[0].OUT_F[1];
+				output RXDATA[2] = CELL[0].OUT_F[2];
+				output RXDATA[3] = CELL[0].OUT_F[3];
+				output RXDATA[4] = CELL[0].OUT_Q[1];
+				output RXDATA[5] = CELL[0].OUT_Q[2];
+				output RXDATA[6] = CELL[0].OUT_Q[3];
+				output CFLAG = CELL[0].OUT_F[6];
+				output INFF = CELL[0].OUT_F[4];
 			}
 
 			bel IO[3] {
-				input CE = CELL[0].IMUX_CE[1];
-				output CFLAG = CELL[0].OUT_F[7];
 				input CLK = CELL[0].IMUX_CLK[1];
-				output DI = CELL[0].OUT_Q[5];
-				input DIRECTION = CELL[0].IMUX_A[5];
-				output INFF = CELL[0].OUT_Q[4];
-				input LOADN = CELL[0].IMUX_C[5];
 				input LSR = CELL[0].IMUX_LSR[1];
-				input MOVE = CELL[0].IMUX_B[5];
-				output RXDATA0 = CELL[0].OUT_Q[0];
-				output RXDATA1 = CELL[0].OUT_Q[1];
-				output RXDATA2 = CELL[0].OUT_Q[2];
-				output RXDATA3 = CELL[0].OUT_Q[3];
+				input CE = CELL[0].IMUX_CE[1];
+				input ECLK = CELL[0].IMUX_IO_ECLK[3];
 				input SLIP = CELL[0].IMUX_B[4];
-				input TSDATA0 = CELL[0].IMUX_B[3];
-				input TSDATA1 = CELL[0].IMUX_C[4];
-				input TXDATA0 = CELL[0].IMUX_A[3];
-				input TXDATA1 = CELL[0].IMUX_C[3];
-				input TXDATA2 = CELL[0].IMUX_D[3];
-				input TXDATA3 = CELL[0].IMUX_A[4];
+				input TXDATA[0] = CELL[0].IMUX_A[3];
+				input TXDATA[1] = CELL[0].IMUX_C[3];
+				input TXDATA[2] = CELL[0].IMUX_D[3];
+				input TXDATA[3] = CELL[0].IMUX_A[4];
+				input TSDATA[0] = CELL[0].IMUX_B[3];
+				input TSDATA[1] = CELL[0].IMUX_C[4];
+				input DIRECTION = CELL[0].IMUX_A[5];
+				input LOADN = CELL[0].IMUX_C[5];
+				input MOVE = CELL[0].IMUX_B[5];
+				output PADDI = CELL[0].OUT_IO_PADDI[3];
+				output DI = CELL[0].OUT_Q[5];
+				output RXDATA[0] = CELL[0].OUT_Q[0];
+				output RXDATA[1] = CELL[0].OUT_Q[1];
+				output RXDATA[2] = CELL[0].OUT_Q[2];
+				output RXDATA[3] = CELL[0].OUT_Q[3];
+				output CFLAG = CELL[0].OUT_F[7];
+				output INFF = CELL[0].OUT_Q[4];
 			}
 
-			// wire CELL[0].IMUX_A[0]              IO[2].TXDATA0
-			// wire CELL[0].IMUX_A[1]              IO[2].TXDATA3
+			switchbox IO_INT {
+				mux CELL[0].IMUX_IO_ECLK[0] = CELL[0].ECLK[0] | CELL[0].ECLK[1];
+				mux CELL[0].IMUX_IO_ECLK[1] = CELL[0].ECLK[0] | CELL[0].ECLK[1];
+				mux CELL[0].IMUX_IO_ECLK[2] = CELL[0].ECLK[0] | CELL[0].ECLK[1];
+				mux CELL[0].IMUX_IO_ECLK[3] = CELL[0].ECLK[0] | CELL[0].ECLK[1];
+			}
+
+			// wire CELL[0].IMUX_A[0]              IO[2].TXDATA[0]
+			// wire CELL[0].IMUX_A[1]              IO[2].TXDATA[3]
 			// wire CELL[0].IMUX_A[2]              IO[2].DIRECTION
-			// wire CELL[0].IMUX_A[3]              IO[2].TXDATA4 IO[3].TXDATA0
-			// wire CELL[0].IMUX_A[4]              IO[3].TXDATA3
+			// wire CELL[0].IMUX_A[3]              IO[2].TXDATA[4] IO[3].TXDATA[0]
+			// wire CELL[0].IMUX_A[4]              IO[3].TXDATA[3]
 			// wire CELL[0].IMUX_A[5]              IO[3].DIRECTION
-			// wire CELL[0].IMUX_B[0]              IO[2].TSDATA0
+			// wire CELL[0].IMUX_B[0]              IO[2].TSDATA[0]
 			// wire CELL[0].IMUX_B[1]              IO[2].SLIP
 			// wire CELL[0].IMUX_B[2]              IO[2].MOVE
-			// wire CELL[0].IMUX_B[3]              IO[3].TSDATA0
+			// wire CELL[0].IMUX_B[3]              IO[3].TSDATA[0]
 			// wire CELL[0].IMUX_B[4]              IO[3].SLIP
 			// wire CELL[0].IMUX_B[5]              IO[3].MOVE
-			// wire CELL[0].IMUX_C[0]              IO[2].TXDATA1
-			// wire CELL[0].IMUX_C[1]              IO[2].TSDATA1
+			// wire CELL[0].IMUX_C[0]              IO[2].TXDATA[1]
+			// wire CELL[0].IMUX_C[1]              IO[2].TSDATA[1]
 			// wire CELL[0].IMUX_C[2]              IO[2].LOADN
-			// wire CELL[0].IMUX_C[3]              IO[2].TXDATA5 IO[3].TXDATA1
-			// wire CELL[0].IMUX_C[4]              IO[3].TSDATA1
+			// wire CELL[0].IMUX_C[3]              IO[2].TXDATA[5] IO[3].TXDATA[1]
+			// wire CELL[0].IMUX_C[4]              IO[3].TSDATA[1]
 			// wire CELL[0].IMUX_C[5]              IO[3].LOADN
-			// wire CELL[0].IMUX_D[0]              IO[2].TXDATA2
-			// wire CELL[0].IMUX_D[3]              IO[2].TXDATA6 IO[3].TXDATA2
+			// wire CELL[0].IMUX_D[0]              IO[2].TXDATA[2]
+			// wire CELL[0].IMUX_D[3]              IO[2].TXDATA[6] IO[3].TXDATA[2]
 			// wire CELL[0].IMUX_CLK[0]            IO[2].CLK
 			// wire CELL[0].IMUX_CLK[1]            IO[3].CLK
 			// wire CELL[0].IMUX_LSR[0]            IO[2].LSR
 			// wire CELL[0].IMUX_LSR[1]            IO[3].LSR
 			// wire CELL[0].IMUX_CE[0]             IO[2].CE
 			// wire CELL[0].IMUX_CE[1]             IO[3].CE
-			// wire CELL[0].OUT_F[0]               IO[2].RXDATA0
-			// wire CELL[0].OUT_F[1]               IO[2].RXDATA1
-			// wire CELL[0].OUT_F[2]               IO[2].RXDATA2
-			// wire CELL[0].OUT_F[3]               IO[2].RXDATA3
+			// wire CELL[0].OUT_F[0]               IO[2].RXDATA[0]
+			// wire CELL[0].OUT_F[1]               IO[2].RXDATA[1]
+			// wire CELL[0].OUT_F[2]               IO[2].RXDATA[2]
+			// wire CELL[0].OUT_F[3]               IO[2].RXDATA[3]
 			// wire CELL[0].OUT_F[4]               IO[2].INFF
 			// wire CELL[0].OUT_F[5]               IO[2].DI
 			// wire CELL[0].OUT_F[6]               IO[2].CFLAG
 			// wire CELL[0].OUT_F[7]               IO[3].CFLAG
-			// wire CELL[0].OUT_Q[0]               IO[3].RXDATA0
-			// wire CELL[0].OUT_Q[1]               IO[2].RXDATA4 IO[3].RXDATA1
-			// wire CELL[0].OUT_Q[2]               IO[2].RXDATA5 IO[3].RXDATA2
-			// wire CELL[0].OUT_Q[3]               IO[2].RXDATA6 IO[3].RXDATA3
+			// wire CELL[0].OUT_Q[0]               IO[3].RXDATA[0]
+			// wire CELL[0].OUT_Q[1]               IO[2].RXDATA[4] IO[3].RXDATA[1]
+			// wire CELL[0].OUT_Q[2]               IO[2].RXDATA[5] IO[3].RXDATA[2]
+			// wire CELL[0].OUT_Q[3]               IO[2].RXDATA[6] IO[3].RXDATA[3]
 			// wire CELL[0].OUT_Q[4]               IO[3].INFF
 			// wire CELL[0].OUT_Q[5]               IO[3].DI
-			// wire CELL[2].IMUX_A[0]              IO[0].TXDATA0
-			// wire CELL[2].IMUX_A[1]              IO[0].TXDATA3
+			// wire CELL[0].OUT_IO_PADDI[0]        IO[0].PADDI
+			// wire CELL[0].OUT_IO_PADDI[1]        IO[1].PADDI
+			// wire CELL[0].OUT_IO_PADDI[2]        IO[2].PADDI
+			// wire CELL[0].OUT_IO_PADDI[3]        IO[3].PADDI
+			// wire CELL[0].IMUX_IO_ECLK[0]        IO[0].ECLK
+			// wire CELL[0].IMUX_IO_ECLK[1]        IO[1].ECLK
+			// wire CELL[0].IMUX_IO_ECLK[2]        IO[2].ECLK
+			// wire CELL[0].IMUX_IO_ECLK[3]        IO[3].ECLK
+			// wire CELL[2].IMUX_A[0]              IO[0].TXDATA[0]
+			// wire CELL[2].IMUX_A[1]              IO[0].TXDATA[3]
 			// wire CELL[2].IMUX_A[2]              IO[0].DIRECTION
-			// wire CELL[2].IMUX_A[3]              IO[0].TXDATA4 IO[1].TXDATA0
-			// wire CELL[2].IMUX_A[4]              IO[1].TXDATA3
+			// wire CELL[2].IMUX_A[3]              IO[0].TXDATA[4] IO[1].TXDATA[0]
+			// wire CELL[2].IMUX_A[4]              IO[1].TXDATA[3]
 			// wire CELL[2].IMUX_A[5]              IO[1].DIRECTION
-			// wire CELL[2].IMUX_B[0]              IO[0].TSDATA0
+			// wire CELL[2].IMUX_B[0]              IO[0].TSDATA[0]
 			// wire CELL[2].IMUX_B[1]              IO[0].SLIP
 			// wire CELL[2].IMUX_B[2]              IO[0].MOVE
-			// wire CELL[2].IMUX_B[3]              IO[1].TSDATA0
+			// wire CELL[2].IMUX_B[3]              IO[1].TSDATA[0]
 			// wire CELL[2].IMUX_B[4]              IO[1].SLIP
 			// wire CELL[2].IMUX_B[5]              IO[1].MOVE
-			// wire CELL[2].IMUX_C[0]              IO[0].TXDATA1
-			// wire CELL[2].IMUX_C[1]              IO[0].TSDATA1
+			// wire CELL[2].IMUX_C[0]              IO[0].TXDATA[1]
+			// wire CELL[2].IMUX_C[1]              IO[0].TSDATA[1]
 			// wire CELL[2].IMUX_C[2]              IO[0].LOADN
-			// wire CELL[2].IMUX_C[3]              IO[0].TXDATA5 IO[1].TXDATA1
-			// wire CELL[2].IMUX_C[4]              IO[1].TSDATA1
+			// wire CELL[2].IMUX_C[3]              IO[0].TXDATA[5] IO[1].TXDATA[1]
+			// wire CELL[2].IMUX_C[4]              IO[1].TSDATA[1]
 			// wire CELL[2].IMUX_C[5]              IO[1].LOADN
-			// wire CELL[2].IMUX_D[0]              IO[0].TXDATA2
-			// wire CELL[2].IMUX_D[3]              IO[0].TXDATA6 IO[1].TXDATA2
+			// wire CELL[2].IMUX_D[0]              IO[0].TXDATA[2]
+			// wire CELL[2].IMUX_D[3]              IO[0].TXDATA[6] IO[1].TXDATA[2]
 			// wire CELL[2].IMUX_CLK[0]            IO[0].CLK
 			// wire CELL[2].IMUX_CLK[1]            IO[1].CLK
 			// wire CELL[2].IMUX_LSR[0]            IO[0].LSR
 			// wire CELL[2].IMUX_LSR[1]            IO[1].LSR
 			// wire CELL[2].IMUX_CE[0]             IO[0].CE
 			// wire CELL[2].IMUX_CE[1]             IO[1].CE
-			// wire CELL[2].OUT_F[0]               IO[0].RXDATA0
-			// wire CELL[2].OUT_F[1]               IO[0].RXDATA1
-			// wire CELL[2].OUT_F[2]               IO[0].RXDATA2
-			// wire CELL[2].OUT_F[3]               IO[0].RXDATA3
+			// wire CELL[2].OUT_F[0]               IO[0].RXDATA[0]
+			// wire CELL[2].OUT_F[1]               IO[0].RXDATA[1]
+			// wire CELL[2].OUT_F[2]               IO[0].RXDATA[2]
+			// wire CELL[2].OUT_F[3]               IO[0].RXDATA[3]
 			// wire CELL[2].OUT_F[4]               IO[0].INFF
 			// wire CELL[2].OUT_F[5]               IO[0].DI
 			// wire CELL[2].OUT_F[6]               IO[0].CFLAG
 			// wire CELL[2].OUT_F[7]               IO[1].CFLAG
-			// wire CELL[2].OUT_Q[0]               IO[1].RXDATA0
-			// wire CELL[2].OUT_Q[1]               IO[0].RXDATA4 IO[1].RXDATA1
-			// wire CELL[2].OUT_Q[2]               IO[0].RXDATA5 IO[1].RXDATA2
-			// wire CELL[2].OUT_Q[3]               IO[0].RXDATA6 IO[1].RXDATA3
+			// wire CELL[2].OUT_Q[0]               IO[1].RXDATA[0]
+			// wire CELL[2].OUT_Q[1]               IO[0].RXDATA[4] IO[1].RXDATA[1]
+			// wire CELL[2].OUT_Q[2]               IO[0].RXDATA[5] IO[1].RXDATA[2]
+			// wire CELL[2].OUT_Q[3]               IO[0].RXDATA[6] IO[1].RXDATA[3]
 			// wire CELL[2].OUT_Q[4]               IO[1].INFF
 			// wire CELL[2].OUT_Q[5]               IO[1].DI
 		}
@@ -11944,36 +12086,38 @@ intdb {
 			cell CELL;
 
 			bel IO[0] {
-				input CE = IMUX_CE[0];
-				output CFLAG = OUT_F[3];
 				input CLK = IMUX_CLK[0];
-				output DI = OUT_Q[0];
-				input DIRECTION = IMUX_B[1];
-				output INFF = OUT_F[2];
-				input LOADN = IMUX_D[1];
 				input LSR = IMUX_LSR[0];
+				input CE = IMUX_CE[0];
+				input TXDATA[0] = IMUX_A[0];
+				input TXDATA[1] = IMUX_C[0];
+				input TSDATA[0] = IMUX_B[0];
+				input DIRECTION = IMUX_B[1];
+				input LOADN = IMUX_D[1];
 				input MOVE = IMUX_C[1];
-				output RXDATA0 = OUT_F[0];
-				output RXDATA1 = OUT_F[1];
-				input TSDATA0 = IMUX_B[0];
-				input TXDATA0 = IMUX_A[0];
-				input TXDATA1 = IMUX_C[0];
+				output PADDI = OUT_IO_PADDI[0];
+				output DI = OUT_Q[0];
+				output RXDATA[0] = OUT_F[0];
+				output RXDATA[1] = OUT_F[1];
+				output CFLAG = OUT_F[3];
+				output INFF = OUT_F[2];
 			}
 
-			// wire IMUX_A[0]                      IO[0].TXDATA0
-			// wire IMUX_B[0]                      IO[0].TSDATA0
+			// wire IMUX_A[0]                      IO[0].TXDATA[0]
+			// wire IMUX_B[0]                      IO[0].TSDATA[0]
 			// wire IMUX_B[1]                      IO[0].DIRECTION
-			// wire IMUX_C[0]                      IO[0].TXDATA1
+			// wire IMUX_C[0]                      IO[0].TXDATA[1]
 			// wire IMUX_C[1]                      IO[0].MOVE
 			// wire IMUX_D[1]                      IO[0].LOADN
 			// wire IMUX_CLK[0]                    IO[0].CLK
 			// wire IMUX_LSR[0]                    IO[0].LSR
 			// wire IMUX_CE[0]                     IO[0].CE
-			// wire OUT_F[0]                       IO[0].RXDATA0
-			// wire OUT_F[1]                       IO[0].RXDATA1
+			// wire OUT_F[0]                       IO[0].RXDATA[0]
+			// wire OUT_F[1]                       IO[0].RXDATA[1]
 			// wire OUT_F[2]                       IO[0].INFF
 			// wire OUT_F[3]                       IO[0].CFLAG
 			// wire OUT_Q[0]                       IO[0].DI
+			// wire OUT_IO_PADDI[0]                IO[0].PADDI
 		}
 
 		tile_class IO_S2 {
@@ -11981,64 +12125,68 @@ intdb {
 			cell CELL[1];
 
 			bel IO[0] {
-				input CE = CELL[0].IMUX_CE[0];
-				output CFLAG = CELL[0].OUT_F[3];
 				input CLK = CELL[0].IMUX_CLK[0];
-				output DI = CELL[0].OUT_Q[0];
-				input DIRECTION = CELL[0].IMUX_B[1];
-				output INFF = CELL[0].OUT_F[2];
-				input LOADN = CELL[0].IMUX_D[1];
 				input LSR = CELL[0].IMUX_LSR[0];
+				input CE = CELL[0].IMUX_CE[0];
+				input TXDATA[0] = CELL[0].IMUX_A[0];
+				input TXDATA[1] = CELL[0].IMUX_C[0];
+				input TSDATA[0] = CELL[0].IMUX_B[0];
+				input DIRECTION = CELL[0].IMUX_B[1];
+				input LOADN = CELL[0].IMUX_D[1];
 				input MOVE = CELL[0].IMUX_C[1];
-				output RXDATA0 = CELL[0].OUT_F[0];
-				output RXDATA1 = CELL[0].OUT_F[1];
-				input TSDATA0 = CELL[0].IMUX_B[0];
-				input TXDATA0 = CELL[0].IMUX_A[0];
-				input TXDATA1 = CELL[0].IMUX_C[0];
+				output PADDI = CELL[0].OUT_IO_PADDI[0];
+				output DI = CELL[0].OUT_Q[0];
+				output RXDATA[0] = CELL[0].OUT_F[0];
+				output RXDATA[1] = CELL[0].OUT_F[1];
+				output CFLAG = CELL[0].OUT_F[3];
+				output INFF = CELL[0].OUT_F[2];
 			}
 
 			bel IO[1] {
-				input CE = CELL[1].IMUX_CE[0];
-				output CFLAG = CELL[1].OUT_F[3];
 				input CLK = CELL[1].IMUX_CLK[0];
-				output DI = CELL[1].OUT_Q[0];
-				input DIRECTION = CELL[1].IMUX_B[1];
-				output INFF = CELL[1].OUT_F[2];
-				input LOADN = CELL[1].IMUX_D[1];
 				input LSR = CELL[1].IMUX_LSR[0];
+				input CE = CELL[1].IMUX_CE[0];
+				input TXDATA[0] = CELL[1].IMUX_A[0];
+				input TXDATA[1] = CELL[1].IMUX_C[0];
+				input TSDATA[0] = CELL[1].IMUX_B[0];
+				input DIRECTION = CELL[1].IMUX_B[1];
+				input LOADN = CELL[1].IMUX_D[1];
 				input MOVE = CELL[1].IMUX_C[1];
-				output RXDATA0 = CELL[1].OUT_F[0];
-				output RXDATA1 = CELL[1].OUT_F[1];
-				input TSDATA0 = CELL[1].IMUX_B[0];
-				input TXDATA0 = CELL[1].IMUX_A[0];
-				input TXDATA1 = CELL[1].IMUX_C[0];
+				output PADDI = CELL[0].OUT_IO_PADDI[1];
+				output DI = CELL[1].OUT_Q[0];
+				output RXDATA[0] = CELL[1].OUT_F[0];
+				output RXDATA[1] = CELL[1].OUT_F[1];
+				output CFLAG = CELL[1].OUT_F[3];
+				output INFF = CELL[1].OUT_F[2];
 			}
 
-			// wire CELL[0].IMUX_A[0]              IO[0].TXDATA0
-			// wire CELL[0].IMUX_B[0]              IO[0].TSDATA0
+			// wire CELL[0].IMUX_A[0]              IO[0].TXDATA[0]
+			// wire CELL[0].IMUX_B[0]              IO[0].TSDATA[0]
 			// wire CELL[0].IMUX_B[1]              IO[0].DIRECTION
-			// wire CELL[0].IMUX_C[0]              IO[0].TXDATA1
+			// wire CELL[0].IMUX_C[0]              IO[0].TXDATA[1]
 			// wire CELL[0].IMUX_C[1]              IO[0].MOVE
 			// wire CELL[0].IMUX_D[1]              IO[0].LOADN
 			// wire CELL[0].IMUX_CLK[0]            IO[0].CLK
 			// wire CELL[0].IMUX_LSR[0]            IO[0].LSR
 			// wire CELL[0].IMUX_CE[0]             IO[0].CE
-			// wire CELL[0].OUT_F[0]               IO[0].RXDATA0
-			// wire CELL[0].OUT_F[1]               IO[0].RXDATA1
+			// wire CELL[0].OUT_F[0]               IO[0].RXDATA[0]
+			// wire CELL[0].OUT_F[1]               IO[0].RXDATA[1]
 			// wire CELL[0].OUT_F[2]               IO[0].INFF
 			// wire CELL[0].OUT_F[3]               IO[0].CFLAG
 			// wire CELL[0].OUT_Q[0]               IO[0].DI
-			// wire CELL[1].IMUX_A[0]              IO[1].TXDATA0
-			// wire CELL[1].IMUX_B[0]              IO[1].TSDATA0
+			// wire CELL[0].OUT_IO_PADDI[0]        IO[0].PADDI
+			// wire CELL[0].OUT_IO_PADDI[1]        IO[1].PADDI
+			// wire CELL[1].IMUX_A[0]              IO[1].TXDATA[0]
+			// wire CELL[1].IMUX_B[0]              IO[1].TSDATA[0]
 			// wire CELL[1].IMUX_B[1]              IO[1].DIRECTION
-			// wire CELL[1].IMUX_C[0]              IO[1].TXDATA1
+			// wire CELL[1].IMUX_C[0]              IO[1].TXDATA[1]
 			// wire CELL[1].IMUX_C[1]              IO[1].MOVE
 			// wire CELL[1].IMUX_D[1]              IO[1].LOADN
 			// wire CELL[1].IMUX_CLK[0]            IO[1].CLK
 			// wire CELL[1].IMUX_LSR[0]            IO[1].LSR
 			// wire CELL[1].IMUX_CE[0]             IO[1].CE
-			// wire CELL[1].OUT_F[0]               IO[1].RXDATA0
-			// wire CELL[1].OUT_F[1]               IO[1].RXDATA1
+			// wire CELL[1].OUT_F[0]               IO[1].RXDATA[0]
+			// wire CELL[1].OUT_F[1]               IO[1].RXDATA[1]
 			// wire CELL[1].OUT_F[2]               IO[1].INFF
 			// wire CELL[1].OUT_F[3]               IO[1].CFLAG
 			// wire CELL[1].OUT_Q[0]               IO[1].DI
@@ -12049,64 +12197,68 @@ intdb {
 			cell CELL[1];
 
 			bel IO[0] {
-				input CE = CELL[0].IMUX_CE[0];
-				output CFLAG = CELL[0].OUT_F[3];
 				input CLK = CELL[0].IMUX_CLK[0];
-				output DI = CELL[0].OUT_Q[0];
-				input DIRECTION = CELL[0].IMUX_B[1];
-				output INFF = CELL[0].OUT_F[2];
-				input LOADN = CELL[0].IMUX_D[1];
 				input LSR = CELL[0].IMUX_LSR[0];
+				input CE = CELL[0].IMUX_CE[0];
+				input TXDATA[0] = CELL[0].IMUX_A[0];
+				input TXDATA[1] = CELL[0].IMUX_C[0];
+				input TSDATA[0] = CELL[0].IMUX_B[0];
+				input DIRECTION = CELL[0].IMUX_B[1];
+				input LOADN = CELL[0].IMUX_D[1];
 				input MOVE = CELL[0].IMUX_C[1];
-				output RXDATA0 = CELL[0].OUT_F[0];
-				output RXDATA1 = CELL[0].OUT_F[1];
-				input TSDATA0 = CELL[0].IMUX_B[0];
-				input TXDATA0 = CELL[0].IMUX_A[0];
-				input TXDATA1 = CELL[0].IMUX_C[0];
+				output PADDI = CELL[0].OUT_IO_PADDI[0];
+				output DI = CELL[0].OUT_Q[0];
+				output RXDATA[0] = CELL[0].OUT_F[0];
+				output RXDATA[1] = CELL[0].OUT_F[1];
+				output CFLAG = CELL[0].OUT_F[3];
+				output INFF = CELL[0].OUT_F[2];
 			}
 
 			bel IO[1] {
-				input CE = CELL[1].IMUX_CE[0];
-				output CFLAG = CELL[1].OUT_F[3];
 				input CLK = CELL[1].IMUX_CLK[0];
-				output DI = CELL[1].OUT_Q[0];
-				input DIRECTION = CELL[1].IMUX_B[1];
-				output INFF = CELL[1].OUT_F[2];
-				input LOADN = CELL[1].IMUX_D[1];
 				input LSR = CELL[1].IMUX_LSR[0];
+				input CE = CELL[1].IMUX_CE[0];
+				input TXDATA[0] = CELL[1].IMUX_A[0];
+				input TXDATA[1] = CELL[1].IMUX_C[0];
+				input TSDATA[0] = CELL[1].IMUX_B[0];
+				input DIRECTION = CELL[1].IMUX_B[1];
+				input LOADN = CELL[1].IMUX_D[1];
 				input MOVE = CELL[1].IMUX_C[1];
-				output RXDATA0 = CELL[1].OUT_F[0];
-				output RXDATA1 = CELL[1].OUT_F[1];
-				input TSDATA0 = CELL[1].IMUX_B[0];
-				input TXDATA0 = CELL[1].IMUX_A[0];
-				input TXDATA1 = CELL[1].IMUX_C[0];
+				output PADDI = CELL[0].OUT_IO_PADDI[1];
+				output DI = CELL[1].OUT_Q[0];
+				output RXDATA[0] = CELL[1].OUT_F[0];
+				output RXDATA[1] = CELL[1].OUT_F[1];
+				output CFLAG = CELL[1].OUT_F[3];
+				output INFF = CELL[1].OUT_F[2];
 			}
 
-			// wire CELL[0].IMUX_A[0]              IO[0].TXDATA0
-			// wire CELL[0].IMUX_B[0]              IO[0].TSDATA0
+			// wire CELL[0].IMUX_A[0]              IO[0].TXDATA[0]
+			// wire CELL[0].IMUX_B[0]              IO[0].TSDATA[0]
 			// wire CELL[0].IMUX_B[1]              IO[0].DIRECTION
-			// wire CELL[0].IMUX_C[0]              IO[0].TXDATA1
+			// wire CELL[0].IMUX_C[0]              IO[0].TXDATA[1]
 			// wire CELL[0].IMUX_C[1]              IO[0].MOVE
 			// wire CELL[0].IMUX_D[1]              IO[0].LOADN
 			// wire CELL[0].IMUX_CLK[0]            IO[0].CLK
 			// wire CELL[0].IMUX_LSR[0]            IO[0].LSR
 			// wire CELL[0].IMUX_CE[0]             IO[0].CE
-			// wire CELL[0].OUT_F[0]               IO[0].RXDATA0
-			// wire CELL[0].OUT_F[1]               IO[0].RXDATA1
+			// wire CELL[0].OUT_F[0]               IO[0].RXDATA[0]
+			// wire CELL[0].OUT_F[1]               IO[0].RXDATA[1]
 			// wire CELL[0].OUT_F[2]               IO[0].INFF
 			// wire CELL[0].OUT_F[3]               IO[0].CFLAG
 			// wire CELL[0].OUT_Q[0]               IO[0].DI
-			// wire CELL[1].IMUX_A[0]              IO[1].TXDATA0
-			// wire CELL[1].IMUX_B[0]              IO[1].TSDATA0
+			// wire CELL[0].OUT_IO_PADDI[0]        IO[0].PADDI
+			// wire CELL[0].OUT_IO_PADDI[1]        IO[1].PADDI
+			// wire CELL[1].IMUX_A[0]              IO[1].TXDATA[0]
+			// wire CELL[1].IMUX_B[0]              IO[1].TSDATA[0]
 			// wire CELL[1].IMUX_B[1]              IO[1].DIRECTION
-			// wire CELL[1].IMUX_C[0]              IO[1].TXDATA1
+			// wire CELL[1].IMUX_C[0]              IO[1].TXDATA[1]
 			// wire CELL[1].IMUX_C[1]              IO[1].MOVE
 			// wire CELL[1].IMUX_D[1]              IO[1].LOADN
 			// wire CELL[1].IMUX_CLK[0]            IO[1].CLK
 			// wire CELL[1].IMUX_LSR[0]            IO[1].LSR
 			// wire CELL[1].IMUX_CE[0]             IO[1].CE
-			// wire CELL[1].OUT_F[0]               IO[1].RXDATA0
-			// wire CELL[1].OUT_F[1]               IO[1].RXDATA1
+			// wire CELL[1].OUT_F[0]               IO[1].RXDATA[0]
+			// wire CELL[1].OUT_F[1]               IO[1].RXDATA[1]
 			// wire CELL[1].OUT_F[2]               IO[1].INFF
 			// wire CELL[1].OUT_F[3]               IO[1].CFLAG
 			// wire CELL[1].OUT_Q[0]               IO[1].DI
@@ -12131,9 +12283,9 @@ intdb {
 		bel_slot START: START;
 		bel_slot GSR: GSR;
 		bel_slot PLLREFCS[0]: legacy;
-		bel_slot DDRDLL: legacy;
+		bel_slot DDRDLL: DDRDLL;
 		bel_slot DTR: DTR;
-		bel_slot DQS[0]: legacy;
+		bel_slot DQS[0]: DQS;
 		bel_slot JTAG: JTAG;
 		bel_slot OSC: OSC;
 		bel_slot SED: SED;
@@ -14987,37 +15139,43 @@ intdb {
 		tile_class DDRDLL {
 			cell CELL;
 
+			switchbox BEL_INT {
+				mux IMUX_DDRDLL_CLK = IMUX_CLK[0] | ECLK[0] | ECLK[1];
+			}
+
 			bel DDRDLL {
-				input CLK = IMUX_CLK[0];
-				output DCNTL0 = OUT_F[0];
-				output DCNTL1 = OUT_F[1];
-				output DCNTL2 = OUT_F[2];
-				output DCNTL3 = OUT_F[3];
-				output DCNTL4 = OUT_F[4];
-				output DCNTL5 = OUT_F[5];
-				output DCNTL6 = OUT_F[6];
-				output DCNTL7 = OUT_F[7];
-				output DIVOSC = OUT_Q[1];
-				input FREEZE = IMUX_A[0];
-				output LOCK = OUT_Q[0];
+				input CLK = IMUX_DDRDLL_CLK;
 				input RST = IMUX_LSR[0];
 				input UDDCNTLN = IMUX_B[0];
+				input FREEZE = IMUX_A[0];
+				output LOCK = OUT_Q[0];
+				output DCNTL[0] = OUT_F[0];
+				output DCNTL[1] = OUT_F[1];
+				output DCNTL[2] = OUT_F[2];
+				output DCNTL[3] = OUT_F[3];
+				output DCNTL[4] = OUT_F[4];
+				output DCNTL[5] = OUT_F[5];
+				output DCNTL[6] = OUT_F[6];
+				output DCNTL[7] = OUT_F[7];
+				output DIVOSC = OUT_Q[1];
+				output DDRDEL = OUT_DDRDLL_DDRDEL;
 			}
 
 			// wire IMUX_A[0]                      DDRDLL.FREEZE
 			// wire IMUX_B[0]                      DDRDLL.UDDCNTLN
-			// wire IMUX_CLK[0]                    DDRDLL.CLK
 			// wire IMUX_LSR[0]                    DDRDLL.RST
-			// wire OUT_F[0]                       DDRDLL.DCNTL0
-			// wire OUT_F[1]                       DDRDLL.DCNTL1
-			// wire OUT_F[2]                       DDRDLL.DCNTL2
-			// wire OUT_F[3]                       DDRDLL.DCNTL3
-			// wire OUT_F[4]                       DDRDLL.DCNTL4
-			// wire OUT_F[5]                       DDRDLL.DCNTL5
-			// wire OUT_F[6]                       DDRDLL.DCNTL6
-			// wire OUT_F[7]                       DDRDLL.DCNTL7
+			// wire OUT_F[0]                       DDRDLL.DCNTL[0]
+			// wire OUT_F[1]                       DDRDLL.DCNTL[1]
+			// wire OUT_F[2]                       DDRDLL.DCNTL[2]
+			// wire OUT_F[3]                       DDRDLL.DCNTL[3]
+			// wire OUT_F[4]                       DDRDLL.DCNTL[4]
+			// wire OUT_F[5]                       DDRDLL.DCNTL[5]
+			// wire OUT_F[6]                       DDRDLL.DCNTL[6]
+			// wire OUT_F[7]                       DDRDLL.DCNTL[7]
 			// wire OUT_Q[0]                       DDRDLL.LOCK
 			// wire OUT_Q[1]                       DDRDLL.DIVOSC
+			// wire OUT_DDRDLL_DDRDEL              DDRDLL.DDRDEL
+			// wire IMUX_DDRDLL_CLK                DDRDLL.CLK
 		}
 
 		tile_class DTR {
@@ -15054,38 +15212,47 @@ intdb {
 			cell CELL[4];
 			cell CELL[5];
 
+			switchbox BEL_INT {
+				mux CELL[0].IMUX_DQS_ECLK = CELL[0].ECLK[0] | CELL[0].ECLK[1];
+				mux CELL[0].IMUX_DQS_DDRDEL = CELL[0].DDRDEL_S | CELL[0].DDRDEL_N;
+			}
+
 			bel DQS[0] {
-				output BURSTDET = CELL[4].OUT_Q[7];
-				output DATAVALID = CELL[4].OUT_Q[6];
-				output DQSR90 = CELL[4].OUT_F[6];
-				output DQSW = CELL[4].OUT_F[7];
-				output DQSW270 = CELL[3].OUT_Q[6];
-				input DYNDELAY0 = CELL[4].IMUX_D[3];
-				input DYNDELAY1 = CELL[4].IMUX_A[4];
-				input DYNDELAY2 = CELL[4].IMUX_B[4];
-				input DYNDELAY3 = CELL[4].IMUX_C[4];
-				input DYNDELAY4 = CELL[4].IMUX_D[4];
-				input DYNDELAY5 = CELL[4].IMUX_A[5];
-				input DYNDELAY6 = CELL[4].IMUX_B[5];
-				input DYNDELAY7 = CELL[4].IMUX_C[5];
+				input READ[0] = CELL[4].IMUX_B[1];
+				input READ[1] = CELL[4].IMUX_C[1];
+				input SCLK = CELL[4].IMUX_CLK[1];
+				input RST = CELL[4].IMUX_LSR[1];
+				input ECLK = CELL[0].IMUX_DQS_ECLK;
+				input DYNDELAY[0] = CELL[4].IMUX_D[3];
+				input DYNDELAY[1] = CELL[4].IMUX_A[4];
+				input DYNDELAY[2] = CELL[4].IMUX_B[4];
+				input DYNDELAY[3] = CELL[4].IMUX_C[4];
+				input DYNDELAY[4] = CELL[4].IMUX_D[4];
+				input DYNDELAY[5] = CELL[4].IMUX_A[5];
+				input DYNDELAY[6] = CELL[4].IMUX_B[5];
+				input DYNDELAY[7] = CELL[4].IMUX_C[5];
+				input READCLKSEL[0] = CELL[4].IMUX_B[0];
+				input READCLKSEL[1] = CELL[4].IMUX_C[0];
+				input READCLKSEL[2] = CELL[4].IMUX_D[0];
+				input DDRDEL = CELL[0].IMUX_DQS_DDRDEL;
 				input PAUSE = CELL[4].IMUX_A[0];
-				output RDCFLAG = CELL[3].OUT_Q[7];
 				input RDDIRECTION = CELL[3].IMUX_B[6];
 				input RDLOADN = CELL[3].IMUX_A[6];
 				input RDMOVE = CELL[3].IMUX_C[6];
-				input READ0 = CELL[4].IMUX_B[1];
-				input READ1 = CELL[4].IMUX_C[1];
-				input READCLKSEL0 = CELL[4].IMUX_B[0];
-				input READCLKSEL1 = CELL[4].IMUX_C[0];
-				input READCLKSEL2 = CELL[4].IMUX_D[0];
-				input RST = CELL[4].IMUX_LSR[1];
-				input SCLK = CELL[4].IMUX_CLK[1];
-				output WRCFLAG = CELL[2].OUT_Q[6];
 				input WRDIRECTION = CELL[3].IMUX_A[7];
 				input WRLOADN = CELL[3].IMUX_D[6];
 				input WRMOVE = CELL[3].IMUX_B[7];
+				output DATAVALID = CELL[4].OUT_Q[6];
+				output DQSW = CELL[4].OUT_F[7];
+				output BURSTDET = CELL[4].OUT_Q[7];
+				output DQSR90 = CELL[4].OUT_F[6];
+				output RDCFLAG = CELL[3].OUT_Q[7];
+				output WRCFLAG = CELL[2].OUT_Q[6];
+				output DQSW270 = CELL[3].OUT_Q[6];
 			}
 
+			// wire CELL[0].IMUX_DQS_ECLK          DQS[0].ECLK
+			// wire CELL[0].IMUX_DQS_DDRDEL        DQS[0].DDRDEL
 			// wire CELL[2].OUT_Q[6]               DQS[0].WRCFLAG
 			// wire CELL[3].IMUX_A[6]              DQS[0].RDLOADN
 			// wire CELL[3].IMUX_A[7]              DQS[0].WRDIRECTION
@@ -15096,19 +15263,19 @@ intdb {
 			// wire CELL[3].OUT_Q[6]               DQS[0].DQSW270
 			// wire CELL[3].OUT_Q[7]               DQS[0].RDCFLAG
 			// wire CELL[4].IMUX_A[0]              DQS[0].PAUSE
-			// wire CELL[4].IMUX_A[4]              DQS[0].DYNDELAY1
-			// wire CELL[4].IMUX_A[5]              DQS[0].DYNDELAY5
-			// wire CELL[4].IMUX_B[0]              DQS[0].READCLKSEL0
-			// wire CELL[4].IMUX_B[1]              DQS[0].READ0
-			// wire CELL[4].IMUX_B[4]              DQS[0].DYNDELAY2
-			// wire CELL[4].IMUX_B[5]              DQS[0].DYNDELAY6
-			// wire CELL[4].IMUX_C[0]              DQS[0].READCLKSEL1
-			// wire CELL[4].IMUX_C[1]              DQS[0].READ1
-			// wire CELL[4].IMUX_C[4]              DQS[0].DYNDELAY3
-			// wire CELL[4].IMUX_C[5]              DQS[0].DYNDELAY7
-			// wire CELL[4].IMUX_D[0]              DQS[0].READCLKSEL2
-			// wire CELL[4].IMUX_D[3]              DQS[0].DYNDELAY0
-			// wire CELL[4].IMUX_D[4]              DQS[0].DYNDELAY4
+			// wire CELL[4].IMUX_A[4]              DQS[0].DYNDELAY[1]
+			// wire CELL[4].IMUX_A[5]              DQS[0].DYNDELAY[5]
+			// wire CELL[4].IMUX_B[0]              DQS[0].READCLKSEL[0]
+			// wire CELL[4].IMUX_B[1]              DQS[0].READ[0]
+			// wire CELL[4].IMUX_B[4]              DQS[0].DYNDELAY[2]
+			// wire CELL[4].IMUX_B[5]              DQS[0].DYNDELAY[6]
+			// wire CELL[4].IMUX_C[0]              DQS[0].READCLKSEL[1]
+			// wire CELL[4].IMUX_C[1]              DQS[0].READ[1]
+			// wire CELL[4].IMUX_C[4]              DQS[0].DYNDELAY[3]
+			// wire CELL[4].IMUX_C[5]              DQS[0].DYNDELAY[7]
+			// wire CELL[4].IMUX_D[0]              DQS[0].READCLKSEL[2]
+			// wire CELL[4].IMUX_D[3]              DQS[0].DYNDELAY[0]
+			// wire CELL[4].IMUX_D[4]              DQS[0].DYNDELAY[4]
 			// wire CELL[4].IMUX_CLK[1]            DQS[0].SCLK
 			// wire CELL[4].IMUX_LSR[1]            DQS[0].RST
 			// wire CELL[4].OUT_F[6]               DQS[0].DQSR90
@@ -15125,38 +15292,47 @@ intdb {
 			cell CELL[4];
 			cell CELL[5];
 
+			switchbox BEL_INT {
+				mux CELL[0].IMUX_DQS_ECLK = CELL[0].ECLK[0] | CELL[0].ECLK[1];
+				mux CELL[0].IMUX_DQS_DDRDEL = CELL[0].DDRDEL_S | CELL[0].DDRDEL_N;
+			}
+
 			bel DQS[0] {
-				output BURSTDET = CELL[4].OUT_Q[7];
-				output DATAVALID = CELL[4].OUT_Q[6];
-				output DQSR90 = CELL[4].OUT_F[6];
-				output DQSW = CELL[4].OUT_F[7];
-				output DQSW270 = CELL[3].OUT_Q[6];
-				input DYNDELAY0 = CELL[4].IMUX_D[3];
-				input DYNDELAY1 = CELL[4].IMUX_A[4];
-				input DYNDELAY2 = CELL[4].IMUX_B[4];
-				input DYNDELAY3 = CELL[4].IMUX_C[4];
-				input DYNDELAY4 = CELL[4].IMUX_D[4];
-				input DYNDELAY5 = CELL[4].IMUX_A[5];
-				input DYNDELAY6 = CELL[4].IMUX_B[5];
-				input DYNDELAY7 = CELL[4].IMUX_C[5];
+				input READ[0] = CELL[4].IMUX_B[1];
+				input READ[1] = CELL[4].IMUX_C[1];
+				input SCLK = CELL[4].IMUX_CLK[1];
+				input RST = CELL[4].IMUX_LSR[1];
+				input ECLK = CELL[0].IMUX_DQS_ECLK;
+				input DYNDELAY[0] = CELL[4].IMUX_D[3];
+				input DYNDELAY[1] = CELL[4].IMUX_A[4];
+				input DYNDELAY[2] = CELL[4].IMUX_B[4];
+				input DYNDELAY[3] = CELL[4].IMUX_C[4];
+				input DYNDELAY[4] = CELL[4].IMUX_D[4];
+				input DYNDELAY[5] = CELL[4].IMUX_A[5];
+				input DYNDELAY[6] = CELL[4].IMUX_B[5];
+				input DYNDELAY[7] = CELL[4].IMUX_C[5];
+				input READCLKSEL[0] = CELL[4].IMUX_B[0];
+				input READCLKSEL[1] = CELL[4].IMUX_C[0];
+				input READCLKSEL[2] = CELL[4].IMUX_D[0];
+				input DDRDEL = CELL[0].IMUX_DQS_DDRDEL;
 				input PAUSE = CELL[4].IMUX_A[0];
-				output RDCFLAG = CELL[3].OUT_Q[7];
 				input RDDIRECTION = CELL[3].IMUX_B[6];
 				input RDLOADN = CELL[3].IMUX_A[6];
 				input RDMOVE = CELL[3].IMUX_C[6];
-				input READ0 = CELL[4].IMUX_B[1];
-				input READ1 = CELL[4].IMUX_C[1];
-				input READCLKSEL0 = CELL[4].IMUX_B[0];
-				input READCLKSEL1 = CELL[4].IMUX_C[0];
-				input READCLKSEL2 = CELL[4].IMUX_D[0];
-				input RST = CELL[4].IMUX_LSR[1];
-				input SCLK = CELL[4].IMUX_CLK[1];
-				output WRCFLAG = CELL[2].OUT_Q[6];
 				input WRDIRECTION = CELL[3].IMUX_A[7];
 				input WRLOADN = CELL[3].IMUX_D[6];
 				input WRMOVE = CELL[3].IMUX_B[7];
+				output DATAVALID = CELL[4].OUT_Q[6];
+				output DQSW = CELL[4].OUT_F[7];
+				output BURSTDET = CELL[4].OUT_Q[7];
+				output DQSR90 = CELL[4].OUT_F[6];
+				output RDCFLAG = CELL[3].OUT_Q[7];
+				output WRCFLAG = CELL[2].OUT_Q[6];
+				output DQSW270 = CELL[3].OUT_Q[6];
 			}
 
+			// wire CELL[0].IMUX_DQS_ECLK          DQS[0].ECLK
+			// wire CELL[0].IMUX_DQS_DDRDEL        DQS[0].DDRDEL
 			// wire CELL[2].OUT_Q[6]               DQS[0].WRCFLAG
 			// wire CELL[3].IMUX_A[6]              DQS[0].RDLOADN
 			// wire CELL[3].IMUX_A[7]              DQS[0].WRDIRECTION
@@ -15167,19 +15343,19 @@ intdb {
 			// wire CELL[3].OUT_Q[6]               DQS[0].DQSW270
 			// wire CELL[3].OUT_Q[7]               DQS[0].RDCFLAG
 			// wire CELL[4].IMUX_A[0]              DQS[0].PAUSE
-			// wire CELL[4].IMUX_A[4]              DQS[0].DYNDELAY1
-			// wire CELL[4].IMUX_A[5]              DQS[0].DYNDELAY5
-			// wire CELL[4].IMUX_B[0]              DQS[0].READCLKSEL0
-			// wire CELL[4].IMUX_B[1]              DQS[0].READ0
-			// wire CELL[4].IMUX_B[4]              DQS[0].DYNDELAY2
-			// wire CELL[4].IMUX_B[5]              DQS[0].DYNDELAY6
-			// wire CELL[4].IMUX_C[0]              DQS[0].READCLKSEL1
-			// wire CELL[4].IMUX_C[1]              DQS[0].READ1
-			// wire CELL[4].IMUX_C[4]              DQS[0].DYNDELAY3
-			// wire CELL[4].IMUX_C[5]              DQS[0].DYNDELAY7
-			// wire CELL[4].IMUX_D[0]              DQS[0].READCLKSEL2
-			// wire CELL[4].IMUX_D[3]              DQS[0].DYNDELAY0
-			// wire CELL[4].IMUX_D[4]              DQS[0].DYNDELAY4
+			// wire CELL[4].IMUX_A[4]              DQS[0].DYNDELAY[1]
+			// wire CELL[4].IMUX_A[5]              DQS[0].DYNDELAY[5]
+			// wire CELL[4].IMUX_B[0]              DQS[0].READCLKSEL[0]
+			// wire CELL[4].IMUX_B[1]              DQS[0].READ[0]
+			// wire CELL[4].IMUX_B[4]              DQS[0].DYNDELAY[2]
+			// wire CELL[4].IMUX_B[5]              DQS[0].DYNDELAY[6]
+			// wire CELL[4].IMUX_C[0]              DQS[0].READCLKSEL[1]
+			// wire CELL[4].IMUX_C[1]              DQS[0].READ[1]
+			// wire CELL[4].IMUX_C[4]              DQS[0].DYNDELAY[3]
+			// wire CELL[4].IMUX_C[5]              DQS[0].DYNDELAY[7]
+			// wire CELL[4].IMUX_D[0]              DQS[0].READCLKSEL[2]
+			// wire CELL[4].IMUX_D[3]              DQS[0].DYNDELAY[0]
+			// wire CELL[4].IMUX_D[4]              DQS[0].DYNDELAY[4]
 			// wire CELL[4].IMUX_CLK[1]            DQS[0].SCLK
 			// wire CELL[4].IMUX_LSR[1]            DQS[0].RST
 			// wire CELL[4].OUT_F[6]               DQS[0].DQSR90
@@ -15767,12 +15943,12 @@ intdb {
 	}
 
 	tile_slot CLK {
-		bel_slot DLLDEL[0]: legacy;
-		bel_slot DLLDEL[1]: legacy;
-		bel_slot DLLDEL[2]: legacy;
-		bel_slot DLLDEL[3]: legacy;
-		bel_slot CLKDIV[0]: legacy;
-		bel_slot CLKDIV[1]: legacy;
+		bel_slot DLLDEL[0]: DLLDEL;
+		bel_slot DLLDEL[1]: DLLDEL;
+		bel_slot DLLDEL[2]: DLLDEL;
+		bel_slot DLLDEL[3]: DLLDEL;
+		bel_slot CLKDIV[0]: CLKDIV;
+		bel_slot CLKDIV[1]: CLKDIV;
 		bel_slot CLK_INT: routing;
 		bel_slot DCC_SW[0]: legacy;
 		bel_slot DCC_SE[0]: legacy;
@@ -15814,141 +15990,188 @@ intdb {
 			cell CELL[1];
 			cell CELL[2];
 			cell CELL[3];
-			cell FABRIC_IN[0];
-			cell FABRIC_IN[1];
-			cell FABRIC_IN[2];
-			cell FABRIC_IN[3];
-			cell FABRIC_IN[4];
-			cell FABRIC_IN[5];
+			cell CELL[4];
+			cell CELL[5];
+			cell CELL[6];
+			cell CELL[7];
+			cell CELL[8];
+			cell CELL[9];
+			cell CELL[10];
+			cell CELL[11];
+			cell CELL[12];
+			cell CELL[13];
+			cell CELL[14];
+			cell CELL[15];
+			cell FABRIC_IN_M[0];
+			cell FABRIC_IN_M[1];
+			cell FABRIC_IN_M[2];
+			cell FABRIC_IN_M[3];
+			cell DDRDLL_NW;
+			cell DDRDLL_NE;
 
 			bel DLLDEL[0] {
-				output CFLAG = CELL[0].OUT_Q[7];
-				input DIRECTION = CELL[0].IMUX_D[6];
-				input LOADN = CELL[0].IMUX_B[6];
-				input MOVE = CELL[0].IMUX_C[6];
+				input A = CELL[5].OUT_IO_PADDI[0];
+				input DDRDEL = CELL[6].IMUX_DLLDEL_DDRDEL;
+				input DIRECTION = CELL[6].IMUX_D[6];
+				input LOADN = CELL[6].IMUX_B[6];
+				input MOVE = CELL[6].IMUX_C[6];
+				output Z = CELL[6].OUT_DLLDEL_Z;
+				output CFLAG = CELL[6].OUT_Q[7];
 			}
 
 			bel DLLDEL[1] {
-				output CFLAG = CELL[1].OUT_Q[7];
-				input DIRECTION = CELL[1].IMUX_D[6];
-				input LOADN = CELL[1].IMUX_B[6];
-				input MOVE = CELL[1].IMUX_C[6];
+				input A = CELL[3].OUT_IO_PADDI[0];
+				input DDRDEL = CELL[7].IMUX_DLLDEL_DDRDEL;
+				input DIRECTION = CELL[7].IMUX_D[6];
+				input LOADN = CELL[7].IMUX_B[6];
+				input MOVE = CELL[7].IMUX_C[6];
+				output Z = CELL[7].OUT_DLLDEL_Z;
+				output CFLAG = CELL[7].OUT_Q[7];
 			}
 
 			bel DLLDEL[2] {
-				output CFLAG = CELL[2].OUT_Q[7];
-				input DIRECTION = CELL[2].IMUX_D[6];
-				input LOADN = CELL[2].IMUX_B[6];
-				input MOVE = CELL[2].IMUX_C[6];
+				input A = CELL[11].OUT_IO_PADDI[0];
+				input DDRDEL = CELL[8].IMUX_DLLDEL_DDRDEL;
+				input DIRECTION = CELL[8].IMUX_D[6];
+				input LOADN = CELL[8].IMUX_B[6];
+				input MOVE = CELL[8].IMUX_C[6];
+				output Z = CELL[8].OUT_DLLDEL_Z;
+				output CFLAG = CELL[8].OUT_Q[7];
 			}
 
 			bel DLLDEL[3] {
-				output CFLAG = CELL[3].OUT_Q[7];
-				input DIRECTION = CELL[3].IMUX_D[6];
-				input LOADN = CELL[3].IMUX_B[6];
-				input MOVE = CELL[3].IMUX_C[6];
+				input A = CELL[9].OUT_IO_PADDI[0];
+				input DDRDEL = CELL[9].IMUX_DLLDEL_DDRDEL;
+				input DIRECTION = CELL[9].IMUX_D[6];
+				input LOADN = CELL[9].IMUX_B[6];
+				input MOVE = CELL[9].IMUX_C[6];
+				output Z = CELL[9].OUT_DLLDEL_Z;
+				output CFLAG = CELL[9].OUT_Q[7];
+			}
+
+			switchbox CLK_INT {
+				mux CELL[6].INCK[0] = CELL[5].OUT_IO_PADDI[0] | CELL[6].OUT_DLLDEL_Z;
+				mux CELL[6].IMUX_DLLDEL_DDRDEL = DDRDLL_NW.OUT_DDRDLL_DDRDEL | DDRDLL_NE.OUT_DDRDLL_DDRDEL;
+				mux CELL[7].INCK[0] = CELL[3].OUT_IO_PADDI[0] | CELL[7].OUT_DLLDEL_Z;
+				mux CELL[7].IMUX_DLLDEL_DDRDEL = DDRDLL_NW.OUT_DDRDLL_DDRDEL | DDRDLL_NE.OUT_DDRDLL_DDRDEL;
+				mux CELL[8].INCK[0] = CELL[8].OUT_DLLDEL_Z | CELL[11].OUT_IO_PADDI[0];
+				mux CELL[8].IMUX_DLLDEL_DDRDEL = DDRDLL_NW.OUT_DDRDLL_DDRDEL | DDRDLL_NE.OUT_DDRDLL_DDRDEL;
+				mux CELL[9].INCK[0] = CELL[9].OUT_IO_PADDI[0] | CELL[9].OUT_DLLDEL_Z;
+				mux CELL[9].IMUX_DLLDEL_DDRDEL = DDRDLL_NW.OUT_DDRDLL_DDRDEL | DDRDLL_NE.OUT_DDRDLL_DDRDEL;
 			}
 
 			bel CLKTEST {
-				input TESTIN0 = CELL[1].IMUX_A[5];
-				input TESTIN1 = CELL[1].IMUX_B[5];
-				input TESTIN2 = CELL[1].IMUX_C[5];
+				input TESTIN0 = CELL[7].IMUX_A[5];
+				input TESTIN1 = CELL[7].IMUX_B[5];
+				input TESTIN2 = CELL[7].IMUX_C[5];
 			}
 
 			bel DCC[0] {
-				input CE = CELL[1].IMUX_A[0];
+				input CE = CELL[7].IMUX_A[0];
 			}
 
 			bel DCC[1] {
-				input CE = CELL[1].IMUX_B[0];
+				input CE = CELL[7].IMUX_B[0];
 			}
 
 			bel DCC[2] {
-				input CE = CELL[1].IMUX_C[0];
+				input CE = CELL[7].IMUX_C[0];
 			}
 
 			bel DCC[3] {
-				input CE = CELL[1].IMUX_D[0];
+				input CE = CELL[7].IMUX_D[0];
 			}
 
 			bel DCC[4] {
-				input CE = CELL[1].IMUX_A[1];
+				input CE = CELL[7].IMUX_A[1];
 			}
 
 			bel DCC[5] {
-				input CE = CELL[1].IMUX_B[1];
+				input CE = CELL[7].IMUX_B[1];
 			}
 
 			bel DCC[6] {
-				input CE = CELL[1].IMUX_C[1];
+				input CE = CELL[7].IMUX_C[1];
 			}
 
 			bel DCC[7] {
-				input CE = CELL[1].IMUX_D[1];
+				input CE = CELL[7].IMUX_D[1];
 			}
 
 			bel DCC[8] {
-				input CE = CELL[1].IMUX_A[2];
+				input CE = CELL[7].IMUX_A[2];
 			}
 
 			bel DCC[9] {
-				input CE = CELL[1].IMUX_B[2];
+				input CE = CELL[7].IMUX_B[2];
 			}
 
 			bel DCC[10] {
-				input CE = CELL[1].IMUX_C[2];
+				input CE = CELL[7].IMUX_C[2];
 			}
 
 			bel DCC[11] {
-				input CE = CELL[1].IMUX_D[2];
+				input CE = CELL[7].IMUX_D[2];
 			}
 
 			bel CLK_EDGE {
-				input INT_IN_0 = FABRIC_IN[0].IMUX_D[7];
-				input INT_IN_1 = FABRIC_IN[1].IMUX_D[7];
-				input INT_IN_2 = FABRIC_IN[2].IMUX_D[7];
-				input INT_IN_3 = FABRIC_IN[3].IMUX_D[7];
-				input INT_IN_4 = FABRIC_IN[4].IMUX_CLK[1];
-				input INT_IN_6 = FABRIC_IN[5].IMUX_CLK[1];
+				input INT_IN_0 = CELL[1].IMUX_D[7];
+				input INT_IN_1 = CELL[0].IMUX_D[7];
+				input INT_IN_2 = CELL[14].IMUX_D[7];
+				input INT_IN_3 = CELL[15].IMUX_D[7];
+				input INT_IN_4 = FABRIC_IN_M[0].IMUX_CLK[1];
+				input INT_IN_6 = FABRIC_IN_M[2].IMUX_CLK[1];
 			}
 
-			// wire CELL[0].IMUX_B[6]              DLLDEL[0].LOADN
-			// wire CELL[0].IMUX_C[6]              DLLDEL[0].MOVE
-			// wire CELL[0].IMUX_D[6]              DLLDEL[0].DIRECTION
-			// wire CELL[0].OUT_Q[7]               DLLDEL[0].CFLAG
-			// wire CELL[1].IMUX_A[0]              DCC[0].CE
-			// wire CELL[1].IMUX_A[1]              DCC[4].CE
-			// wire CELL[1].IMUX_A[2]              DCC[8].CE
-			// wire CELL[1].IMUX_A[5]              CLKTEST.TESTIN0
-			// wire CELL[1].IMUX_B[0]              DCC[1].CE
-			// wire CELL[1].IMUX_B[1]              DCC[5].CE
-			// wire CELL[1].IMUX_B[2]              DCC[9].CE
-			// wire CELL[1].IMUX_B[5]              CLKTEST.TESTIN1
-			// wire CELL[1].IMUX_B[6]              DLLDEL[1].LOADN
-			// wire CELL[1].IMUX_C[0]              DCC[2].CE
-			// wire CELL[1].IMUX_C[1]              DCC[6].CE
-			// wire CELL[1].IMUX_C[2]              DCC[10].CE
-			// wire CELL[1].IMUX_C[5]              CLKTEST.TESTIN2
-			// wire CELL[1].IMUX_C[6]              DLLDEL[1].MOVE
-			// wire CELL[1].IMUX_D[0]              DCC[3].CE
-			// wire CELL[1].IMUX_D[1]              DCC[7].CE
-			// wire CELL[1].IMUX_D[2]              DCC[11].CE
-			// wire CELL[1].IMUX_D[6]              DLLDEL[1].DIRECTION
-			// wire CELL[1].OUT_Q[7]               DLLDEL[1].CFLAG
-			// wire CELL[2].IMUX_B[6]              DLLDEL[2].LOADN
-			// wire CELL[2].IMUX_C[6]              DLLDEL[2].MOVE
-			// wire CELL[2].IMUX_D[6]              DLLDEL[2].DIRECTION
-			// wire CELL[2].OUT_Q[7]               DLLDEL[2].CFLAG
-			// wire CELL[3].IMUX_B[6]              DLLDEL[3].LOADN
-			// wire CELL[3].IMUX_C[6]              DLLDEL[3].MOVE
-			// wire CELL[3].IMUX_D[6]              DLLDEL[3].DIRECTION
-			// wire CELL[3].OUT_Q[7]               DLLDEL[3].CFLAG
-			// wire FABRIC_IN[0].IMUX_D[7]         CLK_EDGE.INT_IN_0
-			// wire FABRIC_IN[1].IMUX_D[7]         CLK_EDGE.INT_IN_1
-			// wire FABRIC_IN[2].IMUX_D[7]         CLK_EDGE.INT_IN_2
-			// wire FABRIC_IN[3].IMUX_D[7]         CLK_EDGE.INT_IN_3
-			// wire FABRIC_IN[4].IMUX_CLK[1]       CLK_EDGE.INT_IN_4
-			// wire FABRIC_IN[5].IMUX_CLK[1]       CLK_EDGE.INT_IN_6
+			// wire CELL[0].IMUX_D[7]              CLK_EDGE.INT_IN_1
+			// wire CELL[1].IMUX_D[7]              CLK_EDGE.INT_IN_0
+			// wire CELL[3].OUT_IO_PADDI[0]        DLLDEL[1].A
+			// wire CELL[5].OUT_IO_PADDI[0]        DLLDEL[0].A
+			// wire CELL[6].IMUX_B[6]              DLLDEL[0].LOADN
+			// wire CELL[6].IMUX_C[6]              DLLDEL[0].MOVE
+			// wire CELL[6].IMUX_D[6]              DLLDEL[0].DIRECTION
+			// wire CELL[6].OUT_Q[7]               DLLDEL[0].CFLAG
+			// wire CELL[6].IMUX_DLLDEL_DDRDEL     DLLDEL[0].DDRDEL
+			// wire CELL[6].OUT_DLLDEL_Z           DLLDEL[0].Z
+			// wire CELL[7].IMUX_A[0]              DCC[0].CE
+			// wire CELL[7].IMUX_A[1]              DCC[4].CE
+			// wire CELL[7].IMUX_A[2]              DCC[8].CE
+			// wire CELL[7].IMUX_A[5]              CLKTEST.TESTIN0
+			// wire CELL[7].IMUX_B[0]              DCC[1].CE
+			// wire CELL[7].IMUX_B[1]              DCC[5].CE
+			// wire CELL[7].IMUX_B[2]              DCC[9].CE
+			// wire CELL[7].IMUX_B[5]              CLKTEST.TESTIN1
+			// wire CELL[7].IMUX_B[6]              DLLDEL[1].LOADN
+			// wire CELL[7].IMUX_C[0]              DCC[2].CE
+			// wire CELL[7].IMUX_C[1]              DCC[6].CE
+			// wire CELL[7].IMUX_C[2]              DCC[10].CE
+			// wire CELL[7].IMUX_C[5]              CLKTEST.TESTIN2
+			// wire CELL[7].IMUX_C[6]              DLLDEL[1].MOVE
+			// wire CELL[7].IMUX_D[0]              DCC[3].CE
+			// wire CELL[7].IMUX_D[1]              DCC[7].CE
+			// wire CELL[7].IMUX_D[2]              DCC[11].CE
+			// wire CELL[7].IMUX_D[6]              DLLDEL[1].DIRECTION
+			// wire CELL[7].OUT_Q[7]               DLLDEL[1].CFLAG
+			// wire CELL[7].IMUX_DLLDEL_DDRDEL     DLLDEL[1].DDRDEL
+			// wire CELL[7].OUT_DLLDEL_Z           DLLDEL[1].Z
+			// wire CELL[8].IMUX_B[6]              DLLDEL[2].LOADN
+			// wire CELL[8].IMUX_C[6]              DLLDEL[2].MOVE
+			// wire CELL[8].IMUX_D[6]              DLLDEL[2].DIRECTION
+			// wire CELL[8].OUT_Q[7]               DLLDEL[2].CFLAG
+			// wire CELL[8].IMUX_DLLDEL_DDRDEL     DLLDEL[2].DDRDEL
+			// wire CELL[8].OUT_DLLDEL_Z           DLLDEL[2].Z
+			// wire CELL[9].IMUX_B[6]              DLLDEL[3].LOADN
+			// wire CELL[9].IMUX_C[6]              DLLDEL[3].MOVE
+			// wire CELL[9].IMUX_D[6]              DLLDEL[3].DIRECTION
+			// wire CELL[9].OUT_Q[7]               DLLDEL[3].CFLAG
+			// wire CELL[9].OUT_IO_PADDI[0]        DLLDEL[3].A
+			// wire CELL[9].IMUX_DLLDEL_DDRDEL     DLLDEL[3].DDRDEL
+			// wire CELL[9].OUT_DLLDEL_Z           DLLDEL[3].Z
+			// wire CELL[11].OUT_IO_PADDI[0]       DLLDEL[2].A
+			// wire CELL[14].IMUX_D[7]             CLK_EDGE.INT_IN_2
+			// wire CELL[15].IMUX_D[7]             CLK_EDGE.INT_IN_3
+			// wire FABRIC_IN_M[0].IMUX_CLK[1]     CLK_EDGE.INT_IN_4
+			// wire FABRIC_IN_M[2].IMUX_CLK[1]     CLK_EDGE.INT_IN_6
 		}
 
 		tile_class CLK_N_L {
@@ -15956,147 +16179,192 @@ intdb {
 			cell CELL[1];
 			cell CELL[2];
 			cell CELL[3];
-			cell FABRIC_IN[0];
-			cell FABRIC_IN[1];
-			cell FABRIC_IN[2];
-			cell FABRIC_IN[3];
-			cell FABRIC_IN[4];
-			cell FABRIC_IN[5];
-			cell FABRIC_IN[6];
-			cell FABRIC_IN[7];
+			cell CELL[4];
+			cell CELL[5];
+			cell CELL[6];
+			cell CELL[7];
+			cell CELL[8];
+			cell CELL[9];
+			cell CELL[10];
+			cell CELL[11];
+			cell CELL[12];
+			cell CELL[13];
+			cell CELL[14];
+			cell CELL[15];
+			cell FABRIC_IN_M[0];
+			cell FABRIC_IN_M[1];
+			cell FABRIC_IN_M[2];
+			cell FABRIC_IN_M[3];
+			cell DDRDLL_NW;
+			cell DDRDLL_NE;
 
 			bel DLLDEL[0] {
-				output CFLAG = CELL[0].OUT_Q[7];
-				input DIRECTION = CELL[0].IMUX_D[6];
-				input LOADN = CELL[0].IMUX_B[6];
-				input MOVE = CELL[0].IMUX_C[6];
+				input A = CELL[5].OUT_IO_PADDI[0];
+				input DDRDEL = CELL[6].IMUX_DLLDEL_DDRDEL;
+				input DIRECTION = CELL[6].IMUX_D[6];
+				input LOADN = CELL[6].IMUX_B[6];
+				input MOVE = CELL[6].IMUX_C[6];
+				output Z = CELL[6].OUT_DLLDEL_Z;
+				output CFLAG = CELL[6].OUT_Q[7];
 			}
 
 			bel DLLDEL[1] {
-				output CFLAG = CELL[1].OUT_Q[7];
-				input DIRECTION = CELL[1].IMUX_D[6];
-				input LOADN = CELL[1].IMUX_B[6];
-				input MOVE = CELL[1].IMUX_C[6];
+				input A = CELL[3].OUT_IO_PADDI[0];
+				input DDRDEL = CELL[7].IMUX_DLLDEL_DDRDEL;
+				input DIRECTION = CELL[7].IMUX_D[6];
+				input LOADN = CELL[7].IMUX_B[6];
+				input MOVE = CELL[7].IMUX_C[6];
+				output Z = CELL[7].OUT_DLLDEL_Z;
+				output CFLAG = CELL[7].OUT_Q[7];
 			}
 
 			bel DLLDEL[2] {
-				output CFLAG = CELL[2].OUT_Q[7];
-				input DIRECTION = CELL[2].IMUX_D[6];
-				input LOADN = CELL[2].IMUX_B[6];
-				input MOVE = CELL[2].IMUX_C[6];
+				input A = CELL[11].OUT_IO_PADDI[0];
+				input DDRDEL = CELL[8].IMUX_DLLDEL_DDRDEL;
+				input DIRECTION = CELL[8].IMUX_D[6];
+				input LOADN = CELL[8].IMUX_B[6];
+				input MOVE = CELL[8].IMUX_C[6];
+				output Z = CELL[8].OUT_DLLDEL_Z;
+				output CFLAG = CELL[8].OUT_Q[7];
 			}
 
 			bel DLLDEL[3] {
-				output CFLAG = CELL[3].OUT_Q[7];
-				input DIRECTION = CELL[3].IMUX_D[6];
-				input LOADN = CELL[3].IMUX_B[6];
-				input MOVE = CELL[3].IMUX_C[6];
+				input A = CELL[9].OUT_IO_PADDI[0];
+				input DDRDEL = CELL[9].IMUX_DLLDEL_DDRDEL;
+				input DIRECTION = CELL[9].IMUX_D[6];
+				input LOADN = CELL[9].IMUX_B[6];
+				input MOVE = CELL[9].IMUX_C[6];
+				output Z = CELL[9].OUT_DLLDEL_Z;
+				output CFLAG = CELL[9].OUT_Q[7];
+			}
+
+			switchbox CLK_INT {
+				mux CELL[6].INCK[0] = CELL[5].OUT_IO_PADDI[0] | CELL[6].OUT_DLLDEL_Z;
+				mux CELL[6].IMUX_DLLDEL_DDRDEL = DDRDLL_NW.OUT_DDRDLL_DDRDEL | DDRDLL_NE.OUT_DDRDLL_DDRDEL;
+				mux CELL[7].INCK[0] = CELL[3].OUT_IO_PADDI[0] | CELL[7].OUT_DLLDEL_Z;
+				mux CELL[7].IMUX_DLLDEL_DDRDEL = DDRDLL_NW.OUT_DDRDLL_DDRDEL | DDRDLL_NE.OUT_DDRDLL_DDRDEL;
+				mux CELL[8].INCK[0] = CELL[8].OUT_DLLDEL_Z | CELL[11].OUT_IO_PADDI[0];
+				mux CELL[8].IMUX_DLLDEL_DDRDEL = DDRDLL_NW.OUT_DDRDLL_DDRDEL | DDRDLL_NE.OUT_DDRDLL_DDRDEL;
+				mux CELL[9].INCK[0] = CELL[9].OUT_IO_PADDI[0] | CELL[9].OUT_DLLDEL_Z;
+				mux CELL[9].IMUX_DLLDEL_DDRDEL = DDRDLL_NW.OUT_DDRDLL_DDRDEL | DDRDLL_NE.OUT_DDRDLL_DDRDEL;
 			}
 
 			bel CLKTEST {
-				input TESTIN0 = CELL[1].IMUX_A[5];
-				input TESTIN1 = CELL[1].IMUX_B[5];
-				input TESTIN2 = CELL[1].IMUX_C[5];
+				input TESTIN0 = CELL[7].IMUX_A[5];
+				input TESTIN1 = CELL[7].IMUX_B[5];
+				input TESTIN2 = CELL[7].IMUX_C[5];
 			}
 
 			bel DCC[0] {
-				input CE = CELL[1].IMUX_A[0];
+				input CE = CELL[7].IMUX_A[0];
 			}
 
 			bel DCC[1] {
-				input CE = CELL[1].IMUX_B[0];
+				input CE = CELL[7].IMUX_B[0];
 			}
 
 			bel DCC[2] {
-				input CE = CELL[1].IMUX_C[0];
+				input CE = CELL[7].IMUX_C[0];
 			}
 
 			bel DCC[3] {
-				input CE = CELL[1].IMUX_D[0];
+				input CE = CELL[7].IMUX_D[0];
 			}
 
 			bel DCC[4] {
-				input CE = CELL[1].IMUX_A[1];
+				input CE = CELL[7].IMUX_A[1];
 			}
 
 			bel DCC[5] {
-				input CE = CELL[1].IMUX_B[1];
+				input CE = CELL[7].IMUX_B[1];
 			}
 
 			bel DCC[6] {
-				input CE = CELL[1].IMUX_C[1];
+				input CE = CELL[7].IMUX_C[1];
 			}
 
 			bel DCC[7] {
-				input CE = CELL[1].IMUX_D[1];
+				input CE = CELL[7].IMUX_D[1];
 			}
 
 			bel DCC[8] {
-				input CE = CELL[1].IMUX_A[2];
+				input CE = CELL[7].IMUX_A[2];
 			}
 
 			bel DCC[9] {
-				input CE = CELL[1].IMUX_B[2];
+				input CE = CELL[7].IMUX_B[2];
 			}
 
 			bel DCC[10] {
-				input CE = CELL[1].IMUX_C[2];
+				input CE = CELL[7].IMUX_C[2];
 			}
 
 			bel DCC[11] {
-				input CE = CELL[1].IMUX_D[2];
+				input CE = CELL[7].IMUX_D[2];
 			}
 
 			bel CLK_EDGE {
-				input INT_IN_0 = FABRIC_IN[0].IMUX_D[7];
-				input INT_IN_1 = FABRIC_IN[1].IMUX_D[7];
-				input INT_IN_2 = FABRIC_IN[2].IMUX_D[7];
-				input INT_IN_3 = FABRIC_IN[3].IMUX_D[7];
-				input INT_IN_4 = FABRIC_IN[4].IMUX_CLK[1];
-				input INT_IN_5 = FABRIC_IN[5].IMUX_CLK[1];
-				input INT_IN_6 = FABRIC_IN[6].IMUX_CLK[1];
-				input INT_IN_7 = FABRIC_IN[7].IMUX_CLK[1];
+				input INT_IN_0 = CELL[1].IMUX_D[7];
+				input INT_IN_1 = CELL[0].IMUX_D[7];
+				input INT_IN_2 = CELL[14].IMUX_D[7];
+				input INT_IN_3 = CELL[15].IMUX_D[7];
+				input INT_IN_4 = FABRIC_IN_M[0].IMUX_CLK[1];
+				input INT_IN_5 = FABRIC_IN_M[1].IMUX_CLK[1];
+				input INT_IN_6 = FABRIC_IN_M[2].IMUX_CLK[1];
+				input INT_IN_7 = FABRIC_IN_M[3].IMUX_CLK[1];
 			}
 
-			// wire CELL[0].IMUX_B[6]              DLLDEL[0].LOADN
-			// wire CELL[0].IMUX_C[6]              DLLDEL[0].MOVE
-			// wire CELL[0].IMUX_D[6]              DLLDEL[0].DIRECTION
-			// wire CELL[0].OUT_Q[7]               DLLDEL[0].CFLAG
-			// wire CELL[1].IMUX_A[0]              DCC[0].CE
-			// wire CELL[1].IMUX_A[1]              DCC[4].CE
-			// wire CELL[1].IMUX_A[2]              DCC[8].CE
-			// wire CELL[1].IMUX_A[5]              CLKTEST.TESTIN0
-			// wire CELL[1].IMUX_B[0]              DCC[1].CE
-			// wire CELL[1].IMUX_B[1]              DCC[5].CE
-			// wire CELL[1].IMUX_B[2]              DCC[9].CE
-			// wire CELL[1].IMUX_B[5]              CLKTEST.TESTIN1
-			// wire CELL[1].IMUX_B[6]              DLLDEL[1].LOADN
-			// wire CELL[1].IMUX_C[0]              DCC[2].CE
-			// wire CELL[1].IMUX_C[1]              DCC[6].CE
-			// wire CELL[1].IMUX_C[2]              DCC[10].CE
-			// wire CELL[1].IMUX_C[5]              CLKTEST.TESTIN2
-			// wire CELL[1].IMUX_C[6]              DLLDEL[1].MOVE
-			// wire CELL[1].IMUX_D[0]              DCC[3].CE
-			// wire CELL[1].IMUX_D[1]              DCC[7].CE
-			// wire CELL[1].IMUX_D[2]              DCC[11].CE
-			// wire CELL[1].IMUX_D[6]              DLLDEL[1].DIRECTION
-			// wire CELL[1].OUT_Q[7]               DLLDEL[1].CFLAG
-			// wire CELL[2].IMUX_B[6]              DLLDEL[2].LOADN
-			// wire CELL[2].IMUX_C[6]              DLLDEL[2].MOVE
-			// wire CELL[2].IMUX_D[6]              DLLDEL[2].DIRECTION
-			// wire CELL[2].OUT_Q[7]               DLLDEL[2].CFLAG
-			// wire CELL[3].IMUX_B[6]              DLLDEL[3].LOADN
-			// wire CELL[3].IMUX_C[6]              DLLDEL[3].MOVE
-			// wire CELL[3].IMUX_D[6]              DLLDEL[3].DIRECTION
-			// wire CELL[3].OUT_Q[7]               DLLDEL[3].CFLAG
-			// wire FABRIC_IN[0].IMUX_D[7]         CLK_EDGE.INT_IN_0
-			// wire FABRIC_IN[1].IMUX_D[7]         CLK_EDGE.INT_IN_1
-			// wire FABRIC_IN[2].IMUX_D[7]         CLK_EDGE.INT_IN_2
-			// wire FABRIC_IN[3].IMUX_D[7]         CLK_EDGE.INT_IN_3
-			// wire FABRIC_IN[4].IMUX_CLK[1]       CLK_EDGE.INT_IN_4
-			// wire FABRIC_IN[5].IMUX_CLK[1]       CLK_EDGE.INT_IN_5
-			// wire FABRIC_IN[6].IMUX_CLK[1]       CLK_EDGE.INT_IN_6
-			// wire FABRIC_IN[7].IMUX_CLK[1]       CLK_EDGE.INT_IN_7
+			// wire CELL[0].IMUX_D[7]              CLK_EDGE.INT_IN_1
+			// wire CELL[1].IMUX_D[7]              CLK_EDGE.INT_IN_0
+			// wire CELL[3].OUT_IO_PADDI[0]        DLLDEL[1].A
+			// wire CELL[5].OUT_IO_PADDI[0]        DLLDEL[0].A
+			// wire CELL[6].IMUX_B[6]              DLLDEL[0].LOADN
+			// wire CELL[6].IMUX_C[6]              DLLDEL[0].MOVE
+			// wire CELL[6].IMUX_D[6]              DLLDEL[0].DIRECTION
+			// wire CELL[6].OUT_Q[7]               DLLDEL[0].CFLAG
+			// wire CELL[6].IMUX_DLLDEL_DDRDEL     DLLDEL[0].DDRDEL
+			// wire CELL[6].OUT_DLLDEL_Z           DLLDEL[0].Z
+			// wire CELL[7].IMUX_A[0]              DCC[0].CE
+			// wire CELL[7].IMUX_A[1]              DCC[4].CE
+			// wire CELL[7].IMUX_A[2]              DCC[8].CE
+			// wire CELL[7].IMUX_A[5]              CLKTEST.TESTIN0
+			// wire CELL[7].IMUX_B[0]              DCC[1].CE
+			// wire CELL[7].IMUX_B[1]              DCC[5].CE
+			// wire CELL[7].IMUX_B[2]              DCC[9].CE
+			// wire CELL[7].IMUX_B[5]              CLKTEST.TESTIN1
+			// wire CELL[7].IMUX_B[6]              DLLDEL[1].LOADN
+			// wire CELL[7].IMUX_C[0]              DCC[2].CE
+			// wire CELL[7].IMUX_C[1]              DCC[6].CE
+			// wire CELL[7].IMUX_C[2]              DCC[10].CE
+			// wire CELL[7].IMUX_C[5]              CLKTEST.TESTIN2
+			// wire CELL[7].IMUX_C[6]              DLLDEL[1].MOVE
+			// wire CELL[7].IMUX_D[0]              DCC[3].CE
+			// wire CELL[7].IMUX_D[1]              DCC[7].CE
+			// wire CELL[7].IMUX_D[2]              DCC[11].CE
+			// wire CELL[7].IMUX_D[6]              DLLDEL[1].DIRECTION
+			// wire CELL[7].OUT_Q[7]               DLLDEL[1].CFLAG
+			// wire CELL[7].IMUX_DLLDEL_DDRDEL     DLLDEL[1].DDRDEL
+			// wire CELL[7].OUT_DLLDEL_Z           DLLDEL[1].Z
+			// wire CELL[8].IMUX_B[6]              DLLDEL[2].LOADN
+			// wire CELL[8].IMUX_C[6]              DLLDEL[2].MOVE
+			// wire CELL[8].IMUX_D[6]              DLLDEL[2].DIRECTION
+			// wire CELL[8].OUT_Q[7]               DLLDEL[2].CFLAG
+			// wire CELL[8].IMUX_DLLDEL_DDRDEL     DLLDEL[2].DDRDEL
+			// wire CELL[8].OUT_DLLDEL_Z           DLLDEL[2].Z
+			// wire CELL[9].IMUX_B[6]              DLLDEL[3].LOADN
+			// wire CELL[9].IMUX_C[6]              DLLDEL[3].MOVE
+			// wire CELL[9].IMUX_D[6]              DLLDEL[3].DIRECTION
+			// wire CELL[9].OUT_Q[7]               DLLDEL[3].CFLAG
+			// wire CELL[9].OUT_IO_PADDI[0]        DLLDEL[3].A
+			// wire CELL[9].IMUX_DLLDEL_DDRDEL     DLLDEL[3].DDRDEL
+			// wire CELL[9].OUT_DLLDEL_Z           DLLDEL[3].Z
+			// wire CELL[11].OUT_IO_PADDI[0]       DLLDEL[2].A
+			// wire CELL[14].IMUX_D[7]             CLK_EDGE.INT_IN_2
+			// wire CELL[15].IMUX_D[7]             CLK_EDGE.INT_IN_3
+			// wire FABRIC_IN_M[0].IMUX_CLK[1]     CLK_EDGE.INT_IN_4
+			// wire FABRIC_IN_M[1].IMUX_CLK[1]     CLK_EDGE.INT_IN_5
+			// wire FABRIC_IN_M[2].IMUX_CLK[1]     CLK_EDGE.INT_IN_6
+			// wire FABRIC_IN_M[3].IMUX_CLK[1]     CLK_EDGE.INT_IN_7
 		}
 
 		tile_class CLK_W_S {
@@ -16104,53 +16372,86 @@ intdb {
 			cell CELL_EDGE[1];
 			cell CELL_EDGE[2];
 			cell CELL_EDGE[3];
+			cell CELL_EDGE[4];
+			cell CELL_EDGE[5];
+			cell CELL_EDGE[6];
+			cell CELL_EDGE[7];
+			cell CELL_EDGE[8];
+			cell CELL_EDGE[9];
+			cell CELL_EDGE[10];
+			cell CELL_EDGE[11];
 			cell CELL_EBR[0];
 			cell CELL_EBR[1];
-			cell FABRIC_IN[0];
-			cell FABRIC_IN[1];
-			cell FABRIC_IN[2];
-			cell FABRIC_IN[3];
-			cell FABRIC_IN[4];
-			cell FABRIC_IN[5];
+			cell FABRIC_IN_M[0];
+			cell FABRIC_IN_M[1];
+			cell FABRIC_IN_M[2];
+			cell FABRIC_IN_M[3];
 
 			bel DLLDEL[0] {
-				output CFLAG = CELL_EDGE[1].OUT_Q[7];
-				input DIRECTION = CELL_EDGE[1].IMUX_D[6];
-				input LOADN = CELL_EDGE[1].IMUX_B[6];
-				input MOVE = CELL_EDGE[1].IMUX_C[6];
+				input A = CELL_EDGE[3].OUT_IO_PADDI[2];
+				input DDRDEL = CELL_EDGE[5].IMUX_DLLDEL_DDRDEL;
+				input DIRECTION = CELL_EDGE[5].IMUX_D[6];
+				input LOADN = CELL_EDGE[5].IMUX_B[6];
+				input MOVE = CELL_EDGE[5].IMUX_C[6];
+				output Z = CELL_EDGE[5].OUT_DLLDEL_Z;
+				output CFLAG = CELL_EDGE[5].OUT_Q[7];
 			}
 
 			bel DLLDEL[1] {
-				output CFLAG = CELL_EDGE[0].OUT_Q[7];
-				input DIRECTION = CELL_EDGE[0].IMUX_D[6];
-				input LOADN = CELL_EDGE[0].IMUX_B[6];
-				input MOVE = CELL_EDGE[0].IMUX_C[6];
+				input A = CELL_EDGE[3].OUT_IO_PADDI[0];
+				input DDRDEL = CELL_EDGE[4].IMUX_DLLDEL_DDRDEL;
+				input DIRECTION = CELL_EDGE[4].IMUX_D[6];
+				input LOADN = CELL_EDGE[4].IMUX_B[6];
+				input MOVE = CELL_EDGE[4].IMUX_C[6];
+				output Z = CELL_EDGE[4].OUT_DLLDEL_Z;
+				output CFLAG = CELL_EDGE[4].OUT_Q[7];
 			}
 
 			bel DLLDEL[2] {
-				output CFLAG = CELL_EDGE[3].OUT_Q[7];
-				input DIRECTION = CELL_EDGE[3].IMUX_D[6];
-				input LOADN = CELL_EDGE[3].IMUX_B[6];
-				input MOVE = CELL_EDGE[3].IMUX_C[6];
+				input A = CELL_EDGE[6].OUT_IO_PADDI[2];
+				input DDRDEL = CELL_EDGE[7].IMUX_DLLDEL_DDRDEL;
+				input DIRECTION = CELL_EDGE[7].IMUX_D[6];
+				input LOADN = CELL_EDGE[7].IMUX_B[6];
+				input MOVE = CELL_EDGE[7].IMUX_C[6];
+				output Z = CELL_EDGE[7].OUT_DLLDEL_Z;
+				output CFLAG = CELL_EDGE[7].OUT_Q[7];
 			}
 
 			bel DLLDEL[3] {
-				output CFLAG = CELL_EDGE[2].OUT_Q[7];
-				input DIRECTION = CELL_EDGE[2].IMUX_D[6];
-				input LOADN = CELL_EDGE[2].IMUX_B[6];
-				input MOVE = CELL_EDGE[2].IMUX_C[6];
+				input A = CELL_EDGE[6].OUT_IO_PADDI[0];
+				input DDRDEL = CELL_EDGE[6].IMUX_DLLDEL_DDRDEL;
+				input DIRECTION = CELL_EDGE[6].IMUX_D[6];
+				input LOADN = CELL_EDGE[6].IMUX_B[6];
+				input MOVE = CELL_EDGE[6].IMUX_C[6];
+				output Z = CELL_EDGE[6].OUT_DLLDEL_Z;
+				output CFLAG = CELL_EDGE[6].OUT_Q[7];
 			}
 
 			bel CLKDIV[0] {
-				input ALIGNWD = CELL_EBR[0].IMUX_A[3];
-				output CDIVX = CELL_EBR[0].OUT_F[2];
+				input CLKI = CELL_EDGE[6].IMUX_CLKDIV_CLKI[0];
 				input RST = CELL_EBR[0].IMUX_LSR[0];
+				input ALIGNWD = CELL_EBR[0].IMUX_A[3];
+				output CDIVX = CELL_EDGE[6].OUT_CLKDIV_CDIVX[0], CELL_EBR[0].OUT_F[2];
 			}
 
 			bel CLKDIV[1] {
-				input ALIGNWD = CELL_EBR[0].IMUX_B[3];
-				output CDIVX = CELL_EBR[0].OUT_F[3];
+				input CLKI = CELL_EDGE[6].IMUX_CLKDIV_CLKI[1];
 				input RST = CELL_EBR[0].IMUX_LSR[1];
+				input ALIGNWD = CELL_EBR[0].IMUX_B[3];
+				output CDIVX = CELL_EDGE[6].OUT_CLKDIV_CDIVX[1], CELL_EBR[0].OUT_F[3];
+			}
+
+			switchbox CLK_INT {
+				mux CELL_EDGE[4].INCK[0] = CELL_EDGE[3].OUT_IO_PADDI[0] | CELL_EDGE[4].OUT_DLLDEL_Z;
+				mux CELL_EDGE[4].IMUX_DLLDEL_DDRDEL = CELL_EDGE[0].DDRDEL_S | CELL_EDGE[0].DDRDEL_N;
+				mux CELL_EDGE[5].INCK[0] = CELL_EDGE[3].OUT_IO_PADDI[2] | CELL_EDGE[5].OUT_DLLDEL_Z;
+				mux CELL_EDGE[5].IMUX_DLLDEL_DDRDEL = CELL_EDGE[0].DDRDEL_S | CELL_EDGE[0].DDRDEL_N;
+				mux CELL_EDGE[6].INCK[0] = CELL_EDGE[6].OUT_IO_PADDI[0] | CELL_EDGE[6].OUT_DLLDEL_Z;
+				mux CELL_EDGE[6].IMUX_DLLDEL_DDRDEL = CELL_EDGE[0].DDRDEL_S | CELL_EDGE[0].DDRDEL_N;
+				mux CELL_EDGE[6].IMUX_CLKDIV_CLKI[0] = CELL_EDGE[0].ECLK[0] | CELL_EDGE[6].ECLK[0];
+				mux CELL_EDGE[6].IMUX_CLKDIV_CLKI[1] = CELL_EDGE[0].ECLK[1] | CELL_EDGE[6].ECLK[1];
+				mux CELL_EDGE[7].INCK[0] = CELL_EDGE[6].OUT_IO_PADDI[2] | CELL_EDGE[7].OUT_DLLDEL_Z;
+				mux CELL_EDGE[7].IMUX_DLLDEL_DDRDEL = CELL_EDGE[0].DDRDEL_S | CELL_EDGE[0].DDRDEL_N;
 			}
 
 			bel CLKTEST {
@@ -16221,39 +16522,39 @@ intdb {
 
 			bel ECLKSYNC[0] {
 				output ECLK = CELL_EBR[1].OUT_F[0];
-				input ECLKI_N = CELL_EDGE[3].IMUX_CLK[0];
-				input ECLKI_S = CELL_EDGE[0].IMUX_CLK[0];
+				input ECLKI_N = CELL_EDGE[7].IMUX_CLK[0];
+				input ECLKI_S = CELL_EDGE[4].IMUX_CLK[0];
 				input STOP = CELL_EBR[0].IMUX_C[0];
 			}
 
 			bel ECLKSYNC[1] {
 				output ECLK = CELL_EBR[1].OUT_F[1];
-				input ECLKI_N = CELL_EDGE[3].IMUX_CLK[1];
-				input ECLKI_S = CELL_EDGE[0].IMUX_CLK[1];
+				input ECLKI_N = CELL_EDGE[7].IMUX_CLK[1];
+				input ECLKI_S = CELL_EDGE[4].IMUX_CLK[1];
 				input STOP = CELL_EBR[0].IMUX_D[0];
 			}
 
 			bel ECLKSYNC[2] {
 				output ECLK = CELL_EBR[0].OUT_F[0];
-				input ECLKI_N = CELL_EDGE[3].IMUX_CLK[0];
-				input ECLKI_S = CELL_EDGE[0].IMUX_CLK[0];
+				input ECLKI_N = CELL_EDGE[7].IMUX_CLK[0];
+				input ECLKI_S = CELL_EDGE[4].IMUX_CLK[0];
 				input STOP = CELL_EBR[0].IMUX_A[0];
 			}
 
 			bel ECLKSYNC[3] {
 				output ECLK = CELL_EBR[0].OUT_F[1];
-				input ECLKI_N = CELL_EDGE[3].IMUX_CLK[1];
-				input ECLKI_S = CELL_EDGE[0].IMUX_CLK[1];
+				input ECLKI_N = CELL_EDGE[7].IMUX_CLK[1];
+				input ECLKI_S = CELL_EDGE[4].IMUX_CLK[1];
 				input STOP = CELL_EBR[0].IMUX_B[0];
 			}
 
 			bel CLK_EDGE {
-				input INT_IN_0 = FABRIC_IN[0].IMUX_D[7];
-				input INT_IN_1 = FABRIC_IN[1].IMUX_D[7];
-				input INT_IN_2 = FABRIC_IN[2].IMUX_D[7];
-				input INT_IN_3 = FABRIC_IN[3].IMUX_D[7];
-				input INT_IN_4 = FABRIC_IN[4].IMUX_CLK[1];
-				input INT_IN_6 = FABRIC_IN[5].IMUX_CLK[1];
+				input INT_IN_0 = CELL_EDGE[2].IMUX_D[7];
+				input INT_IN_1 = CELL_EDGE[0].IMUX_D[7];
+				input INT_IN_2 = CELL_EDGE[9].IMUX_D[7];
+				input INT_IN_3 = CELL_EDGE[11].IMUX_D[7];
+				input INT_IN_4 = FABRIC_IN_M[0].IMUX_CLK[1];
+				input INT_IN_6 = FABRIC_IN_M[2].IMUX_CLK[1];
 			}
 
 			bel CLKTEST_ECLK {
@@ -16269,26 +16570,46 @@ intdb {
 				input STOP = CELL_EBR[0].IMUX_A[7];
 			}
 
-			// wire CELL_EDGE[0].IMUX_B[6]         DLLDEL[1].LOADN
-			// wire CELL_EDGE[0].IMUX_C[6]         DLLDEL[1].MOVE
-			// wire CELL_EDGE[0].IMUX_D[6]         DLLDEL[1].DIRECTION
-			// wire CELL_EDGE[0].IMUX_CLK[0]       ECLKSYNC[0].ECLKI_S ECLKSYNC[2].ECLKI_S
-			// wire CELL_EDGE[0].IMUX_CLK[1]       ECLKSYNC[1].ECLKI_S ECLKSYNC[3].ECLKI_S
-			// wire CELL_EDGE[0].OUT_Q[7]          DLLDEL[1].CFLAG
-			// wire CELL_EDGE[1].IMUX_B[6]         DLLDEL[0].LOADN
-			// wire CELL_EDGE[1].IMUX_C[6]         DLLDEL[0].MOVE
-			// wire CELL_EDGE[1].IMUX_D[6]         DLLDEL[0].DIRECTION
-			// wire CELL_EDGE[1].OUT_Q[7]          DLLDEL[0].CFLAG
-			// wire CELL_EDGE[2].IMUX_B[6]         DLLDEL[3].LOADN
-			// wire CELL_EDGE[2].IMUX_C[6]         DLLDEL[3].MOVE
-			// wire CELL_EDGE[2].IMUX_D[6]         DLLDEL[3].DIRECTION
-			// wire CELL_EDGE[2].OUT_Q[7]          DLLDEL[3].CFLAG
-			// wire CELL_EDGE[3].IMUX_B[6]         DLLDEL[2].LOADN
-			// wire CELL_EDGE[3].IMUX_C[6]         DLLDEL[2].MOVE
-			// wire CELL_EDGE[3].IMUX_D[6]         DLLDEL[2].DIRECTION
-			// wire CELL_EDGE[3].IMUX_CLK[0]       ECLKSYNC[0].ECLKI_N ECLKSYNC[2].ECLKI_N
-			// wire CELL_EDGE[3].IMUX_CLK[1]       ECLKSYNC[1].ECLKI_N ECLKSYNC[3].ECLKI_N
-			// wire CELL_EDGE[3].OUT_Q[7]          DLLDEL[2].CFLAG
+			// wire CELL_EDGE[0].IMUX_D[7]         CLK_EDGE.INT_IN_1
+			// wire CELL_EDGE[2].IMUX_D[7]         CLK_EDGE.INT_IN_0
+			// wire CELL_EDGE[3].OUT_IO_PADDI[0]   DLLDEL[1].A
+			// wire CELL_EDGE[3].OUT_IO_PADDI[2]   DLLDEL[0].A
+			// wire CELL_EDGE[4].IMUX_B[6]         DLLDEL[1].LOADN
+			// wire CELL_EDGE[4].IMUX_C[6]         DLLDEL[1].MOVE
+			// wire CELL_EDGE[4].IMUX_D[6]         DLLDEL[1].DIRECTION
+			// wire CELL_EDGE[4].IMUX_CLK[0]       ECLKSYNC[0].ECLKI_S ECLKSYNC[2].ECLKI_S
+			// wire CELL_EDGE[4].IMUX_CLK[1]       ECLKSYNC[1].ECLKI_S ECLKSYNC[3].ECLKI_S
+			// wire CELL_EDGE[4].OUT_Q[7]          DLLDEL[1].CFLAG
+			// wire CELL_EDGE[4].IMUX_DLLDEL_DDRDEL DLLDEL[1].DDRDEL
+			// wire CELL_EDGE[4].OUT_DLLDEL_Z      DLLDEL[1].Z
+			// wire CELL_EDGE[5].IMUX_B[6]         DLLDEL[0].LOADN
+			// wire CELL_EDGE[5].IMUX_C[6]         DLLDEL[0].MOVE
+			// wire CELL_EDGE[5].IMUX_D[6]         DLLDEL[0].DIRECTION
+			// wire CELL_EDGE[5].OUT_Q[7]          DLLDEL[0].CFLAG
+			// wire CELL_EDGE[5].IMUX_DLLDEL_DDRDEL DLLDEL[0].DDRDEL
+			// wire CELL_EDGE[5].OUT_DLLDEL_Z      DLLDEL[0].Z
+			// wire CELL_EDGE[6].IMUX_B[6]         DLLDEL[3].LOADN
+			// wire CELL_EDGE[6].IMUX_C[6]         DLLDEL[3].MOVE
+			// wire CELL_EDGE[6].IMUX_D[6]         DLLDEL[3].DIRECTION
+			// wire CELL_EDGE[6].OUT_Q[7]          DLLDEL[3].CFLAG
+			// wire CELL_EDGE[6].OUT_IO_PADDI[0]   DLLDEL[3].A
+			// wire CELL_EDGE[6].OUT_IO_PADDI[2]   DLLDEL[2].A
+			// wire CELL_EDGE[6].IMUX_DLLDEL_DDRDEL DLLDEL[3].DDRDEL
+			// wire CELL_EDGE[6].OUT_DLLDEL_Z      DLLDEL[3].Z
+			// wire CELL_EDGE[6].IMUX_CLKDIV_CLKI[0] CLKDIV[0].CLKI
+			// wire CELL_EDGE[6].IMUX_CLKDIV_CLKI[1] CLKDIV[1].CLKI
+			// wire CELL_EDGE[6].OUT_CLKDIV_CDIVX[0] CLKDIV[0].CDIVX
+			// wire CELL_EDGE[6].OUT_CLKDIV_CDIVX[1] CLKDIV[1].CDIVX
+			// wire CELL_EDGE[7].IMUX_B[6]         DLLDEL[2].LOADN
+			// wire CELL_EDGE[7].IMUX_C[6]         DLLDEL[2].MOVE
+			// wire CELL_EDGE[7].IMUX_D[6]         DLLDEL[2].DIRECTION
+			// wire CELL_EDGE[7].IMUX_CLK[0]       ECLKSYNC[0].ECLKI_N ECLKSYNC[2].ECLKI_N
+			// wire CELL_EDGE[7].IMUX_CLK[1]       ECLKSYNC[1].ECLKI_N ECLKSYNC[3].ECLKI_N
+			// wire CELL_EDGE[7].OUT_Q[7]          DLLDEL[2].CFLAG
+			// wire CELL_EDGE[7].IMUX_DLLDEL_DDRDEL DLLDEL[2].DDRDEL
+			// wire CELL_EDGE[7].OUT_DLLDEL_Z      DLLDEL[2].Z
+			// wire CELL_EDGE[9].IMUX_D[7]         CLK_EDGE.INT_IN_2
+			// wire CELL_EDGE[11].IMUX_D[7]        CLK_EDGE.INT_IN_3
 			// wire CELL_EBR[0].IMUX_A[0]          ECLKSYNC[2].STOP
 			// wire CELL_EBR[0].IMUX_A[3]          CLKDIV[0].ALIGNWD
 			// wire CELL_EBR[0].IMUX_A[4]          CLKTEST_ECLK.TESTIN0
@@ -16328,12 +16649,8 @@ intdb {
 			// wire CELL_EBR[1].IMUX_D[2]          DCC[10].CE
 			// wire CELL_EBR[1].OUT_F[0]           ECLKSYNC[0].ECLK
 			// wire CELL_EBR[1].OUT_F[1]           ECLKSYNC[1].ECLK
-			// wire FABRIC_IN[0].IMUX_D[7]         CLK_EDGE.INT_IN_0
-			// wire FABRIC_IN[1].IMUX_D[7]         CLK_EDGE.INT_IN_1
-			// wire FABRIC_IN[2].IMUX_D[7]         CLK_EDGE.INT_IN_2
-			// wire FABRIC_IN[3].IMUX_D[7]         CLK_EDGE.INT_IN_3
-			// wire FABRIC_IN[4].IMUX_CLK[1]       CLK_EDGE.INT_IN_4
-			// wire FABRIC_IN[5].IMUX_CLK[1]       CLK_EDGE.INT_IN_6
+			// wire FABRIC_IN_M[0].IMUX_CLK[1]     CLK_EDGE.INT_IN_4
+			// wire FABRIC_IN_M[2].IMUX_CLK[1]     CLK_EDGE.INT_IN_6
 		}
 
 		tile_class CLK_W_L {
@@ -16341,55 +16658,86 @@ intdb {
 			cell CELL_EDGE[1];
 			cell CELL_EDGE[2];
 			cell CELL_EDGE[3];
+			cell CELL_EDGE[4];
+			cell CELL_EDGE[5];
+			cell CELL_EDGE[6];
+			cell CELL_EDGE[7];
+			cell CELL_EDGE[8];
+			cell CELL_EDGE[9];
+			cell CELL_EDGE[10];
+			cell CELL_EDGE[11];
 			cell CELL_EBR[0];
 			cell CELL_EBR[1];
-			cell FABRIC_IN[0];
-			cell FABRIC_IN[1];
-			cell FABRIC_IN[2];
-			cell FABRIC_IN[3];
-			cell FABRIC_IN[4];
-			cell FABRIC_IN[5];
-			cell FABRIC_IN[6];
-			cell FABRIC_IN[7];
+			cell FABRIC_IN_M[0];
+			cell FABRIC_IN_M[1];
+			cell FABRIC_IN_M[2];
+			cell FABRIC_IN_M[3];
 
 			bel DLLDEL[0] {
-				output CFLAG = CELL_EDGE[1].OUT_Q[7];
-				input DIRECTION = CELL_EDGE[1].IMUX_D[6];
-				input LOADN = CELL_EDGE[1].IMUX_B[6];
-				input MOVE = CELL_EDGE[1].IMUX_C[6];
+				input A = CELL_EDGE[3].OUT_IO_PADDI[2];
+				input DDRDEL = CELL_EDGE[5].IMUX_DLLDEL_DDRDEL;
+				input DIRECTION = CELL_EDGE[5].IMUX_D[6];
+				input LOADN = CELL_EDGE[5].IMUX_B[6];
+				input MOVE = CELL_EDGE[5].IMUX_C[6];
+				output Z = CELL_EDGE[5].OUT_DLLDEL_Z;
+				output CFLAG = CELL_EDGE[5].OUT_Q[7];
 			}
 
 			bel DLLDEL[1] {
-				output CFLAG = CELL_EDGE[0].OUT_Q[7];
-				input DIRECTION = CELL_EDGE[0].IMUX_D[6];
-				input LOADN = CELL_EDGE[0].IMUX_B[6];
-				input MOVE = CELL_EDGE[0].IMUX_C[6];
+				input A = CELL_EDGE[3].OUT_IO_PADDI[0];
+				input DDRDEL = CELL_EDGE[4].IMUX_DLLDEL_DDRDEL;
+				input DIRECTION = CELL_EDGE[4].IMUX_D[6];
+				input LOADN = CELL_EDGE[4].IMUX_B[6];
+				input MOVE = CELL_EDGE[4].IMUX_C[6];
+				output Z = CELL_EDGE[4].OUT_DLLDEL_Z;
+				output CFLAG = CELL_EDGE[4].OUT_Q[7];
 			}
 
 			bel DLLDEL[2] {
-				output CFLAG = CELL_EDGE[3].OUT_Q[7];
-				input DIRECTION = CELL_EDGE[3].IMUX_D[6];
-				input LOADN = CELL_EDGE[3].IMUX_B[6];
-				input MOVE = CELL_EDGE[3].IMUX_C[6];
+				input A = CELL_EDGE[6].OUT_IO_PADDI[2];
+				input DDRDEL = CELL_EDGE[7].IMUX_DLLDEL_DDRDEL;
+				input DIRECTION = CELL_EDGE[7].IMUX_D[6];
+				input LOADN = CELL_EDGE[7].IMUX_B[6];
+				input MOVE = CELL_EDGE[7].IMUX_C[6];
+				output Z = CELL_EDGE[7].OUT_DLLDEL_Z;
+				output CFLAG = CELL_EDGE[7].OUT_Q[7];
 			}
 
 			bel DLLDEL[3] {
-				output CFLAG = CELL_EDGE[2].OUT_Q[7];
-				input DIRECTION = CELL_EDGE[2].IMUX_D[6];
-				input LOADN = CELL_EDGE[2].IMUX_B[6];
-				input MOVE = CELL_EDGE[2].IMUX_C[6];
+				input A = CELL_EDGE[6].OUT_IO_PADDI[0];
+				input DDRDEL = CELL_EDGE[6].IMUX_DLLDEL_DDRDEL;
+				input DIRECTION = CELL_EDGE[6].IMUX_D[6];
+				input LOADN = CELL_EDGE[6].IMUX_B[6];
+				input MOVE = CELL_EDGE[6].IMUX_C[6];
+				output Z = CELL_EDGE[6].OUT_DLLDEL_Z;
+				output CFLAG = CELL_EDGE[6].OUT_Q[7];
 			}
 
 			bel CLKDIV[0] {
-				input ALIGNWD = CELL_EBR[0].IMUX_A[3];
-				output CDIVX = CELL_EBR[0].OUT_F[2];
+				input CLKI = CELL_EDGE[6].IMUX_CLKDIV_CLKI[0];
 				input RST = CELL_EBR[0].IMUX_LSR[0];
+				input ALIGNWD = CELL_EBR[0].IMUX_A[3];
+				output CDIVX = CELL_EDGE[6].OUT_CLKDIV_CDIVX[0], CELL_EBR[0].OUT_F[2];
 			}
 
 			bel CLKDIV[1] {
-				input ALIGNWD = CELL_EBR[0].IMUX_B[3];
-				output CDIVX = CELL_EBR[0].OUT_F[3];
+				input CLKI = CELL_EDGE[6].IMUX_CLKDIV_CLKI[1];
 				input RST = CELL_EBR[0].IMUX_LSR[1];
+				input ALIGNWD = CELL_EBR[0].IMUX_B[3];
+				output CDIVX = CELL_EDGE[6].OUT_CLKDIV_CDIVX[1], CELL_EBR[0].OUT_F[3];
+			}
+
+			switchbox CLK_INT {
+				mux CELL_EDGE[4].INCK[0] = CELL_EDGE[3].OUT_IO_PADDI[0] | CELL_EDGE[4].OUT_DLLDEL_Z;
+				mux CELL_EDGE[4].IMUX_DLLDEL_DDRDEL = CELL_EDGE[0].DDRDEL_S | CELL_EDGE[0].DDRDEL_N;
+				mux CELL_EDGE[5].INCK[0] = CELL_EDGE[3].OUT_IO_PADDI[2] | CELL_EDGE[5].OUT_DLLDEL_Z;
+				mux CELL_EDGE[5].IMUX_DLLDEL_DDRDEL = CELL_EDGE[0].DDRDEL_S | CELL_EDGE[0].DDRDEL_N;
+				mux CELL_EDGE[6].INCK[0] = CELL_EDGE[6].OUT_IO_PADDI[0] | CELL_EDGE[6].OUT_DLLDEL_Z;
+				mux CELL_EDGE[6].IMUX_DLLDEL_DDRDEL = CELL_EDGE[0].DDRDEL_S | CELL_EDGE[0].DDRDEL_N;
+				mux CELL_EDGE[6].IMUX_CLKDIV_CLKI[0] = CELL_EDGE[0].ECLK[0] | CELL_EDGE[6].ECLK[0];
+				mux CELL_EDGE[6].IMUX_CLKDIV_CLKI[1] = CELL_EDGE[0].ECLK[1] | CELL_EDGE[6].ECLK[1];
+				mux CELL_EDGE[7].INCK[0] = CELL_EDGE[6].OUT_IO_PADDI[2] | CELL_EDGE[7].OUT_DLLDEL_Z;
+				mux CELL_EDGE[7].IMUX_DLLDEL_DDRDEL = CELL_EDGE[0].DDRDEL_S | CELL_EDGE[0].DDRDEL_N;
 			}
 
 			bel CLKTEST {
@@ -16460,41 +16808,41 @@ intdb {
 
 			bel ECLKSYNC[0] {
 				output ECLK = CELL_EBR[1].OUT_F[0];
-				input ECLKI_N = CELL_EDGE[3].IMUX_CLK[0];
-				input ECLKI_S = CELL_EDGE[0].IMUX_CLK[0];
+				input ECLKI_N = CELL_EDGE[7].IMUX_CLK[0];
+				input ECLKI_S = CELL_EDGE[4].IMUX_CLK[0];
 				input STOP = CELL_EBR[0].IMUX_C[0];
 			}
 
 			bel ECLKSYNC[1] {
 				output ECLK = CELL_EBR[1].OUT_F[1];
-				input ECLKI_N = CELL_EDGE[3].IMUX_CLK[1];
-				input ECLKI_S = CELL_EDGE[0].IMUX_CLK[1];
+				input ECLKI_N = CELL_EDGE[7].IMUX_CLK[1];
+				input ECLKI_S = CELL_EDGE[4].IMUX_CLK[1];
 				input STOP = CELL_EBR[0].IMUX_D[0];
 			}
 
 			bel ECLKSYNC[2] {
 				output ECLK = CELL_EBR[0].OUT_F[0];
-				input ECLKI_N = CELL_EDGE[3].IMUX_CLK[0];
-				input ECLKI_S = CELL_EDGE[0].IMUX_CLK[0];
+				input ECLKI_N = CELL_EDGE[7].IMUX_CLK[0];
+				input ECLKI_S = CELL_EDGE[4].IMUX_CLK[0];
 				input STOP = CELL_EBR[0].IMUX_A[0];
 			}
 
 			bel ECLKSYNC[3] {
 				output ECLK = CELL_EBR[0].OUT_F[1];
-				input ECLKI_N = CELL_EDGE[3].IMUX_CLK[1];
-				input ECLKI_S = CELL_EDGE[0].IMUX_CLK[1];
+				input ECLKI_N = CELL_EDGE[7].IMUX_CLK[1];
+				input ECLKI_S = CELL_EDGE[4].IMUX_CLK[1];
 				input STOP = CELL_EBR[0].IMUX_B[0];
 			}
 
 			bel CLK_EDGE {
-				input INT_IN_0 = FABRIC_IN[0].IMUX_D[7];
-				input INT_IN_1 = FABRIC_IN[1].IMUX_D[7];
-				input INT_IN_2 = FABRIC_IN[2].IMUX_D[7];
-				input INT_IN_3 = FABRIC_IN[3].IMUX_D[7];
-				input INT_IN_4 = FABRIC_IN[4].IMUX_CLK[1];
-				input INT_IN_5 = FABRIC_IN[5].IMUX_CLK[1];
-				input INT_IN_6 = FABRIC_IN[6].IMUX_CLK[1];
-				input INT_IN_7 = FABRIC_IN[7].IMUX_CLK[1];
+				input INT_IN_0 = CELL_EDGE[2].IMUX_D[7];
+				input INT_IN_1 = CELL_EDGE[0].IMUX_D[7];
+				input INT_IN_2 = CELL_EDGE[9].IMUX_D[7];
+				input INT_IN_3 = CELL_EDGE[11].IMUX_D[7];
+				input INT_IN_4 = FABRIC_IN_M[0].IMUX_CLK[1];
+				input INT_IN_5 = FABRIC_IN_M[1].IMUX_CLK[1];
+				input INT_IN_6 = FABRIC_IN_M[2].IMUX_CLK[1];
+				input INT_IN_7 = FABRIC_IN_M[3].IMUX_CLK[1];
 			}
 
 			bel CLKTEST_ECLK {
@@ -16510,26 +16858,46 @@ intdb {
 				input STOP = CELL_EBR[0].IMUX_A[7];
 			}
 
-			// wire CELL_EDGE[0].IMUX_B[6]         DLLDEL[1].LOADN
-			// wire CELL_EDGE[0].IMUX_C[6]         DLLDEL[1].MOVE
-			// wire CELL_EDGE[0].IMUX_D[6]         DLLDEL[1].DIRECTION
-			// wire CELL_EDGE[0].IMUX_CLK[0]       ECLKSYNC[0].ECLKI_S ECLKSYNC[2].ECLKI_S
-			// wire CELL_EDGE[0].IMUX_CLK[1]       ECLKSYNC[1].ECLKI_S ECLKSYNC[3].ECLKI_S
-			// wire CELL_EDGE[0].OUT_Q[7]          DLLDEL[1].CFLAG
-			// wire CELL_EDGE[1].IMUX_B[6]         DLLDEL[0].LOADN
-			// wire CELL_EDGE[1].IMUX_C[6]         DLLDEL[0].MOVE
-			// wire CELL_EDGE[1].IMUX_D[6]         DLLDEL[0].DIRECTION
-			// wire CELL_EDGE[1].OUT_Q[7]          DLLDEL[0].CFLAG
-			// wire CELL_EDGE[2].IMUX_B[6]         DLLDEL[3].LOADN
-			// wire CELL_EDGE[2].IMUX_C[6]         DLLDEL[3].MOVE
-			// wire CELL_EDGE[2].IMUX_D[6]         DLLDEL[3].DIRECTION
-			// wire CELL_EDGE[2].OUT_Q[7]          DLLDEL[3].CFLAG
-			// wire CELL_EDGE[3].IMUX_B[6]         DLLDEL[2].LOADN
-			// wire CELL_EDGE[3].IMUX_C[6]         DLLDEL[2].MOVE
-			// wire CELL_EDGE[3].IMUX_D[6]         DLLDEL[2].DIRECTION
-			// wire CELL_EDGE[3].IMUX_CLK[0]       ECLKSYNC[0].ECLKI_N ECLKSYNC[2].ECLKI_N
-			// wire CELL_EDGE[3].IMUX_CLK[1]       ECLKSYNC[1].ECLKI_N ECLKSYNC[3].ECLKI_N
-			// wire CELL_EDGE[3].OUT_Q[7]          DLLDEL[2].CFLAG
+			// wire CELL_EDGE[0].IMUX_D[7]         CLK_EDGE.INT_IN_1
+			// wire CELL_EDGE[2].IMUX_D[7]         CLK_EDGE.INT_IN_0
+			// wire CELL_EDGE[3].OUT_IO_PADDI[0]   DLLDEL[1].A
+			// wire CELL_EDGE[3].OUT_IO_PADDI[2]   DLLDEL[0].A
+			// wire CELL_EDGE[4].IMUX_B[6]         DLLDEL[1].LOADN
+			// wire CELL_EDGE[4].IMUX_C[6]         DLLDEL[1].MOVE
+			// wire CELL_EDGE[4].IMUX_D[6]         DLLDEL[1].DIRECTION
+			// wire CELL_EDGE[4].IMUX_CLK[0]       ECLKSYNC[0].ECLKI_S ECLKSYNC[2].ECLKI_S
+			// wire CELL_EDGE[4].IMUX_CLK[1]       ECLKSYNC[1].ECLKI_S ECLKSYNC[3].ECLKI_S
+			// wire CELL_EDGE[4].OUT_Q[7]          DLLDEL[1].CFLAG
+			// wire CELL_EDGE[4].IMUX_DLLDEL_DDRDEL DLLDEL[1].DDRDEL
+			// wire CELL_EDGE[4].OUT_DLLDEL_Z      DLLDEL[1].Z
+			// wire CELL_EDGE[5].IMUX_B[6]         DLLDEL[0].LOADN
+			// wire CELL_EDGE[5].IMUX_C[6]         DLLDEL[0].MOVE
+			// wire CELL_EDGE[5].IMUX_D[6]         DLLDEL[0].DIRECTION
+			// wire CELL_EDGE[5].OUT_Q[7]          DLLDEL[0].CFLAG
+			// wire CELL_EDGE[5].IMUX_DLLDEL_DDRDEL DLLDEL[0].DDRDEL
+			// wire CELL_EDGE[5].OUT_DLLDEL_Z      DLLDEL[0].Z
+			// wire CELL_EDGE[6].IMUX_B[6]         DLLDEL[3].LOADN
+			// wire CELL_EDGE[6].IMUX_C[6]         DLLDEL[3].MOVE
+			// wire CELL_EDGE[6].IMUX_D[6]         DLLDEL[3].DIRECTION
+			// wire CELL_EDGE[6].OUT_Q[7]          DLLDEL[3].CFLAG
+			// wire CELL_EDGE[6].OUT_IO_PADDI[0]   DLLDEL[3].A
+			// wire CELL_EDGE[6].OUT_IO_PADDI[2]   DLLDEL[2].A
+			// wire CELL_EDGE[6].IMUX_DLLDEL_DDRDEL DLLDEL[3].DDRDEL
+			// wire CELL_EDGE[6].OUT_DLLDEL_Z      DLLDEL[3].Z
+			// wire CELL_EDGE[6].IMUX_CLKDIV_CLKI[0] CLKDIV[0].CLKI
+			// wire CELL_EDGE[6].IMUX_CLKDIV_CLKI[1] CLKDIV[1].CLKI
+			// wire CELL_EDGE[6].OUT_CLKDIV_CDIVX[0] CLKDIV[0].CDIVX
+			// wire CELL_EDGE[6].OUT_CLKDIV_CDIVX[1] CLKDIV[1].CDIVX
+			// wire CELL_EDGE[7].IMUX_B[6]         DLLDEL[2].LOADN
+			// wire CELL_EDGE[7].IMUX_C[6]         DLLDEL[2].MOVE
+			// wire CELL_EDGE[7].IMUX_D[6]         DLLDEL[2].DIRECTION
+			// wire CELL_EDGE[7].IMUX_CLK[0]       ECLKSYNC[0].ECLKI_N ECLKSYNC[2].ECLKI_N
+			// wire CELL_EDGE[7].IMUX_CLK[1]       ECLKSYNC[1].ECLKI_N ECLKSYNC[3].ECLKI_N
+			// wire CELL_EDGE[7].OUT_Q[7]          DLLDEL[2].CFLAG
+			// wire CELL_EDGE[7].IMUX_DLLDEL_DDRDEL DLLDEL[2].DDRDEL
+			// wire CELL_EDGE[7].OUT_DLLDEL_Z      DLLDEL[2].Z
+			// wire CELL_EDGE[9].IMUX_D[7]         CLK_EDGE.INT_IN_2
+			// wire CELL_EDGE[11].IMUX_D[7]        CLK_EDGE.INT_IN_3
 			// wire CELL_EBR[0].IMUX_A[0]          ECLKSYNC[2].STOP
 			// wire CELL_EBR[0].IMUX_A[3]          CLKDIV[0].ALIGNWD
 			// wire CELL_EBR[0].IMUX_A[4]          CLKTEST_ECLK.TESTIN0
@@ -16569,14 +16937,10 @@ intdb {
 			// wire CELL_EBR[1].IMUX_D[2]          DCC[10].CE
 			// wire CELL_EBR[1].OUT_F[0]           ECLKSYNC[0].ECLK
 			// wire CELL_EBR[1].OUT_F[1]           ECLKSYNC[1].ECLK
-			// wire FABRIC_IN[0].IMUX_D[7]         CLK_EDGE.INT_IN_0
-			// wire FABRIC_IN[1].IMUX_D[7]         CLK_EDGE.INT_IN_1
-			// wire FABRIC_IN[2].IMUX_D[7]         CLK_EDGE.INT_IN_2
-			// wire FABRIC_IN[3].IMUX_D[7]         CLK_EDGE.INT_IN_3
-			// wire FABRIC_IN[4].IMUX_CLK[1]       CLK_EDGE.INT_IN_4
-			// wire FABRIC_IN[5].IMUX_CLK[1]       CLK_EDGE.INT_IN_5
-			// wire FABRIC_IN[6].IMUX_CLK[1]       CLK_EDGE.INT_IN_6
-			// wire FABRIC_IN[7].IMUX_CLK[1]       CLK_EDGE.INT_IN_7
+			// wire FABRIC_IN_M[0].IMUX_CLK[1]     CLK_EDGE.INT_IN_4
+			// wire FABRIC_IN_M[1].IMUX_CLK[1]     CLK_EDGE.INT_IN_5
+			// wire FABRIC_IN_M[2].IMUX_CLK[1]     CLK_EDGE.INT_IN_6
+			// wire FABRIC_IN_M[3].IMUX_CLK[1]     CLK_EDGE.INT_IN_7
 		}
 
 		tile_class CLK_E_S {
@@ -16584,53 +16948,86 @@ intdb {
 			cell CELL_EDGE[1];
 			cell CELL_EDGE[2];
 			cell CELL_EDGE[3];
+			cell CELL_EDGE[4];
+			cell CELL_EDGE[5];
+			cell CELL_EDGE[6];
+			cell CELL_EDGE[7];
+			cell CELL_EDGE[8];
+			cell CELL_EDGE[9];
+			cell CELL_EDGE[10];
+			cell CELL_EDGE[11];
 			cell CELL_EBR[0];
 			cell CELL_EBR[1];
-			cell FABRIC_IN[0];
-			cell FABRIC_IN[1];
-			cell FABRIC_IN[2];
-			cell FABRIC_IN[3];
-			cell FABRIC_IN[4];
-			cell FABRIC_IN[5];
+			cell FABRIC_IN_M[0];
+			cell FABRIC_IN_M[1];
+			cell FABRIC_IN_M[2];
+			cell FABRIC_IN_M[3];
 
 			bel DLLDEL[0] {
-				output CFLAG = CELL_EDGE[1].OUT_Q[7];
-				input DIRECTION = CELL_EDGE[1].IMUX_D[6];
-				input LOADN = CELL_EDGE[1].IMUX_B[6];
-				input MOVE = CELL_EDGE[1].IMUX_C[6];
+				input A = CELL_EDGE[3].OUT_IO_PADDI[2];
+				input DDRDEL = CELL_EDGE[5].IMUX_DLLDEL_DDRDEL;
+				input DIRECTION = CELL_EDGE[5].IMUX_D[6];
+				input LOADN = CELL_EDGE[5].IMUX_B[6];
+				input MOVE = CELL_EDGE[5].IMUX_C[6];
+				output Z = CELL_EDGE[5].OUT_DLLDEL_Z;
+				output CFLAG = CELL_EDGE[5].OUT_Q[7];
 			}
 
 			bel DLLDEL[1] {
-				output CFLAG = CELL_EDGE[0].OUT_Q[7];
-				input DIRECTION = CELL_EDGE[0].IMUX_D[6];
-				input LOADN = CELL_EDGE[0].IMUX_B[6];
-				input MOVE = CELL_EDGE[0].IMUX_C[6];
+				input A = CELL_EDGE[3].OUT_IO_PADDI[0];
+				input DDRDEL = CELL_EDGE[4].IMUX_DLLDEL_DDRDEL;
+				input DIRECTION = CELL_EDGE[4].IMUX_D[6];
+				input LOADN = CELL_EDGE[4].IMUX_B[6];
+				input MOVE = CELL_EDGE[4].IMUX_C[6];
+				output Z = CELL_EDGE[4].OUT_DLLDEL_Z;
+				output CFLAG = CELL_EDGE[4].OUT_Q[7];
 			}
 
 			bel DLLDEL[2] {
-				output CFLAG = CELL_EDGE[3].OUT_Q[7];
-				input DIRECTION = CELL_EDGE[3].IMUX_D[6];
-				input LOADN = CELL_EDGE[3].IMUX_B[6];
-				input MOVE = CELL_EDGE[3].IMUX_C[6];
+				input A = CELL_EDGE[6].OUT_IO_PADDI[2];
+				input DDRDEL = CELL_EDGE[7].IMUX_DLLDEL_DDRDEL;
+				input DIRECTION = CELL_EDGE[7].IMUX_D[6];
+				input LOADN = CELL_EDGE[7].IMUX_B[6];
+				input MOVE = CELL_EDGE[7].IMUX_C[6];
+				output Z = CELL_EDGE[7].OUT_DLLDEL_Z;
+				output CFLAG = CELL_EDGE[7].OUT_Q[7];
 			}
 
 			bel DLLDEL[3] {
-				output CFLAG = CELL_EDGE[2].OUT_Q[7];
-				input DIRECTION = CELL_EDGE[2].IMUX_D[6];
-				input LOADN = CELL_EDGE[2].IMUX_B[6];
-				input MOVE = CELL_EDGE[2].IMUX_C[6];
+				input A = CELL_EDGE[6].OUT_IO_PADDI[0];
+				input DDRDEL = CELL_EDGE[6].IMUX_DLLDEL_DDRDEL;
+				input DIRECTION = CELL_EDGE[6].IMUX_D[6];
+				input LOADN = CELL_EDGE[6].IMUX_B[6];
+				input MOVE = CELL_EDGE[6].IMUX_C[6];
+				output Z = CELL_EDGE[6].OUT_DLLDEL_Z;
+				output CFLAG = CELL_EDGE[6].OUT_Q[7];
 			}
 
 			bel CLKDIV[0] {
-				input ALIGNWD = CELL_EBR[0].IMUX_A[3];
-				output CDIVX = CELL_EBR[0].OUT_F[2];
+				input CLKI = CELL_EDGE[6].IMUX_CLKDIV_CLKI[0];
 				input RST = CELL_EBR[0].IMUX_LSR[0];
+				input ALIGNWD = CELL_EBR[0].IMUX_A[3];
+				output CDIVX = CELL_EDGE[6].OUT_CLKDIV_CDIVX[0], CELL_EBR[0].OUT_F[2];
 			}
 
 			bel CLKDIV[1] {
-				input ALIGNWD = CELL_EBR[0].IMUX_B[3];
-				output CDIVX = CELL_EBR[0].OUT_F[3];
+				input CLKI = CELL_EDGE[6].IMUX_CLKDIV_CLKI[1];
 				input RST = CELL_EBR[0].IMUX_LSR[1];
+				input ALIGNWD = CELL_EBR[0].IMUX_B[3];
+				output CDIVX = CELL_EDGE[6].OUT_CLKDIV_CDIVX[1], CELL_EBR[0].OUT_F[3];
+			}
+
+			switchbox CLK_INT {
+				mux CELL_EDGE[4].INCK[0] = CELL_EDGE[3].OUT_IO_PADDI[0] | CELL_EDGE[4].OUT_DLLDEL_Z;
+				mux CELL_EDGE[4].IMUX_DLLDEL_DDRDEL = CELL_EDGE[0].DDRDEL_S | CELL_EDGE[0].DDRDEL_N;
+				mux CELL_EDGE[5].INCK[0] = CELL_EDGE[3].OUT_IO_PADDI[2] | CELL_EDGE[5].OUT_DLLDEL_Z;
+				mux CELL_EDGE[5].IMUX_DLLDEL_DDRDEL = CELL_EDGE[0].DDRDEL_S | CELL_EDGE[0].DDRDEL_N;
+				mux CELL_EDGE[6].INCK[0] = CELL_EDGE[6].OUT_IO_PADDI[0] | CELL_EDGE[6].OUT_DLLDEL_Z;
+				mux CELL_EDGE[6].IMUX_DLLDEL_DDRDEL = CELL_EDGE[0].DDRDEL_S | CELL_EDGE[0].DDRDEL_N;
+				mux CELL_EDGE[6].IMUX_CLKDIV_CLKI[0] = CELL_EDGE[0].ECLK[0] | CELL_EDGE[6].ECLK[0];
+				mux CELL_EDGE[6].IMUX_CLKDIV_CLKI[1] = CELL_EDGE[0].ECLK[1] | CELL_EDGE[6].ECLK[1];
+				mux CELL_EDGE[7].INCK[0] = CELL_EDGE[6].OUT_IO_PADDI[2] | CELL_EDGE[7].OUT_DLLDEL_Z;
+				mux CELL_EDGE[7].IMUX_DLLDEL_DDRDEL = CELL_EDGE[0].DDRDEL_S | CELL_EDGE[0].DDRDEL_N;
 			}
 
 			bel CLKTEST {
@@ -16701,39 +17098,39 @@ intdb {
 
 			bel ECLKSYNC[0] {
 				output ECLK = CELL_EBR[1].OUT_F[0];
-				input ECLKI_N = CELL_EDGE[3].IMUX_CLK[0];
-				input ECLKI_S = CELL_EDGE[0].IMUX_CLK[0];
+				input ECLKI_N = CELL_EDGE[7].IMUX_CLK[0];
+				input ECLKI_S = CELL_EDGE[4].IMUX_CLK[0];
 				input STOP = CELL_EBR[0].IMUX_C[0];
 			}
 
 			bel ECLKSYNC[1] {
 				output ECLK = CELL_EBR[1].OUT_F[1];
-				input ECLKI_N = CELL_EDGE[3].IMUX_CLK[1];
-				input ECLKI_S = CELL_EDGE[0].IMUX_CLK[1];
+				input ECLKI_N = CELL_EDGE[7].IMUX_CLK[1];
+				input ECLKI_S = CELL_EDGE[4].IMUX_CLK[1];
 				input STOP = CELL_EBR[0].IMUX_D[0];
 			}
 
 			bel ECLKSYNC[2] {
 				output ECLK = CELL_EBR[0].OUT_F[0];
-				input ECLKI_N = CELL_EDGE[3].IMUX_CLK[0];
-				input ECLKI_S = CELL_EDGE[0].IMUX_CLK[0];
+				input ECLKI_N = CELL_EDGE[7].IMUX_CLK[0];
+				input ECLKI_S = CELL_EDGE[4].IMUX_CLK[0];
 				input STOP = CELL_EBR[0].IMUX_A[0];
 			}
 
 			bel ECLKSYNC[3] {
 				output ECLK = CELL_EBR[0].OUT_F[1];
-				input ECLKI_N = CELL_EDGE[3].IMUX_CLK[1];
-				input ECLKI_S = CELL_EDGE[0].IMUX_CLK[1];
+				input ECLKI_N = CELL_EDGE[7].IMUX_CLK[1];
+				input ECLKI_S = CELL_EDGE[4].IMUX_CLK[1];
 				input STOP = CELL_EBR[0].IMUX_B[0];
 			}
 
 			bel CLK_EDGE {
-				input INT_IN_0 = FABRIC_IN[0].IMUX_D[7];
-				input INT_IN_1 = FABRIC_IN[1].IMUX_D[7];
-				input INT_IN_2 = FABRIC_IN[2].IMUX_D[7];
-				input INT_IN_3 = FABRIC_IN[3].IMUX_D[7];
-				input INT_IN_4 = FABRIC_IN[4].IMUX_CLK[1];
-				input INT_IN_6 = FABRIC_IN[5].IMUX_CLK[1];
+				input INT_IN_0 = CELL_EDGE[2].IMUX_D[7];
+				input INT_IN_1 = CELL_EDGE[0].IMUX_D[7];
+				input INT_IN_2 = CELL_EDGE[9].IMUX_D[7];
+				input INT_IN_3 = CELL_EDGE[11].IMUX_D[7];
+				input INT_IN_4 = FABRIC_IN_M[0].IMUX_CLK[1];
+				input INT_IN_6 = FABRIC_IN_M[2].IMUX_CLK[1];
 			}
 
 			bel CLKTEST_ECLK {
@@ -16749,26 +17146,46 @@ intdb {
 				input STOP = CELL_EBR[0].IMUX_A[7];
 			}
 
-			// wire CELL_EDGE[0].IMUX_B[6]         DLLDEL[1].LOADN
-			// wire CELL_EDGE[0].IMUX_C[6]         DLLDEL[1].MOVE
-			// wire CELL_EDGE[0].IMUX_D[6]         DLLDEL[1].DIRECTION
-			// wire CELL_EDGE[0].IMUX_CLK[0]       ECLKSYNC[0].ECLKI_S ECLKSYNC[2].ECLKI_S
-			// wire CELL_EDGE[0].IMUX_CLK[1]       ECLKSYNC[1].ECLKI_S ECLKSYNC[3].ECLKI_S
-			// wire CELL_EDGE[0].OUT_Q[7]          DLLDEL[1].CFLAG
-			// wire CELL_EDGE[1].IMUX_B[6]         DLLDEL[0].LOADN
-			// wire CELL_EDGE[1].IMUX_C[6]         DLLDEL[0].MOVE
-			// wire CELL_EDGE[1].IMUX_D[6]         DLLDEL[0].DIRECTION
-			// wire CELL_EDGE[1].OUT_Q[7]          DLLDEL[0].CFLAG
-			// wire CELL_EDGE[2].IMUX_B[6]         DLLDEL[3].LOADN
-			// wire CELL_EDGE[2].IMUX_C[6]         DLLDEL[3].MOVE
-			// wire CELL_EDGE[2].IMUX_D[6]         DLLDEL[3].DIRECTION
-			// wire CELL_EDGE[2].OUT_Q[7]          DLLDEL[3].CFLAG
-			// wire CELL_EDGE[3].IMUX_B[6]         DLLDEL[2].LOADN
-			// wire CELL_EDGE[3].IMUX_C[6]         DLLDEL[2].MOVE
-			// wire CELL_EDGE[3].IMUX_D[6]         DLLDEL[2].DIRECTION
-			// wire CELL_EDGE[3].IMUX_CLK[0]       ECLKSYNC[0].ECLKI_N ECLKSYNC[2].ECLKI_N
-			// wire CELL_EDGE[3].IMUX_CLK[1]       ECLKSYNC[1].ECLKI_N ECLKSYNC[3].ECLKI_N
-			// wire CELL_EDGE[3].OUT_Q[7]          DLLDEL[2].CFLAG
+			// wire CELL_EDGE[0].IMUX_D[7]         CLK_EDGE.INT_IN_1
+			// wire CELL_EDGE[2].IMUX_D[7]         CLK_EDGE.INT_IN_0
+			// wire CELL_EDGE[3].OUT_IO_PADDI[0]   DLLDEL[1].A
+			// wire CELL_EDGE[3].OUT_IO_PADDI[2]   DLLDEL[0].A
+			// wire CELL_EDGE[4].IMUX_B[6]         DLLDEL[1].LOADN
+			// wire CELL_EDGE[4].IMUX_C[6]         DLLDEL[1].MOVE
+			// wire CELL_EDGE[4].IMUX_D[6]         DLLDEL[1].DIRECTION
+			// wire CELL_EDGE[4].IMUX_CLK[0]       ECLKSYNC[0].ECLKI_S ECLKSYNC[2].ECLKI_S
+			// wire CELL_EDGE[4].IMUX_CLK[1]       ECLKSYNC[1].ECLKI_S ECLKSYNC[3].ECLKI_S
+			// wire CELL_EDGE[4].OUT_Q[7]          DLLDEL[1].CFLAG
+			// wire CELL_EDGE[4].IMUX_DLLDEL_DDRDEL DLLDEL[1].DDRDEL
+			// wire CELL_EDGE[4].OUT_DLLDEL_Z      DLLDEL[1].Z
+			// wire CELL_EDGE[5].IMUX_B[6]         DLLDEL[0].LOADN
+			// wire CELL_EDGE[5].IMUX_C[6]         DLLDEL[0].MOVE
+			// wire CELL_EDGE[5].IMUX_D[6]         DLLDEL[0].DIRECTION
+			// wire CELL_EDGE[5].OUT_Q[7]          DLLDEL[0].CFLAG
+			// wire CELL_EDGE[5].IMUX_DLLDEL_DDRDEL DLLDEL[0].DDRDEL
+			// wire CELL_EDGE[5].OUT_DLLDEL_Z      DLLDEL[0].Z
+			// wire CELL_EDGE[6].IMUX_B[6]         DLLDEL[3].LOADN
+			// wire CELL_EDGE[6].IMUX_C[6]         DLLDEL[3].MOVE
+			// wire CELL_EDGE[6].IMUX_D[6]         DLLDEL[3].DIRECTION
+			// wire CELL_EDGE[6].OUT_Q[7]          DLLDEL[3].CFLAG
+			// wire CELL_EDGE[6].OUT_IO_PADDI[0]   DLLDEL[3].A
+			// wire CELL_EDGE[6].OUT_IO_PADDI[2]   DLLDEL[2].A
+			// wire CELL_EDGE[6].IMUX_DLLDEL_DDRDEL DLLDEL[3].DDRDEL
+			// wire CELL_EDGE[6].OUT_DLLDEL_Z      DLLDEL[3].Z
+			// wire CELL_EDGE[6].IMUX_CLKDIV_CLKI[0] CLKDIV[0].CLKI
+			// wire CELL_EDGE[6].IMUX_CLKDIV_CLKI[1] CLKDIV[1].CLKI
+			// wire CELL_EDGE[6].OUT_CLKDIV_CDIVX[0] CLKDIV[0].CDIVX
+			// wire CELL_EDGE[6].OUT_CLKDIV_CDIVX[1] CLKDIV[1].CDIVX
+			// wire CELL_EDGE[7].IMUX_B[6]         DLLDEL[2].LOADN
+			// wire CELL_EDGE[7].IMUX_C[6]         DLLDEL[2].MOVE
+			// wire CELL_EDGE[7].IMUX_D[6]         DLLDEL[2].DIRECTION
+			// wire CELL_EDGE[7].IMUX_CLK[0]       ECLKSYNC[0].ECLKI_N ECLKSYNC[2].ECLKI_N
+			// wire CELL_EDGE[7].IMUX_CLK[1]       ECLKSYNC[1].ECLKI_N ECLKSYNC[3].ECLKI_N
+			// wire CELL_EDGE[7].OUT_Q[7]          DLLDEL[2].CFLAG
+			// wire CELL_EDGE[7].IMUX_DLLDEL_DDRDEL DLLDEL[2].DDRDEL
+			// wire CELL_EDGE[7].OUT_DLLDEL_Z      DLLDEL[2].Z
+			// wire CELL_EDGE[9].IMUX_D[7]         CLK_EDGE.INT_IN_2
+			// wire CELL_EDGE[11].IMUX_D[7]        CLK_EDGE.INT_IN_3
 			// wire CELL_EBR[0].IMUX_A[0]          ECLKSYNC[2].STOP
 			// wire CELL_EBR[0].IMUX_A[3]          CLKDIV[0].ALIGNWD
 			// wire CELL_EBR[0].IMUX_A[4]          CLKTEST_ECLK.TESTIN0
@@ -16808,12 +17225,8 @@ intdb {
 			// wire CELL_EBR[1].IMUX_D[2]          DCC[10].CE
 			// wire CELL_EBR[1].OUT_F[0]           ECLKSYNC[0].ECLK
 			// wire CELL_EBR[1].OUT_F[1]           ECLKSYNC[1].ECLK
-			// wire FABRIC_IN[0].IMUX_D[7]         CLK_EDGE.INT_IN_0
-			// wire FABRIC_IN[1].IMUX_D[7]         CLK_EDGE.INT_IN_1
-			// wire FABRIC_IN[2].IMUX_D[7]         CLK_EDGE.INT_IN_2
-			// wire FABRIC_IN[3].IMUX_D[7]         CLK_EDGE.INT_IN_3
-			// wire FABRIC_IN[4].IMUX_CLK[1]       CLK_EDGE.INT_IN_4
-			// wire FABRIC_IN[5].IMUX_CLK[1]       CLK_EDGE.INT_IN_6
+			// wire FABRIC_IN_M[0].IMUX_CLK[1]     CLK_EDGE.INT_IN_4
+			// wire FABRIC_IN_M[2].IMUX_CLK[1]     CLK_EDGE.INT_IN_6
 		}
 
 		tile_class CLK_E_L {
@@ -16821,55 +17234,86 @@ intdb {
 			cell CELL_EDGE[1];
 			cell CELL_EDGE[2];
 			cell CELL_EDGE[3];
+			cell CELL_EDGE[4];
+			cell CELL_EDGE[5];
+			cell CELL_EDGE[6];
+			cell CELL_EDGE[7];
+			cell CELL_EDGE[8];
+			cell CELL_EDGE[9];
+			cell CELL_EDGE[10];
+			cell CELL_EDGE[11];
 			cell CELL_EBR[0];
 			cell CELL_EBR[1];
-			cell FABRIC_IN[0];
-			cell FABRIC_IN[1];
-			cell FABRIC_IN[2];
-			cell FABRIC_IN[3];
-			cell FABRIC_IN[4];
-			cell FABRIC_IN[5];
-			cell FABRIC_IN[6];
-			cell FABRIC_IN[7];
+			cell FABRIC_IN_M[0];
+			cell FABRIC_IN_M[1];
+			cell FABRIC_IN_M[2];
+			cell FABRIC_IN_M[3];
 
 			bel DLLDEL[0] {
-				output CFLAG = CELL_EDGE[1].OUT_Q[7];
-				input DIRECTION = CELL_EDGE[1].IMUX_D[6];
-				input LOADN = CELL_EDGE[1].IMUX_B[6];
-				input MOVE = CELL_EDGE[1].IMUX_C[6];
+				input A = CELL_EDGE[3].OUT_IO_PADDI[2];
+				input DDRDEL = CELL_EDGE[5].IMUX_DLLDEL_DDRDEL;
+				input DIRECTION = CELL_EDGE[5].IMUX_D[6];
+				input LOADN = CELL_EDGE[5].IMUX_B[6];
+				input MOVE = CELL_EDGE[5].IMUX_C[6];
+				output Z = CELL_EDGE[5].OUT_DLLDEL_Z;
+				output CFLAG = CELL_EDGE[5].OUT_Q[7];
 			}
 
 			bel DLLDEL[1] {
-				output CFLAG = CELL_EDGE[0].OUT_Q[7];
-				input DIRECTION = CELL_EDGE[0].IMUX_D[6];
-				input LOADN = CELL_EDGE[0].IMUX_B[6];
-				input MOVE = CELL_EDGE[0].IMUX_C[6];
+				input A = CELL_EDGE[3].OUT_IO_PADDI[0];
+				input DDRDEL = CELL_EDGE[4].IMUX_DLLDEL_DDRDEL;
+				input DIRECTION = CELL_EDGE[4].IMUX_D[6];
+				input LOADN = CELL_EDGE[4].IMUX_B[6];
+				input MOVE = CELL_EDGE[4].IMUX_C[6];
+				output Z = CELL_EDGE[4].OUT_DLLDEL_Z;
+				output CFLAG = CELL_EDGE[4].OUT_Q[7];
 			}
 
 			bel DLLDEL[2] {
-				output CFLAG = CELL_EDGE[3].OUT_Q[7];
-				input DIRECTION = CELL_EDGE[3].IMUX_D[6];
-				input LOADN = CELL_EDGE[3].IMUX_B[6];
-				input MOVE = CELL_EDGE[3].IMUX_C[6];
+				input A = CELL_EDGE[6].OUT_IO_PADDI[2];
+				input DDRDEL = CELL_EDGE[7].IMUX_DLLDEL_DDRDEL;
+				input DIRECTION = CELL_EDGE[7].IMUX_D[6];
+				input LOADN = CELL_EDGE[7].IMUX_B[6];
+				input MOVE = CELL_EDGE[7].IMUX_C[6];
+				output Z = CELL_EDGE[7].OUT_DLLDEL_Z;
+				output CFLAG = CELL_EDGE[7].OUT_Q[7];
 			}
 
 			bel DLLDEL[3] {
-				output CFLAG = CELL_EDGE[2].OUT_Q[7];
-				input DIRECTION = CELL_EDGE[2].IMUX_D[6];
-				input LOADN = CELL_EDGE[2].IMUX_B[6];
-				input MOVE = CELL_EDGE[2].IMUX_C[6];
+				input A = CELL_EDGE[6].OUT_IO_PADDI[0];
+				input DDRDEL = CELL_EDGE[6].IMUX_DLLDEL_DDRDEL;
+				input DIRECTION = CELL_EDGE[6].IMUX_D[6];
+				input LOADN = CELL_EDGE[6].IMUX_B[6];
+				input MOVE = CELL_EDGE[6].IMUX_C[6];
+				output Z = CELL_EDGE[6].OUT_DLLDEL_Z;
+				output CFLAG = CELL_EDGE[6].OUT_Q[7];
 			}
 
 			bel CLKDIV[0] {
-				input ALIGNWD = CELL_EBR[0].IMUX_A[3];
-				output CDIVX = CELL_EBR[0].OUT_F[2];
+				input CLKI = CELL_EDGE[6].IMUX_CLKDIV_CLKI[0];
 				input RST = CELL_EBR[0].IMUX_LSR[0];
+				input ALIGNWD = CELL_EBR[0].IMUX_A[3];
+				output CDIVX = CELL_EDGE[6].OUT_CLKDIV_CDIVX[0], CELL_EBR[0].OUT_F[2];
 			}
 
 			bel CLKDIV[1] {
-				input ALIGNWD = CELL_EBR[0].IMUX_B[3];
-				output CDIVX = CELL_EBR[0].OUT_F[3];
+				input CLKI = CELL_EDGE[6].IMUX_CLKDIV_CLKI[1];
 				input RST = CELL_EBR[0].IMUX_LSR[1];
+				input ALIGNWD = CELL_EBR[0].IMUX_B[3];
+				output CDIVX = CELL_EDGE[6].OUT_CLKDIV_CDIVX[1], CELL_EBR[0].OUT_F[3];
+			}
+
+			switchbox CLK_INT {
+				mux CELL_EDGE[4].INCK[0] = CELL_EDGE[3].OUT_IO_PADDI[0] | CELL_EDGE[4].OUT_DLLDEL_Z;
+				mux CELL_EDGE[4].IMUX_DLLDEL_DDRDEL = CELL_EDGE[0].DDRDEL_S | CELL_EDGE[0].DDRDEL_N;
+				mux CELL_EDGE[5].INCK[0] = CELL_EDGE[3].OUT_IO_PADDI[2] | CELL_EDGE[5].OUT_DLLDEL_Z;
+				mux CELL_EDGE[5].IMUX_DLLDEL_DDRDEL = CELL_EDGE[0].DDRDEL_S | CELL_EDGE[0].DDRDEL_N;
+				mux CELL_EDGE[6].INCK[0] = CELL_EDGE[6].OUT_IO_PADDI[0] | CELL_EDGE[6].OUT_DLLDEL_Z;
+				mux CELL_EDGE[6].IMUX_DLLDEL_DDRDEL = CELL_EDGE[0].DDRDEL_S | CELL_EDGE[0].DDRDEL_N;
+				mux CELL_EDGE[6].IMUX_CLKDIV_CLKI[0] = CELL_EDGE[0].ECLK[0] | CELL_EDGE[6].ECLK[0];
+				mux CELL_EDGE[6].IMUX_CLKDIV_CLKI[1] = CELL_EDGE[0].ECLK[1] | CELL_EDGE[6].ECLK[1];
+				mux CELL_EDGE[7].INCK[0] = CELL_EDGE[6].OUT_IO_PADDI[2] | CELL_EDGE[7].OUT_DLLDEL_Z;
+				mux CELL_EDGE[7].IMUX_DLLDEL_DDRDEL = CELL_EDGE[0].DDRDEL_S | CELL_EDGE[0].DDRDEL_N;
 			}
 
 			bel CLKTEST {
@@ -16940,41 +17384,41 @@ intdb {
 
 			bel ECLKSYNC[0] {
 				output ECLK = CELL_EBR[1].OUT_F[0];
-				input ECLKI_N = CELL_EDGE[3].IMUX_CLK[0];
-				input ECLKI_S = CELL_EDGE[0].IMUX_CLK[0];
+				input ECLKI_N = CELL_EDGE[7].IMUX_CLK[0];
+				input ECLKI_S = CELL_EDGE[4].IMUX_CLK[0];
 				input STOP = CELL_EBR[0].IMUX_C[0];
 			}
 
 			bel ECLKSYNC[1] {
 				output ECLK = CELL_EBR[1].OUT_F[1];
-				input ECLKI_N = CELL_EDGE[3].IMUX_CLK[1];
-				input ECLKI_S = CELL_EDGE[0].IMUX_CLK[1];
+				input ECLKI_N = CELL_EDGE[7].IMUX_CLK[1];
+				input ECLKI_S = CELL_EDGE[4].IMUX_CLK[1];
 				input STOP = CELL_EBR[0].IMUX_D[0];
 			}
 
 			bel ECLKSYNC[2] {
 				output ECLK = CELL_EBR[0].OUT_F[0];
-				input ECLKI_N = CELL_EDGE[3].IMUX_CLK[0];
-				input ECLKI_S = CELL_EDGE[0].IMUX_CLK[0];
+				input ECLKI_N = CELL_EDGE[7].IMUX_CLK[0];
+				input ECLKI_S = CELL_EDGE[4].IMUX_CLK[0];
 				input STOP = CELL_EBR[0].IMUX_A[0];
 			}
 
 			bel ECLKSYNC[3] {
 				output ECLK = CELL_EBR[0].OUT_F[1];
-				input ECLKI_N = CELL_EDGE[3].IMUX_CLK[1];
-				input ECLKI_S = CELL_EDGE[0].IMUX_CLK[1];
+				input ECLKI_N = CELL_EDGE[7].IMUX_CLK[1];
+				input ECLKI_S = CELL_EDGE[4].IMUX_CLK[1];
 				input STOP = CELL_EBR[0].IMUX_B[0];
 			}
 
 			bel CLK_EDGE {
-				input INT_IN_0 = FABRIC_IN[0].IMUX_D[7];
-				input INT_IN_1 = FABRIC_IN[1].IMUX_D[7];
-				input INT_IN_2 = FABRIC_IN[2].IMUX_D[7];
-				input INT_IN_3 = FABRIC_IN[3].IMUX_D[7];
-				input INT_IN_4 = FABRIC_IN[4].IMUX_CLK[1];
-				input INT_IN_5 = FABRIC_IN[5].IMUX_CLK[1];
-				input INT_IN_6 = FABRIC_IN[6].IMUX_CLK[1];
-				input INT_IN_7 = FABRIC_IN[7].IMUX_CLK[1];
+				input INT_IN_0 = CELL_EDGE[2].IMUX_D[7];
+				input INT_IN_1 = CELL_EDGE[0].IMUX_D[7];
+				input INT_IN_2 = CELL_EDGE[9].IMUX_D[7];
+				input INT_IN_3 = CELL_EDGE[11].IMUX_D[7];
+				input INT_IN_4 = FABRIC_IN_M[0].IMUX_CLK[1];
+				input INT_IN_5 = FABRIC_IN_M[1].IMUX_CLK[1];
+				input INT_IN_6 = FABRIC_IN_M[2].IMUX_CLK[1];
+				input INT_IN_7 = FABRIC_IN_M[3].IMUX_CLK[1];
 			}
 
 			bel CLKTEST_ECLK {
@@ -16990,26 +17434,46 @@ intdb {
 				input STOP = CELL_EBR[0].IMUX_A[7];
 			}
 
-			// wire CELL_EDGE[0].IMUX_B[6]         DLLDEL[1].LOADN
-			// wire CELL_EDGE[0].IMUX_C[6]         DLLDEL[1].MOVE
-			// wire CELL_EDGE[0].IMUX_D[6]         DLLDEL[1].DIRECTION
-			// wire CELL_EDGE[0].IMUX_CLK[0]       ECLKSYNC[0].ECLKI_S ECLKSYNC[2].ECLKI_S
-			// wire CELL_EDGE[0].IMUX_CLK[1]       ECLKSYNC[1].ECLKI_S ECLKSYNC[3].ECLKI_S
-			// wire CELL_EDGE[0].OUT_Q[7]          DLLDEL[1].CFLAG
-			// wire CELL_EDGE[1].IMUX_B[6]         DLLDEL[0].LOADN
-			// wire CELL_EDGE[1].IMUX_C[6]         DLLDEL[0].MOVE
-			// wire CELL_EDGE[1].IMUX_D[6]         DLLDEL[0].DIRECTION
-			// wire CELL_EDGE[1].OUT_Q[7]          DLLDEL[0].CFLAG
-			// wire CELL_EDGE[2].IMUX_B[6]         DLLDEL[3].LOADN
-			// wire CELL_EDGE[2].IMUX_C[6]         DLLDEL[3].MOVE
-			// wire CELL_EDGE[2].IMUX_D[6]         DLLDEL[3].DIRECTION
-			// wire CELL_EDGE[2].OUT_Q[7]          DLLDEL[3].CFLAG
-			// wire CELL_EDGE[3].IMUX_B[6]         DLLDEL[2].LOADN
-			// wire CELL_EDGE[3].IMUX_C[6]         DLLDEL[2].MOVE
-			// wire CELL_EDGE[3].IMUX_D[6]         DLLDEL[2].DIRECTION
-			// wire CELL_EDGE[3].IMUX_CLK[0]       ECLKSYNC[0].ECLKI_N ECLKSYNC[2].ECLKI_N
-			// wire CELL_EDGE[3].IMUX_CLK[1]       ECLKSYNC[1].ECLKI_N ECLKSYNC[3].ECLKI_N
-			// wire CELL_EDGE[3].OUT_Q[7]          DLLDEL[2].CFLAG
+			// wire CELL_EDGE[0].IMUX_D[7]         CLK_EDGE.INT_IN_1
+			// wire CELL_EDGE[2].IMUX_D[7]         CLK_EDGE.INT_IN_0
+			// wire CELL_EDGE[3].OUT_IO_PADDI[0]   DLLDEL[1].A
+			// wire CELL_EDGE[3].OUT_IO_PADDI[2]   DLLDEL[0].A
+			// wire CELL_EDGE[4].IMUX_B[6]         DLLDEL[1].LOADN
+			// wire CELL_EDGE[4].IMUX_C[6]         DLLDEL[1].MOVE
+			// wire CELL_EDGE[4].IMUX_D[6]         DLLDEL[1].DIRECTION
+			// wire CELL_EDGE[4].IMUX_CLK[0]       ECLKSYNC[0].ECLKI_S ECLKSYNC[2].ECLKI_S
+			// wire CELL_EDGE[4].IMUX_CLK[1]       ECLKSYNC[1].ECLKI_S ECLKSYNC[3].ECLKI_S
+			// wire CELL_EDGE[4].OUT_Q[7]          DLLDEL[1].CFLAG
+			// wire CELL_EDGE[4].IMUX_DLLDEL_DDRDEL DLLDEL[1].DDRDEL
+			// wire CELL_EDGE[4].OUT_DLLDEL_Z      DLLDEL[1].Z
+			// wire CELL_EDGE[5].IMUX_B[6]         DLLDEL[0].LOADN
+			// wire CELL_EDGE[5].IMUX_C[6]         DLLDEL[0].MOVE
+			// wire CELL_EDGE[5].IMUX_D[6]         DLLDEL[0].DIRECTION
+			// wire CELL_EDGE[5].OUT_Q[7]          DLLDEL[0].CFLAG
+			// wire CELL_EDGE[5].IMUX_DLLDEL_DDRDEL DLLDEL[0].DDRDEL
+			// wire CELL_EDGE[5].OUT_DLLDEL_Z      DLLDEL[0].Z
+			// wire CELL_EDGE[6].IMUX_B[6]         DLLDEL[3].LOADN
+			// wire CELL_EDGE[6].IMUX_C[6]         DLLDEL[3].MOVE
+			// wire CELL_EDGE[6].IMUX_D[6]         DLLDEL[3].DIRECTION
+			// wire CELL_EDGE[6].OUT_Q[7]          DLLDEL[3].CFLAG
+			// wire CELL_EDGE[6].OUT_IO_PADDI[0]   DLLDEL[3].A
+			// wire CELL_EDGE[6].OUT_IO_PADDI[2]   DLLDEL[2].A
+			// wire CELL_EDGE[6].IMUX_DLLDEL_DDRDEL DLLDEL[3].DDRDEL
+			// wire CELL_EDGE[6].OUT_DLLDEL_Z      DLLDEL[3].Z
+			// wire CELL_EDGE[6].IMUX_CLKDIV_CLKI[0] CLKDIV[0].CLKI
+			// wire CELL_EDGE[6].IMUX_CLKDIV_CLKI[1] CLKDIV[1].CLKI
+			// wire CELL_EDGE[6].OUT_CLKDIV_CDIVX[0] CLKDIV[0].CDIVX
+			// wire CELL_EDGE[6].OUT_CLKDIV_CDIVX[1] CLKDIV[1].CDIVX
+			// wire CELL_EDGE[7].IMUX_B[6]         DLLDEL[2].LOADN
+			// wire CELL_EDGE[7].IMUX_C[6]         DLLDEL[2].MOVE
+			// wire CELL_EDGE[7].IMUX_D[6]         DLLDEL[2].DIRECTION
+			// wire CELL_EDGE[7].IMUX_CLK[0]       ECLKSYNC[0].ECLKI_N ECLKSYNC[2].ECLKI_N
+			// wire CELL_EDGE[7].IMUX_CLK[1]       ECLKSYNC[1].ECLKI_N ECLKSYNC[3].ECLKI_N
+			// wire CELL_EDGE[7].OUT_Q[7]          DLLDEL[2].CFLAG
+			// wire CELL_EDGE[7].IMUX_DLLDEL_DDRDEL DLLDEL[2].DDRDEL
+			// wire CELL_EDGE[7].OUT_DLLDEL_Z      DLLDEL[2].Z
+			// wire CELL_EDGE[9].IMUX_D[7]         CLK_EDGE.INT_IN_2
+			// wire CELL_EDGE[11].IMUX_D[7]        CLK_EDGE.INT_IN_3
 			// wire CELL_EBR[0].IMUX_A[0]          ECLKSYNC[2].STOP
 			// wire CELL_EBR[0].IMUX_A[3]          CLKDIV[0].ALIGNWD
 			// wire CELL_EBR[0].IMUX_A[4]          CLKTEST_ECLK.TESTIN0
@@ -17049,308 +17513,332 @@ intdb {
 			// wire CELL_EBR[1].IMUX_D[2]          DCC[10].CE
 			// wire CELL_EBR[1].OUT_F[0]           ECLKSYNC[0].ECLK
 			// wire CELL_EBR[1].OUT_F[1]           ECLKSYNC[1].ECLK
-			// wire FABRIC_IN[0].IMUX_D[7]         CLK_EDGE.INT_IN_0
-			// wire FABRIC_IN[1].IMUX_D[7]         CLK_EDGE.INT_IN_1
-			// wire FABRIC_IN[2].IMUX_D[7]         CLK_EDGE.INT_IN_2
-			// wire FABRIC_IN[3].IMUX_D[7]         CLK_EDGE.INT_IN_3
-			// wire FABRIC_IN[4].IMUX_CLK[1]       CLK_EDGE.INT_IN_4
-			// wire FABRIC_IN[5].IMUX_CLK[1]       CLK_EDGE.INT_IN_5
-			// wire FABRIC_IN[6].IMUX_CLK[1]       CLK_EDGE.INT_IN_6
-			// wire FABRIC_IN[7].IMUX_CLK[1]       CLK_EDGE.INT_IN_7
+			// wire FABRIC_IN_M[0].IMUX_CLK[1]     CLK_EDGE.INT_IN_4
+			// wire FABRIC_IN_M[1].IMUX_CLK[1]     CLK_EDGE.INT_IN_5
+			// wire FABRIC_IN_M[2].IMUX_CLK[1]     CLK_EDGE.INT_IN_6
+			// wire FABRIC_IN_M[3].IMUX_CLK[1]     CLK_EDGE.INT_IN_7
 		}
 
 		tile_class CLK_S_S {
 			cell CELL[0];
 			cell CELL[1];
-			cell FABRIC_IN[0];
-			cell FABRIC_IN[1];
-			cell FABRIC_IN[2];
-			cell FABRIC_IN[3];
-			cell FABRIC_IN[4];
-			cell FABRIC_IN[5];
+			cell CELL[2];
+			cell CELL[3];
+			cell CELL[4];
+			cell CELL[5];
+			cell CELL[6];
+			cell CELL[7];
+			cell CELL[8];
+			cell CELL[9];
+			cell CELL[10];
+			cell CELL[11];
+			cell CELL[12];
+			cell CELL[13];
+			cell CELL[14];
+			cell CELL[15];
+			cell FABRIC_IN_M[0];
+			cell FABRIC_IN_M[1];
+			cell FABRIC_IN_M[2];
+			cell FABRIC_IN_M[3];
+
+			switchbox CLK_INT {
+			}
 
 			bel CLKTEST {
-				input TESTIN0 = CELL[0].IMUX_A[0];
-				input TESTIN1 = CELL[0].IMUX_A[1];
-				input TESTIN2 = CELL[0].IMUX_A[2];
-				input TESTIN3 = CELL[0].IMUX_A[3];
+				input TESTIN0 = CELL[7].IMUX_A[0];
+				input TESTIN1 = CELL[7].IMUX_A[1];
+				input TESTIN2 = CELL[7].IMUX_A[2];
+				input TESTIN3 = CELL[7].IMUX_A[3];
 			}
 
 			bel DCC[0] {
-				input CE = CELL[0].IMUX_B[0];
+				input CE = CELL[7].IMUX_B[0];
 			}
 
 			bel DCC[1] {
-				input CE = CELL[0].IMUX_B[1];
+				input CE = CELL[7].IMUX_B[1];
 			}
 
 			bel DCC[2] {
-				input CE = CELL[0].IMUX_B[2];
+				input CE = CELL[7].IMUX_B[2];
 			}
 
 			bel DCC[3] {
-				input CE = CELL[0].IMUX_B[3];
+				input CE = CELL[7].IMUX_B[3];
 			}
 
 			bel DCC[4] {
-				input CE = CELL[0].IMUX_B[4];
+				input CE = CELL[7].IMUX_B[4];
 			}
 
 			bel DCC[5] {
-				input CE = CELL[0].IMUX_B[5];
+				input CE = CELL[7].IMUX_B[5];
 			}
 
 			bel DCC[6] {
-				input CE = CELL[0].IMUX_B[6];
+				input CE = CELL[7].IMUX_B[6];
 			}
 
 			bel DCC[7] {
-				input CE = CELL[0].IMUX_B[7];
+				input CE = CELL[7].IMUX_B[7];
 			}
 
 			bel DCC[8] {
-				input CE = CELL[1].IMUX_A[0];
+				input CE = CELL[8].IMUX_A[0];
 			}
 
 			bel DCC[9] {
-				input CE = CELL[1].IMUX_A[1];
+				input CE = CELL[8].IMUX_A[1];
 			}
 
 			bel DCC[10] {
-				input CE = CELL[1].IMUX_A[2];
+				input CE = CELL[8].IMUX_A[2];
 			}
 
 			bel DCC[11] {
-				input CE = CELL[1].IMUX_A[3];
+				input CE = CELL[8].IMUX_A[3];
 			}
 
 			bel DCC[12] {
-				input CE = CELL[1].IMUX_A[4];
+				input CE = CELL[8].IMUX_A[4];
 			}
 
 			bel DCC[13] {
-				input CE = CELL[1].IMUX_A[5];
+				input CE = CELL[8].IMUX_A[5];
 			}
 
 			bel DCC[14] {
-				input CE = CELL[1].IMUX_A[6];
+				input CE = CELL[8].IMUX_A[6];
 			}
 
 			bel DCC[15] {
-				input CE = CELL[1].IMUX_A[7];
+				input CE = CELL[8].IMUX_A[7];
 			}
 
 			bel CLK_EDGE {
-				input INT_IN_0 = FABRIC_IN[0].IMUX_D[7];
-				input INT_IN_1 = FABRIC_IN[1].IMUX_D[7];
-				input INT_IN_2 = FABRIC_IN[2].IMUX_D[7];
-				input INT_IN_3 = FABRIC_IN[3].IMUX_D[7];
-				input INT_IN_4 = FABRIC_IN[4].IMUX_CLK[1];
-				input INT_IN_6 = FABRIC_IN[5].IMUX_CLK[1];
+				input INT_IN_0 = CELL[1].IMUX_D[7];
+				input INT_IN_1 = CELL[0].IMUX_D[7];
+				input INT_IN_2 = CELL[14].IMUX_D[7];
+				input INT_IN_3 = CELL[15].IMUX_D[7];
+				input INT_IN_4 = FABRIC_IN_M[0].IMUX_CLK[1];
+				input INT_IN_6 = FABRIC_IN_M[2].IMUX_CLK[1];
 			}
 
 			bel PCSCLKDIV[0] {
-				input CLKI = CELL[0].IMUX_CLK[0];
-				input RST = CELL[0].IMUX_LSR[0];
-				input SEL0 = CELL[0].IMUX_A[4];
-				input SEL1 = CELL[0].IMUX_A[5];
-				input SEL2 = CELL[0].IMUX_A[6];
+				input CLKI = CELL[7].IMUX_CLK[0];
+				input RST = CELL[7].IMUX_LSR[0];
+				input SEL0 = CELL[7].IMUX_A[4];
+				input SEL1 = CELL[7].IMUX_A[5];
+				input SEL2 = CELL[7].IMUX_A[6];
 			}
 
 			bel PCSCLKDIV[1] {
-				input CLKI = CELL[1].IMUX_CLK[1];
-				input RST = CELL[1].IMUX_LSR[1];
-				input SEL0 = CELL[1].IMUX_B[4];
-				input SEL1 = CELL[1].IMUX_B[5];
-				input SEL2 = CELL[1].IMUX_B[6];
+				input CLKI = CELL[8].IMUX_CLK[1];
+				input RST = CELL[8].IMUX_LSR[1];
+				input SEL0 = CELL[8].IMUX_B[4];
+				input SEL1 = CELL[8].IMUX_B[5];
+				input SEL2 = CELL[8].IMUX_B[6];
 			}
 
-			// wire CELL[0].IMUX_A[0]              CLKTEST.TESTIN0
-			// wire CELL[0].IMUX_A[1]              CLKTEST.TESTIN1
-			// wire CELL[0].IMUX_A[2]              CLKTEST.TESTIN2
-			// wire CELL[0].IMUX_A[3]              CLKTEST.TESTIN3
-			// wire CELL[0].IMUX_A[4]              PCSCLKDIV[0].SEL0
-			// wire CELL[0].IMUX_A[5]              PCSCLKDIV[0].SEL1
-			// wire CELL[0].IMUX_A[6]              PCSCLKDIV[0].SEL2
-			// wire CELL[0].IMUX_B[0]              DCC[0].CE
-			// wire CELL[0].IMUX_B[1]              DCC[1].CE
-			// wire CELL[0].IMUX_B[2]              DCC[2].CE
-			// wire CELL[0].IMUX_B[3]              DCC[3].CE
-			// wire CELL[0].IMUX_B[4]              DCC[4].CE
-			// wire CELL[0].IMUX_B[5]              DCC[5].CE
-			// wire CELL[0].IMUX_B[6]              DCC[6].CE
-			// wire CELL[0].IMUX_B[7]              DCC[7].CE
-			// wire CELL[0].IMUX_CLK[0]            PCSCLKDIV[0].CLKI
-			// wire CELL[0].IMUX_LSR[0]            PCSCLKDIV[0].RST
-			// wire CELL[1].IMUX_A[0]              DCC[8].CE
-			// wire CELL[1].IMUX_A[1]              DCC[9].CE
-			// wire CELL[1].IMUX_A[2]              DCC[10].CE
-			// wire CELL[1].IMUX_A[3]              DCC[11].CE
-			// wire CELL[1].IMUX_A[4]              DCC[12].CE
-			// wire CELL[1].IMUX_A[5]              DCC[13].CE
-			// wire CELL[1].IMUX_A[6]              DCC[14].CE
-			// wire CELL[1].IMUX_A[7]              DCC[15].CE
-			// wire CELL[1].IMUX_B[4]              PCSCLKDIV[1].SEL0
-			// wire CELL[1].IMUX_B[5]              PCSCLKDIV[1].SEL1
-			// wire CELL[1].IMUX_B[6]              PCSCLKDIV[1].SEL2
-			// wire CELL[1].IMUX_CLK[1]            PCSCLKDIV[1].CLKI
-			// wire CELL[1].IMUX_LSR[1]            PCSCLKDIV[1].RST
-			// wire FABRIC_IN[0].IMUX_D[7]         CLK_EDGE.INT_IN_0
-			// wire FABRIC_IN[1].IMUX_D[7]         CLK_EDGE.INT_IN_1
-			// wire FABRIC_IN[2].IMUX_D[7]         CLK_EDGE.INT_IN_2
-			// wire FABRIC_IN[3].IMUX_D[7]         CLK_EDGE.INT_IN_3
-			// wire FABRIC_IN[4].IMUX_CLK[1]       CLK_EDGE.INT_IN_4
-			// wire FABRIC_IN[5].IMUX_CLK[1]       CLK_EDGE.INT_IN_6
+			// wire CELL[0].IMUX_D[7]              CLK_EDGE.INT_IN_1
+			// wire CELL[1].IMUX_D[7]              CLK_EDGE.INT_IN_0
+			// wire CELL[7].IMUX_A[0]              CLKTEST.TESTIN0
+			// wire CELL[7].IMUX_A[1]              CLKTEST.TESTIN1
+			// wire CELL[7].IMUX_A[2]              CLKTEST.TESTIN2
+			// wire CELL[7].IMUX_A[3]              CLKTEST.TESTIN3
+			// wire CELL[7].IMUX_A[4]              PCSCLKDIV[0].SEL0
+			// wire CELL[7].IMUX_A[5]              PCSCLKDIV[0].SEL1
+			// wire CELL[7].IMUX_A[6]              PCSCLKDIV[0].SEL2
+			// wire CELL[7].IMUX_B[0]              DCC[0].CE
+			// wire CELL[7].IMUX_B[1]              DCC[1].CE
+			// wire CELL[7].IMUX_B[2]              DCC[2].CE
+			// wire CELL[7].IMUX_B[3]              DCC[3].CE
+			// wire CELL[7].IMUX_B[4]              DCC[4].CE
+			// wire CELL[7].IMUX_B[5]              DCC[5].CE
+			// wire CELL[7].IMUX_B[6]              DCC[6].CE
+			// wire CELL[7].IMUX_B[7]              DCC[7].CE
+			// wire CELL[7].IMUX_CLK[0]            PCSCLKDIV[0].CLKI
+			// wire CELL[7].IMUX_LSR[0]            PCSCLKDIV[0].RST
+			// wire CELL[8].IMUX_A[0]              DCC[8].CE
+			// wire CELL[8].IMUX_A[1]              DCC[9].CE
+			// wire CELL[8].IMUX_A[2]              DCC[10].CE
+			// wire CELL[8].IMUX_A[3]              DCC[11].CE
+			// wire CELL[8].IMUX_A[4]              DCC[12].CE
+			// wire CELL[8].IMUX_A[5]              DCC[13].CE
+			// wire CELL[8].IMUX_A[6]              DCC[14].CE
+			// wire CELL[8].IMUX_A[7]              DCC[15].CE
+			// wire CELL[8].IMUX_B[4]              PCSCLKDIV[1].SEL0
+			// wire CELL[8].IMUX_B[5]              PCSCLKDIV[1].SEL1
+			// wire CELL[8].IMUX_B[6]              PCSCLKDIV[1].SEL2
+			// wire CELL[8].IMUX_CLK[1]            PCSCLKDIV[1].CLKI
+			// wire CELL[8].IMUX_LSR[1]            PCSCLKDIV[1].RST
+			// wire CELL[14].IMUX_D[7]             CLK_EDGE.INT_IN_2
+			// wire CELL[15].IMUX_D[7]             CLK_EDGE.INT_IN_3
+			// wire FABRIC_IN_M[0].IMUX_CLK[1]     CLK_EDGE.INT_IN_4
+			// wire FABRIC_IN_M[2].IMUX_CLK[1]     CLK_EDGE.INT_IN_6
 		}
 
 		tile_class CLK_S_L {
 			cell CELL[0];
 			cell CELL[1];
-			cell FABRIC_IN[0];
-			cell FABRIC_IN[1];
-			cell FABRIC_IN[2];
-			cell FABRIC_IN[3];
-			cell FABRIC_IN[4];
-			cell FABRIC_IN[5];
-			cell FABRIC_IN[6];
-			cell FABRIC_IN[7];
+			cell CELL[2];
+			cell CELL[3];
+			cell CELL[4];
+			cell CELL[5];
+			cell CELL[6];
+			cell CELL[7];
+			cell CELL[8];
+			cell CELL[9];
+			cell CELL[10];
+			cell CELL[11];
+			cell CELL[12];
+			cell CELL[13];
+			cell CELL[14];
+			cell CELL[15];
+			cell FABRIC_IN_M[0];
+			cell FABRIC_IN_M[1];
+			cell FABRIC_IN_M[2];
+			cell FABRIC_IN_M[3];
+
+			switchbox CLK_INT {
+			}
 
 			bel CLKTEST {
-				input TESTIN0 = CELL[0].IMUX_A[0];
-				input TESTIN1 = CELL[0].IMUX_A[1];
-				input TESTIN2 = CELL[0].IMUX_A[2];
-				input TESTIN3 = CELL[0].IMUX_A[3];
+				input TESTIN0 = CELL[7].IMUX_A[0];
+				input TESTIN1 = CELL[7].IMUX_A[1];
+				input TESTIN2 = CELL[7].IMUX_A[2];
+				input TESTIN3 = CELL[7].IMUX_A[3];
 			}
 
 			bel DCC[0] {
-				input CE = CELL[0].IMUX_B[0];
+				input CE = CELL[7].IMUX_B[0];
 			}
 
 			bel DCC[1] {
-				input CE = CELL[0].IMUX_B[1];
+				input CE = CELL[7].IMUX_B[1];
 			}
 
 			bel DCC[2] {
-				input CE = CELL[0].IMUX_B[2];
+				input CE = CELL[7].IMUX_B[2];
 			}
 
 			bel DCC[3] {
-				input CE = CELL[0].IMUX_B[3];
+				input CE = CELL[7].IMUX_B[3];
 			}
 
 			bel DCC[4] {
-				input CE = CELL[0].IMUX_B[4];
+				input CE = CELL[7].IMUX_B[4];
 			}
 
 			bel DCC[5] {
-				input CE = CELL[0].IMUX_B[5];
+				input CE = CELL[7].IMUX_B[5];
 			}
 
 			bel DCC[6] {
-				input CE = CELL[0].IMUX_B[6];
+				input CE = CELL[7].IMUX_B[6];
 			}
 
 			bel DCC[7] {
-				input CE = CELL[0].IMUX_B[7];
+				input CE = CELL[7].IMUX_B[7];
 			}
 
 			bel DCC[8] {
-				input CE = CELL[1].IMUX_A[0];
+				input CE = CELL[8].IMUX_A[0];
 			}
 
 			bel DCC[9] {
-				input CE = CELL[1].IMUX_A[1];
+				input CE = CELL[8].IMUX_A[1];
 			}
 
 			bel DCC[10] {
-				input CE = CELL[1].IMUX_A[2];
+				input CE = CELL[8].IMUX_A[2];
 			}
 
 			bel DCC[11] {
-				input CE = CELL[1].IMUX_A[3];
+				input CE = CELL[8].IMUX_A[3];
 			}
 
 			bel DCC[12] {
-				input CE = CELL[1].IMUX_A[4];
+				input CE = CELL[8].IMUX_A[4];
 			}
 
 			bel DCC[13] {
-				input CE = CELL[1].IMUX_A[5];
+				input CE = CELL[8].IMUX_A[5];
 			}
 
 			bel DCC[14] {
-				input CE = CELL[1].IMUX_A[6];
+				input CE = CELL[8].IMUX_A[6];
 			}
 
 			bel DCC[15] {
-				input CE = CELL[1].IMUX_A[7];
+				input CE = CELL[8].IMUX_A[7];
 			}
 
 			bel CLK_EDGE {
-				input INT_IN_0 = FABRIC_IN[0].IMUX_D[7];
-				input INT_IN_1 = FABRIC_IN[1].IMUX_D[7];
-				input INT_IN_2 = FABRIC_IN[2].IMUX_D[7];
-				input INT_IN_3 = FABRIC_IN[3].IMUX_D[7];
-				input INT_IN_4 = FABRIC_IN[4].IMUX_CLK[1];
-				input INT_IN_5 = FABRIC_IN[5].IMUX_CLK[1];
-				input INT_IN_6 = FABRIC_IN[6].IMUX_CLK[1];
-				input INT_IN_7 = FABRIC_IN[7].IMUX_CLK[1];
+				input INT_IN_0 = CELL[1].IMUX_D[7];
+				input INT_IN_1 = CELL[0].IMUX_D[7];
+				input INT_IN_2 = CELL[14].IMUX_D[7];
+				input INT_IN_3 = CELL[15].IMUX_D[7];
+				input INT_IN_4 = FABRIC_IN_M[0].IMUX_CLK[1];
+				input INT_IN_5 = FABRIC_IN_M[1].IMUX_CLK[1];
+				input INT_IN_6 = FABRIC_IN_M[2].IMUX_CLK[1];
+				input INT_IN_7 = FABRIC_IN_M[3].IMUX_CLK[1];
 			}
 
 			bel PCSCLKDIV[0] {
-				input CLKI = CELL[0].IMUX_CLK[0];
-				input RST = CELL[0].IMUX_LSR[0];
-				input SEL0 = CELL[0].IMUX_A[4];
-				input SEL1 = CELL[0].IMUX_A[5];
-				input SEL2 = CELL[0].IMUX_A[6];
+				input CLKI = CELL[7].IMUX_CLK[0];
+				input RST = CELL[7].IMUX_LSR[0];
+				input SEL0 = CELL[7].IMUX_A[4];
+				input SEL1 = CELL[7].IMUX_A[5];
+				input SEL2 = CELL[7].IMUX_A[6];
 			}
 
 			bel PCSCLKDIV[1] {
-				input CLKI = CELL[1].IMUX_CLK[1];
-				input RST = CELL[1].IMUX_LSR[1];
-				input SEL0 = CELL[1].IMUX_B[4];
-				input SEL1 = CELL[1].IMUX_B[5];
-				input SEL2 = CELL[1].IMUX_B[6];
+				input CLKI = CELL[8].IMUX_CLK[1];
+				input RST = CELL[8].IMUX_LSR[1];
+				input SEL0 = CELL[8].IMUX_B[4];
+				input SEL1 = CELL[8].IMUX_B[5];
+				input SEL2 = CELL[8].IMUX_B[6];
 			}
 
-			// wire CELL[0].IMUX_A[0]              CLKTEST.TESTIN0
-			// wire CELL[0].IMUX_A[1]              CLKTEST.TESTIN1
-			// wire CELL[0].IMUX_A[2]              CLKTEST.TESTIN2
-			// wire CELL[0].IMUX_A[3]              CLKTEST.TESTIN3
-			// wire CELL[0].IMUX_A[4]              PCSCLKDIV[0].SEL0
-			// wire CELL[0].IMUX_A[5]              PCSCLKDIV[0].SEL1
-			// wire CELL[0].IMUX_A[6]              PCSCLKDIV[0].SEL2
-			// wire CELL[0].IMUX_B[0]              DCC[0].CE
-			// wire CELL[0].IMUX_B[1]              DCC[1].CE
-			// wire CELL[0].IMUX_B[2]              DCC[2].CE
-			// wire CELL[0].IMUX_B[3]              DCC[3].CE
-			// wire CELL[0].IMUX_B[4]              DCC[4].CE
-			// wire CELL[0].IMUX_B[5]              DCC[5].CE
-			// wire CELL[0].IMUX_B[6]              DCC[6].CE
-			// wire CELL[0].IMUX_B[7]              DCC[7].CE
-			// wire CELL[0].IMUX_CLK[0]            PCSCLKDIV[0].CLKI
-			// wire CELL[0].IMUX_LSR[0]            PCSCLKDIV[0].RST
-			// wire CELL[1].IMUX_A[0]              DCC[8].CE
-			// wire CELL[1].IMUX_A[1]              DCC[9].CE
-			// wire CELL[1].IMUX_A[2]              DCC[10].CE
-			// wire CELL[1].IMUX_A[3]              DCC[11].CE
-			// wire CELL[1].IMUX_A[4]              DCC[12].CE
-			// wire CELL[1].IMUX_A[5]              DCC[13].CE
-			// wire CELL[1].IMUX_A[6]              DCC[14].CE
-			// wire CELL[1].IMUX_A[7]              DCC[15].CE
-			// wire CELL[1].IMUX_B[4]              PCSCLKDIV[1].SEL0
-			// wire CELL[1].IMUX_B[5]              PCSCLKDIV[1].SEL1
-			// wire CELL[1].IMUX_B[6]              PCSCLKDIV[1].SEL2
-			// wire CELL[1].IMUX_CLK[1]            PCSCLKDIV[1].CLKI
-			// wire CELL[1].IMUX_LSR[1]            PCSCLKDIV[1].RST
-			// wire FABRIC_IN[0].IMUX_D[7]         CLK_EDGE.INT_IN_0
-			// wire FABRIC_IN[1].IMUX_D[7]         CLK_EDGE.INT_IN_1
-			// wire FABRIC_IN[2].IMUX_D[7]         CLK_EDGE.INT_IN_2
-			// wire FABRIC_IN[3].IMUX_D[7]         CLK_EDGE.INT_IN_3
-			// wire FABRIC_IN[4].IMUX_CLK[1]       CLK_EDGE.INT_IN_4
-			// wire FABRIC_IN[5].IMUX_CLK[1]       CLK_EDGE.INT_IN_5
-			// wire FABRIC_IN[6].IMUX_CLK[1]       CLK_EDGE.INT_IN_6
-			// wire FABRIC_IN[7].IMUX_CLK[1]       CLK_EDGE.INT_IN_7
+			// wire CELL[0].IMUX_D[7]              CLK_EDGE.INT_IN_1
+			// wire CELL[1].IMUX_D[7]              CLK_EDGE.INT_IN_0
+			// wire CELL[7].IMUX_A[0]              CLKTEST.TESTIN0
+			// wire CELL[7].IMUX_A[1]              CLKTEST.TESTIN1
+			// wire CELL[7].IMUX_A[2]              CLKTEST.TESTIN2
+			// wire CELL[7].IMUX_A[3]              CLKTEST.TESTIN3
+			// wire CELL[7].IMUX_A[4]              PCSCLKDIV[0].SEL0
+			// wire CELL[7].IMUX_A[5]              PCSCLKDIV[0].SEL1
+			// wire CELL[7].IMUX_A[6]              PCSCLKDIV[0].SEL2
+			// wire CELL[7].IMUX_B[0]              DCC[0].CE
+			// wire CELL[7].IMUX_B[1]              DCC[1].CE
+			// wire CELL[7].IMUX_B[2]              DCC[2].CE
+			// wire CELL[7].IMUX_B[3]              DCC[3].CE
+			// wire CELL[7].IMUX_B[4]              DCC[4].CE
+			// wire CELL[7].IMUX_B[5]              DCC[5].CE
+			// wire CELL[7].IMUX_B[6]              DCC[6].CE
+			// wire CELL[7].IMUX_B[7]              DCC[7].CE
+			// wire CELL[7].IMUX_CLK[0]            PCSCLKDIV[0].CLKI
+			// wire CELL[7].IMUX_LSR[0]            PCSCLKDIV[0].RST
+			// wire CELL[8].IMUX_A[0]              DCC[8].CE
+			// wire CELL[8].IMUX_A[1]              DCC[9].CE
+			// wire CELL[8].IMUX_A[2]              DCC[10].CE
+			// wire CELL[8].IMUX_A[3]              DCC[11].CE
+			// wire CELL[8].IMUX_A[4]              DCC[12].CE
+			// wire CELL[8].IMUX_A[5]              DCC[13].CE
+			// wire CELL[8].IMUX_A[6]              DCC[14].CE
+			// wire CELL[8].IMUX_A[7]              DCC[15].CE
+			// wire CELL[8].IMUX_B[4]              PCSCLKDIV[1].SEL0
+			// wire CELL[8].IMUX_B[5]              PCSCLKDIV[1].SEL1
+			// wire CELL[8].IMUX_B[6]              PCSCLKDIV[1].SEL2
+			// wire CELL[8].IMUX_CLK[1]            PCSCLKDIV[1].CLKI
+			// wire CELL[8].IMUX_LSR[1]            PCSCLKDIV[1].RST
+			// wire CELL[14].IMUX_D[7]             CLK_EDGE.INT_IN_2
+			// wire CELL[15].IMUX_D[7]             CLK_EDGE.INT_IN_3
+			// wire FABRIC_IN_M[0].IMUX_CLK[1]     CLK_EDGE.INT_IN_4
+			// wire FABRIC_IN_M[1].IMUX_CLK[1]     CLK_EDGE.INT_IN_5
+			// wire FABRIC_IN_M[2].IMUX_CLK[1]     CLK_EDGE.INT_IN_6
+			// wire FABRIC_IN_M[3].IMUX_CLK[1]     CLK_EDGE.INT_IN_7
 		}
 
 		tile_class CLK_ROOT_S {

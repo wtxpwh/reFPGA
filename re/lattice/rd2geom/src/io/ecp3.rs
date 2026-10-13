@@ -470,8 +470,8 @@ impl ChipContext<'_> {
                             ex.input_xlat_rc_nudge("JPLLCLKOP", CellSlotId::from_idx(5))
                                 .input_xlat_rc_nudge("JPLLCLKOS", CellSlotId::from_idx(5));
                         } else {
-                            ex.edge(wire_eclki0, wires::OUT_PLL_CLKOS.cell(5))
-                                .edge(wire_eclki1, wires::OUT_PLL_CLKOP.cell(5));
+                            ex.edge(wire_eclki0, wires::OUT_PLL_CLKOS[0].cell(5))
+                                .edge(wire_eclki1, wires::OUT_PLL_CLKOP[0].cell(5));
                         }
                     }
                 } else {
@@ -534,10 +534,10 @@ impl ChipContext<'_> {
             .suffix("DQSDLL")
             .add_wire_rc("DQSDEL", "JDQSDEL_DQSDLL");
             for i in 0..7 {
-                bel.output_xlat_rc(bcls::DQSDLL::TEST_SDOUT[i], format!("JSDOUT{i}_DQSDLLTEST"));
+                bel.output_xlat_rc(bcls::DDRDLL::TEST_SDOUT[i], format!("JSDOUT{i}_DQSDLLTEST"));
             }
             if bel.ctx.chip.kind == ChipKind::Ecp3A {
-                bel.input_xlat_rc(bcls::DQSDLL::CLK, "CLK_DQSDLL");
+                bel.input_xlat_rc(bcls::DDRDLL::CLK, "CLK_DQSDLL");
             }
         }
     }

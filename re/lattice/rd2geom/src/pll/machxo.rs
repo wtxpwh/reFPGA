@@ -9,17 +9,17 @@ impl ChipContext<'_> {
             for &tcrd in &self.edev.tile_index[tcid] {
                 let bcrd = tcrd.bel(bslots::PLL[0]);
 
-                self.hybrid_out_rc(bcrd, "JCLKOP_PLL", wires::OUT_PLL_CLKOP.cell(0));
-                self.hybrid_out_rc(bcrd, "JCLKOS_PLL", wires::OUT_PLL_CLKOS.cell(0));
+                self.hybrid_out_rc(bcrd, "JCLKOP_PLL", wires::OUT_PLL_CLKOP[0].cell(0));
+                self.hybrid_out_rc(bcrd, "JCLKOS_PLL", wires::OUT_PLL_CLKOS[0].cell(0));
                 self.hybrid_out_rc(bcrd, "JCLKOK_PLL", wires::OUT_PLL_CLKOK.cell(0));
 
                 self.extract_switchbox(tcrd.bel(bslots::BEL_INT))
-                    .output_bind_rc("CLKI", wires::IMUX_PLL_CLKI.cell(0))
+                    .output_bind_rc("CLKI", wires::IMUX_PLL_CLKI[0].cell(0))
                     .input_xlat_rc("JCLKI0")
                     .input_xlat_rc("JCLKI1")
                     .input_xlat_rc("JCLKI2")
                     .input_io_rc("JCLKI3", wires::IO_PLL_CLKI.cell(0))
-                    .output_bind_rc("CLKFB", wires::IMUX_PLL_CLKFB.cell(0))
+                    .output_bind_rc("CLKFB", wires::IMUX_PLL_CLKFB[0].cell(0))
                     .input_xlat_rc("JCLKFB0")
                     .input_xlat_rc("JCLKFB1")
                     .input_bind_rc("CLKINTFB", wires::OUT_PLL_CLKINTFB.cell(0))
