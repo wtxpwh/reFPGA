@@ -388,7 +388,7 @@ impl ChipContext<'_> {
                     .name(format!("{prefix}DCS{i}"))
                     .input_xlat_rc(bcls::DCS::CLK[0], format!("{prefix}CLK{i}A_DCS"))
                     .input_xlat_rc(bcls::DCS::CLK[1], format!("{prefix}CLK{i}B_DCS"))
-                    .input_xlat_rc(bcls::DCS::SEL, format!("{prefix}SEL{i}_DCS"))
+                    .input_xlat_rc(bcls::DCS::SEL[0], format!("{prefix}SEL{i}_DCS"))
                     .output_xlat_rc(bcls::DCS::DCSOUT, format!("{prefix}DCSOUT{i}_DCS"))
                     .claim_pip("DCSOUT", "CLK0")
                     .claim_pip("DCSOUT", "CLK1");

@@ -15248,14 +15248,8 @@ intdb {
 
 	bel_class DCS {
 		input CLK[2];
-		input SEL;
+		input SEL[1];
 		output DCSOUT;
-	}
-
-	bel_class DCM {
-		input CLK[2];
-		input SEL;
-		output DCMOUT;
 	}
 
 	bel_class GSR {

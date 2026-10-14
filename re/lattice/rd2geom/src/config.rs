@@ -1099,9 +1099,10 @@ impl ChipContext<'_> {
 
         {
             let cell = self.chip.special_loc[&SpecialLocKey::Osc];
-            self.extract_bel(cell.bel(bslots::OSC))
-                .name("OSC")
-                .suffix("OSC");
+            let bcrd = cell.bel(bslots::OSC);
+            self.hybrid_out_rc(bcrd, "JLFCLKOUT_OSC", wires::OUT_OSC_LFCLKOUT.cell(0));
+            self.hybrid_out_rc(bcrd, "JHFCLKOUT_OSC", wires::OUT_OSC_HFCLKOUT.cell(0));
+            self.extract_bel(bcrd).name("OSC").suffix("OSC");
         }
         {
             let cell = self.chip.special_loc[&SpecialLocKey::Pmu];

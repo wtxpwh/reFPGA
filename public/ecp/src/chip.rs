@@ -724,10 +724,7 @@ impl Chip {
 
     pub fn bel_clk_root(&self) -> BelCoord {
         self.clk_root().bel(
-            if matches!(
-                self.kind,
-                ChipKind::Scm | ChipKind::Ecp4 | ChipKind::Ecp5 | ChipKind::Crosslink
-            ) {
+            if matches!(self.kind, ChipKind::Scm | ChipKind::Ecp4 | ChipKind::Ecp5) {
                 bslots::CLK_ROOT
             } else {
                 bslots::CLK_INT

@@ -21,6 +21,7 @@ impl ChipContext<'_> {
             ChipKind::Ecp3 | ChipKind::Ecp3A => self.prep_pll_ecp3(),
             ChipKind::MachXo2(_) => self.prep_pll_machxo2(),
             ChipKind::Ecp4 => self.prep_pll_ecp4(),
+            ChipKind::Crosslink => self.prep_pll_crosslink(),
             _ => (),
         }
     }

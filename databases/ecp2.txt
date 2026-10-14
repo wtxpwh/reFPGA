@@ -9772,14 +9772,8 @@ intdb {
 
 	bel_class DCS {
 		input CLK[2];
-		input SEL;
+		input SEL[1];
 		output DCSOUT;
-	}
-
-	bel_class DCM {
-		input CLK[2];
-		input SEL;
-		output DCMOUT;
 	}
 
 	bel_class PLL {
@@ -13753,87 +13747,87 @@ intdb {
 			bel DCS_SW[0] {
 				input CLK[0] = ROOT_SW.IMUX_DCS_CLKA[0];
 				input CLK[1] = ROOT_SW.IMUX_DCS_CLKB[0];
-				input SEL = ROOT_SW.SCLK_ROOT[3];
+				input SEL[0] = ROOT_SW.SCLK_ROOT[3];
 				output DCSOUT = ROOT_SW.PCLK[6];
 			}
 
 			bel DCS_SW[1] {
 				input CLK[0] = ROOT_SW.IMUX_DCS_CLKA[1];
 				input CLK[1] = ROOT_SW.IMUX_DCS_CLKB[1];
-				input SEL = ROOT_SW.SCLK_ROOT[7];
+				input SEL[0] = ROOT_SW.SCLK_ROOT[7];
 				output DCSOUT = ROOT_SW.PCLK[7];
 			}
 
 			bel DCS_SE[0] {
 				input CLK[0] = ROOT_SE.IMUX_DCS_CLKA[0];
 				input CLK[1] = ROOT_SE.IMUX_DCS_CLKB[0];
-				input SEL = ROOT_SE.SCLK_ROOT[3];
+				input SEL[0] = ROOT_SE.SCLK_ROOT[3];
 				output DCSOUT = ROOT_SE.PCLK[6];
 			}
 
 			bel DCS_SE[1] {
 				input CLK[0] = ROOT_SE.IMUX_DCS_CLKA[1];
 				input CLK[1] = ROOT_SE.IMUX_DCS_CLKB[1];
-				input SEL = ROOT_SE.SCLK_ROOT[7];
+				input SEL[0] = ROOT_SE.SCLK_ROOT[7];
 				output DCSOUT = ROOT_SE.PCLK[7];
 			}
 
 			bel DCS_NW[0] {
 				input CLK[0] = ROOT_NW.IMUX_DCS_CLKA[0];
 				input CLK[1] = ROOT_NW.IMUX_DCS_CLKB[0];
-				input SEL = ROOT_NW.SCLK_ROOT[3];
+				input SEL[0] = ROOT_NW.SCLK_ROOT[3];
 				output DCSOUT = ROOT_NW.PCLK[6];
 			}
 
 			bel DCS_NW[1] {
 				input CLK[0] = ROOT_NW.IMUX_DCS_CLKA[1];
 				input CLK[1] = ROOT_NW.IMUX_DCS_CLKB[1];
-				input SEL = ROOT_NW.SCLK_ROOT[7];
+				input SEL[0] = ROOT_NW.SCLK_ROOT[7];
 				output DCSOUT = ROOT_NW.PCLK[7];
 			}
 
 			bel DCS_NE[0] {
 				input CLK[0] = ROOT_NE.IMUX_DCS_CLKA[0];
 				input CLK[1] = ROOT_NE.IMUX_DCS_CLKB[0];
-				input SEL = ROOT_NE.SCLK_ROOT[3];
+				input SEL[0] = ROOT_NE.SCLK_ROOT[3];
 				output DCSOUT = ROOT_NE.PCLK[6];
 			}
 
 			bel DCS_NE[1] {
 				input CLK[0] = ROOT_NE.IMUX_DCS_CLKA[1];
 				input CLK[1] = ROOT_NE.IMUX_DCS_CLKB[1];
-				input SEL = ROOT_NE.SCLK_ROOT[7];
+				input SEL[0] = ROOT_NE.SCLK_ROOT[7];
 				output DCSOUT = ROOT_NE.PCLK[7];
 			}
 
 			// wire ROOT_SW.PCLK[6]                DCS_SW[0].DCSOUT
 			// wire ROOT_SW.PCLK[7]                DCS_SW[1].DCSOUT
-			// wire ROOT_SW.SCLK_ROOT[3]           DCS_SW[0].SEL
-			// wire ROOT_SW.SCLK_ROOT[7]           DCS_SW[1].SEL
+			// wire ROOT_SW.SCLK_ROOT[3]           DCS_SW[0].SEL[0]
+			// wire ROOT_SW.SCLK_ROOT[7]           DCS_SW[1].SEL[0]
 			// wire ROOT_SW.IMUX_DCS_CLKA[0]       DCS_SW[0].CLK[0]
 			// wire ROOT_SW.IMUX_DCS_CLKA[1]       DCS_SW[1].CLK[0]
 			// wire ROOT_SW.IMUX_DCS_CLKB[0]       DCS_SW[0].CLK[1]
 			// wire ROOT_SW.IMUX_DCS_CLKB[1]       DCS_SW[1].CLK[1]
 			// wire ROOT_SE.PCLK[6]                DCS_SE[0].DCSOUT
 			// wire ROOT_SE.PCLK[7]                DCS_SE[1].DCSOUT
-			// wire ROOT_SE.SCLK_ROOT[3]           DCS_SE[0].SEL
-			// wire ROOT_SE.SCLK_ROOT[7]           DCS_SE[1].SEL
+			// wire ROOT_SE.SCLK_ROOT[3]           DCS_SE[0].SEL[0]
+			// wire ROOT_SE.SCLK_ROOT[7]           DCS_SE[1].SEL[0]
 			// wire ROOT_SE.IMUX_DCS_CLKA[0]       DCS_SE[0].CLK[0]
 			// wire ROOT_SE.IMUX_DCS_CLKA[1]       DCS_SE[1].CLK[0]
 			// wire ROOT_SE.IMUX_DCS_CLKB[0]       DCS_SE[0].CLK[1]
 			// wire ROOT_SE.IMUX_DCS_CLKB[1]       DCS_SE[1].CLK[1]
 			// wire ROOT_NW.PCLK[6]                DCS_NW[0].DCSOUT
 			// wire ROOT_NW.PCLK[7]                DCS_NW[1].DCSOUT
-			// wire ROOT_NW.SCLK_ROOT[3]           DCS_NW[0].SEL
-			// wire ROOT_NW.SCLK_ROOT[7]           DCS_NW[1].SEL
+			// wire ROOT_NW.SCLK_ROOT[3]           DCS_NW[0].SEL[0]
+			// wire ROOT_NW.SCLK_ROOT[7]           DCS_NW[1].SEL[0]
 			// wire ROOT_NW.IMUX_DCS_CLKA[0]       DCS_NW[0].CLK[0]
 			// wire ROOT_NW.IMUX_DCS_CLKA[1]       DCS_NW[1].CLK[0]
 			// wire ROOT_NW.IMUX_DCS_CLKB[0]       DCS_NW[0].CLK[1]
 			// wire ROOT_NW.IMUX_DCS_CLKB[1]       DCS_NW[1].CLK[1]
 			// wire ROOT_NE.PCLK[6]                DCS_NE[0].DCSOUT
 			// wire ROOT_NE.PCLK[7]                DCS_NE[1].DCSOUT
-			// wire ROOT_NE.SCLK_ROOT[3]           DCS_NE[0].SEL
-			// wire ROOT_NE.SCLK_ROOT[7]           DCS_NE[1].SEL
+			// wire ROOT_NE.SCLK_ROOT[3]           DCS_NE[0].SEL[0]
+			// wire ROOT_NE.SCLK_ROOT[7]           DCS_NE[1].SEL[0]
 			// wire ROOT_NE.IMUX_DCS_CLKA[0]       DCS_NE[0].CLK[0]
 			// wire ROOT_NE.IMUX_DCS_CLKA[1]       DCS_NE[1].CLK[0]
 			// wire ROOT_NE.IMUX_DCS_CLKB[0]       DCS_NE[0].CLK[1]

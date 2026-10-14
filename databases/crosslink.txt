@@ -601,6 +601,12 @@ intdb {
 		input LVDSENI;
 	}
 
+	bel_class ECLKSYNC {
+		input ECLKI;
+		input STOP;
+		output ECLKO;
+	}
+
 	bel_class DCC {
 		input CLKI;
 		input CE;
@@ -609,18 +615,40 @@ intdb {
 
 	bel_class DCS {
 		input CLK[2];
-		input SEL;
+		input SEL[2];
+		input MODESEL;
 		output DCSOUT;
-	}
-
-	bel_class DCM {
-		input CLK[2];
-		input SEL;
-		output DCMOUT;
 	}
 
 	bel_class CLKTEST {
 		input TESTIN[24];
+	}
+
+	bel_class PLL {
+		input CLKFB;
+		input CLK[2];
+		input SEL;
+		input RST;
+		input PHASEDIR;
+		input PHASESEL[2];
+		input PHASESTEP;
+		input PHASELOADREG;
+		input PLLWAKESYNC;
+		input USRSTDBY;
+		input ENCLKOP;
+		input ENCLKOS;
+		input ENCLKOS2;
+		input ENCLKOS3;
+		output CLKOP;
+		output CLKOS;
+		output CLKINTFB;
+		output LOCK;
+		output CLKOS2;
+		output CLKOS3;
+		output REFCLK;
+		output INTLOCK;
+		output PFDDN;
+		output PFDUP;
 	}
 
 	bel_class CLKDIV {
@@ -1146,8 +1174,36 @@ intdb {
 	wire OUT_Q[5]: bel;
 	wire OUT_Q[6]: bel;
 	wire OUT_Q[7]: bel;
+	wire IMUX_DCC_CLKI[0]: mux;
+	wire IMUX_DCC_CLKI[1]: mux;
+	wire IMUX_DCC_CLKI[2]: mux;
+	wire IMUX_DCC_CLKI[3]: mux;
+	wire IMUX_DCC_CLKI[4]: mux;
+	wire IMUX_DCC_CLKI[5]: mux;
+	wire IMUX_DCC_CLKI[6]: mux;
+	wire IMUX_DCC_CLKI[7]: mux;
+	wire OUT_DCC_CLKO[0]: mux;
+	wire OUT_DCC_CLKO[1]: mux;
+	wire OUT_DCC_CLKO[2]: mux;
+	wire OUT_DCC_CLKO[3]: mux;
+	wire OUT_DCC_CLKO[4]: mux;
+	wire OUT_DCC_CLKO[5]: mux;
+	wire OUT_DCC_CLKO[6]: mux;
+	wire OUT_DCC_CLKO[7]: mux;
+	wire IMUX_DCS_CLKA[0]: mux;
+	wire IMUX_DCS_CLKB[0]: mux;
+	wire OUT_DCS_DCSOUT[0]: bel;
 	wire ECLK[0]: regional ECLK;
 	wire ECLK[1]: regional ECLK;
+	wire IMUX_ECLKSYNC_ECLKI[0]: mux;
+	wire IMUX_ECLKSYNC_ECLKI[1]: mux;
+	wire IMUX_ECLKSYNC_ECLKI[2]: mux;
+	wire IMUX_ECLKSYNC_ECLKI[3]: mux;
+	wire OUT_ECLKSYNC_ECLKO[0]: bel;
+	wire OUT_ECLKSYNC_ECLKO[1]: bel;
+	wire OUT_ECLKSYNC_ECLKO[2]: bel;
+	wire OUT_ECLKSYNC_ECLKO[3]: bel;
+	wire ECLKFB: mux;
 	wire OUT_IO_PADDI[0]: bel;
 	wire OUT_IO_PADDI[1]: bel;
 	wire OUT_IO_PADDI[2]: bel;
@@ -1160,6 +1216,14 @@ intdb {
 	wire INCK[0]: mux;
 	wire IMUX_DLLDEL_DDRDEL: mux;
 	wire OUT_DLLDEL_Z: bel;
+	wire IMUX_PLL_CLKI[0]: mux;
+	wire IMUX_PLL_CLKI[1]: mux;
+	wire IMUX_PLL_CLKFB[0]: mux;
+	wire OUT_PLL_CLKINTFB[0]: bel;
+	wire OUT_PLL_CLKOP[0]: bel;
+	wire OUT_PLL_CLKOS[0]: bel;
+	wire OUT_PLL_CLKOS2[0]: bel;
+	wire OUT_PLL_CLKOS3[0]: bel;
 	wire OUT_CLKDIV_CDIVX[0]: bel;
 	wire OUT_CLKDIV_CDIVX[1]: bel;
 	wire OUT_CLKDIV_CDIVX[2]: bel;
@@ -1169,6 +1233,8 @@ intdb {
 	wire OUT_MIPI_CLKHSBYTE: bel;
 	wire OUT_MIPI_HSBYTECLKS: bel;
 	wire OUT_MIPI_HSBYTECLKD: bel;
+	wire OUT_OSC_LFCLKOUT: bel;
+	wire OUT_OSC_HFCLKOUT: bel;
 
 	tile_slot INT {
 		bel_slot INT: routing;
@@ -2008,9 +2074,8 @@ intdb {
 		bel_slot EBR[2]: EBR;
 		bel_slot EBR[3]: EBR;
 		bel_slot MIPI: MIPI;
-		bel_slot PLL[0]: legacy;
+		bel_slot PLL[0]: PLL;
 		bel_slot GSR: GSR;
-		bel_slot PLLREFCS[0]: legacy;
 		bel_slot DDRDLL: DDRDLL;
 		bel_slot BCINRD: BCINRD;
 		bel_slot BCLVDSO: BCLVDSO;
@@ -3883,53 +3948,68 @@ intdb {
 		tile_class PLL {
 			cell CELL[0];
 			cell CELL[1];
+			cell CLK_S;
+			cell IO[0];
+			cell IO[1];
+			cell IO[2];
+			cell IO[3];
+			cell IO[4];
+
+			switchbox BEL_INT {
+				mux CELL[0].IMUX_PLL_CLKI[0] = CELL[0].IMUX_CLK[0] | IO[1].OUT_IO_PADDI[0] | IO[1].OUT_IO_PADDI[2] | IO[2].OUT_IO_PADDI[0] | IO[4].OUT_IO_PADDI[0];
+				mux CELL[0].IMUX_PLL_CLKI[1] = CELL[0].IMUX_CLK[1] | IO[0].OUT_IO_PADDI[0] | IO[0].OUT_IO_PADDI[2] | IO[3].OUT_IO_PADDI[0];
+				mux CELL[0].IMUX_PLL_CLKFB[0] = CELL[0].OUT_PLL_CLKINTFB[0] | CELL[1].IMUX_CLK[0] | CLK_S.ECLKFB;
+			}
 
 			bel PLL[0] {
-				input CLKFB = CELL[1].IMUX_CLK[0];
-				output CLKOP = CELL[1].OUT_F[0];
-				output CLKOS = CELL[1].OUT_F[1];
-				output CLKOS2 = CELL[1].OUT_F[2];
-				output CLKOS3 = CELL[1].OUT_F[3];
+				input CLKFB = CELL[0].IMUX_PLL_CLKFB[0];
+				input CLK[0] = CELL[0].IMUX_PLL_CLKI[0];
+				input CLK[1] = CELL[0].IMUX_PLL_CLKI[1];
+				input SEL = CELL[1].IMUX_A[6];
+				input RST = CELL[1].IMUX_C[6];
+				input PHASEDIR = CELL[1].IMUX_C[4];
+				input PHASESEL[0] = CELL[1].IMUX_B[0];
+				input PHASESEL[1] = CELL[1].IMUX_B[4];
+				input PHASESTEP = CELL[1].IMUX_C[0];
+				input PHASELOADREG = CELL[1].IMUX_C[2];
+				input PLLWAKESYNC = CELL[1].IMUX_D[6];
+				input USRSTDBY = CELL[1].IMUX_LSR[0];
 				input ENCLKOP = CELL[1].IMUX_B[6];
 				input ENCLKOS = CELL[1].IMUX_A[4];
 				input ENCLKOS2 = CELL[1].IMUX_A[2];
 				input ENCLKOS3 = CELL[1].IMUX_A[0];
-				output INTLOCK = CELL[1].OUT_F[5];
+				output CLKOP = CELL[0].OUT_PLL_CLKOP[0], CELL[1].OUT_F[0];
+				output CLKOS = CELL[0].OUT_PLL_CLKOS[0], CELL[1].OUT_F[1];
+				output CLKINTFB = CELL[0].OUT_PLL_CLKINTFB[0];
 				output LOCK = CELL[1].OUT_F[6];
+				output CLKOS2 = CELL[0].OUT_PLL_CLKOS2[0], CELL[1].OUT_F[2];
+				output CLKOS3 = CELL[0].OUT_PLL_CLKOS3[0], CELL[1].OUT_F[3];
+				output REFCLK = CELL[1].OUT_F[4];
+				output INTLOCK = CELL[1].OUT_F[5];
 				output PFDDN = CELL[1].OUT_Q[7];
 				output PFDUP = CELL[1].OUT_Q[6];
-				input PHASEDIR = CELL[1].IMUX_C[4];
-				input PHASELOADREG = CELL[1].IMUX_C[2];
-				input PHASESEL0 = CELL[1].IMUX_B[0];
-				input PHASESEL1 = CELL[1].IMUX_B[4];
-				input PHASESTEP = CELL[1].IMUX_C[0];
-				input PLLWAKESYNC = CELL[1].IMUX_D[6];
-				output REFCLK = CELL[1].OUT_F[4];
-				input RST = CELL[1].IMUX_C[6];
-				input USRSTDBY = CELL[1].IMUX_LSR[0];
 			}
 
-			bel PLLREFCS[0] {
-				input CLK0 = CELL[0].IMUX_CLK[0];
-				input CLK1 = CELL[0].IMUX_CLK[1];
-				input SEL = CELL[1].IMUX_A[6];
-			}
-
-			// wire CELL[0].IMUX_CLK[0]            PLLREFCS[0].CLK0
-			// wire CELL[0].IMUX_CLK[1]            PLLREFCS[0].CLK1
+			// wire CELL[0].IMUX_PLL_CLKI[0]       PLL[0].CLK[0]
+			// wire CELL[0].IMUX_PLL_CLKI[1]       PLL[0].CLK[1]
+			// wire CELL[0].IMUX_PLL_CLKFB[0]      PLL[0].CLKFB
+			// wire CELL[0].OUT_PLL_CLKINTFB[0]    PLL[0].CLKINTFB
+			// wire CELL[0].OUT_PLL_CLKOP[0]       PLL[0].CLKOP
+			// wire CELL[0].OUT_PLL_CLKOS[0]       PLL[0].CLKOS
+			// wire CELL[0].OUT_PLL_CLKOS2[0]      PLL[0].CLKOS2
+			// wire CELL[0].OUT_PLL_CLKOS3[0]      PLL[0].CLKOS3
 			// wire CELL[1].IMUX_A[0]              PLL[0].ENCLKOS3
 			// wire CELL[1].IMUX_A[2]              PLL[0].ENCLKOS2
 			// wire CELL[1].IMUX_A[4]              PLL[0].ENCLKOS
-			// wire CELL[1].IMUX_A[6]              PLLREFCS[0].SEL
-			// wire CELL[1].IMUX_B[0]              PLL[0].PHASESEL0
-			// wire CELL[1].IMUX_B[4]              PLL[0].PHASESEL1
+			// wire CELL[1].IMUX_A[6]              PLL[0].SEL
+			// wire CELL[1].IMUX_B[0]              PLL[0].PHASESEL[0]
+			// wire CELL[1].IMUX_B[4]              PLL[0].PHASESEL[1]
 			// wire CELL[1].IMUX_B[6]              PLL[0].ENCLKOP
 			// wire CELL[1].IMUX_C[0]              PLL[0].PHASESTEP
 			// wire CELL[1].IMUX_C[2]              PLL[0].PHASELOADREG
 			// wire CELL[1].IMUX_C[4]              PLL[0].PHASEDIR
 			// wire CELL[1].IMUX_C[6]              PLL[0].RST
 			// wire CELL[1].IMUX_D[6]              PLL[0].PLLWAKESYNC
-			// wire CELL[1].IMUX_CLK[0]            PLL[0].CLKFB
 			// wire CELL[1].IMUX_LSR[0]            PLL[0].USRSTDBY
 			// wire CELL[1].OUT_F[0]               PLL[0].CLKOP
 			// wire CELL[1].OUT_F[1]               PLL[0].CLKOS
@@ -4029,8 +4109,8 @@ intdb {
 				input HFOUTEN = IMUX_D[7];
 				input HFCLKDIV[0] = IMUX_A[1];
 				input HFCLKDIV[1] = IMUX_C[1];
-				output LFCLKOUT = OUT_F[0];
-				output HFCLKOUT = OUT_F[1];
+				output LFCLKOUT = OUT_F[0], OUT_OSC_LFCLKOUT;
+				output HFCLKOUT = OUT_F[1], OUT_OSC_HFCLKOUT;
 			}
 
 			// wire IMUX_A[1]                      OSC.HFCLKDIV[0]
@@ -4038,6 +4118,8 @@ intdb {
 			// wire IMUX_D[7]                      OSC.HFOUTEN
 			// wire OUT_F[0]                       OSC.LFCLKOUT
 			// wire OUT_F[1]                       OSC.HFCLKOUT
+			// wire OUT_OSC_LFCLKOUT               OSC.LFCLKOUT
+			// wire OUT_OSC_HFCLKOUT               OSC.HFCLKOUT
 		}
 
 		tile_class PMU {
@@ -4310,66 +4392,66 @@ intdb {
 		bel_slot CLKDIV[2]: CLKDIV;
 		bel_slot CLKDIV[3]: CLKDIV;
 		bel_slot CLK_INT: routing;
-		bel_slot CLKTEST: legacy;
-		bel_slot DCC[0]: legacy;
-		bel_slot DCC[1]: legacy;
-		bel_slot DCC[2]: legacy;
-		bel_slot DCC[3]: legacy;
-		bel_slot DCC[4]: legacy;
-		bel_slot DCC[5]: legacy;
-		bel_slot DCC[6]: legacy;
-		bel_slot DCC[7]: legacy;
-		bel_slot ECLKSYNC[0]: legacy;
-		bel_slot ECLKSYNC[1]: legacy;
-		bel_slot ECLKSYNC[2]: legacy;
-		bel_slot ECLKSYNC[3]: legacy;
-		bel_slot DCS[0]: legacy;
-		bel_slot CLK_EDGE: legacy;
-		bel_slot CLK_ROOT: legacy;
-		bel_slot CLKTEST_ECLK: legacy;
+		bel_slot CLKTEST: CLKTEST;
+		bel_slot DCC[0]: DCC;
+		bel_slot DCC[1]: DCC;
+		bel_slot DCC[2]: DCC;
+		bel_slot DCC[3]: DCC;
+		bel_slot DCC[4]: DCC;
+		bel_slot DCC[5]: DCC;
+		bel_slot DCC[6]: DCC;
+		bel_slot DCC[7]: DCC;
+		bel_slot ECLKSYNC[0]: ECLKSYNC;
+		bel_slot ECLKSYNC[1]: ECLKSYNC;
+		bel_slot ECLKSYNC[2]: ECLKSYNC;
+		bel_slot ECLKSYNC[3]: ECLKSYNC;
+		bel_slot DCS[0]: DCS;
+		bel_slot CLKTEST_ECLK: CLKTEST;
 
 		tile_class CLK_ROOT {
 			cell CELL;
+			cell CLK_S;
+			cell CLK_N;
+
+			switchbox CLK_INT {
+				mux CELL.PCLK[0] = CELL.OUT_DCS_DCSOUT[0] | CLK_S.OUT_DCC_CLKO[0] | CLK_S.OUT_DCC_CLKO[1] | CLK_S.OUT_DCC_CLKO[2] | CLK_S.OUT_DCC_CLKO[3] | CLK_S.OUT_DCC_CLKO[4] | CLK_S.OUT_DCC_CLKO[5] | CLK_S.OUT_DCC_CLKO[6] | CLK_S.OUT_DCC_CLKO[7] | CLK_N.OUT_DCC_CLKO[0] | CLK_N.OUT_DCC_CLKO[1] | CLK_N.OUT_DCC_CLKO[2] | CLK_N.OUT_DCC_CLKO[3] | CLK_N.OUT_DCC_CLKO[4] | CLK_N.OUT_DCC_CLKO[5];
+				mux CELL.PCLK[1] = CELL.OUT_DCS_DCSOUT[0] | CLK_S.OUT_DCC_CLKO[0] | CLK_S.OUT_DCC_CLKO[1] | CLK_S.OUT_DCC_CLKO[2] | CLK_S.OUT_DCC_CLKO[3] | CLK_S.OUT_DCC_CLKO[4] | CLK_S.OUT_DCC_CLKO[5] | CLK_S.OUT_DCC_CLKO[6] | CLK_S.OUT_DCC_CLKO[7] | CLK_N.OUT_DCC_CLKO[0] | CLK_N.OUT_DCC_CLKO[1] | CLK_N.OUT_DCC_CLKO[2] | CLK_N.OUT_DCC_CLKO[3] | CLK_N.OUT_DCC_CLKO[4] | CLK_N.OUT_DCC_CLKO[5];
+				mux CELL.PCLK[2] = CELL.OUT_DCS_DCSOUT[0] | CLK_S.OUT_DCC_CLKO[0] | CLK_S.OUT_DCC_CLKO[1] | CLK_S.OUT_DCC_CLKO[2] | CLK_S.OUT_DCC_CLKO[3] | CLK_S.OUT_DCC_CLKO[4] | CLK_S.OUT_DCC_CLKO[5] | CLK_S.OUT_DCC_CLKO[6] | CLK_S.OUT_DCC_CLKO[7] | CLK_N.OUT_DCC_CLKO[0] | CLK_N.OUT_DCC_CLKO[1] | CLK_N.OUT_DCC_CLKO[2] | CLK_N.OUT_DCC_CLKO[3] | CLK_N.OUT_DCC_CLKO[4] | CLK_N.OUT_DCC_CLKO[5];
+				mux CELL.PCLK[3] = CELL.OUT_DCS_DCSOUT[0] | CLK_S.OUT_DCC_CLKO[0] | CLK_S.OUT_DCC_CLKO[1] | CLK_S.OUT_DCC_CLKO[2] | CLK_S.OUT_DCC_CLKO[3] | CLK_S.OUT_DCC_CLKO[4] | CLK_S.OUT_DCC_CLKO[5] | CLK_S.OUT_DCC_CLKO[6] | CLK_S.OUT_DCC_CLKO[7] | CLK_N.OUT_DCC_CLKO[0] | CLK_N.OUT_DCC_CLKO[1] | CLK_N.OUT_DCC_CLKO[2] | CLK_N.OUT_DCC_CLKO[3] | CLK_N.OUT_DCC_CLKO[4] | CLK_N.OUT_DCC_CLKO[5];
+				mux CELL.PCLK[4] = CELL.OUT_DCS_DCSOUT[0] | CLK_S.OUT_DCC_CLKO[0] | CLK_S.OUT_DCC_CLKO[1] | CLK_S.OUT_DCC_CLKO[2] | CLK_S.OUT_DCC_CLKO[3] | CLK_S.OUT_DCC_CLKO[4] | CLK_S.OUT_DCC_CLKO[5] | CLK_S.OUT_DCC_CLKO[6] | CLK_S.OUT_DCC_CLKO[7] | CLK_N.OUT_DCC_CLKO[0] | CLK_N.OUT_DCC_CLKO[1] | CLK_N.OUT_DCC_CLKO[2] | CLK_N.OUT_DCC_CLKO[3] | CLK_N.OUT_DCC_CLKO[4] | CLK_N.OUT_DCC_CLKO[5];
+				mux CELL.PCLK[5] = CELL.OUT_DCS_DCSOUT[0] | CLK_S.OUT_DCC_CLKO[0] | CLK_S.OUT_DCC_CLKO[1] | CLK_S.OUT_DCC_CLKO[2] | CLK_S.OUT_DCC_CLKO[3] | CLK_S.OUT_DCC_CLKO[4] | CLK_S.OUT_DCC_CLKO[5] | CLK_S.OUT_DCC_CLKO[6] | CLK_S.OUT_DCC_CLKO[7] | CLK_N.OUT_DCC_CLKO[0] | CLK_N.OUT_DCC_CLKO[1] | CLK_N.OUT_DCC_CLKO[2] | CLK_N.OUT_DCC_CLKO[3] | CLK_N.OUT_DCC_CLKO[4] | CLK_N.OUT_DCC_CLKO[5];
+				mux CELL.PCLK[6] = CELL.OUT_DCS_DCSOUT[0] | CLK_S.OUT_DCC_CLKO[0] | CLK_S.OUT_DCC_CLKO[1] | CLK_S.OUT_DCC_CLKO[2] | CLK_S.OUT_DCC_CLKO[3] | CLK_S.OUT_DCC_CLKO[4] | CLK_S.OUT_DCC_CLKO[5] | CLK_S.OUT_DCC_CLKO[6] | CLK_S.OUT_DCC_CLKO[7] | CLK_N.OUT_DCC_CLKO[0] | CLK_N.OUT_DCC_CLKO[1] | CLK_N.OUT_DCC_CLKO[2] | CLK_N.OUT_DCC_CLKO[3] | CLK_N.OUT_DCC_CLKO[4] | CLK_N.OUT_DCC_CLKO[5];
+				mux CELL.PCLK[7] = CELL.OUT_DCS_DCSOUT[0] | CLK_S.OUT_DCC_CLKO[0] | CLK_S.OUT_DCC_CLKO[1] | CLK_S.OUT_DCC_CLKO[2] | CLK_S.OUT_DCC_CLKO[3] | CLK_S.OUT_DCC_CLKO[4] | CLK_S.OUT_DCC_CLKO[5] | CLK_S.OUT_DCC_CLKO[6] | CLK_S.OUT_DCC_CLKO[7] | CLK_N.OUT_DCC_CLKO[0] | CLK_N.OUT_DCC_CLKO[1] | CLK_N.OUT_DCC_CLKO[2] | CLK_N.OUT_DCC_CLKO[3] | CLK_N.OUT_DCC_CLKO[4] | CLK_N.OUT_DCC_CLKO[5];
+				mux CELL.IMUX_DCS_CLKA[0] = CLK_S.OUT_DCC_CLKO[0] | CLK_S.OUT_DCC_CLKO[1] | CLK_S.OUT_DCC_CLKO[2] | CLK_S.OUT_DCC_CLKO[3] | CLK_S.OUT_DCC_CLKO[4] | CLK_S.OUT_DCC_CLKO[5] | CLK_S.OUT_DCC_CLKO[6] | CLK_S.OUT_DCC_CLKO[7] | CLK_N.OUT_DCC_CLKO[0] | CLK_N.OUT_DCC_CLKO[1] | CLK_N.OUT_DCC_CLKO[2] | CLK_N.OUT_DCC_CLKO[3] | CLK_N.OUT_DCC_CLKO[4] | CLK_N.OUT_DCC_CLKO[5];
+				mux CELL.IMUX_DCS_CLKB[0] = CLK_S.OUT_DCC_CLKO[0] | CLK_S.OUT_DCC_CLKO[1] | CLK_S.OUT_DCC_CLKO[2] | CLK_S.OUT_DCC_CLKO[3] | CLK_S.OUT_DCC_CLKO[4] | CLK_S.OUT_DCC_CLKO[5] | CLK_S.OUT_DCC_CLKO[6] | CLK_S.OUT_DCC_CLKO[7] | CLK_N.OUT_DCC_CLKO[0] | CLK_N.OUT_DCC_CLKO[1] | CLK_N.OUT_DCC_CLKO[2] | CLK_N.OUT_DCC_CLKO[3] | CLK_N.OUT_DCC_CLKO[4] | CLK_N.OUT_DCC_CLKO[5];
+			}
 
 			bel CLKTEST {
-				input TESTIN0 = IMUX_B[0];
-				input TESTIN1 = IMUX_B[1];
-				input TESTIN2 = IMUX_B[2];
-				input TESTIN3 = IMUX_B[3];
+				input TESTIN[0] = CELL.IMUX_B[0];
+				input TESTIN[1] = CELL.IMUX_B[1];
+				input TESTIN[2] = CELL.IMUX_B[2];
+				input TESTIN[3] = CELL.IMUX_B[3];
 			}
 
 			bel DCS[0] {
-				input MODESEL = IMUX_A[2];
-				input SEL0 = IMUX_A[0];
-				input SEL1 = IMUX_A[1];
+				input CLK[0] = CELL.IMUX_DCS_CLKA[0];
+				input CLK[1] = CELL.IMUX_DCS_CLKB[0];
+				input SEL[0] = CELL.IMUX_A[0];
+				input SEL[1] = CELL.IMUX_A[1];
+				input MODESEL = CELL.IMUX_A[2];
+				output DCSOUT = CELL.OUT_DCS_DCSOUT[0];
 			}
 
-			bel CLK_ROOT {
-				output PCLK0 = PCLK[0];
-				output PCLK1 = PCLK[1];
-				output PCLK2 = PCLK[2];
-				output PCLK3 = PCLK[3];
-				output PCLK4 = PCLK[4];
-				output PCLK5 = PCLK[5];
-				output PCLK6 = PCLK[6];
-				output PCLK7 = PCLK[7];
-			}
-
-			// wire PCLK[0]                        CLK_ROOT.PCLK0
-			// wire PCLK[1]                        CLK_ROOT.PCLK1
-			// wire PCLK[2]                        CLK_ROOT.PCLK2
-			// wire PCLK[3]                        CLK_ROOT.PCLK3
-			// wire PCLK[4]                        CLK_ROOT.PCLK4
-			// wire PCLK[5]                        CLK_ROOT.PCLK5
-			// wire PCLK[6]                        CLK_ROOT.PCLK6
-			// wire PCLK[7]                        CLK_ROOT.PCLK7
-			// wire IMUX_A[0]                      DCS[0].SEL0
-			// wire IMUX_A[1]                      DCS[0].SEL1
-			// wire IMUX_A[2]                      DCS[0].MODESEL
-			// wire IMUX_B[0]                      CLKTEST.TESTIN0
-			// wire IMUX_B[1]                      CLKTEST.TESTIN1
-			// wire IMUX_B[2]                      CLKTEST.TESTIN2
-			// wire IMUX_B[3]                      CLKTEST.TESTIN3
+			// wire CELL.IMUX_A[0]                 DCS[0].SEL[0]
+			// wire CELL.IMUX_A[1]                 DCS[0].SEL[1]
+			// wire CELL.IMUX_A[2]                 DCS[0].MODESEL
+			// wire CELL.IMUX_B[0]                 CLKTEST.TESTIN[0]
+			// wire CELL.IMUX_B[1]                 CLKTEST.TESTIN[1]
+			// wire CELL.IMUX_B[2]                 CLKTEST.TESTIN[2]
+			// wire CELL.IMUX_B[3]                 CLKTEST.TESTIN[3]
+			// wire CELL.IMUX_DCS_CLKA[0]          DCS[0].CLK[0]
+			// wire CELL.IMUX_DCS_CLKB[0]          DCS[0].CLK[1]
+			// wire CELL.OUT_DCS_DCSOUT[0]         DCS[0].DCSOUT
 		}
 
 		tile_class CLK_S {
@@ -4381,6 +4463,8 @@ intdb {
 			cell FABRIC_IN[1];
 			cell IO_IN[0];
 			cell IO_IN[1];
+			cell PLL;
+			cell OSC;
 
 			bel DLLDEL[0] {
 				input A = IO_IN[0].OUT_IO_PADDI[0];
@@ -4453,88 +4537,120 @@ intdb {
 			switchbox CLK_INT {
 				mux CELL[0].INCK[0] = CELL[0].OUT_DLLDEL_Z | IO_IN[0].OUT_IO_PADDI[0];
 				mux CELL[0].IMUX_DLLDEL_DDRDEL = CELL[0].OUT_DDRDLL_DDRDEL | CELL[2].OUT_DDRDLL_DDRDEL;
+				mux CELL[1].ECLK[0] = CELL[2].OUT_ECLKSYNC_ECLKO[0] | CELL[2].OUT_ECLKSYNC_ECLKO[2];
+				mux CELL[1].ECLK[1] = CELL[2].OUT_ECLKSYNC_ECLKO[1] | CELL[2].OUT_ECLKSYNC_ECLKO[3];
 				mux CELL[1].INCK[0] = CELL[1].OUT_DLLDEL_Z | IO_IN[0].OUT_IO_PADDI[2];
 				mux CELL[1].IMUX_DLLDEL_DDRDEL = CELL[0].OUT_DDRDLL_DDRDEL | CELL[2].OUT_DDRDLL_DDRDEL;
+				mux CELL[2].IMUX_DCC_CLKI[0] = CELL[0].INCK[0] | CELL[2].OUT_CLKDIV_CDIVX[0] | FABRIC_IN[0].IMUX_D[7] | FABRIC_IN[1].IMUX_D[7] | PLL.OUT_PLL_CLKOP[0] | PLL.OUT_PLL_CLKOS3[0] | OSC.OUT_OSC_HFCLKOUT;
+				mux CELL[2].IMUX_DCC_CLKI[1] = CELL[1].INCK[0] | CELL[2].OUT_CLKDIV_CDIVX[1] | FABRIC_IN[0].IMUX_D[7] | PLL.OUT_PLL_CLKOS[0] | PLL.OUT_PLL_CLKOS2[0] | OSC.OUT_OSC_LFCLKOUT | OSC.OUT_OSC_HFCLKOUT;
+				mux CELL[2].IMUX_DCC_CLKI[2] = CELL[2].INCK[0] | CELL[2].OUT_CLKDIV_CDIVX[0] | FABRIC_IN[0].IMUX_D[7] | FABRIC_IN[1].IMUX_D[7] | PLL.OUT_PLL_CLKOP[0] | PLL.OUT_PLL_CLKOS2[0] | OSC.OUT_OSC_LFCLKOUT;
+				mux CELL[2].IMUX_DCC_CLKI[3] = CELL[0].INCK[0] | CELL[2].OUT_CLKDIV_CDIVX[1] | CELL[3].INCK[0] | FABRIC_IN[0].IMUX_D[7] | PLL.OUT_PLL_CLKOS[0] | PLL.OUT_PLL_CLKOS3[0] | OSC.OUT_OSC_LFCLKOUT;
+				mux CELL[2].IMUX_DCC_CLKI[4] = CELL[2].INCK[0] | FABRIC_IN[0].IMUX_D[7] | FABRIC_IN[1].IMUX_D[7] | PLL.OUT_PLL_CLKOP[0] | PLL.OUT_PLL_CLKOS2[0] | OSC.OUT_OSC_LFCLKOUT | OSC.OUT_OSC_HFCLKOUT;
+				mux CELL[2].IMUX_DCC_CLKI[5] = CELL[1].INCK[0] | CELL[2].OUT_CLKDIV_CDIVX[0] | CELL[3].INCK[0] | FABRIC_IN[1].IMUX_D[7] | PLL.OUT_PLL_CLKOS[0] | PLL.OUT_PLL_CLKOS3[0] | OSC.OUT_OSC_HFCLKOUT;
+				mux CELL[2].IMUX_DCC_CLKI[6] = CELL[1].INCK[0] | CELL[2].INCK[0] | CELL[2].OUT_CLKDIV_CDIVX[1] | FABRIC_IN[0].IMUX_D[7] | FABRIC_IN[1].IMUX_D[7] | PLL.OUT_PLL_CLKOP[0] | PLL.OUT_PLL_CLKOS2[0];
+				mux CELL[2].IMUX_DCC_CLKI[7] = CELL[0].INCK[0] | CELL[3].INCK[0] | FABRIC_IN[1].IMUX_D[7] | PLL.OUT_PLL_CLKOS[0] | PLL.OUT_PLL_CLKOS3[0] | OSC.OUT_OSC_LFCLKOUT | OSC.OUT_OSC_HFCLKOUT;
+				mux CELL[2].ECLK[0] = CELL[2].OUT_ECLKSYNC_ECLKO[0] | CELL[2].OUT_ECLKSYNC_ECLKO[2];
+				mux CELL[2].ECLK[1] = CELL[2].OUT_ECLKSYNC_ECLKO[1] | CELL[2].OUT_ECLKSYNC_ECLKO[3];
+				mux CELL[2].IMUX_ECLKSYNC_ECLKI[0] = CELL[0].INCK[0] | CELL[1].IMUX_CLK[0] | CELL[1].INCK[0] | CELL[2].INCK[0] | CELL[3].INCK[0] | PLL.OUT_PLL_CLKOP[0] | PLL.OUT_PLL_CLKOS[0];
+				mux CELL[2].IMUX_ECLKSYNC_ECLKI[1] = CELL[0].INCK[0] | CELL[1].IMUX_CLK[0] | CELL[1].INCK[0] | CELL[2].INCK[0] | CELL[3].INCK[0] | PLL.OUT_PLL_CLKOP[0] | PLL.OUT_PLL_CLKOS[0];
+				mux CELL[2].IMUX_ECLKSYNC_ECLKI[2] = CELL[0].INCK[0] | CELL[1].IMUX_CLK[1] | CELL[1].INCK[0] | CELL[2].INCK[0] | CELL[3].INCK[0] | PLL.OUT_PLL_CLKOP[0] | PLL.OUT_PLL_CLKOS[0];
+				mux CELL[2].IMUX_ECLKSYNC_ECLKI[3] = CELL[0].INCK[0] | CELL[1].IMUX_CLK[1] | CELL[1].INCK[0] | CELL[2].INCK[0] | CELL[3].INCK[0] | PLL.OUT_PLL_CLKOP[0] | PLL.OUT_PLL_CLKOS[0];
+				mux CELL[2].ECLKFB = PLL.OUT_PLL_CLKOP[0] | PLL.OUT_PLL_CLKOS[0];
 				mux CELL[2].INCK[0] = CELL[2].OUT_DLLDEL_Z | IO_IN[1].OUT_IO_PADDI[0];
 				mux CELL[2].IMUX_DLLDEL_DDRDEL = CELL[0].OUT_DDRDLL_DDRDEL | CELL[2].OUT_DDRDLL_DDRDEL;
 				mux CELL[3].INCK[0] = CELL[3].OUT_DLLDEL_Z | IO_IN[1].OUT_IO_PADDI[2];
 				mux CELL[3].IMUX_DLLDEL_DDRDEL = CELL[0].OUT_DDRDLL_DDRDEL | CELL[2].OUT_DDRDLL_DDRDEL;
+				permabuf CELL[1].OUT_F[0] = CELL[1].ECLK[0];
+				permabuf CELL[1].OUT_F[1] = CELL[1].ECLK[1];
+				permabuf CELL[2].OUT_F[0] = CELL[2].ECLK[0];
+				permabuf CELL[2].OUT_F[1] = CELL[2].ECLK[1];
 			}
 
 			bel CLKTEST {
-				input TESTIN0 = CELL[2].IMUX_B[0];
-				input TESTIN1 = CELL[2].IMUX_B[1];
-				input TESTIN2 = CELL[2].IMUX_B[2];
+				input TESTIN[0] = CELL[2].IMUX_B[0];
+				input TESTIN[1] = CELL[2].IMUX_B[1];
+				input TESTIN[2] = CELL[2].IMUX_B[2];
 			}
 
 			bel DCC[0] {
+				input CLKI = CELL[2].IMUX_DCC_CLKI[0];
 				input CE = CELL[2].IMUX_A[0];
+				output CLKO = CELL[2].OUT_DCC_CLKO[0];
 			}
 
 			bel DCC[1] {
+				input CLKI = CELL[2].IMUX_DCC_CLKI[1];
 				input CE = CELL[2].IMUX_A[1];
+				output CLKO = CELL[2].OUT_DCC_CLKO[1];
 			}
 
 			bel DCC[2] {
+				input CLKI = CELL[2].IMUX_DCC_CLKI[2];
 				input CE = CELL[2].IMUX_A[2];
+				output CLKO = CELL[2].OUT_DCC_CLKO[2];
 			}
 
 			bel DCC[3] {
+				input CLKI = CELL[2].IMUX_DCC_CLKI[3];
 				input CE = CELL[2].IMUX_A[3];
+				output CLKO = CELL[2].OUT_DCC_CLKO[3];
 			}
 
 			bel DCC[4] {
+				input CLKI = CELL[2].IMUX_DCC_CLKI[4];
 				input CE = CELL[2].IMUX_A[4];
+				output CLKO = CELL[2].OUT_DCC_CLKO[4];
 			}
 
 			bel DCC[5] {
+				input CLKI = CELL[2].IMUX_DCC_CLKI[5];
 				input CE = CELL[2].IMUX_A[5];
+				output CLKO = CELL[2].OUT_DCC_CLKO[5];
 			}
 
 			bel DCC[6] {
+				input CLKI = CELL[2].IMUX_DCC_CLKI[6];
 				input CE = CELL[2].IMUX_A[6];
+				output CLKO = CELL[2].OUT_DCC_CLKO[6];
 			}
 
 			bel DCC[7] {
+				input CLKI = CELL[2].IMUX_DCC_CLKI[7];
 				input CE = CELL[2].IMUX_A[7];
+				output CLKO = CELL[2].OUT_DCC_CLKO[7];
 			}
 
 			bel ECLKSYNC[0] {
-				output ECLK = CELL[1].OUT_F[0];
-				input ECLKI = CELL[1].IMUX_CLK[0];
+				input ECLKI = CELL[2].IMUX_ECLKSYNC_ECLKI[0];
 				input STOP = CELL[1].IMUX_A[0];
+				output ECLKO = CELL[2].OUT_ECLKSYNC_ECLKO[0];
 			}
 
 			bel ECLKSYNC[1] {
-				output ECLK = CELL[1].OUT_F[1];
-				input ECLKI = CELL[1].IMUX_CLK[0];
+				input ECLKI = CELL[2].IMUX_ECLKSYNC_ECLKI[1];
 				input STOP = CELL[1].IMUX_B[0];
+				output ECLKO = CELL[2].OUT_ECLKSYNC_ECLKO[1];
 			}
 
 			bel ECLKSYNC[2] {
-				output ECLK = CELL[2].OUT_F[0];
-				input ECLKI = CELL[1].IMUX_CLK[1];
+				input ECLKI = CELL[2].IMUX_ECLKSYNC_ECLKI[2];
 				input STOP = CELL[1].IMUX_C[0];
+				output ECLKO = CELL[2].OUT_ECLKSYNC_ECLKO[2];
 			}
 
 			bel ECLKSYNC[3] {
-				output ECLK = CELL[2].OUT_F[1];
-				input ECLKI = CELL[1].IMUX_CLK[1];
+				input ECLKI = CELL[2].IMUX_ECLKSYNC_ECLKI[3];
 				input STOP = CELL[1].IMUX_D[0];
-			}
-
-			bel CLK_EDGE {
-				input INT_IN_0 = FABRIC_IN[0].IMUX_D[7];
-				input INT_IN_1 = FABRIC_IN[1].IMUX_D[7];
+				output ECLKO = CELL[2].OUT_ECLKSYNC_ECLKO[3];
 			}
 
 			bel CLKTEST_ECLK {
-				input TESTIN0 = CELL[1].IMUX_A[4];
-				input TESTIN1 = CELL[1].IMUX_B[4];
-				input TESTIN2 = CELL[1].IMUX_C[4];
-				input TESTIN3 = CELL[1].IMUX_A[5];
-				input TESTIN4 = CELL[1].IMUX_B[5];
-				input TESTIN5 = CELL[1].IMUX_C[5];
+				input TESTIN[0] = CELL[1].IMUX_A[4];
+				input TESTIN[1] = CELL[1].IMUX_B[4];
+				input TESTIN[2] = CELL[1].IMUX_C[4];
+				input TESTIN[3] = CELL[1].IMUX_A[5];
+				input TESTIN[4] = CELL[1].IMUX_B[5];
+				input TESTIN[5] = CELL[1].IMUX_C[5];
 			}
 
 			// wire CELL[0].IMUX_B[6]              DLLDEL[0].LOADN
@@ -4547,27 +4663,23 @@ intdb {
 			// wire CELL[0].OUT_DLLDEL_Z           DLLDEL[0].Z
 			// wire CELL[1].IMUX_A[0]              ECLKSYNC[0].STOP
 			// wire CELL[1].IMUX_A[3]              CLKDIV[0].ALIGNWD
-			// wire CELL[1].IMUX_A[4]              CLKTEST_ECLK.TESTIN0
-			// wire CELL[1].IMUX_A[5]              CLKTEST_ECLK.TESTIN3
+			// wire CELL[1].IMUX_A[4]              CLKTEST_ECLK.TESTIN[0]
+			// wire CELL[1].IMUX_A[5]              CLKTEST_ECLK.TESTIN[3]
 			// wire CELL[1].IMUX_B[0]              ECLKSYNC[1].STOP
 			// wire CELL[1].IMUX_B[3]              CLKDIV[1].ALIGNWD
-			// wire CELL[1].IMUX_B[4]              CLKTEST_ECLK.TESTIN1
-			// wire CELL[1].IMUX_B[5]              CLKTEST_ECLK.TESTIN4
+			// wire CELL[1].IMUX_B[4]              CLKTEST_ECLK.TESTIN[1]
+			// wire CELL[1].IMUX_B[5]              CLKTEST_ECLK.TESTIN[4]
 			// wire CELL[1].IMUX_B[6]              DLLDEL[1].LOADN
 			// wire CELL[1].IMUX_C[0]              ECLKSYNC[2].STOP
 			// wire CELL[1].IMUX_C[2]              CLKDIV[2].ALIGNWD
-			// wire CELL[1].IMUX_C[4]              CLKTEST_ECLK.TESTIN2
-			// wire CELL[1].IMUX_C[5]              CLKTEST_ECLK.TESTIN5
+			// wire CELL[1].IMUX_C[4]              CLKTEST_ECLK.TESTIN[2]
+			// wire CELL[1].IMUX_C[5]              CLKTEST_ECLK.TESTIN[5]
 			// wire CELL[1].IMUX_C[6]              DLLDEL[1].MOVE
 			// wire CELL[1].IMUX_D[0]              ECLKSYNC[3].STOP
 			// wire CELL[1].IMUX_D[2]              CLKDIV[3].ALIGNWD
 			// wire CELL[1].IMUX_D[6]              DLLDEL[1].DIRECTION
-			// wire CELL[1].IMUX_CLK[0]            ECLKSYNC[0].ECLKI ECLKSYNC[1].ECLKI
-			// wire CELL[1].IMUX_CLK[1]            ECLKSYNC[2].ECLKI ECLKSYNC[3].ECLKI
 			// wire CELL[1].IMUX_LSR[0]            CLKDIV[0].RST
 			// wire CELL[1].IMUX_LSR[1]            CLKDIV[1].RST
-			// wire CELL[1].OUT_F[0]               ECLKSYNC[0].ECLK
-			// wire CELL[1].OUT_F[1]               ECLKSYNC[1].ECLK
 			// wire CELL[1].OUT_F[2]               CLKDIV[0].CDIVX
 			// wire CELL[1].OUT_F[3]               CLKDIV[1].CDIVX
 			// wire CELL[1].OUT_Q[7]               DLLDEL[1].CFLAG
@@ -4581,21 +4693,43 @@ intdb {
 			// wire CELL[2].IMUX_A[5]              DCC[5].CE
 			// wire CELL[2].IMUX_A[6]              DCC[6].CE
 			// wire CELL[2].IMUX_A[7]              DCC[7].CE
-			// wire CELL[2].IMUX_B[0]              CLKTEST.TESTIN0
-			// wire CELL[2].IMUX_B[1]              CLKTEST.TESTIN1
-			// wire CELL[2].IMUX_B[2]              CLKTEST.TESTIN2
+			// wire CELL[2].IMUX_B[0]              CLKTEST.TESTIN[0]
+			// wire CELL[2].IMUX_B[1]              CLKTEST.TESTIN[1]
+			// wire CELL[2].IMUX_B[2]              CLKTEST.TESTIN[2]
 			// wire CELL[2].IMUX_B[6]              DLLDEL[2].LOADN
 			// wire CELL[2].IMUX_C[6]              DLLDEL[2].MOVE
 			// wire CELL[2].IMUX_D[6]              DLLDEL[2].DIRECTION
 			// wire CELL[2].IMUX_LSR[0]            CLKDIV[2].RST
 			// wire CELL[2].IMUX_LSR[1]            CLKDIV[3].RST
-			// wire CELL[2].OUT_F[0]               ECLKSYNC[2].ECLK
-			// wire CELL[2].OUT_F[1]               ECLKSYNC[3].ECLK
 			// wire CELL[2].OUT_F[2]               CLKDIV[2].CDIVX
 			// wire CELL[2].OUT_F[3]               CLKDIV[3].CDIVX
 			// wire CELL[2].OUT_Q[7]               DLLDEL[2].CFLAG
+			// wire CELL[2].IMUX_DCC_CLKI[0]       DCC[0].CLKI
+			// wire CELL[2].IMUX_DCC_CLKI[1]       DCC[1].CLKI
+			// wire CELL[2].IMUX_DCC_CLKI[2]       DCC[2].CLKI
+			// wire CELL[2].IMUX_DCC_CLKI[3]       DCC[3].CLKI
+			// wire CELL[2].IMUX_DCC_CLKI[4]       DCC[4].CLKI
+			// wire CELL[2].IMUX_DCC_CLKI[5]       DCC[5].CLKI
+			// wire CELL[2].IMUX_DCC_CLKI[6]       DCC[6].CLKI
+			// wire CELL[2].IMUX_DCC_CLKI[7]       DCC[7].CLKI
+			// wire CELL[2].OUT_DCC_CLKO[0]        DCC[0].CLKO
+			// wire CELL[2].OUT_DCC_CLKO[1]        DCC[1].CLKO
+			// wire CELL[2].OUT_DCC_CLKO[2]        DCC[2].CLKO
+			// wire CELL[2].OUT_DCC_CLKO[3]        DCC[3].CLKO
+			// wire CELL[2].OUT_DCC_CLKO[4]        DCC[4].CLKO
+			// wire CELL[2].OUT_DCC_CLKO[5]        DCC[5].CLKO
+			// wire CELL[2].OUT_DCC_CLKO[6]        DCC[6].CLKO
+			// wire CELL[2].OUT_DCC_CLKO[7]        DCC[7].CLKO
 			// wire CELL[2].ECLK[0]                CLKDIV[2].CLKI
 			// wire CELL[2].ECLK[1]                CLKDIV[3].CLKI
+			// wire CELL[2].IMUX_ECLKSYNC_ECLKI[0] ECLKSYNC[0].ECLKI
+			// wire CELL[2].IMUX_ECLKSYNC_ECLKI[1] ECLKSYNC[1].ECLKI
+			// wire CELL[2].IMUX_ECLKSYNC_ECLKI[2] ECLKSYNC[2].ECLKI
+			// wire CELL[2].IMUX_ECLKSYNC_ECLKI[3] ECLKSYNC[3].ECLKI
+			// wire CELL[2].OUT_ECLKSYNC_ECLKO[0]  ECLKSYNC[0].ECLKO
+			// wire CELL[2].OUT_ECLKSYNC_ECLKO[1]  ECLKSYNC[1].ECLKO
+			// wire CELL[2].OUT_ECLKSYNC_ECLKO[2]  ECLKSYNC[2].ECLKO
+			// wire CELL[2].OUT_ECLKSYNC_ECLKO[3]  ECLKSYNC[3].ECLKO
 			// wire CELL[2].IMUX_DLLDEL_DDRDEL     DLLDEL[2].DDRDEL
 			// wire CELL[2].OUT_DLLDEL_Z           DLLDEL[2].Z
 			// wire CELL[2].OUT_CLKDIV_CDIVX[0]    CLKDIV[0].CDIVX
@@ -4608,8 +4742,6 @@ intdb {
 			// wire CELL[3].OUT_Q[7]               DLLDEL[3].CFLAG
 			// wire CELL[3].IMUX_DLLDEL_DDRDEL     DLLDEL[3].DDRDEL
 			// wire CELL[3].OUT_DLLDEL_Z           DLLDEL[3].Z
-			// wire FABRIC_IN[0].IMUX_D[7]         CLK_EDGE.INT_IN_0
-			// wire FABRIC_IN[1].IMUX_D[7]         CLK_EDGE.INT_IN_1
 			// wire IO_IN[0].OUT_IO_PADDI[0]       DLLDEL[0].A
 			// wire IO_IN[0].OUT_IO_PADDI[2]       DLLDEL[1].A
 			// wire IO_IN[1].OUT_IO_PADDI[0]       DLLDEL[2].A
@@ -4619,53 +4751,84 @@ intdb {
 		tile_class CLK_N {
 			cell CELL[0];
 			cell CELL[1];
+			cell CLK_S;
+			cell IO_IN[0];
+			cell IO_IN[1];
+			cell MIPI[0];
+			cell MIPI[1];
+
+			switchbox CLK_INT {
+				mux CELL[1].IMUX_DCC_CLKI[0] = CELL[0].IMUX_D[7] | CELL[1].IMUX_D[7] | CLK_S.OUT_CLKDIV_CDIVX[2] | IO_IN[0].OUT_IO_PADDI[0] | MIPI[0].OUT_MIPI_CLKHSBYTE | MIPI[0].OUT_MIPI_HSBYTECLKS | MIPI[1].OUT_MIPI_HSBYTECLKD;
+				mux CELL[1].IMUX_DCC_CLKI[1] = CELL[0].IMUX_D[7] | CELL[1].IMUX_D[7] | CLK_S.OUT_CLKDIV_CDIVX[3] | IO_IN[1].OUT_IO_PADDI[0] | MIPI[0].OUT_MIPI_HSBYTECLKD | MIPI[1].OUT_MIPI_CLKHSBYTE | MIPI[1].OUT_MIPI_HSBYTECLKS;
+				mux CELL[1].IMUX_DCC_CLKI[2] = CELL[0].IMUX_D[7] | CELL[1].IMUX_D[7] | CLK_S.OUT_CLKDIV_CDIVX[2] | IO_IN[0].OUT_IO_PADDI[0] | MIPI[0].OUT_MIPI_CLKHSBYTE | MIPI[0].OUT_MIPI_HSBYTECLKS | MIPI[1].OUT_MIPI_HSBYTECLKS;
+				mux CELL[1].IMUX_DCC_CLKI[3] = CELL[0].IMUX_D[7] | CELL[1].IMUX_D[7] | CLK_S.OUT_CLKDIV_CDIVX[3] | IO_IN[1].OUT_IO_PADDI[0] | MIPI[0].OUT_MIPI_HSBYTECLKD | MIPI[1].OUT_MIPI_CLKHSBYTE | MIPI[1].OUT_MIPI_HSBYTECLKD;
+				mux CELL[1].IMUX_DCC_CLKI[4] = CELL[0].IMUX_D[7] | CELL[1].IMUX_D[7] | CLK_S.OUT_CLKDIV_CDIVX[2] | IO_IN[0].OUT_IO_PADDI[0] | MIPI[0].OUT_MIPI_CLKHSBYTE | MIPI[0].OUT_MIPI_HSBYTECLKS | MIPI[1].OUT_MIPI_HSBYTECLKS;
+				mux CELL[1].IMUX_DCC_CLKI[5] = CELL[0].IMUX_D[7] | CELL[1].IMUX_D[7] | CLK_S.OUT_CLKDIV_CDIVX[3] | IO_IN[1].OUT_IO_PADDI[0] | MIPI[0].OUT_MIPI_HSBYTECLKD | MIPI[1].OUT_MIPI_CLKHSBYTE | MIPI[1].OUT_MIPI_HSBYTECLKD;
+			}
 
 			bel CLKTEST {
-				input TESTIN0 = CELL[1].IMUX_B[4];
-				input TESTIN1 = CELL[1].IMUX_D[5];
-				input TESTIN2 = CELL[1].IMUX_B[6];
+				input TESTIN[0] = CELL[1].IMUX_B[4];
+				input TESTIN[1] = CELL[1].IMUX_D[5];
+				input TESTIN[2] = CELL[1].IMUX_B[6];
 			}
 
 			bel DCC[0] {
+				input CLKI = CELL[1].IMUX_DCC_CLKI[0];
 				input CE = CELL[1].IMUX_A[0];
+				output CLKO = CELL[1].OUT_DCC_CLKO[0];
 			}
 
 			bel DCC[1] {
+				input CLKI = CELL[1].IMUX_DCC_CLKI[1];
 				input CE = CELL[1].IMUX_A[1];
+				output CLKO = CELL[1].OUT_DCC_CLKO[1];
 			}
 
 			bel DCC[2] {
+				input CLKI = CELL[1].IMUX_DCC_CLKI[2];
 				input CE = CELL[1].IMUX_A[2];
+				output CLKO = CELL[1].OUT_DCC_CLKO[2];
 			}
 
 			bel DCC[3] {
+				input CLKI = CELL[1].IMUX_DCC_CLKI[3];
 				input CE = CELL[1].IMUX_A[3];
+				output CLKO = CELL[1].OUT_DCC_CLKO[3];
 			}
 
 			bel DCC[4] {
+				input CLKI = CELL[1].IMUX_DCC_CLKI[4];
 				input CE = CELL[1].IMUX_A[4];
+				output CLKO = CELL[1].OUT_DCC_CLKO[4];
 			}
 
 			bel DCC[5] {
+				input CLKI = CELL[1].IMUX_DCC_CLKI[5];
 				input CE = CELL[1].IMUX_A[5];
+				output CLKO = CELL[1].OUT_DCC_CLKO[5];
 			}
 
-			bel CLK_EDGE {
-				input INT_IN_0 = CELL[0].IMUX_D[7];
-				input INT_IN_1 = CELL[1].IMUX_D[7];
-			}
-
-			// wire CELL[0].IMUX_D[7]              CLK_EDGE.INT_IN_0
 			// wire CELL[1].IMUX_A[0]              DCC[0].CE
 			// wire CELL[1].IMUX_A[1]              DCC[1].CE
 			// wire CELL[1].IMUX_A[2]              DCC[2].CE
 			// wire CELL[1].IMUX_A[3]              DCC[3].CE
 			// wire CELL[1].IMUX_A[4]              DCC[4].CE
 			// wire CELL[1].IMUX_A[5]              DCC[5].CE
-			// wire CELL[1].IMUX_B[4]              CLKTEST.TESTIN0
-			// wire CELL[1].IMUX_B[6]              CLKTEST.TESTIN2
-			// wire CELL[1].IMUX_D[5]              CLKTEST.TESTIN1
-			// wire CELL[1].IMUX_D[7]              CLK_EDGE.INT_IN_1
+			// wire CELL[1].IMUX_B[4]              CLKTEST.TESTIN[0]
+			// wire CELL[1].IMUX_B[6]              CLKTEST.TESTIN[2]
+			// wire CELL[1].IMUX_D[5]              CLKTEST.TESTIN[1]
+			// wire CELL[1].IMUX_DCC_CLKI[0]       DCC[0].CLKI
+			// wire CELL[1].IMUX_DCC_CLKI[1]       DCC[1].CLKI
+			// wire CELL[1].IMUX_DCC_CLKI[2]       DCC[2].CLKI
+			// wire CELL[1].IMUX_DCC_CLKI[3]       DCC[3].CLKI
+			// wire CELL[1].IMUX_DCC_CLKI[4]       DCC[4].CLKI
+			// wire CELL[1].IMUX_DCC_CLKI[5]       DCC[5].CLKI
+			// wire CELL[1].OUT_DCC_CLKO[0]        DCC[0].CLKO
+			// wire CELL[1].OUT_DCC_CLKO[1]        DCC[1].CLKO
+			// wire CELL[1].OUT_DCC_CLKO[2]        DCC[2].CLKO
+			// wire CELL[1].OUT_DCC_CLKO[3]        DCC[3].CLKO
+			// wire CELL[1].OUT_DCC_CLKO[4]        DCC[4].CLKO
+			// wire CELL[1].OUT_DCC_CLKO[5]        DCC[5].CLKO
 		}
 	}
 

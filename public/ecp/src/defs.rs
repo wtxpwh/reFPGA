@@ -515,7 +515,7 @@ target_defs! {
         }
     }
 
-    if variant [ecp3, machxo2] {
+    if variant [ecp3, machxo2, ecp4, ecp5, crosslink] {
         bel_class ECLKSYNC {
             input ECLKI;
             input STOP;
@@ -544,16 +544,34 @@ target_defs! {
         output CLKO;
     }
 
-    bel_class DCS {
-        input CLK[2];
-        input SEL;
-        output DCSOUT;
+    if variant [scm, ecp, xp, ecp2, ecp2m, xp2, ecp3] {
+        bel_class DCS {
+            input CLK[2];
+            input SEL[1];
+            output DCSOUT;
+        }
+    } else if variant ecp4 {
+        bel_class DCS {
+            input CLK[4];
+            input SEL[4];
+            input MODESEL;
+            output DCSOUT;
+        }
+    } else if variant [ecp5, crosslink] {
+        bel_class DCS {
+            input CLK[2];
+            input SEL[2];
+            input MODESEL;
+            output DCSOUT;
+        }
     }
 
-    bel_class DCM {
-        input CLK[2];
-        input SEL;
-        output DCMOUT;
+    if variant machxo2 {
+        bel_class DCM {
+            input CLK[2];
+            input SEL;
+            output DCMOUT;
+        }
     }
 
     if variant [machxo2, ecp4, ecp5, crosslink] {
@@ -598,27 +616,38 @@ target_defs! {
             input TCLKI;
             output TESTOUT;
         }
-    } else if variant machxo2 {
+    } else if variant [machxo2, crosslink] {
         bel_class PLL {
             input CLK[2];
             input SEL;
             input CLKFB;
             input RST;
-            input LOADREG;
             input PHASEDIR;
             input PHASESEL[2];
             input PHASESTEP;
+            if variant machxo2 {
+                input LOADREG;
+            } else if variant crosslink {
+                input PHASELOADREG;
+            }
             input PLLWAKESYNC;
-            input RESETC;
-            input RESETD;
-            input RESETM;
-            input STDBY;
+            if variant machxo2 {
+                input RESETC;
+                input RESETD;
+                input RESETM;
+                input STDBY;
+                output DPHSRC;
+            } else {
+                input USRSTDBY;
+            }
             input ENCLKOP, ENCLKOS, ENCLKOS2, ENCLKOS3;
             output CLKOP, CLKOS, CLKOS2, CLKOS3;
             output CLKINTFB, REFCLK;
-            output DPHSRC;
             output LOCK;
             output INTLOCK;
+            if variant crosslink {
+                output PFDDN, PFDUP;
+            }
         }
     }
 
@@ -1506,10 +1535,17 @@ target_defs! {
 
     if variant [ecp3, machxo2] {
         wire IMUX_DCC_CLKI[6]: mux;
+    } else if variant crosslink {
+        wire IMUX_DCC_CLKI[8]: mux;
+        wire OUT_DCC_CLKO[8]: mux;
     }
     if variant [ecp, xp, ecp2, ecp2m, xp2, ecp3] {
         wire IMUX_DCS_CLKA[2]: mux;
         wire IMUX_DCS_CLKB[2]: mux;
+    } else if variant crosslink {
+        wire IMUX_DCS_CLKA[1]: mux;
+        wire IMUX_DCS_CLKB[1]: mux;
+        wire OUT_DCS_DCSOUT[1]: bel;
     }
     if variant machxo2 {
         wire OUT_DCM_DCMOUT[2]: bel;
@@ -1527,6 +1563,11 @@ target_defs! {
         if variant [ecp3, machxo2] {
             wire IMUX_ECLKSYNC_ECLKI[2]: mux;
             wire BRGECLK[2]: mux;
+        }
+        if variant crosslink {
+            wire IMUX_ECLKSYNC_ECLKI[4]: mux;
+            wire OUT_ECLKSYNC_ECLKO[4]: bel;
+            wire ECLKFB: mux;
         }
     } else if variant ecp4 {
         region_slot ECLK;
@@ -1637,7 +1678,7 @@ target_defs! {
         if variant [xp2, ecp3] {
             wire OUT_PLL_CLKOK2: bel;
         }
-    } else if variant machxo2 {
+    } else if variant [machxo2, crosslink] {
         wire IMUX_PLL_CLKI[2]: mux;
         wire IMUX_PLL_CLKFB[1]: mux;
         wire OUT_PLL_CLKINTFB[1]: bel;
@@ -1702,6 +1743,8 @@ target_defs! {
         wire OUT_MIPI_CLKHSBYTE: bel;
         wire OUT_MIPI_HSBYTECLKS: bel;
         wire OUT_MIPI_HSBYTECLKD: bel;
+        wire OUT_OSC_LFCLKOUT: bel;
+        wire OUT_OSC_HFCLKOUT: bel;
     }
 
     tile_slot INT {
@@ -2389,12 +2432,14 @@ target_defs! {
                 bel DTR;
             }
         } else if variant crosslink {
-            bel_slot PLL[1]: legacy;
-            bel_slot PLLREFCS[1]: legacy;
+            bel_slot PLL[1]: PLL;
             tile_class PLL {
                 cell CELL[2];
+                cell CLK_S;
+                cell IO[5];
+
+                switchbox BEL_INT;
                 bel PLL[0];
-                bel PLLREFCS[0];
             }
 
             bel_slot BCINRD: BCINRD;
@@ -3195,33 +3240,33 @@ target_defs! {
                 }
             }
         } else if variant crosslink {
-            bel_slot CLK_ROOT: legacy;
-            bel_slot CLKTEST: legacy;
-            bel_slot DCS[1]: legacy;
+            bel_slot CLKTEST: CLKTEST;
+            bel_slot DCS[1]: DCS;
             tile_class CLK_ROOT {
-                cell CELL;
-                bel CLK_ROOT;
+                cell CELL, CLK_S, CLK_N;
+
+                switchbox CLK_INT;
                 bel CLKTEST;
                 bel DCS[0];
             }
 
-            bel_slot DCC[8]: legacy;
-            bel_slot CLK_EDGE: legacy;
-            bel_slot ECLKSYNC[4]: legacy;
+            bel_slot DCC[8]: DCC;
+            bel_slot ECLKSYNC[4]: ECLKSYNC;
             bel_slot DLLDEL[4]: DLLDEL;
             bel_slot CLKDIV[4]: CLKDIV;
-            bel_slot CLKTEST_ECLK: legacy;
+            bel_slot CLKTEST_ECLK: CLKTEST;
             tile_class CLK_S {
                 cell CELL[4];
                 cell FABRIC_IN[2];
                 cell IO_IN[2];
+                cell PLL;
+                cell OSC;
 
                 switchbox CLK_INT;
                 for i in 0..8 {
                     bel DCC[i];
                 }
                 bel CLKTEST;
-                bel CLK_EDGE;
                 for i in 0..4 {
                     bel ECLKSYNC[i];
                     bel DLLDEL[i];
@@ -3231,11 +3276,15 @@ target_defs! {
             }
             tile_class CLK_N {
                 cell CELL[2];
+                cell CLK_S;
+                cell IO_IN[2];
+                cell MIPI[2];
+
+                switchbox CLK_INT;
                 for i in 0..6 {
                     bel DCC[i];
                 }
                 bel CLKTEST;
-                bel CLK_EDGE;
             }
         }
 

@@ -14156,12 +14156,6 @@ intdb {
 		output CLKO;
 	}
 
-	bel_class DCS {
-		input CLK[2];
-		input SEL;
-		output DCSOUT;
-	}
-
 	bel_class DCM {
 		input CLK[2];
 		input SEL;
@@ -14178,10 +14172,10 @@ intdb {
 		input CLK[2];
 		input SEL;
 		input RST;
-		input LOADREG;
 		input PHASEDIR;
 		input PHASESEL[2];
 		input PHASESTEP;
+		input LOADREG;
 		input PLLWAKESYNC;
 		input RESETC;
 		input RESETD;
@@ -14194,10 +14188,10 @@ intdb {
 		output CLKOS;
 		output CLKINTFB;
 		output LOCK;
+		output DPHSRC;
 		output CLKOS2;
 		output CLKOS3;
 		output REFCLK;
-		output DPHSRC;
 		output INTLOCK;
 	}
 
@@ -17006,11 +17000,11 @@ intdb {
 				input CLK[1] = CELL[0].IMUX_PLL_CLKI[1];
 				input SEL = CELL[0].IMUX_B[2];
 				input RST = CELL[0].IMUX_B[1];
-				input LOADREG = CELL[0].IMUX_D[3];
 				input PHASEDIR = CELL[0].IMUX_D[4];
 				input PHASESEL[0] = CELL[0].IMUX_B[4];
 				input PHASESEL[1] = CELL[0].IMUX_A[4];
 				input PHASESTEP = CELL[0].IMUX_C[4];
+				input LOADREG = CELL[0].IMUX_D[3];
 				input PLLWAKESYNC = CELL[0].IMUX_C[2];
 				input RESETC = CELL[0].IMUX_D[1];
 				input RESETD = CELL[0].IMUX_A[2];
@@ -17023,10 +17017,10 @@ intdb {
 				output CLKOS = CELL[0].OUT_F[2], CELL[0].OUT_PLL_CLKOS[0];
 				output CLKINTFB = CELL[0].OUT_PLL_CLKINTFB[0];
 				output LOCK = CELL[0].OUT_Q[2];
+				output DPHSRC = CELL[0].OUT_Q[6];
 				output CLKOS2 = CELL[0].OUT_F[4], CELL[0].OUT_PLL_CLKOS2[0];
 				output CLKOS3 = CELL[0].OUT_F[6], CELL[0].OUT_PLL_CLKOS3[0];
 				output REFCLK = CELL[0].OUT_Q[0];
-				output DPHSRC = CELL[0].OUT_Q[6];
 				output INTLOCK = CELL[0].OUT_Q[4];
 			}
 
@@ -17082,11 +17076,11 @@ intdb {
 				input CLK[1] = CELL[0].IMUX_PLL_CLKI[1];
 				input SEL = CELL[0].IMUX_B[2];
 				input RST = CELL[0].IMUX_B[1];
-				input LOADREG = CELL[0].IMUX_D[3];
 				input PHASEDIR = CELL[0].IMUX_D[4];
 				input PHASESEL[0] = CELL[0].IMUX_B[4];
 				input PHASESEL[1] = CELL[0].IMUX_A[4];
 				input PHASESTEP = CELL[0].IMUX_C[4];
+				input LOADREG = CELL[0].IMUX_D[3];
 				input PLLWAKESYNC = CELL[0].IMUX_C[2];
 				input RESETC = CELL[0].IMUX_D[1];
 				input RESETD = CELL[0].IMUX_A[2];
@@ -17099,10 +17093,10 @@ intdb {
 				output CLKOS = CELL[0].OUT_F[2], CELL[0].OUT_PLL_CLKOS[0];
 				output CLKINTFB = CELL[0].OUT_PLL_CLKINTFB[0];
 				output LOCK = CELL[0].OUT_Q[2];
+				output DPHSRC = CELL[0].OUT_Q[6];
 				output CLKOS2 = CELL[0].OUT_F[4], CELL[0].OUT_PLL_CLKOS2[0];
 				output CLKOS3 = CELL[0].OUT_F[6], CELL[0].OUT_PLL_CLKOS3[0];
 				output REFCLK = CELL[0].OUT_Q[0];
-				output DPHSRC = CELL[0].OUT_Q[6];
 				output INTLOCK = CELL[0].OUT_Q[4];
 			}
 

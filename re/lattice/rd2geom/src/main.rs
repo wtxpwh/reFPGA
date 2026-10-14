@@ -301,6 +301,7 @@ impl<'dev> ChipContext<'dev> {
                 "TESTOUT",
                 "CENTEST",
                 "DTS",
+                "DCS",
                 "PLL",
                 "PLLREFCS",
                 "PLL3",

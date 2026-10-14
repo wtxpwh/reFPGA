@@ -10603,6 +10603,12 @@ intdb {
 		output PVT_SNK_OUT[6];
 	}
 
+	bel_class ECLKSYNC {
+		input ECLKI;
+		input STOP;
+		output ECLKO;
+	}
+
 	bel_class DCC {
 		input CLKI;
 		input CE;
@@ -10611,14 +10617,9 @@ intdb {
 
 	bel_class DCS {
 		input CLK[2];
-		input SEL;
+		input SEL[2];
+		input MODESEL;
 		output DCSOUT;
-	}
-
-	bel_class DCM {
-		input CLK[2];
-		input SEL;
-		output DCMOUT;
 	}
 
 	bel_class CLKTEST {

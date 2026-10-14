@@ -8949,6 +8949,12 @@ intdb {
 		input STARTCAL;
 	}
 
+	bel_class ECLKSYNC {
+		input ECLKI;
+		input STOP;
+		output ECLKO;
+	}
+
 	bel_class DCC {
 		input CLKI;
 		input CE;
@@ -8956,15 +8962,10 @@ intdb {
 	}
 
 	bel_class DCS {
-		input CLK[2];
-		input SEL;
+		input CLK[4];
+		input SEL[4];
+		input MODESEL;
 		output DCSOUT;
-	}
-
-	bel_class DCM {
-		input CLK[2];
-		input SEL;
-		output DCMOUT;
 	}
 
 	bel_class CLKTEST {

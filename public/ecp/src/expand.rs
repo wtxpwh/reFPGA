@@ -3299,13 +3299,34 @@ impl Expander<'_, '_> {
         for i in [0, 2] {
             tcells.push(self.chip.get_io_cell(SpecialIoKey::Clock(Dir::S, i)));
         }
+        tcells.push(self.chip.bel_pll(DirHV::SE, 0).cell);
+        tcells.push(self.chip.special_loc[&SpecialLocKey::Osc]);
         self.egrid.add_tile(cell, tcls::CLK_S, &tcells);
 
         let cell = self.die.cell(self.chip.col_clk, self.chip.row_n());
-        self.egrid.add_tile_we(cell, tcls::CLK_N, 1, 2);
+        let mut tcells = cell.delta(-1, 0).cells_e(2);
+        tcells.extend([
+            cell.with_row(self.chip.row_s()),
+            self.chip.get_io_cell(SpecialIoKey::Clock(Dir::S, 4)),
+            self.chip.get_io_cell(SpecialIoKey::Clock(Dir::S, 5)),
+        ]);
+        for (col, cd) in &self.chip.columns {
+            if cd.io_n == IoGroupKind::Mipi {
+                tcells.push(cell.with_col(col));
+            }
+        }
+        self.egrid.add_tile(cell, tcls::CLK_N, &tcells);
 
         let cell = self.chip.bel_clk_root().cell;
-        self.egrid.add_tile_single(cell, tcls::CLK_ROOT);
+        self.egrid.add_tile(
+            cell,
+            tcls::CLK_ROOT,
+            &[
+                cell,
+                cell.with_row(self.chip.row_s()),
+                cell.with_row(self.chip.row_n()),
+            ],
+        );
 
         for cell in self.egrid.row(self.die, self.chip.row_s()) {
             self.egrid[cell].region_root[rslots::ECLK] =
@@ -3387,7 +3408,21 @@ impl Expander<'_, '_> {
         self.egrid.add_tile_single(cell, tcls::PMU);
 
         let cell = self.chip.bel_pll(DirHV::SE, 0).cell;
-        self.egrid.add_tile_e(cell, tcls::PLL, 2);
+        self.egrid.add_tile(
+            cell,
+            tcls::PLL,
+            &[
+                cell,
+                cell.delta(1, 0),
+                self.chip.clk_root().with_row(self.chip.row_s()),
+                self.chip.get_io_cell(SpecialIoKey::Clock(Dir::S, 0)),
+                self.chip.get_io_cell(SpecialIoKey::Clock(Dir::S, 2)),
+                self.chip.get_io_cell(SpecialIoKey::Clock(Dir::S, 4)),
+                self.chip.get_io_cell(SpecialIoKey::Clock(Dir::S, 5)),
+                self.chip
+                    .get_io_cell(SpecialIoKey::Pll(PllPad::PllIn0, PllLoc::new(DirHV::SE, 0))),
+            ],
+        );
     }
 
     fn fill_io_machxo(&mut self) {

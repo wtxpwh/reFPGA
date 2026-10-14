@@ -4267,18 +4267,6 @@ intdb {
 		output CLKO;
 	}
 
-	bel_class DCS {
-		input CLK[2];
-		input SEL;
-		output DCSOUT;
-	}
-
-	bel_class DCM {
-		input CLK[2];
-		input SEL;
-		output DCMOUT;
-	}
-
 	bel_class PLL {
 		input CLKI;
 		input CLKFB;
