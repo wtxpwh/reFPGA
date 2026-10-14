@@ -523,7 +523,7 @@ target_defs! {
         }
     }
 
-    if variant machxo2 {
+    if variant [machxo2, ecp4] {
         bel_class ECLKBRIDGECS {
             input CLK[2];
             input SEL;
@@ -616,7 +616,7 @@ target_defs! {
             input TCLKI;
             output TESTOUT;
         }
-    } else if variant [machxo2, crosslink] {
+    } else if variant [machxo2, ecp4, crosslink] {
         bel_class PLL {
             input CLK[2];
             input SEL;
@@ -627,16 +627,21 @@ target_defs! {
             input PHASESTEP;
             if variant machxo2 {
                 input LOADREG;
-            } else if variant crosslink {
+            } else {
                 input PHASELOADREG;
+            }
+            if variant ecp4 {
+                output PHASESRCSTAT;
             }
             input PLLWAKESYNC;
             if variant machxo2 {
                 input RESETC;
                 input RESETD;
                 input RESETM;
-                input STDBY;
                 output DPHSRC;
+            }
+            if variant [machxo2, ecp4] {
+                input STDBY;
             } else {
                 input USRSTDBY;
             }
@@ -647,6 +652,11 @@ target_defs! {
             output INTLOCK;
             if variant crosslink {
                 output PFDDN, PFDUP;
+            }
+            if variant ecp4 {
+                input SMICLK, SMIRSTN;
+                input SMIRD, SMIWR, SMIAD, SMIWDATA;
+                output SMIRDATA;
             }
         }
     }
@@ -670,6 +680,14 @@ target_defs! {
             if variant machxo2 {
                 output CDIV1;
             }
+        }
+    }
+
+    if variant [ecp4, ecp5] {
+        bel_class PCSCLKDIV {
+            input CLKI;
+            input RST, SEL[3];
+            output CDIV1, CDIVX;
         }
     }
 
@@ -1179,6 +1197,419 @@ target_defs! {
             output SCIRDATA[8];
             output SCIINT;
         }
+    } else if variant ecp4 {
+        bel_class SERDES {
+            input CORNER_FCSCANMODE;
+            input CORNER_FCSYNCTOGGLE;
+            output CORNER_FOREFCK2CORE;
+            output CORNER_LSPLLLOL;
+            input CORNER_LSPLLPWRUP;
+            input CORNER_LSPLLREFCLKI;
+            input CORNER_LSPLLRST;
+
+            for q in 0..4 {
+                for ch in 0..4 {
+                    // dedicated clock out
+                    output "Q{q}CH{ch}_FOPCLKA";
+                    output "Q{q}CH{ch}_FOPCLKB";
+
+                    input "Q{q}CH{ch}_FCALIGNEN";
+                    input "Q{q}CH{ch}_FCCDRFORCEDLOCK";
+                    input "Q{q}CH{ch}_FCDFERDEN";
+                    input "Q{q}CH{ch}_FCDFEUPD";
+                    input "Q{q}CH{ch}_FCLDRTXEN";
+                    input "Q{q}CH{ch}_FCLSMEN";
+                    input "Q{q}CH{ch}_FCPCIEDETEN";
+                    input "Q{q}CH{ch}_FCPCSRXRST";
+                    input "Q{q}CH{ch}_FCPCSTXRST";
+                    input "Q{q}CH{ch}_FCPIPEPHYRESETN";
+                    input "Q{q}CH{ch}_FCPLLLOL";
+                    input "Q{q}CH{ch}_FCRATE"[3];
+                    input "Q{q}CH{ch}_FCRRST";
+                    input "Q{q}CH{ch}_FCRXPOLARITY";
+                    input "Q{q}CH{ch}_FCRXPWRUP";
+                    input "Q{q}CH{ch}_FCTMRSTART";
+                    input "Q{q}CH{ch}_FCTMRSTOP";
+                    input "Q{q}CH{ch}_FCTRST";
+                    input "Q{q}CH{ch}_FCTXMARGIN"[3];
+                    input "Q{q}CH{ch}_FCTXPWRUP";
+                    input "Q{q}CH{ch}_FCWORDALGNEN";
+                    output "Q{q}CH{ch}_FDLDRRX";
+                    input "Q{q}CH{ch}_FDLDRTX";
+                    output "Q{q}CH{ch}_FDRX"[48];
+                    input "Q{q}CH{ch}_FDTX"[50];
+                    input "Q{q}CH{ch}_FIRCLK";
+                    input "Q{q}CH{ch}_FIREFRXCLK";
+                    input "Q{q}CH{ch}_FITCLK";
+                    input "Q{q}CH{ch}_FITMRSTARTCLK";
+                    input "Q{q}CH{ch}_FITMRSTOPCLK";
+                    output "Q{q}CH{ch}_FSCCOVERRUN";
+                    output "Q{q}CH{ch}_FSCCUNDERRUN";
+                    output "Q{q}CH{ch}_FSDFEVLD";
+                    output "Q{q}CH{ch}_FSLSM";
+                    output "Q{q}CH{ch}_FSPCIECON";
+                    output "Q{q}CH{ch}_FSPCIEDONE";
+                    output "Q{q}CH{ch}_FSRCDONE";
+                    output "Q{q}CH{ch}_FSRLOL";
+                    output "Q{q}CH{ch}_FSRLOS";
+                    output "Q{q}CH{ch}_FSSKPADDED";
+                    output "Q{q}CH{ch}_FSSKPDELETED";
+                }
+                for d in 0..2 {
+                    input "Q{q}D{d}_FCDERST";
+                    output "Q{q}D{d}_FSDE";
+                    output "Q{q}D{d}_FSDM";
+                }
+                input "Q{q}_FCDFECOEFF0"[8];
+                input "Q{q}_FCDFECOEFF1"[8];
+                input "Q{q}_FCDFECOEFF2"[8];
+                input "Q{q}_FCDFECOEFF3"[8];
+                input "Q{q}_FCDFECOEFF4"[8];
+                input "Q{q}_FCDFECOEFF5"[8];
+                input "Q{q}_FCDFESIGN1";
+                input "Q{q}_FCDFESIGN2";
+                input "Q{q}_FCDFESIGN3";
+                input "Q{q}_FCDFESIGN4";
+                input "Q{q}_FCDFESIGN5";
+                input "Q{q}_FCMPWRUP";
+                input "Q{q}_FCMRST";
+                input "Q{q}_FCSCANMODE";
+                input "Q{q}_FDDFECHSEL"[2];
+                output "Q{q}_FDDFEDATA"[10];
+                output "Q{q}_FDDFEERR"[10];
+                input "Q{q}_FIGRPFBRRCLK"[2];
+                input "Q{q}_FIGRPFBTWCLK"[2];
+                input "Q{q}_FIRXTESTCLK";
+                input "Q{q}_FISYNCCLK";
+                input "Q{q}_FITMRCLK";
+                input "Q{q}_FITXTESTCLK";
+                output "Q{q}_FOREFCLK2FPGA";
+                output "Q{q}_HSPLLLOL";
+                input "Q{q}_HSPLLPWRUP";
+                input "Q{q}_HSPLLREFCLKI";
+                input "Q{q}_HSPLLRST";
+                output "Q{q}_LSPLLLOL";
+                input "Q{q}_LSPLLPWRUP";
+                input "Q{q}_LSPLLREFCLKI";
+                input "Q{q}_LSPLLRST";
+            }
+
+            // direct to PLL
+            output Q0P_CORECLK;
+
+            input Q0P_CORERRIN;
+            output Q0P_CORERROUT;
+            output Q0P_DBGDATOUT[16];
+            output Q0P_FTLERROUT;
+            output Q0P_FUNCPWRSTATE[3];
+            output Q0P_FUNCSTS[4];
+            output Q0P_HALMSTACK;
+            output Q0P_HALMSTCOMPDES[128];
+            output Q0P_HALMSTCOMPEOP;
+            input Q0P_HALMSTCOMPRDY;
+            output Q0P_HALMSTCOMPSOP;
+            output Q0P_HALMSTCOMPVLD;
+            output Q0P_HALMSTRBVLD[8];
+            output Q0P_HALMSTREJ;
+            input Q0P_HALMSTREQ;
+            input Q0P_HALMSTREQATTR[3];
+            input Q0P_HALMSTREQDES[128];
+            input Q0P_HALMSTREQTPHPRESENT;
+            input Q0P_HALMSTREQTPHSTTAG[8];
+            input Q0P_HALMSTREQTPHTYPE[2];
+            output Q0P_HALMSTRERR;
+            output Q0P_HALMSTTAG[5];
+            input Q0P_HALMSTWBVLD[8];
+            input Q0P_HALMSTWDATVLD;
+            input Q0P_HALMSTWEOP;
+            input Q0P_HALMSTWERR;
+            output Q0P_HALMSTWRDY;
+            input Q0P_HALTGTACK;
+            input Q0P_HALTGTCAREQDES[128];
+            input Q0P_HALTGTCLNTCOMPID[16];
+            input Q0P_HALTGTCLNTCOMPIDEN;
+            input Q0P_HALTGTCOMPBVLD[8];
+            input Q0P_HALTGTCOMPDES[128];
+            input Q0P_HALTGTCOMPEOP;
+            input Q0P_HALTGTCOMPERR;
+            output Q0P_HALTGTCOMPRDY;
+            input Q0P_HALTGTCOMPSOP;
+            input Q0P_HALTGTCOMPVLD;
+            input Q0P_HALTGTNPREJ;
+            output Q0P_HALTGTREQ;
+            output Q0P_HALTGTREQDES[128];
+            output Q0P_HALTGTREQMBA[6];
+            output Q0P_HALTGTREQTPHPRESENT;
+            output Q0P_HALTGTREQTPHSTTAG[8];
+            output Q0P_HALTGTREQTPHTYPE[2];
+            output Q0P_HALTGTWBVLD[8];
+            output Q0P_HALTGTWDATVLD;
+            output Q0P_HALTGTWEOP;
+            input Q0P_HALTGTWRDY;
+            output Q0P_HALTSTREQATTR[3];
+            input Q0P_HOTRSTIN;
+            output Q0P_HOTRSTOUT;
+            output Q0P_INTACK;
+            input Q0P_INTAI;
+            output Q0P_INTAO;
+            input Q0P_INTBI;
+            output Q0P_INTBO;
+            input Q0P_INTCI;
+            output Q0P_INTCO;
+            input Q0P_INTDI;
+            output Q0P_INTDO;
+            input Q0P_INTPENDSTS;
+            output Q0P_LCLINT;
+            output Q0P_LNKDWNRSTOUT;
+            output Q0P_LNKPWRSTATE[4];
+            output Q0P_LNKSTS[2];
+            output Q0P_LTSSMSTATE[6];
+            output Q0P_MAXPYLDSIZE[3];
+            output Q0P_MAXREADREQSIZE[3];
+            input Q0P_MBISTCLK;
+            input Q0P_MBISTMODE;
+            input Q0P_MBISTRSTN;
+            input Q0P_MSIASRTINT[32];
+            input Q0P_MSIATTRIN[3];
+            output Q0P_MSIEN;
+            output Q0P_MSIMSGABRT;
+            output Q0P_MSIMSGSENT;
+            input Q0P_MSIREQTPHPRESENT;
+            input Q0P_MSIREQTPHSTTAG[8];
+            input Q0P_MSIREQTPHTYPE[2];
+            output Q0P_MSIVECCNT[3];
+            input Q0P_MSIXATTRIN[3];
+            output Q0P_MSIXEN;
+            output Q0P_MSIXMASK;
+            input Q0P_MSIXMSGADDR[64];
+            input Q0P_MSIXMSGDAT[32];
+            output Q0P_MSIXMSGSENT;
+            input Q0P_MSIXMSGVLD;
+            input Q0P_MSIXREQTPHPRESENT;
+            input Q0P_MSIXREQTPHSTTAG[8];
+            input Q0P_MSIXREQTPHTYPE[2];
+            output Q0P_NEGLNKWIDTH[2];
+            output Q0P_NEGSPEED;
+            output Q0P_NFTLERROUT;
+            input Q0P_PWRSTATECHNGACK;
+            output Q0P_PWRSTATECHNGINT;
+            output Q0P_RCBSTS;
+            input Q0P_RSTN;
+            input Q0P_SCANCLK;
+            input Q0P_SCANENA;
+            input Q0P_SCANI[27];
+            input Q0P_SCANMODE;
+            output Q0P_SCANO[25];
+            input Q0P_SCANRSTN;
+            output Q0P_TPHREQENABLE;
+            output Q0P_TPHSTMODE[3];
+            input Q0P_UNCORRERRIN;
+
+            for q in 1..4 {
+                for ch in 0..4 {
+                    input "Q{q}EA{ch}_CIRXFULL";
+                    input "Q{q}EA{ch}_CIRXIGNOREPKT";
+                    input "Q{q}EA{ch}_CITXDATA"[16];
+                    input "Q{q}EA{ch}_CITXDATAAVAIL";
+                    input "Q{q}EA{ch}_CITXEMPTY";
+                    input "Q{q}EA{ch}_CITXEOF";
+                    input "Q{q}EA{ch}_CITXFIFOCTRL";
+                    input "Q{q}EA{ch}_CITXFORCEERR";
+                    input "Q{q}EA{ch}_CITXLASTBYTEVLD";
+                    input "Q{q}EA{ch}_CITXPAUSREQ";
+                    input "Q{q}EA{ch}_CITXPAUSTIM"[16];
+                    output "Q{q}EA{ch}_CORXDATA"[16];
+                    output "Q{q}EA{ch}_CORXEOF";
+                    output "Q{q}EA{ch}_CORXERROR";
+                    output "Q{q}EA{ch}_CORXFIFOFULLERROR";
+                    output "Q{q}EA{ch}_CORXLASTBYTEVLD";
+                    output "Q{q}EA{ch}_CORXSTATEN";
+                    output "Q{q}EA{ch}_CORXSTATVEC"[8];
+                    output "Q{q}EA{ch}_CORXWRITE";
+                    output "Q{q}EA{ch}_COTXDISCFRM";
+                    output "Q{q}EA{ch}_COTXDONE";
+                    output "Q{q}EA{ch}_COTXREAD";
+                    output "Q{q}EA{ch}_COTXSTATEN";
+                    output "Q{q}EA{ch}_COTXSTATVEC"[8];
+                    input "Q{q}EA{ch}_GIIPGSHRINK";
+                    input "Q{q}EA{ch}_GINONPADRXDV";
+                    input "Q{q}EA{ch}_GISYNCCOL";
+                    input "Q{q}EA{ch}_GISYNCCRS";
+                    input "Q{q}EA{ch}_GISYNCNIBDRIB";
+                    input "Q{q}EA{ch}_GISYNCRXD"[8];
+                    input "Q{q}EA{ch}_GISYNCRXDV";
+                    input "Q{q}EA{ch}_GISYNCRXER";
+                    output "Q{q}EA{ch}_GODISCARDFCS";
+                    output "Q{q}EA{ch}_GOTXMACDATA"[8];
+                    output "Q{q}EA{ch}_GOTXMACERR";
+                    output "Q{q}EA{ch}_GOTXMACWR";
+                    input "Q{q}EA{ch}_KIRSTN";
+                    input "Q{q}EA{ch}_KIRXMACCLK";
+                    input "Q{q}EA{ch}_KIRXMACCLKENEXT";
+                    input "Q{q}EA{ch}_KIRXTXFECLK";
+                    input "Q{q}EA{ch}_KITXGMIILPBK";
+                    input "Q{q}EA{ch}_KITXMACCLK";
+                    input "Q{q}EA{ch}_KITXMACCLKENEXT";
+                    output "Q{q}EA{ch}_KOGBITEN";
+                    output "Q{q}EA{ch}_KORXMACCLKEN";
+                }
+            }
+            for q in 2..4 {
+                for ch in 0..4 {
+                    input "Q{q}EB{ch}_CIRXFULL";
+                    input "Q{q}EB{ch}_CIRXIGNOREPKT";
+                    input "Q{q}EB{ch}_CITXDATA"[8];
+                    input "Q{q}EB{ch}_CITXDATAAVAIL";
+                    input "Q{q}EB{ch}_CITXEMPTY";
+                    input "Q{q}EB{ch}_CITXEOF";
+                    input "Q{q}EB{ch}_CITXFIFOCTRL";
+                    input "Q{q}EB{ch}_CITXFORCEERR";
+                    input "Q{q}EB{ch}_CITXPAUSEREQ";
+                    input "Q{q}EB{ch}_CITXPAUSTIM"[16];
+                    input "Q{q}EB{ch}_GIIPGSHRINK";
+                    input "Q{q}EB{ch}_GINONPADRXDV";
+                    input "Q{q}EB{ch}_GISYNCCOL";
+                    input "Q{q}EB{ch}_GISYNCCRS";
+                    input "Q{q}EB{ch}_GISYNCNIBDRIB";
+                    input "Q{q}EB{ch}_GISYNCRXD"[8];
+                    input "Q{q}EB{ch}_GISYNCRXDV";
+                    input "Q{q}EB{ch}_GISYNCRXER";
+                    input "Q{q}EB{ch}_KIRSTN";
+                    input "Q{q}EB{ch}_KIRXMACCLK";
+                    input "Q{q}EB{ch}_KIRXMACCLKENEXT";
+                    input "Q{q}EB{ch}_KIRXTXFECLK";
+                    input "Q{q}EB{ch}_KITXGMIILPBK";
+                    input "Q{q}EB{ch}_KITXMACCLK";
+                    input "Q{q}EB{ch}_KITXMACCLKENEXT";
+                }
+                output "Q{q}X_CSO"[141];
+                output "Q{q}X_GSO"[44];
+                input "Q{q}X_IIGNOREPKT";
+                input "Q{q}X_IRESETN";
+                input "Q{q}X_IRXMACCLK";
+                input "Q{q}X_ITSMSGAVAIL";
+                input "Q{q}X_ITXBYTEN"[3];
+                input "Q{q}X_ITXDATA"[64];
+                input "Q{q}X_ITXDATAAVAIL";
+                input "Q{q}X_ITXEMPTY";
+                input "Q{q}X_ITXEOF";
+                input "Q{q}X_ITXFORCEERR";
+                input "Q{q}X_ITXMACCLK";
+                input "Q{q}X_ITXMSG"[64];
+                input "Q{q}X_ITXPAUSREQ";
+                input "Q{q}X_ITXPAUSTIM"[16];
+                output "Q{q}X_KSO"[20];
+                input "Q{q}X_TIBISTBANKSEL"[4];
+                input "Q{q}X_TIBISTRA"[8];
+                input "Q{q}X_TIBISTREN";
+                input "Q{q}X_TIBISTTDI"[36];
+                input "Q{q}X_TIBISTTESTMODE";
+                input "Q{q}X_TIBISTWA"[8];
+                input "Q{q}X_TIBISTWEN";
+                input "Q{q}X_TISCANEN";
+                input "Q{q}X_TISCANIN"[30];
+                input "Q{q}X_TISCANMODE";
+                input "Q{q}X_TISCANRSTN";
+                output "Q{q}X_TOSCANOUT"[29];
+            }
+
+            input Q1S_BAUDSUPPORT[5];
+            output Q1S_BUFFDEQACKADVPTRN;
+            output Q1S_DECRBUFCNTVECTOR[10];
+            input Q1S_ENABLETXFLOWCONTROLN;
+            output Q1S_FLOWFIFOACKON[4];
+            input Q1S_GEAR;
+            input Q1S_LNKCLK;
+            input Q1S_LNKCLKDIV2;
+            output Q1S_LNKCLKDIV2RSTN;
+            output Q1S_LNKCLKRSTN;
+            input Q1S_LNKDIV2RSTN;
+            input Q1S_LNKMCERXACKN;
+            output Q1S_LNKMCERXREQN;
+            output Q1S_LNKMCETXACKN;
+            input Q1S_LNKMCETXREQN;
+            input Q1S_LNKRSTN;
+            output Q1S_LNKTOUTPUTPORTENABLE;
+            input Q1S_LOOPBACK[3];
+            output Q1S_MASTERENABLE;
+            input Q1S_MGTA[22];
+            input Q1S_MGTCLK;
+            output Q1S_MGTCLKRSTN;
+            input Q1S_MGTDI[32];
+            input Q1S_MGTRDN;
+            input Q1S_MGTRSTN;
+            input Q1S_MGTWRN[4];
+            input Q1S_OLLMEFPTR[16];
+            output Q1S_OLLMMGTDI[32];
+            output Q1S_OLLMMGTINTN;
+            output Q1S_OLLMMGTRDYN;
+            input Q1S_OUTPUTUNRECOVERREVENTACKN;
+            output Q1S_OUTPUTUNRECOVERREVENTREQN;
+            input Q1S_PHYCLK;
+            input Q1S_PHYEMEVENTACKN;
+            output Q1S_PHYEMEVENTREQN;
+            input Q1S_PHYMSTB;
+            input Q1S_PHYRINITN;
+            input Q1S_PHYRSTN;
+            input Q1S_PHYTINITN;
+            input Q1S_PHYUSTB;
+            output Q1S_PORTDISABLE;
+            output Q1S_PORTNERRORDETECT[32];
+            input Q1S_RCVCLKSEL[4];
+            input Q1S_RECOVERRSTN;
+            output Q1S_RESPTIMEOUT[24];
+            input Q1S_RIOCLK;
+            input Q1S_RIORSTN;
+            output Q1S_RLNKBEATS[8];
+            output Q1S_RLNKD[64];
+            input Q1S_RLNKDSTDSCN;
+            input Q1S_RLNKDSTRDYN;
+            output Q1S_RLNKEOFN;
+            output Q1S_RLNKREM[3];
+            output Q1S_RLNKSOFN;
+            output Q1S_RLNKSRCRDYN;
+            output Q1S_RXINITN;
+            input Q1S_RXPFORCERETRYN;
+            input Q1S_RXSYNCCTRL[2];
+            input Q1S_SOFTRSTN;
+            output Q1S_STATUS[22];
+            input Q1S_SYSRSTIN;
+            output Q1S_SYSRSTON;
+            input Q1S_TIMBISTBANKSEL[4];
+            input Q1S_TIMBISTMODE;
+            input Q1S_TIMBISTRA[8];
+            input Q1S_TIMBISTRE;
+            input Q1S_TIMBISTSDI[36];
+            input Q1S_TIMBISTWA[8];
+            input Q1S_TIMBISTWE;
+            input Q1S_TISCANCLK;
+            input Q1S_TISCANENA;
+            input Q1S_TISCANI[30];
+            input Q1S_TISCANMODE;
+            output Q1S_TISCANO[30];
+            input Q1S_TISCANRSTN;
+            input Q1S_TLNKD[64];
+            output Q1S_TLNKDSTRDYN;
+            input Q1S_TLNKEOFN;
+            input Q1S_TLNKREM0;
+            input Q1S_TLNKREM1;
+            input Q1S_TLNKREM2;
+            input Q1S_TLNKSOFN;
+            input Q1S_TLNKSRCDSCN;
+            input Q1S_TLNKSRCRDYN;
+            output Q1S_TOMBISTDO[36];
+            input Q1S_TPORTCHARISK[8];
+            input Q1S_TPORTENABLEN;
+            input Q1S_TPORTTDI[64];
+            output Q1S_TXENQUEUEFLOWN[4];
+            output Q1S_TXFLOWCTRLSTATE[5];
+            output Q1S_TXINITN;
+            output Q1S_TXLANESILENCECH[4];
+            input Q1S_TXSYNCCTRL[2];
+            input Q1S_WM0[4];
+            input Q1S_WM1[4];
+            input Q1S_WM2[4];
+        }
     }
 
     if variant crosslink {
@@ -1535,6 +1966,9 @@ target_defs! {
 
     if variant [ecp3, machxo2] {
         wire IMUX_DCC_CLKI[6]: mux;
+    } else if variant ecp4 {
+        wire IMUX_DCC_CLKI[16]: mux;
+        wire OUT_DCC_CLKO[16]: mux;
     } else if variant crosslink {
         wire IMUX_DCC_CLKI[8]: mux;
         wire OUT_DCC_CLKO[8]: mux;
@@ -1542,6 +1976,12 @@ target_defs! {
     if variant [ecp, xp, ecp2, ecp2m, xp2, ecp3] {
         wire IMUX_DCS_CLKA[2]: mux;
         wire IMUX_DCS_CLKB[2]: mux;
+    } else if variant ecp4 {
+        wire IMUX_DCS_CLKA[2]: mux;
+        wire IMUX_DCS_CLKB[2]: mux;
+        wire IMUX_DCS_CLKC[2]: mux;
+        wire IMUX_DCS_CLKD[2]: mux;
+        wire OUT_DCS_DCSOUT[2]: bel;
     } else if variant crosslink {
         wire IMUX_DCS_CLKA[1]: mux;
         wire IMUX_DCS_CLKB[1]: mux;
@@ -1572,6 +2012,11 @@ target_defs! {
     } else if variant ecp4 {
         region_slot ECLK;
         wire ECLK[4]: regional ECLK;
+        wire IMUX_ECLKSYNC_ECLKI[16]: mux;
+        wire OUT_ECLKSYNC_ECLKO[16]: bel;
+        wire OUT_ECLKBRIDGECS_ECSOUT[2]: bel;
+        wire OUT_BRGECLKSYNC_ECLKO[2]: bel;
+        wire BRGECLK[4]: mux;
     }
 
     if variant machxo {
@@ -1626,6 +2071,7 @@ target_defs! {
         wire IMUX_DQS_DDRDEL: mux;
         wire OUT_DQS_CRUCLK: regional DQS;
         wire OUT_DQS_NEXTCLK: regional DQS;
+        wire OUT_DQS_DIVCLK: bel;
 
         // aliased to one of the below global wires
         wire OUT_DDRDLL_DDRDEL: bel;
@@ -1686,6 +2132,14 @@ target_defs! {
         wire OUT_PLL_CLKOS[1]: bel;
         wire OUT_PLL_CLKOS2[1]: bel;
         wire OUT_PLL_CLKOS3[1]: bel;
+    } else if variant ecp4 {
+        wire IMUX_PLL_CLKI[4]: mux;
+        wire IMUX_PLL_CLKFB[2]: mux;
+        wire OUT_PLL_CLKINTFB[2]: bel;
+        wire OUT_PLL_CLKOP[2]: bel;
+        wire OUT_PLL_CLKOS[2]: bel;
+        wire OUT_PLL_CLKOS2[2]: bel;
+        wire OUT_PLL_CLKOS3[2]: bel;
     }
 
     if variant [ecp2, ecp2m, ecp3] {
@@ -1715,6 +2169,7 @@ target_defs! {
     } else if variant ecp4 {
         wire IMUX_CLKDIV_CLKI[4]: mux;
         wire OUT_CLKDIV_CDIVX[4]: bel;
+        wire OUT_CLKDIV_CDIV1[4]: bel;
     } else if variant ecp5 {
         wire IMUX_CLKDIV_CLKI[2]: mux;
         wire OUT_CLKDIV_CDIVX[2]: bel;
@@ -1728,6 +2183,19 @@ target_defs! {
     if variant [ecp2m, ecp3] {
         wire OUT_SERDES_FF_TX_F_CLK: bel;
         wire OUT_SERDES_FF_TX_H_CLK: bel;
+    } else if variant ecp4 {
+        wire OUT_SERDES_Q0_FOPCLKA[4]: bel;
+        wire OUT_SERDES_Q1_FOPCLKA[4]: bel;
+        wire OUT_SERDES_Q2_FOPCLKA[4]: bel;
+        wire OUT_SERDES_Q3_FOPCLKA[4]: bel;
+        wire OUT_SERDES_Q0_FOPCLKB[4]: bel;
+        wire OUT_SERDES_Q1_FOPCLKB[4]: bel;
+        wire OUT_SERDES_Q2_FOPCLKB[4]: bel;
+        wire OUT_SERDES_Q3_FOPCLKB[4]: bel;
+        wire OUT_SERDES_Q0P_CORECLK: bel;
+    } else if variant ecp5 {
+        wire OUT_SERDES_FF_TX_PCLK[2]: bel;
+        wire OUT_SERDES_FF_RX_PCLK[2]: bel;
     }
 
     if variant [machxo2, ecp4, ecp5] {
@@ -2180,7 +2648,7 @@ target_defs! {
                 bel SERDES;
             }
         } else if variant ecp4 {
-            bel_slot SERDES: legacy;
+            bel_slot SERDES: SERDES;
             tile_class SERDES1 {
                 cell CELL[62];
                 bel SERDES;
@@ -2387,13 +2855,22 @@ target_defs! {
                 bel DQSDLL;
             }
         } else if variant ecp4 {
-            bel_slot PLL[2]: legacy;
-            bel_slot PLLREFCS[2]: legacy;
+            bel_slot PLL[2]: PLL;
             tile_class PLL_SW, PLL_SE, PLL_NW, PLL_NE {
                 cell CELL[4];
+                cell IO_IN[2];
+                cell IO_WE;
+                if tile_class [PLL_NW, PLL_NE] {
+                    cell IO_N[2];
+                }
+                if tile_class PLL_SW {
+                    cell IO_FB[2];
+                    cell SERDES;
+                }
+
+                switchbox BEL_INT;
                 for i in 0..2 {
                     bel PLL[i];
-                    bel PLLREFCS[i];
                 }
             }
 
@@ -3044,16 +3521,17 @@ target_defs! {
                 bel CLKTEST;
             }
         } else if variant ecp4 {
-            bel_slot CLK_ROOT: legacy;
-            bel_slot CLKTEST: legacy;
-            bel_slot DCC_SW[1]: legacy;
-            bel_slot DCC_SE[1]: legacy;
-            bel_slot DCC_NW[1]: legacy;
-            bel_slot DCC_NE[1]: legacy;
-            bel_slot DCS[2]: legacy;
+            bel_slot CLKTEST: CLKTEST;
+            bel_slot DCC_SW[1]: DCC;
+            bel_slot DCC_SE[1]: DCC;
+            bel_slot DCC_NW[1]: DCC;
+            bel_slot DCC_NE[1]: DCC;
+            bel_slot DCS[2]: DCS;
             tile_class CLK_ROOT {
                 cell ROOT_SW, ROOT_SE, ROOT_NW, ROOT_NE;
-                bel CLK_ROOT;
+                cell CENTER;
+                cell CLK_W, CLK_E, CLK_S, CLK_N;
+                switchbox CLK_INT;
                 bel CLKTEST;
                 bel DCC_SW[0];
                 bel DCC_SE[0];
@@ -3064,14 +3542,13 @@ target_defs! {
                 }
             }
 
-            bel_slot CLK_EDGE: legacy;
-            bel_slot CLKTEST_ECLK: legacy;
-            bel_slot DCC[16]: legacy;
+            bel_slot CLKTEST_ECLK: CLKTEST;
+            bel_slot DCC[16]: DCC;
             bel_slot DLLDEL[8]: DLLDEL;
             bel_slot CLKDIV[4]: CLKDIV;
-            bel_slot ECLKSYNC[16]: legacy;
-            bel_slot BRGECLKSYNC[2]: legacy;
-            bel_slot ECLKBRIDGECS[2]: legacy;
+            bel_slot ECLKSYNC[16]: ECLKSYNC;
+            bel_slot BRGECLKSYNC[2]: ECLKSYNC;
+            bel_slot ECLKBRIDGECS[2]: ECLKBRIDGECS;
             tile_class
                 CLK_N_S, CLK_N_M, CLK_N_L,
                 CLK_W_S, CLK_W_M, CLK_W_L,
@@ -3083,15 +3560,30 @@ target_defs! {
                 } else {
                     cell CELL[10];
                 }
+                cell ROOT;
+                cell PLL[2];
                 if tile_class [CLK_N_M, CLK_W_M, CLK_E_M] {
                     cell FABRIC_IN[2];
                 } else if tile_class [CLK_N_L, CLK_W_L, CLK_E_L] {
                     cell FABRIC_IN[4];
                 }
+                if tile_class [CLK_W_S, CLK_E_S] {
+                    cell DQS_S[3], DQS_N[3];
+                } else if tile_class [CLK_W_M, CLK_E_M, CLK_W_L, CLK_E_L] {
+                    cell DQS_S[6], DQS_N[5];
+                } else if tile_class CLK_N_S {
+                    cell DQS_W[3], DQS_E[3];
+                } else if tile_class CLK_N_M {
+                    cell DQS_W[5], DQS_E[5];
+                } else if tile_class CLK_N_L {
+                    cell DQS_W[7], DQS_E[7];
+                }
+                if tile_class CLK_E_L {
+                    cell SERDES;
+                }
 
                 switchbox CLK_INT;
                 bel CLKTEST;
-                bel CLK_EDGE;
                 bel CLKTEST_ECLK;
                 if tile_class [CLK_N_S, CLK_N_M, CLK_N_L] {
                     for i in 0..16 {
@@ -3132,9 +3624,11 @@ target_defs! {
                 }
             }
 
-            bel_slot PCSCLKDIV[4]: legacy;
+            bel_slot PCSCLKDIV[4]: PCSCLKDIV;
             tile_class CLK_S_S, CLK_S_M, CLK_S_L {
                 cell CELL[2];
+                cell SERDES;
+                switchbox CLK_INT;
                 if tile_class CLK_S_S {
                     bel PCSCLKDIV[0];
                 } else if tile_class CLK_S_M {
@@ -3148,7 +3642,6 @@ target_defs! {
                         bel PCSCLKDIV[i];
                     }
                 }
-                bel CLK_EDGE;
                 bel CLKTEST;
                 for i in 0..16 {
                     bel DCC[i];

@@ -484,6 +484,7 @@ impl Expander<'_, '_> {
     }
 
     fn fill_pll_ecp4(&mut self) {
+        let has_bank0 = self.chip.special_loc.contains_key(&SpecialLocKey::Bc(0));
         for (loc, bcrd) in self.chip.plls() {
             if loc.idx != 0 {
                 continue;
@@ -495,29 +496,79 @@ impl Expander<'_, '_> {
                 DirHV::NW => tcls::PLL_NW,
                 DirHV::NE => tcls::PLL_NE,
             };
-            match loc.quad.v {
-                DirV::S => {
-                    self.egrid.add_tile(
-                        cell,
-                        kind,
-                        &[
-                            cell.delta(
-                                match loc.quad.h {
-                                    DirH::W => 1,
-                                    DirH::E => -1,
-                                },
-                                0,
-                            ),
-                            cell,
-                            cell.delta(0, 1),
-                            cell.delta(0, 2),
-                        ],
-                    );
-                }
-                DirV::N => {
-                    self.egrid.add_tile_sn(cell, kind, 3, 4);
-                }
+            let mut tcells = match loc.quad.v {
+                DirV::S => vec![
+                    cell.delta(
+                        match loc.quad.h {
+                            DirH::W => 1,
+                            DirH::E => -1,
+                        },
+                        0,
+                    ),
+                    cell,
+                    cell.delta(0, 1),
+                    cell.delta(0, 2),
+                ],
+                DirV::N => cell.delta(0, -3).cells_n(4),
+            };
+            tcells.extend([
+                self.chip
+                    .get_io_cell(SpecialIoKey::Pll(PllPad::PllIn0, loc)),
+                self.chip
+                    .get_io_cell(SpecialIoKey::Pll(PllPad::PllIn0, PllLoc { idx: 1, ..loc })),
+                self.chip.get_io_cell(SpecialIoKey::Clock(
+                    loc.quad.h.into(),
+                    match loc.quad.v {
+                        DirV::S => 0,
+                        DirV::N => 2,
+                    },
+                )),
+            ]);
+            if loc.quad.v == DirV::N {
+                tcells.extend([
+                    self.chip.get_io_cell(SpecialIoKey::Clock(
+                        Dir::N,
+                        match loc.quad.h {
+                            DirH::W => {
+                                if has_bank0 {
+                                    0
+                                } else {
+                                    2
+                                }
+                            }
+                            DirH::E => {
+                                if has_bank0 {
+                                    6
+                                } else {
+                                    4
+                                }
+                            }
+                        },
+                    )),
+                    self.chip.get_io_cell(SpecialIoKey::Clock(
+                        Dir::N,
+                        match loc.quad.h {
+                            DirH::W => 2,
+                            DirH::E => 4,
+                        },
+                    )),
+                ]);
             }
+            if kind == tcls::PLL_SW {
+                tcells.extend([
+                    self.chip.get_io_cell(SpecialIoKey::Pll(PllPad::PllFb, loc)),
+                    self.chip
+                        .get_io_cell(SpecialIoKey::Pll(PllPad::PllFb, PllLoc { idx: 1, ..loc })),
+                    self.chip
+                        .special_loc
+                        .get(&SpecialLocKey::SerdesSingle)
+                        .or(self.chip.special_loc.get(&SpecialLocKey::SerdesDouble))
+                        .or(self.chip.special_loc.get(&SpecialLocKey::SerdesTriple))
+                        .copied()
+                        .unwrap(),
+                ]);
+            }
+            self.egrid.add_tile(cell, kind, &tcells);
         }
     }
 
@@ -2992,6 +3043,15 @@ impl Expander<'_, '_> {
             self.egrid[cell].region_root[rslots::GLOBAL] = self.chip.clk_root();
         }
 
+        let cell_serdes = self
+            .chip
+            .special_loc
+            .get(&SpecialLocKey::SerdesSingle)
+            .or(self.chip.special_loc.get(&SpecialLocKey::SerdesDouble))
+            .or(self.chip.special_loc.get(&SpecialLocKey::SerdesTriple))
+            .copied()
+            .unwrap();
+
         let num_quads = if self
             .chip
             .special_loc
@@ -3034,10 +3094,32 @@ impl Expander<'_, '_> {
                 self.chip.special_loc[&SpecialLocKey::Bc(2)].delta(1, 0),
             ]);
         }
+        tcells.extend([
+            self.chip.clk_root(),
+            self.chip.bel_pll(DirHV::NW, 0).cell,
+            self.chip.bel_pll(DirHV::NE, 0).cell,
+        ]);
         for i in 0..4 {
             if let Some(&cell) = self.chip.special_loc.get(&SpecialLocKey::PclkIn(Dir::N, i)) {
                 tcells.push(cell);
             }
+        }
+        {
+            let mut quads_w = vec![];
+            let mut quads_e = vec![];
+            for (col, cd) in &self.chip.columns {
+                let quad = cell.with_cr(col, self.chip.row_n());
+                if cd.io_n == IoGroupKind::QuadDqs {
+                    if col < self.chip.col_clk {
+                        quads_w.push(quad);
+                    } else {
+                        quads_e.push(quad);
+                    }
+                }
+            }
+            quads_e.reverse();
+            tcells.extend(quads_w);
+            tcells.extend(quads_e);
         }
         self.egrid.add_tile(cell, kind_n, &tcells);
         if has_bank0 {
@@ -3086,22 +3168,57 @@ impl Expander<'_, '_> {
             }
         }
 
-        let cell = self.die.cell(self.chip.col_w(), self.chip.row_clk);
-        let mut tcells = cell.delta(0, -5).cells_n(10);
-        for i in 0..4 {
-            if let Some(&cell) = self.chip.special_loc.get(&SpecialLocKey::PclkIn(Dir::W, i)) {
-                tcells.push(cell);
+        for (edge, kind) in [(DirH::W, kind_w), (DirH::E, kind_e)] {
+            let cell = self.die.cell(self.chip.col_edge(edge), self.chip.row_clk);
+            let mut tcells = cell.delta(0, -5).cells_n(10);
+            tcells.extend([
+                self.chip.clk_root(),
+                self.chip.bel_pll(DirV::S & edge, 0).cell,
+                self.chip.bel_pll(DirV::N & edge, 0).cell,
+            ]);
+            for i in 0..4 {
+                if let Some(&cell) = self
+                    .chip
+                    .special_loc
+                    .get(&SpecialLocKey::PclkIn(edge.into(), i))
+                {
+                    tcells.push(cell);
+                }
             }
-        }
-        self.egrid.add_tile(cell, kind_w, &tcells);
-        let cell = self.die.cell(self.chip.col_e(), self.chip.row_clk);
-        let mut tcells = cell.delta(0, -5).cells_n(10);
-        for i in 0..4 {
-            if let Some(&cell) = self.chip.special_loc.get(&SpecialLocKey::PclkIn(Dir::E, i)) {
-                tcells.push(cell);
+            let mut quads_s = vec![];
+            let mut quads_n = vec![];
+            for (row, rd) in &self.chip.rows {
+                let io = match edge {
+                    DirH::W => rd.io_w,
+                    DirH::E => rd.io_e,
+                };
+                let quad = match io {
+                    IoGroupKind::QuadDqs => Some(cell.with_cr(self.chip.col_edge(edge), row)),
+                    IoGroupKind::QuadEbrDqs | IoGroupKind::EbrDqs => Some(cell.with_cr(
+                        match edge {
+                            DirH::W => self.chip.col_w() + 1,
+                            DirH::E => self.chip.col_e() - 1,
+                        },
+                        row,
+                    )),
+                    _ => None,
+                };
+                if let Some(quad) = quad {
+                    if row < self.chip.row_clk {
+                        quads_s.push(quad);
+                    } else {
+                        quads_n.push(quad);
+                    }
+                }
             }
+            quads_n.reverse();
+            tcells.extend(quads_s);
+            tcells.extend(quads_n);
+            if kind == tcls::CLK_E_L {
+                tcells.push(cell_serdes);
+            }
+            self.egrid.add_tile(cell, kind, &tcells);
         }
-        self.egrid.add_tile(cell, kind_e, &tcells);
 
         for (col, dx) in [(self.chip.col_w(), 1), (self.chip.col_e(), -1)] {
             for cell in self.egrid.column(self.die, col) {
@@ -3128,7 +3245,7 @@ impl Expander<'_, '_> {
         }
 
         let cell = self.die.cell(self.chip.col_clk, self.chip.row_s());
-        let mut tcells = vec![cell.delta(-1, 0), cell];
+        let mut tcells = vec![cell.delta(-1, 0), cell, cell_serdes];
         for i in 0..4 {
             if let Some(&cell) = self.chip.special_loc.get(&SpecialLocKey::PclkIn(Dir::S, i)) {
                 tcells.push(cell);
@@ -3160,6 +3277,11 @@ impl Expander<'_, '_> {
                 cell.with_cr(self.chip.col_clk, row_s),
                 cell.with_cr(self.chip.col_clk - 1, row_n),
                 cell.with_cr(self.chip.col_clk, row_n),
+                cell,
+                cell.with_col(self.chip.col_w()),
+                cell.with_col(self.chip.col_e()),
+                cell.with_row(self.chip.row_s()),
+                cell.with_row(self.chip.row_n()),
             ],
         );
     }

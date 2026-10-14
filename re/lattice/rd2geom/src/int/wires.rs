@@ -878,6 +878,10 @@ impl ChipContext<'_> {
             assert_eq!(bcrd, bcrd_out);
             return Some(out.clone());
         }
+        if let Some(wires) = self.io_int_wires.get(&wire) {
+            let w = self.wire_to_tw(bcrd, wires[0], None).unwrap();
+            return Some(BTreeSet::from([w]));
+        }
         let mut out_wires = BTreeSet::new();
         for wtn in self.pips_fwd.get(&wire).cloned().into_iter().flatten() {
             if let Some(&(bcrd_out, _, ref out)) = self.hybrid_out.get(&wtn) {

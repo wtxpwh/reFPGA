@@ -4,8 +4,8 @@ use prjcombine_ecp::{
 };
 use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
-    db::{CellSlotId, CellSlotIdExt, LegacyBel, WireSlotIdExt},
-    dir::{Dir, DirHV, DirV},
+    db::{CellSlotId, CellSlotIdExt, WireSlotIdExt},
+    dir::{Dir, DirHV},
     grid::{BelCoord, CellCoord, DieIdExt},
 };
 
@@ -131,192 +131,167 @@ impl ChipContext<'_> {
         let cell_n = Chip::DIE.cell(self.chip.col_clk, self.chip.row_n());
         let cell_w = Chip::DIE.cell(self.chip.col_w(), self.chip.row_clk);
         let cell_e = Chip::DIE.cell(self.chip.col_e(), self.chip.row_clk);
-        for (edge, bank_idx) in [
-            (Dir::N, 0),
-            (Dir::N, 1),
-            (Dir::N, 2),
-            (Dir::N, 3),
-            (Dir::W, 0),
-            (Dir::W, 1),
-            (Dir::E, 0),
-            (Dir::E, 1),
-        ] {
-            for eclk_idx in 0..4 {
-                let (bank, cell, cell_tile) = match edge {
-                    Dir::N => (bank_idx, cell_n.delta(-2 + (bank_idx as i32), 0), cell_n),
-                    Dir::W => (
-                        5 - bank_idx,
-                        cell_w.delta(0, -1 + (bank_idx as i32)),
-                        cell_w,
-                    ),
-                    Dir::E => (
-                        6 + bank_idx,
-                        cell_e.delta(0, -1 + (bank_idx as i32)),
-                        cell_e,
-                    ),
+        for (edge, num_banks) in [(Dir::N, 4), (Dir::W, 2), (Dir::E, 2)] {
+            let cell_tile = match edge {
+                Dir::N => cell_n,
+                Dir::W => cell_w,
+                Dir::E => cell_e,
+                Dir::S => unreachable!(),
+            };
+            let bcrd_int = cell_tile.bel(bslots::CLK_INT);
+            let ci_base = if self.edev[self.edev.bel_tile(bcrd_int)].class == tcls::CLK_N_L {
+                9
+            } else {
+                5
+            };
+
+            for bank_idx in 0..num_banks {
+                let (bank, cell) = match edge {
+                    Dir::N => (bank_idx, cell_n.delta(-2 + (bank_idx as i32), 0)),
+                    Dir::W => (5 - bank_idx, cell_w.delta(0, -1 + (bank_idx as i32))),
+                    Dir::E => (6 + bank_idx, cell_e.delta(0, -1 + (bank_idx as i32))),
                     Dir::S => unreachable!(),
                 };
-                let bcrd = cell_tile.bel(bslots::ECLKSYNC[bank_idx * 4 + eclk_idx]);
-                if !self.edev.has_bel(bcrd) {
+                if !self
+                    .chip
+                    .special_loc
+                    .contains_key(&SpecialLocKey::Bc(bank as u32))
+                {
                     continue;
                 }
-                self.name_bel(bcrd, [format!("ECLKSYNC{eclk_idx}_BK{bank}")]);
-                let mut bel = LegacyBel::default();
-
-                let stop = self.rc_io_wire(cell, &format!("JSTOP_ECLKSYNC{eclk_idx}"));
-                self.add_bel_wire(bcrd, "STOP", stop);
-                bel.pins
-                    .insert("STOP".into(), self.xlat_int_wire(bcrd, stop));
-
-                let eclki = self.rc_io_wire(cell, &format!("ECLKI_ECLKSYNC{eclk_idx}"));
-                self.add_bel_wire(bcrd, "ECLKI", eclki);
-                let eclki_in = self.claim_single_in(eclki);
-                self.add_bel_wire(bcrd, "ECLKI_IN", eclki_in);
-
-                let eclki_int = self.rc_io_wire(cell, &format!("JECLKCIB{eclk_idx}"));
-                self.add_bel_wire(bcrd, "ECLKI_INT", eclki_int);
-                self.claim_pip(eclki_in, eclki_int);
-                bel.pins
-                    .insert("ECLKI".into(), self.xlat_int_wire(bcrd, eclki_int));
-
-                for i in 0..8 {
-                    if !self.edev.has_bel(bcrd.bel(bslots::DLLDEL[i])) {
-                        continue;
-                    }
-                    let name = match edge {
-                        Dir::N => ["00", "01", "10", "11", "20", "21", "30", "31"][i],
-                        Dir::W => ["60", "61", "70", "71"][i],
-                        Dir::E => ["50", "51", "40", "41"][i],
-                        Dir::S => unreachable!(),
-                    };
-                    let pclk = self.rc_io_wire(cell, &format!("JPCLKT{name}"));
-                    self.add_bel_wire_no_claim(bcrd, format!("IO_IN_{edge}{i}"), pclk);
-                    self.claim_pip(eclki_in, pclk);
-                    if eclk_idx == 0 {
-                        self.claim_node(pclk);
-                        let cell_dlldel = match edge {
-                            Dir::N => bcrd.cell.delta(-4 + (i as i32), 0),
-                            Dir::W => bcrd.cell.delta(0, -2 + (i as i32)),
-                            Dir::E => bcrd.cell.delta(0, -2 + ((i ^ 1) as i32)),
-                            Dir::S => unreachable!(),
-                        };
-                        let wire_dlldel = self.rc_io_wire(cell_dlldel, "JINCK");
-                        self.claim_pip(pclk, wire_dlldel);
-                    }
+                for eclk_idx in 0..4 {
+                    let wname = self.rc_io_wire(cell, &format!("JECLKO_ECLKSYNC{eclk_idx}"));
+                    self.claim_node(wname);
+                    self.bind_wire(
+                        wname,
+                        cell_tile.wire(wires::OUT_ECLKSYNC_ECLKO[bank_idx * 4 + eclk_idx]),
+                    );
                 }
-
-                let plls = match edge {
-                    Dir::W => [DirHV::SW, DirHV::NW],
-                    Dir::E => [DirHV::SE, DirHV::NE],
-                    Dir::N => [DirHV::NW, DirHV::NE],
+            }
+            for bank_idx in 0..num_banks {
+                let (bank, cell) = match edge {
+                    Dir::N => (bank_idx, cell_n.delta(-2 + (bank_idx as i32), 0)),
+                    Dir::W => (5 - bank_idx, cell_w.delta(0, -1 + (bank_idx as i32))),
+                    Dir::E => (6 + bank_idx, cell_e.delta(0, -1 + (bank_idx as i32))),
                     Dir::S => unreachable!(),
                 };
-                for hv in plls {
-                    let corner = match hv {
-                        DirHV::SW => "LL",
-                        DirHV::SE => "LR",
-                        DirHV::NW => "UL",
-                        DirHV::NE => "UR",
+                if !self
+                    .chip
+                    .special_loc
+                    .contains_key(&SpecialLocKey::Bc(bank as u32))
+                {
+                    continue;
+                }
+                {
+                    let mut ex = self.extract_switchbox(bcrd_int);
+                    ex.cell(cell);
+                    for eclk_idx in 0..4 {
+                        let ci_eclk = match bank {
+                            0 => 18,
+                            3 => 19,
+                            1..3 => ci_base + bank - 2,
+                            _ => ci_base + bank_idx - 1,
+                        };
+                        let eclki = ex
+                            .ctx
+                            .rc_io_wire(cell, &format!("ECLKI_ECLKSYNC{eclk_idx}"));
+                        let eclki_in = ex.ctx.find_single_in(eclki);
+                        ex.output_bind(
+                            eclki_in,
+                            wires::IMUX_ECLKSYNC_ECLKI[bank_idx * 4 + eclk_idx].cell(ci_base),
+                        )
+                        .input_xlat_rc_io(format!("JECLKCIB{eclk_idx}"))
+                        .input_xlat_rc_io(format!("JBRGECLK{eclk_idx}"))
+                        .input_xlat_rc_io(format!("SYNCECLK{eclk_idx}"));
+
+                        let wire = wires::ECLK[eclk_idx].cell(ci_eclk);
+                        let wname = ex.ctx.rc_io_wire(cell, &format!("JECLK{eclk_idx}"));
+                        let outs = ex.ctx.xlat_output(ex.bcrd, wname);
+                        assert_eq!(outs.len(), 1);
+                        let out = outs.into_iter().next().unwrap();
+                        ex.permabuf(out, wire).output_bind(wname, wire);
+                        if edge == Dir::N {
+                            if bank_idx != 0
+                                && ex
+                                    .ctx
+                                    .edev
+                                    .has_bel(bcrd_int.bel(bslots::ECLKSYNC[(bank_idx - 1) * 4]))
+                            {
+                                ex.input_xlat_rc_io(format!("JPREVECLK{eclk_idx}"));
+                            }
+                            if bank_idx != 3
+                                && ex
+                                    .ctx
+                                    .edev
+                                    .has_bel(bcrd_int.bel(bslots::ECLKSYNC[(bank_idx + 1) * 4]))
+                            {
+                                ex.input_xlat_rc_io(format!("JNEXTECLK{eclk_idx}"));
+                            }
+                        } else {
+                            ex.input_xlat_rc_io(format!("JNEIGHBORECLK{eclk_idx}"));
+                        }
+                    }
+                    for i in 0..8 {
+                        if !ex.ctx.edev.has_bel(bcrd_int.bel(bslots::DLLDEL[i])) {
+                            continue;
+                        }
+                        let name = match edge {
+                            Dir::N => ["00", "01", "10", "11", "20", "21", "30", "31"][i],
+                            Dir::W => ["60", "61", "70", "71"][i],
+                            Dir::E => ["50", "51", "40", "41"][i],
+                            Dir::S => unreachable!(),
+                        };
+                        ex.input_xlat_rc_io(format!("JPCLKT{name}"));
+                    }
+                    let plls = match edge {
+                        Dir::W => [DirHV::SW, DirHV::NW],
+                        Dir::E => [DirHV::SE, DirHV::NE],
+                        Dir::N => [DirHV::NW, DirHV::NE],
+                        Dir::S => unreachable!(),
                     };
-                    for i in 0..2 {
-                        for pin in ["CLKOP", "CLKOS"] {
-                            let wire = self.rc_io_wire(cell, &format!("J{corner}CPLL{i}{pin}"));
-                            self.add_bel_wire_no_claim(bcrd, format!("PLL_IN_{hv}{i}_{pin}"), wire);
-                            self.claim_pip(eclki_in, wire);
-                            if eclk_idx == 0 {
-                                self.claim_node(wire);
-                                let cell_pll = cell.with_cr(
-                                    self.chip.col_edge(hv.h),
-                                    match hv.v {
-                                        DirV::S => self.chip.row_s() + (2 - i),
-                                        DirV::N => self.chip.row_n() - (1 + i),
-                                    },
-                                );
-                                let wire_pll = self.rc_wire(cell_pll, &format!("J{pin}_PLL"));
-                                self.claim_pip(wire, wire_pll);
+                    for hv in plls {
+                        let corner = match hv {
+                            DirHV::SW => "LL",
+                            DirHV::SE => "LR",
+                            DirHV::NW => "UL",
+                            DirHV::NE => "UR",
+                        };
+                        for i in 0..2 {
+                            for pin in ["CLKOP", "CLKOS"] {
+                                ex.input_xlat_rc_io(format!("J{corner}CPLL{i}{pin}"));
                             }
                         }
                     }
                 }
-
-                let eclko = self.rc_io_wire(cell, &format!("JECLKO_ECLKSYNC{eclk_idx}"));
-                self.add_bel_wire(bcrd, "ELCKO", eclko);
-                self.claim_pip(eclko, eclki);
-
-                let eclko_out = self.rc_io_wire(cell, &format!("SYNCECLK{eclk_idx}"));
-                self.add_bel_wire(bcrd, "ELCKO_OUT", eclko_out);
-                self.claim_pip(eclko_out, eclko);
-
-                let eclk_brg = self.rc_io_wire(cell, &format!("JBRGECLK{eclk_idx}"));
-                self.add_bel_wire(bcrd, "ECLK_BRG", eclk_brg);
-                let cell_clk = self.chip.bel_clk_root().cell.delta(-1, 0);
-                let wire_brg = self.rc_wire(cell_clk, &format!("JBRGECLK{eclk_idx}"));
-                self.claim_pip(eclk_brg, wire_brg);
-
-                let eclk_mux = self.rc_io_wire(cell, &format!("JECLK{eclk_idx}"));
-                self.add_bel_wire(bcrd, "ECLK_MUX", eclk_mux);
-                self.claim_pip(eclk_mux, eclko_out);
-                self.claim_pip(eclk_mux, eclk_brg);
-                bel.pins
-                    .insert("ECLK".into(), self.xlat_int_wire(bcrd, eclk_mux));
-
-                let eclk = self.pips_fwd[&eclk_mux]
-                    .iter()
-                    .copied()
-                    .find(|wn| self.naming.strings[wn.suffix].starts_with("BANK"))
-                    .unwrap();
-                self.add_bel_wire(bcrd, "ECLK", eclk);
-                self.claim_pip(eclk, eclk_mux);
-
-                let cell_eclk = match bank {
-                    0 => self.chip.special_loc[&SpecialLocKey::Bc(1)].delta(1, 0),
-                    3 => self.chip.special_loc[&SpecialLocKey::Bc(2)].delta(1, 0),
-                    _ => cell,
-                };
-                self.bind_wire(eclk, cell_eclk.wire(wires::ECLK[eclk_idx]));
-
-                if edge == Dir::N {
-                    if bank_idx != 0
-                        && self
-                            .edev
-                            .has_bel(bcrd.bel(bslots::ECLKSYNC[(bank_idx - 1) * 4]))
-                    {
-                        let cell_prev = cell.delta(-1, 0);
-                        let eclk_prev = self.rc_io_wire(cell, &format!("JPREVECLK{eclk_idx}"));
-                        self.add_bel_wire(bcrd, "ECLK_PREV", eclk_prev);
-                        self.claim_pip(eclk_mux, eclk_prev);
-                        let wire_prev =
-                            self.rc_io_wire(cell_prev, &format!("JECLKO_ECLKSYNC{eclk_idx}"));
-                        self.claim_pip(eclk_prev, wire_prev);
+                for eclk_idx in 0..4 {
+                    let bcrd = cell_tile.bel(bslots::ECLKSYNC[bank_idx * 4 + eclk_idx]);
+                    if !self.edev.has_bel(bcrd) {
+                        continue;
                     }
-                    if bank_idx != 3
-                        && self
-                            .edev
-                            .has_bel(bcrd.bel(bslots::ECLKSYNC[(bank_idx + 1) * 4]))
-                    {
-                        let cell_next = cell.delta(1, 0);
-                        let eclk_next = self.rc_io_wire(cell, &format!("JNEXTECLK{eclk_idx}"));
-                        self.add_bel_wire(bcrd, "ECLK_NEXT", eclk_next);
-                        self.claim_pip(eclk_mux, eclk_next);
-                        let wire_next =
-                            self.rc_io_wire(cell_next, &format!("JECLKO_ECLKSYNC{eclk_idx}"));
-                        self.claim_pip(eclk_next, wire_next);
-                    }
-                } else {
-                    let cell_neigh = if bank_idx == 0 {
-                        cell.delta(0, 1)
-                    } else {
-                        cell.delta(0, -1)
-                    };
-                    let eclk_neigh = self.rc_io_wire(cell, &format!("JNEIGHBORECLK{eclk_idx}"));
-                    self.add_bel_wire(bcrd, "ECLK_NEIGHBOR", eclk_neigh);
-                    self.claim_pip(eclk_mux, eclk_neigh);
-                    let wire_neigh =
-                        self.rc_io_wire(cell_neigh, &format!("JECLKO_ECLKSYNC{eclk_idx}"));
-                    self.claim_pip(eclk_neigh, wire_neigh);
+
+                    let eclk_mux = self.rc_io_wire(cell, &format!("JECLK{eclk_idx}"));
+                    let eclk = self.pips_fwd[&eclk_mux]
+                        .iter()
+                        .copied()
+                        .find(|wn| self.naming.strings[wn.suffix].starts_with("BANK"))
+                        .unwrap();
+                    self.claim_pip(eclk, eclk_mux);
+                    self.bind_wire(eclk, self.io_int_wires[&eclk_mux][0]);
+
+                    self.extract_bel_cell(bcrd, cell)
+                        .name(format!("ECLKSYNC{eclk_idx}_BK{bank}"))
+                        .input_xlat_rc_io(bcls::ECLKSYNC::STOP, format!("JSTOP_ECLKSYNC{eclk_idx}"))
+                        .input_xlat_rc_io(
+                            bcls::ECLKSYNC::ECLKI,
+                            format!("ECLKI_ECLKSYNC{eclk_idx}"),
+                        )
+                        .output_xlat_rc_io(
+                            bcls::ECLKSYNC::ECLKO,
+                            format!("JECLKO_ECLKSYNC{eclk_idx}"),
+                        )
+                        .add_wire("ECLK", eclk)
+                        .claim_pip("ECLKO", "ECLKI");
                 }
-
-                self.insert_legacy_bel(bcrd, bel);
             }
         }
         for (lrt, cell_tile, cell, n) in [
@@ -325,67 +300,57 @@ impl ChipContext<'_> {
             ('R', cell_e, cell_e, 12),
         ] {
             let bcrd = cell_tile.bel(bslots::CLKTEST_ECLK);
-            self.name_bel(bcrd, [format!("CLKTEST_{lrt}ECLK")]);
-            let mut bel = LegacyBel::default();
+            let mut bel = self.extract_bel_cell(bcrd, cell);
+            bel.name(format!("CLKTEST_{lrt}ECLK"));
 
             for i in 0..24 {
-                let wire = self.rc_io_wire(cell, &format!("JTESTIN{i}_CLKTEST"));
-                self.add_bel_wire(bcrd, format!("TESTIN{i}"), wire);
                 if i < n {
-                    bel.pins
-                        .insert(format!("TESTIN{i}"), self.xlat_int_wire(bcrd, wire));
+                    bel.input_xlat_rc_io(bcls::CLKTEST::TESTIN[i], format!("JTESTIN{i}_CLKTEST"));
+                } else {
+                    bel.add_wire_rc_io(format!("TESTIN{i}"), format!("JTESTIN{i}_CLKTEST"));
                 }
             }
-
-            self.insert_legacy_bel(bcrd, bel);
         }
 
         for (cell, base) in [(cell_w, 2), (cell_e, 0)] {
             for i in 0..2 {
                 let eclk_idx = base + i;
                 let bcrd_cs = cell.bel(bslots::ECLKBRIDGECS[i]);
-                self.name_bel(bcrd_cs, [format!("ECLKBRIDGECS{eclk_idx}")]);
-                let mut bel = LegacyBel::default();
 
-                let sel = self.rc_io_wire(cell, &format!("JSEL_ECLKBRIDGECS{eclk_idx}"));
-                self.add_bel_wire(bcrd_cs, "SEL", sel);
-                bel.pins
-                    .insert("SEL".into(), self.xlat_int_wire(bcrd_cs, sel));
-
-                let clk0 = self.rc_io_wire(cell, &format!("JCLK0_ECLKBRIDGECS{eclk_idx}"));
-                self.add_bel_wire(bcrd_cs, "CLK0", clk0);
-                let bcrd_eclk = cell.bel(bslots::ECLKSYNC[4 + eclk_idx]);
-                let wire_eclk = self.naming.bel_wire(bcrd_eclk, "ECLKI_IN");
-                self.claim_pip(clk0, wire_eclk);
-                let clk1 = self.rc_io_wire(cell, &format!("JCLK1_ECLKBRIDGECS{eclk_idx}"));
-                self.add_bel_wire(bcrd_cs, "CLK1", clk1);
-                let bcrd_eclk = cell.bel(bslots::ECLKSYNC[eclk_idx]);
-                let wire_eclk = self.naming.bel_wire(bcrd_eclk, "ECLKI_IN");
-                self.claim_pip(clk1, wire_eclk);
-
-                let ecsout = self.rc_io_wire(cell, &format!("ECSOUT_ECLKBRIDGECS{eclk_idx}"));
-                self.add_bel_wire(bcrd_cs, "ECSOUT", ecsout);
-
-                self.insert_legacy_bel(bcrd_cs, bel);
+                self.extract_bel(bcrd_cs)
+                    .name(format!("ECLKBRIDGECS{eclk_idx}"))
+                    .input_xlat_rc_io(
+                        bcls::ECLKBRIDGECS::SEL,
+                        format!("JSEL_ECLKBRIDGECS{eclk_idx}"),
+                    )
+                    .input_xlat_rc_io(
+                        bcls::ECLKBRIDGECS::CLK[0],
+                        format!("JCLK0_ECLKBRIDGECS{eclk_idx}"),
+                    )
+                    .input_xlat_rc_io(
+                        bcls::ECLKBRIDGECS::CLK[1],
+                        format!("JCLK1_ECLKBRIDGECS{eclk_idx}"),
+                    )
+                    .output_bind_rc_io(
+                        bcls::ECLKBRIDGECS::ECSOUT,
+                        format!("ECSOUT_ECLKBRIDGECS{eclk_idx}"),
+                        wires::OUT_ECLKBRIDGECS_ECSOUT[i].cell(5),
+                    );
 
                 let bcrd_brg = cell.bel(bslots::BRGECLKSYNC[i]);
-                self.name_bel(bcrd_brg, [format!("BRGECLKSYNC{eclk_idx}")]);
-                let mut bel = LegacyBel::default();
-
-                let stop = self.rc_io_wire(cell, &format!("JSTOP_BRGECLKSYNC{eclk_idx}"));
-                self.add_bel_wire(bcrd_brg, "STOP", stop);
-                bel.pins
-                    .insert("STOP".into(), self.xlat_int_wire(bcrd_brg, stop));
-
-                let eclki = self.rc_io_wire(cell, &format!("ECLKI_BRGECLKSYNC{eclk_idx}"));
-                self.add_bel_wire(bcrd_brg, "ECLKI", eclki);
-                self.claim_pip(eclki, ecsout);
-
-                let eclko = self.rc_io_wire(cell, &format!("JECLKO_BRGECLKSYNC{eclk_idx}"));
-                self.add_bel_wire(bcrd_brg, "ECLKO", eclko);
-                self.claim_pip(eclko, eclki);
-
-                self.insert_legacy_bel(bcrd_brg, bel);
+                self.extract_bel(bcrd_brg)
+                    .name(format!("BRGECLKSYNC{eclk_idx}"))
+                    .input_xlat_rc_io(bcls::ECLKSYNC::STOP, format!("JSTOP_BRGECLKSYNC{eclk_idx}"))
+                    .input_xlat_rc_io(
+                        bcls::ECLKSYNC::ECLKI,
+                        format!("ECLKI_BRGECLKSYNC{eclk_idx}"),
+                    )
+                    .output_bind_rc_io(
+                        bcls::ECLKSYNC::ECLKO,
+                        format!("JECLKO_BRGECLKSYNC{eclk_idx}"),
+                        wires::OUT_BRGECLKSYNC_ECLKO[i].cell(5),
+                    )
+                    .claim_pip("ECLKO", "ECLKI");
             }
         }
     }
@@ -527,7 +492,7 @@ impl ChipContext<'_> {
                 let mut ex = self.extract_switchbox(cell_tile.bel(bslots::CLK_INT));
                 ex.cell(cell)
                     .output_bind_rc_io("DDRDEL", cslot.wire(wires::IMUX_DLLDEL_DDRDEL))
-                    .output_bind_rc_io("JINCK", cslot.wire(wires::INCK[0]))
+                    .output_xlat_rc_io("JINCK")
                     .input_xlat_rc_io("JPADDI")
                     .input_bind_rc_io("DLLDEL", cslot.wire(wires::OUT_DLLDEL_Z));
                 let ddrdll_sources = match edge {
@@ -600,6 +565,12 @@ impl ChipContext<'_> {
         let edge = chip.get_io_edge(bcrd_io);
         let bank = chip.get_io_bank(bcrd_io);
         let (cell, abcd) = self.xlat_io_loc_ecp4(bcrd_io);
+        let cslot = self.edev[self.edev.bel_tile(bcrd)]
+            .cells
+            .iter()
+            .find(|&(_, &cell)| cell == bcrd.cell)
+            .unwrap()
+            .0;
 
         let (r, c) = self.rc(cell);
         let name = match edge {
@@ -656,7 +627,8 @@ impl ChipContext<'_> {
         let nextclk_out = self.find_single_out(nextclk);
         self.bind_wire(nextclk_out, bcrd.wire(wires::OUT_DQS_NEXTCLK));
 
-        self.hybrid_out_rc_io_cell(bcrd, cell, "JCRUCLK_DQS", wires::OUT_DQS_CRUCLK.cell(0));
+        self.hybrid_out_rc_io_cell(bcrd, cell, "JCRUCLK_DQS", cslot.wire(wires::OUT_DQS_CRUCLK));
+        self.hybrid_out_rc_io_cell(bcrd, cell, "JDIVCLK_DQS", cslot.wire(wires::OUT_DQS_DIVCLK));
 
         let mut bel = self.extract_bel_cell(bcrd, cell);
         bel.name(name)
@@ -983,58 +955,50 @@ impl ChipContext<'_> {
         } else {
             unreachable!()
         };
-        let cell_pcs = Chip::DIE.cell(self.chip.col_w(), self.chip.row_s());
 
         let cell_tile = Chip::DIE.cell(self.chip.col_clk, self.chip.row_s());
         let cell = cell_tile.delta(-1, 0);
         for i in 0..4 {
-            let bcrd = cell_tile.bel(bslots::PCSCLKDIV[i]);
-            self.name_bel(bcrd, [format!("PCSCLKDIV{i}")]);
-
-            let clki = self.rc_wire(cell, &format!("CLKI_PCSCLKDIV{i}"));
-            self.add_bel_wire(bcrd, "CLKI", clki);
-            let clki_in = self.claim_single_in(clki);
-            self.add_bel_wire(bcrd, "CLKI_IN", clki_in);
-
             if i < num_quads {
-                let mut bel = LegacyBel::default();
-                for pin in ["RST", "SEL0", "SEL1", "SEL2"] {
-                    let wire = self.rc_wire(cell, &format!("J{pin}_PCSCLKDIV{i}"));
-                    self.add_bel_wire(bcrd, pin, wire);
-                    bel.pins.insert(pin.into(), self.xlat_int_wire(bcrd, wire));
-                }
-                let clki_int = self.rc_wire(cell, &format!("JPCSCDIVCIB{i}"));
-                self.add_bel_wire(bcrd, "CLKI_INT", clki_int);
-                self.claim_pip(clki_in, clki_int);
-                bel.pins
-                    .insert("CLKI".into(), self.xlat_int_wire(bcrd, clki_int));
-
                 let abcd = ['A', 'B', 'C', 'D'][i];
+                let mut ex = self.extract_switchbox(cell_tile.bel(bslots::CLK_INT));
+                ex.cell(cell)
+                    .output_bind_rc(format!("PCSCDIVI{i}"), wires::IMUX_CLKDIV_CLKI[i].cell(1))
+                    .input_xlat_rc(format!("JPCSCDIVCIB{i}"));
                 for j in 0..4 {
-                    let clki_rxclk = self.rc_wire(cell, &format!("JPCS{abcd}RXCLK{j}"));
-                    self.add_bel_wire(bcrd, format!("CLKI_RXCLK{j}"), clki_rxclk);
-                    self.claim_pip(clki_in, clki_rxclk);
-                    let wire_pcs = self.rc_io_sn_wire(cell_pcs, &format!("JQ{i}CH{j}_FOPCLKB_ASB"));
-                    self.claim_pip(clki_rxclk, wire_pcs);
-
-                    let clki_txclk = self.rc_wire(cell, &format!("JPCS{abcd}TXCLK{j}"));
-                    self.add_bel_wire(bcrd, format!("CLKI_TXCLK{j}"), clki_txclk);
-                    self.claim_pip(clki_in, clki_txclk);
-                    let wire_pcs = self.rc_io_sn_wire(cell_pcs, &format!("JQ{i}CH{j}_FOPCLKA_ASB"));
-                    self.claim_pip(clki_txclk, wire_pcs);
-                }
-
-                self.insert_legacy_bel(bcrd, bel);
-            } else {
-                for pin in ["RST", "SEL0", "SEL1", "SEL2"] {
-                    let wire = self.rc_wire(cell, &format!("J{pin}_PCSCLKDIV{i}"));
-                    self.add_bel_wire(bcrd, pin, wire);
+                    ex.input_xlat_rc(format!("JPCS{abcd}TXCLK{j}"))
+                        .input_xlat_rc(format!("JPCS{abcd}RXCLK{j}"));
                 }
             }
+            let bcrd = cell_tile.bel(bslots::PCSCLKDIV[i]);
+            let mut bel = self.extract_bel_cell(bcrd, cell);
+            bel.name(format!("PCSCLKDIV{i}"))
+                .output_bind_rc(
+                    bcls::PCSCLKDIV::CDIV1,
+                    format!("CDIV1_PCSCLKDIV{i}"),
+                    wires::OUT_CLKDIV_CDIV1[i].cell(1),
+                )
+                .output_bind_rc(
+                    bcls::PCSCLKDIV::CDIVX,
+                    format!("CDIVX_PCSCLKDIV{i}"),
+                    wires::OUT_CLKDIV_CDIVX[i].cell(1),
+                );
 
-            for pin in ["CDIV1", "CDIVX"] {
-                let wire = self.rc_wire(cell, &format!("{pin}_PCSCLKDIV{i}"));
-                self.add_bel_wire(bcrd, pin, wire);
+            if i < num_quads {
+                bel.input_xlat_rc(bcls::PCSCLKDIV::CLKI, format!("CLKI_PCSCLKDIV{i}"))
+                    .input_xlat_rc(bcls::PCSCLKDIV::RST, format!("JRST_PCSCLKDIV{i}"))
+                    .input_xlat_rc(bcls::PCSCLKDIV::SEL[0], format!("JSEL0_PCSCLKDIV{i}"))
+                    .input_xlat_rc(bcls::PCSCLKDIV::SEL[1], format!("JSEL1_PCSCLKDIV{i}"))
+                    .input_xlat_rc(bcls::PCSCLKDIV::SEL[2], format!("JSEL2_PCSCLKDIV{i}"));
+            } else {
+                bel.add_wire_rc("CLKI", format!("CLKI_PCSCLKDIV{i}"))
+                    .add_wire_rc("CLKI_IN", format!("PCSCDIVI{i}"))
+                    .claim_pip("CLKI", "CLKI_IN")
+                    .add_wire_rc("RST", format!("JRST_PCSCLKDIV{i}"))
+                    .add_wire_rc("SEL0", format!("JSEL0_PCSCLKDIV{i}"))
+                    .add_wire_rc("SEL1", format!("JSEL1_PCSCLKDIV{i}"))
+                    .add_wire_rc("SEL2", format!("JSEL2_PCSCLKDIV{i}"));
+                bel.discard();
             }
         }
     }

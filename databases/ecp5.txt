@@ -10633,6 +10633,14 @@ intdb {
 		output CDIVX;
 	}
 
+	bel_class PCSCLKDIV {
+		input CLKI;
+		input RST;
+		input SEL[3];
+		output CDIV1;
+		output CDIVX;
+	}
+
 	bel_class GSR {
 		input CLK;
 		input GSR;
@@ -11050,6 +11058,10 @@ intdb {
 	wire OUT_CLKDIV_CDIVX[0]: bel;
 	wire OUT_CLKDIV_CDIVX[1]: bel;
 	wire IMUX_DDRDLL_CLK: mux;
+	wire OUT_SERDES_FF_TX_PCLK[0]: bel;
+	wire OUT_SERDES_FF_TX_PCLK[1]: bel;
+	wire OUT_SERDES_FF_RX_PCLK[0]: bel;
+	wire OUT_SERDES_FF_RX_PCLK[1]: bel;
 	wire OUT_OSC_OSC: regional GLOBAL;
 
 	tile_slot INT {
@@ -12294,9 +12306,9 @@ intdb {
 		bel_slot CCLK: CCLK;
 		bel_slot START: START;
 		bel_slot GSR: GSR;
-		bel_slot PLLREFCS[0]: legacy;
 		bel_slot DDRDLL: DDRDLL;
 		bel_slot DTR: DTR;
+		bel_slot PLLREFCS[0]: legacy;
 		bel_slot DQS[0]: DQS;
 		bel_slot JTAG: JTAG;
 		bel_slot OSC: OSC;

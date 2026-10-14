@@ -616,9 +616,8 @@ impl ChipContext<'_> {
                 ]);
             }
         }
-        self.name_bel(bcrd, names);
         let cell = cell.with_col(self.chip.col_w());
-        self.insert_simple_legacy_bel(bcrd, cell, "ASB");
+        self.extract_bel_cell(bcrd, cell).names(names).suffix("ASB");
 
         for quad in 0..num_quads {
             let cell_apio = cell.delta(1 + quad, 0);
@@ -719,6 +718,8 @@ impl ChipContext<'_> {
             }
             for ch in 0..4 {
                 for pin in [
+                    "FOPCLKA",
+                    "FOPCLKB",
                     "FCALIGNEN",
                     "FCCDRFORCEDLOCK",
                     "FCDFERDEN",
@@ -1048,10 +1049,6 @@ impl ChipContext<'_> {
         }
         for quad in 0..4 {
             for ch in 0..4 {
-                for pin in ["FOPCLKA", "FOPCLKB"] {
-                    let wire = self.rc_io_sn_wire(cell, &format!("JQ{quad}CH{ch}_{pin}_ASB"));
-                    self.add_bel_wire(bcrd, format!("Q{quad}CH{ch}_{pin}"), wire);
-                }
                 for pin in ["TXBITCLK", "FORECCLK"] {
                     let wire = self.rc_io_sn_wire(cell, &format!("Q{quad}CH{ch}_{pin}_ASB"));
                     self.add_bel_wire(bcrd, format!("Q{quad}CH{ch}_{pin}"), wire);
@@ -1063,7 +1060,6 @@ impl ChipContext<'_> {
             }
         }
         for pin in [
-            "Q0P_CORECLK",
             "Q0P_SCANO25",
             "Q0P_SCANO26",
             "Q2X_TOSCANOUT29",

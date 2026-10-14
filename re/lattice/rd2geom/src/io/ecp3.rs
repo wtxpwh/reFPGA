@@ -184,8 +184,11 @@ impl ChipContext<'_> {
         }
 
         {
-            let bpin = bel.ctx.xlat_output(bcrd, paddi);
-            assert_eq!(bpin, bel.bel.outputs[bcls::IO::INDD]);
+            let bpin = &bel.bel.outputs[bcls::IO::INDD];
+            assert_eq!(bpin.len(), 1);
+            let wire = bpin.iter().next().copied().unwrap();
+            let wire = bel.ctx.edev.resolve_bel_wire(bcrd, wire).unwrap();
+            bel.ctx.claim_pip(bel.ctx.naming.interconnect[&wire], paddi);
         }
 
         if kind == IoKind::IoPll {

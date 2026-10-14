@@ -47,6 +47,9 @@ impl<'dev, 'ctx> BelExtractor<'dev, 'ctx> {
                         if range.len() == 1 && wire.is_none() {
                             wire = wires.get(name);
                         }
+                        if wire.is_none() {
+                            wire = wires.get(&format!("{name}{vi}"));
+                        }
                         if let Some(&wire) = wire
                             && let Some(bpin) = self.ctx.try_xlat_input(self.bcrd, wire, true, None)
                         {
@@ -75,7 +78,14 @@ impl<'dev, 'ctx> BelExtractor<'dev, 'ctx> {
                         } else {
                             format!("{name}{vi}")
                         };
-                        if let Some(&wire) = wires.get(iname)
+                        let mut wire = wires.get(iname);
+                        if range.len() == 1 && wire.is_none() {
+                            wire = wires.get(name);
+                        }
+                        if wire.is_none() {
+                            wire = wires.get(&format!("{name}{vi}"));
+                        }
+                        if let Some(&wire) = wire
                             && let Some(bpin) =
                                 self.ctx.try_xlat_output(self.bcrd, wire, false, true)
                         {
