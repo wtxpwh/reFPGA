@@ -2,16 +2,16 @@ use std::collections::{BTreeMap, btree_map};
 
 use prjcombine_ecp::{
     chip::{Chip, IoGroupKind, SpecialLocKey},
-    defs::{bslots, wires},
+    defs::{self, bcls, bslots, tcls, wires},
 };
 use prjcombine_interconnect::{
-    db::{BelPin, LegacyBel, WireSlotIdExt},
+    db::{CellSlotIdExt, WireSlotIdExt},
     dir::{Dir, DirH, DirHV, DirMap, DirV},
     grid::DieIdExt,
 };
 use prjcombine_re_lattice_naming::WireName;
 
-use crate::ChipContext;
+use crate::{ChipContext, RcMode};
 
 impl ChipContext<'_> {
     pub(super) fn process_pclk_ecp5(&mut self) -> BTreeMap<(DirHV, usize), WireName> {
@@ -85,470 +85,229 @@ impl ChipContext<'_> {
                 Dir::S => 'B',
                 Dir::N => 'T',
             };
-
-            {
-                let num_pins = if edge == Dir::S { 4 } else { 3 };
-                let bcrd = cell_tile.bel(bslots::CLKTEST);
-                self.name_bel(bcrd, [format!("CLKTEST_{lrbt}MID")]);
-                let mut bel = LegacyBel::default();
-                for i in 0..24 {
-                    let wire = self.rc_wire(cell, &format!("JTESTIN{i}_CLKTEST"));
-                    self.add_bel_wire(bcrd, format!("TESTIN{i}"), wire);
-                    if i < num_pins {
-                        bel.pins
-                            .insert(format!("TESTIN{i}"), self.xlat_int_wire(bcrd, wire));
-                    }
-                }
-                self.insert_legacy_bel(bcrd, bel);
-            }
-
-            let bcrd = cell_tile.bel(bslots::CLK_EDGE);
-            self.name_bel_null(bcrd);
-
-            let mut pll_ins = BTreeMap::new();
-            let plls = match edge {
-                Dir::W => [DirHV::SW, DirHV::NW].as_slice(),
-                Dir::E => [DirHV::SE, DirHV::NE].as_slice(),
-                Dir::N => [DirHV::NW, DirHV::NE].as_slice(),
-                Dir::S => [].as_slice(),
-            };
-            for &hv in plls {
-                let Some(bel_pll) = self.chip.try_bel_pll(hv, 0) else {
-                    continue;
-                };
-                let cell_pll = bel_pll.cell;
-                let corner = match hv {
-                    DirHV::SW => "LL",
-                    DirHV::SE => "LR",
-                    DirHV::NW => "UL",
-                    DirHV::NE => "UR",
-                };
-                for pin in ["CLKOP", "CLKOS", "CLKOS2", "CLKOS3"] {
-                    let wire = self.rc_wire(cell, &format!("J{corner}CPLL0{pin}"));
-                    self.add_bel_wire(bcrd, format!("PLL_IN_{hv}_{pin}"), wire);
-                    let wire_pll = self.rc_wire(cell_pll, &format!("J{pin}_PLL"));
-                    self.claim_pip(wire, wire_pll);
-                    pll_ins.insert((hv, pin), wire);
-                }
-            }
-
-            let mut clkdiv_ins = BTreeMap::new();
-            let mut pcs_ins = BTreeMap::new();
-            if edge == Dir::S {
-                if !self.skip_serdes {
-                    for i in 0..2 {
-                        for pin in ["CDIVX", "CDIV1"] {
-                            let wire = self.rc_wire(cell, &format!("PCS{pin}{i}"));
-                            self.add_bel_wire(bcrd, format!("CLKDIV_IN_{i}_{pin}"), wire);
-                            let wire_clkdiv = self.rc_wire(cell, &format!("{pin}_PCSCLKDIV{i}"));
-                            self.claim_pip(wire, wire_clkdiv);
-                            clkdiv_ins.insert((i, pin), wire);
-                        }
-                    }
-                    for (col, cd) in &self.chip.columns {
-                        if cd.io_s != IoGroupKind::Serdes {
-                            continue;
-                        }
-                        let dual = (cd.bank_s.unwrap() - 50) as usize;
-                        let abcd = ['A', 'B'][dual];
-                        for ch in 0..2 {
-                            for pin in ["RXCLK", "TXCLK"] {
-                                let wire = self.rc_wire(cell, &format!("JPCS{abcd}{pin}{ch}"));
-                                self.add_bel_wire_no_claim(
-                                    bcrd,
-                                    format!("PCS_IN_D{dual}CH{ch}_{pin}"),
-                                    wire,
-                                );
-                                pcs_ins.insert((dual, ch, pin), wire);
-                            }
-                        }
-                        let wire = self.rc_wire(cell, &format!("JSERDESREFCLK{dual}"));
-                        self.add_bel_wire(bcrd, format!("PCS_IN_D{dual}_EXTREF"), wire);
-                        pcs_ins.insert((dual, 0, "EXTREF"), wire);
-                        let cell_pcs = cell.with_col(col);
-                        let wire_pcs = self.rc_io_wire(cell_pcs, "JREFCLKO_EXTREF");
-                        self.claim_pip(wire, wire_pcs);
-                    }
-                }
-            } else if edge != Dir::N {
-                for i in 0..2 {
-                    let wire = self.rc_wire(cell, &format!("J{lrbt}CDIVX{i}"));
-                    self.add_bel_wire(bcrd, format!("CLKDIV_IN_{i}_CDIVX"), wire);
-                    let wire_clkdiv = self.rc_io_wire(cell, &format!("JCDIVX_CLKDIV{i}"));
-                    self.claim_pip(wire, wire_clkdiv);
-                    clkdiv_ins.insert((i, "CDIVX"), wire);
-                }
-            }
-
-            let mut io_ins = BTreeMap::new();
-            for i in 0..4 {
-                let name = match edge {
-                    Dir::N => ["00", "01", "10", "11"][i],
-                    Dir::W => ["60", "61", "70", "71"][i],
-                    Dir::E => ["30", "31", "20", "21"][i],
-                    Dir::S => continue,
-                };
-                let pclk = self.rc_wire(cell, &format!("JPCLKT{name}"));
-                self.add_bel_wire(bcrd, format!("IO_IN_{edge}{i}"), pclk);
-                io_ins.insert(i, pclk);
-                let cell_dlldel = match edge {
-                    Dir::N => bcrd.cell.delta(-2 + (i as i32), 0),
-                    Dir::W => bcrd.cell.delta(0, -2 + ((i ^ 1) as i32)),
-                    Dir::E => bcrd.cell.delta(0, -2 + ((i ^ 1) as i32)),
-                    Dir::S => unreachable!(),
-                };
-                let wire_dlldel = self.rc_io_wire(cell_dlldel, "JINCK");
-                self.claim_pip(pclk, wire_dlldel);
-            }
-
-            let mut bel = LegacyBel::default();
-            let int_names = match edge {
-                Dir::W => [
-                    "JLLQPCLKCIB0",
-                    "JLLQPCLKCIB1",
-                    "JULQPCLKCIB0",
-                    "JULQPCLKCIB1",
-                    "JLLMPCLKCIB0",
-                    "JLLMPCLKCIB2",
-                    "JULMPCLKCIB0",
-                    "JULMPCLKCIB2",
-                ],
-                Dir::E => [
-                    "JLRQPCLKCIB0",
-                    "JLRQPCLKCIB1",
-                    "JURQPCLKCIB0",
-                    "JURQPCLKCIB1",
-                    "JLRMPCLKCIB0",
-                    "JLRMPCLKCIB2",
-                    "JURMPCLKCIB0",
-                    "JURMPCLKCIB2",
-                ],
-                Dir::S => [
-                    "JBLQPCLKCIB0",
-                    "JBLQPCLKCIB1",
-                    "JBRQPCLKCIB0",
-                    "JBRQPCLKCIB1",
-                    "JLLMPCLKCIB1",
-                    "JLLMPCLKCIB3",
-                    "JLRMPCLKCIB1",
-                    "JLRMPCLKCIB3",
-                ],
-                Dir::N => [
-                    "JTLQPCLKCIB0",
-                    "JTLQPCLKCIB1",
-                    "JTRQPCLKCIB0",
-                    "JTRQPCLKCIB1",
-                    "JULMPCLKCIB1",
-                    "JULMPCLKCIB3",
-                    "JURMPCLKCIB1",
-                    "JURMPCLKCIB3",
-                ],
-            };
-            let mut int_ins = BTreeMap::new();
-            for (i, name) in int_names.into_iter().enumerate() {
-                if !self
-                    .chip
-                    .special_loc
-                    .contains_key(&SpecialLocKey::PclkIn(edge, i as u8))
-                {
-                    continue;
-                }
-                let wire = self.rc_wire(cell, name);
-                self.add_bel_wire(bcrd, format!("INT_IN_{i}"), wire);
-                int_ins.insert(i, wire);
-                bel.pins
-                    .insert(format!("INT_IN_{i}"), self.xlat_int_wire(bcrd, wire));
-            }
-            self.insert_legacy_bel(bcrd, bel);
-
-            let mut special_ins = BTreeMap::new();
-            let cell_config = self.chip.special_loc[&SpecialLocKey::Config];
-            match edge {
-                Dir::W => {
-                    let wire = self.rc_wire(cell, "JOSC");
-                    self.add_bel_wire(bcrd, "OSC_IN", wire);
-                    special_ins.insert("OSC", wire);
-
-                    let wire_osc = self.rc_wire(cell_config, "JOSC_OSC");
-                    self.claim_pip(wire, wire_osc);
-                }
-                Dir::S => {
-                    for (pin, wn, wn_config) in [
-                        ("JTCK", "JJTCK", "JJTCK_JTAG"),
-                        ("SEDCLKOUT", "JSEDCLKOUT", "JSEDCLKOUT_SED"),
-                    ] {
-                        let wire = self.rc_wire(cell, wn);
-                        self.add_bel_wire(bcrd, format!("{pin}_IN"), wire);
-                        special_ins.insert(pin, wire);
-
-                        let wire_config = self.rc_wire(cell_config, wn_config);
-                        self.claim_pip(wire, wire_config);
-                    }
-                }
-                _ => (),
-            }
-
             let num_dcc = match edge {
                 Dir::H(_) => 14,
                 Dir::S => 16,
                 Dir::N => 12,
             };
+            let bcrd_int = cell_tile.bel(bslots::CLK_INT);
+            let ci_base = match edge {
+                Dir::H(_) => 6,
+                Dir::V(_) => 8,
+            };
 
-            for i in 0..num_dcc {
-                let bcrd_dcc = cell_tile.bel(bslots::DCC[i]);
-                self.name_bel(bcrd_dcc, [format!("DCC_{lrbt}{i}")]);
-                let mut bel = LegacyBel::default();
-
-                let ce = self.rc_wire(cell, &format!("JCE_{lrbt}DCC{i}"));
-                self.add_bel_wire(bcrd_dcc, "CE", ce);
-                bel.pins
-                    .insert("CE".into(), self.xlat_int_wire(bcrd_dcc, ce));
-
-                let clki = self.rc_wire(cell, &format!("CLKI_{lrbt}DCC{i}"));
-                self.add_bel_wire(bcrd_dcc, "CLKI", clki);
-                let clki_in = self.claim_single_in(clki);
-                self.add_bel_wire(bcrd_dcc, "CLKI_IN", clki_in);
-
-                let ios: &[_] = match (edge, i) {
-                    (Dir::W, 0) => &[0],
-                    (Dir::W, 1) => &[1],
-                    (Dir::W, 2) => &[2],
-                    (Dir::W, 3) => &[3],
-                    (Dir::W, 4) => &[3],
-                    (Dir::W, 5) => &[2],
-                    (Dir::W, 6) => &[1],
-                    (Dir::W, 7) => &[],
-                    (Dir::W, 8) => &[3],
-                    (Dir::W, 9) => &[],
-                    (Dir::W, 10) => &[0],
-                    (Dir::W, 11) => &[2],
-                    (Dir::W, 12) => &[1],
-                    (Dir::W, 13) => &[0],
-                    (Dir::E, 0) => &[2],
-                    (Dir::E, 1) => &[3],
-                    (Dir::E, 2) => &[0],
-                    (Dir::E, 3) => &[1],
-                    (Dir::E, 4) => &[1],
-                    (Dir::E, 5) => &[0],
-                    (Dir::E, 6) => &[3],
-                    (Dir::E, 7) => &[],
-                    (Dir::E, 8) => &[1],
-                    (Dir::E, 9) => &[],
-                    (Dir::E, 10) => &[2],
-                    (Dir::E, 11) => &[0],
-                    (Dir::E, 12) => &[3],
-                    (Dir::E, 13) => &[2],
-                    (Dir::N, 0) => &[1],
-                    (Dir::N, 1) => &[2],
-                    (Dir::N, 2) => &[0],
-                    (Dir::N, 3) => &[3],
-                    (Dir::N, 4) => &[1],
-                    (Dir::N, 5) => &[0],
-                    (Dir::N, 6) => &[3],
-                    (Dir::N, 7) => &[1],
-                    (Dir::N, 8) => &[3],
-                    (Dir::N, 9) => &[2],
-                    (Dir::N, 10) => &[0],
-                    (Dir::N, 11) => &[2],
-                    (Dir::S, _) => &[],
-                    _ => unreachable!(),
-                };
-                for &j in ios {
-                    if let Some(&wire) = io_ins.get(&j) {
-                        self.claim_pip(clki_in, wire);
+            {
+                let num_pins = if edge == Dir::S { 4 } else { 3 };
+                let bcrd = cell_tile.bel(bslots::CLKTEST);
+                let mut bel = self.extract_bel_cell(bcrd, cell);
+                bel.name(format!("CLKTEST_{lrbt}MID"));
+                for i in 0..24 {
+                    if i < num_pins {
+                        bel.input_xlat_rc(bcls::CLKTEST::TESTIN[i], format!("JTESTIN{i}_CLKTEST"));
+                    } else {
+                        bel.add_wire_rc(format!("TESTIN{i}"), format!("JTESTIN{i}_CLKTEST"));
                     }
                 }
+            }
 
-                let ints: &[_] = match (edge, i) {
-                    (Dir::H(_), 0) => &[0, 4],
-                    (Dir::H(_), 1) => &[1, 5],
-                    (Dir::H(_), 2) => &[2],
-                    (Dir::H(_), 3) => &[3, 7],
-                    (Dir::H(_), 4) => &[3],
-                    (Dir::H(_), 5) => &[2, 6],
-                    (Dir::H(_), 6) => &[1, 7],
-                    (Dir::H(_), 7) => &[0, 4],
-                    (Dir::H(_), 8) => &[3, 4],
-                    (Dir::H(_), 9) => &[2, 5],
-                    (Dir::H(_), 10) => &[1, 6],
-                    (Dir::H(_), 11) => &[7],
-                    (Dir::H(_), 12) => &[0, 6],
-                    (Dir::H(_), 13) => &[5],
-                    (Dir::N, 0) => &[3, 6],
-                    (Dir::N, 1) => &[0, 7],
-                    (Dir::N, 2) => &[0, 5],
-                    (Dir::N, 3) => &[1, 4],
-                    (Dir::N, 4) => &[3, 6],
-                    (Dir::N, 5) => &[2, 5],
-                    (Dir::N, 6) => &[1, 4],
-                    (Dir::N, 7) => &[2, 6],
-                    (Dir::N, 8) => &[0, 4],
-                    (Dir::N, 9) => &[3, 7],
-                    (Dir::N, 10) => &[1, 5],
-                    (Dir::N, 11) => &[2, 7],
-                    (Dir::S, 0) => &[0, 4],
-                    (Dir::S, 1) => &[1, 5],
-                    (Dir::S, 2) => &[2, 6],
-                    (Dir::S, 3) => &[3, 7],
-                    (Dir::S, 4) => &[3, 4],
-                    (Dir::S, 5) => &[2, 5],
-                    (Dir::S, 6) => &[1, 6],
-                    (Dir::S, 7) => &[0, 7],
-                    (Dir::S, 8) => &[3, 6],
-                    (Dir::S, 9) => &[2, 5],
-                    (Dir::S, 10) => &[1, 7],
-                    (Dir::S, 11) => &[0, 4],
-                    (Dir::S, 12) => &[0, 5],
-                    (Dir::S, 13) => &[1, 6],
-                    (Dir::S, 14) => &[2, 4],
-                    (Dir::S, 15) => &[3, 7],
-                    _ => unreachable!(),
-                };
-                for &j in ints {
-                    if let Some(&wire) = int_ins.get(&j) {
-                        self.claim_pip(clki_in, wire);
-                    }
+            {
+                let mut ex = self.extract_switchbox(bcrd_int);
+                ex.cell(cell);
+                for i in 0..num_dcc {
+                    ex.output_bind_rc(
+                        format!("{lrbt}DCC{i}CLKI"),
+                        wires::IMUX_DCC_CLKI[i].cell(ci_base),
+                    );
                 }
 
-                let cdivs: &[_] = match (edge, i) {
-                    (Dir::H(_), 0) => &[],
-                    (Dir::H(_), 1) => &[(1, "CDIVX")],
-                    (Dir::H(_), 2) => &[(1, "CDIVX")],
-                    (Dir::H(_), 3) => &[],
-                    (Dir::H(_), 4) => &[(0, "CDIVX")],
-                    (Dir::H(_), 5) => &[],
-                    (Dir::H(_), 6) => &[],
-                    (Dir::H(_), 7) => &[(1, "CDIVX")],
-                    (Dir::H(_), 8) => &[(0, "CDIVX")],
-                    (Dir::H(_), 9) => &[],
-                    (Dir::H(_), 10) => &[],
-                    (Dir::H(_), 11) => &[],
-                    (Dir::H(_), 12) => &[],
-                    (Dir::H(_), 13) => &[(0, "CDIVX")],
-                    (Dir::N, _) => &[],
-                    (Dir::S, 0) => &[(0, "CDIV1"), (1, "CDIVX")],
-                    (Dir::S, 1) => &[(0, "CDIVX"), (1, "CDIV1")],
-                    (Dir::S, 2) => &[(0, "CDIVX"), (1, "CDIV1")],
-                    (Dir::S, 3) => &[(0, "CDIV1"), (1, "CDIVX")],
-                    (Dir::S, 4) => &[(1, "CDIVX")],
-                    (Dir::S, 5) => &[(1, "CDIV1")],
-                    (Dir::S, 6) => &[(0, "CDIVX")],
-                    (Dir::S, 7) => &[(0, "CDIV1")],
-                    (Dir::S, 8) => &[(0, "CDIV1"), (1, "CDIVX")],
-                    (Dir::S, 9) => &[(0, "CDIVX"), (1, "CDIV1")],
-                    (Dir::S, 10) => &[],
-                    (Dir::S, 11) => &[],
-                    (Dir::S, 12) => &[(0, "CDIV1"), (1, "CDIVX")],
-                    (Dir::S, 13) => &[(0, "CDIVX"), (1, "CDIV1")],
-                    (Dir::S, 14) => &[(0, "CDIVX"), (1, "CDIV1")],
-                    (Dir::S, 15) => &[(0, "CDIV1"), (1, "CDIVX")],
-                    _ => unreachable!(),
+                let plls = match edge {
+                    Dir::W => [DirHV::SW, DirHV::NW].as_slice(),
+                    Dir::E => [DirHV::SE, DirHV::NE].as_slice(),
+                    Dir::N => [DirHV::NW, DirHV::NE].as_slice(),
+                    Dir::S => [].as_slice(),
                 };
-                for &key in cdivs {
-                    if let Some(&wire) = clkdiv_ins.get(&key) {
-                        self.claim_pip(clki_in, wire);
+                for &hv in plls {
+                    if ex.ctx.chip.try_bel_pll(hv, 0).is_some() {
+                        let corner = match hv {
+                            DirHV::SW => "LL",
+                            DirHV::SE => "LR",
+                            DirHV::NW => "UL",
+                            DirHV::NE => "UR",
+                        };
+                        for pin in ["CLKOP", "CLKOS", "CLKOS2", "CLKOS3"] {
+                            ex.input_xlat_rc(format!("J{corner}CPLL0{pin}"));
+                        }
                     }
                 }
 
                 match edge {
-                    Dir::H(h) => {
-                        let plls: &[_] = [
-                            &[(DirV::S, "CLKOS2"), (DirV::N, "CLKOP")][..],
-                            &[(DirV::N, "CLKOS")],
-                            &[(DirV::N, "CLKOS2")],
-                            &[(DirV::S, "CLKOP"), (DirV::N, "CLKOS3")],
-                            &[(DirV::S, "CLKOS3"), (DirV::N, "CLKOS2")],
-                            &[(DirV::S, "CLKOS2")],
-                            &[(DirV::S, "CLKOS"), (DirV::N, "CLKOS3")],
-                            &[(DirV::S, "CLKOS3"), (DirV::N, "CLKOP")],
-                            &[(DirV::S, "CLKOP"), (DirV::N, "CLKOS")],
-                            &[(DirV::S, "CLKOS"), (DirV::N, "CLKOP")],
-                            &[(DirV::S, "CLKOS2")],
-                            &[(DirV::S, "CLKOS3"), (DirV::N, "CLKOS2")],
-                            &[(DirV::S, "CLKOP"), (DirV::N, "CLKOS")],
-                            &[(DirV::S, "CLKOS"), (DirV::N, "CLKOS3")],
-                        ][i];
-                        for &(v, pin) in plls {
-                            if let Some(&wire) = pll_ins.get(&(DirHV { h, v }, pin)) {
-                                self.claim_pip(clki_in, wire);
-                            }
-                        }
-                    }
                     Dir::N => {
-                        let plls: &[_] = [
-                            &[(DirH::W, "CLKOP"), (DirH::E, "CLKOP")][..],
-                            &[(DirH::W, "CLKOS2"), (DirH::E, "CLKOP")],
-                            &[(DirH::W, "CLKOP"), (DirH::E, "CLKOS2")],
-                            &[(DirH::W, "CLKOS"), (DirH::E, "CLKOS3")],
-                            &[(DirH::W, "CLKOS3"), (DirH::E, "CLKOS3")],
-                            &[(DirH::W, "CLKOS"), (DirH::E, "CLKOS")],
-                            &[(DirH::W, "CLKOS2"), (DirH::E, "CLKOS")],
-                            &[(DirH::W, "CLKOS"), (DirH::E, "CLKOS2")],
-                            &[(DirH::W, "CLKOS2"), (DirH::E, "CLKOS2")],
-                            &[(DirH::W, "CLKOS3"), (DirH::E, "CLKOP")],
-                            &[(DirH::W, "CLKOS3"), (DirH::E, "CLKOS3")],
-                            &[(DirH::W, "CLKOP"), (DirH::E, "CLKOS")],
-                        ][i];
-                        for &(h, pin) in plls {
-                            if let Some(&wire) = pll_ins.get(&(DirHV { h, v: DirV::N }, pin)) {
-                                self.claim_pip(clki_in, wire);
+                        ex.input_xlat_rc("JPCLKT00")
+                            .input_xlat_rc("JPCLKT01")
+                            .input_xlat_rc("JPCLKT10")
+                            .input_xlat_rc("JPCLKT11");
+                    }
+                    Dir::W => {
+                        ex.input_xlat_rc("JPCLKT60")
+                            .input_xlat_rc("JPCLKT61")
+                            .input_xlat_rc("JPCLKT70")
+                            .input_xlat_rc("JPCLKT71")
+                            .input_xlat_rc("JLCDIVX0")
+                            .input_xlat_rc("JLCDIVX1")
+                            .input_xlat_rc("JOSC");
+                    }
+                    Dir::E => {
+                        ex.input_xlat_rc("JPCLKT30")
+                            .input_xlat_rc("JPCLKT31")
+                            .input_xlat_rc("JPCLKT20")
+                            .input_xlat_rc("JPCLKT21")
+                            .input_xlat_rc("JRCDIVX0")
+                            .input_xlat_rc("JRCDIVX1");
+                    }
+                    Dir::S => {
+                        ex.input_xlat_rc("JSEDCLKOUT").input_xlat_rc("JJTCK");
+                        if ex.ctx.skip_serdes {
+                            ex.missing_input(wires::OUT_CLKDIV_CDIVX[0].cell(ci_base))
+                                .missing_input(wires::OUT_CLKDIV_CDIVX[1].cell(ci_base))
+                                .missing_input(wires::OUT_CLKDIV_CDIV1[0].cell(ci_base))
+                                .missing_input(wires::OUT_CLKDIV_CDIV1[1].cell(ci_base));
+                            for cslot in defs::ecp5::tcls::CLK_S::SERDES {
+                                ex.missing_input(cslot.wire(wires::OUT_SERDES_FF_RX_PCLK[0]))
+                                    .missing_input(cslot.wire(wires::OUT_SERDES_FF_RX_PCLK[1]))
+                                    .missing_input(cslot.wire(wires::OUT_SERDES_FF_TX_PCLK[0]))
+                                    .missing_input(cslot.wire(wires::OUT_SERDES_FF_TX_PCLK[1]))
+                                    .missing_input(cslot.wire(wires::OUT_SERDES_REFCLKO));
+                            }
+                        } else {
+                            ex.input_xlat_rc("PCSCDIVX0")
+                                .input_xlat_rc("PCSCDIVX1")
+                                .input_xlat_rc("PCSCDIV10")
+                                .input_xlat_rc("PCSCDIV11");
+                            let serdes_cnt = ex
+                                .ctx
+                                .chip
+                                .columns
+                                .values()
+                                .filter(|cd| cd.io_s == IoGroupKind::Serdes)
+                                .count();
+                            for dual in 0..serdes_cnt {
+                                let cslot = defs::ecp5::tcls::CLK_S::SERDES[dual];
+                                let abcd = ['A', 'B'][dual];
+                                for ch in 0..2 {
+                                    for pin in ["RXCLK", "TXCLK"] {
+                                        ex.input_xlat_rc_nudge(
+                                            format!("JPCS{abcd}{pin}{ch}"),
+                                            cslot,
+                                        );
+                                    }
+                                }
+                                ex.input_xlat_rc_nudge(format!("JSERDESREFCLK{dual}"), cslot);
+                            }
+                            for dual in serdes_cnt..2 {
+                                let cslot = defs::ecp5::tcls::CLK_S::SERDES[dual];
+                                ex.missing_input(cslot.wire(wires::OUT_SERDES_FF_RX_PCLK[0]))
+                                    .missing_input(cslot.wire(wires::OUT_SERDES_FF_RX_PCLK[1]))
+                                    .missing_input(cslot.wire(wires::OUT_SERDES_FF_TX_PCLK[0]))
+                                    .missing_input(cslot.wire(wires::OUT_SERDES_FF_TX_PCLK[1]))
+                                    .missing_input(cslot.wire(wires::OUT_SERDES_REFCLKO));
                             }
                         }
                     }
-                    Dir::S => (),
-                };
-
-                let specials: &[_] = match (edge, i) {
-                    (Dir::W, 2 | 5 | 7 | 10) => &["OSC"],
-                    (Dir::S, 0 | 7 | 11 | 12) => &["SEDCLKOUT"],
-                    (Dir::S, 1 | 6 | 10 | 13) => &["JTCK"],
-                    _ => &[],
-                };
-                for &key in specials {
-                    if let Some(&wire) = special_ins.get(&key) {
-                        self.claim_pip(clki_in, wire);
-                    }
                 }
 
-                let pcs: &[_] = match (edge, i) {
-                    (Dir::S, 0) => &[(0, 0, "TXCLK"), (1, 1, "RXCLK")],
-                    (Dir::S, 1) => &[(0, 1, "TXCLK"), (1, 0, "RXCLK")],
-                    (Dir::S, 2) => &[(0, 1, "RXCLK"), (1, 0, "TXCLK"), (1, 0, "EXTREF")],
-                    (Dir::S, 3) => &[(0, 0, "RXCLK"), (0, 0, "EXTREF"), (1, 1, "TXCLK")],
-                    (Dir::S, 4) => &[(0, 0, "RXCLK"), (0, 0, "EXTREF"), (1, 1, "TXCLK")],
-                    (Dir::S, 5) => &[(0, 1, "RXCLK"), (1, 0, "TXCLK"), (1, 0, "EXTREF")],
-                    (Dir::S, 6) => &[(0, 1, "TXCLK"), (1, 0, "RXCLK"), (1, 0, "EXTREF")],
-                    (Dir::S, 7) => &[(0, 0, "TXCLK"), (0, 0, "EXTREF"), (1, 1, "RXCLK")],
-                    (Dir::S, 8) => &[(0, 0, "RXCLK"), (0, 0, "EXTREF"), (1, 1, "TXCLK")],
-                    (Dir::S, 9) => &[(0, 1, "RXCLK"), (1, 0, "TXCLK"), (1, 0, "EXTREF")],
-                    (Dir::S, 10) => &[(0, 1, "TXCLK"), (0, 0, "EXTREF"), (1, 0, "RXCLK")],
-                    (Dir::S, 11) => &[(0, 0, "TXCLK"), (1, 1, "RXCLK"), (1, 0, "EXTREF")],
-                    (Dir::S, 12) => &[(0, 0, "TXCLK"), (1, 1, "RXCLK"), (1, 0, "EXTREF")],
-                    (Dir::S, 13) => &[(0, 1, "TXCLK"), (0, 0, "EXTREF"), (1, 0, "RXCLK")],
-                    (Dir::S, 14) => &[(0, 1, "RXCLK"), (1, 0, "TXCLK")],
-                    (Dir::S, 15) => &[(0, 0, "RXCLK"), (1, 1, "TXCLK")],
-                    _ => &[],
+                let int_names = match edge {
+                    Dir::W => [
+                        "JLLQPCLKCIB0",
+                        "JLLQPCLKCIB1",
+                        "JULQPCLKCIB0",
+                        "JULQPCLKCIB1",
+                        "JLLMPCLKCIB0",
+                        "JLLMPCLKCIB2",
+                        "JULMPCLKCIB0",
+                        "JULMPCLKCIB2",
+                    ],
+                    Dir::E => [
+                        "JLRQPCLKCIB0",
+                        "JLRQPCLKCIB1",
+                        "JURQPCLKCIB0",
+                        "JURQPCLKCIB1",
+                        "JLRMPCLKCIB0",
+                        "JLRMPCLKCIB2",
+                        "JURMPCLKCIB0",
+                        "JURMPCLKCIB2",
+                    ],
+                    Dir::S => [
+                        "JBLQPCLKCIB0",
+                        "JBLQPCLKCIB1",
+                        "JBRQPCLKCIB0",
+                        "JBRQPCLKCIB1",
+                        "JLLMPCLKCIB1",
+                        "JLLMPCLKCIB3",
+                        "JLRMPCLKCIB1",
+                        "JLRMPCLKCIB3",
+                    ],
+                    Dir::N => [
+                        "JTLQPCLKCIB0",
+                        "JTLQPCLKCIB1",
+                        "JTRQPCLKCIB0",
+                        "JTRQPCLKCIB1",
+                        "JULMPCLKCIB1",
+                        "JULMPCLKCIB3",
+                        "JURMPCLKCIB1",
+                        "JURMPCLKCIB3",
+                    ],
                 };
-                for &key in pcs {
-                    if let Some(&wire) = pcs_ins.get(&key) {
-                        self.claim_pip(clki_in, wire);
+                for (i, name) in int_names.into_iter().enumerate() {
+                    if ex
+                        .ctx
+                        .chip
+                        .special_loc
+                        .contains_key(&SpecialLocKey::PclkIn(edge, i as u8))
+                    {
+                        ex.input_xlat_rc(name);
                     }
                 }
+            }
 
-                let clko = self.rc_wire(cell, &format!("CLKO_{lrbt}DCC{i}"));
-                self.add_bel_wire(bcrd_dcc, "CLKO", clko);
-                self.claim_pip(clko, clki);
-                let clko_out = self.claim_single_out(clko);
-                self.add_bel_wire(bcrd_dcc, "CLKO_OUT", clko_out);
-
-                self.insert_legacy_bel(bcrd_dcc, bel);
+            for i in 0..num_dcc {
+                let bcrd_dcc = cell_tile.bel(bslots::DCC[i]);
+                self.extract_bel_cell(bcrd_dcc, cell)
+                    .name(format!("DCC_{lrbt}{i}"))
+                    .input_xlat_rc(bcls::DCC::CE, format!("JCE_{lrbt}DCC{i}"))
+                    .input_xlat_rc(bcls::DCC::CLKI, format!("CLKI_{lrbt}DCC{i}"))
+                    .output_bind_step_rc_mode(
+                        bcls::DCC::CLKO,
+                        format!("CLKO_{lrbt}DCC{i}"),
+                        RcMode::Base,
+                        wires::OUT_DCC_CLKO[i].cell(ci_base),
+                    )
+                    .claim_pip("CLKO", "CLKI");
             }
         }
     }
 
     pub(super) fn process_clk_root_ecp5(&mut self, hprx: BTreeMap<(DirHV, usize), WireName>) {
+        let tcrd = self.edev.bel_tile(self.chip.bel_clk_root());
         let cell_tile = self.chip.bel_clk_root().cell;
         let cell = cell_tile.delta(-1, 0);
+
+        let (cslot, cslot_sw, cslot_se, cslot_nw, cslot_ne) = match self.edev[tcrd].class {
+            tcls::CLK_ROOT_S => (
+                defs::ecp5::tcls::CLK_ROOT_S::CENTER,
+                defs::ecp5::tcls::CLK_ROOT_S::SW,
+                defs::ecp5::tcls::CLK_ROOT_S::SE,
+                defs::ecp5::tcls::CLK_ROOT_S::NW,
+                defs::ecp5::tcls::CLK_ROOT_S::NE,
+            ),
+            tcls::CLK_ROOT_L => (
+                defs::ecp5::tcls::CLK_ROOT_L::CENTER,
+                defs::ecp5::tcls::CLK_ROOT_L::SW,
+                defs::ecp5::tcls::CLK_ROOT_L::SE,
+                defs::ecp5::tcls::CLK_ROOT_L::NW,
+                defs::ecp5::tcls::CLK_ROOT_L::NE,
+            ),
+            _ => unreachable!(),
+        };
 
         let cell_edge = DirMap::from_fn(|edge| match edge {
             Dir::H(edge) => cell_tile.with_col(self.chip.col_edge(edge)),
@@ -557,136 +316,81 @@ impl ChipContext<'_> {
 
         {
             let bcrd = cell_tile.bel(bslots::CLKTEST);
-            self.name_bel(bcrd, ["CLKTEST_CEN"]);
-            let mut bel = LegacyBel::default();
+            let mut bel = self.extract_bel_cell(bcrd, cell);
+            bel.name("CLKTEST_CEN");
             for i in 0..24 {
-                let wire = self.rc_wire(cell, &format!("JTESTIN{i}_CLKTEST"));
-                self.add_bel_wire(bcrd, format!("TESTIN{i}"), wire);
-                bel.pins
-                    .insert(format!("TESTIN{i}"), self.xlat_int_wire(bcrd, wire));
+                bel.input_xlat_rc(bcls::CLKTEST::TESTIN[i], format!("JTESTIN{i}_CLKTEST"));
             }
-            self.insert_legacy_bel(bcrd, bel);
         }
 
-        let mut dcc_ins = BTreeMap::new();
-        for (hv, quad, slot) in [
-            (DirHV::SW, "BL", bslots::DCC_SW[0]),
-            (DirHV::SE, "BR", bslots::DCC_SE[0]),
-            (DirHV::NW, "TL", bslots::DCC_NW[0]),
-            (DirHV::NE, "TR", bslots::DCC_NE[0]),
+        {
+            let bcrd = cell_tile.bel(bslots::CLK_INT);
+            let mut ex = self.extract_switchbox(bcrd);
+            ex.cell(cell)
+                .permabuf_output_xlat_rc("JBRGECLK0")
+                .permabuf_output_xlat_rc("JBRGECLK1")
+                .input_xlat_rc("JRECLK0")
+                .input_xlat_rc("JLECLK1")
+                .output_bind_rc("DCS0CLK0", cslot.wire(wires::IMUX_DCS_CLKA[0]))
+                .output_bind_rc("DCS0CLK1", cslot.wire(wires::IMUX_DCS_CLKB[0]))
+                .output_bind_rc("DCS1CLK0", cslot.wire(wires::IMUX_DCS_CLKA[1]))
+                .output_bind_rc("DCS1CLK1", cslot.wire(wires::IMUX_DCS_CLKB[1]))
+                .input_bind_rc("DCS0", cslot.wire(wires::OUT_DCS_DCSOUT[0]))
+                .input_bind_rc("DCS1", cslot.wire(wires::OUT_DCS_DCSOUT[1]))
+                .input_bind_rc("LLCPCLKCIB0", cslot_sw.wire(wires::OUT_DCC_CLKO[0]))
+                .input_bind_rc("LRCPCLKCIB0", cslot_se.wire(wires::OUT_DCC_CLKO[0]))
+                .input_bind_rc("ULCPCLKCIB0", cslot_nw.wire(wires::OUT_DCC_CLKO[0]))
+                .input_bind_rc("URCPCLKCIB0", cslot_ne.wire(wires::OUT_DCC_CLKO[0]));
+            for (edge, num_dcc) in [(Dir::W, 14), (Dir::E, 14), (Dir::S, 16), (Dir::N, 12)] {
+                for j in 0..num_dcc {
+                    let bcrd_dcc = cell_edge[edge].bel(bslots::DCC[j]);
+                    let wire_dcc = ex.ctx.naming.bel_wire(bcrd_dcc, "CLKO_OUT");
+                    ex.input_xlat(wire_dcc);
+                }
+            }
+            for (cslot, hv) in [
+                (cslot_sw, DirHV::SW),
+                (cslot_se, DirHV::SE),
+                (cslot_nw, DirHV::NW),
+                (cslot_ne, DirHV::NE),
+            ] {
+                for i in 0..16 {
+                    let wire = cslot.wire(wires::PCLK[i]);
+                    let pclk_hprx = hprx[&(hv, i)];
+                    ex.ctx
+                        .add_bel_wire(bcrd, format!("PCLK{i}_{hv}_OUT"), pclk_hprx);
+                    let pclk = ex.ctx.claim_single_in(pclk_hprx);
+                    ex.output_bind(pclk, wire);
+                }
+            }
+        }
+
+        for (quad, slot) in [
+            ("BL", bslots::DCC_SW[0]),
+            ("BR", bslots::DCC_SE[0]),
+            ("TL", bslots::DCC_NW[0]),
+            ("TR", bslots::DCC_NE[0]),
         ] {
             let bcrd = cell_tile.bel(slot);
-            self.name_bel(bcrd, [format!("DCC_{quad}")]);
-            let mut bel = LegacyBel::default();
-
-            let ce = self.rc_wire(cell, &format!("JCE_DCC{quad}"));
-            self.add_bel_wire(bcrd, "CE", ce);
-            bel.pins.insert("CE".into(), self.xlat_int_wire(bcrd, ce));
-
-            let clki = self.rc_wire(cell, &format!("JCLKI_DCC{quad}"));
-            self.add_bel_wire(bcrd, "CLKI", clki);
-            bel.pins
-                .insert("CLKI".into(), self.xlat_int_wire(bcrd, clki));
-
-            let clko = self.rc_wire(cell, &format!("CLKO_DCC{quad}"));
-            self.add_bel_wire(bcrd, "CLKO", clko);
-            self.claim_pip(clko, clki);
-
-            let clko_out = self.claim_single_out(clko);
-            self.add_bel_wire(bcrd, "CLKO_OUT", clko_out);
-            dcc_ins.insert(hv, clko_out);
-
-            self.insert_legacy_bel(bcrd, bel);
+            self.extract_bel_cell(bcrd, cell)
+                .name(format!("DCC_{quad}"))
+                .input_xlat_rc(bcls::DCC::CE, format!("JCE_DCC{quad}"))
+                .input_xlat_rc(bcls::DCC::CLKI, format!("JCLKI_DCC{quad}"))
+                .output_xlat_rc(bcls::DCC::CLKO, format!("CLKO_DCC{quad}"))
+                .claim_pip("CLKO", "CLKI");
         }
 
-        let mut dcs_ins = vec![];
         for i in 0..2 {
             let bcrd = cell_tile.bel(bslots::DCS[i]);
-            self.name_bel(bcrd, [format!("DCS{i}")]);
-            let mut bel = LegacyBel::default();
-
-            for pin in ["SEL0", "SEL1", "MODESEL"] {
-                let wire = self.rc_wire(cell, &format!("J{pin}_DCS{i}"));
-                self.add_bel_wire(bcrd, pin, wire);
-                bel.pins.insert(pin.into(), self.xlat_int_wire(bcrd, wire));
-            }
-
-            let dcsout = self.rc_wire(cell, &format!("DCSOUT_DCS{i}"));
-            self.add_bel_wire(bcrd, "DCSOUT", dcsout);
-
+            let mut bel = self.extract_bel_cell(bcrd, cell);
+            bel.name(format!("DCS{i}"))
+                .input_xlat_rc(bcls::DCS::MODESEL, format!("JMODESEL_DCS{i}"))
+                .output_xlat_rc(bcls::DCS::DCSOUT, format!("DCSOUT_DCS{i}"));
             for j in 0..2 {
-                let clk = self.rc_wire(cell, &format!("CLK{j}_DCS{i}"));
-                self.add_bel_wire(bcrd, format!("CLK{j}"), clk);
-                self.claim_pip(dcsout, clk);
-
-                let clk_in = self.claim_single_in(clk);
-                self.add_bel_wire(bcrd, format!("CLK{j}_IN"), clk_in);
-
-                for (edge, num_dcc) in [(Dir::W, 14), (Dir::E, 14), (Dir::S, 16), (Dir::N, 12)] {
-                    for j in 0..num_dcc {
-                        let bcrd_dcc = cell_edge[edge].bel(bslots::DCC[j]);
-                        let wire_dcc = self.naming.bel_wire(bcrd_dcc, "CLKO_OUT");
-                        self.claim_pip(clk_in, wire_dcc);
-                    }
-                }
-
-                for hv in DirHV::DIRS {
-                    self.claim_pip(clk_in, dcc_ins[&hv]);
-                }
-            }
-
-            let dcsout_out = self.claim_single_out(dcsout);
-            self.add_bel_wire(bcrd, "DCSOUT_OUT", dcsout_out);
-            dcs_ins.push(dcsout_out);
-
-            self.insert_legacy_bel(bcrd, bel);
-        }
-
-        let bcrd = self.chip.bel_clk_root();
-        self.name_bel_null(bcrd);
-        let mut bel = LegacyBel::default();
-
-        for (cell, hv) in [DirHV::SW, DirHV::SE, DirHV::NW, DirHV::NE]
-            .into_iter()
-            .enumerate()
-        {
-            for i in 0..16 {
-                let wire = wires::PCLK[i].cell(cell);
-                bel.pins
-                    .insert(format!("PCLK{i}_{hv}"), BelPin::new_out(wire));
-
-                let pclk_hprx = hprx[&(hv, i)];
-                self.add_bel_wire(bcrd, format!("PCLK{i}_{hv}_OUT"), pclk_hprx);
-
-                let pclk = self.claim_single_in(pclk_hprx);
-                self.add_bel_wire(bcrd, format!("PCLK{i}_{hv}"), pclk);
-
-                for (edge, num_dcc) in [(Dir::W, 14), (Dir::E, 14), (Dir::S, 16), (Dir::N, 12)] {
-                    for j in 0..num_dcc {
-                        let bcrd_dcc = cell_edge[edge].bel(bslots::DCC[j]);
-                        let wire_dcc = self.naming.bel_wire(bcrd_dcc, "CLKO_OUT");
-                        self.claim_pip(pclk, wire_dcc);
-                    }
-                }
-
-                for &wire in &dcs_ins {
-                    self.claim_pip(pclk, wire);
-                }
-
-                for hv in DirHV::DIRS {
-                    self.claim_pip(pclk, dcc_ins[&hv]);
-                }
+                bel.input_xlat_rc(bcls::DCS::SEL[j], format!("JSEL{j}_DCS{i}"))
+                    .input_xlat_rc(bcls::DCS::CLK[j], format!("CLK{j}_DCS{i}"))
+                    .claim_pip("DCSOUT", format!("CLK{j}"));
             }
         }
-        for i in 0..2 {
-            let brgeclk = self.rc_wire(cell, &format!("JBRGECLK{i}"));
-            self.add_bel_wire(bcrd, format!("BRGECLK{i}"), brgeclk);
-            let brgeclk_in = self.claim_single_in(brgeclk);
-            self.add_bel_wire(bcrd, format!("BRGECLK{i}_IN"), brgeclk_in);
-            let cell_edge = cell_edge[if i == 0 { Dir::E } else { Dir::W }];
-            let wire_edge = self.rc_io_wire(cell_edge, &format!("JECLKO_BRGECLKSYNC{i}"));
-            self.claim_pip(brgeclk_in, wire_edge);
-        }
-        self.insert_legacy_bel(bcrd, bel);
     }
 }

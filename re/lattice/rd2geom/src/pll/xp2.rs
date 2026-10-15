@@ -67,8 +67,7 @@ impl ChipContext<'_> {
                     .input_xlat_rc("JFRC0")
                     .input_xlat_rc("JFRC1");
 
-                for (v, ci) in [(DirV::S, 1), (DirV::N, 2)] {
-                    let wire_clkop = wires::OUT_PLL_CLKOP[0].cell(ci);
+                for v in DirV::DIRS {
                     if ex.ctx.chip.try_bel_pll(edge & v, 0).is_some() {
                         let idx = match edge & v {
                             DirHV::SW => 1,
@@ -77,8 +76,6 @@ impl ChipContext<'_> {
                             DirHV::NE => 1,
                         };
                         ex.input_xlat_rc(format!("JCLKOP{idx}"));
-                    } else {
-                        ex.edge(wire_clki, wire_clkop);
                     }
                 }
             }

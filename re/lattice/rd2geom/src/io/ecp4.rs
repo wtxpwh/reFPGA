@@ -861,16 +861,8 @@ impl ChipContext<'_> {
                         let cruclk = ex.ctx.naming.bel_wire(bcrd_dqs, "CRUCLK_OUT");
                         ex.input_xlat(nextclk).input_xlat(cruclk);
                     } else {
-                        for i in 0..4 {
-                            ex.edge(
-                                cslot.wire(wires::IMUX_IO_ECLK[i]),
-                                cslot.wire(wires::OUT_DQS_NEXTCLK),
-                            )
-                            .edge(
-                                cslot.wire(wires::IMUX_IO_ECLK[i]),
-                                cslot.wire(wires::OUT_DQS_CRUCLK),
-                            );
-                        }
+                        ex.missing_input(cslot.wire(wires::OUT_DQS_NEXTCLK))
+                            .missing_input(cslot.wire(wires::OUT_DQS_CRUCLK));
                     }
                 }
                 for i in 0..4 {

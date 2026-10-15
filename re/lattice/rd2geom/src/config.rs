@@ -997,6 +997,16 @@ impl ChipContext<'_> {
             "JOSC_OSC",
             wires::OUT_OSC_OSC.cell(0),
         );
+        self.hybrid_out_rc(
+            cell.bel(bslots::SED),
+            "JSEDCLKOUT_SED",
+            wires::OUT_SED_SEDCLKOUT.cell(0),
+        );
+        self.hybrid_out_rc(
+            cell.bel(bslots::JTAG),
+            "JJTCK_JTAG",
+            wires::OUT_JTAG_JTCK.cell(0),
+        );
 
         let mut bel = self.extract_bel(cell.bel(bslots::JTAG));
         bel.names(["JTAG", "TCK", "TMS", "TDI", "TDO"])

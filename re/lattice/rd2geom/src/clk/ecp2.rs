@@ -203,40 +203,6 @@ impl ChipContext<'_> {
                     ex.input_xlat_rc_nudge(wn_clkos_pll, CellSlotId::from_idx(ci_pll));
                     ex.input_xlat_rc_nudge(wn_clkok_pll, CellSlotId::from_idx(ci_pll));
                     ex.input_xlat_rc_nudge(wn_clkok2_pll, CellSlotId::from_idx(ci_pll));
-                } else {
-                    for ci in 0..4 {
-                        for i in 0..6 {
-                            for w in [
-                                wires::OUT_PLL_CLKOP[0],
-                                wires::OUT_PLL_CLKOS[0],
-                                wires::OUT_PLL_CLKOK,
-                                wires::OUT_PLL_CLKOK2,
-                            ] {
-                                ex.edge(wires::PCLK[i].cell(ci), w.cell(ci_pll));
-                            }
-                        }
-                        for i in 0..2 {
-                            for w in [
-                                wires::OUT_PLL_CLKOS[0],
-                                wires::OUT_PLL_CLKOK,
-                                wires::OUT_PLL_CLKOK2,
-                            ] {
-                                ex.edge(wires::IMUX_DCS_CLKA[i].cell(ci), w.cell(ci_pll));
-                                ex.edge(wires::IMUX_DCS_CLKB[i].cell(ci), w.cell(ci_pll));
-                            }
-                            if hv.h == DirH::W {
-                                ex.edge(
-                                    wires::IMUX_DCS_CLKB[i].cell(ci),
-                                    wires::OUT_PLL_CLKOP[0].cell(ci_pll),
-                                );
-                            } else {
-                                ex.edge(
-                                    wires::IMUX_DCS_CLKA[i].cell(ci),
-                                    wires::OUT_PLL_CLKOP[0].cell(ci_pll),
-                                );
-                            }
-                        }
-                    }
                 }
             }
         } else {
@@ -294,43 +260,6 @@ impl ChipContext<'_> {
                     ex.input_xlat_rc(wn_clkok_pll);
                 }
             }
-            if chip.kind == ChipKind::Ecp2 {
-                for (ci_base, hv) in [(40, DirHV::NW), (42, DirHV::NE)] {
-                    for idx in 0..2 {
-                        let ci_pll = ci_base + idx;
-                        if chip.try_bel_pll(hv, idx).is_none() {
-                            for ci in 0..4 {
-                                for i in 0..6 {
-                                    for w in [
-                                        wires::OUT_PLL_CLKOP[0],
-                                        wires::OUT_PLL_CLKOS[0],
-                                        wires::OUT_PLL_CLKOK,
-                                    ] {
-                                        ex.edge(wires::PCLK[i].cell(ci), w.cell(ci_pll));
-                                    }
-                                }
-                                for i in 0..2 {
-                                    for w in [wires::OUT_PLL_CLKOP[0], wires::OUT_PLL_CLKOS[0]] {
-                                        ex.edge(wires::IMUX_DCS_CLKA[i].cell(ci), w.cell(ci_pll));
-                                        ex.edge(wires::IMUX_DCS_CLKB[i].cell(ci), w.cell(ci_pll));
-                                    }
-                                    if hv.h == DirH::W {
-                                        ex.edge(
-                                            wires::IMUX_DCS_CLKA[i].cell(ci),
-                                            wires::OUT_PLL_CLKOK.cell(ci_pll),
-                                        );
-                                    } else {
-                                        ex.edge(
-                                            wires::IMUX_DCS_CLKB[i].cell(ci),
-                                            wires::OUT_PLL_CLKOK.cell(ci_pll),
-                                        );
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
         }
 
         if chip.kind == ChipKind::Ecp2M {
@@ -344,33 +273,6 @@ impl ChipContext<'_> {
                     };
                     ex.input_xlat_rc(format!("J{corner}SQ_TX_F_CLK"));
                     ex.input_xlat_rc(format!("J{corner}SQ_TX_H_CLK"));
-                } else {
-                    let ci_serdes = match hv {
-                        DirHV::SW => 46,
-                        DirHV::SE => 47,
-                        DirHV::NW => 48,
-                        DirHV::NE => 49,
-                    };
-                    for ci in 0..4 {
-                        for i in 0..6 {
-                            ex.edge(
-                                wires::PCLK[i].cell(ci),
-                                [wires::OUT_SERDES_FF_TX_H_CLK, wires::OUT_SERDES_FF_TX_F_CLK]
-                                    [i % 2]
-                                    .cell(ci_serdes),
-                            );
-                        }
-                        for i in 0..2 {
-                            ex.edge(
-                                wires::IMUX_DCS_CLKA[i].cell(ci),
-                                wires::OUT_SERDES_FF_TX_H_CLK.cell(ci_serdes),
-                            );
-                            ex.edge(
-                                wires::IMUX_DCS_CLKB[i].cell(ci),
-                                wires::OUT_SERDES_FF_TX_F_CLK.cell(ci_serdes),
-                            );
-                        }
-                    }
                 }
             }
         }

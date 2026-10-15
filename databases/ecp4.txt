@@ -11568,10 +11568,6 @@ intdb {
 	wire IMUX_ECLKSYNC_ECLKI[13]: mux;
 	wire IMUX_ECLKSYNC_ECLKI[14]: mux;
 	wire IMUX_ECLKSYNC_ECLKI[15]: mux;
-	wire BRGECLK[0]: mux;
-	wire BRGECLK[1]: mux;
-	wire BRGECLK[2]: mux;
-	wire BRGECLK[3]: mux;
 	wire OUT_ECLKSYNC_ECLKO[0]: bel;
 	wire OUT_ECLKSYNC_ECLKO[1]: bel;
 	wire OUT_ECLKSYNC_ECLKO[2]: bel;
@@ -11588,6 +11584,10 @@ intdb {
 	wire OUT_ECLKSYNC_ECLKO[13]: bel;
 	wire OUT_ECLKSYNC_ECLKO[14]: bel;
 	wire OUT_ECLKSYNC_ECLKO[15]: bel;
+	wire BRGECLK[0]: mux;
+	wire BRGECLK[1]: mux;
+	wire BRGECLK[2]: mux;
+	wire BRGECLK[3]: mux;
 	wire OUT_ECLKBRIDGECS_ECSOUT[0]: bel;
 	wire OUT_ECLKBRIDGECS_ECSOUT[1]: bel;
 	wire OUT_BRGECLKSYNC_ECLKO[0]: bel;

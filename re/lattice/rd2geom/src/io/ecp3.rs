@@ -468,14 +468,9 @@ impl ChipContext<'_> {
                 if let Dir::H(h) = edge {
                     ex.input_xlat_rc_nudge("JDLLECLK1", CellSlotId::from_idx(4))
                         .input_xlat_rc_nudge("JDLLECLK2", CellSlotId::from_idx(4));
-                    if chip.kind == ChipKind::Ecp3A {
-                        if chip.try_bel_pll(h & DirV::S, 0).is_some() {
-                            ex.input_xlat_rc_nudge("JPLLCLKOP", CellSlotId::from_idx(5))
-                                .input_xlat_rc_nudge("JPLLCLKOS", CellSlotId::from_idx(5));
-                        } else {
-                            ex.edge(wire_eclki0, wires::OUT_PLL_CLKOS[0].cell(5))
-                                .edge(wire_eclki1, wires::OUT_PLL_CLKOP[0].cell(5));
-                        }
+                    if chip.kind == ChipKind::Ecp3A && chip.try_bel_pll(h & DirV::S, 0).is_some() {
+                        ex.input_xlat_rc_nudge("JPLLCLKOP", CellSlotId::from_idx(5))
+                            .input_xlat_rc_nudge("JPLLCLKOS", CellSlotId::from_idx(5));
                     }
                 } else {
                     ex.input_xlat_rc_nudge("JPLLCLKOP1", CellSlotId::from_idx(4))

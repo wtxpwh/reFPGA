@@ -578,12 +578,6 @@ impl ChipContext<'_> {
                 let wire_prev = bel.ctx.rc_wire(cell.delta(-36, 0), "JREFCLK_TO_NQ_PCS");
                 bel.ctx.claim_pip(wire, wire_prev);
             }
-            for i in 0..16 {
-                bel.output_xlat_rc(
-                    bcls::SERDES::FFS_BIST_RPT[i],
-                    format!("JFFS_BIST_RPT_{i}_PCS"),
-                );
-            }
         }
     }
 
@@ -1114,8 +1108,7 @@ impl ChipContext<'_> {
         if self.skip_serdes {
             return;
         }
-        let tcid = tcls::SERDES;
-        for &tcrd in &self.edev.tile_index[tcid] {
+        for &tcrd in &self.edev.tile_index[tcls::SERDES] {
             let bcrd = tcrd.bel(bslots::SERDES);
             let cell = bcrd.cell;
             let bank = self.chip.columns[bcrd.cell.col].bank_s.unwrap();
@@ -1133,24 +1126,23 @@ impl ChipContext<'_> {
             } else {
                 None
             };
-            self.name_bel(
-                bcrd,
-                [
-                    format!("DCU{dual}"),
-                    format!("EXTREF{dual}"),
-                    format!("REFCLKP_D{dual}"),
-                    format!("REFCLKN_D{dual}"),
-                    format!("HDRXP0_D{dual}CH0"),
-                    format!("HDRXN0_D{dual}CH0"),
-                    format!("HDRXP0_D{dual}CH1"),
-                    format!("HDRXN0_D{dual}CH1"),
-                    format!("HDTXP0_D{dual}CH0"),
-                    format!("HDTXN0_D{dual}CH0"),
-                    format!("HDTXP0_D{dual}CH1"),
-                    format!("HDTXN0_D{dual}CH1"),
-                ],
-            );
-            let mut bel = self.extract_simple_legacy_bel(bcrd, cell, "DCU");
+
+            let mut bel = self.extract_bel(bcrd);
+            bel.names([
+                format!("DCU{dual}"),
+                format!("EXTREF{dual}"),
+                format!("REFCLKP_D{dual}"),
+                format!("REFCLKN_D{dual}"),
+                format!("HDRXP0_D{dual}CH0"),
+                format!("HDRXN0_D{dual}CH0"),
+                format!("HDRXP0_D{dual}CH1"),
+                format!("HDRXN0_D{dual}CH1"),
+                format!("HDTXP0_D{dual}CH0"),
+                format!("HDTXN0_D{dual}CH0"),
+                format!("HDTXP0_D{dual}CH1"),
+                format!("HDTXN0_D{dual}CH1"),
+            ])
+            .suffix("DCU");
 
             for (name, pin) in [
                 ("IP0", "CH0_HDINP"),
@@ -1158,14 +1150,14 @@ impl ChipContext<'_> {
                 ("IP1", "CH1_HDINP"),
                 ("IN1", "CH1_HDINN"),
             ] {
-                let wire_apio = self.rc_io_wire(cell, &format!("JINPUT_{name}_APIO"));
-                self.add_bel_wire(bcrd, format!("INPUT_{name}_APIO"), wire_apio);
-                let wire = self.rc_io_wire(cell, &format!("J{pin}_DCU"));
-                self.add_bel_wire(bcrd, pin, wire);
-                self.claim_pip(wire, wire_apio);
+                bel.add_wire_rc_io(format!("INPUT_{name}_APIO"), format!("JINPUT_{name}_APIO"))
+                    .add_wire_rc_io(pin, format!("J{pin}_DCU"))
+                    .claim_pip(pin, format!("INPUT_{name}_APIO"));
                 for apin in ["CLK", "OUTPUT"] {
-                    let wire_apio = self.rc_io_wire(cell, &format!("{apin}_{name}_APIO"));
-                    self.add_bel_wire(bcrd, format!("{apin}_{name}_APIO"), wire_apio);
+                    bel.add_wire_rc_io(
+                        format!("{apin}_{name}_APIO"),
+                        format!("{apin}_{name}_APIO"),
+                    );
                 }
             }
             for (name, pin) in [
@@ -1174,98 +1166,84 @@ impl ChipContext<'_> {
                 ("OP1", "CH1_HDOUTP"),
                 ("ON1", "CH1_HDOUTN"),
             ] {
-                let wire_apio = self.rc_io_wire(cell, &format!("JOUTPUT_{name}_APIO"));
-                self.add_bel_wire(bcrd, format!("OUTPUT_{name}_APIO"), wire_apio);
-                let wire = self.rc_io_wire(cell, &format!("J{pin}_DCU"));
-                self.add_bel_wire(bcrd, pin, wire);
-                self.claim_pip(wire_apio, wire);
+                bel.add_wire_rc_io(
+                    format!("OUTPUT_{name}_APIO"),
+                    format!("JOUTPUT_{name}_APIO"),
+                )
+                .add_wire_rc_io(pin, format!("J{pin}_DCU"))
+                .claim_pip(format!("OUTPUT_{name}_APIO"), pin);
                 for apin in ["CLK", "INPUT"] {
-                    let wire_apio = self.rc_io_wire(cell, &format!("{apin}_{name}_APIO"));
-                    self.add_bel_wire(bcrd, format!("{apin}_{name}_APIO"), wire_apio);
+                    bel.add_wire_rc_io(
+                        format!("{apin}_{name}_APIO"),
+                        format!("{apin}_{name}_APIO"),
+                    );
                 }
             }
 
             for (name, pin) in [("REFP", "REFCLKP"), ("REFN", "REFCLKN")] {
-                let wire_apio = self.rc_io_wire(cell, &format!("INPUT_{name}_APIO"));
-                self.add_bel_wire(bcrd, format!("INPUT_{name}_APIO"), wire_apio);
-                let wire = self.rc_io_wire(cell, &format!("{pin}_EXTREF"));
-                self.add_bel_wire(bcrd, pin, wire);
-                self.claim_pip(wire, wire_apio);
+                bel.add_wire_rc_io(format!("INPUT_{name}_APIO"), format!("INPUT_{name}_APIO"))
+                    .add_wire_rc_io(pin, format!("{pin}_EXTREF"))
+                    .claim_pip(pin, format!("INPUT_{name}_APIO"));
                 for apin in ["CLK", "OUTPUT"] {
-                    let wire_apio = self.rc_io_wire(cell, &format!("{apin}_{name}_APIO"));
-                    self.add_bel_wire(bcrd, format!("{apin}_{name}_APIO"), wire_apio);
+                    bel.add_wire_rc_io(
+                        format!("{apin}_{name}_APIO"),
+                        format!("{apin}_{name}_APIO"),
+                    );
                 }
             }
 
-            let refclko = self.rc_io_wire(cell, "JREFCLKO_EXTREF");
-            self.add_bel_wire(bcrd, "REFCLKO", refclko);
+            bel.output_xlat_rc_io(bcls::SERDES::REFCLKO, "JREFCLKO_EXTREF")
+                .add_wire_rc_io("REFCLKO_OUT", "EXTREFCLK")
+                .claim_pip("REFCLKO_OUT", "REFCLKO")
+                .add_wire_rc_io("KEEPWIRE", "KEEPWIRE");
 
-            let refclko_out = self.rc_io_wire(cell, "EXTREFCLK");
-            self.add_bel_wire(bcrd, "REFCLKO_OUT", refclko_out);
-            self.claim_pip(refclko_out, refclko);
-
-            let keepwire = self.rc_io_wire(cell, "KEEPWIRE");
-            self.add_bel_wire(bcrd, "KEEPWIRE", keepwire);
-
-            let refclk_prev = if let Some(cell_prev) = cell_prev {
-                let wire_prev = self.rc_io_wire(cell_prev, "JTXREFCLK");
-                let refclk_prev = self.rc_io_wire(cell, "JREFCLKFROMND");
-                self.add_bel_wire(bcrd, "REFCLK_PREV", refclk_prev);
-                self.claim_pip(refclk_prev, wire_prev);
-                Some(refclk_prev)
-            } else {
-                None
-            };
+            if let Some(cell_prev) = cell_prev {
+                let wire_prev = bel.ctx.rc_io_wire(cell_prev, "JTXREFCLK");
+                bel.add_wire_rc_io("REFCLK_PREV", "JREFCLKFROMND")
+                    .claim_pip_from("REFCLK_PREV", wire_prev);
+            }
 
             for ch in 0..2 {
-                let rx_refclk = self.rc_io_wire(cell, &format!("CH{ch}_RX_REFCLK_DCU"));
-                self.add_bel_wire(bcrd, format!("CH{ch}_RX_REFCLK"), rx_refclk);
-
-                let rx_refclk_in = self.rc_io_wire(cell, &format!("CH{ch}_RX_REFCLK"));
-                self.add_bel_wire(bcrd, format!("CH{ch}_RX_REFCLK_IN"), rx_refclk_in);
-                self.claim_pip(rx_refclk, rx_refclk_in);
-
-                let rx_refclk_int = self.rc_io_wire(cell, &format!("JCH{ch}RXREFCLKCIB"));
-                self.add_bel_wire(bcrd, format!("CH{ch}_RX_REFCLK_INT"), rx_refclk_int);
-                self.claim_pip(rx_refclk_in, rx_refclk_int);
-                bel.pins.insert(
-                    format!("CH{ch}_RX_REFCLK"),
-                    self.xlat_int_wire(bcrd, rx_refclk_int),
-                );
-
-                let rx_refclk_mux = self.rc_io_wire(cell, &format!("RXREFCLK{ch}"));
-                self.add_bel_wire(bcrd, format!("CH{ch}_RX_REFCLK_MUX"), rx_refclk_mux);
-                self.claim_pip(rx_refclk_in, rx_refclk_mux);
-
-                self.claim_pip(rx_refclk_mux, keepwire);
-                self.claim_pip(rx_refclk_mux, refclko_out);
-                if let Some(refclk_prev) = refclk_prev {
-                    self.claim_pip(rx_refclk_mux, refclk_prev);
+                bel.add_wire_rc_io(format!("CH{ch}_RX_REFCLK"), format!("CH{ch}_RX_REFCLK_DCU"))
+                    .add_wire_rc_io(format!("CH{ch}_RX_REFCLK_IN"), format!("CH{ch}_RX_REFCLK"))
+                    .claim_pip(format!("CH{ch}_RX_REFCLK"), format!("CH{ch}_RX_REFCLK_IN"))
+                    .input_xlat_rename_rc_io(
+                        [bcls::SERDES::CH0_RX_REFCLK, bcls::SERDES::CH1_RX_REFCLK][ch],
+                        format!("CH{ch}_RX_REFCLK_INT"),
+                        format!("JCH{ch}RXREFCLKCIB"),
+                    )
+                    .claim_pip(
+                        format!("CH{ch}_RX_REFCLK_IN"),
+                        format!("CH{ch}_RX_REFCLK_INT"),
+                    )
+                    .add_wire_rc_io(format!("CH{ch}_RX_REFCLK_MUX"), format!("RXREFCLK{ch}"))
+                    .claim_pip(
+                        format!("CH{ch}_RX_REFCLK_IN"),
+                        format!("CH{ch}_RX_REFCLK_MUX"),
+                    )
+                    .claim_pip(format!("CH{ch}_RX_REFCLK_MUX"), "REFCLKO_OUT")
+                    .claim_pip(format!("CH{ch}_RX_REFCLK_MUX"), "KEEPWIRE");
+                if cell_prev.is_some() {
+                    bel.claim_pip(format!("CH{ch}_RX_REFCLK_MUX"), "REFCLK_PREV");
                 }
             }
 
             {
-                let d_refclki = self.rc_io_wire(cell, "D_REFCLKI_DCU");
-                self.add_bel_wire(bcrd, "D_REFCLKI", d_refclki);
-
-                let d_refclki_in = self.rc_io_wire(cell, "D_REFCLKI");
-                self.add_bel_wire(bcrd, "D_REFCLKI_IN", d_refclki_in);
-                self.claim_pip(d_refclki, d_refclki_in);
-
-                let d_refclki_int = self.rc_io_wire(cell, "JTXREFCLKCIB");
-                self.add_bel_wire(bcrd, "D_REFCLKI_INT", d_refclki_int);
-                self.claim_pip(d_refclki_in, d_refclki_int);
-                bel.pins
-                    .insert("D_REFCLKI".into(), self.xlat_int_wire(bcrd, d_refclki_int));
-
-                let d_refclki_mux = self.rc_io_wire(cell, "JTXREFCLK");
-                self.add_bel_wire(bcrd, "D_REFCLKI_MUX", d_refclki_mux);
-                self.claim_pip(d_refclki_in, d_refclki_mux);
-
-                self.claim_pip(d_refclki_mux, keepwire);
-                self.claim_pip(d_refclki_mux, refclko_out);
-                if let Some(refclk_prev) = refclk_prev {
-                    self.claim_pip(d_refclki_mux, refclk_prev);
+                bel.add_wire_rc_io("D_REFCLKI", "D_REFCLKI_DCU")
+                    .add_wire_rc_io("D_REFCLKI_IN", "D_REFCLKI")
+                    .claim_pip("D_REFCLKI", "D_REFCLKI_IN")
+                    .input_xlat_rename_rc_io(
+                        bcls::SERDES::D_REFCLKI,
+                        "D_REFCLKI_INT",
+                        "JTXREFCLKCIB",
+                    )
+                    .claim_pip("D_REFCLKI_IN", "D_REFCLKI_INT")
+                    .add_wire_rc_io("D_REFCLKI_MUX", "JTXREFCLK")
+                    .claim_pip("D_REFCLKI_IN", "D_REFCLKI_MUX")
+                    .claim_pip("D_REFCLKI_MUX", "REFCLKO_OUT")
+                    .claim_pip("D_REFCLKI_MUX", "KEEPWIRE");
+                if cell_prev.is_some() {
+                    bel.claim_pip("D_REFCLKI_MUX", "REFCLK_PREV");
                 }
             }
 
@@ -1275,24 +1253,13 @@ impl ChipContext<'_> {
                 ("D_TXBIT_CLKP_FROM_ND", "D_TXBIT_CLKP_TO_ND"),
                 ("D_TXBIT_CLKN_FROM_ND", "D_TXBIT_CLKN_TO_ND"),
             ] {
-                let wire_from = self.rc_io_wire(cell, &format!("J{pin_from}_DCU"));
-                self.add_bel_wire(bcrd, pin_from, wire_from);
-                let wire_to = self.rc_io_wire(cell, &format!("J{pin_to}_DCU"));
-                self.add_bel_wire(bcrd, pin_to, wire_to);
+                bel.add_wire_rc_io(pin_from, format!("J{pin_from}_DCU"))
+                    .add_wire_rc_io(pin_to, format!("J{pin_to}_DCU"));
                 if let Some(cell_prev) = cell_prev {
-                    let wire_prev = self.rc_io_wire(cell_prev, &format!("J{pin_from}_DCU"));
-                    self.claim_pip(wire_to, wire_prev);
+                    let wire_prev = bel.ctx.rc_io_wire(cell_prev, &format!("J{pin_from}_DCU"));
+                    bel.claim_pip_from(pin_to, wire_prev);
                 }
             }
-
-            for ch in 0..2 {
-                for pin in ["FF_TX_PCLK", "FF_RX_PCLK"] {
-                    let wire = self.rc_io_wire(cell, &format!("JCH{ch}_{pin}_DCU"));
-                    self.add_bel_wire(bcrd, format!("CH{ch}_{pin}"), wire);
-                }
-            }
-
-            self.insert_legacy_bel(bcrd, bel);
         }
     }
 

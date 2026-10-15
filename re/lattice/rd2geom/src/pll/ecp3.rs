@@ -4,7 +4,7 @@ use prjcombine_ecp::{
 };
 use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
-    db::{CellSlotId, CellSlotIdExt, WireSlotIdExt},
+    db::{CellSlotId, WireSlotIdExt},
     dir::DirH,
     grid::DieIdExt,
 };
@@ -166,10 +166,6 @@ impl ChipContext<'_> {
                 ex.input_xlat_rc_nudge("JPLLCLKI4", cslot_n);
                 ex.input_xlat_rc_nudge("JPLLCLKFB4", cslot_n);
                 ex.input_xlat_rc_nudge("JPLLCLKFB5", cslot_n);
-            } else {
-                ex.edge(wire_clki, cslot_n.wire(wires::OUT_IO_PADDI[2]));
-                ex.edge(wire_clkfb, cslot_n.wire(wires::ECLK[0]));
-                ex.edge(wire_clkfb, cslot_n.wire(wires::ECLK[1]));
             }
             if chip.kind == ChipKind::Ecp3A {
                 ex.input_xlat_rc("JPLLCLKI5").input_xlat_rc("JPLLCLKFB6");
@@ -258,13 +254,7 @@ impl ChipContext<'_> {
                 .name_rc("DLL")
                 .suffix("DLL")
                 .input_xlat_rc(bcls::DLL::CLKI, "CLKI_DLL")
-                .input_xlat_rc(bcls::DLL::CLKFB, "CLKFB_DLL")
-                .input_xlat_rc(bcls::DLL::CIB_DCPS[0], "JCIB_DCPS_0_DLL")
-                .input_xlat_rc(bcls::DLL::CIB_DCPS[1], "JCIB_DCPS_1_DLL")
-                .input_xlat_rc(bcls::DLL::CIB_DCPS[2], "JCIB_DCPS_2_DLL")
-                .input_xlat_rc(bcls::DLL::CIB_DCPS[3], "JCIB_DCPS_3_DLL")
-                .input_xlat_rc(bcls::DLL::CIB_DCPS[4], "JCIB_DCPS_4_DLL")
-                .input_xlat_rc(bcls::DLL::CIB_DCPS[5], "JCIB_DCPS_5_DLL");
+                .input_xlat_rc(bcls::DLL::CLKFB, "CLKFB_DLL");
 
             let mut bel = self.extract_bel_cell(bcrd_dlldel, cell);
             bel.name_rc("DLLDEL")

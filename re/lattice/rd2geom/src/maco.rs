@@ -2,13 +2,12 @@ use std::collections::{BTreeMap, BTreeSet, btree_map};
 
 use prjcombine_ecp::{
     chip::{Chip, ChipKind, RowKind},
-    defs::{bslots, ccls, cslots, tcls, wiredata, wires},
+    defs::{bslots, ccls, cslots, scm::bcls, tcls, wiredata, wires},
 };
 use prjcombine_entity::{EntityId, EntityPartVec};
 use prjcombine_interconnect::{
     db::{
-        BelInfo, BelPin, ConnectorWire, LegacyBel, Mux, PinDir, SwitchBox, SwitchBoxItem,
-        WireSlotIdExt,
+        Bel, BelInfo, BelInput, ConnectorWire, Mux, PinDir, SwitchBox, SwitchBoxItem, WireSlotIdExt,
     },
     dir::{DirH, DirV},
 };
@@ -177,40 +176,78 @@ impl ChipContext<'_> {
                 let (ul, idx) = maco_rows[bcrd.row];
                 self.name_bel(bcrd, [format!("{lr}{ul}MACO{idx}")]);
                 self.name_bel_null(bcrd_int);
-                let mut bel = LegacyBel::default();
+                let mut bel = Bel::default();
                 let mut sb = SwitchBox::default();
 
                 for i in 0..3 {
-                    for pin in ["CLK", "LSR", "CE"] {
-                        for j in 0..4 {
-                            if i == 0 && j >= 2 && pin == "LSR" {
-                                continue;
-                            }
-
-                            let wire = self.rc_io_wire(cell, &format!("J{pin}_{i}_{j}_MACO"));
-                            self.add_bel_wire(bcrd, format!("{pin}_{i}_{j}"), wire);
-                            bel.pins
-                                .insert(format!("{pin}_{i}_{j}"), self.xlat_int_wire(bcrd, wire));
+                    for (pname, pins) in [
+                        (
+                            "CLK",
+                            [
+                                bcls::MACO::CLK_0.as_slice(),
+                                bcls::MACO::CLK_1.as_slice(),
+                                bcls::MACO::CLK_2.as_slice(),
+                            ],
+                        ),
+                        (
+                            "LSR",
+                            [
+                                bcls::MACO::LSR_0.as_slice(),
+                                bcls::MACO::LSR_1.as_slice(),
+                                bcls::MACO::LSR_2.as_slice(),
+                            ],
+                        ),
+                        (
+                            "CE",
+                            [
+                                bcls::MACO::CE_0.as_slice(),
+                                bcls::MACO::CE_1.as_slice(),
+                                bcls::MACO::CE_2.as_slice(),
+                            ],
+                        ),
+                    ] {
+                        let pins = pins[i];
+                        for (j, &pin) in pins.iter().enumerate() {
+                            let wire = self.rc_io_wire(cell, &format!("J{pname}_{i}_{j}_MACO"));
+                            self.add_bel_wire(bcrd, format!("{pname}_{i}_{j}"), wire);
+                            bel.inputs.insert(pin, self.xlat_input(bcrd, wire));
                         }
                     }
+                    let pins = [
+                        bcls::MACO::CIBIN_0,
+                        bcls::MACO::CIBIN_1,
+                        bcls::MACO::CIBIN_2,
+                    ][i];
                     for j in 0..32 {
                         let wire = self.rc_io_wire(cell, &format!("JCIBIN_{i}_{j}_MACO"));
                         self.add_bel_wire(bcrd, format!("CIBIN_{i}_{j}"), wire);
-                        bel.pins
-                            .insert(format!("CIBIN_{i}_{j}"), self.xlat_int_wire(bcrd, wire));
+                        bel.inputs.insert(pins[j], self.xlat_input(bcrd, wire));
                     }
-                    for j in 0..24 {
-                        if i == 0 && j >= 22 {
-                            continue;
-                        }
+                    let pins = [
+                        bcls::MACO::CIBOUT_0.as_slice(),
+                        bcls::MACO::CIBOUT_1.as_slice(),
+                        bcls::MACO::CIBOUT_2.as_slice(),
+                    ][i];
+                    for (j, &pin) in pins.iter().enumerate() {
                         let wire = self.rc_io_wire(cell, &format!("JCIBOUT_{i}_{j}_MACO"));
                         self.add_bel_wire(bcrd, format!("CIBOUT_{i}_{j}"), wire);
-                        bel.pins
-                            .insert(format!("CIBOUT_{i}_{j}"), self.xlat_int_wire(bcrd, wire));
+                        bel.outputs.insert(pin, self.xlat_output(bcrd, wire));
                     }
                 }
 
                 for i in 0..10 {
+                    let pins = [
+                        bcls::MACO::EBRO0,
+                        bcls::MACO::EBRO1,
+                        bcls::MACO::EBRO2,
+                        bcls::MACO::EBRO3,
+                        bcls::MACO::EBRO4,
+                        bcls::MACO::EBRO5,
+                        bcls::MACO::EBRO6,
+                        bcls::MACO::EBRO7,
+                        bcls::MACO::EBRO8,
+                        bcls::MACO::EBRO9,
+                    ][i];
                     for j in 0..64 {
                         let wire = self.rc_io_wire(cell, &format!("EBRO{i}{j:02}_MACO"));
                         self.add_bel_wire(bcrd, format!("EBRO{i}{j:02}"), wire);
@@ -225,11 +262,22 @@ impl ChipContext<'_> {
                             DirH::E => wires::EBR_E1[j],
                         }
                         .cell(15 - i);
-                        bel.pins
-                            .insert(format!("EBRO{i}{j:02}"), BelPin::new_out(int_wire));
+                        bel.outputs.insert(pins[j], BTreeSet::from([int_wire]));
                         let wire_ebr = self.ebr_wires[&self.edev.bel_wire(bcrd, int_wire)];
                         self.claim_pip(wire_ebr, wire_out_out);
                     }
+                    let pins = [
+                        bcls::MACO::EBRI0,
+                        bcls::MACO::EBRI1,
+                        bcls::MACO::EBRI2,
+                        bcls::MACO::EBRI3,
+                        bcls::MACO::EBRI4,
+                        bcls::MACO::EBRI5,
+                        bcls::MACO::EBRI6,
+                        bcls::MACO::EBRI7,
+                        bcls::MACO::EBRI8,
+                        bcls::MACO::EBRI9,
+                    ][i];
                     for j in 0..48 {
                         let wire = self.rc_io_wire(cell, &format!("EBRI{i}{j:02}_MACO"));
                         self.add_bel_wire(bcrd, format!("EBRI{i}{j:02}"), wire);
@@ -242,8 +290,7 @@ impl ChipContext<'_> {
                             DirH::E => wires::EBR_E0[j],
                         }
                         .cell(6 + i);
-                        bel.pins
-                            .insert(format!("EBRI{i}{j:02}"), BelPin::new_in(int_wire));
+                        bel.inputs.insert(pins[j], BelInput::Fixed(int_wire.pos()));
                         match self.ebr_wires.entry(self.edev.bel_wire(bcrd, int_wire)) {
                             btree_map::Entry::Vacant(e) => {
                                 e.insert(wire_ebr);
@@ -281,6 +328,50 @@ impl ChipContext<'_> {
                         (DirV::N, DirH::E) => DirH::E,
                     };
                     for i in 0..8 {
+                        let pins_o = match dir {
+                            DirV::S => [
+                                bcls::MACO::SIPO0,
+                                bcls::MACO::SIPO1,
+                                bcls::MACO::SIPO2,
+                                bcls::MACO::SIPO3,
+                                bcls::MACO::SIPO4,
+                                bcls::MACO::SIPO5,
+                                bcls::MACO::SIPO6,
+                                bcls::MACO::SIPO7,
+                            ][i],
+                            DirV::N => [
+                                bcls::MACO::NIPO0,
+                                bcls::MACO::NIPO1,
+                                bcls::MACO::NIPO2,
+                                bcls::MACO::NIPO3,
+                                bcls::MACO::NIPO4,
+                                bcls::MACO::NIPO5,
+                                bcls::MACO::NIPO6,
+                                bcls::MACO::NIPO7,
+                            ][i],
+                        };
+                        let pins_i = match dir {
+                            DirV::S => [
+                                bcls::MACO::SIPI0,
+                                bcls::MACO::SIPI1,
+                                bcls::MACO::SIPI2,
+                                bcls::MACO::SIPI3,
+                                bcls::MACO::SIPI4,
+                                bcls::MACO::SIPI5,
+                                bcls::MACO::SIPI6,
+                                bcls::MACO::SIPI7,
+                            ][i],
+                            DirV::N => [
+                                bcls::MACO::NIPI0,
+                                bcls::MACO::NIPI1,
+                                bcls::MACO::NIPI2,
+                                bcls::MACO::NIPI3,
+                                bcls::MACO::NIPI4,
+                                bcls::MACO::NIPI5,
+                                bcls::MACO::NIPI6,
+                                bcls::MACO::NIPI7,
+                            ][i],
+                        };
                         for j in 0..32 {
                             let twire_ipo = match dir {
                                 DirV::S => wiredata::OUT_MACO_IO_S[i][j],
@@ -290,8 +381,7 @@ impl ChipContext<'_> {
                             let wire_ipo =
                                 self.rc_io_wire(cell, &format!("{dir}IPO{i}{j:02}_MACO"));
                             self.add_bel_wire(bcrd, format!("{dir}IPO{i}{j:02}"), wire_ipo);
-                            bel.pins
-                                .insert(format!("{dir}IPO{i}{j:02}"), BelPin::new_out(twire_ipo));
+                            bel.outputs.insert(pins_o[j], BTreeSet::from([twire_ipo]));
 
                             let wire_ipo_out = self.rc_io_wire(cell, &format!("{dir}IPO{i}{j:02}"));
                             self.claim_pip(wire_ipo_out, wire_ipo);
@@ -367,8 +457,8 @@ impl ChipContext<'_> {
                             if let Some(wire_in) = wire_in {
                                 self.claim_pip(wire_ipi_in, wire_in);
                             }
-                            bel.pins
-                                .insert(format!("{dir}IPI{i}{j:02}"), BelPin::new_out(twire_in));
+                            bel.inputs
+                                .insert(pins_i[j], BelInput::Fixed(twire_in.pos()));
                         }
                     }
                 }
@@ -383,17 +473,16 @@ impl ChipContext<'_> {
                     let tip_cib = self.rc_io_wire(cell, &format!("JTIP{i:04}_CIB"));
                     self.add_bel_wire(bcrd, format!("TIP{i:04}_CIB"), tip_cib);
                     self.claim_pip(tip_cib, tip_out);
-                    let bpin = self.xlat_int_wire(bcrd, tip_cib);
-                    assert_eq!(bpin.dir, PinDir::Output);
-                    assert_eq!(bpin.wires.len(), 1);
-                    let twire = bpin.wires.iter().copied().next().unwrap();
+                    let bpin = self.xlat_output(bcrd, tip_cib);
+                    assert_eq!(bpin.len(), 1);
+                    let twire = bpin.iter().copied().next().unwrap();
                     self.add_bel_wire_no_claim(
                         bcrd_int,
                         twire.to_string(self.intdb, tcls),
                         tip_out,
                     );
                     tips.push((twire, tip_out));
-                    bel.pins.insert(format!("TIP{i:04}"), bpin);
+                    bel.outputs.insert(bcls::MACO::TIP[i], bpin);
                 }
 
                 for dir in [DirV::S, DirV::N] {
@@ -451,7 +540,7 @@ impl ChipContext<'_> {
                     }));
                 }
 
-                self.insert_legacy_bel(bcrd, bel);
+                self.insert_bel(bcrd, bel);
                 self.insert_bel_generic(bcrd_int, BelInfo::SwitchBox(sb));
             }
         }

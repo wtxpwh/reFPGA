@@ -196,40 +196,6 @@ impl ChipContext<'_> {
                     for i in 0..4 {
                         ex.input_xlat_rc(format!("J{corner}PLL{ii}", ii = idx * 4 + i));
                     }
-                } else {
-                    let cslot = match quad {
-                        DirHV::SW => CLK_ROOT::PLL_SW[idx],
-                        DirHV::SE => CLK_ROOT::PLL_SE[idx],
-                        DirHV::NW => CLK_ROOT::PLL_NW[idx],
-                        DirHV::NE => CLK_ROOT::PLL_NE[idx],
-                    };
-                    for ci in 0..4 {
-                        for i in 0..6 {
-                            for w in [
-                                wires::OUT_PLL_CLKOP[0],
-                                wires::OUT_PLL_CLKOS[0],
-                                wires::OUT_PLL_CLKOK,
-                                wires::OUT_PLL_CLKOK2,
-                            ] {
-                                ex.edge(wires::IMUX_DCC_CLKI[i].cell(ci), cslot.wire(w));
-                            }
-                        }
-                        for i in 0..2 {
-                            for w in [
-                                wires::OUT_PLL_CLKOS[0],
-                                wires::OUT_PLL_CLKOK,
-                                wires::OUT_PLL_CLKOK2,
-                            ] {
-                                ex.edge(wires::IMUX_DCS_CLKA[i].cell(ci), cslot.wire(w));
-                                ex.edge(wires::IMUX_DCS_CLKB[i].cell(ci), cslot.wire(w));
-                            }
-                            let out = match quad.h {
-                                DirH::W => wires::IMUX_DCS_CLKA,
-                                DirH::E => wires::IMUX_DCS_CLKB,
-                            };
-                            ex.edge(out[i].cell(ci), cslot.wire(wires::OUT_PLL_CLKOP[0]));
-                        }
-                    }
                 }
             }
         }
@@ -238,24 +204,6 @@ impl ChipContext<'_> {
             if ex.ctx.edev[tcrd].cells.contains_id(cslot) {
                 ex.input_xlat_rc_nudge(format!("JPCS{abcd}_TX_F_CLK"), cslot)
                     .input_xlat_rc_nudge(format!("JPCS{abcd}_TX_H_CLK"), cslot);
-            } else {
-                for ci in 0..4 {
-                    for i in 0..6 {
-                        let src =
-                            [wires::OUT_SERDES_FF_TX_H_CLK, wires::OUT_SERDES_FF_TX_F_CLK][i % 2];
-                        ex.edge(wires::IMUX_DCC_CLKI[i].cell(ci), cslot.wire(src));
-                    }
-                    for i in 0..2 {
-                        ex.edge(
-                            wires::IMUX_DCS_CLKA[i].cell(ci),
-                            cslot.wire(wires::OUT_SERDES_FF_TX_H_CLK),
-                        );
-                        ex.edge(
-                            wires::IMUX_DCS_CLKB[i].cell(ci),
-                            cslot.wire(wires::OUT_SERDES_FF_TX_F_CLK),
-                        );
-                    }
-                }
             }
         }
 

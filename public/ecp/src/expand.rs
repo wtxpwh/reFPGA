@@ -595,11 +595,42 @@ impl Expander<'_, '_> {
                                 },
                                 0,
                             ),
+                            self.chip
+                                .get_io_cell(SpecialIoKey::Clock(Dir::H(loc.quad.h), 0)),
+                            self.chip
+                                .get_io_cell(SpecialIoKey::Pll(PllPad::PllIn0, loc)),
                         ],
                     );
                 }
                 DirV::N => {
-                    self.egrid.add_tile(cell, kind, &[cell, cell.delta(0, -1)]);
+                    self.egrid.add_tile(
+                        cell,
+                        kind,
+                        &[
+                            cell,
+                            cell.delta(0, -1),
+                            self.chip
+                                .get_io_cell(SpecialIoKey::Clock(Dir::H(loc.quad.h), 2)),
+                            self.chip.get_io_cell(SpecialIoKey::Clock(
+                                Dir::N,
+                                match loc.quad.h {
+                                    DirH::W => 0,
+                                    DirH::E => 2,
+                                },
+                            )),
+                            self.chip.get_io_cell(SpecialIoKey::Clock(
+                                Dir::N,
+                                match loc.quad.h {
+                                    DirH::W => 1,
+                                    DirH::E => 3,
+                                },
+                            )),
+                            self.chip
+                                .get_io_cell(SpecialIoKey::Pll(PllPad::PllIn0, loc)),
+                            self.chip
+                                .get_io_cell(SpecialIoKey::Pll(PllPad::PllIn1, loc)),
+                        ],
+                    );
                 }
             }
         }
@@ -3302,10 +3333,7 @@ impl Expander<'_, '_> {
             }
         }
 
-        for (edge, dx, tcls_s, tcls_l) in [
-            (DirH::W, 1, tcls::CLK_W_S, tcls::CLK_W_L),
-            (DirH::E, -1, tcls::CLK_E_S, tcls::CLK_E_L),
-        ] {
+        for (edge, dx, tcls) in [(DirH::W, 1, tcls::CLK_W), (DirH::E, -1, tcls::CLK_E)] {
             let cell = self.die.cell(self.chip.col_edge(edge), self.chip.row_clk);
             let mut tcells = cell.delta(0, -6).cells_n(12);
             tcells.extend([cell.delta(dx, 0), cell.delta(dx * 2, 0)]);
@@ -3318,24 +3346,18 @@ impl Expander<'_, '_> {
                         .copied(),
                 );
             }
-            self.egrid.add_tile_part(
-                cell,
-                if self
-                    .chip
-                    .special_loc
-                    .contains_key(&SpecialLocKey::PclkIn(edge.into(), 5))
-                {
-                    tcls_l
-                } else {
-                    tcls_s
-                },
-                &tcells,
-            );
+            tcells.extend([
+                self.chip
+                    .try_bel_pll(edge & DirV::S, 0)
+                    .map(|bcrd| bcrd.cell),
+                self.chip
+                    .try_bel_pll(edge & DirV::N, 0)
+                    .map(|bcrd| bcrd.cell),
+            ]);
+            tcells.push(Some(self.chip.clk_root()));
+            self.egrid.add_tile_part(cell, tcls, &tcells);
         }
-        for (edge, tcls_s, tcls_l) in [
-            (DirV::S, tcls::CLK_S_S, tcls::CLK_S_L),
-            (DirV::N, tcls::CLK_N_S, tcls::CLK_N_L),
-        ] {
+        for (edge, tcls) in [(DirV::S, tcls::CLK_S), (DirV::N, tcls::CLK_N)] {
             let cell = self.die.cell(self.chip.col_clk, self.chip.row_edge(edge));
             let tcells = cell.delta(-8, 0).cells_e(16);
             let mut tcells = Vec::from_iter(tcells.into_iter().map(Some));
@@ -3352,21 +3374,24 @@ impl Expander<'_, '_> {
                 for hv in [DirHV::NW, DirHV::NE] {
                     tcells.push(Some(self.chip.special_loc[&SpecialLocKey::DdrDll(hv)]));
                 }
+                for hv in [DirHV::NW, DirHV::NE] {
+                    tcells.push(self.chip.try_bel_pll(hv, 0).map(|bcrd| bcrd.cell));
+                }
+            }
+            if edge == DirV::S {
+                let serdes = Vec::from_iter(
+                    self.egrid
+                        .row(self.die, self.chip.row_s())
+                        .filter(|&cell| self.chip.columns[cell.col].io_s == IoGroupKind::Serdes),
+                );
+                tcells.extend([
+                    serdes.get(0).copied(),
+                    serdes.get(1).copied(),
+                    Some(self.chip.special_loc[&SpecialLocKey::Config]),
+                ]);
             }
 
-            self.egrid.add_tile_part(
-                cell,
-                if self
-                    .chip
-                    .special_loc
-                    .contains_key(&SpecialLocKey::PclkIn(edge.into(), 5))
-                {
-                    tcls_l
-                } else {
-                    tcls_s
-                },
-                &tcells,
-            );
+            self.egrid.add_tile_part(cell, tcls, &tcells);
         }
 
         let cell = self.chip.bel_clk_root().cell;
@@ -3392,7 +3417,17 @@ impl Expander<'_, '_> {
             self.egrid.add_tile(
                 cell,
                 tcls::CLK_ROOT_S,
-                &[cell_s.delta(-1, 0), cell_s, cell_n.delta(-1, 0), cell_n],
+                &[
+                    cell_s.delta(-1, 0),
+                    cell_s,
+                    cell_n.delta(-1, 0),
+                    cell_n,
+                    self.chip.clk_root(),
+                    self.chip.clk_root().with_col(self.chip.col_w()),
+                    self.chip.clk_root().with_col(self.chip.col_e()),
+                    self.chip.clk_root().with_row(self.chip.row_s()),
+                    self.chip.clk_root().with_row(self.chip.row_n()),
+                ],
             );
         } else {
             self.egrid.add_tile(
@@ -3407,6 +3442,11 @@ impl Expander<'_, '_> {
                     cell.with_row(row_n),
                     cell_n.delta(-1, 0),
                     cell_n,
+                    self.chip.clk_root(),
+                    self.chip.clk_root().with_col(self.chip.col_w()),
+                    self.chip.clk_root().with_col(self.chip.col_e()),
+                    self.chip.clk_root().with_row(self.chip.row_s()),
+                    self.chip.clk_root().with_row(self.chip.row_n()),
                 ],
             );
         }

@@ -14,7 +14,7 @@ use prjcombine_ecp::{
 };
 use prjcombine_entity::{EntityId, EntityVec};
 use prjcombine_interconnect::{
-    db::{BelInfo, BelSlotId, IntDb, SwitchBox, SwitchBoxItem, TileClassId, TileWireCoord},
+    db::{BelInfo, BelSlotId, IntDb, TileClassId, TileWireCoord},
     grid::{BelCoord, CellCoord, ColId, WireCoord},
 };
 use prjcombine_re_lattice_naming::{ChipNaming, Database, WireName};
@@ -25,6 +25,7 @@ use rayon::iter::{IntoParallelIterator, ParallelIterator};
 use crate::{
     chip::{ChipExt, make_chip},
     pkg::process_bond,
+    sb::SwitchBoxData,
 };
 
 mod archive;
@@ -40,6 +41,7 @@ mod maco;
 mod pkg;
 mod plc;
 mod pll;
+mod sb;
 mod serdes;
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
@@ -76,7 +78,8 @@ struct ChipContext<'dev> {
     dummy_sites: BTreeSet<String>,
     skip_serdes: bool,
     ebr_wires: BTreeMap<WireCoord, WireName>,
-    switchboxes: BTreeMap<BelCoord, Vec<SwitchBoxItem>>,
+    switchboxes: BTreeMap<BelCoord, SwitchBoxData>,
+    merged_switchboxes: BTreeMap<(TileClassId, BelSlotId), SwitchBoxData>,
 }
 
 impl<'dev> ChipContext<'dev> {
@@ -359,9 +362,19 @@ impl<'dev> ChipContext<'dev> {
     }
 
     fn flush_switchboxes(&mut self) {
-        for (bcrd, mut items) in core::mem::take(&mut self.switchboxes) {
-            items.sort();
-            self.insert_switchbox(bcrd, SwitchBox { items });
+        for (bcrd, data) in core::mem::take(&mut self.switchboxes) {
+            let tcrd = self.edev.bel_tile(bcrd);
+            match self
+                .merged_switchboxes
+                .entry((self.edev[tcrd].class, bcrd.slot))
+            {
+                btree_map::Entry::Vacant(e) => {
+                    e.insert(data);
+                }
+                btree_map::Entry::Occupied(mut e) => {
+                    e.get_mut().merge(&data, self.intdb);
+                }
+            }
         }
     }
 }
@@ -370,6 +383,7 @@ struct ChipResult {
     chip: Chip,
     naming: ChipNaming,
     bels: BTreeMap<(TileClassId, BelSlotId), BelInfo>,
+    switchboxes: BTreeMap<(TileClassId, BelSlotId), SwitchBoxData>,
     dummy_sites: BTreeSet<String>,
 }
 
@@ -425,6 +439,7 @@ fn process_chip(name: &str, grid: &Grid, kind: ChipKind, intdb: &IntDb) -> ChipR
         skip_serdes: false,
         ebr_wires: Default::default(),
         switchboxes: Default::default(),
+        merged_switchboxes: Default::default(),
     };
     ctx.process_int();
     ctx.sort_bel_wires();
@@ -444,11 +459,13 @@ fn process_chip(name: &str, grid: &Grid, kind: ChipKind, intdb: &IntDb) -> ChipR
     let naming = ctx.naming;
     let bels = ctx.bels;
     let dummy_sites = ctx.dummy_sites;
+    let switchboxes = ctx.merged_switchboxes;
     ChipResult {
         chip,
         naming,
         bels,
         dummy_sites,
+        switchboxes,
     }
 }
 
@@ -534,17 +551,28 @@ fn main() -> Result<(), Box<dyn Error>> {
             missing_bels.insert((tcid, bid));
         }
     }
+    let mut switchboxes = BTreeMap::new();
     for (gid, cres) in pgrids {
         let mut chip = cres.chip;
         let naming = cres.naming;
         let mut cur_devs: BTreeMap<String, Device> = BTreeMap::new();
         let chip_id = chips.next_id();
+        for ((tcid, bid), data) in cres.switchboxes {
+            match switchboxes.entry((tcid, bid)) {
+                btree_map::Entry::Vacant(e) => {
+                    e.insert(data);
+                }
+                btree_map::Entry::Occupied(mut e) => {
+                    e.get_mut().merge(&data, &int);
+                }
+            }
+        }
         for ((tcid, bid), bel) in cres.bels {
             if missing_bels.remove(&(tcid, bid)) {
                 int.tile_classes[tcid].bels.insert(bid, bel);
             } else {
                 if !int[tcid].bels.contains_id(bid) {
-                    panic!(
+                    println!(
                         "EXTRA BEL {chip_id} {tc} {bel}",
                         tc = int.tile_classes[tcid].name,
                         bel = int.bel_slots[bid].name,
@@ -763,6 +791,27 @@ fn main() -> Result<(), Box<dyn Error>> {
         }
         assert_eq!(chip_id, chips.push((chip, naming)));
         devices.extend(cur_devs.into_values());
+    }
+    for ((tcid, bid), data) in switchboxes {
+        let bel = BelInfo::SwitchBox(data.finish());
+        if missing_bels.remove(&(tcid, bid)) {
+            int.tile_classes[tcid].bels.insert(bid, bel);
+        } else {
+            if !int[tcid].bels.contains_id(bid) {
+                println!(
+                    "EXTRA SWITCHBOX {tc} {bel}",
+                    tc = int.tile_classes[tcid].name,
+                    bel = int.bel_slots[bid].name,
+                );
+            }
+            assert_eq!(
+                int[tcid].bels[bid],
+                bel,
+                "MERGE FAILED [SB] {tc} {bel}",
+                tc = int.tile_classes[tcid].name,
+                bel = int.bel_slots[bid].name,
+            );
+        }
     }
     for (tcid, bid) in missing_bels {
         println!(

@@ -220,6 +220,7 @@ needless_bool = "allow"
 precedence = "allow"
 explicit_counter_loop = "allow"
 manual_map = "allow"
+get_first = "allow"
 
 [workspace.lints.cargo]
 non_kebab_case_bins = "allow"

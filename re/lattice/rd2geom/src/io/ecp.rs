@@ -596,19 +596,6 @@ impl ChipContext<'_> {
                 }
 
                 ex.input_xlat_rc(format!("JCIBCLK{i}"));
-
-                if let Dir::H(h) = edge {
-                    for (v, ci, ci_io) in [(DirV::S, 3, 5), (DirV::N, 4, 6)] {
-                        if ex.ctx.chip.try_bel_pll(h & v, 0).is_none() {
-                            ex.edge(wire_eclk, wires::OUT_IO_PADDI[0].cell(ci_io));
-                            if i == 0 {
-                                ex.edge(wire_eclk, wires::OUT_PLL_CLKOP[0].cell(ci));
-                            } else {
-                                ex.edge(wire_eclk, wires::OUT_PLL_CLKOS[0].cell(ci));
-                            }
-                        }
-                    }
-                }
             }
         }
     }

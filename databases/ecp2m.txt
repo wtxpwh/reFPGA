@@ -10337,12 +10337,12 @@ intdb {
 	}
 
 	bel_class SERDES {
-		input CIN[12];
-		input CYAWSTN;
 		input FFC_CK_CORE_RX;
-		input FFC_CK_CORE_TX;
 		input FFC_MACRO_RST;
 		input FFC_QUAD_RST;
+		input CIN[12];
+		input CYAWSTN;
+		input FFC_CK_CORE_TX;
 		input FFC_TRST;
 		input FFC_EI_EN_0;
 		input FFC_ENABLE_CGALIGN_0;
@@ -13600,6 +13600,9 @@ intdb {
 			cell CELL[26];
 
 			bel SERDES {
+				input FFC_CK_CORE_RX = CELL[14].IMUX_CLK[0];
+				input FFC_MACRO_RST = CELL[13].IMUX_LSR[0];
+				input FFC_QUAD_RST = CELL[14].IMUX_LSR[0];
 				input CIN[0] = CELL[12].IMUX_B[1];
 				input CIN[1] = CELL[12].IMUX_A[2];
 				input CIN[2] = CELL[12].IMUX_A[1];
@@ -13613,10 +13616,7 @@ intdb {
 				input CIN[10] = CELL[11].IMUX_A[1];
 				input CIN[11] = CELL[11].IMUX_A[0];
 				input CYAWSTN = CELL[14].IMUX_A[5];
-				input FFC_CK_CORE_RX = CELL[14].IMUX_CLK[0];
 				input FFC_CK_CORE_TX = CELL[15].IMUX_CLK[0];
-				input FFC_MACRO_RST = CELL[13].IMUX_LSR[0];
-				input FFC_QUAD_RST = CELL[14].IMUX_LSR[0];
 				input FFC_TRST = CELL[15].IMUX_LSR[0];
 				input FFC_EI_EN_0 = CELL[25].IMUX_A[0];
 				input FFC_ENABLE_CGALIGN_0 = CELL[25].IMUX_A[1];
@@ -14416,6 +14416,9 @@ intdb {
 			cell CELL[26];
 
 			bel SERDES {
+				input FFC_CK_CORE_RX = CELL[14].IMUX_CLK[0];
+				input FFC_MACRO_RST = CELL[13].IMUX_LSR[0];
+				input FFC_QUAD_RST = CELL[14].IMUX_LSR[0];
 				input CIN[0] = CELL[12].IMUX_B[1];
 				input CIN[1] = CELL[12].IMUX_A[2];
 				input CIN[2] = CELL[12].IMUX_A[1];
@@ -14429,10 +14432,7 @@ intdb {
 				input CIN[10] = CELL[11].IMUX_A[1];
 				input CIN[11] = CELL[11].IMUX_A[0];
 				input CYAWSTN = CELL[14].IMUX_A[5];
-				input FFC_CK_CORE_RX = CELL[14].IMUX_CLK[0];
 				input FFC_CK_CORE_TX = CELL[15].IMUX_CLK[0];
-				input FFC_MACRO_RST = CELL[13].IMUX_LSR[0];
-				input FFC_QUAD_RST = CELL[14].IMUX_LSR[0];
 				input FFC_TRST = CELL[15].IMUX_LSR[0];
 				input FFC_EI_EN_0 = CELL[25].IMUX_A[0];
 				input FFC_ENABLE_CGALIGN_0 = CELL[25].IMUX_A[1];

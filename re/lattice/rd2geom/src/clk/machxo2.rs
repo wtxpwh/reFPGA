@@ -2,11 +2,11 @@ use std::collections::{BTreeMap, btree_map};
 
 use prjcombine_ecp::{
     chip::{Chip, ChipKind, MachXo2Kind, RowKind, SpecialLocKey},
-    defs::{self, bcls, bslots, tcls, wires},
+    defs::{bcls, bslots, wires},
 };
 use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
-    db::{CellSlotIdExt, WireSlotIdExt},
+    db::WireSlotIdExt,
     dir::{Dir, DirHV},
     grid::{ColId, DieIdExt},
 };
@@ -428,38 +428,6 @@ impl ChipContext<'_> {
                         .input_xlat_rc("JRPLLCLK1")
                         .input_xlat_rc("JRPLLCLK2")
                         .input_xlat_rc("JRPLLCLK3");
-                } else {
-                    let cslot = match ex.ctx.edev[ex.ctx.edev.bel_tile(bcrd)].class {
-                        tcls::CLK_ROOT_1EBR => defs::machxo2::tcls::CLK_ROOT_1EBR::PLL_NE,
-                        tcls::CLK_ROOT_2EBR => defs::machxo2::tcls::CLK_ROOT_2EBR::PLL_NE,
-                        tcls::CLK_ROOT_3EBR => defs::machxo2::tcls::CLK_ROOT_3EBR::PLL_NE,
-                        _ => unreachable!(),
-                    };
-                    for w in [
-                        wires::OUT_PLL_CLKOP[0],
-                        wires::OUT_PLL_CLKOS[0],
-                        wires::OUT_PLL_CLKOS2[0],
-                        wires::OUT_PLL_CLKOS3[0],
-                    ] {
-                        let w = cslot.wire(w);
-                        for i in 0..6 {
-                            ex.edge(wires::IMUX_DCC_CLKI[i].cell(0), w);
-                        }
-                        for i in 0..2 {
-                            ex.edge(wires::IMUX_DCM_CLK0[i].cell(0), w)
-                                .edge(wires::IMUX_DCM_CLK1[i].cell(0), w);
-                        }
-                    }
-                    for i in 0..2 {
-                        ex.edge(
-                            wires::IMUX_ECLKBRIDGECS_CLK0[i].cell(0),
-                            cslot.wire(wires::OUT_PLL_CLKOS[0]),
-                        )
-                        .edge(
-                            wires::IMUX_ECLKBRIDGECS_CLK1[i].cell(0),
-                            cslot.wire(wires::OUT_PLL_CLKOP[0]),
-                        );
-                    }
                 }
             }
         }

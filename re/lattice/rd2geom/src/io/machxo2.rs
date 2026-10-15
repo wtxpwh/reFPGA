@@ -108,17 +108,6 @@ impl ChipContext<'_> {
                     if ex.ctx.chip.try_bel_pll(hv, 0).is_some() {
                         ex.input_xlat_rc(format!("JPLLCLKOP{plli}"))
                             .input_xlat_rc(format!("JPLLCLKOS{plli}"));
-                    } else {
-                        for idx in 0..2 {
-                            ex.edge(
-                                wires::IMUX_ECLKSYNC_ECLKI[idx].cell(0),
-                                wires::OUT_PLL_CLKOP[0].cell(2 + plli),
-                            );
-                            ex.edge(
-                                wires::IMUX_ECLKSYNC_ECLKI[idx].cell(0),
-                                wires::OUT_PLL_CLKOS[0].cell(2 + plli),
-                            );
-                        }
                     }
                 }
             }
