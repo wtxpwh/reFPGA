@@ -212,7 +212,7 @@ fn emit_edif(mut f: impl Write, design: &Design) -> std::io::Result<()> {
             let dir = match pin.dir {
                 PinDir::Input => "INPUT",
                 PinDir::Output => "OUTPUT",
-                PinDir::Inout => "INOUT",
+                PinDir::Bidir => "INOUT",
             };
             match pin.len {
                 None => {

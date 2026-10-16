@@ -48,7 +48,7 @@ impl TempBel {
             PinDir::Output => {
                 self.insert_output(name, wires);
             }
-            PinDir::Inout => {
+            PinDir::Bidir => {
                 assert_eq!(wires.len(), 1);
                 let wire = wires.into_iter().next().unwrap();
                 self.insert_bidir(name, wire);

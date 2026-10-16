@@ -1,6 +1,6 @@
 use crate::db::{
-    BelAttribute, BelAttributeType, BelInfo, BelKind, ConnectorWire, IntDb, PadKind, PinDir,
-    SwitchBoxItem, TableValue, TileClass,
+    BelAttribute, BelAttributeType, BelInfo, BelKind, ConnectorWire, IntDb, PadKind, SwitchBoxItem,
+    TableValue, TileClass,
 };
 use prjcombine_entity::{EntityBundleIndices, EntityBundleItemIndex, EntityId};
 use prjcombine_types::bitrect::{PolTileBit, TileBit};
@@ -365,32 +365,6 @@ impl TileClass {
                     }
                     writeln!(o, "\t\t\t}}")?;
                 }
-                BelInfo::Legacy(bel) => {
-                    writeln!(o, "\t\t\tbel {slot} {{", slot = db.bel_slots[slot].name)?;
-                    for (pn, pin) in &bel.pins {
-                        write!(
-                            o,
-                            "\t\t\t\t{d} {pn} = ",
-                            d = match pin.dir {
-                                PinDir::Input => "input",
-                                PinDir::Output => "output",
-                                PinDir::Inout => "inout",
-                            },
-                        )?;
-                        let mut first = true;
-                        for &wi in &pin.wires {
-                            if !first {
-                                write!(o, ", ")?;
-                            }
-                            first = false;
-                            wires.entry(wi).or_default().push((slot, pn.to_string()));
-                            write!(o, "{wire}", wire = wi.to_string(db, self))?;
-                        }
-                        writeln!(o, ";")?;
-                    }
-                    writeln!(o, "\t\t\t}}")?;
-                }
-                BelInfo::OldTestMux => unreachable!(),
                 BelInfo::TestMux(tmux) => {
                     write!(o, "\t\t\ttest_mux {slot}", slot = db.bel_slots[slot].name)?;
                     if tmux.bits.is_empty() {
@@ -658,7 +632,6 @@ impl IntDb {
                 match bslot.kind {
                     BelKind::Routing => write!(o, "routing")?,
                     BelKind::Class(bcls) => write!(o, "{}", self.bel_classes[bcls].name)?,
-                    BelKind::Legacy => write!(o, "legacy")?,
                 }
                 writeln!(o, ";")?
             }

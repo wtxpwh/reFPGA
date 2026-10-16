@@ -388,7 +388,6 @@ impl EntityKey for BelSlot {
 pub enum BelKind {
     Routing,
     Class(BelClassId),
-    Legacy,
 }
 
 // endregion:
@@ -638,17 +637,11 @@ impl std::ops::DerefMut for PolTileWireCoord {
 /// - a [`TestMux`], which is a special test-only multiplexer (not included in [`SwitchBox`] for
 ///   historical reasons)
 /// - a [`Bel`], which is a target-specific block described by a schema in the form of [`BelClass`]
-/// - a [`LegacyBel`], which is a deprecated variant of [`Bel`] that is stringly-typed instead of
-///   being described by a schema; is being slowly removed from the codebase
 #[derive(Clone, Debug, Eq, PartialEq, Encode, Decode)]
 pub enum BelInfo {
     SwitchBox(SwitchBox),
     Bel(Bel),
     TestMux(TestMux),
-    /// Leftover invalid placeholder variant, to be removed along with `Legacy`.  Only exists
-    /// to keep serialization format stable.
-    OldTestMux,
-    Legacy(LegacyBel),
 }
 
 // endregion:
@@ -725,45 +718,11 @@ pub struct BelAttributeEnum {
     pub values: EntityPartVec<EnumValueId, BitVec>,
 }
 
-#[derive(Clone, Debug, Eq, PartialEq, Default, Encode, Decode)]
-pub struct LegacyBel {
-    pub pins: BTreeMap<String, BelPin>,
-}
-
-#[derive(Clone, Debug, Eq, PartialEq, Hash, Encode, Decode)]
-pub struct BelPin {
-    pub wires: BTreeSet<TileWireCoord>,
-    pub dir: PinDir,
-}
-
-impl BelPin {
-    pub fn new_in(wire: TileWireCoord) -> BelPin {
-        BelPin {
-            wires: BTreeSet::from_iter([wire]),
-            dir: PinDir::Input,
-        }
-    }
-
-    pub fn new_out(wire: TileWireCoord) -> BelPin {
-        BelPin {
-            wires: BTreeSet::from_iter([wire]),
-            dir: PinDir::Output,
-        }
-    }
-
-    pub fn new_out_multi(wires: impl IntoIterator<Item = TileWireCoord>) -> BelPin {
-        BelPin {
-            wires: BTreeSet::from_iter(wires),
-            dir: PinDir::Output,
-        }
-    }
-}
-
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Hash, Encode, Decode)]
 pub enum PinDir {
     Input,
     Output,
-    Inout,
+    Bidir,
 }
 
 // endregion:

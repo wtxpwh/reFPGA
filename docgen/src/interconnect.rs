@@ -8,9 +8,8 @@ use itertools::Itertools;
 use prjcombine_entity::{EntityBundleItemIndex, EntityId, EntityPartVec};
 use prjcombine_interconnect::db::{
     BelAttribute, BelAttributeId, BelAttributeType, BelClassId, BelInfo, BelInput, BelInputId,
-    BelKind, BelSlotId, ConnectorSlotId, ConnectorWire, DeviceDataId, IntDb, PinDir,
-    PolTileWireCoord, SwitchBox, SwitchBoxItem, TableId, TableValue, TileClass, TileClassId,
-    TileWireCoord, WireKind,
+    BelKind, BelSlotId, ConnectorSlotId, ConnectorWire, DeviceDataId, IntDb, PolTileWireCoord,
+    SwitchBox, SwitchBoxItem, TableId, TableValue, TileClass, TileClassId, TileWireCoord, WireKind,
 };
 use prjcombine_types::{
     bitrect::{FrameOrientation, PolTileBit, RectBitId, RectFrameId, TileBit},
@@ -74,7 +73,6 @@ fn gen_intdb_basics(ctx: &mut DocgenContext, dbname: &str, intdb: &IntDb) {
         let class = match bslot.kind {
             BelKind::Routing => "routing",
             BelKind::Class(bcid) => intdb.bel_classes[bcid].name.as_str(),
-            BelKind::Legacy => "legacy",
         };
         let tiles = intdb
             .tile_classes
@@ -1708,48 +1706,6 @@ fn gen_tile(ctx: &mut DocgenContext, dbname: &str, intdb: &IntDb, tcid: TileClas
                 };
                 bels.entry(bcid).or_default().push(slot);
             }
-            BelInfo::Legacy(bel) => {
-                writeln!(buf, r#"### Bel {bname}"#).unwrap();
-                writeln!(buf).unwrap();
-                writeln!(buf, r#"<div class="table-wrapper"><table>"#).unwrap();
-                writeln!(buf, r#"<caption>{dbname} {tname} bel {bname}</caption>"#).unwrap();
-                writeln!(buf, r#"<thead>"#).unwrap();
-                writeln!(
-                    buf,
-                    r#"<tr><th>Pin</th><th>Direction</th><th>Wires</th></tr>"#
-                )
-                .unwrap();
-                writeln!(buf, r#"</thead>"#).unwrap();
-                writeln!(buf, r#"<tbody>"#).unwrap();
-                for (pname, pin) in &bel.pins {
-                    let wires = pin
-                        .wires
-                        .iter()
-                        .map(|wire| wire.to_string(intdb, tcls))
-                        .join(", ");
-                    let dir = match pin.dir {
-                        PinDir::Input => "input",
-                        PinDir::Output => "output",
-                        PinDir::Inout => "in-out",
-                    };
-                    writeln!(
-                        buf,
-                        r#"<tr><td>{pname}</td><td>{dir}</td><td>{wires}</td></tr>"#
-                    )
-                    .unwrap();
-                    for &wire in &pin.wires {
-                        tcgen
-                            .wires
-                            .entry(wire)
-                            .or_default()
-                            .push((slot, pname.to_string()));
-                    }
-                }
-                writeln!(buf, r#"</tbody>"#).unwrap();
-                writeln!(buf, r#"</table></div>"#).unwrap();
-                writeln!(buf).unwrap();
-            }
-            BelInfo::OldTestMux => unreachable!(),
             BelInfo::TestMux(bel) => {
                 writeln!(buf, r#"### Test mux {bname}"#).unwrap();
                 writeln!(buf).unwrap();

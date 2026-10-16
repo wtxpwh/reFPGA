@@ -200,7 +200,7 @@ impl ExtrBelInfo<'_> {
         self.subs.last_mut().unwrap().pins.insert(
             name.into(),
             BelPinInfo::ExtraInt(
-                PinDir::Inout,
+                PinDir::Bidir,
                 wire_names.iter().map(|x| x.as_ref().to_string()).collect(),
             ),
         );
@@ -911,7 +911,7 @@ impl XTileExtractor<'_, '_, '_> {
                         pin
                     );
                 }
-                PinDir::Inout => {
+                PinDir::Bidir => {
                     panic!(
                         "CANNOT WALK INOUT WIRE {} {} {}",
                         self.rd.part,
@@ -966,7 +966,7 @@ impl XTileExtractor<'_, '_, '_> {
                         continue;
                     }
                 }
-                PinDir::Inout => (),
+                PinDir::Bidir => (),
             }
             panic!(
                 "CANNOT WALK WIRE {} {} {}",
@@ -991,7 +991,7 @@ impl XTileExtractor<'_, '_, '_> {
                 let dir = match tksp.dir {
                     rawdump::TkSitePinDir::Input => PinDir::Input,
                     rawdump::TkSitePinDir::Output => PinDir::Output,
-                    rawdump::TkSitePinDir::Bidir => PinDir::Inout,
+                    rawdump::TkSitePinDir::Bidir => PinDir::Bidir,
                 };
                 match sub.pins.get(name).unwrap_or(&BelPinInfo::Int) {
                     &BelPinInfo::Int => {

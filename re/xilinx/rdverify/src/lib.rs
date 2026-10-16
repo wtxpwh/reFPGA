@@ -458,7 +458,7 @@ impl<'a, 'b> BelVerifier<'a, 'b> {
                 dir: match dir {
                     PinDir::Input => SitePinDir::In,
                     PinDir::Output => SitePinDir::Out,
-                    PinDir::Inout => SitePinDir::Inout,
+                    PinDir::Bidir => SitePinDir::Inout,
                 },
                 pin: opin.into(),
                 wire,
@@ -841,7 +841,6 @@ impl<'a> Verifier<'a> {
                         used_o.insert(wire);
                     }
                 }
-                BelInfo::Legacy(_) | BelInfo::OldTestMux => unreachable!(),
                 BelInfo::TestMux(tm) => {
                     for (&dst, tmux) in &tm.wires {
                         used_o.insert(dst);
@@ -2066,7 +2065,6 @@ impl<'a> Verifier<'a> {
                         }
                     }
                 }
-                BelInfo::Legacy(_) | BelInfo::OldTestMux => unreachable!(),
                 BelInfo::TestMux(tm) => {
                     for (&wt, tmux) in &tm.wires {
                         let wti = self.grid.tile_wire(tcrd, wt);

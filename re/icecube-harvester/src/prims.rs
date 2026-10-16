@@ -394,7 +394,7 @@ pub fn get_prims(kind: ChipKind) -> BTreeMap<&'static str, Primitive> {
             "LATCH_INPUT_VALUE",
         ],
         &["D_IN_0", "D_IN_1"],
-        &[("PACKAGE_PIN", PinDir::Inout)],
+        &[("PACKAGE_PIN", PinDir::Bidir)],
         &[
             ("PIN_TYPE", PropKind::BitvecBin(6)),
             ("PULLUP", PropKind::BitvecBin(1)),
@@ -429,8 +429,8 @@ pub fn get_prims(kind: ChipKind) -> BTreeMap<&'static str, Primitive> {
         ],
         &["D_IN_0", "D_IN_1"],
         &[
-            ("PACKAGE_PIN", PinDir::Inout),
-            ("PACKAGE_PIN_B", PinDir::Inout),
+            ("PACKAGE_PIN", PinDir::Bidir),
+            ("PACKAGE_PIN_B", PinDir::Bidir),
         ],
         &[
             ("PIN_TYPE", PropKind::BitvecBin(6)),
@@ -458,7 +458,7 @@ pub fn get_prims(kind: ChipKind) -> BTreeMap<&'static str, Primitive> {
                 "C_R_SEL",
             ],
             &["D_IN_0", "D_IN_1", "SDO"],
-            &[("PACKAGE_PIN", PinDir::Inout)],
+            &[("PACKAGE_PIN", PinDir::Bidir)],
             &[
                 ("PIN_TYPE", PropKind::BitvecBin(6)),
                 ("PULLUP", PropKind::BitvecBin(1)),
@@ -499,7 +499,7 @@ pub fn get_prims(kind: ChipKind) -> BTreeMap<&'static str, Primitive> {
                 "LATCHINPUTVALUE",
             ],
             &["DIN0", "DIN1"],
-            &[("PACKAGEPIN", PinDir::Inout)],
+            &[("PACKAGEPIN", PinDir::Bidir)],
             &[
                 ("PIN_TYPE", PropKind::BitvecBin(6)),
                 ("NEG_TRIGGER", PropKind::BitvecBin(1)),
@@ -522,7 +522,7 @@ pub fn get_prims(kind: ChipKind) -> BTreeMap<&'static str, Primitive> {
                 "WEAK_PU_ENB",
             ],
             &["D_IN_0", "D_IN_1"],
-            &[("PACKAGE_PIN", PinDir::Inout)],
+            &[("PACKAGE_PIN", PinDir::Bidir)],
             &[
                 ("PIN_TYPE", PropKind::BitvecBin(6)),
                 ("PULLUP", PropKind::BitvecBin(1)),
@@ -559,7 +559,7 @@ pub fn get_prims(kind: ChipKind) -> BTreeMap<&'static str, Primitive> {
             "LATCH_INPUT_VALUE",
         ],
         &["D_IN_0", "D_IN_1", "GLOBAL_BUFFER_OUTPUT"],
-        &[("PACKAGE_PIN", PinDir::Inout)],
+        &[("PACKAGE_PIN", PinDir::Bidir)],
         &[
             ("PIN_TYPE", PropKind::BitvecBin(6)),
             ("PULLUP", PropKind::BitvecBin(1)),
@@ -640,7 +640,7 @@ pub fn get_prims(kind: ChipKind) -> BTreeMap<&'static str, Primitive> {
                 "SCLK",
             ],
             &["PLLOUTCORE", "PLLOUTGLOBAL", "LOCK", "SDO"],
-            &[("PACKAGEPIN", PinDir::Inout)],
+            &[("PACKAGEPIN", PinDir::Bidir)],
             &[
                 (
                     "FEEDBACK_PATH",
@@ -683,7 +683,7 @@ pub fn get_prims(kind: ChipKind) -> BTreeMap<&'static str, Primitive> {
                 "LOCK",
                 "SDO",
             ],
-            &[("PACKAGEPIN", PinDir::Inout)],
+            &[("PACKAGEPIN", PinDir::Bidir)],
             &[
                 (
                     "FEEDBACK_PATH",
@@ -764,7 +764,7 @@ pub fn get_prims(kind: ChipKind) -> BTreeMap<&'static str, Primitive> {
                 "SCLK",
             ],
             &["PLLOUTCORE", "PLLOUTGLOBAL", "LOCK", "SDO"],
-            &[("PACKAGEPIN", PinDir::Inout)],
+            &[("PACKAGEPIN", PinDir::Bidir)],
             &[
                 (
                     "FEEDBACK_PATH",
@@ -807,8 +807,8 @@ pub fn get_prims(kind: ChipKind) -> BTreeMap<&'static str, Primitive> {
             ],
             &["PLLOUTCORE", "PLLOUTGLOBAL", "LOCK", "SDO"],
             &[
-                ("PACKAGEPIN", PinDir::Inout),
-                ("PACKAGEPINB", PinDir::Inout),
+                ("PACKAGEPIN", PinDir::Bidir),
+                ("PACKAGEPINB", PinDir::Bidir),
             ],
             &[
                 (
@@ -858,7 +858,7 @@ pub fn get_prims(kind: ChipKind) -> BTreeMap<&'static str, Primitive> {
                 "LOCK",
                 "SDO",
             ],
-            &[("PACKAGEPIN", PinDir::Inout)],
+            &[("PACKAGEPIN", PinDir::Bidir)],
             &[
                 (
                     "FEEDBACK_PATH",
@@ -963,7 +963,7 @@ pub fn get_prims(kind: ChipKind) -> BTreeMap<&'static str, Primitive> {
                 "LOCK",
                 "SDO",
             ],
-            &[("PACKAGEPIN", PinDir::Inout)],
+            &[("PACKAGEPIN", PinDir::Bidir)],
             &[
                 (
                     "FEEDBACK_PATH",
@@ -1018,8 +1018,8 @@ pub fn get_prims(kind: ChipKind) -> BTreeMap<&'static str, Primitive> {
                 "SDO",
             ],
             &[
-                ("PACKAGEPIN", PinDir::Inout),
-                ("PACKAGEPINB", PinDir::Inout),
+                ("PACKAGEPIN", PinDir::Bidir),
+                ("PACKAGEPINB", PinDir::Bidir),
             ],
             &[
                 (
@@ -1204,16 +1204,16 @@ pub fn get_prims(kind: ChipKind) -> BTreeMap<&'static str, Primitive> {
                 "PLLCFGSRDO",
             ],
             &[
-                ("DP0", PinDir::Inout),
-                ("DN0", PinDir::Inout),
-                ("DP1", PinDir::Inout),
-                ("DN1", PinDir::Inout),
-                ("DP2", PinDir::Inout),
-                ("DN2", PinDir::Inout),
-                ("DP3", PinDir::Inout),
-                ("DN3", PinDir::Inout),
-                ("CKP", PinDir::Inout),
-                ("CKN", PinDir::Inout),
+                ("DP0", PinDir::Bidir),
+                ("DN0", PinDir::Bidir),
+                ("DP1", PinDir::Bidir),
+                ("DN1", PinDir::Bidir),
+                ("DP2", PinDir::Bidir),
+                ("DN2", PinDir::Bidir),
+                ("DP3", PinDir::Bidir),
+                ("DN3", PinDir::Bidir),
+                ("CKP", PinDir::Bidir),
+                ("CKN", PinDir::Bidir),
             ],
             &[
                 ("DIVR", PropKind::BitvecBin(5)),

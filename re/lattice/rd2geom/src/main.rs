@@ -533,11 +533,6 @@ fn main() -> Result<(), Box<dyn Error>> {
     let mut missing_bels = BTreeSet::new();
     for (tcid, tcls) in &int.tile_classes {
         for (bid, bel) in &tcls.bels {
-            if let BelInfo::Legacy(bel) = bel
-                && !bel.pins.is_empty()
-            {
-                continue;
-            }
             if let BelInfo::Bel(bel) = bel
                 && !(bel.inputs.is_empty() && bel.outputs.is_empty() && bel.bidirs.is_empty())
             {

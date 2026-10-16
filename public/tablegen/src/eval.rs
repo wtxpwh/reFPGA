@@ -1079,7 +1079,6 @@ impl Context {
                             )?;
                             BelKind::Class(bcls)
                         }
-                        ast::BelKind::Legacy => BelKind::Legacy,
                     };
                     if let Some(num) = num {
                         for i in 0..num {
@@ -1235,14 +1234,6 @@ impl Context {
                             self.dbs.variants[vid].db.tile_classes[tcls]
                                 .bels
                                 .insert(slot, BelInfo::Bel(bel));
-                        }
-                        BelKind::Legacy => {
-                            if !sbel.items.is_empty() {
-                                error_at(sbel.slot.span(), "legacy bel must not have items")?;
-                            }
-                            self.dbs.variants[vid].db.tile_classes[tcls]
-                                .bels
-                                .insert(slot, BelInfo::Legacy(Default::default()));
                         }
                     }
                 }
@@ -2142,7 +2133,7 @@ pub fn eval(items: Vec<ast::TopItem>) -> Result<AnnotatedDbSet> {
         name,
         tile_slot,
         // overwritten later
-        kind: BelKind::Legacy,
+        kind: BelKind::Routing,
     });
     ctx.dbs.bslot_id = bslot_id;
     for (vid, bel_slots) in vars {

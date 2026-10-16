@@ -922,8 +922,6 @@ fn parse_bel_slot(mut tokenizer: Tokenizer) -> Result<ast::BelSlot> {
     tokenizer.punct(':')?;
     let kind = if tokenizer.try_kw("routing") {
         ast::BelKind::Routing
-    } else if tokenizer.try_kw("legacy") {
-        ast::BelKind::Legacy
     } else {
         let bcls = tokenizer.ident()?;
         ast::BelKind::Class(bcls)

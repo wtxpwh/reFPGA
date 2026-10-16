@@ -643,7 +643,7 @@ impl<'rd> IntBuilder<'rd> {
                             self.rd.wires[wn]
                         );
                     }
-                    PinDir::Inout => {
+                    PinDir::Bidir => {
                         panic!(
                             "CANNOT WALK INOUT WIRE {} {} {}",
                             self.rd.part,
@@ -687,7 +687,7 @@ impl<'rd> IntBuilder<'rd> {
                             None
                         }
                     }
-                    PinDir::Inout => None,
+                    PinDir::Bidir => None,
                 };
                 if let Some(nwn) = nwn {
                     wn = nwn
@@ -718,7 +718,7 @@ impl<'rd> IntBuilder<'rd> {
                         let dir = match tksp.dir {
                             rawdump::TkSitePinDir::Input => PinDir::Input,
                             rawdump::TkSitePinDir::Output => PinDir::Output,
-                            rawdump::TkSitePinDir::Bidir => PinDir::Inout,
+                            rawdump::TkSitePinDir::Bidir => PinDir::Bidir,
                         };
                         match sub.pins.get(name).unwrap_or(&BelPinInfo::Int) {
                             &BelPinInfo::Int => {
@@ -1259,7 +1259,6 @@ impl<'rd> IntBuilder<'rd> {
                     items: vec![SwitchBoxItem::PermaBuf(PermaBuf { dst, src })],
                 })
             }
-            BelKind::Legacy => unreachable!(),
         }
     }
 

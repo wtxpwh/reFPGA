@@ -146,7 +146,6 @@ pub struct BelSlot {
 pub enum BelKind {
     Routing,
     Class(Ident),
-    Legacy,
 }
 
 #[derive(Debug)]
