@@ -1,5 +1,5 @@
 use prjcombine_interconnect::{
-    db::{BelInfo, WireSlotIdExt},
+    db::WireSlotIdExt,
     dir::{Dir, DirH},
 };
 use prjcombine_re_xilinx_naming_versal::{
@@ -1052,16 +1052,13 @@ impl<'rd> IntMaker<'rd> {
                     }
                 }
 
-                self.builder.insert_tcls_bel(
-                    tcid,
-                    bslots::GCLK_TAPS_DECODE_VNOC,
-                    BelInfo::Legacy(bel_dec),
-                );
+                self.builder
+                    .insert_tcls_bel(tcid, bslots::GCLK_TAPS_DECODE_VNOC, bel_dec.into());
                 self.builder
                     .insert_bel_naming(naming, bslots::GCLK_TAPS_DECODE_VNOC, bn_dec);
                 for (i, (bel, bn)) in xt.bels.into_iter().enumerate() {
                     self.builder
-                        .insert_tcls_bel(tcid, bslots::GCLK_DELAY[i], BelInfo::Legacy(bel));
+                        .insert_tcls_bel(tcid, bslots::GCLK_DELAY[i], bel.into());
                     self.builder
                         .insert_bel_naming(naming, bslots::GCLK_DELAY[i], bn);
                 }
@@ -1485,16 +1482,13 @@ impl<'rd> IntMaker<'rd> {
                     }
                 }
 
-                self.builder.insert_tcls_bel(
-                    tcid,
-                    bslots::GCLK_TAPS_DECODE_GT,
-                    BelInfo::Legacy(bel_dec),
-                );
+                self.builder
+                    .insert_tcls_bel(tcid, bslots::GCLK_TAPS_DECODE_GT, bel_dec.into());
                 self.builder
                     .insert_bel_naming(naming, bslots::GCLK_TAPS_DECODE_GT, bn_dec);
                 for (i, (bel, bn)) in xt.bels.into_iter().enumerate() {
                     self.builder
-                        .insert_tcls_bel(tcid, bslots::GCLK_DELAY[i], BelInfo::Legacy(bel));
+                        .insert_tcls_bel(tcid, bslots::GCLK_DELAY[i], bel.into());
                     self.builder
                         .insert_bel_naming(naming, bslots::GCLK_DELAY[i], bn);
                 }

@@ -2,7 +2,7 @@ use std::collections::BTreeSet;
 
 use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
-    db::{BelInfo, IntDb, PairMux, SwitchBoxItem, WireSlotIdExt, WireSupport},
+    db::{IntDb, PairMux, SwitchBoxItem, WireSlotIdExt, WireSupport},
     dir::{Dir, DirMap},
 };
 use prjcombine_re_xilinx_naming::db::{IntfWireInNaming, NamingDb, PipNaming, RawTileId};
@@ -2034,7 +2034,7 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
                 }
             }
             for (bslot, (bel, naming)) in bslots::CRC32.into_iter().zip(xt.bels) {
-                builder.insert_tcls_bel(tcid, bslot, BelInfo::Legacy(bel));
+                builder.insert_tcls_bel(tcid, bslot, bel.into());
                 builder.insert_bel_naming(tkn, bslot, naming);
             }
         }

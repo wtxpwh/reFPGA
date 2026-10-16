@@ -7,7 +7,10 @@ use prjcombine_re_xilinx_rawdump::{Coord, NodeOrWire, Part};
 use prjcombine_versal::defs::{self, ccls};
 use std::collections::BTreeMap;
 
-use prjcombine_re_xilinx_rd2db_interconnect::{ExtrBelInfo, IntBuilder, XTileInfo, XTileRef};
+use prjcombine_re_xilinx_rd2db_interconnect::{
+    IntBuilder,
+    tile::{ExtrBelInfo, XTileInfo, XTileRef},
+};
 
 use crate::bli::{BliConns, get_bli};
 

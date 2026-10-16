@@ -2,7 +2,7 @@ use std::collections::BTreeSet;
 
 use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
-    db::{BelInfo, BelPin, IntDb, PairMux, SwitchBoxItem, TileWireCoord, WireSlotIdExt},
+    db::{IntDb, PairMux, SwitchBoxItem, TileWireCoord, WireSlotIdExt},
     dir::{Dir, DirMap, DirV},
 };
 use prjcombine_re_xilinx_rawdump::Part;
@@ -1432,7 +1432,7 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
             }
         }
         for (i, (bel, naming)) in xt.bels.into_iter().enumerate() {
-            builder.insert_tcls_bel(tcls::BRAM, bslots::BRAM[i], BelInfo::Legacy(bel));
+            builder.insert_tcls_bel(tcls::BRAM, bslots::BRAM[i], bel.into());
             builder.insert_bel_naming("BRAM", bslots::BRAM[i], naming);
         }
     }
@@ -2378,16 +2378,13 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
             let ci = if e == 'B' { 1 } else { 0 };
             let (mut bel, bn) = xt.bels.pop().unwrap();
             for i in 0..2 {
-                bel.pins.insert(
+                bel.insert_input(
                     format!("PLLIN_CMT{i}"),
-                    BelPin::new_in(wires::IMUX_BUFPLL_PLLIN[i].cell(ci)),
+                    wires::IMUX_BUFPLL_PLLIN[i].cell(ci),
                 );
-                bel.pins.insert(
-                    format!("LOCKED{i}"),
-                    BelPin::new_in(wires::IMUX_BUFPLL_LOCKED[i].cell(ci)),
-                );
+                bel.insert_input(format!("LOCKED{i}"), wires::IMUX_BUFPLL_LOCKED[i].cell(ci));
             }
-            builder.insert_tcls_bel(tcid, bslots::BUFPLL, BelInfo::Legacy(bel));
+            builder.insert_tcls_bel(tcid, bslots::BUFPLL, bel.into());
             builder.insert_bel_naming(naming, bslots::BUFPLL, bn);
             let pips = builder.pips.get_mut(&(tcid, bslots::CLK_INT)).unwrap();
             for i in 0..2 {
@@ -2536,9 +2533,7 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
                 let mut tn = TileClassNaming::default();
                 for i in 0..16 {
                     let pname = format!("HCLK{i}_IN");
-                    let pin = &bel.pins[&pname];
-                    assert_eq!(pin.wires.len(), 1);
-                    let wire = pin.wires.iter().next().copied().unwrap();
+                    let wire = bel.pins[&pname].as_input().wire();
                     let pn = &naming.pins[&pname];
                     let wire_out = wires::CMT_OUT[i].cell(1);
                     pips.pips.insert((wire_out, wire.pos()), PipMode::Mux);
@@ -2559,9 +2554,7 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
                     ] {
                         for j in 0..2 {
                             let pname = format!("DCM{i}_{pin}_CKINT{j}");
-                            let pin = &bel.pins[&pname];
-                            assert_eq!(pin.wires.len(), 1);
-                            let wire = pin.wires.iter().next().copied().unwrap();
+                            let wire = bel.pins[&pname].as_input().wire();
                             let pn = &naming.pins[&pname];
                             let wire_out = out.cell(1);
                             pips.pips.insert((wire_out, wire.pos()), PipMode::Mux);
@@ -2724,9 +2717,7 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
                 let mut tn = TileClassNaming::default();
                 for i in 0..16 {
                     let pname = format!("HCLK{i}_IN");
-                    let pin = &bel.pins[&pname];
-                    assert_eq!(pin.wires.len(), 1);
-                    let wire = pin.wires.iter().next().copied().unwrap();
+                    let wire = bel.pins[&pname].as_input().wire();
                     let pn = &naming.pins[&pname];
                     let wire_out = wires::CMT_OUT[i].cell(1);
                     pips.pips.insert((wire_out, wire.pos()), PipMode::Mux);
@@ -2742,9 +2733,7 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
                 }
                 for j in 0..2 {
                     let pname = format!("CLKFBIN_CKINT{j}");
-                    let pin = &bel.pins[&pname];
-                    assert_eq!(pin.wires.len(), 1);
-                    let wire = pin.wires.iter().next().copied().unwrap();
+                    let wire = bel.pins[&pname].as_input().wire();
                     let pn = &naming.pins[&pname];
                     let wire_out = wires::IMUX_PLL_CLKFB.cell(1);
                     pips.pips.insert((wire_out, wire.pos()), PipMode::Mux);
@@ -2760,9 +2749,7 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
                 }
                 for j in 0..2 {
                     let pname = format!("CLKIN2_CKINT{j}");
-                    let pin = &bel.pins[&pname];
-                    assert_eq!(pin.wires.len(), 1);
-                    let wire = pin.wires.iter().next().copied().unwrap();
+                    let wire = bel.pins[&pname].as_input().wire();
                     let pn = &naming.pins[&pname];
                     let wire_out = wires::IMUX_PLL_CLKIN2.cell(1);
                     pips.pips.insert((wire_out, wire.pos()), PipMode::Mux);
@@ -2778,9 +2765,7 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
                 }
                 {
                     let pname = "CLKIN1_CKINT0";
-                    let pin = &bel.pins[pname];
-                    assert_eq!(pin.wires.len(), 1);
-                    let wire = pin.wires.iter().next().copied().unwrap();
+                    let wire = bel.pins[pname].as_input().wire();
                     let pn = &naming.pins[pname];
                     let wire_out = wires::IMUX_PLL_CLKIN1.cell(1);
                     pips.pips.insert((wire_out, wire.pos()), PipMode::Mux);
@@ -2860,7 +2845,7 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
                 bel.pins
                     .get_mut("LOCKED")
                     .unwrap()
-                    .wires
+                    .as_output_mut()
                     .insert(wires::OUT_BEL[18].cell(0));
                 naming.pins.get_mut("LOCKED").unwrap().int_pips.insert(
                     wires::OUT_BEL[18].cell(0),
@@ -2870,7 +2855,7 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
                         wire_from: "PLL_LOCKED".into(),
                     },
                 );
-                builder.insert_tcls_bel(tcls::CMT_PLL, bslots::PLL, BelInfo::Legacy(bel));
+                builder.insert_tcls_bel(tcls::CMT_PLL, bslots::PLL, bel.into());
                 let mut tn = TileClassNaming::default();
                 tn.bels.insert(bslots::PLL, naming);
                 builder.insert_tcls_naming(tkn, tn);

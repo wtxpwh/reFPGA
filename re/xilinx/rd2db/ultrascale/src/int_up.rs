@@ -1,10 +1,7 @@
-use std::collections::{BTreeMap, BTreeSet, btree_map};
+use std::collections::{BTreeMap, btree_map};
 
 use prjcombine_interconnect::{
-    db::{
-        BelInfo, CellSlotId, ConnectorWire, IntDb, LegacyBel, TileWireCoord, WireSlotId,
-        WireSlotIdExt,
-    },
+    db::{BelInput, CellSlotId, ConnectorWire, IntDb, TileWireCoord, WireSlotId, WireSlotIdExt},
     dir::{Dir, DirMap, DirV},
 };
 use prjcombine_re_xilinx_rawdump::{Coord, Part};
@@ -12,7 +9,11 @@ use prjcombine_re_xilinx_rawdump::{Coord, Part};
 use prjcombine_entity::{EntityId, EntityPartVec};
 use prjcombine_re_xilinx_naming::db::{BelNaming, NamingDb};
 use prjcombine_re_xilinx_naming_ultrascale::DeviceNaming;
-use prjcombine_re_xilinx_rd2db_interconnect::{IntBuilder, PipMode, XTileInfo, XTileRef};
+use prjcombine_re_xilinx_rd2db_interconnect::{
+    IntBuilder, PipMode,
+    bel::{TempBel, TempBelPin},
+    tile::{XTileInfo, XTileRef},
+};
 use prjcombine_ultrascale::defs::{
     self, bslots, ccls, tcls, ultrascaleplus::wires, wiredata::ultrascaleplus as wiredata,
 };
@@ -1446,7 +1447,7 @@ impl IntMaker<'_> {
             let mut xt = xt.bel(bel).extract();
             let (orig_bel, orig_naming) = xt.bels.pop().unwrap();
             for &(bslot, infix) in bslots {
-                let mut bel = LegacyBel::default();
+                let mut bel = TempBel::default();
                 let mut bnaming = orig_naming.clone();
                 for (orig_pname, pin) in &orig_bel.pins {
                     let Some((pre, post)) = orig_pname.split_once(infix) else {
@@ -1457,8 +1458,7 @@ impl IntMaker<'_> {
                     let pn = orig_naming.pins[orig_pname].clone();
                     bnaming.pins.insert(pname, pn);
                 }
-                self.builder
-                    .insert_tcls_bel(tcid, bslot, BelInfo::Legacy(bel));
+                self.builder.insert_tcls_bel(tcid, bslot, bel.into());
                 self.builder.insert_bel_naming(naming, bslot, bnaming);
             }
         }
@@ -3562,25 +3562,19 @@ impl IntMaker<'_> {
                 }
 
                 for ((bel, bn), bslot) in bels_bitslice.into_iter().zip(bslots::BITSLICE) {
-                    self.builder
-                        .insert_tcls_bel(tcls::XIPHY, bslot, BelInfo::Legacy(bel));
+                    self.builder.insert_tcls_bel(tcls::XIPHY, bslot, bel.into());
                     self.builder.insert_bel_naming("XIPHY", bslot, bn);
                 }
                 for ((bel, bn), bslot) in bels_bitslice_t.into_iter().zip(bslots::BITSLICE_T) {
-                    self.builder
-                        .insert_tcls_bel(tcls::XIPHY, bslot, BelInfo::Legacy(bel));
+                    self.builder.insert_tcls_bel(tcls::XIPHY, bslot, bel.into());
                     self.builder.insert_bel_naming("XIPHY", bslot, bn);
                 }
                 for ((bel, bn), bslot) in bels_control.into_iter().zip(bslots::BITSLICE_CONTROL) {
-                    self.builder
-                        .insert_tcls_bel(tcls::XIPHY, bslot, BelInfo::Legacy(bel));
+                    self.builder.insert_tcls_bel(tcls::XIPHY, bslot, bel.into());
                     self.builder.insert_bel_naming("XIPHY", bslot, bn);
                 }
-                self.builder.insert_tcls_bel(
-                    tcls::XIPHY,
-                    bslots::XIPHY_BYTE,
-                    BelInfo::Legacy(bel_byte),
-                );
+                self.builder
+                    .insert_tcls_bel(tcls::XIPHY, bslots::XIPHY_BYTE, bel_byte.into());
                 self.builder
                     .insert_bel_naming("XIPHY", bslots::XIPHY_BYTE, naming_byte);
             }
@@ -4133,9 +4127,9 @@ impl IntMaker<'_> {
         let mut bels_phy = xt.bels.split_off(33);
         let mut bels_pair = xt.bels;
         let mut bels_iob =
-            Vec::from_iter((0..66).map(|_| (LegacyBel::default(), BelNaming::default())));
+            Vec::from_iter((0..66).map(|_| (TempBel::default(), BelNaming::default())));
         let mut bels_bitslice =
-            Vec::from_iter((0..66).map(|_| (LegacyBel::default(), BelNaming::default())));
+            Vec::from_iter((0..66).map(|_| (TempBel::default(), BelNaming::default())));
 
         for (pname, wire) in [
             ("IOB_PUDC_B", wires::IMUX_IMUX_DELAY[27]),
@@ -4145,7 +4139,7 @@ impl IntMaker<'_> {
         ] {
             let wire = wire.cell(34);
             let bpin = bel_lpddrmc.pins.get_mut(pname).unwrap();
-            bpin.wires = BTreeSet::from_iter([wire]);
+            *bpin = TempBelPin::Input(BelInput::Fixed(wire.pos()));
             let bnpin = naming_lpddrmc.pins.get_mut(pname).unwrap();
             bnpin.is_intf = false;
         }
@@ -4157,7 +4151,7 @@ impl IntMaker<'_> {
             ] {
                 let wire = wire.cell(34);
                 let bpin = bel_lpddrmc.pins.get_mut(pname).unwrap();
-                bpin.wires = BTreeSet::from_iter([wire]);
+                *bpin = TempBelPin::Input(BelInput::Fixed(wire.pos()));
                 let bnpin = naming_lpddrmc.pins.get_mut(pname).unwrap();
                 bnpin.is_intf = false;
             }
@@ -4392,27 +4386,23 @@ impl IntMaker<'_> {
             .retain(|pname, _| !pname.starts_with("IF_HSM_CLB2PHY_"));
 
         for (bslot, (bel, bn)) in bslots::XP5IOB.into_iter().zip(bels_iob) {
-            self.builder
-                .insert_tcls_bel(tcls::XP5IO, bslot, BelInfo::Legacy(bel));
+            self.builder.insert_tcls_bel(tcls::XP5IO, bslot, bel.into());
             self.builder.insert_bel_naming(naming, bslot, bn);
         }
         for (bslot, (bel, bn)) in bslots::XP5IOB_PAIR.into_iter().zip(bels_pair) {
-            self.builder
-                .insert_tcls_bel(tcls::XP5IO, bslot, BelInfo::Legacy(bel));
+            self.builder.insert_tcls_bel(tcls::XP5IO, bslot, bel.into());
             self.builder.insert_bel_naming(naming, bslot, bn);
         }
         for (bslot, (bel, bn)) in bslots::XP5IO_BITSLICE.into_iter().zip(bels_bitslice) {
-            self.builder
-                .insert_tcls_bel(tcls::XP5IO, bslot, BelInfo::Legacy(bel));
+            self.builder.insert_tcls_bel(tcls::XP5IO, bslot, bel.into());
             self.builder.insert_bel_naming(naming, bslot, bn);
         }
         for (bslot, (bel, bn)) in bslots::X5PHY.into_iter().zip(bels_phy) {
-            self.builder
-                .insert_tcls_bel(tcls::XP5IO, bslot, BelInfo::Legacy(bel));
+            self.builder.insert_tcls_bel(tcls::XP5IO, bslot, bel.into());
             self.builder.insert_bel_naming(naming, bslot, bn);
         }
         self.builder
-            .insert_tcls_bel(tcls::XP5IO, bslots::LPDDRMC, BelInfo::Legacy(bel_lpddrmc));
+            .insert_tcls_bel(tcls::XP5IO, bslots::LPDDRMC, bel_lpddrmc.into());
         self.builder
             .insert_bel_naming(naming, bslots::LPDDRMC, naming_lpddrmc);
     }

@@ -16,7 +16,7 @@ use prjcombine_re_xilinx_rawdump::{Coord, Part};
 use prjcombine_types::bitrect::PolTileBit;
 use prjcombine_xc2000::xc4000::{self as defs, bslots, tcls, wires};
 
-use prjcombine_re_xilinx_rd2db_interconnect::{ExtrBelInfo, IntBuilder, PipMode};
+use prjcombine_re_xilinx_rd2db_interconnect::{IntBuilder, PipMode, tile::ExtrBelInfo};
 
 const BOT_KINDS: [&str; 4] = ["BOT", "BOTS", "BOTSL", "BOTRR"];
 const TOP_KINDS: [&str; 4] = ["TOP", "TOPS", "TOPSL", "TOPRR"];

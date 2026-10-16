@@ -1764,7 +1764,11 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
         let tcid = itd.tcid;
         let mut naming = TileClassNaming::default();
         for i in 0..itd.iobs.len() {
-            builder.insert_tcls_bel(tcid, bslots::IOB[i], BelInfo::Bel(Default::default()));
+            builder.insert_tcls_bel(
+                tcid,
+                bslots::IOB[i],
+                BelInfo::Bel(Default::default()).into(),
+            );
             naming.bels.insert(bslots::IOB[i], Default::default());
         }
         builder

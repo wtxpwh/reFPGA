@@ -1,16 +1,13 @@
 use std::collections::BTreeSet;
 
 use prjcombine_interconnect::{
-    db::{
-        BelInfo, BelInput, BelPin, IntDb, LegacyBel, SwitchBoxItem, TileWireCoord, WireSlotIdExt,
-        WireSupport,
-    },
+    db::{BelInfo, BelInput, IntDb, SwitchBoxItem, TileWireCoord, WireSlotIdExt, WireSupport},
     dir::{Dir, DirMap},
 };
 use prjcombine_re_xilinx_rawdump::Part;
 
 use prjcombine_re_xilinx_naming::db::{BelNaming, NamingDb, TileClassNaming, WireNaming};
-use prjcombine_re_xilinx_rd2db_interconnect::{IntBuilder, PipMode};
+use prjcombine_re_xilinx_rd2db_interconnect::{IntBuilder, PipMode, bel::TempBel};
 use prjcombine_virtex4::defs::{self, bcls, bslots, ccls, tcls, virtex4::wires};
 
 pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
@@ -955,7 +952,7 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
             let pin = bel.pins.remove(fpin).unwrap();
             assert_eq!(bel.pins[bpin], pin);
         }
-        builder.insert_tcls_bel(tcls::BRAM, bslots::BRAM, BelInfo::Legacy(bel));
+        builder.insert_tcls_bel(tcls::BRAM, bslots::BRAM, bel.into());
         builder.insert_tcls_naming(
             "BRAM",
             TileClassNaming {
@@ -1006,7 +1003,7 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
             bels.push(bel);
             namings.push(naming);
         }
-        let mut bel_c = LegacyBel::default();
+        let mut bel_c = TempBel::default();
         let mut naming_c = BelNaming {
             tiles: namings[0].tiles.clone(),
             pins: Default::default(),
@@ -1026,9 +1023,9 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
             naming_c.pins.insert(pin, npin);
         }
         for (i, bel) in bels.into_iter().enumerate() {
-            builder.insert_tcls_bel(tcls::DSP, bslots::DSP[i], BelInfo::Legacy(bel));
+            builder.insert_tcls_bel(tcls::DSP, bslots::DSP[i], bel.into());
         }
-        builder.insert_tcls_bel(tcls::DSP, bslots::DSP_C, BelInfo::Legacy(bel_c));
+        builder.insert_tcls_bel(tcls::DSP, bslots::DSP_C, bel_c.into());
         let mut tnaming = TileClassNaming::default();
         for (i, naming) in namings.into_iter().enumerate() {
             tnaming.bels.insert(bslots::DSP[i], naming);
@@ -1866,7 +1863,7 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
                     let p = bel.pins.remove(&format!("{pin}_TEST")).unwrap();
                     bel.pins.insert(pin.into(), p);
                 }
-                builder.insert_tcls_bel(tcls::DCM, bslots::DCM[0], BelInfo::Legacy(bel));
+                builder.insert_tcls_bel(tcls::DCM, bslots::DCM[0], bel.into());
                 builder.insert_bel_naming(tkn, bslots::DCM[0], naming);
             }
         }
@@ -1976,7 +1973,7 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
                 let p = bel.pins.remove(&format!("{pin}_TEST")).unwrap();
                 bel.pins.insert(pin.into(), p);
             }
-            builder.insert_tcls_bel(tcls::CCM, bslot, BelInfo::Legacy(bel));
+            builder.insert_tcls_bel(tcls::CCM, bslot, bel.into());
             builder.insert_bel_naming("CCM", bslot, naming);
         }
 
@@ -2101,9 +2098,8 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
         }
         let xt = x.extract();
         for (mut bel, naming) in xt.bels {
-            bel.pins
-                .insert("CONVST".into(), BelPin::new_in(wires::IMUX_SPEC[0].cell(4)));
-            builder.insert_tcls_bel(tcls::SYSMON, bslots::SYSMON, BelInfo::Legacy(bel));
+            bel.insert_input("CONVST", wires::IMUX_SPEC[0].cell(4));
+            builder.insert_tcls_bel(tcls::SYSMON, bslots::SYSMON, bel.into());
             builder.insert_bel_naming("SYSMON", bslots::SYSMON, naming);
         }
         let pips = builder

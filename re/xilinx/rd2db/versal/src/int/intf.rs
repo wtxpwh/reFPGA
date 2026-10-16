@@ -2,11 +2,14 @@ use std::collections::HashMap;
 
 use prjcombine_entity::{EntityId, EntityPartVec};
 use prjcombine_interconnect::{
-    db::{BelInfo, CellSlotId, ConnectorWire, TileClassId, TileWireCoord, WireKind, WireSlotIdExt},
+    db::{CellSlotId, ConnectorWire, TileClassId, TileWireCoord, WireKind, WireSlotIdExt},
     dir::{Dir, DirH, DirV},
 };
 use prjcombine_re_xilinx_rawdump::{Coord, TkWire};
-use prjcombine_re_xilinx_rd2db_interconnect::{ExtrBelInfo, PipMode, XTileResult};
+use prjcombine_re_xilinx_rd2db_interconnect::{
+    PipMode,
+    tile::{ExtrBelInfo, XTileResult},
+};
 use prjcombine_versal::defs::{bslots, ccls, cslots, tcls, wires};
 
 use crate::int::{IntMaker, XTileInfoExt};
@@ -745,7 +748,7 @@ impl<'rd> IntMaker<'rd> {
             for i in 0..3 {
                 let wo = w[i].cell(bli_cell);
                 let wn = &format!("BLI_GRP3_{abc}_BLI_CTRL{i}");
-                let wi = bel.pins[wn].wires.iter().copied().next().unwrap();
+                let wi = bel.pins[wn].as_input().wire();
                 pips.pips.insert((wo, wi.pos()), PipMode::PermaBuf);
             }
         }
@@ -758,7 +761,7 @@ impl<'rd> IntMaker<'rd> {
             for i in 0..w.len() {
                 let wo = w[i].cell(bli_cell);
                 let wn = &format!("BLI_GRP{grp}_D_BLI_IMUX_BYP{i}");
-                let wi = bel.pins[wn].wires.iter().copied().next().unwrap();
+                let wi = bel.pins[wn].as_input().wire();
                 pips.pips.insert((wo, wi.pos()), PipMode::PermaBuf);
             }
         }
@@ -780,14 +783,13 @@ impl<'rd> IntMaker<'rd> {
             for (i, wi) in wi.iter().copied().enumerate() {
                 let wi = wi.cell(bli_cell);
                 let pn = &format!("IMUX_O_{i}_");
-                let pin = bel.pins.get_mut(pn).unwrap();
-                assert_eq!(pin.wires.len(), 1);
-                let wo = pin.wires.pop_last().unwrap();
-                pin.wires.insert(wi);
+                let wires = bel.pins.get_mut(pn).unwrap().as_output_mut();
+                assert_eq!(wires.len(), 1);
+                let wo = wires.pop_last().unwrap();
+                wires.insert(wi);
                 pips.pips.insert((wo, wi.pos()), PipMode::PermaBuf);
             }
-            self.builder
-                .insert_tcls_bel(tcid, bslot, BelInfo::Legacy(bel));
+            self.builder.insert_tcls_bel(tcid, bslot, bel.into());
             self.builder.insert_bel_naming(naming, bslot, bn);
         }
     }

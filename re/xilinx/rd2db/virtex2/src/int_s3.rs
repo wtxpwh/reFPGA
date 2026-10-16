@@ -3084,7 +3084,7 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
     builder.insert_tcls_bel(
         tcls::HCLK_UNI,
         bslots::GLOBALSIG_HCLK,
-        BelInfo::Bel(Default::default()),
+        BelInfo::Bel(Default::default()).into(),
     );
 
     let kind = if rd.family == "spartan3" {
@@ -3101,12 +3101,16 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
         let mut naming = TileClassNaming::default();
         if kind == ChipKind::FpgaCore {
             for bslot in bslots::IBUF.into_iter().chain(bslots::OBUF) {
-                builder.insert_tcls_bel(tcid, bslot, BelInfo::Bel(Default::default()));
+                builder.insert_tcls_bel(tcid, bslot, BelInfo::Bel(Default::default()).into());
                 naming.bels.insert(bslot, Default::default());
             }
         } else {
             for i in 0..itd.iobs.len() {
-                builder.insert_tcls_bel(tcid, bslots::IOB[i], BelInfo::Bel(Default::default()));
+                builder.insert_tcls_bel(
+                    tcid,
+                    bslots::IOB[i],
+                    BelInfo::Bel(Default::default()).into(),
+                );
                 naming.bels.insert(bslots::IOB[i], Default::default());
             }
         }

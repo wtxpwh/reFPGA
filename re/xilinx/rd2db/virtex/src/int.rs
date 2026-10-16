@@ -1,6 +1,6 @@
 use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
-    db::{BelInfo, BelPin, IntDb, LegacyBel, PinDir, TileWireCoord, WireSlotIdExt},
+    db::{BelInfo, IntDb, PinDir, TileWireCoord, WireSlotIdExt},
     dir::{Dir, DirMap},
 };
 use prjcombine_re_xilinx_naming::db::{BelNaming, BelPinNaming, NamingDb, PipNaming, RawTileId};
@@ -9,7 +9,7 @@ use prjcombine_virtex::defs::{self, bcls::IOI, bslots, tcls, wire_to_mux, wires}
 use std::collections::BTreeMap;
 
 use prjcombine_re_xilinx_rd2db_grid::find_columns;
-use prjcombine_re_xilinx_rd2db_interconnect::{IntBuilder, PipMode};
+use prjcombine_re_xilinx_rd2db_interconnect::{IntBuilder, PipMode, bel::TempBel};
 
 pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
     let is_s2 = rd.family == "virtex" && rd.part.contains("2s");
@@ -488,7 +488,7 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
     ] {
         builder.wire_names(w, &[format!("CLKL_I{i}"), format!("CLKR_I{i}")]);
     }
-    let mut dll_pins = BTreeMap::new();
+    let mut dll_bel = TempBel::default();
     for (name, w) in [
         ("CLKIN", wires::IMUX_DLL_CLKIN),
         ("CLKFB", wires::IMUX_DLL_CLKFB),
@@ -513,7 +513,7 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
         builder.extra_name_cell(format!("CLKT_{name}R"), 3, w);
         builder.extra_name_cell(format!("CLKT_{name}L_1"), 4, w);
         builder.extra_name_cell(format!("CLKT_{name}R_1"), 5, w);
-        dll_pins.insert(name.to_string(), BelPin::new_in(w.cell(0)));
+        dll_bel.insert_input(name, w.cell(0));
     }
     for (name, w) in [
         ("CLK0", wires::OUT_DLL_CLK0),
@@ -537,7 +537,7 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
             builder.extra_name_cell(format!("CLKT_{name}L_1"), 4, w);
         }
         builder.extra_name_cell(format!("CLKT_{name}R_1"), 5, w);
-        dll_pins.insert(name.to_string(), BelPin::new_out(w.cell(0)));
+        dll_bel.insert_output(name, [w.cell(0)]);
     }
 
     let slice_name_only = ["F5IN", "F5", "CIN", "COUT"];
@@ -1079,7 +1079,8 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
                     );
                 }
             }
-            let pins = dll_pins
+            let pins = dll_bel
+                .pins
                 .keys()
                 .map(|k| {
                     let mut name = format!("CLK{bt}_{k}{lr}{xt}");
@@ -1185,13 +1186,7 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
                 );
             }
         }
-        builder.insert_tcls_bel(
-            tcid,
-            bslots::DLL,
-            BelInfo::Legacy(LegacyBel {
-                pins: dll_pins.clone(),
-            }),
-        );
+        builder.insert_tcls_bel(tcid, bslots::DLL, dll_bel.clone().into());
     }
 
     let forbidden = [

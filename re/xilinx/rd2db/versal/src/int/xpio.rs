@@ -1,9 +1,9 @@
 use std::collections::BTreeMap;
 
-use prjcombine_interconnect::db::{BelInfo, LegacyBel, WireSlotIdExt};
+use prjcombine_interconnect::db::WireSlotIdExt;
 use prjcombine_re_xilinx_naming::db::BelNaming;
 use prjcombine_re_xilinx_rawdump::NodeOrWire;
-use prjcombine_re_xilinx_rd2db_interconnect::PipMode;
+use prjcombine_re_xilinx_rd2db_interconnect::{PipMode, bel::TempBel};
 use prjcombine_versal::defs::{bslots, tcls, wires};
 
 use crate::int::IntMaker;
@@ -1057,7 +1057,7 @@ impl<'rd> IntMaker<'rd> {
                     let mut bels_xpiob = xt.bels;
                     let mut bels_nibbleslice = vec![
                         (
-                            LegacyBel::default(),
+                            TempBel::default(),
                             BelNaming {
                                 tiles: bn_xphy.tiles.clone(),
                                 ..Default::default()
@@ -1180,19 +1180,13 @@ impl<'rd> IntMaker<'rd> {
                     }
 
                     for (i, (bel, bn)) in bels_xpiob.into_iter().enumerate() {
-                        self.builder.insert_tcls_bel(
-                            tcls::XPIO,
-                            bslots::XPIOB[i],
-                            BelInfo::Legacy(bel),
-                        );
+                        self.builder
+                            .insert_tcls_bel(tcls::XPIO, bslots::XPIOB[i], bel.into());
                         self.builder.insert_bel_naming("XPIO", bslots::XPIOB[i], bn);
                     }
                     for (i, (bel, bn)) in bels_xpiologic.into_iter().enumerate() {
-                        self.builder.insert_tcls_bel(
-                            tcls::XPIO,
-                            bslots::XPIOLOGIC[i],
-                            BelInfo::Legacy(bel),
-                        );
+                        self.builder
+                            .insert_tcls_bel(tcls::XPIO, bslots::XPIOLOGIC[i], bel.into());
                         self.builder
                             .insert_bel_naming("XPIO", bslots::XPIOLOGIC[i], bn);
                     }
@@ -1200,16 +1194,13 @@ impl<'rd> IntMaker<'rd> {
                         self.builder.insert_tcls_bel(
                             tcls::XPIO,
                             bslots::XPHY_NIBBLESLICE[i],
-                            BelInfo::Legacy(bel),
+                            bel.into(),
                         );
                         self.builder
                             .insert_bel_naming("XPIO", bslots::XPHY_NIBBLESLICE[i], bn);
                     }
-                    self.builder.insert_tcls_bel(
-                        tcls::XPIO,
-                        bslots::XPHY,
-                        BelInfo::Legacy(bel_xphy),
-                    );
+                    self.builder
+                        .insert_tcls_bel(tcls::XPIO, bslots::XPHY, bel_xphy.into());
                     self.builder
                         .insert_bel_naming("XPIO", bslots::XPHY, bn_xphy);
                 } else {

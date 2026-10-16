@@ -1,7 +1,7 @@
 use std::collections::{BTreeMap, btree_map};
 
 use prjcombine_interconnect::{
-    db::{BelInfo, CellSlotId, ConnectorWire, IntDb, TileWireCoord, WireSlotId, WireSlotIdExt},
+    db::{CellSlotId, ConnectorWire, IntDb, TileWireCoord, WireSlotId, WireSlotIdExt},
     dir::{Dir, DirMap, DirV},
 };
 use prjcombine_re_xilinx_rawdump::{Coord, Part};
@@ -9,7 +9,10 @@ use prjcombine_re_xilinx_rawdump::{Coord, Part};
 use prjcombine_entity::{EntityId, EntityPartVec, id::EntityStaticRange};
 use prjcombine_re_xilinx_naming::db::NamingDb;
 use prjcombine_re_xilinx_naming_ultrascale::DeviceNaming;
-use prjcombine_re_xilinx_rd2db_interconnect::{IntBuilder, PipMode, XTileInfo, XTileRef};
+use prjcombine_re_xilinx_rd2db_interconnect::{
+    IntBuilder, PipMode,
+    tile::{XTileInfo, XTileRef},
+};
 use prjcombine_ultrascale::defs::{
     self, bslots, ccls, tcls, ultrascale::wires, wiredata::ultrascale as wiredata,
 };
@@ -2278,25 +2281,19 @@ impl IntMaker<'_> {
             }
 
             for ((bel, bn), bslot) in bels_bitslice.into_iter().zip(bslots::BITSLICE) {
-                self.builder
-                    .insert_tcls_bel(tcls::XIPHY, bslot, BelInfo::Legacy(bel));
+                self.builder.insert_tcls_bel(tcls::XIPHY, bslot, bel.into());
                 self.builder.insert_bel_naming(naming, bslot, bn);
             }
             for ((bel, bn), bslot) in bels_bitslice_t.into_iter().zip(bslots::BITSLICE_T) {
-                self.builder
-                    .insert_tcls_bel(tcls::XIPHY, bslot, BelInfo::Legacy(bel));
+                self.builder.insert_tcls_bel(tcls::XIPHY, bslot, bel.into());
                 self.builder.insert_bel_naming(naming, bslot, bn);
             }
             for ((bel, bn), bslot) in bels_control.into_iter().zip(bslots::BITSLICE_CONTROL) {
-                self.builder
-                    .insert_tcls_bel(tcls::XIPHY, bslot, BelInfo::Legacy(bel));
+                self.builder.insert_tcls_bel(tcls::XIPHY, bslot, bel.into());
                 self.builder.insert_bel_naming(naming, bslot, bn);
             }
-            self.builder.insert_tcls_bel(
-                tcls::XIPHY,
-                bslots::XIPHY_BYTE,
-                BelInfo::Legacy(bel_byte),
-            );
+            self.builder
+                .insert_tcls_bel(tcls::XIPHY, bslots::XIPHY_BYTE, bel_byte.into());
             self.builder
                 .insert_bel_naming(naming, bslots::XIPHY_BYTE, naming_byte);
         }

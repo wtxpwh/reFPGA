@@ -1,8 +1,6 @@
-use prjcombine_interconnect::{
-    db::{BelInfo, BelPin, LegacyBel, WireSlotIdExt},
-    dir::DirH,
-};
+use prjcombine_interconnect::{db::WireSlotIdExt, dir::DirH};
 use prjcombine_re_xilinx_naming::db::BelNaming;
+use prjcombine_re_xilinx_rd2db_interconnect::bel::TempBel;
 use prjcombine_versal::defs::{bslots, tcls, wires};
 
 use crate::int::{IntMaker, XTileInfoExt};
@@ -629,9 +627,9 @@ impl<'rd> IntMaker<'rd> {
                 for (i, (bel, mut bn)) in orig_iob.into_iter().enumerate() {
                     let bslot0 = bslots::HDIOB[i * 2];
                     let bslot1 = bslots::HDIOB[i * 2 + 1];
-                    let mut bel0 = LegacyBel::default();
+                    let mut bel0 = TempBel::default();
                     let mut bn0 = BelNaming::default();
-                    let mut bel1 = LegacyBel::default();
+                    let mut bel1 = TempBel::default();
                     let mut bn1 = BelNaming::default();
                     bn0.tiles = bn.tiles.clone();
                     bn1.tiles = bn.tiles.clone();
@@ -650,29 +648,26 @@ impl<'rd> IntMaker<'rd> {
                     }
                     bn0.pins.extend(bn.pins);
                     if matches!(i, 5 | 6) {
-                        bel0.pins.insert(
-                            "CLKPAD".into(),
-                            BelPin::new_out(wires::HDIO_CCIO[i - 5].cell(0)),
-                        );
+                        bel0.insert_output("CLKPAD", [wires::HDIO_CCIO[i - 5].cell(0)]);
                         let pn = bn0.pins["RXOUT_M"].clone();
                         bn0.pins.insert("CLKPAD".into(), pn);
                     }
                     self.builder
-                        .insert_tcls_bel(tcls::HDIO, bslot0, BelInfo::Legacy(bel0));
+                        .insert_tcls_bel(tcls::HDIO, bslot0, bel0.into());
                     self.builder.insert_bel_naming("HDIO", bslot0, bn0);
                     self.builder
-                        .insert_tcls_bel(tcls::HDIO, bslot1, BelInfo::Legacy(bel1));
+                        .insert_tcls_bel(tcls::HDIO, bslot1, bel1.into());
                     self.builder.insert_bel_naming("HDIO", bslot1, bn1);
                 }
                 for (i, (bel, mut bn)) in orig_iol.into_iter().enumerate() {
                     let bslot0 = bslots::HDIOLOGIC[i * 2];
                     let bslot1 = bslots::HDIOLOGIC[i * 2 + 1];
                     let bslot_scan = bslots::HDIOLOGIC_SCAN[i];
-                    let mut bel0 = LegacyBel::default();
+                    let mut bel0 = TempBel::default();
                     let mut bn0 = BelNaming::default();
-                    let mut bel1 = LegacyBel::default();
+                    let mut bel1 = TempBel::default();
                     let mut bn1 = BelNaming::default();
-                    let mut bel_scan = LegacyBel::default();
+                    let mut bel_scan = TempBel::default();
                     let mut bn_scan = BelNaming::default();
                     bn0.tiles = bn.tiles.clone();
                     bn1.tiles = bn.tiles.clone();
@@ -693,13 +688,13 @@ impl<'rd> IntMaker<'rd> {
                     }
                     bn_scan.pins.extend(bn.pins);
                     self.builder
-                        .insert_tcls_bel(tcls::HDIO, bslot0, BelInfo::Legacy(bel0));
+                        .insert_tcls_bel(tcls::HDIO, bslot0, bel0.into());
                     self.builder.insert_bel_naming("HDIO", bslot0, bn0);
                     self.builder
-                        .insert_tcls_bel(tcls::HDIO, bslot1, BelInfo::Legacy(bel1));
+                        .insert_tcls_bel(tcls::HDIO, bslot1, bel1.into());
                     self.builder.insert_bel_naming("HDIO", bslot1, bn1);
                     self.builder
-                        .insert_tcls_bel(tcls::HDIO, bslot_scan, BelInfo::Legacy(bel_scan));
+                        .insert_tcls_bel(tcls::HDIO, bslot_scan, bel_scan.into());
                     self.builder.insert_bel_naming("HDIO", bslot_scan, bn_scan);
                 }
             }
