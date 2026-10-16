@@ -3,7 +3,7 @@ use std::collections::{BTreeSet, btree_map};
 use prjcombine_entity::{EntityBundleIndices, EntityBundleItemIndex};
 use prjcombine_interconnect::{
     db::{
-        Bel, BelClassId, BelInfo, BelInput, BelInputId, BelOutputId, IntDb, LegacyBel, SwitchBox,
+        Bel, BelClassId, BelInfo, BelInput, BelInputId, BelOutputId, IntDb, SwitchBox,
         TileWireCoord,
     },
     grid::{BelCoord, CellCoord},
@@ -111,10 +111,21 @@ impl<'dev, 'ctx> BelExtractor<'dev, 'ctx> {
         self.names([name])
     }
 
+    pub fn name_null(&mut self) -> &mut Self {
+        self.names::<&str>([])
+    }
+
     pub fn name_rc(&mut self, prefix: impl AsRef<str>) -> &mut Self {
         let prefix = prefix.as_ref();
         let (r, c) = self.ctx.rc(self.cell);
         self.name(format!("{prefix}_R{r}C{c}"))
+    }
+
+    fn input_pname(&self, pin: BelInputId) -> String {
+        match self.ctx.intdb[self.bcid].inputs.key(pin) {
+            (pname, EntityBundleItemIndex::Single) => pname.to_string(),
+            (pname, EntityBundleItemIndex::Array { index, .. }) => format!("{pname}{index}"),
+        }
     }
 
     pub fn input_raw(&mut self, pin: BelInputId, wire: BelInput) -> &mut Self {
@@ -145,12 +156,7 @@ impl<'dev, 'ctx> BelExtractor<'dev, 'ctx> {
     }
 
     pub fn input_xlat(&mut self, pin: BelInputId, wire: WireName) -> &mut Self {
-        let pname = match self.ctx.intdb[self.bcid].inputs.key(pin) {
-            (pname, EntityBundleItemIndex::Single) => pname.to_string(),
-            (pname, EntityBundleItemIndex::Array { index, .. }) => format!("{pname}{index}"),
-        };
-        self.add_wire(pname, wire);
-        self.input_xlat_no_name(pin, wire)
+        self.input_xlat_rename(pin, self.input_pname(pin), wire)
     }
 
     pub fn input_xlat_rc_mode(
@@ -171,14 +177,29 @@ impl<'dev, 'ctx> BelExtractor<'dev, 'ctx> {
         self.input_xlat_rc_mode(pin, suffix, RcMode::Io)
     }
 
+    pub fn input_xlat_rc_corner(&mut self, pin: BelInputId, suffix: impl AsRef<str>) -> &mut Self {
+        self.input_xlat_rc_mode(pin, suffix, RcMode::Corner)
+    }
+
     pub fn input_xlat_rename(
         &mut self,
         pin: BelInputId,
         pname: impl AsRef<str>,
         wire: WireName,
     ) -> &mut Self {
-        self.add_wire(pname, wire);
-        self.input_xlat_no_name(pin, wire)
+        if let Some(wires) = self
+            .ctx
+            .int_wires
+            .get(&wire)
+            .or(self.ctx.io_int_wires.get(&wire))
+        {
+            let tw = self.ctx.wire_to_tw(self.bcrd, wires[0], None).unwrap();
+            self.add_wire_no_claim(pname, wire);
+            self.input(pin, tw)
+        } else {
+            self.add_wire(pname, wire);
+            self.input_xlat_no_name(pin, wire)
+        }
     }
 
     pub fn input_xlat_rename_rc_mode(
@@ -505,6 +526,29 @@ impl<'dev, 'ctx> BelExtractor<'dev, 'ctx> {
     pub fn discard(mut self) {
         self.discard = true;
     }
+
+    // SC SERDES_CORNER special
+    pub fn input_sc_xlat(&mut self, pin: BelInputId, wires: &[WireName]) -> &mut Self {
+        let wname = self.ctx.find_single_in(wires[0]);
+        for &w in wires {
+            self.ctx.claim_pip(w, wname);
+        }
+        self.add_wire(self.input_pname(pin), wname);
+        let tw = self.ctx.xlat_sc_wire(wname, self.bcrd);
+        self.input(pin, tw)
+    }
+
+    pub fn output_sc_xlat(&mut self, pin: BelOutputId, wire: WireName) -> &mut Self {
+        let wname = self.ctx.pips_fwd[&wire]
+            .iter()
+            .copied()
+            .find(|&w| !self.ctx.int_wires.contains_key(&w))
+            .unwrap();
+        self.ctx.claim_pip(wname, wire);
+        self.add_wire(self.output_pname(pin), wname);
+        let tw = self.ctx.xlat_sc_wire(wname, self.bcrd);
+        self.output(pin, tw)
+    }
 }
 
 impl<'dev, 'ctx> Drop for BelExtractor<'dev, 'ctx> {
@@ -592,42 +636,7 @@ impl<'dev> ChipContext<'dev> {
         self.insert_bel_generic(bcrd, BelInfo::Bel(bel));
     }
 
-    pub fn insert_legacy_bel(&mut self, bcrd: BelCoord, bel: LegacyBel) {
-        self.insert_bel_generic(bcrd, BelInfo::Legacy(bel));
-    }
-
     pub fn insert_switchbox(&mut self, bcrd: BelCoord, sb: SwitchBox) {
         self.insert_bel_generic(bcrd, BelInfo::SwitchBox(sb));
-    }
-
-    pub fn extract_simple_legacy_bel(
-        &mut self,
-        bcrd: BelCoord,
-        cell: CellCoord,
-        suffix: &'static str,
-    ) -> LegacyBel {
-        let wires = self.sorted_wires[&(cell, suffix)].clone();
-        let mut bel = LegacyBel::default();
-        for (pin, wire) in wires {
-            if suffix == "DLLDEL" && pin == "A" {
-                continue;
-            }
-            let Some(bpin) = self.try_xlat_int_wire(bcrd, wire) else {
-                continue;
-            };
-            self.add_bel_wire(bcrd, &pin, wire);
-            bel.pins.insert(pin, bpin);
-        }
-        bel
-    }
-
-    pub fn insert_simple_legacy_bel(
-        &mut self,
-        bcrd: BelCoord,
-        cell: CellCoord,
-        suffix: &'static str,
-    ) {
-        let bel = self.extract_simple_legacy_bel(bcrd, cell, suffix);
-        self.insert_legacy_bel(bcrd, bel);
     }
 }

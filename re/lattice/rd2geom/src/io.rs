@@ -23,6 +23,7 @@ impl ChipContext<'_> {
     pub fn process_io(&mut self) {
         match self.chip.kind {
             ChipKind::Scm => {
+                self.prep_io_scm();
                 self.process_eclk_scm();
                 self.process_pll_scm();
                 self.process_io_scm();
@@ -187,6 +188,10 @@ impl ChipContext<'_> {
             ChipKind::MachXo2(_) => {
                 let abcd = ['A', 'B', 'C', 'D'][idx];
                 self.rc_io_wire(wire.cell, &format!("JDI{abcd}"))
+            }
+            ChipKind::Scm => {
+                let (cell, abcd) = self.xlat_io_loc_scm(wire.bel(bslots::IO[idx]));
+                self.rc_io_wire(cell, &format!("JINDDCK{abcd}"))
             }
             _ => {
                 let abcd = ['A', 'B', 'C', 'D', 'E', 'F'][idx];

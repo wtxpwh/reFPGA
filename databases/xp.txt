@@ -5019,14 +5019,14 @@ intdb {
 	}
 
 	bel_class IO {
-		input PADDT;
 		input CLK;
 		input LSR;
 		input CE;
 		input OPOS[2];
 		input ONEG[2];
-		output PADDI;
+		input PADDT;
 		output IPOS[2];
+		output PADDI;
 		output DI;
 		pad PAD: inout
 	}
@@ -5071,8 +5071,8 @@ intdb {
 		input TCLKI;
 		output CLKOP;
 		output CLKOS;
-		output CLKOK;
 		output LOCK;
+		output CLKOK;
 		output DNLOCK;
 		output UPLOCK;
 		output DDAOZR;
@@ -6130,15 +6130,14 @@ intdb {
 	}
 
 	tile_slot IO {
+		bel_slot IO_INT: routing;
 		bel_slot IO[0]: IO;
 		bel_slot IO[1]: IO;
-		bel_slot IO_INT: routing;
 
 		tile_class IO_W {
 			cell CELL;
 
 			bel IO[0] {
-				input PADDT = IMUX_B[2];
 				input CLK = IMUX_CLK[0];
 				input LSR = IMUX_LSR[0];
 				input CE = IMUX_CE[0];
@@ -6146,14 +6145,14 @@ intdb {
 				input OPOS[1] = IMUX_D[0];
 				input ONEG[0] = IMUX_A[0];
 				input ONEG[1] = IMUX_B[0];
-				output PADDI = OUT_IO_PADDI[0];
+				input PADDT = IMUX_B[2];
 				output IPOS[0] = OUT_F[6];
 				output IPOS[1] = OUT_F[7];
+				output PADDI = OUT_IO_PADDI[0];
 				output DI = OUT_F[0];
 			}
 
 			bel IO[1] {
-				input PADDT = IMUX_B[3];
 				input CLK = IMUX_CLK[1];
 				input LSR = IMUX_LSR[1];
 				input CE = IMUX_CE[1];
@@ -6161,9 +6160,10 @@ intdb {
 				input OPOS[1] = IMUX_D[1];
 				input ONEG[0] = IMUX_A[1];
 				input ONEG[1] = IMUX_B[1];
-				output PADDI = OUT_IO_PADDI[1];
+				input PADDT = IMUX_B[3];
 				output IPOS[0] = OUT_Q[1];
 				output IPOS[1] = OUT_Q[2];
+				output PADDI = OUT_IO_PADDI[1];
 				output DI = OUT_F[1];
 			}
 
@@ -6197,7 +6197,6 @@ intdb {
 			cell CELL;
 
 			bel IO[0] {
-				input PADDT = IMUX_B[2];
 				input CLK = IMUX_CLK[0];
 				input LSR = IMUX_LSR[0];
 				input CE = IMUX_CE[0];
@@ -6205,14 +6204,14 @@ intdb {
 				input OPOS[1] = IMUX_D[0];
 				input ONEG[0] = IMUX_A[0];
 				input ONEG[1] = IMUX_B[0];
-				output PADDI = OUT_IO_PADDI[0];
+				input PADDT = IMUX_B[2];
 				output IPOS[0] = OUT_F[6];
 				output IPOS[1] = OUT_F[7];
+				output PADDI = OUT_IO_PADDI[0];
 				output DI = OUT_F[0];
 			}
 
 			bel IO[1] {
-				input PADDT = IMUX_B[3];
 				input CLK = IMUX_CLK[1];
 				input LSR = IMUX_LSR[1];
 				input CE = IMUX_CE[1];
@@ -6220,9 +6219,10 @@ intdb {
 				input OPOS[1] = IMUX_D[1];
 				input ONEG[0] = IMUX_A[1];
 				input ONEG[1] = IMUX_B[1];
-				output PADDI = OUT_IO_PADDI[1];
+				input PADDT = IMUX_B[3];
 				output IPOS[0] = OUT_Q[1];
 				output IPOS[1] = OUT_Q[2];
+				output PADDI = OUT_IO_PADDI[1];
 				output DI = OUT_F[1];
 			}
 
@@ -6256,7 +6256,6 @@ intdb {
 			cell CELL;
 
 			bel IO[0] {
-				input PADDT = IMUX_B[2];
 				input CLK = IMUX_CLK[0];
 				input LSR = IMUX_LSR[0];
 				input CE = IMUX_CE[0];
@@ -6264,14 +6263,14 @@ intdb {
 				input OPOS[1] = IMUX_D[0];
 				input ONEG[0] = IMUX_A[0];
 				input ONEG[1] = IMUX_B[0];
-				output PADDI = OUT_IO_PADDI[0];
+				input PADDT = IMUX_B[2];
 				output IPOS[0] = OUT_F[6];
 				output IPOS[1] = OUT_F[7];
+				output PADDI = OUT_IO_PADDI[0];
 				output DI = OUT_F[0];
 			}
 
 			bel IO[1] {
-				input PADDT = IMUX_B[3];
 				input CLK = IMUX_CLK[1];
 				input LSR = IMUX_LSR[1];
 				input CE = IMUX_CE[1];
@@ -6279,9 +6278,10 @@ intdb {
 				input OPOS[1] = IMUX_D[1];
 				input ONEG[0] = IMUX_A[1];
 				input ONEG[1] = IMUX_B[1];
-				output PADDI = OUT_IO_PADDI[1];
+				input PADDT = IMUX_B[3];
 				output IPOS[0] = OUT_Q[1];
 				output IPOS[1] = OUT_Q[2];
+				output PADDI = OUT_IO_PADDI[1];
 				output DI = OUT_F[1];
 			}
 
@@ -6315,7 +6315,6 @@ intdb {
 			cell CELL;
 
 			bel IO[0] {
-				input PADDT = IMUX_B[2];
 				input CLK = IMUX_CLK[0];
 				input LSR = IMUX_LSR[0];
 				input CE = IMUX_CE[0];
@@ -6323,14 +6322,14 @@ intdb {
 				input OPOS[1] = IMUX_D[0];
 				input ONEG[0] = IMUX_A[0];
 				input ONEG[1] = IMUX_B[0];
-				output PADDI = OUT_IO_PADDI[0];
+				input PADDT = IMUX_B[2];
 				output IPOS[0] = OUT_F[6];
 				output IPOS[1] = OUT_F[7];
+				output PADDI = OUT_IO_PADDI[0];
 				output DI = OUT_F[0];
 			}
 
 			bel IO[1] {
-				input PADDT = IMUX_B[3];
 				input CLK = IMUX_CLK[1];
 				input LSR = IMUX_LSR[1];
 				input CE = IMUX_CE[1];
@@ -6338,9 +6337,10 @@ intdb {
 				input OPOS[1] = IMUX_D[1];
 				input ONEG[0] = IMUX_A[1];
 				input ONEG[1] = IMUX_B[1];
-				output PADDI = OUT_IO_PADDI[1];
+				input PADDT = IMUX_B[3];
 				output IPOS[0] = OUT_Q[1];
 				output IPOS[1] = OUT_Q[2];
+				output PADDI = OUT_IO_PADDI[1];
 				output DI = OUT_F[1];
 			}
 
@@ -6990,8 +6990,8 @@ intdb {
 				input TCLKI = CELL.IMUX_D[1];
 				output CLKOP = CELL.OUT_F[5], CELL.OUT_PLL_CLKOP[0];
 				output CLKOS = CELL.OUT_F[6], CELL.OUT_PLL_CLKOS[0];
-				output CLKOK = CELL.OUT_F[7], CELL.OUT_PLL_CLKOK;
 				output LOCK = CELL.OUT_Q[0];
+				output CLKOK = CELL.OUT_F[7], CELL.OUT_PLL_CLKOK;
 				output DNLOCK = CELL.OUT_Q[3];
 				output UPLOCK = CELL.OUT_Q[2];
 				output DDAOZR = CELL.OUT_F[0];
@@ -7058,8 +7058,8 @@ intdb {
 				input TCLKI = CELL.IMUX_D[1];
 				output CLKOP = CELL.OUT_F[5], CELL.OUT_PLL_CLKOP[0];
 				output CLKOS = CELL.OUT_F[6], CELL.OUT_PLL_CLKOS[0];
-				output CLKOK = CELL.OUT_F[7], CELL.OUT_PLL_CLKOK;
 				output LOCK = CELL.OUT_Q[0];
+				output CLKOK = CELL.OUT_F[7], CELL.OUT_PLL_CLKOK;
 				output DNLOCK = CELL.OUT_Q[3];
 				output UPLOCK = CELL.OUT_Q[2];
 				output DDAOZR = CELL.OUT_F[0];

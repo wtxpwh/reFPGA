@@ -45,8 +45,18 @@ impl ChipContext<'_> {
 
             if is_main {
                 let bcrd = bcrd.bel(bslots::DLL[0]);
-                self.hybrid_out_rc_cell(bcrd, cell_dll, "JCLKOP_DLL", wires::OUT_DLL_CLKOP.cell(0));
-                self.hybrid_out_rc_cell(bcrd, cell_dll, "JCLKOS_DLL", wires::OUT_DLL_CLKOS.cell(0));
+                self.hybrid_out_rc_cell(
+                    bcrd,
+                    cell_dll,
+                    "JCLKOP_DLL",
+                    wires::OUT_DLL_CLKOP[0].cell(0),
+                );
+                self.hybrid_out_rc_cell(
+                    bcrd,
+                    cell_dll,
+                    "JCLKOS_DLL",
+                    wires::OUT_DLL_CLKOS[0].cell(0),
+                );
 
                 let bcrd = bcrd.bel(bslots::CLKDIV[0]);
                 self.hybrid_out_rc_cell(
@@ -172,8 +182,8 @@ impl ChipContext<'_> {
             }
             if is_main {
                 ex.cell(cell_dll)
-                    .output_bind_rc("DLLCLKI", wires::IMUX_DLL_CLKI.cell(0))
-                    .output_bind_rc("DLLCLKFB", wires::IMUX_DLL_CLKFB.cell(0))
+                    .output_bind_rc("DLLCLKI", wires::IMUX_DLL_CLKI[0].cell(0))
+                    .output_bind_rc("DLLCLKFB", wires::IMUX_DLL_CLKFB[0].cell(0))
                     .input_xlat_rc("JDLLCLKI0")
                     .input_xlat_rc("JDLLCLKI1")
                     .input_xlat_rc("JDLLCLKI2")

@@ -33,8 +33,8 @@ impl ChipContext<'_> {
                 self.hybrid_out_rc_cell(bcrd, cell_pll, "JCLKOK_PLL", wires::OUT_PLL_CLKOK.cell(0));
 
                 let bcrd = bcrd.bel(bslots::DLL[0]);
-                self.hybrid_out_rc(bcrd, "JCLKOP_DLL", wires::OUT_DLL_CLKOP.cell(0));
-                self.hybrid_out_rc(bcrd, "JCLKOS_DLL", wires::OUT_DLL_CLKOS.cell(0));
+                self.hybrid_out_rc(bcrd, "JCLKOP_DLL", wires::OUT_DLL_CLKOP[0].cell(0));
+                self.hybrid_out_rc(bcrd, "JCLKOS_DLL", wires::OUT_DLL_CLKOS[0].cell(0));
 
                 let bcrd = bcrd.bel(bslots::CLKDIV[0]);
                 self.hybrid_out_rc(bcrd, "JCDIV1_CLKDIV", wires::OUT_CLKDIV_CDIV1[0].cell(0));
@@ -107,14 +107,14 @@ impl ChipContext<'_> {
                     .input_xlat_rc("JPLLCLKFB3")
                     // DLL.CLKI, DLLDEL.CLKI
                     .cell(cell)
-                    .output_bind_rc("DLLCLKI", wires::IMUX_DLL_CLKI.cell(0))
+                    .output_bind_rc("DLLCLKI", wires::IMUX_DLL_CLKI[0].cell(0))
                     .output_bind_rc("DLLDELCLKI", wires::IMUX_DLLDEL_CLKI.cell(0))
                     .input_xlat_rc("JDLLCLKI0")
                     .input_xlat_rc("JDLLCLKI1")
                     .input_xlat_rc("JDLLCLKI2")
                     .input_io_rc("JDLLCLKI3", wires::OUT_IO_PADDI[0].cell(4))
                     // DLL.CLKFB
-                    .output_bind_rc("DLLCLKFB", wires::IMUX_DLL_CLKFB.cell(0))
+                    .output_bind_rc("DLLCLKFB", wires::IMUX_DLL_CLKFB[0].cell(0))
                     .input_xlat_rc("JDLLCLKFB0")
                     .input_xlat_rc("JDLLCLKFB1")
                     .input_xlat_rc("JDLLCLKFB2")

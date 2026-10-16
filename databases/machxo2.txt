@@ -14073,11 +14073,11 @@ intdb {
 		input CLK;
 		input LSR;
 		input CE;
+		input ECLK;
 		input OPOS[1];
 		input ONEG[1];
 		input DEL[5];
 		input TS;
-		input ECLK;
 		input SLIP;
 		input TXD[8];
 		input RESEN;
@@ -14168,10 +14168,10 @@ intdb {
 
 	bel_class PLL {
 		input CLKFB;
+		input RST;
 		input RESETM;
 		input CLK[2];
 		input SEL;
-		input RST;
 		input PHASEDIR;
 		input PHASESEL[2];
 		input PHASESTEP;
@@ -14752,12 +14752,12 @@ intdb {
 	wire OUT_IO_PADDI[1]: bel;
 	wire OUT_IO_PADDI[2]: bel;
 	wire OUT_IO_PADDI[3]: bel;
+	wire IMUX_IO_ECLK[0]: mux;
+	wire IMUX_IO_ECLK[1]: mux;
 	wire IO_GCLK_S[0]: regional GLOBAL;
 	wire IO_GCLK_S[1]: regional GLOBAL;
 	wire IO_GCLK_N[0]: regional GLOBAL;
 	wire IO_GCLK_N[1]: regional GLOBAL;
-	wire IMUX_IO_ECLK[0]: mux;
-	wire IMUX_IO_ECLK[1]: mux;
 	wire OUT_CLKFBBUF_Z[0]: bel;
 	wire OUT_CLKFBBUF_Z[1]: bel;
 	wire PLLCLKFB[0]: mux;
@@ -15504,11 +15504,11 @@ intdb {
 	}
 
 	tile_slot IO {
+		bel_slot IO_INT: routing;
 		bel_slot IO[0]: IO;
 		bel_slot IO[1]: IO;
 		bel_slot IO[2]: IO;
 		bel_slot IO[3]: IO;
-		bel_slot IO_INT: routing;
 
 		tile_class IO_W4 {
 			cell CELL;
@@ -15699,10 +15699,16 @@ intdb {
 		tile_class IO_S4 {
 			cell CELL;
 
+			switchbox IO_INT {
+				mux IMUX_IO_ECLK[0] = ECLK[0] | ECLK[1];
+				mux IMUX_IO_ECLK[1] = ECLK[0] | ECLK[1];
+			}
+
 			bel IO[0] {
 				input CLK = IMUX_CLK[0];
 				input LSR = IMUX_LSR[0];
 				input CE = IMUX_CE[0];
+				input ECLK = IMUX_IO_ECLK[0];
 				input OPOS[0] = IMUX_A[0];
 				input ONEG[0] = IMUX_B[0];
 				input DEL[0] = IMUX_D[2];
@@ -15711,7 +15717,6 @@ intdb {
 				input DEL[3] = IMUX_B[4];
 				input DEL[4] = IMUX_C[4];
 				input TS = IMUX_C[0];
-				input ECLK = IMUX_IO_ECLK[0];
 				input SLIP = IMUX_D[0];
 				output DI = OUT_Q[0], OUT_IO_PADDI[0];
 				output IP = OUT_F[4];
@@ -15746,6 +15751,7 @@ intdb {
 				input CLK = IMUX_CLK[2];
 				input LSR = IMUX_LSR[2];
 				input CE = IMUX_CE[2];
+				input ECLK = IMUX_IO_ECLK[1];
 				input OPOS[0] = IMUX_A[2];
 				input ONEG[0] = IMUX_B[2];
 				input DEL[0] = IMUX_D[4];
@@ -15754,7 +15760,6 @@ intdb {
 				input DEL[3] = IMUX_C[5];
 				input DEL[4] = IMUX_D[5];
 				input TS = IMUX_C[2];
-				input ECLK = IMUX_IO_ECLK[1];
 				input SLIP = IMUX_D[1];
 				output DI = OUT_Q[2], OUT_IO_PADDI[2];
 				output IP = OUT_F[6];
@@ -15775,11 +15780,6 @@ intdb {
 				output DI = OUT_Q[3], OUT_IO_PADDI[3];
 				output IP = OUT_F[7];
 				output IN = OUT_F[3];
-			}
-
-			switchbox IO_INT {
-				mux IMUX_IO_ECLK[0] = ECLK[0] | ECLK[1];
-				mux IMUX_IO_ECLK[1] = ECLK[0] | ECLK[1];
 			}
 
 			// wire IMUX_A[0]                      IO[0].OPOS[0]
@@ -15845,14 +15845,19 @@ intdb {
 		tile_class IO_N4 {
 			cell CELL;
 
+			switchbox IO_INT {
+				mux IMUX_IO_ECLK[0] = ECLK[0] | ECLK[1];
+				mux IMUX_IO_ECLK[1] = ECLK[0] | ECLK[1];
+			}
+
 			bel IO[0] {
 				input CLK = IMUX_CLK[0];
 				input LSR = IMUX_LSR[0];
 				input CE = IMUX_CE[0];
+				input ECLK = IMUX_IO_ECLK[0];
 				input OPOS[0] = IMUX_A[0];
 				input ONEG[0] = IMUX_B[0];
 				input TS = IMUX_C[0];
-				input ECLK = IMUX_IO_ECLK[0];
 				input TXD[0] = IMUX_A[0];
 				input TXD[1] = IMUX_B[0];
 				input TXD[2] = IMUX_A[1];
@@ -15882,10 +15887,10 @@ intdb {
 				input CLK = IMUX_CLK[2];
 				input LSR = IMUX_LSR[2];
 				input CE = IMUX_CE[2];
+				input ECLK = IMUX_IO_ECLK[1];
 				input OPOS[0] = IMUX_A[2];
 				input ONEG[0] = IMUX_B[2];
 				input TS = IMUX_C[2];
-				input ECLK = IMUX_IO_ECLK[1];
 				input TXD[0] = IMUX_D[0];
 				input TXD[1] = IMUX_D[1];
 				input TXD[2] = IMUX_D[2];
@@ -15905,11 +15910,6 @@ intdb {
 				output DI = OUT_Q[3], OUT_IO_PADDI[3];
 				output IP = OUT_F[7];
 				output IN = OUT_F[3];
-			}
-
-			switchbox IO_INT {
-				mux IMUX_IO_ECLK[0] = ECLK[0] | ECLK[1];
-				mux IMUX_IO_ECLK[1] = ECLK[0] | ECLK[1];
 			}
 
 			// wire IMUX_A[0]                      IO[0].OPOS[0] IO[0].TXD[0]
@@ -16995,11 +16995,11 @@ intdb {
 
 			bel PLL[0] {
 				input CLKFB = CELL[0].IMUX_PLL_CLKFB[0];
+				input RST = CELL[0].IMUX_B[1];
 				input RESETM = CELL[0].IMUX_C[1];
 				input CLK[0] = CELL[0].IMUX_PLL_CLKI[0];
 				input CLK[1] = CELL[0].IMUX_PLL_CLKI[1];
 				input SEL = CELL[0].IMUX_B[2];
-				input RST = CELL[0].IMUX_B[1];
 				input PHASEDIR = CELL[0].IMUX_D[4];
 				input PHASESEL[0] = CELL[0].IMUX_B[4];
 				input PHASESEL[1] = CELL[0].IMUX_A[4];
@@ -17071,11 +17071,11 @@ intdb {
 
 			bel PLL[0] {
 				input CLKFB = CELL[0].IMUX_PLL_CLKFB[0];
+				input RST = CELL[0].IMUX_B[1];
 				input RESETM = CELL[0].IMUX_C[1];
 				input CLK[0] = CELL[0].IMUX_PLL_CLKI[0];
 				input CLK[1] = CELL[0].IMUX_PLL_CLKI[1];
 				input SEL = CELL[0].IMUX_B[2];
-				input RST = CELL[0].IMUX_B[1];
 				input PHASEDIR = CELL[0].IMUX_D[4];
 				input PHASESEL[0] = CELL[0].IMUX_B[4];
 				input PHASESEL[1] = CELL[0].IMUX_A[4];

@@ -723,11 +723,7 @@ impl Chip {
     }
 
     pub fn bel_clk_root(&self) -> BelCoord {
-        self.clk_root().bel(if matches!(self.kind, ChipKind::Scm) {
-            bslots::CLK_ROOT
-        } else {
-            bslots::CLK_INT
-        })
+        self.clk_root().bel(bslots::CLK_INT)
     }
 
     pub fn bel_dqsdll(&self, io: CellCoord) -> BelCoord {
@@ -812,7 +808,7 @@ impl Chip {
             6 => 7,
             _ => bank,
         };
-        self.special_loc[&SpecialLocKey::Bc(bank)].bel(bslots::ECLK_ROOT)
+        self.special_loc[&SpecialLocKey::Bc(bank)].bel(bslots::CLK_INT)
     }
 
     pub fn bel_eclksync(&self, edge: Dir, idx: usize) -> BelCoord {

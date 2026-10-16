@@ -564,11 +564,11 @@ intdb {
 		input LOADN;
 		input MOVE;
 		input HSSEL;
+		output INFF;
 		output PADDI;
 		output DI;
 		output RXDATA[16];
 		output CFLAG;
-		output INFF;
 		pad PAD: inout
 	}
 
@@ -626,9 +626,9 @@ intdb {
 
 	bel_class PLL {
 		input CLKFB;
+		input RST;
 		input CLK[2];
 		input SEL;
-		input RST;
 		input PHASEDIR;
 		input PHASESEL[2];
 		input PHASESTEP;
@@ -1190,9 +1190,9 @@ intdb {
 	wire OUT_DCC_CLKO[5]: mux;
 	wire OUT_DCC_CLKO[6]: mux;
 	wire OUT_DCC_CLKO[7]: mux;
+	wire OUT_DCS_DCSOUT[0]: bel;
 	wire IMUX_DCS_CLKA[0]: mux;
 	wire IMUX_DCS_CLKB[0]: mux;
-	wire OUT_DCS_DCSOUT[0]: bel;
 	wire ECLK[0]: regional ECLK;
 	wire ECLK[1]: regional ECLK;
 	wire IMUX_ECLKSYNC_ECLKI[0]: mux;
@@ -1725,17 +1725,24 @@ intdb {
 	}
 
 	tile_slot IO {
+		bel_slot IO_INT: routing;
 		bel_slot IO[0]: IO;
 		bel_slot IO[1]: IO;
 		bel_slot IO[2]: IO;
 		bel_slot IO[3]: IO;
-		bel_slot IO_INT: routing;
 
 		tile_class IO_S4 {
 			cell CELL[0];
 			cell CELL[1];
 			cell CELL[2];
 			cell CELL[3];
+
+			switchbox IO_INT {
+				mux CELL[0].IMUX_IO_ECLK[0] = CELL[0].ECLK[0] | CELL[0].ECLK[1];
+				mux CELL[0].IMUX_IO_ECLK[1] = CELL[0].ECLK[0] | CELL[0].ECLK[1];
+				mux CELL[0].IMUX_IO_ECLK[2] = CELL[0].ECLK[0] | CELL[0].ECLK[1];
+				mux CELL[0].IMUX_IO_ECLK[3] = CELL[0].ECLK[0] | CELL[0].ECLK[1];
+			}
 
 			bel IO[0] {
 				input CLK = CELL[0].IMUX_CLK[0];
@@ -1764,6 +1771,7 @@ intdb {
 				input LOADN = CELL[0].IMUX_C[6];
 				input MOVE = CELL[0].IMUX_A[6];
 				input HSSEL = CELL[0].IMUX_A[4];
+				output INFF = CELL[0].OUT_Q[0];
 				output DI = CELL[0].OUT_Q[5];
 				output RXDATA[0] = CELL[0].OUT_F[0];
 				output RXDATA[1] = CELL[0].OUT_F[1];
@@ -1782,7 +1790,6 @@ intdb {
 				output RXDATA[14] = CELL[1].OUT_F[6];
 				output RXDATA[15] = CELL[1].OUT_F[7];
 				output CFLAG = CELL[0].OUT_Q[1];
-				output INFF = CELL[0].OUT_Q[0];
 			}
 
 			bel IO[1] {
@@ -1803,6 +1810,7 @@ intdb {
 				input DIRECTION = CELL[1].IMUX_A[0];
 				input LOADN = CELL[1].IMUX_C[6];
 				input MOVE = CELL[1].IMUX_A[6];
+				output INFF = CELL[1].OUT_Q[0];
 				output DI = CELL[1].OUT_Q[5];
 				output RXDATA[0] = CELL[1].OUT_F[0];
 				output RXDATA[1] = CELL[1].OUT_F[1];
@@ -1813,7 +1821,6 @@ intdb {
 				output RXDATA[6] = CELL[1].OUT_F[6];
 				output RXDATA[7] = CELL[1].OUT_F[7];
 				output CFLAG = CELL[1].OUT_Q[1];
-				output INFF = CELL[1].OUT_Q[0];
 			}
 
 			bel IO[2] {
@@ -1843,6 +1850,7 @@ intdb {
 				input LOADN = CELL[2].IMUX_C[6];
 				input MOVE = CELL[2].IMUX_A[6];
 				input HSSEL = CELL[2].IMUX_A[4];
+				output INFF = CELL[2].OUT_Q[0];
 				output DI = CELL[2].OUT_Q[5];
 				output RXDATA[0] = CELL[2].OUT_F[0];
 				output RXDATA[1] = CELL[2].OUT_F[1];
@@ -1861,7 +1869,6 @@ intdb {
 				output RXDATA[14] = CELL[3].OUT_F[6];
 				output RXDATA[15] = CELL[3].OUT_F[7];
 				output CFLAG = CELL[2].OUT_Q[1];
-				output INFF = CELL[2].OUT_Q[0];
 			}
 
 			bel IO[3] {
@@ -1882,6 +1889,7 @@ intdb {
 				input DIRECTION = CELL[3].IMUX_A[0];
 				input LOADN = CELL[3].IMUX_C[6];
 				input MOVE = CELL[3].IMUX_A[6];
+				output INFF = CELL[3].OUT_Q[0];
 				output DI = CELL[3].OUT_Q[5];
 				output RXDATA[0] = CELL[3].OUT_F[0];
 				output RXDATA[1] = CELL[3].OUT_F[1];
@@ -1892,14 +1900,6 @@ intdb {
 				output RXDATA[6] = CELL[3].OUT_F[6];
 				output RXDATA[7] = CELL[3].OUT_F[7];
 				output CFLAG = CELL[3].OUT_Q[1];
-				output INFF = CELL[3].OUT_Q[0];
-			}
-
-			switchbox IO_INT {
-				mux CELL[0].IMUX_IO_ECLK[0] = CELL[0].ECLK[0] | CELL[0].ECLK[1];
-				mux CELL[0].IMUX_IO_ECLK[1] = CELL[0].ECLK[0] | CELL[0].ECLK[1];
-				mux CELL[0].IMUX_IO_ECLK[2] = CELL[0].ECLK[0] | CELL[0].ECLK[1];
-				mux CELL[0].IMUX_IO_ECLK[3] = CELL[0].ECLK[0] | CELL[0].ECLK[1];
 			}
 
 			// wire CELL[0].IMUX_A[0]              IO[0].DIRECTION
@@ -2027,8 +2027,8 @@ intdb {
 				input CE = IMUX_CE[0];
 				input TXDATA[0] = IMUX_A[3];
 				input TSDATA[0] = IMUX_B[0];
-				output DI = OUT_Q[5];
 				output INFF = OUT_F[1];
+				output DI = OUT_Q[5];
 			}
 
 			// wire IMUX_A[3]                      IO[0].TXDATA[0]
@@ -2049,8 +2049,8 @@ intdb {
 				input CE = IMUX_CE[0];
 				input TXDATA[0] = IMUX_A[0];
 				input TSDATA[0] = IMUX_B[0];
-				output DI = OUT_F[5];
 				output INFF = OUT_F[1];
+				output DI = OUT_F[5];
 			}
 
 			// wire IMUX_A[0]                      IO[0].TXDATA[0]
@@ -3963,10 +3963,10 @@ intdb {
 
 			bel PLL[0] {
 				input CLKFB = CELL[0].IMUX_PLL_CLKFB[0];
+				input RST = CELL[1].IMUX_C[6];
 				input CLK[0] = CELL[0].IMUX_PLL_CLKI[0];
 				input CLK[1] = CELL[0].IMUX_PLL_CLKI[1];
 				input SEL = CELL[1].IMUX_A[6];
-				input RST = CELL[1].IMUX_C[6];
 				input PHASEDIR = CELL[1].IMUX_C[4];
 				input PHASESEL[0] = CELL[1].IMUX_B[0];
 				input PHASESEL[1] = CELL[1].IMUX_B[4];
@@ -4449,9 +4449,9 @@ intdb {
 			// wire CELL.IMUX_B[1]                 CLKTEST.TESTIN[1]
 			// wire CELL.IMUX_B[2]                 CLKTEST.TESTIN[2]
 			// wire CELL.IMUX_B[3]                 CLKTEST.TESTIN[3]
+			// wire CELL.OUT_DCS_DCSOUT[0]         DCS[0].DCSOUT
 			// wire CELL.IMUX_DCS_CLKA[0]          DCS[0].CLK[0]
 			// wire CELL.IMUX_DCS_CLKB[0]          DCS[0].CLK[1]
-			// wire CELL.OUT_DCS_DCSOUT[0]         DCS[0].DCSOUT
 		}
 
 		tile_class CLK_S {

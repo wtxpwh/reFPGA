@@ -6,7 +6,7 @@ use prjcombine_ecp::{
 };
 use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
-    db::{BelInput, BelPin, CellSlotId, TileWireCoord, WireKind},
+    db::{BelInput, CellSlotId, TileWireCoord, WireKind},
     dir::Dir,
     grid::{BelCoord, CellCoord, WireCoord},
 };
@@ -413,6 +413,19 @@ impl ChipContext<'_> {
             let cell = self.chip.xlat_rc_wire(wn);
             let wire = self.edev.resolve_wire(cell.wire(wire)).unwrap();
             self.edev.wire_tree(wire)
+        } else if (suffix.starts_with("VECL")
+            || suffix.starts_with("VECR")
+            || suffix.starts_with("HECB")
+            || suffix.starts_with("HECT"))
+            && suffix.len() == 8
+            && suffix.ends_with("00")
+            && self.chip.kind == ChipKind::Scm
+        {
+            let idx: usize = suffix[4..6].parse().unwrap();
+            let wire = wires::ECLK[idx];
+            let cell = self.chip.xlat_rc_wire(wn);
+            let wire = self.edev.resolve_wire(cell.wire(wire)).unwrap();
+            self.edev.wire_tree(wire)
         } else if let Some(w) = match suffix.as_str() {
             "HL7W0000" if self.chip.kind.has_ecp_plc() && self.chip.kind.has_out_ofx_branch() => {
                 Some(wires::OUT_OFX_W[3])
@@ -750,78 +763,6 @@ impl ChipContext<'_> {
         None
     }
 
-    pub fn try_xlat_int_wire_inner(
-        &mut self,
-        bcrd: BelCoord,
-        wire: WireName,
-        filter: bool,
-    ) -> Option<BelPin> {
-        for &wfn in self.pips_bwd.get(&wire).into_iter().flatten() {
-            if let Some(wires_f) = self
-                .int_wires
-                .get(&wfn)
-                .or_else(|| self.io_int_wires.get(&wfn))
-            {
-                let wf = wires_f[0];
-                if !self.intdb.wires[wf.slot].name.starts_with("IMUX") {
-                    continue;
-                }
-                let Some(wf) = self.wire_to_tw(bcrd, wf, None) else {
-                    if !filter {
-                        println!(
-                            "{name}: fail to xlat int wire {wf} in {bel}",
-                            name = self.name,
-                            wf = wf.to_string(self.intdb),
-                            bel = bcrd.to_string(self.intdb)
-                        );
-                    }
-                    continue;
-                };
-                self.claim_pip(wire, wfn);
-                return Some(BelPin::new_in(wf));
-            }
-        }
-        let mut out_wires = BTreeSet::new();
-        for wtn in self.pips_fwd.get(&wire).cloned().into_iter().flatten() {
-            if let Some(wires_t) = self
-                .int_wires
-                .get(&wtn)
-                .or_else(|| self.io_int_wires.get(&wtn))
-            {
-                let wt = wires_t[0];
-                if !self.intdb.wires[wt.slot].name.starts_with("OUT") {
-                    continue;
-                }
-                let Some(wt) = self.wire_to_tw(bcrd, wt, None) else {
-                    if !filter {
-                        println!(
-                            "{name}: fail to xlat int wire {wt} in {bel}",
-                            name = self.name,
-                            wt = wt.to_string(self.intdb),
-                            bel = bcrd.to_string(self.intdb)
-                        );
-                    }
-                    continue;
-                };
-                self.claim_pip(wtn, wire);
-                out_wires.insert(wt);
-            }
-        }
-        if !out_wires.is_empty() {
-            Some(BelPin::new_out_multi(out_wires))
-        } else {
-            None
-        }
-    }
-
-    pub fn try_xlat_int_wire(&mut self, bcrd: BelCoord, wire: WireName) -> Option<BelPin> {
-        self.try_xlat_int_wire_inner(bcrd, wire, false)
-    }
-
-    pub fn xlat_int_wire(&mut self, bcrd: BelCoord, wire: WireName) -> BelPin {
-        self.try_xlat_int_wire(bcrd, wire).unwrap()
-    }
-
     pub fn try_xlat_input(
         &mut self,
         bcrd: BelCoord,
@@ -927,6 +868,26 @@ impl ChipContext<'_> {
 
     pub fn xlat_output_quiet(&mut self, bcrd: BelCoord, wire: WireName) -> BTreeSet<TileWireCoord> {
         self.try_xlat_output(bcrd, wire, false, true).unwrap()
+    }
+
+    pub fn xlat_sc_wire(&mut self, wname: WireName, bcrd: BelCoord) -> TileWireCoord {
+        let wname_int = [self.pips_fwd.get(&wname), self.pips_bwd.get(&wname)]
+            .into_iter()
+            .flatten()
+            .flatten()
+            .copied()
+            .find(|&w| self.io_int_wires.contains_key(&w))
+            .unwrap();
+        self.claim_pip_bi(wname, wname_int);
+        let wire = self.io_int_wires[&wname_int][0];
+        let tile = &self.edev[self.edev.bel_tile(bcrd)];
+        let wire = self
+            .edev
+            .wire_tree(wire)
+            .into_iter()
+            .find(|&w| tile.cells.values().any(|&c| w.cell == c))
+            .unwrap();
+        self.wire_to_tw(bcrd, wire, None).unwrap()
     }
 
     pub fn bind_wire(&mut self, name: WireName, wire: WireCoord) {

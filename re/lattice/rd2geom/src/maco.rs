@@ -2,13 +2,11 @@ use std::collections::{BTreeMap, BTreeSet, btree_map};
 
 use prjcombine_ecp::{
     chip::{Chip, ChipKind, RowKind},
-    defs::{bslots, ccls, cslots, scm::bcls, tcls, wiredata, wires},
+    defs::{self, bslots, ccls, cslots, scm::bcls, tcls, wiredata, wires},
 };
 use prjcombine_entity::{EntityId, EntityPartVec};
 use prjcombine_interconnect::{
-    db::{
-        Bel, BelInfo, BelInput, ConnectorWire, Mux, PinDir, SwitchBox, SwitchBoxItem, WireSlotIdExt,
-    },
+    db::{Bel, BelInfo, BelInput, ConnectorWire, Mux, SwitchBox, SwitchBoxItem, WireSlotIdExt},
     dir::{DirH, DirV},
 };
 
@@ -173,6 +171,7 @@ impl ChipContext<'_> {
                 let bcrd = tcrd.bel(bslots::MACO);
                 let bcrd_int = tcrd.bel(bslots::BEL_INT);
                 let cell = bcrd.delta(0, 1);
+                let cell_io = self.edev[tcrd].cells[defs::scm::tcls::MACO_W::CELL_IO[0]];
                 let (ul, idx) = maco_rows[bcrd.row];
                 self.name_bel(bcrd, [format!("{lr}{ul}MACO{idx}")]);
                 self.name_bel_null(bcrd_int);
@@ -308,16 +307,22 @@ impl ChipContext<'_> {
                     let wire_in = self.rc_io_wire(cell, &format!("ECLK{i}"));
                     self.add_bel_wire(bcrd, format!("ECLK{i}_IN"), wire_in);
                     self.claim_pip(wire, wire_in);
+                    let wire_imux = wires::IMUX_MACO_ECLK[i].cell(4);
+                    bel.inputs
+                        .insert(bcls::MACO::ECLK[i], BelInput::Fixed(wire_imux.pos()));
 
-                    let bank = match edge {
-                        DirH::W => 7,
-                        DirH::E => 2,
-                    };
-                    let bcrd_eclk = self.chip.bel_eclk_root_bank(bank);
                     for i in 0..8 {
-                        let wire_eclk = self.naming.bel_wire(bcrd_eclk, &format!("ECLK{i}"));
+                        let wire_eclk = self.naming.interconnect[&cell_io.wire(wires::ECLK[i])];
                         self.claim_pip(wire_in, wire_eclk);
                     }
+                    sb.items.push(SwitchBoxItem::Mux(Mux {
+                        dst: wire_imux,
+                        bits: vec![],
+                        src: (0..8)
+                            .map(|i| (wires::ECLK[i].cell(4).pos(), Default::default()))
+                            .collect(),
+                        bits_off: None,
+                    }));
                 }
 
                 for dir in [DirV::S, DirV::N] {
@@ -524,10 +529,8 @@ impl ChipContext<'_> {
                     }
 
                     let wire_cib = self.rc_io_wire(cell, &format!("JVMT{dir}CIBI"));
-                    let bpin = self.xlat_int_wire(bcrd, wire_cib);
-                    assert_eq!(bpin.wires.len(), 1);
-                    assert_eq!(bpin.dir, PinDir::Input);
-                    let twire_cib = bpin.wires.into_iter().next().unwrap();
+                    let bpin = self.xlat_input(bcrd, wire_cib);
+                    let twire_cib = bpin.wire();
                     self.add_bel_wire(bcrd_int, twire_cib.to_string(self.intdb, tcls), wire_cib);
                     self.claim_pip(wire_out, wire_cib);
                     src.insert(twire_cib.pos());

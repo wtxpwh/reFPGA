@@ -1,9 +1,9 @@
 use prjcombine_ecp::{
     chip::{ChipKind, IoGroupKind, SpecialLocKey},
-    defs::{bcls, bslots, tcls, wiredata, wires},
+    defs::{bcls, bslots, tcls, wires},
 };
 use prjcombine_interconnect::{
-    db::{BelPin, LegacyBel, WireSlotIdExt},
+    db::WireSlotIdExt,
     dir::{DirH, DirHV, DirV},
 };
 
@@ -11,6 +11,75 @@ use crate::ChipContext;
 
 impl ChipContext<'_> {
     fn process_serdes_scm(&mut self) {
+        for hv in [DirHV::NW, DirHV::NE] {
+            let bcrd = self.chip.bel_pll(hv, 0).bel(bslots::SERDES_CORNER);
+
+            let mut cells_serdes = vec![];
+            match hv.h {
+                DirH::W => {
+                    for (col, cd) in &self.chip.columns {
+                        if cd.io_n == IoGroupKind::Serdes && col < self.chip.col_clk {
+                            cells_serdes.push(bcrd.with_cr(col + 6, self.chip.row_n() - 11));
+                        }
+                    }
+                }
+                DirH::E => {
+                    for (col, cd) in self.chip.columns.iter().rev() {
+                        if cd.io_n == IoGroupKind::Serdes && col >= self.chip.col_clk {
+                            cells_serdes.push(bcrd.with_cr(col, self.chip.row_n() - 11));
+                        }
+                    }
+                }
+            };
+
+            {
+                let mut bel = self.extract_bel(bcrd);
+                bel.name_null();
+
+                for i in 0..13 {
+                    let wires = Vec::from_iter(
+                        cells_serdes
+                            .iter()
+                            .copied()
+                            .map(|cell| bel.ctx.rc_wire(cell, &format!("JCIN_{i}_PCS"))),
+                    );
+                    bel.input_sc_xlat(bcls::SERDES_CORNER::CIN[i], &wires);
+                }
+                {
+                    let wires = Vec::from_iter(
+                        cells_serdes
+                            .iter()
+                            .copied()
+                            .map(|cell| bel.ctx.rc_wire(cell, "JTESTCLK_MACO_PCS")),
+                    );
+                    bel.input_sc_xlat(bcls::SERDES_CORNER::TESTCLK_MACO, &wires);
+                }
+                for i in 0..22 {
+                    let wire = bel.ctx.rc_wire(cells_serdes[0], &format!("JCOUT_{i}_PCS"));
+                    bel.output_sc_xlat(bcls::SERDES_CORNER::COUT[i], wire);
+                }
+                {
+                    let wire = bel.ctx.rc_wire(cells_serdes[0], "JTCK_FMAC_PCS");
+                    bel.output_sc_xlat(bcls::SERDES_CORNER::TCK_FMAC_PCS, wire);
+                }
+            }
+
+            let mut ex = self.extract_switchbox(bcrd.bel(bslots::BEL_INT));
+            for (i, cell_serdes) in cells_serdes.into_iter().enumerate() {
+                for j in 0..4 {
+                    let wname_pcs = ex.ctx.rc_wire(cell_serdes, &format!("JBS4PAD_{j}_PCS"));
+                    let wname = ex.ctx.pips_fwd[&wname_pcs]
+                        .iter()
+                        .copied()
+                        .find(|&w| !ex.ctx.int_wires.contains_key(&w))
+                        .unwrap();
+                    ex.ctx.claim_node(wname);
+                    let src = wires::OUT_SERDES_BS4PAD[j].cell(3 + i);
+                    let dst = ex.ctx.xlat_sc_wire(wname, ex.bcrd);
+                    ex.bind_wire(wname, src).permabuf(dst, src);
+                }
+            }
+        }
         for tcid in [tcls::SERDES_W, tcls::SERDES_E] {
             for &tcrd in &self.edev.tile_index[tcid] {
                 let bcrd = tcrd.bel(bslots::SERDES);
@@ -54,9 +123,9 @@ impl ChipContext<'_> {
                     DirH::E => [cell.delta(0, 11), cell.delta(1, 11)],
                 };
                 let (_, c_apio1) = self.rc(cell_apio[1]);
-                self.name_bel(
-                    bcrd,
-                    [
+
+                self.extract_bel_cell(bcrd, cell)
+                    .names([
                         name_pcs,
                         format!("{abcd}_REFCLKP_{lr}"),
                         format!("{abcd}_REFCLKN_{lr}"),
@@ -78,33 +147,23 @@ impl ChipContext<'_> {
                         format!("{abcd}_HDOUTN3_{lr}"),
                         format!("PT{c_apio1}I"),
                         format!("PT{c_apio1}J"),
-                    ],
-                );
-                let mut bel = LegacyBel::default();
-
-                let wires = self.sorted_wires[&(cell, "PCS")].clone();
-                for (pin, wire) in wires {
-                    if pin.starts_with("HDOUT")
-                        || pin.starts_with("HDIN")
-                        || pin.starts_with("REFCLK")
-                        || pin.starts_with("RXREFCLK")
-                        || pin.starts_with("COUT")
-                        || pin.starts_with("CIN")
-                        || pin.starts_with("BIST_COUTP")
-                        || pin.starts_with("SCAN_COUTP")
-                        || pin.starts_with("SERDES_COUT")
-                        || pin.starts_with("TCK_FMAC")
-                        || pin.starts_with("TESTCLK")
-                        || pin.starts_with("FF_RXCLK_P")
-                        || pin.starts_with("FF_SYSCLK_P")
-                        || pin == "FFC_CK_CORE_TX"
-                        || pin == "CS_QIF"
-                    {
-                        continue;
-                    }
-                    self.add_bel_wire(bcrd, &pin, wire);
-                    bel.pins.insert(pin, self.xlat_int_wire(bcrd, wire));
-                }
+                    ])
+                    .suffix("PCS")
+                    .output_bind_rc(
+                        bcls::SERDES::FF_RXCLK_P1,
+                        "JFF_RXCLK_P1_PCS",
+                        wires::OUT_SERDES_FF_RXCLK_P1.cell(0),
+                    )
+                    .output_bind_rc(
+                        bcls::SERDES::FF_RXCLK_P2,
+                        "JFF_RXCLK_P2_PCS",
+                        wires::OUT_SERDES_FF_RXCLK_P2.cell(0),
+                    )
+                    .output_bind_rc(
+                        bcls::SERDES::FF_SYSCLK_P1,
+                        "JFF_SYSCLK_P1_PCS",
+                        wires::OUT_SERDES_FF_SYSCLK_P1.cell(0),
+                    );
 
                 for (cell_pio, abcd, pin) in [
                     (cell_apio[0], 'A', "HDOUTP3"),
@@ -207,152 +266,11 @@ impl ChipContext<'_> {
                     let cin = self.rc_wire(cell, &format!("JCIN_{i}_PCS"));
                     self.add_bel_wire(bcrd, format!("CIN_{i}"), cin);
                 }
-                for pin in [
-                    "FF_RXCLK_P1",
-                    "FF_RXCLK_P2",
-                    "FF_SYSCLK_P1",
-                    "RXREFCLKP",
-                    "RXREFCLKN",
-                ] {
+                for pin in ["RXREFCLKP", "RXREFCLKN"] {
                     let wire = self.rc_wire(cell, &format!("J{pin}_PCS"));
                     self.add_bel_wire(bcrd, pin, wire);
                 }
-
-                self.insert_legacy_bel(bcrd, bel);
-
-                {
-                    let bcrd_center =
-                        self.chip.special_loc[&SpecialLocKey::Config].bel(bslots::SERDES_CENTER);
-                    let mut bel_center = LegacyBel::default();
-                    let wire = self.rc_wire(cell, "JFFC_CK_CORE_TX_PCS");
-                    self.add_bel_wire(bcrd, "FFC_CK_CORE_TX", wire);
-                    bel_center.pins.insert(
-                        "FFC_CK_CORE_TX".into(),
-                        self.xlat_int_wire(bcrd_center, wire),
-                    );
-                    self.insert_legacy_bel(bcrd_center, bel_center);
-                }
             }
-        }
-        for hv in [DirHV::NW, DirHV::NE] {
-            let bcrd = self.chip.bel_pll(hv, 0).bel(bslots::SERDES_CORNER);
-            let tcrd = self.edev.bel_tile(bcrd);
-            let tcls = &self.intdb[self.edev[tcrd].class];
-            let cell = bcrd.with_row(self.chip.row_n());
-            let dir_s = !hv.h;
-            let dir_n = hv.h;
-            self.name_bel_null(bcrd);
-            let mut bel = LegacyBel::default();
-
-            let mut cells_serdes = vec![];
-            match hv.h {
-                DirH::W => {
-                    for (col, cd) in &self.chip.columns {
-                        if cd.io_n == IoGroupKind::Serdes && col < self.chip.col_clk {
-                            cells_serdes.push(bcrd.with_cr(col + 6, self.chip.row_n() - 11));
-                        }
-                    }
-                }
-                DirH::E => {
-                    for (col, cd) in self.chip.columns.iter().rev() {
-                        if cd.io_n == IoGroupKind::Serdes && col >= self.chip.col_clk {
-                            cells_serdes.push(bcrd.with_cr(col, self.chip.row_n() - 11));
-                        }
-                    }
-                }
-            };
-
-            for i in 0..13 {
-                let twire = match dir_n {
-                    DirH::W => wires::IO_W1[i],
-                    DirH::E => wires::IO_E1[i],
-                }
-                .cell(2);
-                bel.pins.insert(format!("CIN_{i}"), BelPin::new_in(twire));
-                let wire_int = self.io_int_names[&self.edev.bel_wire(bcrd, twire)];
-                let wire = self.rc_corner_wire(cell, &format!("JVMAN01{i:02}"));
-                self.claim_pip_bi(wire, wire_int);
-                self.add_bel_wire(bcrd, twire.to_string(self.intdb, tcls), wire);
-                for &cell_serdes in &cells_serdes {
-                    let wire_serdes = self.rc_wire(cell_serdes, &format!("JCIN_{i}_PCS"));
-                    self.claim_pip(wire_serdes, wire);
-                }
-            }
-            {
-                let twire = match dir_n {
-                    DirH::W => wires::IO_W1[14],
-                    DirH::E => wires::IO_E1[14],
-                }
-                .cell(2);
-                bel.pins
-                    .insert("TESTCLK_MACO".into(), BelPin::new_in(twire));
-                let wire_int = self.io_int_names[&self.edev.bel_wire(bcrd, twire)];
-                let wire = self.rc_corner_wire(cell, "JVMAN0114");
-                self.claim_pip_bi(wire, wire_int);
-                self.add_bel_wire(bcrd, twire.to_string(self.intdb, tcls), wire);
-                for &cell_serdes in &cells_serdes {
-                    let wire_serdes = self.rc_wire(cell_serdes, "JTESTCLK_MACO_PCS");
-                    self.claim_pip(wire_serdes, wire);
-                }
-            }
-            let mut outps = vec![];
-            for i in 0..6 {
-                outps.push((
-                    1,
-                    i,
-                    format!("COUT_{i}"),
-                    Some(cells_serdes[0]),
-                    format!("JCOUT_{i}_PCS"),
-                ));
-            }
-            outps.push((
-                1,
-                7,
-                "TCK_FMAC_PCS".to_string(),
-                Some(cells_serdes[0]),
-                "JTCK_FMAC_PCS".to_string(),
-            ));
-            for i in 6..22 {
-                outps.push((
-                    1,
-                    i + 3,
-                    format!("COUT_{i}"),
-                    Some(cells_serdes[0]),
-                    format!("JCOUT_{i}_PCS"),
-                ));
-            }
-            for i in 0..4 {
-                for j in 0..4 {
-                    let idx = 25 + i * 4 + j;
-                    let idx = if idx < 38 { idx } else { idx + 3 };
-                    outps.push((
-                        1 + idx / 32,
-                        idx % 32,
-                        format!("SERDES{i}_BS4PAD_{j}"),
-                        cells_serdes.get(i).copied(),
-                        format!("JBS4PAD_{j}_PCS"),
-                    ));
-                }
-            }
-
-            for (seg, idx, pin, cell_serdes, wn_serdes) in outps {
-                let twire = match dir_s {
-                    DirH::W => wiredata::IO_W[seg + 1][idx],
-                    DirH::E => wiredata::IO_E[seg + 1][idx],
-                }
-                .cell(2);
-                bel.pins.insert(pin, BelPin::new_out(twire));
-                if let Some(cell_serdes) = cell_serdes {
-                    let wire_int = self.io_int_names[&self.edev.bel_wire(bcrd, twire)];
-                    let wire = self.rc_corner_wire(cell, &format!("JVMAS{seg:02}{idx:02}"));
-                    self.claim_pip_bi(wire, wire_int);
-                    self.add_bel_wire(bcrd, twire.to_string(self.intdb, tcls), wire);
-                    let wire_serdes = self.rc_wire(cell_serdes, &wn_serdes);
-                    self.claim_pip(wire, wire_serdes);
-                }
-            }
-
-            self.insert_legacy_bel(bcrd, bel);
         }
     }
 

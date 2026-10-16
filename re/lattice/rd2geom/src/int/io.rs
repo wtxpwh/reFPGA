@@ -24,8 +24,13 @@ impl ChipContext<'_> {
             col_group.push(idx);
         }
         for cell in self.edev.die_cells(Chip::DIE) {
-            let bcrd = cell.bel(bslots::IO_INT);
-            if self.edev.has_bel(bcrd) {
+            let bcrd = cell.bel(bslots::BEL_INT);
+            if self.edev.has_bel(bcrd)
+                && matches!(
+                    self.edev[self.edev.bel_tile(bcrd)].class,
+                    tcls::IO_INT_W | tcls::IO_INT_E | tcls::IO_INT_S
+                )
+            {
                 self.name_bel_null(bcrd);
             }
         }
@@ -137,7 +142,7 @@ impl ChipContext<'_> {
                 self.claim_node(wn);
                 for &wire in &wires {
                     self.add_bel_wire_no_claim(
-                        wire.cell.bel(bslots::IO_INT),
+                        wire.cell.bel(bslots::BEL_INT),
                         self.intdb.wires[wire.slot].name.as_str(),
                         wn,
                     );
@@ -208,7 +213,7 @@ impl ChipContext<'_> {
                 self.claim_node(wn);
                 for &wire in &wires {
                     self.add_bel_wire_no_claim(
-                        wire.cell.bel(bslots::IO_INT),
+                        wire.cell.bel(bslots::BEL_INT),
                         self.intdb.wires[wire.slot].name.as_str(),
                         wn,
                     );
@@ -219,7 +224,7 @@ impl ChipContext<'_> {
                 let idx: usize = idx.parse().unwrap();
                 let wire = wires::OUT_IO[idx];
                 let cell = self.chip.xlat_rc_wire(wn);
-                self.add_bel_wire(cell.bel(bslots::IO_INT), format!("OUT_IO[{idx}]"), wn);
+                self.add_bel_wire(cell.bel(bslots::BEL_INT), format!("OUT_IO[{idx}]"), wn);
                 let wire = cell.wire(wire);
                 self.io_int_wires.insert(wn, vec![wire]);
                 self.io_int_names.insert(wire, wn);
@@ -227,7 +232,7 @@ impl ChipContext<'_> {
                 let idx: usize = idx.parse().unwrap();
                 let wire = wires::IMUX_IO[idx];
                 let cell = self.chip.xlat_rc_wire(wn);
-                self.add_bel_wire(cell.bel(bslots::IO_INT), format!("IMUX_IO[{idx}]"), wn);
+                self.add_bel_wire(cell.bel(bslots::BEL_INT), format!("IMUX_IO[{idx}]"), wn);
                 let wire = cell.wire(wire);
                 self.io_int_wires.insert(wn, vec![wire]);
                 self.io_int_names.insert(wire, wn);
@@ -248,7 +253,7 @@ impl ChipContext<'_> {
                 self.claim_pip(wn, wire_int);
                 assert_eq!(iwire.cell, cell);
                 self.add_bel_wire(
-                    cell.bel(bslots::IO_INT),
+                    cell.bel(bslots::BEL_INT),
                     self.intdb.wires[iwire.slot].name.as_str(),
                     wn,
                 );
@@ -271,7 +276,7 @@ impl ChipContext<'_> {
                 self.claim_pip(wire_int, wn);
                 assert_eq!(iwire.cell, cell);
                 self.add_bel_wire(
-                    cell.bel(bslots::IO_INT),
+                    cell.bel(bslots::BEL_INT),
                     self.intdb.wires[iwire.slot].name.as_str(),
                     wn,
                 );
@@ -342,7 +347,7 @@ impl ChipContext<'_> {
             let mut missing_dst = BTreeSet::new();
             let mut missing_src = BTreeSet::new();
             for &tcrd in &self.edev.tile_index[tcid] {
-                let bcrd = tcrd.bel(bslots::IO_INT);
+                let bcrd = tcrd.bel(bslots::BEL_INT);
                 for (&wt, wfs) in &sb_pips {
                     let Some(wt) = self
                         .naming
@@ -386,7 +391,7 @@ impl ChipContext<'_> {
                 sb.items.push(SwitchBoxItem::Mux(mux));
             }
             self.bels
-                .insert((tcid, bslots::IO_INT), BelInfo::SwitchBox(sb));
+                .insert((tcid, bslots::BEL_INT), BelInfo::SwitchBox(sb));
         }
     }
 }

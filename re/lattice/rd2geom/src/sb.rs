@@ -138,6 +138,15 @@ impl<'dev, 'ctx> SwitchBoxExtractor<'dev, 'ctx> {
         self.input_bind(name, wire)
     }
 
+    pub fn input_bind_rc_corner(
+        &mut self,
+        name: impl AsRef<str>,
+        wire: TileWireCoord,
+    ) -> &mut Self {
+        let name = self.ctx.rc_corner_wire(self.cell, name.as_ref());
+        self.input_bind(name, wire)
+    }
+
     pub fn input_bind_no_claim(&mut self, name: WireName, wire: TileWireCoord) -> &mut Self {
         self.bind_wire(name, wire);
         self.ctx.add_sb_wire_no_claim(self.bcrd, wire, name);
@@ -185,6 +194,10 @@ impl<'dev, 'ctx> SwitchBoxExtractor<'dev, 'ctx> {
 
     pub fn input_xlat_rc_io(&mut self, name: impl AsRef<str>) -> &mut Self {
         self.input_xlat_rc_mode(name, RcMode::Io)
+    }
+
+    pub fn input_xlat_rc_corner(&mut self, name: impl AsRef<str>) -> &mut Self {
+        self.input_xlat_rc_mode(name, RcMode::Corner)
     }
 
     pub fn input_xlat_nudge(&mut self, name: WireName, cslot: CellSlotId) -> &mut Self {
@@ -282,6 +295,32 @@ impl<'dev, 'ctx> SwitchBoxExtractor<'dev, 'ctx> {
         self.input_io_rc_io_cell(self.cell, name, wire)
     }
 
+    pub fn input_io_rc_corner_cell(
+        &mut self,
+        cell: CellCoord,
+        name: impl AsRef<str>,
+        wire: TileWireCoord,
+    ) -> &mut Self {
+        let name = self.ctx.rc_corner_wire(cell, name.as_ref());
+        self.input_io(name, wire)
+    }
+
+    pub fn input_io_rc_corner(&mut self, name: impl AsRef<str>, wire: TileWireCoord) -> &mut Self {
+        self.input_io_rc_corner_cell(self.cell, name, wire)
+    }
+
+    pub fn input_int(&mut self, wire: TileWireCoord) -> &mut Self {
+        let gwire = self.ctx.edev.resolve_bel_wire(self.bcrd, wire).unwrap();
+        let name = self.ctx.naming.interconnect[&gwire];
+        self.input_raw_no_claim(name, wire)
+    }
+
+    pub fn input_io_int(&mut self, wire: TileWireCoord) -> &mut Self {
+        let gwire = self.ctx.edev.bel_wire(self.bcrd, wire);
+        let name = self.ctx.io_int_names[&gwire];
+        self.input_raw_no_claim(name, wire)
+    }
+
     pub fn bind_wire(&mut self, name: WireName, wire: TileWireCoord) -> &mut Self {
         let fw = self.ctx.edev.resolve_bel_wire(self.bcrd, wire).unwrap();
         self.ctx.bind_wire(name, fw);
@@ -315,6 +354,15 @@ impl<'dev, 'ctx> SwitchBoxExtractor<'dev, 'ctx> {
 
     pub fn output_bind_rc_io(&mut self, name: impl AsRef<str>, wire: TileWireCoord) -> &mut Self {
         let name = self.ctx.rc_io_wire(self.cell, name.as_ref());
+        self.output_bind(name, wire)
+    }
+
+    pub fn output_bind_rc_corner(
+        &mut self,
+        name: impl AsRef<str>,
+        wire: TileWireCoord,
+    ) -> &mut Self {
+        let name = self.ctx.rc_corner_wire(self.cell, name.as_ref());
         self.output_bind(name, wire)
     }
 
