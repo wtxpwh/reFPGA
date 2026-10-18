@@ -983,6 +983,25 @@ fn main() -> Result<(), Box<dyn Error>> {
                 "PSXC_ATOM_0_NOC_PMC_0",
             ],
         ),
+        // PSXT
+        (
+            "PSXT_TILE",
+            &[
+                "PSXT_ATOM_0_CMN_NOC_0",
+                "PSXT_ATOM_0_CMN_NOC_1",
+                "PSXT_ATOM_0_CMN_NOC_2",
+                "PSXT_ATOM_0_CMN_NOC_3",
+                "PSXT_ATOM_0_CMN_NOC_8",
+                "PSXT_ATOM_0_PMC_NOC_0",
+                "PSXT_ATOM_0_RPU_NOC_0",
+                "PSXT_ATOM_0_MMI_NOC_0",
+            ],
+            &[
+                "PSXT_ATOM_0_CMN_NOC_CCI_0",
+                "PSXT_ATOM_0_CMN_NOC_CCI_1",
+                "PSXT_ATOM_0_NOC_PMC_0",
+            ],
+        ),
         // bot X5HPIO
         (
             "DDRMC5_DMC_CORE",
@@ -1030,6 +1049,14 @@ fn main() -> Result<(), Box<dyn Error>> {
             &[
                 "DDRMC5E_DMC_SITE_0_FROM_NOC_0",
                 "DDRMC5E_DMC_SITE_0_FROM_NOC_1",
+            ],
+        ),
+        (
+            "DDRMC5X_DMC_CORE",
+            &["DDRMC5X_DMC_SITE_0_TO_NOC_0", "DDRMC5X_DMC_SITE_0_TO_NOC_1"],
+            &[
+                "DDRMC5X_DMC_SITE_0_FROM_NOC_0",
+                "DDRMC5X_DMC_SITE_0_FROM_NOC_1",
             ],
         ),
         // CPM5N

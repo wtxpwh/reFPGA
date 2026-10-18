@@ -126,42 +126,20 @@ impl<'rd> IntMaker<'rd> {
                 for i in 0..2 {
                     let mut bel = self.builder.bel_xy(bslots[i], bk, 0, 0).raw_tile(i);
                     for pin in [
-                        "SYS_RST1_N",
-                        "SYS_RST2_N",
-                        "SYS_RST3_N",
-                        "CLK_DISTR_IN_LEFT_N",
                         "CLK_DISTR_IN_LEFT_P",
-                        "CLK_DISTR_IN_LEFT_PLL_N",
                         "CLK_DISTR_IN_LEFT_PLL_P",
-                        "CLK_DISTR_IN_LEFT_T1_N",
                         "CLK_DISTR_IN_LEFT_T1_P",
-                        "CLK_DISTR_IN_RIGHT_N",
                         "CLK_DISTR_IN_RIGHT_P",
-                        "CLK_DISTR_OUT_LEFT_N",
                         "CLK_DISTR_OUT_LEFT_P",
-                        "CLK_DISTR_OUT_RIGHT_N",
                         "CLK_DISTR_OUT_RIGHT_P",
-                        "CLK_DISTR_OUT_RIGHT_PLL_N",
                         "CLK_DISTR_OUT_RIGHT_PLL_P",
-                        "CLK_DISTR_OUT_RIGHT_T1_N",
                         "CLK_DISTR_OUT_RIGHT_T1_P",
-                        "SYSREF_IN1_L_N",
                         "SYSREF_IN1_L_P",
-                        "SYSREF_IN2_L_N",
                         "SYSREF_IN2_L_P",
-                        "SYSREF_IN_R_N",
                         "SYSREF_IN_R_P",
-                        "SYSREF_OUT1_R_N",
                         "SYSREF_OUT1_R_P",
-                        "SYSREF_OUT2_R_N",
                         "SYSREF_OUT2_R_P",
-                        "SYSREF_OUT_L_N",
                         "SYSREF_OUT_L_P",
-                        "CLOCK_DR_IN_EXT",
-                        "RESET_TAP_B_IN_EXT",
-                        "CAPTURE_DR_IN_EXT",
-                        "SHIFT_DR_IN_EXT",
-                        "UPDATE_DR_IN_EXT",
                     ] {
                         bel = bel.pin_name_only(pin, 1);
                     }
@@ -644,15 +622,22 @@ impl<'rd> IntMaker<'rd> {
             .iter()
             .next()
         {
-            let mut noc_xy = xy;
-            while !self
-                .builder
-                .rd
-                .tile_kinds
-                .key(self.rd.tiles[&noc_xy].kind)
-                .starts_with("NOC")
-            {
-                noc_xy = self.builder.delta(noc_xy, 1, 0);
+            let mut noc_xy = vec![];
+            let mut tmp_xy = xy;
+            loop {
+                if self
+                    .builder
+                    .rd
+                    .tile_kinds
+                    .key(self.rd.tiles[&tmp_xy].kind)
+                    .starts_with("NOC")
+                {
+                    noc_xy.push(tmp_xy);
+                    if noc_xy.len() == 2 {
+                        break;
+                    }
+                }
+                tmp_xy = self.builder.delta(tmp_xy, 1, 0);
             }
             for (pin, wire) in [
                 ("VCU2ENCCLK", wires::OUT_DPLL[2].cell(0)),
@@ -694,7 +679,7 @@ impl<'rd> IntMaker<'rd> {
                 (bslots::VCU2_NPS6X[0], 9, "NOC2_NPS6X", 0, 13),
                 (bslots::VCU2_NPS6X[1], 10, "NOC2_NPS6X", 1, 13),
             ] {
-                let ncrd = self.builder.delta(noc_xy, dx, dy);
+                let ncrd = self.builder.delta(noc_xy[dx], 0, dy);
                 bels.push(self.bel_name_only(ncrd, bslot, kind, 0, 0).raw_tile(rt));
             }
             bels.push(bel);
@@ -702,8 +687,8 @@ impl<'rd> IntMaker<'rd> {
             let int_xy = self.builder.walk_to_int(xy, Dir::W, false).unwrap();
             let mut xn = self.builder.xtile_id(tcls::VCU2, "VCU2", xy);
             for dy in [0, 3, 7, 11, 13] {
-                let xy_a = xn.builder.delta(noc_xy, 0, dy);
-                let xy_b = xn.builder.delta(noc_xy, 1, dy);
+                let xy_a = xn.builder.delta(noc_xy[0], 0, dy);
+                let xy_b = xn.builder.delta(noc_xy[1], 0, dy);
                 xn = xn.raw_tile(xy_a).raw_tile(xy_b);
             }
             for i in 0..96 {

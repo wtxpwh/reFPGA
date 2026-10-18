@@ -2459,8 +2459,10 @@ impl DummyBuilder<'_, '_> {
         };
         if wires.len() != src.len() {
             println!(
-                "wire num mismatch for {tkn} {dst:?} dummies",
-                tkn = self.tkn
+                "wire num mismatch for {tkn} {dst_cell}.{dst_wire} dummies",
+                tkn = self.tkn,
+                dst_cell = dst.cell,
+                dst_wire = self.builder.db[dst.wire].name
             );
             return self;
         }

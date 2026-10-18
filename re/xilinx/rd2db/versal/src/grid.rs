@@ -1,7 +1,7 @@
 use prjcombine_entity::{EntityId, EntityVec};
 use prjcombine_interconnect::{
     db::BelSlotId,
-    dir::{Dir, DirV},
+    dir::{Dir, DirH, DirV},
     grid::{ColId, DieId, DieIdExt, RowId, TileCoord},
 };
 use prjcombine_re_xilinx_naming_versal::DeviceNaming;
@@ -996,21 +996,42 @@ fn get_hsr_x5io_clk(
     int: &IntGridWrapper,
     die: DieId,
     dev_naming: &mut DeviceNaming,
-) -> (Vec<X5ioClk>, HashMap<NodeOrWire, X5ioDdrmcTestClk>) {
+    regions: &mut EntityVec<HRegId, X5ioRegion>,
+) -> HashMap<NodeOrWire, X5ioDdrmcTestClk> {
     let row = RowId::from_idx(int.int.rows.len());
 
-    let mut clk_rows = HashSet::new();
-    let mut clk_bli = vec![];
-    let mut clk_route_col = vec![];
-    let mut clk_distr_col = vec![];
     let mut clk_test_xlat = HashMap::new();
     let mut clk_tiles = int.find_tiles_crd(&["CLK_REBUF_BUFGS_HSR_CORE"]);
     clk_tiles.sort_by_key(|xy| xy.x);
-    for (idx, xy) in clk_tiles.into_iter().enumerate() {
-        let col = ColId::from_idx(idx * 8);
-        let tcrd = die.cell(col, row).tile(tslots::HSR_CLK);
-        clk_rows.insert(xy.y);
-        let tile = &int.int.rd.tiles[&xy];
+    let clk_rows: HashSet<_> = HashSet::from_iter(clk_tiles.iter().map(|xy| xy.y));
+    let cmu0_xy = int
+        .follow_wire(clk_tiles[0], "IF_XPIO_XPIO_PLL0_CLK0")
+        .unwrap();
+    let shift = match int
+        .int
+        .rd
+        .tile_kinds
+        .key(int.int.rd.tiles[&cmu0_xy].kind)
+        .as_str()
+    {
+        "CMPHY_CMU_X32_CORE" => 0,
+        "CMPHY_CMU_X32_CORE_MY" => 1,
+        _ => unreachable!(),
+    };
+    let mmcms = int.get_simple_names(&["CMT_MMCM"]);
+    let mut dplls = int.get_simple_names(&["CMT_DPLL"]);
+    dplls.retain(|&(xy, _, _)| clk_rows.contains(&xy.y));
+    let width = clk_tiles.len();
+    assert_eq!(mmcms.len(), width);
+    assert_eq!(dplls.len(), width);
+    for (idx, ((clk_xy, (mmcm_xy, mmcm_tname, mmcm_bname)), (dpll_xy, dpll_tname, dpll_bname))) in
+        clk_tiles.into_iter().zip(mmcms).zip(dplls).enumerate()
+    {
+        let reg = HRegId::from_idx(2 * idx + shift);
+        let col = ColId::from_idx(reg.to_idx() * 4);
+        let cell = die.cell(col, row);
+        let tcrd = cell.tile(tslots::HSR_CLK);
+        let tile = &int.int.rd.tiles[&clk_xy];
         let tk = &int.int.rd.tile_kinds[tile.kind];
         for (sid, &slot, _) in &tk.sites {
             let TkSiteSlot::Xy(slot, _sx, sy) = slot else {
@@ -1032,88 +1053,70 @@ fn get_hsr_x5io_clk(
             }
         }
         dev_naming.tile_names.insert(tcrd, vec![tile.name.clone()]);
-        let bli = if let Some(col) = int.xlat_bli(xy, "CLK_BUFGCTRL_WITH_OPTINVS_64_IGNORE0") {
-            X5ioClkBli::Full(col)
-        } else {
-            let (col, w) = int.xlat_bli_full(xy, "IF_BUFGS_FABRIC_CLK_INT").unwrap();
-            match w {
-                "BLI_GRP3_B_BLI_CTRL2" => X5ioClkBli::MinimalA(col),
-                "BLI_GRP3_B_BLI_CTRL1" => X5ioClkBli::MinimalB(col),
-                _ => unreachable!(),
-            }
-        };
-        clk_bli.push(bli);
-        clk_route_col.push(int.xlat_hsr_clk(xy, "CLK_HROUTE_1_0"));
-        clk_distr_col.push(int.xlat_hsr_clk(xy, "CLK_HDISTR_1_0"));
-        let reg = HRegId::from_idx(idx);
-        if let Some(nw) = int.int.rd.lookup_wire(xy, "CLK_IN_TEST0") {
+        let clk_bli =
+            if let Some(col) = int.xlat_bli(clk_xy, "CLK_BUFGCTRL_WITH_OPTINVS_64_IGNORE0") {
+                X5ioClkBli::Full(col)
+            } else {
+                let (col, w) = int
+                    .xlat_bli_full(clk_xy, "IF_BUFGS_FABRIC_CLK_INT")
+                    .unwrap();
+                match w {
+                    "BLI_GRP3_B_BLI_CTRL2" => X5ioClkBli::MinimalA(col),
+                    "BLI_GRP3_B_BLI_CTRL1" => X5ioClkBli::MinimalB(col),
+                    _ => unreachable!(),
+                }
+            };
+
+        let tcrd_mmcm = cell.tile(tslots::HSR_MMCM);
+        dev_naming
+            .bel_names
+            .insert(tcrd_mmcm.bel(bslots::MMCM), vec![mmcm_bname]);
+        dev_naming.tile_names.insert(tcrd_mmcm, vec![mmcm_tname]);
+        let mmcm_bli = int.xlat_bli(mmcm_xy, "CMT_MMCM_TOP_0_PSCLK").unwrap();
+
+        let tcrd_dpll = cell.tile(tslots::HSR_DPLL);
+        dev_naming
+            .bel_names
+            .insert(tcrd_dpll.bel(bslots::DPLL_HSR), vec![dpll_bname]);
+        dev_naming.tile_names.insert(tcrd_dpll, vec![dpll_tname]);
+        let dpll_bli = int.xlat_bli(dpll_xy, "CMT_DPLL_TOP_0_PSCLK");
+
+        while regions.next_id() <= reg {
+            regions.push(Default::default());
+        }
+        regions[reg].clk = Some(X5ioClk {
+            clk_bli,
+            mmcm_bli,
+            dpll_bli,
+            clk_route_col: int.xlat_hsr_clk(clk_xy, "CLK_HROUTE_1_0"),
+            clk_distr_col: int.xlat_hsr_clk(clk_xy, "CLK_HDISTR_1_0"),
+        });
+        if let Some(nw) = int.int.rd.lookup_wire(clk_xy, "CLK_IN_TEST0") {
             clk_test_xlat.insert(nw, X5ioDdrmcTestClk::A(reg));
         }
-        if let Some(nw) = int.int.rd.lookup_wire(xy, "CLK_IN_TEST2") {
+        if let Some(nw) = int.int.rd.lookup_wire(clk_xy, "CLK_IN_TEST2") {
             clk_test_xlat.insert(nw, X5ioDdrmcTestClk::B(reg));
         }
     }
 
-    let mut mmcm_bli = vec![];
-    for (idx, (xy, tname, bname)) in int.get_simple_names(&["CMT_MMCM"]).into_iter().enumerate() {
-        let col = ColId::from_idx(idx * 8);
-        let tcrd = die.cell(col, row).tile(tslots::HSR_MMCM);
-        dev_naming
-            .bel_names
-            .insert(tcrd.bel(bslots::MMCM), vec![bname]);
-        dev_naming.tile_names.insert(tcrd, vec![tname]);
-        mmcm_bli.push(int.xlat_bli(xy, "CMT_MMCM_TOP_0_PSCLK").unwrap());
-    }
-
-    let mut dpll_bli = vec![];
-    for (idx, (xy, tname, bname)) in int.get_simple_names(&["CMT_DPLL"]).into_iter().enumerate() {
-        let col = ColId::from_idx(idx * 8);
-        let tcrd = die.cell(col, row).tile(tslots::HSR_DPLL);
-        if !clk_rows.contains(&xy.y) {
-            continue;
-        }
-        dev_naming
-            .bel_names
-            .insert(tcrd.bel(bslots::DPLL_HSR), vec![bname]);
-        dev_naming.tile_names.insert(tcrd, vec![tname]);
-        dpll_bli.push(int.xlat_bli(xy, "CMT_DPLL_TOP_0_PSCLK"));
-    }
-
-    let width = clk_bli.len();
-    assert_eq!(mmcm_bli.len(), width);
-    assert_eq!(dpll_bli.len(), width);
-
-    let mut res = vec![];
-    for i in 0..width {
-        res.push(X5ioClk {
-            clk_bli: clk_bli[i],
-            mmcm_bli: mmcm_bli[i],
-            dpll_bli: dpll_bli[i],
-            clk_route_col: clk_route_col[i],
-            clk_distr_col: clk_distr_col[i],
-        });
-    }
-    (res, clk_test_xlat)
+    clk_test_xlat
 }
 
 fn get_hsr_x5io_io(
     int: &IntGridWrapper,
     die: DieId,
     dev_naming: &mut DeviceNaming,
+    regions: &mut EntityVec<HRegId, X5ioRegion>,
     clk_test_xlat: HashMap<NodeOrWire, X5ioDdrmcTestClk>,
-) -> Vec<X5io> {
+) {
     let row = RowId::from_idx(int.int.rows.len());
-    let mut io = vec![];
     for (idx, cmu_xy) in int
         .find_tiles_crd(&["CMPHY_CMU_X32_CORE", "CMPHY_CMU_X32_CORE_MY"])
         .into_iter()
         .enumerate()
     {
-        let col = if idx.is_multiple_of(2) {
-            ColId::from_idx(idx * 4 + 3)
-        } else {
-            ColId::from_idx(idx * 4)
-        };
+        let reg = HRegId::from_idx(idx);
+        let col = ColId::from_idx(idx * 4);
         let cell = die.cell(col, row);
         let dfx_xy = int
             .follow_wire(cmu_xy, "X5PHIO_CMU_X32_INTF_1_MUX2APB_PCLK_CMU")
@@ -1124,6 +1127,18 @@ fn get_hsr_x5io_io(
             .unwrap();
         let pll_xy = int.follow_wire(cmu_xy, "X5PLL_INTF_0_APB2PLL_RST").unwrap();
         let xcv_xy = int.follow_wire(clk_xy, "CLK2XCV_PDQS_DIST_OCTAD0").unwrap();
+
+        let side = match int
+            .int
+            .rd
+            .tile_kinds
+            .key(int.int.rd.tiles[&cmu_xy].kind)
+            .as_str()
+        {
+            "CMPHY_CMU_X32_CORE" => DirH::W,
+            "CMPHY_CMU_X32_CORE_MY" => DirH::E,
+            _ => unreachable!(),
+        };
 
         // X5IO_BANK
         dev_naming.tile_names.insert(
@@ -1242,11 +1257,7 @@ fn get_hsr_x5io_io(
 
         let mut octad_bli = [None; 4];
         for i in 0..4 {
-            let col = if idx.is_multiple_of(2) {
-                ColId::from_idx(idx * 4 + i)
-            } else {
-                ColId::from_idx(idx * 4 + 3 - i)
-            };
+            let col = ColId::from_idx(idx * 4 + i);
             let tcrd = die.cell(col, row).tile(tslots::HSR_IO);
             let phy_xy = int
                 .follow_wire(
@@ -1288,6 +1299,11 @@ fn get_hsr_x5io_io(
                 "DDRMC5C_DMC_CORE" | "DDRMC5C_DMC_CORE_MY" => (X5ioDdrmcKind::Ddrmc5C, "DDRMC5C"),
                 "DDRMC5E_DMC_CORE" | "DDRMC5E_DMC_CORE_MY" => (
                     if int
+                        .xlat_bli_full(mc_xy, "DDRMC5E_DMC_SITE_0_IF_UBLAZE_FABRIC_BLI2UB_CLK")
+                        .is_none()
+                    {
+                        X5ioDdrmcKind::Ddrmc5E2Cut
+                    } else if int
                         .int
                         .rd
                         .lookup_wire(mc_xy, "DDRMC5E_DMC_SITE_0_PLL2_CLK_PIN")
@@ -1306,6 +1322,7 @@ fn get_hsr_x5io_io(
                     },
                     "DDRMC5E",
                 ),
+                "DDRMC5X_DMC_CORE" => (X5ioDdrmcKind::Ddrmc5X, "DDRMC5X"),
                 x => panic!("umm {x}"),
             };
             let bli = int
@@ -1341,29 +1358,33 @@ fn get_hsr_x5io_io(
             }
         });
 
-        io.push(X5io {
+        if regions.next_id() == reg {
+            regions.push(Default::default());
+        }
+        regions[reg].io = Some(X5io {
+            side,
             octad_bli,
-            pll_bli,
+            x5pll_bli: pll_bli,
             bank_bli,
             scan_bli,
             ddrmc,
         });
     }
-    io
 }
 
 fn get_hsr_x5io_hnoc(
     int: &IntGridWrapper,
     die: DieId,
     dev_naming: &mut DeviceNaming,
-    io: &[X5io],
-) -> Vec<X5ioHNoc> {
+    regions: &mut EntityVec<HRegId, X5ioRegion>,
+) {
     let row = RowId::from_idx(int.int.rows.len());
 
     let npi_nir = int.find_tiles_crd(&["NPI2_NIR_TILE"])[0];
     let ps9 = int.find_tiles_crd(&["PSS_BASE_CORE"]).first().copied();
     let psxl = int.find_tiles_crd(&["PSXL_CORE"]).first().copied();
     let psxc = int.find_tiles_crd(&["PSXC_TILE"]).first().copied();
+    let psxt = int.find_tiles_crd(&["PSXT_TILE"]).first().copied();
 
     let scans = Vec::from_iter(
         int.find_tiles_crd(&["NOC2_SCAN_TOP", "NOC2_SCAN_TOP_MY"])
@@ -1375,7 +1396,8 @@ fn get_hsr_x5io_hnoc(
         scans_row[(xy.y - 6) as usize].push(xy);
     }
 
-    let mut res = vec![];
+    let mut reg = HRegId::from_idx(0);
+    let noc_cell = |r: HRegId| die.cell(ColId::from_idx(r.to_idx() * 4), row);
 
     let mut chain;
     let scans;
@@ -1414,11 +1436,11 @@ fn get_hsr_x5io_hnoc(
             int.follow_wire(nmu[0], "NOC2_NMU128_ATOM_0_TO_NOC")
                 .unwrap(),
         ];
-        let cell = die.cell(ColId::from_idx(0), row);
+        regions[reg].hnoc = X5ioHNoc::Ps9A;
         name_noc2(
             int.int.rd,
             dev_naming,
-            cell.tile(tslots::HNOC),
+            noc_cell(reg).tile(tslots::HNOC),
             [
                 (npi_nir, bslots::HNOC_NPI_NIR),
                 (nmu[0], bslots::HNOC_PS_NMU[0]),
@@ -1433,6 +1455,7 @@ fn get_hsr_x5io_hnoc(
                 (scans_row[1][0], bslots::HNOC_SCAN[0]),
             ],
         );
+        reg += 1;
 
         let nps = [
             int.follow_wire(nps[0], "NOC2_NPS5555_ATOM_0_OUT_2")
@@ -1447,11 +1470,11 @@ fn get_hsr_x5io_hnoc(
         let xbr = int
             .follow_wire(nps[0], "NOC2_NPS5555_ATOM_0_OUT_1")
             .unwrap();
-        let cell = die.cell(ColId::from_idx(4), row);
+        regions[reg].hnoc = X5ioHNoc::Ps9B;
         name_noc2(
             int.int.rd,
             dev_naming,
-            cell.tile(tslots::HNOC),
+            noc_cell(reg).tile(tslots::HNOC),
             [
                 (nps[0], bslots::HNOC_NPS[0]),
                 (nps[1], bslots::HNOC_NPS[1]),
@@ -1463,6 +1486,7 @@ fn get_hsr_x5io_hnoc(
                 (scans_row[0][0], bslots::HNOC_SCAN[0]),
             ],
         );
+        reg += 3;
 
         let nps = [
             int.follow_wire(nps[0], "NOC2_NPS5555_ATOM_0_OUT_2")
@@ -1487,7 +1511,6 @@ fn get_hsr_x5io_hnoc(
         let xbr = int
             .follow_wire(nps[0], "NOC2_NPS5555_ATOM_0_OUT_1")
             .unwrap();
-        let cell = die.cell(ColId::from_idx(16), row);
         let scan_bli = int
             .xlat_bli(
                 scans_row[2][0],
@@ -1497,7 +1520,7 @@ fn get_hsr_x5io_hnoc(
         name_noc2(
             int.int.rd,
             dev_naming,
-            cell.tile(tslots::HNOC),
+            noc_cell(reg).tile(tslots::HNOC),
             [
                 (nps[0], bslots::HNOC_NPS[0]),
                 (nps[1], bslots::HNOC_NPS[1]),
@@ -1521,6 +1544,8 @@ fn get_hsr_x5io_hnoc(
                 (scans_row[2][2], bslots::HNOC_SCAN[2]),
             ],
         );
+        regions[reg].hnoc = X5ioHNoc::Ps9C { scan_bli };
+        reg += 1;
 
         chain = [
             int.follow_wire(nps2[0], "NOC2_NPS5555_ATOM_0_OUT_2"),
@@ -1529,21 +1554,12 @@ fn get_hsr_x5io_hnoc(
             int.follow_wire(nps2[3], "NOC2_NPS5555_ATOM_0_OUT_2"),
         ];
         scans = scans_row[1][1..].iter().copied();
-
-        res.extend([
-            X5ioHNoc::Ps9A,
-            X5ioHNoc::Ps9B,
-            X5ioHNoc::None,
-            X5ioHNoc::None,
-            X5ioHNoc::Ps9C { scan_bli },
-        ]);
-    } else {
+    } else if let Some(psx) = psxl.or(psxc) {
         let pss = if psxl.is_some() {
             "PSXL_ATOM_0"
         } else {
             "PSXC_ATOM_0"
         };
-        let psx = psxl.or(psxc).unwrap();
         let nmu = [
             int.follow_wire(psx, &format!("{pss}_CMN_NOC_8")).unwrap(),
             int.follow_wire(psx, &format!("{pss}_PMC_NOC_0")).unwrap(),
@@ -1572,11 +1588,11 @@ fn get_hsr_x5io_hnoc(
             int.follow_wire(psx, &format!("{pss}_CMN_NOC_CCI_3"))
                 .unwrap(),
         ];
-        let cell = die.cell(ColId::from_idx(0), row);
+        regions[reg].hnoc = X5ioHNoc::PsXA;
         name_noc2(
             int.int.rd,
             dev_naming,
-            cell.tile(tslots::HNOC),
+            noc_cell(reg).tile(tslots::HNOC),
             [
                 (npi_nir, bslots::HNOC_NPI_NIR),
                 (nmu[0], bslots::HNOC_PS_NMU[0]),
@@ -1588,6 +1604,7 @@ fn get_hsr_x5io_hnoc(
                 (scans_row[1][0], bslots::HNOC_SCAN[0]),
             ],
         );
+        reg += 1;
 
         let nps = [
             int.follow_wire(nmu[5], "NOC2_NMU128_ATOM_0_TO_NOC")
@@ -1602,11 +1619,11 @@ fn get_hsr_x5io_hnoc(
         let xbr = int
             .follow_wire(nps[0], "NOC2_NPS5555_ATOM_0_OUT_1")
             .unwrap();
-        let cell = die.cell(ColId::from_idx(4), row);
+        regions[reg].hnoc = X5ioHNoc::PsXB { flip: false };
         name_noc2(
             int.int.rd,
             dev_naming,
-            cell.tile(tslots::HNOC),
+            noc_cell(reg).tile(tslots::HNOC),
             [
                 (nps[0], bslots::HNOC_NPS[0]),
                 (nps[1], bslots::HNOC_NPS[1]),
@@ -1620,6 +1637,7 @@ fn get_hsr_x5io_hnoc(
                 (scans_row[0][0], bslots::HNOC_SCAN[0]),
             ],
         );
+        reg += 3;
 
         let nps = [
             int.follow_wire(nmu[8], "NOC2_NMU128_ATOM_0_TO_NOC")
@@ -1634,11 +1652,11 @@ fn get_hsr_x5io_hnoc(
         let xbr = int
             .follow_wire(nps[0], "NOC2_NPS5555_ATOM_0_OUT_1")
             .unwrap();
-        let cell = die.cell(ColId::from_idx(16), row);
+        regions[reg].hnoc = X5ioHNoc::PsXB { flip: true };
         name_noc2(
             int.int.rd,
             dev_naming,
-            cell.tile(tslots::HNOC),
+            noc_cell(reg).tile(tslots::HNOC),
             [
                 (nps[0], bslots::HNOC_NPS[0]),
                 (nps[1], bslots::HNOC_NPS[1]),
@@ -1652,6 +1670,7 @@ fn get_hsr_x5io_hnoc(
                 (scans_row[0][1], bslots::HNOC_SCAN[0]),
             ],
         );
+        reg += 1;
 
         let nps = [
             int.follow_wire(nps[0], "NOC2_NPS5555_ATOM_0_OUT_0")
@@ -1667,11 +1686,11 @@ fn get_hsr_x5io_hnoc(
         let scan1 = scans_row[0][3];
         let scan2 = scans_row[1][1];
         let scan3 = scans_row[1][2];
-        let cell = die.cell(ColId::from_idx(20), row);
         let scan_bli = int
             .xlat_bli(scan0, "NOC2_SCAN_ATOM_0_IF_NOC2_SCAN_CNTL_IN_SCAN_CLK_N")
             .unwrap();
 
+        regions[reg].hnoc = X5ioHNoc::PsXC { scan_bli };
         if psxl.is_some() {
             let nmu = [
                 int.follow_wire(psx, &format!("{pss}_PSXL_NOC_PCIE_0"))
@@ -1686,7 +1705,7 @@ fn get_hsr_x5io_hnoc(
             name_noc2(
                 int.int.rd,
                 dev_naming,
-                cell.tile(tslots::HNOC),
+                noc_cell(reg).tile(tslots::HNOC),
                 [
                     (nps[0], bslots::HNOC_NPS[0]),
                     (nps[1], bslots::HNOC_NPS[1]),
@@ -1711,7 +1730,7 @@ fn get_hsr_x5io_hnoc(
             name_noc2(
                 int.int.rd,
                 dev_naming,
-                cell.tile(tslots::HNOC),
+                noc_cell(reg).tile(tslots::HNOC),
                 [
                     (nps[0], bslots::HNOC_NPS[0]),
                     (nps[1], bslots::HNOC_NPS[1]),
@@ -1729,15 +1748,7 @@ fn get_hsr_x5io_hnoc(
                 ],
             );
         }
-
-        res.extend([
-            X5ioHNoc::PsXA,
-            X5ioHNoc::PsXB { flip: false },
-            X5ioHNoc::None,
-            X5ioHNoc::None,
-            X5ioHNoc::PsXB { flip: true },
-            X5ioHNoc::PsXC { scan_bli },
-        ]);
+        reg += 1;
 
         chain = [
             int.follow_wire(nps[0], "NOC2_NPS5555_ATOM_0_OUT_2"),
@@ -1746,26 +1757,135 @@ fn get_hsr_x5io_hnoc(
             int.follow_wire(nps[3], "NOC2_NPS5555_ATOM_0_OUT_2"),
         ];
         scans = scans_row[1][3..].iter().copied();
+    } else {
+        let psx = psxt.unwrap();
+
+        let nmu = [
+            int.follow_wire(psx, "PSXT_ATOM_0_CMN_NOC_0").unwrap(),
+            int.follow_wire(psx, "PSXT_ATOM_0_CMN_NOC_1").unwrap(),
+            int.follow_wire(psx, "PSXT_ATOM_0_CMN_NOC_2").unwrap(),
+            int.follow_wire(psx, "PSXT_ATOM_0_CMN_NOC_3").unwrap(),
+            int.follow_wire(psx, "PSXT_ATOM_0_CMN_NOC_8").unwrap(),
+            int.follow_wire(psx, "PSXT_ATOM_0_PMC_NOC_0").unwrap(),
+            int.follow_wire(psx, "PSXT_ATOM_0_RPU_NOC_0").unwrap(),
+            int.follow_wire(psx, "PSXT_ATOM_0_MMI_NOC_0").unwrap(),
+        ];
+        let nsu = [
+            int.follow_wire(psx, "PSXT_ATOM_0_NOC_PMC_0").unwrap(),
+            int.follow_wire(psx, "PSXT_ATOM_0_CMN_NOC_CCI_0").unwrap(),
+            int.follow_wire(psx, "PSXT_ATOM_0_CMN_NOC_CCI_1").unwrap(),
+        ];
+
+        let nps = [
+            int.follow_wire(nmu[4], "NOC2_NMU128_ATOM_0_TO_NOC")
+                .unwrap(),
+            int.follow_wire(nsu[0], "NOC2_NSU128_ATOM_0_TO_NOC")
+                .unwrap(),
+            int.follow_wire(nmu[6], "NOC2_NMU128_ATOM_0_TO_NOC")
+                .unwrap(),
+            int.follow_wire(nmu[5], "NOC2_NMU128_ATOM_0_TO_NOC")
+                .unwrap(),
+        ];
+        regions[reg].hnoc = X5ioHNoc::PsXTA;
+        name_noc2(
+            int.int.rd,
+            dev_naming,
+            noc_cell(reg).tile(tslots::HNOC),
+            [
+                (npi_nir, bslots::HNOC_NPI_NIR),
+                (nps[0], bslots::HNOC_NPS[0]),
+                (nps[1], bslots::HNOC_NPS[1]),
+                (nps[2], bslots::HNOC_NPS[2]),
+                (nps[3], bslots::HNOC_NPS[3]),
+                (nmu[0], bslots::HNOC_PS_NMU[0]),
+                (nmu[1], bslots::HNOC_PS_NMU[1]),
+                (nmu[2], bslots::HNOC_PS_NMU[2]),
+                (nmu[3], bslots::HNOC_PS_NMU[3]),
+                (nmu[4], bslots::HNOC_PS_NMU[4]),
+                (nmu[5], bslots::HNOC_PS_NMU[5]),
+                (nmu[6], bslots::HNOC_PS_NMU[6]),
+                (nsu[0], bslots::HNOC_PS_NSU[0]),
+                (scans_row[1][0], bslots::HNOC_SCAN[0]),
+            ],
+        );
+        reg += 1;
+
+        let nps = nps.map(|xy| int.follow_wire(xy, "NOC2_NPS5555_ATOM_0_OUT_2").unwrap());
+        let xbr = int
+            .follow_wire(nps[0], "NOC2_NPS5555_ATOM_0_OUT_1")
+            .unwrap();
+        let scan = scans_row[2][0];
+        let scan_bli = int
+            .xlat_bli(scan, "NOC2_SCAN_ATOM_0_IF_NOC2_SCAN_CNTL_IN_SCAN_CLK_N")
+            .unwrap();
+        name_noc2(
+            int.int.rd,
+            dev_naming,
+            noc_cell(reg).tile(tslots::HNOC),
+            [
+                (nps[0], bslots::HNOC_NPS[0]),
+                (nps[1], bslots::HNOC_NPS[1]),
+                (nps[2], bslots::HNOC_NPS[2]),
+                (nps[3], bslots::HNOC_NPS[3]),
+                (nmu[7], bslots::HNOC_PS_NMU[0]),
+                (nsu[1], bslots::HNOC_PS_NSU[0]),
+                (nsu[2], bslots::HNOC_PS_NSU[1]),
+                (xbr, bslots::HNOC_XBR4X2),
+                (scan, bslots::HNOC_SCAN[0]),
+            ],
+        );
+        regions[reg].hnoc = X5ioHNoc::PsXTB { scan_bli };
+        reg += 1;
+
+        let nps = nps.map(|xy| int.follow_wire(xy, "NOC2_NPS5555_ATOM_0_OUT_2").unwrap());
+        let vnoc_xy = int
+            .follow_wire(nps[3], "NOC2_NPS5555_ATOM_0_OUT_1")
+            .unwrap();
+        let vnoc = int.lookup_column_inter(vnoc_xy.x as i32) - 1;
+        let scan = scans_row[2][1];
+        let scan_bli = int
+            .xlat_bli(scan, "NOC2_SCAN_ATOM_0_IF_NOC2_SCAN_CNTL_IN_SCAN_CLK_N")
+            .unwrap();
+        name_noc2(
+            int.int.rd,
+            dev_naming,
+            noc_cell(reg).tile(tslots::HNOC),
+            [
+                (nps[0], bslots::HNOC_NPS[0]),
+                (nps[1], bslots::HNOC_NPS[1]),
+                (nps[2], bslots::HNOC_NPS[2]),
+                (nps[3], bslots::HNOC_NPS[3]),
+                (scan, bslots::HNOC_SCAN[0]),
+            ],
+        );
+        regions[reg].hnoc = X5ioHNoc::PsXTC { scan_bli, vnoc };
+        reg += 1;
+
+        chain = nps.map(|xy| int.follow_wire(xy, "NOC2_NPS5555_ATOM_0_OUT_2"));
+        scans = scans_row[1][1..].iter().copied();
     }
 
     for scan in scans {
+        if reg == regions.next_id() {
+            regions.push(X5ioRegion::default());
+        }
         let nps = chain.map(|xy| xy.unwrap());
         let (scan_bli, scan_wn) = int
             .xlat_bli_full(scan, "NOC2_SCAN_ATOM_0_IF_NOC2_SCAN_CNTL_IN_SCAN_CLK_N")
             .unwrap();
         if nps[0] == nps[1] {
-            let cell = die.cell(ColId::from_idx(res.len() * 4), row);
+            regions[reg].hnoc = X5ioHNoc::Cap { scan_bli };
             name_noc2(
                 int.int.rd,
                 dev_naming,
-                cell.tile(tslots::HNOC),
+                noc_cell(reg).tile(tslots::HNOC),
                 [
                     (nps[0], bslots::HNOC_NPS[0]),
                     (nps[2], bslots::HNOC_NPS[1]),
                     (scan, bslots::HNOC_SCAN[0]),
                 ],
             );
-            res.push(X5ioHNoc::Cap { scan_bli });
+            reg += 1;
         } else {
             let flip = match int
                 .int
@@ -1798,15 +1918,14 @@ fn get_hsr_x5io_hnoc(
                         .unwrap(),
                 ];
 
-                while io[res.len()].ddrmc.is_none() {
-                    res.push(X5ioHNoc::None);
+                while regions[reg].io.unwrap().ddrmc.is_none() {
+                    reg += 1;
                 }
-                let cell = die.cell(ColId::from_idx(res.len() * 4), row);
 
                 name_noc2(
                     int.int.rd,
                     dev_naming,
-                    cell.tile(tslots::HNOC),
+                    noc_cell(reg).tile(tslots::HNOC),
                     [
                         (nps[0], bslots::HNOC_NPS[0]),
                         (nps[1], bslots::HNOC_NPS[1]),
@@ -1850,16 +1969,30 @@ fn get_hsr_x5io_hnoc(
                     }
                 });
 
-                res.push(X5ioHNoc::Ddrmc {
+                // TODO: got better ideas?
+                let swap = if regions[reg].io.unwrap().ddrmc.unwrap().kind == X5ioDdrmcKind::Ddrmc5X
+                    && let Some(io) = regions[reg - 2].io
+                    && let Some(ddrmc) = io.ddrmc
+                    && ddrmc.kind == X5ioDdrmcKind::Ddrmc5X
+                {
+                    false
+                } else {
+                    true
+                };
+
+                regions[reg].hnoc = X5ioHNoc::Ddrmc {
                     flip,
+                    swap,
                     scan_bli,
                     nmu_bli,
                     vnoc,
-                });
+                };
+                reg += 1;
 
-                chain = core::array::from_fn(|i| int.follow_wire(nps[i ^ 1], next_wire));
+                chain = core::array::from_fn(|i| {
+                    int.follow_wire(nps[if swap { i ^ 1 } else { i }], next_wire)
+                });
             } else {
-                let cell = die.cell(ColId::from_idx(res.len() * 4), row);
                 let alt = match scan_wn {
                     "BLI_GRP2_A_BLI_IMUX0" => false,
                     "BLI_GRP0_A_BLI_IMUX0" => true,
@@ -1869,7 +2002,7 @@ fn get_hsr_x5io_hnoc(
                 name_noc2(
                     int.int.rd,
                     dev_naming,
-                    cell.tile(tslots::HNOC),
+                    noc_cell(reg).tile(tslots::HNOC),
                     [
                         (nps[0], bslots::HNOC_NPS[0]),
                         (nps[1], bslots::HNOC_NPS[1]),
@@ -1887,46 +2020,42 @@ fn get_hsr_x5io_hnoc(
                         None
                     };
 
-                res.push(X5ioHNoc::Cross {
+                regions[reg].hnoc = X5ioHNoc::Cross {
                     alt,
                     flip,
                     scan_bli,
                     vnoc,
-                });
+                };
+                reg += 1;
 
                 chain = nps.map(|xy| int.follow_wire(xy, next_wire));
             }
         }
     }
-
-    res
 }
 
 fn get_hsr_x5io(int: &IntGridWrapper, die: DieId, dev_naming: &mut DeviceNaming) -> X5ioRow {
     let row = RowId::from_idx(int.int.rows.len());
 
-    let (clk, clk_test_xlat) = get_hsr_x5io_clk(int, die, dev_naming);
-    let mut regions = EntityVec::from_iter(clk.into_iter().map(|clk| X5ioRegion {
-        clk: Some(clk),
-        hnoc: [X5ioHNoc::None; 2],
-        io: [None; 2],
-        sysmon_bli: None,
-    }));
-
-    let io = get_hsr_x5io_io(int, die, dev_naming, clk_test_xlat);
-    let hnoc = get_hsr_x5io_hnoc(int, die, dev_naming, &io);
-
-    assert_eq!(regions.len(), io.len().div_ceil(2));
-
-    for (idx, io) in io.into_iter().enumerate() {
-        regions[HRegId::from_idx(idx / 2)].io[idx % 2] = Some(io);
-    }
+    let mut regions = EntityVec::new();
+    let clk_test_xlat = get_hsr_x5io_clk(int, die, dev_naming, &mut regions);
+    get_hsr_x5io_io(int, die, dev_naming, &mut regions, clk_test_xlat);
+    get_hsr_x5io_hnoc(int, die, dev_naming, &mut regions);
 
     let sysmon_regs = Vec::from_iter(regions.iter().filter_map(|(reg, rd)| {
-        if rd.io.into_iter().flatten().any(|io| io.ddrmc.is_some()) {
-            None
-        } else {
+        let next_reg = regions.get(reg + 1);
+        if rd.clk.is_some()
+            && rd.io.is_none_or(|io| io.ddrmc.is_none())
+            && next_reg.is_none_or(|nr| {
+                nr.io.is_none_or(|io| {
+                    io.ddrmc
+                        .is_none_or(|ddrmc| ddrmc.kind == X5ioDdrmcKind::Ddrmc5X)
+                })
+            })
+        {
             Some(reg)
+        } else {
+            None
         }
     }));
 
@@ -1936,7 +2065,7 @@ fn get_hsr_x5io(int: &IntGridWrapper, die: DieId, dev_naming: &mut DeviceNaming)
         .enumerate()
     {
         let reg = sysmon_regs[smidx];
-        let col = ColId::from_idx(reg.to_idx() * 8);
+        let col = ColId::from_idx(reg.to_idx() * 4);
         let tcrd = die.cell(col, row).tile(tslots::HSR_SYSMON_SAT);
         let tile = &int.int.rd.tiles[&xy];
         if let Some(bname) = tile.sites.values().next() {
@@ -1947,18 +2076,6 @@ fn get_hsr_x5io(int: &IntGridWrapper, die: DieId, dev_naming: &mut DeviceNaming)
         dev_naming.tile_names.insert(tcrd, vec![tile.name.clone()]);
         let col = int.xlat_bli(xy, "AMS_SATELLITE_ATOM_0_FABRICCLK").unwrap();
         regions[reg].sysmon_bli = Some(col);
-    }
-
-    for (idx, noc) in hnoc.into_iter().enumerate() {
-        if idx == regions.len() * 2 {
-            regions.push(X5ioRegion {
-                clk: None,
-                hnoc: [X5ioHNoc::None; 2],
-                io: [None; 2],
-                sysmon_bli: None,
-            });
-        }
-        regions[HRegId::from_idx(idx / 2)].hnoc[idx % 2] = noc;
     }
 
     X5ioRow { regions }
@@ -3759,15 +3876,22 @@ fn get_vcu2_naming(int: &IntGridWrapper, die: DieId, naming: &mut DeviceNaming) 
                 x: x as u16,
                 y: y as u16,
             };
-            let mut anchor = crd;
-            while !int
-                .int
-                .rd
-                .tile_kinds
-                .key(int.int.rd.tiles[&anchor].kind)
-                .starts_with("NOC")
-            {
-                anchor = int.delta(anchor, 1, 0);
+            let mut anchors = vec![];
+            let mut a = crd;
+            loop {
+                if int
+                    .int
+                    .rd
+                    .tile_kinds
+                    .key(int.int.rd.tiles[&a].kind)
+                    .starts_with("NOC")
+                {
+                    anchors.push(a);
+                    if anchors.len() == 2 {
+                        break;
+                    }
+                }
+                a = int.delta(a, 1, 0);
             }
             let mut col = int.lookup_column_inter(x);
             if col.to_idx() != 0 {
@@ -3778,7 +3902,7 @@ fn get_vcu2_naming(int: &IntGridWrapper, die: DieId, naming: &mut DeviceNaming) 
 
             let mut tile_names = vec![int.int.rd.tiles[&crd].name.clone()];
             for (i, &bslot) in bslots.iter().enumerate() {
-                let ncrd = int.delta(anchor, (i % 2) as i32, dys[i / 2]);
+                let ncrd = int.delta(anchors[i % 2], 0, dys[i / 2]);
                 let tile = &int.int.rd.tiles[&ncrd];
                 tile_names.push(tile.name.clone());
                 naming.bel_names.insert(
@@ -3815,6 +3939,8 @@ fn get_chip(
         PsKind::PsXCpm5N
     } else if !int.find_tiles(&["PSXC_TILE"]).is_empty() {
         PsKind::PsXcMmi
+    } else if !int.find_tiles(&["PSXT_TILE"]).is_empty() {
+        PsKind::PsXt
     } else {
         unreachable!()
     };
@@ -3899,6 +4025,11 @@ pub fn make_chips(
         has_dsp_v2: false,
         has_term2: rd.tile_kinds.contains_key("RCLK_INTF_TERM2_RIGHT_CORE"),
         is_vnoc2_scan_offset: false,
+        skip_nc_phy_clk: rd
+            .tiles_by_kind_name("CMPHY_OCTAD_CORE")
+            .iter()
+            .chain(rd.tiles_by_kind_name("CMPHY_OCTAD_CORE_MY"))
+            .any(|&xy| rd.lookup_wire(xy, "CMPHY_OCTAD_0_PHY_CLK").is_none()),
     };
     let mut sll_columns = EntityVec::new();
     let bli = get_bli(rd);

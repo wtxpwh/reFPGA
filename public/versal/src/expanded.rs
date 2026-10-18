@@ -1,12 +1,13 @@
 use prjcombine_entity::{EntityId, EntityVec};
 use prjcombine_interconnect::{
     dir::DirV,
-    grid::{BelCoord, ColId, DieId, DieIdExt, ExpandedGrid, RowId},
+    grid::{BelCoord, CellCoord, ColId, DieId, DieIdExt, ExpandedGrid, RowId},
 };
 use std::collections::{BTreeSet, HashMap};
 
 use crate::{
-    chip::{Chip, DisabledPart, HsrNKind, HsrSKind, Interposer, RegId},
+    chip::{Chip, DisabledPart, HsrNKind, HsrSKind, Interposer, RegId, X5io, X5ioDdrmc},
+    defs::cslots,
     noc::NocPortCoord,
 };
 
@@ -104,6 +105,64 @@ impl ExpandedDevice<'_> {
                 } else {
                     self.bel_delta(bcrd.cell, 0, Chip::ROWS_PER_REG as i32, bcrd.slot)
                 }
+            }
+        }
+    }
+
+    pub fn x5io(&self, cell: CellCoord) -> Option<X5io> {
+        self.chips[cell.die].x5io(cell)
+    }
+
+    pub fn x5io_ddrmc(&self, cell: CellCoord) -> Option<X5ioDdrmc> {
+        self.chips[cell.die].x5io_ddrmc(cell)
+    }
+
+    pub fn x5io_to_w(&self, cell: CellCoord) -> Option<CellCoord> {
+        self.chips[cell.die].x5io_to_w(cell)
+    }
+
+    pub fn x5io_to_e(&self, cell: CellCoord) -> Option<CellCoord> {
+        self.chips[cell.die].x5io_to_e(cell)
+    }
+
+    pub fn x5io_pair(&self, cell: CellCoord) -> Option<CellCoord> {
+        self[cell]
+            .conns
+            .get(cslots::X5IO_PAIR)
+            .and_then(|c| c.target)
+    }
+
+    pub fn x5io_to_ddrmc(&self, cell: CellCoord) -> Option<BelCoord> {
+        self.chips[cell.die].x5io_to_ddrmc(cell)
+    }
+
+    pub fn x5pll_casc_source(&self, bcrd: BelCoord) -> Option<BelCoord> {
+        let side = self.x5io(bcrd.cell).unwrap().side;
+        if let Some(ddrmc) = self.x5io_to_ddrmc(bcrd.cell) {
+            if self.x5io_ddrmc(ddrmc.cell).unwrap().kind.is_2hb() {
+                Some(bcrd)
+            } else if Some(ddrmc.cell) == self.x5io_to_w(bcrd.cell) {
+                let bcrd_src = self.bel_delta(bcrd.cell, -8, 0, bcrd.slot)?;
+                if self.x5io(bcrd_src.cell).unwrap().side == side {
+                    Some(bcrd_src)
+                } else {
+                    None
+                }
+            } else if Some(ddrmc.cell) == self.x5io_to_e(bcrd.cell) {
+                let bcrd_src = self.bel_delta(bcrd.cell, 8, 0, bcrd.slot)?;
+                if self.x5io(bcrd_src.cell).unwrap().side == side {
+                    Some(bcrd_src)
+                } else {
+                    None
+                }
+            } else {
+                Some(bcrd)
+            }
+        } else {
+            if self.x5io_to_ddrmc(self.x5io_pair(bcrd.cell)?).is_some() {
+                Some(bcrd)
+            } else {
+                None
             }
         }
     }

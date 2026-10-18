@@ -1,8 +1,9 @@
 use prjcombine_entity::EntityId;
-use prjcombine_interconnect::{db::CellSlotId, grid::BelCoord};
+use prjcombine_interconnect::{db::CellSlotId, dir::DirH, grid::BelCoord};
+use prjcombine_re_xilinx_naming_versal::ExpandedNamedDevice;
 use prjcombine_re_xilinx_rdverify::Verifier;
 use prjcombine_versal::{
-    chip::{HRegId, HsrSKind, PsKind},
+    chip::{HRegId, HsrSKind},
     defs::{bcls, bslots, tcls, tslots},
     expanded::ExpandedDevice,
 };
@@ -11,12 +12,8 @@ pub fn verify_x5io_octad(edev: &ExpandedDevice, vrf: &mut Verifier, bcrd: BelCoo
     let tcrd = edev.bel_tile(bcrd);
     let is_nc = edev[tcrd].class == tcls::X5IO_NC;
 
-    let rpos = bcrd.col.to_idx() % 8;
-    let (idx, cell_bank) = if rpos < 4 {
-        (rpos, bcrd.cell.delta((3 - rpos) as i32, 0))
-    } else {
-        (7 - rpos, bcrd.cell.delta(-(rpos as i32 - 4), 0))
-    };
+    let idx = bcrd.col.to_idx() % 4;
+    let cell_bank = bcrd.cell.delta(-(idx as i32), 0);
 
     let scan = cell_bank.bel(bslots::X5IO_SCAN);
     let phio_cmu = cell_bank.bel(bslots::X5PHIO_CMU);
@@ -439,7 +436,7 @@ pub fn verify_x5io_octad(edev: &ExpandedDevice, vrf: &mut Verifier, bcrd: BelCoo
                 .extra_in_far_claim(format!("IOB{i}_XCV2CGL_RX2_NDQS_DLY_IN"));
         }
 
-        if idx % 2 == 0 {
+        if idx.is_multiple_of(2) {
             if i == 0 {
                 bel = bel
                     .extra_in_far_from_far(
@@ -557,34 +554,7 @@ pub fn verify_x5pll(edev: &ExpandedDevice, vrf: &mut Verifier, bcrd: BelCoord) {
     }
 
     // CLKOUTPHY cascade
-    let reg = HRegId::from_idx(bcrd.col.to_idx() / 8);
-    let chip = edev.chips[bcrd.die];
-    let HsrSKind::X5io(ref hsr) = chip.hsr_s else {
-        unreachable!()
-    };
-    let src_dx = if let Some(io) = hsr.regions[reg].io[0]
-        && io.ddrmc.is_some()
-    {
-        Some(-8)
-    } else if let Some(io) = hsr.regions[reg].io[1]
-        && io.ddrmc.is_some()
-    {
-        Some(8)
-    } else if reg != hsr.regions.first_id().unwrap()
-        && let Some(io) = hsr.regions[reg - 1].io[1]
-        && io.ddrmc.is_some()
-    {
-        Some(0)
-    } else if reg != hsr.regions.last_id().unwrap()
-        && let Some(io) = hsr.regions[reg + 1].io[0]
-        && io.ddrmc.is_some()
-    {
-        Some(0)
-    } else {
-        None
-    };
-    if let Some(dx) = src_dx {
-        let src = bcrd.delta(dx, 0).bel(bslots::X5PLL);
+    if let Some(src) = edev.x5pll_casc_source(bcrd) {
         bel = bel
             .extra_in_far_from_far("PLL_CLKOUTPHY_CASC_IN_0", src, "PLL_CLKOUTPHY_CASC_OUT_0")
             .extra_in_far_from_far("PLL_CLKOUTPHY_CASC_IN_90", src, "PLL_CLKOUTPHY_CASC_OUT_90");
@@ -746,12 +716,8 @@ pub fn verify_x5phio_cmu(edev: &ExpandedDevice, vrf: &mut Verifier, bcrd: BelCoo
 
     bel.commit();
 
-    let prev = edev
-        .bel_delta(bcrd.cell, -1, 0, bcrd.slot)
-        .or(edev.bel_delta(bcrd.cell, -7, 0, bcrd.slot));
-    let next = edev
-        .bel_delta(bcrd.cell, 1, 0, bcrd.slot)
-        .or(edev.bel_delta(bcrd.cell, 7, 0, bcrd.slot));
+    let prev = edev.bel_delta(bcrd.cell, -4, 0, bcrd.slot);
+    let next = edev.bel_delta(bcrd.cell, 4, 0, bcrd.slot);
 
     let mut bel = vrf
         .verify_bel(bcrd)
@@ -795,7 +761,8 @@ pub fn verify_x5phio_cmu(edev: &ExpandedDevice, vrf: &mut Verifier, bcrd: BelCoo
     bel.commit();
 }
 
-pub fn verify_x5io_scan(edev: &ExpandedDevice, vrf: &mut Verifier, bcrd: BelCoord) {
+pub fn verify_x5io_scan(endev: &ExpandedNamedDevice, vrf: &mut Verifier, bcrd: BelCoord) {
+    let edev = endev.edev;
     let chip = edev.chips[bcrd.die];
     let pll = bcrd.bel(bslots::X5PLL);
     let phio_cmu = bcrd.bel(bslots::X5PHIO_CMU);
@@ -846,7 +813,7 @@ pub fn verify_x5io_scan(edev: &ExpandedDevice, vrf: &mut Verifier, bcrd: BelCoor
         for (i, oct) in octad.into_iter().enumerate() {
             let oct_tcrd = edev.bel_tile(oct);
             let mut skip = false;
-            if chip.ps == PsKind::Ps9Cpm6
+            if endev.dev_naming.skip_nc_phy_clk
                 && edev[oct_tcrd].class == tcls::X5IO_NC
                 && pin == "PHY_CLK"
             {
@@ -855,8 +822,10 @@ pub fn verify_x5io_scan(edev: &ExpandedDevice, vrf: &mut Verifier, bcrd: BelCoor
             let HsrSKind::X5io(ref hsr) = chip.hsr_s else {
                 unreachable!()
             };
+            let reg = HRegId::from_idx(bcrd.col.to_idx() / 4);
             if pin == "DMC_CLK"
-                && hsr.regions[HRegId::from_idx(bcrd.col.to_idx() / 8)].io[1].is_none()
+                && hsr.regions[reg].io.unwrap().side == DirH::W
+                && hsr.regions.get(reg + 1).is_none()
             {
                 skip = true;
             }
@@ -906,18 +875,37 @@ pub fn verify_ddrmc5(edev: &ExpandedDevice, vrf: &mut Verifier, bcrd: BelCoord) 
     let kind = match edev[tcrd].class {
         tcls::DDRMC5 => "DDRMC5",
         tcls::DDRMC5C => "DDRMC5C",
-        tcls::DDRMC5E | tcls::DDRMC5E_ALT | tcls::DDRMC5E2 => "DDRMC5E",
+        tcls::DDRMC5E | tcls::DDRMC5E_ALT | tcls::DDRMC5E2 | tcls::DDRMC5E2_CUT => "DDRMC5E",
+        tcls::DDRMC5X => "DDRMC5X",
         _ => unreachable!(),
     };
-    let octad = if bcrd.col.to_idx() % 8 == 4 {
-        [-4, -3, -2, -1, 3, 2, 1, 0, 4, 5, 6, 7]
-    } else {
-        [4, 3, 2, 1, -3, -2, -1, 0, -4, -5, -6, -7]
-    }
-    .map(|dx| bcrd.delta(dx, 0).bel(bslots::X5IO_OCTAD));
-    let phio_cmu = [octad[3], octad[7], octad[11]].map(|bcrd| bcrd.bel(bslots::X5PHIO_CMU));
-    let scan = phio_cmu.map(|bcrd| bcrd.bel(bslots::X5IO_SCAN));
-    let pll = phio_cmu.map(|bcrd| bcrd.bel(bslots::X5PLL));
+    let is_cut = matches!(edev[tcrd].class, tcls::DDRMC5E2_CUT | tcls::DDRMC5X);
+    let octad = Vec::from_iter(
+        if kind == "DDRMC5X" {
+            vec![-4, -3, -2, -1, 0, 1, 2, 3]
+        } else {
+            match edev.x5io(bcrd.cell).unwrap().side {
+                DirH::E => vec![-4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6, 7],
+                DirH::W => vec![4, 5, 6, 7, 0, 1, 2, 3, -4, -3, -2, -1],
+            }
+        }
+        .into_iter()
+        .map(|dx| bcrd.delta(dx, 0).bel(bslots::X5IO_OCTAD)),
+    );
+    let phio_cmu = Vec::from_iter(
+        octad
+            .iter()
+            .copied()
+            .step_by(4)
+            .map(|bcrd| bcrd.bel(bslots::X5PHIO_CMU)),
+    );
+    let scan = Vec::from_iter(
+        phio_cmu
+            .iter()
+            .copied()
+            .map(|bcrd| bcrd.bel(bslots::X5IO_SCAN)),
+    );
+    let pll = Vec::from_iter(phio_cmu.iter().copied().map(|bcrd| bcrd.bel(bslots::X5PLL)));
     let mut bel = vrf
         .verify_bel(bcrd)
         .kind(kind)
@@ -928,7 +916,25 @@ pub fn verify_ddrmc5(edev: &ExpandedDevice, vrf: &mut Verifier, bcrd: BelCoord) 
         // dummy
         .extra_out_far_claim("DMC_CLK_DESKEW");
 
-    for i in 0..3 {
+    if is_cut {
+        for i in 0..32 {
+            bel = bel.extra_out_far_claim(format!("IF_UBLAZE_FABRIC_UB2BLI_ADDRESS_{i}_"));
+        }
+        for i in 0..27 {
+            bel = bel.extra_out_far_claim(format!("IF_UBLAZE_FABRIC_UB2BLI_WRITE_DATA_{i}_"));
+        }
+        for i in 6..32 {
+            bel = bel.extra_in_far_claim(format!("IF_UBLAZE_FABRIC_BLI2UB_READ_DATA_{i}_"));
+        }
+        bel = bel
+            .extra_in_far_claim("IF_UBLAZE_FABRIC_BLI2UB_CLK")
+            .extra_in_far_claim("IF_UBLAZE_FABRIC_BLI2UB_RST")
+            .extra_in_far_claim("IF_UBLAZE_FABRIC_BLI2UB_READY")
+            .extra_out_far_claim("IF_UBLAZE_FABRIC_UB2BLI_ADDR_STROBE")
+            .extra_out_far_claim("IF_UBLAZE_FABRIC_UB2BLI_READ_STROBE");
+    }
+
+    for i in 0..pll.len() {
         bel = bel
             .extra_out_far_to_far(
                 format!("DMC2PHY_CSSD_TRIG_{i}_"),

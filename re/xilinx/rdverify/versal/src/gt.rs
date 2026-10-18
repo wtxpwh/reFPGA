@@ -3,6 +3,7 @@ use prjcombine_interconnect::{
     dir::DirV,
     grid::{BelCoord, DieIdExt},
 };
+use prjcombine_re_xilinx_naming_versal::ExpandedNamedDevice;
 use prjcombine_re_xilinx_rdverify::Verifier;
 use prjcombine_versal::{
     chip::{Chip, HsrNKind, HsrSKind},
@@ -659,36 +660,23 @@ pub fn verify_gt(edev: &ExpandedDevice, vrf: &mut Verifier, bcrd: BelCoord) {
     }
 }
 
-pub fn verify_rfadc_rfdac(edev: &ExpandedDevice, vrf: &mut Verifier, bcrd: BelCoord) {
+pub fn verify_rfadc_rfdac(endev: &ExpandedNamedDevice, vrf: &mut Verifier, bcrd: BelCoord) {
+    let edev = endev.edev;
     let mut bel = vrf
         .verify_bel(bcrd)
-        .extra_in_far("CLK_DISTR_IN_LEFT_N")
         .extra_in_far("CLK_DISTR_IN_LEFT_P")
-        .extra_in_far("CLK_DISTR_IN_LEFT_PLL_N")
         .extra_in_far("CLK_DISTR_IN_LEFT_PLL_P")
-        .extra_in_far("CLK_DISTR_IN_LEFT_T1_N")
         .extra_in_far("CLK_DISTR_IN_LEFT_T1_P")
-        .extra_in_far("CLK_DISTR_IN_RIGHT_N")
         .extra_in_far("CLK_DISTR_IN_RIGHT_P")
-        .extra_out_far_claim("CLK_DISTR_OUT_LEFT_N")
         .extra_out_far_claim("CLK_DISTR_OUT_LEFT_P")
-        .extra_out_far_claim("CLK_DISTR_OUT_RIGHT_N")
         .extra_out_far_claim("CLK_DISTR_OUT_RIGHT_P")
-        .extra_out_far_claim("CLK_DISTR_OUT_RIGHT_PLL_N")
         .extra_out_far_claim("CLK_DISTR_OUT_RIGHT_PLL_P")
-        .extra_out_far_claim("CLK_DISTR_OUT_RIGHT_T1_N")
         .extra_out_far_claim("CLK_DISTR_OUT_RIGHT_T1_P")
-        .extra_in_far("SYSREF_IN1_L_N")
         .extra_in_far("SYSREF_IN1_L_P")
-        .extra_in_far("SYSREF_IN2_L_N")
         .extra_in_far("SYSREF_IN2_L_P")
-        .extra_in_far("SYSREF_IN_R_N")
         .extra_in_far("SYSREF_IN_R_P")
-        .extra_out_far_claim("SYSREF_OUT1_R_N")
         .extra_out_far_claim("SYSREF_OUT1_R_P")
-        .extra_out_far_claim("SYSREF_OUT2_R_N")
         .extra_out_far_claim("SYSREF_OUT2_R_P")
-        .extra_out_far_claim("SYSREF_OUT_L_N")
         .extra_out_far_claim("SYSREF_OUT_L_P");
 
     let (bslots, idx) = if let Some(idx) = bslots::RFADC.index_of(bcrd.slot) {
@@ -731,32 +719,31 @@ pub fn verify_rfadc_rfdac(edev: &ExpandedDevice, vrf: &mut Verifier, bcrd: BelCo
             .or(edev.bel_delta(bcrd.cell, 0, 96, bslots::RFADC[0]))
     };
 
-    for pin in [
-        "CLOCK_DR_IN_EXT",
-        "RESET_TAP_B_IN_EXT",
-        "CAPTURE_DR_IN_EXT",
-        "SHIFT_DR_IN_EXT",
-        "UPDATE_DR_IN_EXT",
-        "SYS_RST1_N",
-        "SYS_RST2_N",
-        "SYS_RST3_N",
-    ] {
-        bel = bel.extra_in_far(pin);
-        if let Some(obel) = obel_prev {
-            bel.verify_net(&[bel.wire_far(pin), bel.bel_wire_far(obel, pin)]);
-        } else {
-            bel.claim_net(&[bel.wire_far(pin)]);
+    if let Some(obel) = obel_prev {
+        for (pin, opin) in [
+            ("CLK_DISTR_IN_RIGHT_P", "CLK_DISTR_OUT_LEFT_P"),
+            ("SYSREF_IN_R_P", "SYSREF_OUT_L_P"),
+        ] {
+            bel.verify_net(&[bel.wire_far(pin), bel.bel_wire_far(obel, opin)])
+        }
+    } else {
+        for (pin, opin) in [
+            ("CLK_DISTR_IN_RIGHT_P", "CLK_DISTR_OUT_RIGHT_P"),
+            ("SYSREF_IN_R_P", "SYSREF_OUT1_R_P"),
+        ] {
+            bel.verify_net(&[bel.wire_far(pin), bel.wire_far(opin)])
         }
     }
 
-    if let Some(obel) = obel_prev {
+    if let Some(obel) = obel_next {
         for (pin, opin, brk_adc_dac) in [
-            ("CLK_DISTR_IN_RIGHT_P", "CLK_DISTR_OUT_LEFT_P", true),
-            ("CLK_DISTR_IN_RIGHT_N", "CLK_DISTR_OUT_LEFT_N", true),
-            ("SYSREF_IN_R_P", "SYSREF_OUT_L_P", false),
-            ("SYSREF_IN_R_N", "SYSREF_OUT_L_N", false),
+            ("CLK_DISTR_IN_LEFT_P", "CLK_DISTR_OUT_RIGHT_P", false),
+            ("CLK_DISTR_IN_LEFT_PLL_P", "CLK_DISTR_OUT_RIGHT_PLL_P", true),
+            ("CLK_DISTR_IN_LEFT_T1_P", "CLK_DISTR_OUT_RIGHT_T1_P", false),
+            ("SYSREF_IN1_L_P", "SYSREF_OUT1_R_P", false),
+            ("SYSREF_IN2_L_P", "SYSREF_OUT2_R_P", false),
         ] {
-            if bcrd.slot == bslots::RFDAC[0] && obel.slot == bslots::RFADC[1] && brk_adc_dac {
+            if bcrd.slot == bslots::RFADC[1] && obel.slot == bslots::RFDAC[0] && brk_adc_dac {
                 bel.claim_net(&[bel.wire_far(pin)])
             } else {
                 bel.verify_net(&[bel.wire_far(pin), bel.bel_wire_far(obel, opin)])
@@ -764,42 +751,11 @@ pub fn verify_rfadc_rfdac(edev: &ExpandedDevice, vrf: &mut Verifier, bcrd: BelCo
         }
     } else {
         for (pin, opin) in [
-            ("CLK_DISTR_IN_RIGHT_P", "CLK_DISTR_OUT_RIGHT_P"),
-            ("CLK_DISTR_IN_RIGHT_N", "CLK_DISTR_OUT_RIGHT_N"),
-            ("SYSREF_IN_R_P", "SYSREF_OUT1_R_P"),
-            ("SYSREF_IN_R_N", "SYSREF_OUT1_R_N"),
-        ] {
-            bel.verify_net(&[bel.wire_far(pin), bel.wire_far(opin)])
-        }
-    }
-
-    if let Some(obel) = obel_next {
-        for (pin, opin) in [
-            ("CLK_DISTR_IN_LEFT_P", "CLK_DISTR_OUT_RIGHT_P"),
-            ("CLK_DISTR_IN_LEFT_N", "CLK_DISTR_OUT_RIGHT_N"),
-            ("CLK_DISTR_IN_LEFT_PLL_P", "CLK_DISTR_OUT_RIGHT_PLL_P"),
-            ("CLK_DISTR_IN_LEFT_PLL_N", "CLK_DISTR_OUT_RIGHT_PLL_N"),
-            ("CLK_DISTR_IN_LEFT_T1_P", "CLK_DISTR_OUT_RIGHT_T1_P"),
-            ("CLK_DISTR_IN_LEFT_T1_N", "CLK_DISTR_OUT_RIGHT_T1_N"),
-            ("SYSREF_IN1_L_P", "SYSREF_OUT1_R_P"),
-            ("SYSREF_IN1_L_N", "SYSREF_OUT1_R_N"),
-            ("SYSREF_IN2_L_P", "SYSREF_OUT2_R_P"),
-            ("SYSREF_IN2_L_N", "SYSREF_OUT2_R_N"),
-        ] {
-            bel.verify_net(&[bel.wire_far(pin), bel.bel_wire_far(obel, opin)])
-        }
-    } else {
-        for (pin, opin) in [
             ("CLK_DISTR_IN_LEFT_P", "CLK_DISTR_OUT_LEFT_P"),
-            ("CLK_DISTR_IN_LEFT_N", "CLK_DISTR_OUT_LEFT_N"),
             ("CLK_DISTR_IN_LEFT_PLL_P", "CLK_DISTR_OUT_LEFT_P"),
-            ("CLK_DISTR_IN_LEFT_PLL_N", "CLK_DISTR_OUT_LEFT_N"),
             ("CLK_DISTR_IN_LEFT_T1_P", "CLK_DISTR_OUT_LEFT_P"),
-            ("CLK_DISTR_IN_LEFT_T1_N", "CLK_DISTR_OUT_LEFT_N"),
             ("SYSREF_IN1_L_P", "SYSREF_OUT_L_P"),
-            ("SYSREF_IN1_L_N", "SYSREF_OUT_L_N"),
             ("SYSREF_IN2_L_P", "SYSREF_OUT_L_P"),
-            ("SYSREF_IN2_L_N", "SYSREF_OUT_L_N"),
         ] {
             bel.verify_net(&[bel.wire_far(pin), bel.wire_far(opin)])
         }

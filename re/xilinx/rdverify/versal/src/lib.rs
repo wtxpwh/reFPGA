@@ -1035,7 +1035,8 @@ fn verify_bel(endev: &ExpandedNamedDevice, vrf: &mut Verifier, bcrd: BelCoord) {
         | bslots::HSR_CLK
         | bslots::HSR_CLK_TEST
         | bslots::HSR_CLK_IN
-        | bslots::XPLL_INT => (),
+        | bslots::XPLL_INT
+        | bslots::XPLL_GASKET_INT => (),
         _ if bslots::IRI.contains(bcrd.slot) => verify_iri(vrf, bcrd),
         _ if bslots::BLI_GRP0.contains(bcrd.slot)
             || bslots::BLI_GRP1.contains(bcrd.slot)
@@ -1092,6 +1093,7 @@ fn verify_bel(endev: &ExpandedNamedDevice, vrf: &mut Verifier, bcrd: BelCoord) {
         bslots::PSXL => ps::verify_psxl(edev, vrf, bcrd),
         bslots::CPM5N => cpm::verify_cpm5n(edev, vrf, bcrd),
         bslots::PSXC => ps::verify_psxc(edev, vrf, bcrd),
+        bslots::PSXT => ps::verify_psxt(edev, vrf, bcrd),
         bslots::MMI => cpm::verify_mmi(edev, vrf, bcrd),
         bslots::HNICX => gt::verify_hnicx(edev, vrf, bcrd),
         bslots::HNOC_NPI_NIR => ps::verify_npi_nir(edev, vrf, bcrd),
@@ -1099,7 +1101,7 @@ fn verify_bel(endev: &ExpandedNamedDevice, vrf: &mut Verifier, bcrd: BelCoord) {
         bslots::GTY | bslots::GTYP | bslots::GTM | bslots::GTM2 => gt::verify_gt(edev, vrf, bcrd),
         bslots::XPIPE | bslots::HNICPIPE => (),
         _ if bslots::RFADC.contains(bcrd.slot) || bslots::RFDAC.contains(bcrd.slot) => {
-            gt::verify_rfadc_rfdac(edev, vrf, bcrd)
+            gt::verify_rfadc_rfdac(endev, vrf, bcrd)
         }
         bslots::BFR_B | bslots::VDU => vrf.verify_bel(bcrd).commit(),
         bslots::VCU2 => verify_vcu2(vrf, bcrd),
@@ -1240,7 +1242,7 @@ fn verify_bel(endev: &ExpandedNamedDevice, vrf: &mut Verifier, bcrd: BelCoord) {
         bslots::X5IO_OCTAD => x5io::verify_x5io_octad(edev, vrf, bcrd),
         bslots::X5PLL => x5io::verify_x5pll(edev, vrf, bcrd),
         bslots::X5PHIO_CMU => x5io::verify_x5phio_cmu(edev, vrf, bcrd),
-        bslots::X5IO_SCAN => x5io::verify_x5io_scan(edev, vrf, bcrd),
+        bslots::X5IO_SCAN => x5io::verify_x5io_scan(endev, vrf, bcrd),
         _ if bslots::X5PHIO_HARD_INV.contains(bcrd.slot) => vrf.verify_bel(bcrd).commit(),
         _ if bslots::X5PHIO_DCCIBUF.contains(bcrd.slot) => {
             x5io::verify_x5phio_dccibuf(edev, vrf, bcrd)
@@ -1301,8 +1303,8 @@ fn prep_permabufs(vrf: &mut Verifier) {
         (tcls::X5PLL_B, bslots::XPLL_INT),
         (tcls::X5PLL_S, bslots::XPLL_INT),
         (tcls::X5PLL_NC, bslots::XPLL_INT),
-        (tcls::X5PLL_GASKET, bslots::XPLL_INT),
-        (tcls::X5PLL_GASKET_HALF, bslots::XPLL_INT),
+        (tcls::X5PLL_GASKET, bslots::XPLL_GASKET_INT),
+        (tcls::X5PLL_GASKET_HALF, bslots::XPLL_GASKET_INT),
         (tcls::HSR_CLK_TEST_XPIO_REV1, bslots::HSR_CLK_TEST),
         (tcls::HSR_CLK_TEST_XPIO_REV2, bslots::HSR_CLK_TEST),
         (tcls::HSR_CLK_TEST_ME_REV1, bslots::HSR_CLK_TEST),
@@ -1340,22 +1342,17 @@ fn prep_dummy_nmu(edev: &ExpandedDevice, vrf: &mut Verifier) {
             continue;
         };
         for (reg, rd) in &x5io.regions {
-            for (halfidx, hnoc) in rd.hnoc.into_iter().enumerate() {
-                let X5ioHNoc::Ddrmc { nmu_bli, .. } = hnoc else {
-                    continue;
-                };
-                for (i, bli) in nmu_bli.into_iter().enumerate() {
-                    if bli.is_none() {
-                        let bcrd = die
-                            .cell(
-                                ColId::from_idx(reg.to_idx() * 8 + halfidx * 4),
-                                chip.row_hsr(DirV::S),
-                            )
-                            .bel(bslots::HNOC_NMU512[i]);
-                        vrf.skip_bel_input(bcrd, bcls::NOC_NMU512::CLK);
-                        vrf.claim_net(&[vrf.bel_wire(bcrd, "CLK")]);
-                        vrf.claim_pip(vrf.bel_wire(bcrd, "CLK"), vrf.bel_wire_far(bcrd, "CLK"));
-                    }
+            let X5ioHNoc::Ddrmc { nmu_bli, .. } = rd.hnoc else {
+                continue;
+            };
+            for (i, bli) in nmu_bli.into_iter().enumerate() {
+                if bli.is_none() {
+                    let bcrd = die
+                        .cell(ColId::from_idx(reg.to_idx() * 4), chip.row_hsr(DirV::S))
+                        .bel(bslots::HNOC_NMU512[i]);
+                    vrf.skip_bel_input(bcrd, bcls::NOC_NMU512::CLK);
+                    vrf.claim_net(&[vrf.bel_wire(bcrd, "CLK")]);
+                    vrf.claim_pip(vrf.bel_wire(bcrd, "CLK"), vrf.bel_wire_far(bcrd, "CLK"));
                 }
             }
         }

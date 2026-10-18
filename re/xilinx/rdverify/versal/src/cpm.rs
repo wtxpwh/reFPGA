@@ -744,7 +744,7 @@ pub fn verify_cpm5n(edev: &ExpandedDevice, vrf: &mut Verifier, bcrd: BelCoord) {
     bel.commit();
 }
 
-fn xlat_mmi_gt_pin(pin: &str) -> Option<String> {
+pub fn xlat_mmi_gt_pin(pin: &str) -> Option<String> {
     let pin = pin.strip_prefix("IFMMIGTYP")?;
     let (pin, idx) = if let Some(pre) = pin.strip_suffix('_') {
         let (pin, idx) = pre.rsplit_once('_').unwrap();

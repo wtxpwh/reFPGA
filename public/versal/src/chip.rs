@@ -3,9 +3,11 @@ use itertools::Itertools;
 use prjcombine_entity::{EntityId, EntityRange, EntityVec, entity_id_u8};
 use prjcombine_interconnect::{
     dir::{DirH, DirV},
-    grid::{ColId, DieId, RowId},
+    grid::{BelCoord, CellCoord, ColId, DieId, RowId},
 };
 use std::collections::BTreeSet;
+
+use crate::defs::bslots;
 
 entity_id_u8!(pub RegId arith, RegTag tag, "REG");
 entity_id_u8!(pub HRegId arith, HRegTag tag, "HREG");
@@ -169,6 +171,7 @@ pub enum PsKind {
     Ps9Cpm6,
     PsXCpm5N,
     PsXcMmi,
+    PsXt,
 }
 
 impl PsKind {
@@ -181,6 +184,7 @@ impl PsKind {
             PsKind::Ps9Cpm6 => Chip::ROWS_PER_REG * 6,
             PsKind::PsXCpm5N => Chip::ROWS_PER_REG * 9,
             PsKind::PsXcMmi => Chip::ROWS_PER_REG * 6,
+            PsKind::PsXt => Chip::ROWS_PER_REG * 4,
         }
     }
 
@@ -193,6 +197,7 @@ impl PsKind {
             PsKind::Ps9Cpm6 => 1,
             PsKind::PsXCpm5N => 4,
             PsKind::PsXcMmi => 2,
+            PsKind::PsXt => 2,
         }
     }
 }
@@ -207,6 +212,7 @@ impl std::fmt::Display for PsKind {
             PsKind::Ps9Cpm6 => write!(f, "ps9 + cpm6"),
             PsKind::PsXCpm5N => write!(f, "psx + cpm5n"),
             PsKind::PsXcMmi => write!(f, "psxc + mmi"),
+            PsKind::PsXt => write!(f, "psxt"),
         }
     }
 }
@@ -446,11 +452,11 @@ pub struct X5ioRow {
     pub regions: EntityVec<HRegId, X5ioRegion>,
 }
 
-#[derive(Clone, Debug, Eq, PartialEq, Hash, Encode, Decode)]
+#[derive(Clone, Debug, Eq, PartialEq, Hash, Encode, Decode, Default)]
 pub struct X5ioRegion {
     pub clk: Option<X5ioClk>,
-    pub hnoc: [X5ioHNoc; 2],
-    pub io: [Option<X5io>; 2],
+    pub hnoc: X5ioHNoc,
+    pub io: Option<X5io>,
     pub sysmon_bli: Option<ColId>,
 }
 
@@ -463,8 +469,9 @@ pub struct X5ioClk {
     pub clk_distr_col: Option<ColId>,
 }
 
-#[derive(Copy, Clone, Debug, Eq, PartialEq, Hash, Encode, Decode)]
+#[derive(Copy, Clone, Debug, Eq, PartialEq, Hash, Encode, Decode, Default)]
 pub enum X5ioHNoc {
+    #[default]
     None,
     Ps9A,
     Ps9B,
@@ -478,6 +485,14 @@ pub enum X5ioHNoc {
     PsXC {
         scan_bli: ColId,
     },
+    PsXTA,
+    PsXTB {
+        scan_bli: ColId,
+    },
+    PsXTC {
+        scan_bli: ColId,
+        vnoc: ColId,
+    },
     Cross {
         alt: bool,
         flip: bool,
@@ -486,6 +501,7 @@ pub enum X5ioHNoc {
     },
     Ddrmc {
         flip: bool,
+        swap: bool,
         scan_bli: ColId,
         nmu_bli: [Option<[ColId; 3]>; 2],
         vnoc: [Option<VNocConn>; 2],
@@ -497,8 +513,9 @@ pub enum X5ioHNoc {
 
 #[derive(Copy, Clone, Debug, Eq, PartialEq, Hash, Encode, Decode)]
 pub struct X5io {
+    pub side: DirH,
     pub octad_bli: [Option<ColId>; 4],
-    pub pll_bli: X5ioPllBli,
+    pub x5pll_bli: X5ioPllBli,
     pub bank_bli: Option<ColId>,
     pub scan_bli: X5ioScanBli,
     pub ddrmc: Option<X5ioDdrmc>,
@@ -540,6 +557,14 @@ pub enum X5ioDdrmcKind {
     Ddrmc5E,
     Ddrmc5EAlt,
     Ddrmc5E2,
+    Ddrmc5E2Cut,
+    Ddrmc5X,
+}
+
+impl X5ioDdrmcKind {
+    pub fn is_2hb(self) -> bool {
+        self == Self::Ddrmc5X
+    }
 }
 
 impl std::fmt::Display for X5ioDdrmcKind {
@@ -550,6 +575,8 @@ impl std::fmt::Display for X5ioDdrmcKind {
             X5ioDdrmcKind::Ddrmc5E => write!(f, "ddrmc5e"),
             X5ioDdrmcKind::Ddrmc5EAlt => write!(f, "ddrmc5e_alt"),
             X5ioDdrmcKind::Ddrmc5E2 => write!(f, "ddrmc5e2"),
+            X5ioDdrmcKind::Ddrmc5E2Cut => write!(f, "ddrmc5e2_cut"),
+            X5ioDdrmcKind::Ddrmc5X => write!(f, "ddrmc5x"),
         }
     }
 }
@@ -593,132 +620,127 @@ impl X5ioRow {
                 }
             }
 
-            for (i, hnoc) in region.hnoc.into_iter().enumerate() {
-                let side = ['W', 'E'][i];
-                match hnoc {
-                    X5ioHNoc::None => (),
-                    X5ioHNoc::Ps9A => writeln!(o, "\t\t\thnoc {side} ps9_a;")?,
-                    X5ioHNoc::Ps9B => writeln!(o, "\t\t\thnoc {side} ps9_b;")?,
-                    X5ioHNoc::Ps9C { scan_bli } => {
-                        writeln!(o, "\t\t\thnoc {side} ps9_c scan_bli {scan_bli};")?
-                    }
-                    X5ioHNoc::PsXA => writeln!(o, "\t\t\thnoc {side} psx_a;")?,
-                    X5ioHNoc::PsXB { flip } => writeln!(
+            match region.hnoc {
+                X5ioHNoc::None => (),
+                X5ioHNoc::Ps9A => writeln!(o, "\t\t\thnoc ps9_a;")?,
+                X5ioHNoc::Ps9B => writeln!(o, "\t\t\thnoc ps9_b;")?,
+                X5ioHNoc::Ps9C { scan_bli } => {
+                    writeln!(o, "\t\t\thnoc ps9_c scan_bli {scan_bli};")?
+                }
+                X5ioHNoc::PsXA => writeln!(o, "\t\t\thnoc psx_a;")?,
+                X5ioHNoc::PsXB { flip } => writeln!(
+                    o,
+                    "\t\t\thnoc psx_b{flip};",
+                    flip = if flip { " flip" } else { "" }
+                )?,
+                X5ioHNoc::PsXC { scan_bli } => {
+                    writeln!(o, "\t\t\thnoc psx_c scan_bli {scan_bli};")?
+                }
+                X5ioHNoc::PsXTA => writeln!(o, "\t\t\thnoc psxt_a;")?,
+                X5ioHNoc::PsXTB { scan_bli } => {
+                    writeln!(o, "\t\t\thnoc psxt_b scan_bli {scan_bli};")?
+                }
+                X5ioHNoc::PsXTC { scan_bli, vnoc } => {
+                    writeln!(o, "\t\t\thnoc psxt_c scan_bli {scan_bli} vnoc {vnoc};")?
+                }
+                X5ioHNoc::Cross {
+                    alt,
+                    flip,
+                    scan_bli,
+                    vnoc,
+                } => {
+                    write!(
                         o,
-                        "\t\t\thnoc {side} psx_b{flip};",
-                        flip = if flip { " flip" } else { "" }
-                    )?,
-                    X5ioHNoc::PsXC { scan_bli } => {
-                        writeln!(o, "\t\t\thnoc {side} psx_c scan_bli {scan_bli};")?
+                        "\t\t\thnoc cross{alt}{flip} scan_bli {scan_bli}",
+                        alt = if alt { " alt" } else { "" },
+                        flip = if flip { " flip" } else { "" },
+                    )?;
+                    if let Some(vnoc) = vnoc {
+                        write!(o, " vnoc {vnoc}")?;
                     }
-                    X5ioHNoc::Cross {
-                        alt,
-                        flip,
-                        scan_bli,
-                        vnoc,
-                    } => {
-                        write!(
-                            o,
-                            "\t\t\thnoc {side} cross{alt}{flip} scan_bli {scan_bli}",
-                            alt = if alt { " alt" } else { "" },
-                            flip = if flip { " flip" } else { "" },
-                        )?;
-                        if let Some(vnoc) = vnoc {
-                            write!(o, " vnoc {vnoc}")?;
-                        }
-                        writeln!(o, ";")?;
+                    writeln!(o, ";")?;
+                }
+                X5ioHNoc::Ddrmc {
+                    flip,
+                    swap,
+                    scan_bli,
+                    nmu_bli,
+                    vnoc,
+                } => {
+                    write!(
+                        o,
+                        "\t\t\thnoc ddrmc{flip}{swap} scan_bli {scan_bli} nmu_bli [",
+                        flip = if flip { " flip" } else { "" },
+                        swap = if swap { " swap" } else { "" },
+                    )?;
+                    if let Some([bli0, bli1, bli2]) = nmu_bli[0] {
+                        write!(o, "({bli0}, {bli1}, {bli2})")?;
+                    } else {
+                        write!(o, "-")?;
                     }
-                    X5ioHNoc::Ddrmc {
-                        flip,
-                        scan_bli,
-                        nmu_bli,
-                        vnoc,
-                    } => {
-                        write!(
-                            o,
-                            "\t\t\thnoc {side} ddrmc{flip} scan_bli {scan_bli} nmu_bli [",
-                            flip = if flip { " flip" } else { "" },
-                        )?;
-                        if let Some([bli0, bli1, bli2]) = nmu_bli[0] {
-                            write!(o, "({bli0}, {bli1}, {bli2})")?;
+                    write!(o, ", ")?;
+                    if let Some([bli0, bli1, bli2]) = nmu_bli[1] {
+                        write!(o, "({bli0}, {bli1}, {bli2})")?;
+                    } else {
+                        write!(o, "-")?;
+                    }
+                    write!(o, "]")?;
+                    if vnoc[0].is_some() || vnoc[1].is_some() {
+                        write!(o, " vnoc [")?;
+                        if let Some(vnoc) = vnoc[0] {
+                            write!(o, "{vnoc}")?;
                         } else {
                             write!(o, "-")?;
                         }
                         write!(o, ", ")?;
-                        if let Some([bli0, bli1, bli2]) = nmu_bli[1] {
-                            write!(o, "({bli0}, {bli1}, {bli2})")?;
+                        if let Some(vnoc) = vnoc[1] {
+                            write!(o, "{vnoc}")?;
                         } else {
                             write!(o, "-")?;
                         }
                         write!(o, "]")?;
-                        if vnoc[0].is_some() || vnoc[1].is_some() {
-                            write!(o, " vnoc [")?;
-                            if let Some(vnoc) = vnoc[0] {
-                                write!(o, "{vnoc}")?;
-                            } else {
-                                write!(o, "-")?;
-                            }
-                            write!(o, ", ")?;
-                            if let Some(vnoc) = vnoc[1] {
-                                write!(o, "{vnoc}")?;
-                            } else {
-                                write!(o, "-")?;
-                            }
-                            write!(o, "]")?;
-                        }
-                        writeln!(o, ";")?;
-                    }
-                    X5ioHNoc::Cap { scan_bli } => {
-                        writeln!(o, "\t\t\thnoc {side} cap scan_bli {scan_bli};")?
-                    }
-                }
-            }
-
-            for (i, io) in region.io.into_iter().enumerate() {
-                if let Some(io) = io {
-                    writeln!(o, "\t\t\tio {side} {{", side = ['W', 'E'][i])?;
-                    write!(o, "\t\t\t\toctad_bli ")?;
-                    let mut first = true;
-                    for col in io.octad_bli {
-                        if !first {
-                            write!(o, ", ")?;
-                        }
-                        first = false;
-                        if let Some(col) = col {
-                            write!(o, "{col}")?;
-                        } else {
-                            write!(o, "-")?;
-                        }
                     }
                     writeln!(o, ";")?;
-                    match io.pll_bli {
-                        X5ioPllBli::None => (),
-                        X5ioPllBli::Secondary(col) => {
-                            writeln!(o, "\t\t\t\tpll_bli secondary {col};")?
-                        }
-                        X5ioPllBli::PrimaryA(col) => {
-                            writeln!(o, "\t\t\t\tpll_bli primary_a {col};")?
-                        }
-                        X5ioPllBli::PrimaryB(col) => {
-                            writeln!(o, "\t\t\t\tpll_bli primary_b {col};")?
-                        }
+                }
+                X5ioHNoc::Cap { scan_bli } => writeln!(o, "\t\t\thnoc cap scan_bli {scan_bli};")?,
+            }
+
+            if let Some(io) = region.io {
+                writeln!(o, "\t\t\tio {side}", side = io.side)?;
+                write!(o, "\t\t\toctad_bli ")?;
+                let mut first = true;
+                for col in io.octad_bli {
+                    if !first {
+                        write!(o, ", ")?;
                     }
-                    if let Some(col) = io.bank_bli {
-                        writeln!(o, "\t\t\t\tbank_bli {col};")?;
+                    first = false;
+                    if let Some(col) = col {
+                        write!(o, "{col}")?;
+                    } else {
+                        write!(o, "-")?;
                     }
-                    match io.scan_bli {
-                        X5ioScanBli::A(col) => writeln!(o, "\t\t\t\tscan_bli a {col};")?,
-                        X5ioScanBli::B(col) => writeln!(o, "\t\t\t\tscan_bli b {col};")?,
-                        X5ioScanBli::C(col) => writeln!(o, "\t\t\t\tscan_bli c {col};")?,
-                    }
-                    if let Some(ddrmc) = io.ddrmc {
-                        writeln!(
-                            o,
-                            "\t\t\t\tddrmc {} bli {} test_clk {};",
-                            ddrmc.kind, ddrmc.bli, ddrmc.test_clk
-                        )?;
-                    }
-                    writeln!(o, "\t\t\t}}")?;
+                }
+                writeln!(o, ";")?;
+                match io.x5pll_bli {
+                    X5ioPllBli::None => (),
+                    X5ioPllBli::Secondary(col) => writeln!(o, "\t\t\tx5pll_bli secondary {col};")?,
+                    X5ioPllBli::PrimaryA(col) => writeln!(o, "\t\t\tx5pll_bli primary_a {col};")?,
+                    X5ioPllBli::PrimaryB(col) => writeln!(o, "\t\t\tx5pll_bli primary_b {col};")?,
+                }
+                if let Some(col) = io.bank_bli {
+                    writeln!(o, "\t\t\tbank_bli {col};")?;
+                }
+                match io.scan_bli {
+                    X5ioScanBli::A(col) => writeln!(o, "\t\t\tscan_bli a {col};")?,
+                    X5ioScanBli::B(col) => writeln!(o, "\t\t\tscan_bli b {col};")?,
+                    X5ioScanBli::C(col) => writeln!(o, "\t\t\tscan_bli c {col};")?,
+                }
+                if let Some(ddrmc) = io.ddrmc {
+                    writeln!(
+                        o,
+                        "\t\t\tddrmc {} bli {} test_clk {};",
+                        ddrmc.kind, ddrmc.bli, ddrmc.test_clk
+                    )?;
                 }
             }
 
@@ -1136,6 +1158,75 @@ impl Chip {
 
     pub fn row_n(&self) -> RowId {
         self.row_edge(DirV::N)
+    }
+
+    pub fn x5io(&self, cell: CellCoord) -> Option<X5io> {
+        if cell.row != self.row_hsr(DirV::S) {
+            return None;
+        }
+        let HsrSKind::X5io(ref hsr) = self.hsr_s else {
+            return None;
+        };
+        let reg = HRegId::from_idx(cell.col.to_idx() / 4);
+        hsr.regions.get(reg)?.io
+    }
+
+    pub fn x5io_ddrmc(&self, cell: CellCoord) -> Option<X5ioDdrmc> {
+        self.x5io(cell)?.ddrmc
+    }
+
+    pub fn x5io_to_w(&self, cell: CellCoord) -> Option<CellCoord> {
+        match self.x5io(cell)?.side {
+            DirH::W => Some(cell),
+            DirH::E => Some(cell.delta(-4, 0)),
+        }
+    }
+
+    pub fn x5io_to_e(&self, cell: CellCoord) -> Option<CellCoord> {
+        if self.x5io(cell)?.side == DirH::E {
+            Some(cell)
+        } else if let cell_e = cell.delta(4, 0)
+            && self.x5io(cell_e)?.side == DirH::E
+        {
+            Some(cell_e)
+        } else {
+            None
+        }
+    }
+
+    pub fn x5io_to_ddrmc(&self, cell: CellCoord) -> Option<BelCoord> {
+        let io = self.x5io(cell)?;
+        let cell_w = self.x5io_to_w(cell)?;
+        let cell_e = self.x5io_to_e(cell);
+
+        // case 1: standing on it
+        if self.x5io_ddrmc(cell_w).is_some() {
+            return Some(cell_w.bel(bslots::DDRMC5));
+        } else if let Some(cell_e) = cell_e
+            && self.x5io_ddrmc(cell_e).is_some()
+        {
+            return Some(cell_e.bel(bslots::DDRMC5));
+        }
+
+        // case 2: non-DDRMC5X in neighbouring region
+        if io.side == DirH::W
+            && cell.col.to_idx() != 0
+            && let cell_prev = cell.delta(-4, 0)
+            && let Some(io_prev) = self.x5io(cell_prev)
+            && io_prev.side == DirH::E
+            && io_prev.ddrmc.is_some()
+        {
+            return Some(cell_prev.bel(bslots::DDRMC5));
+        } else if io.side == DirH::E
+            && let cell_next = cell.delta(4, 0)
+            && let Some(io_next) = self.x5io(cell_next)
+            && io_next.side == DirH::W
+            && io_next.ddrmc.is_some()
+        {
+            return Some(cell_next.bel(bslots::DDRMC5));
+        }
+
+        None
     }
 }
 

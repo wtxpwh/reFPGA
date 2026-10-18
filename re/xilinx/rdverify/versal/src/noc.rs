@@ -42,6 +42,9 @@ pub fn verify_noc_nps(edev: &ExpandedDevice, vrf: &mut Verifier, bcrd: BelCoord)
         | tcls::HNOC_X5IO_PSX_B
         | tcls::HNOC_X5IO_PSXL_C
         | tcls::HNOC_X5IO_PSXC_C
+        | tcls::HNOC_X5IO_PSXT_A
+        | tcls::HNOC_X5IO_PSXT_B
+        | tcls::HNOC_X5IO_PSXT_C
         | tcls::HNOC_X5IO_CROSS
         | tcls::HNOC_X5IO_CROSS_ALT
         | tcls::HNOC_X5IO_DDRMC
@@ -197,6 +200,29 @@ pub fn verify_noc_scan(edev: &ExpandedDevice, vrf: &mut Verifier, bcrd: BelCoord
         }
         for i in 0..14 {
             bel = bel.extra_in_far(format!("NOC2_SCAN_CHNL_MASK_FROM_PL_{i}_"));
+        }
+    } else if edev[tcrd].class == tcls::HNOC_X5IO_PSXT_A {
+        bel = bel
+            .extra_in_far("IF_NOC2_SCAN_CNTL_IN_SCAN_CSSD_TRIG_N")
+            .extra_in_far("IF_NOC2_SCAN_CNTL_IN_SCAN_CLK_N")
+            .extra_in_far("IF_NOC2_SCAN_CNTL_IN_SCAN_MODE_RST_N")
+            .extra_in_far("IF_NOC2_SCAN_CNTL_IN_SCAN_EN_N")
+            .extra_in_far("IF_NOC2_SCAN_CNTL_IN_SCAN_EDT_UPDT_N");
+        for i in 0..12 {
+            bel = bel
+                .extra_in_far(format!("NOC2_SCAN_CHNL_FROM_PL_{i}_"))
+                .extra_out_far_claim(format!("NOC2_SCAN_CHNL_TO_PL_{i}_"));
+        }
+        for i in 12..15 {
+            bel = bel
+                .extra_in_far_claim(format!("NOC2_SCAN_CHNL_FROM_PL_{i}_"))
+                .extra_out_far_claim(format!("NOC2_SCAN_CHNL_TO_PL_{i}_"));
+        }
+        for i in 0..11 {
+            bel = bel.extra_in_far(format!("NOC2_SCAN_CHNL_MASK_FROM_PL_{i}_"));
+        }
+        for i in 11..14 {
+            bel = bel.extra_in_far_claim(format!("NOC2_SCAN_CHNL_MASK_FROM_PL_{i}_"));
         }
     } else {
         if !bel_info

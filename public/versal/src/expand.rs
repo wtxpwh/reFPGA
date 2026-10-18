@@ -1,5 +1,5 @@
 use prjcombine_entity::{EntityId, EntityRange, EntityVec};
-use prjcombine_interconnect::db::IntDb;
+use prjcombine_interconnect::db::{ConnectorClassId, IntDb};
 use prjcombine_interconnect::dir::{DirH, DirV};
 use prjcombine_interconnect::grid::builder::GridBuilder;
 use prjcombine_interconnect::grid::{BelCoord, CellCoord, ColId, DieId, DieIdExt, RowId};
@@ -954,6 +954,16 @@ impl Expander<'_> {
                         );
                     }
                 }
+                PsKind::PsXt => {
+                    let mut tcells = cell.cells_n(Chip::ROWS_PER_REG * 4);
+                    tcells.push(cell_hsr);
+                    self.egrid.add_tile(cell, tcls::PSXT, &tcells);
+                    self.egrid.add_tile(
+                        cell.delta(0, Chip::ROWS_PER_REG as i32 * 3),
+                        tcls::GTYP_PS,
+                        &[],
+                    );
+                }
             }
         }
     }
@@ -1241,6 +1251,8 @@ impl Expander<'_> {
             if let Some(prev) = prev {
                 self.egrid
                     .fill_conn_pair(prev, cell, ccls::HSR_E, ccls::HSR_W);
+                self.egrid
+                    .fill_conn_pair(prev, cell, ccls::XPIO_E, ccls::XPIO_W);
             }
             prev = Some(cell);
         }
@@ -1282,15 +1294,29 @@ impl Expander<'_> {
         let chip = &self.chips[die];
         let row = chip.row_hsr(DirV::S);
         let row_bli = chip.row_edge(DirV::S);
-        let mut prev: Option<CellCoord> = None;
+        let mut prev_clk: Option<CellCoord> = None;
+        let mut prev_io: Option<(CellCoord, ConnectorClassId)> = None;
         let mut was_hnoc_ddrmc = false;
         let mut clk_conn_distr = HashMap::new();
         let mut clk_conn_route = HashMap::new();
         let mut prev_hnoc: [Option<NocPortCoord>; 4] = [None; 4];
+        let mut cell_clk = die.cell(
+            ColId::from_idx(
+                x5io.regions
+                    .iter()
+                    .find(|(_, region)| region.clk.is_some())
+                    .unwrap()
+                    .0
+                    .to_idx()
+                    * 4,
+            ),
+            row,
+        );
         for (reg, rd) in &x5io.regions {
-            let col = ColId::from_idx(reg.to_idx() * 8);
+            let col = ColId::from_idx(reg.to_idx() * 4);
             let cell = die.cell(col, row);
             if let Some(clk) = rd.clk {
+                cell_clk = cell;
                 let (tcid, col_bli_clk) = match clk.clk_bli {
                     X5ioClkBli::MinimalA(c) => (tcls::CLK_X5IO_MIN_A, c),
                     X5ioClkBli::MinimalB(c) => (tcls::CLK_X5IO_MIN_B, c),
@@ -1336,512 +1362,610 @@ impl Expander<'_> {
                     let ocell = die.cell(ocol, chip.row_s());
                     clk_conn_route.insert(ocell, cell);
                 }
+
+                if reg != x5io.regions.last_id().unwrap() && x5io.regions[reg + 1].io.is_some() {
+                    self.egrid.add_tile_e(cell, tcls::X5PLL_GASKET, 8);
+                } else {
+                    self.egrid.add_tile_e(cell, tcls::X5PLL_GASKET_HALF, 4);
+                }
+
+                if let Some(prev_clk) = prev_clk {
+                    self.egrid
+                        .fill_conn_pair(prev_clk, cell, ccls::HSR_E, ccls::HSR_W);
+                }
+                prev_clk = Some(cell);
             }
 
-            for (i, io) in rd.io.into_iter().enumerate() {
-                if let Some(io) = io {
-                    let cell_io = cell.delta(3 + i as i32, 0);
-                    if let Some(bank_bli) = io.bank_bli {
-                        let bli = die.cell(bank_bli, row_bli);
-                        self.egrid
-                            .add_tile(cell_io, tcls::X5IO_BANK, &[bli, bli.delta(1, 0)]);
-                    } else {
-                        self.egrid.add_tile(cell_io, tcls::X5IO_BANK_NC, &[]);
-                    }
-                    let (col_bli, tcid) = match io.scan_bli {
-                        X5ioScanBli::A(col) => (col, tcls::X5IO_SCAN_A),
-                        X5ioScanBli::B(col) => (col, tcls::X5IO_SCAN_B),
-                        X5ioScanBli::C(col) => (col, tcls::X5IO_SCAN_C),
-                    };
+            if let Some(io) = rd.io {
+                if let Some(bank_bli) = io.bank_bli {
+                    let bli = die.cell(bank_bli, row_bli);
+                    self.egrid
+                        .add_tile(cell, tcls::X5IO_BANK, &[bli, bli.delta(1, 0)]);
+                } else {
+                    self.egrid.add_tile(cell, tcls::X5IO_BANK_NC, &[]);
+                }
+                let cell_pair = match io.side {
+                    DirH::W => cell,
+                    DirH::E => cell.delta(-4, 0),
+                };
+                let (col_bli, tcid) = match io.scan_bli {
+                    X5ioScanBli::A(col) => (col, tcls::X5IO_SCAN_A),
+                    X5ioScanBli::B(col) => (col, tcls::X5IO_SCAN_B),
+                    X5ioScanBli::C(col) => (col, tcls::X5IO_SCAN_C),
+                };
+                let bli = die.cell(col_bli, row_bli);
+                self.egrid.add_tile(cell, tcid, &[bli, bli.delta(1, 0)]);
+                let mut cells_pll = cell.cells_e(4);
+                cells_pll.push(cell_clk);
+                cells_pll.push(cell_pair);
+                let (col_bli, tcid) = match io.x5pll_bli {
+                    X5ioPllBli::None => (None, tcls::X5PLL_NC),
+                    X5ioPllBli::PrimaryA(col) => (Some(col), tcls::X5PLL_A),
+                    X5ioPllBli::PrimaryB(col) => (Some(col), tcls::X5PLL_B),
+                    X5ioPllBli::Secondary(col) => (Some(col), tcls::X5PLL_S),
+                };
+                if let Some(col_bli) = col_bli {
                     let bli = die.cell(col_bli, row_bli);
-                    self.egrid.add_tile(cell_io, tcid, &[bli, bli.delta(1, 0)]);
-                    let cells_octad = if i == 0 {
-                        vec![
-                            cell_io.delta(-3, 0),
-                            cell_io.delta(-2, 0),
-                            cell_io.delta(-1, 0),
-                            cell_io,
-                            cell,
-                        ]
-                    } else {
-                        vec![
-                            cell_io.delta(3, 0),
-                            cell_io.delta(2, 0),
-                            cell_io.delta(1, 0),
-                            cell_io,
-                            cell,
-                        ]
-                    };
-                    let mut cells_pll = cells_octad.clone();
-                    let (col_bli, tcid) = match io.pll_bli {
-                        X5ioPllBli::None => (None, tcls::X5PLL_NC),
-                        X5ioPllBli::PrimaryA(col) => (Some(col), tcls::X5PLL_A),
-                        X5ioPllBli::PrimaryB(col) => (Some(col), tcls::X5PLL_B),
-                        X5ioPllBli::Secondary(col) => (Some(col), tcls::X5PLL_S),
-                    };
+                    cells_pll.extend([bli, bli.delta(1, 0)]);
+                }
+                self.egrid.add_tile(cell, tcid, &cells_pll);
+
+                for (j, col_bli) in io.octad_bli.into_iter().enumerate() {
+                    let cell_oct = cells_pll[j];
                     if let Some(col_bli) = col_bli {
                         let bli = die.cell(col_bli, row_bli);
-                        cells_pll.extend([bli, bli.delta(1, 0)]);
-                    }
-                    self.egrid.add_tile(cell_io, tcid, &cells_pll);
-
-                    for (j, col_bli) in io.octad_bli.into_iter().enumerate() {
-                        let cell_oct = cells_octad[j];
-                        if let Some(col_bli) = col_bli {
-                            let bli = die.cell(col_bli, row_bli);
-                            self.egrid.add_tile(
-                                cell_oct,
-                                tcls::X5IO,
-                                &[cell_oct, bli, bli.delta(1, 0)],
-                            );
-                        } else {
-                            self.egrid.add_tile_single(cell_oct, tcls::X5IO_NC);
-                        }
-                    }
-
-                    if let Some(ddrmc) = io.ddrmc {
-                        let tcid = match ddrmc.kind {
-                            X5ioDdrmcKind::Ddrmc5 => tcls::DDRMC5,
-                            X5ioDdrmcKind::Ddrmc5C => tcls::DDRMC5C,
-                            X5ioDdrmcKind::Ddrmc5E => tcls::DDRMC5E,
-                            X5ioDdrmcKind::Ddrmc5EAlt => tcls::DDRMC5E_ALT,
-                            X5ioDdrmcKind::Ddrmc5E2 => tcls::DDRMC5E2,
-                        };
-                        let bli = die.cell(ddrmc.bli, row_bli);
                         self.egrid.add_tile(
-                            cell_io,
-                            tcid,
-                            &[cell.delta((4 - i) as i32, 0), cell_io, bli, bli.delta(1, 0)],
+                            cell_oct,
+                            tcls::X5IO,
+                            &[cell_oct, bli, bli.delta(1, 0)],
                         );
-                        let (tcid, treg) = match ddrmc.test_clk {
-                            X5ioDdrmcTestClk::A(treg) => (tcls::HSR_CLK_TEST_X5IO_A, treg),
-                            X5ioDdrmcTestClk::B(treg) => (tcls::HSR_CLK_TEST_X5IO_B, treg),
-                        };
-                        let cell_test = cell.with_col(ColId::from_idx(treg.to_idx() * 8));
-                        self.egrid.add_tile(cell_io, tcid, &[cell_test, cell_io]);
+                    } else {
+                        self.egrid.add_tile_single(cell_oct, tcls::X5IO_NC);
                     }
                 }
-            }
-            if rd.io[0].is_some() && rd.io[1].is_some() {
-                self.egrid.fill_conn_pair(
-                    cell.delta(3, 0),
-                    cell.delta(4, 0),
-                    ccls::X5IO_PAIR,
-                    ccls::X5IO_PAIR,
-                );
-                self.egrid.add_tile_e(cell, tcls::X5PLL_GASKET, 8);
-            } else {
-                self.egrid.add_tile_e(cell, tcls::X5PLL_GASKET_HALF, 8);
-            }
-            let ddrmc_w = if reg != x5io.regions.first_id().unwrap()
-                && let Some(io) = x5io.regions[reg - 1].io[1]
-                && io.ddrmc.is_some()
-            {
-                Some(cell.delta(-4, 0))
-            } else {
-                None
-            };
-            let ddrmc_e = if reg != x5io.regions.last_id().unwrap()
-                && let Some(io) = x5io.regions[reg + 1].io[0]
-                && io.ddrmc.is_some()
-            {
-                Some(cell.delta(11, 0))
-            } else {
-                None
-            };
-            if let Some(ddrmc_w) = ddrmc_w
-                && let Some(ddrmc_e) = ddrmc_e
-            {
-                self.egrid.fill_conn_pair(
-                    cell.delta(3, 0),
-                    cell,
-                    ccls::X5IO_HS_DESKEW_CLKIN,
-                    ccls::X5IO_HS_DESKEW_CLKIN_REV,
-                );
-                self.egrid.fill_conn_pair(
-                    cell.delta(4, 0),
-                    cell.delta(7, 0),
-                    ccls::X5IO_HS_DESKEW_CLKIN,
-                    ccls::X5IO_HS_DESKEW_CLKIN_REV,
-                );
-                self.egrid.fill_conn_pair(
-                    cell.delta(3, 0),
-                    ddrmc_w.delta(3, 0),
-                    ccls::X5IO_HS_DESKEW_CLKFB,
-                    ccls::X5IO_HS_DESKEW_CLKFB_REV,
-                );
-                self.egrid.fill_conn_pair(
-                    cell.delta(4, 0),
-                    ddrmc_e.delta(-3, 0),
-                    ccls::X5IO_HS_DESKEW_CLKFB,
-                    ccls::X5IO_HS_DESKEW_CLKFB_REV,
-                );
-            } else if let Some(ddrmc_e) = ddrmc_e {
-                self.egrid.fill_conn_pair(
-                    cell.delta(3, 0),
-                    cell,
-                    ccls::X5IO_HS_DESKEW_CLKIN,
-                    ccls::X5IO_HS_DESKEW_CLKIN_REV,
-                );
-                self.egrid.fill_conn_pair(
-                    cell.delta(4, 0),
-                    cell.delta(7, 0),
-                    ccls::X5IO_HS_DESKEW_CLKIN,
-                    ccls::X5IO_HS_DESKEW_CLKIN_REV,
-                );
-                self.egrid.fill_conn_pair(
-                    cell.delta(4, 0),
-                    ddrmc_e.delta(-3, 0),
-                    ccls::X5IO_HS_DESKEW_CLKFB,
-                    ccls::X5IO_HS_DESKEW_CLKFB_REV,
-                );
-            }
 
-            for (i, hnoc) in rd.hnoc.into_iter().enumerate() {
-                let cell = cell.delta(i as i32 * 4, 0);
-                match hnoc {
-                    X5ioHNoc::None => (),
-                    X5ioHNoc::Ps9A => {
-                        self.egrid.add_tile(cell, tcls::HNOC_X5IO_PS9_A, &[]);
-                        let nps: [_; 3] = core::array::from_fn(|i| cell.bel(bslots::HNOC_NPS[i]));
-                        let nmu: [_; 4] =
-                            core::array::from_fn(|i| cell.bel(bslots::HNOC_PS_NMU[i]).noc_port(0));
-                        let nsu: [_; 2] =
-                            core::array::from_fn(|i| cell.bel(bslots::HNOC_PS_NSU[i]).noc_port(0));
-
-                        self.noc.connect(nps[0].noc_port(0), nsu[0]);
-                        self.noc.connect(nps[0].noc_port(3), nmu[3]);
-                        self.noc.connect(nps[1].noc_port(0), nsu[1]);
-                        self.noc.connect(nps[1].noc_port(1), nmu[2]);
-                        self.noc.connect(nps[2].noc_port(0), nmu[0]);
-                        self.noc.connect(nps[2].noc_port(1), nmu[1]);
-
-                        prev_hnoc = [
-                            nps[0].noc_port(2),
-                            nps[1].noc_port(2),
-                            nps[2].noc_port(3),
-                            nps[2].noc_port(2),
-                        ]
-                        .map(Option::Some);
-                    }
-                    X5ioHNoc::Ps9B => {
-                        self.egrid.add_tile(cell, tcls::HNOC_X5IO_PS9_B, &[]);
-                        let nps: [_; 4] = core::array::from_fn(|i| cell.bel(bslots::HNOC_NPS[i]));
-                        let nmu: [_; 2] =
-                            core::array::from_fn(|i| cell.bel(bslots::HNOC_PS_NMU[i]).noc_port(0));
-                        let xbr = cell.bel(bslots::HNOC_XBR4X2);
-                        let ddrmc = cell.bel(bslots::DDRMC5);
-                        let prev_nps = prev_hnoc.map(Option::unwrap);
-                        for i in 0..4 {
-                            self.noc.connect(nps[i].noc_port(0), prev_nps[i]);
-                        }
-
-                        self.noc.connect(nps[0].noc_port(3), nmu[0]);
-                        self.noc.connect(nps[3].noc_port(1), nmu[1]);
-                        self.noc.connect(nps[2].noc_port(3), xbr.noc_port(0));
-                        self.noc.connect(nps[3].noc_port(3), xbr.noc_port(1));
-                        self.noc.connect(nps[1].noc_port(1), xbr.noc_port(2));
-                        self.noc.connect(nps[0].noc_port(1), xbr.noc_port(3));
-
-                        self.noc.connect(ddrmc.noc_port(0), xbr.noc_port(4));
-                        self.noc.connect(ddrmc.noc_port(1), xbr.noc_port(5));
-
-                        prev_hnoc = [
-                            nps[0].noc_port(2),
-                            nps[1].noc_port(2),
-                            nps[2].noc_port(2),
-                            nps[3].noc_port(2),
-                        ]
-                        .map(Option::Some);
-                    }
-                    X5ioHNoc::Ps9C { scan_bli } => {
-                        let scan_bli = die.cell(scan_bli, row_bli);
-                        self.egrid.add_tile(
+                if let Some(ddrmc) = io.ddrmc {
+                    let tcid = match ddrmc.kind {
+                        X5ioDdrmcKind::Ddrmc5 => tcls::DDRMC5,
+                        X5ioDdrmcKind::Ddrmc5C => tcls::DDRMC5C,
+                        X5ioDdrmcKind::Ddrmc5E => tcls::DDRMC5E,
+                        X5ioDdrmcKind::Ddrmc5EAlt => tcls::DDRMC5E_ALT,
+                        X5ioDdrmcKind::Ddrmc5E2 => tcls::DDRMC5E2,
+                        X5ioDdrmcKind::Ddrmc5E2Cut => tcls::DDRMC5E2_CUT,
+                        X5ioDdrmcKind::Ddrmc5X => tcls::DDRMC5X,
+                    };
+                    let bli = die.cell(ddrmc.bli, row_bli);
+                    self.egrid.add_tile(
+                        cell,
+                        tcid,
+                        &[
+                            cell.delta(
+                                match io.side {
+                                    DirH::W => 4,
+                                    DirH::E => -4,
+                                },
+                                0,
+                            ),
                             cell,
-                            tcls::HNOC_X5IO_PS9_C,
-                            &[scan_bli, scan_bli.delta(1, 0)],
+                            bli,
+                            bli.delta(1, 0),
+                        ],
+                    );
+                    let (tcid, treg) = match ddrmc.test_clk {
+                        X5ioDdrmcTestClk::A(treg) => (tcls::HSR_CLK_TEST_X5IO_A, treg),
+                        X5ioDdrmcTestClk::B(treg) => (tcls::HSR_CLK_TEST_X5IO_B, treg),
+                    };
+                    let cell_test = cell.with_col(ColId::from_idx(treg.to_idx() * 4));
+                    self.egrid.add_tile(cell, tcid, &[cell_test, cell]);
+
+                    if ddrmc.kind.is_2hb() {
+                        let cell_io0 = match io.side {
+                            DirH::W => cell.delta(4, 0),
+                            DirH::E => cell.delta(-4, 0),
+                        };
+                        self.egrid.fill_conn_pair(
+                            cell,
+                            cell,
+                            ccls::X5IO_HS_DESKEW_CLKIN,
+                            ccls::X5IO_HS_DESKEW_CLKIN_REV,
                         );
-                        let nps: [_; 8] = core::array::from_fn(|i| cell.bel(bslots::HNOC_NPS[i]));
-                        let nmu: [_; 4] =
-                            core::array::from_fn(|i| cell.bel(bslots::HNOC_PS_NMU[i]).noc_port(0));
-                        let nsu: [_; 4] =
-                            core::array::from_fn(|i| cell.bel(bslots::HNOC_PS_NSU[i]).noc_port(0));
-                        let xbr = cell.bel(bslots::HNOC_XBR4X2);
-                        let ddrmc = cell.delta(3, 0).bel(bslots::DDRMC5);
-                        let prev_nps = prev_hnoc.map(Option::unwrap);
-
-                        for i in 0..4 {
-                            self.noc.connect(nps[i].noc_port(0), prev_nps[i]);
-                        }
-
-                        self.noc.connect(nps[1].noc_port(3), nmu[0]);
-                        self.noc.connect(nps[2].noc_port(1), nmu[1]);
-                        self.noc.connect(nps[3].noc_port(1), nmu[2]);
-                        self.noc.connect(nps[0].noc_port(3), nmu[3]);
-                        self.noc.connect(nps[2].noc_port(3), xbr.noc_port(0));
-                        self.noc.connect(nps[3].noc_port(3), xbr.noc_port(1));
-                        self.noc.connect(nps[0].noc_port(1), xbr.noc_port(2));
-                        self.noc.connect(nps[1].noc_port(1), xbr.noc_port(3));
-
-                        self.noc.connect(ddrmc.noc_port(0), xbr.noc_port(4));
-                        self.noc.connect(ddrmc.noc_port(1), xbr.noc_port(5));
-
-                        for i in 0..4 {
-                            self.noc.connect(nps[i + 4].noc_port(0), nps[i].noc_port(2));
-                        }
-
-                        self.noc.connect(nps[4].noc_port(3), nsu[0]);
-                        self.noc.connect(nps[6].noc_port(1), nsu[1]);
-                        self.noc.connect(nps[5].noc_port(3), nsu[2]);
-                        self.noc.connect(nps[7].noc_port(1), nsu[3]);
-                        self.noc.connect(nps[4].noc_port(1), nps[6].noc_port(3));
-                        self.noc.connect(nps[5].noc_port(1), nps[7].noc_port(3));
-
-                        prev_hnoc = [
-                            nps[4].noc_port(2),
-                            nps[5].noc_port(2),
-                            nps[6].noc_port(2),
-                            nps[7].noc_port(2),
-                        ]
-                        .map(Option::Some);
-                    }
-                    X5ioHNoc::PsXA => {
-                        self.egrid.add_tile(cell, tcls::HNOC_X5IO_PSX_A, &[]);
-                        let nps = cell.bel(bslots::HNOC_NPS[0]);
-                        let nmu: [_; 3] =
-                            core::array::from_fn(|i| cell.bel(bslots::HNOC_PS_NMU[i]).noc_port(0));
-                        let nsu: [_; 2] =
-                            core::array::from_fn(|i| cell.bel(bslots::HNOC_PS_NSU[i]).noc_port(0));
-
-                        self.noc.connect(nps.noc_port(0), nsu[1]);
-                        self.noc.connect(nps.noc_port(1), nmu[1]);
-                        self.noc.connect(nps.noc_port(3), nmu[0]);
-
-                        prev_hnoc = [Some(nps.noc_port(2)), Some(nsu[0]), Some(nmu[2]), None];
-                    }
-                    X5ioHNoc::PsXB { flip } => {
-                        self.egrid.add_tile(cell, tcls::HNOC_X5IO_PSX_B, &[]);
-                        let nps: [_; 4] = core::array::from_fn(|i| cell.bel(bslots::HNOC_NPS[i]));
-                        let nmu: [_; 4] =
-                            core::array::from_fn(|i| cell.bel(bslots::HNOC_PS_NMU[i]).noc_port(0));
-                        let xbr = cell.bel(bslots::HNOC_XBR4X2);
-                        let ddrmc = if flip { cell.delta(3, 0) } else { cell }.bel(bslots::DDRMC5);
-
-                        let (port_prev, port_next) = if flip { (2, 0) } else { (0, 2) };
-                        for i in 0..4 {
-                            if let Some(prev) = prev_hnoc[i] {
-                                self.noc.connect(prev, nps[i].noc_port(port_prev));
-                            }
-                        }
-
-                        self.noc.connect(nps[2].noc_port(1), nmu[0]);
-                        self.noc.connect(nps[1].noc_port(3), nmu[1]);
-                        self.noc.connect(nps[0].noc_port(3), nmu[2]);
-                        self.noc.connect(nps[3].noc_port(1), nmu[3]);
-                        self.noc.connect(nps[2].noc_port(3), xbr.noc_port(0));
-                        self.noc.connect(nps[3].noc_port(3), xbr.noc_port(1));
-                        self.noc.connect(nps[1].noc_port(1), xbr.noc_port(2));
-                        self.noc.connect(nps[0].noc_port(1), xbr.noc_port(3));
-
-                        self.noc.connect(ddrmc.noc_port(0), xbr.noc_port(4));
-                        self.noc.connect(ddrmc.noc_port(1), xbr.noc_port(5));
-
-                        prev_hnoc = nps.map(|nps| Some(nps.noc_port(port_next)));
-                    }
-                    X5ioHNoc::PsXC { scan_bli } => {
-                        let scan_bli = die.cell(scan_bli, row_bli);
-                        let tcid = match chip.ps {
-                            PsKind::PsXCpm5N => tcls::HNOC_X5IO_PSXL_C,
-                            PsKind::PsXcMmi => tcls::HNOC_X5IO_PSXC_C,
-                            _ => unreachable!(),
+                        self.egrid.fill_conn_pair(
+                            cell_io0,
+                            cell_io0,
+                            ccls::X5IO_HS_DESKEW_CLKIN,
+                            ccls::X5IO_HS_DESKEW_CLKIN_REV,
+                        );
+                    } else {
+                        let cell_io2 = match io.side {
+                            DirH::W => cell.delta(-4, 0),
+                            DirH::E => cell.delta(4, 0),
                         };
-                        self.egrid
-                            .add_tile(cell, tcid, &[scan_bli, scan_bli.delta(1, 0)]);
-                        let nps: [_; 4] = core::array::from_fn(|i| cell.bel(bslots::HNOC_NPS[i]));
-                        let nmu: [_; 4] =
-                            core::array::from_fn(|i| cell.bel(bslots::HNOC_PS_NMU[i]).noc_port(0));
-                        let nsu: [_; 4] =
-                            core::array::from_fn(|i| cell.bel(bslots::HNOC_PS_NSU[i]).noc_port(0));
-                        let prev_nps = prev_hnoc.map(Option::unwrap);
-
-                        for i in 0..4 {
-                            self.noc.connect(nps[i].noc_port(0), prev_nps[i]);
+                        self.egrid.fill_conn_pair(
+                            cell_io2,
+                            cell,
+                            ccls::X5IO_HS_DESKEW_CLKFB,
+                            ccls::X5IO_HS_DESKEW_CLKFB_REV,
+                        );
+                        self.egrid.fill_conn_pair(
+                            cell_io2,
+                            cell_io2,
+                            ccls::X5IO_HS_DESKEW_CLKIN,
+                            ccls::X5IO_HS_DESKEW_CLKIN_REV,
+                        );
+                        if io.side == DirH::W {
+                            let cell_io3 = cell.delta(-8, 0);
+                            self.egrid.fill_conn_pair(
+                                cell_io3,
+                                cell_io3,
+                                ccls::X5IO_HS_DESKEW_CLKIN,
+                                ccls::X5IO_HS_DESKEW_CLKIN_REV,
+                            );
                         }
-
-                        self.noc.connect(nps[0].noc_port(3), nsu[0]);
-                        self.noc.connect(nps[1].noc_port(3), nsu[1]);
-                        self.noc.connect(nps[2].noc_port(1), nsu[2]);
-                        self.noc.connect(nps[3].noc_port(1), nsu[3]);
-
-                        if tcid == tcls::HNOC_X5IO_PSXL_C {
-                            self.noc.connect(nps[0].noc_port(1), nmu[0]);
-                            self.noc.connect(nps[1].noc_port(1), nmu[1]);
-                            self.noc.connect(nps[2].noc_port(3), nmu[2]);
-                            self.noc.connect(nps[3].noc_port(3), nmu[3]);
-                        } else {
-                            self.noc.connect(nps[0].noc_port(1), nmu[0]);
-                        }
-
-                        prev_hnoc = nps.map(|nps| Some(nps.noc_port(2)));
                     }
-                    X5ioHNoc::Cross {
-                        alt,
-                        flip,
-                        scan_bli,
-                        vnoc,
-                    } => {
-                        let scan_bli = die.cell(scan_bli, row_bli);
-                        let tcid = if alt {
-                            tcls::HNOC_X5IO_CROSS_ALT
+                }
+
+                if io.side == DirH::W {
+                    let is_paired = if let Some(nreg) = x5io.regions.get(reg + 1)
+                        && let Some(nio) = nreg.io
+                        && nio.side == DirH::E
+                    {
+                        self.egrid.fill_conn_pair(
+                            cell,
+                            cell.delta(4, 0),
+                            ccls::X5IO_PAIR,
+                            ccls::X5IO_PAIR,
+                        );
+                        true
+                    } else {
+                        false
+                    };
+                    if let Some((prev, ccid)) = prev_io {
+                        self.egrid.fill_conn_pair(prev, cell, ccls::X5IO_E, ccid);
+                    }
+                    prev_io = Some((
+                        cell,
+                        if is_paired {
+                            ccls::X5IO_W
                         } else {
-                            tcls::HNOC_X5IO_CROSS
-                        };
-                        self.egrid
-                            .add_tile(cell, tcid, &[scan_bli, scan_bli.delta(1, 0)]);
+                            ccls::X5IO_W_SINGLE
+                        },
+                    ));
+                }
+            }
 
-                        let nps: [_; 4] = core::array::from_fn(|i| cell.bel(bslots::HNOC_NPS[i]));
-                        let prev_nps = prev_hnoc.map(Option::unwrap);
+            match rd.hnoc {
+                X5ioHNoc::None => (),
+                X5ioHNoc::Ps9A => {
+                    self.egrid.add_tile(cell, tcls::HNOC_X5IO_PS9_A, &[]);
+                    let nps: [_; 3] = core::array::from_fn(|i| cell.bel(bslots::HNOC_NPS[i]));
+                    let nmu: [_; 4] =
+                        core::array::from_fn(|i| cell.bel(bslots::HNOC_PS_NMU[i]).noc_port(0));
+                    let nsu: [_; 2] =
+                        core::array::from_fn(|i| cell.bel(bslots::HNOC_PS_NSU[i]).noc_port(0));
 
-                        let (port_prev, port_next) = if flip { (2, 0) } else { (0, 2) };
-                        for i in 0..4 {
-                            self.noc.connect(nps[i].noc_port(port_prev), prev_nps[i]);
+                    self.noc.connect(nps[0].noc_port(0), nsu[0]);
+                    self.noc.connect(nps[0].noc_port(3), nmu[3]);
+                    self.noc.connect(nps[1].noc_port(0), nsu[1]);
+                    self.noc.connect(nps[1].noc_port(1), nmu[2]);
+                    self.noc.connect(nps[2].noc_port(0), nmu[0]);
+                    self.noc.connect(nps[2].noc_port(1), nmu[1]);
+
+                    prev_hnoc = [
+                        nps[0].noc_port(2),
+                        nps[1].noc_port(2),
+                        nps[2].noc_port(3),
+                        nps[2].noc_port(2),
+                    ]
+                    .map(Option::Some);
+                }
+                X5ioHNoc::Ps9B => {
+                    self.egrid.add_tile(cell, tcls::HNOC_X5IO_PS9_B, &[]);
+                    let nps: [_; 4] = core::array::from_fn(|i| cell.bel(bslots::HNOC_NPS[i]));
+                    let nmu: [_; 2] =
+                        core::array::from_fn(|i| cell.bel(bslots::HNOC_PS_NMU[i]).noc_port(0));
+                    let xbr = cell.bel(bslots::HNOC_XBR4X2);
+                    let ddrmc = cell.bel(bslots::DDRMC5);
+                    let prev_nps = prev_hnoc.map(Option::unwrap);
+                    for i in 0..4 {
+                        self.noc.connect(nps[i].noc_port(0), prev_nps[i]);
+                    }
+
+                    self.noc.connect(nps[0].noc_port(3), nmu[0]);
+                    self.noc.connect(nps[3].noc_port(1), nmu[1]);
+                    self.noc.connect(nps[2].noc_port(3), xbr.noc_port(0));
+                    self.noc.connect(nps[3].noc_port(3), xbr.noc_port(1));
+                    self.noc.connect(nps[1].noc_port(1), xbr.noc_port(2));
+                    self.noc.connect(nps[0].noc_port(1), xbr.noc_port(3));
+
+                    self.noc.connect(ddrmc.noc_port(0), xbr.noc_port(4));
+                    self.noc.connect(ddrmc.noc_port(1), xbr.noc_port(5));
+
+                    prev_hnoc = [
+                        nps[0].noc_port(2),
+                        nps[1].noc_port(2),
+                        nps[2].noc_port(2),
+                        nps[3].noc_port(2),
+                    ]
+                    .map(Option::Some);
+                }
+                X5ioHNoc::Ps9C { scan_bli } => {
+                    let scan_bli = die.cell(scan_bli, row_bli);
+                    self.egrid.add_tile(
+                        cell,
+                        tcls::HNOC_X5IO_PS9_C,
+                        &[scan_bli, scan_bli.delta(1, 0)],
+                    );
+                    let nps: [_; 8] = core::array::from_fn(|i| cell.bel(bslots::HNOC_NPS[i]));
+                    let nmu: [_; 4] =
+                        core::array::from_fn(|i| cell.bel(bslots::HNOC_PS_NMU[i]).noc_port(0));
+                    let nsu: [_; 4] =
+                        core::array::from_fn(|i| cell.bel(bslots::HNOC_PS_NSU[i]).noc_port(0));
+                    let xbr = cell.bel(bslots::HNOC_XBR4X2);
+                    let ddrmc = cell.bel(bslots::DDRMC5);
+                    let prev_nps = prev_hnoc.map(Option::unwrap);
+
+                    for i in 0..4 {
+                        self.noc.connect(nps[i].noc_port(0), prev_nps[i]);
+                    }
+
+                    self.noc.connect(nps[1].noc_port(3), nmu[0]);
+                    self.noc.connect(nps[2].noc_port(1), nmu[1]);
+                    self.noc.connect(nps[3].noc_port(1), nmu[2]);
+                    self.noc.connect(nps[0].noc_port(3), nmu[3]);
+                    self.noc.connect(nps[2].noc_port(3), xbr.noc_port(0));
+                    self.noc.connect(nps[3].noc_port(3), xbr.noc_port(1));
+                    self.noc.connect(nps[0].noc_port(1), xbr.noc_port(2));
+                    self.noc.connect(nps[1].noc_port(1), xbr.noc_port(3));
+
+                    self.noc.connect(ddrmc.noc_port(0), xbr.noc_port(4));
+                    self.noc.connect(ddrmc.noc_port(1), xbr.noc_port(5));
+
+                    for i in 0..4 {
+                        self.noc.connect(nps[i + 4].noc_port(0), nps[i].noc_port(2));
+                    }
+
+                    self.noc.connect(nps[4].noc_port(3), nsu[0]);
+                    self.noc.connect(nps[6].noc_port(1), nsu[1]);
+                    self.noc.connect(nps[5].noc_port(3), nsu[2]);
+                    self.noc.connect(nps[7].noc_port(1), nsu[3]);
+                    self.noc.connect(nps[4].noc_port(1), nps[6].noc_port(3));
+                    self.noc.connect(nps[5].noc_port(1), nps[7].noc_port(3));
+
+                    prev_hnoc = [
+                        nps[4].noc_port(2),
+                        nps[5].noc_port(2),
+                        nps[6].noc_port(2),
+                        nps[7].noc_port(2),
+                    ]
+                    .map(Option::Some);
+                }
+                X5ioHNoc::PsXA => {
+                    self.egrid.add_tile(cell, tcls::HNOC_X5IO_PSX_A, &[]);
+                    let nps = cell.bel(bslots::HNOC_NPS[0]);
+                    let nmu: [_; 3] =
+                        core::array::from_fn(|i| cell.bel(bslots::HNOC_PS_NMU[i]).noc_port(0));
+                    let nsu: [_; 2] =
+                        core::array::from_fn(|i| cell.bel(bslots::HNOC_PS_NSU[i]).noc_port(0));
+
+                    self.noc.connect(nps.noc_port(0), nsu[1]);
+                    self.noc.connect(nps.noc_port(1), nmu[1]);
+                    self.noc.connect(nps.noc_port(3), nmu[0]);
+
+                    prev_hnoc = [Some(nps.noc_port(2)), Some(nsu[0]), Some(nmu[2]), None];
+                }
+                X5ioHNoc::PsXB { flip } => {
+                    self.egrid.add_tile(cell, tcls::HNOC_X5IO_PSX_B, &[]);
+                    let nps: [_; 4] = core::array::from_fn(|i| cell.bel(bslots::HNOC_NPS[i]));
+                    let nmu: [_; 4] =
+                        core::array::from_fn(|i| cell.bel(bslots::HNOC_PS_NMU[i]).noc_port(0));
+                    let xbr = cell.bel(bslots::HNOC_XBR4X2);
+                    let ddrmc = cell.bel(bslots::DDRMC5);
+
+                    let (port_prev, port_next) = if flip { (2, 0) } else { (0, 2) };
+                    for i in 0..4 {
+                        if let Some(prev) = prev_hnoc[i] {
+                            self.noc.connect(prev, nps[i].noc_port(port_prev));
                         }
+                    }
 
-                        self.noc.connect(nps[0].noc_port(1), nps[2].noc_port(3));
-                        self.noc.connect(nps[1].noc_port(1), nps[3].noc_port(3));
+                    self.noc.connect(nps[2].noc_port(1), nmu[0]);
+                    self.noc.connect(nps[1].noc_port(3), nmu[1]);
+                    self.noc.connect(nps[0].noc_port(3), nmu[2]);
+                    self.noc.connect(nps[3].noc_port(1), nmu[3]);
+                    self.noc.connect(nps[2].noc_port(3), xbr.noc_port(0));
+                    self.noc.connect(nps[3].noc_port(3), xbr.noc_port(1));
+                    self.noc.connect(nps[1].noc_port(1), xbr.noc_port(2));
+                    self.noc.connect(nps[0].noc_port(1), xbr.noc_port(3));
 
-                        if let Some(col_vnoc) = vnoc {
-                            let cell_vnoc = die.cell(col_vnoc, row_bli);
-                            if chip.columns[col_vnoc].kind == ColumnKind::VNoc4 {
-                                let vnoc_nps_nmu = cell_vnoc.bel(bslots::VNOC_NPS6X_NMU);
-                                let vnoc_nps_nsu = cell_vnoc.bel(bslots::VNOC_NPS6X_NSU);
-                                if flip {
-                                    self.noc
-                                        .connect(nps[0].noc_port(3), vnoc_nps_nsu.noc_port(4));
-                                    self.noc
-                                        .connect(nps[1].noc_port(3), vnoc_nps_nmu.noc_port(5));
-                                    self.noc
-                                        .connect(nps[2].noc_port(1), vnoc_nps_nsu.noc_port(5));
-                                    self.noc
-                                        .connect(nps[3].noc_port(1), vnoc_nps_nmu.noc_port(4));
-                                } else {
-                                    self.noc
-                                        .connect(nps[0].noc_port(3), vnoc_nps_nmu.noc_port(4));
-                                    self.noc
-                                        .connect(nps[1].noc_port(3), vnoc_nps_nsu.noc_port(5));
-                                    self.noc
-                                        .connect(nps[2].noc_port(1), vnoc_nps_nmu.noc_port(5));
-                                    self.noc
-                                        .connect(nps[3].noc_port(1), vnoc_nps_nsu.noc_port(4));
-                                }
+                    self.noc.connect(ddrmc.noc_port(0), xbr.noc_port(4));
+                    self.noc.connect(ddrmc.noc_port(1), xbr.noc_port(5));
+
+                    prev_hnoc = nps.map(|nps| Some(nps.noc_port(port_next)));
+                }
+                X5ioHNoc::PsXC { scan_bli } => {
+                    let scan_bli = die.cell(scan_bli, row_bli);
+                    let tcid = match chip.ps {
+                        PsKind::PsXCpm5N => tcls::HNOC_X5IO_PSXL_C,
+                        PsKind::PsXcMmi => tcls::HNOC_X5IO_PSXC_C,
+                        _ => unreachable!(),
+                    };
+                    self.egrid
+                        .add_tile(cell, tcid, &[scan_bli, scan_bli.delta(1, 0)]);
+                    let nps: [_; 4] = core::array::from_fn(|i| cell.bel(bslots::HNOC_NPS[i]));
+                    let nmu: [_; 4] =
+                        core::array::from_fn(|i| cell.bel(bslots::HNOC_PS_NMU[i]).noc_port(0));
+                    let nsu: [_; 4] =
+                        core::array::from_fn(|i| cell.bel(bslots::HNOC_PS_NSU[i]).noc_port(0));
+                    let prev_nps = prev_hnoc.map(Option::unwrap);
+
+                    for i in 0..4 {
+                        self.noc.connect(nps[i].noc_port(0), prev_nps[i]);
+                    }
+
+                    self.noc.connect(nps[0].noc_port(3), nsu[0]);
+                    self.noc.connect(nps[1].noc_port(3), nsu[1]);
+                    self.noc.connect(nps[2].noc_port(1), nsu[2]);
+                    self.noc.connect(nps[3].noc_port(1), nsu[3]);
+
+                    if tcid == tcls::HNOC_X5IO_PSXL_C {
+                        self.noc.connect(nps[0].noc_port(1), nmu[0]);
+                        self.noc.connect(nps[1].noc_port(1), nmu[1]);
+                        self.noc.connect(nps[2].noc_port(3), nmu[2]);
+                        self.noc.connect(nps[3].noc_port(3), nmu[3]);
+                    } else {
+                        self.noc.connect(nps[0].noc_port(1), nmu[0]);
+                    }
+
+                    prev_hnoc = nps.map(|nps| Some(nps.noc_port(2)));
+                }
+                X5ioHNoc::PsXTA => {
+                    self.egrid.add_tile(cell, tcls::HNOC_X5IO_PSXT_A, &[]);
+                    let nps: [_; 4] = core::array::from_fn(|i| cell.bel(bslots::HNOC_NPS[i]));
+                    let nmu: [_; 7] =
+                        core::array::from_fn(|i| cell.bel(bslots::HNOC_PS_NMU[i]).noc_port(0));
+                    let nsu = cell.bel(bslots::HNOC_PS_NSU[0]).noc_port(0);
+
+                    self.noc.connect(nps[0].noc_port(0), nmu[4]);
+                    self.noc.connect(nps[1].noc_port(0), nsu);
+                    self.noc.connect(nps[2].noc_port(0), nmu[6]);
+                    self.noc.connect(nps[3].noc_port(0), nmu[5]);
+
+                    self.noc.connect(nps[0].noc_port(3), nmu[2]);
+                    self.noc.connect(nps[1].noc_port(3), nmu[1]);
+                    self.noc.connect(nps[2].noc_port(1), nmu[0]);
+                    self.noc.connect(nps[3].noc_port(1), nmu[3]);
+
+                    self.noc.connect(nps[0].noc_port(1), nps[2].noc_port(3));
+                    self.noc.connect(nps[1].noc_port(1), nps[3].noc_port(3));
+
+                    prev_hnoc = nps.map(|nps| Some(nps.noc_port(2)));
+                }
+                X5ioHNoc::PsXTB { scan_bli } => {
+                    let scan_bli = die.cell(scan_bli, row_bli);
+                    self.egrid.add_tile(
+                        cell,
+                        tcls::HNOC_X5IO_PSXT_B,
+                        &[scan_bli, scan_bli.delta(1, 0)],
+                    );
+                    let nps: [_; 4] = core::array::from_fn(|i| cell.bel(bslots::HNOC_NPS[i]));
+                    let nmu = cell.bel(bslots::HNOC_PS_NMU[0]).noc_port(0);
+                    let nsu: [_; 2] =
+                        core::array::from_fn(|i| cell.bel(bslots::HNOC_PS_NSU[i]).noc_port(0));
+                    let xbr = cell.bel(bslots::HNOC_XBR4X2);
+                    let ddrmc = cell.bel(bslots::DDRMC5);
+                    let prev_nps = prev_hnoc.map(Option::unwrap);
+
+                    for i in 0..4 {
+                        self.noc.connect(prev_nps[i], nps[i].noc_port(0));
+                    }
+
+                    self.noc.connect(nps[0].noc_port(3), nsu[0]);
+                    self.noc.connect(nps[1].noc_port(3), nsu[1]);
+                    self.noc.connect(nps[3].noc_port(1), nmu);
+
+                    self.noc.connect(nps[2].noc_port(3), xbr.noc_port(0));
+                    self.noc.connect(nps[3].noc_port(3), xbr.noc_port(1));
+                    self.noc.connect(nps[1].noc_port(1), xbr.noc_port(2));
+                    self.noc.connect(nps[0].noc_port(1), xbr.noc_port(3));
+
+                    self.noc.connect(ddrmc.noc_port(0), xbr.noc_port(4));
+                    self.noc.connect(ddrmc.noc_port(1), xbr.noc_port(5));
+
+                    prev_hnoc = nps.map(|nps| Some(nps.noc_port(2)));
+                }
+                X5ioHNoc::PsXTC { scan_bli, vnoc } => {
+                    let scan_bli = die.cell(scan_bli, row_bli);
+                    self.egrid.add_tile(
+                        cell,
+                        tcls::HNOC_X5IO_PSXT_C,
+                        &[scan_bli, scan_bli.delta(1, 0)],
+                    );
+                    let nps: [_; 4] = core::array::from_fn(|i| cell.bel(bslots::HNOC_NPS[i]));
+                    let prev_nps = prev_hnoc.map(Option::unwrap);
+
+                    for i in 0..4 {
+                        self.noc.connect(prev_nps[i], nps[i].noc_port(0));
+                    }
+
+                    let cell_vnoc = die.cell(vnoc, row_bli);
+                    let vnoc_nps_nmu = cell_vnoc.bel(bslots::VNOC_NPS_NMU).noc_port(2);
+                    let vnoc_nps_nsu = cell_vnoc.bel(bslots::VNOC_NPS_NSU).noc_port(0);
+                    self.noc.connect(nps[2].noc_port(1), vnoc_nps_nsu);
+                    self.noc.connect(nps[3].noc_port(1), vnoc_nps_nmu);
+
+                    self.noc.connect(nps[0].noc_port(3), nps[1].noc_port(3));
+                    self.noc.connect(nps[0].noc_port(1), nps[2].noc_port(3));
+                    self.noc.connect(nps[1].noc_port(1), nps[3].noc_port(3));
+
+                    prev_hnoc = nps.map(|nps| Some(nps.noc_port(2)));
+                }
+                X5ioHNoc::Cross {
+                    alt,
+                    flip,
+                    scan_bli,
+                    vnoc,
+                } => {
+                    let scan_bli = die.cell(scan_bli, row_bli);
+                    let tcid = if alt {
+                        tcls::HNOC_X5IO_CROSS_ALT
+                    } else {
+                        tcls::HNOC_X5IO_CROSS
+                    };
+                    self.egrid
+                        .add_tile(cell, tcid, &[scan_bli, scan_bli.delta(1, 0)]);
+
+                    let nps: [_; 4] = core::array::from_fn(|i| cell.bel(bslots::HNOC_NPS[i]));
+                    let prev_nps = prev_hnoc.map(Option::unwrap);
+
+                    let (port_prev, port_next) = if flip { (2, 0) } else { (0, 2) };
+                    for i in 0..4 {
+                        self.noc.connect(nps[i].noc_port(port_prev), prev_nps[i]);
+                    }
+
+                    self.noc.connect(nps[0].noc_port(1), nps[2].noc_port(3));
+                    self.noc.connect(nps[1].noc_port(1), nps[3].noc_port(3));
+
+                    if let Some(col_vnoc) = vnoc {
+                        let cell_vnoc = die.cell(col_vnoc, row_bli);
+                        if chip.columns[col_vnoc].kind == ColumnKind::VNoc4 {
+                            let vnoc_nps_nmu = cell_vnoc.bel(bslots::VNOC_NPS6X_NMU);
+                            let vnoc_nps_nsu = cell_vnoc.bel(bslots::VNOC_NPS6X_NSU);
+                            if flip {
+                                self.noc
+                                    .connect(nps[0].noc_port(3), vnoc_nps_nsu.noc_port(4));
+                                self.noc
+                                    .connect(nps[1].noc_port(3), vnoc_nps_nmu.noc_port(5));
+                                self.noc
+                                    .connect(nps[2].noc_port(1), vnoc_nps_nsu.noc_port(5));
+                                self.noc
+                                    .connect(nps[3].noc_port(1), vnoc_nps_nmu.noc_port(4));
                             } else {
-                                let vnoc_nps_nmu = cell_vnoc.bel(bslots::VNOC_NPS_NMU).noc_port(2);
-                                let vnoc_nps_nsu = cell_vnoc.bel(bslots::VNOC_NPS_NSU).noc_port(0);
-                                if flip {
-                                    self.noc.connect(nps[2].noc_port(1), vnoc_nps_nsu);
-                                    self.noc.connect(nps[3].noc_port(1), vnoc_nps_nmu);
-                                } else {
-                                    self.noc.connect(nps[2].noc_port(1), vnoc_nps_nmu);
-                                    self.noc.connect(nps[3].noc_port(1), vnoc_nps_nsu);
-                                }
-
-                                self.noc.connect(nps[0].noc_port(3), nps[1].noc_port(3));
+                                self.noc
+                                    .connect(nps[0].noc_port(3), vnoc_nps_nmu.noc_port(4));
+                                self.noc
+                                    .connect(nps[1].noc_port(3), vnoc_nps_nsu.noc_port(5));
+                                self.noc
+                                    .connect(nps[2].noc_port(1), vnoc_nps_nmu.noc_port(5));
+                                self.noc
+                                    .connect(nps[3].noc_port(1), vnoc_nps_nsu.noc_port(4));
                             }
                         } else {
+                            let vnoc_nps_nmu = cell_vnoc.bel(bslots::VNOC_NPS_NMU).noc_port(2);
+                            let vnoc_nps_nsu = cell_vnoc.bel(bslots::VNOC_NPS_NSU).noc_port(0);
+                            if flip {
+                                self.noc.connect(nps[2].noc_port(1), vnoc_nps_nsu);
+                                self.noc.connect(nps[3].noc_port(1), vnoc_nps_nmu);
+                            } else {
+                                self.noc.connect(nps[2].noc_port(1), vnoc_nps_nmu);
+                                self.noc.connect(nps[3].noc_port(1), vnoc_nps_nsu);
+                            }
+
                             self.noc.connect(nps[0].noc_port(3), nps[1].noc_port(3));
                         }
-
-                        prev_hnoc = nps.map(|nps| Some(nps.noc_port(port_next)));
-                        was_hnoc_ddrmc = false;
+                    } else {
+                        self.noc.connect(nps[0].noc_port(3), nps[1].noc_port(3));
                     }
-                    X5ioHNoc::Ddrmc {
-                        flip,
-                        scan_bli,
-                        nmu_bli,
-                        vnoc,
-                    } => {
-                        let scan_bli = die.cell(scan_bli, row_bli);
-                        let mut tcells = vec![];
-                        for bli in nmu_bli {
-                            if let Some(bli) = bli {
-                                let bli = bli.map(|col| die.cell(col, row_bli));
-                                tcells.extend([
-                                    bli[0],
-                                    bli[0].delta(1, 0),
-                                    bli[1],
-                                    bli[1].delta(1, 0),
-                                    bli[2],
-                                    bli[2].delta(1, 0),
-                                ]);
-                            } else {
-                                // dummy cells for BLI stubbing
-                                tcells.extend([cell; 6]);
-                            }
+
+                    prev_hnoc = nps.map(|nps| Some(nps.noc_port(port_next)));
+                    was_hnoc_ddrmc = false;
+                }
+                X5ioHNoc::Ddrmc {
+                    flip,
+                    swap,
+                    scan_bli,
+                    nmu_bli,
+                    vnoc,
+                } => {
+                    let scan_bli = die.cell(scan_bli, row_bli);
+                    let mut tcells = vec![];
+                    for bli in nmu_bli {
+                        if let Some(bli) = bli {
+                            let bli = bli.map(|col| die.cell(col, row_bli));
+                            tcells.extend([
+                                bli[0],
+                                bli[0].delta(1, 0),
+                                bli[1],
+                                bli[1].delta(1, 0),
+                                bli[2],
+                                bli[2].delta(1, 0),
+                            ]);
+                        } else {
+                            // dummy cells for BLI stubbing
+                            tcells.extend([cell; 6]);
                         }
-                        tcells.extend([scan_bli, scan_bli.delta(1, 0)]);
-                        self.egrid.add_tile(cell, tcls::HNOC_X5IO_DDRMC, &tcells);
+                    }
+                    tcells.extend([scan_bli, scan_bli.delta(1, 0)]);
+                    self.egrid.add_tile(cell, tcls::HNOC_X5IO_DDRMC, &tcells);
 
-                        let nps: [_; 4] = core::array::from_fn(|i| cell.bel(bslots::HNOC_NPS[i]));
-                        let nmu: [_; 2] =
-                            core::array::from_fn(|i| cell.bel(bslots::HNOC_NMU512[i]).noc_port(0));
-                        let xbr = cell.bel(bslots::HNOC_XBR4X2);
-                        let ddrmc = if flip { cell.delta(3, 0) } else { cell }.bel(bslots::DDRMC5);
-                        let prev_nps = prev_hnoc.map(Option::unwrap);
+                    let nps: [_; 4] = core::array::from_fn(|i| cell.bel(bslots::HNOC_NPS[i]));
+                    let nmu: [_; 2] =
+                        core::array::from_fn(|i| cell.bel(bslots::HNOC_NMU512[i]).noc_port(0));
+                    let xbr = cell.bel(bslots::HNOC_XBR4X2);
+                    let ddrmc = cell.bel(bslots::DDRMC5);
+                    let prev_nps = prev_hnoc.map(Option::unwrap);
 
-                        let (port_prev, port_next) = if flip { (2, 0) } else { (0, 2) };
-                        for i in 0..4 {
-                            self.noc.connect(nps[i].noc_port(port_prev), prev_nps[i]);
+                    let (port_prev, port_next) = if flip { (2, 0) } else { (0, 2) };
+                    for i in 0..4 {
+                        self.noc.connect(nps[i].noc_port(port_prev), prev_nps[i]);
+                    }
+
+                    for (vnoc, port) in vnoc
+                        .into_iter()
+                        .zip([nps[1].noc_port(3), nps[3].noc_port(1)])
+                    {
+                        if let Some(vnoc) = vnoc {
+                            let cell_vnoc = die.cell(vnoc.0, row_bli);
+                            self.noc.connect(
+                                port,
+                                [
+                                    cell_vnoc.bel(bslots::VNOC_NPS_NMU).noc_port(2),
+                                    cell_vnoc.bel(bslots::VNOC_NPS_NSU).noc_port(0),
+                                ][vnoc.1],
+                            );
                         }
+                    }
 
-                        for (vnoc, port) in vnoc
-                            .into_iter()
-                            .zip([nps[1].noc_port(3), nps[3].noc_port(1)])
-                        {
-                            if let Some(vnoc) = vnoc {
-                                let cell_vnoc = die.cell(vnoc.0, row_bli);
-                                self.noc.connect(
-                                    port,
-                                    [
-                                        cell_vnoc.bel(bslots::VNOC_NPS_NMU).noc_port(2),
-                                        cell_vnoc.bel(bslots::VNOC_NPS_NSU).noc_port(0),
-                                    ][vnoc.1],
-                                );
-                            }
-                        }
+                    self.noc.connect(nps[2].noc_port(3), xbr.noc_port(0));
+                    self.noc.connect(nps[3].noc_port(3), xbr.noc_port(1));
+                    self.noc.connect(nps[1].noc_port(1), xbr.noc_port(2));
+                    self.noc.connect(nps[0].noc_port(1), xbr.noc_port(3));
 
-                        self.noc.connect(nps[2].noc_port(3), xbr.noc_port(0));
-                        self.noc.connect(nps[3].noc_port(3), xbr.noc_port(1));
-                        self.noc.connect(nps[1].noc_port(1), xbr.noc_port(2));
-                        self.noc.connect(nps[0].noc_port(1), xbr.noc_port(3));
+                    self.noc.connect(nps[0].noc_port(3), nmu[0]);
+                    self.noc.connect(nps[2].noc_port(1), nmu[1]);
 
-                        self.noc.connect(nps[0].noc_port(3), nmu[0]);
-                        self.noc.connect(nps[2].noc_port(1), nmu[1]);
+                    self.noc.connect(ddrmc.noc_port(0), xbr.noc_port(4));
+                    self.noc.connect(ddrmc.noc_port(1), xbr.noc_port(5));
 
-                        self.noc.connect(ddrmc.noc_port(0), xbr.noc_port(4));
-                        self.noc.connect(ddrmc.noc_port(1), xbr.noc_port(5));
-
+                    if swap {
                         prev_hnoc = [1, 0, 3, 2].map(|i| Some(nps[i].noc_port(port_next)));
-                        was_hnoc_ddrmc = true;
+                    } else {
+                        prev_hnoc = nps.map(|nps| Some(nps.noc_port(port_next)));
                     }
-                    X5ioHNoc::Cap { scan_bli } => {
-                        let scan_bli = die.cell(scan_bli, row_bli);
-                        self.egrid.add_tile(
-                            cell,
-                            tcls::HNOC_X5IO_CAP,
-                            &[scan_bli, scan_bli.delta(1, 0)],
-                        );
+                    was_hnoc_ddrmc = true;
+                }
+                X5ioHNoc::Cap { scan_bli } => {
+                    let scan_bli = die.cell(scan_bli, row_bli);
+                    self.egrid.add_tile(
+                        cell,
+                        tcls::HNOC_X5IO_CAP,
+                        &[scan_bli, scan_bli.delta(1, 0)],
+                    );
 
-                        let nps: [_; 2] = core::array::from_fn(|i| cell.bel(bslots::HNOC_NPS[i]));
-                        let prev_nps = prev_hnoc.map(Option::unwrap);
+                    let nps: [_; 2] = core::array::from_fn(|i| cell.bel(bslots::HNOC_NPS[i]));
+                    let prev_nps = prev_hnoc.map(Option::unwrap);
 
-                        self.noc.connect(nps[0].noc_port(0), prev_nps[0]);
-                        self.noc.connect(nps[0].noc_port(1), prev_nps[1]);
-                        self.noc.connect(nps[1].noc_port(0), prev_nps[2]);
-                        self.noc.connect(nps[1].noc_port(1), prev_nps[3]);
+                    self.noc.connect(nps[0].noc_port(0), prev_nps[0]);
+                    self.noc.connect(nps[0].noc_port(1), prev_nps[1]);
+                    self.noc.connect(nps[1].noc_port(0), prev_nps[2]);
+                    self.noc.connect(nps[1].noc_port(1), prev_nps[3]);
 
-                        prev_hnoc = [None; 4];
-                        was_hnoc_ddrmc = false;
-                    }
+                    prev_hnoc = [
+                        Some(nps[0].noc_port(2)),
+                        Some(nps[0].noc_port(3)),
+                        Some(nps[1].noc_port(2)),
+                        Some(nps[1].noc_port(3)),
+                    ];
+                    was_hnoc_ddrmc = false;
                 }
             }
 
@@ -1850,12 +1974,6 @@ impl Expander<'_> {
                 self.egrid
                     .add_tile(cell, tcls::SYSMON_SAT_HSR_X5IO, &[bli, bli.delta(1, 0)]);
             }
-
-            if let Some(prev) = prev {
-                self.egrid
-                    .fill_conn_pair(prev, cell, ccls::HSR_E, ccls::HSR_W);
-            }
-            prev = Some(cell);
         }
 
         if chip.columns[chip.col_e()].kind == ColumnKind::Gt

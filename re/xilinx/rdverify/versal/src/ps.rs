@@ -6,10 +6,12 @@ use prjcombine_interconnect::{
 };
 use prjcombine_re_xilinx_rdverify::Verifier;
 use prjcombine_versal::{
-    chip::{FabricKind, HsrSKind, PsKind},
+    chip::{Chip, FabricKind, HsrSKind, PsKind},
     defs::{bslots, tcls},
     expanded::ExpandedDevice,
 };
+
+use crate::cpm::xlat_mmi_gt_pin;
 
 pub fn verify_ps9(edev: &ExpandedDevice, vrf: &mut Verifier, bcrd: BelCoord) {
     let naming = vrf.ngrid.get_bel_naming(bcrd);
@@ -427,6 +429,132 @@ pub fn verify_psxc(edev: &ExpandedDevice, vrf: &mut Verifier, bcrd: BelCoord) {
     bel.commit();
 }
 
+pub fn verify_psxt(edev: &ExpandedDevice, vrf: &mut Verifier, bcrd: BelCoord) {
+    let naming = vrf.ngrid.get_bel_naming(bcrd);
+    let mut bel = vrf.verify_bel(bcrd).kind("PS11_B");
+    let gt = bcrd
+        .delta(0, Chip::ROWS_PER_REG as i32 * 3)
+        .bel(bslots::GTYP);
+
+    for (pn, pin) in &naming.pins {
+        let &(_, dir) = pin.orig_pin.as_ref().unwrap();
+        let mut is_spec = false;
+        if pn == "NOCPORN"
+            || pn == "NOCRSTN"
+            || pn.starts_with("SYSRST")
+            || pn.starts_with("PSPLFPDRCLKCLKAPEX")
+        {
+            is_spec = true;
+        }
+        // NPI
+        if pn == "NPIRSTN"
+            || pn.starts_with("NPIINTERRUPTOUT")
+            || pn == "PSXLPMXNOCNPIAXICLK"
+            || pn.starts_with("IFPMXNOCNPI")
+        {
+            is_spec = true;
+        }
+        // MMI specials
+        if matches!(
+            pn.as_str(),
+            "GTYPSYSRST1N"
+                | "GTYPSYSRST2N"
+                | "GTYPSYSRST3N"
+                | "NPICLKEPXPIPE"
+                | "PORRESETN"
+                | "IFMMIGTYPBUFGTCLKBUFGT_14_"
+        ) {
+            is_spec = true;
+        }
+
+        // NOC
+        if matches!(
+            pn.as_str(),
+            "PMC_NOC_0"
+                | "RPU_NOC_0"
+                | "CMN_NOC_0"
+                | "CMN_NOC_1"
+                | "CMN_NOC_2"
+                | "CMN_NOC_3"
+                | "CMN_NOC_4"
+                | "CMN_NOC_5"
+                | "CMN_NOC_6"
+                | "CMN_NOC_7"
+                | "CMN_NOC_8"
+                | "MMI_NOC_0"
+                | "NOC_PMC_0"
+                | "CMN_NOC_CCI_0"
+                | "CMN_NOC_CCI_1"
+                | "CMN_NOC_CCI_2"
+                | "CMN_NOC_CCI_3"
+        ) {
+            continue;
+        }
+        if let Some(opin) = xlat_mmi_gt_pin(pn) {
+            if dir == PinDir::Input {
+                bel = bel.extra_in_far(pn);
+            } else {
+                bel = bel.extra_out_far(pn);
+            }
+            bel.verify_net(&[bel.wire_far(pn), bel.bel_wire_far(gt, &opin)]);
+            continue;
+        }
+        if matches!(
+            pn.as_str(),
+            "IFPMXNOCNPIAXIARREADY"
+                | "IFPMXNOCNPIAXIAWREADY"
+                | "IFPMXNOCNPIAXIBVALID"
+                | "IFPMXNOCNPIAXIRVALID"
+                | "IFPMXNOCNPIAXIWREADY"
+        ) {
+            // oh my god what is wrong with this chip did they slop it into existence
+            bel = bel.extra_out_claim(pn);
+            continue;
+        }
+
+        if pn.starts_with("UNUSEDTIEHIGH") {
+            bel = bel.extra_out_far(pn);
+            continue;
+        }
+        if is_spec {
+            let &(_, dir) = pin.orig_pin.as_ref().unwrap();
+            if dir == PinDir::Input {
+                bel = bel.extra_in_far_claim(pn);
+            } else {
+                bel = bel.extra_out_far_claim(pn);
+            }
+        }
+    }
+
+    let chip = edev.chips[bcrd.die];
+    let cells = [
+        bcrd.die.cell(ColId::from_idx(0), chip.row_hsr(DirV::S)),
+        bcrd.die.cell(ColId::from_idx(4), chip.row_hsr(DirV::S)),
+    ];
+    bel = bel
+        .extra_out_far_to_far("CMN_NOC_8", cells[0].bel(bslots::HNOC_PS_NMU[4]), "AXI_IN")
+        .extra_out_far_to_far("PMC_NOC_0", cells[0].bel(bslots::HNOC_PS_NMU[5]), "AXI_IN")
+        .extra_out_far_to_far("RPU_NOC_0", cells[0].bel(bslots::HNOC_PS_NMU[6]), "AXI_IN")
+        .extra_in_far_from_far("NOC_PMC_0", cells[0].bel(bslots::HNOC_PS_NSU[0]), "AXI_OUT")
+        .extra_out_far_to_far("CMN_NOC_0", cells[0].bel(bslots::HNOC_PS_NMU[0]), "AXI_IN")
+        .extra_out_far_to_far("CMN_NOC_1", cells[0].bel(bslots::HNOC_PS_NMU[1]), "AXI_IN")
+        .extra_out_far_to_far("CMN_NOC_2", cells[0].bel(bslots::HNOC_PS_NMU[2]), "AXI_IN")
+        .extra_out_far_to_far("CMN_NOC_3", cells[0].bel(bslots::HNOC_PS_NMU[3]), "AXI_IN")
+        .extra_out_far_to_far("MMI_NOC_0", cells[1].bel(bslots::HNOC_PS_NMU[0]), "AXI_IN")
+        .extra_in_far_from_far(
+            "CMN_NOC_CCI_0",
+            cells[1].bel(bslots::HNOC_PS_NSU[0]),
+            "AXI_OUT",
+        )
+        .extra_in_far_from_far(
+            "CMN_NOC_CCI_1",
+            cells[1].bel(bslots::HNOC_PS_NSU[1]),
+            "AXI_OUT",
+        );
+
+    bel.commit();
+}
+
 pub fn verify_xram(edev: &ExpandedDevice, vrf: &mut Verifier, bcrd: BelCoord) {
     let naming = vrf.ngrid.get_bel_naming(bcrd);
     let is_nc = edev[edev.bel_tile(bcrd)].class == tcls::XRAM_NC;
@@ -470,6 +598,7 @@ pub fn verify_npi_nir(edev: &ExpandedDevice, vrf: &mut Verifier, bcrd: BelCoord)
             }
             PsKind::PsXCpm5N => bslots::PSXL,
             PsKind::PsXcMmi => bslots::PSXC,
+            PsKind::PsXt => bslots::PSXT,
         });
     for (pn, pin) in &naming.pins {
         let &(_, dir) = pin.orig_pin.as_ref().unwrap();
@@ -494,10 +623,26 @@ pub fn verify_npi_nir(edev: &ExpandedDevice, vrf: &mut Verifier, bcrd: BelCoord)
         } else {
             unreachable!()
         };
-        if !(opn == "NPIINTERRUPTOUT_16_"
+        let mut skip = false;
+        if opn == "NPIINTERRUPTOUT_16_"
             && edev.chips[bcrd.die].fabric == FabricKind::Ulvt
-            && ps.slot == bslots::PS9)
+            && ps.slot == bslots::PS9
         {
+            skip = true;
+        }
+        if ps.slot == bslots::PSXT
+            && matches!(
+                opn.as_str(),
+                "IFPMXNOCNPIAXIARREADY"
+                    | "IFPMXNOCNPIAXIAWREADY"
+                    | "IFPMXNOCNPIAXIBVALID"
+                    | "IFPMXNOCNPIAXIRVALID"
+                    | "IFPMXNOCNPIAXIWREADY"
+            )
+        {
+            skip = true;
+        }
+        if !skip {
             bel.verify_net(&[bel.wire_far(pn), bel.bel_wire_far(ps, &opn)]);
         }
         if dir == PinDir::Input {

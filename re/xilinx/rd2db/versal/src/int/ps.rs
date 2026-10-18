@@ -823,6 +823,121 @@ impl<'rd> IntMaker<'rd> {
         }
     }
 
+    fn fill_tiles_psxt(&mut self) {
+        let tkn = "PSXT_TILE";
+        if let Some(&xy) = self.rd.tiles_by_kind_name(tkn).iter().next() {
+            let mut bel = self.builder.bel_xy(bslots::PSXT, "PS11_B", 0, 0);
+            let tile = &self.rd.tiles[&xy];
+            let tk = &self.rd.tile_kinds[tile.kind];
+            let slot = self.rd.slot_xy("PS11_B", 0, 0).unwrap();
+            let tksite = tk.sites.get(&slot).unwrap().1;
+            for i in 0..6 {
+                self.builder.extra_name_pin_xy(
+                    tkn,
+                    "PS11_B",
+                    0,
+                    0,
+                    format!("LPDRCLKCLK_{i}_"),
+                    wires::CLK_HROUTE[i].cell(48),
+                    true,
+                );
+                self.builder.extra_name_pin_xy(
+                    tkn,
+                    "PS11_B",
+                    0,
+                    0,
+                    format!("PMCRCLKCLK_{i}_"),
+                    wires::CLK_HROUTE[i + 6].cell(48),
+                    true,
+                );
+            }
+            for i in 0..12 {
+                self.builder.extra_name_pin_xy(
+                    tkn,
+                    "PS11_B",
+                    0,
+                    0,
+                    format!("PSPLFPDRCLKCLK_{i}_"),
+                    wires::CLK_HROUTE[i].cell(144),
+                    true,
+                );
+            }
+            for (pin, wire) in [
+                ("HSMREFCLK_0_", wires::OUT_PS_HSM_REF_CLK[0].cell(192)),
+                ("HSMREFCLK_1_", wires::OUT_PS_HSM_REF_CLK[1].cell(192)),
+                ("NPICLK", wires::OUT_PS_NPI_CLK.cell(192)),
+                ("NTISCANCLKIN", wires::OUT_PS_SCAN_CLK.cell(192)),
+            ] {
+                self.builder
+                    .extra_name_pin_xy(tkn, "PS11_B", 0, 0, pin, wire, true);
+            }
+            self.builder
+                .extra_name_tile_tw(tkn, "GND_WIRE2", wires::OUT_PS_MCLK.cell(96));
+            for pin in tksite.pins.keys() {
+                // dummy wires
+                if pin == "NOCPORN" || pin == "NOCRSTN" || pin.starts_with("SYSRST") {
+                    bel = bel.pin_name_only(pin, 1);
+                }
+                // NPI
+                if pin == "NPIRSTN"
+                    || pin.starts_with("NPIINTERRUPTOUT")
+                    || pin == "PSXLPMXNOCNPIAXICLK"
+                    || pin.starts_with("IFPMXNOCNPI")
+                {
+                    bel = bel.pin_name_only(pin, 1);
+                }
+                // NOC
+                if matches!(
+                    pin.as_str(),
+                    "PMC_NOC_0"
+                        | "RPU_NOC_0"
+                        | "CMN_NOC_0"
+                        | "CMN_NOC_1"
+                        | "CMN_NOC_2"
+                        | "CMN_NOC_3"
+                        | "CMN_NOC_8"
+                        | "MMI_NOC_0"
+                        | "NOC_PMC_0"
+                        | "CMN_NOC_CCI_0"
+                        | "CMN_NOC_CCI_1"
+                ) {
+                    bel = bel.pin_name_only(pin, 1);
+                }
+                // GTYP
+                if pin.starts_with("IFMMIGTYP") {
+                    bel = bel.pin_name_only(pin, 1);
+                }
+                // dummy
+                if matches!(
+                    pin.as_str(),
+                    "GTYPSYSRST1N"
+                        | "GTYPSYSRST2N"
+                        | "GTYPSYSRST3N"
+                        | "NPICLKEPXPIPE"
+                        | "PORRESETN"
+                ) {
+                    bel = bel.pin_name_only(pin, 1);
+                }
+                // discard
+                if pin.starts_with("UNUSEDTIEHIGH") {
+                    bel = bel.pin_name_only(pin, 1);
+                }
+            }
+
+            let mut xn = self.builder.xtile_id(tcls::PSXT, "PSXT", xy);
+            let intf_w = xn.builder.ndb.get_tile_class_naming("INTF_W_TERM_PSS");
+            let int_xy = xn
+                .builder
+                .walk_to_int(xn.builder.delta(xy, 0, 1), Dir::E, false)
+                .unwrap();
+            for i in 0..192 {
+                let cxy = xn.builder.delta(int_xy, -1, (i + i / 4) as i32);
+                xn = xn.ref_single(cxy, i, intf_w);
+            }
+            xn.bel(bel).extract();
+        }
+    }
+
     fn fill_tiles_xram(&mut self) {
         if let Some(&xy) = self
             .builder
@@ -873,5 +988,6 @@ impl<'rd> IntMaker<'rd> {
         self.fill_tiles_cpm5n();
         self.fill_tiles_psxc();
         self.fill_tiles_mmi();
+        self.fill_tiles_psxt();
     }
 }

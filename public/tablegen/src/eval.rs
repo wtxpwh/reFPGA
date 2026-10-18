@@ -856,7 +856,7 @@ impl Context {
                 } else {
                     (
                         name,
-                        Some(lsb - msb + 1),
+                        Some(msb - lsb + 1),
                         BelPinIndexing {
                             lsb_index: lsb,
                             wrong_endian: false,

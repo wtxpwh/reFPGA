@@ -30,6 +30,7 @@ pub struct DeviceNaming {
     pub has_dsp_v2: bool,
     pub has_term2: bool,
     pub is_vnoc2_scan_offset: bool,
+    pub skip_nc_phy_clk: bool,
 }
 
 impl DeviceNaming {
@@ -472,7 +473,7 @@ pub fn name_device<'a>(
     let isp2_grid = make_grid(edev, |tcid, _| tcid == tcls::ISP2, (1, 1));
     let ps_grid = make_grid(
         edev,
-        |tcid, _| matches!(tcid, tcls::PS9 | tcls::PSXL | tcls::PSXC),
+        |tcid, _| matches!(tcid, tcls::PS9 | tcls::PSXL | tcls::PSXC | tcls::PSXT),
         (1, 1),
     );
     let xram_grid = make_grid(
@@ -2307,10 +2308,15 @@ pub fn name_device<'a>(
                 );
             }
             tcls::GTYP | tcls::GTYP_XRAM | tcls::GTYP_PS => {
+                let row_adj = if tile.class == tcls::GTYP_PS && chip.ps == PsKind::PsXt {
+                    row - 2
+                } else {
+                    row
+                };
                 let ntile = ngrid.name_tile(
                     tcrd,
                     "GTYP",
-                    [int_grid_gt.name("GTYP_QUAD_SINGLE", die, col, row, 0, 0)],
+                    [int_grid_gt.name("GTYP_QUAD_SINGLE", die, col, row_adj, 0, 0)],
                 );
                 ntile.add_bel_multi(
                     bslots::GTYP,
@@ -2471,6 +2477,14 @@ pub fn name_device<'a>(
                 );
                 ntile.add_bel(bslots::PSXC, ps_grid.name("PS11", die, col, row, 0, 0));
             }
+            tcls::PSXT => {
+                let ntile = ngrid.name_tile(
+                    tcrd,
+                    kind,
+                    [int_grid.name("PSXT_TILE", die, ColId::from_idx(0), row, 0, 0)],
+                );
+                ntile.add_bel(bslots::PSXT, ps_grid.name("PS11_B", die, col, row, 0, 0));
+            }
             tcls::MMI | tcls::MMI_NC => {
                 let ntile = ngrid.name_tile(
                     tcrd,
@@ -2575,7 +2589,7 @@ pub fn name_device<'a>(
                 ngrid.name_tile(tcrd, "X5IO_SCAN", dev_naming.tile_names[&tcrd].clone());
             }
             tcls::X5IO | tcls::X5IO_NC => {
-                let i = [0, 1, 2, 3, 3, 2, 1, 0][col.to_idx() % 8];
+                let i = col.to_idx() % 4;
                 ngrid.name_tile(
                     tcrd,
                     &format!("X5IO{i}"),
@@ -2588,6 +2602,7 @@ pub fn name_device<'a>(
             | tcls::DDRMC5C
             | tcls::DDRMC5E
             | tcls::DDRMC5E2
+            | tcls::DDRMC5X
             | tcls::HNOC_XPIO
             | tcls::HNOC_XPIO_PS9_A
             | tcls::HNOC_XPIO_PS9_B
@@ -2599,6 +2614,9 @@ pub fn name_device<'a>(
             | tcls::HNOC_X5IO_PSX_B
             | tcls::HNOC_X5IO_PSXL_C
             | tcls::HNOC_X5IO_PSXC_C
+            | tcls::HNOC_X5IO_PSXT_A
+            | tcls::HNOC_X5IO_PSXT_B
+            | tcls::HNOC_X5IO_PSXT_C
             | tcls::HNOC_X5IO_CAP
             | tcls::HNOC_X5IO_DDRMC
             | tcls::HNOC_ME
@@ -2631,6 +2649,9 @@ pub fn name_device<'a>(
             }
             tcls::DDRMC5E_ALT => {
                 ngrid.name_tile(tcrd, "DDRMC5E", dev_naming.tile_names[&tcrd].clone());
+            }
+            tcls::DDRMC5E2_CUT => {
+                ngrid.name_tile(tcrd, "DDRMC5E2", dev_naming.tile_names[&tcrd].clone());
             }
             tcls::HSR_CLK_TEST_XPIO_REV1
             | tcls::HSR_CLK_TEST_XPIO_REV2

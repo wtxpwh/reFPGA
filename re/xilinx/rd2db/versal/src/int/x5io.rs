@@ -1,5 +1,4 @@
 use prjcombine_interconnect::db::WireSlotIdExt;
-use prjcombine_re_xilinx_rd2db_interconnect::PipMode;
 use prjcombine_versal::defs::{bslots, tcls, wires};
 
 use crate::int::IntMaker;
@@ -225,86 +224,86 @@ impl<'rd> IntMaker<'rd> {
                 );
             }
             for (name, wire) in [
-                ("CLK2PLL_CLKIN", wires::HSR_IMUX_X5PLL_CLKIN.cell(3)),
+                ("CLK2PLL_CLKIN", wires::HSR_IMUX_X5PLL_CLKIN.cell(0)),
                 (
                     "CLK2PLL_CLKIN_DESKEW0",
-                    wires::HSR_IMUX_X5PLL_CLKIN_DESKEW0.cell(3),
+                    wires::HSR_IMUX_X5PLL_CLKIN_DESKEW0.cell(0),
                 ),
                 (
                     "CLK2PLL_CLKIN_DESKEW1",
-                    wires::HSR_IMUX_X5PLL_CLKIN_DESKEW1.cell(3),
+                    wires::HSR_IMUX_X5PLL_CLKIN_DESKEW1.cell(0),
                 ),
                 (
                     "CLK2PLL_CLKFB_DESKEW0",
-                    wires::HSR_IMUX_X5PLL_CLKFB_DESKEW0.cell(3),
+                    wires::HSR_IMUX_X5PLL_CLKFB_DESKEW0.cell(0),
                 ),
                 (
                     "CLK2PLL_CLKFB_DESKEW1",
-                    wires::HSR_IMUX_X5PLL_CLKFB_DESKEW1.cell(3),
+                    wires::HSR_IMUX_X5PLL_CLKFB_DESKEW1.cell(0),
                 ),
-                ("PLL2CLK_CLKOUT0", wires::HSR_OUT_X5PLL[0].cell(3)),
-                ("PLL2CLK_CLKOUT1", wires::HSR_OUT_X5PLL[1].cell(3)),
-                ("PLL2CLK_CLKOUT2", wires::HSR_OUT_X5PLL[2].cell(3)),
-                ("PLL2CLK_CLKOUT3", wires::HSR_OUT_X5PLL[3].cell(3)),
-                ("PLL2CLK_TMUXOUT", wires::HSR_OUT_X5PLL[4].cell(3)),
-                ("PLL2CLK_CLK0", wires::HSR_OUT_X5PLL_PHY[0].cell(3)),
-                ("PLL2CLK_CLK90", wires::HSR_OUT_X5PLL_PHY[1].cell(3)),
+                ("PLL2CLK_CLKOUT0", wires::HSR_OUT_X5PLL[0].cell(0)),
+                ("PLL2CLK_CLKOUT1", wires::HSR_OUT_X5PLL[1].cell(0)),
+                ("PLL2CLK_CLKOUT2", wires::HSR_OUT_X5PLL[2].cell(0)),
+                ("PLL2CLK_CLKOUT3", wires::HSR_OUT_X5PLL[3].cell(0)),
+                ("PLL2CLK_TMUXOUT", wires::HSR_OUT_X5PLL[4].cell(0)),
+                ("PLL2CLK_CLK0", wires::HSR_OUT_X5PLL_PHY[0].cell(0)),
+                ("PLL2CLK_CLK90", wires::HSR_OUT_X5PLL_PHY[1].cell(0)),
                 (
                     "CLK2CLK_CLK0_NEXT_HB_IN",
-                    wires::HSR_OUT_X5PLL_PHY_NB[0].cell(3),
+                    wires::HSR_OUT_X5PLL_PHY_NB[0].cell(0),
                 ),
                 (
                     "CLK2CLK_CLK90_NEXT_HB_IN",
-                    wires::HSR_OUT_X5PLL_PHY_NB[1].cell(3),
+                    wires::HSR_OUT_X5PLL_PHY_NB[1].cell(0),
                 ),
-                ("CLK2XCV_PLL_TESTCLK0", wires::HSR_X5IO_TESTCLK[0].cell(3)),
-                ("CLK2XCV_PLL_TESTCLK1", wires::HSR_X5IO_TESTCLK[1].cell(3)),
-                ("PHY2CLK_GCLK", wires::HSR_X5IO_GCLK[0].cell(3)),
+                ("CLK2XCV_PLL_TESTCLK0", wires::HSR_X5IO_TESTCLK[0].cell(0)),
+                ("CLK2XCV_PLL_TESTCLK1", wires::HSR_X5IO_TESTCLK[1].cell(0)),
+                ("PHY2CLK_GCLK", wires::HSR_X5IO_GCLK[0].cell(0)),
                 ("PHY2CLK_HSM_REFCLK0", wires::OUT_PS_HSM_REF_CLK[0].cell(4)),
                 ("PHY2CLK_HSM_REFCLK1", wires::OUT_PS_HSM_REF_CLK[1].cell(4)),
-                ("PHY2CLK_RXCLKIN", wires::HSR_X5IO_RXCLK.cell(3)),
-                ("CLK2PHY_DMC_CLK", wires::HSR_IMUX_DMC_CLK.cell(3)),
-                ("XCV2CLK_CCIO0", wires::HSR_X5IO_CCIO[0].cell(3)),
-                ("XCV2CLK_CCIO1", wires::HSR_X5IO_CCIO[1].cell(3)),
+                ("PHY2CLK_RXCLKIN", wires::HSR_X5IO_RXCLK.cell(0)),
+                ("CLK2PHY_DMC_CLK", wires::HSR_IMUX_DMC_CLK.cell(0)),
+                ("XCV2CLK_CCIO0", wires::HSR_OUT_X5IO_CCIO[0].cell(0)),
+                ("XCV2CLK_CCIO1", wires::HSR_OUT_X5IO_CCIO[1].cell(0)),
                 (
                     "CLK2CLK_CCIO_IN_NEXT_HB0",
-                    wires::HSR_X5IO_CCIO_NB[0].cell(3),
+                    wires::HSR_OUT_X5IO_CCIO_NB[0].cell(0),
                 ),
                 (
                     "CLK2CLK_CCIO_IN_NEXT_HB1",
-                    wires::HSR_X5IO_CCIO_NB[1].cell(3),
+                    wires::HSR_OUT_X5IO_CCIO_NB[1].cell(0),
                 ),
                 (
                     "CLK2CLK_CCIO_IN_BANK_RIGHT0",
-                    wires::HSR_OUT_CCIO_W[0].cell(4),
+                    wires::HSR_OUT_CCIO_W[0].cell(5),
                 ),
                 (
                     "CLK2CLK_CCIO_IN_BANK_RIGHT1",
-                    wires::HSR_OUT_CCIO_W[1].cell(4),
+                    wires::HSR_OUT_CCIO_W[1].cell(5),
                 ),
                 (
                     "CLK2CLK_CCIO_IN_BANK_RIGHT2",
-                    wires::HSR_OUT_CCIO_W[2].cell(4),
+                    wires::HSR_OUT_CCIO_W[2].cell(5),
                 ),
                 (
                     "CLK2CLK_CCIO_IN_BANK_RIGHT3",
-                    wires::HSR_OUT_CCIO_W[3].cell(4),
+                    wires::HSR_OUT_CCIO_W[3].cell(5),
                 ),
                 (
                     "CLK2CLK_CCIO_IN_BANK_LEFT0",
-                    wires::HSR_OUT_CCIO_E[2].cell(4),
+                    wires::HSR_OUT_CCIO_E[0].cell(5),
                 ),
                 (
                     "CLK2CLK_CCIO_IN_BANK_LEFT1",
-                    wires::HSR_OUT_CCIO_E[3].cell(4),
+                    wires::HSR_OUT_CCIO_E[1].cell(5),
                 ),
                 (
                     "CLK2CLK_CCIO_IN_BANK_LEFT2",
-                    wires::HSR_OUT_CCIO_E[0].cell(4),
+                    wires::HSR_OUT_CCIO_E[2].cell(5),
                 ),
                 (
                     "CLK2CLK_CCIO_IN_BANK_LEFT3",
-                    wires::HSR_OUT_CCIO_E[1].cell(4),
+                    wires::HSR_OUT_CCIO_E[3].cell(5),
                 ),
                 ("CGL2XCV_PDQS_OCTAD0", wires::HSR_OUT_X5PHIO_PDQS_O.cell(0)),
                 ("CGL2XCV_PDQS_OCTAD1", wires::HSR_OUT_X5PHIO_PDQS_O.cell(1)),
@@ -380,27 +379,27 @@ impl<'rd> IntMaker<'rd> {
                 ),
                 (
                     "X5PHIO_ROUTE_MUX2TO1_EN_0_Z",
-                    wires::HSR_OMUX_X5PHIO_NDQS_DLY.cell(3),
+                    wires::HSR_OMUX_X5PHIO_NDQS_DLY.cell(0),
                 ),
                 (
                     "X5PHIO_ROUTE_MUX2TO1_EN_1_Z",
-                    wires::HSR_OMUX_X5PHIO_PDQS_DLY.cell(3),
+                    wires::HSR_OMUX_X5PHIO_PDQS_DLY.cell(0),
                 ),
                 (
                     "X5PHIO_ROUTE_MUX4TO1_EN_0_CLK_OUT",
-                    wires::HSR_OMUX_X5PHIO_NDQS[0].cell(3),
+                    wires::HSR_OMUX_X5PHIO_NDQS[0].cell(0),
                 ),
                 (
                     "X5PHIO_ROUTE_MUX4TO1_EN_1_CLK_OUT",
-                    wires::HSR_OMUX_X5PHIO_PDQS[0].cell(3),
+                    wires::HSR_OMUX_X5PHIO_PDQS[0].cell(0),
                 ),
                 (
                     "X5PHIO_ROUTE_MUX4TO1_EN_2_CLK_OUT",
-                    wires::HSR_OMUX_X5PHIO_NDQS[1].cell(3),
+                    wires::HSR_OMUX_X5PHIO_NDQS[1].cell(0),
                 ),
                 (
                     "X5PHIO_ROUTE_MUX4TO1_EN_3_CLK_OUT",
-                    wires::HSR_OMUX_X5PHIO_PDQS[1].cell(3),
+                    wires::HSR_OMUX_X5PHIO_PDQS[1].cell(0),
                 ),
                 (
                     "X5PHIO_ROUTE_MUX4TO1_1_CLK_OUT",
@@ -484,43 +483,43 @@ impl<'rd> IntMaker<'rd> {
                 ),
                 (
                     "CLK2CLK_CASCADE_CLKOUT_BANK_LEFT",
-                    wires::HSR_OMUX_X5PLL_CASC[0].cell(3),
+                    wires::HSR_OMUX_X5PLL_CASC[0].cell(0),
                 ),
                 (
                     "CLK2CLK_CASCADE_CLKOUT_BANK_RIGHT",
-                    wires::HSR_OMUX_X5PLL_CASC[1].cell(3),
+                    wires::HSR_OMUX_X5PLL_CASC[1].cell(0),
                 ),
                 (
                     "CLK2CLK_CASCADE_CLKIN_BANK_LEFT0",
-                    wires::HSR_X5PLL_CASC_E1[0].cell(4),
+                    wires::HSR_X5PLL_CASC_E1[0].cell(5),
                 ),
                 (
                     "CLK2CLK_CASCADE_CLKIN_BANK_LEFT1",
-                    wires::HSR_X5PLL_CASC_E1[1].cell(4),
+                    wires::HSR_X5PLL_CASC_E1[1].cell(5),
                 ),
                 (
                     "CLK2CLK_CASCADE_CLKIN_BANK_RIGHT0",
-                    wires::HSR_X5PLL_CASC_W1[0].cell(4),
+                    wires::HSR_X5PLL_CASC_W1[0].cell(5),
                 ),
                 (
                     "CLK2CLK_CASCADE_CLKIN_BANK_RIGHT1",
-                    wires::HSR_X5PLL_CASC_W1[1].cell(4),
+                    wires::HSR_X5PLL_CASC_W1[1].cell(5),
                 ),
                 (
                     "CLK2CLK_HS_DESKEW_CLKFB_IN_PD0",
-                    wires::HSR_X5PLL_HS_DESKEW_CLKFB.cell(3),
+                    wires::HSR_X5PLL_HS_DESKEW_CLKFB.cell(0),
                 ),
                 (
                     "CLK2CLK_HS_DESKEW_CLKFB_IN_PD1",
-                    wires::HSR_X5PLL_HS_DESKEW_CLKFB_NB.cell(3),
+                    wires::HSR_X5PLL_HS_DESKEW_CLKFB_NB.cell(0),
                 ),
                 (
                     "CLK2CLK_HS_DESKEW_CLKIN_PD0",
-                    wires::HSR_X5PLL_HS_DESKEW_CLKIN.cell(3),
+                    wires::HSR_X5PLL_HS_DESKEW_CLKIN.cell(0),
                 ),
                 (
                     "CLK2CLK_HS_DESKEW_CLKIN_PD1",
-                    wires::HSR_X5PLL_HS_DESKEW_CLKIN_NB.cell(3),
+                    wires::HSR_X5PLL_HS_DESKEW_CLKIN_NB.cell(0),
                 ),
             ] {
                 self.builder.extra_name_tile_tw(tkn, name, wire);
@@ -528,34 +527,34 @@ impl<'rd> IntMaker<'rd> {
             let mut dummy = self.builder.add_dummies(tkn);
             dummy
                 .insert(
-                    wires::HSR_IMUX_DMC_CLK.cell(3),
+                    wires::HSR_IMUX_DMC_CLK.cell(0),
                     false,
-                    &[wires::HSR_IMUX_DMC_CLK_DUMMY.cell(3)],
+                    &[wires::HSR_IMUX_DMC_CLK_DUMMY.cell(0)],
                 )
                 .insert(
-                    wires::HSR_IMUX_X5PLL_CLKIN.cell(3),
+                    wires::HSR_IMUX_X5PLL_CLKIN.cell(0),
                     false,
-                    &wires::HSR_IMUX_X5PLL_CLKIN_DUMMY.map(|w| w.cell(3)),
+                    &wires::HSR_IMUX_X5PLL_CLKIN_DUMMY.map(|w| w.cell(0)),
                 )
                 .insert(
-                    wires::HSR_IMUX_X5PLL_CLKIN_DESKEW0.cell(3),
+                    wires::HSR_IMUX_X5PLL_CLKIN_DESKEW0.cell(0),
                     false,
-                    &wires::HSR_IMUX_X5PLL_CLKIN_DESKEW0_DUMMY.map(|w| w.cell(3)),
+                    &wires::HSR_IMUX_X5PLL_CLKIN_DESKEW0_DUMMY.map(|w| w.cell(0)),
                 )
                 .insert(
-                    wires::HSR_IMUX_X5PLL_CLKIN_DESKEW1.cell(3),
+                    wires::HSR_IMUX_X5PLL_CLKIN_DESKEW1.cell(0),
                     false,
-                    &wires::HSR_IMUX_X5PLL_CLKIN_DESKEW1_DUMMY.map(|w| w.cell(3)),
+                    &wires::HSR_IMUX_X5PLL_CLKIN_DESKEW1_DUMMY.map(|w| w.cell(0)),
                 )
                 .insert(
-                    wires::HSR_IMUX_X5PLL_CLKFB_DESKEW0.cell(3),
+                    wires::HSR_IMUX_X5PLL_CLKFB_DESKEW0.cell(0),
                     false,
-                    &[wires::HSR_IMUX_X5PLL_CLKFB_DESKEW0_DUMMY.cell(3)],
+                    &[wires::HSR_IMUX_X5PLL_CLKFB_DESKEW0_DUMMY.cell(0)],
                 )
                 .insert(
-                    wires::HSR_IMUX_X5PLL_CLKFB_DESKEW1.cell(3),
+                    wires::HSR_IMUX_X5PLL_CLKFB_DESKEW1.cell(0),
                     false,
-                    &[wires::HSR_IMUX_X5PLL_CLKFB_DESKEW1_DUMMY.cell(3)],
+                    &[wires::HSR_IMUX_X5PLL_CLKFB_DESKEW1_DUMMY.cell(0)],
                 );
             for i in 0..4 {
                 dummy.insert(
@@ -567,8 +566,8 @@ impl<'rd> IntMaker<'rd> {
         }
         for tkn in ["CMPHY_CMU_X32_CORE", "CMPHY_CMU_X32_CORE_MY"] {
             for (name, wire) in [
-                ("PHY2CLK_GCLK", wires::HSR_X5IO_GCLK[0].cell(3)),
-                ("PHY2CLK_GCLK_TEST1", wires::HSR_X5IO_GCLK[1].cell(3)),
+                ("PHY2CLK_GCLK", wires::HSR_X5IO_GCLK[0].cell(0)),
+                ("PHY2CLK_GCLK_TEST1", wires::HSR_X5IO_GCLK[1].cell(0)),
                 ("CMPHY_RXCLK0", wires::HSR_OUT_XPIO_PHY[0].cell(0)),
                 ("CMPHY_RXCLK1", wires::HSR_OUT_XPIO_PHY[0].cell(1)),
                 ("CMPHY_RXCLK2", wires::HSR_OUT_XPIO_PHY[0].cell(2)),
@@ -579,27 +578,27 @@ impl<'rd> IntMaker<'rd> {
                 ("CMPHY_CPHY_RD_CLK3", wires::HSR_OUT_XPIO_PHY[1].cell(3)),
                 (
                     "CLK2CLK_RXCLKOUT_NEXT_HB",
-                    wires::HSR_OMUX_X5IO_RXCLK.cell(3),
+                    wires::HSR_OMUX_X5IO_RXCLK.cell(0),
                 ),
                 (
                     "CLK2CLK_RXCLKIN_NEXT_HB",
-                    wires::HSR_OMUX_X5IO_RXCLK_NB.cell(3),
+                    wires::HSR_OMUX_X5IO_RXCLK_NB.cell(0),
                 ),
                 (
                     "X5PHIO_ROUTE_MUX2TO1_1_Z",
-                    wires::HSR_OMUX_X5IO_PHY[0].cell(3),
+                    wires::HSR_OMUX_X5IO_PHY[0].cell(0),
                 ),
                 (
                     "X5PHIO_ROUTE_MUX2TO1_2_Z",
-                    wires::HSR_OMUX_X5IO_PHY[1].cell(3),
+                    wires::HSR_OMUX_X5IO_PHY[1].cell(0),
                 ),
                 (
                     "X5PHIO_ROUTE_MUX2TO1_3_Z",
-                    wires::HSR_OMUX_X5IO_PHY[2].cell(3),
+                    wires::HSR_OMUX_X5IO_PHY[2].cell(0),
                 ),
                 (
                     "X5PHIO_ROUTE_MUX2TO1_4_Z",
-                    wires::HSR_OMUX_X5IO_PHY[3].cell(3),
+                    wires::HSR_OMUX_X5IO_PHY[3].cell(0),
                 ),
             ] {
                 self.builder.extra_name_tile_tw(tkn, name, wire);
@@ -615,7 +614,7 @@ impl<'rd> IntMaker<'rd> {
                 self.builder.extra_name_tile_tw(
                     tkn,
                     format!("PHY2CLB_CLKOUT{i}"),
-                    wires::HSR_OMUX_X5PLL[i].cell(3),
+                    wires::HSR_OMUX_X5PLL[i].cell(0),
                 );
             }
             for &cmu_xy in self.rd.tiles_by_kind_name(tkn) {
@@ -639,11 +638,11 @@ impl<'rd> IntMaker<'rd> {
                 if tcid == tcls::X5PLL_NC {
                     self.builder.extra_name_tw(
                         "PHY2CLK_DESKEW_CLKFB0",
-                        wires::HSR_IMUX_X5PLL_CLKFB_DESKEW_DUMMY_BLI[0].cell(3),
+                        wires::HSR_IMUX_X5PLL_CLKFB_DESKEW_DUMMY_BLI[0].cell(0),
                     );
                     self.builder.extra_name_tw(
                         "PHY2CLK_DESKEW_CLKFB1",
-                        wires::HSR_IMUX_X5PLL_CLKFB_DESKEW_DUMMY_BLI[1].cell(3),
+                        wires::HSR_IMUX_X5PLL_CLKFB_DESKEW_DUMMY_BLI[1].cell(0),
                     );
                 } else {
                     self.builder.extra_names.remove("PHY2CLK_DESKEW_CLKFB0");
@@ -780,23 +779,9 @@ impl<'rd> IntMaker<'rd> {
                     ])
                     .bels(bels);
                 if let Some((bli0_xy, bli1_xy)) = bli0_xy.zip(bli1_xy) {
-                    xt = xt.ref_single(bli0_xy, 5, bli).ref_single(bli1_xy, 6, bli);
+                    xt = xt.ref_single(bli0_xy, 6, bli).ref_single(bli1_xy, 7, bli);
                 }
                 xt.extract();
-                let pips = self
-                    .builder
-                    .pips
-                    .get_mut(&(tcid, bslots::XPLL_INT))
-                    .unwrap();
-                for i in 0..2 {
-                    pips.pips.insert(
-                        (
-                            wires::HSR_X5IO_CCIO[i].cell(3),
-                            wires::HSR_OUT_X5IO_CCIO[i].cell(0).pos(),
-                        ),
-                        PipMode::PermaBuf,
-                    );
-                }
             }
         }
     }
@@ -901,6 +886,7 @@ impl<'rd> IntMaker<'rd> {
             ("DDRMC5C_DMC_CORE_MY", "DDRMC5C", tcls::DDRMC5C),
             ("DDRMC5E_DMC_CORE", "DDRMC5E", tcls::DDRMC5E),
             ("DDRMC5E_DMC_CORE_MY", "DDRMC5E", tcls::DDRMC5E),
+            ("DDRMC5X_DMC_CORE", "DDRMC5X", tcls::DDRMC5X),
         ] {
             for &xy in self.rd.tiles_by_kind_name(tkn) {
                 let mut tcid = tcid;
@@ -910,6 +896,16 @@ impl<'rd> IntMaker<'rd> {
                 {
                     tcid = tcls::DDRMC5E2;
                     naming = "DDRMC5E2";
+                }
+                if tcid == tcls::DDRMC5E2
+                    && self
+                        .xlat_bli(
+                            xy,
+                            &format!("{kind}_DMC_SITE_0_IF_UBLAZE_FABRIC_BLI2UB_CLK"),
+                        )
+                        .is_none()
+                {
+                    tcid = tcls::DDRMC5E2_CUT;
                 }
                 let bli0_xy = self
                     .xlat_bli(
@@ -922,6 +918,7 @@ impl<'rd> IntMaker<'rd> {
                         xy,
                         &format!("{kind}_DMC_SITE_0_IF_UBLAZE_FABRIC_BLI2UB_CLK"),
                     )
+                    .or(self.xlat_bli(xy, &format!("{kind}_DMC_SITE_0_IF_DMC_FABRIC_UB2BLI_TRIG")))
                     .unwrap();
                 if bli0_xy == bli1_xy {
                     tcid = tcls::DDRMC5E_ALT;
@@ -939,12 +936,13 @@ impl<'rd> IntMaker<'rd> {
                     ("TEST_CLK_OUT_0_", wires::HSR_OUT_DMC_TEST_CLK[0].cell(1)),
                     ("TEST_CLK_OUT_1_", wires::HSR_OUT_DMC_TEST_CLK[1].cell(1)),
                 ] {
-                    if pin == "PLL2_CLK" && tcid != tcls::DDRMC5E2 {
+                    if pin == "PLL2_CLK" && !matches!(tcid, tcls::DDRMC5E2 | tcls::DDRMC5E2_CUT) {
                         continue;
                     }
                     self.builder
                         .extra_name_pin_xy(tkn, kind, 0, 0, pin, wire, true);
                 }
+                let is_cut = matches!(tcid, tcls::DDRMC5X | tcls::DDRMC5E2_CUT);
                 let mut bel = self.builder.bel_xy(bslots::DDRMC5, kind, 0, 0);
                 for pin in self.bel_pins(xy, kind, 0, 0) {
                     if pin.starts_with("TO_NOC")
@@ -952,6 +950,27 @@ impl<'rd> IntMaker<'rd> {
                         || pin.starts_with("IF_DMC2X5PHYIO")
                         || pin.starts_with("DMC2PHY")
                         || pin == "DMC_CLK_DESKEW"
+                        || is_cut
+                            && pin.starts_with("IF_UBLAZE_FABRIC_UB2BLI")
+                            && !matches!(
+                                pin,
+                                "IF_UBLAZE_FABRIC_UB2BLI_WRITE_DATA_27_"
+                                    | "IF_UBLAZE_FABRIC_UB2BLI_WRITE_DATA_28_"
+                                    | "IF_UBLAZE_FABRIC_UB2BLI_WRITE_DATA_29_"
+                                    | "IF_UBLAZE_FABRIC_UB2BLI_WRITE_DATA_30_"
+                                    | "IF_UBLAZE_FABRIC_UB2BLI_WRITE_DATA_31_"
+                            )
+                        || is_cut
+                            && pin.starts_with("IF_UBLAZE_FABRIC_BLI2UB")
+                            && !matches!(
+                                pin,
+                                "IF_UBLAZE_FABRIC_BLI2UB_READ_DATA_0_"
+                                    | "IF_UBLAZE_FABRIC_BLI2UB_READ_DATA_1_"
+                                    | "IF_UBLAZE_FABRIC_BLI2UB_READ_DATA_2_"
+                                    | "IF_UBLAZE_FABRIC_BLI2UB_READ_DATA_3_"
+                                    | "IF_UBLAZE_FABRIC_BLI2UB_READ_DATA_4_"
+                                    | "IF_UBLAZE_FABRIC_BLI2UB_READ_DATA_5_"
+                            )
                     {
                         bel = bel.pin_name_only(pin, 1);
                     }
@@ -1080,7 +1099,7 @@ impl<'rd> IntMaker<'rd> {
                 ],
             );
             scans_row[1][1..].iter().copied()
-        } else {
+        } else if self.rd.tiles_by_kind_name("PSXT_TILE").is_empty() {
             self.fill_tile_noc2(
                 tcls::HNOC_X5IO_PSX_A,
                 "HNOC_X5IO_PSX_A",
@@ -1221,6 +1240,88 @@ impl<'rd> IntMaker<'rd> {
             }
 
             scans_row[1][3..].iter().copied()
+        } else {
+            self.fill_tile_noc2(
+                tcls::HNOC_X5IO_PSXT_A,
+                "HNOC_X5IO_PSXT_A",
+                &[
+                    (npi_nir, bslots::HNOC_NPI_NIR, "NPI_NIR", None),
+                    (nps[0], bslots::HNOC_NPS[0], "NOC2_NPS5555", None),
+                    (nps[1], bslots::HNOC_NPS[1], "NOC2_NPS5555", None),
+                    (nps[2], bslots::HNOC_NPS[2], "NOC2_NPS5555", None),
+                    (nps[3], bslots::HNOC_NPS[3], "NOC2_NPS5555", None),
+                    (nmu[0], bslots::HNOC_PS_NMU[0], "NOC2_NMU128", None),
+                    (nmu[1], bslots::HNOC_PS_NMU[1], "NOC2_NMU128", None),
+                    (nmu[2], bslots::HNOC_PS_NMU[2], "NOC2_NMU128", None),
+                    (nmu[3], bslots::HNOC_PS_NMU[3], "NOC2_NMU128", None),
+                    (nmu[4], bslots::HNOC_PS_NMU[4], "NOC2_NMU128", None),
+                    (nmu[5], bslots::HNOC_PS_NMU[5], "NOC2_NMU128", None),
+                    (nmu[6], bslots::HNOC_PS_NMU[6], "NOC2_NMU128", None),
+                    (nsu[0], bslots::HNOC_PS_NSU[0], "NOC2_NSU128", None),
+                    (scans_row[1][0], bslots::HNOC_SCAN[0], "NOC2_SCAN", None),
+                ],
+                &[],
+            );
+
+            self.fill_tile_noc2(
+                tcls::HNOC_X5IO_PSXT_B,
+                "HNOC_X5IO_PSXT_B",
+                &[
+                    (nps[0], bslots::HNOC_NPS[0], "NOC2_NPS5555", None),
+                    (nps[1], bslots::HNOC_NPS[1], "NOC2_NPS5555", None),
+                    (nps[2], bslots::HNOC_NPS[2], "NOC2_NPS5555", None),
+                    (nps[3], bslots::HNOC_NPS[3], "NOC2_NPS5555", None),
+                    (nmu[0], bslots::HNOC_PS_NMU[0], "NOC2_NMU128", None),
+                    (nsu[0], bslots::HNOC_PS_NSU[0], "NOC2_NSU128", None),
+                    (nsu[1], bslots::HNOC_PS_NSU[1], "NOC2_NSU128", None),
+                    (xbr[0], bslots::HNOC_XBR4X2, "NOC2_XBR4X2", None),
+                    (
+                        scans_row[2][0],
+                        bslots::HNOC_SCAN[0],
+                        "NOC2_SCAN",
+                        Some((12, 12)),
+                    ),
+                ],
+                &[
+                    Some((
+                        scans_row[2][0],
+                        "NOC2_SCAN_ATOM_0_IF_NOC2_SCAN_CNTL_IN_SCAN_CLK_N",
+                    )),
+                    Some((
+                        scans_row[2][0],
+                        "NOC2_SCAN_ATOM_0_NOC2_SCAN_CHNL_MASK_FROM_PL_0_",
+                    )),
+                ],
+            );
+
+            self.fill_tile_noc2(
+                tcls::HNOC_X5IO_PSXT_C,
+                "HNOC_X5IO_PSXT_C",
+                &[
+                    (nps[0], bslots::HNOC_NPS[0], "NOC2_NPS5555", None),
+                    (nps[1], bslots::HNOC_NPS[1], "NOC2_NPS5555", None),
+                    (nps[2], bslots::HNOC_NPS[2], "NOC2_NPS5555", None),
+                    (nps[3], bslots::HNOC_NPS[3], "NOC2_NPS5555", None),
+                    (
+                        scans_row[2][1],
+                        bslots::HNOC_SCAN[0],
+                        "NOC2_SCAN",
+                        Some((12, 12)),
+                    ),
+                ],
+                &[
+                    Some((
+                        scans_row[2][1],
+                        "NOC2_SCAN_ATOM_0_IF_NOC2_SCAN_CNTL_IN_SCAN_CLK_N",
+                    )),
+                    Some((
+                        scans_row[2][1],
+                        "NOC2_SCAN_ATOM_0_NOC2_SCAN_CHNL_MASK_FROM_PL_0_",
+                    )),
+                ],
+            );
+
+            scans_row[1][1..].iter().copied()
         };
 
         for scan in scans {
