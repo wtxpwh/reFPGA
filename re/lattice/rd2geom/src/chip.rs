@@ -2,7 +2,7 @@ use std::collections::{BTreeMap, BTreeSet, HashMap, btree_map};
 
 use prjcombine_ecp::{
     chip::{
-        Chip, ChipKind, Column, IoGroupKind, MachXo2Kind, PllLoc, PllPad, Row, RowKind,
+        Chip, ChipKind, Column, Ecp3Kind, IoGroupKind, MachXo2Kind, PllLoc, PllPad, Row, RowKind,
         SpecialIoKey, SpecialLocKey,
     },
     defs::bslots,
@@ -104,7 +104,7 @@ impl ChipBuilder<'_> {
     fn fill_kind_ecp3(&mut self) {
         for &wn in self.nodes.values() {
             if self.naming.strings[wn.suffix] == "JECLKCNT_DQSTEST" {
-                self.chip.kind = ChipKind::Ecp3A;
+                self.chip.kind = ChipKind::Ecp3(Ecp3Kind::Ecp3A);
             }
         }
     }
@@ -1951,7 +1951,7 @@ impl ChipBuilder<'_> {
             } else {
                 continue;
             };
-            if matches!(self.chip.kind, ChipKind::Ecp3 | ChipKind::Ecp3A) {
+            if matches!(self.chip.kind, ChipKind::Ecp3(_)) {
                 if e {
                     if cell.col == self.chip.col_w() {
                         cell.col += 1;
@@ -3755,7 +3755,7 @@ pub fn make_chip(
             builder.fill_fabric_clock_ecp2();
             builder.fill_config_io_xp2();
         }
-        ChipKind::Ecp3 | ChipKind::Ecp3A => {
+        ChipKind::Ecp3(_) => {
             builder.fill_kind_ecp3();
             builder.fill_clk_ecp();
             builder.fill_pclk_ecp3();

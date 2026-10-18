@@ -18,7 +18,7 @@ impl ChipContext<'_> {
             ChipKind::Ecp | ChipKind::Xp => self.prep_pll_ecp(),
             ChipKind::Ecp2 | ChipKind::Ecp2M => self.prep_pll_ecp2(),
             ChipKind::Xp2 => self.prep_pll_xp2(),
-            ChipKind::Ecp3 | ChipKind::Ecp3A => self.prep_pll_ecp3(),
+            ChipKind::Ecp3(_) => self.prep_pll_ecp3(),
             ChipKind::MachXo2(_) => self.prep_pll_machxo2(),
             ChipKind::Ecp4 => self.prep_pll_ecp4(),
             ChipKind::Ecp5 => self.prep_pll_ecp5(),
@@ -39,7 +39,7 @@ impl ChipContext<'_> {
                 self.process_pll_xp2();
                 self.process_clkdiv_xp2();
             }
-            ChipKind::Ecp3 | ChipKind::Ecp3A => {
+            ChipKind::Ecp3(_) => {
                 self.process_pll_int_ecp3();
                 self.process_pll_ecp3();
                 self.process_dll_ecp3();

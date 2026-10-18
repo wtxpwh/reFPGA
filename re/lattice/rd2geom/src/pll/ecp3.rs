@@ -1,5 +1,5 @@
 use prjcombine_ecp::{
-    chip::{Chip, ChipKind},
+    chip::{Chip, ChipKind, Ecp3Kind},
     defs::{bcls, bslots, tcls, wires},
 };
 use prjcombine_entity::EntityId;
@@ -84,7 +84,7 @@ impl ChipContext<'_> {
                     wires::OUT_CLKDIV_CDIV8[0].cell(0),
                 );
 
-                if self.chip.kind == ChipKind::Ecp3A {
+                if self.chip.kind == ChipKind::Ecp3(Ecp3Kind::Ecp3A) {
                     let dqsdllclk = self.rc_wire(cell_dqsdll, "DQSDLLCLK");
                     self.bind_wire(dqsdllclk, bcrd.cell.wire(wires::IMUX_DDRDLL_CLK));
                 }
@@ -177,7 +177,7 @@ impl ChipContext<'_> {
                 ex.input_xlat_rc_nudge("JPLLCLKFB4", cslot_n);
                 ex.input_xlat_rc_nudge("JPLLCLKFB5", cslot_n);
             }
-            if chip.kind == ChipKind::Ecp3A {
+            if chip.kind == ChipKind::Ecp3(Ecp3Kind::Ecp3A) {
                 ex.input_xlat_rc("JPLLCLKI5").input_xlat_rc("JPLLCLKFB6");
             }
             if is_main {
@@ -210,7 +210,7 @@ impl ChipContext<'_> {
                     .input_xlat_rc("JECLK2")
                     .input_xlat_rc("DLLECLKI1")
                     .input_xlat_rc("DLLECLKI2");
-                if chip.kind == ChipKind::Ecp3A {
+                if chip.kind == ChipKind::Ecp3(Ecp3Kind::Ecp3A) {
                     ex.input_xlat_rc("JDLLCLKI5")
                         .input_xlat_rc("JDLLCLKI6")
                         .input_xlat_rc("JDLLCLKFB5");

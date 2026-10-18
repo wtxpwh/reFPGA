@@ -547,7 +547,7 @@ impl Chip {
                     }
                 }
             }
-            ChipKind::Ecp3 | ChipKind::Ecp3A => {
+            ChipKind::Ecp3(_) => {
                 let row_cfg = self.special_loc[&SpecialLocKey::Config].row;
                 let mut pll_rows = BTreeSet::new();
                 for (_, bcrd) in self.plls() {

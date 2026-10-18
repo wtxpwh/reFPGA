@@ -8,7 +8,7 @@ use clap::Parser;
 use itertools::Itertools;
 use prjcombine_ecp::{
     bond::{BondPad, CfgPad, MipiPad, SerdesPad},
-    chip::{Chip, ChipKind, MachXo2Kind, SpecialIoKey},
+    chip::{Chip, ChipKind, Ecp3Kind, MachXo2Kind, SpecialIoKey},
     db::Device,
     expanded::ExpandedDevice,
 };
@@ -492,7 +492,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         "ecp2" => ChipKind::Ecp2,
         "ecp2m" => ChipKind::Ecp2M,
         "xp2" => ChipKind::Xp2,
-        "ecp3" => ChipKind::Ecp3,
+        "ecp3" => ChipKind::Ecp3(Ecp3Kind::Ecp3),
         "machxo2" => ChipKind::MachXo2(MachXo2Kind::MachXo2),
         "ecp4" => ChipKind::Ecp4,
         "ecp5" => ChipKind::Ecp5,
@@ -508,7 +508,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             ChipKind::Ecp2 => prjcombine_ecp::defs::ecp2::INIT,
             ChipKind::Ecp2M => prjcombine_ecp::defs::ecp2m::INIT,
             ChipKind::Xp2 => prjcombine_ecp::defs::xp2::INIT,
-            ChipKind::Ecp3 | ChipKind::Ecp3A => prjcombine_ecp::defs::ecp3::INIT,
+            ChipKind::Ecp3(_) => prjcombine_ecp::defs::ecp3::INIT,
             ChipKind::MachXo2(_) => prjcombine_ecp::defs::machxo2::INIT,
             ChipKind::Ecp4 => prjcombine_ecp::defs::ecp4::INIT,
             ChipKind::Ecp5 => prjcombine_ecp::defs::ecp5::INIT,
@@ -598,8 +598,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             for site in &cres.dummy_sites {
                 expected_sites.insert(site.clone());
             }
-            let has_jtag_pin_bels =
-                matches!(chip.kind, ChipKind::Scm | ChipKind::Ecp3 | ChipKind::Ecp3A);
+            let has_jtag_pin_bels = matches!(chip.kind, ChipKind::Scm | ChipKind::Ecp3(_));
             for (pin, &pad) in &bres.bond.pins {
                 match pad {
                     BondPad::Io(io)

@@ -48,7 +48,7 @@ impl ChipContext<'_> {
                 self.process_dqsdll_ecp2();
                 self.process_io_ecp();
             }
-            ChipKind::Ecp3 | ChipKind::Ecp3A => {
+            ChipKind::Ecp3(_) => {
                 self.prep_io_ecp3();
                 self.process_eclk_ecp3();
                 self.process_eclk_tap_ecp3();
@@ -102,7 +102,7 @@ impl ChipContext<'_> {
     pub fn get_io_wire_in(&self, bcrd: BelCoord) -> WireName {
         let idx = bslots::IO.index_of(bcrd.slot).unwrap();
         match self.chip.kind {
-            ChipKind::Ecp3 | ChipKind::Ecp3A => {
+            ChipKind::Ecp3(_) => {
                 match self.chip.get_io_edge(bcrd) {
                     Dir::H(h) => {
                         if bcrd.col != self.chip.col_edge(h) {
@@ -158,7 +158,7 @@ impl ChipContext<'_> {
         let wire = self.edev.resolve_wire(wire).unwrap();
         let idx = wires::OUT_IO_PADDI.index_of(wire.slot).unwrap();
         match self.chip.kind {
-            ChipKind::Ecp3 | ChipKind::Ecp3A => {
+            ChipKind::Ecp3(_) => {
                 if wire.row == self.chip.row_s() || wire.row == self.chip.row_n() {
                     let cell = if idx >= 2 {
                         wire.cell.delta(2, 0)

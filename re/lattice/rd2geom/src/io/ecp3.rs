@@ -1,5 +1,5 @@
 use prjcombine_ecp::{
-    chip::{Chip, ChipKind, IoGroupKind, IoKind},
+    chip::{Chip, ChipKind, Ecp3Kind, IoGroupKind, IoKind},
     defs::{bcls, bslots, tcls, wires},
 };
 use prjcombine_entity::EntityId;
@@ -228,7 +228,7 @@ impl ChipContext<'_> {
                 bel.ctx.claim_pip(wire, wire_dqs);
                 if pin == "DQCLK1"
                     && matches!(kind, IoKind::Sio | IoKind::SDqs)
-                    && bel.ctx.chip.kind == ChipKind::Ecp3
+                    && bel.ctx.chip.kind == ChipKind::Ecp3(Ecp3Kind::Ecp3)
                 {
                     let dqclk1_in = bel.add_wire_rc_io_get("DQCLK1_IN", format!("JDQCLK1{abcd}"));
                     bel.ctx.claim_pip(wire, dqclk1_in);
@@ -260,7 +260,7 @@ impl ChipContext<'_> {
                     let (cell_io, abcd) = ex.ctx.xlat_io_loc_ecp3(bcrd);
                     ex.cell(cell_io)
                         .output_bind_rc_io(format!("ECLK{abcd}"), wires::IMUX_IO_ECLK[iob].cell(0));
-                    if chip.kind != ChipKind::Ecp3A {
+                    if chip.kind != ChipKind::Ecp3(Ecp3Kind::Ecp3A) {
                         ex.output_bind_rc_io(
                             format!("ECLKDQSR{abcd}"),
                             wires::IMUX_IO_ECLKDQSR[iob].cell(0),
@@ -313,7 +313,7 @@ impl ChipContext<'_> {
             ("DQCLK1", "DQCLK1"),
             (
                 "DDRLAT",
-                if chip.kind == ChipKind::Ecp3A && kind != IoKind::SDqs {
+                if chip.kind == ChipKind::Ecp3(Ecp3Kind::Ecp3A) && kind != IoKind::SDqs {
                     "DDRLAT"
                 } else {
                     "JDDRLAT"
@@ -335,7 +335,7 @@ impl ChipContext<'_> {
 
         let mut bel = self.extract_bel_cell(bcrd_dqs, cell);
 
-        if matches!(edge, Dir::H(_)) && chip.kind == ChipKind::Ecp3A {
+        if matches!(edge, Dir::H(_)) && chip.kind == ChipKind::Ecp3(Ecp3Kind::Ecp3A) {
             let name_test = match edge {
                 Dir::W => format!("DQSTEST_L{r}"),
                 Dir::E => format!("DQSTEST_R{r}"),
@@ -446,7 +446,7 @@ impl ChipContext<'_> {
 
     pub(super) fn process_eclk_ecp3(&mut self) {
         let chip = self.chip;
-        if chip.kind == ChipKind::Ecp3A {
+        if chip.kind == ChipKind::Ecp3(Ecp3Kind::Ecp3A) {
             let cell = chip.clk_root().delta(-1, 0);
             let brgeclk0 = self.rc_wire(cell, "JBRGECLK1");
             let brgeclk1 = self.rc_wire(cell, "JBRGECLK2");
@@ -468,7 +468,9 @@ impl ChipContext<'_> {
                 if let Dir::H(h) = edge {
                     ex.input_xlat_rc_nudge("JDLLECLK1", CellSlotId::from_idx(4))
                         .input_xlat_rc_nudge("JDLLECLK2", CellSlotId::from_idx(4));
-                    if chip.kind == ChipKind::Ecp3A && chip.try_bel_pll(h & DirV::S, 0).is_some() {
+                    if chip.kind == ChipKind::Ecp3(Ecp3Kind::Ecp3A)
+                        && chip.try_bel_pll(h & DirV::S, 0).is_some()
+                    {
                         ex.input_xlat_rc_nudge("JPLLCLKOP", CellSlotId::from_idx(5))
                             .input_xlat_rc_nudge("JPLLCLKOS", CellSlotId::from_idx(5));
                     }
@@ -482,7 +484,7 @@ impl ChipContext<'_> {
                         .input_xlat_rc_nudge("JDLLCLKOS1", CellSlotId::from_idx(7))
                         .input_xlat_rc_nudge("JDLLCLKOS2", CellSlotId::from_idx(6));
                 }
-                if chip.kind == ChipKind::Ecp3A {
+                if chip.kind == ChipKind::Ecp3(Ecp3Kind::Ecp3A) {
                     ex.input_xlat_rc("JBRGECLK1").input_xlat_rc("JBRGECLK2");
                 }
             }
@@ -532,7 +534,7 @@ impl ChipContext<'_> {
             for i in 0..7 {
                 bel.output_xlat_rc(bcls::DDRDLL::TEST_SDOUT[i], format!("JSDOUT{i}_DQSDLLTEST"));
             }
-            if bel.ctx.chip.kind == ChipKind::Ecp3A {
+            if bel.ctx.chip.kind == ChipKind::Ecp3(Ecp3Kind::Ecp3A) {
                 bel.input_xlat_rc(bcls::DDRDLL::CLK, "CLK_DQSDLL");
             }
         }

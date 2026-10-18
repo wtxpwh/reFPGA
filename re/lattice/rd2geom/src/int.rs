@@ -151,8 +151,7 @@ impl ChipContext<'_> {
                                 self.chip.kind,
                                 ChipKind::Scm
                                     | ChipKind::Xp2
-                                    | ChipKind::Ecp3
-                                    | ChipKind::Ecp3A
+                                    | ChipKind::Ecp3(_)
                                     | ChipKind::MachXo2(_)
                                     | ChipKind::Ecp4
                                     | ChipKind::Ecp5
@@ -269,7 +268,7 @@ impl ChipContext<'_> {
                     }
                 }
             }
-            if matches!(self.chip.kind, ChipKind::Ecp3 | ChipKind::Ecp3A) {
+            if matches!(self.chip.kind, ChipKind::Ecp3(_)) {
                 // ??!? special garbage wires
                 let clocks =
                     if cell.row == self.chip.row_s() + 9 && cell.col == self.chip.col_clk - 1 {

@@ -1257,7 +1257,7 @@ impl ChipContext<'_> {
         match self.chip.kind {
             ChipKind::Scm => self.process_serdes_scm(),
             ChipKind::Ecp2M => self.process_serdes_ecp2(),
-            ChipKind::Ecp3 | ChipKind::Ecp3A => self.process_serdes_ecp3(),
+            ChipKind::Ecp3(_) => self.process_serdes_ecp3(),
             ChipKind::Ecp4 => self.process_serdes_ecp4(),
             ChipKind::Ecp5 => self.process_serdes_ecp5(),
             ChipKind::Crosslink => self.process_mipi_crosslink(),

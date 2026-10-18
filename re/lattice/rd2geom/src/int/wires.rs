@@ -210,7 +210,7 @@ impl ChipContext<'_> {
                             .collect()
                     }
                 }
-                ChipKind::Ecp3 | ChipKind::Ecp3A | ChipKind::MachXo2(_) => {
+                ChipKind::Ecp3(_) | ChipKind::MachXo2(_) => {
                     let WireKind::Regional(region) = self.intdb[wire].kind else {
                         unreachable!()
                     };
@@ -381,7 +381,7 @@ impl ChipContext<'_> {
             || suffix.starts_with("TSCX"))
             && suffix.len() == 8
             && suffix.ends_with("00")
-            && matches!(self.chip.kind, ChipKind::Ecp3 | ChipKind::Ecp3A)
+            && matches!(self.chip.kind, ChipKind::Ecp3(_))
         {
             let idx: usize = suffix[4..6].parse().unwrap();
             let wire = if &suffix[1..2] == "P" {
@@ -454,9 +454,7 @@ impl ChipContext<'_> {
                 wires::TIE0
             };
             let cell = self.chip.xlat_rc_wire(wn);
-            if matches!(self.chip.kind, ChipKind::Ecp3 | ChipKind::Ecp3A)
-                && cell.row <= self.chip.row_s() + 9
-            {
+            if matches!(self.chip.kind, ChipKind::Ecp3(_)) && cell.row <= self.chip.row_s() + 9 {
                 if cell.col < self.chip.col_clk {
                     Vec::from_iter(
                         self.chip

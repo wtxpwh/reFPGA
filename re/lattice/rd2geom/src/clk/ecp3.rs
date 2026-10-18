@@ -1,7 +1,7 @@
 use std::collections::{BTreeMap, btree_map};
 
 use prjcombine_ecp::{
-    chip::{Chip, ChipKind, RowKind},
+    chip::{Chip, ChipKind, Ecp3Kind, RowKind},
     defs::{bcls, bslots, ecp3::tcls::CLK_ROOT, wires},
 };
 use prjcombine_entity::EntityId;
@@ -233,7 +233,7 @@ impl ChipContext<'_> {
             }
         }
 
-        if chip.kind == ChipKind::Ecp3A {
+        if chip.kind == ChipKind::Ecp3(Ecp3Kind::Ecp3A) {
             ex.input_xlat_rc("JLDLLECLK1")
                 .input_xlat_rc("JLDLLECLK2")
                 .permabuf_output_xlat_rc("JBRGECLK1")

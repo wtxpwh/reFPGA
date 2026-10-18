@@ -19,8 +19,7 @@ pub enum ChipKind {
     Ecp2,
     Ecp2M,
     Xp2,
-    Ecp3,
-    Ecp3A,
+    Ecp3(Ecp3Kind),
     MachXo2(MachXo2Kind),
     Ecp4,
     Ecp5,
@@ -34,6 +33,12 @@ pub enum MachXo2Kind {
     MachXo3Lfp,
     MachXo3D,
     MachNx,
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Encode, Decode)]
+pub enum Ecp3Kind {
+    Ecp3,
+    Ecp3A,
 }
 
 impl ChipKind {
@@ -68,14 +73,14 @@ impl ChipKind {
     pub fn has_ecp2_plc(self) -> bool {
         matches!(
             self,
-            ChipKind::Ecp2 | ChipKind::Ecp2M | ChipKind::Xp2 | ChipKind::Ecp3 | ChipKind::Ecp3A
+            ChipKind::Ecp2 | ChipKind::Ecp2M | ChipKind::Xp2 | ChipKind::Ecp3(_)
         )
     }
 
     pub fn has_x1_bi(self) -> bool {
         matches!(
             self,
-            ChipKind::Ecp2 | ChipKind::Ecp2M | ChipKind::Xp2 | ChipKind::Ecp3 | ChipKind::Ecp3A
+            ChipKind::Ecp2 | ChipKind::Ecp2M | ChipKind::Xp2 | ChipKind::Ecp3(_)
         )
     }
 
@@ -85,17 +90,13 @@ impl ChipKind {
             ChipKind::Ecp2
                 | ChipKind::Ecp2M
                 | ChipKind::Xp2
-                | ChipKind::Ecp3
-                | ChipKind::Ecp3A
+                | ChipKind::Ecp3(_)
                 | ChipKind::MachXo2(_)
         )
     }
 
     pub fn has_distributed_sclk_ecp3(self) -> bool {
-        matches!(
-            self,
-            ChipKind::Ecp3 | ChipKind::Ecp3A | ChipKind::MachXo2(_)
-        )
+        matches!(self, ChipKind::Ecp3(_) | ChipKind::MachXo2(_))
     }
 }
 
@@ -109,8 +110,8 @@ impl Display for ChipKind {
             ChipKind::Ecp2 => write!(f, "ecp2"),
             ChipKind::Ecp2M => write!(f, "ecp2m"),
             ChipKind::Xp2 => write!(f, "xp2"),
-            ChipKind::Ecp3 => write!(f, "ecp3"),
-            ChipKind::Ecp3A => write!(f, "ecp3a"),
+            ChipKind::Ecp3(Ecp3Kind::Ecp3) => write!(f, "ecp3"),
+            ChipKind::Ecp3(Ecp3Kind::Ecp3A) => write!(f, "ecp3a"),
             ChipKind::MachXo2(MachXo2Kind::MachXo2) => write!(f, "machxo2"),
             ChipKind::MachXo2(MachXo2Kind::MachXo3L) => write!(f, "machxo3l"),
             ChipKind::MachXo2(MachXo2Kind::MachXo3Lfp) => write!(f, "machxo3lfp"),
@@ -490,9 +491,7 @@ impl Chip {
     }
 
     pub fn get_io_loc(&self, io: EdgeIoCoord) -> BelCoord {
-        if matches!(self.kind, ChipKind::Ecp3 | ChipKind::Ecp3A | ChipKind::Ecp4)
-            && io.iob().to_idx() >= 4
-        {
+        if matches!(self.kind, ChipKind::Ecp3(_) | ChipKind::Ecp4) && io.iob().to_idx() >= 4 {
             let (col, row, iob) = match io {
                 EdgeIoCoord::W(row, iob) => (self.col_w() + 1, row, iob),
                 EdgeIoCoord::E(row, iob) => (self.col_e() - 1, row, iob),
@@ -521,7 +520,7 @@ impl Chip {
             Dir::S
         } else if bcrd.row == self.row_n() {
             Dir::N
-        } else if matches!(self.kind, ChipKind::Ecp3 | ChipKind::Ecp3A | ChipKind::Ecp4) {
+        } else if matches!(self.kind, ChipKind::Ecp3(_) | ChipKind::Ecp4) {
             if bcrd.col == self.col_w() + 1 {
                 Dir::W
             } else if bcrd.col == self.col_e() - 1 {
@@ -544,7 +543,7 @@ impl Chip {
             EdgeIoCoord::S(bel.col, iob)
         } else if bel.row == self.row_n() {
             EdgeIoCoord::N(bel.col, iob)
-        } else if matches!(self.kind, ChipKind::Ecp3 | ChipKind::Ecp3A | ChipKind::Ecp4) {
+        } else if matches!(self.kind, ChipKind::Ecp3(_) | ChipKind::Ecp4) {
             if bel.col == self.col_w() + 1 {
                 let iob = TileIobId::from_idx(bslots::IO.index_of(bel.slot).unwrap() + 4);
                 EdgeIoCoord::W(bel.row, iob)
@@ -606,7 +605,7 @@ impl Chip {
                     },
                 }
             }
-            ChipKind::Ecp3 | ChipKind::Ecp3A => match self.get_io_edge(bcrd) {
+            ChipKind::Ecp3(_) => match self.get_io_edge(bcrd) {
                 Dir::W => {
                     if bcrd.col == self.col_w() {
                         match (self.rows[bcrd.row].io_w, idx) {
@@ -733,13 +732,12 @@ impl Chip {
             } else {
                 DirV::N
             }),
-            ChipKind::Ecp2 | ChipKind::Ecp2M | ChipKind::Xp2 | ChipKind::Ecp3 | ChipKind::Ecp3A => {
-                self.bel_dqsdll_ecp2(if io.col < self.col_clk {
+            ChipKind::Ecp2 | ChipKind::Ecp2M | ChipKind::Xp2 | ChipKind::Ecp3(_) => self
+                .bel_dqsdll_ecp2(if io.col < self.col_clk {
                     DirH::W
                 } else {
                     DirH::E
-                })
-            }
+                }),
             ChipKind::MachXo => unreachable!(),
             ChipKind::MachXo2(_) => unreachable!(),
             ChipKind::Ecp4 => unreachable!(),
@@ -767,7 +765,7 @@ impl Chip {
             ChipKind::Xp2 => Self::DIE
                 .cell(self.col_edge(edge), self.row_clk)
                 .bel(bslots::DQSDLL),
-            ChipKind::Ecp3 | ChipKind::Ecp3A => Self::DIE
+            ChipKind::Ecp3(_) => Self::DIE
                 .cell(
                     match edge {
                         DirH::W => self.col_w() + 1,
@@ -813,7 +811,7 @@ impl Chip {
 
     pub fn bel_eclksync(&self, edge: Dir, idx: usize) -> BelCoord {
         match self.kind {
-            ChipKind::Ecp3 | ChipKind::Ecp3A => match edge {
+            ChipKind::Ecp3(_) => match edge {
                 Dir::W => Self::DIE
                     .cell(self.col_w(), self.row_clk)
                     .bel(bslots::ECLKSYNC[idx]),
@@ -919,7 +917,7 @@ impl Chip {
                 };
                 Self::DIE.cell(col, row).bel(bslots::SERDES)
             }
-            ChipKind::Ecp3 | ChipKind::Ecp3A => {
+            ChipKind::Ecp3(_) => {
                 assert_eq!(edge, DirV::S);
                 Self::DIE.cell(col, self.row_s() + 9).bel(bslots::SERDES)
             }
@@ -944,8 +942,7 @@ impl Chip {
             ChipKind::Ecp2 => todo!(),
             ChipKind::Ecp2M => todo!(),
             ChipKind::Xp2 => todo!(),
-            ChipKind::Ecp3 => todo!(),
-            ChipKind::Ecp3A => todo!(),
+            ChipKind::Ecp3(_) => todo!(),
             ChipKind::MachXo2(_) => todo!(),
             ChipKind::Ecp4 => todo!(),
             ChipKind::Ecp5 => todo!(),
@@ -961,8 +958,7 @@ impl Chip {
             ChipKind::Ecp2 => todo!(),
             ChipKind::Ecp2M => todo!(),
             ChipKind::Xp2 => todo!(),
-            ChipKind::Ecp3 => todo!(),
-            ChipKind::Ecp3A => todo!(),
+            ChipKind::Ecp3(_) => todo!(),
             ChipKind::MachXo2(_) => todo!(),
             ChipKind::Ecp4 => todo!(),
             ChipKind::Ecp5 => todo!(),
@@ -987,8 +983,7 @@ impl Chip {
             ChipKind::Ecp2 => todo!(),
             ChipKind::Ecp2M => todo!(),
             ChipKind::Xp2 => todo!(),
-            ChipKind::Ecp3 => todo!(),
-            ChipKind::Ecp3A => todo!(),
+            ChipKind::Ecp3(_) => todo!(),
             ChipKind::MachXo2(_) => todo!(),
             ChipKind::Ecp4 => todo!(),
             ChipKind::Ecp5 => todo!(),
@@ -1023,8 +1018,7 @@ impl Chip {
             ChipKind::Ecp2 => todo!(),
             ChipKind::Ecp2M => todo!(),
             ChipKind::Xp2 => todo!(),
-            ChipKind::Ecp3 => todo!(),
-            ChipKind::Ecp3A => todo!(),
+            ChipKind::Ecp3(_) => todo!(),
             ChipKind::MachXo2(_) => todo!(),
             ChipKind::Ecp4 => todo!(),
             ChipKind::Ecp5 => todo!(),

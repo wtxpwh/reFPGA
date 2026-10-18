@@ -276,7 +276,7 @@ impl ChipContext<'_> {
                         wt.cell = wf.cell;
                         wt.slot = wires::RSCLK_V_N[idx];
                     }
-                    if matches!(self.chip.kind, ChipKind::Ecp3 | ChipKind::Ecp3A)
+                    if matches!(self.chip.kind, ChipKind::Ecp3(_))
                         && self.intdb[wf.slot].kind.is_tie()
                         && wf.cell.row <= self.chip.row_s() + 9
                     {

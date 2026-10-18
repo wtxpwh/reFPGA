@@ -1164,7 +1164,7 @@ impl ChipContext<'_> {
             ChipKind::Xp2 => {
                 self.process_config_xp2();
             }
-            ChipKind::Ecp3 | ChipKind::Ecp3A => {
+            ChipKind::Ecp3(_) => {
                 self.process_config_ecp3();
             }
             ChipKind::MachXo2(_) => {

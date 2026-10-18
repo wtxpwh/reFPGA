@@ -7,7 +7,7 @@ use prjcombine_interconnect::{
 
 use crate::{
     chip::{
-        Chip, ChipKind, IoGroupKind, MachXo2Kind, PllLoc, PllPad, RowKind, SpecialIoKey,
+        Chip, ChipKind, Ecp3Kind, IoGroupKind, MachXo2Kind, PllLoc, PllPad, RowKind, SpecialIoKey,
         SpecialLocKey,
     },
     defs::{bslots, ccls, rslots, tcls, tiledata, tslots, wires},
@@ -359,7 +359,7 @@ impl Expander<'_, '_> {
     }
 
     fn fill_pll_ecp3(&mut self) {
-        let is_a = self.chip.kind == ChipKind::Ecp3A;
+        let is_a = self.chip.kind == ChipKind::Ecp3(Ecp3Kind::Ecp3A);
         for (loc, bcrd) in self.chip.plls() {
             let cell = bcrd.cell;
             let cell_io_n = self.chip.get_io_cell(SpecialIoKey::Clock(
@@ -903,9 +903,7 @@ impl Expander<'_, '_> {
     fn fill_ebr_ecp(&mut self) {
         let ebr_width = match self.chip.kind {
             ChipKind::Ecp | ChipKind::Xp => 2,
-            ChipKind::Ecp2 | ChipKind::Ecp2M | ChipKind::Xp2 | ChipKind::Ecp3 | ChipKind::Ecp3A => {
-                3
-            }
+            ChipKind::Ecp2 | ChipKind::Ecp2M | ChipKind::Xp2 | ChipKind::Ecp3(_) => 3,
             _ => unreachable!(),
         };
         for (row, rd) in &self.chip.rows {
@@ -935,7 +933,7 @@ impl Expander<'_, '_> {
                     continue;
                 }
                 if cell.col == self.chip.col_w() || cell.col == self.chip.col_e() {
-                    if matches!(self.chip.kind, ChipKind::Ecp3 | ChipKind::Ecp3A) && rd.sclk_break {
+                    if matches!(self.chip.kind, ChipKind::Ecp3(_)) && rd.sclk_break {
                         self.egrid.add_tile_single(cell, tcls::ECLK_TAP);
                     }
                     continue;
@@ -950,9 +948,7 @@ impl Expander<'_, '_> {
     fn fill_dsp_ecp(&mut self) {
         let dsp_width = match self.chip.kind {
             ChipKind::Ecp => 8,
-            ChipKind::Ecp2 | ChipKind::Ecp2M | ChipKind::Xp2 | ChipKind::Ecp3 | ChipKind::Ecp3A => {
-                9
-            }
+            ChipKind::Ecp2 | ChipKind::Ecp2M | ChipKind::Xp2 | ChipKind::Ecp3(_) => 9,
             _ => unreachable!(),
         };
         for (row, rd) in &self.chip.rows {
@@ -1352,7 +1348,7 @@ impl Expander<'_, '_> {
     }
 
     fn fill_io_ecp3(&mut self) {
-        let is_a = self.chip.kind == ChipKind::Ecp3A;
+        let is_a = self.chip.kind == ChipKind::Ecp3(Ecp3Kind::Ecp3A);
         for cell in self.egrid.row(self.die, self.chip.row_s()) {
             if !self.is_in_bel_hole(cell) {
                 self.egrid.add_tile_single(cell, tcls::INT_IO_S);
@@ -4035,7 +4031,7 @@ impl Chip {
                 expander.fill_io_ecp();
                 expander.fill_clk_ecp2();
             }
-            ChipKind::Ecp3 | ChipKind::Ecp3A => {
+            ChipKind::Ecp3(_) => {
                 expander.fill_config_ecp3();
                 expander.fill_pll_ecp3();
                 expander.fill_serdes_ecp3();

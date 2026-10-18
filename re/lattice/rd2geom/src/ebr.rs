@@ -355,8 +355,7 @@ impl ChipContext<'_> {
             | ChipKind::Ecp2
             | ChipKind::Ecp2M
             | ChipKind::Xp2
-            | ChipKind::Ecp3
-            | ChipKind::Ecp3A
+            | ChipKind::Ecp3(_)
             | ChipKind::MachXo2(_) => self.process_ebr_ecp(),
             ChipKind::Ecp4 | ChipKind::Ecp5 | ChipKind::Crosslink => self.process_ebr_ecp4(),
         }

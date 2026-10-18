@@ -40,8 +40,7 @@ impl ExpandedDevice<'_> {
             | ChipKind::Ecp2
             | ChipKind::Ecp2M
             | ChipKind::Xp2
-            | ChipKind::Ecp3
-            | ChipKind::Ecp3A
+            | ChipKind::Ecp3(_)
             | ChipKind::Ecp4
             | ChipKind::Ecp5 => {
                 let dqs = self[io.cell].region_root[rslots::DQS].bel(bslots::DQS[0]);

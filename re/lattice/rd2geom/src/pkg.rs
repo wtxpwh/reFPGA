@@ -6,7 +6,7 @@ use std::{
 use prjcombine_ecp::{
     bond::{AscPad, Bond, BondKind, BondPad, CfgPad, MipiPad, PfrPad, PllSet, SerdesPad},
     chip::{
-        Chip, ChipKind, IoGroupKind, MachXo2Kind, PllLoc, PllPad, RowKind, SpecialIoKey,
+        Chip, ChipKind, Ecp3Kind, IoGroupKind, MachXo2Kind, PllLoc, PllPad, RowKind, SpecialIoKey,
         SpecialLocKey,
     },
 };
@@ -74,7 +74,7 @@ fn get_filename(datadir: &Path, part: &Part, chip: &Chip) -> PathBuf {
             "mg5a00",
             format!("mg5a{r}x{c}", r = chip.rows.len(), c = chip.columns.len()),
         ),
-        ChipKind::Ecp3 | ChipKind::Ecp3A => {
+        ChipKind::Ecp3(_) => {
             let is_a = part.name.ends_with('A');
             if is_a {
                 (
@@ -535,7 +535,7 @@ fn parse_io_ecp5(chip: &Chip, func: &str) -> Option<EdgeIoCoord> {
 fn parse_io(chip: &Chip, func: &str) -> Option<EdgeIoCoord> {
     match chip.kind {
         ChipKind::Scm => parse_io_scm(chip, func),
-        ChipKind::Ecp3 | ChipKind::Ecp3A => parse_io_ecp3(chip, func),
+        ChipKind::Ecp3(_) => parse_io_ecp3(chip, func),
         ChipKind::Ecp4 => parse_io_ecp4(chip, func),
         ChipKind::Ecp5 => parse_io_ecp5(chip, func),
         _ => parse_io_ecp(chip, func),
@@ -661,7 +661,7 @@ fn parse_io_special(
         }
         if matches!(
             chip.kind,
-            ChipKind::Ecp2 | ChipKind::Ecp2M | ChipKind::Xp2 | ChipKind::Ecp3 | ChipKind::Ecp3A
+            ChipKind::Ecp2 | ChipKind::Ecp2M | ChipKind::Xp2 | ChipKind::Ecp3(_)
         ) {
             assert_eq!(idx, 0);
             idx = match bank {
@@ -742,7 +742,7 @@ fn parse_io_special(
         };
         Some((SpecialIoKey::Pll(pad, PllLoc::new(hv, idx)), is_c))
     } else if (func.contains("PLL") || func.contains("DLL")) && chip.kind != ChipKind::Crosslink {
-        let pll_rows_s = if matches!(chip.kind, ChipKind::Ecp3 | ChipKind::Ecp3A) {
+        let pll_rows_s = if matches!(chip.kind, ChipKind::Ecp3(_)) {
             Vec::from_iter(chip.rows.ids().rev().filter(|&row| {
                 row < chip.row_clk && matches!(chip.rows[row].kind, RowKind::Ebr | RowKind::Dsp)
             }))
@@ -751,7 +751,7 @@ fn parse_io_special(
                 row < chip.row_clk && matches!(chip.rows[row].kind, RowKind::Ebr | RowKind::Dsp)
             }))
         };
-        let pll_rows_n = if matches!(chip.kind, ChipKind::Ecp3 | ChipKind::Ecp3A) {
+        let pll_rows_n = if matches!(chip.kind, ChipKind::Ecp3(_)) {
             Vec::from_iter(chip.rows.ids().filter(|&row| {
                 row >= chip.row_clk && matches!(chip.rows[row].kind, RowKind::Ebr | RowKind::Dsp)
             }))
@@ -799,9 +799,9 @@ fn parse_io_special(
             | ChipKind::Ecp4
             | ChipKind::Ecp5
             | ChipKind::Crosslink => PllLoc::new(hv, idx),
-            ChipKind::Ecp2 | ChipKind::Ecp2M | ChipKind::Ecp3 | ChipKind::Ecp3A => {
+            ChipKind::Ecp2 | ChipKind::Ecp2M | ChipKind::Ecp3(_) => {
                 let cell = Chip::DIE.cell(
-                    if matches!(chip.kind, ChipKind::Ecp3 | ChipKind::Ecp3A) {
+                    if matches!(chip.kind, ChipKind::Ecp3(_)) {
                         match hv.h {
                             DirH::W => chip.col_w() + 1,
                             DirH::E => chip.col_e() - 1,
@@ -881,41 +881,29 @@ fn parse_io_special(
                 Some((SpecialIoKey::Busy, false))
             }
             "DOUT" | "DOUT,CSON" | "DOUT_CSON" | "CSON" => Some((SpecialIoKey::Dout, false)),
-            "SPIFASTN" if matches!(chip.kind, ChipKind::Ecp3 | ChipKind::Ecp3A) => {
+            "SPIFASTN" if matches!(chip.kind, ChipKind::Ecp3(_)) => {
                 Some((SpecialIoKey::D(0), false))
             }
-            "SI" if matches!(chip.kind, ChipKind::Ecp3 | ChipKind::Ecp3A) => {
-                Some((SpecialIoKey::D(3), false))
-            }
-            "SO" if matches!(chip.kind, ChipKind::Ecp3 | ChipKind::Ecp3A) => {
-                Some((SpecialIoKey::D(4), false))
-            }
-            "SPID1" if matches!(chip.kind, ChipKind::Ecp3 | ChipKind::Ecp3A) => {
-                Some((SpecialIoKey::D(6), false))
-            }
-            "SPID0" if matches!(chip.kind, ChipKind::Ecp3 | ChipKind::Ecp3A) => {
-                Some((SpecialIoKey::D(7), false))
-            }
-            "SN" | "CONT1N" | "OEN" if matches!(chip.kind, ChipKind::Ecp3 | ChipKind::Ecp3A) => {
+            "SI" if matches!(chip.kind, ChipKind::Ecp3(_)) => Some((SpecialIoKey::D(3), false)),
+            "SO" if matches!(chip.kind, ChipKind::Ecp3(_)) => Some((SpecialIoKey::D(4), false)),
+            "SPID1" if matches!(chip.kind, ChipKind::Ecp3(_)) => Some((SpecialIoKey::D(6), false)),
+            "SPID0" if matches!(chip.kind, ChipKind::Ecp3(_)) => Some((SpecialIoKey::D(7), false)),
+            "SN" | "CONT1N" | "OEN" if matches!(chip.kind, ChipKind::Ecp3(_)) => {
                 Some((SpecialIoKey::CsN, false))
             }
-            "HOLDN" | "CONT2N" | "RDY" if matches!(chip.kind, ChipKind::Ecp3 | ChipKind::Ecp3A) => {
+            "HOLDN" | "CONT2N" | "RDY" if matches!(chip.kind, ChipKind::Ecp3(_)) => {
                 Some((SpecialIoKey::Cs1N, false))
             }
-            "CSSPI1N" if matches!(chip.kind, ChipKind::Ecp3 | ChipKind::Ecp3A) => {
+            "CSSPI1N" if matches!(chip.kind, ChipKind::Ecp3(_)) => {
                 Some((SpecialIoKey::Dout, false))
             }
-            "CSSPI0N" | "CEN" | "CSSPIN"
-                if matches!(chip.kind, ChipKind::Ecp3 | ChipKind::Ecp3A) =>
-            {
+            "CSSPI0N" | "CEN" | "CSSPIN" if matches!(chip.kind, ChipKind::Ecp3(_)) => {
                 Some((SpecialIoKey::Di, false))
             }
-            "SISPI" | "AVDN" if matches!(chip.kind, ChipKind::Ecp3 | ChipKind::Ecp3A) => {
+            "SISPI" | "AVDN" if matches!(chip.kind, ChipKind::Ecp3(_)) => {
                 Some((SpecialIoKey::Busy, false))
             }
-            "MCLK" if matches!(chip.kind, ChipKind::Ecp3 | ChipKind::Ecp3A) => {
-                Some((SpecialIoKey::MClk, false))
-            }
+            "MCLK" if matches!(chip.kind, ChipKind::Ecp3(_)) => Some((SpecialIoKey::MClk, false)),
             "MCLK" if matches!(chip.kind, ChipKind::MachXo2(_)) => {
                 Some((SpecialIoKey::Cclk, false))
             }
@@ -945,8 +933,12 @@ fn parse_io_special(
             "TESTCFGN" => None,
             // XP2 stuff
             "INITN" => Some((SpecialIoKey::InitB, false)),
-            "SISPI" | "SI" if chip.kind != ChipKind::Ecp3 => Some((SpecialIoKey::D(0), false)),
-            "SPISO" | "SO" if chip.kind != ChipKind::Ecp3 => Some((SpecialIoKey::D(1), false)),
+            "SISPI" | "SI" if chip.kind != ChipKind::Ecp3(Ecp3Kind::Ecp3) => {
+                Some((SpecialIoKey::D(0), false))
+            }
+            "SPISO" | "SO" if chip.kind != ChipKind::Ecp3(Ecp3Kind::Ecp3) => {
+                Some((SpecialIoKey::D(1), false))
+            }
             "CCLK" => Some((SpecialIoKey::Cclk, false)),
             "CSSPIN" if matches!(chip.kind, ChipKind::Xp2 | ChipKind::MachXo2(_)) => {
                 Some((SpecialIoKey::SpiCCsB, false))
@@ -1285,7 +1277,7 @@ pub fn process_bond(datadir: &Path, part: &Part, chip: &Chip, _naming: &ChipNami
             };
             assert_eq!(bank, exp_bank as i32);
             BondPad::Serdes(edge, col, pad)
-        } else if func.starts_with("PCS") && matches!(chip.kind, ChipKind::Ecp3 | ChipKind::Ecp3A) {
+        } else if func.starts_with("PCS") && matches!(chip.kind, ChipKind::Ecp3(_)) {
             let (loc, pad) = func.split_once('_').unwrap();
             let exp_bank = match loc {
                 "PCSA" => 50,
@@ -1584,10 +1576,10 @@ pub fn process_bond(datadir: &Path, part: &Part, chip: &Chip, _naming: &ChipNami
                 "URC_GNDPLL" if chip.kind == ChipKind::Xp2 => {
                     BondPad::GndPll(PllSet::Quad(DirHV::NE))
                 }
-                "LUM0_VCCPLL" if matches!(chip.kind, ChipKind::Ecp3 | ChipKind::Ecp3A) => {
+                "LUM0_VCCPLL" if matches!(chip.kind, ChipKind::Ecp3(_)) => {
                     BondPad::VccPll(PllSet::Side(DirH::W))
                 }
-                "RUM0_VCCPLL" if matches!(chip.kind, ChipKind::Ecp3 | ChipKind::Ecp3A) => {
+                "RUM0_VCCPLL" if matches!(chip.kind, ChipKind::Ecp3(_)) => {
                     BondPad::VccPll(PllSet::Side(DirH::E))
                 }
                 "VCCP0" if chip.kind == ChipKind::Xp => BondPad::VccPll(PllSet::Side(DirH::W)),

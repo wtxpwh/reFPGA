@@ -283,7 +283,7 @@ impl ChipContext<'_> {
     }
 
     fn process_plc_ecp2(&mut self) {
-        let is_ecp3 = matches!(self.chip.kind, ChipKind::Ecp3 | ChipKind::Ecp3A);
+        let is_ecp3 = matches!(self.chip.kind, ChipKind::Ecp3(_));
         for tcid in [tcls::PLC, tcls::FPLC] {
             for &tcrd in &self.edev.tile_index[tcid] {
                 let cell = tcrd.cell;
@@ -828,7 +828,7 @@ impl ChipContext<'_> {
             ChipKind::Scm | ChipKind::Ecp | ChipKind::Xp | ChipKind::MachXo => {
                 self.process_plc_ecp()
             }
-            ChipKind::Ecp2 | ChipKind::Ecp2M | ChipKind::Xp2 | ChipKind::Ecp3 | ChipKind::Ecp3A => {
+            ChipKind::Ecp2 | ChipKind::Ecp2M | ChipKind::Xp2 | ChipKind::Ecp3(_) => {
                 self.process_plc_ecp2()
             }
             ChipKind::MachXo2(_) | ChipKind::Ecp4 | ChipKind::Ecp5 | ChipKind::Crosslink => {
