@@ -1,4 +1,4 @@
-use prjcombine_entity::{EntityId, EntityIdArith, EntityVec};
+use prjcombine_entity::{EntityId, EntityVec};
 use prjcombine_interconnect::{
     db::IntDb,
     dir::Dir,
@@ -122,8 +122,8 @@ impl Chip {
             egrid[cell].region_root[regions::COLBUF] = cell.with_row(self.row_mid);
         }
 
-        for &(row_m, row_b, row_t) in &self.rows_colbuf {
-            for row in row_b.range(row_t) {
+        for (rows, &row_m) in &self.rows_colbuf {
+            for row in rows {
                 for cell in egrid.row(die, row) {
                     let row_cb = if row < row_m {
                         if self.cols_bram.contains(&cell.col) && !self.kind.has_ice40_bramv2() {

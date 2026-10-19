@@ -1,6 +1,6 @@
 use std::collections::{BTreeMap, HashMap, HashSet};
 
-use prjcombine_entity::{EntityBundleIndices, EntityBundleItemIndex, EntityId};
+use prjcombine_entity::{EntityBundleIndices, EntityBundleItemIndex, EntityId, EntityRangeVec};
 use prjcombine_interconnect::{
     db::{
         BelAttributeType, BelInfo, BelInput, BelKind, SwitchBoxItem, TileClassId, TileWireCoord,
@@ -42,7 +42,7 @@ pub fn make_sample(
     edev: &ExpandedDevice,
     runres: &RunResult,
     pkg_info: &PkgInfo,
-    rows_colbuf: &[(RowId, RowId, RowId)],
+    rows_colbuf: &EntityRangeVec<RowId, RowId>,
     extra_wire_names: &BTreeMap<(u32, u32, String), WireCoord>,
     special_tiles: &BTreeMap<SpecialTileKey, Vec<RawLoc>>,
 ) -> (
@@ -222,13 +222,7 @@ pub fn make_sample(
                             && edev.chip.kind.tile_class_colbuf().is_some()
                         {
                             if !rows_colbuf.is_empty() {
-                                let (row_colbuf, _, _) = rows_colbuf
-                                    .iter()
-                                    .copied()
-                                    .find(|&(_, row_b, row_t)| {
-                                        cell.row >= row_b && cell.row < row_t
-                                    })
-                                    .unwrap();
+                                let row_colbuf = rows_colbuf[cell.row];
                                 let trow = if cell.row < row_colbuf {
                                     if edev.chip.cols_bram.contains(&cell.col)
                                         && !edev.chip.kind.has_ice40_bramv2()

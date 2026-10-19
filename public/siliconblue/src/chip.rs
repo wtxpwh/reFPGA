@@ -2,7 +2,7 @@ use std::collections::{BTreeMap, BTreeSet};
 
 use bincode::{Decode, Encode};
 use itertools::Itertools;
-use prjcombine_entity::{EntityId, EntityRange, EntityVec};
+use prjcombine_entity::{EntityId, EntityRange, EntityRangeVec, EntityVec};
 use prjcombine_interconnect::{
     db::{CellSlotId, IntDb, TileClassId},
     dir::{Dir, DirH, DirV},
@@ -443,8 +443,8 @@ pub struct Chip {
     pub cols_bram: Vec<ColId>,
     pub rows: usize,
     pub row_mid: RowId,
-    // (hclk row, start row, end row)
-    pub rows_colbuf: Vec<(RowId, RowId, RowId)>,
+    // row -> hclk row
+    pub rows_colbuf: EntityRangeVec<RowId, RowId>,
     pub rows_mac16: Vec<RowId>,
     pub ioi_iob: BiMap<BelCoord, BelCoord>,
     pub ioi_od: BTreeSet<BelCoord>,
@@ -629,8 +629,8 @@ impl Chip {
             )?;
         }
         writeln!(o, "\trow_mid {};", self.row_mid)?;
-        for &(row_hclk, row_start, row_end) in &self.rows_colbuf {
-            writeln!(o, "\trow_colbuf {row_hclk} = {row_start}..{row_end};")?;
+        for (rows, &row_hclk) in &self.rows_colbuf {
+            writeln!(o, "\trow_colbuf {row_hclk} = {rows};")?;
         }
         if !self.rows_mac16.is_empty() {
             writeln!(

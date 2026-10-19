@@ -1,6 +1,6 @@
 use std::collections::{BTreeMap, HashMap, HashSet};
 
-use prjcombine_entity::EntityId;
+use prjcombine_entity::{EntityId, EntityRangeVec};
 use prjcombine_interconnect::{
     db::PinDir,
     dir::{Dir, DirH, DirV},
@@ -24,7 +24,7 @@ pub struct GeneratorConfig<'a> {
     pub pkgs: &'a BTreeMap<(&'static str, &'static str), PkgInfo>,
     pub edev: &'a ExpandedDevice<'a>,
     pub allow_global: bool,
-    pub rows_colbuf: Vec<(RowId, RowId, RowId)>,
+    pub rows_colbuf: EntityRangeVec<RowId, RowId>,
     pub prims: &'a BTreeMap<&'static str, Primitive>,
     pub special_tiles: &'a BTreeMap<SpecialTileKey, Vec<RawLoc>>,
 }

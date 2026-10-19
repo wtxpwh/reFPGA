@@ -14,7 +14,7 @@ use intdb::MiscTileBuilder;
 use parts::Part;
 use pkg::get_pkg_pins;
 use prims::{Primitive, get_prims};
-use prjcombine_entity::{EntityId, EntityVec};
+use prjcombine_entity::{EntityId, EntityRangeVec, EntityVec};
 use prjcombine_interconnect::{
     db::{
         BelAttribute, BelInfo, CellSlotId, IntDb, Mux, ProgBuf, ProgInv, SwitchBox, SwitchBoxItem,
@@ -110,12 +110,12 @@ impl HarvestContext<'_> {
     fn compute_rows_colbuf(
         &self,
         colbuf_map: BTreeMap<RowId, RowId>,
-    ) -> Option<Vec<(RowId, RowId, RowId)>> {
+    ) -> Option<EntityRangeVec<RowId, RowId>> {
         let mut row_c = *colbuf_map.get(&RowId::from_idx(1))?;
-        let mut row_b = RowId::from_idx(0);
-        let mut row_prev = RowId::from_idx(0);
+        let mut result = EntityRangeVec::new();
+        let mut row_b: RowId = result.next_id();
+        let mut row_prev = result.next_id();
         let mut in_top = false;
-        let mut result = vec![];
         for (row, trow) in colbuf_map {
             if trow != row_c {
                 if row != row_prev + 1 {
@@ -126,7 +126,7 @@ impl HarvestContext<'_> {
                     assert_eq!(trow, row);
                     in_top = true;
                 } else {
-                    result.push((row_c, row_b, row));
+                    result.push((row - row_b) as usize, row_c);
                     row_b = row;
                     in_top = false;
                 }
@@ -138,7 +138,8 @@ impl HarvestContext<'_> {
             return None;
         }
         assert!(in_top);
-        result.push((row_c, row_b, row_prev + 2));
+        result.push((self.ctx.chip.rows().end() - row_b) as usize, row_c);
+        assert_eq!(result.len(), self.ctx.chip.rows);
         Some(result)
     }
 
@@ -202,13 +203,7 @@ impl HarvestContext<'_> {
                 if row == self.edev.chip.row_s() || row == self.edev.chip.row_n() {
                     continue;
                 }
-                let (row_colbuf, _, _) = self
-                    .gencfg
-                    .rows_colbuf
-                    .iter()
-                    .copied()
-                    .find(|&(_, row_b, row_t)| row >= row_b && row < row_t)
-                    .unwrap();
+                let row_colbuf = self.gencfg.rows_colbuf[row];
                 let trow = if row < row_colbuf {
                     if self.edev.chip.cols_bram.contains(&col)
                         && !self.edev.chip.kind.has_ice40_bramv2()
@@ -2385,7 +2380,7 @@ impl PartContext<'_> {
             edev: &edev,
             pkgs: &self.pkgs,
             allow_global: false,
-            rows_colbuf: vec![],
+            rows_colbuf: EntityRangeVec::new(),
             special_tiles: &self.special_tiles,
         };
         let muxes = Mutex::new(pips);
@@ -2574,7 +2569,7 @@ fn main() {
                 col_bio_split: ColId::from_idx(0),
                 rows: 0,
                 row_mid: RowId::from_idx(0),
-                rows_colbuf: vec![],
+                rows_colbuf: EntityRangeVec::new(),
                 rows_mac16: vec![],
                 ioi_iob: BiMap::new(),
                 ioi_od: BTreeSet::new(),
