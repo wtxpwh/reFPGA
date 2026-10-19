@@ -65,7 +65,7 @@ impl Namer<'_> {
 
     fn fill_clkclut(&mut self) {
         let mut cc = 1;
-        for &(col_m, _, _) in &self.chip.cols_clkv {
+        for &col_m in self.chip.cols_clkv.values() {
             if col_m != self.chip.col_w() + 1
                 && col_m != self.chip.col_e() - 1
                 && col_m != self.chip.col_clk()

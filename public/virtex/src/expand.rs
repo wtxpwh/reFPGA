@@ -1,4 +1,4 @@
-use prjcombine_entity::{EntityId, EntityIdArith, EntityPartVec, EntityVec};
+use prjcombine_entity::{EntityId, EntityPartVec, EntityVec};
 use prjcombine_interconnect::db::IntDb;
 use prjcombine_interconnect::dir::{DirH, DirV};
 use prjcombine_interconnect::grid::builder::GridBuilder;
@@ -317,9 +317,9 @@ impl Expander<'_, '_> {
             self.egrid[cell].region_root[defs::rslots::GLOBAL] =
                 self.die.cell(self.chip.col_clk(), self.chip.row_clk());
         }
-        for &(col_m, col_l, col_r) in &self.chip.cols_clkv {
+        for (cols, &col_m) in &self.chip.cols_clkv {
             let is_bram = col_m == self.chip.col_w() + 1 || col_m == self.chip.col_e() - 1;
-            for col in col_l.range(col_r) {
+            for col in cols {
                 for cell in self.egrid.column(self.die, col) {
                     let cell_clk = if col < col_m {
                         cell.with_col(col_m - 1)
@@ -398,7 +398,7 @@ impl Expander<'_, '_> {
         let split_bram = self.chip.kind != ChipKind::VirtexE;
         let mut clkv_frame = 0;
 
-        for dx in 0..(self.chip.columns / 2) {
+        for dx in 0..(self.chip.columns().len() / 2) {
             for lr in ['R', 'L'] {
                 let col = if lr == 'R' {
                     self.chip.col_clk() + dx
@@ -410,11 +410,7 @@ impl Expander<'_, '_> {
                 }
                 if col != self.chip.col_clk()
                     && !self.chip.cols_bram.contains(&col)
-                    && self
-                        .chip
-                        .cols_clkv
-                        .iter()
-                        .any(|&(col_m, _, _)| col_m == col)
+                    && self.chip.cols_clkv[col] == col
                 {
                     self.clkv_frame.insert(col, clkv_frame);
                     clkv_frame += 1;
@@ -440,7 +436,7 @@ impl Expander<'_, '_> {
 
         // bram main
         if split_bram {
-            for dx in 0..(self.chip.columns / 2) {
+            for dx in 0..(self.chip.columns().len() / 2) {
                 for side in [DirH::E, DirH::W] {
                     let col = if side == DirH::E {
                         self.chip.col_clk() + dx
@@ -465,7 +461,7 @@ impl Expander<'_, '_> {
 
         // bram data
         major = if self.chip.kind.is_virtexe() { 1 } else { 0 };
-        for dx in 0..(self.chip.columns / 2) {
+        for dx in 0..(self.chip.columns().len() / 2) {
             let side_order = if !self.chip.kind.is_virtexe() {
                 [DirH::W, DirH::E]
             } else {
@@ -501,7 +497,7 @@ impl Chip {
         db: &'a IntDb,
     ) -> ExpandedDevice<'a> {
         let mut egrid = GridBuilder::new(db);
-        let die = egrid.add_die(self.columns, self.rows);
+        let die = egrid.add_die(self.columns().len(), self.rows);
 
         let mut expander = Expander {
             chip: self,

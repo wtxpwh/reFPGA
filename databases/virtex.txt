@@ -1,7 +1,6 @@
 // xc2s15
 chip CHIP0 {
 	kind spartan2;
-	columns 16;
 	rows 10;
 	cols_bram X1, X14;
 	col_clkv X1 = X0..X5;
@@ -24,7 +23,6 @@ chip CHIP0 {
 // xc2s30
 chip CHIP1 {
 	kind spartan2;
-	columns 22;
 	rows 14;
 	cols_bram X1, X20;
 	col_clkv X1 = X0..X6;
@@ -47,7 +45,6 @@ chip CHIP1 {
 // xc2s50
 chip CHIP2 {
 	kind spartan2;
-	columns 28;
 	rows 18;
 	cols_bram X1, X26;
 	col_clkv X1 = X0..X8;
@@ -70,7 +67,6 @@ chip CHIP2 {
 // xc2s100
 chip CHIP3 {
 	kind spartan2;
-	columns 34;
 	rows 22;
 	cols_bram X1, X32;
 	col_clkv X1 = X0..X9;
@@ -93,7 +89,6 @@ chip CHIP3 {
 // xc2s150
 chip CHIP4 {
 	kind spartan2;
-	columns 40;
 	rows 26;
 	cols_bram X1, X38;
 	col_clkv X1 = X0..X11;
@@ -116,7 +111,6 @@ chip CHIP4 {
 // xc2s200
 chip CHIP5 {
 	kind spartan2;
-	columns 46;
 	rows 30;
 	cols_bram X1, X44;
 	col_clkv X1 = X0..X12;
@@ -139,7 +133,6 @@ chip CHIP5 {
 // xcv50
 chip CHIP6 {
 	kind virtex;
-	columns 28;
 	rows 18;
 	cols_bram X1, X26;
 	col_clkv X1 = X0..X8;
@@ -162,7 +155,6 @@ chip CHIP6 {
 // xcv100 xqv100
 chip CHIP7 {
 	kind virtex;
-	columns 34;
 	rows 22;
 	cols_bram X1, X32;
 	col_clkv X1 = X0..X9;
@@ -185,7 +177,6 @@ chip CHIP7 {
 // xcv150
 chip CHIP8 {
 	kind virtex;
-	columns 40;
 	rows 26;
 	cols_bram X1, X38;
 	col_clkv X1 = X0..X11;
@@ -208,7 +199,6 @@ chip CHIP8 {
 // xcv200
 chip CHIP9 {
 	kind virtex;
-	columns 46;
 	rows 30;
 	cols_bram X1, X44;
 	col_clkv X1 = X0..X12;
@@ -231,7 +221,6 @@ chip CHIP9 {
 // xcv300 xqv300 xqvr300
 chip CHIP10 {
 	kind virtex;
-	columns 52;
 	rows 34;
 	cols_bram X1, X50;
 	col_clkv X1 = X0..X14;
@@ -254,7 +243,6 @@ chip CHIP10 {
 // xcv400
 chip CHIP11 {
 	kind virtex;
-	columns 64;
 	rows 42;
 	cols_bram X1, X62;
 	col_clkv X1 = X0..X9;
@@ -279,7 +267,6 @@ chip CHIP11 {
 // xcv600 xqv600 xqvr600
 chip CHIP12 {
 	kind virtex;
-	columns 76;
 	rows 50;
 	cols_bram X1, X74;
 	col_clkv X1 = X0..X11;
@@ -304,7 +291,6 @@ chip CHIP12 {
 // xcv800
 chip CHIP13 {
 	kind virtex;
-	columns 88;
 	rows 58;
 	cols_bram X1, X86;
 	col_clkv X1 = X0..X12;
@@ -329,7 +315,6 @@ chip CHIP13 {
 // xcv1000 xqv1000 xqvr1000
 chip CHIP14 {
 	kind virtex;
-	columns 100;
 	rows 66;
 	cols_bram X1, X98;
 	col_clkv X1 = X0..X14;
@@ -354,7 +339,6 @@ chip CHIP14 {
 // xcv50e xc2s50e xa2s50e
 chip CHIP15 {
 	kind virtexe;
-	columns 30;
 	rows 18;
 	cols_bram X1, X8, X21, X28;
 	col_clkv X1 = X0..X8;
@@ -377,7 +361,6 @@ chip CHIP15 {
 // xcv100e xc2s100e xa2s100e
 chip CHIP16 {
 	kind virtexe;
-	columns 36;
 	rows 22;
 	cols_bram X1, X14, X21, X34;
 	col_clkv X1 = X0..X9;
@@ -400,7 +383,6 @@ chip CHIP16 {
 // xc2s150e xa2s150e
 chip CHIP17 {
 	kind virtexe;
-	columns 42;
 	rows 26;
 	cols_bram X1, X14, X27, X40;
 	col_clkv X1 = X0..X11;
@@ -423,7 +405,6 @@ chip CHIP17 {
 // xcv200e xc2s200e xa2s200e
 chip CHIP18 {
 	kind virtexe;
-	columns 48;
 	rows 30;
 	cols_bram X1, X14, X33, X46;
 	col_clkv X1 = X0..X12;
@@ -446,7 +427,6 @@ chip CHIP18 {
 // xcv300e xc2s300e xa2s300e
 chip CHIP19 {
 	kind virtexe;
-	columns 54;
 	rows 34;
 	cols_bram X1, X14, X39, X52;
 	col_clkv X1 = X0..X14;
@@ -469,7 +449,6 @@ chip CHIP19 {
 // xcv400e xc2s400e
 chip CHIP20 {
 	kind virtexe;
-	columns 66;
 	rows 42;
 	cols_bram X1, X14, X51, X64;
 	col_clkv X1 = X0..X9;
@@ -494,7 +473,6 @@ chip CHIP20 {
 // xcv600e xqv600e xc2s600e
 chip CHIP21 {
 	kind virtexe;
-	columns 80;
 	rows 50;
 	cols_bram X1, X14, X27, X52, X65, X78;
 	col_clkv X1 = X0..X11;
@@ -519,7 +497,6 @@ chip CHIP21 {
 // xcv1000e xqv1000e
 chip CHIP22 {
 	kind virtexe;
-	columns 104;
 	rows 66;
 	cols_bram X1, X14, X27, X76, X89, X102;
 	col_clkv X1 = X0..X14;
@@ -544,7 +521,6 @@ chip CHIP22 {
 // xcv1600e
 chip CHIP23 {
 	kind virtexe;
-	columns 118;
 	rows 74;
 	cols_bram X1, X14, X27, X40, X77, X90, X103, X116;
 	col_clkv X1 = X0..X16;
@@ -569,7 +545,6 @@ chip CHIP23 {
 // xcv2000e xqv2000e
 chip CHIP24 {
 	kind virtexe;
-	columns 130;
 	rows 82;
 	cols_bram X1, X14, X27, X40, X89, X102, X115, X128;
 	col_clkv X1 = X0..X18;
@@ -594,7 +569,6 @@ chip CHIP24 {
 // xcv2600e
 chip CHIP25 {
 	kind virtexe;
-	columns 148;
 	rows 94;
 	cols_bram X1, X14, X27, X40, X107, X120, X133, X146;
 	col_clkv X1 = X0..X13;
@@ -621,7 +595,6 @@ chip CHIP25 {
 // xcv3200e
 chip CHIP26 {
 	kind virtexe;
-	columns 166;
 	rows 106;
 	cols_bram X1, X14, X27, X40, X125, X138, X151, X164;
 	col_clkv X1 = X0..X11;
@@ -650,7 +623,6 @@ chip CHIP26 {
 // xcv405e
 chip CHIP27 {
 	kind virtexem;
-	columns 76;
 	rows 42;
 	cols_bram X1, X6, X11, X16, X21, X26, X31, X44, X49, X54, X59, X64, X69, X74;
 	col_clkv X1 = X0..X10;
@@ -675,7 +647,6 @@ chip CHIP27 {
 // xcv812e
 chip CHIP28 {
 	kind virtexem;
-	columns 106;
 	rows 58;
 	cols_bram X1, X6, X11, X16, X21, X26, X31, X36, X41, X46, X59, X64, X69, X74, X79, X84, X89, X94, X99, X104;
 	col_clkv X1 = X0..X14;

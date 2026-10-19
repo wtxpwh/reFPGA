@@ -63,7 +63,7 @@ fn sort_key<'a>(name: &'a str, chip: &'a Chip) -> SortKey<'a> {
     };
     SortKey {
         kind: chip.kind,
-        width: chip.columns,
+        width: chip.columns().len(),
         height: chip.rows,
         part_kind,
         name,

@@ -1,5 +1,6 @@
 use std::collections::{BTreeMap, BTreeSet, HashMap};
 
+use prjcombine_entity::{EntityIdArith, EntityRangeVec};
 use prjcombine_interconnect::grid::{ColId, DieIdExt};
 use prjcombine_re_xilinx_rawdump::{Coord, Part, TkSiteSlot};
 use prjcombine_virtex::{
@@ -36,7 +37,7 @@ fn get_cols_bram(rd: &Part, int: &IntGrid) -> BTreeSet<ColId> {
         .collect()
 }
 
-fn get_cols_clkv(rd: &Part, int: &IntGrid) -> Vec<(ColId, ColId, ColId)> {
+fn get_cols_clkv(rd: &Part, int: &IntGrid) -> EntityRangeVec<ColId, ColId> {
     let mut cols_clkv: BTreeSet<_> = find_columns(rd, &["GCLKV", "CLKV"])
         .into_iter()
         .map(|r| int.lookup_column_inter(r))
@@ -52,12 +53,12 @@ fn get_cols_clkv(rd: &Part, int: &IntGrid) -> Vec<(ColId, ColId, ColId)> {
     cols_brk.insert(int.cols.next_id());
     assert_eq!(cols_clkv.len(), cols_brk.len());
     assert_eq!(cols_clkv.len(), cols_brk_l.len());
-    cols_clkv
-        .into_iter()
-        .zip(cols_brk_l)
-        .zip(cols_brk)
-        .map(|((a, b), c)| (a, b, c))
-        .collect()
+    let mut res = EntityRangeVec::new();
+    for ((col_w, col_e), col_m) in cols_brk_l.into_iter().zip(cols_brk).zip(cols_clkv) {
+        let cols = col_w.range(col_e);
+        assert_eq!(cols, res.push(cols.len(), col_m));
+    }
+    res
 }
 
 fn add_disabled_dlls(disabled: &mut BTreeSet<DisabledPart>, rd: &Part) {
@@ -159,7 +160,6 @@ pub fn make_grid(rd: &Part) -> (Chip, BTreeSet<DisabledPart>) {
     add_disabled_brams(&mut disabled, rd, &int);
     let mut grid = Chip {
         kind,
-        columns: int.cols.len(),
         cols_bram: get_cols_bram(rd, &int),
         cols_clkv: get_cols_clkv(rd, &int),
         rows: int.rows.len(),

@@ -1,6 +1,6 @@
 use bincode::{Decode, Encode};
 use itertools::Itertools;
-use prjcombine_entity::{EntityId, EntityRange};
+use prjcombine_entity::{EntityId, EntityRange, EntityRangeVec};
 use prjcombine_interconnect::{
     db::IntDb,
     dir::{DirH, DirHV, DirV},
@@ -59,9 +59,9 @@ impl std::fmt::Display for SharedCfgPad {
 #[derive(Clone, Debug, Eq, PartialEq, Hash, Encode, Decode)]
 pub struct Chip {
     pub kind: ChipKind,
-    pub columns: usize,
     pub cols_bram: BTreeSet<ColId>,
-    pub cols_clkv: Vec<(ColId, ColId, ColId)>,
+    // column -> clock column
+    pub cols_clkv: EntityRangeVec<ColId, ColId>,
     pub rows: usize,
     pub cfg_io: BTreeMap<SharedCfgPad, BelPadCoord>,
 }
@@ -100,15 +100,15 @@ impl Chip {
     }
 
     pub fn col_clk(&self) -> ColId {
-        ColId::from_idx(self.columns / 2)
+        ColId::from_idx(self.columns().len() / 2)
     }
 
     pub fn col_w(&self) -> ColId {
-        ColId::from_idx(0)
+        self.columns().first().unwrap()
     }
 
     pub fn col_e(&self) -> ColId {
-        ColId::from_idx(self.columns - 1)
+        self.columns().last().unwrap()
     }
 
     pub fn col_edge(&self, dir: DirH) -> ColId {
@@ -119,11 +119,11 @@ impl Chip {
     }
 
     pub fn row_s(&self) -> RowId {
-        RowId::from_idx(0)
+        self.rows().first().unwrap()
     }
 
     pub fn row_n(&self) -> RowId {
-        RowId::from_idx(self.rows - 1)
+        self.rows().last().unwrap()
     }
 
     pub fn row_edge(&self, dir: DirV) -> RowId {
@@ -138,7 +138,7 @@ impl Chip {
     }
 
     pub fn columns(&self) -> EntityRange<ColId> {
-        EntityRange::new(0, self.columns)
+        EntityRange::new(0, self.cols_clkv.len())
     }
 
     pub fn rows(&self) -> EntityRange<RowId> {
@@ -336,15 +336,14 @@ impl Chip {
 impl Chip {
     pub fn dump(&self, o: &mut dyn std::io::Write, db: &IntDb) -> std::io::Result<()> {
         writeln!(o, "\tkind {};", self.kind)?;
-        writeln!(o, "\tcolumns {};", self.columns)?;
         writeln!(o, "\trows {};", self.rows)?;
         writeln!(
             o,
             "\tcols_bram {};",
             self.cols_bram.iter().map(|x| x.to_string()).join(", ")
         )?;
-        for &(col_hclk, col_start, col_end) in &self.cols_clkv {
-            writeln!(o, "\tcol_clkv {col_hclk} = {col_start}..{col_end};")?;
+        for (cols, &col_hclk) in &self.cols_clkv {
+            writeln!(o, "\tcol_clkv {col_hclk} = {cols};")?;
         }
         for (k, pad) in &self.cfg_io {
             writeln!(o, "\tcfg_io {k} = {pad};", pad = pad.to_string(db))?;
