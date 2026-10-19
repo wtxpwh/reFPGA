@@ -1496,7 +1496,7 @@ chip CHIP11 {
 		io quad 3, // Y22
 		null, // Y23
 	}
-	rows_ram Y3, Y20;
+	rows_ram Y4..Y20;
 	row_hclk Y8 = Y0..Y12;
 	row_hclk Y16 = Y12..Y24;
 	dcms 2;
@@ -1629,7 +1629,7 @@ chip CHIP12 {
 		io quad 3, // Y34
 		null, // Y35
 	}
-	rows_ram Y5, Y30;
+	rows_ram Y6..Y30;
 	row_hclk Y6 = Y0..Y10;
 	row_hclk Y14 = Y10..Y18;
 	row_hclk Y22 = Y18..Y26;
@@ -1788,7 +1788,7 @@ chip CHIP13 {
 		io quad 3, // Y46
 		null, // Y47
 	}
-	rows_ram Y3, Y44;
+	rows_ram Y4..Y44;
 	row_hclk Y8 = Y0..Y12;
 	row_hclk Y16 = Y12..Y24;
 	row_hclk Y32 = Y24..Y36;
@@ -1973,7 +1973,7 @@ chip CHIP14 {
 		io quad 3, // Y60
 		null, // Y61
 	}
-	rows_ram Y2, Y59;
+	rows_ram Y3..Y59;
 	row_hclk Y7 = Y0..Y15;
 	row_hclk Y23 = Y15..Y31;
 	row_hclk Y39 = Y31..Y47;
@@ -2191,7 +2191,7 @@ chip CHIP15 {
 		io quad 3, // Y76
 		null, // Y77
 	}
-	rows_ram Y2, Y75;
+	rows_ram Y3..Y75;
 	row_hclk Y7 = Y0..Y11;
 	row_hclk Y15 = Y11..Y23;
 	row_hclk Y31 = Y23..Y39;

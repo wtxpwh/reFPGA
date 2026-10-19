@@ -20,6 +20,10 @@ impl<I: EntityIdArith, V> EntityRangeVec<I, V> {
         self.items.len()
     }
 
+    pub fn len_ranges(&self) -> usize {
+        self.ranges.len()
+    }
+
     pub fn is_empty(&self) -> bool {
         self.items.is_empty()
     }
@@ -63,6 +67,10 @@ impl<I: EntityIdArith, V> EntityRangeVec<I, V> {
         IterMut {
             inner: self.ranges.values_mut(),
         }
+    }
+
+    pub fn inner_separators(&self) -> impl DoubleEndedIterator<Item = I> + ExactSizeIterator {
+        self.ranges.values().skip(1).map(|&(r, _)| r.start())
     }
 
     pub fn push(&mut self, num: usize, val: V) -> EntityRange<I> {

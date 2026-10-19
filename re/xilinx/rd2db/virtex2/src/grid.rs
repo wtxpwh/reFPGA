@@ -1,6 +1,6 @@
 use std::collections::{BTreeMap, BTreeSet, HashMap};
 
-use prjcombine_entity::EntityVec;
+use prjcombine_entity::{EntityIdArith, EntityRange, EntityRangeVec, EntityVec};
 use prjcombine_interconnect::grid::{ColId, DieIdExt, RowId};
 use prjcombine_re_xilinx_rawdump::{Coord, Part, TkSiteSlot};
 use prjcombine_virtex2::{
@@ -320,17 +320,17 @@ fn get_rows(rd: &Part, int: &IntGrid, kind: ChipKind) -> EntityVec<RowId, RowIoK
     res
 }
 
-fn get_rows_ram(rd: &Part, int: &IntGrid, kind: ChipKind) -> Option<(RowId, RowId)> {
+fn get_rows_ram(rd: &Part, int: &IntGrid, kind: ChipKind) -> Option<EntityRange<RowId>> {
     if kind == ChipKind::Spartan3E {
-        let b = int.lookup_row(find_row(rd, &["COB_TERM_B"]).unwrap());
+        let b: RowId = int.lookup_row(find_row(rd, &["COB_TERM_B"]).unwrap()) + 1;
         let t = int.lookup_row(find_row(rd, &["COB_TERM_T"]).unwrap());
-        Some((b, t))
+        Some(b.range(t))
     } else {
         None
     }
 }
 
-fn get_rows_hclk(rd: &Part, int: &IntGrid) -> Vec<(RowId, RowId, RowId)> {
+fn get_rows_hclk(rd: &Part, int: &IntGrid) -> EntityRangeVec<RowId, RowId> {
     let rows_hclk: Vec<_> = find_rows(rd, &["GCLKH"])
         .into_iter()
         .map(|r| int.lookup_row(r - 1) + 1)
@@ -347,12 +347,12 @@ fn get_rows_hclk(rd: &Part, int: &IntGrid) -> Vec<(RowId, RowId, RowId)> {
     rows_brk_d.insert(int.rows.first_id().unwrap());
     assert_eq!(rows_hclk.len(), rows_brk.len());
     assert_eq!(rows_hclk.len(), rows_brk_d.len());
-    rows_hclk
-        .into_iter()
-        .zip(rows_brk_d)
-        .zip(rows_brk)
-        .map(|((a, b), c)| (a, b, c))
-        .collect()
+    let mut res = EntityRangeVec::new();
+    for ((row_w, row_e), row_m) in rows_brk_d.into_iter().zip(rows_brk).zip(rows_hclk) {
+        let rows = row_w.range(row_e);
+        assert_eq!(rows, res.push(rows.len(), row_m));
+    }
+    res
 }
 
 fn get_row_pci(rd: &Part, int: &IntGrid, kind: ChipKind) -> Option<RowId> {

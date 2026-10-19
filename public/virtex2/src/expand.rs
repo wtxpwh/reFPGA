@@ -331,18 +331,18 @@ impl Expander<'_, '_> {
             if cd.kind != ColumnKind::Bram {
                 continue;
             }
-            if let Some((b, t)) = self.chip.rows_ram {
+            if let Some(rows_ram) = self.chip.rows_ram {
                 self.holes.push(Rect {
                     die: self.die,
                     col_w: col,
                     col_e: col + 4,
-                    row_s: b,
-                    row_n: t + 1,
+                    row_s: rows_ram.start() - 1,
+                    row_n: rows_ram.end() + 1,
                 });
                 for d in 1..4 {
                     self.egrid.fill_conn_pair(
-                        self.die.cell(col + d, b - 1),
-                        self.die.cell(col + d, t + 1),
+                        self.die.cell(col + d, rows_ram.start() - 2),
+                        self.die.cell(col + d, rows_ram.end() + 1),
                         ccls::TERM_BRAM_N,
                         ccls::TERM_BRAM_S,
                     );
@@ -772,11 +772,8 @@ impl Expander<'_, '_> {
             }
         }
         if self.chip.kind == ChipKind::Spartan3 {
-            for &(_, _, row) in &self.chip.rows_hclk {
+            for row in self.chip.rows_hclk.inner_separators() {
                 if row == self.chip.row_mid() {
-                    continue;
-                }
-                if row - 1 == self.chip.row_n() {
                     continue;
                 }
                 for cell in self.egrid.row(self.die, row) {
@@ -998,7 +995,7 @@ impl Expander<'_, '_> {
                     self.chip.col_clk
                 }
             };
-            for &(row_m, row_b, row_t) in &self.chip.rows_hclk {
+            for (rows, &row_m) in &self.chip.rows_hclk {
                 let row_q = if self.chip.kind.is_virtex2() {
                     row_m
                 } else if row_m < self.chip.row_mid() {
@@ -1006,7 +1003,7 @@ impl Expander<'_, '_> {
                 } else {
                     self.chip.row_mid()
                 };
-                for row in row_b.range(row_m) {
+                for row in rows.start().range(row_m) {
                     let row_root = if matches!(self.chip.columns[col].kind, ColumnKind::BramCont(_))
                         && self.chip.kind.is_spartan3a()
                     {
@@ -1018,7 +1015,7 @@ impl Expander<'_, '_> {
                     self.egrid[cell].region_root[rslots::LEAF] = cell.with_row(row_root);
                     self.egrid[cell].region_root[rslots::HCLK] = self.die.cell(col_q, row_q);
                 }
-                for row in row_m.range(row_t) {
+                for row in row_m.range(rows.end()) {
                     let cell = self.die.cell(col, row);
                     self.egrid[cell].region_root[rslots::LEAF] = cell.with_row(row_m);
                     self.egrid[cell].region_root[rslots::HCLK] = self.die.cell(col_q, row_q);
@@ -1037,7 +1034,7 @@ impl Expander<'_, '_> {
     }
 
     fn fill_hrow(&mut self) {
-        for &(row_m, _, _) in &self.chip.rows_hclk {
+        for &row_m in self.chip.rows_hclk.values() {
             if self.chip.kind.is_virtex2() {
                 let kind = if row_m == self.chip.row_s() + 1 {
                     tcls::HROW_S

@@ -57,11 +57,10 @@ pub fn draw_device(name: &str, edev: ExpandedDevice) -> Drawer {
             y += H_PCI;
         } else if edev.chip.kind.is_spartan3ea() && edev.chip.row_mid() == row {
             y += H_CLK;
-        } else if edev.chip.rows_hclk.iter().any(|&(_, b, _)| b == row) && row != edev.chip.row_s()
-        {
+        } else if edev.chip.rows_hclk.range(row).start() == row && row != edev.chip.row_s() {
             y += H_BRKH;
         }
-        if edev.chip.rows_hclk.iter().any(|&(m, _, _)| m == row) {
+        if edev.chip.rows_hclk[row] == row {
             y += H_GCLKH;
         }
         let b = y;
@@ -113,12 +112,11 @@ pub fn draw_device(name: &str, edev: ExpandedDevice) -> Drawer {
         if cd.kind != prjcombine_virtex2::chip::ColumnKind::Bram {
             continue;
         }
-        let (row_b, row_t): (RowId, RowId) = if let Some((row_b, row_t)) = edev.chip.rows_ram {
-            (row_b + 1, row_t)
-        } else {
-            (edev.chip.row_s() + 1, edev.chip.row_n())
-        };
-        for row in row_b.range(row_t).into_iter().step_by(4) {
+        let rows = edev.chip.rows_ram.unwrap_or({
+            let row_b: RowId = edev.chip.row_s() + 1;
+            row_b.range(edev.chip.row_n())
+        });
+        for row in rows.into_iter().step_by(4) {
             if edev.chip.kind != ChipKind::Spartan3E && edev.is_in_hole(Chip::DIE.cell(col, row)) {
                 continue;
             }

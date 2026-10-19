@@ -150,14 +150,14 @@ impl ExpandedDevice<'_> {
     pub fn btile_llv_s(&self, col: ColId) -> BitRect {
         assert_eq!(self.chip.kind, ChipKind::Spartan3E);
         assert!(self.chip.has_ll);
-        let bit = self.chip.rows_hclk.len() / 2;
+        let bit = self.chip.rows_hclk.len_ranges() / 2;
         BitRect::Main(self.col_frame[col], 19, bit, 1, false)
     }
 
     pub fn btile_llv_n(&self, col: ColId) -> BitRect {
         assert_eq!(self.chip.kind, ChipKind::Spartan3E);
         assert!(self.chip.has_ll);
-        let bit = 16 + self.chip.rows.len() * 64 + 11 + self.chip.rows_hclk.len() / 2;
+        let bit = 16 + self.chip.rows.len() * 64 + 11 + self.chip.rows_hclk.len_ranges() / 2;
         BitRect::Main(self.col_frame[col], 19, bit, 2, false)
     }
 
@@ -177,8 +177,8 @@ impl ExpandedDevice<'_> {
         let hclk_idx = self
             .chip
             .rows_hclk
-            .iter()
-            .position(|&(hrow, _, _)| hrow == cell.row)
+            .values()
+            .position(|&hrow| hrow == cell.row)
             .unwrap();
         let bit = if cell.row <= self.chip.row_mid() {
             if self.chip.kind.is_spartan3a() {
@@ -187,7 +187,7 @@ impl ExpandedDevice<'_> {
                 hclk_idx
             }
         } else {
-            let hclk_idx = self.chip.rows_hclk.len() - hclk_idx - 1;
+            let hclk_idx = self.chip.rows_hclk.len_ranges() - hclk_idx - 1;
             if self.chip.kind.is_spartan3a() || self.chip.has_ll {
                 16 + height * self.chip.rows.len() + 11 + hclk_idx
             } else {

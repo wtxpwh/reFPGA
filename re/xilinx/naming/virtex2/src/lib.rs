@@ -87,16 +87,15 @@ impl Namer<'_> {
     }
 
     fn fill_hclklut(&mut self) {
-        for (i, &(row_m, _, _)) in self.chip.rows_hclk.iter().enumerate() {
+        for (i, &row_m) in self.chip.rows_hclk.values().enumerate() {
             self.hclklut.insert(row_m, i);
         }
     }
 
     fn fill_rows_brk(&mut self) {
-        for &(_, _, r) in &self.chip.rows_hclk {
-            self.rows_brk.insert(r - 1);
+        for row in self.chip.rows_hclk.inner_separators() {
+            self.rows_brk.insert(row - 1);
         }
-        self.rows_brk.remove(&self.chip.row_n());
         if self.chip.kind != ChipKind::Spartan3ADsp {
             self.rows_brk.remove(&(self.chip.row_mid() - 1));
         }
@@ -970,7 +969,7 @@ impl Namer<'_> {
 
     fn get_hclk_name(&self, cell: CellCoord) -> (&'static str, String) {
         if !self.chip.kind.is_spartan3ea() {
-            let mut r = self.chip.rows_hclk.len() - self.hclklut[cell.row];
+            let mut r = self.chip.rows_hclk.len_ranges() - self.hclklut[cell.row];
             if self.chip.columns[cell.col].kind == ColumnKind::Bram {
                 let c = self.bramclut[cell.col];
                 ("HCLK", format!("GCLKHR{r}BRAMC{c}"))
@@ -1026,7 +1025,7 @@ impl Namer<'_> {
                                 "BRAM2_GCLKH_FEEDTHRUA",
                             ][x as usize - 1]
                         }
-                    } else if self.hclklut[cell.row] == self.chip.rows_hclk.len() - 1 {
+                    } else if self.hclklut[cell.row] == self.chip.rows_hclk.len_ranges() - 1 {
                         naming = "HCLK_BRAM_N";
                         if self.chip.kind == ChipKind::Spartan3E {
                             [
@@ -1952,7 +1951,7 @@ pub fn name_device<'a>(edev: &'a ExpandedDevice<'a>, ndb: &'a NamingDb) -> Expan
                     format!(
                         "GLOBALSIG_X{x}Y{y}",
                         x = namer.xlut[chip.col_clk] + 1,
-                        y = chip.rows_hclk.len() + 2
+                        y = chip.rows_hclk.len_ranges() + 2
                     ),
                 );
             }
@@ -1972,7 +1971,7 @@ pub fn name_device<'a>(edev: &'a ExpandedDevice<'a>, ndb: &'a NamingDb) -> Expan
                 let ntile = namer.ngrid.name_tile(tcrd, tcname, names);
                 let vy = namer.vcc_ylut[chip.row_mid()] - 1;
                 let vx = 0;
-                let gsy = chip.rows_hclk.len().div_ceil(2) + 1;
+                let gsy = chip.rows_hclk.len_ranges().div_ceil(2) + 1;
                 ntile.tie_name = Some(format!("VCC_X{vx}Y{vy}"));
                 ntile.add_bel(bslots::BUFGMUX[0], "BUFGMUX_X0Y2".to_string());
                 ntile.add_bel(bslots::BUFGMUX[1], "BUFGMUX_X0Y3".to_string());
@@ -2001,7 +2000,7 @@ pub fn name_device<'a>(edev: &'a ExpandedDevice<'a>, ndb: &'a NamingDb) -> Expan
                 let ntile = namer.ngrid.name_tile(tcrd, tcname, names);
                 let vy = namer.vcc_ylut[chip.row_mid()] - 1;
                 let vx = namer.vcc_xlut[chip.col_e()] + 1;
-                let gsy = chip.rows_hclk.len().div_ceil(2) + 1;
+                let gsy = chip.rows_hclk.len_ranges().div_ceil(2) + 1;
                 ntile.tie_name = Some(format!("VCC_X{vx}Y{vy}"));
                 ntile.add_bel(bslots::BUFGMUX[0], "BUFGMUX_X3Y2".to_string());
                 ntile.add_bel(bslots::BUFGMUX[1], "BUFGMUX_X3Y3".to_string());
@@ -2102,7 +2101,7 @@ pub fn name_device<'a>(edev: &'a ExpandedDevice<'a>, ndb: &'a NamingDb) -> Expan
                 }
             }
             tcls::HROW | tcls::HROW_S | tcls::HROW_N => {
-                let mut r = chip.rows_hclk.len() - namer.hclklut[row];
+                let mut r = chip.rows_hclk.len_ranges() - namer.hclklut[row];
                 // I hate ISE.
                 if chip.columns.len() == 12 {
                     r -= 1;

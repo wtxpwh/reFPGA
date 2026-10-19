@@ -1,5 +1,5 @@
 use bincode::{Decode, Encode};
-use prjcombine_entity::{EntityId, EntityVec};
+use prjcombine_entity::{EntityId, EntityRange, EntityRangeVec, EntityVec};
 use prjcombine_interconnect::db::{BelSlotId, CellSlotId, IntDb};
 use prjcombine_interconnect::dir::{Dir, DirH, DirHV, DirV};
 use prjcombine_interconnect::grid::{
@@ -66,9 +66,9 @@ pub struct Chip {
     pub cols_gt: BTreeMap<ColId, (u32, u32)>,
     pub rows: EntityVec<RowId, RowIoKind>,
     // For Spartan 3E: range of rows containing RAMs
-    pub rows_ram: Option<(RowId, RowId)>,
-    // (hclk row, start row, end row)
-    pub rows_hclk: Vec<(RowId, RowId, RowId)>,
+    pub rows_ram: Option<EntityRange<RowId>>,
+    // row -> hclk row
+    pub rows_hclk: EntityRangeVec<RowId, RowId>,
     // For Virtex 2
     pub row_pci: Option<RowId>,
     pub holes_ppc: Vec<(ColId, RowId)>,
@@ -313,12 +313,8 @@ impl Chip {
     }
 
     pub fn bram_row(&self, row: RowId) -> Option<usize> {
-        if let Some((b, t)) = self.rows_ram {
-            if row <= b || row >= t {
-                None
-            } else {
-                Some((row.to_idx() - (b.to_idx() + 1)) % 4)
-            }
+        if let Some(rows_ram) = self.rows_ram {
+            rows_ram.index_of(row).map(|idx| idx % 4)
         } else {
             if row == self.row_s() || row == self.row_n() {
                 None
@@ -1135,15 +1131,13 @@ impl Chip {
         if let Some((cl, cr)) = self.cols_clkv {
             writeln!(o, "\tcols_clkv {cl}, {cr};")?;
         }
-        let mut clkv_idx = 0;
         writeln!(o, "\trows {{")?;
         for (row, rd) in &self.rows {
-            if row == self.rows_hclk[clkv_idx].0 {
+            if row == self.rows_hclk[row] {
                 writeln!(o, "\t\t// clock row")?;
             }
-            if row == self.rows_hclk[clkv_idx].2 {
+            if row == self.rows_hclk.range(row).start() && row != self.row_s() {
                 writeln!(o, "\t\t// clock break")?;
-                clkv_idx += 1;
             }
             if Some(row) == self.row_pci {
                 writeln!(o, "\t\t// PCI row")?;
@@ -1162,11 +1156,11 @@ impl Chip {
                 RowIoKind::DoubleN(i) => write!(o, "io double n {i}")?,
             }
             write!(o, ", // {row}")?;
-            if let Some((row_s, row_n)) = self.rows_ram {
-                if row == row_s {
+            if let Some(rows_ram) = self.rows_ram {
+                if row == rows_ram.start() - 1 {
                     write!(o, " BRAM S TERM")?;
                 }
-                if row == row_n {
+                if row == rows_ram.end() {
                     write!(o, " BRAM N TERM")?;
                 }
             }
@@ -1176,11 +1170,11 @@ impl Chip {
         if let Some(row) = self.row_pci {
             writeln!(o, "\trow_pci {row};")?;
         }
-        if let Some((rb, rt)) = self.rows_ram {
-            writeln!(o, "\trows_ram {rb}, {rt};")?;
+        if let Some(rows_ram) = self.rows_ram {
+            writeln!(o, "\trows_ram {rows_ram};")?;
         }
-        for &(row_hclk, row_start, row_end) in &self.rows_hclk {
-            writeln!(o, "\trow_hclk {row_hclk} = {row_start}..{row_end};")?;
+        for (rows, &row_hclk) in &self.rows_hclk {
+            writeln!(o, "\trow_hclk {row_hclk} = {rows};")?;
         }
         for &(col, row) in &self.holes_ppc {
             writeln!(

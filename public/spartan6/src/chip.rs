@@ -239,19 +239,19 @@ impl Chip {
     }
 
     pub fn row_s(&self) -> RowId {
-        RowId::from_idx(0)
+        self.rows.first_id().unwrap()
     }
 
     pub fn row_s_inner(&self) -> RowId {
-        RowId::from_idx(1)
+        self.row_s() + 1
     }
 
     pub fn row_n(&self) -> RowId {
-        RowId::from_idx(self.rows.len() - 1)
+        self.rows.last_id().unwrap()
     }
 
     pub fn row_n_inner(&self) -> RowId {
-        RowId::from_idx(self.rows.len() - 2)
+        self.row_n() - 1
     }
 
     pub fn row_edge(&self, edge: DirV) -> RowId {
