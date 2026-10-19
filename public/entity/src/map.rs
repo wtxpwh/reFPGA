@@ -61,7 +61,7 @@ where
     }
 
     pub fn next_id(&self) -> I {
-        I::from_idx(self.len())
+        self.ids().end()
     }
 
     pub fn clear(&mut self) {

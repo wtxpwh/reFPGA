@@ -18,7 +18,6 @@ fn build_map<I: EntityId, T>(
 ) -> Result<EntityBundleMap<I, T>, bincode::error::DecodeError> {
     let mut ids = EntityPartVec::new();
     for (bid, _, &(idx, _)) in &bundles {
-        //
         match idx {
             EntityBundleIndices::Single(idx) => {
                 if ids.insert(idx, bid).is_some() {

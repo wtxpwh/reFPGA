@@ -1,4 +1,4 @@
-use prjcombine_entity::EntityVec;
+use prjcombine_entity::{EntityIdArith, EntityVec};
 use prjcombine_interconnect::grid::{DieIdExt, RowId};
 use prjcombine_virtex2::chip::{Chip, ChipKind, ColumnIoKind, ColumnKind, DcmPairKind, RowIoKind};
 use prjcombine_virtex2::expanded::ExpandedDevice;

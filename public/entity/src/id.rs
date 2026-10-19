@@ -1,6 +1,7 @@
 //! ID types.
-use core::hash::Hash;
 use core::marker::PhantomData;
+use core::ops::{AddAssign, Sub, SubAssign};
+use core::{hash::Hash, ops::Add};
 
 use std::{
     fmt::{Debug, Display},
@@ -19,6 +20,27 @@ pub trait EntityId:
 {
     fn from_idx(idx: usize) -> Self;
     fn to_idx(self) -> usize;
+}
+
+pub trait EntityIdArith:
+    EntityId
+    + Add<usize, Output = Self>
+    + AddAssign<usize>
+    + Sub<usize, Output = Self>
+    + SubAssign<usize>
+    + Add<isize, Output = Self>
+    + AddAssign<isize>
+    + Sub<isize, Output = Self>
+    + SubAssign<isize>
+    + Add<i32, Output = Self>
+    + AddAssign<i32>
+    + Sub<i32, Output = Self>
+    + SubAssign<i32>
+    + Sub<Self, Output = isize>
+{
+    fn range(self, other: Self) -> EntityRange<Self> {
+        EntityRange::new(self.to_idx(), other.to_idx())
+    }
 }
 
 /// Marker for types usable as ID tag types.
@@ -255,8 +277,8 @@ macro_rules! make_id {
             }
         }
 
-        impl<Tag: EntityTagArith> $ty<Tag> {
-            pub fn range(self, other: Self) -> $crate::id::EntityRange<Self> {
+        impl<Tag: EntityTagArith> EntityIdArith for $ty<Tag> {
+            fn range(self, other: Self) -> $crate::id::EntityRange<Self> {
                 use $crate::EntityId;
                 $crate::id::EntityRange::new(self.to_idx(), other.to_idx())
             }
@@ -325,12 +347,11 @@ macro_rules! entity_id_u32 {
 // range
 
 /// A range of IDs.
-#[derive(Copy, Clone, Debug, Eq, PartialEq)]
+#[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
 #[cfg_attr(feature = "bincode", derive(Encode, Decode))]
 pub struct EntityRange<I: EntityId> {
-    start: usize,
-    end: usize,
-    ids: PhantomData<I>,
+    start: I,
+    end: I,
 }
 
 impl<I: EntityId> EntityRange<I> {
@@ -338,14 +359,13 @@ impl<I: EntityId> EntityRange<I> {
     pub fn new(start: usize, end: usize) -> Self {
         assert!(start <= end);
         Self {
-            start,
-            end,
-            ids: PhantomData,
+            start: I::from_idx(start),
+            end: I::from_idx(end),
         }
     }
 
     pub fn len(self) -> usize {
-        self.end - self.start
+        self.end.to_idx() - self.start.to_idx()
     }
 
     pub fn is_empty(self) -> bool {
@@ -369,14 +389,14 @@ impl<I: EntityId> EntityRange<I> {
 
     /// Returns the lower bound of this range, even if it is empty.
     pub fn start(self) -> I {
-        I::from_idx(self.start)
+        self.start
     }
 
     /// Returns the upper bound of this range, even if it is empty.
     ///
     /// In other words, returns the ID that immediately follows this range.
     pub fn end(self) -> I {
-        I::from_idx(self.end)
+        self.end
     }
 
     /// Returns the first ID in the range, or `None` if the range is empty.
@@ -384,7 +404,7 @@ impl<I: EntityId> EntityRange<I> {
         if self.start == self.end {
             None
         } else {
-            Some(I::from_idx(self.start))
+            Some(self.start)
         }
     }
 
@@ -393,7 +413,7 @@ impl<I: EntityId> EntityRange<I> {
         if self.start == self.end {
             None
         } else {
-            Some(I::from_idx(self.end - 1))
+            Some(I::from_idx(self.end.to_idx() - 1))
         }
     }
 
@@ -403,15 +423,15 @@ impl<I: EntityId> EntityRange<I> {
     /// it requires us to return a reference which we cannot materialize.
     pub fn index(self, idx: usize) -> I {
         assert!(idx < self.len());
-        I::from_idx(self.start + idx)
+        I::from_idx(self.start.to_idx() + idx)
     }
 
     /// Return the position of `id` in this range, if present.
     pub fn index_of(&self, id: I) -> Option<usize> {
-        if id.to_idx() < self.start || id.to_idx() >= self.end {
+        if id.to_idx() < self.start.to_idx() || id.to_idx() >= self.end.to_idx() {
             None
         } else {
-            Some(id.to_idx() - self.start)
+            Some(id.to_idx() - self.start.to_idx())
         }
     }
 
@@ -427,10 +447,16 @@ impl<I: EntityId> IntoIterator for EntityRange<I> {
 
     fn into_iter(self) -> Self::IntoIter {
         EntityRangeIter {
-            start: self.start,
-            end: self.end,
+            start: self.start.to_idx(),
+            end: self.end.to_idx(),
             ids: PhantomData,
         }
+    }
+}
+
+impl<I: EntityId + Display> std::fmt::Display for EntityRange<I> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{s}..{e}", s = self.start, e = self.end)
     }
 }
 

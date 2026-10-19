@@ -7,7 +7,7 @@ use prjcombine_ecp::{
     },
     defs::bslots,
 };
-use prjcombine_entity::{EntityId, EntityVec};
+use prjcombine_entity::{EntityId, EntityIdArith, EntityVec};
 use prjcombine_interconnect::{
     db::{IntDb, PinDir},
     dir::{Dir, DirH, DirHV, DirV},

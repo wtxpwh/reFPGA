@@ -2,6 +2,7 @@ use prjcombine_ecp::{
     chip::{ChipKind, RowKind},
     defs::{self, bcls, bslots, cslots, tcls, tslots},
 };
+use prjcombine_entity::EntityIdArith;
 use prjcombine_interconnect::db::Bel;
 
 use super::ChipContext;

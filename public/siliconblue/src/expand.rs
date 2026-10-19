@@ -1,4 +1,4 @@
-use prjcombine_entity::{EntityId, EntityVec};
+use prjcombine_entity::{EntityId, EntityIdArith, EntityVec};
 use prjcombine_interconnect::{
     db::IntDb,
     dir::Dir,

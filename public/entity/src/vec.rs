@@ -134,11 +134,7 @@ impl<I: EntityId, V> EntityVec<I, V> {
     }
 
     pub fn first_id(&self) -> Option<I> {
-        if self.is_empty() {
-            None
-        } else {
-            Some(I::from_idx(0))
-        }
+        self.ids().first()
     }
 
     pub fn last(&self) -> Option<&V> {
@@ -150,15 +146,11 @@ impl<I: EntityId, V> EntityVec<I, V> {
     }
 
     pub fn last_id(&self) -> Option<I> {
-        if self.is_empty() {
-            None
-        } else {
-            Some(I::from_idx(self.len() - 1))
-        }
+        self.ids().last()
     }
 
     pub fn next_id(&self) -> I {
-        I::from_idx(self.len())
+        self.ids().end()
     }
 
     /// See [`[T]::binary_search`].

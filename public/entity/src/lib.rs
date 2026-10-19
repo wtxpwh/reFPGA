@@ -1,9 +1,11 @@
 pub mod id;
 pub mod part;
+pub mod range_vec;
 pub mod vec;
 
-pub use id::{EntityId, EntityRange};
+pub use id::{EntityId, EntityIdArith, EntityRange};
 pub use part::EntityPartVec;
+pub use range_vec::EntityRangeVec;
 pub use vec::EntityVec;
 
 #[cfg(feature = "map")]

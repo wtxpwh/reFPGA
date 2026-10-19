@@ -91,23 +91,15 @@ impl<I: EntityId> EntityBitVec<I> {
     }
 
     pub fn first_id(&self) -> Option<I> {
-        if self.is_empty() {
-            None
-        } else {
-            Some(I::from_idx(0))
-        }
+        self.ids().first()
     }
 
     pub fn last_id(&self) -> Option<I> {
-        if self.is_empty() {
-            None
-        } else {
-            Some(I::from_idx(self.len() - 1))
-        }
+        self.ids().last()
     }
 
     pub fn next_id(&self) -> I {
-        I::from_idx(self.len())
+        self.ids().end()
     }
 
     pub fn pop(&mut self) -> Option<(I, bool)> {

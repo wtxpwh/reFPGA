@@ -1,4 +1,4 @@
-use prjcombine_entity::{EntityId, EntityRange, EntityVec};
+use prjcombine_entity::{EntityId, EntityIdArith, EntityRange, EntityVec};
 use prjcombine_interconnect::db::{ConnectorClassId, IntDb};
 use prjcombine_interconnect::dir::{DirH, DirV};
 use prjcombine_interconnect::grid::builder::GridBuilder;

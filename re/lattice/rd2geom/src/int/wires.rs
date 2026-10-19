@@ -4,7 +4,7 @@ use prjcombine_ecp::{
     chip::{ChipKind, RowKind},
     defs::{bslots, cslots, wiredata, wires},
 };
-use prjcombine_entity::EntityId;
+use prjcombine_entity::{EntityId, EntityIdArith};
 use prjcombine_interconnect::{
     db::{BelInput, CellSlotId, TileWireCoord, WireKind},
     dir::Dir,

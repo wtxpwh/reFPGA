@@ -1,5 +1,5 @@
 use indicatif::ProgressBar;
-use prjcombine_entity::{EntityBundleItemIndex, EntityId};
+use prjcombine_entity::{EntityBundleItemIndex, EntityId, EntityIdArith};
 use prjcombine_interconnect::{
     db::{BelInfo, BelInputId, BelKind, SwitchBoxItem, WireSlotIdExt},
     dir::Dir,
