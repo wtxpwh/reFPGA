@@ -1151,6 +1151,16 @@ impl Chip {
         for (io, (cell, lut)) in &self.io_direct_plc {
             writeln!(o, "\tio_direct {io} = {cell}_{lut};", io = io.to_string(db))?;
         }
+        if self.extra_frames_w != 0 || self.extra_frames_e != 0 {
+            writeln!(
+                o,
+                "\textra_frames {}, {};",
+                self.extra_frames_w, self.extra_frames_e
+            )?;
+        }
+        if self.double_frames {
+            writeln!(o, "\tdouble_frames;")?;
+        }
         Ok(())
     }
 }

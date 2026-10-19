@@ -116,6 +116,7 @@ chip CHIP0 {
 	special_io DOUT = D0X8Y18.IO[0];
 	special_io DI = D0X5Y18.IO[0];
 	special_io BUSY = D0X12Y18.IO[1];
+	extra_frames 3, 3;
 }
 
 // LFXP6C LFXP6E
@@ -250,6 +251,7 @@ chip CHIP1 {
 	special_io DOUT = D0X11Y26.IO[0];
 	special_io DI = D0X8Y26.IO[0];
 	special_io BUSY = D0X15Y26.IO[1];
+	extra_frames 3, 11;
 }
 
 // LFXP10C LFXP10E
@@ -406,6 +408,8 @@ chip CHIP2 {
 	special_io DOUT = D0X15Y35.IO[0];
 	special_io DI = D0X12Y35.IO[0];
 	special_io BUSY = D0X19Y35.IO[1];
+	extra_frames 3, 3;
+	double_frames;
 }
 
 // LFXP15C LFXP15E
@@ -580,6 +584,8 @@ chip CHIP3 {
 	special_io DOUT = D0X20Y43.IO[0];
 	special_io DI = D0X17Y43.IO[0];
 	special_io BUSY = D0X24Y43.IO[1];
+	extra_frames 5, 5;
+	double_frames;
 }
 
 // LFXP20C LFXP20E
@@ -766,6 +772,8 @@ chip CHIP4 {
 	special_io DOUT = D0X24Y47.IO[0];
 	special_io DI = D0X21Y47.IO[0];
 	special_io BUSY = D0X28Y47.IO[1];
+	extra_frames 1, 1;
+	double_frames;
 }
 
 // LFXP3C-TQFP100 LFXP3E-TQFP100
