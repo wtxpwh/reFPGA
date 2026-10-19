@@ -15,7 +15,7 @@ use prjcombine_ecp::{
 use prjcombine_entity::{EntityId, EntityVec};
 use prjcombine_interconnect::{
     db::{BelInfo, BelSlotId, IntDb, TileClassId, TileWireCoord},
-    grid::{BelCoord, CellCoord, ColId, WireCoord},
+    grid::{BelCoord, CellCoord, WireCoord},
 };
 use prjcombine_re_lattice_naming::{ChipNaming, Database, WireName};
 use prjcombine_re_lattice_rawdump::{Grid, GridId, NodeId};
@@ -66,7 +66,6 @@ struct ChipContext<'dev> {
     io_int_names: BTreeMap<WireCoord, WireName>,
     hybrid_out: BTreeMap<WireName, (BelCoord, WireCoord, BTreeSet<TileWireCoord>)>,
     sorted_wires: BTreeMap<(CellCoord, &'static str), BTreeMap<String, WireName>>,
-    pclk_cols: EntityVec<ColId, (ColId, ColId)>,
     hsdclk_locs: BTreeMap<WireName, CellCoord>,
     keep_nodes: BTreeSet<WireName>,
     discard_nodes: BTreeSet<WireName>,
@@ -426,7 +425,6 @@ fn process_chip(name: &str, grid: &Grid, kind: ChipKind, intdb: &IntDb) -> ChipR
         io_int_names: Default::default(),
         hybrid_out: Default::default(),
         sorted_wires: Default::default(),
-        pclk_cols: Default::default(),
         hsdclk_locs: Default::default(),
         discard_nodes: Default::default(),
         keep_nodes: Default::default(),

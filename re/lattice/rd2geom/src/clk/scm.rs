@@ -26,8 +26,7 @@ impl ChipContext<'_> {
                 }
                 let pclk = self.naming.interconnect[&cell.wire(pclk)];
                 let cur_hpbx = self.claim_single_in(pclk);
-                let col_tag = self.pclk_cols[cell.col].0;
-                let cell_tag = cell.with_col(col_tag);
+                let cell_tag = cell.with_col(self.chip.cols_pclk[cell.col]);
                 match hpbx.entry((cell_tag, i)) {
                     btree_map::Entry::Vacant(e) => {
                         e.insert(cur_hpbx);
@@ -37,49 +36,46 @@ impl ChipContext<'_> {
                     }
                 }
             }
-            for cell in self.edev.die_cells(Chip::DIE) {
-                if !self.chip.columns[cell.col].pclk_drive {
-                    continue;
-                }
-                let col_tag = self.pclk_cols[cell.col].0;
-                let cell_tag = cell.with_col(col_tag);
-                let Some(&cur_hpbx) = hpbx.get(&(cell_tag, i)) else {
-                    continue;
-                };
-                let bcrd = cell.bel(bslots::INT);
-                if !self.edev.has_bel(bcrd) && i == 0 {
-                    self.name_bel_null(bcrd);
-                }
-                self.add_bel_wire(bcrd, format!("PCLK{i}"), cur_hpbx);
-                let cur_vpsx = self.claim_single_in(cur_hpbx);
-                self.add_bel_wire_no_claim(bcrd, format!("PCLK{i}_IN"), cur_vpsx);
-                let v = if cell.row < self.chip.row_clk {
-                    DirV::S
-                } else {
-                    DirV::N
-                };
-                match vpsx.entry((cell.col, v, i)) {
-                    btree_map::Entry::Vacant(e) => {
-                        e.insert(cur_vpsx);
-                        self.claim_node(cur_vpsx);
-                        let h = if cell.col < self.chip.col_clk {
-                            DirH::W
-                        } else {
-                            DirH::E
-                        };
-                        let hv = DirHV { h, v };
-                        let cur_hpcx = self.claim_single_in(cur_vpsx);
-                        match hpcx.entry((hv, i)) {
-                            btree_map::Entry::Vacant(e) => {
-                                e.insert(cur_hpcx);
-                            }
-                            btree_map::Entry::Occupied(e) => {
-                                assert_eq!(*e.get(), cur_hpcx);
+            for &col_drv in self.chip.cols_pclk.values() {
+                for cell in self.edev.column(Chip::DIE, col_drv) {
+                    let Some(&cur_hpbx) = hpbx.get(&(cell, i)) else {
+                        continue;
+                    };
+                    let bcrd = cell.bel(bslots::INT);
+                    if !self.edev.has_bel(bcrd) && i == 0 {
+                        self.name_bel_null(bcrd);
+                    }
+                    self.add_bel_wire(bcrd, format!("PCLK{i}"), cur_hpbx);
+                    let cur_vpsx = self.claim_single_in(cur_hpbx);
+                    self.add_bel_wire_no_claim(bcrd, format!("PCLK{i}_IN"), cur_vpsx);
+                    let v = if cell.row < self.chip.row_clk {
+                        DirV::S
+                    } else {
+                        DirV::N
+                    };
+                    match vpsx.entry((cell.col, v, i)) {
+                        btree_map::Entry::Vacant(e) => {
+                            e.insert(cur_vpsx);
+                            self.claim_node(cur_vpsx);
+                            let h = if cell.col < self.chip.col_clk {
+                                DirH::W
+                            } else {
+                                DirH::E
+                            };
+                            let hv = DirHV { h, v };
+                            let cur_hpcx = self.claim_single_in(cur_vpsx);
+                            match hpcx.entry((hv, i)) {
+                                btree_map::Entry::Vacant(e) => {
+                                    e.insert(cur_hpcx);
+                                }
+                                btree_map::Entry::Occupied(e) => {
+                                    assert_eq!(*e.get(), cur_hpcx);
+                                }
                             }
                         }
-                    }
-                    btree_map::Entry::Occupied(e) => {
-                        assert_eq!(*e.get(), cur_vpsx);
+                        btree_map::Entry::Occupied(e) => {
+                            assert_eq!(*e.get(), cur_vpsx);
+                        }
                     }
                 }
             }

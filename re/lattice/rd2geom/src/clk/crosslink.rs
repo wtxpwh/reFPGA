@@ -18,24 +18,26 @@ impl ChipContext<'_> {
         let mut hprx = BTreeMap::new();
         for i in 0..8 {
             let pclk = wires::PCLK[i];
-            let mut driven = false;
-            for (col, cd) in &self.chip.columns {
-                if !cd.pclk_drive {
-                    if cd.pclk_break {
-                        driven = false;
-                    }
-                    continue;
-                }
-                let h = if col < self.chip.col_clk {
+            for (cols, &col_drv) in &self.chip.cols_pclk {
+                let h = if col_drv < self.chip.col_clk {
                     DirH::W
                 } else {
                     DirH::E
                 };
                 let mut vptx = None;
-                for col_tgt in [col - 1, col] {
-                    if col_tgt == col - 1 && driven {
-                        continue;
-                    }
+                let col_tgt = [
+                    if cols.start() != col_drv {
+                        Some(col_drv - 1)
+                    } else {
+                        None
+                    },
+                    if cols.end() != col_drv {
+                        Some(col_drv)
+                    } else {
+                        None
+                    },
+                ];
+                for col_tgt in col_tgt.into_iter().flatten() {
                     for row in self.chip.rows.ids() {
                         let cell = Chip::DIE.cell(col_tgt, row);
                         let pclk = self.naming.interconnect[&cell.wire(pclk)];
@@ -46,7 +48,7 @@ impl ChipContext<'_> {
                         } else {
                             assert_eq!(vptx, Some(cur_vptx));
                         }
-                        if col == col_tgt {
+                        if col_tgt == col_drv {
                             self.add_bel_wire_no_claim(
                                 cell.bel(bslots::INT),
                                 format!("PCLK{i}_IN"),
@@ -64,7 +66,6 @@ impl ChipContext<'_> {
                         assert_eq!(*e.get(), cur_hprx);
                     }
                 }
-                driven = true;
             }
         }
         hprx

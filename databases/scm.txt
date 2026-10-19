@@ -16,7 +16,7 @@ chip CHIP0 {
 		null, // X11
 		io_n[1, quad], // X12
 		null, // X13
-		io_s[5, dozen] + io_n[1, dozen] + pclk_drive, // X14
+		io_s[5, dozen] + io_n[1, dozen], // X14 PCLK_DRIVE
 		null, // X15
 		null, // X16
 		null, // X17
@@ -29,7 +29,8 @@ chip CHIP0 {
 		null, // X24
 		null, // X25
 		// clock
-		io_s[4, dozen] + io_n[1, dozen] + pclk_break, // X26
+		// PCLK break
+		io_s[4, dozen] + io_n[1, dozen], // X26
 		null, // X27
 		null, // X28
 		null, // X29
@@ -41,7 +42,7 @@ chip CHIP0 {
 		null, // X35
 		null, // X36
 		null, // X37
-		io_s[4, dozen] + io_n[1, dozen] + pclk_drive, // X38
+		io_s[4, dozen] + io_n[1, dozen], // X38 PCLK_DRIVE
 		null, // X39
 		null, // X40
 		null, // X41
@@ -57,6 +58,8 @@ chip CHIP0 {
 		null, // X51
 	}
 	col_clk X26;
+	col_pclk X0..X26 = X14;
+	col_pclk X26..X52 = X38;
 	rows {
 		io, // Y0
 		plc + io_w[6, dozen] + io_e[3, dozen], // Y1
@@ -300,7 +303,7 @@ chip CHIP1 {
 		null, // X19
 		null, // X20
 		null, // X21
-		io_s[5, dozen] + io_n[1, dozen] + pclk_drive, // X22
+		io_s[5, dozen] + io_n[1, dozen], // X22 PCLK_DRIVE
 		null, // X23
 		null, // X24
 		null, // X25
@@ -315,7 +318,8 @@ chip CHIP1 {
 		io_s[5, quad] + io_n[1, quad], // X34
 		null, // X35
 		// clock
-		io_s[4, dozen] + io_n[1, dozen] + pclk_break, // X36
+		// PCLK break
+		io_s[4, dozen] + io_n[1, dozen], // X36
 		null, // X37
 		null, // X38
 		null, // X39
@@ -329,7 +333,7 @@ chip CHIP1 {
 		null, // X47
 		io_s[4, quad] + io_n[1, quad], // X48
 		null, // X49
-		io_s[4, dozen] + io_n[12, serdes] + pclk_drive, // X50
+		io_s[4, dozen] + io_n[12, serdes], // X50 PCLK_DRIVE
 		null, // X51
 		null, // X52
 		null, // X53
@@ -353,6 +357,8 @@ chip CHIP1 {
 		null, // X71
 	}
 	col_clk X36;
+	col_pclk X0..X36 = X22;
+	col_pclk X36..X72 = X50;
 	rows {
 		io, // Y0
 		plc + io_w[6, dozen] + io_e[3, dozen], // Y1
@@ -598,7 +604,7 @@ chip CHIP2 {
 		null, // X9
 		io_s[5, quad], // X10
 		null, // X11
-		io_s[5, dozen] + pclk_drive, // X12
+		io_s[5, dozen], // X12 PCLK_DRIVE
 		null, // X13
 		io_n[11, serdes], // X14
 		null, // X15
@@ -606,7 +612,8 @@ chip CHIP2 {
 		null, // X17
 		null, // X18
 		null, // X19
-		io_s[5, dozen] + pclk_break, // X20
+		// PCLK break
+		io_s[5, dozen], // X20
 		io_n[1, dozen], // X21
 		null, // X22
 		null, // X23
@@ -618,7 +625,7 @@ chip CHIP2 {
 		io_n[1, octal], // X29
 		null, // X30
 		null, // X31
-		io_s[5, dozen] + io_n[1, dozen] + pclk_drive, // X32
+		io_s[5, dozen] + io_n[1, dozen], // X32 PCLK_DRIVE
 		null, // X33
 		null, // X34
 		null, // X35
@@ -631,7 +638,8 @@ chip CHIP2 {
 		null, // X42
 		null, // X43
 		// clock
-		io_s[4, dozen] + io_n[1, dozen] + pclk_break, // X44
+		// PCLK break
+		io_s[4, dozen] + io_n[1, dozen], // X44
 		null, // X45
 		null, // X46
 		null, // X47
@@ -643,7 +651,7 @@ chip CHIP2 {
 		null, // X53
 		null, // X54
 		null, // X55
-		io_s[4, dozen] + io_n[1, dozen] + pclk_drive, // X56
+		io_s[4, dozen] + io_n[1, dozen], // X56 PCLK_DRIVE
 		null, // X57
 		null, // X58
 		null, // X59
@@ -655,7 +663,8 @@ chip CHIP2 {
 		null, // X65
 		null, // X66
 		io_n[12, serdes], // X67
-		io_s[4, dozen] + pclk_break, // X68
+		// PCLK break
+		io_s[4, dozen], // X68
 		null, // X69
 		null, // X70
 		null, // X71
@@ -663,7 +672,7 @@ chip CHIP2 {
 		null, // X73
 		null, // X74
 		null, // X75
-		io_s[4, dozen] + pclk_drive, // X76
+		io_s[4, dozen], // X76 PCLK_DRIVE
 		null, // X77
 		null, // X78
 		null, // X79
@@ -677,6 +686,10 @@ chip CHIP2 {
 		null, // X87
 	}
 	col_clk X44;
+	col_pclk X0..X20 = X12;
+	col_pclk X20..X44 = X32;
+	col_pclk X44..X68 = X56;
+	col_pclk X68..X88 = X76;
 	rows {
 		io, // Y0
 		plc + io_w[6, dozen] + io_e[3, dozen], // Y1
@@ -938,7 +951,7 @@ chip CHIP3 {
 		null, // X11
 		null, // X12
 		null, // X13
-		io_s[5, dozen] + io_n[11, serdes] + pclk_drive, // X14
+		io_s[5, dozen] + io_n[11, serdes], // X14 PCLK_DRIVE
 		null, // X15
 		null, // X16
 		null, // X17
@@ -956,7 +969,8 @@ chip CHIP3 {
 		null, // X29
 		io_s[5, dozen], // X30
 		null, // X31
-		pclk_break, // X32
+		// PCLK break
+		null, // X32
 		null, // X33
 		io_s[5, dozen], // X34
 		null, // X35
@@ -974,7 +988,7 @@ chip CHIP3 {
 		null, // X47
 		null, // X48
 		null, // X49
-		io_s[5, dozen] + io_n[1, dozen] + pclk_drive, // X50
+		io_s[5, dozen] + io_n[1, dozen], // X50 PCLK_DRIVE
 		null, // X51
 		null, // X52
 		null, // X53
@@ -989,7 +1003,8 @@ chip CHIP3 {
 		io_s[5, quad] + io_n[1, quad], // X62
 		null, // X63
 		// clock
-		io_s[4, dozen] + io_n[1, dozen] + pclk_break, // X64
+		// PCLK break
+		io_s[4, dozen] + io_n[1, dozen], // X64
 		null, // X65
 		null, // X66
 		null, // X67
@@ -1003,7 +1018,7 @@ chip CHIP3 {
 		null, // X75
 		io_s[4, quad] + io_n[1, quad], // X76
 		null, // X77
-		io_s[4, dozen] + pclk_drive, // X78
+		io_s[4, dozen], // X78 PCLK_DRIVE
 		io_n[16, serdes], // X79
 		null, // X80
 		null, // X81
@@ -1021,7 +1036,8 @@ chip CHIP3 {
 		io_n[14, serdes], // X93
 		io_s[4, dozen], // X94
 		null, // X95
-		pclk_break, // X96
+		// PCLK break
+		null, // X96
 		null, // X97
 		io_s[4, dozen], // X98
 		null, // X99
@@ -1039,7 +1055,7 @@ chip CHIP3 {
 		null, // X111
 		null, // X112
 		null, // X113
-		io_s[4, dozen] + pclk_drive, // X114
+		io_s[4, dozen], // X114 PCLK_DRIVE
 		null, // X115
 		null, // X116
 		null, // X117
@@ -1055,6 +1071,10 @@ chip CHIP3 {
 		null, // X127
 	}
 	col_clk X64;
+	col_pclk X0..X32 = X14;
+	col_pclk X32..X64 = X50;
+	col_pclk X64..X96 = X78;
+	col_pclk X96..X128 = X114;
 	rows {
 		io, // Y0
 		plc + io_w[6, dozen] + io_e[3, dozen], // Y1
@@ -1350,7 +1370,7 @@ chip CHIP4 {
 		null, // X21
 		io_s[5, quad], // X22
 		null, // X23
-		io_s[5, dozen] + pclk_drive, // X24
+		io_s[5, dozen], // X24 PCLK_DRIVE
 		null, // X25
 		null, // X26
 		null, // X27
@@ -1364,7 +1384,8 @@ chip CHIP4 {
 		null, // X35
 		io_s[5, dozen], // X36
 		null, // X37
-		pclk_break, // X38
+		// PCLK break
+		null, // X38
 		null, // X39
 		io_s[5, dozen], // X40
 		null, // X41
@@ -1378,7 +1399,7 @@ chip CHIP4 {
 		io_n[1, octal], // X49
 		null, // X50
 		null, // X51
-		io_s[5, dozen] + io_n[1, dozen] + pclk_drive, // X52
+		io_s[5, dozen] + io_n[1, dozen], // X52 PCLK_DRIVE
 		null, // X53
 		null, // X54
 		null, // X55
@@ -1399,7 +1420,8 @@ chip CHIP4 {
 		null, // X70
 		null, // X71
 		// clock
-		io_s[4, dozen] + io_n[1, dozen] + pclk_break, // X72
+		// PCLK break
+		io_s[4, dozen] + io_n[1, dozen], // X72
 		null, // X73
 		null, // X74
 		null, // X75
@@ -1419,7 +1441,7 @@ chip CHIP4 {
 		null, // X89
 		null, // X90
 		null, // X91
-		io_s[4, dozen] + io_n[1, octal] + pclk_drive, // X92
+		io_s[4, dozen] + io_n[1, octal], // X92 PCLK_DRIVE
 		null, // X93
 		null, // X94
 		io_n[16, serdes], // X95
@@ -1433,7 +1455,8 @@ chip CHIP4 {
 		null, // X103
 		io_s[4, dozen], // X104
 		null, // X105
-		pclk_break, // X106
+		// PCLK break
+		null, // X106
 		null, // X107
 		io_s[4, dozen], // X108
 		io_n[14, serdes], // X109
@@ -1447,7 +1470,7 @@ chip CHIP4 {
 		null, // X117
 		null, // X118
 		null, // X119
-		io_s[4, dozen] + pclk_drive, // X120
+		io_s[4, dozen], // X120 PCLK_DRIVE
 		null, // X121
 		io_n[12, serdes], // X122
 		null, // X123
@@ -1473,6 +1496,10 @@ chip CHIP4 {
 		null, // X143
 	}
 	col_clk X72;
+	col_pclk X0..X38 = X24;
+	col_pclk X38..X72 = X52;
+	col_pclk X72..X106 = X92;
+	col_pclk X106..X144 = X120;
 	rows {
 		io, // Y0
 		plc + io_w[6, dozen] + io_e[3, dozen], // Y1

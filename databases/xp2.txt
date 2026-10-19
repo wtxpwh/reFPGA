@@ -2,7 +2,7 @@
 chip CHIP0 {
 	kind xp2;
 	columns {
-		null, // X0
+		null, // X0 PCLK_DRIVE
 		io_s[5, double_dummy] + io_n[0, double_dummy], // X1
 		io_s[5, double_dummy] + io_n[0, double_dummy], // X2
 		io_s[5, double_dummy] + io_n[0, double_dummy], // X3
@@ -22,7 +22,8 @@ chip CHIP0 {
 		io_s[5, double] + io_n[0, double], // X17
 		io_s[5, double] + io_n[0, double], // X18
 		// clock
-		io_s[4, double] + io_n[1, double] + pclk_break + sdclk_break, // X19
+		// PCLK break
+		io_s[4, double] + io_n[1, double] + sdclk_break, // X19 PCLK_DRIVE
 		io_s[4, double] + io_n[1, double], // X20
 		io_s[4, double] + io_n[1, double], // X21
 		io_s[4, double] + io_n[1, double], // X22
@@ -34,6 +35,8 @@ chip CHIP0 {
 		null, // X28
 	}
 	col_clk X19;
+	col_pclk X0..X19 = X0;
+	col_pclk X19..X29 = X19;
 	rows {
 		io, // Y0
 		fplc + io_w[6, double] + io_e[3, double_dummy], // Y1
@@ -137,7 +140,7 @@ chip CHIP0 {
 chip CHIP1 {
 	kind xp2;
 	columns {
-		null, // X0
+		null, // X0 PCLK_DRIVE
 		io_s[5, double] + io_n[0, double], // X1
 		io_s[5, double] + io_n[0, double], // X2
 		io_s[5, double] + io_n[0, double], // X3
@@ -157,7 +160,8 @@ chip CHIP1 {
 		io_s[5, double] + io_n[0, double], // X17
 		io_s[5, double] + io_n[0, double], // X18
 		// clock
-		io_s[4, double] + io_n[1, double] + pclk_break + sdclk_break, // X19
+		// PCLK break
+		io_s[4, double] + io_n[1, double] + sdclk_break, // X19 PCLK_DRIVE
 		io_s[4, double] + io_n[1, double], // X20
 		io_s[4, double] + io_n[1, double], // X21
 		io_s[4, double] + io_n[1, double], // X22
@@ -178,6 +182,8 @@ chip CHIP1 {
 		null, // X37
 	}
 	col_clk X19;
+	col_pclk X0..X19 = X0;
+	col_pclk X19..X38 = X19;
 	rows {
 		io, // Y0
 		fplc + io_w[6, double] + io_e[3, double_dummy], // Y1
@@ -288,7 +294,7 @@ chip CHIP1 {
 chip CHIP2 {
 	kind xp2;
 	columns {
-		null, // X0
+		null, // X0 PCLK_DRIVE
 		io_s[5, double_dummy] + io_n[0, double_dummy], // X1
 		io_s[5, double] + io_n[0, double], // X2
 		io_s[5, double] + io_n[0, double], // X3
@@ -317,7 +323,8 @@ chip CHIP2 {
 		io_s[5, double] + io_n[0, double], // X26
 		io_s[5, double] + io_n[0, double], // X27
 		// clock
-		io_s[4, double] + io_n[1, double] + pclk_break + sdclk_break, // X28
+		// PCLK break
+		io_s[4, double] + io_n[1, double] + sdclk_break, // X28 PCLK_DRIVE
 		io_s[4, double] + io_n[1, double], // X29
 		io_s[4, double] + io_n[1, double], // X30
 		io_s[4, double] + io_n[1, double], // X31
@@ -338,6 +345,8 @@ chip CHIP2 {
 		null, // X46
 	}
 	col_clk X28;
+	col_pclk X0..X28 = X0;
+	col_pclk X28..X47 = X28;
 	rows {
 		io, // Y0
 		fplc + io_w[6, double] + io_e[3, double_dummy], // Y1
@@ -471,7 +480,7 @@ chip CHIP2 {
 chip CHIP3 {
 	kind xp2;
 	columns {
-		null, // X0
+		null, // X0 PCLK_DRIVE
 		io_s[5, double_dummy] + io_n[0, double_dummy], // X1
 		io_s[5, double] + io_n[0, double], // X2
 		io_s[5, double] + io_n[0, double], // X3
@@ -509,7 +518,8 @@ chip CHIP3 {
 		io_s[5, double] + io_n[0, double], // X35
 		io_s[5, double] + io_n[0, double], // X36
 		// clock
-		io_s[4, double] + io_n[1, double] + pclk_break + sdclk_break, // X37
+		// PCLK break
+		io_s[4, double] + io_n[1, double] + sdclk_break, // X37 PCLK_DRIVE
 		io_s[4, double] + io_n[1, double], // X38
 		io_s[4, double] + io_n[1, double], // X39
 		io_s[4, double] + io_n[1, double], // X40
@@ -539,6 +549,8 @@ chip CHIP3 {
 		null, // X64
 	}
 	col_clk X37;
+	col_pclk X0..X37 = X0;
+	col_pclk X37..X65 = X37;
 	rows {
 		io, // Y0
 		fplc + io_w[6, double_dummy] + io_e[3, double_dummy], // Y1
@@ -684,7 +696,7 @@ chip CHIP3 {
 chip CHIP4 {
 	kind xp2;
 	columns {
-		null, // X0
+		null, // X0 PCLK_DRIVE
 		io_s[5, double_dummy] + io_n[0, double_dummy], // X1
 		io_s[5, double] + io_n[0, double], // X2
 		io_s[5, double] + io_n[0, double], // X3
@@ -722,7 +734,8 @@ chip CHIP4 {
 		io_s[5, double] + io_n[0, double], // X35
 		io_s[5, double] + io_n[0, double], // X36
 		// clock
-		io_s[4, double] + io_n[1, double] + pclk_break + sdclk_break, // X37
+		// PCLK break
+		io_s[4, double] + io_n[1, double] + sdclk_break, // X37 PCLK_DRIVE
 		io_s[4, double] + io_n[1, double], // X38
 		io_s[4, double] + io_n[1, double], // X39
 		io_s[4, double] + io_n[1, double], // X40
@@ -761,6 +774,8 @@ chip CHIP4 {
 		null, // X73
 	}
 	col_clk X37;
+	col_pclk X0..X37 = X0;
+	col_pclk X37..X74 = X37;
 	rows {
 		io, // Y0
 		fplc + io_w[6, double_dummy] + io_e[3, double_dummy], // Y1

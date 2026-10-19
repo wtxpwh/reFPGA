@@ -13,7 +13,7 @@ chip CHIP0 {
 		null, // X8
 		null, // X9
 		null, // X10
-		io_s[2, quad] + pclk_drive + pclk_break, // X11
+		io_s[2, quad], // X11 PCLK_DRIVE
 		null, // X12
 		null, // X13
 		null, // X14
@@ -24,7 +24,8 @@ chip CHIP0 {
 		null, // X19
 		null, // X20
 		// clock
-		pclk_break, // X21
+		// PCLK break
+		null, // X21
 		null, // X22
 		null, // X23
 		null, // X24
@@ -35,7 +36,7 @@ chip CHIP0 {
 		null, // X29
 		null, // X30
 		null, // X31
-		pclk_drive + pclk_break, // X32
+		null, // X32 PCLK_DRIVE
 		io_s[1, quad], // X33
 		null, // X34
 		null, // X35
@@ -45,7 +46,8 @@ chip CHIP0 {
 		null, // X39
 		null, // X40
 		null, // X41
-		io_s[1, quad] + pclk_drive + pclk_break, // X42
+		// PCLK break
+		io_s[1, quad], // X42 PCLK_DRIVE
 		null, // X43
 		null, // X44
 		null, // X45
@@ -58,6 +60,9 @@ chip CHIP0 {
 		io_s[0, single], // X52
 	}
 	col_clk X21;
+	col_pclk X0..X21 = X11;
+	col_pclk X21..X42 = X32;
+	col_pclk X42..X53 = X42;
 	rows {
 		io, // Y0
 		plc, // Y1

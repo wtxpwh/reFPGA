@@ -1,7 +1,7 @@
 use std::{collections::BTreeMap, fmt::Display};
 
 use bincode::{Decode, Encode};
-use prjcombine_entity::{EntityId, EntityVec};
+use prjcombine_entity::{EntityId, EntityRangeVec, EntityVec};
 use prjcombine_interconnect::{
     db::IntDb,
     dir::{Dir, DirH, DirHV, DirV},
@@ -131,6 +131,13 @@ pub struct Chip {
     pub rows: EntityVec<RowId, Row>,
     pub col_clk: ColId,
     pub row_clk: RowId,
+    // column -> PCLK driver column
+    // valid on: scm, ecp2, xp2, ecp5, crosslink
+    // on ecp2/xp2, only the ranges are valid, the values carry no information and are set to range start
+    pub cols_pclk: EntityRangeVec<ColId, ColId>,
+    // row -> PCLK driver row
+    // valid on: ecp3, machxo2, ecp4
+    pub rows_pclk: EntityRangeVec<RowId, RowId>,
     pub special_loc: BTreeMap<SpecialLocKey, CellCoord>,
     pub special_io: BTreeMap<SpecialIoKey, BelCoord>,
     pub io_direct_plc: BTreeMap<BelCoord, (CellCoord, usize)>,
@@ -232,8 +239,6 @@ pub struct Column {
     pub bank_n: Option<u32>,
     pub eclk_tap_s: bool,
     pub eclk_tap_n: bool,
-    pub pclk_break: bool,
-    pub pclk_drive: bool,
     pub sdclk_break: bool,
 }
 
@@ -245,8 +250,6 @@ pub struct Row {
     pub bank_w: Option<u32>,
     pub bank_e: Option<u32>,
     pub sclk_break: bool,
-    pub pclk_break: bool,
-    pub pclk_drive: bool,
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Encode, Decode)]
@@ -883,15 +886,23 @@ impl Chip {
         }
     }
 
+    pub fn row_serdes(&self, edge: DirV) -> RowId {
+        match (self.kind, edge) {
+            (ChipKind::Scm, DirV::N) => self.row_n() - 12,
+            (ChipKind::Ecp2M, DirV::S) => self.row_s() + 7,
+            (ChipKind::Ecp2M, DirV::N) => self.row_n() - 7,
+            (ChipKind::Ecp3(_), DirV::S) => self.row_s() + 9,
+            (ChipKind::Ecp4 | ChipKind::Ecp5, DirV::S) => self.row_s(),
+            _ => unreachable!(),
+        }
+    }
+
     pub fn try_bel_serdes_ecp2(&self, hv: DirHV) -> Option<BelCoord> {
         let col = match hv.h {
             DirH::W => self.col_w() + 1,
             DirH::E => self.col_e() - 27,
         };
-        let row = match hv.v {
-            DirV::S => self.row_s() + 7,
-            DirV::N => self.row_n() - 7,
-        };
+        let row = self.row_serdes(hv.v);
         let cell = Self::DIE.cell(col, row);
         let io_kind = match hv.v {
             DirV::S => self.columns[col].io_s,
@@ -905,28 +916,8 @@ impl Chip {
     }
 
     pub fn bel_serdes(&self, edge: DirV, col: ColId) -> BelCoord {
-        match self.kind {
-            ChipKind::Scm => {
-                assert_eq!(edge, DirV::N);
-                Self::DIE.cell(col, self.row_n() - 12).bel(bslots::SERDES)
-            }
-            ChipKind::Ecp2M => {
-                let row = match edge {
-                    DirV::S => self.row_s() + 7,
-                    DirV::N => self.row_n() - 7,
-                };
-                Self::DIE.cell(col, row).bel(bslots::SERDES)
-            }
-            ChipKind::Ecp3(_) => {
-                assert_eq!(edge, DirV::S);
-                Self::DIE.cell(col, self.row_s() + 9).bel(bslots::SERDES)
-            }
-            ChipKind::Ecp5 => {
-                assert_eq!(edge, DirV::S);
-                Self::DIE.cell(col, self.row_s()).bel(bslots::SERDES)
-            }
-            _ => unreachable!(),
-        }
+        let row = self.row_serdes(edge);
+        Self::DIE.cell(col, row).bel(bslots::SERDES)
     }
 
     pub fn bel_mipi(&self, col: ColId) -> BelCoord {
@@ -1035,6 +1026,12 @@ impl Chip {
             if self.col_clk == col {
                 writeln!(o, "\t\t// clock")?;
             }
+            if !self.cols_pclk.is_empty()
+                && self.cols_pclk.range(col).start() == col
+                && col != self.col_w()
+            {
+                writeln!(o, "\t\t// PCLK break")?;
+            }
             write!(o, "\t\t")?;
             let mut first = true;
             if cd.io_s != IoGroupKind::None {
@@ -1075,22 +1072,6 @@ impl Chip {
                 }
                 write!(o, "eclk_tap_n")?;
             }
-            if cd.pclk_drive {
-                if first {
-                    first = false;
-                } else {
-                    write!(o, " + ")?;
-                }
-                write!(o, "pclk_drive")?;
-            }
-            if cd.pclk_break {
-                if first {
-                    first = false;
-                } else {
-                    write!(o, " + ")?;
-                }
-                write!(o, "pclk_break")?;
-            }
             if cd.sdclk_break {
                 if first {
                     first = false;
@@ -1102,14 +1083,30 @@ impl Chip {
             if first {
                 write!(o, "null")?;
             }
-            writeln!(o, ", // {col}")?;
+            write!(o, ", // {col}")?;
+            if !self.cols_pclk.is_empty()
+                && (self.cols_pclk[col] == col
+                    || (col != self.col_w() && self.cols_pclk[col - 1] == col))
+            {
+                write!(o, " PCLK_DRIVE")?;
+            }
+            writeln!(o)?;
         }
         writeln!(o, "\t}}")?;
         writeln!(o, "\tcol_clk {};", self.col_clk)?;
+        for (cols, &col_pclk) in &self.cols_pclk {
+            writeln!(o, "\tcol_pclk {cols} = {col_pclk};")?;
+        }
         writeln!(o, "\trows {{")?;
         for (row, rd) in &self.rows {
             if self.row_clk == row {
                 writeln!(o, "\t\t// clock")?;
+            }
+            if !self.rows_pclk.is_empty()
+                && self.rows_pclk.range(row).start() == row
+                && row != self.row_s()
+            {
+                writeln!(o, "\t\t// PCLK break")?;
             }
             write!(o, "\t\t{kind}", kind = rd.kind)?;
             if rd.io_w != IoGroupKind::None {
@@ -1128,19 +1125,23 @@ impl Chip {
                     io_e = rd.io_e
                 )?;
             }
-            if rd.pclk_drive {
-                write!(o, " + pclk_drive")?;
-            }
-            if rd.pclk_break {
-                write!(o, " + pclk_break")?;
-            }
             if rd.sclk_break {
                 write!(o, " + sclk_break")?;
             }
-            writeln!(o, ", // {row}")?;
+            write!(o, ", // {row}")?;
+            if !self.rows_pclk.is_empty()
+                && (self.rows_pclk[row] == row
+                    || (row != self.row_s() && self.rows_pclk[row - 1] == row))
+            {
+                write!(o, " PCLK_DRIVE")?;
+            }
+            writeln!(o)?;
         }
         writeln!(o, "\t}}")?;
         writeln!(o, "\trow_clk {};", self.row_clk)?;
+        for (rows, &row_pclk) in &self.rows_pclk {
+            writeln!(o, "\trow_pclk {rows} = {row_pclk};")?;
+        }
 
         for (k, v) in &self.special_loc {
             writeln!(o, "\tspecial_loc {k} = {v};")?;

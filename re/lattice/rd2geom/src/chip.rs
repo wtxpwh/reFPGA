@@ -7,7 +7,7 @@ use prjcombine_ecp::{
     },
     defs::bslots,
 };
-use prjcombine_entity::{EntityId, EntityIdArith, EntityVec};
+use prjcombine_entity::{EntityId, EntityIdArith, EntityRangeVec, EntityVec};
 use prjcombine_interconnect::{
     db::{IntDb, PinDir},
     dir::{Dir, DirH, DirHV, DirV},
@@ -203,12 +203,13 @@ impl ChipBuilder<'_> {
         let hpbx0001 = self.naming.strings.get("HPBX0001").unwrap();
         let vpsx0000 = self.naming.strings.get("VPSX0000").unwrap();
         let mut clks: BTreeMap<u8, Vec<ColId>> = BTreeMap::new();
+        let mut pclk_drive = BTreeSet::new();
         for &(nf, nt) in self.grid.pips.keys() {
             let wfn = self.nodes[nf];
             let wtn = self.nodes[nt];
             if wfn.suffix == vpsx0000 {
                 let cell = self.chip.xlat_rc_wire(wfn);
-                self.chip.columns[cell.col + 1].pclk_drive = true;
+                pclk_drive.insert(cell.col + 1);
             }
             if wtn.suffix == hpbx0001 {
                 let cell = self.chip.xlat_rc_wire(wtn);
@@ -217,20 +218,25 @@ impl ChipBuilder<'_> {
                 }
             }
         }
-        let mut next = ColId::from_idx(0);
         for (_, mut cols) in clks {
             cols.sort();
             let col_start = cols[0];
-            assert_eq!(col_start, next);
+            assert_eq!(col_start, self.chip.cols_pclk.next_id());
+            let mut col_drv = None;
             for (i, &col) in cols.iter().enumerate() {
                 assert_eq!(col, col_start + i);
+                if pclk_drive.contains(&col) {
+                    assert_eq!(col_drv, None);
+                    col_drv = Some(col);
+                }
             }
-            if col_start.to_idx() != 0 {
-                self.chip.columns[col_start].pclk_break = true;
-            }
-            next = col_start + cols.len();
+            self.chip.cols_pclk.push(cols.len(), col_drv.unwrap());
         }
-        assert!(self.chip.columns[self.chip.col_clk].pclk_break);
+        assert_eq!(self.chip.cols_pclk.len(), self.chip.columns.len());
+        assert_eq!(
+            self.chip.cols_pclk.range(self.chip.col_clk).start(),
+            self.chip.col_clk
+        );
     }
 
     fn fill_pclk_ecp2(&mut self) {
@@ -248,20 +254,16 @@ impl ChipBuilder<'_> {
                 }
             }
         }
-        let mut next = ColId::from_idx(0);
         for (_, mut cols) in clks {
             cols.sort();
             let col_start = cols[0];
-            assert_eq!(col_start, next);
+            assert_eq!(col_start, self.chip.cols_pclk.next_id());
             for (i, &col) in cols.iter().enumerate() {
                 assert_eq!(col, col_start + i);
             }
-            if col_start.to_idx() != 0 {
-                self.chip.columns[col_start].pclk_break = true;
-            }
-            next = col_start + cols.len();
+            self.chip.cols_pclk.push(cols.len(), cols[0]);
         }
-        assert!(self.chip.columns[self.chip.col_clk].pclk_break);
+        assert_eq!(self.chip.cols_pclk[self.chip.col_clk], self.chip.col_clk);
     }
 
     fn fill_pclk_ecp3(&mut self) {
@@ -276,6 +278,7 @@ impl ChipBuilder<'_> {
                 clks.entry(wfn).or_default().push(cell.row);
             }
         }
+        let mut breaks = vec![];
         let mut clks = Vec::from_iter(clks);
         clks.sort_by_key(|(_, rows)| rows[0]);
         let mut next = RowId::from_idx(0);
@@ -286,12 +289,12 @@ impl ChipBuilder<'_> {
             for (i, &col) in rows.iter().enumerate() {
                 assert_eq!(col, row_start + i);
             }
-            if row_start.to_idx() != 0 {
-                self.chip.rows[row_start].pclk_break = true;
-            }
+            breaks.push(row_start);
             next = row_start + rows.len();
         }
+        breaks.push(next);
         let clko0b = self.naming.strings.get("CLKO0T_DCC").unwrap();
+        let mut drivers = BTreeSet::new();
         for &wn in self.nodes.values() {
             if wn.suffix == clko0b {
                 let mut cell = self.chip.xlat_rc_wire(wn);
@@ -300,8 +303,14 @@ impl ChipBuilder<'_> {
                 {
                     cell.row = self.chip.row_s();
                 }
-                self.chip.rows[cell.row].pclk_drive = true;
+                drivers.insert(cell.row);
             }
+        }
+        for row in drivers {
+            let idx = breaks.binary_search(&row).unwrap();
+            let next = breaks[idx + 1];
+            let num = next - self.chip.rows_pclk.next_id();
+            self.chip.rows_pclk.push(num as usize, row);
         }
     }
 
@@ -319,6 +328,7 @@ impl ChipBuilder<'_> {
         let mut clks = Vec::from_iter(clks);
         clks.sort_by_key(|(_, rows)| rows[0]);
         let mut next = RowId::from_idx(0);
+        let mut breaks = vec![];
         for (_, mut rows) in clks {
             rows.sort();
             let row_start = rows[0];
@@ -326,10 +336,23 @@ impl ChipBuilder<'_> {
             for (i, &col) in rows.iter().enumerate() {
                 assert_eq!(col, row_start + i);
             }
-            if row_start.to_idx() != 0 {
-                self.chip.rows[row_start].pclk_break = true;
-            }
+            breaks.push(row_start);
             next = row_start + rows.len();
+        }
+        breaks.push(next);
+        for (row, rd) in &self.chip.rows {
+            if rd.kind != RowKind::Ebr {
+                continue;
+            }
+            let brk = if row < self.chip.row_clk {
+                row + 1
+            } else {
+                row
+            };
+            let idx = breaks.binary_search(&brk).unwrap();
+            let next = breaks[idx + 1];
+            let num = next - self.chip.rows_pclk.next_id();
+            self.chip.rows_pclk.push(num as usize, row);
         }
     }
 
@@ -337,45 +360,71 @@ impl ChipBuilder<'_> {
         let clk0 = self.naming.strings.get("CLK0").unwrap();
         let jclk0 = self.naming.strings.get("JCLK0").unwrap();
         let hpbx0200 = self.naming.strings.get("HPBX0200").unwrap();
-        let mut clks: BTreeMap<u8, Vec<ColId>> = BTreeMap::new();
+        let mut drivers = BTreeMap::new();
+        let vptx0200 = self
+            .naming
+            .strings
+            .get(if self.chip.kind == ChipKind::Crosslink {
+                "VPTX0000"
+            } else {
+                "VPTX0200"
+            })
+            .unwrap();
+        for &(nf, nt) in self.grid.pips.keys() {
+            let wfn = self.nodes[nf];
+            let wtn = self.nodes[nt];
+            if wtn.suffix == hpbx0200 {
+                let cell = self.chip.xlat_rc_wire(wtn);
+                if cell.row == self.chip.row_clk {
+                    assert_eq!(wfn.suffix, vptx0200);
+                    let col_drv = self.chip.xlat_col(wfn.c) + 1;
+                    match drivers.entry(wtn.c) {
+                        btree_map::Entry::Vacant(e) => {
+                            e.insert(col_drv);
+                        }
+                        btree_map::Entry::Occupied(e) => {
+                            assert_eq!(*e.get(), col_drv);
+                        }
+                    }
+                }
+            }
+        }
+        let mut clks: BTreeMap<ColId, (Vec<ColId>, Vec<ColId>)> = BTreeMap::new();
         for &(nf, nt) in self.grid.pips.keys() {
             let wfn = self.nodes[nf];
             let wtn = self.nodes[nt];
             if wfn.suffix == hpbx0200 && (wtn.suffix == jclk0 || wtn.suffix == clk0) {
                 let cell = self.chip.xlat_rc_wire(wtn);
                 if cell.row == self.chip.row_clk {
-                    clks.entry(wfn.c).or_default().push(cell.col);
+                    let col_drv = drivers[&wfn.c];
+                    let cols = clks.entry(col_drv).or_default();
+                    if cell.col < col_drv {
+                        cols.0.push(cell.col);
+                    } else {
+                        cols.1.push(cell.col);
+                    }
                 }
             }
         }
-        let mut next = ColId::from_idx(0);
-        let mut drive = false;
-        for (_, mut cols) in clks {
-            cols.sort();
+
+        for (col_drv, (mut cols_w, mut cols_e)) in clks {
+            cols_w.sort();
+            cols_e.sort();
+            let mut cols = cols_w;
+            cols.extend(cols_e);
             let col_start = cols[0];
-            assert_eq!(col_start, next);
+            assert_eq!(col_start, self.chip.cols_pclk.next_id());
             for (i, &col) in cols.iter().enumerate() {
                 assert_eq!(col, col_start + i);
             }
-            if col_start.to_idx() != 0 {
-                self.chip.columns[col_start].pclk_break = true;
-            }
-            self.chip.columns[col_start].pclk_drive = drive;
-            drive = !drive;
-            next = col_start + cols.len();
+            self.chip.cols_pclk.push(cols.len(), col_drv);
         }
-        assert!(self.chip.columns[self.chip.col_clk].pclk_break);
+        assert_eq!(
+            self.chip.cols_pclk.range(self.chip.col_clk).start(),
+            self.chip.col_clk
+        );
 
-        if self.chip.kind == ChipKind::Crosslink {
-            let col = self
-                .chip
-                .columns
-                .ids()
-                .rev()
-                .find(|&col| self.chip.columns[col].pclk_break)
-                .unwrap();
-            self.chip.columns[col].pclk_drive = true;
-        } else {
+        if self.chip.kind == ChipKind::Ecp5 {
             let hprx0000 = self.naming.strings.get("HPRX0000").unwrap();
             for &wn in self.nodes.values() {
                 if wn.suffix != hprx0000 {
@@ -2295,21 +2344,8 @@ impl ChipBuilder<'_> {
                 }
             }
         }
-        let col_clk_w = self
-            .chip
-            .columns
-            .ids()
-            .rev()
-            .filter(|&col| col < self.chip.col_clk)
-            .find(|&col| self.chip.columns[col].pclk_drive)
-            .unwrap();
-        let col_clk_e = self
-            .chip
-            .columns
-            .ids()
-            .filter(|&col| col >= self.chip.col_clk)
-            .find(|&col| self.chip.columns[col].pclk_drive)
-            .unwrap();
+        let col_clk_w = self.chip.cols_pclk[self.chip.col_clk - 1];
+        let col_clk_e = self.chip.cols_pclk[self.chip.col_clk];
         self.chip.special_loc.insert(
             SpecialLocKey::Bc(5),
             Chip::DIE.cell(col_clk_w, self.chip.row_s()),
@@ -3637,8 +3673,6 @@ fn init_chip(kind: ChipKind, naming: &ChipNaming, nodes: &EntityVec<NodeId, Wire
         bank_n: None,
         eclk_tap_s: false,
         eclk_tap_n: false,
-        pclk_break: false,
-        pclk_drive: false,
         sdclk_break: false,
     }));
     let rows = EntityVec::from_iter((0..max_r).map(|_| Row {
@@ -3648,8 +3682,6 @@ fn init_chip(kind: ChipKind, naming: &ChipNaming, nodes: &EntityVec<NodeId, Wire
         bank_w: None,
         bank_e: None,
         sclk_break: false,
-        pclk_break: false,
-        pclk_drive: false,
     }));
     Chip {
         kind,
@@ -3657,6 +3689,8 @@ fn init_chip(kind: ChipKind, naming: &ChipNaming, nodes: &EntityVec<NodeId, Wire
         rows,
         col_clk: ColId::from_idx(0),
         row_clk: RowId::from_idx(0),
+        cols_pclk: EntityRangeVec::new(),
+        rows_pclk: EntityRangeVec::new(),
         special_loc: BTreeMap::new(),
         special_io: BTreeMap::new(),
         io_direct_plc: BTreeMap::new(),

@@ -310,7 +310,6 @@ impl ChipContext<'_> {
     }
 
     pub(super) fn process_pclk_ecp3(&mut self) {
-        let mut is_bot = true;
         let mut vprx_wires: BTreeMap<(DirV, ColId, usize), WireName> = BTreeMap::new();
         let mut vprx_source = BTreeMap::new();
         let mut prev = self.chip.col_w();
@@ -329,25 +328,18 @@ impl ChipContext<'_> {
                 prev = col;
             }
         }
-        for (row, rd) in &self.chip.rows {
-            if !rd.pclk_drive {
-                continue;
-            }
-            let mut row_n = row;
-            let mut row_s = row - 1;
-            while row_n != self.chip.row_n() && !self.chip.rows[row_n + 1].pclk_break {
-                row_n += 1;
-            }
-            row_n += 1;
-            while !self.chip.rows[row_s].pclk_break {
-                row_s -= 1;
-            }
+        for (rows, &row_drv) in &self.chip.rows_pclk {
+            let row_s = if rows.start() == self.chip.row_s() {
+                self.chip.row_serdes(DirV::S)
+            } else {
+                rows.start()
+            };
             let mut hpsx_wires: BTreeMap<(ColId, usize), WireName> = BTreeMap::new();
             let mut vptx_wires_n: BTreeMap<(ColId, usize), WireName> = BTreeMap::new();
             let mut vptx_wires_s: BTreeMap<(ColId, usize), WireName> = BTreeMap::new();
             let mut vptx_wires_ss: BTreeMap<(ColId, usize), WireName> = BTreeMap::new();
             let mut col_hpsx = self.chip.col_w();
-            for cell in self.edev.row(Chip::DIE, row) {
+            for cell in self.edev.row(Chip::DIE, row_drv) {
                 if self.chip.columns[cell.col].sdclk_break {
                     col_hpsx = cell.col;
                 }
@@ -370,7 +362,7 @@ impl ChipContext<'_> {
                     let wire_n = self.find_single_in(wire_n);
                     self.add_bel_wire(cell.bel(bslots::INT), format!("PCLK{i}_N"), wire_n);
                     vptx_wires_n.insert((cell.col, i), wire_n);
-                    for row in cell.row.range(row_n) {
+                    for row in cell.row.range(rows.end()) {
                         let wire =
                             self.naming.interconnect[&cell.with_row(row).wire(wires::RPCLK[i])];
                         self.claim_pip(wire, wire_n);
@@ -396,7 +388,7 @@ impl ChipContext<'_> {
                             .unwrap(),
                     );
 
-                    if is_bot
+                    if rows.start() == self.chip.row_s()
                         && let Some(&wire_ss) = self
                             .naming
                             .interconnect
@@ -510,7 +502,7 @@ impl ChipContext<'_> {
             }
 
             let mut col_hpsx = self.chip.col_w();
-            for cell in self.edev.row(Chip::DIE, row) {
+            for cell in self.edev.row(Chip::DIE, row_drv) {
                 if self.chip.columns[cell.col].sdclk_break {
                     col_hpsx = cell.col;
                 }
@@ -537,8 +529,6 @@ impl ChipContext<'_> {
                         .permabuf_output_xlat_no_claim(vptx_wires_n[&(cell.col, i)]);
                 }
             }
-
-            is_bot = false;
         }
     }
 }

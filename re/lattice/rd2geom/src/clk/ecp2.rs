@@ -297,34 +297,27 @@ impl ChipContext<'_> {
             }
         }
 
-        for (col, cd) in &self.chip.columns {
-            if !cd.pclk_break && col != self.chip.col_w() {
-                continue;
-            }
-            let h = if col < self.chip.col_clk {
+        for (cols, _) in &self.chip.cols_pclk {
+            let h = if cols.start() < self.chip.col_clk {
                 DirH::W
             } else {
                 DirH::E
             };
-            'cells: for mut cell in self.edev.column(cell.die, col) {
-                let v = if cell.row < self.chip.row_clk {
-                    DirV::S
-                } else {
-                    DirV::N
-                };
-                let hv = DirHV { h, v };
-                while !self.edev.has_bel(cell.bel(bslots::INT)) {
-                    if cell.col == self.chip.col_e() {
-                        continue 'cells;
+            for row in self.chip.rows.ids() {
+                if let Some(cell) = cols
+                    .map(|col| Chip::DIE.cell(col, row))
+                    .find(|cell| self.edev.has_bel(cell.bel(bslots::INT)))
+                {
+                    let v = if cell.row < self.chip.row_clk {
+                        DirV::S
+                    } else {
+                        DirV::N
+                    };
+                    let hv = DirHV { h, v };
+                    for i in 0..8 {
+                        let pclk = cell.wire(wires::PCLK[i]);
+                        self.claim_pip_int_out(pclk, pclk_outs[&(hv, i)]);
                     }
-                    cell.col += 1;
-                    if self.chip.columns[cell.col].pclk_break {
-                        continue 'cells;
-                    }
-                }
-                for i in 0..8 {
-                    let pclk = cell.wire(wires::PCLK[i]);
-                    self.claim_pip_int_out(pclk, pclk_outs[&(hv, i)]);
                 }
             }
         }

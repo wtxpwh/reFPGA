@@ -2,7 +2,6 @@ use prjcombine_ecp::{
     chip::{ChipKind, RowKind},
     defs::{self, bcls, bslots, cslots, tcls, tslots},
 };
-use prjcombine_entity::EntityIdArith;
 use prjcombine_interconnect::db::Bel;
 
 use super::ChipContext;
@@ -12,23 +11,6 @@ mod pips;
 mod wires;
 
 impl ChipContext<'_> {
-    fn process_pclk_cols(&mut self) {
-        let mut ranges = vec![];
-        let mut prev = self.chip.col_w();
-        for (col, cd) in &self.chip.columns {
-            if cd.pclk_break {
-                ranges.push((prev, col));
-                prev = col;
-            }
-        }
-        ranges.push((prev, self.chip.col_e() + 1));
-        for (col_w, col_e) in ranges {
-            for _ in col_w.range(col_e) {
-                self.pclk_cols.push((col_w, col_e));
-            }
-        }
-    }
-
     fn process_cibtest(&mut self) {
         for (cell, cell_data) in self.edev.cells() {
             let Some(tile) = cell_data.tiles.get(tslots::INT) else {
@@ -324,7 +306,6 @@ impl ChipContext<'_> {
     }
 
     pub fn process_int(&mut self) {
-        self.process_pclk_cols();
         self.process_int_wires();
         self.process_int_pips();
         self.process_cibtest();

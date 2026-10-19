@@ -30,17 +30,12 @@ impl ChipContext<'_> {
                 } else {
                     (DirV::N, row_src)
                 };
-                assert!(self.chip.rows[row_mid].pclk_break);
-                let mut row_s = row_mid - 1;
-                let mut row_n = row_mid + 1;
-                while row_s != self.chip.row_s() && !self.chip.rows[row_s].pclk_break {
-                    row_s -= 1;
-                }
-                while row_n != (self.chip.row_n() + 1) && !self.chip.rows[row_n].pclk_break {
-                    row_n += 1;
-                }
+                let rows = self.chip.rows_pclk.range(row_src);
                 for cell_src in self.edev.row(Chip::DIE, row_src) {
-                    for (sn, range) in [('S', row_s.range(row_mid)), ('N', row_mid.range(row_n))] {
+                    for (sn, range) in [
+                        ('S', rows.start().range(row_mid)),
+                        ('N', row_mid.range(rows.end())),
+                    ] {
                         let mut vptx = None;
                         for row in range {
                             let cell = cell_src.with_row(row);

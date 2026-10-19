@@ -19,11 +19,8 @@ impl ChipContext<'_> {
         let mut hprx = BTreeMap::new();
         for i in 0..16 {
             let pclk = wires::PCLK[i];
-            for (col, cd) in &self.chip.columns {
-                if !cd.pclk_drive {
-                    continue;
-                }
-                let h = if col < self.chip.col_clk {
+            for &col_drv in self.chip.cols_pclk.values() {
+                let h = if col_drv < self.chip.col_clk {
                     DirH::W
                 } else {
                     DirH::E
@@ -33,7 +30,7 @@ impl ChipContext<'_> {
                     (DirV::N, self.chip.row_clk, self.chip.row_n() + 1),
                 ] {
                     let mut vptx = None;
-                    for col_tgt in [col - 1, col] {
+                    for col_tgt in [col_drv - 1, col_drv] {
                         for row in row_s.range(row_n) {
                             let cell = Chip::DIE.cell(col_tgt, row);
                             let pclk = self.naming.interconnect[&cell.wire(pclk)];
@@ -44,7 +41,7 @@ impl ChipContext<'_> {
                             } else {
                                 assert_eq!(vptx, Some(cur_vptx));
                             }
-                            if col == col_tgt {
+                            if col_drv == col_tgt {
                                 self.add_bel_wire_no_claim(
                                     cell.bel(bslots::INT),
                                     format!("PCLK{i}_IN"),

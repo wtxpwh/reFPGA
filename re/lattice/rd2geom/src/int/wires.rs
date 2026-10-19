@@ -203,9 +203,9 @@ impl ChipContext<'_> {
                             .map(|col| cell.with_col(col).wire(wire))
                             .collect()
                     } else {
-                        let (col_start, col_end) = self.pclk_cols[cell.col];
-                        col_start
-                            .range(col_end)
+                        self.chip
+                            .cols_pclk
+                            .range(cell.col)
                             .map(|col| cell.with_col(col).wire(wire))
                             .collect()
                     }
@@ -237,11 +237,14 @@ impl ChipContext<'_> {
                     vec![cell.wire(wire)]
                 }
                 ChipKind::Ecp5 | ChipKind::Crosslink => {
-                    let (col_start, col_end) = self.pclk_cols[cell.col];
-                    col_start
-                        .range(col_end)
-                        .map(|col| cell.with_col(col).wire(wire))
-                        .collect()
+                    let col_drv = self.chip.cols_pclk[cell.col];
+                    let cols_all = self.chip.cols_pclk.range(cell.col);
+                    let cols = if cell.col < col_drv {
+                        cols_all.start().range(col_drv)
+                    } else {
+                        col_drv.range(cols_all.end())
+                    };
+                    cols.map(|col| cell.with_col(col).wire(wire)).collect()
                 }
             }
         } else if self.chip.kind == ChipKind::Scm

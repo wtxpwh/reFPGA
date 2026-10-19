@@ -17,8 +17,8 @@ impl ChipContext<'_> {
     pub(super) fn process_int_io_wires(&mut self) {
         let mut col_group = EntityVec::new();
         let mut idx = 0;
-        for (col, cd) in &self.chip.columns {
-            if cd.pclk_drive || col == self.chip.col_clk {
+        for col in self.chip.columns.ids() {
+            if self.chip.cols_pclk[col] == col || col == self.chip.col_clk {
                 idx += 1;
             }
             col_group.push(idx);
@@ -306,8 +306,8 @@ impl ChipContext<'_> {
                 self.claim_pip(wt, wf);
             }
         }
-        for (col, cd) in &self.chip.columns {
-            if col == self.chip.col_clk || cd.pclk_drive {
+        for col in self.chip.columns.ids() {
+            if col == self.chip.col_clk || self.chip.cols_pclk[col] == col {
                 let cell_e = Chip::DIE.cell(col, self.chip.row_s());
                 let cell_w = cell_e.delta(-1, 0);
                 for (cell_to, cell_from, wire) in [

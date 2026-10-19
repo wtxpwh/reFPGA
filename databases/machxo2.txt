@@ -16,7 +16,7 @@ chip CHIP0 {
 	}
 	col_clk X5;
 	rows {
-		io + io_w[3, double] + io_e[1, quad] + pclk_drive, // Y0
+		io + io_w[3, double] + io_e[1, quad], // Y0 PCLK_DRIVE
 		plc + io_w[3, quad] + io_e[1, quad], // Y1
 		plc, // Y2
 		// clock
@@ -25,6 +25,7 @@ chip CHIP0 {
 		io, // Y5
 	}
 	row_clk Y3;
+	row_pclk Y0..Y6 = Y0;
 	special_loc CONFIG = D0X0Y5;
 	special_loc BC0 = D0X4Y5;
 	special_loc BC1 = D0X9Y5;
@@ -81,7 +82,7 @@ chip CHIP1 {
 	}
 	col_clk X8;
 	rows {
-		io + io_w[3, quad] + io_e[1, quad] + pclk_drive, // Y0
+		io + io_w[3, quad] + io_e[1, quad], // Y0 PCLK_DRIVE
 		plc + io_w[3, quad] + io_e[1, quad], // Y1
 		plc + io_w[3, quad] + io_e[1, quad], // Y2
 		plc, // Y3
@@ -91,6 +92,7 @@ chip CHIP1 {
 		io, // Y6
 	}
 	row_clk Y4;
+	row_pclk Y0..Y7 = Y0;
 	special_loc CONFIG = D0X0Y6;
 	special_loc BC0 = D0X7Y6;
 	special_loc BC1 = D0X17Y6;
@@ -157,7 +159,7 @@ chip CHIP2 {
 		plc + io_w[3, quad] + io_e[1, quad], // Y3
 		plc, // Y4
 		// clock
-		ebr + pclk_drive + pclk_break + sclk_break, // Y5
+		ebr + sclk_break, // Y5 PCLK_DRIVE
 		plc + io_w[3, quad] + io_e[1, quad], // Y6
 		plc + io_w[3, quad] + io_e[1, quad], // Y7
 		plc + io_w[3, quad] + io_e[1, double], // Y8
@@ -165,6 +167,7 @@ chip CHIP2 {
 		io, // Y10
 	}
 	row_clk Y5;
+	row_pclk Y0..Y11 = Y5;
 	special_loc PLL_NW0 = D0X1Y10;
 	special_loc CONFIG = D0X3Y10;
 	special_loc BC0 = D0X13Y10;
@@ -243,7 +246,7 @@ chip CHIP3 {
 		plc + io_w[4, quad] + io_e[1, quad], // Y4
 		plc + io_w[4, quad] + io_e[1, quad], // Y5
 		// clock
-		ebr + pclk_drive + pclk_break + sclk_break, // Y6
+		ebr + sclk_break, // Y6 PCLK_DRIVE
 		plc + io_w[4, quad] + io_e[1, quad], // Y7
 		plc + io_w[4, quad] + io_e[1, quad], // Y8
 		plc + io_w[5, quad] + io_e[1, quad], // Y9
@@ -253,6 +256,7 @@ chip CHIP3 {
 		io + io_w[5, quad] + io_e[1, quad], // Y13
 	}
 	row_clk Y6;
+	row_pclk Y0..Y14 = Y6;
 	special_loc PLL_NW0 = D0X1Y13;
 	special_loc CONFIG = D0X3Y13;
 	special_loc BC0 = D0X14Y13;
@@ -343,7 +347,7 @@ chip CHIP4 {
 		plc + io_w[4, quad] + io_e[1, quad], // Y8
 		plc, // Y9
 		// clock
-		ebr + pclk_drive + pclk_break + sclk_break, // Y10
+		ebr + sclk_break, // Y10 PCLK_DRIVE
 		plc + io_w[4, quad] + io_e[1, quad], // Y11
 		plc + io_w[4, quad] + io_e[1, quad], // Y12
 		plc + io_w[5, quad] + io_e[1, quad], // Y13
@@ -356,6 +360,7 @@ chip CHIP4 {
 		io, // Y20
 	}
 	row_clk Y10;
+	row_pclk Y0..Y21 = Y10;
 	special_loc PLL_NW0 = D0X1Y20;
 	special_loc PLL_NE0 = D0X30Y20;
 	special_loc CONFIG = D0X3Y20;
@@ -453,7 +458,7 @@ chip CHIP5 {
 		plc + io_w[3, quad] + io_e[1, quad], // Y3
 		plc + io_w[3, quad] + io_e[1, quad], // Y4
 		plc + io_w[3, quad] + io_e[1, quad], // Y5
-		ebr + pclk_drive + pclk_break + sclk_break, // Y6
+		ebr + sclk_break, // Y6 PCLK_DRIVE
 		plc + io_w[3, quad] + io_e[1, quad], // Y7
 		plc + io_w[3, quad] + io_e[1, quad], // Y8
 		plc + io_w[4, quad] + io_e[1, quad], // Y9
@@ -461,7 +466,8 @@ chip CHIP5 {
 		plc + io_w[4, quad] + io_e[1, quad], // Y11
 		plc, // Y12
 		// clock
-		ebr + pclk_drive + pclk_break + sclk_break, // Y13
+		// PCLK break
+		ebr + sclk_break, // Y13 PCLK_DRIVE
 		plc + io_w[4, quad] + io_e[1, quad], // Y14
 		plc + io_w[4, quad] + io_e[1, quad], // Y15
 		plc + io_w[4, quad] + io_e[1, quad], // Y16
@@ -476,6 +482,8 @@ chip CHIP5 {
 		io, // Y25
 	}
 	row_clk Y13;
+	row_pclk Y0..Y13 = Y6;
+	row_pclk Y13..Y26 = Y13;
 	special_loc PLL_NW0 = D0X1Y25;
 	special_loc PLL_NE0 = D0X39Y25;
 	special_loc CONFIG = D0X3Y25;
@@ -583,7 +591,7 @@ chip CHIP6 {
 		plc + io_w[3, quad] + io_e[1, quad], // Y5
 		plc + io_w[3, quad] + io_e[1, quad], // Y6
 		plc, // Y7
-		ebr + pclk_drive + pclk_break + sclk_break, // Y8
+		ebr + sclk_break, // Y8 PCLK_DRIVE
 		plc + io_w[3, quad] + io_e[1, quad], // Y9
 		plc + io_w[3, quad] + io_e[1, quad], // Y10
 		plc + io_w[4, quad] + io_e[1, quad], // Y11
@@ -591,14 +599,15 @@ chip CHIP6 {
 		plc + io_w[4, quad] + io_e[1, quad], // Y13
 		plc + io_w[4, quad] + io_e[1, quad], // Y14
 		// clock
-		ebr + pclk_break + sclk_break, // Y15
+		// PCLK break
+		ebr + sclk_break, // Y15
 		plc + io_w[4, quad] + io_e[1, quad], // Y16
 		plc + io_w[4, quad] + io_e[1, quad], // Y17
 		plc + io_w[5, quad] + io_e[1, quad], // Y18
 		plc + io_w[5, quad] + io_e[1, quad], // Y19
 		plc + io_w[5, quad] + io_e[1, quad], // Y20
 		plc, // Y21
-		ebr + pclk_drive + pclk_break + sclk_break, // Y22
+		ebr + sclk_break, // Y22 PCLK_DRIVE
 		plc + io_w[5, quad] + io_e[1, quad], // Y23
 		plc + io_w[5, quad] + io_e[1, quad], // Y24
 		plc + io_w[5, quad] + io_e[1, quad], // Y25
@@ -608,6 +617,8 @@ chip CHIP6 {
 		io, // Y29
 	}
 	row_clk Y15;
+	row_pclk Y0..Y15 = Y8;
+	row_pclk Y15..Y30 = Y22;
 	special_loc PLL_NW0 = D0X1Y29;
 	special_loc PLL_NE0 = D0X47Y29;
 	special_loc CONFIG = D0X3Y29;
@@ -686,7 +697,7 @@ chip CHIP7 {
 		plc + io_w[3, quad] + io_e[1, quad], // Y3
 		plc, // Y4
 		// clock
-		ebr + pclk_drive + pclk_break + sclk_break, // Y5
+		ebr + sclk_break, // Y5 PCLK_DRIVE
 		plc + io_w[3, quad] + io_e[1, quad], // Y6
 		plc + io_w[3, quad] + io_e[1, quad], // Y7
 		plc + io_w[3, quad] + io_e[1, double], // Y8
@@ -694,6 +705,7 @@ chip CHIP7 {
 		io, // Y10
 	}
 	row_clk Y5;
+	row_pclk Y0..Y11 = Y5;
 	special_loc PLL_NW0 = D0X1Y10;
 	special_loc CONFIG = D0X3Y10;
 	special_loc BC0 = D0X13Y10;
@@ -770,7 +782,7 @@ chip CHIP8 {
 		plc + io_w[4, quad] + io_e[1, quad], // Y4
 		plc + io_w[4, quad] + io_e[1, quad], // Y5
 		// clock
-		ebr + pclk_drive + pclk_break + sclk_break, // Y6
+		ebr + sclk_break, // Y6 PCLK_DRIVE
 		plc + io_w[4, quad] + io_e[1, quad], // Y7
 		plc + io_w[4, quad] + io_e[1, quad], // Y8
 		plc + io_w[5, quad] + io_e[1, quad], // Y9
@@ -780,6 +792,7 @@ chip CHIP8 {
 		io + io_w[5, quad] + io_e[1, quad], // Y13
 	}
 	row_clk Y6;
+	row_pclk Y0..Y14 = Y6;
 	special_loc PLL_NW0 = D0X1Y13;
 	special_loc CONFIG = D0X3Y13;
 	special_loc BC0 = D0X14Y13;
@@ -868,7 +881,7 @@ chip CHIP9 {
 		plc + io_w[4, quad] + io_e[1, quad], // Y8
 		plc, // Y9
 		// clock
-		ebr + pclk_drive + pclk_break + sclk_break, // Y10
+		ebr + sclk_break, // Y10 PCLK_DRIVE
 		plc + io_w[4, quad] + io_e[1, quad], // Y11
 		plc + io_w[4, quad] + io_e[1, quad], // Y12
 		plc + io_w[5, quad] + io_e[1, quad], // Y13
@@ -881,6 +894,7 @@ chip CHIP9 {
 		io, // Y20
 	}
 	row_clk Y10;
+	row_pclk Y0..Y21 = Y10;
 	special_loc PLL_NW0 = D0X1Y20;
 	special_loc PLL_NE0 = D0X30Y20;
 	special_loc CONFIG = D0X3Y20;
@@ -976,7 +990,7 @@ chip CHIP10 {
 		plc + io_w[3, quad] + io_e[1, quad], // Y3
 		plc + io_w[3, quad] + io_e[1, quad], // Y4
 		plc + io_w[3, quad] + io_e[1, quad], // Y5
-		ebr + pclk_drive + pclk_break + sclk_break, // Y6
+		ebr + sclk_break, // Y6 PCLK_DRIVE
 		plc + io_w[3, quad] + io_e[1, quad], // Y7
 		plc + io_w[3, quad] + io_e[1, quad], // Y8
 		plc + io_w[4, quad] + io_e[1, quad], // Y9
@@ -984,7 +998,8 @@ chip CHIP10 {
 		plc + io_w[4, quad] + io_e[1, quad], // Y11
 		plc, // Y12
 		// clock
-		ebr + pclk_drive + pclk_break + sclk_break, // Y13
+		// PCLK break
+		ebr + sclk_break, // Y13 PCLK_DRIVE
 		plc + io_w[4, quad] + io_e[1, quad], // Y14
 		plc + io_w[4, quad] + io_e[1, quad], // Y15
 		plc + io_w[4, quad] + io_e[1, quad], // Y16
@@ -999,6 +1014,8 @@ chip CHIP10 {
 		io, // Y25
 	}
 	row_clk Y13;
+	row_pclk Y0..Y13 = Y6;
+	row_pclk Y13..Y26 = Y13;
 	special_loc PLL_NW0 = D0X1Y25;
 	special_loc PLL_NE0 = D0X39Y25;
 	special_loc CONFIG = D0X3Y25;
@@ -1104,7 +1121,7 @@ chip CHIP11 {
 		plc + io_w[3, quad] + io_e[1, quad], // Y5
 		plc + io_w[3, quad] + io_e[1, quad], // Y6
 		plc, // Y7
-		ebr + pclk_drive + pclk_break + sclk_break, // Y8
+		ebr + sclk_break, // Y8 PCLK_DRIVE
 		plc + io_w[3, quad] + io_e[1, quad], // Y9
 		plc + io_w[3, quad] + io_e[1, quad], // Y10
 		plc + io_w[4, quad] + io_e[1, quad], // Y11
@@ -1112,14 +1129,15 @@ chip CHIP11 {
 		plc + io_w[4, quad] + io_e[1, quad], // Y13
 		plc + io_w[4, quad] + io_e[1, quad], // Y14
 		// clock
-		ebr + pclk_break + sclk_break, // Y15
+		// PCLK break
+		ebr + sclk_break, // Y15
 		plc + io_w[4, quad] + io_e[1, quad], // Y16
 		plc + io_w[4, quad] + io_e[1, quad], // Y17
 		plc + io_w[5, quad] + io_e[1, quad], // Y18
 		plc + io_w[5, quad] + io_e[1, quad], // Y19
 		plc + io_w[5, quad] + io_e[1, quad], // Y20
 		plc, // Y21
-		ebr + pclk_drive + pclk_break + sclk_break, // Y22
+		ebr + sclk_break, // Y22 PCLK_DRIVE
 		plc + io_w[5, quad] + io_e[1, quad], // Y23
 		plc + io_w[5, quad] + io_e[1, quad], // Y24
 		plc + io_w[5, quad] + io_e[1, quad], // Y25
@@ -1129,6 +1147,8 @@ chip CHIP11 {
 		io, // Y29
 	}
 	row_clk Y15;
+	row_pclk Y0..Y15 = Y8;
+	row_pclk Y15..Y30 = Y22;
 	special_loc PLL_NW0 = D0X1Y29;
 	special_loc PLL_NE0 = D0X47Y29;
 	special_loc CONFIG = D0X3Y29;
@@ -1220,7 +1240,7 @@ chip CHIP12 {
 		plc + io_w[4, quad] + io_e[1, quad], // Y8
 		plc, // Y9
 		// clock
-		ebr + pclk_drive + pclk_break + sclk_break, // Y10
+		ebr + sclk_break, // Y10 PCLK_DRIVE
 		plc + io_w[4, quad] + io_e[1, quad], // Y11
 		plc + io_w[4, quad] + io_e[1, quad], // Y12
 		plc + io_w[5, quad] + io_e[1, quad], // Y13
@@ -1233,6 +1253,7 @@ chip CHIP12 {
 		io, // Y20
 	}
 	row_clk Y10;
+	row_pclk Y0..Y21 = Y10;
 	special_loc PLL_NW0 = D0X1Y20;
 	special_loc PLL_NE0 = D0X30Y20;
 	special_loc CONFIG = D0X3Y20;
@@ -1338,7 +1359,7 @@ chip CHIP13 {
 		plc + io_w[3, quad_i3c] + io_e[1, quad], // Y5
 		plc + io_w[3, quad] + io_e[1, quad], // Y6
 		plc, // Y7
-		ebr + pclk_drive + pclk_break + sclk_break, // Y8
+		ebr + sclk_break, // Y8 PCLK_DRIVE
 		plc + io_w[3, quad] + io_e[1, quad], // Y9
 		plc + io_w[3, quad] + io_e[1, quad], // Y10
 		plc + io_w[4, quad] + io_e[1, quad], // Y11
@@ -1346,14 +1367,15 @@ chip CHIP13 {
 		plc + io_w[4, quad] + io_e[1, quad], // Y13
 		plc + io_w[4, quad] + io_e[1, quad], // Y14
 		// clock
-		ebr + pclk_break + sclk_break, // Y15
+		// PCLK break
+		ebr + sclk_break, // Y15
 		plc + io_w[4, quad] + io_e[1, quad], // Y16
 		plc + io_w[4, quad] + io_e[1, quad], // Y17
 		plc + io_w[5, quad] + io_e[1, quad], // Y18
 		plc + io_w[5, quad] + io_e[1, quad], // Y19
 		plc + io_w[5, quad] + io_e[1, quad], // Y20
 		plc, // Y21
-		ebr + pclk_drive + pclk_break + sclk_break, // Y22
+		ebr + sclk_break, // Y22 PCLK_DRIVE
 		plc + io_w[5, quad] + io_e[1, quad], // Y23
 		plc + io_w[5, quad] + io_e[1, quad], // Y24
 		plc + io_w[5, quad] + io_e[1, quad], // Y25
@@ -1363,6 +1385,8 @@ chip CHIP13 {
 		io, // Y29
 	}
 	row_clk Y15;
+	row_pclk Y0..Y15 = Y8;
+	row_pclk Y15..Y30 = Y22;
 	special_loc PLL_NW0 = D0X1Y29;
 	special_loc PLL_NE0 = D0X47Y29;
 	special_loc CONFIG = D0X3Y29;
@@ -1454,7 +1478,7 @@ chip CHIP14 {
 		plc + io_w[4, quad] + io_e[1, quad], // Y8
 		plc, // Y9
 		// clock
-		ebr + pclk_drive + pclk_break + sclk_break, // Y10
+		ebr + sclk_break, // Y10 PCLK_DRIVE
 		plc + io_w[4, quad] + io_e[1, quad], // Y11
 		plc + io_w[4, quad] + io_e[1, quad], // Y12
 		plc + io_w[5, quad] + io_e[1, quad], // Y13
@@ -1467,6 +1491,7 @@ chip CHIP14 {
 		io, // Y20
 	}
 	row_clk Y10;
+	row_pclk Y0..Y21 = Y10;
 	special_loc PLL_NW0 = D0X1Y20;
 	special_loc PLL_NE0 = D0X30Y20;
 	special_loc CONFIG = D0X3Y20;
@@ -1572,7 +1597,7 @@ chip CHIP15 {
 		plc + io_w[3, quad_i3c] + io_e[1, quad], // Y5
 		plc + io_w[3, quad] + io_e[1, quad], // Y6
 		plc, // Y7
-		ebr + pclk_drive + pclk_break + sclk_break, // Y8
+		ebr + sclk_break, // Y8 PCLK_DRIVE
 		plc + io_w[3, quad] + io_e[1, quad], // Y9
 		plc + io_w[3, quad] + io_e[1, quad], // Y10
 		plc + io_w[4, quad] + io_e[1, quad], // Y11
@@ -1580,14 +1605,15 @@ chip CHIP15 {
 		plc + io_w[4, quad] + io_e[1, quad], // Y13
 		plc + io_w[4, quad] + io_e[1, quad], // Y14
 		// clock
-		ebr + pclk_break + sclk_break, // Y15
+		// PCLK break
+		ebr + sclk_break, // Y15
 		plc + io_w[4, quad] + io_e[1, quad], // Y16
 		plc + io_w[4, quad] + io_e[1, quad], // Y17
 		plc + io_w[5, quad] + io_e[1, quad], // Y18
 		plc + io_w[5, quad] + io_e[1, quad], // Y19
 		plc + io_w[5, quad] + io_e[1, quad], // Y20
 		plc, // Y21
-		ebr + pclk_drive + pclk_break + sclk_break, // Y22
+		ebr + sclk_break, // Y22 PCLK_DRIVE
 		plc + io_w[5, quad] + io_e[1, quad], // Y23
 		plc + io_w[5, quad] + io_e[1, quad], // Y24
 		plc + io_w[5, quad] + io_e[1, quad], // Y25
@@ -1597,6 +1623,8 @@ chip CHIP15 {
 		io, // Y29
 	}
 	row_clk Y15;
+	row_pclk Y0..Y15 = Y8;
+	row_pclk Y15..Y30 = Y22;
 	special_loc PLL_NW0 = D0X1Y29;
 	special_loc PLL_NE0 = D0X47Y29;
 	special_loc CONFIG = D0X3Y29;
@@ -1702,7 +1730,7 @@ chip CHIP16 {
 		plc + io_w[3, quad_i3c] + io_e[1, quad], // Y5
 		plc + io_w[3, quad] + io_e[1, quad], // Y6
 		plc, // Y7
-		ebr + pclk_drive + pclk_break + sclk_break, // Y8
+		ebr + sclk_break, // Y8 PCLK_DRIVE
 		plc + io_w[3, quad] + io_e[1, quad], // Y9
 		plc + io_w[3, quad] + io_e[1, quad], // Y10
 		plc + io_w[4, quad] + io_e[1, quad], // Y11
@@ -1710,14 +1738,15 @@ chip CHIP16 {
 		plc + io_w[4, quad] + io_e[1, quad], // Y13
 		plc + io_w[4, quad] + io_e[1, quad], // Y14
 		// clock
-		ebr + pclk_break + sclk_break, // Y15
+		// PCLK break
+		ebr + sclk_break, // Y15
 		plc + io_w[4, quad] + io_e[1, quad], // Y16
 		plc + io_w[4, quad] + io_e[1, quad], // Y17
 		plc + io_w[5, quad] + io_e[1, quad], // Y18
 		plc + io_w[5, quad] + io_e[1, quad], // Y19
 		plc + io_w[5, quad] + io_e[1, quad], // Y20
 		plc, // Y21
-		ebr + pclk_drive + pclk_break + sclk_break, // Y22
+		ebr + sclk_break, // Y22 PCLK_DRIVE
 		plc + io_w[5, quad] + io_e[1, quad], // Y23
 		plc + io_w[5, quad] + io_e[1, quad], // Y24
 		plc + io_w[5, quad] + io_e[1, quad], // Y25
@@ -1727,6 +1756,8 @@ chip CHIP16 {
 		io, // Y29
 	}
 	row_clk Y15;
+	row_pclk Y0..Y15 = Y8;
+	row_pclk Y15..Y30 = Y22;
 	special_loc PLL_NW0 = D0X1Y29;
 	special_loc PLL_NE0 = D0X47Y29;
 	special_loc CONFIG = D0X3Y29;

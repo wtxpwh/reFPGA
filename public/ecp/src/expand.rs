@@ -163,7 +163,9 @@ impl Expander<'_, '_> {
             ],
         );
 
-        let cell = self.die.cell(self.chip.col_w(), self.chip.row_n() - 12);
+        let cell = self
+            .die
+            .cell(self.chip.col_w(), self.chip.row_serdes(DirV::N));
         let mut tcells = vec![Some(cell), Some(cell.delta(1, 0)), Some(cell.delta(0, -1))];
         for (col, cd) in &self.chip.columns {
             if cd.io_n == IoGroupKind::Serdes && col < self.chip.col_clk {
@@ -175,7 +177,9 @@ impl Expander<'_, '_> {
         }
         self.egrid.add_tile_part(cell, tcls::PLL_NW, &tcells);
 
-        let cell = self.die.cell(self.chip.col_e(), self.chip.row_n() - 12);
+        let cell = self
+            .die
+            .cell(self.chip.col_e(), self.chip.row_serdes(DirV::N));
         let mut tcells = vec![Some(cell), Some(cell.delta(-1, 0)), Some(cell.delta(0, -1))];
         for (col, cd) in self.chip.columns.iter().rev() {
             if cd.io_n == IoGroupKind::Serdes && col >= self.chip.col_clk {
@@ -682,7 +686,7 @@ impl Expander<'_, '_> {
                 col_end_e = col;
             }
         }
-        let row = self.chip.row_n() - 12;
+        let row = self.chip.row_serdes(DirV::N);
         self.bel_holes.push(
             self.die
                 .cell(self.chip.col_w(), row)
@@ -866,7 +870,7 @@ impl Expander<'_, '_> {
                         tcls::EBR_E
                     };
                     self.egrid.add_tile_e(cell, kind, 2);
-                    if cell.row != self.chip.row_n() - 12 {
+                    if cell.row != self.chip.row_serdes(DirV::N) {
                         if cell.col < self.chip.col_w() + 14 {
                             // nothing
                         } else if cell.col < self.chip.col_clk - 10 {
@@ -2290,7 +2294,7 @@ impl Expander<'_, '_> {
             for &hv in plls {
                 tcells.push(Some(self.chip.bel_pll(hv, 0).cell));
             }
-            let row_serdes = self.chip.row_n() - 12;
+            let row_serdes = self.chip.row_serdes(DirV::N);
             match kind {
                 tcls::CLK_W => {
                     for (col, cd) in &self.chip.columns {
@@ -2856,15 +2860,6 @@ impl Expander<'_, '_> {
     }
 
     fn fill_pclk_ecp3(&mut self) {
-        let mut row_pclk = self.chip.row_s();
-        let mut rows_pclk = EntityVec::new();
-        for (row, rd) in &self.chip.rows {
-            if rd.pclk_break {
-                row_pclk = row;
-            }
-            rows_pclk.push(row_pclk);
-        }
-
         for i in 0..4 {
             for cell in self.egrid.die_cells(self.die) {
                 let (dx, dx_alt) = match (i + 4 - self.chip.col_sclk_idx(cell.col)) % 4 {
@@ -2887,22 +2882,20 @@ impl Expander<'_, '_> {
                 } else {
                     cell
                 };
-                let cell_src_pclk = cell_src.with_row(rows_pclk[cell.row]);
+                let row_drv = self.chip.rows_pclk[cell.row];
+                let cell_src_pclk = cell_src.with_row(if cell.row < row_drv {
+                    row_drv - 1
+                } else {
+                    row_drv
+                });
                 self.egrid[cell].region_root[rslots::RPCLK[i]] = cell_src_pclk;
             }
         }
 
-        let mut prev_driven = self.chip.rows[self.chip.row_s()].pclk_drive;
-        for (row, rd) in &self.chip.rows {
-            if !rd.pclk_drive {
-                if rd.pclk_break {
-                    prev_driven = false;
-                }
-                continue;
-            }
-            for cell in self.egrid.row(self.die, row) {
+        for (rows, &row_drv) in &self.chip.rows_pclk {
+            for cell in self.egrid.row(self.die, row_drv) {
                 let idx = self.chip.col_sclk_idx(cell.col);
-                if cell.row == self.chip.row_s() {
+                if row_drv == self.chip.row_s() {
                     let kind = if cell.col == self.chip.col_w()
                         || (cell.col == self.chip.col_clk
                             && !matches!(self.chip.kind, ChipKind::MachXo2(_)))
@@ -2931,14 +2924,13 @@ impl Expander<'_, '_> {
                     } else {
                         tiledata::RPCLK_DRIVER[idx]
                     };
-                    if prev_driven {
+                    if rows.start() == row_drv {
                         self.egrid.add_tile_part(cell, kind, &[Some(cell), None]);
                     } else {
                         self.egrid.add_tile(cell, kind, &[cell, cell.delta(0, -1)]);
                     }
                 }
             }
-            prev_driven = true;
         }
     }
 
@@ -2978,7 +2970,7 @@ impl Expander<'_, '_> {
                 .cell(self.chip.col_e(), self.chip.row_clk - 4)
                 .cells_n(8),
             Chip::DIE
-                .cell(self.chip.col_clk - 3, self.chip.row_s() + 9)
+                .cell(self.chip.col_clk - 3, self.chip.row_serdes(DirV::S))
                 .cells_e(6),
             Chip::DIE
                 .cell(self.chip.col_clk - 3, self.chip.row_n())
@@ -2996,7 +2988,7 @@ impl Expander<'_, '_> {
         for (col, cd) in &self.chip.columns {
             if cd.io_s == IoGroupKind::Serdes {
                 let idx = usize::try_from(cd.bank_s.unwrap() - 50).unwrap();
-                serdes_cells[idx] = Some(Chip::DIE.cell(col, self.chip.row_s() + 9));
+                serdes_cells[idx] = Some(Chip::DIE.cell(col, self.chip.row_serdes(DirV::S)));
             }
         }
         tcells.extend(serdes_cells);
