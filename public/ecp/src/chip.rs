@@ -133,7 +133,7 @@ pub struct Chip {
     pub row_clk: RowId,
     // column -> PCLK driver column
     // valid on: scm, ecp2, xp2, ecp5, crosslink
-    // on ecp2/xp2, only the ranges are valid, the values carry no information and are set to range start
+    // on ecp2/xp2, only the ranges are valid, the values carry no information and are set to range start/end
     pub cols_pclk: EntityRangeVec<ColId, ColId>,
     // row -> PCLK driver row
     // valid on: ecp3, machxo2, ecp4
@@ -239,7 +239,7 @@ pub struct Column {
     pub bank_n: Option<u32>,
     pub eclk_tap_s: bool,
     pub eclk_tap_n: bool,
-    pub sdclk_break: bool,
+    pub sclk_break: bool,
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Hash, Encode, Decode)]
@@ -680,6 +680,18 @@ impl Chip {
         }
     }
 
+    pub fn clk_to_rclk(&self, col: ColId, idx: usize) -> usize {
+        let offset = self.col_sclk_idx(col);
+        assert!(idx < 8);
+        (idx + 4 - offset) % 4 + idx / 4 * 4
+    }
+
+    pub fn rclk_to_clk(&self, col: ColId, idx: usize) -> usize {
+        let offset = self.col_sclk_idx(col);
+        assert!(idx < 8);
+        (idx + offset) % 4 + idx / 4 * 4
+    }
+
     pub fn try_bel_pll(&self, quad: DirHV, idx: usize) -> Option<BelCoord> {
         if matches!(self.kind, ChipKind::Scm | ChipKind::Ecp4) {
             if idx < 2 {
@@ -1072,13 +1084,13 @@ impl Chip {
                 }
                 write!(o, "eclk_tap_n")?;
             }
-            if cd.sdclk_break {
+            if cd.sclk_break {
                 if first {
                     first = false;
                 } else {
                     write!(o, " + ")?;
                 }
-                write!(o, "sdclk_break")?;
+                write!(o, "sclk_break")?;
             }
             if first {
                 write!(o, "null")?;

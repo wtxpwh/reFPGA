@@ -104,6 +104,9 @@ impl ChipContext<'_> {
                     }
                 } else {
                     let ccls = &self.intdb[conn.class];
+                    if !matches!(ccls.slot, cslots::W | cslots::E | cslots::S | cslots::N) {
+                        continue;
+                    }
                     for (wt, &wf) in &ccls.wires {
                         let ConnectorWire::Reflect(wf) = wf else {
                             unreachable!()
@@ -161,15 +164,19 @@ impl ChipContext<'_> {
             if let Some(wires_f) = self.int_wires.get(&wfn)
                 && let Some(wires_t) = self.int_wires.get(&wtn)
                 && let mut wt = wires_t[0]
-                && !wires::RSCLK.contains(wt.slot)
-                && !(wires::RSCLK_H.contains(wt.slot) && self.intdb[wires_f[0].slot].kind.is_tie())
+                && !wires::SCLK.contains(wt.slot)
+                && !(wires::SCLK_H.contains(wt.slot) && self.intdb[wires_f[0].slot].kind.is_tie())
                 && !wires::IMUX_CLK_DELAY.contains(wt.slot)
                 && !wires::PCLK_ROOT.contains(wires_f[0].slot)
+                && !wires::PCLK_HALF.contains(wires_f[0].slot)
+                && !wires::PCLK_COL.contains(wires_f[0].slot)
+                && !wires::RPCLK_COL.contains(wires_f[0].slot)
+                && !wires::RPCLK_ROW.contains(wires_f[0].slot)
+                && !wires::PCLK_ROW.contains(wires_f[0].slot)
                 && !wires::SCLK_ROOT.contains(wires_f[0].slot)
             {
-                if matches!(self.intdb[wt.slot].kind, WireKind::Branch(_))
-                    && !wires::RSCLK_H.contains(wt.slot)
-                {
+                let mut is_bi = false;
+                if matches!(self.intdb[wt.slot].kind, WireKind::Branch(_)) {
                     println!(
                         "{name}: extra term pip {wtn} / {wt} <- {wfn} / {wf}",
                         name = self.name,
@@ -181,6 +188,9 @@ impl ChipContext<'_> {
                     continue;
                 }
                 let wf = if wires::DSCLK_V.contains(wt.slot) {
+                    if wires::DSCLK_V.contains(wires_f[0].slot) {
+                        is_bi = true;
+                    }
                     if wires::DSCLK_H.contains(wires_f[0].slot) {
                         let cand_cells_t =
                             BTreeSet::from_iter(wires_t.iter().copied().map(|w| w.cell));
@@ -217,6 +227,7 @@ impl ChipContext<'_> {
                     }
                 } else if wires::DSCLK_H.contains(wt.slot) && self.chip.kind == ChipKind::Scm {
                     if wires::DSCLK_H.contains(wires_f[0].slot) {
+                        is_bi = true;
                         let wires_t = Vec::from_iter(
                             wires_t
                                 .iter()
@@ -254,16 +265,20 @@ impl ChipContext<'_> {
                             .unwrap();
                         wires_f[0]
                     }
-                } else if wires::RSCLK_H.contains(wt.slot) {
+                } else if wires::SCLK_H.contains(wt.slot) {
                     assert_eq!(wires_f.len(), 1);
                     wt = wires_t
                         .iter()
-                        .find(|w| w.col == wires_f[0].col)
+                        .find(|w| w.col == wires_f[0].col && !wires::SCLK_H.contains(w.slot))
                         .copied()
                         .unwrap();
                     wires_f[0]
                 } else if let Some(idx) = wires::RSCLK_V.index_of(wt.slot) {
-                    let mut wf = wires_f.iter().find(|w| w.col == wt.col).copied().unwrap();
+                    let mut wf = wires_f
+                        .iter()
+                        .find(|w| w.col == wt.col && !wires::SCLK_H.contains(w.slot))
+                        .copied()
+                        .unwrap();
                     let wt_root = self.edev[wt.cell].region_root[rslots::RSCLK_V];
                     let wf_root = self.edev[wf.cell].region_root[rslots::RSCLK_V];
                     if wt_root == wf_root {
@@ -288,7 +303,12 @@ impl ChipContext<'_> {
                     }
                     wf
                 } else {
-                    let wf = if let WireKind::Regional(region) = self.intdb[wires_f[0].slot].kind {
+                    let wf = if wires::SCLK_H.contains(wires_f[0].slot) {
+                        wires_f
+                            .iter()
+                            .find(|w| w.col == wt.col && !wires::SCLK_H.contains(w.slot))
+                            .copied()
+                    } else if let WireKind::Regional(region) = self.intdb[wires_f[0].slot].kind {
                         let wf_root = self.edev[wires_f[0].cell].region_root[region];
                         let wt_root = self.edev[wt.cell].region_root[region];
                         if wf_root == wt_root {
@@ -325,6 +345,13 @@ impl ChipContext<'_> {
                     .insert((wt.slot, wf.slot));
                 let tcid = self.edev[wt.cell.tile(tslots::INT)].class;
                 sb_pips.entry(tcid).or_default().insert((wt.slot, wf.slot));
+                if is_bi {
+                    cell_pips
+                        .entry(wt.cell)
+                        .or_default()
+                        .insert((wf.slot, wt.slot));
+                    sb_pips.entry(tcid).or_default().insert((wf.slot, wt.slot));
+                }
             } else {
                 self.unclaimed_pips.insert((wtn, wfn));
                 self.pips_bwd.entry(wtn).or_default().insert(wfn);
@@ -384,36 +411,36 @@ impl ChipContext<'_> {
                         }
                     } else {
                         if (wt.slot == wires::RSCLK_V_N[0]
-                            || wt.slot == wires::RSCLK_V_N[1]
+                            || wt.slot == wires::RSCLK_V_N[4]
                             || wf.slot == wires::RSCLK_V_N[0]
-                            || wf.slot == wires::RSCLK_V_N[1])
+                            || wf.slot == wires::RSCLK_V_N[4])
                             && tcrd.row != self.chip.row_s()
                             && !self.chip.rows[tcrd.row].sclk_break
                         {
                             continue;
                         }
-                        if (wt.slot == wires::RSCLK_V[2]
-                            || wt.slot == wires::RSCLK_V[3]
-                            || wt.slot == wires::RSCLK_V_N[2]
-                            || wt.slot == wires::RSCLK_V_N[3])
+                        if (wt.slot == wires::RSCLK_V[1]
+                            || wt.slot == wires::RSCLK_V[5]
+                            || wt.slot == wires::RSCLK_V_N[1]
+                            || wt.slot == wires::RSCLK_V_N[5])
                             && tcrd.col != self.chip.col_e()
                         {
                             continue;
                         }
-                        if (wt.slot == wires::RSCLK_V[4]
-                            || wt.slot == wires::RSCLK_V[5]
+                        if (wt.slot == wires::RSCLK_V[2]
                             || wt.slot == wires::RSCLK_V[6]
+                            || wt.slot == wires::RSCLK_V[3]
                             || wt.slot == wires::RSCLK_V[7]
-                            || wt.slot == wires::RSCLK_V_N[4]
-                            || wt.slot == wires::RSCLK_V_N[5]
+                            || wt.slot == wires::RSCLK_V_N[2]
                             || wt.slot == wires::RSCLK_V_N[6]
+                            || wt.slot == wires::RSCLK_V_N[3]
                             || wt.slot == wires::RSCLK_V_N[7])
                             && tcrd.col != self.chip.col_w()
                         {
                             continue;
                         }
                     }
-                    if wf.slot == wires::RSCLK[3] || wf.slot == wires::RSCLK[7] {
+                    if wf.slot == wires::SCLK[3] || wf.slot == wires::SCLK[7] {
                         // ???? for some inscrutable reason these two devices are missing SCLK3
                         // in these locations in particular
                         if self.chip.kind == ChipKind::Ecp2
@@ -453,22 +480,9 @@ impl ChipContext<'_> {
                     })
                     .src
                     .insert(wf.pos(), Default::default());
-                if (self.intdb.wires[wt.wire]
-                    .name
-                    .as_str()
-                    .starts_with("RSCLK_V")
-                    && self.intdb.wires[wf.wire]
-                        .name
-                        .as_str()
-                        .starts_with("RSCLK_V"))
-                    || (self.intdb.wires[wt.wire]
-                        .name
-                        .as_str()
-                        .starts_with("RSCLK_H")
-                        && self.intdb.wires[wf.wire]
-                            .name
-                            .as_str()
-                            .starts_with("RSCLK_H"))
+                if ((wires::RSCLK_V.contains(wt.wire) || wires::RSCLK_V_N.contains(wt.wire))
+                    && (wires::RSCLK_V.contains(wf.wire) || wires::RSCLK_V_N.contains(wf.wire)))
+                    || (wires::RSCLK_H.contains(wt.wire) && wires::RSCLK_H.contains(wf.wire))
                 {
                     muxes
                         .entry(wf)

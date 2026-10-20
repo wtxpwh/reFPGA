@@ -7,3 +7,6 @@
 {{tile scm CLK_SE}}
 {{tile scm CLK_N}}
 {{tile scm CLK_ROOT}}
+{{tile scm PCLK_DRIVER}}
+{{tile scm PCLK_DRIVER_EBR}}
+{{tile scm PCLK_DRIVER_EBR_ROOT}}

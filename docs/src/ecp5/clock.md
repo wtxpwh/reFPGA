@@ -6,3 +6,5 @@
 {{tile ecp5 CLK_N}}
 {{tile ecp5 CLK_ROOT_S}}
 {{tile ecp5 CLK_ROOT_L}}
+{{tile ecp5 PCLK_COL_DRIVER}}
+{{tile ecp5 PCLK_DRIVER}}

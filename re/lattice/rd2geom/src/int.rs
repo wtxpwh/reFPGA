@@ -1,8 +1,12 @@
 use prjcombine_ecp::{
-    chip::{ChipKind, RowKind},
+    chip::{Chip, ChipKind, RowKind},
     defs::{self, bcls, bslots, cslots, tcls, tslots},
 };
-use prjcombine_interconnect::db::Bel;
+use prjcombine_interconnect::{
+    db::{Bel, WireSlotIdExt},
+    dir::DirV,
+    grid::DieIdExt,
+};
 
 use super::ChipContext;
 
@@ -213,75 +217,64 @@ impl ChipContext<'_> {
         if !self.chip.kind.has_distributed_sclk() {
             return;
         }
-        for (cell, cell_data) in self.edev.cells() {
-            let idx = self.chip.col_sclk_idx(cell.col);
-            let has_int = cell_data.tiles.contains_id(tslots::INT);
-            let mut clocks = vec![(idx, 0, 0), (idx + 4, 4, 1)];
-            if self.chip.kind.has_distributed_sclk_ecp3() {
-                if cell.col == self.chip.col_w() {
-                    let idx3 = (idx + 3) % 4;
-                    let idx2 = (idx + 2) % 4;
-                    clocks.extend([
-                        (idx3, 1, 6),
-                        (idx3 + 4, 5, 7),
-                        (idx2, 2, 4),
-                        (idx2 + 4, 6, 5),
-                    ]);
-                }
-                if cell.col == self.chip.col_e() {
-                    let idx1 = (idx + 1) % 4;
-                    clocks.extend([(idx1, 1, 2), (idx1 + 4, 5, 3)]);
-                }
+        for (tcid, clks) in [
+            (tcls::RSCLK_DRIVER, [0, 4].as_slice()),
+            (tcls::RSCLK_DRIVER_W, [0, 4, 2, 6, 3, 7].as_slice()),
+            (tcls::RSCLK_DRIVER_E, [0, 4, 1, 5].as_slice()),
+        ] {
+            if tcid != tcls::RSCLK_DRIVER && !self.chip.kind.has_distributed_sclk_ecp3() {
+                continue;
             }
-            if has_int {
-                for (sclki, ti, vsdclki) in clocks {
-                    let sclk_in = self.rc_wire(cell, &format!("HSBX0{ti}00"));
-                    self.add_bel_wire(cell.bel(bslots::INT), format!("SCLK{sclki}_IN"), sclk_in);
-                    let sclk = cell.wire(defs::wires::RSCLK[sclki]);
-                    self.claim_pip_int_out(sclk, sclk_in);
-                    let vsdclk = cell.wire(defs::wires::RSCLK_V[vsdclki]);
-                    self.claim_pip_int_in(sclk_in, vsdclk);
-                }
-            } else if self.chip.kind.has_distributed_sclk_ecp3() {
-                for (sclki, _, vsdclki) in clocks {
-                    let sclk = cell.wire(defs::wires::RSCLK[sclki]);
-                    if let Some(&sclk) = self.naming.interconnect.get(&sclk) {
-                        let vsdclk = cell.wire(defs::wires::RSCLK_V[vsdclki]);
-                        self.claim_pip_int_in(sclk, vsdclk);
-                    }
-                }
-            }
-            if matches!(self.chip.kind, ChipKind::Ecp3(_)) {
-                // ??!? special garbage wires
-                let clocks =
-                    if cell.row == self.chip.row_s() + 9 && cell.col == self.chip.col_clk - 1 {
-                        vec![(0, 1), (4, 5)]
-                    } else if cell.row == self.chip.row_s() + 9 && cell.col == self.chip.col_clk {
-                        vec![(2, 2), (6, 6), (3, 1), (7, 5)]
+            for &tcrd in &self.edev.tile_index[tcid] {
+                let has_int = self.edev.has_bel(tcrd.bel(bslots::INT));
+                let mut ex = self.extract_switchbox(tcrd.bel(bslots::SCLK_DRIVER));
+                for &i in clks {
+                    if has_int {
+                        let ti = [0, 1, 2, 1, 4, 5, 6, 5][i];
+                        let wire = defs::wires::RSCLK[i].cell(0);
+                        let rw = ex.ctx.edev.resolve_tile_wire(tcrd, wire).unwrap();
+                        let wname = ex.ctx.rc_wire(tcrd.cell, &format!("HSBX0{ti}00"));
+                        ex.ctx.claim_pip_int_out(rw, wname);
+                        ex.progbuf_output_bind(wname, wire);
                     } else {
-                        vec![]
-                    };
-                for (sclki, ti) in clocks {
+                        ex.progbuf_output_int(defs::wires::RSCLK[i].cell(0));
+                    }
+                    ex.input_int_no_resolve(defs::wires::RSCLK_V[i].cell(0));
+                }
+            }
+        }
+        if matches!(self.chip.kind, ChipKind::Ecp3(_)) {
+            for (col, clocks) in [
+                (self.chip.col_clk - 1, [(0, 1), (4, 5)].as_slice()),
+                (
+                    self.chip.col_clk,
+                    [(2, 2), (6, 6), (3, 1), (7, 5)].as_slice(),
+                ),
+            ] {
+                let cell = Chip::DIE.cell(col, self.chip.row_serdes(DirV::S));
+                for &(sclki, ti) in clocks {
                     let sclk_in = self.rc_wire(cell, &format!("HSBX0{ti}00"));
                     self.add_bel_wire(cell.bel(bslots::INT), format!("SCLK{sclki}_IN"), sclk_in);
-                    let sclk = cell.wire(defs::wires::RSCLK[sclki]);
+                    let sclk = cell.wire(defs::wires::SCLK[sclki]);
                     self.claim_pip_int_out(sclk, sclk_in);
                 }
             }
+        }
+        for (cell, _) in self.edev.cells() {
             if matches!(self.chip.kind, ChipKind::MachXo2(_))
                 && matches!(self.chip.rows[cell.row].kind, RowKind::Io | RowKind::Ebr)
             {
                 let keep = self.rc_wire(cell, "SOUTHKEEP");
                 for i in 0..8 {
-                    if matches!(i, 2..4) && cell.col != self.chip.col_e() {
+                    if matches!(i, 1 | 5) && cell.col != self.chip.col_e() {
                         continue;
                     }
-                    if matches!(i, 4..8) && cell.col != self.chip.col_w() {
+                    if matches!(i, 2 | 3 | 6 | 7) && cell.col != self.chip.col_w() {
                         continue;
                     }
                     let vsdclk = cell.wire(defs::wires::RSCLK_V[i]);
                     let vsdclk_n = cell.wire(defs::wires::RSCLK_V_N[i]);
-                    let idx = [2, 3, 6, 7, 10, 11, 6, 7][i];
+                    let idx = [2, 6, 10, 6, 3, 7, 11, 7][i];
                     let b2t = self.rc_wire(cell, &format!("VSTX{idx:02}00_B2T"));
                     let t2b = self.rc_wire(cell, &format!("VSTX{idx:02}00_T2B"));
                     self.add_bel_wire(cell.bel(bslots::INT), format!("VSDCLK{i}_B2T"), b2t);

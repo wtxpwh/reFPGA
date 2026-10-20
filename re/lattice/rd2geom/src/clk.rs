@@ -1,9 +1,8 @@
 use prjcombine_ecp::{
     chip::{Chip, ChipKind, RowKind},
-    defs::{bslots, tslots, wires},
+    defs::{bslots, tcls, wires},
 };
-use prjcombine_entity::EntityId;
-use prjcombine_interconnect::{db::CellSlotId, grid::DieIdExt};
+use prjcombine_interconnect::{db::WireSlotIdExt, grid::DieIdExt};
 
 use crate::ChipContext;
 
@@ -18,37 +17,33 @@ mod machxo2;
 mod scm;
 
 impl ChipContext<'_> {
-    fn process_hsdclk_splitter(&mut self) {
-        let hsdclk = [wires::RSCLK_H[0], wires::RSCLK_H[4]];
-        for (tcrd, tile) in self.edev.tiles() {
-            if tcrd.slot != tslots::HSDCLK_SPLITTER {
+    fn process_sclk_h_splitter(&mut self) {
+        for tcid in [tcls::SCLK_H_SPLITTER, tcls::SCLK_H_ROOT] {
+            if !self.intdb.tile_classes.contains_id(tcid) {
                 continue;
             }
-            let bcrd = tcrd.bel(bslots::HSDCLK_SPLITTER);
-            self.name_bel_null(bcrd);
-            let cell = tcrd.cell.delta(-1, 0);
-            for i in 0..8 {
-                let wire_w = tile.cells[CellSlotId::from_idx(i % 4)].wire(hsdclk[i / 4]);
-                let wire_e = tile.cells[CellSlotId::from_idx(i % 4 + 4)].wire(hsdclk[i / 4]);
-                let wire_l2r = self.rc_wire(cell, &format!("HSSX0{i}00_L2R"));
-                let wire_r2l = self.rc_wire(cell, &format!("HSSX0{i}00_R2L"));
-                self.add_bel_wire(bcrd, format!("HSDCLK{i}_L2R"), wire_l2r);
-                self.add_bel_wire(bcrd, format!("HSDCLK{i}_R2L"), wire_r2l);
-                self.claim_pip_int_out(wire_w, wire_r2l);
-                self.claim_pip_int_in(wire_r2l, wire_e);
-                self.claim_pip_int_out(wire_e, wire_l2r);
-                self.claim_pip_int_in(wire_l2r, wire_w);
+            for &tcrd in &self.edev.tile_index[tcid] {
+                let bcrd = tcrd.bel(bslots::SCLK_H_SPLITTER);
+                let cell = tcrd.cell.delta(-1, 0);
+                let mut ex = self.extract_switchbox(bcrd);
+                ex.cell(cell);
+                for i in 0..8 {
+                    ex.progbuf_output_int(wires::SCLK_H[i].cell(0))
+                        .progbuf_output_int(wires::SCLK_H[i].cell(1))
+                        .input_xlat_rc(format!("HSSX0{i}00_L2R"))
+                        .input_xlat_rc(format!("HSSX0{i}00_R2L"));
+                }
             }
         }
     }
 
-    fn process_hsdclk_vcc(&mut self) {
+    fn process_sclk_h_vcc(&mut self) {
         for (row, rd) in &self.chip.rows {
             if rd.kind != RowKind::Io && !rd.sclk_break {
                 continue;
             }
             for (col, cd) in &self.chip.columns {
-                if col != self.chip.col_w() && !cd.sdclk_break {
+                if col != self.chip.col_w() && !cd.sclk_break {
                     continue;
                 }
                 let mut cell = Chip::DIE.cell(col, row);
@@ -56,7 +51,7 @@ impl ChipContext<'_> {
                     cell.row += 9;
                 }
                 for i in 0..8 {
-                    let wire = cell.wire(wires::RSCLK_H[i]);
+                    let wire = cell.wire(wires::SCLK_H[i]);
                     let vcc = cell.wire(wires::TIE1);
                     let vcc = self.naming.interconnect[&vcc];
                     self.claim_pip_int_out(wire, vcc);
@@ -68,45 +63,46 @@ impl ChipContext<'_> {
     pub fn process_clk(&mut self) {
         match self.chip.kind {
             ChipKind::Scm => {
-                let hpcx = self.process_pclk_scm();
+                self.process_pclk_scm();
                 self.process_clk_edge_scm();
-                self.process_clk_root_scm(hpcx);
+                self.process_clk_root_scm();
             }
             ChipKind::Ecp | ChipKind::Xp => self.process_clk_ecp(),
             ChipKind::MachXo => self.process_clk_machxo(),
             ChipKind::Ecp2 | ChipKind::Ecp2M | ChipKind::Xp2 => {
-                self.process_hsdclk_splitter();
+                self.process_sclk_h_splitter();
+                self.process_pclk_ecp2();
                 let sclk_root = self.process_sclk_root_ecp2();
                 self.process_clk_ecp2(sclk_root);
             }
             ChipKind::Ecp3(_) => {
-                self.process_hsdclk_splitter();
-                self.process_hsdclk_vcc();
+                self.process_sclk_h_splitter();
+                self.process_sclk_h_vcc();
                 self.process_hsdclk_root_ecp3();
                 self.process_clk_ecp3();
                 self.process_pclk_ecp3();
             }
             ChipKind::MachXo2(_) => {
-                self.process_hsdclk_splitter();
+                self.process_sclk_h_splitter();
                 self.process_hsdclk_root_machxo2();
-                self.process_pclk_machxo2();
+                self.process_pclk_ecp3();
                 self.process_dlldel_machxo2();
                 self.process_clk_machxo2();
             }
             ChipKind::Ecp4 => {
-                let pclk_roots = self.process_pclk_ecp4();
+                self.process_pclk_ecp4();
                 self.process_clk_edge_ecp4();
-                self.process_clk_root_ecp4(pclk_roots);
+                self.process_clk_root_ecp4();
             }
             ChipKind::Ecp5 => {
-                let hprx = self.process_pclk_ecp5();
+                self.process_pclk_ecp5();
                 self.process_clk_edge_ecp5();
-                self.process_clk_root_ecp5(hprx);
+                self.process_clk_root_ecp5();
             }
             ChipKind::Crosslink => {
-                let hprx = self.process_pclk_crosslink();
+                self.process_pclk_ecp5();
                 self.process_clk_edge_crosslink();
-                self.process_clk_root_crosslink(hprx);
+                self.process_clk_root_crosslink();
             }
         }
     }

@@ -13,3 +13,6 @@
 {{tile ecp4 CLK_N_M}}
 {{tile ecp4 CLK_N_L}}
 {{tile ecp4 CLK_ROOT}}
+{{tile ecp4 PCLK_ROW_DRIVER_W}}
+{{tile ecp4 PCLK_ROW_DRIVER_E}}
+{{tile ecp4 PCLK_DRIVER}}

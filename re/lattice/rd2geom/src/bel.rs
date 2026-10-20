@@ -64,7 +64,8 @@ impl<'dev, 'ctx> BelExtractor<'dev, 'ctx> {
             match idx {
                 EntityBundleIndices::Single(id) => {
                     if let Some(&wire) = wires.get(name)
-                        && let Some(bpin) = self.ctx.try_xlat_output(self.bcrd, wire, false, true)
+                        && let Some(bpin) =
+                            self.ctx.try_xlat_output(self.bcrd, wire, false, true, None)
                     {
                         self.ctx.add_bel_wire(self.bcrd, name, wire);
                         self.output_raw(id, bpin);
@@ -87,7 +88,7 @@ impl<'dev, 'ctx> BelExtractor<'dev, 'ctx> {
                         }
                         if let Some(&wire) = wire
                             && let Some(bpin) =
-                                self.ctx.try_xlat_output(self.bcrd, wire, false, true)
+                                self.ctx.try_xlat_output(self.bcrd, wire, false, true, None)
                         {
                             self.ctx.add_bel_wire(self.bcrd, iname, wire);
                             self.output_raw(id, bpin);
@@ -229,6 +230,26 @@ impl<'dev, 'ctx> BelExtractor<'dev, 'ctx> {
         suffix: impl AsRef<str>,
     ) -> &mut Self {
         self.input_xlat_rename_rc_mode(pin, pname, suffix, RcMode::Io)
+    }
+
+    pub fn input_hint(&mut self, pin: BelInputId, name: WireName, tw: TileWireCoord) -> &mut Self {
+        let atw = self.ctx.xlat_input(self.bcrd, name).wire();
+        assert_eq!(
+            self.ctx.edev.resolve_bel_wire(self.bcrd, tw).unwrap(),
+            self.ctx.edev.resolve_bel_wire(self.bcrd, atw).unwrap(),
+        );
+        self.add_wire(self.input_pname(pin), name);
+        self.input(pin, tw)
+    }
+
+    pub fn input_hint_rc(
+        &mut self,
+        pin: BelInputId,
+        suffix: impl AsRef<str>,
+        wire: TileWireCoord,
+    ) -> &mut Self {
+        let wname = self.ctx.rc_wire(self.cell, suffix.as_ref());
+        self.input_hint(pin, wname, wire)
     }
 
     pub fn input_io(&mut self, pin: BelInputId, name: WireName, wire: TileWireCoord) -> &mut Self {

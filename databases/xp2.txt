@@ -2,7 +2,7 @@
 chip CHIP0 {
 	kind xp2;
 	columns {
-		null, // X0 PCLK_DRIVE
+		null, // X0
 		io_s[5, double_dummy] + io_n[0, double_dummy], // X1
 		io_s[5, double_dummy] + io_n[0, double_dummy], // X2
 		io_s[5, double_dummy] + io_n[0, double_dummy], // X3
@@ -20,10 +20,10 @@ chip CHIP0 {
 		io_s[5, double] + io_n[0, double], // X15
 		io_s[5, double] + io_n[0, double], // X16
 		io_s[5, double] + io_n[0, double], // X17
-		io_s[5, double] + io_n[0, double], // X18
+		io_s[5, double] + io_n[0, double], // X18 PCLK_DRIVE
 		// clock
 		// PCLK break
-		io_s[4, double] + io_n[1, double] + sdclk_break, // X19 PCLK_DRIVE
+		io_s[4, double] + io_n[1, double] + sclk_break, // X19 PCLK_DRIVE
 		io_s[4, double] + io_n[1, double], // X20
 		io_s[4, double] + io_n[1, double], // X21
 		io_s[4, double] + io_n[1, double], // X22
@@ -35,7 +35,7 @@ chip CHIP0 {
 		null, // X28
 	}
 	col_clk X19;
-	col_pclk X0..X19 = X0;
+	col_pclk X0..X19 = X18;
 	col_pclk X19..X29 = X19;
 	rows {
 		io, // Y0
@@ -140,7 +140,7 @@ chip CHIP0 {
 chip CHIP1 {
 	kind xp2;
 	columns {
-		null, // X0 PCLK_DRIVE
+		null, // X0
 		io_s[5, double] + io_n[0, double], // X1
 		io_s[5, double] + io_n[0, double], // X2
 		io_s[5, double] + io_n[0, double], // X3
@@ -158,10 +158,10 @@ chip CHIP1 {
 		io_s[5, double] + io_n[0, double], // X15
 		io_s[5, double] + io_n[0, double], // X16
 		io_s[5, double] + io_n[0, double], // X17
-		io_s[5, double] + io_n[0, double], // X18
+		io_s[5, double] + io_n[0, double], // X18 PCLK_DRIVE
 		// clock
 		// PCLK break
-		io_s[4, double] + io_n[1, double] + sdclk_break, // X19 PCLK_DRIVE
+		io_s[4, double] + io_n[1, double] + sclk_break, // X19 PCLK_DRIVE
 		io_s[4, double] + io_n[1, double], // X20
 		io_s[4, double] + io_n[1, double], // X21
 		io_s[4, double] + io_n[1, double], // X22
@@ -182,7 +182,7 @@ chip CHIP1 {
 		null, // X37
 	}
 	col_clk X19;
-	col_pclk X0..X19 = X0;
+	col_pclk X0..X19 = X18;
 	col_pclk X19..X38 = X19;
 	rows {
 		io, // Y0
@@ -294,7 +294,7 @@ chip CHIP1 {
 chip CHIP2 {
 	kind xp2;
 	columns {
-		null, // X0 PCLK_DRIVE
+		null, // X0
 		io_s[5, double_dummy] + io_n[0, double_dummy], // X1
 		io_s[5, double] + io_n[0, double], // X2
 		io_s[5, double] + io_n[0, double], // X3
@@ -321,10 +321,10 @@ chip CHIP2 {
 		io_s[5, double] + io_n[0, double], // X24
 		io_s[5, double] + io_n[0, double], // X25
 		io_s[5, double] + io_n[0, double], // X26
-		io_s[5, double] + io_n[0, double], // X27
+		io_s[5, double] + io_n[0, double], // X27 PCLK_DRIVE
 		// clock
 		// PCLK break
-		io_s[4, double] + io_n[1, double] + sdclk_break, // X28 PCLK_DRIVE
+		io_s[4, double] + io_n[1, double] + sclk_break, // X28 PCLK_DRIVE
 		io_s[4, double] + io_n[1, double], // X29
 		io_s[4, double] + io_n[1, double], // X30
 		io_s[4, double] + io_n[1, double], // X31
@@ -345,7 +345,7 @@ chip CHIP2 {
 		null, // X46
 	}
 	col_clk X28;
-	col_pclk X0..X28 = X0;
+	col_pclk X0..X28 = X27;
 	col_pclk X28..X47 = X28;
 	rows {
 		io, // Y0
@@ -480,7 +480,7 @@ chip CHIP2 {
 chip CHIP3 {
 	kind xp2;
 	columns {
-		null, // X0 PCLK_DRIVE
+		null, // X0
 		io_s[5, double_dummy] + io_n[0, double_dummy], // X1
 		io_s[5, double] + io_n[0, double], // X2
 		io_s[5, double] + io_n[0, double], // X3
@@ -499,7 +499,7 @@ chip CHIP3 {
 		io_s[5, double] + io_n[0, double], // X16
 		io_s[5, double] + io_n[0, double], // X17
 		io_s[5, double] + io_n[0, double], // X18
-		io_s[5, double] + io_n[0, double] + sdclk_break, // X19
+		io_s[5, double] + io_n[0, double] + sclk_break, // X19
 		io_s[5, double] + io_n[0, double], // X20
 		io_s[5, double] + io_n[0, double], // X21
 		io_s[5, double] + io_n[0, double], // X22
@@ -516,10 +516,10 @@ chip CHIP3 {
 		io_s[5, double] + io_n[0, double], // X33
 		io_s[5, double] + io_n[0, double], // X34
 		io_s[5, double] + io_n[0, double], // X35
-		io_s[5, double] + io_n[0, double], // X36
+		io_s[5, double] + io_n[0, double], // X36 PCLK_DRIVE
 		// clock
 		// PCLK break
-		io_s[4, double] + io_n[1, double] + sdclk_break, // X37 PCLK_DRIVE
+		io_s[4, double] + io_n[1, double] + sclk_break, // X37 PCLK_DRIVE
 		io_s[4, double] + io_n[1, double], // X38
 		io_s[4, double] + io_n[1, double], // X39
 		io_s[4, double] + io_n[1, double], // X40
@@ -549,7 +549,7 @@ chip CHIP3 {
 		null, // X64
 	}
 	col_clk X37;
-	col_pclk X0..X37 = X0;
+	col_pclk X0..X37 = X36;
 	col_pclk X37..X65 = X37;
 	rows {
 		io, // Y0
@@ -696,7 +696,7 @@ chip CHIP3 {
 chip CHIP4 {
 	kind xp2;
 	columns {
-		null, // X0 PCLK_DRIVE
+		null, // X0
 		io_s[5, double_dummy] + io_n[0, double_dummy], // X1
 		io_s[5, double] + io_n[0, double], // X2
 		io_s[5, double] + io_n[0, double], // X3
@@ -715,7 +715,7 @@ chip CHIP4 {
 		io_s[5, double] + io_n[0, double], // X16
 		io_s[5, double] + io_n[0, double], // X17
 		io_s[5, double] + io_n[0, double], // X18
-		io_s[5, double] + io_n[0, double] + sdclk_break, // X19
+		io_s[5, double] + io_n[0, double] + sclk_break, // X19
 		io_s[5, double] + io_n[0, double], // X20
 		io_s[5, double] + io_n[0, double], // X21
 		io_s[5, double] + io_n[0, double], // X22
@@ -732,10 +732,10 @@ chip CHIP4 {
 		io_s[5, double] + io_n[0, double], // X33
 		io_s[5, double] + io_n[0, double], // X34
 		io_s[5, double] + io_n[0, double], // X35
-		io_s[5, double] + io_n[0, double], // X36
+		io_s[5, double] + io_n[0, double], // X36 PCLK_DRIVE
 		// clock
 		// PCLK break
-		io_s[4, double] + io_n[1, double] + sdclk_break, // X37 PCLK_DRIVE
+		io_s[4, double] + io_n[1, double] + sclk_break, // X37 PCLK_DRIVE
 		io_s[4, double] + io_n[1, double], // X38
 		io_s[4, double] + io_n[1, double], // X39
 		io_s[4, double] + io_n[1, double], // X40
@@ -753,7 +753,7 @@ chip CHIP4 {
 		io_s[4, double] + io_n[1, double], // X52
 		io_s[4, double] + io_n[1, double], // X53
 		io_s[4, double] + io_n[1, double], // X54
-		io_s[4, double] + io_n[1, double] + sdclk_break, // X55
+		io_s[4, double] + io_n[1, double] + sclk_break, // X55
 		io_s[4, double] + io_n[1, double], // X56
 		io_s[4, double] + io_n[1, double], // X57
 		io_s[4, double] + io_n[1, double], // X58
@@ -774,7 +774,7 @@ chip CHIP4 {
 		null, // X73
 	}
 	col_clk X37;
-	col_pclk X0..X37 = X0;
+	col_pclk X0..X37 = X36;
 	col_pclk X37..X74 = X37;
 	rows {
 		io, // Y0
@@ -7111,11 +7111,13 @@ intdb {
 	}
 
 	region_slot PCLK;
+	region_slot PCLK_LEAF;
 	region_slot RSCLK[0];
 	region_slot RSCLK[1];
 	region_slot RSCLK[2];
 	region_slot RSCLK[3];
 	region_slot RSCLK_V;
+	region_slot SCLK_H;
 	region_slot ECLK;
 	region_slot DQS;
 	region_slot DQSDLL;
@@ -7417,14 +7419,22 @@ intdb {
 	wire X6_N6[1]: branch S;
 	wire X6_N6[2]: branch S;
 	wire X6_N6[3]: branch S;
-	wire PCLK[0]: regional PCLK;
-	wire PCLK[1]: regional PCLK;
-	wire PCLK[2]: regional PCLK;
-	wire PCLK[3]: regional PCLK;
-	wire PCLK[4]: regional PCLK;
-	wire PCLK[5]: regional PCLK;
-	wire PCLK[6]: regional PCLK;
-	wire PCLK[7]: regional PCLK;
+	wire PCLK[0]: regional PCLK_LEAF;
+	wire PCLK[1]: regional PCLK_LEAF;
+	wire PCLK[2]: regional PCLK_LEAF;
+	wire PCLK[3]: regional PCLK_LEAF;
+	wire PCLK[4]: regional PCLK_LEAF;
+	wire PCLK[5]: regional PCLK_LEAF;
+	wire PCLK[6]: regional PCLK_LEAF;
+	wire PCLK[7]: regional PCLK_LEAF;
+	wire PCLK_ROOT[0]: regional PCLK;
+	wire PCLK_ROOT[1]: regional PCLK;
+	wire PCLK_ROOT[2]: regional PCLK;
+	wire PCLK_ROOT[3]: regional PCLK;
+	wire PCLK_ROOT[4]: regional PCLK;
+	wire PCLK_ROOT[5]: regional PCLK;
+	wire PCLK_ROOT[6]: regional PCLK;
+	wire PCLK_ROOT[7]: regional PCLK;
 	wire SCLK_ROOT[0]: regional PCLK;
 	wire SCLK_ROOT[1]: regional PCLK;
 	wire SCLK_ROOT[2]: regional PCLK;
@@ -7433,22 +7443,22 @@ intdb {
 	wire SCLK_ROOT[5]: regional PCLK;
 	wire SCLK_ROOT[6]: regional PCLK;
 	wire SCLK_ROOT[7]: regional PCLK;
-	wire RSCLK[0]: regional RSCLK[0];
-	wire RSCLK[1]: regional RSCLK[1];
-	wire RSCLK[2]: regional RSCLK[2];
-	wire RSCLK[3]: regional RSCLK[3];
-	wire RSCLK[4]: regional RSCLK[0];
-	wire RSCLK[5]: regional RSCLK[1];
-	wire RSCLK[6]: regional RSCLK[2];
-	wire RSCLK[7]: regional RSCLK[3];
-	wire RSCLK_H[0]: branch RSCLK_W;
-	wire RSCLK_H[1]: branch RSCLK_W;
-	wire RSCLK_H[2]: branch RSCLK_W;
-	wire RSCLK_H[3]: branch RSCLK_W;
-	wire RSCLK_H[4]: branch RSCLK_W;
-	wire RSCLK_H[5]: branch RSCLK_W;
-	wire RSCLK_H[6]: branch RSCLK_W;
-	wire RSCLK_H[7]: branch RSCLK_W;
+	wire SCLK[0]: regional RSCLK[0];
+	wire SCLK[1]: regional RSCLK[1];
+	wire SCLK[2]: regional RSCLK[2];
+	wire SCLK[3]: regional RSCLK[3];
+	wire SCLK[4]: regional RSCLK[0];
+	wire SCLK[5]: regional RSCLK[1];
+	wire SCLK[6]: regional RSCLK[2];
+	wire SCLK[7]: regional RSCLK[3];
+	wire RSCLK[0]: multi_branch RCLK;
+	wire RSCLK[1]: multi_branch RCLK;
+	wire RSCLK[2]: multi_branch RCLK;
+	wire RSCLK[3]: multi_branch RCLK;
+	wire RSCLK[4]: multi_branch RCLK;
+	wire RSCLK[5]: multi_branch RCLK;
+	wire RSCLK[6]: multi_branch RCLK;
+	wire RSCLK[7]: multi_branch RCLK;
 	wire RSCLK_V[0]: regional RSCLK_V;
 	wire RSCLK_V[1]: regional RSCLK_V;
 	wire RSCLK_V[2]: regional RSCLK_V;
@@ -7465,6 +7475,22 @@ intdb {
 	wire RSCLK_V_N[5]: branch S;
 	wire RSCLK_V_N[6]: branch S;
 	wire RSCLK_V_N[7]: branch S;
+	wire SCLK_H[0]: regional SCLK_H;
+	wire SCLK_H[1]: regional SCLK_H;
+	wire SCLK_H[2]: regional SCLK_H;
+	wire SCLK_H[3]: regional SCLK_H;
+	wire SCLK_H[4]: regional SCLK_H;
+	wire SCLK_H[5]: regional SCLK_H;
+	wire SCLK_H[6]: regional SCLK_H;
+	wire SCLK_H[7]: regional SCLK_H;
+	wire RSCLK_H[0]: multi_branch RCLK;
+	wire RSCLK_H[1]: multi_branch RCLK;
+	wire RSCLK_H[2]: multi_branch RCLK;
+	wire RSCLK_H[3]: multi_branch RCLK;
+	wire RSCLK_H[4]: multi_branch RCLK;
+	wire RSCLK_H[5]: multi_branch RCLK;
+	wire RSCLK_H[6]: multi_branch RCLK;
+	wire RSCLK_H[7]: multi_branch RCLK;
 	wire IMUX_A[0]: mux;
 	wire IMUX_A[1]: mux;
 	wire IMUX_A[2]: mux;
@@ -7597,14 +7623,14 @@ intdb {
 			cell CELL;
 
 			switchbox INT {
-				mux X0_W[0] = X2_W1[0] | X2_W1[2] | X2_W2[0] | X2_W2[2] | X2_E1[0] | X2_E1[2] | X2_E2[0] | X2_E2[2] | X2_S1[0] | X2_S1[2] | X2_S2[0] | X2_S2[2] | X2_N1[0] | X2_N1[2] | X2_N2[0] | X2_N2[2] | PCLK[6] | RSCLK[4] | RSCLK[5] | RSCLK[6] | RSCLK[7] | OUT_F[0] | OUT_F[2] | OUT_Q[2] | OUT_Q[5];
-				mux X0_W[1] = X2_W1[1] | X2_W1[3] | X2_W2[1] | X2_W2[3] | X2_E1[1] | X2_E1[3] | X2_E2[1] | X2_E2[3] | X2_S1[1] | X2_S1[3] | X2_S2[1] | X2_S2[3] | X2_N1[1] | X2_N1[3] | X2_N2[1] | X2_N2[3] | PCLK[4] | RSCLK[4] | RSCLK[5] | RSCLK[6] | RSCLK[7] | OUT_F[1] | OUT_F[3] | OUT_Q[1];
-				mux X0_E[0] = X2_W1[4] | X2_W1[6] | X2_W2[4] | X2_W2[6] | X2_E1[4] | X2_E1[6] | X2_E2[4] | X2_E2[6] | X2_S1[4] | X2_S1[6] | X2_S2[4] | X2_S2[6] | X2_N1[4] | X2_N1[6] | X2_N2[4] | X2_N2[6] | PCLK[5] | RSCLK[4] | RSCLK[5] | RSCLK[6] | RSCLK[7] | OUT_F[4] | OUT_F[6] | OUT_Q[4];
-				mux X0_E[1] = X2_W1[5] | X2_W1[7] | X2_W2[5] | X2_W2[7] | X2_E1[5] | X2_E1[7] | X2_E2[5] | X2_E2[7] | X2_S1[5] | X2_S1[7] | X2_S2[5] | X2_S2[7] | X2_N1[5] | X2_N1[7] | X2_N2[5] | X2_N2[7] | PCLK[7] | RSCLK[4] | RSCLK[5] | RSCLK[6] | RSCLK[7] | OUT_F[5] | OUT_F[7] | OUT_Q[0] | OUT_Q[3];
-				mux X0_S[0] = X2_W1[4] | X2_W1[6] | X2_W2[4] | X2_W2[6] | X2_E1[4] | X2_E1[6] | X2_E2[4] | X2_E2[6] | X2_S1[0] | X2_S1[2] | X2_S2[0] | X2_S2[2] | X2_N1[0] | X2_N1[2] | X2_N2[0] | X2_N2[2] | PCLK[5] | RSCLK[4] | RSCLK[5] | RSCLK[6] | RSCLK[7] | OUT_F[0] | OUT_F[2] | OUT_Q[0];
-				mux X0_S[1] = X2_W1[5] | X2_W1[7] | X2_W2[5] | X2_W2[7] | X2_E1[5] | X2_E1[7] | X2_E2[5] | X2_E2[7] | X2_S1[1] | X2_S1[3] | X2_S2[1] | X2_S2[3] | X2_N1[1] | X2_N1[3] | X2_N2[1] | X2_N2[3] | PCLK[7] | RSCLK[4] | RSCLK[5] | RSCLK[6] | RSCLK[7] | OUT_F[1] | OUT_F[3] | OUT_Q[1];
-				mux X0_N[0] = X2_W1[0] | X2_W1[2] | X2_W2[0] | X2_W2[2] | X2_E1[0] | X2_E1[2] | X2_E2[0] | X2_E2[2] | X2_S1[4] | X2_S1[6] | X2_S2[4] | X2_S2[6] | X2_N1[4] | X2_N1[6] | X2_N2[4] | X2_N2[6] | PCLK[6] | RSCLK[4] | RSCLK[5] | RSCLK[6] | RSCLK[7] | OUT_F[4] | OUT_F[6] | OUT_Q[4] | OUT_Q[5];
-				mux X0_N[1] = X2_W1[1] | X2_W1[3] | X2_W2[1] | X2_W2[3] | X2_E1[1] | X2_E1[3] | X2_E2[1] | X2_E2[3] | X2_S1[5] | X2_S1[7] | X2_S2[5] | X2_S2[7] | X2_N1[5] | X2_N1[7] | X2_N2[5] | X2_N2[7] | PCLK[4] | RSCLK[4] | RSCLK[5] | RSCLK[6] | RSCLK[7] | OUT_F[5] | OUT_F[7] | OUT_Q[2] | OUT_Q[3];
+				mux X0_W[0] = X2_W1[0] | X2_W1[2] | X2_W2[0] | X2_W2[2] | X2_E1[0] | X2_E1[2] | X2_E2[0] | X2_E2[2] | X2_S1[0] | X2_S1[2] | X2_S2[0] | X2_S2[2] | X2_N1[0] | X2_N1[2] | X2_N2[0] | X2_N2[2] | PCLK[6] | SCLK[4] | SCLK[5] | SCLK[6] | SCLK[7] | OUT_F[0] | OUT_F[2] | OUT_Q[2] | OUT_Q[5];
+				mux X0_W[1] = X2_W1[1] | X2_W1[3] | X2_W2[1] | X2_W2[3] | X2_E1[1] | X2_E1[3] | X2_E2[1] | X2_E2[3] | X2_S1[1] | X2_S1[3] | X2_S2[1] | X2_S2[3] | X2_N1[1] | X2_N1[3] | X2_N2[1] | X2_N2[3] | PCLK[4] | SCLK[4] | SCLK[5] | SCLK[6] | SCLK[7] | OUT_F[1] | OUT_F[3] | OUT_Q[1];
+				mux X0_E[0] = X2_W1[4] | X2_W1[6] | X2_W2[4] | X2_W2[6] | X2_E1[4] | X2_E1[6] | X2_E2[4] | X2_E2[6] | X2_S1[4] | X2_S1[6] | X2_S2[4] | X2_S2[6] | X2_N1[4] | X2_N1[6] | X2_N2[4] | X2_N2[6] | PCLK[5] | SCLK[4] | SCLK[5] | SCLK[6] | SCLK[7] | OUT_F[4] | OUT_F[6] | OUT_Q[4];
+				mux X0_E[1] = X2_W1[5] | X2_W1[7] | X2_W2[5] | X2_W2[7] | X2_E1[5] | X2_E1[7] | X2_E2[5] | X2_E2[7] | X2_S1[5] | X2_S1[7] | X2_S2[5] | X2_S2[7] | X2_N1[5] | X2_N1[7] | X2_N2[5] | X2_N2[7] | PCLK[7] | SCLK[4] | SCLK[5] | SCLK[6] | SCLK[7] | OUT_F[5] | OUT_F[7] | OUT_Q[0] | OUT_Q[3];
+				mux X0_S[0] = X2_W1[4] | X2_W1[6] | X2_W2[4] | X2_W2[6] | X2_E1[4] | X2_E1[6] | X2_E2[4] | X2_E2[6] | X2_S1[0] | X2_S1[2] | X2_S2[0] | X2_S2[2] | X2_N1[0] | X2_N1[2] | X2_N2[0] | X2_N2[2] | PCLK[5] | SCLK[4] | SCLK[5] | SCLK[6] | SCLK[7] | OUT_F[0] | OUT_F[2] | OUT_Q[0];
+				mux X0_S[1] = X2_W1[5] | X2_W1[7] | X2_W2[5] | X2_W2[7] | X2_E1[5] | X2_E1[7] | X2_E2[5] | X2_E2[7] | X2_S1[1] | X2_S1[3] | X2_S2[1] | X2_S2[3] | X2_N1[1] | X2_N1[3] | X2_N2[1] | X2_N2[3] | PCLK[7] | SCLK[4] | SCLK[5] | SCLK[6] | SCLK[7] | OUT_F[1] | OUT_F[3] | OUT_Q[1];
+				mux X0_N[0] = X2_W1[0] | X2_W1[2] | X2_W2[0] | X2_W2[2] | X2_E1[0] | X2_E1[2] | X2_E2[0] | X2_E2[2] | X2_S1[4] | X2_S1[6] | X2_S2[4] | X2_S2[6] | X2_N1[4] | X2_N1[6] | X2_N2[4] | X2_N2[6] | PCLK[6] | SCLK[4] | SCLK[5] | SCLK[6] | SCLK[7] | OUT_F[4] | OUT_F[6] | OUT_Q[4] | OUT_Q[5];
+				mux X0_N[1] = X2_W1[1] | X2_W1[3] | X2_W2[1] | X2_W2[3] | X2_E1[1] | X2_E1[3] | X2_E2[1] | X2_E2[3] | X2_S1[5] | X2_S1[7] | X2_S2[5] | X2_S2[7] | X2_N1[5] | X2_N1[7] | X2_N2[5] | X2_N2[7] | PCLK[4] | SCLK[4] | SCLK[5] | SCLK[6] | SCLK[7] | OUT_F[5] | OUT_F[7] | OUT_Q[2] | OUT_Q[3];
 				mux X1_H[1] = OUT_F[0] | OUT_F[1] | OUT_F[2] | OUT_F[3] | OUT_F[4] | OUT_F[5] | OUT_F[6] | OUT_F[7] | OUT_Q[0] | OUT_Q[1] | OUT_Q[2] | OUT_Q[3] | OUT_Q[4] | OUT_Q[5] | OUT_OFX[2] | OUT_OFX[3];
 				mux X1_H[4] = OUT_F[0] | OUT_F[1] | OUT_F[2] | OUT_F[3] | OUT_F[4] | OUT_F[5] | OUT_F[6] | OUT_F[7] | OUT_Q[0] | OUT_Q[1] | OUT_Q[2] | OUT_Q[3] | OUT_Q[4] | OUT_Q[5] | OUT_OFX[4] | OUT_OFX[5];
 				mux X1_V[1] = OUT_F[0] | OUT_F[1] | OUT_F[2] | OUT_F[3] | OUT_F[4] | OUT_F[5] | OUT_F[6] | OUT_F[7] | OUT_Q[0] | OUT_Q[1] | OUT_Q[2] | OUT_Q[3] | OUT_Q[4] | OUT_Q[5] | OUT_OFX[0] | OUT_OFX[1];
@@ -7713,15 +7739,15 @@ intdb {
 				permabuf IMUX_M[5] = X0_E[1];
 				permabuf IMUX_M[6] = X0_W[1];
 				permabuf IMUX_M[7] = X0_S[1];
-				mux IMUX_CLK[0] = X0_W[0] | X0_W[1] | X0_E[0] | X0_E[1] | X2_W1[4] | X2_W2[4] | X2_E1[4] | X2_E2[4] | X2_S1[4] | X2_S2[4] | X2_N1[4] | X2_N2[4] | PCLK[0] | PCLK[1] | PCLK[2] | PCLK[3] | PCLK[4] | PCLK[5] | PCLK[6] | PCLK[7] | RSCLK[0] | RSCLK[1] | RSCLK[2] | RSCLK[3];
-				mux IMUX_CLK[1] = X0_W[0] | X0_W[1] | X0_E[0] | X0_E[1] | X2_W1[4] | X2_W2[4] | X2_E1[4] | X2_E2[4] | X2_S1[4] | X2_S2[4] | X2_N1[4] | X2_N2[4] | PCLK[0] | PCLK[1] | PCLK[2] | PCLK[3] | PCLK[4] | PCLK[5] | PCLK[6] | PCLK[7] | RSCLK[0] | RSCLK[1] | RSCLK[2] | RSCLK[3];
-				mux IMUX_CLK[2] = X0_W[0] | X0_W[1] | X0_E[0] | X0_E[1] | X2_W1[4] | X2_W2[4] | X2_E1[4] | X2_E2[4] | X2_S1[4] | X2_S2[4] | X2_N1[4] | X2_N2[4] | PCLK[0] | PCLK[1] | PCLK[2] | PCLK[3] | PCLK[4] | PCLK[5] | PCLK[6] | PCLK[7] | RSCLK[0] | RSCLK[1] | RSCLK[2] | RSCLK[3];
-				mux IMUX_LSR[0] = X0_S[0] | X0_S[1] | X0_N[0] | X0_N[1] | X2_W1[7] | X2_W2[7] | X2_E1[7] | X2_E2[7] | X2_S1[7] | X2_S2[7] | X2_N1[7] | X2_N2[7] | RSCLK[1] | RSCLK[2] | RSCLK[3];
-				mux IMUX_LSR[1] = X0_S[0] | X0_S[1] | X0_N[0] | X0_N[1] | X2_W1[7] | X2_W2[7] | X2_E1[7] | X2_E2[7] | X2_S1[7] | X2_S2[7] | X2_N1[7] | X2_N2[7] | RSCLK[1] | RSCLK[2] | RSCLK[3];
-				mux IMUX_LSR[2] = X0_S[0] | X0_S[1] | X0_N[0] | X0_N[1] | X2_W1[7] | X2_W2[7] | X2_E1[7] | X2_E2[7] | X2_S1[7] | X2_S2[7] | X2_N1[7] | X2_N2[7] | RSCLK[1] | RSCLK[2] | RSCLK[3];
-				mux IMUX_CE[0] = X0_S[0] | X0_S[1] | X0_N[0] | X0_N[1] | X2_W1[1] | X2_W2[1] | X2_E1[1] | X2_E2[1] | X2_S1[1] | X2_S2[1] | X2_N1[1] | X2_N2[1] | RSCLK[0] | RSCLK[2] | RSCLK[3];
-				mux IMUX_CE[1] = X0_S[0] | X0_S[1] | X0_N[0] | X0_N[1] | X2_W1[1] | X2_W2[1] | X2_E1[1] | X2_E2[1] | X2_S1[1] | X2_S2[1] | X2_N1[1] | X2_N2[1] | RSCLK[0] | RSCLK[2] | RSCLK[3];
-				mux IMUX_CE[2] = X0_S[0] | X0_S[1] | X0_N[0] | X0_N[1] | X2_W1[1] | X2_W2[1] | X2_E1[1] | X2_E2[1] | X2_S1[1] | X2_S2[1] | X2_N1[1] | X2_N2[1] | RSCLK[0] | RSCLK[2] | RSCLK[3];
+				mux IMUX_CLK[0] = X0_W[0] | X0_W[1] | X0_E[0] | X0_E[1] | X2_W1[4] | X2_W2[4] | X2_E1[4] | X2_E2[4] | X2_S1[4] | X2_S2[4] | X2_N1[4] | X2_N2[4] | PCLK[0] | PCLK[1] | PCLK[2] | PCLK[3] | PCLK[4] | PCLK[5] | PCLK[6] | PCLK[7] | SCLK[0] | SCLK[1] | SCLK[2] | SCLK[3];
+				mux IMUX_CLK[1] = X0_W[0] | X0_W[1] | X0_E[0] | X0_E[1] | X2_W1[4] | X2_W2[4] | X2_E1[4] | X2_E2[4] | X2_S1[4] | X2_S2[4] | X2_N1[4] | X2_N2[4] | PCLK[0] | PCLK[1] | PCLK[2] | PCLK[3] | PCLK[4] | PCLK[5] | PCLK[6] | PCLK[7] | SCLK[0] | SCLK[1] | SCLK[2] | SCLK[3];
+				mux IMUX_CLK[2] = X0_W[0] | X0_W[1] | X0_E[0] | X0_E[1] | X2_W1[4] | X2_W2[4] | X2_E1[4] | X2_E2[4] | X2_S1[4] | X2_S2[4] | X2_N1[4] | X2_N2[4] | PCLK[0] | PCLK[1] | PCLK[2] | PCLK[3] | PCLK[4] | PCLK[5] | PCLK[6] | PCLK[7] | SCLK[0] | SCLK[1] | SCLK[2] | SCLK[3];
+				mux IMUX_LSR[0] = X0_S[0] | X0_S[1] | X0_N[0] | X0_N[1] | X2_W1[7] | X2_W2[7] | X2_E1[7] | X2_E2[7] | X2_S1[7] | X2_S2[7] | X2_N1[7] | X2_N2[7] | SCLK[1] | SCLK[2] | SCLK[3];
+				mux IMUX_LSR[1] = X0_S[0] | X0_S[1] | X0_N[0] | X0_N[1] | X2_W1[7] | X2_W2[7] | X2_E1[7] | X2_E2[7] | X2_S1[7] | X2_S2[7] | X2_N1[7] | X2_N2[7] | SCLK[1] | SCLK[2] | SCLK[3];
+				mux IMUX_LSR[2] = X0_S[0] | X0_S[1] | X0_N[0] | X0_N[1] | X2_W1[7] | X2_W2[7] | X2_E1[7] | X2_E2[7] | X2_S1[7] | X2_S2[7] | X2_N1[7] | X2_N2[7] | SCLK[1] | SCLK[2] | SCLK[3];
+				mux IMUX_CE[0] = X0_S[0] | X0_S[1] | X0_N[0] | X0_N[1] | X2_W1[1] | X2_W2[1] | X2_E1[1] | X2_E2[1] | X2_S1[1] | X2_S2[1] | X2_N1[1] | X2_N2[1] | SCLK[0] | SCLK[2] | SCLK[3];
+				mux IMUX_CE[1] = X0_S[0] | X0_S[1] | X0_N[0] | X0_N[1] | X2_W1[1] | X2_W2[1] | X2_E1[1] | X2_E2[1] | X2_S1[1] | X2_S2[1] | X2_N1[1] | X2_N2[1] | SCLK[0] | SCLK[2] | SCLK[3];
+				mux IMUX_CE[2] = X0_S[0] | X0_S[1] | X0_N[0] | X0_N[1] | X2_W1[1] | X2_W2[1] | X2_E1[1] | X2_E2[1] | X2_S1[1] | X2_S2[1] | X2_N1[1] | X2_N2[1] | SCLK[0] | SCLK[2] | SCLK[3];
 			}
 		}
 
@@ -7729,34 +7755,34 @@ intdb {
 			cell CELL;
 
 			switchbox INT {
-				mux X0_W[0] = X2_W1[0] | X2_W1[2] | X2_W2[0] | X2_W2[2] | X2_E1[0] | X2_E1[2] | X2_E2[0] | X2_E2[2] | X2_S1[0] | X2_S1[2] | X2_S2[0] | X2_S2[2] | X2_N1[0] | X2_N1[2] | X2_N2[0] | X2_N2[2] | RSCLK[0] | RSCLK[1] | RSCLK[2] | RSCLK[3] | RSCLK[4] | RSCLK[5] | RSCLK[6] | RSCLK[7];
-				mux X0_W[1] = X2_W1[1] | X2_W1[3] | X2_W2[1] | X2_W2[3] | X2_E1[1] | X2_E1[3] | X2_E2[1] | X2_E2[3] | X2_S1[1] | X2_S1[3] | X2_S2[1] | X2_S2[3] | X2_N1[1] | X2_N1[3] | X2_N2[1] | X2_N2[3] | RSCLK[0] | RSCLK[1] | RSCLK[2] | RSCLK[3] | RSCLK[4] | RSCLK[5] | RSCLK[6] | RSCLK[7];
-				mux X0_E[0] = X2_W1[4] | X2_W1[6] | X2_W2[4] | X2_W2[6] | X2_E1[4] | X2_E1[6] | X2_E2[4] | X2_E2[6] | X2_S1[4] | X2_S1[6] | X2_S2[4] | X2_S2[6] | X2_N1[4] | X2_N1[6] | X2_N2[4] | X2_N2[6] | RSCLK[0] | RSCLK[1] | RSCLK[2] | RSCLK[3] | RSCLK[4] | RSCLK[5] | RSCLK[6] | RSCLK[7];
-				mux X0_E[1] = X2_W1[5] | X2_W1[7] | X2_W2[5] | X2_W2[7] | X2_E1[5] | X2_E1[7] | X2_E2[5] | X2_E2[7] | X2_S1[5] | X2_S1[7] | X2_S2[5] | X2_S2[7] | X2_N1[5] | X2_N1[7] | X2_N2[5] | X2_N2[7] | RSCLK[0] | RSCLK[1] | RSCLK[2] | RSCLK[3] | RSCLK[4] | RSCLK[5] | RSCLK[6] | RSCLK[7];
-				mux X0_S[0] = X2_W1[4] | X2_W1[6] | X2_W2[4] | X2_W2[6] | X2_E1[4] | X2_E1[6] | X2_E2[4] | X2_E2[6] | X2_S1[0] | X2_S1[2] | X2_S2[0] | X2_S2[2] | X2_N1[0] | X2_N1[2] | X2_N2[0] | X2_N2[2] | RSCLK[0] | RSCLK[1] | RSCLK[2] | RSCLK[3] | RSCLK[4] | RSCLK[5] | RSCLK[6] | RSCLK[7];
-				mux X0_S[1] = X2_W1[5] | X2_W1[7] | X2_W2[5] | X2_W2[7] | X2_E1[5] | X2_E1[7] | X2_E2[5] | X2_E2[7] | X2_S1[1] | X2_S1[3] | X2_S2[1] | X2_S2[3] | X2_N1[1] | X2_N1[3] | X2_N2[1] | X2_N2[3] | RSCLK[0] | RSCLK[1] | RSCLK[2] | RSCLK[3] | RSCLK[4] | RSCLK[5] | RSCLK[6] | RSCLK[7];
-				mux X0_N[0] = X2_W1[0] | X2_W1[2] | X2_W2[0] | X2_W2[2] | X2_E1[0] | X2_E1[2] | X2_E2[0] | X2_E2[2] | X2_S1[4] | X2_S1[6] | X2_S2[4] | X2_S2[6] | X2_N1[4] | X2_N1[6] | X2_N2[4] | X2_N2[6] | RSCLK[0] | RSCLK[1] | RSCLK[2] | RSCLK[3] | RSCLK[4] | RSCLK[5] | RSCLK[6] | RSCLK[7];
-				mux X0_N[1] = X2_W1[1] | X2_W1[3] | X2_W2[1] | X2_W2[3] | X2_E1[1] | X2_E1[3] | X2_E2[1] | X2_E2[3] | X2_S1[5] | X2_S1[7] | X2_S2[5] | X2_S2[7] | X2_N1[5] | X2_N1[7] | X2_N2[5] | X2_N2[7] | RSCLK[0] | RSCLK[1] | RSCLK[2] | RSCLK[3] | RSCLK[4] | RSCLK[5] | RSCLK[6] | RSCLK[7];
-				mux X1_H[1] = RSCLK[0] | OUT_F[0] | OUT_F[1] | OUT_F[2] | OUT_F[3] | OUT_F[4] | OUT_F[5] | OUT_F[6] | OUT_F[7] | OUT_Q[0] | OUT_Q[1] | OUT_Q[2] | OUT_Q[3] | OUT_Q[4] | OUT_Q[5];
-				mux X1_H[4] = RSCLK[0] | OUT_F[0] | OUT_F[1] | OUT_F[2] | OUT_F[3] | OUT_F[4] | OUT_F[5] | OUT_F[6] | OUT_F[7] | OUT_Q[0] | OUT_Q[1] | OUT_Q[2] | OUT_Q[3] | OUT_Q[4] | OUT_Q[5];
-				mux X1_V[1] = RSCLK[1] | OUT_F[0] | OUT_F[1] | OUT_F[2] | OUT_F[3] | OUT_F[4] | OUT_F[5] | OUT_F[6] | OUT_F[7] | OUT_Q[0] | OUT_Q[1] | OUT_Q[2] | OUT_Q[3] | OUT_Q[4] | OUT_Q[5];
-				mux X1_V[4] = RSCLK[1] | OUT_F[0] | OUT_F[1] | OUT_F[2] | OUT_F[3] | OUT_F[4] | OUT_F[5] | OUT_F[6] | OUT_F[7] | OUT_Q[0] | OUT_Q[1] | OUT_Q[2] | OUT_Q[3] | OUT_Q[4] | OUT_Q[5];
-				mux X1_W0[0] = RSCLK[5] | OUT_F[0] | OUT_F[1] | OUT_F[2] | OUT_F[3] | OUT_F[4] | OUT_F[5] | OUT_F[6] | OUT_F[7] | OUT_Q[0] | OUT_Q[1] | OUT_Q[2] | OUT_Q[3] | OUT_Q[4] | OUT_Q[5];
+				mux X0_W[0] = X2_W1[0] | X2_W1[2] | X2_W2[0] | X2_W2[2] | X2_E1[0] | X2_E1[2] | X2_E2[0] | X2_E2[2] | X2_S1[0] | X2_S1[2] | X2_S2[0] | X2_S2[2] | X2_N1[0] | X2_N1[2] | X2_N2[0] | X2_N2[2] | SCLK[0] | SCLK[1] | SCLK[2] | SCLK[3] | SCLK[4] | SCLK[5] | SCLK[6] | SCLK[7];
+				mux X0_W[1] = X2_W1[1] | X2_W1[3] | X2_W2[1] | X2_W2[3] | X2_E1[1] | X2_E1[3] | X2_E2[1] | X2_E2[3] | X2_S1[1] | X2_S1[3] | X2_S2[1] | X2_S2[3] | X2_N1[1] | X2_N1[3] | X2_N2[1] | X2_N2[3] | SCLK[0] | SCLK[1] | SCLK[2] | SCLK[3] | SCLK[4] | SCLK[5] | SCLK[6] | SCLK[7];
+				mux X0_E[0] = X2_W1[4] | X2_W1[6] | X2_W2[4] | X2_W2[6] | X2_E1[4] | X2_E1[6] | X2_E2[4] | X2_E2[6] | X2_S1[4] | X2_S1[6] | X2_S2[4] | X2_S2[6] | X2_N1[4] | X2_N1[6] | X2_N2[4] | X2_N2[6] | SCLK[0] | SCLK[1] | SCLK[2] | SCLK[3] | SCLK[4] | SCLK[5] | SCLK[6] | SCLK[7];
+				mux X0_E[1] = X2_W1[5] | X2_W1[7] | X2_W2[5] | X2_W2[7] | X2_E1[5] | X2_E1[7] | X2_E2[5] | X2_E2[7] | X2_S1[5] | X2_S1[7] | X2_S2[5] | X2_S2[7] | X2_N1[5] | X2_N1[7] | X2_N2[5] | X2_N2[7] | SCLK[0] | SCLK[1] | SCLK[2] | SCLK[3] | SCLK[4] | SCLK[5] | SCLK[6] | SCLK[7];
+				mux X0_S[0] = X2_W1[4] | X2_W1[6] | X2_W2[4] | X2_W2[6] | X2_E1[4] | X2_E1[6] | X2_E2[4] | X2_E2[6] | X2_S1[0] | X2_S1[2] | X2_S2[0] | X2_S2[2] | X2_N1[0] | X2_N1[2] | X2_N2[0] | X2_N2[2] | SCLK[0] | SCLK[1] | SCLK[2] | SCLK[3] | SCLK[4] | SCLK[5] | SCLK[6] | SCLK[7];
+				mux X0_S[1] = X2_W1[5] | X2_W1[7] | X2_W2[5] | X2_W2[7] | X2_E1[5] | X2_E1[7] | X2_E2[5] | X2_E2[7] | X2_S1[1] | X2_S1[3] | X2_S2[1] | X2_S2[3] | X2_N1[1] | X2_N1[3] | X2_N2[1] | X2_N2[3] | SCLK[0] | SCLK[1] | SCLK[2] | SCLK[3] | SCLK[4] | SCLK[5] | SCLK[6] | SCLK[7];
+				mux X0_N[0] = X2_W1[0] | X2_W1[2] | X2_W2[0] | X2_W2[2] | X2_E1[0] | X2_E1[2] | X2_E2[0] | X2_E2[2] | X2_S1[4] | X2_S1[6] | X2_S2[4] | X2_S2[6] | X2_N1[4] | X2_N1[6] | X2_N2[4] | X2_N2[6] | SCLK[0] | SCLK[1] | SCLK[2] | SCLK[3] | SCLK[4] | SCLK[5] | SCLK[6] | SCLK[7];
+				mux X0_N[1] = X2_W1[1] | X2_W1[3] | X2_W2[1] | X2_W2[3] | X2_E1[1] | X2_E1[3] | X2_E2[1] | X2_E2[3] | X2_S1[5] | X2_S1[7] | X2_S2[5] | X2_S2[7] | X2_N1[5] | X2_N1[7] | X2_N2[5] | X2_N2[7] | SCLK[0] | SCLK[1] | SCLK[2] | SCLK[3] | SCLK[4] | SCLK[5] | SCLK[6] | SCLK[7];
+				mux X1_H[1] = SCLK[0] | OUT_F[0] | OUT_F[1] | OUT_F[2] | OUT_F[3] | OUT_F[4] | OUT_F[5] | OUT_F[6] | OUT_F[7] | OUT_Q[0] | OUT_Q[1] | OUT_Q[2] | OUT_Q[3] | OUT_Q[4] | OUT_Q[5];
+				mux X1_H[4] = SCLK[0] | OUT_F[0] | OUT_F[1] | OUT_F[2] | OUT_F[3] | OUT_F[4] | OUT_F[5] | OUT_F[6] | OUT_F[7] | OUT_Q[0] | OUT_Q[1] | OUT_Q[2] | OUT_Q[3] | OUT_Q[4] | OUT_Q[5];
+				mux X1_V[1] = SCLK[1] | OUT_F[0] | OUT_F[1] | OUT_F[2] | OUT_F[3] | OUT_F[4] | OUT_F[5] | OUT_F[6] | OUT_F[7] | OUT_Q[0] | OUT_Q[1] | OUT_Q[2] | OUT_Q[3] | OUT_Q[4] | OUT_Q[5];
+				mux X1_V[4] = SCLK[1] | OUT_F[0] | OUT_F[1] | OUT_F[2] | OUT_F[3] | OUT_F[4] | OUT_F[5] | OUT_F[6] | OUT_F[7] | OUT_Q[0] | OUT_Q[1] | OUT_Q[2] | OUT_Q[3] | OUT_Q[4] | OUT_Q[5];
+				mux X1_W0[0] = SCLK[5] | OUT_F[0] | OUT_F[1] | OUT_F[2] | OUT_F[3] | OUT_F[4] | OUT_F[5] | OUT_F[6] | OUT_F[7] | OUT_Q[0] | OUT_Q[1] | OUT_Q[2] | OUT_Q[3] | OUT_Q[4] | OUT_Q[5];
 				permabuf X1_W0[1] = X1_H[1];
 				permabuf X1_W0[4] = X1_H[4];
-				mux X1_W0[5] = RSCLK[2] | OUT_F[0] | OUT_F[1] | OUT_F[2] | OUT_F[3] | OUT_F[4] | OUT_F[5] | OUT_F[6] | OUT_F[7] | OUT_Q[0] | OUT_Q[1] | OUT_Q[2] | OUT_Q[3] | OUT_Q[4] | OUT_Q[5];
-				mux X1_E0[0] = RSCLK[5] | OUT_F[0] | OUT_F[1] | OUT_F[2] | OUT_F[3] | OUT_F[4] | OUT_F[5] | OUT_F[6] | OUT_F[7] | OUT_Q[0] | OUT_Q[1] | OUT_Q[2] | OUT_Q[3] | OUT_Q[4] | OUT_Q[5];
+				mux X1_W0[5] = SCLK[2] | OUT_F[0] | OUT_F[1] | OUT_F[2] | OUT_F[3] | OUT_F[4] | OUT_F[5] | OUT_F[6] | OUT_F[7] | OUT_Q[0] | OUT_Q[1] | OUT_Q[2] | OUT_Q[3] | OUT_Q[4] | OUT_Q[5];
+				mux X1_E0[0] = SCLK[5] | OUT_F[0] | OUT_F[1] | OUT_F[2] | OUT_F[3] | OUT_F[4] | OUT_F[5] | OUT_F[6] | OUT_F[7] | OUT_Q[0] | OUT_Q[1] | OUT_Q[2] | OUT_Q[3] | OUT_Q[4] | OUT_Q[5];
 				permabuf X1_E0[1] = X1_H[1];
 				permabuf X1_E0[4] = X1_H[4];
-				mux X1_E0[5] = RSCLK[2] | OUT_F[0] | OUT_F[1] | OUT_F[2] | OUT_F[3] | OUT_F[4] | OUT_F[5] | OUT_F[6] | OUT_F[7] | OUT_Q[0] | OUT_Q[1] | OUT_Q[2] | OUT_Q[3] | OUT_Q[4] | OUT_Q[5];
-				mux X1_S0[0] = RSCLK[4] | OUT_F[0] | OUT_F[1] | OUT_F[2] | OUT_F[3] | OUT_F[4] | OUT_F[5] | OUT_F[6] | OUT_F[7] | OUT_Q[0] | OUT_Q[1] | OUT_Q[2] | OUT_Q[3] | OUT_Q[4] | OUT_Q[5];
+				mux X1_E0[5] = SCLK[2] | OUT_F[0] | OUT_F[1] | OUT_F[2] | OUT_F[3] | OUT_F[4] | OUT_F[5] | OUT_F[6] | OUT_F[7] | OUT_Q[0] | OUT_Q[1] | OUT_Q[2] | OUT_Q[3] | OUT_Q[4] | OUT_Q[5];
+				mux X1_S0[0] = SCLK[4] | OUT_F[0] | OUT_F[1] | OUT_F[2] | OUT_F[3] | OUT_F[4] | OUT_F[5] | OUT_F[6] | OUT_F[7] | OUT_Q[0] | OUT_Q[1] | OUT_Q[2] | OUT_Q[3] | OUT_Q[4] | OUT_Q[5];
 				permabuf X1_S0[1] = X1_V[1];
 				permabuf X1_S0[4] = X1_V[4];
-				mux X1_S0[5] = RSCLK[6] | OUT_F[0] | OUT_F[1] | OUT_F[2] | OUT_F[3] | OUT_F[4] | OUT_F[5] | OUT_F[6] | OUT_F[7] | OUT_Q[0] | OUT_Q[1] | OUT_Q[2] | OUT_Q[3] | OUT_Q[4] | OUT_Q[5];
-				mux X1_N0[0] = RSCLK[4] | OUT_F[0] | OUT_F[1] | OUT_F[2] | OUT_F[3] | OUT_F[4] | OUT_F[5] | OUT_F[6] | OUT_F[7] | OUT_Q[0] | OUT_Q[1] | OUT_Q[2] | OUT_Q[3] | OUT_Q[4] | OUT_Q[5];
+				mux X1_S0[5] = SCLK[6] | OUT_F[0] | OUT_F[1] | OUT_F[2] | OUT_F[3] | OUT_F[4] | OUT_F[5] | OUT_F[6] | OUT_F[7] | OUT_Q[0] | OUT_Q[1] | OUT_Q[2] | OUT_Q[3] | OUT_Q[4] | OUT_Q[5];
+				mux X1_N0[0] = SCLK[4] | OUT_F[0] | OUT_F[1] | OUT_F[2] | OUT_F[3] | OUT_F[4] | OUT_F[5] | OUT_F[6] | OUT_F[7] | OUT_Q[0] | OUT_Q[1] | OUT_Q[2] | OUT_Q[3] | OUT_Q[4] | OUT_Q[5];
 				permabuf X1_N0[1] = X1_V[1];
 				permabuf X1_N0[4] = X1_V[4];
-				mux X1_N0[5] = RSCLK[6] | OUT_F[0] | OUT_F[1] | OUT_F[2] | OUT_F[3] | OUT_F[4] | OUT_F[5] | OUT_F[6] | OUT_F[7] | OUT_Q[0] | OUT_Q[1] | OUT_Q[2] | OUT_Q[3] | OUT_Q[4] | OUT_Q[5];
+				mux X1_N0[5] = SCLK[6] | OUT_F[0] | OUT_F[1] | OUT_F[2] | OUT_F[3] | OUT_F[4] | OUT_F[5] | OUT_F[6] | OUT_F[7] | OUT_Q[0] | OUT_Q[1] | OUT_Q[2] | OUT_Q[3] | OUT_Q[4] | OUT_Q[5];
 				mux X2_W0[0] = X1_W1[0] | X1_S1[0] | X1_N0[0] | X1_N1[0] | X2_W2[0] | X2_W2[5] | X2_S1[0] | X2_S2[0] | X2_N1[0] | X2_N2[0] | X6_W6[0] | X6_E6[0] | X6_S3[0] | X6_S6[0] | X6_N3[0] | X6_N6[0] | OUT_F[0] | OUT_Q[0];
 				mux X2_W0[1] = X1_W1[1] | X1_S0[0] | X1_S1[1] | X1_N1[1] | X2_W2[0] | X2_W2[1] | X2_S1[1] | X2_S2[1] | X2_N1[1] | X2_N2[1] | X6_W6[1] | X6_E6[1] | X6_S3[1] | X6_S6[1] | X6_N3[1] | X6_N6[1] | OUT_F[1] | OUT_Q[1];
 				mux X2_W0[2] = X1_W1[4] | X1_E0[0] | X1_S1[4] | X1_N1[4] | X2_W2[2] | X2_W2[7] | X2_S1[2] | X2_S2[2] | X2_N1[2] | X2_N2[2] | X6_W6[1] | X6_E6[1] | X6_S3[1] | X6_S6[1] | X6_N3[1] | X6_N6[1] | OUT_F[2] | OUT_Q[2];
@@ -7837,14 +7863,14 @@ intdb {
 				mux IMUX_D[5] = X0_W[1] | X0_E[1] | X0_S[0] | X1_W1[4] | X1_E1[0] | X1_S0[0] | X1_S1[1] | X1_N1[5] | X2_W0[7] | X2_W1[0] | X2_W1[2] | X2_W2[0] | X2_W2[2] | X2_E1[0] | X2_E1[2] | X2_E2[0] | X2_E2[2] | X2_S1[4] | X2_S1[6] | X2_S2[4] | X2_S2[6] | X2_N0[6] | X2_N1[4] | X2_N1[6] | X2_N2[4] | X2_N2[6] | OUT_F[4];
 				mux IMUX_D[6] = X0_W[1] | X0_E[1] | X0_S[0] | X1_W1[4] | X1_E1[0] | X1_S0[5] | X1_S1[1] | X1_N1[5] | X2_W0[6] | X2_W1[0] | X2_W1[2] | X2_W2[0] | X2_W2[2] | X2_E1[0] | X2_E1[2] | X2_E2[0] | X2_E2[2] | X2_S1[4] | X2_S1[6] | X2_S2[4] | X2_S2[6] | X2_N0[7] | X2_N1[4] | X2_N1[6] | X2_N2[4] | X2_N2[6] | OUT_Q[1];
 				mux IMUX_D[7] = X0_W[1] | X0_E[1] | X0_S[0] | X1_W1[4] | X1_E1[0] | X1_S0[5] | X1_S1[1] | X1_N1[5] | X2_W0[6] | X2_W1[0] | X2_W1[2] | X2_W2[0] | X2_W2[2] | X2_E1[0] | X2_E1[2] | X2_E2[0] | X2_E2[2] | X2_S1[4] | X2_S1[6] | X2_S2[4] | X2_S2[6] | X2_N0[7] | X2_N1[4] | X2_N1[6] | X2_N2[4] | X2_N2[6] | OUT_F[6];
-				mux IMUX_CLK[0] = X0_W[0] | X0_W[1] | X0_E[0] | X0_E[1] | X2_W1[4] | X2_W2[4] | X2_E1[4] | X2_E2[4] | X2_S1[4] | X2_S2[4] | X2_N1[4] | X2_N2[4] | PCLK[0] | PCLK[1] | PCLK[2] | PCLK[3] | PCLK[4] | PCLK[5] | PCLK[6] | PCLK[7] | RSCLK[0] | RSCLK[1] | RSCLK[2] | RSCLK[3];
-				mux IMUX_CLK[1] = X0_W[0] | X0_W[1] | X0_E[0] | X0_E[1] | X2_W1[4] | X2_W2[4] | X2_E1[4] | X2_E2[4] | X2_S1[4] | X2_S2[4] | X2_N1[4] | X2_N2[4] | PCLK[0] | PCLK[1] | PCLK[2] | PCLK[3] | PCLK[4] | PCLK[5] | PCLK[6] | PCLK[7] | RSCLK[0] | RSCLK[1] | RSCLK[2] | RSCLK[3];
-				mux IMUX_LSR[0] = X0_S[0] | X0_S[1] | X0_N[0] | X0_N[1] | X2_W1[7] | X2_W2[7] | X2_E1[7] | X2_E2[7] | X2_S1[7] | X2_S2[7] | X2_N1[7] | X2_N2[7] | RSCLK[1] | RSCLK[2] | RSCLK[3];
-				mux IMUX_LSR[1] = X0_S[0] | X0_S[1] | X0_N[0] | X0_N[1] | X2_W1[7] | X2_W2[7] | X2_E1[7] | X2_E2[7] | X2_S1[7] | X2_S2[7] | X2_N1[7] | X2_N2[7] | RSCLK[1] | RSCLK[2] | RSCLK[3];
-				mux IMUX_LSR[2] = X0_S[0] | X0_S[1] | X0_N[0] | X0_N[1] | X2_W1[7] | X2_W2[7] | X2_E1[7] | X2_E2[7] | X2_S1[7] | X2_S2[7] | X2_N1[7] | X2_N2[7] | RSCLK[1] | RSCLK[2] | RSCLK[3];
-				mux IMUX_CE[0] = X0_S[0] | X0_S[1] | X0_N[0] | X0_N[1] | X2_W1[1] | X2_W2[1] | X2_E1[1] | X2_E2[1] | X2_S1[1] | X2_S2[1] | X2_N1[1] | X2_N2[1] | RSCLK[0] | RSCLK[2] | RSCLK[3];
-				mux IMUX_CE[1] = X0_S[0] | X0_S[1] | X0_N[0] | X0_N[1] | X2_W1[1] | X2_W2[1] | X2_E1[1] | X2_E2[1] | X2_S1[1] | X2_S2[1] | X2_N1[1] | X2_N2[1] | RSCLK[0] | RSCLK[2] | RSCLK[3];
-				mux IMUX_CE[2] = X0_S[0] | X0_S[1] | X0_N[0] | X0_N[1] | X2_W1[1] | X2_W2[1] | X2_E1[1] | X2_E2[1] | X2_S1[1] | X2_S2[1] | X2_N1[1] | X2_N2[1] | RSCLK[0] | RSCLK[2] | RSCLK[3];
+				mux IMUX_CLK[0] = X0_W[0] | X0_W[1] | X0_E[0] | X0_E[1] | X2_W1[4] | X2_W2[4] | X2_E1[4] | X2_E2[4] | X2_S1[4] | X2_S2[4] | X2_N1[4] | X2_N2[4] | PCLK[0] | PCLK[1] | PCLK[2] | PCLK[3] | PCLK[4] | PCLK[5] | PCLK[6] | PCLK[7] | SCLK[0] | SCLK[1] | SCLK[2] | SCLK[3];
+				mux IMUX_CLK[1] = X0_W[0] | X0_W[1] | X0_E[0] | X0_E[1] | X2_W1[4] | X2_W2[4] | X2_E1[4] | X2_E2[4] | X2_S1[4] | X2_S2[4] | X2_N1[4] | X2_N2[4] | PCLK[0] | PCLK[1] | PCLK[2] | PCLK[3] | PCLK[4] | PCLK[5] | PCLK[6] | PCLK[7] | SCLK[0] | SCLK[1] | SCLK[2] | SCLK[3];
+				mux IMUX_LSR[0] = X0_S[0] | X0_S[1] | X0_N[0] | X0_N[1] | X2_W1[7] | X2_W2[7] | X2_E1[7] | X2_E2[7] | X2_S1[7] | X2_S2[7] | X2_N1[7] | X2_N2[7] | SCLK[1] | SCLK[2] | SCLK[3];
+				mux IMUX_LSR[1] = X0_S[0] | X0_S[1] | X0_N[0] | X0_N[1] | X2_W1[7] | X2_W2[7] | X2_E1[7] | X2_E2[7] | X2_S1[7] | X2_S2[7] | X2_N1[7] | X2_N2[7] | SCLK[1] | SCLK[2] | SCLK[3];
+				mux IMUX_LSR[2] = X0_S[0] | X0_S[1] | X0_N[0] | X0_N[1] | X2_W1[7] | X2_W2[7] | X2_E1[7] | X2_E2[7] | X2_S1[7] | X2_S2[7] | X2_N1[7] | X2_N2[7] | SCLK[1] | SCLK[2] | SCLK[3];
+				mux IMUX_CE[0] = X0_S[0] | X0_S[1] | X0_N[0] | X0_N[1] | X2_W1[1] | X2_W2[1] | X2_E1[1] | X2_E2[1] | X2_S1[1] | X2_S2[1] | X2_N1[1] | X2_N2[1] | SCLK[0] | SCLK[2] | SCLK[3];
+				mux IMUX_CE[1] = X0_S[0] | X0_S[1] | X0_N[0] | X0_N[1] | X2_W1[1] | X2_W2[1] | X2_E1[1] | X2_E2[1] | X2_S1[1] | X2_S2[1] | X2_N1[1] | X2_N2[1] | SCLK[0] | SCLK[2] | SCLK[3];
+				mux IMUX_CE[2] = X0_S[0] | X0_S[1] | X0_N[0] | X0_N[1] | X2_W1[1] | X2_W2[1] | X2_E1[1] | X2_E2[1] | X2_S1[1] | X2_S2[1] | X2_N1[1] | X2_N2[1] | SCLK[0] | SCLK[2] | SCLK[3];
 			}
 		}
 
@@ -7852,34 +7878,34 @@ intdb {
 			cell CELL;
 
 			switchbox INT {
-				mux X0_W[0] = X2_W1[0] | X2_W1[2] | X2_W2[0] | X2_W2[2] | X2_E1[0] | X2_E1[2] | X2_E2[0] | X2_E2[2] | X2_S1[0] | X2_S1[2] | X2_S2[0] | X2_S2[2] | X2_N1[0] | X2_N1[2] | X2_N2[0] | X2_N2[2] | RSCLK[0] | RSCLK[1] | RSCLK[2] | RSCLK[3] | RSCLK[4] | RSCLK[5] | RSCLK[6] | RSCLK[7];
-				mux X0_W[1] = X2_W1[1] | X2_W1[3] | X2_W2[1] | X2_W2[3] | X2_E1[1] | X2_E1[3] | X2_E2[1] | X2_E2[3] | X2_S1[1] | X2_S1[3] | X2_S2[1] | X2_S2[3] | X2_N1[1] | X2_N1[3] | X2_N2[1] | X2_N2[3] | RSCLK[0] | RSCLK[1] | RSCLK[2] | RSCLK[3] | RSCLK[4] | RSCLK[5] | RSCLK[6] | RSCLK[7];
-				mux X0_E[0] = X2_W1[4] | X2_W1[6] | X2_W2[4] | X2_W2[6] | X2_E1[4] | X2_E1[6] | X2_E2[4] | X2_E2[6] | X2_S1[4] | X2_S1[6] | X2_S2[4] | X2_S2[6] | X2_N1[4] | X2_N1[6] | X2_N2[4] | X2_N2[6] | RSCLK[0] | RSCLK[1] | RSCLK[2] | RSCLK[3] | RSCLK[4] | RSCLK[5] | RSCLK[6] | RSCLK[7];
-				mux X0_E[1] = X2_W1[5] | X2_W1[7] | X2_W2[5] | X2_W2[7] | X2_E1[5] | X2_E1[7] | X2_E2[5] | X2_E2[7] | X2_S1[5] | X2_S1[7] | X2_S2[5] | X2_S2[7] | X2_N1[5] | X2_N1[7] | X2_N2[5] | X2_N2[7] | RSCLK[0] | RSCLK[1] | RSCLK[2] | RSCLK[3] | RSCLK[4] | RSCLK[5] | RSCLK[6] | RSCLK[7];
-				mux X0_S[0] = X2_W1[4] | X2_W1[6] | X2_W2[4] | X2_W2[6] | X2_E1[4] | X2_E1[6] | X2_E2[4] | X2_E2[6] | X2_S1[0] | X2_S1[2] | X2_S2[0] | X2_S2[2] | X2_N1[0] | X2_N1[2] | X2_N2[0] | X2_N2[2] | RSCLK[0] | RSCLK[1] | RSCLK[2] | RSCLK[3] | RSCLK[4] | RSCLK[5] | RSCLK[6] | RSCLK[7];
-				mux X0_S[1] = X2_W1[5] | X2_W1[7] | X2_W2[5] | X2_W2[7] | X2_E1[5] | X2_E1[7] | X2_E2[5] | X2_E2[7] | X2_S1[1] | X2_S1[3] | X2_S2[1] | X2_S2[3] | X2_N1[1] | X2_N1[3] | X2_N2[1] | X2_N2[3] | RSCLK[0] | RSCLK[1] | RSCLK[2] | RSCLK[3] | RSCLK[4] | RSCLK[5] | RSCLK[6] | RSCLK[7];
-				mux X0_N[0] = X2_W1[0] | X2_W1[2] | X2_W2[0] | X2_W2[2] | X2_E1[0] | X2_E1[2] | X2_E2[0] | X2_E2[2] | X2_S1[4] | X2_S1[6] | X2_S2[4] | X2_S2[6] | X2_N1[4] | X2_N1[6] | X2_N2[4] | X2_N2[6] | RSCLK[0] | RSCLK[1] | RSCLK[2] | RSCLK[3] | RSCLK[4] | RSCLK[5] | RSCLK[6] | RSCLK[7];
-				mux X0_N[1] = X2_W1[1] | X2_W1[3] | X2_W2[1] | X2_W2[3] | X2_E1[1] | X2_E1[3] | X2_E2[1] | X2_E2[3] | X2_S1[5] | X2_S1[7] | X2_S2[5] | X2_S2[7] | X2_N1[5] | X2_N1[7] | X2_N2[5] | X2_N2[7] | RSCLK[0] | RSCLK[1] | RSCLK[2] | RSCLK[3] | RSCLK[4] | RSCLK[5] | RSCLK[6] | RSCLK[7];
-				mux X1_H[1] = RSCLK[0] | OUT_F[0] | OUT_F[1] | OUT_F[2] | OUT_F[3] | OUT_F[4] | OUT_F[5] | OUT_F[6] | OUT_F[7] | OUT_Q[0] | OUT_Q[1] | OUT_Q[2] | OUT_Q[3] | OUT_Q[4] | OUT_Q[5];
-				mux X1_H[4] = RSCLK[0] | OUT_F[0] | OUT_F[1] | OUT_F[2] | OUT_F[3] | OUT_F[4] | OUT_F[5] | OUT_F[6] | OUT_F[7] | OUT_Q[0] | OUT_Q[1] | OUT_Q[2] | OUT_Q[3] | OUT_Q[4] | OUT_Q[5];
-				mux X1_V[1] = RSCLK[1] | OUT_F[0] | OUT_F[1] | OUT_F[2] | OUT_F[3] | OUT_F[4] | OUT_F[5] | OUT_F[6] | OUT_F[7] | OUT_Q[0] | OUT_Q[1] | OUT_Q[2] | OUT_Q[3] | OUT_Q[4] | OUT_Q[5];
-				mux X1_V[4] = RSCLK[1] | OUT_F[0] | OUT_F[1] | OUT_F[2] | OUT_F[3] | OUT_F[4] | OUT_F[5] | OUT_F[6] | OUT_F[7] | OUT_Q[0] | OUT_Q[1] | OUT_Q[2] | OUT_Q[3] | OUT_Q[4] | OUT_Q[5];
-				mux X1_W0[0] = RSCLK[5] | OUT_F[0] | OUT_F[1] | OUT_F[2] | OUT_F[3] | OUT_F[4] | OUT_F[5] | OUT_F[6] | OUT_F[7] | OUT_Q[0] | OUT_Q[1] | OUT_Q[2] | OUT_Q[3] | OUT_Q[4] | OUT_Q[5];
+				mux X0_W[0] = X2_W1[0] | X2_W1[2] | X2_W2[0] | X2_W2[2] | X2_E1[0] | X2_E1[2] | X2_E2[0] | X2_E2[2] | X2_S1[0] | X2_S1[2] | X2_S2[0] | X2_S2[2] | X2_N1[0] | X2_N1[2] | X2_N2[0] | X2_N2[2] | SCLK[0] | SCLK[1] | SCLK[2] | SCLK[3] | SCLK[4] | SCLK[5] | SCLK[6] | SCLK[7];
+				mux X0_W[1] = X2_W1[1] | X2_W1[3] | X2_W2[1] | X2_W2[3] | X2_E1[1] | X2_E1[3] | X2_E2[1] | X2_E2[3] | X2_S1[1] | X2_S1[3] | X2_S2[1] | X2_S2[3] | X2_N1[1] | X2_N1[3] | X2_N2[1] | X2_N2[3] | SCLK[0] | SCLK[1] | SCLK[2] | SCLK[3] | SCLK[4] | SCLK[5] | SCLK[6] | SCLK[7];
+				mux X0_E[0] = X2_W1[4] | X2_W1[6] | X2_W2[4] | X2_W2[6] | X2_E1[4] | X2_E1[6] | X2_E2[4] | X2_E2[6] | X2_S1[4] | X2_S1[6] | X2_S2[4] | X2_S2[6] | X2_N1[4] | X2_N1[6] | X2_N2[4] | X2_N2[6] | SCLK[0] | SCLK[1] | SCLK[2] | SCLK[3] | SCLK[4] | SCLK[5] | SCLK[6] | SCLK[7];
+				mux X0_E[1] = X2_W1[5] | X2_W1[7] | X2_W2[5] | X2_W2[7] | X2_E1[5] | X2_E1[7] | X2_E2[5] | X2_E2[7] | X2_S1[5] | X2_S1[7] | X2_S2[5] | X2_S2[7] | X2_N1[5] | X2_N1[7] | X2_N2[5] | X2_N2[7] | SCLK[0] | SCLK[1] | SCLK[2] | SCLK[3] | SCLK[4] | SCLK[5] | SCLK[6] | SCLK[7];
+				mux X0_S[0] = X2_W1[4] | X2_W1[6] | X2_W2[4] | X2_W2[6] | X2_E1[4] | X2_E1[6] | X2_E2[4] | X2_E2[6] | X2_S1[0] | X2_S1[2] | X2_S2[0] | X2_S2[2] | X2_N1[0] | X2_N1[2] | X2_N2[0] | X2_N2[2] | SCLK[0] | SCLK[1] | SCLK[2] | SCLK[3] | SCLK[4] | SCLK[5] | SCLK[6] | SCLK[7];
+				mux X0_S[1] = X2_W1[5] | X2_W1[7] | X2_W2[5] | X2_W2[7] | X2_E1[5] | X2_E1[7] | X2_E2[5] | X2_E2[7] | X2_S1[1] | X2_S1[3] | X2_S2[1] | X2_S2[3] | X2_N1[1] | X2_N1[3] | X2_N2[1] | X2_N2[3] | SCLK[0] | SCLK[1] | SCLK[2] | SCLK[3] | SCLK[4] | SCLK[5] | SCLK[6] | SCLK[7];
+				mux X0_N[0] = X2_W1[0] | X2_W1[2] | X2_W2[0] | X2_W2[2] | X2_E1[0] | X2_E1[2] | X2_E2[0] | X2_E2[2] | X2_S1[4] | X2_S1[6] | X2_S2[4] | X2_S2[6] | X2_N1[4] | X2_N1[6] | X2_N2[4] | X2_N2[6] | SCLK[0] | SCLK[1] | SCLK[2] | SCLK[3] | SCLK[4] | SCLK[5] | SCLK[6] | SCLK[7];
+				mux X0_N[1] = X2_W1[1] | X2_W1[3] | X2_W2[1] | X2_W2[3] | X2_E1[1] | X2_E1[3] | X2_E2[1] | X2_E2[3] | X2_S1[5] | X2_S1[7] | X2_S2[5] | X2_S2[7] | X2_N1[5] | X2_N1[7] | X2_N2[5] | X2_N2[7] | SCLK[0] | SCLK[1] | SCLK[2] | SCLK[3] | SCLK[4] | SCLK[5] | SCLK[6] | SCLK[7];
+				mux X1_H[1] = SCLK[0] | OUT_F[0] | OUT_F[1] | OUT_F[2] | OUT_F[3] | OUT_F[4] | OUT_F[5] | OUT_F[6] | OUT_F[7] | OUT_Q[0] | OUT_Q[1] | OUT_Q[2] | OUT_Q[3] | OUT_Q[4] | OUT_Q[5];
+				mux X1_H[4] = SCLK[0] | OUT_F[0] | OUT_F[1] | OUT_F[2] | OUT_F[3] | OUT_F[4] | OUT_F[5] | OUT_F[6] | OUT_F[7] | OUT_Q[0] | OUT_Q[1] | OUT_Q[2] | OUT_Q[3] | OUT_Q[4] | OUT_Q[5];
+				mux X1_V[1] = SCLK[1] | OUT_F[0] | OUT_F[1] | OUT_F[2] | OUT_F[3] | OUT_F[4] | OUT_F[5] | OUT_F[6] | OUT_F[7] | OUT_Q[0] | OUT_Q[1] | OUT_Q[2] | OUT_Q[3] | OUT_Q[4] | OUT_Q[5];
+				mux X1_V[4] = SCLK[1] | OUT_F[0] | OUT_F[1] | OUT_F[2] | OUT_F[3] | OUT_F[4] | OUT_F[5] | OUT_F[6] | OUT_F[7] | OUT_Q[0] | OUT_Q[1] | OUT_Q[2] | OUT_Q[3] | OUT_Q[4] | OUT_Q[5];
+				mux X1_W0[0] = SCLK[5] | OUT_F[0] | OUT_F[1] | OUT_F[2] | OUT_F[3] | OUT_F[4] | OUT_F[5] | OUT_F[6] | OUT_F[7] | OUT_Q[0] | OUT_Q[1] | OUT_Q[2] | OUT_Q[3] | OUT_Q[4] | OUT_Q[5];
 				permabuf X1_W0[1] = X1_H[1];
 				permabuf X1_W0[4] = X1_H[4];
-				mux X1_W0[5] = RSCLK[2] | OUT_F[0] | OUT_F[1] | OUT_F[2] | OUT_F[3] | OUT_F[4] | OUT_F[5] | OUT_F[6] | OUT_F[7] | OUT_Q[0] | OUT_Q[1] | OUT_Q[2] | OUT_Q[3] | OUT_Q[4] | OUT_Q[5];
-				mux X1_E0[0] = RSCLK[5] | OUT_F[0] | OUT_F[1] | OUT_F[2] | OUT_F[3] | OUT_F[4] | OUT_F[5] | OUT_F[6] | OUT_F[7] | OUT_Q[0] | OUT_Q[1] | OUT_Q[2] | OUT_Q[3] | OUT_Q[4] | OUT_Q[5];
+				mux X1_W0[5] = SCLK[2] | OUT_F[0] | OUT_F[1] | OUT_F[2] | OUT_F[3] | OUT_F[4] | OUT_F[5] | OUT_F[6] | OUT_F[7] | OUT_Q[0] | OUT_Q[1] | OUT_Q[2] | OUT_Q[3] | OUT_Q[4] | OUT_Q[5];
+				mux X1_E0[0] = SCLK[5] | OUT_F[0] | OUT_F[1] | OUT_F[2] | OUT_F[3] | OUT_F[4] | OUT_F[5] | OUT_F[6] | OUT_F[7] | OUT_Q[0] | OUT_Q[1] | OUT_Q[2] | OUT_Q[3] | OUT_Q[4] | OUT_Q[5];
 				permabuf X1_E0[1] = X1_H[1];
 				permabuf X1_E0[4] = X1_H[4];
-				mux X1_E0[5] = RSCLK[2] | OUT_F[0] | OUT_F[1] | OUT_F[2] | OUT_F[3] | OUT_F[4] | OUT_F[5] | OUT_F[6] | OUT_F[7] | OUT_Q[0] | OUT_Q[1] | OUT_Q[2] | OUT_Q[3] | OUT_Q[4] | OUT_Q[5];
-				mux X1_S0[0] = RSCLK[4] | OUT_F[0] | OUT_F[1] | OUT_F[2] | OUT_F[3] | OUT_F[4] | OUT_F[5] | OUT_F[6] | OUT_F[7] | OUT_Q[0] | OUT_Q[1] | OUT_Q[2] | OUT_Q[3] | OUT_Q[4] | OUT_Q[5];
+				mux X1_E0[5] = SCLK[2] | OUT_F[0] | OUT_F[1] | OUT_F[2] | OUT_F[3] | OUT_F[4] | OUT_F[5] | OUT_F[6] | OUT_F[7] | OUT_Q[0] | OUT_Q[1] | OUT_Q[2] | OUT_Q[3] | OUT_Q[4] | OUT_Q[5];
+				mux X1_S0[0] = SCLK[4] | OUT_F[0] | OUT_F[1] | OUT_F[2] | OUT_F[3] | OUT_F[4] | OUT_F[5] | OUT_F[6] | OUT_F[7] | OUT_Q[0] | OUT_Q[1] | OUT_Q[2] | OUT_Q[3] | OUT_Q[4] | OUT_Q[5];
 				permabuf X1_S0[1] = X1_V[1];
 				permabuf X1_S0[4] = X1_V[4];
-				mux X1_S0[5] = RSCLK[6] | OUT_F[0] | OUT_F[1] | OUT_F[2] | OUT_F[3] | OUT_F[4] | OUT_F[5] | OUT_F[6] | OUT_F[7] | OUT_Q[0] | OUT_Q[1] | OUT_Q[2] | OUT_Q[3] | OUT_Q[4] | OUT_Q[5];
-				mux X1_N0[0] = RSCLK[4] | OUT_F[0] | OUT_F[1] | OUT_F[2] | OUT_F[3] | OUT_F[4] | OUT_F[5] | OUT_F[6] | OUT_F[7] | OUT_Q[0] | OUT_Q[1] | OUT_Q[2] | OUT_Q[3] | OUT_Q[4] | OUT_Q[5];
+				mux X1_S0[5] = SCLK[6] | OUT_F[0] | OUT_F[1] | OUT_F[2] | OUT_F[3] | OUT_F[4] | OUT_F[5] | OUT_F[6] | OUT_F[7] | OUT_Q[0] | OUT_Q[1] | OUT_Q[2] | OUT_Q[3] | OUT_Q[4] | OUT_Q[5];
+				mux X1_N0[0] = SCLK[4] | OUT_F[0] | OUT_F[1] | OUT_F[2] | OUT_F[3] | OUT_F[4] | OUT_F[5] | OUT_F[6] | OUT_F[7] | OUT_Q[0] | OUT_Q[1] | OUT_Q[2] | OUT_Q[3] | OUT_Q[4] | OUT_Q[5];
 				permabuf X1_N0[1] = X1_V[1];
 				permabuf X1_N0[4] = X1_V[4];
-				mux X1_N0[5] = RSCLK[6] | OUT_F[0] | OUT_F[1] | OUT_F[2] | OUT_F[3] | OUT_F[4] | OUT_F[5] | OUT_F[6] | OUT_F[7] | OUT_Q[0] | OUT_Q[1] | OUT_Q[2] | OUT_Q[3] | OUT_Q[4] | OUT_Q[5];
+				mux X1_N0[5] = SCLK[6] | OUT_F[0] | OUT_F[1] | OUT_F[2] | OUT_F[3] | OUT_F[4] | OUT_F[5] | OUT_F[6] | OUT_F[7] | OUT_Q[0] | OUT_Q[1] | OUT_Q[2] | OUT_Q[3] | OUT_Q[4] | OUT_Q[5];
 				mux X2_W0[0] = X1_W1[0] | X1_S1[0] | X1_N0[0] | X1_N1[0] | X2_W2[0] | X2_W2[5] | X2_S1[0] | X2_S2[0] | X2_N1[0] | X2_N2[0] | X6_W6[0] | X6_E6[0] | X6_S3[0] | X6_S6[0] | X6_N3[0] | X6_N6[0] | OUT_F[0] | OUT_Q[0];
 				mux X2_W0[1] = X1_W1[1] | X1_S0[0] | X1_S1[1] | X1_N1[1] | X2_W2[0] | X2_W2[1] | X2_S1[1] | X2_S2[1] | X2_N1[1] | X2_N2[1] | X6_W6[1] | X6_E6[1] | X6_S3[1] | X6_S6[1] | X6_N3[1] | X6_N6[1] | OUT_F[1] | OUT_Q[1];
 				mux X2_W0[2] = X1_W1[4] | X1_E0[0] | X1_S1[4] | X1_N1[4] | X2_W2[2] | X2_W2[7] | X2_S1[2] | X2_S2[2] | X2_N1[2] | X2_N2[2] | X6_W6[1] | X6_E6[1] | X6_S3[1] | X6_S6[1] | X6_N3[1] | X6_N6[1] | OUT_F[2] | OUT_Q[2];
@@ -7928,10 +7954,10 @@ intdb {
 				mux X6_N0[1] = X1_W0[5] | X1_W1[1] | X1_E1[1] | X1_N1[1] | X2_N2[1] | X2_N2[3] | X6_W3[1] | X6_W6[1] | X6_E3[1] | X6_E6[1] | X6_N6[0] | X6_N6[1] | OUT_F[1] | OUT_F[2] | OUT_Q[1] | OUT_Q[2];
 				mux X6_N0[2] = X1_W1[4] | X1_E1[4] | X1_N0[5] | X1_N1[4] | X2_N2[4] | X2_N2[6] | X6_W3[2] | X6_W6[2] | X6_E3[2] | X6_E6[2] | X6_N6[1] | X6_N6[2] | OUT_F[4] | OUT_F[6] | OUT_F[7] | OUT_Q[4];
 				mux X6_N0[3] = X1_W1[5] | X1_E1[5] | X1_S0[5] | X1_N1[5] | X2_N2[5] | X2_N2[7] | X6_W3[3] | X6_W6[3] | X6_E3[3] | X6_E6[3] | X6_N6[2] | X6_N6[3] | OUT_F[5] | OUT_F[6] | OUT_F[7] | OUT_Q[5];
+				mux RSCLK_V[0] = RSCLK_H[0] | RSCLK_H[4] | IMUX_A[6] | OUT_F[6] | OUT_F[7];
+				mux RSCLK_V[4] = RSCLK_H[0] | RSCLK_H[4] | IMUX_B[6] | OUT_F[6] | OUT_F[7];
 				mux RSCLK_H[0] = IMUX_C[7] | OUT_F[6] | OUT_F[7];
 				mux RSCLK_H[4] = IMUX_C[6] | OUT_F[6] | OUT_F[7];
-				mux RSCLK_V[0] = RSCLK_H[0] | RSCLK_H[4] | IMUX_A[6] | OUT_F[6] | OUT_F[7];
-				mux RSCLK_V[1] = RSCLK_H[0] | RSCLK_H[4] | IMUX_B[6] | OUT_F[6] | OUT_F[7];
 				mux IMUX_A[0] = X0_W[0] | X0_W[1] | X0_E[0] | X1_W1[5] | X1_E1[1] | X1_S1[5] | X1_N0[0] | X1_N1[1] | X2_W1[5] | X2_W1[7] | X2_W2[5] | X2_W2[7] | X2_E0[1] | X2_E1[5] | X2_E1[7] | X2_E2[5] | X2_E2[7] | X2_S1[5] | X2_S1[7] | X2_S2[5] | X2_S2[7] | X2_N0[0] | X2_N1[5] | X2_N1[7] | X2_N2[5] | X2_N2[7] | OUT_F[7];
 				mux IMUX_A[1] = X0_W[0] | X0_W[1] | X0_E[0] | X1_W1[5] | X1_E1[1] | X1_S1[5] | X1_N0[0] | X1_N1[1] | X2_W1[5] | X2_W1[7] | X2_W2[5] | X2_W2[7] | X2_E0[1] | X2_E1[5] | X2_E1[7] | X2_E2[5] | X2_E2[7] | X2_S1[5] | X2_S1[7] | X2_S2[5] | X2_S2[7] | X2_N0[0] | X2_N1[5] | X2_N1[7] | X2_N2[5] | X2_N2[7] | OUT_F[7];
 				mux IMUX_A[2] = X0_W[1] | X0_S[0] | X0_N[0] | X1_W1[5] | X1_E1[1] | X1_S1[5] | X1_N0[5] | X1_N1[1] | X2_W1[5] | X2_W1[7] | X2_W2[5] | X2_W2[7] | X2_E0[0] | X2_E1[5] | X2_E1[7] | X2_E2[5] | X2_E2[7] | X2_S1[5] | X2_S1[7] | X2_S2[5] | X2_S2[7] | X2_N0[1] | X2_N1[5] | X2_N1[7] | X2_N2[5] | X2_N2[7] | OUT_F[5];
@@ -7964,15 +7990,15 @@ intdb {
 				mux IMUX_D[5] = X0_W[1] | X0_E[1] | X0_S[0] | X1_W1[4] | X1_E1[0] | X1_S0[0] | X1_S1[1] | X1_N1[5] | X2_W0[7] | X2_W1[0] | X2_W1[2] | X2_W2[0] | X2_W2[2] | X2_E1[0] | X2_E1[2] | X2_E2[0] | X2_E2[2] | X2_S1[4] | X2_S1[6] | X2_S2[4] | X2_S2[6] | X2_N0[6] | X2_N1[4] | X2_N1[6] | X2_N2[4] | X2_N2[6] | OUT_F[4];
 				mux IMUX_D[6] = X0_W[1] | X0_E[1] | X0_S[0] | X1_W1[4] | X1_E1[0] | X1_S0[5] | X1_S1[1] | X1_N1[5] | X2_W0[6] | X2_W1[0] | X2_W1[2] | X2_W2[0] | X2_W2[2] | X2_E1[0] | X2_E1[2] | X2_E2[0] | X2_E2[2] | X2_S1[4] | X2_S1[6] | X2_S2[4] | X2_S2[6] | X2_N0[7] | X2_N1[4] | X2_N1[6] | X2_N2[4] | X2_N2[6] | OUT_Q[1];
 				mux IMUX_D[7] = X0_W[1] | X0_E[1] | X0_S[0] | X1_W1[4] | X1_E1[0] | X1_S0[5] | X1_S1[1] | X1_N1[5] | X2_W0[6] | X2_W1[0] | X2_W1[2] | X2_W2[0] | X2_W2[2] | X2_E1[0] | X2_E1[2] | X2_E2[0] | X2_E2[2] | X2_S1[4] | X2_S1[6] | X2_S2[4] | X2_S2[6] | X2_N0[7] | X2_N1[4] | X2_N1[6] | X2_N2[4] | X2_N2[6] | OUT_F[6];
-				mux IMUX_CLK[0] = X0_W[0] | X0_W[1] | X0_E[0] | X0_E[1] | X2_W1[4] | X2_W2[4] | X2_E1[4] | X2_E2[4] | X2_S1[4] | X2_S2[4] | X2_N1[4] | X2_N2[4] | PCLK[0] | PCLK[1] | PCLK[2] | PCLK[3] | PCLK[4] | PCLK[5] | PCLK[6] | PCLK[7] | RSCLK[0] | RSCLK[1] | RSCLK[2] | RSCLK[3];
-				mux IMUX_CLK[1] = X0_W[0] | X0_W[1] | X0_E[0] | X0_E[1] | X2_W1[4] | X2_W2[4] | X2_E1[4] | X2_E2[4] | X2_S1[4] | X2_S2[4] | X2_N1[4] | X2_N2[4] | PCLK[0] | PCLK[1] | PCLK[2] | PCLK[3] | PCLK[4] | PCLK[5] | PCLK[6] | PCLK[7] | RSCLK[0] | RSCLK[1] | RSCLK[2] | RSCLK[3];
-				mux IMUX_CLK[2] = X0_W[0] | X0_W[1] | X0_E[0] | X0_E[1] | X2_W1[4] | X2_W2[4] | X2_E1[4] | X2_E2[4] | X2_S1[4] | X2_S2[4] | X2_N1[4] | X2_N2[4] | PCLK[0] | PCLK[1] | PCLK[2] | PCLK[3] | PCLK[4] | PCLK[5] | PCLK[6] | PCLK[7] | RSCLK[0] | RSCLK[1] | RSCLK[2] | RSCLK[3];
-				mux IMUX_LSR[0] = X0_S[0] | X0_S[1] | X0_N[0] | X0_N[1] | X2_W1[7] | X2_W2[7] | X2_E1[7] | X2_E2[7] | X2_S1[7] | X2_S2[7] | X2_N1[7] | X2_N2[7] | RSCLK[1] | RSCLK[2] | RSCLK[3];
-				mux IMUX_LSR[1] = X0_S[0] | X0_S[1] | X0_N[0] | X0_N[1] | X2_W1[7] | X2_W2[7] | X2_E1[7] | X2_E2[7] | X2_S1[7] | X2_S2[7] | X2_N1[7] | X2_N2[7] | RSCLK[1] | RSCLK[2] | RSCLK[3];
-				mux IMUX_LSR[2] = X0_S[0] | X0_S[1] | X0_N[0] | X0_N[1] | X2_W1[7] | X2_W2[7] | X2_E1[7] | X2_E2[7] | X2_S1[7] | X2_S2[7] | X2_N1[7] | X2_N2[7] | RSCLK[1] | RSCLK[2] | RSCLK[3];
-				mux IMUX_CE[0] = X0_S[0] | X0_S[1] | X0_N[0] | X0_N[1] | X2_W1[1] | X2_W2[1] | X2_E1[1] | X2_E2[1] | X2_S1[1] | X2_S2[1] | X2_N1[1] | X2_N2[1] | RSCLK[0] | RSCLK[2] | RSCLK[3];
-				mux IMUX_CE[1] = X0_S[0] | X0_S[1] | X0_N[0] | X0_N[1] | X2_W1[1] | X2_W2[1] | X2_E1[1] | X2_E2[1] | X2_S1[1] | X2_S2[1] | X2_N1[1] | X2_N2[1] | RSCLK[0] | RSCLK[2] | RSCLK[3];
-				mux IMUX_CE[2] = X0_S[0] | X0_S[1] | X0_N[0] | X0_N[1] | X2_W1[1] | X2_W2[1] | X2_E1[1] | X2_E2[1] | X2_S1[1] | X2_S2[1] | X2_N1[1] | X2_N2[1] | RSCLK[0] | RSCLK[2] | RSCLK[3];
+				mux IMUX_CLK[0] = X0_W[0] | X0_W[1] | X0_E[0] | X0_E[1] | X2_W1[4] | X2_W2[4] | X2_E1[4] | X2_E2[4] | X2_S1[4] | X2_S2[4] | X2_N1[4] | X2_N2[4] | PCLK[0] | PCLK[1] | PCLK[2] | PCLK[3] | PCLK[4] | PCLK[5] | PCLK[6] | PCLK[7] | SCLK[0] | SCLK[1] | SCLK[2] | SCLK[3];
+				mux IMUX_CLK[1] = X0_W[0] | X0_W[1] | X0_E[0] | X0_E[1] | X2_W1[4] | X2_W2[4] | X2_E1[4] | X2_E2[4] | X2_S1[4] | X2_S2[4] | X2_N1[4] | X2_N2[4] | PCLK[0] | PCLK[1] | PCLK[2] | PCLK[3] | PCLK[4] | PCLK[5] | PCLK[6] | PCLK[7] | SCLK[0] | SCLK[1] | SCLK[2] | SCLK[3];
+				mux IMUX_CLK[2] = X0_W[0] | X0_W[1] | X0_E[0] | X0_E[1] | X2_W1[4] | X2_W2[4] | X2_E1[4] | X2_E2[4] | X2_S1[4] | X2_S2[4] | X2_N1[4] | X2_N2[4] | PCLK[0] | PCLK[1] | PCLK[2] | PCLK[3] | PCLK[4] | PCLK[5] | PCLK[6] | PCLK[7] | SCLK[0] | SCLK[1] | SCLK[2] | SCLK[3];
+				mux IMUX_LSR[0] = X0_S[0] | X0_S[1] | X0_N[0] | X0_N[1] | X2_W1[7] | X2_W2[7] | X2_E1[7] | X2_E2[7] | X2_S1[7] | X2_S2[7] | X2_N1[7] | X2_N2[7] | SCLK[1] | SCLK[2] | SCLK[3];
+				mux IMUX_LSR[1] = X0_S[0] | X0_S[1] | X0_N[0] | X0_N[1] | X2_W1[7] | X2_W2[7] | X2_E1[7] | X2_E2[7] | X2_S1[7] | X2_S2[7] | X2_N1[7] | X2_N2[7] | SCLK[1] | SCLK[2] | SCLK[3];
+				mux IMUX_LSR[2] = X0_S[0] | X0_S[1] | X0_N[0] | X0_N[1] | X2_W1[7] | X2_W2[7] | X2_E1[7] | X2_E2[7] | X2_S1[7] | X2_S2[7] | X2_N1[7] | X2_N2[7] | SCLK[1] | SCLK[2] | SCLK[3];
+				mux IMUX_CE[0] = X0_S[0] | X0_S[1] | X0_N[0] | X0_N[1] | X2_W1[1] | X2_W2[1] | X2_E1[1] | X2_E2[1] | X2_S1[1] | X2_S2[1] | X2_N1[1] | X2_N2[1] | SCLK[0] | SCLK[2] | SCLK[3];
+				mux IMUX_CE[1] = X0_S[0] | X0_S[1] | X0_N[0] | X0_N[1] | X2_W1[1] | X2_W2[1] | X2_E1[1] | X2_E2[1] | X2_S1[1] | X2_S2[1] | X2_N1[1] | X2_N2[1] | SCLK[0] | SCLK[2] | SCLK[3];
+				mux IMUX_CE[2] = X0_S[0] | X0_S[1] | X0_N[0] | X0_N[1] | X2_W1[1] | X2_W2[1] | X2_E1[1] | X2_E2[1] | X2_S1[1] | X2_S2[1] | X2_N1[1] | X2_N2[1] | SCLK[0] | SCLK[2] | SCLK[3];
 			}
 		}
 
@@ -7980,34 +8006,34 @@ intdb {
 			cell CELL;
 
 			switchbox INT {
-				mux X0_W[0] = X2_W1[0] | X2_W1[2] | X2_W2[0] | X2_W2[2] | X2_E1[0] | X2_E1[2] | X2_E2[0] | X2_E2[2] | X2_S1[0] | X2_S1[2] | X2_S2[0] | X2_S2[2] | X2_N1[0] | X2_N1[2] | X2_N2[0] | X2_N2[2] | RSCLK[0] | RSCLK[1] | RSCLK[2] | RSCLK[3] | RSCLK[4] | RSCLK[5] | RSCLK[6] | RSCLK[7];
-				mux X0_W[1] = X2_W1[1] | X2_W1[3] | X2_W2[1] | X2_W2[3] | X2_E1[1] | X2_E1[3] | X2_E2[1] | X2_E2[3] | X2_S1[1] | X2_S1[3] | X2_S2[1] | X2_S2[3] | X2_N1[1] | X2_N1[3] | X2_N2[1] | X2_N2[3] | RSCLK[0] | RSCLK[1] | RSCLK[2] | RSCLK[3] | RSCLK[4] | RSCLK[5] | RSCLK[6] | RSCLK[7];
-				mux X0_E[0] = X2_W1[4] | X2_W1[6] | X2_W2[4] | X2_W2[6] | X2_E1[4] | X2_E1[6] | X2_E2[4] | X2_E2[6] | X2_S1[4] | X2_S1[6] | X2_S2[4] | X2_S2[6] | X2_N1[4] | X2_N1[6] | X2_N2[4] | X2_N2[6] | RSCLK[0] | RSCLK[1] | RSCLK[2] | RSCLK[3] | RSCLK[4] | RSCLK[5] | RSCLK[6] | RSCLK[7];
-				mux X0_E[1] = X2_W1[5] | X2_W1[7] | X2_W2[5] | X2_W2[7] | X2_E1[5] | X2_E1[7] | X2_E2[5] | X2_E2[7] | X2_S1[5] | X2_S1[7] | X2_S2[5] | X2_S2[7] | X2_N1[5] | X2_N1[7] | X2_N2[5] | X2_N2[7] | RSCLK[0] | RSCLK[1] | RSCLK[2] | RSCLK[3] | RSCLK[4] | RSCLK[5] | RSCLK[6] | RSCLK[7];
-				mux X0_S[0] = X2_W1[4] | X2_W1[6] | X2_W2[4] | X2_W2[6] | X2_E1[4] | X2_E1[6] | X2_E2[4] | X2_E2[6] | X2_S1[0] | X2_S1[2] | X2_S2[0] | X2_S2[2] | X2_N1[0] | X2_N1[2] | X2_N2[0] | X2_N2[2] | RSCLK[0] | RSCLK[1] | RSCLK[2] | RSCLK[3] | RSCLK[4] | RSCLK[5] | RSCLK[6] | RSCLK[7];
-				mux X0_S[1] = X2_W1[5] | X2_W1[7] | X2_W2[5] | X2_W2[7] | X2_E1[5] | X2_E1[7] | X2_E2[5] | X2_E2[7] | X2_S1[1] | X2_S1[3] | X2_S2[1] | X2_S2[3] | X2_N1[1] | X2_N1[3] | X2_N2[1] | X2_N2[3] | RSCLK[0] | RSCLK[1] | RSCLK[2] | RSCLK[3] | RSCLK[4] | RSCLK[5] | RSCLK[6] | RSCLK[7];
-				mux X0_N[0] = X2_W1[0] | X2_W1[2] | X2_W2[0] | X2_W2[2] | X2_E1[0] | X2_E1[2] | X2_E2[0] | X2_E2[2] | X2_S1[4] | X2_S1[6] | X2_S2[4] | X2_S2[6] | X2_N1[4] | X2_N1[6] | X2_N2[4] | X2_N2[6] | RSCLK[0] | RSCLK[1] | RSCLK[2] | RSCLK[3] | RSCLK[4] | RSCLK[5] | RSCLK[6] | RSCLK[7];
-				mux X0_N[1] = X2_W1[1] | X2_W1[3] | X2_W2[1] | X2_W2[3] | X2_E1[1] | X2_E1[3] | X2_E2[1] | X2_E2[3] | X2_S1[5] | X2_S1[7] | X2_S2[5] | X2_S2[7] | X2_N1[5] | X2_N1[7] | X2_N2[5] | X2_N2[7] | RSCLK[0] | RSCLK[1] | RSCLK[2] | RSCLK[3] | RSCLK[4] | RSCLK[5] | RSCLK[6] | RSCLK[7];
-				mux X1_H[1] = RSCLK[0] | OUT_F[0] | OUT_F[1] | OUT_F[2] | OUT_F[3] | OUT_F[4] | OUT_F[5] | OUT_F[6] | OUT_F[7] | OUT_Q[0] | OUT_Q[1] | OUT_Q[2] | OUT_Q[3] | OUT_Q[4] | OUT_Q[5];
-				mux X1_H[4] = RSCLK[0] | OUT_F[0] | OUT_F[1] | OUT_F[2] | OUT_F[3] | OUT_F[4] | OUT_F[5] | OUT_F[6] | OUT_F[7] | OUT_Q[0] | OUT_Q[1] | OUT_Q[2] | OUT_Q[3] | OUT_Q[4] | OUT_Q[5];
-				mux X1_V[1] = RSCLK[1] | OUT_F[0] | OUT_F[1] | OUT_F[2] | OUT_F[3] | OUT_F[4] | OUT_F[5] | OUT_F[6] | OUT_F[7] | OUT_Q[0] | OUT_Q[1] | OUT_Q[2] | OUT_Q[3] | OUT_Q[4] | OUT_Q[5];
-				mux X1_V[4] = RSCLK[1] | OUT_F[0] | OUT_F[1] | OUT_F[2] | OUT_F[3] | OUT_F[4] | OUT_F[5] | OUT_F[6] | OUT_F[7] | OUT_Q[0] | OUT_Q[1] | OUT_Q[2] | OUT_Q[3] | OUT_Q[4] | OUT_Q[5];
-				mux X1_W0[0] = RSCLK[5] | OUT_F[0] | OUT_F[1] | OUT_F[2] | OUT_F[3] | OUT_F[4] | OUT_F[5] | OUT_F[6] | OUT_F[7] | OUT_Q[0] | OUT_Q[1] | OUT_Q[2] | OUT_Q[3] | OUT_Q[4] | OUT_Q[5];
+				mux X0_W[0] = X2_W1[0] | X2_W1[2] | X2_W2[0] | X2_W2[2] | X2_E1[0] | X2_E1[2] | X2_E2[0] | X2_E2[2] | X2_S1[0] | X2_S1[2] | X2_S2[0] | X2_S2[2] | X2_N1[0] | X2_N1[2] | X2_N2[0] | X2_N2[2] | SCLK[0] | SCLK[1] | SCLK[2] | SCLK[3] | SCLK[4] | SCLK[5] | SCLK[6] | SCLK[7];
+				mux X0_W[1] = X2_W1[1] | X2_W1[3] | X2_W2[1] | X2_W2[3] | X2_E1[1] | X2_E1[3] | X2_E2[1] | X2_E2[3] | X2_S1[1] | X2_S1[3] | X2_S2[1] | X2_S2[3] | X2_N1[1] | X2_N1[3] | X2_N2[1] | X2_N2[3] | SCLK[0] | SCLK[1] | SCLK[2] | SCLK[3] | SCLK[4] | SCLK[5] | SCLK[6] | SCLK[7];
+				mux X0_E[0] = X2_W1[4] | X2_W1[6] | X2_W2[4] | X2_W2[6] | X2_E1[4] | X2_E1[6] | X2_E2[4] | X2_E2[6] | X2_S1[4] | X2_S1[6] | X2_S2[4] | X2_S2[6] | X2_N1[4] | X2_N1[6] | X2_N2[4] | X2_N2[6] | SCLK[0] | SCLK[1] | SCLK[2] | SCLK[3] | SCLK[4] | SCLK[5] | SCLK[6] | SCLK[7];
+				mux X0_E[1] = X2_W1[5] | X2_W1[7] | X2_W2[5] | X2_W2[7] | X2_E1[5] | X2_E1[7] | X2_E2[5] | X2_E2[7] | X2_S1[5] | X2_S1[7] | X2_S2[5] | X2_S2[7] | X2_N1[5] | X2_N1[7] | X2_N2[5] | X2_N2[7] | SCLK[0] | SCLK[1] | SCLK[2] | SCLK[3] | SCLK[4] | SCLK[5] | SCLK[6] | SCLK[7];
+				mux X0_S[0] = X2_W1[4] | X2_W1[6] | X2_W2[4] | X2_W2[6] | X2_E1[4] | X2_E1[6] | X2_E2[4] | X2_E2[6] | X2_S1[0] | X2_S1[2] | X2_S2[0] | X2_S2[2] | X2_N1[0] | X2_N1[2] | X2_N2[0] | X2_N2[2] | SCLK[0] | SCLK[1] | SCLK[2] | SCLK[3] | SCLK[4] | SCLK[5] | SCLK[6] | SCLK[7];
+				mux X0_S[1] = X2_W1[5] | X2_W1[7] | X2_W2[5] | X2_W2[7] | X2_E1[5] | X2_E1[7] | X2_E2[5] | X2_E2[7] | X2_S1[1] | X2_S1[3] | X2_S2[1] | X2_S2[3] | X2_N1[1] | X2_N1[3] | X2_N2[1] | X2_N2[3] | SCLK[0] | SCLK[1] | SCLK[2] | SCLK[3] | SCLK[4] | SCLK[5] | SCLK[6] | SCLK[7];
+				mux X0_N[0] = X2_W1[0] | X2_W1[2] | X2_W2[0] | X2_W2[2] | X2_E1[0] | X2_E1[2] | X2_E2[0] | X2_E2[2] | X2_S1[4] | X2_S1[6] | X2_S2[4] | X2_S2[6] | X2_N1[4] | X2_N1[6] | X2_N2[4] | X2_N2[6] | SCLK[0] | SCLK[1] | SCLK[2] | SCLK[3] | SCLK[4] | SCLK[5] | SCLK[6] | SCLK[7];
+				mux X0_N[1] = X2_W1[1] | X2_W1[3] | X2_W2[1] | X2_W2[3] | X2_E1[1] | X2_E1[3] | X2_E2[1] | X2_E2[3] | X2_S1[5] | X2_S1[7] | X2_S2[5] | X2_S2[7] | X2_N1[5] | X2_N1[7] | X2_N2[5] | X2_N2[7] | SCLK[0] | SCLK[1] | SCLK[2] | SCLK[3] | SCLK[4] | SCLK[5] | SCLK[6] | SCLK[7];
+				mux X1_H[1] = SCLK[0] | OUT_F[0] | OUT_F[1] | OUT_F[2] | OUT_F[3] | OUT_F[4] | OUT_F[5] | OUT_F[6] | OUT_F[7] | OUT_Q[0] | OUT_Q[1] | OUT_Q[2] | OUT_Q[3] | OUT_Q[4] | OUT_Q[5];
+				mux X1_H[4] = SCLK[0] | OUT_F[0] | OUT_F[1] | OUT_F[2] | OUT_F[3] | OUT_F[4] | OUT_F[5] | OUT_F[6] | OUT_F[7] | OUT_Q[0] | OUT_Q[1] | OUT_Q[2] | OUT_Q[3] | OUT_Q[4] | OUT_Q[5];
+				mux X1_V[1] = SCLK[1] | OUT_F[0] | OUT_F[1] | OUT_F[2] | OUT_F[3] | OUT_F[4] | OUT_F[5] | OUT_F[6] | OUT_F[7] | OUT_Q[0] | OUT_Q[1] | OUT_Q[2] | OUT_Q[3] | OUT_Q[4] | OUT_Q[5];
+				mux X1_V[4] = SCLK[1] | OUT_F[0] | OUT_F[1] | OUT_F[2] | OUT_F[3] | OUT_F[4] | OUT_F[5] | OUT_F[6] | OUT_F[7] | OUT_Q[0] | OUT_Q[1] | OUT_Q[2] | OUT_Q[3] | OUT_Q[4] | OUT_Q[5];
+				mux X1_W0[0] = SCLK[5] | OUT_F[0] | OUT_F[1] | OUT_F[2] | OUT_F[3] | OUT_F[4] | OUT_F[5] | OUT_F[6] | OUT_F[7] | OUT_Q[0] | OUT_Q[1] | OUT_Q[2] | OUT_Q[3] | OUT_Q[4] | OUT_Q[5];
 				permabuf X1_W0[1] = X1_H[1];
 				permabuf X1_W0[4] = X1_H[4];
-				mux X1_W0[5] = RSCLK[2] | OUT_F[0] | OUT_F[1] | OUT_F[2] | OUT_F[3] | OUT_F[4] | OUT_F[5] | OUT_F[6] | OUT_F[7] | OUT_Q[0] | OUT_Q[1] | OUT_Q[2] | OUT_Q[3] | OUT_Q[4] | OUT_Q[5];
-				mux X1_E0[0] = RSCLK[5] | OUT_F[0] | OUT_F[1] | OUT_F[2] | OUT_F[3] | OUT_F[4] | OUT_F[5] | OUT_F[6] | OUT_F[7] | OUT_Q[0] | OUT_Q[1] | OUT_Q[2] | OUT_Q[3] | OUT_Q[4] | OUT_Q[5];
+				mux X1_W0[5] = SCLK[2] | OUT_F[0] | OUT_F[1] | OUT_F[2] | OUT_F[3] | OUT_F[4] | OUT_F[5] | OUT_F[6] | OUT_F[7] | OUT_Q[0] | OUT_Q[1] | OUT_Q[2] | OUT_Q[3] | OUT_Q[4] | OUT_Q[5];
+				mux X1_E0[0] = SCLK[5] | OUT_F[0] | OUT_F[1] | OUT_F[2] | OUT_F[3] | OUT_F[4] | OUT_F[5] | OUT_F[6] | OUT_F[7] | OUT_Q[0] | OUT_Q[1] | OUT_Q[2] | OUT_Q[3] | OUT_Q[4] | OUT_Q[5];
 				permabuf X1_E0[1] = X1_H[1];
 				permabuf X1_E0[4] = X1_H[4];
-				mux X1_E0[5] = RSCLK[2] | OUT_F[0] | OUT_F[1] | OUT_F[2] | OUT_F[3] | OUT_F[4] | OUT_F[5] | OUT_F[6] | OUT_F[7] | OUT_Q[0] | OUT_Q[1] | OUT_Q[2] | OUT_Q[3] | OUT_Q[4] | OUT_Q[5];
-				mux X1_S0[0] = RSCLK[4] | OUT_F[0] | OUT_F[1] | OUT_F[2] | OUT_F[3] | OUT_F[4] | OUT_F[5] | OUT_F[6] | OUT_F[7] | OUT_Q[0] | OUT_Q[1] | OUT_Q[2] | OUT_Q[3] | OUT_Q[4] | OUT_Q[5];
+				mux X1_E0[5] = SCLK[2] | OUT_F[0] | OUT_F[1] | OUT_F[2] | OUT_F[3] | OUT_F[4] | OUT_F[5] | OUT_F[6] | OUT_F[7] | OUT_Q[0] | OUT_Q[1] | OUT_Q[2] | OUT_Q[3] | OUT_Q[4] | OUT_Q[5];
+				mux X1_S0[0] = SCLK[4] | OUT_F[0] | OUT_F[1] | OUT_F[2] | OUT_F[3] | OUT_F[4] | OUT_F[5] | OUT_F[6] | OUT_F[7] | OUT_Q[0] | OUT_Q[1] | OUT_Q[2] | OUT_Q[3] | OUT_Q[4] | OUT_Q[5];
 				permabuf X1_S0[1] = X1_V[1];
 				permabuf X1_S0[4] = X1_V[4];
-				mux X1_S0[5] = RSCLK[6] | OUT_F[0] | OUT_F[1] | OUT_F[2] | OUT_F[3] | OUT_F[4] | OUT_F[5] | OUT_F[6] | OUT_F[7] | OUT_Q[0] | OUT_Q[1] | OUT_Q[2] | OUT_Q[3] | OUT_Q[4] | OUT_Q[5];
-				mux X1_N0[0] = RSCLK[4] | OUT_F[0] | OUT_F[1] | OUT_F[2] | OUT_F[3] | OUT_F[4] | OUT_F[5] | OUT_F[6] | OUT_F[7] | OUT_Q[0] | OUT_Q[1] | OUT_Q[2] | OUT_Q[3] | OUT_Q[4] | OUT_Q[5];
+				mux X1_S0[5] = SCLK[6] | OUT_F[0] | OUT_F[1] | OUT_F[2] | OUT_F[3] | OUT_F[4] | OUT_F[5] | OUT_F[6] | OUT_F[7] | OUT_Q[0] | OUT_Q[1] | OUT_Q[2] | OUT_Q[3] | OUT_Q[4] | OUT_Q[5];
+				mux X1_N0[0] = SCLK[4] | OUT_F[0] | OUT_F[1] | OUT_F[2] | OUT_F[3] | OUT_F[4] | OUT_F[5] | OUT_F[6] | OUT_F[7] | OUT_Q[0] | OUT_Q[1] | OUT_Q[2] | OUT_Q[3] | OUT_Q[4] | OUT_Q[5];
 				permabuf X1_N0[1] = X1_V[1];
 				permabuf X1_N0[4] = X1_V[4];
-				mux X1_N0[5] = RSCLK[6] | OUT_F[0] | OUT_F[1] | OUT_F[2] | OUT_F[3] | OUT_F[4] | OUT_F[5] | OUT_F[6] | OUT_F[7] | OUT_Q[0] | OUT_Q[1] | OUT_Q[2] | OUT_Q[3] | OUT_Q[4] | OUT_Q[5];
+				mux X1_N0[5] = SCLK[6] | OUT_F[0] | OUT_F[1] | OUT_F[2] | OUT_F[3] | OUT_F[4] | OUT_F[5] | OUT_F[6] | OUT_F[7] | OUT_Q[0] | OUT_Q[1] | OUT_Q[2] | OUT_Q[3] | OUT_Q[4] | OUT_Q[5];
 				mux X2_W0[0] = X1_W1[0] | X1_S1[0] | X1_N0[0] | X1_N1[0] | X2_W2[0] | X2_W2[5] | X2_S1[0] | X2_S2[0] | X2_N1[0] | X2_N2[0] | X6_W6[0] | X6_E6[0] | X6_S3[0] | X6_S6[0] | X6_N3[0] | X6_N6[0] | OUT_F[0] | OUT_Q[0];
 				mux X2_W0[1] = X1_W1[1] | X1_S0[0] | X1_S1[1] | X1_N1[1] | X2_W2[0] | X2_W2[1] | X2_S1[1] | X2_S2[1] | X2_N1[1] | X2_N2[1] | X6_W6[1] | X6_E6[1] | X6_S3[1] | X6_S6[1] | X6_N3[1] | X6_N6[1] | OUT_F[1] | OUT_Q[1];
 				mux X2_W0[2] = X1_W1[4] | X1_E0[0] | X1_S1[4] | X1_N1[4] | X2_W2[2] | X2_W2[7] | X2_S1[2] | X2_S2[2] | X2_N1[2] | X2_N2[2] | X6_W6[1] | X6_E6[1] | X6_S3[1] | X6_S6[1] | X6_N3[1] | X6_N6[1] | OUT_F[2] | OUT_Q[2];
@@ -8056,10 +8082,10 @@ intdb {
 				mux X6_N0[1] = X1_W0[5] | X1_W1[1] | X1_E1[1] | X1_N1[1] | X2_N2[1] | X2_N2[3] | X6_W3[1] | X6_W6[1] | X6_E3[1] | X6_E6[1] | X6_N6[0] | X6_N6[1] | OUT_F[1] | OUT_F[2] | OUT_Q[1] | OUT_Q[2];
 				mux X6_N0[2] = X1_W1[4] | X1_E1[4] | X1_N0[5] | X1_N1[4] | X2_N2[4] | X2_N2[6] | X6_W3[2] | X6_W6[2] | X6_E3[2] | X6_E6[2] | X6_N6[1] | X6_N6[2] | OUT_F[4] | OUT_F[6] | OUT_F[7] | OUT_Q[4];
 				mux X6_N0[3] = X1_W1[5] | X1_E1[5] | X1_S0[5] | X1_N1[5] | X2_N2[5] | X2_N2[7] | X6_W3[3] | X6_W6[3] | X6_E3[3] | X6_E6[3] | X6_N6[2] | X6_N6[3] | OUT_F[5] | OUT_F[6] | OUT_F[7] | OUT_Q[5];
+				mux RSCLK_V[0] = RSCLK_H[0] | RSCLK_H[4] | IMUX_A[6] | OUT_F[6] | OUT_F[7];
+				mux RSCLK_V[4] = RSCLK_H[0] | RSCLK_H[4] | IMUX_B[6] | OUT_F[6] | OUT_F[7];
 				mux RSCLK_H[0] = IMUX_C[7] | OUT_F[6] | OUT_F[7];
 				mux RSCLK_H[4] = IMUX_C[6] | OUT_F[6] | OUT_F[7];
-				mux RSCLK_V[0] = RSCLK_H[0] | RSCLK_H[4] | IMUX_A[6] | OUT_F[6] | OUT_F[7];
-				mux RSCLK_V[1] = RSCLK_H[0] | RSCLK_H[4] | IMUX_B[6] | OUT_F[6] | OUT_F[7];
 				mux IMUX_A[0] = X0_W[0] | X0_W[1] | X0_E[0] | X1_W1[5] | X1_E1[1] | X1_S1[5] | X1_N0[0] | X1_N1[1] | X2_W1[5] | X2_W1[7] | X2_W2[5] | X2_W2[7] | X2_E0[1] | X2_E1[5] | X2_E1[7] | X2_E2[5] | X2_E2[7] | X2_S1[5] | X2_S1[7] | X2_S2[5] | X2_S2[7] | X2_N0[0] | X2_N1[5] | X2_N1[7] | X2_N2[5] | X2_N2[7] | OUT_F[7];
 				mux IMUX_A[1] = X0_W[0] | X0_W[1] | X0_E[0] | X1_W1[5] | X1_E1[1] | X1_S1[5] | X1_N0[0] | X1_N1[1] | X2_W1[5] | X2_W1[7] | X2_W2[5] | X2_W2[7] | X2_E0[1] | X2_E1[5] | X2_E1[7] | X2_E2[5] | X2_E2[7] | X2_S1[5] | X2_S1[7] | X2_S2[5] | X2_S2[7] | X2_N0[0] | X2_N1[5] | X2_N1[7] | X2_N2[5] | X2_N2[7] | OUT_F[7];
 				mux IMUX_A[2] = X0_W[1] | X0_S[0] | X0_N[0] | X1_W1[5] | X1_E1[1] | X1_S1[5] | X1_N0[5] | X1_N1[1] | X2_W1[5] | X2_W1[7] | X2_W2[5] | X2_W2[7] | X2_E0[0] | X2_E1[5] | X2_E1[7] | X2_E2[5] | X2_E2[7] | X2_S1[5] | X2_S1[7] | X2_S2[5] | X2_S2[7] | X2_N0[1] | X2_N1[5] | X2_N1[7] | X2_N2[5] | X2_N2[7] | OUT_F[5];
@@ -8092,15 +8118,15 @@ intdb {
 				mux IMUX_D[5] = X0_W[1] | X0_E[1] | X0_S[0] | X1_W1[4] | X1_E1[0] | X1_S0[0] | X1_S1[1] | X1_N1[5] | X2_W0[7] | X2_W1[0] | X2_W1[2] | X2_W2[0] | X2_W2[2] | X2_E1[0] | X2_E1[2] | X2_E2[0] | X2_E2[2] | X2_S1[4] | X2_S1[6] | X2_S2[4] | X2_S2[6] | X2_N0[6] | X2_N1[4] | X2_N1[6] | X2_N2[4] | X2_N2[6] | OUT_F[4];
 				mux IMUX_D[6] = X0_W[1] | X0_E[1] | X0_S[0] | X1_W1[4] | X1_E1[0] | X1_S0[5] | X1_S1[1] | X1_N1[5] | X2_W0[6] | X2_W1[0] | X2_W1[2] | X2_W2[0] | X2_W2[2] | X2_E1[0] | X2_E1[2] | X2_E2[0] | X2_E2[2] | X2_S1[4] | X2_S1[6] | X2_S2[4] | X2_S2[6] | X2_N0[7] | X2_N1[4] | X2_N1[6] | X2_N2[4] | X2_N2[6] | OUT_Q[1];
 				mux IMUX_D[7] = X0_W[1] | X0_E[1] | X0_S[0] | X1_W1[4] | X1_E1[0] | X1_S0[5] | X1_S1[1] | X1_N1[5] | X2_W0[6] | X2_W1[0] | X2_W1[2] | X2_W2[0] | X2_W2[2] | X2_E1[0] | X2_E1[2] | X2_E2[0] | X2_E2[2] | X2_S1[4] | X2_S1[6] | X2_S2[4] | X2_S2[6] | X2_N0[7] | X2_N1[4] | X2_N1[6] | X2_N2[4] | X2_N2[6] | OUT_F[6];
-				mux IMUX_CLK[0] = X0_W[0] | X0_W[1] | X0_E[0] | X0_E[1] | X2_W1[4] | X2_W2[4] | X2_E1[4] | X2_E2[4] | X2_S1[4] | X2_S2[4] | X2_N1[4] | X2_N2[4] | PCLK[0] | PCLK[1] | PCLK[2] | PCLK[3] | PCLK[4] | PCLK[5] | PCLK[6] | PCLK[7] | RSCLK[0] | RSCLK[1] | RSCLK[2] | RSCLK[3];
-				mux IMUX_CLK[1] = X0_W[0] | X0_W[1] | X0_E[0] | X0_E[1] | X2_W1[4] | X2_W2[4] | X2_E1[4] | X2_E2[4] | X2_S1[4] | X2_S2[4] | X2_N1[4] | X2_N2[4] | PCLK[0] | PCLK[1] | PCLK[2] | PCLK[3] | PCLK[4] | PCLK[5] | PCLK[6] | PCLK[7] | RSCLK[0] | RSCLK[1] | RSCLK[2] | RSCLK[3];
-				mux IMUX_CLK[2] = X0_W[0] | X0_W[1] | X0_E[0] | X0_E[1] | X2_W1[4] | X2_W2[4] | X2_E1[4] | X2_E2[4] | X2_S1[4] | X2_S2[4] | X2_N1[4] | X2_N2[4] | PCLK[0] | PCLK[1] | PCLK[2] | PCLK[3] | PCLK[4] | PCLK[5] | PCLK[6] | PCLK[7] | RSCLK[0] | RSCLK[1] | RSCLK[2] | RSCLK[3];
-				mux IMUX_LSR[0] = X0_S[0] | X0_S[1] | X0_N[0] | X0_N[1] | X2_W1[7] | X2_W2[7] | X2_E1[7] | X2_E2[7] | X2_S1[7] | X2_S2[7] | X2_N1[7] | X2_N2[7] | RSCLK[1] | RSCLK[2] | RSCLK[3];
-				mux IMUX_LSR[1] = X0_S[0] | X0_S[1] | X0_N[0] | X0_N[1] | X2_W1[7] | X2_W2[7] | X2_E1[7] | X2_E2[7] | X2_S1[7] | X2_S2[7] | X2_N1[7] | X2_N2[7] | RSCLK[1] | RSCLK[2] | RSCLK[3];
-				mux IMUX_LSR[2] = X0_S[0] | X0_S[1] | X0_N[0] | X0_N[1] | X2_W1[7] | X2_W2[7] | X2_E1[7] | X2_E2[7] | X2_S1[7] | X2_S2[7] | X2_N1[7] | X2_N2[7] | RSCLK[1] | RSCLK[2] | RSCLK[3];
-				mux IMUX_CE[0] = X0_S[0] | X0_S[1] | X0_N[0] | X0_N[1] | X2_W1[1] | X2_W2[1] | X2_E1[1] | X2_E2[1] | X2_S1[1] | X2_S2[1] | X2_N1[1] | X2_N2[1] | RSCLK[0] | RSCLK[2] | RSCLK[3];
-				mux IMUX_CE[1] = X0_S[0] | X0_S[1] | X0_N[0] | X0_N[1] | X2_W1[1] | X2_W2[1] | X2_E1[1] | X2_E2[1] | X2_S1[1] | X2_S2[1] | X2_N1[1] | X2_N2[1] | RSCLK[0] | RSCLK[2] | RSCLK[3];
-				mux IMUX_CE[2] = X0_S[0] | X0_S[1] | X0_N[0] | X0_N[1] | X2_W1[1] | X2_W2[1] | X2_E1[1] | X2_E2[1] | X2_S1[1] | X2_S2[1] | X2_N1[1] | X2_N2[1] | RSCLK[0] | RSCLK[2] | RSCLK[3];
+				mux IMUX_CLK[0] = X0_W[0] | X0_W[1] | X0_E[0] | X0_E[1] | X2_W1[4] | X2_W2[4] | X2_E1[4] | X2_E2[4] | X2_S1[4] | X2_S2[4] | X2_N1[4] | X2_N2[4] | PCLK[0] | PCLK[1] | PCLK[2] | PCLK[3] | PCLK[4] | PCLK[5] | PCLK[6] | PCLK[7] | SCLK[0] | SCLK[1] | SCLK[2] | SCLK[3];
+				mux IMUX_CLK[1] = X0_W[0] | X0_W[1] | X0_E[0] | X0_E[1] | X2_W1[4] | X2_W2[4] | X2_E1[4] | X2_E2[4] | X2_S1[4] | X2_S2[4] | X2_N1[4] | X2_N2[4] | PCLK[0] | PCLK[1] | PCLK[2] | PCLK[3] | PCLK[4] | PCLK[5] | PCLK[6] | PCLK[7] | SCLK[0] | SCLK[1] | SCLK[2] | SCLK[3];
+				mux IMUX_CLK[2] = X0_W[0] | X0_W[1] | X0_E[0] | X0_E[1] | X2_W1[4] | X2_W2[4] | X2_E1[4] | X2_E2[4] | X2_S1[4] | X2_S2[4] | X2_N1[4] | X2_N2[4] | PCLK[0] | PCLK[1] | PCLK[2] | PCLK[3] | PCLK[4] | PCLK[5] | PCLK[6] | PCLK[7] | SCLK[0] | SCLK[1] | SCLK[2] | SCLK[3];
+				mux IMUX_LSR[0] = X0_S[0] | X0_S[1] | X0_N[0] | X0_N[1] | X2_W1[7] | X2_W2[7] | X2_E1[7] | X2_E2[7] | X2_S1[7] | X2_S2[7] | X2_N1[7] | X2_N2[7] | SCLK[1] | SCLK[2] | SCLK[3];
+				mux IMUX_LSR[1] = X0_S[0] | X0_S[1] | X0_N[0] | X0_N[1] | X2_W1[7] | X2_W2[7] | X2_E1[7] | X2_E2[7] | X2_S1[7] | X2_S2[7] | X2_N1[7] | X2_N2[7] | SCLK[1] | SCLK[2] | SCLK[3];
+				mux IMUX_LSR[2] = X0_S[0] | X0_S[1] | X0_N[0] | X0_N[1] | X2_W1[7] | X2_W2[7] | X2_E1[7] | X2_E2[7] | X2_S1[7] | X2_S2[7] | X2_N1[7] | X2_N2[7] | SCLK[1] | SCLK[2] | SCLK[3];
+				mux IMUX_CE[0] = X0_S[0] | X0_S[1] | X0_N[0] | X0_N[1] | X2_W1[1] | X2_W2[1] | X2_E1[1] | X2_E2[1] | X2_S1[1] | X2_S2[1] | X2_N1[1] | X2_N2[1] | SCLK[0] | SCLK[2] | SCLK[3];
+				mux IMUX_CE[1] = X0_S[0] | X0_S[1] | X0_N[0] | X0_N[1] | X2_W1[1] | X2_W2[1] | X2_E1[1] | X2_E2[1] | X2_S1[1] | X2_S2[1] | X2_N1[1] | X2_N2[1] | SCLK[0] | SCLK[2] | SCLK[3];
+				mux IMUX_CE[2] = X0_S[0] | X0_S[1] | X0_N[0] | X0_N[1] | X2_W1[1] | X2_W2[1] | X2_E1[1] | X2_E2[1] | X2_S1[1] | X2_S2[1] | X2_N1[1] | X2_N2[1] | SCLK[0] | SCLK[2] | SCLK[3];
 			}
 		}
 
@@ -8108,14 +8134,14 @@ intdb {
 			cell CELL;
 
 			switchbox INT {
-				mux X0_W[0] = X2_W1[0] | X2_W1[2] | X2_W2[0] | X2_W2[2] | X2_E1[0] | X2_E1[2] | X2_E2[0] | X2_E2[2] | X2_S1[0] | X2_S1[2] | X2_S2[0] | X2_S2[2] | X2_N1[0] | X2_N1[2] | X2_N2[0] | X2_N2[2] | PCLK[6] | RSCLK[4] | RSCLK[5] | RSCLK[6] | RSCLK[7] | OUT_F[0] | OUT_F[2];
-				mux X0_W[1] = X2_W1[1] | X2_W1[3] | X2_W2[1] | X2_W2[3] | X2_E1[1] | X2_E1[3] | X2_E2[1] | X2_E2[3] | X2_S1[1] | X2_S1[3] | X2_S2[1] | X2_S2[3] | X2_N1[1] | X2_N1[3] | X2_N2[1] | X2_N2[3] | PCLK[4] | RSCLK[4] | RSCLK[5] | RSCLK[6] | RSCLK[7] | OUT_F[1] | OUT_F[3];
-				mux X0_E[0] = X2_W1[4] | X2_W1[6] | X2_W2[4] | X2_W2[6] | X2_E1[4] | X2_E1[6] | X2_E2[4] | X2_E2[6] | X2_S1[4] | X2_S1[6] | X2_S2[4] | X2_S2[6] | X2_N1[4] | X2_N1[6] | X2_N2[4] | X2_N2[6] | PCLK[5] | RSCLK[4] | RSCLK[5] | RSCLK[6] | RSCLK[7] | OUT_F[4] | OUT_F[6];
-				mux X0_E[1] = X2_W1[5] | X2_W1[7] | X2_W2[5] | X2_W2[7] | X2_E1[5] | X2_E1[7] | X2_E2[5] | X2_E2[7] | X2_S1[5] | X2_S1[7] | X2_S2[5] | X2_S2[7] | X2_N1[5] | X2_N1[7] | X2_N2[5] | X2_N2[7] | PCLK[7] | RSCLK[4] | RSCLK[5] | RSCLK[6] | RSCLK[7] | OUT_F[5] | OUT_F[7];
-				mux X0_S[0] = X2_W1[4] | X2_W1[6] | X2_W2[4] | X2_W2[6] | X2_E1[4] | X2_E1[6] | X2_E2[4] | X2_E2[6] | X2_S1[0] | X2_S1[2] | X2_S2[0] | X2_S2[2] | X2_N1[0] | X2_N1[2] | X2_N2[0] | X2_N2[2] | PCLK[5] | RSCLK[4] | RSCLK[5] | RSCLK[6] | RSCLK[7] | OUT_F[0] | OUT_F[2];
-				mux X0_S[1] = X2_W1[5] | X2_W1[7] | X2_W2[5] | X2_W2[7] | X2_E1[5] | X2_E1[7] | X2_E2[5] | X2_E2[7] | X2_S1[1] | X2_S1[3] | X2_S2[1] | X2_S2[3] | X2_N1[1] | X2_N1[3] | X2_N2[1] | X2_N2[3] | PCLK[7] | RSCLK[4] | RSCLK[5] | RSCLK[6] | RSCLK[7] | OUT_F[1] | OUT_F[3];
-				mux X0_N[0] = X2_W1[0] | X2_W1[2] | X2_W2[0] | X2_W2[2] | X2_E1[0] | X2_E1[2] | X2_E2[0] | X2_E2[2] | X2_S1[4] | X2_S1[6] | X2_S2[4] | X2_S2[6] | X2_N1[4] | X2_N1[6] | X2_N2[4] | X2_N2[6] | PCLK[6] | RSCLK[4] | RSCLK[5] | RSCLK[6] | RSCLK[7] | OUT_F[4] | OUT_F[6];
-				mux X0_N[1] = X2_W1[1] | X2_W1[3] | X2_W2[1] | X2_W2[3] | X2_E1[1] | X2_E1[3] | X2_E2[1] | X2_E2[3] | X2_S1[5] | X2_S1[7] | X2_S2[5] | X2_S2[7] | X2_N1[5] | X2_N1[7] | X2_N2[5] | X2_N2[7] | PCLK[4] | RSCLK[4] | RSCLK[5] | RSCLK[6] | RSCLK[7] | OUT_F[5] | OUT_F[7];
+				mux X0_W[0] = X2_W1[0] | X2_W1[2] | X2_W2[0] | X2_W2[2] | X2_E1[0] | X2_E1[2] | X2_E2[0] | X2_E2[2] | X2_S1[0] | X2_S1[2] | X2_S2[0] | X2_S2[2] | X2_N1[0] | X2_N1[2] | X2_N2[0] | X2_N2[2] | PCLK[6] | SCLK[4] | SCLK[5] | SCLK[6] | SCLK[7] | OUT_F[0] | OUT_F[2];
+				mux X0_W[1] = X2_W1[1] | X2_W1[3] | X2_W2[1] | X2_W2[3] | X2_E1[1] | X2_E1[3] | X2_E2[1] | X2_E2[3] | X2_S1[1] | X2_S1[3] | X2_S2[1] | X2_S2[3] | X2_N1[1] | X2_N1[3] | X2_N2[1] | X2_N2[3] | PCLK[4] | SCLK[4] | SCLK[5] | SCLK[6] | SCLK[7] | OUT_F[1] | OUT_F[3];
+				mux X0_E[0] = X2_W1[4] | X2_W1[6] | X2_W2[4] | X2_W2[6] | X2_E1[4] | X2_E1[6] | X2_E2[4] | X2_E2[6] | X2_S1[4] | X2_S1[6] | X2_S2[4] | X2_S2[6] | X2_N1[4] | X2_N1[6] | X2_N2[4] | X2_N2[6] | PCLK[5] | SCLK[4] | SCLK[5] | SCLK[6] | SCLK[7] | OUT_F[4] | OUT_F[6];
+				mux X0_E[1] = X2_W1[5] | X2_W1[7] | X2_W2[5] | X2_W2[7] | X2_E1[5] | X2_E1[7] | X2_E2[5] | X2_E2[7] | X2_S1[5] | X2_S1[7] | X2_S2[5] | X2_S2[7] | X2_N1[5] | X2_N1[7] | X2_N2[5] | X2_N2[7] | PCLK[7] | SCLK[4] | SCLK[5] | SCLK[6] | SCLK[7] | OUT_F[5] | OUT_F[7];
+				mux X0_S[0] = X2_W1[4] | X2_W1[6] | X2_W2[4] | X2_W2[6] | X2_E1[4] | X2_E1[6] | X2_E2[4] | X2_E2[6] | X2_S1[0] | X2_S1[2] | X2_S2[0] | X2_S2[2] | X2_N1[0] | X2_N1[2] | X2_N2[0] | X2_N2[2] | PCLK[5] | SCLK[4] | SCLK[5] | SCLK[6] | SCLK[7] | OUT_F[0] | OUT_F[2];
+				mux X0_S[1] = X2_W1[5] | X2_W1[7] | X2_W2[5] | X2_W2[7] | X2_E1[5] | X2_E1[7] | X2_E2[5] | X2_E2[7] | X2_S1[1] | X2_S1[3] | X2_S2[1] | X2_S2[3] | X2_N1[1] | X2_N1[3] | X2_N2[1] | X2_N2[3] | PCLK[7] | SCLK[4] | SCLK[5] | SCLK[6] | SCLK[7] | OUT_F[1] | OUT_F[3];
+				mux X0_N[0] = X2_W1[0] | X2_W1[2] | X2_W2[0] | X2_W2[2] | X2_E1[0] | X2_E1[2] | X2_E2[0] | X2_E2[2] | X2_S1[4] | X2_S1[6] | X2_S2[4] | X2_S2[6] | X2_N1[4] | X2_N1[6] | X2_N2[4] | X2_N2[6] | PCLK[6] | SCLK[4] | SCLK[5] | SCLK[6] | SCLK[7] | OUT_F[4] | OUT_F[6];
+				mux X0_N[1] = X2_W1[1] | X2_W1[3] | X2_W2[1] | X2_W2[3] | X2_E1[1] | X2_E1[3] | X2_E2[1] | X2_E2[3] | X2_S1[5] | X2_S1[7] | X2_S2[5] | X2_S2[7] | X2_N1[5] | X2_N1[7] | X2_N2[5] | X2_N2[7] | PCLK[4] | SCLK[4] | SCLK[5] | SCLK[6] | SCLK[7] | OUT_F[5] | OUT_F[7];
 				mux X1_H[1] = OUT_F[0] | OUT_F[1] | OUT_F[2] | OUT_F[3] | OUT_F[4] | OUT_F[5] | OUT_F[6] | OUT_F[7] | OUT_Q[0] | OUT_Q[1] | OUT_Q[2] | OUT_Q[3] | OUT_Q[4] | OUT_Q[5] | OUT_Q[6] | OUT_Q[7];
 				mux X1_H[4] = OUT_F[0] | OUT_F[1] | OUT_F[2] | OUT_F[3] | OUT_F[4] | OUT_F[5] | OUT_F[6] | OUT_F[7] | OUT_Q[0] | OUT_Q[1] | OUT_Q[2] | OUT_Q[3] | OUT_Q[4] | OUT_Q[5] | OUT_Q[6] | OUT_Q[7];
 				mux X1_V[1] = OUT_F[0] | OUT_F[1] | OUT_F[2] | OUT_F[3] | OUT_F[4] | OUT_F[5] | OUT_F[6] | OUT_F[7] | OUT_Q[0] | OUT_Q[1] | OUT_Q[2] | OUT_Q[3] | OUT_Q[4] | OUT_Q[5] | OUT_Q[6] | OUT_Q[7];
@@ -8184,28 +8210,28 @@ intdb {
 				mux X6_N0[1] = X1_W0[5] | X1_W1[1] | X1_E1[1] | X1_N1[1] | X2_N2[1] | X2_N2[3] | X6_W3[1] | X6_W6[1] | X6_E3[1] | X6_E6[1] | X6_N6[0] | X6_N6[1] | OUT_F[1] | OUT_F[2] | OUT_Q[1] | OUT_Q[2];
 				mux X6_N0[2] = X1_W1[4] | X1_E1[4] | X1_N0[5] | X1_N1[4] | X2_N2[4] | X2_N2[6] | X6_W3[2] | X6_W6[2] | X6_E3[2] | X6_E6[2] | X6_N6[1] | X6_N6[2] | OUT_F[4] | OUT_F[7] | OUT_Q[4] | OUT_Q[7];
 				mux X6_N0[3] = X1_W1[5] | X1_E1[5] | X1_S0[5] | X1_N1[5] | X2_N2[5] | X2_N2[7] | X6_W3[3] | X6_W6[3] | X6_E3[3] | X6_E6[3] | X6_N6[2] | X6_N6[3] | OUT_F[5] | OUT_F[6] | OUT_Q[5] | OUT_Q[6];
+				progbuf RSCLK_V[0] = IMUX_A[7] @XXX57005[57005][57005];
+				progbuf RSCLK_V[4] = IMUX_B[7] @XXX57005[57005][57005];
+				progbuf RSCLK_V_N[0] = IMUX_A[6] @XXX57005[57005][57005];
+				progbuf RSCLK_V_N[4] = IMUX_B[6] @XXX57005[57005][57005];
 				progbuf RSCLK_H[0] = IMUX_CE[1] @XXX57005[57005][57005];
 				progbuf RSCLK_H[4] = IMUX_CLK[2] @XXX57005[57005][57005];
-				progbuf RSCLK_V[0] = IMUX_A[7] @XXX57005[57005][57005];
-				progbuf RSCLK_V[1] = IMUX_B[7] @XXX57005[57005][57005];
-				progbuf RSCLK_V_N[0] = IMUX_A[6] @XXX57005[57005][57005];
-				progbuf RSCLK_V_N[1] = IMUX_B[6] @XXX57005[57005][57005];
 				mux IMUX_A[0] = X0_W[0] | X0_W[1] | X0_E[0] | X1_W1[5] | X1_E1[1] | X1_S1[5] | X1_N0[0] | X1_N1[1] | X2_W1[5] | X2_W1[7] | X2_W2[5] | X2_W2[7] | X2_E0[1] | X2_E1[5] | X2_E1[7] | X2_E2[5] | X2_E2[7] | X2_S1[5] | X2_S1[7] | X2_S2[5] | X2_S2[7] | X2_N0[0] | X2_N1[5] | X2_N1[7] | X2_N2[5] | X2_N2[7] | OUT_F[7];
 				mux IMUX_A[1] = X0_W[0] | X0_W[1] | X0_E[0] | X1_W1[5] | X1_E1[1] | X1_S1[5] | X1_N0[0] | X1_N1[1] | X2_W1[5] | X2_W1[7] | X2_W2[5] | X2_W2[7] | X2_E0[1] | X2_E1[5] | X2_E1[7] | X2_E2[5] | X2_E2[7] | X2_S1[5] | X2_S1[7] | X2_S2[5] | X2_S2[7] | X2_N0[0] | X2_N1[5] | X2_N1[7] | X2_N2[5] | X2_N2[7] | OUT_F[7];
 				mux IMUX_A[2] = X0_W[1] | X0_S[0] | X0_N[0] | X1_W1[5] | X1_E1[1] | X1_S1[5] | X1_N0[5] | X1_N1[1] | X2_W1[5] | X2_W1[7] | X2_W2[5] | X2_W2[7] | X2_E0[0] | X2_E1[5] | X2_E1[7] | X2_E2[5] | X2_E2[7] | X2_S1[5] | X2_S1[7] | X2_S2[5] | X2_S2[7] | X2_N0[1] | X2_N1[5] | X2_N1[7] | X2_N2[5] | X2_N2[7] | OUT_F[7];
 				mux IMUX_A[3] = X0_W[1] | X0_S[0] | X0_N[0] | X1_W1[5] | X1_E1[1] | X1_S1[5] | X1_N0[5] | X1_N1[1] | X2_W1[5] | X2_W1[7] | X2_W2[5] | X2_W2[7] | X2_E0[0] | X2_E1[5] | X2_E1[7] | X2_E2[5] | X2_E2[7] | X2_S1[5] | X2_S1[7] | X2_S2[5] | X2_S2[7] | X2_N0[1] | X2_N1[5] | X2_N1[7] | X2_N2[5] | X2_N2[7] | OUT_F[7];
 				mux IMUX_A[4] = X0_S[0] | X0_N[0] | X0_N[1] | X1_W1[5] | X1_E0[0] | X1_E1[1] | X1_S1[0] | X1_N1[4] | X2_W0[1] | X2_W1[5] | X2_W1[7] | X2_W2[5] | X2_W2[7] | X2_E1[5] | X2_E1[7] | X2_E2[5] | X2_E2[7] | X2_S0[0] | X2_S1[1] | X2_S1[3] | X2_S2[1] | X2_S2[3] | X2_N1[1] | X2_N1[3] | X2_N2[1] | X2_N2[3] | OUT_F[3];
 				mux IMUX_A[5] = X0_S[0] | X0_N[0] | X0_N[1] | X1_W1[5] | X1_E0[0] | X1_E1[1] | X1_S1[0] | X1_N1[4] | X2_W0[1] | X2_W1[5] | X2_W1[7] | X2_W2[5] | X2_W2[7] | X2_E1[5] | X2_E1[7] | X2_E2[5] | X2_E2[7] | X2_S0[0] | X2_S1[1] | X2_S1[3] | X2_S2[1] | X2_S2[3] | X2_N1[1] | X2_N1[3] | X2_N2[1] | X2_N2[3] | OUT_F[3];
-				mux IMUX_A[6] = X0_W[0] | X0_E[0] | X0_N[1] | X1_W1[5] | X1_E1[1] | X1_S1[0] | X1_N1[4] | X2_W0[0] | X2_W1[5] | X2_W1[7] | X2_W2[5] | X2_W2[7] | X2_E1[5] | X2_E1[7] | X2_E2[5] | X2_E2[7] | X2_S0[1] | X2_S1[1] | X2_S1[3] | X2_S2[1] | X2_S2[3] | X2_N1[1] | X2_N1[3] | X2_N2[1] | X2_N2[3] | RSCLK_H[0] | RSCLK_H[4] | RSCLK_V[0];
-				mux IMUX_A[7] = X0_W[0] | X0_E[0] | X0_N[1] | X1_W1[5] | X1_E1[1] | X1_S1[0] | X1_N1[4] | X2_W0[0] | X2_W1[5] | X2_W1[7] | X2_W2[5] | X2_W2[7] | X2_E1[5] | X2_E1[7] | X2_E2[5] | X2_E2[7] | X2_S0[1] | X2_S1[1] | X2_S1[3] | X2_S2[1] | X2_S2[3] | X2_N1[1] | X2_N1[3] | X2_N2[1] | X2_N2[3] | RSCLK_H[0] | RSCLK_H[4] | RSCLK_V_N[0];
+				mux IMUX_A[6] = X0_W[0] | X0_E[0] | X0_N[1] | X1_W1[5] | X1_E1[1] | X1_S1[0] | X1_N1[4] | X2_W0[0] | X2_W1[5] | X2_W1[7] | X2_W2[5] | X2_W2[7] | X2_E1[5] | X2_E1[7] | X2_E2[5] | X2_E2[7] | X2_S0[1] | X2_S1[1] | X2_S1[3] | X2_S2[1] | X2_S2[3] | X2_N1[1] | X2_N1[3] | X2_N2[1] | X2_N2[3] | RSCLK_V[0] | RSCLK_H[0] | RSCLK_H[4];
+				mux IMUX_A[7] = X0_W[0] | X0_E[0] | X0_N[1] | X1_W1[5] | X1_E1[1] | X1_S1[0] | X1_N1[4] | X2_W0[0] | X2_W1[5] | X2_W1[7] | X2_W2[5] | X2_W2[7] | X2_E1[5] | X2_E1[7] | X2_E2[5] | X2_E2[7] | X2_S0[1] | X2_S1[1] | X2_S1[3] | X2_S2[1] | X2_S2[3] | X2_N1[1] | X2_N1[3] | X2_N2[1] | X2_N2[3] | RSCLK_V_N[0] | RSCLK_H[0] | RSCLK_H[4];
 				mux IMUX_B[0] = X0_E[1] | X0_S[0] | X0_N[0] | X1_W1[1] | X1_E1[5] | X1_S0[0] | X1_S1[1] | X1_N1[5] | X2_W0[5] | X2_W1[1] | X2_W1[3] | X2_W2[1] | X2_W2[3] | X2_E1[1] | X2_E1[3] | X2_E2[1] | X2_E2[3] | X2_S0[4] | X2_S1[1] | X2_S1[3] | X2_S2[1] | X2_S2[3] | X2_N1[1] | X2_N1[3] | X2_N2[1] | X2_N2[3] | OUT_F[3];
 				mux IMUX_B[1] = X0_E[1] | X0_S[0] | X0_N[0] | X1_W1[1] | X1_E1[5] | X1_S0[0] | X1_S1[1] | X1_N1[5] | X2_W0[5] | X2_W1[1] | X2_W1[3] | X2_W2[1] | X2_W2[3] | X2_E1[1] | X2_E1[3] | X2_E2[1] | X2_E2[3] | X2_S0[4] | X2_S1[1] | X2_S1[3] | X2_S2[1] | X2_S2[3] | X2_N1[1] | X2_N1[3] | X2_N2[1] | X2_N2[3] | OUT_F[3];
 				mux IMUX_B[2] = X0_W[0] | X0_E[0] | X0_E[1] | X1_W1[1] | X1_E1[5] | X1_S0[5] | X1_S1[1] | X1_N1[5] | X2_W0[4] | X2_W1[1] | X2_W1[3] | X2_W2[1] | X2_W2[3] | X2_E1[1] | X2_E1[3] | X2_E2[1] | X2_E2[3] | X2_S0[5] | X2_S1[1] | X2_S1[3] | X2_S2[1] | X2_S2[3] | X2_N1[1] | X2_N1[3] | X2_N2[1] | X2_N2[3] | OUT_F[1];
 				mux IMUX_B[3] = X0_W[0] | X0_E[0] | X0_E[1] | X1_W1[1] | X1_E1[5] | X1_S0[5] | X1_S1[1] | X1_N1[5] | X2_W0[4] | X2_W1[1] | X2_W1[3] | X2_W2[1] | X2_W2[3] | X2_E1[1] | X2_E1[3] | X2_E2[1] | X2_E2[3] | X2_S0[5] | X2_S1[1] | X2_S1[3] | X2_S2[1] | X2_S2[3] | X2_N1[1] | X2_N1[3] | X2_N2[1] | X2_N2[3] | OUT_F[1];
 				mux IMUX_B[4] = X0_W[0] | X0_E[0] | X0_S[1] | X1_W0[0] | X1_W1[1] | X1_E1[5] | X1_S1[4] | X1_N1[0] | X2_W1[1] | X2_W1[3] | X2_W2[1] | X2_W2[3] | X2_E0[5] | X2_E1[1] | X2_E1[3] | X2_E2[1] | X2_E2[3] | X2_S1[5] | X2_S1[7] | X2_S2[5] | X2_S2[7] | X2_N0[4] | X2_N1[5] | X2_N1[7] | X2_N2[5] | X2_N2[7] | OUT_F[7];
 				mux IMUX_B[5] = X0_W[0] | X0_E[0] | X0_S[1] | X1_W0[0] | X1_W1[1] | X1_E1[5] | X1_S1[4] | X1_N1[0] | X2_W1[1] | X2_W1[3] | X2_W2[1] | X2_W2[3] | X2_E0[5] | X2_E1[1] | X2_E1[3] | X2_E2[1] | X2_E2[3] | X2_S1[5] | X2_S1[7] | X2_S2[5] | X2_S2[7] | X2_N0[4] | X2_N1[5] | X2_N1[7] | X2_N2[5] | X2_N2[7] | OUT_F[7];
-				mux IMUX_B[6] = X0_S[0] | X0_S[1] | X0_N[0] | X1_W1[1] | X1_E1[5] | X1_S1[4] | X1_N1[0] | X2_W1[1] | X2_W1[3] | X2_W2[1] | X2_W2[3] | X2_E0[4] | X2_E1[1] | X2_E1[3] | X2_E2[1] | X2_E2[3] | X2_S1[5] | X2_S1[7] | X2_S2[5] | X2_S2[7] | X2_N0[5] | X2_N1[5] | X2_N1[7] | X2_N2[5] | X2_N2[7] | RSCLK_H[0] | RSCLK_H[4] | RSCLK_V[1];
-				mux IMUX_B[7] = X0_S[0] | X0_S[1] | X0_N[0] | X1_W1[1] | X1_E1[5] | X1_S1[4] | X1_N1[0] | X2_W1[1] | X2_W1[3] | X2_W2[1] | X2_W2[3] | X2_E0[4] | X2_E1[1] | X2_E1[3] | X2_E2[1] | X2_E2[3] | X2_S1[5] | X2_S1[7] | X2_S2[5] | X2_S2[7] | X2_N0[5] | X2_N1[5] | X2_N1[7] | X2_N2[5] | X2_N2[7] | RSCLK_H[0] | RSCLK_H[4] | RSCLK_V_N[1];
+				mux IMUX_B[6] = X0_S[0] | X0_S[1] | X0_N[0] | X1_W1[1] | X1_E1[5] | X1_S1[4] | X1_N1[0] | X2_W1[1] | X2_W1[3] | X2_W2[1] | X2_W2[3] | X2_E0[4] | X2_E1[1] | X2_E1[3] | X2_E2[1] | X2_E2[3] | X2_S1[5] | X2_S1[7] | X2_S2[5] | X2_S2[7] | X2_N0[5] | X2_N1[5] | X2_N1[7] | X2_N2[5] | X2_N2[7] | RSCLK_V[4] | RSCLK_H[0] | RSCLK_H[4];
+				mux IMUX_B[7] = X0_S[0] | X0_S[1] | X0_N[0] | X1_W1[1] | X1_E1[5] | X1_S1[4] | X1_N1[0] | X2_W1[1] | X2_W1[3] | X2_W2[1] | X2_W2[3] | X2_E0[4] | X2_E1[1] | X2_E1[3] | X2_E2[1] | X2_E2[3] | X2_S1[5] | X2_S1[7] | X2_S2[5] | X2_S2[7] | X2_N0[5] | X2_N1[5] | X2_N1[7] | X2_N2[5] | X2_N2[7] | RSCLK_V_N[4] | RSCLK_H[0] | RSCLK_H[4];
 				mux IMUX_C[0] = X0_W[0] | X0_W[1] | X0_E[1] | X1_W1[0] | X1_E0[0] | X1_E1[4] | X1_S1[0] | X1_N1[4] | X2_W0[3] | X2_W1[4] | X2_W1[6] | X2_W2[4] | X2_W2[6] | X2_E1[4] | X2_E1[6] | X2_E2[4] | X2_E2[6] | X2_S1[4] | X2_S1[6] | X2_S2[4] | X2_S2[6] | X2_N0[2] | X2_N1[4] | X2_N1[6] | X2_N2[4] | X2_N2[6] | OUT_F[6];
 				mux IMUX_C[2] = X0_W[0] | X0_W[1] | X0_E[1] | X1_W1[0] | X1_E0[5] | X1_E1[4] | X1_S1[0] | X1_N1[4] | X2_W0[2] | X2_W1[4] | X2_W1[6] | X2_W2[4] | X2_W2[6] | X2_E1[4] | X2_E1[6] | X2_E2[4] | X2_E2[6] | X2_S1[4] | X2_S1[6] | X2_S2[4] | X2_S2[6] | X2_N0[3] | X2_N1[4] | X2_N1[6] | X2_N2[4] | X2_N2[6] | OUT_F[6];
 				mux IMUX_C[4] = X0_S[1] | X0_N[0] | X0_N[1] | X1_W1[0] | X1_E1[4] | X1_S1[5] | X1_N0[0] | X1_N1[1] | X2_W1[4] | X2_W1[6] | X2_W2[4] | X2_W2[6] | X2_E0[3] | X2_E1[4] | X2_E1[6] | X2_E2[4] | X2_E2[6] | X2_S0[2] | X2_S1[0] | X2_S1[2] | X2_S2[0] | X2_S2[2] | X2_N1[0] | X2_N1[2] | X2_N2[0] | X2_N2[2] | OUT_F[2];
@@ -8214,15 +8240,15 @@ intdb {
 				mux IMUX_D[2] = X0_E[0] | X0_S[1] | X0_N[1] | X1_W0[5] | X1_W1[4] | X1_E1[0] | X1_S1[4] | X1_N1[0] | X2_W1[0] | X2_W1[2] | X2_W2[0] | X2_W2[2] | X2_E0[6] | X2_E1[0] | X2_E1[2] | X2_E2[0] | X2_E2[2] | X2_S0[7] | X2_S1[0] | X2_S1[2] | X2_S2[0] | X2_S2[2] | X2_N1[0] | X2_N1[2] | X2_N2[0] | X2_N2[2] | OUT_F[2];
 				mux IMUX_D[4] = X0_W[1] | X0_E[1] | X0_S[0] | X1_W1[4] | X1_E1[0] | X1_S0[0] | X1_S1[1] | X1_N1[5] | X2_W0[7] | X2_W1[0] | X2_W1[2] | X2_W2[0] | X2_W2[2] | X2_E1[0] | X2_E1[2] | X2_E2[0] | X2_E2[2] | X2_S1[4] | X2_S1[6] | X2_S2[4] | X2_S2[6] | X2_N0[6] | X2_N1[4] | X2_N1[6] | X2_N2[4] | X2_N2[6] | OUT_F[6];
 				mux IMUX_D[6] = X0_W[1] | X0_E[1] | X0_S[0] | X1_W1[4] | X1_E1[0] | X1_S0[5] | X1_S1[1] | X1_N1[5] | X2_W0[6] | X2_W1[0] | X2_W1[2] | X2_W2[0] | X2_W2[2] | X2_E1[0] | X2_E1[2] | X2_E2[0] | X2_E2[2] | X2_S1[4] | X2_S1[6] | X2_S2[4] | X2_S2[6] | X2_N0[7] | X2_N1[4] | X2_N1[6] | X2_N2[4] | X2_N2[6] | OUT_F[6];
-				mux IMUX_CLK[0] = X0_W[0] | X0_W[1] | X0_E[0] | X0_E[1] | X2_W1[4] | X2_W2[4] | X2_E1[4] | X2_E2[4] | X2_S1[4] | X2_S2[4] | X2_N1[4] | X2_N2[4] | PCLK[0] | PCLK[1] | PCLK[2] | PCLK[3] | PCLK[4] | PCLK[5] | PCLK[6] | PCLK[7] | RSCLK[0] | RSCLK[1] | RSCLK[2] | RSCLK[3];
-				mux IMUX_CLK[1] = X0_W[0] | X0_W[1] | X0_E[0] | X0_E[1] | X2_W1[4] | X2_W2[4] | X2_E1[4] | X2_E2[4] | X2_S1[4] | X2_S2[4] | X2_N1[4] | X2_N2[4] | PCLK[0] | PCLK[1] | PCLK[2] | PCLK[3] | PCLK[4] | PCLK[5] | PCLK[6] | PCLK[7] | RSCLK[0] | RSCLK[1] | RSCLK[2] | RSCLK[3];
+				mux IMUX_CLK[0] = X0_W[0] | X0_W[1] | X0_E[0] | X0_E[1] | X2_W1[4] | X2_W2[4] | X2_E1[4] | X2_E2[4] | X2_S1[4] | X2_S2[4] | X2_N1[4] | X2_N2[4] | PCLK[0] | PCLK[1] | PCLK[2] | PCLK[3] | PCLK[4] | PCLK[5] | PCLK[6] | PCLK[7] | SCLK[0] | SCLK[1] | SCLK[2] | SCLK[3];
+				mux IMUX_CLK[1] = X0_W[0] | X0_W[1] | X0_E[0] | X0_E[1] | X2_W1[4] | X2_W2[4] | X2_E1[4] | X2_E2[4] | X2_S1[4] | X2_S2[4] | X2_N1[4] | X2_N2[4] | PCLK[0] | PCLK[1] | PCLK[2] | PCLK[3] | PCLK[4] | PCLK[5] | PCLK[6] | PCLK[7] | SCLK[0] | SCLK[1] | SCLK[2] | SCLK[3];
 				mux IMUX_CLK[2] = X0_S[1] | X0_N[0] | X0_N[1] | X1_W1[0] | X1_E1[4] | X1_S1[5] | X1_N0[5] | X1_N1[1] | X2_W1[4] | X2_W1[6] | X2_W2[4] | X2_W2[6] | X2_E0[2] | X2_E1[4] | X2_E1[6] | X2_E2[4] | X2_E2[6] | X2_S0[3] | X2_S1[0] | X2_S1[2] | X2_S2[0] | X2_S2[2] | X2_N1[0] | X2_N1[2] | X2_N2[0] | X2_N2[2] | OUT_F[2];
-				mux IMUX_LSR[0] = X0_S[0] | X0_S[1] | X0_N[0] | X0_N[1] | X2_W1[7] | X2_W2[7] | X2_E1[7] | X2_E2[7] | X2_S1[7] | X2_S2[7] | X2_N1[7] | X2_N2[7] | RSCLK[1] | RSCLK[2] | RSCLK[3];
-				mux IMUX_LSR[1] = X0_S[0] | X0_S[1] | X0_N[0] | X0_N[1] | X2_W1[7] | X2_W2[7] | X2_E1[7] | X2_E2[7] | X2_S1[7] | X2_S2[7] | X2_N1[7] | X2_N2[7] | RSCLK[1] | RSCLK[2] | RSCLK[3];
-				mux IMUX_LSR[2] = X0_S[0] | X0_S[1] | X0_N[0] | X0_N[1] | X2_W1[7] | X2_W2[7] | X2_E1[7] | X2_E2[7] | X2_S1[7] | X2_S2[7] | X2_N1[7] | X2_N2[7] | RSCLK[1] | RSCLK[2] | RSCLK[3];
-				mux IMUX_CE[0] = X0_S[0] | X0_S[1] | X0_N[0] | X0_N[1] | X2_W1[1] | X2_W2[1] | X2_E1[1] | X2_E2[1] | X2_S1[1] | X2_S2[1] | X2_N1[1] | X2_N2[1] | RSCLK[0] | RSCLK[2] | RSCLK[3];
+				mux IMUX_LSR[0] = X0_S[0] | X0_S[1] | X0_N[0] | X0_N[1] | X2_W1[7] | X2_W2[7] | X2_E1[7] | X2_E2[7] | X2_S1[7] | X2_S2[7] | X2_N1[7] | X2_N2[7] | SCLK[1] | SCLK[2] | SCLK[3];
+				mux IMUX_LSR[1] = X0_S[0] | X0_S[1] | X0_N[0] | X0_N[1] | X2_W1[7] | X2_W2[7] | X2_E1[7] | X2_E2[7] | X2_S1[7] | X2_S2[7] | X2_N1[7] | X2_N2[7] | SCLK[1] | SCLK[2] | SCLK[3];
+				mux IMUX_LSR[2] = X0_S[0] | X0_S[1] | X0_N[0] | X0_N[1] | X2_W1[7] | X2_W2[7] | X2_E1[7] | X2_E2[7] | X2_S1[7] | X2_S2[7] | X2_N1[7] | X2_N2[7] | SCLK[1] | SCLK[2] | SCLK[3];
+				mux IMUX_CE[0] = X0_S[0] | X0_S[1] | X0_N[0] | X0_N[1] | X2_W1[1] | X2_W2[1] | X2_E1[1] | X2_E2[1] | X2_S1[1] | X2_S2[1] | X2_N1[1] | X2_N2[1] | SCLK[0] | SCLK[2] | SCLK[3];
 				mux IMUX_CE[1] = X0_S[1] | X0_N[0] | X0_N[1] | X1_W1[0] | X1_E1[4] | X1_S1[5] | X1_N0[5] | X1_N1[1] | X2_W1[4] | X2_W1[6] | X2_W2[4] | X2_W2[6] | X2_E0[2] | X2_E1[4] | X2_E1[6] | X2_E2[4] | X2_E2[6] | X2_S0[3] | X2_S1[0] | X2_S1[2] | X2_S2[0] | X2_S2[2] | X2_N1[0] | X2_N1[2] | X2_N2[0] | X2_N2[2] | OUT_F[2];
-				mux IMUX_CE[2] = X0_S[0] | X0_S[1] | X0_N[0] | X0_N[1] | X2_W1[1] | X2_W2[1] | X2_E1[1] | X2_E2[1] | X2_S1[1] | X2_S2[1] | X2_N1[1] | X2_N2[1] | RSCLK[0] | RSCLK[2] | RSCLK[3];
+				mux IMUX_CE[2] = X0_S[0] | X0_S[1] | X0_N[0] | X0_N[1] | X2_W1[1] | X2_W2[1] | X2_E1[1] | X2_E2[1] | X2_S1[1] | X2_S2[1] | X2_N1[1] | X2_N2[1] | SCLK[0] | SCLK[2] | SCLK[3];
 			}
 		}
 
@@ -8230,14 +8256,14 @@ intdb {
 			cell CELL;
 
 			switchbox INT {
-				mux X0_W[0] = X2_W1[0] | X2_W1[2] | X2_W2[0] | X2_W2[2] | X2_E1[0] | X2_E1[2] | X2_E2[0] | X2_E2[2] | X2_S1[0] | X2_S1[2] | X2_S2[0] | X2_S2[2] | X2_N1[0] | X2_N1[2] | X2_N2[0] | X2_N2[2] | RSCLK[0] | RSCLK[1] | RSCLK[2] | RSCLK[3] | RSCLK[4] | RSCLK[5] | RSCLK[6] | RSCLK[7];
-				mux X0_W[1] = X2_W1[1] | X2_W1[3] | X2_W2[1] | X2_W2[3] | X2_E1[1] | X2_E1[3] | X2_E2[1] | X2_E2[3] | X2_S1[1] | X2_S1[3] | X2_S2[1] | X2_S2[3] | X2_N1[1] | X2_N1[3] | X2_N2[1] | X2_N2[3] | RSCLK[0] | RSCLK[1] | RSCLK[2] | RSCLK[3] | RSCLK[4] | RSCLK[5] | RSCLK[6] | RSCLK[7];
-				mux X0_E[0] = X2_W1[4] | X2_W1[6] | X2_W2[4] | X2_W2[6] | X2_E1[4] | X2_E1[6] | X2_E2[4] | X2_E2[6] | X2_S1[4] | X2_S1[6] | X2_S2[4] | X2_S2[6] | X2_N1[4] | X2_N1[6] | X2_N2[4] | X2_N2[6] | RSCLK[0] | RSCLK[1] | RSCLK[2] | RSCLK[3] | RSCLK[4] | RSCLK[5] | RSCLK[6] | RSCLK[7];
-				mux X0_E[1] = X2_W1[5] | X2_W1[7] | X2_W2[5] | X2_W2[7] | X2_E1[5] | X2_E1[7] | X2_E2[5] | X2_E2[7] | X2_S1[5] | X2_S1[7] | X2_S2[5] | X2_S2[7] | X2_N1[5] | X2_N1[7] | X2_N2[5] | X2_N2[7] | RSCLK[0] | RSCLK[1] | RSCLK[2] | RSCLK[3] | RSCLK[4] | RSCLK[5] | RSCLK[6] | RSCLK[7];
-				mux X0_S[0] = X2_W1[4] | X2_W1[6] | X2_W2[4] | X2_W2[6] | X2_E1[4] | X2_E1[6] | X2_E2[4] | X2_E2[6] | X2_S1[0] | X2_S1[2] | X2_S2[0] | X2_S2[2] | X2_N1[0] | X2_N1[2] | X2_N2[0] | X2_N2[2] | RSCLK[0] | RSCLK[1] | RSCLK[2] | RSCLK[3] | RSCLK[4] | RSCLK[5] | RSCLK[6] | RSCLK[7];
-				mux X0_S[1] = X2_W1[5] | X2_W1[7] | X2_W2[5] | X2_W2[7] | X2_E1[5] | X2_E1[7] | X2_E2[5] | X2_E2[7] | X2_S1[1] | X2_S1[3] | X2_S2[1] | X2_S2[3] | X2_N1[1] | X2_N1[3] | X2_N2[1] | X2_N2[3] | RSCLK[0] | RSCLK[1] | RSCLK[2] | RSCLK[3] | RSCLK[4] | RSCLK[5] | RSCLK[6] | RSCLK[7];
-				mux X0_N[0] = X2_W1[0] | X2_W1[2] | X2_W2[0] | X2_W2[2] | X2_E1[0] | X2_E1[2] | X2_E2[0] | X2_E2[2] | X2_S1[4] | X2_S1[6] | X2_S2[4] | X2_S2[6] | X2_N1[4] | X2_N1[6] | X2_N2[4] | X2_N2[6] | RSCLK[0] | RSCLK[1] | RSCLK[2] | RSCLK[3] | RSCLK[4] | RSCLK[5] | RSCLK[6] | RSCLK[7];
-				mux X0_N[1] = X2_W1[1] | X2_W1[3] | X2_W2[1] | X2_W2[3] | X2_E1[1] | X2_E1[3] | X2_E2[1] | X2_E2[3] | X2_S1[5] | X2_S1[7] | X2_S2[5] | X2_S2[7] | X2_N1[5] | X2_N1[7] | X2_N2[5] | X2_N2[7] | RSCLK[0] | RSCLK[1] | RSCLK[2] | RSCLK[3] | RSCLK[4] | RSCLK[5] | RSCLK[6] | RSCLK[7];
+				mux X0_W[0] = X2_W1[0] | X2_W1[2] | X2_W2[0] | X2_W2[2] | X2_E1[0] | X2_E1[2] | X2_E2[0] | X2_E2[2] | X2_S1[0] | X2_S1[2] | X2_S2[0] | X2_S2[2] | X2_N1[0] | X2_N1[2] | X2_N2[0] | X2_N2[2] | SCLK[0] | SCLK[1] | SCLK[2] | SCLK[3] | SCLK[4] | SCLK[5] | SCLK[6] | SCLK[7];
+				mux X0_W[1] = X2_W1[1] | X2_W1[3] | X2_W2[1] | X2_W2[3] | X2_E1[1] | X2_E1[3] | X2_E2[1] | X2_E2[3] | X2_S1[1] | X2_S1[3] | X2_S2[1] | X2_S2[3] | X2_N1[1] | X2_N1[3] | X2_N2[1] | X2_N2[3] | SCLK[0] | SCLK[1] | SCLK[2] | SCLK[3] | SCLK[4] | SCLK[5] | SCLK[6] | SCLK[7];
+				mux X0_E[0] = X2_W1[4] | X2_W1[6] | X2_W2[4] | X2_W2[6] | X2_E1[4] | X2_E1[6] | X2_E2[4] | X2_E2[6] | X2_S1[4] | X2_S1[6] | X2_S2[4] | X2_S2[6] | X2_N1[4] | X2_N1[6] | X2_N2[4] | X2_N2[6] | SCLK[0] | SCLK[1] | SCLK[2] | SCLK[3] | SCLK[4] | SCLK[5] | SCLK[6] | SCLK[7];
+				mux X0_E[1] = X2_W1[5] | X2_W1[7] | X2_W2[5] | X2_W2[7] | X2_E1[5] | X2_E1[7] | X2_E2[5] | X2_E2[7] | X2_S1[5] | X2_S1[7] | X2_S2[5] | X2_S2[7] | X2_N1[5] | X2_N1[7] | X2_N2[5] | X2_N2[7] | SCLK[0] | SCLK[1] | SCLK[2] | SCLK[3] | SCLK[4] | SCLK[5] | SCLK[6] | SCLK[7];
+				mux X0_S[0] = X2_W1[4] | X2_W1[6] | X2_W2[4] | X2_W2[6] | X2_E1[4] | X2_E1[6] | X2_E2[4] | X2_E2[6] | X2_S1[0] | X2_S1[2] | X2_S2[0] | X2_S2[2] | X2_N1[0] | X2_N1[2] | X2_N2[0] | X2_N2[2] | SCLK[0] | SCLK[1] | SCLK[2] | SCLK[3] | SCLK[4] | SCLK[5] | SCLK[6] | SCLK[7];
+				mux X0_S[1] = X2_W1[5] | X2_W1[7] | X2_W2[5] | X2_W2[7] | X2_E1[5] | X2_E1[7] | X2_E2[5] | X2_E2[7] | X2_S1[1] | X2_S1[3] | X2_S2[1] | X2_S2[3] | X2_N1[1] | X2_N1[3] | X2_N2[1] | X2_N2[3] | SCLK[0] | SCLK[1] | SCLK[2] | SCLK[3] | SCLK[4] | SCLK[5] | SCLK[6] | SCLK[7];
+				mux X0_N[0] = X2_W1[0] | X2_W1[2] | X2_W2[0] | X2_W2[2] | X2_E1[0] | X2_E1[2] | X2_E2[0] | X2_E2[2] | X2_S1[4] | X2_S1[6] | X2_S2[4] | X2_S2[6] | X2_N1[4] | X2_N1[6] | X2_N2[4] | X2_N2[6] | SCLK[0] | SCLK[1] | SCLK[2] | SCLK[3] | SCLK[4] | SCLK[5] | SCLK[6] | SCLK[7];
+				mux X0_N[1] = X2_W1[1] | X2_W1[3] | X2_W2[1] | X2_W2[3] | X2_E1[1] | X2_E1[3] | X2_E2[1] | X2_E2[3] | X2_S1[5] | X2_S1[7] | X2_S2[5] | X2_S2[7] | X2_N1[5] | X2_N1[7] | X2_N2[5] | X2_N2[7] | SCLK[0] | SCLK[1] | SCLK[2] | SCLK[3] | SCLK[4] | SCLK[5] | SCLK[6] | SCLK[7];
 				mux X1_H[1] = OUT_F[0] | OUT_F[1] | OUT_F[2] | OUT_F[3] | OUT_F[4] | OUT_F[5] | OUT_F[6] | OUT_F[7] | OUT_Q[0] | OUT_Q[1] | OUT_Q[2] | OUT_Q[3] | OUT_Q[4] | OUT_Q[5] | OUT_Q[6] | OUT_Q[7];
 				mux X1_H[4] = OUT_F[0] | OUT_F[1] | OUT_F[2] | OUT_F[3] | OUT_F[4] | OUT_F[5] | OUT_F[6] | OUT_F[7] | OUT_Q[0] | OUT_Q[1] | OUT_Q[2] | OUT_Q[3] | OUT_Q[4] | OUT_Q[5] | OUT_Q[6] | OUT_Q[7];
 				mux X1_V[1] = OUT_F[0] | OUT_F[1] | OUT_F[2] | OUT_F[3] | OUT_F[4] | OUT_F[5] | OUT_F[6] | OUT_F[7] | OUT_Q[0] | OUT_Q[1] | OUT_Q[2] | OUT_Q[3] | OUT_Q[4] | OUT_Q[5] | OUT_Q[6] | OUT_Q[7];
@@ -8306,28 +8332,28 @@ intdb {
 				mux X6_N0[1] = X1_W0[5] | X1_W1[1] | X1_E1[1] | X1_N1[1] | X2_N2[1] | X2_N2[3] | X6_W3[1] | X6_W6[1] | X6_E3[1] | X6_E6[1] | X6_N6[0] | X6_N6[1] | OUT_F[1] | OUT_F[2] | OUT_Q[1] | OUT_Q[2];
 				mux X6_N0[2] = X1_W1[4] | X1_E1[4] | X1_N0[5] | X1_N1[4] | X2_N2[4] | X2_N2[6] | X6_W3[2] | X6_W6[2] | X6_E3[2] | X6_E6[2] | X6_N6[1] | X6_N6[2] | OUT_F[4] | OUT_F[7] | OUT_Q[4] | OUT_Q[7];
 				mux X6_N0[3] = X1_W1[5] | X1_E1[5] | X1_S0[5] | X1_N1[5] | X2_N2[5] | X2_N2[7] | X6_W3[3] | X6_W6[3] | X6_E3[3] | X6_E6[3] | X6_N6[2] | X6_N6[3] | OUT_F[5] | OUT_F[6] | OUT_Q[5] | OUT_Q[6];
+				mux RSCLK_V[0] = IMUX_A[7] | OUT_F[6] | OUT_F[7];
+				mux RSCLK_V[4] = IMUX_B[7] | OUT_F[6] | OUT_F[7];
+				mux RSCLK_V_N[0] = IMUX_A[6] | OUT_F[6] | OUT_F[7];
+				mux RSCLK_V_N[4] = IMUX_B[6] | OUT_F[6] | OUT_F[7];
 				mux RSCLK_H[0] = IMUX_CE[1] | OUT_F[6] | OUT_F[7];
 				mux RSCLK_H[4] = IMUX_CLK[2] | OUT_F[6] | OUT_F[7];
-				mux RSCLK_V[0] = IMUX_A[7] | OUT_F[6] | OUT_F[7];
-				mux RSCLK_V[1] = IMUX_B[7] | OUT_F[6] | OUT_F[7];
-				mux RSCLK_V_N[0] = IMUX_A[6] | OUT_F[6] | OUT_F[7];
-				mux RSCLK_V_N[1] = IMUX_B[6] | OUT_F[6] | OUT_F[7];
 				mux IMUX_A[0] = X0_W[0] | X0_W[1] | X0_E[0] | X1_W1[5] | X1_E1[1] | X1_S1[5] | X1_N0[0] | X1_N1[1] | X2_W1[5] | X2_W1[7] | X2_W2[5] | X2_W2[7] | X2_E0[1] | X2_E1[5] | X2_E1[7] | X2_E2[5] | X2_E2[7] | X2_S1[5] | X2_S1[7] | X2_S2[5] | X2_S2[7] | X2_N0[0] | X2_N1[5] | X2_N1[7] | X2_N2[5] | X2_N2[7] | OUT_F[7];
 				mux IMUX_A[1] = X0_W[0] | X0_W[1] | X0_E[0] | X1_W1[5] | X1_E1[1] | X1_S1[5] | X1_N0[0] | X1_N1[1] | X2_W1[5] | X2_W1[7] | X2_W2[5] | X2_W2[7] | X2_E0[1] | X2_E1[5] | X2_E1[7] | X2_E2[5] | X2_E2[7] | X2_S1[5] | X2_S1[7] | X2_S2[5] | X2_S2[7] | X2_N0[0] | X2_N1[5] | X2_N1[7] | X2_N2[5] | X2_N2[7] | OUT_F[7];
 				mux IMUX_A[2] = X0_W[1] | X0_S[0] | X0_N[0] | X1_W1[5] | X1_E1[1] | X1_S1[5] | X1_N0[5] | X1_N1[1] | X2_W1[5] | X2_W1[7] | X2_W2[5] | X2_W2[7] | X2_E0[0] | X2_E1[5] | X2_E1[7] | X2_E2[5] | X2_E2[7] | X2_S1[5] | X2_S1[7] | X2_S2[5] | X2_S2[7] | X2_N0[1] | X2_N1[5] | X2_N1[7] | X2_N2[5] | X2_N2[7] | OUT_F[7];
 				mux IMUX_A[3] = X0_W[1] | X0_S[0] | X0_N[0] | X1_W1[5] | X1_E1[1] | X1_S1[5] | X1_N0[5] | X1_N1[1] | X2_W1[5] | X2_W1[7] | X2_W2[5] | X2_W2[7] | X2_E0[0] | X2_E1[5] | X2_E1[7] | X2_E2[5] | X2_E2[7] | X2_S1[5] | X2_S1[7] | X2_S2[5] | X2_S2[7] | X2_N0[1] | X2_N1[5] | X2_N1[7] | X2_N2[5] | X2_N2[7] | OUT_F[7];
 				mux IMUX_A[4] = X0_S[0] | X0_N[0] | X0_N[1] | X1_W1[5] | X1_E0[0] | X1_E1[1] | X1_S1[0] | X1_N1[4] | X2_W0[1] | X2_W1[5] | X2_W1[7] | X2_W2[5] | X2_W2[7] | X2_E1[5] | X2_E1[7] | X2_E2[5] | X2_E2[7] | X2_S0[0] | X2_S1[1] | X2_S1[3] | X2_S2[1] | X2_S2[3] | X2_N1[1] | X2_N1[3] | X2_N2[1] | X2_N2[3] | OUT_F[3];
 				mux IMUX_A[5] = X0_S[0] | X0_N[0] | X0_N[1] | X1_W1[5] | X1_E0[0] | X1_E1[1] | X1_S1[0] | X1_N1[4] | X2_W0[1] | X2_W1[5] | X2_W1[7] | X2_W2[5] | X2_W2[7] | X2_E1[5] | X2_E1[7] | X2_E2[5] | X2_E2[7] | X2_S0[0] | X2_S1[1] | X2_S1[3] | X2_S2[1] | X2_S2[3] | X2_N1[1] | X2_N1[3] | X2_N2[1] | X2_N2[3] | OUT_F[3];
-				mux IMUX_A[6] = X0_W[0] | X0_E[0] | X0_N[1] | X1_W1[5] | X1_E1[1] | X1_S1[0] | X1_N1[4] | X2_W0[0] | X2_W1[5] | X2_W1[7] | X2_W2[5] | X2_W2[7] | X2_E1[5] | X2_E1[7] | X2_E2[5] | X2_E2[7] | X2_S0[1] | X2_S1[1] | X2_S1[3] | X2_S2[1] | X2_S2[3] | X2_N1[1] | X2_N1[3] | X2_N2[1] | X2_N2[3] | RSCLK_H[0] | RSCLK_H[4] | RSCLK_V[0];
-				mux IMUX_A[7] = X0_W[0] | X0_E[0] | X0_N[1] | X1_W1[5] | X1_E1[1] | X1_S1[0] | X1_N1[4] | X2_W0[0] | X2_W1[5] | X2_W1[7] | X2_W2[5] | X2_W2[7] | X2_E1[5] | X2_E1[7] | X2_E2[5] | X2_E2[7] | X2_S0[1] | X2_S1[1] | X2_S1[3] | X2_S2[1] | X2_S2[3] | X2_N1[1] | X2_N1[3] | X2_N2[1] | X2_N2[3] | RSCLK_H[0] | RSCLK_H[4] | RSCLK_V_N[0];
+				mux IMUX_A[6] = X0_W[0] | X0_E[0] | X0_N[1] | X1_W1[5] | X1_E1[1] | X1_S1[0] | X1_N1[4] | X2_W0[0] | X2_W1[5] | X2_W1[7] | X2_W2[5] | X2_W2[7] | X2_E1[5] | X2_E1[7] | X2_E2[5] | X2_E2[7] | X2_S0[1] | X2_S1[1] | X2_S1[3] | X2_S2[1] | X2_S2[3] | X2_N1[1] | X2_N1[3] | X2_N2[1] | X2_N2[3] | RSCLK_V[0] | RSCLK_H[0] | RSCLK_H[4];
+				mux IMUX_A[7] = X0_W[0] | X0_E[0] | X0_N[1] | X1_W1[5] | X1_E1[1] | X1_S1[0] | X1_N1[4] | X2_W0[0] | X2_W1[5] | X2_W1[7] | X2_W2[5] | X2_W2[7] | X2_E1[5] | X2_E1[7] | X2_E2[5] | X2_E2[7] | X2_S0[1] | X2_S1[1] | X2_S1[3] | X2_S2[1] | X2_S2[3] | X2_N1[1] | X2_N1[3] | X2_N2[1] | X2_N2[3] | RSCLK_V_N[0] | RSCLK_H[0] | RSCLK_H[4];
 				mux IMUX_B[0] = X0_E[1] | X0_S[0] | X0_N[0] | X1_W1[1] | X1_E1[5] | X1_S0[0] | X1_S1[1] | X1_N1[5] | X2_W0[5] | X2_W1[1] | X2_W1[3] | X2_W2[1] | X2_W2[3] | X2_E1[1] | X2_E1[3] | X2_E2[1] | X2_E2[3] | X2_S0[4] | X2_S1[1] | X2_S1[3] | X2_S2[1] | X2_S2[3] | X2_N1[1] | X2_N1[3] | X2_N2[1] | X2_N2[3] | OUT_F[3];
 				mux IMUX_B[1] = X0_E[1] | X0_S[0] | X0_N[0] | X1_W1[1] | X1_E1[5] | X1_S0[0] | X1_S1[1] | X1_N1[5] | X2_W0[5] | X2_W1[1] | X2_W1[3] | X2_W2[1] | X2_W2[3] | X2_E1[1] | X2_E1[3] | X2_E2[1] | X2_E2[3] | X2_S0[4] | X2_S1[1] | X2_S1[3] | X2_S2[1] | X2_S2[3] | X2_N1[1] | X2_N1[3] | X2_N2[1] | X2_N2[3] | OUT_F[3];
 				mux IMUX_B[2] = X0_W[0] | X0_E[0] | X0_E[1] | X1_W1[1] | X1_E1[5] | X1_S0[5] | X1_S1[1] | X1_N1[5] | X2_W0[4] | X2_W1[1] | X2_W1[3] | X2_W2[1] | X2_W2[3] | X2_E1[1] | X2_E1[3] | X2_E2[1] | X2_E2[3] | X2_S0[5] | X2_S1[1] | X2_S1[3] | X2_S2[1] | X2_S2[3] | X2_N1[1] | X2_N1[3] | X2_N2[1] | X2_N2[3] | OUT_F[1];
 				mux IMUX_B[3] = X0_W[0] | X0_E[0] | X0_E[1] | X1_W1[1] | X1_E1[5] | X1_S0[5] | X1_S1[1] | X1_N1[5] | X2_W0[4] | X2_W1[1] | X2_W1[3] | X2_W2[1] | X2_W2[3] | X2_E1[1] | X2_E1[3] | X2_E2[1] | X2_E2[3] | X2_S0[5] | X2_S1[1] | X2_S1[3] | X2_S2[1] | X2_S2[3] | X2_N1[1] | X2_N1[3] | X2_N2[1] | X2_N2[3] | OUT_F[1];
 				mux IMUX_B[4] = X0_W[0] | X0_E[0] | X0_S[1] | X1_W0[0] | X1_W1[1] | X1_E1[5] | X1_S1[4] | X1_N1[0] | X2_W1[1] | X2_W1[3] | X2_W2[1] | X2_W2[3] | X2_E0[5] | X2_E1[1] | X2_E1[3] | X2_E2[1] | X2_E2[3] | X2_S1[5] | X2_S1[7] | X2_S2[5] | X2_S2[7] | X2_N0[4] | X2_N1[5] | X2_N1[7] | X2_N2[5] | X2_N2[7] | OUT_F[7];
 				mux IMUX_B[5] = X0_W[0] | X0_E[0] | X0_S[1] | X1_W0[0] | X1_W1[1] | X1_E1[5] | X1_S1[4] | X1_N1[0] | X2_W1[1] | X2_W1[3] | X2_W2[1] | X2_W2[3] | X2_E0[5] | X2_E1[1] | X2_E1[3] | X2_E2[1] | X2_E2[3] | X2_S1[5] | X2_S1[7] | X2_S2[5] | X2_S2[7] | X2_N0[4] | X2_N1[5] | X2_N1[7] | X2_N2[5] | X2_N2[7] | OUT_F[7];
-				mux IMUX_B[6] = X0_S[0] | X0_S[1] | X0_N[0] | X1_W1[1] | X1_E1[5] | X1_S1[4] | X1_N1[0] | X2_W1[1] | X2_W1[3] | X2_W2[1] | X2_W2[3] | X2_E0[4] | X2_E1[1] | X2_E1[3] | X2_E2[1] | X2_E2[3] | X2_S1[5] | X2_S1[7] | X2_S2[5] | X2_S2[7] | X2_N0[5] | X2_N1[5] | X2_N1[7] | X2_N2[5] | X2_N2[7] | RSCLK_H[0] | RSCLK_H[4] | RSCLK_V[1];
-				mux IMUX_B[7] = X0_S[0] | X0_S[1] | X0_N[0] | X1_W1[1] | X1_E1[5] | X1_S1[4] | X1_N1[0] | X2_W1[1] | X2_W1[3] | X2_W2[1] | X2_W2[3] | X2_E0[4] | X2_E1[1] | X2_E1[3] | X2_E2[1] | X2_E2[3] | X2_S1[5] | X2_S1[7] | X2_S2[5] | X2_S2[7] | X2_N0[5] | X2_N1[5] | X2_N1[7] | X2_N2[5] | X2_N2[7] | RSCLK_H[0] | RSCLK_H[4] | RSCLK_V_N[1];
+				mux IMUX_B[6] = X0_S[0] | X0_S[1] | X0_N[0] | X1_W1[1] | X1_E1[5] | X1_S1[4] | X1_N1[0] | X2_W1[1] | X2_W1[3] | X2_W2[1] | X2_W2[3] | X2_E0[4] | X2_E1[1] | X2_E1[3] | X2_E2[1] | X2_E2[3] | X2_S1[5] | X2_S1[7] | X2_S2[5] | X2_S2[7] | X2_N0[5] | X2_N1[5] | X2_N1[7] | X2_N2[5] | X2_N2[7] | RSCLK_V[4] | RSCLK_H[0] | RSCLK_H[4];
+				mux IMUX_B[7] = X0_S[0] | X0_S[1] | X0_N[0] | X1_W1[1] | X1_E1[5] | X1_S1[4] | X1_N1[0] | X2_W1[1] | X2_W1[3] | X2_W2[1] | X2_W2[3] | X2_E0[4] | X2_E1[1] | X2_E1[3] | X2_E2[1] | X2_E2[3] | X2_S1[5] | X2_S1[7] | X2_S2[5] | X2_S2[7] | X2_N0[5] | X2_N1[5] | X2_N1[7] | X2_N2[5] | X2_N2[7] | RSCLK_V_N[4] | RSCLK_H[0] | RSCLK_H[4];
 				mux IMUX_C[0] = X0_W[0] | X0_W[1] | X0_E[1] | X1_W1[0] | X1_E0[0] | X1_E1[4] | X1_S1[0] | X1_N1[4] | X2_W0[3] | X2_W1[4] | X2_W1[6] | X2_W2[4] | X2_W2[6] | X2_E1[4] | X2_E1[6] | X2_E2[4] | X2_E2[6] | X2_S1[4] | X2_S1[6] | X2_S2[4] | X2_S2[6] | X2_N0[2] | X2_N1[4] | X2_N1[6] | X2_N2[4] | X2_N2[6] | OUT_F[6];
 				mux IMUX_C[2] = X0_W[0] | X0_W[1] | X0_E[1] | X1_W1[0] | X1_E0[5] | X1_E1[4] | X1_S1[0] | X1_N1[4] | X2_W0[2] | X2_W1[4] | X2_W1[6] | X2_W2[4] | X2_W2[6] | X2_E1[4] | X2_E1[6] | X2_E2[4] | X2_E2[6] | X2_S1[4] | X2_S1[6] | X2_S2[4] | X2_S2[6] | X2_N0[3] | X2_N1[4] | X2_N1[6] | X2_N2[4] | X2_N2[6] | OUT_F[6];
 				mux IMUX_C[4] = X0_S[1] | X0_N[0] | X0_N[1] | X1_W1[0] | X1_E1[4] | X1_S1[5] | X1_N0[0] | X1_N1[1] | X2_W1[4] | X2_W1[6] | X2_W2[4] | X2_W2[6] | X2_E0[3] | X2_E1[4] | X2_E1[6] | X2_E2[4] | X2_E2[6] | X2_S0[2] | X2_S1[0] | X2_S1[2] | X2_S2[0] | X2_S2[2] | X2_N1[0] | X2_N1[2] | X2_N2[0] | X2_N2[2] | OUT_F[2];
@@ -8336,15 +8362,15 @@ intdb {
 				mux IMUX_D[2] = X0_E[0] | X0_S[1] | X0_N[1] | X1_W0[5] | X1_W1[4] | X1_E1[0] | X1_S1[4] | X1_N1[0] | X2_W1[0] | X2_W1[2] | X2_W2[0] | X2_W2[2] | X2_E0[6] | X2_E1[0] | X2_E1[2] | X2_E2[0] | X2_E2[2] | X2_S0[7] | X2_S1[0] | X2_S1[2] | X2_S2[0] | X2_S2[2] | X2_N1[0] | X2_N1[2] | X2_N2[0] | X2_N2[2] | OUT_F[2];
 				mux IMUX_D[4] = X0_W[1] | X0_E[1] | X0_S[0] | X1_W1[4] | X1_E1[0] | X1_S0[0] | X1_S1[1] | X1_N1[5] | X2_W0[7] | X2_W1[0] | X2_W1[2] | X2_W2[0] | X2_W2[2] | X2_E1[0] | X2_E1[2] | X2_E2[0] | X2_E2[2] | X2_S1[4] | X2_S1[6] | X2_S2[4] | X2_S2[6] | X2_N0[6] | X2_N1[4] | X2_N1[6] | X2_N2[4] | X2_N2[6] | OUT_F[6];
 				mux IMUX_D[6] = X0_W[1] | X0_E[1] | X0_S[0] | X1_W1[4] | X1_E1[0] | X1_S0[5] | X1_S1[1] | X1_N1[5] | X2_W0[6] | X2_W1[0] | X2_W1[2] | X2_W2[0] | X2_W2[2] | X2_E1[0] | X2_E1[2] | X2_E2[0] | X2_E2[2] | X2_S1[4] | X2_S1[6] | X2_S2[4] | X2_S2[6] | X2_N0[7] | X2_N1[4] | X2_N1[6] | X2_N2[4] | X2_N2[6] | OUT_F[6];
-				mux IMUX_CLK[0] = X0_W[0] | X0_W[1] | X0_E[0] | X0_E[1] | X2_W1[4] | X2_W2[4] | X2_E1[4] | X2_E2[4] | X2_S1[4] | X2_S2[4] | X2_N1[4] | X2_N2[4] | PCLK[0] | PCLK[1] | PCLK[2] | PCLK[3] | PCLK[4] | PCLK[5] | PCLK[6] | PCLK[7] | RSCLK[0] | RSCLK[1] | RSCLK[2] | RSCLK[3];
-				mux IMUX_CLK[1] = X0_W[0] | X0_W[1] | X0_E[0] | X0_E[1] | X2_W1[4] | X2_W2[4] | X2_E1[4] | X2_E2[4] | X2_S1[4] | X2_S2[4] | X2_N1[4] | X2_N2[4] | PCLK[0] | PCLK[1] | PCLK[2] | PCLK[3] | PCLK[4] | PCLK[5] | PCLK[6] | PCLK[7] | RSCLK[0] | RSCLK[1] | RSCLK[2] | RSCLK[3];
+				mux IMUX_CLK[0] = X0_W[0] | X0_W[1] | X0_E[0] | X0_E[1] | X2_W1[4] | X2_W2[4] | X2_E1[4] | X2_E2[4] | X2_S1[4] | X2_S2[4] | X2_N1[4] | X2_N2[4] | PCLK[0] | PCLK[1] | PCLK[2] | PCLK[3] | PCLK[4] | PCLK[5] | PCLK[6] | PCLK[7] | SCLK[0] | SCLK[1] | SCLK[2] | SCLK[3];
+				mux IMUX_CLK[1] = X0_W[0] | X0_W[1] | X0_E[0] | X0_E[1] | X2_W1[4] | X2_W2[4] | X2_E1[4] | X2_E2[4] | X2_S1[4] | X2_S2[4] | X2_N1[4] | X2_N2[4] | PCLK[0] | PCLK[1] | PCLK[2] | PCLK[3] | PCLK[4] | PCLK[5] | PCLK[6] | PCLK[7] | SCLK[0] | SCLK[1] | SCLK[2] | SCLK[3];
 				mux IMUX_CLK[2] = X0_S[1] | X0_N[0] | X0_N[1] | X1_W1[0] | X1_E1[4] | X1_S1[5] | X1_N0[5] | X1_N1[1] | X2_W1[4] | X2_W1[6] | X2_W2[4] | X2_W2[6] | X2_E0[2] | X2_E1[4] | X2_E1[6] | X2_E2[4] | X2_E2[6] | X2_S0[3] | X2_S1[0] | X2_S1[2] | X2_S2[0] | X2_S2[2] | X2_N1[0] | X2_N1[2] | X2_N2[0] | X2_N2[2] | OUT_F[2];
-				mux IMUX_LSR[0] = X0_S[0] | X0_S[1] | X0_N[0] | X0_N[1] | X2_W1[7] | X2_W2[7] | X2_E1[7] | X2_E2[7] | X2_S1[7] | X2_S2[7] | X2_N1[7] | X2_N2[7] | RSCLK[1] | RSCLK[2] | RSCLK[3];
-				mux IMUX_LSR[1] = X0_S[0] | X0_S[1] | X0_N[0] | X0_N[1] | X2_W1[7] | X2_W2[7] | X2_E1[7] | X2_E2[7] | X2_S1[7] | X2_S2[7] | X2_N1[7] | X2_N2[7] | RSCLK[1] | RSCLK[2] | RSCLK[3];
-				mux IMUX_LSR[2] = X0_S[0] | X0_S[1] | X0_N[0] | X0_N[1] | X2_W1[7] | X2_W2[7] | X2_E1[7] | X2_E2[7] | X2_S1[7] | X2_S2[7] | X2_N1[7] | X2_N2[7] | RSCLK[1] | RSCLK[2] | RSCLK[3];
-				mux IMUX_CE[0] = X0_S[0] | X0_S[1] | X0_N[0] | X0_N[1] | X2_W1[1] | X2_W2[1] | X2_E1[1] | X2_E2[1] | X2_S1[1] | X2_S2[1] | X2_N1[1] | X2_N2[1] | RSCLK[0] | RSCLK[2] | RSCLK[3];
+				mux IMUX_LSR[0] = X0_S[0] | X0_S[1] | X0_N[0] | X0_N[1] | X2_W1[7] | X2_W2[7] | X2_E1[7] | X2_E2[7] | X2_S1[7] | X2_S2[7] | X2_N1[7] | X2_N2[7] | SCLK[1] | SCLK[2] | SCLK[3];
+				mux IMUX_LSR[1] = X0_S[0] | X0_S[1] | X0_N[0] | X0_N[1] | X2_W1[7] | X2_W2[7] | X2_E1[7] | X2_E2[7] | X2_S1[7] | X2_S2[7] | X2_N1[7] | X2_N2[7] | SCLK[1] | SCLK[2] | SCLK[3];
+				mux IMUX_LSR[2] = X0_S[0] | X0_S[1] | X0_N[0] | X0_N[1] | X2_W1[7] | X2_W2[7] | X2_E1[7] | X2_E2[7] | X2_S1[7] | X2_S2[7] | X2_N1[7] | X2_N2[7] | SCLK[1] | SCLK[2] | SCLK[3];
+				mux IMUX_CE[0] = X0_S[0] | X0_S[1] | X0_N[0] | X0_N[1] | X2_W1[1] | X2_W2[1] | X2_E1[1] | X2_E2[1] | X2_S1[1] | X2_S2[1] | X2_N1[1] | X2_N2[1] | SCLK[0] | SCLK[2] | SCLK[3];
 				mux IMUX_CE[1] = X0_S[1] | X0_N[0] | X0_N[1] | X1_W1[0] | X1_E1[4] | X1_S1[5] | X1_N0[5] | X1_N1[1] | X2_W1[4] | X2_W1[6] | X2_W2[4] | X2_W2[6] | X2_E0[2] | X2_E1[4] | X2_E1[6] | X2_E2[4] | X2_E2[6] | X2_S0[3] | X2_S1[0] | X2_S1[2] | X2_S2[0] | X2_S2[2] | X2_N1[0] | X2_N1[2] | X2_N2[0] | X2_N2[2] | OUT_F[2];
-				mux IMUX_CE[2] = X0_S[0] | X0_S[1] | X0_N[0] | X0_N[1] | X2_W1[1] | X2_W2[1] | X2_E1[1] | X2_E2[1] | X2_S1[1] | X2_S2[1] | X2_N1[1] | X2_N2[1] | RSCLK[0] | RSCLK[2] | RSCLK[3];
+				mux IMUX_CE[2] = X0_S[0] | X0_S[1] | X0_N[0] | X0_N[1] | X2_W1[1] | X2_W2[1] | X2_E1[1] | X2_E2[1] | X2_S1[1] | X2_S2[1] | X2_N1[1] | X2_N2[1] | SCLK[0] | SCLK[2] | SCLK[3];
 			}
 		}
 	}
@@ -10534,12 +10560,12 @@ intdb {
 			cell CLK_E;
 
 			switchbox CLK_INT {
-				mux ROOT_SW.PCLK[0] = PCLK_IN_W[1].IMUX_C[3] | IO_W[0].OUT_IO_PADDI[0] | IO_E[0].OUT_IO_PADDI[0] | IO_S[0].OUT_IO_PADDI[0] | IO_N[0].OUT_IO_PADDI[0] | PLL_SW.OUT_PLL_CLKOP[0] | PLL_SW.OUT_PLL_CLKOS[0] | PLL_SW.OUT_PLL_CLKOK | PLL_SW.OUT_PLL_CLKOK2 | PLL_SE.OUT_PLL_CLKOP[0] | PLL_SE.OUT_PLL_CLKOS[0] | PLL_SE.OUT_PLL_CLKOK | PLL_SE.OUT_PLL_CLKOK2 | PLL_NW.OUT_PLL_CLKOP[0] | PLL_NW.OUT_PLL_CLKOS[0] | PLL_NW.OUT_PLL_CLKOK | PLL_NW.OUT_PLL_CLKOK2 | PLL_NE.OUT_PLL_CLKOP[0] | PLL_NE.OUT_PLL_CLKOS[0] | PLL_NE.OUT_PLL_CLKOK | PLL_NE.OUT_PLL_CLKOK2 | CLK_W.OUT_CLKDIV_CDIV1[0] | CLK_W.OUT_CLKDIV_CDIV2[0] | CLK_W.OUT_CLKDIV_CDIV4[0] | CLK_W.OUT_CLKDIV_CDIV8[0] | CLK_E.OUT_CLKDIV_CDIV1[0] | CLK_E.OUT_CLKDIV_CDIV2[0] | CLK_E.OUT_CLKDIV_CDIV4[0] | CLK_E.OUT_CLKDIV_CDIV8[0];
-				mux ROOT_SW.PCLK[1] = PCLK_IN_W[0].IMUX_C[3] | IO_W[1].OUT_IO_PADDI[0] | IO_E[1].OUT_IO_PADDI[0] | IO_S[0].OUT_IO_PADDI[0] | IO_N[0].OUT_IO_PADDI[0] | PLL_SW.OUT_PLL_CLKOP[0] | PLL_SW.OUT_PLL_CLKOS[0] | PLL_SW.OUT_PLL_CLKOK | PLL_SW.OUT_PLL_CLKOK2 | PLL_SE.OUT_PLL_CLKOP[0] | PLL_SE.OUT_PLL_CLKOS[0] | PLL_SE.OUT_PLL_CLKOK | PLL_SE.OUT_PLL_CLKOK2 | PLL_NW.OUT_PLL_CLKOP[0] | PLL_NW.OUT_PLL_CLKOS[0] | PLL_NW.OUT_PLL_CLKOK | PLL_NW.OUT_PLL_CLKOK2 | PLL_NE.OUT_PLL_CLKOP[0] | PLL_NE.OUT_PLL_CLKOS[0] | PLL_NE.OUT_PLL_CLKOK | PLL_NE.OUT_PLL_CLKOK2 | CLK_W.OUT_CLKDIV_CDIV1[0] | CLK_W.OUT_CLKDIV_CDIV2[0] | CLK_W.OUT_CLKDIV_CDIV4[0] | CLK_W.OUT_CLKDIV_CDIV8[0] | CLK_E.OUT_CLKDIV_CDIV1[0] | CLK_E.OUT_CLKDIV_CDIV2[0] | CLK_E.OUT_CLKDIV_CDIV4[0] | CLK_E.OUT_CLKDIV_CDIV8[0];
-				mux ROOT_SW.PCLK[2] = PCLK_IN_E[2].IMUX_C[3] | IO_W[0].OUT_IO_PADDI[0] | IO_E[0].OUT_IO_PADDI[0] | IO_S[1].OUT_IO_PADDI[0] | IO_N[1].OUT_IO_PADDI[0] | PLL_SW.OUT_PLL_CLKOP[0] | PLL_SW.OUT_PLL_CLKOS[0] | PLL_SW.OUT_PLL_CLKOK | PLL_SW.OUT_PLL_CLKOK2 | PLL_SE.OUT_PLL_CLKOP[0] | PLL_SE.OUT_PLL_CLKOS[0] | PLL_SE.OUT_PLL_CLKOK | PLL_SE.OUT_PLL_CLKOK2 | PLL_NW.OUT_PLL_CLKOP[0] | PLL_NW.OUT_PLL_CLKOS[0] | PLL_NW.OUT_PLL_CLKOK | PLL_NW.OUT_PLL_CLKOK2 | PLL_NE.OUT_PLL_CLKOP[0] | PLL_NE.OUT_PLL_CLKOS[0] | PLL_NE.OUT_PLL_CLKOK | PLL_NE.OUT_PLL_CLKOK2 | CLK_W.OUT_CLKDIV_CDIV1[0] | CLK_W.OUT_CLKDIV_CDIV2[0] | CLK_W.OUT_CLKDIV_CDIV4[0] | CLK_W.OUT_CLKDIV_CDIV8[0] | CLK_E.OUT_CLKDIV_CDIV1[0] | CLK_E.OUT_CLKDIV_CDIV2[0] | CLK_E.OUT_CLKDIV_CDIV4[0] | CLK_E.OUT_CLKDIV_CDIV8[0];
-				mux ROOT_SW.PCLK[3] = PCLK_IN_E[1].IMUX_C[3] | IO_W[1].OUT_IO_PADDI[0] | IO_E[1].OUT_IO_PADDI[0] | IO_S[1].OUT_IO_PADDI[0] | IO_N[1].OUT_IO_PADDI[0] | PLL_SW.OUT_PLL_CLKOP[0] | PLL_SW.OUT_PLL_CLKOS[0] | PLL_SW.OUT_PLL_CLKOK | PLL_SW.OUT_PLL_CLKOK2 | PLL_SE.OUT_PLL_CLKOP[0] | PLL_SE.OUT_PLL_CLKOS[0] | PLL_SE.OUT_PLL_CLKOK | PLL_SE.OUT_PLL_CLKOK2 | PLL_NW.OUT_PLL_CLKOP[0] | PLL_NW.OUT_PLL_CLKOS[0] | PLL_NW.OUT_PLL_CLKOK | PLL_NW.OUT_PLL_CLKOK2 | PLL_NE.OUT_PLL_CLKOP[0] | PLL_NE.OUT_PLL_CLKOS[0] | PLL_NE.OUT_PLL_CLKOK | PLL_NE.OUT_PLL_CLKOK2 | CLK_W.OUT_CLKDIV_CDIV1[0] | CLK_W.OUT_CLKDIV_CDIV2[0] | CLK_W.OUT_CLKDIV_CDIV4[0] | CLK_W.OUT_CLKDIV_CDIV8[0] | CLK_E.OUT_CLKDIV_CDIV1[0] | CLK_E.OUT_CLKDIV_CDIV2[0] | CLK_E.OUT_CLKDIV_CDIV4[0] | CLK_E.OUT_CLKDIV_CDIV8[0];
-				mux ROOT_SW.PCLK[4] = PCLK_IN_N[0].IMUX_C[3] | IO_W[0].OUT_IO_PADDI[0] | IO_E[0].OUT_IO_PADDI[0] | IO_S[1].OUT_IO_PADDI[0] | IO_N[1].OUT_IO_PADDI[0] | PLL_SW.OUT_PLL_CLKOP[0] | PLL_SW.OUT_PLL_CLKOS[0] | PLL_SW.OUT_PLL_CLKOK | PLL_SW.OUT_PLL_CLKOK2 | PLL_SE.OUT_PLL_CLKOP[0] | PLL_SE.OUT_PLL_CLKOS[0] | PLL_SE.OUT_PLL_CLKOK | PLL_SE.OUT_PLL_CLKOK2 | PLL_NW.OUT_PLL_CLKOP[0] | PLL_NW.OUT_PLL_CLKOS[0] | PLL_NW.OUT_PLL_CLKOK | PLL_NW.OUT_PLL_CLKOK2 | PLL_NE.OUT_PLL_CLKOP[0] | PLL_NE.OUT_PLL_CLKOS[0] | PLL_NE.OUT_PLL_CLKOK | PLL_NE.OUT_PLL_CLKOK2 | CLK_W.OUT_CLKDIV_CDIV1[0] | CLK_W.OUT_CLKDIV_CDIV2[0] | CLK_W.OUT_CLKDIV_CDIV4[0] | CLK_W.OUT_CLKDIV_CDIV8[0] | CLK_E.OUT_CLKDIV_CDIV1[0] | CLK_E.OUT_CLKDIV_CDIV2[0] | CLK_E.OUT_CLKDIV_CDIV4[0] | CLK_E.OUT_CLKDIV_CDIV8[0];
-				mux ROOT_SW.PCLK[5] = PCLK_IN_S[0].IMUX_C[3] | IO_W[1].OUT_IO_PADDI[0] | IO_E[1].OUT_IO_PADDI[0] | IO_S[0].OUT_IO_PADDI[0] | IO_N[0].OUT_IO_PADDI[0] | PLL_SW.OUT_PLL_CLKOP[0] | PLL_SW.OUT_PLL_CLKOS[0] | PLL_SW.OUT_PLL_CLKOK | PLL_SW.OUT_PLL_CLKOK2 | PLL_SE.OUT_PLL_CLKOP[0] | PLL_SE.OUT_PLL_CLKOS[0] | PLL_SE.OUT_PLL_CLKOK | PLL_SE.OUT_PLL_CLKOK2 | PLL_NW.OUT_PLL_CLKOP[0] | PLL_NW.OUT_PLL_CLKOS[0] | PLL_NW.OUT_PLL_CLKOK | PLL_NW.OUT_PLL_CLKOK2 | PLL_NE.OUT_PLL_CLKOP[0] | PLL_NE.OUT_PLL_CLKOS[0] | PLL_NE.OUT_PLL_CLKOK | PLL_NE.OUT_PLL_CLKOK2 | CLK_W.OUT_CLKDIV_CDIV1[0] | CLK_W.OUT_CLKDIV_CDIV2[0] | CLK_W.OUT_CLKDIV_CDIV4[0] | CLK_W.OUT_CLKDIV_CDIV8[0] | CLK_E.OUT_CLKDIV_CDIV1[0] | CLK_E.OUT_CLKDIV_CDIV2[0] | CLK_E.OUT_CLKDIV_CDIV4[0] | CLK_E.OUT_CLKDIV_CDIV8[0];
+				mux ROOT_SW.PCLK_ROOT[0] = PCLK_IN_W[1].IMUX_C[3] | IO_W[0].OUT_IO_PADDI[0] | IO_E[0].OUT_IO_PADDI[0] | IO_S[0].OUT_IO_PADDI[0] | IO_N[0].OUT_IO_PADDI[0] | PLL_SW.OUT_PLL_CLKOP[0] | PLL_SW.OUT_PLL_CLKOS[0] | PLL_SW.OUT_PLL_CLKOK | PLL_SW.OUT_PLL_CLKOK2 | PLL_SE.OUT_PLL_CLKOP[0] | PLL_SE.OUT_PLL_CLKOS[0] | PLL_SE.OUT_PLL_CLKOK | PLL_SE.OUT_PLL_CLKOK2 | PLL_NW.OUT_PLL_CLKOP[0] | PLL_NW.OUT_PLL_CLKOS[0] | PLL_NW.OUT_PLL_CLKOK | PLL_NW.OUT_PLL_CLKOK2 | PLL_NE.OUT_PLL_CLKOP[0] | PLL_NE.OUT_PLL_CLKOS[0] | PLL_NE.OUT_PLL_CLKOK | PLL_NE.OUT_PLL_CLKOK2 | CLK_W.OUT_CLKDIV_CDIV1[0] | CLK_W.OUT_CLKDIV_CDIV2[0] | CLK_W.OUT_CLKDIV_CDIV4[0] | CLK_W.OUT_CLKDIV_CDIV8[0] | CLK_E.OUT_CLKDIV_CDIV1[0] | CLK_E.OUT_CLKDIV_CDIV2[0] | CLK_E.OUT_CLKDIV_CDIV4[0] | CLK_E.OUT_CLKDIV_CDIV8[0];
+				mux ROOT_SW.PCLK_ROOT[1] = PCLK_IN_W[0].IMUX_C[3] | IO_W[1].OUT_IO_PADDI[0] | IO_E[1].OUT_IO_PADDI[0] | IO_S[0].OUT_IO_PADDI[0] | IO_N[0].OUT_IO_PADDI[0] | PLL_SW.OUT_PLL_CLKOP[0] | PLL_SW.OUT_PLL_CLKOS[0] | PLL_SW.OUT_PLL_CLKOK | PLL_SW.OUT_PLL_CLKOK2 | PLL_SE.OUT_PLL_CLKOP[0] | PLL_SE.OUT_PLL_CLKOS[0] | PLL_SE.OUT_PLL_CLKOK | PLL_SE.OUT_PLL_CLKOK2 | PLL_NW.OUT_PLL_CLKOP[0] | PLL_NW.OUT_PLL_CLKOS[0] | PLL_NW.OUT_PLL_CLKOK | PLL_NW.OUT_PLL_CLKOK2 | PLL_NE.OUT_PLL_CLKOP[0] | PLL_NE.OUT_PLL_CLKOS[0] | PLL_NE.OUT_PLL_CLKOK | PLL_NE.OUT_PLL_CLKOK2 | CLK_W.OUT_CLKDIV_CDIV1[0] | CLK_W.OUT_CLKDIV_CDIV2[0] | CLK_W.OUT_CLKDIV_CDIV4[0] | CLK_W.OUT_CLKDIV_CDIV8[0] | CLK_E.OUT_CLKDIV_CDIV1[0] | CLK_E.OUT_CLKDIV_CDIV2[0] | CLK_E.OUT_CLKDIV_CDIV4[0] | CLK_E.OUT_CLKDIV_CDIV8[0];
+				mux ROOT_SW.PCLK_ROOT[2] = PCLK_IN_E[2].IMUX_C[3] | IO_W[0].OUT_IO_PADDI[0] | IO_E[0].OUT_IO_PADDI[0] | IO_S[1].OUT_IO_PADDI[0] | IO_N[1].OUT_IO_PADDI[0] | PLL_SW.OUT_PLL_CLKOP[0] | PLL_SW.OUT_PLL_CLKOS[0] | PLL_SW.OUT_PLL_CLKOK | PLL_SW.OUT_PLL_CLKOK2 | PLL_SE.OUT_PLL_CLKOP[0] | PLL_SE.OUT_PLL_CLKOS[0] | PLL_SE.OUT_PLL_CLKOK | PLL_SE.OUT_PLL_CLKOK2 | PLL_NW.OUT_PLL_CLKOP[0] | PLL_NW.OUT_PLL_CLKOS[0] | PLL_NW.OUT_PLL_CLKOK | PLL_NW.OUT_PLL_CLKOK2 | PLL_NE.OUT_PLL_CLKOP[0] | PLL_NE.OUT_PLL_CLKOS[0] | PLL_NE.OUT_PLL_CLKOK | PLL_NE.OUT_PLL_CLKOK2 | CLK_W.OUT_CLKDIV_CDIV1[0] | CLK_W.OUT_CLKDIV_CDIV2[0] | CLK_W.OUT_CLKDIV_CDIV4[0] | CLK_W.OUT_CLKDIV_CDIV8[0] | CLK_E.OUT_CLKDIV_CDIV1[0] | CLK_E.OUT_CLKDIV_CDIV2[0] | CLK_E.OUT_CLKDIV_CDIV4[0] | CLK_E.OUT_CLKDIV_CDIV8[0];
+				mux ROOT_SW.PCLK_ROOT[3] = PCLK_IN_E[1].IMUX_C[3] | IO_W[1].OUT_IO_PADDI[0] | IO_E[1].OUT_IO_PADDI[0] | IO_S[1].OUT_IO_PADDI[0] | IO_N[1].OUT_IO_PADDI[0] | PLL_SW.OUT_PLL_CLKOP[0] | PLL_SW.OUT_PLL_CLKOS[0] | PLL_SW.OUT_PLL_CLKOK | PLL_SW.OUT_PLL_CLKOK2 | PLL_SE.OUT_PLL_CLKOP[0] | PLL_SE.OUT_PLL_CLKOS[0] | PLL_SE.OUT_PLL_CLKOK | PLL_SE.OUT_PLL_CLKOK2 | PLL_NW.OUT_PLL_CLKOP[0] | PLL_NW.OUT_PLL_CLKOS[0] | PLL_NW.OUT_PLL_CLKOK | PLL_NW.OUT_PLL_CLKOK2 | PLL_NE.OUT_PLL_CLKOP[0] | PLL_NE.OUT_PLL_CLKOS[0] | PLL_NE.OUT_PLL_CLKOK | PLL_NE.OUT_PLL_CLKOK2 | CLK_W.OUT_CLKDIV_CDIV1[0] | CLK_W.OUT_CLKDIV_CDIV2[0] | CLK_W.OUT_CLKDIV_CDIV4[0] | CLK_W.OUT_CLKDIV_CDIV8[0] | CLK_E.OUT_CLKDIV_CDIV1[0] | CLK_E.OUT_CLKDIV_CDIV2[0] | CLK_E.OUT_CLKDIV_CDIV4[0] | CLK_E.OUT_CLKDIV_CDIV8[0];
+				mux ROOT_SW.PCLK_ROOT[4] = PCLK_IN_N[0].IMUX_C[3] | IO_W[0].OUT_IO_PADDI[0] | IO_E[0].OUT_IO_PADDI[0] | IO_S[1].OUT_IO_PADDI[0] | IO_N[1].OUT_IO_PADDI[0] | PLL_SW.OUT_PLL_CLKOP[0] | PLL_SW.OUT_PLL_CLKOS[0] | PLL_SW.OUT_PLL_CLKOK | PLL_SW.OUT_PLL_CLKOK2 | PLL_SE.OUT_PLL_CLKOP[0] | PLL_SE.OUT_PLL_CLKOS[0] | PLL_SE.OUT_PLL_CLKOK | PLL_SE.OUT_PLL_CLKOK2 | PLL_NW.OUT_PLL_CLKOP[0] | PLL_NW.OUT_PLL_CLKOS[0] | PLL_NW.OUT_PLL_CLKOK | PLL_NW.OUT_PLL_CLKOK2 | PLL_NE.OUT_PLL_CLKOP[0] | PLL_NE.OUT_PLL_CLKOS[0] | PLL_NE.OUT_PLL_CLKOK | PLL_NE.OUT_PLL_CLKOK2 | CLK_W.OUT_CLKDIV_CDIV1[0] | CLK_W.OUT_CLKDIV_CDIV2[0] | CLK_W.OUT_CLKDIV_CDIV4[0] | CLK_W.OUT_CLKDIV_CDIV8[0] | CLK_E.OUT_CLKDIV_CDIV1[0] | CLK_E.OUT_CLKDIV_CDIV2[0] | CLK_E.OUT_CLKDIV_CDIV4[0] | CLK_E.OUT_CLKDIV_CDIV8[0];
+				mux ROOT_SW.PCLK_ROOT[5] = PCLK_IN_S[0].IMUX_C[3] | IO_W[1].OUT_IO_PADDI[0] | IO_E[1].OUT_IO_PADDI[0] | IO_S[0].OUT_IO_PADDI[0] | IO_N[0].OUT_IO_PADDI[0] | PLL_SW.OUT_PLL_CLKOP[0] | PLL_SW.OUT_PLL_CLKOS[0] | PLL_SW.OUT_PLL_CLKOK | PLL_SW.OUT_PLL_CLKOK2 | PLL_SE.OUT_PLL_CLKOP[0] | PLL_SE.OUT_PLL_CLKOS[0] | PLL_SE.OUT_PLL_CLKOK | PLL_SE.OUT_PLL_CLKOK2 | PLL_NW.OUT_PLL_CLKOP[0] | PLL_NW.OUT_PLL_CLKOS[0] | PLL_NW.OUT_PLL_CLKOK | PLL_NW.OUT_PLL_CLKOK2 | PLL_NE.OUT_PLL_CLKOP[0] | PLL_NE.OUT_PLL_CLKOS[0] | PLL_NE.OUT_PLL_CLKOK | PLL_NE.OUT_PLL_CLKOK2 | CLK_W.OUT_CLKDIV_CDIV1[0] | CLK_W.OUT_CLKDIV_CDIV2[0] | CLK_W.OUT_CLKDIV_CDIV4[0] | CLK_W.OUT_CLKDIV_CDIV8[0] | CLK_E.OUT_CLKDIV_CDIV1[0] | CLK_E.OUT_CLKDIV_CDIV2[0] | CLK_E.OUT_CLKDIV_CDIV4[0] | CLK_E.OUT_CLKDIV_CDIV8[0];
 				mux ROOT_SW.SCLK_ROOT[0] = SCLK_IN_E[0].IMUX_C[3] | SCLK_IN_S[2].IMUX_C[3] | SCLK_IN_N[0].IMUX_C[3] | IO_W[0].OUT_IO_PADDI[0];
 				mux ROOT_SW.SCLK_ROOT[1] = SCLK_IN_E[1].IMUX_C[3] | SCLK_IN_S[3].IMUX_C[3] | SCLK_IN_N[1].IMUX_C[3] | IO_W[1].OUT_IO_PADDI[0];
 				mux ROOT_SW.SCLK_ROOT[2] = SCLK_IN_W[0].IMUX_C[3] | SCLK_IN_S[0].IMUX_C[3] | SCLK_IN_N[2].IMUX_C[3] | IO_E[0].OUT_IO_PADDI[0];
@@ -10552,12 +10578,12 @@ intdb {
 				mux ROOT_SW.IMUX_DCS_CLKA[1] = PCLK_IN_E[0].IMUX_C[3] | PCLK_IN_E[2].IMUX_C[3] | IO_W[0].OUT_IO_PADDI[0] | IO_E[0].OUT_IO_PADDI[0] | IO_S[1].OUT_IO_PADDI[0] | IO_N[1].OUT_IO_PADDI[0] | PLL_SW.OUT_PLL_CLKOS[0] | PLL_SW.OUT_PLL_CLKOK | PLL_SW.OUT_PLL_CLKOK2 | PLL_SE.OUT_PLL_CLKOP[0] | PLL_SE.OUT_PLL_CLKOS[0] | PLL_SE.OUT_PLL_CLKOK | PLL_SE.OUT_PLL_CLKOK2 | PLL_NW.OUT_PLL_CLKOS[0] | PLL_NW.OUT_PLL_CLKOK | PLL_NW.OUT_PLL_CLKOK2 | PLL_NE.OUT_PLL_CLKOP[0] | PLL_NE.OUT_PLL_CLKOS[0] | PLL_NE.OUT_PLL_CLKOK | PLL_NE.OUT_PLL_CLKOK2 | CLK_W.OUT_CLKDIV_CDIV1[0] | CLK_W.OUT_CLKDIV_CDIV2[0] | CLK_W.OUT_CLKDIV_CDIV4[0] | CLK_W.OUT_CLKDIV_CDIV8[0] | CLK_E.OUT_CLKDIV_CDIV1[0] | CLK_E.OUT_CLKDIV_CDIV2[0] | CLK_E.OUT_CLKDIV_CDIV4[0] | CLK_E.OUT_CLKDIV_CDIV8[0];
 				mux ROOT_SW.IMUX_DCS_CLKB[0] = PCLK_IN_W[0].IMUX_C[3] | PCLK_IN_S[1].IMUX_C[3] | IO_W[1].OUT_IO_PADDI[0] | IO_E[1].OUT_IO_PADDI[0] | IO_S[0].OUT_IO_PADDI[0] | IO_N[0].OUT_IO_PADDI[0] | PLL_SW.OUT_PLL_CLKOP[0] | PLL_SW.OUT_PLL_CLKOS[0] | PLL_SW.OUT_PLL_CLKOK | PLL_SW.OUT_PLL_CLKOK2 | PLL_SE.OUT_PLL_CLKOS[0] | PLL_SE.OUT_PLL_CLKOK | PLL_SE.OUT_PLL_CLKOK2 | PLL_NW.OUT_PLL_CLKOP[0] | PLL_NW.OUT_PLL_CLKOS[0] | PLL_NW.OUT_PLL_CLKOK | PLL_NW.OUT_PLL_CLKOK2 | PLL_NE.OUT_PLL_CLKOS[0] | PLL_NE.OUT_PLL_CLKOK | PLL_NE.OUT_PLL_CLKOK2 | CLK_W.OUT_CLKDIV_CDIV1[0] | CLK_W.OUT_CLKDIV_CDIV2[0] | CLK_W.OUT_CLKDIV_CDIV4[0] | CLK_W.OUT_CLKDIV_CDIV8[0] | CLK_E.OUT_CLKDIV_CDIV1[0] | CLK_E.OUT_CLKDIV_CDIV2[0] | CLK_E.OUT_CLKDIV_CDIV4[0] | CLK_E.OUT_CLKDIV_CDIV8[0];
 				mux ROOT_SW.IMUX_DCS_CLKB[1] = PCLK_IN_E[1].IMUX_C[3] | PCLK_IN_E[3].IMUX_C[3] | IO_W[1].OUT_IO_PADDI[0] | IO_E[1].OUT_IO_PADDI[0] | IO_S[0].OUT_IO_PADDI[0] | IO_N[0].OUT_IO_PADDI[0] | PLL_SW.OUT_PLL_CLKOP[0] | PLL_SW.OUT_PLL_CLKOS[0] | PLL_SW.OUT_PLL_CLKOK | PLL_SW.OUT_PLL_CLKOK2 | PLL_SE.OUT_PLL_CLKOS[0] | PLL_SE.OUT_PLL_CLKOK | PLL_SE.OUT_PLL_CLKOK2 | PLL_NW.OUT_PLL_CLKOP[0] | PLL_NW.OUT_PLL_CLKOS[0] | PLL_NW.OUT_PLL_CLKOK | PLL_NW.OUT_PLL_CLKOK2 | PLL_NE.OUT_PLL_CLKOS[0] | PLL_NE.OUT_PLL_CLKOK | PLL_NE.OUT_PLL_CLKOK2 | CLK_W.OUT_CLKDIV_CDIV1[0] | CLK_W.OUT_CLKDIV_CDIV2[0] | CLK_W.OUT_CLKDIV_CDIV4[0] | CLK_W.OUT_CLKDIV_CDIV8[0] | CLK_E.OUT_CLKDIV_CDIV1[0] | CLK_E.OUT_CLKDIV_CDIV2[0] | CLK_E.OUT_CLKDIV_CDIV4[0] | CLK_E.OUT_CLKDIV_CDIV8[0];
-				mux ROOT_SE.PCLK[0] = PCLK_IN_W[1].IMUX_C[3] | IO_W[0].OUT_IO_PADDI[0] | IO_E[0].OUT_IO_PADDI[0] | IO_S[0].OUT_IO_PADDI[0] | IO_N[0].OUT_IO_PADDI[0] | PLL_SW.OUT_PLL_CLKOP[0] | PLL_SW.OUT_PLL_CLKOS[0] | PLL_SW.OUT_PLL_CLKOK | PLL_SW.OUT_PLL_CLKOK2 | PLL_SE.OUT_PLL_CLKOP[0] | PLL_SE.OUT_PLL_CLKOS[0] | PLL_SE.OUT_PLL_CLKOK | PLL_SE.OUT_PLL_CLKOK2 | PLL_NW.OUT_PLL_CLKOP[0] | PLL_NW.OUT_PLL_CLKOS[0] | PLL_NW.OUT_PLL_CLKOK | PLL_NW.OUT_PLL_CLKOK2 | PLL_NE.OUT_PLL_CLKOP[0] | PLL_NE.OUT_PLL_CLKOS[0] | PLL_NE.OUT_PLL_CLKOK | PLL_NE.OUT_PLL_CLKOK2 | CLK_W.OUT_CLKDIV_CDIV1[0] | CLK_W.OUT_CLKDIV_CDIV2[0] | CLK_W.OUT_CLKDIV_CDIV4[0] | CLK_W.OUT_CLKDIV_CDIV8[0] | CLK_E.OUT_CLKDIV_CDIV1[0] | CLK_E.OUT_CLKDIV_CDIV2[0] | CLK_E.OUT_CLKDIV_CDIV4[0] | CLK_E.OUT_CLKDIV_CDIV8[0];
-				mux ROOT_SE.PCLK[1] = PCLK_IN_W[0].IMUX_C[3] | IO_W[1].OUT_IO_PADDI[0] | IO_E[1].OUT_IO_PADDI[0] | IO_S[0].OUT_IO_PADDI[0] | IO_N[0].OUT_IO_PADDI[0] | PLL_SW.OUT_PLL_CLKOP[0] | PLL_SW.OUT_PLL_CLKOS[0] | PLL_SW.OUT_PLL_CLKOK | PLL_SW.OUT_PLL_CLKOK2 | PLL_SE.OUT_PLL_CLKOP[0] | PLL_SE.OUT_PLL_CLKOS[0] | PLL_SE.OUT_PLL_CLKOK | PLL_SE.OUT_PLL_CLKOK2 | PLL_NW.OUT_PLL_CLKOP[0] | PLL_NW.OUT_PLL_CLKOS[0] | PLL_NW.OUT_PLL_CLKOK | PLL_NW.OUT_PLL_CLKOK2 | PLL_NE.OUT_PLL_CLKOP[0] | PLL_NE.OUT_PLL_CLKOS[0] | PLL_NE.OUT_PLL_CLKOK | PLL_NE.OUT_PLL_CLKOK2 | CLK_W.OUT_CLKDIV_CDIV1[0] | CLK_W.OUT_CLKDIV_CDIV2[0] | CLK_W.OUT_CLKDIV_CDIV4[0] | CLK_W.OUT_CLKDIV_CDIV8[0] | CLK_E.OUT_CLKDIV_CDIV1[0] | CLK_E.OUT_CLKDIV_CDIV2[0] | CLK_E.OUT_CLKDIV_CDIV4[0] | CLK_E.OUT_CLKDIV_CDIV8[0];
-				mux ROOT_SE.PCLK[2] = PCLK_IN_E[2].IMUX_C[3] | IO_W[0].OUT_IO_PADDI[0] | IO_E[0].OUT_IO_PADDI[0] | IO_S[1].OUT_IO_PADDI[0] | IO_N[1].OUT_IO_PADDI[0] | PLL_SW.OUT_PLL_CLKOP[0] | PLL_SW.OUT_PLL_CLKOS[0] | PLL_SW.OUT_PLL_CLKOK | PLL_SW.OUT_PLL_CLKOK2 | PLL_SE.OUT_PLL_CLKOP[0] | PLL_SE.OUT_PLL_CLKOS[0] | PLL_SE.OUT_PLL_CLKOK | PLL_SE.OUT_PLL_CLKOK2 | PLL_NW.OUT_PLL_CLKOP[0] | PLL_NW.OUT_PLL_CLKOS[0] | PLL_NW.OUT_PLL_CLKOK | PLL_NW.OUT_PLL_CLKOK2 | PLL_NE.OUT_PLL_CLKOP[0] | PLL_NE.OUT_PLL_CLKOS[0] | PLL_NE.OUT_PLL_CLKOK | PLL_NE.OUT_PLL_CLKOK2 | CLK_W.OUT_CLKDIV_CDIV1[0] | CLK_W.OUT_CLKDIV_CDIV2[0] | CLK_W.OUT_CLKDIV_CDIV4[0] | CLK_W.OUT_CLKDIV_CDIV8[0] | CLK_E.OUT_CLKDIV_CDIV1[0] | CLK_E.OUT_CLKDIV_CDIV2[0] | CLK_E.OUT_CLKDIV_CDIV4[0] | CLK_E.OUT_CLKDIV_CDIV8[0];
-				mux ROOT_SE.PCLK[3] = PCLK_IN_E[1].IMUX_C[3] | IO_W[1].OUT_IO_PADDI[0] | IO_E[1].OUT_IO_PADDI[0] | IO_S[1].OUT_IO_PADDI[0] | IO_N[1].OUT_IO_PADDI[0] | PLL_SW.OUT_PLL_CLKOP[0] | PLL_SW.OUT_PLL_CLKOS[0] | PLL_SW.OUT_PLL_CLKOK | PLL_SW.OUT_PLL_CLKOK2 | PLL_SE.OUT_PLL_CLKOP[0] | PLL_SE.OUT_PLL_CLKOS[0] | PLL_SE.OUT_PLL_CLKOK | PLL_SE.OUT_PLL_CLKOK2 | PLL_NW.OUT_PLL_CLKOP[0] | PLL_NW.OUT_PLL_CLKOS[0] | PLL_NW.OUT_PLL_CLKOK | PLL_NW.OUT_PLL_CLKOK2 | PLL_NE.OUT_PLL_CLKOP[0] | PLL_NE.OUT_PLL_CLKOS[0] | PLL_NE.OUT_PLL_CLKOK | PLL_NE.OUT_PLL_CLKOK2 | CLK_W.OUT_CLKDIV_CDIV1[0] | CLK_W.OUT_CLKDIV_CDIV2[0] | CLK_W.OUT_CLKDIV_CDIV4[0] | CLK_W.OUT_CLKDIV_CDIV8[0] | CLK_E.OUT_CLKDIV_CDIV1[0] | CLK_E.OUT_CLKDIV_CDIV2[0] | CLK_E.OUT_CLKDIV_CDIV4[0] | CLK_E.OUT_CLKDIV_CDIV8[0];
-				mux ROOT_SE.PCLK[4] = PCLK_IN_N[0].IMUX_C[3] | IO_W[0].OUT_IO_PADDI[0] | IO_E[0].OUT_IO_PADDI[0] | IO_S[1].OUT_IO_PADDI[0] | IO_N[1].OUT_IO_PADDI[0] | PLL_SW.OUT_PLL_CLKOP[0] | PLL_SW.OUT_PLL_CLKOS[0] | PLL_SW.OUT_PLL_CLKOK | PLL_SW.OUT_PLL_CLKOK2 | PLL_SE.OUT_PLL_CLKOP[0] | PLL_SE.OUT_PLL_CLKOS[0] | PLL_SE.OUT_PLL_CLKOK | PLL_SE.OUT_PLL_CLKOK2 | PLL_NW.OUT_PLL_CLKOP[0] | PLL_NW.OUT_PLL_CLKOS[0] | PLL_NW.OUT_PLL_CLKOK | PLL_NW.OUT_PLL_CLKOK2 | PLL_NE.OUT_PLL_CLKOP[0] | PLL_NE.OUT_PLL_CLKOS[0] | PLL_NE.OUT_PLL_CLKOK | PLL_NE.OUT_PLL_CLKOK2 | CLK_W.OUT_CLKDIV_CDIV1[0] | CLK_W.OUT_CLKDIV_CDIV2[0] | CLK_W.OUT_CLKDIV_CDIV4[0] | CLK_W.OUT_CLKDIV_CDIV8[0] | CLK_E.OUT_CLKDIV_CDIV1[0] | CLK_E.OUT_CLKDIV_CDIV2[0] | CLK_E.OUT_CLKDIV_CDIV4[0] | CLK_E.OUT_CLKDIV_CDIV8[0];
-				mux ROOT_SE.PCLK[5] = PCLK_IN_S[0].IMUX_C[3] | IO_W[1].OUT_IO_PADDI[0] | IO_E[1].OUT_IO_PADDI[0] | IO_S[0].OUT_IO_PADDI[0] | IO_N[0].OUT_IO_PADDI[0] | PLL_SW.OUT_PLL_CLKOP[0] | PLL_SW.OUT_PLL_CLKOS[0] | PLL_SW.OUT_PLL_CLKOK | PLL_SW.OUT_PLL_CLKOK2 | PLL_SE.OUT_PLL_CLKOP[0] | PLL_SE.OUT_PLL_CLKOS[0] | PLL_SE.OUT_PLL_CLKOK | PLL_SE.OUT_PLL_CLKOK2 | PLL_NW.OUT_PLL_CLKOP[0] | PLL_NW.OUT_PLL_CLKOS[0] | PLL_NW.OUT_PLL_CLKOK | PLL_NW.OUT_PLL_CLKOK2 | PLL_NE.OUT_PLL_CLKOP[0] | PLL_NE.OUT_PLL_CLKOS[0] | PLL_NE.OUT_PLL_CLKOK | PLL_NE.OUT_PLL_CLKOK2 | CLK_W.OUT_CLKDIV_CDIV1[0] | CLK_W.OUT_CLKDIV_CDIV2[0] | CLK_W.OUT_CLKDIV_CDIV4[0] | CLK_W.OUT_CLKDIV_CDIV8[0] | CLK_E.OUT_CLKDIV_CDIV1[0] | CLK_E.OUT_CLKDIV_CDIV2[0] | CLK_E.OUT_CLKDIV_CDIV4[0] | CLK_E.OUT_CLKDIV_CDIV8[0];
+				mux ROOT_SE.PCLK_ROOT[0] = PCLK_IN_W[1].IMUX_C[3] | IO_W[0].OUT_IO_PADDI[0] | IO_E[0].OUT_IO_PADDI[0] | IO_S[0].OUT_IO_PADDI[0] | IO_N[0].OUT_IO_PADDI[0] | PLL_SW.OUT_PLL_CLKOP[0] | PLL_SW.OUT_PLL_CLKOS[0] | PLL_SW.OUT_PLL_CLKOK | PLL_SW.OUT_PLL_CLKOK2 | PLL_SE.OUT_PLL_CLKOP[0] | PLL_SE.OUT_PLL_CLKOS[0] | PLL_SE.OUT_PLL_CLKOK | PLL_SE.OUT_PLL_CLKOK2 | PLL_NW.OUT_PLL_CLKOP[0] | PLL_NW.OUT_PLL_CLKOS[0] | PLL_NW.OUT_PLL_CLKOK | PLL_NW.OUT_PLL_CLKOK2 | PLL_NE.OUT_PLL_CLKOP[0] | PLL_NE.OUT_PLL_CLKOS[0] | PLL_NE.OUT_PLL_CLKOK | PLL_NE.OUT_PLL_CLKOK2 | CLK_W.OUT_CLKDIV_CDIV1[0] | CLK_W.OUT_CLKDIV_CDIV2[0] | CLK_W.OUT_CLKDIV_CDIV4[0] | CLK_W.OUT_CLKDIV_CDIV8[0] | CLK_E.OUT_CLKDIV_CDIV1[0] | CLK_E.OUT_CLKDIV_CDIV2[0] | CLK_E.OUT_CLKDIV_CDIV4[0] | CLK_E.OUT_CLKDIV_CDIV8[0];
+				mux ROOT_SE.PCLK_ROOT[1] = PCLK_IN_W[0].IMUX_C[3] | IO_W[1].OUT_IO_PADDI[0] | IO_E[1].OUT_IO_PADDI[0] | IO_S[0].OUT_IO_PADDI[0] | IO_N[0].OUT_IO_PADDI[0] | PLL_SW.OUT_PLL_CLKOP[0] | PLL_SW.OUT_PLL_CLKOS[0] | PLL_SW.OUT_PLL_CLKOK | PLL_SW.OUT_PLL_CLKOK2 | PLL_SE.OUT_PLL_CLKOP[0] | PLL_SE.OUT_PLL_CLKOS[0] | PLL_SE.OUT_PLL_CLKOK | PLL_SE.OUT_PLL_CLKOK2 | PLL_NW.OUT_PLL_CLKOP[0] | PLL_NW.OUT_PLL_CLKOS[0] | PLL_NW.OUT_PLL_CLKOK | PLL_NW.OUT_PLL_CLKOK2 | PLL_NE.OUT_PLL_CLKOP[0] | PLL_NE.OUT_PLL_CLKOS[0] | PLL_NE.OUT_PLL_CLKOK | PLL_NE.OUT_PLL_CLKOK2 | CLK_W.OUT_CLKDIV_CDIV1[0] | CLK_W.OUT_CLKDIV_CDIV2[0] | CLK_W.OUT_CLKDIV_CDIV4[0] | CLK_W.OUT_CLKDIV_CDIV8[0] | CLK_E.OUT_CLKDIV_CDIV1[0] | CLK_E.OUT_CLKDIV_CDIV2[0] | CLK_E.OUT_CLKDIV_CDIV4[0] | CLK_E.OUT_CLKDIV_CDIV8[0];
+				mux ROOT_SE.PCLK_ROOT[2] = PCLK_IN_E[2].IMUX_C[3] | IO_W[0].OUT_IO_PADDI[0] | IO_E[0].OUT_IO_PADDI[0] | IO_S[1].OUT_IO_PADDI[0] | IO_N[1].OUT_IO_PADDI[0] | PLL_SW.OUT_PLL_CLKOP[0] | PLL_SW.OUT_PLL_CLKOS[0] | PLL_SW.OUT_PLL_CLKOK | PLL_SW.OUT_PLL_CLKOK2 | PLL_SE.OUT_PLL_CLKOP[0] | PLL_SE.OUT_PLL_CLKOS[0] | PLL_SE.OUT_PLL_CLKOK | PLL_SE.OUT_PLL_CLKOK2 | PLL_NW.OUT_PLL_CLKOP[0] | PLL_NW.OUT_PLL_CLKOS[0] | PLL_NW.OUT_PLL_CLKOK | PLL_NW.OUT_PLL_CLKOK2 | PLL_NE.OUT_PLL_CLKOP[0] | PLL_NE.OUT_PLL_CLKOS[0] | PLL_NE.OUT_PLL_CLKOK | PLL_NE.OUT_PLL_CLKOK2 | CLK_W.OUT_CLKDIV_CDIV1[0] | CLK_W.OUT_CLKDIV_CDIV2[0] | CLK_W.OUT_CLKDIV_CDIV4[0] | CLK_W.OUT_CLKDIV_CDIV8[0] | CLK_E.OUT_CLKDIV_CDIV1[0] | CLK_E.OUT_CLKDIV_CDIV2[0] | CLK_E.OUT_CLKDIV_CDIV4[0] | CLK_E.OUT_CLKDIV_CDIV8[0];
+				mux ROOT_SE.PCLK_ROOT[3] = PCLK_IN_E[1].IMUX_C[3] | IO_W[1].OUT_IO_PADDI[0] | IO_E[1].OUT_IO_PADDI[0] | IO_S[1].OUT_IO_PADDI[0] | IO_N[1].OUT_IO_PADDI[0] | PLL_SW.OUT_PLL_CLKOP[0] | PLL_SW.OUT_PLL_CLKOS[0] | PLL_SW.OUT_PLL_CLKOK | PLL_SW.OUT_PLL_CLKOK2 | PLL_SE.OUT_PLL_CLKOP[0] | PLL_SE.OUT_PLL_CLKOS[0] | PLL_SE.OUT_PLL_CLKOK | PLL_SE.OUT_PLL_CLKOK2 | PLL_NW.OUT_PLL_CLKOP[0] | PLL_NW.OUT_PLL_CLKOS[0] | PLL_NW.OUT_PLL_CLKOK | PLL_NW.OUT_PLL_CLKOK2 | PLL_NE.OUT_PLL_CLKOP[0] | PLL_NE.OUT_PLL_CLKOS[0] | PLL_NE.OUT_PLL_CLKOK | PLL_NE.OUT_PLL_CLKOK2 | CLK_W.OUT_CLKDIV_CDIV1[0] | CLK_W.OUT_CLKDIV_CDIV2[0] | CLK_W.OUT_CLKDIV_CDIV4[0] | CLK_W.OUT_CLKDIV_CDIV8[0] | CLK_E.OUT_CLKDIV_CDIV1[0] | CLK_E.OUT_CLKDIV_CDIV2[0] | CLK_E.OUT_CLKDIV_CDIV4[0] | CLK_E.OUT_CLKDIV_CDIV8[0];
+				mux ROOT_SE.PCLK_ROOT[4] = PCLK_IN_N[0].IMUX_C[3] | IO_W[0].OUT_IO_PADDI[0] | IO_E[0].OUT_IO_PADDI[0] | IO_S[1].OUT_IO_PADDI[0] | IO_N[1].OUT_IO_PADDI[0] | PLL_SW.OUT_PLL_CLKOP[0] | PLL_SW.OUT_PLL_CLKOS[0] | PLL_SW.OUT_PLL_CLKOK | PLL_SW.OUT_PLL_CLKOK2 | PLL_SE.OUT_PLL_CLKOP[0] | PLL_SE.OUT_PLL_CLKOS[0] | PLL_SE.OUT_PLL_CLKOK | PLL_SE.OUT_PLL_CLKOK2 | PLL_NW.OUT_PLL_CLKOP[0] | PLL_NW.OUT_PLL_CLKOS[0] | PLL_NW.OUT_PLL_CLKOK | PLL_NW.OUT_PLL_CLKOK2 | PLL_NE.OUT_PLL_CLKOP[0] | PLL_NE.OUT_PLL_CLKOS[0] | PLL_NE.OUT_PLL_CLKOK | PLL_NE.OUT_PLL_CLKOK2 | CLK_W.OUT_CLKDIV_CDIV1[0] | CLK_W.OUT_CLKDIV_CDIV2[0] | CLK_W.OUT_CLKDIV_CDIV4[0] | CLK_W.OUT_CLKDIV_CDIV8[0] | CLK_E.OUT_CLKDIV_CDIV1[0] | CLK_E.OUT_CLKDIV_CDIV2[0] | CLK_E.OUT_CLKDIV_CDIV4[0] | CLK_E.OUT_CLKDIV_CDIV8[0];
+				mux ROOT_SE.PCLK_ROOT[5] = PCLK_IN_S[0].IMUX_C[3] | IO_W[1].OUT_IO_PADDI[0] | IO_E[1].OUT_IO_PADDI[0] | IO_S[0].OUT_IO_PADDI[0] | IO_N[0].OUT_IO_PADDI[0] | PLL_SW.OUT_PLL_CLKOP[0] | PLL_SW.OUT_PLL_CLKOS[0] | PLL_SW.OUT_PLL_CLKOK | PLL_SW.OUT_PLL_CLKOK2 | PLL_SE.OUT_PLL_CLKOP[0] | PLL_SE.OUT_PLL_CLKOS[0] | PLL_SE.OUT_PLL_CLKOK | PLL_SE.OUT_PLL_CLKOK2 | PLL_NW.OUT_PLL_CLKOP[0] | PLL_NW.OUT_PLL_CLKOS[0] | PLL_NW.OUT_PLL_CLKOK | PLL_NW.OUT_PLL_CLKOK2 | PLL_NE.OUT_PLL_CLKOP[0] | PLL_NE.OUT_PLL_CLKOS[0] | PLL_NE.OUT_PLL_CLKOK | PLL_NE.OUT_PLL_CLKOK2 | CLK_W.OUT_CLKDIV_CDIV1[0] | CLK_W.OUT_CLKDIV_CDIV2[0] | CLK_W.OUT_CLKDIV_CDIV4[0] | CLK_W.OUT_CLKDIV_CDIV8[0] | CLK_E.OUT_CLKDIV_CDIV1[0] | CLK_E.OUT_CLKDIV_CDIV2[0] | CLK_E.OUT_CLKDIV_CDIV4[0] | CLK_E.OUT_CLKDIV_CDIV8[0];
 				mux ROOT_SE.SCLK_ROOT[0] = SCLK_IN_E[0].IMUX_C[3] | SCLK_IN_S[2].IMUX_C[3] | SCLK_IN_N[0].IMUX_C[3] | IO_W[0].OUT_IO_PADDI[0];
 				mux ROOT_SE.SCLK_ROOT[1] = SCLK_IN_E[1].IMUX_C[3] | SCLK_IN_S[3].IMUX_C[3] | SCLK_IN_N[1].IMUX_C[3] | IO_W[1].OUT_IO_PADDI[0];
 				mux ROOT_SE.SCLK_ROOT[2] = SCLK_IN_W[0].IMUX_C[3] | SCLK_IN_S[0].IMUX_C[3] | SCLK_IN_N[2].IMUX_C[3] | IO_E[0].OUT_IO_PADDI[0];
@@ -10570,12 +10596,12 @@ intdb {
 				mux ROOT_SE.IMUX_DCS_CLKA[1] = PCLK_IN_E[0].IMUX_C[3] | PCLK_IN_E[2].IMUX_C[3] | IO_W[0].OUT_IO_PADDI[0] | IO_E[0].OUT_IO_PADDI[0] | IO_S[1].OUT_IO_PADDI[0] | IO_N[1].OUT_IO_PADDI[0] | PLL_SW.OUT_PLL_CLKOS[0] | PLL_SW.OUT_PLL_CLKOK | PLL_SW.OUT_PLL_CLKOK2 | PLL_SE.OUT_PLL_CLKOP[0] | PLL_SE.OUT_PLL_CLKOS[0] | PLL_SE.OUT_PLL_CLKOK | PLL_SE.OUT_PLL_CLKOK2 | PLL_NW.OUT_PLL_CLKOS[0] | PLL_NW.OUT_PLL_CLKOK | PLL_NW.OUT_PLL_CLKOK2 | PLL_NE.OUT_PLL_CLKOP[0] | PLL_NE.OUT_PLL_CLKOS[0] | PLL_NE.OUT_PLL_CLKOK | PLL_NE.OUT_PLL_CLKOK2 | CLK_W.OUT_CLKDIV_CDIV1[0] | CLK_W.OUT_CLKDIV_CDIV2[0] | CLK_W.OUT_CLKDIV_CDIV4[0] | CLK_W.OUT_CLKDIV_CDIV8[0] | CLK_E.OUT_CLKDIV_CDIV1[0] | CLK_E.OUT_CLKDIV_CDIV2[0] | CLK_E.OUT_CLKDIV_CDIV4[0] | CLK_E.OUT_CLKDIV_CDIV8[0];
 				mux ROOT_SE.IMUX_DCS_CLKB[0] = PCLK_IN_W[0].IMUX_C[3] | PCLK_IN_S[1].IMUX_C[3] | IO_W[1].OUT_IO_PADDI[0] | IO_E[1].OUT_IO_PADDI[0] | IO_S[0].OUT_IO_PADDI[0] | IO_N[0].OUT_IO_PADDI[0] | PLL_SW.OUT_PLL_CLKOP[0] | PLL_SW.OUT_PLL_CLKOS[0] | PLL_SW.OUT_PLL_CLKOK | PLL_SW.OUT_PLL_CLKOK2 | PLL_SE.OUT_PLL_CLKOS[0] | PLL_SE.OUT_PLL_CLKOK | PLL_SE.OUT_PLL_CLKOK2 | PLL_NW.OUT_PLL_CLKOP[0] | PLL_NW.OUT_PLL_CLKOS[0] | PLL_NW.OUT_PLL_CLKOK | PLL_NW.OUT_PLL_CLKOK2 | PLL_NE.OUT_PLL_CLKOS[0] | PLL_NE.OUT_PLL_CLKOK | PLL_NE.OUT_PLL_CLKOK2 | CLK_W.OUT_CLKDIV_CDIV1[0] | CLK_W.OUT_CLKDIV_CDIV2[0] | CLK_W.OUT_CLKDIV_CDIV4[0] | CLK_W.OUT_CLKDIV_CDIV8[0] | CLK_E.OUT_CLKDIV_CDIV1[0] | CLK_E.OUT_CLKDIV_CDIV2[0] | CLK_E.OUT_CLKDIV_CDIV4[0] | CLK_E.OUT_CLKDIV_CDIV8[0];
 				mux ROOT_SE.IMUX_DCS_CLKB[1] = PCLK_IN_E[1].IMUX_C[3] | PCLK_IN_E[3].IMUX_C[3] | IO_W[1].OUT_IO_PADDI[0] | IO_E[1].OUT_IO_PADDI[0] | IO_S[0].OUT_IO_PADDI[0] | IO_N[0].OUT_IO_PADDI[0] | PLL_SW.OUT_PLL_CLKOP[0] | PLL_SW.OUT_PLL_CLKOS[0] | PLL_SW.OUT_PLL_CLKOK | PLL_SW.OUT_PLL_CLKOK2 | PLL_SE.OUT_PLL_CLKOS[0] | PLL_SE.OUT_PLL_CLKOK | PLL_SE.OUT_PLL_CLKOK2 | PLL_NW.OUT_PLL_CLKOP[0] | PLL_NW.OUT_PLL_CLKOS[0] | PLL_NW.OUT_PLL_CLKOK | PLL_NW.OUT_PLL_CLKOK2 | PLL_NE.OUT_PLL_CLKOS[0] | PLL_NE.OUT_PLL_CLKOK | PLL_NE.OUT_PLL_CLKOK2 | CLK_W.OUT_CLKDIV_CDIV1[0] | CLK_W.OUT_CLKDIV_CDIV2[0] | CLK_W.OUT_CLKDIV_CDIV4[0] | CLK_W.OUT_CLKDIV_CDIV8[0] | CLK_E.OUT_CLKDIV_CDIV1[0] | CLK_E.OUT_CLKDIV_CDIV2[0] | CLK_E.OUT_CLKDIV_CDIV4[0] | CLK_E.OUT_CLKDIV_CDIV8[0];
-				mux ROOT_NW.PCLK[0] = PCLK_IN_W[1].IMUX_C[3] | IO_W[0].OUT_IO_PADDI[0] | IO_E[0].OUT_IO_PADDI[0] | IO_S[0].OUT_IO_PADDI[0] | IO_N[0].OUT_IO_PADDI[0] | PLL_SW.OUT_PLL_CLKOP[0] | PLL_SW.OUT_PLL_CLKOS[0] | PLL_SW.OUT_PLL_CLKOK | PLL_SW.OUT_PLL_CLKOK2 | PLL_SE.OUT_PLL_CLKOP[0] | PLL_SE.OUT_PLL_CLKOS[0] | PLL_SE.OUT_PLL_CLKOK | PLL_SE.OUT_PLL_CLKOK2 | PLL_NW.OUT_PLL_CLKOP[0] | PLL_NW.OUT_PLL_CLKOS[0] | PLL_NW.OUT_PLL_CLKOK | PLL_NW.OUT_PLL_CLKOK2 | PLL_NE.OUT_PLL_CLKOP[0] | PLL_NE.OUT_PLL_CLKOS[0] | PLL_NE.OUT_PLL_CLKOK | PLL_NE.OUT_PLL_CLKOK2 | CLK_W.OUT_CLKDIV_CDIV1[0] | CLK_W.OUT_CLKDIV_CDIV2[0] | CLK_W.OUT_CLKDIV_CDIV4[0] | CLK_W.OUT_CLKDIV_CDIV8[0] | CLK_E.OUT_CLKDIV_CDIV1[0] | CLK_E.OUT_CLKDIV_CDIV2[0] | CLK_E.OUT_CLKDIV_CDIV4[0] | CLK_E.OUT_CLKDIV_CDIV8[0];
-				mux ROOT_NW.PCLK[1] = PCLK_IN_W[0].IMUX_C[3] | IO_W[1].OUT_IO_PADDI[0] | IO_E[1].OUT_IO_PADDI[0] | IO_S[0].OUT_IO_PADDI[0] | IO_N[0].OUT_IO_PADDI[0] | PLL_SW.OUT_PLL_CLKOP[0] | PLL_SW.OUT_PLL_CLKOS[0] | PLL_SW.OUT_PLL_CLKOK | PLL_SW.OUT_PLL_CLKOK2 | PLL_SE.OUT_PLL_CLKOP[0] | PLL_SE.OUT_PLL_CLKOS[0] | PLL_SE.OUT_PLL_CLKOK | PLL_SE.OUT_PLL_CLKOK2 | PLL_NW.OUT_PLL_CLKOP[0] | PLL_NW.OUT_PLL_CLKOS[0] | PLL_NW.OUT_PLL_CLKOK | PLL_NW.OUT_PLL_CLKOK2 | PLL_NE.OUT_PLL_CLKOP[0] | PLL_NE.OUT_PLL_CLKOS[0] | PLL_NE.OUT_PLL_CLKOK | PLL_NE.OUT_PLL_CLKOK2 | CLK_W.OUT_CLKDIV_CDIV1[0] | CLK_W.OUT_CLKDIV_CDIV2[0] | CLK_W.OUT_CLKDIV_CDIV4[0] | CLK_W.OUT_CLKDIV_CDIV8[0] | CLK_E.OUT_CLKDIV_CDIV1[0] | CLK_E.OUT_CLKDIV_CDIV2[0] | CLK_E.OUT_CLKDIV_CDIV4[0] | CLK_E.OUT_CLKDIV_CDIV8[0];
-				mux ROOT_NW.PCLK[2] = PCLK_IN_E[2].IMUX_C[3] | IO_W[0].OUT_IO_PADDI[0] | IO_E[0].OUT_IO_PADDI[0] | IO_S[1].OUT_IO_PADDI[0] | IO_N[1].OUT_IO_PADDI[0] | PLL_SW.OUT_PLL_CLKOP[0] | PLL_SW.OUT_PLL_CLKOS[0] | PLL_SW.OUT_PLL_CLKOK | PLL_SW.OUT_PLL_CLKOK2 | PLL_SE.OUT_PLL_CLKOP[0] | PLL_SE.OUT_PLL_CLKOS[0] | PLL_SE.OUT_PLL_CLKOK | PLL_SE.OUT_PLL_CLKOK2 | PLL_NW.OUT_PLL_CLKOP[0] | PLL_NW.OUT_PLL_CLKOS[0] | PLL_NW.OUT_PLL_CLKOK | PLL_NW.OUT_PLL_CLKOK2 | PLL_NE.OUT_PLL_CLKOP[0] | PLL_NE.OUT_PLL_CLKOS[0] | PLL_NE.OUT_PLL_CLKOK | PLL_NE.OUT_PLL_CLKOK2 | CLK_W.OUT_CLKDIV_CDIV1[0] | CLK_W.OUT_CLKDIV_CDIV2[0] | CLK_W.OUT_CLKDIV_CDIV4[0] | CLK_W.OUT_CLKDIV_CDIV8[0] | CLK_E.OUT_CLKDIV_CDIV1[0] | CLK_E.OUT_CLKDIV_CDIV2[0] | CLK_E.OUT_CLKDIV_CDIV4[0] | CLK_E.OUT_CLKDIV_CDIV8[0];
-				mux ROOT_NW.PCLK[3] = PCLK_IN_E[1].IMUX_C[3] | IO_W[1].OUT_IO_PADDI[0] | IO_E[1].OUT_IO_PADDI[0] | IO_S[1].OUT_IO_PADDI[0] | IO_N[1].OUT_IO_PADDI[0] | PLL_SW.OUT_PLL_CLKOP[0] | PLL_SW.OUT_PLL_CLKOS[0] | PLL_SW.OUT_PLL_CLKOK | PLL_SW.OUT_PLL_CLKOK2 | PLL_SE.OUT_PLL_CLKOP[0] | PLL_SE.OUT_PLL_CLKOS[0] | PLL_SE.OUT_PLL_CLKOK | PLL_SE.OUT_PLL_CLKOK2 | PLL_NW.OUT_PLL_CLKOP[0] | PLL_NW.OUT_PLL_CLKOS[0] | PLL_NW.OUT_PLL_CLKOK | PLL_NW.OUT_PLL_CLKOK2 | PLL_NE.OUT_PLL_CLKOP[0] | PLL_NE.OUT_PLL_CLKOS[0] | PLL_NE.OUT_PLL_CLKOK | PLL_NE.OUT_PLL_CLKOK2 | CLK_W.OUT_CLKDIV_CDIV1[0] | CLK_W.OUT_CLKDIV_CDIV2[0] | CLK_W.OUT_CLKDIV_CDIV4[0] | CLK_W.OUT_CLKDIV_CDIV8[0] | CLK_E.OUT_CLKDIV_CDIV1[0] | CLK_E.OUT_CLKDIV_CDIV2[0] | CLK_E.OUT_CLKDIV_CDIV4[0] | CLK_E.OUT_CLKDIV_CDIV8[0];
-				mux ROOT_NW.PCLK[4] = PCLK_IN_N[0].IMUX_C[3] | IO_W[0].OUT_IO_PADDI[0] | IO_E[0].OUT_IO_PADDI[0] | IO_S[1].OUT_IO_PADDI[0] | IO_N[1].OUT_IO_PADDI[0] | PLL_SW.OUT_PLL_CLKOP[0] | PLL_SW.OUT_PLL_CLKOS[0] | PLL_SW.OUT_PLL_CLKOK | PLL_SW.OUT_PLL_CLKOK2 | PLL_SE.OUT_PLL_CLKOP[0] | PLL_SE.OUT_PLL_CLKOS[0] | PLL_SE.OUT_PLL_CLKOK | PLL_SE.OUT_PLL_CLKOK2 | PLL_NW.OUT_PLL_CLKOP[0] | PLL_NW.OUT_PLL_CLKOS[0] | PLL_NW.OUT_PLL_CLKOK | PLL_NW.OUT_PLL_CLKOK2 | PLL_NE.OUT_PLL_CLKOP[0] | PLL_NE.OUT_PLL_CLKOS[0] | PLL_NE.OUT_PLL_CLKOK | PLL_NE.OUT_PLL_CLKOK2 | CLK_W.OUT_CLKDIV_CDIV1[0] | CLK_W.OUT_CLKDIV_CDIV2[0] | CLK_W.OUT_CLKDIV_CDIV4[0] | CLK_W.OUT_CLKDIV_CDIV8[0] | CLK_E.OUT_CLKDIV_CDIV1[0] | CLK_E.OUT_CLKDIV_CDIV2[0] | CLK_E.OUT_CLKDIV_CDIV4[0] | CLK_E.OUT_CLKDIV_CDIV8[0];
-				mux ROOT_NW.PCLK[5] = PCLK_IN_S[0].IMUX_C[3] | IO_W[1].OUT_IO_PADDI[0] | IO_E[1].OUT_IO_PADDI[0] | IO_S[0].OUT_IO_PADDI[0] | IO_N[0].OUT_IO_PADDI[0] | PLL_SW.OUT_PLL_CLKOP[0] | PLL_SW.OUT_PLL_CLKOS[0] | PLL_SW.OUT_PLL_CLKOK | PLL_SW.OUT_PLL_CLKOK2 | PLL_SE.OUT_PLL_CLKOP[0] | PLL_SE.OUT_PLL_CLKOS[0] | PLL_SE.OUT_PLL_CLKOK | PLL_SE.OUT_PLL_CLKOK2 | PLL_NW.OUT_PLL_CLKOP[0] | PLL_NW.OUT_PLL_CLKOS[0] | PLL_NW.OUT_PLL_CLKOK | PLL_NW.OUT_PLL_CLKOK2 | PLL_NE.OUT_PLL_CLKOP[0] | PLL_NE.OUT_PLL_CLKOS[0] | PLL_NE.OUT_PLL_CLKOK | PLL_NE.OUT_PLL_CLKOK2 | CLK_W.OUT_CLKDIV_CDIV1[0] | CLK_W.OUT_CLKDIV_CDIV2[0] | CLK_W.OUT_CLKDIV_CDIV4[0] | CLK_W.OUT_CLKDIV_CDIV8[0] | CLK_E.OUT_CLKDIV_CDIV1[0] | CLK_E.OUT_CLKDIV_CDIV2[0] | CLK_E.OUT_CLKDIV_CDIV4[0] | CLK_E.OUT_CLKDIV_CDIV8[0];
+				mux ROOT_NW.PCLK_ROOT[0] = PCLK_IN_W[1].IMUX_C[3] | IO_W[0].OUT_IO_PADDI[0] | IO_E[0].OUT_IO_PADDI[0] | IO_S[0].OUT_IO_PADDI[0] | IO_N[0].OUT_IO_PADDI[0] | PLL_SW.OUT_PLL_CLKOP[0] | PLL_SW.OUT_PLL_CLKOS[0] | PLL_SW.OUT_PLL_CLKOK | PLL_SW.OUT_PLL_CLKOK2 | PLL_SE.OUT_PLL_CLKOP[0] | PLL_SE.OUT_PLL_CLKOS[0] | PLL_SE.OUT_PLL_CLKOK | PLL_SE.OUT_PLL_CLKOK2 | PLL_NW.OUT_PLL_CLKOP[0] | PLL_NW.OUT_PLL_CLKOS[0] | PLL_NW.OUT_PLL_CLKOK | PLL_NW.OUT_PLL_CLKOK2 | PLL_NE.OUT_PLL_CLKOP[0] | PLL_NE.OUT_PLL_CLKOS[0] | PLL_NE.OUT_PLL_CLKOK | PLL_NE.OUT_PLL_CLKOK2 | CLK_W.OUT_CLKDIV_CDIV1[0] | CLK_W.OUT_CLKDIV_CDIV2[0] | CLK_W.OUT_CLKDIV_CDIV4[0] | CLK_W.OUT_CLKDIV_CDIV8[0] | CLK_E.OUT_CLKDIV_CDIV1[0] | CLK_E.OUT_CLKDIV_CDIV2[0] | CLK_E.OUT_CLKDIV_CDIV4[0] | CLK_E.OUT_CLKDIV_CDIV8[0];
+				mux ROOT_NW.PCLK_ROOT[1] = PCLK_IN_W[0].IMUX_C[3] | IO_W[1].OUT_IO_PADDI[0] | IO_E[1].OUT_IO_PADDI[0] | IO_S[0].OUT_IO_PADDI[0] | IO_N[0].OUT_IO_PADDI[0] | PLL_SW.OUT_PLL_CLKOP[0] | PLL_SW.OUT_PLL_CLKOS[0] | PLL_SW.OUT_PLL_CLKOK | PLL_SW.OUT_PLL_CLKOK2 | PLL_SE.OUT_PLL_CLKOP[0] | PLL_SE.OUT_PLL_CLKOS[0] | PLL_SE.OUT_PLL_CLKOK | PLL_SE.OUT_PLL_CLKOK2 | PLL_NW.OUT_PLL_CLKOP[0] | PLL_NW.OUT_PLL_CLKOS[0] | PLL_NW.OUT_PLL_CLKOK | PLL_NW.OUT_PLL_CLKOK2 | PLL_NE.OUT_PLL_CLKOP[0] | PLL_NE.OUT_PLL_CLKOS[0] | PLL_NE.OUT_PLL_CLKOK | PLL_NE.OUT_PLL_CLKOK2 | CLK_W.OUT_CLKDIV_CDIV1[0] | CLK_W.OUT_CLKDIV_CDIV2[0] | CLK_W.OUT_CLKDIV_CDIV4[0] | CLK_W.OUT_CLKDIV_CDIV8[0] | CLK_E.OUT_CLKDIV_CDIV1[0] | CLK_E.OUT_CLKDIV_CDIV2[0] | CLK_E.OUT_CLKDIV_CDIV4[0] | CLK_E.OUT_CLKDIV_CDIV8[0];
+				mux ROOT_NW.PCLK_ROOT[2] = PCLK_IN_E[2].IMUX_C[3] | IO_W[0].OUT_IO_PADDI[0] | IO_E[0].OUT_IO_PADDI[0] | IO_S[1].OUT_IO_PADDI[0] | IO_N[1].OUT_IO_PADDI[0] | PLL_SW.OUT_PLL_CLKOP[0] | PLL_SW.OUT_PLL_CLKOS[0] | PLL_SW.OUT_PLL_CLKOK | PLL_SW.OUT_PLL_CLKOK2 | PLL_SE.OUT_PLL_CLKOP[0] | PLL_SE.OUT_PLL_CLKOS[0] | PLL_SE.OUT_PLL_CLKOK | PLL_SE.OUT_PLL_CLKOK2 | PLL_NW.OUT_PLL_CLKOP[0] | PLL_NW.OUT_PLL_CLKOS[0] | PLL_NW.OUT_PLL_CLKOK | PLL_NW.OUT_PLL_CLKOK2 | PLL_NE.OUT_PLL_CLKOP[0] | PLL_NE.OUT_PLL_CLKOS[0] | PLL_NE.OUT_PLL_CLKOK | PLL_NE.OUT_PLL_CLKOK2 | CLK_W.OUT_CLKDIV_CDIV1[0] | CLK_W.OUT_CLKDIV_CDIV2[0] | CLK_W.OUT_CLKDIV_CDIV4[0] | CLK_W.OUT_CLKDIV_CDIV8[0] | CLK_E.OUT_CLKDIV_CDIV1[0] | CLK_E.OUT_CLKDIV_CDIV2[0] | CLK_E.OUT_CLKDIV_CDIV4[0] | CLK_E.OUT_CLKDIV_CDIV8[0];
+				mux ROOT_NW.PCLK_ROOT[3] = PCLK_IN_E[1].IMUX_C[3] | IO_W[1].OUT_IO_PADDI[0] | IO_E[1].OUT_IO_PADDI[0] | IO_S[1].OUT_IO_PADDI[0] | IO_N[1].OUT_IO_PADDI[0] | PLL_SW.OUT_PLL_CLKOP[0] | PLL_SW.OUT_PLL_CLKOS[0] | PLL_SW.OUT_PLL_CLKOK | PLL_SW.OUT_PLL_CLKOK2 | PLL_SE.OUT_PLL_CLKOP[0] | PLL_SE.OUT_PLL_CLKOS[0] | PLL_SE.OUT_PLL_CLKOK | PLL_SE.OUT_PLL_CLKOK2 | PLL_NW.OUT_PLL_CLKOP[0] | PLL_NW.OUT_PLL_CLKOS[0] | PLL_NW.OUT_PLL_CLKOK | PLL_NW.OUT_PLL_CLKOK2 | PLL_NE.OUT_PLL_CLKOP[0] | PLL_NE.OUT_PLL_CLKOS[0] | PLL_NE.OUT_PLL_CLKOK | PLL_NE.OUT_PLL_CLKOK2 | CLK_W.OUT_CLKDIV_CDIV1[0] | CLK_W.OUT_CLKDIV_CDIV2[0] | CLK_W.OUT_CLKDIV_CDIV4[0] | CLK_W.OUT_CLKDIV_CDIV8[0] | CLK_E.OUT_CLKDIV_CDIV1[0] | CLK_E.OUT_CLKDIV_CDIV2[0] | CLK_E.OUT_CLKDIV_CDIV4[0] | CLK_E.OUT_CLKDIV_CDIV8[0];
+				mux ROOT_NW.PCLK_ROOT[4] = PCLK_IN_N[0].IMUX_C[3] | IO_W[0].OUT_IO_PADDI[0] | IO_E[0].OUT_IO_PADDI[0] | IO_S[1].OUT_IO_PADDI[0] | IO_N[1].OUT_IO_PADDI[0] | PLL_SW.OUT_PLL_CLKOP[0] | PLL_SW.OUT_PLL_CLKOS[0] | PLL_SW.OUT_PLL_CLKOK | PLL_SW.OUT_PLL_CLKOK2 | PLL_SE.OUT_PLL_CLKOP[0] | PLL_SE.OUT_PLL_CLKOS[0] | PLL_SE.OUT_PLL_CLKOK | PLL_SE.OUT_PLL_CLKOK2 | PLL_NW.OUT_PLL_CLKOP[0] | PLL_NW.OUT_PLL_CLKOS[0] | PLL_NW.OUT_PLL_CLKOK | PLL_NW.OUT_PLL_CLKOK2 | PLL_NE.OUT_PLL_CLKOP[0] | PLL_NE.OUT_PLL_CLKOS[0] | PLL_NE.OUT_PLL_CLKOK | PLL_NE.OUT_PLL_CLKOK2 | CLK_W.OUT_CLKDIV_CDIV1[0] | CLK_W.OUT_CLKDIV_CDIV2[0] | CLK_W.OUT_CLKDIV_CDIV4[0] | CLK_W.OUT_CLKDIV_CDIV8[0] | CLK_E.OUT_CLKDIV_CDIV1[0] | CLK_E.OUT_CLKDIV_CDIV2[0] | CLK_E.OUT_CLKDIV_CDIV4[0] | CLK_E.OUT_CLKDIV_CDIV8[0];
+				mux ROOT_NW.PCLK_ROOT[5] = PCLK_IN_S[0].IMUX_C[3] | IO_W[1].OUT_IO_PADDI[0] | IO_E[1].OUT_IO_PADDI[0] | IO_S[0].OUT_IO_PADDI[0] | IO_N[0].OUT_IO_PADDI[0] | PLL_SW.OUT_PLL_CLKOP[0] | PLL_SW.OUT_PLL_CLKOS[0] | PLL_SW.OUT_PLL_CLKOK | PLL_SW.OUT_PLL_CLKOK2 | PLL_SE.OUT_PLL_CLKOP[0] | PLL_SE.OUT_PLL_CLKOS[0] | PLL_SE.OUT_PLL_CLKOK | PLL_SE.OUT_PLL_CLKOK2 | PLL_NW.OUT_PLL_CLKOP[0] | PLL_NW.OUT_PLL_CLKOS[0] | PLL_NW.OUT_PLL_CLKOK | PLL_NW.OUT_PLL_CLKOK2 | PLL_NE.OUT_PLL_CLKOP[0] | PLL_NE.OUT_PLL_CLKOS[0] | PLL_NE.OUT_PLL_CLKOK | PLL_NE.OUT_PLL_CLKOK2 | CLK_W.OUT_CLKDIV_CDIV1[0] | CLK_W.OUT_CLKDIV_CDIV2[0] | CLK_W.OUT_CLKDIV_CDIV4[0] | CLK_W.OUT_CLKDIV_CDIV8[0] | CLK_E.OUT_CLKDIV_CDIV1[0] | CLK_E.OUT_CLKDIV_CDIV2[0] | CLK_E.OUT_CLKDIV_CDIV4[0] | CLK_E.OUT_CLKDIV_CDIV8[0];
 				mux ROOT_NW.SCLK_ROOT[0] = SCLK_IN_E[0].IMUX_C[3] | SCLK_IN_S[2].IMUX_C[3] | SCLK_IN_N[0].IMUX_C[3] | IO_W[0].OUT_IO_PADDI[0];
 				mux ROOT_NW.SCLK_ROOT[1] = SCLK_IN_E[1].IMUX_C[3] | SCLK_IN_S[3].IMUX_C[3] | SCLK_IN_N[1].IMUX_C[3] | IO_W[1].OUT_IO_PADDI[0];
 				mux ROOT_NW.SCLK_ROOT[2] = SCLK_IN_W[0].IMUX_C[3] | SCLK_IN_S[0].IMUX_C[3] | SCLK_IN_N[2].IMUX_C[3] | IO_E[0].OUT_IO_PADDI[0];
@@ -10588,12 +10614,12 @@ intdb {
 				mux ROOT_NW.IMUX_DCS_CLKA[1] = PCLK_IN_E[0].IMUX_C[3] | PCLK_IN_E[2].IMUX_C[3] | IO_W[0].OUT_IO_PADDI[0] | IO_E[0].OUT_IO_PADDI[0] | IO_S[1].OUT_IO_PADDI[0] | IO_N[1].OUT_IO_PADDI[0] | PLL_SW.OUT_PLL_CLKOS[0] | PLL_SW.OUT_PLL_CLKOK | PLL_SW.OUT_PLL_CLKOK2 | PLL_SE.OUT_PLL_CLKOP[0] | PLL_SE.OUT_PLL_CLKOS[0] | PLL_SE.OUT_PLL_CLKOK | PLL_SE.OUT_PLL_CLKOK2 | PLL_NW.OUT_PLL_CLKOS[0] | PLL_NW.OUT_PLL_CLKOK | PLL_NW.OUT_PLL_CLKOK2 | PLL_NE.OUT_PLL_CLKOP[0] | PLL_NE.OUT_PLL_CLKOS[0] | PLL_NE.OUT_PLL_CLKOK | PLL_NE.OUT_PLL_CLKOK2 | CLK_W.OUT_CLKDIV_CDIV1[0] | CLK_W.OUT_CLKDIV_CDIV2[0] | CLK_W.OUT_CLKDIV_CDIV4[0] | CLK_W.OUT_CLKDIV_CDIV8[0] | CLK_E.OUT_CLKDIV_CDIV1[0] | CLK_E.OUT_CLKDIV_CDIV2[0] | CLK_E.OUT_CLKDIV_CDIV4[0] | CLK_E.OUT_CLKDIV_CDIV8[0];
 				mux ROOT_NW.IMUX_DCS_CLKB[0] = PCLK_IN_W[0].IMUX_C[3] | PCLK_IN_S[1].IMUX_C[3] | IO_W[1].OUT_IO_PADDI[0] | IO_E[1].OUT_IO_PADDI[0] | IO_S[0].OUT_IO_PADDI[0] | IO_N[0].OUT_IO_PADDI[0] | PLL_SW.OUT_PLL_CLKOP[0] | PLL_SW.OUT_PLL_CLKOS[0] | PLL_SW.OUT_PLL_CLKOK | PLL_SW.OUT_PLL_CLKOK2 | PLL_SE.OUT_PLL_CLKOS[0] | PLL_SE.OUT_PLL_CLKOK | PLL_SE.OUT_PLL_CLKOK2 | PLL_NW.OUT_PLL_CLKOP[0] | PLL_NW.OUT_PLL_CLKOS[0] | PLL_NW.OUT_PLL_CLKOK | PLL_NW.OUT_PLL_CLKOK2 | PLL_NE.OUT_PLL_CLKOS[0] | PLL_NE.OUT_PLL_CLKOK | PLL_NE.OUT_PLL_CLKOK2 | CLK_W.OUT_CLKDIV_CDIV1[0] | CLK_W.OUT_CLKDIV_CDIV2[0] | CLK_W.OUT_CLKDIV_CDIV4[0] | CLK_W.OUT_CLKDIV_CDIV8[0] | CLK_E.OUT_CLKDIV_CDIV1[0] | CLK_E.OUT_CLKDIV_CDIV2[0] | CLK_E.OUT_CLKDIV_CDIV4[0] | CLK_E.OUT_CLKDIV_CDIV8[0];
 				mux ROOT_NW.IMUX_DCS_CLKB[1] = PCLK_IN_E[1].IMUX_C[3] | PCLK_IN_E[3].IMUX_C[3] | IO_W[1].OUT_IO_PADDI[0] | IO_E[1].OUT_IO_PADDI[0] | IO_S[0].OUT_IO_PADDI[0] | IO_N[0].OUT_IO_PADDI[0] | PLL_SW.OUT_PLL_CLKOP[0] | PLL_SW.OUT_PLL_CLKOS[0] | PLL_SW.OUT_PLL_CLKOK | PLL_SW.OUT_PLL_CLKOK2 | PLL_SE.OUT_PLL_CLKOS[0] | PLL_SE.OUT_PLL_CLKOK | PLL_SE.OUT_PLL_CLKOK2 | PLL_NW.OUT_PLL_CLKOP[0] | PLL_NW.OUT_PLL_CLKOS[0] | PLL_NW.OUT_PLL_CLKOK | PLL_NW.OUT_PLL_CLKOK2 | PLL_NE.OUT_PLL_CLKOS[0] | PLL_NE.OUT_PLL_CLKOK | PLL_NE.OUT_PLL_CLKOK2 | CLK_W.OUT_CLKDIV_CDIV1[0] | CLK_W.OUT_CLKDIV_CDIV2[0] | CLK_W.OUT_CLKDIV_CDIV4[0] | CLK_W.OUT_CLKDIV_CDIV8[0] | CLK_E.OUT_CLKDIV_CDIV1[0] | CLK_E.OUT_CLKDIV_CDIV2[0] | CLK_E.OUT_CLKDIV_CDIV4[0] | CLK_E.OUT_CLKDIV_CDIV8[0];
-				mux ROOT_NE.PCLK[0] = PCLK_IN_W[1].IMUX_C[3] | IO_W[0].OUT_IO_PADDI[0] | IO_E[0].OUT_IO_PADDI[0] | IO_S[0].OUT_IO_PADDI[0] | IO_N[0].OUT_IO_PADDI[0] | PLL_SW.OUT_PLL_CLKOP[0] | PLL_SW.OUT_PLL_CLKOS[0] | PLL_SW.OUT_PLL_CLKOK | PLL_SW.OUT_PLL_CLKOK2 | PLL_SE.OUT_PLL_CLKOP[0] | PLL_SE.OUT_PLL_CLKOS[0] | PLL_SE.OUT_PLL_CLKOK | PLL_SE.OUT_PLL_CLKOK2 | PLL_NW.OUT_PLL_CLKOP[0] | PLL_NW.OUT_PLL_CLKOS[0] | PLL_NW.OUT_PLL_CLKOK | PLL_NW.OUT_PLL_CLKOK2 | PLL_NE.OUT_PLL_CLKOP[0] | PLL_NE.OUT_PLL_CLKOS[0] | PLL_NE.OUT_PLL_CLKOK | PLL_NE.OUT_PLL_CLKOK2 | CLK_W.OUT_CLKDIV_CDIV1[0] | CLK_W.OUT_CLKDIV_CDIV2[0] | CLK_W.OUT_CLKDIV_CDIV4[0] | CLK_W.OUT_CLKDIV_CDIV8[0] | CLK_E.OUT_CLKDIV_CDIV1[0] | CLK_E.OUT_CLKDIV_CDIV2[0] | CLK_E.OUT_CLKDIV_CDIV4[0] | CLK_E.OUT_CLKDIV_CDIV8[0];
-				mux ROOT_NE.PCLK[1] = PCLK_IN_W[0].IMUX_C[3] | IO_W[1].OUT_IO_PADDI[0] | IO_E[1].OUT_IO_PADDI[0] | IO_S[0].OUT_IO_PADDI[0] | IO_N[0].OUT_IO_PADDI[0] | PLL_SW.OUT_PLL_CLKOP[0] | PLL_SW.OUT_PLL_CLKOS[0] | PLL_SW.OUT_PLL_CLKOK | PLL_SW.OUT_PLL_CLKOK2 | PLL_SE.OUT_PLL_CLKOP[0] | PLL_SE.OUT_PLL_CLKOS[0] | PLL_SE.OUT_PLL_CLKOK | PLL_SE.OUT_PLL_CLKOK2 | PLL_NW.OUT_PLL_CLKOP[0] | PLL_NW.OUT_PLL_CLKOS[0] | PLL_NW.OUT_PLL_CLKOK | PLL_NW.OUT_PLL_CLKOK2 | PLL_NE.OUT_PLL_CLKOP[0] | PLL_NE.OUT_PLL_CLKOS[0] | PLL_NE.OUT_PLL_CLKOK | PLL_NE.OUT_PLL_CLKOK2 | CLK_W.OUT_CLKDIV_CDIV1[0] | CLK_W.OUT_CLKDIV_CDIV2[0] | CLK_W.OUT_CLKDIV_CDIV4[0] | CLK_W.OUT_CLKDIV_CDIV8[0] | CLK_E.OUT_CLKDIV_CDIV1[0] | CLK_E.OUT_CLKDIV_CDIV2[0] | CLK_E.OUT_CLKDIV_CDIV4[0] | CLK_E.OUT_CLKDIV_CDIV8[0];
-				mux ROOT_NE.PCLK[2] = PCLK_IN_E[2].IMUX_C[3] | IO_W[0].OUT_IO_PADDI[0] | IO_E[0].OUT_IO_PADDI[0] | IO_S[1].OUT_IO_PADDI[0] | IO_N[1].OUT_IO_PADDI[0] | PLL_SW.OUT_PLL_CLKOP[0] | PLL_SW.OUT_PLL_CLKOS[0] | PLL_SW.OUT_PLL_CLKOK | PLL_SW.OUT_PLL_CLKOK2 | PLL_SE.OUT_PLL_CLKOP[0] | PLL_SE.OUT_PLL_CLKOS[0] | PLL_SE.OUT_PLL_CLKOK | PLL_SE.OUT_PLL_CLKOK2 | PLL_NW.OUT_PLL_CLKOP[0] | PLL_NW.OUT_PLL_CLKOS[0] | PLL_NW.OUT_PLL_CLKOK | PLL_NW.OUT_PLL_CLKOK2 | PLL_NE.OUT_PLL_CLKOP[0] | PLL_NE.OUT_PLL_CLKOS[0] | PLL_NE.OUT_PLL_CLKOK | PLL_NE.OUT_PLL_CLKOK2 | CLK_W.OUT_CLKDIV_CDIV1[0] | CLK_W.OUT_CLKDIV_CDIV2[0] | CLK_W.OUT_CLKDIV_CDIV4[0] | CLK_W.OUT_CLKDIV_CDIV8[0] | CLK_E.OUT_CLKDIV_CDIV1[0] | CLK_E.OUT_CLKDIV_CDIV2[0] | CLK_E.OUT_CLKDIV_CDIV4[0] | CLK_E.OUT_CLKDIV_CDIV8[0];
-				mux ROOT_NE.PCLK[3] = PCLK_IN_E[1].IMUX_C[3] | IO_W[1].OUT_IO_PADDI[0] | IO_E[1].OUT_IO_PADDI[0] | IO_S[1].OUT_IO_PADDI[0] | IO_N[1].OUT_IO_PADDI[0] | PLL_SW.OUT_PLL_CLKOP[0] | PLL_SW.OUT_PLL_CLKOS[0] | PLL_SW.OUT_PLL_CLKOK | PLL_SW.OUT_PLL_CLKOK2 | PLL_SE.OUT_PLL_CLKOP[0] | PLL_SE.OUT_PLL_CLKOS[0] | PLL_SE.OUT_PLL_CLKOK | PLL_SE.OUT_PLL_CLKOK2 | PLL_NW.OUT_PLL_CLKOP[0] | PLL_NW.OUT_PLL_CLKOS[0] | PLL_NW.OUT_PLL_CLKOK | PLL_NW.OUT_PLL_CLKOK2 | PLL_NE.OUT_PLL_CLKOP[0] | PLL_NE.OUT_PLL_CLKOS[0] | PLL_NE.OUT_PLL_CLKOK | PLL_NE.OUT_PLL_CLKOK2 | CLK_W.OUT_CLKDIV_CDIV1[0] | CLK_W.OUT_CLKDIV_CDIV2[0] | CLK_W.OUT_CLKDIV_CDIV4[0] | CLK_W.OUT_CLKDIV_CDIV8[0] | CLK_E.OUT_CLKDIV_CDIV1[0] | CLK_E.OUT_CLKDIV_CDIV2[0] | CLK_E.OUT_CLKDIV_CDIV4[0] | CLK_E.OUT_CLKDIV_CDIV8[0];
-				mux ROOT_NE.PCLK[4] = PCLK_IN_N[0].IMUX_C[3] | IO_W[0].OUT_IO_PADDI[0] | IO_E[0].OUT_IO_PADDI[0] | IO_S[1].OUT_IO_PADDI[0] | IO_N[1].OUT_IO_PADDI[0] | PLL_SW.OUT_PLL_CLKOP[0] | PLL_SW.OUT_PLL_CLKOS[0] | PLL_SW.OUT_PLL_CLKOK | PLL_SW.OUT_PLL_CLKOK2 | PLL_SE.OUT_PLL_CLKOP[0] | PLL_SE.OUT_PLL_CLKOS[0] | PLL_SE.OUT_PLL_CLKOK | PLL_SE.OUT_PLL_CLKOK2 | PLL_NW.OUT_PLL_CLKOP[0] | PLL_NW.OUT_PLL_CLKOS[0] | PLL_NW.OUT_PLL_CLKOK | PLL_NW.OUT_PLL_CLKOK2 | PLL_NE.OUT_PLL_CLKOP[0] | PLL_NE.OUT_PLL_CLKOS[0] | PLL_NE.OUT_PLL_CLKOK | PLL_NE.OUT_PLL_CLKOK2 | CLK_W.OUT_CLKDIV_CDIV1[0] | CLK_W.OUT_CLKDIV_CDIV2[0] | CLK_W.OUT_CLKDIV_CDIV4[0] | CLK_W.OUT_CLKDIV_CDIV8[0] | CLK_E.OUT_CLKDIV_CDIV1[0] | CLK_E.OUT_CLKDIV_CDIV2[0] | CLK_E.OUT_CLKDIV_CDIV4[0] | CLK_E.OUT_CLKDIV_CDIV8[0];
-				mux ROOT_NE.PCLK[5] = PCLK_IN_S[0].IMUX_C[3] | IO_W[1].OUT_IO_PADDI[0] | IO_E[1].OUT_IO_PADDI[0] | IO_S[0].OUT_IO_PADDI[0] | IO_N[0].OUT_IO_PADDI[0] | PLL_SW.OUT_PLL_CLKOP[0] | PLL_SW.OUT_PLL_CLKOS[0] | PLL_SW.OUT_PLL_CLKOK | PLL_SW.OUT_PLL_CLKOK2 | PLL_SE.OUT_PLL_CLKOP[0] | PLL_SE.OUT_PLL_CLKOS[0] | PLL_SE.OUT_PLL_CLKOK | PLL_SE.OUT_PLL_CLKOK2 | PLL_NW.OUT_PLL_CLKOP[0] | PLL_NW.OUT_PLL_CLKOS[0] | PLL_NW.OUT_PLL_CLKOK | PLL_NW.OUT_PLL_CLKOK2 | PLL_NE.OUT_PLL_CLKOP[0] | PLL_NE.OUT_PLL_CLKOS[0] | PLL_NE.OUT_PLL_CLKOK | PLL_NE.OUT_PLL_CLKOK2 | CLK_W.OUT_CLKDIV_CDIV1[0] | CLK_W.OUT_CLKDIV_CDIV2[0] | CLK_W.OUT_CLKDIV_CDIV4[0] | CLK_W.OUT_CLKDIV_CDIV8[0] | CLK_E.OUT_CLKDIV_CDIV1[0] | CLK_E.OUT_CLKDIV_CDIV2[0] | CLK_E.OUT_CLKDIV_CDIV4[0] | CLK_E.OUT_CLKDIV_CDIV8[0];
+				mux ROOT_NE.PCLK_ROOT[0] = PCLK_IN_W[1].IMUX_C[3] | IO_W[0].OUT_IO_PADDI[0] | IO_E[0].OUT_IO_PADDI[0] | IO_S[0].OUT_IO_PADDI[0] | IO_N[0].OUT_IO_PADDI[0] | PLL_SW.OUT_PLL_CLKOP[0] | PLL_SW.OUT_PLL_CLKOS[0] | PLL_SW.OUT_PLL_CLKOK | PLL_SW.OUT_PLL_CLKOK2 | PLL_SE.OUT_PLL_CLKOP[0] | PLL_SE.OUT_PLL_CLKOS[0] | PLL_SE.OUT_PLL_CLKOK | PLL_SE.OUT_PLL_CLKOK2 | PLL_NW.OUT_PLL_CLKOP[0] | PLL_NW.OUT_PLL_CLKOS[0] | PLL_NW.OUT_PLL_CLKOK | PLL_NW.OUT_PLL_CLKOK2 | PLL_NE.OUT_PLL_CLKOP[0] | PLL_NE.OUT_PLL_CLKOS[0] | PLL_NE.OUT_PLL_CLKOK | PLL_NE.OUT_PLL_CLKOK2 | CLK_W.OUT_CLKDIV_CDIV1[0] | CLK_W.OUT_CLKDIV_CDIV2[0] | CLK_W.OUT_CLKDIV_CDIV4[0] | CLK_W.OUT_CLKDIV_CDIV8[0] | CLK_E.OUT_CLKDIV_CDIV1[0] | CLK_E.OUT_CLKDIV_CDIV2[0] | CLK_E.OUT_CLKDIV_CDIV4[0] | CLK_E.OUT_CLKDIV_CDIV8[0];
+				mux ROOT_NE.PCLK_ROOT[1] = PCLK_IN_W[0].IMUX_C[3] | IO_W[1].OUT_IO_PADDI[0] | IO_E[1].OUT_IO_PADDI[0] | IO_S[0].OUT_IO_PADDI[0] | IO_N[0].OUT_IO_PADDI[0] | PLL_SW.OUT_PLL_CLKOP[0] | PLL_SW.OUT_PLL_CLKOS[0] | PLL_SW.OUT_PLL_CLKOK | PLL_SW.OUT_PLL_CLKOK2 | PLL_SE.OUT_PLL_CLKOP[0] | PLL_SE.OUT_PLL_CLKOS[0] | PLL_SE.OUT_PLL_CLKOK | PLL_SE.OUT_PLL_CLKOK2 | PLL_NW.OUT_PLL_CLKOP[0] | PLL_NW.OUT_PLL_CLKOS[0] | PLL_NW.OUT_PLL_CLKOK | PLL_NW.OUT_PLL_CLKOK2 | PLL_NE.OUT_PLL_CLKOP[0] | PLL_NE.OUT_PLL_CLKOS[0] | PLL_NE.OUT_PLL_CLKOK | PLL_NE.OUT_PLL_CLKOK2 | CLK_W.OUT_CLKDIV_CDIV1[0] | CLK_W.OUT_CLKDIV_CDIV2[0] | CLK_W.OUT_CLKDIV_CDIV4[0] | CLK_W.OUT_CLKDIV_CDIV8[0] | CLK_E.OUT_CLKDIV_CDIV1[0] | CLK_E.OUT_CLKDIV_CDIV2[0] | CLK_E.OUT_CLKDIV_CDIV4[0] | CLK_E.OUT_CLKDIV_CDIV8[0];
+				mux ROOT_NE.PCLK_ROOT[2] = PCLK_IN_E[2].IMUX_C[3] | IO_W[0].OUT_IO_PADDI[0] | IO_E[0].OUT_IO_PADDI[0] | IO_S[1].OUT_IO_PADDI[0] | IO_N[1].OUT_IO_PADDI[0] | PLL_SW.OUT_PLL_CLKOP[0] | PLL_SW.OUT_PLL_CLKOS[0] | PLL_SW.OUT_PLL_CLKOK | PLL_SW.OUT_PLL_CLKOK2 | PLL_SE.OUT_PLL_CLKOP[0] | PLL_SE.OUT_PLL_CLKOS[0] | PLL_SE.OUT_PLL_CLKOK | PLL_SE.OUT_PLL_CLKOK2 | PLL_NW.OUT_PLL_CLKOP[0] | PLL_NW.OUT_PLL_CLKOS[0] | PLL_NW.OUT_PLL_CLKOK | PLL_NW.OUT_PLL_CLKOK2 | PLL_NE.OUT_PLL_CLKOP[0] | PLL_NE.OUT_PLL_CLKOS[0] | PLL_NE.OUT_PLL_CLKOK | PLL_NE.OUT_PLL_CLKOK2 | CLK_W.OUT_CLKDIV_CDIV1[0] | CLK_W.OUT_CLKDIV_CDIV2[0] | CLK_W.OUT_CLKDIV_CDIV4[0] | CLK_W.OUT_CLKDIV_CDIV8[0] | CLK_E.OUT_CLKDIV_CDIV1[0] | CLK_E.OUT_CLKDIV_CDIV2[0] | CLK_E.OUT_CLKDIV_CDIV4[0] | CLK_E.OUT_CLKDIV_CDIV8[0];
+				mux ROOT_NE.PCLK_ROOT[3] = PCLK_IN_E[1].IMUX_C[3] | IO_W[1].OUT_IO_PADDI[0] | IO_E[1].OUT_IO_PADDI[0] | IO_S[1].OUT_IO_PADDI[0] | IO_N[1].OUT_IO_PADDI[0] | PLL_SW.OUT_PLL_CLKOP[0] | PLL_SW.OUT_PLL_CLKOS[0] | PLL_SW.OUT_PLL_CLKOK | PLL_SW.OUT_PLL_CLKOK2 | PLL_SE.OUT_PLL_CLKOP[0] | PLL_SE.OUT_PLL_CLKOS[0] | PLL_SE.OUT_PLL_CLKOK | PLL_SE.OUT_PLL_CLKOK2 | PLL_NW.OUT_PLL_CLKOP[0] | PLL_NW.OUT_PLL_CLKOS[0] | PLL_NW.OUT_PLL_CLKOK | PLL_NW.OUT_PLL_CLKOK2 | PLL_NE.OUT_PLL_CLKOP[0] | PLL_NE.OUT_PLL_CLKOS[0] | PLL_NE.OUT_PLL_CLKOK | PLL_NE.OUT_PLL_CLKOK2 | CLK_W.OUT_CLKDIV_CDIV1[0] | CLK_W.OUT_CLKDIV_CDIV2[0] | CLK_W.OUT_CLKDIV_CDIV4[0] | CLK_W.OUT_CLKDIV_CDIV8[0] | CLK_E.OUT_CLKDIV_CDIV1[0] | CLK_E.OUT_CLKDIV_CDIV2[0] | CLK_E.OUT_CLKDIV_CDIV4[0] | CLK_E.OUT_CLKDIV_CDIV8[0];
+				mux ROOT_NE.PCLK_ROOT[4] = PCLK_IN_N[0].IMUX_C[3] | IO_W[0].OUT_IO_PADDI[0] | IO_E[0].OUT_IO_PADDI[0] | IO_S[1].OUT_IO_PADDI[0] | IO_N[1].OUT_IO_PADDI[0] | PLL_SW.OUT_PLL_CLKOP[0] | PLL_SW.OUT_PLL_CLKOS[0] | PLL_SW.OUT_PLL_CLKOK | PLL_SW.OUT_PLL_CLKOK2 | PLL_SE.OUT_PLL_CLKOP[0] | PLL_SE.OUT_PLL_CLKOS[0] | PLL_SE.OUT_PLL_CLKOK | PLL_SE.OUT_PLL_CLKOK2 | PLL_NW.OUT_PLL_CLKOP[0] | PLL_NW.OUT_PLL_CLKOS[0] | PLL_NW.OUT_PLL_CLKOK | PLL_NW.OUT_PLL_CLKOK2 | PLL_NE.OUT_PLL_CLKOP[0] | PLL_NE.OUT_PLL_CLKOS[0] | PLL_NE.OUT_PLL_CLKOK | PLL_NE.OUT_PLL_CLKOK2 | CLK_W.OUT_CLKDIV_CDIV1[0] | CLK_W.OUT_CLKDIV_CDIV2[0] | CLK_W.OUT_CLKDIV_CDIV4[0] | CLK_W.OUT_CLKDIV_CDIV8[0] | CLK_E.OUT_CLKDIV_CDIV1[0] | CLK_E.OUT_CLKDIV_CDIV2[0] | CLK_E.OUT_CLKDIV_CDIV4[0] | CLK_E.OUT_CLKDIV_CDIV8[0];
+				mux ROOT_NE.PCLK_ROOT[5] = PCLK_IN_S[0].IMUX_C[3] | IO_W[1].OUT_IO_PADDI[0] | IO_E[1].OUT_IO_PADDI[0] | IO_S[0].OUT_IO_PADDI[0] | IO_N[0].OUT_IO_PADDI[0] | PLL_SW.OUT_PLL_CLKOP[0] | PLL_SW.OUT_PLL_CLKOS[0] | PLL_SW.OUT_PLL_CLKOK | PLL_SW.OUT_PLL_CLKOK2 | PLL_SE.OUT_PLL_CLKOP[0] | PLL_SE.OUT_PLL_CLKOS[0] | PLL_SE.OUT_PLL_CLKOK | PLL_SE.OUT_PLL_CLKOK2 | PLL_NW.OUT_PLL_CLKOP[0] | PLL_NW.OUT_PLL_CLKOS[0] | PLL_NW.OUT_PLL_CLKOK | PLL_NW.OUT_PLL_CLKOK2 | PLL_NE.OUT_PLL_CLKOP[0] | PLL_NE.OUT_PLL_CLKOS[0] | PLL_NE.OUT_PLL_CLKOK | PLL_NE.OUT_PLL_CLKOK2 | CLK_W.OUT_CLKDIV_CDIV1[0] | CLK_W.OUT_CLKDIV_CDIV2[0] | CLK_W.OUT_CLKDIV_CDIV4[0] | CLK_W.OUT_CLKDIV_CDIV8[0] | CLK_E.OUT_CLKDIV_CDIV1[0] | CLK_E.OUT_CLKDIV_CDIV2[0] | CLK_E.OUT_CLKDIV_CDIV4[0] | CLK_E.OUT_CLKDIV_CDIV8[0];
 				mux ROOT_NE.SCLK_ROOT[0] = SCLK_IN_E[0].IMUX_C[3] | SCLK_IN_S[2].IMUX_C[3] | SCLK_IN_N[0].IMUX_C[3] | IO_W[0].OUT_IO_PADDI[0];
 				mux ROOT_NE.SCLK_ROOT[1] = SCLK_IN_E[1].IMUX_C[3] | SCLK_IN_S[3].IMUX_C[3] | SCLK_IN_N[1].IMUX_C[3] | IO_W[1].OUT_IO_PADDI[0];
 				mux ROOT_NE.SCLK_ROOT[2] = SCLK_IN_W[0].IMUX_C[3] | SCLK_IN_S[0].IMUX_C[3] | SCLK_IN_N[2].IMUX_C[3] | IO_E[0].OUT_IO_PADDI[0];
@@ -10612,84 +10638,84 @@ intdb {
 				input CLK[0] = ROOT_SW.IMUX_DCS_CLKA[0];
 				input CLK[1] = ROOT_SW.IMUX_DCS_CLKB[0];
 				input SEL[0] = ROOT_SW.SCLK_ROOT[3];
-				output DCSOUT = ROOT_SW.PCLK[6];
+				output DCSOUT = ROOT_SW.PCLK_ROOT[6];
 			}
 
 			bel DCS_SW[1] {
 				input CLK[0] = ROOT_SW.IMUX_DCS_CLKA[1];
 				input CLK[1] = ROOT_SW.IMUX_DCS_CLKB[1];
 				input SEL[0] = ROOT_SW.SCLK_ROOT[7];
-				output DCSOUT = ROOT_SW.PCLK[7];
+				output DCSOUT = ROOT_SW.PCLK_ROOT[7];
 			}
 
 			bel DCS_SE[0] {
 				input CLK[0] = ROOT_SE.IMUX_DCS_CLKA[0];
 				input CLK[1] = ROOT_SE.IMUX_DCS_CLKB[0];
 				input SEL[0] = ROOT_SE.SCLK_ROOT[3];
-				output DCSOUT = ROOT_SE.PCLK[6];
+				output DCSOUT = ROOT_SE.PCLK_ROOT[6];
 			}
 
 			bel DCS_SE[1] {
 				input CLK[0] = ROOT_SE.IMUX_DCS_CLKA[1];
 				input CLK[1] = ROOT_SE.IMUX_DCS_CLKB[1];
 				input SEL[0] = ROOT_SE.SCLK_ROOT[7];
-				output DCSOUT = ROOT_SE.PCLK[7];
+				output DCSOUT = ROOT_SE.PCLK_ROOT[7];
 			}
 
 			bel DCS_NW[0] {
 				input CLK[0] = ROOT_NW.IMUX_DCS_CLKA[0];
 				input CLK[1] = ROOT_NW.IMUX_DCS_CLKB[0];
 				input SEL[0] = ROOT_NW.SCLK_ROOT[3];
-				output DCSOUT = ROOT_NW.PCLK[6];
+				output DCSOUT = ROOT_NW.PCLK_ROOT[6];
 			}
 
 			bel DCS_NW[1] {
 				input CLK[0] = ROOT_NW.IMUX_DCS_CLKA[1];
 				input CLK[1] = ROOT_NW.IMUX_DCS_CLKB[1];
 				input SEL[0] = ROOT_NW.SCLK_ROOT[7];
-				output DCSOUT = ROOT_NW.PCLK[7];
+				output DCSOUT = ROOT_NW.PCLK_ROOT[7];
 			}
 
 			bel DCS_NE[0] {
 				input CLK[0] = ROOT_NE.IMUX_DCS_CLKA[0];
 				input CLK[1] = ROOT_NE.IMUX_DCS_CLKB[0];
 				input SEL[0] = ROOT_NE.SCLK_ROOT[3];
-				output DCSOUT = ROOT_NE.PCLK[6];
+				output DCSOUT = ROOT_NE.PCLK_ROOT[6];
 			}
 
 			bel DCS_NE[1] {
 				input CLK[0] = ROOT_NE.IMUX_DCS_CLKA[1];
 				input CLK[1] = ROOT_NE.IMUX_DCS_CLKB[1];
 				input SEL[0] = ROOT_NE.SCLK_ROOT[7];
-				output DCSOUT = ROOT_NE.PCLK[7];
+				output DCSOUT = ROOT_NE.PCLK_ROOT[7];
 			}
 
-			// wire ROOT_SW.PCLK[6]                DCS_SW[0].DCSOUT
-			// wire ROOT_SW.PCLK[7]                DCS_SW[1].DCSOUT
+			// wire ROOT_SW.PCLK_ROOT[6]           DCS_SW[0].DCSOUT
+			// wire ROOT_SW.PCLK_ROOT[7]           DCS_SW[1].DCSOUT
 			// wire ROOT_SW.SCLK_ROOT[3]           DCS_SW[0].SEL[0]
 			// wire ROOT_SW.SCLK_ROOT[7]           DCS_SW[1].SEL[0]
 			// wire ROOT_SW.IMUX_DCS_CLKA[0]       DCS_SW[0].CLK[0]
 			// wire ROOT_SW.IMUX_DCS_CLKA[1]       DCS_SW[1].CLK[0]
 			// wire ROOT_SW.IMUX_DCS_CLKB[0]       DCS_SW[0].CLK[1]
 			// wire ROOT_SW.IMUX_DCS_CLKB[1]       DCS_SW[1].CLK[1]
-			// wire ROOT_SE.PCLK[6]                DCS_SE[0].DCSOUT
-			// wire ROOT_SE.PCLK[7]                DCS_SE[1].DCSOUT
+			// wire ROOT_SE.PCLK_ROOT[6]           DCS_SE[0].DCSOUT
+			// wire ROOT_SE.PCLK_ROOT[7]           DCS_SE[1].DCSOUT
 			// wire ROOT_SE.SCLK_ROOT[3]           DCS_SE[0].SEL[0]
 			// wire ROOT_SE.SCLK_ROOT[7]           DCS_SE[1].SEL[0]
 			// wire ROOT_SE.IMUX_DCS_CLKA[0]       DCS_SE[0].CLK[0]
 			// wire ROOT_SE.IMUX_DCS_CLKA[1]       DCS_SE[1].CLK[0]
 			// wire ROOT_SE.IMUX_DCS_CLKB[0]       DCS_SE[0].CLK[1]
 			// wire ROOT_SE.IMUX_DCS_CLKB[1]       DCS_SE[1].CLK[1]
-			// wire ROOT_NW.PCLK[6]                DCS_NW[0].DCSOUT
-			// wire ROOT_NW.PCLK[7]                DCS_NW[1].DCSOUT
+			// wire ROOT_NW.PCLK_ROOT[6]           DCS_NW[0].DCSOUT
+			// wire ROOT_NW.PCLK_ROOT[7]           DCS_NW[1].DCSOUT
 			// wire ROOT_NW.SCLK_ROOT[3]           DCS_NW[0].SEL[0]
 			// wire ROOT_NW.SCLK_ROOT[7]           DCS_NW[1].SEL[0]
 			// wire ROOT_NW.IMUX_DCS_CLKA[0]       DCS_NW[0].CLK[0]
 			// wire ROOT_NW.IMUX_DCS_CLKA[1]       DCS_NW[1].CLK[0]
 			// wire ROOT_NW.IMUX_DCS_CLKB[0]       DCS_NW[0].CLK[1]
 			// wire ROOT_NW.IMUX_DCS_CLKB[1]       DCS_NW[1].CLK[1]
-			// wire ROOT_NE.PCLK[6]                DCS_NE[0].DCSOUT
-			// wire ROOT_NE.PCLK[7]                DCS_NE[1].DCSOUT
+			// wire ROOT_NE.PCLK_ROOT[6]           DCS_NE[0].DCSOUT
+			// wire ROOT_NE.PCLK_ROOT[7]           DCS_NE[1].DCSOUT
 			// wire ROOT_NE.SCLK_ROOT[3]           DCS_NE[0].SEL[0]
 			// wire ROOT_NE.SCLK_ROOT[7]           DCS_NE[1].SEL[0]
 			// wire ROOT_NE.IMUX_DCS_CLKA[0]       DCS_NE[0].CLK[0]
@@ -10765,42 +10791,34 @@ intdb {
 		}
 	}
 
-	tile_slot SCLK_SOURCE {
-		bel_slot SCLK_SOURCE: routing;
+	tile_slot PCLK_DRIVER {
+		bel_slot PCLK_DRIVER: routing;
 
-		tile_class SCLK0_SOURCE {
+		tile_class PCLK_DRIVER {
 			cell CELL;
 
-			switchbox SCLK_SOURCE {
-				permabuf RSCLK[0] = RSCLK_V[0];
-				permabuf RSCLK[4] = RSCLK_V[1];
+			switchbox PCLK_DRIVER {
+				progbuf PCLK[0] = PCLK_ROOT[0] @XXX57005[57005][57005];
+				progbuf PCLK[1] = PCLK_ROOT[1] @XXX57005[57005][57005];
+				progbuf PCLK[2] = PCLK_ROOT[2] @XXX57005[57005][57005];
+				progbuf PCLK[3] = PCLK_ROOT[3] @XXX57005[57005][57005];
+				progbuf PCLK[4] = PCLK_ROOT[4] @XXX57005[57005][57005];
+				progbuf PCLK[5] = PCLK_ROOT[5] @XXX57005[57005][57005];
+				progbuf PCLK[6] = PCLK_ROOT[6] @XXX57005[57005][57005];
+				progbuf PCLK[7] = PCLK_ROOT[7] @XXX57005[57005][57005];
 			}
 		}
+	}
 
-		tile_class SCLK1_SOURCE {
+	tile_slot SCLK_DRIVER {
+		bel_slot SCLK_DRIVER: routing;
+
+		tile_class RSCLK_DRIVER {
 			cell CELL;
 
-			switchbox SCLK_SOURCE {
-				permabuf RSCLK[1] = RSCLK_V[0];
-				permabuf RSCLK[5] = RSCLK_V[1];
-			}
-		}
-
-		tile_class SCLK2_SOURCE {
-			cell CELL;
-
-			switchbox SCLK_SOURCE {
-				permabuf RSCLK[2] = RSCLK_V[0];
-				permabuf RSCLK[6] = RSCLK_V[1];
-			}
-		}
-
-		tile_class SCLK3_SOURCE {
-			cell CELL;
-
-			switchbox SCLK_SOURCE {
-				permabuf RSCLK[3] = RSCLK_V[0];
-				permabuf RSCLK[7] = RSCLK_V[1];
+			switchbox SCLK_DRIVER {
+				progbuf RSCLK[0] = RSCLK_V[0] @XXX57005[57005][57005];
+				progbuf RSCLK[4] = RSCLK_V[4] @XXX57005[57005][57005];
 			}
 		}
 	}
@@ -10818,82 +10836,70 @@ intdb {
 		}
 	}
 
-	tile_slot HSDCLK_SPLITTER {
-		bel_slot HSDCLK_SPLITTER: routing;
+	tile_slot SCLK_H_SPLITTER {
+		bel_slot SCLK_H_SPLITTER: routing;
 
-		tile_class HSDCLK_SPLITTER {
-			cell W[0];
-			cell W[1];
-			cell W[2];
-			cell W[3];
-			cell E[0];
-			cell E[1];
-			cell E[2];
-			cell E[3];
+		tile_class SCLK_H_SPLITTER {
+			cell W;
+			cell E;
 
-			switchbox HSDCLK_SPLITTER {
-				progbuf W[0].RSCLK_H[0] = E[0].RSCLK_H[0] @XXX57005[57005][57005];
-				progbuf E[0].RSCLK_H[0] = W[0].RSCLK_H[0] @XXX57005[57005][57005];
-				progbuf W[1].RSCLK_H[0] = E[1].RSCLK_H[0] @XXX57005[57005][57005];
-				progbuf E[1].RSCLK_H[0] = W[1].RSCLK_H[0] @XXX57005[57005][57005];
-				progbuf W[2].RSCLK_H[0] = E[2].RSCLK_H[0] @XXX57005[57005][57005];
-				progbuf E[2].RSCLK_H[0] = W[2].RSCLK_H[0] @XXX57005[57005][57005];
-				progbuf W[3].RSCLK_H[0] = E[3].RSCLK_H[0] @XXX57005[57005][57005];
-				progbuf E[3].RSCLK_H[0] = W[3].RSCLK_H[0] @XXX57005[57005][57005];
-				progbuf W[0].RSCLK_H[4] = E[0].RSCLK_H[4] @XXX57005[57005][57005];
-				progbuf E[0].RSCLK_H[4] = W[0].RSCLK_H[4] @XXX57005[57005][57005];
-				progbuf W[1].RSCLK_H[4] = E[1].RSCLK_H[4] @XXX57005[57005][57005];
-				progbuf E[1].RSCLK_H[4] = W[1].RSCLK_H[4] @XXX57005[57005][57005];
-				progbuf W[2].RSCLK_H[4] = E[2].RSCLK_H[4] @XXX57005[57005][57005];
-				progbuf E[2].RSCLK_H[4] = W[2].RSCLK_H[4] @XXX57005[57005][57005];
-				progbuf W[3].RSCLK_H[4] = E[3].RSCLK_H[4] @XXX57005[57005][57005];
-				progbuf E[3].RSCLK_H[4] = W[3].RSCLK_H[4] @XXX57005[57005][57005];
+			switchbox SCLK_H_SPLITTER {
+				progbuf W.SCLK_H[0] = E.SCLK_H[0] @XXX57005[57005][57005];
+				progbuf W.SCLK_H[1] = E.SCLK_H[1] @XXX57005[57005][57005];
+				progbuf W.SCLK_H[2] = E.SCLK_H[2] @XXX57005[57005][57005];
+				progbuf W.SCLK_H[3] = E.SCLK_H[3] @XXX57005[57005][57005];
+				progbuf W.SCLK_H[4] = E.SCLK_H[4] @XXX57005[57005][57005];
+				progbuf W.SCLK_H[5] = E.SCLK_H[5] @XXX57005[57005][57005];
+				progbuf W.SCLK_H[6] = E.SCLK_H[6] @XXX57005[57005][57005];
+				progbuf W.SCLK_H[7] = E.SCLK_H[7] @XXX57005[57005][57005];
+				progbuf E.SCLK_H[0] = W.SCLK_H[0] @XXX57005[57005][57005];
+				progbuf E.SCLK_H[1] = W.SCLK_H[1] @XXX57005[57005][57005];
+				progbuf E.SCLK_H[2] = W.SCLK_H[2] @XXX57005[57005][57005];
+				progbuf E.SCLK_H[3] = W.SCLK_H[3] @XXX57005[57005][57005];
+				progbuf E.SCLK_H[4] = W.SCLK_H[4] @XXX57005[57005][57005];
+				progbuf E.SCLK_H[5] = W.SCLK_H[5] @XXX57005[57005][57005];
+				progbuf E.SCLK_H[6] = W.SCLK_H[6] @XXX57005[57005][57005];
+				progbuf E.SCLK_H[7] = W.SCLK_H[7] @XXX57005[57005][57005];
 			}
 		}
 
-		tile_class HSDCLK_ROOT {
-			cell W[0];
-			cell W[1];
-			cell W[2];
-			cell W[3];
-			cell E[0];
-			cell E[1];
-			cell E[2];
-			cell E[3];
+		tile_class SCLK_H_ROOT {
+			cell W;
+			cell E;
 
-			switchbox HSDCLK_SPLITTER {
-				progbuf W[0].RSCLK_H[0] = E[0].RSCLK_H[0] @XXX57005[57005][57005];
-				progbuf E[0].RSCLK_H[0] = W[0].RSCLK_H[0] @XXX57005[57005][57005];
-				progbuf W[1].RSCLK_H[0] = E[1].RSCLK_H[0] @XXX57005[57005][57005];
-				progbuf E[1].RSCLK_H[0] = W[1].RSCLK_H[0] @XXX57005[57005][57005];
-				progbuf W[2].RSCLK_H[0] = E[2].RSCLK_H[0] @XXX57005[57005][57005];
-				progbuf E[2].RSCLK_H[0] = W[2].RSCLK_H[0] @XXX57005[57005][57005];
-				progbuf W[3].RSCLK_H[0] = E[3].RSCLK_H[0] @XXX57005[57005][57005];
-				progbuf E[3].RSCLK_H[0] = W[3].RSCLK_H[0] @XXX57005[57005][57005];
-				progbuf W[0].RSCLK_H[4] = E[0].RSCLK_H[4] @XXX57005[57005][57005];
-				progbuf E[0].RSCLK_H[4] = W[0].RSCLK_H[4] @XXX57005[57005][57005];
-				progbuf W[1].RSCLK_H[4] = E[1].RSCLK_H[4] @XXX57005[57005][57005];
-				progbuf E[1].RSCLK_H[4] = W[1].RSCLK_H[4] @XXX57005[57005][57005];
-				progbuf W[2].RSCLK_H[4] = E[2].RSCLK_H[4] @XXX57005[57005][57005];
-				progbuf E[2].RSCLK_H[4] = W[2].RSCLK_H[4] @XXX57005[57005][57005];
-				progbuf W[3].RSCLK_H[4] = E[3].RSCLK_H[4] @XXX57005[57005][57005];
-				progbuf E[3].RSCLK_H[4] = W[3].RSCLK_H[4] @XXX57005[57005][57005];
-				progbuf W[0].RSCLK_H[0] = W[0].SCLK_ROOT[0] @XXX57005[57005][57005];
-				progbuf E[0].RSCLK_H[0] = E[0].SCLK_ROOT[0] @XXX57005[57005][57005];
-				progbuf W[1].RSCLK_H[0] = W[0].SCLK_ROOT[1] @XXX57005[57005][57005];
-				progbuf E[1].RSCLK_H[0] = E[0].SCLK_ROOT[1] @XXX57005[57005][57005];
-				progbuf W[2].RSCLK_H[0] = W[0].SCLK_ROOT[2] @XXX57005[57005][57005];
-				progbuf E[2].RSCLK_H[0] = E[0].SCLK_ROOT[2] @XXX57005[57005][57005];
-				progbuf W[3].RSCLK_H[0] = W[0].SCLK_ROOT[3] @XXX57005[57005][57005];
-				progbuf E[3].RSCLK_H[0] = E[0].SCLK_ROOT[3] @XXX57005[57005][57005];
-				progbuf W[0].RSCLK_H[4] = W[0].SCLK_ROOT[4] @XXX57005[57005][57005];
-				progbuf E[0].RSCLK_H[4] = E[0].SCLK_ROOT[4] @XXX57005[57005][57005];
-				progbuf W[1].RSCLK_H[4] = W[0].SCLK_ROOT[5] @XXX57005[57005][57005];
-				progbuf E[1].RSCLK_H[4] = E[0].SCLK_ROOT[5] @XXX57005[57005][57005];
-				progbuf W[2].RSCLK_H[4] = W[0].SCLK_ROOT[6] @XXX57005[57005][57005];
-				progbuf E[2].RSCLK_H[4] = E[0].SCLK_ROOT[6] @XXX57005[57005][57005];
-				progbuf W[3].RSCLK_H[4] = W[0].SCLK_ROOT[7] @XXX57005[57005][57005];
-				progbuf E[3].RSCLK_H[4] = E[0].SCLK_ROOT[7] @XXX57005[57005][57005];
+			switchbox SCLK_H_SPLITTER {
+				progbuf W.SCLK_H[0] = W.SCLK_ROOT[0] @XXX57005[57005][57005];
+				progbuf W.SCLK_H[0] = E.SCLK_H[0] @XXX57005[57005][57005];
+				progbuf W.SCLK_H[1] = W.SCLK_ROOT[1] @XXX57005[57005][57005];
+				progbuf W.SCLK_H[1] = E.SCLK_H[1] @XXX57005[57005][57005];
+				progbuf W.SCLK_H[2] = W.SCLK_ROOT[2] @XXX57005[57005][57005];
+				progbuf W.SCLK_H[2] = E.SCLK_H[2] @XXX57005[57005][57005];
+				progbuf W.SCLK_H[3] = W.SCLK_ROOT[3] @XXX57005[57005][57005];
+				progbuf W.SCLK_H[3] = E.SCLK_H[3] @XXX57005[57005][57005];
+				progbuf W.SCLK_H[4] = W.SCLK_ROOT[4] @XXX57005[57005][57005];
+				progbuf W.SCLK_H[4] = E.SCLK_H[4] @XXX57005[57005][57005];
+				progbuf W.SCLK_H[5] = W.SCLK_ROOT[5] @XXX57005[57005][57005];
+				progbuf W.SCLK_H[5] = E.SCLK_H[5] @XXX57005[57005][57005];
+				progbuf W.SCLK_H[6] = W.SCLK_ROOT[6] @XXX57005[57005][57005];
+				progbuf W.SCLK_H[6] = E.SCLK_H[6] @XXX57005[57005][57005];
+				progbuf W.SCLK_H[7] = W.SCLK_ROOT[7] @XXX57005[57005][57005];
+				progbuf W.SCLK_H[7] = E.SCLK_H[7] @XXX57005[57005][57005];
+				progbuf E.SCLK_H[0] = W.SCLK_H[0] @XXX57005[57005][57005];
+				progbuf E.SCLK_H[0] = E.SCLK_ROOT[0] @XXX57005[57005][57005];
+				progbuf E.SCLK_H[1] = W.SCLK_H[1] @XXX57005[57005][57005];
+				progbuf E.SCLK_H[1] = E.SCLK_ROOT[1] @XXX57005[57005][57005];
+				progbuf E.SCLK_H[2] = W.SCLK_H[2] @XXX57005[57005][57005];
+				progbuf E.SCLK_H[2] = E.SCLK_ROOT[2] @XXX57005[57005][57005];
+				progbuf E.SCLK_H[3] = W.SCLK_H[3] @XXX57005[57005][57005];
+				progbuf E.SCLK_H[3] = E.SCLK_ROOT[3] @XXX57005[57005][57005];
+				progbuf E.SCLK_H[4] = W.SCLK_H[4] @XXX57005[57005][57005];
+				progbuf E.SCLK_H[4] = E.SCLK_ROOT[4] @XXX57005[57005][57005];
+				progbuf E.SCLK_H[5] = W.SCLK_H[5] @XXX57005[57005][57005];
+				progbuf E.SCLK_H[5] = E.SCLK_ROOT[5] @XXX57005[57005][57005];
+				progbuf E.SCLK_H[6] = W.SCLK_H[6] @XXX57005[57005][57005];
+				progbuf E.SCLK_H[6] = E.SCLK_ROOT[6] @XXX57005[57005][57005];
+				progbuf E.SCLK_H[7] = W.SCLK_H[7] @XXX57005[57005][57005];
+				progbuf E.SCLK_H[7] = E.SCLK_ROOT[7] @XXX57005[57005][57005];
 			}
 		}
 	}
@@ -11322,25 +11328,83 @@ intdb {
 		}
 	}
 
-	connector_slot RSCLK_W {
-		opposite RSCLK_E;
+	connector_slot RCLK {
+		opposite RCLK;
 
-		connector_class PASS_SW {
-			pass RSCLK_H[0] = RSCLK_H[1];
-			pass RSCLK_H[1] = RSCLK_H[2];
-			pass RSCLK_H[2] = RSCLK_H[3];
-			pass RSCLK_H[3] = RSCLK_H[0];
-			pass RSCLK_H[4] = RSCLK_H[5];
-			pass RSCLK_H[5] = RSCLK_H[6];
-			pass RSCLK_H[6] = RSCLK_H[7];
-			pass RSCLK_H[7] = RSCLK_H[4];
+		connector_class RCLK0 {
+			reflect RSCLK[0] = SCLK[0];
+			reflect RSCLK[1] = SCLK[1];
+			reflect RSCLK[2] = SCLK[2];
+			reflect RSCLK[3] = SCLK[3];
+			reflect RSCLK[4] = SCLK[4];
+			reflect RSCLK[5] = SCLK[5];
+			reflect RSCLK[6] = SCLK[6];
+			reflect RSCLK[7] = SCLK[7];
+			reflect RSCLK_H[0] = SCLK_H[0];
+			reflect RSCLK_H[1] = SCLK_H[1];
+			reflect RSCLK_H[2] = SCLK_H[2];
+			reflect RSCLK_H[3] = SCLK_H[3];
+			reflect RSCLK_H[4] = SCLK_H[4];
+			reflect RSCLK_H[5] = SCLK_H[5];
+			reflect RSCLK_H[6] = SCLK_H[6];
+			reflect RSCLK_H[7] = SCLK_H[7];
 		}
-	}
 
-	connector_slot RSCLK_E {
-		opposite RSCLK_W;
+		connector_class RCLK1 {
+			reflect RSCLK[0] = SCLK[1];
+			reflect RSCLK[1] = SCLK[2];
+			reflect RSCLK[2] = SCLK[3];
+			reflect RSCLK[3] = SCLK[0];
+			reflect RSCLK[4] = SCLK[5];
+			reflect RSCLK[5] = SCLK[6];
+			reflect RSCLK[6] = SCLK[7];
+			reflect RSCLK[7] = SCLK[4];
+			reflect RSCLK_H[0] = SCLK_H[1];
+			reflect RSCLK_H[1] = SCLK_H[2];
+			reflect RSCLK_H[2] = SCLK_H[3];
+			reflect RSCLK_H[3] = SCLK_H[0];
+			reflect RSCLK_H[4] = SCLK_H[5];
+			reflect RSCLK_H[5] = SCLK_H[6];
+			reflect RSCLK_H[6] = SCLK_H[7];
+			reflect RSCLK_H[7] = SCLK_H[4];
+		}
 
-		connector_class PASS_SE {
+		connector_class RCLK2 {
+			reflect RSCLK[0] = SCLK[2];
+			reflect RSCLK[1] = SCLK[3];
+			reflect RSCLK[2] = SCLK[0];
+			reflect RSCLK[3] = SCLK[1];
+			reflect RSCLK[4] = SCLK[6];
+			reflect RSCLK[5] = SCLK[7];
+			reflect RSCLK[6] = SCLK[4];
+			reflect RSCLK[7] = SCLK[5];
+			reflect RSCLK_H[0] = SCLK_H[2];
+			reflect RSCLK_H[1] = SCLK_H[3];
+			reflect RSCLK_H[2] = SCLK_H[0];
+			reflect RSCLK_H[3] = SCLK_H[1];
+			reflect RSCLK_H[4] = SCLK_H[6];
+			reflect RSCLK_H[5] = SCLK_H[7];
+			reflect RSCLK_H[6] = SCLK_H[4];
+			reflect RSCLK_H[7] = SCLK_H[5];
+		}
+
+		connector_class RCLK3 {
+			reflect RSCLK[0] = SCLK[3];
+			reflect RSCLK[1] = SCLK[0];
+			reflect RSCLK[2] = SCLK[1];
+			reflect RSCLK[3] = SCLK[2];
+			reflect RSCLK[4] = SCLK[7];
+			reflect RSCLK[5] = SCLK[4];
+			reflect RSCLK[6] = SCLK[5];
+			reflect RSCLK[7] = SCLK[6];
+			reflect RSCLK_H[0] = SCLK_H[3];
+			reflect RSCLK_H[1] = SCLK_H[0];
+			reflect RSCLK_H[2] = SCLK_H[1];
+			reflect RSCLK_H[3] = SCLK_H[2];
+			reflect RSCLK_H[4] = SCLK_H[7];
+			reflect RSCLK_H[5] = SCLK_H[4];
+			reflect RSCLK_H[6] = SCLK_H[5];
+			reflect RSCLK_H[7] = SCLK_H[6];
 		}
 	}
 }

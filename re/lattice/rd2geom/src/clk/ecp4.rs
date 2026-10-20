@@ -1,89 +1,63 @@
 use std::collections::{BTreeMap, btree_map};
 
 use prjcombine_ecp::{
-    chip::{Chip, RowKind, SpecialLocKey},
-    defs::{bcls, bslots, tcls, wires},
+    chip::{Chip, SpecialLocKey},
+    defs::{self, bcls, bslots, rslots, tcls, wires},
 };
-use prjcombine_entity::EntityIdArith;
 use prjcombine_interconnect::{
-    db::WireSlotIdExt,
-    dir::{Dir, DirH, DirHV, DirMap, DirV},
+    db::{CellSlotIdExt, WireSlotIdExt},
+    dir::{Dir, DirHV, DirMap},
     grid::DieIdExt,
 };
-use prjcombine_re_lattice_naming::WireName;
 
 use crate::{ChipContext, RcMode};
 
 impl ChipContext<'_> {
-    pub(super) fn process_pclk_ecp4(&mut self) -> BTreeMap<(DirHV, usize), WireName> {
-        let mut hprx = BTreeMap::new();
-        let mut roots = BTreeMap::new();
+    pub(super) fn process_pclk_ecp4(&mut self) {
+        let mut vptx = BTreeMap::new();
         for i in 0..20 {
             let pclk = wires::PCLK[i];
-            for (row_src, rd) in &self.chip.rows {
-                if rd.kind != RowKind::Ebr {
+            for cell in self.edev.die_cells(Chip::DIE) {
+                if !self.edev.has_bel(cell.bel(bslots::INT)) {
                     continue;
                 }
-
-                let (v, row_mid) = if row_src < self.chip.row_clk {
-                    (DirV::S, row_src + 1)
-                } else {
-                    (DirV::N, row_src)
-                };
-                let rows = self.chip.rows_pclk.range(row_src);
-                for cell_src in self.edev.row(Chip::DIE, row_src) {
-                    for (sn, range) in [
-                        ('S', rows.start().range(row_mid)),
-                        ('N', row_mid.range(rows.end())),
-                    ] {
-                        let mut vptx = None;
-                        for row in range {
-                            let cell = cell_src.with_row(row);
-                            let pclk = self.naming.interconnect[&cell.wire(pclk)];
-                            let cur_vptx = self.claim_single_in(pclk);
-                            if vptx.is_none() {
-                                vptx = Some(cur_vptx);
-                            } else {
-                                assert_eq!(vptx, Some(cur_vptx));
-                            }
-                        }
-                        let vptx = vptx.unwrap();
-                        self.add_bel_wire(cell_src.bel(bslots::INT), format!("PCLK{i}_{sn}"), vptx);
-                        let cur_hprx = self.claim_single_in(vptx);
-                        let h = if cell_src.col < self.chip.col_clk {
-                            DirH::W
-                        } else {
-                            DirH::E
-                        };
-                        self.add_bel_wire_no_claim(
-                            cell_src.bel(bslots::INT),
-                            format!("PCLK{i}_IN"),
-                            vptx,
-                        );
-                        match hprx.entry((row_src, i, h)) {
-                            btree_map::Entry::Vacant(e) => {
-                                self.claim_node(cur_hprx);
-                                e.insert(cur_hprx);
-                                let hv = DirHV { h, v };
-                                let root = self.claim_single_in(cur_hprx);
-                                match roots.entry((hv, i)) {
-                                    btree_map::Entry::Vacant(e) => {
-                                        e.insert(root);
-                                    }
-                                    btree_map::Entry::Occupied(e) => {
-                                        assert_eq!(*e.get(), root);
-                                    }
-                                }
-                            }
-                            btree_map::Entry::Occupied(e) => {
-                                assert_eq!(*e.get(), cur_hprx);
-                            }
-                        }
+                let pclk = self.naming.interconnect[&cell.wire(pclk)];
+                let cur_vptx = self.claim_single_in(pclk);
+                let cell_tag = self.edev[cell].region_root[rslots::PCLK_LEAF];
+                match vptx.entry((cell_tag, i)) {
+                    btree_map::Entry::Vacant(e) => {
+                        e.insert(cur_vptx);
+                    }
+                    btree_map::Entry::Occupied(e) => {
+                        assert_eq!(*e.get(), cur_vptx);
                     }
                 }
             }
         }
-        roots
+        for &tcrd in &self.edev.tile_index[tcls::PCLK_DRIVER] {
+            let bcrd = tcrd.bel(bslots::PCLK_DRIVER);
+            let cslot_s = defs::ecp4::tcls::PCLK_DRIVER::S;
+            let cslot_n = defs::ecp4::tcls::PCLK_DRIVER::N;
+            let cell_s = self.edev[tcrd].cells[cslot_s];
+            let cell_n = self.edev[tcrd].cells[cslot_n];
+            let mut ex = self.extract_switchbox(bcrd);
+            for i in 0..20 {
+                ex.progbuf_output_bind(vptx[&(cell_s, i)], cslot_s.wire(wires::PCLK[i]))
+                    .progbuf_output_bind(vptx[&(cell_n, i)], cslot_n.wire(wires::PCLK[i]))
+                    .input_int(wires::PCLK_ROW[i].cell(0));
+            }
+        }
+
+        for tcid in [tcls::PCLK_ROW_DRIVER_W, tcls::PCLK_ROW_DRIVER_E] {
+            for &tcrd in &self.edev.tile_index[tcid] {
+                let bcrd = tcrd.bel(bslots::PCLK_ROW_DRIVER);
+                let mut ex = self.extract_switchbox(bcrd);
+                for i in 0..20 {
+                    ex.progbuf_output_int(wires::PCLK_ROW[i].cell(0))
+                        .input_int(wires::PCLK_ROOT[i].cell(0));
+                }
+            }
+        }
     }
 
     pub(super) fn process_clk_edge_ecp4(&mut self) {
@@ -311,7 +285,7 @@ impl ChipContext<'_> {
         }
     }
 
-    pub(super) fn process_clk_root_ecp4(&mut self, pclk_roots: BTreeMap<(DirHV, usize), WireName>) {
+    pub(super) fn process_clk_root_ecp4(&mut self) {
         let cell_tile = self.chip.bel_clk_root().cell;
         let cell = cell_tile.delta(-1, 0);
 
@@ -361,14 +335,10 @@ impl ChipContext<'_> {
                     ex.input_xlat(wire_dcc);
                 }
             }
-            for (ci, hv) in [DirHV::SW, DirHV::SE, DirHV::NW, DirHV::NE]
-                .into_iter()
-                .enumerate()
-            {
+            for ci in 0..4 {
                 for i in 0..20 {
-                    let wire = wires::PCLK[i].cell(ci);
-                    let pclk = pclk_roots[&(hv, i)];
-                    ex.output_bind(pclk, wire);
+                    let wire = wires::PCLK_ROOT[i].cell(ci);
+                    ex.output_int(wire);
                 }
             }
         }

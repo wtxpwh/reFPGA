@@ -261,7 +261,13 @@ impl ChipBuilder<'_> {
             for (i, &col) in cols.iter().enumerate() {
                 assert_eq!(col, col_start + i);
             }
-            self.chip.cols_pclk.push(cols.len(), cols[0]);
+            // TODO: fake, fix up
+            let col_drv = if cols[0] < self.chip.col_clk {
+                *cols.last().unwrap()
+            } else {
+                *cols.first().unwrap()
+            };
+            self.chip.cols_pclk.push(cols.len(), col_drv);
         }
         assert_eq!(self.chip.cols_pclk[self.chip.col_clk], self.chip.col_clk);
     }
@@ -475,7 +481,7 @@ impl ChipBuilder<'_> {
         for &wn in self.nodes.values() {
             if wn.suffix == hssx_l2r {
                 let cell = self.chip.xlat_rc_wire(wn);
-                self.chip.columns[cell.col + 1].sdclk_break = true;
+                self.chip.columns[cell.col + 1].sclk_break = true;
             }
         }
     }
@@ -512,8 +518,52 @@ impl ChipBuilder<'_> {
         for &wn in self.nodes.values() {
             if wn.suffix == hssx_l2r {
                 let cell = self.chip.xlat_rc_wire(wn);
-                self.chip.columns[cell.col + 1].sdclk_break = true;
+                self.chip.columns[cell.col + 1].sclk_break = true;
             }
+        }
+
+        if matches!(self.chip.kind, ChipKind::Ecp3(_)) {
+            let mut breaks = vec![self.chip.col_w()];
+            for (col, cd) in &self.chip.columns {
+                if cd.sclk_break {
+                    breaks.push(col);
+                }
+            }
+            breaks.push(self.chip.columns.next_id());
+            for (i, &col) in breaks.iter().enumerate() {
+                if col == self.chip.col_w()
+                    || col == self.chip.columns.next_id()
+                    || col == self.chip.col_clk
+                {
+                    continue;
+                }
+                let (col_w, col_e) = if col < self.chip.col_clk {
+                    (
+                        breaks[i - 1],
+                        if breaks[i + 1] == self.chip.col_clk {
+                            self.chip.col_clk
+                        } else {
+                            col
+                        },
+                    )
+                } else {
+                    (
+                        if breaks[i - 1] == self.chip.col_clk {
+                            self.chip.col_clk
+                        } else {
+                            col
+                        },
+                        breaks[i + 1],
+                    )
+                };
+                assert_eq!(self.chip.cols_pclk.next_id(), col_w);
+                self.chip.cols_pclk.push((col_e - col_w) as usize, col);
+            }
+            assert_eq!(self.chip.cols_pclk.len(), self.chip.columns.len());
+        } else {
+            self.chip
+                .cols_pclk
+                .push(self.chip.columns.len(), self.chip.col_clk);
         }
     }
 
@@ -3673,7 +3723,7 @@ fn init_chip(kind: ChipKind, naming: &ChipNaming, nodes: &EntityVec<NodeId, Wire
         bank_n: None,
         eclk_tap_s: false,
         eclk_tap_n: false,
-        sdclk_break: false,
+        sclk_break: false,
     }));
     let rows = EntityVec::from_iter((0..max_r).map(|_| Row {
         kind: RowKind::Io,

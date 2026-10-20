@@ -2044,7 +2044,13 @@ target_defs! {
     if variant scm {
         // per quadrant
         region_slot PCLK;
-        wire PCLK[12]: regional PCLK;
+        // subdivided per clock distribution column
+        region_slot PCLK_COL;
+        // further subdivided by row
+        region_slot PCLK_LEAF;
+        wire PCLK[12]: regional PCLK_LEAF;
+        wire PCLK_COL[12]: regional PCLK_COL;
+        wire PCLK_ROOT[12]: regional PCLK;
     } else if variant [ecp, xp, machxo] {
         // nominally 4 primary and 4 secondary clocks, but they're close enough in behavior
         // per quadrant on ECP, XP; global on MachXO
@@ -2053,16 +2059,25 @@ target_defs! {
     } else if variant [ecp2, ecp2m, xp2] {
         // per quadrant
         region_slot PCLK;
-        wire PCLK[8]: regional PCLK;
+        // subdivided per row and per column range
+        region_slot PCLK_LEAF;
+        wire PCLK[8]: regional PCLK_LEAF;
+        wire PCLK_ROOT[8]: regional PCLK;
         wire SCLK_ROOT[8]: regional PCLK;
     } else if variant [ecp3, machxo2] {
         // ecp3: per quadrant; machxo2: global
         region_slot PCLK;
+        // subdivided per distribution row and per cols_pclk half-range
+        region_slot PCLK_ROW;
         wire PCLK_ROOT[8]: regional PCLK;
         wire SCLK_ROOT[8]: regional PCLK;
+        wire PCLK_ROW[8]: regional PCLK_ROW;
         // Rotating primary clocks.
+        // per distribution row side
+        region_slot PCLK_COL;
+        wire RPCLK_COL[8]: regional PCLK_COL;
         region_slot RPCLK[4];
-        wire RPCLK[8] {
+        wire PCLK[8] {
             0 => regional RPCLK[0],
             1 => regional RPCLK[1],
             2 => regional RPCLK[2],
@@ -2072,25 +2087,48 @@ target_defs! {
             6 => regional RPCLK[2],
             7 => regional RPCLK[3],
         }
+        // rotated aliases of PCLK
+        wire RPCLK[8]: multi_branch RCLK;
+        wire RPCLK_ROW[8]: branch RCLK;
     } else if variant ecp4 {
         // per quadrant
         region_slot PCLK;
-        wire PCLK[20]: regional PCLK;
+        // subdivided per clock distribution row
+        region_slot PCLK_ROW;
+        // further subdivided by column and side of the distribution row
+        region_slot PCLK_LEAF;
+        wire PCLK[20]: regional PCLK_LEAF;
+        wire PCLK_ROW[20]: regional PCLK_ROW;
+        wire PCLK_ROOT[20]: regional PCLK;
     } else if variant ecp5 {
         // per quadrant
         region_slot PCLK;
-        wire PCLK[16]: regional PCLK;
+        // subdivided per clock distribution column
+        region_slot PCLK_COL;
+        // subdivided per row and per clock distribution column side
+        region_slot PCLK_LEAF;
+        wire PCLK[16]: regional PCLK_LEAF;
+        wire PCLK_COL[16]: regional PCLK_COL;
+        wire PCLK_ROOT[16]: regional PCLK;
     } else if variant crosslink {
-        // global
+        // west/east halves
         region_slot PCLK;
-        wire PCLK[8]: regional PCLK;
+        // subdivided per clock distribution column
+        region_slot PCLK_COL;
+        // subdivided per row and per clock distribution column side
+        region_slot PCLK_LEAF;
+        wire PCLK[8]: regional PCLK_LEAF;
+        wire PCLK_COL[8]: regional PCLK_COL;
+        wire PCLK_HALF[8]: regional PCLK;
+        wire PCLK_ROOT[8]: mux;
     }
 
     if variant [ecp2, ecp2m, xp2, ecp3, machxo2] {
         region_slot RSCLK[4];
         region_slot RSCLK_V;
+        region_slot SCLK_H;
         // Rotating secondary clocks.
-        wire RSCLK[8] {
+        wire SCLK[8] {
             0 => regional RSCLK[0],
             1 => regional RSCLK[1],
             2 => regional RSCLK[2],
@@ -2100,11 +2138,14 @@ target_defs! {
             6 => regional RSCLK[2],
             7 => regional RSCLK[3],
         }
+        // rotated aliases of SCLK
+        wire RSCLK[8]: multi_branch RCLK;
 
         // Distribution wires supplying RSCLK.
-        wire RSCLK_H[8]: branch RSCLK_W;
         wire RSCLK_V[8]: regional RSCLK_V;
         wire RSCLK_V_N[8]: branch S;
+        wire SCLK_H[8]: regional SCLK_H;
+        wire RSCLK_H[8]: multi_branch RCLK;
     }
 
     if variant scm {
@@ -4047,7 +4088,7 @@ target_defs! {
             bel_slot CLKTEST: CLKTEST;
             bel_slot DCS[1]: DCS;
             tile_class CLK_ROOT {
-                cell CELL, CLK_S, CLK_N;
+                cell CELL[2], CLK_S, CLK_N;
 
                 switchbox CLK_INT;
                 bel CLKTEST;
@@ -4135,129 +4176,140 @@ target_defs! {
         }
     }
 
+    if variant scm {
+        tile_slot PCLK_DRIVER {
+            bel_slot PCLK_DRIVER: routing;
+
+            tile_class PCLK_DRIVER {
+                cell CELL;
+                // PCLK <- PCLK_COL
+                switchbox PCLK_DRIVER;
+            }
+
+            tile_class PCLK_DRIVER_EBR {
+                cell CELL;
+                // PCLK <- PCLK_COL
+                switchbox PCLK_DRIVER;
+            }
+
+            tile_class PCLK_DRIVER_EBR_ROOT {
+                cell CELL;
+                // PCLK <- PCLK_COL, PCLK_COL <- PCLK_ROOT
+                switchbox PCLK_DRIVER;
+            }
+        }
+    }
+
+    if variant [ecp2, ecp2m, xp2] {
+        tile_slot PCLK_DRIVER {
+            bel_slot PCLK_DRIVER: routing;
+            tile_class PCLK_DRIVER {
+                cell CELL;
+                switchbox PCLK_DRIVER;
+            }
+        }
+    }
+
     if variant [ecp3, machxo2] {
-        tile_slot RPCLK_DRIVER {
-            bel_slot RPCLK_DRIVER: routing;
-            bel_slot RPCLK_DCC_S[2]: DCC;
-            bel_slot RPCLK_DCC_N[2]: DCC;
+        tile_slot PCLK_DRIVER {
+            bel_slot PCLK_DRIVER: routing;
 
-            for i in 0..4 {
-                if variant machxo2 {
-                    tile_class "RPCLK{i}_DRIVER_IO_N" {
-                        cell CELL;
-                        for j in 0..2 {
-                            bel RPCLK_DCC_N[j];
-                        }
-                    }
-                    tile_class "RPCLK{i}_DRIVER_IO_N_W" {
-                        if tile_class [RPCLK0_DRIVER_IO_N_W, RPCLK3_DRIVER_IO_N_W] {
-                            // keep
-                        } else {
-                            skip;
-                        }
-                        cell CELL;
-                        switchbox RPCLK_DRIVER;
-                        for j in 0..2 {
-                            bel RPCLK_DCC_N[j];
-                        }
-                    }
-                    tile_class "RPCLK{i}_DRIVER_IO_N_E" {
-                        if tile_class [RPCLK0_DRIVER_IO_N_E, RPCLK1_DRIVER_IO_N_E] {
-                            // keep
-                        } else {
-                            skip;
-                        }
-                        cell CELL;
-                        switchbox RPCLK_DRIVER;
-                        for j in 0..2 {
-                            bel RPCLK_DCC_N[j];
-                        }
-                    }
-                }
+            tile_class RPCLK_DRIVER, RPCLK_DRIVER_W, RPCLK_DRIVER_E {
+                cell CELL;
+                switchbox PCLK_DRIVER;
+            }
+        }
 
-                tile_class "RPCLK{i}_DRIVER" {
-                    cell N, S;
-                    for j in 0..2 {
-                        bel RPCLK_DCC_S[j];
-                        bel RPCLK_DCC_N[j];
-                    }
+        tile_slot PCLK_COL_DRIVER {
+            bel_slot PCLK_COL_DRIVER: routing;
+            bel_slot PCLK_DCC_S[2]: DCC;
+            bel_slot PCLK_DCC_N[2]: DCC;
+
+            tile_class PCLK_COL_DRIVER, PCLK_COL_DRIVER_W, PCLK_COL_DRIVER_E {
+                cell N, S;
+                if tile_class PCLK_COL_DRIVER {
+                } else {
+                    switchbox PCLK_COL_DRIVER;
                 }
-                tile_class "RPCLK{i}_DRIVER_W" {
-                    if variant ecp3 {
-                        if tile_class RPCLK2_DRIVER_W {
-                            skip;
-                        }
-                    }
-                    cell N, S;
-                    switchbox RPCLK_DRIVER;
-                    for j in 0..2 {
-                        bel RPCLK_DCC_S[j];
-                        bel RPCLK_DCC_N[j];
-                    }
+                for i in 0..2 {
+                    bel PCLK_DCC_S[i];
+                    bel PCLK_DCC_N[i];
                 }
-                tile_class "RPCLK{i}_DRIVER_E" {
-                    if variant ecp3 {
-                        if tile_class RPCLK1_DRIVER_E {
-                            skip;
-                        }
+            }
+            if variant machxo2 {
+                tile_class PCLK_COL_DRIVER_IO_N, PCLK_COL_DRIVER_IO_N_W, PCLK_COL_DRIVER_IO_N_E {
+                    cell CELL;
+                    if tile_class PCLK_COL_DRIVER_IO_N {
                     } else {
-                        if tile_class RPCLK2_DRIVER_E {
-                            skip;
-                        }
+                        switchbox PCLK_COL_DRIVER;
                     }
-                    cell N, S;
-                    switchbox RPCLK_DRIVER;
-                    for j in 0..2 {
-                        bel RPCLK_DCC_S[j];
-                        bel RPCLK_DCC_N[j];
+                    for i in 0..2 {
+                        bel PCLK_DCC_N[i];
                     }
                 }
+            }
+        }
+
+        tile_slot PCLK_ROW_DRIVER {
+            bel_slot PCLK_ROW_DRIVER: routing;
+            tile_class PCLK_ROW_DRIVER {
+                cell ROW, W, E;
+                switchbox PCLK_ROW_DRIVER;
+            }
+        }
+    }
+
+    if variant ecp4 {
+        tile_slot PCLK_DRIVER {
+            bel_slot PCLK_DRIVER: routing;
+
+            tile_class PCLK_DRIVER {
+                cell ROW, S, N;
+                switchbox PCLK_DRIVER;
+            }
+        }
+
+        tile_slot PCLK_ROW_DRIVER {
+            bel_slot PCLK_ROW_DRIVER: routing;
+
+            tile_class PCLK_ROW_DRIVER_W, PCLK_ROW_DRIVER_E {
+                cell CELL;
+                switchbox PCLK_ROW_DRIVER;
+            }
+        }
+    }
+
+    if variant [ecp5, crosslink] {
+        tile_slot PCLK_DRIVER {
+            bel_slot PCLK_DRIVER: routing;
+
+            tile_class PCLK_DRIVER {
+                cell W, E;
+                switchbox PCLK_DRIVER;
+            }
+        }
+
+        tile_slot PCLK_COL_DRIVER {
+            bel_slot PCLK_COL_DRIVER: routing;
+
+            tile_class PCLK_COL_DRIVER {
+                cell CELL;
+                switchbox PCLK_COL_DRIVER;
             }
         }
     }
 
     if variant [ecp2, ecp2m, xp2, ecp3, machxo2] {
-        tile_slot SCLK_SOURCE {
-            bel_slot SCLK_SOURCE: routing;
-            for i in 0..4 {
-                tile_class "SCLK{i}_SOURCE" {
+        tile_slot SCLK_DRIVER {
+            bel_slot SCLK_DRIVER: routing;
+            tile_class RSCLK_DRIVER {
+                cell CELL;
+                switchbox SCLK_DRIVER;
+            }
+            if variant [ecp3, machxo2] {
+                tile_class RSCLK_DRIVER_W, RSCLK_DRIVER_E {
                     cell CELL;
-                    switchbox SCLK_SOURCE {
-                        permabuf RSCLK[i] = RSCLK_V[0];
-                        permabuf RSCLK[i + 4] = RSCLK_V[1];
-                    }
-                }
-                if variant [ecp3, machxo2] {
-                    tile_class "SCLK{i}_SOURCE_W" {
-                        if variant ecp3 {
-                            if tile_class SCLK2_SOURCE_W {
-                                skip;
-                            }
-                        }
-                        cell CELL;
-                        switchbox SCLK_SOURCE {
-                            permabuf RSCLK[i] = RSCLK_V[0];
-                            permabuf RSCLK[i + 4] = RSCLK_V[1];
-                            permabuf RSCLK[(i + 3) % 4] = RSCLK_V[6];
-                            permabuf RSCLK[(i + 3) % 4 + 4] = RSCLK_V[7];
-                            permabuf RSCLK[(i + 2) % 4] = RSCLK_V[4];
-                            permabuf RSCLK[(i + 2) % 4 + 4] = RSCLK_V[5];
-                        }
-                    }
-                    tile_class "SCLK{i}_SOURCE_E" {
-                        if variant ecp3 {
-                            if tile_class SCLK1_SOURCE_E {
-                                skip;
-                            }
-                        }
-                        cell CELL;
-                        switchbox SCLK_SOURCE {
-                            permabuf RSCLK[i] = RSCLK_V[0];
-                            permabuf RSCLK[i + 4] = RSCLK_V[1];
-                            permabuf RSCLK[(i + 1) % 4] = RSCLK_V[2];
-                            permabuf RSCLK[(i + 1) % 4 + 4] = RSCLK_V[3];
-                        }
-                    }
+                    switchbox SCLK_DRIVER;
                 }
             }
         }
@@ -4277,30 +4329,17 @@ target_defs! {
     }
 
     if variant [ecp2, ecp2m, xp2, ecp3, machxo2] {
-        tile_slot HSDCLK_SPLITTER {
-            bel_slot HSDCLK_SPLITTER: routing;
+        tile_slot SCLK_H_SPLITTER {
+            bel_slot SCLK_H_SPLITTER: routing;
 
-            tile_class HSDCLK_SPLITTER, HSDCLK_ROOT {
+            tile_class SCLK_H_SPLITTER, SCLK_H_ROOT {
                 if variant machxo2 {
-                    if tile_class HSDCLK_SPLITTER {
+                    if tile_class SCLK_H_SPLITTER {
                         skip;
                     }
                 }
-                cell W[4], E[4];
-                switchbox HSDCLK_SPLITTER {
-                    for i in 0..2 {
-                        for j in 0..4 {
-                            progbuf W[j].RSCLK_H[i * 4] = E[j].RSCLK_H[i * 4];
-                            progbuf E[j].RSCLK_H[i * 4] = W[j].RSCLK_H[i * 4];
-                        }
-                    }
-                    if tile_class HSDCLK_ROOT {
-                        for i in 0..8 {
-                            progbuf W[i % 4].RSCLK_H[i / 4 * 4] = W[0].SCLK_ROOT[i];
-                            progbuf E[i % 4].RSCLK_H[i / 4 * 4] = E[0].SCLK_ROOT[i];
-                        }
-                    }
-                }
+                cell W, E;
+                switchbox SCLK_H_SPLITTER;
             }
         }
     }
@@ -4451,38 +4490,6 @@ target_defs! {
         }
     }
 
-    if variant [ecp2, ecp2m, xp2, ecp3, machxo2] {
-        connector_slot RSCLK_W {
-            opposite RSCLK_E;
-            connector_class PASS_SW {
-                if variant [ecp2, ecp2m, xp2] {
-                    pass RSCLK_H[0] = RSCLK_H[1];
-                    pass RSCLK_H[1] = RSCLK_H[2];
-                    pass RSCLK_H[2] = RSCLK_H[3];
-                    pass RSCLK_H[3] = RSCLK_H[0];
-                    pass RSCLK_H[4] = RSCLK_H[5];
-                    pass RSCLK_H[5] = RSCLK_H[6];
-                    pass RSCLK_H[6] = RSCLK_H[7];
-                    pass RSCLK_H[7] = RSCLK_H[4];
-                } else if variant [ecp3, machxo2] {
-                    pass RSCLK_H[0] = RSCLK_H[3];
-                    pass RSCLK_H[1] = RSCLK_H[0];
-                    pass RSCLK_H[2] = RSCLK_H[1];
-                    pass RSCLK_H[3] = RSCLK_H[2];
-                    pass RSCLK_H[4] = RSCLK_H[7];
-                    pass RSCLK_H[5] = RSCLK_H[4];
-                    pass RSCLK_H[6] = RSCLK_H[5];
-                    pass RSCLK_H[7] = RSCLK_H[6];
-                }
-            }
-        }
-        connector_slot RSCLK_E {
-            opposite RSCLK_W;
-            connector_class PASS_SE {
-            }
-        }
-    }
-
     if variant scm {
         connector_slot EBR_W {
             opposite EBR_E;
@@ -4535,6 +4542,28 @@ target_defs! {
                     pass "IO_W{i+1}" = "IO_W{i}";
                 }
                 pass IO_T_W = IO_T_W;
+            }
+        }
+    }
+
+    if variant [ecp2, ecp2m, xp2, ecp3, machxo2] {
+        connector_slot RCLK {
+            opposite RCLK;
+            for i in 0..4 {
+                connector_class "RCLK{i}" {
+                    for j in 0..4 {
+                        reflect RSCLK[j] = SCLK[(i + j) % 4];
+                        reflect RSCLK[4 + j] = SCLK[4 + (i + j) % 4];
+                        reflect RSCLK_H[j] = SCLK_H[(i + j) % 4];
+                        reflect RSCLK_H[4 + j] = SCLK_H[4 + (i + j) % 4];
+                        if variant [ecp3, machxo2] {
+                            reflect RPCLK[j] = PCLK[(i + j) % 4];
+                            reflect RPCLK[4 + j] = PCLK[4 + (i + j) % 4];
+                            reflect RPCLK_ROW[j] = PCLK_ROW[(i + j) % 4];
+                            reflect RPCLK_ROW[4 + j] = PCLK_ROW[4 + (i + j) % 4];
+                        }
+                    }
+                }
             }
         }
     }
@@ -4647,67 +4676,4 @@ pub mod wiredata {
         s: cslots::S,
         n: cslots::N,
     };
-}
-
-pub mod tiledata {
-    use prjcombine_interconnect::db::TileClassId;
-
-    use crate::defs::tcls;
-
-    pub const RPCLK_DRIVER: [TileClassId; 4] = [
-        tcls::RPCLK0_DRIVER,
-        tcls::RPCLK1_DRIVER,
-        tcls::RPCLK2_DRIVER,
-        tcls::RPCLK3_DRIVER,
-    ];
-    pub const RPCLK_DRIVER_W: [TileClassId; 4] = [
-        tcls::RPCLK0_DRIVER_W,
-        tcls::RPCLK1_DRIVER_W,
-        tcls::RPCLK2_DRIVER_W,
-        tcls::RPCLK3_DRIVER_W,
-    ];
-    pub const RPCLK_DRIVER_E: [TileClassId; 4] = [
-        tcls::RPCLK0_DRIVER_E,
-        tcls::RPCLK1_DRIVER_E,
-        tcls::RPCLK2_DRIVER_E,
-        tcls::RPCLK3_DRIVER_E,
-    ];
-
-    pub const RPCLK_DRIVER_IO_N: [TileClassId; 4] = [
-        tcls::RPCLK0_DRIVER_IO_N,
-        tcls::RPCLK1_DRIVER_IO_N,
-        tcls::RPCLK2_DRIVER_IO_N,
-        tcls::RPCLK3_DRIVER_IO_N,
-    ];
-    pub const RPCLK_DRIVER_IO_N_W: [TileClassId; 4] = [
-        tcls::RPCLK0_DRIVER_IO_N_W,
-        tcls::RPCLK1_DRIVER_IO_N_W,
-        tcls::RPCLK2_DRIVER_IO_N_W,
-        tcls::RPCLK3_DRIVER_IO_N_W,
-    ];
-    pub const RPCLK_DRIVER_IO_N_E: [TileClassId; 4] = [
-        tcls::RPCLK0_DRIVER_IO_N_E,
-        tcls::RPCLK1_DRIVER_IO_N_E,
-        tcls::RPCLK2_DRIVER_IO_N_E,
-        tcls::RPCLK3_DRIVER_IO_N_E,
-    ];
-
-    pub const SCLK_SOURCE: [TileClassId; 4] = [
-        tcls::SCLK0_SOURCE,
-        tcls::SCLK1_SOURCE,
-        tcls::SCLK2_SOURCE,
-        tcls::SCLK3_SOURCE,
-    ];
-    pub const SCLK_SOURCE_W: [TileClassId; 4] = [
-        tcls::SCLK0_SOURCE_W,
-        tcls::SCLK1_SOURCE_W,
-        tcls::SCLK2_SOURCE_W,
-        tcls::SCLK3_SOURCE_W,
-    ];
-    pub const SCLK_SOURCE_E: [TileClassId; 4] = [
-        tcls::SCLK0_SOURCE_E,
-        tcls::SCLK1_SOURCE_E,
-        tcls::SCLK2_SOURCE_E,
-        tcls::SCLK3_SOURCE_E,
-    ];
 }

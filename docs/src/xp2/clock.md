@@ -6,9 +6,7 @@
 {{tile xp2 ECLK_ROOT_S}}
 {{tile xp2 ECLK_ROOT_W}}
 {{tile xp2 ECLK_TAP}}
-{{tile xp2 HSDCLK_ROOT}}
-{{tile xp2 HSDCLK_SPLITTER}}
-{{tile xp2 SCLK0_SOURCE}}
-{{tile xp2 SCLK1_SOURCE}}
-{{tile xp2 SCLK2_SOURCE}}
-{{tile xp2 SCLK3_SOURCE}}
+{{tile xp2 PCLK_DRIVER}}
+{{tile xp2 SCLK_H_ROOT}}
+{{tile xp2 SCLK_H_SPLITTER}}
+{{tile xp2 RSCLK_DRIVER}}

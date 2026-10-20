@@ -1,14 +1,17 @@
-use std::collections::{BTreeSet, btree_map};
+use std::{
+    assert_matches,
+    collections::{BTreeSet, btree_map},
+};
 
 use prjcombine_ecp::{
-    chip::{ChipKind, RowKind},
+    chip::{Chip, ChipKind, RowKind},
     defs::{bslots, cslots, wiredata, wires},
 };
 use prjcombine_entity::{EntityId, EntityIdArith};
 use prjcombine_interconnect::{
     db::{BelInput, CellSlotId, TileWireCoord, WireKind},
-    dir::Dir,
-    grid::{BelCoord, CellCoord, WireCoord},
+    dir::{Dir, DirV},
+    grid::{BelCoord, CellCoord, DieIdExt, WireCoord},
 };
 use prjcombine_re_lattice_naming::WireName;
 
@@ -142,7 +145,7 @@ impl ChipContext<'_> {
                 if self.chip.kind == ChipKind::Scm {
                     wires::DSCLK[idx]
                 } else if self.chip.kind.has_distributed_sclk() {
-                    wires::RSCLK[idx]
+                    wires::SCLK[idx]
                 } else if matches!(
                     self.chip.kind,
                     ChipKind::Ecp | ChipKind::Xp | ChipKind::MachXo
@@ -152,65 +155,48 @@ impl ChipContext<'_> {
                     panic!("ummmm {suffix}")
                 }
             } else {
-                if self.chip.kind.has_distributed_sclk_ecp3() {
-                    wires::RPCLK[idx]
-                } else {
-                    wires::PCLK[idx]
-                }
+                wires::PCLK[idx]
             };
             let cell = self.chip.xlat_rc_wire(wn);
             match self.chip.kind {
-                ChipKind::Ecp | ChipKind::Xp | ChipKind::MachXo => {
-                    let wire = cell.wire(wire);
-                    let wire = self.edev.resolve_wire(wire).unwrap();
-                    self.edev.wire_tree(wire)
-                }
-                ChipKind::Ecp2 | ChipKind::Ecp2M | ChipKind::Xp2 => {
-                    if is_sclk {
-                        let WireKind::Regional(region) = self.intdb[wire].kind else {
-                            unreachable!()
-                        };
-                        let root = self.edev[cell].region_root[region];
-                        let mut cell_start = cell;
-                        let mut cell_end = cell;
-                        while let Some(cell_new) = self.edev.cell_delta(cell_start, -1, 0)
-                            && self.edev.has_bel(cell_new.bel(bslots::INT))
-                            && self.edev[cell_new].region_root[region] == root
-                        {
-                            cell_start = cell_new;
-                        }
-                        while let Some(cell_new) = self.edev.cell_delta(cell_end, 1, 0)
-                            && self.edev.has_bel(cell_new.bel(bslots::INT))
-                            && self.edev[cell_new].region_root[region] == root
-                        {
-                            cell_end = cell_new;
-                        }
-                        if self.chip.kind == ChipKind::Xp2
-                            && self.chip.rows[cell.row].kind == RowKind::Ebr
-                            && matches!(suffix.as_str(), "HSBX0101" | "HSBX0501")
-                            && cell.col.to_idx() < 6
-                        {
-                            // toolchain bug or actual hardware issue? you tell me.
-                            if cell.col.to_idx() < 2 {
-                                cell_end.col -= 4;
-                            } else {
-                                cell_start.col += 2;
-                            }
-                        }
-                        cell_start
-                            .col
-                            .range(cell_end.col + 1)
-                            .map(|col| cell.with_col(col).wire(wire))
-                            .collect()
-                    } else {
-                        self.chip
-                            .cols_pclk
-                            .range(cell.col)
-                            .map(|col| cell.with_col(col).wire(wire))
-                            .collect()
+                ChipKind::Ecp2 | ChipKind::Ecp2M | ChipKind::Xp2 if is_sclk => {
+                    let WireKind::Regional(region) = self.intdb[wire].kind else {
+                        unreachable!()
+                    };
+                    let root = self.edev[cell].region_root[region];
+                    let mut cell_start = cell;
+                    let mut cell_end = cell;
+                    while let Some(cell_new) = self.edev.cell_delta(cell_start, -1, 0)
+                        && self.edev.has_bel(cell_new.bel(bslots::INT))
+                        && self.edev[cell_new].region_root[region] == root
+                    {
+                        cell_start = cell_new;
                     }
+                    while let Some(cell_new) = self.edev.cell_delta(cell_end, 1, 0)
+                        && self.edev.has_bel(cell_new.bel(bslots::INT))
+                        && self.edev[cell_new].region_root[region] == root
+                    {
+                        cell_end = cell_new;
+                    }
+                    if self.chip.kind == ChipKind::Xp2
+                        && self.chip.rows[cell.row].kind == RowKind::Ebr
+                        && matches!(suffix.as_str(), "HSBX0101" | "HSBX0501")
+                        && cell.col.to_idx() < 6
+                    {
+                        // toolchain bug or actual hardware issue? you tell me.
+                        if cell.col.to_idx() < 2 {
+                            cell_end.col -= 4;
+                        } else {
+                            cell_start.col += 2;
+                        }
+                    }
+                    cell_start
+                        .col
+                        .range(cell_end.col + 1)
+                        .map(|col| cell.with_col(col).wire(wire))
+                        .collect()
                 }
-                ChipKind::Ecp3(_) | ChipKind::MachXo2(_) => {
+                ChipKind::Ecp3(_) | ChipKind::MachXo2(_) if is_sclk => {
                     let WireKind::Regional(region) = self.intdb[wire].kind else {
                         unreachable!()
                     };
@@ -236,15 +222,10 @@ impl ChipContext<'_> {
                 ChipKind::Scm | ChipKind::Ecp4 => {
                     vec![cell.wire(wire)]
                 }
-                ChipKind::Ecp5 | ChipKind::Crosslink => {
-                    let col_drv = self.chip.cols_pclk[cell.col];
-                    let cols_all = self.chip.cols_pclk.range(cell.col);
-                    let cols = if cell.col < col_drv {
-                        cols_all.start().range(col_drv)
-                    } else {
-                        col_drv.range(cols_all.end())
-                    };
-                    cols.map(|col| cell.with_col(col).wire(wire)).collect()
+                _ => {
+                    let wire = cell.wire(wire);
+                    let wire = self.edev.resolve_wire(wire).unwrap();
+                    self.edev.wire_tree(wire)
                 }
             }
         } else if self.chip.kind == ChipKind::Scm
@@ -337,14 +318,7 @@ impl ChipContext<'_> {
             assert!(suffix.ends_with("00"));
             let cell = self.hsdclk_locs[&wn];
             let idx: usize = suffix[4..6].parse().unwrap();
-            let idx = if self.chip.kind.has_distributed_sclk_ecp3() {
-                let dx = (idx + 4 - self.chip.col_sclk_idx(cell.col)) % 4;
-                idx / 4 * 4 + dx
-            } else {
-                assert_eq!(idx % 4, self.chip.col_sclk_idx(cell.col));
-                idx / 4 * 4
-            };
-            let wire = wires::RSCLK_H[idx];
+            let wire = wires::SCLK_H[idx];
             let wire = cell.wire(wire);
             let wire = self.edev.resolve_wire(wire).unwrap();
             self.edev.wire_tree(wire)
@@ -356,26 +330,123 @@ impl ChipContext<'_> {
                 let is_w = cell.col == self.chip.col_w();
                 match idx {
                     2 => 0,
-                    3 => 1,
-                    6 if is_w => 6,
+                    3 => 4,
+                    6 if is_w => 3,
                     7 if is_w => 7,
-                    6 => 2,
-                    7 => 3,
-                    10 => 4,
-                    11 => 5,
+                    6 => 1,
+                    7 => 5,
+                    10 => 2,
+                    11 => 6,
                     _ => unreachable!(),
                 }
             } else {
                 match idx {
                     0 => 0,
-                    1 => 1,
+                    1 => 4,
                     2 => 0,
-                    3 => 1,
+                    3 => 4,
                     _ => unreachable!(),
                 }
             };
             let wire = wires::RSCLK_V[idx];
             let wire = cell.wire(wire);
+            let wire = self.edev.resolve_wire(wire).unwrap();
+            self.edev.wire_tree(wire)
+        } else if matches!(self.chip.kind, ChipKind::Ecp3(_) | ChipKind::MachXo2(_))
+            && suffix.starts_with("VPTX")
+            && suffix.len() == 8
+        {
+            assert!(suffix.ends_with("00"));
+            let idx: usize = suffix[4..6].parse().unwrap();
+            let cell = self.chip.xlat_rc_wire(wn);
+            let idx = self.chip.clk_to_rclk(cell.col, idx);
+            let wire = wires::RPCLK_COL[idx];
+            let wire = cell.wire(wire);
+            let wire = self.edev.resolve_wire(wire).unwrap();
+            let mut res = self.edev.wire_tree(wire);
+            if matches!(self.chip.kind, ChipKind::Ecp3(_))
+                && self.chip.rows_pclk.range(cell.row).start() == self.chip.row_s()
+            {
+                let row_serdes = self.chip.row_serdes(DirV::S);
+                res.retain(|&w| (w.row < row_serdes) == (cell.row < row_serdes));
+            }
+            res
+        } else if matches!(self.chip.kind, ChipKind::Ecp3(_) | ChipKind::MachXo2(_))
+            && suffix.starts_with("HPSX")
+            && suffix.len() == 8
+        {
+            assert!(suffix.ends_with("00"));
+            let idx: usize = suffix[4..6].parse().unwrap();
+            let mut cell = self.chip.xlat_rc_wire(wn);
+            if self.chip.rows_pclk[cell.row] != cell.row {
+                assert_matches!(self.chip.kind, ChipKind::MachXo2(_));
+                assert_eq!(self.chip.rows_pclk[cell.row], self.chip.row_s());
+                cell.row = self.chip.row_s();
+            }
+            let wire = wires::PCLK_ROW[idx];
+            let wire = cell.wire(wire);
+            let wire = self.edev.resolve_wire(wire).unwrap();
+            self.edev.wire_tree(wire)
+        } else if ((suffix.starts_with("VPTX")
+            && matches!(self.chip.kind, ChipKind::Ecp5 | ChipKind::Crosslink))
+            || (suffix.starts_with("VPSX") && self.chip.kind == ChipKind::Scm))
+            && suffix.len() == 8
+        {
+            assert!(suffix.ends_with("00"));
+            let idx: usize = suffix[4..6].parse().unwrap();
+            let cell = self.chip.xlat_rc_wire(wn).delta(1, 0);
+            let wire = wires::PCLK_COL[idx];
+            let wire = cell.wire(wire);
+            let wire = self.edev.resolve_wire(wire).unwrap();
+            self.edev.wire_tree(wire)
+        } else if ((suffix.starts_with("HPRX")
+            && matches!(
+                self.chip.kind,
+                ChipKind::Ecp4 | ChipKind::Ecp5 | ChipKind::Crosslink
+            ))
+            || (suffix.starts_with("VPBX")
+                && matches!(
+                    self.chip.kind,
+                    ChipKind::Ecp2 | ChipKind::Ecp2M | ChipKind::Xp2
+                ))
+            || (suffix.starts_with("HPCX") && self.chip.kind == ChipKind::Scm))
+            && suffix.len() == 8
+        {
+            assert!(suffix.ends_with("00"));
+            let idx: usize = suffix[4..6].parse().unwrap();
+            let mut cell = self.chip.xlat_rc_wire(wn);
+            // ????
+            if self.chip.kind == ChipKind::Xp2 && cell.col == self.chip.col_clk - 1 {
+                cell.col = self.chip.col_clk;
+            }
+            let wire = match self.chip.kind {
+                ChipKind::Ecp4 => wires::PCLK_ROW[idx],
+                ChipKind::Crosslink => wires::PCLK_HALF[idx],
+                _ => wires::PCLK_ROOT[idx],
+            };
+            let wire = cell.wire(wire);
+            let wire = self.edev.resolve_wire(wire).unwrap();
+            self.edev.wire_tree(wire)
+        } else if self.chip.kind == ChipKind::Ecp4
+            && let Some(idx) = suffix
+                .strip_prefix("LLPCLK")
+                .or(suffix.strip_prefix("ULPCLK"))
+                .or(suffix.strip_prefix("LRPCLK"))
+                .or(suffix.strip_prefix("URPCLK"))
+            && let Ok(idx) = idx.parse::<usize>()
+        {
+            let col = if &suffix[1..2] == "L" {
+                self.chip.col_w()
+            } else {
+                self.chip.col_e()
+            };
+            let row = if suffix.starts_with("L") {
+                self.chip.row_s()
+            } else {
+                self.chip.row_n()
+            };
+            let wire = wires::PCLK_ROOT[idx];
+            let wire = Chip::DIE.cell(col, row).wire(wire);
             let wire = self.edev.resolve_wire(wire).unwrap();
             self.edev.wire_tree(wire)
         } else if (suffix.starts_with("BPCX")
@@ -388,10 +459,10 @@ impl ChipContext<'_> {
         {
             let idx: usize = suffix[4..6].parse().unwrap();
             let wire = if &suffix[1..2] == "P" {
-                wires::PCLK_ROOT
+                wires::PCLK_ROOT[idx]
             } else {
-                wires::SCLK_ROOT
-            }[idx];
+                wires::SCLK_ROOT[idx]
+            };
             let cell = self
                 .chip
                 .xlat_rc_wire(wn)
@@ -409,10 +480,10 @@ impl ChipContext<'_> {
         {
             let idx: usize = suffix[4..6].parse().unwrap();
             let wire = if &suffix[1..2] == "P" {
-                wires::PCLK_ROOT
+                wires::PCLK_ROOT[idx]
             } else {
-                wires::SCLK_ROOT
-            }[idx];
+                wires::SCLK_ROOT[idx]
+            };
             let cell = self.chip.xlat_rc_wire(wn);
             let wire = self.edev.resolve_wire(cell.wire(wire)).unwrap();
             self.edev.wire_tree(wire)
@@ -815,13 +886,14 @@ impl ChipContext<'_> {
         wire: WireName,
         filter: bool,
         quiet: bool,
+        nudge: Option<CellSlotId>,
     ) -> Option<BTreeSet<TileWireCoord>> {
         if let Some(&(bcrd_out, _, ref out)) = self.hybrid_out.get(&wire) {
             assert_eq!(bcrd, bcrd_out);
             return Some(out.clone());
         }
         if let Some(wires) = self.io_int_wires.get(&wire) {
-            let w = self.wire_to_tw(bcrd, wires[0], None).unwrap();
+            let w = self.wire_to_tw(bcrd, wires[0], nudge).unwrap();
             return Some(BTreeSet::from([w]));
         }
         let mut out_wires = BTreeSet::new();
@@ -841,7 +913,7 @@ impl ChipContext<'_> {
                 if filter && !self.intdb.wires[wt.slot].name.starts_with("OUT") {
                     continue;
                 }
-                let Some(wt) = self.wire_to_tw(bcrd, wt, None) else {
+                let Some(wt) = self.wire_to_tw(bcrd, wt, nudge) else {
                     if !quiet {
                         println!(
                             "{name}: fail to xlat int wire {wt} in {bel}",
@@ -864,11 +936,22 @@ impl ChipContext<'_> {
     }
 
     pub fn xlat_output(&mut self, bcrd: BelCoord, wire: WireName) -> BTreeSet<TileWireCoord> {
-        self.try_xlat_output(bcrd, wire, false, false).unwrap()
+        self.try_xlat_output(bcrd, wire, false, false, None)
+            .unwrap()
+    }
+
+    pub fn xlat_output_nudge(
+        &mut self,
+        bcrd: BelCoord,
+        wire: WireName,
+        cslot: CellSlotId,
+    ) -> BTreeSet<TileWireCoord> {
+        self.try_xlat_output(bcrd, wire, false, false, Some(cslot))
+            .unwrap()
     }
 
     pub fn xlat_output_quiet(&mut self, bcrd: BelCoord, wire: WireName) -> BTreeSet<TileWireCoord> {
-        self.try_xlat_output(bcrd, wire, false, true).unwrap()
+        self.try_xlat_output(bcrd, wire, false, true, None).unwrap()
     }
 
     pub fn xlat_sc_wire(&mut self, wname: WireName, bcrd: BelCoord) -> TileWireCoord {
