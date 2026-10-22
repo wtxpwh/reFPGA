@@ -13,6 +13,7 @@ target_defs! {
     variant ecp4;
     variant ecp5;
     variant crosslink;
+    variant nexus;
 
     bel_class SLICE {
         input A[2], B[2], C[2], D[2];
@@ -23,7 +24,7 @@ target_defs! {
             input WCK, WRE;
         }
         output F[2], Q[2];
-        if variant [ecp5, crosslink] {
+        if variant [ecp5, crosslink, nexus] {
             // skip
         } else {
             output OFX[2];
@@ -70,6 +71,36 @@ target_defs! {
         }
         if variant [machxo, machxo2, scm, ecp4] {
             output EF, FF, AE, AF;
+        }
+        if variant nexus {
+            input DWS[5];
+            output AFULL, AEMPTY, FULLF, EMPTYF;
+            output ONEERR, TWOERR;
+        }
+    }
+
+    if variant nexus {
+        bel_class LRAM {
+            input CLK;
+            input RSTA, RSTB;
+            input CEA, CEB;
+            input WEA, WEB;
+            input OCEA, OCEB;
+            input CSA, CSB;
+            input ADA[14], ADB[14];
+            input BENA_N[4], BENB_N[4];
+            input DIA[32], DIB[32];
+            output DOA[32], DOB[32];
+            input OPCGLOADCLK;
+            input DPS, IGN, INITN, STDBYN;
+            input ERRDECA[2], ERRDECB[2];
+            output OEA, OEB;
+            output ERRDET;
+            output LRAMREADY;
+
+            input SCANCLK;
+            input SCANRST;
+            input TBISTN;
         }
     }
 
@@ -282,6 +313,32 @@ target_defs! {
             // - 61: EQZ
             output R[72];
         }
+    } else if variant nexus {
+        bel_class DSP {
+            input MULT_CLK[2];
+            input RSTA[2], RSTB[2], RSTCL[2], RSTP[2];
+            input CEA[2], CEB[2], CECL[2], CEP[2];
+            input A0[18], A1[18], B0[18], B1[18];
+            input SIGNEDA[4], SIGNEDB[4];
+            input MULT_ROUNDEN[2];
+            input MULT18X36_ROUNDEN;
+            input MULT0_SFTCTRL[4], MULT1_SFTCTRL[4];
+            input MULT18X36_SFTCTRL[4];
+
+            input ACC_CLK;
+            input RSTC, RSTO, RSTCIN, RSTCTRL;
+            input CEC, CEO, CECIN, CECTRL;
+            input C[54];
+            input ACC_SIGNEDI;
+            input CIN;
+            input ADDSUB[2];
+            input M9ADDSUB[2];
+            input LOAD;
+            input ACC_ROUNDEN;
+            input ACC_SFTCTRL[4];
+
+            output SUM0[36], SUM1[36];
+        }
     }
 
     if variant scm {
@@ -452,6 +509,8 @@ target_defs! {
             input MOVE;
             input SLIP;
             output CFLAG;
+
+            pad PAD: inout;
         }
 
         bel_class DQS {
@@ -484,6 +543,12 @@ target_defs! {
             input MOVE;
             input SLIP;
             output CFLAG;
+
+            pad PAD: inout;
+        }
+    } else if variant nexus {
+        bel_class IO {
+            // TODO
 
             pad PAD: inout;
         }
@@ -1965,6 +2030,12 @@ target_defs! {
         }
     }
 
+    if variant nexus {
+        bel_class MIPI {
+            // TODO
+        }
+    }
+
     wire TIE0: tie 0;
     wire TIE1: tie 1;
 
@@ -1984,6 +2055,9 @@ target_defs! {
         // X1_W0 and X1_E0 are aliased to X1_H where applicable; X1_S0/X1_N0 are aliased to X1_V
         wire X1_H[8]: mux;
         wire X1_V[8]: mux;
+    } else if variant nexus {
+        wire X1_H[4]: mux;
+        wire X1_V[4]: mux;
     }
 
     if variant [scm, ecp4] {
@@ -1992,17 +2066,32 @@ target_defs! {
     } else if variant [ecp2, ecp2m, xp2, ecp3] {
         // indices 0, 1, 4, 5 are valid (and 1, 4 are aliased to X1_[HV])
         const NUM_X1 = 8;
+    } else if variant nexus {
+        // indices 0..=3 are valid
+        const NUM_X1 = 4;
     } else {
         // indices 0, 1 are valid
         const NUM_X1 = 2;
     }
-    wire X1_W0[NUM_X1]: mux;
+    if variant nexus {
+    } else {
+        wire X1_W0[NUM_X1]: mux;
+    }
     wire X1_W1[NUM_X1]: branch E;
-    wire X1_E0[NUM_X1]: mux;
+    if variant nexus {
+    } else {
+        wire X1_E0[NUM_X1]: mux;
+    }
     wire X1_E1[NUM_X1]: branch W;
-    wire X1_S0[NUM_X1]: mux;
+    if variant nexus {
+    } else {
+        wire X1_S0[NUM_X1]: mux;
+    }
     wire X1_S1[NUM_X1]: branch N;
-    wire X1_N0[NUM_X1]: mux;
+    if variant nexus {
+    } else {
+        wire X1_N0[NUM_X1]: mux;
+    }
     wire X1_N1[NUM_X1]: branch S;
 
     wire X2_W0[8]: mux;
@@ -2121,6 +2210,14 @@ target_defs! {
         wire PCLK_COL[8]: regional PCLK_COL;
         wire PCLK_HALF[8]: regional PCLK;
         wire PCLK_ROOT[8]: mux;
+    } else if variant nexus {
+        region_slot PCLK;
+        region_slot PCLK_COL;
+        region_slot PCLK_LEAF;
+        wire PCLK[8]: regional PCLK_LEAF;
+        wire PCLK_MUX[16]: mux;
+        wire PCLK_COL[16]: regional PCLK_COL;
+        wire PCLK_ROOT[16]: regional PCLK;
     }
 
     if variant [ecp2, ecp2m, xp2, ecp3, machxo2] {
@@ -2170,6 +2267,12 @@ target_defs! {
     wire IMUX_B[8]: mux;
     wire IMUX_C[8]: mux;
     wire IMUX_D[8]: mux;
+    if variant nexus {
+        wire IMUX_MUXA[8]: mux;
+        wire IMUX_MUXB[8]: mux;
+        wire IMUX_MUXC[8]: mux;
+        wire IMUX_MUXD[8]: mux;
+    }
     wire IMUX_M[8]: mux;
 
     // ECP4. ECP5, Crosslink: only 2 indices used, but has IMUX_MUX*
@@ -2177,22 +2280,27 @@ target_defs! {
     if variant [ecp4, ecp5, crosslink] {
         wire IMUX_CLK[2]: mux;
         wire IMUX_LSR[2]: mux;
+        wire IMUX_CE[4]: mux;
         wire IMUX_MUXCLK[4]: mux;
         wire IMUX_MUXLSR[4]: mux;
+        if variant ecp4 {
+            wire IMUX_CLK_DELAY[2]: mux;
+        }
+    } else if variant nexus {
+        wire IMUX_CLK[2]: mux;
+        wire IMUX_LSR[2]: mux;
+        wire IMUX_CE[2]: mux;
     } else {
         wire IMUX_CLK[4]: mux;
         wire IMUX_LSR[4]: mux;
+        wire IMUX_CE[4]: mux;
     }
-    if variant ecp4 {
-        wire IMUX_CLK_DELAY[2]: mux;
-    }
-    wire IMUX_CE[4]: mux;
 
     wire OUT_F[8]: bel;
     wire OUT_F_W[8]: branch E;
     wire OUT_F_E[8]: branch W;
     wire OUT_Q[8]: bel;
-    if variant [ecp5, crosslink] {
+    if variant [ecp5, crosslink, nexus] {
     } else {
         wire OUT_OFX[8]: bel;
         wire OUT_OFX_W[8]: branch E;
@@ -2402,7 +2510,6 @@ target_defs! {
         region_slot DDRDLL;
         wire DDRDEL_S: regional DDRDLL;
         wire DDRDEL_N: regional DDRDLL;
-
     } else if variant crosslink {
         wire OUT_IO_PADDI[4]: bel;
         wire IMUX_IO_ECLK[4]: mux;
@@ -2588,7 +2695,7 @@ target_defs! {
                 switchbox INT;
             }
         }
-        if variant [ecp2, ecp2m, xp2, ecp3, machxo2, ecp4, ecp5] {
+        if variant [ecp2, ecp2m, xp2, ecp3, machxo2, ecp4, ecp5, nexus] {
             tile_class INT_IO_WE, INT_IO_S, INT_IO_N {
                 cell CELL;
                 switchbox INT;
@@ -2607,7 +2714,7 @@ target_defs! {
             }
         }
 
-        if variant [scm, ecp, xp, machxo2, ecp4, ecp5, crosslink] {
+        if variant [scm, ecp, xp, machxo2, ecp4, ecp5, crosslink, nexus] {
             tile_class INT_EBR {
                 cell CELL;
                 switchbox INT;
@@ -2793,6 +2900,8 @@ target_defs! {
                 cell CELL;
                 bel IO[0];
             }
+        } else if variant nexus {
+            bel_slot IO[2]: IO;
         }
     }
 
@@ -2803,7 +2912,7 @@ target_defs! {
 
         tile_class PLC, FPLC {
             if tile_class FPLC {
-                if variant [scm, machxo2, ecp4, ecp5, crosslink] {
+                if variant [scm, machxo2, ecp4, ecp5, crosslink, nexus] {
                     skip;
                 }
             }
@@ -2836,7 +2945,7 @@ target_defs! {
                         }
                     }
 
-                    if variant [ecp5, crosslink] {
+                    if variant [ecp5, crosslink, nexus] {
                         // skip
                     } else {
                         for j in 0..2 {
@@ -2859,11 +2968,16 @@ target_defs! {
                         if variant [ecp4, ecp5, crosslink] {
                             input CLK = IMUX_MUXCLK[i];
                             input LSR = IMUX_MUXLSR[i];
+                            input CE = IMUX_CE[i];
+                        } else if variant nexus {
+                            input CLK = IMUX_CLK[i / 2];
+                            input LSR = IMUX_LSR[i / 2];
+                            input CE = IMUX_CE[i / 2];
                         } else {
                             input CLK = IMUX_CLK[i];
                             input LSR = IMUX_LSR[i];
+                            input CE = IMUX_CE[i];
                         }
-                        input CE = IMUX_CE[i];
                         for j in 0..2 {
                             output Q[j] = OUT_Q[2 * i + j];
                         }
@@ -2934,6 +3048,14 @@ target_defs! {
                     bel EBR[i];
                 }
             }
+        } else if variant nexus {
+            bel_slot EBR[4]: EBR;
+            tile_class EBR {
+                cell CELL[11];
+                for i in 0..4 {
+                    bel EBR[i];
+                }
+            }
         }
         if variant ecp {
             bel_slot DSP[1]: DSP;
@@ -2951,6 +3073,14 @@ target_defs! {
             bel_slot DSP[2]: DSP;
             tile_class DSP {
                 cell CELL[9];
+                for i in 0..2 {
+                    bel DSP[i];
+                }
+            }
+        } else if variant nexus {
+            bel_slot DSP[2]: DSP;
+            tile_class DSP_W, DSP_E {
+                cell CELL[12];
                 for i in 0..2 {
                     bel DSP[i];
                 }
@@ -3014,6 +3144,9 @@ target_defs! {
                 switchbox BEL_INT;
                 bel MIPI;
             }
+        } else if variant nexus {
+            bel_slot MIPI: MIPI;
+            // TODO
         }
 
         // PLLs etc
@@ -4279,12 +4412,15 @@ target_defs! {
         }
     }
 
-    if variant [ecp5, crosslink] {
+    if variant [ecp5, crosslink, nexus] {
         tile_slot PCLK_DRIVER {
             bel_slot PCLK_DRIVER: routing;
 
             tile_class PCLK_DRIVER {
                 cell W, E;
+                if variant nexus {
+                    cell COL;
+                }
                 switchbox PCLK_DRIVER;
             }
         }
@@ -4347,7 +4483,11 @@ target_defs! {
     connector_slot W {
         opposite E;
         connector_class PASS_W {
-            pass X1_E1 = X1_E0;
+            if variant nexus {
+                pass X1_E1 = X1_H;
+            } else {
+                pass X1_E1 = X1_E0;
+            }
             pass X2_E1 = X2_E0;
             pass X2_E2 = X2_E1;
             for i in 0..6 {
@@ -4364,7 +4504,12 @@ target_defs! {
             pass OUT_F_E = OUT_F;
         }
         connector_class TERM_W {
-            if variant [ecp5, crosslink] {
+            if variant nexus {
+                reflect X1_E1[0] = X1_H[1];
+                reflect X1_E1[1] = X1_H[0];
+                reflect X1_E1[2] = X1_H[3];
+                reflect X1_E1[3] = X1_H[2];
+            } else if variant [ecp5, crosslink] {
                 reflect X1_E1 = X1_W0;
             }
             reflect X2_E1 = X2_W0;
@@ -4383,7 +4528,11 @@ target_defs! {
     connector_slot E {
         opposite W;
         connector_class PASS_E {
-            pass X1_W1 = X1_W0;
+            if variant nexus {
+                pass X1_W1 = X1_H;
+            } else {
+                pass X1_W1 = X1_W0;
+            }
             pass X2_W1 = X2_W0;
             pass X2_W2 = X2_W1;
             for i in 0..6 {
@@ -4398,13 +4547,18 @@ target_defs! {
             }
 
             pass OUT_F_W = OUT_F;
-            if variant [ecp5, crosslink] {
+            if variant [ecp5, crosslink, nexus] {
             } else {
                 pass OUT_OFX_W = OUT_OFX;
             }
         }
         connector_class TERM_E {
-            if variant [ecp5, crosslink] {
+            if variant nexus {
+                reflect X1_W1[0] = X1_H[1];
+                reflect X1_W1[1] = X1_H[0];
+                reflect X1_W1[2] = X1_H[3];
+                reflect X1_W1[3] = X1_H[2];
+            } else if variant [ecp5, crosslink] {
                 reflect X1_W1 = X1_E0;
             }
             reflect X2_W1 = X2_E0;
@@ -4423,7 +4577,11 @@ target_defs! {
     connector_slot S {
         opposite N;
         connector_class PASS_S {
-            pass X1_N1 = X1_N0;
+            if variant nexus {
+                pass X1_N1 = X1_V;
+            } else {
+                pass X1_N1 = X1_N0;
+            }
             pass X2_N1 = X2_N0;
             pass X2_N2 = X2_N1;
             for i in 0..6 {
@@ -4441,7 +4599,12 @@ target_defs! {
             }
         }
         connector_class TERM_S {
-            if variant [ecp5, crosslink] {
+            if variant nexus {
+                reflect X1_N1[0] = X1_V[1];
+                reflect X1_N1[1] = X1_V[0];
+                reflect X1_N1[2] = X1_V[3];
+                reflect X1_N1[3] = X1_V[2];
+            } else if variant [ecp5, crosslink] {
                 reflect X1_N1 = X1_S0;
             }
             reflect X2_N1 = X2_S0;
@@ -4454,7 +4617,11 @@ target_defs! {
     connector_slot N {
         opposite S;
         connector_class PASS_N {
-            pass X1_S1 = X1_S0;
+            if variant nexus {
+                pass X1_S1 = X1_V;
+            } else {
+                pass X1_S1 = X1_S0;
+            }
             pass X2_S1 = X2_S0;
             pass X2_S2 = X2_S1;
             for i in 0..6 {
@@ -4462,7 +4629,12 @@ target_defs! {
             }
         }
         connector_class TERM_N {
-            if variant [ecp5, crosslink] {
+            if variant nexus {
+                reflect X1_S1[0] = X1_V[1];
+                reflect X1_S1[1] = X1_V[0];
+                reflect X1_S1[2] = X1_V[3];
+                reflect X1_S1[3] = X1_V[2];
+            } else if variant [ecp5, crosslink] {
                 reflect X1_S1 = X1_N0;
             }
             reflect X2_S1 = X2_N0;

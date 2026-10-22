@@ -606,12 +606,14 @@ impl<'a> ExpandedGrid<'a> {
 impl core::ops::Index<(ColId, RowId)> for ExpandedDie {
     type Output = Cell;
     fn index(&self, xy: (ColId, RowId)) -> &Cell {
+        assert!(xy.0.to_idx() < self.width);
         &self.tiles[xy.1.to_idx() * self.width + xy.0.to_idx()]
     }
 }
 
 impl core::ops::IndexMut<(ColId, RowId)> for ExpandedDie {
     fn index_mut(&mut self, xy: (ColId, RowId)) -> &mut Cell {
+        assert!(xy.0.to_idx() < self.width);
         &mut self.tiles[xy.1.to_idx() * self.width + xy.0.to_idx()]
     }
 }

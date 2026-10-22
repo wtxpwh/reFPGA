@@ -6,13 +6,13 @@ use std::{
 use prjcombine_ecp::{
     bond::{AscPad, Bond, BondKind, BondPad, CfgPad, MipiPad, PfrPad, PllSet, SerdesPad},
     chip::{
-        Chip, ChipKind, Ecp3Kind, IoGroupKind, MachXo2Kind, PllLoc, PllPad, RowKind, SpecialIoKey,
-        SpecialLocKey,
+        Chip, ChipKind, Ecp3Kind, IoGroupKind, MachXo2Kind, NexusKind, PllLoc, PllPad, RowKind,
+        SpecialIoKey, SpecialLocKey,
     },
 };
 use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
-    dir::{DirH, DirHV, DirV},
+    dir::{Dir, DirH, DirHV, DirV},
     grid::{ColId, DieIdExt, EdgeIoCoord, RowId, TileIobId},
 };
 use prjcombine_re_lattice_naming::ChipNaming;
@@ -158,6 +158,16 @@ fn get_filename(datadir: &Path, part: &Part, chip: &Chip) -> PathBuf {
                 ("sn5w00", "sn5w6000".to_string())
             }
         }
+        ChipKind::Nexus(_) => match part.name.as_str() {
+            "LIFCL-17" => ("je5d00", "je5d15".to_string()),
+            "LFD2NX-17" => ("jd5s00", "jd5s15".to_string()),
+            "LIFCL-40" => ("je5d00", "je5d30".to_string()),
+            "LFD2NX-40" | "UT24C40" => ("jd5s00", "jd5s30".to_string()),
+            "LIFCL-33" => ("jd5u00", "jd5u27".to_string()),
+            "LFMXO5-25" => ("jd5f00", "jd5f25".to_string()),
+            "LFCPNX-100" | "UT24CP100" => ("jd5d00", "jd5d80".to_string()),
+            _ => panic!("ummmm {}", part.name),
+        },
     };
     datadir.join(dir).join("data").join(format!("{fname}.pkg"))
 }
@@ -673,15 +683,91 @@ fn parse_io_special(
         if matches!(chip.kind, ChipKind::MachXo2(_)) && bank >= 3 && chip.rows.len() >= 14 {
             idx = (bank - 3) as u8;
         }
+        if let ChipKind::Nexus(kind) = chip.kind {
+            match io.edge() {
+                Dir::S => {
+                    let base = match kind {
+                        NexusKind::SmallMipi | NexusKind::SmallMipiPcie | NexusKind::LargePcs => 3,
+                        NexusKind::SmallHalfIo => 2,
+                        NexusKind::SmallDenseIo => 4,
+                    };
+                    let bidx = 2 - (bank - base);
+                    idx += (bidx * 4) as u8;
+                }
+                Dir::W => {
+                    match kind {
+                        NexusKind::SmallMipi | NexusKind::SmallMipiPcie | NexusKind::LargePcs => {
+                            let bidx = bank - 6;
+                            idx += (bidx * 3) as u8;
+                        }
+                        NexusKind::SmallHalfIo => unreachable!(),
+                        NexusKind::SmallDenseIo => {
+                            idx += match bank {
+                                7 => 0,
+                                8 => 2,
+                                9 => 4,
+                                _ => unreachable!(),
+                            };
+                        }
+                    };
+                }
+                Dir::E => {
+                    match kind {
+                        NexusKind::SmallMipi | NexusKind::SmallMipiPcie | NexusKind::LargePcs => {
+                            let bidx = 2 - bank;
+                            idx += (bidx * 3) as u8;
+                        }
+                        NexusKind::SmallHalfIo => unreachable!(),
+                        NexusKind::SmallDenseIo => {
+                            idx += match bank {
+                                4 => 0,
+                                3 => 2,
+                                2 => 4,
+                                _ => unreachable!(),
+                            };
+                        }
+                    };
+                }
+                Dir::N => match kind {
+                    NexusKind::SmallMipi
+                    | NexusKind::SmallMipiPcie
+                    | NexusKind::LargePcs
+                    | NexusKind::SmallHalfIo => {}
+                    NexusKind::SmallDenseIo => {
+                        idx += (bank * 2) as u8;
+                    }
+                },
+            }
+        }
         Some((SpecialIoKey::Clock(io.edge(), idx), compl))
-    } else if let Some(vref_bank) = func.strip_prefix("VREF1_") {
+    } else if !matches!(chip.kind, ChipKind::Nexus(_))
+        && let Some(vref_bank) = func.strip_prefix("VREF1_")
+    {
         let vref_bank = vref_bank.parse().unwrap();
         assert_eq!(bank, vref_bank);
         Some((SpecialIoKey::Vref1(vref_bank), false))
-    } else if let Some(vref_bank) = func.strip_prefix("VREF2_") {
+    } else if !matches!(chip.kind, ChipKind::Nexus(_))
+        && let Some(vref_bank) = func.strip_prefix("VREF2_")
+    {
         let vref_bank = vref_bank.parse().unwrap();
         assert_eq!(bank, vref_bank);
         Some((SpecialIoKey::Vref2(vref_bank), false))
+    } else if matches!(chip.kind, ChipKind::Nexus(_))
+        && let Some(rest) = func.strip_prefix("VREF")
+        && let Some((vref_bank, which)) = rest.split_once('_')
+        && let Ok(vref_bank) = vref_bank.parse::<u32>()
+        && let Ok(which) = which.parse::<u8>()
+        && matches!(which, 1 | 2)
+    {
+        assert_eq!(bank, vref_bank);
+        Some((
+            if which == 1 {
+                SpecialIoKey::Vref1(vref_bank)
+            } else {
+                SpecialIoKey::Vref2(vref_bank)
+            },
+            false,
+        ))
     } else if (func.contains("PLL") || func.contains("DLL")) && chip.kind == ChipKind::Scm {
         let (loc, sig) = func.split_once('_').unwrap();
         let hv = match loc {
@@ -798,7 +884,8 @@ fn parse_io_special(
             | ChipKind::MachXo2(_)
             | ChipKind::Ecp4
             | ChipKind::Ecp5
-            | ChipKind::Crosslink => PllLoc::new(hv, idx),
+            | ChipKind::Crosslink
+            | ChipKind::Nexus(_) => PllLoc::new(hv, idx),
             ChipKind::Ecp2 | ChipKind::Ecp2M | ChipKind::Ecp3(_) => {
                 let cell = Chip::DIE.cell(
                     if matches!(chip.kind, ChipKind::Ecp3(_)) {
@@ -843,6 +930,10 @@ fn parse_io_special(
             "GPLLT_MFGOUT1" | "GPLLC_MFGOUT1" | "GPLLT_MFGOUT2" | "GPLLC_MFGOUT2" => {
                 return None;
             }
+            // nexus.
+            "GPLL0T_IN" => (PllPad::PllIn0, false),
+            "GPLL0C_IN" => (PllPad::PllIn0, true),
+            "GPLL0T_MFGOUT1" | "GPLL0T_MFGOUT2" => return None,
             _ => panic!("weird PLL pin {sig}"),
         };
         Some((SpecialIoKey::Pll(pad, loc), is_c))
@@ -853,6 +944,33 @@ fn parse_io_special(
             None
         } else {
             Some((SpecialIoKey::D(idx), false))
+        }
+    } else if matches!(chip.kind, ChipKind::Nexus(_))
+        && let Some(idx) = func.strip_prefix("SD")
+        && let Ok(idx) = idx.parse()
+    {
+        Some((SpecialIoKey::D(idx), false))
+    } else if matches!(chip.kind, ChipKind::Nexus(_))
+        && let Some(idx) = func.strip_prefix("ADC_CP")
+        && let Ok(idx) = idx.parse()
+    {
+        Some((SpecialIoKey::AdcCh(idx), false))
+    } else if matches!(chip.kind, ChipKind::Nexus(_))
+        && let Some(idx) = func.strip_prefix("ADC_CN")
+        && let Ok(idx) = idx.parse()
+    {
+        Some((SpecialIoKey::AdcCh(idx), true))
+    } else if matches!(chip.kind, ChipKind::Nexus(_))
+        && let Some(idx_pol) = func.strip_prefix("COMP")
+        && let Ok(idx) = idx_pol[0..1].parse()
+        && matches!(idx, 1..=3)
+        && matches!(&idx_pol[1..], "P" | "N" | "IP" | "IN")
+    {
+        let is_comp = idx_pol.ends_with("N");
+        if &idx_pol[1..2] == "I" {
+            Some((SpecialIoKey::AdcCompI(idx), is_comp))
+        } else {
+            Some((SpecialIoKey::AdcCh(idx - 1), is_comp))
         }
     } else if let Some(idx) = func.strip_prefix("IO")
         && let Ok(idx) = idx.parse()
@@ -965,15 +1083,19 @@ fn parse_io_special(
             "MD6" if matches!(chip.kind, ChipKind::MachXo2(_)) => None,
             "MD7" if matches!(chip.kind, ChipKind::MachXo2(_)) => None,
             "TEST_CLK" if matches!(chip.kind, ChipKind::MachXo2(_)) => None,
-            "TCK" => Some((SpecialIoKey::Tck, false)),
-            "TMS" => Some((SpecialIoKey::Tms, false)),
-            "TDI" => Some((SpecialIoKey::Tdi, false)),
-            "TDO" => Some((SpecialIoKey::Tdo, false)),
+            "TCK" if !matches!(chip.kind, ChipKind::Nexus(_)) => Some((SpecialIoKey::Tck, false)),
+            "TMS" if !matches!(chip.kind, ChipKind::Nexus(_)) => Some((SpecialIoKey::Tms, false)),
+            "TDI" if !matches!(chip.kind, ChipKind::Nexus(_)) => Some((SpecialIoKey::Tdi, false)),
+            "TDO" if !matches!(chip.kind, ChipKind::Nexus(_)) => Some((SpecialIoKey::Tdo, false)),
             "JTAGENB" => Some((SpecialIoKey::JtagEn, false)),
             "INTEST_OVER" => None,
             // ECP4, ECP5
-            "SISPI1" | "MOSI" => Some((SpecialIoKey::D(0), false)),
-            "SPISO1" | "MISO" => Some((SpecialIoKey::D(1), false)),
+            "SISPI1" | "MOSI" if !matches!(chip.kind, ChipKind::Nexus(_)) => {
+                Some((SpecialIoKey::D(0), false))
+            }
+            "SPISO1" | "MISO" if !matches!(chip.kind, ChipKind::Nexus(_)) => {
+                Some((SpecialIoKey::D(1), false))
+            }
             "SISPI2" | "MOSI2" => Some((SpecialIoKey::D(4), false)),
             "SPISO2" | "MISO2" => Some((SpecialIoKey::D(5), false)),
             "SDA" if chip.kind == ChipKind::Ecp4 => Some((SpecialIoKey::Cs1N, false)),
@@ -1025,8 +1147,56 @@ fn parse_io_special(
                 SpecialIoKey::Pll(PllPad::PllIn0, PllLoc::new(DirHV::SE, 0)),
                 true,
             )),
-            "USER_SDA" => Some((SpecialIoKey::D(2), false)),
-            "USER_SCL" => Some((SpecialIoKey::D(3), false)),
+            "USER_SDA" if chip.kind == ChipKind::Crosslink => Some((SpecialIoKey::D(2), false)),
+            "USER_SCL" if chip.kind == ChipKind::Crosslink => Some((SpecialIoKey::D(3), false)),
+
+            // Nexus
+            "SCLK" | "TCK" | "PMU_EXT_CLK" if matches!(chip.kind, ChipKind::Nexus(_)) => {
+                Some((SpecialIoKey::Cclk, false))
+            }
+            "SCSN" | "TMS" if matches!(chip.kind, ChipKind::Nexus(_)) => {
+                Some((SpecialIoKey::SpiPCsB, false))
+            }
+            "PMU_WAKEUPN" | "PMU_WAKEUP" => Some((SpecialIoKey::PmuWakeupN, false)),
+            "TDI" | "SSI" if matches!(chip.kind, ChipKind::Nexus(_)) => {
+                Some((SpecialIoKey::D(0), false))
+            }
+            "TDO" | "SSO" if matches!(chip.kind, ChipKind::Nexus(_)) => {
+                Some((SpecialIoKey::D(1), false))
+            }
+            "SCL" | "USER_SCL" if matches!(chip.kind, ChipKind::Nexus(_)) => {
+                Some((SpecialIoKey::D(2), false))
+            }
+            "SDA" | "USER_SDA" if matches!(chip.kind, ChipKind::Nexus(_)) => {
+                Some((SpecialIoKey::D(3), false))
+            }
+            "MD0" | "MOSI" if matches!(chip.kind, ChipKind::Nexus(_)) => {
+                Some((SpecialIoKey::SpiCD(0), false))
+            }
+            "MD1" | "MISO" if matches!(chip.kind, ChipKind::Nexus(_)) => {
+                Some((SpecialIoKey::SpiCD(1), false))
+            }
+            "MD2" if matches!(chip.kind, ChipKind::Nexus(_)) => {
+                Some((SpecialIoKey::SpiCD(2), false))
+            }
+            "MD3" if matches!(chip.kind, ChipKind::Nexus(_)) => {
+                Some((SpecialIoKey::SpiCD(3), false))
+            }
+            "MCLK" if matches!(chip.kind, ChipKind::Nexus(_)) => Some((SpecialIoKey::MClk, false)),
+            "MCSN" if matches!(chip.kind, ChipKind::Nexus(_)) => {
+                Some((SpecialIoKey::SpiCCsB, false))
+            }
+            "MCSNO" | "MSDO" if matches!(chip.kind, ChipKind::Nexus(_)) => {
+                Some((SpecialIoKey::Dout, false))
+            }
+            "CDR_RXP0" => Some((SpecialIoKey::CdrRx(0), false)),
+            "CDR_RXN0" => Some((SpecialIoKey::CdrRx(0), true)),
+            "CDR_RXP1" => Some((SpecialIoKey::CdrRx(1), false)),
+            "CDR_RXN1" => Some((SpecialIoKey::CdrRx(1), true)),
+            "S0_IN" | "S1_IN" | "S2_IN" | "S3_IN" | "S4_IN" | "S5_IN" | "S6_IN" | "S7_IN"
+            | "S8_IN" | "S9_IN" | "S0_OUT" | "S1_OUT" | "S2_OUT" | "S3_OUT" | "S4_OUT"
+            | "S5_OUT" | "S6_OUT" | "S7_OUT" | "S8_OUT" | "S9_OUT" | "EIO" | "OSC_BURST"
+            | "OSC_HI" | "CDR0_TESTP" | "CDR0_TESTN" | "CDR1_TESTP" | "CDR1_TESTN" => None,
             _ => {
                 println!(
                     "\t{name}: unknown spec {pin:5} {func} {bank} {io}",
@@ -1440,6 +1610,10 @@ pub fn process_bond(datadir: &Path, part: &Part, chip: &Chip, _naming: &ChipNami
             .or_else(|| func.strip_prefix("VCCO"))
         {
             BondPad::VccIo(vccio_bank.parse().unwrap())
+        } else if let Some(vccauxh_bank) = func.strip_prefix("VCCAUXH")
+            && let Ok(vccauxh_bank) = vccauxh_bank.parse()
+        {
+            BondPad::VccAuxH(vccauxh_bank)
         } else if bond.kind == BondKind::MachNx
             && let Some(vccio_bank) = func.strip_prefix("VCCXDIO")
             && let Ok(vccio_bank) = vccio_bank.parse()
@@ -1531,6 +1705,9 @@ pub fn process_bond(datadir: &Path, part: &Part, chip: &Chip, _naming: &ChipNami
                 // Crosslink
                 "CDONE" => BondPad::Cfg(CfgPad::Done),
                 "CRESET_B" => BondPad::Cfg(CfgPad::ProgB),
+                "JTAG_EN" if matches!(chip.kind, ChipKind::Nexus(_)) => {
+                    BondPad::Cfg(CfgPad::JtagEn)
+                }
                 "VCC" => BondPad::VccInt,
                 "VCCAUX" | "VCCAUX1" | "VCCAUX2" | "VCCAUX3" | "VCCAUX4" | "VCCAUX5"
                 | "VCCAUX6" | "VCCAUX7" | "VCCAUX23" | "VCCAUX67" => BondPad::VccAux,
@@ -1582,6 +1759,12 @@ pub fn process_bond(datadir: &Path, part: &Part, chip: &Chip, _naming: &ChipNami
                 "RUM0_VCCPLL" if matches!(chip.kind, ChipKind::Ecp3(_)) => {
                     BondPad::VccPll(PllSet::Side(DirH::E))
                 }
+                "VCCPLL_LLC" => BondPad::VccPll(PllSet::Quad(DirHV::SW)),
+                "VCCPLL_LRC" => BondPad::VccPll(PllSet::Quad(DirHV::SE)),
+                "VCCPLL_ULC" => BondPad::VccPll(PllSet::Quad(DirHV::NW)),
+                "VCCPLL_URC" => BondPad::VccPll(PllSet::Quad(DirHV::NE)),
+                "VCCCDR" => BondPad::VccCdr,
+                "VCCECLK" => BondPad::VccEclk,
                 "VCCP0" if chip.kind == ChipKind::Xp => BondPad::VccPll(PllSet::Side(DirH::W)),
                 "VCCP1" if chip.kind == ChipKind::Xp => BondPad::VccPll(PllSet::Side(DirH::E)),
                 "GNDP0" if chip.kind == ChipKind::Xp => BondPad::VccPll(PllSet::Side(DirH::W)),

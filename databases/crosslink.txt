@@ -1161,6 +1161,10 @@ intdb {
 	wire IMUX_CLK[1]: mux;
 	wire IMUX_LSR[0]: mux;
 	wire IMUX_LSR[1]: mux;
+	wire IMUX_CE[0]: mux;
+	wire IMUX_CE[1]: mux;
+	wire IMUX_CE[2]: mux;
+	wire IMUX_CE[3]: mux;
 	wire IMUX_MUXCLK[0]: mux;
 	wire IMUX_MUXCLK[1]: mux;
 	wire IMUX_MUXCLK[2]: mux;
@@ -1169,10 +1173,6 @@ intdb {
 	wire IMUX_MUXLSR[1]: mux;
 	wire IMUX_MUXLSR[2]: mux;
 	wire IMUX_MUXLSR[3]: mux;
-	wire IMUX_CE[0]: mux;
-	wire IMUX_CE[1]: mux;
-	wire IMUX_CE[2]: mux;
-	wire IMUX_CE[3]: mux;
 	wire OUT_F[0]: bel;
 	wire OUT_F[1]: bel;
 	wire OUT_F[2]: bel;
@@ -1382,6 +1382,10 @@ intdb {
 				mux IMUX_CLK[1] = X0_S[0] | X0_S[1] | X0_N[0] | X0_N[1] | X2_S1[7] | X2_S2[7] | X2_N1[7] | X2_N2[7] | PCLK[0] | PCLK[1] | PCLK[2] | PCLK[3] | PCLK[4] | PCLK[5] | PCLK[6] | PCLK[7];
 				mux IMUX_LSR[0] = X0_S[0] | X0_S[1] | X0_N[0] | X0_N[1] | X2_W1[3] | X2_W1[5] | X2_W2[3] | X2_W2[5] | X2_E1[3] | X2_E1[5] | X2_E2[3] | X2_E2[5] | PCLK[2] | PCLK[3] | PCLK[6] | PCLK[7];
 				mux IMUX_LSR[1] = X0_S[0] | X0_S[1] | X0_N[0] | X0_N[1] | X2_W1[3] | X2_W1[5] | X2_W2[3] | X2_W2[5] | X2_E1[3] | X2_E1[5] | X2_E2[3] | X2_E2[5] | PCLK[2] | PCLK[3] | PCLK[6] | PCLK[7];
+				mux IMUX_CE[0] = X0_W[0] | X0_W[1] | X0_E[0] | X0_E[1] | X2_W1[1] | X2_W2[1] | X2_E1[1] | X2_E2[1] | X2_S1[2] | X2_S2[2] | X2_N1[2] | X2_N2[2] | PCLK[4] | PCLK[5] | PCLK[6] | PCLK[7];
+				mux IMUX_CE[1] = X0_W[0] | X0_W[1] | X0_E[0] | X0_E[1] | X2_W1[1] | X2_W2[1] | X2_E1[1] | X2_E2[1] | X2_S1[2] | X2_S2[2] | X2_N1[2] | X2_N2[2] | PCLK[4] | PCLK[5] | PCLK[6] | PCLK[7];
+				mux IMUX_CE[2] = X0_W[0] | X0_W[1] | X0_E[0] | X0_E[1] | X2_W1[1] | X2_W2[1] | X2_E1[1] | X2_E2[1] | X2_S1[6] | X2_S2[6] | X2_N1[6] | X2_N2[6] | PCLK[4] | PCLK[5] | PCLK[6] | PCLK[7];
+				mux IMUX_CE[3] = X0_W[0] | X0_W[1] | X0_E[0] | X0_E[1] | X2_W1[1] | X2_W2[1] | X2_E1[1] | X2_E2[1] | X2_S1[6] | X2_S2[6] | X2_N1[6] | X2_N2[6] | PCLK[4] | PCLK[5] | PCLK[6] | PCLK[7];
 				mux IMUX_MUXCLK[0] = IMUX_CLK[0] | IMUX_CLK[1];
 				mux IMUX_MUXCLK[1] = IMUX_CLK[0] | IMUX_CLK[1];
 				mux IMUX_MUXCLK[2] = IMUX_CLK[0] | IMUX_CLK[1];
@@ -1390,10 +1394,6 @@ intdb {
 				mux IMUX_MUXLSR[1] = IMUX_LSR[0] | IMUX_LSR[1];
 				mux IMUX_MUXLSR[2] = IMUX_LSR[0] | IMUX_LSR[1];
 				mux IMUX_MUXLSR[3] = IMUX_LSR[0] | IMUX_LSR[1];
-				mux IMUX_CE[0] = X0_W[0] | X0_W[1] | X0_E[0] | X0_E[1] | X2_W1[1] | X2_W2[1] | X2_E1[1] | X2_E2[1] | X2_S1[2] | X2_S2[2] | X2_N1[2] | X2_N2[2] | PCLK[4] | PCLK[5] | PCLK[6] | PCLK[7];
-				mux IMUX_CE[1] = X0_W[0] | X0_W[1] | X0_E[0] | X0_E[1] | X2_W1[1] | X2_W2[1] | X2_E1[1] | X2_E2[1] | X2_S1[2] | X2_S2[2] | X2_N1[2] | X2_N2[2] | PCLK[4] | PCLK[5] | PCLK[6] | PCLK[7];
-				mux IMUX_CE[2] = X0_W[0] | X0_W[1] | X0_E[0] | X0_E[1] | X2_W1[1] | X2_W2[1] | X2_E1[1] | X2_E2[1] | X2_S1[6] | X2_S2[6] | X2_N1[6] | X2_N2[6] | PCLK[4] | PCLK[5] | PCLK[6] | PCLK[7];
-				mux IMUX_CE[3] = X0_W[0] | X0_W[1] | X0_E[0] | X0_E[1] | X2_W1[1] | X2_W2[1] | X2_E1[1] | X2_E2[1] | X2_S1[6] | X2_S2[6] | X2_N1[6] | X2_N2[6] | PCLK[4] | PCLK[5] | PCLK[6] | PCLK[7];
 			}
 		}
 
@@ -2244,6 +2244,10 @@ intdb {
 			// wire IMUX_M[7]                      SLICE[3].M[1]
 			// wire IMUX_CLK[1]                    SLICE[2].WCK
 			// wire IMUX_LSR[1]                    SLICE[2].WRE
+			// wire IMUX_CE[0]                     SLICE[0].CE
+			// wire IMUX_CE[1]                     SLICE[1].CE
+			// wire IMUX_CE[2]                     SLICE[2].CE
+			// wire IMUX_CE[3]                     SLICE[3].CE
 			// wire IMUX_MUXCLK[0]                 SLICE[0].CLK
 			// wire IMUX_MUXCLK[1]                 SLICE[1].CLK
 			// wire IMUX_MUXCLK[2]                 SLICE[2].CLK
@@ -2252,10 +2256,6 @@ intdb {
 			// wire IMUX_MUXLSR[1]                 SLICE[1].LSR
 			// wire IMUX_MUXLSR[2]                 SLICE[2].LSR
 			// wire IMUX_MUXLSR[3]                 SLICE[3].LSR
-			// wire IMUX_CE[0]                     SLICE[0].CE
-			// wire IMUX_CE[1]                     SLICE[1].CE
-			// wire IMUX_CE[2]                     SLICE[2].CE
-			// wire IMUX_CE[3]                     SLICE[3].CE
 			// wire OUT_F[0]                       SLICE[0].F[0]
 			// wire OUT_F[1]                       SLICE[0].F[1]
 			// wire OUT_F[2]                       SLICE[1].F[0]

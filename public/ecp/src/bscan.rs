@@ -3,13 +3,14 @@ use std::collections::{BTreeMap, BTreeSet};
 use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
     dir::DirV,
-    grid::{EdgeIoCoord, TileIobId},
+    grid::{CellCoord, DieIdExt, EdgeIoCoord, TileIobId},
 };
 use prjcombine_types::bscan::{BScanBuilder, BScanPad};
 
 use crate::{
     bond::{BondPad, CfgPad, SerdesPad},
-    chip::{Chip, ChipKind, IoGroupKind, RowKind, SpecialIoKey, SpecialLocKey},
+    chip::{Chip, ChipKind, IoGroupKind, NexusKind, RowKind, SpecialIoKey, SpecialLocKey},
+    defs::bslots,
 };
 
 #[derive(Debug)]
@@ -907,6 +908,59 @@ impl Chip {
             }
             ChipKind::Crosslink => {
                 // no JTAG
+            }
+            ChipKind::Nexus(kind) => {
+                let mut handle_cell = |kind, cell: CellCoord, rev: bool| {
+                    if matches!(kind, IoGroupKind::None | IoGroupKind::Mipi) {
+                        return;
+                    }
+                    let iobs = if rev { [1, 0] } else { [0, 1] };
+                    for iob in iobs {
+                        if kind == IoGroupKind::DoubleB && iob == 0 {
+                            continue;
+                        }
+                        let bcrd = cell.bel(bslots::IO[iob]);
+                        if bcrd == self.special_io[&SpecialIoKey::Cclk]
+                            || bcrd == self.special_io[&SpecialIoKey::SpiPCsB]
+                            || bcrd == self.special_io[&SpecialIoKey::D(0)]
+                            || bcrd == self.special_io[&SpecialIoKey::D(1)]
+                        {
+                            continue;
+                        }
+                        let io = self.get_io_crd(bcrd);
+                        pads.insert(BondPad::Io(io), builder.get_tb());
+                    }
+                };
+                for (col, cd) in self.columns.iter().rev() {
+                    if let Some(bank) = cd.bank_n {
+                        if kind == NexusKind::SmallHalfIo && bank == 1 {
+                            continue;
+                        }
+                        handle_cell(cd.io_n, Chip::DIE.cell(col, self.row_n()), true);
+                    }
+                }
+                for (row, rd) in self.rows.iter().rev() {
+                    if rd.bank_w.is_some() {
+                        handle_cell(rd.io_w, Chip::DIE.cell(self.col_w(), row), true);
+                    }
+                }
+                for (col, cd) in self.columns.iter() {
+                    if cd.bank_s.is_some() {
+                        handle_cell(cd.io_s, Chip::DIE.cell(col, self.row_s()), false);
+                    }
+                }
+                for (row, rd) in self.rows.iter() {
+                    if rd.bank_e.is_some() {
+                        handle_cell(rd.io_e, Chip::DIE.cell(self.col_e(), row), false);
+                    }
+                }
+                if kind == NexusKind::SmallHalfIo {
+                    for (col, cd) in self.columns.iter().rev() {
+                        if cd.bank_n == Some(1) {
+                            handle_cell(cd.io_n, Chip::DIE.cell(col, self.row_n()), true);
+                        }
+                    }
+                }
             }
         }
         BScan {

@@ -1179,6 +1179,9 @@ impl ChipContext<'_> {
             ChipKind::Crosslink => {
                 self.process_config_crosslink();
             }
+            ChipKind::Nexus(_) => {
+                // TODO
+            }
         }
     }
 }

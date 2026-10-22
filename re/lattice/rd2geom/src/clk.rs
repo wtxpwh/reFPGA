@@ -14,6 +14,7 @@ mod ecp4;
 mod ecp5;
 mod machxo;
 mod machxo2;
+mod nexus;
 mod scm;
 
 impl ChipContext<'_> {
@@ -103,6 +104,10 @@ impl ChipContext<'_> {
                 self.process_pclk_ecp5();
                 self.process_clk_edge_crosslink();
                 self.process_clk_root_crosslink();
+            }
+            ChipKind::Nexus(_) => {
+                self.process_pclk_nexus();
+                // TODO
             }
         }
     }

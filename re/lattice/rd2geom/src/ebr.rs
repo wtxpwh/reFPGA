@@ -346,6 +346,19 @@ impl ChipContext<'_> {
         }
     }
 
+    fn process_ebr_nexus(&mut self) {
+        let tcid = tcls::EBR;
+        for &tcrd in &self.edev.tile_index[tcid] {
+            for i in 0..4 {
+                let bcrd = tcrd.bel(bslots::EBR[i]);
+                let cell = tcrd.delta([0, 3, 6, 8][i], 0);
+                self.extract_bel_cell(bcrd, cell)
+                    .name_rc("EBR_CORE")
+                    .suffix("EBR_CORE");
+            }
+        }
+    }
+
     pub fn process_ebr(&mut self) {
         match self.chip.kind {
             ChipKind::Scm => self.process_ebr_scm(),
@@ -358,6 +371,7 @@ impl ChipContext<'_> {
             | ChipKind::Ecp3(_)
             | ChipKind::MachXo2(_) => self.process_ebr_ecp(),
             ChipKind::Ecp4 | ChipKind::Ecp5 | ChipKind::Crosslink => self.process_ebr_ecp4(),
+            ChipKind::Nexus(_) => self.process_ebr_nexus(),
         }
     }
 }

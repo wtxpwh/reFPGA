@@ -76,6 +76,13 @@ impl ChipContext<'_> {
             };
             assert!(seg <= len);
             let mut cell = self.chip.xlat_rc_wire(wn);
+            if cell.col > self.chip.col_e() {
+                // what the fuck. this is LIFCL-33 btw.
+                assert_eq!(suffix, "H01E0100");
+                assert_eq!(wn.c, 52);
+                assert_eq!(wn.r, 37);
+                cell = cell.delta(-2, 0);
+            }
             let conn_fwd = wiredata::CONNS[dir];
             let conn_bwd = wiredata::CONNS[!dir];
             if self.has_v01b.contains(&cell) && dir == Dir::N && len == 6 && seg == 4 {
@@ -92,31 +99,54 @@ impl ChipContext<'_> {
                     break;
                 }
             }
-            while seg <= len {
-                let wire = match (len, dir) {
-                    (1, Dir::W) => wiredata::X1_W[seg][idx],
-                    (1, Dir::E) => wiredata::X1_E[seg][idx],
-                    (1, Dir::S) => wiredata::X1_S[seg][idx],
-                    (1, Dir::N) => wiredata::X1_N[seg][idx],
-                    (2, Dir::W) => wiredata::X2_W[seg][idx],
-                    (2, Dir::E) => wiredata::X2_E[seg][idx],
-                    (2, Dir::S) => wiredata::X2_S[seg][idx],
-                    (2, Dir::N) => wiredata::X2_N[seg][idx],
-                    (6, Dir::W) => wiredata::X6_W[seg][idx],
-                    (6, Dir::E) => wiredata::X6_E[seg][idx],
-                    (6, Dir::S) => wiredata::X6_S[seg][idx],
-                    (6, Dir::N) => wiredata::X6_N[seg][idx],
-                    _ => panic!("ummm X{len}_{dir}"),
-                };
-                let wire = cell.wire(wire);
-                result.push(wire);
-                if let Some(conn) = self.edev[cell].conns.get(conn_fwd)
-                    && let Some(target) = conn.target
-                {
-                    cell = target;
-                    seg += 1;
-                } else {
-                    break;
+            if matches!(self.chip.kind, ChipKind::Nexus(_)) && len == 1 && seg == 0 {
+                match dir {
+                    Dir::H(_) => {
+                        result.push(cell.wire(wires::X1_H[idx]));
+                        if let Some(cell) = self.edev.cell_delta(cell, 1, 0) {
+                            result.push(cell.wire(wires::X1_E1[idx]));
+                        }
+                        if let Some(cell) = self.edev.cell_delta(cell, -1, 0) {
+                            result.push(cell.wire(wires::X1_W1[idx]));
+                        }
+                    }
+                    Dir::V(_) => {
+                        result.push(cell.wire(wires::X1_V[idx]));
+                        if let Some(cell) = self.edev.cell_delta(cell, 0, 1) {
+                            result.push(cell.wire(wires::X1_N1[idx]));
+                        }
+                        if let Some(cell) = self.edev.cell_delta(cell, 0, -1) {
+                            result.push(cell.wire(wires::X1_S1[idx]));
+                        }
+                    }
+                }
+            } else {
+                while seg <= len {
+                    let wire = match (len, dir) {
+                        (1, Dir::W) => wiredata::X1_W[seg][idx],
+                        (1, Dir::E) => wiredata::X1_E[seg][idx],
+                        (1, Dir::S) => wiredata::X1_S[seg][idx],
+                        (1, Dir::N) => wiredata::X1_N[seg][idx],
+                        (2, Dir::W) => wiredata::X2_W[seg][idx],
+                        (2, Dir::E) => wiredata::X2_E[seg][idx],
+                        (2, Dir::S) => wiredata::X2_S[seg][idx],
+                        (2, Dir::N) => wiredata::X2_N[seg][idx],
+                        (6, Dir::W) => wiredata::X6_W[seg][idx],
+                        (6, Dir::E) => wiredata::X6_E[seg][idx],
+                        (6, Dir::S) => wiredata::X6_S[seg][idx],
+                        (6, Dir::N) => wiredata::X6_N[seg][idx],
+                        _ => panic!("ummm X{len}_{dir}"),
+                    };
+                    let wire = cell.wire(wire);
+                    result.push(wire);
+                    if let Some(conn) = self.edev[cell].conns.get(conn_fwd)
+                        && let Some(target) = conn.target
+                    {
+                        cell = target;
+                        seg += 1;
+                    } else {
+                        break;
+                    }
                 }
             }
             result
@@ -129,6 +159,9 @@ impl ChipContext<'_> {
                     12..16 => idx - 12 + 4,
                     _ => unreachable!(),
                 };
+            }
+            if matches!(self.chip.kind, ChipKind::Nexus(_)) && idx >= 8 {
+                return vec![];
             }
             let is_sclk = suffix.starts_with("HSBX");
             if (is_sclk && self.chip.kind.has_distributed_sclk())
@@ -389,12 +422,18 @@ impl ChipContext<'_> {
             self.edev.wire_tree(wire)
         } else if ((suffix.starts_with("VPTX")
             && matches!(self.chip.kind, ChipKind::Ecp5 | ChipKind::Crosslink))
-            || (suffix.starts_with("VPSX") && self.chip.kind == ChipKind::Scm))
+            || (suffix.starts_with("VPSX")
+                && matches!(self.chip.kind, ChipKind::Scm | ChipKind::Nexus(_))))
             && suffix.len() == 8
         {
             assert!(suffix.ends_with("00"));
             let idx: usize = suffix[4..6].parse().unwrap();
-            let cell = self.chip.xlat_rc_wire(wn).delta(1, 0);
+            let mut cell = self.chip.xlat_rc_wire(wn);
+            if matches!(self.chip.kind, ChipKind::Nexus(_)) && cell.col < self.chip.col_clk {
+                // okay
+            } else {
+                cell.col += 1;
+            }
             let wire = wires::PCLK_COL[idx];
             let wire = cell.wire(wire);
             let wire = self.edev.resolve_wire(wire).unwrap();
@@ -402,7 +441,7 @@ impl ChipContext<'_> {
         } else if ((suffix.starts_with("HPRX")
             && matches!(
                 self.chip.kind,
-                ChipKind::Ecp4 | ChipKind::Ecp5 | ChipKind::Crosslink
+                ChipKind::Ecp4 | ChipKind::Ecp5 | ChipKind::Crosslink | ChipKind::Nexus(_)
             ))
             || (suffix.starts_with("VPBX")
                 && matches!(
@@ -521,7 +560,9 @@ impl ChipContext<'_> {
                 return vec![];
             }
             vec![cell.delta(-1, 0).wire(w)]
-        } else if matches!(suffix.as_str(), "GND" | "VCC") {
+        } else if matches!(suffix.as_str(), "GND" | "VCC")
+            && !matches!(self.chip.kind, ChipKind::Nexus(_))
+        {
             let w = if suffix == "VCC" {
                 wires::TIE1
             } else {
@@ -567,6 +608,28 @@ impl ChipContext<'_> {
                     )
                 }
             }
+        } else if matches!(suffix.as_str(), "VCCHPBX" | "VCCVSPINE") {
+            let cell = self.chip.xlat_rc_wire(wn);
+            let cols = self.chip.cols_pclk.range(cell.col);
+            let ChipKind::Nexus(kind) = self.chip.kind else {
+                unreachable!()
+            };
+            let rows = if kind.is_large() {
+                if cell.row < self.chip.row_clk {
+                    self.chip.rows.ids().start().range(self.chip.row_clk)
+                } else {
+                    self.chip.row_clk.range(self.chip.rows.ids().end())
+                }
+            } else {
+                self.chip.rows.ids()
+            };
+            let mut res = vec![];
+            for col in cols {
+                for row in rows {
+                    res.push(Chip::DIE.cell(col, row).wire(wires::TIE1));
+                }
+            }
+            res
         } else {
             let w = match suffix.as_str() {
                 "A0" | "JA0" => wires::IMUX_A[0],
@@ -609,6 +672,38 @@ impl ChipContext<'_> {
                 "M5" | "JM5" => wires::IMUX_M[5],
                 "M6" | "JM6" => wires::IMUX_M[6],
                 "M7" | "JM7" => wires::IMUX_M[7],
+                "JCIBMUXOUTA0" => wires::IMUX_MUXA[0],
+                "JCIBMUXOUTA1" => wires::IMUX_MUXA[1],
+                "JCIBMUXOUTA2" => wires::IMUX_MUXA[2],
+                "JCIBMUXOUTA3" => wires::IMUX_MUXA[3],
+                "JCIBMUXOUTA4" => wires::IMUX_MUXA[4],
+                "JCIBMUXOUTA5" => wires::IMUX_MUXA[5],
+                "JCIBMUXOUTA6" => wires::IMUX_MUXA[6],
+                "JCIBMUXOUTA7" => wires::IMUX_MUXA[7],
+                "JCIBMUXOUTB0" => wires::IMUX_MUXB[0],
+                "JCIBMUXOUTB1" => wires::IMUX_MUXB[1],
+                "JCIBMUXOUTB2" => wires::IMUX_MUXB[2],
+                "JCIBMUXOUTB3" => wires::IMUX_MUXB[3],
+                "JCIBMUXOUTB4" => wires::IMUX_MUXB[4],
+                "JCIBMUXOUTB5" => wires::IMUX_MUXB[5],
+                "JCIBMUXOUTB6" => wires::IMUX_MUXB[6],
+                "JCIBMUXOUTB7" => wires::IMUX_MUXB[7],
+                "JCIBMUXOUTC0" => wires::IMUX_MUXC[0],
+                "JCIBMUXOUTC1" => wires::IMUX_MUXC[1],
+                "JCIBMUXOUTC2" => wires::IMUX_MUXC[2],
+                "JCIBMUXOUTC3" => wires::IMUX_MUXC[3],
+                "JCIBMUXOUTC4" => wires::IMUX_MUXC[4],
+                "JCIBMUXOUTC5" => wires::IMUX_MUXC[5],
+                "JCIBMUXOUTC6" => wires::IMUX_MUXC[6],
+                "JCIBMUXOUTC7" => wires::IMUX_MUXC[7],
+                "JCIBMUXOUTD0" => wires::IMUX_MUXD[0],
+                "JCIBMUXOUTD1" => wires::IMUX_MUXD[1],
+                "JCIBMUXOUTD2" => wires::IMUX_MUXD[2],
+                "JCIBMUXOUTD3" => wires::IMUX_MUXD[3],
+                "JCIBMUXOUTD4" => wires::IMUX_MUXD[4],
+                "JCIBMUXOUTD5" => wires::IMUX_MUXD[5],
+                "JCIBMUXOUTD6" => wires::IMUX_MUXD[6],
+                "JCIBMUXOUTD7" => wires::IMUX_MUXD[7],
                 "JCLK0" if self.chip.kind == ChipKind::Ecp4 => wires::IMUX_CLK_DELAY[0],
                 "JCLK1" if self.chip.kind == ChipKind::Ecp4 => wires::IMUX_CLK_DELAY[1],
                 "MUXCLK0" => wires::IMUX_MUXCLK[0],
@@ -680,6 +775,24 @@ impl ChipContext<'_> {
             let cell = self.chip.xlat_rc_wire(wn);
             vec![cell.wire(w)]
         }
+    }
+
+    fn classify_int_alias(&self, wn: WireName) -> Option<WireCoord> {
+        let suffix = &self.naming.strings[wn.suffix];
+        let (wires, idx) = if let Some(idx) = suffix.strip_prefix("JCIBMUXINA") {
+            (wires::IMUX_A, idx)
+        } else if let Some(idx) = suffix.strip_prefix("JCIBMUXINB") {
+            (wires::IMUX_B, idx)
+        } else if let Some(idx) = suffix.strip_prefix("JCIBMUXINC") {
+            (wires::IMUX_C, idx)
+        } else if let Some(idx) = suffix.strip_prefix("JCIBMUXIND") {
+            (wires::IMUX_D, idx)
+        } else {
+            return None;
+        };
+        let idx: usize = idx.parse().unwrap();
+        let cell = self.chip.xlat_rc_wire(wn);
+        Some(cell.wire(wires[idx]))
     }
 
     fn gather_v01b(&mut self) {
@@ -774,8 +887,21 @@ impl ChipContext<'_> {
                         | "V00B0201"
                         | "V00B0301"
                 ) || (suffix == "HL7W0001" && self.chip.kind == ChipKind::Ecp4)
+                    || (matches!(
+                        suffix,
+                        "HPBX0800"
+                            | "HPBX0900"
+                            | "HPBX1000"
+                            | "HPBX1100"
+                            | "HPBX1200"
+                            | "HPBX1300"
+                            | "HPBX1400"
+                            | "HPBX1500"
+                    ) && matches!(self.chip.kind, ChipKind::Nexus(_)))
                 {
                     self.discard_nodes.insert(wn);
+                } else if let Some(wire) = self.classify_int_alias(wn) {
+                    self.int_aliases.insert(wn, wire);
                 } else {
                     self.unclaimed_nodes.insert(wn);
                 }

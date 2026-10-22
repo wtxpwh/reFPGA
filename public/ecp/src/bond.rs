@@ -35,6 +35,8 @@ pub enum CfgPad {
     Dout,
     Di,
     Busy,
+    // Nexus
+    JtagEn,
 }
 
 impl std::fmt::Display for CfgPad {
@@ -65,6 +67,7 @@ impl std::fmt::Display for CfgPad {
             CfgPad::Dout => write!(f, "DOUT"),
             CfgPad::Di => write!(f, "DI"),
             CfgPad::Busy => write!(f, "BUSY"),
+            CfgPad::JtagEn => write!(f, "JTAG_EN"),
         }
     }
 }
@@ -298,6 +301,9 @@ pub enum BondPad {
     GndPll(PllSet),
     PllCap(PllSet),
     VccA,
+    VccEclk,
+    VccCdr,
+    VccAuxH(u32),
     TempVss,
     TempSense,
     ProbeVcc,
@@ -336,6 +342,9 @@ impl std::fmt::Display for BondPad {
             BondPad::GndPll(set) => write!(f, "GNDPLL_{set}"),
             BondPad::PllCap(set) => write!(f, "PLLCAP_{set}"),
             BondPad::VccA => write!(f, "VCCA"),
+            BondPad::VccEclk => write!(f, "VCCECLK"),
+            BondPad::VccCdr => write!(f, "VCCCDR"),
+            BondPad::VccAuxH(bank) => write!(f, "VCCAUXH{bank}"),
             BondPad::XRes => write!(f, "XRES"),
             BondPad::Other => write!(f, "OTHER"),
             BondPad::TempVss => write!(f, "TEMP_VSS"),

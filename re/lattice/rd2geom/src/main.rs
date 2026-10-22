@@ -8,7 +8,7 @@ use clap::Parser;
 use itertools::Itertools;
 use prjcombine_ecp::{
     bond::{BondPad, CfgPad, MipiPad, SerdesPad},
-    chip::{Chip, ChipKind, Ecp3Kind, MachXo2Kind, SpecialIoKey},
+    chip::{Chip, ChipKind, Ecp3Kind, MachXo2Kind, NexusKind, SpecialIoKey},
     db::Device,
     expanded::ExpandedDevice,
 };
@@ -64,6 +64,7 @@ struct ChipContext<'dev> {
     int_wires: BTreeMap<WireName, Vec<WireCoord>>,
     io_int_wires: BTreeMap<WireName, Vec<WireCoord>>,
     io_int_names: BTreeMap<WireCoord, WireName>,
+    int_aliases: BTreeMap<WireName, WireCoord>,
     hybrid_out: BTreeMap<WireName, (BelCoord, WireCoord, BTreeSet<TileWireCoord>)>,
     sorted_wires: BTreeMap<(CellCoord, &'static str), BTreeMap<String, WireName>>,
     hsdclk_locs: BTreeMap<WireName, CellCoord>,
@@ -262,6 +263,7 @@ impl<'dev> ChipContext<'dev> {
             let name = self.naming.strings[wn.suffix].as_str();
             for suffix in [
                 "EBR",
+                "EBR_CORE",
                 "IOLOGIC",
                 "PIO",
                 "PICTEST",
@@ -410,6 +412,7 @@ fn init_nodes(grid: &Grid) -> (ChipNaming, EntityVec<NodeId, WireName>) {
 fn process_chip(name: &str, grid: &Grid, kind: ChipKind, intdb: &IntDb) -> ChipResult {
     let (naming, nodes) = init_nodes(grid);
     let chip = make_chip(name, grid, kind, &naming, &nodes, intdb);
+    // chip.dump(&mut std::io::stdout(), intdb);
     let edev = chip.expand_grid(intdb);
     let mut ctx = ChipContext {
         name,
@@ -423,6 +426,7 @@ fn process_chip(name: &str, grid: &Grid, kind: ChipKind, intdb: &IntDb) -> ChipR
         int_wires: Default::default(),
         io_int_wires: Default::default(),
         io_int_names: Default::default(),
+        int_aliases: Default::default(),
         hybrid_out: Default::default(),
         sorted_wires: Default::default(),
         hsdclk_locs: Default::default(),
@@ -495,6 +499,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         "ecp4" => ChipKind::Ecp4,
         "ecp5" => ChipKind::Ecp5,
         "crosslink" => ChipKind::Crosslink,
+        "nx" => ChipKind::Nexus(NexusKind::SmallHalfIo),
         _ => panic!("unknown family {}", rawdb.family),
     };
     let mut int = bincode::decode_from_slice(
@@ -511,6 +516,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             ChipKind::Ecp4 => prjcombine_ecp::defs::ecp4::INIT,
             ChipKind::Ecp5 => prjcombine_ecp::defs::ecp5::INIT,
             ChipKind::Crosslink => prjcombine_ecp::defs::crosslink::INIT,
+            ChipKind::Nexus(_) => prjcombine_ecp::defs::nexus::INIT,
         },
         bincode::config::standard(),
     )

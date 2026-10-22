@@ -49,6 +49,9 @@ impl ChipContext<'_> {
             ChipKind::Ecp4 => self.process_pll_ecp4(),
             ChipKind::Ecp5 => self.process_pll_ecp5(),
             ChipKind::Crosslink => self.process_pll_crosslink(),
+            ChipKind::Nexus(_) => {
+                // TODO
+            }
         }
     }
 }

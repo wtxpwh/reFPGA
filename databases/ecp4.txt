@@ -11503,6 +11503,10 @@ intdb {
 	wire IMUX_CLK[1]: mux;
 	wire IMUX_LSR[0]: mux;
 	wire IMUX_LSR[1]: mux;
+	wire IMUX_CE[0]: mux;
+	wire IMUX_CE[1]: mux;
+	wire IMUX_CE[2]: mux;
+	wire IMUX_CE[3]: mux;
 	wire IMUX_MUXCLK[0]: mux;
 	wire IMUX_MUXCLK[1]: mux;
 	wire IMUX_MUXCLK[2]: mux;
@@ -11513,10 +11517,6 @@ intdb {
 	wire IMUX_MUXLSR[3]: mux;
 	wire IMUX_CLK_DELAY[0]: mux;
 	wire IMUX_CLK_DELAY[1]: mux;
-	wire IMUX_CE[0]: mux;
-	wire IMUX_CE[1]: mux;
-	wire IMUX_CE[2]: mux;
-	wire IMUX_CE[3]: mux;
 	wire OUT_F[0]: bel;
 	wire OUT_F[1]: bel;
 	wire OUT_F[2]: bel;
@@ -11889,6 +11889,10 @@ intdb {
 				mux IMUX_CLK[1] = X0_E[0] | X0_E[1] | X0_N[0] | X0_N[1] | PCLK[0] | PCLK[1] | PCLK[2] | PCLK[3] | PCLK[4] | PCLK[5] | PCLK[6] | PCLK[7] | PCLK[8] | PCLK[9] | PCLK[10] | PCLK[11] | PCLK[12] | PCLK[13] | PCLK[14] | PCLK[15] | PCLK[16] | PCLK[17] | PCLK[18] | PCLK[19];
 				mux IMUX_LSR[0] = X0_W[0] | X0_W[1] | X0_S[0] | X0_S[1] | X2_W1[7] | X2_W2[7] | X2_E1[7] | X2_E2[7] | X2_S1[7] | X2_S2[7] | X2_N1[7] | X2_N2[7] | PCLK[9] | PCLK[10] | PCLK[11] | PCLK[12] | PCLK[13] | PCLK[14] | PCLK[15] | PCLK[16] | PCLK[17] | PCLK[18] | PCLK[19];
 				mux IMUX_LSR[1] = X0_W[0] | X0_W[1] | X0_S[0] | X0_S[1] | X2_W1[7] | X2_W2[7] | X2_E1[7] | X2_E2[7] | X2_S1[7] | X2_S2[7] | X2_N1[7] | X2_N2[7] | PCLK[9] | PCLK[10] | PCLK[11] | PCLK[12] | PCLK[13] | PCLK[14] | PCLK[15] | PCLK[16] | PCLK[17] | PCLK[18] | PCLK[19];
+				mux IMUX_CE[0] = X0_E[0] | X0_E[1] | X0_N[0] | X0_N[1] | X2_W1[0] | X2_W2[0] | X2_E1[0] | X2_E2[0] | X2_S1[0] | X2_S2[0] | X2_N1[0] | X2_N2[0] | PCLK[0] | PCLK[1] | PCLK[2] | PCLK[3] | PCLK[4] | PCLK[5] | PCLK[6] | PCLK[7] | PCLK[8] | PCLK[9] | PCLK[10];
+				mux IMUX_CE[1] = X0_E[0] | X0_E[1] | X0_N[0] | X0_N[1] | X2_W1[0] | X2_W2[0] | X2_E1[0] | X2_E2[0] | X2_S1[0] | X2_S2[0] | X2_N1[0] | X2_N2[0] | PCLK[0] | PCLK[1] | PCLK[2] | PCLK[3] | PCLK[4] | PCLK[5] | PCLK[6] | PCLK[7] | PCLK[8] | PCLK[9] | PCLK[10];
+				mux IMUX_CE[2] = X0_E[0] | X0_E[1] | X0_N[0] | X0_N[1] | X2_W1[0] | X2_W2[0] | X2_E1[0] | X2_E2[0] | X2_S1[0] | X2_S2[0] | X2_N1[0] | X2_N2[0] | PCLK[0] | PCLK[1] | PCLK[2] | PCLK[3] | PCLK[4] | PCLK[5] | PCLK[6] | PCLK[7] | PCLK[8] | PCLK[9] | PCLK[10];
+				mux IMUX_CE[3] = X0_E[0] | X0_E[1] | X0_N[0] | X0_N[1] | X2_W1[0] | X2_W2[0] | X2_E1[0] | X2_E2[0] | X2_S1[0] | X2_S2[0] | X2_N1[0] | X2_N2[0] | PCLK[0] | PCLK[1] | PCLK[2] | PCLK[3] | PCLK[4] | PCLK[5] | PCLK[6] | PCLK[7] | PCLK[8] | PCLK[9] | PCLK[10];
 				mux IMUX_MUXCLK[0] = IMUX_CLK[0] | IMUX_CLK[1];
 				mux IMUX_MUXCLK[1] = IMUX_CLK[0] | IMUX_CLK[1];
 				mux IMUX_MUXCLK[2] = IMUX_CLK[0] | IMUX_CLK[1];
@@ -11897,10 +11901,6 @@ intdb {
 				mux IMUX_MUXLSR[1] = IMUX_LSR[0] | IMUX_LSR[1];
 				mux IMUX_MUXLSR[2] = IMUX_LSR[0] | IMUX_LSR[1];
 				mux IMUX_MUXLSR[3] = IMUX_LSR[0] | IMUX_LSR[1];
-				mux IMUX_CE[0] = X0_E[0] | X0_E[1] | X0_N[0] | X0_N[1] | X2_W1[0] | X2_W2[0] | X2_E1[0] | X2_E2[0] | X2_S1[0] | X2_S2[0] | X2_N1[0] | X2_N2[0] | PCLK[0] | PCLK[1] | PCLK[2] | PCLK[3] | PCLK[4] | PCLK[5] | PCLK[6] | PCLK[7] | PCLK[8] | PCLK[9] | PCLK[10];
-				mux IMUX_CE[1] = X0_E[0] | X0_E[1] | X0_N[0] | X0_N[1] | X2_W1[0] | X2_W2[0] | X2_E1[0] | X2_E2[0] | X2_S1[0] | X2_S2[0] | X2_N1[0] | X2_N2[0] | PCLK[0] | PCLK[1] | PCLK[2] | PCLK[3] | PCLK[4] | PCLK[5] | PCLK[6] | PCLK[7] | PCLK[8] | PCLK[9] | PCLK[10];
-				mux IMUX_CE[2] = X0_E[0] | X0_E[1] | X0_N[0] | X0_N[1] | X2_W1[0] | X2_W2[0] | X2_E1[0] | X2_E2[0] | X2_S1[0] | X2_S2[0] | X2_N1[0] | X2_N2[0] | PCLK[0] | PCLK[1] | PCLK[2] | PCLK[3] | PCLK[4] | PCLK[5] | PCLK[6] | PCLK[7] | PCLK[8] | PCLK[9] | PCLK[10];
-				mux IMUX_CE[3] = X0_E[0] | X0_E[1] | X0_N[0] | X0_N[1] | X2_W1[0] | X2_W2[0] | X2_E1[0] | X2_E2[0] | X2_S1[0] | X2_S2[0] | X2_N1[0] | X2_N2[0] | PCLK[0] | PCLK[1] | PCLK[2] | PCLK[3] | PCLK[4] | PCLK[5] | PCLK[6] | PCLK[7] | PCLK[8] | PCLK[9] | PCLK[10];
 			}
 		}
 
@@ -12731,8 +12731,8 @@ intdb {
 			// wire CELL[0].IMUX_D[2]              IO[0].LOADN
 			// wire CELL[0].IMUX_D[4]              IO[0].TSDATA[3]
 			// wire CELL[0].IMUX_LSR[0]            IO[0].LSR
-			// wire CELL[0].IMUX_CLK_DELAY[0]      IO[0].CLK
 			// wire CELL[0].IMUX_CE[0]             IO[0].CE
+			// wire CELL[0].IMUX_CLK_DELAY[0]      IO[0].CLK
 			// wire CELL[0].OUT_F[0]               IO[0].RXDATA[0]
 			// wire CELL[0].OUT_F[1]               IO[0].RXDATA[1]
 			// wire CELL[0].OUT_F[2]               IO[0].RXDATA[2]
@@ -12769,8 +12769,8 @@ intdb {
 			// wire CELL[1].IMUX_D[2]              IO[1].LOADN
 			// wire CELL[1].IMUX_D[4]              IO[1].TSDATA[3]
 			// wire CELL[1].IMUX_LSR[0]            IO[1].LSR
-			// wire CELL[1].IMUX_CLK_DELAY[0]      IO[1].CLK
 			// wire CELL[1].IMUX_CE[0]             IO[1].CE
+			// wire CELL[1].IMUX_CLK_DELAY[0]      IO[1].CLK
 			// wire CELL[1].OUT_F[0]               IO[1].RXDATA[0]
 			// wire CELL[1].OUT_F[1]               IO[1].RXDATA[1]
 			// wire CELL[1].OUT_F[2]               IO[1].RXDATA[2]
@@ -12807,8 +12807,8 @@ intdb {
 			// wire CELL[2].IMUX_D[2]              IO[2].LOADN
 			// wire CELL[2].IMUX_D[4]              IO[2].TSDATA[3]
 			// wire CELL[2].IMUX_LSR[0]            IO[2].LSR
-			// wire CELL[2].IMUX_CLK_DELAY[0]      IO[2].CLK
 			// wire CELL[2].IMUX_CE[0]             IO[2].CE
+			// wire CELL[2].IMUX_CLK_DELAY[0]      IO[2].CLK
 			// wire CELL[2].OUT_F[0]               IO[2].RXDATA[0]
 			// wire CELL[2].OUT_F[1]               IO[2].RXDATA[1]
 			// wire CELL[2].OUT_F[2]               IO[2].RXDATA[2]
@@ -12845,8 +12845,8 @@ intdb {
 			// wire CELL[3].IMUX_D[2]              IO[3].LOADN
 			// wire CELL[3].IMUX_D[4]              IO[3].TSDATA[3]
 			// wire CELL[3].IMUX_LSR[0]            IO[3].LSR
-			// wire CELL[3].IMUX_CLK_DELAY[0]      IO[3].CLK
 			// wire CELL[3].IMUX_CE[0]             IO[3].CE
+			// wire CELL[3].IMUX_CLK_DELAY[0]      IO[3].CLK
 			// wire CELL[3].OUT_F[0]               IO[3].RXDATA[0]
 			// wire CELL[3].OUT_F[1]               IO[3].RXDATA[1]
 			// wire CELL[3].OUT_F[2]               IO[3].RXDATA[2]
@@ -13078,8 +13078,8 @@ intdb {
 			// wire CELL[0].IMUX_D[2]              IO[0].LOADN
 			// wire CELL[0].IMUX_D[4]              IO[0].TSDATA[3]
 			// wire CELL[0].IMUX_LSR[0]            IO[0].LSR
-			// wire CELL[0].IMUX_CLK_DELAY[0]      IO[0].CLK
 			// wire CELL[0].IMUX_CE[0]             IO[0].CE
+			// wire CELL[0].IMUX_CLK_DELAY[0]      IO[0].CLK
 			// wire CELL[0].OUT_F[0]               IO[0].RXDATA[0]
 			// wire CELL[0].OUT_F[1]               IO[0].RXDATA[1]
 			// wire CELL[0].OUT_F[2]               IO[0].RXDATA[2]
@@ -13116,8 +13116,8 @@ intdb {
 			// wire CELL[1].IMUX_D[2]              IO[1].LOADN
 			// wire CELL[1].IMUX_D[4]              IO[1].TSDATA[3]
 			// wire CELL[1].IMUX_LSR[0]            IO[1].LSR
-			// wire CELL[1].IMUX_CLK_DELAY[0]      IO[1].CLK
 			// wire CELL[1].IMUX_CE[0]             IO[1].CE
+			// wire CELL[1].IMUX_CLK_DELAY[0]      IO[1].CLK
 			// wire CELL[1].OUT_F[0]               IO[1].RXDATA[0]
 			// wire CELL[1].OUT_F[1]               IO[1].RXDATA[1]
 			// wire CELL[1].OUT_F[2]               IO[1].RXDATA[2]
@@ -13154,8 +13154,8 @@ intdb {
 			// wire CELL[2].IMUX_D[2]              IO[2].LOADN
 			// wire CELL[2].IMUX_D[4]              IO[2].TSDATA[3]
 			// wire CELL[2].IMUX_LSR[0]            IO[2].LSR
-			// wire CELL[2].IMUX_CLK_DELAY[0]      IO[2].CLK
 			// wire CELL[2].IMUX_CE[0]             IO[2].CE
+			// wire CELL[2].IMUX_CLK_DELAY[0]      IO[2].CLK
 			// wire CELL[2].OUT_F[0]               IO[2].RXDATA[0]
 			// wire CELL[2].OUT_F[1]               IO[2].RXDATA[1]
 			// wire CELL[2].OUT_F[2]               IO[2].RXDATA[2]
@@ -13192,8 +13192,8 @@ intdb {
 			// wire CELL[3].IMUX_D[2]              IO[3].LOADN
 			// wire CELL[3].IMUX_D[4]              IO[3].TSDATA[3]
 			// wire CELL[3].IMUX_LSR[0]            IO[3].LSR
-			// wire CELL[3].IMUX_CLK_DELAY[0]      IO[3].CLK
 			// wire CELL[3].IMUX_CE[0]             IO[3].CE
+			// wire CELL[3].IMUX_CLK_DELAY[0]      IO[3].CLK
 			// wire CELL[3].OUT_F[0]               IO[3].RXDATA[0]
 			// wire CELL[3].OUT_F[1]               IO[3].RXDATA[1]
 			// wire CELL[3].OUT_F[2]               IO[3].RXDATA[2]
@@ -13425,8 +13425,8 @@ intdb {
 			// wire CELL[0].IMUX_D[2]              IO[0].LOADN
 			// wire CELL[0].IMUX_D[4]              IO[0].TSDATA[3]
 			// wire CELL[0].IMUX_LSR[0]            IO[0].LSR
-			// wire CELL[0].IMUX_CLK_DELAY[0]      IO[0].CLK
 			// wire CELL[0].IMUX_CE[0]             IO[0].CE
+			// wire CELL[0].IMUX_CLK_DELAY[0]      IO[0].CLK
 			// wire CELL[0].OUT_F[0]               IO[0].RXDATA[0]
 			// wire CELL[0].OUT_F[1]               IO[0].RXDATA[1]
 			// wire CELL[0].OUT_F[2]               IO[0].RXDATA[2]
@@ -13471,8 +13471,8 @@ intdb {
 			// wire CELL[1].IMUX_D[2]              IO[1].LOADN
 			// wire CELL[1].IMUX_D[4]              IO[1].TSDATA[3]
 			// wire CELL[1].IMUX_LSR[0]            IO[1].LSR
-			// wire CELL[1].IMUX_CLK_DELAY[0]      IO[1].CLK
 			// wire CELL[1].IMUX_CE[0]             IO[1].CE
+			// wire CELL[1].IMUX_CLK_DELAY[0]      IO[1].CLK
 			// wire CELL[1].OUT_F[0]               IO[1].RXDATA[0]
 			// wire CELL[1].OUT_F[1]               IO[1].RXDATA[1]
 			// wire CELL[1].OUT_F[2]               IO[1].RXDATA[2]
@@ -13509,8 +13509,8 @@ intdb {
 			// wire CELL[2].IMUX_D[2]              IO[2].LOADN
 			// wire CELL[2].IMUX_D[4]              IO[2].TSDATA[3]
 			// wire CELL[2].IMUX_LSR[0]            IO[2].LSR
-			// wire CELL[2].IMUX_CLK_DELAY[0]      IO[2].CLK
 			// wire CELL[2].IMUX_CE[0]             IO[2].CE
+			// wire CELL[2].IMUX_CLK_DELAY[0]      IO[2].CLK
 			// wire CELL[2].OUT_F[0]               IO[2].RXDATA[0]
 			// wire CELL[2].OUT_F[1]               IO[2].RXDATA[1]
 			// wire CELL[2].OUT_F[2]               IO[2].RXDATA[2]
@@ -13547,8 +13547,8 @@ intdb {
 			// wire CELL[3].IMUX_D[2]              IO[3].LOADN
 			// wire CELL[3].IMUX_D[4]              IO[3].TSDATA[3]
 			// wire CELL[3].IMUX_LSR[0]            IO[3].LSR
-			// wire CELL[3].IMUX_CLK_DELAY[0]      IO[3].CLK
 			// wire CELL[3].IMUX_CE[0]             IO[3].CE
+			// wire CELL[3].IMUX_CLK_DELAY[0]      IO[3].CLK
 			// wire CELL[3].OUT_F[0]               IO[3].RXDATA[0]
 			// wire CELL[3].OUT_F[1]               IO[3].RXDATA[1]
 			// wire CELL[3].OUT_F[2]               IO[3].RXDATA[2]
@@ -13772,8 +13772,8 @@ intdb {
 			// wire CELL[0].IMUX_D[2]              IO[0].LOADN
 			// wire CELL[0].IMUX_D[4]              IO[0].TSDATA[3]
 			// wire CELL[0].IMUX_LSR[0]            IO[0].LSR
-			// wire CELL[0].IMUX_CLK_DELAY[0]      IO[0].CLK
 			// wire CELL[0].IMUX_CE[0]             IO[0].CE
+			// wire CELL[0].IMUX_CLK_DELAY[0]      IO[0].CLK
 			// wire CELL[0].OUT_F[0]               IO[0].RXDATA[0]
 			// wire CELL[0].OUT_F[1]               IO[0].RXDATA[1]
 			// wire CELL[0].OUT_F[2]               IO[0].RXDATA[2]
@@ -13818,8 +13818,8 @@ intdb {
 			// wire CELL[1].IMUX_D[2]              IO[1].LOADN
 			// wire CELL[1].IMUX_D[4]              IO[1].TSDATA[3]
 			// wire CELL[1].IMUX_LSR[0]            IO[1].LSR
-			// wire CELL[1].IMUX_CLK_DELAY[0]      IO[1].CLK
 			// wire CELL[1].IMUX_CE[0]             IO[1].CE
+			// wire CELL[1].IMUX_CLK_DELAY[0]      IO[1].CLK
 			// wire CELL[1].OUT_F[0]               IO[1].RXDATA[0]
 			// wire CELL[1].OUT_F[1]               IO[1].RXDATA[1]
 			// wire CELL[1].OUT_F[2]               IO[1].RXDATA[2]
@@ -13856,8 +13856,8 @@ intdb {
 			// wire CELL[2].IMUX_D[2]              IO[2].LOADN
 			// wire CELL[2].IMUX_D[4]              IO[2].TSDATA[3]
 			// wire CELL[2].IMUX_LSR[0]            IO[2].LSR
-			// wire CELL[2].IMUX_CLK_DELAY[0]      IO[2].CLK
 			// wire CELL[2].IMUX_CE[0]             IO[2].CE
+			// wire CELL[2].IMUX_CLK_DELAY[0]      IO[2].CLK
 			// wire CELL[2].OUT_F[0]               IO[2].RXDATA[0]
 			// wire CELL[2].OUT_F[1]               IO[2].RXDATA[1]
 			// wire CELL[2].OUT_F[2]               IO[2].RXDATA[2]
@@ -13894,8 +13894,8 @@ intdb {
 			// wire CELL[3].IMUX_D[2]              IO[3].LOADN
 			// wire CELL[3].IMUX_D[4]              IO[3].TSDATA[3]
 			// wire CELL[3].IMUX_LSR[0]            IO[3].LSR
-			// wire CELL[3].IMUX_CLK_DELAY[0]      IO[3].CLK
 			// wire CELL[3].IMUX_CE[0]             IO[3].CE
+			// wire CELL[3].IMUX_CLK_DELAY[0]      IO[3].CLK
 			// wire CELL[3].OUT_F[0]               IO[3].RXDATA[0]
 			// wire CELL[3].OUT_F[1]               IO[3].RXDATA[1]
 			// wire CELL[3].OUT_F[2]               IO[3].RXDATA[2]
@@ -14119,8 +14119,8 @@ intdb {
 			// wire CELL[0].IMUX_D[2]              IO[0].LOADN
 			// wire CELL[0].IMUX_D[4]              IO[0].TSDATA[3]
 			// wire CELL[0].IMUX_LSR[0]            IO[0].LSR
-			// wire CELL[0].IMUX_CLK_DELAY[0]      IO[0].CLK
 			// wire CELL[0].IMUX_CE[0]             IO[0].CE
+			// wire CELL[0].IMUX_CLK_DELAY[0]      IO[0].CLK
 			// wire CELL[0].OUT_F[0]               IO[0].RXDATA[0]
 			// wire CELL[0].OUT_F[1]               IO[0].RXDATA[1]
 			// wire CELL[0].OUT_F[2]               IO[0].RXDATA[2]
@@ -14157,8 +14157,8 @@ intdb {
 			// wire CELL[1].IMUX_D[2]              IO[1].LOADN
 			// wire CELL[1].IMUX_D[4]              IO[1].TSDATA[3]
 			// wire CELL[1].IMUX_LSR[0]            IO[1].LSR
-			// wire CELL[1].IMUX_CLK_DELAY[0]      IO[1].CLK
 			// wire CELL[1].IMUX_CE[0]             IO[1].CE
+			// wire CELL[1].IMUX_CLK_DELAY[0]      IO[1].CLK
 			// wire CELL[1].OUT_F[0]               IO[1].RXDATA[0]
 			// wire CELL[1].OUT_F[1]               IO[1].RXDATA[1]
 			// wire CELL[1].OUT_F[2]               IO[1].RXDATA[2]
@@ -14195,8 +14195,8 @@ intdb {
 			// wire CELL[2].IMUX_D[2]              IO[2].LOADN
 			// wire CELL[2].IMUX_D[4]              IO[2].TSDATA[3]
 			// wire CELL[2].IMUX_LSR[0]            IO[2].LSR
-			// wire CELL[2].IMUX_CLK_DELAY[0]      IO[2].CLK
 			// wire CELL[2].IMUX_CE[0]             IO[2].CE
+			// wire CELL[2].IMUX_CLK_DELAY[0]      IO[2].CLK
 			// wire CELL[2].OUT_F[0]               IO[2].RXDATA[0]
 			// wire CELL[2].OUT_F[1]               IO[2].RXDATA[1]
 			// wire CELL[2].OUT_F[2]               IO[2].RXDATA[2]
@@ -14233,8 +14233,8 @@ intdb {
 			// wire CELL[3].IMUX_D[2]              IO[3].LOADN
 			// wire CELL[3].IMUX_D[4]              IO[3].TSDATA[3]
 			// wire CELL[3].IMUX_LSR[0]            IO[3].LSR
-			// wire CELL[3].IMUX_CLK_DELAY[0]      IO[3].CLK
 			// wire CELL[3].IMUX_CE[0]             IO[3].CE
+			// wire CELL[3].IMUX_CLK_DELAY[0]      IO[3].CLK
 			// wire CELL[3].OUT_F[0]               IO[3].RXDATA[0]
 			// wire CELL[3].OUT_F[1]               IO[3].RXDATA[1]
 			// wire CELL[3].OUT_F[2]               IO[3].RXDATA[2]
@@ -14466,8 +14466,8 @@ intdb {
 			// wire CELL[0].IMUX_D[2]              IO[0].LOADN
 			// wire CELL[0].IMUX_D[4]              IO[0].TSDATA[3]
 			// wire CELL[0].IMUX_LSR[0]            IO[0].LSR
-			// wire CELL[0].IMUX_CLK_DELAY[0]      IO[0].CLK
 			// wire CELL[0].IMUX_CE[0]             IO[0].CE
+			// wire CELL[0].IMUX_CLK_DELAY[0]      IO[0].CLK
 			// wire CELL[0].OUT_F[0]               IO[0].RXDATA[0]
 			// wire CELL[0].OUT_F[1]               IO[0].RXDATA[1]
 			// wire CELL[0].OUT_F[2]               IO[0].RXDATA[2]
@@ -14504,8 +14504,8 @@ intdb {
 			// wire CELL[1].IMUX_D[2]              IO[1].LOADN
 			// wire CELL[1].IMUX_D[4]              IO[1].TSDATA[3]
 			// wire CELL[1].IMUX_LSR[0]            IO[1].LSR
-			// wire CELL[1].IMUX_CLK_DELAY[0]      IO[1].CLK
 			// wire CELL[1].IMUX_CE[0]             IO[1].CE
+			// wire CELL[1].IMUX_CLK_DELAY[0]      IO[1].CLK
 			// wire CELL[1].OUT_F[0]               IO[1].RXDATA[0]
 			// wire CELL[1].OUT_F[1]               IO[1].RXDATA[1]
 			// wire CELL[1].OUT_F[2]               IO[1].RXDATA[2]
@@ -14542,8 +14542,8 @@ intdb {
 			// wire CELL[2].IMUX_D[2]              IO[2].LOADN
 			// wire CELL[2].IMUX_D[4]              IO[2].TSDATA[3]
 			// wire CELL[2].IMUX_LSR[0]            IO[2].LSR
-			// wire CELL[2].IMUX_CLK_DELAY[0]      IO[2].CLK
 			// wire CELL[2].IMUX_CE[0]             IO[2].CE
+			// wire CELL[2].IMUX_CLK_DELAY[0]      IO[2].CLK
 			// wire CELL[2].OUT_F[0]               IO[2].RXDATA[0]
 			// wire CELL[2].OUT_F[1]               IO[2].RXDATA[1]
 			// wire CELL[2].OUT_F[2]               IO[2].RXDATA[2]
@@ -14580,8 +14580,8 @@ intdb {
 			// wire CELL[3].IMUX_D[2]              IO[3].LOADN
 			// wire CELL[3].IMUX_D[4]              IO[3].TSDATA[3]
 			// wire CELL[3].IMUX_LSR[0]            IO[3].LSR
-			// wire CELL[3].IMUX_CLK_DELAY[0]      IO[3].CLK
 			// wire CELL[3].IMUX_CE[0]             IO[3].CE
+			// wire CELL[3].IMUX_CLK_DELAY[0]      IO[3].CLK
 			// wire CELL[3].OUT_F[0]               IO[3].RXDATA[0]
 			// wire CELL[3].OUT_F[1]               IO[3].RXDATA[1]
 			// wire CELL[3].OUT_F[2]               IO[3].RXDATA[2]
@@ -14813,8 +14813,8 @@ intdb {
 			// wire CELL[0].IMUX_D[2]              IO[0].LOADN
 			// wire CELL[0].IMUX_D[4]              IO[0].TSDATA[3]
 			// wire CELL[0].IMUX_LSR[0]            IO[0].LSR
-			// wire CELL[0].IMUX_CLK_DELAY[0]      IO[0].CLK
 			// wire CELL[0].IMUX_CE[0]             IO[0].CE
+			// wire CELL[0].IMUX_CLK_DELAY[0]      IO[0].CLK
 			// wire CELL[0].OUT_F[0]               IO[0].RXDATA[0]
 			// wire CELL[0].OUT_F[1]               IO[0].RXDATA[1]
 			// wire CELL[0].OUT_F[2]               IO[0].RXDATA[2]
@@ -14851,8 +14851,8 @@ intdb {
 			// wire CELL[1].IMUX_D[2]              IO[1].LOADN
 			// wire CELL[1].IMUX_D[4]              IO[1].TSDATA[3]
 			// wire CELL[1].IMUX_LSR[0]            IO[1].LSR
-			// wire CELL[1].IMUX_CLK_DELAY[0]      IO[1].CLK
 			// wire CELL[1].IMUX_CE[0]             IO[1].CE
+			// wire CELL[1].IMUX_CLK_DELAY[0]      IO[1].CLK
 			// wire CELL[1].OUT_F[0]               IO[1].RXDATA[0]
 			// wire CELL[1].OUT_F[1]               IO[1].RXDATA[1]
 			// wire CELL[1].OUT_F[2]               IO[1].RXDATA[2]
@@ -14897,8 +14897,8 @@ intdb {
 			// wire CELL[2].IMUX_D[2]              IO[2].LOADN
 			// wire CELL[2].IMUX_D[4]              IO[2].TSDATA[3]
 			// wire CELL[2].IMUX_LSR[0]            IO[2].LSR
-			// wire CELL[2].IMUX_CLK_DELAY[0]      IO[2].CLK
 			// wire CELL[2].IMUX_CE[0]             IO[2].CE
+			// wire CELL[2].IMUX_CLK_DELAY[0]      IO[2].CLK
 			// wire CELL[2].OUT_F[0]               IO[2].RXDATA[0]
 			// wire CELL[2].OUT_F[1]               IO[2].RXDATA[1]
 			// wire CELL[2].OUT_F[2]               IO[2].RXDATA[2]
@@ -14935,8 +14935,8 @@ intdb {
 			// wire CELL[3].IMUX_D[2]              IO[3].LOADN
 			// wire CELL[3].IMUX_D[4]              IO[3].TSDATA[3]
 			// wire CELL[3].IMUX_LSR[0]            IO[3].LSR
-			// wire CELL[3].IMUX_CLK_DELAY[0]      IO[3].CLK
 			// wire CELL[3].IMUX_CE[0]             IO[3].CE
+			// wire CELL[3].IMUX_CLK_DELAY[0]      IO[3].CLK
 			// wire CELL[3].OUT_F[0]               IO[3].RXDATA[0]
 			// wire CELL[3].OUT_F[1]               IO[3].RXDATA[1]
 			// wire CELL[3].OUT_F[2]               IO[3].RXDATA[2]
@@ -15160,8 +15160,8 @@ intdb {
 			// wire CELL[0].IMUX_D[2]              IO[0].LOADN
 			// wire CELL[0].IMUX_D[4]              IO[0].TSDATA[3]
 			// wire CELL[0].IMUX_LSR[0]            IO[0].LSR
-			// wire CELL[0].IMUX_CLK_DELAY[0]      IO[0].CLK
 			// wire CELL[0].IMUX_CE[0]             IO[0].CE
+			// wire CELL[0].IMUX_CLK_DELAY[0]      IO[0].CLK
 			// wire CELL[0].OUT_F[0]               IO[0].RXDATA[0]
 			// wire CELL[0].OUT_F[1]               IO[0].RXDATA[1]
 			// wire CELL[0].OUT_F[2]               IO[0].RXDATA[2]
@@ -15206,8 +15206,8 @@ intdb {
 			// wire CELL[1].IMUX_D[2]              IO[1].LOADN
 			// wire CELL[1].IMUX_D[4]              IO[1].TSDATA[3]
 			// wire CELL[1].IMUX_LSR[0]            IO[1].LSR
-			// wire CELL[1].IMUX_CLK_DELAY[0]      IO[1].CLK
 			// wire CELL[1].IMUX_CE[0]             IO[1].CE
+			// wire CELL[1].IMUX_CLK_DELAY[0]      IO[1].CLK
 			// wire CELL[1].OUT_F[0]               IO[1].RXDATA[0]
 			// wire CELL[1].OUT_F[1]               IO[1].RXDATA[1]
 			// wire CELL[1].OUT_F[2]               IO[1].RXDATA[2]
@@ -15244,8 +15244,8 @@ intdb {
 			// wire CELL[2].IMUX_D[2]              IO[2].LOADN
 			// wire CELL[2].IMUX_D[4]              IO[2].TSDATA[3]
 			// wire CELL[2].IMUX_LSR[0]            IO[2].LSR
-			// wire CELL[2].IMUX_CLK_DELAY[0]      IO[2].CLK
 			// wire CELL[2].IMUX_CE[0]             IO[2].CE
+			// wire CELL[2].IMUX_CLK_DELAY[0]      IO[2].CLK
 			// wire CELL[2].OUT_F[0]               IO[2].RXDATA[0]
 			// wire CELL[2].OUT_F[1]               IO[2].RXDATA[1]
 			// wire CELL[2].OUT_F[2]               IO[2].RXDATA[2]
@@ -15282,8 +15282,8 @@ intdb {
 			// wire CELL[3].IMUX_D[2]              IO[3].LOADN
 			// wire CELL[3].IMUX_D[4]              IO[3].TSDATA[3]
 			// wire CELL[3].IMUX_LSR[0]            IO[3].LSR
-			// wire CELL[3].IMUX_CLK_DELAY[0]      IO[3].CLK
 			// wire CELL[3].IMUX_CE[0]             IO[3].CE
+			// wire CELL[3].IMUX_CLK_DELAY[0]      IO[3].CLK
 			// wire CELL[3].OUT_F[0]               IO[3].RXDATA[0]
 			// wire CELL[3].OUT_F[1]               IO[3].RXDATA[1]
 			// wire CELL[3].OUT_F[2]               IO[3].RXDATA[2]
@@ -15507,8 +15507,8 @@ intdb {
 			// wire CELL[0].IMUX_D[2]              IO[0].LOADN
 			// wire CELL[0].IMUX_D[4]              IO[0].TSDATA[3]
 			// wire CELL[0].IMUX_LSR[0]            IO[0].LSR
-			// wire CELL[0].IMUX_CLK_DELAY[0]      IO[0].CLK
 			// wire CELL[0].IMUX_CE[0]             IO[0].CE
+			// wire CELL[0].IMUX_CLK_DELAY[0]      IO[0].CLK
 			// wire CELL[0].OUT_F[0]               IO[0].RXDATA[0]
 			// wire CELL[0].OUT_F[1]               IO[0].RXDATA[1]
 			// wire CELL[0].OUT_F[2]               IO[0].RXDATA[2]
@@ -15545,8 +15545,8 @@ intdb {
 			// wire CELL[1].IMUX_D[2]              IO[1].LOADN
 			// wire CELL[1].IMUX_D[4]              IO[1].TSDATA[3]
 			// wire CELL[1].IMUX_LSR[0]            IO[1].LSR
-			// wire CELL[1].IMUX_CLK_DELAY[0]      IO[1].CLK
 			// wire CELL[1].IMUX_CE[0]             IO[1].CE
+			// wire CELL[1].IMUX_CLK_DELAY[0]      IO[1].CLK
 			// wire CELL[1].OUT_F[0]               IO[1].RXDATA[0]
 			// wire CELL[1].OUT_F[1]               IO[1].RXDATA[1]
 			// wire CELL[1].OUT_F[2]               IO[1].RXDATA[2]
@@ -15583,8 +15583,8 @@ intdb {
 			// wire CELL[2].IMUX_D[2]              IO[2].LOADN
 			// wire CELL[2].IMUX_D[4]              IO[2].TSDATA[3]
 			// wire CELL[2].IMUX_LSR[0]            IO[2].LSR
-			// wire CELL[2].IMUX_CLK_DELAY[0]      IO[2].CLK
 			// wire CELL[2].IMUX_CE[0]             IO[2].CE
+			// wire CELL[2].IMUX_CLK_DELAY[0]      IO[2].CLK
 			// wire CELL[2].OUT_F[0]               IO[2].RXDATA[0]
 			// wire CELL[2].OUT_F[1]               IO[2].RXDATA[1]
 			// wire CELL[2].OUT_F[2]               IO[2].RXDATA[2]
@@ -15621,8 +15621,8 @@ intdb {
 			// wire CELL[3].IMUX_D[2]              IO[3].LOADN
 			// wire CELL[3].IMUX_D[4]              IO[3].TSDATA[3]
 			// wire CELL[3].IMUX_LSR[0]            IO[3].LSR
-			// wire CELL[3].IMUX_CLK_DELAY[0]      IO[3].CLK
 			// wire CELL[3].IMUX_CE[0]             IO[3].CE
+			// wire CELL[3].IMUX_CLK_DELAY[0]      IO[3].CLK
 			// wire CELL[3].OUT_F[0]               IO[3].RXDATA[0]
 			// wire CELL[3].OUT_F[1]               IO[3].RXDATA[1]
 			// wire CELL[3].OUT_F[2]               IO[3].RXDATA[2]
@@ -15854,8 +15854,8 @@ intdb {
 			// wire CELL[0].IMUX_D[2]              IO[0].LOADN
 			// wire CELL[0].IMUX_D[4]              IO[0].TSDATA[3]
 			// wire CELL[0].IMUX_LSR[0]            IO[0].LSR
-			// wire CELL[0].IMUX_CLK_DELAY[0]      IO[0].CLK
 			// wire CELL[0].IMUX_CE[0]             IO[0].CE
+			// wire CELL[0].IMUX_CLK_DELAY[0]      IO[0].CLK
 			// wire CELL[0].OUT_F[0]               IO[0].RXDATA[0]
 			// wire CELL[0].OUT_F[1]               IO[0].RXDATA[1]
 			// wire CELL[0].OUT_F[2]               IO[0].RXDATA[2]
@@ -15892,8 +15892,8 @@ intdb {
 			// wire CELL[1].IMUX_D[2]              IO[1].LOADN
 			// wire CELL[1].IMUX_D[4]              IO[1].TSDATA[3]
 			// wire CELL[1].IMUX_LSR[0]            IO[1].LSR
-			// wire CELL[1].IMUX_CLK_DELAY[0]      IO[1].CLK
 			// wire CELL[1].IMUX_CE[0]             IO[1].CE
+			// wire CELL[1].IMUX_CLK_DELAY[0]      IO[1].CLK
 			// wire CELL[1].OUT_F[0]               IO[1].RXDATA[0]
 			// wire CELL[1].OUT_F[1]               IO[1].RXDATA[1]
 			// wire CELL[1].OUT_F[2]               IO[1].RXDATA[2]
@@ -15930,8 +15930,8 @@ intdb {
 			// wire CELL[2].IMUX_D[2]              IO[2].LOADN
 			// wire CELL[2].IMUX_D[4]              IO[2].TSDATA[3]
 			// wire CELL[2].IMUX_LSR[0]            IO[2].LSR
-			// wire CELL[2].IMUX_CLK_DELAY[0]      IO[2].CLK
 			// wire CELL[2].IMUX_CE[0]             IO[2].CE
+			// wire CELL[2].IMUX_CLK_DELAY[0]      IO[2].CLK
 			// wire CELL[2].OUT_F[0]               IO[2].RXDATA[0]
 			// wire CELL[2].OUT_F[1]               IO[2].RXDATA[1]
 			// wire CELL[2].OUT_F[2]               IO[2].RXDATA[2]
@@ -15968,8 +15968,8 @@ intdb {
 			// wire CELL[3].IMUX_D[2]              IO[3].LOADN
 			// wire CELL[3].IMUX_D[4]              IO[3].TSDATA[3]
 			// wire CELL[3].IMUX_LSR[0]            IO[3].LSR
-			// wire CELL[3].IMUX_CLK_DELAY[0]      IO[3].CLK
 			// wire CELL[3].IMUX_CE[0]             IO[3].CE
+			// wire CELL[3].IMUX_CLK_DELAY[0]      IO[3].CLK
 			// wire CELL[3].OUT_F[0]               IO[3].RXDATA[0]
 			// wire CELL[3].OUT_F[1]               IO[3].RXDATA[1]
 			// wire CELL[3].OUT_F[2]               IO[3].RXDATA[2]
@@ -16201,8 +16201,8 @@ intdb {
 			// wire CELL[0].IMUX_D[2]              IO[0].LOADN
 			// wire CELL[0].IMUX_D[4]              IO[0].TSDATA[3]
 			// wire CELL[0].IMUX_LSR[0]            IO[0].LSR
-			// wire CELL[0].IMUX_CLK_DELAY[0]      IO[0].CLK
 			// wire CELL[0].IMUX_CE[0]             IO[0].CE
+			// wire CELL[0].IMUX_CLK_DELAY[0]      IO[0].CLK
 			// wire CELL[0].OUT_F[0]               IO[0].RXDATA[0]
 			// wire CELL[0].OUT_F[1]               IO[0].RXDATA[1]
 			// wire CELL[0].OUT_F[2]               IO[0].RXDATA[2]
@@ -16239,8 +16239,8 @@ intdb {
 			// wire CELL[1].IMUX_D[2]              IO[1].LOADN
 			// wire CELL[1].IMUX_D[4]              IO[1].TSDATA[3]
 			// wire CELL[1].IMUX_LSR[0]            IO[1].LSR
-			// wire CELL[1].IMUX_CLK_DELAY[0]      IO[1].CLK
 			// wire CELL[1].IMUX_CE[0]             IO[1].CE
+			// wire CELL[1].IMUX_CLK_DELAY[0]      IO[1].CLK
 			// wire CELL[1].OUT_F[0]               IO[1].RXDATA[0]
 			// wire CELL[1].OUT_F[1]               IO[1].RXDATA[1]
 			// wire CELL[1].OUT_F[2]               IO[1].RXDATA[2]
@@ -16285,8 +16285,8 @@ intdb {
 			// wire CELL[2].IMUX_D[2]              IO[2].LOADN
 			// wire CELL[2].IMUX_D[4]              IO[2].TSDATA[3]
 			// wire CELL[2].IMUX_LSR[0]            IO[2].LSR
-			// wire CELL[2].IMUX_CLK_DELAY[0]      IO[2].CLK
 			// wire CELL[2].IMUX_CE[0]             IO[2].CE
+			// wire CELL[2].IMUX_CLK_DELAY[0]      IO[2].CLK
 			// wire CELL[2].OUT_F[0]               IO[2].RXDATA[0]
 			// wire CELL[2].OUT_F[1]               IO[2].RXDATA[1]
 			// wire CELL[2].OUT_F[2]               IO[2].RXDATA[2]
@@ -16323,8 +16323,8 @@ intdb {
 			// wire CELL[3].IMUX_D[2]              IO[3].LOADN
 			// wire CELL[3].IMUX_D[4]              IO[3].TSDATA[3]
 			// wire CELL[3].IMUX_LSR[0]            IO[3].LSR
-			// wire CELL[3].IMUX_CLK_DELAY[0]      IO[3].CLK
 			// wire CELL[3].IMUX_CE[0]             IO[3].CE
+			// wire CELL[3].IMUX_CLK_DELAY[0]      IO[3].CLK
 			// wire CELL[3].OUT_F[0]               IO[3].RXDATA[0]
 			// wire CELL[3].OUT_F[1]               IO[3].RXDATA[1]
 			// wire CELL[3].OUT_F[2]               IO[3].RXDATA[2]
@@ -16502,6 +16502,10 @@ intdb {
 			// wire IMUX_M[5]                      SLICE[2].M[1]
 			// wire IMUX_M[6]                      SLICE[3].M[0]
 			// wire IMUX_M[7]                      SLICE[3].M[1]
+			// wire IMUX_CE[0]                     SLICE[0].CE
+			// wire IMUX_CE[1]                     SLICE[1].CE
+			// wire IMUX_CE[2]                     SLICE[2].CE
+			// wire IMUX_CE[3]                     SLICE[3].CE
 			// wire IMUX_MUXCLK[0]                 SLICE[0].CLK
 			// wire IMUX_MUXCLK[1]                 SLICE[1].CLK
 			// wire IMUX_MUXCLK[2]                 SLICE[2].CLK
@@ -16510,10 +16514,6 @@ intdb {
 			// wire IMUX_MUXLSR[1]                 SLICE[1].LSR
 			// wire IMUX_MUXLSR[2]                 SLICE[2].LSR
 			// wire IMUX_MUXLSR[3]                 SLICE[3].LSR
-			// wire IMUX_CE[0]                     SLICE[0].CE
-			// wire IMUX_CE[1]                     SLICE[1].CE
-			// wire IMUX_CE[2]                     SLICE[2].CE
-			// wire IMUX_CE[3]                     SLICE[3].CE
 			// wire OUT_F[0]                       SLICE[0].F[0]
 			// wire OUT_F[1]                       SLICE[0].F[1]
 			// wire OUT_F[2]                       SLICE[1].F[0]
@@ -17078,11 +17078,11 @@ intdb {
 			// wire CELL[0].IMUX_D[7]              EBR[0].DIA[7]
 			// wire CELL[0].IMUX_LSR[0]            EBR[0].RSTA
 			// wire CELL[0].IMUX_LSR[1]            EBR[0].WEA
-			// wire CELL[0].IMUX_CLK_DELAY[0]      EBR[0].CLKA
 			// wire CELL[0].IMUX_CE[0]             EBR[0].OCEA
 			// wire CELL[0].IMUX_CE[1]             EBR[0].CEA
 			// wire CELL[0].IMUX_CE[2]             EBR[0].CSA[0]
 			// wire CELL[0].IMUX_CE[3]             EBR[0].CSA[1]
+			// wire CELL[0].IMUX_CLK_DELAY[0]      EBR[0].CLKA
 			// wire CELL[0].OUT_F[0]               EBR[0].DOA[0]
 			// wire CELL[0].OUT_F[1]               EBR[0].DOA[1]
 			// wire CELL[0].OUT_F[2]               EBR[0].DOA[2]
@@ -17131,11 +17131,11 @@ intdb {
 			// wire CELL[1].IMUX_D[7]              EBR[0].DIA[15]
 			// wire CELL[1].IMUX_LSR[0]            EBR[0].RSTB
 			// wire CELL[1].IMUX_LSR[1]            EBR[0].WEB
-			// wire CELL[1].IMUX_CLK_DELAY[0]      EBR[0].CLKB
 			// wire CELL[1].IMUX_CE[0]             EBR[0].OCEB
 			// wire CELL[1].IMUX_CE[1]             EBR[0].CEB
 			// wire CELL[1].IMUX_CE[2]             EBR[0].CSB[0]
 			// wire CELL[1].IMUX_CE[3]             EBR[0].CSA[2]
+			// wire CELL[1].IMUX_CLK_DELAY[0]      EBR[0].CLKB
 			// wire CELL[1].OUT_F[0]               EBR[0].DOA[8]
 			// wire CELL[1].OUT_F[1]               EBR[0].DOA[9]
 			// wire CELL[1].OUT_F[2]               EBR[0].DOA[10]
@@ -17188,11 +17188,11 @@ intdb {
 			// wire CELL[2].IMUX_D[7]              EBR[1].DIA[5]
 			// wire CELL[2].IMUX_LSR[0]            EBR[1].RSTA
 			// wire CELL[2].IMUX_LSR[1]            EBR[1].WEA
-			// wire CELL[2].IMUX_CLK_DELAY[0]      EBR[1].CLKA
 			// wire CELL[2].IMUX_CE[0]             EBR[1].OCEA
 			// wire CELL[2].IMUX_CE[1]             EBR[1].CEA
 			// wire CELL[2].IMUX_CE[2]             EBR[0].CSB[1]
 			// wire CELL[2].IMUX_CE[3]             EBR[0].CSB[2]
+			// wire CELL[2].IMUX_CLK_DELAY[0]      EBR[1].CLKA
 			// wire CELL[2].OUT_F[0]               EBR[0].DOA[16]
 			// wire CELL[2].OUT_F[1]               EBR[0].DOA[17]
 			// wire CELL[2].OUT_F[2]               EBR[1].DOA[0]
@@ -17241,11 +17241,11 @@ intdb {
 			// wire CELL[3].IMUX_D[7]              EBR[1].DIA[13]
 			// wire CELL[3].IMUX_LSR[0]            EBR[1].RSTB
 			// wire CELL[3].IMUX_LSR[1]            EBR[1].WEB
-			// wire CELL[3].IMUX_CLK_DELAY[0]      EBR[1].CLKB
 			// wire CELL[3].IMUX_CE[0]             EBR[1].OCEB
 			// wire CELL[3].IMUX_CE[1]             EBR[1].CEB
 			// wire CELL[3].IMUX_CE[2]             EBR[1].CSA[0]
 			// wire CELL[3].IMUX_CE[3]             EBR[1].CSA[1]
+			// wire CELL[3].IMUX_CLK_DELAY[0]      EBR[1].CLKB
 			// wire CELL[3].OUT_F[0]               EBR[1].DOA[6]
 			// wire CELL[3].OUT_F[1]               EBR[1].DOA[7]
 			// wire CELL[3].OUT_F[2]               EBR[1].DOA[8]
@@ -17282,12 +17282,12 @@ intdb {
 			// wire CELL[4].IMUX_D[7]              EBR[2].DIA[3]
 			// wire CELL[4].IMUX_LSR[0]            EBR[1].CSB[2]
 			// wire CELL[4].IMUX_LSR[1]            EBR[2].CSB[2]
-			// wire CELL[4].IMUX_CLK_DELAY[0]      EBR[1].CSA[2]
-			// wire CELL[4].IMUX_CLK_DELAY[1]      EBR[2].CSA[2]
 			// wire CELL[4].IMUX_CE[0]             EBR[1].CSB[0]
 			// wire CELL[4].IMUX_CE[1]             EBR[1].CSB[1]
 			// wire CELL[4].IMUX_CE[2]             EBR[2].CSA[0]
 			// wire CELL[4].IMUX_CE[3]             EBR[2].CSA[1]
+			// wire CELL[4].IMUX_CLK_DELAY[0]      EBR[1].CSA[2]
+			// wire CELL[4].IMUX_CLK_DELAY[1]      EBR[2].CSA[2]
 			// wire CELL[4].OUT_F[0]               EBR[1].DOA[14]
 			// wire CELL[4].OUT_F[1]               EBR[1].DOA[15]
 			// wire CELL[4].OUT_F[2]               EBR[1].DOA[16]
@@ -17338,11 +17338,11 @@ intdb {
 			// wire CELL[5].IMUX_D[7]              EBR[2].DIA[11]
 			// wire CELL[5].IMUX_LSR[0]            EBR[2].RSTA
 			// wire CELL[5].IMUX_LSR[1]            EBR[2].WEA
-			// wire CELL[5].IMUX_CLK_DELAY[0]      EBR[2].CLKA
 			// wire CELL[5].IMUX_CE[0]             EBR[2].OCEA
 			// wire CELL[5].IMUX_CE[1]             EBR[2].CEA
 			// wire CELL[5].IMUX_CE[2]             EBR[2].CSB[0]
 			// wire CELL[5].IMUX_CE[3]             EBR[2].CSB[1]
+			// wire CELL[5].IMUX_CLK_DELAY[0]      EBR[2].CLKA
 			// wire CELL[5].OUT_F[0]               EBR[2].DOA[4]
 			// wire CELL[5].OUT_F[1]               EBR[2].DOA[5]
 			// wire CELL[5].OUT_F[2]               EBR[2].DOA[6]
@@ -17391,11 +17391,11 @@ intdb {
 			// wire CELL[6].IMUX_D[7]              EBR[3].DIA[1]
 			// wire CELL[6].IMUX_LSR[0]            EBR[2].RSTB
 			// wire CELL[6].IMUX_LSR[1]            EBR[2].WEB
-			// wire CELL[6].IMUX_CLK_DELAY[0]      EBR[2].CLKB
 			// wire CELL[6].IMUX_CE[0]             EBR[2].OCEB
 			// wire CELL[6].IMUX_CE[1]             EBR[2].CEB
 			// wire CELL[6].IMUX_CE[2]             EBR[3].CSA[1]
 			// wire CELL[6].IMUX_CE[3]             EBR[3].CSA[2]
+			// wire CELL[6].IMUX_CLK_DELAY[0]      EBR[2].CLKB
 			// wire CELL[6].OUT_F[0]               EBR[2].DOA[12]
 			// wire CELL[6].OUT_F[1]               EBR[2].DOA[13]
 			// wire CELL[6].OUT_F[2]               EBR[2].DOA[14]
@@ -17448,11 +17448,11 @@ intdb {
 			// wire CELL[7].IMUX_D[7]              EBR[3].DIA[9]
 			// wire CELL[7].IMUX_LSR[0]            EBR[3].RSTA
 			// wire CELL[7].IMUX_LSR[1]            EBR[3].WEA
-			// wire CELL[7].IMUX_CLK_DELAY[0]      EBR[3].CLKA
 			// wire CELL[7].IMUX_CE[0]             EBR[3].OCEA
 			// wire CELL[7].IMUX_CE[1]             EBR[3].CEA
 			// wire CELL[7].IMUX_CE[2]             EBR[3].CSA[0]
 			// wire CELL[7].IMUX_CE[3]             EBR[3].CSB[2]
+			// wire CELL[7].IMUX_CLK_DELAY[0]      EBR[3].CLKA
 			// wire CELL[7].OUT_F[0]               EBR[3].DOA[2]
 			// wire CELL[7].OUT_F[1]               EBR[3].DOA[3]
 			// wire CELL[7].OUT_F[2]               EBR[3].DOA[4]
@@ -17501,11 +17501,11 @@ intdb {
 			// wire CELL[8].IMUX_D[7]              EBR[3].DIA[17]
 			// wire CELL[8].IMUX_LSR[0]            EBR[3].RSTB
 			// wire CELL[8].IMUX_LSR[1]            EBR[3].WEB
-			// wire CELL[8].IMUX_CLK_DELAY[0]      EBR[3].CLKB
 			// wire CELL[8].IMUX_CE[0]             EBR[3].OCEB
 			// wire CELL[8].IMUX_CE[1]             EBR[3].CEB
 			// wire CELL[8].IMUX_CE[2]             EBR[3].CSB[0]
 			// wire CELL[8].IMUX_CE[3]             EBR[3].CSB[1]
+			// wire CELL[8].IMUX_CLK_DELAY[0]      EBR[3].CLKB
 			// wire CELL[8].OUT_F[0]               EBR[3].DOA[10]
 			// wire CELL[8].OUT_F[1]               EBR[3].DOA[11]
 			// wire CELL[8].OUT_F[2]               EBR[3].DOA[12]
@@ -18092,12 +18092,12 @@ intdb {
 			// wire CELL[1].IMUX_D[6]              DSP[0].A0[14]
 			// wire CELL[1].IMUX_D[7]              DSP[0].A0[15]
 			// wire CELL[1].IMUX_LSR[1]            DSP[0].SOURCEA[1]
-			// wire CELL[1].IMUX_CLK_DELAY[0]      DSP[0].CLK[0]
-			// wire CELL[1].IMUX_CLK_DELAY[1]      DSP[0].CLK[1]
 			// wire CELL[1].IMUX_CE[0]             DSP[0].CE[0]
 			// wire CELL[1].IMUX_CE[1]             DSP[0].CE[1]
 			// wire CELL[1].IMUX_CE[2]             DSP[0].OP[2]
 			// wire CELL[1].IMUX_CE[3]             DSP[0].OP[3]
+			// wire CELL[1].IMUX_CLK_DELAY[0]      DSP[0].CLK[0]
+			// wire CELL[1].IMUX_CLK_DELAY[1]      DSP[0].CLK[1]
 			// wire CELL[1].OUT_F[0]               DSP[0].R[8]
 			// wire CELL[1].OUT_F[1]               DSP[0].R[9]
 			// wire CELL[1].OUT_F[2]               DSP[0].R[10]
@@ -18148,12 +18148,12 @@ intdb {
 			// wire CELL[2].IMUX_D[7]              DSP[0].A1[5]
 			// wire CELL[2].IMUX_LSR[0]            DSP[0].SOURCEB[1]
 			// wire CELL[2].IMUX_LSR[1]            DSP[0].SIGNEDA[1]
-			// wire CELL[2].IMUX_CLK_DELAY[0]      DSP[0].CLK[2]
-			// wire CELL[2].IMUX_CLK_DELAY[1]      DSP[0].CLK[3]
 			// wire CELL[2].IMUX_CE[0]             DSP[0].CE[2]
 			// wire CELL[2].IMUX_CE[1]             DSP[0].CE[3]
 			// wire CELL[2].IMUX_CE[2]             DSP[0].OP[4]
 			// wire CELL[2].IMUX_CE[3]             DSP[0].OP[5]
+			// wire CELL[2].IMUX_CLK_DELAY[0]      DSP[0].CLK[2]
+			// wire CELL[2].IMUX_CLK_DELAY[1]      DSP[0].CLK[3]
 			// wire CELL[2].OUT_F[0]               DSP[0].R[16]
 			// wire CELL[2].OUT_F[1]               DSP[0].R[17]
 			// wire CELL[2].OUT_F[2]               DSP[0].R[27]
@@ -18340,12 +18340,12 @@ intdb {
 			// wire CELL[6].IMUX_D[7]              DSP[1].A1[1]
 			// wire CELL[6].IMUX_LSR[0]            DSP[1].SOURCEA[0]
 			// wire CELL[6].IMUX_LSR[1]            DSP[1].SOURCEB[0]
-			// wire CELL[6].IMUX_CLK_DELAY[0]      DSP[1].CLK[0]
-			// wire CELL[6].IMUX_CLK_DELAY[1]      DSP[1].CLK[1]
 			// wire CELL[6].IMUX_CE[0]             DSP[1].CE[0]
 			// wire CELL[6].IMUX_CE[1]             DSP[1].CE[1]
 			// wire CELL[6].IMUX_CE[2]             DSP[1].OP[4]
 			// wire CELL[6].IMUX_CE[3]             DSP[1].OP[5]
+			// wire CELL[6].IMUX_CLK_DELAY[0]      DSP[1].CLK[0]
+			// wire CELL[6].IMUX_CLK_DELAY[1]      DSP[1].CLK[1]
 			// wire CELL[6].OUT_F[0]               DSP[1].R[12]
 			// wire CELL[6].OUT_F[1]               DSP[1].R[13]
 			// wire CELL[6].OUT_F[2]               DSP[1].R[14]
@@ -18395,12 +18395,12 @@ intdb {
 			// wire CELL[7].IMUX_D[6]              DSP[1].A1[8]
 			// wire CELL[7].IMUX_D[7]              DSP[1].A1[9]
 			// wire CELL[7].IMUX_LSR[1]            DSP[1].SIGNEDA[1]
-			// wire CELL[7].IMUX_CLK_DELAY[0]      DSP[1].CLK[2]
-			// wire CELL[7].IMUX_CLK_DELAY[1]      DSP[1].CLK[3]
 			// wire CELL[7].IMUX_CE[0]             DSP[1].CE[2]
 			// wire CELL[7].IMUX_CE[1]             DSP[1].CE[3]
 			// wire CELL[7].IMUX_CE[2]             DSP[1].OP[6]
 			// wire CELL[7].IMUX_CE[3]             DSP[1].OP[7]
+			// wire CELL[7].IMUX_CLK_DELAY[0]      DSP[1].CLK[2]
+			// wire CELL[7].IMUX_CLK_DELAY[1]      DSP[1].CLK[3]
 			// wire CELL[7].OUT_F[0]               DSP[1].R[29]
 			// wire CELL[7].OUT_F[1]               DSP[1].R[30]
 			// wire CELL[7].OUT_F[2]               DSP[1].R[31]
@@ -20509,12 +20509,12 @@ intdb {
 			// wire CELL[7].IMUX_D[7]              SERDES.Q0CH0_FDTX[6]
 			// wire CELL[7].IMUX_LSR[0]            SERDES.Q0CH0_FCPIPEPHYRESETN
 			// wire CELL[7].IMUX_LSR[1]            SERDES.Q0CH1_FCPIPEPHYRESETN
-			// wire CELL[7].IMUX_CLK_DELAY[0]      SERDES.Q0_HSPLLREFCLKI
-			// wire CELL[7].IMUX_CLK_DELAY[1]      SERDES.Q0_LSPLLREFCLKI
 			// wire CELL[7].IMUX_CE[0]             SERDES.Q0CH1_FCDFERDEN
 			// wire CELL[7].IMUX_CE[1]             SERDES.Q0CH2_FCDFERDEN
 			// wire CELL[7].IMUX_CE[2]             SERDES.Q0CH3_FCDFERDEN
 			// wire CELL[7].IMUX_CE[3]             SERDES.Q0CH0_FCDFEUPD
+			// wire CELL[7].IMUX_CLK_DELAY[0]      SERDES.Q0_HSPLLREFCLKI
+			// wire CELL[7].IMUX_CLK_DELAY[1]      SERDES.Q0_LSPLLREFCLKI
 			// wire CELL[7].OUT_F[0]               SERDES.Q0CH0_FDRX[45]
 			// wire CELL[7].OUT_F[1]               SERDES.Q0CH0_FDRX[44]
 			// wire CELL[7].OUT_F[2]               SERDES.Q0CH0_FDRX[43]
@@ -20557,11 +20557,11 @@ intdb {
 			// wire CELL[8].IMUX_D[7]              SERDES.Q0CH1_FDTX[32]
 			// wire CELL[8].IMUX_LSR[0]            SERDES.Q0CH2_FCPIPEPHYRESETN
 			// wire CELL[8].IMUX_LSR[1]            SERDES.Q0CH3_FCPIPEPHYRESETN
-			// wire CELL[8].IMUX_CLK_DELAY[0]      SERDES.Q0CH0_FIREFRXCLK
-			// wire CELL[8].IMUX_CLK_DELAY[1]      SERDES.Q0CH1_FIREFRXCLK
 			// wire CELL[8].IMUX_CE[0]             SERDES.Q0CH1_FCDFEUPD
 			// wire CELL[8].IMUX_CE[1]             SERDES.Q0CH2_FCDFEUPD
 			// wire CELL[8].IMUX_CE[2]             SERDES.Q0CH3_FCDFEUPD
+			// wire CELL[8].IMUX_CLK_DELAY[0]      SERDES.Q0CH0_FIREFRXCLK
+			// wire CELL[8].IMUX_CLK_DELAY[1]      SERDES.Q0CH1_FIREFRXCLK
 			// wire CELL[8].OUT_F[0]               SERDES.Q0CH0_FDRX[29]
 			// wire CELL[8].OUT_F[1]               SERDES.Q0CH0_FDRX[28]
 			// wire CELL[8].OUT_F[2]               SERDES.Q0CH0_FDRX[27]
@@ -21068,12 +21068,12 @@ intdb {
 			// wire CELL[27].IMUX_D[5]             SERDES.Q0P_HALTGTCOMPDES[127]
 			// wire CELL[27].IMUX_LSR[0]           SERDES.Q0P_MBISTMODE
 			// wire CELL[27].IMUX_LSR[1]           SERDES.Q0P_SCANRSTN
-			// wire CELL[27].IMUX_CLK_DELAY[0]     SERDES.Q0P_SCANCLK
-			// wire CELL[27].IMUX_CLK_DELAY[1]     SERDES.Q0P_MBISTCLK
 			// wire CELL[27].IMUX_CE[0]            SERDES.Q0P_SCANI[19]
 			// wire CELL[27].IMUX_CE[1]            SERDES.Q0P_SCANI[9]
 			// wire CELL[27].IMUX_CE[2]            SERDES.Q0P_SCANI[10]
 			// wire CELL[27].IMUX_CE[3]            SERDES.Q0P_SCANI[20]
+			// wire CELL[27].IMUX_CLK_DELAY[0]     SERDES.Q0P_SCANCLK
+			// wire CELL[27].IMUX_CLK_DELAY[1]     SERDES.Q0P_MBISTCLK
 			// wire CELL[27].OUT_F[0]              SERDES.Q0P_HALTGTREQDES[20]
 			// wire CELL[27].OUT_F[1]              SERDES.Q0P_HALTGTREQDES[96]
 			// wire CELL[27].OUT_F[2]              SERDES.Q0P_HALTGTREQDES[95]
@@ -25896,12 +25896,12 @@ intdb {
 			// wire CELL[7].IMUX_D[5]              SERDES.Q0CH0_FDTX[26]
 			// wire CELL[7].IMUX_LSR[0]            SERDES.Q0CH0_FCPIPEPHYRESETN
 			// wire CELL[7].IMUX_LSR[1]            SERDES.Q0CH1_FCPIPEPHYRESETN
-			// wire CELL[7].IMUX_CLK_DELAY[0]      SERDES.Q0_HSPLLREFCLKI
-			// wire CELL[7].IMUX_CLK_DELAY[1]      SERDES.Q0_LSPLLREFCLKI
 			// wire CELL[7].IMUX_CE[0]             SERDES.Q0CH0_FCDFERDEN
 			// wire CELL[7].IMUX_CE[1]             SERDES.Q0CH1_FCDFERDEN
 			// wire CELL[7].IMUX_CE[2]             SERDES.Q0CH2_FCDFERDEN
 			// wire CELL[7].IMUX_CE[3]             SERDES.Q0CH3_FCDFERDEN
+			// wire CELL[7].IMUX_CLK_DELAY[0]      SERDES.Q0_HSPLLREFCLKI
+			// wire CELL[7].IMUX_CLK_DELAY[1]      SERDES.Q0_LSPLLREFCLKI
 			// wire CELL[7].OUT_F[0]               SERDES.Q0CH0_FDRX[47]
 			// wire CELL[7].OUT_F[1]               SERDES.Q0CH0_FDRX[46]
 			// wire CELL[7].OUT_F[2]               SERDES.Q0CH0_FDRX[45]
@@ -25944,12 +25944,12 @@ intdb {
 			// wire CELL[8].IMUX_D[5]              SERDES.Q0CH0_FDTX[2]
 			// wire CELL[8].IMUX_LSR[0]            SERDES.Q0CH2_FCPIPEPHYRESETN
 			// wire CELL[8].IMUX_LSR[1]            SERDES.Q0CH3_FCPIPEPHYRESETN
-			// wire CELL[8].IMUX_CLK_DELAY[0]      SERDES.Q0CH0_FIREFRXCLK
-			// wire CELL[8].IMUX_CLK_DELAY[1]      SERDES.Q0CH1_FIREFRXCLK
 			// wire CELL[8].IMUX_CE[0]             SERDES.Q0CH0_FCDFEUPD
 			// wire CELL[8].IMUX_CE[1]             SERDES.Q0CH1_FCDFEUPD
 			// wire CELL[8].IMUX_CE[2]             SERDES.Q0CH2_FCDFEUPD
 			// wire CELL[8].IMUX_CE[3]             SERDES.Q0CH3_FCDFEUPD
+			// wire CELL[8].IMUX_CLK_DELAY[0]      SERDES.Q0CH0_FIREFRXCLK
+			// wire CELL[8].IMUX_CLK_DELAY[1]      SERDES.Q0CH1_FIREFRXCLK
 			// wire CELL[8].OUT_F[0]               SERDES.Q0CH0_FDRX[31]
 			// wire CELL[8].OUT_F[1]               SERDES.Q0CH0_FDRX[30]
 			// wire CELL[8].OUT_F[2]               SERDES.Q0CH0_FDRX[29]
@@ -26468,12 +26468,12 @@ intdb {
 			// wire CELL[29].IMUX_D[5]             SERDES.Q0P_HALTGTCOMPDES[127]
 			// wire CELL[29].IMUX_LSR[0]           SERDES.Q0P_MBISTMODE
 			// wire CELL[29].IMUX_LSR[1]           SERDES.Q0P_SCANRSTN
-			// wire CELL[29].IMUX_CLK_DELAY[0]     SERDES.Q0P_SCANCLK
-			// wire CELL[29].IMUX_CLK_DELAY[1]     SERDES.Q0P_MBISTCLK
 			// wire CELL[29].IMUX_CE[0]            SERDES.Q0P_SCANI[19]
 			// wire CELL[29].IMUX_CE[1]            SERDES.Q0P_SCANI[9]
 			// wire CELL[29].IMUX_CE[2]            SERDES.Q0P_SCANI[10]
 			// wire CELL[29].IMUX_CE[3]            SERDES.Q0P_SCANI[20]
+			// wire CELL[29].IMUX_CLK_DELAY[0]     SERDES.Q0P_SCANCLK
+			// wire CELL[29].IMUX_CLK_DELAY[1]     SERDES.Q0P_MBISTCLK
 			// wire CELL[29].OUT_F[0]              SERDES.Q0P_HALTGTREQDES[20]
 			// wire CELL[29].OUT_F[1]              SERDES.Q0P_HALTGTREQDES[96]
 			// wire CELL[29].OUT_F[2]              SERDES.Q0P_HALTGTREQDES[95]
@@ -28058,9 +28058,9 @@ intdb {
 			// wire CELL[77].IMUX_D[3]             SERDES.Q1S_MGTA[16]
 			// wire CELL[77].IMUX_D[4]             SERDES.Q1S_MGTA[13]
 			// wire CELL[77].IMUX_D[5]             SERDES.Q1S_MGTA[7]
-			// wire CELL[77].IMUX_CLK_DELAY[1]     SERDES.Q1EA3_KIRXTXFECLK
 			// wire CELL[77].IMUX_CE[1]            SERDES.Q1S_TISCANI[2]
 			// wire CELL[77].IMUX_CE[2]            SERDES.Q1S_TISCANI[0]
+			// wire CELL[77].IMUX_CLK_DELAY[1]     SERDES.Q1EA3_KIRXTXFECLK
 			// wire CELL[77].OUT_F[0]              SERDES.Q1S_OLLMMGTDI[10]
 			// wire CELL[77].OUT_F[1]              SERDES.Q1S_OLLMMGTDI[27]
 			// wire CELL[77].OUT_F[2]              SERDES.Q1S_OLLMMGTDI[31]
@@ -28099,12 +28099,12 @@ intdb {
 			// wire CELL[78].IMUX_D[7]             SERDES.Q1S_MGTA[19]
 			// wire CELL[78].IMUX_LSR[0]           SERDES.Q1S_TISCANRSTN
 			// wire CELL[78].IMUX_LSR[1]           SERDES.Q1S_TISCANMODE
-			// wire CELL[78].IMUX_CLK_DELAY[0]     SERDES.Q1EA1_KIRXTXFECLK
-			// wire CELL[78].IMUX_CLK_DELAY[1]     SERDES.Q1EA2_KIRXTXFECLK
 			// wire CELL[78].IMUX_CE[0]            SERDES.Q1S_TISCANI[9]
 			// wire CELL[78].IMUX_CE[1]            SERDES.Q1S_TISCANI[10]
 			// wire CELL[78].IMUX_CE[2]            SERDES.Q1S_TISCANI[13]
 			// wire CELL[78].IMUX_CE[3]            SERDES.Q1S_TISCANI[6]
+			// wire CELL[78].IMUX_CLK_DELAY[0]     SERDES.Q1EA1_KIRXTXFECLK
+			// wire CELL[78].IMUX_CLK_DELAY[1]     SERDES.Q1EA2_KIRXTXFECLK
 			// wire CELL[78].OUT_F[0]              SERDES.Q1S_STATUS[20]
 			// wire CELL[78].OUT_F[1]              SERDES.Q1S_TISCANO[4]
 			// wire CELL[78].OUT_F[2]              SERDES.Q1S_TISCANO[17]
@@ -28147,12 +28147,12 @@ intdb {
 			// wire CELL[79].IMUX_D[7]             SERDES.Q1S_OLLMEFPTR[0]
 			// wire CELL[79].IMUX_LSR[0]           SERDES.Q1EA3_KIRSTN
 			// wire CELL[79].IMUX_LSR[1]           SERDES.Q1EA0_KIRSTN
-			// wire CELL[79].IMUX_CLK_DELAY[0]     SERDES.Q1EA2_KITXMACCLK
-			// wire CELL[79].IMUX_CLK_DELAY[1]     SERDES.Q1EA1_KITXMACCLK
 			// wire CELL[79].IMUX_CE[0]            SERDES.Q1S_TISCANI[12]
 			// wire CELL[79].IMUX_CE[1]            SERDES.Q1S_TISCANI[11]
 			// wire CELL[79].IMUX_CE[2]            SERDES.Q1S_TISCANI[3]
 			// wire CELL[79].IMUX_CE[3]            SERDES.Q1S_TISCANI[21]
+			// wire CELL[79].IMUX_CLK_DELAY[0]     SERDES.Q1EA2_KITXMACCLK
+			// wire CELL[79].IMUX_CLK_DELAY[1]     SERDES.Q1EA1_KITXMACCLK
 			// wire CELL[79].OUT_F[0]              SERDES.Q1S_RESPTIMEOUT[23]
 			// wire CELL[79].OUT_F[1]              SERDES.Q1S_RESPTIMEOUT[22]
 			// wire CELL[79].OUT_F[2]              SERDES.Q1S_PORTNERRORDETECT[27]
@@ -28195,12 +28195,12 @@ intdb {
 			// wire CELL[80].IMUX_D[7]             SERDES.Q1S_OLLMEFPTR[1]
 			// wire CELL[80].IMUX_LSR[0]           SERDES.Q1EA2_KIRSTN
 			// wire CELL[80].IMUX_LSR[1]           SERDES.Q1EA1_KIRSTN
-			// wire CELL[80].IMUX_CLK_DELAY[0]     SERDES.Q1EA1_KIRXMACCLK
-			// wire CELL[80].IMUX_CLK_DELAY[1]     SERDES.Q1EA0_KIRXMACCLK
 			// wire CELL[80].IMUX_CE[0]            SERDES.Q1S_TISCANI[23]
 			// wire CELL[80].IMUX_CE[1]            SERDES.Q1S_TISCANI[25]
 			// wire CELL[80].IMUX_CE[2]            SERDES.Q1S_TISCANI[28]
 			// wire CELL[80].IMUX_CE[3]            SERDES.Q1S_TISCANI[29]
+			// wire CELL[80].IMUX_CLK_DELAY[0]     SERDES.Q1EA1_KIRXMACCLK
+			// wire CELL[80].IMUX_CLK_DELAY[1]     SERDES.Q1EA0_KIRXMACCLK
 			// wire CELL[80].OUT_F[0]              SERDES.Q1S_RESPTIMEOUT[6]
 			// wire CELL[80].OUT_F[1]              SERDES.Q1S_RESPTIMEOUT[5]
 			// wire CELL[80].OUT_F[2]              SERDES.Q1S_STATUS[16]
@@ -28243,12 +28243,12 @@ intdb {
 			// wire CELL[81].IMUX_D[7]             SERDES.Q1S_TXSYNCCTRL[1]
 			// wire CELL[81].IMUX_LSR[0]           SERDES.Q1S_TISCANENA
 			// wire CELL[81].IMUX_LSR[1]           SERDES.Q1S_PHYRSTN
-			// wire CELL[81].IMUX_CLK_DELAY[0]     SERDES.Q1EA2_KIRXMACCLK
-			// wire CELL[81].IMUX_CLK_DELAY[1]     SERDES.Q1EA3_KIRXMACCLK
 			// wire CELL[81].IMUX_CE[0]            SERDES.Q1S_TISCANI[27]
 			// wire CELL[81].IMUX_CE[1]            SERDES.Q1S_TISCANI[26]
 			// wire CELL[81].IMUX_CE[2]            SERDES.Q1S_TISCANI[24]
 			// wire CELL[81].IMUX_CE[3]            SERDES.Q1S_TISCANI[22]
+			// wire CELL[81].IMUX_CLK_DELAY[0]     SERDES.Q1EA2_KIRXMACCLK
+			// wire CELL[81].IMUX_CLK_DELAY[1]     SERDES.Q1EA3_KIRXMACCLK
 			// wire CELL[81].OUT_F[0]              SERDES.Q1S_STATUS[14]
 			// wire CELL[81].OUT_F[1]              SERDES.Q1S_FLOWFIFOACKON[3]
 			// wire CELL[81].OUT_F[2]              SERDES.Q1S_TISCANO[6]
@@ -28291,12 +28291,12 @@ intdb {
 			// wire CELL[82].IMUX_D[7]             SERDES.Q1S_TLNKD[57]
 			// wire CELL[82].IMUX_LSR[0]           SERDES.Q1S_SOFTRSTN
 			// wire CELL[82].IMUX_LSR[1]           SERDES.Q1S_SYSRSTIN
-			// wire CELL[82].IMUX_CLK_DELAY[0]     SERDES.Q1S_PHYCLK
-			// wire CELL[82].IMUX_CLK_DELAY[1]     SERDES.Q1S_TISCANCLK
 			// wire CELL[82].IMUX_CE[0]            SERDES.Q1S_TISCANI[20]
 			// wire CELL[82].IMUX_CE[1]            SERDES.Q1S_TISCANI[14]
 			// wire CELL[82].IMUX_CE[2]            SERDES.Q1S_TISCANI[17]
 			// wire CELL[82].IMUX_CE[3]            SERDES.Q1S_TISCANI[5]
+			// wire CELL[82].IMUX_CLK_DELAY[0]     SERDES.Q1S_PHYCLK
+			// wire CELL[82].IMUX_CLK_DELAY[1]     SERDES.Q1S_TISCANCLK
 			// wire CELL[82].OUT_F[0]              SERDES.Q1S_TISCANO[21]
 			// wire CELL[82].OUT_F[1]              SERDES.Q1S_TISCANO[22]
 			// wire CELL[82].OUT_F[2]              SERDES.Q1S_STATUS[6]
@@ -28339,12 +28339,12 @@ intdb {
 			// wire CELL[83].IMUX_D[7]             SERDES.Q1S_TLNKD[25]
 			// wire CELL[83].IMUX_LSR[0]           SERDES.Q1S_MGTRSTN
 			// wire CELL[83].IMUX_LSR[1]           SERDES.Q1S_RIORSTN
-			// wire CELL[83].IMUX_CLK_DELAY[0]     SERDES.Q1S_RIOCLK
-			// wire CELL[83].IMUX_CLK_DELAY[1]     SERDES.Q1S_MGTCLK
 			// wire CELL[83].IMUX_CE[0]            SERDES.Q1S_TISCANI[4]
 			// wire CELL[83].IMUX_CE[1]            SERDES.Q1S_TISCANI[8]
 			// wire CELL[83].IMUX_CE[2]            SERDES.Q1S_TISCANI[18]
 			// wire CELL[83].IMUX_CE[3]            SERDES.Q1S_TISCANI[7]
+			// wire CELL[83].IMUX_CLK_DELAY[0]     SERDES.Q1S_RIOCLK
+			// wire CELL[83].IMUX_CLK_DELAY[1]     SERDES.Q1S_MGTCLK
 			// wire CELL[83].OUT_F[0]              SERDES.Q1S_STATUS[5]
 			// wire CELL[83].OUT_F[1]              SERDES.Q1S_STATUS[0]
 			// wire CELL[83].OUT_F[2]              SERDES.Q1S_STATUS[7]
@@ -28387,12 +28387,12 @@ intdb {
 			// wire CELL[84].IMUX_D[7]             SERDES.Q1S_TLNKSOFN
 			// wire CELL[84].IMUX_LSR[0]           SERDES.Q1S_LNKDIV2RSTN
 			// wire CELL[84].IMUX_LSR[1]           SERDES.Q1S_LNKRSTN
-			// wire CELL[84].IMUX_CLK_DELAY[0]     SERDES.Q1S_LNKCLKDIV2
-			// wire CELL[84].IMUX_CLK_DELAY[1]     SERDES.Q1S_LNKCLK
 			// wire CELL[84].IMUX_CE[0]            SERDES.Q1S_TISCANI[19]
 			// wire CELL[84].IMUX_CE[1]            SERDES.Q1S_TISCANI[16]
 			// wire CELL[84].IMUX_CE[2]            SERDES.Q1S_TISCANI[1]
 			// wire CELL[84].IMUX_CE[3]            SERDES.Q1S_TISCANI[15]
+			// wire CELL[84].IMUX_CLK_DELAY[0]     SERDES.Q1S_LNKCLKDIV2
+			// wire CELL[84].IMUX_CLK_DELAY[1]     SERDES.Q1S_LNKCLK
 			// wire CELL[84].OUT_F[0]              SERDES.Q1S_STATUS[21]
 			// wire CELL[84].OUT_F[1]              SERDES.Q1S_PORTNERRORDETECT[23]
 			// wire CELL[84].OUT_F[2]              SERDES.Q1S_PORTNERRORDETECT[24]
@@ -28911,12 +28911,12 @@ intdb {
 			// wire CELL[105].IMUX_D[7]            SERDES.Q1CH0_FDTX[7]
 			// wire CELL[105].IMUX_LSR[0]          SERDES.Q1CH3_FCPIPEPHYRESETN
 			// wire CELL[105].IMUX_LSR[1]          SERDES.Q1CH2_FCPIPEPHYRESETN
-			// wire CELL[105].IMUX_CLK_DELAY[0]    SERDES.Q1CH0_FIREFRXCLK
-			// wire CELL[105].IMUX_CLK_DELAY[1]    SERDES.Q1CH1_FIREFRXCLK
 			// wire CELL[105].IMUX_CE[0]           SERDES.Q1CH3_FCDFEUPD
 			// wire CELL[105].IMUX_CE[1]           SERDES.Q1CH2_FCDFEUPD
 			// wire CELL[105].IMUX_CE[2]           SERDES.Q1CH1_FCDFEUPD
 			// wire CELL[105].IMUX_CE[3]           SERDES.Q1CH0_FCDFEUPD
+			// wire CELL[105].IMUX_CLK_DELAY[0]    SERDES.Q1CH0_FIREFRXCLK
+			// wire CELL[105].IMUX_CLK_DELAY[1]    SERDES.Q1CH1_FIREFRXCLK
 			// wire CELL[105].OUT_F[0]             SERDES.Q1CH0_FDRX[24]
 			// wire CELL[105].OUT_F[1]             SERDES.Q1CH0_FDRX[25]
 			// wire CELL[105].OUT_F[2]             SERDES.Q1CH0_FDRX[26]
@@ -28959,12 +28959,12 @@ intdb {
 			// wire CELL[106].IMUX_D[7]            SERDES.Q1CH0_FDTX[31]
 			// wire CELL[106].IMUX_LSR[0]          SERDES.Q1CH1_FCPIPEPHYRESETN
 			// wire CELL[106].IMUX_LSR[1]          SERDES.Q1CH0_FCPIPEPHYRESETN
-			// wire CELL[106].IMUX_CLK_DELAY[0]    SERDES.Q1_HSPLLREFCLKI
-			// wire CELL[106].IMUX_CLK_DELAY[1]    SERDES.Q1_LSPLLREFCLKI
 			// wire CELL[106].IMUX_CE[0]           SERDES.Q1CH3_FCDFERDEN
 			// wire CELL[106].IMUX_CE[1]           SERDES.Q1CH2_FCDFERDEN
 			// wire CELL[106].IMUX_CE[2]           SERDES.Q1CH1_FCDFERDEN
 			// wire CELL[106].IMUX_CE[3]           SERDES.Q1CH0_FCDFERDEN
+			// wire CELL[106].IMUX_CLK_DELAY[0]    SERDES.Q1_HSPLLREFCLKI
+			// wire CELL[106].IMUX_CLK_DELAY[1]    SERDES.Q1_LSPLLREFCLKI
 			// wire CELL[106].OUT_F[0]             SERDES.Q1CH0_FDRX[40]
 			// wire CELL[106].OUT_F[1]             SERDES.Q1CH0_FDRX[41]
 			// wire CELL[106].OUT_F[2]             SERDES.Q1CH0_FDRX[42]
@@ -35005,12 +35005,12 @@ intdb {
 			// wire CELL[7].IMUX_D[5]              SERDES.Q0CH3_FDTX[26]
 			// wire CELL[7].IMUX_LSR[0]            SERDES.Q0CH0_FCPIPEPHYRESETN
 			// wire CELL[7].IMUX_LSR[1]            SERDES.Q0CH1_FCPIPEPHYRESETN
-			// wire CELL[7].IMUX_CLK_DELAY[0]      SERDES.Q0_HSPLLREFCLKI
-			// wire CELL[7].IMUX_CLK_DELAY[1]      SERDES.Q0_LSPLLREFCLKI
 			// wire CELL[7].IMUX_CE[0]             SERDES.Q0CH0_FCDFERDEN
 			// wire CELL[7].IMUX_CE[1]             SERDES.Q0CH1_FCDFERDEN
 			// wire CELL[7].IMUX_CE[2]             SERDES.Q0CH2_FCDFERDEN
 			// wire CELL[7].IMUX_CE[3]             SERDES.Q0CH3_FCDFERDEN
+			// wire CELL[7].IMUX_CLK_DELAY[0]      SERDES.Q0_HSPLLREFCLKI
+			// wire CELL[7].IMUX_CLK_DELAY[1]      SERDES.Q0_LSPLLREFCLKI
 			// wire CELL[7].OUT_F[0]               SERDES.Q0CH3_FDRX[31]
 			// wire CELL[7].OUT_F[1]               SERDES.Q0CH3_FDRX[30]
 			// wire CELL[7].OUT_F[2]               SERDES.Q0CH3_FDRX[29]
@@ -35053,12 +35053,12 @@ intdb {
 			// wire CELL[8].IMUX_D[5]              SERDES.Q0CH3_FDTX[2]
 			// wire CELL[8].IMUX_LSR[0]            SERDES.Q0CH2_FCPIPEPHYRESETN
 			// wire CELL[8].IMUX_LSR[1]            SERDES.Q0CH3_FCPIPEPHYRESETN
-			// wire CELL[8].IMUX_CLK_DELAY[0]      SERDES.Q0CH0_FIREFRXCLK
-			// wire CELL[8].IMUX_CLK_DELAY[1]      SERDES.Q0CH1_FIREFRXCLK
 			// wire CELL[8].IMUX_CE[0]             SERDES.Q0CH0_FCDFEUPD
 			// wire CELL[8].IMUX_CE[1]             SERDES.Q0CH1_FCDFEUPD
 			// wire CELL[8].IMUX_CE[2]             SERDES.Q0CH2_FCDFEUPD
 			// wire CELL[8].IMUX_CE[3]             SERDES.Q0CH3_FCDFEUPD
+			// wire CELL[8].IMUX_CLK_DELAY[0]      SERDES.Q0CH0_FIREFRXCLK
+			// wire CELL[8].IMUX_CLK_DELAY[1]      SERDES.Q0CH1_FIREFRXCLK
 			// wire CELL[8].OUT_F[0]               SERDES.Q0CH3_FDRX[15]
 			// wire CELL[8].OUT_F[1]               SERDES.Q0CH3_FDRX[14]
 			// wire CELL[8].OUT_F[2]               SERDES.Q0CH3_FDRX[13]
@@ -35578,12 +35578,12 @@ intdb {
 			// wire CELL[29].IMUX_D[5]             SERDES.Q0P_HALTGTCOMPDES[127]
 			// wire CELL[29].IMUX_LSR[0]           SERDES.Q0P_MBISTMODE
 			// wire CELL[29].IMUX_LSR[1]           SERDES.Q0P_SCANRSTN
-			// wire CELL[29].IMUX_CLK_DELAY[0]     SERDES.Q0P_SCANCLK
-			// wire CELL[29].IMUX_CLK_DELAY[1]     SERDES.Q0P_MBISTCLK
 			// wire CELL[29].IMUX_CE[0]            SERDES.Q0P_SCANI[19]
 			// wire CELL[29].IMUX_CE[1]            SERDES.Q0P_SCANI[9]
 			// wire CELL[29].IMUX_CE[2]            SERDES.Q0P_SCANI[10]
 			// wire CELL[29].IMUX_CE[3]            SERDES.Q0P_SCANI[20]
+			// wire CELL[29].IMUX_CLK_DELAY[0]     SERDES.Q0P_SCANCLK
+			// wire CELL[29].IMUX_CLK_DELAY[1]     SERDES.Q0P_MBISTCLK
 			// wire CELL[29].OUT_F[0]              SERDES.Q0P_HALTGTREQDES[20]
 			// wire CELL[29].OUT_F[1]              SERDES.Q0P_HALTGTREQDES[96]
 			// wire CELL[29].OUT_F[2]              SERDES.Q0P_HALTGTREQDES[95]
@@ -37168,9 +37168,9 @@ intdb {
 			// wire CELL[76].IMUX_D[3]             SERDES.Q1S_MGTA[16]
 			// wire CELL[76].IMUX_D[4]             SERDES.Q1S_MGTA[13]
 			// wire CELL[76].IMUX_D[5]             SERDES.Q1S_MGTA[7]
-			// wire CELL[76].IMUX_CLK_DELAY[1]     SERDES.Q1EA3_KIRXTXFECLK
 			// wire CELL[76].IMUX_CE[1]            SERDES.Q1S_TISCANI[2]
 			// wire CELL[76].IMUX_CE[2]            SERDES.Q1S_TISCANI[0]
+			// wire CELL[76].IMUX_CLK_DELAY[1]     SERDES.Q1EA3_KIRXTXFECLK
 			// wire CELL[76].OUT_F[0]              SERDES.Q1S_OLLMMGTDI[10]
 			// wire CELL[76].OUT_F[1]              SERDES.Q1S_OLLMMGTDI[27]
 			// wire CELL[76].OUT_F[2]              SERDES.Q1S_OLLMMGTDI[31]
@@ -37209,12 +37209,12 @@ intdb {
 			// wire CELL[77].IMUX_D[7]             SERDES.Q1S_MGTA[19]
 			// wire CELL[77].IMUX_LSR[0]           SERDES.Q1S_TISCANRSTN
 			// wire CELL[77].IMUX_LSR[1]           SERDES.Q1S_TISCANMODE
-			// wire CELL[77].IMUX_CLK_DELAY[0]     SERDES.Q1EA1_KIRXTXFECLK
-			// wire CELL[77].IMUX_CLK_DELAY[1]     SERDES.Q1EA2_KIRXTXFECLK
 			// wire CELL[77].IMUX_CE[0]            SERDES.Q1S_TISCANI[9]
 			// wire CELL[77].IMUX_CE[1]            SERDES.Q1S_TISCANI[10]
 			// wire CELL[77].IMUX_CE[2]            SERDES.Q1S_TISCANI[13]
 			// wire CELL[77].IMUX_CE[3]            SERDES.Q1S_TISCANI[6]
+			// wire CELL[77].IMUX_CLK_DELAY[0]     SERDES.Q1EA1_KIRXTXFECLK
+			// wire CELL[77].IMUX_CLK_DELAY[1]     SERDES.Q1EA2_KIRXTXFECLK
 			// wire CELL[77].OUT_F[0]              SERDES.Q1S_STATUS[20]
 			// wire CELL[77].OUT_F[1]              SERDES.Q1S_TISCANO[4]
 			// wire CELL[77].OUT_F[2]              SERDES.Q1S_TISCANO[17]
@@ -37257,12 +37257,12 @@ intdb {
 			// wire CELL[78].IMUX_D[7]             SERDES.Q1S_OLLMEFPTR[0]
 			// wire CELL[78].IMUX_LSR[0]           SERDES.Q1EA3_KIRSTN
 			// wire CELL[78].IMUX_LSR[1]           SERDES.Q1EA0_KIRSTN
-			// wire CELL[78].IMUX_CLK_DELAY[0]     SERDES.Q1EA2_KITXMACCLK
-			// wire CELL[78].IMUX_CLK_DELAY[1]     SERDES.Q1EA1_KITXMACCLK
 			// wire CELL[78].IMUX_CE[0]            SERDES.Q1S_TISCANI[12]
 			// wire CELL[78].IMUX_CE[1]            SERDES.Q1S_TISCANI[11]
 			// wire CELL[78].IMUX_CE[2]            SERDES.Q1S_TISCANI[3]
 			// wire CELL[78].IMUX_CE[3]            SERDES.Q1S_TISCANI[21]
+			// wire CELL[78].IMUX_CLK_DELAY[0]     SERDES.Q1EA2_KITXMACCLK
+			// wire CELL[78].IMUX_CLK_DELAY[1]     SERDES.Q1EA1_KITXMACCLK
 			// wire CELL[78].OUT_F[0]              SERDES.Q1S_RESPTIMEOUT[23]
 			// wire CELL[78].OUT_F[1]              SERDES.Q1S_RESPTIMEOUT[22]
 			// wire CELL[78].OUT_F[2]              SERDES.Q1S_PORTNERRORDETECT[27]
@@ -37305,12 +37305,12 @@ intdb {
 			// wire CELL[79].IMUX_D[7]             SERDES.Q1S_OLLMEFPTR[1]
 			// wire CELL[79].IMUX_LSR[0]           SERDES.Q1EA2_KIRSTN
 			// wire CELL[79].IMUX_LSR[1]           SERDES.Q1EA1_KIRSTN
-			// wire CELL[79].IMUX_CLK_DELAY[0]     SERDES.Q1EA1_KIRXMACCLK
-			// wire CELL[79].IMUX_CLK_DELAY[1]     SERDES.Q1EA0_KIRXMACCLK
 			// wire CELL[79].IMUX_CE[0]            SERDES.Q1S_TISCANI[23]
 			// wire CELL[79].IMUX_CE[1]            SERDES.Q1S_TISCANI[25]
 			// wire CELL[79].IMUX_CE[2]            SERDES.Q1S_TISCANI[28]
 			// wire CELL[79].IMUX_CE[3]            SERDES.Q1S_TISCANI[29]
+			// wire CELL[79].IMUX_CLK_DELAY[0]     SERDES.Q1EA1_KIRXMACCLK
+			// wire CELL[79].IMUX_CLK_DELAY[1]     SERDES.Q1EA0_KIRXMACCLK
 			// wire CELL[79].OUT_F[0]              SERDES.Q1S_RESPTIMEOUT[6]
 			// wire CELL[79].OUT_F[1]              SERDES.Q1S_RESPTIMEOUT[5]
 			// wire CELL[79].OUT_F[2]              SERDES.Q1S_STATUS[16]
@@ -37353,12 +37353,12 @@ intdb {
 			// wire CELL[80].IMUX_D[7]             SERDES.Q1S_TXSYNCCTRL[1]
 			// wire CELL[80].IMUX_LSR[0]           SERDES.Q1S_TISCANENA
 			// wire CELL[80].IMUX_LSR[1]           SERDES.Q1S_PHYRSTN
-			// wire CELL[80].IMUX_CLK_DELAY[0]     SERDES.Q1EA2_KIRXMACCLK
-			// wire CELL[80].IMUX_CLK_DELAY[1]     SERDES.Q1EA3_KIRXMACCLK
 			// wire CELL[80].IMUX_CE[0]            SERDES.Q1S_TISCANI[27]
 			// wire CELL[80].IMUX_CE[1]            SERDES.Q1S_TISCANI[26]
 			// wire CELL[80].IMUX_CE[2]            SERDES.Q1S_TISCANI[24]
 			// wire CELL[80].IMUX_CE[3]            SERDES.Q1S_TISCANI[22]
+			// wire CELL[80].IMUX_CLK_DELAY[0]     SERDES.Q1EA2_KIRXMACCLK
+			// wire CELL[80].IMUX_CLK_DELAY[1]     SERDES.Q1EA3_KIRXMACCLK
 			// wire CELL[80].OUT_F[0]              SERDES.Q1S_STATUS[14]
 			// wire CELL[80].OUT_F[1]              SERDES.Q1S_FLOWFIFOACKON[3]
 			// wire CELL[80].OUT_F[2]              SERDES.Q1S_TISCANO[6]
@@ -37401,12 +37401,12 @@ intdb {
 			// wire CELL[81].IMUX_D[7]             SERDES.Q1S_TLNKD[57]
 			// wire CELL[81].IMUX_LSR[0]           SERDES.Q1S_SOFTRSTN
 			// wire CELL[81].IMUX_LSR[1]           SERDES.Q1S_SYSRSTIN
-			// wire CELL[81].IMUX_CLK_DELAY[0]     SERDES.Q1S_PHYCLK
-			// wire CELL[81].IMUX_CLK_DELAY[1]     SERDES.Q1S_TISCANCLK
 			// wire CELL[81].IMUX_CE[0]            SERDES.Q1S_TISCANI[20]
 			// wire CELL[81].IMUX_CE[1]            SERDES.Q1S_TISCANI[14]
 			// wire CELL[81].IMUX_CE[2]            SERDES.Q1S_TISCANI[17]
 			// wire CELL[81].IMUX_CE[3]            SERDES.Q1S_TISCANI[5]
+			// wire CELL[81].IMUX_CLK_DELAY[0]     SERDES.Q1S_PHYCLK
+			// wire CELL[81].IMUX_CLK_DELAY[1]     SERDES.Q1S_TISCANCLK
 			// wire CELL[81].OUT_F[0]              SERDES.Q1S_TISCANO[21]
 			// wire CELL[81].OUT_F[1]              SERDES.Q1S_TISCANO[22]
 			// wire CELL[81].OUT_F[2]              SERDES.Q1S_STATUS[6]
@@ -37449,12 +37449,12 @@ intdb {
 			// wire CELL[82].IMUX_D[7]             SERDES.Q1S_TLNKD[25]
 			// wire CELL[82].IMUX_LSR[0]           SERDES.Q1S_MGTRSTN
 			// wire CELL[82].IMUX_LSR[1]           SERDES.Q1S_RIORSTN
-			// wire CELL[82].IMUX_CLK_DELAY[0]     SERDES.Q1S_RIOCLK
-			// wire CELL[82].IMUX_CLK_DELAY[1]     SERDES.Q1S_MGTCLK
 			// wire CELL[82].IMUX_CE[0]            SERDES.Q1S_TISCANI[4]
 			// wire CELL[82].IMUX_CE[1]            SERDES.Q1S_TISCANI[8]
 			// wire CELL[82].IMUX_CE[2]            SERDES.Q1S_TISCANI[18]
 			// wire CELL[82].IMUX_CE[3]            SERDES.Q1S_TISCANI[7]
+			// wire CELL[82].IMUX_CLK_DELAY[0]     SERDES.Q1S_RIOCLK
+			// wire CELL[82].IMUX_CLK_DELAY[1]     SERDES.Q1S_MGTCLK
 			// wire CELL[82].OUT_F[0]              SERDES.Q1S_STATUS[5]
 			// wire CELL[82].OUT_F[1]              SERDES.Q1S_STATUS[0]
 			// wire CELL[82].OUT_F[2]              SERDES.Q1S_STATUS[7]
@@ -37497,12 +37497,12 @@ intdb {
 			// wire CELL[83].IMUX_D[7]             SERDES.Q1S_TLNKSOFN
 			// wire CELL[83].IMUX_LSR[0]           SERDES.Q1S_LNKDIV2RSTN
 			// wire CELL[83].IMUX_LSR[1]           SERDES.Q1S_LNKRSTN
-			// wire CELL[83].IMUX_CLK_DELAY[0]     SERDES.Q1S_LNKCLKDIV2
-			// wire CELL[83].IMUX_CLK_DELAY[1]     SERDES.Q1S_LNKCLK
 			// wire CELL[83].IMUX_CE[0]            SERDES.Q1S_TISCANI[19]
 			// wire CELL[83].IMUX_CE[1]            SERDES.Q1S_TISCANI[16]
 			// wire CELL[83].IMUX_CE[2]            SERDES.Q1S_TISCANI[1]
 			// wire CELL[83].IMUX_CE[3]            SERDES.Q1S_TISCANI[15]
+			// wire CELL[83].IMUX_CLK_DELAY[0]     SERDES.Q1S_LNKCLKDIV2
+			// wire CELL[83].IMUX_CLK_DELAY[1]     SERDES.Q1S_LNKCLK
 			// wire CELL[83].OUT_F[0]              SERDES.Q1S_STATUS[21]
 			// wire CELL[83].OUT_F[1]              SERDES.Q1S_PORTNERRORDETECT[23]
 			// wire CELL[83].OUT_F[2]              SERDES.Q1S_PORTNERRORDETECT[24]
@@ -38008,11 +38008,11 @@ intdb {
 			// wire CELL[102].IMUX_D[7]            SERDES.Q1CH3_FDTX[5]
 			// wire CELL[102].IMUX_LSR[0]          SERDES.Q1D1_FCDERST
 			// wire CELL[102].IMUX_LSR[1]          SERDES.Q1D0_FCDERST
-			// wire CELL[102].IMUX_CLK_DELAY[0]    SERDES.Q1CH1_FIREFRXCLK
-			// wire CELL[102].IMUX_CLK_DELAY[1]    SERDES.Q1CH0_FIREFRXCLK
 			// wire CELL[102].IMUX_CE[1]           SERDES.Q1CH3_FCDFEUPD
 			// wire CELL[102].IMUX_CE[2]           SERDES.Q1CH2_FCDFEUPD
 			// wire CELL[102].IMUX_CE[3]           SERDES.Q1CH1_FCDFEUPD
+			// wire CELL[102].IMUX_CLK_DELAY[0]    SERDES.Q1CH1_FIREFRXCLK
+			// wire CELL[102].IMUX_CLK_DELAY[1]    SERDES.Q1CH0_FIREFRXCLK
 			// wire CELL[102].OUT_F[0]             SERDES.Q1CH2_FDRX[46]
 			// wire CELL[102].OUT_F[1]             SERDES.Q1CH2_FDRX[47]
 			// wire CELL[102].OUT_F[2]             SERDES.Q1CH3_FDRX[8]
@@ -38055,12 +38055,12 @@ intdb {
 			// wire CELL[103].IMUX_D[7]            SERDES.Q1CH3_FDTX[29]
 			// wire CELL[103].IMUX_LSR[0]          SERDES.Q1CH3_FCPIPEPHYRESETN
 			// wire CELL[103].IMUX_LSR[1]          SERDES.Q1CH2_FCPIPEPHYRESETN
-			// wire CELL[103].IMUX_CLK_DELAY[0]    SERDES.Q1_LSPLLREFCLKI
-			// wire CELL[103].IMUX_CLK_DELAY[1]    SERDES.Q1_HSPLLREFCLKI
 			// wire CELL[103].IMUX_CE[0]           SERDES.Q1CH0_FCDFEUPD
 			// wire CELL[103].IMUX_CE[1]           SERDES.Q1CH3_FCDFERDEN
 			// wire CELL[103].IMUX_CE[2]           SERDES.Q1CH2_FCDFERDEN
 			// wire CELL[103].IMUX_CE[3]           SERDES.Q1CH1_FCDFERDEN
+			// wire CELL[103].IMUX_CLK_DELAY[0]    SERDES.Q1_LSPLLREFCLKI
+			// wire CELL[103].IMUX_CLK_DELAY[1]    SERDES.Q1_HSPLLREFCLKI
 			// wire CELL[103].OUT_F[0]             SERDES.Q1CH3_FDRX[14]
 			// wire CELL[103].OUT_F[1]             SERDES.Q1CH3_FDRX[15]
 			// wire CELL[103].OUT_F[2]             SERDES.Q1CH3_FDRX[24]
@@ -38533,12 +38533,12 @@ intdb {
 			// wire CELL[123].IMUX_D[7]            SERDES.Q2CH3_FDTX[6]
 			// wire CELL[123].IMUX_LSR[0]          SERDES.Q2CH2_FCPIPEPHYRESETN
 			// wire CELL[123].IMUX_LSR[1]          SERDES.Q2CH3_FCPIPEPHYRESETN
-			// wire CELL[123].IMUX_CLK_DELAY[0]    SERDES.Q2_LSPLLREFCLKI
-			// wire CELL[123].IMUX_CLK_DELAY[1]    SERDES.Q2_HSPLLREFCLKI
 			// wire CELL[123].IMUX_CE[0]           SERDES.Q2CH1_FCDFERDEN
 			// wire CELL[123].IMUX_CE[1]           SERDES.Q2CH2_FCDFERDEN
 			// wire CELL[123].IMUX_CE[2]           SERDES.Q2CH3_FCDFERDEN
 			// wire CELL[123].IMUX_CE[3]           SERDES.Q2CH0_FCDFEUPD
+			// wire CELL[123].IMUX_CLK_DELAY[0]    SERDES.Q2_LSPLLREFCLKI
+			// wire CELL[123].IMUX_CLK_DELAY[1]    SERDES.Q2_HSPLLREFCLKI
 			// wire CELL[123].OUT_F[0]             SERDES.Q2CH3_FDRX[29]
 			// wire CELL[123].OUT_F[1]             SERDES.Q2CH3_FDRX[28]
 			// wire CELL[123].OUT_F[2]             SERDES.Q2CH3_FDRX[27]
@@ -38581,11 +38581,11 @@ intdb {
 			// wire CELL[124].IMUX_D[7]            SERDES.Q2CH2_FDTX[32]
 			// wire CELL[124].IMUX_LSR[0]          SERDES.Q2D0_FCDERST
 			// wire CELL[124].IMUX_LSR[1]          SERDES.Q2D1_FCDERST
-			// wire CELL[124].IMUX_CLK_DELAY[0]    SERDES.Q2CH1_FIREFRXCLK
-			// wire CELL[124].IMUX_CLK_DELAY[1]    SERDES.Q2CH0_FIREFRXCLK
 			// wire CELL[124].IMUX_CE[0]           SERDES.Q2CH1_FCDFEUPD
 			// wire CELL[124].IMUX_CE[1]           SERDES.Q2CH2_FCDFEUPD
 			// wire CELL[124].IMUX_CE[2]           SERDES.Q2CH3_FCDFEUPD
+			// wire CELL[124].IMUX_CLK_DELAY[0]    SERDES.Q2CH1_FIREFRXCLK
+			// wire CELL[124].IMUX_CLK_DELAY[1]    SERDES.Q2CH0_FIREFRXCLK
 			// wire CELL[124].OUT_F[0]             SERDES.Q2CH3_FDRX[13]
 			// wire CELL[124].OUT_F[1]             SERDES.Q2CH3_FDRX[12]
 			// wire CELL[124].OUT_F[2]             SERDES.Q2CH3_FDRX[11]
@@ -39091,12 +39091,12 @@ intdb {
 			// wire CELL[145].IMUX_D[5]            SERDES.Q2EA2_CITXDATA[4]
 			// wire CELL[145].IMUX_LSR[0]          SERDES.Q2EA2_KIRSTN
 			// wire CELL[145].IMUX_LSR[1]          SERDES.Q2EA0_KIRSTN
-			// wire CELL[145].IMUX_CLK_DELAY[0]    SERDES.Q2EA0_KIRXTXFECLK
-			// wire CELL[145].IMUX_CLK_DELAY[1]    SERDES.Q2EA0_KIRXMACCLK
 			// wire CELL[145].IMUX_CE[0]           SERDES.Q2X_TISCANIN[2]
 			// wire CELL[145].IMUX_CE[1]           SERDES.Q2X_TISCANIN[3]
 			// wire CELL[145].IMUX_CE[2]           SERDES.Q2X_TISCANIN[22]
 			// wire CELL[145].IMUX_CE[3]           SERDES.Q2X_TISCANIN[23]
+			// wire CELL[145].IMUX_CLK_DELAY[0]    SERDES.Q2EA0_KIRXTXFECLK
+			// wire CELL[145].IMUX_CLK_DELAY[1]    SERDES.Q2EA0_KIRXMACCLK
 			// wire CELL[145].OUT_F[0]             SERDES.Q2EA2_CORXSTATVEC[2]
 			// wire CELL[145].OUT_F[1]             SERDES.Q2EA2_CORXSTATVEC[0]
 			// wire CELL[145].OUT_F[2]             SERDES.Q2EA3_COTXSTATVEC[0]
@@ -39139,12 +39139,12 @@ intdb {
 			// wire CELL[146].IMUX_D[5]            SERDES.Q2EA3_CITXDATA[15]
 			// wire CELL[146].IMUX_LSR[0]          SERDES.Q2EA1_KIRSTN
 			// wire CELL[146].IMUX_LSR[1]          SERDES.Q2EA3_KIRSTN
-			// wire CELL[146].IMUX_CLK_DELAY[0]    SERDES.Q2EA2_KITXMACCLK
-			// wire CELL[146].IMUX_CLK_DELAY[1]    SERDES.Q2EA2_KIRXTXFECLK
 			// wire CELL[146].IMUX_CE[0]           SERDES.Q2X_TISCANIN[21]
 			// wire CELL[146].IMUX_CE[1]           SERDES.Q2X_TISCANIN[9]
 			// wire CELL[146].IMUX_CE[2]           SERDES.Q2X_TISCANIN[5]
 			// wire CELL[146].IMUX_CE[3]           SERDES.Q2X_TISCANIN[7]
+			// wire CELL[146].IMUX_CLK_DELAY[0]    SERDES.Q2EA2_KITXMACCLK
+			// wire CELL[146].IMUX_CLK_DELAY[1]    SERDES.Q2EA2_KIRXTXFECLK
 			// wire CELL[146].OUT_F[0]             SERDES.Q2EA3_CORXDATA[4]
 			// wire CELL[146].OUT_F[1]             SERDES.Q2X_TOSCANOUT[22]
 			// wire CELL[146].OUT_F[2]             SERDES.Q2EA1_CORXDATA[2]
@@ -39187,12 +39187,12 @@ intdb {
 			// wire CELL[147].IMUX_D[5]            SERDES.Q2EA2_CITXPAUSTIM[2]
 			// wire CELL[147].IMUX_LSR[0]          SERDES.Q2X_TISCANRSTN
 			// wire CELL[147].IMUX_LSR[1]          SERDES.Q2X_TISCANMODE
-			// wire CELL[147].IMUX_CLK_DELAY[0]    SERDES.Q2EA2_KIRXMACCLK
-			// wire CELL[147].IMUX_CLK_DELAY[1]    SERDES.Q2EA3_KIRXTXFECLK
 			// wire CELL[147].IMUX_CE[0]           SERDES.Q2X_TISCANIN[0]
 			// wire CELL[147].IMUX_CE[1]           SERDES.Q2X_TISCANIN[10]
 			// wire CELL[147].IMUX_CE[2]           SERDES.Q2X_TISCANIN[8]
 			// wire CELL[147].IMUX_CE[3]           SERDES.Q2X_TISCANIN[1]
+			// wire CELL[147].IMUX_CLK_DELAY[0]    SERDES.Q2EA2_KIRXMACCLK
+			// wire CELL[147].IMUX_CLK_DELAY[1]    SERDES.Q2EA3_KIRXTXFECLK
 			// wire CELL[147].OUT_F[0]             SERDES.Q2EA1_CORXSTATVEC[1]
 			// wire CELL[147].OUT_F[1]             SERDES.Q2EA1_CORXSTATVEC[0]
 			// wire CELL[147].OUT_F[2]             SERDES.Q2EA1_CORXSTATVEC[2]
@@ -39235,12 +39235,12 @@ intdb {
 			// wire CELL[148].IMUX_D[5]            SERDES.Q2EA2_GISYNCRXD[7]
 			// wire CELL[148].IMUX_LSR[0]          SERDES.Q2EB0_KIRSTN
 			// wire CELL[148].IMUX_LSR[1]          SERDES.Q2X_IRESETN
-			// wire CELL[148].IMUX_CLK_DELAY[0]    SERDES.Q2EA3_KITXMACCLK
-			// wire CELL[148].IMUX_CLK_DELAY[1]    SERDES.Q2EA3_KIRXMACCLK
 			// wire CELL[148].IMUX_CE[0]           SERDES.Q2X_TISCANIN[6]
 			// wire CELL[148].IMUX_CE[1]           SERDES.Q2X_TISCANIN[29]
 			// wire CELL[148].IMUX_CE[2]           SERDES.Q2X_TISCANIN[25]
 			// wire CELL[148].IMUX_CE[3]           SERDES.Q2X_TISCANIN[11]
+			// wire CELL[148].IMUX_CLK_DELAY[0]    SERDES.Q2EA3_KITXMACCLK
+			// wire CELL[148].IMUX_CLK_DELAY[1]    SERDES.Q2EA3_KIRXMACCLK
 			// wire CELL[148].OUT_F[0]             SERDES.Q2EA3_GOTXMACDATA[6]
 			// wire CELL[148].OUT_F[1]             SERDES.Q2EA3_CORXERROR
 			// wire CELL[148].OUT_F[2]             SERDES.Q2EA3_GOTXMACDATA[3]
@@ -39283,12 +39283,12 @@ intdb {
 			// wire CELL[149].IMUX_D[5]            SERDES.Q2EA3_CITXPAUSTIM[9]
 			// wire CELL[149].IMUX_LSR[0]          SERDES.Q2EB2_KIRSTN
 			// wire CELL[149].IMUX_LSR[1]          SERDES.Q2EB3_KIRSTN
-			// wire CELL[149].IMUX_CLK_DELAY[0]    SERDES.Q2EA1_KIRXTXFECLK
-			// wire CELL[149].IMUX_CLK_DELAY[1]    SERDES.Q2EA1_KIRXMACCLK
 			// wire CELL[149].IMUX_CE[0]           SERDES.Q2X_TISCANIN[24]
 			// wire CELL[149].IMUX_CE[1]           SERDES.Q2X_TISCANIN[13]
 			// wire CELL[149].IMUX_CE[2]           SERDES.Q2X_TISCANIN[12]
 			// wire CELL[149].IMUX_CE[3]           SERDES.Q2X_TISCANIN[15]
+			// wire CELL[149].IMUX_CLK_DELAY[0]    SERDES.Q2EA1_KIRXTXFECLK
+			// wire CELL[149].IMUX_CLK_DELAY[1]    SERDES.Q2EA1_KIRXMACCLK
 			// wire CELL[149].OUT_F[0]             SERDES.Q2EA3_CORXSTATVEC[6]
 			// wire CELL[149].OUT_F[1]             SERDES.Q2EA3_CORXSTATVEC[5]
 			// wire CELL[149].OUT_F[2]             SERDES.Q2EA0_KORXMACCLKEN
@@ -39331,12 +39331,12 @@ intdb {
 			// wire CELL[150].IMUX_D[5]            SERDES.Q2EA1_CITXEMPTY
 			// wire CELL[150].IMUX_LSR[0]          SERDES.Q2EB1_KIRSTN
 			// wire CELL[150].IMUX_LSR[1]          SERDES.Q2X_TISCANEN
-			// wire CELL[150].IMUX_CLK_DELAY[0]    SERDES.Q2EA1_KITXMACCLK
-			// wire CELL[150].IMUX_CLK_DELAY[1]    SERDES.Q2EA0_KITXMACCLK
 			// wire CELL[150].IMUX_CE[0]           SERDES.Q2X_TIBISTBANKSEL[1]
 			// wire CELL[150].IMUX_CE[1]           SERDES.Q2X_TIBISTBANKSEL[2]
 			// wire CELL[150].IMUX_CE[2]           SERDES.Q2X_TIBISTBANKSEL[3]
 			// wire CELL[150].IMUX_CE[3]           SERDES.Q2X_TIBISTBANKSEL[0]
+			// wire CELL[150].IMUX_CLK_DELAY[0]    SERDES.Q2EA1_KITXMACCLK
+			// wire CELL[150].IMUX_CLK_DELAY[1]    SERDES.Q2EA0_KITXMACCLK
 			// wire CELL[150].OUT_F[0]             SERDES.Q2EA1_GODISCARDFCS
 			// wire CELL[150].OUT_F[1]             SERDES.Q2EA1_KORXMACCLKEN
 			// wire CELL[150].OUT_F[2]             SERDES.Q2EA0_COTXSTATVEC[5]
@@ -39378,12 +39378,12 @@ intdb {
 			// wire CELL[151].IMUX_D[4]            SERDES.Q2EA0_CITXPAUSTIM[6]
 			// wire CELL[151].IMUX_D[5]            SERDES.Q2EA3_GISYNCRXD[4]
 			// wire CELL[151].IMUX_LSR[0]          SERDES.Q2X_TIBISTTESTMODE
-			// wire CELL[151].IMUX_CLK_DELAY[0]    SERDES.Q2EB0_KIRXMACCLK
-			// wire CELL[151].IMUX_CLK_DELAY[1]    SERDES.Q2EB0_KIRXTXFECLK
 			// wire CELL[151].IMUX_CE[0]           SERDES.Q2X_TIBISTWA[7]
 			// wire CELL[151].IMUX_CE[1]           SERDES.Q2X_TIBISTREN
 			// wire CELL[151].IMUX_CE[2]           SERDES.Q2X_TIBISTWA[2]
 			// wire CELL[151].IMUX_CE[3]           SERDES.Q2X_TIBISTWA[3]
+			// wire CELL[151].IMUX_CLK_DELAY[0]    SERDES.Q2EB0_KIRXMACCLK
+			// wire CELL[151].IMUX_CLK_DELAY[1]    SERDES.Q2EB0_KIRXTXFECLK
 			// wire CELL[151].OUT_F[0]             SERDES.Q2EA1_COTXDONE
 			// wire CELL[151].OUT_F[1]             SERDES.Q2EA0_COTXSTATVEC[1]
 			// wire CELL[151].OUT_F[2]             SERDES.Q2EA0_COTXSTATVEC[4]
@@ -39416,10 +39416,10 @@ intdb {
 			// wire CELL[152].IMUX_D[3]            SERDES.Q2EA3_KITXGMIILPBK
 			// wire CELL[152].IMUX_D[4]            SERDES.Q2EA0_GISYNCRXD[6]
 			// wire CELL[152].IMUX_D[5]            SERDES.Q2EA0_GISYNCRXD[5]
-			// wire CELL[152].IMUX_CLK_DELAY[1]    SERDES.Q2EB0_KITXMACCLK
 			// wire CELL[152].IMUX_CE[1]           SERDES.Q2X_TIBISTWA[4]
 			// wire CELL[152].IMUX_CE[2]           SERDES.Q2X_TIBISTWA[5]
 			// wire CELL[152].IMUX_CE[3]           SERDES.Q2X_TIBISTTDI[0]
+			// wire CELL[152].IMUX_CLK_DELAY[1]    SERDES.Q2EB0_KITXMACCLK
 			// wire CELL[152].OUT_F[2]             SERDES.Q2EA1_GOTXMACDATA[3]
 			// wire CELL[152].OUT_F[3]             SERDES.Q2EA1_GOTXMACDATA[5]
 			// wire CELL[152].OUT_F[4]             SERDES.Q2EA1_GOTXMACDATA[2]
@@ -39455,12 +39455,12 @@ intdb {
 			// wire CELL[153].IMUX_D[3]            SERDES.Q2EA1_CITXPAUSTIM[11]
 			// wire CELL[153].IMUX_D[4]            SERDES.Q2EA1_CITXPAUSTIM[10]
 			// wire CELL[153].IMUX_D[5]            SERDES.Q2EA1_CITXPAUSTIM[8]
-			// wire CELL[153].IMUX_CLK_DELAY[0]    SERDES.Q2EB1_KIRXMACCLK
-			// wire CELL[153].IMUX_CLK_DELAY[1]    SERDES.Q2EB1_KITXMACCLK
 			// wire CELL[153].IMUX_CE[0]           SERDES.Q2X_TIBISTWA[6]
 			// wire CELL[153].IMUX_CE[1]           SERDES.Q2X_TIBISTWEN
 			// wire CELL[153].IMUX_CE[2]           SERDES.Q2X_TIBISTTDI[1]
 			// wire CELL[153].IMUX_CE[3]           SERDES.Q2X_TIBISTTDI[2]
+			// wire CELL[153].IMUX_CLK_DELAY[0]    SERDES.Q2EB1_KIRXMACCLK
+			// wire CELL[153].IMUX_CLK_DELAY[1]    SERDES.Q2EB1_KITXMACCLK
 			// wire CELL[153].OUT_F[0]             SERDES.Q2X_TOSCANOUT[6]
 			// wire CELL[153].OUT_F[1]             SERDES.Q2X_TOSCANOUT[4]
 			// wire CELL[153].OUT_F[2]             SERDES.Q2X_TOSCANOUT[25]
@@ -39501,12 +39501,12 @@ intdb {
 			// wire CELL[154].IMUX_D[3]            SERDES.Q2EA1_GISYNCRXD[4]
 			// wire CELL[154].IMUX_D[4]            SERDES.Q2EA1_GISYNCRXD[2]
 			// wire CELL[154].IMUX_D[5]            SERDES.Q2EA1_KIRXMACCLKENEXT
-			// wire CELL[154].IMUX_CLK_DELAY[0]    SERDES.Q2EB1_KIRXTXFECLK
-			// wire CELL[154].IMUX_CLK_DELAY[1]    SERDES.Q2EB2_KIRXMACCLK
 			// wire CELL[154].IMUX_CE[0]           SERDES.Q2X_TIBISTTDI[3]
 			// wire CELL[154].IMUX_CE[1]           SERDES.Q2X_TIBISTTDI[33]
 			// wire CELL[154].IMUX_CE[2]           SERDES.Q2X_TIBISTTDI[35]
 			// wire CELL[154].IMUX_CE[3]           SERDES.Q2X_TIBISTTDI[6]
+			// wire CELL[154].IMUX_CLK_DELAY[0]    SERDES.Q2EB1_KIRXTXFECLK
+			// wire CELL[154].IMUX_CLK_DELAY[1]    SERDES.Q2EB2_KIRXMACCLK
 			// wire CELL[154].OUT_F[0]             SERDES.Q2X_CSO[36]
 			// wire CELL[154].OUT_F[1]             SERDES.Q2X_CSO[56]
 			// wire CELL[154].OUT_F[2]             SERDES.Q2X_CSO[57]
@@ -39539,10 +39539,10 @@ intdb {
 			// wire CELL[155].IMUX_D[1]            SERDES.Q2EB0_CIRXIGNOREPKT
 			// wire CELL[155].IMUX_D[2]            SERDES.Q2EB0_GISYNCRXD[5]
 			// wire CELL[155].IMUX_D[3]            SERDES.Q2EB0_GISYNCRXD[4]
-			// wire CELL[155].IMUX_CLK_DELAY[0]    SERDES.Q2X_ITXMACCLK
 			// wire CELL[155].IMUX_CE[0]           SERDES.Q2X_TIBISTTDI[34]
 			// wire CELL[155].IMUX_CE[1]           SERDES.Q2X_TIBISTTDI[5]
 			// wire CELL[155].IMUX_CE[3]           SERDES.Q2X_TIBISTTDI[4]
+			// wire CELL[155].IMUX_CLK_DELAY[0]    SERDES.Q2X_ITXMACCLK
 			// wire CELL[155].OUT_F[0]             SERDES.Q2X_CSO[60]
 			// wire CELL[155].OUT_F[1]             SERDES.Q2X_CSO[5]
 			// wire CELL[155].OUT_F[2]             SERDES.Q2X_CSO[6]
@@ -39579,12 +39579,12 @@ intdb {
 			// wire CELL[156].IMUX_D[3]            SERDES.Q2EB0_CITXPAUSTIM[11]
 			// wire CELL[156].IMUX_D[4]            SERDES.Q2EB0_CITXPAUSTIM[8]
 			// wire CELL[156].IMUX_D[5]            SERDES.Q2EB0_CITXPAUSTIM[1]
-			// wire CELL[156].IMUX_CLK_DELAY[0]    SERDES.Q2EB2_KITXMACCLK
-			// wire CELL[156].IMUX_CLK_DELAY[1]    SERDES.Q2EB2_KIRXTXFECLK
 			// wire CELL[156].IMUX_CE[0]           SERDES.Q2X_TIBISTTDI[32]
 			// wire CELL[156].IMUX_CE[1]           SERDES.Q2X_TIBISTTDI[8]
 			// wire CELL[156].IMUX_CE[2]           SERDES.Q2X_TIBISTTDI[9]
 			// wire CELL[156].IMUX_CE[3]           SERDES.Q2X_TIBISTTDI[7]
+			// wire CELL[156].IMUX_CLK_DELAY[0]    SERDES.Q2EB2_KITXMACCLK
+			// wire CELL[156].IMUX_CLK_DELAY[1]    SERDES.Q2EB2_KIRXTXFECLK
 			// wire CELL[156].OUT_F[0]             SERDES.Q2X_CSO[101]
 			// wire CELL[156].OUT_F[1]             SERDES.Q2X_CSO[102]
 			// wire CELL[156].OUT_F[2]             SERDES.Q2X_CSO[137]
@@ -39625,12 +39625,12 @@ intdb {
 			// wire CELL[157].IMUX_D[3]            SERDES.Q2EB1_CIRXIGNOREPKT
 			// wire CELL[157].IMUX_D[4]            SERDES.Q2EB0_CITXFIFOCTRL
 			// wire CELL[157].IMUX_D[5]            SERDES.Q2EB1_GIIPGSHRINK
-			// wire CELL[157].IMUX_CLK_DELAY[0]    SERDES.Q2X_IRXMACCLK
-			// wire CELL[157].IMUX_CLK_DELAY[1]    SERDES.Q2EB3_KIRXMACCLK
 			// wire CELL[157].IMUX_CE[0]           SERDES.Q2X_TIBISTRA[7]
 			// wire CELL[157].IMUX_CE[1]           SERDES.Q2X_TIBISTWA[0]
 			// wire CELL[157].IMUX_CE[2]           SERDES.Q2X_TISCANIN[28]
 			// wire CELL[157].IMUX_CE[3]           SERDES.Q2X_TIBISTTDI[31]
+			// wire CELL[157].IMUX_CLK_DELAY[0]    SERDES.Q2X_IRXMACCLK
+			// wire CELL[157].IMUX_CLK_DELAY[1]    SERDES.Q2EB3_KIRXMACCLK
 			// wire CELL[157].OUT_F[0]             SERDES.Q2X_GSO[11]
 			// wire CELL[157].OUT_F[1]             SERDES.Q2X_GSO[15]
 			// wire CELL[157].OUT_F[2]             SERDES.Q2X_GSO[19]
@@ -39671,11 +39671,11 @@ intdb {
 			// wire CELL[158].IMUX_D[3]            SERDES.Q2EB2_GISYNCRXD[6]
 			// wire CELL[158].IMUX_D[6]            SERDES.Q2EB1_CITXPAUSTIM[14]
 			// wire CELL[158].IMUX_D[7]            SERDES.Q2EB1_CITXPAUSTIM[15]
-			// wire CELL[158].IMUX_CLK_DELAY[1]    SERDES.Q2EB3_KITXMACCLK
 			// wire CELL[158].IMUX_CE[0]           SERDES.Q2X_TIBISTTDI[13]
 			// wire CELL[158].IMUX_CE[1]           SERDES.Q2X_TIBISTTDI[11]
 			// wire CELL[158].IMUX_CE[2]           SERDES.Q2X_TIBISTTDI[10]
 			// wire CELL[158].IMUX_CE[3]           SERDES.Q2X_TIBISTTDI[30]
+			// wire CELL[158].IMUX_CLK_DELAY[1]    SERDES.Q2EB3_KITXMACCLK
 			// wire CELL[158].OUT_F[0]             SERDES.Q2X_GSO[1]
 			// wire CELL[158].OUT_F[1]             SERDES.Q2X_GSO[5]
 			// wire CELL[158].OUT_F[2]             SERDES.Q2X_GSO[12]
@@ -39716,11 +39716,11 @@ intdb {
 			// wire CELL[159].IMUX_D[3]            SERDES.Q2EB1_GISYNCCOL
 			// wire CELL[159].IMUX_D[6]            SERDES.Q2EB2_CITXPAUSTIM[4]
 			// wire CELL[159].IMUX_D[7]            SERDES.Q2EB2_CITXPAUSTIM[14]
-			// wire CELL[159].IMUX_CLK_DELAY[1]    SERDES.Q2EB3_KIRXTXFECLK
 			// wire CELL[159].IMUX_CE[0]           SERDES.Q2X_TIBISTTDI[28]
 			// wire CELL[159].IMUX_CE[1]           SERDES.Q2X_TIBISTTDI[15]
 			// wire CELL[159].IMUX_CE[2]           SERDES.Q2X_TIBISTTDI[12]
 			// wire CELL[159].IMUX_CE[3]           SERDES.Q2X_TIBISTTDI[17]
+			// wire CELL[159].IMUX_CLK_DELAY[1]    SERDES.Q2EB3_KIRXTXFECLK
 			// wire CELL[159].OUT_F[0]             SERDES.Q2X_GSO[2]
 			// wire CELL[159].OUT_F[1]             SERDES.Q2X_GSO[3]
 			// wire CELL[159].OUT_F[2]             SERDES.Q2X_GSO[6]
@@ -43038,8 +43038,8 @@ intdb {
 			// wire CELL[2].IMUX_D[0]              EFB.WBDATI[3]
 			// wire CELL[2].IMUX_D[2]              EFB.WBDATI[7]
 			// wire CELL[2].IMUX_LSR[1]            EFB.WBSTBI
-			// wire CELL[2].IMUX_CLK_DELAY[1]      EFB.WBCLKI
 			// wire CELL[2].IMUX_CE[0]             EFB.WBRSTI
+			// wire CELL[2].IMUX_CLK_DELAY[1]      EFB.WBCLKI
 			// wire CELL[2].OUT_F[0]               EFB.WBDATO[0]
 			// wire CELL[2].OUT_F[1]               EFB.WBDATO[1]
 			// wire CELL[2].OUT_F[2]               EFB.WBDATO[2]
@@ -43060,8 +43060,8 @@ intdb {
 			// wire CELL[3].IMUX_C[0]              PCNTR.USERTIMEOUT
 			// wire CELL[3].IMUX_LSR[0]            EFB.TCRSTN
 			// wire CELL[3].IMUX_LSR[1]            PCNTR.USERSTDBY
-			// wire CELL[3].IMUX_CLK_DELAY[0]      EFB.TCCLKI
 			// wire CELL[3].IMUX_CE[0]             EFB.SPISCSN
+			// wire CELL[3].IMUX_CLK_DELAY[0]      EFB.TCCLKI
 			// wire CELL[3].OUT_F[0]               EFB.SPIMCSN4
 			// wire CELL[3].OUT_F[1]               EFB.SPIMCSN5
 			// wire CELL[3].OUT_F[2]               EFB.SPIMCSN6

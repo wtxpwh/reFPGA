@@ -479,6 +479,11 @@ impl<'dev, 'ctx> SwitchBoxExtractor<'dev, 'ctx> {
         self
     }
 
+    pub fn edge_progbuf(&mut self, dst: TileWireCoord, src: TileWireCoord) -> &mut Self {
+        self.edges.insert((dst, src, EdgeKind::ProgBuf));
+        self
+    }
+
     pub fn add_wire(&mut self, pin: impl AsRef<str>, wire: WireName) -> &mut Self {
         self.ctx.add_bel_wire(self.bcrd, pin, wire);
         self
@@ -507,18 +512,15 @@ impl<'dev, 'ctx> SwitchBoxExtractor<'dev, 'ctx> {
         self.missing_inputs.insert(src);
         self
     }
-}
 
-impl<'dev, 'ctx> Drop for SwitchBoxExtractor<'dev, 'ctx> {
-    fn drop(&mut self) {
-        let mut edges = core::mem::take(&mut self.edges);
+    pub fn flush_edges(&mut self) -> &mut Self {
         for (&name_out, &(wire_out, kind)) in &self.outputs {
             for name_in in self.ctx.pips_bwd[&name_out].clone() {
                 let Some(&wire_in) = self.inputs.get(&name_in) else {
                     continue;
                 };
                 self.ctx.claim_pip(name_out, name_in);
-                edges.insert((wire_out, wire_in, kind));
+                self.edges.insert((wire_out, wire_in, kind));
                 self.ctx
                     .naming
                     .bels
@@ -528,6 +530,16 @@ impl<'dev, 'ctx> Drop for SwitchBoxExtractor<'dev, 'ctx> {
                     .insert((wire_out, wire_in), name_in);
             }
         }
+        self.outputs.clear();
+        self.inputs.clear();
+        self
+    }
+}
+
+impl<'dev, 'ctx> Drop for SwitchBoxExtractor<'dev, 'ctx> {
+    fn drop(&mut self) {
+        self.flush_edges();
+        let edges = core::mem::take(&mut self.edges);
         match self.ctx.switchboxes.entry(self.bcrd) {
             btree_map::Entry::Vacant(e) => {
                 let tile = &self.ctx.edev[self.ctx.edev.bel_tile(self.bcrd)];

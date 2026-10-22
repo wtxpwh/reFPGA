@@ -544,6 +544,12 @@ impl<'dev, 'ctx> BelExtractor<'dev, 'ctx> {
         self
     }
 
+    pub fn claim_pip_to(&mut self, dst: WireName, src: impl AsRef<str>) -> &mut Self {
+        let src = self.ctx.naming.bel_wire(self.bcrd, src.as_ref());
+        self.ctx.claim_pip(dst, src);
+        self
+    }
+
     pub fn discard(mut self) {
         self.discard = true;
     }

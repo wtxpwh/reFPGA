@@ -1,8 +1,7 @@
 use std::collections::{BTreeMap, BTreeSet};
 
 use prjcombine_ecp::{
-    chip::ChipKind,
-    defs::{bslots, cslots, rslots, tcls, tslots, wires},
+    chip::{Chip, ChipKind}, defs::{bslots, cslots, rslots, tcls, tslots, wiredata, wires},
 };
 use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
@@ -123,8 +122,30 @@ impl ChipContext<'_> {
                             continue;
                         };
                         term_pips.insert((wtn, wfn));
+                        if matches!(self.chip.kind, ChipKind::Nexus(_))
+                            && wiredata::X2_W
+                                .into_iter()
+                                .chain(wiredata::X2_E)
+                                .chain(wiredata::X2_S)
+                                .chain(wiredata::X2_N)
+                                .any(|ws| ws.contains(wt.slot))
+                        {
+                            term_pips.insert((wfn, wtn));
+                        }
                     }
                 }
+            }
+        }
+        if matches!(self.chip.kind, ChipKind::Nexus(_)) {
+            // commander. what. the fuck. is that.
+            for cell in self.edev.column(Chip::DIE, self.chip.col_e()) {
+                if cell.row == self.chip.row_n() {
+                    continue;
+                }
+                term_pips.insert((
+                    self.naming.interconnect[&cell.delta(0, 1).wire(wires::X1_H[1])],
+                    self.naming.interconnect[&cell.wire(wires::X1_W1[0])],
+                ));
             }
         }
         term_pips
@@ -167,6 +188,7 @@ impl ChipContext<'_> {
                 && !wires::SCLK.contains(wt.slot)
                 && !(wires::SCLK_H.contains(wt.slot) && self.intdb[wires_f[0].slot].kind.is_tie())
                 && !wires::IMUX_CLK_DELAY.contains(wt.slot)
+                && !wires::PCLK.contains(wt.slot)
                 && !wires::PCLK_ROOT.contains(wires_f[0].slot)
                 && !wires::PCLK_HALF.contains(wires_f[0].slot)
                 && !wires::PCLK_COL.contains(wires_f[0].slot)
@@ -352,6 +374,22 @@ impl ChipContext<'_> {
                         .insert((wf.slot, wt.slot));
                     sb_pips.entry(tcid).or_default().insert((wf.slot, wt.slot));
                 }
+            } else if let Some(wf) = self.int_aliases.get(&wfn)
+                && let Some(wires_t) = self.int_wires.get(&wtn)
+                && let Some(&wt) = wires_t.iter().find(|w| w.cell == wf.cell)
+            {
+                cell_pips
+                    .entry(wt.cell)
+                    .or_default()
+                    .insert((wt.slot, wf.slot));
+                let tcid = self.edev[wt.cell.tile(tslots::INT)].class;
+                sb_pips.entry(tcid).or_default().insert((wt.slot, wf.slot));
+                self.naming
+                    .bels
+                    .get_mut(&wt.cell.bel(bslots::INT))
+                    .unwrap()
+                    .int_inputs
+                    .insert((wt.slot.cell(0), wf.slot.cell(0)), wfn);
             } else {
                 self.unclaimed_pips.insert((wtn, wfn));
                 self.pips_bwd.entry(wtn).or_default().insert(wfn);
@@ -566,5 +604,9 @@ impl ChipContext<'_> {
         let term_pips = self.collect_term_pips();
         let (cell_pips, sb_pips) = self.collect_int_pips(term_pips);
         self.create_switchboxes(cell_pips, sb_pips);
+        for (wn, wire) in self.int_aliases.clone() {
+            self.claim_pip_int_in(wn, wire);
+            self.bind_wire(wn, wire);
+        }
     }
 }

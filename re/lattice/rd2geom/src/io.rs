@@ -96,6 +96,9 @@ impl ChipContext<'_> {
                 self.process_io_crosslink();
                 self.process_clkdiv_crosslink();
             }
+            ChipKind::Nexus(_) => {
+                // TODO
+            }
         }
     }
 

@@ -27,7 +27,12 @@ impl ChipContext<'_> {
             };
             if has_cibtest {
                 let (r, c) = self.rc(cell);
-                self.name_bel(cell.bel(bslots::INT), [format!("CIBTEST_R{r}C{c}")]);
+                let bcrd = cell.bel(bslots::INT);
+                let name = self
+                    .naming
+                    .strings
+                    .get_or_insert(&format!("CIBTEST_R{r}C{c}"));
+                self.naming.bels.get_mut(&bcrd).unwrap().names.push(name);
                 if self.chip.kind == ChipKind::MachXo {
                     for (w, n) in [
                         (defs::wires::IMUX_A[0], "A0"),
@@ -59,42 +64,79 @@ impl ChipContext<'_> {
                     ] {
                         let wt = self.rc_wire(cell, &format!("J{n}_CIBTEST"));
                         let wf = cell.wire(w);
-                        self.add_bel_wire(cell.bel(bslots::INT), n, wt);
+                        self.add_bel_wire(bcrd, n, wt);
                         self.claim_pip_int_in(wt, wf);
                     }
                     for i in 0..12 {
                         let wf = self.rc_wire(cell, &format!("JTI{i}_CIBTEST"));
                         let wt = cell.wire(defs::wires::OUT_TI[i]);
-                        self.add_bel_wire(cell.bel(bslots::INT), format!("TI{i}"), wf);
+                        self.add_bel_wire(bcrd, format!("TI{i}"), wf);
                         self.claim_pip_int_out(wt, wf);
                     }
-                    let bcrd = self.chip.bel_cibtest_sel();
+                    let bcrd_sel = self.chip.bel_cibtest_sel();
                     let mut bel = Bel::default();
                     for i in 0..2 {
                         let pin = bcls::CIBTEST_SEL::TSEL[i];
                         let wire = self.rc_wire(cell, &format!("JTSEL{i}_CIBTEST"));
-                        self.add_bel_wire(cell.bel(bslots::INT), format!("TSEL{i}"), wire);
-                        bel.inputs.insert(pin, self.xlat_input(bcrd, wire));
+                        self.add_bel_wire(bcrd, format!("TSEL{i}"), wire);
+                        bel.inputs.insert(pin, self.xlat_input(bcrd_sel, wire));
                     }
-                    self.insert_bel(bcrd, bel);
+                    self.insert_bel(bcrd_sel, bel);
                 } else {
                     let num_clk = if matches!(
                         self.chip.kind,
-                        ChipKind::Ecp4 | ChipKind::Ecp5 | ChipKind::Crosslink
+                        ChipKind::Ecp4 | ChipKind::Ecp5 | ChipKind::Crosslink | ChipKind::Nexus(_)
                     ) {
                         2
                     } else {
                         4
                     };
+                    let num_ce = if matches!(self.chip.kind, ChipKind::Nexus(_)) {
+                        2
+                    } else {
+                        4
+                    };
                     for (w, l, n) in [
-                        (defs::wires::IMUX_A.as_slice(), "A", 8),
-                        (defs::wires::IMUX_B.as_slice(), "B", 8),
-                        (defs::wires::IMUX_C.as_slice(), "C", 8),
-                        (defs::wires::IMUX_D.as_slice(), "D", 8),
+                        (
+                            if matches!(self.chip.kind, ChipKind::Nexus(_)) {
+                                defs::wires::IMUX_MUXA.as_slice()
+                            } else {
+                                defs::wires::IMUX_A.as_slice()
+                            },
+                            "A",
+                            8,
+                        ),
+                        (
+                            if matches!(self.chip.kind, ChipKind::Nexus(_)) {
+                                defs::wires::IMUX_MUXB.as_slice()
+                            } else {
+                                defs::wires::IMUX_B.as_slice()
+                            },
+                            "B",
+                            8,
+                        ),
+                        (
+                            if matches!(self.chip.kind, ChipKind::Nexus(_)) {
+                                defs::wires::IMUX_MUXC.as_slice()
+                            } else {
+                                defs::wires::IMUX_C.as_slice()
+                            },
+                            "C",
+                            8,
+                        ),
+                        (
+                            if matches!(self.chip.kind, ChipKind::Nexus(_)) {
+                                defs::wires::IMUX_MUXD.as_slice()
+                            } else {
+                                defs::wires::IMUX_D.as_slice()
+                            },
+                            "D",
+                            8,
+                        ),
                         (defs::wires::IMUX_M.as_slice(), "M", 8),
                         (defs::wires::IMUX_CLK.as_slice(), "CLK", num_clk),
                         (defs::wires::IMUX_LSR.as_slice(), "LSR", num_clk),
-                        (defs::wires::IMUX_CE.as_slice(), "CE", 4),
+                        (defs::wires::IMUX_CE.as_slice(), "CE", num_ce),
                     ] {
                         for i in 0..n {
                             let wt = self.rc_wire(cell, &format!("J{l}{i}_CIBTEST"));
@@ -116,7 +158,7 @@ impl ChipContext<'_> {
                             } else {
                                 cell.wire(w[i])
                             };
-                            self.add_bel_wire(cell.bel(bslots::INT), format!("{l}{i}"), wt);
+                            self.add_bel_wire(bcrd, format!("{l}{i}"), wt);
                             self.claim_pip_int_in(wt, wf);
                         }
                     }
@@ -126,14 +168,17 @@ impl ChipContext<'_> {
                         (defs::wires::OUT_OFX, "OFX", 8),
                     ] {
                         if l == "OFX"
-                            && matches!(self.chip.kind, ChipKind::Ecp5 | ChipKind::Crosslink)
+                            && matches!(
+                                self.chip.kind,
+                                ChipKind::Ecp5 | ChipKind::Crosslink | ChipKind::Nexus(_)
+                            )
                         {
                             continue;
                         }
                         for i in 0..n {
                             let wf = self.rc_wire(cell, &format!("J{l}{i}_CIBTEST"));
                             let wt = cell.wire(w[i]);
-                            self.add_bel_wire(cell.bel(bslots::INT), format!("{l}{i}"), wf);
+                            self.add_bel_wire(bcrd, format!("{l}{i}"), wf);
                             if matches!(
                                 self.chip.kind,
                                 ChipKind::Scm
@@ -143,6 +188,7 @@ impl ChipContext<'_> {
                                     | ChipKind::Ecp4
                                     | ChipKind::Ecp5
                                     | ChipKind::Crosslink
+                                    | ChipKind::Nexus(_)
                             ) {
                                 self.claim_pip_int_out(wt, wf);
                             } else {
@@ -151,30 +197,67 @@ impl ChipContext<'_> {
                         }
                     }
                 }
-            } else {
-                self.name_bel_null(cell.bel(bslots::INT));
+                if matches!(self.chip.kind, ChipKind::Nexus(_)) {
+                    for pin in ["CLK2", "CLK3", "LSR2", "LSR3", "CE2", "CE3"] {
+                        let wire = self.rc_wire(cell, &format!("J{pin}_CIBTEST"));
+                        self.add_bel_wire(bcrd, pin, wire);
+                    }
+                }
             }
         }
     }
 
     fn process_int_misc(&mut self) {
-        for (cell, cell_data) in self.edev.cells() {
-            if !self.edev.has_bel(cell.bel(bslots::INT)) {
-                continue;
+        if !matches!(self.chip.kind, ChipKind::Nexus(_)) {
+            for (cell, cell_data) in self.edev.cells() {
+                if !self.edev.has_bel(cell.bel(bslots::INT)) {
+                    continue;
+                }
+                let has_cin = if matches!(self.chip.kind, ChipKind::MachXo | ChipKind::MachXo2(_)) {
+                    matches!(self.chip.rows[cell.row].kind, RowKind::Plc | RowKind::Fplc)
+                        && cell.col != self.chip.col_e()
+                        && cell.col > self.chip.col_w() + 1
+                } else {
+                    cell_data.conns[cslots::W].target.is_some()
+                };
+                if has_cin {
+                    let wire = self.rc_wire(cell, "HFIE0000");
+                    self.add_bel_wire(cell.bel(bslots::INT), "FCI_IN", wire);
+                    if !self.chip.kind.has_out_ofx_branch() {
+                        let wire = self.rc_wire(cell, "HL7W0001");
+                        self.add_bel_wire(cell.bel(bslots::INT), "SLICE2_FX_OUT", wire);
+                    }
+                }
             }
-            let has_cin = if matches!(self.chip.kind, ChipKind::MachXo | ChipKind::MachXo2(_)) {
-                matches!(self.chip.rows[cell.row].kind, RowKind::Plc | RowKind::Fplc)
-                    && cell.col != self.chip.col_e()
-                    && cell.col > self.chip.col_w() + 1
-            } else {
-                cell_data.conns[cslots::W].target.is_some()
-            };
-            if has_cin {
-                let wire = self.rc_wire(cell, "HFIE0000");
-                self.add_bel_wire(cell.bel(bslots::INT), "FCI_IN", wire);
-                if !self.chip.kind.has_out_ofx_branch() {
-                    let wire = self.rc_wire(cell, "HL7W0001");
-                    self.add_bel_wire(cell.bel(bslots::INT), "SLICE2_FX_OUT", wire);
+        } else {
+            for cell_w in self.edev.die_cells(Chip::DIE) {
+                if cell_w.col == self.chip.col_e() {
+                    continue;
+                }
+                let cell_e = cell_w.delta(1, 0);
+                let wire = self.rc_wire(cell_w, "HFOE0100");
+                self.add_bel_wire(cell_w.bel(bslots::INT), "HFOE1", wire);
+                // what.
+                let (hfie, hfoe) = if self.chip.cols_pclk[cell_w.col]
+                    != self.chip.cols_pclk[cell_e.col]
+                    && self.chip.cols_pclk[cell_w.col] != cell_w.col
+                    && self.chip.cols_pclk[cell_e.col] != cell_e.col
+                {
+                    let hfoe = self.rc_wire(cell_w, "HFOE0000");
+                    let hfie = self.rc_wire(cell_e, "HFIE0000");
+                    self.claim_pip(hfie, hfoe);
+                    (hfie, hfoe)
+                } else if self.chip.rows[cell_w.row].kind == RowKind::Plc {
+                    let hfie = self.rc_wire(cell_e, "HFIE0000");
+                    (hfie, hfie)
+                } else {
+                    let hfoe = self.rc_wire(cell_w, "HFOE0000");
+                    (hfoe, hfoe)
+                };
+                self.add_bel_wire(cell_w.bel(bslots::INT), "HFOE0", hfoe);
+                self.add_bel_wire_no_claim(cell_e.bel(bslots::INT), "HFIE0", hfie);
+                if hfoe != hfie {
+                    self.claim_node(hfie);
                 }
             }
         }
@@ -299,6 +382,12 @@ impl ChipContext<'_> {
     }
 
     pub fn process_int(&mut self) {
+        for cell in self.edev.die_cells(Chip::DIE) {
+            let bcrd = cell.bel(bslots::INT);
+            if self.edev.has_bel(bcrd) {
+                self.name_bel_null(bcrd);
+            }
+        }
         self.process_int_wires();
         self.process_int_pips();
         self.process_cibtest();

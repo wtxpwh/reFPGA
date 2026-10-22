@@ -5,6 +5,7 @@ use crate::ChipContext;
 mod ecp;
 mod ecp3;
 mod ecp4;
+mod nexus;
 
 impl ChipContext<'_> {
     pub fn process_dsp(&mut self) {
@@ -19,6 +20,7 @@ impl ChipContext<'_> {
             }
             ChipKind::Ecp3(_) => self.process_dsp_ecp3(),
             ChipKind::Ecp4 | ChipKind::Ecp5 => self.process_dsp_ecp4(),
+            ChipKind::Nexus(_) => self.process_dsp_nexus(),
         }
     }
 }

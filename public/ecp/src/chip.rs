@@ -24,6 +24,7 @@ pub enum ChipKind {
     Ecp4,
     Ecp5,
     Crosslink,
+    Nexus(NexusKind),
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Encode, Decode)]
@@ -39,6 +40,114 @@ pub enum MachXo2Kind {
 pub enum Ecp3Kind {
     Ecp3,
     Ecp3A,
+}
+
+/// Specifies the top-level clocking structure of a Nexus device.
+///
+/// Small devices have 2 PCLK regions (W, E), 1 center DCS, 2 EBR/DSP rows used for clock interconnect.
+/// Large devices have 4 PCLK regions (like ECP5), 2 center DCS, 4 EBR/DSP rows used for clock interconnect.
+///
+/// The variant determines the exact set of `CLK_[WESN]*` tiles to use.
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Encode, Decode)]
+pub enum NexusKind {
+    /// LIFCL-17
+    ///
+    /// Clocks:
+    ///
+    /// - W: 2× CDR, 2× PLL, 3+3× IO, 10×CIB
+    /// - E: 1× PLL (SE), 3+3× IO, 10×CIB
+    /// - S: 2× PLL, 4+4+4× IO+ECLKDIV, 6×CIB
+    /// - N: TCK+OSC, 1×PLL (NW; 4 inputs only), 2×MIPI, PCIEX1, 2×IO, 6×CIB
+    ///
+    /// IO banks:
+    ///
+    /// - 60, 61: N, MIPI
+    /// - 0: N, active-mode config I/O
+    /// - 1: E, passive-mode config I/O
+    /// - 70: E, ADC
+    /// - 3, 4, 5: S, HP IO; has 2× CDR in bank 5
+    SmallMipi,
+    /// LIFCL-40
+    ///
+    /// Clocks: like SmallMipi
+    ///
+    /// IO banks: superset of SmallMipi
+    ///
+    /// - 60, 61: N, MIPI
+    /// - 80: N, PCIE ×1
+    /// - 0: N, active-mode config I/O
+    /// - 1: E, passive-mode config I/O
+    /// - 2: E
+    /// - 70: E, ADC
+    /// - 3, 4, 5: S, HP IO; has 2× CDR in bank 5
+    /// - 6, 7: W
+    SmallMipiPcie,
+    /// LFCPNX-100
+    ///
+    /// Clocks:
+    ///
+    /// - W: 2× CDR, 2× PLL, 3+3× IO, 9×CIB
+    /// - E: OSC, 2× PLL, 3+3× IO, 9×CIB
+    /// - S: 2× PLL, 4+4+4× IO+ECLKDIV, 6×CIB (like SmallMipi)
+    /// - N: TCK+OSC, 2×PLL (4 inputs only), 8×MIPI, PCIELL, 2×IO, 6×CIB
+    ///
+    /// IO banks: similar to SmallMipi numbering
+    ///
+    /// - 80, 81: N, PCS×8
+    /// - 83: N, PCS REFCLK×2
+    /// - 0: N, active-mode config I/O
+    /// - 1: E, passive-mode config I/O
+    /// - 2: E
+    /// - 70: E, ADC
+    /// - 3, 4, 5: S, HP IO; has 2× CDR in bank 5
+    /// - 6, 7: W
+    LargePcs,
+    /// LIFCL-33
+    ///
+    /// Clocks:
+    ///
+    /// - W, E: absent
+    /// - S: 1×PLL (SW), 4+4+1× IO, 4+4+4× ECLKDIV, 6×CIB
+    /// - N: TCK+OSC, 4×IO, 6×CIB
+    ///
+    /// IO banks:
+    ///
+    /// - 5: N, extra passive-mode config data pins
+    /// - 0: N, active-mode config pins
+    /// - 1: N, passive-mode config pins
+    /// - 2, 3, 4: S, HP IO
+    SmallHalfIo,
+    /// LFMXO5-25
+    ///
+    /// Clocks:
+    ///
+    /// - W: 2× CDR, 1× PLL (NW), 2+2+3× IO, 9×CIB
+    /// - E: OSC, 1×PLL (SE), 2+2+3× IO, 9×CIB
+    /// - S: 1×PLL (SE), 4+4× IO+ECLKDIV, 6×CIB
+    /// - N: TCK+OSC, 1×PLL (NW), 2+2× IO, 6×CIB
+    ///
+    /// IO banks:
+    ///
+    /// - 0: N
+    /// - 1: N, active-mode config pins
+    /// - 2: E, passive-mode config pins
+    /// - 3, 4: E
+    /// - 70: E, ADC
+    /// - 5, 6: S, HP IO; has 2× CDR in bank 6
+    /// - 7, 8, 9: W
+    SmallDenseIo,
+}
+
+impl NexusKind {
+    pub fn is_large(self) -> bool {
+        match self {
+            NexusKind::SmallMipi => false,
+            NexusKind::SmallMipiPcie => false,
+            NexusKind::LargePcs => true,
+            NexusKind::SmallHalfIo => false,
+            NexusKind::SmallDenseIo => false,
+        }
+    }
 }
 
 impl ChipKind {
@@ -120,6 +229,11 @@ impl Display for ChipKind {
             ChipKind::Ecp4 => write!(f, "ecp4"),
             ChipKind::Ecp5 => write!(f, "ecp5"),
             ChipKind::Crosslink => write!(f, "crosslink"),
+            ChipKind::Nexus(NexusKind::SmallMipi) => write!(f, "nexus_small_mipi"),
+            ChipKind::Nexus(NexusKind::SmallMipiPcie) => write!(f, "nexus_small_mipi_pcie"),
+            ChipKind::Nexus(NexusKind::LargePcs) => write!(f, "nexus_large_pcs"),
+            ChipKind::Nexus(NexusKind::SmallHalfIo) => write!(f, "nexus_small_half_io"),
+            ChipKind::Nexus(NexusKind::SmallDenseIo) => write!(f, "nexus_small_dense_io"),
         }
     }
 }
@@ -349,6 +463,11 @@ pub enum SpecialIoKey {
     // Crosslink
     PmuWakeupN,
     MipiClk(DirH),
+    // Nexus
+    SpiCD(u8),
+    CdrRx(u8),
+    AdcCh(u8),
+    AdcCompI(u8),
 }
 
 impl Display for SpecialIoKey {
@@ -389,6 +508,7 @@ impl Display for SpecialIoKey {
             SpecialIoKey::InitB => write!(f, "INIT_B"),
             SpecialIoKey::Cclk => write!(f, "CCLK"),
             SpecialIoKey::SpiCCsB => write!(f, "SPI_C_CS_B"),
+            SpecialIoKey::SpiCD(idx) => write!(f, "SPI_C_D{idx}"),
             SpecialIoKey::SpiPCsB => write!(f, "SPI_P_CS_B"),
             SpecialIoKey::M1 => write!(f, "M1"),
             SpecialIoKey::Done => write!(f, "DONE"),
@@ -400,6 +520,9 @@ impl Display for SpecialIoKey {
             SpecialIoKey::JtagEn => write!(f, "JTAG_EN"),
             SpecialIoKey::PmuWakeupN => write!(f, "PMU_WAKEUP_N"),
             SpecialIoKey::MipiClk(side) => write!(f, "MIPI_CLK_{side}"),
+            SpecialIoKey::CdrRx(i) => write!(f, "CDR{i}_RX"),
+            SpecialIoKey::AdcCh(i) => write!(f, "ADC_CH{i}"),
+            SpecialIoKey::AdcCompI(i) => write!(f, "ADC_COMP{i}I"),
         }
     }
 }
@@ -422,6 +545,8 @@ pub enum SpecialLocKey {
     DdrDll(DirHV),
     ClkQuarter(DirV),
     Pmu,
+    Cdr,
+    DllDel(Dir, u8),
 }
 
 impl Display for SpecialLocKey {
@@ -443,6 +568,8 @@ impl Display for SpecialLocKey {
             SpecialLocKey::DdrDll(dir) => write!(f, "DDRDLL_{dir}"),
             SpecialLocKey::ClkQuarter(dir) => write!(f, "CLK_QUARTER_{dir}"),
             SpecialLocKey::Pmu => write!(f, "PMU"),
+            SpecialLocKey::Cdr => write!(f, "CDR"),
+            SpecialLocKey::DllDel(dir, idx) => write!(f, "DLLDEL_{dir}{idx}"),
         }
     }
 }
@@ -515,7 +642,11 @@ impl Chip {
     }
 
     pub fn get_io_edge(&self, bcrd: BelCoord) -> Dir {
-        if bcrd.col == self.col_w() && self.kind != ChipKind::Crosslink {
+        if bcrd.row == self.row_s() && matches!(self.kind, ChipKind::Nexus(_)) {
+            Dir::S
+        } else if bcrd.row == self.row_n() && matches!(self.kind, ChipKind::Nexus(_)) {
+            Dir::N
+        } else if bcrd.col == self.col_w() && self.kind != ChipKind::Crosslink {
             Dir::W
         } else if bcrd.col == self.col_e() && self.kind != ChipKind::Crosslink {
             Dir::E
@@ -538,26 +669,25 @@ impl Chip {
 
     pub fn get_io_crd(&self, bel: BelCoord) -> EdgeIoCoord {
         let iob = TileIobId::from_idx(bslots::IO.index_of(bel.slot).unwrap());
-        if bel.col == self.col_w() && self.kind != ChipKind::Crosslink {
-            EdgeIoCoord::W(bel.row, iob)
-        } else if bel.col == self.col_e() && self.kind != ChipKind::Crosslink {
-            EdgeIoCoord::E(bel.row, iob)
-        } else if bel.row == self.row_s() {
-            EdgeIoCoord::S(bel.col, iob)
-        } else if bel.row == self.row_n() {
-            EdgeIoCoord::N(bel.col, iob)
-        } else if matches!(self.kind, ChipKind::Ecp3(_) | ChipKind::Ecp4) {
-            if bel.col == self.col_w() + 1 {
-                let iob = TileIobId::from_idx(bslots::IO.index_of(bel.slot).unwrap() + 4);
-                EdgeIoCoord::W(bel.row, iob)
-            } else if bel.col == self.col_e() - 1 {
-                let iob = TileIobId::from_idx(bslots::IO.index_of(bel.slot).unwrap() + 4);
-                EdgeIoCoord::E(bel.row, iob)
-            } else {
-                unreachable!()
+        match self.get_io_edge(bel) {
+            Dir::W => {
+                if bel.col == self.col_w() + 1 {
+                    let iob = TileIobId::from_idx(bslots::IO.index_of(bel.slot).unwrap() + 4);
+                    EdgeIoCoord::W(bel.row, iob)
+                } else {
+                    EdgeIoCoord::W(bel.row, iob)
+                }
             }
-        } else {
-            unreachable!()
+            Dir::E => {
+                if bel.col == self.col_e() + 1 {
+                    let iob = TileIobId::from_idx(bslots::IO.index_of(bel.slot).unwrap() + 4);
+                    EdgeIoCoord::E(bel.row, iob)
+                } else {
+                    EdgeIoCoord::E(bel.row, iob)
+                }
+            }
+            Dir::S => EdgeIoCoord::S(bel.col, iob),
+            Dir::N => EdgeIoCoord::N(bel.col, iob),
         }
     }
 
@@ -662,6 +792,7 @@ impl Chip {
                     IoKind::Io
                 }
             }
+            ChipKind::Nexus(_) => IoKind::Io,
         }
     }
 
@@ -759,6 +890,7 @@ impl Chip {
             ChipKind::Ecp5 => unreachable!(),
             ChipKind::Crosslink => unreachable!(),
             ChipKind::Scm => unreachable!(),
+            ChipKind::Nexus(_) => unreachable!(),
         }
     }
 
@@ -933,7 +1065,6 @@ impl Chip {
     }
 
     pub fn bel_mipi(&self, col: ColId) -> BelCoord {
-        assert_eq!(self.kind, ChipKind::Crosslink);
         Self::DIE.cell(col, self.row_n()).bel(bslots::MIPI)
     }
 
@@ -950,6 +1081,7 @@ impl Chip {
             ChipKind::Ecp4 => todo!(),
             ChipKind::Ecp5 => todo!(),
             ChipKind::Crosslink => todo!(),
+            ChipKind::Nexus(_) => todo!(),
         }
     }
 
@@ -966,6 +1098,7 @@ impl Chip {
             ChipKind::Ecp4 => todo!(),
             ChipKind::Ecp5 => todo!(),
             ChipKind::Crosslink => todo!(),
+            ChipKind::Nexus(_) => todo!(),
         }
     }
 
@@ -991,6 +1124,7 @@ impl Chip {
             ChipKind::Ecp4 => todo!(),
             ChipKind::Ecp5 => todo!(),
             ChipKind::Crosslink => todo!(),
+            ChipKind::Nexus(_) => todo!(),
         }
     }
 
@@ -1026,6 +1160,7 @@ impl Chip {
             ChipKind::Ecp4 => todo!(),
             ChipKind::Ecp5 => todo!(),
             ChipKind::Crosslink => todo!(),
+            ChipKind::Nexus(_) => todo!(),
         }
     }
 }

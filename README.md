@@ -76,6 +76,7 @@ For each of the supported device families:
 | ECP4                                                | ✅        | ❌         | ❌      | ❌    | ❌                   |
 | ECP5                                                | ✅        | ❌         | ❌      | ❌    | ❌                   |
 | Crosslink                                           | ✅        | ❌         | ❌      | ❌    | ❌                   |
+| Nexus                                               | 👷🏼‍♀️        | ❌         | ❌      | ❌    | ❌                   |
 | XC9500, XC9500XL, XC9500XV                          | ✅        | ✅         | ✅      | ✅    | ✅                   |
 | Coolrunner XPLA3                                    | ✅        | ✅         | ✅      | ✅    | ✅                   |
 | Coolrunner 2                                        | ✅        | ✅         | ✅      | ✅    | 👷🏼‍♀️                   |
