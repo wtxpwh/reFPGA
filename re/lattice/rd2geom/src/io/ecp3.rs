@@ -13,7 +13,7 @@ use crate::ChipContext;
 
 impl ChipContext<'_> {
     pub fn xlat_io_loc_ecp3(&self, bcrd: BelCoord) -> (CellCoord, &'static str) {
-        let edge = self.chip.get_io_edge(bcrd);
+        let edge = self.chip.get_io_edge(bcrd.cell);
         let idx = bslots::IO.index_of(bcrd.slot).unwrap();
         match edge {
             Dir::H(h) => {
@@ -98,7 +98,7 @@ impl ChipContext<'_> {
     }
 
     fn process_single_io_ecp3(&mut self, bcrd: BelCoord) {
-        let edge = self.chip.get_io_edge(bcrd);
+        let edge = self.chip.get_io_edge(bcrd.cell);
         let idx = bslots::IO.index_of(bcrd.slot).unwrap();
         let (cell, abcd) = self.xlat_io_loc_ecp3(bcrd);
         let (name_pio, name_iol) = match edge {
@@ -242,7 +242,7 @@ impl ChipContext<'_> {
     fn process_io_cell_ecp3(&mut self, cell: CellCoord) {
         let chip = self.chip;
         let io0 = cell.bel(bslots::IO[0]);
-        let edge = chip.get_io_edge(io0);
+        let edge = chip.get_io_edge(cell);
         if chip.get_io_kind(io0) != IoKind::Xsio {
             let eclk0 = self
                 .naming
@@ -276,7 +276,7 @@ impl ChipContext<'_> {
 
     fn process_dqs_ecp3(&mut self, bcrd_io: BelCoord) {
         let chip = self.chip;
-        let edge = chip.get_io_edge(bcrd_io);
+        let edge = chip.get_io_edge(bcrd_io.cell);
         let bcrd_dqs = bcrd_io.bel(bslots::DQS[0]);
         let kind = chip.get_io_kind(bcrd_io);
         let cell = match edge {
@@ -543,17 +543,8 @@ impl ChipContext<'_> {
     pub(super) fn process_eclk_tap_ecp3(&mut self) {
         let tcid = tcls::ECLK_TAP;
         for &tcrd in &self.edev.tile_index[tcid] {
-            let edge = if tcrd.col == self.chip.col_w() {
-                Dir::W
-            } else if tcrd.col == self.chip.col_e() {
-                Dir::E
-            } else if tcrd.row == self.chip.row_n() {
-                Dir::N
-            } else {
-                unreachable!()
-            };
             for i in 0..2 {
-                let bel_eclksync = self.chip.bel_eclksync(edge, i);
+                let bel_eclksync = self.chip.bel_eclksync(self.chip.get_io_edge(tcrd.cell), i);
                 let eclk_out = tcrd.wire(wires::OUT_F[6 + i]);
                 let eclk = self.naming.bel_wire(bel_eclksync, "ECLKO_OUT");
                 self.claim_pip_int_out(eclk_out, eclk);

@@ -1,11 +1,10 @@
 use prjcombine_ecp::{
-    chip::{Chip, ChipKind, MachXo2Kind, RowKind, SpecialLocKey},
+    chip::{ChipKind, MachXo2Kind, RowKind, SpecialLocKey},
     defs::{bcls, bslots, wires},
 };
 use prjcombine_interconnect::{
     db::WireSlotIdExt,
     dir::{Dir, DirHV},
-    grid::DieIdExt,
 };
 
 use crate::ChipContext;
@@ -30,7 +29,7 @@ impl ChipContext<'_> {
         if self.chip.rows[self.chip.row_clk].kind == RowKind::Ebr {
             for idx in 0..2 {
                 let wire = self.rc_wire(
-                    self.chip.bel_clk_root().delta(-1, 0),
+                    self.chip.clk_root().delta(-1, 0),
                     &format!("JECSOUT{idx}_ECLKBRIDGECS"),
                 );
                 self.claim_node(wire);
@@ -48,8 +47,8 @@ impl ChipContext<'_> {
                 (Dir::N, 1),
             ] {
                 let cell = match edge {
-                    Dir::H(edge) => Chip::DIE.cell(self.chip.col_edge(edge), self.chip.row_clk),
-                    Dir::V(edge) => Chip::DIE.cell(self.chip.col_clk - 1, self.chip.row_edge(edge)),
+                    Dir::H(edge) => self.chip.clk_emid(edge),
+                    Dir::V(edge) => self.chip.clk_emid(edge).step(Dir::W, 1),
                 };
                 self.bind_wire(
                     self.rc_io_wire(cell, &format!("JINCK{idx}")),

@@ -7,7 +7,7 @@ use prjcombine_interconnect::{
 
 use crate::{
     chip::{Chip, ChipKind, SpecialTileKey},
-    defs::{self, rslots as regions},
+    defs::{self, ccls, rslots, tcls},
     expanded::ExpandedDevice,
 };
 
@@ -25,7 +25,7 @@ impl Chip {
                 } else {
                     egrid.add_tile_single(cell, self.kind.tile_class_ioi(Dir::S).unwrap());
                     egrid.add_tile_single(cell, self.kind.tile_class_iob(Dir::S).unwrap());
-                    egrid[cell].region_root[regions::EDGE] = *self.special_tiles
+                    egrid[cell].region_root[rslots::EDGE] = *self.special_tiles
                         [&SpecialTileKey::LatchIo(Dir::S)]
                         .cells
                         .first()
@@ -37,7 +37,7 @@ impl Chip {
                 } else {
                     egrid.add_tile_single(cell, self.kind.tile_class_ioi(Dir::N).unwrap());
                     egrid.add_tile_single(cell, self.kind.tile_class_iob(Dir::N).unwrap());
-                    egrid[cell].region_root[regions::EDGE] = *self.special_tiles
+                    egrid[cell].region_root[rslots::EDGE] = *self.special_tiles
                         [&SpecialTileKey::LatchIo(Dir::N)]
                         .cells
                         .first()
@@ -49,7 +49,7 @@ impl Chip {
                     if self.kind.has_iob_we() {
                         egrid.add_tile_single(cell, self.kind.tile_class_iob(Dir::W).unwrap());
                     }
-                    egrid[cell].region_root[regions::EDGE] = *self.special_tiles
+                    egrid[cell].region_root[rslots::EDGE] = *self.special_tiles
                         [&SpecialTileKey::LatchIo(Dir::W)]
                         .cells
                         .first()
@@ -59,13 +59,13 @@ impl Chip {
                     if self.kind.has_iob_we() {
                         egrid.add_tile_single(cell, self.kind.tile_class_iob(Dir::E).unwrap());
                     }
-                    egrid[cell].region_root[regions::EDGE] = *self.special_tiles
+                    egrid[cell].region_root[rslots::EDGE] = *self.special_tiles
                         [&SpecialTileKey::LatchIo(Dir::E)]
                         .cells
                         .first()
                         .unwrap();
                 } else if self.cols_bram.contains(&cell.col) {
-                    egrid.add_tile_single(cell, defs::tcls::INT_BRAM);
+                    egrid.add_tile_single(cell, tcls::INT_BRAM);
                     if (cell.row.to_idx() - 1).is_multiple_of(2) {
                         egrid.add_tile_n(cell, self.kind.tile_class_bram(), 2);
                     }
@@ -81,9 +81,9 @@ impl Chip {
                 let kind =
                     if self.kind == ChipKind::Ice40T05 && col == self.col_w() && row.to_idx() == 15
                     {
-                        defs::tcls::MAC16_TRIM
+                        tcls::MAC16_TRIM
                     } else {
-                        defs::tcls::MAC16
+                        tcls::MAC16
                     };
                 egrid.add_tile_n(cell, kind, 5);
             }
@@ -100,26 +100,16 @@ impl Chip {
 
         for cell in egrid.die_cells(die) {
             if cell.col != self.col_w() {
-                egrid.fill_conn_pair(
-                    cell.delta(-1, 0),
-                    cell,
-                    defs::ccls::PASS_E,
-                    defs::ccls::PASS_W,
-                );
+                egrid.fill_conn_pair(cell.delta(-1, 0), cell, ccls::PASS_E, ccls::PASS_W);
             }
             if cell.row != self.row_s() {
-                egrid.fill_conn_pair(
-                    cell.delta(0, -1),
-                    cell,
-                    defs::ccls::PASS_N,
-                    defs::ccls::PASS_S,
-                );
+                egrid.fill_conn_pair(cell.delta(0, -1), cell, ccls::PASS_N, ccls::PASS_S);
             }
         }
 
         for cell in egrid.die_cells(die) {
-            egrid[cell].region_root[regions::GLOBAL] = die.cell(self.col_w(), self.row_s());
-            egrid[cell].region_root[regions::COLBUF] = cell.with_row(self.row_mid);
+            egrid[cell].region_root[rslots::GLOBAL] = die.cell(self.col_w(), self.row_s());
+            egrid[cell].region_root[rslots::COLBUF] = cell.with_row(self.row_mid);
         }
 
         for (rows, &row_m) in &self.rows_colbuf {
@@ -134,12 +124,12 @@ impl Chip {
                     } else {
                         row_m
                     };
-                    egrid[cell].region_root[regions::COLBUF] = cell.with_row(row_cb);
+                    egrid[cell].region_root[rslots::COLBUF] = cell.with_row(row_cb);
                     if row == row_cb {
                         let tcls = if self.kind.has_ioi_we() && cell.col == self.col_w() {
-                            defs::tcls::COLBUF_IO_W
+                            tcls::COLBUF_IO_W
                         } else if self.kind.has_ioi_we() && cell.col == self.col_e() {
-                            defs::tcls::COLBUF_IO_E
+                            tcls::COLBUF_IO_E
                         } else {
                             self.kind.tile_class_colbuf().unwrap()
                         };
@@ -150,7 +140,7 @@ impl Chip {
         }
         if self.rows_colbuf.is_empty() {
             for cell in egrid.row(die, self.row_mid) {
-                egrid.add_tile_single(cell, defs::tcls::COLBUF_FIXED);
+                egrid.add_tile_single(cell, tcls::COLBUF_FIXED);
             }
         }
 

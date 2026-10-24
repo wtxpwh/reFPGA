@@ -6,8 +6,8 @@ use prjcombine_ecp::{
 };
 use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
-    dir::{Dir, DirH, DirV},
-    grid::{BelCoord, ColId},
+    dir::{Dir, DirV},
+    grid::{BelCoord, ColId, ColIdExt, RowIdExt},
 };
 use prjcombine_re_lattice_naming::WireName;
 use prjcombine_re_lattice_rawdump::PinDir;
@@ -178,27 +178,15 @@ impl ChipBuilder<'_> {
                 }
                 "JLOCK_DDRDLL_CORE_I1" => {
                     let cell = self.chip.xlat_rc_wire(wfn);
-                    let h = if cell.col < self.chip.col_clk {
-                        DirH::W
-                    } else {
-                        DirH::E
-                    };
+                    let h = cell.col.side_of(self.chip.col_clk);
                     self.chip
                         .special_loc
                         .insert(SpecialLocKey::DdrDll(h & DirV::S), cell);
                 }
                 "JLMMIREADY_PLL_CORE_PLL_LMMI" => {
                     let cell = self.chip.xlat_rc_wire(wfn);
-                    let h = if cell.col < self.chip.col_clk {
-                        DirH::W
-                    } else {
-                        DirH::E
-                    };
-                    let v = if cell.row < self.chip.row_clk {
-                        DirV::S
-                    } else {
-                        DirV::N
-                    };
+                    let h = cell.col.side_of(self.chip.col_clk);
+                    let v = cell.row.side_of(self.chip.row_clk);
                     self.chip
                         .special_loc
                         .insert(SpecialLocKey::Pll(PllLoc::new(h & v, 0)), cell);
@@ -334,16 +322,11 @@ impl ChipBuilder<'_> {
                         continue;
                     }
                 };
-                if cell.row == self.chip.row_s() {
-                    self.chip.columns[cell.col].io_s = kind;
-                } else if cell.row == self.chip.row_n() {
-                    self.chip.columns[cell.col].io_n = kind;
-                } else if cell.col == self.chip.col_w() {
-                    self.chip.rows[cell.row].io_w = kind;
-                } else if cell.col == self.chip.col_e() {
-                    self.chip.rows[cell.row].io_e = kind;
-                } else {
-                    unreachable!();
+                match self.chip.get_io_edge(cell) {
+                    Dir::S => self.chip.columns[cell.col].io_s = kind,
+                    Dir::N => self.chip.columns[cell.col].io_n = kind,
+                    Dir::W => self.chip.rows[cell.row].io_w = kind,
+                    Dir::E => self.chip.rows[cell.row].io_e = kind,
                 }
             }
         }
@@ -502,16 +485,8 @@ impl ChipBuilder<'_> {
                 }
                 "JREFCLK14_REFMUX_CORE_REFMUX" => {
                     let cell = self.chip.xlat_rc_wire(wn);
-                    let h = if cell.col < self.chip.col_clk {
-                        DirH::W
-                    } else {
-                        DirH::E
-                    };
-                    let v = if cell.row < self.chip.row_clk {
-                        DirV::S
-                    } else {
-                        DirV::N
-                    };
+                    let h = cell.col.side_of(self.chip.col_clk);
+                    let v = cell.row.side_of(self.chip.row_clk);
                     SpecialIoKey::Pll(PllPad::PllIn0, PllLoc::new(h & v, 0))
                 }
                 "JPCLKT00_TMID_CORE_TMIDMUX" => xlat_clk(0, 0),

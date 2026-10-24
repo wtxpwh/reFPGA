@@ -109,9 +109,7 @@ impl Expander<'_, '_> {
             }
             for cell in self.egrid.row(self.die, row) {
                 if !self.egrid.has_bel(cell.bel(bslots::INT)) {
-                    let int_kind = if ebr_width == 3
-                        && (cell.col == self.chip.col_w() || cell.col == self.chip.col_e())
-                    {
+                    let int_kind = if ebr_width == 3 && self.chip.is_col_io(cell.col) {
                         if self.chip.kind.has_distributed_sclk_ecp3() && rd.sclk_break {
                             tcls::INT_EBR_IO_SCLK
                         } else {
@@ -129,7 +127,7 @@ impl Expander<'_, '_> {
                 if self.is_in_bel_hole(cell) {
                     continue;
                 }
-                if cell.col == self.chip.col_w() || cell.col == self.chip.col_e() {
+                if self.chip.is_col_io(cell.col) {
                     if matches!(self.chip.kind, ChipKind::Ecp3(_)) && rd.sclk_break {
                         self.egrid.add_tile_single(cell, tcls::ECLK_TAP);
                     }
@@ -154,9 +152,7 @@ impl Expander<'_, '_> {
             }
             for cell in self.egrid.row(self.die, row) {
                 if !self.egrid.has_bel(cell.bel(bslots::INT)) {
-                    let int_kind = if dsp_width == 9
-                        && (cell.col == self.chip.col_w() || cell.col == self.chip.col_e())
-                    {
+                    let int_kind = if dsp_width == 9 && self.chip.is_col_io(cell.col) {
                         if self.chip.kind.has_distributed_sclk_ecp3() && rd.sclk_break {
                             tcls::INT_EBR_IO_SCLK
                         } else {
@@ -174,7 +170,7 @@ impl Expander<'_, '_> {
                 if self.is_in_bel_hole(cell) {
                     continue;
                 }
-                if cell.col == self.chip.col_w() || cell.col == self.chip.col_e() {
+                if self.chip.is_col_io(cell.col) {
                     continue;
                 }
                 if cell.col.to_idx() % dsp_width == 1 {
@@ -247,7 +243,7 @@ impl Expander<'_, '_> {
 
             let cd = &self.chip.columns[cell.col];
             self.fill_int_io(cell);
-            if cell.col == self.chip.col_w() || cell.col == self.chip.col_e() {
+            if self.chip.is_col_io(cell.col) {
                 continue;
             }
             self.egrid.add_tile_single(cell, tcls::IO_S);
@@ -273,7 +269,7 @@ impl Expander<'_, '_> {
 
             let cd = &self.chip.columns[cell.col];
             self.fill_int_io(cell);
-            if cell.col == self.chip.col_w() || cell.col == self.chip.col_e() {
+            if self.chip.is_col_io(cell.col) {
                 continue;
             }
             self.egrid.add_tile_single(cell, tcls::IO_N);
@@ -299,7 +295,7 @@ impl Expander<'_, '_> {
             self.egrid.add_tile_single(cell, tcls::DQSDLL_N);
         }
         if self.chip.kind == ChipKind::Xp2 {
-            let cell = self.chip.bel_dqsdll_ecp2(DirH::W).cell;
+            let cell = self.chip.clk_emid(DirH::W);
             self.egrid.add_tile_part(
                 cell,
                 tcls::CLK_W,
@@ -309,7 +305,7 @@ impl Expander<'_, '_> {
                     self.chip.try_bel_pll(DirHV::NW, 0).map(|bcrd| bcrd.cell),
                 ],
             );
-            let cell = self.chip.bel_dqsdll_ecp2(DirH::E).cell;
+            let cell = self.chip.clk_emid(DirH::E);
             self.egrid.add_tile_part(
                 cell,
                 tcls::CLK_E,
@@ -409,11 +405,7 @@ impl Expander<'_, '_> {
             (_, 2) => tcls::CLK_ROOT_4PLL,
             _ => unreachable!(),
         };
-        self.egrid.add_tile_part(
-            self.die.cell(self.chip.col_clk, self.chip.row_clk),
-            kind,
-            &cells,
-        );
+        self.egrid.add_tile_part(self.chip.clk_root(), kind, &cells);
     }
 
     pub(super) fn fill_bs_ecp(&mut self) {

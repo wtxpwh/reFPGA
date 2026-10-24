@@ -303,7 +303,7 @@ impl ChipContext<'_> {
         let abcd = ['A', 'B', 'C', 'D'][idx];
         let cell = bcrd.cell;
         let (r, c) = self.rc(cell);
-        let edge = self.chip.get_io_edge(bcrd);
+        let edge = self.chip.get_io_edge(cell);
         let mut names = match edge {
             Dir::W => [format!("PL{r}{abcd}"), format!("IOL_L{r}{abcd}")],
             Dir::E => [format!("PR{r}{abcd}"), format!("IOL_R{r}{abcd}")],
@@ -358,7 +358,7 @@ impl ChipContext<'_> {
             // what. this is actually the XO3 TDO -> XO5 TDI pad btw.
             names[0] = "Unused".to_string();
         }
-        let bank = self.chip.get_io_bank(bcrd);
+        let bank = self.chip.get_io_bank(bcrd.cell);
         let iol = if is_smol {
             "IOLOGIC"
         } else {
@@ -482,13 +482,7 @@ impl ChipContext<'_> {
         if iol == "RIOLOGIC" {
             for pin in ["DQSW90", "DQSR90", "DDRCLKPOL"] {
                 let wire = bel.add_wire_rc_io_get(pin, format!("{pin}{abcd}_{iol}"));
-                let bel_dqs = Chip::DIE
-                    .cell(bel.ctx.chip.col_e(), bel.ctx.chip.row_clk)
-                    .bel(if cell.row < bel.ctx.chip.row_clk {
-                        bslots::DQS[1]
-                    } else {
-                        bslots::DQS[0]
-                    });
+                let bel_dqs = bel.ctx.edev.bel_io_dqs(bcrd).unwrap();
                 let wire_dqs = bel.ctx.naming.bel_wire(bel_dqs, &format!("{pin}_OUT"));
                 bel.ctx.claim_pip(wire, wire_dqs);
             }

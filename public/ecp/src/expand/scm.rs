@@ -1,7 +1,7 @@
 use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
-    dir::{Dir, DirHV, DirV},
-    grid::DieIdExt,
+    dir::{Dir, DirH, DirHV, DirV},
+    grid::{ColIdExt, DieIdExt},
 };
 
 use crate::{
@@ -14,7 +14,7 @@ impl Expander<'_, '_> {
     pub(super) fn fill_config_scm(&mut self) {
         let cell = self.chip.special_loc[&SpecialLocKey::Config];
         let mut cells = cell.cells_e(12);
-        cells.push(cell.with_cr(self.chip.col_clk, self.chip.row_clk - 5));
+        cells.push(self.chip.clk_root().step(Dir::S, 5));
         self.egrid.add_tile(cell, tcls::CONFIG, &cells);
         for dx in 0..12 {
             self.egrid.add_tile_single(cell.delta(dx, 0), tcls::INT_EBR);
@@ -132,10 +132,9 @@ impl Expander<'_, '_> {
                 self.egrid.add_tile_single(cell, tcls::INT_EBR);
             }
             if self.chip.columns[cell.col].io_n == IoGroupKind::Serdes {
-                let kind = if cell.col < self.chip.col_clk {
-                    tcls::SERDES_W
-                } else {
-                    tcls::SERDES_E
+                let kind = match cell.col.side_of(self.chip.col_clk) {
+                    DirH::W => tcls::SERDES_W,
+                    DirH::E => tcls::SERDES_E,
                 };
                 let mut tcells = cell.cells_e(7);
                 tcells.push(cell.with_col(self.chip.col_clk - 1));
@@ -213,10 +212,9 @@ impl Expander<'_, '_> {
                     continue;
                 }
                 if cell.col.to_idx() % 2 == self.chip.col_clk.to_idx() % 2 {
-                    let kind = if cell.col < self.chip.col_clk {
-                        tcls::EBR_W
-                    } else {
-                        tcls::EBR_E
+                    let kind = match cell.col.side_of(self.chip.col_clk) {
+                        DirH::W => tcls::EBR_W,
+                        DirH::E => tcls::EBR_E,
                     };
                     self.egrid.add_tile_e(cell, kind, 2);
                     if cell.row != self.chip.row_serdes(DirV::N) {
@@ -432,7 +430,7 @@ impl Expander<'_, '_> {
             }
             self.egrid.add_tile_part(cell, kind, &tcells);
         }
-        let cell = self.die.cell(self.chip.col_clk, self.chip.row_s());
+        let cell = self.chip.clk_emid(Dir::S);
         self.egrid.add_tile(
             cell,
             tcls::CLK_S,
@@ -445,11 +443,11 @@ impl Expander<'_, '_> {
         );
 
         for (edge, cell, base) in [
-            (Dir::W, self.chip.clk_root().with_col(self.chip.col_w()), 0),
-            (Dir::E, self.chip.clk_root().with_col(self.chip.col_e()), 0),
+            (Dir::W, self.chip.clk_emid(Dir::W), 0),
+            (Dir::E, self.chip.clk_emid(Dir::E), 0),
             (Dir::S, self.chip.special_loc[&SpecialLocKey::Bc(5)], 0),
             (Dir::S, self.chip.special_loc[&SpecialLocKey::Bc(4)], 8),
-            (Dir::N, self.chip.clk_root().with_row(self.chip.row_n()), 0),
+            (Dir::N, self.chip.clk_emid(Dir::N), 0),
         ] {
             for i in 0..8 {
                 self.add_io_conn(
@@ -468,10 +466,10 @@ impl Expander<'_, '_> {
                 cell.delta(0, -5),
                 cell.delta(-1, 4),
                 cell.delta(0, 4),
-                cell.with_col(self.chip.col_w()),
-                cell.with_col(self.chip.col_e()),
-                cell.with_row(self.chip.row_s()),
-                cell.with_row(self.chip.row_n()),
+                self.chip.clk_emid(Dir::W),
+                self.chip.clk_emid(Dir::E),
+                self.chip.clk_emid(Dir::S),
+                self.chip.clk_emid(Dir::N),
             ],
         );
     }

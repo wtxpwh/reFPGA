@@ -1,11 +1,10 @@
 use prjcombine_ecp::{
-    chip::{Chip, ChipKind, IoGroupKind, SpecialLocKey},
+    chip::{ChipKind, IoGroupKind, SpecialLocKey},
     defs::{self, bcls, bslots, tcls, wires},
 };
 use prjcombine_interconnect::{
     db::{CellSlotIdExt, WireSlotIdExt},
     dir::{Dir, DirHV, DirMap},
-    grid::DieIdExt,
 };
 
 use crate::{ChipContext, RcMode};
@@ -46,13 +45,8 @@ impl ChipContext<'_> {
     }
 
     pub(super) fn process_clk_edge_ecp5(&mut self) {
-        for (edge, col, row) in [
-            (Dir::W, self.chip.col_w(), self.chip.row_clk),
-            (Dir::E, self.chip.col_e(), self.chip.row_clk),
-            (Dir::S, self.chip.col_clk, self.chip.row_s()),
-            (Dir::N, self.chip.col_clk, self.chip.row_n()),
-        ] {
-            let cell_tile = Chip::DIE.cell(col, row);
+        for edge in Dir::DIRS {
+            let cell_tile = self.chip.clk_emid(edge);
             let cell = match edge {
                 Dir::H(_) => cell_tile,
                 Dir::V(_) => cell_tile.delta(-1, 0),
@@ -266,7 +260,7 @@ impl ChipContext<'_> {
 
     pub(super) fn process_clk_root_ecp5(&mut self) {
         let tcrd = self.edev.bel_tile(self.chip.bel_clk_root());
-        let cell_tile = self.chip.bel_clk_root().cell;
+        let cell_tile = self.chip.clk_root();
         let cell = cell_tile.delta(-1, 0);
 
         let (cslot, cslot_sw, cslot_se, cslot_nw, cslot_ne) = match self.edev[tcrd].class {

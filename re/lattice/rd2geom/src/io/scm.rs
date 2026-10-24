@@ -15,7 +15,7 @@ impl ChipContext<'_> {
         let idx = bslots::IO.index_of(bcrd.slot).unwrap();
         let abcd = ["A", "B", "C", "D"][idx % 4];
         let cidx = idx / 4;
-        match self.chip.get_io_edge(bcrd) {
+        match self.chip.get_io_edge(bcrd.cell) {
             Dir::H(edge) => {
                 let kind = match edge {
                     DirH::W => self.chip.rows[bcrd.row].io_w,
@@ -233,10 +233,7 @@ impl ChipContext<'_> {
                         DirH::W => 'L',
                         DirH::E => 'R',
                     };
-                    let wire = chip
-                        .clk_root()
-                        .with_col(chip.col_edge(hv.h))
-                        .wire(wires::ECLK[i]);
+                    let wire = chip.clk_emid(hv.h).wire(wires::ECLK[i]);
                     let wname = ex.ctx.rc_corner_wire(cell, &format!("JVECX{i:02}00"));
                     let wname_in = ex.ctx.rc_corner_wire(cell, &format!("JVEC{lr}{i:02}00"));
                     ex.add_wire(format!("ECLK_WE{i}_IN"), wname_in);
@@ -483,8 +480,8 @@ impl ChipContext<'_> {
     }
 
     fn process_single_io_scm(&mut self, bcrd: BelCoord) {
-        let edge = self.chip.get_io_edge(bcrd);
-        let bank = self.chip.get_io_bank(bcrd);
+        let edge = self.chip.get_io_edge(bcrd.cell);
+        let bank = self.chip.get_io_bank(bcrd.cell);
         let idx = bslots::IO.index_of(bcrd.slot).unwrap();
         let (cell, abcd) = self.xlat_io_loc_scm(bcrd);
         let (r, c) = self.rc(cell);
@@ -599,17 +596,7 @@ impl ChipContext<'_> {
             .iter()
             .position(|&slot| slot == bcrd.slot)
             .unwrap();
-        let edge = if bcrd.col == self.chip.col_w() {
-            Dir::W
-        } else if bcrd.col == self.chip.col_e() {
-            Dir::E
-        } else if bcrd.row == self.chip.row_s() {
-            Dir::S
-        } else if bcrd.row == self.chip.row_n() {
-            Dir::N
-        } else {
-            unreachable!()
-        };
+        let edge = self.chip.get_io_edge(bcrd.cell);
         let cell = match edge {
             Dir::H(edge) => {
                 let io_kind = match edge {

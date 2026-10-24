@@ -9,7 +9,7 @@ use prjcombine_ecp::{
 use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
     dir::{Dir, DirH, DirHV, DirV},
-    grid::{DieIdExt, RowId},
+    grid::{ColIdExt, DieIdExt, RowId, RowIdExt},
 };
 use prjcombine_re_lattice_naming::WireName;
 
@@ -292,16 +292,8 @@ impl ChipBuilder<'_> {
         for &wn in self.nodes.values() {
             if self.naming.strings[wn.suffix].ends_with("_PLL") {
                 let cell = self.chip.xlat_rc_wire(wn);
-                let v = if cell.row < self.chip.row_clk {
-                    DirV::S
-                } else {
-                    DirV::N
-                };
-                let h = if cell.col < self.chip.col_clk {
-                    DirH::W
-                } else {
-                    DirH::E
-                };
+                let v = cell.row.side_of(self.chip.row_clk);
+                let h = cell.col.side_of(self.chip.col_clk);
                 let cell = cell.delta(
                     match h {
                         DirH::W => -3,

@@ -128,16 +128,8 @@ impl ChipContext<'_> {
     }
 
     pub(super) fn process_eclk_ecp4(&mut self) {
-        let cell_n = Chip::DIE.cell(self.chip.col_clk, self.chip.row_n());
-        let cell_w = Chip::DIE.cell(self.chip.col_w(), self.chip.row_clk);
-        let cell_e = Chip::DIE.cell(self.chip.col_e(), self.chip.row_clk);
         for (edge, num_banks) in [(Dir::N, 4), (Dir::W, 2), (Dir::E, 2)] {
-            let cell_tile = match edge {
-                Dir::N => cell_n,
-                Dir::W => cell_w,
-                Dir::E => cell_e,
-                Dir::S => unreachable!(),
-            };
+            let cell_tile = self.chip.clk_emid(edge);
             let bcrd_int = cell_tile.bel(bslots::CLK_INT);
             let ci_base = if self.edev[self.edev.bel_tile(bcrd_int)].class == tcls::CLK_N_L {
                 9
@@ -147,9 +139,9 @@ impl ChipContext<'_> {
 
             for bank_idx in 0..num_banks {
                 let (bank, cell) = match edge {
-                    Dir::N => (bank_idx, cell_n.delta(-2 + (bank_idx as i32), 0)),
-                    Dir::W => (5 - bank_idx, cell_w.delta(0, -1 + (bank_idx as i32))),
-                    Dir::E => (6 + bank_idx, cell_e.delta(0, -1 + (bank_idx as i32))),
+                    Dir::N => (bank_idx, cell_tile.delta(-2 + (bank_idx as i32), 0)),
+                    Dir::W => (5 - bank_idx, cell_tile.delta(0, -1 + (bank_idx as i32))),
+                    Dir::E => (6 + bank_idx, cell_tile.delta(0, -1 + (bank_idx as i32))),
                     Dir::S => unreachable!(),
                 };
                 if !self
@@ -170,9 +162,9 @@ impl ChipContext<'_> {
             }
             for bank_idx in 0..num_banks {
                 let (bank, cell) = match edge {
-                    Dir::N => (bank_idx, cell_n.delta(-2 + (bank_idx as i32), 0)),
-                    Dir::W => (5 - bank_idx, cell_w.delta(0, -1 + (bank_idx as i32))),
-                    Dir::E => (6 + bank_idx, cell_e.delta(0, -1 + (bank_idx as i32))),
+                    Dir::N => (bank_idx, cell_tile.delta(-2 + (bank_idx as i32), 0)),
+                    Dir::W => (5 - bank_idx, cell_tile.delta(0, -1 + (bank_idx as i32))),
+                    Dir::E => (6 + bank_idx, cell_tile.delta(0, -1 + (bank_idx as i32))),
                     Dir::S => unreachable!(),
                 };
                 if !self
@@ -294,6 +286,9 @@ impl ChipContext<'_> {
                 }
             }
         }
+        let cell_n = self.chip.clk_emid(Dir::N);
+        let cell_w = self.chip.clk_emid(Dir::W);
+        let cell_e = self.chip.clk_emid(Dir::E);
         for (lrt, cell_tile, cell, n) in [
             ('T', cell_n, cell_n.delta(-1, 0), 7),
             ('L', cell_w, cell_w, 12),
@@ -445,9 +440,6 @@ impl ChipContext<'_> {
 
     pub(super) fn process_dlldel_ecp4(&mut self) {
         let chip = self.chip;
-        let cell_n = Chip::DIE.cell(chip.col_clk, chip.row_n());
-        let cell_w = Chip::DIE.cell(chip.col_w(), chip.row_clk);
-        let cell_e = Chip::DIE.cell(chip.col_e(), chip.row_clk);
         for (name, edge, idx) in [
             ("00", Dir::N, 0),
             ("01", Dir::N, 1),
@@ -473,10 +465,11 @@ impl ChipContext<'_> {
             {
                 continue;
             }
-            let (cell, cell_tile) = match edge {
-                Dir::N => (cell_n.delta(-4 + (idx as i32), 0), cell_n),
-                Dir::W => (cell_w.delta(0, -2 + (idx as i32)), cell_w),
-                Dir::E => (cell_e.delta(0, -2 + ((idx ^ 1) as i32)), cell_e),
+            let cell_tile = self.chip.clk_emid(edge);
+            let cell = match edge {
+                Dir::N => cell_tile.delta(-4 + (idx as i32), 0),
+                Dir::W => cell_tile.delta(0, -2 + (idx as i32)),
+                Dir::E => cell_tile.delta(0, -2 + ((idx ^ 1) as i32)),
                 Dir::S => unreachable!(),
             };
 
@@ -545,7 +538,7 @@ impl ChipContext<'_> {
         let idx = bslots::IO.index_of(bcrd.slot).unwrap();
         let tcrd = self.edev.bel_tile(bcrd);
         let cell = self.edev[tcrd].cells[CellSlotId::from_idx(idx)];
-        if let Dir::H(edge) = self.chip.get_io_edge(bcrd)
+        if let Dir::H(edge) = self.chip.get_io_edge(bcrd.cell)
             && cell.col != self.chip.col_edge(edge)
         {
             let abcd = match self.chip.rows[cell.row].kind {
@@ -562,8 +555,8 @@ impl ChipContext<'_> {
     fn process_dqs_ecp4(&mut self, bcrd: BelCoord) {
         let chip = self.chip;
         let bcrd_io = bcrd.bel(bslots::IO[0]);
-        let edge = chip.get_io_edge(bcrd_io);
-        let bank = chip.get_io_bank(bcrd_io);
+        let edge = chip.get_io_edge(bcrd.cell);
+        let bank = chip.get_io_bank(bcrd.cell);
         let (cell, abcd) = self.xlat_io_loc_ecp4(bcrd_io);
         let cslot = self.edev[self.edev.bel_tile(bcrd)]
             .cells
@@ -665,7 +658,7 @@ impl ChipContext<'_> {
     }
 
     fn process_single_io_ecp4(&mut self, bcrd: BelCoord) {
-        let edge = self.chip.get_io_edge(bcrd);
+        let edge = self.chip.get_io_edge(bcrd.cell);
         let idx = bslots::IO.index_of(bcrd.slot).unwrap();
         let (cell, abcd) = self.xlat_io_loc_ecp4(bcrd);
 
@@ -753,7 +746,7 @@ impl ChipContext<'_> {
             .claim_pip("IOLTO_PIO", "IOLTO_IOLOGIC")
             .output(bcls::IO::INCK, cslot.wire(wires::OUT_IO_INCK[idx]));
 
-        let bank = bel.ctx.chip.get_io_bank(bcrd);
+        let bank = bel.ctx.chip.get_io_bank(bcrd.cell);
         let has_fucked_pusl = edge == Dir::W
             && abcd.is_empty()
             && if cell.row < bel.ctx.chip.row_clk {
@@ -842,7 +835,7 @@ impl ChipContext<'_> {
                     .unwrap()
                     .0;
                 let io0 = tcrd.bel(bslots::IO[0]);
-                let bank = self.chip.get_io_bank(io0);
+                let bank = self.chip.get_io_bank(tcrd.cell);
                 {
                     let mut ex = self.extract_switchbox(tcrd.bel(bslots::IO_INT));
                     for i in 0..4 {
@@ -874,14 +867,13 @@ impl ChipContext<'_> {
     }
 
     pub(super) fn process_clkdiv_ecp4(&mut self) {
-        let cell_n = Chip::DIE.cell(self.chip.col_clk, self.chip.row_n());
-        let cell_w = Chip::DIE.cell(self.chip.col_w(), self.chip.row_clk);
-        let cell_e = Chip::DIE.cell(self.chip.col_e(), self.chip.row_clk);
-        for (lrt, cell_tile, cell) in [
-            ('T', cell_n, cell_n.delta(-1, 0)),
-            ('L', cell_w, cell_w),
-            ('R', cell_e, cell_e),
-        ] {
+        for (lrt, edge) in [('T', Dir::N), ('L', Dir::W), ('R', Dir::E)] {
+            let cell_tile = self.chip.clk_emid(edge);
+            let cell = if edge == Dir::N {
+                cell_tile.step(Dir::W, 1)
+            } else {
+                cell_tile
+            };
             let bcrd_int = cell_tile.bel(bslots::CLK_INT);
             let ci_base = if self.edev[self.edev.bel_tile(bcrd_int)].class == tcls::CLK_N_L {
                 9
@@ -948,7 +940,7 @@ impl ChipContext<'_> {
             unreachable!()
         };
 
-        let cell_tile = Chip::DIE.cell(self.chip.col_clk, self.chip.row_s());
+        let cell_tile = self.chip.clk_emid(Dir::S);
         let cell = cell_tile.delta(-1, 0);
         for i in 0..4 {
             if i < num_quads {

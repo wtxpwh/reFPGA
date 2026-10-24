@@ -8,7 +8,7 @@ use prjcombine_entity::{EntityId, EntityIdArith};
 use prjcombine_interconnect::{
     db::{CellSlotIdExt, WireSlotIdExt},
     dir::{DirH, DirHV, DirV},
-    grid::{ColId, DieIdExt},
+    grid::{ColId, ColIdExt, DieIdExt, RowIdExt},
 };
 use prjcombine_re_lattice_naming::WireName;
 
@@ -70,11 +70,7 @@ impl ChipContext<'_> {
         }
         for (idx, &row) in root_rows.iter().enumerate() {
             for &col in &root_cols {
-                let h = if col < self.chip.col_clk {
-                    DirH::W
-                } else {
-                    DirH::E
-                };
+                let h = col.side_of(self.chip.col_clk);
                 for i in 0..8 {
                     let wire = vsrx[&(col, row, i)];
                     if row < self.chip.row_clk {
@@ -454,11 +450,7 @@ impl ChipContext<'_> {
             let bcrd = tcrd.bel(bslots::PCLK_ROW_DRIVER);
             let col_src = if has_e { tcrd.col } else { tcrd.col - 1 };
             let cell_src = tcrd.with_col(col_src);
-            let v = if tcrd.row < self.chip.row_clk {
-                DirV::S
-            } else {
-                DirV::N
-            };
+            let v = tcrd.row.side_of(self.chip.row_clk);
             let mut ex = self.extract_switchbox(bcrd);
             for i in 0..8 {
                 if matches!(ex.ctx.chip.kind, ChipKind::Ecp3(_)) {

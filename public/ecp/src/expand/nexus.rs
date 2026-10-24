@@ -3,7 +3,7 @@ use std::collections::BTreeMap;
 use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
     dir::{Dir, DirH, DirHV, DirV},
-    grid::DieIdExt,
+    grid::ColIdExt,
 };
 
 use crate::{
@@ -19,7 +19,7 @@ impl Expander<'_, '_> {
                 continue;
             }
             for cell in self.egrid.row(self.die, row) {
-                if cell.col != self.chip.col_w() && cell.col != self.chip.col_e() {
+                if !self.chip.is_col_io(cell.col) {
                     self.egrid.add_tile_single(cell, tcls::INT_EBR);
                 }
                 if rd.kind == RowKind::Ebr {
@@ -32,10 +32,9 @@ impl Expander<'_, '_> {
                     if cell.col.to_idx() % 12 == 1 && cell.col != self.chip.col_e() {
                         self.egrid.add_tile_e(
                             cell,
-                            if cell.col < self.chip.col_clk {
-                                tcls::DSP_W
-                            } else {
-                                tcls::DSP_E
+                            match cell.col.side_of(self.chip.col_clk) {
+                                DirH::W => tcls::DSP_W,
+                                DirH::E => tcls::DSP_E,
                             },
                             12,
                         );
@@ -178,7 +177,7 @@ impl Expander<'_, '_> {
         }
         for edge in DirH::DIRS {
             for cell in self.egrid.column(self.die, self.chip.col_edge(edge)) {
-                if cell.row == self.chip.row_s() || cell.row == self.chip.row_n() {
+                if self.chip.is_row_io(cell.row) {
                     continue;
                 }
                 self.egrid.add_tile_single(cell, tcls::INT_IO_WE);
@@ -341,7 +340,7 @@ impl Expander<'_, '_> {
         let ChipKind::Nexus(kind) = self.chip.kind else {
             unreachable!()
         };
-        let cell_s = self.die.cell(self.chip.col_clk, self.chip.row_s());
+        let cell_s = self.chip.clk_emid(Dir::S);
         let mut tcells = vec![];
         tcells.extend(cell_s.delta(-6, 0).cells_e(12).into_iter().map(Some));
         tcells.extend([

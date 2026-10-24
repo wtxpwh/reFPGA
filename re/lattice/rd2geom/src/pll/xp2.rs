@@ -15,7 +15,7 @@ impl ChipContext<'_> {
             self.hybrid_out_rc(bcrd, "JCLKOK2_PLL", wires::OUT_PLL_CLKOK2.cell(0));
         }
         for edge in DirH::DIRS {
-            let bcrd = self.chip.bel_dqsdll_ecp2(edge).bel(bslots::CLKDIV[0]);
+            let bcrd = self.chip.clk_emid(edge).bel(bslots::CLKDIV[0]);
             self.hybrid_out_rc(bcrd, "JCDIV1_CLKDIV", wires::OUT_CLKDIV_CDIV1[0].cell(0));
             self.hybrid_out_rc(bcrd, "JCDIV2_CLKDIV", wires::OUT_CLKDIV_CDIV2[0].cell(0));
             self.hybrid_out_rc(bcrd, "JCDIV4_CLKDIV", wires::OUT_CLKDIV_CDIV4[0].cell(0));
@@ -56,7 +56,7 @@ impl ChipContext<'_> {
 
     pub(super) fn process_clkdiv_xp2(&mut self) {
         for edge in DirH::DIRS {
-            let bcrd = self.chip.bel_dqsdll_ecp2(edge).bel(bslots::CLKDIV[0]);
+            let bcrd = self.chip.clk_emid(edge).bel(bslots::CLKDIV[0]);
             let cell = bcrd.cell;
 
             let wire_clki = wires::IMUX_CLKDIV_CLKI[0].cell(0);

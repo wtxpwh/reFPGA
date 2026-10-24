@@ -6,7 +6,7 @@ use prjcombine_ecp::{
 };
 use prjcombine_interconnect::{
     dir::{Dir, DirH, DirHV, DirV},
-    grid::DieIdExt,
+    grid::{ColIdExt, DieIdExt},
 };
 
 use crate::chip::{ChipBuilder, ChipExt};
@@ -201,11 +201,7 @@ impl ChipBuilder<'_> {
                 _ => None,
             } {
                 let cell = self.chip.xlat_rc_wire(wn);
-                let h = if cell.col < self.chip.col_clk {
-                    DirH::W
-                } else {
-                    DirH::E
-                };
+                let h = cell.col.side_of(self.chip.col_clk);
                 let v = if cell.row < self.chip.row_clk
                     || (cell.row == self.chip.row_clk && self.chip.kind == ChipKind::Ecp)
                 {
@@ -279,8 +275,10 @@ impl ChipBuilder<'_> {
             (SpecialIoKey::D(5), 6, 1),
             (SpecialIoKey::D(6), 7, 1),
         ] {
-            let io = Chip::DIE
-                .cell(self.chip.col_clk + dx, self.chip.row_s())
+            let io = self
+                .chip
+                .clk_emid(Dir::S)
+                .step(Dir::E, dx)
                 .bel(bslots::IO[iob]);
             self.chip.special_io.insert(key, io);
         }
@@ -321,9 +319,7 @@ impl ChipBuilder<'_> {
             (SpecialIoKey::D(1), 8, 1),
             (SpecialIoKey::D(0), 9, 0),
         ] {
-            let io = Chip::DIE
-                .cell(self.chip.col_clk + dx, self.chip.row_n())
-                .bel(bslots::IO[iob]);
+            let io = self.chip.clk_emid(Dir::N).delta(dx, 0).bel(bslots::IO[iob]);
             self.chip.special_io.insert(key, io);
         }
     }

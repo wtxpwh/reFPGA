@@ -147,10 +147,7 @@ impl ChipContext<'_> {
                                     tile.class,
                                     tcls::INT_IO_WE | tcls::INT_IO_S | tcls::INT_IO_N
                                 )
-                                && !((cell.col == self.chip.col_w()
-                                    || cell.col == self.chip.col_e())
-                                    && (cell.row == self.chip.row_s()
-                                        || cell.row == self.chip.row_n()))
+                                && !(self.chip.is_col_io(cell.col) && self.chip.is_row_io(cell.row))
                             {
                                 cell.wire(defs::wires::IMUX_CLK[0])
                             } else if self.chip.kind == ChipKind::Ecp4 && l == "CLK" {

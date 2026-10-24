@@ -5,7 +5,9 @@ use prjcombine_entity::{EntityId, EntityPartVec, EntityVec};
 use prjcombine_interconnect::db::IntDb;
 use prjcombine_interconnect::dir::DirH;
 use prjcombine_interconnect::grid::builder::GridBuilder;
-use prjcombine_interconnect::grid::{CellCoord, ColId, DieId, DieIdExt, RowId, TileIobId};
+use prjcombine_interconnect::grid::{
+    CellCoord, ColId, DieId, DieIdExt, RowId, RowIdExt, TileIobId,
+};
 use std::collections::BTreeSet;
 
 use crate::chip::{
@@ -906,12 +908,7 @@ impl DieExpander<'_, '_, '_> {
             }
         }
         for cell in self.egrid.die_cells(self.die) {
-            let row_rclk = self.chip.row_rclk(cell.row);
-            let cell_leaf = if cell.row < row_rclk {
-                cell.with_row(row_rclk - 1)
-            } else {
-                cell.with_row(row_rclk)
-            };
+            let cell_leaf = cell.with_row(cell.row.snap_to_side_of(self.chip.row_rclk(cell.row)));
             self.egrid[cell].region_root[rslots::LEAF] = cell_leaf;
             self.egrid[cell].region_root[rslots::HDISTR] = cell.with_col(hdistr_col[cell.col]);
             self.egrid[cell].region_root[rslots::HROUTE] = cell.with_col(hroute_col[cell.col]);

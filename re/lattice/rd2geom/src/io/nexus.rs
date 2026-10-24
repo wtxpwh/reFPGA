@@ -1,11 +1,11 @@
 use prjcombine_ecp::{
-    chip::{Chip, ChipKind, NexusKind, SpecialIoKey, SpecialLocKey},
+    chip::{ChipKind, NexusKind, SpecialIoKey, SpecialLocKey},
     defs::{bcls, bslots, nexus::tcls::CLK_S_JE5D15, tcls, tslots, wires},
 };
 use prjcombine_interconnect::{
     db::{CellSlotIdExt, WireSlotIdExt},
     dir::{Dir, DirH, DirHV, DirV},
-    grid::{BelCoord, CellCoord, DieIdExt},
+    grid::{BelCoord, CellCoord},
 };
 use prjcombine_re_lattice_naming::WireName;
 
@@ -13,7 +13,7 @@ use crate::{ChipContext, RcMode};
 
 impl ChipContext<'_> {
     fn get_nexus_pio_suffix(&self, bcrd: BelCoord) -> &'static str {
-        let edge = self.chip.get_io_edge(bcrd);
+        let edge = self.chip.get_io_edge(bcrd.cell);
         let idx = bslots::IO.index_of(bcrd.slot).unwrap();
         let is_hp = edge == Dir::S;
         if is_hp {
@@ -28,7 +28,7 @@ impl ChipContext<'_> {
     }
 
     fn get_nexus_iol_suffix(&self, bcrd: BelCoord) -> &'static str {
-        let edge = self.chip.get_io_edge(bcrd);
+        let edge = self.chip.get_io_edge(bcrd.cell);
         let idx = bslots::IO.index_of(bcrd.slot).unwrap();
         let is_hp = edge == Dir::S;
         if is_hp {
@@ -122,9 +122,7 @@ impl ChipContext<'_> {
             NexusKind::SmallHalfIo => (2, 3),
             NexusKind::SmallDenseIo => (5, 2),
         };
-        let tcrd = Chip::DIE
-            .cell(self.chip.col_clk, self.chip.row_s())
-            .tile(tslots::CLK);
+        let tcrd = self.chip.clk_emid(Dir::S).tile(tslots::CLK);
         for i in 0..num_banks {
             let cell = tcrd.delta(-(i as i32), 0);
             let bank = bank_base + i;
@@ -505,7 +503,7 @@ impl ChipContext<'_> {
 
     fn process_single_io_nexus(&mut self, bcrd: BelCoord) {
         let is_jtag_en = bcrd == self.chip.special_io[&SpecialIoKey::JtagEn];
-        let edge = self.chip.get_io_edge(bcrd);
+        let edge = self.chip.get_io_edge(bcrd.cell);
         let idx = bslots::IO.index_of(bcrd.slot).unwrap();
         let ab = ["A", "B"][idx];
         let (r, c) = self.rc(bcrd.cell);

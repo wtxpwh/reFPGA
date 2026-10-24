@@ -7,6 +7,7 @@ use prjcombine_ecp::{
 use prjcombine_entity::{EntityId, EntityRangeVec, EntityVec};
 use prjcombine_interconnect::{
     db::IntDb,
+    dir::Dir,
     grid::{BelCoord, CellCoord, ColId, DieIdExt, RowId},
 };
 use prjcombine_re_lattice_naming::{ChipNaming, WireName};
@@ -81,7 +82,7 @@ impl ChipBuilder<'_> {
                 && self.chip.kind != ChipKind::MachXo
             {
                 let row = self.chip.xlat_row(wn.r);
-                if row != self.chip.row_n() && row != self.chip.row_s() {
+                if !self.chip.is_row_io(row) {
                     self.chip.rows[row].kind = RowKind::Ebr;
                 }
             }
@@ -147,20 +148,15 @@ impl ChipBuilder<'_> {
             {
                 let (r, c) = rc.split_once('C').unwrap();
                 let cell = self.chip.xlat_rc(r.parse().unwrap(), c.parse().unwrap());
-                if cell.col == self.chip.col_w() && self.chip.kind != ChipKind::Crosslink {
-                    self.chip.rows[cell.row].io_w = kind;
-                } else if cell.col == self.chip.col_e() && self.chip.kind != ChipKind::Crosslink {
-                    self.chip.rows[cell.row].io_e = kind;
-                } else if cell.row == self.chip.row_s() {
-                    self.chip.columns[cell.col].io_s = kind;
-                } else if cell.row == self.chip.row_n()
-                    || (cell.row == self.chip.row_n() - 12
-                        && kind == IoGroupKind::Serdes
-                        && self.chip.kind == ChipKind::Scm)
-                {
+                if self.chip.kind == ChipKind::Scm && kind == IoGroupKind::Serdes {
                     self.chip.columns[cell.col].io_n = kind;
                 } else {
-                    panic!("umm weird IO tile {}", tile.name);
+                    match self.chip.get_io_edge(cell) {
+                        Dir::W => self.chip.rows[cell.row].io_w = kind,
+                        Dir::E => self.chip.rows[cell.row].io_e = kind,
+                        Dir::S => self.chip.columns[cell.col].io_s = kind,
+                        Dir::N => self.chip.columns[cell.col].io_n = kind,
+                    }
                 }
             } else {
                 panic!("umm weird IO tile {}", tile.name);
@@ -251,7 +247,7 @@ impl ChipBuilder<'_> {
                     } else {
                         unreachable!();
                     }
-                } else if cell.col == self.chip.col_w() || cell.col == self.chip.col_e() {
+                } else if self.chip.is_col_io(cell.col) {
                     let kind = if cell.col == self.chip.col_w() {
                         self.chip.rows[cell.row].io_w
                     } else {

@@ -113,7 +113,7 @@ impl ChipContext<'_> {
         let idx = bslots::IO.index_of(bcrd.slot).unwrap();
         match self.chip.kind {
             ChipKind::Ecp3(_) => {
-                match self.chip.get_io_edge(bcrd) {
+                match self.chip.get_io_edge(bcrd.cell) {
                     Dir::H(h) => {
                         if bcrd.col != self.chip.col_edge(h) {
                             // PLL special
@@ -169,7 +169,7 @@ impl ChipContext<'_> {
         let idx = wires::OUT_IO_INCK.index_of(wire.slot).unwrap();
         match self.chip.kind {
             ChipKind::Ecp3(_) => {
-                if wire.row == self.chip.row_s() || wire.row == self.chip.row_n() {
+                if self.chip.is_row_io(wire.row) {
                     let cell = if idx >= 2 {
                         wire.cell.delta(2, 0)
                     } else {
@@ -177,7 +177,7 @@ impl ChipContext<'_> {
                     };
                     let abcd = ['A', 'B'][idx % 2];
                     self.rc_io_wire(cell, &format!("JPADDI{abcd}_PIO"))
-                } else if wire.col == self.chip.col_w() || wire.col == self.chip.col_e() {
+                } else if self.chip.is_col_io(wire.col) {
                     let cell = if idx >= 2 {
                         wire.cell
                     } else {

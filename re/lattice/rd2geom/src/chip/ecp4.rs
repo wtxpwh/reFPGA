@@ -323,12 +323,11 @@ impl ChipBuilder<'_> {
             }
         }
         for (idx, dy, iob) in [(0, -5, 2), (1, -5, 0), (2, 1, 2), (3, 1, 0)] {
-            let row = self.chip.row_clk + dy;
-            let io = Chip::DIE.cell(self.chip.col_w(), row).bel(bslots::IO[iob]);
+            let io = self.chip.clk_emid(Dir::W).delta(0, dy).bel(bslots::IO[iob]);
             self.chip
                 .special_io
                 .insert(SpecialIoKey::Clock(Dir::W, idx), io);
-            let io = Chip::DIE.cell(self.chip.col_e(), row).bel(bslots::IO[iob]);
+            let io = self.chip.clk_emid(Dir::E).delta(0, dy).bel(bslots::IO[iob]);
             self.chip
                 .special_io
                 .insert(SpecialIoKey::Clock(Dir::E, idx), io);

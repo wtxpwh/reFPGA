@@ -210,7 +210,7 @@ impl ChipBuilder<'_> {
             } else {
                 continue;
             };
-            let bel = if cell.col == self.chip.col_w() || cell.col == self.chip.col_e() {
+            let bel = if self.chip.is_col_io(cell.col) {
                 let mut ridx = 0;
                 let edge = if cell.col == self.chip.col_w() {
                     DirH::W
@@ -314,20 +314,10 @@ impl ChipBuilder<'_> {
                 && let Ok(idx) = idx.parse()
             {
                 let mut idx: u8 = idx;
-                let edge = if cell.col == self.chip.col_w() {
-                    Dir::W
-                } else if cell.col == self.chip.col_e() {
-                    Dir::E
-                } else if cell.row == self.chip.row_s() {
-                    if cell.col >= self.chip.col_clk {
-                        idx += 8;
-                    }
-                    Dir::S
-                } else if cell.row == self.chip.row_n() {
-                    Dir::N
-                } else {
-                    unreachable!()
-                };
+                let edge = self.chip.get_io_edge(cell);
+                if edge == Dir::S && cell.col >= self.chip.col_clk {
+                    idx += 8;
+                }
                 SpecialIoKey::Clock(edge, idx)
             } else if let Some(which) = suffix.strip_prefix("JPCK")
                 && which.len() == 2
@@ -461,17 +451,14 @@ impl ChipBuilder<'_> {
             SpecialLocKey::Bc(4),
             Chip::DIE.cell(col_clk_e, self.chip.row_s()),
         );
-        self.chip.special_loc.insert(
-            SpecialLocKey::Bc(7),
-            Chip::DIE.cell(self.chip.col_w(), self.chip.row_clk),
-        );
-        self.chip.special_loc.insert(
-            SpecialLocKey::Bc(2),
-            Chip::DIE.cell(self.chip.col_e(), self.chip.row_clk),
-        );
-        self.chip.special_loc.insert(
-            SpecialLocKey::Bc(1),
-            Chip::DIE.cell(self.chip.col_clk, self.chip.row_n()),
-        );
+        self.chip
+            .special_loc
+            .insert(SpecialLocKey::Bc(7), self.chip.clk_emid(Dir::W));
+        self.chip
+            .special_loc
+            .insert(SpecialLocKey::Bc(2), self.chip.clk_emid(Dir::E));
+        self.chip
+            .special_loc
+            .insert(SpecialLocKey::Bc(1), self.chip.clk_emid(Dir::N));
     }
 }

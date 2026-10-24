@@ -1,7 +1,8 @@
 use std::collections::{BTreeMap, BTreeSet};
 
 use prjcombine_ecp::{
-    chip::{Chip, ChipKind}, defs::{bslots, cslots, rslots, tcls, tslots, wiredata, wires},
+    chip::{Chip, ChipKind},
+    defs::{bslots, cslots, rslots, tcls, tslots, wiredata, wires},
 };
 use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
@@ -46,15 +47,9 @@ impl ChipContext<'_> {
             for (slot, conn) in &cell_data.conns {
                 if let Some(target) = conn.target {
                     let cell_sio = self.chip.kind == ChipKind::MachXo
-                        && (cell.col == self.chip.col_w()
-                            || cell.col == self.chip.col_e()
-                            || cell.row == self.chip.row_s()
-                            || cell.row == self.chip.row_n());
+                        && (self.chip.is_col_io(cell.col) || self.chip.is_row_io(cell.row));
                     let target_sio = self.chip.kind == ChipKind::MachXo
-                        && (target.col == self.chip.col_w()
-                            || target.col == self.chip.col_e()
-                            || target.row == self.chip.row_s()
-                            || target.row == self.chip.row_n());
+                        && (self.chip.is_col_io(target.col) || self.chip.is_row_io(target.row));
                     if slot == cslots::W && !target_sio && !cell_sio {
                         for &(wt, wf) in &out_w {
                             let wt = target.wire(wt);

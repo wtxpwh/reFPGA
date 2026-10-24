@@ -1,14 +1,14 @@
-use prjcombine_ecp::{
-    chip::Chip,
-    defs::{bcls, bslots, wires},
+use prjcombine_ecp::defs::{bcls, bslots, wires};
+use prjcombine_interconnect::{
+    db::WireSlotIdExt,
+    dir::{Dir, DirHV},
 };
-use prjcombine_interconnect::{db::WireSlotIdExt, dir::DirHV, grid::DieIdExt};
 
 use crate::ChipContext;
 
 impl ChipContext<'_> {
     pub(super) fn prep_pll_crosslink(&mut self) {
-        let cell_tile = Chip::DIE.cell(self.chip.col_clk, self.chip.row_s());
+        let cell_tile = self.chip.clk_emid(Dir::S);
         for idx in 0..4 {
             let cell = cell_tile.delta(-2 + idx, 0);
             self.bind_wire(self.rc_io_wire(cell, "JINCK"), cell.wire(wires::INCK[0]));

@@ -7,7 +7,6 @@ use prjcombine_ecp::{
 use prjcombine_interconnect::{
     db::{CellSlotIdExt, WireSlotIdExt},
     dir::{Dir, DirHV, DirMap},
-    grid::DieIdExt,
 };
 
 use crate::{ChipContext, RcMode};
@@ -61,16 +60,11 @@ impl ChipContext<'_> {
     }
 
     pub(super) fn process_clk_edge_ecp4(&mut self) {
-        for (edge, col, row) in [
-            (Dir::W, self.chip.col_w(), self.chip.row_clk),
-            (Dir::E, self.chip.col_e(), self.chip.row_clk),
-            (Dir::S, self.chip.col_clk, self.chip.row_s()),
-            (Dir::N, self.chip.col_clk, self.chip.row_n()),
-        ] {
-            let cell_tile = Chip::DIE.cell(col, row);
+        for edge in Dir::DIRS {
+            let cell_tile = self.chip.clk_emid(edge);
             let cell = match edge {
                 Dir::H(_) => cell_tile,
-                Dir::V(_) => cell_tile.delta(-1, 0),
+                Dir::V(_) => cell_tile.step(Dir::W, 1),
             };
             let lrbt = match edge {
                 Dir::W => 'L',
@@ -286,7 +280,7 @@ impl ChipContext<'_> {
     }
 
     pub(super) fn process_clk_root_ecp4(&mut self) {
-        let cell_tile = self.chip.bel_clk_root().cell;
+        let cell_tile = self.chip.clk_root();
         let cell = cell_tile.delta(-1, 0);
 
         let cell_edge = DirMap::from_fn(|edge| match edge {

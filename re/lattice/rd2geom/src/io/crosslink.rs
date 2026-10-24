@@ -1,11 +1,12 @@
 use prjcombine_ecp::{
-    chip::{Chip, IoKind, SpecialLocKey},
+    chip::{IoKind, SpecialLocKey},
     defs::{bcls, bslots, tcls, wires},
 };
 use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
     db::{CellSlotIdExt, WireSlotIdExt},
-    grid::{BelCoord, CellCoord, ColId, DieIdExt},
+    dir::Dir,
+    grid::{BelCoord, CellCoord, ColId},
 };
 
 use crate::{ChipContext, RcMode};
@@ -85,7 +86,7 @@ impl ChipContext<'_> {
     }
 
     pub(super) fn process_eclk_crosslink(&mut self) {
-        let cell_tile = Chip::DIE.cell(self.chip.col_clk, self.chip.row_s());
+        let cell_tile = self.chip.clk_emid(Dir::S);
         let cell = cell_tile.delta(-1, 0);
         {
             let mut ex = self.extract_switchbox(cell_tile.bel(bslots::CLK_INT));
@@ -196,7 +197,7 @@ impl ChipContext<'_> {
     }
 
     pub(super) fn process_dlldel_crosslink(&mut self) {
-        let cell_tile = Chip::DIE.cell(self.chip.col_clk, self.chip.row_s());
+        let cell_tile = self.chip.clk_emid(Dir::S);
         for (name, idx) in [("20", 0), ("21", 1), ("10", 2), ("11", 3)] {
             let cell = cell_tile.delta(-2 + (idx as i32), 0);
             let bcrd = cell_tile.bel(bslots::DLLDEL[idx]);
@@ -240,7 +241,7 @@ impl ChipContext<'_> {
     }
 
     fn process_single_io_crosslink(&mut self, bcrd: BelCoord) {
-        let bank = self.chip.get_io_bank(bcrd);
+        let bank = self.chip.get_io_bank(bcrd.cell);
         let idx = bslots::IO.index_of(bcrd.slot).unwrap();
         let (cell, abcd) = self.xlat_io_loc_crosslink(bcrd);
         let (_r, c) = self.rc(cell);
@@ -366,7 +367,7 @@ impl ChipContext<'_> {
         for (tcid, num_io) in [(tcls::IO_S4, 4), (tcls::IO_S1A, 1), (tcls::IO_S1B, 1)] {
             for &tcrd in &self.edev.tile_index[tcid] {
                 if tcid == tcls::IO_S4 {
-                    let bank = self.chip.get_io_bank(tcrd.bel(bslots::IO[0]));
+                    let bank = self.chip.get_io_bank(tcrd.cell);
                     let mut ex = self.extract_switchbox(tcrd.bel(bslots::IO_INT));
                     ex.output_bind_rc_io("ECLKA", wires::IMUX_IO_ECLK[0].cell(0))
                         .output_bind_rc_io("ECLKB", wires::IMUX_IO_ECLK[1].cell(0))
@@ -387,7 +388,7 @@ impl ChipContext<'_> {
     }
 
     pub(super) fn process_clkdiv_crosslink(&mut self) {
-        let cell_tile = Chip::DIE.cell(self.chip.col_clk, self.chip.row_s());
+        let cell_tile = self.chip.clk_emid(Dir::S);
         let cell = cell_tile.delta(-1, 0);
         for i in 0..4 {
             let bcrd = cell_tile.bel(bslots::CLKDIV[i]);

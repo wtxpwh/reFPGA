@@ -6,8 +6,8 @@ use prjcombine_ecp::{
 };
 use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
-    dir::{Dir, DirH, DirHV, DirV},
-    grid::{ColId, DieIdExt, RowId},
+    dir::{Dir, DirH, DirHV},
+    grid::{ColId, ColIdExt, DieIdExt, RowId, RowIdExt},
 };
 
 use crate::chip::{ChipBuilder, ChipExt};
@@ -33,11 +33,10 @@ impl ChipBuilder<'_> {
             }
             if self.naming.strings[wn.suffix].ends_with("_PLL") {
                 let cell = self.chip.xlat_rc_wire(wn);
-                let loc = if cell.row < self.chip.row_clk {
-                    SpecialLocKey::Pll(PllLoc::new(DirHV::SW, 0))
-                } else {
-                    SpecialLocKey::Pll(PllLoc::new(DirHV::NW, 0))
-                };
+                let loc = SpecialLocKey::Pll(PllLoc::new(
+                    cell.row.side_of(self.chip.row_clk) & DirH::W,
+                    0,
+                ));
                 self.chip.special_loc.insert(loc, cell);
             }
             if self.naming.strings[wn.suffix].ends_with("_OSC") {
@@ -178,16 +177,8 @@ impl ChipBuilder<'_> {
                 _ => None,
             } {
                 let cell = self.chip.xlat_rc_wire(wn);
-                let h = if cell.col < self.chip.col_clk {
-                    DirH::W
-                } else {
-                    DirH::E
-                };
-                let v = if cell.row < self.chip.row_clk {
-                    DirV::S
-                } else {
-                    DirV::N
-                };
+                let h = cell.col.side_of(self.chip.col_clk);
+                let v = cell.row.side_of(self.chip.row_clk);
                 let hv = DirHV { h, v };
                 let key = SpecialIoKey::Pll(pad, PllLoc::new(hv, 0));
                 self.chip.special_io.insert(key, io);

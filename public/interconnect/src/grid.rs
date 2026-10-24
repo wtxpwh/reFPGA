@@ -1,6 +1,9 @@
 #![allow(clippy::too_many_arguments)]
 
-use crate::{db::*, dir::Dir};
+use crate::{
+    db::*,
+    dir::{Dir, DirH, DirV},
+};
 use bimap::BiHashMap;
 use bincode::{Decode, Encode};
 use prjcombine_entity::{
@@ -14,6 +17,68 @@ pub mod builder;
 entity_id_u8!(pub DieId arith, DieTag tag, "D");
 entity_id_u16!(pub ColId arith, ColTag tag, "X");
 entity_id_u16!(pub RowId arith, RowTag tag, "Y");
+
+pub trait ColIdExt {
+    fn side_of(self, anchor: ColId) -> DirH;
+    fn step(self, dir: DirH, num: usize) -> ColId;
+    fn col_on_side(self, side: DirH) -> ColId;
+    fn snap_to_side_of(self, anchor: ColId) -> ColId;
+}
+
+impl ColIdExt for ColId {
+    fn side_of(self, anchor: ColId) -> DirH {
+        if self < anchor { DirH::W } else { DirH::E }
+    }
+
+    fn step(self, dir: DirH, num: usize) -> ColId {
+        match dir {
+            DirH::W => self - num,
+            DirH::E => self + num,
+        }
+    }
+
+    fn col_on_side(self, side: DirH) -> ColId {
+        match side {
+            DirH::W => self - 1,
+            DirH::E => self,
+        }
+    }
+
+    fn snap_to_side_of(self, anchor: ColId) -> ColId {
+        anchor.col_on_side(self.side_of(anchor))
+    }
+}
+
+pub trait RowIdExt {
+    fn side_of(self, anchor: RowId) -> DirV;
+    fn step(self, dir: DirV, num: usize) -> RowId;
+    fn row_on_side(self, side: DirV) -> RowId;
+    fn snap_to_side_of(self, anchor: RowId) -> RowId;
+}
+
+impl RowIdExt for RowId {
+    fn side_of(self, anchor: RowId) -> DirV {
+        if self < anchor { DirV::S } else { DirV::N }
+    }
+
+    fn step(self, dir: DirV, num: usize) -> RowId {
+        match dir {
+            DirV::S => self - num,
+            DirV::N => self + num,
+        }
+    }
+
+    fn row_on_side(self, side: DirV) -> RowId {
+        match side {
+            DirV::S => self - 1,
+            DirV::N => self,
+        }
+    }
+
+    fn snap_to_side_of(self, anchor: RowId) -> RowId {
+        anchor.row_on_side(self.side_of(anchor))
+    }
+}
 
 pub trait DieIdExt {
     fn cell(self, col: ColId, row: RowId) -> CellCoord;
@@ -117,6 +182,13 @@ impl CellCoord {
 
     pub fn delta(self, dx: i32, dy: i32) -> CellCoord {
         self.with_cr(self.col + dx, self.row + dy)
+    }
+
+    pub fn step(self, dir: impl Into<Dir>, num: usize) -> CellCoord {
+        match dir.into() {
+            Dir::H(h) => self.with_col(self.col.step(h, num)),
+            Dir::V(v) => self.with_row(self.row.step(v, num)),
+        }
     }
 
     pub fn cells_e_const<const N: usize>(self) -> [CellCoord; N] {

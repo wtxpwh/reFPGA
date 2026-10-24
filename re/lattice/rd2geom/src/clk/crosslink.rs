@@ -1,15 +1,12 @@
-use prjcombine_ecp::{
-    chip::Chip,
-    defs::{bcls, bslots, wires},
-};
-use prjcombine_interconnect::{db::WireSlotIdExt, dir::DirV, grid::DieIdExt};
+use prjcombine_ecp::defs::{bcls, bslots, wires};
+use prjcombine_interconnect::{db::WireSlotIdExt, dir::DirV};
 
 use crate::{ChipContext, RcMode};
 
 impl ChipContext<'_> {
     pub(super) fn process_clk_edge_crosslink(&mut self) {
         for edge in [DirV::S, DirV::N] {
-            let cell_tile = Chip::DIE.cell(self.chip.col_clk, self.chip.row_edge(edge));
+            let cell_tile = self.chip.clk_emid(edge);
             let cell = cell_tile.delta(-1, 0);
             let bt = match edge {
                 DirV::S => 'B',
@@ -104,7 +101,7 @@ impl ChipContext<'_> {
     }
 
     pub(super) fn process_clk_root_crosslink(&mut self) {
-        let cell_tile = self.chip.bel_clk_root().cell;
+        let cell_tile = self.chip.clk_root();
         let cell = cell_tile.delta(-1, 0);
 
         {

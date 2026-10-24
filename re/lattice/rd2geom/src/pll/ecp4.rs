@@ -1,12 +1,11 @@
 use prjcombine_ecp::{
-    chip::{Chip, SpecialIoKey, SpecialLocKey},
+    chip::{SpecialIoKey, SpecialLocKey},
     defs::{bcls, bslots, wires},
 };
 use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
     db::{CellSlotId, WireSlotIdExt},
     dir::{Dir, DirHV, DirV},
-    grid::DieIdExt,
 };
 
 use crate::ChipContext;
@@ -40,9 +39,6 @@ impl ChipContext<'_> {
             );
         }
         {
-            let cell_n = Chip::DIE.cell(self.chip.col_clk, self.chip.row_n());
-            let cell_w = Chip::DIE.cell(self.chip.col_w(), self.chip.row_clk);
-            let cell_e = Chip::DIE.cell(self.chip.col_e(), self.chip.row_clk);
             for (edge, num) in [(Dir::N, 8), (Dir::W, 4), (Dir::E, 4)] {
                 for idx in 0..num {
                     if !self
@@ -53,9 +49,9 @@ impl ChipContext<'_> {
                         continue;
                     }
                     let cell = match edge {
-                        Dir::N => cell_n.delta(-4 + idx, 0),
-                        Dir::W => cell_w.delta(0, -2 + idx),
-                        Dir::E => cell_e.delta(0, -2 + (idx ^ 1)),
+                        Dir::N => self.chip.clk_emid(edge).delta(-4 + idx, 0),
+                        Dir::W => self.chip.clk_emid(edge).delta(0, -2 + idx),
+                        Dir::E => self.chip.clk_emid(edge).delta(0, -2 + (idx ^ 1)),
                         Dir::S => unreachable!(),
                     };
 

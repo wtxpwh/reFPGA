@@ -2,7 +2,7 @@ use prjcombine_entity::{EntityId, EntityIdArith, EntityRange, EntityVec};
 use prjcombine_interconnect::db::{ConnectorClassId, IntDb};
 use prjcombine_interconnect::dir::{DirH, DirV};
 use prjcombine_interconnect::grid::builder::GridBuilder;
-use prjcombine_interconnect::grid::{BelCoord, CellCoord, ColId, DieId, DieIdExt, RowId};
+use prjcombine_interconnect::grid::{BelCoord, CellCoord, ColId, DieId, DieIdExt, RowId, RowIdExt};
 use std::collections::{BTreeSet, HashMap};
 
 use crate::chip::{
@@ -1438,18 +1438,7 @@ impl Expander<'_> {
                     self.egrid.add_tile(
                         cell,
                         tcid,
-                        &[
-                            cell.delta(
-                                match io.side {
-                                    DirH::W => 4,
-                                    DirH::E => -4,
-                                },
-                                0,
-                            ),
-                            cell,
-                            bli,
-                            bli.delta(1, 0),
-                        ],
+                        &[cell.step(!io.side, 4), cell, bli, bli.delta(1, 0)],
                     );
                     let (tcid, treg) = match ddrmc.test_clk {
                         X5ioDdrmcTestClk::A(treg) => (tcls::HSR_CLK_TEST_X5IO_A, treg),
@@ -1459,10 +1448,7 @@ impl Expander<'_> {
                     self.egrid.add_tile(cell, tcid, &[cell_test, cell]);
 
                     if ddrmc.kind.is_2hb() {
-                        let cell_io0 = match io.side {
-                            DirH::W => cell.delta(4, 0),
-                            DirH::E => cell.delta(-4, 0),
-                        };
+                        let cell_io0 = cell.step(!io.side, 4);
                         self.egrid.fill_conn_pair(
                             cell,
                             cell,
@@ -1476,10 +1462,7 @@ impl Expander<'_> {
                             ccls::X5IO_HS_DESKEW_CLKIN_REV,
                         );
                     } else {
-                        let cell_io2 = match io.side {
-                            DirH::W => cell.delta(-4, 0),
-                            DirH::E => cell.delta(4, 0),
-                        };
+                        let cell_io2 = cell.step(io.side, 4);
                         self.egrid.fill_conn_pair(
                             cell_io2,
                             cell,
@@ -1493,7 +1476,7 @@ impl Expander<'_> {
                             ccls::X5IO_HS_DESKEW_CLKIN_REV,
                         );
                         if io.side == DirH::W {
-                            let cell_io3 = cell.delta(-8, 0);
+                            let cell_io3 = cell.step(io.side, 8);
                             self.egrid.fill_conn_pair(
                                 cell_io3,
                                 cell_io3,
@@ -3219,11 +3202,7 @@ impl Expander<'_> {
         for (die, chip) in &self.chips {
             for cell in self.die_cells_pl(die) {
                 let reg = chip.row_to_reg(cell.row);
-                let crow = if chip.is_reg_n(reg) {
-                    chip.row_reg_hclk(reg)
-                } else {
-                    chip.row_reg_hclk(reg) - 1
-                };
+                let crow = cell.row.snap_to_side_of(chip.row_reg_hclk(reg));
                 self.egrid[cell].region_root[rslots::LEAF] = cell.with_row(crow);
             }
             let mut prev_row = Some(chip.row_s());

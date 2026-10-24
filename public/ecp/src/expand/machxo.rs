@@ -1,7 +1,4 @@
-use prjcombine_interconnect::{
-    dir::{Dir, DirHV, DirV},
-    grid::DieIdExt,
-};
+use prjcombine_interconnect::dir::{Dir, DirH, DirHV, DirV};
 
 use crate::{
     chip::{IoGroupKind, PllPad, RowKind, SpecialIoKey, SpecialLocKey},
@@ -11,40 +8,28 @@ use crate::{
 
 impl Expander<'_, '_> {
     pub(super) fn fill_io_machxo(&mut self) {
-        for col in self.egrid.cols(self.die) {
-            if col != self.chip.col_w() && col != self.chip.col_e() {
-                let cell_s = self.die.cell(col, self.chip.row_s());
-                self.egrid.fill_conn_pair(
-                    cell_s,
-                    cell_s.delta(0, 1),
-                    ccls::IO_FROM_PLC,
-                    ccls::PLC_TO_IO,
-                );
-                let cell_n = self.die.cell(col, self.chip.row_n());
-                self.egrid.fill_conn_pair(
-                    cell_n,
-                    cell_n.delta(0, -1),
-                    ccls::IO_FROM_PLC,
-                    ccls::PLC_TO_IO,
-                );
+        for edge in DirV::DIRS {
+            for cell in self.egrid.row(self.die, self.chip.row_edge(edge)) {
+                if !self.chip.is_col_io(cell.col) {
+                    self.egrid.fill_conn_pair(
+                        cell,
+                        cell.step(!edge, 1),
+                        ccls::IO_FROM_PLC,
+                        ccls::PLC_TO_IO,
+                    );
+                }
             }
         }
-        for row in self.egrid.rows(self.die) {
-            if row > self.chip.row_s() + 1 && row < self.chip.row_n() - 1 {
-                let cell_w = self.die.cell(self.chip.col_w(), row);
-                self.egrid.fill_conn_pair(
-                    cell_w,
-                    cell_w.delta(1, 0),
-                    ccls::IO_FROM_PLC,
-                    ccls::PLC_TO_IO,
-                );
-                let cell_e = self.die.cell(self.chip.col_e(), row);
-                self.egrid.fill_conn_pair(
-                    cell_e,
-                    cell_e.delta(-1, 0),
-                    ccls::IO_FROM_PLC,
-                    ccls::PLC_TO_IO,
-                );
+        for edge in DirH::DIRS {
+            for cell in self.egrid.column(self.die, self.chip.col_edge(edge)) {
+                if cell.row > self.chip.row_s() + 1 && cell.row < self.chip.row_n() - 1 {
+                    self.egrid.fill_conn_pair(
+                        cell,
+                        cell.step(!edge, 1),
+                        ccls::IO_FROM_PLC,
+                        ccls::PLC_TO_IO,
+                    );
+                }
             }
         }
         for (&io, &(src_cell, plc_lut)) in &self.chip.io_direct_plc {
@@ -106,7 +91,7 @@ impl Expander<'_, '_> {
         }
         for cell in self.egrid.row(self.die, self.chip.row_s()) {
             let cd = &self.chip.columns[cell.col];
-            if cell.col == self.chip.col_w() || cell.col == self.chip.col_e() {
+            if self.chip.is_col_io(cell.col) {
                 continue;
             }
             let (int_kind, kind) = match (has_ebr, cd.io_s) {
@@ -125,7 +110,7 @@ impl Expander<'_, '_> {
         }
         for cell in self.egrid.row(self.die, self.chip.row_n()) {
             let cd = &self.chip.columns[cell.col];
-            if cell.col == self.chip.col_w() || cell.col == self.chip.col_e() {
+            if self.chip.is_col_io(cell.col) {
                 continue;
             }
             let (int_kind, kind) = match (has_ebr, cd.io_n) {
@@ -190,15 +175,9 @@ impl Expander<'_, '_> {
                 Dir::S => wires::IO_GCLK_S[usize::from(cidx)],
                 _ => unreachable!(),
             };
-            self.add_io_conn(
-                self.chip.clk_root().with_col(self.chip.col_w()).wire(wire),
-                key,
-            );
+            self.add_io_conn(self.chip.clk_emid(Dir::W).wire(wire), key);
         }
-        let mut tcells = self
-            .die
-            .cell(self.chip.col_w(), self.chip.row_clk - 3)
-            .cells_n(6);
+        let mut tcells = self.chip.clk_emid(Dir::W).step(Dir::S, 3).cells_n(6);
         let kind = if let Some(pll_sw) = self.chip.try_bel_pll(DirHV::SW, 0) {
             if let Some(pll_nw) = self.chip.try_bel_pll(DirHV::NW, 0) {
                 tcells.extend([pll_sw.cell, pll_nw.cell]);
@@ -210,10 +189,6 @@ impl Expander<'_, '_> {
         } else {
             tcls::CLK_ROOT_0PLL
         };
-        self.egrid.add_tile(
-            self.die.cell(self.chip.col_clk, self.chip.row_clk),
-            kind,
-            &tcells,
-        );
+        self.egrid.add_tile(self.chip.clk_root(), kind, &tcells);
     }
 }

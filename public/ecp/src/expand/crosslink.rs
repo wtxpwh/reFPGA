@@ -1,7 +1,7 @@
 use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
     dir::{Dir, DirH, DirHV},
-    grid::DieIdExt,
+    grid::{ColIdExt, DieIdExt},
 };
 
 use crate::{
@@ -68,24 +68,22 @@ impl Expander<'_, '_> {
             self.egrid.add_tile_single(cell, tcls::INT_IO_N);
             if self.chip.columns[cell.col].io_n == IoGroupKind::Mipi {
                 let mut tcells = cell.cells_e(24);
+                let side = cell.col.side_of(self.chip.col_clk);
                 tcells.extend([
-                    self.chip
-                        .get_io_cell(SpecialIoKey::MipiClk(if cell.col < self.chip.col_clk {
-                            DirH::W
-                        } else {
-                            DirH::E
-                        })),
+                    self.chip.get_io_cell(SpecialIoKey::MipiClk(side)),
                     self.chip.get_io_cell(SpecialIoKey::Clock(
                         Dir::S,
-                        if cell.col < self.chip.col_clk { 4 } else { 5 },
+                        match side {
+                            DirH::W => 4,
+                            DirH::E => 5,
+                        },
                     )),
                 ]);
                 self.egrid.add_tile(
                     cell,
-                    if cell.col < self.chip.col_clk {
-                        tcls::MIPI_W
-                    } else {
-                        tcls::MIPI_E
+                    match side {
+                        DirH::W => tcls::MIPI_W,
+                        DirH::E => tcls::MIPI_E,
                     },
                     &tcells,
                 );
@@ -94,7 +92,7 @@ impl Expander<'_, '_> {
     }
 
     pub(super) fn fill_clk_crosslink(&mut self) {
-        let cell = self.die.cell(self.chip.col_clk, self.chip.row_s());
+        let cell = self.chip.clk_emid(Dir::S);
         let mut tcells = cell.delta(-2, 0).cells_e(4);
         for i in 0..2 {
             tcells.push(self.chip.special_loc[&SpecialLocKey::PclkIn(Dir::S, i)]);
@@ -106,7 +104,7 @@ impl Expander<'_, '_> {
         tcells.push(self.chip.special_loc[&SpecialLocKey::Osc]);
         self.egrid.add_tile(cell, tcls::CLK_S, &tcells);
 
-        let cell = self.die.cell(self.chip.col_clk, self.chip.row_n());
+        let cell = self.chip.clk_emid(Dir::N);
         let mut tcells = cell.delta(-1, 0).cells_e(2);
         tcells.extend([
             cell.with_row(self.chip.row_s()),
@@ -120,25 +118,21 @@ impl Expander<'_, '_> {
         }
         self.egrid.add_tile(cell, tcls::CLK_N, &tcells);
 
-        let cell = self.chip.bel_clk_root().cell;
+        let cell = self.chip.clk_root();
         self.egrid.add_tile(
             cell,
             tcls::CLK_ROOT,
             &[
                 cell.delta(-1, 0),
                 cell,
-                cell.with_row(self.chip.row_s()),
-                cell.with_row(self.chip.row_n()),
+                self.chip.clk_emid(Dir::S),
+                self.chip.clk_emid(Dir::N),
             ],
         );
 
         for cell in self.egrid.row(self.die, self.chip.row_s()) {
             self.egrid[cell].region_root[rslots::ECLK] =
-                cell.with_col(if cell.col < self.chip.col_clk {
-                    self.chip.col_clk - 1
-                } else {
-                    self.chip.col_clk
-                });
+                cell.with_col(cell.col.snap_to_side_of(self.chip.col_clk));
         }
     }
 
@@ -150,10 +144,7 @@ impl Expander<'_, '_> {
 
         let cell = self.chip.special_loc[&SpecialLocKey::Config];
         let mut tcells = cell.cells_e(2);
-        tcells.extend([
-            cell.delta(-2, 0),
-            cell.with_cr(self.chip.col_clk, self.chip.row_clk),
-        ]);
+        tcells.extend([cell.delta(-2, 0), self.chip.clk_root()]);
         self.egrid.add_tile(cell, tcls::CONFIG, &tcells);
 
         let cell = self.chip.special_loc[&SpecialLocKey::Osc];
@@ -169,7 +160,7 @@ impl Expander<'_, '_> {
             &[
                 cell,
                 cell.delta(1, 0),
-                self.chip.clk_root().with_row(self.chip.row_s()),
+                self.chip.clk_emid(Dir::S),
                 self.chip.get_io_cell(SpecialIoKey::Clock(Dir::S, 0)),
                 self.chip.get_io_cell(SpecialIoKey::Clock(Dir::S, 2)),
                 self.chip.get_io_cell(SpecialIoKey::Clock(Dir::S, 4)),

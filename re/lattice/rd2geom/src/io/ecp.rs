@@ -20,7 +20,7 @@ impl ChipContext<'_> {
         let cell = bcrd.cell;
         let ab = ['A', 'B'][idx];
         let (r, c) = self.rc(cell);
-        let names = match self.chip.get_io_edge(bcrd) {
+        let names = match self.chip.get_io_edge(cell) {
             Dir::W => [format!("PL{r}{ab}"), format!("IOL_L{r}{ab}")],
             Dir::E => [format!("PR{r}{ab}"), format!("IOL_R{r}{ab}")],
             Dir::S => [format!("PB{c}{ab}"), format!("IOL_B{c}{ab}")],
@@ -145,7 +145,7 @@ impl ChipContext<'_> {
                 || bel.ctx.chip.kind == ChipKind::Ecp
                 || bel.ctx.chip.kind == ChipKind::Xp2
                 || (matches!(bel.ctx.chip.kind, ChipKind::Ecp2 | ChipKind::Ecp2M)
-                    && bel.ctx.chip.get_io_edge(bcrd) != Dir::N)
+                    && bel.ctx.chip.get_io_edge(bcrd.cell) != Dir::N)
                 || (bel.ctx.chip.kind == ChipKind::Xp
                     && bel.ctx.chip.rows.len() == 48
                     && matches!(cell.row.to_idx(), 22..26))
@@ -209,7 +209,7 @@ impl ChipContext<'_> {
         let is_ecp2 = !matches!(self.chip.kind, ChipKind::Ecp | ChipKind::Xp);
         let cell = bcrd.cell;
         let bcrd_io = bcrd.bel(bslots::IO[0]);
-        let edge = self.chip.get_io_edge(bcrd_io);
+        let edge = self.chip.get_io_edge(cell);
         let (r, c) = self.rc(cell);
         let name = match edge {
             Dir::W => format!("LDQS{r}"),
@@ -323,18 +323,7 @@ impl ChipContext<'_> {
             return;
         }
         if is_ecp2 {
-            let edge = if cell.col == self.chip.col_w() {
-                Dir::W
-            } else if cell.col == self.chip.col_e() {
-                Dir::E
-            } else if cell.row == self.chip.row_s() {
-                Dir::S
-            } else if cell.row == self.chip.row_n() {
-                Dir::N
-            } else {
-                unreachable!()
-            };
-            let bel_eclk = self.chip.bel_eclk_root(edge);
+            let bel_eclk = self.chip.bel_eclk_root(self.chip.get_io_edge(cell));
             let eclk0 = self.naming.bel_wire(bel_eclk, "ECLK0");
             let eclk1 = self.naming.bel_wire(bel_eclk, "ECLK1");
             self.extract_switchbox(cell.bel(bslots::IO_INT))
@@ -385,14 +374,14 @@ impl ChipContext<'_> {
             self.prep_io_cell_ecp(cell, rd.io_e);
         }
         for cell in self.edev.row(die, self.chip.row_s()) {
-            if cell.col == self.chip.col_w() || cell.col == self.chip.col_e() {
+            if self.chip.is_col_io(cell.col) {
                 continue;
             }
             let cd = &self.chip.columns[cell.col];
             self.prep_io_cell_ecp(cell, cd.io_s);
         }
         for cell in self.edev.row(die, self.chip.row_n()) {
-            if cell.col == self.chip.col_w() || cell.col == self.chip.col_e() {
+            if self.chip.is_col_io(cell.col) {
                 continue;
             }
             let cd = &self.chip.columns[cell.col];
@@ -437,14 +426,14 @@ impl ChipContext<'_> {
             self.process_io_cell_ecp(cell, rd.io_e);
         }
         for cell in self.edev.row(die, self.chip.row_s()) {
-            if cell.col == self.chip.col_w() || cell.col == self.chip.col_e() {
+            if self.chip.is_col_io(cell.col) {
                 continue;
             }
             let cd = &self.chip.columns[cell.col];
             self.process_io_cell_ecp(cell, cd.io_s);
         }
         for cell in self.edev.row(die, self.chip.row_n()) {
-            if cell.col == self.chip.col_w() || cell.col == self.chip.col_e() {
+            if self.chip.is_col_io(cell.col) {
                 continue;
             }
             let cd = &self.chip.columns[cell.col];
@@ -602,18 +591,7 @@ impl ChipContext<'_> {
 
     pub(super) fn process_eclk_tap_ecp2(&mut self) {
         for &tcrd in &self.edev.tile_index[tcls::ECLK_TAP] {
-            let edge = if tcrd.row == self.chip.row_s() {
-                Dir::S
-            } else if tcrd.row == self.chip.row_n() {
-                Dir::N
-            } else if tcrd.col == self.chip.col_w() {
-                Dir::W
-            } else if tcrd.col == self.chip.col_e() {
-                Dir::E
-            } else {
-                unreachable!()
-            };
-            let bel_eclk = self.chip.bel_eclk_root(edge);
+            let bel_eclk = self.chip.bel_eclk_root(self.chip.get_io_edge(tcrd.cell));
             let eclk0 = self.naming.bel_wire(bel_eclk, "ECLK0");
             let eclk1 = self.naming.bel_wire(bel_eclk, "ECLK1");
             self.claim_pip_int_out(tcrd.wire(wires::OUT_F[6]), eclk0);

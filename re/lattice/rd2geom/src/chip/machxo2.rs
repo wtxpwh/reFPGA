@@ -9,8 +9,8 @@ use prjcombine_ecp::{
 };
 use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
-    dir::{Dir, DirHV},
-    grid::{BelCoord, ColId, DieIdExt, RowId},
+    dir::{Dir, DirV},
+    grid::{BelCoord, ColId, ColIdExt, DieIdExt, RowId},
 };
 use prjcombine_re_lattice_naming::WireName;
 use prjcombine_re_lattice_rawdump::PinDir;
@@ -384,25 +384,11 @@ impl ChipBuilder<'_> {
     pub(super) fn fill_special_io_machxo2(&mut self) {
         fn get_edge(chip: &Chip, wn: WireName) -> Dir {
             let cell = chip.xlat_rc_wire(wn);
-            if cell.col == chip.col_w() {
-                Dir::W
-            } else if cell.col == chip.col_e() {
-                Dir::E
-            } else if cell.row == chip.row_s() {
-                Dir::S
-            } else if cell.row == chip.row_n() {
-                Dir::N
-            } else {
-                unreachable!()
-            }
+            chip.get_io_edge(cell)
         }
         fn get_pll(chip: &Chip, wn: WireName) -> PllLoc {
             let cell = chip.xlat_rc_wire(wn);
-            if cell.col < chip.col_clk {
-                PllLoc::new(DirHV::NW, 0)
-            } else {
-                PllLoc::new(DirHV::NE, 0)
-            }
+            PllLoc::new(DirV::N & cell.col.side_of(chip.col_clk), 0)
         }
         for (wn, (io, dir)) in self.gather_special_io_machxo2() {
             let suffix = self.naming.strings[wn.suffix].as_str();

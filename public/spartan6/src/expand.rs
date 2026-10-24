@@ -2,7 +2,7 @@ use prjcombine_entity::{EntityId, EntityPartVec, EntityVec};
 use prjcombine_interconnect::db::IntDb;
 use prjcombine_interconnect::dir::{Dir, DirH, DirHV, DirMap};
 use prjcombine_interconnect::grid::builder::GridBuilder;
-use prjcombine_interconnect::grid::{CellCoord, ColId, DieId, DieIdExt, Rect};
+use prjcombine_interconnect::grid::{CellCoord, ColId, ColIdExt, DieId, DieIdExt, Rect, RowIdExt};
 use std::collections::{BTreeSet, HashMap};
 
 use crate::bitstream::FrameAddr;
@@ -604,28 +604,16 @@ impl Expander<'_, '_> {
 
     fn fill_hclk(&mut self) {
         for cell in self.egrid.die_cells(self.die) {
-            let crow = if cell.row.to_idx() % 16 < 8 {
-                self.chip.row_hclk(cell.row) - 1
-            } else {
-                self.chip.row_hclk(cell.row)
-            };
-            let hcol = if cell.col <= self.chip.col_clk {
-                self.chip.col_clk
-            } else {
-                self.chip.col_clk + 1
-            };
+            let row_hclk = self.chip.row_hclk(cell.row);
             self.egrid[cell].region_root[rslots::HROW] =
-                cell.with_cr(hcol, self.chip.row_hclk(cell.row));
-            self.egrid[cell].region_root[rslots::LEAF] = cell.with_row(crow);
+                cell.with_cr(cell.col.snap_to_side_of(self.chip.col_clk + 1), row_hclk);
+            self.egrid[cell].region_root[rslots::LEAF] =
+                cell.with_row(cell.row.snap_to_side_of(row_hclk));
             self.egrid[cell].region_root[rslots::GLOBAL] =
                 cell.with_cr(self.chip.col_clk, self.chip.row_clk());
             self.egrid[cell].region_root[rslots::DIVCLK_CMT] = cell.with_cr(
                 self.chip.col_clk,
-                if cell.row < self.chip.row_clk() {
-                    self.chip.row_clk() - 1
-                } else {
-                    self.chip.row_clk()
-                },
+                cell.row.snap_to_side_of(self.chip.row_clk()),
             );
 
             if cell.row.to_idx() % 16 == 8 {
@@ -659,14 +647,8 @@ impl Expander<'_, '_> {
                 self.chip.row_n()
             };
             self.egrid[cell].region_root[rslots::PLLCLK] = cell.with_cr(self.chip.col_clk, row);
-            self.egrid[cell].region_root[rslots::IOCLK] = cell.with_cr(
-                if cell.col <= self.chip.col_clk {
-                    self.chip.col_clk
-                } else {
-                    self.chip.col_clk + 1
-                },
-                row,
-            );
+            self.egrid[cell].region_root[rslots::IOCLK] =
+                cell.with_cr(cell.col.snap_to_side_of(self.chip.col_clk + 1), row);
             defs::tcls::IOI_SN
         };
         self.egrid.add_tile(cell, kind, &[cell]);

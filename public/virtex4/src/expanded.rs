@@ -1143,11 +1143,7 @@ impl ExpandedDevice<'_> {
         } else if self.kind == ChipKind::Virtex7
             && tile.class == defs::virtex7::tcls::GTP_COMMON_MID
         {
-            let cell = cell.with_col(if self.col_side(col) == DirH::W {
-                col - 1
-            } else {
-                col + 1
-            });
+            let cell = cell.step(self.col_side(col), 1);
             EntityVec::from_iter([
                 self.btile_main(cell.delta(0, -3)),
                 self.btile_main(cell.delta(0, -2)),
@@ -1160,11 +1156,7 @@ impl ExpandedDevice<'_> {
         } else if self.kind == ChipKind::Virtex7
             && tile.class == defs::virtex7::tcls::GTP_CHANNEL_MID
         {
-            let cell = cell.with_col(if self.col_side(col) == DirH::W {
-                col - 1
-            } else {
-                col + 1
-            });
+            let cell = cell.step(self.col_side(col), 1);
             EntityVec::from_iter((0..11).map(|i| self.btile_main(cell.delta(0, i))))
         } else if self.kind == ChipKind::Virtex6
             && matches!(

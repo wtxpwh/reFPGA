@@ -3,7 +3,7 @@ use prjcombine_entity::{EntityId, EntityPartVec, EntityVec};
 use prjcombine_interconnect::db::{IntDb, TileClassId};
 use prjcombine_interconnect::grid::builder::GridBuilder;
 use prjcombine_interconnect::grid::{
-    BelCoord, CellCoord, ColId, DieId, DieIdExt, Rect, RowId, TileIobId,
+    BelCoord, CellCoord, ColId, ColIdExt, DieId, DieIdExt, Rect, RowId, TileIobId,
 };
 use std::collections::BTreeSet;
 
@@ -407,11 +407,7 @@ impl Expander<'_, '_> {
 
     fn fill_hclk(&mut self) {
         for cell in self.egrid.die_cells(self.die) {
-            let col_hrow = if cell.col <= self.col_cfg {
-                self.col_cfg
-            } else {
-                self.col_cfg + 1
-            };
+            let col_hrow = cell.col.snap_to_side_of(self.col_cfg + 1);
             let crow = self.chip.row_hclk(cell.row);
             self.egrid[cell].region_root[rslots::HROW] = cell.with_cr(col_hrow, crow);
             self.egrid[cell].region_root[rslots::LEAF] = cell.with_row(crow);

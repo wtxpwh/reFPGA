@@ -1,5 +1,5 @@
-use prjcombine_ecp::{chip::Chip, defs::wires};
-use prjcombine_interconnect::{db::WireSlotIdExt, dir::DirHV, grid::DieIdExt};
+use prjcombine_ecp::defs::wires;
+use prjcombine_interconnect::{db::WireSlotIdExt, dir::DirHV};
 
 use crate::ChipContext;
 
@@ -7,11 +7,7 @@ impl ChipContext<'_> {
     pub(super) fn process_clk_machxo(&mut self) {
         let chip = self.chip;
         let bcrd = chip.bel_clk_root();
-        let cell = if chip.rows.len() == 21 {
-            Chip::DIE.cell(chip.col_clk - 1, chip.row_clk - 1)
-        } else {
-            Chip::DIE.cell(chip.col_clk - 1, chip.row_clk)
-        };
+        let cell = bcrd.delta(-1, if chip.rows.len() == 21 { -1 } else { 0 });
 
         let mut ex = self.extract_switchbox(bcrd);
         ex.cell(cell)

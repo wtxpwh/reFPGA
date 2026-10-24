@@ -1,8 +1,8 @@
-use prjcombine_entity::{EntityId, EntityIdArith, EntityPartVec, EntityVec};
+use prjcombine_entity::{EntityId, EntityPartVec, EntityVec};
 use prjcombine_interconnect::db::IntDb;
-use prjcombine_interconnect::dir::DirHV;
+use prjcombine_interconnect::dir::{DirH, DirHV};
 use prjcombine_interconnect::grid::builder::GridBuilder;
-use prjcombine_interconnect::grid::{CellCoord, ColId, DieId, DieIdExt, Rect};
+use prjcombine_interconnect::grid::{CellCoord, ColId, ColIdExt, DieId, DieIdExt, Rect, RowIdExt};
 
 use crate::bitstream::FrameAddr;
 use crate::chip::{Chip, ChipKind, ColumnIoKind, ColumnKind, DcmPairKind};
@@ -899,11 +899,7 @@ impl Expander<'_, '_> {
 
     fn fill_clk_sn_v2(&mut self) {
         for cell in self.egrid.die_cells(self.die) {
-            let cell_root = cell.with_col(if cell.col < self.chip.col_clk {
-                self.chip.col_clk - 1
-            } else {
-                self.chip.col_clk
-            });
+            let cell_root = cell.with_col(cell.col.snap_to_side_of(self.chip.col_clk));
             self.egrid[cell].region_root[rslots::DCM_BUS] = cell_root;
             self.egrid[cell].region_root[rslots::DCM_CLKPAD] = cell_root;
         }
@@ -929,11 +925,7 @@ impl Expander<'_, '_> {
     fn fill_clk_sn_s3(&mut self) {
         if !self.chip.kind.is_spartan3ea() {
             for cell in self.egrid.die_cells(self.die) {
-                let cell_root_bus = cell.with_col(if cell.col < self.chip.col_clk {
-                    self.chip.col_clk - 1
-                } else {
-                    self.chip.col_clk
-                });
+                let cell_root_bus = cell.with_col(cell.col.snap_to_side_of(self.chip.col_clk));
                 self.egrid[cell].region_root[rslots::DCM_BUS] = cell_root_bus;
                 self.egrid[cell].region_root[rslots::DCM_CLKPAD] = cell.with_col(self.chip.col_clk);
             }
@@ -982,42 +974,30 @@ impl Expander<'_, '_> {
                 self.die.cell(self.chip.col_clk, self.chip.row_mid());
         }
         for col in self.egrid.cols(self.die) {
-            let col_q = if col < self.chip.col_clk {
-                if let Some((col_q, _)) = self.chip.cols_clkv {
-                    col_q
-                } else {
-                    self.chip.col_clk - 1
+            let col_q = if let Some((col_w, col_e)) = self.chip.cols_clkv {
+                match col.side_of(self.chip.col_clk) {
+                    DirH::W => col_w,
+                    DirH::E => col_e,
                 }
             } else {
-                if let Some((_, col_q)) = self.chip.cols_clkv {
-                    col_q
-                } else {
-                    self.chip.col_clk
-                }
+                col.snap_to_side_of(self.chip.col_clk)
             };
             for (rows, &row_m) in &self.chip.rows_hclk {
                 let row_q = if self.chip.kind.is_virtex2() {
                     row_m
-                } else if row_m < self.chip.row_mid() {
-                    self.chip.row_mid() - 1
                 } else {
-                    self.chip.row_mid()
+                    row_m.snap_to_side_of(self.chip.row_mid())
                 };
-                for row in rows.start().range(row_m) {
+                for row in rows {
                     let row_root = if matches!(self.chip.columns[col].kind, ColumnKind::BramCont(_))
                         && self.chip.kind.is_spartan3a()
                     {
                         row_m
                     } else {
-                        row_m - 1
+                        row.snap_to_side_of(row_m)
                     };
                     let cell = self.die.cell(col, row);
                     self.egrid[cell].region_root[rslots::LEAF] = cell.with_row(row_root);
-                    self.egrid[cell].region_root[rslots::HCLK] = self.die.cell(col_q, row_q);
-                }
-                for row in row_m.range(rows.end()) {
-                    let cell = self.die.cell(col, row);
-                    self.egrid[cell].region_root[rslots::LEAF] = cell.with_row(row_m);
                     self.egrid[cell].region_root[rslots::HCLK] = self.die.cell(col_q, row_q);
                 }
                 let kind = if matches!(self.chip.columns[col].kind, ColumnKind::BramCont(_))
@@ -1062,33 +1042,15 @@ impl Expander<'_, '_> {
 
     fn fill_clkqc(&mut self) {
         if let Some((col_cl, col_cr)) = self.chip.cols_clkv {
-            if matches!(self.chip.kind, ChipKind::Spartan3 | ChipKind::FpgaCore) {
-                self.egrid.add_tile_sn(
-                    self.die.cell(col_cl, self.chip.row_mid()),
-                    tcls::CLKQC_S3,
-                    1,
-                    2,
-                );
-                self.egrid.add_tile_sn(
-                    self.die.cell(col_cr, self.chip.row_mid()),
-                    tcls::CLKQC_S3,
-                    1,
-                    2,
-                );
+            let tcid = if matches!(self.chip.kind, ChipKind::Spartan3 | ChipKind::FpgaCore) {
+                tcls::CLKQC_S3
             } else {
-                self.egrid.add_tile_sn(
-                    self.die.cell(col_cl, self.chip.row_mid()),
-                    tcls::CLKQC_S3E,
-                    1,
-                    2,
-                );
-                self.egrid.add_tile_sn(
-                    self.die.cell(col_cr, self.chip.row_mid()),
-                    tcls::CLKQC_S3E,
-                    1,
-                    2,
-                );
-            }
+                tcls::CLKQC_S3E
+            };
+            self.egrid
+                .add_tile_sn(self.die.cell(col_cl, self.chip.row_mid()), tcid, 1, 2);
+            self.egrid
+                .add_tile_sn(self.die.cell(col_cr, self.chip.row_mid()), tcid, 1, 2);
         }
     }
 

@@ -1348,7 +1348,7 @@ pub fn process_bond(datadir: &Path, part: &Part, chip: &Chip, _naming: &ChipNami
                 }
             }
             let bcrd = chip.get_io_loc(io);
-            let io_bank = chip.get_io_bank(bcrd);
+            let io_bank = chip.get_io_bank(bcrd.cell);
             assert_eq!(io_bank as i32, bank);
             BondPad::Io(io)
         } else if bond.kind == BondKind::MachNx

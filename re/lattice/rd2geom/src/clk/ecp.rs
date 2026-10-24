@@ -1,11 +1,10 @@
 use prjcombine_ecp::{
-    chip::{Chip, SpecialLocKey},
+    chip::SpecialLocKey,
     defs::{bcls, bslots, wires},
 };
 use prjcombine_interconnect::{
     db::WireSlotIdExt,
     dir::{Dir, DirHV},
-    grid::DieIdExt,
 };
 
 use crate::ChipContext;
@@ -14,7 +13,7 @@ impl ChipContext<'_> {
     pub(super) fn process_clk_ecp(&mut self) {
         let chip = self.chip;
         let bcrd = chip.bel_clk_root();
-        let cell = Chip::DIE.cell(chip.col_clk - 1, chip.row_clk);
+        let cell = bcrd.step(Dir::W, 1);
 
         let mut ex = self.extract_switchbox(bcrd);
 

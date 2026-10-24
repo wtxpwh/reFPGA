@@ -6,7 +6,7 @@ use prjcombine_entity::{EntityId, EntityRange};
 use prjcombine_interconnect::{
     db::IntDb,
     dir::{DirH, DirHV, DirV},
-    grid::{BelCoord, BelPadCoord, ColId, DieId, DieIdExt, RowId, TileCoord},
+    grid::{BelCoord, BelPadCoord, ColId, ColIdExt, DieId, DieIdExt, RowId, RowIdExt, TileCoord},
 };
 
 use crate::{xc2000, xc3000, xc4000, xc5200};
@@ -214,19 +214,11 @@ impl Chip {
     }
 
     pub fn col_side_of_mid(&self, col: ColId) -> DirH {
-        if col < self.col_mid() {
-            DirH::W
-        } else {
-            DirH::E
-        }
+        col.side_of(self.col_mid())
     }
 
     pub fn row_side_of_mid(&self, row: RowId) -> DirV {
-        if row < self.row_mid() {
-            DirV::S
-        } else {
-            DirV::N
-        }
+        row.side_of(self.row_mid())
     }
 
     pub fn columns(&self) -> EntityRange<ColId> {

@@ -1,8 +1,11 @@
 use prjcombine_entity::{EntityPartVec, EntityVec};
-use prjcombine_interconnect::grid::{BelCoord, CellCoord, ColId, ExpandedGrid, Rect, RowId};
+use prjcombine_interconnect::{
+    dir::{Dir, DirV},
+    grid::{BelCoord, CellCoord, ColId, ExpandedGrid, Rect, RowId, RowIdExt},
+};
 
 use crate::{
-    chip::{Chip, ChipKind},
+    chip::{Chip, ChipKind, MachXo2Kind, RowKind},
     defs::{bslots, rslots},
 };
 
@@ -47,9 +50,22 @@ impl ExpandedDevice<'_> {
                 let dqs = self[io.cell].region_root[rslots::DQS].bel(bslots::DQS[0]);
                 if self.has_bel(dqs) { Some(dqs) } else { None }
             }
-            ChipKind::MachXo2(_) => {
-                // TODO?
-                None
+            ChipKind::MachXo2(kind) => {
+                if self.chip.rows[self.chip.row_clk].kind == RowKind::Ebr
+                    && kind != MachXo2Kind::MachXo3L
+                    && io.col == self.chip.col_e()
+                {
+                    Some(
+                        self.chip
+                            .clk_emid(Dir::E)
+                            .bel(match io.row.side_of(self.chip.row_clk) {
+                                DirV::S => bslots::DQS[1],
+                                DirV::N => bslots::DQS[0],
+                            }),
+                    )
+                } else {
+                    None
+                }
             }
             _ => None,
         }

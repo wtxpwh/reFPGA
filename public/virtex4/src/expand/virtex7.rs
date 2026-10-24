@@ -4,7 +4,7 @@ use prjcombine_interconnect::db::IntDb;
 use prjcombine_interconnect::dir::DirH;
 use prjcombine_interconnect::grid::builder::GridBuilder;
 use prjcombine_interconnect::grid::{
-    BelCoord, CellCoord, ColId, DieId, DieIdExt, Rect, RowId, TileIobId,
+    BelCoord, CellCoord, ColId, ColIdExt, DieId, DieIdExt, Rect, RowId, RowIdExt, TileIobId,
 };
 use std::collections::BTreeSet;
 
@@ -697,24 +697,15 @@ impl DieExpander<'_, '_, '_> {
 
     fn fill_hclk(&mut self) {
         for cell in self.egrid.die_cells(self.die) {
-            let col_hrow = if cell.col <= self.col_clk {
-                self.col_clk
-            } else {
-                self.col_clk + 1
-            };
+            let col_hrow = cell.col.snap_to_side_of(self.col_clk + 1);
             if !cell.col.to_idx().is_multiple_of(2) {
                 continue;
             }
             let row_hclk = self.chip.row_hclk(cell.row);
-            let crow = if cell.row < row_hclk {
-                row_hclk - 1
-            } else {
-                row_hclk
-            };
             let cell_w = cell;
             let cell_e = cell.delta(1, 0);
             let cell_hclk = cell.with_cr(col_hrow, row_hclk);
-            let cell_leaf = cell.with_row(crow);
+            let cell_leaf = cell.with_row(cell.row.snap_to_side_of(row_hclk));
             self.egrid[cell_w].region_root[rslots::HROW] = cell_hclk;
             self.egrid[cell_e].region_root[rslots::HROW] = cell_hclk;
             self.egrid[cell_w].region_root[rslots::LEAF] = cell_leaf;

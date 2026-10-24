@@ -1,7 +1,7 @@
 use prjcombine_entity::EntityIdArith;
 use prjcombine_interconnect::{
     dir::{Dir, DirH, DirHV, DirV},
-    grid::DieIdExt,
+    grid::{ColIdExt, DieIdExt},
 };
 
 use crate::{
@@ -15,7 +15,7 @@ impl Expander<'_, '_> {
         let cell = self.chip.special_loc[&SpecialLocKey::Config];
         self.bel_holes.push(cell.rect(12, 1));
         let mut tcells = cell.cells_e(13);
-        tcells.push(cell.with_cr(self.chip.col_clk - 2, self.chip.row_clk));
+        tcells.push(self.chip.clk_root().step(DirH::W, 2));
         self.egrid.add_tile(cell, tcls::CONFIG, &tcells);
 
         let cell = self.die.cell(self.chip.col_w(), self.chip.row_s());
@@ -139,8 +139,8 @@ impl Expander<'_, '_> {
             }
         }
         {
-            let cell = self.die.cell(self.chip.col_clk, self.chip.row_clk);
-            self.bel_holes.push(cell.delta(-3, 0).rect(6, 1));
+            self.bel_holes
+                .push(self.chip.clk_root().delta(-3, 0).rect(6, 1));
         }
     }
 
@@ -465,12 +465,14 @@ impl Expander<'_, '_> {
                     _ => unreachable!(),
                 };
                 let cell_src = if let Some(cell_src) = self.egrid.cell_delta(cell, dx, 0)
-                    && ((cell_src.col < self.chip.col_clk) == (cell.col < self.chip.col_clk)
+                    && (cell_src.col.side_of(self.chip.col_clk)
+                        == cell.col.side_of(self.chip.col_clk)
                         || is_xo2)
                 {
                     cell_src
                 } else if let Some(cell_src) = self.egrid.cell_delta(cell, dx_alt, 0)
-                    && ((cell_src.col < self.chip.col_clk) == (cell.col < self.chip.col_clk)
+                    && (cell_src.col.side_of(self.chip.col_clk)
+                        == cell.col.side_of(self.chip.col_clk)
                         || is_xo2)
                 {
                     cell_src
@@ -540,7 +542,7 @@ impl Expander<'_, '_> {
 
     pub(super) fn fill_clk_ecp3(&mut self) {
         for cell in self.egrid.row(self.die, self.chip.row_n()) {
-            if cell.col != self.chip.col_w() && cell.col != self.chip.col_e() {
+            if !self.chip.is_col_io(cell.col) {
                 self.egrid[cell].region_root[rslots::ECLK] = cell.with_col(self.chip.col_clk - 1);
             }
             if self.chip.columns[cell.col].eclk_tap_n {
@@ -554,9 +556,7 @@ impl Expander<'_, '_> {
             }
         }
         for (loc, bcrd) in self.chip.plls() {
-            self.egrid[bcrd.cell].region_root[rslots::ECLK] = self
-                .die
-                .cell(self.chip.col_edge(loc.quad.h), self.chip.row_clk);
+            self.egrid[bcrd.cell].region_root[rslots::ECLK] = self.chip.clk_emid(loc.quad.h);
         }
 
         let mut tcells = vec![];
@@ -567,18 +567,10 @@ impl Expander<'_, '_> {
         }
         // edges
         for rect in [
-            Chip::DIE
-                .cell(self.chip.col_w(), self.chip.row_clk - 3)
-                .cells_n(6),
-            Chip::DIE
-                .cell(self.chip.col_e(), self.chip.row_clk - 4)
-                .cells_n(8),
-            Chip::DIE
-                .cell(self.chip.col_clk - 3, self.chip.row_serdes(DirV::S))
-                .cells_e(6),
-            Chip::DIE
-                .cell(self.chip.col_clk - 3, self.chip.row_n())
-                .cells_e(6),
+            self.chip.clk_emid(Dir::W).step(DirV::S, 3).cells_n(6),
+            self.chip.clk_emid(Dir::E).step(DirV::S, 4).cells_n(8),
+            self.chip.clk_emid(Dir::S).step(DirH::W, 3).cells_e(6),
+            self.chip.clk_emid(Dir::N).step(DirH::W, 3).cells_e(6),
         ] {
             tcells.extend(rect.into_iter().map(Some));
         }
@@ -597,10 +589,7 @@ impl Expander<'_, '_> {
         }
         tcells.extend(serdes_cells);
 
-        self.egrid.add_tile_part(
-            self.die.cell(self.chip.col_clk, self.chip.row_clk),
-            tcls::CLK_ROOT,
-            &tcells,
-        );
+        self.egrid
+            .add_tile_part(self.chip.clk_root(), tcls::CLK_ROOT, &tcells);
     }
 }

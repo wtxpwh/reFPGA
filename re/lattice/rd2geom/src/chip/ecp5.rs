@@ -7,7 +7,7 @@ use prjcombine_ecp::{
 use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
     dir::{Dir, DirH, DirHV, DirV},
-    grid::{ColId, DieIdExt},
+    grid::{ColId, DieIdExt, RowIdExt},
 };
 
 use crate::chip::{ChipBuilder, ChipExt};
@@ -88,14 +88,10 @@ impl ChipBuilder<'_> {
                     continue;
                 }
                 let cell = self.chip.xlat_rc_wire(wn).with_col(self.chip.col_clk);
-                let v = if cell.row < self.chip.row_clk {
-                    DirV::S
-                } else {
-                    DirV::N
-                };
-                self.chip
-                    .special_loc
-                    .insert(SpecialLocKey::ClkQuarter(v), cell);
+                self.chip.special_loc.insert(
+                    SpecialLocKey::ClkQuarter(cell.row.side_of(self.chip.row_clk)),
+                    cell,
+                );
             }
         }
     }
@@ -219,12 +215,11 @@ impl ChipBuilder<'_> {
                 .insert(SpecialIoKey::Clock(Dir::N, idx), io);
         }
         for (idx, dy, iob) in [(0, -3, 2), (1, -3, 0), (2, 0, 2), (3, 0, 0)] {
-            let row = self.chip.row_clk + dy;
-            let io = Chip::DIE.cell(self.chip.col_w(), row).bel(bslots::IO[iob]);
+            let io = self.chip.clk_emid(Dir::W).delta(0, dy).bel(bslots::IO[iob]);
             self.chip
                 .special_io
                 .insert(SpecialIoKey::Clock(Dir::W, idx), io);
-            let io = Chip::DIE.cell(self.chip.col_e(), row).bel(bslots::IO[iob]);
+            let io = self.chip.clk_emid(Dir::E).delta(0, dy).bel(bslots::IO[iob]);
             self.chip
                 .special_io
                 .insert(SpecialIoKey::Clock(Dir::E, idx), io);

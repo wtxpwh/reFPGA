@@ -428,7 +428,7 @@ impl ChipContext<'_> {
             .name("OSC")
             .suffix("OSC");
 
-        let cell = self.chip.bel_dqsdll_ecp2(DirH::E).cell;
+        let cell = self.chip.clk_emid(DirH::E);
 
         self.extract_bel(cell.bel(bslots::WAKEUP))
             .name("WAKEUP")

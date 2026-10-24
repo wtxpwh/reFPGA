@@ -17,7 +17,7 @@ impl ChipContext<'_> {
         let bcrd_int = bcrd.bel(bslots::IO_INT);
         let abcd = ['A', 'B', 'C', 'D', 'E', 'F'][idx];
         let (r, c) = self.rc(cell);
-        let name = match self.chip.get_io_edge(bcrd) {
+        let name = match self.chip.get_io_edge(cell) {
             Dir::W => format!("PL{r}{abcd}"),
             Dir::E => format!("PR{r}{abcd}"),
             Dir::S => format!("PB{c}{abcd}"),

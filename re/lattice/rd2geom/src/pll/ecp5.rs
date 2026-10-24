@@ -1,11 +1,7 @@
-use prjcombine_ecp::{
-    chip::Chip,
-    defs::{bcls, bslots, tcls, wires},
-};
+use prjcombine_ecp::defs::{bcls, bslots, tcls, wires};
 use prjcombine_interconnect::{
     db::WireSlotIdExt,
     dir::{Dir, DirHV, DirV},
-    grid::DieIdExt,
 };
 
 use crate::ChipContext;
@@ -37,15 +33,12 @@ impl ChipContext<'_> {
             }
         }
         {
-            let cell_n = Chip::DIE.cell(self.chip.col_clk, self.chip.row_n());
-            let cell_w = Chip::DIE.cell(self.chip.col_w(), self.chip.row_clk);
-            let cell_e = Chip::DIE.cell(self.chip.col_e(), self.chip.row_clk);
             for edge in [Dir::N, Dir::W, Dir::E] {
                 for idx in 0..4 {
                     let cell = match edge {
-                        Dir::N => cell_n.delta(-2 + idx, 0),
-                        Dir::W => cell_w.delta(0, -2 + (idx ^ 1)),
-                        Dir::E => cell_e.delta(0, -2 + (idx ^ 1)),
+                        Dir::N => self.chip.clk_emid(edge).delta(-2 + idx, 0),
+                        Dir::W => self.chip.clk_emid(edge).delta(0, -2 + (idx ^ 1)),
+                        Dir::E => self.chip.clk_emid(edge).delta(0, -2 + (idx ^ 1)),
                         Dir::S => unreachable!(),
                     };
                     let wire = self.rc_io_wire(cell, "JINCK");

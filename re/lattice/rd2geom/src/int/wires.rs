@@ -11,7 +11,7 @@ use prjcombine_entity::{EntityId, EntityIdArith};
 use prjcombine_interconnect::{
     db::{BelInput, CellSlotId, TileWireCoord, WireKind},
     dir::{Dir, DirV},
-    grid::{BelCoord, CellCoord, DieIdExt, WireCoord},
+    grid::{BelCoord, CellCoord, ColIdExt, DieIdExt, WireCoord},
 };
 use prjcombine_re_lattice_naming::WireName;
 
@@ -569,44 +569,24 @@ impl ChipContext<'_> {
                 wires::TIE0
             };
             let cell = self.chip.xlat_rc_wire(wn);
+            let side = cell.col.side_of(self.chip.col_clk);
             if matches!(self.chip.kind, ChipKind::Ecp3(_)) && cell.row <= self.chip.row_s() + 9 {
-                if cell.col < self.chip.col_clk {
-                    Vec::from_iter(
-                        self.chip
-                            .row_s()
-                            .range(self.chip.row_s() + 10)
-                            .into_iter()
-                            .flat_map(|row| self.edev.row(cell.die, row))
-                            .filter(|cell| cell.col < self.chip.col_clk)
-                            .map(|cell| cell.wire(w)),
-                    )
-                } else {
-                    Vec::from_iter(
-                        self.chip
-                            .row_s()
-                            .range(self.chip.row_s() + 10)
-                            .into_iter()
-                            .flat_map(|row| self.edev.row(cell.die, row))
-                            .filter(|cell| cell.col >= self.chip.col_clk)
-                            .map(|cell| cell.wire(w)),
-                    )
-                }
+                Vec::from_iter(
+                    self.chip
+                        .row_s()
+                        .range(self.chip.row_s() + 10)
+                        .into_iter()
+                        .flat_map(|row| self.edev.row(cell.die, row))
+                        .filter(|cell| cell.col.side_of(self.chip.col_clk) == side)
+                        .map(|cell| cell.wire(w)),
+                )
             } else {
-                if cell.col < self.chip.col_clk {
-                    Vec::from_iter(
-                        self.edev
-                            .row(cell.die, cell.row)
-                            .filter(|cell| cell.col < self.chip.col_clk)
-                            .map(|cell| cell.wire(w)),
-                    )
-                } else {
-                    Vec::from_iter(
-                        self.edev
-                            .row(cell.die, cell.row)
-                            .filter(|cell| cell.col >= self.chip.col_clk)
-                            .map(|cell| cell.wire(w)),
-                    )
-                }
+                Vec::from_iter(
+                    self.edev
+                        .row(cell.die, cell.row)
+                        .filter(|cell| cell.col.side_of(self.chip.col_clk) == side)
+                        .map(|cell| cell.wire(w)),
+                )
             }
         } else if matches!(suffix.as_str(), "VCCHPBX" | "VCCVSPINE") {
             let cell = self.chip.xlat_rc_wire(wn);

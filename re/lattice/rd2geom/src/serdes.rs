@@ -5,6 +5,7 @@ use prjcombine_ecp::{
 use prjcombine_interconnect::{
     db::WireSlotIdExt,
     dir::{DirH, DirHV, DirV},
+    grid::{ColIdExt, RowIdExt},
 };
 
 use crate::ChipContext;
@@ -279,16 +280,8 @@ impl ChipContext<'_> {
             for &tcrd in &self.edev.tile_index[tcid] {
                 let bcrd = tcrd.bel(bslots::SERDES);
                 let hv = DirHV {
-                    h: if bcrd.col < self.chip.col_clk {
-                        DirH::W
-                    } else {
-                        DirH::E
-                    },
-                    v: if bcrd.row < self.chip.row_clk {
-                        DirV::S
-                    } else {
-                        DirV::N
-                    },
+                    h: bcrd.col.side_of(self.chip.col_clk),
+                    v: bcrd.row.side_of(self.chip.row_clk),
                 };
                 let cell = bcrd.cell.delta(
                     match hv.h {

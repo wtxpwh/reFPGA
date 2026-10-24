@@ -93,14 +93,14 @@ impl<'dev> ChipContext<'dev> {
             RcMode::Io => match self.chip.kind {
                 ChipKind::Crosslink => (true, false),
                 ChipKind::Nexus(_) => {
-                    if cell.row == self.chip.row_s() || cell.row == self.chip.row_n() {
+                    if self.chip.is_row_io(cell.row) {
                         (true, false)
                     } else {
                         (false, true)
                     }
                 }
                 _ => {
-                    if cell.col == self.chip.col_w() || cell.col == self.chip.col_e() {
+                    if self.chip.is_col_io(cell.col) {
                         (false, true)
                     } else {
                         (true, false)

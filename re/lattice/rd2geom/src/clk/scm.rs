@@ -7,7 +7,6 @@ use prjcombine_ecp::{
 use prjcombine_interconnect::{
     db::WireSlotIdExt,
     dir::{Dir, DirV},
-    grid::DieIdExt,
 };
 
 use crate::{ChipContext, RcMode};
@@ -62,11 +61,7 @@ impl ChipContext<'_> {
                 Dir::S => 'B',
                 Dir::N => 'T',
             };
-            let (col, row) = match edge {
-                Dir::H(edge) => (self.chip.col_edge(edge), self.chip.row_clk),
-                Dir::V(edge) => (self.chip.col_clk, self.chip.row_edge(edge)),
-            };
-            let cell_tile = Chip::DIE.cell(col, row);
+            let cell_tile = self.chip.clk_emid(edge);
             let cell = match edge {
                 Dir::H(_) => cell_tile,
                 Dir::V(_) => cell_tile.delta(-1, 0),

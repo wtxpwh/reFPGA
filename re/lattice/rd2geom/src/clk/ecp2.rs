@@ -113,7 +113,7 @@ impl ChipContext<'_> {
     pub(super) fn process_clk_ecp2(&mut self, sclk_root: BTreeMap<WireCoord, WireName>) {
         let chip = self.chip;
         let bcrd = chip.bel_clk_root();
-        let cell = Chip::DIE.cell(self.chip.col_clk - 1, self.chip.row_clk);
+        let cell = bcrd.step(Dir::W, 1);
 
         let mut ex = self.extract_switchbox(bcrd);
         ex.cell(cell)
