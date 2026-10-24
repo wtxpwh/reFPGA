@@ -10,6 +10,7 @@ mod ecp4;
 mod ecp5;
 mod machxo;
 mod machxo2;
+mod nexus;
 mod xp2;
 
 impl ChipContext<'_> {
@@ -23,6 +24,7 @@ impl ChipContext<'_> {
             ChipKind::Ecp4 => self.prep_pll_ecp4(),
             ChipKind::Ecp5 => self.prep_pll_ecp5(),
             ChipKind::Crosslink => self.prep_pll_crosslink(),
+            ChipKind::Nexus(_) => self.prep_pll_nexus(),
             _ => (),
         }
     }
@@ -49,9 +51,7 @@ impl ChipContext<'_> {
             ChipKind::Ecp4 => self.process_pll_ecp4(),
             ChipKind::Ecp5 => self.process_pll_ecp5(),
             ChipKind::Crosslink => self.process_pll_crosslink(),
-            ChipKind::Nexus(_) => {
-                // TODO
-            }
+            ChipKind::Nexus(_) => self.process_pll_nexus(),
         }
     }
 }

@@ -17727,18 +17727,18 @@ intdb {
 	wire ECLK[5]: regional ECLK;
 	wire ECLK[6]: regional ECLK;
 	wire ECLK[7]: regional ECLK;
-	wire OUT_IO_PADDI[0]: bel;
-	wire OUT_IO_PADDI[1]: bel;
-	wire OUT_IO_PADDI[2]: bel;
-	wire OUT_IO_PADDI[3]: bel;
-	wire OUT_IO_PADDI[4]: bel;
-	wire OUT_IO_PADDI[5]: bel;
-	wire OUT_IO_PADDI[6]: bel;
-	wire OUT_IO_PADDI[7]: bel;
-	wire OUT_IO_PADDI[8]: bel;
-	wire OUT_IO_PADDI[9]: bel;
-	wire OUT_IO_PADDI[10]: bel;
-	wire OUT_IO_PADDI[11]: bel;
+	wire OUT_IO_INCK[0]: bel;
+	wire OUT_IO_INCK[1]: bel;
+	wire OUT_IO_INCK[2]: bel;
+	wire OUT_IO_INCK[3]: bel;
+	wire OUT_IO_INCK[4]: bel;
+	wire OUT_IO_INCK[5]: bel;
+	wire OUT_IO_INCK[6]: bel;
+	wire OUT_IO_INCK[7]: bel;
+	wire OUT_IO_INCK[8]: bel;
+	wire OUT_IO_INCK[9]: bel;
+	wire OUT_IO_INCK[10]: bel;
+	wire OUT_IO_INCK[11]: bel;
 	wire IMUX_IO_ECLK[0]: mux;
 	wire IMUX_IO_ECLK[1]: mux;
 	wire IMUX_IO_ECLK[2]: mux;
@@ -18388,7 +18388,7 @@ intdb {
 				output INEG[2] = CELL[0].OUT_IO[9];
 				output INEG[3] = CELL[0].OUT_IO[8];
 				output INFF = CELL[1].OUT_IO[2];
-				output INDDCK = CELL[0].OUT_IO_PADDI[0], CELL[1].OUT_IO[4];
+				output INDDCK = CELL[0].OUT_IO_INCK[0], CELL[1].OUT_IO[4];
 				output UP = CELL[1].OUT_IO[18];
 				output LOCK = CELL[0].OUT_IO[1];
 			}
@@ -18417,7 +18417,7 @@ intdb {
 				output INEG[2] = CELL[1].OUT_IO[23];
 				output INEG[3] = CELL[1].OUT_IO[22];
 				output INFF = CELL[0].OUT_IO[0];
-				output INDDCK = CELL[0].OUT_IO[6], CELL[0].OUT_IO_PADDI[1];
+				output INDDCK = CELL[0].OUT_IO[6], CELL[0].OUT_IO_INCK[1];
 				output UP = CELL[0].OUT_IO[11];
 			}
 
@@ -18446,7 +18446,7 @@ intdb {
 				output INEG[2] = CELL[0].OUT_IO[23];
 				output INEG[3] = CELL[0].OUT_IO[22];
 				output INFF = CELL[0].OUT_IO[3];
-				output INDDCK = CELL[0].OUT_IO[13], CELL[0].OUT_IO_PADDI[2];
+				output INDDCK = CELL[0].OUT_IO[13], CELL[0].OUT_IO_INCK[2];
 				output UP = CELL[0].OUT_IO[20];
 				output LOCK = CELL[0].OUT_IO[1];
 			}
@@ -18475,7 +18475,7 @@ intdb {
 				output INEG[2] = CELL[0].OUT_IO[16];
 				output INEG[3] = CELL[0].OUT_IO[15];
 				output INFF = CELL[0].OUT_IO[2];
-				output INDDCK = CELL[0].OUT_IO[4], CELL[0].OUT_IO_PADDI[3];
+				output INDDCK = CELL[0].OUT_IO[4], CELL[0].OUT_IO_INCK[3];
 				output UP = CELL[0].OUT_IO[18];
 			}
 
@@ -18533,10 +18533,10 @@ intdb {
 			// wire CELL[0].OUT_IO[21]             IO[2].IPOS[3] IO[3].IPOS[1]
 			// wire CELL[0].OUT_IO[22]             IO[2].INEG[3] IO[3].INEG[1]
 			// wire CELL[0].OUT_IO[23]             IO[2].INEG[2] IO[3].INEG[0]
-			// wire CELL[0].OUT_IO_PADDI[0]        IO[0].INDDCK
-			// wire CELL[0].OUT_IO_PADDI[1]        IO[1].INDDCK
-			// wire CELL[0].OUT_IO_PADDI[2]        IO[2].INDDCK
-			// wire CELL[0].OUT_IO_PADDI[3]        IO[3].INDDCK
+			// wire CELL[0].OUT_IO_INCK[0]         IO[0].INDDCK
+			// wire CELL[0].OUT_IO_INCK[1]         IO[1].INDDCK
+			// wire CELL[0].OUT_IO_INCK[2]         IO[2].INDDCK
+			// wire CELL[0].OUT_IO_INCK[3]         IO[3].INDDCK
 			// wire CELL[0].IMUX_IO_ECLK[0]        IO[0].ECLK
 			// wire CELL[0].IMUX_IO_ECLK[1]        IO[1].ECLK
 			// wire CELL[0].IMUX_IO_ECLK[2]        IO[2].ECLK
@@ -18611,7 +18611,7 @@ intdb {
 				output INEG[2] = CELL[0].OUT_IO[9];
 				output INEG[3] = CELL[0].OUT_IO[8];
 				output INFF = CELL[1].OUT_IO[2];
-				output INDDCK = CELL[0].OUT_IO_PADDI[0], CELL[1].OUT_IO[4];
+				output INDDCK = CELL[0].OUT_IO_INCK[0], CELL[1].OUT_IO[4];
 				output UP = CELL[1].OUT_IO[18];
 				output LOCK = CELL[0].OUT_IO[1];
 			}
@@ -18640,7 +18640,7 @@ intdb {
 				output INEG[2] = CELL[1].OUT_IO[23];
 				output INEG[3] = CELL[1].OUT_IO[22];
 				output INFF = CELL[0].OUT_IO[0];
-				output INDDCK = CELL[0].OUT_IO[6], CELL[0].OUT_IO_PADDI[1];
+				output INDDCK = CELL[0].OUT_IO[6], CELL[0].OUT_IO_INCK[1];
 				output UP = CELL[0].OUT_IO[11];
 			}
 
@@ -18669,7 +18669,7 @@ intdb {
 				output INEG[2] = CELL[0].OUT_IO[23];
 				output INEG[3] = CELL[0].OUT_IO[22];
 				output INFF = CELL[0].OUT_IO[3];
-				output INDDCK = CELL[0].OUT_IO[13], CELL[0].OUT_IO_PADDI[2];
+				output INDDCK = CELL[0].OUT_IO[13], CELL[0].OUT_IO_INCK[2];
 				output UP = CELL[0].OUT_IO[20];
 				output LOCK = CELL[0].OUT_IO[1];
 			}
@@ -18698,7 +18698,7 @@ intdb {
 				output INEG[2] = CELL[0].OUT_IO[16];
 				output INEG[3] = CELL[0].OUT_IO[15];
 				output INFF = CELL[0].OUT_IO[2];
-				output INDDCK = CELL[0].OUT_IO[4], CELL[0].OUT_IO_PADDI[3];
+				output INDDCK = CELL[0].OUT_IO[4], CELL[0].OUT_IO_INCK[3];
 				output UP = CELL[0].OUT_IO[18];
 			}
 
@@ -18756,10 +18756,10 @@ intdb {
 			// wire CELL[0].OUT_IO[21]             IO[2].IPOS[3] IO[3].IPOS[1]
 			// wire CELL[0].OUT_IO[22]             IO[2].INEG[3] IO[3].INEG[1]
 			// wire CELL[0].OUT_IO[23]             IO[2].INEG[2] IO[3].INEG[0]
-			// wire CELL[0].OUT_IO_PADDI[0]        IO[0].INDDCK
-			// wire CELL[0].OUT_IO_PADDI[1]        IO[1].INDDCK
-			// wire CELL[0].OUT_IO_PADDI[2]        IO[2].INDDCK
-			// wire CELL[0].OUT_IO_PADDI[3]        IO[3].INDDCK
+			// wire CELL[0].OUT_IO_INCK[0]         IO[0].INDDCK
+			// wire CELL[0].OUT_IO_INCK[1]         IO[1].INDDCK
+			// wire CELL[0].OUT_IO_INCK[2]         IO[2].INDDCK
+			// wire CELL[0].OUT_IO_INCK[3]         IO[3].INDDCK
 			// wire CELL[0].IMUX_IO_ECLK[0]        IO[0].ECLK
 			// wire CELL[0].IMUX_IO_ECLK[1]        IO[1].ECLK
 			// wire CELL[0].IMUX_IO_ECLK[2]        IO[2].ECLK
@@ -18834,7 +18834,7 @@ intdb {
 				output INEG[2] = CELL[0].OUT_IO[16];
 				output INEG[3] = CELL[0].OUT_IO[15];
 				output INFF = CELL[0].OUT_IO[0];
-				output INDDCK = CELL[0].OUT_IO[6], CELL[0].OUT_IO_PADDI[0];
+				output INDDCK = CELL[0].OUT_IO[6], CELL[0].OUT_IO_INCK[0];
 				output UP = CELL[0].OUT_IO[11];
 				output LOCK = CELL[1].OUT_IO[5];
 			}
@@ -18863,7 +18863,7 @@ intdb {
 				output INEG[2] = CELL[0].OUT_IO[9];
 				output INEG[3] = CELL[0].OUT_IO[8];
 				output INFF = CELL[0].OUT_IO[3];
-				output INDDCK = CELL[0].OUT_IO[13], CELL[0].OUT_IO_PADDI[1];
+				output INDDCK = CELL[0].OUT_IO[13], CELL[0].OUT_IO_INCK[1];
 				output UP = CELL[0].OUT_IO[20];
 			}
 
@@ -18892,7 +18892,7 @@ intdb {
 				output INEG[2] = CELL[1].OUT_IO[9];
 				output INEG[3] = CELL[1].OUT_IO[8];
 				output INFF = CELL[0].OUT_IO[2];
-				output INDDCK = CELL[0].OUT_IO[4], CELL[0].OUT_IO_PADDI[2];
+				output INDDCK = CELL[0].OUT_IO[4], CELL[0].OUT_IO_INCK[2];
 				output UP = CELL[0].OUT_IO[18];
 				output LOCK = CELL[1].OUT_IO[5];
 			}
@@ -18921,7 +18921,7 @@ intdb {
 				output INEG[2] = CELL[0].OUT_IO[23];
 				output INEG[3] = CELL[0].OUT_IO[22];
 				output INFF = CELL[1].OUT_IO[0];
-				output INDDCK = CELL[0].OUT_IO_PADDI[3], CELL[1].OUT_IO[6];
+				output INDDCK = CELL[0].OUT_IO_INCK[3], CELL[1].OUT_IO[6];
 				output UP = CELL[1].OUT_IO[11];
 			}
 
@@ -18979,10 +18979,10 @@ intdb {
 			// wire CELL[0].OUT_IO[21]             IO[2].IPOS[1] IO[3].IPOS[3]
 			// wire CELL[0].OUT_IO[22]             IO[2].INEG[1] IO[3].INEG[3]
 			// wire CELL[0].OUT_IO[23]             IO[2].INEG[0] IO[3].INEG[2]
-			// wire CELL[0].OUT_IO_PADDI[0]        IO[0].INDDCK
-			// wire CELL[0].OUT_IO_PADDI[1]        IO[1].INDDCK
-			// wire CELL[0].OUT_IO_PADDI[2]        IO[2].INDDCK
-			// wire CELL[0].OUT_IO_PADDI[3]        IO[3].INDDCK
+			// wire CELL[0].OUT_IO_INCK[0]         IO[0].INDDCK
+			// wire CELL[0].OUT_IO_INCK[1]         IO[1].INDDCK
+			// wire CELL[0].OUT_IO_INCK[2]         IO[2].INDDCK
+			// wire CELL[0].OUT_IO_INCK[3]         IO[3].INDDCK
 			// wire CELL[0].IMUX_IO_ECLK[0]        IO[0].ECLK
 			// wire CELL[0].IMUX_IO_ECLK[1]        IO[1].ECLK
 			// wire CELL[0].IMUX_IO_ECLK[2]        IO[2].ECLK
@@ -19052,7 +19052,7 @@ intdb {
 				output INEG[2] = CELL[0].OUT_Q[5];
 				output INEG[3] = CELL[0].OUT_Q[4];
 				output INFF = CELL[0].OUT_F[0];
-				output INDDCK = CELL[0].OUT_F[1], CELL[0].OUT_IO_PADDI[0];
+				output INDDCK = CELL[0].OUT_F[1], CELL[0].OUT_IO_INCK[0];
 				output UP = CELL[0].OUT_Q[0];
 			}
 
@@ -19080,7 +19080,7 @@ intdb {
 				output INEG[2] = CELL[0].OUT_F[2];
 				output INEG[3] = CELL[0].OUT_OFX[2];
 				output INFF = CELL[0].OUT_Q[3];
-				output INDDCK = CELL[0].OUT_F[4], CELL[0].OUT_IO_PADDI[1];
+				output INDDCK = CELL[0].OUT_F[4], CELL[0].OUT_IO_INCK[1];
 				output UP = CELL[0].OUT_F[3];
 			}
 
@@ -19108,7 +19108,7 @@ intdb {
 				output INEG[2] = CELL[1].OUT_F[2];
 				output INEG[3] = CELL[1].OUT_OFX[2];
 				output INFF = CELL[0].OUT_OFX[5];
-				output INDDCK = CELL[0].OUT_F[6], CELL[0].OUT_IO_PADDI[2];
+				output INDDCK = CELL[0].OUT_F[6], CELL[0].OUT_IO_INCK[2];
 				output UP = CELL[0].OUT_OFX[6];
 			}
 
@@ -19136,7 +19136,7 @@ intdb {
 				output INEG[2] = CELL[0].OUT_OFX[7];
 				output INEG[3] = CELL[0].OUT_F[7];
 				output INFF = CELL[1].OUT_F[0];
-				output INDDCK = CELL[0].OUT_IO_PADDI[3], CELL[1].OUT_F[1];
+				output INDDCK = CELL[0].OUT_IO_INCK[3], CELL[1].OUT_F[1];
 				output UP = CELL[1].OUT_Q[0];
 			}
 
@@ -19197,10 +19197,10 @@ intdb {
 			// wire CELL[0].OUT_OFX[5]             IO[2].INFF
 			// wire CELL[0].OUT_OFX[6]             IO[2].UP
 			// wire CELL[0].OUT_OFX[7]             IO[2].INEG[0] IO[3].INEG[2]
-			// wire CELL[0].OUT_IO_PADDI[0]        IO[0].INDDCK
-			// wire CELL[0].OUT_IO_PADDI[1]        IO[1].INDDCK
-			// wire CELL[0].OUT_IO_PADDI[2]        IO[2].INDDCK
-			// wire CELL[0].OUT_IO_PADDI[3]        IO[3].INDDCK
+			// wire CELL[0].OUT_IO_INCK[0]         IO[0].INDDCK
+			// wire CELL[0].OUT_IO_INCK[1]         IO[1].INDDCK
+			// wire CELL[0].OUT_IO_INCK[2]         IO[2].INDDCK
+			// wire CELL[0].OUT_IO_INCK[3]         IO[3].INDDCK
 			// wire CELL[0].IMUX_IO_ECLK[0]        IO[0].ECLK
 			// wire CELL[0].IMUX_IO_ECLK[1]        IO[1].ECLK
 			// wire CELL[0].IMUX_IO_ECLK[2]        IO[2].ECLK
@@ -19274,7 +19274,7 @@ intdb {
 				output INEG[2] = CELL[0].OUT_Q[5];
 				output INEG[3] = CELL[0].OUT_Q[4];
 				output INFF = CELL[0].OUT_F[0];
-				output INDDCK = CELL[0].OUT_F[1], CELL[0].OUT_IO_PADDI[0];
+				output INDDCK = CELL[0].OUT_F[1], CELL[0].OUT_IO_INCK[0];
 				output UP = CELL[0].OUT_Q[0];
 			}
 
@@ -19302,7 +19302,7 @@ intdb {
 				output INEG[2] = CELL[0].OUT_F[2];
 				output INEG[3] = CELL[0].OUT_OFX[2];
 				output INFF = CELL[0].OUT_Q[3];
-				output INDDCK = CELL[0].OUT_F[4], CELL[0].OUT_IO_PADDI[1];
+				output INDDCK = CELL[0].OUT_F[4], CELL[0].OUT_IO_INCK[1];
 				output UP = CELL[0].OUT_F[3];
 			}
 
@@ -19330,7 +19330,7 @@ intdb {
 				output INEG[2] = CELL[1].OUT_F[2];
 				output INEG[3] = CELL[1].OUT_OFX[2];
 				output INFF = CELL[0].OUT_OFX[5];
-				output INDDCK = CELL[0].OUT_F[6], CELL[0].OUT_IO_PADDI[2];
+				output INDDCK = CELL[0].OUT_F[6], CELL[0].OUT_IO_INCK[2];
 				output UP = CELL[0].OUT_OFX[6];
 			}
 
@@ -19358,7 +19358,7 @@ intdb {
 				output INEG[2] = CELL[0].OUT_OFX[7];
 				output INEG[3] = CELL[0].OUT_F[7];
 				output INFF = CELL[1].OUT_F[0];
-				output INDDCK = CELL[0].OUT_IO_PADDI[3], CELL[1].OUT_F[1];
+				output INDDCK = CELL[0].OUT_IO_INCK[3], CELL[1].OUT_F[1];
 				output UP = CELL[1].OUT_Q[0];
 			}
 
@@ -19386,7 +19386,7 @@ intdb {
 				output INEG[2] = CELL[1].OUT_OFX[7];
 				output INEG[3] = CELL[1].OUT_F[7];
 				output INFF = CELL[1].OUT_Q[3];
-				output INDDCK = CELL[0].OUT_IO_PADDI[4], CELL[1].OUT_F[4];
+				output INDDCK = CELL[0].OUT_IO_INCK[4], CELL[1].OUT_F[4];
 				output UP = CELL[1].OUT_F[3];
 			}
 
@@ -19414,7 +19414,7 @@ intdb {
 				output INEG[2] = CELL[1].OUT_Q[5];
 				output INEG[3] = CELL[1].OUT_Q[4];
 				output INFF = CELL[1].OUT_OFX[5];
-				output INDDCK = CELL[0].OUT_IO_PADDI[5], CELL[1].OUT_F[6];
+				output INDDCK = CELL[0].OUT_IO_INCK[5], CELL[1].OUT_F[6];
 				output UP = CELL[1].OUT_OFX[6];
 			}
 
@@ -19442,7 +19442,7 @@ intdb {
 				output INEG[2] = CELL[2].OUT_Q[5];
 				output INEG[3] = CELL[2].OUT_Q[4];
 				output INFF = CELL[2].OUT_F[0];
-				output INDDCK = CELL[0].OUT_IO_PADDI[6], CELL[2].OUT_F[1];
+				output INDDCK = CELL[0].OUT_IO_INCK[6], CELL[2].OUT_F[1];
 				output UP = CELL[2].OUT_Q[0];
 			}
 
@@ -19470,7 +19470,7 @@ intdb {
 				output INEG[2] = CELL[2].OUT_F[2];
 				output INEG[3] = CELL[2].OUT_OFX[2];
 				output INFF = CELL[2].OUT_Q[3];
-				output INDDCK = CELL[0].OUT_IO_PADDI[7], CELL[2].OUT_F[4];
+				output INDDCK = CELL[0].OUT_IO_INCK[7], CELL[2].OUT_F[4];
 				output UP = CELL[2].OUT_F[3];
 			}
 
@@ -19539,14 +19539,14 @@ intdb {
 			// wire CELL[0].OUT_OFX[5]             IO[2].INFF
 			// wire CELL[0].OUT_OFX[6]             IO[2].UP
 			// wire CELL[0].OUT_OFX[7]             IO[2].INEG[0] IO[3].INEG[2]
-			// wire CELL[0].OUT_IO_PADDI[0]        IO[0].INDDCK
-			// wire CELL[0].OUT_IO_PADDI[1]        IO[1].INDDCK
-			// wire CELL[0].OUT_IO_PADDI[2]        IO[2].INDDCK
-			// wire CELL[0].OUT_IO_PADDI[3]        IO[3].INDDCK
-			// wire CELL[0].OUT_IO_PADDI[4]        IO[4].INDDCK
-			// wire CELL[0].OUT_IO_PADDI[5]        IO[5].INDDCK
-			// wire CELL[0].OUT_IO_PADDI[6]        IO[6].INDDCK
-			// wire CELL[0].OUT_IO_PADDI[7]        IO[7].INDDCK
+			// wire CELL[0].OUT_IO_INCK[0]         IO[0].INDDCK
+			// wire CELL[0].OUT_IO_INCK[1]         IO[1].INDDCK
+			// wire CELL[0].OUT_IO_INCK[2]         IO[2].INDDCK
+			// wire CELL[0].OUT_IO_INCK[3]         IO[3].INDDCK
+			// wire CELL[0].OUT_IO_INCK[4]         IO[4].INDDCK
+			// wire CELL[0].OUT_IO_INCK[5]         IO[5].INDDCK
+			// wire CELL[0].OUT_IO_INCK[6]         IO[6].INDDCK
+			// wire CELL[0].OUT_IO_INCK[7]         IO[7].INDDCK
 			// wire CELL[0].IMUX_IO_ECLK[0]        IO[0].ECLK
 			// wire CELL[0].IMUX_IO_ECLK[1]        IO[1].ECLK
 			// wire CELL[0].IMUX_IO_ECLK[2]        IO[2].ECLK
@@ -19714,7 +19714,7 @@ intdb {
 				output INEG[2] = CELL[3].OUT_IO[16];
 				output INEG[3] = CELL[3].OUT_IO[15];
 				output INFF = CELL[3].OUT_IO[0];
-				output INDDCK = CELL[0].OUT_IO_PADDI[0], CELL[3].OUT_IO[6];
+				output INDDCK = CELL[0].OUT_IO_INCK[0], CELL[3].OUT_IO[6];
 				output UP = CELL[3].OUT_IO[11];
 				output LOCK = CELL[2].OUT_IO[5];
 			}
@@ -19743,7 +19743,7 @@ intdb {
 				output INEG[2] = CELL[3].OUT_IO[9];
 				output INEG[3] = CELL[3].OUT_IO[8];
 				output INFF = CELL[3].OUT_IO[3];
-				output INDDCK = CELL[0].OUT_IO_PADDI[1], CELL[3].OUT_IO[13];
+				output INDDCK = CELL[0].OUT_IO_INCK[1], CELL[3].OUT_IO[13];
 				output UP = CELL[3].OUT_IO[20];
 			}
 
@@ -19772,7 +19772,7 @@ intdb {
 				output INEG[2] = CELL[2].OUT_IO[9];
 				output INEG[3] = CELL[2].OUT_IO[8];
 				output INFF = CELL[3].OUT_IO[2];
-				output INDDCK = CELL[0].OUT_IO_PADDI[2], CELL[3].OUT_IO[4];
+				output INDDCK = CELL[0].OUT_IO_INCK[2], CELL[3].OUT_IO[4];
 				output UP = CELL[3].OUT_IO[18];
 				output LOCK = CELL[2].OUT_IO[5];
 			}
@@ -19801,7 +19801,7 @@ intdb {
 				output INEG[2] = CELL[3].OUT_IO[23];
 				output INEG[3] = CELL[3].OUT_IO[22];
 				output INFF = CELL[2].OUT_IO[0];
-				output INDDCK = CELL[0].OUT_IO_PADDI[3], CELL[2].OUT_IO[6];
+				output INDDCK = CELL[0].OUT_IO_INCK[3], CELL[2].OUT_IO[6];
 				output UP = CELL[2].OUT_IO[11];
 			}
 
@@ -19830,7 +19830,7 @@ intdb {
 				output INEG[2] = CELL[2].OUT_IO[23];
 				output INEG[3] = CELL[2].OUT_IO[22];
 				output INFF = CELL[2].OUT_IO[3];
-				output INDDCK = CELL[0].OUT_IO_PADDI[4], CELL[2].OUT_IO[13];
+				output INDDCK = CELL[0].OUT_IO_INCK[4], CELL[2].OUT_IO[13];
 				output UP = CELL[2].OUT_IO[20];
 				output LOCK = CELL[1].OUT_IO[7];
 			}
@@ -19859,7 +19859,7 @@ intdb {
 				output INEG[2] = CELL[2].OUT_IO[16];
 				output INEG[3] = CELL[2].OUT_IO[15];
 				output INFF = CELL[2].OUT_IO[2];
-				output INDDCK = CELL[0].OUT_IO_PADDI[5], CELL[2].OUT_IO[4];
+				output INDDCK = CELL[0].OUT_IO_INCK[5], CELL[2].OUT_IO[4];
 				output UP = CELL[2].OUT_IO[18];
 			}
 
@@ -19888,7 +19888,7 @@ intdb {
 				output INEG[2] = CELL[1].OUT_IO[16];
 				output INEG[3] = CELL[1].OUT_IO[15];
 				output INFF = CELL[1].OUT_IO[0];
-				output INDDCK = CELL[0].OUT_IO_PADDI[6], CELL[1].OUT_IO[6];
+				output INDDCK = CELL[0].OUT_IO_INCK[6], CELL[1].OUT_IO[6];
 				output UP = CELL[1].OUT_IO[11];
 				output LOCK = CELL[1].OUT_IO[7];
 			}
@@ -19917,7 +19917,7 @@ intdb {
 				output INEG[2] = CELL[1].OUT_IO[9];
 				output INEG[3] = CELL[1].OUT_IO[8];
 				output INFF = CELL[1].OUT_IO[3];
-				output INDDCK = CELL[0].OUT_IO_PADDI[7], CELL[1].OUT_IO[13];
+				output INDDCK = CELL[0].OUT_IO_INCK[7], CELL[1].OUT_IO[13];
 				output UP = CELL[1].OUT_IO[20];
 			}
 
@@ -19946,7 +19946,7 @@ intdb {
 				output INEG[2] = CELL[0].OUT_IO[9];
 				output INEG[3] = CELL[0].OUT_IO[8];
 				output INFF = CELL[1].OUT_IO[2];
-				output INDDCK = CELL[0].OUT_IO_PADDI[8], CELL[1].OUT_IO[4];
+				output INDDCK = CELL[0].OUT_IO_INCK[8], CELL[1].OUT_IO[4];
 				output UP = CELL[1].OUT_IO[18];
 				output LOCK = CELL[0].OUT_IO[1];
 			}
@@ -19975,7 +19975,7 @@ intdb {
 				output INEG[2] = CELL[1].OUT_IO[23];
 				output INEG[3] = CELL[1].OUT_IO[22];
 				output INFF = CELL[0].OUT_IO[0];
-				output INDDCK = CELL[0].OUT_IO[6], CELL[0].OUT_IO_PADDI[9];
+				output INDDCK = CELL[0].OUT_IO[6], CELL[0].OUT_IO_INCK[9];
 				output UP = CELL[0].OUT_IO[11];
 			}
 
@@ -20004,7 +20004,7 @@ intdb {
 				output INEG[2] = CELL[0].OUT_IO[23];
 				output INEG[3] = CELL[0].OUT_IO[22];
 				output INFF = CELL[0].OUT_IO[3];
-				output INDDCK = CELL[0].OUT_IO[13], CELL[0].OUT_IO_PADDI[10];
+				output INDDCK = CELL[0].OUT_IO[13], CELL[0].OUT_IO_INCK[10];
 				output UP = CELL[0].OUT_IO[20];
 				output LOCK = CELL[0].OUT_IO[1];
 			}
@@ -20033,7 +20033,7 @@ intdb {
 				output INEG[2] = CELL[0].OUT_IO[16];
 				output INEG[3] = CELL[0].OUT_IO[15];
 				output INFF = CELL[0].OUT_IO[2];
-				output INDDCK = CELL[0].OUT_IO[4], CELL[0].OUT_IO_PADDI[11];
+				output INDDCK = CELL[0].OUT_IO[4], CELL[0].OUT_IO_INCK[11];
 				output UP = CELL[0].OUT_IO[18];
 			}
 
@@ -20107,18 +20107,18 @@ intdb {
 			// wire CELL[0].OUT_IO[21]             IO[10].IPOS[3] IO[11].IPOS[1]
 			// wire CELL[0].OUT_IO[22]             IO[10].INEG[3] IO[11].INEG[1]
 			// wire CELL[0].OUT_IO[23]             IO[10].INEG[2] IO[11].INEG[0]
-			// wire CELL[0].OUT_IO_PADDI[0]        IO[0].INDDCK
-			// wire CELL[0].OUT_IO_PADDI[1]        IO[1].INDDCK
-			// wire CELL[0].OUT_IO_PADDI[2]        IO[2].INDDCK
-			// wire CELL[0].OUT_IO_PADDI[3]        IO[3].INDDCK
-			// wire CELL[0].OUT_IO_PADDI[4]        IO[4].INDDCK
-			// wire CELL[0].OUT_IO_PADDI[5]        IO[5].INDDCK
-			// wire CELL[0].OUT_IO_PADDI[6]        IO[6].INDDCK
-			// wire CELL[0].OUT_IO_PADDI[7]        IO[7].INDDCK
-			// wire CELL[0].OUT_IO_PADDI[8]        IO[8].INDDCK
-			// wire CELL[0].OUT_IO_PADDI[9]        IO[9].INDDCK
-			// wire CELL[0].OUT_IO_PADDI[10]       IO[10].INDDCK
-			// wire CELL[0].OUT_IO_PADDI[11]       IO[11].INDDCK
+			// wire CELL[0].OUT_IO_INCK[0]         IO[0].INDDCK
+			// wire CELL[0].OUT_IO_INCK[1]         IO[1].INDDCK
+			// wire CELL[0].OUT_IO_INCK[2]         IO[2].INDDCK
+			// wire CELL[0].OUT_IO_INCK[3]         IO[3].INDDCK
+			// wire CELL[0].OUT_IO_INCK[4]         IO[4].INDDCK
+			// wire CELL[0].OUT_IO_INCK[5]         IO[5].INDDCK
+			// wire CELL[0].OUT_IO_INCK[6]         IO[6].INDDCK
+			// wire CELL[0].OUT_IO_INCK[7]         IO[7].INDDCK
+			// wire CELL[0].OUT_IO_INCK[8]         IO[8].INDDCK
+			// wire CELL[0].OUT_IO_INCK[9]         IO[9].INDDCK
+			// wire CELL[0].OUT_IO_INCK[10]        IO[10].INDDCK
+			// wire CELL[0].OUT_IO_INCK[11]        IO[11].INDDCK
 			// wire CELL[0].IMUX_IO_ECLK[0]        IO[0].ECLK
 			// wire CELL[0].IMUX_IO_ECLK[1]        IO[1].ECLK
 			// wire CELL[0].IMUX_IO_ECLK[2]        IO[2].ECLK
@@ -20367,7 +20367,7 @@ intdb {
 				output INEG[2] = CELL[3].OUT_IO[16];
 				output INEG[3] = CELL[3].OUT_IO[15];
 				output INFF = CELL[3].OUT_IO[0];
-				output INDDCK = CELL[0].OUT_IO_PADDI[0], CELL[3].OUT_IO[6];
+				output INDDCK = CELL[0].OUT_IO_INCK[0], CELL[3].OUT_IO[6];
 				output UP = CELL[3].OUT_IO[11];
 				output LOCK = CELL[2].OUT_IO[5];
 			}
@@ -20396,7 +20396,7 @@ intdb {
 				output INEG[2] = CELL[3].OUT_IO[9];
 				output INEG[3] = CELL[3].OUT_IO[8];
 				output INFF = CELL[3].OUT_IO[3];
-				output INDDCK = CELL[0].OUT_IO_PADDI[1], CELL[3].OUT_IO[13];
+				output INDDCK = CELL[0].OUT_IO_INCK[1], CELL[3].OUT_IO[13];
 				output UP = CELL[3].OUT_IO[20];
 			}
 
@@ -20425,7 +20425,7 @@ intdb {
 				output INEG[2] = CELL[2].OUT_IO[9];
 				output INEG[3] = CELL[2].OUT_IO[8];
 				output INFF = CELL[3].OUT_IO[2];
-				output INDDCK = CELL[0].OUT_IO_PADDI[2], CELL[3].OUT_IO[4];
+				output INDDCK = CELL[0].OUT_IO_INCK[2], CELL[3].OUT_IO[4];
 				output UP = CELL[3].OUT_IO[18];
 				output LOCK = CELL[2].OUT_IO[5];
 			}
@@ -20454,7 +20454,7 @@ intdb {
 				output INEG[2] = CELL[3].OUT_IO[23];
 				output INEG[3] = CELL[3].OUT_IO[22];
 				output INFF = CELL[2].OUT_IO[0];
-				output INDDCK = CELL[0].OUT_IO_PADDI[3], CELL[2].OUT_IO[6];
+				output INDDCK = CELL[0].OUT_IO_INCK[3], CELL[2].OUT_IO[6];
 				output UP = CELL[2].OUT_IO[11];
 			}
 
@@ -20483,7 +20483,7 @@ intdb {
 				output INEG[2] = CELL[2].OUT_IO[23];
 				output INEG[3] = CELL[2].OUT_IO[22];
 				output INFF = CELL[2].OUT_IO[3];
-				output INDDCK = CELL[0].OUT_IO_PADDI[4], CELL[2].OUT_IO[13];
+				output INDDCK = CELL[0].OUT_IO_INCK[4], CELL[2].OUT_IO[13];
 				output UP = CELL[2].OUT_IO[20];
 				output LOCK = CELL[1].OUT_IO[7];
 			}
@@ -20512,7 +20512,7 @@ intdb {
 				output INEG[2] = CELL[2].OUT_IO[16];
 				output INEG[3] = CELL[2].OUT_IO[15];
 				output INFF = CELL[2].OUT_IO[2];
-				output INDDCK = CELL[0].OUT_IO_PADDI[5], CELL[2].OUT_IO[4];
+				output INDDCK = CELL[0].OUT_IO_INCK[5], CELL[2].OUT_IO[4];
 				output UP = CELL[2].OUT_IO[18];
 			}
 
@@ -20541,7 +20541,7 @@ intdb {
 				output INEG[2] = CELL[1].OUT_IO[16];
 				output INEG[3] = CELL[1].OUT_IO[15];
 				output INFF = CELL[1].OUT_IO[0];
-				output INDDCK = CELL[0].OUT_IO_PADDI[6], CELL[1].OUT_IO[6];
+				output INDDCK = CELL[0].OUT_IO_INCK[6], CELL[1].OUT_IO[6];
 				output UP = CELL[1].OUT_IO[11];
 				output LOCK = CELL[1].OUT_IO[7];
 			}
@@ -20570,7 +20570,7 @@ intdb {
 				output INEG[2] = CELL[1].OUT_IO[9];
 				output INEG[3] = CELL[1].OUT_IO[8];
 				output INFF = CELL[1].OUT_IO[3];
-				output INDDCK = CELL[0].OUT_IO_PADDI[7], CELL[1].OUT_IO[13];
+				output INDDCK = CELL[0].OUT_IO_INCK[7], CELL[1].OUT_IO[13];
 				output UP = CELL[1].OUT_IO[20];
 			}
 
@@ -20599,7 +20599,7 @@ intdb {
 				output INEG[2] = CELL[0].OUT_IO[9];
 				output INEG[3] = CELL[0].OUT_IO[8];
 				output INFF = CELL[1].OUT_IO[2];
-				output INDDCK = CELL[0].OUT_IO_PADDI[8], CELL[1].OUT_IO[4];
+				output INDDCK = CELL[0].OUT_IO_INCK[8], CELL[1].OUT_IO[4];
 				output UP = CELL[1].OUT_IO[18];
 				output LOCK = CELL[0].OUT_IO[1];
 			}
@@ -20628,7 +20628,7 @@ intdb {
 				output INEG[2] = CELL[1].OUT_IO[23];
 				output INEG[3] = CELL[1].OUT_IO[22];
 				output INFF = CELL[0].OUT_IO[0];
-				output INDDCK = CELL[0].OUT_IO[6], CELL[0].OUT_IO_PADDI[9];
+				output INDDCK = CELL[0].OUT_IO[6], CELL[0].OUT_IO_INCK[9];
 				output UP = CELL[0].OUT_IO[11];
 			}
 
@@ -20657,7 +20657,7 @@ intdb {
 				output INEG[2] = CELL[0].OUT_IO[23];
 				output INEG[3] = CELL[0].OUT_IO[22];
 				output INFF = CELL[0].OUT_IO[3];
-				output INDDCK = CELL[0].OUT_IO[13], CELL[0].OUT_IO_PADDI[10];
+				output INDDCK = CELL[0].OUT_IO[13], CELL[0].OUT_IO_INCK[10];
 				output UP = CELL[0].OUT_IO[20];
 				output LOCK = CELL[0].OUT_IO[1];
 			}
@@ -20686,7 +20686,7 @@ intdb {
 				output INEG[2] = CELL[0].OUT_IO[16];
 				output INEG[3] = CELL[0].OUT_IO[15];
 				output INFF = CELL[0].OUT_IO[2];
-				output INDDCK = CELL[0].OUT_IO[4], CELL[0].OUT_IO_PADDI[11];
+				output INDDCK = CELL[0].OUT_IO[4], CELL[0].OUT_IO_INCK[11];
 				output UP = CELL[0].OUT_IO[18];
 			}
 
@@ -20760,18 +20760,18 @@ intdb {
 			// wire CELL[0].OUT_IO[21]             IO[10].IPOS[3] IO[11].IPOS[1]
 			// wire CELL[0].OUT_IO[22]             IO[10].INEG[3] IO[11].INEG[1]
 			// wire CELL[0].OUT_IO[23]             IO[10].INEG[2] IO[11].INEG[0]
-			// wire CELL[0].OUT_IO_PADDI[0]        IO[0].INDDCK
-			// wire CELL[0].OUT_IO_PADDI[1]        IO[1].INDDCK
-			// wire CELL[0].OUT_IO_PADDI[2]        IO[2].INDDCK
-			// wire CELL[0].OUT_IO_PADDI[3]        IO[3].INDDCK
-			// wire CELL[0].OUT_IO_PADDI[4]        IO[4].INDDCK
-			// wire CELL[0].OUT_IO_PADDI[5]        IO[5].INDDCK
-			// wire CELL[0].OUT_IO_PADDI[6]        IO[6].INDDCK
-			// wire CELL[0].OUT_IO_PADDI[7]        IO[7].INDDCK
-			// wire CELL[0].OUT_IO_PADDI[8]        IO[8].INDDCK
-			// wire CELL[0].OUT_IO_PADDI[9]        IO[9].INDDCK
-			// wire CELL[0].OUT_IO_PADDI[10]       IO[10].INDDCK
-			// wire CELL[0].OUT_IO_PADDI[11]       IO[11].INDDCK
+			// wire CELL[0].OUT_IO_INCK[0]         IO[0].INDDCK
+			// wire CELL[0].OUT_IO_INCK[1]         IO[1].INDDCK
+			// wire CELL[0].OUT_IO_INCK[2]         IO[2].INDDCK
+			// wire CELL[0].OUT_IO_INCK[3]         IO[3].INDDCK
+			// wire CELL[0].OUT_IO_INCK[4]         IO[4].INDDCK
+			// wire CELL[0].OUT_IO_INCK[5]         IO[5].INDDCK
+			// wire CELL[0].OUT_IO_INCK[6]         IO[6].INDDCK
+			// wire CELL[0].OUT_IO_INCK[7]         IO[7].INDDCK
+			// wire CELL[0].OUT_IO_INCK[8]         IO[8].INDDCK
+			// wire CELL[0].OUT_IO_INCK[9]         IO[9].INDDCK
+			// wire CELL[0].OUT_IO_INCK[10]        IO[10].INDDCK
+			// wire CELL[0].OUT_IO_INCK[11]        IO[11].INDDCK
 			// wire CELL[0].IMUX_IO_ECLK[0]        IO[0].ECLK
 			// wire CELL[0].IMUX_IO_ECLK[1]        IO[1].ECLK
 			// wire CELL[0].IMUX_IO_ECLK[2]        IO[2].ECLK
@@ -21020,7 +21020,7 @@ intdb {
 				output INEG[2] = CELL[0].OUT_IO[16];
 				output INEG[3] = CELL[0].OUT_IO[15];
 				output INFF = CELL[0].OUT_IO[0];
-				output INDDCK = CELL[0].OUT_IO[6], CELL[0].OUT_IO_PADDI[0];
+				output INDDCK = CELL[0].OUT_IO[6], CELL[0].OUT_IO_INCK[0];
 				output UP = CELL[0].OUT_IO[11];
 				output LOCK = CELL[1].OUT_IO[5];
 			}
@@ -21049,7 +21049,7 @@ intdb {
 				output INEG[2] = CELL[0].OUT_IO[9];
 				output INEG[3] = CELL[0].OUT_IO[8];
 				output INFF = CELL[0].OUT_IO[3];
-				output INDDCK = CELL[0].OUT_IO[13], CELL[0].OUT_IO_PADDI[1];
+				output INDDCK = CELL[0].OUT_IO[13], CELL[0].OUT_IO_INCK[1];
 				output UP = CELL[0].OUT_IO[20];
 			}
 
@@ -21078,7 +21078,7 @@ intdb {
 				output INEG[2] = CELL[1].OUT_IO[9];
 				output INEG[3] = CELL[1].OUT_IO[8];
 				output INFF = CELL[0].OUT_IO[2];
-				output INDDCK = CELL[0].OUT_IO[4], CELL[0].OUT_IO_PADDI[2];
+				output INDDCK = CELL[0].OUT_IO[4], CELL[0].OUT_IO_INCK[2];
 				output UP = CELL[0].OUT_IO[18];
 				output LOCK = CELL[1].OUT_IO[5];
 			}
@@ -21107,7 +21107,7 @@ intdb {
 				output INEG[2] = CELL[0].OUT_IO[23];
 				output INEG[3] = CELL[0].OUT_IO[22];
 				output INFF = CELL[1].OUT_IO[0];
-				output INDDCK = CELL[0].OUT_IO_PADDI[3], CELL[1].OUT_IO[6];
+				output INDDCK = CELL[0].OUT_IO_INCK[3], CELL[1].OUT_IO[6];
 				output UP = CELL[1].OUT_IO[11];
 			}
 
@@ -21136,7 +21136,7 @@ intdb {
 				output INEG[2] = CELL[1].OUT_IO[23];
 				output INEG[3] = CELL[1].OUT_IO[22];
 				output INFF = CELL[1].OUT_IO[3];
-				output INDDCK = CELL[0].OUT_IO_PADDI[4], CELL[1].OUT_IO[13];
+				output INDDCK = CELL[0].OUT_IO_INCK[4], CELL[1].OUT_IO[13];
 				output UP = CELL[1].OUT_IO[20];
 				output LOCK = CELL[2].OUT_IO[7];
 			}
@@ -21165,7 +21165,7 @@ intdb {
 				output INEG[2] = CELL[1].OUT_IO[16];
 				output INEG[3] = CELL[1].OUT_IO[15];
 				output INFF = CELL[1].OUT_IO[2];
-				output INDDCK = CELL[0].OUT_IO_PADDI[5], CELL[1].OUT_IO[4];
+				output INDDCK = CELL[0].OUT_IO_INCK[5], CELL[1].OUT_IO[4];
 				output UP = CELL[1].OUT_IO[18];
 			}
 
@@ -21194,7 +21194,7 @@ intdb {
 				output INEG[2] = CELL[2].OUT_IO[16];
 				output INEG[3] = CELL[2].OUT_IO[15];
 				output INFF = CELL[2].OUT_IO[0];
-				output INDDCK = CELL[0].OUT_IO_PADDI[6], CELL[2].OUT_IO[6];
+				output INDDCK = CELL[0].OUT_IO_INCK[6], CELL[2].OUT_IO[6];
 				output UP = CELL[2].OUT_IO[11];
 				output LOCK = CELL[2].OUT_IO[7];
 			}
@@ -21223,7 +21223,7 @@ intdb {
 				output INEG[2] = CELL[2].OUT_IO[9];
 				output INEG[3] = CELL[2].OUT_IO[8];
 				output INFF = CELL[2].OUT_IO[3];
-				output INDDCK = CELL[0].OUT_IO_PADDI[7], CELL[2].OUT_IO[13];
+				output INDDCK = CELL[0].OUT_IO_INCK[7], CELL[2].OUT_IO[13];
 				output UP = CELL[2].OUT_IO[20];
 			}
 
@@ -21252,7 +21252,7 @@ intdb {
 				output INEG[2] = CELL[3].OUT_IO[9];
 				output INEG[3] = CELL[3].OUT_IO[8];
 				output INFF = CELL[2].OUT_IO[2];
-				output INDDCK = CELL[0].OUT_IO_PADDI[8], CELL[2].OUT_IO[4];
+				output INDDCK = CELL[0].OUT_IO_INCK[8], CELL[2].OUT_IO[4];
 				output UP = CELL[2].OUT_IO[18];
 				output LOCK = CELL[3].OUT_IO[1];
 			}
@@ -21281,7 +21281,7 @@ intdb {
 				output INEG[2] = CELL[2].OUT_IO[23];
 				output INEG[3] = CELL[2].OUT_IO[22];
 				output INFF = CELL[3].OUT_IO[0];
-				output INDDCK = CELL[0].OUT_IO_PADDI[9], CELL[3].OUT_IO[6];
+				output INDDCK = CELL[0].OUT_IO_INCK[9], CELL[3].OUT_IO[6];
 				output UP = CELL[3].OUT_IO[11];
 			}
 
@@ -21310,7 +21310,7 @@ intdb {
 				output INEG[2] = CELL[3].OUT_IO[23];
 				output INEG[3] = CELL[3].OUT_IO[22];
 				output INFF = CELL[3].OUT_IO[3];
-				output INDDCK = CELL[0].OUT_IO_PADDI[10], CELL[3].OUT_IO[13];
+				output INDDCK = CELL[0].OUT_IO_INCK[10], CELL[3].OUT_IO[13];
 				output UP = CELL[3].OUT_IO[20];
 				output LOCK = CELL[3].OUT_IO[1];
 			}
@@ -21339,7 +21339,7 @@ intdb {
 				output INEG[2] = CELL[3].OUT_IO[16];
 				output INEG[3] = CELL[3].OUT_IO[15];
 				output INFF = CELL[3].OUT_IO[2];
-				output INDDCK = CELL[0].OUT_IO_PADDI[11], CELL[3].OUT_IO[4];
+				output INDDCK = CELL[0].OUT_IO_INCK[11], CELL[3].OUT_IO[4];
 				output UP = CELL[3].OUT_IO[18];
 			}
 
@@ -21413,18 +21413,18 @@ intdb {
 			// wire CELL[0].OUT_IO[21]             IO[2].IPOS[1] IO[3].IPOS[3]
 			// wire CELL[0].OUT_IO[22]             IO[2].INEG[1] IO[3].INEG[3]
 			// wire CELL[0].OUT_IO[23]             IO[2].INEG[0] IO[3].INEG[2]
-			// wire CELL[0].OUT_IO_PADDI[0]        IO[0].INDDCK
-			// wire CELL[0].OUT_IO_PADDI[1]        IO[1].INDDCK
-			// wire CELL[0].OUT_IO_PADDI[2]        IO[2].INDDCK
-			// wire CELL[0].OUT_IO_PADDI[3]        IO[3].INDDCK
-			// wire CELL[0].OUT_IO_PADDI[4]        IO[4].INDDCK
-			// wire CELL[0].OUT_IO_PADDI[5]        IO[5].INDDCK
-			// wire CELL[0].OUT_IO_PADDI[6]        IO[6].INDDCK
-			// wire CELL[0].OUT_IO_PADDI[7]        IO[7].INDDCK
-			// wire CELL[0].OUT_IO_PADDI[8]        IO[8].INDDCK
-			// wire CELL[0].OUT_IO_PADDI[9]        IO[9].INDDCK
-			// wire CELL[0].OUT_IO_PADDI[10]       IO[10].INDDCK
-			// wire CELL[0].OUT_IO_PADDI[11]       IO[11].INDDCK
+			// wire CELL[0].OUT_IO_INCK[0]         IO[0].INDDCK
+			// wire CELL[0].OUT_IO_INCK[1]         IO[1].INDDCK
+			// wire CELL[0].OUT_IO_INCK[2]         IO[2].INDDCK
+			// wire CELL[0].OUT_IO_INCK[3]         IO[3].INDDCK
+			// wire CELL[0].OUT_IO_INCK[4]         IO[4].INDDCK
+			// wire CELL[0].OUT_IO_INCK[5]         IO[5].INDDCK
+			// wire CELL[0].OUT_IO_INCK[6]         IO[6].INDDCK
+			// wire CELL[0].OUT_IO_INCK[7]         IO[7].INDDCK
+			// wire CELL[0].OUT_IO_INCK[8]         IO[8].INDDCK
+			// wire CELL[0].OUT_IO_INCK[9]         IO[9].INDDCK
+			// wire CELL[0].OUT_IO_INCK[10]        IO[10].INDDCK
+			// wire CELL[0].OUT_IO_INCK[11]        IO[11].INDDCK
 			// wire CELL[0].IMUX_IO_ECLK[0]        IO[0].ECLK
 			// wire CELL[0].IMUX_IO_ECLK[1]        IO[1].ECLK
 			// wire CELL[0].IMUX_IO_ECLK[2]        IO[2].ECLK
@@ -21660,7 +21660,7 @@ intdb {
 				output INEG[2] = CELL[0].OUT_Q[5];
 				output INEG[3] = CELL[0].OUT_Q[4];
 				output INFF = CELL[0].OUT_F[0];
-				output INDDCK = CELL[0].OUT_F[1], CELL[0].OUT_IO_PADDI[0];
+				output INDDCK = CELL[0].OUT_F[1], CELL[0].OUT_IO_INCK[0];
 				output UP = CELL[0].OUT_Q[0];
 			}
 
@@ -21688,7 +21688,7 @@ intdb {
 				output INEG[2] = CELL[0].OUT_F[2];
 				output INEG[3] = CELL[0].OUT_OFX[2];
 				output INFF = CELL[0].OUT_Q[3];
-				output INDDCK = CELL[0].OUT_F[4], CELL[0].OUT_IO_PADDI[1];
+				output INDDCK = CELL[0].OUT_F[4], CELL[0].OUT_IO_INCK[1];
 				output UP = CELL[0].OUT_F[3];
 			}
 
@@ -21716,7 +21716,7 @@ intdb {
 				output INEG[2] = CELL[1].OUT_F[2];
 				output INEG[3] = CELL[1].OUT_OFX[2];
 				output INFF = CELL[0].OUT_OFX[5];
-				output INDDCK = CELL[0].OUT_F[6], CELL[0].OUT_IO_PADDI[2];
+				output INDDCK = CELL[0].OUT_F[6], CELL[0].OUT_IO_INCK[2];
 				output UP = CELL[0].OUT_OFX[6];
 			}
 
@@ -21744,7 +21744,7 @@ intdb {
 				output INEG[2] = CELL[0].OUT_OFX[7];
 				output INEG[3] = CELL[0].OUT_F[7];
 				output INFF = CELL[1].OUT_F[0];
-				output INDDCK = CELL[0].OUT_IO_PADDI[3], CELL[1].OUT_F[1];
+				output INDDCK = CELL[0].OUT_IO_INCK[3], CELL[1].OUT_F[1];
 				output UP = CELL[1].OUT_Q[0];
 			}
 
@@ -21772,7 +21772,7 @@ intdb {
 				output INEG[2] = CELL[1].OUT_OFX[7];
 				output INEG[3] = CELL[1].OUT_F[7];
 				output INFF = CELL[1].OUT_Q[3];
-				output INDDCK = CELL[0].OUT_IO_PADDI[4], CELL[1].OUT_F[4];
+				output INDDCK = CELL[0].OUT_IO_INCK[4], CELL[1].OUT_F[4];
 				output UP = CELL[1].OUT_F[3];
 			}
 
@@ -21800,7 +21800,7 @@ intdb {
 				output INEG[2] = CELL[1].OUT_Q[5];
 				output INEG[3] = CELL[1].OUT_Q[4];
 				output INFF = CELL[1].OUT_OFX[5];
-				output INDDCK = CELL[0].OUT_IO_PADDI[5], CELL[1].OUT_F[6];
+				output INDDCK = CELL[0].OUT_IO_INCK[5], CELL[1].OUT_F[6];
 				output UP = CELL[1].OUT_OFX[6];
 			}
 
@@ -21828,7 +21828,7 @@ intdb {
 				output INEG[2] = CELL[2].OUT_Q[5];
 				output INEG[3] = CELL[2].OUT_Q[4];
 				output INFF = CELL[2].OUT_F[0];
-				output INDDCK = CELL[0].OUT_IO_PADDI[6], CELL[2].OUT_F[1];
+				output INDDCK = CELL[0].OUT_IO_INCK[6], CELL[2].OUT_F[1];
 				output UP = CELL[2].OUT_Q[0];
 			}
 
@@ -21856,7 +21856,7 @@ intdb {
 				output INEG[2] = CELL[2].OUT_F[2];
 				output INEG[3] = CELL[2].OUT_OFX[2];
 				output INFF = CELL[2].OUT_Q[3];
-				output INDDCK = CELL[0].OUT_IO_PADDI[7], CELL[2].OUT_F[4];
+				output INDDCK = CELL[0].OUT_IO_INCK[7], CELL[2].OUT_F[4];
 				output UP = CELL[2].OUT_F[3];
 			}
 
@@ -21884,7 +21884,7 @@ intdb {
 				output INEG[2] = CELL[3].OUT_F[2];
 				output INEG[3] = CELL[3].OUT_OFX[2];
 				output INFF = CELL[2].OUT_OFX[5];
-				output INDDCK = CELL[0].OUT_IO_PADDI[8], CELL[2].OUT_F[6];
+				output INDDCK = CELL[0].OUT_IO_INCK[8], CELL[2].OUT_F[6];
 				output UP = CELL[2].OUT_OFX[6];
 			}
 
@@ -21912,7 +21912,7 @@ intdb {
 				output INEG[2] = CELL[2].OUT_OFX[7];
 				output INEG[3] = CELL[2].OUT_F[7];
 				output INFF = CELL[3].OUT_F[0];
-				output INDDCK = CELL[0].OUT_IO_PADDI[9], CELL[3].OUT_F[1];
+				output INDDCK = CELL[0].OUT_IO_INCK[9], CELL[3].OUT_F[1];
 				output UP = CELL[3].OUT_Q[0];
 			}
 
@@ -21940,7 +21940,7 @@ intdb {
 				output INEG[2] = CELL[3].OUT_OFX[7];
 				output INEG[3] = CELL[3].OUT_F[7];
 				output INFF = CELL[3].OUT_Q[3];
-				output INDDCK = CELL[0].OUT_IO_PADDI[10], CELL[3].OUT_F[4];
+				output INDDCK = CELL[0].OUT_IO_INCK[10], CELL[3].OUT_F[4];
 				output UP = CELL[3].OUT_F[3];
 			}
 
@@ -21968,7 +21968,7 @@ intdb {
 				output INEG[2] = CELL[3].OUT_Q[5];
 				output INEG[3] = CELL[3].OUT_Q[4];
 				output INFF = CELL[3].OUT_OFX[5];
-				output INDDCK = CELL[0].OUT_IO_PADDI[11], CELL[3].OUT_F[6];
+				output INDDCK = CELL[0].OUT_IO_INCK[11], CELL[3].OUT_F[6];
 				output UP = CELL[3].OUT_OFX[6];
 			}
 
@@ -22045,18 +22045,18 @@ intdb {
 			// wire CELL[0].OUT_OFX[5]             IO[2].INFF
 			// wire CELL[0].OUT_OFX[6]             IO[2].UP
 			// wire CELL[0].OUT_OFX[7]             IO[2].INEG[0] IO[3].INEG[2]
-			// wire CELL[0].OUT_IO_PADDI[0]        IO[0].INDDCK
-			// wire CELL[0].OUT_IO_PADDI[1]        IO[1].INDDCK
-			// wire CELL[0].OUT_IO_PADDI[2]        IO[2].INDDCK
-			// wire CELL[0].OUT_IO_PADDI[3]        IO[3].INDDCK
-			// wire CELL[0].OUT_IO_PADDI[4]        IO[4].INDDCK
-			// wire CELL[0].OUT_IO_PADDI[5]        IO[5].INDDCK
-			// wire CELL[0].OUT_IO_PADDI[6]        IO[6].INDDCK
-			// wire CELL[0].OUT_IO_PADDI[7]        IO[7].INDDCK
-			// wire CELL[0].OUT_IO_PADDI[8]        IO[8].INDDCK
-			// wire CELL[0].OUT_IO_PADDI[9]        IO[9].INDDCK
-			// wire CELL[0].OUT_IO_PADDI[10]       IO[10].INDDCK
-			// wire CELL[0].OUT_IO_PADDI[11]       IO[11].INDDCK
+			// wire CELL[0].OUT_IO_INCK[0]         IO[0].INDDCK
+			// wire CELL[0].OUT_IO_INCK[1]         IO[1].INDDCK
+			// wire CELL[0].OUT_IO_INCK[2]         IO[2].INDDCK
+			// wire CELL[0].OUT_IO_INCK[3]         IO[3].INDDCK
+			// wire CELL[0].OUT_IO_INCK[4]         IO[4].INDDCK
+			// wire CELL[0].OUT_IO_INCK[5]         IO[5].INDDCK
+			// wire CELL[0].OUT_IO_INCK[6]         IO[6].INDDCK
+			// wire CELL[0].OUT_IO_INCK[7]         IO[7].INDDCK
+			// wire CELL[0].OUT_IO_INCK[8]         IO[8].INDDCK
+			// wire CELL[0].OUT_IO_INCK[9]         IO[9].INDDCK
+			// wire CELL[0].OUT_IO_INCK[10]        IO[10].INDDCK
+			// wire CELL[0].OUT_IO_INCK[11]        IO[11].INDDCK
 			// wire CELL[0].IMUX_IO_ECLK[0]        IO[0].ECLK
 			// wire CELL[0].IMUX_IO_ECLK[1]        IO[1].ECLK
 			// wire CELL[0].IMUX_IO_ECLK[2]        IO[2].ECLK

@@ -14847,10 +14847,10 @@ intdb {
 	wire IMUX_ECLKSYNC_ECLKI[1]: mux;
 	wire BRGECLK[0]: mux;
 	wire BRGECLK[1]: mux;
-	wire OUT_IO_PADDI[0]: bel;
-	wire OUT_IO_PADDI[1]: bel;
-	wire OUT_IO_PADDI[2]: bel;
-	wire OUT_IO_PADDI[3]: bel;
+	wire OUT_IO_INCK[0]: bel;
+	wire OUT_IO_INCK[1]: bel;
+	wire OUT_IO_INCK[2]: bel;
+	wire OUT_IO_INCK[3]: bel;
 	wire IMUX_IO_ECLK[0]: mux;
 	wire IMUX_IO_ECLK[1]: mux;
 	wire IO_GCLK_S[0]: regional GLOBAL;
@@ -14861,6 +14861,7 @@ intdb {
 	wire OUT_CLKFBBUF_Z[1]: bel;
 	wire PLLCLKFB[0]: mux;
 	wire PLLCLKFB[1]: mux;
+	wire IMUX_DDRDLL_CLK: mux;
 	wire IO_GCLK_W[0]: regional GLOBAL;
 	wire IO_GCLK_W[1]: regional GLOBAL;
 	wire IO_GCLK_W[2]: regional GLOBAL;
@@ -14885,7 +14886,6 @@ intdb {
 	wire OUT_CLKDIV_CDIV1[1]: bel;
 	wire OUT_CLKDIV_CDIVX[0]: bel;
 	wire OUT_CLKDIV_CDIVX[1]: bel;
-	wire IMUX_DDRDLL_CLK: mux;
 	wire OUT_OSC_OSC: regional GLOBAL;
 	wire IMUX_PCNTR_CLK: mux;
 
@@ -15619,7 +15619,7 @@ intdb {
 				input OPOS[0] = IMUX_A[0];
 				input ONEG[0] = IMUX_B[0];
 				input TS = IMUX_C[0];
-				output DI = OUT_Q[0], OUT_IO_PADDI[0];
+				output DI = OUT_Q[0], OUT_IO_INCK[0];
 				output IP = OUT_F[4];
 				output IN = OUT_F[0];
 			}
@@ -15631,7 +15631,7 @@ intdb {
 				input OPOS[0] = IMUX_A[1];
 				input ONEG[0] = IMUX_B[1];
 				input TS = IMUX_C[1];
-				output DI = OUT_Q[1], OUT_IO_PADDI[1];
+				output DI = OUT_Q[1], OUT_IO_INCK[1];
 				output IP = OUT_F[5];
 				output IN = OUT_F[1];
 			}
@@ -15643,7 +15643,7 @@ intdb {
 				input OPOS[0] = IMUX_A[2];
 				input ONEG[0] = IMUX_B[2];
 				input TS = IMUX_C[2];
-				output DI = OUT_Q[2], OUT_IO_PADDI[2];
+				output DI = OUT_Q[2], OUT_IO_INCK[2];
 				output IP = OUT_F[6];
 				output IN = OUT_F[2];
 			}
@@ -15655,7 +15655,7 @@ intdb {
 				input OPOS[0] = IMUX_A[3];
 				input ONEG[0] = IMUX_B[3];
 				input TS = IMUX_C[3];
-				output DI = OUT_Q[3], OUT_IO_PADDI[3];
+				output DI = OUT_Q[3], OUT_IO_INCK[3];
 				output IP = OUT_F[7];
 				output IN = OUT_F[3];
 			}
@@ -15696,10 +15696,10 @@ intdb {
 			// wire OUT_Q[1]                       IO[1].DI
 			// wire OUT_Q[2]                       IO[2].DI
 			// wire OUT_Q[3]                       IO[3].DI
-			// wire OUT_IO_PADDI[0]                IO[0].DI
-			// wire OUT_IO_PADDI[1]                IO[1].DI
-			// wire OUT_IO_PADDI[2]                IO[2].DI
-			// wire OUT_IO_PADDI[3]                IO[3].DI
+			// wire OUT_IO_INCK[0]                 IO[0].DI
+			// wire OUT_IO_INCK[1]                 IO[1].DI
+			// wire OUT_IO_INCK[2]                 IO[2].DI
+			// wire OUT_IO_INCK[3]                 IO[3].DI
 		}
 
 		tile_class IO_E4 {
@@ -15712,7 +15712,7 @@ intdb {
 				input OPOS[0] = IMUX_A[0];
 				input ONEG[0] = IMUX_B[0];
 				input TS = IMUX_C[0];
-				output DI = OUT_Q[0], OUT_IO_PADDI[0];
+				output DI = OUT_Q[0], OUT_IO_INCK[0];
 				output IP = OUT_F[4];
 				output IN = OUT_F[0];
 			}
@@ -15724,7 +15724,7 @@ intdb {
 				input OPOS[0] = IMUX_A[1];
 				input ONEG[0] = IMUX_B[1];
 				input TS = IMUX_C[1];
-				output DI = OUT_Q[1], OUT_IO_PADDI[1];
+				output DI = OUT_Q[1], OUT_IO_INCK[1];
 				output IP = OUT_F[5];
 				output IN = OUT_F[1];
 			}
@@ -15736,7 +15736,7 @@ intdb {
 				input OPOS[0] = IMUX_A[2];
 				input ONEG[0] = IMUX_B[2];
 				input TS = IMUX_C[2];
-				output DI = OUT_Q[2], OUT_IO_PADDI[2];
+				output DI = OUT_Q[2], OUT_IO_INCK[2];
 				output IP = OUT_F[6];
 				output IN = OUT_F[2];
 			}
@@ -15748,7 +15748,7 @@ intdb {
 				input OPOS[0] = IMUX_A[3];
 				input ONEG[0] = IMUX_B[3];
 				input TS = IMUX_C[3];
-				output DI = OUT_Q[3], OUT_IO_PADDI[3];
+				output DI = OUT_Q[3], OUT_IO_INCK[3];
 				output IP = OUT_F[7];
 				output IN = OUT_F[3];
 			}
@@ -15789,10 +15789,10 @@ intdb {
 			// wire OUT_Q[1]                       IO[1].DI
 			// wire OUT_Q[2]                       IO[2].DI
 			// wire OUT_Q[3]                       IO[3].DI
-			// wire OUT_IO_PADDI[0]                IO[0].DI
-			// wire OUT_IO_PADDI[1]                IO[1].DI
-			// wire OUT_IO_PADDI[2]                IO[2].DI
-			// wire OUT_IO_PADDI[3]                IO[3].DI
+			// wire OUT_IO_INCK[0]                 IO[0].DI
+			// wire OUT_IO_INCK[1]                 IO[1].DI
+			// wire OUT_IO_INCK[2]                 IO[2].DI
+			// wire OUT_IO_INCK[3]                 IO[3].DI
 		}
 
 		tile_class IO_S4 {
@@ -15817,7 +15817,7 @@ intdb {
 				input DEL[4] = IMUX_C[4];
 				input TS = IMUX_C[0];
 				input SLIP = IMUX_D[0];
-				output DI = OUT_Q[0], OUT_IO_PADDI[0];
+				output DI = OUT_Q[0], OUT_IO_INCK[0];
 				output IP = OUT_F[4];
 				output IN = OUT_F[0];
 				output RXD[0] = OUT_F[4];
@@ -15841,7 +15841,7 @@ intdb {
 				input OPOS[0] = IMUX_A[1];
 				input ONEG[0] = IMUX_B[1];
 				input TS = IMUX_C[1];
-				output DI = OUT_Q[1], OUT_IO_PADDI[1];
+				output DI = OUT_Q[1], OUT_IO_INCK[1];
 				output IP = OUT_F[5];
 				output IN = OUT_F[1];
 			}
@@ -15860,7 +15860,7 @@ intdb {
 				input DEL[4] = IMUX_D[5];
 				input TS = IMUX_C[2];
 				input SLIP = IMUX_D[1];
-				output DI = OUT_Q[2], OUT_IO_PADDI[2];
+				output DI = OUT_Q[2], OUT_IO_INCK[2];
 				output IP = OUT_F[6];
 				output IN = OUT_F[2];
 				output RXD[0] = OUT_Q[4];
@@ -15876,7 +15876,7 @@ intdb {
 				input OPOS[0] = IMUX_A[3];
 				input ONEG[0] = IMUX_B[3];
 				input TS = IMUX_C[3];
-				output DI = OUT_Q[3], OUT_IO_PADDI[3];
+				output DI = OUT_Q[3], OUT_IO_INCK[3];
 				output IP = OUT_F[7];
 				output IN = OUT_F[3];
 			}
@@ -15933,10 +15933,10 @@ intdb {
 			// wire OUT_Q[5]                       IO[0].RXDA[1] IO[2].RXD[1]
 			// wire OUT_Q[6]                       IO[0].RXDA[2] IO[2].RXD[2]
 			// wire OUT_Q[7]                       IO[0].RXDA[3] IO[2].RXD[3]
-			// wire OUT_IO_PADDI[0]                IO[0].DI
-			// wire OUT_IO_PADDI[1]                IO[1].DI
-			// wire OUT_IO_PADDI[2]                IO[2].DI
-			// wire OUT_IO_PADDI[3]                IO[3].DI
+			// wire OUT_IO_INCK[0]                 IO[0].DI
+			// wire OUT_IO_INCK[1]                 IO[1].DI
+			// wire OUT_IO_INCK[2]                 IO[2].DI
+			// wire OUT_IO_INCK[3]                 IO[3].DI
 			// wire IMUX_IO_ECLK[0]                IO[0].ECLK
 			// wire IMUX_IO_ECLK[1]                IO[2].ECLK
 		}
@@ -15965,7 +15965,7 @@ intdb {
 				input TXD[5] = IMUX_D[1];
 				input TXD[6] = IMUX_D[2];
 				input TXD[7] = IMUX_D[3];
-				output DI = OUT_Q[0], OUT_IO_PADDI[0];
+				output DI = OUT_Q[0], OUT_IO_INCK[0];
 				output IP = OUT_F[4];
 				output IN = OUT_F[0];
 			}
@@ -15977,7 +15977,7 @@ intdb {
 				input OPOS[0] = IMUX_A[1];
 				input ONEG[0] = IMUX_B[1];
 				input TS = IMUX_C[1];
-				output DI = OUT_Q[1], OUT_IO_PADDI[1];
+				output DI = OUT_Q[1], OUT_IO_INCK[1];
 				output IP = OUT_F[5];
 				output IN = OUT_F[1];
 			}
@@ -15994,7 +15994,7 @@ intdb {
 				input TXD[1] = IMUX_D[1];
 				input TXD[2] = IMUX_D[2];
 				input TXD[3] = IMUX_D[3];
-				output DI = OUT_Q[2], OUT_IO_PADDI[2];
+				output DI = OUT_Q[2], OUT_IO_INCK[2];
 				output IP = OUT_F[6];
 				output IN = OUT_F[2];
 			}
@@ -16006,7 +16006,7 @@ intdb {
 				input OPOS[0] = IMUX_A[3];
 				input ONEG[0] = IMUX_B[3];
 				input TS = IMUX_C[3];
-				output DI = OUT_Q[3], OUT_IO_PADDI[3];
+				output DI = OUT_Q[3], OUT_IO_INCK[3];
 				output IP = OUT_F[7];
 				output IN = OUT_F[3];
 			}
@@ -16051,10 +16051,10 @@ intdb {
 			// wire OUT_Q[1]                       IO[1].DI
 			// wire OUT_Q[2]                       IO[2].DI
 			// wire OUT_Q[3]                       IO[3].DI
-			// wire OUT_IO_PADDI[0]                IO[0].DI
-			// wire OUT_IO_PADDI[1]                IO[1].DI
-			// wire OUT_IO_PADDI[2]                IO[2].DI
-			// wire OUT_IO_PADDI[3]                IO[3].DI
+			// wire OUT_IO_INCK[0]                 IO[0].DI
+			// wire OUT_IO_INCK[1]                 IO[1].DI
+			// wire OUT_IO_INCK[2]                 IO[2].DI
+			// wire OUT_IO_INCK[3]                 IO[3].DI
 			// wire IMUX_IO_ECLK[0]                IO[0].ECLK
 			// wire IMUX_IO_ECLK[1]                IO[2].ECLK
 		}
@@ -16069,7 +16069,7 @@ intdb {
 				input OPOS[0] = IMUX_A[0];
 				input ONEG[0] = IMUX_B[0];
 				input TS = IMUX_C[0];
-				output DI = OUT_Q[0], OUT_IO_PADDI[0];
+				output DI = OUT_Q[0], OUT_IO_INCK[0];
 				output IP = OUT_F[4];
 				output IN = OUT_F[0];
 			}
@@ -16081,7 +16081,7 @@ intdb {
 				input OPOS[0] = IMUX_A[1];
 				input ONEG[0] = IMUX_B[1];
 				input TS = IMUX_C[1];
-				output DI = OUT_Q[1], OUT_IO_PADDI[1];
+				output DI = OUT_Q[1], OUT_IO_INCK[1];
 				output IP = OUT_F[5];
 				output IN = OUT_F[1];
 			}
@@ -16104,8 +16104,8 @@ intdb {
 			// wire OUT_F[5]                       IO[1].IP
 			// wire OUT_Q[0]                       IO[0].DI
 			// wire OUT_Q[1]                       IO[1].DI
-			// wire OUT_IO_PADDI[0]                IO[0].DI
-			// wire OUT_IO_PADDI[1]                IO[1].DI
+			// wire OUT_IO_INCK[0]                 IO[0].DI
+			// wire OUT_IO_INCK[1]                 IO[1].DI
 		}
 
 		tile_class IO_W4_I3C {
@@ -16120,7 +16120,7 @@ intdb {
 				input TS = IMUX_C[0];
 				input RESEN = IMUX_A[4];
 				input PULLUPEN = IMUX_C[4];
-				output DI = OUT_Q[0], OUT_IO_PADDI[0];
+				output DI = OUT_Q[0], OUT_IO_INCK[0];
 				output IP = OUT_F[4];
 				output IN = OUT_F[0];
 			}
@@ -16134,7 +16134,7 @@ intdb {
 				input TS = IMUX_C[1];
 				input RESEN = IMUX_B[4];
 				input PULLUPEN = IMUX_D[4];
-				output DI = OUT_Q[1], OUT_IO_PADDI[1];
+				output DI = OUT_Q[1], OUT_IO_INCK[1];
 				output IP = OUT_F[5];
 				output IN = OUT_F[1];
 			}
@@ -16146,7 +16146,7 @@ intdb {
 				input OPOS[0] = IMUX_A[2];
 				input ONEG[0] = IMUX_B[2];
 				input TS = IMUX_C[2];
-				output DI = OUT_Q[2], OUT_IO_PADDI[2];
+				output DI = OUT_Q[2], OUT_IO_INCK[2];
 				output IP = OUT_F[6];
 				output IN = OUT_F[2];
 			}
@@ -16158,7 +16158,7 @@ intdb {
 				input OPOS[0] = IMUX_A[3];
 				input ONEG[0] = IMUX_B[3];
 				input TS = IMUX_C[3];
-				output DI = OUT_Q[3], OUT_IO_PADDI[3];
+				output DI = OUT_Q[3], OUT_IO_INCK[3];
 				output IP = OUT_F[7];
 				output IN = OUT_F[3];
 			}
@@ -16203,10 +16203,10 @@ intdb {
 			// wire OUT_Q[1]                       IO[1].DI
 			// wire OUT_Q[2]                       IO[2].DI
 			// wire OUT_Q[3]                       IO[3].DI
-			// wire OUT_IO_PADDI[0]                IO[0].DI
-			// wire OUT_IO_PADDI[1]                IO[1].DI
-			// wire OUT_IO_PADDI[2]                IO[2].DI
-			// wire OUT_IO_PADDI[3]                IO[3].DI
+			// wire OUT_IO_INCK[0]                 IO[0].DI
+			// wire OUT_IO_INCK[1]                 IO[1].DI
+			// wire OUT_IO_INCK[2]                 IO[2].DI
+			// wire OUT_IO_INCK[3]                 IO[3].DI
 		}
 
 		tile_class IO_E2 {
@@ -16219,7 +16219,7 @@ intdb {
 				input OPOS[0] = IMUX_A[0];
 				input ONEG[0] = IMUX_B[0];
 				input TS = IMUX_C[0];
-				output DI = OUT_Q[0], OUT_IO_PADDI[0];
+				output DI = OUT_Q[0], OUT_IO_INCK[0];
 				output IP = OUT_F[4];
 				output IN = OUT_F[0];
 			}
@@ -16231,7 +16231,7 @@ intdb {
 				input OPOS[0] = IMUX_A[1];
 				input ONEG[0] = IMUX_B[1];
 				input TS = IMUX_C[1];
-				output DI = OUT_Q[1], OUT_IO_PADDI[1];
+				output DI = OUT_Q[1], OUT_IO_INCK[1];
 				output IP = OUT_F[5];
 				output IN = OUT_F[1];
 			}
@@ -16254,8 +16254,8 @@ intdb {
 			// wire OUT_F[5]                       IO[1].IP
 			// wire OUT_Q[0]                       IO[0].DI
 			// wire OUT_Q[1]                       IO[1].DI
-			// wire OUT_IO_PADDI[0]                IO[0].DI
-			// wire OUT_IO_PADDI[1]                IO[1].DI
+			// wire OUT_IO_INCK[0]                 IO[0].DI
+			// wire OUT_IO_INCK[1]                 IO[1].DI
 		}
 
 		tile_class SIO_S2 {
@@ -16268,7 +16268,7 @@ intdb {
 				input OPOS[0] = IMUX_A[0];
 				input ONEG[0] = IMUX_B[0];
 				input TS = IMUX_C[0];
-				output DI = OUT_Q[0], OUT_IO_PADDI[0];
+				output DI = OUT_Q[0], OUT_IO_INCK[0];
 				output IP = OUT_F[4];
 				output IN = OUT_F[0];
 			}
@@ -16280,7 +16280,7 @@ intdb {
 				input OPOS[0] = IMUX_A[1];
 				input ONEG[0] = IMUX_B[1];
 				input TS = IMUX_C[1];
-				output DI = OUT_Q[1], OUT_IO_PADDI[1];
+				output DI = OUT_Q[1], OUT_IO_INCK[1];
 				output IP = OUT_F[5];
 				output IN = OUT_F[1];
 			}
@@ -16303,8 +16303,8 @@ intdb {
 			// wire OUT_F[5]                       IO[1].IP
 			// wire OUT_Q[0]                       IO[0].DI
 			// wire OUT_Q[1]                       IO[1].DI
-			// wire OUT_IO_PADDI[0]                IO[0].DI
-			// wire OUT_IO_PADDI[1]                IO[1].DI
+			// wire OUT_IO_INCK[0]                 IO[0].DI
+			// wire OUT_IO_INCK[1]                 IO[1].DI
 		}
 
 		tile_class SIO_S4 {
@@ -16317,7 +16317,7 @@ intdb {
 				input OPOS[0] = IMUX_A[0];
 				input ONEG[0] = IMUX_B[0];
 				input TS = IMUX_C[0];
-				output DI = OUT_Q[0], OUT_IO_PADDI[0];
+				output DI = OUT_Q[0], OUT_IO_INCK[0];
 				output IP = OUT_F[4];
 				output IN = OUT_F[0];
 			}
@@ -16329,7 +16329,7 @@ intdb {
 				input OPOS[0] = IMUX_A[1];
 				input ONEG[0] = IMUX_B[1];
 				input TS = IMUX_C[1];
-				output DI = OUT_Q[1], OUT_IO_PADDI[1];
+				output DI = OUT_Q[1], OUT_IO_INCK[1];
 				output IP = OUT_F[5];
 				output IN = OUT_F[1];
 			}
@@ -16341,7 +16341,7 @@ intdb {
 				input OPOS[0] = IMUX_A[2];
 				input ONEG[0] = IMUX_B[2];
 				input TS = IMUX_C[2];
-				output DI = OUT_Q[2], OUT_IO_PADDI[2];
+				output DI = OUT_Q[2], OUT_IO_INCK[2];
 				output IP = OUT_F[6];
 				output IN = OUT_F[2];
 			}
@@ -16353,7 +16353,7 @@ intdb {
 				input OPOS[0] = IMUX_A[3];
 				input ONEG[0] = IMUX_B[3];
 				input TS = IMUX_C[3];
-				output DI = OUT_Q[3], OUT_IO_PADDI[3];
+				output DI = OUT_Q[3], OUT_IO_INCK[3];
 				output IP = OUT_F[7];
 				output IN = OUT_F[3];
 			}
@@ -16394,10 +16394,10 @@ intdb {
 			// wire OUT_Q[1]                       IO[1].DI
 			// wire OUT_Q[2]                       IO[2].DI
 			// wire OUT_Q[3]                       IO[3].DI
-			// wire OUT_IO_PADDI[0]                IO[0].DI
-			// wire OUT_IO_PADDI[1]                IO[1].DI
-			// wire OUT_IO_PADDI[2]                IO[2].DI
-			// wire OUT_IO_PADDI[3]                IO[3].DI
+			// wire OUT_IO_INCK[0]                 IO[0].DI
+			// wire OUT_IO_INCK[1]                 IO[1].DI
+			// wire OUT_IO_INCK[2]                 IO[2].DI
+			// wire OUT_IO_INCK[3]                 IO[3].DI
 		}
 
 		tile_class SIO_N2 {
@@ -16410,7 +16410,7 @@ intdb {
 				input OPOS[0] = IMUX_A[0];
 				input ONEG[0] = IMUX_B[0];
 				input TS = IMUX_C[0];
-				output DI = OUT_Q[0], OUT_IO_PADDI[0];
+				output DI = OUT_Q[0], OUT_IO_INCK[0];
 				output IP = OUT_F[4];
 				output IN = OUT_F[0];
 			}
@@ -16422,7 +16422,7 @@ intdb {
 				input OPOS[0] = IMUX_A[1];
 				input ONEG[0] = IMUX_B[1];
 				input TS = IMUX_C[1];
-				output DI = OUT_Q[1], OUT_IO_PADDI[1];
+				output DI = OUT_Q[1], OUT_IO_INCK[1];
 				output IP = OUT_F[5];
 				output IN = OUT_F[1];
 			}
@@ -16445,8 +16445,8 @@ intdb {
 			// wire OUT_F[5]                       IO[1].IP
 			// wire OUT_Q[0]                       IO[0].DI
 			// wire OUT_Q[1]                       IO[1].DI
-			// wire OUT_IO_PADDI[0]                IO[0].DI
-			// wire OUT_IO_PADDI[1]                IO[1].DI
+			// wire OUT_IO_INCK[0]                 IO[0].DI
+			// wire OUT_IO_INCK[1]                 IO[1].DI
 		}
 
 		tile_class SIO_N4 {
@@ -16459,7 +16459,7 @@ intdb {
 				input OPOS[0] = IMUX_A[0];
 				input ONEG[0] = IMUX_B[0];
 				input TS = IMUX_C[0];
-				output DI = OUT_Q[0], OUT_IO_PADDI[0];
+				output DI = OUT_Q[0], OUT_IO_INCK[0];
 				output IP = OUT_F[4];
 				output IN = OUT_F[0];
 			}
@@ -16471,7 +16471,7 @@ intdb {
 				input OPOS[0] = IMUX_A[1];
 				input ONEG[0] = IMUX_B[1];
 				input TS = IMUX_C[1];
-				output DI = OUT_Q[1], OUT_IO_PADDI[1];
+				output DI = OUT_Q[1], OUT_IO_INCK[1];
 				output IP = OUT_F[5];
 				output IN = OUT_F[1];
 			}
@@ -16483,7 +16483,7 @@ intdb {
 				input OPOS[0] = IMUX_A[2];
 				input ONEG[0] = IMUX_B[2];
 				input TS = IMUX_C[2];
-				output DI = OUT_Q[2], OUT_IO_PADDI[2];
+				output DI = OUT_Q[2], OUT_IO_INCK[2];
 				output IP = OUT_F[6];
 				output IN = OUT_F[2];
 			}
@@ -16495,7 +16495,7 @@ intdb {
 				input OPOS[0] = IMUX_A[3];
 				input ONEG[0] = IMUX_B[3];
 				input TS = IMUX_C[3];
-				output DI = OUT_Q[3], OUT_IO_PADDI[3];
+				output DI = OUT_Q[3], OUT_IO_INCK[3];
 				output IP = OUT_F[7];
 				output IN = OUT_F[3];
 			}
@@ -16536,10 +16536,10 @@ intdb {
 			// wire OUT_Q[1]                       IO[1].DI
 			// wire OUT_Q[2]                       IO[2].DI
 			// wire OUT_Q[3]                       IO[3].DI
-			// wire OUT_IO_PADDI[0]                IO[0].DI
-			// wire OUT_IO_PADDI[1]                IO[1].DI
-			// wire OUT_IO_PADDI[2]                IO[2].DI
-			// wire OUT_IO_PADDI[3]                IO[3].DI
+			// wire OUT_IO_INCK[0]                 IO[0].DI
+			// wire OUT_IO_INCK[1]                 IO[1].DI
+			// wire OUT_IO_INCK[2]                 IO[2].DI
+			// wire OUT_IO_INCK[3]                 IO[3].DI
 		}
 	}
 

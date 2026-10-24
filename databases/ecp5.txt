@@ -9767,7 +9767,7 @@ intdb {
 		input LOADN;
 		input MOVE;
 		output INFF;
-		output PADDI;
+		output INCK;
 		output DI;
 		output RXDATA[7];
 		output CFLAG;
@@ -10508,10 +10508,10 @@ intdb {
 	wire BRGECLK[1]: mux;
 	wire OUT_ECLKBRIDGECS_ECSOUT[0]: bel;
 	wire OUT_BRGECLKSYNC_ECLKO[0]: bel;
-	wire OUT_IO_PADDI[0]: bel;
-	wire OUT_IO_PADDI[1]: bel;
-	wire OUT_IO_PADDI[2]: bel;
-	wire OUT_IO_PADDI[3]: bel;
+	wire OUT_IO_INCK[0]: bel;
+	wire OUT_IO_INCK[1]: bel;
+	wire OUT_IO_INCK[2]: bel;
+	wire OUT_IO_INCK[3]: bel;
 	wire IMUX_IO_ECLK[0]: mux;
 	wire IMUX_IO_ECLK[1]: mux;
 	wire IMUX_IO_ECLK[2]: mux;
@@ -10521,6 +10521,7 @@ intdb {
 	wire OUT_DDRDLL_DDRDEL: bel;
 	wire DDRDEL_S: regional DDRDLL;
 	wire DDRDEL_N: regional DDRDLL;
+	wire IMUX_DDRDLL_CLK: mux;
 	wire INCK[0]: mux;
 	wire IMUX_DLLDEL_DDRDEL: mux;
 	wire OUT_DLLDEL_Z: bel;
@@ -10538,7 +10539,6 @@ intdb {
 	wire OUT_CLKDIV_CDIV1[1]: bel;
 	wire OUT_CLKDIV_CDIVX[0]: bel;
 	wire OUT_CLKDIV_CDIVX[1]: bel;
-	wire IMUX_DDRDLL_CLK: mux;
 	wire OUT_SERDES_FF_TX_PCLK[0]: bel;
 	wire OUT_SERDES_FF_TX_PCLK[1]: bel;
 	wire OUT_SERDES_FF_RX_PCLK[0]: bel;
@@ -11193,7 +11193,7 @@ intdb {
 				input LOADN = CELL[2].IMUX_C[2];
 				input MOVE = CELL[2].IMUX_B[2];
 				output INFF = CELL[2].OUT_F[4];
-				output PADDI = CELL[0].OUT_IO_PADDI[0];
+				output INCK = CELL[0].OUT_IO_INCK[0];
 				output DI = CELL[2].OUT_F[5];
 				output RXDATA[0] = CELL[2].OUT_F[0];
 				output RXDATA[1] = CELL[2].OUT_F[1];
@@ -11221,7 +11221,7 @@ intdb {
 				input LOADN = CELL[2].IMUX_C[5];
 				input MOVE = CELL[2].IMUX_B[5];
 				output INFF = CELL[2].OUT_Q[4];
-				output PADDI = CELL[0].OUT_IO_PADDI[1];
+				output INCK = CELL[0].OUT_IO_INCK[1];
 				output DI = CELL[2].OUT_Q[5];
 				output RXDATA[0] = CELL[2].OUT_Q[0];
 				output RXDATA[1] = CELL[2].OUT_Q[1];
@@ -11249,7 +11249,7 @@ intdb {
 				input LOADN = CELL[0].IMUX_C[2];
 				input MOVE = CELL[0].IMUX_B[2];
 				output INFF = CELL[0].OUT_F[4];
-				output PADDI = CELL[0].OUT_IO_PADDI[2];
+				output INCK = CELL[0].OUT_IO_INCK[2];
 				output DI = CELL[0].OUT_F[5];
 				output RXDATA[0] = CELL[0].OUT_F[0];
 				output RXDATA[1] = CELL[0].OUT_F[1];
@@ -11277,7 +11277,7 @@ intdb {
 				input LOADN = CELL[0].IMUX_C[5];
 				input MOVE = CELL[0].IMUX_B[5];
 				output INFF = CELL[0].OUT_Q[4];
-				output PADDI = CELL[0].OUT_IO_PADDI[3];
+				output INCK = CELL[0].OUT_IO_INCK[3];
 				output DI = CELL[0].OUT_Q[5];
 				output RXDATA[0] = CELL[0].OUT_Q[0];
 				output RXDATA[1] = CELL[0].OUT_Q[1];
@@ -11326,10 +11326,10 @@ intdb {
 			// wire CELL[0].OUT_Q[3]               IO[2].RXDATA[6] IO[3].RXDATA[3]
 			// wire CELL[0].OUT_Q[4]               IO[3].INFF
 			// wire CELL[0].OUT_Q[5]               IO[3].DI
-			// wire CELL[0].OUT_IO_PADDI[0]        IO[0].PADDI
-			// wire CELL[0].OUT_IO_PADDI[1]        IO[1].PADDI
-			// wire CELL[0].OUT_IO_PADDI[2]        IO[2].PADDI
-			// wire CELL[0].OUT_IO_PADDI[3]        IO[3].PADDI
+			// wire CELL[0].OUT_IO_INCK[0]         IO[0].INCK
+			// wire CELL[0].OUT_IO_INCK[1]         IO[1].INCK
+			// wire CELL[0].OUT_IO_INCK[2]         IO[2].INCK
+			// wire CELL[0].OUT_IO_INCK[3]         IO[3].INCK
 			// wire CELL[0].IMUX_IO_ECLK[0]        IO[0].ECLK
 			// wire CELL[0].IMUX_IO_ECLK[1]        IO[1].ECLK
 			// wire CELL[0].IMUX_IO_ECLK[2]        IO[2].ECLK
@@ -11407,7 +11407,7 @@ intdb {
 				input LOADN = CELL[2].IMUX_C[2];
 				input MOVE = CELL[2].IMUX_B[2];
 				output INFF = CELL[2].OUT_F[4];
-				output PADDI = CELL[0].OUT_IO_PADDI[0];
+				output INCK = CELL[0].OUT_IO_INCK[0];
 				output DI = CELL[2].OUT_F[5];
 				output RXDATA[0] = CELL[2].OUT_F[0];
 				output RXDATA[1] = CELL[2].OUT_F[1];
@@ -11435,7 +11435,7 @@ intdb {
 				input LOADN = CELL[2].IMUX_C[5];
 				input MOVE = CELL[2].IMUX_B[5];
 				output INFF = CELL[2].OUT_Q[4];
-				output PADDI = CELL[0].OUT_IO_PADDI[1];
+				output INCK = CELL[0].OUT_IO_INCK[1];
 				output DI = CELL[2].OUT_Q[5];
 				output RXDATA[0] = CELL[2].OUT_Q[0];
 				output RXDATA[1] = CELL[2].OUT_Q[1];
@@ -11463,7 +11463,7 @@ intdb {
 				input LOADN = CELL[0].IMUX_C[2];
 				input MOVE = CELL[0].IMUX_B[2];
 				output INFF = CELL[0].OUT_F[4];
-				output PADDI = CELL[0].OUT_IO_PADDI[2];
+				output INCK = CELL[0].OUT_IO_INCK[2];
 				output DI = CELL[0].OUT_F[5];
 				output RXDATA[0] = CELL[0].OUT_F[0];
 				output RXDATA[1] = CELL[0].OUT_F[1];
@@ -11491,7 +11491,7 @@ intdb {
 				input LOADN = CELL[0].IMUX_C[5];
 				input MOVE = CELL[0].IMUX_B[5];
 				output INFF = CELL[0].OUT_Q[4];
-				output PADDI = CELL[0].OUT_IO_PADDI[3];
+				output INCK = CELL[0].OUT_IO_INCK[3];
 				output DI = CELL[0].OUT_Q[5];
 				output RXDATA[0] = CELL[0].OUT_Q[0];
 				output RXDATA[1] = CELL[0].OUT_Q[1];
@@ -11540,10 +11540,10 @@ intdb {
 			// wire CELL[0].OUT_Q[3]               IO[2].RXDATA[6] IO[3].RXDATA[3]
 			// wire CELL[0].OUT_Q[4]               IO[3].INFF
 			// wire CELL[0].OUT_Q[5]               IO[3].DI
-			// wire CELL[0].OUT_IO_PADDI[0]        IO[0].PADDI
-			// wire CELL[0].OUT_IO_PADDI[1]        IO[1].PADDI
-			// wire CELL[0].OUT_IO_PADDI[2]        IO[2].PADDI
-			// wire CELL[0].OUT_IO_PADDI[3]        IO[3].PADDI
+			// wire CELL[0].OUT_IO_INCK[0]         IO[0].INCK
+			// wire CELL[0].OUT_IO_INCK[1]         IO[1].INCK
+			// wire CELL[0].OUT_IO_INCK[2]         IO[2].INCK
+			// wire CELL[0].OUT_IO_INCK[3]         IO[3].INCK
 			// wire CELL[0].IMUX_IO_ECLK[0]        IO[0].ECLK
 			// wire CELL[0].IMUX_IO_ECLK[1]        IO[1].ECLK
 			// wire CELL[0].IMUX_IO_ECLK[2]        IO[2].ECLK
@@ -11604,7 +11604,7 @@ intdb {
 				input LOADN = IMUX_D[1];
 				input MOVE = IMUX_C[1];
 				output INFF = OUT_F[2];
-				output PADDI = OUT_IO_PADDI[0];
+				output INCK = OUT_IO_INCK[0];
 				output DI = OUT_Q[0];
 				output RXDATA[0] = OUT_F[0];
 				output RXDATA[1] = OUT_F[1];
@@ -11625,7 +11625,7 @@ intdb {
 			// wire OUT_F[2]                       IO[0].INFF
 			// wire OUT_F[3]                       IO[0].CFLAG
 			// wire OUT_Q[0]                       IO[0].DI
-			// wire OUT_IO_PADDI[0]                IO[0].PADDI
+			// wire OUT_IO_INCK[0]                 IO[0].INCK
 		}
 
 		tile_class IO_S2 {
@@ -11643,7 +11643,7 @@ intdb {
 				input LOADN = CELL[0].IMUX_D[1];
 				input MOVE = CELL[0].IMUX_C[1];
 				output INFF = CELL[0].OUT_F[2];
-				output PADDI = CELL[0].OUT_IO_PADDI[0];
+				output INCK = CELL[0].OUT_IO_INCK[0];
 				output DI = CELL[0].OUT_Q[0];
 				output RXDATA[0] = CELL[0].OUT_F[0];
 				output RXDATA[1] = CELL[0].OUT_F[1];
@@ -11661,7 +11661,7 @@ intdb {
 				input LOADN = CELL[1].IMUX_D[1];
 				input MOVE = CELL[1].IMUX_C[1];
 				output INFF = CELL[1].OUT_F[2];
-				output PADDI = CELL[0].OUT_IO_PADDI[1];
+				output INCK = CELL[0].OUT_IO_INCK[1];
 				output DI = CELL[1].OUT_Q[0];
 				output RXDATA[0] = CELL[1].OUT_F[0];
 				output RXDATA[1] = CELL[1].OUT_F[1];
@@ -11682,8 +11682,8 @@ intdb {
 			// wire CELL[0].OUT_F[2]               IO[0].INFF
 			// wire CELL[0].OUT_F[3]               IO[0].CFLAG
 			// wire CELL[0].OUT_Q[0]               IO[0].DI
-			// wire CELL[0].OUT_IO_PADDI[0]        IO[0].PADDI
-			// wire CELL[0].OUT_IO_PADDI[1]        IO[1].PADDI
+			// wire CELL[0].OUT_IO_INCK[0]         IO[0].INCK
+			// wire CELL[0].OUT_IO_INCK[1]         IO[1].INCK
 			// wire CELL[1].IMUX_A[0]              IO[1].TXDATA[0]
 			// wire CELL[1].IMUX_B[0]              IO[1].TSDATA[0]
 			// wire CELL[1].IMUX_B[1]              IO[1].DIRECTION
@@ -11715,7 +11715,7 @@ intdb {
 				input LOADN = CELL[0].IMUX_D[1];
 				input MOVE = CELL[0].IMUX_C[1];
 				output INFF = CELL[0].OUT_F[2];
-				output PADDI = CELL[0].OUT_IO_PADDI[0];
+				output INCK = CELL[0].OUT_IO_INCK[0];
 				output DI = CELL[0].OUT_Q[0];
 				output RXDATA[0] = CELL[0].OUT_F[0];
 				output RXDATA[1] = CELL[0].OUT_F[1];
@@ -11733,7 +11733,7 @@ intdb {
 				input LOADN = CELL[1].IMUX_D[1];
 				input MOVE = CELL[1].IMUX_C[1];
 				output INFF = CELL[1].OUT_F[2];
-				output PADDI = CELL[0].OUT_IO_PADDI[1];
+				output INCK = CELL[0].OUT_IO_INCK[1];
 				output DI = CELL[1].OUT_Q[0];
 				output RXDATA[0] = CELL[1].OUT_F[0];
 				output RXDATA[1] = CELL[1].OUT_F[1];
@@ -11754,8 +11754,8 @@ intdb {
 			// wire CELL[0].OUT_F[2]               IO[0].INFF
 			// wire CELL[0].OUT_F[3]               IO[0].CFLAG
 			// wire CELL[0].OUT_Q[0]               IO[0].DI
-			// wire CELL[0].OUT_IO_PADDI[0]        IO[0].PADDI
-			// wire CELL[0].OUT_IO_PADDI[1]        IO[1].PADDI
+			// wire CELL[0].OUT_IO_INCK[0]         IO[0].INCK
+			// wire CELL[0].OUT_IO_INCK[1]         IO[1].INCK
 			// wire CELL[1].IMUX_A[0]              IO[1].TXDATA[0]
 			// wire CELL[1].IMUX_B[0]              IO[1].TSDATA[0]
 			// wire CELL[1].IMUX_B[1]              IO[1].DIRECTION
@@ -14428,8 +14428,8 @@ intdb {
 			cell IO_IN;
 
 			switchbox BEL_INT {
-				mux CELL[0].IMUX_PLL_CLKI[0] = CELL[0].IMUX_CLK[0] | IO_WE.OUT_IO_PADDI[0] | IO_WE.OUT_IO_PADDI[2] | IO_IN.OUT_IO_PADDI[2];
-				mux CELL[0].IMUX_PLL_CLKI[1] = CELL[0].IMUX_CLK[1] | IO_WE.OUT_IO_PADDI[0] | IO_WE.OUT_IO_PADDI[2] | IO_IN.OUT_IO_PADDI[2];
+				mux CELL[0].IMUX_PLL_CLKI[0] = CELL[0].IMUX_CLK[0] | IO_WE.OUT_IO_INCK[0] | IO_WE.OUT_IO_INCK[2] | IO_IN.OUT_IO_INCK[2];
+				mux CELL[0].IMUX_PLL_CLKI[1] = CELL[0].IMUX_CLK[1] | IO_WE.OUT_IO_INCK[0] | IO_WE.OUT_IO_INCK[2] | IO_IN.OUT_IO_INCK[2];
 				mux CELL[0].IMUX_PLL_CLKFB[0] = CELL[0].OUT_PLL_CLKINTFB[0] | CELL[1].IMUX_CLK[0] | IO_WE.ECLK[0] | IO_WE.ECLK[1];
 			}
 
@@ -14497,8 +14497,8 @@ intdb {
 			cell IO_IN;
 
 			switchbox BEL_INT {
-				mux CELL[0].IMUX_PLL_CLKI[0] = CELL[0].IMUX_CLK[0] | IO_WE.OUT_IO_PADDI[0] | IO_WE.OUT_IO_PADDI[2] | IO_IN.OUT_IO_PADDI[2];
-				mux CELL[0].IMUX_PLL_CLKI[1] = CELL[0].IMUX_CLK[1] | IO_WE.OUT_IO_PADDI[0] | IO_WE.OUT_IO_PADDI[2] | IO_IN.OUT_IO_PADDI[2];
+				mux CELL[0].IMUX_PLL_CLKI[0] = CELL[0].IMUX_CLK[0] | IO_WE.OUT_IO_INCK[0] | IO_WE.OUT_IO_INCK[2] | IO_IN.OUT_IO_INCK[2];
+				mux CELL[0].IMUX_PLL_CLKI[1] = CELL[0].IMUX_CLK[1] | IO_WE.OUT_IO_INCK[0] | IO_WE.OUT_IO_INCK[2] | IO_IN.OUT_IO_INCK[2];
 				mux CELL[0].IMUX_PLL_CLKFB[0] = CELL[0].OUT_PLL_CLKINTFB[0] | CELL[1].IMUX_CLK[0] | IO_WE.ECLK[0] | IO_WE.ECLK[1];
 			}
 
@@ -14569,8 +14569,8 @@ intdb {
 			cell IO_IN[1];
 
 			switchbox BEL_INT {
-				mux CELL[0].IMUX_PLL_CLKI[0] = CELL[0].IMUX_CLK[0] | IO_WE.OUT_IO_PADDI[0] | IO_WE.OUT_IO_PADDI[2] | IO_N[0].OUT_IO_PADDI[0] | IO_N[1].OUT_IO_PADDI[0] | IO_IN[0].OUT_IO_PADDI[0] | IO_IN[1].OUT_IO_PADDI[0];
-				mux CELL[0].IMUX_PLL_CLKI[1] = CELL[0].IMUX_CLK[1] | IO_WE.OUT_IO_PADDI[0] | IO_WE.OUT_IO_PADDI[2] | IO_N[0].OUT_IO_PADDI[0] | IO_N[1].OUT_IO_PADDI[0] | IO_IN[0].OUT_IO_PADDI[0] | IO_IN[1].OUT_IO_PADDI[0];
+				mux CELL[0].IMUX_PLL_CLKI[0] = CELL[0].IMUX_CLK[0] | IO_WE.OUT_IO_INCK[0] | IO_WE.OUT_IO_INCK[2] | IO_N[0].OUT_IO_INCK[0] | IO_N[1].OUT_IO_INCK[0] | IO_IN[0].OUT_IO_INCK[0] | IO_IN[1].OUT_IO_INCK[0];
+				mux CELL[0].IMUX_PLL_CLKI[1] = CELL[0].IMUX_CLK[1] | IO_WE.OUT_IO_INCK[0] | IO_WE.OUT_IO_INCK[2] | IO_N[0].OUT_IO_INCK[0] | IO_N[1].OUT_IO_INCK[0] | IO_IN[0].OUT_IO_INCK[0] | IO_IN[1].OUT_IO_INCK[0];
 				mux CELL[0].IMUX_PLL_CLKFB[0] = CELL[0].ECLK[0] | CELL[0].ECLK[1] | CELL[0].OUT_PLL_CLKINTFB[0] | CELL[1].IMUX_CLK[0];
 			}
 
@@ -14641,8 +14641,8 @@ intdb {
 			cell IO_IN[1];
 
 			switchbox BEL_INT {
-				mux CELL[0].IMUX_PLL_CLKI[0] = CELL[0].IMUX_CLK[0] | IO_WE.OUT_IO_PADDI[0] | IO_WE.OUT_IO_PADDI[2] | IO_N[0].OUT_IO_PADDI[0] | IO_N[1].OUT_IO_PADDI[0] | IO_IN[0].OUT_IO_PADDI[0] | IO_IN[1].OUT_IO_PADDI[0];
-				mux CELL[0].IMUX_PLL_CLKI[1] = CELL[0].IMUX_CLK[1] | IO_WE.OUT_IO_PADDI[0] | IO_WE.OUT_IO_PADDI[2] | IO_N[0].OUT_IO_PADDI[0] | IO_N[1].OUT_IO_PADDI[0] | IO_IN[0].OUT_IO_PADDI[0] | IO_IN[1].OUT_IO_PADDI[0];
+				mux CELL[0].IMUX_PLL_CLKI[0] = CELL[0].IMUX_CLK[0] | IO_WE.OUT_IO_INCK[0] | IO_WE.OUT_IO_INCK[2] | IO_N[0].OUT_IO_INCK[0] | IO_N[1].OUT_IO_INCK[0] | IO_IN[0].OUT_IO_INCK[0] | IO_IN[1].OUT_IO_INCK[0];
+				mux CELL[0].IMUX_PLL_CLKI[1] = CELL[0].IMUX_CLK[1] | IO_WE.OUT_IO_INCK[0] | IO_WE.OUT_IO_INCK[2] | IO_N[0].OUT_IO_INCK[0] | IO_N[1].OUT_IO_INCK[0] | IO_IN[0].OUT_IO_INCK[0] | IO_IN[1].OUT_IO_INCK[0];
 				mux CELL[0].IMUX_PLL_CLKFB[0] = CELL[0].ECLK[0] | CELL[0].ECLK[1] | CELL[0].OUT_PLL_CLKINTFB[0] | CELL[1].IMUX_CLK[0];
 			}
 
@@ -15576,7 +15576,7 @@ intdb {
 			cell ROOT;
 
 			bel DLLDEL[0] {
-				input A = CELL_EDGE[3].OUT_IO_PADDI[2];
+				input A = CELL_EDGE[3].OUT_IO_INCK[2];
 				input DDRDEL = CELL_EDGE[5].IMUX_DLLDEL_DDRDEL;
 				input DIRECTION = CELL_EDGE[5].IMUX_D[6];
 				input LOADN = CELL_EDGE[5].IMUX_B[6];
@@ -15586,7 +15586,7 @@ intdb {
 			}
 
 			bel DLLDEL[1] {
-				input A = CELL_EDGE[3].OUT_IO_PADDI[0];
+				input A = CELL_EDGE[3].OUT_IO_INCK[0];
 				input DDRDEL = CELL_EDGE[4].IMUX_DLLDEL_DDRDEL;
 				input DIRECTION = CELL_EDGE[4].IMUX_D[6];
 				input LOADN = CELL_EDGE[4].IMUX_B[6];
@@ -15596,7 +15596,7 @@ intdb {
 			}
 
 			bel DLLDEL[2] {
-				input A = CELL_EDGE[6].OUT_IO_PADDI[2];
+				input A = CELL_EDGE[6].OUT_IO_INCK[2];
 				input DDRDEL = CELL_EDGE[7].IMUX_DLLDEL_DDRDEL;
 				input DIRECTION = CELL_EDGE[7].IMUX_D[6];
 				input LOADN = CELL_EDGE[7].IMUX_B[6];
@@ -15606,7 +15606,7 @@ intdb {
 			}
 
 			bel DLLDEL[3] {
-				input A = CELL_EDGE[6].OUT_IO_PADDI[0];
+				input A = CELL_EDGE[6].OUT_IO_INCK[0];
 				input DDRDEL = CELL_EDGE[6].IMUX_DLLDEL_DDRDEL;
 				input DIRECTION = CELL_EDGE[6].IMUX_D[6];
 				input LOADN = CELL_EDGE[6].IMUX_B[6];
@@ -15630,11 +15630,11 @@ intdb {
 			}
 
 			switchbox CLK_INT {
-				mux CELL_EDGE[4].INCK[0] = CELL_EDGE[3].OUT_IO_PADDI[0] | CELL_EDGE[4].OUT_DLLDEL_Z;
+				mux CELL_EDGE[4].INCK[0] = CELL_EDGE[3].OUT_IO_INCK[0] | CELL_EDGE[4].OUT_DLLDEL_Z;
 				mux CELL_EDGE[4].IMUX_DLLDEL_DDRDEL = CELL_EDGE[0].DDRDEL_S | CELL_EDGE[0].DDRDEL_N;
 				mux CELL_EDGE[5].ECLK[0] = CELL_EDGE[6].OUT_ECLKSYNC_ECLKO[0] | CELL_EDGE[6].OUT_ECLKSYNC_ECLKO[2] | ROOT.BRGECLK[0];
 				mux CELL_EDGE[5].ECLK[1] = CELL_EDGE[6].OUT_ECLKSYNC_ECLKO[1] | CELL_EDGE[6].OUT_ECLKSYNC_ECLKO[3] | ROOT.BRGECLK[1];
-				mux CELL_EDGE[5].INCK[0] = CELL_EDGE[3].OUT_IO_PADDI[2] | CELL_EDGE[5].OUT_DLLDEL_Z;
+				mux CELL_EDGE[5].INCK[0] = CELL_EDGE[3].OUT_IO_INCK[2] | CELL_EDGE[5].OUT_DLLDEL_Z;
 				mux CELL_EDGE[5].IMUX_DLLDEL_DDRDEL = CELL_EDGE[0].DDRDEL_S | CELL_EDGE[0].DDRDEL_N;
 				mux CELL_EDGE[6].IMUX_DCC_CLKI[0] = CELL_EDGE[2].IMUX_D[7] | CELL_EDGE[5].INCK[0] | FABRIC_IN_M[0].IMUX_CLK[1] | PLL[0].OUT_PLL_CLKOS2[0] | PLL[1].OUT_PLL_CLKOP[0];
 				mux CELL_EDGE[6].IMUX_DCC_CLKI[1] = CELL_EDGE[0].IMUX_D[7] | CELL_EDGE[4].INCK[0] | CELL_EDGE[6].OUT_CLKDIV_CDIVX[1] | FABRIC_IN_M[1].IMUX_CLK[1] | PLL[1].OUT_PLL_CLKOS[0];
@@ -15656,11 +15656,11 @@ intdb {
 				mux CELL_EDGE[6].IMUX_ECLKSYNC_ECLKI[1] = CELL_EDGE[4].IMUX_CLK[1] | CELL_EDGE[4].INCK[0] | CELL_EDGE[5].INCK[0] | CELL_EDGE[6].INCK[0] | CELL_EDGE[7].IMUX_CLK[1] | CELL_EDGE[7].INCK[0] | PLL[0].OUT_PLL_CLKOP[0] | PLL[0].OUT_PLL_CLKOS[0] | PLL[1].OUT_PLL_CLKOP[0] | PLL[1].OUT_PLL_CLKOS[0];
 				mux CELL_EDGE[6].IMUX_ECLKSYNC_ECLKI[2] = CELL_EDGE[4].IMUX_CLK[0] | CELL_EDGE[4].INCK[0] | CELL_EDGE[5].INCK[0] | CELL_EDGE[6].INCK[0] | CELL_EDGE[7].IMUX_CLK[0] | CELL_EDGE[7].INCK[0] | PLL[0].OUT_PLL_CLKOP[0] | PLL[0].OUT_PLL_CLKOS[0] | PLL[1].OUT_PLL_CLKOP[0] | PLL[1].OUT_PLL_CLKOS[0];
 				mux CELL_EDGE[6].IMUX_ECLKSYNC_ECLKI[3] = CELL_EDGE[4].IMUX_CLK[1] | CELL_EDGE[4].INCK[0] | CELL_EDGE[5].INCK[0] | CELL_EDGE[6].INCK[0] | CELL_EDGE[7].IMUX_CLK[1] | CELL_EDGE[7].INCK[0] | PLL[0].OUT_PLL_CLKOP[0] | PLL[0].OUT_PLL_CLKOS[0] | PLL[1].OUT_PLL_CLKOP[0] | PLL[1].OUT_PLL_CLKOS[0];
-				mux CELL_EDGE[6].INCK[0] = CELL_EDGE[6].OUT_IO_PADDI[0] | CELL_EDGE[6].OUT_DLLDEL_Z;
+				mux CELL_EDGE[6].INCK[0] = CELL_EDGE[6].OUT_IO_INCK[0] | CELL_EDGE[6].OUT_DLLDEL_Z;
 				mux CELL_EDGE[6].IMUX_DLLDEL_DDRDEL = CELL_EDGE[0].DDRDEL_S | CELL_EDGE[0].DDRDEL_N;
 				mux CELL_EDGE[6].IMUX_CLKDIV_CLKI[0] = CELL_EDGE[0].ECLK[0] | CELL_EDGE[6].ECLK[0];
 				mux CELL_EDGE[6].IMUX_CLKDIV_CLKI[1] = CELL_EDGE[0].ECLK[1] | CELL_EDGE[6].ECLK[1];
-				mux CELL_EDGE[7].INCK[0] = CELL_EDGE[6].OUT_IO_PADDI[2] | CELL_EDGE[7].OUT_DLLDEL_Z;
+				mux CELL_EDGE[7].INCK[0] = CELL_EDGE[6].OUT_IO_INCK[2] | CELL_EDGE[7].OUT_DLLDEL_Z;
 				mux CELL_EDGE[7].IMUX_DLLDEL_DDRDEL = CELL_EDGE[0].DDRDEL_S | CELL_EDGE[0].DDRDEL_N;
 				permabuf CELL_EBR[0].OUT_F[0] = CELL_EDGE[6].ECLK[0];
 				permabuf CELL_EBR[0].OUT_F[1] = CELL_EDGE[6].ECLK[1];
@@ -15804,8 +15804,8 @@ intdb {
 				output ECLKO = CELL_EDGE[6].OUT_BRGECLKSYNC_ECLKO[0];
 			}
 
-			// wire CELL_EDGE[3].OUT_IO_PADDI[0]   DLLDEL[1].A
-			// wire CELL_EDGE[3].OUT_IO_PADDI[2]   DLLDEL[0].A
+			// wire CELL_EDGE[3].OUT_IO_INCK[0]    DLLDEL[1].A
+			// wire CELL_EDGE[3].OUT_IO_INCK[2]    DLLDEL[0].A
 			// wire CELL_EDGE[4].IMUX_B[6]         DLLDEL[1].LOADN
 			// wire CELL_EDGE[4].IMUX_C[6]         DLLDEL[1].MOVE
 			// wire CELL_EDGE[4].IMUX_D[6]         DLLDEL[1].DIRECTION
@@ -15860,8 +15860,8 @@ intdb {
 			// wire CELL_EDGE[6].OUT_ECLKSYNC_ECLKO[3] ECLKSYNC[3].ECLKO
 			// wire CELL_EDGE[6].OUT_ECLKBRIDGECS_ECSOUT[0] ECLKBRIDGECS[0].ECSOUT BRGECLKSYNC[0].ECLKI
 			// wire CELL_EDGE[6].OUT_BRGECLKSYNC_ECLKO[0] BRGECLKSYNC[0].ECLKO
-			// wire CELL_EDGE[6].OUT_IO_PADDI[0]   DLLDEL[3].A
-			// wire CELL_EDGE[6].OUT_IO_PADDI[2]   DLLDEL[2].A
+			// wire CELL_EDGE[6].OUT_IO_INCK[0]    DLLDEL[3].A
+			// wire CELL_EDGE[6].OUT_IO_INCK[2]    DLLDEL[2].A
 			// wire CELL_EDGE[6].IMUX_DLLDEL_DDRDEL DLLDEL[3].DDRDEL
 			// wire CELL_EDGE[6].OUT_DLLDEL_Z      DLLDEL[3].Z
 			// wire CELL_EDGE[6].IMUX_CLKDIV_CLKI[0] CLKDIV[0].CLKI
@@ -15935,7 +15935,7 @@ intdb {
 			cell ROOT;
 
 			bel DLLDEL[0] {
-				input A = CELL_EDGE[3].OUT_IO_PADDI[2];
+				input A = CELL_EDGE[3].OUT_IO_INCK[2];
 				input DDRDEL = CELL_EDGE[5].IMUX_DLLDEL_DDRDEL;
 				input DIRECTION = CELL_EDGE[5].IMUX_D[6];
 				input LOADN = CELL_EDGE[5].IMUX_B[6];
@@ -15945,7 +15945,7 @@ intdb {
 			}
 
 			bel DLLDEL[1] {
-				input A = CELL_EDGE[3].OUT_IO_PADDI[0];
+				input A = CELL_EDGE[3].OUT_IO_INCK[0];
 				input DDRDEL = CELL_EDGE[4].IMUX_DLLDEL_DDRDEL;
 				input DIRECTION = CELL_EDGE[4].IMUX_D[6];
 				input LOADN = CELL_EDGE[4].IMUX_B[6];
@@ -15955,7 +15955,7 @@ intdb {
 			}
 
 			bel DLLDEL[2] {
-				input A = CELL_EDGE[6].OUT_IO_PADDI[2];
+				input A = CELL_EDGE[6].OUT_IO_INCK[2];
 				input DDRDEL = CELL_EDGE[7].IMUX_DLLDEL_DDRDEL;
 				input DIRECTION = CELL_EDGE[7].IMUX_D[6];
 				input LOADN = CELL_EDGE[7].IMUX_B[6];
@@ -15965,7 +15965,7 @@ intdb {
 			}
 
 			bel DLLDEL[3] {
-				input A = CELL_EDGE[6].OUT_IO_PADDI[0];
+				input A = CELL_EDGE[6].OUT_IO_INCK[0];
 				input DDRDEL = CELL_EDGE[6].IMUX_DLLDEL_DDRDEL;
 				input DIRECTION = CELL_EDGE[6].IMUX_D[6];
 				input LOADN = CELL_EDGE[6].IMUX_B[6];
@@ -15989,11 +15989,11 @@ intdb {
 			}
 
 			switchbox CLK_INT {
-				mux CELL_EDGE[4].INCK[0] = CELL_EDGE[3].OUT_IO_PADDI[0] | CELL_EDGE[4].OUT_DLLDEL_Z;
+				mux CELL_EDGE[4].INCK[0] = CELL_EDGE[3].OUT_IO_INCK[0] | CELL_EDGE[4].OUT_DLLDEL_Z;
 				mux CELL_EDGE[4].IMUX_DLLDEL_DDRDEL = CELL_EDGE[0].DDRDEL_S | CELL_EDGE[0].DDRDEL_N;
 				mux CELL_EDGE[5].ECLK[0] = CELL_EDGE[6].OUT_ECLKSYNC_ECLKO[0] | CELL_EDGE[6].OUT_ECLKSYNC_ECLKO[2] | ROOT.BRGECLK[0];
 				mux CELL_EDGE[5].ECLK[1] = CELL_EDGE[6].OUT_ECLKSYNC_ECLKO[1] | CELL_EDGE[6].OUT_ECLKSYNC_ECLKO[3] | ROOT.BRGECLK[1];
-				mux CELL_EDGE[5].INCK[0] = CELL_EDGE[3].OUT_IO_PADDI[2] | CELL_EDGE[5].OUT_DLLDEL_Z;
+				mux CELL_EDGE[5].INCK[0] = CELL_EDGE[3].OUT_IO_INCK[2] | CELL_EDGE[5].OUT_DLLDEL_Z;
 				mux CELL_EDGE[5].IMUX_DLLDEL_DDRDEL = CELL_EDGE[0].DDRDEL_S | CELL_EDGE[0].DDRDEL_N;
 				mux CELL_EDGE[6].IMUX_DCC_CLKI[0] = CELL_EDGE[2].IMUX_D[7] | CELL_EDGE[7].INCK[0] | FABRIC_IN_M[0].IMUX_CLK[1] | PLL[0].OUT_PLL_CLKOS2[0] | PLL[1].OUT_PLL_CLKOP[0];
 				mux CELL_EDGE[6].IMUX_DCC_CLKI[1] = CELL_EDGE[0].IMUX_D[7] | CELL_EDGE[6].INCK[0] | CELL_EDGE[6].OUT_CLKDIV_CDIVX[1] | FABRIC_IN_M[1].IMUX_CLK[1] | PLL[1].OUT_PLL_CLKOS[0];
@@ -16015,11 +16015,11 @@ intdb {
 				mux CELL_EDGE[6].IMUX_ECLKSYNC_ECLKI[1] = CELL_EDGE[4].IMUX_CLK[1] | CELL_EDGE[4].INCK[0] | CELL_EDGE[5].INCK[0] | CELL_EDGE[6].INCK[0] | CELL_EDGE[7].IMUX_CLK[1] | CELL_EDGE[7].INCK[0] | PLL[0].OUT_PLL_CLKOP[0] | PLL[0].OUT_PLL_CLKOS[0] | PLL[1].OUT_PLL_CLKOP[0] | PLL[1].OUT_PLL_CLKOS[0];
 				mux CELL_EDGE[6].IMUX_ECLKSYNC_ECLKI[2] = CELL_EDGE[4].IMUX_CLK[0] | CELL_EDGE[4].INCK[0] | CELL_EDGE[5].INCK[0] | CELL_EDGE[6].INCK[0] | CELL_EDGE[7].IMUX_CLK[0] | CELL_EDGE[7].INCK[0] | PLL[0].OUT_PLL_CLKOP[0] | PLL[0].OUT_PLL_CLKOS[0] | PLL[1].OUT_PLL_CLKOP[0] | PLL[1].OUT_PLL_CLKOS[0];
 				mux CELL_EDGE[6].IMUX_ECLKSYNC_ECLKI[3] = CELL_EDGE[4].IMUX_CLK[1] | CELL_EDGE[4].INCK[0] | CELL_EDGE[5].INCK[0] | CELL_EDGE[6].INCK[0] | CELL_EDGE[7].IMUX_CLK[1] | CELL_EDGE[7].INCK[0] | PLL[0].OUT_PLL_CLKOP[0] | PLL[0].OUT_PLL_CLKOS[0] | PLL[1].OUT_PLL_CLKOP[0] | PLL[1].OUT_PLL_CLKOS[0];
-				mux CELL_EDGE[6].INCK[0] = CELL_EDGE[6].OUT_IO_PADDI[0] | CELL_EDGE[6].OUT_DLLDEL_Z;
+				mux CELL_EDGE[6].INCK[0] = CELL_EDGE[6].OUT_IO_INCK[0] | CELL_EDGE[6].OUT_DLLDEL_Z;
 				mux CELL_EDGE[6].IMUX_DLLDEL_DDRDEL = CELL_EDGE[0].DDRDEL_S | CELL_EDGE[0].DDRDEL_N;
 				mux CELL_EDGE[6].IMUX_CLKDIV_CLKI[0] = CELL_EDGE[0].ECLK[0] | CELL_EDGE[6].ECLK[0];
 				mux CELL_EDGE[6].IMUX_CLKDIV_CLKI[1] = CELL_EDGE[0].ECLK[1] | CELL_EDGE[6].ECLK[1];
-				mux CELL_EDGE[7].INCK[0] = CELL_EDGE[6].OUT_IO_PADDI[2] | CELL_EDGE[7].OUT_DLLDEL_Z;
+				mux CELL_EDGE[7].INCK[0] = CELL_EDGE[6].OUT_IO_INCK[2] | CELL_EDGE[7].OUT_DLLDEL_Z;
 				mux CELL_EDGE[7].IMUX_DLLDEL_DDRDEL = CELL_EDGE[0].DDRDEL_S | CELL_EDGE[0].DDRDEL_N;
 				permabuf CELL_EBR[0].OUT_F[0] = CELL_EDGE[6].ECLK[0];
 				permabuf CELL_EBR[0].OUT_F[1] = CELL_EDGE[6].ECLK[1];
@@ -16163,8 +16163,8 @@ intdb {
 				output ECLKO = CELL_EDGE[6].OUT_BRGECLKSYNC_ECLKO[0];
 			}
 
-			// wire CELL_EDGE[3].OUT_IO_PADDI[0]   DLLDEL[1].A
-			// wire CELL_EDGE[3].OUT_IO_PADDI[2]   DLLDEL[0].A
+			// wire CELL_EDGE[3].OUT_IO_INCK[0]    DLLDEL[1].A
+			// wire CELL_EDGE[3].OUT_IO_INCK[2]    DLLDEL[0].A
 			// wire CELL_EDGE[4].IMUX_B[6]         DLLDEL[1].LOADN
 			// wire CELL_EDGE[4].IMUX_C[6]         DLLDEL[1].MOVE
 			// wire CELL_EDGE[4].IMUX_D[6]         DLLDEL[1].DIRECTION
@@ -16219,8 +16219,8 @@ intdb {
 			// wire CELL_EDGE[6].OUT_ECLKSYNC_ECLKO[3] ECLKSYNC[3].ECLKO
 			// wire CELL_EDGE[6].OUT_ECLKBRIDGECS_ECSOUT[0] ECLKBRIDGECS[0].ECSOUT BRGECLKSYNC[0].ECLKI
 			// wire CELL_EDGE[6].OUT_BRGECLKSYNC_ECLKO[0] BRGECLKSYNC[0].ECLKO
-			// wire CELL_EDGE[6].OUT_IO_PADDI[0]   DLLDEL[3].A
-			// wire CELL_EDGE[6].OUT_IO_PADDI[2]   DLLDEL[2].A
+			// wire CELL_EDGE[6].OUT_IO_INCK[0]    DLLDEL[3].A
+			// wire CELL_EDGE[6].OUT_IO_INCK[2]    DLLDEL[2].A
 			// wire CELL_EDGE[6].IMUX_DLLDEL_DDRDEL DLLDEL[3].DDRDEL
 			// wire CELL_EDGE[6].OUT_DLLDEL_Z      DLLDEL[3].Z
 			// wire CELL_EDGE[6].IMUX_CLKDIV_CLKI[0] CLKDIV[0].CLKI
@@ -16534,7 +16534,7 @@ intdb {
 			cell PLL[1];
 
 			bel DLLDEL[0] {
-				input A = CELL[5].OUT_IO_PADDI[0];
+				input A = CELL[5].OUT_IO_INCK[0];
 				input DDRDEL = CELL[6].IMUX_DLLDEL_DDRDEL;
 				input DIRECTION = CELL[6].IMUX_D[6];
 				input LOADN = CELL[6].IMUX_B[6];
@@ -16544,7 +16544,7 @@ intdb {
 			}
 
 			bel DLLDEL[1] {
-				input A = CELL[3].OUT_IO_PADDI[0];
+				input A = CELL[3].OUT_IO_INCK[0];
 				input DDRDEL = CELL[7].IMUX_DLLDEL_DDRDEL;
 				input DIRECTION = CELL[7].IMUX_D[6];
 				input LOADN = CELL[7].IMUX_B[6];
@@ -16554,7 +16554,7 @@ intdb {
 			}
 
 			bel DLLDEL[2] {
-				input A = CELL[11].OUT_IO_PADDI[0];
+				input A = CELL[11].OUT_IO_INCK[0];
 				input DDRDEL = CELL[8].IMUX_DLLDEL_DDRDEL;
 				input DIRECTION = CELL[8].IMUX_D[6];
 				input LOADN = CELL[8].IMUX_B[6];
@@ -16564,7 +16564,7 @@ intdb {
 			}
 
 			bel DLLDEL[3] {
-				input A = CELL[9].OUT_IO_PADDI[0];
+				input A = CELL[9].OUT_IO_INCK[0];
 				input DDRDEL = CELL[9].IMUX_DLLDEL_DDRDEL;
 				input DIRECTION = CELL[9].IMUX_D[6];
 				input LOADN = CELL[9].IMUX_B[6];
@@ -16574,9 +16574,9 @@ intdb {
 			}
 
 			switchbox CLK_INT {
-				mux CELL[6].INCK[0] = CELL[5].OUT_IO_PADDI[0] | CELL[6].OUT_DLLDEL_Z;
+				mux CELL[6].INCK[0] = CELL[5].OUT_IO_INCK[0] | CELL[6].OUT_DLLDEL_Z;
 				mux CELL[6].IMUX_DLLDEL_DDRDEL = DDRDLL_NW.OUT_DDRDLL_DDRDEL | DDRDLL_NE.OUT_DDRDLL_DDRDEL;
-				mux CELL[7].INCK[0] = CELL[3].OUT_IO_PADDI[0] | CELL[7].OUT_DLLDEL_Z;
+				mux CELL[7].INCK[0] = CELL[3].OUT_IO_INCK[0] | CELL[7].OUT_DLLDEL_Z;
 				mux CELL[7].IMUX_DLLDEL_DDRDEL = DDRDLL_NW.OUT_DDRDLL_DDRDEL | DDRDLL_NE.OUT_DDRDLL_DDRDEL;
 				mux CELL[8].IMUX_DCC_CLKI[0] = CELL[7].INCK[0] | CELL[15].IMUX_D[7] | FABRIC_IN_M[2].IMUX_CLK[1] | PLL[0].OUT_PLL_CLKOP[0] | PLL[1].OUT_PLL_CLKOP[0];
 				mux CELL[8].IMUX_DCC_CLKI[1] = CELL[1].IMUX_D[7] | CELL[8].INCK[0] | FABRIC_IN_M[3].IMUX_CLK[1] | PLL[0].OUT_PLL_CLKOS2[0] | PLL[1].OUT_PLL_CLKOP[0];
@@ -16590,9 +16590,9 @@ intdb {
 				mux CELL[8].IMUX_DCC_CLKI[9] = CELL[8].INCK[0] | CELL[15].IMUX_D[7] | FABRIC_IN_M[3].IMUX_CLK[1] | PLL[0].OUT_PLL_CLKOS3[0] | PLL[1].OUT_PLL_CLKOP[0];
 				mux CELL[8].IMUX_DCC_CLKI[10] = CELL[0].IMUX_D[7] | CELL[6].INCK[0] | FABRIC_IN_M[1].IMUX_CLK[1] | PLL[0].OUT_PLL_CLKOS3[0] | PLL[1].OUT_PLL_CLKOS3[0];
 				mux CELL[8].IMUX_DCC_CLKI[11] = CELL[8].INCK[0] | CELL[14].IMUX_D[7] | FABRIC_IN_M[3].IMUX_CLK[1] | PLL[0].OUT_PLL_CLKOP[0] | PLL[1].OUT_PLL_CLKOS[0];
-				mux CELL[8].INCK[0] = CELL[8].OUT_DLLDEL_Z | CELL[11].OUT_IO_PADDI[0];
+				mux CELL[8].INCK[0] = CELL[8].OUT_DLLDEL_Z | CELL[11].OUT_IO_INCK[0];
 				mux CELL[8].IMUX_DLLDEL_DDRDEL = DDRDLL_NW.OUT_DDRDLL_DDRDEL | DDRDLL_NE.OUT_DDRDLL_DDRDEL;
-				mux CELL[9].INCK[0] = CELL[9].OUT_IO_PADDI[0] | CELL[9].OUT_DLLDEL_Z;
+				mux CELL[9].INCK[0] = CELL[9].OUT_IO_INCK[0] | CELL[9].OUT_DLLDEL_Z;
 				mux CELL[9].IMUX_DLLDEL_DDRDEL = DDRDLL_NW.OUT_DDRDLL_DDRDEL | DDRDLL_NE.OUT_DDRDLL_DDRDEL;
 			}
 
@@ -16674,8 +16674,8 @@ intdb {
 				output CLKO = CELL[8].OUT_DCC_CLKO[11];
 			}
 
-			// wire CELL[3].OUT_IO_PADDI[0]        DLLDEL[1].A
-			// wire CELL[5].OUT_IO_PADDI[0]        DLLDEL[0].A
+			// wire CELL[3].OUT_IO_INCK[0]         DLLDEL[1].A
+			// wire CELL[5].OUT_IO_INCK[0]         DLLDEL[0].A
 			// wire CELL[6].IMUX_B[6]              DLLDEL[0].LOADN
 			// wire CELL[6].IMUX_C[6]              DLLDEL[0].MOVE
 			// wire CELL[6].IMUX_D[6]              DLLDEL[0].DIRECTION
@@ -16737,10 +16737,10 @@ intdb {
 			// wire CELL[9].IMUX_C[6]              DLLDEL[3].MOVE
 			// wire CELL[9].IMUX_D[6]              DLLDEL[3].DIRECTION
 			// wire CELL[9].OUT_Q[7]               DLLDEL[3].CFLAG
-			// wire CELL[9].OUT_IO_PADDI[0]        DLLDEL[3].A
+			// wire CELL[9].OUT_IO_INCK[0]         DLLDEL[3].A
 			// wire CELL[9].IMUX_DLLDEL_DDRDEL     DLLDEL[3].DDRDEL
 			// wire CELL[9].OUT_DLLDEL_Z           DLLDEL[3].Z
-			// wire CELL[11].OUT_IO_PADDI[0]       DLLDEL[2].A
+			// wire CELL[11].OUT_IO_INCK[0]        DLLDEL[2].A
 		}
 
 		tile_class CLK_ROOT_S {

@@ -93,7 +93,7 @@ impl ChipContext<'_> {
             .input_raw(bcls::IO::PADDO, BelInput::Fixed(wire_o.pos()))
             .input_raw(bcls::IO::PADDT, BelInput::Fixed(wire_t.pos()))
             .output_xlat_rc_io(bcls::IO::PADDI, format!("JPADDI{abcd}_PIO"))
-            .output_extra(bcls::IO::PADDI, wires::OUT_IO_PADDI[idx].cell(0));
+            .output(bcls::IO::INCK, wires::OUT_IO_INCK[idx].cell(0));
     }
 
     fn process_pictest(&mut self, cell: CellCoord) {

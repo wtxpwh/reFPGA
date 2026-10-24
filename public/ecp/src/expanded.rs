@@ -42,7 +42,8 @@ impl ExpandedDevice<'_> {
             | ChipKind::Xp2
             | ChipKind::Ecp3(_)
             | ChipKind::Ecp4
-            | ChipKind::Ecp5 => {
+            | ChipKind::Ecp5
+            | ChipKind::Nexus(_) => {
                 let dqs = self[io.cell].region_root[rslots::DQS].bel(bslots::DQS[0]);
                 if self.has_bel(dqs) { Some(dqs) } else { None }
             }

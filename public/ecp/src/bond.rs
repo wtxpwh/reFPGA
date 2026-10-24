@@ -6,6 +6,7 @@ use prjcombine_interconnect::{
     dir::{DirH, DirHV, DirV},
     grid::{ColId, EdgeIoCoord},
 };
+use prjcombine_types::Polarity;
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Encode, Decode)]
 pub enum CfgPad {
@@ -182,6 +183,25 @@ impl std::fmt::Display for MipiPad {
 }
 
 #[derive(Copy, Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Encode, Decode)]
+pub enum AdcPad {
+    D(Polarity, u8),
+    RefP(u8),
+    Vcc18,
+    Vss,
+}
+
+impl std::fmt::Display for AdcPad {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            AdcPad::D(pol, i) => write!(f, "D{pol}{i}"),
+            AdcPad::RefP(i) => write!(f, "REFP{i}"),
+            AdcPad::Vcc18 => write!(f, "VCC18"),
+            AdcPad::Vss => write!(f, "VSS"),
+        }
+    }
+}
+
+#[derive(Copy, Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Encode, Decode)]
 pub enum AscPad {
     HvOut(u8),
     HviMonP,
@@ -318,6 +338,7 @@ pub enum BondPad {
     Vpp,
     Mipi(ColId, MipiPad),
     MipiCommon(MipiPad),
+    Adc(AdcPad),
 }
 
 impl std::fmt::Display for BondPad {
@@ -358,6 +379,7 @@ impl std::fmt::Display for BondPad {
             BondPad::IoCdone(io) => write!(f, "{io}_CDONE"),
             BondPad::Mipi(col, pad) => write!(f, "MIPI_N{col:#}_{pad}"),
             BondPad::MipiCommon(pad) => write!(f, "MIPI_COMMON_{pad}"),
+            BondPad::Adc(pad) => write!(f, "ADC_{pad}"),
         }
     }
 }

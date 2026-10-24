@@ -18,7 +18,7 @@ impl ChipContext<'_> {
                 if self.edev.has_bel(bcrd) {
                     let (cell_io, abcd) = self.xlat_io_loc_ecp5(bcrd);
                     let paddi_pio = self.rc_io_wire(cell_io, &format!("JPADDI{abcd}_PIO"));
-                    self.bind_wire(paddi_pio, bcrd.wire(wires::OUT_IO_PADDI[iob]));
+                    self.bind_wire(paddi_pio, bcrd.wire(wires::OUT_IO_INCK[iob]));
                 }
             }
         }
@@ -554,7 +554,7 @@ impl ChipContext<'_> {
             .add_wire_rc_io("IOLTO_IOLOGIC", format!("IOLTO{abcd}_{iol}"))
             .add_wire_rc_io("IOLTO_PIO", format!("IOLTO{abcd}_PIO"))
             .claim_pip("IOLTO_PIO", "IOLTO_IOLOGIC")
-            .output(bcls::IO::PADDI, wires::OUT_IO_PADDI[idx].cell(0));
+            .output(bcls::IO::INCK, wires::OUT_IO_INCK[idx].cell(0));
 
         for (pin, bslot_rc, pin_src) in [
             ("INRD", bslots::BCINRD, "INRDENO_OUT"),

@@ -19,10 +19,10 @@ impl ChipContext<'_> {
         let mut ex = self.extract_switchbox(bcrd);
 
         ex.cell(cell)
-            .input_io_rc("JLPIO", wires::OUT_IO_PADDI[0].cell(24))
-            .input_io_rc("JRPIO", wires::OUT_IO_PADDI[0].cell(25))
-            .input_io_rc("JBPIO", wires::OUT_IO_PADDI[0].cell(26))
-            .input_io_rc("JTPIO", wires::OUT_IO_PADDI[0].cell(27));
+            .input_io_rc("JLPIO", wires::OUT_IO_INCK[0].cell(24))
+            .input_io_rc("JRPIO", wires::OUT_IO_INCK[0].cell(25))
+            .input_io_rc("JBPIO", wires::OUT_IO_INCK[0].cell(26))
+            .input_io_rc("JTPIO", wires::OUT_IO_INCK[0].cell(27));
 
         for (ci, prefix) in ["LL", "LR", "UL", "UR"].into_iter().enumerate() {
             for i in [0, 1, 4, 5, 6, 7] {

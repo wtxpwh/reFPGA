@@ -44,7 +44,7 @@ impl ChipContext<'_> {
 
     fn prep_single_io_ecp3(&mut self, bcrd: BelCoord) {
         let idx = bslots::IO.index_of(bcrd.slot).unwrap();
-        let wire = bcrd.wire(wires::OUT_IO_PADDI[idx]);
+        let wire = bcrd.wire(wires::OUT_IO_INCK[idx]);
         let wname = self.get_paddi_wire(wire);
         self.bind_wire(wname, wire);
     }

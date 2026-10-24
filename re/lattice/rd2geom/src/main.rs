@@ -7,7 +7,7 @@ use std::{
 use clap::Parser;
 use itertools::Itertools;
 use prjcombine_ecp::{
-    bond::{BondPad, CfgPad, MipiPad, SerdesPad},
+    bond::{AdcPad, BondPad, CfgPad, MipiPad, SerdesPad},
     chip::{Chip, ChipKind, Ecp3Kind, MachXo2Kind, NexusKind, SpecialIoKey},
     db::Device,
     expanded::ExpandedDevice,
@@ -90,15 +90,23 @@ impl<'dev> ChipContext<'dev> {
             .unwrap();
         let (adjust_r, adjust_c) = match mode {
             RcMode::Base => (false, false),
-            RcMode::Io => {
-                if self.chip.kind != ChipKind::Crosslink
-                    && (cell.col == self.chip.col_w() || cell.col == self.chip.col_e())
-                {
-                    (false, true)
-                } else {
-                    (true, false)
+            RcMode::Io => match self.chip.kind {
+                ChipKind::Crosslink => (true, false),
+                ChipKind::Nexus(_) => {
+                    if cell.row == self.chip.row_s() || cell.row == self.chip.row_n() {
+                        (true, false)
+                    } else {
+                        (false, true)
+                    }
                 }
-            }
+                _ => {
+                    if cell.col == self.chip.col_w() || cell.col == self.chip.col_e() {
+                        (false, true)
+                    } else {
+                        (true, false)
+                    }
+                }
+            },
             RcMode::IoSn => (true, false),
             RcMode::Corner => (true, true),
         };
@@ -329,6 +337,13 @@ impl<'dev> ChipContext<'dev> {
                 "RNET",
                 "PROMON1V",
                 "PROMON2V",
+                "SGMIICDR_CORE",
+                "DQSBUF_CORE_I_DQS_TOP",
+                "DQSBUFA_CORE_I_DQS_TOP",
+                "DQSBUFB_CORE_I_DQS_TOP",
+                "DDRDLL_CORE_I1",
+                "DLLDEL_CORE_I0",
+                "ADC_CORE_ADC0",
             ] {
                 if let Some(n) = name.strip_suffix(suffix)
                     && let Some(n) = n.strip_suffix('_')
@@ -729,6 +744,10 @@ fn main() -> Result<(), Box<dyn Error>> {
                     }
                     BondPad::Cfg(CfgPad::MpiIrqB) if chip.kind == ChipKind::Scm => {
                         assert!(expected_sites.remove("MPIIRQN"));
+                        expected_sites.insert(pin.clone());
+                    }
+                    BondPad::Adc(AdcPad::D(pol, i)) => {
+                        assert!(expected_sites.remove(&format!("ADC_D{pol}{i}")));
                         expected_sites.insert(pin.clone());
                     }
                     _ => (),

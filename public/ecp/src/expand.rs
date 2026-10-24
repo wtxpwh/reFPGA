@@ -73,7 +73,7 @@ impl Expander<'_, '_> {
         let ioidx = bslots::IO.index_of(io.slot).unwrap();
         self.egrid
             .extra_conns
-            .insert(wire, io.wire(wires::OUT_IO_PADDI[ioidx]));
+            .insert(wire, io.wire(wires::OUT_IO_INCK[ioidx]));
     }
 
     fn fill_int_io(&mut self, cell: CellCoord) {
@@ -437,10 +437,12 @@ impl Chip {
                 expander.fill_clk_crosslink();
             }
             ChipKind::Nexus(_) => {
+                expander.fill_pll_nexus();
                 expander.fill_plc();
                 expander.fill_ebr_nexus();
                 expander.fill_io_nexus();
                 expander.fill_pclk_nexus();
+                expander.fill_clk_nexus();
             }
         }
         expander.fill_conns();

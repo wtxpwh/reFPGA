@@ -1,3 +1,5 @@
+use bincode::{Decode, Encode};
+
 pub mod bimap;
 pub mod bitrect;
 pub mod bitvec;
@@ -7,7 +9,7 @@ pub mod db;
 pub mod speed;
 pub mod units;
 
-#[derive(Copy, Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
+#[derive(Copy, Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Encode, Decode)]
 pub enum Polarity {
     P,
     N,

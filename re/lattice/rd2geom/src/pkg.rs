@@ -4,7 +4,7 @@ use std::{
 };
 
 use prjcombine_ecp::{
-    bond::{AscPad, Bond, BondKind, BondPad, CfgPad, MipiPad, PfrPad, PllSet, SerdesPad},
+    bond::{AdcPad, AscPad, Bond, BondKind, BondPad, CfgPad, MipiPad, PfrPad, PllSet, SerdesPad},
     chip::{
         Chip, ChipKind, Ecp3Kind, IoGroupKind, MachXo2Kind, NexusKind, PllLoc, PllPad, RowKind,
         SpecialIoKey, SpecialLocKey,
@@ -17,7 +17,7 @@ use prjcombine_interconnect::{
 };
 use prjcombine_re_lattice_naming::ChipNaming;
 use prjcombine_re_lattice_rawdump::Part;
-use prjcombine_types::bscan::BScanPad;
+use prjcombine_types::{Polarity, bscan::BScanPad};
 
 use crate::{
     archive::{Archive, Reader, read_archive},
@@ -689,9 +689,9 @@ fn parse_io_special(
                     let base = match kind {
                         NexusKind::SmallMipi | NexusKind::SmallMipiPcie | NexusKind::LargePcs => 3,
                         NexusKind::SmallHalfIo => 2,
-                        NexusKind::SmallDenseIo => 4,
+                        NexusKind::SmallDenseIo => 5,
                     };
-                    let bidx = 2 - (bank - base);
+                    let bidx = bank - base;
                     idx += (bidx * 4) as u8;
                 }
                 Dir::W => {
@@ -1705,9 +1705,33 @@ pub fn process_bond(datadir: &Path, part: &Part, chip: &Chip, _naming: &ChipNami
                 // Crosslink
                 "CDONE" => BondPad::Cfg(CfgPad::Done),
                 "CRESET_B" => BondPad::Cfg(CfgPad::ProgB),
+                // Nexus
                 "JTAG_EN" if matches!(chip.kind, ChipKind::Nexus(_)) => {
                     BondPad::Cfg(CfgPad::JtagEn)
                 }
+                "ADC_DP0" if matches!(chip.kind, ChipKind::Nexus(_)) => {
+                    BondPad::Adc(AdcPad::D(Polarity::P, 0))
+                }
+                "ADC_DP1" if matches!(chip.kind, ChipKind::Nexus(_)) => {
+                    BondPad::Adc(AdcPad::D(Polarity::P, 1))
+                }
+                "ADC_DN0" if matches!(chip.kind, ChipKind::Nexus(_)) => {
+                    BondPad::Adc(AdcPad::D(Polarity::N, 0))
+                }
+                "ADC_DN1" if matches!(chip.kind, ChipKind::Nexus(_)) => {
+                    BondPad::Adc(AdcPad::D(Polarity::N, 1))
+                }
+                "ADC_REFP0" if matches!(chip.kind, ChipKind::Nexus(_)) => {
+                    BondPad::Adc(AdcPad::RefP(0))
+                }
+                "ADC_REFP1" if matches!(chip.kind, ChipKind::Nexus(_)) => {
+                    BondPad::Adc(AdcPad::RefP(1))
+                }
+                "VSSADC" if matches!(chip.kind, ChipKind::Nexus(_)) => BondPad::Adc(AdcPad::Vss),
+                "VCCADC18" if matches!(chip.kind, ChipKind::Nexus(_)) => {
+                    BondPad::Adc(AdcPad::Vcc18)
+                }
+                // Generic
                 "VCC" => BondPad::VccInt,
                 "VCCAUX" | "VCCAUX1" | "VCCAUX2" | "VCCAUX3" | "VCCAUX4" | "VCCAUX5"
                 | "VCCAUX6" | "VCCAUX7" | "VCCAUX23" | "VCCAUX67" => BondPad::VccAux,

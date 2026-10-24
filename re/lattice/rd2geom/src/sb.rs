@@ -1,5 +1,9 @@
 use std::collections::{BTreeMap, BTreeSet, btree_map};
 
+use prjcombine_ecp::{
+    chip::ChipKind,
+    defs::{bslots, wires},
+};
 use prjcombine_interconnect::{
     db::{
         BelSlotId, CellSlotId, IntDb, Mux, PermaBuf, ProgBuf, SwitchBox, SwitchBoxItem,
@@ -272,8 +276,17 @@ impl<'dev, 'ctx> SwitchBoxExtractor<'dev, 'ctx> {
 
     pub fn input_io(&mut self, name: WireName, wire: TileWireCoord) -> &mut Self {
         let rwire = self.ctx.edev.bel_wire(self.bcrd, wire);
-        let name_io = self.ctx.get_paddi_wire(rwire);
-        self.ctx.claim_pip(name, name_io);
+        if matches!(self.ctx.chip.kind, ChipKind::Nexus(_)) {
+            let idx = wires::OUT_IO_INCK.index_of(rwire.slot).unwrap();
+            let bcrd = rwire.bel(bslots::IO[idx]);
+            let name_io = self.ctx.get_inck_wire_nexus(bcrd);
+            self.ctx.claim_pip(name, name_io);
+            let name_io = self.ctx.get_paddi_wire_nexus(bcrd);
+            self.ctx.claim_pip(name, name_io);
+        } else {
+            let name_io = self.ctx.get_paddi_wire(rwire);
+            self.ctx.claim_pip(name, name_io);
+        }
         self.input_raw(name, wire)
     }
 
@@ -374,14 +387,22 @@ impl<'dev, 'ctx> SwitchBoxExtractor<'dev, 'ctx> {
         self
     }
 
-    pub fn output_bind_rc(&mut self, name: impl AsRef<str>, wire: TileWireCoord) -> &mut Self {
-        let name = self.ctx.rc_wire(self.cell, name.as_ref());
+    pub fn output_bind_rc_mode(
+        &mut self,
+        name: impl AsRef<str>,
+        mode: RcMode,
+        wire: TileWireCoord,
+    ) -> &mut Self {
+        let name = self.ctx.rc_wire_mode(self.cell, name.as_ref(), mode);
         self.output_bind(name, wire)
     }
 
+    pub fn output_bind_rc(&mut self, name: impl AsRef<str>, wire: TileWireCoord) -> &mut Self {
+        self.output_bind_rc_mode(name, RcMode::Base, wire)
+    }
+
     pub fn output_bind_rc_io(&mut self, name: impl AsRef<str>, wire: TileWireCoord) -> &mut Self {
-        let name = self.ctx.rc_io_wire(self.cell, name.as_ref());
-        self.output_bind(name, wire)
+        self.output_bind_rc_mode(name, RcMode::Io, wire)
     }
 
     pub fn output_bind_rc_corner(
@@ -389,8 +410,7 @@ impl<'dev, 'ctx> SwitchBoxExtractor<'dev, 'ctx> {
         name: impl AsRef<str>,
         wire: TileWireCoord,
     ) -> &mut Self {
-        let name = self.ctx.rc_corner_wire(self.cell, name.as_ref());
-        self.output_bind(name, wire)
+        self.output_bind_rc_mode(name, RcMode::Corner, wire)
     }
 
     pub fn output_int(&mut self, wire: TileWireCoord) -> &mut Self {

@@ -1,9 +1,13 @@
 use std::collections::{BTreeSet, btree_map};
 
+use prjcombine_ecp::{
+    chip::ChipKind,
+    defs::{bslots, wires},
+};
 use prjcombine_entity::{EntityBundleIndices, EntityBundleItemIndex};
 use prjcombine_interconnect::{
     db::{
-        Bel, BelClassId, BelInfo, BelInput, BelInputId, BelOutputId, IntDb, SwitchBox,
+        Bel, BelClassId, BelInfo, BelInput, BelInputId, BelOutputId, CellSlotId, IntDb, SwitchBox,
         TileWireCoord,
     },
     grid::{BelCoord, CellCoord},
@@ -28,6 +32,9 @@ impl<'dev, 'ctx> BelExtractor<'dev, 'ctx> {
         for (idx, name, input) in self.intdb[self.bcid].inputs.bundles() {
             match idx {
                 EntityBundleIndices::Single(id) => {
+                    if self.bel.inputs.contains_id(id) {
+                        continue;
+                    }
                     if let Some(&wire) = wires.get(name)
                         && let Some(bpin) = self.ctx.try_xlat_input(self.bcrd, wire, true, None)
                     {
@@ -37,6 +44,9 @@ impl<'dev, 'ctx> BelExtractor<'dev, 'ctx> {
                 }
                 EntityBundleIndices::Array(range) => {
                     for (pi, id) in range.into_iter().enumerate() {
+                        if self.bel.inputs.contains_id(id) {
+                            continue;
+                        }
                         let vi = input.indexing.phys_to_virt(pi);
                         let iname = &if name.ends_with(|c: char| c.is_ascii_digit()) {
                             format!("{name}_{vi}")
@@ -63,6 +73,9 @@ impl<'dev, 'ctx> BelExtractor<'dev, 'ctx> {
         for (idx, name, output) in self.intdb[self.bcid].outputs.bundles() {
             match idx {
                 EntityBundleIndices::Single(id) => {
+                    if self.bel.outputs.contains_id(id) {
+                        continue;
+                    }
                     if let Some(&wire) = wires.get(name)
                         && let Some(bpin) =
                             self.ctx.try_xlat_output(self.bcrd, wire, false, true, None)
@@ -73,6 +86,9 @@ impl<'dev, 'ctx> BelExtractor<'dev, 'ctx> {
                 }
                 EntityBundleIndices::Array(range) => {
                     for (pi, id) in range.into_iter().enumerate() {
+                        if self.bel.outputs.contains_id(id) {
+                            continue;
+                        }
                         let vi = output.indexing.phys_to_virt(pi);
                         let iname = &if name.ends_with(|c: char| c.is_ascii_digit()) {
                             format!("{name}_{vi}")
@@ -116,10 +132,19 @@ impl<'dev, 'ctx> BelExtractor<'dev, 'ctx> {
         self.names::<&str>([])
     }
 
-    pub fn name_rc(&mut self, prefix: impl AsRef<str>) -> &mut Self {
+    pub fn name_rc_suffix(
+        &mut self,
+        prefix: impl AsRef<str>,
+        suffix: impl AsRef<str>,
+    ) -> &mut Self {
         let prefix = prefix.as_ref();
+        let suffix = suffix.as_ref();
         let (r, c) = self.ctx.rc(self.cell);
-        self.name(format!("{prefix}_R{r}C{c}"))
+        self.name(format!("{prefix}_R{r}C{c}{suffix}"))
+    }
+
+    pub fn name_rc(&mut self, prefix: impl AsRef<str>) -> &mut Self {
+        self.name_rc_suffix(prefix, "")
     }
 
     fn input_pname(&self, pin: BelInputId) -> String {
@@ -156,8 +181,36 @@ impl<'dev, 'ctx> BelExtractor<'dev, 'ctx> {
         self.input_raw(pin, bpin)
     }
 
+    pub fn input_xlat_no_name_nudge(
+        &mut self,
+        pin: BelInputId,
+        wire: WireName,
+        cslot: CellSlotId,
+    ) -> &mut Self {
+        let bpin = self.ctx.xlat_input_nudge(self.bcrd, wire, cslot);
+        if !self.ctx.io_int_wires.contains_key(&wire) {
+            self.ctx.bind_wire(
+                wire,
+                self.ctx
+                    .edev
+                    .resolve_bel_wire(self.bcrd, bpin.wire())
+                    .unwrap(),
+            );
+        }
+        self.input_raw(pin, bpin)
+    }
+
     pub fn input_xlat(&mut self, pin: BelInputId, wire: WireName) -> &mut Self {
         self.input_xlat_rename(pin, self.input_pname(pin), wire)
+    }
+
+    pub fn input_xlat_nudge(
+        &mut self,
+        pin: BelInputId,
+        wire: WireName,
+        cslot: CellSlotId,
+    ) -> &mut Self {
+        self.input_xlat_rename_nudge(pin, self.input_pname(pin), wire, cslot)
     }
 
     pub fn input_xlat_rc_mode(
@@ -182,6 +235,16 @@ impl<'dev, 'ctx> BelExtractor<'dev, 'ctx> {
         self.input_xlat_rc_mode(pin, suffix, RcMode::Corner)
     }
 
+    pub fn input_xlat_rc_nudge(
+        &mut self,
+        pin: BelInputId,
+        suffix: impl AsRef<str>,
+        cslot: CellSlotId,
+    ) -> &mut Self {
+        let wire = self.ctx.rc_wire(self.cell, suffix.as_ref());
+        self.input_xlat_nudge(pin, wire, cslot)
+    }
+
     pub fn input_xlat_rename(
         &mut self,
         pin: BelInputId,
@@ -200,6 +263,31 @@ impl<'dev, 'ctx> BelExtractor<'dev, 'ctx> {
         } else {
             self.add_wire(pname, wire);
             self.input_xlat_no_name(pin, wire)
+        }
+    }
+
+    pub fn input_xlat_rename_nudge(
+        &mut self,
+        pin: BelInputId,
+        pname: impl AsRef<str>,
+        wire: WireName,
+        cslot: CellSlotId,
+    ) -> &mut Self {
+        if let Some(wires) = self
+            .ctx
+            .int_wires
+            .get(&wire)
+            .or(self.ctx.io_int_wires.get(&wire))
+        {
+            let tw = self
+                .ctx
+                .wire_to_tw(self.bcrd, wires[0], Some(cslot))
+                .unwrap();
+            self.add_wire_no_claim(pname, wire);
+            self.input(pin, tw)
+        } else {
+            self.add_wire(pname, wire);
+            self.input_xlat_no_name_nudge(pin, wire, cslot)
         }
     }
 
@@ -258,9 +346,18 @@ impl<'dev, 'ctx> BelExtractor<'dev, 'ctx> {
             (pname, EntityBundleItemIndex::Array { index, .. }) => format!("{pname}{index}"),
         };
         self.add_wire(pname, name);
-        let rwire = self.ctx.edev.bel_wire(self.bcrd, wire);
-        let name_io = self.ctx.get_paddi_wire(rwire);
-        self.ctx.claim_pip(name, name_io);
+        let rwire = self.ctx.edev.resolve_bel_wire(self.bcrd, wire).unwrap();
+        if matches!(self.ctx.chip.kind, ChipKind::Nexus(_)) {
+            let idx = wires::OUT_IO_INCK.index_of(rwire.slot).unwrap();
+            let bcrd = rwire.bel(bslots::IO[idx]);
+            let name_io = self.ctx.get_inck_wire_nexus(bcrd);
+            self.ctx.claim_pip(name, name_io);
+            let name_io = self.ctx.get_paddi_wire_nexus(bcrd);
+            self.ctx.claim_pip(name, name_io);
+        } else {
+            let name_io = self.ctx.get_paddi_wire(rwire);
+            self.ctx.claim_pip(name, name_io);
+        }
         self.input_raw(pin, BelInput::Fixed(wire.pos()))
     }
 
@@ -273,6 +370,15 @@ impl<'dev, 'ctx> BelExtractor<'dev, 'ctx> {
     ) -> &mut Self {
         let wname = self.ctx.rc_wire_mode(self.cell, suffix.as_ref(), mode);
         self.input_io(pin, wname, wire)
+    }
+
+    pub fn input_io_rc(
+        &mut self,
+        pin: BelInputId,
+        suffix: impl AsRef<str>,
+        wire: TileWireCoord,
+    ) -> &mut Self {
+        self.input_io_rc_mode(pin, suffix, RcMode::Base, wire)
     }
 
     pub fn input_io_rc_io(
@@ -318,14 +424,24 @@ impl<'dev, 'ctx> BelExtractor<'dev, 'ctx> {
         self.output_raw(pin, BTreeSet::from_iter([wire]))
     }
 
+    pub fn output_bind_rc_mode(
+        &mut self,
+        pin: BelOutputId,
+        suffix: impl AsRef<str>,
+        mode: RcMode,
+        wire: TileWireCoord,
+    ) -> &mut Self {
+        let wname = self.ctx.rc_wire_mode(self.cell, suffix.as_ref(), mode);
+        self.output_bind(pin, wname, wire)
+    }
+
     pub fn output_bind_rc(
         &mut self,
         pin: BelOutputId,
         suffix: impl AsRef<str>,
         wire: TileWireCoord,
     ) -> &mut Self {
-        let wname = self.ctx.rc_wire(self.cell, suffix.as_ref());
-        self.output_bind(pin, wname, wire)
+        self.output_bind_rc_mode(pin, suffix, RcMode::Base, wire)
     }
 
     pub fn output_bind_rc_io(
@@ -334,8 +450,7 @@ impl<'dev, 'ctx> BelExtractor<'dev, 'ctx> {
         suffix: impl AsRef<str>,
         wire: TileWireCoord,
     ) -> &mut Self {
-        let wname = self.ctx.rc_io_wire(self.cell, suffix.as_ref());
-        self.output_bind(pin, wname, wire)
+        self.output_bind_rc_mode(pin, suffix, RcMode::Io, wire)
     }
 
     pub fn output_bind_step(
@@ -475,11 +590,6 @@ impl<'dev, 'ctx> BelExtractor<'dev, 'ctx> {
         self.output_xlat_quiet(pin, wire)
     }
 
-    pub fn output_extra(&mut self, pin: BelOutputId, wire: TileWireCoord) -> &mut Self {
-        self.bel.outputs[pin].insert(wire);
-        self
-    }
-
     pub fn add_wire(&mut self, pin: impl AsRef<str>, wire: WireName) -> &mut Self {
         self.ctx.add_bel_wire(self.bcrd, pin, wire);
         self
@@ -492,6 +602,16 @@ impl<'dev, 'ctx> BelExtractor<'dev, 'ctx> {
 
     pub fn add_wire_rc_io(&mut self, pin: impl AsRef<str>, suffix: impl AsRef<str>) -> &mut Self {
         let name = self.ctx.rc_io_wire(self.cell, suffix.as_ref());
+        self.add_wire(pin, name)
+    }
+
+    pub fn add_wire_rc_mode(
+        &mut self,
+        pin: impl AsRef<str>,
+        suffix: impl AsRef<str>,
+        mode: RcMode,
+    ) -> &mut Self {
+        let name = self.ctx.rc_wire_mode(self.cell, suffix.as_ref(), mode);
         self.add_wire(pin, name)
     }
 

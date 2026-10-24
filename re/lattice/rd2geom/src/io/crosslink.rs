@@ -18,7 +18,7 @@ impl ChipContext<'_> {
                     let bcrd = tcrd.bel(bslots::IO[i]);
                     let (cell_io, abcd) = self.xlat_io_loc_crosslink(bcrd);
                     let paddi = self.rc_io_wire(cell_io, &format!("JPADDI{abcd}_PIO"));
-                    self.bind_wire(paddi, bcrd.wire(wires::OUT_IO_PADDI[i]));
+                    self.bind_wire(paddi, bcrd.wire(wires::OUT_IO_INCK[i]));
                 }
             }
         }

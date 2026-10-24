@@ -916,14 +916,12 @@ impl Chip {
                     }
                     let iobs = if rev { [1, 0] } else { [0, 1] };
                     for iob in iobs {
-                        if kind == IoGroupKind::DoubleB && iob == 0 {
-                            continue;
-                        }
                         let bcrd = cell.bel(bslots::IO[iob]);
                         if bcrd == self.special_io[&SpecialIoKey::Cclk]
                             || bcrd == self.special_io[&SpecialIoKey::SpiPCsB]
                             || bcrd == self.special_io[&SpecialIoKey::D(0)]
                             || bcrd == self.special_io[&SpecialIoKey::D(1)]
+                            || bcrd == self.special_io[&SpecialIoKey::JtagEn]
                         {
                             continue;
                         }

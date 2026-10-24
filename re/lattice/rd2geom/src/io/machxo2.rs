@@ -21,7 +21,7 @@ impl ChipContext<'_> {
                     self.hybrid_out_rc_io(
                         bcrd,
                         format!("JDI{abcd}"),
-                        wires::OUT_IO_PADDI[iob].cell(0),
+                        wires::OUT_IO_INCK[iob].cell(0),
                     );
                 }
             }
@@ -415,7 +415,7 @@ impl ChipContext<'_> {
         if bel.ctx.is_machnx_io(bcrd) {
             bel.add_wire_rc_io("DI", format!("JDI{abcd}")).output_raw(
                 bcls::IO::DI,
-                [wires::OUT_Q[idx].cell(0), wires::OUT_IO_PADDI[idx].cell(0)].into(),
+                [wires::OUT_Q[idx].cell(0), wires::OUT_IO_INCK[idx].cell(0)].into(),
             );
         } else {
             bel.output_xlat_rc_io(bcls::IO::DI, format!("JDI{abcd}"));

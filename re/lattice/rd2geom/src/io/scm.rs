@@ -42,7 +42,7 @@ impl ChipContext<'_> {
                         bcrd,
                         cell_io,
                         format!("JINDDCK{abcd}"),
-                        wires::OUT_IO_PADDI[iob].cell(0),
+                        wires::OUT_IO_INCK[iob].cell(0),
                     );
                 }
             }

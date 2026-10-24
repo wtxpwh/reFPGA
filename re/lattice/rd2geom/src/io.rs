@@ -17,6 +17,7 @@ mod ecp4;
 mod ecp5;
 mod machxo;
 mod machxo2;
+mod nexus;
 mod scm;
 
 impl ChipContext<'_> {
@@ -97,7 +98,13 @@ impl ChipContext<'_> {
                 self.process_clkdiv_crosslink();
             }
             ChipKind::Nexus(_) => {
-                // TODO
+                self.prep_io_nexus();
+                self.process_eclk_nexus();
+                self.process_ddrdll_nexus();
+                self.process_dlldel_nexus();
+                self.process_io_nexus();
+                self.process_cdr_nexus();
+                self.process_adc_nexus();
             }
         }
     }
@@ -159,7 +166,7 @@ impl ChipContext<'_> {
 
     pub fn get_paddi_wire(&self, wire: WireCoord) -> WireName {
         let wire = self.edev.resolve_wire(wire).unwrap();
-        let idx = wires::OUT_IO_PADDI.index_of(wire.slot).unwrap();
+        let idx = wires::OUT_IO_INCK.index_of(wire.slot).unwrap();
         match self.chip.kind {
             ChipKind::Ecp3(_) => {
                 if wire.row == self.chip.row_s() || wire.row == self.chip.row_n() {

@@ -288,6 +288,7 @@ pub enum IoGroupKind {
     Double,
     DoubleA,
     DoubleB,
+    DoubleC,
     DoubleDqs,
     DoubleDummy,
     Quad,
@@ -314,6 +315,7 @@ impl Display for IoGroupKind {
             IoGroupKind::Double => write!(f, "double"),
             IoGroupKind::DoubleA => write!(f, "double_a"),
             IoGroupKind::DoubleB => write!(f, "double_b"),
+            IoGroupKind::DoubleC => write!(f, "double_c"),
             IoGroupKind::DoubleDummy => write!(f, "double_dummy"),
             IoGroupKind::DoubleDqs => write!(f, "double_dqs"),
             IoGroupKind::Quad => write!(f, "quad"),
@@ -547,6 +549,7 @@ pub enum SpecialLocKey {
     Pmu,
     Cdr,
     DllDel(Dir, u8),
+    Adc,
 }
 
 impl Display for SpecialLocKey {
@@ -570,6 +573,7 @@ impl Display for SpecialLocKey {
             SpecialLocKey::Pmu => write!(f, "PMU"),
             SpecialLocKey::Cdr => write!(f, "CDR"),
             SpecialLocKey::DllDel(dir, idx) => write!(f, "DLLDEL_{dir}{idx}"),
+            SpecialLocKey::Adc => write!(f, "ADC"),
         }
     }
 }

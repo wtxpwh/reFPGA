@@ -98,7 +98,7 @@ impl ChipContext<'_> {
                     .input_xlat_rc("JPLLCLKI0")
                     .input_xlat_rc("JPLLCLKI1")
                     .input_xlat_rc("JPLLCLKI2")
-                    .input_io_rc("JPLLCLKI3", wires::OUT_IO_PADDI[0].cell(4))
+                    .input_io_rc("JPLLCLKI3", wires::OUT_IO_INCK[0].cell(4))
                     // PLL.CLKFB
                     .output_bind_rc("CLKFB", wires::IMUX_PLL_CLKFB[0].cell(0))
                     .input_xlat_rc("JPLLCLKFB0")
@@ -112,7 +112,7 @@ impl ChipContext<'_> {
                     .input_xlat_rc("JDLLCLKI0")
                     .input_xlat_rc("JDLLCLKI1")
                     .input_xlat_rc("JDLLCLKI2")
-                    .input_io_rc("JDLLCLKI3", wires::OUT_IO_PADDI[0].cell(4))
+                    .input_io_rc("JDLLCLKI3", wires::OUT_IO_INCK[0].cell(4))
                     // DLL.CLKFB
                     .output_bind_rc("DLLCLKFB", wires::IMUX_DLL_CLKFB[0].cell(0))
                     .input_xlat_rc("JDLLCLKFB0")
@@ -122,8 +122,8 @@ impl ChipContext<'_> {
                     // PLL_TO_ECLK
                     .output_xlat_rc("JFRC0")
                     .output_xlat_rc("JFRC1")
-                    .input_io_rc("JPIO0", wires::OUT_IO_PADDI[0].cell(4))
-                    .input_io_rc("JPIO1", wires::OUT_IO_PADDI[0].cell(4))
+                    .input_io_rc("JPIO0", wires::OUT_IO_INCK[0].cell(4))
+                    .input_io_rc("JPIO1", wires::OUT_IO_INCK[0].cell(4))
                     .input_xlat_rc("JCIBCLK0")
                     .input_xlat_rc("JCIBCLK1")
                     .input_bind_rc("DLLDEL", wires::OUT_DLLDEL_CLKO[0].cell(0))
@@ -162,7 +162,7 @@ impl ChipContext<'_> {
                     bel.name_rc("DLLDEL")
                         .suffix("DLLDEL")
                         .input_xlat_rc(bcls::DLLDEL::CLKI, "CLKI_DLLDEL")
-                        .output_xlat_rc(bcls::DLLDEL::BYPASS, "BYPASS_DLLDEL");
+                        .output_xlat_rc(bcls::DLLDEL::BYPASS_OUT, "BYPASS_DLLDEL");
 
                     for i in 0..9 {
                         // ???
@@ -202,7 +202,7 @@ impl ChipContext<'_> {
                     .input_xlat_rc("JSPLLCLKI3")
                     .output_bind_rc("CLKFB", wires::IMUX_PLL_CLKFB[0].cell(0))
                     .input_xlat_rc("JSPLLCLKFB0")
-                    .input_io_rc("JSPLLCLKFB1", wires::OUT_IO_PADDI[0].cell(4))
+                    .input_io_rc("JSPLLCLKFB1", wires::OUT_IO_INCK[0].cell(4))
                     .input_bind_rc("SPLLCLKINTFB", wires::OUT_PLL_CLKINTFB[0].cell(0));
 
                 self.extract_bel(cell.bel(bslots::PLL[0]))

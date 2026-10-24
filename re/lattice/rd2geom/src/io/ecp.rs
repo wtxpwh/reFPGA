@@ -192,13 +192,13 @@ impl ChipContext<'_> {
                     bel.ctx.claim_pip(dqsxfer_iologic, dqsxfer);
                 }
             }
-            bel.output(bcls::IO::PADDI, wires::OUT_IO_PADDI[idx].cell(0));
+            bel.output(bcls::IO::INCK, wires::OUT_IO_INCK[idx].cell(0));
         }
 
         bel.ctx.claim_pip(di_iologic, paddi_pio);
         bel.ctx.claim_pip(iolto_pio, iolto_iologic);
         bel.ctx.claim_pip(ioldo_pio, ioldo_iologic);
-        bel.bind_wire(paddi_pio, wires::OUT_IO_PADDI[idx].cell(0));
+        bel.bind_wire(paddi_pio, wires::OUT_IO_INCK[idx].cell(0));
 
         if very_dummy {
             bel.discard();
@@ -363,9 +363,9 @@ impl ChipContext<'_> {
             return;
         }
         let paddi_pio = self.rc_io_wire(cell, "JPADDIA_PIO");
-        self.bind_wire(paddi_pio, cell.wire(wires::OUT_IO_PADDI[0]));
+        self.bind_wire(paddi_pio, cell.wire(wires::OUT_IO_INCK[0]));
         let paddi_pio = self.rc_io_wire(cell, "JPADDIB_PIO");
-        self.bind_wire(paddi_pio, cell.wire(wires::OUT_IO_PADDI[1]));
+        self.bind_wire(paddi_pio, cell.wire(wires::OUT_IO_INCK[1]));
     }
 
     pub(super) fn prep_io_ecp(&mut self) {
@@ -518,7 +518,7 @@ impl ChipContext<'_> {
                 }
 
                 let eclk_io = inps.remove(&format!("JPIO{i}")).unwrap();
-                let wire_io = wires::OUT_IO_PADDI[0].cell(num_outs + i);
+                let wire_io = wires::OUT_IO_INCK[0].cell(num_outs + i);
                 ex.input_io(eclk_io, wire_io);
                 for ci in 0..num_outs {
                     ex.permabuf_int_io(wires::OUT_F[6 + i].cell(ci), wire_io);
@@ -589,7 +589,7 @@ impl ChipContext<'_> {
                 let wire_eclk = wires::ECLK[i].cell(0);
                 ex.output_bind(eclk_in, wire_eclk);
 
-                let wire_io = wires::OUT_IO_PADDI[0].cell(num_outs + i);
+                let wire_io = wires::OUT_IO_INCK[0].cell(num_outs + i);
                 ex.input_io_rc(format!("JPIO{i}"), wire_io);
                 for ci in 0..num_outs {
                     ex.permabuf_int_io(wires::OUT_F[6 + i].cell(ci), wire_io);

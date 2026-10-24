@@ -19,7 +19,7 @@ impl ChipContext<'_> {
                 if self.edev.has_bel(bcrd) {
                     let (cell_io, abcd) = self.xlat_io_loc_ecp4(bcrd);
                     let paddi_pio = self.rc_io_wire(cell_io, &format!("JPADDI{abcd}_PIO"));
-                    self.bind_wire(paddi_pio, bcrd.wire(wires::OUT_IO_PADDI[iob]));
+                    self.bind_wire(paddi_pio, bcrd.wire(wires::OUT_IO_INCK[iob]));
                 }
             }
         }
@@ -751,7 +751,7 @@ impl ChipContext<'_> {
             .add_wire_rc_io("IOLTO_IOLOGIC", format!("IOLTO{abcd}_IOLOGIC"))
             .add_wire_rc_io("IOLTO_PIO", format!("IOLTO{abcd}_PIO"))
             .claim_pip("IOLTO_PIO", "IOLTO_IOLOGIC")
-            .output(bcls::IO::PADDI, cslot.wire(wires::OUT_IO_PADDI[idx]));
+            .output(bcls::IO::INCK, cslot.wire(wires::OUT_IO_INCK[idx]));
 
         let bank = bel.ctx.chip.get_io_bank(bcrd);
         let has_fucked_pusl = edge == Dir::W

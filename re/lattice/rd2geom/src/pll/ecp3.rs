@@ -269,7 +269,8 @@ impl ChipContext<'_> {
             let mut bel = self.extract_bel_cell(bcrd_dlldel, cell);
             bel.name_rc("DLLDEL")
                 .suffix("DLLDEL")
-                .input_xlat_rc(bcls::DLLDEL::CLKI, "CLKI_DLLDEL");
+                .input_xlat_rc(bcls::DLLDEL::CLKI, "CLKI_DLLDEL")
+                .output_xlat_rc(bcls::DLLDEL::BYPASS_OUT, "JBYPASS_DLLDEL");
             for i in 0..6 {
                 let wire_dll = bel.ctx.rc_wire(cell, &format!("JDCNTL{i}_DLL"));
                 let wire_dlldel = bel.ctx.rc_wire(cell, &format!("JDCNTL{i}_DLLDEL"));
