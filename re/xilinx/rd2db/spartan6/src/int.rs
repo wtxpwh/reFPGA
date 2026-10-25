@@ -3,7 +3,7 @@ use std::collections::BTreeSet;
 use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
     db::{IntDb, PairMux, SwitchBoxItem, TileWireCoord, WireSlotIdExt},
-    dir::{Dir, DirMap, DirV},
+    dir::{Dir, DirV},
 };
 use prjcombine_re_xilinx_rawdump::Part;
 
@@ -12,6 +12,7 @@ use prjcombine_re_xilinx_naming::db::{
 };
 use prjcombine_re_xilinx_rd2db_interconnect::{IntBuilder, PipMode};
 use prjcombine_spartan6::defs::{self, bslots, tcls, wires};
+use prjcombine_types::enumerable::EnumMap;
 
 pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
     let mut builder = IntBuilder::new(
@@ -21,7 +22,7 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
             .0,
     );
 
-    builder.inject_main_passes(DirMap::from_fn(|dir| match dir {
+    builder.inject_main_passes(EnumMap::from_fn(|dir| match dir {
         Dir::W => defs::ccls::PASS_W,
         Dir::E => defs::ccls::PASS_E,
         Dir::S => defs::ccls::PASS_S,

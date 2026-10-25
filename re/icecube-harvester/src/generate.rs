@@ -773,7 +773,7 @@ impl Generator<'_> {
         let mut inst_a = Instance::new(&kind);
         let mut inst_b = Instance::new(&kind);
         if !self.have_fixed_bram {
-            let col = self.cfg.edev.chip.cols_bram[0];
+            let col = self.cfg.edev.chip.cols_bram.unwrap()[DirH::W];
             let x = col.to_idx() as u32;
             inst_a.loc = Some(RawLoc { x, y: 1, bel: 0 });
             inst_b.loc = Some(RawLoc { x, y: 3, bel: 0 });

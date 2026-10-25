@@ -6,7 +6,7 @@ use prjcombine_ecp::{
 };
 use prjcombine_entity::{EntityId, EntityIdArith};
 use prjcombine_interconnect::{
-    dir::{Dir, DirH, DirHV},
+    dir::{Dir, DirH, DirHV, DirV},
     grid::{ColId, DieIdExt, RowId},
 };
 use prjcombine_re_lattice_naming::WireName;
@@ -117,17 +117,17 @@ impl ChipBuilder<'_> {
         let mut skip_w = 0;
         let mut skip_e = 0;
         for (row, rd) in &mut self.chip.rows {
-            if rd.io_w != IoGroupKind::None {
+            if rd.io[DirH::W] != IoGroupKind::None {
                 if skip_w != 0 {
-                    rd.io_w = IoGroupKind::None;
+                    rd.io[DirH::W] = IoGroupKind::None;
                     skip_w -= 1;
                 } else {
                     skip_w = 3;
                 }
             }
-            if rd.io_e != IoGroupKind::None {
+            if rd.io[DirH::E] != IoGroupKind::None {
                 if skip_e != 0 {
-                    rd.io_e = IoGroupKind::None;
+                    rd.io[DirH::E] = IoGroupKind::None;
                     skip_e -= 1;
                 } else {
                     skip_e = 3;
@@ -140,18 +140,18 @@ impl ChipBuilder<'_> {
                 skip_e -= 2;
             }
             if row < self.chip.row_clk {
-                if rd.io_w != IoGroupKind::None || rd.kind == RowKind::Ebr {
-                    rd.bank_w = Some(6);
+                if rd.io[DirH::W] != IoGroupKind::None || rd.kind == RowKind::Ebr {
+                    rd.bank.insert(DirH::W, 6);
                 }
-                if rd.io_e != IoGroupKind::None || rd.kind == RowKind::Ebr {
-                    rd.bank_e = Some(5);
+                if rd.io[DirH::E] != IoGroupKind::None || rd.kind == RowKind::Ebr {
+                    rd.bank.insert(DirH::E, 5);
                 }
             } else {
-                if rd.io_w != IoGroupKind::None || rd.kind == RowKind::Ebr {
-                    rd.bank_w = Some(7);
+                if rd.io[DirH::W] != IoGroupKind::None || rd.kind == RowKind::Ebr {
+                    rd.bank.insert(DirH::W, 7);
                 }
-                if rd.io_e != IoGroupKind::None || rd.kind == RowKind::Ebr {
-                    rd.bank_e = Some(4);
+                if rd.io[DirH::E] != IoGroupKind::None || rd.kind == RowKind::Ebr {
+                    rd.bank.insert(DirH::E, 4);
                 }
             }
         }
@@ -160,27 +160,27 @@ impl ChipBuilder<'_> {
 
         let mut bank = 2;
         for col in (self.chip.col_clk + 1usize).range(self.chip.col_e()) {
-            if self.chip.columns[col].io_n == IoGroupKind::None {
+            if self.chip.columns[col].io[DirV::N] == IoGroupKind::None {
                 bank = 3;
             } else {
-                self.chip.columns[col].bank_n = Some(bank);
+                self.chip.columns[col].bank.insert(DirV::N, bank);
             }
         }
         let mut bank = 1;
         for col in self.chip.col_w().range(self.chip.col_clk - 1usize).rev() {
-            if self.chip.columns[col].io_n == IoGroupKind::None {
+            if self.chip.columns[col].io[DirV::N] == IoGroupKind::None {
                 bank = 0;
             } else {
-                self.chip.columns[col].bank_n = Some(bank);
+                self.chip.columns[col].bank.insert(DirV::N, bank);
             }
         }
 
         let mut skip = 0;
         for (_col, cd) in &mut self.chip.columns {
-            if cd.io_n != IoGroupKind::None {
+            if cd.io[DirV::N] != IoGroupKind::None {
                 if skip != 0 {
-                    cd.io_n = IoGroupKind::None;
-                    cd.bank_n = None;
+                    cd.io[DirV::N] = IoGroupKind::None;
+                    cd.bank.remove(DirV::N);
                     skip -= 1;
                 } else {
                     skip = 3;
@@ -208,8 +208,8 @@ impl ChipBuilder<'_> {
                 };
                 if cell.row == self.chip.row_n() {
                     assert!(!is_ea);
-                    assert_eq!(self.chip.columns[cell.col].io_n, IoGroupKind::Quad);
-                    self.chip.columns[cell.col].io_n = IoGroupKind::QuadDqs;
+                    assert_eq!(self.chip.columns[cell.col].io[DirV::N], IoGroupKind::Quad);
+                    self.chip.columns[cell.col].io[DirV::N] = IoGroupKind::QuadDqs;
                 } else {
                     let edge = if cell.col == self.chip.col_w() {
                         DirH::W
@@ -219,10 +219,7 @@ impl ChipBuilder<'_> {
                         unreachable!()
                     };
                     if is_ea && self.chip.rows[cell.row].kind == RowKind::Ebr {
-                        let io_kind = match edge {
-                            DirH::W => &mut self.chip.rows[cell.row].io_w,
-                            DirH::E => &mut self.chip.rows[cell.row].io_e,
-                        };
+                        let io_kind = &mut self.chip.rows[cell.row].io[edge];
                         *io_kind = match *io_kind {
                             IoGroupKind::None => IoGroupKind::EbrDqs,
                             IoGroupKind::Quad => IoGroupKind::QuadEbrDqs,
@@ -231,10 +228,7 @@ impl ChipBuilder<'_> {
                     } else {
                         let mut row = cell.row;
                         loop {
-                            let io_kind = match edge {
-                                DirH::W => &mut self.chip.rows[row].io_w,
-                                DirH::E => &mut self.chip.rows[row].io_e,
-                            };
+                            let io_kind = &mut self.chip.rows[row].io[edge];
                             if *io_kind == IoGroupKind::Quad {
                                 *io_kind = IoGroupKind::QuadDqs;
                                 break;
@@ -248,7 +242,11 @@ impl ChipBuilder<'_> {
     }
 
     pub(super) fn fill_bc_ecp4(&mut self) {
-        let has_bank0 = self.chip.columns.values().any(|cd| cd.bank_n == Some(0));
+        let has_bank0 = self
+            .chip
+            .columns
+            .values()
+            .any(|cd| cd.bank.get(DirV::N) == Some(&0));
         for &(wf, wt) in self.grid.pips.keys() {
             let wfn = self.nodes[wf];
             let wtn = self.nodes[wt];
@@ -341,13 +339,13 @@ impl ChipBuilder<'_> {
                 quads_e.push(Chip::DIE.cell(self.chip.col_e() - 1, row));
             }
             if matches!(
-                rd.io_w,
+                rd.io[DirH::W],
                 IoGroupKind::Quad | IoGroupKind::QuadDqs | IoGroupKind::QuadEbrDqs
             ) {
                 quads_w.push(Chip::DIE.cell(self.chip.col_w(), row));
             }
             if matches!(
-                rd.io_e,
+                rd.io[DirH::E],
                 IoGroupKind::Quad | IoGroupKind::QuadDqs | IoGroupKind::QuadEbrDqs
             ) {
                 quads_e.push(Chip::DIE.cell(self.chip.col_e(), row));
@@ -355,7 +353,7 @@ impl ChipBuilder<'_> {
         }
         let mut quads_n = vec![];
         for (col, cd) in &self.chip.columns {
-            if matches!(cd.io_n, IoGroupKind::Quad | IoGroupKind::QuadDqs) {
+            if matches!(cd.io[DirV::N], IoGroupKind::Quad | IoGroupKind::QuadDqs) {
                 quads_n.push(Chip::DIE.cell(col, self.chip.row_n()));
             }
         }

@@ -5,6 +5,7 @@ use prjcombine_interconnect::{
     dir::{DirH, DirV},
     grid::{BelCoord, CellCoord, ColId, DieId, RowId},
 };
+use prjcombine_types::enumerable::EnumMap;
 use std::collections::BTreeSet;
 
 use crate::defs::bslots;
@@ -19,8 +20,7 @@ pub struct Chip {
     pub cols_cpipe: BTreeSet<ColId>,
     pub cols_hard: Vec<HardColumn>,
     pub regs: usize,
-    pub regs_gt_w: EntityVec<RegId, GtRowKind>,
-    pub regs_gt_e: EntityVec<RegId, GtRowKind>,
+    pub regs_gt: EnumMap<DirH, EntityVec<RegId, GtRowKind>>,
     pub fabric: FabricKind,
     pub ps: PsKind,
     pub hsr_s: HsrSKind,
@@ -84,8 +84,7 @@ pub struct Interposer {
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Hash, Encode, Decode)]
 pub struct Column {
     pub kind: ColumnKind,
-    pub has_bli_s: bool,
-    pub has_bli_n: bool,
+    pub has_bli: EnumMap<DirV, bool>,
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Hash, Encode, Decode)]
@@ -1292,13 +1291,9 @@ impl Chip {
                 continue;
             }
             if cd.kind == ColumnKind::Gt {
-                let regs = if col.to_idx() == 0 {
-                    &self.regs_gt_w
-                } else {
-                    &self.regs_gt_e
-                };
+                let side = self.col_side(col);
                 writeln!(o, "\t\tgt [")?;
-                for (reg, kind) in regs {
+                for (reg, kind) in &self.regs_gt[side] {
                     writeln!(o, "\t\t\t{kind}, // {y}", y = self.row_reg_bot(reg))?;
                 }
                 write!(o, "\t\t]")?;
@@ -1314,10 +1309,10 @@ impl Chip {
                 write!(o, "\t\t]")?;
             } else {
                 write!(o, "\t\t{}", cd.kind)?;
-                if cd.has_bli_s {
+                if cd.has_bli[DirV::S] {
                     write!(o, " + bli_s")?;
                 }
-                if cd.has_bli_n {
+                if cd.has_bli[DirV::N] {
                     write!(o, " + bli_n")?;
                 }
             }

@@ -752,7 +752,7 @@ pub fn name_device<'a>(
                 let name = int_grid.name(
                     if side == DirV::S {
                         if matches!(chip.columns[col - 1].kind, ColumnKind::Cle(_))
-                            && chip.columns[col - 1].has_bli_s
+                            && chip.columns[col - 1].has_bli[DirV::S]
                             && chip.col_side(col) == DirH::E
                         {
                             "BLI_CLE_BOT_CORE_1"
@@ -761,7 +761,7 @@ pub fn name_device<'a>(
                         }
                     } else {
                         if matches!(chip.columns[col - 1].kind, ColumnKind::Cle(_))
-                            && chip.columns[col - 1].has_bli_n
+                            && chip.columns[col - 1].has_bli[DirV::N]
                             && chip.col_side(col) == DirH::E
                         {
                             "BLI_CLE_TOP_CORE_1"
@@ -790,7 +790,7 @@ pub fn name_device<'a>(
                     let name = int_grid.name(
                         if v == DirV::S {
                             if matches!(chip.columns[col - 1].kind, ColumnKind::Cle(_))
-                                && chip.columns[col - 1].has_bli_s
+                                && chip.columns[col - 1].has_bli[DirV::S]
                                 && chip.col_side(col) == DirH::E
                             {
                                 "BLI_CLE_BOT_CORE_1"
@@ -799,7 +799,7 @@ pub fn name_device<'a>(
                             }
                         } else {
                             if matches!(chip.columns[col - 1].kind, ColumnKind::Cle(_))
-                                && chip.columns[col - 1].has_bli_n
+                                && chip.columns[col - 1].has_bli[DirV::N]
                                 && chip.col_side(col) == DirH::E
                             {
                                 "BLI_CLE_TOP_CORE_1"
@@ -873,11 +873,7 @@ pub fn name_device<'a>(
             }
             tcls::BLI_MUX | tcls::BLI_MUX_NOC => {
                 let v = if row.to_idx() == 0 { DirV::S } else { DirV::N };
-                let is_1 = if v == DirV::S {
-                    chip.columns[col - 1].has_bli_s && chip.col_side(col) == DirH::E
-                } else {
-                    chip.columns[col - 1].has_bli_n && chip.col_side(col) == DirH::E
-                };
+                let is_1 = chip.columns[col - 1].has_bli[v] && chip.col_side(col) == DirH::E;
                 let tkn = if tile.class == tcls::BLI_MUX_NOC {
                     if is_1 {
                         "BLI_LS_MUX_CORE_1"

@@ -3,7 +3,8 @@ use std::{collections::BTreeMap, path::Path};
 use bytes::{Buf, Bytes};
 use ndarray::Array2;
 use prjcombine_entity::{EntityId, EntityPartVec, EntityVec, entity_id_u16};
-use prjcombine_interconnect::dir::{Dir, DirMap};
+use prjcombine_interconnect::dir::Dir;
+use prjcombine_types::enumerable::EnumMap;
 
 entity_id_u16!(pub PrimDefId, PrimDef, "PD");
 entity_id_u16!(pub PrimId, PrimInst, "PRIM");
@@ -30,8 +31,8 @@ pub struct Die {
     pub columns: Vec<Column>,
     pub rows: Vec<Row>,
     pub matrix: Option<Array2<u16>>,
-    pub matrix_cells_bwd: DirMap<[u8; 0x100]>,
-    pub matrix_cells_fwd: DirMap<[u8; 0x100]>,
+    pub matrix_cells_bwd: EnumMap<Dir, [u8; 0x100]>,
+    pub matrix_cells_fwd: EnumMap<Dir, [u8; 0x100]>,
     pub matrix_cells_flags: [u8; 0x100],
     pub die: String,
     pub prog: String,
@@ -358,7 +359,7 @@ impl Die {
         let matrix_cells_bwd_e: [u8; 0x100] = core::array::from_fn(|_| stream.get_u8());
         let matrix_cells_bwd_s: [u8; 0x100] = core::array::from_fn(|_| stream.get_u8());
         let matrix_cells_bwd_w: [u8; 0x100] = core::array::from_fn(|_| stream.get_u8());
-        let matrix_cells_bwd = DirMap::from_fn(|dir| match dir {
+        let matrix_cells_bwd = EnumMap::from_fn(|dir| match dir {
             Dir::N => matrix_cells_bwd_n,
             Dir::E => matrix_cells_bwd_e,
             Dir::S => matrix_cells_bwd_s,
@@ -371,7 +372,7 @@ impl Die {
         let matrix_cells_fwd_e: [u8; 0x100] = core::array::from_fn(|_| stream.get_u8());
         let matrix_cells_fwd_s: [u8; 0x100] = core::array::from_fn(|_| stream.get_u8());
         let matrix_cells_fwd_w: [u8; 0x100] = core::array::from_fn(|_| stream.get_u8());
-        let matrix_cells_fwd = DirMap::from_fn(|dir| match dir {
+        let matrix_cells_fwd = EnumMap::from_fn(|dir| match dir {
             Dir::N => matrix_cells_fwd_n,
             Dir::E => matrix_cells_fwd_e,
             Dir::S => matrix_cells_fwd_s,

@@ -2,13 +2,13 @@ use std::collections::BTreeSet;
 
 use prjcombine_interconnect::{
     db::{IntDb, ProgInv, SwitchBoxItem, WireSlotIdExt},
-    dir::{Dir, DirMap},
+    dir::Dir,
 };
 use prjcombine_re_xilinx_rawdump::{Coord, Part};
 
 use prjcombine_re_xilinx_naming::db::{NamingDb, WireNaming};
 use prjcombine_re_xilinx_rd2db_interconnect::{IntBuilder, PipMode};
-use prjcombine_types::bitrect::PolTileBit;
+use prjcombine_types::{bitrect::PolTileBit, enumerable::EnumMap};
 use prjcombine_virtex4::defs::{self, bslots, ccls, tcls, virtex6::wires};
 
 struct IntMaker<'a> {
@@ -19,7 +19,7 @@ struct IntMaker<'a> {
 impl IntMaker<'_> {
     fn fill_int_wires(&mut self) {
         self.builder
-            .inject_main_passes(DirMap::from_fn(|dir| match dir {
+            .inject_main_passes(EnumMap::from_fn(|dir| match dir {
                 Dir::W => ccls::PASS_W,
                 Dir::E => ccls::PASS_E,
                 Dir::S => ccls::PASS_S,

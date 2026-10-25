@@ -6,8 +6,9 @@ use prjcombine_ecp::{
 };
 use prjcombine_interconnect::{
     db::{CellSlotIdExt, WireSlotIdExt},
-    dir::{Dir, DirHV, DirMap},
+    dir::{Dir, DirHV},
 };
+use prjcombine_types::enumerable::EnumMap;
 
 use crate::{ChipContext, RcMode};
 
@@ -283,7 +284,7 @@ impl ChipContext<'_> {
         let cell_tile = self.chip.clk_root();
         let cell = cell_tile.delta(-1, 0);
 
-        let cell_edge = DirMap::from_fn(|edge| match edge {
+        let cell_edge = EnumMap::from_fn(|edge| match edge {
             Dir::H(edge) => cell_tile.with_col(self.chip.col_edge(edge)),
             Dir::V(edge) => cell_tile.with_row(self.chip.row_edge(edge)),
         });

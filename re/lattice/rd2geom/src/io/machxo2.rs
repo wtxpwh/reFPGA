@@ -5,7 +5,7 @@ use prjcombine_ecp::{
 use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
     db::WireSlotIdExt,
-    dir::{Dir, DirHV, DirV},
+    dir::{Dir, DirH, DirHV, DirV},
     grid::{BelCoord, CellCoord, ColId, DieIdExt, RowId},
 };
 
@@ -495,7 +495,7 @@ impl ChipContext<'_> {
             )
         ) {
             let is_i3c = edge == Dir::W
-                && bel.ctx.chip.rows[cell.row].io_w == IoGroupKind::QuadI3c
+                && bel.ctx.chip.rows[cell.row].io[DirH::W] == IoGroupKind::QuadI3c
                 && idx < 2;
 
             if is_i3c {
@@ -511,7 +511,7 @@ impl ChipContext<'_> {
     pub(super) fn process_io_machxo2(&mut self) {
         let is_smol = self.chip.rows[self.chip.row_clk].kind != RowKind::Ebr;
         for (row, rd) in &self.chip.rows {
-            let num_io = match rd.io_w {
+            let num_io = match rd.io[DirH::W] {
                 IoGroupKind::Quad | IoGroupKind::QuadI3c => 4,
                 IoGroupKind::Double => 2,
                 _ => 0,
@@ -520,7 +520,7 @@ impl ChipContext<'_> {
                 let bcrd = Chip::DIE.cell(self.chip.col_w(), row).bel(bslots::IO[iob]);
                 self.process_single_io_machxo2(bcrd);
             }
-            let num_io = match rd.io_e {
+            let num_io = match rd.io[DirH::E] {
                 IoGroupKind::Quad => 4,
                 IoGroupKind::Double => 2,
                 _ => 0,
@@ -533,7 +533,7 @@ impl ChipContext<'_> {
         for (col, cd) in &self.chip.columns {
             {
                 let cell = Chip::DIE.cell(col, self.chip.row_s());
-                let num_io = match cd.io_s {
+                let num_io = match cd.io[DirV::S] {
                     IoGroupKind::Quad | IoGroupKind::QuadReverse => 4,
                     IoGroupKind::Double => 2,
                     _ => 0,
@@ -556,7 +556,7 @@ impl ChipContext<'_> {
             }
             {
                 let cell = Chip::DIE.cell(col, self.chip.row_n());
-                let num_io = match cd.io_n {
+                let num_io = match cd.io[DirV::N] {
                     IoGroupKind::Quad | IoGroupKind::QuadReverse => 4,
                     IoGroupKind::Double => 2,
                     _ => 0,

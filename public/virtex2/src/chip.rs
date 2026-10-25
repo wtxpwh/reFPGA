@@ -6,6 +6,7 @@ use prjcombine_interconnect::grid::{
     BelCoord, BelPadCoord, CellCoord, ColId, DieId, DieIdExt, RowId, TileCoord,
 };
 use prjcombine_types::Polarity;
+use prjcombine_types::enumerable::EnumMap;
 use std::collections::BTreeMap;
 
 use crate::defs::{bcls, bslots, tslots};
@@ -61,9 +62,9 @@ pub struct Chip {
     pub columns: EntityVec<ColId, Column>,
     pub col_clk: ColId,
     // For Spartan 3* other than 3s50a
-    pub cols_clkv: Option<(ColId, ColId)>,
-    // column -> (south bank, north bank)
-    pub cols_gt: BTreeMap<ColId, (u32, u32)>,
+    pub cols_clkv: Option<EnumMap<DirH, ColId>>,
+    // column -> GT banks
+    pub cols_gt: BTreeMap<ColId, EnumMap<DirV, u32>>,
     pub rows: EntityVec<RowId, RowIoKind>,
     // For Spartan 3E: range of rows containing RAMs
     pub rows_ram: Option<EntityRange<RowId>>,
@@ -77,8 +78,8 @@ pub struct Chip {
     pub has_ll: bool,
     pub has_small_int: bool,
     pub cfg_io: BTreeMap<SharedCfgPad, BelPadCoord>,
-    pub dci_io: BTreeMap<u32, (BelPadCoord, BelPadCoord)>,
-    pub dci_io_alt: BTreeMap<u32, (BelPadCoord, BelPadCoord)>,
+    pub dci_io: BTreeMap<u32, EnumMap<Polarity, BelPadCoord>>,
+    pub dci_io_alt: BTreeMap<u32, EnumMap<Polarity, BelPadCoord>>,
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Hash, Encode, Decode)]
@@ -1088,11 +1089,11 @@ impl Chip {
         writeln!(o, "\tkind {};", self.kind)?;
         writeln!(o, "\tcolumns {{")?;
         for (col, cd) in &self.columns {
-            if let Some((cl, cr)) = self.cols_clkv {
-                if col == cl {
+            if let Some(cols_clkv) = self.cols_clkv {
+                if col == cols_clkv[DirH::W] {
                     writeln!(o, "\t\t// clock left spine")?;
                 }
-                if col == cr {
+                if col == cols_clkv[DirH::E] {
                     writeln!(o, "\t\t// clock right spine")?;
                 }
             }
@@ -1121,15 +1122,25 @@ impl Chip {
                 ColumnIoKind::DoubleE(i) => write!(o, " + io double e {i}")?,
                 ColumnIoKind::DoubleEClk(i) => write!(o, " + io double e clock {i}")?,
             }
-            if let Some(&(bb, bt)) = self.cols_gt.get(&col) {
-                write!(o, " + gt [{bb}, {bt}]")?;
+            if let Some(&cols_gt) = self.cols_gt.get(&col) {
+                write!(
+                    o,
+                    " + gt [{bb}, {bt}]",
+                    bb = cols_gt[DirV::S],
+                    bt = cols_gt[DirV::N],
+                )?;
             }
             writeln!(o, ", // {col}")?;
         }
         writeln!(o, "\t}}")?;
         writeln!(o, "\tcol_clk {};", self.col_clk)?;
-        if let Some((cl, cr)) = self.cols_clkv {
-            writeln!(o, "\tcols_clkv {cl}, {cr};")?;
+        if let Some(cols_clkv) = self.cols_clkv {
+            writeln!(
+                o,
+                "\tcols_clkv {cl}, {cr};",
+                cl = cols_clkv[DirH::W],
+                cr = cols_clkv[DirH::E]
+            )?;
         }
         writeln!(o, "\trows {{")?;
         for (row, rd) in &self.rows {
@@ -1203,20 +1214,20 @@ impl Chip {
             writeln!(o, "\tcfg_io {k} = {pad};", pad = pad.to_string(db))?;
         }
         for k in 0..8 {
-            if let Some(&(vp, vn)) = self.dci_io.get(&k) {
+            if let Some(&vr) = self.dci_io.get(&k) {
                 writeln!(
                     o,
                     "\tdci {k} = vp {vp}, vn {vn};",
-                    vp = vp.to_string(db),
-                    vn = vn.to_string(db)
+                    vp = vr[Polarity::P].to_string(db),
+                    vn = vr[Polarity::N].to_string(db)
                 )?;
             }
-            if let Some(&(vp, vn)) = self.dci_io_alt.get(&k) {
+            if let Some(&vr) = self.dci_io_alt.get(&k) {
                 writeln!(
                     o,
                     "\tdci alt {k} = vp {vp}, vn {vn};",
-                    vp = vp.to_string(db),
-                    vn = vn.to_string(db)
+                    vp = vr[Polarity::P].to_string(db),
+                    vn = vr[Polarity::N].to_string(db)
                 )?;
             }
         }

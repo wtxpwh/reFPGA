@@ -8,7 +8,7 @@ use prjcombine_interconnect::{
     dir::{Dir, DirH, DirV},
     grid::{BelCoord, CellCoord, ColId, DieId, DieIdExt, RowId, TileCoord},
 };
-use prjcombine_types::bimap::BiMap;
+use prjcombine_types::{bimap::BiMap, enumerable::EnumMap};
 
 use crate::defs;
 
@@ -440,7 +440,7 @@ pub struct Chip {
     pub kind: ChipKind,
     pub columns: usize,
     pub col_bio_split: ColId,
-    pub cols_bram: Vec<ColId>,
+    pub cols_bram: Option<EnumMap<DirH, ColId>>,
     pub rows: usize,
     pub row_mid: RowId,
     // row -> hclk row
@@ -495,6 +495,14 @@ impl Chip {
 
     pub fn rows(&self) -> EntityRange<RowId> {
         EntityRange::new(0, self.rows)
+    }
+
+    pub fn is_col_bram(&self, col: ColId) -> bool {
+        if let Some(cols_bram) = self.cols_bram {
+            cols_bram.values().any(|&c| c == col)
+        } else {
+            false
+        }
     }
 
     pub fn globals(&self) -> TileCoord {
@@ -558,7 +566,7 @@ impl Chip {
     }
 
     pub fn btile_width(&self, col: ColId) -> usize {
-        if self.cols_bram.contains(&col) {
+        if self.is_col_bram(col) {
             42
         } else if self.kind.has_ioi_we() && (col == self.col_w() || col == self.col_e()) {
             18
@@ -621,11 +629,12 @@ impl Chip {
         writeln!(o, "\tcolumns {};", self.columns)?;
         writeln!(o, "\trows {};", self.rows)?;
         writeln!(o, "\tcol_bio_split {};", self.col_bio_split)?;
-        if !self.cols_bram.is_empty() {
+        if let Some(cols_bram) = self.cols_bram {
             writeln!(
                 o,
-                "\tcols_bram {};",
-                self.cols_bram.iter().map(|x| x.to_string()).join(", ")
+                "\tcols_bram {w}, {e};",
+                w = cols_bram[DirH::W],
+                e = cols_bram[DirH::E],
             )?;
         }
         writeln!(o, "\trow_mid {};", self.row_mid)?;

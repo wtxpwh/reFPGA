@@ -1,6 +1,6 @@
 use prjcombine_entity::{EntityId, EntityVec};
 use prjcombine_interconnect::{
-    dir::DirHV,
+    dir::{DirHV, DirV},
     grid::{BelCoord, CellCoord, ColId, RowId},
 };
 use prjcombine_re_xilinx_naming::{
@@ -109,10 +109,7 @@ impl Namer<'_> {
         let mut iox = 0;
         for &cd in self.grid.columns.values() {
             self.ioxlut.push(iox);
-            if cd.kind == ColumnKind::Io
-                || cd.io_s != ColumnIoKind::None
-                || cd.io_n != ColumnIoKind::None
-            {
+            if cd.kind == ColumnKind::Io || cd.io.values().any(|&v| v != ColumnIoKind::None) {
                 iox += 1;
             }
         }
@@ -126,8 +123,7 @@ impl Namer<'_> {
                 || row == self.grid.row_s_inner()
                 || row == self.grid.row_n_inner()
                 || row == self.grid.row_n()
-                || rd.io_w
-                || rd.io_e
+                || rd.io.into_values().any(|x| x)
             {
                 ioy += 1;
             }
@@ -139,10 +135,7 @@ impl Namer<'_> {
         for &cd in self.grid.columns.values() {
             self.tiexlut.push(tie_x);
             tie_x += 1;
-            if cd.kind == ColumnKind::Io
-                || cd.io_n != ColumnIoKind::None
-                || cd.io_s != ColumnIoKind::None
-            {
+            if cd.kind == ColumnKind::Io || cd.io.values().any(|&v| v != ColumnIoKind::None) {
                 tie_x += 1;
             }
             if cd.kind == ColumnKind::CleClk {
@@ -159,25 +152,25 @@ impl Namer<'_> {
         } else if col == self.grid.col_e() {
             if is_brk { "RIOI_BRK" } else { "RIOI" }
         } else if row == self.grid.row_s() {
-            if cd.io_s == ColumnIoKind::Inner {
+            if cd.io[DirV::S] == ColumnIoKind::Inner {
                 "BIOI_OUTER_UNUSED"
             } else {
                 "BIOI_OUTER"
             }
         } else if row == self.grid.row_s_inner() {
-            if cd.io_s == ColumnIoKind::Outer {
+            if cd.io[DirV::S] == ColumnIoKind::Outer {
                 "BIOI_INNER_UNUSED"
             } else {
                 "BIOI_INNER"
             }
         } else if row == self.grid.row_n_inner() {
-            if cd.io_n == ColumnIoKind::Outer {
+            if cd.io[DirV::N] == ColumnIoKind::Outer {
                 "TIOI_INNER_UNUSED"
             } else {
                 "TIOI_INNER"
             }
         } else if row == self.grid.row_n() {
-            if cd.io_n == ColumnIoKind::Inner {
+            if cd.io[DirV::N] == ColumnIoKind::Inner {
                 "TIOI_OUTER_UNUSED"
             } else {
                 "TIOI_OUTER"
@@ -528,7 +521,7 @@ pub fn name_device<'a>(edev: &'a ExpandedDevice<'a>, ndb: &'a NamingDb) -> Expan
                 } else if row == chip.row_s() {
                     (
                         "BIOB_OUTER",
-                        if cd.io_s == ColumnIoKind::Outer {
+                        if cd.io[DirV::S] == ColumnIoKind::Outer {
                             "BIOB_SINGLE_ALT"
                         } else {
                             "BIOB"
@@ -537,7 +530,7 @@ pub fn name_device<'a>(edev: &'a ExpandedDevice<'a>, ndb: &'a NamingDb) -> Expan
                 } else if row == chip.row_s_inner() {
                     (
                         "BIOB_INNER",
-                        if cd.io_s == ColumnIoKind::Inner {
+                        if cd.io[DirV::S] == ColumnIoKind::Inner {
                             "BIOB_SINGLE"
                         } else {
                             "BIOB"
@@ -546,7 +539,7 @@ pub fn name_device<'a>(edev: &'a ExpandedDevice<'a>, ndb: &'a NamingDb) -> Expan
                 } else if row == chip.row_n_inner() {
                     (
                         "TIOB_INNER",
-                        if cd.io_n == ColumnIoKind::Inner {
+                        if cd.io[DirV::N] == ColumnIoKind::Inner {
                             unreachable!()
                         } else {
                             "TIOB"
@@ -555,7 +548,7 @@ pub fn name_device<'a>(edev: &'a ExpandedDevice<'a>, ndb: &'a NamingDb) -> Expan
                 } else if row == chip.row_n() {
                     (
                         "TIOB_OUTER",
-                        if cd.io_n == ColumnIoKind::Outer {
+                        if cd.io[DirV::N] == ColumnIoKind::Outer {
                             "TIOB_SINGLE"
                         } else {
                             "TIOB"
@@ -1230,7 +1223,7 @@ pub fn name_device<'a>(edev: &'a ExpandedDevice<'a>, ndb: &'a NamingDb) -> Expan
                     _ => {
                         if col == chip.col_clk + 1 {
                             "IOI_BTERM_BUFPLL"
-                        } else if chip.columns[col].io_s == ColumnIoKind::None {
+                        } else if chip.columns[col].io[DirV::S] == ColumnIoKind::None {
                             "CLB_INT_BTERM"
                         } else {
                             "IOI_BTERM"

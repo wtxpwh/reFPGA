@@ -1,9 +1,9 @@
 use prjcombine_entity::{EntityPartVec, EntityVec};
 use prjcombine_interconnect::{
-    dir::{Dir, DirMap},
+    dir::Dir,
     grid::{BelCoord, CellCoord, ColId, ExpandedGrid, Rect, RowId, TileCoord},
 };
-use prjcombine_types::bitrect::BitRectId;
+use prjcombine_types::{bitrect::BitRectId, enumerable::EnumMap};
 use std::collections::{BTreeSet, HashMap};
 
 use crate::{
@@ -25,7 +25,7 @@ pub struct ExpandedDevice<'a> {
     pub spine_frame: EntityVec<RegId, usize>,
     pub bram_frame: EntityVec<RegId, EntityPartVec<ColId, usize>>,
     pub iob_frame: HashMap<CellCoord, usize>,
-    pub reg_frame: DirMap<usize>,
+    pub reg_frame: EnumMap<Dir, usize>,
 }
 
 impl ExpandedDevice<'_> {

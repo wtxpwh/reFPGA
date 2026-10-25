@@ -5048,10 +5048,9 @@ target_defs! {
 
 pub mod wiredata {
     use prjcombine_entity::id::EntityStaticRange;
-    use prjcombine_interconnect::{
-        db::{ConnectorSlotId, WireSlotId},
-        dir::DirMap,
-    };
+    use prjcombine_interconnect::db::{ConnectorSlotId, WireSlotId};
+    use prjcombine_interconnect::dir::Dir;
+    use prjcombine_types::enumerable::EnumMap;
 
     use crate::defs::{cslots, wires};
 
@@ -5147,10 +5146,6 @@ pub mod wiredata {
         wires::IO_E8,
     ];
 
-    pub const CONNS: DirMap<ConnectorSlotId> = DirMap {
-        w: cslots::W,
-        e: cslots::E,
-        s: cslots::S,
-        n: cslots::N,
-    };
+    pub const CONNS: EnumMap<Dir, ConnectorSlotId> =
+        EnumMap::from_array([cslots::W, cslots::E, cslots::S, cslots::N]);
 }

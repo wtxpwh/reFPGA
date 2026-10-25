@@ -4,8 +4,9 @@ use prjcombine_ecp::{
 };
 use prjcombine_interconnect::{
     db::{CellSlotIdExt, WireSlotIdExt},
-    dir::{Dir, DirHV, DirMap},
+    dir::{Dir, DirHV, DirV},
 };
+use prjcombine_types::enumerable::EnumMap;
 
 use crate::{ChipContext, RcMode};
 
@@ -160,7 +161,7 @@ impl ChipContext<'_> {
                                 .chip
                                 .columns
                                 .values()
-                                .filter(|cd| cd.io_s == IoGroupKind::Serdes)
+                                .filter(|cd| cd.io[DirV::S] == IoGroupKind::Serdes)
                                 .count();
                             for dual in 0..serdes_cnt {
                                 let cslot = defs::ecp5::tcls::CLK_S::SERDES[dual];
@@ -281,7 +282,7 @@ impl ChipContext<'_> {
             _ => unreachable!(),
         };
 
-        let cell_edge = DirMap::from_fn(|edge| match edge {
+        let cell_edge = EnumMap::from_fn(|edge| match edge {
             Dir::H(edge) => cell_tile.with_col(self.chip.col_edge(edge)),
             Dir::V(edge) => cell_tile.with_row(self.chip.row_edge(edge)),
         });

@@ -52,7 +52,7 @@ impl Expander<'_, '_> {
                 tcls::INT_SIO_S_W
             };
             self.egrid.add_tile_single(cell, int_kind);
-            let kind = match (has_ebr, rd.io_w) {
+            let kind = match (has_ebr, rd.io[DirH::W]) {
                 (true, IoGroupKind::Double) => tcls::SIO_L_W2,
                 (true, IoGroupKind::Quad | IoGroupKind::QuadReverse) => tcls::SIO_L_W4,
                 (false, IoGroupKind::Double) => tcls::SIO_S_W2,
@@ -80,7 +80,7 @@ impl Expander<'_, '_> {
                 }
             };
             self.egrid.add_tile_single(cell, int_kind);
-            let kind = match (has_ebr, rd.io_e) {
+            let kind = match (has_ebr, rd.io[DirH::E]) {
                 (false, IoGroupKind::Double) => tcls::SIO_S_E2,
                 (false, IoGroupKind::Quad) => tcls::SIO_S_E4,
                 (true, IoGroupKind::Double) => tcls::SIO_L_E2,
@@ -94,7 +94,7 @@ impl Expander<'_, '_> {
             if self.chip.is_col_io(cell.col) {
                 continue;
             }
-            let (int_kind, kind) = match (has_ebr, cd.io_s) {
+            let (int_kind, kind) = match (has_ebr, cd.io[DirV::S]) {
                 (false, IoGroupKind::Quad) => (tcls::INT_SIO_S_S4, tcls::SIO_S_S4),
                 (false, IoGroupKind::Hex | IoGroupKind::HexReverse) => {
                     (tcls::INT_SIO_S_S6, tcls::SIO_S_S6)
@@ -113,7 +113,7 @@ impl Expander<'_, '_> {
             if self.chip.is_col_io(cell.col) {
                 continue;
             }
-            let (int_kind, kind) = match (has_ebr, cd.io_n) {
+            let (int_kind, kind) = match (has_ebr, cd.io[DirV::N]) {
                 (false, IoGroupKind::Quad) => (tcls::INT_SIO_S_N4, tcls::SIO_S_N4),
                 (false, IoGroupKind::Hex | IoGroupKind::HexReverse) => {
                     (tcls::INT_SIO_S_N6, tcls::SIO_S_N6)

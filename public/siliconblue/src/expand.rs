@@ -64,7 +64,7 @@ impl Chip {
                         .cells
                         .first()
                         .unwrap();
-                } else if self.cols_bram.contains(&cell.col) {
+                } else if self.is_col_bram(cell.col) {
                     egrid.add_tile_single(cell, tcls::INT_BRAM);
                     if (cell.row.to_idx() - 1).is_multiple_of(2) {
                         egrid.add_tile_n(cell, self.kind.tile_class_bram(), 2);
@@ -116,7 +116,7 @@ impl Chip {
             for row in rows {
                 for cell in egrid.row(die, row) {
                     let row_cb = if row < row_m {
-                        if self.cols_bram.contains(&cell.col) && !self.kind.has_ice40_bramv2() {
+                        if self.is_col_bram(cell.col) && !self.kind.has_ice40_bramv2() {
                             row_m - 2
                         } else {
                             row_m - 1

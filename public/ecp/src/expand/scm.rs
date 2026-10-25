@@ -56,7 +56,7 @@ impl Expander<'_, '_> {
             .cell(self.chip.col_w(), self.chip.row_serdes(DirV::N));
         let mut tcells = vec![Some(cell), Some(cell.delta(1, 0)), Some(cell.delta(0, -1))];
         for (col, cd) in &self.chip.columns {
-            if cd.io_n == IoGroupKind::Serdes && col < self.chip.col_clk {
+            if cd.io[DirV::N] == IoGroupKind::Serdes && col < self.chip.col_clk {
                 tcells.push(Some(cell.with_col(col)));
             }
         }
@@ -70,7 +70,7 @@ impl Expander<'_, '_> {
             .cell(self.chip.col_e(), self.chip.row_serdes(DirV::N));
         let mut tcells = vec![Some(cell), Some(cell.delta(-1, 0)), Some(cell.delta(0, -1))];
         for (col, cd) in self.chip.columns.iter().rev() {
-            if cd.io_n == IoGroupKind::Serdes && col >= self.chip.col_clk {
+            if cd.io[DirV::N] == IoGroupKind::Serdes && col >= self.chip.col_clk {
                 tcells.push(Some(cell.with_col(col)));
             }
         }
@@ -107,12 +107,12 @@ impl Expander<'_, '_> {
         let mut col_end_w = self.chip.col_w();
         let mut col_end_e = self.chip.col_e();
         for (col, cd) in &self.chip.columns {
-            if col < self.chip.col_clk && cd.io_n == IoGroupKind::Serdes {
+            if col < self.chip.col_clk && cd.io[DirV::N] == IoGroupKind::Serdes {
                 col_end_w = col + 7;
             }
         }
         for (col, cd) in self.chip.columns.iter().rev() {
-            if col >= self.chip.col_clk && cd.io_n == IoGroupKind::Serdes {
+            if col >= self.chip.col_clk && cd.io[DirV::N] == IoGroupKind::Serdes {
                 col_end_e = col;
             }
         }
@@ -131,7 +131,7 @@ impl Expander<'_, '_> {
             if cell.col < col_end_w || cell.col >= col_end_e {
                 self.egrid.add_tile_single(cell, tcls::INT_EBR);
             }
-            if self.chip.columns[cell.col].io_n == IoGroupKind::Serdes {
+            if self.chip.columns[cell.col].io[DirV::N] == IoGroupKind::Serdes {
                 let kind = match cell.col.side_of(self.chip.col_clk) {
                     DirH::W => tcls::SERDES_W,
                     DirH::E => tcls::SERDES_E,
@@ -271,7 +271,7 @@ impl Expander<'_, '_> {
                     .fill_conn_pair(prev, cell, ccls::PASS_IO_E, ccls::PASS_IO_W);
             }
             prev = Some(cell);
-            match rd.io_w {
+            match rd.io[DirH::W] {
                 IoGroupKind::Quad => {
                     self.egrid.add_tile_n(cell, tcls::IO_W4, 2);
                 }
@@ -295,7 +295,7 @@ impl Expander<'_, '_> {
                 }
                 prev = Some(cell);
             }
-            match self.chip.columns[cell.col].io_s {
+            match self.chip.columns[cell.col].io[DirV::S] {
                 IoGroupKind::Quad => {
                     self.egrid.add_tile_e(cell, tcls::IO_S4, 2);
                 }
@@ -324,7 +324,7 @@ impl Expander<'_, '_> {
                     .fill_conn_pair(prev, cell, ccls::PASS_IO_E, ccls::PASS_IO_W);
             }
             prev = Some(cell);
-            match rd.io_e {
+            match rd.io[DirH::E] {
                 IoGroupKind::Quad => {
                     self.egrid.add_tile_n(cell, tcls::IO_E4, 2);
                 }
@@ -340,7 +340,7 @@ impl Expander<'_, '_> {
                 continue;
             }
             self.egrid.add_tile_single(cell, tcls::INT_IO);
-            match self.chip.columns[cell.col].io_n {
+            match self.chip.columns[cell.col].io[DirV::N] {
                 IoGroupKind::Quad => {
                     self.egrid.add_tile_e(cell, tcls::IO_N4, 2);
                 }
@@ -408,7 +408,7 @@ impl Expander<'_, '_> {
             match kind {
                 tcls::CLK_W => {
                     for (col, cd) in &self.chip.columns {
-                        if cd.io_n == IoGroupKind::Serdes && col < self.chip.col_clk {
+                        if cd.io[DirV::N] == IoGroupKind::Serdes && col < self.chip.col_clk {
                             tcells.push(Some(self.die.cell(col, row_serdes)));
                         }
                     }
@@ -418,7 +418,7 @@ impl Expander<'_, '_> {
                 }
                 tcls::CLK_E => {
                     for (col, cd) in self.chip.columns.iter().rev() {
-                        if cd.io_n == IoGroupKind::Serdes && col >= self.chip.col_clk {
+                        if cd.io[DirV::N] == IoGroupKind::Serdes && col >= self.chip.col_clk {
                             tcells.push(Some(self.die.cell(col, row_serdes)));
                         }
                     }

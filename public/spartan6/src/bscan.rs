@@ -20,16 +20,16 @@ impl Chip {
         let mut builder = BScanBuilder::new();
         // N
         for (col, &cd) in self.columns.iter().rev() {
-            if cd.io_n == ColumnIoKind::None {
+            if cd.io[DirV::N] == ColumnIoKind::None {
                 continue;
             }
             for (iob, unused) in [
                 // inner
-                (0, cd.io_n == ColumnIoKind::Outer),
-                (1, cd.io_n == ColumnIoKind::Outer),
+                (0, cd.io[DirV::N] == ColumnIoKind::Outer),
+                (1, cd.io[DirV::N] == ColumnIoKind::Outer),
                 // outer
-                (2, cd.io_n == ColumnIoKind::Inner),
-                (3, cd.io_n == ColumnIoKind::Inner),
+                (2, cd.io[DirV::N] == ColumnIoKind::Inner),
+                (3, cd.io[DirV::N] == ColumnIoKind::Inner),
             ] {
                 if !unused {
                     let crd = self.pad_io_v(DirV::N, col, iob);
@@ -39,7 +39,7 @@ impl Chip {
         }
         // W
         for (row, &rd) in self.rows.iter().rev() {
-            if rd.io_w {
+            if rd.io[DirH::W] {
                 for iob in [0, 1] {
                     let crd = self.pad_io_h(DirH::W, row, iob);
                     io.insert(crd, builder.get_toi());
@@ -50,16 +50,16 @@ impl Chip {
         io.insert(self.pad_prog_b(), builder.get_toi());
         // S
         for (col, &cd) in &self.columns {
-            if cd.io_s == ColumnIoKind::None {
+            if cd.io[DirV::S] == ColumnIoKind::None {
                 continue;
             }
             for (iob, unused) in [
                 // inner
-                (0, cd.io_s == ColumnIoKind::Outer),
-                (1, cd.io_s == ColumnIoKind::Outer),
+                (0, cd.io[DirV::S] == ColumnIoKind::Outer),
+                (1, cd.io[DirV::S] == ColumnIoKind::Outer),
                 // outer
-                (2, cd.io_s == ColumnIoKind::Inner),
-                (3, cd.io_s == ColumnIoKind::Inner),
+                (2, cd.io[DirV::S] == ColumnIoKind::Inner),
+                (3, cd.io[DirV::S] == ColumnIoKind::Inner),
             ] {
                 if !unused {
                     let crd = self.pad_io_v(DirV::S, col, iob);
@@ -73,7 +73,7 @@ impl Chip {
         io.insert(self.pad_suspend(), builder.get_toi());
         // E
         for (row, &rd) in &self.rows {
-            if rd.io_e {
+            if rd.io[DirH::E] {
                 for iob in [0, 1] {
                     let crd = self.pad_io_h(DirH::E, row, iob);
                     io.insert(crd, builder.get_toi());

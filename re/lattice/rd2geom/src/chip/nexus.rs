@@ -6,7 +6,7 @@ use prjcombine_ecp::{
 };
 use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
-    dir::{Dir, DirV},
+    dir::{Dir, DirH, DirV},
     grid::{BelCoord, ColId, ColIdExt, RowIdExt},
 };
 use prjcombine_re_lattice_naming::WireName;
@@ -200,8 +200,10 @@ impl ChipBuilder<'_> {
         }
         for (i, wn) in mipi_wires.into_iter().enumerate() {
             let cell = self.chip.xlat_rc_wire(wn);
-            self.chip.columns[cell.col].io_n = IoGroupKind::Mipi;
-            self.chip.columns[cell.col].bank_n = Some(60 + i as u32);
+            self.chip.columns[cell.col].io[DirV::N] = IoGroupKind::Mipi;
+            self.chip.columns[cell.col]
+                .bank
+                .insert(DirV::N, 60 + i as u32);
         }
     }
 
@@ -279,17 +281,17 @@ impl ChipBuilder<'_> {
                         .insert(SpecialIoKey::JtagEn, cell.bel(bslots::IO[0]));
                 }
                 if c == 0 {
-                    self.chip.rows[cell.row].io_w = IoGroupKind::Double;
-                    self.chip.rows[cell.row].bank_w = Some(bank);
+                    self.chip.rows[cell.row].io[DirH::W] = IoGroupKind::Double;
+                    self.chip.rows[cell.row].bank.insert(DirH::W, bank);
                 } else if c == self.chip.columns.len() as u8 + 1 {
-                    self.chip.rows[cell.row].io_e = IoGroupKind::Double;
-                    self.chip.rows[cell.row].bank_e = Some(bank);
+                    self.chip.rows[cell.row].io[DirH::E] = IoGroupKind::Double;
+                    self.chip.rows[cell.row].bank.insert(DirH::E, bank);
                 } else if r == self.chip.rows.len() as u8 + 1 {
-                    self.chip.columns[cell.col].io_s = IoGroupKind::Double;
-                    self.chip.columns[cell.col].bank_s = Some(bank);
+                    self.chip.columns[cell.col].io[DirV::S] = IoGroupKind::Double;
+                    self.chip.columns[cell.col].bank.insert(DirV::S, bank);
                 } else if r == 0 {
-                    self.chip.columns[cell.col].io_n = IoGroupKind::Double;
-                    self.chip.columns[cell.col].bank_n = Some(bank);
+                    self.chip.columns[cell.col].io[DirV::N] = IoGroupKind::Double;
+                    self.chip.columns[cell.col].bank.insert(DirV::N, bank);
                 } else {
                     panic!("umm weird IO tile {}", tile.name);
                 }
@@ -304,8 +306,8 @@ impl ChipBuilder<'_> {
             // uhhhhh. what. why. it's just.... missing from bittile map?
             for x in [44, 45, 47] {
                 let col = ColId::from_idx(x);
-                self.chip.columns[col].io_n = IoGroupKind::Double;
-                self.chip.columns[col].bank_n = Some(1);
+                self.chip.columns[col].io[DirV::N] = IoGroupKind::Double;
+                self.chip.columns[col].bank.insert(DirV::N, 1);
             }
         }
         for &(wf, wt) in self.grid.pips.keys() {
@@ -323,10 +325,10 @@ impl ChipBuilder<'_> {
                     }
                 };
                 match self.chip.get_io_edge(cell) {
-                    Dir::S => self.chip.columns[cell.col].io_s = kind,
-                    Dir::N => self.chip.columns[cell.col].io_n = kind,
-                    Dir::W => self.chip.rows[cell.row].io_w = kind,
-                    Dir::E => self.chip.rows[cell.row].io_e = kind,
+                    Dir::S => self.chip.columns[cell.col].io[DirV::S] = kind,
+                    Dir::N => self.chip.columns[cell.col].io[DirV::N] = kind,
+                    Dir::W => self.chip.rows[cell.row].io[DirH::W] = kind,
+                    Dir::E => self.chip.rows[cell.row].io[DirH::E] = kind,
                 }
             }
         }
@@ -479,8 +481,8 @@ impl ChipBuilder<'_> {
                 | "JDQSI_DQSBUFA_CORE_I_DQS_TOP"
                 | "JDQSI_DQSBUFB_CORE_I_DQS_TOP" => {
                     assert_eq!(io.row, self.chip.row_s());
-                    assert_eq!(self.chip.columns[io.col].io_s, IoGroupKind::Double);
-                    self.chip.columns[io.col].io_s = IoGroupKind::DoubleDqs;
+                    assert_eq!(self.chip.columns[io.col].io[DirV::S], IoGroupKind::Double);
+                    self.chip.columns[io.col].io[DirV::S] = IoGroupKind::DoubleDqs;
                     continue;
                 }
                 "JREFCLK14_REFMUX_CORE_REFMUX" => {

@@ -224,7 +224,7 @@ pub fn make_sample(
                             if !rows_colbuf.is_empty() {
                                 let row_colbuf = rows_colbuf[cell.row];
                                 let trow = if cell.row < row_colbuf {
-                                    if edev.chip.cols_bram.contains(&cell.col)
+                                    if edev.chip.is_col_bram(cell.col)
                                         && !edev.chip.kind.has_ice40_bramv2()
                                     {
                                         row_colbuf - 2
@@ -2452,7 +2452,7 @@ pub fn wanted_keys_tiled(edev: &ExpandedDevice) -> Vec<DiffKey> {
         }
     }
     // BRAM
-    if !edev.chip.cols_bram.is_empty() {
+    if edev.chip.cols_bram.is_some() {
         let tcid = edev.chip.kind.tile_class_bram();
         if edev.chip.kind.is_ice40() {
             result.push(DiffKey::BelAttrBit(

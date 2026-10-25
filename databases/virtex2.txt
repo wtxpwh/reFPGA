@@ -110427,6 +110427,7 @@ intdb {
 					PULLDOWN = 0b000,
 					KEEPER = 0b101,
 				}
+				attribute VR @TERM[1][20][8];
 				attribute IBUF_MODE @[TERM[1][18][6], TERM[1][18][7], TERM[1][21][6]] {
 					NONE = 0b000,
 					VREF = 0b011,
@@ -110455,6 +110456,7 @@ intdb {
 					PULLDOWN = 0b000,
 					KEEPER = 0b101,
 				}
+				attribute VR @TERM[0][6][7];
 				attribute IBUF_MODE @[TERM[0][4][10], TERM[0][4][6], TERM[0][7][8]] {
 					NONE = 0b000,
 					VREF = 0b011,
@@ -110607,6 +110609,7 @@ intdb {
 					PULLDOWN = 0b000,
 					KEEPER = 0b101,
 				}
+				attribute VR @TERM[1][20][8];
 				attribute IBUF_MODE @[TERM[1][18][6], TERM[1][18][7], TERM[1][21][6]] {
 					NONE = 0b000,
 					VREF = 0b011,
@@ -110635,6 +110638,7 @@ intdb {
 					PULLDOWN = 0b000,
 					KEEPER = 0b101,
 				}
+				attribute VR @TERM[0][6][7];
 				attribute IBUF_MODE @[TERM[0][4][10], TERM[0][4][6], TERM[0][7][8]] {
 					NONE = 0b000,
 					VREF = 0b011,

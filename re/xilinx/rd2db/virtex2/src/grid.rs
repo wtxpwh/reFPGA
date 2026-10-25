@@ -1,8 +1,12 @@
 use std::collections::{BTreeMap, BTreeSet, HashMap};
 
 use prjcombine_entity::{EntityIdArith, EntityRange, EntityRangeVec, EntityVec};
-use prjcombine_interconnect::grid::{ColId, DieIdExt, RowId};
+use prjcombine_interconnect::{
+    dir::{DirH, DirV},
+    grid::{ColId, DieIdExt, RowId},
+};
 use prjcombine_re_xilinx_rawdump::{Coord, Part, TkSiteSlot};
+use prjcombine_types::{Polarity, enumerable::EnumMap};
 use prjcombine_virtex2::{
     chip::{Chip, ChipKind, Column, ColumnIoKind, ColumnKind, Dcms, RowIoKind, SharedCfgPad},
     defs::{bcls, bslots},
@@ -199,15 +203,16 @@ fn get_col_clk(rd: &Part, int: &IntGrid) -> ColId {
     int.lookup_column(find_column(rd, &["CLKC", "CLKC_50A", "CLKC_LL"]).unwrap() + 1)
 }
 
-fn get_cols_clkv(rd: &Part, int: &IntGrid) -> Option<(ColId, ColId)> {
+fn get_cols_clkv(rd: &Part, int: &IntGrid) -> Option<EnumMap<DirH, ColId>> {
     let cols: Vec<_> = find_columns(rd, &["GCLKV"]).into_iter().collect();
     if cols.is_empty() {
         None
     } else {
         assert_eq!(cols.len(), 2);
-        let l = int.lookup_column(cols[0] + 1);
-        let r = int.lookup_column(cols[1] + 1);
-        Some((l, r))
+        Some(EnumMap::from_fn(|h| match h {
+            DirH::W => int.lookup_column(cols[0] + 1),
+            DirH::E => int.lookup_column(cols[1] + 1),
+        }))
     }
 }
 
@@ -220,7 +225,7 @@ fn get_gt_bank(rd: &Part, c: Coord) -> u32 {
     unreachable!();
 }
 
-fn get_cols_gt(rd: &Part, int: &IntGrid) -> BTreeMap<ColId, (u32, u32)> {
+fn get_cols_gt(rd: &Part, int: &IntGrid) -> BTreeMap<ColId, EnumMap<DirV, u32>> {
     let mut res = BTreeMap::new();
     for rc in find_columns(rd, &["BGIGABIT_INT0"]) {
         let c = int.lookup_column(rc);
@@ -238,7 +243,13 @@ fn get_cols_gt(rd: &Part, int: &IntGrid) -> BTreeMap<ColId, (u32, u32)> {
                 y: rd.height - 6,
             },
         );
-        res.insert(c, (bb, bt));
+        res.insert(
+            c,
+            EnumMap::from_fn(|edge| match edge {
+                DirV::S => bb,
+                DirV::N => bt,
+            }),
+        );
     }
     for rc in find_columns(rd, &["BGIGABIT10_INT0"]) {
         let c = int.lookup_column(rc);
@@ -256,7 +267,13 @@ fn get_cols_gt(rd: &Part, int: &IntGrid) -> BTreeMap<ColId, (u32, u32)> {
                 y: rd.height - 11,
             },
         );
-        res.insert(c, (bb, bt));
+        res.insert(
+            c,
+            EnumMap::from_fn(|edge| match edge {
+                DirV::S => bb,
+                DirV::N => bt,
+            }),
+        );
     }
     res
 }
@@ -516,13 +533,21 @@ fn handle_spec_io(rd: &Part, chip: &mut Chip, int: &IntGrid) {
         assert_eq!(alt_vrp.len(), alt_vrn.len());
         for (k, p) in vrp {
             let n = vrn[&k];
-            let old = chip.dci_io.insert(k, (p, n));
-            assert!(old.is_none() || old == Some((p, n)));
+            let vr = EnumMap::from_fn(|pol| match pol {
+                Polarity::P => p,
+                Polarity::N => n,
+            });
+            let old = chip.dci_io.insert(k, vr);
+            assert!(old.is_none() || old == Some(vr));
         }
         for (k, p) in alt_vrp {
             let n = alt_vrn[&k];
-            let old = chip.dci_io_alt.insert(k, (p, n));
-            assert!(old.is_none() || old == Some((p, n)));
+            let vr = EnumMap::from_fn(|pol| match pol {
+                Polarity::P => p,
+                Polarity::N => n,
+            });
+            let old = chip.dci_io_alt.insert(k, vr);
+            assert!(old.is_none() || old == Some(vr));
         }
     }
 }

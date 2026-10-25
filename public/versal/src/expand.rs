@@ -38,9 +38,9 @@ impl Expander<'_> {
     fn in_bli(&self, cell: CellCoord) -> bool {
         let chip = self.chips[cell.die];
         if cell.row < chip.row_s() + 4 {
-            chip.columns[cell.col].has_bli_s
+            chip.columns[cell.col].has_bli[DirV::S]
         } else if cell.row >= chip.row_n() - 3 {
-            chip.columns[cell.col].has_bli_n
+            chip.columns[cell.col].has_bli[DirV::N]
         } else {
             false
         }
@@ -217,7 +217,7 @@ impl Expander<'_> {
     fn fill_intf(&mut self) {
         for (die, chip) in &self.chips {
             for (col, &cd) in &chip.columns {
-                if cd.has_bli_s {
+                if cd.has_bli[DirV::S] {
                     let cell = die.cell(col, chip.row_s());
                     if matches!(cd.kind, ColumnKind::Cle(_)) {
                         self.egrid.add_tile_n(cell, tcls::BLI_CLE_S, 4);
@@ -236,7 +236,7 @@ impl Expander<'_> {
                     }
                 }
 
-                if cd.has_bli_n {
+                if cd.has_bli[DirV::N] {
                     let cell = die.cell(col, chip.row_n());
                     if matches!(cd.kind, ColumnKind::Cle(_)) {
                         self.egrid.add_tile_sn(cell, tcls::BLI_CLE_N, 3, 4);
@@ -655,12 +655,8 @@ impl Expander<'_> {
 
                 let mut was_vcu = false;
                 let side = chip.col_side(col);
-                let regs_gt = match side {
-                    DirH::W => &chip.regs_gt_w,
-                    DirH::E => &chip.regs_gt_e,
-                };
                 let mut prev_noc: Option<(BelCoord, BelCoord)> = None;
-                for (reg, &kind) in regs_gt {
+                for (reg, &kind) in &chip.regs_gt[side] {
                     let cell = die.cell(col, chip.row_reg_bot(reg));
                     if self.in_int_hole(cell) {
                         continue;
@@ -729,7 +725,9 @@ impl Expander<'_> {
                             }
                         }
                         GtRowKind::Gtyp => {
-                            let tcid = if reg.to_idx() != 0 && regs_gt[reg - 1] == GtRowKind::Xram {
+                            let tcid = if reg.to_idx() != 0
+                                && chip.regs_gt[side][reg - 1] == GtRowKind::Xram
+                            {
                                 tcls::GTYP_XRAM
                             } else {
                                 tcls::GTYP
@@ -1960,7 +1958,7 @@ impl Expander<'_> {
         }
 
         if chip.columns[chip.col_e()].kind == ColumnKind::Gt
-            && chip.regs_gt_e.first().unwrap().has_noc()
+            && chip.regs_gt[DirH::E].first().unwrap().has_noc()
         {
             let cell = die.cell(chip.col_e(), chip.row_s());
             let nps: [_; 2] = core::array::from_fn(|i| cell.bel(bslots::VCU2_NPS6X[i]));
@@ -3378,13 +3376,13 @@ fn fill_sll_column(
         let has_link_bot = die != chips.first_id().unwrap();
         let has_link_top = die != chips.last_id().unwrap();
         for (cidx, &col) in cols.iter().enumerate() {
-            let start = if chip.columns[col].has_bli_s {
+            let start = if chip.columns[col].has_bli[DirV::S] {
                 assert!(!has_link_bot);
                 4
             } else {
                 0
             };
-            let end = if chip.columns[col].has_bli_n {
+            let end = if chip.columns[col].has_bli[DirV::N] {
                 assert!(!has_link_top);
                 all_rows.len() - 4
             } else {
@@ -3532,7 +3530,7 @@ fn fill_sll_mirror_square(
         for (cidx, &col) in cols.iter().enumerate() {
             let start = if col < col_cfrm {
                 ps_height
-            } else if chip.columns[col].has_bli_s {
+            } else if chip.columns[col].has_bli[DirV::S] {
                 4
             } else {
                 0

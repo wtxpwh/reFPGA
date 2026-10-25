@@ -5,6 +5,7 @@ use prjcombine_interconnect::{
     dir::DirH,
     grid::{ColId, DieId, RowId},
 };
+use prjcombine_types::enumerable::EnumMap;
 use std::collections::BTreeSet;
 
 entity_id_u8!(pub RegId arith, RegTag tag, "REG");
@@ -15,7 +16,7 @@ pub struct Chip {
     pub columns: EntityVec<ColId, ColumnKind>,
     pub cols_vbrk: BTreeSet<ColId>,
     pub cols_mgt_buf: BTreeSet<ColId>,
-    pub cols_qbuf: Option<(ColId, ColId)>,
+    pub cols_qbuf: Option<EnumMap<DirH, ColId>>,
     pub col_hard: Option<HardColumn>,
     pub cols_io: Vec<IoColumn>,
     pub cols_gt: Vec<GtColumn>,
@@ -319,8 +320,8 @@ impl Chip {
             if self.cols_mgt_buf.contains(&col) {
                 write!(o, " + mgt_buf")?;
             }
-            if let Some((cl, cr)) = self.cols_qbuf
-                && (col == cl || col == cr)
+            if let Some(cols) = self.cols_qbuf
+                && cols.values().any(|&c| c == col)
             {
                 write!(o, " + qbuf")?;
             }

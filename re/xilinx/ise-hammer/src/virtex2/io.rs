@@ -124,7 +124,7 @@ impl<'b> FuzzerProp<'b, IseBackend<'b>> for IsVr {
         let pad = tcrd.bel(self.0).pad(bcls::IOI::PAD);
         let mut is_vr = false;
         for (bank, vr) in &edev.chip.dci_io {
-            if vr.0 == pad || vr.1 == pad {
+            if vr.values().any(|&x| x == pad) {
                 if edev.chip.dci_io_alt.contains_key(bank) {
                     let &FuzzerValue::Base(Value::Bool(alt)) = &fuzzer.kv[&Key::AltVr] else {
                         unreachable!()
@@ -136,7 +136,7 @@ impl<'b> FuzzerProp<'b, IseBackend<'b>> for IsVr {
             }
         }
         for (bank, vr) in &edev.chip.dci_io_alt {
-            if vr.0 == pad || vr.1 == pad {
+            if vr.values().any(|&x| x == pad) {
                 if edev.chip.dci_io.contains_key(bank) {
                     let &FuzzerValue::Base(Value::Bool(alt)) = &fuzzer.kv[&Key::AltVr] else {
                         unreachable!()
@@ -523,16 +523,16 @@ fn has_any_vr<'a>(
         if let Some(&pkg) = bonded_ios.get(&pad) {
             for bank in 0..8 {
                 if let Some(alt_vr) = edev.chip.dci_io_alt.get(&bank) {
-                    if pad == alt_vr.0 || pad == alt_vr.1 {
+                    if alt_vr.values().any(|&x| x == pad) {
                         return Some((pkg, Some(true)));
                     }
-                    if let Some(vr) = edev.chip.dci_io_alt.get(&bank)
-                        && (pad == vr.0 || pad == vr.1)
+                    if let Some(vr) = edev.chip.dci_io.get(&bank)
+                        && vr.values().any(|&x| x == pad)
                     {
                         return Some((pkg, Some(false)));
                     }
                 } else if let Some(vr) = edev.chip.dci_io.get(&bank)
-                    && (pad == vr.0 || pad == vr.1)
+                    && vr.values().any(|&x| x == pad)
                 {
                     return Some((pkg, None));
                 }

@@ -17,6 +17,7 @@ use prjcombine_spartan6::{
 use prjcombine_re_xilinx_rd2db_grid::{
     IntGrid, extract_int, find_columns, find_row, find_rows, find_tiles,
 };
+use prjcombine_types::enumerable::EnumMap;
 
 fn make_columns(rd: &Part, int: &IntGrid) -> EntityVec<ColId, Column> {
     let mut res: EntityVec<ColId, Option<ColumnKind>> = int.cols.map_values(|_| None);
@@ -43,14 +44,20 @@ fn make_columns(rd: &Part, int: &IntGrid) -> EntityVec<ColId, Column> {
     }
     res.map(|col, kind| Column {
         kind: kind.unwrap(),
-        io_s: {
+        io: EnumMap::from_fn(|edge| {
             let co = Coord {
                 x: int.cols[col] as u16 + 1,
-                y: 2,
+                y: match edge {
+                    DirV::S => 2,
+                    DirV::N => rd.height - 3,
+                },
             };
             let ci = Coord {
                 x: int.cols[col] as u16 + 1,
-                y: 3,
+                y: match edge {
+                    DirV::S => 3,
+                    DirV::N => rd.height - 4,
+                },
             };
             let has_o = rd.tile_kinds.key(rd.tiles[&co].kind).ends_with("IOI_OUTER");
             let has_i = rd.tile_kinds.key(rd.tiles[&ci].kind).ends_with("IOI_INNER");
@@ -60,65 +67,49 @@ fn make_columns(rd: &Part, int: &IntGrid) -> EntityVec<ColId, Column> {
                 (true, false) => ColumnIoKind::Outer,
                 (true, true) => ColumnIoKind::Both,
             }
-        },
-        io_n: {
-            let co = Coord {
-                x: int.cols[col] as u16 + 1,
-                y: rd.height - 3,
-            };
-            let ci = Coord {
-                x: int.cols[col] as u16 + 1,
-                y: rd.height - 4,
-            };
-            let has_o = rd.tile_kinds.key(rd.tiles[&co].kind).ends_with("IOI_OUTER");
-            let has_i = rd.tile_kinds.key(rd.tiles[&ci].kind).ends_with("IOI_INNER");
-            match (has_o, has_i) {
-                (false, false) => ColumnIoKind::None,
-                (false, true) => ColumnIoKind::Inner,
-                (true, false) => ColumnIoKind::Outer,
-                (true, true) => ColumnIoKind::Both,
-            }
-        },
+        }),
     })
 }
 
 fn make_rows(rd: &Part, int: &IntGrid) -> EntityVec<RowId, Row> {
-    int.rows.map_values(|&y| {
-        let c_l = Coord { x: 3, y: y as u16 };
-        let c_r = Coord {
-            x: rd.width - 4,
-            y: y as u16,
-        };
-        Row {
-            io_w: matches!(
-                &rd.tile_kinds.key(rd.tiles[&c_l].kind)[..],
-                "LIOI" | "LIOI_BRK"
-            ),
-            io_e: matches!(
-                &rd.tile_kinds.key(rd.tiles[&c_r].kind)[..],
-                "RIOI" | "RIOI_BRK"
-            ),
-        }
+    int.rows.map_values(|&y| Row {
+        io: EnumMap::from_fn(|edge| {
+            let c = Coord {
+                x: match edge {
+                    DirH::W => 3,
+                    DirH::E => rd.width - 4,
+                },
+                y: y as u16,
+            };
+            matches!(
+                &rd.tile_kinds.key(rd.tiles[&c].kind)[..],
+                "LIOI" | "LIOI_BRK" | "RIOI" | "RIOI_BRK"
+            )
+        }),
     })
 }
 
-fn get_cols_clk_fold(rd: &Part, int: &IntGrid) -> Option<(ColId, ColId)> {
+fn get_cols_clk_fold(rd: &Part, int: &IntGrid) -> Option<EnumMap<DirH, ColId>> {
     let v: Vec<_> = find_columns(rd, &["DSP_HCLK_GCLK_FOLD"])
         .into_iter()
         .map(|x| int.lookup_column(x - 2))
         .collect();
     match v[..] {
         [] => None,
-        [l, r] => Some((l, r)),
+        [l, r] => Some(EnumMap::from_fn(|side| match side {
+            DirH::W => l,
+            DirH::E => r,
+        })),
         _ => unreachable!(),
     }
 }
 
-fn get_rows_bank_split(rd: &Part, int: &IntGrid) -> Option<(RowId, RowId)> {
+fn get_rows_bank_split(rd: &Part, int: &IntGrid) -> Option<EnumMap<DirH, RowId>> {
     if let Some(x) = find_row(rd, &["MCB_CAP_INT_BRK"]) {
-        let l = int.lookup_row(x);
-        let r = int.lookup_row(x) - 1;
-        Some((l, r))
+        Some(EnumMap::from_fn(|edge| match edge {
+            DirH::W => int.lookup_row(x),
+            DirH::E => int.lookup_row(x) - 1,
+        }))
     } else {
         None
     }
@@ -128,10 +119,19 @@ fn get_row_mcb_split(rd: &Part, int: &IntGrid) -> Option<RowId> {
     find_row(rd, &["MCB_CAP_INT_BRK"]).map(|x| int.lookup_row(x))
 }
 
-fn get_rows_pci_ce_split(rd: &Part, int: &IntGrid) -> (RowId, RowId) {
-    let b = int.lookup_row_inter(find_row(rd, &["HCLK_IOIL_BOT_SPLIT"]).unwrap());
-    let t = int.lookup_row_inter(find_row(rd, &["HCLK_IOIL_TOP_SPLIT"]).unwrap());
-    (b, t)
+fn get_rows_pci_ce_split(rd: &Part, int: &IntGrid) -> EnumMap<DirV, RowId> {
+    EnumMap::from_fn(|edge| {
+        int.lookup_row_inter(
+            find_row(
+                rd,
+                &[match edge {
+                    DirV::S => "HCLK_IOIL_BOT_SPLIT",
+                    DirV::N => "HCLK_IOIL_TOP_SPLIT",
+                }],
+            )
+            .unwrap(),
+        )
+    })
 }
 
 fn get_gts(rd: &Part, int: &IntGrid) -> Gts {

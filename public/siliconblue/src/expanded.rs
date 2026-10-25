@@ -1,5 +1,8 @@
 use prjcombine_entity::{EntityId, EntityVec};
-use prjcombine_interconnect::grid::{ColId, ExpandedGrid, RowId, TileCoord};
+use prjcombine_interconnect::{
+    dir::DirH,
+    grid::{ColId, ExpandedGrid, RowId, TileCoord},
+};
 use prjcombine_types::bitrect::BitRectId;
 
 use crate::{
@@ -132,19 +135,9 @@ impl ExpandedDevice<'_> {
                     self.chip.row_mid + 2 * row
                 };
                 let col = if (bank & 2) == 0 {
-                    self.chip
-                        .cols_bram
-                        .iter()
-                        .copied()
-                        .find(|&col| col < self.chip.col_mid())
-                        .unwrap()
+                    self.chip.cols_bram.unwrap()[DirH::W]
                 } else {
-                    self.chip
-                        .cols_bram
-                        .iter()
-                        .copied()
-                        .find(|&col| col >= self.chip.col_mid())
-                        .unwrap()
+                    self.chip.cols_bram.unwrap()[DirH::E]
                 };
                 Some((self.btile_bram(col, row), BitOwner::Bram(col, row)))
             }

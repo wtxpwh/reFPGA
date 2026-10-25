@@ -1,7 +1,10 @@
 use std::{cmp::Ordering, collections::HashSet};
 
 use prjcombine_entity::{EntityId, EntityPartVec, EntityVec};
-use prjcombine_interconnect::grid::{CellCoord, ColId, DieIdExt, RowId};
+use prjcombine_interconnect::{
+    dir::DirV,
+    grid::{CellCoord, ColId, DieIdExt, RowId},
+};
 use prjcombine_re_xilinx_naming::{
     db::NamingDb,
     grid::{BelGrid, ExpandedGridNaming},
@@ -1691,7 +1694,7 @@ pub fn name_device<'a>(edev: &'a ExpandedDevice<'a>, ndb: &'a NamingDb) -> Expan
                     .ngrid
                     .name_tile(tcrd, "GIGABIT_S", [format!("BMR{r}C{c}")]);
                 let gx = namer.gtxlut[col];
-                let (bank, _) = chip.cols_gt[&col];
+                let bank = chip.cols_gt[&col][DirV::S];
                 ntile.add_bel_multi(
                     bslots::GT,
                     [
@@ -1710,7 +1713,7 @@ pub fn name_device<'a>(edev: &'a ExpandedDevice<'a>, ndb: &'a NamingDb) -> Expan
                     .ngrid
                     .name_tile(tcrd, "GIGABIT10_S", [format!("BMR{r}C{c}")]);
                 let gx = namer.gtxlut[col];
-                let (bank, _) = chip.cols_gt[&col];
+                let bank = chip.cols_gt[&col][DirV::S];
                 ntile.add_bel_multi(
                     bslots::GT10,
                     [
@@ -1729,7 +1732,7 @@ pub fn name_device<'a>(edev: &'a ExpandedDevice<'a>, ndb: &'a NamingDb) -> Expan
                     .ngrid
                     .name_tile(tcrd, "GIGABIT_N", [format!("BMR{r}C{c}")]);
                 let gx = namer.gtxlut[col];
-                let (_, bank) = chip.cols_gt[&col];
+                let bank = chip.cols_gt[&col][DirV::N];
                 ntile.add_bel_multi(
                     bslots::GT,
                     [
@@ -1748,7 +1751,7 @@ pub fn name_device<'a>(edev: &'a ExpandedDevice<'a>, ndb: &'a NamingDb) -> Expan
                     .ngrid
                     .name_tile(tcrd, "GIGABIT10_N", [format!("BMR{r}C{c}")]);
                 let gx = namer.gtxlut[col];
-                let (_, bank) = chip.cols_gt[&col];
+                let bank = chip.cols_gt[&col][DirV::N];
                 ntile.add_bel_multi(
                     bslots::GT10,
                     [

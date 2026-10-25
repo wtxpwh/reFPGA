@@ -6,6 +6,7 @@ use prjcombine_interconnect::{
     dir::{Dir, DirH, DirHV, DirV},
     grid::{BelCoord, BelPadCoord, ColId, DieId, DieIdExt, RowId, TileCoord},
 };
+use prjcombine_types::enumerable::EnumMap;
 use std::collections::BTreeMap;
 
 use crate::defs::{bcls, bslots, tslots};
@@ -16,10 +17,10 @@ entity_id_u8!(pub RegId arith, RegTag tag, "REG");
 pub struct Chip {
     pub columns: EntityVec<ColId, Column>,
     pub col_clk: ColId,
-    pub cols_clk_fold: Option<(ColId, ColId)>,
+    pub cols_clk_fold: Option<EnumMap<DirH, ColId>>,
     pub rows: EntityVec<RowId, Row>,
-    pub rows_pci_ce_split: (RowId, RowId),
-    pub rows_bank_split: Option<(RowId, RowId)>,
+    pub rows_pci_ce_split: EnumMap<DirV, RowId>,
+    pub rows_bank_split: Option<EnumMap<DirH, RowId>>,
     pub row_mcb_split: Option<RowId>,
     pub gts: Gts,
     pub mcbs: Vec<Mcb>,
@@ -87,8 +88,7 @@ impl std::fmt::Display for SharedCfgPad {
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Hash, Encode, Decode)]
 pub struct Column {
     pub kind: ColumnKind,
-    pub io_s: ColumnIoKind,
-    pub io_n: ColumnIoKind,
+    pub io: EnumMap<DirV, ColumnIoKind>,
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Hash, Encode, Decode)]
@@ -137,8 +137,7 @@ impl std::fmt::Display for ColumnIoKind {
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Hash, Encode, Decode)]
 pub struct Row {
-    pub io_w: bool,
-    pub io_e: bool,
+    pub io: EnumMap<DirH, bool>,
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Hash, Encode, Decode)]
@@ -492,14 +491,14 @@ impl Chip {
 
     pub fn get_io_bank(&self, io: BelPadCoord) -> u32 {
         if io.col == self.col_w() {
-            if let Some((rs, _)) = self.rows_bank_split {
-                if io.row < rs { 3 } else { 4 }
+            if let Some(split) = self.rows_bank_split {
+                if io.row < split[DirH::W] { 3 } else { 4 }
             } else {
                 3
             }
         } else if io.col == self.col_e() {
-            if let Some((_, rs)) = self.rows_bank_split {
-                if io.row < rs { 1 } else { 5 }
+            if let Some(split) = self.rows_bank_split {
+                if io.row < split[DirH::E] { 1 } else { 5 }
             } else {
                 1
             }
@@ -514,16 +513,16 @@ impl Chip {
         let mut res = vec![];
         // TIO
         for (col, &cd) in &self.columns {
-            if cd.io_n == ColumnIoKind::None {
+            if cd.io[DirV::N] == ColumnIoKind::None {
                 continue;
             }
             for (iob, unused) in [
                 // outer
-                (3, cd.io_n == ColumnIoKind::Inner),
-                (2, cd.io_n == ColumnIoKind::Inner),
+                (3, cd.io[DirV::N] == ColumnIoKind::Inner),
+                (2, cd.io[DirV::N] == ColumnIoKind::Inner),
                 // inner
-                (1, cd.io_n == ColumnIoKind::Outer),
-                (0, cd.io_n == ColumnIoKind::Outer),
+                (1, cd.io[DirV::N] == ColumnIoKind::Outer),
+                (0, cd.io[DirV::N] == ColumnIoKind::Outer),
             ] {
                 if !unused {
                     res.push(self.pad_io_v(DirV::N, col, iob));
@@ -532,7 +531,7 @@ impl Chip {
         }
         // RIO
         for (row, &rd) in self.rows.iter().rev() {
-            if rd.io_e {
+            if rd.io[DirH::E] {
                 for iob in [1, 0] {
                     res.push(self.pad_io_h(DirH::E, row, iob));
                 }
@@ -540,16 +539,16 @@ impl Chip {
         }
         // BIO
         for (col, &cd) in self.columns.iter().rev() {
-            if cd.io_s == ColumnIoKind::None {
+            if cd.io[DirV::S] == ColumnIoKind::None {
                 continue;
             }
             for (iob, unused) in [
                 // outer
-                (3, cd.io_s == ColumnIoKind::Inner),
-                (2, cd.io_s == ColumnIoKind::Inner),
+                (3, cd.io[DirV::S] == ColumnIoKind::Inner),
+                (2, cd.io[DirV::S] == ColumnIoKind::Inner),
                 // inner
-                (1, cd.io_s == ColumnIoKind::Outer),
-                (0, cd.io_s == ColumnIoKind::Outer),
+                (1, cd.io[DirV::S] == ColumnIoKind::Outer),
+                (0, cd.io[DirV::S] == ColumnIoKind::Outer),
             ] {
                 if !unused {
                     res.push(self.pad_io_v(DirV::S, col, iob));
@@ -558,7 +557,7 @@ impl Chip {
         }
         // LIO
         for (row, &rd) in &self.rows {
-            if rd.io_w {
+            if rd.io[DirH::W] {
                 for iob in [1, 0] {
                     res.push(self.pad_io_h(DirH::W, row, iob));
                 }
@@ -634,21 +633,21 @@ impl Chip {
                 ColumnKind::Dsp => write!(o, "dsp")?,
                 ColumnKind::DspPlus => write!(o, "dsp_gt")?,
             }
-            match cd.io_s {
+            match cd.io[DirV::S] {
                 ColumnIoKind::None => (),
                 ColumnIoKind::Inner => write!(o, " + io_s_inner")?,
                 ColumnIoKind::Outer => write!(o, " + io_s_outer")?,
                 ColumnIoKind::Both => write!(o, " + io_s")?,
             }
-            match cd.io_n {
+            match cd.io[DirV::N] {
                 ColumnIoKind::None => (),
                 ColumnIoKind::Inner => write!(o, " + io_n_inner")?,
                 ColumnIoKind::Outer => write!(o, " + io_n_outer")?,
                 ColumnIoKind::Both => write!(o, " + io_n")?,
             }
             write!(o, ", // {col}")?;
-            if let Some((cl, cr)) = self.cols_clk_fold
-                && (col == cl || col == cr)
+            if let Some(cols_clk_fold) = self.cols_clk_fold
+                && cols_clk_fold.values().any(|&c| c == col)
             {
                 write!(o, " FOLD")?;
             }
@@ -665,8 +664,13 @@ impl Chip {
             writeln!(o)?;
         }
         writeln!(o, "\t}}")?;
-        if let Some((cl, cr)) = self.cols_clk_fold {
-            writeln!(o, "\tcols_clk_fold {cl}, {cr};")?;
+        if let Some(cols_clk_fold) = self.cols_clk_fold {
+            writeln!(
+                o,
+                "\tcols_clk_fold {cl}, {cr};",
+                cl = cols_clk_fold[DirH::W],
+                cr = cols_clk_fold[DirH::E]
+            )?;
         }
         writeln!(o, "\trows {{")?;
         for (row, rd) in &self.rows {
@@ -679,11 +683,11 @@ impl Chip {
             if row == self.row_clk() {
                 writeln!(o, "\t\t// spine row")?;
             }
-            if let Some((rl, rr)) = self.rows_bank_split {
-                if row == rl {
+            if let Some(split) = self.rows_bank_split {
+                if row == split[DirH::W] {
                     writeln!(o, "\t\t// left bank split")?;
                 }
-                if row == rr {
+                if row == split[DirH::E] {
                     writeln!(o, "\t\t// right bank split")?;
                 }
             }
@@ -691,7 +695,7 @@ impl Chip {
                 writeln!(o, "\t\t// MCB split")?;
             }
             write!(o, "\t\t")?;
-            match (rd.io_w, rd.io_e) {
+            match (rd.io[DirH::W], rd.io[DirH::E]) {
                 (true, true) => write!(o, "io_w + io_e")?,
                 (true, false) => write!(o, "io_w")?,
                 (false, true) => write!(o, "io_e")?,
@@ -768,11 +772,16 @@ impl Chip {
         writeln!(
             o,
             "\trows_pci_ce_split {rb}, {rt};",
-            rb = self.rows_pci_ce_split.0,
-            rt = self.rows_pci_ce_split.1
+            rb = self.rows_pci_ce_split[DirV::S],
+            rt = self.rows_pci_ce_split[DirV::N],
         )?;
-        if let Some((rl, rr)) = self.rows_bank_split {
-            writeln!(o, "\trows_bank_split {rl}, {rr};")?;
+        if let Some(split) = self.rows_bank_split {
+            writeln!(
+                o,
+                "\trows_bank_split {rl}, {rr};",
+                rl = split[DirH::W],
+                rr = split[DirH::E]
+            )?;
         }
         if let Some(row) = self.row_mcb_split {
             writeln!(o, "\trow_mcb_split {row};")?;

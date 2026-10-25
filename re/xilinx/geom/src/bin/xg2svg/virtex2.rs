@@ -31,8 +31,8 @@ pub fn draw_device(name: &str, edev: ExpandedDevice) -> Drawer {
         if edev.chip.col_clk == col {
             x += W_CLK;
         }
-        if let Some((cl, cr)) = edev.chip.cols_clkv
-            && (col == cl || col == cr)
+        if let Some(cols_clkv) = edev.chip.cols_clkv
+            && cols_clkv.values().any(|&c| col == c)
         {
             x += W_CLKV;
         }

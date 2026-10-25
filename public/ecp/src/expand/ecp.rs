@@ -181,110 +181,84 @@ impl Expander<'_, '_> {
     }
 
     pub(super) fn fill_io_ecp(&mut self) {
-        for cell in self.egrid.column(self.die, self.chip.col_w()) {
-            if self.is_in_bel_hole(cell) {
-                continue;
-            }
+        for edge in DirH::DIRS {
+            for cell in self.egrid.column(self.die, self.chip.col_edge(edge)) {
+                if self.is_in_bel_hole(cell) {
+                    continue;
+                }
 
-            let rd = &self.chip.rows[cell.row];
-            if !matches!(rd.kind, RowKind::Plc | RowKind::Fplc) {
-                continue;
-            }
-            self.fill_int_io(cell);
-            self.egrid.add_tile_single(cell, tcls::IO_W);
-            self.egrid[cell].region_root[rslots::DQSDLL] = self.chip.bel_dqsdll(cell).cell;
+                let rd = &self.chip.rows[cell.row];
+                if !matches!(rd.kind, RowKind::Plc | RowKind::Fplc) {
+                    continue;
+                }
+                self.fill_int_io(cell);
+                self.egrid.add_tile_single(
+                    cell,
+                    match edge {
+                        DirH::W => tcls::IO_W,
+                        DirH::E => tcls::IO_E,
+                    },
+                );
+                self.egrid[cell].region_root[rslots::DQSDLL] = self.chip.bel_dqsdll(cell).cell;
 
-            if rd.io_w == IoGroupKind::DoubleDqs {
-                self.egrid.add_tile_single(cell, tcls::DQS_W);
-                let row_base: RowId = match self.chip.kind {
-                    ChipKind::Ecp | ChipKind::Ecp2 | ChipKind::Ecp2M | ChipKind::Xp2 => {
-                        cell.row - 3
+                if rd.io[edge] == IoGroupKind::DoubleDqs {
+                    self.egrid.add_tile_single(
+                        cell,
+                        match edge {
+                            DirH::W => tcls::DQS_W,
+                            DirH::E => tcls::DQS_E,
+                        },
+                    );
+                    let row_base: RowId = match self.chip.kind {
+                        ChipKind::Ecp | ChipKind::Ecp2 | ChipKind::Ecp2M | ChipKind::Xp2 => {
+                            cell.row - 3
+                        }
+                        ChipKind::Xp => cell.row - 2,
+                        _ => unreachable!(),
+                    };
+                    for row_io in row_base.range(row_base + 8) {
+                        self.egrid[cell.with_row(row_io)].region_root[rslots::DQS] = cell;
                     }
-                    ChipKind::Xp => cell.row - 2,
-                    _ => unreachable!(),
-                };
-                for row_io in row_base.range(row_base + 8) {
-                    self.egrid[cell.with_row(row_io)].region_root[rslots::DQS] = cell;
                 }
             }
         }
+        for edge in DirV::DIRS {
+            for cell in self.egrid.row(self.die, self.chip.row_edge(edge)) {
+                if self.is_in_bel_hole(cell) {
+                    continue;
+                }
 
-        for cell in self.egrid.column(self.die, self.chip.col_e()) {
-            if self.is_in_bel_hole(cell) {
-                continue;
-            }
+                let cd = &self.chip.columns[cell.col];
+                self.fill_int_io(cell);
+                if self.chip.is_col_io(cell.col) {
+                    continue;
+                }
+                self.egrid.add_tile_single(
+                    cell,
+                    match edge {
+                        DirV::S => tcls::IO_S,
+                        DirV::N => tcls::IO_N,
+                    },
+                );
+                self.egrid[cell].region_root[rslots::DQSDLL] = self.chip.bel_dqsdll(cell).cell;
 
-            let rd = &self.chip.rows[cell.row];
-            if !matches!(rd.kind, RowKind::Plc | RowKind::Fplc) {
-                continue;
-            }
-            self.fill_int_io(cell);
-            self.egrid.add_tile_single(cell, tcls::IO_E);
-            self.egrid[cell].region_root[rslots::DQSDLL] = self.chip.bel_dqsdll(cell).cell;
-
-            if rd.io_e == IoGroupKind::DoubleDqs {
-                self.egrid.add_tile_single(cell, tcls::DQS_E);
-                let row_base: RowId = match self.chip.kind {
-                    ChipKind::Ecp | ChipKind::Ecp2 | ChipKind::Ecp2M | ChipKind::Xp2 => {
-                        cell.row - 3
+                if cd.io[edge] == IoGroupKind::DoubleDqs {
+                    self.egrid.add_tile_single(
+                        cell,
+                        match edge {
+                            DirV::S => tcls::DQS_S,
+                            DirV::N => tcls::DQS_N,
+                        },
+                    );
+                    let (col_base, num): (ColId, usize) = match self.chip.kind {
+                        ChipKind::Ecp => (cell.col - 4, 8),
+                        ChipKind::Ecp2 | ChipKind::Ecp2M | ChipKind::Xp2 => (cell.col - 4, 9),
+                        ChipKind::Xp => (cell.col - 5, 8),
+                        _ => unreachable!(),
+                    };
+                    for col_io in col_base.range(col_base + num) {
+                        self.egrid[cell.with_col(col_io)].region_root[rslots::DQS] = cell;
                     }
-                    ChipKind::Xp => cell.row - 2,
-                    _ => unreachable!(),
-                };
-                for row_io in row_base.range(row_base + 8) {
-                    self.egrid[cell.with_row(row_io)].region_root[rslots::DQS] = cell;
-                }
-            }
-        }
-        for cell in self.egrid.row(self.die, self.chip.row_s()) {
-            if self.is_in_bel_hole(cell) {
-                continue;
-            }
-
-            let cd = &self.chip.columns[cell.col];
-            self.fill_int_io(cell);
-            if self.chip.is_col_io(cell.col) {
-                continue;
-            }
-            self.egrid.add_tile_single(cell, tcls::IO_S);
-            self.egrid[cell].region_root[rslots::DQSDLL] = self.chip.bel_dqsdll(cell).cell;
-
-            if cd.io_s == IoGroupKind::DoubleDqs {
-                self.egrid.add_tile_single(cell, tcls::DQS_S);
-                let (col_base, num): (ColId, usize) = match self.chip.kind {
-                    ChipKind::Ecp => (cell.col - 4, 8),
-                    ChipKind::Ecp2 | ChipKind::Ecp2M | ChipKind::Xp2 => (cell.col - 4, 9),
-                    ChipKind::Xp => (cell.col - 5, 8),
-                    _ => unreachable!(),
-                };
-                for col_io in col_base.range(col_base + num) {
-                    self.egrid[cell.with_col(col_io)].region_root[rslots::DQS] = cell;
-                }
-            }
-        }
-        for cell in self.egrid.row(self.die, self.chip.row_n()) {
-            if self.is_in_bel_hole(cell) {
-                continue;
-            }
-
-            let cd = &self.chip.columns[cell.col];
-            self.fill_int_io(cell);
-            if self.chip.is_col_io(cell.col) {
-                continue;
-            }
-            self.egrid.add_tile_single(cell, tcls::IO_N);
-            self.egrid[cell].region_root[rslots::DQSDLL] = self.chip.bel_dqsdll(cell).cell;
-
-            if cd.io_n == IoGroupKind::DoubleDqs {
-                self.egrid.add_tile_single(cell, tcls::DQS_N);
-                let (col_base, num): (ColId, usize) = match self.chip.kind {
-                    ChipKind::Ecp => (cell.col - 4, 8),
-                    ChipKind::Xp2 => (cell.col - 4, 9),
-                    ChipKind::Xp => (cell.col - 5, 8),
-                    _ => unreachable!(),
-                };
-                for col_io in col_base.range(col_base + num) {
-                    self.egrid[cell.with_col(col_io)].region_root[rslots::DQS] = cell;
                 }
             }
         }
@@ -418,7 +392,7 @@ impl Expander<'_, '_> {
                 self.frame_len += 144;
             }
         }
-        self.frames_num += self.chip.extra_frames_w;
+        self.frames_num += self.chip.extra_frames[DirH::W];
         for col in self.chip.columns.ids() {
             if col == self.chip.col_w() {
                 self.col_term_frame.insert(col, self.frames_num);
@@ -435,6 +409,6 @@ impl Expander<'_, '_> {
                 self.frames_num += self.chip.btile_term_width(col);
             }
         }
-        self.frames_num += self.chip.extra_frames_e;
+        self.frames_num += self.chip.extra_frames[DirH::E];
     }
 }

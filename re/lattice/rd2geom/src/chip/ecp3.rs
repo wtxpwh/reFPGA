@@ -161,9 +161,9 @@ impl ChipBuilder<'_> {
             if wtn.suffix == jf6 && self.naming.strings[wfn.suffix].contains("TECLK") {
                 let cell = self.chip.xlat_rc_wire(wtn);
                 if cell.row == self.chip.row_s() {
-                    self.chip.columns[cell.col].eclk_tap_s = true;
+                    self.chip.columns[cell.col].eclk_tap[DirV::S] = true;
                 } else if cell.row == self.chip.row_n() {
-                    self.chip.columns[cell.col].eclk_tap_n = true;
+                    self.chip.columns[cell.col].eclk_tap[DirV::N] = true;
                 }
             }
         }
@@ -244,21 +244,21 @@ impl ChipBuilder<'_> {
         let row_cfg = self.chip.special_loc[&SpecialLocKey::Config].row;
         for (row, rd) in &mut self.chip.rows {
             if row < self.chip.row_clk {
-                if rd.io_w != IoGroupKind::None {
-                    rd.bank_w = Some(6);
+                if rd.io[DirH::W] != IoGroupKind::None {
+                    rd.bank.insert(DirH::W, 6);
                 }
-                if rd.io_e != IoGroupKind::None {
-                    rd.bank_e = Some(3);
+                if rd.io[DirH::E] != IoGroupKind::None {
+                    rd.bank.insert(DirH::E, 3);
                 }
             } else {
-                if rd.io_w != IoGroupKind::None {
-                    rd.bank_w = Some(7);
+                if rd.io[DirH::W] != IoGroupKind::None {
+                    rd.bank.insert(DirH::W, 7);
                 }
-                if rd.io_e != IoGroupKind::None {
+                if rd.io[DirH::E] != IoGroupKind::None {
                     if row < row_cfg {
-                        rd.bank_e = Some(2);
+                        rd.bank.insert(DirH::E, 2);
                     } else {
-                        rd.bank_e = Some(8);
+                        rd.bank.insert(DirH::E, 8);
                     }
                 }
             }
@@ -266,21 +266,21 @@ impl ChipBuilder<'_> {
         let col_e = self.chip.col_e();
         for (col, cd) in &mut self.chip.columns {
             if col < self.chip.col_clk {
-                if cd.io_s != IoGroupKind::None {
-                    cd.bank_s = Some(6);
+                if cd.io[DirV::S] != IoGroupKind::None {
+                    cd.bank.insert(DirV::S, 6);
                 }
-                if cd.io_n != IoGroupKind::None {
-                    cd.bank_n = Some(0);
+                if cd.io[DirV::N] != IoGroupKind::None {
+                    cd.bank.insert(DirV::N, 0);
                 }
             } else {
-                if cd.io_s != IoGroupKind::None {
-                    cd.bank_s = Some(3);
+                if cd.io[DirV::S] != IoGroupKind::None {
+                    cd.bank.insert(DirV::S, 3);
                 }
-                if cd.io_n != IoGroupKind::None {
+                if cd.io[DirV::N] != IoGroupKind::None {
                     if col < col_e - 6 {
-                        cd.bank_n = Some(1);
+                        cd.bank.insert(DirV::N, 1);
                     } else {
-                        cd.bank_n = Some(8);
+                        cd.bank.insert(DirV::N, 8);
                     }
                 }
             }
@@ -326,12 +326,10 @@ impl ChipBuilder<'_> {
         for &wn in self.nodes.values() {
             if wn.suffix == name {
                 let cell = self.chip.xlat_rc_wire(wn);
-                self.chip.columns[cell.col].io_s = IoGroupKind::Serdes;
-                self.chip.columns[cell.col].bank_s = if cell.col < self.chip.col_clk {
-                    Some(14)
-                } else {
-                    Some(13)
-                };
+                self.chip.columns[cell.col].io[DirV::S] = IoGroupKind::Serdes;
+                self.chip.columns[cell.col]
+                    .bank
+                    .insert(DirV::S, if cell.col < self.chip.col_clk { 14 } else { 13 });
             }
         }
         let mut bank = 50;
@@ -339,8 +337,8 @@ impl ChipBuilder<'_> {
             if col < self.chip.col_clk - 18 {
                 continue;
             }
-            if cd.io_s == IoGroupKind::Serdes {
-                cd.bank_s = Some(bank);
+            if cd.io[DirV::S] == IoGroupKind::Serdes {
+                cd.bank.insert(DirV::S, bank);
                 bank += 2;
             }
         }
@@ -349,8 +347,8 @@ impl ChipBuilder<'_> {
             if col >= self.chip.col_clk - 18 {
                 continue;
             }
-            if cd.io_s == IoGroupKind::Serdes {
-                cd.bank_s = Some(bank);
+            if cd.io[DirV::S] == IoGroupKind::Serdes {
+                cd.bank.insert(DirV::S, bank);
                 bank += 2;
             }
         }

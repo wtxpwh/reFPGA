@@ -323,7 +323,10 @@ impl ChipContext<'_> {
             return;
         }
         if is_ecp2 {
-            let bel_eclk = self.chip.bel_eclk_root(self.chip.get_io_edge(cell));
+            let bel_eclk = self
+                .chip
+                .clk_emid(self.chip.get_io_edge(cell))
+                .bel(bslots::CLK_INT);
             let eclk0 = self.naming.bel_wire(bel_eclk, "ECLK0");
             let eclk1 = self.naming.bel_wire(bel_eclk, "ECLK1");
             self.extract_switchbox(cell.bel(bslots::IO_INT))
@@ -364,50 +367,50 @@ impl ChipContext<'_> {
             if !matches!(rd.kind, RowKind::Plc | RowKind::Fplc) {
                 continue;
             }
-            self.prep_io_cell_ecp(cell, rd.io_w);
+            self.prep_io_cell_ecp(cell, rd.io[DirH::W]);
         }
         for cell in self.edev.column(die, self.chip.col_e()) {
             let rd = &self.chip.rows[cell.row];
             if !matches!(rd.kind, RowKind::Plc | RowKind::Fplc) {
                 continue;
             }
-            self.prep_io_cell_ecp(cell, rd.io_e);
+            self.prep_io_cell_ecp(cell, rd.io[DirH::E]);
         }
         for cell in self.edev.row(die, self.chip.row_s()) {
             if self.chip.is_col_io(cell.col) {
                 continue;
             }
             let cd = &self.chip.columns[cell.col];
-            self.prep_io_cell_ecp(cell, cd.io_s);
+            self.prep_io_cell_ecp(cell, cd.io[DirV::S]);
         }
         for cell in self.edev.row(die, self.chip.row_n()) {
             if self.chip.is_col_io(cell.col) {
                 continue;
             }
             let cd = &self.chip.columns[cell.col];
-            self.prep_io_cell_ecp(cell, cd.io_n);
+            self.prep_io_cell_ecp(cell, cd.io[DirV::N]);
         }
     }
 
     pub(super) fn process_io_ecp(&mut self) {
         let die = Chip::DIE;
         for cell in self.edev.column(die, self.chip.col_w()) {
-            if self.chip.rows[cell.row].io_w == IoGroupKind::DoubleDqs {
+            if self.chip.rows[cell.row].io[DirH::W] == IoGroupKind::DoubleDqs {
                 self.process_dqs_ecp(cell.bel(bslots::DQS[0]));
             }
         }
         for cell in self.edev.column(die, self.chip.col_e()) {
-            if self.chip.rows[cell.row].io_e == IoGroupKind::DoubleDqs {
+            if self.chip.rows[cell.row].io[DirH::E] == IoGroupKind::DoubleDqs {
                 self.process_dqs_ecp(cell.bel(bslots::DQS[0]));
             }
         }
         for cell in self.edev.row(die, self.chip.row_s()) {
-            if self.chip.columns[cell.col].io_s == IoGroupKind::DoubleDqs {
+            if self.chip.columns[cell.col].io[DirV::S] == IoGroupKind::DoubleDqs {
                 self.process_dqs_ecp(cell.bel(bslots::DQS[0]));
             }
         }
         for cell in self.edev.row(die, self.chip.row_n()) {
-            if self.chip.columns[cell.col].io_n == IoGroupKind::DoubleDqs {
+            if self.chip.columns[cell.col].io[DirV::N] == IoGroupKind::DoubleDqs {
                 self.process_dqs_ecp(cell.bel(bslots::DQS[0]));
             }
         }
@@ -416,28 +419,28 @@ impl ChipContext<'_> {
             if !matches!(rd.kind, RowKind::Plc | RowKind::Fplc) {
                 continue;
             }
-            self.process_io_cell_ecp(cell, rd.io_w);
+            self.process_io_cell_ecp(cell, rd.io[DirH::W]);
         }
         for cell in self.edev.column(die, self.chip.col_e()) {
             let rd = &self.chip.rows[cell.row];
             if !matches!(rd.kind, RowKind::Plc | RowKind::Fplc) {
                 continue;
             }
-            self.process_io_cell_ecp(cell, rd.io_e);
+            self.process_io_cell_ecp(cell, rd.io[DirH::E]);
         }
         for cell in self.edev.row(die, self.chip.row_s()) {
             if self.chip.is_col_io(cell.col) {
                 continue;
             }
             let cd = &self.chip.columns[cell.col];
-            self.process_io_cell_ecp(cell, cd.io_s);
+            self.process_io_cell_ecp(cell, cd.io[DirV::S]);
         }
         for cell in self.edev.row(die, self.chip.row_n()) {
             if self.chip.is_col_io(cell.col) {
                 continue;
             }
             let cd = &self.chip.columns[cell.col];
-            self.process_io_cell_ecp(cell, cd.io_n);
+            self.process_io_cell_ecp(cell, cd.io[DirV::N]);
         }
     }
 
@@ -448,7 +451,7 @@ impl ChipContext<'_> {
                 1,
                 self.edev
                     .column(Chip::DIE, self.chip.col_w())
-                    .find(|cell| self.chip.rows[cell.row].io_w == IoGroupKind::Double)
+                    .find(|cell| self.chip.rows[cell.row].io[DirH::W] == IoGroupKind::Double)
                     .unwrap(),
             ),
             (
@@ -456,7 +459,7 @@ impl ChipContext<'_> {
                 1,
                 self.edev
                     .column(Chip::DIE, self.chip.col_e())
-                    .find(|cell| self.chip.rows[cell.row].io_e == IoGroupKind::Double)
+                    .find(|cell| self.chip.rows[cell.row].io[DirH::E] == IoGroupKind::Double)
                     .unwrap(),
             ),
             (
@@ -464,7 +467,7 @@ impl ChipContext<'_> {
                 2,
                 self.edev
                     .row(Chip::DIE, self.chip.row_s())
-                    .find(|cell| self.chip.columns[cell.col].io_s == IoGroupKind::Double)
+                    .find(|cell| self.chip.columns[cell.col].io[DirV::S] == IoGroupKind::Double)
                     .unwrap(),
             ),
             (
@@ -472,15 +475,14 @@ impl ChipContext<'_> {
                 2,
                 self.edev
                     .row(Chip::DIE, self.chip.row_n())
-                    .find(|cell| self.chip.columns[cell.col].io_n == IoGroupKind::Double)
+                    .find(|cell| self.chip.columns[cell.col].io[DirV::N] == IoGroupKind::Double)
                     .unwrap(),
             ),
         ] {
             let eclki = self.rc_io_wire(io, "JECLKIA");
             let eclks = self.pips_bwd[&eclki].clone();
-            let bcrd = self.chip.bel_eclk_root(edge);
 
-            let mut ex = self.extract_switchbox(bcrd);
+            let mut ex = self.extract_switchbox(self.chip.clk_emid(edge).bel(bslots::CLK_INT));
 
             for i in 0..2 {
                 let eclk = eclks
@@ -533,13 +535,12 @@ impl ChipContext<'_> {
             ('B', Dir::S, 2),
             ('T', Dir::N, 2),
         ] {
-            let bcrd = self.chip.bel_eclk_root(edge);
             let cell = match edge {
-                Dir::H(_) => bcrd.cell,
-                Dir::V(_) => bcrd.cell.delta(-1, 0),
+                Dir::H(_) => self.chip.clk_emid(edge),
+                Dir::V(_) => self.chip.clk_emid(edge).delta(-1, 0),
             };
 
-            let mut ex = self.extract_switchbox(bcrd);
+            let mut ex = self.extract_switchbox(self.chip.clk_emid(edge).bel(bslots::CLK_INT));
             ex.cell(cell);
 
             if let Dir::H(h) = edge {
@@ -591,7 +592,10 @@ impl ChipContext<'_> {
 
     pub(super) fn process_eclk_tap_ecp2(&mut self) {
         for &tcrd in &self.edev.tile_index[tcls::ECLK_TAP] {
-            let bel_eclk = self.chip.bel_eclk_root(self.chip.get_io_edge(tcrd.cell));
+            let bel_eclk = self
+                .chip
+                .clk_emid(self.chip.get_io_edge(tcrd.cell))
+                .bel(bslots::CLK_INT);
             let eclk0 = self.naming.bel_wire(bel_eclk, "ECLK0");
             let eclk1 = self.naming.bel_wire(bel_eclk, "ECLK1");
             self.claim_pip_int_out(tcrd.wire(wires::OUT_F[6]), eclk0);

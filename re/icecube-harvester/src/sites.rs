@@ -3,7 +3,7 @@ use std::collections::BTreeMap;
 use prjcombine_entity::{EntityId, EntityPartVec};
 use prjcombine_interconnect::{
     db::{BelInfo, IntDb, PinDir, SwitchBoxItem},
-    dir::{Dir, DirPartMap},
+    dir::Dir,
     grid::{ColId, DieIdExt, RowId, WireCoord},
 };
 use prjcombine_re_toolchain::Toolchain;
@@ -12,7 +12,7 @@ use prjcombine_siliconblue::{
     defs,
     expanded::ExpandedDevice,
 };
-use prjcombine_types::{bitrect::BitRect as _, bits, bitvec::BitVec};
+use prjcombine_types::{bitrect::BitRect as _, bits, bitvec::BitVec, enumerable::EnumPartMap};
 
 use crate::{
     parts::Part,
@@ -618,8 +618,8 @@ pub fn find_io_latch_locs(
     toolchain: &Toolchain,
     part: &Part,
     pkg: &'static str,
-    pkg_pins: &DirPartMap<&str>,
-) -> DirPartMap<(u32, u32)> {
+    pkg_pins: &EnumPartMap<Dir, &str>,
+) -> EnumPartMap<Dir, (u32, u32)> {
     let mut design = Design::new(part, pkg, part.speeds[0], part.temps[0]);
     let mut trace_ins = vec![];
     for (edge, &pkg_pin) in pkg_pins {
@@ -647,7 +647,7 @@ pub fn find_io_latch_locs(
             panic!("FAIL TO LOCATE IO LATCH: {err:#?}");
         }
         Ok(res) => {
-            let mut result = DirPartMap::new();
+            let mut result = EnumPartMap::new();
             for (lut, edge) in trace_ins {
                 let paths = &res.routes[&(lut, InstPin::Simple("O".into()))];
                 assert_eq!(paths.len(), 1);
@@ -1013,7 +1013,7 @@ pub fn find_bel_pins(
                     ChipKind::Ice40P01.tile_class_ioi(Dir::W).unwrap()
                 } else if col == edev.chip.col_e() && edev.chip.kind.has_ioi_we() {
                     ChipKind::Ice40P01.tile_class_ioi(Dir::E).unwrap()
-                } else if edev.chip.cols_bram.contains(&col) {
+                } else if edev.chip.is_col_bram(col) {
                     defs::tcls::INT_BRAM
                 } else {
                     ChipKind::Ice40P01.tile_class_plb()

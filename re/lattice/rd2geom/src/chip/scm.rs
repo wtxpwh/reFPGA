@@ -104,76 +104,76 @@ impl ChipBuilder<'_> {
         let mut add_cols_n = BTreeMap::new();
         let mut add_cols_s = BTreeMap::new();
         for (col, cd) in &mut self.chip.columns {
-            let dx = match cd.io_n {
+            let dx = match cd.io[DirV::N] {
                 IoGroupKind::Quad => 1,
                 IoGroupKind::Octal => 2,
                 IoGroupKind::Dozen => 3,
                 _ => continue,
             };
-            add_cols_n.insert(col - dx, cd.io_n);
-            cd.io_n = IoGroupKind::None;
+            add_cols_n.insert(col - dx, cd.io[DirV::N]);
+            cd.io[DirV::N] = IoGroupKind::None;
         }
         for (col, cd) in &mut self.chip.columns {
-            let dx = match cd.io_s {
+            let dx = match cd.io[DirV::S] {
                 IoGroupKind::Quad => 1,
                 IoGroupKind::Octal => 2,
                 IoGroupKind::Dozen => 3,
                 _ => continue,
             };
-            add_cols_s.insert(col - dx, cd.io_s);
-            cd.io_s = IoGroupKind::None;
+            add_cols_s.insert(col - dx, cd.io[DirV::S]);
+            cd.io[DirV::S] = IoGroupKind::None;
         }
         for (col, kind) in add_cols_n {
-            self.chip.columns[col].io_n = kind;
+            self.chip.columns[col].io[DirV::N] = kind;
         }
         for (col, kind) in add_cols_s {
-            self.chip.columns[col].io_s = kind;
+            self.chip.columns[col].io[DirV::S] = kind;
         }
         let mut add_rows_w = BTreeMap::new();
         let mut add_rows_e = BTreeMap::new();
         for (row, rd) in &mut self.chip.rows {
-            let dy = match rd.io_w {
+            let dy = match rd.io[DirH::W] {
                 IoGroupKind::Quad => 1,
                 IoGroupKind::Octal => 2,
                 IoGroupKind::Dozen => 3,
                 _ => continue,
             };
-            add_rows_w.insert(row - dy, rd.io_w);
-            rd.io_w = IoGroupKind::None;
+            add_rows_w.insert(row - dy, rd.io[DirH::W]);
+            rd.io[DirH::W] = IoGroupKind::None;
         }
         for (row, rd) in &mut self.chip.rows {
-            let dy = match rd.io_e {
+            let dy = match rd.io[DirH::E] {
                 IoGroupKind::Quad => 1,
                 IoGroupKind::Octal => 2,
                 IoGroupKind::Dozen => 3,
                 _ => continue,
             };
-            add_rows_e.insert(row - dy, rd.io_e);
-            rd.io_e = IoGroupKind::None;
+            add_rows_e.insert(row - dy, rd.io[DirH::E]);
+            rd.io[DirH::E] = IoGroupKind::None;
         }
         for (row, kind) in add_rows_w {
-            self.chip.rows[row].io_w = kind;
+            self.chip.rows[row].io[DirH::W] = kind;
         }
         for (row, kind) in add_rows_e {
-            self.chip.rows[row].io_e = kind;
+            self.chip.rows[row].io[DirH::E] = kind;
         }
 
         self.fill_io_banks_8();
         let mut serdes_bank = 9;
         for (col, cd) in &mut self.chip.columns {
-            if cd.io_n == IoGroupKind::Serdes {
+            if cd.io[DirV::N] == IoGroupKind::Serdes {
                 if col < self.chip.col_clk {
-                    cd.bank_n = Some(serdes_bank);
+                    cd.bank.insert(DirV::N, serdes_bank);
                     serdes_bank += 2;
                 }
-            } else if cd.io_n != IoGroupKind::None {
-                cd.bank_n = Some(1);
+            } else if cd.io[DirV::N] != IoGroupKind::None {
+                cd.bank.insert(DirV::N, 1);
             }
         }
         serdes_bank = 10;
         for (col, cd) in self.chip.columns.iter_mut().rev() {
-            if cd.io_n == IoGroupKind::Serdes && col >= self.chip.col_clk {
-                cd.bank_n = Some(serdes_bank);
+            if cd.io[DirV::N] == IoGroupKind::Serdes && col >= self.chip.col_clk {
+                cd.bank.insert(DirV::N, serdes_bank);
                 serdes_bank += 2;
             }
         }
@@ -218,11 +218,7 @@ impl ChipBuilder<'_> {
                     DirH::E
                 };
                 loop {
-                    let kind = match edge {
-                        DirH::W => self.chip.rows[cell.row].io_w,
-                        DirH::E => self.chip.rows[cell.row].io_e,
-                    };
-                    match kind {
+                    match self.chip.rows[cell.row].io[edge] {
                         IoGroupKind::None => {
                             ridx += 1;
                             cell.row -= 1;
@@ -240,11 +236,7 @@ impl ChipBuilder<'_> {
                     DirV::N
                 };
                 loop {
-                    let kind = match edge {
-                        DirV::S => self.chip.columns[cell.col].io_s,
-                        DirV::N => self.chip.columns[cell.col].io_n,
-                    };
-                    if kind == IoGroupKind::None {
+                    if self.chip.columns[cell.col].io[edge] == IoGroupKind::None {
                         idx += 4;
                         cell.col -= 1;
                     } else {

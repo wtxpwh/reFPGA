@@ -148,7 +148,7 @@ impl Expander<'_, '_> {
         let mut first = true;
         let mut last = None;
         for cell in self.egrid.row(self.die, self.chip.row_s()) {
-            if self.chip.columns[cell.col].io_s == IoGroupKind::Serdes {
+            if self.chip.columns[cell.col].io[DirV::S] == IoGroupKind::Serdes {
                 if first {
                     self.bel_holes.push(cell.delta(-3, 0).rect(3, 10));
                     for dx in 0..3 {
@@ -180,15 +180,15 @@ impl Expander<'_, '_> {
             if !self.is_in_bel_hole(cell) {
                 self.egrid.add_tile_single(cell, tcls::INT_IO_S);
             }
-            if self.chip.columns[cell.col].io_s == IoGroupKind::Quad {
+            if self.chip.columns[cell.col].io[DirV::S] == IoGroupKind::Quad {
                 self.egrid.add_tile_e(cell, tcls::XSIO_S, 3);
             }
         }
         for cell in self.egrid.row(self.die, self.chip.row_n()) {
             self.egrid.add_tile_single(cell, tcls::INT_IO_N);
             match (
-                self.chip.columns[cell.col].io_n,
-                self.chip.columns[cell.col].bank_n,
+                self.chip.columns[cell.col].io[DirV::N],
+                self.chip.columns[cell.col].bank.get(DirV::N).copied(),
             ) {
                 (IoGroupKind::Quad, Some(8)) => {
                     self.egrid.add_tile_e(cell, tcls::XSIO_N, 3);
@@ -221,7 +221,7 @@ impl Expander<'_, '_> {
             if matches!(self.chip.rows[cell.row].kind, RowKind::Plc | RowKind::Fplc) {
                 self.egrid.add_tile_single(cell, tcls::INT_IO_WE);
             }
-            match self.chip.rows[cell.row].io_w {
+            match self.chip.rows[cell.row].io[DirH::W] {
                 IoGroupKind::Quad => {
                     self.egrid
                         .add_tile_n(cell, if is_a { tcls::IO_A_W } else { tcls::IO_W }, 3);
@@ -271,8 +271,8 @@ impl Expander<'_, '_> {
                 self.egrid.add_tile_single(cell, tcls::INT_IO_WE);
             }
             match (
-                self.chip.rows[cell.row].io_e,
-                self.chip.rows[cell.row].bank_e,
+                self.chip.rows[cell.row].io[DirH::E],
+                self.chip.rows[cell.row].bank.get(DirH::E).copied(),
             ) {
                 (IoGroupKind::Quad, Some(8)) => {
                     self.egrid.add_tile_n(cell, tcls::XSIO_E, 3);
@@ -545,7 +545,7 @@ impl Expander<'_, '_> {
             if !self.chip.is_col_io(cell.col) {
                 self.egrid[cell].region_root[rslots::ECLK] = cell.with_col(self.chip.col_clk - 1);
             }
-            if self.chip.columns[cell.col].eclk_tap_n {
+            if self.chip.columns[cell.col].eclk_tap[DirV::N] {
                 self.egrid.add_tile_single(cell, tcls::ECLK_TAP);
             }
         }
@@ -582,8 +582,8 @@ impl Expander<'_, '_> {
         // SERDES
         let mut serdes_cells = [None; 4];
         for (col, cd) in &self.chip.columns {
-            if cd.io_s == IoGroupKind::Serdes {
-                let idx = usize::try_from(cd.bank_s.unwrap() - 50).unwrap();
+            if cd.io[DirV::S] == IoGroupKind::Serdes {
+                let idx = usize::try_from(cd.bank[DirV::S] - 50).unwrap();
                 serdes_cells[idx] = Some(Chip::DIE.cell(col, self.chip.row_serdes(DirV::S)));
             }
         }

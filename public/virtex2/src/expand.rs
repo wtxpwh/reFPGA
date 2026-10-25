@@ -1,6 +1,6 @@
 use prjcombine_entity::{EntityId, EntityPartVec, EntityVec};
 use prjcombine_interconnect::db::IntDb;
-use prjcombine_interconnect::dir::{DirH, DirHV};
+use prjcombine_interconnect::dir::DirHV;
 use prjcombine_interconnect::grid::builder::GridBuilder;
 use prjcombine_interconnect::grid::{CellCoord, ColId, ColIdExt, DieId, DieIdExt, Rect, RowIdExt};
 
@@ -974,11 +974,8 @@ impl Expander<'_, '_> {
                 self.die.cell(self.chip.col_clk, self.chip.row_mid());
         }
         for col in self.egrid.cols(self.die) {
-            let col_q = if let Some((col_w, col_e)) = self.chip.cols_clkv {
-                match col.side_of(self.chip.col_clk) {
-                    DirH::W => col_w,
-                    DirH::E => col_e,
-                }
+            let col_q = if let Some(cols_clkv) = self.chip.cols_clkv {
+                cols_clkv[col.side_of(self.chip.col_clk)]
             } else {
                 col.snap_to_side_of(self.chip.col_clk)
             };
@@ -1041,16 +1038,16 @@ impl Expander<'_, '_> {
     }
 
     fn fill_clkqc(&mut self) {
-        if let Some((col_cl, col_cr)) = self.chip.cols_clkv {
+        if let Some(cols_clkv) = self.chip.cols_clkv {
             let tcid = if matches!(self.chip.kind, ChipKind::Spartan3 | ChipKind::FpgaCore) {
                 tcls::CLKQC_S3
             } else {
                 tcls::CLKQC_S3E
             };
-            self.egrid
-                .add_tile_sn(self.die.cell(col_cl, self.chip.row_mid()), tcid, 1, 2);
-            self.egrid
-                .add_tile_sn(self.die.cell(col_cr, self.chip.row_mid()), tcid, 1, 2);
+            for col in cols_clkv.into_values() {
+                self.egrid
+                    .add_tile_sn(self.die.cell(col, self.chip.row_mid()), tcid, 1, 2);
+            }
         }
     }
 

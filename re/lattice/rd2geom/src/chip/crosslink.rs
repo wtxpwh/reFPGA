@@ -4,7 +4,7 @@ use prjcombine_ecp::{
 };
 use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
-    dir::{Dir, DirH, DirHV},
+    dir::{Dir, DirH, DirHV, DirV},
     grid::{ColId, DieIdExt},
 };
 
@@ -48,15 +48,15 @@ impl ChipBuilder<'_> {
     pub(super) fn fill_io_crosslink(&mut self) {
         self.fill_io(&[("LVDS_0", IoGroupKind::Quad), ("GPIO", IoGroupKind::Single)]);
         for (col, cd) in &mut self.chip.columns {
-            if cd.io_s != IoGroupKind::None {
+            if cd.io[DirV::S] != IoGroupKind::None {
                 let bank = if col < self.chip.col_clk {
                     2
-                } else if cd.io_s == IoGroupKind::Quad {
+                } else if cd.io[DirV::S] == IoGroupKind::Quad {
                     1
                 } else {
                     0
                 };
-                cd.bank_s = Some(bank);
+                cd.bank.insert(DirV::S, bank);
             }
         }
     }
@@ -78,12 +78,10 @@ impl ChipBuilder<'_> {
         for &wn in self.nodes.values() {
             if wn.suffix == name {
                 let cell = self.chip.xlat_rc_wire(wn);
-                self.chip.columns[cell.col].io_n = IoGroupKind::Mipi;
-                self.chip.columns[cell.col].bank_n = if cell.col < self.chip.col_clk {
-                    Some(60)
-                } else {
-                    Some(61)
-                };
+                self.chip.columns[cell.col].io[DirV::N] = IoGroupKind::Mipi;
+                self.chip.columns[cell.col]
+                    .bank
+                    .insert(DirV::N, if cell.col < self.chip.col_clk { 60 } else { 61 });
             }
         }
     }

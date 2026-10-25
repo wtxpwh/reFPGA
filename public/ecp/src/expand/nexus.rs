@@ -111,7 +111,7 @@ impl Expander<'_, '_> {
         let mut io_cells = vec![];
         for cell in self.egrid.row(self.die, self.chip.row_s()) {
             self.egrid.add_tile_single(cell, tcls::INT_IO_S);
-            if let Some(bank) = self.chip.columns[cell.col].bank_s {
+            if let Some(&bank) = self.chip.columns[cell.col].bank.get(DirV::S) {
                 self.egrid[cell].region_root[rslots::ECLK] =
                     *bank_cells.entry(bank).or_insert(cell);
                 io_cells.push(cell);
@@ -125,7 +125,7 @@ impl Expander<'_, '_> {
                     2,
                 );
             }
-            if self.chip.columns[cell.col].io_s == IoGroupKind::DoubleDqs {
+            if self.chip.columns[cell.col].io[DirV::S] == IoGroupKind::DoubleDqs {
                 let (cells, tcid) = match kind {
                     NexusKind::SmallMipi => (cell.delta(-6, 0).cells_e(16), tcls::DQS_S),
                     NexusKind::SmallMipiPcie => (cell.delta(-6, 0).cells_e(16), tcls::DQS_L),
@@ -152,7 +152,7 @@ impl Expander<'_, '_> {
             }
         }
         for (i, &cell_dqs) in io_cells.iter().enumerate() {
-            if self.chip.columns[cell_dqs.col].io_s != IoGroupKind::DoubleDqs {
+            if self.chip.columns[cell_dqs.col].io[DirV::S] != IoGroupKind::DoubleDqs {
                 continue;
             }
             let cells = match kind {
@@ -166,7 +166,7 @@ impl Expander<'_, '_> {
         }
         for cell in self.egrid.row(self.die, self.chip.row_n()) {
             self.egrid.add_tile_single(cell, tcls::INT_IO_N);
-            let io_kind = self.chip.columns[cell.col].io_n;
+            let io_kind = self.chip.columns[cell.col].io[DirV::N];
             let tcid = match io_kind {
                 IoGroupKind::None | IoGroupKind::Mipi | IoGroupKind::Serdes => continue,
                 IoGroupKind::DoubleA => tcls::IO_N_A,
@@ -181,10 +181,7 @@ impl Expander<'_, '_> {
                     continue;
                 }
                 self.egrid.add_tile_single(cell, tcls::INT_IO_WE);
-                let io_kind = match edge {
-                    DirH::W => self.chip.rows[cell.row].io_w,
-                    DirH::E => self.chip.rows[cell.row].io_e,
-                };
+                let io_kind = self.chip.rows[cell.row].io[edge];
                 let tcid = match (edge, io_kind) {
                     (_, IoGroupKind::None) => continue,
                     (DirH::W, IoGroupKind::DoubleA) => tcls::IO_W_A,

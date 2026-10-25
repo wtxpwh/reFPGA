@@ -8,6 +8,7 @@ use prjcombine_interconnect::{
     dir::{Dir, DirH, DirHV, DirV},
     grid::{ColIdExt, DieIdExt},
 };
+use prjcombine_types::enumerable::EnumMap;
 
 use crate::chip::{ChipBuilder, ChipExt};
 
@@ -62,26 +63,26 @@ impl ChipBuilder<'_> {
     pub(super) fn fill_frames_xp(&mut self) {
         match self.chip.rows.len() {
             19 => {
-                self.chip.extra_frames_w = 3;
-                self.chip.extra_frames_e = 3;
+                self.chip.extra_frames[DirH::W] = 3;
+                self.chip.extra_frames[DirH::E] = 3;
             }
             27 => {
-                self.chip.extra_frames_w = 3;
-                self.chip.extra_frames_e = 11;
+                self.chip.extra_frames[DirH::W] = 3;
+                self.chip.extra_frames[DirH::E] = 11;
             }
             36 => {
-                self.chip.extra_frames_w = 3;
-                self.chip.extra_frames_e = 3;
+                self.chip.extra_frames[DirH::W] = 3;
+                self.chip.extra_frames[DirH::E] = 3;
                 self.chip.double_frames = true;
             }
             44 => {
-                self.chip.extra_frames_w = 5;
-                self.chip.extra_frames_e = 5;
+                self.chip.extra_frames[DirH::W] = 5;
+                self.chip.extra_frames[DirH::E] = 5;
                 self.chip.double_frames = true;
             }
             48 => {
-                self.chip.extra_frames_w = 1;
-                self.chip.extra_frames_e = 1;
+                self.chip.extra_frames[DirH::W] = 1;
+                self.chip.extra_frames[DirH::E] = 1;
                 self.chip.double_frames = true;
             }
             _ => unreachable!(),
@@ -175,10 +176,8 @@ impl ChipBuilder<'_> {
         if self.chip.rows.len() == 48 {
             let col_w1 = self.chip.col_w() + 1;
             let col_e1 = self.chip.col_e() - 1;
-            self.chip.columns[col_w1].io_s = IoGroupKind::None;
-            self.chip.columns[col_w1].io_n = IoGroupKind::None;
-            self.chip.columns[col_e1].io_s = IoGroupKind::None;
-            self.chip.columns[col_e1].io_n = IoGroupKind::None;
+            self.chip.columns[col_w1].io = EnumMap::from_fn(|_| IoGroupKind::None);
+            self.chip.columns[col_e1].io = EnumMap::from_fn(|_| IoGroupKind::None);
         }
     }
 

@@ -91,9 +91,9 @@ impl ChipBuilder<'_> {
             if wtn.suffix == jf6 && self.naming.strings[wfn.suffix].contains("FRC") {
                 let cell = self.chip.xlat_rc_wire(wtn);
                 if cell.row == self.chip.row_s() {
-                    self.chip.columns[cell.col].eclk_tap_s = true;
+                    self.chip.columns[cell.col].eclk_tap[DirV::S] = true;
                 } else if cell.row == self.chip.row_n() {
-                    self.chip.columns[cell.col].eclk_tap_n = true;
+                    self.chip.columns[cell.col].eclk_tap[DirV::N] = true;
                 }
             }
         }
@@ -162,8 +162,8 @@ impl ChipBuilder<'_> {
     pub(super) fn fill_io_banks_ecp2(&mut self) {
         self.fill_io_banks_8();
         for (row, rd) in &mut self.chip.rows {
-            if row.to_idx() <= 8 && rd.bank_e.is_some() {
-                rd.bank_e = Some(8);
+            if row.to_idx() <= 8 && rd.bank.contains_key(DirH::E) {
+                rd.bank[DirH::E] = 8;
             }
         }
     }
@@ -267,19 +267,15 @@ impl ChipBuilder<'_> {
                     cell.col -= 13;
                 }
                 if cell.row < self.chip.row_clk {
-                    self.chip.columns[cell.col].io_s = IoGroupKind::Serdes;
-                    self.chip.columns[cell.col].bank_s = if cell.col < self.chip.col_clk {
-                        Some(14)
-                    } else {
-                        Some(13)
-                    };
+                    self.chip.columns[cell.col].io[DirV::S] = IoGroupKind::Serdes;
+                    self.chip.columns[cell.col]
+                        .bank
+                        .insert(DirV::S, if cell.col < self.chip.col_clk { 14 } else { 13 });
                 } else {
-                    self.chip.columns[cell.col].io_n = IoGroupKind::Serdes;
-                    self.chip.columns[cell.col].bank_n = if cell.col < self.chip.col_clk {
-                        Some(11)
-                    } else {
-                        Some(12)
-                    };
+                    self.chip.columns[cell.col].io[DirV::N] = IoGroupKind::Serdes;
+                    self.chip.columns[cell.col]
+                        .bank
+                        .insert(DirV::N, if cell.col < self.chip.col_clk { 11 } else { 12 });
                 }
             }
         }
@@ -398,7 +394,7 @@ impl ChipBuilder<'_> {
     }
 
     pub(super) fn fill_config_io_ecp2(&mut self) {
-        if self.chip.rows[self.chip.row_s() + 2].io_e == IoGroupKind::None {
+        if self.chip.rows[self.chip.row_s() + 2].io[DirH::E] == IoGroupKind::None {
             return;
         }
         for (key, dy, iob) in [

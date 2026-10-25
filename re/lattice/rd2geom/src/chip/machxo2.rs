@@ -9,7 +9,7 @@ use prjcombine_ecp::{
 };
 use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
-    dir::{Dir, DirV},
+    dir::{Dir, DirH, DirV},
     grid::{BelCoord, ColId, ColIdExt, DieIdExt, RowId},
 };
 use prjcombine_re_lattice_naming::WireName;
@@ -65,7 +65,7 @@ impl ChipBuilder<'_> {
             if self.naming.strings[wn.suffix].ends_with("_EBR") {
                 let cell = self.chip.xlat_rc_wire(wn);
                 if cell.row == self.chip.row_n() {
-                    self.chip.columns[cell.col].io_n = IoGroupKind::Ebr;
+                    self.chip.columns[cell.col].io[DirV::N] = IoGroupKind::Ebr;
                 }
             }
         }
@@ -114,60 +114,60 @@ impl ChipBuilder<'_> {
             ("PIC_TS0", IoGroupKind::Double),
         ]);
         if self.chip.rows.len() == 11 {
-            self.chip.columns[ColId::from_idx(8)].io_s = IoGroupKind::QuadReverse;
-            self.chip.columns[ColId::from_idx(10)].io_s = IoGroupKind::QuadReverse;
+            self.chip.columns[ColId::from_idx(8)].io[DirV::S] = IoGroupKind::QuadReverse;
+            self.chip.columns[ColId::from_idx(10)].io[DirV::S] = IoGroupKind::QuadReverse;
         }
         if self.chip.rows.len() == 14 {
-            self.chip.columns[ColId::from_idx(17)].io_n = IoGroupKind::QuadReverse;
-            self.chip.columns[ColId::from_idx(19)].io_n = IoGroupKind::QuadReverse;
-            self.chip.columns[ColId::from_idx(23)].io_n = IoGroupKind::QuadReverse;
+            self.chip.columns[ColId::from_idx(17)].io[DirV::N] = IoGroupKind::QuadReverse;
+            self.chip.columns[ColId::from_idx(19)].io[DirV::N] = IoGroupKind::QuadReverse;
+            self.chip.columns[ColId::from_idx(23)].io[DirV::N] = IoGroupKind::QuadReverse;
         }
         if self.chip.rows.len() == 21 {
-            self.chip.columns[ColId::from_idx(5)].io_s = IoGroupKind::QuadReverse;
-            self.chip.columns[ColId::from_idx(11)].io_s = IoGroupKind::QuadReverse;
-            self.chip.columns[ColId::from_idx(17)].io_s = IoGroupKind::QuadReverse;
-            self.chip.columns[ColId::from_idx(25)].io_s = IoGroupKind::QuadReverse;
-            self.chip.columns[ColId::from_idx(11)].io_n = IoGroupKind::QuadReverse;
-            self.chip.columns[ColId::from_idx(18)].io_n = IoGroupKind::QuadReverse;
-            self.chip.columns[ColId::from_idx(19)].io_n = IoGroupKind::QuadReverse;
-            self.chip.columns[ColId::from_idx(21)].io_n = IoGroupKind::QuadReverse;
-            self.chip.columns[ColId::from_idx(22)].io_n = IoGroupKind::QuadReverse;
-            self.chip.columns[ColId::from_idx(25)].io_n = IoGroupKind::QuadReverse;
-            self.chip.columns[ColId::from_idx(27)].io_n = IoGroupKind::QuadReverse;
+            self.chip.columns[ColId::from_idx(5)].io[DirV::S] = IoGroupKind::QuadReverse;
+            self.chip.columns[ColId::from_idx(11)].io[DirV::S] = IoGroupKind::QuadReverse;
+            self.chip.columns[ColId::from_idx(17)].io[DirV::S] = IoGroupKind::QuadReverse;
+            self.chip.columns[ColId::from_idx(25)].io[DirV::S] = IoGroupKind::QuadReverse;
+            self.chip.columns[ColId::from_idx(11)].io[DirV::N] = IoGroupKind::QuadReverse;
+            self.chip.columns[ColId::from_idx(18)].io[DirV::N] = IoGroupKind::QuadReverse;
+            self.chip.columns[ColId::from_idx(19)].io[DirV::N] = IoGroupKind::QuadReverse;
+            self.chip.columns[ColId::from_idx(21)].io[DirV::N] = IoGroupKind::QuadReverse;
+            self.chip.columns[ColId::from_idx(22)].io[DirV::N] = IoGroupKind::QuadReverse;
+            self.chip.columns[ColId::from_idx(25)].io[DirV::N] = IoGroupKind::QuadReverse;
+            self.chip.columns[ColId::from_idx(27)].io[DirV::N] = IoGroupKind::QuadReverse;
         }
         if self.chip.rows.len() == 26 {
-            self.chip.columns[ColId::from_idx(6)].io_s = IoGroupKind::QuadReverse;
-            self.chip.columns[ColId::from_idx(9)].io_s = IoGroupKind::QuadReverse;
-            self.chip.columns[ColId::from_idx(14)].io_s = IoGroupKind::QuadReverse;
-            self.chip.columns[ColId::from_idx(20)].io_s = IoGroupKind::QuadReverse;
-            self.chip.columns[ColId::from_idx(27)].io_s = IoGroupKind::QuadReverse;
-            self.chip.columns[ColId::from_idx(33)].io_s = IoGroupKind::QuadReverse;
-            self.chip.columns[ColId::from_idx(11)].io_n = IoGroupKind::QuadReverse;
-            self.chip.columns[ColId::from_idx(15)].io_n = IoGroupKind::QuadReverse;
-            self.chip.columns[ColId::from_idx(20)].io_n = IoGroupKind::QuadReverse;
-            self.chip.columns[ColId::from_idx(21)].io_n = IoGroupKind::QuadReverse;
-            self.chip.columns[ColId::from_idx(25)].io_n = IoGroupKind::QuadReverse;
-            self.chip.columns[ColId::from_idx(26)].io_n = IoGroupKind::QuadReverse;
-            self.chip.columns[ColId::from_idx(31)].io_n = IoGroupKind::QuadReverse;
-            self.chip.columns[ColId::from_idx(33)].io_n = IoGroupKind::QuadReverse;
-            self.chip.columns[ColId::from_idx(35)].io_n = IoGroupKind::QuadReverse;
+            self.chip.columns[ColId::from_idx(6)].io[DirV::S] = IoGroupKind::QuadReverse;
+            self.chip.columns[ColId::from_idx(9)].io[DirV::S] = IoGroupKind::QuadReverse;
+            self.chip.columns[ColId::from_idx(14)].io[DirV::S] = IoGroupKind::QuadReverse;
+            self.chip.columns[ColId::from_idx(20)].io[DirV::S] = IoGroupKind::QuadReverse;
+            self.chip.columns[ColId::from_idx(27)].io[DirV::S] = IoGroupKind::QuadReverse;
+            self.chip.columns[ColId::from_idx(33)].io[DirV::S] = IoGroupKind::QuadReverse;
+            self.chip.columns[ColId::from_idx(11)].io[DirV::N] = IoGroupKind::QuadReverse;
+            self.chip.columns[ColId::from_idx(15)].io[DirV::N] = IoGroupKind::QuadReverse;
+            self.chip.columns[ColId::from_idx(20)].io[DirV::N] = IoGroupKind::QuadReverse;
+            self.chip.columns[ColId::from_idx(21)].io[DirV::N] = IoGroupKind::QuadReverse;
+            self.chip.columns[ColId::from_idx(25)].io[DirV::N] = IoGroupKind::QuadReverse;
+            self.chip.columns[ColId::from_idx(26)].io[DirV::N] = IoGroupKind::QuadReverse;
+            self.chip.columns[ColId::from_idx(31)].io[DirV::N] = IoGroupKind::QuadReverse;
+            self.chip.columns[ColId::from_idx(33)].io[DirV::N] = IoGroupKind::QuadReverse;
+            self.chip.columns[ColId::from_idx(35)].io[DirV::N] = IoGroupKind::QuadReverse;
         }
         if self.chip.rows.len() == 30 {
-            self.chip.columns[ColId::from_idx(7)].io_s = IoGroupKind::QuadReverse;
-            self.chip.columns[ColId::from_idx(12)].io_s = IoGroupKind::QuadReverse;
-            self.chip.columns[ColId::from_idx(20)].io_s = IoGroupKind::QuadReverse;
-            self.chip.columns[ColId::from_idx(26)].io_s = IoGroupKind::QuadReverse;
-            self.chip.columns[ColId::from_idx(31)].io_s = IoGroupKind::QuadReverse;
-            self.chip.columns[ColId::from_idx(40)].io_s = IoGroupKind::QuadReverse;
-            self.chip.columns[ColId::from_idx(11)].io_n = IoGroupKind::QuadReverse;
-            self.chip.columns[ColId::from_idx(20)].io_n = IoGroupKind::QuadReverse;
-            self.chip.columns[ColId::from_idx(23)].io_n = IoGroupKind::QuadReverse;
-            self.chip.columns[ColId::from_idx(26)].io_n = IoGroupKind::QuadReverse;
-            self.chip.columns[ColId::from_idx(28)].io_n = IoGroupKind::QuadReverse;
-            self.chip.columns[ColId::from_idx(30)].io_n = IoGroupKind::QuadReverse;
-            self.chip.columns[ColId::from_idx(38)].io_n = IoGroupKind::QuadReverse;
-            self.chip.columns[ColId::from_idx(41)].io_n = IoGroupKind::QuadReverse;
-            self.chip.columns[ColId::from_idx(43)].io_n = IoGroupKind::QuadReverse;
+            self.chip.columns[ColId::from_idx(7)].io[DirV::S] = IoGroupKind::QuadReverse;
+            self.chip.columns[ColId::from_idx(12)].io[DirV::S] = IoGroupKind::QuadReverse;
+            self.chip.columns[ColId::from_idx(20)].io[DirV::S] = IoGroupKind::QuadReverse;
+            self.chip.columns[ColId::from_idx(26)].io[DirV::S] = IoGroupKind::QuadReverse;
+            self.chip.columns[ColId::from_idx(31)].io[DirV::S] = IoGroupKind::QuadReverse;
+            self.chip.columns[ColId::from_idx(40)].io[DirV::S] = IoGroupKind::QuadReverse;
+            self.chip.columns[ColId::from_idx(11)].io[DirV::N] = IoGroupKind::QuadReverse;
+            self.chip.columns[ColId::from_idx(20)].io[DirV::N] = IoGroupKind::QuadReverse;
+            self.chip.columns[ColId::from_idx(23)].io[DirV::N] = IoGroupKind::QuadReverse;
+            self.chip.columns[ColId::from_idx(26)].io[DirV::N] = IoGroupKind::QuadReverse;
+            self.chip.columns[ColId::from_idx(28)].io[DirV::N] = IoGroupKind::QuadReverse;
+            self.chip.columns[ColId::from_idx(30)].io[DirV::N] = IoGroupKind::QuadReverse;
+            self.chip.columns[ColId::from_idx(38)].io[DirV::N] = IoGroupKind::QuadReverse;
+            self.chip.columns[ColId::from_idx(41)].io[DirV::N] = IoGroupKind::QuadReverse;
+            self.chip.columns[ColId::from_idx(43)].io[DirV::N] = IoGroupKind::QuadReverse;
         }
     }
 
@@ -185,25 +185,25 @@ impl ChipBuilder<'_> {
         let row4 = RowId::from_idx(r4);
         let row5 = RowId::from_idx(r5);
         for (row, rd) in &mut self.chip.rows {
-            if rd.io_w != IoGroupKind::None {
+            if rd.io[DirH::W] != IoGroupKind::None {
                 if row < row4 {
-                    rd.bank_w = Some(3);
+                    rd.bank.insert(DirH::W, 3);
                 } else if row < row5 {
-                    rd.bank_w = Some(4);
+                    rd.bank.insert(DirH::W, 4);
                 } else {
-                    rd.bank_w = Some(5);
+                    rd.bank.insert(DirH::W, 5);
                 }
             }
-            if rd.io_e != IoGroupKind::None {
-                rd.bank_e = Some(1);
+            if rd.io[DirH::E] != IoGroupKind::None {
+                rd.bank.insert(DirH::E, 1);
             }
         }
         for (_, cd) in &mut self.chip.columns {
-            if cd.io_s != IoGroupKind::None {
-                cd.bank_s = Some(2);
+            if cd.io[DirV::S] != IoGroupKind::None {
+                cd.bank.insert(DirV::S, 2);
             }
-            if cd.io_n != IoGroupKind::None {
-                cd.bank_n = Some(0);
+            if cd.io[DirV::N] != IoGroupKind::None {
+                cd.bank.insert(DirV::N, 0);
             }
         }
     }
@@ -220,7 +220,11 @@ impl ChipBuilder<'_> {
                 xlat.insert(cell_to, cell_from);
             }
         }
-        let has_bank4 = self.chip.rows.values().any(|rd| rd.bank_w == Some(4));
+        let has_bank4 = self
+            .chip
+            .rows
+            .values()
+            .any(|rd| rd.bank.get(DirH::W) == Some(&4));
         let bcs = if has_bank4 {
             vec![
                 (0, self.chip.col_clk - 1, self.chip.row_n()),

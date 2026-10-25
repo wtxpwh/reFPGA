@@ -7,11 +7,12 @@ use prjcombine_ecp::{
 use prjcombine_entity::{EntityId, EntityRangeVec, EntityVec};
 use prjcombine_interconnect::{
     db::IntDb,
-    dir::Dir,
+    dir::{Dir, DirH, DirV},
     grid::{BelCoord, CellCoord, ColId, DieIdExt, RowId},
 };
 use prjcombine_re_lattice_naming::{ChipNaming, WireName};
 use prjcombine_re_lattice_rawdump::{Grid, NodeId};
+use prjcombine_types::enumerable::EnumMap;
 
 mod crosslink;
 mod ecp;
@@ -119,25 +120,25 @@ impl ChipBuilder<'_> {
             };
             if let Some(r) = tile.name.strip_prefix("PL") {
                 let row = self.chip.xlat_row(r.parse().unwrap());
-                self.chip.rows[row].io_w = kind;
+                self.chip.rows[row].io[DirH::W] = kind;
             } else if let Some(r) = tile.name.strip_prefix("PR") {
                 let row = self.chip.xlat_row(r.parse().unwrap());
                 if tile.kind == "PIC_L_NOPIO" {
                     // ...... fucking vendors
-                    self.chip.rows[row].io_w = kind;
+                    self.chip.rows[row].io[DirH::W] = kind;
                 } else {
-                    self.chip.rows[row].io_e = kind;
+                    self.chip.rows[row].io[DirH::E] = kind;
                 }
             } else if let Some(c) = tile.name.strip_prefix("PB") {
                 let col = self.chip.xlat_col(c.parse().unwrap());
-                self.chip.columns[col].io_s = kind;
+                self.chip.columns[col].io[DirV::S] = kind;
             } else if let Some(c) = tile.name.strip_prefix("PT") {
                 let col = self.chip.xlat_col(c.parse().unwrap());
                 if tile.kind == "PIC_B5KVIQ" {
                     // likewise.
-                    self.chip.columns[col].io_s = kind;
+                    self.chip.columns[col].io[DirV::S] = kind;
                 } else {
-                    self.chip.columns[col].io_n = kind;
+                    self.chip.columns[col].io[DirV::N] = kind;
                 }
             } else if let Some(rc) = tile
                 .name
@@ -149,13 +150,13 @@ impl ChipBuilder<'_> {
                 let (r, c) = rc.split_once('C').unwrap();
                 let cell = self.chip.xlat_rc(r.parse().unwrap(), c.parse().unwrap());
                 if self.chip.kind == ChipKind::Scm && kind == IoGroupKind::Serdes {
-                    self.chip.columns[cell.col].io_n = kind;
+                    self.chip.columns[cell.col].io[DirV::N] = kind;
                 } else {
                     match self.chip.get_io_edge(cell) {
-                        Dir::W => self.chip.rows[cell.row].io_w = kind,
-                        Dir::E => self.chip.rows[cell.row].io_e = kind,
-                        Dir::S => self.chip.columns[cell.col].io_s = kind,
-                        Dir::N => self.chip.columns[cell.col].io_n = kind,
+                        Dir::W => self.chip.rows[cell.row].io[DirH::W] = kind,
+                        Dir::E => self.chip.rows[cell.row].io[DirH::E] = kind,
+                        Dir::S => self.chip.columns[cell.col].io[DirV::S] = kind,
+                        Dir::N => self.chip.columns[cell.col].io[DirV::N] = kind,
                     }
                 }
             } else {
@@ -167,35 +168,35 @@ impl ChipBuilder<'_> {
     fn fill_io_banks_8(&mut self) {
         for (row, rd) in &mut self.chip.rows {
             if row < self.chip.row_clk {
-                if rd.io_w != IoGroupKind::None {
-                    rd.bank_w = Some(6);
+                if rd.io[DirH::W] != IoGroupKind::None {
+                    rd.bank.insert(DirH::W, 6);
                 }
-                if rd.io_e != IoGroupKind::None {
-                    rd.bank_e = Some(3);
+                if rd.io[DirH::E] != IoGroupKind::None {
+                    rd.bank.insert(DirH::E, 3);
                 }
             } else {
-                if rd.io_w != IoGroupKind::None {
-                    rd.bank_w = Some(7);
+                if rd.io[DirH::W] != IoGroupKind::None {
+                    rd.bank.insert(DirH::W, 7);
                 }
-                if rd.io_e != IoGroupKind::None {
-                    rd.bank_e = Some(2);
+                if rd.io[DirH::E] != IoGroupKind::None {
+                    rd.bank.insert(DirH::E, 2);
                 }
             }
         }
         for (col, cd) in &mut self.chip.columns {
             if col < self.chip.col_clk {
-                if cd.io_s != IoGroupKind::None {
-                    cd.bank_s = Some(5);
+                if cd.io[DirV::S] != IoGroupKind::None {
+                    cd.bank.insert(DirV::S, 5);
                 }
-                if cd.io_n != IoGroupKind::None {
-                    cd.bank_n = Some(0);
+                if cd.io[DirV::N] != IoGroupKind::None {
+                    cd.bank.insert(DirV::N, 0);
                 }
             } else {
-                if cd.io_s != IoGroupKind::None {
-                    cd.bank_s = Some(4);
+                if cd.io[DirV::S] != IoGroupKind::None {
+                    cd.bank.insert(DirV::S, 4);
                 }
-                if cd.io_n != IoGroupKind::None {
-                    cd.bank_n = Some(1);
+                if cd.io[DirV::N] != IoGroupKind::None {
+                    cd.bank.insert(DirV::N, 1);
                 }
             }
         }
@@ -249,9 +250,9 @@ impl ChipBuilder<'_> {
                     }
                 } else if self.chip.is_col_io(cell.col) {
                     let kind = if cell.col == self.chip.col_w() {
-                        self.chip.rows[cell.row].io_w
+                        self.chip.rows[cell.row].io[DirH::W]
                     } else {
-                        self.chip.rows[cell.row].io_e
+                        self.chip.rows[cell.row].io[DirH::E]
                     };
                     if kind == IoGroupKind::None {
                         cell.row -= 2;
@@ -260,9 +261,9 @@ impl ChipBuilder<'_> {
                     }
                 } else {
                     let kind = if cell.row == self.chip.row_s() {
-                        self.chip.columns[cell.col].io_s
+                        self.chip.columns[cell.col].io[DirV::S]
                     } else {
-                        self.chip.columns[cell.col].io_n
+                        self.chip.columns[cell.col].io[DirV::N]
                     };
                     if kind == IoGroupKind::None {
                         idx += 2;
@@ -331,20 +332,15 @@ fn init_chip(kind: ChipKind, naming: &ChipNaming, nodes: &EntityVec<NodeId, Wire
         }
     }
     let columns = EntityVec::from_iter((0..max_c).map(|_| Column {
-        io_s: IoGroupKind::None,
-        io_n: IoGroupKind::None,
-        bank_s: None,
-        bank_n: None,
-        eclk_tap_s: false,
-        eclk_tap_n: false,
+        io: EnumMap::from_fn(|_| IoGroupKind::None),
+        bank: Default::default(),
+        eclk_tap: EnumMap::from_fn(|_| false),
         sclk_break: false,
     }));
     let rows = EntityVec::from_iter((0..max_r).map(|_| Row {
         kind: RowKind::Io,
-        io_w: IoGroupKind::None,
-        io_e: IoGroupKind::None,
-        bank_w: None,
-        bank_e: None,
+        io: EnumMap::from_fn(|_| IoGroupKind::None),
+        bank: Default::default(),
         sclk_break: false,
     }));
     Chip {
@@ -358,8 +354,7 @@ fn init_chip(kind: ChipKind, naming: &ChipNaming, nodes: &EntityVec<NodeId, Wire
         special_loc: BTreeMap::new(),
         special_io: BTreeMap::new(),
         io_direct_plc: BTreeMap::new(),
-        extra_frames_w: 0,
-        extra_frames_e: 0,
+        extra_frames: EnumMap::from_fn(|_| 0),
         double_frames: false,
     }
 }

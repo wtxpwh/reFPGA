@@ -225,10 +225,10 @@ impl Expander<'_, '_> {
         }
         for cell in self.egrid.row(self.die, self.chip.row_n()) {
             self.egrid.add_tile_single(cell, tcls::INT_IO_N);
-            if self.chip.columns[cell.col].io_n != IoGroupKind::None {
+            if self.chip.columns[cell.col].io[DirV::N] != IoGroupKind::None {
                 self.egrid.add_tile_e(cell, tcls::IO_N, 4);
             }
-            if self.chip.columns[cell.col].io_n == IoGroupKind::QuadDqs {
+            if self.chip.columns[cell.col].io[DirV::N] == IoGroupKind::QuadDqs {
                 self.egrid.add_tile_we(cell, tcls::DQS_N, 1, 5);
                 self.egrid[cell].region_root[rslots::DQS] = cell;
                 self.egrid[cell.delta(-4, 0)].region_root[rslots::DQS] = cell;
@@ -241,7 +241,7 @@ impl Expander<'_, '_> {
                 self.egrid.add_tile_single(cell, tcls::INT_IO_WE);
             }
             if matches!(
-                rd.io_w,
+                rd.io[DirH::W],
                 IoGroupKind::Quad | IoGroupKind::QuadDqs | IoGroupKind::QuadEbrDqs
             ) {
                 if rd.kind == RowKind::Dsp {
@@ -251,7 +251,7 @@ impl Expander<'_, '_> {
                         tcls::IO_W_DSP_N,
                         &[cell.delta(0, 1), cell, cell.delta(2, 0), cell.delta(1, 0)],
                     );
-                    if rd.io_w == IoGroupKind::QuadDqs {
+                    if rd.io[DirH::W] == IoGroupKind::QuadDqs {
                         self.egrid.add_tile(
                             cell,
                             tcls::DQS_W_DSP_N,
@@ -285,7 +285,7 @@ impl Expander<'_, '_> {
                             cell.delta(0, 0),
                         ],
                     );
-                    if rd.io_w == IoGroupKind::QuadDqs {
+                    if rd.io[DirH::W] == IoGroupKind::QuadDqs {
                         if self.chip.rows[cell.row + 3].kind == RowKind::Ebr {
                             self.egrid.add_tile(
                                 cell,
@@ -366,7 +366,10 @@ impl Expander<'_, '_> {
                             cell.delta(4, 0),
                         ],
                     );
-                    if matches!(rd.io_w, IoGroupKind::EbrDqs | IoGroupKind::QuadEbrDqs) {
+                    if matches!(
+                        rd.io[DirH::W],
+                        IoGroupKind::EbrDqs | IoGroupKind::QuadEbrDqs
+                    ) {
                         self.egrid.add_tile(
                             cell.delta(1, 0),
                             tcls::DQS_W_EBR_S,
@@ -393,7 +396,10 @@ impl Expander<'_, '_> {
                             cell.delta(1, 0),
                         ],
                     );
-                    if matches!(rd.io_w, IoGroupKind::EbrDqs | IoGroupKind::QuadEbrDqs) {
+                    if matches!(
+                        rd.io[DirH::W],
+                        IoGroupKind::EbrDqs | IoGroupKind::QuadEbrDqs
+                    ) {
                         self.egrid.add_tile(
                             cell.delta(1, 0),
                             tcls::DQS_W_EBR_N,
@@ -418,7 +424,7 @@ impl Expander<'_, '_> {
                 self.egrid.add_tile_single(cell, tcls::INT_IO_WE);
             }
             if matches!(
-                rd.io_e,
+                rd.io[DirH::E],
                 IoGroupKind::Quad | IoGroupKind::QuadDqs | IoGroupKind::QuadEbrDqs
             ) {
                 if rd.kind == RowKind::Dsp {
@@ -428,7 +434,7 @@ impl Expander<'_, '_> {
                         tcls::IO_E_DSP_N,
                         &[cell.delta(0, 1), cell, cell.delta(-2, 0), cell.delta(-1, 0)],
                     );
-                    if rd.io_e == IoGroupKind::QuadDqs {
+                    if rd.io[DirH::E] == IoGroupKind::QuadDqs {
                         self.egrid.add_tile(
                             cell,
                             tcls::DQS_E_DSP_N,
@@ -462,7 +468,7 @@ impl Expander<'_, '_> {
                             cell.delta(0, 0),
                         ],
                     );
-                    if rd.io_e == IoGroupKind::QuadDqs {
+                    if rd.io[DirH::E] == IoGroupKind::QuadDqs {
                         if self.chip.rows[cell.row + 3].kind == RowKind::Ebr {
                             self.egrid.add_tile(
                                 cell,
@@ -543,7 +549,10 @@ impl Expander<'_, '_> {
                             cell.delta(-4, 0),
                         ],
                     );
-                    if matches!(rd.io_e, IoGroupKind::EbrDqs | IoGroupKind::QuadEbrDqs) {
+                    if matches!(
+                        rd.io[DirH::E],
+                        IoGroupKind::EbrDqs | IoGroupKind::QuadEbrDqs
+                    ) {
                         self.egrid.add_tile(
                             cell.delta(-1, 0),
                             tcls::DQS_E_EBR_S,
@@ -570,7 +579,10 @@ impl Expander<'_, '_> {
                             cell.delta(-1, 0),
                         ],
                     );
-                    if matches!(rd.io_e, IoGroupKind::EbrDqs | IoGroupKind::QuadEbrDqs) {
+                    if matches!(
+                        rd.io[DirH::E],
+                        IoGroupKind::EbrDqs | IoGroupKind::QuadEbrDqs
+                    ) {
                         self.egrid.add_tile(
                             cell.delta(-1, 0),
                             tcls::DQS_E_EBR_N,
@@ -695,7 +707,7 @@ impl Expander<'_, '_> {
             let mut quads_e = vec![];
             for (col, cd) in &self.chip.columns {
                 let quad = cell.with_cr(col, self.chip.row_n());
-                if cd.io_n == IoGroupKind::QuadDqs {
+                if cd.io[DirV::N] == IoGroupKind::QuadDqs {
                     if col < self.chip.col_clk {
                         quads_w.push(quad);
                     } else {
@@ -774,11 +786,7 @@ impl Expander<'_, '_> {
             let mut quads_s = vec![];
             let mut quads_n = vec![];
             for (row, rd) in &self.chip.rows {
-                let io = match edge {
-                    DirH::W => rd.io_w,
-                    DirH::E => rd.io_e,
-                };
-                let quad = match io {
+                let quad = match rd.io[edge] {
                     IoGroupKind::QuadDqs => Some(cell.with_cr(self.chip.col_edge(edge), row)),
                     IoGroupKind::QuadEbrDqs | IoGroupKind::EbrDqs => Some(cell.with_cr(
                         match edge {

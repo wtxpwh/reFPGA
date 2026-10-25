@@ -10,6 +10,7 @@ use prjcombine_interconnect::{
         TileIobId,
     },
 };
+use prjcombine_types::enumerable::{EnumMap, EnumPartMap};
 
 use crate::defs::bslots;
 
@@ -258,8 +259,7 @@ pub struct Chip {
     pub special_loc: BTreeMap<SpecialLocKey, CellCoord>,
     pub special_io: BTreeMap<SpecialIoKey, BelCoord>,
     pub io_direct_plc: BTreeMap<BelCoord, (CellCoord, usize)>,
-    pub extra_frames_w: usize,
-    pub extra_frames_e: usize,
+    pub extra_frames: EnumMap<DirH, usize>,
     pub double_frames: bool,
 }
 
@@ -352,22 +352,17 @@ pub enum IoKind {
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Hash, Encode, Decode)]
 pub struct Column {
-    pub io_s: IoGroupKind,
-    pub io_n: IoGroupKind,
-    pub bank_s: Option<u32>,
-    pub bank_n: Option<u32>,
-    pub eclk_tap_s: bool,
-    pub eclk_tap_n: bool,
+    pub io: EnumMap<DirV, IoGroupKind>,
+    pub bank: EnumPartMap<DirV, u32>,
+    pub eclk_tap: EnumMap<DirV, bool>,
     pub sclk_break: bool,
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Hash, Encode, Decode)]
 pub struct Row {
     pub kind: RowKind,
-    pub io_w: IoGroupKind,
-    pub io_e: IoGroupKind,
-    pub bank_w: Option<u32>,
-    pub bank_e: Option<u32>,
+    pub io: EnumMap<DirH, IoGroupKind>,
+    pub bank: EnumPartMap<DirH, u32>,
     pub sclk_break: bool,
 }
 
@@ -708,12 +703,9 @@ impl Chip {
 
     pub fn get_io_bank(&self, cell: CellCoord) -> u32 {
         match self.get_io_edge(cell) {
-            Dir::W => self.rows[cell.row].bank_w,
-            Dir::E => self.rows[cell.row].bank_e,
-            Dir::S => self.columns[cell.col].bank_s,
-            Dir::N => self.columns[cell.col].bank_n,
+            Dir::H(h) => self.rows[cell.row].bank[h],
+            Dir::V(v) => self.columns[cell.col].bank[v],
         }
-        .unwrap()
     }
 
     pub fn get_io_kind(&self, bcrd: BelCoord) -> IoKind {
@@ -723,28 +715,14 @@ impl Chip {
             ChipKind::MachXo => IoKind::Io,
             ChipKind::Ecp | ChipKind::Xp | ChipKind::Ecp2 | ChipKind::Ecp2M | ChipKind::Xp2 => {
                 match self.get_io_edge(bcrd.cell) {
-                    Dir::W => match (self.rows[bcrd.row].io_w, idx) {
+                    Dir::H(h) => match (self.rows[bcrd.row].io[h], idx) {
                         (IoGroupKind::DoubleDqs, 0) => IoKind::Dqs,
                         (IoGroupKind::DoubleA, 1) => IoKind::Dummy,
                         (IoGroupKind::DoubleB, 0) => IoKind::Dummy,
                         (IoGroupKind::DoubleDummy, _) => IoKind::Dummy,
                         _ => IoKind::Io,
                     },
-                    Dir::E => match (self.rows[bcrd.row].io_e, idx) {
-                        (IoGroupKind::DoubleDqs, 0) => IoKind::Dqs,
-                        (IoGroupKind::DoubleA, 1) => IoKind::Dummy,
-                        (IoGroupKind::DoubleB, 0) => IoKind::Dummy,
-                        (IoGroupKind::DoubleDummy, _) => IoKind::Dummy,
-                        _ => IoKind::Io,
-                    },
-                    Dir::S => match (self.columns[bcrd.col].io_s, idx) {
-                        (IoGroupKind::DoubleDqs, 0) => IoKind::Dqs,
-                        (IoGroupKind::DoubleA, 1) => IoKind::Dummy,
-                        (IoGroupKind::DoubleB, 0) => IoKind::Dummy,
-                        (IoGroupKind::DoubleDummy, _) => IoKind::Dummy,
-                        _ => IoKind::Io,
-                    },
-                    Dir::N => match (self.columns[bcrd.col].io_n, idx) {
+                    Dir::V(v) => match (self.columns[bcrd.col].io[v], idx) {
                         (IoGroupKind::DoubleDqs, 0) => IoKind::Dqs,
                         (IoGroupKind::DoubleA, 1) => IoKind::Dummy,
                         (IoGroupKind::DoubleB, 0) => IoKind::Dummy,
@@ -756,7 +734,7 @@ impl Chip {
             ChipKind::Ecp3(_) => match self.get_io_edge(bcrd.cell) {
                 Dir::W => {
                     if bcrd.col == self.col_w() {
-                        match (self.rows[bcrd.row].io_w, idx) {
+                        match (self.rows[bcrd.row].io[DirH::W], idx) {
                             (IoGroupKind::QuadDqs, 2) => IoKind::Dqs,
                             (IoGroupKind::QuadDqs, 3) => IoKind::Xsio,
                             _ => IoKind::Io,
@@ -768,8 +746,8 @@ impl Chip {
                 Dir::E => {
                     if bcrd.col == self.col_e() {
                         match (
-                            self.rows[bcrd.row].io_e,
-                            self.rows[bcrd.row].bank_e.unwrap(),
+                            self.rows[bcrd.row].io[DirH::E],
+                            self.rows[bcrd.row].bank[DirH::E],
                             idx,
                         ) {
                             (_, 8, _) => IoKind::Xsio,
@@ -784,8 +762,8 @@ impl Chip {
 
                 Dir::S => IoKind::Xsio,
                 Dir::N => match (
-                    self.columns[bcrd.col].io_n,
-                    self.columns[bcrd.col].bank_n.unwrap(),
+                    self.columns[bcrd.col].io[DirV::N],
+                    self.columns[bcrd.col].bank[DirV::N],
                     idx,
                 ) {
                     (_, 8, _) => IoKind::Xsio,
@@ -801,7 +779,7 @@ impl Chip {
                 Dir::V(_) => IoKind::Sio,
             },
             ChipKind::Crosslink => {
-                if self.columns[bcrd.col].bank_s == Some(0) {
+                if self.columns[bcrd.col].bank[DirV::S] == 0 {
                     IoKind::Sio
                 } else {
                     IoKind::Io
@@ -935,24 +913,6 @@ impl Chip {
         }
     }
 
-    pub fn bel_eclk_root(&self, edge: Dir) -> BelCoord {
-        assert!(matches!(
-            self.kind,
-            ChipKind::Ecp2 | ChipKind::Ecp2M | ChipKind::Xp2
-        ));
-        self.clk_emid(edge).bel(bslots::CLK_INT)
-    }
-
-    pub fn bel_eclk_root_bank(&self, bank: u32) -> BelCoord {
-        assert_eq!(self.kind, ChipKind::Scm);
-        let bank = match bank {
-            3 => 2,
-            6 => 7,
-            _ => bank,
-        };
-        self.special_loc[&SpecialLocKey::Bc(bank)].bel(bslots::CLK_INT)
-    }
-
     pub fn bel_eclksync(&self, edge: Dir, idx: usize) -> BelCoord {
         match self.kind {
             ChipKind::Ecp3(_) => match edge {
@@ -1027,11 +987,7 @@ impl Chip {
         };
         let row = self.row_serdes(hv.v);
         let cell = Self::DIE.cell(col, row);
-        let io_kind = match hv.v {
-            DirV::S => self.columns[col].io_s,
-            DirV::N => self.columns[col].io_n,
-        };
-        if io_kind != IoGroupKind::Serdes {
+        if self.columns[col].io[hv.v] != IoGroupKind::Serdes {
             None
         } else {
             Some(cell.bel(bslots::SERDES))
@@ -1160,16 +1116,16 @@ impl Chip {
             }
             write!(o, "\t\t")?;
             let mut first = true;
-            if cd.io_s != IoGroupKind::None {
+            if cd.io[DirV::S] != IoGroupKind::None {
                 first = false;
                 write!(
                     o,
                     "io_s[{bank_s}, {io_s}]",
-                    bank_s = cd.bank_s.unwrap(),
-                    io_s = cd.io_s
+                    bank_s = cd.bank[DirV::S],
+                    io_s = cd.io[DirV::S]
                 )?;
             }
-            if cd.io_n != IoGroupKind::None {
+            if cd.io[DirV::N] != IoGroupKind::None {
                 if first {
                     first = false;
                 } else {
@@ -1178,11 +1134,11 @@ impl Chip {
                 write!(
                     o,
                     "io_n[{bank_n}, {io_n}]",
-                    bank_n = cd.bank_n.unwrap(),
-                    io_n = cd.io_n
+                    bank_n = cd.bank[DirV::N],
+                    io_n = cd.io[DirV::N]
                 )?;
             }
-            if cd.eclk_tap_s {
+            if cd.eclk_tap[DirV::S] {
                 if first {
                     first = false;
                 } else {
@@ -1190,7 +1146,7 @@ impl Chip {
                 }
                 write!(o, "eclk_tap_s")?;
             }
-            if cd.eclk_tap_n {
+            if cd.eclk_tap[DirV::N] {
                 if first {
                     first = false;
                 } else {
@@ -1235,20 +1191,20 @@ impl Chip {
                 writeln!(o, "\t\t// PCLK break")?;
             }
             write!(o, "\t\t{kind}", kind = rd.kind)?;
-            if rd.io_w != IoGroupKind::None {
+            if rd.io[DirH::W] != IoGroupKind::None {
                 write!(
                     o,
                     " + io_w[{bank_w}, {io_w}]",
-                    bank_w = rd.bank_w.unwrap(),
-                    io_w = rd.io_w
+                    bank_w = rd.bank[DirH::W],
+                    io_w = rd.io[DirH::W]
                 )?;
             }
-            if rd.io_e != IoGroupKind::None {
+            if rd.io[DirH::E] != IoGroupKind::None {
                 write!(
                     o,
                     " + io_e[{bank_e}, {io_e}]",
-                    bank_e = rd.bank_e.unwrap(),
-                    io_e = rd.io_e
+                    bank_e = rd.bank[DirH::E],
+                    io_e = rd.io[DirH::E]
                 )?;
             }
             if rd.sclk_break {
@@ -1278,11 +1234,12 @@ impl Chip {
         for (io, (cell, lut)) in &self.io_direct_plc {
             writeln!(o, "\tio_direct {io} = {cell}_{lut};", io = io.to_string(db))?;
         }
-        if self.extra_frames_w != 0 || self.extra_frames_e != 0 {
+        if self.extra_frames.values().any(|&v| v != 0) {
             writeln!(
                 o,
                 "\textra_frames {}, {};",
-                self.extra_frames_w, self.extra_frames_e
+                self.extra_frames[DirH::W],
+                self.extra_frames[DirH::E]
             )?;
         }
         if self.double_frames {

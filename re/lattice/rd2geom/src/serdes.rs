@@ -19,14 +19,14 @@ impl ChipContext<'_> {
             match hv.h {
                 DirH::W => {
                     for (col, cd) in &self.chip.columns {
-                        if cd.io_n == IoGroupKind::Serdes && col < self.chip.col_clk {
+                        if cd.io[DirV::N] == IoGroupKind::Serdes && col < self.chip.col_clk {
                             cells_serdes.push(bcrd.with_cr(col + 6, self.chip.row_n() - 11));
                         }
                     }
                 }
                 DirH::E => {
                     for (col, cd) in self.chip.columns.iter().rev() {
-                        if cd.io_n == IoGroupKind::Serdes && col >= self.chip.col_clk {
+                        if cd.io[DirV::N] == IoGroupKind::Serdes && col >= self.chip.col_clk {
                             cells_serdes.push(bcrd.with_cr(col, self.chip.row_n() - 11));
                         }
                     }
@@ -84,7 +84,7 @@ impl ChipContext<'_> {
         for tcid in [tcls::SERDES_W, tcls::SERDES_E] {
             for &tcrd in &self.edev.tile_index[tcid] {
                 let bcrd = tcrd.bel(bslots::SERDES);
-                let bank = self.chip.columns[bcrd.col].bank_n.unwrap();
+                let bank = self.chip.columns[bcrd.col].bank[DirV::N];
                 let (edge, quad) = match bank {
                     9 => (DirH::W, 0),
                     11 => (DirH::W, 1),
@@ -114,7 +114,7 @@ impl ChipContext<'_> {
                     .columns
                     .ids()
                     .into_iter()
-                    .find(|&col| self.chip.columns[col].bank_n == Some(bank + 2))
+                    .find(|&col| self.chip.columns[col].bank.get(DirV::N) == Some(&(bank + 2)))
                     .map(|col| match edge {
                         DirH::W => bcrd.with_col(col).delta(6, 1),
                         DirH::E => bcrd.with_col(col).delta(0, 1),
@@ -393,7 +393,7 @@ impl ChipContext<'_> {
     fn process_serdes_ecp3(&mut self) {
         for &tcrd in &self.edev.tile_index[tcls::SERDES] {
             let bcrd = tcrd.bel(bslots::SERDES);
-            let bank = self.chip.columns[bcrd.cell.col].bank_s.unwrap();
+            let bank = self.chip.columns[bcrd.cell.col].bank[DirV::S];
             let name = match bank {
                 50 => "PCSA",
                 51 => "PCSB",
@@ -1022,7 +1022,7 @@ impl ChipContext<'_> {
         for &tcrd in &self.edev.tile_index[tcls::SERDES] {
             let bcrd = tcrd.bel(bslots::SERDES);
             let cell = bcrd.cell;
-            let bank = self.chip.columns[bcrd.cell.col].bank_s.unwrap();
+            let bank = self.chip.columns[bcrd.cell.col].bank[DirV::S];
             let dual = match bank {
                 50 => 0,
                 51 => 1,
@@ -1030,7 +1030,7 @@ impl ChipContext<'_> {
             };
             let cell_prev = if dual != 0 {
                 let mut cell_prev = cell.delta(-1, 0);
-                while self.chip.columns[cell_prev.col].io_s != IoGroupKind::Serdes {
+                while self.chip.columns[cell_prev.col].io[DirV::S] != IoGroupKind::Serdes {
                     cell_prev.col -= 1;
                 }
                 Some(cell_prev)
@@ -1178,7 +1178,7 @@ impl ChipContext<'_> {
         for tcid in [tcls::MIPI_W, tcls::MIPI_E] {
             for &tcrd in &self.edev.tile_index[tcid] {
                 let bcrd = tcrd.bel(bslots::MIPI);
-                let bank = self.chip.columns[bcrd.cell.col].bank_n.unwrap();
+                let bank = self.chip.columns[bcrd.cell.col].bank[DirV::N];
                 let idx = match bank {
                     60 => 0,
                     61 => 1,

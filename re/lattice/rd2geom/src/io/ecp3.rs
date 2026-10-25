@@ -52,7 +52,7 @@ impl ChipContext<'_> {
     pub(super) fn prep_io_ecp3(&mut self) {
         for cell in self.edev.column(Chip::DIE, self.chip.col_w()) {
             if matches!(
-                self.chip.rows[cell.row].io_w,
+                self.chip.rows[cell.row].io[DirH::W],
                 IoGroupKind::Quad | IoGroupKind::QuadDqs | IoGroupKind::QuadDqsDummy
             ) {
                 for iob in 0..4 {
@@ -62,7 +62,7 @@ impl ChipContext<'_> {
         }
         for cell in self.edev.column(Chip::DIE, self.chip.col_e()) {
             if matches!(
-                self.chip.rows[cell.row].io_e,
+                self.chip.rows[cell.row].io[DirH::E],
                 IoGroupKind::Quad | IoGroupKind::QuadDqs | IoGroupKind::QuadDqsDummy
             ) {
                 for iob in 0..4 {
@@ -72,7 +72,7 @@ impl ChipContext<'_> {
         }
         for cell in self.edev.row(Chip::DIE, self.chip.row_s()) {
             if matches!(
-                self.chip.columns[cell.col].io_s,
+                self.chip.columns[cell.col].io[DirV::S],
                 IoGroupKind::Quad | IoGroupKind::QuadDqs | IoGroupKind::QuadDqsDummy
             ) {
                 for iob in 0..4 {
@@ -82,7 +82,7 @@ impl ChipContext<'_> {
         }
         for cell in self.edev.row(Chip::DIE, self.chip.row_n()) {
             if matches!(
-                self.chip.columns[cell.col].io_n,
+                self.chip.columns[cell.col].io[DirV::N],
                 IoGroupKind::Quad | IoGroupKind::QuadDqs | IoGroupKind::QuadDqsDummy
             ) {
                 for iob in 0..4 {
@@ -384,7 +384,7 @@ impl ChipContext<'_> {
         // DQS
         for cell in self.edev.column(Chip::DIE, self.chip.col_w()) {
             if matches!(
-                self.chip.rows[cell.row].io_w,
+                self.chip.rows[cell.row].io[DirH::W],
                 IoGroupKind::QuadDqs | IoGroupKind::QuadDqsDummy
             ) {
                 self.process_dqs_ecp3(cell.bel(bslots::IO[2]));
@@ -392,7 +392,7 @@ impl ChipContext<'_> {
         }
         for cell in self.edev.column(Chip::DIE, self.chip.col_e()) {
             if matches!(
-                self.chip.rows[cell.row].io_e,
+                self.chip.rows[cell.row].io[DirH::E],
                 IoGroupKind::QuadDqs | IoGroupKind::QuadDqsDummy
             ) {
                 self.process_dqs_ecp3(cell.bel(bslots::IO[2]));
@@ -400,7 +400,7 @@ impl ChipContext<'_> {
         }
         for cell in self.edev.row(Chip::DIE, self.chip.row_n()) {
             if matches!(
-                self.chip.columns[cell.col].io_n,
+                self.chip.columns[cell.col].io[DirV::N],
                 IoGroupKind::QuadDqs | IoGroupKind::QuadDqsDummy
             ) {
                 self.process_dqs_ecp3(cell.bel(bslots::IO[2]));
@@ -409,7 +409,7 @@ impl ChipContext<'_> {
         // actual IO
         for cell in self.edev.column(Chip::DIE, self.chip.col_w()) {
             if matches!(
-                self.chip.rows[cell.row].io_w,
+                self.chip.rows[cell.row].io[DirH::W],
                 IoGroupKind::Quad | IoGroupKind::QuadDqs | IoGroupKind::QuadDqsDummy
             ) {
                 self.process_io_cell_ecp3(cell);
@@ -417,7 +417,7 @@ impl ChipContext<'_> {
         }
         for cell in self.edev.column(Chip::DIE, self.chip.col_e()) {
             if matches!(
-                self.chip.rows[cell.row].io_e,
+                self.chip.rows[cell.row].io[DirH::E],
                 IoGroupKind::Quad | IoGroupKind::QuadDqs | IoGroupKind::QuadDqsDummy
             ) {
                 self.process_io_cell_ecp3(cell);
@@ -425,7 +425,7 @@ impl ChipContext<'_> {
         }
         for cell in self.edev.row(Chip::DIE, self.chip.row_s()) {
             if matches!(
-                self.chip.columns[cell.col].io_s,
+                self.chip.columns[cell.col].io[DirV::S],
                 IoGroupKind::Quad | IoGroupKind::QuadDqs | IoGroupKind::QuadDqsDummy
             ) {
                 self.process_io_cell_ecp3(cell);
@@ -433,7 +433,7 @@ impl ChipContext<'_> {
         }
         for cell in self.edev.row(Chip::DIE, self.chip.row_n()) {
             if matches!(
-                self.chip.columns[cell.col].io_n,
+                self.chip.columns[cell.col].io[DirV::N],
                 IoGroupKind::Quad | IoGroupKind::QuadDqs | IoGroupKind::QuadDqsDummy
             ) {
                 self.process_io_cell_ecp3(cell);

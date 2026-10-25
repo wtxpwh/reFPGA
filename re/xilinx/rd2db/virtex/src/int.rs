@@ -1,10 +1,11 @@
 use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
     db::{BelInfo, IntDb, PinDir, TileWireCoord, WireSlotIdExt},
-    dir::{Dir, DirMap},
+    dir::Dir,
 };
 use prjcombine_re_xilinx_naming::db::{BelNaming, BelPinNaming, NamingDb, PipNaming, RawTileId};
 use prjcombine_re_xilinx_rawdump::{Coord, Part};
+use prjcombine_types::enumerable::EnumMap;
 use prjcombine_virtex::defs::{self, bcls::IOI, bslots, tcls, wire_to_mux, wires};
 use std::collections::BTreeMap;
 
@@ -22,7 +23,7 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
 
     builder.allow_mux_to_branch();
 
-    builder.inject_main_passes(DirMap::from_fn(|dir| match dir {
+    builder.inject_main_passes(EnumMap::from_fn(|dir| match dir {
         Dir::W => defs::ccls::PASS_W,
         Dir::E => defs::ccls::PASS_E,
         Dir::S => defs::ccls::PASS_S,

@@ -2,12 +2,13 @@ use std::collections::BTreeSet;
 
 use prjcombine_interconnect::{
     db::{BelInfo, BelInput, IntDb, SwitchBoxItem, TileWireCoord, WireSlotIdExt, WireSupport},
-    dir::{Dir, DirMap},
+    dir::Dir,
 };
 use prjcombine_re_xilinx_rawdump::Part;
 
 use prjcombine_re_xilinx_naming::db::{BelNaming, NamingDb, TileClassNaming, WireNaming};
 use prjcombine_re_xilinx_rd2db_interconnect::{IntBuilder, PipMode, bel::TempBel};
+use prjcombine_types::enumerable::EnumMap;
 use prjcombine_virtex4::defs::{self, bcls, bslots, ccls, tcls, virtex4::wires};
 
 pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
@@ -18,7 +19,7 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
             .0,
     );
 
-    builder.inject_main_passes(DirMap::from_fn(|dir| match dir {
+    builder.inject_main_passes(EnumMap::from_fn(|dir| match dir {
         Dir::W => ccls::PASS_W,
         Dir::E => ccls::PASS_E,
         Dir::S => ccls::PASS_S,

@@ -1,6 +1,7 @@
 use prjcombine_entity::{EntityId, EntityVec};
-use prjcombine_interconnect::grid::ColId;
+use prjcombine_interconnect::{dir::DirH, grid::ColId};
 use prjcombine_re_xilinx_rawdump::Part;
+use prjcombine_types::enumerable::EnumMap;
 use prjcombine_virtex4::chip::{
     Chip, ChipKind, ColumnKind, DisabledPart, GtColumn, GtKind, HardColumn, RegId,
 };
@@ -75,11 +76,19 @@ fn get_col_hard(rd: &Part, int: &IntGrid) -> Option<HardColumn> {
     })
 }
 
-fn get_cols_qbuf(rd: &Part, int: &IntGrid) -> (ColId, ColId) {
-    (
-        int.lookup_column(find_column(rd, &["HCLK_QBUF_L"]).unwrap()),
-        int.lookup_column(find_column(rd, &["HCLK_QBUF_R"]).unwrap()),
-    )
+fn get_cols_qbuf(rd: &Part, int: &IntGrid) -> EnumMap<DirH, ColId> {
+    EnumMap::from_fn(|edge| {
+        int.lookup_column(
+            find_column(
+                rd,
+                &[match edge {
+                    DirH::W => "HCLK_QBUF_L",
+                    DirH::E => "HCLK_QBUF_R",
+                }],
+            )
+            .unwrap(),
+        )
+    })
 }
 
 fn get_reg_cfg(rd: &Part, int: &IntGrid) -> RegId {

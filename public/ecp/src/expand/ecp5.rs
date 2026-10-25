@@ -106,7 +106,7 @@ impl Expander<'_, '_> {
 
         for cell in self.egrid.row(self.die, self.chip.row_s()) {
             self.egrid.add_tile_single(cell, tcls::INT_IO_S);
-            match self.chip.columns[cell.col].io_s {
+            match self.chip.columns[cell.col].io[DirV::S] {
                 IoGroupKind::None => (),
                 IoGroupKind::Single => {
                     self.egrid.add_tile_single(cell, tcls::IO_S1);
@@ -122,7 +122,7 @@ impl Expander<'_, '_> {
         }
         for cell in self.egrid.row(self.die, self.chip.row_n()) {
             self.egrid.add_tile_single(cell, tcls::INT_IO_N);
-            match self.chip.columns[cell.col].io_n {
+            match self.chip.columns[cell.col].io[DirV::N] {
                 IoGroupKind::None => (),
                 IoGroupKind::Double => {
                     self.egrid.add_tile_e(cell, tcls::IO_N2, 2);
@@ -135,7 +135,7 @@ impl Expander<'_, '_> {
             if matches!(rd.kind, RowKind::Plc | RowKind::Fplc) {
                 self.egrid.add_tile_single(cell, tcls::INT_IO_WE);
             }
-            match self.chip.rows[cell.row].io_w {
+            match self.chip.rows[cell.row].io[DirH::W] {
                 IoGroupKind::None => (),
                 IoGroupKind::Quad => {
                     self.egrid.add_tile_n(cell, tcls::IO_W4, 3);
@@ -155,7 +155,7 @@ impl Expander<'_, '_> {
             if matches!(rd.kind, RowKind::Plc | RowKind::Fplc) {
                 self.egrid.add_tile_single(cell, tcls::INT_IO_WE);
             }
-            match self.chip.rows[cell.row].io_e {
+            match self.chip.rows[cell.row].io[DirH::E] {
                 IoGroupKind::None => (),
                 IoGroupKind::Quad => {
                     self.egrid.add_tile_n(cell, tcls::IO_E4, 3);
@@ -252,11 +252,10 @@ impl Expander<'_, '_> {
                 }
             }
             if edge == DirV::S {
-                let serdes = Vec::from_iter(
-                    self.egrid
-                        .row(self.die, self.chip.row_s())
-                        .filter(|&cell| self.chip.columns[cell.col].io_s == IoGroupKind::Serdes),
-                );
+                let serdes =
+                    Vec::from_iter(self.egrid.row(self.die, self.chip.row_s()).filter(|&cell| {
+                        self.chip.columns[cell.col].io[DirV::S] == IoGroupKind::Serdes
+                    }));
                 tcells.extend([
                     serdes.get(0).copied(),
                     serdes.get(1).copied(),

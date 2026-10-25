@@ -256,11 +256,11 @@ fn parse_io_scm(chip: &Chip, func: &str) -> Option<EdgeIoCoord> {
     {
         let mut row = chip.xlat_row(r);
         let mut ridx = 0;
-        while chip.rows[row].io_w == IoGroupKind::None {
+        while chip.rows[row].io[DirH::W] == IoGroupKind::None {
             row -= 1;
             ridx += 1;
         }
-        match chip.rows[row].io_w {
+        match chip.rows[row].io[DirH::W] {
             IoGroupKind::Quad => (),
             IoGroupKind::Octal => iob_idx += (1 - ridx) * 4,
             IoGroupKind::Dozen => iob_idx += (2 - ridx) * 4,
@@ -273,11 +273,11 @@ fn parse_io_scm(chip: &Chip, func: &str) -> Option<EdgeIoCoord> {
     {
         let mut row = chip.xlat_row(r);
         let mut ridx = 0;
-        while chip.rows[row].io_e == IoGroupKind::None {
+        while chip.rows[row].io[DirH::E] == IoGroupKind::None {
             row -= 1;
             ridx += 1;
         }
-        match chip.rows[row].io_e {
+        match chip.rows[row].io[DirH::E] {
             IoGroupKind::Quad => (),
             IoGroupKind::Octal => iob_idx += (1 - ridx) * 4,
             IoGroupKind::Dozen => iob_idx += (2 - ridx) * 4,
@@ -289,7 +289,7 @@ fn parse_io_scm(chip: &Chip, func: &str) -> Option<EdgeIoCoord> {
         && let Ok(c) = c.parse()
     {
         let mut col = chip.xlat_col(c);
-        while chip.columns[col].io_s == IoGroupKind::None {
+        while chip.columns[col].io[DirV::S] == IoGroupKind::None {
             col -= 1;
             iob_idx += 4;
         }
@@ -299,7 +299,7 @@ fn parse_io_scm(chip: &Chip, func: &str) -> Option<EdgeIoCoord> {
         && let Ok(c) = c.parse()
     {
         let mut col = chip.xlat_col(c);
-        while chip.columns[col].io_n == IoGroupKind::None {
+        while chip.columns[col].io[DirV::N] == IoGroupKind::None {
             col -= 1;
             iob_idx += 4;
         }
@@ -369,7 +369,7 @@ fn parse_io_ecp3(chip: &Chip, func: &str) -> Option<EdgeIoCoord> {
     {
         let mut row = chip.xlat_row(r);
         if iob_idx < 4 {
-            if chip.rows[row].io_w == IoGroupKind::None {
+            if chip.rows[row].io[DirH::W] == IoGroupKind::None {
                 row -= 2;
             } else {
                 iob_idx += 2;
@@ -382,7 +382,7 @@ fn parse_io_ecp3(chip: &Chip, func: &str) -> Option<EdgeIoCoord> {
     {
         let mut row = chip.xlat_row(r);
         if iob_idx < 4 {
-            if chip.rows[row].io_e == IoGroupKind::None {
+            if chip.rows[row].io[DirH::E] == IoGroupKind::None {
                 row -= 2;
             } else {
                 iob_idx += 2;
@@ -394,7 +394,7 @@ fn parse_io_ecp3(chip: &Chip, func: &str) -> Option<EdgeIoCoord> {
         && let Ok(c) = c.parse()
     {
         let mut col = chip.xlat_col(c);
-        if iob_idx < 4 && chip.columns[col].io_s == IoGroupKind::None {
+        if iob_idx < 4 && chip.columns[col].io[DirV::S] == IoGroupKind::None {
             col -= 2;
             iob_idx += 2;
         }
@@ -404,7 +404,7 @@ fn parse_io_ecp3(chip: &Chip, func: &str) -> Option<EdgeIoCoord> {
         && let Ok(c) = c.parse()
     {
         let mut col = chip.xlat_col(c);
-        if iob_idx < 4 && chip.columns[col].io_n == IoGroupKind::None {
+        if iob_idx < 4 && chip.columns[col].io[DirV::N] == IoGroupKind::None {
             col -= 2;
             iob_idx += 2;
         }
@@ -447,7 +447,7 @@ fn parse_io_ecp4(chip: &Chip, func: &str) -> Option<EdgeIoCoord> {
         } else {
             iob_idx += 3;
             while !matches!(
-                chip.rows[row].io_w,
+                chip.rows[row].io[DirH::W],
                 IoGroupKind::Quad | IoGroupKind::QuadDqs | IoGroupKind::QuadEbrDqs
             ) {
                 iob_idx -= 1;
@@ -479,7 +479,7 @@ fn parse_io_ecp4(chip: &Chip, func: &str) -> Option<EdgeIoCoord> {
         } else {
             iob_idx += 3;
             while !matches!(
-                chip.rows[row].io_e,
+                chip.rows[row].io[DirH::E],
                 IoGroupKind::Quad | IoGroupKind::QuadDqs | IoGroupKind::QuadEbrDqs
             ) {
                 iob_idx -= 1;
@@ -496,7 +496,7 @@ fn parse_io_ecp4(chip: &Chip, func: &str) -> Option<EdgeIoCoord> {
     {
         assert_eq!(iob_idx, 0);
         let mut col = chip.xlat_col(c);
-        while chip.columns[col].io_n == IoGroupKind::None {
+        while chip.columns[col].io[DirV::N] == IoGroupKind::None {
             iob_idx += 1;
             col -= 1;
         }
@@ -1236,17 +1236,17 @@ pub fn process_bond(datadir: &Path, part: &Part, chip: &Chip, _naming: &ChipNami
     let mut virt_io: BTreeMap<String, Vec<BondPad>> = BTreeMap::new();
     let mut serdes_xlat = BTreeMap::new();
     for (col, cd) in &chip.columns {
-        if cd.io_s == IoGroupKind::Serdes {
-            serdes_xlat.insert(cd.bank_s.unwrap(), col);
+        if cd.io[DirV::S] == IoGroupKind::Serdes {
+            serdes_xlat.insert(cd.bank[DirV::S], col);
         }
-        if cd.io_n == IoGroupKind::Serdes {
-            serdes_xlat.insert(cd.bank_n.unwrap(), col);
+        if cd.io[DirV::N] == IoGroupKind::Serdes {
+            serdes_xlat.insert(cd.bank[DirV::N], col);
         }
     }
     let mut mipi_xlat = BTreeMap::new();
     for (col, cd) in &chip.columns {
-        if cd.io_n == IoGroupKind::Mipi {
-            mipi_xlat.insert(cd.bank_n.unwrap(), col);
+        if cd.io[DirV::N] == IoGroupKind::Mipi {
+            mipi_xlat.insert(cd.bank[DirV::N], col);
         }
     }
     let mut cdone_shared = None;
@@ -1441,10 +1441,7 @@ pub fn process_bond(datadir: &Path, part: &Part, chip: &Chip, _naming: &ChipNami
                     _ => panic!("umm {pad}"),
                 }
             };
-            let exp_bank = match edge {
-                DirV::S => chip.columns[col].bank_s.unwrap(),
-                DirV::N => chip.columns[col].bank_n.unwrap(),
-            };
+            let exp_bank = chip.columns[col].bank[edge];
             assert_eq!(bank, exp_bank as i32);
             BondPad::Serdes(edge, col, pad)
         } else if func.starts_with("PCS") && matches!(chip.kind, ChipKind::Ecp3(_)) {

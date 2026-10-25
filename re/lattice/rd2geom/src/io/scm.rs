@@ -17,11 +17,7 @@ impl ChipContext<'_> {
         let cidx = idx / 4;
         match self.chip.get_io_edge(bcrd.cell) {
             Dir::H(edge) => {
-                let kind = match edge {
-                    DirH::W => self.chip.rows[bcrd.row].io_w,
-                    DirH::E => self.chip.rows[bcrd.row].io_e,
-                };
-                let dy = match kind {
+                let dy = match self.chip.rows[bcrd.row].io[edge] {
                     IoGroupKind::Quad => 0,
                     IoGroupKind::Dozen => 2 - cidx,
                     _ => unreachable!(),
@@ -598,17 +594,11 @@ impl ChipContext<'_> {
             .unwrap();
         let edge = self.chip.get_io_edge(bcrd.cell);
         let cell = match edge {
-            Dir::H(edge) => {
-                let io_kind = match edge {
-                    DirH::W => self.chip.rows[bcrd.row].io_w,
-                    DirH::E => self.chip.rows[bcrd.row].io_e,
-                };
-                match io_kind {
-                    IoGroupKind::Quad => bcrd.cell,
-                    IoGroupKind::Dozen => bcrd.cell.delta(0, 2 - idx as i32),
-                    _ => unreachable!(),
-                }
-            }
+            Dir::H(edge) => match self.chip.rows[bcrd.row].io[edge] {
+                IoGroupKind::Quad => bcrd.cell,
+                IoGroupKind::Dozen => bcrd.cell.delta(0, 2 - idx as i32),
+                _ => unreachable!(),
+            },
             Dir::V(_) => bcrd.cell.delta(idx as i32, 0),
         };
         let (r, c) = self.rc(cell);

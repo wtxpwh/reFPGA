@@ -4,7 +4,7 @@ use prjcombine_ecp::{
 };
 use prjcombine_interconnect::{
     db::{BelInput, Mux, SwitchBox, SwitchBoxItem, WireSlotIdExt},
-    dir::Dir,
+    dir::{Dir, DirH, DirV},
     grid::{BelCoord, CellCoord, DieIdExt},
 };
 
@@ -106,7 +106,7 @@ impl ChipContext<'_> {
 
     pub(super) fn process_io_machxo(&mut self) {
         for (row, rd) in &self.chip.rows {
-            let num_io = match rd.io_w {
+            let num_io = match rd.io[DirH::W] {
                 IoGroupKind::None => 0,
                 IoGroupKind::Double => 2,
                 IoGroupKind::Quad | IoGroupKind::QuadReverse => 4,
@@ -124,7 +124,7 @@ impl ChipContext<'_> {
                     self.process_pictest(cell);
                 }
             }
-            let num_io = match rd.io_e {
+            let num_io = match rd.io[DirH::E] {
                 IoGroupKind::None => 0,
                 IoGroupKind::Double => 2,
                 IoGroupKind::Quad | IoGroupKind::QuadReverse => 4,
@@ -144,7 +144,7 @@ impl ChipContext<'_> {
             }
         }
         for (col, cd) in &self.chip.columns {
-            let num_io = match cd.io_s {
+            let num_io = match cd.io[DirV::S] {
                 IoGroupKind::None => 0,
                 IoGroupKind::Quad | IoGroupKind::QuadReverse => 4,
                 IoGroupKind::Hex | IoGroupKind::HexReverse => 6,
@@ -159,7 +159,7 @@ impl ChipContext<'_> {
                 }
                 self.insert_switchbox(cell.bel(bslots::IO_INT), sb);
             }
-            let num_io = match cd.io_n {
+            let num_io = match cd.io[DirV::N] {
                 IoGroupKind::None => 0,
                 IoGroupKind::Quad | IoGroupKind::QuadReverse => 4,
                 IoGroupKind::Hex | IoGroupKind::HexReverse => 6,

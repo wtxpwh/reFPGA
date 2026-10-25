@@ -36,7 +36,7 @@ impl Expander<'_, '_> {
 
     pub(super) fn fill_ebr_machxo2(&mut self) {
         for cell in self.egrid.row(self.die, self.chip.row_n()) {
-            if self.chip.columns[cell.col].io_n == IoGroupKind::Ebr {
+            if self.chip.columns[cell.col].io[DirV::N] == IoGroupKind::Ebr {
                 self.egrid.add_tile_e(cell, tcls::EBR_N, 3);
             }
         }
@@ -109,7 +109,7 @@ impl Expander<'_, '_> {
         }
 
         for cell in self.egrid.column(self.die, self.chip.col_w()) {
-            let kind = match self.chip.rows[cell.row].io_w {
+            let kind = match self.chip.rows[cell.row].io[DirH::W] {
                 IoGroupKind::Double => tcls::IO_W2,
                 IoGroupKind::Quad => tcls::IO_W4,
                 IoGroupKind::QuadI3c => tcls::IO_W4_I3C,
@@ -118,7 +118,7 @@ impl Expander<'_, '_> {
             self.egrid.add_tile_single(cell, kind);
         }
         for cell in self.egrid.column(self.die, self.chip.col_e()) {
-            let kind = match self.chip.rows[cell.row].io_e {
+            let kind = match self.chip.rows[cell.row].io[DirH::E] {
                 IoGroupKind::Double => tcls::IO_E2,
                 IoGroupKind::Quad => tcls::IO_E4,
                 _ => continue,
@@ -126,7 +126,7 @@ impl Expander<'_, '_> {
             self.egrid.add_tile_single(cell, kind);
         }
         for cell in self.egrid.row(self.die, self.chip.row_s()) {
-            let kind = match self.chip.columns[cell.col].io_s {
+            let kind = match self.chip.columns[cell.col].io[DirV::S] {
                 IoGroupKind::Double if is_smol => tcls::SIO_S2,
                 IoGroupKind::Quad | IoGroupKind::QuadReverse if is_smol => tcls::SIO_S4,
                 IoGroupKind::Double if !is_smol => tcls::IO_S2,
@@ -136,7 +136,7 @@ impl Expander<'_, '_> {
             self.egrid.add_tile_single(cell, kind);
         }
         for cell in self.egrid.row(self.die, self.chip.row_n()) {
-            let kind = match self.chip.columns[cell.col].io_n {
+            let kind = match self.chip.columns[cell.col].io[DirV::N] {
                 IoGroupKind::Double if is_smol => tcls::SIO_N2,
                 IoGroupKind::Quad | IoGroupKind::QuadReverse if is_smol => tcls::SIO_N4,
                 IoGroupKind::Double if !is_smol => tcls::IO_N2,

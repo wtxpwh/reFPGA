@@ -238,7 +238,7 @@ pub fn xlat_wire(edev: &ExpandedDevice, x: u32, y: u32, name: &str) -> GenericNe
         "ltoutIn" | "wire_bram/ram/NC_5" => {
             if cell.col == edev.chip.col_w()
                 || cell.col == edev.chip.col_e()
-                || (edev.chip.cols_bram.contains(&cell.col)
+                || (edev.chip.is_col_bram(cell.col)
                     && !matches!(edev.chip.kind, ChipKind::Ice40P08 | ChipKind::Ice40P01))
             {
                 return GenericNet::Ltin(cell);
@@ -572,7 +572,7 @@ pub fn xlat_wire(edev: &ExpandedDevice, x: u32, y: u32, name: &str) -> GenericNe
                 if lc == 0 {
                     if cell.col == edev.chip.col_w()
                         || cell.col == edev.chip.col_e()
-                        || edev.chip.cols_bram.contains(&cell.col)
+                        || edev.chip.is_col_bram(cell.col)
                     {
                         return GenericNet::Ltin(cell);
                     } else {

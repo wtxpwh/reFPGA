@@ -1,4 +1,5 @@
 use bincode::{Decode, Encode};
+use prjcombine_types::enumerable::Enumerable;
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Encode, Decode)]
 pub enum DirH {
@@ -33,6 +34,18 @@ impl std::fmt::Display for DirH {
     }
 }
 
+impl Enumerable for DirH {
+    type Array<T> = [T; 2];
+    const VALUES: [DirH; 2] = DirH::DIRS;
+
+    fn to_enum_idx(self) -> usize {
+        match self {
+            DirH::W => 0,
+            DirH::E => 1,
+        }
+    }
+}
+
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Encode, Decode)]
 pub enum DirV {
     S,
@@ -63,6 +76,18 @@ impl std::fmt::Display for DirV {
                 DirV::N => "N",
             }
         )
+    }
+}
+
+impl Enumerable for DirV {
+    type Array<T> = [T; 2];
+    const VALUES: [DirV; 2] = DirV::DIRS;
+
+    fn to_enum_idx(self) -> usize {
+        match self {
+            DirV::S => 0,
+            DirV::N => 1,
+        }
     }
 }
 
@@ -117,6 +142,20 @@ impl From<DirH> for Dir {
 impl From<DirV> for Dir {
     fn from(value: DirV) -> Self {
         Dir::V(value)
+    }
+}
+
+impl Enumerable for Dir {
+    type Array<T> = [T; 4];
+    const VALUES: [Dir; 4] = Dir::DIRS;
+
+    fn to_enum_idx(self) -> usize {
+        match self {
+            Dir::W => 0,
+            Dir::E => 1,
+            Dir::S => 2,
+            Dir::N => 3,
+        }
     }
 }
 
@@ -190,230 +229,16 @@ impl core::ops::BitAnd<DirH> for DirV {
     }
 }
 
-#[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Encode, Decode, Default)]
-pub struct DirMap<T> {
-    pub w: T,
-    pub e: T,
-    pub s: T,
-    pub n: T,
-}
+impl Enumerable for DirHV {
+    type Array<T> = [T; 4];
+    const VALUES: [DirHV; 4] = DirHV::DIRS;
 
-impl<T> DirMap<T> {
-    pub fn from_fn(mut f: impl FnMut(Dir) -> T) -> Self {
-        Self {
-            w: f(Dir::W),
-            e: f(Dir::E),
-            s: f(Dir::S),
-            n: f(Dir::N),
+    fn to_enum_idx(self) -> usize {
+        match self {
+            DirHV::SW => 0,
+            DirHV::SE => 1,
+            DirHV::NW => 2,
+            DirHV::NE => 3,
         }
-    }
-
-    pub fn iter(&self) -> DirMapIter<&T> {
-        DirMapIter {
-            inner: DirPartMap {
-                inner: DirMap::from_fn(|dir| Some(&self[dir])),
-            },
-        }
-    }
-
-    pub fn iter_mut(&mut self) -> DirMapIter<&mut T> {
-        DirMapIter {
-            inner: DirPartMap {
-                inner: DirMap {
-                    w: Some(&mut self.w),
-                    e: Some(&mut self.e),
-                    s: Some(&mut self.s),
-                    n: Some(&mut self.n),
-                },
-            },
-        }
-    }
-
-    pub fn values(&self) -> DirMapValues<&T> {
-        DirMapValues {
-            inner: DirPartMap {
-                inner: DirMap::from_fn(|dir| Some(&self[dir])),
-            },
-        }
-    }
-
-    pub fn values_mut(&mut self) -> DirMapValues<&mut T> {
-        DirMapValues {
-            inner: self.iter_mut().inner,
-        }
-    }
-}
-
-impl<T> std::ops::Index<Dir> for DirMap<T> {
-    type Output = T;
-
-    fn index(&self, index: Dir) -> &Self::Output {
-        match index {
-            Dir::W => &self.w,
-            Dir::E => &self.e,
-            Dir::S => &self.s,
-            Dir::N => &self.n,
-        }
-    }
-}
-
-impl<T> std::ops::IndexMut<Dir> for DirMap<T> {
-    fn index_mut(&mut self, index: Dir) -> &mut Self::Output {
-        match index {
-            Dir::W => &mut self.w,
-            Dir::E => &mut self.e,
-            Dir::S => &mut self.s,
-            Dir::N => &mut self.n,
-        }
-    }
-}
-
-impl<T> IntoIterator for DirMap<T> {
-    type Item = (Dir, T);
-
-    type IntoIter = DirMapIter<T>;
-
-    fn into_iter(self) -> Self::IntoIter {
-        DirMapIter {
-            inner: DirPartMap {
-                inner: DirMap {
-                    w: Some(self.w),
-                    e: Some(self.e),
-                    s: Some(self.s),
-                    n: Some(self.n),
-                },
-            },
-        }
-    }
-}
-
-impl<'a, T> IntoIterator for &'a DirMap<T> {
-    type Item = (Dir, &'a T);
-
-    type IntoIter = DirMapIter<&'a T>;
-
-    fn into_iter(self) -> Self::IntoIter {
-        self.iter()
-    }
-}
-
-#[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Encode, Decode)]
-pub struct DirPartMap<T> {
-    inner: DirMap<Option<T>>,
-}
-
-impl<T> DirPartMap<T> {
-    pub fn new() -> Self {
-        Self::default()
-    }
-
-    pub fn get(&self, key: Dir) -> Option<&T> {
-        self.inner[key].as_ref()
-    }
-
-    pub fn get_mut(&mut self, key: Dir) -> Option<&mut T> {
-        self.inner[key].as_mut()
-    }
-
-    pub fn contains_key(&self, key: Dir) -> bool {
-        self.inner[key].is_some()
-    }
-
-    pub fn insert(&mut self, key: Dir, value: T) -> Option<T> {
-        self.inner[key].replace(value)
-    }
-
-    pub fn remove(&mut self, key: Dir) -> Option<T> {
-        self.inner[key].take()
-    }
-
-    pub fn iter(&self) -> DirMapIter<&T> {
-        DirMapIter {
-            inner: DirPartMap {
-                inner: DirMap::from_fn(|dir| self.get(dir)),
-            },
-        }
-    }
-
-    pub fn values(&self) -> DirMapValues<&T> {
-        DirMapValues {
-            inner: DirPartMap {
-                inner: DirMap::from_fn(|dir| self.get(dir)),
-            },
-        }
-    }
-
-    pub fn is_empty(&self) -> bool {
-        self.inner.values().all(|x| x.is_none())
-    }
-}
-
-impl<T> Default for DirPartMap<T> {
-    fn default() -> Self {
-        Self {
-            inner: DirMap::from_fn(|_| None),
-        }
-    }
-}
-
-impl<T> std::ops::Index<Dir> for DirPartMap<T> {
-    type Output = T;
-
-    fn index(&self, index: Dir) -> &Self::Output {
-        self.inner[index].as_ref().unwrap()
-    }
-}
-
-impl<T> IntoIterator for DirPartMap<T> {
-    type Item = (Dir, T);
-
-    type IntoIter = DirMapIter<T>;
-
-    fn into_iter(self) -> Self::IntoIter {
-        DirMapIter { inner: self }
-    }
-}
-
-impl<'a, T> IntoIterator for &'a DirPartMap<T> {
-    type Item = (Dir, &'a T);
-
-    type IntoIter = DirMapIter<&'a T>;
-
-    fn into_iter(self) -> Self::IntoIter {
-        self.iter()
-    }
-}
-
-pub struct DirMapIter<T> {
-    inner: DirPartMap<T>,
-}
-
-impl<T> Iterator for DirMapIter<T> {
-    type Item = (Dir, T);
-
-    fn next(&mut self) -> Option<Self::Item> {
-        for key in Dir::DIRS {
-            if let Some(val) = self.inner.remove(key) {
-                return Some((key, val));
-            }
-        }
-        None
-    }
-}
-
-pub struct DirMapValues<T> {
-    inner: DirPartMap<T>,
-}
-
-impl<T> Iterator for DirMapValues<T> {
-    type Item = T;
-
-    fn next(&mut self) -> Option<Self::Item> {
-        for key in Dir::DIRS {
-            if let Some(val) = self.inner.remove(key) {
-                return Some(val);
-            }
-        }
-        None
     }
 }

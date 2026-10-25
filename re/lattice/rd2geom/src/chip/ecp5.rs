@@ -116,28 +116,30 @@ impl ChipBuilder<'_> {
             self.chip
                 .rows
                 .ids()
-                .filter(|&row| self.chip.rows[row].io_w == IoGroupKind::QuadDqs)
+                .filter(|&row| self.chip.rows[row].io[DirH::W] == IoGroupKind::QuadDqs)
                 .map(|row| row - 3),
         );
         let dqs_e = BTreeSet::from_iter(
             self.chip
                 .rows
                 .ids()
-                .filter(|&row| self.chip.rows[row].io_e == IoGroupKind::QuadDqs)
+                .filter(|&row| self.chip.rows[row].io[DirH::E] == IoGroupKind::QuadDqs)
                 .map(|row| row - 3),
         );
         for (row, rd) in &mut self.chip.rows {
-            if rd.io_w != IoGroupKind::None {
-                rd.bank_w = Some(if row < self.chip.row_clk { 6 } else { 7 });
-                rd.io_w = if dqs_w.contains(&row) {
+            if rd.io[DirH::W] != IoGroupKind::None {
+                rd.bank
+                    .insert(DirH::W, if row < self.chip.row_clk { 6 } else { 7 });
+                rd.io[DirH::W] = if dqs_w.contains(&row) {
                     IoGroupKind::QuadDqs
                 } else {
                     IoGroupKind::Quad
                 };
             }
-            if rd.io_e != IoGroupKind::None {
-                rd.bank_e = Some(if row < self.chip.row_clk { 3 } else { 2 });
-                rd.io_e = if dqs_e.contains(&row) {
+            if rd.io[DirH::E] != IoGroupKind::None {
+                rd.bank
+                    .insert(DirH::E, if row < self.chip.row_clk { 3 } else { 2 });
+                rd.io[DirH::E] = if dqs_e.contains(&row) {
                     IoGroupKind::QuadDqs
                 } else {
                     IoGroupKind::Quad
@@ -145,11 +147,13 @@ impl ChipBuilder<'_> {
             }
         }
         for (col, cd) in &mut self.chip.columns {
-            if cd.io_s != IoGroupKind::None {
-                cd.bank_s = Some(if col < self.chip.col_clk { 8 } else { 4 });
+            if cd.io[DirV::S] != IoGroupKind::None {
+                cd.bank
+                    .insert(DirV::S, if col < self.chip.col_clk { 8 } else { 4 });
             }
-            if cd.io_n != IoGroupKind::None {
-                cd.bank_n = Some(if col < self.chip.col_clk { 0 } else { 1 });
+            if cd.io[DirV::N] != IoGroupKind::None {
+                cd.bank
+                    .insert(DirV::N, if col < self.chip.col_clk { 0 } else { 1 });
             }
         }
     }
@@ -201,8 +205,8 @@ impl ChipBuilder<'_> {
         };
         for (i, &col) in cols.iter().enumerate() {
             let col = ColId::from_idx(col);
-            self.chip.columns[col].io_s = IoGroupKind::Serdes;
-            self.chip.columns[col].bank_s = Some(50 + (i as u32));
+            self.chip.columns[col].io[DirV::S] = IoGroupKind::Serdes;
+            self.chip.columns[col].bank.insert(DirV::S, 50 + (i as u32));
         }
     }
 

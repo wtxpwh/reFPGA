@@ -1,8 +1,9 @@
 use prjcombine_entity::{EntityId, EntityPartVec, EntityVec};
 use prjcombine_interconnect::db::IntDb;
-use prjcombine_interconnect::dir::{Dir, DirH, DirHV, DirMap};
+use prjcombine_interconnect::dir::{Dir, DirH, DirHV, DirV};
 use prjcombine_interconnect::grid::builder::GridBuilder;
 use prjcombine_interconnect::grid::{CellCoord, ColId, ColIdExt, DieId, DieIdExt, Rect, RowIdExt};
+use prjcombine_types::enumerable::EnumMap;
 use std::collections::{BTreeSet, HashMap};
 
 use crate::bitstream::FrameAddr;
@@ -25,7 +26,7 @@ struct Expander<'a, 'b> {
     spine_frame: EntityVec<RegId, usize>,
     bram_frame: EntityVec<RegId, EntityPartVec<ColId, usize>>,
     iob_frame: HashMap<CellCoord, usize>,
-    reg_frame: DirMap<usize>,
+    reg_frame: EnumMap<Dir, usize>,
 }
 
 impl Expander<'_, '_> {
@@ -98,7 +99,7 @@ impl Expander<'_, '_> {
 
     fn fill_io_w(&mut self) {
         for cell in self.egrid.column(self.die, self.chip.col_w()) {
-            if self.chip.rows[cell.row].io_w {
+            if self.chip.rows[cell.row].io[DirH::W] {
                 self.fill_ioi(cell);
                 self.egrid.add_tile_single(cell, defs::tcls::IOB);
             } else {
@@ -120,7 +121,7 @@ impl Expander<'_, '_> {
 
     fn fill_io_e(&mut self) {
         for cell in self.egrid.column(self.die, self.chip.col_e()).rev() {
-            if self.chip.rows[cell.row].io_e {
+            if self.chip.rows[cell.row].io[DirH::E] {
                 self.fill_ioi(cell);
                 self.egrid.add_tile_single(cell, defs::tcls::IOB);
             } else {
@@ -143,13 +144,13 @@ impl Expander<'_, '_> {
     fn fill_io_n(&mut self) {
         for cell_o in self.egrid.row(self.die, self.chip.row_n()) {
             let cd = &self.chip.columns[cell_o.col];
-            if cd.io_n == ColumnIoKind::None {
+            if cd.io[DirV::N] == ColumnIoKind::None {
                 continue;
             }
             self.site_holes.push(cell_o.delta(0, -1).rect(1, 2));
             for (cell, unused) in [
-                (cell_o, cd.io_n == ColumnIoKind::Inner),
-                (cell_o.delta(0, -1), cd.io_n == ColumnIoKind::Outer),
+                (cell_o, cd.io[DirV::N] == ColumnIoKind::Inner),
+                (cell_o.delta(0, -1), cd.io[DirV::N] == ColumnIoKind::Outer),
             ] {
                 self.fill_ioi(cell);
                 if !unused {
@@ -162,13 +163,13 @@ impl Expander<'_, '_> {
     fn fill_io_s(&mut self) {
         for cell_o in self.egrid.row(self.die, self.chip.row_s()) {
             let cd = &self.chip.columns[cell_o.col];
-            if cd.io_s == ColumnIoKind::None {
+            if cd.io[DirV::S] == ColumnIoKind::None {
                 continue;
             }
             self.site_holes.push(cell_o.rect(1, 2));
             for (cell, unused) in [
-                (cell_o, cd.io_s == ColumnIoKind::Inner),
-                (cell_o.delta(0, 1), cd.io_s == ColumnIoKind::Outer),
+                (cell_o, cd.io[DirV::S] == ColumnIoKind::Inner),
+                (cell_o.delta(0, 1), cd.io[DirV::S] == ColumnIoKind::Outer),
             ] {
                 self.fill_ioi(cell);
                 if !unused {
@@ -731,7 +732,7 @@ impl Expander<'_, '_> {
                 self.reg_frame[Dir::E] = self.iob_frame_len;
                 self.iob_frame_len += 384;
             }
-            if self.chip.rows[cell.row].io_e {
+            if self.chip.rows[cell.row].io[DirH::E] {
                 self.iob_frame.insert(cell, self.iob_frame_len);
                 self.iob_frame_len += 128;
             }
@@ -742,14 +743,14 @@ impl Expander<'_, '_> {
                 self.iob_frame_len += 384;
             }
             if matches!(
-                self.chip.columns[cell.col].io_n,
+                self.chip.columns[cell.col].io[DirV::N],
                 ColumnIoKind::Inner | ColumnIoKind::Both
             ) {
                 self.iob_frame.insert(cell.delta(0, -1), self.iob_frame_len);
                 self.iob_frame_len += 128;
             }
             if matches!(
-                self.chip.columns[cell.col].io_n,
+                self.chip.columns[cell.col].io[DirV::N],
                 ColumnIoKind::Outer | ColumnIoKind::Both
             ) {
                 self.iob_frame.insert(cell, self.iob_frame_len);
@@ -757,7 +758,7 @@ impl Expander<'_, '_> {
             }
         }
         for cell in self.egrid.column(self.die, self.chip.col_w()).rev() {
-            if self.chip.rows[cell.row].io_w {
+            if self.chip.rows[cell.row].io[DirH::W] {
                 self.iob_frame.insert(cell, self.iob_frame_len);
                 self.iob_frame_len += 128;
             }
@@ -768,14 +769,14 @@ impl Expander<'_, '_> {
         }
         for cell in self.egrid.row(self.die, self.chip.row_s()) {
             if matches!(
-                self.chip.columns[cell.col].io_s,
+                self.chip.columns[cell.col].io[DirV::S],
                 ColumnIoKind::Inner | ColumnIoKind::Both
             ) {
                 self.iob_frame.insert(cell.delta(0, 1), self.iob_frame_len);
                 self.iob_frame_len += 128;
             }
             if matches!(
-                self.chip.columns[cell.col].io_s,
+                self.chip.columns[cell.col].io[DirV::S],
                 ColumnIoKind::Outer | ColumnIoKind::Both
             ) {
                 self.iob_frame.insert(cell, self.iob_frame_len);
@@ -814,7 +815,7 @@ impl Chip {
             spine_frame: EntityVec::new(),
             bram_frame: EntityVec::new(),
             iob_frame: HashMap::new(),
-            reg_frame: DirMap::from_fn(|_| 0),
+            reg_frame: EnumMap::from_fn(|_| 0),
         };
 
         expander.fill_holes();

@@ -1,6 +1,5 @@
 use std::collections::{BTreeMap, BTreeSet, HashMap};
 
-use prjcombine_interconnect::dir::DirV;
 use prjcombine_re_xilinx_rawdump::PkgPin;
 use prjcombine_types::Polarity;
 use prjcombine_virtex2::bond::Bond;
@@ -23,11 +22,10 @@ pub fn make_bond(endev: &ExpandedNamedDevice, pins: &[PkgPin]) -> Bond {
         .chip
         .cols_gt
         .iter()
-        .flat_map(|(&col, &(bs, bn))| {
-            [
-                (bs, endev.chip.bel_gt(DirV::S, col)),
-                (bn, endev.chip.bel_gt(DirV::N, col)),
-            ]
+        .flat_map(|(&col, &banks)| {
+            banks
+                .into_iter()
+                .map(move |(edge, bank)| (bank, endev.chip.bel_gt(edge, col)))
         })
         .collect();
     let mut vcco_pins = vec![];

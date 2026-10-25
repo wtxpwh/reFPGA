@@ -10,7 +10,7 @@ use prjcombine_interconnect::{
         ProgBuf, ProgDelay, ProgInv, SwitchBox, SwitchBoxItem, TileClassId, TileWireCoord,
         WireKind, WireSlotId, WireSlotIdExt,
     },
-    dir::{Dir, DirMap},
+    dir::Dir,
 };
 use prjcombine_re_xilinx_naming::db::{
     BelNaming, BelPinNaming, ConnectorClassNamingId, ConnectorWireInFarNaming,
@@ -21,7 +21,7 @@ use prjcombine_re_xilinx_rawdump::{self as rawdump, Coord, Part};
 
 use assert_matches::assert_matches;
 
-use prjcombine_types::bitrect::PolTileBit;
+use prjcombine_types::{bitrect::PolTileBit, enumerable::EnumMap};
 use rawdump::TileKindId;
 
 use crate::{
@@ -57,14 +57,14 @@ pub struct IntBuilder<'rd> {
     pub rd: &'rd Part,
     pub db: IntDb,
     pub ndb: NamingDb,
-    pub term_slots: DirMap<ConnectorSlotId>,
+    pub term_slots: EnumMap<Dir, ConnectorSlotId>,
     pub pips: BTreeMap<(TileClassId, BelSlotId), Pips>,
     permabuf_wires: BTreeSet<WireSlotId>,
     delay_wires: BTreeMap<WireSlotId, WireSlotId>,
     optinvs: BTreeMap<WireSlotId, WireSlotId>,
     pub is_mirror_square: bool,
     allow_mux_to_branch: bool,
-    main_passes: DirMap<EntityPartVec<WireSlotId, WireSlotId>>,
+    main_passes: EnumMap<Dir, EntityPartVec<WireSlotId, WireSlotId>>,
     int_types: Vec<IntType>,
     injected_int_types: Vec<rawdump::TileKindId>,
     stub_outs: HashSet<String>,
@@ -80,7 +80,7 @@ pub struct IntBuilder<'rd> {
 
 impl<'rd> IntBuilder<'rd> {
     pub fn new(rd: &'rd Part, db: IntDb) -> Self {
-        let term_slots = DirMap::from_fn(|dir| match dir {
+        let term_slots = EnumMap::from_fn(|dir| match dir {
             Dir::W => db.conn_slots.get("W").unwrap().0,
             Dir::E => db.conn_slots.get("E").unwrap().0,
             Dir::S => db.conn_slots.get("S").unwrap().0,
@@ -515,7 +515,7 @@ impl<'rd> IntBuilder<'rd> {
             .copied()
     }
 
-    pub fn inject_main_passes(&mut self, passes: DirMap<ConnectorClassId>) {
+    pub fn inject_main_passes(&mut self, passes: EnumMap<Dir, ConnectorClassId>) {
         for (dir, ccid) in passes {
             for (wt, &wf) in &self.db.conn_classes[ccid].wires {
                 if let ConnectorWire::Pass(wf) = wf {

@@ -1,6 +1,6 @@
 use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
-    dir::{Dir, DirH, DirHV},
+    dir::{Dir, DirH, DirHV, DirV},
     grid::{ColIdExt, DieIdExt},
 };
 
@@ -50,7 +50,7 @@ impl Expander<'_, '_> {
         }
         for cell in self.egrid.row(self.die, self.chip.row_s()) {
             self.egrid.add_tile_single(cell, tcls::INT_IO_S);
-            match self.chip.columns[cell.col].io_s {
+            match self.chip.columns[cell.col].io[DirV::S] {
                 IoGroupKind::Quad => {
                     self.egrid.add_tile_e(cell, tcls::IO_S4, 4);
                 }
@@ -66,7 +66,7 @@ impl Expander<'_, '_> {
         }
         for cell in self.egrid.row(self.die, self.chip.row_n()) {
             self.egrid.add_tile_single(cell, tcls::INT_IO_N);
-            if self.chip.columns[cell.col].io_n == IoGroupKind::Mipi {
+            if self.chip.columns[cell.col].io[DirV::N] == IoGroupKind::Mipi {
                 let mut tcells = cell.cells_e(24);
                 let side = cell.col.side_of(self.chip.col_clk);
                 tcells.extend([
@@ -112,7 +112,7 @@ impl Expander<'_, '_> {
             self.chip.get_io_cell(SpecialIoKey::Clock(Dir::S, 5)),
         ]);
         for (col, cd) in &self.chip.columns {
-            if cd.io_n == IoGroupKind::Mipi {
+            if cd.io[DirV::N] == IoGroupKind::Mipi {
                 tcells.push(cell.with_col(col));
             }
         }

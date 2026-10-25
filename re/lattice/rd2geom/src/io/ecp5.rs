@@ -754,7 +754,7 @@ impl ChipContext<'_> {
             self.chip
                 .columns
                 .ids()
-                .filter(|&col| self.chip.columns[col].io_s == IoGroupKind::Serdes),
+                .filter(|&col| self.chip.columns[col].io[DirV::S] == IoGroupKind::Serdes),
         );
 
         {

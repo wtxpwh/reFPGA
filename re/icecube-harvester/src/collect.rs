@@ -284,7 +284,7 @@ pub fn collect(
             collector.collect_bel_attr(tcid, bel, defs::bcls::LC::MUX_CI);
         }
     }
-    if !edev.chip.cols_bram.is_empty() {
+    if edev.chip.cols_bram.is_some() {
         let tcid = edev.chip.kind.tile_class_bram();
         let bel = defs::bslots::BRAM;
         collector.collect_bel_attr(tcid, bel, defs::bcls::BRAM::INIT);

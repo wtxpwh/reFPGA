@@ -5,12 +5,13 @@ use prjcombine_interconnect::{
     db::{
         Bel, BelInfo, BelInput, IntDb, Mux, SwitchBox, SwitchBoxItem, TileWireCoord, WireSlotIdExt,
     },
-    dir::{Dir, DirMap},
+    dir::Dir,
 };
 use prjcombine_re_xilinx_naming::db::{
     BelNaming, BelPinNaming, NamingDb, RawTileId, TileClassNaming, WireNaming,
 };
 use prjcombine_re_xilinx_rawdump::{Coord, Part};
+use prjcombine_types::enumerable::EnumMap;
 use prjcombine_virtex2::{
     chip::ChipKind,
     defs::{self, bcls, bslots, ccls, tcls, wires},
@@ -27,7 +28,7 @@ pub fn make_int_db(rd: &Part) -> (IntDb, NamingDb) {
             .0,
     );
 
-    builder.inject_main_passes(DirMap::from_fn(|dir| match dir {
+    builder.inject_main_passes(EnumMap::from_fn(|dir| match dir {
         Dir::W => {
             if rd.family == "fpgacore" {
                 ccls::PASS_W_FC

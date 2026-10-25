@@ -6,6 +6,7 @@ use prjcombine_interconnect::{
 };
 use prjcombine_re_xilinx_naming_versal::DeviceNaming;
 use prjcombine_re_xilinx_rawdump::{Coord, NodeOrWire, Part, Tile, TkSiteSlot};
+use prjcombine_types::enumerable::EnumMap;
 use prjcombine_versal::{
     chip::{
         AiArray, AiColumn, AiKind, BramKind, Chip, CleKind, Column, ColumnKind, DisabledPart,
@@ -169,8 +170,7 @@ fn make_columns(
     let mut res: EntityVec<ColId, Column> = (0..int.num_cols())
         .map(|_| Column {
             kind: ColumnKind::None,
-            has_bli_s: false,
-            has_bli_n: false,
+            has_bli: EnumMap::from_fn(|_| false),
         })
         .collect();
 
@@ -274,7 +274,7 @@ fn make_columns(
         "BLI_BRAM_ROCF_TR_TILE",
     ]) {
         let c = int.lookup_column_inter(c);
-        res[c - 1].has_bli_n = true;
+        res[c - 1].has_bli[DirV::N] = true;
     }
     for c in int.find_columns(&[
         "BLI_CLE_TOP_CORE_MY",
@@ -285,7 +285,7 @@ fn make_columns(
         "BLI_URAM_ROCF_TL_TILE",
     ]) {
         let c = int.lookup_column_inter(c);
-        res[c].has_bli_n = true;
+        res[c].has_bli[DirV::N] = true;
     }
     for c in int.find_columns(&[
         "BLI_CLE_BOT_CORE",
@@ -293,7 +293,7 @@ fn make_columns(
         "BLI_BRAM_ROCF_BR_TILE",
     ]) {
         let c = int.lookup_column_inter(c);
-        res[c - 1].has_bli_s = true;
+        res[c - 1].has_bli[DirV::S] = true;
     }
     for c in int.find_columns(&[
         "BLI_CLE_BOT_CORE_MY",
@@ -302,7 +302,7 @@ fn make_columns(
         "BLI_URAM_ROCF_BL_TILE",
     ]) {
         let c = int.lookup_column_inter(c);
-        res[c].has_bli_s = true;
+        res[c].has_bli[DirV::S] = true;
     }
 
     let col_cfrm = int.lookup_column_inter(
@@ -3945,8 +3945,10 @@ fn get_chip(
         unreachable!()
     };
     assert_eq!(int.int.rows.len() % 48, 0);
-    let regs_gt_w = get_rows_gt_w(int);
-    let regs_gt_e = get_rows_gt_e(int);
+    let regs_gt = EnumMap::from_fn(|edge| match edge {
+        DirH::W => get_rows_gt_w(int),
+        DirH::E => get_rows_gt_e(int),
+    });
     let fabric = get_fabric(int.int.rd);
     let cols_vnoc = Vec::from_iter(
         columns
@@ -3961,8 +3963,7 @@ fn get_chip(
         cols_cpipe: get_cols_cpipe(int),
         cols_hard,
         regs: int.int.rows.len() / 48,
-        regs_gt_w,
-        regs_gt_e,
+        regs_gt,
         fabric,
         ps,
         hsr_n: noc_n,
@@ -4119,8 +4120,8 @@ pub fn make_chips(
         }
         for reg in [0, 1, 6] {
             let reg = RegId::from_idx(reg);
-            assert_eq!(chips[s0].regs_gt_e[reg], GtRowKind::None);
-            chips[s0].regs_gt_e[reg] = GtRowKind::Gty;
+            assert_eq!(chips[s0].regs_gt[DirH::E][reg], GtRowKind::None);
+            chips[s0].regs_gt[DirH::E][reg] = GtRowKind::Gty;
             disabled.insert(DisabledPart::GtE(s0, reg));
         }
     }
@@ -4131,8 +4132,7 @@ pub fn make_chips(
         while chips[s0].columns.len() != 122 {
             chips[s0].columns.push(Column {
                 kind: ColumnKind::None,
-                has_bli_s: false,
-                has_bli_n: false,
+                has_bli: EnumMap::from_fn(|_| false),
             });
         }
         for i in [
@@ -4141,19 +4141,19 @@ pub fn make_chips(
             let col = ColId::from_idx(i);
             chips[s0].columns[col].kind = ColumnKind::Cle(CleKind::Plain);
             chips[s0].columns[col + 1].kind = ColumnKind::Cle(CleKind::Plain);
-            chips[s0].columns[col].has_bli_s = true;
-            chips[s0].columns[col].has_bli_n = true;
-            chips[s0].columns[col + 1].has_bli_s = true;
-            chips[s0].columns[col + 1].has_bli_n = true;
+            chips[s0].columns[col].has_bli[DirV::S] = true;
+            chips[s0].columns[col].has_bli[DirV::N] = true;
+            chips[s0].columns[col + 1].has_bli[DirV::S] = true;
+            chips[s0].columns[col + 1].has_bli[DirV::N] = true;
         }
         for i in [79, 109] {
             let col = ColId::from_idx(i);
             chips[s0].columns[col].kind = ColumnKind::Dsp;
             chips[s0].columns[col + 1].kind = ColumnKind::ContDsp;
-            chips[s0].columns[col].has_bli_s = true;
-            chips[s0].columns[col].has_bli_n = true;
-            chips[s0].columns[col + 1].has_bli_s = true;
-            chips[s0].columns[col + 1].has_bli_n = true;
+            chips[s0].columns[col].has_bli[DirV::S] = true;
+            chips[s0].columns[col].has_bli[DirV::N] = true;
+            chips[s0].columns[col + 1].has_bli[DirV::S] = true;
+            chips[s0].columns[col + 1].has_bli[DirV::N] = true;
         }
         for i in [72, 86, 116] {
             let col = ColId::from_idx(i);
@@ -4165,8 +4165,8 @@ pub fn make_chips(
         }
         let col = ColId::from_idx(100);
         chips[s0].columns[col].kind = ColumnKind::Uram;
-        chips[s0].columns[col].has_bli_n = true;
-        chips[s0].columns[col - 1].has_bli_n = true;
+        chips[s0].columns[col].has_bli[DirV::N] = true;
+        chips[s0].columns[col - 1].has_bli[DirV::N] = true;
         let col = ColId::from_idx(93);
         chips[s0].columns[col].kind = ColumnKind::VNoc;
         chips[s0].columns[col + 1].kind = ColumnKind::VNoc;
@@ -4194,12 +4194,12 @@ pub fn make_chips(
         let col_hard_r = &mut chips[s0].cols_hard[1];
         col_hard_r.regs[RegId::from_idx(8)] = HardRowKind::Ilkn;
         col_hard_r.regs[RegId::from_idx(10)] = HardRowKind::Mrmac;
-        chips[s0].regs_gt_w[RegId::from_idx(8)] = GtRowKind::Gtm;
-        chips[s0].regs_gt_w[RegId::from_idx(9)] = GtRowKind::Gtm;
-        chips[s0].regs_gt_w[RegId::from_idx(10)] = GtRowKind::Gtm;
-        chips[s0].regs_gt_e[RegId::from_idx(8)] = GtRowKind::Gtm;
-        chips[s0].regs_gt_e[RegId::from_idx(9)] = GtRowKind::Gtm;
-        chips[s0].regs_gt_e[RegId::from_idx(10)] = GtRowKind::Gtm;
+        chips[s0].regs_gt[DirH::W][RegId::from_idx(8)] = GtRowKind::Gtm;
+        chips[s0].regs_gt[DirH::W][RegId::from_idx(9)] = GtRowKind::Gtm;
+        chips[s0].regs_gt[DirH::W][RegId::from_idx(10)] = GtRowKind::Gtm;
+        chips[s0].regs_gt[DirH::E][RegId::from_idx(8)] = GtRowKind::Gtm;
+        chips[s0].regs_gt[DirH::E][RegId::from_idx(9)] = GtRowKind::Gtm;
+        chips[s0].regs_gt[DirH::E][RegId::from_idx(10)] = GtRowKind::Gtm;
     }
     if rd.part.contains("vp1102") {
         let s0 = DieId::from_idx(0);
@@ -4218,14 +4218,14 @@ pub fn make_chips(
         let col_hard_r = &mut chips[s0].cols_hard[2];
         col_hard_r.regs[RegId::from_idx(10)] = HardRowKind::Dcmac;
         col_hard_r.regs[RegId::from_idx(12)] = HardRowKind::Dcmac;
-        chips[s0].regs_gt_w[RegId::from_idx(10)] = GtRowKind::Gtm;
-        chips[s0].regs_gt_w[RegId::from_idx(11)] = GtRowKind::Gtm;
-        chips[s0].regs_gt_w[RegId::from_idx(12)] = GtRowKind::Gtm;
-        chips[s0].regs_gt_w[RegId::from_idx(13)] = GtRowKind::Gtm;
-        chips[s0].regs_gt_e[RegId::from_idx(10)] = GtRowKind::Gtm;
-        chips[s0].regs_gt_e[RegId::from_idx(11)] = GtRowKind::Gtm;
-        chips[s0].regs_gt_e[RegId::from_idx(12)] = GtRowKind::Gtm;
-        chips[s0].regs_gt_e[RegId::from_idx(13)] = GtRowKind::Gtm;
+        chips[s0].regs_gt[DirH::W][RegId::from_idx(10)] = GtRowKind::Gtm;
+        chips[s0].regs_gt[DirH::W][RegId::from_idx(11)] = GtRowKind::Gtm;
+        chips[s0].regs_gt[DirH::W][RegId::from_idx(12)] = GtRowKind::Gtm;
+        chips[s0].regs_gt[DirH::W][RegId::from_idx(13)] = GtRowKind::Gtm;
+        chips[s0].regs_gt[DirH::E][RegId::from_idx(10)] = GtRowKind::Gtm;
+        chips[s0].regs_gt[DirH::E][RegId::from_idx(11)] = GtRowKind::Gtm;
+        chips[s0].regs_gt[DirH::E][RegId::from_idx(12)] = GtRowKind::Gtm;
+        chips[s0].regs_gt[DirH::E][RegId::from_idx(13)] = GtRowKind::Gtm;
     }
     dev_naming.has_dsp_v2 = rd.wires.contains("DSP_DSP58_4_CLK");
     let interposer = Interposer {

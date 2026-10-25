@@ -1,5 +1,8 @@
 use prjcombine_entity::{EntityId, EntityVec};
-use prjcombine_interconnect::grid::{CellCoord, ColId, DieId, RowId};
+use prjcombine_interconnect::{
+    dir::DirH,
+    grid::{CellCoord, ColId, DieId, RowId},
+};
 use prjcombine_re_xilinx_naming::{db::NamingDb, grid::ExpandedGridNaming};
 use prjcombine_virtex4::{
     chip::{Chip, ColumnKind, DisabledPart},
@@ -154,7 +157,7 @@ pub fn name_device<'a>(edev: &'a ExpandedDevice<'a>, ndb: &'a NamingDb) -> Expan
             tcls::HCLK => {
                 let mut naming = "HCLK";
                 let mut name = format!("HCLK_X{x}Y{y}", y = y - 1);
-                if col == chip.cols_qbuf.unwrap().0 || col == chip.cols_qbuf.unwrap().1 {
+                if chip.cols_qbuf.unwrap().into_values().any(|c| c == col) {
                     naming = "HCLK_QBUF";
                     name = format!("HCLK_QBUF_X{x}Y{y}", y = y - 1);
                 }
@@ -301,9 +304,9 @@ pub fn name_device<'a>(edev: &'a ExpandedDevice<'a>, ndb: &'a NamingDb) -> Expan
                     "CMT.TOP"
                 };
                 let bt = if row < chip.row_bufg() { "BOT" } else { "TOP" };
-                let (xw, xe) = chip.cols_qbuf.unwrap();
-                let xw = xw.to_idx();
-                let xe = xe.to_idx();
+                let cols_qbuf = chip.cols_qbuf.unwrap();
+                let xw = cols_qbuf[DirH::W].to_idx();
+                let xe = cols_qbuf[DirH::E].to_idx();
                 let ntile = namer.ngrid.name_tile(
                     tcrd,
                     naming,

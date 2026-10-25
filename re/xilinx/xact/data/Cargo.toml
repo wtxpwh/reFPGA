@@ -9,6 +9,7 @@ ndarray.workspace = true
 regex.workspace = true
 clap.workspace = true
 prjcombine-entity.workspace = true
+prjcombine-types.workspace = true
 prjcombine-interconnect.workspace = true
 
 [lints]

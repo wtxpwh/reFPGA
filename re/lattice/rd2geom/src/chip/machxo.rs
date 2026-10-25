@@ -6,7 +6,7 @@ use prjcombine_ecp::{
 };
 use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
-    dir::{Dir, DirH, DirHV},
+    dir::{Dir, DirH, DirHV, DirV},
     grid::{ColId, ColIdExt, DieIdExt, RowId, RowIdExt},
 };
 
@@ -103,16 +103,16 @@ impl ChipBuilder<'_> {
             ("PIC6_T", IoGroupKind::Hex),
         ]);
         if self.chip.rows.len() == 21 {
-            self.chip.columns[ColId::from_idx(3)].io_n = IoGroupKind::HexReverse;
-            self.chip.columns[ColId::from_idx(5)].io_n = IoGroupKind::HexReverse;
-            self.chip.columns[ColId::from_idx(9)].io_s = IoGroupKind::HexReverse;
+            self.chip.columns[ColId::from_idx(3)].io[DirV::N] = IoGroupKind::HexReverse;
+            self.chip.columns[ColId::from_idx(5)].io[DirV::N] = IoGroupKind::HexReverse;
+            self.chip.columns[ColId::from_idx(9)].io[DirV::S] = IoGroupKind::HexReverse;
         }
     }
 
     pub(super) fn fill_io_banks_machxo(&mut self) {
         let num_rows = self.chip.rows.len();
         for (row, rd) in &mut self.chip.rows {
-            if rd.io_w == IoGroupKind::None {
+            if rd.io[DirH::W] == IoGroupKind::None {
                 continue;
             }
             let (bank_w, bank_e) = match num_rows {
@@ -134,11 +134,11 @@ impl ChipBuilder<'_> {
                 }
                 _ => unreachable!(),
             };
-            rd.bank_w = Some(bank_w);
-            rd.bank_e = Some(bank_e);
+            rd.bank.insert(DirH::W, bank_w);
+            rd.bank.insert(DirH::E, bank_e);
         }
         for (col, cd) in &mut self.chip.columns {
-            if cd.io_s == IoGroupKind::None {
+            if cd.io[DirV::S] == IoGroupKind::None {
                 continue;
             }
             let (bank_s, bank_n) = match num_rows {
@@ -153,8 +153,8 @@ impl ChipBuilder<'_> {
                 }
                 _ => unreachable!(),
             };
-            cd.bank_s = Some(bank_s);
-            cd.bank_n = Some(bank_n);
+            cd.bank.insert(DirV::S, bank_s);
+            cd.bank.insert(DirV::N, bank_n);
         }
     }
 

@@ -2,7 +2,7 @@ use std::collections::{BTreeMap, btree_map};
 
 use prjcombine_interconnect::{
     db::{BelInput, CellSlotId, ConnectorWire, IntDb, TileWireCoord, WireSlotId, WireSlotIdExt},
-    dir::{Dir, DirMap, DirV},
+    dir::{Dir, DirV},
 };
 use prjcombine_re_xilinx_rawdump::{Coord, Part};
 
@@ -14,6 +14,7 @@ use prjcombine_re_xilinx_rd2db_interconnect::{
     bel::{TempBel, TempBelPin},
     tile::{XTileInfo, XTileRef},
 };
+use prjcombine_types::enumerable::EnumMap;
 use prjcombine_ultrascale::defs::{
     self, bslots, ccls, tcls, ultrascaleplus::wires, wiredata::ultrascaleplus as wiredata,
 };
@@ -74,7 +75,7 @@ struct IntMaker<'a> {
 
 impl IntMaker<'_> {
     fn fill_wires_long(&mut self) {
-        let d2n = DirMap::from_fn(|dir| match dir {
+        let d2n = EnumMap::from_fn(|dir| match dir {
             Dir::N => 0,
             Dir::S => 1,
             Dir::E => 2,
@@ -171,7 +172,7 @@ impl IntMaker<'_> {
     }
 
     fn fill_wires_sdq(&mut self) {
-        let d2n = DirMap::from_fn(|dir| match dir {
+        let d2n = EnumMap::from_fn(|dir| match dir {
             Dir::N => 0,
             Dir::S => 1,
             Dir::E => 2,
@@ -5591,7 +5592,7 @@ pub fn make_int_db(rd: &Part, dev_naming: &DeviceNaming) -> (IntDb, NamingDb) {
 
     maker
         .builder
-        .inject_main_passes(DirMap::from_fn(|dir| match dir {
+        .inject_main_passes(EnumMap::from_fn(|dir| match dir {
             Dir::W => ccls::PASS_W,
             Dir::E => ccls::PASS_E,
             Dir::S => ccls::PASS_S,

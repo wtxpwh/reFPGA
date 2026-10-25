@@ -1,4 +1,5 @@
 use prjcombine_entity::{EntityId, EntityVec};
+use prjcombine_interconnect::dir::{DirH, DirV};
 use prjcombine_interconnect::grid::{DieId, DieIdExt};
 use prjcombine_spartan6::chip::{ColumnIoKind, ColumnKind, Gts};
 use prjcombine_spartan6::expanded::ExpandedDevice;
@@ -85,7 +86,7 @@ pub fn draw_device(name: &str, edev: ExpandedDevice) -> Drawer {
                     }
                     drawer.bel_rect(col_x[col].0, col_x[col].1, row_y[row].0, row_y[row].1, kind);
                 }
-                if cd.io_s != ColumnIoKind::None {
+                if cd.io[DirV::S] != ColumnIoKind::None {
                     for row in [edev.chip.row_s(), edev.chip.row_s_inner()] {
                         drawer.bel_rect(
                             col_x[col].0,
@@ -96,7 +97,7 @@ pub fn draw_device(name: &str, edev: ExpandedDevice) -> Drawer {
                         )
                     }
                     let row = edev.chip.row_s();
-                    if cd.io_s != ColumnIoKind::Inner {
+                    if cd.io[DirV::S] != ColumnIoKind::Inner {
                         drawer.bel_rect(
                             col_x[col].0 + W_CLB / 2.,
                             col_x[col].1,
@@ -105,7 +106,7 @@ pub fn draw_device(name: &str, edev: ExpandedDevice) -> Drawer {
                             "iob",
                         );
                     }
-                    if cd.io_s != ColumnIoKind::Outer {
+                    if cd.io[DirV::S] != ColumnIoKind::Outer {
                         drawer.bel_rect(
                             col_x[col].0,
                             col_x[col].0 + W_CLB / 2.,
@@ -115,7 +116,7 @@ pub fn draw_device(name: &str, edev: ExpandedDevice) -> Drawer {
                         );
                     }
                 }
-                if cd.io_n != ColumnIoKind::None {
+                if cd.io[DirV::N] != ColumnIoKind::None {
                     for row in [edev.chip.row_n(), edev.chip.row_n_inner()] {
                         drawer.bel_rect(
                             col_x[col].0,
@@ -126,7 +127,7 @@ pub fn draw_device(name: &str, edev: ExpandedDevice) -> Drawer {
                         )
                     }
                     let row = edev.chip.row_n();
-                    if cd.io_s != ColumnIoKind::Inner {
+                    if cd.io[DirV::S] != ColumnIoKind::Inner {
                         drawer.bel_rect(
                             col_x[col].0,
                             col_x[col].0 + W_CLB / 2.,
@@ -135,7 +136,7 @@ pub fn draw_device(name: &str, edev: ExpandedDevice) -> Drawer {
                             "iob",
                         );
                     }
-                    if cd.io_s != ColumnIoKind::Outer {
+                    if cd.io[DirV::S] != ColumnIoKind::Outer {
                         drawer.bel_rect(
                             col_x[col].0 + W_CLB / 2.,
                             col_x[col].1,
@@ -167,8 +168,8 @@ pub fn draw_device(name: &str, edev: ExpandedDevice) -> Drawer {
             }
             ColumnKind::Io => {
                 for (row, rd) in &edev.chip.rows {
-                    if (col == edev.chip.col_w() && rd.io_w)
-                        || (col == edev.chip.col_e() && rd.io_e)
+                    if (col == edev.chip.col_w() && rd.io[DirH::W])
+                        || (col == edev.chip.col_e() && rd.io[DirH::E])
                     {
                         drawer.bel_rect(
                             col_x[col].0,

@@ -10,8 +10,8 @@ use prjcombine_re_fpga_hammer::{FuzzerFeature, FuzzerProp};
 use prjcombine_re_hammer::{Fuzzer, Session};
 use prjcombine_re_xilinx_geom::{Bitstream, ExpandedBond, ExpandedDevice, ExpandedNamedDevice};
 use prjcombine_types::{
-    bitrect::BitRect as _,
-    bitrect::{BitRectId, RectBitId, RectFrameId, TileBit},
+    Polarity,
+    bitrect::{BitRect as _, BitRectId, RectBitId, RectFrameId, TileBit},
     bits,
     bitvec::BitVec,
 };
@@ -746,16 +746,17 @@ pub fn add_fuzzers<'a>(
                 let mut coords = HashSet::new();
                 let other_bank = if bank == 4 { 5 } else { 4 };
                 let mut io_vr = None;
-                if let Some(&(vrp, vrn)) = edev.chip.dci_io.get(&bank)
-                    && ebond.ios.contains_key(&vrp)
-                    && ebond.ios.contains_key(&vrn)
+                if let Some(&vr) = edev.chip.dci_io.get(&bank)
+                    && vr.into_values().all(|vr| ebond.ios.contains_key(&vr))
                 {
-                    io_vr = Some((vrp, vrn));
+                    io_vr = Some(vr);
                 }
                 if io_vr.is_none() {
                     io_vr = Some(edev.chip.dci_io_alt[&bank]);
                 }
-                let (io_vrp, io_vrn) = io_vr.unwrap();
+                let io_vr = io_vr.unwrap();
+                let io_vrp = io_vr[Polarity::P];
+                let io_vrn = io_vr[Polarity::N];
                 let site_vrp = endev.ngrid.get_bel_name(io_vrp.bel).unwrap();
                 let site_vrn = endev.ngrid.get_bel_name(io_vrn.bel).unwrap();
                 for io in edev.chip.get_bonded_ios().into_iter().rev() {
@@ -898,7 +899,8 @@ pub fn add_fuzzers<'a>(
                         .raw_diff(Key::SitePin(site, "O1".into()), None, true)
                         .commit();
                 } else if bank == 5 && edev.chip.dci_io_alt.contains_key(&5) {
-                    let (io_alt_vrp, io_alt_vrn) = edev.chip.dci_io_alt[&5];
+                    let io_alt_vrp = edev.chip.dci_io_alt[&5][Polarity::P];
+                    let io_alt_vrn = edev.chip.dci_io_alt[&5][Polarity::N];
                     let site_alt_vrp = endev.ngrid.get_bel_name(io_alt_vrp.bel).unwrap();
                     let site_alt_vrn = endev.ngrid.get_bel_name(io_alt_vrn.bel).unwrap();
                     let mut builder = bctx

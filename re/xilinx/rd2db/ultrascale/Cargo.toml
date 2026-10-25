@@ -6,6 +6,7 @@ edition.workspace = true
 [dependencies]
 bincode.workspace = true
 prjcombine-entity.workspace = true
+prjcombine-types.workspace = true
 prjcombine-interconnect.workspace = true
 prjcombine-ultrascale.workspace = true
 prjcombine-re-xilinx-rawdump.workspace = true

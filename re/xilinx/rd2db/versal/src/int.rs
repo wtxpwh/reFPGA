@@ -1,9 +1,10 @@
 use prjcombine_entity::EntityId;
 use prjcombine_interconnect::db::{BelSlotId, CellSlotId, IntDb, TileWireCoord, WireSlotId};
-use prjcombine_interconnect::dir::{Dir, DirH, DirMap};
+use prjcombine_interconnect::dir::{Dir, DirH};
 use prjcombine_re_xilinx_naming::db::NamingDb;
 use prjcombine_re_xilinx_naming_versal::DeviceNaming;
 use prjcombine_re_xilinx_rawdump::{Coord, NodeOrWire, Part};
+use prjcombine_types::enumerable::EnumMap;
 use prjcombine_versal::defs::{self, ccls};
 use std::collections::BTreeMap;
 
@@ -152,7 +153,7 @@ pub fn make_int_db(rd: &Part, dev_naming: &DeviceNaming) -> (IntDb, NamingDb) {
 
     maker
         .builder
-        .inject_main_passes(DirMap::from_fn(|dir| match dir {
+        .inject_main_passes(EnumMap::from_fn(|dir| match dir {
             Dir::W => ccls::PASS_W,
             Dir::E => ccls::PASS_E,
             Dir::S => ccls::PASS_S,

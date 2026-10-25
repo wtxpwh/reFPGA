@@ -20,7 +20,7 @@ use prjcombine_interconnect::{
         BelAttribute, BelInfo, CellSlotId, IntDb, Mux, ProgBuf, ProgInv, SwitchBox, SwitchBoxItem,
         TileClass, TileClassId, TileWireCoord, WireSlotIdExt,
     },
-    dir::{Dir, DirH, DirPartMap, DirV},
+    dir::{Dir, DirH, DirV},
     grid::{BelCoord, CellCoord, ColId, DieId, DieIdExt, RowId, WireCoord},
 };
 use prjcombine_re_collector::diff::DiffKey;
@@ -36,6 +36,7 @@ use prjcombine_siliconblue::{
 use prjcombine_types::{
     bimap::BiMap,
     bitrect::{BitRectId, PolTileBit, TileBit},
+    enumerable::{EnumMap, EnumPartMap},
     speed::Speed,
 };
 use rand::RngExt;
@@ -195,7 +196,7 @@ impl HarvestContext<'_> {
             {
                 continue;
             }
-            if self.edev.chip.cols_bram.contains(&col) {
+            if self.edev.chip.is_col_bram(col) {
                 continue;
             }
             for cell in self.edev.column(DieId::from_idx(0), col) {
@@ -205,9 +206,7 @@ impl HarvestContext<'_> {
                 }
                 let row_colbuf = self.gencfg.rows_colbuf[row];
                 let trow = if row < row_colbuf {
-                    if self.edev.chip.cols_bram.contains(&col)
-                        && !self.edev.chip.kind.has_ice40_bramv2()
-                    {
+                    if self.edev.chip.is_col_bram(col) && !self.edev.chip.kind.has_ice40_bramv2() {
                         row_colbuf - 2
                     } else {
                         row_colbuf - 1
@@ -771,7 +770,16 @@ impl PartContext<'_> {
 
             first = false;
         }
-        self.chip.cols_bram = Vec::from_iter(cols_bram);
+        if !cols_bram.is_empty() {
+            let cols_bram = Vec::from_iter(cols_bram);
+            assert_eq!(cols_bram.len(), 2);
+            self.chip.cols_bram = Some(EnumMap::from_fn(|edge| {
+                cols_bram[match edge {
+                    DirH::W => 0,
+                    DirH::E => 1,
+                }]
+            }));
+        }
     }
 
     fn fill_cfg_io(&mut self) {
@@ -1414,7 +1422,7 @@ impl PartContext<'_> {
                     .count()
             })
             .unwrap();
-        let mut pkg_pins = DirPartMap::new();
+        let mut pkg_pins = EnumPartMap::new();
         for (pin, pads) in &pkg_info.bond.pins {
             if pads.is_empty() {
                 continue;
@@ -2565,7 +2573,7 @@ fn main() {
             chip: Chip {
                 kind,
                 columns: 0,
-                cols_bram: vec![],
+                cols_bram: None,
                 col_bio_split: ColId::from_idx(0),
                 rows: 0,
                 row_mid: RowId::from_idx(0),

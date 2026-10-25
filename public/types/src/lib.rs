@@ -6,6 +6,7 @@ pub mod bitvec;
 pub mod bscan;
 pub mod cpld;
 pub mod db;
+pub mod enumerable;
 pub mod speed;
 pub mod units;
 
@@ -34,3 +35,16 @@ impl std::ops::Not for Polarity {
         }
     }
 }
+
+impl enumerable::Enumerable for Polarity {
+    type Array<T> = [T; 2];
+    const VALUES: [Polarity; 2] = [Polarity::P, Polarity::N];
+
+    fn to_enum_idx(self) -> usize {
+        match self {
+            Polarity::P => 0,
+            Polarity::N => 1,
+        }
+    }
+}
+
