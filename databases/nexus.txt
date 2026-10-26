@@ -1763,7 +1763,7 @@ bond BOND0 {
 	pin 35 = VCCINT;
 	pin 36 = IOB_S69_0;
 	pin 37 = IOB_S69_1;
-	pin 38 = VCCPLL_SE;
+	pin 38 = ADC_VCC;
 	pin 39 = ADC_VCC18;
 	pin 40 = VCCINT;
 	pin 41 = IOB_E19_0;
@@ -6156,7 +6156,7 @@ bond BOND20 {
 	pin T15 = ADC_REFP1;
 	pin T16 = GND;
 	pin PT45B_CS = IOB_N44_1;
-	pin PT46A_DI = DI;
+	pin PT46A_DI = IOB_N45_0;
 	pin PT46B_DO = IOB_N45_1;
 	pin PT48A_WP = IOB_N47_0;
 	pin PT45A_CLK = IOB_N44_0;
@@ -6540,7 +6540,7 @@ bond BOND21 {
 	pin Y19 = ADC_DN1;
 	pin Y20 = GND;
 	pin PT45B_CS = IOB_N44_1;
-	pin PT46A_DI = DI;
+	pin PT46A_DI = IOB_N45_0;
 	pin PT46B_DO = IOB_N45_1;
 	pin PT48A_WP = IOB_N47_0;
 	pin PT45A_CLK = IOB_N44_0;

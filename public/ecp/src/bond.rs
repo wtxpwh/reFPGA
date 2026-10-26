@@ -186,6 +186,7 @@ impl std::fmt::Display for MipiPad {
 pub enum AdcPad {
     D(Polarity, u8),
     RefP(u8),
+    Vcc,
     Vcc18,
     Vss,
 }
@@ -195,6 +196,7 @@ impl std::fmt::Display for AdcPad {
         match self {
             AdcPad::D(pol, i) => write!(f, "D{pol}{i}"),
             AdcPad::RefP(i) => write!(f, "REFP{i}"),
+            AdcPad::Vcc => write!(f, "VCC"),
             AdcPad::Vcc18 => write!(f, "VCC18"),
             AdcPad::Vss => write!(f, "VSS"),
         }

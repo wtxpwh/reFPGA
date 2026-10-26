@@ -796,7 +796,7 @@ bond BOND0 {
 	pin 15 = IOB_W10_0;
 	pin 16 = IOB_W10_1;
 	pin 17 = VCCPLL_W;
-	pin 18 = VCCPLL_W;
+	pin 18 = GNDPLL_W;
 	pin 19 = IOB_W7_0;
 	pin 20 = IOB_W7_1;
 	pin 21 = GND;
@@ -837,7 +837,7 @@ bond BOND0 {
 	pin 56 = IOB_E6_1;
 	pin 57 = IOB_E6_0;
 	pin 58 = VCCIO3;
-	pin 59 = VCCPLL_E;
+	pin 59 = GNDPLL_E;
 	pin 60 = VCCPLL_E;
 	pin 61 = IOB_E10_1;
 	pin 62 = IOB_E10_0;
@@ -903,7 +903,7 @@ bond BOND1 {
 	pin 17 = IOB_W10_0;
 	pin 18 = IOB_W10_1;
 	pin 19 = VCCPLL_W;
-	pin 20 = VCCPLL_W;
+	pin 20 = GNDPLL_W;
 	pin 21 = VCCIO6;
 	pin 22 = IOB_W8_0;
 	pin 23 = IOB_W8_1;
@@ -973,7 +973,7 @@ bond BOND1 {
 	pin 87 = IOB_E8_1;
 	pin 88 = VCCIO3;
 	pin 89 = IOB_E8_0;
-	pin 90 = VCCPLL_E;
+	pin 90 = GNDPLL_E;
 	pin 91 = VCCPLL_E;
 	pin 92 = IOB_E10_1;
 	pin 93 = IOB_E10_0;
@@ -1058,7 +1058,7 @@ bond BOND2 {
 	pin 23 = VCCIO7;
 	pin 24 = IOB_W10_1;
 	pin 25 = VCCPLL_W;
-	pin 26 = VCCPLL_W;
+	pin 26 = GNDPLL_W;
 	pin 27 = NC;
 	pin 28 = VCCIO6;
 	pin 29 = IOB_W8_0;
@@ -1159,7 +1159,7 @@ bond BOND2 {
 	pin 124 = IOB_E8_1;
 	pin 125 = VCCIO3;
 	pin 126 = IOB_E8_0;
-	pin 127 = VCCPLL_E;
+	pin 127 = GNDPLL_E;
 	pin 128 = VCCPLL_E;
 	pin 129 = NC;
 	pin 130 = GND;
@@ -1265,7 +1265,7 @@ bond BOND3 {
 	pin 17 = IOB_W18_0;
 	pin 18 = IOB_W18_1;
 	pin 19 = VCCPLL_W;
-	pin 20 = VCCPLL_W;
+	pin 20 = GNDPLL_W;
 	pin 21 = VCCIO6;
 	pin 22 = IOB_W11_0;
 	pin 23 = IOB_W11_1;
@@ -1335,7 +1335,7 @@ bond BOND3 {
 	pin 87 = IOB_E8_1;
 	pin 88 = VCCIO3;
 	pin 89 = IOB_E8_0;
-	pin 90 = VCCPLL_E;
+	pin 90 = GNDPLL_E;
 	pin 91 = VCCPLL_E;
 	pin 92 = IOB_E15_1;
 	pin 93 = IOB_E15_0;
@@ -1420,7 +1420,7 @@ bond BOND4 {
 	pin 23 = VCCIO7;
 	pin 24 = IOB_W18_1;
 	pin 25 = VCCPLL_W;
-	pin 26 = VCCPLL_W;
+	pin 26 = GNDPLL_W;
 	pin 27 = IOB_W12_1;
 	pin 28 = VCCIO6;
 	pin 29 = IOB_W11_0;
@@ -1521,7 +1521,7 @@ bond BOND4 {
 	pin 124 = IOB_E8_1;
 	pin 125 = VCCIO3;
 	pin 126 = IOB_E8_0;
-	pin 127 = VCCPLL_E;
+	pin 127 = GNDPLL_E;
 	pin 128 = VCCPLL_E;
 	pin 129 = IOB_E14_0;
 	pin 130 = GND;
@@ -1724,7 +1724,7 @@ bond BOND5 {
 	pin H2 = IOB_W18_1;
 	pin H3 = IOB_W14_0;
 	pin H4 = VCCPLL_W;
-	pin H5 = VCCPLL_W;
+	pin H5 = GNDPLL_W;
 	pin H6 = VCCIO7;
 	pin H7 = GND;
 	pin H8 = GND;
@@ -1748,7 +1748,7 @@ bond BOND5 {
 	pin J10 = GND;
 	pin J11 = VCCIO3;
 	pin J12 = VCCPLL_E;
-	pin J13 = VCCPLL_E;
+	pin J13 = GNDPLL_E;
 	pin J14 = IOB_E11_0;
 	pin J15 = IOB_E11_1;
 	pin J16 = IOB_E15_1;
@@ -1985,7 +1985,7 @@ bond BOND6 {
 	pin H2 = IOB_W23_1;
 	pin H3 = IOB_W18_0;
 	pin H4 = VCCPLL_W;
-	pin H5 = VCCPLL_W;
+	pin H5 = GNDPLL_W;
 	pin H6 = VCCIO7;
 	pin H7 = GND;
 	pin H8 = GND;
@@ -2009,7 +2009,7 @@ bond BOND6 {
 	pin J10 = GND;
 	pin J11 = VCCIO3;
 	pin J12 = VCCPLL_E;
-	pin J13 = VCCPLL_E;
+	pin J13 = GNDPLL_E;
 	pin J14 = IOB_E17_0;
 	pin J15 = IOB_E17_1;
 	pin J16 = IOB_E19_1;
@@ -2342,7 +2342,7 @@ bond BOND7 {
 	pin M20 = IOB_E17_1;
 	pin M21 = VCCPLL_E;
 	pin M22 = IOB_E18_1;
-	pin N1 = VCCPLL_W;
+	pin N1 = GNDPLL_W;
 	pin N2 = IOB_W16_1;
 	pin N3 = IOB_W14_0;
 	pin N4 = IOB_W13_1;
@@ -2359,7 +2359,7 @@ bond BOND7 {
 	pin N19 = IOB_E13_1;
 	pin N20 = IOB_E14_0;
 	pin N21 = IOB_E16_0;
-	pin N22 = VCCPLL_E;
+	pin N22 = GNDPLL_E;
 	pin P1 = IOB_W16_0;
 	pin P2 = IOB_W15_1;
 	pin P3 = IOB_W7_0;
@@ -2639,7 +2639,7 @@ bond BOND8 {
 	pin H2 = IOB_W27_1;
 	pin H3 = IOB_W22_0;
 	pin H4 = VCCPLL_W;
-	pin H5 = VCCPLL_W;
+	pin H5 = GNDPLL_W;
 	pin H6 = VCCIO7;
 	pin H7 = GND;
 	pin H8 = GND;
@@ -2663,7 +2663,7 @@ bond BOND8 {
 	pin J10 = GND;
 	pin J11 = VCCIO3;
 	pin J12 = VCCPLL_E;
-	pin J13 = VCCPLL_E;
+	pin J13 = GNDPLL_E;
 	pin J14 = IOB_E21_0;
 	pin J15 = IOB_E21_1;
 	pin J16 = IOB_E23_1;
@@ -2996,7 +2996,7 @@ bond BOND9 {
 	pin M20 = IOB_E21_1;
 	pin M21 = VCCPLL_E;
 	pin M22 = IOB_E22_1;
-	pin N1 = VCCPLL_W;
+	pin N1 = GNDPLL_W;
 	pin N2 = IOB_W20_1;
 	pin N3 = IOB_W18_0;
 	pin N4 = IOB_W17_1;
@@ -3013,7 +3013,7 @@ bond BOND9 {
 	pin N19 = IOB_E17_1;
 	pin N20 = IOB_E18_0;
 	pin N21 = IOB_E20_0;
-	pin N22 = VCCPLL_E;
+	pin N22 = GNDPLL_E;
 	pin P1 = IOB_W20_0;
 	pin P2 = IOB_W19_1;
 	pin P3 = IOB_W11_0;
@@ -3438,11 +3438,11 @@ bond BOND10 {
 	pin M17 = VCCIO3;
 	pin M18 = IOB_E20_0;
 	pin M19 = NC;
-	pin M20 = VCCPLL_E;
+	pin M20 = GNDPLL_E;
 	pin M21 = NC;
 	pin M22 = IOB_E22_1;
 	pin N1 = NC;
-	pin N2 = VCCPLL_W;
+	pin N2 = GNDPLL_W;
 	pin N3 = IOB_W19_0;
 	pin N4 = IOB_W19_1;
 	pin N5 = IOB_W17_1;
@@ -3782,7 +3782,7 @@ bond BOND11 {
 	pin H2 = IOB_W31_1;
 	pin H3 = IOB_W26_0;
 	pin H4 = VCCPLL_W;
-	pin H5 = VCCPLL_W;
+	pin H5 = GNDPLL_W;
 	pin H6 = VCCIO7;
 	pin H7 = GND;
 	pin H8 = GND;
@@ -3806,7 +3806,7 @@ bond BOND11 {
 	pin J10 = GND;
 	pin J11 = VCCIO3;
 	pin J12 = VCCPLL_E;
-	pin J13 = VCCPLL_E;
+	pin J13 = GNDPLL_E;
 	pin J14 = IOB_E21_0;
 	pin J15 = IOB_E21_1;
 	pin J16 = IOB_E27_1;
@@ -4139,7 +4139,7 @@ bond BOND12 {
 	pin M20 = IOB_E21_1;
 	pin M21 = VCCPLL_E;
 	pin M22 = IOB_E26_1;
-	pin N1 = VCCPLL_W;
+	pin N1 = GNDPLL_W;
 	pin N2 = IOB_W20_1;
 	pin N3 = IOB_W18_0;
 	pin N4 = IOB_W17_1;
@@ -4156,7 +4156,7 @@ bond BOND12 {
 	pin N19 = IOB_E17_1;
 	pin N20 = IOB_E18_0;
 	pin N21 = IOB_E20_0;
-	pin N22 = VCCPLL_E;
+	pin N22 = GNDPLL_E;
 	pin P1 = IOB_W20_0;
 	pin P2 = IOB_W19_1;
 	pin P3 = IOB_W11_0;
@@ -4581,11 +4581,11 @@ bond BOND13 {
 	pin M17 = VCCIO3;
 	pin M18 = IOB_E20_0;
 	pin M19 = IOB_E23_1;
-	pin M20 = VCCPLL_E;
+	pin M20 = GNDPLL_E;
 	pin M21 = IOB_E24_0;
 	pin M22 = IOB_E25_1;
 	pin N1 = IOB_W23_1;
-	pin N2 = VCCPLL_W;
+	pin N2 = GNDPLL_W;
 	pin N3 = IOB_W19_0;
 	pin N4 = IOB_W19_1;
 	pin N5 = IOB_W17_1;

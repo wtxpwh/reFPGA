@@ -1,4 +1,8 @@
-use std::{collections::BTreeMap, io::Read, path::Path};
+use std::{
+    collections::{BTreeMap, BTreeSet},
+    io::Read,
+    path::Path,
+};
 
 use arrayref::array_ref;
 use flate2::read::ZlibDecoder;
@@ -131,4 +135,71 @@ pub fn read_archive(path: &Path) -> Archive {
         );
     }
     Archive { typ, entries }
+}
+
+#[derive(Debug, Clone)]
+pub enum Value {
+    String(String),
+    #[allow(unused)]
+    Float(f64),
+    Int(i32),
+}
+
+pub struct PkgData {
+    pub pkgs: BTreeSet<String>,
+    pub pins: Vec<BTreeMap<String, Value>>,
+}
+
+pub fn parse_pkg(archive: &Archive) -> PkgData {
+    let mut reader = Reader::new(&archive.entries["pininfo_table"].data);
+    let version = reader.get_u32();
+    let _ver = reader.get_nlstring();
+    let num_lines = reader.get_u32();
+    for _ in 0..num_lines {
+        let _line = reader.get_nlstring();
+    }
+    let num_pkgs = reader.get_u32();
+    let mut pkgs = BTreeSet::new();
+    for _ in 0..num_pkgs {
+        let _unk0 = reader.get_u32();
+        let pkg = reader.get_zstring();
+        let _ = reader.get_zstring();
+        let _ = reader.get_zstring();
+        let _ = reader.get_zstring();
+        pkgs.insert(pkg);
+    }
+    let num_unk = reader.get_u32();
+    for _ in 0..num_unk {
+        let _ = reader.get_zstring();
+        let _ = reader.get_zstring();
+        let _ = reader.get_zstring();
+    }
+    if version != 0x3e8 {
+        let num_die = reader.get_u32();
+        for _ in 0..num_die {
+            let _ = reader.get_u32();
+            let _ = reader.get_zstring();
+            let _ = reader.get_zstring();
+        }
+    }
+    let num_kv = reader.get_u32() as usize;
+    let num_pins = reader.get_u32() as usize;
+    let mut pins = vec![];
+    for _ in 0..num_pins {
+        pins.push(BTreeMap::new());
+    }
+    for _ in 0..num_kv {
+        let kind = reader.get_u8();
+        let key = reader.get_zstring();
+        for i in 0..num_pins {
+            let val = match kind {
+                1 => Value::String(reader.get_zstring()),
+                2 => Value::Int(reader.get_i32()),
+                3 => Value::Float(reader.get_f64()),
+                _ => panic!("weird kind {kind}"),
+            };
+            pins[i].insert(key.clone(), val);
+        }
+    }
+    PkgData { pkgs, pins }
 }
