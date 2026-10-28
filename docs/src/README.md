@@ -198,3 +198,40 @@ The currently supported top-level CPLD targets and their corresponding crates ar
 
   - geometry, bitstream, speed data, and verification: ✅ complete
   - documentation: 👷🏼‍♀️ in progress
+
+- `prjcombine-ecp`: Lattice ECP and derived families; has many databases:
+
+  - `scm`: SC / SCM
+  - `ecp`: EC / ECP
+  - `xp`: XP
+  - `machxo`: MachXO, Platform Manager (the FPGA part)
+  - `ecp2`: ECP2
+  - `ecp2m`: ECP2M
+  - `xp2`: XP2
+  - `ecp3`: ECP3
+  - `machxo2`:
+    - MachXO2
+    - Platform Manager 2 (the FPGA part)
+    - MachXO3L
+    - MachXO3LF
+    - MachXO3LFP
+    - MachXO3D
+    - Mach-NX (the MachXO3D-derived part)
+  - `ecp4`: ECP4
+  - `ecp5`: ECP5, ECP5-5G
+  - `crosslink`: CrossLink, CrossLinkPlus
+  - `nexus`:
+    - CrossLink-NX
+    - Certus-NX
+    - CertusPro-NX
+    - MachXO5-NX
+
+  Status:
+
+  - geometry data:
+    - everything except `nexus`: ✅ complete
+    - `nexus`: 👷🏼‍♀️ in progress
+  - bitstream data: ❌ not started
+  - speed data: ❌ not started
+  - documentation: ❌ not started
+  - verification: ❌ not started

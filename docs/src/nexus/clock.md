@@ -1,0 +1,25 @@
+# Clock interconnect
+
+{{tile nexus CLK_W_JE5D15}}
+{{tile nexus CLK_W_JE5D30}}
+{{tile nexus CLK_W_JD5D}}
+{{tile nexus CLK_W_JD5F}}
+{{tile nexus CLK_E_JE5D15}}
+{{tile nexus CLK_E_JE5D30}}
+{{tile nexus CLK_E_JD5D}}
+{{tile nexus CLK_E_JD5F}}
+{{tile nexus CLK_S_JE5D15}}
+{{tile nexus CLK_S_JE5D30}}
+{{tile nexus CLK_S_JD5U}}
+{{tile nexus CLK_S_JD5F}}
+{{tile nexus CLK_N_JE5D15}}
+{{tile nexus CLK_N_JE5D30}}
+{{tile nexus CLK_N_JD5D}}
+{{tile nexus CLK_N_JD5U}}
+{{tile nexus CLK_N_JD5F}}
+{{tile nexus CLK_ROOT_JE5D15}}
+{{tile nexus CLK_ROOT_JE5D30}}
+{{tile nexus CLK_ROOT_JD5D}}
+{{tile nexus CLK_ROOT_JD5U}}
+{{tile nexus PCLK_COL_DRIVER}}
+{{tile nexus PCLK_DRIVER}}

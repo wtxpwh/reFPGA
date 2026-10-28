@@ -14,6 +14,7 @@ pub fn gen_ecp(ctx: &mut DocgenContext) {
         "ecp4",
         "ecp5",
         "crosslink",
+        "nexus",
     ] {
         let db = prjcombine_ecp::db::Database::from_file(
             ctx.ctx.root.join(format!("../databases/{kind}.zstd")),
