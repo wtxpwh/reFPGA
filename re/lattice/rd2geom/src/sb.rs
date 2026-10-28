@@ -131,6 +131,20 @@ impl<'dev, 'ctx> SwitchBoxExtractor<'dev, 'ctx> {
         self
     }
 
+    pub fn input_raw_rc_mode(
+        &mut self,
+        suffix: impl AsRef<str>,
+        mode: RcMode,
+        wire: TileWireCoord,
+    ) -> &mut Self {
+        let wname = self.ctx.rc_wire_mode(self.cell, suffix.as_ref(), mode);
+        self.input_raw(wname, wire)
+    }
+
+    pub fn input_raw_rc(&mut self, suffix: impl AsRef<str>, wire: TileWireCoord) -> &mut Self {
+        self.input_raw_rc_mode(suffix, RcMode::Base, wire)
+    }
+
     pub fn input_raw_no_claim(&mut self, name: WireName, wire: TileWireCoord) -> &mut Self {
         self.ctx.add_sb_wire_no_claim(self.bcrd, wire, name);
         self.inputs.insert(name, wire);
@@ -256,6 +270,16 @@ impl<'dev, 'ctx> SwitchBoxExtractor<'dev, 'ctx> {
         self.input_xlat_rc_cell_nudge(self.cell, name, cslot)
     }
 
+    pub fn input_xlat_rc_mode_nudge(
+        &mut self,
+        name: impl AsRef<str>,
+        mode: RcMode,
+        cslot: CellSlotId,
+    ) -> &mut Self {
+        let name = self.ctx.rc_wire_mode(self.cell, name.as_ref(), mode);
+        self.input_xlat_nudge(name, cslot)
+    }
+
     pub fn input_xlat_rc_cell_nudge_rebind(
         &mut self,
         cell: CellCoord,
@@ -288,6 +312,16 @@ impl<'dev, 'ctx> SwitchBoxExtractor<'dev, 'ctx> {
             self.ctx.claim_pip(name, name_io);
         }
         self.input_raw(name, wire)
+    }
+
+    pub fn input_io_rc_mode(
+        &mut self,
+        name: impl AsRef<str>,
+        mode: RcMode,
+        wire: TileWireCoord,
+    ) -> &mut Self {
+        let name = self.ctx.rc_wire_mode(self.cell, name.as_ref(), mode);
+        self.input_io(name, wire)
     }
 
     pub fn input_io_rc_cell(

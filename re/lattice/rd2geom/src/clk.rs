@@ -107,7 +107,8 @@ impl ChipContext<'_> {
             }
             ChipKind::Nexus(_) => {
                 self.process_pclk_nexus();
-                // TODO
+                self.process_clk_edge_nexus();
+                self.process_clk_root_nexus();
             }
         }
     }

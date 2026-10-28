@@ -409,6 +409,7 @@ impl Chip {
                 expander.fill_plc();
                 expander.fill_ebr_nexus();
                 expander.fill_io_nexus();
+                expander.fill_misc_nexus();
                 expander.fill_pclk_nexus();
                 expander.fill_clk_nexus();
             }

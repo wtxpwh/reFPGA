@@ -9952,6 +9952,7 @@ intdb {
 		input PADDO;
 		input PADDT;
 		output PADDI;
+		pad PAD: inout
 	}
 
 	bel_class SERDES {
@@ -10077,6 +10078,19 @@ intdb {
 		output D_SCIINT;
 		output D_SCIRDATA[8];
 		output REFCLKO;
+		pad VCCRX[2]: power
+		pad REFCLKP: input
+		pad REFCLKN: input
+		pad VCCTX[2]: power
+		pad HDRXP[2]: input
+		pad HDRXN[2]: input
+		pad HDTXP[2]: output
+		pad HDTXN[2]: output
+		pad ATSTP: output
+		pad ATSTN: output
+		pad VCCA: power
+		pad VCCAUXA: power
+		pad VCCHRX: power
 	}
 
 	region_slot PCLK;

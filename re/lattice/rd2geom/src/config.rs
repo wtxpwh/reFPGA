@@ -1,5 +1,5 @@
 use prjcombine_ecp::{
-    chip::{Chip, ChipKind, MachXo2Kind, SpecialIoKey, SpecialLocKey},
+    chip::{Chip, ChipKind, MachXo2Kind, NexusKind, SpecialIoKey, SpecialLocKey},
     defs::{bcls, bslots, tcls, wires},
 };
 use prjcombine_interconnect::{
@@ -1146,6 +1146,201 @@ impl ChipContext<'_> {
         }
     }
 
+    pub fn process_config_nexus(&mut self) {
+        let ChipKind::Nexus(kind) = self.chip.kind else {
+            unreachable!()
+        };
+        for (tcid, dx, dx_osc, dx_pmu, dx_i2c) in [
+            (tcls::CONFIG_JE5D15, 0, 19, 18, 20),
+            (tcls::CONFIG_JE5D30, 0, 4, 12, 8),
+            (tcls::CONFIG_JD5D, 12, 4, 12, 8),
+            (tcls::CONFIG_JD5U, 2, 0, 12, 8),
+            (tcls::CONFIG_JD5F, 0, 21, 11, 16),
+        ] {
+            for &tcrd in &self.edev.tile_index[tcid] {
+                let cell = tcrd.delta(dx, 0);
+                let cell_osc = tcrd.delta(dx_osc, 0);
+                let cell_pmu = tcrd.delta(dx_pmu, 0);
+                let cell_i2c = tcrd.delta(dx_i2c, 0);
+                let (_, c) = self.rc(cell);
+                let lmmi_kind = match kind {
+                    NexusKind::SmallMipi | NexusKind::SmallMipiPcie => "CONFIG_LMMI_CORE",
+                    NexusKind::LargePcs | NexusKind::SmallHalfIo => "CONFIG_LMMIA_CORE",
+                    NexusKind::SmallDenseIo => "CONFIG_LMMIB_CORE",
+                };
+                let lmmi_suffix = match kind {
+                    NexusKind::SmallMipi | NexusKind::SmallMipiPcie => {
+                        "CONFIG_LMMI_CORE_LMMI_MODEL"
+                    }
+                    NexusKind::LargePcs | NexusKind::SmallHalfIo => "CONFIG_LMMIA_CORE_LMMI_MODEL",
+                    NexusKind::SmallDenseIo => "CONFIG_LMMIB_CORE_LMMI_MODEL",
+                };
+
+                let wire_cfg_clk =
+                    self.rc_io_wire(cell, "JCFG_CLK_CONFIG_CLKRST_CORE_CONFIG_CLKRST");
+                {
+                    let mut bel = self.extract_bel_cell(tcrd.bel(bslots::JTAG), cell);
+                    bel.name(format!("TCONFIG_JTAG_CORE{c}"))
+                        .suffix("CONFIG_JTAG_CORE_CONFIG_JTAG")
+                        .output_bind_rc_io(
+                            bcls::JTAG::JTCK,
+                            "JJTCK_CONFIG_JTAG_CORE_CONFIG_JTAG",
+                            wires::OUT_JTAG_JTCK.cell(0),
+                        );
+                    for (pin, key) in [
+                        ("TCK", SpecialIoKey::Cclk),
+                        ("TMS", SpecialIoKey::SpiPCsB),
+                        ("TDI", SpecialIoKey::D(0)),
+                    ] {
+                        let wire_io = bel.ctx.get_paddi_wire_nexus(bel.ctx.chip.special_io[&key]);
+                        bel.add_wire_rc_io(pin, format!("J{pin}_CONFIG_JTAG_CORE_CONFIG_JTAG"))
+                            .claim_pip_from(pin, wire_io);
+                    }
+
+                    let io_tdo = bel.ctx.chip.special_io[&SpecialIoKey::D(1)];
+                    let wire_tdo_paddo = bel.ctx.get_paddo_wire_nexus(io_tdo);
+                    let wire_tdo_paddt = bel.ctx.get_paddt_wire_nexus(io_tdo);
+                    bel.add_wire_rc_io("TDO", "JTDO_CONFIG_JTAG_CORE_CONFIG_JTAG")
+                        .add_wire_rc_io("TDO_OEN", "JTDO_OEN_CONFIG_JTAG_CORE_CONFIG_JTAG")
+                        .claim_pip_to(wire_tdo_paddo, "TDO")
+                        .claim_pip_to(wire_tdo_paddt, "TDO_OEN")
+                        .add_wire_rc_io("SMCLK", "JSMCLK_CONFIG_JTAG_CORE_CONFIG_JTAG")
+                        .claim_pip_from("SMCLK", wire_cfg_clk);
+                }
+
+                let wire_osc_cfg = self.rc_wire(cell_osc, "JHFCLKCFG_OSC_CORE");
+                let wire_osc_sed = self.rc_wire(cell_osc, "JHFSDCOUT_OSC_CORE");
+                self.extract_bel_cell(tcrd.bel(bslots::CONFIG_CLKRST), cell)
+                    .name(format!("TCONFIG_CLKRST_CORE{c}"))
+                    .suffix("CONFIG_CLKRST_CORE_CONFIG_CLKRST")
+                    .add_wire_rc_io("OSCCLK", "JOSCCLK_CONFIG_CLKRST_CORE_CONFIG_CLKRST")
+                    .add_wire_rc_io("SEDC_CLK", "JSEDC_CLK_CONFIG_CLKRST_CORE_CONFIG_CLKRST")
+                    .claim_pip_from("OSCCLK", wire_osc_cfg)
+                    .claim_pip_from("SEDC_CLK", wire_osc_sed)
+                    .add_wire_rc_io("SEDC_RST", "JSEDC_RST_CONFIG_CLKRST_CORE_CONFIG_CLKRST")
+                    .add_wire_rc_io("HSE_CLK", "JHSE_CLK_CONFIG_CLKRST_CORE_CONFIG_CLKRST")
+                    .add_wire_rc_io("WDT_CLK", "JWDT_CLK_CONFIG_CLKRST_CORE_CONFIG_CLKRST")
+                    .add_wire_rc_io("WDT_RST", "JWDT_RST_CONFIG_CLKRST_CORE_CONFIG_CLKRST")
+                    .add_wire_rc_io("SMCLK_RST", "JSMCLK_RST_CONFIG_CLKRST_CORE_CONFIG_CLKRST")
+                    .add_wire_rc_io("LMMI_RST", "JLMMI_RST_CONFIG_CLKRST_CORE_CONFIG_CLKRST")
+                    .add_wire_rc_io("LMMI_CLK_O", "JLMMI_CLK_O_CONFIG_CLKRST_CORE_CONFIG_CLKRST");
+
+                let wire_hse_clk =
+                    self.rc_io_wire(cell, "JHSE_CLK_CONFIG_CLKRST_CORE_CONFIG_CLKRST");
+                self.extract_bel_cell(tcrd.bel(bslots::CONFIG_CRE), cell)
+                    .name(format!("TCONFIG_CRE_CORE{c}"))
+                    .suffix("CONFIG_CRE_CORE_CONFIG_HSE")
+                    .add_wire_rc_io("CFG_CLK", "JCFG_CLK_CONFIG_CRE_CORE_CONFIG_HSE")
+                    .claim_pip_from("CFG_CLK", wire_cfg_clk)
+                    .add_wire_rc_io("CRE_CLK", "JCRE_CLK_CONFIG_CRE_CORE_CONFIG_HSE")
+                    .claim_pip_from("CRE_CLK", wire_hse_clk);
+
+                self.extract_bel_cell(tcrd.bel(bslots::CONFIG_MULTIBOOT), cell)
+                    .name(format!("TCONFIG_MULTIBOOT_CORE{c}"))
+                    .suffix("CONFIG_MULTIBOOT_CORE_CONFIG_MULTIBOOT");
+
+                self.extract_bel_cell(tcrd.bel(bslots::CONFIG_IP), cell)
+                    .name(format!("TCONFIG_IP_CORE{c}"))
+                    .suffix("CONFIG_IP_CORE_CONFIG_IP");
+
+                let wire_sedc_rst =
+                    self.rc_io_wire(cell, "JSEDC_RST_CONFIG_CLKRST_CORE_CONFIG_CLKRST");
+                self.extract_bel_cell(tcrd.bel(bslots::CONFIG_SEDC), cell)
+                    .name(format!("TCONFIG_SEDC_CORE{c}"))
+                    .suffix("CONFIG_SEDC_CORE_CONFIG_SEDC")
+                    .add_wire_rc_io("OSCCLKSEDC", "JOSCCLKSEDC_CONFIG_SEDC_CORE_CONFIG_SEDC")
+                    .claim_pip_from("OSCCLKSEDC", wire_cfg_clk)
+                    .add_wire_rc_io("RSTSEDC", "JRSTSEDC_CONFIG_SEDC_CORE_CONFIG_SEDC")
+                    .claim_pip_from("RSTSEDC", wire_sedc_rst);
+
+                let wire_wdt_clk =
+                    self.rc_io_wire(cell, "JWDT_CLK_CONFIG_CLKRST_CORE_CONFIG_CLKRST");
+                let wire_wdt_rst =
+                    self.rc_io_wire(cell, "JWDT_RST_CONFIG_CLKRST_CORE_CONFIG_CLKRST");
+                self.extract_bel_cell(tcrd.bel(bslots::CONFIG_WDT), cell)
+                    .name(format!("TCONFIG_WDT_CORE{c}"))
+                    .suffix("CONFIG_WDT_CORE_CONFIG_WDT")
+                    .add_wire_rc_io("WDT_CLK", "JWDT_CLK_CONFIG_WDT_CORE_CONFIG_WDT")
+                    .claim_pip_from("WDT_CLK", wire_wdt_clk)
+                    .add_wire_rc_io("WDT_RST", "JWDT_RST_CONFIG_WDT_CORE_CONFIG_WDT")
+                    .claim_pip_from("WDT_RST", wire_wdt_rst);
+
+                {
+                    let wire_smclk_rst =
+                        self.rc_io_wire(cell, "JSMCLK_RST_CONFIG_CLKRST_CORE_CONFIG_CLKRST");
+                    let wire_lmmi_clk =
+                        self.rc_io_wire(cell, "JLMMI_CLK_O_CONFIG_CLKRST_CORE_CONFIG_CLKRST");
+                    let wire_lmmi_rst =
+                        self.rc_io_wire(cell, "JLMMI_RST_CONFIG_CLKRST_CORE_CONFIG_CLKRST");
+                    let mut bel = self.extract_bel_cell(tcrd.bel(bslots::CONFIG_LMMI), cell);
+                    bel.name(format!("T{lmmi_kind}{c}"))
+                        .suffix(lmmi_suffix)
+                        .add_wire_rc_io("LMMICLK", format!("JLMMICLK_{lmmi_suffix}"))
+                        .claim_pip_from("LMMICLK", wire_lmmi_clk)
+                        .add_wire_rc_io("LMMIRESETN", format!("JLMMIRESETN_{lmmi_suffix}"))
+                        .claim_pip_from("LMMIRESETN", wire_lmmi_rst);
+                    if kind != NexusKind::SmallDenseIo {
+                        bel.add_wire_rc_io("SMCLK", format!("JSMCLK_{lmmi_suffix}"))
+                            .claim_pip_from("SMCLK", wire_cfg_clk)
+                            .add_wire_rc_io("RSTSMCLK", format!("JRSTSMCLK_{lmmi_suffix}"))
+                            .claim_pip_from("RSTSMCLK", wire_smclk_rst);
+                    }
+                }
+
+                self.extract_bel_cell(tcrd.bel(bslots::OSC), cell_osc)
+                    .name_rc("OSC_CORE")
+                    .suffix("OSC_CORE")
+                    .output_bind_rc(
+                        bcls::OSC::LFCLKOUT,
+                        "JLFCLKOUT_OSC_CORE",
+                        wires::OUT_OSC_LFCLKOUT.cell(0),
+                    )
+                    .output_bind_rc(
+                        bcls::OSC::HFCLKOUT,
+                        "JHFCLKOUT_OSC_CORE",
+                        wires::OUT_OSC_HFCLKOUT.cell(0),
+                    )
+                    .add_wire_rc("HFCLKCFG", "JHFCLKCFG_OSC_CORE")
+                    .add_wire_rc("HFSDCOUT", "JHFSDCOUT_OSC_CORE");
+
+                let wire_io_clk =
+                    self.get_paddi_wire_nexus(self.chip.special_io[&SpecialIoKey::Cclk]);
+                let wire_io_int =
+                    self.get_paddi_wire_nexus(self.chip.special_io[&SpecialIoKey::PmuWakeupN]);
+                self.extract_bel_cell(tcrd.bel(bslots::PMU), cell_pmu)
+                    .name_rc("PMU_CORE")
+                    .suffix("PMU_CORE")
+                    .add_wire_rc("EXTCLK", "JEXTCLK_PMU_CORE")
+                    .add_wire_rc("EXTPINTN", "JEXTPINTN_PMU_CORE")
+                    .claim_pip_from("EXTCLK", wire_io_clk)
+                    .claim_pip_from("EXTPINTN", wire_io_int);
+
+                {
+                    let mut bel = self.extract_bel_cell(tcrd.bel(bslots::I2C), cell_i2c);
+                    bel.name_rc("I2CFIFO_CORE").suffix("I2CFIFO_CORE");
+                    for (pin, key) in [("SCL", SpecialIoKey::D(2)), ("SDA", SpecialIoKey::D(3))] {
+                        let io = bel.ctx.chip.special_io[&key];
+                        let wire_paddi = bel.ctx.get_paddi_wire_nexus(io);
+                        let wire_paddo = bel.ctx.get_paddo_wire_nexus(io);
+                        let wire_paddt = bel.ctx.get_paddt_wire_nexus(io);
+                        bel.add_wire_rc(format!("ALT{pin}IN"), format!("JALT{pin}IN_I2CFIFO_CORE"))
+                            .add_wire_rc(
+                                format!("ALT{pin}OUT"),
+                                format!("JALT{pin}OUT_I2CFIFO_CORE"),
+                            )
+                            .add_wire_rc(
+                                format!("ALT{pin}OEN"),
+                                format!("JALT{pin}OEN_I2CFIFO_CORE"),
+                            )
+                            .claim_pip_from(format!("ALT{pin}IN"), wire_paddi)
+                            .claim_pip_to(wire_paddo, format!("ALT{pin}OUT"))
+                            .claim_pip_to(wire_paddt, format!("ALT{pin}OEN"));
+                    }
+                }
+            }
+        }
+    }
+
     pub fn process_config(&mut self) {
         match self.chip.kind {
             ChipKind::Scm => {
@@ -1180,7 +1375,7 @@ impl ChipContext<'_> {
                 self.process_config_crosslink();
             }
             ChipKind::Nexus(_) => {
-                // TODO
+                self.process_config_nexus();
             }
         }
     }

@@ -1,14 +1,126 @@
 use prjcombine_ecp::{
-    chip::{ChipKind, IoGroupKind, SpecialLocKey},
-    defs::{bcls, bslots, tcls, wires},
+    chip::{ChipKind, IoGroupKind, NexusKind, SpecialLocKey},
+    defs::{self, bcls, bslots, tcls, wires},
 };
 use prjcombine_interconnect::{
-    db::WireSlotIdExt,
+    db::{CellSlotIdExt, WireSlotIdExt},
     dir::{DirH, DirHV, DirV},
     grid::{ColIdExt, RowIdExt},
 };
 
 use crate::ChipContext;
+
+const NEXUS_PCS_FROM_PCIE_CH: &[(&str, &str, usize)] = &[
+    ("PIPE_BLOCK_ALIGN_CONTROL_LL", "PIPE_BLOCK_ALIGN_CONTROL", 1),
+    ("PIPE_TX_ELEC_IDLE_LL", "PIPE_TX_ELEC_IDLE", 1),
+    ("PIPE_TX_COMPLIANCE_LL", "PIPE_TX_COMPLIANCE", 1),
+    ("PIPE_TX_DATAK_LL", "PIPE_TX_DATAK", 4),
+    ("PIPE_TX_DATA_LL", "PIPE_TX_DATA", 32),
+    ("PIPE_TX_SYNC_HEADER_LL", "PIPE_TX_SYNC_HEADER", 2),
+    ("PIPE_TX_START_BLOCK_LL", "PIPE_TX_START_BLOCK", 1),
+    ("PIPE_TX_DATA_VALID_LL", "PIPE_TX_DATA_VALID", 1),
+    ("PIPE_REMOTE_EQ_RX_PRESET_LL", "PIPE_REMOTE_EQ_RX_PRESET", 4),
+    (
+        "PIPE_REMOTE_EQ_RX_DEEMPH_LL",
+        "PIPE_REMOTE_EQ_RX_DEEMPH",
+        18,
+    ),
+    ("PIPE_REMOTE_LF_LL", "PIPE_REMOTE_LF", 6),
+    ("PIPE_REMOTE_FS_LL", "PIPE_REMOTE_FS", 6),
+    (
+        "PIPE_LOCAL_GET_PRESET_INDEX_LL",
+        "PIPE_LOCAL_GET_PRESET_INDEX",
+        4,
+    ),
+    (
+        "PIPE_LOCAL_GET_PRESET_COEF_LL",
+        "PIPE_LOCAL_GET_PRESET_COEF",
+        1,
+    ),
+    ("PIPE_TX_DEEMPH_WINDOW_LL", "PIPE_TX_DEEMPH_WINDOW", 1),
+    ("PIPE_TX_DEEMPH_LL", "PIPE_TX_DEEMPH", 18),
+    ("PIPE_TX_MARGIN_LL", "PIPE_TX_MARGIN", 3),
+    ("PIPE_TX_SWING_LL", "PIPE_TX_SWING", 1),
+    ("PIPE_RX_EI_DISABLE_LL", "PIPE_RX_EI_DISABLE", 1),
+    ("PIPE_TX_CM_DISABLE_LL", "PIPE_TX_CM_DISABLE", 1),
+    ("PIPE_TX_CLKREQ_N_LL", "PIPE_TX_CLKREQ_N", 1),
+    ("PIPE_RX_POLARITY_LL", "PIPE_RX_POLARITY", 1),
+    ("PIPE_RX_PRESET_HINT_LL", "PIPE_RX_PRESET_HINT", 3),
+    (
+        "PIPE_RX_PRESET_HINT_ENABLE_LL",
+        "PIPE_RX_PRESET_HINT_ENABLE",
+        1,
+    ),
+    ("PIPE_INVALID_REQUEST_LL", "PIPE_INVALID_REQUEST", 1),
+    ("PIPE_RX_EQ_EVAL_LL", "PIPE_RX_EQ_EVAL", 1),
+    (
+        "PIPE_TX_DETECT_RX_LOOPBACK_LL",
+        "PIPE_TX_DETECT_RX_LOOPBACK",
+        1,
+    ),
+    ("PIPE_RATE_LL", "PIPE_RATE", 2),
+    ("PIPE_POWER_DOWN_LL", "PIPE_POWER_DOWN", 2),
+    ("LINK0_CSR_PIPE_RESET", "LINK0_CSR_PIPE_RESET", 1),
+];
+
+const NEXUS_PCS_TO_PCIE_CH: &[(&str, &str, usize)] = &[
+    ("PIPE_WIDTH_2G5_LL", "PIPE_WIDTH_2G5", 2),
+    ("PIPE_WIDTH_5G0_LL", "PIPE_WIDTH_5G0", 2),
+    ("PIPE_WIDTH_8G0_LL", "PIPE_WIDTH_8G0", 2),
+    (
+        "PIPE_RX_EQ_EVAL_FEEDBACK_FOM_LL",
+        "PIPE_RX_EQ_EVAL_FEEDBACK_FROM",
+        8,
+    ),
+    (
+        "PIPE_RX_EQ_EVAL_FEEDBACK_DIR_LL",
+        "PIPE_RX_EQ_EVAL_FEEDBACK_DIR",
+        6,
+    ),
+    ("PIPE_PHY_STATUS_LL", "PIPE_PHY_STATUS", 1),
+    ("PIPE_RX_ELEC_IDLE_LL", "PIPE_RX_ELEC_IDLE", 1),
+    ("PIPE_RX_CLKREQ_N_LL", "PIPE_RX_CLKREQ_N", 1),
+    ("PIPE_LOCAL_FS_LL", "PIPE_LOCAL_FS", 6),
+    ("PIPE_LOCAL_LF_LL", "PIPE_LOCAL_IF", 6),
+    (
+        "PIPE_LOCAL_GET_TX_COEF_VALID_LL",
+        "PIPE_LOCAL_GET_TX_COEF_VALID",
+        1,
+    ),
+    (
+        "PIPE_LOCAL_GET_TX_PRESET_COEF_LL",
+        "PIPE_LOCAL_GET_TX_PRESET_COEF",
+        18,
+    ),
+    ("PIPE_TX_DATA_ENABLE_LL", "PIPE_TX_DATA_EN", 1),
+    ("PIPE_RX_DATAEN_LL", "PIPE_RX_DATA_EN", 1),
+    ("PIPE_RX_DATA_VALID_LL", "PIPE_RX_DATA_VALID", 1),
+    ("PIPE_RX_START_BLOCK_LL", "PIPE_RX_START_BLOCK", 1),
+    ("PIPE_RX_SYNC_HEADER_LL", "PIPE_RX_SYNC_HEADER", 2),
+    ("PIPE_RX_DATA_LL", "PIPE_RX_DATA", 32),
+    ("PIPE_RX_DATAK_LL", "PIPE_RX_DATAK", 4),
+    ("PIPE_RX_VALID_LL", "PIPE_RX_VALID", 1),
+    ("PIPE_RX_STATUS_LL", "PIPE_RX_STATUS", 3),
+];
+
+const NEXUS_PCS_FROM_PCIE: &[(&str, &str)] = &[
+    ("PCIELL_MODESEL2", "BIFUR_SEL2"),
+    ("PCIELL_MODESEL1", "BIFUR_SEL1"),
+    ("PCIELL_MODESEL0", "BIFUR_SEL0"),
+    ("LINK1_CSR_PIPE_RESET", "LINK1_CSR_PIPE_RESET"),
+];
+
+const NEXUS_PCS_TO_PCIE: &[(&str, &str)] = &[
+    ("CH3_PCLKAUX_SEL_LL", "LINK1_SEL_PCLK1_AUX0"),
+    ("CH0_PCLKAUX_SEL_LL", "LINK0_SEL_PCLK1_AUX0"),
+    ("PIPE_PCLKOUT_LL3", "LINK1_CK250I"),
+    ("PIPE_PCLKOUT_LL0", "LINK0_CK250I"),
+    ("CH3_CLKREQOE", "PIPE_TX_CLKACK_N_X1"),
+    ("CH0_CLKREQOE", "PIPE_TX_CLKACK_N_X40"),
+    ("CH1_CLKREQOE", "PIPE_TX_CLKACK_N_X41"),
+    ("CH2_CLKREQOE", "PIPE_TX_CLKACK_N_X42"),
+    ("CH3_CLKREQOE", "PIPE_TX_CLKACK_N_X43"),
+];
 
 impl ChipContext<'_> {
     fn process_serdes_scm(&mut self) {
@@ -1177,7 +1289,7 @@ impl ChipContext<'_> {
     fn process_mipi_crosslink(&mut self) {
         for tcid in [tcls::MIPI_W, tcls::MIPI_E] {
             for &tcrd in &self.edev.tile_index[tcid] {
-                let bcrd = tcrd.bel(bslots::MIPI);
+                let bcrd = tcrd.bel(bslots::MIPI[0]);
                 let bank = self.chip.columns[bcrd.cell.col].bank[DirV::N];
                 let idx = match bank {
                     60 => 0,
@@ -1188,11 +1300,11 @@ impl ChipContext<'_> {
                 self.hybrid_out_rc_io(
                     bcrd,
                     "JCLKHSBYTE_MIPIDPHY",
-                    wires::OUT_MIPI_CLKHSBYTE.cell(0),
+                    wires::OUT_MIPI_CLKHSBYTE[0].cell(0),
                 );
 
                 self.extract_switchbox(bcrd.bel(bslots::BEL_INT))
-                    .output_bind_rc_io("CLKREF", wires::IMUX_MIPI_CLKREF.cell(0))
+                    .output_bind_rc_io("CLKREF", wires::IMUX_MIPI_CLKREF[0].cell(0))
                     .input_xlat_rc_io("JREFCLK1")
                     .input_xlat_rc_io("JREFCLK2")
                     .input_xlat_rc_io("JREFCLK3");
@@ -1246,6 +1358,444 @@ impl ChipContext<'_> {
         }
     }
 
+    pub fn process_pcie_x1_nexus(&mut self) {
+        for &tcrd in &self.edev.tile_index[tcls::PCIE_JE5D30] {
+            let (_r, c) = self.rc(tcrd.cell);
+            let mut bel = self.extract_bel(tcrd.bel(bslots::PCIE_X1));
+            bel.names([
+                format!("TPCIE_CORE{c}"),
+                "SD0_TXDP".to_string(),
+                "SD0_TXDN".to_string(),
+                "SD0_RXDP".to_string(),
+                "SD0_RXDN".to_string(),
+                "SD0_REFCLKP".to_string(),
+                "SD0_REFCLKN".to_string(),
+                "SD0_REXT".to_string(),
+                "SD0_REFRET".to_string(),
+            ])
+            .suffix("PCIE_CORE_PCIE0")
+            .output_bind_rc_io(
+                bcls::PCIE_X1::ECKINDO,
+                "JECKINDO_PCIE_CORE_PCIE0",
+                wires::OUT_PCIE_LINKCLK.cell(0),
+            )
+            .output_bind_rc_io(
+                bcls::PCIE_X1::CKUSRO,
+                "JCKUSRO_PCIE_CORE_PCIE0",
+                wires::OUT_PCIE_USRCLK[0].cell(0),
+            )
+            .output_bind_rc_io(
+                bcls::PCIE_X1::ETXCKDO,
+                "JETXCKDO_PCIE_CORE_PCIE0",
+                wires::OUT_PCS_CLKTX[0].cell(0),
+            )
+            .output_bind_rc_io(
+                bcls::PCIE_X1::ERXCKDO,
+                "JERXCKDO_PCIE_CORE_PCIE0",
+                wires::OUT_PCS_CLKRX[0].cell(0),
+            );
+            for (pin, pad) in [
+                ("S0RXP", "SD0_RXP"),
+                ("S0RXN", "SD0_RXN"),
+                ("S0TXP", "SD0_TXP"),
+                ("S0TXN", "SD0_TXN"),
+                ("S0REXT", "SD0_REXT"),
+                ("S0REFRET", "SD0_REFRET"),
+                ("S0REFCKP", "SD0_REFCLKP"),
+                ("S0REFCKN", "SD0_REFCLKN"),
+            ] {
+                let pad_apio = &format!("{pad}_APIO");
+                bel.add_wire_rc_io(pin, format!("J{pin}_PCIE_CORE_PCIE0"))
+                    .add_wire_rc_io(pad_apio, format!("JPAD_APIO_{pad}"))
+                    .claim_pip(pin, pad_apio)
+                    .claim_pip(pad_apio, pin);
+            }
+        }
+    }
+
+    pub fn process_pcs_nexus(&mut self) {
+        for &tcrd in &self.edev.tile_index[tcls::PCS_REFCLK] {
+            let (r, c) = self.rc(tcrd.cell);
+            let mut bel = self.extract_bel(tcrd.bel(bslots::PCS_REFCLK));
+            bel.names([
+                format!("DIFFCLKIO_CORE_R{r}C{c}"),
+                "SD_EXT0_REFCLKP".to_string(),
+                "SD_EXT0_REFCLKN".to_string(),
+                "SD_EXT1_REFCLKP".to_string(),
+                "SD_EXT1_REFCLKN".to_string(),
+            ]);
+            for i in 0..2 {
+                bel.add_wire_rc_io(
+                    format!("CLKOUT{i}"),
+                    format!("JCLKOUT{i}_DIFFCLKIO_CORE_DIFFCLKIO0"),
+                );
+                for pn in ["P", "N"] {
+                    bel.add_wire_rc_io(
+                        format!("REFCLK{i}{pn}"),
+                        format!("JREFCLK{i}{pn}_DIFFCLKIO_CORE_DIFFCLKIO0"),
+                    )
+                    .add_wire_rc_io(
+                        format!("REFCLK{i}{pn}_APIO"),
+                        format!("JPAD_APIO_REFCLK{i}{pn}"),
+                    )
+                    .claim_pip(format!("REFCLK{i}{pn}"), format!("REFCLK{i}{pn}_APIO"))
+                    .claim_pip(format!("REFCLK{i}{pn}_APIO"), format!("REFCLK{i}{pn}"));
+                }
+            }
+        }
+        for &tcrd in &self.edev.tile_index[tcls::PCS_REFMUX_JD5D] {
+            let cell_refclk = self.chip.special_loc[&SpecialLocKey::PcsRefclk];
+            let mut bel = self.extract_bel(tcrd.bel(bslots::PCS_REFMUX));
+            bel.name_rc("PCSREFMUX8_CORE").suffix("PCSREFMUX8_CORE");
+            for i in 0..2 {
+                let wire_diffclk = bel.ctx.rc_io_wire(
+                    cell_refclk,
+                    &format!("JCLKOUT{i}_DIFFCLKIO_CORE_DIFFCLKIO0"),
+                );
+                bel.add_wire_rc_io(
+                    format!("Q{i}CLKOUT"),
+                    format!("JQ{i}CLKOUT_PCSREFMUX8_CORE"),
+                )
+                .add_wire_rc_io(
+                    format!("DIFFIOCLK{i}"),
+                    format!("JDIFFIOCLK{i}_PCSREFMUX8_CORE"),
+                )
+                .claim_pip_from(format!("DIFFIOCLK{i}"), wire_diffclk);
+            }
+        }
+        for i in 0..2 {
+            let Some(&cell) = self.chip.special_loc.get(&SpecialLocKey::Pcs(i)) else {
+                continue;
+            };
+            let cell_refmux = self.chip.special_loc[&SpecialLocKey::PcsRefmux];
+            let cell_pcs0 = self.chip.special_loc[&SpecialLocKey::Pcs(0)];
+            let cell_pcs_prev = if i == 0 {
+                None
+            } else {
+                Some(self.chip.special_loc[&SpecialLocKey::Pcs(0)])
+            };
+            let (r, c) = self.rc(cell);
+            let mut names = vec![format!("PCS_CORE_R{r}C{c}")];
+            for j in 0..4 {
+                let ii = i * 4 + j;
+                for pad in ["TXDP", "TXDN", "RXDP", "RXDN", "REXT", "REFRET"] {
+                    names.push(format!("SD{ii}_{pad}"));
+                }
+            }
+            for pad in ["REFCLKP", "REFCLKN"] {
+                names.push(format!("SDQ{i}_{pad}"));
+            }
+            let mut bel = self.extract_bel(cell.bel(bslots::PCS));
+            bel.names(names).suffix("PCS_CORE_PCS0");
+            for j in 0..4 {
+                bel.output_bind_rc_io(
+                    [
+                        bcls::PCS::CH0_PIPE_PCS_TXCLKOUT,
+                        bcls::PCS::CH1_PIPE_PCS_TXCLKOUT,
+                        bcls::PCS::CH2_PIPE_PCS_TXCLKOUT,
+                        bcls::PCS::CH3_PIPE_PCS_TXCLKOUT,
+                    ][j],
+                    format!("JCH{j}_PIPE_PCS_TXCLKOUT_PCS_CORE_PCS0"),
+                    wires::OUT_PCS_CLKTX[j].cell(0),
+                )
+                .output_bind_rc_io(
+                    [
+                        bcls::PCS::CH0_RXOUTCLK,
+                        bcls::PCS::CH1_RXOUTCLK,
+                        bcls::PCS::CH2_RXOUTCLK,
+                        bcls::PCS::CH3_RXOUTCLK,
+                    ][j],
+                    format!("JCH{j}_RXOUTCLK_PCS_CORE_PCS0"),
+                    wires::OUT_PCS_CLKRX[j].cell(0),
+                )
+                .add_wire_rc_io(
+                    format!("CH{j}_PIPE_L1PMSSEN_LL"),
+                    format!("JCH{j}_PIPE_L1PMSSEN_LL_PCS_CORE_PCS0"),
+                )
+                .add_wire_rc_io(
+                    format!("PIPE_PCLKOUT_LL{j}"),
+                    format!("JPIPE_PCLKOUT_LL{j}_PCS_CORE_PCS0"),
+                );
+                for pad in ["RXP", "RXN", "TXP", "TXN", "REXT", "REFRET"] {
+                    let pin_pcs = &format!("CH{j}_{pad}");
+                    let pin_apio = &format!("CH{j}_{pad}_APIO");
+                    bel.add_wire_rc_io(pin_pcs, format!("JCH{j}_SD{pad}_PCS_CORE_PCS0"))
+                        .add_wire_rc_io(pin_apio, format!("JPAD_APIO_SD{j}_{pad}"))
+                        .claim_pip(pin_pcs, pin_apio)
+                        .claim_pip(pin_apio, pin_pcs);
+                }
+                for &(pin, _, num) in NEXUS_PCS_FROM_PCIE_CH {
+                    if num == 1 {
+                        bel.add_wire_rc_io(
+                            format!("CH{j}_{pin}"),
+                            format!("JCH{j}_{pin}_PCS_CORE_PCS0"),
+                        );
+                    } else {
+                        for k in 0..num {
+                            bel.add_wire_rc_io(
+                                format!("CH{j}_{pin}{k}"),
+                                format!("JCH{j}_{pin}{k}_PCS_CORE_PCS0"),
+                            );
+                        }
+                    }
+                }
+                for &(pin, _, num) in NEXUS_PCS_TO_PCIE_CH {
+                    if num == 1 {
+                        bel.add_wire_rc_io(
+                            format!("CH{j}_{pin}"),
+                            format!("JCH{j}_{pin}_PCS_CORE_PCS0"),
+                        );
+                    } else {
+                        for k in 0..num {
+                            bel.add_wire_rc_io(
+                                format!("CH{j}_{pin}{k}"),
+                                format!("JCH{j}_{pin}{k}_PCS_CORE_PCS0"),
+                            );
+                        }
+                    }
+                }
+            }
+            for pad in ["REFCLKP", "REFCLKN"] {
+                let pad_apio = &format!("{pad}_APIO");
+                bel.add_wire_rc_io(pad, format!("JSDQ_{pad}_PCS_CORE_PCS0"))
+                    .add_wire_rc_io(pad_apio, format!("JPAD_APIO_SDQ_{pad}"))
+                    .claim_pip(pad, pad_apio)
+                    .claim_pip(pad_apio, pad);
+            }
+            for &(pin, _) in NEXUS_PCS_FROM_PCIE {
+                bel.add_wire_rc_io(pin, format!("J{pin}_PCS_CORE_PCS0"));
+            }
+            let wire_refmux = bel
+                .ctx
+                .rc_io_wire(cell_refmux, &format!("JQ{i}CLKOUT_PCSREFMUX8_CORE"));
+            let wire_align_rx = bel
+                .ctx
+                .rc_io_wire(cell_pcs0, "JRX_ALIGN_CLKOUT_PCS_CORE_PCS0");
+            let wire_align_tx = bel
+                .ctx
+                .rc_io_wire(cell_pcs0, "JTX_ALIGN_CLKOUT_PCS_CORE_PCS0");
+            bel.add_wire_rc_io("ALTCLKIN", "JALTCLKIN_PCS_CORE_PCS0")
+                .claim_pip_from("ALTCLKIN", wire_refmux)
+                .add_wire_rc_io("RX_ALIGN_CLKIN", "JRX_ALIGN_CLKIN_PCS_CORE_PCS0")
+                .add_wire_rc_io("RX_ALIGN_CLKOUT", "JRX_ALIGN_CLKOUT_PCS_CORE_PCS0")
+                .add_wire_rc_io("TX_ALIGN_CLKIN", "JTX_ALIGN_CLKIN_PCS_CORE_PCS0")
+                .add_wire_rc_io("TX_ALIGN_CLKOUT", "JTX_ALIGN_CLKOUT_PCS_CORE_PCS0")
+                .claim_pip_from("RX_ALIGN_CLKIN", wire_align_rx)
+                .claim_pip_from("TX_ALIGN_CLKIN", wire_align_tx);
+            for j in 0..8 {
+                bel.add_wire_rc_io(
+                    format!("TX_LALIGN_IN_DOWN{j}"),
+                    format!("JTX_LALIGN_IN_DOWN{j}_PCS_CORE_PCS0"),
+                )
+                .add_wire_rc_io(
+                    format!("TX_LALIGN_IN_UP{j}"),
+                    format!("JTX_LALIGN_IN_UP{j}_PCS_CORE_PCS0"),
+                )
+                .add_wire_rc_io(
+                    format!("TX_LALIGN_OUT_DOWN{j}"),
+                    format!("JTX_LALIGN_OUT_DOWN{j}_PCS_CORE_PCS0"),
+                )
+                .add_wire_rc_io(
+                    format!("TX_LALIGN_OUT_UP{j}"),
+                    format!("JTX_LALIGN_OUT_UP{j}_PCS_CORE_PCS0"),
+                );
+                if let Some(cell_prev) = cell_pcs_prev {
+                    let prev_out = bel
+                        .ctx
+                        .rc_io_wire(cell_prev, &format!("JTX_LALIGN_OUT_DOWN{j}_PCS_CORE_PCS0"));
+                    let prev_in = bel
+                        .ctx
+                        .rc_io_wire(cell_prev, &format!("JTX_LALIGN_IN_DOWN{j}_PCS_CORE_PCS0"));
+                    bel.claim_pip_from(format!("TX_LALIGN_IN_UP{j}"), prev_out)
+                        .claim_pip_to(prev_in, format!("TX_LALIGN_OUT_UP{j}"));
+                }
+            }
+        }
+    }
+
+    pub fn process_pcie_ll_nexus(&mut self) {
+        for &tcrd in &self.edev.tile_index[tcls::PCIE_JD5D] {
+            let cell_pcs = self.chip.special_loc[&SpecialLocKey::Pcs(0)];
+            let mut bel = self.extract_bel_cell(tcrd.bel(bslots::PCIE_LL), tcrd.delta(-9, 0));
+            bel.name_rc("PCIELL_CORE")
+                .suffix("PCIELL_CORE")
+                .output_bind_rc_io(
+                    bcls::PCIE_LL::LINK0_CKUSRO,
+                    "JLINK0_CKUSRO_PCIELL_CORE",
+                    wires::OUT_PCIE_USRCLK[0].cell(0),
+                )
+                .output_bind_rc_io(
+                    bcls::PCIE_LL::LINK1_CKUSRO,
+                    "JLINK1_CKUSRO_PCIELL_CORE",
+                    wires::OUT_PCIE_USRCLK[1].cell(0),
+                );
+            for i in 0..4 {
+                for &(pin_pcs, pin, num) in NEXUS_PCS_FROM_PCIE_CH {
+                    if num == 1 {
+                        let wire_pcs = bel
+                            .ctx
+                            .rc_io_wire(cell_pcs, &format!("JCH{i}_{pin_pcs}_PCS_CORE_PCS0"));
+                        let pname = &format!("{pin}{i}");
+                        bel.add_wire_rc_io(pname, format!("J{pname}_PCIELL_CORE"))
+                            .claim_pip_to(wire_pcs, pname);
+                    } else {
+                        for j in 0..num {
+                            let wire_pcs = bel.ctx.rc_io_wire(
+                                cell_pcs,
+                                &format!("JCH{i}_{pin_pcs}{j}_PCS_CORE_PCS0"),
+                            );
+                            let ii = i * num + j;
+                            let pname = &format!("{pin}{ii}");
+                            bel.add_wire_rc_io(pname, format!("J{pname}_PCIELL_CORE"))
+                                .claim_pip_to(wire_pcs, pname);
+                        }
+                    }
+                }
+                for &(pin_pcs, pin, num) in NEXUS_PCS_TO_PCIE_CH {
+                    if num == 1 {
+                        let wire_pcs = bel
+                            .ctx
+                            .rc_io_wire(cell_pcs, &format!("JCH{i}_{pin_pcs}_PCS_CORE_PCS0"));
+                        let pname = &format!("{pin}{i}");
+                        bel.add_wire_rc_io(pname, format!("J{pname}_PCIELL_CORE"))
+                            .claim_pip_from(pname, wire_pcs);
+                    } else {
+                        for j in 0..num {
+                            let wire_pcs = bel.ctx.rc_io_wire(
+                                cell_pcs,
+                                &format!("JCH{i}_{pin_pcs}{j}_PCS_CORE_PCS0"),
+                            );
+                            let ii = i * num + j;
+                            let pname = &format!("{pin}{ii}");
+                            bel.add_wire_rc_io(pname, format!("J{pname}_PCIELL_CORE"))
+                                .claim_pip_from(pname, wire_pcs);
+                        }
+                    }
+                }
+            }
+            for &(pin_pcs, pin) in NEXUS_PCS_FROM_PCIE {
+                let wire_pcs = bel
+                    .ctx
+                    .rc_io_wire(cell_pcs, &format!("J{pin_pcs}_PCS_CORE_PCS0"));
+                bel.add_wire_rc_io(pin, format!("J{pin}_PCIELL_CORE"))
+                    .claim_pip_to(wire_pcs, pin);
+            }
+            for &(pin_pcs, pin) in NEXUS_PCS_TO_PCIE {
+                let wire_pcs = bel
+                    .ctx
+                    .rc_io_wire(cell_pcs, &format!("J{pin_pcs}_PCS_CORE_PCS0"));
+                bel.add_wire_rc_io(pin, format!("J{pin}_PCIELL_CORE"))
+                    .claim_pip_from(pin, wire_pcs);
+            }
+        }
+    }
+
+    pub fn process_mipi_nexus(&mut self) {
+        let Some(&cell_tile) = self.chip.special_loc.get(&SpecialLocKey::Mipi) else {
+            return;
+        };
+        if !self.naming.strings.contains("JLMMIREADY_DPHY_CORE_DPHY0") {
+            self.skip_mipi = true;
+            return;
+        }
+        let ChipKind::Nexus(kind) = self.chip.kind else {
+            unreachable!();
+        };
+        for i in 0..2 {
+            let dx = match kind {
+                NexusKind::SmallMipi => [0, 26][i],
+                NexusKind::SmallMipiPcie => [0, 24][i],
+                _ => unreachable!(),
+            };
+            let (cslot_io_s, cslot_io_n) = match kind {
+                NexusKind::SmallMipi => (
+                    defs::nexus::tcls::MIPI_JE5D15::IO_S,
+                    defs::nexus::tcls::MIPI_JE5D15::IO_N,
+                ),
+                NexusKind::SmallMipiPcie => (
+                    defs::nexus::tcls::MIPI_JE5D30::IO_S,
+                    defs::nexus::tcls::MIPI_JE5D30::IO_N,
+                ),
+                _ => unreachable!(),
+            };
+            let cell = cell_tile.delta(dx, 0);
+            {
+                let mut ex = self.extract_switchbox(cell_tile.bel(bslots::BEL_INT));
+                ex.cell(cell)
+                    .output_bind_rc_io(
+                        "JCLKOUT_DPHY_REFCLOCK_MUX_CORE_DPHY_REFCLOCK_MUX0",
+                        wires::IMUX_MIPI_CLKREF[i].cell(0),
+                    )
+                    .input_xlat_rc_io("JCLKIN0_DPHY_REFCLOCK_MUX_CORE_DPHY_REFCLOCK_MUX0")
+                    .input_io_rc_io(
+                        "JCLKIN1_DPHY_REFCLOCK_MUX_CORE_DPHY_REFCLOCK_MUX0",
+                        cslot_io_s[0].wire(wires::OUT_IO_INCK[0]),
+                    )
+                    .input_io_rc_io(
+                        "JCLKIN2_DPHY_REFCLOCK_MUX_CORE_DPHY_REFCLOCK_MUX0",
+                        cslot_io_s[1].wire(wires::OUT_IO_INCK[0]),
+                    )
+                    .input_io_rc_io(
+                        "JCLKIN3_DPHY_REFCLOCK_MUX_CORE_DPHY_REFCLOCK_MUX0",
+                        cslot_io_s[2].wire(wires::OUT_IO_INCK[0]),
+                    )
+                    .input_io_rc_io(
+                        "JCLKIN4_DPHY_REFCLOCK_MUX_CORE_DPHY_REFCLOCK_MUX0",
+                        cslot_io_n[i].wire(wires::OUT_IO_INCK[0]),
+                    );
+            }
+            let bcrd = cell_tile.bel(bslots::MIPI[i]);
+            self.hybrid_out_rc_io_cell(
+                bcrd,
+                cell,
+                "JUCRXWCHS_DPHY_CORE_DPHY0",
+                wires::OUT_MIPI_CLKHSBYTE[i].cell(0),
+            );
+            let (_r, c) = self.rc(cell);
+            let mut bel = self.extract_bel_cell(bcrd, cell);
+            bel.names([
+                format!("DPHY{i}"),
+                format!("TDPHY_REFCLOCK_MUX_CORE{c}"),
+                format!("DPHY{i}_CKP"),
+                format!("DPHY{i}_CKN"),
+                format!("DPHY{i}_DP0"),
+                format!("DPHY{i}_DN0"),
+                format!("DPHY{i}_DP1"),
+                format!("DPHY{i}_DN1"),
+                format!("DPHY{i}_DP2"),
+                format!("DPHY{i}_DN2"),
+                format!("DPHY{i}_DP3"),
+                format!("DPHY{i}_DN3"),
+            ])
+            .suffix("DPHY_CORE_DPHY0")
+            .output_bind_rc_io(
+                bcls::MIPI::UTWDCKHS,
+                "JUTWDCKHS_DPHY_CORE_DPHY0",
+                wires::OUT_MIPI_UTWDCKHS[i].cell(0),
+            )
+            .output_bind_rc_io(
+                bcls::MIPI::URWDCKHS,
+                "JURWDCKHS_DPHY_CORE_DPHY0",
+                wires::OUT_MIPI_URWDCKHS[i].cell(0),
+            );
+            for j in 0..3 {
+                bel.input_xlat_rc_io(
+                    bcls::MIPI::REFCLOCK_MUX_TESTINP[j],
+                    format!("JTESTINP{j}_DPHY_REFCLOCK_MUX_CORE_DPHY_REFCLOCK_MUX0"),
+                );
+            }
+            for pad in [
+                "DP0", "DP1", "DP2", "DP3", "DN0", "DN1", "DN2", "DN3", "CKP", "CKN",
+            ] {
+                let pad_apio = &format!("{pad}_APIO");
+                bel.add_wire_rc_io(pad, format!("J{pad}_DPHY_CORE_DPHY0"))
+                    .add_wire_rc_io(pad_apio, format!("JPAD_APIO_{pad}"))
+                    .claim_pip(pad, pad_apio)
+                    .claim_pip(pad_apio, pad);
+            }
+        }
+    }
+
     pub fn process_serdes(&mut self) {
         match self.chip.kind {
             ChipKind::Scm => self.process_serdes_scm(),
@@ -1254,6 +1804,12 @@ impl ChipContext<'_> {
             ChipKind::Ecp4 => self.process_serdes_ecp4(),
             ChipKind::Ecp5 => self.process_serdes_ecp5(),
             ChipKind::Crosslink => self.process_mipi_crosslink(),
+            ChipKind::Nexus(_) => {
+                self.process_pcie_x1_nexus();
+                self.process_pcs_nexus();
+                self.process_pcie_ll_nexus();
+                self.process_mipi_nexus();
+            }
             _ => (),
         }
     }

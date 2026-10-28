@@ -7,7 +7,7 @@ use prjcombine_interconnect::{
 };
 
 use crate::{
-    chip::{ChipKind, IoGroupKind, NexusKind, RowKind, SpecialIoKey, SpecialLocKey},
+    chip::{ChipKind, IoGroupKind, NexusKind, PllPad, RowKind, SpecialIoKey, SpecialLocKey},
     defs::{rslots, tcls, wires},
     expand::Expander,
 };
@@ -50,56 +50,113 @@ impl Expander<'_, '_> {
         };
         for (loc, bcrd) in self.chip.plls() {
             let cell = bcrd.cell;
-            match (loc.quad, kind) {
-                (DirHV::SW, NexusKind::SmallMipi) => {
-                    self.egrid.add_tile_e(cell, tcls::PLL_SW_JE5D15, 3);
-                }
-                (DirHV::SE, NexusKind::SmallMipi) => {
-                    self.egrid.add_tile_n(cell, tcls::PLL_SE_JE5D15, 3);
-                }
-                (DirHV::SW, NexusKind::SmallMipiPcie) => {
-                    self.egrid.add_tile(
-                        cell,
-                        tcls::PLL_SW_JE5D30,
-                        &[cell, cell.delta(0, 1), cell.delta(1, 0)],
-                    );
-                }
+            let (tcid, tcells) = match (loc.quad, kind) {
+                (DirHV::SW, NexusKind::SmallMipi) => (tcls::PLL_SW_JE5D15, cell.cells_e(3)),
+                (DirHV::SE, NexusKind::SmallMipi) => (tcls::PLL_SE_JE5D15, cell.cells_n(3)),
+                (DirHV::SW, NexusKind::SmallMipiPcie) => (
+                    tcls::PLL_SW_JE5D30,
+                    vec![cell, cell.delta(0, 1), cell.delta(1, 0)],
+                ),
                 (
                     DirHV::SE,
                     NexusKind::SmallMipiPcie | NexusKind::LargePcs | NexusKind::SmallDenseIo,
-                ) => {
-                    self.egrid.add_tile(
-                        cell,
-                        tcls::PLL_SE_JE5D30,
-                        &[cell, cell.delta(0, 1), cell.delta(0, -1)],
-                    );
-                }
-                (DirHV::NW, NexusKind::SmallMipiPcie | NexusKind::LargePcs) => {
-                    self.egrid.add_tile(
-                        cell,
-                        tcls::PLL_NW_JE5D30,
-                        &[cell, cell.delta(0, -1), cell.delta(1, 0)],
-                    );
-                }
-                (DirHV::SW, NexusKind::LargePcs | NexusKind::SmallHalfIo) => {
-                    self.egrid.add_tile(
-                        cell,
-                        tcls::PLL_SW_JD5D,
-                        &[cell, cell.delta(0, -1), cell.delta(1, -1)],
-                    );
-                }
-                (DirHV::NE, NexusKind::LargePcs) => {
-                    self.egrid.add_tile(
-                        cell,
-                        tcls::PLL_NE_JD5D,
-                        &[cell, cell.delta(0, -1), cell.delta(-1, 0)],
-                    );
-                }
-                (DirHV::NW, NexusKind::SmallDenseIo) => {
-                    self.egrid.add_tile_e(cell, tcls::PLL_NW_JD5F, 3);
-                }
+                ) => (
+                    tcls::PLL_SE_JE5D30,
+                    vec![cell, cell.delta(0, 1), cell.delta(0, -1)],
+                ),
+                (DirHV::NW, NexusKind::SmallMipiPcie | NexusKind::LargePcs) => (
+                    tcls::PLL_NW_JE5D30,
+                    vec![cell, cell.delta(0, -1), cell.delta(1, 0)],
+                ),
+                (DirHV::SW, NexusKind::LargePcs | NexusKind::SmallHalfIo) => (
+                    tcls::PLL_SW_JD5D,
+                    vec![cell, cell.delta(0, -1), cell.delta(1, -1)],
+                ),
+                (DirHV::NE, NexusKind::LargePcs) => (
+                    tcls::PLL_NE_JD5D,
+                    vec![cell, cell.delta(0, -1), cell.delta(-1, 0)],
+                ),
+                (DirHV::NW, NexusKind::SmallDenseIo) => (tcls::PLL_NW_JD5F, cell.cells_e(3)),
                 _ => unreachable!(),
+            };
+            let mut tcells = Vec::from_iter(tcells.into_iter().map(Some));
+            // REFCLK14
+            tcells.push(
+                self.chip
+                    .try_get_io_cell(SpecialIoKey::Pll(PllPad::PllIn0, loc)),
+            );
+            match loc.quad.v {
+                DirV::S => {
+                    // REFCLK{13,23}
+                    match loc.quad.h {
+                        DirH::W => {
+                            tcells.extend([
+                                self.chip.try_get_io_cell(SpecialIoKey::Clock(Dir::W, 0)),
+                                self.chip.try_get_io_cell(SpecialIoKey::Clock(Dir::W, 1)),
+                            ]);
+                        }
+                        DirH::E => {
+                            tcells.extend([
+                                self.chip.try_get_io_cell(SpecialIoKey::Clock(Dir::S, 0)),
+                                self.chip.try_get_io_cell(SpecialIoKey::Clock(Dir::S, 1)),
+                            ]);
+                        }
+                    }
+                    // REFCLK{15,25,16,26}
+                    let s4 = if kind == NexusKind::SmallDenseIo {
+                        [None; 2]
+                    } else {
+                        [
+                            self.chip.try_get_io_cell(SpecialIoKey::Clock(Dir::S, 4)),
+                            self.chip.try_get_io_cell(SpecialIoKey::Clock(Dir::S, 5)),
+                        ]
+                    };
+                    let s8e0 = match loc.quad.h {
+                        DirH::W => [
+                            self.chip.try_get_io_cell(SpecialIoKey::Clock(Dir::S, 8)),
+                            self.chip.try_get_io_cell(SpecialIoKey::Clock(Dir::S, 9)),
+                        ],
+                        DirH::E => [
+                            self.chip.try_get_io_cell(SpecialIoKey::Clock(Dir::E, 0)),
+                            self.chip.try_get_io_cell(SpecialIoKey::Clock(Dir::E, 1)),
+                        ],
+                    };
+                    if kind == NexusKind::SmallHalfIo {
+                        tcells.extend(s8e0);
+                        tcells.extend(s4);
+                    } else {
+                        tcells.extend(s4);
+                        tcells.extend(s8e0);
+                    }
+                }
+                DirV::N => {
+                    // REFCLK{13,23}
+                    let cidx = if kind == NexusKind::SmallDenseIo {
+                        4
+                    } else {
+                        3
+                    };
+                    tcells.extend([
+                        self.chip
+                            .try_get_io_cell(SpecialIoKey::Clock(loc.quad.h.into(), cidx)),
+                        self.chip
+                            .try_get_io_cell(SpecialIoKey::Clock(loc.quad.h.into(), cidx + 1)),
+                    ]);
+                    // REFCLK{16,26}
+                    tcells.extend([
+                        self.chip.try_get_io_cell(SpecialIoKey::Clock(Dir::N, 0)),
+                        self.chip.try_get_io_cell(SpecialIoKey::Clock(Dir::N, 1)),
+                    ]);
+                    // REFCLK{15,17} in one cell
+                    tcells.push(self.chip.try_get_spec_cell(SpecialLocKey::Pcs(
+                        match loc.quad.h {
+                            DirH::W => 0,
+                            DirH::E => 1,
+                        },
+                    )));
+                }
             }
+            self.egrid.add_tile_part(cell, tcid, &tcells);
         }
     }
 
@@ -237,6 +294,12 @@ impl Expander<'_, '_> {
             self.egrid.add_tile_single(cell, tcid);
             self.add_io_conn(cell.wire(wires::IO_DLLDEL), SpecialIoKey::Clock(edge, idx));
         }
+    }
+
+    pub(super) fn fill_misc_nexus(&mut self) {
+        let ChipKind::Nexus(kind) = self.chip.kind else {
+            unreachable!()
+        };
         if let Some(&cell) = self.chip.special_loc.get(&SpecialLocKey::Cdr) {
             match kind {
                 NexusKind::SmallMipi => {
@@ -299,6 +362,244 @@ impl Expander<'_, '_> {
                 ],
             );
         }
+        if let Some(&cell) = self.chip.special_loc.get(&SpecialLocKey::Mipi) {
+            let (tcid, num) = match kind {
+                NexusKind::SmallMipi => (tcls::MIPI_JE5D15, 55),
+                NexusKind::SmallMipiPcie => (tcls::MIPI_JE5D30, 48),
+                _ => unreachable!(),
+            };
+            let mut tcells = cell.cells_e(num);
+            for key in [
+                SpecialIoKey::Clock(Dir::S, 7),
+                SpecialIoKey::Clock(Dir::S, 3),
+                SpecialIoKey::Clock(Dir::S, 1),
+                SpecialIoKey::Clock(Dir::N, 0),
+                SpecialIoKey::Clock(Dir::N, 1),
+            ] {
+                tcells.push(self.chip.get_io_cell(key));
+            }
+            self.egrid.add_tile(cell, tcid, &tcells);
+        }
+        match kind {
+            NexusKind::SmallMipi => {
+                let cell = self.chip.special_loc[&SpecialLocKey::Config];
+                self.egrid.add_tile_e(cell, tcls::CONFIG_JE5D15, 22);
+
+                let cell = self.chip.special_loc[&SpecialLocKey::Lram(Dir::W, 0)];
+                self.egrid.add_tile(
+                    cell,
+                    tcls::LRAM_W_JE5D15,
+                    &Vec::from_iter(
+                        [
+                            cell.cells_n(6),
+                            cell.step(Dir::N, 9).cells_n(6),
+                            cell.step(Dir::N, 18).cells_n(6),
+                        ]
+                        .into_iter()
+                        .flatten(),
+                    ),
+                );
+                let cell = self.chip.special_loc[&SpecialLocKey::Lram(Dir::E, 0)];
+                self.egrid.add_tile_n(cell, tcls::LRAM_E_JE5D15, 10);
+
+                for (bank, tcid) in [
+                    (0, tcls::BNKREF33_N_JE5D15),
+                    (1, tcls::BNKREF33_E_JE5D15),
+                    (3, tcls::BNKREF18_S_JE5D15),
+                    (5, tcls::BNKREF18_S_JE5D15),
+                ] {
+                    self.egrid
+                        .add_tile_single(self.chip.special_loc[&SpecialLocKey::Bc(bank)], tcid);
+                }
+                let cell = self.chip.special_loc[&SpecialLocKey::Bc(4)];
+                self.egrid.add_tile_e(cell, tcls::BNKREF18_S_JE5D15_4, 6);
+            }
+            NexusKind::SmallMipiPcie => {
+                let cell = self.chip.special_loc[&SpecialLocKey::Config];
+                self.egrid.add_tile_e(cell, tcls::CONFIG_JE5D30, 14);
+
+                let cell = self.chip.special_loc[&SpecialLocKey::Lram(Dir::E, 0)];
+                self.egrid.add_tile_sn(cell, tcls::LRAM_E_JE5D30_A, 5, 9);
+                let cell = self.chip.special_loc[&SpecialLocKey::Lram(Dir::E, 1)];
+                self.egrid.add_tile_sn(cell, tcls::LRAM_E_JE5D30_B, 7, 9);
+                let cell = self.chip.special_loc[&SpecialLocKey::Alu];
+                self.egrid.add_tile_sn(cell, tcls::ALU_JE5D30, 2, 9);
+                let cell = self.chip.special_loc[&SpecialLocKey::Pcie];
+                self.egrid.add_tile_e(cell, tcls::PCIE_JE5D30, 15);
+
+                for (bank, tcid) in [
+                    (0, tcls::BNKREF33_N_JE5D30),
+                    (1, tcls::BNKREF33_E_JE5D15),
+                    (2, tcls::BNKREF33_E_JE5D15),
+                    (3, tcls::BNKREF18_E_JE5D30),
+                    (4, tcls::BNKREF18_S_JE5D30),
+                    (5, tcls::BNKREF18_S_JE5D30),
+                    (6, tcls::BNKREF33_W_JE5D30),
+                    (7, tcls::BNKREF33_W_JE5D30),
+                ] {
+                    self.egrid
+                        .add_tile_single(self.chip.special_loc[&SpecialLocKey::Bc(bank)], tcid);
+                }
+            }
+            NexusKind::LargePcs => {
+                let cell = self.chip.special_loc[&SpecialLocKey::Config];
+                self.egrid.add_tile_e(cell, tcls::CONFIG_JD5D, 15);
+
+                let cell = self.chip.special_loc[&SpecialLocKey::Pcs(0)];
+                self.egrid.add_tile(
+                    cell,
+                    tcls::PCS_N_JD5D,
+                    &Vec::from_iter(
+                        [
+                            cell.cells_e(8),
+                            cell.step(Dir::E, 9).cells_e(8),
+                            cell.step(Dir::E, 38).cells_e(8),
+                            cell.step(Dir::E, 49).cells_e(8),
+                        ]
+                        .into_iter()
+                        .flatten(),
+                    ),
+                );
+                let cell = self.chip.special_loc[&SpecialLocKey::Pcs(1)];
+                self.egrid.add_tile(
+                    cell,
+                    tcls::PCS_N_JD5D,
+                    &Vec::from_iter(
+                        [
+                            cell.cells_e(5),
+                            cell.step(Dir::E, 7).cells_e(3),
+                            cell.step(Dir::E, 11).cells_e(8),
+                            cell.step(Dir::E, 29).cells_e(8),
+                            cell.step(Dir::E, 47).cells_e(8),
+                        ]
+                        .into_iter()
+                        .flatten(),
+                    ),
+                );
+                let cell = self.chip.special_loc[&SpecialLocKey::PcsRefmux];
+                self.egrid.add_tile(
+                    cell,
+                    tcls::PCS_REFMUX_JD5D,
+                    &[
+                        cell,
+                        self.chip.bel_pll(DirHV::NW, 0).cell,
+                        self.chip.bel_pll(DirHV::NE, 0).cell,
+                    ],
+                );
+                let cell = self.chip.special_loc[&SpecialLocKey::PcsRefclk];
+                self.egrid.add_tile(cell, tcls::PCS_REFCLK, &[]);
+                let cell = self.chip.special_loc[&SpecialLocKey::Pcie];
+                self.egrid.add_tile(
+                    cell,
+                    tcls::PCIE_JD5D,
+                    &Vec::from_iter(
+                        [
+                            cell.cells_e(20),
+                            cell.step(Dir::E, 29).cells_e(2),
+                            cell.step(Dir::E, 40).cells_e(5),
+                        ]
+                        .into_iter()
+                        .flatten(),
+                    ),
+                );
+
+                for i in 0..4 {
+                    let cell = self.chip.special_loc[&SpecialLocKey::Lram(Dir::N, i)];
+                    self.egrid.add_tile_e(cell, tcls::LRAM_N_JD5D, 5);
+                }
+                let cell = self.chip.special_loc[&SpecialLocKey::Lram(Dir::E, 0)];
+                self.egrid.add_tile_sn(cell, tcls::LRAM_E_JD5D_A, 7, 9);
+                let cell = self.chip.special_loc[&SpecialLocKey::Lram(Dir::E, 1)];
+                self.egrid.add_tile_sn(cell, tcls::LRAM_E_JD5D_B, 7, 9);
+                let cell = self.chip.special_loc[&SpecialLocKey::Lram(Dir::E, 2)];
+                self.egrid.add_tile_sn(cell, tcls::LRAM_E_JD5D_C, 7, 9);
+                let cell = self.chip.special_loc[&SpecialLocKey::Alu];
+                self.egrid.add_tile_sn(cell, tcls::ALU_JD5D, 9, 11);
+
+                for (bank, tcid) in [(3, tcls::IVREF_E), (4, tcls::IVREF_S), (5, tcls::IVREF_S)] {
+                    self.egrid
+                        .add_tile_single(self.chip.special_loc[&SpecialLocKey::IVref(bank)], tcid);
+                }
+
+                for (bank, tcid) in [
+                    (0, tcls::BNKREF33_N_JE5D30),
+                    (1, tcls::BNKREF33_E_JE5D15),
+                    (2, tcls::BNKREF33_E_JE5D15),
+                    (3, tcls::BNKREF18_E_JD5D),
+                    (4, tcls::BNKREF18_S_JD5D),
+                    (5, tcls::BNKREF18_S_JD5D),
+                    (6, tcls::BNKREF33_W_JE5D30),
+                    (7, tcls::BNKREF33_W_JE5D30),
+                ] {
+                    self.egrid
+                        .add_tile_single(self.chip.special_loc[&SpecialLocKey::Bc(bank)], tcid);
+                }
+            }
+            NexusKind::SmallHalfIo => {
+                let cell = self.chip.special_loc[&SpecialLocKey::Config];
+                self.egrid.add_tile_e(cell, tcls::CONFIG_JD5U, 15);
+
+                for i in 0..5 {
+                    let cell = self.chip.special_loc[&SpecialLocKey::Lram(Dir::E, i)];
+                    self.egrid.add_tile_sn(cell, tcls::LRAM_E_JD5U, 8, 9);
+                }
+
+                for (bank, tcid) in [
+                    (0, tcls::BNKREF33_N_JD5U),
+                    (1, tcls::BNKREF33_N_JD5U),
+                    (2, tcls::BNKREF18_S_JE5D30),
+                    (3, tcls::BNKREF18_S_JE5D30),
+                    (4, tcls::BNKREF18_S_JE5D30),
+                    (5, tcls::BNKREF33_N_JD5U),
+                ] {
+                    self.egrid
+                        .add_tile_single(self.chip.special_loc[&SpecialLocKey::Bc(bank)], tcid);
+                }
+            }
+            NexusKind::SmallDenseIo => {
+                let cell = self.chip.special_loc[&SpecialLocKey::Config];
+                self.egrid.add_tile_e(cell, tcls::CONFIG_JD5F, 24);
+
+                let cell = self.chip.special_loc[&SpecialLocKey::Lram(Dir::N, 0)];
+                self.egrid.add_tile_e(cell, tcls::LRAM_N_JD5D, 5);
+
+                for (bank, tcid, dx, dy) in [
+                    (0, tcls::BNKREF33_N_JD5F, 1, 0),
+                    (1, tcls::BNKREF33_N_JD5F, 5, 0),
+                    (2, tcls::BNKREF33_E_JD5F, 0, -1),
+                    (3, tcls::BNKREF33_E_JD5F, 0, 1),
+                    (4, tcls::BNKREF33_E_JD5F, 0, 2),
+                    (7, tcls::BNKREF33_W_JD5F, 0, 2),
+                    (8, tcls::BNKREF33_W_JD5F, 0, 1),
+                    (9, tcls::BNKREF33_W_JD5F, 0, -1),
+                ] {
+                    let cell = self.chip.special_loc[&SpecialLocKey::Bc(bank)];
+                    self.egrid.add_tile(cell, tcid, &[cell, cell.delta(dx, dy)]);
+                }
+                for (bank, tcid) in [(5, tcls::BNKREF18_S_JE5D30), (6, tcls::BNKREF18_S_JE5D30)] {
+                    self.egrid
+                        .add_tile_single(self.chip.special_loc[&SpecialLocKey::Bc(bank)], tcid);
+                }
+            }
+        }
+        if let Some(&cell) = self.chip.special_loc.get(&SpecialLocKey::PvtCal33) {
+            let tcid = match kind {
+                NexusKind::SmallMipi => tcls::PVTCAL33_JE5D15,
+                NexusKind::SmallMipiPcie => tcls::PVTCAL33_JE5D30,
+                NexusKind::LargePcs | NexusKind::SmallHalfIo | NexusKind::SmallDenseIo => {
+                    tcls::PVTCAL33_JD5D
+                }
+            };
+            self.egrid.add_tile_single(cell, tcid);
+        }
+        if let Some(&cell) = self.chip.special_loc.get(&SpecialLocKey::PvtCal18) {
+            let tcid = match kind {
+                NexusKind::SmallMipi | NexusKind::SmallMipiPcie => tcls::PVTCAL18_JE5D15,
+                NexusKind::LargePcs | NexusKind::SmallHalfIo => tcls::PVTCAL18_JD5D,
+                NexusKind::SmallDenseIo => tcls::PVTCAL18_JD5F,
+            };
+            self.egrid.add_tile_single(cell, tcid);
+        }
     }
 
     pub(super) fn fill_pclk_nexus(&mut self) {
@@ -337,6 +638,97 @@ impl Expander<'_, '_> {
         let ChipKind::Nexus(kind) = self.chip.kind else {
             unreachable!()
         };
+
+        if !matches!(kind, NexusKind::SmallHalfIo) {
+            for edge in DirH::DIRS {
+                let cell = self.chip.clk_emid(edge);
+                let mut tcells = cell.step(Dir::S, 2).cells_n(5);
+                if kind == NexusKind::SmallMipi {
+                    tcells.extend([
+                        cell.step(!edge, 12),
+                        cell.step(!edge, 12).step(Dir::S, 9),
+                        cell.step(!edge, 24),
+                        cell.step(!edge, 24).step(Dir::S, 9),
+                    ]);
+                } else {
+                    tcells.extend([
+                        cell.step(!edge, 12).step(Dir::N, 18),
+                        cell.step(!edge, 12).step(Dir::N, 9),
+                        cell.step(!edge, 12).step(Dir::S, 9),
+                        cell.step(!edge, 12).step(Dir::S, 18),
+                    ]);
+                }
+                let mut tcells = Vec::from_iter(tcells.into_iter().map(Some));
+                if kind == NexusKind::SmallDenseIo {
+                    tcells.extend([
+                        self.chip
+                            .try_get_io_cell(SpecialIoKey::Clock(edge.into(), 0)),
+                        self.chip
+                            .try_get_io_cell(SpecialIoKey::Clock(edge.into(), 1)),
+                        self.chip
+                            .try_get_io_cell(SpecialIoKey::Clock(edge.into(), 4)),
+                        self.chip
+                            .try_get_io_cell(SpecialIoKey::Clock(edge.into(), 5)),
+                        self.chip
+                            .try_get_io_cell(SpecialIoKey::Clock(edge.into(), 6)),
+                        self.chip
+                            .try_get_spec_cell(SpecialLocKey::DllDel(edge.into(), 2)),
+                        self.chip
+                            .try_get_spec_cell(SpecialLocKey::DllDel(edge.into(), 3)),
+                    ]);
+                } else {
+                    tcells.extend([
+                        self.chip
+                            .try_get_io_cell(SpecialIoKey::Clock(edge.into(), 1)),
+                        self.chip
+                            .try_get_io_cell(SpecialIoKey::Clock(edge.into(), 2)),
+                        self.chip
+                            .try_get_io_cell(SpecialIoKey::Clock(edge.into(), 4)),
+                        self.chip
+                            .try_get_io_cell(SpecialIoKey::Clock(edge.into(), 5)),
+                        self.chip
+                            .try_get_spec_cell(SpecialLocKey::DllDel(edge.into(), 0)),
+                        self.chip
+                            .try_get_spec_cell(SpecialLocKey::DllDel(edge.into(), 3)),
+                    ]);
+                }
+                match edge {
+                    DirH::W => {
+                        if kind != NexusKind::SmallDenseIo {
+                            tcells.push(self.chip.try_bel_pll(DirHV::SW, 0).map(|bcrd| bcrd.cell));
+                        }
+                        tcells.push(self.chip.try_bel_pll(DirHV::NW, 0).map(|bcrd| bcrd.cell));
+                        tcells.push(self.chip.try_get_spec_cell(SpecialLocKey::Cdr));
+                        let tcid = match kind {
+                            NexusKind::SmallMipi => tcls::CLK_W_JE5D15,
+                            NexusKind::SmallMipiPcie => tcls::CLK_W_JE5D30,
+                            NexusKind::LargePcs => tcls::CLK_W_JD5D,
+                            NexusKind::SmallHalfIo => unreachable!(),
+                            NexusKind::SmallDenseIo => tcls::CLK_W_JD5F,
+                        };
+                        self.egrid.add_tile_part(cell, tcid, &tcells);
+                    }
+                    DirH::E => {
+                        tcells.push(self.chip.try_bel_pll(DirHV::SE, 0).map(|bcrd| bcrd.cell));
+                        if kind == NexusKind::LargePcs {
+                            tcells.push(self.chip.try_bel_pll(DirHV::NE, 0).map(|bcrd| bcrd.cell));
+                        }
+                        if matches!(kind, NexusKind::LargePcs | NexusKind::SmallDenseIo) {
+                            tcells.push(self.chip.try_get_spec_cell(SpecialLocKey::Config));
+                        }
+                        let tcid = match kind {
+                            NexusKind::SmallMipi => tcls::CLK_E_JE5D15,
+                            NexusKind::SmallMipiPcie => tcls::CLK_E_JE5D30,
+                            NexusKind::LargePcs => tcls::CLK_E_JD5D,
+                            NexusKind::SmallHalfIo => unreachable!(),
+                            NexusKind::SmallDenseIo => tcls::CLK_E_JD5F,
+                        };
+                        self.egrid.add_tile_part(cell, tcid, &tcells);
+                    }
+                }
+            }
+        }
+
         let cell_s = self.chip.clk_emid(Dir::S);
         let mut tcells = vec![];
         tcells.extend(cell_s.delta(-6, 0).cells_e(12).into_iter().map(Some));
@@ -367,5 +759,86 @@ impl Expander<'_, '_> {
             NexusKind::SmallDenseIo => tcls::CLK_S_JD5F,
         };
         self.egrid.add_tile_part(cell_s, tcid, &tcells);
+
+        let cell_n = self.chip.clk_emid(Dir::N);
+        let mut tcells = cell_n.step(Dir::W, 3).cells_e(6);
+        tcells.push(self.chip.special_loc[&SpecialLocKey::Config]);
+        let mut tcells = Vec::from_iter(tcells.into_iter().map(Some));
+        match kind {
+            NexusKind::SmallMipi | NexusKind::SmallMipiPcie => {
+                tcells.extend([
+                    self.chip.try_get_io_cell(SpecialIoKey::Clock(Dir::N, 0)),
+                    self.chip.try_get_io_cell(SpecialIoKey::Clock(Dir::N, 1)),
+                    self.chip.try_bel_pll(DirHV::NW, 0).map(|bcrd| bcrd.cell),
+                    self.chip.try_get_spec_cell(SpecialLocKey::Mipi),
+                    self.chip.try_get_spec_cell(SpecialLocKey::Pcie),
+                ]);
+            }
+            NexusKind::LargePcs => {
+                tcells.extend([
+                    self.chip.try_get_io_cell(SpecialIoKey::Clock(Dir::N, 0)),
+                    self.chip.try_get_io_cell(SpecialIoKey::Clock(Dir::N, 1)),
+                    self.chip.try_bel_pll(DirHV::NW, 0).map(|bcrd| bcrd.cell),
+                    self.chip.try_bel_pll(DirHV::NE, 0).map(|bcrd| bcrd.cell),
+                    self.chip.try_get_spec_cell(SpecialLocKey::Pcs(0)),
+                    self.chip.try_get_spec_cell(SpecialLocKey::Pcs(1)),
+                    self.chip.try_get_spec_cell(SpecialLocKey::Pcie),
+                ]);
+            }
+            NexusKind::SmallHalfIo => {
+                tcells.extend([
+                    self.chip.try_get_io_cell(SpecialIoKey::Clock(Dir::N, 1)),
+                    self.chip.try_get_io_cell(SpecialIoKey::Clock(Dir::N, 3)),
+                    self.chip
+                        .try_get_spec_cell(SpecialLocKey::DllDel(Dir::N, 0)),
+                    self.chip
+                        .try_get_spec_cell(SpecialLocKey::DllDel(Dir::N, 2)),
+                ]);
+            }
+            NexusKind::SmallDenseIo => {
+                tcells.extend([
+                    self.chip.try_get_io_cell(SpecialIoKey::Clock(Dir::N, 0)),
+                    self.chip.try_get_io_cell(SpecialIoKey::Clock(Dir::N, 1)),
+                    self.chip.try_get_io_cell(SpecialIoKey::Clock(Dir::N, 2)),
+                    self.chip.try_get_io_cell(SpecialIoKey::Clock(Dir::N, 3)),
+                    self.chip.try_bel_pll(DirHV::NW, 0).map(|bcrd| bcrd.cell),
+                ]);
+            }
+        }
+        let tcid = match kind {
+            NexusKind::SmallMipi => tcls::CLK_N_JE5D15,
+            NexusKind::SmallMipiPcie => tcls::CLK_N_JE5D30,
+            NexusKind::LargePcs => tcls::CLK_N_JD5D,
+            NexusKind::SmallHalfIo => tcls::CLK_N_JD5U,
+            NexusKind::SmallDenseIo => tcls::CLK_N_JD5F,
+        };
+        self.egrid.add_tile_part(cell_n, tcid, &tcells);
+
+        let cell = self.chip.clk_root();
+        let mut tcells = vec![
+            cell.delta(-1, -9),
+            cell.delta(0, -9),
+            cell.delta(-1, 0),
+            cell,
+        ];
+        if matches!(
+            kind,
+            NexusKind::SmallMipiPcie | NexusKind::SmallHalfIo | NexusKind::SmallDenseIo
+        ) {
+            tcells.extend([cell.delta(-1, 9), cell.delta(0, 9)]);
+        }
+        tcells.extend([
+            self.chip.clk_emid(Dir::W),
+            self.chip.clk_emid(Dir::E),
+            self.chip.clk_emid(Dir::S),
+            self.chip.clk_emid(Dir::N),
+        ]);
+        let tcid = match kind {
+            NexusKind::SmallMipi => tcls::CLK_ROOT_JE5D15,
+            NexusKind::SmallMipiPcie => tcls::CLK_ROOT_JE5D30,
+            NexusKind::LargePcs => tcls::CLK_ROOT_JD5D,
+            NexusKind::SmallHalfIo | NexusKind::SmallDenseIo => tcls::CLK_ROOT_JD5U,
+        };
+        self.egrid.add_tile(cell, tcid, &tcells);
     }
 }

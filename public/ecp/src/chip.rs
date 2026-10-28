@@ -93,7 +93,7 @@ pub enum NexusKind {
     /// - W: 2× CDR, 2× PLL, 3+3× IO, 9×CIB
     /// - E: OSC, 2× PLL, 3+3× IO, 9×CIB
     /// - S: 2× PLL, 4+4+4× IO+ECLKDIV, 6×CIB (like SmallMipi)
-    /// - N: TCK+OSC, 2×PLL (4 inputs only), 8×MIPI, PCIELL, 2×IO, 6×CIB
+    /// - N: TCK+OSC, 2×PLL (4 inputs only), 8×PCS, PCIELL, 2×IO, 6×CIB
     ///
     /// IO banks: similar to SmallMipi numbering
     ///
@@ -548,6 +548,16 @@ pub enum SpecialLocKey {
     Cdr,
     DllDel(Dir, u8),
     Adc,
+    Mipi,
+    Pcs(u8),
+    PcsRefmux,
+    PcsRefclk,
+    Pcie,
+    Lram(Dir, u8),
+    Alu,
+    IVref(u32),
+    PvtCal33,
+    PvtCal18,
 }
 
 impl Display for SpecialLocKey {
@@ -572,6 +582,16 @@ impl Display for SpecialLocKey {
             SpecialLocKey::Cdr => write!(f, "CDR"),
             SpecialLocKey::DllDel(dir, idx) => write!(f, "DLLDEL_{dir}{idx}"),
             SpecialLocKey::Adc => write!(f, "ADC"),
+            SpecialLocKey::Mipi => write!(f, "MIPI"),
+            SpecialLocKey::Pcs(idx) => write!(f, "PCS{idx}"),
+            SpecialLocKey::PcsRefmux => write!(f, "PCS_REFMUX"),
+            SpecialLocKey::PcsRefclk => write!(f, "PCS_REFCLK"),
+            SpecialLocKey::Pcie => write!(f, "PCIE"),
+            SpecialLocKey::Lram(dir, idx) => write!(f, "LRAM_{dir}{idx}"),
+            SpecialLocKey::Alu => write!(f, "ALU"),
+            SpecialLocKey::IVref(bank) => write!(f, "IVREF{bank}"),
+            SpecialLocKey::PvtCal33 => write!(f, "PVTCAL33"),
+            SpecialLocKey::PvtCal18 => write!(f, "PVTCAL18"),
         }
     }
 }
@@ -1000,7 +1020,15 @@ impl Chip {
     }
 
     pub fn bel_mipi(&self, col: ColId) -> BelCoord {
-        Self::DIE.cell(col, self.row_n()).bel(bslots::MIPI)
+        match self.kind {
+            ChipKind::Crosslink => Self::DIE.cell(col, self.row_n()).bel(bslots::MIPI[0]),
+            ChipKind::Nexus(_) => {
+                let cell = self.special_loc[&SpecialLocKey::Mipi];
+                let idx = col - cell.col;
+                cell.bel(bslots::MIPI[idx as usize])
+            }
+            _ => unreachable!(),
+        }
     }
 
     pub fn btile_term_width(&self, _col: ColId) -> usize {

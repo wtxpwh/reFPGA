@@ -1,13 +1,13 @@
 use std::collections::{BTreeMap, BTreeSet, HashMap, btree_map};
 
 use prjcombine_ecp::{
-    chip::{ChipKind, IoGroupKind, NexusKind, PllLoc, PllPad, SpecialIoKey, SpecialLocKey},
+    chip::{Chip, ChipKind, IoGroupKind, NexusKind, PllLoc, PllPad, SpecialIoKey, SpecialLocKey},
     defs::bslots,
 };
 use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
     dir::{Dir, DirH, DirV},
-    grid::{BelCoord, ColId, ColIdExt, RowIdExt},
+    grid::{BelCoord, ColId, ColIdExt, DieIdExt, RowIdExt},
 };
 use prjcombine_re_lattice_naming::WireName;
 use prjcombine_re_lattice_rawdump::PinDir;
@@ -123,15 +123,11 @@ impl ChipBuilder<'_> {
             SpecialLocKey::DllDel(edge, idx)
         };
 
-        let mut mipi_wires = BTreeSet::new();
         for &(wf, wt) in self.grid.pips.keys() {
             let wfn = self.nodes[wf];
             let wtn = self.nodes[wt];
             let suffix = self.naming.strings[wfn.suffix].as_str();
             match suffix {
-                "JLMMIREADY_DPHY_CORE_DPHY0" => {
-                    mipi_wires.insert(wfn);
-                }
                 "JCLKOUT_DLLDEL_CORE_I0" => {
                     let cell = self.chip.xlat_rc_wire(wfn);
                     let key = match self.naming.strings[wtn.suffix].as_str() {
@@ -195,15 +191,240 @@ impl ChipBuilder<'_> {
                     let cell = self.chip.xlat_rc_wire(wfn);
                     self.chip.special_loc.insert(SpecialLocKey::Adc, cell);
                 }
+                "JLMMIREADY_PCIE_CORE_PCIE0" => {
+                    let cell = self.chip.xlat_rc_wire(wfn);
+                    self.chip.special_loc.insert(SpecialLocKey::Pcie, cell);
+                }
                 _ => (),
             }
         }
-        for (i, wn) in mipi_wires.into_iter().enumerate() {
-            let cell = self.chip.xlat_rc_wire(wn);
-            self.chip.columns[cell.col].io[DirV::N] = IoGroupKind::Mipi;
-            self.chip.columns[cell.col]
-                .bank
-                .insert(DirV::N, 60 + i as u32);
+        match kind {
+            NexusKind::SmallMipi => {
+                self.chip.special_loc.insert(
+                    SpecialLocKey::Config,
+                    Chip::DIE.cell(self.chip.col_w() + 51, self.chip.row_n()),
+                );
+
+                self.chip.special_loc.insert(
+                    SpecialLocKey::Mipi,
+                    Chip::DIE.cell(self.chip.col_w(), self.chip.row_n()),
+                );
+                self.chip.special_loc.insert(
+                    SpecialLocKey::Lram(Dir::W, 0),
+                    Chip::DIE.cell(self.chip.col_w(), self.chip.row_s() + 3),
+                );
+                self.chip.special_loc.insert(
+                    SpecialLocKey::Lram(Dir::E, 0),
+                    Chip::DIE.cell(self.chip.col_e(), self.chip.row_s() + 4),
+                );
+
+                for (bank, x, y) in [(0, 55, 27), (1, 73, 26), (3, 71, 0), (4, 49, 0), (5, 31, 0)] {
+                    self.chip.special_loc.insert(
+                        SpecialLocKey::Bc(bank),
+                        Chip::DIE.cell(self.chip.col_w() + x, self.chip.row_s() + y),
+                    );
+                }
+                self.chip.special_loc.insert(
+                    SpecialLocKey::PvtCal33,
+                    Chip::DIE.cell(self.chip.col_e(), self.chip.row_n()),
+                );
+                self.chip.special_loc.insert(
+                    SpecialLocKey::PvtCal18,
+                    Chip::DIE.cell(self.chip.col_w() + 2, self.chip.row_s()),
+                );
+            }
+            NexusKind::SmallMipiPcie => {
+                self.chip.special_loc.insert(
+                    SpecialLocKey::Config,
+                    Chip::DIE.cell(self.chip.col_w() + 72, self.chip.row_n()),
+                );
+
+                self.chip.special_loc.insert(
+                    SpecialLocKey::Mipi,
+                    Chip::DIE.cell(self.chip.col_w() + 1, self.chip.row_n()),
+                );
+                for (i, dy) in [32, 14].into_iter().enumerate() {
+                    self.chip.special_loc.insert(
+                        SpecialLocKey::Lram(Dir::E, i as u8),
+                        Chip::DIE.cell(self.chip.col_e(), self.chip.row_s() + dy),
+                    );
+                }
+                self.chip.special_loc.insert(
+                    SpecialLocKey::Alu,
+                    Chip::DIE.cell(self.chip.col_e(), self.chip.row_s() + 20),
+                );
+
+                for (bank, x, y) in [
+                    (0, 71, 54),
+                    (1, 85, 46),
+                    (2, 85, 16),
+                    (3, 85, 0),
+                    (4, 51, 0),
+                    (5, 13, 0),
+                    (6, 0, 20),
+                    (7, 0, 46),
+                ] {
+                    self.chip.special_loc.insert(
+                        SpecialLocKey::Bc(bank),
+                        Chip::DIE.cell(self.chip.col_w() + x, self.chip.row_s() + y),
+                    );
+                }
+                self.chip.special_loc.insert(
+                    SpecialLocKey::PvtCal33,
+                    Chip::DIE.cell(self.chip.col_e(), self.chip.row_n()),
+                );
+                self.chip.special_loc.insert(
+                    SpecialLocKey::PvtCal18,
+                    Chip::DIE.cell(self.chip.col_w() + 1, self.chip.row_s()),
+                );
+            }
+            NexusKind::LargePcs => {
+                self.chip.special_loc.insert(
+                    SpecialLocKey::Config,
+                    Chip::DIE.cell(self.chip.col_w() + 132, self.chip.row_n()),
+                );
+
+                for (i, dx) in [1, 67].into_iter().enumerate() {
+                    self.chip.special_loc.insert(
+                        SpecialLocKey::Pcs(i as u8),
+                        Chip::DIE.cell(self.chip.col_w() + dx, self.chip.row_n()),
+                    );
+                }
+                self.chip.special_loc.insert(
+                    SpecialLocKey::PcsRefmux,
+                    Chip::DIE.cell(self.chip.col_w() + 8, self.chip.row_n()),
+                );
+                self.chip.special_loc.insert(
+                    SpecialLocKey::PcsRefclk,
+                    Chip::DIE.cell(self.chip.col_w() + 130, self.chip.row_n()),
+                );
+                self.chip.special_loc.insert(
+                    SpecialLocKey::Pcie,
+                    Chip::DIE.cell(self.chip.col_w() + 19, self.chip.row_n()),
+                );
+                for (i, dx) in [88, 104, 109, 124].into_iter().enumerate() {
+                    self.chip.special_loc.insert(
+                        SpecialLocKey::Lram(Dir::N, i as u8),
+                        Chip::DIE.cell(self.chip.col_w() + dx, self.chip.row_n()),
+                    );
+                }
+                for (i, dy) in [52, 32, 16].into_iter().enumerate() {
+                    self.chip.special_loc.insert(
+                        SpecialLocKey::Lram(Dir::E, i as u8),
+                        Chip::DIE.cell(self.chip.col_e(), self.chip.row_s() + dy),
+                    );
+                }
+                self.chip.special_loc.insert(
+                    SpecialLocKey::Alu,
+                    Chip::DIE.cell(self.chip.col_e(), self.chip.row_s() + 43),
+                );
+
+                for (bank, x, y) in [
+                    (0, 131, 72),
+                    (1, 157, 59),
+                    (2, 157, 19),
+                    (3, 157, 0),
+                    (4, 76, 0),
+                    (5, 24, 0),
+                    (6, 0, 19),
+                    (7, 0, 59),
+                ] {
+                    self.chip.special_loc.insert(
+                        SpecialLocKey::Bc(bank),
+                        Chip::DIE.cell(self.chip.col_w() + x, self.chip.row_s() + y),
+                    );
+                }
+
+                for (bank, x, y) in [(3, 157, 0), (4, 76, 0), (5, 13, 0)] {
+                    self.chip.special_loc.insert(
+                        SpecialLocKey::IVref(bank),
+                        Chip::DIE.cell(self.chip.col_w() + x, self.chip.row_s() + y),
+                    );
+                }
+
+                self.chip.special_loc.insert(
+                    SpecialLocKey::PvtCal33,
+                    Chip::DIE.cell(self.chip.col_e() - 1, self.chip.row_n()),
+                );
+                self.chip.special_loc.insert(
+                    SpecialLocKey::PvtCal18,
+                    Chip::DIE.cell(self.chip.col_w(), self.chip.row_s() + 5),
+                );
+            }
+            NexusKind::SmallHalfIo => {
+                self.chip.special_loc.insert(
+                    SpecialLocKey::Config,
+                    Chip::DIE.cell(self.chip.col_w() + 28, self.chip.row_n()),
+                );
+
+                for (i, dy) in [78, 62, 48, 35, 17].into_iter().enumerate() {
+                    self.chip.special_loc.insert(
+                        SpecialLocKey::Lram(Dir::E, i as u8),
+                        Chip::DIE.cell(self.chip.col_e(), self.chip.row_s() + dy),
+                    );
+                }
+
+                for (bank, x, y) in [
+                    (0, 22, 81),
+                    (1, 44, 81),
+                    (2, 30, 0),
+                    (3, 19, 0),
+                    (4, 2, 0),
+                    (5, 8, 81),
+                ] {
+                    self.chip.special_loc.insert(
+                        SpecialLocKey::Bc(bank),
+                        Chip::DIE.cell(self.chip.col_w() + x, self.chip.row_s() + y),
+                    );
+                }
+
+                self.chip.special_loc.insert(
+                    SpecialLocKey::PvtCal33,
+                    Chip::DIE.cell(self.chip.col_e() - 1, self.chip.row_n()),
+                );
+                self.chip.special_loc.insert(
+                    SpecialLocKey::PvtCal18,
+                    Chip::DIE.cell(self.chip.col_w(), self.chip.row_s() + 2),
+                );
+            }
+            NexusKind::SmallDenseIo => {
+                self.chip.special_loc.insert(
+                    SpecialLocKey::Config,
+                    Chip::DIE.cell(self.chip.col_w() + 37, self.chip.row_n()),
+                );
+
+                self.chip.special_loc.insert(
+                    SpecialLocKey::Lram(Dir::N, 0),
+                    Chip::DIE.cell(self.chip.col_w() + 2, self.chip.row_n()),
+                );
+
+                for (bank, x, y) in [
+                    (0, 6, 54),
+                    (1, 46, 54),
+                    (2, 61, 54),
+                    (3, 61, 36),
+                    (4, 61, 4),
+                    (5, 30, 0),
+                    (6, 19, 0),
+                    (7, 0, 4),
+                    (8, 0, 36),
+                    (9, 0, 54),
+                ] {
+                    self.chip.special_loc.insert(
+                        SpecialLocKey::Bc(bank),
+                        Chip::DIE.cell(self.chip.col_w() + x, self.chip.row_s() + y),
+                    );
+                }
+
+                self.chip.special_loc.insert(
+                    SpecialLocKey::PvtCal33,
+                    Chip::DIE.cell(self.chip.col_e() - 1, self.chip.row_n()),
+                );
+                self.chip.special_loc.insert(
+                    SpecialLocKey::PvtCal18,
+                    Chip::DIE.cell(self.chip.col_w(), self.chip.row_s() + 5),
+                );
+            }
         }
     }
 

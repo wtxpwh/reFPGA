@@ -10997,6 +10997,36 @@ intdb {
 		output Q1S_TXFLOWCTRLSTATE[5];
 		output Q1S_TXINITN;
 		output Q1S_TXLANESILENCECH[4];
+		pad CORNER_REFCLKP: input
+		pad CORNER_REFCLKN: input
+		pad RXANTOUTP: output
+		pad RXANTOUTN: output
+		pad AUXTSTPADOUTP: output
+		pad AUXTSTPADOUTN: output
+		pad Q0_REFCLKP: input
+		pad Q0_REFCLKN: input
+		pad Q0_HDRXP[4]: input
+		pad Q0_HDRXN[4]: input
+		pad Q0_HDTXP[4]: output
+		pad Q0_HDTXN[4]: output
+		pad Q1_REFCLKP: input
+		pad Q1_REFCLKN: input
+		pad Q1_HDRXP[4]: input
+		pad Q1_HDRXN[4]: input
+		pad Q1_HDTXP[4]: output
+		pad Q1_HDTXN[4]: output
+		pad Q2_REFCLKP: input
+		pad Q2_REFCLKN: input
+		pad Q2_HDRXP[4]: input
+		pad Q2_HDRXN[4]: input
+		pad Q2_HDTXP[4]: output
+		pad Q2_HDTXN[4]: output
+		pad Q3_REFCLKP: input
+		pad Q3_REFCLKN: input
+		pad Q3_HDRXP[4]: input
+		pad Q3_HDRXN[4]: input
+		pad Q3_HDTXP[4]: output
+		pad Q3_HDTXN[4]: output
 	}
 
 	region_slot PCLK;

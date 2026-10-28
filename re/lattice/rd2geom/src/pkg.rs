@@ -1679,7 +1679,7 @@ impl<'a> BondContext<'a> {
         }
     }
 
-    fn parse_pad_mipi(&self, func: &str, bank: i32) -> Option<BondPad> {
+    fn parse_pad_mipi_crosslink(&self, func: &str, bank: i32) -> Option<BondPad> {
         if let Some(suffix) = func.strip_prefix("DPHY") {
             let (idx, sig) = suffix.split_once('_')?;
             let idx: u32 = idx.parse().ok()?;
@@ -1720,6 +1720,40 @@ impl<'a> BondContext<'a> {
             }
         } else {
             None
+        }
+    }
+
+    fn parse_pad_mipi_nexus(&self, func: &str, bank: i32) -> Option<BondPad> {
+        if let Some(suffix) = func.strip_prefix("DPHY") {
+            let (idx, sig) = suffix.split_once('_')?;
+            let idx: u32 = idx.parse().ok()?;
+            let pad = match sig {
+                "DP0" => MipiPad::DataP(0),
+                "DN0" => MipiPad::DataN(0),
+                "DP1" => MipiPad::DataP(1),
+                "DN1" => MipiPad::DataN(1),
+                "DP2" => MipiPad::DataP(2),
+                "DN2" => MipiPad::DataN(2),
+                "DP3" => MipiPad::DataP(3),
+                "DN3" => MipiPad::DataN(3),
+                "CKP" => MipiPad::ClkP,
+                "CKN" => MipiPad::ClkN,
+                _ => return None,
+            };
+            let exp_bank = 60 + idx;
+            assert_eq!(bank, exp_bank as i32);
+            let col = self.chip.special_loc[&SpecialLocKey::Mipi].col + (idx as usize);
+            Some(BondPad::Mipi(col, pad))
+        } else {
+            None
+        }
+    }
+
+    fn parse_pad_mipi(&self, func: &str, bank: i32) -> Option<BondPad> {
+        match self.chip.kind {
+            ChipKind::Crosslink => self.parse_pad_mipi_crosslink(func, bank),
+            ChipKind::Nexus(_) => self.parse_pad_mipi_nexus(func, bank),
+            _ => None,
         }
     }
 
@@ -2113,7 +2147,7 @@ impl<'a> BondContext<'a> {
     }
 
     fn parse_pad_misc_nexus(&self, func: &str) -> Option<BondPad> {
-        if let Some(bank) = func.strip_prefix("SSIO")
+        if let Some(bank) = func.strip_prefix("VSSIO")
             && let Ok(bank) = bank.parse()
         {
             // XXX

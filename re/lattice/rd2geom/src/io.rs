@@ -102,7 +102,9 @@ impl ChipContext<'_> {
                 self.process_eclk_nexus();
                 self.process_ddrdll_nexus();
                 self.process_dlldel_nexus();
+                self.process_ivref_nexus();
                 self.process_io_nexus();
+                self.process_bnkref_nexus();
                 self.process_cdr_nexus();
                 self.process_adc_nexus();
             }

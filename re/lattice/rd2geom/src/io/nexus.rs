@@ -1,11 +1,13 @@
+use std::collections::{BTreeMap, btree_map};
+
 use prjcombine_ecp::{
-    chip::{ChipKind, NexusKind, SpecialIoKey, SpecialLocKey},
+    chip::{Chip, ChipKind, IoGroupKind, NexusKind, SpecialIoKey, SpecialLocKey},
     defs::{bcls, bslots, nexus::tcls::CLK_S_JE5D15, tcls, tslots, wires},
 };
 use prjcombine_interconnect::{
     db::{CellSlotIdExt, WireSlotIdExt},
     dir::{Dir, DirH, DirHV, DirV},
-    grid::{BelCoord, CellCoord},
+    grid::{BelCoord, CellCoord, DieIdExt},
 };
 use prjcombine_re_lattice_naming::WireName;
 
@@ -72,6 +74,16 @@ impl ChipContext<'_> {
     pub fn get_paddi_wire_nexus(&self, bcrd: BelCoord) -> WireName {
         let pio = self.get_nexus_pio_suffix(bcrd);
         self.rc_io_wire(bcrd.cell, &format!("JPADDI_{pio}"))
+    }
+
+    pub fn get_paddo_wire_nexus(&self, bcrd: BelCoord) -> WireName {
+        let pio = self.get_nexus_pio_suffix(bcrd);
+        self.rc_io_wire(bcrd.cell, &format!("JPADDO_{pio}"))
+    }
+
+    pub fn get_paddt_wire_nexus(&self, bcrd: BelCoord) -> WireName {
+        let pio = self.get_nexus_pio_suffix(bcrd);
+        self.rc_io_wire(bcrd.cell, &format!("JPADDT_{pio}"))
     }
 
     fn get_nexus_ddrdll_rc_mode(&self, bcrd: BelCoord) -> RcMode {
@@ -501,7 +513,81 @@ impl ChipContext<'_> {
         }
     }
 
+    pub(super) fn process_ivref_nexus(&mut self) {
+        let ChipKind::Nexus(kind) = self.chip.kind else {
+            unreachable!()
+        };
+        if kind != NexusKind::LargePcs {
+            return;
+        }
+        let mut banks = vec![];
+        let mut dqs = BTreeMap::new();
+        for (col, cd) in &self.chip.columns {
+            if cd.io[DirV::S] == IoGroupKind::DoubleDqs {
+                let bank = cd.bank[DirV::S];
+                let cell = Chip::DIE.cell(col, self.chip.row_s());
+                match dqs.entry(bank) {
+                    btree_map::Entry::Vacant(e) => {
+                        e.insert(vec![cell]);
+                        banks.push(bank);
+                    }
+                    btree_map::Entry::Occupied(mut e) => {
+                        e.get_mut().push(cell);
+                    }
+                }
+            }
+        }
+        let mut idx = 1;
+        for bank in banks {
+            let cells_dqs = &dqs[&bank];
+            let bcrd = self.chip.special_loc[&SpecialLocKey::IVref(bank)].bel(bslots::IVREF);
+            let mut names = vec![];
+            for _ in 0..cells_dqs.len() {
+                names.push(format!("IVREF_{idx}"));
+                idx += 1;
+            }
+            let mut bel = self.extract_bel(bcrd);
+            bel.names(names);
+            for (j, &cell_dqs) in cells_dqs.iter().enumerate() {
+                let cell = bcrd.delta(
+                    match (bank, j) {
+                        (5, _) => j as i32,
+                        (4, 0) => 0,
+                        (4, 1) => -1,
+                        (4, 2) => 3,
+                        (4, 3) => 4,
+                        (3, 0) => 2,
+                        (3, 1) => -1,
+                        (3, 2) => -2,
+                        (3, 3) => -3,
+                        _ => unreachable!(),
+                    },
+                    0,
+                );
+                let suffix = if bank == 4 && j == 0 {
+                    "IVREF_CORE_BNKVRGEN180"
+                } else {
+                    "IVREF_CORE"
+                };
+                bel.cell = cell;
+                for k in 0..7 {
+                    bel.input_xlat_rename_rc(
+                        bcls::IVREF::IVREFI[k],
+                        format!("DQS{j}_IVREFI{k}"),
+                        format!("JIVREFI{k}_{suffix}"),
+                    );
+                }
+                let wname =
+                    bel.add_wire_rc_get(format!("DQS{j}_IVREFO"), format!("JIVREFO_{suffix}"));
+                bel.ctx.ivref_map.insert(cell_dqs, wname);
+            }
+        }
+    }
+
     fn process_single_io_nexus(&mut self, bcrd: BelCoord) {
+        let ChipKind::Nexus(kind) = self.chip.kind else {
+            unreachable!()
+        };
         let is_jtag_en = bcrd == self.chip.special_io[&SpecialIoKey::JtagEn];
         let edge = self.chip.get_io_edge(bcrd.cell);
         let idx = bslots::IO.index_of(bcrd.slot).unwrap();
@@ -516,10 +602,7 @@ impl ChipContext<'_> {
         let tcrd = self.edev.bel_tile(bcrd);
         let is_lpddr4 = self.edev[tcrd].class == tcls::IO_HP_S_LPDDR4;
         let is_jd5u = self.edev[tcrd].class == tcls::IO_HP_S_JD5U;
-        let skip_hpio_pip = matches!(
-            self.chip.kind,
-            ChipKind::Nexus(NexusKind::SmallDenseIo | NexusKind::SmallHalfIo)
-        );
+        let skip_hpio_pip = matches!(kind, NexusKind::SmallDenseIo | NexusKind::SmallHalfIo);
         let is_hp = edge == Dir::S;
         let iol = if is_hp {
             format!("IOLOGIC_CORE_I_GEARING_PIC_TOP_{ab}")
@@ -622,6 +705,14 @@ impl ChipContext<'_> {
                     bel.claim_pip_from(pin, wire_dqs);
                 }
             }
+            if kind == NexusKind::LargePcs {
+                bel.add_wire_rc_io("IVREF_IN", format!("JIVREF_IN_{pio}"));
+                if let Some(bcrd_dqs) = bel.ctx.edev.bel_io_dqs(bcrd)
+                    && let Some(&wire) = bel.ctx.ivref_map.get(&bcrd_dqs.cell)
+                {
+                    bel.claim_pip_from("IVREF_IN", wire);
+                }
+            }
         } else {
             if !is_jtag_en {
                 bel.input_xlat_rc_io(bcls::IO::I3CWKPU, format!("JI3CWKPU_{pio}"))
@@ -667,6 +758,74 @@ impl ChipContext<'_> {
                     self.process_single_io_nexus(tcrd.bel(bslots::IO[i]));
                 }
             }
+        }
+    }
+
+    pub(super) fn process_bnkref_nexus(&mut self) {
+        let ChipKind::Nexus(kind) = self.chip.kind else {
+            unreachable!()
+        };
+        for (&key, &cell) in &self.chip.special_loc {
+            let SpecialLocKey::Bc(bank) = key else {
+                continue;
+            };
+            let bcrd = cell.bel(bslots::BNKREF);
+            let (is_hp, suffix) = match (kind, bank) {
+                (
+                    NexusKind::SmallMipi | NexusKind::SmallMipiPcie | NexusKind::LargePcs,
+                    0..=2 | 6..=7,
+                ) => (false, "BNKREF33_CORE"),
+                (NexusKind::SmallMipi, 3..=5) => (true, "BNKREF18_CORE_BNKREF180"),
+                (NexusKind::SmallMipiPcie, 3..=5) => (true, "BNKREF18_CORE"),
+                (NexusKind::LargePcs, 4) => (true, "BNKREF18_CORE_BNKREF180"),
+                (NexusKind::LargePcs, 3 | 5) => (true, "BNKREF18_CORE"),
+                (NexusKind::SmallHalfIo, 0..=1 | 5) => (false, "BNKREF33_CORE"),
+                (NexusKind::SmallHalfIo, 2..=4) => (true, "BNKREF18_CORE"),
+                (NexusKind::SmallDenseIo, 0..=4 | 7..=8) => (false, "BNKREF33_CORE"),
+                (NexusKind::SmallDenseIo, 9) => (false, "BNKREF33_CORE_BNKREF330"),
+                (NexusKind::SmallDenseIo, 5 | 6) => (true, "BNKREF18_CORE"),
+                _ => unreachable!(),
+            };
+            let cell = match (kind, bank) {
+                (NexusKind::SmallMipi, 0) => bcrd.step(Dir::E, 1),
+                (NexusKind::SmallMipi, 1) => bcrd.step(Dir::S, 1),
+                (NexusKind::SmallMipi, 3 | 5) => bcrd.step(Dir::W, 16),
+                (NexusKind::SmallMipi, 4) => bcrd.step(Dir::W, 10),
+                _ => bcrd.cell,
+            };
+            self.extract_bel_cell(bcrd, cell)
+                .name_rc(if is_hp {
+                    "BNKREF18_CORE"
+                } else {
+                    "BNKREF33_CORE"
+                })
+                .suffix(suffix);
+        }
+        {
+            let cell = self.chip.special_loc[&SpecialLocKey::PvtCal33];
+            let (_, c) = self.rc(cell);
+            let mut bel = self.extract_bel(cell.bel(bslots::PVTCAL));
+            if matches!(kind, NexusKind::SmallMipi | NexusKind::SmallMipiPcie) {
+                bel.name_rc("PVTCAL33_CORE");
+            } else {
+                bel.name(format!("TPVTCAL33_CORE{c}"));
+            }
+            bel.suffix("PVTCAL33_CORE");
+        }
+        {
+            let cell = self.chip.special_loc[&SpecialLocKey::PvtCal18];
+            let (r, _) = self.rc(cell);
+            let mut bel = self.extract_bel(cell.bel(bslots::PVTCAL));
+            if matches!(kind, NexusKind::LargePcs | NexusKind::SmallDenseIo) {
+                bel.name(format!("LPVTCAL18_CORE{r}"));
+            } else {
+                bel.name_rc("PVTCAL18_CORE");
+            }
+            bel.suffix(if kind == NexusKind::SmallMipi {
+                "PVTCAL18_CORE"
+            } else {
+                "PVTCAL18_CORE_PVTCAL0"
+            });
         }
     }
 

@@ -91,16 +91,52 @@ target_defs! {
             input BENA_N[4], BENB_N[4];
             input DIA[32], DIB[32];
             output DOA[32], DOB[32];
-            input OPCGLOADCLK;
             input DPS, IGN, INITN, STDBYN;
-            input ERRDECA[2], ERRDECB[2];
             output OEA, OEB;
             output ERRDET;
+            output ERRDECA[2], ERRDECB[2];
             output LRAMREADY;
 
+            input OPCGLOADCLK;
             input SCANCLK;
             input SCANRST;
             input TBISTN;
+        }
+
+        bel_class ALU {
+            input ALUCLK;
+            input ALURST;
+            input ALUFORWARDA;
+            input ALUFORWARDB;
+            input ALUIREGEN;
+            input ALUOREGEN;
+            input DATAA[32];
+            input DATAB[32];
+            input DATAC[5];
+            input OPC[7];
+            input OPCCUSTOM;
+            output ALUFLAGC;
+            output ALUFLAGV;
+            output ALUFLAGZ;
+            output RESULT[32];
+
+            input REGCLK;
+            input REGCLKEN;
+            input REGRST;
+            input RADDRA[5];
+            input RADDRB[5];
+            input WADDR[5];
+            input WDATA[32];
+            input WDROTATE[2];
+            input WDSIGNEXT;
+            input WDSIZE[2];
+            input WREN;
+            output RDATAA[32];
+            output RDATAB[32];
+
+            input OPCGLOADCLK;
+            input SCANCLK;
+            input SCANRST;
         }
     }
 
@@ -355,6 +391,8 @@ target_defs! {
             output UP;
             input RUNAIL;
             output LOCK;
+
+            pad PAD: inout;
         }
 
         bel_class PICTEST {
@@ -391,6 +429,7 @@ target_defs! {
                 // IO[0] also has QNEG[0..2]; however, it is multiplexed onto IO[1]'s QPOS
                 // and not an independent output
             }
+
             pad PAD: inout;
         }
 
@@ -683,6 +722,29 @@ target_defs! {
             output PVT_SRC_OUT[6], PVT_SNK_OUT[6];
         }
     }
+    if variant nexus {
+        bel_class BNKREF {
+            input PVTSRCI[7];
+            input PVTSNKI[7];
+            input PVTSEL;
+            // 7-bit on everything other than JD5D HP
+            output PVTCODE[9];
+
+            // HP banks only
+            input STDBYINR;
+            input STDBYDIF;
+        }
+
+        bel_class PVTCAL {
+            input CIBTRIG;
+            input CIBICODE[6];
+            input CIBSNK[7];
+        }
+
+        bel_class IVREF {
+            input IVREFI[7];
+        }
+    }
 
     if variant [ecp3, machxo2, ecp4, ecp5, crosslink, nexus] {
         bel_class ECLKSYNC {
@@ -756,6 +818,19 @@ target_defs! {
             input MODESEL;
             output DCSOUT;
         }
+    } else if variant nexus {
+        bel_class DCS {
+            input CLK[2];
+            input SEL[1], SELFORCE;
+            output DCSOUT;
+        }
+
+        bel_class PCLKDIV {
+            input CLKIN;
+            input LSRPDIV;
+            input PCLKDIVTESTINP[3];
+            output CLKOUT;
+        }
     }
 
     if variant machxo2 {
@@ -778,6 +853,12 @@ target_defs! {
     } else if variant nexus {
         bel_class EMIDMUX_TEST {
             input TESTINP[4];
+        }
+        bel_class CMUX_TEST {
+            input TESTINP[5];
+        }
+        bel_class DCSMUX_TEST {
+            input TESTINP[7];
         }
     }
 
@@ -882,7 +963,45 @@ target_defs! {
         }
     } else if variant nexus {
         bel_class PLL {
-            //
+            // dedicated ins
+            input CLK[2];
+            input CLKFB;
+
+            input REFSEL;
+            input WKUPSYNC;
+
+            // dedicated outs
+            output CLKOP, CLKOS, CLKOS2, CLKOS3, CLKOS4, CLKOS5;
+            output INTFBK[6], CLKOUTDL;
+
+            input PLLRESET, PLLPDN, STDBY;
+            input ENCLKOP, ENCLKOS, ENCLKOS2, ENCLKOS3, ENCLKOS4, ENCLKOS5;
+            input REFDETRESET;
+            input CIBDIR, CIBROT, CIBLDREG, CIBDSEL[3];
+            input DIRDEL, ROTDEL;
+            input DIRDELP1, ROTDELP1;
+            input BINACT[2], GRAYACT[5];
+            input BINTEST[2], GRAYTEST[5];
+            input LEGACY;
+            output REFMUXCK;
+            output LOCK, INTLOCK;
+            output PFDDN, PFDUP;
+            output REGQA, REGQB, REGQB1;
+            output REFDETLOS;
+
+            input LMMICLK;
+            input LMMIRESETN;
+            input LMMIOFFSET[7];
+            input LMMIREQUEST;
+            input LMMIWRRDN;
+            input LMMIWDATA[8];
+            output LMMIRDATA[8];
+            output LMMIRDATAVALID;
+            output LMMIREADY;
+
+            input OPCGLDCK;
+            input SCANCLK;
+            input SCANRST;
         }
     }
 
@@ -994,15 +1113,17 @@ target_defs! {
             input RRST;
             input RSTBRXF, RSTBFBW;
             input DFACQRST, DCALIRST;
-            input OPCGLOADCLK;
             output SRXD[10];
             output CDRLOL;
+
             input LMMICLK, LMMIRESETN;
             input LMMIREQUEST, LMMIWRRDN;
             input LMMIOFFSET[4];
             input LMMIWDATA[8];
             output LMMIRDATA[8];
             output LMMIREADY, LMMIRDATAVALID;
+
+            input OPCGLOADCLK;
             input SCANCLK, SCANRST;
         }
     }
@@ -1014,6 +1135,8 @@ target_defs! {
         }
         if variant scm {
             input USR;
+        } else if variant nexus {
+            input GSR_N;
         } else {
             input GSR;
         }
@@ -1069,6 +1192,8 @@ target_defs! {
         }
 
         bel_class RDCFGN {
+            pad PAD: input;
+
             input TSALLN;
             output RDCFGN;
         }
@@ -1139,7 +1264,7 @@ target_defs! {
         }
     }
 
-    if variant [machxo, crosslink] {
+    if variant [machxo, crosslink, nexus] {
     } else {
         bel_class START {
             input STARTCLK;
@@ -1160,6 +1285,16 @@ target_defs! {
             input HFOUTEN;
             input HFCLKDIV[2];
             output LFCLKOUT, HFCLKOUT;
+        }
+    } else if variant nexus {
+        bel_class OSC {
+            // special clock outs
+            output LFCLKOUT;
+            output HFCLKOUT;
+            input HFOUTEN;
+            input HFSDSCEN;
+            input LFTRMFAB[9];
+            input HFTRMFAB[9];
         }
     }
 
@@ -1359,13 +1494,99 @@ target_defs! {
 
     if variant ecp5 {
         bel_class CCLK {
+            pad PAD: inout;
+
             input PADDO, PADDT;
             output PADDI;
         }
     }
 
+    if variant nexus {
+        bel_class CONFIG_CRE {
+            input OTM;
+            input CRELRSTN;
+            input ASFCLKI;
+            input ASFRESETI;
+            input ASFRDI;
+            input ASFWRI;
+            output ASFEMPTYO;
+            output ASFFULLO;
+
+            input LMMICLK;
+            input LMMIRESETN;
+            input LMMIOFFSET[18];
+            input LMMIREQUEST;
+            input LMMIWDATA[32];
+            input LMMIWRRDN;
+            output LMMIRDATA[32];
+            output LMMIRDATAVALID;
+            output LMMIREADY;
+        }
+
+        bel_class CONFIG_MULTIBOOT {
+            input CIBAUTOREBOOT;
+            input CIBMSPIMADDR[32];
+        }
+
+        bel_class CONFIG_LMMI {
+            input LMMIOFFSET[8];
+            input LMMIREQUEST;
+            input LMMIWDATA[8];
+            input LMMIWRRDN;
+            output LMMIRDATA[8];
+            output LMMIRDATAVALID;
+            output LMMIREADY;
+        }
+
+        bel_class CONFIG_CLKRST {
+            input LMMI_CLK;
+            input LMMI_LRST_N;
+            input WDT_LRST_N;
+            input JTAG_LRST_N;
+            input SEDC_LRST_N;
+            input MBISTCLK;
+            output CFG_CLK;
+        }
+
+        bel_class CONFIG_IP {
+            input CIBTSALL;
+            output FREEZEIOCIB;
+            output CFGDONECIB;
+            output LASTADDRCIB[16];
+            input MBISTTRRAEN;
+            input MBISTENABLEN;
+            output MBISTRRMATCH;
+        }
+
+        bel_class CONFIG_SEDC {
+            input CIBSEDCENABLE;
+            input CIBSEDCSTART;
+            input CIBSEDCMODE;
+            input CIBSEDCCOF;
+            input CIBSED1ENABLE;
+            output SEDCBUSYCIB;
+            output SEDCERR1CIB;
+            output SEDCERRCCIB;
+            output SEDCERRCRCCIB;
+            output SEDCERRMCIB;
+            output SEDCDSRERRLOCCIB[13];
+            output SEDCFRMERRLOCCIB[16];
+        }
+
+        bel_class CONFIG_WDT {
+            input CIBWDTRELOAD;
+        }
+    }
+
     if variant scm {
         bel_class SERDES {
+            pad HDINP[4], HDINN[4]: input;
+            pad HDOUTP[4], HDOUTN[4]: output;
+            pad VCCRX[4], VCCIB[4], VCCOB[4]: power;
+            pad REFCLKP, REFCLKN: input;
+            pad RXREFCLKP, RXREFCLKN: input;
+            pad VCCAX25: power;
+
             // special clock input shared across all SERDES
             input FFC_CK_CORE_TX;
             // dedicated clock outs
@@ -1418,6 +1639,8 @@ target_defs! {
         }
 
         bel_class SERDES_CORNER {
+            pad RESP, RESPN: analog;
+
             input CIN[13];
             output COUT[22];
             output TCK_FMAC_PCS;
@@ -1425,6 +1648,15 @@ target_defs! {
         }
     } else if variant [ecp2m, ecp3] {
         bel_class SERDES {
+            pad HDINP[4], HDINN[4]: input;
+            pad HDOUTP[4], HDOUTN[4]: output;
+            pad VCCTX[4], VCCRX[4], VCCIB[4], VCCOB[4]: power;
+            pad REFCLKP, REFCLKN: input;
+            pad VCCP: power;
+            if variant ecp2m {
+                pad VCCAUX33: power;
+            }
+
             input CIN[12];
             output COUT[20];
             input CYAWSTN;
@@ -1531,6 +1763,10 @@ target_defs! {
         }
     } else if variant ecp4 {
         bel_class SERDES {
+            pad CORNER_REFCLKP, CORNER_REFCLKN: input;
+            pad RXANTOUTP, RXANTOUTN: output;
+            pad AUXTSTPADOUTP, AUXTSTPADOUTN: output;
+
             input CORNER_FCSCANMODE;
             input CORNER_FCSYNCTOGGLE;
             output CORNER_FOREFCK2CORE;
@@ -1540,6 +1776,9 @@ target_defs! {
             input CORNER_LSPLLRST;
 
             for q in 0..4 {
+                pad "Q{q}_REFCLKP", "Q{q}_REFCLKN": input;
+                pad "Q{q}_HDRXP"[4], "Q{q}_HDRXN"[4]: input;
+                pad "Q{q}_HDTXP"[4], "Q{q}_HDTXN"[4]: output;
                 for ch in 0..4 {
                     // dedicated clock out
                     output "Q{q}CH{ch}_FOPCLKA";
@@ -1944,6 +2183,13 @@ target_defs! {
         }
     } else if variant ecp5 {
         bel_class SERDES {
+            pad REFCLKP, REFCLKN: input;
+            pad HDRXP[2], HDRXN[2]: input;
+            pad HDTXP[2], HDTXN[2]: output;
+            pad VCCRX[2], VCCTX[2]: power;
+            pad ATSTP, ATSTN: output;
+            pad VCCA, VCCAUXA, VCCHRX: power;
+
             for ch in 0..2 {
                 // dedicated clock outs
                 output "CH{ch}_FF_TX_PCLK";
@@ -2078,6 +2324,11 @@ target_defs! {
         }
 
         bel_class MIPI {
+            pad DP[4], DN[4]: inout;
+            pad CKP, CKN: inout;
+            pad VSSA, VCCA: power;
+            pad VSSPLL, VCCPLL: power;
+
             input CLKREF;
             output CLKHSBYTE, HSBYTECLKS, HSBYTECLKD;
 
@@ -2135,8 +2386,703 @@ target_defs! {
     }
 
     if variant nexus {
+        bel_class PMU {
+            input LMMICLK;
+            input LMMIRESETN;
+            input LMMIOFFSET[4];
+            input LMMIREQUEST;
+            input LMMIWDATA[8];
+            input LMMIWRRDN;
+            output LMMIRDATA[8];
+            output LMMIRDATAVALID;
+            output LMMIREADY;
+
+            input CIBINT;
+            input CIBINTSEL[2];
+
+            input OPCGLOADCLK;
+            input SCANCLK;
+            input SCANRST;
+        }
+
+        bel_class I2C {
+            input SCLIN;
+            output SCLOE;
+            output SCLOEN;
+            output SCLOUT;
+            input SDAIN;
+            output SDAOE;
+            output SDAOEN;
+            output SDAOUT;
+
+            input LMMICLK;
+            input LMMIRESETN;
+            input LMMIOFFSET[6];
+            input LMMIREQUEST;
+            input LMMIWDATA[8];
+            input LMMIWRRDN;
+            output LMMIRDATA[8];
+            output LMMIRDATAVALID;
+            output LMMIREADY;
+
+            input I2CLSRRSTN;
+            input SLEEPCLKSELN;
+            output BUSBUSY;
+            output INSLEEP;
+            output IRQ;
+            output MRDCMPL;
+            output SLVADDRMATCH;
+            output SLVADDRMATCHSCL;
+            output SRDWR;
+
+            input FIFORESET;
+            output RXFIFOE;
+            output RXFIFOF;
+            output RXFIFOAF;
+            output TXFIFOE;
+            output TXFIFOF;
+            output TXFIFOAE;
+
+            input OPCGLOADCLK;
+            input SCANRST;
+            input SCANCLK;
+        }
+
         bel_class MIPI {
-            // TODO
+            pad DP[4], DN[4]: inout;
+            pad CKP, CKN: inout;
+            pad VCC: power;
+            pad VSSA, VCCA: power;
+            pad VCCPLL: power;
+
+            // dedicated clock in
+            input CLKREF;
+
+            // dedicated clock outs
+            output UTWDCKHS;
+            output URWDCKHS;
+            // dedicated clock out, but also fabric out
+            output UCRXWCHS;
+
+            input LMMICLK;
+            input LMMIRESETN;
+            input LMMIOFFSET[5];
+            input LMMIWRRDN;
+            input LMMIREQUEST;
+            input LMMIWDATA[4];
+            output LMMIREADY;
+            output LMMIRDATAVALID;
+            output LMMIRDATA[4];
+
+            input PDPLL;
+            input PDDPHY;
+            input BITCKEXT;
+            input OPCGLDCK;
+            input SCANCLK;
+            input SCANRST;
+            input SCCLKIN;
+            input SCRSTNIN;
+            input LTSTEN;
+            input LTSTLANE[2];
+            output CLKLBACT;
+            output LOCK;
+
+            // okay. what the FUCK is this dumpster fire.
+
+            input URXCKINE;
+            input UTXCKE;
+
+            input UED0THEN;
+            input U1ENTHEN;
+            input U2END2;
+            input U3END3;
+            input UCENCK;
+
+            input UFRXMODE;
+            input U1FRXMD;
+            input U2FRXMD;
+            input U3FRXMD;
+
+            input UTXMDTX;
+            input U1FTXST;
+            input U2FTXST;
+            input U3FTXST;
+
+            input UTDIS;
+            input U1TDIS;
+            input U2TDIS;
+            input U3TDISD2;
+
+            input UTRNREQ;
+            input U1TREQ;
+            input U2TREQ;
+            input U3TREQD2;
+
+            input UDE0D0TN;
+            input UDE1D1TN;
+            input UDE2D2TN;
+            input UDE3D3TN;
+            input UDE4CKTN;
+            input UDE5D0RN;
+            input UDE6D1RN;
+            input UDE7D2RN;
+            input U1TDE0D3;
+            input U1TDE1CK;
+            input U1TDE2D0;
+            input U1TDE3D1;
+            input U1TDE4D2;
+            input U1TDE5D3;
+            input U1TDE6;
+            input U1TDE7;
+            input U2TDE0D0;
+            input U2TDE1D1;
+            input U2TDE2D2;
+            input U2TDE3D3;
+            input U2TDE4CK;
+            input U2TDE5D0;
+            input U2TDE6D1;
+            input U2TDE7D2;
+            input U3TDE0D3;
+            input U3TDE1D0;
+            input U3TDE2D1;
+            input U3TDE3D2;
+            input U3TDE4D3;
+            input U3TDE5CK;
+            input U3TDE6;
+            input U3TDE7;
+
+            input UTXENER;
+            input U1TXLPD;
+            input U2TPDTE;
+            input U3TXLPDT;
+
+            input UTXRD0EN;
+            input U1TXREQ;
+            input U2TXREQ;
+            input U3TXREQ;
+
+            input UTRD0SEN;
+            input U1TXREQH;
+            input U2TXREQH;
+            input U3TXREQH;
+            input UCTXREQH;
+
+            input UTXSKD0N;
+            input U1TXSK;
+            input U2TXSKC;
+            input U3TXSKC;
+
+            input UTXULPSE;
+            input U1TXUPSE;
+            input U2TXUPSE;
+            input U3TXULPS;
+            input UCTXUPSC;
+
+            input UTXUPSEX;
+            input U1TXUPSX;
+            input U2TXUPSX;
+            input U3TXUPSX;
+            input UCTXUPSX;
+
+            input UTXVDE;
+            input U1TXVDE;
+            input U2TXVDE;
+            input U3TXVD3;
+
+            input UTXDHS[32];
+            input U1TXDHS[32];
+            input U2TXDHS[32];
+            input U3TXDHS[32];
+
+            input UTXTGE[4];
+            input U1TXTGE[4];
+            input U2TXTGE[4];
+            input U3TXTGE[4];
+
+            input UTXWVDHS[4];
+            input U1TXWVHS[4];
+            input U2TXWVHS[4];
+            input U3TXWVHS[4];
+
+            for ch in 0..4 {
+                output "D{ch}ACTIVE"[2];
+                output "D{ch}BYTCNT"[10];
+                output "D{ch}ERRCNT"[10];
+                output "D{ch}PASS"[2];
+                output "D{ch}VALID"[2];
+            }
+            output DCTSTOUT[10];
+
+            output UDIR;
+            output U1DIR;
+            output U2DIR;
+            output U3DIR;
+
+            output UERCTRL;
+            output U1ERCTRL;
+            output U2ERCTRL;
+            output U3ERCTRL;
+
+            output UERE;
+            output U1ERE;
+            output U2ERE;
+            output U3ERE;
+
+            output UERSTHS;
+            output U1ERSTHS;
+            output U2ERSTHS;
+            output U3ERSTHS;
+
+            output UERSSHS;
+            output U1ERSSHS;
+            output U2ERSSHS;
+            output U3ERSSHS;
+
+            output UERSE;
+            output U1ERSE;
+            output U2ERSE;
+            output U3ERSE;
+
+            output URXACTHS;
+            output U1RXATHS;
+            output U2RXACHS;
+            output U3RXATHS;
+
+            output URXCKE;
+            output U1RXCKE;
+            output U2RXCKE;
+            output U3RXCKE;
+
+            output URXLPDTE;
+            output U1RXDTE;
+            output U2RPDTE;
+            output U3RPDTE;
+
+            output URXSKCHS;
+            output U1RXSKS;
+            output U2RXSKC;
+            output U3RXSKC;
+
+            output URXDRX;
+            output U1RXSK;
+            output U2RXSK;
+            output U3RXSK;
+
+            output URE0D3DP;
+            output URE1D3DN;
+            output URE2CKDP;
+            output URE3CKDN;
+            output U1RE0D;
+            output U1RE1CN;
+            output U1RE2D;
+            output U1RE3N;
+            output U2RE0D2;
+            output U2RE1D2;
+            output U2RE2D3;
+            output U2RE3D3;
+            output U3RE0CK;
+            output U3RE1CK;
+            output U3RE2;
+            output U3RE3;
+
+            output URXULPSE;
+            output U1RXUPSE;
+            output U2RXUPSE;
+            output U3RXUPSE;
+
+            output URXVDE;
+            output U1RXVDE;
+            output U2RXVDE;
+            output U3RXVDE;
+
+            output USSTT;
+            output U1SSTT;
+            output U2SSTT;
+            output U3SSTT;
+            output UCSSTT;
+
+            output UTXRRS;
+            output U1TXRYE;
+            output U2TXRYE;
+            output U3TXRY;
+
+            output UTXRYP;
+            output U1TXRY;
+            output U2TXRYH;
+            output U3TXRYHS;
+
+            output UTXRYSK;
+            output U1TXRYSK;
+            output U2TXRYSK;
+            output U3TXRYSK;
+
+            output UUSAN;
+            output U1USAN;
+            output U2USAN;
+            output U3USAN;
+            output UCUSAN;
+
+            output UERCLP[2];
+            output U1ERCLP[2];
+            output U2ERCLP[2];
+            output U3ERCLP[2];
+
+            output URXDE[8];
+            output U1RXDE[8];
+            output U2RXDE[8];
+            output U3RXDE[8];
+
+            output URXDHS[16];
+            output U1RXDHS[16];
+            output U2RXDHS[16];
+            output U3RXDHS[16];
+
+            output URXSHS[4];
+            output U1RXSHS[4];
+            output U2RXSHS[4];
+            output U3RXSHS[4];
+
+            output URXVDHS[4];
+            output U1RXVDHS[4];
+            output U2RXVDHS[4];
+            output U3RXVDHS[4];
+
+            output UCRXCKAT;
+            output UCRXUCKN;
+
+            input REFCLOCK_MUX_TESTINP[3];
+        }
+
+        bel_class PCIE_X1 {
+            pad RXP, RXN: input;
+            pad TXP, TXN: output;
+            pad REXT: analog;
+            pad REFRET: analog;
+            pad REFCLKP, REFCLKN: input;
+            pad VSS, VCC: power;
+            pad VCCAUX: power;
+            pad VCCPLL: power;
+
+            // dedicated clock outs
+            output CKUSRO;
+            output ECKINDO;
+            output ERXCKDO;
+            output ETXCKDO;
+
+            input ACTACMD;
+            input ACTDR11;
+            input ACTEN;
+            input ACTHIGHZ;
+            input ACTMD;
+            input ALTCLKIN;
+            input AUXCK;
+            input CKUSRI;
+            input CLKREQI;
+            input ECKIN;
+            input ECKIND2;
+            input ERSTN;
+            input ERSTND2;
+            input ERXCKD2;
+            input ERXRSND2;
+            input ETXCKD2;
+            input ETXRSND2;
+            input FLRACK[4];
+            input MINTLEG[4];
+            input OPCGLDCK;
+            input PERSTN;
+            input PMDPAST[5];
+            input PPBDREG[32];
+            input PRMSGSD;
+            input PRNOSNP[13];
+            input PRNSNPRE;
+            input PRSNOOP[13];
+            input PRSNPRE;
+            input REFCLKNA;
+            input REXTCK;
+            input REXTRST;
+            input RSTUSRN;
+            input SCANCLK;
+            input SCANRST;
+            input ULTSDIS;
+            input USERAUPD;
+            input USERTRS[4];
+            output ACJNOUT;
+            output ACJPOUT;
+            output CLKREQO;
+            output CLKREQOE;
+            output FLR[4];
+            output MINTO;
+            output PMCTRL[5];
+            output PMCTRLEN;
+            output PPBDSEL[8];
+            output TESTOUT[8];
+            output UDLLKUP;
+            output UPLLKUP;
+            output UTLLKUP;
+
+            input VXVD;
+            input VXD[32];
+            input VXDP[4];
+            input VXSOP;
+            input VXEOPN;
+            input VXEOP;
+            output VXRDY;
+            output VTXCRRE;
+            output VXCDNH[12];
+            output VXCDINIT;
+
+            input VRXRDY;
+            input VRXCRRE;
+            input VRXCNINF;
+            input VRXCNH[12];
+            input VRXCINIT;
+            output VRXVD;
+            output VRXCMDD[13];
+            output VRXD[32];
+            output VRXDP[4];
+            output VRXF[2];
+            output VRXSOP;
+            output VRXERR;
+            output VRXEOP;
+            output VRXSEL[2];
+
+            input UCFGWRBE[4];
+            input UCFGVD;
+            input UCFGSERD;
+            input UCFGWRDN;
+            input UCFGWRD[32];
+            input UCFGF[3];
+            input UCFGADDR[11:2];
+            output UCFGRDD[32];
+            output UCFGRDY;
+            output UCFGRDE;
+
+            input LMMICLK;
+            input LMMIRESETN;
+            input LMMIREQUEST;
+            input LMMIWRRDN;
+            input LMMIOFFSET[16:2];
+            input LMMIWDATA[32];
+            output LMMIRDATA[32];
+            output LMMIREADY;
+            output LMMIRDATAVALID;
+        }
+
+        bel_class PCS {
+            pad RXP[4], RXN[4]: input;
+            pad TXP[4], TXN[4]: output;
+            pad REXT[4]: analog;
+            pad REFRET[4]: analog;
+            pad REFCLKP, REFCLKN: input;
+            pad VSS: power;
+            pad VCC[4]: power;
+            pad VCCPLL[4]: power;
+            pad VCCAUX: power;
+
+            input ACTMD;
+            input ALTCLK_SEL;
+
+            for i in 0..4 {
+                // dedicated clock outs
+                output "CH{i}_PIPE_PCS_TXCLKOUT";
+                output "CH{i}_RXOUTCLK";
+
+                input "CH{i}_LMMICLK";
+                input "CH{i}_LMMIOFFSET"[9];
+                input "CH{i}_LMMIREQUEST";
+                input "CH{i}_LMMIRESETN";
+                input "CH{i}_LMMIWDATA"[8];
+                input "CH{i}_LMMIWR_RDN";
+                output "CH{i}_LMMIRDATA"[8];
+                output "CH{i}_LMMIRDATA_VALID";
+                output "CH{i}_LMMIREADY";
+
+                input "CH{i}_ACTACMD";
+                input "CH{i}_ACTDR11";
+                input "CH{i}_ACTEN";
+                input "CH{i}_ACTHIGHZ";
+                input "CH{i}_AUXCLK";
+                input "CH{i}_CCCLK";
+                input "CH{i}_CLKREQI";
+                input "CH{i}_MPCS_RX_URSTN";
+                input "CH{i}_MPCS_TX_URSTN";
+                input "CH{i}_PERSTN";
+                input "CH{i}_PMACLKIN";
+                input "CH{i}_RXCLK";
+                input "CH{i}_TXCLK";
+                output "CH{i}_ACJNOUT";
+                output "CH{i}_ACJPOUT";
+                output "CH{i}_CLKREQO";
+                output "CH{i}_CLKREQOE";
+                output "CH{i}_PCLKAUX_SEL_LL";
+                output "CH{i}_PCS_RX_BLK_LOCK";
+                output "CH{i}_PCS_RX_DATA"[79:74];
+                output "CH{i}_PCS_RX_HI_BER";
+                output "CH{i}_PCS_TX_FIFO_ST2";
+                output "CH{i}_PCS_TX_FIFO_ST3";
+
+                input "CH{i}_PIPE_BLKALGNCTRL";
+                input "CH{i}_PIPE_INVALID_REQUEST";
+                input "CH{i}_PIPE_L1PMSSEN";
+                input "CH{i}_PIPE_L1X_ENTRY_REQ";
+                output "CH{i}_PIPE_L1X_ENTRY_ACK";
+                input "CH{i}_PIPE_LOCAL_GET_PRESET_COEF";
+                output "CH{i}_PIPE_LOCAL_GET_TX_COEF_VLD";
+                output "CH{i}_PIPE_LOCAL_GET_TX_PRESET_COEF"[4];
+                output "CH{i}_PIPE_LOCAL_FS_PCS_RX_DATA"[6];
+                output "CH{i}_PIPE_LOCAL_LF_PCS_RX_DATA"[6];
+                output "CH{i}_PIPE_PHY_STATUS";
+                input "CH{i}_PIPE_POWER_DOWN"[2];
+                input "CH{i}_PIPE_PRESET_INDX_PCS_TX_DATA"[4];
+                input "CH{i}_PIPE_RATE0";
+                input "CH{i}_PIPE_RATE1";
+                input "CH{i}_PIPE_REMOTE_FS_PCS_TX_DATA"[6];
+                input "CH{i}_PIPE_REMOTE_LF_PCS_TX_DATA"[6];
+
+                input "CH{i}_PIPE_RXEI_DIS";
+                input "CH{i}_PIPE_RX_DEEMPH_PCS_TX_DATA"[18];
+                input "CH{i}_PIPE_RX_EQEVAL";
+                input "CH{i}_PIPE_RX_POL";
+                input "CH{i}_PIPE_RX_PRESET_HINT"[3];
+                input "CH{i}_PIPE_RX_PRESET_HINTEN";
+                input "CH{i}_PIPE_RX_PRESET_PCS_TX_DATA"[4];
+                output "CH{i}_PIPE_RXEQ_DIR_PCS_RX_DATA"[4];
+                output "CH{i}_PIPE_RXEQ_DIR_PCS_RX_FIFO_ST4";
+                output "CH{i}_PIPE_RXEQ_DIR_PCS_RX_FIFO_ST5";
+                output "CH{i}_PIPE_RXEQ_FOM"[8];
+                output "CH{i}_PIPE_RX_CLKREQ";
+                output "CH{i}_PIPE_RX_DATA_EN_PCS_RX_DATA";
+                output "CH{i}_PIPE_RX_DATAK_PCS_RX_DATA"[4];
+                output "CH{i}_PIPE_RX_DATA_PCS_RX_DATA"[32];
+                output "CH{i}_PIPE_RX_DATA_VLD_PCS_RX_DATA";
+                output "CH{i}_PIPE_RX_EI";
+                output "CH{i}_PIPE_RX_START_BLOCK";
+                output "CH{i}_PIPE_RX_STATUS_PCS_RX_DATA"[3];
+                output "CH{i}_PIPE_RX_SYNC_HDR_PCS_RX_DATA"[2];
+                output "CH{i}_PIPE_RX_VLD_PCS_RX_DATA";
+
+                input "CH{i}_PIPE_TXCOMM_DIS";
+                input "CH{i}_PIPE_TXDETECTRX";
+                input "CH{i}_PIPE_TX_CLKREQ";
+                input "CH{i}_PIPE_TX_COMP_PCS_TX_DATA";
+                input "CH{i}_PIPE_TX_DATAK_PCS_TX_DATA"[4];
+                input "CH{i}_PIPE_TX_DATA_PCS_TX_DATA"[32];
+                input "CH{i}_PIPE_TX_DATA_VLD";
+                input "CH{i}_PIPE_TX_DEEMPH"[17:2];
+                input "CH{i}_PIPE_TX_DEEMPH_PCS_TX_DATA"[2];
+                input "CH{i}_PIPE_TX_EI";
+                input "CH{i}_PIPE_TX_MARGIN"[3];
+                input "CH{i}_PIPE_TX_START_BLK_PCS_TX_DATA";
+                input "CH{i}_PIPE_TX_SWING";
+                input "CH{i}_PIPE_TX_SYNC_HDR_PCS_TX_DATA"[2];
+                output "CH{i}_PIPE_TX_DATA_EN";
+                output "CH{i}_PIPE_TX_PRESET_COEF_PCS_RX_DATA"[17:4];
+
+                output "CH{i}_PIPE_WIDTH_2G5"[2];
+                output "CH{i}_PIPE_WIDTH_5G0"[2];
+                output "CH{i}_PIPE_WIDTH_8G0"[2];
+            }
+
+            input SCAN_CLK;
+            input SCAN_RST;
+        }
+
+        bel_class PCS_REFMUX {
+            input PLLCLK[2];
+            pad VCC: power;
+            for i in 0..2 {
+                input "Q{i}CLK";
+                input "Q{i}CLKSEL"[2];
+                input "Q{i}DIFFIOCLKSEL";
+            }
+        }
+
+        bel_class PCS_REFCLK {
+            pad REFCLKP[2], REFCLKN[2]: input;
+        }
+
+        bel_class PCIE_LL {
+            // dedicated clock outs
+            output LINK0_CKUSRO, LINK1_CKUSRO;
+
+            input LINK0_CKUSRI;
+            input LINK1_CKUSRI;
+            input LINK0_RSTUSRN;
+            input LINK1_RSTUSRN;
+
+            input LMMICLK;
+            input LMMIOFFSET[16:2];
+            input LMMIREQUEST;
+            input LMMIRESETN;
+            input LMMIWDATA[32];
+            input LMMIWRRDN;
+            output LMMIRDATA[32];
+            output LMMIRDATAVALID;
+            output LMMIREADY;
+
+            input VC_RX_CREDIT_INIT[2];
+            input VC_RX_CREDIT_NH[24];
+            input VC_RX_CREDIT_NH_INF[2];
+            input VC_RX_CREDIT_RETURN[2];
+            input VC_RX_READY[2];
+            output VC_RX_CMD_DATA[26];
+            output VC_RX_DATA[128];
+            output VC_RX_DATAP[16];
+            output VC_RX_EOP[2];
+            output VC_RX_ERR_ECRC[2];
+            output VC_RX_F[16];
+            output VC_RX_SEL[4];
+            output VC_RX_SOP[2];
+            output VC_RX_VALID[2];
+
+            output VC_TX_CREDIT_INIT[2];
+            output VC_TX_CREDIT_NH[24];
+            output VC_TX_CREDIT_RETURN[2];
+            output VC_TX_READY[2];
+            input VC_TX_DATA[128];
+            input VC_TX_DATAP[16];
+            input VC_TX_EOP[2];
+            input VC_TX_EOPN[2];
+            input VC_TX_SOP[2];
+            input VC_TX_VALID[2];
+
+            input UCFG_ADDR[11:2];
+            input UCFG_F[3];
+            input UCFG_LINK;
+            input UCFG_USE_LMMI_RDATA;
+            input UCFG_VALID;
+            input UCFG_WR_RD_N;
+            input UCFG_WR_BE[4];
+            input UCFG_WR_DATA[32];
+            output UCFG_RD_DATA[32];
+            output UCFG_RD_DONE[2];
+            output UCFG_READY;
+
+            input AUX_POWER_DETECTED[2];
+            input FLR_ACK[8];
+            output FLR[8];
+            input MGMT_INTERRUPT_LEG_X1[4];
+            input MGMT_INTERRUPT_LEG_X4[4];
+            output MGMT_INTERRUPT_O[2];
+            input PM_DPA_STATUS[10];
+            input PM_LTR_MSG_SEND[2];
+            input PM_LTR_NOSNOOP[26];
+            input PM_LTR_NOSNOOP_REQ[2];
+            input PM_LTR_SNOOP[26];
+            input PM_LTR_SNOOP_REQ[2];
+            input PM_PB_DATA_REG_RD[64];
+            output PM_DPA_CONTROL[10];
+            output PM_DPA_CONTROL_EN[2];
+            output PM_PB_DATA_SEL[16];
+            input TRANSACTIONS_PENDING[8];
+            input ULTSDIS_X1;
+            input ULTSDIS_X4;
+            output U_DL_LINK_UP[2];
+            output U_PL_LINK_UP[2];
+            output U_TL_LINK_UP[2];
+
+            input SCAN_CLK;
+            input SCAN_RST;
         }
 
         bel_class ADC {
@@ -2498,6 +3444,9 @@ target_defs! {
     } else if variant crosslink {
         wire IMUX_DCC_CLKI[8]: mux;
         wire OUT_DCC_CLKO[8]: mux;
+    } else if variant nexus {
+        wire IMUX_DCC_CLKI[18]: mux;
+        wire OUT_DCC_CLKO[18]: mux;
     }
     if variant scm {
         wire OUT_DCS_DCSOUT[2]: bel;
@@ -2510,7 +3459,7 @@ target_defs! {
         wire IMUX_DCS_CLKC[2]: mux;
         wire IMUX_DCS_CLKD[2]: mux;
         wire OUT_DCS_DCSOUT[2]: bel;
-    } else if variant ecp5 {
+    } else if variant [ecp5] {
         wire IMUX_DCS_CLKA[2]: mux;
         wire IMUX_DCS_CLKB[2]: mux;
         wire OUT_DCS_DCSOUT[2]: bel;
@@ -2518,6 +3467,10 @@ target_defs! {
         wire IMUX_DCS_CLKA[1]: mux;
         wire IMUX_DCS_CLKB[1]: mux;
         wire OUT_DCS_DCSOUT[1]: bel;
+    } else if variant nexus {
+        wire IMUX_DCS[4]: mux;
+        wire OUT_DCS_DCSOUT[2]: bel;
+        wire OUT_PCLKDIV_CLKOUT[2]: bel;
     }
     if variant machxo2 {
         wire OUT_DCM_DCMOUT[2]: bel;
@@ -2717,12 +3670,18 @@ target_defs! {
         wire OUT_PLL_CLKOS2[2]: bel;
         wire OUT_PLL_CLKOS3[2]: bel;
     } else if variant nexus {
+        wire IMUX_PLL_CLKI[2]: mux;
+        wire IMUX_PLL_CLKFB[1]: mux;
+        wire IMUX_PLL_CLKI_DUMMY[16]: mux;
+        wire IMUX_PLL_CLKFB_DUMMY[16]: mux;
         wire OUT_PLL_CLKOP[1]: bel;
         wire OUT_PLL_CLKOS[1]: bel;
         wire OUT_PLL_CLKOS2[1]: bel;
         wire OUT_PLL_CLKOS3[1]: bel;
         wire OUT_PLL_CLKOS4[1]: bel;
         wire OUT_PLL_CLKOS5[1]: bel;
+        wire OUT_PLL_CLKINTFB[6]: bel;
+        wire OUT_PLL_CLKOUTDL: bel;
     }
 
     if variant scm {
@@ -2798,6 +3757,10 @@ target_defs! {
         wire OUT_SERDES_REFCLKO: bel;
     } else if variant nexus {
         wire OUT_CDR_SRCLK[2]: bel;
+        wire OUT_PCIE_LINKCLK: bel;
+        wire OUT_PCIE_USRCLK[2]: bel;
+        wire OUT_PCS_CLKTX[4]: bel;
+        wire OUT_PCS_CLKRX[4]: bel;
     }
 
     if variant [machxo2, ecp4, ecp5] {
@@ -2811,12 +3774,23 @@ target_defs! {
     if variant [machxo2, ecp4] {
         wire IMUX_PCNTR_CLK: mux;
     }
+    if variant nexus {
+        wire OUT_JTAG_JTCK: bel;
+    }
 
     if variant crosslink {
-        wire IMUX_MIPI_CLKREF: mux;
-        wire OUT_MIPI_CLKHSBYTE: bel;
+        wire IMUX_MIPI_CLKREF[1]: mux;
+        wire OUT_MIPI_CLKHSBYTE[1]: bel;
         wire OUT_MIPI_HSBYTECLKS: bel;
         wire OUT_MIPI_HSBYTECLKD: bel;
+        wire OUT_OSC_LFCLKOUT: bel;
+        wire OUT_OSC_HFCLKOUT: bel;
+    }
+    if variant nexus {
+        wire IMUX_MIPI_CLKREF[2]: mux;
+        wire OUT_MIPI_CLKHSBYTE[2]: bel;
+        wire OUT_MIPI_UTWDCKHS[2]: bel;
+        wire OUT_MIPI_URWDCKHS[2]: bel;
         wire OUT_OSC_LFCLKOUT: bel;
         wire OUT_OSC_HFCLKOUT: bel;
     }
@@ -3076,6 +4050,12 @@ target_defs! {
                     bel IO[i];
                 }
             }
+
+            bel_slot IVREF: IVREF;
+            tile_class IVREF_S, IVREF_E {
+                cell CELL;
+                bel IVREF;
+            }
         }
     }
 
@@ -3311,16 +4291,60 @@ target_defs! {
                 bel SERDES;
             }
         } else if variant crosslink {
-            bel_slot MIPI: MIPI;
+            bel_slot MIPI[1]: MIPI;
             tile_class MIPI_W, MIPI_E {
                 cell CELL[24];
                 cell IO[2];
                 switchbox BEL_INT;
-                bel MIPI;
+                bel MIPI[0];
             }
         } else if variant nexus {
-            bel_slot MIPI: MIPI;
-            // TODO
+            bel_slot PCIE_X1: PCIE_X1;
+            tile_class PCIE_JE5D30 {
+                cell CELL[15];
+                bel PCIE_X1;
+            }
+
+            bel_slot PCS: PCS;
+            tile_class PCS_N_JD5D {
+                cell CH0[8];
+                cell CH1[8];
+                cell CH2[8];
+                cell CH3[8];
+                bel PCS;
+            }
+
+            bel_slot PCS_REFMUX: PCS_REFMUX;
+            tile_class PCS_REFMUX_JD5D {
+                cell CELL, PLL[2];
+                bel PCS_REFMUX;
+            }
+
+            bel_slot PCS_REFCLK: PCS_REFCLK;
+            tile_class PCS_REFCLK {
+                bel PCS_REFCLK;
+            }
+
+            bel_slot PCIE_LL: PCIE_LL;
+            tile_class PCIE_JD5D {
+                cell G0[20];
+                cell G1[2];
+                cell G2[5];
+                bel PCIE_LL;
+            }
+
+            bel_slot MIPI[2]: MIPI;
+            tile_class MIPI_JE5D15, MIPI_JE5D30 {
+                if tile_class MIPI_JE5D15 {
+                    cell CELL[55];
+                } else {
+                    cell CELL[48];
+                }
+                cell IO_S[3], IO_N[2];
+                switchbox BEL_INT;
+                bel MIPI[0];
+                bel MIPI[1];
+            }
 
             bel_slot CDR[2]: CDR;
             tile_class CDR_S, CDR_W_JE5D30, CDR_W_JD5F {
@@ -3338,6 +4362,40 @@ target_defs! {
             tile_class ADC_JE5D15, ADC_JE5D30, ADC_JD5D {
                 cell CELL[3], PLL;
                 bel ADC;
+            }
+
+            bel_slot LRAM[3]: LRAM;
+            bel_slot ALU: ALU;
+            tile_class LRAM_W_JE5D15 {
+                cell G0[6], G1[6], G2[6];
+                for i in 0..3 {
+                    bel LRAM[i];
+                }
+            }
+            tile_class LRAM_E_JE5D15 {
+                cell CELL[10];
+                bel LRAM[0];
+                bel LRAM[1];
+            }
+            tile_class
+                LRAM_E_JE5D30_A, LRAM_E_JE5D30_B,
+                LRAM_E_JD5U,
+                LRAM_E_JD5D_A, LRAM_E_JD5D_B, LRAM_E_JD5D_C
+            {
+                cell CELL[9];
+                bel LRAM[0];
+            }
+            tile_class LRAM_N_JD5D {
+                cell CELL[5];
+                bel LRAM[0];
+            }
+            tile_class ALU_JE5D30 {
+                cell CELL[9];
+                bel ALU;
+            }
+            tile_class ALU_JD5D {
+                cell CELL[11];
+                bel ALU;
             }
         }
 
@@ -3604,36 +4662,33 @@ target_defs! {
             }
         } else if variant nexus {
             bel_slot PLL[1]: PLL;
-            tile_class PLL_SW_JE5D15 {
-                cell CELL[3];
-                bel PLL[0];
-            }
-            tile_class PLL_SE_JE5D15 {
-                cell CELL[3];
-                bel PLL[0];
-            }
-            tile_class PLL_SW_JE5D30 {
-                cell CELL, CELL_N, CELL_E;
-                bel PLL[0];
-            }
-            tile_class PLL_SE_JE5D30 {
-                cell CELL, CELL_N, CELL_S;
-                bel PLL[0];
-            }
-            tile_class PLL_NW_JE5D30 {
-                cell CELL, CELL_S, CELL_E;
-                bel PLL[0];
-            }
-            tile_class PLL_SW_JD5D {
-                cell CELL, CELL_S, CELL_SE;
-                bel PLL[0];
-            }
-            tile_class PLL_NE_JD5D {
-                cell CELL, CELL_S, CELL_W;
-                bel PLL[0];
-            }
-            tile_class PLL_NW_JD5F {
-                cell CELL[3];
+            tile_class
+                PLL_SW_JE5D15, PLL_SW_JE5D30, PLL_SW_JD5D,
+                PLL_SE_JE5D15, PLL_SE_JE5D30,
+                PLL_NW_JE5D30, PLL_NW_JD5F,
+                PLL_NE_JD5D
+            {
+                if tile_class PLL_SW_JE5D30 {
+                    cell CELL, CELL_N, CELL_E;
+                } else if tile_class PLL_SW_JD5D {
+                    cell CELL, CELL_S, CELL_SE;
+                } else if tile_class PLL_SE_JE5D30 {
+                    cell CELL, CELL_N, CELL_S;
+                } else if tile_class PLL_NW_JE5D30 {
+                    cell CELL, CELL_S, CELL_E;
+                } else if tile_class PLL_NE_JD5D {
+                    cell CELL, CELL_S, CELL_W;
+                } else {
+                    cell CELL[3];
+                }
+                cell IO_IN;
+                if tile_class [PLL_NW_JE5D30, PLL_NW_JD5F, PLL_NE_JD5D] {
+                    cell IO[4];
+                    cell PCS;
+                } else {
+                    cell IO[6];
+                }
+                switchbox BEL_INT;
                 bel PLL[0];
             }
 
@@ -3951,6 +5006,42 @@ target_defs! {
                     bel NVCMTEST;
                 }
             }
+        } else if variant nexus {
+            bel_slot JTAG: JTAG;
+            bel_slot CONFIG_CLKRST: CONFIG_CLKRST;
+            bel_slot CONFIG_IP: CONFIG_IP;
+            bel_slot CONFIG_MULTIBOOT: CONFIG_MULTIBOOT;
+            bel_slot CONFIG_WDT: CONFIG_WDT;
+            bel_slot CONFIG_LMMI: CONFIG_LMMI;
+            bel_slot CONFIG_SEDC: CONFIG_SEDC;
+            bel_slot CONFIG_CRE: CONFIG_CRE;
+            bel_slot OSC: OSC;
+            bel_slot PMU: PMU;
+            bel_slot I2C: I2C;
+            tile_class CONFIG_JE5D15, CONFIG_JE5D30, CONFIG_JD5D, CONFIG_JD5U, CONFIG_JD5F {
+                if tile_class CONFIG_JE5D15 {
+                    cell CELL[22];
+                } else if tile_class CONFIG_JE5D30 {
+                    cell CELL[14];
+                } else if tile_class CONFIG_JD5D {
+                    cell CELL[15];
+                } else if tile_class CONFIG_JD5U {
+                    cell CELL[15];
+                } else if tile_class CONFIG_JD5F {
+                    cell CELL[24];
+                }
+                bel JTAG;
+                bel CONFIG_CLKRST;
+                bel CONFIG_IP;
+                bel CONFIG_MULTIBOOT;
+                bel CONFIG_WDT;
+                bel CONFIG_LMMI;
+                bel CONFIG_SEDC;
+                bel CONFIG_CRE;
+                bel OSC;
+                bel PMU;
+                bel I2C;
+            }
         }
 
         if variant ecp4 {
@@ -4015,6 +5106,35 @@ target_defs! {
                     bel BCLVDSO;
                 }
                 bel BREFTEST;
+            }
+        }
+    } else if variant nexus {
+        tile_slot BC {
+            bel_slot BNKREF: BNKREF;
+            tile_class
+                BNKREF33_N_JE5D15, BNKREF33_N_JE5D30, BNKREF33_N_JD5U, BNKREF33_N_JD5F,
+                BNKREF33_W_JE5D30, BNKREF33_W_JD5F,
+                BNKREF33_E_JE5D15, BNKREF33_E_JD5F,
+                BNKREF18_E_JE5D30, BNKREF18_E_JD5D,
+                BNKREF18_S_JE5D15, BNKREF18_S_JE5D15_4, BNKREF18_S_JE5D30, BNKREF18_S_JD5D
+            {
+                if tile_class [BNKREF33_N_JD5F, BNKREF33_W_JD5F, BNKREF33_E_JD5F] {
+                    cell CELL_BS, CELL_INT;
+                } else if tile_class BNKREF18_S_JE5D15_4 {
+                    cell CELL[6];
+                } else {
+                    cell CELL;
+                }
+                bel BNKREF;
+            }
+
+            bel_slot PVTCAL: PVTCAL;
+            tile_class
+                PVTCAL33_JE5D15, PVTCAL33_JE5D30, PVTCAL33_JD5D,
+                PVTCAL18_JE5D15, PVTCAL18_JD5D, PVTCAL18_JD5F
+            {
+                cell CELL;
+                bel PVTCAL;
             }
         }
     }
@@ -4568,6 +5688,110 @@ target_defs! {
                     bel ECLKPLLFB_TEST[1];
                 }
                 bel ECLK_TEST;
+            }
+            tile_class CLK_N_JE5D15, CLK_N_JE5D30, CLK_N_JD5D, CLK_N_JD5U, CLK_N_JD5F {
+                cell CELL[6];
+                cell CONFIG;
+                if tile_class [CLK_N_JE5D15, CLK_N_JE5D30] {
+                    cell IO[2];
+                    cell PLL, MIPI, PCIE;
+                } else if tile_class CLK_N_JD5D {
+                    cell IO[2];
+                    cell PLL[2], PCS[2], PCIE;
+                } else if tile_class CLK_N_JD5U {
+                    cell IO[2];
+                    cell DLLDEL[2];
+                } else if tile_class CLK_N_JD5F {
+                    cell IO[4];
+                    cell PLL;
+                }
+                switchbox CLK_INT;
+                bel EMIDMUX_TEST;
+                for i in 0..16 {
+                    bel DCC[i];
+                }
+            }
+            tile_class CLK_W_JE5D15, CLK_W_JE5D30, CLK_W_JD5D, CLK_W_JD5F {
+                cell CELL[5], CELL_MID[4];
+                if tile_class [CLK_W_JE5D15, CLK_W_JE5D30] {
+                    cell IO[4];
+                    cell DLLDEL[2];
+                    cell PLL[2];
+                    cell CDR;
+                } else if tile_class CLK_W_JD5D {
+                    cell IO[4];
+                    cell DLLDEL[2];
+                    cell PLL[2];
+                    cell CDR;
+                } else if tile_class CLK_W_JD5F {
+                    cell IO[5];
+                    cell DLLDEL[2];
+                    cell PLL;
+                    cell CDR;
+                }
+                switchbox CLK_INT;
+                bel EMIDMUX_TEST;
+                for i in 0..12 {
+                    bel DCC[i];
+                }
+            }
+            tile_class CLK_E_JE5D15, CLK_E_JE5D30, CLK_E_JD5D, CLK_E_JD5F {
+                cell CELL[5], CELL_MID[4];
+                if tile_class [CLK_E_JE5D15, CLK_E_JE5D30] {
+                    cell IO[4];
+                    cell DLLDEL[2];
+                    cell PLL;
+                } else if tile_class CLK_E_JD5D {
+                    cell IO[4];
+                    cell DLLDEL[2];
+                    cell PLL[2];
+                    cell CONFIG;
+                } else if tile_class CLK_E_JD5F {
+                    cell IO[5];
+                    cell DLLDEL[2];
+                    cell PLL;
+                    cell CONFIG;
+                }
+                switchbox CLK_INT;
+                bel EMIDMUX_TEST;
+                for i in 0..12 {
+                    bel DCC[i];
+                }
+            }
+
+            bel_slot CMUX_TEST[4]: CMUX_TEST;
+            bel_slot DCSMUX_TEST[4]: DCSMUX_TEST;
+            bel_slot DCS[2]: DCS;
+            bel_slot PCLKDIV[2]: PCLKDIV;
+            bel_slot GSR: GSR;
+            tile_class CLK_ROOT_JE5D15, CLK_ROOT_JE5D30, CLK_ROOT_JD5D, CLK_ROOT_JD5U {
+                cell CELL_S[2], CELL[2];
+                if tile_class [CLK_ROOT_JE5D30, CLK_ROOT_JD5U] {
+                    cell CELL_N[2];
+                }
+                cell CLK_W, CLK_E, CLK_S, CLK_N;
+                switchbox CLK_INT;
+                for i in 0..4 {
+                    bel DCC[i];
+                }
+                bel GSR;
+                if tile_class CLK_ROOT_JD5D {
+                    for i in 0..2 {
+                        bel DCS[i];
+                        bel PCLKDIV[i];
+                    }
+                    for i in 0..4 {
+                        bel CMUX_TEST[i];
+                        bel DCSMUX_TEST[i];
+                    }
+                } else {
+                    bel DCS[0];
+                    bel PCLKDIV[0];
+                    for i in 0..2 {
+                        bel CMUX_TEST[i];
+                        bel DCSMUX_TEST[i];
+                    }
+                }
             }
         }
 

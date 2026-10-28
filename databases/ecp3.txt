@@ -9049,6 +9049,17 @@ intdb {
 		output FFS_BIST_RPT[16];
 		output SCIRDATA[8];
 		output SCIINT;
+		pad HDINP[4]: input
+		pad HDINN[4]: input
+		pad HDOUTP[4]: output
+		pad HDOUTN[4]: output
+		pad VCCRX[4]: power
+		pad VCCIB[4]: power
+		pad VCCOB[4]: power
+		pad REFCLKP: input
+		pad REFCLKN: input
+		pad VCCTX[4]: power
+		pad VCCP: power
 	}
 
 	region_slot PCLK;

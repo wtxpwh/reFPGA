@@ -37,6 +37,7 @@ mod dsp;
 mod ebr;
 mod int;
 mod io;
+mod lram;
 mod maco;
 mod pkg;
 mod plc;
@@ -77,9 +78,11 @@ struct ChipContext<'dev> {
     bels: BTreeMap<(TileClassId, BelSlotId), BelInfo>,
     dummy_sites: BTreeSet<String>,
     skip_serdes: bool,
+    skip_mipi: bool,
     ebr_wires: BTreeMap<WireCoord, WireName>,
     switchboxes: BTreeMap<BelCoord, SwitchBoxData>,
     merged_switchboxes: BTreeMap<(TileClassId, BelSlotId), SwitchBoxData>,
+    ivref_map: BTreeMap<CellCoord, WireName>,
 }
 
 impl<'dev> ChipContext<'dev> {
@@ -272,6 +275,8 @@ impl<'dev> ChipContext<'dev> {
             for suffix in [
                 "EBR",
                 "EBR_CORE",
+                "LRAM_CORE",
+                "ALUREG_CORE",
                 "IOLOGIC",
                 "PIO",
                 "PICTEST",
@@ -344,6 +349,33 @@ impl<'dev> ChipContext<'dev> {
                 "DDRDLL_CORE_I1",
                 "DLLDEL_CORE_I0",
                 "ADC_CORE_ADC0",
+                "DPHY_CORE_DPHY0",
+                "PCIE_CORE_PCIE0",
+                "PCS_CORE_PCS0",
+                "PCSREFMUX8_CORE",
+                "PCIELL_CORE",
+                "CONFIG_JTAG_CORE_CONFIG_JTAG",
+                "CONFIG_CLKRST_CORE_CONFIG_CLKRST",
+                "CONFIG_CRE_CORE_CONFIG_HSE",
+                "CONFIG_MULTIBOOT_CORE_CONFIG_MULTIBOOT",
+                "CONFIG_IP_CORE_CONFIG_IP",
+                "CONFIG_SEDC_CORE_CONFIG_SEDC",
+                "CONFIG_WDT_CORE_CONFIG_WDT",
+                "CONFIG_LMMI_CORE_LMMI_MODEL",
+                "CONFIG_LMMIA_CORE_LMMI_MODEL",
+                "CONFIG_LMMIB_CORE_LMMI_MODEL",
+                "OSC_CORE",
+                "PMU_CORE",
+                "I2CFIFO_CORE",
+                "GSR_CORE_GSR_CENTER",
+                "PVTCAL33_CORE",
+                "PVTCAL18_CORE",
+                "PVTCAL18_CORE_PVTCAL0",
+                "BNKREF33_CORE",
+                "BNKREF33_CORE_BNKREF330",
+                "BNKREF18_CORE",
+                "BNKREF18_CORE_BNKREF180",
+                "PLL_CORE_PLL_LMMI",
             ] {
                 if let Some(n) = name.strip_suffix(suffix)
                     && let Some(n) = n.strip_suffix('_')
@@ -454,9 +486,11 @@ fn process_chip(name: &str, grid: &Grid, kind: ChipKind, intdb: &IntDb) -> ChipR
         bels: Default::default(),
         dummy_sites: Default::default(),
         skip_serdes: false,
+        skip_mipi: false,
         ebr_wires: Default::default(),
         switchboxes: Default::default(),
         merged_switchboxes: Default::default(),
+        ivref_map: Default::default(),
     };
     ctx.process_int();
     ctx.sort_bel_wires();
@@ -466,8 +500,9 @@ fn process_chip(name: &str, grid: &Grid, kind: ChipKind, intdb: &IntDb) -> ChipR
     ctx.process_maco();
     ctx.process_ebr();
     ctx.process_dsp();
-    ctx.process_pll();
+    ctx.process_lram();
     ctx.process_serdes();
+    ctx.process_pll();
     ctx.process_config();
     ctx.process_clk();
     ctx.print_unclaimed();

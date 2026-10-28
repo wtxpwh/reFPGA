@@ -845,6 +845,14 @@ intdb {
 		output D3NOSYNC;
 		output D3SYNC;
 		output LOCK;
+		pad DP[4]: inout
+		pad DN[4]: inout
+		pad CKP: inout
+		pad CKN: inout
+		pad VSSA: power
+		pad VCCA: power
+		pad VSSPLL: power
+		pad VCCPLL: power
 	}
 
 	region_slot PCLK;
@@ -1260,8 +1268,8 @@ intdb {
 	wire OUT_CLKDIV_CDIVX[1]: bel;
 	wire OUT_CLKDIV_CDIVX[2]: bel;
 	wire OUT_CLKDIV_CDIVX[3]: bel;
-	wire IMUX_MIPI_CLKREF: mux;
-	wire OUT_MIPI_CLKHSBYTE: bel;
+	wire IMUX_MIPI_CLKREF[0]: mux;
+	wire OUT_MIPI_CLKHSBYTE[0]: bel;
 	wire OUT_MIPI_HSBYTECLKS: bel;
 	wire OUT_MIPI_HSBYTECLKD: bel;
 	wire OUT_OSC_LFCLKOUT: bel;
@@ -2104,7 +2112,7 @@ intdb {
 		bel_slot EBR[1]: EBR;
 		bel_slot EBR[2]: EBR;
 		bel_slot EBR[3]: EBR;
-		bel_slot MIPI: MIPI;
+		bel_slot MIPI[0]: MIPI;
 		bel_slot PLL[0]: PLL;
 		bel_slot GSR: GSR;
 		bel_slot DDRDLL: DDRDLL;
@@ -2953,11 +2961,11 @@ intdb {
 			cell IO[1];
 
 			switchbox BEL_INT {
-				mux CELL[0].IMUX_MIPI_CLKREF = CELL[11].IMUX_CLK[0] | IO[0].OUT_IO_INCK[2] | IO[1].OUT_IO_INCK[0];
+				mux CELL[0].IMUX_MIPI_CLKREF[0] = CELL[11].IMUX_CLK[0] | IO[0].OUT_IO_INCK[2] | IO[1].OUT_IO_INCK[0];
 			}
 
-			bel MIPI {
-				input CLKREF = CELL[0].IMUX_MIPI_CLKREF;
+			bel MIPI[0] {
+				input CLKREF = CELL[0].IMUX_MIPI_CLKREF[0];
 				input CLKCDEN = CELL[12].IMUX_D[4];
 				input CLKDTXLPN = CELL[11].IMUX_C[0];
 				input CLKDTXLPP = CELL[11].IMUX_D[4];
@@ -3097,7 +3105,7 @@ intdb {
 				input TST[3] = CELL[10].IMUX_D[4];
 				input CLKTEST_TESTIN[0] = CELL[11].IMUX_B[7];
 				input CLKTEST_TESTIN[1] = CELL[11].IMUX_C[7];
-				output CLKHSBYTE = CELL[0].OUT_MIPI_CLKHSBYTE, CELL[14].OUT_F[4];
+				output CLKHSBYTE = CELL[0].OUT_MIPI_CLKHSBYTE[0], CELL[14].OUT_F[4];
 				output HSBYTECLKS = CELL[0].OUT_MIPI_HSBYTECLKS;
 				output HSBYTECLKD = CELL[0].OUT_MIPI_HSBYTECLKD;
 				output CLKDCDN = CELL[12].OUT_F[4];
@@ -3203,251 +3211,251 @@ intdb {
 				output LOCK = CELL[13].OUT_F[0];
 			}
 
-			// wire CELL[0].IMUX_A[4]              MIPI.D3HSSEREN
-			// wire CELL[0].IMUX_C[4]              MIPI.PDBIAS
-			// wire CELL[0].IMUX_MIPI_CLKREF       MIPI.CLKREF
-			// wire CELL[0].OUT_MIPI_CLKHSBYTE     MIPI.CLKHSBYTE
-			// wire CELL[0].OUT_MIPI_HSBYTECLKS    MIPI.HSBYTECLKS
-			// wire CELL[0].OUT_MIPI_HSBYTECLKD    MIPI.HSBYTECLKD
-			// wire CELL[1].IMUX_A[2]              MIPI.D3TXLPEN
-			// wire CELL[1].IMUX_B[0]              MIPI.D3HSTXDATA[1]
-			// wire CELL[1].IMUX_B[2]              MIPI.D3HSTXDATA[3]
-			// wire CELL[1].IMUX_B[4]              MIPI.D3HSTXDATA[5]
-			// wire CELL[1].IMUX_B[6]              MIPI.D3HSTXDATA[7]
-			// wire CELL[1].IMUX_C[2]              MIPI.D3TXHSPD
-			// wire CELL[1].IMUX_C[4]              MIPI.D3DTXLPN
-			// wire CELL[1].IMUX_D[0]              MIPI.D3HSTXDATA[0]
-			// wire CELL[1].IMUX_D[2]              MIPI.D3HSTXDATA[2]
-			// wire CELL[1].IMUX_D[4]              MIPI.D3HSTXDATA[4]
-			// wire CELL[1].IMUX_D[6]              MIPI.D3HSTXDATA[6]
-			// wire CELL[2].IMUX_A[4]              MIPI.D3DTXLPP
-			// wire CELL[2].IMUX_B[0]              MIPI.D3HSTXDATA[9]
-			// wire CELL[2].IMUX_B[2]              MIPI.D3HSTXDATA[11]
-			// wire CELL[2].IMUX_B[4]              MIPI.D3HSTXDATA[13]
-			// wire CELL[2].IMUX_B[6]              MIPI.D3HSTXDATA[15]
-			// wire CELL[2].IMUX_C[4]              MIPI.D3RXLPEN
-			// wire CELL[2].IMUX_D[0]              MIPI.D3HSTXDATA[8]
-			// wire CELL[2].IMUX_D[2]              MIPI.D3HSTXDATA[10]
-			// wire CELL[2].IMUX_D[4]              MIPI.D3HSTXDATA[12]
-			// wire CELL[2].IMUX_D[6]              MIPI.D3HSTXDATA[14]
-			// wire CELL[2].OUT_F[0]               MIPI.D3DRXLPN
-			// wire CELL[2].OUT_F[1]               MIPI.D3DRXLPP
-			// wire CELL[3].IMUX_A[1]              MIPI.D3TXHSEN
-			// wire CELL[3].IMUX_B[0]              MIPI.D3CDEN
-			// wire CELL[3].OUT_F[0]               MIPI.D3HSRXDATA[0]
-			// wire CELL[3].OUT_F[1]               MIPI.D3HSRXDATA[1]
-			// wire CELL[3].OUT_F[2]               MIPI.D3HSRXDATA[2]
-			// wire CELL[3].OUT_F[3]               MIPI.D3HSRXDATA[3]
-			// wire CELL[3].OUT_F[4]               MIPI.D3HSRXDATA[4]
-			// wire CELL[3].OUT_F[5]               MIPI.D3HSRXDATA[5]
-			// wire CELL[3].OUT_F[6]               MIPI.D3HSRXDATA[6]
-			// wire CELL[3].OUT_F[7]               MIPI.D3HSRXDATA[7]
-			// wire CELL[3].OUT_Q[0]               MIPI.D3NOSYNC
-			// wire CELL[3].OUT_Q[1]               MIPI.D3DCDP
-			// wire CELL[3].OUT_Q[4]               MIPI.D3DCDN
-			// wire CELL[4].IMUX_C[0]              MIPI.D3RXHSEN
-			// wire CELL[4].IMUX_C[4]              MIPI.D3HSDESEREN
-			// wire CELL[4].OUT_F[0]               MIPI.D3HSRXDATA[8]
-			// wire CELL[4].OUT_F[1]               MIPI.D3HSRXDATA[9]
-			// wire CELL[4].OUT_F[2]               MIPI.D3HSRXDATA[10]
-			// wire CELL[4].OUT_F[3]               MIPI.D3HSRXDATA[11]
-			// wire CELL[4].OUT_F[4]               MIPI.D3HSRXDATA[12]
-			// wire CELL[4].OUT_F[5]               MIPI.D3HSRXDATA[13]
-			// wire CELL[4].OUT_F[6]               MIPI.D3HSRXDATA[14]
-			// wire CELL[4].OUT_F[7]               MIPI.D3HSRXDATA[15]
-			// wire CELL[5].IMUX_A[0]              MIPI.D1HSSEREN
-			// wire CELL[5].IMUX_B[0]              MIPI.D1HSTXDATA[1]
-			// wire CELL[5].IMUX_B[2]              MIPI.D1HSTXDATA[3]
-			// wire CELL[5].IMUX_B[4]              MIPI.D1HSTXDATA[5]
-			// wire CELL[5].IMUX_B[6]              MIPI.D1HSTXDATA[7]
-			// wire CELL[5].IMUX_D[0]              MIPI.D1HSTXDATA[0]
-			// wire CELL[5].IMUX_D[2]              MIPI.D1HSTXDATA[2]
-			// wire CELL[5].IMUX_D[4]              MIPI.D1HSTXDATA[4]
-			// wire CELL[5].IMUX_D[6]              MIPI.D1HSTXDATA[6]
-			// wire CELL[5].OUT_F[0]               MIPI.D3ERRSYNC
-			// wire CELL[5].OUT_F[1]               MIPI.D1DRXHS
-			// wire CELL[5].OUT_F[4]               MIPI.D3SYNC
-			// wire CELL[5].OUT_F[6]               MIPI.D3DRXHS
-			// wire CELL[6].IMUX_A[0]              MIPI.D1TXLPEN
-			// wire CELL[6].IMUX_A[2]              MIPI.D1TXHSPD
-			// wire CELL[6].IMUX_A[5]              MIPI.D1DTXLPN
-			// wire CELL[6].IMUX_B[0]              MIPI.D1HSTXDATA[9]
-			// wire CELL[6].IMUX_B[2]              MIPI.D1HSTXDATA[11]
-			// wire CELL[6].IMUX_B[4]              MIPI.D1HSTXDATA[13]
-			// wire CELL[6].IMUX_B[6]              MIPI.D1HSTXDATA[15]
-			// wire CELL[6].IMUX_C[2]              MIPI.D1DTXLPP
-			// wire CELL[6].IMUX_D[0]              MIPI.D1HSTXDATA[8]
-			// wire CELL[6].IMUX_D[2]              MIPI.D1HSTXDATA[10]
-			// wire CELL[6].IMUX_D[4]              MIPI.D1HSTXDATA[12]
-			// wire CELL[6].IMUX_D[6]              MIPI.D1HSTXDATA[14]
-			// wire CELL[7].IMUX_C[2]              MIPI.D1RXLPEN
-			// wire CELL[7].IMUX_D[0]              MIPI.D1TXHSEN
-			// wire CELL[7].OUT_F[0]               MIPI.D1DRXLPN
-			// wire CELL[7].OUT_F[1]               MIPI.D1DRXLPP
-			// wire CELL[7].OUT_F[2]               MIPI.D1NOSYNC
-			// wire CELL[7].OUT_F[3]               MIPI.D1DCDP
-			// wire CELL[7].OUT_F[4]               MIPI.D1DCDN
-			// wire CELL[8].IMUX_A[0]              MIPI.D1CDEN
-			// wire CELL[8].OUT_F[0]               MIPI.D1HSRXDATA[0]
-			// wire CELL[8].OUT_F[1]               MIPI.D1HSRXDATA[1]
-			// wire CELL[8].OUT_F[2]               MIPI.D1HSRXDATA[2]
-			// wire CELL[8].OUT_F[3]               MIPI.D1HSRXDATA[3]
-			// wire CELL[8].OUT_F[4]               MIPI.D1HSRXDATA[4]
-			// wire CELL[8].OUT_F[5]               MIPI.D1HSRXDATA[5]
-			// wire CELL[8].OUT_F[6]               MIPI.D1HSRXDATA[6]
-			// wire CELL[8].OUT_F[7]               MIPI.D1HSRXDATA[7]
-			// wire CELL[9].IMUX_A[0]              MIPI.D1RXHSEN
-			// wire CELL[9].IMUX_A[4]              MIPI.D1HSDESEREN
-			// wire CELL[9].IMUX_B[0]              MIPI.LBEN
-			// wire CELL[9].IMUX_B[4]              MIPI.PDCKG
-			// wire CELL[9].IMUX_C[0]              MIPI.CN[0]
-			// wire CELL[9].IMUX_C[4]              MIPI.CN[1]
-			// wire CELL[9].IMUX_D[0]              MIPI.TST[0]
-			// wire CELL[9].IMUX_D[4]              MIPI.TST[1]
-			// wire CELL[9].OUT_F[0]               MIPI.D1HSRXDATA[8]
-			// wire CELL[9].OUT_F[1]               MIPI.D1HSRXDATA[9]
-			// wire CELL[9].OUT_F[2]               MIPI.D1HSRXDATA[10]
-			// wire CELL[9].OUT_F[3]               MIPI.D1HSRXDATA[11]
-			// wire CELL[9].OUT_F[4]               MIPI.D1HSRXDATA[12]
-			// wire CELL[9].OUT_F[5]               MIPI.D1HSRXDATA[13]
-			// wire CELL[9].OUT_F[6]               MIPI.D1HSRXDATA[14]
-			// wire CELL[9].OUT_F[7]               MIPI.D1HSRXDATA[15]
-			// wire CELL[9].OUT_Q[0]               MIPI.D1SYNC
-			// wire CELL[9].OUT_Q[1]               MIPI.D1ERRSYNC
-			// wire CELL[10].IMUX_B[0]             MIPI.PDDPHY
-			// wire CELL[10].IMUX_B[4]             MIPI.CLKTXHSGATE
-			// wire CELL[10].IMUX_C[0]             MIPI.CN[2]
-			// wire CELL[10].IMUX_C[4]             MIPI.CN[3]
-			// wire CELL[10].IMUX_C[6]             MIPI.CN[4]
-			// wire CELL[10].IMUX_D[0]             MIPI.TST[2]
-			// wire CELL[10].IMUX_D[4]             MIPI.TST[3]
-			// wire CELL[10].IMUX_D[6]             MIPI.CLKTXLPEN
-			// wire CELL[11].IMUX_A[0]             MIPI.CM[0]
-			// wire CELL[11].IMUX_A[4]             MIPI.CM[1]
-			// wire CELL[11].IMUX_B[0]             MIPI.CM[2]
-			// wire CELL[11].IMUX_B[4]             MIPI.CM[3]
-			// wire CELL[11].IMUX_B[7]             MIPI.CLKTEST_TESTIN[0]
-			// wire CELL[11].IMUX_C[0]             MIPI.CLKDTXLPN
-			// wire CELL[11].IMUX_C[4]             MIPI.CLKTXHSPD
-			// wire CELL[11].IMUX_C[7]             MIPI.CLKTEST_TESTIN[1]
-			// wire CELL[11].IMUX_D[4]             MIPI.CLKDTXLPP
-			// wire CELL[12].IMUX_A[0]             MIPI.CM[4]
-			// wire CELL[12].IMUX_A[4]             MIPI.CM[5]
-			// wire CELL[12].IMUX_B[0]             MIPI.CM[6]
-			// wire CELL[12].IMUX_B[4]             MIPI.CM[7]
-			// wire CELL[12].IMUX_C[4]             MIPI.CLKRXLPEN
-			// wire CELL[12].IMUX_D[0]             MIPI.CLKTXHSEN
-			// wire CELL[12].IMUX_D[4]             MIPI.CLKCDEN
-			// wire CELL[12].OUT_F[0]              MIPI.CLKDRXLPN
-			// wire CELL[12].OUT_F[1]              MIPI.CLKDRXLPP
-			// wire CELL[12].OUT_F[4]              MIPI.CLKDCDN
-			// wire CELL[13].IMUX_C[4]             MIPI.CLKRXHSEN
-			// wire CELL[13].OUT_F[0]              MIPI.LOCK
-			// wire CELL[14].IMUX_A[0]             MIPI.CO[0]
-			// wire CELL[14].IMUX_A[4]             MIPI.CO[1]
-			// wire CELL[14].IMUX_C[0]             MIPI.PDPLL
-			// wire CELL[14].IMUX_C[4]             MIPI.D0HSSEREN
-			// wire CELL[14].OUT_F[4]              MIPI.CLKHSBYTE
-			// wire CELL[14].OUT_F[6]              MIPI.CLKDRXHS
-			// wire CELL[15].IMUX_A[0]             MIPI.D0TXLPEN
-			// wire CELL[15].IMUX_A[4]             MIPI.D0TXHSPD
-			// wire CELL[15].IMUX_B[0]             MIPI.D0HSTXDATA[1]
-			// wire CELL[15].IMUX_B[2]             MIPI.D0HSTXDATA[3]
-			// wire CELL[15].IMUX_B[4]             MIPI.D0HSTXDATA[5]
-			// wire CELL[15].IMUX_B[6]             MIPI.D0HSTXDATA[7]
-			// wire CELL[15].IMUX_C[4]             MIPI.D0DTXLPN
-			// wire CELL[15].IMUX_D[0]             MIPI.D0HSTXDATA[0]
-			// wire CELL[15].IMUX_D[2]             MIPI.D0HSTXDATA[2]
-			// wire CELL[15].IMUX_D[4]             MIPI.D0HSTXDATA[4]
-			// wire CELL[15].IMUX_D[6]             MIPI.D0HSTXDATA[6]
-			// wire CELL[16].IMUX_A[0]             MIPI.D0RXLPEN
-			// wire CELL[16].IMUX_A[4]             MIPI.D0DTXLPP
-			// wire CELL[16].IMUX_B[0]             MIPI.D0HSTXDATA[9]
-			// wire CELL[16].IMUX_B[2]             MIPI.D0HSTXDATA[11]
-			// wire CELL[16].IMUX_B[4]             MIPI.D0HSTXDATA[13]
-			// wire CELL[16].IMUX_B[6]             MIPI.D0HSTXDATA[15]
-			// wire CELL[16].IMUX_C[0]             MIPI.D0TXHSEN
-			// wire CELL[16].IMUX_D[0]             MIPI.D0HSTXDATA[8]
-			// wire CELL[16].IMUX_D[2]             MIPI.D0HSTXDATA[10]
-			// wire CELL[16].IMUX_D[4]             MIPI.D0HSTXDATA[12]
-			// wire CELL[16].IMUX_D[6]             MIPI.D0HSTXDATA[14]
-			// wire CELL[16].OUT_F[0]              MIPI.D0DRXLPN
-			// wire CELL[16].OUT_F[1]              MIPI.D0DRXLPP
-			// wire CELL[16].OUT_F[3]              MIPI.D0NOSYNC
-			// wire CELL[17].IMUX_A[3]             MIPI.D0CDEN
-			// wire CELL[17].OUT_F[0]              MIPI.D0HSRXDATA[0]
-			// wire CELL[17].OUT_F[1]              MIPI.D0HSRXDATA[1]
-			// wire CELL[17].OUT_F[2]              MIPI.D0HSRXDATA[2]
-			// wire CELL[17].OUT_F[3]              MIPI.D0HSRXDATA[3]
-			// wire CELL[17].OUT_F[4]              MIPI.D0HSRXDATA[4]
-			// wire CELL[17].OUT_F[5]              MIPI.D0HSRXDATA[5]
-			// wire CELL[17].OUT_F[6]              MIPI.D0HSRXDATA[6]
-			// wire CELL[17].OUT_F[7]              MIPI.D0HSRXDATA[7]
-			// wire CELL[17].OUT_Q[0]              MIPI.D0DCDP
-			// wire CELL[17].OUT_Q[1]              MIPI.D0DCDN
-			// wire CELL[18].IMUX_A[3]             MIPI.D0RXHSEN
-			// wire CELL[18].IMUX_A[7]             MIPI.D0HSDESEREN
-			// wire CELL[18].OUT_F[0]              MIPI.D0HSRXDATA[8]
-			// wire CELL[18].OUT_F[1]              MIPI.D0HSRXDATA[9]
-			// wire CELL[18].OUT_F[2]              MIPI.D0HSRXDATA[10]
-			// wire CELL[18].OUT_F[3]              MIPI.D0HSRXDATA[11]
-			// wire CELL[18].OUT_F[4]              MIPI.D0HSRXDATA[12]
-			// wire CELL[18].OUT_F[5]              MIPI.D0HSRXDATA[13]
-			// wire CELL[18].OUT_F[6]              MIPI.D0HSRXDATA[14]
-			// wire CELL[18].OUT_F[7]              MIPI.D0HSRXDATA[15]
-			// wire CELL[18].OUT_Q[4]              MIPI.D0SYNC
-			// wire CELL[18].OUT_Q[5]              MIPI.D0ERRSYNC
-			// wire CELL[19].IMUX_A[6]             MIPI.D2HSSEREN
-			// wire CELL[19].OUT_F[1]              MIPI.D0DRXHS
-			// wire CELL[19].OUT_F[6]              MIPI.D2DRXHS
-			// wire CELL[20].IMUX_A[4]             MIPI.D2TXLPEN
-			// wire CELL[20].IMUX_B[0]             MIPI.D2HSTXDATA[1]
-			// wire CELL[20].IMUX_B[2]             MIPI.D2HSTXDATA[3]
-			// wire CELL[20].IMUX_B[4]             MIPI.D2HSTXDATA[5]
-			// wire CELL[20].IMUX_B[6]             MIPI.D2HSTXDATA[7]
-			// wire CELL[20].IMUX_C[0]             MIPI.D2TXHSPD
-			// wire CELL[20].IMUX_C[4]             MIPI.D2DTXLPN
-			// wire CELL[20].IMUX_D[0]             MIPI.D2HSTXDATA[0]
-			// wire CELL[20].IMUX_D[2]             MIPI.D2HSTXDATA[2]
-			// wire CELL[20].IMUX_D[4]             MIPI.D2HSTXDATA[4]
-			// wire CELL[20].IMUX_D[6]             MIPI.D2HSTXDATA[6]
-			// wire CELL[21].IMUX_A[3]             MIPI.D2RXLPEN
-			// wire CELL[21].IMUX_A[5]             MIPI.D2DTXLPP
-			// wire CELL[21].IMUX_B[0]             MIPI.D2HSTXDATA[9]
-			// wire CELL[21].IMUX_B[2]             MIPI.D2HSTXDATA[11]
-			// wire CELL[21].IMUX_B[4]             MIPI.D2HSTXDATA[13]
-			// wire CELL[21].IMUX_B[6]             MIPI.D2HSTXDATA[15]
-			// wire CELL[21].IMUX_C[3]             MIPI.D2TXHSEN
-			// wire CELL[21].IMUX_D[0]             MIPI.D2HSTXDATA[8]
-			// wire CELL[21].IMUX_D[2]             MIPI.D2HSTXDATA[10]
-			// wire CELL[21].IMUX_D[4]             MIPI.D2HSTXDATA[12]
-			// wire CELL[21].IMUX_D[6]             MIPI.D2HSTXDATA[14]
-			// wire CELL[21].OUT_F[0]              MIPI.D2DRXLPN
-			// wire CELL[21].OUT_F[1]              MIPI.D2DRXLPP
-			// wire CELL[22].IMUX_A[4]             MIPI.D2CDEN
-			// wire CELL[22].OUT_F[0]              MIPI.D2HSRXDATA[0]
-			// wire CELL[22].OUT_F[1]              MIPI.D2HSRXDATA[1]
-			// wire CELL[22].OUT_F[2]              MIPI.D2HSRXDATA[2]
-			// wire CELL[22].OUT_F[3]              MIPI.D2HSRXDATA[3]
-			// wire CELL[22].OUT_F[4]              MIPI.D2HSRXDATA[4]
-			// wire CELL[22].OUT_F[5]              MIPI.D2HSRXDATA[5]
-			// wire CELL[22].OUT_F[6]              MIPI.D2HSRXDATA[6]
-			// wire CELL[22].OUT_F[7]              MIPI.D2HSRXDATA[7]
-			// wire CELL[22].OUT_Q[0]              MIPI.D2NOSYNC
-			// wire CELL[22].OUT_Q[1]              MIPI.D2DCDP
-			// wire CELL[22].OUT_Q[4]              MIPI.D2DCDN
-			// wire CELL[23].IMUX_A[0]             MIPI.D2HSDESEREN
-			// wire CELL[23].IMUX_C[4]             MIPI.D2RXHSEN
-			// wire CELL[23].OUT_F[0]              MIPI.D2HSRXDATA[8]
-			// wire CELL[23].OUT_F[1]              MIPI.D2HSRXDATA[9]
-			// wire CELL[23].OUT_F[2]              MIPI.D2HSRXDATA[10]
-			// wire CELL[23].OUT_F[3]              MIPI.D2HSRXDATA[11]
-			// wire CELL[23].OUT_F[4]              MIPI.D2HSRXDATA[12]
-			// wire CELL[23].OUT_F[5]              MIPI.D2HSRXDATA[13]
-			// wire CELL[23].OUT_F[6]              MIPI.D2HSRXDATA[14]
-			// wire CELL[23].OUT_F[7]              MIPI.D2HSRXDATA[15]
-			// wire CELL[23].OUT_Q[3]              MIPI.D2SYNC
-			// wire CELL[23].OUT_Q[4]              MIPI.D2ERRSYNC
+			// wire CELL[0].IMUX_A[4]              MIPI[0].D3HSSEREN
+			// wire CELL[0].IMUX_C[4]              MIPI[0].PDBIAS
+			// wire CELL[0].IMUX_MIPI_CLKREF[0]    MIPI[0].CLKREF
+			// wire CELL[0].OUT_MIPI_CLKHSBYTE[0]  MIPI[0].CLKHSBYTE
+			// wire CELL[0].OUT_MIPI_HSBYTECLKS    MIPI[0].HSBYTECLKS
+			// wire CELL[0].OUT_MIPI_HSBYTECLKD    MIPI[0].HSBYTECLKD
+			// wire CELL[1].IMUX_A[2]              MIPI[0].D3TXLPEN
+			// wire CELL[1].IMUX_B[0]              MIPI[0].D3HSTXDATA[1]
+			// wire CELL[1].IMUX_B[2]              MIPI[0].D3HSTXDATA[3]
+			// wire CELL[1].IMUX_B[4]              MIPI[0].D3HSTXDATA[5]
+			// wire CELL[1].IMUX_B[6]              MIPI[0].D3HSTXDATA[7]
+			// wire CELL[1].IMUX_C[2]              MIPI[0].D3TXHSPD
+			// wire CELL[1].IMUX_C[4]              MIPI[0].D3DTXLPN
+			// wire CELL[1].IMUX_D[0]              MIPI[0].D3HSTXDATA[0]
+			// wire CELL[1].IMUX_D[2]              MIPI[0].D3HSTXDATA[2]
+			// wire CELL[1].IMUX_D[4]              MIPI[0].D3HSTXDATA[4]
+			// wire CELL[1].IMUX_D[6]              MIPI[0].D3HSTXDATA[6]
+			// wire CELL[2].IMUX_A[4]              MIPI[0].D3DTXLPP
+			// wire CELL[2].IMUX_B[0]              MIPI[0].D3HSTXDATA[9]
+			// wire CELL[2].IMUX_B[2]              MIPI[0].D3HSTXDATA[11]
+			// wire CELL[2].IMUX_B[4]              MIPI[0].D3HSTXDATA[13]
+			// wire CELL[2].IMUX_B[6]              MIPI[0].D3HSTXDATA[15]
+			// wire CELL[2].IMUX_C[4]              MIPI[0].D3RXLPEN
+			// wire CELL[2].IMUX_D[0]              MIPI[0].D3HSTXDATA[8]
+			// wire CELL[2].IMUX_D[2]              MIPI[0].D3HSTXDATA[10]
+			// wire CELL[2].IMUX_D[4]              MIPI[0].D3HSTXDATA[12]
+			// wire CELL[2].IMUX_D[6]              MIPI[0].D3HSTXDATA[14]
+			// wire CELL[2].OUT_F[0]               MIPI[0].D3DRXLPN
+			// wire CELL[2].OUT_F[1]               MIPI[0].D3DRXLPP
+			// wire CELL[3].IMUX_A[1]              MIPI[0].D3TXHSEN
+			// wire CELL[3].IMUX_B[0]              MIPI[0].D3CDEN
+			// wire CELL[3].OUT_F[0]               MIPI[0].D3HSRXDATA[0]
+			// wire CELL[3].OUT_F[1]               MIPI[0].D3HSRXDATA[1]
+			// wire CELL[3].OUT_F[2]               MIPI[0].D3HSRXDATA[2]
+			// wire CELL[3].OUT_F[3]               MIPI[0].D3HSRXDATA[3]
+			// wire CELL[3].OUT_F[4]               MIPI[0].D3HSRXDATA[4]
+			// wire CELL[3].OUT_F[5]               MIPI[0].D3HSRXDATA[5]
+			// wire CELL[3].OUT_F[6]               MIPI[0].D3HSRXDATA[6]
+			// wire CELL[3].OUT_F[7]               MIPI[0].D3HSRXDATA[7]
+			// wire CELL[3].OUT_Q[0]               MIPI[0].D3NOSYNC
+			// wire CELL[3].OUT_Q[1]               MIPI[0].D3DCDP
+			// wire CELL[3].OUT_Q[4]               MIPI[0].D3DCDN
+			// wire CELL[4].IMUX_C[0]              MIPI[0].D3RXHSEN
+			// wire CELL[4].IMUX_C[4]              MIPI[0].D3HSDESEREN
+			// wire CELL[4].OUT_F[0]               MIPI[0].D3HSRXDATA[8]
+			// wire CELL[4].OUT_F[1]               MIPI[0].D3HSRXDATA[9]
+			// wire CELL[4].OUT_F[2]               MIPI[0].D3HSRXDATA[10]
+			// wire CELL[4].OUT_F[3]               MIPI[0].D3HSRXDATA[11]
+			// wire CELL[4].OUT_F[4]               MIPI[0].D3HSRXDATA[12]
+			// wire CELL[4].OUT_F[5]               MIPI[0].D3HSRXDATA[13]
+			// wire CELL[4].OUT_F[6]               MIPI[0].D3HSRXDATA[14]
+			// wire CELL[4].OUT_F[7]               MIPI[0].D3HSRXDATA[15]
+			// wire CELL[5].IMUX_A[0]              MIPI[0].D1HSSEREN
+			// wire CELL[5].IMUX_B[0]              MIPI[0].D1HSTXDATA[1]
+			// wire CELL[5].IMUX_B[2]              MIPI[0].D1HSTXDATA[3]
+			// wire CELL[5].IMUX_B[4]              MIPI[0].D1HSTXDATA[5]
+			// wire CELL[5].IMUX_B[6]              MIPI[0].D1HSTXDATA[7]
+			// wire CELL[5].IMUX_D[0]              MIPI[0].D1HSTXDATA[0]
+			// wire CELL[5].IMUX_D[2]              MIPI[0].D1HSTXDATA[2]
+			// wire CELL[5].IMUX_D[4]              MIPI[0].D1HSTXDATA[4]
+			// wire CELL[5].IMUX_D[6]              MIPI[0].D1HSTXDATA[6]
+			// wire CELL[5].OUT_F[0]               MIPI[0].D3ERRSYNC
+			// wire CELL[5].OUT_F[1]               MIPI[0].D1DRXHS
+			// wire CELL[5].OUT_F[4]               MIPI[0].D3SYNC
+			// wire CELL[5].OUT_F[6]               MIPI[0].D3DRXHS
+			// wire CELL[6].IMUX_A[0]              MIPI[0].D1TXLPEN
+			// wire CELL[6].IMUX_A[2]              MIPI[0].D1TXHSPD
+			// wire CELL[6].IMUX_A[5]              MIPI[0].D1DTXLPN
+			// wire CELL[6].IMUX_B[0]              MIPI[0].D1HSTXDATA[9]
+			// wire CELL[6].IMUX_B[2]              MIPI[0].D1HSTXDATA[11]
+			// wire CELL[6].IMUX_B[4]              MIPI[0].D1HSTXDATA[13]
+			// wire CELL[6].IMUX_B[6]              MIPI[0].D1HSTXDATA[15]
+			// wire CELL[6].IMUX_C[2]              MIPI[0].D1DTXLPP
+			// wire CELL[6].IMUX_D[0]              MIPI[0].D1HSTXDATA[8]
+			// wire CELL[6].IMUX_D[2]              MIPI[0].D1HSTXDATA[10]
+			// wire CELL[6].IMUX_D[4]              MIPI[0].D1HSTXDATA[12]
+			// wire CELL[6].IMUX_D[6]              MIPI[0].D1HSTXDATA[14]
+			// wire CELL[7].IMUX_C[2]              MIPI[0].D1RXLPEN
+			// wire CELL[7].IMUX_D[0]              MIPI[0].D1TXHSEN
+			// wire CELL[7].OUT_F[0]               MIPI[0].D1DRXLPN
+			// wire CELL[7].OUT_F[1]               MIPI[0].D1DRXLPP
+			// wire CELL[7].OUT_F[2]               MIPI[0].D1NOSYNC
+			// wire CELL[7].OUT_F[3]               MIPI[0].D1DCDP
+			// wire CELL[7].OUT_F[4]               MIPI[0].D1DCDN
+			// wire CELL[8].IMUX_A[0]              MIPI[0].D1CDEN
+			// wire CELL[8].OUT_F[0]               MIPI[0].D1HSRXDATA[0]
+			// wire CELL[8].OUT_F[1]               MIPI[0].D1HSRXDATA[1]
+			// wire CELL[8].OUT_F[2]               MIPI[0].D1HSRXDATA[2]
+			// wire CELL[8].OUT_F[3]               MIPI[0].D1HSRXDATA[3]
+			// wire CELL[8].OUT_F[4]               MIPI[0].D1HSRXDATA[4]
+			// wire CELL[8].OUT_F[5]               MIPI[0].D1HSRXDATA[5]
+			// wire CELL[8].OUT_F[6]               MIPI[0].D1HSRXDATA[6]
+			// wire CELL[8].OUT_F[7]               MIPI[0].D1HSRXDATA[7]
+			// wire CELL[9].IMUX_A[0]              MIPI[0].D1RXHSEN
+			// wire CELL[9].IMUX_A[4]              MIPI[0].D1HSDESEREN
+			// wire CELL[9].IMUX_B[0]              MIPI[0].LBEN
+			// wire CELL[9].IMUX_B[4]              MIPI[0].PDCKG
+			// wire CELL[9].IMUX_C[0]              MIPI[0].CN[0]
+			// wire CELL[9].IMUX_C[4]              MIPI[0].CN[1]
+			// wire CELL[9].IMUX_D[0]              MIPI[0].TST[0]
+			// wire CELL[9].IMUX_D[4]              MIPI[0].TST[1]
+			// wire CELL[9].OUT_F[0]               MIPI[0].D1HSRXDATA[8]
+			// wire CELL[9].OUT_F[1]               MIPI[0].D1HSRXDATA[9]
+			// wire CELL[9].OUT_F[2]               MIPI[0].D1HSRXDATA[10]
+			// wire CELL[9].OUT_F[3]               MIPI[0].D1HSRXDATA[11]
+			// wire CELL[9].OUT_F[4]               MIPI[0].D1HSRXDATA[12]
+			// wire CELL[9].OUT_F[5]               MIPI[0].D1HSRXDATA[13]
+			// wire CELL[9].OUT_F[6]               MIPI[0].D1HSRXDATA[14]
+			// wire CELL[9].OUT_F[7]               MIPI[0].D1HSRXDATA[15]
+			// wire CELL[9].OUT_Q[0]               MIPI[0].D1SYNC
+			// wire CELL[9].OUT_Q[1]               MIPI[0].D1ERRSYNC
+			// wire CELL[10].IMUX_B[0]             MIPI[0].PDDPHY
+			// wire CELL[10].IMUX_B[4]             MIPI[0].CLKTXHSGATE
+			// wire CELL[10].IMUX_C[0]             MIPI[0].CN[2]
+			// wire CELL[10].IMUX_C[4]             MIPI[0].CN[3]
+			// wire CELL[10].IMUX_C[6]             MIPI[0].CN[4]
+			// wire CELL[10].IMUX_D[0]             MIPI[0].TST[2]
+			// wire CELL[10].IMUX_D[4]             MIPI[0].TST[3]
+			// wire CELL[10].IMUX_D[6]             MIPI[0].CLKTXLPEN
+			// wire CELL[11].IMUX_A[0]             MIPI[0].CM[0]
+			// wire CELL[11].IMUX_A[4]             MIPI[0].CM[1]
+			// wire CELL[11].IMUX_B[0]             MIPI[0].CM[2]
+			// wire CELL[11].IMUX_B[4]             MIPI[0].CM[3]
+			// wire CELL[11].IMUX_B[7]             MIPI[0].CLKTEST_TESTIN[0]
+			// wire CELL[11].IMUX_C[0]             MIPI[0].CLKDTXLPN
+			// wire CELL[11].IMUX_C[4]             MIPI[0].CLKTXHSPD
+			// wire CELL[11].IMUX_C[7]             MIPI[0].CLKTEST_TESTIN[1]
+			// wire CELL[11].IMUX_D[4]             MIPI[0].CLKDTXLPP
+			// wire CELL[12].IMUX_A[0]             MIPI[0].CM[4]
+			// wire CELL[12].IMUX_A[4]             MIPI[0].CM[5]
+			// wire CELL[12].IMUX_B[0]             MIPI[0].CM[6]
+			// wire CELL[12].IMUX_B[4]             MIPI[0].CM[7]
+			// wire CELL[12].IMUX_C[4]             MIPI[0].CLKRXLPEN
+			// wire CELL[12].IMUX_D[0]             MIPI[0].CLKTXHSEN
+			// wire CELL[12].IMUX_D[4]             MIPI[0].CLKCDEN
+			// wire CELL[12].OUT_F[0]              MIPI[0].CLKDRXLPN
+			// wire CELL[12].OUT_F[1]              MIPI[0].CLKDRXLPP
+			// wire CELL[12].OUT_F[4]              MIPI[0].CLKDCDN
+			// wire CELL[13].IMUX_C[4]             MIPI[0].CLKRXHSEN
+			// wire CELL[13].OUT_F[0]              MIPI[0].LOCK
+			// wire CELL[14].IMUX_A[0]             MIPI[0].CO[0]
+			// wire CELL[14].IMUX_A[4]             MIPI[0].CO[1]
+			// wire CELL[14].IMUX_C[0]             MIPI[0].PDPLL
+			// wire CELL[14].IMUX_C[4]             MIPI[0].D0HSSEREN
+			// wire CELL[14].OUT_F[4]              MIPI[0].CLKHSBYTE
+			// wire CELL[14].OUT_F[6]              MIPI[0].CLKDRXHS
+			// wire CELL[15].IMUX_A[0]             MIPI[0].D0TXLPEN
+			// wire CELL[15].IMUX_A[4]             MIPI[0].D0TXHSPD
+			// wire CELL[15].IMUX_B[0]             MIPI[0].D0HSTXDATA[1]
+			// wire CELL[15].IMUX_B[2]             MIPI[0].D0HSTXDATA[3]
+			// wire CELL[15].IMUX_B[4]             MIPI[0].D0HSTXDATA[5]
+			// wire CELL[15].IMUX_B[6]             MIPI[0].D0HSTXDATA[7]
+			// wire CELL[15].IMUX_C[4]             MIPI[0].D0DTXLPN
+			// wire CELL[15].IMUX_D[0]             MIPI[0].D0HSTXDATA[0]
+			// wire CELL[15].IMUX_D[2]             MIPI[0].D0HSTXDATA[2]
+			// wire CELL[15].IMUX_D[4]             MIPI[0].D0HSTXDATA[4]
+			// wire CELL[15].IMUX_D[6]             MIPI[0].D0HSTXDATA[6]
+			// wire CELL[16].IMUX_A[0]             MIPI[0].D0RXLPEN
+			// wire CELL[16].IMUX_A[4]             MIPI[0].D0DTXLPP
+			// wire CELL[16].IMUX_B[0]             MIPI[0].D0HSTXDATA[9]
+			// wire CELL[16].IMUX_B[2]             MIPI[0].D0HSTXDATA[11]
+			// wire CELL[16].IMUX_B[4]             MIPI[0].D0HSTXDATA[13]
+			// wire CELL[16].IMUX_B[6]             MIPI[0].D0HSTXDATA[15]
+			// wire CELL[16].IMUX_C[0]             MIPI[0].D0TXHSEN
+			// wire CELL[16].IMUX_D[0]             MIPI[0].D0HSTXDATA[8]
+			// wire CELL[16].IMUX_D[2]             MIPI[0].D0HSTXDATA[10]
+			// wire CELL[16].IMUX_D[4]             MIPI[0].D0HSTXDATA[12]
+			// wire CELL[16].IMUX_D[6]             MIPI[0].D0HSTXDATA[14]
+			// wire CELL[16].OUT_F[0]              MIPI[0].D0DRXLPN
+			// wire CELL[16].OUT_F[1]              MIPI[0].D0DRXLPP
+			// wire CELL[16].OUT_F[3]              MIPI[0].D0NOSYNC
+			// wire CELL[17].IMUX_A[3]             MIPI[0].D0CDEN
+			// wire CELL[17].OUT_F[0]              MIPI[0].D0HSRXDATA[0]
+			// wire CELL[17].OUT_F[1]              MIPI[0].D0HSRXDATA[1]
+			// wire CELL[17].OUT_F[2]              MIPI[0].D0HSRXDATA[2]
+			// wire CELL[17].OUT_F[3]              MIPI[0].D0HSRXDATA[3]
+			// wire CELL[17].OUT_F[4]              MIPI[0].D0HSRXDATA[4]
+			// wire CELL[17].OUT_F[5]              MIPI[0].D0HSRXDATA[5]
+			// wire CELL[17].OUT_F[6]              MIPI[0].D0HSRXDATA[6]
+			// wire CELL[17].OUT_F[7]              MIPI[0].D0HSRXDATA[7]
+			// wire CELL[17].OUT_Q[0]              MIPI[0].D0DCDP
+			// wire CELL[17].OUT_Q[1]              MIPI[0].D0DCDN
+			// wire CELL[18].IMUX_A[3]             MIPI[0].D0RXHSEN
+			// wire CELL[18].IMUX_A[7]             MIPI[0].D0HSDESEREN
+			// wire CELL[18].OUT_F[0]              MIPI[0].D0HSRXDATA[8]
+			// wire CELL[18].OUT_F[1]              MIPI[0].D0HSRXDATA[9]
+			// wire CELL[18].OUT_F[2]              MIPI[0].D0HSRXDATA[10]
+			// wire CELL[18].OUT_F[3]              MIPI[0].D0HSRXDATA[11]
+			// wire CELL[18].OUT_F[4]              MIPI[0].D0HSRXDATA[12]
+			// wire CELL[18].OUT_F[5]              MIPI[0].D0HSRXDATA[13]
+			// wire CELL[18].OUT_F[6]              MIPI[0].D0HSRXDATA[14]
+			// wire CELL[18].OUT_F[7]              MIPI[0].D0HSRXDATA[15]
+			// wire CELL[18].OUT_Q[4]              MIPI[0].D0SYNC
+			// wire CELL[18].OUT_Q[5]              MIPI[0].D0ERRSYNC
+			// wire CELL[19].IMUX_A[6]             MIPI[0].D2HSSEREN
+			// wire CELL[19].OUT_F[1]              MIPI[0].D0DRXHS
+			// wire CELL[19].OUT_F[6]              MIPI[0].D2DRXHS
+			// wire CELL[20].IMUX_A[4]             MIPI[0].D2TXLPEN
+			// wire CELL[20].IMUX_B[0]             MIPI[0].D2HSTXDATA[1]
+			// wire CELL[20].IMUX_B[2]             MIPI[0].D2HSTXDATA[3]
+			// wire CELL[20].IMUX_B[4]             MIPI[0].D2HSTXDATA[5]
+			// wire CELL[20].IMUX_B[6]             MIPI[0].D2HSTXDATA[7]
+			// wire CELL[20].IMUX_C[0]             MIPI[0].D2TXHSPD
+			// wire CELL[20].IMUX_C[4]             MIPI[0].D2DTXLPN
+			// wire CELL[20].IMUX_D[0]             MIPI[0].D2HSTXDATA[0]
+			// wire CELL[20].IMUX_D[2]             MIPI[0].D2HSTXDATA[2]
+			// wire CELL[20].IMUX_D[4]             MIPI[0].D2HSTXDATA[4]
+			// wire CELL[20].IMUX_D[6]             MIPI[0].D2HSTXDATA[6]
+			// wire CELL[21].IMUX_A[3]             MIPI[0].D2RXLPEN
+			// wire CELL[21].IMUX_A[5]             MIPI[0].D2DTXLPP
+			// wire CELL[21].IMUX_B[0]             MIPI[0].D2HSTXDATA[9]
+			// wire CELL[21].IMUX_B[2]             MIPI[0].D2HSTXDATA[11]
+			// wire CELL[21].IMUX_B[4]             MIPI[0].D2HSTXDATA[13]
+			// wire CELL[21].IMUX_B[6]             MIPI[0].D2HSTXDATA[15]
+			// wire CELL[21].IMUX_C[3]             MIPI[0].D2TXHSEN
+			// wire CELL[21].IMUX_D[0]             MIPI[0].D2HSTXDATA[8]
+			// wire CELL[21].IMUX_D[2]             MIPI[0].D2HSTXDATA[10]
+			// wire CELL[21].IMUX_D[4]             MIPI[0].D2HSTXDATA[12]
+			// wire CELL[21].IMUX_D[6]             MIPI[0].D2HSTXDATA[14]
+			// wire CELL[21].OUT_F[0]              MIPI[0].D2DRXLPN
+			// wire CELL[21].OUT_F[1]              MIPI[0].D2DRXLPP
+			// wire CELL[22].IMUX_A[4]             MIPI[0].D2CDEN
+			// wire CELL[22].OUT_F[0]              MIPI[0].D2HSRXDATA[0]
+			// wire CELL[22].OUT_F[1]              MIPI[0].D2HSRXDATA[1]
+			// wire CELL[22].OUT_F[2]              MIPI[0].D2HSRXDATA[2]
+			// wire CELL[22].OUT_F[3]              MIPI[0].D2HSRXDATA[3]
+			// wire CELL[22].OUT_F[4]              MIPI[0].D2HSRXDATA[4]
+			// wire CELL[22].OUT_F[5]              MIPI[0].D2HSRXDATA[5]
+			// wire CELL[22].OUT_F[6]              MIPI[0].D2HSRXDATA[6]
+			// wire CELL[22].OUT_F[7]              MIPI[0].D2HSRXDATA[7]
+			// wire CELL[22].OUT_Q[0]              MIPI[0].D2NOSYNC
+			// wire CELL[22].OUT_Q[1]              MIPI[0].D2DCDP
+			// wire CELL[22].OUT_Q[4]              MIPI[0].D2DCDN
+			// wire CELL[23].IMUX_A[0]             MIPI[0].D2HSDESEREN
+			// wire CELL[23].IMUX_C[4]             MIPI[0].D2RXHSEN
+			// wire CELL[23].OUT_F[0]              MIPI[0].D2HSRXDATA[8]
+			// wire CELL[23].OUT_F[1]              MIPI[0].D2HSRXDATA[9]
+			// wire CELL[23].OUT_F[2]              MIPI[0].D2HSRXDATA[10]
+			// wire CELL[23].OUT_F[3]              MIPI[0].D2HSRXDATA[11]
+			// wire CELL[23].OUT_F[4]              MIPI[0].D2HSRXDATA[12]
+			// wire CELL[23].OUT_F[5]              MIPI[0].D2HSRXDATA[13]
+			// wire CELL[23].OUT_F[6]              MIPI[0].D2HSRXDATA[14]
+			// wire CELL[23].OUT_F[7]              MIPI[0].D2HSRXDATA[15]
+			// wire CELL[23].OUT_Q[3]              MIPI[0].D2SYNC
+			// wire CELL[23].OUT_Q[4]              MIPI[0].D2ERRSYNC
 		}
 
 		tile_class MIPI_E {
@@ -3479,11 +3487,11 @@ intdb {
 			cell IO[1];
 
 			switchbox BEL_INT {
-				mux CELL[0].IMUX_MIPI_CLKREF = CELL[13].IMUX_CLK[0] | IO[0].OUT_IO_INCK[2] | IO[1].OUT_IO_INCK[0];
+				mux CELL[0].IMUX_MIPI_CLKREF[0] = CELL[13].IMUX_CLK[0] | IO[0].OUT_IO_INCK[2] | IO[1].OUT_IO_INCK[0];
 			}
 
-			bel MIPI {
-				input CLKREF = CELL[0].IMUX_MIPI_CLKREF;
+			bel MIPI[0] {
+				input CLKREF = CELL[0].IMUX_MIPI_CLKREF[0];
 				input CLKCDEN = CELL[12].IMUX_D[4];
 				input CLKDTXLPN = CELL[11].IMUX_C[0];
 				input CLKDTXLPP = CELL[11].IMUX_D[4];
@@ -3623,7 +3631,7 @@ intdb {
 				input TST[3] = CELL[10].IMUX_D[4];
 				input CLKTEST_TESTIN[0] = CELL[13].IMUX_B[7];
 				input CLKTEST_TESTIN[1] = CELL[13].IMUX_C[7];
-				output CLKHSBYTE = CELL[0].OUT_MIPI_CLKHSBYTE, CELL[14].OUT_F[4];
+				output CLKHSBYTE = CELL[0].OUT_MIPI_CLKHSBYTE[0], CELL[14].OUT_F[4];
 				output HSBYTECLKS = CELL[0].OUT_MIPI_HSBYTECLKS;
 				output HSBYTECLKD = CELL[0].OUT_MIPI_HSBYTECLKD;
 				output CLKDCDN = CELL[12].OUT_F[4];
@@ -3729,251 +3737,251 @@ intdb {
 				output LOCK = CELL[13].OUT_F[0];
 			}
 
-			// wire CELL[0].IMUX_A[4]              MIPI.D3HSSEREN
-			// wire CELL[0].IMUX_C[4]              MIPI.PDBIAS
-			// wire CELL[0].IMUX_MIPI_CLKREF       MIPI.CLKREF
-			// wire CELL[0].OUT_MIPI_CLKHSBYTE     MIPI.CLKHSBYTE
-			// wire CELL[0].OUT_MIPI_HSBYTECLKS    MIPI.HSBYTECLKS
-			// wire CELL[0].OUT_MIPI_HSBYTECLKD    MIPI.HSBYTECLKD
-			// wire CELL[1].IMUX_A[2]              MIPI.D3TXLPEN
-			// wire CELL[1].IMUX_B[0]              MIPI.D3HSTXDATA[1]
-			// wire CELL[1].IMUX_B[2]              MIPI.D3HSTXDATA[3]
-			// wire CELL[1].IMUX_B[4]              MIPI.D3HSTXDATA[5]
-			// wire CELL[1].IMUX_B[6]              MIPI.D3HSTXDATA[7]
-			// wire CELL[1].IMUX_C[2]              MIPI.D3TXHSPD
-			// wire CELL[1].IMUX_C[4]              MIPI.D3DTXLPN
-			// wire CELL[1].IMUX_D[0]              MIPI.D3HSTXDATA[0]
-			// wire CELL[1].IMUX_D[2]              MIPI.D3HSTXDATA[2]
-			// wire CELL[1].IMUX_D[4]              MIPI.D3HSTXDATA[4]
-			// wire CELL[1].IMUX_D[6]              MIPI.D3HSTXDATA[6]
-			// wire CELL[2].IMUX_A[4]              MIPI.D3DTXLPP
-			// wire CELL[2].IMUX_B[0]              MIPI.D3HSTXDATA[9]
-			// wire CELL[2].IMUX_B[2]              MIPI.D3HSTXDATA[11]
-			// wire CELL[2].IMUX_B[4]              MIPI.D3HSTXDATA[13]
-			// wire CELL[2].IMUX_B[6]              MIPI.D3HSTXDATA[15]
-			// wire CELL[2].IMUX_C[4]              MIPI.D3RXLPEN
-			// wire CELL[2].IMUX_D[0]              MIPI.D3HSTXDATA[8]
-			// wire CELL[2].IMUX_D[2]              MIPI.D3HSTXDATA[10]
-			// wire CELL[2].IMUX_D[4]              MIPI.D3HSTXDATA[12]
-			// wire CELL[2].IMUX_D[6]              MIPI.D3HSTXDATA[14]
-			// wire CELL[2].OUT_F[0]               MIPI.D3DRXLPN
-			// wire CELL[2].OUT_F[1]               MIPI.D3DRXLPP
-			// wire CELL[3].IMUX_A[1]              MIPI.D3TXHSEN
-			// wire CELL[3].IMUX_B[0]              MIPI.D3CDEN
-			// wire CELL[3].OUT_F[0]               MIPI.D3HSRXDATA[0]
-			// wire CELL[3].OUT_F[1]               MIPI.D3HSRXDATA[1]
-			// wire CELL[3].OUT_F[2]               MIPI.D3HSRXDATA[2]
-			// wire CELL[3].OUT_F[3]               MIPI.D3HSRXDATA[3]
-			// wire CELL[3].OUT_F[4]               MIPI.D3HSRXDATA[4]
-			// wire CELL[3].OUT_F[5]               MIPI.D3HSRXDATA[5]
-			// wire CELL[3].OUT_F[6]               MIPI.D3HSRXDATA[6]
-			// wire CELL[3].OUT_F[7]               MIPI.D3HSRXDATA[7]
-			// wire CELL[3].OUT_Q[0]               MIPI.D3NOSYNC
-			// wire CELL[3].OUT_Q[1]               MIPI.D3DCDP
-			// wire CELL[3].OUT_Q[4]               MIPI.D3DCDN
-			// wire CELL[4].IMUX_C[0]              MIPI.D3RXHSEN
-			// wire CELL[4].IMUX_C[4]              MIPI.D3HSDESEREN
-			// wire CELL[4].OUT_F[0]               MIPI.D3HSRXDATA[8]
-			// wire CELL[4].OUT_F[1]               MIPI.D3HSRXDATA[9]
-			// wire CELL[4].OUT_F[2]               MIPI.D3HSRXDATA[10]
-			// wire CELL[4].OUT_F[3]               MIPI.D3HSRXDATA[11]
-			// wire CELL[4].OUT_F[4]               MIPI.D3HSRXDATA[12]
-			// wire CELL[4].OUT_F[5]               MIPI.D3HSRXDATA[13]
-			// wire CELL[4].OUT_F[6]               MIPI.D3HSRXDATA[14]
-			// wire CELL[4].OUT_F[7]               MIPI.D3HSRXDATA[15]
-			// wire CELL[5].IMUX_A[0]              MIPI.D1HSSEREN
-			// wire CELL[5].IMUX_B[0]              MIPI.D1HSTXDATA[1]
-			// wire CELL[5].IMUX_B[2]              MIPI.D1HSTXDATA[3]
-			// wire CELL[5].IMUX_B[4]              MIPI.D1HSTXDATA[5]
-			// wire CELL[5].IMUX_B[6]              MIPI.D1HSTXDATA[7]
-			// wire CELL[5].IMUX_D[0]              MIPI.D1HSTXDATA[0]
-			// wire CELL[5].IMUX_D[2]              MIPI.D1HSTXDATA[2]
-			// wire CELL[5].IMUX_D[4]              MIPI.D1HSTXDATA[4]
-			// wire CELL[5].IMUX_D[6]              MIPI.D1HSTXDATA[6]
-			// wire CELL[5].OUT_F[0]               MIPI.D3ERRSYNC
-			// wire CELL[5].OUT_F[1]               MIPI.D1DRXHS
-			// wire CELL[5].OUT_F[4]               MIPI.D3SYNC
-			// wire CELL[5].OUT_F[6]               MIPI.D3DRXHS
-			// wire CELL[6].IMUX_A[0]              MIPI.D1TXLPEN
-			// wire CELL[6].IMUX_A[2]              MIPI.D1TXHSPD
-			// wire CELL[6].IMUX_A[5]              MIPI.D1DTXLPN
-			// wire CELL[6].IMUX_B[0]              MIPI.D1HSTXDATA[9]
-			// wire CELL[6].IMUX_B[2]              MIPI.D1HSTXDATA[11]
-			// wire CELL[6].IMUX_B[4]              MIPI.D1HSTXDATA[13]
-			// wire CELL[6].IMUX_B[6]              MIPI.D1HSTXDATA[15]
-			// wire CELL[6].IMUX_C[2]              MIPI.D1DTXLPP
-			// wire CELL[6].IMUX_D[0]              MIPI.D1HSTXDATA[8]
-			// wire CELL[6].IMUX_D[2]              MIPI.D1HSTXDATA[10]
-			// wire CELL[6].IMUX_D[4]              MIPI.D1HSTXDATA[12]
-			// wire CELL[6].IMUX_D[6]              MIPI.D1HSTXDATA[14]
-			// wire CELL[7].IMUX_C[2]              MIPI.D1RXLPEN
-			// wire CELL[7].IMUX_D[0]              MIPI.D1TXHSEN
-			// wire CELL[7].OUT_F[0]               MIPI.D1DRXLPN
-			// wire CELL[7].OUT_F[1]               MIPI.D1DRXLPP
-			// wire CELL[7].OUT_F[2]               MIPI.D1NOSYNC
-			// wire CELL[7].OUT_F[3]               MIPI.D1DCDP
-			// wire CELL[7].OUT_F[4]               MIPI.D1DCDN
-			// wire CELL[8].IMUX_A[0]              MIPI.D1CDEN
-			// wire CELL[8].OUT_F[0]               MIPI.D1HSRXDATA[0]
-			// wire CELL[8].OUT_F[1]               MIPI.D1HSRXDATA[1]
-			// wire CELL[8].OUT_F[2]               MIPI.D1HSRXDATA[2]
-			// wire CELL[8].OUT_F[3]               MIPI.D1HSRXDATA[3]
-			// wire CELL[8].OUT_F[4]               MIPI.D1HSRXDATA[4]
-			// wire CELL[8].OUT_F[5]               MIPI.D1HSRXDATA[5]
-			// wire CELL[8].OUT_F[6]               MIPI.D1HSRXDATA[6]
-			// wire CELL[8].OUT_F[7]               MIPI.D1HSRXDATA[7]
-			// wire CELL[9].IMUX_A[0]              MIPI.D1RXHSEN
-			// wire CELL[9].IMUX_A[4]              MIPI.D1HSDESEREN
-			// wire CELL[9].IMUX_B[0]              MIPI.LBEN
-			// wire CELL[9].IMUX_B[4]              MIPI.PDCKG
-			// wire CELL[9].IMUX_C[0]              MIPI.CN[0]
-			// wire CELL[9].IMUX_C[4]              MIPI.CN[1]
-			// wire CELL[9].IMUX_D[0]              MIPI.TST[0]
-			// wire CELL[9].IMUX_D[4]              MIPI.TST[1]
-			// wire CELL[9].OUT_F[0]               MIPI.D1HSRXDATA[8]
-			// wire CELL[9].OUT_F[1]               MIPI.D1HSRXDATA[9]
-			// wire CELL[9].OUT_F[2]               MIPI.D1HSRXDATA[10]
-			// wire CELL[9].OUT_F[3]               MIPI.D1HSRXDATA[11]
-			// wire CELL[9].OUT_F[4]               MIPI.D1HSRXDATA[12]
-			// wire CELL[9].OUT_F[5]               MIPI.D1HSRXDATA[13]
-			// wire CELL[9].OUT_F[6]               MIPI.D1HSRXDATA[14]
-			// wire CELL[9].OUT_F[7]               MIPI.D1HSRXDATA[15]
-			// wire CELL[9].OUT_Q[0]               MIPI.D1SYNC
-			// wire CELL[9].OUT_Q[1]               MIPI.D1ERRSYNC
-			// wire CELL[10].IMUX_B[0]             MIPI.PDDPHY
-			// wire CELL[10].IMUX_B[4]             MIPI.CLKTXHSGATE
-			// wire CELL[10].IMUX_C[0]             MIPI.CN[2]
-			// wire CELL[10].IMUX_C[4]             MIPI.CN[3]
-			// wire CELL[10].IMUX_C[6]             MIPI.CN[4]
-			// wire CELL[10].IMUX_D[0]             MIPI.TST[2]
-			// wire CELL[10].IMUX_D[4]             MIPI.TST[3]
-			// wire CELL[10].IMUX_D[6]             MIPI.CLKTXLPEN
-			// wire CELL[11].IMUX_A[0]             MIPI.CM[0]
-			// wire CELL[11].IMUX_A[4]             MIPI.CM[1]
-			// wire CELL[11].IMUX_B[0]             MIPI.CM[2]
-			// wire CELL[11].IMUX_B[4]             MIPI.CM[3]
-			// wire CELL[11].IMUX_C[0]             MIPI.CLKDTXLPN
-			// wire CELL[11].IMUX_C[4]             MIPI.CLKTXHSPD
-			// wire CELL[11].IMUX_D[4]             MIPI.CLKDTXLPP
-			// wire CELL[12].IMUX_A[0]             MIPI.CM[4]
-			// wire CELL[12].IMUX_A[4]             MIPI.CM[5]
-			// wire CELL[12].IMUX_B[0]             MIPI.CM[6]
-			// wire CELL[12].IMUX_B[4]             MIPI.CM[7]
-			// wire CELL[12].IMUX_C[4]             MIPI.CLKRXLPEN
-			// wire CELL[12].IMUX_D[0]             MIPI.CLKTXHSEN
-			// wire CELL[12].IMUX_D[4]             MIPI.CLKCDEN
-			// wire CELL[12].OUT_F[0]              MIPI.CLKDRXLPN
-			// wire CELL[12].OUT_F[1]              MIPI.CLKDRXLPP
-			// wire CELL[12].OUT_F[4]              MIPI.CLKDCDN
-			// wire CELL[13].IMUX_B[7]             MIPI.CLKTEST_TESTIN[0]
-			// wire CELL[13].IMUX_C[4]             MIPI.CLKRXHSEN
-			// wire CELL[13].IMUX_C[7]             MIPI.CLKTEST_TESTIN[1]
-			// wire CELL[13].OUT_F[0]              MIPI.LOCK
-			// wire CELL[14].IMUX_A[0]             MIPI.CO[0]
-			// wire CELL[14].IMUX_A[4]             MIPI.CO[1]
-			// wire CELL[14].IMUX_C[0]             MIPI.PDPLL
-			// wire CELL[14].IMUX_C[4]             MIPI.D0HSSEREN
-			// wire CELL[14].OUT_F[4]              MIPI.CLKHSBYTE
-			// wire CELL[14].OUT_F[6]              MIPI.CLKDRXHS
-			// wire CELL[15].IMUX_A[0]             MIPI.D0TXLPEN
-			// wire CELL[15].IMUX_A[4]             MIPI.D0TXHSPD
-			// wire CELL[15].IMUX_B[0]             MIPI.D0HSTXDATA[1]
-			// wire CELL[15].IMUX_B[2]             MIPI.D0HSTXDATA[3]
-			// wire CELL[15].IMUX_B[4]             MIPI.D0HSTXDATA[5]
-			// wire CELL[15].IMUX_B[6]             MIPI.D0HSTXDATA[7]
-			// wire CELL[15].IMUX_C[4]             MIPI.D0DTXLPN
-			// wire CELL[15].IMUX_D[0]             MIPI.D0HSTXDATA[0]
-			// wire CELL[15].IMUX_D[2]             MIPI.D0HSTXDATA[2]
-			// wire CELL[15].IMUX_D[4]             MIPI.D0HSTXDATA[4]
-			// wire CELL[15].IMUX_D[6]             MIPI.D0HSTXDATA[6]
-			// wire CELL[16].IMUX_A[0]             MIPI.D0RXLPEN
-			// wire CELL[16].IMUX_A[4]             MIPI.D0DTXLPP
-			// wire CELL[16].IMUX_B[0]             MIPI.D0HSTXDATA[9]
-			// wire CELL[16].IMUX_B[2]             MIPI.D0HSTXDATA[11]
-			// wire CELL[16].IMUX_B[4]             MIPI.D0HSTXDATA[13]
-			// wire CELL[16].IMUX_B[6]             MIPI.D0HSTXDATA[15]
-			// wire CELL[16].IMUX_C[0]             MIPI.D0TXHSEN
-			// wire CELL[16].IMUX_D[0]             MIPI.D0HSTXDATA[8]
-			// wire CELL[16].IMUX_D[2]             MIPI.D0HSTXDATA[10]
-			// wire CELL[16].IMUX_D[4]             MIPI.D0HSTXDATA[12]
-			// wire CELL[16].IMUX_D[6]             MIPI.D0HSTXDATA[14]
-			// wire CELL[16].OUT_F[0]              MIPI.D0DRXLPN
-			// wire CELL[16].OUT_F[1]              MIPI.D0DRXLPP
-			// wire CELL[16].OUT_F[3]              MIPI.D0NOSYNC
-			// wire CELL[17].IMUX_A[3]             MIPI.D0CDEN
-			// wire CELL[17].OUT_F[0]              MIPI.D0HSRXDATA[0]
-			// wire CELL[17].OUT_F[1]              MIPI.D0HSRXDATA[1]
-			// wire CELL[17].OUT_F[2]              MIPI.D0HSRXDATA[2]
-			// wire CELL[17].OUT_F[3]              MIPI.D0HSRXDATA[3]
-			// wire CELL[17].OUT_F[4]              MIPI.D0HSRXDATA[4]
-			// wire CELL[17].OUT_F[5]              MIPI.D0HSRXDATA[5]
-			// wire CELL[17].OUT_F[6]              MIPI.D0HSRXDATA[6]
-			// wire CELL[17].OUT_F[7]              MIPI.D0HSRXDATA[7]
-			// wire CELL[17].OUT_Q[0]              MIPI.D0DCDP
-			// wire CELL[17].OUT_Q[1]              MIPI.D0DCDN
-			// wire CELL[18].IMUX_A[3]             MIPI.D0RXHSEN
-			// wire CELL[18].IMUX_A[7]             MIPI.D0HSDESEREN
-			// wire CELL[18].OUT_F[0]              MIPI.D0HSRXDATA[8]
-			// wire CELL[18].OUT_F[1]              MIPI.D0HSRXDATA[9]
-			// wire CELL[18].OUT_F[2]              MIPI.D0HSRXDATA[10]
-			// wire CELL[18].OUT_F[3]              MIPI.D0HSRXDATA[11]
-			// wire CELL[18].OUT_F[4]              MIPI.D0HSRXDATA[12]
-			// wire CELL[18].OUT_F[5]              MIPI.D0HSRXDATA[13]
-			// wire CELL[18].OUT_F[6]              MIPI.D0HSRXDATA[14]
-			// wire CELL[18].OUT_F[7]              MIPI.D0HSRXDATA[15]
-			// wire CELL[18].OUT_Q[4]              MIPI.D0SYNC
-			// wire CELL[18].OUT_Q[5]              MIPI.D0ERRSYNC
-			// wire CELL[19].IMUX_A[6]             MIPI.D2HSSEREN
-			// wire CELL[19].OUT_F[1]              MIPI.D0DRXHS
-			// wire CELL[19].OUT_F[6]              MIPI.D2DRXHS
-			// wire CELL[20].IMUX_A[4]             MIPI.D2TXLPEN
-			// wire CELL[20].IMUX_B[0]             MIPI.D2HSTXDATA[1]
-			// wire CELL[20].IMUX_B[2]             MIPI.D2HSTXDATA[3]
-			// wire CELL[20].IMUX_B[4]             MIPI.D2HSTXDATA[5]
-			// wire CELL[20].IMUX_B[6]             MIPI.D2HSTXDATA[7]
-			// wire CELL[20].IMUX_C[0]             MIPI.D2TXHSPD
-			// wire CELL[20].IMUX_C[4]             MIPI.D2DTXLPN
-			// wire CELL[20].IMUX_D[0]             MIPI.D2HSTXDATA[0]
-			// wire CELL[20].IMUX_D[2]             MIPI.D2HSTXDATA[2]
-			// wire CELL[20].IMUX_D[4]             MIPI.D2HSTXDATA[4]
-			// wire CELL[20].IMUX_D[6]             MIPI.D2HSTXDATA[6]
-			// wire CELL[21].IMUX_A[3]             MIPI.D2RXLPEN
-			// wire CELL[21].IMUX_A[5]             MIPI.D2DTXLPP
-			// wire CELL[21].IMUX_B[0]             MIPI.D2HSTXDATA[9]
-			// wire CELL[21].IMUX_B[2]             MIPI.D2HSTXDATA[11]
-			// wire CELL[21].IMUX_B[4]             MIPI.D2HSTXDATA[13]
-			// wire CELL[21].IMUX_B[6]             MIPI.D2HSTXDATA[15]
-			// wire CELL[21].IMUX_C[3]             MIPI.D2TXHSEN
-			// wire CELL[21].IMUX_D[0]             MIPI.D2HSTXDATA[8]
-			// wire CELL[21].IMUX_D[2]             MIPI.D2HSTXDATA[10]
-			// wire CELL[21].IMUX_D[4]             MIPI.D2HSTXDATA[12]
-			// wire CELL[21].IMUX_D[6]             MIPI.D2HSTXDATA[14]
-			// wire CELL[21].OUT_F[0]              MIPI.D2DRXLPN
-			// wire CELL[21].OUT_F[1]              MIPI.D2DRXLPP
-			// wire CELL[22].IMUX_A[4]             MIPI.D2CDEN
-			// wire CELL[22].OUT_F[0]              MIPI.D2HSRXDATA[0]
-			// wire CELL[22].OUT_F[1]              MIPI.D2HSRXDATA[1]
-			// wire CELL[22].OUT_F[2]              MIPI.D2HSRXDATA[2]
-			// wire CELL[22].OUT_F[3]              MIPI.D2HSRXDATA[3]
-			// wire CELL[22].OUT_F[4]              MIPI.D2HSRXDATA[4]
-			// wire CELL[22].OUT_F[5]              MIPI.D2HSRXDATA[5]
-			// wire CELL[22].OUT_F[6]              MIPI.D2HSRXDATA[6]
-			// wire CELL[22].OUT_F[7]              MIPI.D2HSRXDATA[7]
-			// wire CELL[22].OUT_Q[0]              MIPI.D2NOSYNC
-			// wire CELL[22].OUT_Q[1]              MIPI.D2DCDP
-			// wire CELL[22].OUT_Q[4]              MIPI.D2DCDN
-			// wire CELL[23].IMUX_A[0]             MIPI.D2HSDESEREN
-			// wire CELL[23].IMUX_C[4]             MIPI.D2RXHSEN
-			// wire CELL[23].OUT_F[0]              MIPI.D2HSRXDATA[8]
-			// wire CELL[23].OUT_F[1]              MIPI.D2HSRXDATA[9]
-			// wire CELL[23].OUT_F[2]              MIPI.D2HSRXDATA[10]
-			// wire CELL[23].OUT_F[3]              MIPI.D2HSRXDATA[11]
-			// wire CELL[23].OUT_F[4]              MIPI.D2HSRXDATA[12]
-			// wire CELL[23].OUT_F[5]              MIPI.D2HSRXDATA[13]
-			// wire CELL[23].OUT_F[6]              MIPI.D2HSRXDATA[14]
-			// wire CELL[23].OUT_F[7]              MIPI.D2HSRXDATA[15]
-			// wire CELL[23].OUT_Q[3]              MIPI.D2SYNC
-			// wire CELL[23].OUT_Q[4]              MIPI.D2ERRSYNC
+			// wire CELL[0].IMUX_A[4]              MIPI[0].D3HSSEREN
+			// wire CELL[0].IMUX_C[4]              MIPI[0].PDBIAS
+			// wire CELL[0].IMUX_MIPI_CLKREF[0]    MIPI[0].CLKREF
+			// wire CELL[0].OUT_MIPI_CLKHSBYTE[0]  MIPI[0].CLKHSBYTE
+			// wire CELL[0].OUT_MIPI_HSBYTECLKS    MIPI[0].HSBYTECLKS
+			// wire CELL[0].OUT_MIPI_HSBYTECLKD    MIPI[0].HSBYTECLKD
+			// wire CELL[1].IMUX_A[2]              MIPI[0].D3TXLPEN
+			// wire CELL[1].IMUX_B[0]              MIPI[0].D3HSTXDATA[1]
+			// wire CELL[1].IMUX_B[2]              MIPI[0].D3HSTXDATA[3]
+			// wire CELL[1].IMUX_B[4]              MIPI[0].D3HSTXDATA[5]
+			// wire CELL[1].IMUX_B[6]              MIPI[0].D3HSTXDATA[7]
+			// wire CELL[1].IMUX_C[2]              MIPI[0].D3TXHSPD
+			// wire CELL[1].IMUX_C[4]              MIPI[0].D3DTXLPN
+			// wire CELL[1].IMUX_D[0]              MIPI[0].D3HSTXDATA[0]
+			// wire CELL[1].IMUX_D[2]              MIPI[0].D3HSTXDATA[2]
+			// wire CELL[1].IMUX_D[4]              MIPI[0].D3HSTXDATA[4]
+			// wire CELL[1].IMUX_D[6]              MIPI[0].D3HSTXDATA[6]
+			// wire CELL[2].IMUX_A[4]              MIPI[0].D3DTXLPP
+			// wire CELL[2].IMUX_B[0]              MIPI[0].D3HSTXDATA[9]
+			// wire CELL[2].IMUX_B[2]              MIPI[0].D3HSTXDATA[11]
+			// wire CELL[2].IMUX_B[4]              MIPI[0].D3HSTXDATA[13]
+			// wire CELL[2].IMUX_B[6]              MIPI[0].D3HSTXDATA[15]
+			// wire CELL[2].IMUX_C[4]              MIPI[0].D3RXLPEN
+			// wire CELL[2].IMUX_D[0]              MIPI[0].D3HSTXDATA[8]
+			// wire CELL[2].IMUX_D[2]              MIPI[0].D3HSTXDATA[10]
+			// wire CELL[2].IMUX_D[4]              MIPI[0].D3HSTXDATA[12]
+			// wire CELL[2].IMUX_D[6]              MIPI[0].D3HSTXDATA[14]
+			// wire CELL[2].OUT_F[0]               MIPI[0].D3DRXLPN
+			// wire CELL[2].OUT_F[1]               MIPI[0].D3DRXLPP
+			// wire CELL[3].IMUX_A[1]              MIPI[0].D3TXHSEN
+			// wire CELL[3].IMUX_B[0]              MIPI[0].D3CDEN
+			// wire CELL[3].OUT_F[0]               MIPI[0].D3HSRXDATA[0]
+			// wire CELL[3].OUT_F[1]               MIPI[0].D3HSRXDATA[1]
+			// wire CELL[3].OUT_F[2]               MIPI[0].D3HSRXDATA[2]
+			// wire CELL[3].OUT_F[3]               MIPI[0].D3HSRXDATA[3]
+			// wire CELL[3].OUT_F[4]               MIPI[0].D3HSRXDATA[4]
+			// wire CELL[3].OUT_F[5]               MIPI[0].D3HSRXDATA[5]
+			// wire CELL[3].OUT_F[6]               MIPI[0].D3HSRXDATA[6]
+			// wire CELL[3].OUT_F[7]               MIPI[0].D3HSRXDATA[7]
+			// wire CELL[3].OUT_Q[0]               MIPI[0].D3NOSYNC
+			// wire CELL[3].OUT_Q[1]               MIPI[0].D3DCDP
+			// wire CELL[3].OUT_Q[4]               MIPI[0].D3DCDN
+			// wire CELL[4].IMUX_C[0]              MIPI[0].D3RXHSEN
+			// wire CELL[4].IMUX_C[4]              MIPI[0].D3HSDESEREN
+			// wire CELL[4].OUT_F[0]               MIPI[0].D3HSRXDATA[8]
+			// wire CELL[4].OUT_F[1]               MIPI[0].D3HSRXDATA[9]
+			// wire CELL[4].OUT_F[2]               MIPI[0].D3HSRXDATA[10]
+			// wire CELL[4].OUT_F[3]               MIPI[0].D3HSRXDATA[11]
+			// wire CELL[4].OUT_F[4]               MIPI[0].D3HSRXDATA[12]
+			// wire CELL[4].OUT_F[5]               MIPI[0].D3HSRXDATA[13]
+			// wire CELL[4].OUT_F[6]               MIPI[0].D3HSRXDATA[14]
+			// wire CELL[4].OUT_F[7]               MIPI[0].D3HSRXDATA[15]
+			// wire CELL[5].IMUX_A[0]              MIPI[0].D1HSSEREN
+			// wire CELL[5].IMUX_B[0]              MIPI[0].D1HSTXDATA[1]
+			// wire CELL[5].IMUX_B[2]              MIPI[0].D1HSTXDATA[3]
+			// wire CELL[5].IMUX_B[4]              MIPI[0].D1HSTXDATA[5]
+			// wire CELL[5].IMUX_B[6]              MIPI[0].D1HSTXDATA[7]
+			// wire CELL[5].IMUX_D[0]              MIPI[0].D1HSTXDATA[0]
+			// wire CELL[5].IMUX_D[2]              MIPI[0].D1HSTXDATA[2]
+			// wire CELL[5].IMUX_D[4]              MIPI[0].D1HSTXDATA[4]
+			// wire CELL[5].IMUX_D[6]              MIPI[0].D1HSTXDATA[6]
+			// wire CELL[5].OUT_F[0]               MIPI[0].D3ERRSYNC
+			// wire CELL[5].OUT_F[1]               MIPI[0].D1DRXHS
+			// wire CELL[5].OUT_F[4]               MIPI[0].D3SYNC
+			// wire CELL[5].OUT_F[6]               MIPI[0].D3DRXHS
+			// wire CELL[6].IMUX_A[0]              MIPI[0].D1TXLPEN
+			// wire CELL[6].IMUX_A[2]              MIPI[0].D1TXHSPD
+			// wire CELL[6].IMUX_A[5]              MIPI[0].D1DTXLPN
+			// wire CELL[6].IMUX_B[0]              MIPI[0].D1HSTXDATA[9]
+			// wire CELL[6].IMUX_B[2]              MIPI[0].D1HSTXDATA[11]
+			// wire CELL[6].IMUX_B[4]              MIPI[0].D1HSTXDATA[13]
+			// wire CELL[6].IMUX_B[6]              MIPI[0].D1HSTXDATA[15]
+			// wire CELL[6].IMUX_C[2]              MIPI[0].D1DTXLPP
+			// wire CELL[6].IMUX_D[0]              MIPI[0].D1HSTXDATA[8]
+			// wire CELL[6].IMUX_D[2]              MIPI[0].D1HSTXDATA[10]
+			// wire CELL[6].IMUX_D[4]              MIPI[0].D1HSTXDATA[12]
+			// wire CELL[6].IMUX_D[6]              MIPI[0].D1HSTXDATA[14]
+			// wire CELL[7].IMUX_C[2]              MIPI[0].D1RXLPEN
+			// wire CELL[7].IMUX_D[0]              MIPI[0].D1TXHSEN
+			// wire CELL[7].OUT_F[0]               MIPI[0].D1DRXLPN
+			// wire CELL[7].OUT_F[1]               MIPI[0].D1DRXLPP
+			// wire CELL[7].OUT_F[2]               MIPI[0].D1NOSYNC
+			// wire CELL[7].OUT_F[3]               MIPI[0].D1DCDP
+			// wire CELL[7].OUT_F[4]               MIPI[0].D1DCDN
+			// wire CELL[8].IMUX_A[0]              MIPI[0].D1CDEN
+			// wire CELL[8].OUT_F[0]               MIPI[0].D1HSRXDATA[0]
+			// wire CELL[8].OUT_F[1]               MIPI[0].D1HSRXDATA[1]
+			// wire CELL[8].OUT_F[2]               MIPI[0].D1HSRXDATA[2]
+			// wire CELL[8].OUT_F[3]               MIPI[0].D1HSRXDATA[3]
+			// wire CELL[8].OUT_F[4]               MIPI[0].D1HSRXDATA[4]
+			// wire CELL[8].OUT_F[5]               MIPI[0].D1HSRXDATA[5]
+			// wire CELL[8].OUT_F[6]               MIPI[0].D1HSRXDATA[6]
+			// wire CELL[8].OUT_F[7]               MIPI[0].D1HSRXDATA[7]
+			// wire CELL[9].IMUX_A[0]              MIPI[0].D1RXHSEN
+			// wire CELL[9].IMUX_A[4]              MIPI[0].D1HSDESEREN
+			// wire CELL[9].IMUX_B[0]              MIPI[0].LBEN
+			// wire CELL[9].IMUX_B[4]              MIPI[0].PDCKG
+			// wire CELL[9].IMUX_C[0]              MIPI[0].CN[0]
+			// wire CELL[9].IMUX_C[4]              MIPI[0].CN[1]
+			// wire CELL[9].IMUX_D[0]              MIPI[0].TST[0]
+			// wire CELL[9].IMUX_D[4]              MIPI[0].TST[1]
+			// wire CELL[9].OUT_F[0]               MIPI[0].D1HSRXDATA[8]
+			// wire CELL[9].OUT_F[1]               MIPI[0].D1HSRXDATA[9]
+			// wire CELL[9].OUT_F[2]               MIPI[0].D1HSRXDATA[10]
+			// wire CELL[9].OUT_F[3]               MIPI[0].D1HSRXDATA[11]
+			// wire CELL[9].OUT_F[4]               MIPI[0].D1HSRXDATA[12]
+			// wire CELL[9].OUT_F[5]               MIPI[0].D1HSRXDATA[13]
+			// wire CELL[9].OUT_F[6]               MIPI[0].D1HSRXDATA[14]
+			// wire CELL[9].OUT_F[7]               MIPI[0].D1HSRXDATA[15]
+			// wire CELL[9].OUT_Q[0]               MIPI[0].D1SYNC
+			// wire CELL[9].OUT_Q[1]               MIPI[0].D1ERRSYNC
+			// wire CELL[10].IMUX_B[0]             MIPI[0].PDDPHY
+			// wire CELL[10].IMUX_B[4]             MIPI[0].CLKTXHSGATE
+			// wire CELL[10].IMUX_C[0]             MIPI[0].CN[2]
+			// wire CELL[10].IMUX_C[4]             MIPI[0].CN[3]
+			// wire CELL[10].IMUX_C[6]             MIPI[0].CN[4]
+			// wire CELL[10].IMUX_D[0]             MIPI[0].TST[2]
+			// wire CELL[10].IMUX_D[4]             MIPI[0].TST[3]
+			// wire CELL[10].IMUX_D[6]             MIPI[0].CLKTXLPEN
+			// wire CELL[11].IMUX_A[0]             MIPI[0].CM[0]
+			// wire CELL[11].IMUX_A[4]             MIPI[0].CM[1]
+			// wire CELL[11].IMUX_B[0]             MIPI[0].CM[2]
+			// wire CELL[11].IMUX_B[4]             MIPI[0].CM[3]
+			// wire CELL[11].IMUX_C[0]             MIPI[0].CLKDTXLPN
+			// wire CELL[11].IMUX_C[4]             MIPI[0].CLKTXHSPD
+			// wire CELL[11].IMUX_D[4]             MIPI[0].CLKDTXLPP
+			// wire CELL[12].IMUX_A[0]             MIPI[0].CM[4]
+			// wire CELL[12].IMUX_A[4]             MIPI[0].CM[5]
+			// wire CELL[12].IMUX_B[0]             MIPI[0].CM[6]
+			// wire CELL[12].IMUX_B[4]             MIPI[0].CM[7]
+			// wire CELL[12].IMUX_C[4]             MIPI[0].CLKRXLPEN
+			// wire CELL[12].IMUX_D[0]             MIPI[0].CLKTXHSEN
+			// wire CELL[12].IMUX_D[4]             MIPI[0].CLKCDEN
+			// wire CELL[12].OUT_F[0]              MIPI[0].CLKDRXLPN
+			// wire CELL[12].OUT_F[1]              MIPI[0].CLKDRXLPP
+			// wire CELL[12].OUT_F[4]              MIPI[0].CLKDCDN
+			// wire CELL[13].IMUX_B[7]             MIPI[0].CLKTEST_TESTIN[0]
+			// wire CELL[13].IMUX_C[4]             MIPI[0].CLKRXHSEN
+			// wire CELL[13].IMUX_C[7]             MIPI[0].CLKTEST_TESTIN[1]
+			// wire CELL[13].OUT_F[0]              MIPI[0].LOCK
+			// wire CELL[14].IMUX_A[0]             MIPI[0].CO[0]
+			// wire CELL[14].IMUX_A[4]             MIPI[0].CO[1]
+			// wire CELL[14].IMUX_C[0]             MIPI[0].PDPLL
+			// wire CELL[14].IMUX_C[4]             MIPI[0].D0HSSEREN
+			// wire CELL[14].OUT_F[4]              MIPI[0].CLKHSBYTE
+			// wire CELL[14].OUT_F[6]              MIPI[0].CLKDRXHS
+			// wire CELL[15].IMUX_A[0]             MIPI[0].D0TXLPEN
+			// wire CELL[15].IMUX_A[4]             MIPI[0].D0TXHSPD
+			// wire CELL[15].IMUX_B[0]             MIPI[0].D0HSTXDATA[1]
+			// wire CELL[15].IMUX_B[2]             MIPI[0].D0HSTXDATA[3]
+			// wire CELL[15].IMUX_B[4]             MIPI[0].D0HSTXDATA[5]
+			// wire CELL[15].IMUX_B[6]             MIPI[0].D0HSTXDATA[7]
+			// wire CELL[15].IMUX_C[4]             MIPI[0].D0DTXLPN
+			// wire CELL[15].IMUX_D[0]             MIPI[0].D0HSTXDATA[0]
+			// wire CELL[15].IMUX_D[2]             MIPI[0].D0HSTXDATA[2]
+			// wire CELL[15].IMUX_D[4]             MIPI[0].D0HSTXDATA[4]
+			// wire CELL[15].IMUX_D[6]             MIPI[0].D0HSTXDATA[6]
+			// wire CELL[16].IMUX_A[0]             MIPI[0].D0RXLPEN
+			// wire CELL[16].IMUX_A[4]             MIPI[0].D0DTXLPP
+			// wire CELL[16].IMUX_B[0]             MIPI[0].D0HSTXDATA[9]
+			// wire CELL[16].IMUX_B[2]             MIPI[0].D0HSTXDATA[11]
+			// wire CELL[16].IMUX_B[4]             MIPI[0].D0HSTXDATA[13]
+			// wire CELL[16].IMUX_B[6]             MIPI[0].D0HSTXDATA[15]
+			// wire CELL[16].IMUX_C[0]             MIPI[0].D0TXHSEN
+			// wire CELL[16].IMUX_D[0]             MIPI[0].D0HSTXDATA[8]
+			// wire CELL[16].IMUX_D[2]             MIPI[0].D0HSTXDATA[10]
+			// wire CELL[16].IMUX_D[4]             MIPI[0].D0HSTXDATA[12]
+			// wire CELL[16].IMUX_D[6]             MIPI[0].D0HSTXDATA[14]
+			// wire CELL[16].OUT_F[0]              MIPI[0].D0DRXLPN
+			// wire CELL[16].OUT_F[1]              MIPI[0].D0DRXLPP
+			// wire CELL[16].OUT_F[3]              MIPI[0].D0NOSYNC
+			// wire CELL[17].IMUX_A[3]             MIPI[0].D0CDEN
+			// wire CELL[17].OUT_F[0]              MIPI[0].D0HSRXDATA[0]
+			// wire CELL[17].OUT_F[1]              MIPI[0].D0HSRXDATA[1]
+			// wire CELL[17].OUT_F[2]              MIPI[0].D0HSRXDATA[2]
+			// wire CELL[17].OUT_F[3]              MIPI[0].D0HSRXDATA[3]
+			// wire CELL[17].OUT_F[4]              MIPI[0].D0HSRXDATA[4]
+			// wire CELL[17].OUT_F[5]              MIPI[0].D0HSRXDATA[5]
+			// wire CELL[17].OUT_F[6]              MIPI[0].D0HSRXDATA[6]
+			// wire CELL[17].OUT_F[7]              MIPI[0].D0HSRXDATA[7]
+			// wire CELL[17].OUT_Q[0]              MIPI[0].D0DCDP
+			// wire CELL[17].OUT_Q[1]              MIPI[0].D0DCDN
+			// wire CELL[18].IMUX_A[3]             MIPI[0].D0RXHSEN
+			// wire CELL[18].IMUX_A[7]             MIPI[0].D0HSDESEREN
+			// wire CELL[18].OUT_F[0]              MIPI[0].D0HSRXDATA[8]
+			// wire CELL[18].OUT_F[1]              MIPI[0].D0HSRXDATA[9]
+			// wire CELL[18].OUT_F[2]              MIPI[0].D0HSRXDATA[10]
+			// wire CELL[18].OUT_F[3]              MIPI[0].D0HSRXDATA[11]
+			// wire CELL[18].OUT_F[4]              MIPI[0].D0HSRXDATA[12]
+			// wire CELL[18].OUT_F[5]              MIPI[0].D0HSRXDATA[13]
+			// wire CELL[18].OUT_F[6]              MIPI[0].D0HSRXDATA[14]
+			// wire CELL[18].OUT_F[7]              MIPI[0].D0HSRXDATA[15]
+			// wire CELL[18].OUT_Q[4]              MIPI[0].D0SYNC
+			// wire CELL[18].OUT_Q[5]              MIPI[0].D0ERRSYNC
+			// wire CELL[19].IMUX_A[6]             MIPI[0].D2HSSEREN
+			// wire CELL[19].OUT_F[1]              MIPI[0].D0DRXHS
+			// wire CELL[19].OUT_F[6]              MIPI[0].D2DRXHS
+			// wire CELL[20].IMUX_A[4]             MIPI[0].D2TXLPEN
+			// wire CELL[20].IMUX_B[0]             MIPI[0].D2HSTXDATA[1]
+			// wire CELL[20].IMUX_B[2]             MIPI[0].D2HSTXDATA[3]
+			// wire CELL[20].IMUX_B[4]             MIPI[0].D2HSTXDATA[5]
+			// wire CELL[20].IMUX_B[6]             MIPI[0].D2HSTXDATA[7]
+			// wire CELL[20].IMUX_C[0]             MIPI[0].D2TXHSPD
+			// wire CELL[20].IMUX_C[4]             MIPI[0].D2DTXLPN
+			// wire CELL[20].IMUX_D[0]             MIPI[0].D2HSTXDATA[0]
+			// wire CELL[20].IMUX_D[2]             MIPI[0].D2HSTXDATA[2]
+			// wire CELL[20].IMUX_D[4]             MIPI[0].D2HSTXDATA[4]
+			// wire CELL[20].IMUX_D[6]             MIPI[0].D2HSTXDATA[6]
+			// wire CELL[21].IMUX_A[3]             MIPI[0].D2RXLPEN
+			// wire CELL[21].IMUX_A[5]             MIPI[0].D2DTXLPP
+			// wire CELL[21].IMUX_B[0]             MIPI[0].D2HSTXDATA[9]
+			// wire CELL[21].IMUX_B[2]             MIPI[0].D2HSTXDATA[11]
+			// wire CELL[21].IMUX_B[4]             MIPI[0].D2HSTXDATA[13]
+			// wire CELL[21].IMUX_B[6]             MIPI[0].D2HSTXDATA[15]
+			// wire CELL[21].IMUX_C[3]             MIPI[0].D2TXHSEN
+			// wire CELL[21].IMUX_D[0]             MIPI[0].D2HSTXDATA[8]
+			// wire CELL[21].IMUX_D[2]             MIPI[0].D2HSTXDATA[10]
+			// wire CELL[21].IMUX_D[4]             MIPI[0].D2HSTXDATA[12]
+			// wire CELL[21].IMUX_D[6]             MIPI[0].D2HSTXDATA[14]
+			// wire CELL[21].OUT_F[0]              MIPI[0].D2DRXLPN
+			// wire CELL[21].OUT_F[1]              MIPI[0].D2DRXLPP
+			// wire CELL[22].IMUX_A[4]             MIPI[0].D2CDEN
+			// wire CELL[22].OUT_F[0]              MIPI[0].D2HSRXDATA[0]
+			// wire CELL[22].OUT_F[1]              MIPI[0].D2HSRXDATA[1]
+			// wire CELL[22].OUT_F[2]              MIPI[0].D2HSRXDATA[2]
+			// wire CELL[22].OUT_F[3]              MIPI[0].D2HSRXDATA[3]
+			// wire CELL[22].OUT_F[4]              MIPI[0].D2HSRXDATA[4]
+			// wire CELL[22].OUT_F[5]              MIPI[0].D2HSRXDATA[5]
+			// wire CELL[22].OUT_F[6]              MIPI[0].D2HSRXDATA[6]
+			// wire CELL[22].OUT_F[7]              MIPI[0].D2HSRXDATA[7]
+			// wire CELL[22].OUT_Q[0]              MIPI[0].D2NOSYNC
+			// wire CELL[22].OUT_Q[1]              MIPI[0].D2DCDP
+			// wire CELL[22].OUT_Q[4]              MIPI[0].D2DCDN
+			// wire CELL[23].IMUX_A[0]             MIPI[0].D2HSDESEREN
+			// wire CELL[23].IMUX_C[4]             MIPI[0].D2RXHSEN
+			// wire CELL[23].OUT_F[0]              MIPI[0].D2HSRXDATA[8]
+			// wire CELL[23].OUT_F[1]              MIPI[0].D2HSRXDATA[9]
+			// wire CELL[23].OUT_F[2]              MIPI[0].D2HSRXDATA[10]
+			// wire CELL[23].OUT_F[3]              MIPI[0].D2HSRXDATA[11]
+			// wire CELL[23].OUT_F[4]              MIPI[0].D2HSRXDATA[12]
+			// wire CELL[23].OUT_F[5]              MIPI[0].D2HSRXDATA[13]
+			// wire CELL[23].OUT_F[6]              MIPI[0].D2HSRXDATA[14]
+			// wire CELL[23].OUT_F[7]              MIPI[0].D2HSRXDATA[15]
+			// wire CELL[23].OUT_Q[3]              MIPI[0].D2SYNC
+			// wire CELL[23].OUT_Q[4]              MIPI[0].D2ERRSYNC
 		}
 
 		tile_class PLL {
@@ -4806,12 +4814,12 @@ intdb {
 			cell MIPI[1];
 
 			switchbox CLK_INT {
-				mux CELL[1].IMUX_DCC_CLKI[0] = CELL[0].IMUX_D[7] | CELL[1].IMUX_D[7] | CLK_S.OUT_CLKDIV_CDIVX[2] | IO_IN[0].OUT_IO_INCK[0] | MIPI[0].OUT_MIPI_CLKHSBYTE | MIPI[0].OUT_MIPI_HSBYTECLKS | MIPI[1].OUT_MIPI_HSBYTECLKD;
-				mux CELL[1].IMUX_DCC_CLKI[1] = CELL[0].IMUX_D[7] | CELL[1].IMUX_D[7] | CLK_S.OUT_CLKDIV_CDIVX[3] | IO_IN[1].OUT_IO_INCK[0] | MIPI[0].OUT_MIPI_HSBYTECLKD | MIPI[1].OUT_MIPI_CLKHSBYTE | MIPI[1].OUT_MIPI_HSBYTECLKS;
-				mux CELL[1].IMUX_DCC_CLKI[2] = CELL[0].IMUX_D[7] | CELL[1].IMUX_D[7] | CLK_S.OUT_CLKDIV_CDIVX[2] | IO_IN[0].OUT_IO_INCK[0] | MIPI[0].OUT_MIPI_CLKHSBYTE | MIPI[0].OUT_MIPI_HSBYTECLKS | MIPI[1].OUT_MIPI_HSBYTECLKS;
-				mux CELL[1].IMUX_DCC_CLKI[3] = CELL[0].IMUX_D[7] | CELL[1].IMUX_D[7] | CLK_S.OUT_CLKDIV_CDIVX[3] | IO_IN[1].OUT_IO_INCK[0] | MIPI[0].OUT_MIPI_HSBYTECLKD | MIPI[1].OUT_MIPI_CLKHSBYTE | MIPI[1].OUT_MIPI_HSBYTECLKD;
-				mux CELL[1].IMUX_DCC_CLKI[4] = CELL[0].IMUX_D[7] | CELL[1].IMUX_D[7] | CLK_S.OUT_CLKDIV_CDIVX[2] | IO_IN[0].OUT_IO_INCK[0] | MIPI[0].OUT_MIPI_CLKHSBYTE | MIPI[0].OUT_MIPI_HSBYTECLKS | MIPI[1].OUT_MIPI_HSBYTECLKS;
-				mux CELL[1].IMUX_DCC_CLKI[5] = CELL[0].IMUX_D[7] | CELL[1].IMUX_D[7] | CLK_S.OUT_CLKDIV_CDIVX[3] | IO_IN[1].OUT_IO_INCK[0] | MIPI[0].OUT_MIPI_HSBYTECLKD | MIPI[1].OUT_MIPI_CLKHSBYTE | MIPI[1].OUT_MIPI_HSBYTECLKD;
+				mux CELL[1].IMUX_DCC_CLKI[0] = CELL[0].IMUX_D[7] | CELL[1].IMUX_D[7] | CLK_S.OUT_CLKDIV_CDIVX[2] | IO_IN[0].OUT_IO_INCK[0] | MIPI[0].OUT_MIPI_CLKHSBYTE[0] | MIPI[0].OUT_MIPI_HSBYTECLKS | MIPI[1].OUT_MIPI_HSBYTECLKD;
+				mux CELL[1].IMUX_DCC_CLKI[1] = CELL[0].IMUX_D[7] | CELL[1].IMUX_D[7] | CLK_S.OUT_CLKDIV_CDIVX[3] | IO_IN[1].OUT_IO_INCK[0] | MIPI[0].OUT_MIPI_HSBYTECLKD | MIPI[1].OUT_MIPI_CLKHSBYTE[0] | MIPI[1].OUT_MIPI_HSBYTECLKS;
+				mux CELL[1].IMUX_DCC_CLKI[2] = CELL[0].IMUX_D[7] | CELL[1].IMUX_D[7] | CLK_S.OUT_CLKDIV_CDIVX[2] | IO_IN[0].OUT_IO_INCK[0] | MIPI[0].OUT_MIPI_CLKHSBYTE[0] | MIPI[0].OUT_MIPI_HSBYTECLKS | MIPI[1].OUT_MIPI_HSBYTECLKS;
+				mux CELL[1].IMUX_DCC_CLKI[3] = CELL[0].IMUX_D[7] | CELL[1].IMUX_D[7] | CLK_S.OUT_CLKDIV_CDIVX[3] | IO_IN[1].OUT_IO_INCK[0] | MIPI[0].OUT_MIPI_HSBYTECLKD | MIPI[1].OUT_MIPI_CLKHSBYTE[0] | MIPI[1].OUT_MIPI_HSBYTECLKD;
+				mux CELL[1].IMUX_DCC_CLKI[4] = CELL[0].IMUX_D[7] | CELL[1].IMUX_D[7] | CLK_S.OUT_CLKDIV_CDIVX[2] | IO_IN[0].OUT_IO_INCK[0] | MIPI[0].OUT_MIPI_CLKHSBYTE[0] | MIPI[0].OUT_MIPI_HSBYTECLKS | MIPI[1].OUT_MIPI_HSBYTECLKS;
+				mux CELL[1].IMUX_DCC_CLKI[5] = CELL[0].IMUX_D[7] | CELL[1].IMUX_D[7] | CLK_S.OUT_CLKDIV_CDIVX[3] | IO_IN[1].OUT_IO_INCK[0] | MIPI[0].OUT_MIPI_HSBYTECLKD | MIPI[1].OUT_MIPI_CLKHSBYTE[0] | MIPI[1].OUT_MIPI_HSBYTECLKD;
 			}
 
 			bel CLKTEST {
