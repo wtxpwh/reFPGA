@@ -1,16 +1,16 @@
 [package]
 name = "prjcombine-re-xilinx-xact-data"
-edition.workspace = true
 version.workspace = true
+edition.workspace = true
 
 [dependencies]
 bytes.workspace = true
-ndarray.workspace = true
-regex.workspace = true
 clap.workspace = true
+ndarray.workspace = true
 prjcombine-entity.workspace = true
-prjcombine-types.workspace = true
 prjcombine-interconnect.workspace = true
+prjcombine-types.workspace = true
+regex.workspace = true
 
 [lints]
 workspace = true

@@ -7,10 +7,10 @@ edition.workspace = true
 indicatif.workspace = true
 prjcombine-entity.workspace = true
 prjcombine-interconnect.workspace = true
-prjcombine-virtex.workspace = true
-prjcombine-re-xilinx-rawdump.workspace = true
 prjcombine-re-xilinx-naming-virtex.workspace = true
+prjcombine-re-xilinx-rawdump.workspace = true
 prjcombine-re-xilinx-rdverify.workspace = true
+prjcombine-virtex.workspace = true
 
 [lints]
 workspace = true

@@ -1,24 +1,24 @@
 [package]
 name = "prjcombine-re-xilinx-xact-dump"
-edition.workspace = true
 version.workspace = true
+edition.workspace = true
 
 [[bin]]
 name = "xact_dump"
 path = "src/main.rs"
 
 [dependencies]
-ndarray.workspace = true
-clap.workspace = true
 bincode.workspace = true
+clap.workspace = true
+ndarray.workspace = true
 prjcombine-entity.workspace = true
-prjcombine-types.workspace = true
 prjcombine-interconnect.workspace = true
-prjcombine-xc2000.workspace = true
+prjcombine-re-xilinx-xact-data.workspace = true
+prjcombine-re-xilinx-xact-geom.workspace = true
 prjcombine-re-xilinx-xact-naming.workspace = true
 prjcombine-re-xilinx-xact-xc2000.workspace = true
-prjcombine-re-xilinx-xact-geom.workspace = true
-prjcombine-re-xilinx-xact-data.workspace = true
+prjcombine-types.workspace = true
+prjcombine-xc2000.workspace = true
 
 [lints]
 workspace = true

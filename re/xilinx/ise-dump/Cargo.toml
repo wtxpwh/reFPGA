@@ -4,14 +4,14 @@ version.workspace = true
 edition.workspace = true
 
 [dependencies]
-prjcombine-entity.workspace = true
-tempfile.workspace = true
-regex.workspace = true
-rayon.workspace = true
 clap.workspace = true
+prjcombine-entity.workspace = true
 prjcombine-re-toolchain.workspace = true
 prjcombine-re-xilinx-rawdump.workspace = true
 prjcombine-re-xilinx-rdbuild.workspace = true
+rayon.workspace = true
+regex.workspace = true
+tempfile.workspace = true
 
 [lints]
 workspace = true

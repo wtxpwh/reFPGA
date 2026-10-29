@@ -1,13 +1,13 @@
 [package]
 name = "prjcombine-re-xilinx-naming-spartan6"
-edition.workspace = true
 version.workspace = true
+edition.workspace = true
 
 [dependencies]
 prjcombine-entity.workspace = true
 prjcombine-interconnect.workspace = true
-prjcombine-spartan6.workspace = true
 prjcombine-re-xilinx-naming.workspace = true
+prjcombine-spartan6.workspace = true
 
 [lints]
 workspace = true

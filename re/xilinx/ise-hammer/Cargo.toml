@@ -8,25 +8,25 @@ name = "ise_hammer"
 path = "src/main.rs"
 
 [dependencies]
-prjcombine-entity.workspace = true
 clap.workspace = true
-rand.workspace = true
-itertools.workspace = true
 hex.workspace = true
-prjcombine-types.workspace = true
+itertools.workspace = true
+prjcombine-entity.workspace = true
 prjcombine-interconnect.workspace = true
-prjcombine-xc2000.workspace = true
-prjcombine-virtex.workspace = true
-prjcombine-virtex2.workspace = true
-prjcombine-spartan6.workspace = true
-prjcombine-virtex4.workspace = true
-prjcombine-re-toolchain.workspace = true
-prjcombine-re-hammer.workspace = true
 prjcombine-re-collector.workspace = true
 prjcombine-re-fpga-hammer.workspace = true
-prjcombine-re-xilinx-xdl.workspace = true
-prjcombine-re-xilinx-naming.workspace = true
+prjcombine-re-hammer.workspace = true
+prjcombine-re-toolchain.workspace = true
 prjcombine-re-xilinx-geom.workspace = true
+prjcombine-re-xilinx-naming.workspace = true
+prjcombine-re-xilinx-xdl.workspace = true
+prjcombine-spartan6.workspace = true
+prjcombine-types.workspace = true
+prjcombine-virtex.workspace = true
+prjcombine-virtex2.workspace = true
+prjcombine-virtex4.workspace = true
+prjcombine-xc2000.workspace = true
+rand.workspace = true
 
 [lints]
 workspace = true

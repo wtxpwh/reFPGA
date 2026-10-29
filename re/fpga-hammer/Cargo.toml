@@ -1,15 +1,15 @@
 [package]
 name = "prjcombine-re-fpga-hammer"
-edition.workspace = true
 version.workspace = true
+edition.workspace = true
 
 [dependencies]
-rand.workspace = true
 prjcombine-entity.workspace = true
-prjcombine-types.workspace = true
 prjcombine-interconnect.workspace = true
-prjcombine-re-hammer.workspace = true
 prjcombine-re-collector.workspace = true
+prjcombine-re-hammer.workspace = true
+prjcombine-types.workspace = true
+rand.workspace = true
 
 [lints]
 workspace = true

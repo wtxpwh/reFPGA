@@ -4,16 +4,16 @@ version.workspace = true
 edition.workspace = true
 
 [dependencies]
+bincode.workspace = true
 prjcombine-entity.workspace = true
-prjcombine-types.workspace = true
 prjcombine-interconnect.workspace = true
-prjcombine-versal.workspace = true
-prjcombine-re-xilinx-rawdump.workspace = true
 prjcombine-re-xilinx-naming.workspace = true
 prjcombine-re-xilinx-naming-versal.workspace = true
-prjcombine-re-xilinx-rd2db-interconnect.workspace = true
+prjcombine-re-xilinx-rawdump.workspace = true
 prjcombine-re-xilinx-rd2db-grid.workspace = true
-bincode.workspace = true
+prjcombine-re-xilinx-rd2db-interconnect.workspace = true
+prjcombine-types.workspace = true
+prjcombine-versal.workspace = true
 
 [lints]
 workspace = true

@@ -4,10 +4,11 @@ version.workspace = true
 edition.workspace = true
 
 [dependencies]
+clap.workspace = true
+kdl.workspace = true
 nix.workspace = true
 tempfile.workspace = true
 which.workspace = true
-kdl.workspace = true
 
 [lints]
 workspace = true

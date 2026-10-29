@@ -1,16 +1,16 @@
 [package]
 name = "prjcombine-xpla3"
-edition.workspace = true
 version.workspace = true
+edition.workspace = true
 
 [dependencies]
-prjcombine-entity.workspace = true
-zstd.workspace = true
 bincode.workspace = true
 clap.workspace = true
 itertools.workspace = true
-prjcombine-types.workspace = true
+prjcombine-entity.workspace = true
 prjcombine-jed.workspace = true
+prjcombine-types.workspace = true
+zstd.workspace = true
 
 [lints]
 workspace = true

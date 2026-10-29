@@ -4,23 +4,23 @@ version.workspace = true
 edition.workspace = true
 
 [dependencies]
-prjcombine-entity.workspace = true
-prjcombine-types.workspace = true
-prjcombine-jed.workspace = true
-prjcombine-xc9500.workspace = true
-prjcombine-xpla3.workspace = true
+bincode.workspace = true
+clap.workspace = true
+itertools.workspace = true
 prjcombine-coolrunner2.workspace = true
-prjcombine-re-toolchain.workspace = true
+prjcombine-entity.workspace = true
+prjcombine-jed.workspace = true
 prjcombine-re-hammer.workspace = true
 prjcombine-re-sdf.workspace = true
+prjcombine-re-toolchain.workspace = true
 prjcombine-re-xilinx-ise-dump.workspace = true
 prjcombine-re-xilinx-rawdump.workspace = true
-clap.workspace = true
-tempfile.workspace = true
-itertools.workspace = true
+prjcombine-types.workspace = true
+prjcombine-xc9500.workspace = true
+prjcombine-xpla3.workspace = true
 rand.workspace = true
 rayon.workspace = true
-bincode.workspace = true
+tempfile.workspace = true
 zstd.workspace = true
 
 [lints]

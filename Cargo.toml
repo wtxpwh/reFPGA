@@ -1,226 +1,224 @@
 [workspace]
 resolver = "3"
 members = [
-    # public crates: generic infrastructure
-    "public/entity",
-    "public/types",
-    "public/interconnect",
-    "public/tablegen",
-    "public/jed",
-    # public crates: per target
-    "public/siliconblue",
-    "public/xc2000",
-    "public/virtex",
-    "public/virtex2",
-    "public/spartan6",
-    "public/virtex4",
-    "public/ultrascale",
-    "public/versal",
-    "public/ecp",
-    "public/xc9500",
-    "public/xpla3",
-    "public/coolrunner2",
-    # public crates: CLI
-    "public/cli",
-    "docgen",
-    # RE crates: generic infrastructure
-    "re/toolchain",
-    "re/hammer",
-    "re/collector",
-    "re/fpga-hammer",
-    "re/harvester",
-    "re/sdf",
-    # RE crates: Xilinx FPGA
-    "re/xilinx/rawdump",
-    "re/xilinx/xdl",
-    "re/xilinx/v2xdl-verify",
-    "re/xilinx/ise-dump",
-    "re/xilinx/vivado-dump",
-    "re/xilinx/naming",
-    "re/xilinx/naming/xc2000",
-    "re/xilinx/naming/virtex",
-    "re/xilinx/naming/virtex2",
-    "re/xilinx/naming/virtex4",
-    "re/xilinx/naming/spartan6",
-    "re/xilinx/naming/ultrascale",
-    "re/xilinx/naming/versal",
-    "re/xilinx/geom",
-    "re/xilinx/rdbuild",
-    "re/xilinx/rd2db/grid",
-    "re/xilinx/rd2db/interconnect",
-    "re/xilinx/rd2db/xc4000",
-    "re/xilinx/rd2db/xc5200",
-    "re/xilinx/rd2db/virtex",
-    "re/xilinx/rd2db/virtex2",
-    "re/xilinx/rd2db/spartan6",
-    "re/xilinx/rd2db/virtex4",
-    "re/xilinx/rd2db/virtex5",
-    "re/xilinx/rd2db/virtex6",
-    "re/xilinx/rd2db/virtex7",
-    "re/xilinx/rd2db/ultrascale",
-    "re/xilinx/rd2db/versal",
-    "re/xilinx/rdverify",
-    "re/xilinx/rdverify/xc4000",
-    "re/xilinx/rdverify/xc5200",
-    "re/xilinx/rdverify/virtex",
-    "re/xilinx/rdverify/virtex2",
-    "re/xilinx/rdverify/spartan6",
-    "re/xilinx/rdverify/virtex4",
-    "re/xilinx/rdverify/virtex5",
-    "re/xilinx/rdverify/virtex6",
-    "re/xilinx/rdverify/virtex7",
-    "re/xilinx/rdverify/ultrascale",
-    "re/xilinx/rdverify/versal",
-    "re/xilinx/rd2geom",
-    "re/xilinx/ise-hammer",
-    "re/xilinx/xact/naming",
-    "re/xilinx/xact/xc2000",
-    "re/xilinx/xact/geom",
-    "re/xilinx/xact/data",
-    "re/xilinx/xact/dump",
-    "re/xilinx/xact/hammer",
-    "re/xilinx/finish",
-    # RE crates: Xilinx CPLD
-    "re/xilinx/cpld",
-    # RE crates: SiliconBlue
-    "re/icecube-harvester",
-    # RE crates: Lattice
-    "re/lattice/dump",
-    "re/lattice/rawdump",
-    "re/lattice/naming",
-    "re/lattice/rd2geom",
-    "re/lattice/finish",
+  "docgen",
+  # public crates: CLI
+  "public/cli",
+  "public/coolrunner2",
+  "public/ecp",  # public crates: generic infrastructure
+  "public/entity",
+  "public/interconnect",
+  "public/jed",
+  # public crates: per target
+  "public/siliconblue",
+  "public/spartan6",
+  "public/tablegen",
+  "public/types",
+  "public/ultrascale",
+  "public/versal",
+  "public/virtex",
+  "public/virtex2",
+  "public/virtex4",
+  "public/xc2000",
+  "public/xc9500",
+  "public/xpla3",
+  "re/collector",
+  "re/fpga-hammer",
+  "re/hammer",
+  "re/harvester",
+  # RE crates: SiliconBlue
+  "re/icecube-harvester",
+  # RE crates: Lattice
+  "re/lattice/dump",
+  "re/lattice/finish",
+  "re/lattice/naming",
+  "re/lattice/rawdump",
+  "re/lattice/rd2geom",
+  "re/sdf",
+  # RE crates: generic infrastructure
+  "re/toolchain",
+  # RE crates: Xilinx CPLD
+  "re/xilinx/cpld",
+  "re/xilinx/finish",
+  "re/xilinx/geom",
+  "re/xilinx/ise-dump",
+  "re/xilinx/ise-hammer",
+  "re/xilinx/naming",
+  "re/xilinx/naming/spartan6",
+  "re/xilinx/naming/ultrascale",
+  "re/xilinx/naming/versal",
+  "re/xilinx/naming/virtex",
+  "re/xilinx/naming/virtex2",
+  "re/xilinx/naming/virtex4",
+  "re/xilinx/naming/xc2000",
+  # RE crates: Xilinx FPGA
+  "re/xilinx/rawdump",
+  "re/xilinx/rd2db/grid",
+  "re/xilinx/rd2db/interconnect",
+  "re/xilinx/rd2db/spartan6",
+  "re/xilinx/rd2db/ultrascale",
+  "re/xilinx/rd2db/versal",
+  "re/xilinx/rd2db/virtex",
+  "re/xilinx/rd2db/virtex2",
+  "re/xilinx/rd2db/virtex4",
+  "re/xilinx/rd2db/virtex5",
+  "re/xilinx/rd2db/virtex6",
+  "re/xilinx/rd2db/virtex7",
+  "re/xilinx/rd2db/xc4000",
+  "re/xilinx/rd2db/xc5200",
+  "re/xilinx/rd2geom",
+  "re/xilinx/rdbuild",
+  "re/xilinx/rdverify",
+  "re/xilinx/rdverify/spartan6",
+  "re/xilinx/rdverify/ultrascale",
+  "re/xilinx/rdverify/versal",
+  "re/xilinx/rdverify/virtex",
+  "re/xilinx/rdverify/virtex2",
+  "re/xilinx/rdverify/virtex4",
+  "re/xilinx/rdverify/virtex5",
+  "re/xilinx/rdverify/virtex6",
+  "re/xilinx/rdverify/virtex7",
+  "re/xilinx/rdverify/xc4000",
+  "re/xilinx/rdverify/xc5200",
+  "re/xilinx/v2xdl-verify",
+  "re/xilinx/vivado-dump",
+  "re/xilinx/xact/data",
+  "re/xilinx/xact/dump",
+  "re/xilinx/xact/geom",
+  "re/xilinx/xact/hammer",
+  "re/xilinx/xact/naming",
+  "re/xilinx/xact/xc2000",
+  "re/xilinx/xdl",
 ]
 
 [workspace.package]
-edition = "2024"
 version = "0.1.0"
-license = "0BSD OR Apache-2.0"
+edition = "2024"
 repository = "https://codeberg.org/prjunnamed/prjcombine"
-authors = []
+license = "0BSD OR Apache-2.0"
 
 [workspace.dependencies]
-# public crates and their dependencies
-prjcombine-entity = { path = "public/entity", features = ["bitvec", "map", "bincode"] }
-prjcombine-types = { path = "public/types" }
-prjcombine-interconnect = { path = "public/interconnect" }
-prjcombine-tablegen = { path = "public/tablegen" }
-prjcombine-siliconblue = { path = "public/siliconblue" }
-prjcombine-xc2000 = { path = "public/xc2000" }
-prjcombine-virtex = { path = "public/virtex" }
-prjcombine-virtex2 = { path = "public/virtex2" }
-prjcombine-spartan6 = { path = "public/spartan6" }
-prjcombine-virtex4 = { path = "public/virtex4" }
-prjcombine-ultrascale = { path = "public/ultrascale" }
-prjcombine-versal = { path = "public/versal" }
-prjcombine-ecp = { path = "public/ecp" }
-prjcombine-jed = { path = "public/jed" }
-prjcombine-xc9500 = { path = "public/xc9500" }
-prjcombine-xpla3 = { path = "public/xpla3" }
-prjcombine-coolrunner2 = { path = "public/coolrunner2" }
-zstd = "0.13"
+aes = "0.9.1"
+arrayref = "0.3.6"
+arrayvec = "0.7.6"
+assert_matches = "1.5"
+bimap = "0.6"
 bincode = "2.0"
 bitvec = "1.0"
-itertools = "0.15"
-arrayvec = "0.7.6"
-bimap = "0.6"
-arrayref = "0.3.6"
-des = "0.9.0"
-aes = "0.9.1"
-sha2 = "0.11.0"
+bytes = "1.8.0"
 cbc = "0.2.1"
-assert_matches = "1.5"
 clap = { version = "4.1", features = ["derive"] }
-# RE-only crates and their dependencies
-prjcombine-re-toolchain = { path = "re/toolchain" }
-prjcombine-re-hammer = { path = "re/hammer" }
+derive-where = "1.2"
+des = "0.9.0"
+flate2 = "1.0"
+hex = "0.4.3"
+indexmap = "2"
+indicatif = "0.18"
+itertools = "0.15"
+kdl = { version = "6.7", default-features = false }
+ndarray = "0.17"
+nix = { version = "0.31", features = ["fs"] }
+prjcombine-coolrunner2 = { path = "public/coolrunner2" }
+prjcombine-ecp = { path = "public/ecp" }
+# public crates and their dependencies
+prjcombine-entity = { path = "public/entity", features = ["bincode", "bitvec", "map"] }
+prjcombine-interconnect = { path = "public/interconnect" }
+prjcombine-jed = { path = "public/jed" }
 prjcombine-re-collector = { path = "re/collector" }
 prjcombine-re-fpga-hammer = { path = "re/fpga-hammer" }
+prjcombine-re-hammer = { path = "re/hammer" }
 prjcombine-re-harvester = { path = "re/harvester" }
+prjcombine-re-lattice-naming = { path = "re/lattice/naming" }
+prjcombine-re-lattice-rawdump = { path = "re/lattice/rawdump" }
 prjcombine-re-sdf = { path = "re/sdf" }
-prjcombine-re-xilinx-rawdump = { path = "re/xilinx/rawdump" }
-prjcombine-re-xilinx-rdbuild = { path = "re/xilinx/rdbuild" }
-prjcombine-re-xilinx-xdl = { path = "re/xilinx/xdl" }
+# RE-only crates and their dependencies
+prjcombine-re-toolchain = { path = "re/toolchain" }
+prjcombine-re-xilinx-geom = { path = "re/xilinx/geom" }
 prjcombine-re-xilinx-ise-dump = { path = "re/xilinx/ise-dump" }
 prjcombine-re-xilinx-naming = { path = "re/xilinx/naming" }
-prjcombine-re-xilinx-naming-xc2000 = { path = "re/xilinx/naming/xc2000" }
-prjcombine-re-xilinx-naming-virtex = { path = "re/xilinx/naming/virtex" }
-prjcombine-re-xilinx-naming-virtex2 = { path = "re/xilinx/naming/virtex2" }
 prjcombine-re-xilinx-naming-spartan6 = { path = "re/xilinx/naming/spartan6" }
-prjcombine-re-xilinx-naming-virtex4 = { path = "re/xilinx/naming/virtex4" }
 prjcombine-re-xilinx-naming-ultrascale = { path = "re/xilinx/naming/ultrascale" }
 prjcombine-re-xilinx-naming-versal = { path = "re/xilinx/naming/versal" }
-prjcombine-re-xilinx-geom = { path = "re/xilinx/geom" }
+prjcombine-re-xilinx-naming-virtex = { path = "re/xilinx/naming/virtex" }
+prjcombine-re-xilinx-naming-virtex2 = { path = "re/xilinx/naming/virtex2" }
+prjcombine-re-xilinx-naming-virtex4 = { path = "re/xilinx/naming/virtex4" }
+prjcombine-re-xilinx-naming-xc2000 = { path = "re/xilinx/naming/xc2000" }
+prjcombine-re-xilinx-rawdump = { path = "re/xilinx/rawdump" }
 prjcombine-re-xilinx-rd2db-grid = { path = "re/xilinx/rd2db/grid" }
 prjcombine-re-xilinx-rd2db-interconnect = { path = "re/xilinx/rd2db/interconnect" }
-prjcombine-re-xilinx-rd2db-xc4000 = { path = "re/xilinx/rd2db/xc4000" }
-prjcombine-re-xilinx-rd2db-xc5200 = { path = "re/xilinx/rd2db/xc5200" }
+prjcombine-re-xilinx-rd2db-spartan6 = { path = "re/xilinx/rd2db/spartan6" }
+prjcombine-re-xilinx-rd2db-ultrascale = { path = "re/xilinx/rd2db/ultrascale" }
+prjcombine-re-xilinx-rd2db-versal = { path = "re/xilinx/rd2db/versal" }
 prjcombine-re-xilinx-rd2db-virtex = { path = "re/xilinx/rd2db/virtex" }
 prjcombine-re-xilinx-rd2db-virtex2 = { path = "re/xilinx/rd2db/virtex2" }
-prjcombine-re-xilinx-rd2db-spartan6 = { path = "re/xilinx/rd2db/spartan6" }
 prjcombine-re-xilinx-rd2db-virtex4 = { path = "re/xilinx/rd2db/virtex4" }
 prjcombine-re-xilinx-rd2db-virtex5 = { path = "re/xilinx/rd2db/virtex5" }
 prjcombine-re-xilinx-rd2db-virtex6 = { path = "re/xilinx/rd2db/virtex6" }
 prjcombine-re-xilinx-rd2db-virtex7 = { path = "re/xilinx/rd2db/virtex7" }
-prjcombine-re-xilinx-rd2db-ultrascale = { path = "re/xilinx/rd2db/ultrascale" }
-prjcombine-re-xilinx-rd2db-versal = { path = "re/xilinx/rd2db/versal" }
+prjcombine-re-xilinx-rd2db-xc4000 = { path = "re/xilinx/rd2db/xc4000" }
+prjcombine-re-xilinx-rd2db-xc5200 = { path = "re/xilinx/rd2db/xc5200" }
+prjcombine-re-xilinx-rdbuild = { path = "re/xilinx/rdbuild" }
 prjcombine-re-xilinx-rdverify = { path = "re/xilinx/rdverify" }
-prjcombine-re-xilinx-rdverify-xc4000 = { path = "re/xilinx/rdverify/xc4000" }
-prjcombine-re-xilinx-rdverify-xc5200 = { path = "re/xilinx/rdverify/xc5200" }
+prjcombine-re-xilinx-rdverify-spartan6 = { path = "re/xilinx/rdverify/spartan6" }
+prjcombine-re-xilinx-rdverify-ultrascale = { path = "re/xilinx/rdverify/ultrascale" }
+prjcombine-re-xilinx-rdverify-versal = { path = "re/xilinx/rdverify/versal" }
 prjcombine-re-xilinx-rdverify-virtex = { path = "re/xilinx/rdverify/virtex" }
 prjcombine-re-xilinx-rdverify-virtex2 = { path = "re/xilinx/rdverify/virtex2" }
 prjcombine-re-xilinx-rdverify-virtex4 = { path = "re/xilinx/rdverify/virtex4" }
 prjcombine-re-xilinx-rdverify-virtex5 = { path = "re/xilinx/rdverify/virtex5" }
 prjcombine-re-xilinx-rdverify-virtex6 = { path = "re/xilinx/rdverify/virtex6" }
 prjcombine-re-xilinx-rdverify-virtex7 = { path = "re/xilinx/rdverify/virtex7" }
-prjcombine-re-xilinx-rdverify-spartan6 = { path = "re/xilinx/rdverify/spartan6" }
-prjcombine-re-xilinx-rdverify-ultrascale = { path = "re/xilinx/rdverify/ultrascale" }
-prjcombine-re-xilinx-rdverify-versal = { path = "re/xilinx/rdverify/versal" }
+prjcombine-re-xilinx-rdverify-xc4000 = { path = "re/xilinx/rdverify/xc4000" }
+prjcombine-re-xilinx-rdverify-xc5200 = { path = "re/xilinx/rdverify/xc5200" }
+prjcombine-re-xilinx-xact-data = { path = "re/xilinx/xact/data" }
+prjcombine-re-xilinx-xact-geom = { path = "re/xilinx/xact/geom" }
 prjcombine-re-xilinx-xact-naming = { path = "re/xilinx/xact/naming" }
 prjcombine-re-xilinx-xact-xc2000 = { path = "re/xilinx/xact/xc2000" }
-prjcombine-re-xilinx-xact-geom = { path = "re/xilinx/xact/geom" }
-prjcombine-re-xilinx-xact-data = { path = "re/xilinx/xact/data" }
-prjcombine-re-lattice-rawdump = { path = "re/lattice/rawdump" }
-prjcombine-re-lattice-naming = { path = "re/lattice/naming" }
-kdl = { version = "6.7", default-features = false }
-indexmap = "2"
-ndarray = "0.17"
+prjcombine-re-xilinx-xdl = { path = "re/xilinx/xdl" }
+prjcombine-siliconblue = { path = "public/siliconblue" }
+prjcombine-spartan6 = { path = "public/spartan6" }
+prjcombine-tablegen = { path = "public/tablegen" }
+prjcombine-types = { path = "public/types" }
+prjcombine-ultrascale = { path = "public/ultrascale" }
+prjcombine-versal = { path = "public/versal" }
+prjcombine-virtex = { path = "public/virtex" }
+prjcombine-virtex2 = { path = "public/virtex2" }
+prjcombine-virtex4 = { path = "public/virtex4" }
+prjcombine-xc2000 = { path = "public/xc2000" }
+prjcombine-xc9500 = { path = "public/xc9500" }
+prjcombine-xpla3 = { path = "public/xpla3" }
 rand = "0.10"
-nix = { version = "0.31", features = ["fs"] }
-tempfile = "3.0"
-regex = "1"
 rayon = "1.5"
-indicatif = "0.18"
+regex = "1"
+sha2 = "0.11.0"
 std-semaphore = "0.1"
-which = "8"
-derive-where = "1.2"
-bytes = "1.8.0"
-hex = "0.4.3"
-flate2 = "1.0"
-zip = "8.0"
+tempfile = "3.0"
 walkdir = "2.5"
-
-[profile.dev]
-opt-level = 2
-overflow-checks = false
-debug-assertions = false
-debug = 2
-split-debuginfo = "unpacked"
-
-[workspace.lints.clippy]
-question_mark = "allow"
-collapsible_match = "allow"
-collapsible_else_if = "allow"
-bool_to_int_with_if = "allow"
-needless_range_loop = "allow"
-assigning_clones = "allow"
-large_enum_variant = "allow"
-nonminimal_bool = "allow"
-needless_bool = "allow"
-precedence = "allow"
-explicit_counter_loop = "allow"
-manual_map = "allow"
-get_first = "allow"
+which = "8"
+zip = "8.0"
+zstd = "0.13"
 
 [workspace.lints.cargo]
 non_kebab_case_bins = "allow"
+
+[workspace.lints.clippy]
+assigning_clones = "allow"
+bool_to_int_with_if = "allow"
+collapsible_else_if = "allow"
+collapsible_match = "allow"
+explicit_counter_loop = "allow"
+get_first = "allow"
+large_enum_variant = "allow"
+manual_map = "allow"
+needless_bool = "allow"
+needless_range_loop = "allow"
+nonminimal_bool = "allow"
+precedence = "allow"
+question_mark = "allow"
+
+[profile.dev]
+opt-level = 2
+debug = 2
+split-debuginfo = "unpacked"
+debug-assertions = false
+overflow-checks = false

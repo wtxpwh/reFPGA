@@ -4,17 +4,17 @@ version.workspace = true
 edition.workspace = true
 
 [dependencies]
-arrayref.workspace = true
 aes.workspace = true
+arrayref.workspace = true
+bincode.workspace = true
 cbc.workspace = true
 itertools.workspace = true
-zstd.workspace = true
-bincode.workspace = true
 prjcombine-entity.workspace = true
-prjcombine-types.workspace = true
 prjcombine-interconnect.workspace = true
 prjcombine-tablegen.workspace = true
+prjcombine-types.workspace = true
 prjcombine-virtex.workspace = true
+zstd.workspace = true
 
 [lints]
 workspace = true

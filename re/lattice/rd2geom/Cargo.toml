@@ -1,10 +1,9 @@
 [package]
 name = "prjcombine-re-lattice-rd2geom"
-edition.workspace = true
 version.workspace = true
-license.workspace = true
+edition.workspace = true
 repository.workspace = true
-authors.workspace = true
+license.workspace = true
 
 [[bin]]
 name = "lrd2geom"
@@ -12,17 +11,17 @@ path = "src/main.rs"
 
 [dependencies]
 arrayref.workspace = true
-flate2.workspace = true
-clap.workspace = true
-rayon.workspace = true
 bincode.workspace = true
+clap.workspace = true
+flate2.workspace = true
 itertools.workspace = true
-prjcombine-entity.workspace = true
-prjcombine-types.workspace = true
-prjcombine-interconnect.workspace = true
 prjcombine-ecp.workspace = true
-prjcombine-re-lattice-rawdump.workspace = true
+prjcombine-entity.workspace = true
+prjcombine-interconnect.workspace = true
 prjcombine-re-lattice-naming.workspace = true
+prjcombine-re-lattice-rawdump.workspace = true
+prjcombine-types.workspace = true
+rayon.workspace = true
 
 [lints]
 workspace = true

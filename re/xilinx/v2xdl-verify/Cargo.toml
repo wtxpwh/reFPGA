@@ -4,12 +4,12 @@ version.workspace = true
 edition.workspace = true
 
 [dependencies]
-rand.workspace = true
 clap.workspace = true
-tempfile.workspace = true
-rayon.workspace = true
 prjcombine-re-toolchain.workspace = true
 prjcombine-re-xilinx-xdl.workspace = true
+rand.workspace = true
+rayon.workspace = true
+tempfile.workspace = true
 
 [lints]
 workspace = true

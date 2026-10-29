@@ -1,14 +1,14 @@
 [package]
 name = "prjcombine-types"
-edition.workspace = true
 version.workspace = true
+edition.workspace = true
 
 [dependencies]
 bincode.workspace = true
-zstd.workspace = true
 bitvec.workspace = true
 itertools.workspace = true
 prjcombine-entity.workspace = true
+zstd.workspace = true
 
 [lints]
 workspace = true

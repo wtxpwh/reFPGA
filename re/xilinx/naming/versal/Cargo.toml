@@ -1,15 +1,15 @@
 [package]
 name = "prjcombine-re-xilinx-naming-versal"
-edition.workspace = true
 version.workspace = true
+edition.workspace = true
 
 [dependencies]
 bincode.workspace = true
 itertools.workspace = true
 prjcombine-entity.workspace = true
 prjcombine-interconnect.workspace = true
-prjcombine-versal.workspace = true
 prjcombine-re-xilinx-naming.workspace = true
+prjcombine-versal.workspace = true
 
 [lints]
 workspace = true
