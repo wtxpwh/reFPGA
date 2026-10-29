@@ -54,7 +54,7 @@ pub fn v2vm6(
         std::fs::write(dir.path().join("t.v"), vlog)?;
     }
 
-    let mut cmd = tc.command("xst");
+    let mut cmd = tc.command("xst")?;
     cmd.current_dir(dir.path().as_os_str());
     cmd.stdin(Stdio::null());
     cmd.arg("-ifn");
@@ -66,7 +66,7 @@ pub fn v2vm6(
         panic!("non-zero xst status");
     }
 
-    let mut cmd = tc.command("ngdbuild");
+    let mut cmd = tc.command("ngdbuild")?;
     cmd.current_dir(dir.path().as_os_str());
     cmd.stdin(Stdio::null());
     cmd.arg("t");
@@ -77,7 +77,7 @@ pub fn v2vm6(
         panic!("non-zero ngdbuild status");
     }
 
-    let mut cmd = tc.command("cpldfit");
+    let mut cmd = tc.command("cpldfit")?;
     cmd.current_dir(dir.path().as_os_str());
     cmd.stdin(Stdio::null());
     cmd.arg("-p");

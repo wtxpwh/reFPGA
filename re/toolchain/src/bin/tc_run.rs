@@ -16,7 +16,7 @@ struct Args {
 fn main() -> Result<(), Box<dyn Error>> {
     let args = Args::parse();
     let toolchain = Toolchain::from_file(&args.tc)?;
-    let mut cmd = toolchain.command(&args.cmd);
+    let mut cmd = toolchain.command(&args.cmd)?;
     if let Some(cwd) = args.cwd {
         cmd.current_dir(cwd);
     }

@@ -17,7 +17,7 @@ pub fn run_taengine(tc: &Toolchain, vm6: &Vm6) -> Result<String, Box<dyn Error>>
     vm6.write(&mut vs)?;
     std::fs::write(dir.path().join("t.vm6"), &vs)?;
 
-    let mut cmd = tc.command("taengine");
+    let mut cmd = tc.command("taengine")?;
     cmd.current_dir(dir.path().as_os_str());
     cmd.stdin(Stdio::null());
     cmd.arg("-detail");

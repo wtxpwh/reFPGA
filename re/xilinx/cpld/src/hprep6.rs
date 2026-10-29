@@ -17,7 +17,7 @@ pub fn run_hprep6(tc: &Toolchain, vm6: &Vm6, sig: Option<u32>) -> Result<JedFile
     vm6.write(&mut vs)?;
     std::fs::write(dir.path().join("t.vm6"), &vs)?;
 
-    let mut cmd = tc.command("hprep6");
+    let mut cmd = tc.command("hprep6")?;
     cmd.current_dir(dir.path().as_os_str());
     cmd.stdin(Stdio::null());
     cmd.arg("-i");

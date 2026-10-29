@@ -407,7 +407,7 @@ design top
         )
         .unwrap();
         std::mem::drop(file);
-        let mut cmd = tc.command("ncl2ncd");
+        let mut cmd = tc.command("ncl2ncd").unwrap();
         cmd.current_dir(dir.path().as_os_str());
         cmd.stdin(Stdio::null());
         cmd.arg("top.ncl");
@@ -432,7 +432,7 @@ design top
         if grid.is_some() {
             continue;
         }
-        let mut cmd = tc.command("bitgen");
+        let mut cmd = tc.command("bitgen").unwrap();
         cmd.current_dir(dir.path().as_os_str());
         cmd.stdin(Stdio::null());
         cmd.arg("-d");
@@ -443,7 +443,7 @@ design top
             let _ = std::io::stderr().write_all(&status.stderr);
             panic!("non-zero bitgen exit status");
         }
-        let mut cmd = tc.command("bstool");
+        let mut cmd = tc.command("bstool").unwrap();
         cmd.current_dir(dir.path().as_os_str());
         cmd.stdin(Stdio::null());
         cmd.arg("-t");
@@ -457,7 +457,7 @@ design top
         let tiles = parse_tiles(std::str::from_utf8(&status.stdout).unwrap(), family.name);
         File::create(dir.path().join("meow.prf")).unwrap();
 
-        let mut cmd = tc.command("ispTcl");
+        let mut cmd = tc.command("ispTcl").unwrap();
         cmd.current_dir(dir.path().as_os_str());
         let mut file = File::create(dir.path().join("meow.tcl")).unwrap();
         write!(
@@ -507,7 +507,7 @@ basciCmdListNode 1 nodes.out *
             }
         }
         for i in 0..32 {
-            let mut cmd = tc.command("ispTcl");
+            let mut cmd = tc.command("ispTcl").unwrap();
             cmd.current_dir(dir.path().as_os_str());
             std::fs::remove_file(dir.path().join("ispTcl.log")).unwrap();
             let cmd_file = format!("pip{i}.tcl");

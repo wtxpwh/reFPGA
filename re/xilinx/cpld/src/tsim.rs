@@ -17,7 +17,7 @@ pub fn run_tsim(tc: &Toolchain, vm6: &Vm6) -> Result<(String, String), Box<dyn E
     vm6.write(&mut vs)?;
     std::fs::write(dir.path().join("t.vm6"), &vs)?;
 
-    let mut cmd = tc.command("tsim");
+    let mut cmd = tc.command("tsim")?;
     cmd.current_dir(dir.path().as_os_str());
     cmd.stdin(Stdio::null());
     cmd.arg("t.vm6");
@@ -37,7 +37,7 @@ pub fn run_tsim(tc: &Toolchain, vm6: &Vm6) -> Result<(String, String), Box<dyn E
         panic!("non-zero tsim status");
     }
 
-    let mut cmd = tc.command("netgen");
+    let mut cmd = tc.command("netgen")?;
     cmd.current_dir(dir.path().as_os_str());
     cmd.stdin(Stdio::null());
     cmd.arg("-sim");

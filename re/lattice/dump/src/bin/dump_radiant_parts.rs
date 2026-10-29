@@ -134,7 +134,7 @@ endmodule;
 "#
         ).unwrap();
         std::mem::drop(file);
-        let mut cmd = tc.command("sv2udb");
+        let mut cmd = tc.command("sv2udb").unwrap();
         cmd.current_dir(dir.path().as_os_str());
         cmd.stdin(Stdio::null());
         cmd.arg("-o");
@@ -155,7 +155,7 @@ endmodule;
             continue;
         }
         println!("dumping {part}-{pkg}...");
-        let mut cmd = tc.command("bitgen");
+        let mut cmd = tc.command("bitgen").unwrap();
         cmd.current_dir(dir.path().as_os_str());
         cmd.stdin(Stdio::null());
         cmd.arg("-b");
@@ -178,7 +178,7 @@ endmodule;
         }
         std::mem::drop(orbt);
 
-        let mut cmd = tc.command("bstool");
+        let mut cmd = tc.command("bstool").unwrap();
         cmd.current_dir(dir.path().as_os_str());
         cmd.stdin(Stdio::null());
         cmd.arg("-t");
@@ -191,7 +191,7 @@ endmodule;
         }
         let tiles = parse_tiles(std::str::from_utf8(&status.stdout).unwrap(), family.name);
 
-        let mut cmd = tc.command("lapie");
+        let mut cmd = tc.command("lapie").unwrap();
         cmd.current_dir(dir.path().as_os_str());
         let mut file = File::create(dir.path().join("meow.tcl")).unwrap();
         write!(

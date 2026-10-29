@@ -376,7 +376,7 @@ pub fn run_bitgen(
         writeln!(xdl_file, "net \"meow\";")?;
     }
     std::mem::drop(xdl_file);
-    let mut cmd = tc.command("xdl");
+    let mut cmd = tc.command("xdl")?;
     cmd.current_dir(dir.path());
     cmd.env("XIL_TEST_ARCS", "1");
     cmd.env("XIL_DRM_EXCLUDE_ARCS", "1");
@@ -421,7 +421,7 @@ pub fn run_bitgen(
         writeln!(pcf_file, "CONFIG VCCOSENSEMODE{bank}={mode};",)?;
     }
     std::mem::drop(pcf_file);
-    let mut cmd = tc.command("bitgen");
+    let mut cmd = tc.command("bitgen")?;
     cmd.current_dir(dir.path());
     cmd.env("XIL_TEST_ARCS", "1");
     cmd.env("XIL_DRM_EXCLUDE_ARCS", "1");

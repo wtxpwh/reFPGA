@@ -211,7 +211,7 @@ pub fn get_pkgs(tc: &Toolchain, query: &str) -> Result<Vec<PartgenPkg>, Box<dyn 
     let dir = tempfile::Builder::new()
         .prefix("prjcombine_ise_dump_partgen")
         .tempdir()?;
-    let mut cmd = tc.command("partgen");
+    let mut cmd = tc.command("partgen")?;
     cmd.current_dir(dir.path().as_os_str());
     cmd.stdin(Stdio::null());
     cmd.arg("-v");
@@ -295,7 +295,7 @@ pub fn get_pkgs(tc: &Toolchain, query: &str) -> Result<Vec<PartgenPkg>, Box<dyn 
         });
     }
     if fix_speed {
-        let mut cmd = tc.command("partgen");
+        let mut cmd = tc.command("partgen")?;
         cmd.current_dir(dir.path().as_os_str());
         cmd.stdin(Stdio::null());
         cmd.arg("-arch");

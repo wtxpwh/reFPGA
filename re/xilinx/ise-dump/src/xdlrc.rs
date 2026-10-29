@@ -184,7 +184,7 @@ impl Parser {
                 .prefix("prjcombine_ise_dump_xdl")
                 .tempdir()?;
             args.push("out.xdlrc");
-            let mut cmd = tc.command("xdl");
+            let mut cmd = tc.command("xdl")?;
             cmd.current_dir(dir.path().as_os_str());
             cmd.stdin(Stdio::null());
             for arg in args {

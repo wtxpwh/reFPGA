@@ -18,7 +18,7 @@ pub fn run(tc: &Toolchain, part: &str, vlog: &str) -> Result<Design, Box<dyn std
         f_v.write_all(vlog.as_bytes())?;
     }
 
-    let mut cmd = tc.command("xst");
+    let mut cmd = tc.command("xst")?;
     cmd.current_dir(dir.path().as_os_str());
     cmd.stdin(Stdio::null());
     cmd.arg("-ifn");
@@ -30,7 +30,7 @@ pub fn run(tc: &Toolchain, part: &str, vlog: &str) -> Result<Design, Box<dyn std
         panic!("non-zero xst status");
     }
 
-    let mut cmd = tc.command("ngdbuild");
+    let mut cmd = tc.command("ngdbuild")?;
     cmd.current_dir(dir.path().as_os_str());
     cmd.stdin(Stdio::null());
     cmd.arg("t");
@@ -41,7 +41,7 @@ pub fn run(tc: &Toolchain, part: &str, vlog: &str) -> Result<Design, Box<dyn std
         panic!("non-zero ngdbuild status");
     }
 
-    let mut cmd = tc.command("map");
+    let mut cmd = tc.command("map")?;
     cmd.current_dir(dir.path().as_os_str());
     cmd.stdin(Stdio::null());
     cmd.arg("-u");
@@ -56,7 +56,7 @@ pub fn run(tc: &Toolchain, part: &str, vlog: &str) -> Result<Design, Box<dyn std
         panic!("non-zero map status");
     }
 
-    let mut cmd = tc.command("xdl");
+    let mut cmd = tc.command("xdl")?;
     cmd.current_dir(dir.path().as_os_str());
     cmd.stdin(Stdio::null());
     cmd.stdout(Stdio::null());

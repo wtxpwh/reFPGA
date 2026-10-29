@@ -37,13 +37,13 @@ impl Toolchain {
         Ok(tc)
     }
 
-    pub fn command(&self, cmd: &str) -> Command {
+    pub fn command(&self, cmd: &str) -> Result<Command, Box<dyn std::error::Error>> {
         let mut res: Command;
         if self.use_wine {
             res = Command::new("wine");
             res.arg(cmd);
         } else if let Some(path) = self.env.get("PATH") {
-            let rcmd = which_in(cmd, Some(path), "/").unwrap();
+            let rcmd = which_in(cmd, Some(path), "/")?;
             res = Command::new(rcmd);
         } else {
             res = Command::new(cmd);
@@ -51,6 +51,6 @@ impl Toolchain {
         for (k, v) in self.env.iter() {
             res.env(k, v);
         }
-        res
+        Ok(res)
     }
 }

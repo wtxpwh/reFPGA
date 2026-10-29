@@ -852,7 +852,7 @@ pub fn run(toolchain: &Toolchain, design: &Design, key: &str) -> Result<RunResul
     writeln!(f_proj, "derValue=0.85").unwrap();
     std::mem::drop(f_proj);
 
-    let mut cmd = toolchain.command("timeout");
+    let mut cmd = toolchain.command("timeout").unwrap();
     cmd.arg("5m");
     cmd.arg("tclsh");
     cmd.env("UNBLOCK_LEDDIP_THUNDER", "1");

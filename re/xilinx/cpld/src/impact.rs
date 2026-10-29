@@ -51,7 +51,7 @@ pub fn run_impact(
     writeln!(f, "quit")?;
     drop(f);
 
-    let mut cmd = tc.command("impact");
+    let mut cmd = tc.command("impact")?;
     cmd.current_dir(dir.path().as_os_str());
     cmd.stdin(Stdio::null());
     cmd.arg("-batch");

@@ -29,7 +29,7 @@ impl ToolchainReader {
         }
         let path = dir.path().join(fifo_name);
         mkfifo(&path, Mode::S_IRUSR | Mode::S_IWUSR)?;
-        let mut cmd = tc.command(cmd);
+        let mut cmd = tc.command(cmd)?;
         cmd.current_dir(dir.path().as_os_str());
         cmd.stdin(Stdio::null());
         cmd.stdout(Stdio::null());
