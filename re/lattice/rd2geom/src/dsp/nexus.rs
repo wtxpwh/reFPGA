@@ -10,7 +10,7 @@ impl ChipContext<'_> {
                     let bcrd = tcrd.bel(bslots::DSP[idx]);
                     let cell = tcrd.delta(idx as i32 * 4, 0);
                     let (r, c) = self.rc(tcrd.cell);
-                    let c = c + (idx as u8) * 4;
+                    let c = c + (idx as u16) * 4;
                     let c1 = c + 1;
                     let c2 = c + 2;
                     let c3 = c + 3;

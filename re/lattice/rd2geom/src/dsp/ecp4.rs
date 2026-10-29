@@ -10,7 +10,7 @@ impl ChipContext<'_> {
             for idx in 0..2 {
                 let bcrd = tcrd.bel(bslots::DSP[idx]);
                 let (r, c) = self.rc(tcrd.cell);
-                let c = c + (idx as u8) * 4;
+                let c = c + (idx as u16) * 4;
                 self.name_bel(
                     bcrd,
                     [

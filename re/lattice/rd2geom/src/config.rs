@@ -266,7 +266,7 @@ impl ChipContext<'_> {
             let wire = bel.ctx.rc_wire(cell, &format!("J{pin}_JTAG"));
             let wire_pin = WireName {
                 r: 0,
-                c: chip.columns.len() as u8 + 1,
+                c: chip.columns.len() as u16 + 1,
                 suffix: bel
                     .ctx
                     .naming
@@ -329,7 +329,7 @@ impl ChipContext<'_> {
         for pin in ["TCK", "TMS", "TDI", "TDO"] {
             let wire = bel.ctx.rc_wire(cell, &format!("J{pin}_JTAG"));
             let wire_pin = WireName {
-                r: chip.rows.len() as u8 + 1,
+                r: chip.rows.len() as u16 + 1,
                 c: 0,
                 suffix: bel
                     .ctx
@@ -382,7 +382,7 @@ impl ChipContext<'_> {
         for pin in ["TCK", "TMS", "TDI", "TDO"] {
             let wire = bel.ctx.rc_wire(cell, &format!("J{pin}_JTAG"));
             let wire_pin = WireName {
-                r: chip.rows.len() as u8 + 1,
+                r: chip.rows.len() as u16 + 1,
                 c: 0,
                 suffix: bel
                     .ctx
@@ -829,7 +829,7 @@ impl ChipContext<'_> {
         for pin in ["TCK", "TMS", "TDI", "TDO"] {
             let wire = bel.ctx.rc_wire(cell, &format!("J{pin}_JTAG"));
             let wire_pin = WireName {
-                r: bel.ctx.chip.rows.len() as u8,
+                r: bel.ctx.chip.rows.len() as u16,
                 c: 0,
                 suffix: bel
                     .ctx
@@ -1014,7 +1014,7 @@ impl ChipContext<'_> {
         for pin in ["TCK", "TMS", "TDI", "TDO"] {
             let wire = bel.ctx.rc_wire(cell, &format!("J{pin}_JTAG"));
             let wire_pin = WireName {
-                r: bel.ctx.chip.rows.len() as u8 + 1,
+                r: bel.ctx.chip.rows.len() as u16 + 1,
                 c: 0,
                 suffix: bel
                     .ctx

@@ -66,7 +66,7 @@ impl ChipBuilder<'_> {
         let jclk0 = self.naming.strings.get("JCLK0").unwrap();
         let hpbx0000 = self.naming.strings.get("HPBX0000").unwrap();
         let vpsx0000 = self.naming.strings.get("VPSX0000").unwrap();
-        let mut clks: BTreeMap<u8, Vec<ColId>> = BTreeMap::new();
+        let mut clks: BTreeMap<u16, Vec<ColId>> = BTreeMap::new();
         let mut side_e = BTreeSet::new();
         for &(nf, nt) in self.grid.pips.keys() {
             let wfn = self.nodes[nf];
@@ -492,8 +492,8 @@ impl ChipBuilder<'_> {
             };
             if let Some(rc) = tile.name.strip_prefix("CIB_R")
                 && let Some((r, c)) = rc.split_once('C')
-                && let Ok(r) = r.parse::<u8>()
-                && let Ok(c) = c.parse::<u8>()
+                && let Ok(r) = r.parse::<u16>()
+                && let Ok(c) = c.parse::<u16>()
             {
                 let cell = self.chip.xlat_rc(r, c);
                 if is_jtag_en {
@@ -504,10 +504,10 @@ impl ChipBuilder<'_> {
                 if c == 0 {
                     self.chip.rows[cell.row].io[DirH::W] = IoGroupKind::Double;
                     self.chip.rows[cell.row].bank.insert(DirH::W, bank);
-                } else if c == self.chip.columns.len() as u8 + 1 {
+                } else if c == self.chip.columns.len() as u16 + 1 {
                     self.chip.rows[cell.row].io[DirH::E] = IoGroupKind::Double;
                     self.chip.rows[cell.row].bank.insert(DirH::E, bank);
-                } else if r == self.chip.rows.len() as u8 + 1 {
+                } else if r == self.chip.rows.len() as u16 + 1 {
                     self.chip.columns[cell.col].io[DirV::S] = IoGroupKind::Double;
                     self.chip.columns[cell.col].bank.insert(DirV::S, bank);
                 } else if r == 0 {

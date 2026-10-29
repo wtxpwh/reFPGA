@@ -13,8 +13,8 @@ entity_id_u32!(pub StringId, StringTag tag, "STR");
 
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Debug, Encode, Decode)]
 pub struct WireName {
-    pub r: u8,
-    pub c: u8,
+    pub r: u16,
+    pub c: u16,
     pub suffix: StringId,
 }
 

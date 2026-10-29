@@ -86,7 +86,7 @@ struct ChipContext<'dev> {
 }
 
 impl<'dev> ChipContext<'dev> {
-    fn rc_mode(&self, cell: CellCoord, mode: RcMode) -> (u8, u8) {
+    fn rc_mode(&self, cell: CellCoord, mode: RcMode) -> (u16, u16) {
         let mut c = (cell.col.to_idx() + 1).try_into().unwrap();
         let mut r = (self.chip.rows.len() - cell.row.to_idx())
             .try_into()
@@ -134,7 +134,7 @@ impl<'dev> ChipContext<'dev> {
         (r, c)
     }
 
-    fn rc(&self, cell: CellCoord) -> (u8, u8) {
+    fn rc(&self, cell: CellCoord) -> (u16, u16) {
         self.rc_mode(cell, RcMode::Base)
     }
 

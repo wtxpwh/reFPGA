@@ -29,7 +29,7 @@ impl ChipBuilder<'_> {
     pub(super) fn fill_pclk_scm(&mut self) {
         let hpbx0001 = self.naming.strings.get("HPBX0001").unwrap();
         let vpsx0000 = self.naming.strings.get("VPSX0000").unwrap();
-        let mut clks: BTreeMap<u8, Vec<ColId>> = BTreeMap::new();
+        let mut clks: BTreeMap<u16, Vec<ColId>> = BTreeMap::new();
         let mut pclk_drive = BTreeSet::new();
         for &(nf, nt) in self.grid.pips.keys() {
             let wfn = self.nodes[nf];

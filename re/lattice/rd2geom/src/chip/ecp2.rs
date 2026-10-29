@@ -17,7 +17,7 @@ impl ChipBuilder<'_> {
         let clk0 = self.naming.strings.get("CLK0").unwrap();
         let jclk0 = self.naming.strings.get("JCLK0").unwrap();
         let hpbx0000 = self.naming.strings.get("HPBX0000").unwrap();
-        let mut clks: BTreeMap<u8, Vec<ColId>> = BTreeMap::new();
+        let mut clks: BTreeMap<u16, Vec<ColId>> = BTreeMap::new();
         for &(nf, nt) in self.grid.pips.keys() {
             let wfn = self.nodes[nf];
             let wtn = self.nodes[nt];

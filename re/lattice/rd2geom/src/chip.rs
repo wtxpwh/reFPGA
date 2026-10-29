@@ -26,22 +26,22 @@ mod nexus;
 mod scm;
 
 pub trait ChipExt {
-    fn xlat_row(&self, r: u8) -> RowId;
-    fn xlat_col(&self, c: u8) -> ColId;
-    fn xlat_rc(&self, r: u8, c: u8) -> CellCoord;
+    fn xlat_row(&self, r: u16) -> RowId;
+    fn xlat_col(&self, c: u16) -> ColId;
+    fn xlat_rc(&self, r: u16, c: u16) -> CellCoord;
     fn xlat_rc_wire(&self, wire: WireName) -> CellCoord;
 }
 
 impl ChipExt for Chip {
-    fn xlat_row(&self, r: u8) -> RowId {
+    fn xlat_row(&self, r: u16) -> RowId {
         RowId::from_idx(self.rows.len() - usize::from(r))
     }
 
-    fn xlat_col(&self, c: u8) -> ColId {
+    fn xlat_col(&self, c: u16) -> ColId {
         ColId::from_idx((c - 1).into())
     }
 
-    fn xlat_rc(&self, r: u8, c: u8) -> CellCoord {
+    fn xlat_rc(&self, r: u16, c: u16) -> CellCoord {
         let c = if c == 0 {
             1
         } else if c as usize == self.columns.len() + 1 {
