@@ -121,6 +121,8 @@ pub enum NexusKind {
     /// - 1: N, passive-mode config pins
     /// - 2, 3, 4: S, HP IO
     SmallHalfIo,
+    // LIFCL-33U; like LIFCL-33, except bank 5 is replaced by hard USB core
+    SmallHalfIoUsb,
     /// LFMXO5-25
     ///
     /// Clocks:
@@ -149,6 +151,7 @@ impl NexusKind {
             NexusKind::SmallMipiPcie => false,
             NexusKind::LargePcs(_) => true,
             NexusKind::SmallHalfIo => false,
+            NexusKind::SmallHalfIoUsb => false,
             NexusKind::SmallDenseIo => false,
         }
     }
@@ -250,6 +253,7 @@ impl Display for ChipKind {
                 write!(f, "nexus_large_pcs_jd5g")
             }
             ChipKind::Nexus(NexusKind::SmallHalfIo) => write!(f, "nexus_small_half_io"),
+            ChipKind::Nexus(NexusKind::SmallHalfIoUsb) => write!(f, "nexus_small_half_io_usb"),
             ChipKind::Nexus(NexusKind::SmallDenseIo) => write!(f, "nexus_small_dense_io"),
         }
     }
@@ -571,6 +575,8 @@ pub enum SpecialLocKey {
     IVref(u32),
     PvtCal33,
     PvtCal18,
+    Usb,
+    Aon,
 }
 
 impl Display for SpecialLocKey {
@@ -605,6 +611,8 @@ impl Display for SpecialLocKey {
             SpecialLocKey::IVref(bank) => write!(f, "IVREF{bank}"),
             SpecialLocKey::PvtCal33 => write!(f, "PVTCAL33"),
             SpecialLocKey::PvtCal18 => write!(f, "PVTCAL18"),
+            SpecialLocKey::Usb => write!(f, "USB"),
+            SpecialLocKey::Aon => write!(f, "AON"),
         }
     }
 }

@@ -11,6 +11,7 @@
 {{tile nexus CLK_S_JE5D15}}
 {{tile nexus CLK_S_JE5D30}}
 {{tile nexus CLK_S_JD5U}}
+{{tile nexus CLK_S_JD5UA}}
 {{tile nexus CLK_S_JD5F}}
 {{tile nexus CLK_N_JE5D15}}
 {{tile nexus CLK_N_JE5D30}}

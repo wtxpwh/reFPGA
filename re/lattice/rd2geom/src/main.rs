@@ -365,6 +365,7 @@ impl<'dev> ChipContext<'dev> {
                 "CONFIG_LMMIB_CORE_LMMI_MODEL",
                 "CONFIG_LMMIE_CORE_LMMI_MODEL",
                 "OSC_CORE",
+                "OSCD_CORE",
                 "PMU_CORE",
                 "I2CFIFO_CORE",
                 "GSR_CORE_GSR_CENTER",
@@ -376,6 +377,8 @@ impl<'dev> ChipContext<'dev> {
                 "BNKREF18_CORE",
                 "BNKREF18_CORE_BNKREF180",
                 "PLL_CORE_PLL_LMMI",
+                "USB23_CORE_USB230",
+                "AON_CORE_AON0",
             ] {
                 if let Some(n) = name.strip_suffix(suffix)
                     && let Some(n) = n.strip_suffix('_')

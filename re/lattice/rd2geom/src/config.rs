@@ -1155,6 +1155,7 @@ impl ChipContext<'_> {
             (tcls::CONFIG_JE5D30, 0, 4, 12, 8),
             (tcls::CONFIG_JD5D, 12, 4, 12, 8),
             (tcls::CONFIG_JD5U, 2, 0, 12, 8),
+            (tcls::CONFIG_JD5UA, 2, 0, 12, 8),
             (tcls::CONFIG_JD5F, 0, 21, 11, 16),
         ] {
             for &tcrd in &self.edev.tile_index[tcid] {
@@ -1167,15 +1168,21 @@ impl ChipContext<'_> {
                     NexusKind::SmallMipi | NexusKind::SmallMipiPcie => {
                         ("CONFIG_LMMI_CORE_LMMI_MODEL", false)
                     }
-                    NexusKind::LargePcs(NexusLargePcsRev::Jd5d) | NexusKind::SmallHalfIo => {
-                        ("CONFIG_LMMIA_CORE_LMMI_MODEL", false)
-                    }
+                    NexusKind::LargePcs(NexusLargePcsRev::Jd5d)
+                    | NexusKind::SmallHalfIo
+                    | NexusKind::SmallHalfIoUsb => ("CONFIG_LMMIA_CORE_LMMI_MODEL", false),
                     NexusKind::LargePcs(NexusLargePcsRev::Jd5g) => {
                         ("CONFIG_LMMIE_CORE_LMMI_MODEL", true)
                     }
                     NexusKind::SmallDenseIo => ("CONFIG_LMMIB_CORE_LMMI_MODEL", true),
                 };
                 let lmmi_kind = lmmi_suffix.strip_suffix("_LMMI_MODEL").unwrap();
+
+                let osc_suffix = if kind == NexusKind::SmallHalfIoUsb {
+                    "OSCD_CORE"
+                } else {
+                    "OSC_CORE"
+                };
 
                 let wire_cfg_clk =
                     self.rc_io_wire(cell, "JCFG_CLK_CONFIG_CLKRST_CORE_CONFIG_CLKRST");
@@ -1209,8 +1216,8 @@ impl ChipContext<'_> {
                         .claim_pip_from("SMCLK", wire_cfg_clk);
                 }
 
-                let wire_osc_cfg = self.rc_wire(cell_osc, "JHFCLKCFG_OSC_CORE");
-                let wire_osc_sed = self.rc_wire(cell_osc, "JHFSDCOUT_OSC_CORE");
+                let wire_osc_cfg = self.rc_wire(cell_osc, &format!("JHFCLKCFG_{osc_suffix}"));
+                let wire_osc_sed = self.rc_wire(cell_osc, &format!("JHFSDCOUT_{osc_suffix}"));
                 self.extract_bel_cell(tcrd.bel(bslots::CONFIG_CLKRST), cell)
                     .name(format!("TCONFIG_CLKRST_CORE{c}"))
                     .suffix("CONFIG_CLKRST_CORE_CONFIG_CLKRST")
@@ -1289,20 +1296,20 @@ impl ChipContext<'_> {
                 }
 
                 self.extract_bel_cell(tcrd.bel(bslots::OSC), cell_osc)
-                    .name_rc("OSC_CORE")
-                    .suffix("OSC_CORE")
+                    .name_rc(osc_suffix)
+                    .suffix(osc_suffix)
                     .output_bind_rc(
                         bcls::OSC::LFCLKOUT,
-                        "JLFCLKOUT_OSC_CORE",
+                        format!("JLFCLKOUT_{osc_suffix}"),
                         wires::OUT_OSC_LFCLKOUT.cell(0),
                     )
                     .output_bind_rc(
                         bcls::OSC::HFCLKOUT,
-                        "JHFCLKOUT_OSC_CORE",
+                        format!("JHFCLKOUT_{osc_suffix}"),
                         wires::OUT_OSC_HFCLKOUT.cell(0),
                     )
-                    .add_wire_rc("HFCLKCFG", "JHFCLKCFG_OSC_CORE")
-                    .add_wire_rc("HFSDCOUT", "JHFSDCOUT_OSC_CORE");
+                    .add_wire_rc("HFCLKCFG", format!("JHFCLKCFG_{osc_suffix}"))
+                    .add_wire_rc("HFSDCOUT", format!("JHFSDCOUT_{osc_suffix}"));
 
                 let wire_io_clk =
                     self.get_paddi_wire_nexus(self.chip.special_io[&SpecialIoKey::Cclk]);
@@ -1342,6 +1349,28 @@ impl ChipContext<'_> {
         }
     }
 
+    pub fn process_aon_nexus(&mut self) {
+        let Some(&cell) = self.chip.special_loc.get(&SpecialLocKey::Aon) else {
+            return;
+        };
+        let (r, c) = self.rc(cell);
+        self.extract_bel(cell.bel(bslots::AON))
+            .names([
+                format!("AON_CORE_R{r}C{c}"),
+                "AON_INT".to_string(),
+                "AON_OUT".to_string(),
+            ])
+            .suffix("AON_CORE_AON0")
+            .add_wire_rc("AONINT", "JAONINT_AON_CORE_AON0")
+            .add_wire_rc("AONOUT", "JAONOUT_AON_CORE_AON0")
+            .add_wire_rc("AONINT_APIO", "JPAD_APIO_AON_INT")
+            .add_wire_rc("AONOUT_APIO", "JPAD_APIO_AON_OUT")
+            .claim_pip("AONINT", "AONINT_APIO")
+            .claim_pip("AONINT_APIO", "AONINT")
+            .claim_pip("AONOUT", "AONOUT_APIO")
+            .claim_pip("AONOUT_APIO", "AONOUT");
+    }
+
     pub fn process_config(&mut self) {
         match self.chip.kind {
             ChipKind::Scm => {
@@ -1377,6 +1406,7 @@ impl ChipContext<'_> {
             }
             ChipKind::Nexus(_) => {
                 self.process_config_nexus();
+                self.process_aon_nexus();
             }
         }
     }

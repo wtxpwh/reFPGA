@@ -50,7 +50,7 @@ impl ChipContext<'_> {
         match kind {
             NexusKind::SmallMipi | NexusKind::SmallMipiPcie => "DQSBUF_CORE_I_DQS_TOP",
             NexusKind::LargePcs(_) => "DQSBUFA_CORE_I_DQS_TOP",
-            NexusKind::SmallHalfIo => unreachable!(),
+            NexusKind::SmallHalfIo | NexusKind::SmallHalfIoUsb => unreachable!(),
             NexusKind::SmallDenseIo => "DQSBUFB_CORE_I_DQS_TOP",
         }
     }
@@ -131,7 +131,7 @@ impl ChipContext<'_> {
         };
         let (bank_base, num_banks) = match kind {
             NexusKind::SmallMipi | NexusKind::SmallMipiPcie | NexusKind::LargePcs(_) => (3, 3),
-            NexusKind::SmallHalfIo => (2, 3),
+            NexusKind::SmallHalfIo | NexusKind::SmallHalfIoUsb => (2, 3),
             NexusKind::SmallDenseIo => (5, 2),
         };
         let tcrd = self.chip.clk_emid(Dir::S).tile(tslots::CLK);
@@ -299,7 +299,7 @@ impl ChipContext<'_> {
                 NexusKind::SmallMipi | NexusKind::SmallMipiPcie | NexusKind::LargePcs(_) => {
                     ([2, 0][i], 1)
                 }
-                NexusKind::SmallHalfIo => [(1, 2), (0, 1)][i],
+                NexusKind::SmallHalfIo | NexusKind::SmallHalfIoUsb => [(1, 2), (0, 1)][i],
                 NexusKind::SmallDenseIo => (0, 1),
             };
             let cslot_b0 = CLK_S_JE5D15::IO[2 * bidx0];
@@ -406,8 +406,10 @@ impl ChipContext<'_> {
                     )
                     .suffix("DLLDEL_CORE_I0")
                     .claim_pip("CLKOUT", "CLKIN");
-                if matches!(bel.ctx.chip.kind, ChipKind::Nexus(NexusKind::SmallHalfIo))
-                    && tcrd.cell == bel.ctx.chip.special_loc[&SpecialLocKey::DllDel(Dir::N, 2)]
+                if matches!(
+                    bel.ctx.chip.kind,
+                    ChipKind::Nexus(NexusKind::SmallHalfIo | NexusKind::SmallHalfIoUsb)
+                ) && tcrd.cell == bel.ctx.chip.special_loc[&SpecialLocKey::DllDel(Dir::N, 2)]
                 {
                     // ????? on this particular chip, this particular DLLDEL has an edge from both clock 1 and 2?
                     // is this real or a bug?
@@ -465,7 +467,7 @@ impl ChipContext<'_> {
         let dqs_kind = match kind {
             NexusKind::SmallMipi | NexusKind::SmallMipiPcie => "DQSBUF_CORE",
             NexusKind::LargePcs(_) => "DQSBUFA_CORE",
-            NexusKind::SmallHalfIo => unreachable!(),
+            NexusKind::SmallHalfIo | NexusKind::SmallHalfIoUsb => unreachable!(),
             NexusKind::SmallDenseIo => "DQSBUFB_CORE",
         };
         let wire_inck = self.get_inck_wire_nexus(bcrd_io);
@@ -602,7 +604,10 @@ impl ChipContext<'_> {
         let tcrd = self.edev.bel_tile(bcrd);
         let is_lpddr4 = self.edev[tcrd].class == tcls::IO_HP_S_LPDDR4;
         let is_jd5u = self.edev[tcrd].class == tcls::IO_HP_S_JD5U;
-        let skip_hpio_pip = matches!(kind, NexusKind::SmallDenseIo | NexusKind::SmallHalfIo);
+        let skip_hpio_pip = matches!(
+            kind,
+            NexusKind::SmallDenseIo | NexusKind::SmallHalfIo | NexusKind::SmallHalfIoUsb
+        );
         let is_hp = edge == Dir::S;
         let iol = if is_hp {
             format!("IOLOGIC_CORE_I_GEARING_PIC_TOP_{ab}")
@@ -779,8 +784,12 @@ impl ChipContext<'_> {
                 (NexusKind::SmallMipiPcie, 3..=5) => (true, "BNKREF18_CORE"),
                 (NexusKind::LargePcs(_), 4) => (true, "BNKREF18_CORE_BNKREF180"),
                 (NexusKind::LargePcs(_), 3 | 5) => (true, "BNKREF18_CORE"),
-                (NexusKind::SmallHalfIo, 0..=1 | 5) => (false, "BNKREF33_CORE"),
-                (NexusKind::SmallHalfIo, 2..=4) => (true, "BNKREF18_CORE"),
+                (NexusKind::SmallHalfIo | NexusKind::SmallHalfIoUsb, 0..=1 | 5) => {
+                    (false, "BNKREF33_CORE")
+                }
+                (NexusKind::SmallHalfIo | NexusKind::SmallHalfIoUsb, 2..=4) => {
+                    (true, "BNKREF18_CORE")
+                }
                 (NexusKind::SmallDenseIo, 0..=4 | 7..=8) => (false, "BNKREF33_CORE"),
                 (NexusKind::SmallDenseIo, 9) => (false, "BNKREF33_CORE_BNKREF330"),
                 (NexusKind::SmallDenseIo, 5 | 6) => (true, "BNKREF18_CORE"),
@@ -839,7 +848,7 @@ impl ChipContext<'_> {
                 NexusKind::SmallMipiPcie | NexusKind::LargePcs(_) => {
                     [cell_tile.delta(0, 2), cell_tile.delta(0, 1)]
                 }
-                NexusKind::SmallHalfIo => unreachable!(),
+                NexusKind::SmallHalfIo | NexusKind::SmallHalfIoUsb => unreachable!(),
                 NexusKind::SmallDenseIo => [cell_tile.delta(0, 3), cell_tile.delta(0, 1)],
             };
             for (i, cell) in cdrs.into_iter().enumerate() {

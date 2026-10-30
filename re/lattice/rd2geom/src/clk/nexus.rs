@@ -79,7 +79,9 @@ impl ChipContext<'_> {
             unreachable!()
         };
         for edge in Dir::DIRS {
-            if matches!(edge, Dir::H(_)) && matches!(kind, NexusKind::SmallHalfIo) {
+            if matches!(edge, Dir::H(_))
+                && matches!(kind, NexusKind::SmallHalfIo | NexusKind::SmallHalfIoUsb)
+            {
                 continue;
             }
             let tcrd = self.chip.clk_emid(edge).tile(tslots::CLK);
@@ -91,7 +93,10 @@ impl ChipContext<'_> {
                 || (edge == Dir::S
                     && matches!(
                         kind,
-                        NexusKind::LargePcs(_) | NexusKind::SmallHalfIo | NexusKind::SmallDenseIo
+                        NexusKind::LargePcs(_)
+                            | NexusKind::SmallHalfIo
+                            | NexusKind::SmallHalfIoUsb
+                            | NexusKind::SmallDenseIo
                     )) {
                 RcMode::Base
             } else {
@@ -100,7 +105,7 @@ impl ChipContext<'_> {
             let num_cib_we = match kind {
                 NexusKind::SmallMipi | NexusKind::SmallMipiPcie => 10,
                 NexusKind::LargePcs(_) | NexusKind::SmallDenseIo => 9,
-                NexusKind::SmallHalfIo => 0,
+                NexusKind::SmallHalfIo | NexusKind::SmallHalfIoUsb => 0,
             };
             let (lrbt, dcc_in, ci_mid, num_dcc, num_cib) = match edge {
                 Dir::W => ('L', "HPFE", 2, 12, num_cib_we),
@@ -271,7 +276,7 @@ impl ChipContext<'_> {
                                 .input_xlat_rc_mode(format!("JLLCLKOS4_{suffix}"), mode)
                                 .input_xlat_rc_mode(format!("JLLCLKOS5_{suffix}"), mode);
                         }
-                        if kind != NexusKind::SmallHalfIo {
+                        if !matches!(kind, NexusKind::SmallHalfIo | NexusKind::SmallHalfIoUsb) {
                             ex.input_xlat_rc_mode(format!("JLRCLKOP_{suffix}"), mode)
                                 .input_xlat_rc_mode(format!("JLRCLKOS_{suffix}"), mode)
                                 .input_xlat_rc_mode(format!("JLRCLKOS2_{suffix}"), mode)
@@ -327,7 +332,7 @@ impl ChipContext<'_> {
                                     );
                                 }
                             }
-                            NexusKind::SmallHalfIo => {
+                            NexusKind::SmallHalfIo | NexusKind::SmallHalfIoUsb => {
                                 ex.input_xlat_rc_mode_nudge(
                                     format!("JPCLKT20_{suffix}"),
                                     mode,
@@ -518,7 +523,7 @@ impl ChipContext<'_> {
                                     );
                                 }
                             }
-                            NexusKind::SmallHalfIo => {
+                            NexusKind::SmallHalfIo | NexusKind::SmallHalfIoUsb => {
                                 let io = defs::nexus::tcls::CLK_N_JD5U::IO;
                                 let dlldel = defs::nexus::tcls::CLK_N_JD5U::DLLDEL;
                                 ex.input_xlat_rc_mode_nudge(
@@ -647,7 +652,7 @@ impl ChipContext<'_> {
                     ex.input_xlat_rc(format!("JVPFS{j}_{suffix}"));
                 }
                 for j in 0..12 {
-                    if kind == NexusKind::SmallHalfIo {
+                    if matches!(kind, NexusKind::SmallHalfIo | NexusKind::SmallHalfIoUsb) {
                         let clk_w = defs::nexus::tcls::CLK_ROOT_JD5U::CLK_W;
                         let clk_e = defs::nexus::tcls::CLK_ROOT_JD5U::CLK_E;
                         ex.input_raw_rc(
@@ -788,7 +793,7 @@ impl ChipContext<'_> {
                     ex.input_xlat_rc(format!("JVPFS{j}_{suffix}"));
                 }
                 for j in 0..12 {
-                    if kind == NexusKind::SmallHalfIo {
+                    if matches!(kind, NexusKind::SmallHalfIo | NexusKind::SmallHalfIoUsb) {
                         let clk_w = defs::nexus::tcls::CLK_ROOT_JD5U::CLK_W;
                         let clk_e = defs::nexus::tcls::CLK_ROOT_JD5U::CLK_E;
                         ex.input_raw_rc(

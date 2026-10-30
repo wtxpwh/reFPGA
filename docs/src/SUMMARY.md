@@ -468,6 +468,7 @@
   - [SGMII CDR](nexus/cdr.md)
   - [SERDES](nexus/serdes.md)
   - [MIPI D-PHY](nexus/mipi.md)
+  - [USB](nexus/usb.md)
   - [Configuration center](nexus/config.md)
 # Xilinx CPLDs
 - [XC9500](xc9500/README.md)

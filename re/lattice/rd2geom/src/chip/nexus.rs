@@ -23,6 +23,7 @@ impl ChipBuilder<'_> {
         let mut has_pcs = false;
         let mut has_lmid = false;
         let mut has_pcie = false;
+        let mut has_usb = false;
         let mut has_lmmie = false;
         for &wn in self.grid.nodes.values() {
             if self.grid.strings[wn.suffix] == "JCLKHSBYTE0_TMID_CORE_TMIDMUX" {
@@ -36,6 +37,9 @@ impl ChipBuilder<'_> {
             }
             if self.grid.strings[wn.suffix] == "JLMMIREADY_PCIE_CORE_PCIE0" {
                 has_pcie = true;
+            }
+            if self.grid.strings[wn.suffix] == "JLMMIREADY_USB23_CORE_USB230" {
+                has_usb = true;
             }
             if self.grid.strings[wn.suffix] == "JLMMICLK_CONFIG_LMMIE_CORE_LMMI_MODEL" {
                 has_lmmie = true;
@@ -54,7 +58,11 @@ impl ChipBuilder<'_> {
                 NexusLargePcsRev::Jd5d
             })
         } else if !has_lmid {
-            NexusKind::SmallHalfIo
+            if has_usb {
+                NexusKind::SmallHalfIoUsb
+            } else {
+                NexusKind::SmallHalfIo
+            }
         } else {
             NexusKind::SmallDenseIo
         });
@@ -362,7 +370,7 @@ impl ChipBuilder<'_> {
                     Chip::DIE.cell(self.chip.col_w(), self.chip.row_s() + 5),
                 );
             }
-            NexusKind::SmallHalfIo => {
+            NexusKind::SmallHalfIo | NexusKind::SmallHalfIoUsb => {
                 self.chip.special_loc.insert(
                     SpecialLocKey::Config,
                     Chip::DIE.cell(self.chip.col_w() + 28, self.chip.row_n()),
@@ -383,6 +391,9 @@ impl ChipBuilder<'_> {
                     (4, 2, 0),
                     (5, 8, 81),
                 ] {
+                    if bank == 5 && kind == NexusKind::SmallHalfIoUsb {
+                        continue;
+                    }
                     self.chip.special_loc.insert(
                         SpecialLocKey::Bc(bank),
                         Chip::DIE.cell(self.chip.col_w() + x, self.chip.row_s() + y),
@@ -397,6 +408,17 @@ impl ChipBuilder<'_> {
                     SpecialLocKey::PvtCal18,
                     Chip::DIE.cell(self.chip.col_w(), self.chip.row_s() + 2),
                 );
+
+                if kind == NexusKind::SmallHalfIoUsb {
+                    self.chip.special_loc.insert(
+                        SpecialLocKey::Usb,
+                        Chip::DIE.cell(self.chip.col_w(), self.chip.row_n()),
+                    );
+                    self.chip.special_loc.insert(
+                        SpecialLocKey::Aon,
+                        Chip::DIE.cell(self.chip.col_e() - 2, self.chip.row_s()),
+                    );
+                }
             }
             NexusKind::SmallDenseIo => {
                 self.chip.special_loc.insert(
@@ -664,7 +686,7 @@ impl ChipBuilder<'_> {
                     _ => unreachable!(),
                 }
             }
-            NexusKind::SmallHalfIo => match bank {
+            NexusKind::SmallHalfIo | NexusKind::SmallHalfIoUsb => match bank {
                 1 => (Dir::N, idx),
                 2 => (Dir::S, idx),
                 3 => (Dir::S, 4 + idx),
@@ -759,7 +781,7 @@ impl ChipBuilder<'_> {
                     // uhhh.
                     let key = dlldel_xlat[&self.chip.xlat_rc_wire(wn)];
                     if key == SpecialIoKey::Clock(Dir::N, 2)
-                        && kind == NexusKind::SmallHalfIo
+                        && matches!(kind, NexusKind::SmallHalfIo | NexusKind::SmallHalfIoUsb)
                         && io.slot != bslots::IO[1]
                     {
                         continue;
@@ -772,7 +794,7 @@ impl ChipBuilder<'_> {
                     let cdr0 = match kind {
                         NexusKind::SmallMipi => cdr.delta(1, 0),
                         NexusKind::SmallMipiPcie | NexusKind::LargePcs(_) => cdr.delta(0, 2),
-                        NexusKind::SmallHalfIo => unreachable!(),
+                        NexusKind::SmallHalfIo | NexusKind::SmallHalfIoUsb => unreachable!(),
                         NexusKind::SmallDenseIo => cdr.delta(0, 3),
                     };
                     SpecialIoKey::CdrRx(if cell == cdr0 { 0 } else { 1 })

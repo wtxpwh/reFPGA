@@ -1796,6 +1796,54 @@ impl ChipContext<'_> {
         }
     }
 
+    pub fn process_usb_nexus(&mut self) {
+        let Some(&cell) = self.chip.special_loc.get(&SpecialLocKey::Usb) else {
+            return;
+        };
+        let (_r, c) = self.rc(cell);
+        let mut bel = self.extract_bel(cell.bel(bslots::USB));
+        bel.names([
+            format!("TUSB23_CORE{c}"),
+            "DP".to_string(),
+            "DM".to_string(),
+            "ID".to_string(),
+            "VBUS".to_string(),
+            "XO_OUT_18".to_string(),
+            "XO_IN_18".to_string(),
+            "REXT".to_string(),
+            "RX_P".to_string(),
+            "RX_M".to_string(),
+            "TP_P".to_string(),
+            "TX_M".to_string(),
+            "REFIN_CLK_EXT_P".to_string(),
+            "REFIN_CLK_EXT_M".to_string(),
+            "RES_EXT".to_string(),
+        ])
+        .suffix("USB23_CORE_USB230");
+        for (pin, pad) in [
+            ("DP", "DP"),
+            ("DM", "DM"),
+            ("ID", "ID"),
+            ("VBUS", "VBUS"),
+            ("XOOUT18", "XO_OUT_18"),
+            ("XOIN18", "XO_IN_18"),
+            ("RESEXTUSB2", "RES_EXT_USB2"),
+            ("RXP", "RX_P"),
+            ("RXM", "RX_M"),
+            ("TXP", "TX_P"),
+            ("TXM", "TX_M"),
+            ("REFINCLKEXTP", "REFIN_CLK_EXT_P"),
+            ("REFINCLKEXTM", "REFIN_CLK_EXT_M"),
+            ("RESEXTUSB3", "RES_EXT_USB3"),
+        ] {
+            let pin_apio = &format!("{pin}_APIO");
+            bel.add_wire_rc_io(pin, format!("J{pin}_USB23_CORE_USB230"))
+                .add_wire_rc_io(pin_apio, format!("JPAD_APIO_{pad}"))
+                .claim_pip(pin, pin_apio)
+                .claim_pip(pin_apio, pin);
+        }
+    }
+
     pub fn process_serdes(&mut self) {
         match self.chip.kind {
             ChipKind::Scm => self.process_serdes_scm(),
@@ -1809,6 +1857,7 @@ impl ChipContext<'_> {
                 self.process_pcs_nexus();
                 self.process_pcie_ll_nexus();
                 self.process_mipi_nexus();
+                self.process_usb_nexus();
             }
             _ => (),
         }

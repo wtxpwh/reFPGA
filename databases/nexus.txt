@@ -1511,8 +1511,222 @@ chip CHIP4 {
 	special_io ADC_COMP3I = D0X49Y0.IO[0];
 }
 
-// LIFCL-33
+// LIFCL-33U
 chip CHIP5 {
+	kind nexus_small_half_io_usb;
+	columns {
+		null, // X0
+		null, // X1
+		null, // X2
+		io_s[4, double], // X3
+		null, // X4
+		io_s[4, double], // X5
+		null, // X6
+		io_s[3, double], // X7
+		null, // X8
+		io_s[3, double], // X9
+		null, // X10
+		io_s[3, double], // X11
+		null, // X12 PCLK_DRIVE
+		io_s[3, double], // X13
+		null, // X14
+		io_s[3, double], // X15
+		null, // X16
+		io_s[3, double], // X17
+		null, // X18
+		null, // X19
+		null, // X20
+		null, // X21
+		null, // X22
+		null, // X23
+		null, // X24
+		// clock
+		// PCLK break
+		null, // X25
+		null, // X26
+		null, // X27
+		null, // X28
+		io_n[0, double_b], // X29
+		null, // X30
+		io_s[2, double] + io_n[0, double_b], // X31
+		null, // X32
+		io_s[2, double] + io_n[0, double_b], // X33
+		null, // X34
+		io_s[2, double] + io_n[0, double_b], // X35
+		null, // X36
+		io_s[2, double] + io_n[1, double_b], // X37 PCLK_DRIVE
+		null, // X38
+		io_s[2, double] + io_n[1, double_b], // X39
+		null, // X40
+		io_s[2, double] + io_n[1, double_b], // X41
+		null, // X42
+		io_s[2, double] + io_n[1, double_b], // X43
+		null, // X44
+		io_s[2, double] + io_n[1, double_b], // X45
+		null, // X46
+		io_n[1, double_b], // X47
+		null, // X48
+		null, // X49
+	}
+	col_clk X25;
+	col_pclk X0..X25 = X12;
+	col_pclk X25..X50 = X37;
+	rows {
+		io, // Y0
+		plc, // Y1
+		plc, // Y2
+		plc, // Y3
+		plc, // Y4
+		plc, // Y5
+		plc, // Y6
+		plc, // Y7
+		plc, // Y8
+		dsp, // Y9
+		plc, // Y10
+		plc, // Y11
+		plc, // Y12
+		plc, // Y13
+		plc, // Y14
+		plc, // Y15
+		plc, // Y16
+		plc, // Y17
+		ebr, // Y18
+		plc, // Y19
+		plc, // Y20
+		plc, // Y21
+		plc, // Y22
+		plc, // Y23
+		plc, // Y24
+		plc, // Y25
+		plc, // Y26
+		dsp, // Y27
+		plc, // Y28
+		plc, // Y29
+		plc, // Y30
+		plc, // Y31
+		plc, // Y32
+		plc, // Y33
+		plc, // Y34
+		plc, // Y35
+		ebr, // Y36
+		plc, // Y37
+		plc, // Y38
+		plc, // Y39
+		plc, // Y40
+		plc, // Y41
+		plc, // Y42
+		plc, // Y43
+		plc, // Y44
+		// clock
+		dsp, // Y45
+		plc, // Y46
+		plc, // Y47
+		plc, // Y48
+		plc, // Y49
+		plc, // Y50
+		plc, // Y51
+		plc, // Y52
+		plc, // Y53
+		ebr, // Y54
+		plc, // Y55
+		plc, // Y56
+		plc, // Y57
+		plc, // Y58
+		plc, // Y59
+		plc, // Y60
+		plc, // Y61
+		plc, // Y62
+		dsp, // Y63
+		plc, // Y64
+		plc, // Y65
+		plc, // Y66
+		plc, // Y67
+		plc, // Y68
+		plc, // Y69
+		plc, // Y70
+		plc, // Y71
+		ebr, // Y72
+		plc, // Y73
+		plc, // Y74
+		plc, // Y75
+		plc, // Y76
+		plc, // Y77
+		plc, // Y78
+		plc, // Y79
+		plc, // Y80
+		io, // Y81
+	}
+	row_clk Y45;
+	special_loc PLL_SW0 = D0X0Y1;
+	special_loc CONFIG = D0X28Y81;
+	special_loc BC0 = D0X22Y81;
+	special_loc BC1 = D0X44Y81;
+	special_loc BC2 = D0X30Y0;
+	special_loc BC3 = D0X19Y0;
+	special_loc BC4 = D0X2Y0;
+	special_loc DDRDLL_SW = D0X0Y2;
+	special_loc DDRDLL_SE = D0X49Y0;
+	special_loc DLLDEL_S0 = D0X28Y0;
+	special_loc DLLDEL_S2 = D0X29Y0;
+	special_loc DLLDEL_S4 = D0X20Y0;
+	special_loc DLLDEL_S6 = D0X21Y0;
+	special_loc DLLDEL_N0 = D0X23Y81;
+	special_loc DLLDEL_N2 = D0X26Y81;
+	special_loc LRAM_E0 = D0X49Y78;
+	special_loc LRAM_E1 = D0X49Y62;
+	special_loc LRAM_E2 = D0X49Y48;
+	special_loc LRAM_E3 = D0X49Y35;
+	special_loc LRAM_E4 = D0X49Y17;
+	special_loc PVTCAL33 = D0X48Y81;
+	special_loc PVTCAL18 = D0X0Y2;
+	special_loc USB = D0X0Y81;
+	special_loc AON = D0X47Y0;
+	special_io CLOCK_S0 = D0X33Y0.IO[0];
+	special_io CLOCK_S1 = D0X37Y0.IO[0];
+	special_io CLOCK_S2 = D0X41Y0.IO[0];
+	special_io CLOCK_S3 = D0X45Y0.IO[0];
+	special_io CLOCK_S4 = D0X9Y0.IO[0];
+	special_io CLOCK_S5 = D0X13Y0.IO[0];
+	special_io CLOCK_S6 = D0X15Y0.IO[0];
+	special_io CLOCK_S7 = D0X17Y0.IO[0];
+	special_io CLOCK_S9 = D0X5Y0.IO[0];
+	special_io CLOCK_N0 = D0X39Y81.IO[0];
+	special_io CLOCK_N1 = D0X41Y81.IO[0];
+	special_io CLOCK_N2 = D0X41Y81.IO[1];
+	special_io CLOCK_N3 = D0X45Y81.IO[0];
+	special_io PLL_IN0_SW0 = D0X3Y0.IO[0];
+	special_io VREF1_2 = D0X31Y0.IO[0];
+	special_io VREF1_3 = D0X7Y0.IO[0];
+	special_io VREF1_4 = D0X3Y0.IO[0];
+	special_io VREF2_2 = D0X45Y0.IO[1];
+	special_io VREF2_3 = D0X17Y0.IO[0];
+	special_io VREF2_4 = D0X5Y0.IO[1];
+	special_io D0 = D0X41Y81.IO[0];
+	special_io D1 = D0X41Y81.IO[1];
+	special_io D2 = D0X43Y81.IO[1];
+	special_io D3 = D0X43Y81.IO[0];
+	special_io D4 = D0X33Y81.IO[0];
+	special_io D5 = D0X33Y81.IO[1];
+	special_io D6 = D0X35Y81.IO[0];
+	special_io D7 = D0X35Y81.IO[1];
+	special_io DOUT = D0X39Y81.IO[1];
+	special_io MCLK = D0X31Y81.IO[0];
+	special_io INIT_B = D0X37Y81.IO[1];
+	special_io CCLK = D0X45Y81.IO[0];
+	special_io SPI_C_CS_B = D0X31Y81.IO[1];
+	special_io SPI_P_CS_B = D0X39Y81.IO[0];
+	special_io DONE = D0X47Y81.IO[0];
+	special_io PROG_B = D0X29Y81.IO[0];
+	special_io JTAG_EN = D0X37Y81.IO[0];
+	special_io PMU_WAKEUP_N = D0X45Y81.IO[1];
+	special_io SPI_C_D0 = D0X33Y81.IO[0];
+	special_io SPI_C_D1 = D0X33Y81.IO[1];
+	special_io SPI_C_D2 = D0X35Y81.IO[0];
+	special_io SPI_C_D3 = D0X35Y81.IO[1];
+}
+
+// LIFCL-33
+chip CHIP6 {
 	kind nexus_small_half_io;
 	columns {
 		null, // X0
@@ -7314,8 +7528,165 @@ bond BOND24 {
 	pin Y20 = GND;
 }
 
-// LIFCL-33-WLCSP84
+// LIFCL-33U-WLCSP84
 bond BOND25 {
+	kind single;
+	pin A1 = IOB_N39_0;
+	pin A2 = JTAG_EN;
+	pin A3 = IOB_N29_0;
+	pin A4 = VCCINT;
+	pin A5 = GND;
+	pin B1 = IOB_N39_1;
+	pin B3 = IOB_N31_0;
+	pin B4 = IOB_N31_1;
+	pin C1 = VCCIO1;
+	pin C2 = GND;
+	pin C3 = VCCIO0;
+	pin C4 = IOB_N33_0;
+	pin D1 = IOB_N41_0;
+	pin D2 = IOB_N45_0;
+	pin D3 = IOB_N35_0;
+	pin D4 = IOB_N33_1;
+	pin E1 = IOB_N41_1;
+	pin E2 = IOB_N45_1;
+	pin E3 = IOB_N35_1;
+	pin F1 = IOB_N47_0;
+	pin F2 = IOB_N43_0;
+	pin F3 = VCCINT;
+	pin F4 = GND;
+	pin F5 = VCCAUXA;
+	pin G2 = IOB_N43_1;
+	pin G3 = IOB_S35_1;
+	pin G6 = VCCAUX;
+	pin H1 = IOB_S45_1;
+	pin H2 = IOB_S43_1;
+	pin H3 = IOB_S35_0;
+	pin H6 = GND;
+	pin J1 = IOB_S45_0;
+	pin J2 = IOB_S43_0;
+	pin J3 = VCCAUXH2;
+	pin J4 = IOB_S11_0;
+	pin J5 = VCCPLL_SW;
+	pin J6 = VCCINT;
+	pin K1 = IOB_S33_1;
+	pin K2 = IOB_S41_1;
+	pin K3 = VCCECLK;
+	pin K4 = VCCAUXH3;
+	pin K5 = GND;
+	pin K6 = VCCAUXH4;
+	pin L1 = IOB_S33_0;
+	pin L2 = IOB_S41_0;
+	pin L3 = GND;
+	pin L4 = IOB_S17_1;
+	pin L5 = IOB_S15_1;
+	pin L6 = IOB_S5_1;
+	pin M1 = VCCIO2;
+	pin M2 = GND;
+	pin M3 = VCCIO3;
+	pin M4 = IOB_S17_0;
+	pin M5 = IOB_S15_0;
+	pin M6 = IOB_S5_0;
+	pin N1 = IOB_S31_1;
+	pin N2 = IOB_S37_1;
+	pin N3 = IOB_S13_1;
+	pin N4 = IOB_S9_1;
+	pin N5 = IOB_S7_1;
+	pin N6 = VCCIO4;
+	pin P1 = IOB_S31_0;
+	pin P2 = IOB_S37_0;
+	pin P3 = IOB_S13_0;
+	pin P4 = IOB_S9_0;
+	pin P5 = IOB_S7_0;
+	pin P6 = GND;
+}
+
+// LIFCL-33U-FCCSP104
+bond BOND26 {
+	kind single;
+	pin A1 = IOB_N37_1;
+	pin A2 = JTAG_EN;
+	pin A3 = IOB_N29_1;
+	pin A4 = IOB_N29_0;
+	pin B1 = IOB_N39_1;
+	pin B2 = IOB_N39_0;
+	pin B3 = IOB_N31_1;
+	pin B4 = IOB_N31_0;
+	pin C1 = VCCIO1;
+	pin C2 = GND;
+	pin C3 = VCCIO0;
+	pin C4 = GND;
+	pin D1 = IOB_N41_1;
+	pin D2 = IOB_N41_0;
+	pin D3 = IOB_N33_1;
+	pin D4 = IOB_N33_0;
+	pin E1 = IOB_N43_1;
+	pin E2 = IOB_N43_0;
+	pin E3 = IOB_N35_1;
+	pin E4 = IOB_N35_0;
+	pin E6 = IOB_S13_1;
+	pin F1 = IOB_N45_1;
+	pin F2 = IOB_N45_0;
+	pin F3 = GND;
+	pin F4 = VCCINT;
+	pin F5 = GND;
+	pin F6 = VCCAUX;
+	pin F7 = IOB_S13_0;
+	pin G1 = IOB_N47_1;
+	pin G2 = IOB_N47_0;
+	pin G3 = VCCINT;
+	pin G4 = GND;
+	pin G5 = VCCINT;
+	pin G6 = IOB_S15_1;
+	pin G7 = IOB_S15_0;
+	pin G8 = IOB_S5_1;
+	pin H1 = IOB_S45_1;
+	pin H2 = IOB_S43_1;
+	pin H3 = GND;
+	pin H4 = VCCINT;
+	pin H5 = GND;
+	pin H6 = IOB_S17_1;
+	pin H7 = VCCAUXA;
+	pin H8 = IOB_S5_0;
+	pin J1 = IOB_S45_0;
+	pin J2 = IOB_S43_0;
+	pin J3 = VCCAUXH2;
+	pin J4 = GND;
+	pin J5 = VCCAUXH3;
+	pin J6 = IOB_S17_0;
+	pin J7 = GND;
+	pin J8 = VCCIO4;
+	pin K2 = IOB_S41_1;
+	pin K3 = IOB_S41_0;
+	pin K4 = VCCIO2;
+	pin K5 = GND;
+	pin K6 = VCCIO3;
+	pin K7 = VCCAUXH4;
+	pin K8 = GND;
+	pin L2 = VCCECLK;
+	pin L3 = IOB_S35_1;
+	pin L4 = IOB_S35_0;
+	pin L5 = VCCECLK;
+	pin L6 = IOB_S11_1;
+	pin L7 = IOB_S11_0;
+	pin L8 = VCCPLL_SW;
+	pin M2 = IOB_S39_1;
+	pin M3 = IOB_S39_0;
+	pin M4 = IOB_S33_1;
+	pin M5 = IOB_S33_0;
+	pin M6 = IOB_S9_1;
+	pin M7 = IOB_S9_0;
+	pin M8 = IOB_S3_1;
+	pin N2 = IOB_S37_1;
+	pin N3 = IOB_S37_0;
+	pin N4 = IOB_S31_1;
+	pin N5 = IOB_S31_0;
+	pin N6 = IOB_S7_1;
+	pin N7 = IOB_S7_0;
+	pin N8 = IOB_S3_0;
+}
+
+// LIFCL-33-WLCSP84
+bond BOND27 {
 	kind single;
 	pin A1 = IOB_N39_0;
 	pin A2 = JTAG_EN;
@@ -7404,7 +7775,7 @@ bond BOND25 {
 }
 
 // LIFCL-33-BBG484
-bond BOND26 {
+bond BOND28 {
 	kind single;
 	pin A1 = GND;
 	pin A2 = IOB_N7_0;
@@ -8571,10 +8942,34 @@ device LFD2NX-25P {
 	combo CABGA400 9_Low-Power_1.0V;
 }
 
-device LIFCL-33 {
+device LIFCL-33U {
 	chip CHIP5;
 	bond WLCSP84 = BOND25;
-	bond BBG484 = BOND26;
+	bond FCCSP104 = BOND26;
+	speed 7_High-Performance_1.0V;
+	speed 7_Low-Power_1.0V;
+	speed 8_High-Performance_1.0V;
+	speed 8_Low-Power_1.0V;
+	speed 9_High-Performance_1.0V;
+	speed 9_Low-Power_1.0V;
+	combo WLCSP84 7_High-Performance_1.0V;
+	combo WLCSP84 7_Low-Power_1.0V;
+	combo WLCSP84 8_High-Performance_1.0V;
+	combo WLCSP84 8_Low-Power_1.0V;
+	combo WLCSP84 9_High-Performance_1.0V;
+	combo WLCSP84 9_Low-Power_1.0V;
+	combo FCCSP104 7_High-Performance_1.0V;
+	combo FCCSP104 7_Low-Power_1.0V;
+	combo FCCSP104 8_High-Performance_1.0V;
+	combo FCCSP104 8_Low-Power_1.0V;
+	combo FCCSP104 9_High-Performance_1.0V;
+	combo FCCSP104 9_Low-Power_1.0V;
+}
+
+device LIFCL-33 {
+	chip CHIP6;
+	bond WLCSP84 = BOND27;
+	bond BBG484 = BOND28;
 	speed 7_High-Performance_1.0V;
 	speed 7_Low-Power_1.0V;
 	speed 8_High-Performance_1.0V;
@@ -9023,6 +9418,8 @@ intdb {
 		input HFSDSCEN;
 		input LFTRMFAB[9];
 		input HFTRMFAB[9];
+		input REBOOT;
+		input HFOUTCIBEN;
 		output LFCLKOUT;
 		output HFCLKOUT;
 	}
@@ -9423,6 +9820,27 @@ intdb {
 		pad VCCA: power
 		pad VCCPLL: power
 		pad VCC: power
+	}
+
+	bel_class AON {
+		input PRESLEEP;
+		input CNTSET[16];
+		input TESTMODEEN;
+		output PRESLEEPREG;
+		output CNTSETREG[16];
+		output CLKISOEN;
+		output SIGISOEN;
+		output PWRDN;
+		output CNT1SEC;
+		output REGRSTDEL;
+		output PREAONOUT;
+		output OSCCLK;
+		output SETTLEREG1P8;
+		output TIEHIGH;
+		pad AON_INT: input
+		pad AON_OUT: output
+		pad VSS: power
+		pad VCCAUX: power
 	}
 
 	bel_class PCIE_X1 {
@@ -10044,6 +10462,108 @@ intdb {
 		pad REFP[2]: analog
 		pad VSS: power
 		pad VCC18: power
+	}
+
+	bel_class USB {
+		input LMMICLK;
+		input LMMIRESETN;
+		input LMMIREQUEST;
+		input LMMIOFFSET[16:2];
+		input LMMIWDATA[32];
+		input LMMIWRRD_N;
+		input XMARREADY;
+		input XMAWREADY;
+		input XMRVALID;
+		input XMRID[8];
+		input XMRDATA[64];
+		input XMRLAST;
+		input XMRRESP[2];
+		input XMRMISC_INFO[4];
+		input XMWREADY;
+		input XMBVALID;
+		input XMBID[8];
+		input XMBRESP[2];
+		input XMBMISC_INFO[4];
+		input XMCSYSREQ;
+		input USBPHY_REFCLK_ALT;
+		input USB_RESETN;
+		input USB2_RESET;
+		input USB3_SYSRSTN;
+		input USB3_MCUCLK;
+		input USB_SUSPENDCLK;
+		input DISRXDETU3RXDET;
+		input STARTRXDETU3RXDET;
+		input SS_TX_ACJT_HIGHZ;
+		input SS_TX_ACJT_DATAIN;
+		input SS_TX_ACJT_DRVEN;
+		input SS_RX_ACJT_MODE;
+		input SS_RX_ACJT_INIT_EN;
+		input SS_RX_ACJT_INIP;
+		input SS_RX_ACJT_ININ;
+		input SS_RX_ACJT_EN;
+		input SCANEN_USB2PHY;
+		input SCANEN_USB3PHY;
+		input SCANEN_CGUSB3PHY;
+		input SCANEN_CTRL;
+		output LMMIRDATA[32];
+		output LMMIRDATAVALID;
+		output LMMIREADY;
+		output XMARVALID;
+		output XMARID[8];
+		output XMARADDR[32];
+		output XMARLEN[8];
+		output XMARCACHE[4];
+		output XMARPROT[3];
+		output XMARSIZE[3];
+		output XMARLOCK[2];
+		output XMARBURST[2];
+		output XMARMISC_INFO[4];
+		output XMAWVALID;
+		output XMAWID[8];
+		output XMAWADDR[32];
+		output XMAWLEN[8];
+		output XMAWCACHE[4];
+		output XMAWPROT[3];
+		output XMAWSIZE[3];
+		output XMAWLOCK[2];
+		output XMAWBURST[2];
+		output XMAWMISC_INFO[4];
+		output XMRREADY;
+		output XMWVALID;
+		output XMWID[8];
+		output XMWDATA[64];
+		output XMWSTRB[8];
+		output XMWLAST;
+		output XMBREADY;
+		output XMCACTIVE;
+		output XMCSYSACK;
+		output INTERRUPT;
+		output DISRXDETU3RXDETACK;
+		output SS_RX_ACJT_OUTP;
+		output SS_RX_ACJT_OUTN;
+		pad DP: inout
+		pad DM: inout
+		pad ID: input
+		pad VBUS: input
+		pad XO_OUT_18: output
+		pad XO_IN_18: input
+		pad RES_EXT_USB2: analog
+		pad TX_P: output
+		pad TX_M: output
+		pad RX_P: input
+		pad RX_M: input
+		pad REFIN_CLK_EXT_P: input
+		pad REFIN_CLK_EXT_N: input
+		pad RES_EXT_USB3: analog
+		pad AVSS: power
+		pad AVDD: power
+		pad AVDD18: power
+		pad AVDD33: power
+		pad AVSS_TX: power
+		pad AVDD_TX: power
+		pad AVDD18_TX: power
+		pad AVSS_COM: power
+		pad AVDD18_COM: power
 	}
 
 	region_slot PCLK;
@@ -12479,6 +12999,7 @@ intdb {
 		bel_slot CDR[0]: CDR;
 		bel_slot CDR[1]: CDR;
 		bel_slot ADC: ADC;
+		bel_slot USB: USB;
 		bel_slot LRAM[0]: LRAM;
 		bel_slot LRAM[1]: LRAM;
 		bel_slot LRAM[2]: LRAM;
@@ -12498,6 +13019,7 @@ intdb {
 		bel_slot CONFIG_LMMI: CONFIG_LMMI;
 		bel_slot CONFIG_SEDC: CONFIG_SEDC;
 		bel_slot CONFIG_CRE: CONFIG_CRE;
+		bel_slot AON: AON;
 
 		tile_class PLC {
 			cell CELL;
@@ -27079,6 +27601,889 @@ intdb {
 			// wire PLL.OUT_PLL_CLKOS4[0]          ADC.CLKDCLK
 		}
 
+		tile_class USB {
+			cell CELL[0];
+			cell CELL[1];
+			cell CELL[2];
+			cell CELL[3];
+			cell CELL[4];
+			cell CELL[5];
+			cell CELL[6];
+			cell CELL[7];
+			cell CELL[8];
+			cell CELL[9];
+			cell CELL[10];
+			cell CELL[11];
+			cell CELL[12];
+			cell CELL[13];
+			cell CELL[14];
+			cell CELL[15];
+			cell CELL[16];
+			cell CELL[17];
+			cell CELL[18];
+			cell CELL[19];
+
+			bel USB {
+				input LMMICLK = CELL[0].IMUX_CLK[0];
+				input LMMIRESETN = CELL[1].IMUX_LSR[1];
+				input LMMIREQUEST = CELL[0].IMUX_MUXA[7];
+				input LMMIOFFSET[2] = CELL[5].IMUX_MUXD[6];
+				input LMMIOFFSET[3] = CELL[5].IMUX_MUXD[5];
+				input LMMIOFFSET[4] = CELL[5].IMUX_MUXD[4];
+				input LMMIOFFSET[5] = CELL[5].IMUX_MUXD[3];
+				input LMMIOFFSET[6] = CELL[5].IMUX_MUXD[2];
+				input LMMIOFFSET[7] = CELL[5].IMUX_MUXD[1];
+				input LMMIOFFSET[8] = CELL[5].IMUX_MUXD[0];
+				input LMMIOFFSET[9] = CELL[5].IMUX_MUXC[7];
+				input LMMIOFFSET[10] = CELL[5].IMUX_MUXC[6];
+				input LMMIOFFSET[11] = CELL[5].IMUX_MUXC[5];
+				input LMMIOFFSET[12] = CELL[5].IMUX_MUXC[4];
+				input LMMIOFFSET[13] = CELL[5].IMUX_MUXC[3];
+				input LMMIOFFSET[14] = CELL[5].IMUX_MUXC[2];
+				input LMMIOFFSET[15] = CELL[5].IMUX_MUXC[1];
+				input LMMIOFFSET[16] = CELL[5].IMUX_MUXC[0];
+				input LMMIWDATA[0] = CELL[3].IMUX_MUXD[7];
+				input LMMIWDATA[1] = CELL[3].IMUX_MUXD[6];
+				input LMMIWDATA[2] = CELL[3].IMUX_MUXD[5];
+				input LMMIWDATA[3] = CELL[3].IMUX_MUXD[4];
+				input LMMIWDATA[4] = CELL[3].IMUX_MUXD[3];
+				input LMMIWDATA[5] = CELL[3].IMUX_MUXD[2];
+				input LMMIWDATA[6] = CELL[3].IMUX_MUXD[1];
+				input LMMIWDATA[7] = CELL[3].IMUX_MUXD[0];
+				input LMMIWDATA[8] = CELL[3].IMUX_MUXC[7];
+				input LMMIWDATA[9] = CELL[3].IMUX_MUXC[6];
+				input LMMIWDATA[10] = CELL[3].IMUX_MUXC[5];
+				input LMMIWDATA[11] = CELL[3].IMUX_MUXC[4];
+				input LMMIWDATA[12] = CELL[3].IMUX_MUXC[3];
+				input LMMIWDATA[13] = CELL[3].IMUX_MUXC[2];
+				input LMMIWDATA[14] = CELL[3].IMUX_MUXC[1];
+				input LMMIWDATA[15] = CELL[3].IMUX_MUXC[0];
+				input LMMIWDATA[16] = CELL[3].IMUX_MUXB[7];
+				input LMMIWDATA[17] = CELL[3].IMUX_MUXB[6];
+				input LMMIWDATA[18] = CELL[3].IMUX_MUXB[5];
+				input LMMIWDATA[19] = CELL[3].IMUX_MUXB[4];
+				input LMMIWDATA[20] = CELL[3].IMUX_MUXB[3];
+				input LMMIWDATA[21] = CELL[3].IMUX_MUXB[2];
+				input LMMIWDATA[22] = CELL[3].IMUX_MUXB[1];
+				input LMMIWDATA[23] = CELL[3].IMUX_MUXB[0];
+				input LMMIWDATA[24] = CELL[3].IMUX_MUXA[7];
+				input LMMIWDATA[25] = CELL[3].IMUX_MUXA[6];
+				input LMMIWDATA[26] = CELL[3].IMUX_MUXA[5];
+				input LMMIWDATA[27] = CELL[3].IMUX_MUXA[4];
+				input LMMIWDATA[28] = CELL[3].IMUX_MUXA[3];
+				input LMMIWDATA[29] = CELL[3].IMUX_MUXA[2];
+				input LMMIWDATA[30] = CELL[3].IMUX_MUXA[1];
+				input LMMIWDATA[31] = CELL[3].IMUX_MUXA[0];
+				input LMMIWRRD_N = CELL[0].IMUX_MUXB[0];
+				input XMARREADY = CELL[0].IMUX_MUXB[4];
+				input XMAWREADY = CELL[0].IMUX_MUXB[1];
+				input XMRVALID = CELL[0].IMUX_MUXB[5];
+				input XMRID[0] = CELL[6].IMUX_MUXB[7];
+				input XMRID[1] = CELL[6].IMUX_MUXB[6];
+				input XMRID[2] = CELL[6].IMUX_MUXB[5];
+				input XMRID[3] = CELL[6].IMUX_MUXB[4];
+				input XMRID[4] = CELL[6].IMUX_MUXB[3];
+				input XMRID[5] = CELL[6].IMUX_MUXB[2];
+				input XMRID[6] = CELL[6].IMUX_MUXB[1];
+				input XMRID[7] = CELL[6].IMUX_MUXB[0];
+				input XMRDATA[0] = CELL[2].IMUX_MUXD[7];
+				input XMRDATA[1] = CELL[2].IMUX_MUXD[6];
+				input XMRDATA[2] = CELL[2].IMUX_MUXD[5];
+				input XMRDATA[3] = CELL[2].IMUX_MUXD[4];
+				input XMRDATA[4] = CELL[2].IMUX_MUXD[3];
+				input XMRDATA[5] = CELL[2].IMUX_MUXD[2];
+				input XMRDATA[6] = CELL[2].IMUX_MUXD[1];
+				input XMRDATA[7] = CELL[2].IMUX_MUXD[0];
+				input XMRDATA[8] = CELL[2].IMUX_MUXC[7];
+				input XMRDATA[9] = CELL[2].IMUX_MUXC[6];
+				input XMRDATA[10] = CELL[2].IMUX_MUXC[5];
+				input XMRDATA[11] = CELL[2].IMUX_MUXC[4];
+				input XMRDATA[12] = CELL[2].IMUX_MUXC[3];
+				input XMRDATA[13] = CELL[2].IMUX_MUXC[2];
+				input XMRDATA[14] = CELL[2].IMUX_MUXC[1];
+				input XMRDATA[15] = CELL[2].IMUX_MUXC[0];
+				input XMRDATA[16] = CELL[2].IMUX_MUXB[7];
+				input XMRDATA[17] = CELL[2].IMUX_MUXB[6];
+				input XMRDATA[18] = CELL[2].IMUX_MUXB[5];
+				input XMRDATA[19] = CELL[2].IMUX_MUXB[4];
+				input XMRDATA[20] = CELL[2].IMUX_MUXB[3];
+				input XMRDATA[21] = CELL[2].IMUX_MUXB[2];
+				input XMRDATA[22] = CELL[2].IMUX_MUXB[1];
+				input XMRDATA[23] = CELL[2].IMUX_MUXB[0];
+				input XMRDATA[24] = CELL[2].IMUX_MUXA[7];
+				input XMRDATA[25] = CELL[2].IMUX_MUXA[6];
+				input XMRDATA[26] = CELL[2].IMUX_MUXA[5];
+				input XMRDATA[27] = CELL[2].IMUX_MUXA[4];
+				input XMRDATA[28] = CELL[2].IMUX_MUXA[3];
+				input XMRDATA[29] = CELL[2].IMUX_MUXA[2];
+				input XMRDATA[30] = CELL[2].IMUX_MUXA[1];
+				input XMRDATA[31] = CELL[2].IMUX_MUXA[0];
+				input XMRDATA[32] = CELL[1].IMUX_MUXD[7];
+				input XMRDATA[33] = CELL[1].IMUX_MUXD[6];
+				input XMRDATA[34] = CELL[1].IMUX_MUXD[5];
+				input XMRDATA[35] = CELL[1].IMUX_MUXD[4];
+				input XMRDATA[36] = CELL[1].IMUX_MUXD[3];
+				input XMRDATA[37] = CELL[1].IMUX_MUXD[2];
+				input XMRDATA[38] = CELL[1].IMUX_MUXD[1];
+				input XMRDATA[39] = CELL[1].IMUX_MUXD[0];
+				input XMRDATA[40] = CELL[1].IMUX_MUXC[7];
+				input XMRDATA[41] = CELL[1].IMUX_MUXC[6];
+				input XMRDATA[42] = CELL[1].IMUX_MUXC[5];
+				input XMRDATA[43] = CELL[1].IMUX_MUXC[4];
+				input XMRDATA[44] = CELL[1].IMUX_MUXC[3];
+				input XMRDATA[45] = CELL[1].IMUX_MUXC[2];
+				input XMRDATA[46] = CELL[1].IMUX_MUXC[1];
+				input XMRDATA[47] = CELL[1].IMUX_MUXC[0];
+				input XMRDATA[48] = CELL[1].IMUX_MUXB[7];
+				input XMRDATA[49] = CELL[1].IMUX_MUXB[6];
+				input XMRDATA[50] = CELL[1].IMUX_MUXB[5];
+				input XMRDATA[51] = CELL[1].IMUX_MUXB[4];
+				input XMRDATA[52] = CELL[1].IMUX_MUXB[3];
+				input XMRDATA[53] = CELL[1].IMUX_MUXB[2];
+				input XMRDATA[54] = CELL[1].IMUX_MUXB[1];
+				input XMRDATA[55] = CELL[1].IMUX_MUXB[0];
+				input XMRDATA[56] = CELL[1].IMUX_MUXA[7];
+				input XMRDATA[57] = CELL[1].IMUX_MUXA[6];
+				input XMRDATA[58] = CELL[1].IMUX_MUXA[5];
+				input XMRDATA[59] = CELL[1].IMUX_MUXA[4];
+				input XMRDATA[60] = CELL[1].IMUX_MUXA[3];
+				input XMRDATA[61] = CELL[1].IMUX_MUXA[2];
+				input XMRDATA[62] = CELL[1].IMUX_MUXA[1];
+				input XMRDATA[63] = CELL[1].IMUX_MUXA[0];
+				input XMRLAST = CELL[0].IMUX_MUXB[6];
+				input XMRRESP[0] = CELL[6].IMUX_MUXD[3];
+				input XMRRESP[1] = CELL[6].IMUX_MUXD[2];
+				input XMRMISC_INFO[0] = CELL[6].IMUX_MUXC[7];
+				input XMRMISC_INFO[1] = CELL[6].IMUX_MUXC[6];
+				input XMRMISC_INFO[2] = CELL[6].IMUX_MUXC[5];
+				input XMRMISC_INFO[3] = CELL[6].IMUX_MUXC[4];
+				input XMWREADY = CELL[0].IMUX_MUXB[2];
+				input XMBVALID = CELL[0].IMUX_MUXB[3];
+				input XMBID[0] = CELL[6].IMUX_MUXA[7];
+				input XMBID[1] = CELL[6].IMUX_MUXA[6];
+				input XMBID[2] = CELL[6].IMUX_MUXA[5];
+				input XMBID[3] = CELL[6].IMUX_MUXA[4];
+				input XMBID[4] = CELL[6].IMUX_MUXA[3];
+				input XMBID[5] = CELL[6].IMUX_MUXA[2];
+				input XMBID[6] = CELL[6].IMUX_MUXA[1];
+				input XMBID[7] = CELL[6].IMUX_MUXA[0];
+				input XMBRESP[0] = CELL[6].IMUX_MUXD[1];
+				input XMBRESP[1] = CELL[6].IMUX_MUXD[0];
+				input XMBMISC_INFO[0] = CELL[6].IMUX_MUXC[3];
+				input XMBMISC_INFO[1] = CELL[6].IMUX_MUXC[2];
+				input XMBMISC_INFO[2] = CELL[6].IMUX_MUXC[1];
+				input XMBMISC_INFO[3] = CELL[6].IMUX_MUXC[0];
+				input XMCSYSREQ = CELL[0].IMUX_MUXB[7];
+				input USBPHY_REFCLK_ALT = CELL[5].IMUX_CLK[0];
+				input USB_RESETN = CELL[0].IMUX_LSR[0];
+				input USB2_RESET = CELL[1].IMUX_LSR[0];
+				input USB3_SYSRSTN = CELL[0].IMUX_LSR[1];
+				input USB3_MCUCLK = CELL[1].IMUX_CLK[1];
+				input USB_SUSPENDCLK = CELL[1].IMUX_CLK[0];
+				input DISRXDETU3RXDET = CELL[0].IMUX_MUXC[1];
+				input STARTRXDETU3RXDET = CELL[0].IMUX_MUXC[0];
+				input SS_TX_ACJT_HIGHZ = CELL[0].IMUX_MUXD[1];
+				input SS_TX_ACJT_DATAIN = CELL[0].IMUX_MUXD[0];
+				input SS_TX_ACJT_DRVEN = CELL[0].IMUX_MUXC[7];
+				input SS_RX_ACJT_MODE = CELL[0].IMUX_MUXC[6];
+				input SS_RX_ACJT_INIT_EN = CELL[0].IMUX_MUXC[5];
+				input SS_RX_ACJT_INIP = CELL[0].IMUX_MUXC[4];
+				input SS_RX_ACJT_ININ = CELL[0].IMUX_MUXC[3];
+				input SS_RX_ACJT_EN = CELL[0].IMUX_MUXC[2];
+				input SCANEN_USB2PHY = CELL[0].IMUX_MUXD[7];
+				input SCANEN_USB3PHY = CELL[0].IMUX_MUXD[5];
+				input SCANEN_CGUSB3PHY = CELL[0].IMUX_MUXD[6];
+				input SCANEN_CTRL = CELL[0].IMUX_MUXD[4];
+				output LMMIRDATA[0] = CELL[5].OUT_Q[7];
+				output LMMIRDATA[1] = CELL[5].OUT_Q[6];
+				output LMMIRDATA[2] = CELL[5].OUT_Q[5];
+				output LMMIRDATA[3] = CELL[5].OUT_Q[4];
+				output LMMIRDATA[4] = CELL[5].OUT_Q[3];
+				output LMMIRDATA[5] = CELL[5].OUT_Q[2];
+				output LMMIRDATA[6] = CELL[5].OUT_Q[1];
+				output LMMIRDATA[7] = CELL[5].OUT_Q[0];
+				output LMMIRDATA[8] = CELL[5].OUT_F[7];
+				output LMMIRDATA[9] = CELL[5].OUT_F[6];
+				output LMMIRDATA[10] = CELL[5].OUT_F[5];
+				output LMMIRDATA[11] = CELL[5].OUT_F[4];
+				output LMMIRDATA[12] = CELL[5].OUT_F[3];
+				output LMMIRDATA[13] = CELL[5].OUT_F[2];
+				output LMMIRDATA[14] = CELL[5].OUT_F[1];
+				output LMMIRDATA[15] = CELL[5].OUT_F[0];
+				output LMMIRDATA[16] = CELL[4].OUT_Q[7];
+				output LMMIRDATA[17] = CELL[4].OUT_Q[6];
+				output LMMIRDATA[18] = CELL[4].OUT_Q[5];
+				output LMMIRDATA[19] = CELL[4].OUT_Q[4];
+				output LMMIRDATA[20] = CELL[4].OUT_Q[3];
+				output LMMIRDATA[21] = CELL[4].OUT_Q[2];
+				output LMMIRDATA[22] = CELL[4].OUT_Q[1];
+				output LMMIRDATA[23] = CELL[4].OUT_Q[0];
+				output LMMIRDATA[24] = CELL[4].OUT_F[7];
+				output LMMIRDATA[25] = CELL[4].OUT_F[6];
+				output LMMIRDATA[26] = CELL[4].OUT_F[5];
+				output LMMIRDATA[27] = CELL[4].OUT_F[4];
+				output LMMIRDATA[28] = CELL[4].OUT_F[3];
+				output LMMIRDATA[29] = CELL[4].OUT_F[2];
+				output LMMIRDATA[30] = CELL[4].OUT_F[1];
+				output LMMIRDATA[31] = CELL[4].OUT_F[0];
+				output LMMIRDATAVALID = CELL[16].OUT_Q[2];
+				output LMMIREADY = CELL[16].OUT_Q[3];
+				output XMARVALID = CELL[17].OUT_F[0];
+				output XMARID[0] = CELL[15].OUT_F[7];
+				output XMARID[1] = CELL[15].OUT_F[6];
+				output XMARID[2] = CELL[15].OUT_F[5];
+				output XMARID[3] = CELL[15].OUT_F[4];
+				output XMARID[4] = CELL[15].OUT_F[3];
+				output XMARID[5] = CELL[15].OUT_F[2];
+				output XMARID[6] = CELL[15].OUT_F[1];
+				output XMARID[7] = CELL[15].OUT_F[0];
+				output XMARADDR[0] = CELL[9].OUT_Q[7];
+				output XMARADDR[1] = CELL[9].OUT_Q[6];
+				output XMARADDR[2] = CELL[9].OUT_Q[5];
+				output XMARADDR[3] = CELL[9].OUT_Q[4];
+				output XMARADDR[4] = CELL[9].OUT_Q[3];
+				output XMARADDR[5] = CELL[9].OUT_Q[2];
+				output XMARADDR[6] = CELL[9].OUT_Q[1];
+				output XMARADDR[7] = CELL[9].OUT_Q[0];
+				output XMARADDR[8] = CELL[9].OUT_F[7];
+				output XMARADDR[9] = CELL[9].OUT_F[6];
+				output XMARADDR[10] = CELL[9].OUT_F[5];
+				output XMARADDR[11] = CELL[9].OUT_F[4];
+				output XMARADDR[12] = CELL[9].OUT_F[3];
+				output XMARADDR[13] = CELL[9].OUT_F[2];
+				output XMARADDR[14] = CELL[9].OUT_F[1];
+				output XMARADDR[15] = CELL[9].OUT_F[0];
+				output XMARADDR[16] = CELL[8].OUT_Q[7];
+				output XMARADDR[17] = CELL[8].OUT_Q[6];
+				output XMARADDR[18] = CELL[8].OUT_Q[5];
+				output XMARADDR[19] = CELL[8].OUT_Q[4];
+				output XMARADDR[20] = CELL[8].OUT_Q[3];
+				output XMARADDR[21] = CELL[8].OUT_Q[2];
+				output XMARADDR[22] = CELL[8].OUT_Q[1];
+				output XMARADDR[23] = CELL[8].OUT_Q[0];
+				output XMARADDR[24] = CELL[8].OUT_F[7];
+				output XMARADDR[25] = CELL[8].OUT_F[6];
+				output XMARADDR[26] = CELL[8].OUT_F[5];
+				output XMARADDR[27] = CELL[8].OUT_F[4];
+				output XMARADDR[28] = CELL[8].OUT_F[3];
+				output XMARADDR[29] = CELL[8].OUT_F[2];
+				output XMARADDR[30] = CELL[8].OUT_F[1];
+				output XMARADDR[31] = CELL[8].OUT_F[0];
+				output XMARLEN[0] = CELL[15].OUT_Q[7];
+				output XMARLEN[1] = CELL[15].OUT_Q[6];
+				output XMARLEN[2] = CELL[15].OUT_Q[5];
+				output XMARLEN[3] = CELL[15].OUT_Q[4];
+				output XMARLEN[4] = CELL[15].OUT_Q[3];
+				output XMARLEN[5] = CELL[15].OUT_Q[2];
+				output XMARLEN[6] = CELL[15].OUT_Q[1];
+				output XMARLEN[7] = CELL[15].OUT_Q[0];
+				output XMARCACHE[0] = CELL[19].OUT_Q[3];
+				output XMARCACHE[1] = CELL[19].OUT_Q[2];
+				output XMARCACHE[2] = CELL[19].OUT_Q[1];
+				output XMARCACHE[3] = CELL[19].OUT_Q[0];
+				output XMARPROT[0] = CELL[19].OUT_F[7];
+				output XMARPROT[1] = CELL[19].OUT_F[6];
+				output XMARPROT[2] = CELL[19].OUT_F[5];
+				output XMARSIZE[0] = CELL[19].OUT_F[4];
+				output XMARSIZE[1] = CELL[19].OUT_F[3];
+				output XMARSIZE[2] = CELL[19].OUT_F[2];
+				output XMARLOCK[0] = CELL[16].OUT_F[7];
+				output XMARLOCK[1] = CELL[16].OUT_F[6];
+				output XMARBURST[0] = CELL[16].OUT_F[5];
+				output XMARBURST[1] = CELL[16].OUT_F[4];
+				output XMARMISC_INFO[0] = CELL[19].OUT_Q[7];
+				output XMARMISC_INFO[1] = CELL[19].OUT_Q[6];
+				output XMARMISC_INFO[2] = CELL[19].OUT_Q[5];
+				output XMARMISC_INFO[3] = CELL[19].OUT_Q[4];
+				output XMAWVALID = CELL[16].OUT_Q[4];
+				output XMAWID[0] = CELL[13].OUT_F[7];
+				output XMAWID[1] = CELL[13].OUT_F[6];
+				output XMAWID[2] = CELL[13].OUT_F[5];
+				output XMAWID[3] = CELL[13].OUT_F[4];
+				output XMAWID[4] = CELL[13].OUT_F[3];
+				output XMAWID[5] = CELL[13].OUT_F[2];
+				output XMAWID[6] = CELL[13].OUT_F[1];
+				output XMAWID[7] = CELL[13].OUT_F[0];
+				output XMAWADDR[0] = CELL[7].OUT_Q[7];
+				output XMAWADDR[1] = CELL[7].OUT_Q[6];
+				output XMAWADDR[2] = CELL[7].OUT_Q[5];
+				output XMAWADDR[3] = CELL[7].OUT_Q[4];
+				output XMAWADDR[4] = CELL[7].OUT_Q[3];
+				output XMAWADDR[5] = CELL[7].OUT_Q[2];
+				output XMAWADDR[6] = CELL[7].OUT_Q[1];
+				output XMAWADDR[7] = CELL[7].OUT_Q[0];
+				output XMAWADDR[8] = CELL[7].OUT_F[7];
+				output XMAWADDR[9] = CELL[7].OUT_F[6];
+				output XMAWADDR[10] = CELL[7].OUT_F[5];
+				output XMAWADDR[11] = CELL[7].OUT_F[4];
+				output XMAWADDR[12] = CELL[7].OUT_F[3];
+				output XMAWADDR[13] = CELL[7].OUT_F[2];
+				output XMAWADDR[14] = CELL[7].OUT_F[1];
+				output XMAWADDR[15] = CELL[7].OUT_F[0];
+				output XMAWADDR[16] = CELL[6].OUT_Q[7];
+				output XMAWADDR[17] = CELL[6].OUT_Q[6];
+				output XMAWADDR[18] = CELL[6].OUT_Q[5];
+				output XMAWADDR[19] = CELL[6].OUT_Q[4];
+				output XMAWADDR[20] = CELL[6].OUT_Q[3];
+				output XMAWADDR[21] = CELL[6].OUT_Q[2];
+				output XMAWADDR[22] = CELL[6].OUT_Q[1];
+				output XMAWADDR[23] = CELL[6].OUT_Q[0];
+				output XMAWADDR[24] = CELL[6].OUT_F[7];
+				output XMAWADDR[25] = CELL[6].OUT_F[6];
+				output XMAWADDR[26] = CELL[6].OUT_F[5];
+				output XMAWADDR[27] = CELL[6].OUT_F[4];
+				output XMAWADDR[28] = CELL[6].OUT_F[3];
+				output XMAWADDR[29] = CELL[6].OUT_F[2];
+				output XMAWADDR[30] = CELL[6].OUT_F[1];
+				output XMAWADDR[31] = CELL[6].OUT_F[0];
+				output XMAWLEN[0] = CELL[13].OUT_Q[7];
+				output XMAWLEN[1] = CELL[13].OUT_Q[6];
+				output XMAWLEN[2] = CELL[13].OUT_Q[5];
+				output XMAWLEN[3] = CELL[13].OUT_Q[4];
+				output XMAWLEN[4] = CELL[13].OUT_Q[3];
+				output XMAWLEN[5] = CELL[13].OUT_Q[2];
+				output XMAWLEN[6] = CELL[13].OUT_Q[1];
+				output XMAWLEN[7] = CELL[13].OUT_Q[0];
+				output XMAWCACHE[0] = CELL[17].OUT_Q[3];
+				output XMAWCACHE[1] = CELL[17].OUT_Q[2];
+				output XMAWCACHE[2] = CELL[17].OUT_Q[1];
+				output XMAWCACHE[3] = CELL[17].OUT_Q[0];
+				output XMAWPROT[0] = CELL[18].OUT_F[5];
+				output XMAWPROT[1] = CELL[18].OUT_F[4];
+				output XMAWPROT[2] = CELL[18].OUT_F[3];
+				output XMAWSIZE[0] = CELL[18].OUT_F[2];
+				output XMAWSIZE[1] = CELL[18].OUT_F[1];
+				output XMAWSIZE[2] = CELL[18].OUT_F[0];
+				output XMAWLOCK[0] = CELL[16].OUT_F[3];
+				output XMAWLOCK[1] = CELL[16].OUT_F[2];
+				output XMAWBURST[0] = CELL[16].OUT_F[1];
+				output XMAWBURST[1] = CELL[16].OUT_F[0];
+				output XMAWMISC_INFO[0] = CELL[17].OUT_Q[7];
+				output XMAWMISC_INFO[1] = CELL[17].OUT_Q[6];
+				output XMAWMISC_INFO[2] = CELL[17].OUT_Q[5];
+				output XMAWMISC_INFO[3] = CELL[17].OUT_Q[4];
+				output XMRREADY = CELL[17].OUT_F[1];
+				output XMWVALID = CELL[16].OUT_Q[5];
+				output XMWID[0] = CELL[14].OUT_F[7];
+				output XMWID[1] = CELL[14].OUT_F[6];
+				output XMWID[2] = CELL[14].OUT_F[5];
+				output XMWID[3] = CELL[14].OUT_F[4];
+				output XMWID[4] = CELL[14].OUT_F[3];
+				output XMWID[5] = CELL[14].OUT_F[2];
+				output XMWID[6] = CELL[14].OUT_F[1];
+				output XMWID[7] = CELL[14].OUT_F[0];
+				output XMWDATA[0] = CELL[3].OUT_Q[7];
+				output XMWDATA[1] = CELL[3].OUT_Q[6];
+				output XMWDATA[2] = CELL[3].OUT_Q[5];
+				output XMWDATA[3] = CELL[3].OUT_Q[4];
+				output XMWDATA[4] = CELL[3].OUT_Q[3];
+				output XMWDATA[5] = CELL[3].OUT_Q[2];
+				output XMWDATA[6] = CELL[3].OUT_Q[1];
+				output XMWDATA[7] = CELL[3].OUT_Q[0];
+				output XMWDATA[8] = CELL[3].OUT_F[7];
+				output XMWDATA[9] = CELL[3].OUT_F[6];
+				output XMWDATA[10] = CELL[3].OUT_F[5];
+				output XMWDATA[11] = CELL[3].OUT_F[4];
+				output XMWDATA[12] = CELL[3].OUT_F[3];
+				output XMWDATA[13] = CELL[3].OUT_F[2];
+				output XMWDATA[14] = CELL[3].OUT_F[1];
+				output XMWDATA[15] = CELL[3].OUT_F[0];
+				output XMWDATA[16] = CELL[2].OUT_Q[7];
+				output XMWDATA[17] = CELL[2].OUT_Q[6];
+				output XMWDATA[18] = CELL[2].OUT_Q[5];
+				output XMWDATA[19] = CELL[2].OUT_Q[4];
+				output XMWDATA[20] = CELL[2].OUT_Q[3];
+				output XMWDATA[21] = CELL[2].OUT_Q[2];
+				output XMWDATA[22] = CELL[2].OUT_Q[1];
+				output XMWDATA[23] = CELL[2].OUT_Q[0];
+				output XMWDATA[24] = CELL[2].OUT_F[7];
+				output XMWDATA[25] = CELL[2].OUT_F[6];
+				output XMWDATA[26] = CELL[2].OUT_F[5];
+				output XMWDATA[27] = CELL[2].OUT_F[4];
+				output XMWDATA[28] = CELL[2].OUT_F[3];
+				output XMWDATA[29] = CELL[2].OUT_F[2];
+				output XMWDATA[30] = CELL[2].OUT_F[1];
+				output XMWDATA[31] = CELL[2].OUT_F[0];
+				output XMWDATA[32] = CELL[1].OUT_Q[7];
+				output XMWDATA[33] = CELL[1].OUT_Q[6];
+				output XMWDATA[34] = CELL[1].OUT_Q[5];
+				output XMWDATA[35] = CELL[1].OUT_Q[4];
+				output XMWDATA[36] = CELL[1].OUT_Q[3];
+				output XMWDATA[37] = CELL[1].OUT_Q[2];
+				output XMWDATA[38] = CELL[1].OUT_Q[1];
+				output XMWDATA[39] = CELL[1].OUT_Q[0];
+				output XMWDATA[40] = CELL[1].OUT_F[7];
+				output XMWDATA[41] = CELL[1].OUT_F[6];
+				output XMWDATA[42] = CELL[1].OUT_F[5];
+				output XMWDATA[43] = CELL[1].OUT_F[4];
+				output XMWDATA[44] = CELL[1].OUT_F[3];
+				output XMWDATA[45] = CELL[1].OUT_F[2];
+				output XMWDATA[46] = CELL[1].OUT_F[1];
+				output XMWDATA[47] = CELL[1].OUT_F[0];
+				output XMWDATA[48] = CELL[0].OUT_Q[7];
+				output XMWDATA[49] = CELL[0].OUT_Q[6];
+				output XMWDATA[50] = CELL[0].OUT_Q[5];
+				output XMWDATA[51] = CELL[0].OUT_Q[4];
+				output XMWDATA[52] = CELL[0].OUT_Q[3];
+				output XMWDATA[53] = CELL[0].OUT_Q[2];
+				output XMWDATA[54] = CELL[0].OUT_Q[1];
+				output XMWDATA[55] = CELL[0].OUT_Q[0];
+				output XMWDATA[56] = CELL[0].OUT_F[7];
+				output XMWDATA[57] = CELL[0].OUT_F[6];
+				output XMWDATA[58] = CELL[0].OUT_F[5];
+				output XMWDATA[59] = CELL[0].OUT_F[4];
+				output XMWDATA[60] = CELL[0].OUT_F[3];
+				output XMWDATA[61] = CELL[0].OUT_F[2];
+				output XMWDATA[62] = CELL[0].OUT_F[1];
+				output XMWDATA[63] = CELL[0].OUT_F[0];
+				output XMWSTRB[0] = CELL[14].OUT_Q[7];
+				output XMWSTRB[1] = CELL[14].OUT_Q[6];
+				output XMWSTRB[2] = CELL[14].OUT_Q[5];
+				output XMWSTRB[3] = CELL[14].OUT_Q[4];
+				output XMWSTRB[4] = CELL[14].OUT_Q[3];
+				output XMWSTRB[5] = CELL[14].OUT_Q[2];
+				output XMWSTRB[6] = CELL[14].OUT_Q[1];
+				output XMWSTRB[7] = CELL[14].OUT_Q[0];
+				output XMWLAST = CELL[16].OUT_Q[6];
+				output XMBREADY = CELL[16].OUT_Q[7];
+				output XMCACTIVE = CELL[17].OUT_F[3];
+				output XMCSYSACK = CELL[17].OUT_F[2];
+				output INTERRUPT = CELL[17].OUT_F[5];
+				output DISRXDETU3RXDETACK = CELL[17].OUT_F[4];
+				output SS_RX_ACJT_OUTP = CELL[17].OUT_F[7];
+				output SS_RX_ACJT_OUTN = CELL[17].OUT_F[6];
+			}
+
+			// wire CELL[0].IMUX_MUXA[7]           USB.LMMIREQUEST
+			// wire CELL[0].IMUX_MUXB[0]           USB.LMMIWRRD_N
+			// wire CELL[0].IMUX_MUXB[1]           USB.XMAWREADY
+			// wire CELL[0].IMUX_MUXB[2]           USB.XMWREADY
+			// wire CELL[0].IMUX_MUXB[3]           USB.XMBVALID
+			// wire CELL[0].IMUX_MUXB[4]           USB.XMARREADY
+			// wire CELL[0].IMUX_MUXB[5]           USB.XMRVALID
+			// wire CELL[0].IMUX_MUXB[6]           USB.XMRLAST
+			// wire CELL[0].IMUX_MUXB[7]           USB.XMCSYSREQ
+			// wire CELL[0].IMUX_MUXC[0]           USB.STARTRXDETU3RXDET
+			// wire CELL[0].IMUX_MUXC[1]           USB.DISRXDETU3RXDET
+			// wire CELL[0].IMUX_MUXC[2]           USB.SS_RX_ACJT_EN
+			// wire CELL[0].IMUX_MUXC[3]           USB.SS_RX_ACJT_ININ
+			// wire CELL[0].IMUX_MUXC[4]           USB.SS_RX_ACJT_INIP
+			// wire CELL[0].IMUX_MUXC[5]           USB.SS_RX_ACJT_INIT_EN
+			// wire CELL[0].IMUX_MUXC[6]           USB.SS_RX_ACJT_MODE
+			// wire CELL[0].IMUX_MUXC[7]           USB.SS_TX_ACJT_DRVEN
+			// wire CELL[0].IMUX_MUXD[0]           USB.SS_TX_ACJT_DATAIN
+			// wire CELL[0].IMUX_MUXD[1]           USB.SS_TX_ACJT_HIGHZ
+			// wire CELL[0].IMUX_MUXD[4]           USB.SCANEN_CTRL
+			// wire CELL[0].IMUX_MUXD[5]           USB.SCANEN_USB3PHY
+			// wire CELL[0].IMUX_MUXD[6]           USB.SCANEN_CGUSB3PHY
+			// wire CELL[0].IMUX_MUXD[7]           USB.SCANEN_USB2PHY
+			// wire CELL[0].IMUX_CLK[0]            USB.LMMICLK
+			// wire CELL[0].IMUX_LSR[0]            USB.USB_RESETN
+			// wire CELL[0].IMUX_LSR[1]            USB.USB3_SYSRSTN
+			// wire CELL[0].OUT_F[0]               USB.XMWDATA[63]
+			// wire CELL[0].OUT_F[1]               USB.XMWDATA[62]
+			// wire CELL[0].OUT_F[2]               USB.XMWDATA[61]
+			// wire CELL[0].OUT_F[3]               USB.XMWDATA[60]
+			// wire CELL[0].OUT_F[4]               USB.XMWDATA[59]
+			// wire CELL[0].OUT_F[5]               USB.XMWDATA[58]
+			// wire CELL[0].OUT_F[6]               USB.XMWDATA[57]
+			// wire CELL[0].OUT_F[7]               USB.XMWDATA[56]
+			// wire CELL[0].OUT_Q[0]               USB.XMWDATA[55]
+			// wire CELL[0].OUT_Q[1]               USB.XMWDATA[54]
+			// wire CELL[0].OUT_Q[2]               USB.XMWDATA[53]
+			// wire CELL[0].OUT_Q[3]               USB.XMWDATA[52]
+			// wire CELL[0].OUT_Q[4]               USB.XMWDATA[51]
+			// wire CELL[0].OUT_Q[5]               USB.XMWDATA[50]
+			// wire CELL[0].OUT_Q[6]               USB.XMWDATA[49]
+			// wire CELL[0].OUT_Q[7]               USB.XMWDATA[48]
+			// wire CELL[1].IMUX_MUXA[0]           USB.XMRDATA[63]
+			// wire CELL[1].IMUX_MUXA[1]           USB.XMRDATA[62]
+			// wire CELL[1].IMUX_MUXA[2]           USB.XMRDATA[61]
+			// wire CELL[1].IMUX_MUXA[3]           USB.XMRDATA[60]
+			// wire CELL[1].IMUX_MUXA[4]           USB.XMRDATA[59]
+			// wire CELL[1].IMUX_MUXA[5]           USB.XMRDATA[58]
+			// wire CELL[1].IMUX_MUXA[6]           USB.XMRDATA[57]
+			// wire CELL[1].IMUX_MUXA[7]           USB.XMRDATA[56]
+			// wire CELL[1].IMUX_MUXB[0]           USB.XMRDATA[55]
+			// wire CELL[1].IMUX_MUXB[1]           USB.XMRDATA[54]
+			// wire CELL[1].IMUX_MUXB[2]           USB.XMRDATA[53]
+			// wire CELL[1].IMUX_MUXB[3]           USB.XMRDATA[52]
+			// wire CELL[1].IMUX_MUXB[4]           USB.XMRDATA[51]
+			// wire CELL[1].IMUX_MUXB[5]           USB.XMRDATA[50]
+			// wire CELL[1].IMUX_MUXB[6]           USB.XMRDATA[49]
+			// wire CELL[1].IMUX_MUXB[7]           USB.XMRDATA[48]
+			// wire CELL[1].IMUX_MUXC[0]           USB.XMRDATA[47]
+			// wire CELL[1].IMUX_MUXC[1]           USB.XMRDATA[46]
+			// wire CELL[1].IMUX_MUXC[2]           USB.XMRDATA[45]
+			// wire CELL[1].IMUX_MUXC[3]           USB.XMRDATA[44]
+			// wire CELL[1].IMUX_MUXC[4]           USB.XMRDATA[43]
+			// wire CELL[1].IMUX_MUXC[5]           USB.XMRDATA[42]
+			// wire CELL[1].IMUX_MUXC[6]           USB.XMRDATA[41]
+			// wire CELL[1].IMUX_MUXC[7]           USB.XMRDATA[40]
+			// wire CELL[1].IMUX_MUXD[0]           USB.XMRDATA[39]
+			// wire CELL[1].IMUX_MUXD[1]           USB.XMRDATA[38]
+			// wire CELL[1].IMUX_MUXD[2]           USB.XMRDATA[37]
+			// wire CELL[1].IMUX_MUXD[3]           USB.XMRDATA[36]
+			// wire CELL[1].IMUX_MUXD[4]           USB.XMRDATA[35]
+			// wire CELL[1].IMUX_MUXD[5]           USB.XMRDATA[34]
+			// wire CELL[1].IMUX_MUXD[6]           USB.XMRDATA[33]
+			// wire CELL[1].IMUX_MUXD[7]           USB.XMRDATA[32]
+			// wire CELL[1].IMUX_CLK[0]            USB.USB_SUSPENDCLK
+			// wire CELL[1].IMUX_CLK[1]            USB.USB3_MCUCLK
+			// wire CELL[1].IMUX_LSR[0]            USB.USB2_RESET
+			// wire CELL[1].IMUX_LSR[1]            USB.LMMIRESETN
+			// wire CELL[1].OUT_F[0]               USB.XMWDATA[47]
+			// wire CELL[1].OUT_F[1]               USB.XMWDATA[46]
+			// wire CELL[1].OUT_F[2]               USB.XMWDATA[45]
+			// wire CELL[1].OUT_F[3]               USB.XMWDATA[44]
+			// wire CELL[1].OUT_F[4]               USB.XMWDATA[43]
+			// wire CELL[1].OUT_F[5]               USB.XMWDATA[42]
+			// wire CELL[1].OUT_F[6]               USB.XMWDATA[41]
+			// wire CELL[1].OUT_F[7]               USB.XMWDATA[40]
+			// wire CELL[1].OUT_Q[0]               USB.XMWDATA[39]
+			// wire CELL[1].OUT_Q[1]               USB.XMWDATA[38]
+			// wire CELL[1].OUT_Q[2]               USB.XMWDATA[37]
+			// wire CELL[1].OUT_Q[3]               USB.XMWDATA[36]
+			// wire CELL[1].OUT_Q[4]               USB.XMWDATA[35]
+			// wire CELL[1].OUT_Q[5]               USB.XMWDATA[34]
+			// wire CELL[1].OUT_Q[6]               USB.XMWDATA[33]
+			// wire CELL[1].OUT_Q[7]               USB.XMWDATA[32]
+			// wire CELL[2].IMUX_MUXA[0]           USB.XMRDATA[31]
+			// wire CELL[2].IMUX_MUXA[1]           USB.XMRDATA[30]
+			// wire CELL[2].IMUX_MUXA[2]           USB.XMRDATA[29]
+			// wire CELL[2].IMUX_MUXA[3]           USB.XMRDATA[28]
+			// wire CELL[2].IMUX_MUXA[4]           USB.XMRDATA[27]
+			// wire CELL[2].IMUX_MUXA[5]           USB.XMRDATA[26]
+			// wire CELL[2].IMUX_MUXA[6]           USB.XMRDATA[25]
+			// wire CELL[2].IMUX_MUXA[7]           USB.XMRDATA[24]
+			// wire CELL[2].IMUX_MUXB[0]           USB.XMRDATA[23]
+			// wire CELL[2].IMUX_MUXB[1]           USB.XMRDATA[22]
+			// wire CELL[2].IMUX_MUXB[2]           USB.XMRDATA[21]
+			// wire CELL[2].IMUX_MUXB[3]           USB.XMRDATA[20]
+			// wire CELL[2].IMUX_MUXB[4]           USB.XMRDATA[19]
+			// wire CELL[2].IMUX_MUXB[5]           USB.XMRDATA[18]
+			// wire CELL[2].IMUX_MUXB[6]           USB.XMRDATA[17]
+			// wire CELL[2].IMUX_MUXB[7]           USB.XMRDATA[16]
+			// wire CELL[2].IMUX_MUXC[0]           USB.XMRDATA[15]
+			// wire CELL[2].IMUX_MUXC[1]           USB.XMRDATA[14]
+			// wire CELL[2].IMUX_MUXC[2]           USB.XMRDATA[13]
+			// wire CELL[2].IMUX_MUXC[3]           USB.XMRDATA[12]
+			// wire CELL[2].IMUX_MUXC[4]           USB.XMRDATA[11]
+			// wire CELL[2].IMUX_MUXC[5]           USB.XMRDATA[10]
+			// wire CELL[2].IMUX_MUXC[6]           USB.XMRDATA[9]
+			// wire CELL[2].IMUX_MUXC[7]           USB.XMRDATA[8]
+			// wire CELL[2].IMUX_MUXD[0]           USB.XMRDATA[7]
+			// wire CELL[2].IMUX_MUXD[1]           USB.XMRDATA[6]
+			// wire CELL[2].IMUX_MUXD[2]           USB.XMRDATA[5]
+			// wire CELL[2].IMUX_MUXD[3]           USB.XMRDATA[4]
+			// wire CELL[2].IMUX_MUXD[4]           USB.XMRDATA[3]
+			// wire CELL[2].IMUX_MUXD[5]           USB.XMRDATA[2]
+			// wire CELL[2].IMUX_MUXD[6]           USB.XMRDATA[1]
+			// wire CELL[2].IMUX_MUXD[7]           USB.XMRDATA[0]
+			// wire CELL[2].OUT_F[0]               USB.XMWDATA[31]
+			// wire CELL[2].OUT_F[1]               USB.XMWDATA[30]
+			// wire CELL[2].OUT_F[2]               USB.XMWDATA[29]
+			// wire CELL[2].OUT_F[3]               USB.XMWDATA[28]
+			// wire CELL[2].OUT_F[4]               USB.XMWDATA[27]
+			// wire CELL[2].OUT_F[5]               USB.XMWDATA[26]
+			// wire CELL[2].OUT_F[6]               USB.XMWDATA[25]
+			// wire CELL[2].OUT_F[7]               USB.XMWDATA[24]
+			// wire CELL[2].OUT_Q[0]               USB.XMWDATA[23]
+			// wire CELL[2].OUT_Q[1]               USB.XMWDATA[22]
+			// wire CELL[2].OUT_Q[2]               USB.XMWDATA[21]
+			// wire CELL[2].OUT_Q[3]               USB.XMWDATA[20]
+			// wire CELL[2].OUT_Q[4]               USB.XMWDATA[19]
+			// wire CELL[2].OUT_Q[5]               USB.XMWDATA[18]
+			// wire CELL[2].OUT_Q[6]               USB.XMWDATA[17]
+			// wire CELL[2].OUT_Q[7]               USB.XMWDATA[16]
+			// wire CELL[3].IMUX_MUXA[0]           USB.LMMIWDATA[31]
+			// wire CELL[3].IMUX_MUXA[1]           USB.LMMIWDATA[30]
+			// wire CELL[3].IMUX_MUXA[2]           USB.LMMIWDATA[29]
+			// wire CELL[3].IMUX_MUXA[3]           USB.LMMIWDATA[28]
+			// wire CELL[3].IMUX_MUXA[4]           USB.LMMIWDATA[27]
+			// wire CELL[3].IMUX_MUXA[5]           USB.LMMIWDATA[26]
+			// wire CELL[3].IMUX_MUXA[6]           USB.LMMIWDATA[25]
+			// wire CELL[3].IMUX_MUXA[7]           USB.LMMIWDATA[24]
+			// wire CELL[3].IMUX_MUXB[0]           USB.LMMIWDATA[23]
+			// wire CELL[3].IMUX_MUXB[1]           USB.LMMIWDATA[22]
+			// wire CELL[3].IMUX_MUXB[2]           USB.LMMIWDATA[21]
+			// wire CELL[3].IMUX_MUXB[3]           USB.LMMIWDATA[20]
+			// wire CELL[3].IMUX_MUXB[4]           USB.LMMIWDATA[19]
+			// wire CELL[3].IMUX_MUXB[5]           USB.LMMIWDATA[18]
+			// wire CELL[3].IMUX_MUXB[6]           USB.LMMIWDATA[17]
+			// wire CELL[3].IMUX_MUXB[7]           USB.LMMIWDATA[16]
+			// wire CELL[3].IMUX_MUXC[0]           USB.LMMIWDATA[15]
+			// wire CELL[3].IMUX_MUXC[1]           USB.LMMIWDATA[14]
+			// wire CELL[3].IMUX_MUXC[2]           USB.LMMIWDATA[13]
+			// wire CELL[3].IMUX_MUXC[3]           USB.LMMIWDATA[12]
+			// wire CELL[3].IMUX_MUXC[4]           USB.LMMIWDATA[11]
+			// wire CELL[3].IMUX_MUXC[5]           USB.LMMIWDATA[10]
+			// wire CELL[3].IMUX_MUXC[6]           USB.LMMIWDATA[9]
+			// wire CELL[3].IMUX_MUXC[7]           USB.LMMIWDATA[8]
+			// wire CELL[3].IMUX_MUXD[0]           USB.LMMIWDATA[7]
+			// wire CELL[3].IMUX_MUXD[1]           USB.LMMIWDATA[6]
+			// wire CELL[3].IMUX_MUXD[2]           USB.LMMIWDATA[5]
+			// wire CELL[3].IMUX_MUXD[3]           USB.LMMIWDATA[4]
+			// wire CELL[3].IMUX_MUXD[4]           USB.LMMIWDATA[3]
+			// wire CELL[3].IMUX_MUXD[5]           USB.LMMIWDATA[2]
+			// wire CELL[3].IMUX_MUXD[6]           USB.LMMIWDATA[1]
+			// wire CELL[3].IMUX_MUXD[7]           USB.LMMIWDATA[0]
+			// wire CELL[3].OUT_F[0]               USB.XMWDATA[15]
+			// wire CELL[3].OUT_F[1]               USB.XMWDATA[14]
+			// wire CELL[3].OUT_F[2]               USB.XMWDATA[13]
+			// wire CELL[3].OUT_F[3]               USB.XMWDATA[12]
+			// wire CELL[3].OUT_F[4]               USB.XMWDATA[11]
+			// wire CELL[3].OUT_F[5]               USB.XMWDATA[10]
+			// wire CELL[3].OUT_F[6]               USB.XMWDATA[9]
+			// wire CELL[3].OUT_F[7]               USB.XMWDATA[8]
+			// wire CELL[3].OUT_Q[0]               USB.XMWDATA[7]
+			// wire CELL[3].OUT_Q[1]               USB.XMWDATA[6]
+			// wire CELL[3].OUT_Q[2]               USB.XMWDATA[5]
+			// wire CELL[3].OUT_Q[3]               USB.XMWDATA[4]
+			// wire CELL[3].OUT_Q[4]               USB.XMWDATA[3]
+			// wire CELL[3].OUT_Q[5]               USB.XMWDATA[2]
+			// wire CELL[3].OUT_Q[6]               USB.XMWDATA[1]
+			// wire CELL[3].OUT_Q[7]               USB.XMWDATA[0]
+			// wire CELL[4].OUT_F[0]               USB.LMMIRDATA[31]
+			// wire CELL[4].OUT_F[1]               USB.LMMIRDATA[30]
+			// wire CELL[4].OUT_F[2]               USB.LMMIRDATA[29]
+			// wire CELL[4].OUT_F[3]               USB.LMMIRDATA[28]
+			// wire CELL[4].OUT_F[4]               USB.LMMIRDATA[27]
+			// wire CELL[4].OUT_F[5]               USB.LMMIRDATA[26]
+			// wire CELL[4].OUT_F[6]               USB.LMMIRDATA[25]
+			// wire CELL[4].OUT_F[7]               USB.LMMIRDATA[24]
+			// wire CELL[4].OUT_Q[0]               USB.LMMIRDATA[23]
+			// wire CELL[4].OUT_Q[1]               USB.LMMIRDATA[22]
+			// wire CELL[4].OUT_Q[2]               USB.LMMIRDATA[21]
+			// wire CELL[4].OUT_Q[3]               USB.LMMIRDATA[20]
+			// wire CELL[4].OUT_Q[4]               USB.LMMIRDATA[19]
+			// wire CELL[4].OUT_Q[5]               USB.LMMIRDATA[18]
+			// wire CELL[4].OUT_Q[6]               USB.LMMIRDATA[17]
+			// wire CELL[4].OUT_Q[7]               USB.LMMIRDATA[16]
+			// wire CELL[5].IMUX_MUXC[0]           USB.LMMIOFFSET[16]
+			// wire CELL[5].IMUX_MUXC[1]           USB.LMMIOFFSET[15]
+			// wire CELL[5].IMUX_MUXC[2]           USB.LMMIOFFSET[14]
+			// wire CELL[5].IMUX_MUXC[3]           USB.LMMIOFFSET[13]
+			// wire CELL[5].IMUX_MUXC[4]           USB.LMMIOFFSET[12]
+			// wire CELL[5].IMUX_MUXC[5]           USB.LMMIOFFSET[11]
+			// wire CELL[5].IMUX_MUXC[6]           USB.LMMIOFFSET[10]
+			// wire CELL[5].IMUX_MUXC[7]           USB.LMMIOFFSET[9]
+			// wire CELL[5].IMUX_MUXD[0]           USB.LMMIOFFSET[8]
+			// wire CELL[5].IMUX_MUXD[1]           USB.LMMIOFFSET[7]
+			// wire CELL[5].IMUX_MUXD[2]           USB.LMMIOFFSET[6]
+			// wire CELL[5].IMUX_MUXD[3]           USB.LMMIOFFSET[5]
+			// wire CELL[5].IMUX_MUXD[4]           USB.LMMIOFFSET[4]
+			// wire CELL[5].IMUX_MUXD[5]           USB.LMMIOFFSET[3]
+			// wire CELL[5].IMUX_MUXD[6]           USB.LMMIOFFSET[2]
+			// wire CELL[5].IMUX_CLK[0]            USB.USBPHY_REFCLK_ALT
+			// wire CELL[5].OUT_F[0]               USB.LMMIRDATA[15]
+			// wire CELL[5].OUT_F[1]               USB.LMMIRDATA[14]
+			// wire CELL[5].OUT_F[2]               USB.LMMIRDATA[13]
+			// wire CELL[5].OUT_F[3]               USB.LMMIRDATA[12]
+			// wire CELL[5].OUT_F[4]               USB.LMMIRDATA[11]
+			// wire CELL[5].OUT_F[5]               USB.LMMIRDATA[10]
+			// wire CELL[5].OUT_F[6]               USB.LMMIRDATA[9]
+			// wire CELL[5].OUT_F[7]               USB.LMMIRDATA[8]
+			// wire CELL[5].OUT_Q[0]               USB.LMMIRDATA[7]
+			// wire CELL[5].OUT_Q[1]               USB.LMMIRDATA[6]
+			// wire CELL[5].OUT_Q[2]               USB.LMMIRDATA[5]
+			// wire CELL[5].OUT_Q[3]               USB.LMMIRDATA[4]
+			// wire CELL[5].OUT_Q[4]               USB.LMMIRDATA[3]
+			// wire CELL[5].OUT_Q[5]               USB.LMMIRDATA[2]
+			// wire CELL[5].OUT_Q[6]               USB.LMMIRDATA[1]
+			// wire CELL[5].OUT_Q[7]               USB.LMMIRDATA[0]
+			// wire CELL[6].IMUX_MUXA[0]           USB.XMBID[7]
+			// wire CELL[6].IMUX_MUXA[1]           USB.XMBID[6]
+			// wire CELL[6].IMUX_MUXA[2]           USB.XMBID[5]
+			// wire CELL[6].IMUX_MUXA[3]           USB.XMBID[4]
+			// wire CELL[6].IMUX_MUXA[4]           USB.XMBID[3]
+			// wire CELL[6].IMUX_MUXA[5]           USB.XMBID[2]
+			// wire CELL[6].IMUX_MUXA[6]           USB.XMBID[1]
+			// wire CELL[6].IMUX_MUXA[7]           USB.XMBID[0]
+			// wire CELL[6].IMUX_MUXB[0]           USB.XMRID[7]
+			// wire CELL[6].IMUX_MUXB[1]           USB.XMRID[6]
+			// wire CELL[6].IMUX_MUXB[2]           USB.XMRID[5]
+			// wire CELL[6].IMUX_MUXB[3]           USB.XMRID[4]
+			// wire CELL[6].IMUX_MUXB[4]           USB.XMRID[3]
+			// wire CELL[6].IMUX_MUXB[5]           USB.XMRID[2]
+			// wire CELL[6].IMUX_MUXB[6]           USB.XMRID[1]
+			// wire CELL[6].IMUX_MUXB[7]           USB.XMRID[0]
+			// wire CELL[6].IMUX_MUXC[0]           USB.XMBMISC_INFO[3]
+			// wire CELL[6].IMUX_MUXC[1]           USB.XMBMISC_INFO[2]
+			// wire CELL[6].IMUX_MUXC[2]           USB.XMBMISC_INFO[1]
+			// wire CELL[6].IMUX_MUXC[3]           USB.XMBMISC_INFO[0]
+			// wire CELL[6].IMUX_MUXC[4]           USB.XMRMISC_INFO[3]
+			// wire CELL[6].IMUX_MUXC[5]           USB.XMRMISC_INFO[2]
+			// wire CELL[6].IMUX_MUXC[6]           USB.XMRMISC_INFO[1]
+			// wire CELL[6].IMUX_MUXC[7]           USB.XMRMISC_INFO[0]
+			// wire CELL[6].IMUX_MUXD[0]           USB.XMBRESP[1]
+			// wire CELL[6].IMUX_MUXD[1]           USB.XMBRESP[0]
+			// wire CELL[6].IMUX_MUXD[2]           USB.XMRRESP[1]
+			// wire CELL[6].IMUX_MUXD[3]           USB.XMRRESP[0]
+			// wire CELL[6].OUT_F[0]               USB.XMAWADDR[31]
+			// wire CELL[6].OUT_F[1]               USB.XMAWADDR[30]
+			// wire CELL[6].OUT_F[2]               USB.XMAWADDR[29]
+			// wire CELL[6].OUT_F[3]               USB.XMAWADDR[28]
+			// wire CELL[6].OUT_F[4]               USB.XMAWADDR[27]
+			// wire CELL[6].OUT_F[5]               USB.XMAWADDR[26]
+			// wire CELL[6].OUT_F[6]               USB.XMAWADDR[25]
+			// wire CELL[6].OUT_F[7]               USB.XMAWADDR[24]
+			// wire CELL[6].OUT_Q[0]               USB.XMAWADDR[23]
+			// wire CELL[6].OUT_Q[1]               USB.XMAWADDR[22]
+			// wire CELL[6].OUT_Q[2]               USB.XMAWADDR[21]
+			// wire CELL[6].OUT_Q[3]               USB.XMAWADDR[20]
+			// wire CELL[6].OUT_Q[4]               USB.XMAWADDR[19]
+			// wire CELL[6].OUT_Q[5]               USB.XMAWADDR[18]
+			// wire CELL[6].OUT_Q[6]               USB.XMAWADDR[17]
+			// wire CELL[6].OUT_Q[7]               USB.XMAWADDR[16]
+			// wire CELL[7].OUT_F[0]               USB.XMAWADDR[15]
+			// wire CELL[7].OUT_F[1]               USB.XMAWADDR[14]
+			// wire CELL[7].OUT_F[2]               USB.XMAWADDR[13]
+			// wire CELL[7].OUT_F[3]               USB.XMAWADDR[12]
+			// wire CELL[7].OUT_F[4]               USB.XMAWADDR[11]
+			// wire CELL[7].OUT_F[5]               USB.XMAWADDR[10]
+			// wire CELL[7].OUT_F[6]               USB.XMAWADDR[9]
+			// wire CELL[7].OUT_F[7]               USB.XMAWADDR[8]
+			// wire CELL[7].OUT_Q[0]               USB.XMAWADDR[7]
+			// wire CELL[7].OUT_Q[1]               USB.XMAWADDR[6]
+			// wire CELL[7].OUT_Q[2]               USB.XMAWADDR[5]
+			// wire CELL[7].OUT_Q[3]               USB.XMAWADDR[4]
+			// wire CELL[7].OUT_Q[4]               USB.XMAWADDR[3]
+			// wire CELL[7].OUT_Q[5]               USB.XMAWADDR[2]
+			// wire CELL[7].OUT_Q[6]               USB.XMAWADDR[1]
+			// wire CELL[7].OUT_Q[7]               USB.XMAWADDR[0]
+			// wire CELL[8].OUT_F[0]               USB.XMARADDR[31]
+			// wire CELL[8].OUT_F[1]               USB.XMARADDR[30]
+			// wire CELL[8].OUT_F[2]               USB.XMARADDR[29]
+			// wire CELL[8].OUT_F[3]               USB.XMARADDR[28]
+			// wire CELL[8].OUT_F[4]               USB.XMARADDR[27]
+			// wire CELL[8].OUT_F[5]               USB.XMARADDR[26]
+			// wire CELL[8].OUT_F[6]               USB.XMARADDR[25]
+			// wire CELL[8].OUT_F[7]               USB.XMARADDR[24]
+			// wire CELL[8].OUT_Q[0]               USB.XMARADDR[23]
+			// wire CELL[8].OUT_Q[1]               USB.XMARADDR[22]
+			// wire CELL[8].OUT_Q[2]               USB.XMARADDR[21]
+			// wire CELL[8].OUT_Q[3]               USB.XMARADDR[20]
+			// wire CELL[8].OUT_Q[4]               USB.XMARADDR[19]
+			// wire CELL[8].OUT_Q[5]               USB.XMARADDR[18]
+			// wire CELL[8].OUT_Q[6]               USB.XMARADDR[17]
+			// wire CELL[8].OUT_Q[7]               USB.XMARADDR[16]
+			// wire CELL[9].OUT_F[0]               USB.XMARADDR[15]
+			// wire CELL[9].OUT_F[1]               USB.XMARADDR[14]
+			// wire CELL[9].OUT_F[2]               USB.XMARADDR[13]
+			// wire CELL[9].OUT_F[3]               USB.XMARADDR[12]
+			// wire CELL[9].OUT_F[4]               USB.XMARADDR[11]
+			// wire CELL[9].OUT_F[5]               USB.XMARADDR[10]
+			// wire CELL[9].OUT_F[6]               USB.XMARADDR[9]
+			// wire CELL[9].OUT_F[7]               USB.XMARADDR[8]
+			// wire CELL[9].OUT_Q[0]               USB.XMARADDR[7]
+			// wire CELL[9].OUT_Q[1]               USB.XMARADDR[6]
+			// wire CELL[9].OUT_Q[2]               USB.XMARADDR[5]
+			// wire CELL[9].OUT_Q[3]               USB.XMARADDR[4]
+			// wire CELL[9].OUT_Q[4]               USB.XMARADDR[3]
+			// wire CELL[9].OUT_Q[5]               USB.XMARADDR[2]
+			// wire CELL[9].OUT_Q[6]               USB.XMARADDR[1]
+			// wire CELL[9].OUT_Q[7]               USB.XMARADDR[0]
+			// wire CELL[13].OUT_F[0]              USB.XMAWID[7]
+			// wire CELL[13].OUT_F[1]              USB.XMAWID[6]
+			// wire CELL[13].OUT_F[2]              USB.XMAWID[5]
+			// wire CELL[13].OUT_F[3]              USB.XMAWID[4]
+			// wire CELL[13].OUT_F[4]              USB.XMAWID[3]
+			// wire CELL[13].OUT_F[5]              USB.XMAWID[2]
+			// wire CELL[13].OUT_F[6]              USB.XMAWID[1]
+			// wire CELL[13].OUT_F[7]              USB.XMAWID[0]
+			// wire CELL[13].OUT_Q[0]              USB.XMAWLEN[7]
+			// wire CELL[13].OUT_Q[1]              USB.XMAWLEN[6]
+			// wire CELL[13].OUT_Q[2]              USB.XMAWLEN[5]
+			// wire CELL[13].OUT_Q[3]              USB.XMAWLEN[4]
+			// wire CELL[13].OUT_Q[4]              USB.XMAWLEN[3]
+			// wire CELL[13].OUT_Q[5]              USB.XMAWLEN[2]
+			// wire CELL[13].OUT_Q[6]              USB.XMAWLEN[1]
+			// wire CELL[13].OUT_Q[7]              USB.XMAWLEN[0]
+			// wire CELL[14].OUT_F[0]              USB.XMWID[7]
+			// wire CELL[14].OUT_F[1]              USB.XMWID[6]
+			// wire CELL[14].OUT_F[2]              USB.XMWID[5]
+			// wire CELL[14].OUT_F[3]              USB.XMWID[4]
+			// wire CELL[14].OUT_F[4]              USB.XMWID[3]
+			// wire CELL[14].OUT_F[5]              USB.XMWID[2]
+			// wire CELL[14].OUT_F[6]              USB.XMWID[1]
+			// wire CELL[14].OUT_F[7]              USB.XMWID[0]
+			// wire CELL[14].OUT_Q[0]              USB.XMWSTRB[7]
+			// wire CELL[14].OUT_Q[1]              USB.XMWSTRB[6]
+			// wire CELL[14].OUT_Q[2]              USB.XMWSTRB[5]
+			// wire CELL[14].OUT_Q[3]              USB.XMWSTRB[4]
+			// wire CELL[14].OUT_Q[4]              USB.XMWSTRB[3]
+			// wire CELL[14].OUT_Q[5]              USB.XMWSTRB[2]
+			// wire CELL[14].OUT_Q[6]              USB.XMWSTRB[1]
+			// wire CELL[14].OUT_Q[7]              USB.XMWSTRB[0]
+			// wire CELL[15].OUT_F[0]              USB.XMARID[7]
+			// wire CELL[15].OUT_F[1]              USB.XMARID[6]
+			// wire CELL[15].OUT_F[2]              USB.XMARID[5]
+			// wire CELL[15].OUT_F[3]              USB.XMARID[4]
+			// wire CELL[15].OUT_F[4]              USB.XMARID[3]
+			// wire CELL[15].OUT_F[5]              USB.XMARID[2]
+			// wire CELL[15].OUT_F[6]              USB.XMARID[1]
+			// wire CELL[15].OUT_F[7]              USB.XMARID[0]
+			// wire CELL[15].OUT_Q[0]              USB.XMARLEN[7]
+			// wire CELL[15].OUT_Q[1]              USB.XMARLEN[6]
+			// wire CELL[15].OUT_Q[2]              USB.XMARLEN[5]
+			// wire CELL[15].OUT_Q[3]              USB.XMARLEN[4]
+			// wire CELL[15].OUT_Q[4]              USB.XMARLEN[3]
+			// wire CELL[15].OUT_Q[5]              USB.XMARLEN[2]
+			// wire CELL[15].OUT_Q[6]              USB.XMARLEN[1]
+			// wire CELL[15].OUT_Q[7]              USB.XMARLEN[0]
+			// wire CELL[16].OUT_F[0]              USB.XMAWBURST[1]
+			// wire CELL[16].OUT_F[1]              USB.XMAWBURST[0]
+			// wire CELL[16].OUT_F[2]              USB.XMAWLOCK[1]
+			// wire CELL[16].OUT_F[3]              USB.XMAWLOCK[0]
+			// wire CELL[16].OUT_F[4]              USB.XMARBURST[1]
+			// wire CELL[16].OUT_F[5]              USB.XMARBURST[0]
+			// wire CELL[16].OUT_F[6]              USB.XMARLOCK[1]
+			// wire CELL[16].OUT_F[7]              USB.XMARLOCK[0]
+			// wire CELL[16].OUT_Q[2]              USB.LMMIRDATAVALID
+			// wire CELL[16].OUT_Q[3]              USB.LMMIREADY
+			// wire CELL[16].OUT_Q[4]              USB.XMAWVALID
+			// wire CELL[16].OUT_Q[5]              USB.XMWVALID
+			// wire CELL[16].OUT_Q[6]              USB.XMWLAST
+			// wire CELL[16].OUT_Q[7]              USB.XMBREADY
+			// wire CELL[17].OUT_F[0]              USB.XMARVALID
+			// wire CELL[17].OUT_F[1]              USB.XMRREADY
+			// wire CELL[17].OUT_F[2]              USB.XMCSYSACK
+			// wire CELL[17].OUT_F[3]              USB.XMCACTIVE
+			// wire CELL[17].OUT_F[4]              USB.DISRXDETU3RXDETACK
+			// wire CELL[17].OUT_F[5]              USB.INTERRUPT
+			// wire CELL[17].OUT_F[6]              USB.SS_RX_ACJT_OUTN
+			// wire CELL[17].OUT_F[7]              USB.SS_RX_ACJT_OUTP
+			// wire CELL[17].OUT_Q[0]              USB.XMAWCACHE[3]
+			// wire CELL[17].OUT_Q[1]              USB.XMAWCACHE[2]
+			// wire CELL[17].OUT_Q[2]              USB.XMAWCACHE[1]
+			// wire CELL[17].OUT_Q[3]              USB.XMAWCACHE[0]
+			// wire CELL[17].OUT_Q[4]              USB.XMAWMISC_INFO[3]
+			// wire CELL[17].OUT_Q[5]              USB.XMAWMISC_INFO[2]
+			// wire CELL[17].OUT_Q[6]              USB.XMAWMISC_INFO[1]
+			// wire CELL[17].OUT_Q[7]              USB.XMAWMISC_INFO[0]
+			// wire CELL[18].OUT_F[0]              USB.XMAWSIZE[2]
+			// wire CELL[18].OUT_F[1]              USB.XMAWSIZE[1]
+			// wire CELL[18].OUT_F[2]              USB.XMAWSIZE[0]
+			// wire CELL[18].OUT_F[3]              USB.XMAWPROT[2]
+			// wire CELL[18].OUT_F[4]              USB.XMAWPROT[1]
+			// wire CELL[18].OUT_F[5]              USB.XMAWPROT[0]
+			// wire CELL[19].OUT_F[2]              USB.XMARSIZE[2]
+			// wire CELL[19].OUT_F[3]              USB.XMARSIZE[1]
+			// wire CELL[19].OUT_F[4]              USB.XMARSIZE[0]
+			// wire CELL[19].OUT_F[5]              USB.XMARPROT[2]
+			// wire CELL[19].OUT_F[6]              USB.XMARPROT[1]
+			// wire CELL[19].OUT_F[7]              USB.XMARPROT[0]
+			// wire CELL[19].OUT_Q[0]              USB.XMARCACHE[3]
+			// wire CELL[19].OUT_Q[1]              USB.XMARCACHE[2]
+			// wire CELL[19].OUT_Q[2]              USB.XMARCACHE[1]
+			// wire CELL[19].OUT_Q[3]              USB.XMARCACHE[0]
+			// wire CELL[19].OUT_Q[4]              USB.XMARMISC_INFO[3]
+			// wire CELL[19].OUT_Q[5]              USB.XMARMISC_INFO[2]
+			// wire CELL[19].OUT_Q[6]              USB.XMARMISC_INFO[1]
+			// wire CELL[19].OUT_Q[7]              USB.XMARMISC_INFO[0]
+		}
+
 		tile_class LRAM_W_JE5D15 {
 			cell G0[0];
 			cell G0[1];
@@ -38465,6 +39870,754 @@ intdb {
 			// wire CELL[14].OUT_Q[0]              CONFIG_SEDC.SEDCBUSYCIB
 		}
 
+		tile_class CONFIG_JD5UA {
+			cell CELL[0];
+			cell CELL[1];
+			cell CELL[2];
+			cell CELL[3];
+			cell CELL[4];
+			cell CELL[5];
+			cell CELL[6];
+			cell CELL[7];
+			cell CELL[8];
+			cell CELL[9];
+			cell CELL[10];
+			cell CELL[11];
+			cell CELL[12];
+			cell CELL[13];
+			cell CELL[14];
+
+			bel JTAG {
+				input JTDO1 = CELL[9].IMUX_MUXA[3];
+				input JTDO2 = CELL[9].IMUX_MUXA[6];
+				output JTDI = CELL[10].OUT_F[6];
+				output JTCK = CELL[0].OUT_JTAG_JTCK;
+				output JSHIFT = CELL[10].OUT_F[5];
+				output JUPDATE = CELL[11].OUT_F[2];
+				output JRSTN = CELL[10].OUT_F[4];
+				output JCE1 = CELL[9].OUT_Q[2];
+				output JRTI1 = CELL[9].OUT_Q[6];
+				output JCE2 = CELL[9].OUT_Q[3];
+				output JRTI2 = CELL[9].OUT_Q[7];
+			}
+
+			bel OSC {
+				input HFOUTEN = CELL[1].IMUX_MUXD[3];
+				input HFSDSCEN = CELL[1].IMUX_MUXC[5];
+				input LFTRMFAB[0] = CELL[2].IMUX_MUXA[0];
+				input LFTRMFAB[1] = CELL[2].IMUX_MUXA[1];
+				input LFTRMFAB[2] = CELL[2].IMUX_MUXA[2];
+				input LFTRMFAB[3] = CELL[2].IMUX_MUXA[3];
+				input LFTRMFAB[4] = CELL[2].IMUX_MUXA[4];
+				input LFTRMFAB[5] = CELL[2].IMUX_MUXA[5];
+				input LFTRMFAB[6] = CELL[2].IMUX_MUXA[6];
+				input LFTRMFAB[7] = CELL[2].IMUX_MUXA[7];
+				input LFTRMFAB[8] = CELL[1].IMUX_MUXC[4];
+				input HFTRMFAB[0] = CELL[2].IMUX_MUXB[0];
+				input HFTRMFAB[1] = CELL[2].IMUX_MUXB[1];
+				input HFTRMFAB[2] = CELL[2].IMUX_MUXB[2];
+				input HFTRMFAB[3] = CELL[2].IMUX_MUXB[3];
+				input HFTRMFAB[4] = CELL[2].IMUX_MUXB[4];
+				input HFTRMFAB[5] = CELL[2].IMUX_MUXB[5];
+				input HFTRMFAB[6] = CELL[2].IMUX_MUXB[6];
+				input HFTRMFAB[7] = CELL[2].IMUX_MUXB[7];
+				input HFTRMFAB[8] = CELL[1].IMUX_MUXC[3];
+				input REBOOT = CELL[1].IMUX_MUXD[6];
+				input HFOUTCIBEN = CELL[1].IMUX_MUXD[7];
+				output LFCLKOUT = CELL[0].OUT_OSC_LFCLKOUT;
+				output HFCLKOUT = CELL[0].OUT_OSC_HFCLKOUT;
+			}
+
+			bel PMU {
+				input LMMICLK = CELL[12].IMUX_CLK[1];
+				input LMMIRESETN = CELL[12].IMUX_LSR[1];
+				input LMMIOFFSET[0] = CELL[12].IMUX_MUXA[7];
+				input LMMIOFFSET[1] = CELL[12].IMUX_MUXB[0];
+				input LMMIOFFSET[2] = CELL[12].IMUX_MUXB[1];
+				input LMMIOFFSET[3] = CELL[12].IMUX_MUXC[2];
+				input LMMIREQUEST = CELL[12].IMUX_MUXA[4];
+				input LMMIWDATA[0] = CELL[12].IMUX_MUXB[2];
+				input LMMIWDATA[1] = CELL[12].IMUX_MUXB[3];
+				input LMMIWDATA[2] = CELL[12].IMUX_MUXB[4];
+				input LMMIWDATA[3] = CELL[12].IMUX_MUXB[5];
+				input LMMIWDATA[4] = CELL[12].IMUX_MUXB[6];
+				input LMMIWDATA[5] = CELL[12].IMUX_MUXB[7];
+				input LMMIWDATA[6] = CELL[12].IMUX_MUXC[0];
+				input LMMIWDATA[7] = CELL[12].IMUX_MUXC[1];
+				input LMMIWRRDN = CELL[12].IMUX_MUXA[6];
+				input CIBINT = CELL[12].IMUX_MUXA[2];
+				input CIBINTSEL[0] = CELL[12].IMUX_MUXA[0];
+				input CIBINTSEL[1] = CELL[12].IMUX_MUXA[1];
+				input OPCGLOADCLK = CELL[12].IMUX_MUXD[7];
+				input SCANCLK = CELL[12].IMUX_CLK[0];
+				input SCANRST = CELL[12].IMUX_LSR[0];
+				output LMMIRDATA[0] = CELL[12].OUT_F[0];
+				output LMMIRDATA[1] = CELL[12].OUT_F[1];
+				output LMMIRDATA[2] = CELL[12].OUT_F[2];
+				output LMMIRDATA[3] = CELL[12].OUT_F[3];
+				output LMMIRDATA[4] = CELL[12].OUT_F[4];
+				output LMMIRDATA[5] = CELL[12].OUT_F[5];
+				output LMMIRDATA[6] = CELL[12].OUT_F[6];
+				output LMMIRDATA[7] = CELL[12].OUT_F[7];
+				output LMMIRDATAVALID = CELL[12].OUT_Q[0];
+				output LMMIREADY = CELL[12].OUT_Q[1];
+			}
+
+			bel I2C {
+				input SCLIN = CELL[8].IMUX_MUXB[1];
+				input SDAIN = CELL[8].IMUX_MUXB[0];
+				input LMMICLK = CELL[8].IMUX_CLK[0];
+				input LMMIRESETN = CELL[8].IMUX_LSR[0];
+				input LMMIOFFSET[0] = CELL[8].IMUX_MUXC[0];
+				input LMMIOFFSET[1] = CELL[8].IMUX_MUXC[1];
+				input LMMIOFFSET[2] = CELL[8].IMUX_MUXC[2];
+				input LMMIOFFSET[3] = CELL[8].IMUX_MUXC[3];
+				input LMMIOFFSET[4] = CELL[8].IMUX_MUXC[4];
+				input LMMIOFFSET[5] = CELL[8].IMUX_MUXC[5];
+				input LMMIREQUEST = CELL[8].IMUX_MUXC[6];
+				input LMMIWDATA[0] = CELL[8].IMUX_MUXA[0];
+				input LMMIWDATA[1] = CELL[8].IMUX_MUXA[1];
+				input LMMIWDATA[2] = CELL[8].IMUX_MUXA[2];
+				input LMMIWDATA[3] = CELL[8].IMUX_MUXA[3];
+				input LMMIWDATA[4] = CELL[8].IMUX_MUXA[4];
+				input LMMIWDATA[5] = CELL[8].IMUX_MUXA[5];
+				input LMMIWDATA[6] = CELL[8].IMUX_MUXA[6];
+				input LMMIWDATA[7] = CELL[8].IMUX_MUXA[7];
+				input LMMIWRRDN = CELL[8].IMUX_MUXB[4];
+				input I2CLSRRSTN = CELL[10].IMUX_LSR[0];
+				input SLEEPCLKSELN = CELL[8].IMUX_MUXB[3];
+				input FIFORESET = CELL[8].IMUX_LSR[1];
+				input OPCGLOADCLK = CELL[8].IMUX_CLK[1];
+				input SCANRST = CELL[10].IMUX_LSR[1];
+				input SCANCLK = CELL[10].IMUX_CLK[0];
+				output RXFIFOAF = CELL[10].OUT_Q[1];
+				output RXFIFOE = CELL[10].OUT_Q[0];
+				output RXFIFOF = CELL[10].OUT_Q[2];
+				output TXFIFOAE = CELL[10].OUT_Q[4];
+				output TXFIFOE = CELL[10].OUT_Q[3];
+				output TXFIFOF = CELL[10].OUT_Q[5];
+				output MRDCMPL = CELL[10].OUT_Q[6];
+				output SRDWR = CELL[10].OUT_Q[7];
+				output SCLOEN = CELL[8].OUT_F[5];
+				output SDAOEN = CELL[8].OUT_F[2];
+				output SCLOE = CELL[8].OUT_F[4];
+				output SCLOUT = CELL[8].OUT_F[3];
+				output SDAOE = CELL[8].OUT_F[1];
+				output SDAOUT = CELL[8].OUT_F[0];
+				output LMMIRDATA[0] = CELL[8].OUT_Q[0];
+				output LMMIRDATA[1] = CELL[8].OUT_Q[1];
+				output LMMIRDATA[2] = CELL[8].OUT_Q[2];
+				output LMMIRDATA[3] = CELL[8].OUT_Q[3];
+				output LMMIRDATA[4] = CELL[8].OUT_Q[4];
+				output LMMIRDATA[5] = CELL[8].OUT_Q[5];
+				output LMMIRDATA[6] = CELL[8].OUT_Q[6];
+				output LMMIRDATA[7] = CELL[8].OUT_Q[7];
+				output LMMIRDATAVALID = CELL[8].OUT_F[7];
+				output LMMIREADY = CELL[8].OUT_F[6];
+				output BUSBUSY = CELL[10].OUT_F[2];
+				output INSLEEP = CELL[11].OUT_F[3];
+				output IRQ = CELL[10].OUT_F[3];
+				output SLVADDRMATCH = CELL[10].OUT_F[0];
+				output SLVADDRMATCHSCL = CELL[10].OUT_F[1];
+			}
+
+			bel CONFIG_CLKRST {
+				input LMMI_CLK = CELL[0].IMUX_CLK[0];
+				input LMMI_LRST_N = CELL[4].IMUX_LSR[1];
+				input WDT_LRST_N = CELL[2].IMUX_LSR[0];
+				input JTAG_LRST_N = CELL[2].IMUX_LSR[1];
+				input SEDC_LRST_N = CELL[4].IMUX_LSR[0];
+				input MBISTCLK = CELL[10].IMUX_CLK[1];
+				output CFG_CLK = CELL[3].OUT_F[2];
+			}
+
+			bel CONFIG_IP {
+				input CIBTSALL = CELL[3].IMUX_MUXA[6];
+				input MBISTTRRAEN = CELL[10].IMUX_MUXA[1];
+				input MBISTENABLEN = CELL[10].IMUX_MUXA[0];
+				output FREEZEIOCIB = CELL[0].OUT_Q[5];
+				output CFGDONECIB = CELL[3].OUT_F[3];
+				output LASTADDRCIB[0] = CELL[11].OUT_Q[2];
+				output LASTADDRCIB[1] = CELL[11].OUT_Q[3];
+				output LASTADDRCIB[2] = CELL[11].OUT_Q[6];
+				output LASTADDRCIB[3] = CELL[11].OUT_Q[7];
+				output LASTADDRCIB[4] = CELL[12].OUT_Q[2];
+				output LASTADDRCIB[5] = CELL[12].OUT_Q[3];
+				output LASTADDRCIB[6] = CELL[12].OUT_Q[4];
+				output LASTADDRCIB[7] = CELL[12].OUT_Q[5];
+				output LASTADDRCIB[8] = CELL[12].OUT_Q[6];
+				output LASTADDRCIB[9] = CELL[12].OUT_Q[7];
+				output LASTADDRCIB[10] = CELL[14].OUT_F[0];
+				output LASTADDRCIB[11] = CELL[14].OUT_F[1];
+				output LASTADDRCIB[12] = CELL[14].OUT_F[2];
+				output LASTADDRCIB[13] = CELL[14].OUT_F[3];
+				output LASTADDRCIB[14] = CELL[14].OUT_F[4];
+				output LASTADDRCIB[15] = CELL[14].OUT_F[5];
+				output MBISTRRMATCH = CELL[10].OUT_F[7];
+			}
+
+			bel CONFIG_MULTIBOOT {
+				input CIBAUTOREBOOT = CELL[3].IMUX_MUXA[3];
+				input CIBMSPIMADDR[0] = CELL[3].IMUX_MUXA[1];
+				input CIBMSPIMADDR[1] = CELL[3].IMUX_MUXC[2];
+				input CIBMSPIMADDR[2] = CELL[3].IMUX_MUXC[3];
+				input CIBMSPIMADDR[3] = CELL[3].IMUX_MUXA[4];
+				input CIBMSPIMADDR[4] = CELL[3].IMUX_MUXC[5];
+				input CIBMSPIMADDR[5] = CELL[3].IMUX_MUXB[6];
+				input CIBMSPIMADDR[6] = CELL[3].IMUX_MUXA[7];
+				input CIBMSPIMADDR[7] = CELL[3].IMUX_MUXC[7];
+				input CIBMSPIMADDR[8] = CELL[4].IMUX_MUXA[0];
+				input CIBMSPIMADDR[9] = CELL[4].IMUX_MUXA[1];
+				input CIBMSPIMADDR[10] = CELL[4].IMUX_MUXA[2];
+				input CIBMSPIMADDR[11] = CELL[4].IMUX_MUXA[3];
+				input CIBMSPIMADDR[12] = CELL[4].IMUX_MUXA[4];
+				input CIBMSPIMADDR[13] = CELL[4].IMUX_MUXA[5];
+				input CIBMSPIMADDR[14] = CELL[4].IMUX_MUXA[6];
+				input CIBMSPIMADDR[15] = CELL[4].IMUX_MUXA[7];
+				input CIBMSPIMADDR[16] = CELL[6].IMUX_MUXA[0];
+				input CIBMSPIMADDR[17] = CELL[6].IMUX_MUXA[1];
+				input CIBMSPIMADDR[18] = CELL[6].IMUX_MUXA[2];
+				input CIBMSPIMADDR[19] = CELL[6].IMUX_MUXA[3];
+				input CIBMSPIMADDR[20] = CELL[6].IMUX_MUXA[4];
+				input CIBMSPIMADDR[21] = CELL[6].IMUX_MUXA[5];
+				input CIBMSPIMADDR[22] = CELL[6].IMUX_MUXA[6];
+				input CIBMSPIMADDR[23] = CELL[6].IMUX_MUXA[7];
+				input CIBMSPIMADDR[24] = CELL[6].IMUX_MUXC[0];
+				input CIBMSPIMADDR[25] = CELL[6].IMUX_MUXC[1];
+				input CIBMSPIMADDR[26] = CELL[6].IMUX_MUXC[2];
+				input CIBMSPIMADDR[27] = CELL[6].IMUX_MUXC[3];
+				input CIBMSPIMADDR[28] = CELL[6].IMUX_MUXC[4];
+				input CIBMSPIMADDR[29] = CELL[6].IMUX_MUXC[5];
+				input CIBMSPIMADDR[30] = CELL[6].IMUX_MUXD[6];
+				input CIBMSPIMADDR[31] = CELL[6].IMUX_MUXD[7];
+			}
+
+			bel CONFIG_WDT {
+				input CIBWDTRELOAD = CELL[1].IMUX_MUXA[3];
+			}
+
+			bel CONFIG_LMMI {
+				input LMMIOFFSET[0] = CELL[0].IMUX_MUXC[0];
+				input LMMIOFFSET[1] = CELL[0].IMUX_MUXC[1];
+				input LMMIOFFSET[2] = CELL[0].IMUX_MUXC[2];
+				input LMMIOFFSET[3] = CELL[0].IMUX_MUXC[3];
+				input LMMIOFFSET[4] = CELL[0].IMUX_MUXC[4];
+				input LMMIOFFSET[5] = CELL[0].IMUX_MUXC[5];
+				input LMMIOFFSET[6] = CELL[0].IMUX_MUXC[6];
+				input LMMIOFFSET[7] = CELL[0].IMUX_MUXC[7];
+				input LMMIREQUEST = CELL[1].IMUX_MUXA[6];
+				input LMMIWDATA[0] = CELL[0].IMUX_MUXA[0];
+				input LMMIWDATA[1] = CELL[0].IMUX_MUXA[1];
+				input LMMIWDATA[2] = CELL[0].IMUX_MUXA[2];
+				input LMMIWDATA[3] = CELL[0].IMUX_MUXA[3];
+				input LMMIWDATA[4] = CELL[0].IMUX_MUXA[4];
+				input LMMIWDATA[5] = CELL[0].IMUX_MUXA[5];
+				input LMMIWDATA[6] = CELL[0].IMUX_MUXA[6];
+				input LMMIWDATA[7] = CELL[0].IMUX_MUXA[7];
+				input LMMIWRRDN = CELL[1].IMUX_MUXA[7];
+				output LMMIRDATA[0] = CELL[0].OUT_F[0];
+				output LMMIRDATA[1] = CELL[0].OUT_F[1];
+				output LMMIRDATA[2] = CELL[0].OUT_F[2];
+				output LMMIRDATA[3] = CELL[0].OUT_F[3];
+				output LMMIRDATA[4] = CELL[0].OUT_F[4];
+				output LMMIRDATA[5] = CELL[0].OUT_F[5];
+				output LMMIRDATA[6] = CELL[0].OUT_F[6];
+				output LMMIRDATA[7] = CELL[0].OUT_F[7];
+				output LMMIRDATAVALID = CELL[0].OUT_Q[1];
+				output LMMIREADY = CELL[0].OUT_Q[0];
+			}
+
+			bel CONFIG_SEDC {
+				input CIBSEDCENABLE = CELL[0].IMUX_MUXB[3];
+				input CIBSEDCSTART = CELL[0].IMUX_MUXB[5];
+				input CIBSEDCMODE = CELL[0].IMUX_MUXB[4];
+				input CIBSEDCCOF = CELL[0].IMUX_MUXB[6];
+				input CIBSED1ENABLE = CELL[0].IMUX_MUXB[7];
+				output SEDCBUSYCIB = CELL[14].OUT_Q[0];
+				output SEDCERR1CIB = CELL[1].OUT_F[2];
+				output SEDCERRCCIB = CELL[5].OUT_F[3];
+				output SEDCERRCRCCIB = CELL[2].OUT_F[0];
+				output SEDCERRMCIB = CELL[1].OUT_F[3];
+				output SEDCDSRERRLOCCIB[0] = CELL[2].OUT_F[5];
+				output SEDCDSRERRLOCCIB[1] = CELL[2].OUT_F[6];
+				output SEDCDSRERRLOCCIB[2] = CELL[2].OUT_F[7];
+				output SEDCDSRERRLOCCIB[3] = CELL[3].OUT_Q[7];
+				output SEDCDSRERRLOCCIB[4] = CELL[4].OUT_F[0];
+				output SEDCDSRERRLOCCIB[5] = CELL[4].OUT_F[1];
+				output SEDCDSRERRLOCCIB[6] = CELL[4].OUT_F[2];
+				output SEDCDSRERRLOCCIB[7] = CELL[4].OUT_F[3];
+				output SEDCDSRERRLOCCIB[8] = CELL[4].OUT_F[4];
+				output SEDCDSRERRLOCCIB[9] = CELL[4].OUT_F[5];
+				output SEDCDSRERRLOCCIB[10] = CELL[4].OUT_F[6];
+				output SEDCDSRERRLOCCIB[11] = CELL[4].OUT_F[7];
+				output SEDCDSRERRLOCCIB[12] = CELL[5].OUT_F[2];
+				output SEDCFRMERRLOCCIB[0] = CELL[0].OUT_Q[6];
+				output SEDCFRMERRLOCCIB[1] = CELL[0].OUT_Q[7];
+				output SEDCFRMERRLOCCIB[2] = CELL[1].OUT_Q[2];
+				output SEDCFRMERRLOCCIB[3] = CELL[1].OUT_Q[3];
+				output SEDCFRMERRLOCCIB[4] = CELL[2].OUT_Q[0];
+				output SEDCFRMERRLOCCIB[5] = CELL[2].OUT_Q[1];
+				output SEDCFRMERRLOCCIB[6] = CELL[2].OUT_Q[2];
+				output SEDCFRMERRLOCCIB[7] = CELL[2].OUT_Q[3];
+				output SEDCFRMERRLOCCIB[8] = CELL[2].OUT_Q[4];
+				output SEDCFRMERRLOCCIB[9] = CELL[2].OUT_Q[5];
+				output SEDCFRMERRLOCCIB[10] = CELL[2].OUT_Q[6];
+				output SEDCFRMERRLOCCIB[11] = CELL[2].OUT_Q[7];
+				output SEDCFRMERRLOCCIB[12] = CELL[2].OUT_F[1];
+				output SEDCFRMERRLOCCIB[13] = CELL[2].OUT_F[2];
+				output SEDCFRMERRLOCCIB[14] = CELL[2].OUT_F[3];
+				output SEDCFRMERRLOCCIB[15] = CELL[2].OUT_F[4];
+			}
+
+			bel CONFIG_CRE {
+				input OTM = CELL[7].IMUX_MUXA[3];
+				input CRELRSTN = CELL[0].IMUX_LSR[1];
+				input ASFCLKI = CELL[6].IMUX_CLK[0];
+				input ASFRESETI = CELL[6].IMUX_LSR[0];
+				input ASFRDI = CELL[6].IMUX_MUXC[7];
+				input ASFWRI = CELL[6].IMUX_MUXC[6];
+				input LMMICLK = CELL[6].IMUX_CLK[1];
+				input LMMIRESETN = CELL[6].IMUX_LSR[1];
+				input LMMIOFFSET[0] = CELL[4].IMUX_MUXB[0];
+				input LMMIOFFSET[1] = CELL[4].IMUX_MUXB[1];
+				input LMMIOFFSET[2] = CELL[4].IMUX_MUXB[2];
+				input LMMIOFFSET[3] = CELL[4].IMUX_MUXB[3];
+				input LMMIOFFSET[4] = CELL[4].IMUX_MUXB[4];
+				input LMMIOFFSET[5] = CELL[4].IMUX_MUXB[5];
+				input LMMIOFFSET[6] = CELL[4].IMUX_MUXB[6];
+				input LMMIOFFSET[7] = CELL[4].IMUX_MUXB[7];
+				input LMMIOFFSET[8] = CELL[4].IMUX_MUXD[0];
+				input LMMIOFFSET[9] = CELL[4].IMUX_MUXD[1];
+				input LMMIOFFSET[10] = CELL[4].IMUX_MUXD[2];
+				input LMMIOFFSET[11] = CELL[4].IMUX_MUXD[3];
+				input LMMIOFFSET[12] = CELL[4].IMUX_MUXD[4];
+				input LMMIOFFSET[13] = CELL[4].IMUX_MUXD[5];
+				input LMMIOFFSET[14] = CELL[4].IMUX_MUXD[6];
+				input LMMIOFFSET[15] = CELL[4].IMUX_MUXD[7];
+				input LMMIOFFSET[16] = CELL[5].IMUX_MUXB[3];
+				input LMMIOFFSET[17] = CELL[5].IMUX_MUXB[6];
+				input LMMIREQUEST = CELL[5].IMUX_MUXA[6];
+				input LMMIWDATA[0] = CELL[5].IMUX_MUXA[1];
+				input LMMIWDATA[1] = CELL[5].IMUX_MUXC[2];
+				input LMMIWDATA[2] = CELL[5].IMUX_MUXC[3];
+				input LMMIWDATA[3] = CELL[5].IMUX_MUXA[4];
+				input LMMIWDATA[4] = CELL[5].IMUX_MUXC[5];
+				input LMMIWDATA[5] = CELL[5].IMUX_MUXC[6];
+				input LMMIWDATA[6] = CELL[5].IMUX_MUXB[7];
+				input LMMIWDATA[7] = CELL[5].IMUX_MUXD[7];
+				input LMMIWDATA[8] = CELL[6].IMUX_MUXB[0];
+				input LMMIWDATA[9] = CELL[6].IMUX_MUXB[1];
+				input LMMIWDATA[10] = CELL[6].IMUX_MUXB[2];
+				input LMMIWDATA[11] = CELL[6].IMUX_MUXB[3];
+				input LMMIWDATA[12] = CELL[6].IMUX_MUXB[4];
+				input LMMIWDATA[13] = CELL[6].IMUX_MUXB[5];
+				input LMMIWDATA[14] = CELL[6].IMUX_MUXB[6];
+				input LMMIWDATA[15] = CELL[6].IMUX_MUXB[7];
+				input LMMIWDATA[16] = CELL[7].IMUX_MUXA[1];
+				input LMMIWDATA[17] = CELL[7].IMUX_MUXC[2];
+				input LMMIWDATA[18] = CELL[7].IMUX_MUXC[3];
+				input LMMIWDATA[19] = CELL[7].IMUX_MUXD[4];
+				input LMMIWDATA[20] = CELL[7].IMUX_MUXC[5];
+				input LMMIWDATA[21] = CELL[7].IMUX_MUXC[6];
+				input LMMIWDATA[22] = CELL[7].IMUX_MUXA[7];
+				input LMMIWDATA[23] = CELL[7].IMUX_MUXC[7];
+				input LMMIWDATA[24] = CELL[9].IMUX_MUXA[1];
+				input LMMIWDATA[25] = CELL[9].IMUX_MUXC[2];
+				input LMMIWDATA[26] = CELL[9].IMUX_MUXB[3];
+				input LMMIWDATA[27] = CELL[9].IMUX_MUXA[4];
+				input LMMIWDATA[28] = CELL[9].IMUX_MUXD[5];
+				input LMMIWDATA[29] = CELL[9].IMUX_MUXC[6];
+				input LMMIWDATA[30] = CELL[9].IMUX_MUXB[7];
+				input LMMIWDATA[31] = CELL[9].IMUX_MUXD[7];
+				input LMMIWRRDN = CELL[5].IMUX_MUXA[7];
+				output ASFEMPTYO = CELL[7].OUT_F[3];
+				output ASFFULLO = CELL[7].OUT_F[2];
+				output LMMIRDATA[0] = CELL[4].OUT_Q[0];
+				output LMMIRDATA[1] = CELL[4].OUT_Q[1];
+				output LMMIRDATA[2] = CELL[4].OUT_Q[2];
+				output LMMIRDATA[3] = CELL[4].OUT_Q[3];
+				output LMMIRDATA[4] = CELL[4].OUT_Q[4];
+				output LMMIRDATA[5] = CELL[4].OUT_Q[5];
+				output LMMIRDATA[6] = CELL[4].OUT_Q[6];
+				output LMMIRDATA[7] = CELL[4].OUT_Q[7];
+				output LMMIRDATA[8] = CELL[5].OUT_Q[2];
+				output LMMIRDATA[9] = CELL[5].OUT_Q[3];
+				output LMMIRDATA[10] = CELL[5].OUT_Q[6];
+				output LMMIRDATA[11] = CELL[5].OUT_Q[7];
+				output LMMIRDATA[12] = CELL[6].OUT_F[0];
+				output LMMIRDATA[13] = CELL[6].OUT_F[1];
+				output LMMIRDATA[14] = CELL[6].OUT_F[2];
+				output LMMIRDATA[15] = CELL[6].OUT_F[3];
+				output LMMIRDATA[16] = CELL[6].OUT_F[4];
+				output LMMIRDATA[17] = CELL[6].OUT_F[5];
+				output LMMIRDATA[18] = CELL[6].OUT_F[6];
+				output LMMIRDATA[19] = CELL[6].OUT_F[7];
+				output LMMIRDATA[20] = CELL[6].OUT_Q[0];
+				output LMMIRDATA[21] = CELL[6].OUT_Q[1];
+				output LMMIRDATA[22] = CELL[6].OUT_Q[2];
+				output LMMIRDATA[23] = CELL[6].OUT_Q[3];
+				output LMMIRDATA[24] = CELL[6].OUT_Q[4];
+				output LMMIRDATA[25] = CELL[6].OUT_Q[5];
+				output LMMIRDATA[26] = CELL[6].OUT_Q[6];
+				output LMMIRDATA[27] = CELL[6].OUT_Q[7];
+				output LMMIRDATA[28] = CELL[7].OUT_Q[2];
+				output LMMIRDATA[29] = CELL[7].OUT_Q[3];
+				output LMMIRDATA[30] = CELL[7].OUT_Q[6];
+				output LMMIRDATA[31] = CELL[7].OUT_Q[7];
+				output LMMIRDATAVALID = CELL[9].OUT_F[2];
+				output LMMIREADY = CELL[9].OUT_F[3];
+			}
+
+			// wire CELL[0].IMUX_MUXA[0]           CONFIG_LMMI.LMMIWDATA[0]
+			// wire CELL[0].IMUX_MUXA[1]           CONFIG_LMMI.LMMIWDATA[1]
+			// wire CELL[0].IMUX_MUXA[2]           CONFIG_LMMI.LMMIWDATA[2]
+			// wire CELL[0].IMUX_MUXA[3]           CONFIG_LMMI.LMMIWDATA[3]
+			// wire CELL[0].IMUX_MUXA[4]           CONFIG_LMMI.LMMIWDATA[4]
+			// wire CELL[0].IMUX_MUXA[5]           CONFIG_LMMI.LMMIWDATA[5]
+			// wire CELL[0].IMUX_MUXA[6]           CONFIG_LMMI.LMMIWDATA[6]
+			// wire CELL[0].IMUX_MUXA[7]           CONFIG_LMMI.LMMIWDATA[7]
+			// wire CELL[0].IMUX_MUXB[3]           CONFIG_SEDC.CIBSEDCENABLE
+			// wire CELL[0].IMUX_MUXB[4]           CONFIG_SEDC.CIBSEDCMODE
+			// wire CELL[0].IMUX_MUXB[5]           CONFIG_SEDC.CIBSEDCSTART
+			// wire CELL[0].IMUX_MUXB[6]           CONFIG_SEDC.CIBSEDCCOF
+			// wire CELL[0].IMUX_MUXB[7]           CONFIG_SEDC.CIBSED1ENABLE
+			// wire CELL[0].IMUX_MUXC[0]           CONFIG_LMMI.LMMIOFFSET[0]
+			// wire CELL[0].IMUX_MUXC[1]           CONFIG_LMMI.LMMIOFFSET[1]
+			// wire CELL[0].IMUX_MUXC[2]           CONFIG_LMMI.LMMIOFFSET[2]
+			// wire CELL[0].IMUX_MUXC[3]           CONFIG_LMMI.LMMIOFFSET[3]
+			// wire CELL[0].IMUX_MUXC[4]           CONFIG_LMMI.LMMIOFFSET[4]
+			// wire CELL[0].IMUX_MUXC[5]           CONFIG_LMMI.LMMIOFFSET[5]
+			// wire CELL[0].IMUX_MUXC[6]           CONFIG_LMMI.LMMIOFFSET[6]
+			// wire CELL[0].IMUX_MUXC[7]           CONFIG_LMMI.LMMIOFFSET[7]
+			// wire CELL[0].IMUX_CLK[0]            CONFIG_CLKRST.LMMI_CLK
+			// wire CELL[0].IMUX_LSR[1]            CONFIG_CRE.CRELRSTN
+			// wire CELL[0].OUT_F[0]               CONFIG_LMMI.LMMIRDATA[0]
+			// wire CELL[0].OUT_F[1]               CONFIG_LMMI.LMMIRDATA[1]
+			// wire CELL[0].OUT_F[2]               CONFIG_LMMI.LMMIRDATA[2]
+			// wire CELL[0].OUT_F[3]               CONFIG_LMMI.LMMIRDATA[3]
+			// wire CELL[0].OUT_F[4]               CONFIG_LMMI.LMMIRDATA[4]
+			// wire CELL[0].OUT_F[5]               CONFIG_LMMI.LMMIRDATA[5]
+			// wire CELL[0].OUT_F[6]               CONFIG_LMMI.LMMIRDATA[6]
+			// wire CELL[0].OUT_F[7]               CONFIG_LMMI.LMMIRDATA[7]
+			// wire CELL[0].OUT_Q[0]               CONFIG_LMMI.LMMIREADY
+			// wire CELL[0].OUT_Q[1]               CONFIG_LMMI.LMMIRDATAVALID
+			// wire CELL[0].OUT_Q[5]               CONFIG_IP.FREEZEIOCIB
+			// wire CELL[0].OUT_Q[6]               CONFIG_SEDC.SEDCFRMERRLOCCIB[0]
+			// wire CELL[0].OUT_Q[7]               CONFIG_SEDC.SEDCFRMERRLOCCIB[1]
+			// wire CELL[0].OUT_JTAG_JTCK          JTAG.JTCK
+			// wire CELL[0].OUT_OSC_LFCLKOUT       OSC.LFCLKOUT
+			// wire CELL[0].OUT_OSC_HFCLKOUT       OSC.HFCLKOUT
+			// wire CELL[1].IMUX_MUXA[3]           CONFIG_WDT.CIBWDTRELOAD
+			// wire CELL[1].IMUX_MUXA[6]           CONFIG_LMMI.LMMIREQUEST
+			// wire CELL[1].IMUX_MUXA[7]           CONFIG_LMMI.LMMIWRRDN
+			// wire CELL[1].IMUX_MUXC[3]           OSC.HFTRMFAB[8]
+			// wire CELL[1].IMUX_MUXC[4]           OSC.LFTRMFAB[8]
+			// wire CELL[1].IMUX_MUXC[5]           OSC.HFSDSCEN
+			// wire CELL[1].IMUX_MUXD[3]           OSC.HFOUTEN
+			// wire CELL[1].IMUX_MUXD[6]           OSC.REBOOT
+			// wire CELL[1].IMUX_MUXD[7]           OSC.HFOUTCIBEN
+			// wire CELL[1].OUT_F[2]               CONFIG_SEDC.SEDCERR1CIB
+			// wire CELL[1].OUT_F[3]               CONFIG_SEDC.SEDCERRMCIB
+			// wire CELL[1].OUT_Q[2]               CONFIG_SEDC.SEDCFRMERRLOCCIB[2]
+			// wire CELL[1].OUT_Q[3]               CONFIG_SEDC.SEDCFRMERRLOCCIB[3]
+			// wire CELL[2].IMUX_MUXA[0]           OSC.LFTRMFAB[0]
+			// wire CELL[2].IMUX_MUXA[1]           OSC.LFTRMFAB[1]
+			// wire CELL[2].IMUX_MUXA[2]           OSC.LFTRMFAB[2]
+			// wire CELL[2].IMUX_MUXA[3]           OSC.LFTRMFAB[3]
+			// wire CELL[2].IMUX_MUXA[4]           OSC.LFTRMFAB[4]
+			// wire CELL[2].IMUX_MUXA[5]           OSC.LFTRMFAB[5]
+			// wire CELL[2].IMUX_MUXA[6]           OSC.LFTRMFAB[6]
+			// wire CELL[2].IMUX_MUXA[7]           OSC.LFTRMFAB[7]
+			// wire CELL[2].IMUX_MUXB[0]           OSC.HFTRMFAB[0]
+			// wire CELL[2].IMUX_MUXB[1]           OSC.HFTRMFAB[1]
+			// wire CELL[2].IMUX_MUXB[2]           OSC.HFTRMFAB[2]
+			// wire CELL[2].IMUX_MUXB[3]           OSC.HFTRMFAB[3]
+			// wire CELL[2].IMUX_MUXB[4]           OSC.HFTRMFAB[4]
+			// wire CELL[2].IMUX_MUXB[5]           OSC.HFTRMFAB[5]
+			// wire CELL[2].IMUX_MUXB[6]           OSC.HFTRMFAB[6]
+			// wire CELL[2].IMUX_MUXB[7]           OSC.HFTRMFAB[7]
+			// wire CELL[2].IMUX_LSR[0]            CONFIG_CLKRST.WDT_LRST_N
+			// wire CELL[2].IMUX_LSR[1]            CONFIG_CLKRST.JTAG_LRST_N
+			// wire CELL[2].OUT_F[0]               CONFIG_SEDC.SEDCERRCRCCIB
+			// wire CELL[2].OUT_F[1]               CONFIG_SEDC.SEDCFRMERRLOCCIB[12]
+			// wire CELL[2].OUT_F[2]               CONFIG_SEDC.SEDCFRMERRLOCCIB[13]
+			// wire CELL[2].OUT_F[3]               CONFIG_SEDC.SEDCFRMERRLOCCIB[14]
+			// wire CELL[2].OUT_F[4]               CONFIG_SEDC.SEDCFRMERRLOCCIB[15]
+			// wire CELL[2].OUT_F[5]               CONFIG_SEDC.SEDCDSRERRLOCCIB[0]
+			// wire CELL[2].OUT_F[6]               CONFIG_SEDC.SEDCDSRERRLOCCIB[1]
+			// wire CELL[2].OUT_F[7]               CONFIG_SEDC.SEDCDSRERRLOCCIB[2]
+			// wire CELL[2].OUT_Q[0]               CONFIG_SEDC.SEDCFRMERRLOCCIB[4]
+			// wire CELL[2].OUT_Q[1]               CONFIG_SEDC.SEDCFRMERRLOCCIB[5]
+			// wire CELL[2].OUT_Q[2]               CONFIG_SEDC.SEDCFRMERRLOCCIB[6]
+			// wire CELL[2].OUT_Q[3]               CONFIG_SEDC.SEDCFRMERRLOCCIB[7]
+			// wire CELL[2].OUT_Q[4]               CONFIG_SEDC.SEDCFRMERRLOCCIB[8]
+			// wire CELL[2].OUT_Q[5]               CONFIG_SEDC.SEDCFRMERRLOCCIB[9]
+			// wire CELL[2].OUT_Q[6]               CONFIG_SEDC.SEDCFRMERRLOCCIB[10]
+			// wire CELL[2].OUT_Q[7]               CONFIG_SEDC.SEDCFRMERRLOCCIB[11]
+			// wire CELL[3].IMUX_MUXA[1]           CONFIG_MULTIBOOT.CIBMSPIMADDR[0]
+			// wire CELL[3].IMUX_MUXA[3]           CONFIG_MULTIBOOT.CIBAUTOREBOOT
+			// wire CELL[3].IMUX_MUXA[4]           CONFIG_MULTIBOOT.CIBMSPIMADDR[3]
+			// wire CELL[3].IMUX_MUXA[6]           CONFIG_IP.CIBTSALL
+			// wire CELL[3].IMUX_MUXA[7]           CONFIG_MULTIBOOT.CIBMSPIMADDR[6]
+			// wire CELL[3].IMUX_MUXB[6]           CONFIG_MULTIBOOT.CIBMSPIMADDR[5]
+			// wire CELL[3].IMUX_MUXC[2]           CONFIG_MULTIBOOT.CIBMSPIMADDR[1]
+			// wire CELL[3].IMUX_MUXC[3]           CONFIG_MULTIBOOT.CIBMSPIMADDR[2]
+			// wire CELL[3].IMUX_MUXC[5]           CONFIG_MULTIBOOT.CIBMSPIMADDR[4]
+			// wire CELL[3].IMUX_MUXC[7]           CONFIG_MULTIBOOT.CIBMSPIMADDR[7]
+			// wire CELL[3].OUT_F[2]               CONFIG_CLKRST.CFG_CLK
+			// wire CELL[3].OUT_F[3]               CONFIG_IP.CFGDONECIB
+			// wire CELL[3].OUT_Q[7]               CONFIG_SEDC.SEDCDSRERRLOCCIB[3]
+			// wire CELL[4].IMUX_MUXA[0]           CONFIG_MULTIBOOT.CIBMSPIMADDR[8]
+			// wire CELL[4].IMUX_MUXA[1]           CONFIG_MULTIBOOT.CIBMSPIMADDR[9]
+			// wire CELL[4].IMUX_MUXA[2]           CONFIG_MULTIBOOT.CIBMSPIMADDR[10]
+			// wire CELL[4].IMUX_MUXA[3]           CONFIG_MULTIBOOT.CIBMSPIMADDR[11]
+			// wire CELL[4].IMUX_MUXA[4]           CONFIG_MULTIBOOT.CIBMSPIMADDR[12]
+			// wire CELL[4].IMUX_MUXA[5]           CONFIG_MULTIBOOT.CIBMSPIMADDR[13]
+			// wire CELL[4].IMUX_MUXA[6]           CONFIG_MULTIBOOT.CIBMSPIMADDR[14]
+			// wire CELL[4].IMUX_MUXA[7]           CONFIG_MULTIBOOT.CIBMSPIMADDR[15]
+			// wire CELL[4].IMUX_MUXB[0]           CONFIG_CRE.LMMIOFFSET[0]
+			// wire CELL[4].IMUX_MUXB[1]           CONFIG_CRE.LMMIOFFSET[1]
+			// wire CELL[4].IMUX_MUXB[2]           CONFIG_CRE.LMMIOFFSET[2]
+			// wire CELL[4].IMUX_MUXB[3]           CONFIG_CRE.LMMIOFFSET[3]
+			// wire CELL[4].IMUX_MUXB[4]           CONFIG_CRE.LMMIOFFSET[4]
+			// wire CELL[4].IMUX_MUXB[5]           CONFIG_CRE.LMMIOFFSET[5]
+			// wire CELL[4].IMUX_MUXB[6]           CONFIG_CRE.LMMIOFFSET[6]
+			// wire CELL[4].IMUX_MUXB[7]           CONFIG_CRE.LMMIOFFSET[7]
+			// wire CELL[4].IMUX_MUXD[0]           CONFIG_CRE.LMMIOFFSET[8]
+			// wire CELL[4].IMUX_MUXD[1]           CONFIG_CRE.LMMIOFFSET[9]
+			// wire CELL[4].IMUX_MUXD[2]           CONFIG_CRE.LMMIOFFSET[10]
+			// wire CELL[4].IMUX_MUXD[3]           CONFIG_CRE.LMMIOFFSET[11]
+			// wire CELL[4].IMUX_MUXD[4]           CONFIG_CRE.LMMIOFFSET[12]
+			// wire CELL[4].IMUX_MUXD[5]           CONFIG_CRE.LMMIOFFSET[13]
+			// wire CELL[4].IMUX_MUXD[6]           CONFIG_CRE.LMMIOFFSET[14]
+			// wire CELL[4].IMUX_MUXD[7]           CONFIG_CRE.LMMIOFFSET[15]
+			// wire CELL[4].IMUX_LSR[0]            CONFIG_CLKRST.SEDC_LRST_N
+			// wire CELL[4].IMUX_LSR[1]            CONFIG_CLKRST.LMMI_LRST_N
+			// wire CELL[4].OUT_F[0]               CONFIG_SEDC.SEDCDSRERRLOCCIB[4]
+			// wire CELL[4].OUT_F[1]               CONFIG_SEDC.SEDCDSRERRLOCCIB[5]
+			// wire CELL[4].OUT_F[2]               CONFIG_SEDC.SEDCDSRERRLOCCIB[6]
+			// wire CELL[4].OUT_F[3]               CONFIG_SEDC.SEDCDSRERRLOCCIB[7]
+			// wire CELL[4].OUT_F[4]               CONFIG_SEDC.SEDCDSRERRLOCCIB[8]
+			// wire CELL[4].OUT_F[5]               CONFIG_SEDC.SEDCDSRERRLOCCIB[9]
+			// wire CELL[4].OUT_F[6]               CONFIG_SEDC.SEDCDSRERRLOCCIB[10]
+			// wire CELL[4].OUT_F[7]               CONFIG_SEDC.SEDCDSRERRLOCCIB[11]
+			// wire CELL[4].OUT_Q[0]               CONFIG_CRE.LMMIRDATA[0]
+			// wire CELL[4].OUT_Q[1]               CONFIG_CRE.LMMIRDATA[1]
+			// wire CELL[4].OUT_Q[2]               CONFIG_CRE.LMMIRDATA[2]
+			// wire CELL[4].OUT_Q[3]               CONFIG_CRE.LMMIRDATA[3]
+			// wire CELL[4].OUT_Q[4]               CONFIG_CRE.LMMIRDATA[4]
+			// wire CELL[4].OUT_Q[5]               CONFIG_CRE.LMMIRDATA[5]
+			// wire CELL[4].OUT_Q[6]               CONFIG_CRE.LMMIRDATA[6]
+			// wire CELL[4].OUT_Q[7]               CONFIG_CRE.LMMIRDATA[7]
+			// wire CELL[5].IMUX_MUXA[1]           CONFIG_CRE.LMMIWDATA[0]
+			// wire CELL[5].IMUX_MUXA[4]           CONFIG_CRE.LMMIWDATA[3]
+			// wire CELL[5].IMUX_MUXA[6]           CONFIG_CRE.LMMIREQUEST
+			// wire CELL[5].IMUX_MUXA[7]           CONFIG_CRE.LMMIWRRDN
+			// wire CELL[5].IMUX_MUXB[3]           CONFIG_CRE.LMMIOFFSET[16]
+			// wire CELL[5].IMUX_MUXB[6]           CONFIG_CRE.LMMIOFFSET[17]
+			// wire CELL[5].IMUX_MUXB[7]           CONFIG_CRE.LMMIWDATA[6]
+			// wire CELL[5].IMUX_MUXC[2]           CONFIG_CRE.LMMIWDATA[1]
+			// wire CELL[5].IMUX_MUXC[3]           CONFIG_CRE.LMMIWDATA[2]
+			// wire CELL[5].IMUX_MUXC[5]           CONFIG_CRE.LMMIWDATA[4]
+			// wire CELL[5].IMUX_MUXC[6]           CONFIG_CRE.LMMIWDATA[5]
+			// wire CELL[5].IMUX_MUXD[7]           CONFIG_CRE.LMMIWDATA[7]
+			// wire CELL[5].OUT_F[2]               CONFIG_SEDC.SEDCDSRERRLOCCIB[12]
+			// wire CELL[5].OUT_F[3]               CONFIG_SEDC.SEDCERRCCIB
+			// wire CELL[5].OUT_Q[2]               CONFIG_CRE.LMMIRDATA[8]
+			// wire CELL[5].OUT_Q[3]               CONFIG_CRE.LMMIRDATA[9]
+			// wire CELL[5].OUT_Q[6]               CONFIG_CRE.LMMIRDATA[10]
+			// wire CELL[5].OUT_Q[7]               CONFIG_CRE.LMMIRDATA[11]
+			// wire CELL[6].IMUX_MUXA[0]           CONFIG_MULTIBOOT.CIBMSPIMADDR[16]
+			// wire CELL[6].IMUX_MUXA[1]           CONFIG_MULTIBOOT.CIBMSPIMADDR[17]
+			// wire CELL[6].IMUX_MUXA[2]           CONFIG_MULTIBOOT.CIBMSPIMADDR[18]
+			// wire CELL[6].IMUX_MUXA[3]           CONFIG_MULTIBOOT.CIBMSPIMADDR[19]
+			// wire CELL[6].IMUX_MUXA[4]           CONFIG_MULTIBOOT.CIBMSPIMADDR[20]
+			// wire CELL[6].IMUX_MUXA[5]           CONFIG_MULTIBOOT.CIBMSPIMADDR[21]
+			// wire CELL[6].IMUX_MUXA[6]           CONFIG_MULTIBOOT.CIBMSPIMADDR[22]
+			// wire CELL[6].IMUX_MUXA[7]           CONFIG_MULTIBOOT.CIBMSPIMADDR[23]
+			// wire CELL[6].IMUX_MUXB[0]           CONFIG_CRE.LMMIWDATA[8]
+			// wire CELL[6].IMUX_MUXB[1]           CONFIG_CRE.LMMIWDATA[9]
+			// wire CELL[6].IMUX_MUXB[2]           CONFIG_CRE.LMMIWDATA[10]
+			// wire CELL[6].IMUX_MUXB[3]           CONFIG_CRE.LMMIWDATA[11]
+			// wire CELL[6].IMUX_MUXB[4]           CONFIG_CRE.LMMIWDATA[12]
+			// wire CELL[6].IMUX_MUXB[5]           CONFIG_CRE.LMMIWDATA[13]
+			// wire CELL[6].IMUX_MUXB[6]           CONFIG_CRE.LMMIWDATA[14]
+			// wire CELL[6].IMUX_MUXB[7]           CONFIG_CRE.LMMIWDATA[15]
+			// wire CELL[6].IMUX_MUXC[0]           CONFIG_MULTIBOOT.CIBMSPIMADDR[24]
+			// wire CELL[6].IMUX_MUXC[1]           CONFIG_MULTIBOOT.CIBMSPIMADDR[25]
+			// wire CELL[6].IMUX_MUXC[2]           CONFIG_MULTIBOOT.CIBMSPIMADDR[26]
+			// wire CELL[6].IMUX_MUXC[3]           CONFIG_MULTIBOOT.CIBMSPIMADDR[27]
+			// wire CELL[6].IMUX_MUXC[4]           CONFIG_MULTIBOOT.CIBMSPIMADDR[28]
+			// wire CELL[6].IMUX_MUXC[5]           CONFIG_MULTIBOOT.CIBMSPIMADDR[29]
+			// wire CELL[6].IMUX_MUXC[6]           CONFIG_CRE.ASFWRI
+			// wire CELL[6].IMUX_MUXC[7]           CONFIG_CRE.ASFRDI
+			// wire CELL[6].IMUX_MUXD[6]           CONFIG_MULTIBOOT.CIBMSPIMADDR[30]
+			// wire CELL[6].IMUX_MUXD[7]           CONFIG_MULTIBOOT.CIBMSPIMADDR[31]
+			// wire CELL[6].IMUX_CLK[0]            CONFIG_CRE.ASFCLKI
+			// wire CELL[6].IMUX_CLK[1]            CONFIG_CRE.LMMICLK
+			// wire CELL[6].IMUX_LSR[0]            CONFIG_CRE.ASFRESETI
+			// wire CELL[6].IMUX_LSR[1]            CONFIG_CRE.LMMIRESETN
+			// wire CELL[6].OUT_F[0]               CONFIG_CRE.LMMIRDATA[12]
+			// wire CELL[6].OUT_F[1]               CONFIG_CRE.LMMIRDATA[13]
+			// wire CELL[6].OUT_F[2]               CONFIG_CRE.LMMIRDATA[14]
+			// wire CELL[6].OUT_F[3]               CONFIG_CRE.LMMIRDATA[15]
+			// wire CELL[6].OUT_F[4]               CONFIG_CRE.LMMIRDATA[16]
+			// wire CELL[6].OUT_F[5]               CONFIG_CRE.LMMIRDATA[17]
+			// wire CELL[6].OUT_F[6]               CONFIG_CRE.LMMIRDATA[18]
+			// wire CELL[6].OUT_F[7]               CONFIG_CRE.LMMIRDATA[19]
+			// wire CELL[6].OUT_Q[0]               CONFIG_CRE.LMMIRDATA[20]
+			// wire CELL[6].OUT_Q[1]               CONFIG_CRE.LMMIRDATA[21]
+			// wire CELL[6].OUT_Q[2]               CONFIG_CRE.LMMIRDATA[22]
+			// wire CELL[6].OUT_Q[3]               CONFIG_CRE.LMMIRDATA[23]
+			// wire CELL[6].OUT_Q[4]               CONFIG_CRE.LMMIRDATA[24]
+			// wire CELL[6].OUT_Q[5]               CONFIG_CRE.LMMIRDATA[25]
+			// wire CELL[6].OUT_Q[6]               CONFIG_CRE.LMMIRDATA[26]
+			// wire CELL[6].OUT_Q[7]               CONFIG_CRE.LMMIRDATA[27]
+			// wire CELL[7].IMUX_MUXA[1]           CONFIG_CRE.LMMIWDATA[16]
+			// wire CELL[7].IMUX_MUXA[3]           CONFIG_CRE.OTM
+			// wire CELL[7].IMUX_MUXA[7]           CONFIG_CRE.LMMIWDATA[22]
+			// wire CELL[7].IMUX_MUXC[2]           CONFIG_CRE.LMMIWDATA[17]
+			// wire CELL[7].IMUX_MUXC[3]           CONFIG_CRE.LMMIWDATA[18]
+			// wire CELL[7].IMUX_MUXC[5]           CONFIG_CRE.LMMIWDATA[20]
+			// wire CELL[7].IMUX_MUXC[6]           CONFIG_CRE.LMMIWDATA[21]
+			// wire CELL[7].IMUX_MUXC[7]           CONFIG_CRE.LMMIWDATA[23]
+			// wire CELL[7].IMUX_MUXD[4]           CONFIG_CRE.LMMIWDATA[19]
+			// wire CELL[7].OUT_F[2]               CONFIG_CRE.ASFFULLO
+			// wire CELL[7].OUT_F[3]               CONFIG_CRE.ASFEMPTYO
+			// wire CELL[7].OUT_Q[2]               CONFIG_CRE.LMMIRDATA[28]
+			// wire CELL[7].OUT_Q[3]               CONFIG_CRE.LMMIRDATA[29]
+			// wire CELL[7].OUT_Q[6]               CONFIG_CRE.LMMIRDATA[30]
+			// wire CELL[7].OUT_Q[7]               CONFIG_CRE.LMMIRDATA[31]
+			// wire CELL[8].IMUX_MUXA[0]           I2C.LMMIWDATA[0]
+			// wire CELL[8].IMUX_MUXA[1]           I2C.LMMIWDATA[1]
+			// wire CELL[8].IMUX_MUXA[2]           I2C.LMMIWDATA[2]
+			// wire CELL[8].IMUX_MUXA[3]           I2C.LMMIWDATA[3]
+			// wire CELL[8].IMUX_MUXA[4]           I2C.LMMIWDATA[4]
+			// wire CELL[8].IMUX_MUXA[5]           I2C.LMMIWDATA[5]
+			// wire CELL[8].IMUX_MUXA[6]           I2C.LMMIWDATA[6]
+			// wire CELL[8].IMUX_MUXA[7]           I2C.LMMIWDATA[7]
+			// wire CELL[8].IMUX_MUXB[0]           I2C.SDAIN
+			// wire CELL[8].IMUX_MUXB[1]           I2C.SCLIN
+			// wire CELL[8].IMUX_MUXB[3]           I2C.SLEEPCLKSELN
+			// wire CELL[8].IMUX_MUXB[4]           I2C.LMMIWRRDN
+			// wire CELL[8].IMUX_MUXC[0]           I2C.LMMIOFFSET[0]
+			// wire CELL[8].IMUX_MUXC[1]           I2C.LMMIOFFSET[1]
+			// wire CELL[8].IMUX_MUXC[2]           I2C.LMMIOFFSET[2]
+			// wire CELL[8].IMUX_MUXC[3]           I2C.LMMIOFFSET[3]
+			// wire CELL[8].IMUX_MUXC[4]           I2C.LMMIOFFSET[4]
+			// wire CELL[8].IMUX_MUXC[5]           I2C.LMMIOFFSET[5]
+			// wire CELL[8].IMUX_MUXC[6]           I2C.LMMIREQUEST
+			// wire CELL[8].IMUX_CLK[0]            I2C.LMMICLK
+			// wire CELL[8].IMUX_CLK[1]            I2C.OPCGLOADCLK
+			// wire CELL[8].IMUX_LSR[0]            I2C.LMMIRESETN
+			// wire CELL[8].IMUX_LSR[1]            I2C.FIFORESET
+			// wire CELL[8].OUT_F[0]               I2C.SDAOUT
+			// wire CELL[8].OUT_F[1]               I2C.SDAOE
+			// wire CELL[8].OUT_F[2]               I2C.SDAOEN
+			// wire CELL[8].OUT_F[3]               I2C.SCLOUT
+			// wire CELL[8].OUT_F[4]               I2C.SCLOE
+			// wire CELL[8].OUT_F[5]               I2C.SCLOEN
+			// wire CELL[8].OUT_F[6]               I2C.LMMIREADY
+			// wire CELL[8].OUT_F[7]               I2C.LMMIRDATAVALID
+			// wire CELL[8].OUT_Q[0]               I2C.LMMIRDATA[0]
+			// wire CELL[8].OUT_Q[1]               I2C.LMMIRDATA[1]
+			// wire CELL[8].OUT_Q[2]               I2C.LMMIRDATA[2]
+			// wire CELL[8].OUT_Q[3]               I2C.LMMIRDATA[3]
+			// wire CELL[8].OUT_Q[4]               I2C.LMMIRDATA[4]
+			// wire CELL[8].OUT_Q[5]               I2C.LMMIRDATA[5]
+			// wire CELL[8].OUT_Q[6]               I2C.LMMIRDATA[6]
+			// wire CELL[8].OUT_Q[7]               I2C.LMMIRDATA[7]
+			// wire CELL[9].IMUX_MUXA[1]           CONFIG_CRE.LMMIWDATA[24]
+			// wire CELL[9].IMUX_MUXA[3]           JTAG.JTDO1
+			// wire CELL[9].IMUX_MUXA[4]           CONFIG_CRE.LMMIWDATA[27]
+			// wire CELL[9].IMUX_MUXA[6]           JTAG.JTDO2
+			// wire CELL[9].IMUX_MUXB[3]           CONFIG_CRE.LMMIWDATA[26]
+			// wire CELL[9].IMUX_MUXB[7]           CONFIG_CRE.LMMIWDATA[30]
+			// wire CELL[9].IMUX_MUXC[2]           CONFIG_CRE.LMMIWDATA[25]
+			// wire CELL[9].IMUX_MUXC[6]           CONFIG_CRE.LMMIWDATA[29]
+			// wire CELL[9].IMUX_MUXD[5]           CONFIG_CRE.LMMIWDATA[28]
+			// wire CELL[9].IMUX_MUXD[7]           CONFIG_CRE.LMMIWDATA[31]
+			// wire CELL[9].OUT_F[2]               CONFIG_CRE.LMMIRDATAVALID
+			// wire CELL[9].OUT_F[3]               CONFIG_CRE.LMMIREADY
+			// wire CELL[9].OUT_Q[2]               JTAG.JCE1
+			// wire CELL[9].OUT_Q[3]               JTAG.JCE2
+			// wire CELL[9].OUT_Q[6]               JTAG.JRTI1
+			// wire CELL[9].OUT_Q[7]               JTAG.JRTI2
+			// wire CELL[10].IMUX_MUXA[0]          CONFIG_IP.MBISTENABLEN
+			// wire CELL[10].IMUX_MUXA[1]          CONFIG_IP.MBISTTRRAEN
+			// wire CELL[10].IMUX_CLK[0]           I2C.SCANCLK
+			// wire CELL[10].IMUX_CLK[1]           CONFIG_CLKRST.MBISTCLK
+			// wire CELL[10].IMUX_LSR[0]           I2C.I2CLSRRSTN
+			// wire CELL[10].IMUX_LSR[1]           I2C.SCANRST
+			// wire CELL[10].OUT_F[0]              I2C.SLVADDRMATCH
+			// wire CELL[10].OUT_F[1]              I2C.SLVADDRMATCHSCL
+			// wire CELL[10].OUT_F[2]              I2C.BUSBUSY
+			// wire CELL[10].OUT_F[3]              I2C.IRQ
+			// wire CELL[10].OUT_F[4]              JTAG.JRSTN
+			// wire CELL[10].OUT_F[5]              JTAG.JSHIFT
+			// wire CELL[10].OUT_F[6]              JTAG.JTDI
+			// wire CELL[10].OUT_F[7]              CONFIG_IP.MBISTRRMATCH
+			// wire CELL[10].OUT_Q[0]              I2C.RXFIFOE
+			// wire CELL[10].OUT_Q[1]              I2C.RXFIFOAF
+			// wire CELL[10].OUT_Q[2]              I2C.RXFIFOF
+			// wire CELL[10].OUT_Q[3]              I2C.TXFIFOE
+			// wire CELL[10].OUT_Q[4]              I2C.TXFIFOAE
+			// wire CELL[10].OUT_Q[5]              I2C.TXFIFOF
+			// wire CELL[10].OUT_Q[6]              I2C.MRDCMPL
+			// wire CELL[10].OUT_Q[7]              I2C.SRDWR
+			// wire CELL[11].OUT_F[2]              JTAG.JUPDATE
+			// wire CELL[11].OUT_F[3]              I2C.INSLEEP
+			// wire CELL[11].OUT_Q[2]              CONFIG_IP.LASTADDRCIB[0]
+			// wire CELL[11].OUT_Q[3]              CONFIG_IP.LASTADDRCIB[1]
+			// wire CELL[11].OUT_Q[6]              CONFIG_IP.LASTADDRCIB[2]
+			// wire CELL[11].OUT_Q[7]              CONFIG_IP.LASTADDRCIB[3]
+			// wire CELL[12].IMUX_MUXA[0]          PMU.CIBINTSEL[0]
+			// wire CELL[12].IMUX_MUXA[1]          PMU.CIBINTSEL[1]
+			// wire CELL[12].IMUX_MUXA[2]          PMU.CIBINT
+			// wire CELL[12].IMUX_MUXA[4]          PMU.LMMIREQUEST
+			// wire CELL[12].IMUX_MUXA[6]          PMU.LMMIWRRDN
+			// wire CELL[12].IMUX_MUXA[7]          PMU.LMMIOFFSET[0]
+			// wire CELL[12].IMUX_MUXB[0]          PMU.LMMIOFFSET[1]
+			// wire CELL[12].IMUX_MUXB[1]          PMU.LMMIOFFSET[2]
+			// wire CELL[12].IMUX_MUXB[2]          PMU.LMMIWDATA[0]
+			// wire CELL[12].IMUX_MUXB[3]          PMU.LMMIWDATA[1]
+			// wire CELL[12].IMUX_MUXB[4]          PMU.LMMIWDATA[2]
+			// wire CELL[12].IMUX_MUXB[5]          PMU.LMMIWDATA[3]
+			// wire CELL[12].IMUX_MUXB[6]          PMU.LMMIWDATA[4]
+			// wire CELL[12].IMUX_MUXB[7]          PMU.LMMIWDATA[5]
+			// wire CELL[12].IMUX_MUXC[0]          PMU.LMMIWDATA[6]
+			// wire CELL[12].IMUX_MUXC[1]          PMU.LMMIWDATA[7]
+			// wire CELL[12].IMUX_MUXC[2]          PMU.LMMIOFFSET[3]
+			// wire CELL[12].IMUX_MUXD[7]          PMU.OPCGLOADCLK
+			// wire CELL[12].IMUX_CLK[0]           PMU.SCANCLK
+			// wire CELL[12].IMUX_CLK[1]           PMU.LMMICLK
+			// wire CELL[12].IMUX_LSR[0]           PMU.SCANRST
+			// wire CELL[12].IMUX_LSR[1]           PMU.LMMIRESETN
+			// wire CELL[12].OUT_F[0]              PMU.LMMIRDATA[0]
+			// wire CELL[12].OUT_F[1]              PMU.LMMIRDATA[1]
+			// wire CELL[12].OUT_F[2]              PMU.LMMIRDATA[2]
+			// wire CELL[12].OUT_F[3]              PMU.LMMIRDATA[3]
+			// wire CELL[12].OUT_F[4]              PMU.LMMIRDATA[4]
+			// wire CELL[12].OUT_F[5]              PMU.LMMIRDATA[5]
+			// wire CELL[12].OUT_F[6]              PMU.LMMIRDATA[6]
+			// wire CELL[12].OUT_F[7]              PMU.LMMIRDATA[7]
+			// wire CELL[12].OUT_Q[0]              PMU.LMMIRDATAVALID
+			// wire CELL[12].OUT_Q[1]              PMU.LMMIREADY
+			// wire CELL[12].OUT_Q[2]              CONFIG_IP.LASTADDRCIB[4]
+			// wire CELL[12].OUT_Q[3]              CONFIG_IP.LASTADDRCIB[5]
+			// wire CELL[12].OUT_Q[4]              CONFIG_IP.LASTADDRCIB[6]
+			// wire CELL[12].OUT_Q[5]              CONFIG_IP.LASTADDRCIB[7]
+			// wire CELL[12].OUT_Q[6]              CONFIG_IP.LASTADDRCIB[8]
+			// wire CELL[12].OUT_Q[7]              CONFIG_IP.LASTADDRCIB[9]
+			// wire CELL[14].OUT_F[0]              CONFIG_IP.LASTADDRCIB[10]
+			// wire CELL[14].OUT_F[1]              CONFIG_IP.LASTADDRCIB[11]
+			// wire CELL[14].OUT_F[2]              CONFIG_IP.LASTADDRCIB[12]
+			// wire CELL[14].OUT_F[3]              CONFIG_IP.LASTADDRCIB[13]
+			// wire CELL[14].OUT_F[4]              CONFIG_IP.LASTADDRCIB[14]
+			// wire CELL[14].OUT_F[5]              CONFIG_IP.LASTADDRCIB[15]
+			// wire CELL[14].OUT_Q[0]              CONFIG_SEDC.SEDCBUSYCIB
+		}
+
 		tile_class CONFIG_JD5F {
 			cell CELL[0];
 			cell CELL[1];
@@ -39216,6 +41369,103 @@ intdb {
 			// wire CELL[21].OUT_Q[6]              I2C.MRDCMPL
 			// wire CELL[21].OUT_Q[7]              I2C.SRDWR
 			// wire CELL[23].OUT_F[3]              I2C.INSLEEP
+		}
+
+		tile_class AON {
+			cell CELL[0];
+			cell CELL[1];
+
+			bel AON {
+				input PRESLEEP = CELL[0].IMUX_MUXC[1];
+				input CNTSET[0] = CELL[0].IMUX_MUXA[0];
+				input CNTSET[1] = CELL[0].IMUX_MUXA[1];
+				input CNTSET[2] = CELL[0].IMUX_MUXA[2];
+				input CNTSET[3] = CELL[0].IMUX_MUXA[3];
+				input CNTSET[4] = CELL[0].IMUX_MUXA[4];
+				input CNTSET[5] = CELL[0].IMUX_MUXA[5];
+				input CNTSET[6] = CELL[0].IMUX_MUXA[6];
+				input CNTSET[7] = CELL[0].IMUX_MUXA[7];
+				input CNTSET[8] = CELL[0].IMUX_MUXB[0];
+				input CNTSET[9] = CELL[0].IMUX_MUXB[1];
+				input CNTSET[10] = CELL[0].IMUX_MUXB[2];
+				input CNTSET[11] = CELL[0].IMUX_MUXB[3];
+				input CNTSET[12] = CELL[0].IMUX_MUXB[4];
+				input CNTSET[13] = CELL[0].IMUX_MUXB[5];
+				input CNTSET[14] = CELL[0].IMUX_MUXB[6];
+				input CNTSET[15] = CELL[0].IMUX_MUXB[7];
+				input TESTMODEEN = CELL[0].IMUX_MUXC[0];
+				output PRESLEEPREG = CELL[1].OUT_F[7];
+				output CNTSETREG[0] = CELL[0].OUT_F[0];
+				output CNTSETREG[1] = CELL[0].OUT_F[1];
+				output CNTSETREG[2] = CELL[0].OUT_F[2];
+				output CNTSETREG[3] = CELL[0].OUT_F[3];
+				output CNTSETREG[4] = CELL[0].OUT_F[4];
+				output CNTSETREG[5] = CELL[0].OUT_F[5];
+				output CNTSETREG[6] = CELL[0].OUT_F[6];
+				output CNTSETREG[7] = CELL[0].OUT_F[7];
+				output CNTSETREG[8] = CELL[0].OUT_Q[0];
+				output CNTSETREG[9] = CELL[0].OUT_Q[1];
+				output CNTSETREG[10] = CELL[0].OUT_Q[2];
+				output CNTSETREG[11] = CELL[0].OUT_Q[3];
+				output CNTSETREG[12] = CELL[0].OUT_Q[4];
+				output CNTSETREG[13] = CELL[0].OUT_Q[5];
+				output CNTSETREG[14] = CELL[0].OUT_Q[6];
+				output CNTSETREG[15] = CELL[0].OUT_Q[7];
+				output CLKISOEN = CELL[1].OUT_F[6];
+				output SIGISOEN = CELL[1].OUT_F[5];
+				output PWRDN = CELL[1].OUT_F[4];
+				output CNT1SEC = CELL[1].OUT_F[3];
+				output REGRSTDEL = CELL[1].OUT_F[2];
+				output PREAONOUT = CELL[1].OUT_F[1];
+				output OSCCLK = CELL[1].OUT_F[0];
+				output SETTLEREG1P8 = CELL[1].OUT_Q[0];
+				output TIEHIGH = CELL[1].OUT_Q[1];
+			}
+
+			// wire CELL[0].IMUX_MUXA[0]           AON.CNTSET[0]
+			// wire CELL[0].IMUX_MUXA[1]           AON.CNTSET[1]
+			// wire CELL[0].IMUX_MUXA[2]           AON.CNTSET[2]
+			// wire CELL[0].IMUX_MUXA[3]           AON.CNTSET[3]
+			// wire CELL[0].IMUX_MUXA[4]           AON.CNTSET[4]
+			// wire CELL[0].IMUX_MUXA[5]           AON.CNTSET[5]
+			// wire CELL[0].IMUX_MUXA[6]           AON.CNTSET[6]
+			// wire CELL[0].IMUX_MUXA[7]           AON.CNTSET[7]
+			// wire CELL[0].IMUX_MUXB[0]           AON.CNTSET[8]
+			// wire CELL[0].IMUX_MUXB[1]           AON.CNTSET[9]
+			// wire CELL[0].IMUX_MUXB[2]           AON.CNTSET[10]
+			// wire CELL[0].IMUX_MUXB[3]           AON.CNTSET[11]
+			// wire CELL[0].IMUX_MUXB[4]           AON.CNTSET[12]
+			// wire CELL[0].IMUX_MUXB[5]           AON.CNTSET[13]
+			// wire CELL[0].IMUX_MUXB[6]           AON.CNTSET[14]
+			// wire CELL[0].IMUX_MUXB[7]           AON.CNTSET[15]
+			// wire CELL[0].IMUX_MUXC[0]           AON.TESTMODEEN
+			// wire CELL[0].IMUX_MUXC[1]           AON.PRESLEEP
+			// wire CELL[0].OUT_F[0]               AON.CNTSETREG[0]
+			// wire CELL[0].OUT_F[1]               AON.CNTSETREG[1]
+			// wire CELL[0].OUT_F[2]               AON.CNTSETREG[2]
+			// wire CELL[0].OUT_F[3]               AON.CNTSETREG[3]
+			// wire CELL[0].OUT_F[4]               AON.CNTSETREG[4]
+			// wire CELL[0].OUT_F[5]               AON.CNTSETREG[5]
+			// wire CELL[0].OUT_F[6]               AON.CNTSETREG[6]
+			// wire CELL[0].OUT_F[7]               AON.CNTSETREG[7]
+			// wire CELL[0].OUT_Q[0]               AON.CNTSETREG[8]
+			// wire CELL[0].OUT_Q[1]               AON.CNTSETREG[9]
+			// wire CELL[0].OUT_Q[2]               AON.CNTSETREG[10]
+			// wire CELL[0].OUT_Q[3]               AON.CNTSETREG[11]
+			// wire CELL[0].OUT_Q[4]               AON.CNTSETREG[12]
+			// wire CELL[0].OUT_Q[5]               AON.CNTSETREG[13]
+			// wire CELL[0].OUT_Q[6]               AON.CNTSETREG[14]
+			// wire CELL[0].OUT_Q[7]               AON.CNTSETREG[15]
+			// wire CELL[1].OUT_F[0]               AON.OSCCLK
+			// wire CELL[1].OUT_F[1]               AON.PREAONOUT
+			// wire CELL[1].OUT_F[2]               AON.REGRSTDEL
+			// wire CELL[1].OUT_F[3]               AON.CNT1SEC
+			// wire CELL[1].OUT_F[4]               AON.PWRDN
+			// wire CELL[1].OUT_F[5]               AON.SIGISOEN
+			// wire CELL[1].OUT_F[6]               AON.CLKISOEN
+			// wire CELL[1].OUT_F[7]               AON.PRESLEEPREG
+			// wire CELL[1].OUT_Q[0]               AON.SETTLEREG1P8
+			// wire CELL[1].OUT_Q[1]               AON.TIEHIGH
 		}
 	}
 
@@ -41598,6 +43848,634 @@ intdb {
 				mux CELL[6].IMUX_DCC_CLKI[10] = CELL[6].IMUX_MUXD[7] | CELL[6].OUT_ECLKDIV_DIVOUT[1] | CELL[6].OUT_ECLKDIV_DIVOUT[5] | CELL[6].OUT_ECLKDIV_DIVOUT[9] | CELL[7].IMUX_MUXD[7] | PLL[0].OUT_PLL_CLKOS[0] | DLLDEL[3].OUT_DLLDEL_CLKO[0];
 				mux CELL[6].IMUX_DCC_CLKI[11] = CELL[3].IMUX_MUXD[7] | CELL[6].OUT_ECLKDIV_DIVOUT[4] | CELL[6].OUT_ECLKDIV_DIVOUT[6] | CELL[8].IMUX_MUXD[7] | PLL[0].OUT_PLL_CLKOP[0] | DLLDEL[1].OUT_DLLDEL_CLKO[0];
 				mux CELL[6].IMUX_DCC_CLKI[12] = CELL[6].OUT_ECLKDIV_DIVOUT[2] | CELL[6].OUT_ECLKDIV_DIVOUT[8] | CELL[6].OUT_ECLKDIV_DIVOUT[11] | CELL[8].IMUX_MUXD[7] | PLL[0].OUT_PLL_CLKOS2[0] | PLL[0].OUT_PLL_CLKOS5[0] | IO[1].OUT_IO_INCK[0] | DLLDEL[0].OUT_DLLDEL_CLKO[0];
+				mux CELL[6].IMUX_DCC_CLKI[13] = CELL[5].IMUX_MUXD[7] | CELL[6].OUT_ECLKDIV_DIVOUT[0] | CELL[6].OUT_ECLKDIV_DIVOUT[3] | CELL[6].OUT_ECLKDIV_DIVOUT[8] | CELL[7].IMUX_MUXD[7] | PLL[0].OUT_PLL_CLKOS3[0] | IO[0].OUT_IO_INCK[0] | DLLDEL[2].OUT_DLLDEL_CLKO[0];
+				mux CELL[6].IMUX_DCC_CLKI[14] = CELL[4].IMUX_MUXD[7] | CELL[6].OUT_ECLKDIV_DIVOUT[1] | CELL[6].OUT_ECLKDIV_DIVOUT[4] | CELL[6].OUT_ECLKDIV_DIVOUT[9] | PLL[0].OUT_PLL_CLKOS3[0] | PLL[0].OUT_PLL_CLKOS5[0] | IO[3].OUT_IO_INCK[0] | DLLDEL[1].OUT_DLLDEL_CLKO[0];
+				mux CELL[6].IMUX_DCC_CLKI[15] = CELL[6].OUT_ECLKDIV_DIVOUT[2] | CELL[6].OUT_ECLKDIV_DIVOUT[7] | CELL[6].OUT_ECLKDIV_DIVOUT[11] | PLL[0].OUT_PLL_CLKOS2[0] | PLL[0].OUT_PLL_CLKOS4[0] | DLLDEL[0].OUT_DLLDEL_CLKO[0] | DLLDEL[3].OUT_DLLDEL_CLKO[0];
+				mux CELL[6].IMUX_DCC_CLKI[16] = CELL[3].IMUX_MUXD[7] | CELL[5].IMUX_MUXD[7] | CELL[6].OUT_ECLKDIV_DIVOUT[4] | CELL[6].OUT_ECLKDIV_DIVOUT[7] | CELL[7].IMUX_MUXD[7] | PLL[0].OUT_PLL_CLKOS[0] | IO[3].OUT_IO_INCK[0] | DLLDEL[2].OUT_DLLDEL_CLKO[0];
+				mux CELL[6].IMUX_DCC_CLKI[17] = CELL[6].IMUX_MUXD[7] | CELL[6].OUT_ECLKDIV_DIVOUT[0] | CELL[6].OUT_ECLKDIV_DIVOUT[5] | CELL[6].OUT_ECLKDIV_DIVOUT[10] | PLL[0].OUT_PLL_CLKOS4[0] | IO[0].OUT_IO_INCK[0] | IO[2].OUT_IO_INCK[0] | IO[4].OUT_IO_INCK[0];
+				mux CELL[6].IMUX_ECLKSYNC_ECLKI[0] = CELL[5].IMUX_MUXB[0] | PLL[0].OUT_PLL_CLKOP[0] | PLL[0].OUT_PLL_CLKOS3[0] | PLL[0].OUT_PLL_CLKOS5[0] | PLL[1].OUT_PLL_CLKOS[0] | PLL[1].OUT_PLL_CLKOS2[0] | PLL[1].OUT_PLL_CLKOS4[0] | IO[0].OUT_IO_INCK[0] | IO[1].OUT_IO_INCK[0] | DLLDEL[0].OUT_DLLDEL_CLKO[0] | DLLDEL[1].OUT_DLLDEL_CLKO[0];
+				mux CELL[6].IMUX_ECLKSYNC_ECLKI[1] = CELL[5].IMUX_MUXB[1] | PLL[0].OUT_PLL_CLKOP[0] | PLL[0].OUT_PLL_CLKOS[0] | PLL[0].OUT_PLL_CLKOS4[0] | PLL[1].OUT_PLL_CLKOS2[0] | PLL[1].OUT_PLL_CLKOS3[0] | PLL[1].OUT_PLL_CLKOS5[0] | IO[0].OUT_IO_INCK[0] | IO[1].OUT_IO_INCK[0] | DLLDEL[0].OUT_DLLDEL_CLKO[0] | DLLDEL[1].OUT_DLLDEL_CLKO[0];
+				mux CELL[6].IMUX_ECLKSYNC_ECLKI[2] = CELL[5].IMUX_MUXB[2] | PLL[0].OUT_PLL_CLKOS[0] | PLL[0].OUT_PLL_CLKOS2[0] | PLL[0].OUT_PLL_CLKOS5[0] | PLL[1].OUT_PLL_CLKOP[0] | PLL[1].OUT_PLL_CLKOS3[0] | PLL[1].OUT_PLL_CLKOS4[0] | IO[0].OUT_IO_INCK[0] | IO[1].OUT_IO_INCK[0] | DLLDEL[0].OUT_DLLDEL_CLKO[0] | DLLDEL[1].OUT_DLLDEL_CLKO[0];
+				mux CELL[6].IMUX_ECLKSYNC_ECLKI[3] = CELL[5].IMUX_MUXB[3] | PLL[0].OUT_PLL_CLKOS2[0] | PLL[0].OUT_PLL_CLKOS3[0] | PLL[0].OUT_PLL_CLKOS4[0] | PLL[1].OUT_PLL_CLKOP[0] | PLL[1].OUT_PLL_CLKOS[0] | PLL[1].OUT_PLL_CLKOS5[0] | IO[0].OUT_IO_INCK[0] | IO[1].OUT_IO_INCK[0] | DLLDEL[0].OUT_DLLDEL_CLKO[0] | DLLDEL[1].OUT_DLLDEL_CLKO[0];
+				mux CELL[6].IMUX_ECLKSYNC_ECLKI[4] = CELL[5].IMUX_MUXB[4] | PLL[0].OUT_PLL_CLKOP[0] | PLL[0].OUT_PLL_CLKOS3[0] | PLL[0].OUT_PLL_CLKOS5[0] | PLL[1].OUT_PLL_CLKOS[0] | PLL[1].OUT_PLL_CLKOS2[0] | PLL[1].OUT_PLL_CLKOS4[0] | IO[2].OUT_IO_INCK[0] | IO[3].OUT_IO_INCK[0] | DLLDEL[2].OUT_DLLDEL_CLKO[0] | DLLDEL[3].OUT_DLLDEL_CLKO[0];
+				mux CELL[6].IMUX_ECLKSYNC_ECLKI[5] = CELL[5].IMUX_MUXB[5] | PLL[0].OUT_PLL_CLKOP[0] | PLL[0].OUT_PLL_CLKOS[0] | PLL[0].OUT_PLL_CLKOS4[0] | PLL[1].OUT_PLL_CLKOS2[0] | PLL[1].OUT_PLL_CLKOS3[0] | PLL[1].OUT_PLL_CLKOS5[0] | IO[2].OUT_IO_INCK[0] | IO[3].OUT_IO_INCK[0] | DLLDEL[2].OUT_DLLDEL_CLKO[0] | DLLDEL[3].OUT_DLLDEL_CLKO[0];
+				mux CELL[6].IMUX_ECLKSYNC_ECLKI[6] = CELL[5].IMUX_MUXB[6] | PLL[0].OUT_PLL_CLKOS[0] | PLL[0].OUT_PLL_CLKOS2[0] | PLL[0].OUT_PLL_CLKOS5[0] | PLL[1].OUT_PLL_CLKOP[0] | PLL[1].OUT_PLL_CLKOS3[0] | PLL[1].OUT_PLL_CLKOS4[0] | IO[2].OUT_IO_INCK[0] | IO[3].OUT_IO_INCK[0] | DLLDEL[2].OUT_DLLDEL_CLKO[0] | DLLDEL[3].OUT_DLLDEL_CLKO[0];
+				mux CELL[6].IMUX_ECLKSYNC_ECLKI[7] = CELL[5].IMUX_MUXB[7] | PLL[0].OUT_PLL_CLKOS2[0] | PLL[0].OUT_PLL_CLKOS3[0] | PLL[0].OUT_PLL_CLKOS4[0] | PLL[1].OUT_PLL_CLKOP[0] | PLL[1].OUT_PLL_CLKOS[0] | PLL[1].OUT_PLL_CLKOS5[0] | IO[2].OUT_IO_INCK[0] | IO[3].OUT_IO_INCK[0] | DLLDEL[2].OUT_DLLDEL_CLKO[0] | DLLDEL[3].OUT_DLLDEL_CLKO[0];
+				mux CELL[6].IMUX_ECLKSYNC_ECLKI[8] = CELL[5].IMUX_MUXD[0] | PLL[0].OUT_PLL_CLKOP[0] | PLL[0].OUT_PLL_CLKOS3[0] | PLL[0].OUT_PLL_CLKOS5[0] | PLL[1].OUT_PLL_CLKOS[0] | PLL[1].OUT_PLL_CLKOS2[0] | PLL[1].OUT_PLL_CLKOS4[0] | IO[4].OUT_IO_INCK[0] | IO[5].OUT_IO_INCK[0] | DLLDEL[4].OUT_DLLDEL_CLKO[0] | DLLDEL[5].OUT_DLLDEL_CLKO[0];
+				mux CELL[6].IMUX_ECLKSYNC_ECLKI[9] = CELL[5].IMUX_MUXD[1] | PLL[0].OUT_PLL_CLKOP[0] | PLL[0].OUT_PLL_CLKOS[0] | PLL[0].OUT_PLL_CLKOS4[0] | PLL[1].OUT_PLL_CLKOS2[0] | PLL[1].OUT_PLL_CLKOS3[0] | PLL[1].OUT_PLL_CLKOS5[0] | IO[4].OUT_IO_INCK[0] | IO[5].OUT_IO_INCK[0] | DLLDEL[4].OUT_DLLDEL_CLKO[0] | DLLDEL[5].OUT_DLLDEL_CLKO[0];
+				mux CELL[6].IMUX_ECLKSYNC_ECLKI[10] = CELL[5].IMUX_MUXD[2] | PLL[0].OUT_PLL_CLKOS[0] | PLL[0].OUT_PLL_CLKOS2[0] | PLL[0].OUT_PLL_CLKOS5[0] | PLL[1].OUT_PLL_CLKOP[0] | PLL[1].OUT_PLL_CLKOS3[0] | PLL[1].OUT_PLL_CLKOS4[0] | IO[4].OUT_IO_INCK[0] | IO[5].OUT_IO_INCK[0] | DLLDEL[4].OUT_DLLDEL_CLKO[0] | DLLDEL[5].OUT_DLLDEL_CLKO[0];
+				mux CELL[6].IMUX_ECLKSYNC_ECLKI[11] = CELL[5].IMUX_MUXD[3] | PLL[0].OUT_PLL_CLKOS2[0] | PLL[0].OUT_PLL_CLKOS3[0] | PLL[0].OUT_PLL_CLKOS4[0] | PLL[1].OUT_PLL_CLKOP[0] | PLL[1].OUT_PLL_CLKOS[0] | PLL[1].OUT_PLL_CLKOS5[0] | IO[4].OUT_IO_INCK[0] | IO[5].OUT_IO_INCK[0] | DLLDEL[4].OUT_DLLDEL_CLKO[0] | DLLDEL[5].OUT_DLLDEL_CLKO[0];
+				mux PLL[0].ECLKFB = PLL[0].OUT_PLL_CLKOP[0] | PLL[0].OUT_PLL_CLKOS[0] | PLL[0].OUT_PLL_CLKOS2[0] | PLL[0].OUT_PLL_CLKOS3[0] | PLL[0].OUT_PLL_CLKOS4[0] | PLL[0].OUT_PLL_CLKOS5[0] | PLL[1].OUT_PLL_CLKOP[0] | PLL[1].OUT_PLL_CLKOS[0] | PLL[1].OUT_PLL_CLKOS2[0] | PLL[1].OUT_PLL_CLKOS3[0] | PLL[1].OUT_PLL_CLKOS4[0] | PLL[1].OUT_PLL_CLKOS5[0];
+				mux DDRDLL[0].ECLK_TO_DDRDLL[0] = IO[2].ECLK[0] | IO[4].ECLK[0];
+				mux DDRDLL[0].ECLK_TO_DDRDLL[1] = IO[2].ECLK[1] | IO[4].ECLK[1];
+				mux DDRDLL[0].ECLK_TO_DDRDLL[2] = IO[2].ECLK[2] | IO[4].ECLK[2];
+				mux DDRDLL[0].ECLK_TO_DDRDLL[3] = IO[2].ECLK[3] | IO[4].ECLK[3];
+				mux DDRDLL[1].ECLK_TO_DDRDLL[0] = IO[0].ECLK[0] | IO[2].ECLK[0];
+				mux DDRDLL[1].ECLK_TO_DDRDLL[1] = IO[0].ECLK[1] | IO[2].ECLK[1];
+				mux DDRDLL[1].ECLK_TO_DDRDLL[2] = IO[0].ECLK[2] | IO[2].ECLK[2];
+				mux DDRDLL[1].ECLK_TO_DDRDLL[3] = IO[0].ECLK[3] | IO[2].ECLK[3];
+				mux IO[0].ECLK[0] = CELL[6].OUT_ECLKSYNC_ECLKO[0] | CELL[6].OUT_ECLKSYNC_ECLKO[4] | CELL[6].OUT_ECLKSYNC_ECLKO[8];
+				mux IO[0].ECLK[1] = CELL[6].OUT_ECLKSYNC_ECLKO[1] | CELL[6].OUT_ECLKSYNC_ECLKO[5] | CELL[6].OUT_ECLKSYNC_ECLKO[9];
+				mux IO[0].ECLK[2] = CELL[6].OUT_ECLKSYNC_ECLKO[2] | CELL[6].OUT_ECLKSYNC_ECLKO[6] | CELL[6].OUT_ECLKSYNC_ECLKO[10];
+				mux IO[0].ECLK[3] = CELL[6].OUT_ECLKSYNC_ECLKO[3] | CELL[6].OUT_ECLKSYNC_ECLKO[7] | CELL[6].OUT_ECLKSYNC_ECLKO[11];
+				mux IO[2].ECLK[0] = CELL[6].OUT_ECLKSYNC_ECLKO[0] | CELL[6].OUT_ECLKSYNC_ECLKO[4] | CELL[6].OUT_ECLKSYNC_ECLKO[8];
+				mux IO[2].ECLK[1] = CELL[6].OUT_ECLKSYNC_ECLKO[1] | CELL[6].OUT_ECLKSYNC_ECLKO[5] | CELL[6].OUT_ECLKSYNC_ECLKO[9];
+				mux IO[2].ECLK[2] = CELL[6].OUT_ECLKSYNC_ECLKO[2] | CELL[6].OUT_ECLKSYNC_ECLKO[6] | CELL[6].OUT_ECLKSYNC_ECLKO[10];
+				mux IO[2].ECLK[3] = CELL[6].OUT_ECLKSYNC_ECLKO[3] | CELL[6].OUT_ECLKSYNC_ECLKO[7] | CELL[6].OUT_ECLKSYNC_ECLKO[11];
+				mux IO[4].ECLK[0] = CELL[6].OUT_ECLKSYNC_ECLKO[0] | CELL[6].OUT_ECLKSYNC_ECLKO[4] | CELL[6].OUT_ECLKSYNC_ECLKO[8];
+				mux IO[4].ECLK[1] = CELL[6].OUT_ECLKSYNC_ECLKO[1] | CELL[6].OUT_ECLKSYNC_ECLKO[5] | CELL[6].OUT_ECLKSYNC_ECLKO[9];
+				mux IO[4].ECLK[2] = CELL[6].OUT_ECLKSYNC_ECLKO[2] | CELL[6].OUT_ECLKSYNC_ECLKO[6] | CELL[6].OUT_ECLKSYNC_ECLKO[10];
+				mux IO[4].ECLK[3] = CELL[6].OUT_ECLKSYNC_ECLKO[3] | CELL[6].OUT_ECLKSYNC_ECLKO[7] | CELL[6].OUT_ECLKSYNC_ECLKO[11];
+			}
+
+			bel DCC[0] {
+				input CLKI = CELL[6].IMUX_DCC_CLKI[0];
+				input CE = CELL[5].IMUX_MUXC[0];
+				output CLKO = CELL[6].OUT_DCC_CLKO[0];
+			}
+
+			bel DCC[1] {
+				input CLKI = CELL[6].IMUX_DCC_CLKI[1];
+				input CE = CELL[5].IMUX_MUXC[1];
+				output CLKO = CELL[6].OUT_DCC_CLKO[1];
+			}
+
+			bel DCC[2] {
+				input CLKI = CELL[6].IMUX_DCC_CLKI[2];
+				input CE = CELL[5].IMUX_MUXC[2];
+				output CLKO = CELL[6].OUT_DCC_CLKO[2];
+			}
+
+			bel DCC[3] {
+				input CLKI = CELL[6].IMUX_DCC_CLKI[3];
+				input CE = CELL[5].IMUX_MUXC[3];
+				output CLKO = CELL[6].OUT_DCC_CLKO[3];
+			}
+
+			bel DCC[4] {
+				input CLKI = CELL[6].IMUX_DCC_CLKI[4];
+				input CE = CELL[5].IMUX_MUXC[4];
+				output CLKO = CELL[6].OUT_DCC_CLKO[4];
+			}
+
+			bel DCC[5] {
+				input CLKI = CELL[6].IMUX_DCC_CLKI[5];
+				input CE = CELL[5].IMUX_MUXC[5];
+				output CLKO = CELL[6].OUT_DCC_CLKO[5];
+			}
+
+			bel DCC[6] {
+				input CLKI = CELL[6].IMUX_DCC_CLKI[6];
+				input CE = CELL[5].IMUX_MUXC[6];
+				output CLKO = CELL[6].OUT_DCC_CLKO[6];
+			}
+
+			bel DCC[7] {
+				input CLKI = CELL[6].IMUX_DCC_CLKI[7];
+				input CE = CELL[5].IMUX_MUXC[7];
+				output CLKO = CELL[6].OUT_DCC_CLKO[7];
+			}
+
+			bel DCC[8] {
+				input CLKI = CELL[6].IMUX_DCC_CLKI[8];
+				input CE = CELL[6].IMUX_MUXA[4];
+				output CLKO = CELL[6].OUT_DCC_CLKO[8];
+			}
+
+			bel DCC[9] {
+				input CLKI = CELL[6].IMUX_DCC_CLKI[9];
+				input CE = CELL[6].IMUX_MUXA[5];
+				output CLKO = CELL[6].OUT_DCC_CLKO[9];
+			}
+
+			bel DCC[10] {
+				input CLKI = CELL[6].IMUX_DCC_CLKI[10];
+				input CE = CELL[6].IMUX_MUXA[6];
+				output CLKO = CELL[6].OUT_DCC_CLKO[10];
+			}
+
+			bel DCC[11] {
+				input CLKI = CELL[6].IMUX_DCC_CLKI[11];
+				input CE = CELL[6].IMUX_MUXA[7];
+				output CLKO = CELL[6].OUT_DCC_CLKO[11];
+			}
+
+			bel DCC[12] {
+				input CLKI = CELL[6].IMUX_DCC_CLKI[12];
+				input CE = CELL[6].IMUX_MUXC[0];
+				output CLKO = CELL[6].OUT_DCC_CLKO[12];
+			}
+
+			bel DCC[13] {
+				input CLKI = CELL[6].IMUX_DCC_CLKI[13];
+				input CE = CELL[6].IMUX_MUXC[1];
+				output CLKO = CELL[6].OUT_DCC_CLKO[13];
+			}
+
+			bel DCC[14] {
+				input CLKI = CELL[6].IMUX_DCC_CLKI[14];
+				input CE = CELL[6].IMUX_MUXC[2];
+				output CLKO = CELL[6].OUT_DCC_CLKO[14];
+			}
+
+			bel DCC[15] {
+				input CLKI = CELL[6].IMUX_DCC_CLKI[15];
+				input CE = CELL[6].IMUX_MUXC[3];
+				output CLKO = CELL[6].OUT_DCC_CLKO[15];
+			}
+
+			bel DCC[16] {
+				input CLKI = CELL[6].IMUX_DCC_CLKI[16];
+				input CE = CELL[6].IMUX_MUXC[4];
+				output CLKO = CELL[6].OUT_DCC_CLKO[16];
+			}
+
+			bel DCC[17] {
+				input CLKI = CELL[6].IMUX_DCC_CLKI[17];
+				input CE = CELL[6].IMUX_MUXC[5];
+				output CLKO = CELL[6].OUT_DCC_CLKO[17];
+			}
+
+			bel ECLKSYNC[0] {
+				input ECLKI = CELL[6].IMUX_ECLKSYNC_ECLKI[0];
+				input STOP = CELL[6].IMUX_MUXD[2];
+				output ECLKO = CELL[6].OUT_ECLKSYNC_ECLKO[0];
+			}
+
+			bel ECLKSYNC[1] {
+				input ECLKI = CELL[6].IMUX_ECLKSYNC_ECLKI[1];
+				input STOP = CELL[6].IMUX_MUXB[4];
+				output ECLKO = CELL[6].OUT_ECLKSYNC_ECLKO[1];
+			}
+
+			bel ECLKSYNC[2] {
+				input ECLKI = CELL[6].IMUX_ECLKSYNC_ECLKI[2];
+				input STOP = CELL[6].IMUX_MUXB[7];
+				output ECLKO = CELL[6].OUT_ECLKSYNC_ECLKO[2];
+			}
+
+			bel ECLKSYNC[3] {
+				input ECLKI = CELL[6].IMUX_ECLKSYNC_ECLKI[3];
+				input STOP = CELL[6].IMUX_MUXB[5];
+				output ECLKO = CELL[6].OUT_ECLKSYNC_ECLKO[3];
+			}
+
+			bel ECLKSYNC[4] {
+				input ECLKI = CELL[6].IMUX_ECLKSYNC_ECLKI[4];
+				input STOP = CELL[6].IMUX_MUXB[2];
+				output ECLKO = CELL[6].OUT_ECLKSYNC_ECLKO[4];
+			}
+
+			bel ECLKSYNC[5] {
+				input ECLKI = CELL[6].IMUX_ECLKSYNC_ECLKI[5];
+				input STOP = CELL[6].IMUX_MUXD[3];
+				output ECLKO = CELL[6].OUT_ECLKSYNC_ECLKO[5];
+			}
+
+			bel ECLKSYNC[6] {
+				input ECLKI = CELL[6].IMUX_ECLKSYNC_ECLKI[6];
+				input STOP = CELL[6].IMUX_MUXB[1];
+				output ECLKO = CELL[6].OUT_ECLKSYNC_ECLKO[6];
+			}
+
+			bel ECLKSYNC[7] {
+				input ECLKI = CELL[6].IMUX_ECLKSYNC_ECLKI[7];
+				input STOP = CELL[6].IMUX_MUXB[6];
+				output ECLKO = CELL[6].OUT_ECLKSYNC_ECLKO[7];
+			}
+
+			bel ECLKSYNC[8] {
+				input ECLKI = CELL[6].IMUX_ECLKSYNC_ECLKI[8];
+				input STOP = CELL[6].IMUX_MUXD[1];
+				output ECLKO = CELL[6].OUT_ECLKSYNC_ECLKO[8];
+			}
+
+			bel ECLKSYNC[9] {
+				input ECLKI = CELL[6].IMUX_ECLKSYNC_ECLKI[9];
+				input STOP = CELL[6].IMUX_MUXB[3];
+				output ECLKO = CELL[6].OUT_ECLKSYNC_ECLKO[9];
+			}
+
+			bel ECLKSYNC[10] {
+				input ECLKI = CELL[6].IMUX_ECLKSYNC_ECLKI[10];
+				input STOP = CELL[6].IMUX_MUXD[0];
+				output ECLKO = CELL[6].OUT_ECLKSYNC_ECLKO[10];
+			}
+
+			bel ECLKSYNC[11] {
+				input ECLKI = CELL[6].IMUX_ECLKSYNC_ECLKI[11];
+				input STOP = CELL[6].IMUX_MUXB[0];
+				output ECLKO = CELL[6].OUT_ECLKSYNC_ECLKO[11];
+			}
+
+			bel EMIDMUX_TEST {
+				input TESTINP[0] = CELL[5].IMUX_MUXA[0];
+				input TESTINP[1] = CELL[5].IMUX_MUXA[1];
+				input TESTINP[2] = CELL[5].IMUX_MUXA[2];
+				input TESTINP[3] = CELL[5].IMUX_MUXA[3];
+			}
+
+			bel ECLKDIV[0] {
+				input ECLKIN = IO[0].ECLK[0];
+				input DIVRST = CELL[9].IMUX_LSR[0];
+				input SLIP = CELL[7].IMUX_MUXC[2];
+				input TESTINP[0] = CELL[4].IMUX_MUXC[2];
+				input TESTINP[1] = CELL[4].IMUX_MUXC[3];
+				input TESTINP[2] = CELL[4].IMUX_MUXC[4];
+				input TESTINP[3] = CELL[4].IMUX_MUXC[5];
+				output DIVOUT = CELL[6].OUT_ECLKDIV_DIVOUT[0];
+			}
+
+			bel ECLKDIV[1] {
+				input ECLKIN = IO[0].ECLK[1];
+				input DIVRST = CELL[9].IMUX_LSR[1];
+				input SLIP = CELL[7].IMUX_MUXC[3];
+				input TESTINP[0] = CELL[4].IMUX_MUXC[2];
+				input TESTINP[1] = CELL[4].IMUX_MUXC[3];
+				input TESTINP[2] = CELL[4].IMUX_MUXC[4];
+				input TESTINP[3] = CELL[4].IMUX_MUXC[5];
+				output DIVOUT = CELL[6].OUT_ECLKDIV_DIVOUT[1];
+			}
+
+			bel ECLKDIV[2] {
+				input ECLKIN = IO[0].ECLK[2];
+				input DIVRST = CELL[8].IMUX_LSR[0];
+				input SLIP = CELL[7].IMUX_MUXC[4];
+				input TESTINP[0] = CELL[4].IMUX_MUXC[2];
+				input TESTINP[1] = CELL[4].IMUX_MUXC[3];
+				input TESTINP[2] = CELL[4].IMUX_MUXC[4];
+				input TESTINP[3] = CELL[4].IMUX_MUXC[5];
+				output DIVOUT = CELL[6].OUT_ECLKDIV_DIVOUT[2];
+			}
+
+			bel ECLKDIV[3] {
+				input ECLKIN = IO[0].ECLK[3];
+				input DIVRST = CELL[8].IMUX_LSR[1];
+				input SLIP = CELL[7].IMUX_MUXC[5];
+				input TESTINP[0] = CELL[4].IMUX_MUXC[2];
+				input TESTINP[1] = CELL[4].IMUX_MUXC[3];
+				input TESTINP[2] = CELL[4].IMUX_MUXC[4];
+				input TESTINP[3] = CELL[4].IMUX_MUXC[5];
+				output DIVOUT = CELL[6].OUT_ECLKDIV_DIVOUT[3];
+			}
+
+			bel ECLKDIV[4] {
+				input ECLKIN = IO[2].ECLK[0];
+				input DIVRST = CELL[7].IMUX_LSR[0];
+				input SLIP = CELL[7].IMUX_MUXC[6];
+				input TESTINP[0] = CELL[4].IMUX_MUXC[6];
+				input TESTINP[1] = CELL[4].IMUX_MUXC[7];
+				input TESTINP[2] = CELL[4].IMUX_MUXD[0];
+				input TESTINP[3] = CELL[4].IMUX_MUXD[1];
+				output DIVOUT = CELL[6].OUT_ECLKDIV_DIVOUT[4];
+			}
+
+			bel ECLKDIV[5] {
+				input ECLKIN = IO[2].ECLK[1];
+				input DIVRST = CELL[7].IMUX_LSR[1];
+				input SLIP = CELL[7].IMUX_MUXC[7];
+				input TESTINP[0] = CELL[4].IMUX_MUXC[0];
+				input TESTINP[1] = CELL[4].IMUX_MUXC[1];
+				input TESTINP[2] = CELL[4].IMUX_MUXC[2];
+				input TESTINP[3] = CELL[4].IMUX_MUXC[3];
+				output DIVOUT = CELL[6].OUT_ECLKDIV_DIVOUT[5];
+			}
+
+			bel ECLKDIV[6] {
+				input ECLKIN = IO[2].ECLK[2];
+				input DIVRST = CELL[6].IMUX_LSR[0];
+				input SLIP = CELL[7].IMUX_MUXD[0];
+				input TESTINP[0] = CELL[4].IMUX_MUXC[0];
+				input TESTINP[1] = CELL[4].IMUX_MUXC[1];
+				input TESTINP[2] = CELL[4].IMUX_MUXC[2];
+				input TESTINP[3] = CELL[4].IMUX_MUXC[3];
+				output DIVOUT = CELL[6].OUT_ECLKDIV_DIVOUT[6];
+			}
+
+			bel ECLKDIV[7] {
+				input ECLKIN = IO[2].ECLK[3];
+				input DIVRST = CELL[6].IMUX_LSR[1];
+				input SLIP = CELL[7].IMUX_MUXD[1];
+				input TESTINP[0] = CELL[4].IMUX_MUXC[0];
+				input TESTINP[1] = CELL[4].IMUX_MUXC[1];
+				input TESTINP[2] = CELL[4].IMUX_MUXC[2];
+				input TESTINP[3] = CELL[4].IMUX_MUXC[3];
+				output DIVOUT = CELL[6].OUT_ECLKDIV_DIVOUT[7];
+			}
+
+			bel ECLKDIV[8] {
+				input ECLKIN = IO[4].ECLK[0];
+				input DIVRST = CELL[5].IMUX_LSR[0];
+				input SLIP = CELL[7].IMUX_MUXD[2];
+				input TESTINP[0] = CELL[4].IMUX_MUXD[2];
+				input TESTINP[1] = CELL[4].IMUX_MUXD[3];
+				input TESTINP[2] = CELL[4].IMUX_MUXD[4];
+				input TESTINP[3] = CELL[4].IMUX_MUXD[5];
+				output DIVOUT = CELL[6].OUT_ECLKDIV_DIVOUT[8];
+			}
+
+			bel ECLKDIV[9] {
+				input ECLKIN = IO[4].ECLK[1];
+				input DIVRST = CELL[5].IMUX_LSR[1];
+				input SLIP = CELL[7].IMUX_MUXD[3];
+				input TESTINP[0] = CELL[4].IMUX_MUXD[2];
+				input TESTINP[1] = CELL[4].IMUX_MUXD[3];
+				input TESTINP[2] = CELL[4].IMUX_MUXD[4];
+				input TESTINP[3] = CELL[4].IMUX_MUXD[5];
+				output DIVOUT = CELL[6].OUT_ECLKDIV_DIVOUT[9];
+			}
+
+			bel ECLKDIV[10] {
+				input ECLKIN = IO[4].ECLK[2];
+				input DIVRST = CELL[4].IMUX_LSR[0];
+				input SLIP = CELL[7].IMUX_MUXD[4];
+				input TESTINP[0] = CELL[4].IMUX_MUXD[2];
+				input TESTINP[1] = CELL[4].IMUX_MUXD[3];
+				input TESTINP[2] = CELL[4].IMUX_MUXD[4];
+				input TESTINP[3] = CELL[4].IMUX_MUXD[5];
+				output DIVOUT = CELL[6].OUT_ECLKDIV_DIVOUT[10];
+			}
+
+			bel ECLKDIV[11] {
+				input ECLKIN = IO[4].ECLK[3];
+				input DIVRST = CELL[4].IMUX_LSR[1];
+				input SLIP = CELL[7].IMUX_MUXD[5];
+				input TESTINP[0] = CELL[4].IMUX_MUXD[2];
+				input TESTINP[1] = CELL[4].IMUX_MUXD[3];
+				input TESTINP[2] = CELL[4].IMUX_MUXD[4];
+				input TESTINP[3] = CELL[4].IMUX_MUXD[5];
+				output DIVOUT = CELL[6].OUT_ECLKDIV_DIVOUT[11];
+			}
+
+			bel ECLKBANK_TEST[0] {
+				input TESTINP[0] = CELL[4].IMUX_MUXA[0];
+				input TESTINP[1] = CELL[4].IMUX_MUXA[1];
+				input TESTINP[2] = CELL[4].IMUX_MUXA[2];
+				input TESTINP[3] = CELL[4].IMUX_MUXA[3];
+			}
+
+			bel ECLKBANK_TEST[1] {
+				input TESTINP[0] = CELL[4].IMUX_MUXA[6];
+				input TESTINP[1] = CELL[4].IMUX_MUXA[7];
+				input TESTINP[2] = CELL[4].IMUX_MUXB[0];
+				input TESTINP[3] = CELL[4].IMUX_MUXB[1];
+			}
+
+			bel ECLKBANK_TEST[2] {
+				input TESTINP[0] = CELL[4].IMUX_MUXB[4];
+				input TESTINP[1] = CELL[4].IMUX_MUXB[5];
+				input TESTINP[2] = CELL[4].IMUX_MUXB[6];
+				input TESTINP[3] = CELL[4].IMUX_MUXB[7];
+			}
+
+			bel ECLKCASMUX_TEST[0] {
+				input TESTINP[0] = CELL[4].IMUX_MUXA[4];
+				input TESTINP[1] = CELL[4].IMUX_MUXA[5];
+			}
+
+			bel ECLKCASMUX_TEST[1] {
+				input TESTINP[0] = CELL[4].IMUX_MUXB[2];
+				input TESTINP[1] = CELL[4].IMUX_MUXB[3];
+			}
+
+			bel ECLKCASMUX_TEST[2] {
+				input TESTINP[0] = CELL[4].IMUX_MUXC[0];
+				input TESTINP[1] = CELL[4].IMUX_MUXC[1];
+			}
+
+			bel ECLKPLLFB_TEST[0] {
+				input TESTINP[0] = CELL[7].IMUX_MUXB[7];
+				input TESTINP[1] = CELL[7].IMUX_MUXB[6];
+				input TESTINP[2] = CELL[7].IMUX_MUXB[4];
+				input TESTINP[3] = CELL[7].IMUX_MUXB[5];
+			}
+
+			bel ECLK_TEST {
+			}
+
+			// wire CELL[4].IMUX_MUXA[0]           ECLKBANK_TEST[0].TESTINP[0]
+			// wire CELL[4].IMUX_MUXA[1]           ECLKBANK_TEST[0].TESTINP[1]
+			// wire CELL[4].IMUX_MUXA[2]           ECLKBANK_TEST[0].TESTINP[2]
+			// wire CELL[4].IMUX_MUXA[3]           ECLKBANK_TEST[0].TESTINP[3]
+			// wire CELL[4].IMUX_MUXA[4]           ECLKCASMUX_TEST[0].TESTINP[0]
+			// wire CELL[4].IMUX_MUXA[5]           ECLKCASMUX_TEST[0].TESTINP[1]
+			// wire CELL[4].IMUX_MUXA[6]           ECLKBANK_TEST[1].TESTINP[0]
+			// wire CELL[4].IMUX_MUXA[7]           ECLKBANK_TEST[1].TESTINP[1]
+			// wire CELL[4].IMUX_MUXB[0]           ECLKBANK_TEST[1].TESTINP[2]
+			// wire CELL[4].IMUX_MUXB[1]           ECLKBANK_TEST[1].TESTINP[3]
+			// wire CELL[4].IMUX_MUXB[2]           ECLKCASMUX_TEST[1].TESTINP[0]
+			// wire CELL[4].IMUX_MUXB[3]           ECLKCASMUX_TEST[1].TESTINP[1]
+			// wire CELL[4].IMUX_MUXB[4]           ECLKBANK_TEST[2].TESTINP[0]
+			// wire CELL[4].IMUX_MUXB[5]           ECLKBANK_TEST[2].TESTINP[1]
+			// wire CELL[4].IMUX_MUXB[6]           ECLKBANK_TEST[2].TESTINP[2]
+			// wire CELL[4].IMUX_MUXB[7]           ECLKBANK_TEST[2].TESTINP[3]
+			// wire CELL[4].IMUX_MUXC[0]           ECLKDIV[5].TESTINP[0] ECLKDIV[6].TESTINP[0] ECLKDIV[7].TESTINP[0] ECLKCASMUX_TEST[2].TESTINP[0]
+			// wire CELL[4].IMUX_MUXC[1]           ECLKDIV[5].TESTINP[1] ECLKDIV[6].TESTINP[1] ECLKDIV[7].TESTINP[1] ECLKCASMUX_TEST[2].TESTINP[1]
+			// wire CELL[4].IMUX_MUXC[2]           ECLKDIV[0].TESTINP[0] ECLKDIV[1].TESTINP[0] ECLKDIV[2].TESTINP[0] ECLKDIV[3].TESTINP[0] ECLKDIV[5].TESTINP[2] ECLKDIV[6].TESTINP[2] ECLKDIV[7].TESTINP[2]
+			// wire CELL[4].IMUX_MUXC[3]           ECLKDIV[0].TESTINP[1] ECLKDIV[1].TESTINP[1] ECLKDIV[2].TESTINP[1] ECLKDIV[3].TESTINP[1] ECLKDIV[5].TESTINP[3] ECLKDIV[6].TESTINP[3] ECLKDIV[7].TESTINP[3]
+			// wire CELL[4].IMUX_MUXC[4]           ECLKDIV[0].TESTINP[2] ECLKDIV[1].TESTINP[2] ECLKDIV[2].TESTINP[2] ECLKDIV[3].TESTINP[2]
+			// wire CELL[4].IMUX_MUXC[5]           ECLKDIV[0].TESTINP[3] ECLKDIV[1].TESTINP[3] ECLKDIV[2].TESTINP[3] ECLKDIV[3].TESTINP[3]
+			// wire CELL[4].IMUX_MUXC[6]           ECLKDIV[4].TESTINP[0]
+			// wire CELL[4].IMUX_MUXC[7]           ECLKDIV[4].TESTINP[1]
+			// wire CELL[4].IMUX_MUXD[0]           ECLKDIV[4].TESTINP[2]
+			// wire CELL[4].IMUX_MUXD[1]           ECLKDIV[4].TESTINP[3]
+			// wire CELL[4].IMUX_MUXD[2]           ECLKDIV[8].TESTINP[0] ECLKDIV[9].TESTINP[0] ECLKDIV[10].TESTINP[0] ECLKDIV[11].TESTINP[0]
+			// wire CELL[4].IMUX_MUXD[3]           ECLKDIV[8].TESTINP[1] ECLKDIV[9].TESTINP[1] ECLKDIV[10].TESTINP[1] ECLKDIV[11].TESTINP[1]
+			// wire CELL[4].IMUX_MUXD[4]           ECLKDIV[8].TESTINP[2] ECLKDIV[9].TESTINP[2] ECLKDIV[10].TESTINP[2] ECLKDIV[11].TESTINP[2]
+			// wire CELL[4].IMUX_MUXD[5]           ECLKDIV[8].TESTINP[3] ECLKDIV[9].TESTINP[3] ECLKDIV[10].TESTINP[3] ECLKDIV[11].TESTINP[3]
+			// wire CELL[4].IMUX_LSR[0]            ECLKDIV[10].DIVRST
+			// wire CELL[4].IMUX_LSR[1]            ECLKDIV[11].DIVRST
+			// wire CELL[5].IMUX_MUXA[0]           EMIDMUX_TEST.TESTINP[0]
+			// wire CELL[5].IMUX_MUXA[1]           EMIDMUX_TEST.TESTINP[1]
+			// wire CELL[5].IMUX_MUXA[2]           EMIDMUX_TEST.TESTINP[2]
+			// wire CELL[5].IMUX_MUXA[3]           EMIDMUX_TEST.TESTINP[3]
+			// wire CELL[5].IMUX_MUXC[0]           DCC[0].CE
+			// wire CELL[5].IMUX_MUXC[1]           DCC[1].CE
+			// wire CELL[5].IMUX_MUXC[2]           DCC[2].CE
+			// wire CELL[5].IMUX_MUXC[3]           DCC[3].CE
+			// wire CELL[5].IMUX_MUXC[4]           DCC[4].CE
+			// wire CELL[5].IMUX_MUXC[5]           DCC[5].CE
+			// wire CELL[5].IMUX_MUXC[6]           DCC[6].CE
+			// wire CELL[5].IMUX_MUXC[7]           DCC[7].CE
+			// wire CELL[5].IMUX_LSR[0]            ECLKDIV[8].DIVRST
+			// wire CELL[5].IMUX_LSR[1]            ECLKDIV[9].DIVRST
+			// wire CELL[6].IMUX_MUXA[4]           DCC[8].CE
+			// wire CELL[6].IMUX_MUXA[5]           DCC[9].CE
+			// wire CELL[6].IMUX_MUXA[6]           DCC[10].CE
+			// wire CELL[6].IMUX_MUXA[7]           DCC[11].CE
+			// wire CELL[6].IMUX_MUXB[0]           ECLKSYNC[11].STOP
+			// wire CELL[6].IMUX_MUXB[1]           ECLKSYNC[6].STOP
+			// wire CELL[6].IMUX_MUXB[2]           ECLKSYNC[4].STOP
+			// wire CELL[6].IMUX_MUXB[3]           ECLKSYNC[9].STOP
+			// wire CELL[6].IMUX_MUXB[4]           ECLKSYNC[1].STOP
+			// wire CELL[6].IMUX_MUXB[5]           ECLKSYNC[3].STOP
+			// wire CELL[6].IMUX_MUXB[6]           ECLKSYNC[7].STOP
+			// wire CELL[6].IMUX_MUXB[7]           ECLKSYNC[2].STOP
+			// wire CELL[6].IMUX_MUXC[0]           DCC[12].CE
+			// wire CELL[6].IMUX_MUXC[1]           DCC[13].CE
+			// wire CELL[6].IMUX_MUXC[2]           DCC[14].CE
+			// wire CELL[6].IMUX_MUXC[3]           DCC[15].CE
+			// wire CELL[6].IMUX_MUXC[4]           DCC[16].CE
+			// wire CELL[6].IMUX_MUXC[5]           DCC[17].CE
+			// wire CELL[6].IMUX_MUXD[0]           ECLKSYNC[10].STOP
+			// wire CELL[6].IMUX_MUXD[1]           ECLKSYNC[8].STOP
+			// wire CELL[6].IMUX_MUXD[2]           ECLKSYNC[0].STOP
+			// wire CELL[6].IMUX_MUXD[3]           ECLKSYNC[5].STOP
+			// wire CELL[6].IMUX_LSR[0]            ECLKDIV[6].DIVRST
+			// wire CELL[6].IMUX_LSR[1]            ECLKDIV[7].DIVRST
+			// wire CELL[6].IMUX_DCC_CLKI[0]       DCC[0].CLKI
+			// wire CELL[6].IMUX_DCC_CLKI[1]       DCC[1].CLKI
+			// wire CELL[6].IMUX_DCC_CLKI[2]       DCC[2].CLKI
+			// wire CELL[6].IMUX_DCC_CLKI[3]       DCC[3].CLKI
+			// wire CELL[6].IMUX_DCC_CLKI[4]       DCC[4].CLKI
+			// wire CELL[6].IMUX_DCC_CLKI[5]       DCC[5].CLKI
+			// wire CELL[6].IMUX_DCC_CLKI[6]       DCC[6].CLKI
+			// wire CELL[6].IMUX_DCC_CLKI[7]       DCC[7].CLKI
+			// wire CELL[6].IMUX_DCC_CLKI[8]       DCC[8].CLKI
+			// wire CELL[6].IMUX_DCC_CLKI[9]       DCC[9].CLKI
+			// wire CELL[6].IMUX_DCC_CLKI[10]      DCC[10].CLKI
+			// wire CELL[6].IMUX_DCC_CLKI[11]      DCC[11].CLKI
+			// wire CELL[6].IMUX_DCC_CLKI[12]      DCC[12].CLKI
+			// wire CELL[6].IMUX_DCC_CLKI[13]      DCC[13].CLKI
+			// wire CELL[6].IMUX_DCC_CLKI[14]      DCC[14].CLKI
+			// wire CELL[6].IMUX_DCC_CLKI[15]      DCC[15].CLKI
+			// wire CELL[6].IMUX_DCC_CLKI[16]      DCC[16].CLKI
+			// wire CELL[6].IMUX_DCC_CLKI[17]      DCC[17].CLKI
+			// wire CELL[6].OUT_DCC_CLKO[0]        DCC[0].CLKO
+			// wire CELL[6].OUT_DCC_CLKO[1]        DCC[1].CLKO
+			// wire CELL[6].OUT_DCC_CLKO[2]        DCC[2].CLKO
+			// wire CELL[6].OUT_DCC_CLKO[3]        DCC[3].CLKO
+			// wire CELL[6].OUT_DCC_CLKO[4]        DCC[4].CLKO
+			// wire CELL[6].OUT_DCC_CLKO[5]        DCC[5].CLKO
+			// wire CELL[6].OUT_DCC_CLKO[6]        DCC[6].CLKO
+			// wire CELL[6].OUT_DCC_CLKO[7]        DCC[7].CLKO
+			// wire CELL[6].OUT_DCC_CLKO[8]        DCC[8].CLKO
+			// wire CELL[6].OUT_DCC_CLKO[9]        DCC[9].CLKO
+			// wire CELL[6].OUT_DCC_CLKO[10]       DCC[10].CLKO
+			// wire CELL[6].OUT_DCC_CLKO[11]       DCC[11].CLKO
+			// wire CELL[6].OUT_DCC_CLKO[12]       DCC[12].CLKO
+			// wire CELL[6].OUT_DCC_CLKO[13]       DCC[13].CLKO
+			// wire CELL[6].OUT_DCC_CLKO[14]       DCC[14].CLKO
+			// wire CELL[6].OUT_DCC_CLKO[15]       DCC[15].CLKO
+			// wire CELL[6].OUT_DCC_CLKO[16]       DCC[16].CLKO
+			// wire CELL[6].OUT_DCC_CLKO[17]       DCC[17].CLKO
+			// wire CELL[6].IMUX_ECLKSYNC_ECLKI[0] ECLKSYNC[0].ECLKI
+			// wire CELL[6].IMUX_ECLKSYNC_ECLKI[1] ECLKSYNC[1].ECLKI
+			// wire CELL[6].IMUX_ECLKSYNC_ECLKI[2] ECLKSYNC[2].ECLKI
+			// wire CELL[6].IMUX_ECLKSYNC_ECLKI[3] ECLKSYNC[3].ECLKI
+			// wire CELL[6].IMUX_ECLKSYNC_ECLKI[4] ECLKSYNC[4].ECLKI
+			// wire CELL[6].IMUX_ECLKSYNC_ECLKI[5] ECLKSYNC[5].ECLKI
+			// wire CELL[6].IMUX_ECLKSYNC_ECLKI[6] ECLKSYNC[6].ECLKI
+			// wire CELL[6].IMUX_ECLKSYNC_ECLKI[7] ECLKSYNC[7].ECLKI
+			// wire CELL[6].IMUX_ECLKSYNC_ECLKI[8] ECLKSYNC[8].ECLKI
+			// wire CELL[6].IMUX_ECLKSYNC_ECLKI[9] ECLKSYNC[9].ECLKI
+			// wire CELL[6].IMUX_ECLKSYNC_ECLKI[10] ECLKSYNC[10].ECLKI
+			// wire CELL[6].IMUX_ECLKSYNC_ECLKI[11] ECLKSYNC[11].ECLKI
+			// wire CELL[6].OUT_ECLKSYNC_ECLKO[0]  ECLKSYNC[0].ECLKO
+			// wire CELL[6].OUT_ECLKSYNC_ECLKO[1]  ECLKSYNC[1].ECLKO
+			// wire CELL[6].OUT_ECLKSYNC_ECLKO[2]  ECLKSYNC[2].ECLKO
+			// wire CELL[6].OUT_ECLKSYNC_ECLKO[3]  ECLKSYNC[3].ECLKO
+			// wire CELL[6].OUT_ECLKSYNC_ECLKO[4]  ECLKSYNC[4].ECLKO
+			// wire CELL[6].OUT_ECLKSYNC_ECLKO[5]  ECLKSYNC[5].ECLKO
+			// wire CELL[6].OUT_ECLKSYNC_ECLKO[6]  ECLKSYNC[6].ECLKO
+			// wire CELL[6].OUT_ECLKSYNC_ECLKO[7]  ECLKSYNC[7].ECLKO
+			// wire CELL[6].OUT_ECLKSYNC_ECLKO[8]  ECLKSYNC[8].ECLKO
+			// wire CELL[6].OUT_ECLKSYNC_ECLKO[9]  ECLKSYNC[9].ECLKO
+			// wire CELL[6].OUT_ECLKSYNC_ECLKO[10] ECLKSYNC[10].ECLKO
+			// wire CELL[6].OUT_ECLKSYNC_ECLKO[11] ECLKSYNC[11].ECLKO
+			// wire CELL[6].OUT_ECLKDIV_DIVOUT[0]  ECLKDIV[0].DIVOUT
+			// wire CELL[6].OUT_ECLKDIV_DIVOUT[1]  ECLKDIV[1].DIVOUT
+			// wire CELL[6].OUT_ECLKDIV_DIVOUT[2]  ECLKDIV[2].DIVOUT
+			// wire CELL[6].OUT_ECLKDIV_DIVOUT[3]  ECLKDIV[3].DIVOUT
+			// wire CELL[6].OUT_ECLKDIV_DIVOUT[4]  ECLKDIV[4].DIVOUT
+			// wire CELL[6].OUT_ECLKDIV_DIVOUT[5]  ECLKDIV[5].DIVOUT
+			// wire CELL[6].OUT_ECLKDIV_DIVOUT[6]  ECLKDIV[6].DIVOUT
+			// wire CELL[6].OUT_ECLKDIV_DIVOUT[7]  ECLKDIV[7].DIVOUT
+			// wire CELL[6].OUT_ECLKDIV_DIVOUT[8]  ECLKDIV[8].DIVOUT
+			// wire CELL[6].OUT_ECLKDIV_DIVOUT[9]  ECLKDIV[9].DIVOUT
+			// wire CELL[6].OUT_ECLKDIV_DIVOUT[10] ECLKDIV[10].DIVOUT
+			// wire CELL[6].OUT_ECLKDIV_DIVOUT[11] ECLKDIV[11].DIVOUT
+			// wire CELL[7].IMUX_MUXB[4]           ECLKPLLFB_TEST[0].TESTINP[2]
+			// wire CELL[7].IMUX_MUXB[5]           ECLKPLLFB_TEST[0].TESTINP[3]
+			// wire CELL[7].IMUX_MUXB[6]           ECLKPLLFB_TEST[0].TESTINP[1]
+			// wire CELL[7].IMUX_MUXB[7]           ECLKPLLFB_TEST[0].TESTINP[0]
+			// wire CELL[7].IMUX_MUXC[2]           ECLKDIV[0].SLIP
+			// wire CELL[7].IMUX_MUXC[3]           ECLKDIV[1].SLIP
+			// wire CELL[7].IMUX_MUXC[4]           ECLKDIV[2].SLIP
+			// wire CELL[7].IMUX_MUXC[5]           ECLKDIV[3].SLIP
+			// wire CELL[7].IMUX_MUXC[6]           ECLKDIV[4].SLIP
+			// wire CELL[7].IMUX_MUXC[7]           ECLKDIV[5].SLIP
+			// wire CELL[7].IMUX_MUXD[0]           ECLKDIV[6].SLIP
+			// wire CELL[7].IMUX_MUXD[1]           ECLKDIV[7].SLIP
+			// wire CELL[7].IMUX_MUXD[2]           ECLKDIV[8].SLIP
+			// wire CELL[7].IMUX_MUXD[3]           ECLKDIV[9].SLIP
+			// wire CELL[7].IMUX_MUXD[4]           ECLKDIV[10].SLIP
+			// wire CELL[7].IMUX_MUXD[5]           ECLKDIV[11].SLIP
+			// wire CELL[7].IMUX_LSR[0]            ECLKDIV[4].DIVRST
+			// wire CELL[7].IMUX_LSR[1]            ECLKDIV[5].DIVRST
+			// wire CELL[8].IMUX_LSR[0]            ECLKDIV[2].DIVRST
+			// wire CELL[8].IMUX_LSR[1]            ECLKDIV[3].DIVRST
+			// wire CELL[9].IMUX_LSR[0]            ECLKDIV[0].DIVRST
+			// wire CELL[9].IMUX_LSR[1]            ECLKDIV[1].DIVRST
+			// wire IO[0].ECLK[0]                  ECLKDIV[0].ECLKIN
+			// wire IO[0].ECLK[1]                  ECLKDIV[1].ECLKIN
+			// wire IO[0].ECLK[2]                  ECLKDIV[2].ECLKIN
+			// wire IO[0].ECLK[3]                  ECLKDIV[3].ECLKIN
+			// wire IO[2].ECLK[0]                  ECLKDIV[4].ECLKIN
+			// wire IO[2].ECLK[1]                  ECLKDIV[5].ECLKIN
+			// wire IO[2].ECLK[2]                  ECLKDIV[6].ECLKIN
+			// wire IO[2].ECLK[3]                  ECLKDIV[7].ECLKIN
+			// wire IO[4].ECLK[0]                  ECLKDIV[8].ECLKIN
+			// wire IO[4].ECLK[1]                  ECLKDIV[9].ECLKIN
+			// wire IO[4].ECLK[2]                  ECLKDIV[10].ECLKIN
+			// wire IO[4].ECLK[3]                  ECLKDIV[11].ECLKIN
+		}
+
+		tile_class CLK_S_JD5UA {
+			cell CELL[0];
+			cell CELL[1];
+			cell CELL[2];
+			cell CELL[3];
+			cell CELL[4];
+			cell CELL[5];
+			cell CELL[6];
+			cell CELL[7];
+			cell CELL[8];
+			cell CELL[9];
+			cell CELL[10];
+			cell CELL[11];
+			cell PLL[0];
+			cell PLL[1];
+			cell DDRDLL[0];
+			cell DDRDLL[1];
+			cell IO[0];
+			cell IO[1];
+			cell IO[2];
+			cell IO[3];
+			cell IO[4];
+			cell IO[5];
+			cell DLLDEL[0];
+			cell DLLDEL[1];
+			cell DLLDEL[2];
+			cell DLLDEL[3];
+			cell DLLDEL[4];
+			cell DLLDEL[5];
+			cell AON;
+
+			switchbox CLK_INT {
+				mux CELL[6].IMUX_DCC_CLKI[0] = CELL[3].IMUX_MUXD[7] | CELL[6].OUT_ECLKDIV_DIVOUT[0] | CELL[6].OUT_ECLKDIV_DIVOUT[6] | CELL[6].OUT_ECLKDIV_DIVOUT[10] | PLL[0].OUT_PLL_CLKOP[0] | IO[1].OUT_IO_INCK[0] | DLLDEL[0].OUT_DLLDEL_CLKO[0];
+				mux CELL[6].IMUX_DCC_CLKI[1] = CELL[4].IMUX_MUXD[7] | CELL[5].IMUX_MUXD[7] | CELL[6].OUT_ECLKDIV_DIVOUT[3] | CELL[6].OUT_ECLKDIV_DIVOUT[8] | CELL[7].IMUX_MUXD[7] | PLL[0].OUT_PLL_CLKOS4[0] | IO[0].OUT_IO_INCK[0] | IO[4].OUT_IO_INCK[0] | DLLDEL[3].OUT_DLLDEL_CLKO[0];
+				mux CELL[6].IMUX_DCC_CLKI[2] = CELL[4].IMUX_MUXD[7] | CELL[6].OUT_ECLKDIV_DIVOUT[1] | CELL[6].OUT_ECLKDIV_DIVOUT[9] | PLL[0].OUT_PLL_CLKOS3[0] | IO[2].OUT_IO_INCK[0] | DLLDEL[1].OUT_DLLDEL_CLKO[0] | AON.IMUX_MUXD[7];
+				mux CELL[6].IMUX_DCC_CLKI[3] = CELL[6].IMUX_MUXD[7] | CELL[6].OUT_ECLKDIV_DIVOUT[2] | CELL[6].OUT_ECLKDIV_DIVOUT[6] | CELL[6].OUT_ECLKDIV_DIVOUT[11] | PLL[0].OUT_PLL_CLKOS2[0] | PLL[0].OUT_PLL_CLKOS5[0] | IO[1].OUT_IO_INCK[0] | DLLDEL[0].OUT_DLLDEL_CLKO[0];
+				mux CELL[6].IMUX_DCC_CLKI[4] = CELL[3].IMUX_MUXD[7] | CELL[5].IMUX_MUXD[7] | CELL[6].OUT_ECLKDIV_DIVOUT[0] | CELL[6].OUT_ECLKDIV_DIVOUT[3] | CELL[6].OUT_ECLKDIV_DIVOUT[10] | PLL[0].OUT_PLL_CLKOP[0] | IO[3].OUT_IO_INCK[0] | DLLDEL[2].OUT_DLLDEL_CLKO[0];
+				mux CELL[6].IMUX_DCC_CLKI[5] = CELL[5].IMUX_MUXD[7] | CELL[6].OUT_ECLKDIV_DIVOUT[4] | CELL[6].OUT_ECLKDIV_DIVOUT[7] | CELL[6].OUT_ECLKDIV_DIVOUT[10] | CELL[7].IMUX_MUXD[7] | PLL[0].OUT_PLL_CLKOS[0] | IO[2].OUT_IO_INCK[0] | DLLDEL[1].OUT_DLLDEL_CLKO[0];
+				mux CELL[6].IMUX_DCC_CLKI[6] = CELL[4].IMUX_MUXD[7] | CELL[6].OUT_ECLKDIV_DIVOUT[5] | CELL[6].OUT_ECLKDIV_DIVOUT[7] | PLL[0].OUT_PLL_CLKOS[0] | IO[0].OUT_IO_INCK[0] | IO[4].OUT_IO_INCK[0] | DLLDEL[3].OUT_DLLDEL_CLKO[0] | AON.IMUX_MUXD[7];
+				mux CELL[6].IMUX_DCC_CLKI[7] = CELL[3].IMUX_MUXD[7] | CELL[6].OUT_ECLKDIV_DIVOUT[1] | CELL[6].OUT_ECLKDIV_DIVOUT[5] | CELL[6].OUT_ECLKDIV_DIVOUT[9] | PLL[0].OUT_PLL_CLKOP[0] | PLL[0].OUT_PLL_CLKOS3[0] | IO[3].OUT_IO_INCK[0] | DLLDEL[2].OUT_DLLDEL_CLKO[0];
+				mux CELL[6].IMUX_DCC_CLKI[8] = CELL[6].IMUX_MUXD[7] | CELL[6].OUT_ECLKDIV_DIVOUT[2] | CELL[6].OUT_ECLKDIV_DIVOUT[6] | CELL[6].OUT_ECLKDIV_DIVOUT[11] | PLL[0].OUT_PLL_CLKOS2[0] | PLL[0].OUT_PLL_CLKOS5[0] | IO[1].OUT_IO_INCK[0];
+				mux CELL[6].IMUX_DCC_CLKI[9] = CELL[4].IMUX_MUXD[7] | CELL[6].IMUX_MUXD[7] | CELL[6].OUT_ECLKDIV_DIVOUT[3] | CELL[6].OUT_ECLKDIV_DIVOUT[8] | PLL[0].OUT_PLL_CLKOS4[0] | IO[2].OUT_IO_INCK[0] | IO[4].OUT_IO_INCK[0] | AON.IMUX_MUXD[7];
+				mux CELL[6].IMUX_DCC_CLKI[10] = CELL[6].IMUX_MUXD[7] | CELL[6].OUT_ECLKDIV_DIVOUT[1] | CELL[6].OUT_ECLKDIV_DIVOUT[5] | CELL[6].OUT_ECLKDIV_DIVOUT[9] | CELL[7].IMUX_MUXD[7] | PLL[0].OUT_PLL_CLKOS[0] | DLLDEL[3].OUT_DLLDEL_CLKO[0];
+				mux CELL[6].IMUX_DCC_CLKI[11] = CELL[3].IMUX_MUXD[7] | CELL[6].OUT_ECLKDIV_DIVOUT[4] | CELL[6].OUT_ECLKDIV_DIVOUT[6] | PLL[0].OUT_PLL_CLKOP[0] | DLLDEL[1].OUT_DLLDEL_CLKO[0] | AON.IMUX_MUXD[7];
+				mux CELL[6].IMUX_DCC_CLKI[12] = CELL[6].OUT_ECLKDIV_DIVOUT[2] | CELL[6].OUT_ECLKDIV_DIVOUT[8] | CELL[6].OUT_ECLKDIV_DIVOUT[11] | PLL[0].OUT_PLL_CLKOS2[0] | PLL[0].OUT_PLL_CLKOS5[0] | IO[1].OUT_IO_INCK[0] | DLLDEL[0].OUT_DLLDEL_CLKO[0] | AON.IMUX_MUXD[7];
 				mux CELL[6].IMUX_DCC_CLKI[13] = CELL[5].IMUX_MUXD[7] | CELL[6].OUT_ECLKDIV_DIVOUT[0] | CELL[6].OUT_ECLKDIV_DIVOUT[3] | CELL[6].OUT_ECLKDIV_DIVOUT[8] | CELL[7].IMUX_MUXD[7] | PLL[0].OUT_PLL_CLKOS3[0] | IO[0].OUT_IO_INCK[0] | DLLDEL[2].OUT_DLLDEL_CLKO[0];
 				mux CELL[6].IMUX_DCC_CLKI[14] = CELL[4].IMUX_MUXD[7] | CELL[6].OUT_ECLKDIV_DIVOUT[1] | CELL[6].OUT_ECLKDIV_DIVOUT[4] | CELL[6].OUT_ECLKDIV_DIVOUT[9] | PLL[0].OUT_PLL_CLKOS3[0] | PLL[0].OUT_PLL_CLKOS5[0] | IO[3].OUT_IO_INCK[0] | DLLDEL[1].OUT_DLLDEL_CLKO[0];
 				mux CELL[6].IMUX_DCC_CLKI[15] = CELL[6].OUT_ECLKDIV_DIVOUT[2] | CELL[6].OUT_ECLKDIV_DIVOUT[7] | CELL[6].OUT_ECLKDIV_DIVOUT[11] | PLL[0].OUT_PLL_CLKOS2[0] | PLL[0].OUT_PLL_CLKOS4[0] | DLLDEL[0].OUT_DLLDEL_CLKO[0] | DLLDEL[3].OUT_DLLDEL_CLKO[0];

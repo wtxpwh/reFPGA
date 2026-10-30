@@ -992,7 +992,7 @@ impl Chip {
         };
         for (col, cd) in self.columns.iter().rev() {
             if let Some(&bank) = cd.bank.get(DirV::N) {
-                if kind == NexusKind::SmallHalfIo && bank == 1 {
+                if matches!(kind, NexusKind::SmallHalfIo | NexusKind::SmallHalfIoUsb) && bank == 1 {
                     continue;
                 }
                 handle_cell(cd.io[DirV::N], Chip::DIE.cell(col, self.row_n()), true);
@@ -1007,7 +1007,7 @@ impl Chip {
         for (row, rd) in self.rows.iter() {
             handle_cell(rd.io[DirH::E], Chip::DIE.cell(self.col_e(), row), false);
         }
-        if kind == NexusKind::SmallHalfIo {
+        if matches!(kind, NexusKind::SmallHalfIo | NexusKind::SmallHalfIoUsb) {
             for (col, cd) in self.columns.iter().rev() {
                 if cd.bank.get(DirV::N) == Some(&1) {
                     handle_cell(cd.io[DirV::N], Chip::DIE.cell(col, self.row_n()), true);

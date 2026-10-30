@@ -1296,6 +1296,9 @@ target_defs! {
             input HFSDSCEN;
             input LFTRMFAB[9];
             input HFTRMFAB[9];
+
+            // LIFCL-33U only
+            input REBOOT, HFOUTCIBEN;
         }
     }
 
@@ -2406,6 +2409,28 @@ target_defs! {
             input SCANRST;
         }
 
+        bel_class AON {
+            pad AON_INT: input;
+            pad AON_OUT: output;
+            pad VSS: power;
+            pad VCCAUX: power;
+
+            input PRESLEEP;
+            input CNTSET[16];
+            input TESTMODEEN;
+            output PRESLEEPREG;
+            output CNTSETREG[16];
+            output CLKISOEN;
+            output SIGISOEN;
+            output PWRDN;
+            output CNT1SEC;
+            output REGRSTDEL;
+            output PREAONOUT;
+            output OSCCLK;
+            output SETTLEREG1P8;
+            output TIEHIGH;
+        }
+
         bel_class I2C {
             input SCLIN;
             output SCLOE;
@@ -3109,6 +3134,117 @@ target_defs! {
             pad REFP[2]: analog;
             pad VSS: power;
             pad VCC18: power;
+        }
+
+        bel_class USB {
+            pad DP, DM: inout;
+            pad ID: input;
+            pad VBUS: input;
+            pad XO_OUT_18: output;
+            pad XO_IN_18: input;
+            pad RES_EXT_USB2: analog;
+            pad TX_P, TX_M: output;
+            pad RX_P, RX_M: input;
+            pad REFIN_CLK_EXT_P: input;
+            pad REFIN_CLK_EXT_N: input;
+            pad RES_EXT_USB3: analog;
+            pad AVSS: power;
+            pad AVDD: power;
+            pad AVDD18: power;
+            pad AVDD33: power;
+            pad AVSS_TX: power;
+            pad AVDD_TX: power;
+            pad AVDD18_TX: power;
+            pad AVSS_COM: power;
+            pad AVDD18_COM: power;
+
+            input LMMICLK;
+            input LMMIRESETN;
+            input LMMIREQUEST;
+            input LMMIOFFSET[16:2];
+            input LMMIWDATA[32];
+            input LMMIWRRD_N;
+            output LMMIRDATA[32];
+            output LMMIRDATAVALID;
+            output LMMIREADY;
+
+            input XMARREADY;
+            output XMARVALID;
+            output XMARID[8];
+            output XMARADDR[32];
+            output XMARLEN[8];
+            output XMARCACHE[4];
+            output XMARPROT[3];
+            output XMARSIZE[3];
+            output XMARLOCK[2];
+            output XMARBURST[2];
+            output XMARMISC_INFO[4];
+
+            input XMAWREADY;
+            output XMAWVALID;
+            output XMAWID[8];
+            output XMAWADDR[32];
+            output XMAWLEN[8];
+            output XMAWCACHE[4];
+            output XMAWPROT[3];
+            output XMAWSIZE[3];
+            output XMAWLOCK[2];
+            output XMAWBURST[2];
+            output XMAWMISC_INFO[4];
+
+            output XMRREADY;
+            input XMRVALID;
+            input XMRID[8];
+            input XMRDATA[64];
+            input XMRLAST;
+            input XMRRESP[2];
+            input XMRMISC_INFO[4];
+
+            input XMWREADY;
+            output XMWVALID;
+            output XMWID[8];
+            output XMWDATA[64];
+            output XMWSTRB[8];
+            output XMWLAST;
+
+            output XMBREADY;
+            input XMBVALID;
+            input XMBID[8];
+            input XMBRESP[2];
+            input XMBMISC_INFO[4];
+
+            output XMCACTIVE;
+            input XMCSYSREQ;
+            output XMCSYSACK;
+
+            output INTERRUPT;
+
+            input USBPHY_REFCLK_ALT;
+            input USB_RESETN;
+            input USB2_RESET;
+            input USB3_SYSRSTN;
+            input USB3_MCUCLK;
+            input USB_SUSPENDCLK;
+
+            input DISRXDETU3RXDET;
+            input STARTRXDETU3RXDET;
+            output DISRXDETU3RXDETACK;
+
+            input SS_TX_ACJT_HIGHZ;
+            input SS_TX_ACJT_DATAIN;
+            input SS_TX_ACJT_DRVEN;
+            input SS_RX_ACJT_MODE;
+            input SS_RX_ACJT_INIT_EN;
+            input SS_RX_ACJT_INIP;
+            input SS_RX_ACJT_ININ;
+            input SS_RX_ACJT_EN;
+            output SS_RX_ACJT_OUTP;
+            output SS_RX_ACJT_OUTN;
+
+            input SCANEN_USB2PHY;
+            input SCANEN_USB3PHY;
+            input SCANEN_CGUSB3PHY;
+            input SCANEN_CTRL;
         }
     }
 
@@ -4365,6 +4501,12 @@ target_defs! {
                 bel ADC;
             }
 
+            bel_slot USB: USB;
+            tile_class USB {
+                cell CELL[20];
+                bel USB;
+            }
+
             bel_slot LRAM[3]: LRAM;
             bel_slot ALU: ALU;
             tile_class LRAM_W_JE5D15 {
@@ -5019,14 +5161,14 @@ target_defs! {
             bel_slot OSC: OSC;
             bel_slot PMU: PMU;
             bel_slot I2C: I2C;
-            tile_class CONFIG_JE5D15, CONFIG_JE5D30, CONFIG_JD5D, CONFIG_JD5U, CONFIG_JD5F {
+            tile_class CONFIG_JE5D15, CONFIG_JE5D30, CONFIG_JD5D, CONFIG_JD5U, CONFIG_JD5UA, CONFIG_JD5F {
                 if tile_class CONFIG_JE5D15 {
                     cell CELL[22];
                 } else if tile_class CONFIG_JE5D30 {
                     cell CELL[14];
                 } else if tile_class CONFIG_JD5D {
                     cell CELL[15];
-                } else if tile_class CONFIG_JD5U {
+                } else if tile_class [CONFIG_JD5U, CONFIG_JD5UA] {
                     cell CELL[15];
                 } else if tile_class CONFIG_JD5F {
                     cell CELL[24];
@@ -5042,6 +5184,12 @@ target_defs! {
                 bel OSC;
                 bel PMU;
                 bel I2C;
+            }
+
+            bel_slot AON: AON;
+            tile_class AON {
+                cell CELL[2];
+                bel AON;
             }
         }
 
@@ -5651,17 +5799,20 @@ target_defs! {
             bel_slot ECLKCASMUX_TEST[3]: ECLKCASMUX_TEST;
             bel_slot ECLKPLLFB_TEST[2]: ECLKPLLFB_TEST;
             bel_slot ECLK_TEST: ECLK_TEST;
-            tile_class CLK_S_JE5D15, CLK_S_JE5D30, CLK_S_JD5U, CLK_S_JD5F {
+            tile_class CLK_S_JE5D15, CLK_S_JE5D30, CLK_S_JD5U, CLK_S_JD5UA, CLK_S_JD5F {
                 cell CELL[12];
                 cell PLL[2];
                 cell DDRDLL[2];
                 cell IO[6], DLLDEL[6];
+                if tile_class CLK_S_JD5UA {
+                    cell AON;
+                }
                 switchbox CLK_INT;
                 bel EMIDMUX_TEST;
                 for i in 0..18 {
                     bel DCC[i];
                 }
-                if tile_class [CLK_S_JE5D15, CLK_S_JE5D30, CLK_S_JD5U] {
+                if tile_class [CLK_S_JE5D15, CLK_S_JE5D30, CLK_S_JD5U, CLK_S_JD5UA] {
                     for i in 0..12 {
                         bel ECLKSYNC[i];
                         bel ECLKDIV[i];
@@ -5683,7 +5834,7 @@ target_defs! {
                 if tile_class [CLK_S_JE5D15, CLK_S_JE5D30] {
                     bel ECLKPLLFB_TEST[0];
                     bel ECLKPLLFB_TEST[1];
-                } else if tile_class CLK_S_JD5U {
+                } else if tile_class [CLK_S_JD5U, CLK_S_JD5UA] {
                     bel ECLKPLLFB_TEST[0];
                 } else if tile_class CLK_S_JD5F {
                     bel ECLKPLLFB_TEST[1];
