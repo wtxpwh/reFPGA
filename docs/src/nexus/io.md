@@ -5,6 +5,7 @@
 {{tile nexus IO_E_A}}
 {{tile nexus IO_E_B}}
 {{tile nexus IO_E_C}}
+{{tile nexus IO_S_B}}
 {{tile nexus IO_N_A}}
 {{tile nexus IO_N_B}}
 
@@ -24,8 +25,11 @@
 
 {{tile nexus BNKREF33_W_JE5D30}}
 {{tile nexus BNKREF33_W_JD5F}}
+{{tile nexus BNKREF33_W_JD5T}}
 {{tile nexus BNKREF33_E_JE5D15}}
 {{tile nexus BNKREF33_E_JD5F}}
+{{tile nexus BNKREF33_E_JD5T}}
+{{tile nexus BNKREF33_S_JD5T}}
 {{tile nexus BNKREF33_N_JE5D15}}
 {{tile nexus BNKREF33_N_JE5D30}}
 {{tile nexus BNKREF33_N_JD5U}}
@@ -45,6 +49,7 @@
 {{tile nexus PVTCAL18_JE5D15}}
 {{tile nexus PVTCAL18_JD5D}}
 {{tile nexus PVTCAL18_JD5F}}
+{{tile nexus PVTCAL18_JD5T}}
 
 {{tile nexus DDRDLL_W}}
 {{tile nexus DDRDLL_W_JD5U}}

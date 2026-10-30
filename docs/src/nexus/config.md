@@ -6,3 +6,4 @@
 {{tile nexus CONFIG_JD5U}}
 {{tile nexus CONFIG_JD5UA}}
 {{tile nexus CONFIG_JD5F}}
+{{tile nexus CONFIG_JD5T}}
