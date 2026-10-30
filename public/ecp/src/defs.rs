@@ -4174,7 +4174,7 @@ target_defs! {
             // *_A      B1              B4
             // *_B      B1              C0
             // *_C      C4              A0
-            tile_class IO_W_A, IO_W_B, IO_E_A, IO_E_B, IO_E_C, IO_N_A, IO_N_B {
+            tile_class IO_W_A, IO_W_B, IO_E_A, IO_E_B, IO_E_C, IO_N_A, IO_N_B, IO_S_B {
                 cell CELL;
                 for i in 0..2 {
                     bel IO[i];
@@ -4441,6 +4441,10 @@ target_defs! {
                 cell CELL[15];
                 bel PCIE_X1;
             }
+            tile_class PCIE_JD5T {
+                cell CELL[20];
+                bel PCIE_X1;
+            }
 
             bel_slot PCS: PCS;
             tile_class PCS_N_JD5D {
@@ -4484,7 +4488,7 @@ target_defs! {
             }
 
             bel_slot CDR[2]: CDR;
-            tile_class CDR_S, CDR_W_JE5D30, CDR_W_JD5D, CDR_W_JD5F {
+            tile_class CDR_S, CDR_W_JE5D30, CDR_W_JD5D, CDR_W_JD5F, CDR_W_JD5T {
                 if tile_class CDR_S {
                     cell CELL[3];
                 } else {
@@ -5161,7 +5165,7 @@ target_defs! {
             bel_slot OSC: OSC;
             bel_slot PMU: PMU;
             bel_slot I2C: I2C;
-            tile_class CONFIG_JE5D15, CONFIG_JE5D30, CONFIG_JD5D, CONFIG_JD5U, CONFIG_JD5UA, CONFIG_JD5F {
+            tile_class CONFIG_JE5D15, CONFIG_JE5D30, CONFIG_JD5D, CONFIG_JD5U, CONFIG_JD5UA, CONFIG_JD5F, CONFIG_JD5T {
                 if tile_class CONFIG_JE5D15 {
                     cell CELL[22];
                 } else if tile_class CONFIG_JE5D30 {
@@ -5171,6 +5175,8 @@ target_defs! {
                 } else if tile_class [CONFIG_JD5U, CONFIG_JD5UA] {
                     cell CELL[15];
                 } else if tile_class CONFIG_JD5F {
+                    cell CELL[24];
+                } else if tile_class CONFIG_JD5T {
                     cell CELL[24];
                 }
                 bel JTAG;
@@ -5262,8 +5268,9 @@ target_defs! {
             bel_slot BNKREF: BNKREF;
             tile_class
                 BNKREF33_N_JE5D15, BNKREF33_N_JE5D30, BNKREF33_N_JD5U, BNKREF33_N_JD5F,
-                BNKREF33_W_JE5D30, BNKREF33_W_JD5F,
-                BNKREF33_E_JE5D15, BNKREF33_E_JD5F,
+                BNKREF33_W_JE5D30, BNKREF33_W_JD5F, BNKREF33_W_JD5T,
+                BNKREF33_E_JE5D15, BNKREF33_E_JD5F, BNKREF33_E_JD5T,
+                BNKREF33_S_JD5T,
                 BNKREF18_E_JE5D30, BNKREF18_E_JD5D,
                 BNKREF18_S_JE5D15, BNKREF18_S_JE5D15_4, BNKREF18_S_JE5D30, BNKREF18_S_JD5D
             {
@@ -5280,7 +5287,7 @@ target_defs! {
             bel_slot PVTCAL: PVTCAL;
             tile_class
                 PVTCAL33_JE5D15, PVTCAL33_JE5D30, PVTCAL33_JD5D,
-                PVTCAL18_JE5D15, PVTCAL18_JD5D, PVTCAL18_JD5F
+                PVTCAL18_JE5D15, PVTCAL18_JD5D, PVTCAL18_JD5F, PVTCAL18_JD5T
             {
                 cell CELL;
                 bel PVTCAL;
@@ -5841,7 +5848,7 @@ target_defs! {
                 }
                 bel ECLK_TEST;
             }
-            tile_class CLK_N_JE5D15, CLK_N_JE5D30, CLK_N_JD5D, CLK_N_JD5U, CLK_N_JD5F {
+            tile_class CLK_N_JE5D15, CLK_N_JE5D30, CLK_N_JD5D, CLK_N_JD5U, CLK_N_JD5F, CLK_N_JD5T {
                 cell CELL[6];
                 cell CONFIG;
                 if tile_class [CLK_N_JE5D15, CLK_N_JE5D30] {
@@ -5856,6 +5863,9 @@ target_defs! {
                 } else if tile_class CLK_N_JD5F {
                     cell IO[4];
                     cell PLL;
+                } else if tile_class CLK_N_JD5T {
+                    cell IO[4];
+                    cell PLL, PCIE;
                 }
                 switchbox CLK_INT;
                 bel EMIDMUX_TEST;

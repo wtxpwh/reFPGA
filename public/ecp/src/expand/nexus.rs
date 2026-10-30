@@ -59,7 +59,10 @@ impl Expander<'_, '_> {
                 ),
                 (
                     DirHV::SE,
-                    NexusKind::SmallMipiPcie | NexusKind::LargePcs(_) | NexusKind::SmallDenseIo,
+                    NexusKind::SmallMipiPcie
+                    | NexusKind::LargePcs(_)
+                    | NexusKind::SmallDenseIo
+                    | NexusKind::SmallDenseIoPcie,
                 ) => (
                     tcls::PLL_SE_JE5D30,
                     vec![cell, cell.delta(0, 1), cell.delta(0, -1)],
@@ -79,7 +82,9 @@ impl Expander<'_, '_> {
                     tcls::PLL_NE_JD5D,
                     vec![cell, cell.delta(0, -1), cell.delta(-1, 0)],
                 ),
-                (DirHV::NW, NexusKind::SmallDenseIo) => (tcls::PLL_NW_JD5F, cell.cells_e(3)),
+                (DirHV::NW, NexusKind::SmallDenseIo | NexusKind::SmallDenseIoPcie) => {
+                    (tcls::PLL_NW_JD5F, cell.cells_e(3))
+                }
                 _ => unreachable!(),
             };
             let mut tcells = Vec::from_iter(tcells.into_iter().map(Some));
@@ -106,14 +111,15 @@ impl Expander<'_, '_> {
                         }
                     }
                     // REFCLK{15,25,16,26}
-                    let s4 = if kind == NexusKind::SmallDenseIo {
-                        [None; 2]
-                    } else {
-                        [
-                            self.chip.try_get_io_cell(SpecialIoKey::Clock(Dir::S, 4)),
-                            self.chip.try_get_io_cell(SpecialIoKey::Clock(Dir::S, 5)),
-                        ]
-                    };
+                    let s4 =
+                        if matches!(kind, NexusKind::SmallDenseIo | NexusKind::SmallDenseIoPcie) {
+                            [None; 2]
+                        } else {
+                            [
+                                self.chip.try_get_io_cell(SpecialIoKey::Clock(Dir::S, 4)),
+                                self.chip.try_get_io_cell(SpecialIoKey::Clock(Dir::S, 5)),
+                            ]
+                        };
                     let s8e0 = match loc.quad.h {
                         DirH::W => [
                             self.chip.try_get_io_cell(SpecialIoKey::Clock(Dir::S, 8)),
@@ -134,11 +140,12 @@ impl Expander<'_, '_> {
                 }
                 DirV::N => {
                     // REFCLK{13,23}
-                    let cidx = if kind == NexusKind::SmallDenseIo {
-                        4
-                    } else {
-                        3
-                    };
+                    let cidx =
+                        if matches!(kind, NexusKind::SmallDenseIo | NexusKind::SmallDenseIoPcie) {
+                            4
+                        } else {
+                            3
+                        };
                     tcells.extend([
                         self.chip
                             .try_get_io_cell(SpecialIoKey::Clock(loc.quad.h.into(), cidx)),
@@ -172,6 +179,10 @@ impl Expander<'_, '_> {
         for cell in self.egrid.row(self.die, self.chip.row_s()) {
             self.egrid.add_tile_single(cell, tcls::INT_IO_S);
             if let Some(&bank) = self.chip.columns[cell.col].bank.get(DirV::S) {
+                if bank == 11 {
+                    self.egrid.add_tile_single(cell, tcls::IO_S_B);
+                    continue;
+                }
                 self.egrid[cell].region_root[rslots::ECLK] =
                     *bank_cells.entry(bank).or_insert(cell);
                 io_cells.push(cell);
@@ -196,7 +207,7 @@ impl Expander<'_, '_> {
                             (cell.delta(-4, 0).cells_e(12), tcls::DQS_JD5D)
                         }
                     }
-                    NexusKind::SmallDenseIo => {
+                    NexusKind::SmallDenseIo | NexusKind::SmallDenseIoPcie => {
                         if cell.col == self.chip.col_clk - 8 {
                             (cell.delta(-4, 0).cells_e(24), tcls::DQS_JD5F_HOLE)
                         } else {
@@ -217,7 +228,9 @@ impl Expander<'_, '_> {
             }
             let cells = match kind {
                 NexusKind::SmallMipi | NexusKind::SmallMipiPcie => &io_cells[(i - 3)..(i + 5)],
-                NexusKind::LargePcs(_) | NexusKind::SmallDenseIo => &io_cells[(i - 2)..(i + 4)],
+                NexusKind::LargePcs(_) | NexusKind::SmallDenseIo | NexusKind::SmallDenseIoPcie => {
+                    &io_cells[(i - 2)..(i + 4)]
+                }
                 NexusKind::SmallHalfIo | NexusKind::SmallHalfIoUsb => unreachable!(),
             };
             for &cell in cells {
@@ -268,7 +281,8 @@ impl Expander<'_, '_> {
                     }
                     NexusKind::SmallHalfIo
                     | NexusKind::SmallHalfIoUsb
-                    | NexusKind::SmallDenseIo => match edge {
+                    | NexusKind::SmallDenseIo
+                    | NexusKind::SmallDenseIoPcie => match edge {
                         DirH::W => tcls::DDRDLL_W_JD5U,
                         DirH::E => tcls::DDRDLL_E_JD5U,
                     },
@@ -290,7 +304,8 @@ impl Expander<'_, '_> {
                 NexusKind::LargePcs(_)
                 | NexusKind::SmallHalfIo
                 | NexusKind::SmallHalfIoUsb
-                | NexusKind::SmallDenseIo => match edge {
+                | NexusKind::SmallDenseIo
+                | NexusKind::SmallDenseIoPcie => match edge {
                     Dir::W => tcls::DLLDEL_W_B,
                     Dir::E => tcls::DLLDEL_E_B,
                     Dir::S => tcls::DLLDEL_S_B,
@@ -360,13 +375,26 @@ impl Expander<'_, '_> {
                         ],
                     );
                 }
+                NexusKind::SmallDenseIoPcie => {
+                    self.egrid.add_tile(
+                        cell,
+                        tcls::CDR_W_JD5T,
+                        &[
+                            cell,
+                            cell.delta(0, 1),
+                            cell.delta(0, 2),
+                            cell.delta(0, 3),
+                            self.chip.bel_pll(DirHV::SE, 0).cell,
+                        ],
+                    );
+                }
             }
         }
         if let Some(&cell) = self.chip.special_loc.get(&SpecialLocKey::Adc) {
             let (tcid, cell_comp) = match kind {
                 NexusKind::SmallMipi => (tcls::ADC_JE5D15, cell.delta(0, -2)),
                 NexusKind::SmallMipiPcie => (tcls::ADC_JE5D30, cell.delta(0, 2)),
-                NexusKind::LargePcs(_) | NexusKind::SmallDenseIo => {
+                NexusKind::LargePcs(_) | NexusKind::SmallDenseIo | NexusKind::SmallDenseIoPcie => {
                     (tcls::ADC_JD5D, cell.delta(0, -2))
                 }
                 NexusKind::SmallHalfIo | NexusKind::SmallHalfIoUsb => unreachable!(),
@@ -619,6 +647,41 @@ impl Expander<'_, '_> {
                         .add_tile_single(self.chip.special_loc[&SpecialLocKey::Bc(bank)], tcid);
                 }
             }
+            NexusKind::SmallDenseIoPcie => {
+                let cell = self.chip.special_loc[&SpecialLocKey::Config];
+                self.egrid.add_tile_e(cell, tcls::CONFIG_JD5T, 24);
+
+                for i in 0..2 {
+                    let cell = self.chip.special_loc[&SpecialLocKey::Lram(Dir::N, i)];
+                    self.egrid.add_tile_e(cell, tcls::LRAM_N_JD5D, 5);
+                }
+
+                let cell = self.chip.special_loc[&SpecialLocKey::Pcie];
+                self.egrid.add_tile_e(cell, tcls::PCIE_JD5T, 20);
+
+                for (bank, tcid, dx, dy) in [
+                    (0, tcls::BNKREF33_N_JD5F, 1, 0),
+                    (1, tcls::BNKREF33_N_JD5F, 5, 0),
+                    (2, tcls::BNKREF33_E_JD5F, 0, -1),
+                    (3, tcls::BNKREF33_E_JD5T, 0, 0),
+                    (4, tcls::BNKREF33_E_JD5T, 0, 0),
+                    (7, tcls::BNKREF33_W_JD5T, 0, 0),
+                    (8, tcls::BNKREF33_W_JD5T, 0, 0),
+                    (9, tcls::BNKREF33_N_JD5F, -1, -1),
+                    (11, tcls::BNKREF33_S_JD5T, 0, 0),
+                ] {
+                    let cell = self.chip.special_loc[&SpecialLocKey::Bc(bank)];
+                    if dx == 0 && dy == 0 {
+                        self.egrid.add_tile_single(cell, tcid);
+                    } else {
+                        self.egrid.add_tile(cell, tcid, &[cell, cell.delta(dx, dy)]);
+                    }
+                }
+                for (bank, tcid) in [(5, tcls::BNKREF18_S_JE5D30), (6, tcls::BNKREF18_S_JE5D30)] {
+                    self.egrid
+                        .add_tile_single(self.chip.special_loc[&SpecialLocKey::Bc(bank)], tcid);
+                }
+            }
         }
         if let Some(&cell) = self.chip.special_loc.get(&SpecialLocKey::PvtCal33) {
             let tcid = match kind {
@@ -627,7 +690,8 @@ impl Expander<'_, '_> {
                 NexusKind::LargePcs(_)
                 | NexusKind::SmallHalfIo
                 | NexusKind::SmallHalfIoUsb
-                | NexusKind::SmallDenseIo => tcls::PVTCAL33_JD5D,
+                | NexusKind::SmallDenseIo
+                | NexusKind::SmallDenseIoPcie => tcls::PVTCAL33_JD5D,
             };
             self.egrid.add_tile_single(cell, tcid);
         }
@@ -638,6 +702,7 @@ impl Expander<'_, '_> {
                     tcls::PVTCAL18_JD5D
                 }
                 NexusKind::SmallDenseIo => tcls::PVTCAL18_JD5F,
+                NexusKind::SmallDenseIoPcie => tcls::PVTCAL18_JD5T,
             };
             self.egrid.add_tile_single(cell, tcid);
         }
@@ -700,7 +765,7 @@ impl Expander<'_, '_> {
                     ]);
                 }
                 let mut tcells = Vec::from_iter(tcells.into_iter().map(Some));
-                if kind == NexusKind::SmallDenseIo {
+                if matches!(kind, NexusKind::SmallDenseIo | NexusKind::SmallDenseIoPcie) {
                     tcells.extend([
                         self.chip
                             .try_get_io_cell(SpecialIoKey::Clock(edge.into(), 0)),
@@ -735,7 +800,7 @@ impl Expander<'_, '_> {
                 }
                 match edge {
                     DirH::W => {
-                        if kind != NexusKind::SmallDenseIo {
+                        if !matches!(kind, NexusKind::SmallDenseIo | NexusKind::SmallDenseIoPcie) {
                             tcells.push(self.chip.try_bel_pll(DirHV::SW, 0).map(|bcrd| bcrd.cell));
                         }
                         tcells.push(self.chip.try_bel_pll(DirHV::NW, 0).map(|bcrd| bcrd.cell));
@@ -745,7 +810,9 @@ impl Expander<'_, '_> {
                             NexusKind::SmallMipiPcie => tcls::CLK_W_JE5D30,
                             NexusKind::LargePcs(_) => tcls::CLK_W_JD5D,
                             NexusKind::SmallHalfIo | NexusKind::SmallHalfIoUsb => unreachable!(),
-                            NexusKind::SmallDenseIo => tcls::CLK_W_JD5F,
+                            NexusKind::SmallDenseIo | NexusKind::SmallDenseIoPcie => {
+                                tcls::CLK_W_JD5F
+                            }
                         };
                         self.egrid.add_tile_part(cell, tcid, &tcells);
                     }
@@ -754,7 +821,12 @@ impl Expander<'_, '_> {
                         if matches!(kind, NexusKind::LargePcs(_)) {
                             tcells.push(self.chip.try_bel_pll(DirHV::NE, 0).map(|bcrd| bcrd.cell));
                         }
-                        if matches!(kind, NexusKind::LargePcs(_) | NexusKind::SmallDenseIo) {
+                        if matches!(
+                            kind,
+                            NexusKind::LargePcs(_)
+                                | NexusKind::SmallDenseIo
+                                | NexusKind::SmallDenseIoPcie
+                        ) {
                             tcells.push(self.chip.try_get_spec_cell(SpecialLocKey::Config));
                         }
                         let tcid = match kind {
@@ -762,7 +834,9 @@ impl Expander<'_, '_> {
                             NexusKind::SmallMipiPcie => tcls::CLK_E_JE5D30,
                             NexusKind::LargePcs(_) => tcls::CLK_E_JD5D,
                             NexusKind::SmallHalfIo | NexusKind::SmallHalfIoUsb => unreachable!(),
-                            NexusKind::SmallDenseIo => tcls::CLK_E_JD5F,
+                            NexusKind::SmallDenseIo | NexusKind::SmallDenseIoPcie => {
+                                tcls::CLK_E_JD5F
+                            }
                         };
                         self.egrid.add_tile_part(cell, tcid, &tcells);
                     }
@@ -803,7 +877,7 @@ impl Expander<'_, '_> {
             NexusKind::SmallMipiPcie | NexusKind::LargePcs(_) => tcls::CLK_S_JE5D30,
             NexusKind::SmallHalfIo => tcls::CLK_S_JD5U,
             NexusKind::SmallHalfIoUsb => tcls::CLK_S_JD5UA,
-            NexusKind::SmallDenseIo => tcls::CLK_S_JD5F,
+            NexusKind::SmallDenseIo | NexusKind::SmallDenseIoPcie => tcls::CLK_S_JD5F,
         };
         self.egrid.add_tile_part(cell_s, tcid, &tcells);
 
@@ -851,6 +925,16 @@ impl Expander<'_, '_> {
                     self.chip.try_bel_pll(DirHV::NW, 0).map(|bcrd| bcrd.cell),
                 ]);
             }
+            NexusKind::SmallDenseIoPcie => {
+                tcells.extend([
+                    self.chip.try_get_io_cell(SpecialIoKey::Clock(Dir::N, 0)),
+                    self.chip.try_get_io_cell(SpecialIoKey::Clock(Dir::N, 1)),
+                    self.chip.try_get_io_cell(SpecialIoKey::Clock(Dir::N, 2)),
+                    self.chip.try_get_io_cell(SpecialIoKey::Clock(Dir::N, 3)),
+                    self.chip.try_bel_pll(DirHV::NW, 0).map(|bcrd| bcrd.cell),
+                    self.chip.try_get_spec_cell(SpecialLocKey::Pcie),
+                ]);
+            }
         }
         let tcid = match kind {
             NexusKind::SmallMipi => tcls::CLK_N_JE5D15,
@@ -858,6 +942,7 @@ impl Expander<'_, '_> {
             NexusKind::LargePcs(_) => tcls::CLK_N_JD5D,
             NexusKind::SmallHalfIo | NexusKind::SmallHalfIoUsb => tcls::CLK_N_JD5U,
             NexusKind::SmallDenseIo => tcls::CLK_N_JD5F,
+            NexusKind::SmallDenseIoPcie => tcls::CLK_N_JD5T,
         };
         self.egrid.add_tile_part(cell_n, tcid, &tcells);
 
@@ -874,6 +959,7 @@ impl Expander<'_, '_> {
                 | NexusKind::SmallHalfIo
                 | NexusKind::SmallHalfIoUsb
                 | NexusKind::SmallDenseIo
+                | NexusKind::SmallDenseIoPcie
         ) {
             tcells.extend([cell.delta(-1, 9), cell.delta(0, 9)]);
         }
@@ -887,9 +973,10 @@ impl Expander<'_, '_> {
             NexusKind::SmallMipi => tcls::CLK_ROOT_JE5D15,
             NexusKind::SmallMipiPcie => tcls::CLK_ROOT_JE5D30,
             NexusKind::LargePcs(_) => tcls::CLK_ROOT_JD5D,
-            NexusKind::SmallHalfIo | NexusKind::SmallHalfIoUsb | NexusKind::SmallDenseIo => {
-                tcls::CLK_ROOT_JD5U
-            }
+            NexusKind::SmallHalfIo
+            | NexusKind::SmallHalfIoUsb
+            | NexusKind::SmallDenseIo
+            | NexusKind::SmallDenseIoPcie => tcls::CLK_ROOT_JD5U,
         };
         self.egrid.add_tile(cell, tcid, &tcells);
     }

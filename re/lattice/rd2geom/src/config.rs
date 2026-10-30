@@ -1157,6 +1157,7 @@ impl ChipContext<'_> {
             (tcls::CONFIG_JD5U, 2, 0, 12, 8),
             (tcls::CONFIG_JD5UA, 2, 0, 12, 8),
             (tcls::CONFIG_JD5F, 0, 21, 11, 16),
+            (tcls::CONFIG_JD5T, 0, 21, 11, 16),
         ] {
             for &tcrd in &self.edev.tile_index[tcid] {
                 let cell = tcrd.delta(dx, 0);
@@ -1175,6 +1176,7 @@ impl ChipContext<'_> {
                         ("CONFIG_LMMIE_CORE_LMMI_MODEL", true)
                     }
                     NexusKind::SmallDenseIo => ("CONFIG_LMMIB_CORE_LMMI_MODEL", true),
+                    NexusKind::SmallDenseIoPcie => ("CONFIG_LMMIF_CORE_LMMI_MODEL", true),
                 };
                 let lmmi_kind = lmmi_suffix.strip_suffix("_LMMI_MODEL").unwrap();
 

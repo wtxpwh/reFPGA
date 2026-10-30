@@ -17,7 +17,7 @@ impl ChipContext<'_> {
     fn get_nexus_pio_suffix(&self, bcrd: BelCoord) -> &'static str {
         let edge = self.chip.get_io_edge(bcrd.cell);
         let idx = bslots::IO.index_of(bcrd.slot).unwrap();
-        let is_hp = edge == Dir::S;
+        let is_hp = edge == Dir::S && self.chip.get_io_bank(bcrd.cell) != 11;
         if is_hp {
             if matches!(self.chip.kind, ChipKind::Nexus(NexusKind::LargePcs(_))) {
                 ["DIFFIO18A_CORE_IOA", "SEIO18A_CORE_IOB"][idx]
@@ -32,7 +32,7 @@ impl ChipContext<'_> {
     fn get_nexus_iol_suffix(&self, bcrd: BelCoord) -> &'static str {
         let edge = self.chip.get_io_edge(bcrd.cell);
         let idx = bslots::IO.index_of(bcrd.slot).unwrap();
-        let is_hp = edge == Dir::S;
+        let is_hp = edge == Dir::S && self.chip.get_io_bank(bcrd.cell) != 11;
         if is_hp {
             [
                 "IOLOGIC_CORE_I_GEARING_PIC_TOP_A",
@@ -51,7 +51,7 @@ impl ChipContext<'_> {
             NexusKind::SmallMipi | NexusKind::SmallMipiPcie => "DQSBUF_CORE_I_DQS_TOP",
             NexusKind::LargePcs(_) => "DQSBUFA_CORE_I_DQS_TOP",
             NexusKind::SmallHalfIo | NexusKind::SmallHalfIoUsb => unreachable!(),
-            NexusKind::SmallDenseIo => "DQSBUFB_CORE_I_DQS_TOP",
+            NexusKind::SmallDenseIo | NexusKind::SmallDenseIoPcie => "DQSBUFB_CORE_I_DQS_TOP",
         }
     }
 
@@ -132,7 +132,7 @@ impl ChipContext<'_> {
         let (bank_base, num_banks) = match kind {
             NexusKind::SmallMipi | NexusKind::SmallMipiPcie | NexusKind::LargePcs(_) => (3, 3),
             NexusKind::SmallHalfIo | NexusKind::SmallHalfIoUsb => (2, 3),
-            NexusKind::SmallDenseIo => (5, 2),
+            NexusKind::SmallDenseIo | NexusKind::SmallDenseIoPcie => (5, 2),
         };
         let tcrd = self.chip.clk_emid(Dir::S).tile(tslots::CLK);
         for i in 0..num_banks {
@@ -300,7 +300,7 @@ impl ChipContext<'_> {
                     ([2, 0][i], 1)
                 }
                 NexusKind::SmallHalfIo | NexusKind::SmallHalfIoUsb => [(1, 2), (0, 1)][i],
-                NexusKind::SmallDenseIo => (0, 1),
+                NexusKind::SmallDenseIo | NexusKind::SmallDenseIoPcie => (0, 1),
             };
             let cslot_b0 = CLK_S_JE5D15::IO[2 * bidx0];
             let cslot_b1 = CLK_S_JE5D15::IO[2 * bidx1];
@@ -468,7 +468,7 @@ impl ChipContext<'_> {
             NexusKind::SmallMipi | NexusKind::SmallMipiPcie => "DQSBUF_CORE",
             NexusKind::LargePcs(_) => "DQSBUFA_CORE",
             NexusKind::SmallHalfIo | NexusKind::SmallHalfIoUsb => unreachable!(),
-            NexusKind::SmallDenseIo => "DQSBUFB_CORE",
+            NexusKind::SmallDenseIo | NexusKind::SmallDenseIoPcie => "DQSBUFB_CORE",
         };
         let wire_inck = self.get_inck_wire_nexus(bcrd_io);
         let wire_paddi = self.get_paddi_wire_nexus(bcrd_io);
@@ -606,9 +606,12 @@ impl ChipContext<'_> {
         let is_jd5u = self.edev[tcrd].class == tcls::IO_HP_S_JD5U;
         let skip_hpio_pip = matches!(
             kind,
-            NexusKind::SmallDenseIo | NexusKind::SmallHalfIo | NexusKind::SmallHalfIoUsb
+            NexusKind::SmallDenseIo
+                | NexusKind::SmallDenseIoPcie
+                | NexusKind::SmallHalfIo
+                | NexusKind::SmallHalfIoUsb
         );
-        let is_hp = edge == Dir::S;
+        let is_hp = edge == Dir::S && self.chip.get_io_bank(bcrd.cell) != 11;
         let iol = if is_hp {
             format!("IOLOGIC_CORE_I_GEARING_PIC_TOP_{ab}")
         } else {
@@ -790,9 +793,15 @@ impl ChipContext<'_> {
                 (NexusKind::SmallHalfIo | NexusKind::SmallHalfIoUsb, 2..=4) => {
                     (true, "BNKREF18_CORE")
                 }
-                (NexusKind::SmallDenseIo, 0..=4 | 7..=8) => (false, "BNKREF33_CORE"),
-                (NexusKind::SmallDenseIo, 9) => (false, "BNKREF33_CORE_BNKREF330"),
-                (NexusKind::SmallDenseIo, 5 | 6) => (true, "BNKREF18_CORE"),
+                (NexusKind::SmallDenseIo | NexusKind::SmallDenseIoPcie, 0..=4 | 7..=8 | 11) => {
+                    (false, "BNKREF33_CORE")
+                }
+                (NexusKind::SmallDenseIo | NexusKind::SmallDenseIoPcie, 9) => {
+                    (false, "BNKREF33_CORE_BNKREF330")
+                }
+                (NexusKind::SmallDenseIo | NexusKind::SmallDenseIoPcie, 5 | 6) => {
+                    (true, "BNKREF18_CORE")
+                }
                 _ => unreachable!(),
             };
             let cell = match (kind, bank) {
@@ -800,6 +809,7 @@ impl ChipContext<'_> {
                 (NexusKind::SmallMipi, 1) => bcrd.step(Dir::S, 1),
                 (NexusKind::SmallMipi, 3 | 5) => bcrd.step(Dir::W, 16),
                 (NexusKind::SmallMipi, 4) => bcrd.step(Dir::W, 10),
+                (NexusKind::SmallDenseIoPcie, 9) => bcrd.step(Dir::W, 1),
                 _ => bcrd.cell,
             };
             self.extract_bel_cell(bcrd, cell)
@@ -830,11 +840,13 @@ impl ChipContext<'_> {
             } else {
                 bel.name_rc("PVTCAL18_CORE");
             }
-            bel.suffix(if kind == NexusKind::SmallMipi {
-                "PVTCAL18_CORE"
-            } else {
-                "PVTCAL18_CORE_PVTCAL0"
-            });
+            bel.suffix(
+                if matches!(kind, NexusKind::SmallMipi | NexusKind::SmallDenseIoPcie) {
+                    "PVTCAL18_CORE"
+                } else {
+                    "PVTCAL18_CORE_PVTCAL0"
+                },
+            );
         }
     }
 
@@ -849,7 +861,9 @@ impl ChipContext<'_> {
                     [cell_tile.delta(0, 2), cell_tile.delta(0, 1)]
                 }
                 NexusKind::SmallHalfIo | NexusKind::SmallHalfIoUsb => unreachable!(),
-                NexusKind::SmallDenseIo => [cell_tile.delta(0, 3), cell_tile.delta(0, 1)],
+                NexusKind::SmallDenseIo | NexusKind::SmallDenseIoPcie => {
+                    [cell_tile.delta(0, 3), cell_tile.delta(0, 1)]
+                }
             };
             for (i, cell) in cdrs.into_iter().enumerate() {
                 let bcrd = cell_tile.bel(bslots::CDR[i]);

@@ -142,6 +142,8 @@ pub enum NexusKind {
     /// - 5, 6: S, HP IO; has 2× CDR in bank 6
     /// - 7, 8, 9: W
     SmallDenseIo,
+    // LFMXO5-65T
+    SmallDenseIoPcie,
 }
 
 impl NexusKind {
@@ -153,6 +155,7 @@ impl NexusKind {
             NexusKind::SmallHalfIo => false,
             NexusKind::SmallHalfIoUsb => false,
             NexusKind::SmallDenseIo => false,
+            NexusKind::SmallDenseIoPcie => false,
         }
     }
 }
@@ -255,6 +258,7 @@ impl Display for ChipKind {
             ChipKind::Nexus(NexusKind::SmallHalfIo) => write!(f, "nexus_small_half_io"),
             ChipKind::Nexus(NexusKind::SmallHalfIoUsb) => write!(f, "nexus_small_half_io_usb"),
             ChipKind::Nexus(NexusKind::SmallDenseIo) => write!(f, "nexus_small_dense_io"),
+            ChipKind::Nexus(NexusKind::SmallDenseIoPcie) => write!(f, "nexus_small_dense_io_pcie"),
         }
     }
 }

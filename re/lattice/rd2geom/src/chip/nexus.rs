@@ -63,6 +63,8 @@ impl ChipBuilder<'_> {
             } else {
                 NexusKind::SmallHalfIo
             }
+        } else if has_pcie {
+            NexusKind::SmallDenseIoPcie
         } else {
             NexusKind::SmallDenseIo
         });
@@ -183,7 +185,8 @@ impl ChipBuilder<'_> {
                             }
                             NexusKind::SmallMipiPcie
                             | NexusKind::LargePcs(_)
-                            | NexusKind::SmallDenseIo => {
+                            | NexusKind::SmallDenseIo
+                            | NexusKind::SmallDenseIoPcie => {
                                 cell.row -= 1;
                             }
                             _ => unreachable!(),
@@ -458,6 +461,50 @@ impl ChipBuilder<'_> {
                     Chip::DIE.cell(self.chip.col_w(), self.chip.row_s() + 5),
                 );
             }
+
+            NexusKind::SmallDenseIoPcie => {
+                self.chip.special_loc.insert(
+                    SpecialLocKey::Config,
+                    Chip::DIE.cell(self.chip.col_w() + 73, self.chip.row_n()),
+                );
+
+                self.chip.special_loc.insert(
+                    SpecialLocKey::Lram(Dir::N, 0),
+                    Chip::DIE.cell(self.chip.col_w() + 2, self.chip.row_n()),
+                );
+                self.chip.special_loc.insert(
+                    SpecialLocKey::Lram(Dir::N, 1),
+                    Chip::DIE.cell(self.chip.col_w() + 25, self.chip.row_n()),
+                );
+
+                for (bank, x, y) in [
+                    (0, 6, 81),
+                    (1, 82, 81),
+                    (2, 97, 81),
+                    (3, 97, 54),
+                    (4, 97, 18),
+                    (5, 54, 0),
+                    (6, 43, 0),
+                    (11, 0, 0),
+                    (7, 0, 18),
+                    (8, 0, 54),
+                    (9, 1, 81),
+                ] {
+                    self.chip.special_loc.insert(
+                        SpecialLocKey::Bc(bank),
+                        Chip::DIE.cell(self.chip.col_w() + x, self.chip.row_s() + y),
+                    );
+                }
+
+                self.chip.special_loc.insert(
+                    SpecialLocKey::PvtCal33,
+                    Chip::DIE.cell(self.chip.col_e() - 1, self.chip.row_n()),
+                );
+                self.chip.special_loc.insert(
+                    SpecialLocKey::PvtCal18,
+                    Chip::DIE.cell(self.chip.col_w() + 23, self.chip.row_s()),
+                );
+            }
         }
     }
 
@@ -518,6 +565,7 @@ impl ChipBuilder<'_> {
             ("SYSIO_B8_C", (false, 8)),
             ("SYSIO_B9", (false, 9)),
             ("SYSIO_B9_C", (false, 9)),
+            ("SYSIO_B11", (false, 11)),
         ]);
         for tile in &self.grid.tiles {
             let Some(&(is_jtag_en, bank)) = tiles.get(&tile.kind.as_str()) else {
@@ -693,7 +741,7 @@ impl ChipBuilder<'_> {
                 4 => (Dir::S, 8 + idx),
                 _ => unreachable!(),
             },
-            NexusKind::SmallDenseIo => match bank {
+            NexusKind::SmallDenseIo | NexusKind::SmallDenseIoPcie => match bank {
                 0 => (Dir::N, idx),
                 1 => (Dir::N, 2 + idx),
                 2 => (Dir::E, 4 + idx),
@@ -795,7 +843,7 @@ impl ChipBuilder<'_> {
                         NexusKind::SmallMipi => cdr.delta(1, 0),
                         NexusKind::SmallMipiPcie | NexusKind::LargePcs(_) => cdr.delta(0, 2),
                         NexusKind::SmallHalfIo | NexusKind::SmallHalfIoUsb => unreachable!(),
-                        NexusKind::SmallDenseIo => cdr.delta(0, 3),
+                        NexusKind::SmallDenseIo | NexusKind::SmallDenseIoPcie => cdr.delta(0, 3),
                     };
                     SpecialIoKey::CdrRx(if cell == cdr0 { 0 } else { 1 })
                 }

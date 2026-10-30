@@ -364,6 +364,7 @@ impl<'dev> ChipContext<'dev> {
                 "CONFIG_LMMIA_CORE_LMMI_MODEL",
                 "CONFIG_LMMIB_CORE_LMMI_MODEL",
                 "CONFIG_LMMIE_CORE_LMMI_MODEL",
+                "CONFIG_LMMIF_CORE_LMMI_MODEL",
                 "OSC_CORE",
                 "OSCD_CORE",
                 "PMU_CORE",

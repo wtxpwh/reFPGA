@@ -573,7 +573,7 @@ impl<'a> BondContext<'a> {
                         | NexusKind::SmallMipiPcie
                         | NexusKind::LargePcs(_) => 3,
                         NexusKind::SmallHalfIo | NexusKind::SmallHalfIoUsb => 2,
-                        NexusKind::SmallDenseIo => 5,
+                        NexusKind::SmallDenseIo | NexusKind::SmallDenseIoPcie => 5,
                     };
                     let bidx = bank - base;
                     idx += (bidx * 4) as u8;
@@ -587,7 +587,7 @@ impl<'a> BondContext<'a> {
                             idx += (bidx * 3) as u8;
                         }
                         NexusKind::SmallHalfIo | NexusKind::SmallHalfIoUsb => unreachable!(),
-                        NexusKind::SmallDenseIo => {
+                        NexusKind::SmallDenseIo | NexusKind::SmallDenseIoPcie => {
                             idx += match bank {
                                 7 => 0,
                                 8 => 2,
@@ -606,7 +606,7 @@ impl<'a> BondContext<'a> {
                             idx += (bidx * 3) as u8;
                         }
                         NexusKind::SmallHalfIo | NexusKind::SmallHalfIoUsb => unreachable!(),
-                        NexusKind::SmallDenseIo => {
+                        NexusKind::SmallDenseIo | NexusKind::SmallDenseIoPcie => {
                             idx += match bank {
                                 4 => 0,
                                 3 => 2,
@@ -622,7 +622,7 @@ impl<'a> BondContext<'a> {
                     | NexusKind::LargePcs(_)
                     | NexusKind::SmallHalfIo
                     | NexusKind::SmallHalfIoUsb => {}
-                    NexusKind::SmallDenseIo => {
+                    NexusKind::SmallDenseIo | NexusKind::SmallDenseIoPcie => {
                         idx += (bank * 2) as u8;
                     }
                 },

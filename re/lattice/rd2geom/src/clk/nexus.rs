@@ -97,6 +97,7 @@ impl ChipContext<'_> {
                             | NexusKind::SmallHalfIo
                             | NexusKind::SmallHalfIoUsb
                             | NexusKind::SmallDenseIo
+                            | NexusKind::SmallDenseIoPcie
                     )) {
                 RcMode::Base
             } else {
@@ -104,7 +105,7 @@ impl ChipContext<'_> {
             };
             let num_cib_we = match kind {
                 NexusKind::SmallMipi | NexusKind::SmallMipiPcie => 10,
-                NexusKind::LargePcs(_) | NexusKind::SmallDenseIo => 9,
+                NexusKind::LargePcs(_) | NexusKind::SmallDenseIo | NexusKind::SmallDenseIoPcie => 9,
                 NexusKind::SmallHalfIo | NexusKind::SmallHalfIoUsb => 0,
             };
             let (lrbt, dcc_in, ci_mid, num_dcc, num_cib) = match edge {
@@ -130,7 +131,7 @@ impl ChipContext<'_> {
                 }
                 match edge {
                     Dir::H(edge) => {
-                        if kind == NexusKind::SmallDenseIo {
+                        if matches!(kind, NexusKind::SmallDenseIo | NexusKind::SmallDenseIoPcie) {
                             let io = defs::nexus::tcls::CLK_W_JD5F::IO;
                             let dlldel = defs::nexus::tcls::CLK_W_JD5F::DLLDEL;
                             let banks = match edge {
@@ -260,7 +261,10 @@ impl ChipContext<'_> {
                         }
                     }
                     Dir::S => {
-                        let num_banks = if kind == NexusKind::SmallDenseIo {
+                        let num_banks = if matches!(
+                            kind,
+                            NexusKind::SmallDenseIo | NexusKind::SmallDenseIoPcie
+                        ) {
                             2
                         } else {
                             3
@@ -268,7 +272,7 @@ impl ChipContext<'_> {
                         for i in 0..(num_banks * 4) {
                             ex.input_xlat_rc_mode(format!("JECLKDIV{i}_{suffix}"), mode);
                         }
-                        if kind != NexusKind::SmallDenseIo {
+                        if !matches!(kind, NexusKind::SmallDenseIo | NexusKind::SmallDenseIoPcie) {
                             ex.input_xlat_rc_mode(format!("JLLCLKOP_{suffix}"), mode)
                                 .input_xlat_rc_mode(format!("JLLCLKOS_{suffix}"), mode)
                                 .input_xlat_rc_mode(format!("JLLCLKOS2_{suffix}"), mode)
@@ -365,7 +369,7 @@ impl ChipContext<'_> {
                                     );
                                 }
                             }
-                            NexusKind::SmallDenseIo => {
+                            NexusKind::SmallDenseIo | NexusKind::SmallDenseIoPcie => {
                                 ex.input_xlat_rc_mode_nudge(
                                     format!("JPCLKT50_{suffix}"),
                                     mode,
@@ -544,7 +548,7 @@ impl ChipContext<'_> {
                                     );
                                 }
                             }
-                            NexusKind::SmallDenseIo => {
+                            NexusKind::SmallDenseIo | NexusKind::SmallDenseIoPcie => {
                                 let io = defs::nexus::tcls::CLK_N_JD5F::IO;
                                 ex.input_xlat_rc_mode(format!("JULCLKOP_{suffix}"), mode)
                                     .input_xlat_rc_mode(format!("JULCLKOS_{suffix}"), mode)
@@ -559,13 +563,24 @@ impl ChipContext<'_> {
                                         io[i].wire(wires::OUT_IO_INCK[0]),
                                     );
                                 }
+                                if kind == NexusKind::SmallDenseIoPcie {
+                                    ex.input_xlat_rc_mode(format!("JPCIELINKCLK0_{suffix}"), mode)
+                                        .input_xlat_rc_mode(format!("JPCIEUSRCLK0_{suffix}"), mode)
+                                        .input_xlat_rc_mode(format!("JPCIECLKTX0_{suffix}"), mode)
+                                        .input_xlat_rc_mode(format!("JPCIECLKRX0_{suffix}"), mode);
+                                }
                             }
                         }
                     }
                 }
                 if edge == Dir::N
                     || (edge == Dir::E
-                        && matches!(kind, NexusKind::LargePcs(_) | NexusKind::SmallDenseIo))
+                        && matches!(
+                            kind,
+                            NexusKind::LargePcs(_)
+                                | NexusKind::SmallDenseIo
+                                | NexusKind::SmallDenseIoPcie
+                        ))
                 {
                     ex.input_xlat_rc_mode(format!("JOSCHF_{suffix}"), mode)
                         .input_xlat_rc_mode(format!("JOSCLF_{suffix}"), mode);

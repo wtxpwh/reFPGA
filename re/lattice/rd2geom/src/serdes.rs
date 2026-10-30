@@ -1359,56 +1359,62 @@ impl ChipContext<'_> {
     }
 
     pub fn process_pcie_x1_nexus(&mut self) {
-        for &tcrd in &self.edev.tile_index[tcls::PCIE_JE5D30] {
-            let (_r, c) = self.rc(tcrd.cell);
-            let mut bel = self.extract_bel(tcrd.bel(bslots::PCIE_X1));
-            bel.names([
-                format!("TPCIE_CORE{c}"),
-                "SD0_TXDP".to_string(),
-                "SD0_TXDN".to_string(),
-                "SD0_RXDP".to_string(),
-                "SD0_RXDN".to_string(),
-                "SD0_REFCLKP".to_string(),
-                "SD0_REFCLKN".to_string(),
-                "SD0_REXT".to_string(),
-                "SD0_REFRET".to_string(),
-            ])
-            .suffix("PCIE_CORE_PCIE0")
-            .output_bind_rc_io(
-                bcls::PCIE_X1::ECKINDO,
-                "JECKINDO_PCIE_CORE_PCIE0",
-                wires::OUT_PCIE_LINKCLK.cell(0),
-            )
-            .output_bind_rc_io(
-                bcls::PCIE_X1::CKUSRO,
-                "JCKUSRO_PCIE_CORE_PCIE0",
-                wires::OUT_PCIE_USRCLK[0].cell(0),
-            )
-            .output_bind_rc_io(
-                bcls::PCIE_X1::ETXCKDO,
-                "JETXCKDO_PCIE_CORE_PCIE0",
-                wires::OUT_PCS_CLKTX[0].cell(0),
-            )
-            .output_bind_rc_io(
-                bcls::PCIE_X1::ERXCKDO,
-                "JERXCKDO_PCIE_CORE_PCIE0",
-                wires::OUT_PCS_CLKRX[0].cell(0),
-            );
-            for (pin, pad) in [
-                ("S0RXP", "SD0_RXP"),
-                ("S0RXN", "SD0_RXN"),
-                ("S0TXP", "SD0_TXP"),
-                ("S0TXN", "SD0_TXN"),
-                ("S0REXT", "SD0_REXT"),
-                ("S0REFRET", "SD0_REFRET"),
-                ("S0REFCKP", "SD0_REFCLKP"),
-                ("S0REFCKN", "SD0_REFCLKN"),
-            ] {
-                let pad_apio = &format!("{pad}_APIO");
-                bel.add_wire_rc_io(pin, format!("J{pin}_PCIE_CORE_PCIE0"))
-                    .add_wire_rc_io(pad_apio, format!("JPAD_APIO_{pad}"))
-                    .claim_pip(pin, pad_apio)
-                    .claim_pip(pad_apio, pin);
+        for tcid in [tcls::PCIE_JE5D30, tcls::PCIE_JD5T] {
+            for &tcrd in &self.edev.tile_index[tcid] {
+                let (_r, c) = self.rc(tcrd.cell);
+                let mut bel = self.extract_bel(tcrd.bel(bslots::PCIE_X1));
+                bel.names([
+                    format!("TPCIE_CORE{c}"),
+                    "SD0_TXDP".to_string(),
+                    "SD0_TXDN".to_string(),
+                    "SD0_RXDP".to_string(),
+                    "SD0_RXDN".to_string(),
+                    "SD0_REFCLKP".to_string(),
+                    "SD0_REFCLKN".to_string(),
+                    "SD0_REXT".to_string(),
+                    "SD0_REFRET".to_string(),
+                ])
+                .suffix("PCIE_CORE_PCIE0")
+                .output_bind_rc_io(
+                    bcls::PCIE_X1::ECKINDO,
+                    "JECKINDO_PCIE_CORE_PCIE0",
+                    wires::OUT_PCIE_LINKCLK.cell(0),
+                )
+                .output_bind_rc_io(
+                    bcls::PCIE_X1::CKUSRO,
+                    "JCKUSRO_PCIE_CORE_PCIE0",
+                    wires::OUT_PCIE_USRCLK[0].cell(0),
+                )
+                .output_bind_rc_io(
+                    bcls::PCIE_X1::ETXCKDO,
+                    "JETXCKDO_PCIE_CORE_PCIE0",
+                    wires::OUT_PCS_CLKTX[0].cell(0),
+                )
+                .output_bind_rc_io(
+                    bcls::PCIE_X1::ERXCKDO,
+                    "JERXCKDO_PCIE_CORE_PCIE0",
+                    wires::OUT_PCS_CLKRX[0].cell(0),
+                );
+                for (pin, pad) in [
+                    ("S0RXP", "SD0_RXP"),
+                    ("S0RXN", "SD0_RXN"),
+                    ("S0TXP", "SD0_TXP"),
+                    ("S0TXN", "SD0_TXN"),
+                    ("S0REXT", "SD0_REXT"),
+                    ("S0REFRET", "SD0_REFRET"),
+                    ("S0REFCKP", "SD0_REFCLKP"),
+                    ("S0REFCKN", "SD0_REFCLKN"),
+                ] {
+                    let pad_apio = &format!("{pad}_APIO");
+                    bel.add_wire_rc_io(pin, format!("J{pin}_PCIE_CORE_PCIE0"))
+                        .add_wire_rc_io(pad_apio, format!("JPAD_APIO_{pad}"))
+                        .claim_pip(pin, pad_apio)
+                        .claim_pip(pad_apio, pin);
+                }
+                if tcid == tcls::PCIE_JD5T {
+                    // stub?
+                    bel.add_wire_rc_io("OPCGLDCK", "JOPCGLDCK_PCIE_CORE_PCIE0");
+                }
             }
         }
     }
