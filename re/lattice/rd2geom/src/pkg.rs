@@ -1,13 +1,9 @@
-use std::{
-    assert_matches,
-    collections::BTreeMap,
-    path::{Path, PathBuf},
-};
+use std::{assert_matches, collections::BTreeMap, path::PathBuf};
 
 use prjcombine_ecp::{
     bond::{AdcPad, AscPad, Bond, BondKind, BondPad, CfgPad, MipiPad, PfrPad, PllSet, SerdesPad},
     chip::{
-        Chip, ChipKind, IoGroupKind, MachXo2Kind, NexusKind, PllLoc, PllPad, RowKind, SpecialIoKey,
+        Chip, ChipKind, IoGroupKind, NexusKind, PllLoc, PllPad, RowKind, SpecialIoKey,
         SpecialLocKey,
     },
 };
@@ -16,7 +12,6 @@ use prjcombine_interconnect::{
     dir::{Dir, DirH, DirHV, DirV},
     grid::{CellCoord, ColId, ColIdExt, DieIdExt, EdgeIoCoord, RowId, RowIdExt, TileIobId},
 };
-use prjcombine_re_lattice_naming::ChipNaming;
 use prjcombine_re_lattice_rawdump::Part;
 use prjcombine_types::{Polarity, bscan::BScanPad, enumerable::EnumMap};
 
@@ -26,9 +21,10 @@ use crate::{
 };
 
 struct BondContext<'a> {
-    datadir: &'a Path,
+    datadirs: &'a [PathBuf],
     part: &'a Part,
     chip: &'a Chip,
+    nph: &'a str,
     pkg: PkgData,
     bond: Bond,
     special_io: BTreeMap<SpecialIoKey, EdgeIoCoord>,
@@ -49,190 +45,19 @@ enum SpecIoResult {
 
 impl<'a> BondContext<'a> {
     fn get_filename(&self) -> PathBuf {
-        let (dir, fname) = match self.chip.kind {
-            ChipKind::Scm => {
-                let size = match self.chip.rows.len() {
-                    46 => 15,
-                    58 => 25,
-                    72 => 40,
-                    96 => 80,
-                    118 => 115,
-                    _ => unreachable!(),
-                };
-                ("or5s00", format!("or5s{size}"))
-            }
-            ChipKind::Ecp => (
-                "ep5g00",
-                format!(
-                    "ep5g{r}x{c}",
-                    r = self.chip.rows.len(),
-                    c = self.chip.columns.len()
-                ),
-            ),
-            ChipKind::Xp => (
-                "mg5g00",
-                format!(
-                    "mg5g{r}x{c}",
-                    r = self.chip.rows.len(),
-                    c = self.chip.columns.len()
-                ),
-            ),
-            ChipKind::MachXo => {
-                if self.part.name.starts_with("LPTM") {
-                    (
-                        "mj5g00p",
-                        format!(
-                            "mj5g{r}x{c}p",
-                            r = self.chip.rows.len(),
-                            c = self.chip.columns.len()
-                        ),
-                    )
-                } else {
-                    (
-                        if self.chip.special_loc.contains_key(&SpecialLocKey::Ebr(0)) {
-                            "mj5g00e"
-                        } else {
-                            "mj5g00"
-                        },
-                        format!(
-                            "mj5g{r}x{c}",
-                            r = self.chip.rows.len(),
-                            c = self.chip.columns.len()
-                        ),
-                    )
+        for datadir in self.datadirs {
+            for sub in datadir.read_dir().unwrap() {
+                let sub = sub.unwrap();
+                let fname = sub
+                    .path()
+                    .join("data")
+                    .join(format!("{nph}.pkg", nph = self.nph));
+                if fname.exists() {
+                    return fname;
                 }
             }
-            ChipKind::Ecp2 => (
-                "ep5a00",
-                format!(
-                    "ep5a{r}x{c}",
-                    r = self.chip.rows.len(),
-                    c = self.chip.columns.len()
-                ),
-            ),
-            ChipKind::Ecp2M => (
-                "ep5m00",
-                format!(
-                    "ep5m{r}x{c}",
-                    r = self.chip.rows.len(),
-                    c = self.chip.columns.len()
-                ),
-            ),
-            ChipKind::Xp2 => (
-                "mg5a00",
-                format!(
-                    "mg5a{r}x{c}",
-                    r = self.chip.rows.len(),
-                    c = self.chip.columns.len()
-                ),
-            ),
-            ChipKind::Ecp3(_) => {
-                let is_a = self.part.name.ends_with('A');
-                if is_a {
-                    (
-                        "ep5c00a",
-                        format!(
-                            "ec5a{r}x{c}",
-                            r = self.chip.rows.len(),
-                            c = self.chip.columns.len()
-                        ),
-                    )
-                } else {
-                    (
-                        "ep5c00",
-                        format!(
-                            "ep5c{r}x{c}",
-                            r = self.chip.rows.len(),
-                            c = self.chip.columns.len()
-                        ),
-                    )
-                }
-            }
-            ChipKind::MachXo2(kind) => {
-                let size = if kind == MachXo2Kind::MachXo2 {
-                    match self.chip.rows.len() {
-                        6 => 256,
-                        7 => 640,
-                        11 => 1200,
-                        14 => 2000,
-                        21 => 4000,
-                        26 => 7000,
-                        30 => 10000,
-                        _ => unreachable!(),
-                    }
-                } else {
-                    match self.chip.rows.len() {
-                        11 => 1300,
-                        14 => 2100,
-                        21 => 4300,
-                        26 => 6900,
-                        30 => 9400,
-                        _ => unreachable!(),
-                    }
-                };
-                match self.part.name.as_str() {
-                    "LPTM21" => ("xo2c00ap", "xo2c1200p".to_string()),
-                    "LPTM21L" => ("xo2c00ap", "xo2c1200apl".to_string()),
-                    _ => match kind {
-                        MachXo2Kind::MachXo2 => (
-                            if self.chip.rows.values().any(|rd| rd.kind == RowKind::Ebr) {
-                                "xo2c00a"
-                            } else {
-                                "xo2c00"
-                            },
-                            format!("xo2c{size}"),
-                        ),
-                        MachXo2Kind::MachXo3L => ("xo3c00a", format!("xo3c{size}")),
-                        MachXo2Kind::MachXo3Lfp => ("xo3c00d", format!("xo3d{size}")),
-                        MachXo2Kind::MachXo3D => ("se5c00", format!("se5c{size}")),
-                        MachXo2Kind::MachNx => ("se5r00", format!("se5r{size}")),
-                    },
-                }
-            }
-            ChipKind::Ecp4 => {
-                let size = match self.chip.rows.len() {
-                    78 => 50,
-                    128 => 130,
-                    130 => 190,
-                    _ => unreachable!(),
-                };
-                ("ep5d00", format!("ep5d{size}"))
-            }
-            ChipKind::Ecp5 => match self.part.name.as_str() {
-                "LFE5U-12F" | "LAE5U-12F" => ("sa5p00b", "sa5p25b".to_string()),
-                "LFE5U-25F" => ("sa5p00", "sa5p25".to_string()),
-                "LFE5U-45F" => ("sa5p00", "sa5p45".to_string()),
-                "LFE5U-85F" => ("sa5p00", "sa5p85".to_string()),
-                "LFE5UM-25F" | "LAE5UM-25F" => ("sa5p00m", "sa5p25m".to_string()),
-                "LFE5UM-45F" | "LAE5UM-45F" => ("sa5p00m", "sa5p45m".to_string()),
-                "LFE5UM-85F" | "LAE5UM-85F" => ("sa5p00m", "sa5p85m".to_string()),
-                "LFE5UM5G-25F" => ("sa5p00a", "sa5p25a".to_string()),
-                "LFE5UM5G-45F" => ("sa5p00a", "sa5p45a".to_string()),
-                "LFE5UM5G-85F" => ("sa5p00a", "sa5p85a".to_string()),
-                _ => unreachable!(),
-            },
-            ChipKind::Crosslink => {
-                if self.part.name.contains("MDF6000") {
-                    ("wi5s00", "wi5s6000".to_string())
-                } else {
-                    ("sn5w00", "sn5w6000".to_string())
-                }
-            }
-            ChipKind::Nexus(_) => match self.part.name.as_str() {
-                "LIFCL-17" => ("je5d00", "je5d15".to_string()),
-                "LFD2NX-17" => ("jd5s00", "jd5s15".to_string()),
-                "LIFCL-40" => ("je5d00", "je5d30".to_string()),
-                "LFD2NX-40" | "UT24C40" => ("jd5s00", "jd5s30".to_string()),
-                "LIFCL-33" => ("jd5u00", "jd5u27".to_string()),
-                "LFMXO5-25" => ("jd5f00", "jd5f25".to_string()),
-                "LFCPNX-100" | "UT24CP100" => ("jd5d00", "jd5d80".to_string()),
-                _ => panic!("ummmm {}", self.part.name),
-            },
-        };
-        self.datadir
-            .join(dir)
-            .join("data")
-            .join(format!("{fname}.pkg"))
+        }
+        panic!("cannot find pkg for {}", self.nph)
     }
 
     fn load_pkg(&mut self) {
@@ -744,7 +569,9 @@ impl<'a> BondContext<'a> {
             match io.edge() {
                 Dir::S => {
                     let base = match kind {
-                        NexusKind::SmallMipi | NexusKind::SmallMipiPcie | NexusKind::LargePcs => 3,
+                        NexusKind::SmallMipi
+                        | NexusKind::SmallMipiPcie
+                        | NexusKind::LargePcs(_) => 3,
                         NexusKind::SmallHalfIo => 2,
                         NexusKind::SmallDenseIo => 5,
                     };
@@ -753,7 +580,9 @@ impl<'a> BondContext<'a> {
                 }
                 Dir::W => {
                     match kind {
-                        NexusKind::SmallMipi | NexusKind::SmallMipiPcie | NexusKind::LargePcs => {
+                        NexusKind::SmallMipi
+                        | NexusKind::SmallMipiPcie
+                        | NexusKind::LargePcs(_) => {
                             let bidx = bank - 6;
                             idx += (bidx * 3) as u8;
                         }
@@ -770,7 +599,9 @@ impl<'a> BondContext<'a> {
                 }
                 Dir::E => {
                     match kind {
-                        NexusKind::SmallMipi | NexusKind::SmallMipiPcie | NexusKind::LargePcs => {
+                        NexusKind::SmallMipi
+                        | NexusKind::SmallMipiPcie
+                        | NexusKind::LargePcs(_) => {
                             let bidx = 2 - bank;
                             idx += (bidx * 3) as u8;
                         }
@@ -788,7 +619,7 @@ impl<'a> BondContext<'a> {
                 Dir::N => match kind {
                     NexusKind::SmallMipi
                     | NexusKind::SmallMipiPcie
-                    | NexusKind::LargePcs
+                    | NexusKind::LargePcs(_)
                     | NexusKind::SmallHalfIo => {}
                     NexusKind::SmallDenseIo => {
                         idx += (bank * 2) as u8;
@@ -1073,6 +904,43 @@ impl<'a> BondContext<'a> {
         }
     }
 
+    fn parse_io_mipi_crosslink(&self, func: &str) -> Option<SpecIoResult> {
+        let (side, pol) = match func {
+            "MIPI_CLKT2_0" => (DirH::W, Polarity::P),
+            "MIPI_CLKT1_0" => (DirH::E, Polarity::P),
+            "MIPI_CLKC2_0" => (DirH::W, Polarity::N),
+            "MIPI_CLKC1_0" => (DirH::E, Polarity::N),
+            _ => return None,
+        };
+
+        Some(SpecIoResult::Store(SpecialIoKey::MipiClk(side), pol))
+    }
+
+    fn parse_io_mipi_nexus(&self, func: &str) -> Option<SpecIoResult> {
+        let func = func.strip_prefix("DPHY_REFCLK")?;
+        let (pol, func) = func.split_at_checked(1)?;
+        let pol = self.parse_polarity_tc(pol)?;
+        let (phy, clk) = func.split_once('_')?;
+        let phy = phy.parse::<u8>().ok()?;
+        let clk = clk.parse::<u8>().ok()?;
+        let (edge, idx) = match clk {
+            1 => (Dir::S, 7),
+            2 => (Dir::S, 3),
+            3 => (Dir::S, 1),
+            4 => (Dir::N, phy),
+            _ => return None,
+        };
+        Some(SpecIoResult::Store(SpecialIoKey::Clock(edge, idx), pol))
+    }
+
+    fn parse_io_mipi(&self, func: &str) -> Option<SpecIoResult> {
+        match self.chip.kind {
+            ChipKind::Crosslink => self.parse_io_mipi_crosslink(func),
+            ChipKind::Nexus(_) => self.parse_io_mipi_nexus(func),
+            _ => None,
+        }
+    }
+
     fn parse_io_cfg_scm(&self, func: &str) -> Option<SpecIoResult> {
         let key = if let Some(idx) = func.strip_prefix('D')
             && let Ok(idx) = idx.parse()
@@ -1287,30 +1155,6 @@ impl<'a> BondContext<'a> {
 
     fn parse_io_cfg_crosslink(&self, func: &str) -> Option<SpecIoResult> {
         let key = match func {
-            "MIPI_CLKT2_0" => {
-                return Some(SpecIoResult::Store(
-                    SpecialIoKey::MipiClk(DirH::W),
-                    Polarity::P,
-                ));
-            }
-            "MIPI_CLKT1_0" => {
-                return Some(SpecIoResult::Store(
-                    SpecialIoKey::MipiClk(DirH::E),
-                    Polarity::P,
-                ));
-            }
-            "MIPI_CLKC2_0" => {
-                return Some(SpecIoResult::Store(
-                    SpecialIoKey::MipiClk(DirH::W),
-                    Polarity::N,
-                ));
-            }
-            "MIPI_CLKC1_0" => {
-                return Some(SpecIoResult::Store(
-                    SpecialIoKey::MipiClk(DirH::E),
-                    Polarity::N,
-                ));
-            }
             "PMU_WKUPN" => SpecialIoKey::PmuWakeupN,
             "MOSI_D0" => SpecialIoKey::D(0),
             "MISO_D1" => SpecialIoKey::D(1),
@@ -1398,6 +1242,7 @@ impl<'a> BondContext<'a> {
             .or_else(|| self.parse_io_pll(func))
             .or_else(|| self.parse_io_adc(func))
             .or_else(|| self.parse_io_cdr(func))
+            .or_else(|| self.parse_io_mipi(func))
             .or_else(|| self.parse_io_cfg(func))
         {
             match res {
@@ -2354,8 +2199,9 @@ impl<'a> BondContext<'a> {
                 "NXBOOT_MOSI" => "NXBOOTMOSI",
                 "NXBOOT_MISO" => "NXBOOTMISO",
                 "NXBOOT_MCSN" => "NXBOOTMCSN",
-                "NXPROGRAMN" => "NX_PROGRAMN",
-                "NXJTAGEN" => "NX_JTAGEN",
+                "NX_PROGRAMN" => "NXPROGRAMN",
+                "NX_JTAGEN" => "NXJTAGEN",
+                "FLASH_CSN" => "FLASHCSN",
                 _ => pin,
             };
             let pin = pin.strip_suffix("_DB").unwrap_or(pin);
@@ -2548,11 +2394,12 @@ pub struct BondResult {
     pub special_io: BTreeMap<SpecialIoKey, EdgeIoCoord>,
 }
 
-pub fn process_bond(datadir: &Path, part: &Part, chip: &Chip, _naming: &ChipNaming) -> BondResult {
+pub fn process_bond(datadirs: &[PathBuf], part: &Part, chip: &Chip, nph: &str) -> BondResult {
     let mut ctx = BondContext {
-        datadir,
+        datadirs,
         part,
         chip,
+        nph,
         pkg: PkgData {
             pkgs: Default::default(),
             pins: Default::default(),

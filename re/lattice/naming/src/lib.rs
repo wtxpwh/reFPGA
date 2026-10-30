@@ -55,13 +55,17 @@ pub struct Database {
 }
 
 impl WireName {
-    pub fn to_string(self, naming: &ChipNaming) -> String {
+    pub fn to_string_inner(self, strings: &EntitySet<StringId, String>) -> String {
         format!(
             "R{r}C{c}_{suffix}",
             r = self.r,
             c = self.c,
-            suffix = naming.strings[self.suffix]
+            suffix = strings[self.suffix]
         )
+    }
+
+    pub fn to_string(self, naming: &ChipNaming) -> String {
+        self.to_string_inner(&naming.strings)
     }
 }
 

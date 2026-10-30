@@ -105,7 +105,7 @@ pub enum NexusKind {
     /// - 70: E, ADC
     /// - 3, 4, 5: S, HP IO; has 2× CDR in bank 5
     /// - 6, 7: W
-    LargePcs,
+    LargePcs(NexusLargePcsRev),
     /// LIFCL-33
     ///
     /// Clocks:
@@ -147,11 +147,19 @@ impl NexusKind {
         match self {
             NexusKind::SmallMipi => false,
             NexusKind::SmallMipiPcie => false,
-            NexusKind::LargePcs => true,
+            NexusKind::LargePcs(_) => true,
             NexusKind::SmallHalfIo => false,
             NexusKind::SmallDenseIo => false,
         }
     }
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Encode, Decode)]
+pub enum NexusLargePcsRev {
+    // LFCPNX-100
+    Jd5d,
+    // LFMXO5-100T
+    Jd5g,
 }
 
 impl ChipKind {
@@ -235,7 +243,12 @@ impl Display for ChipKind {
             ChipKind::Crosslink => write!(f, "crosslink"),
             ChipKind::Nexus(NexusKind::SmallMipi) => write!(f, "nexus_small_mipi"),
             ChipKind::Nexus(NexusKind::SmallMipiPcie) => write!(f, "nexus_small_mipi_pcie"),
-            ChipKind::Nexus(NexusKind::LargePcs) => write!(f, "nexus_large_pcs"),
+            ChipKind::Nexus(NexusKind::LargePcs(NexusLargePcsRev::Jd5d)) => {
+                write!(f, "nexus_large_pcs_jd5d")
+            }
+            ChipKind::Nexus(NexusKind::LargePcs(NexusLargePcsRev::Jd5g)) => {
+                write!(f, "nexus_large_pcs_jd5g")
+            }
             ChipKind::Nexus(NexusKind::SmallHalfIo) => write!(f, "nexus_small_half_io"),
             ChipKind::Nexus(NexusKind::SmallDenseIo) => write!(f, "nexus_small_dense_io"),
         }

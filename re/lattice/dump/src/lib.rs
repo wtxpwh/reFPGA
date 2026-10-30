@@ -1,7 +1,19 @@
 use ndarray::Array2;
+use prjcombine_entity::EntitySet;
+use prjcombine_re_lattice_naming::{StringId, WireName};
 use prjcombine_re_lattice_rawdump::{Tile, TileSite};
 use regex::Regex;
 use std::collections::{HashMap, HashSet};
+
+pub fn parse_name(strings: &mut EntitySet<StringId, String>, name: &str) -> WireName {
+    let (rc, suffix) = name.split_once('_').unwrap();
+    let rc = rc.strip_prefix('R').unwrap();
+    let (r, c) = rc.split_once('C').unwrap();
+    let r = r.parse().unwrap();
+    let c = c.parse().unwrap();
+    let suffix = strings.get_or_insert(suffix);
+    WireName { r, c, suffix }
+}
 
 pub fn parse_tiles(data: &str, arch: &str) -> Array2<Tile> {
     let tile_re = Regex::new(
@@ -31,10 +43,8 @@ pub fn parse_tiles(data: &str, arch: &str) -> Array2<Tile> {
                 x: cap[3].parse().unwrap(),
                 y: cap[2].parse().unwrap(),
             });
-        } else if line.starts_with("Tile") || line.starts_with("  ") {
+        } else if tile.is_some() {
             panic!("regex failed: {line:?}");
-        } else {
-            assert!(tile.is_none());
         }
     }
     if let Some(tile) = tile {
@@ -52,9 +62,12 @@ pub fn parse_tiles(data: &str, arch: &str) -> Array2<Tile> {
         row.push(tile);
     }
     rows.push(row);
+    let mut cswz = Vec::from_iter(0..rows[0].len());
+    let mut rswz = Vec::from_iter(0..rows.len());
     match arch {
         "scm" => {
-            let mut cswz = vec![];
+            cswz = vec![];
+            rswz = vec![];
             let row = &rows[rows.len() - 6];
             let mut cols_pclk = HashSet::new();
             let mut insert_pclk = HashMap::new();
@@ -75,7 +88,6 @@ pub fn parse_tiles(data: &str, arch: &str) -> Array2<Tile> {
                 }
                 cswz.push(i);
             }
-            let mut rswz = vec![];
             rswz.push(rows.len() - 1);
             let row_hiq = rows
                 .iter()
@@ -88,15 +100,12 @@ pub fn parse_tiles(data: &str, arch: &str) -> Array2<Tile> {
                 }
                 rswz.push(i);
             }
-            Array2::from_shape_fn((rows.len(), rows[0].len()), |(r, c)| {
-                rows[rswz[r]][cswz[c]].clone()
-            })
         }
         "ecp5" => {
+            cswz = vec![];
             let row = &rows[1];
             let cib_l_idx = row.iter().position(|x| x.name == "CIB_R1C1").unwrap();
-            let mut swz = vec![];
-            swz.push(0);
+            cswz.push(0);
             let mut tap = HashMap::new();
             for i in 1..(cib_l_idx - 1) {
                 let tile = &row[i];
@@ -107,19 +116,16 @@ pub fn parse_tiles(data: &str, arch: &str) -> Array2<Tile> {
                 let tile = &row[i];
                 let c: usize = tile.name.strip_prefix("CIB_R1C").unwrap().parse().unwrap();
                 if let Some(&idx) = tap.get(&c) {
-                    swz.push(idx);
+                    cswz.push(idx);
                 }
-                swz.push(i);
+                cswz.push(i);
             }
-            swz.push(cib_l_idx - 1);
-            Array2::from_shape_fn((rows.len(), rows[0].len()), |(r, c)| {
-                rows[r][swz[c]].clone()
-            })
+            cswz.push(cib_l_idx - 1);
         }
         "crosslink" => {
             let row = &rows[2];
             let cib_l_idx = row.iter().position(|x| x.name == "CIB_R1C1").unwrap();
-            let mut swz = vec![];
+            cswz = vec![];
             let mut tap = HashMap::new();
             for i in 0..(cib_l_idx) {
                 let tile = &row[i];
@@ -130,20 +136,17 @@ pub fn parse_tiles(data: &str, arch: &str) -> Array2<Tile> {
                 let tile = &row[i];
                 let c: usize = tile.name.strip_prefix("CIB_R1C").unwrap().parse().unwrap();
                 if let Some(&idx) = tap.get(&c) {
-                    swz.push(idx);
+                    cswz.push(idx);
                 }
-                swz.push(i);
+                cswz.push(i);
             }
-            Array2::from_shape_fn((rows.len(), rows[0].len()), |(r, c)| {
-                rows[r][swz[c]].clone()
-            })
         }
         "machxo2" => {
             let row_t = rows
                 .iter()
                 .position(|row| row.last().unwrap().kind == "CENTER_T")
                 .unwrap();
-            let mut cswz = vec![];
+            cswz = vec![];
             let col_c = rows[row_t]
                 .iter()
                 .position(|x| x.kind.starts_with("PIC_T_DUMMY_VIQ"))
@@ -154,7 +157,7 @@ pub fn parse_tiles(data: &str, arch: &str) -> Array2<Tile> {
                     cswz.push(rows[0].len() - 1);
                 }
             }
-            let mut rswz = vec![];
+            rswz = vec![];
             rswz.push(row_t);
             let mut row_ebr = row_t + 1;
             for i in 0..row_t {
@@ -167,15 +170,12 @@ pub fn parse_tiles(data: &str, arch: &str) -> Array2<Tile> {
                     row_ebr += 1;
                 }
             }
-            Array2::from_shape_fn((rows.len(), rows[0].len()), |(r, c)| {
-                rows[rswz[r]][cswz[c]].clone()
-            })
         }
-        "nx" => {
+        "nexus" => {
             let row = &rows[1];
             let cib_l_idx = row.iter().position(|x| x.name == "CIB_R1C1").unwrap();
-            let mut swz = vec![];
-            swz.push(0);
+            cswz = vec![];
+            cswz.push(0);
             let mut col_tap = 1;
             let row_s = rows
                 .iter()
@@ -192,18 +192,27 @@ pub fn parse_tiles(data: &str, arch: &str) -> Array2<Tile> {
                     }
                 })
                 .collect();
+            let mut past_cmux = false;
             for i in cib_l_idx..row.len() {
-                swz.push(i);
-                if cols_tap.contains(&i) {
-                    swz.push(col_tap);
+                if cols_tap.contains(&i) && past_cmux {
+                    cswz.push(col_tap);
+                    col_tap += 1;
+                }
+                if rows.iter().any(|row| row[i].kind.starts_with("CMUX")) {
+                    past_cmux = true;
+                }
+                cswz.push(i);
+                if cols_tap.contains(&i) && !past_cmux {
+                    cswz.push(col_tap);
                     col_tap += 1;
                 }
             }
-            swz.push(cib_l_idx - 1);
-            Array2::from_shape_fn((rows.len(), rows[0].len()), |(r, c)| {
-                rows[r][swz[c]].clone()
-            })
+            assert!(past_cmux);
+            cswz.push(cib_l_idx - 1);
         }
-        _ => Array2::from_shape_fn((rows.len(), rows[0].len()), |(r, c)| rows[r][c].clone()),
+        _ => (),
     }
+    Array2::from_shape_fn((rows.len(), rows[0].len()), |(r, c)| {
+        rows[rswz[r]][cswz[c]].clone()
+    })
 }

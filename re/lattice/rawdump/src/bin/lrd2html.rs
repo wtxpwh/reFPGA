@@ -1784,7 +1784,7 @@ const MACHXO2_TILES: &[TileInfo] = &[
     TileInfo("T_DUMMY_ENDR", &[]),
 ];
 
-const NX_TILES: &[TileInfo] = &[
+const NEXUS_TILES: &[TileInfo] = &[
     TileInfo("PLC", &["clbm"]),
     TileInfo("CIB", &["int"]),
     TileInfo("CIB_T", &["int"]),
@@ -1838,6 +1838,7 @@ const NX_TILES: &[TileInfo] = &[
     TileInfo("RBB_2_15K", &["cfg"]),
     TileInfo("RBB_3_15K", &["cfg"]),
     TileInfo("RBB_4_15K", &["cfg"]),
+    TileInfo("LMID_RBB_4", &["cfg", "clk-spine-buf"]),
     TileInfo("LMID_RBB_5_15K", &["cfg", "clk-spine-buf"]),
     TileInfo("LMID_RBB_7", &["cfg", "clk-spine-buf"]),
     TileInfo("RBB_6_15K", &["cfg"]),
@@ -1854,9 +1855,11 @@ const NX_TILES: &[TileInfo] = &[
     TileInfo("CLKBUF_L_30K", &["clk-spine-buf"]),
     TileInfo("PCIE_X1", &["hardip"]),                 // top
     TileInfo("PCIE_LL", &["hardip"]),                 // top
+    TileInfo("USB", &["gtp"]),                        // top
     TileInfo("CDR0_15K", &["gtp"]),                   // bot
     TileInfo("CDR1_15K", &["gtp"]),                   // bot
     TileInfo("PVTCAL18_15K", &["cfg"]),               // bot
+    TileInfo("PVTCAL18", &["cfg"]),                   // bot
     TileInfo("V51_15K", &["cfg"]),                    // bot
     TileInfo("DDR_OSC_L_15K", &["pll-alt"]),          // bot
     TileInfo("DOSCL_P18_V18", &["pll-alt"]),          // bot
@@ -1876,6 +1879,7 @@ const NX_TILES: &[TileInfo] = &[
     TileInfo("BK0_15K", &["iob-spec"]),                         // top
     TileInfo("BANKREF0", &["iob-spec"]),                        // top
     TileInfo("BANKREF5", &["iob-spec"]),                        // top
+    TileInfo("BANKREF9", &["iob-spec"]),                        // top
     TileInfo("SYSIO_B0", &["io"]),                              // top
     TileInfo("SYSIO_B1", &["io"]),                              // top
     TileInfo("SYSIO_B2", &["io"]),                              // top
@@ -1950,7 +1954,9 @@ const NX_TILES: &[TileInfo] = &[
     TileInfo("PCLK_DLY_60_RBB_8", &["pll-alt", "cfg"]),         // left
     TileInfo("PCLK_DLY_70_RBB_6", &["pll-alt", "cfg"]),         // left
     TileInfo("PCLK_DLY_80_RBB_6", &["pll-alt", "cfg"]),         // left
+    TileInfo("PCLK_DLY_80_RBB_3", &["pll-alt", "cfg"]),         // left
     TileInfo("PCLK_DLY_81_RBB_8", &["pll-alt", "cfg"]),         // left
+    TileInfo("PCLK_DLY_81_RBB_5", &["pll-alt", "cfg"]),         // left
     TileInfo("SYSIO_B2_0", &["io"]),                            // right
     TileInfo("SYSIO_B2_0_C", &["io"]),                          // right
     TileInfo("SYSIO_B2_0_REM", &["io"]),                        // right
@@ -1960,6 +1966,7 @@ const NX_TILES: &[TileInfo] = &[
     TileInfo("GPLL_LRC_15K", &["pll"]),          // bot
     TileInfo("GPLL_LRC", &["pll"]),              // right
     TileInfo("DDR_OSC_R_15K_V32", &["pll-alt"]), // bot
+    TileInfo("DDR_OSC_L", &["pll-alt"]),         // bot
     TileInfo("DDR_OSC_R", &["pll-alt"]),         // right
     TileInfo("BK3_15K", &["iob-spec"]),          // bot
     TileInfo("BANKREF3", &["iob-spec"]),         // bot
@@ -1967,6 +1974,7 @@ const NX_TILES: &[TileInfo] = &[
     TileInfo("BANKREF4_V18", &["iob-spec"]),     // bot
     TileInfo("BANKREF4", &["iob-spec"]),         // bot
     TileInfo("BANKREF4_DLY42_DDR41", &["iob-spec", "pll-alt"]), // bot
+    TileInfo("BANKREF11", &["iob-spec"]),        // bot
     TileInfo("SYSIO_B3_0", &["io"]),             // bot
     TileInfo("SYSIO_B3_1", &["io"]),             // bot
     TileInfo("SYSIO_B3_0_ECLK_L", &["io-spec"]), // bot
@@ -2042,6 +2050,7 @@ const NX_TILES: &[TileInfo] = &[
     TileInfo("BANKREF7", &["iob-spec"]),         // left
     TileInfo("BANKREF7_RBB_2", &["iob-spec", "cfg"]), // left
     TileInfo("BANKREF7_RBB_10", &["iob-spec", "cfg"]), // left
+    TileInfo("BANKREF8_RBB_2", &["iob-spec", "cfg"]), // left
     TileInfo("BANKREF8_RBB_5", &["iob-spec", "cfg"]), // left
     TileInfo("BANKREF9_RBB_4", &["iob-spec", "cfg"]), // left
     TileInfo("SYSIO_B6_0", &["io"]),             // left
@@ -2054,6 +2063,7 @@ const NX_TILES: &[TileInfo] = &[
     TileInfo("SYSIO_B6_1_DQS2", &["io-spec"]),   // bot
     TileInfo("SYSIO_B6_0_DQS3", &["io-spec"]),   // bot
     TileInfo("SYSIO_B6_1_DQS4", &["io-spec"]),   // bot
+    TileInfo("SYSIO_B11", &["io"]),              // bot
     TileInfo("SYSIO_B6_0_C", &["io"]),           // left
     TileInfo("SYSIO_B6_0_REM", &["io"]),         // left
     TileInfo("SYSIO_B7_0", &["io"]),             // left
@@ -2203,7 +2213,7 @@ pub fn dump_html(
         "ecp5" => ECP5_TILES,
         "crosslink" => CROSSLINK_TILES,
         "machxo2" => MACHXO2_TILES,
-        "nx" => NX_TILES,
+        "nexus" => NEXUS_TILES,
         _ => UNK_TILES,
     };
     let tile_info_d = tile_info

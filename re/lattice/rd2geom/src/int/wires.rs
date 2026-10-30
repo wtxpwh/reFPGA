@@ -776,8 +776,8 @@ impl ChipContext<'_> {
     }
 
     fn gather_v01b(&mut self) {
-        let v01b = self.naming.strings.get("V01B0000").unwrap();
-        for &wn in self.nodes.values() {
+        let v01b = self.grid.strings.get("V01B0000").unwrap();
+        for &wn in self.grid.nodes.values() {
             if wn.suffix != v01b {
                 continue;
             }
@@ -788,9 +788,9 @@ impl ChipContext<'_> {
 
     fn classify_sdclk(&mut self) {
         for &(nf, nt) in self.grid.pips.keys() {
-            let wfn = self.nodes[nf];
-            let wtn = self.nodes[nt];
-            if !self.naming.strings[wtn.suffix].starts_with("HSSX") {
+            let wfn = self.grid.nodes[nf];
+            let wtn = self.grid.nodes[nt];
+            if !self.grid.strings[wtn.suffix].starts_with("HSSX") {
                 continue;
             }
             if !matches!(
@@ -811,7 +811,7 @@ impl ChipContext<'_> {
         if self.chip.kind.has_distributed_sclk() {
             self.classify_sdclk();
         }
-        for &wn in self.nodes.values() {
+        for &wn in self.grid.nodes.values() {
             let wires = self.classify_int_wire(wn);
             if wires.is_empty() {
                 let suffix = self.naming.strings[wn.suffix].as_str();

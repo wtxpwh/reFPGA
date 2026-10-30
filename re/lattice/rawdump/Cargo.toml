@@ -9,6 +9,7 @@ clap.workspace = true
 itertools.workspace = true
 ndarray.workspace = true
 prjcombine-entity.workspace = true
+prjcombine-re-lattice-naming.workspace = true
 zstd.workspace = true
 
 [lints]

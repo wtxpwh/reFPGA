@@ -19,7 +19,7 @@ impl ChipContext<'_> {
         let idx = bslots::IO.index_of(bcrd.slot).unwrap();
         let is_hp = edge == Dir::S;
         if is_hp {
-            if self.chip.kind == ChipKind::Nexus(NexusKind::LargePcs) {
+            if matches!(self.chip.kind, ChipKind::Nexus(NexusKind::LargePcs(_))) {
                 ["DIFFIO18A_CORE_IOA", "SEIO18A_CORE_IOB"][idx]
             } else {
                 ["DIFFIO18_CORE_IOA", "SEIO18_CORE_IOB"][idx]
@@ -49,7 +49,7 @@ impl ChipContext<'_> {
         };
         match kind {
             NexusKind::SmallMipi | NexusKind::SmallMipiPcie => "DQSBUF_CORE_I_DQS_TOP",
-            NexusKind::LargePcs => "DQSBUFA_CORE_I_DQS_TOP",
+            NexusKind::LargePcs(_) => "DQSBUFA_CORE_I_DQS_TOP",
             NexusKind::SmallHalfIo => unreachable!(),
             NexusKind::SmallDenseIo => "DQSBUFB_CORE_I_DQS_TOP",
         }
@@ -91,7 +91,7 @@ impl ChipContext<'_> {
             unreachable!()
         };
         if bcrd.col == self.chip.col_w()
-            && matches!(kind, NexusKind::LargePcs | NexusKind::SmallDenseIo)
+            && matches!(kind, NexusKind::LargePcs(_) | NexusKind::SmallDenseIo)
         {
             RcMode::Io
         } else {
@@ -130,7 +130,7 @@ impl ChipContext<'_> {
             unreachable!()
         };
         let (bank_base, num_banks) = match kind {
-            NexusKind::SmallMipi | NexusKind::SmallMipiPcie | NexusKind::LargePcs => (3, 3),
+            NexusKind::SmallMipi | NexusKind::SmallMipiPcie | NexusKind::LargePcs(_) => (3, 3),
             NexusKind::SmallHalfIo => (2, 3),
             NexusKind::SmallDenseIo => (5, 2),
         };
@@ -296,7 +296,7 @@ impl ChipContext<'_> {
             let mut ex = self.extract_switchbox(tcrd.bel(bslots::CLK_INT));
             ex.cell(cell);
             let (bidx0, bidx1) = match kind {
-                NexusKind::SmallMipi | NexusKind::SmallMipiPcie | NexusKind::LargePcs => {
+                NexusKind::SmallMipi | NexusKind::SmallMipiPcie | NexusKind::LargePcs(_) => {
                     ([2, 0][i], 1)
                 }
                 NexusKind::SmallHalfIo => [(1, 2), (0, 1)][i],
@@ -464,7 +464,7 @@ impl ChipContext<'_> {
         };
         let dqs_kind = match kind {
             NexusKind::SmallMipi | NexusKind::SmallMipiPcie => "DQSBUF_CORE",
-            NexusKind::LargePcs => "DQSBUFA_CORE",
+            NexusKind::LargePcs(_) => "DQSBUFA_CORE",
             NexusKind::SmallHalfIo => unreachable!(),
             NexusKind::SmallDenseIo => "DQSBUFB_CORE",
         };
@@ -517,7 +517,7 @@ impl ChipContext<'_> {
         let ChipKind::Nexus(kind) = self.chip.kind else {
             unreachable!()
         };
-        if kind != NexusKind::LargePcs {
+        if !matches!(kind, NexusKind::LargePcs(_)) {
             return;
         }
         let mut banks = vec![];
@@ -705,7 +705,7 @@ impl ChipContext<'_> {
                     bel.claim_pip_from(pin, wire_dqs);
                 }
             }
-            if kind == NexusKind::LargePcs {
+            if matches!(kind, NexusKind::LargePcs(_)) {
                 bel.add_wire_rc_io("IVREF_IN", format!("JIVREF_IN_{pio}"));
                 if let Some(bcrd_dqs) = bel.ctx.edev.bel_io_dqs(bcrd)
                     && let Some(&wire) = bel.ctx.ivref_map.get(&bcrd_dqs.cell)
@@ -772,13 +772,13 @@ impl ChipContext<'_> {
             let bcrd = cell.bel(bslots::BNKREF);
             let (is_hp, suffix) = match (kind, bank) {
                 (
-                    NexusKind::SmallMipi | NexusKind::SmallMipiPcie | NexusKind::LargePcs,
+                    NexusKind::SmallMipi | NexusKind::SmallMipiPcie | NexusKind::LargePcs(_),
                     0..=2 | 6..=7,
                 ) => (false, "BNKREF33_CORE"),
                 (NexusKind::SmallMipi, 3..=5) => (true, "BNKREF18_CORE_BNKREF180"),
                 (NexusKind::SmallMipiPcie, 3..=5) => (true, "BNKREF18_CORE"),
-                (NexusKind::LargePcs, 4) => (true, "BNKREF18_CORE_BNKREF180"),
-                (NexusKind::LargePcs, 3 | 5) => (true, "BNKREF18_CORE"),
+                (NexusKind::LargePcs(_), 4) => (true, "BNKREF18_CORE_BNKREF180"),
+                (NexusKind::LargePcs(_), 3 | 5) => (true, "BNKREF18_CORE"),
                 (NexusKind::SmallHalfIo, 0..=1 | 5) => (false, "BNKREF33_CORE"),
                 (NexusKind::SmallHalfIo, 2..=4) => (true, "BNKREF18_CORE"),
                 (NexusKind::SmallDenseIo, 0..=4 | 7..=8) => (false, "BNKREF33_CORE"),
@@ -816,7 +816,7 @@ impl ChipContext<'_> {
             let cell = self.chip.special_loc[&SpecialLocKey::PvtCal18];
             let (r, _) = self.rc(cell);
             let mut bel = self.extract_bel(cell.bel(bslots::PVTCAL));
-            if matches!(kind, NexusKind::LargePcs | NexusKind::SmallDenseIo) {
+            if matches!(kind, NexusKind::LargePcs(_) | NexusKind::SmallDenseIo) {
                 bel.name(format!("LPVTCAL18_CORE{r}"));
             } else {
                 bel.name_rc("PVTCAL18_CORE");
@@ -836,7 +836,7 @@ impl ChipContext<'_> {
         if let Some(&cell_tile) = self.chip.special_loc.get(&SpecialLocKey::Cdr) {
             let cdrs = match kind {
                 NexusKind::SmallMipi => [cell_tile.delta(1, 0), cell_tile],
-                NexusKind::SmallMipiPcie | NexusKind::LargePcs => {
+                NexusKind::SmallMipiPcie | NexusKind::LargePcs(_) => {
                     [cell_tile.delta(0, 2), cell_tile.delta(0, 1)]
                 }
                 NexusKind::SmallHalfIo => unreachable!(),
@@ -871,7 +871,7 @@ impl ChipContext<'_> {
         let ChipKind::Nexus(kind) = self.chip.kind else {
             unreachable!()
         };
-        let (inadca, inadcb) = if kind == NexusKind::LargePcs {
+        let (inadca, inadcb) = if matches!(kind, NexusKind::LargePcs(_)) {
             ("JINADC_DIFFIO18A_CORE_IOA", "JINADC_SEIO18A_CORE_IOB")
         } else {
             ("JINADC_DIFFIO18_CORE_IOA", "JINADC_SEIO18_CORE_IOB")

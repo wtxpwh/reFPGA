@@ -25,7 +25,7 @@ impl ChipContext<'_> {
             for &tcrd in &self.edev.tile_index[tcid] {
                 for (i, &(dx, dy)) in bels.iter().enumerate() {
                     let mut cell = tcrd.delta(dx, dy);
-                    if self.chip.kind == ChipKind::Nexus(NexusKind::LargePcs)
+                    if matches!(self.chip.kind, ChipKind::Nexus(NexusKind::LargePcs(_)))
                         && tcrd.cell == self.chip.special_loc[&SpecialLocKey::Lram(Dir::N, 0)]
                     {
                         cell = cell.step(Dir::E, 1);

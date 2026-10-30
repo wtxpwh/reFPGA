@@ -668,7 +668,7 @@ chip CHIP6 {
 	special_io JTAG_EN = D0X30Y29.IO[2];
 }
 
-// LCMXO3L-1300E LCMXO3L-640E LCMXO3LF-1300E LCMXO3LF-640E
+// LAMXO3LF-1300C LAMXO3LF-1300E LCMXO3L-1300E LCMXO3L-640E LCMXO3LF-1300C LCMXO3LF-1300E LCMXO3LF-640E
 chip CHIP7 {
 	kind machxo3l;
 	columns {
@@ -2727,7 +2727,7 @@ bond BOND10 {
 	pin 32 = IOB_N9_3;
 }
 
-// LCMXO2-1200HC-TQFP100 LCMXO2-1200ZE-TQFP100
+// LCMXO2-1200HC-TQFP100 LCMXO2-1200ZE-TQFP100 LAMXO3LF-1300C-TQFP100 LAMXO3LF-1300E-TQFP100 LCMXO3LF-1300C-TQFP100 LCMXO3LF-1300E-TQFP100 LCMXO3LF-640E-TQFP100
 bond BOND11 {
 	kind single;
 	pin 1 = IOB_W9_2;
@@ -2832,7 +2832,7 @@ bond BOND11 {
 	pin 100 = VCCINT;
 }
 
-// LCMXO2-1200HC-CSBGA132 LCMXO2-1200ZE-CSBGA132
+// LCMXO2-1200HC-CSBGA132 LCMXO2-1200ZE-CSBGA132 LAMXO3LF-1300C-CSBGA132 LAMXO3LF-1300E-CSBGA132 LCMXO3LF-1300C-CSBGA132 LCMXO3LF-1300E-CSBGA132 LCMXO3LF-640E-CSBGA132
 bond BOND12 {
 	kind single;
 	pin A1 = VCCINT;
@@ -3010,355 +3010,8 @@ bond BOND13 {
 	pin F6 = VCCIO3;
 }
 
-// LPTM21-FTBGA237
-bond BOND14 {
-	kind ASC;
-	pin A1 = GND;
-	pin A2 = NC;
-	pin A3 = IOB_N9_3;
-	pin A4 = IOB_N11_0;
-	pin A5 = VCCIO0;
-	pin A6 = GND;
-	pin A7 = IOB_N15_0;
-	pin A8 = NC;
-	pin A9 = NC;
-	pin A10 = NC;
-	pin A11 = ASC_HDRV;
-	pin A12 = ASC_LDRV;
-	pin A13 = GND;
-	pin A14 = ASC_GPIO1;
-	pin A15 = ASC_TRIM2;
-	pin A16 = ASC_VSSA;
-	pin B1 = IOB_N8_0;
-	pin B2 = IOB_N8_3;
-	pin B3 = IOB_N9_2;
-	pin B4 = IOB_N10_3;
-	pin B5 = IOB_N14_0;
-	pin B6 = IOB_N14_1;
-	pin B7 = IOB_N15_1;
-	pin B8 = NC;
-	pin B9 = NC;
-	pin B10 = IOB_E6_3;
-	pin B11 = IOB_E7_2_ASC_WDATA;
-	pin B12 = ASC_GPIO7;
-	pin B13 = ASC_GPIO5;
-	pin B14 = NC;
-	pin B15 = ASC_TRIM1;
-	pin B16 = ASC_VMON9;
-	pin C1 = IOB_N8_1;
-	pin C2 = IOB_N8_2;
-	pin C3 = NC;
-	pin C4 = IOB_N10_2;
-	pin C5 = IOB_N11_1;
-	pin C6 = IOB_N11_3;
-	pin C7 = IOB_N15_2;
-	pin C8 = IOB_N15_3;
-	pin C9 = IOB_N16_2;
-	pin C10 = IOB_E9_1;
-	pin C11 = IOB_E9_2;
-	pin C12 = ASC_GPIO6;
-	pin C13 = ASC_HVOUT2;
-	pin C14 = NC;
-	pin C15 = NC;
-	pin C16 = ASC_VMON8;
-	pin D1 = IOB_W9_2;
-	pin D2 = IOB_W9_1;
-	pin D3 = IOB_N9_0;
-	pin D4 = NC;
-	pin D5 = IOB_N10_0;
-	pin D6 = IOB_N11_2;
-	pin D7 = IOB_N14_2;
-	pin D8 = IOB_N16_0;
-	pin D9 = IOB_N16_3;
-	pin D10 = IOB_E9_0;
-	pin D11 = IOB_E9_3;
-	pin D12 = ASC_HVOUT1;
-	pin D13 = ASC_VDC;
-	pin D14 = NC;
-	pin D15 = NC;
-	pin D16 = NC;
-	pin E1 = IOB_W9_3;
-	pin E2 = IOB_W9_0;
-	pin E3 = GND;
-	pin E4 = IOB_N9_1;
-	pin E5 = NC;
-	pin E6 = IOB_N10_1;
-	pin E7 = IOB_N14_3;
-	pin E8 = IOB_N16_1;
-	pin E9 = IOB_E8_1;
-	pin E10 = IOB_E8_0;
-	pin E11 = IOB_E7_0;
-	pin E12 = NC;
-	pin E13 = ASC_GPIO3;
-	pin E14 = NC;
-	pin E15 = ASC_VMON6;
-	pin E16 = ASC_VMON7;
-	pin F1 = IOB_W8_2;
-	pin F2 = IOB_W8_0;
-	pin F3 = IOB_W8_1;
-	pin F4 = VCCIO0;
-	pin F5 = VCCIO0;
-	pin F6 = GND;
-	pin F7 = VCCIO0;
-	pin F8 = VCCIO0;
-	pin F10 = IOB_E7_1;
-	pin F11 = IOB_E6_1_ASC_WRCLK;
-	pin F12 = ASC_GPIO2;
-	pin F13 = ASC_RESET_B;
-	pin F14 = ASC_TRIM3;
-	pin F15 = NC;
-	pin F16 = NC;
-	pin G1 = IOB_W8_3;
-	pin G2 = IOB_W7_0;
-	pin G3 = IOB_W7_1;
-	pin G4 = NC;
-	pin G5 = VCCINT;
-	pin G6 = VCCINT;
-	pin G7 = VCCINT;
-	pin G8 = VCCIO1;
-	pin G11 = IOB_E6_0_ASC_RDAT;
-	pin G12 = ASC_GPIO4;
-	pin G14 = ASC_TRIM4;
-	pin G15 = ASC_VMON5;
-	pin G16 = ASC_VDDA;
-	pin H1 = NC;
-	pin H2 = IOB_W7_3;
-	pin H3 = IOB_W7_2;
-	pin H4 = NC;
-	pin H5 = GND;
-	pin H6 = GND;
-	pin H7 = GND;
-	pin H8 = VCCIO1;
-	pin H11 = GND;
-	pin H12 = ASC_VDDD;
-	pin H14 = ASC_VSSA;
-	pin H15 = NC;
-	pin H16 = ASC_VMON4;
-	pin J1 = GND;
-	pin J2 = IOB_W6_0;
-	pin J3 = IOB_W6_1;
-	pin J4 = VCCIO3;
-	pin J5 = GND;
-	pin J6 = GND;
-	pin J7 = GND;
-	pin J8 = VCCIO1;
-	pin J11 = GND;
-	pin J12 = ASC_VDDD;
-	pin J14 = ASC_VSSA;
-	pin J15 = NC;
-	pin J16 = ASC_VMON4GS;
-	pin K1 = IOB_W3_2;
-	pin K2 = IOB_W3_1;
-	pin K3 = IOB_W3_0;
-	pin K4 = VCCIO3;
-	pin K5 = VCCINT;
-	pin K6 = VCCINT;
-	pin K7 = VCCINT;
-	pin K8 = VCCIO1;
-	pin K11 = ASC_HVOUT3;
-	pin K12 = NC;
-	pin K14 = NC;
-	pin K15 = NC;
-	pin K16 = ASC_VMON3;
-	pin L1 = IOB_W3_3;
-	pin L2 = IOB_W2_1;
-	pin L3 = IOB_W2_0;
-	pin L4 = VCCIO2;
-	pin L5 = VCCIO2;
-	pin L6 = GND;
-	pin L7 = VCCIO2;
-	pin L8 = VCCIO2;
-	pin L10 = IOB_E2_0;
-	pin L11 = ASC_HVOUT4;
-	pin L12 = NC;
-	pin L14 = NC;
-	pin L15 = ASC_VMON2;
-	pin L16 = ASC_VMON3GS;
-	pin M1 = IOB_W1_0;
-	pin M2 = IOB_W1_3;
-	pin M3 = GND;
-	pin M4 = NC;
-	pin M5 = IOB_S3_3;
-	pin M6 = IOB_S8_3;
-	pin M7 = IOB_S14_3;
-	pin M8 = IOB_S19_1;
-	pin M9 = IOB_E2_2;
-	pin M10 = IOB_E2_3;
-	pin M11 = ASC_GPIO9;
-	pin M12 = NC;
-	pin M14 = NC;
-	pin M15 = ASC_VMON2GS;
-	pin M16 = NC;
-	pin N1 = IOB_W1_1;
-	pin N2 = IOB_W1_2;
-	pin N3 = NC;
-	pin N4 = NC;
-	pin N5 = IOB_S8_2;
-	pin N6 = IOB_S10_0;
-	pin N7 = IOB_S14_2;
-	pin N8 = IOB_S19_0;
-	pin N9 = IOB_E3_3;
-	pin N10 = IOB_E1_0;
-	pin N11 = ASC_GPIO10;
-	pin N12 = ASC_SDA;
-	pin N14 = NC;
-	pin N15 = ASC_TMON2N;
-	pin N16 = NC;
-	pin P1 = IOB_S3_1;
-	pin P2 = IOB_S3_2;
-	pin P3 = IOB_S5_0;
-	pin P4 = IOB_S8_0;
-	pin P5 = IOB_S10_3;
-	pin P6 = IOB_S10_1;
-	pin P7 = IOB_S17_2;
-	pin P8 = IOB_S17_3;
-	pin P9 = IOB_E1_2;
-	pin P10 = IOB_E1_1;
-	pin P11 = IOB_E6_2_ASC_ASCCLK;
-	pin P12 = ASC_SCL;
-	pin P14 = ASC_IMON1N;
-	pin P15 = ASC_TMON2P;
-	pin P16 = ASC_VMON1;
-	pin R1 = IOB_S3_0;
-	pin R2 = NC;
-	pin R3 = IOB_S5_2;
-	pin R4 = IOB_S8_1;
-	pin R5 = IOB_S14_0;
-	pin R6 = IOB_S14_1;
-	pin R7 = IOB_S17_1;
-	pin R8 = NC;
-	pin R9 = IOB_S19_3;
-	pin R10 = IOB_E1_3;
-	pin R11 = ASC_GPIO8;
-	pin R12 = NC;
-	pin R14 = ASC_IMON1P;
-	pin R15 = ASC_TMON1N;
-	pin R16 = ASC_VMON1GS;
-	pin T1 = GND;
-	pin T2 = IOB_S5_1;
-	pin T3 = IOB_S5_3;
-	pin T4 = IOB_S10_2;
-	pin T5 = VCCIO2;
-	pin T6 = GND;
-	pin T7 = IOB_S17_0;
-	pin T8 = NC;
-	pin T9 = IOB_S19_2;
-	pin T10 = IOB_E2_1;
-	pin T11 = NC;
-	pin T12 = GND;
-	pin T13 = ASC_HVIMONP;
-	pin T14 = ASC_HIMONN;
-	pin T15 = ASC_TMON1P;
-	pin T16 = ASC_VSSA;
-}
-
-// LPTM21L-CABGA100
-bond BOND15 {
-	kind ASC;
-	pin A1 = GND;
-	pin A2 = IOB_W8_2;
-	pin A3 = IOB_N9_2;
-	pin A4 = IOB_N10_2;
-	pin A5 = IOB_N11_0;
-	pin A6 = IOB_N14_3;
-	pin A7 = ASC_HVOUT2;
-	pin A8 = ASC_HVOUT1;
-	pin A9 = ASC_TRIM4;
-	pin A10 = ASC_VSSA;
-	pin B1 = IOB_W8_0;
-	pin B2 = IOB_W8_3;
-	pin B3 = IOB_N9_3;
-	pin B4 = IOB_N10_3;
-	pin B5 = IOB_N11_1;
-	pin B6 = IOB_N14_2;
-	pin B7 = ASC_GPIO1;
-	pin B8 = ASC_TRIM3;
-	pin B9 = ASC_VMON9;
-	pin B10 = ASC_VMON6;
-	pin C1 = IOB_W7_0_ASC_RESET_B;
-	pin C2 = IOB_W6_0;
-	pin C3 = IOB_N11_3_ASC_SDA;
-	pin C4 = IOB_N11_2_ASC_SCL;
-	pin C5 = IOB_N16_2;
-	pin C6 = IOB_N16_3;
-	pin C7 = ASC_GPIO2;
-	pin C8 = ASC_TRIM2;
-	pin C9 = ASC_VMON8;
-	pin C10 = ASC_VMON5;
-	pin D1 = IOB_W7_1;
-	pin D2 = VCCIO3;
-	pin D3 = IOB_W6_1;
-	pin D4 = IOB_N10_0;
-	pin D5 = VCCIO0;
-	pin D6 = ASC_GPIO3;
-	pin D7 = VCCINT;
-	pin D8 = ASC_TRIM1;
-	pin D9 = ASC_VMON7;
-	pin D10 = ASC_VMON4GS;
-	pin E1 = IOB_W7_2;
-	pin E2 = GND;
-	pin E3 = IOB_W3_0;
-	pin E4 = IOB_S14_1;
-	pin E5 = VCCIO0;
-	pin E6 = ASC_GPIO4;
-	pin E7 = GND;
-	pin E8 = ASC_VDDD;
-	pin E9 = ASC_VDDA;
-	pin E10 = ASC_VMON4;
-	pin F1 = IOB_W7_3;
-	pin F2 = VCCIO3;
-	pin F3 = IOB_S14_0;
-	pin F4 = VCCIO2;
-	pin F5 = ASC_GPIO6;
-	pin F6 = ASC_GPIO5;
-	pin F7 = GND;
-	pin F8 = ASC_VDDD;
-	pin F9 = ASC_VSSA;
-	pin F10 = ASC_TMON1N;
-	pin G1 = IOB_W2_0_ASC_ASCCLK;
-	pin G2 = IOB_W3_1_ASC_WRCLK;
-	pin G3 = IOB_S8_0;
-	pin G4 = GND;
-	pin G5 = ASC_HVOUT3;
-	pin G6 = ASC_GPIO7;
-	pin G7 = VCCINT;
-	pin G8 = ASC_VMON2GS;
-	pin G9 = ASC_HIMONN;
-	pin G10 = ASC_TMON1P;
-	pin H1 = IOB_W1_0_ASC_WDATA;
-	pin H2 = IOB_W3_2;
-	pin H3 = IOB_S8_1;
-	pin H4 = VCCIO2;
-	pin H5 = ASC_HVOUT4;
-	pin H6 = ASC_GPIO8;
-	pin H7 = ASC_GPIO10;
-	pin H8 = ASC_VMON2;
-	pin H9 = ASC_HVIMONP;
-	pin H10 = ASC_IMON1N;
-	pin J1 = IOB_W1_1_ASC_RDAT;
-	pin J2 = IOB_S3_2;
-	pin J3 = IOB_S5_2;
-	pin J4 = IOB_S19_0;
-	pin J5 = IOB_S19_2;
-	pin J6 = ASC_GPIO9;
-	pin J7 = ASC_VMON3;
-	pin J8 = ASC_VMON1GS;
-	pin J9 = ASC_TMON2N;
-	pin J10 = ASC_IMON1P;
-	pin K1 = GND;
-	pin K2 = IOB_S5_3;
-	pin K3 = IOB_S10_1;
-	pin K4 = IOB_S10_0;
-	pin K5 = IOB_S19_3;
-	pin K6 = ASC_I2C_ADDR;
-	pin K7 = ASC_VMON3GS;
-	pin K8 = ASC_VMON1;
-	pin K9 = ASC_TMON2P;
-	pin K10 = ASC_VSSA;
-}
-
 // LCMXO2-1200UHC-FTBGA256 LCMXO2-2000HC-CABGA256 LCMXO2-2000HC-FTBGA256 LCMXO2-2000ZE-CABGA256 LCMXO2-2000ZE-FTBGA256 LAMXO3LF-1300C-CABGA256 LAMXO3LF-1300E-CABGA256 LAMXO3LF-2100C-CABGA256 LAMXO3LF-2100E-CABGA256 LCMXO3L-1300C-CABGA256 LCMXO3L-2100C-CABGA256 LCMXO3LF-1300C-CABGA256 LCMXO3LF-2100C-CABGA256
-bond BOND16 {
+bond BOND14 {
 	kind single;
 	pin A1 = VCCINT;
 	pin A2 = NC;
@@ -3618,8 +3271,8 @@ bond BOND16 {
 	pin T16 = VCCINT;
 }
 
-// LCMXO2-2000HC-TQFP100 LCMXO2-2000ZE-TQFP100
-bond BOND17 {
+// LCMXO2-2000HC-TQFP100 LCMXO2-2000ZE-TQFP100 LAMXO3LF-2100C-TQFP100 LAMXO3LF-2100E-TQFP100 LCMXO3LF-2100C-TQFP100 LCMXO3LF-2100E-TQFP100
+bond BOND15 {
 	kind single;
 	pin 1 = IOB_W12_0;
 	pin 2 = IOB_W12_1;
@@ -3724,7 +3377,7 @@ bond BOND17 {
 }
 
 // LCMXO2-2000HC-TQFP144 LCMXO2-2000ZE-TQFP144
-bond BOND18 {
+bond BOND16 {
 	kind single;
 	pin 1 = IOB_W13_0;
 	pin 2 = IOB_W13_1;
@@ -3872,8 +3525,8 @@ bond BOND18 {
 	pin 144 = VCCINT;
 }
 
-// LCMXO2-2000HC-CSBGA132 LCMXO2-2000ZE-CSBGA132
-bond BOND19 {
+// LCMXO2-2000HC-CSBGA132 LCMXO2-2000ZE-CSBGA132 LAMXO3LF-2100C-CSBGA132 LAMXO3LF-2100E-CSBGA132 LCMXO3LF-2100C-CSBGA132 LCMXO3LF-2100E-CSBGA132
+bond BOND17 {
 	kind single;
 	pin A1 = VCCINT;
 	pin A2 = IOB_N8_0;
@@ -4010,7 +3663,7 @@ bond BOND19 {
 }
 
 // LCMXO2-2000ZE-WLCSP49 LCMXO3L-2100E-WLCSP49 LCMXO3LF-2100E-WLCSP49
-bond BOND20 {
+bond BOND18 {
 	kind single;
 	pin A1 = IOB_N23_3;
 	pin A2 = VCCIO0;
@@ -4064,7 +3717,7 @@ bond BOND20 {
 }
 
 // LCMXO2-2000UHC-FPBGA484 LCMXO2-2000UHE-FPBGA484 LCMXO2-4000HC-FPBGA484 LCMXO2-4000HE-FPBGA484 LCMXO2-4000ZE-FPBGA484
-bond BOND21 {
+bond BOND19 {
 	kind single;
 	pin A1 = GND;
 	pin A2 = IOB_N10_0;
@@ -4553,7 +4206,7 @@ bond BOND21 {
 }
 
 // LCMXO2-4000HC-QFN84 LCMXO2-4000ZE-QFN84
-bond BOND22 {
+bond BOND20 {
 	kind single;
 	pin A1 = IOB_N9_1;
 	pin A2 = IOB_N9_0;
@@ -4642,7 +4295,7 @@ bond BOND22 {
 }
 
 // LCMXO2-4000HC-TQFP144 LCMXO2-4000HE-TQFP144 LCMXO2-4000ZE-TQFP144
-bond BOND23 {
+bond BOND21 {
 	kind single;
 	pin 1 = IOB_W18_0;
 	pin 2 = IOB_W18_1;
@@ -4790,8 +4443,8 @@ bond BOND23 {
 	pin 144 = VCCINT;
 }
 
-// LCMXO2-4000HC-CSBGA132 LCMXO2-4000HE-CSBGA132 LCMXO2-4000ZE-CSBGA132
-bond BOND24 {
+// LCMXO2-4000HC-CSBGA132 LCMXO2-4000HE-CSBGA132 LCMXO2-4000ZE-CSBGA132 LAMXO3LF-4300C-CSBGA132 LAMXO3LF-4300E-CSBGA132 LCMXO3LF-4300C-CSBGA132 LCMXO3LF-4300E-CSBGA132
+bond BOND22 {
 	kind single;
 	pin A1 = VCCINT;
 	pin A2 = IOB_N8_0;
@@ -4928,7 +4581,7 @@ bond BOND24 {
 }
 
 // LCMXO2-4000HC-CABGA256 LCMXO2-4000HC-FTBGA256 LCMXO2-4000HE-CABGA256 LCMXO2-4000HE-FTBGA256 LCMXO2-4000ZE-CABGA256 LCMXO2-4000ZE-FTBGA256 LAMXO3LF-4300C-CABGA256 LAMXO3LF-4300E-CABGA256 LCMXO3L-4300C-CABGA256 LCMXO3LF-4300C-CABGA256 LCMXO3LFP-4300HC-CABGA256 LAMXO3D-4300HC-CABGA256 LAMXO3D-4300ZC-CABGA256 LCMXO3D-4300HC-CABGA256 LCMXO3D-4300HE-CABGA256 LCMXO3D-4300ZC-CABGA256 LCMXO3D-4300ZE-CABGA256
-bond BOND25 {
+bond BOND23 {
 	kind single;
 	pin A1 = VCCINT;
 	pin A2 = NC;
@@ -5189,7 +4842,7 @@ bond BOND25 {
 }
 
 // LCMXO2-4000HC-CABGA332 LCMXO2-4000HE-CABGA332 LCMXO2-4000ZE-CABGA332
-bond BOND26 {
+bond BOND24 {
 	kind single;
 	pin A1 = GND;
 	pin A2 = NC;
@@ -5526,7 +5179,7 @@ bond BOND26 {
 }
 
 // LCMXO2-4000HE-CSBGA184
-bond BOND27 {
+bond BOND25 {
 	kind single;
 	pin A1 = IOB_W18_1;
 	pin A2 = IOB_N8_1;
@@ -5715,7 +5368,7 @@ bond BOND27 {
 }
 
 // LCMXO2-4000ZE-WLCSP81 LCMXO3L-4300E-WLCSP81 LCMXO3LF-4300E-WLCSP81
-bond BOND28 {
+bond BOND26 {
 	kind single;
 	pin A1 = GND;
 	pin A2 = IOB_N26_0;
@@ -5801,7 +5454,7 @@ bond BOND28 {
 }
 
 // LCMXO2-4000UHC-CABGA400 LCMXO2-7000HC-CABGA400 LCMXO3L-4300C-CABGA400 LCMXO3L-6900C-CABGA400 LCMXO3LF-4300C-CABGA400 LCMXO3LF-6900C-CABGA400
-bond BOND29 {
+bond BOND27 {
 	kind single;
 	pin A1 = IOB_N8_1;
 	pin A2 = IOB_N9_1;
@@ -6206,7 +5859,7 @@ bond BOND29 {
 }
 
 // LCMXO2-7000HC-TQFP144 LCMXO2-7000HE-TQFP144 LCMXO2-7000ZE-TQFP144
-bond BOND30 {
+bond BOND28 {
 	kind single;
 	pin 1 = IOB_W23_0;
 	pin 2 = IOB_W23_1;
@@ -6355,7 +6008,7 @@ bond BOND30 {
 }
 
 // LCMXO2-7000HC-CABGA256 LCMXO2-7000HC-FTBGA256 LCMXO2-7000HE-CABGA256 LCMXO2-7000HE-FTBGA256 LCMXO2-7000ZE-CABGA256 LCMXO2-7000ZE-FTBGA256 LCMXO3L-6900C-CABGA256 LCMXO3LF-6900C-CABGA256
-bond BOND31 {
+bond BOND29 {
 	kind single;
 	pin A1 = VCCINT;
 	pin A2 = NC;
@@ -6616,7 +6269,7 @@ bond BOND31 {
 }
 
 // LCMXO2-7000HC-CABGA332 LCMXO2-7000HE-CABGA332 LCMXO2-7000ZE-CABGA332
-bond BOND32 {
+bond BOND30 {
 	kind single;
 	pin A1 = GND;
 	pin A2 = NC;
@@ -6953,7 +6606,7 @@ bond BOND32 {
 }
 
 // LCMXO2-7000HC-FPBGA484 LCMXO2-7000HE-FPBGA484 LCMXO2-7000ZE-FPBGA484
-bond BOND33 {
+bond BOND31 {
 	kind single;
 	pin A1 = GND;
 	pin A2 = IOB_N10_0;
@@ -7442,7 +7095,7 @@ bond BOND33 {
 }
 
 // LCMXO2-10000HC-TQFP144 LCMXO2-10000HE-TQFP144 LCMXO2-10000ZE-TQFP144
-bond BOND34 {
+bond BOND32 {
 	kind single;
 	pin 1 = IOB_W27_0;
 	pin 2 = IOB_W27_1;
@@ -7591,7 +7244,7 @@ bond BOND34 {
 }
 
 // LCMXO2-10000HC-CABGA256 LCMXO2-10000HC-FTBGA256 LCMXO2-10000HE-CABGA256 LCMXO2-10000HE-FTBGA256 LCMXO2-10000ZE-CABGA256 LCMXO2-10000ZE-FTBGA256 LCMXO3L-9400C-CABGA256 LCMXO3L-9400E-CABGA256 LCMXO3LF-9400C-CABGA256 LCMXO3LF-9400E-CABGA256 LCMXO3LFP-9400HC-CABGA256 LAMXO3D-9400HE-CABGA256 LAMXO3D-9400ZC-CABGA256 LCMXO3D-9400HC-CABGA256 LCMXO3D-9400ZC-CABGA256
-bond BOND35 {
+bond BOND33 {
 	kind single;
 	pin A1 = VCCINT;
 	pin A2 = NC;
@@ -7852,7 +7505,7 @@ bond BOND35 {
 }
 
 // LCMXO2-10000HC-CABGA332 LCMXO2-10000HE-CABGA332 LCMXO2-10000ZE-CABGA332
-bond BOND36 {
+bond BOND34 {
 	kind single;
 	pin A1 = GND;
 	pin A2 = NC;
@@ -8189,7 +7842,7 @@ bond BOND36 {
 }
 
 // LCMXO2-10000HC-CABGA400 LCMXO2-10000HE-CABGA400 LCMXO2-10000ZE-CABGA400 LCMXO3L-9400C-CABGA400 LCMXO3L-9400E-CABGA400 LCMXO3LF-9400C-CABGA400 LCMXO3LF-9400E-CABGA400 LCMXO3LFP-6900HC-CABGA400 LCMXO3LFP-9400HC-CABGA400 LCMXO3D-9400HC-CABGA400 LCMXO3D-9400ZC-CABGA400
-bond BOND37 {
+bond BOND35 {
 	kind single;
 	pin A1 = IOB_N8_1;
 	pin A2 = IOB_N9_1;
@@ -8594,7 +8247,7 @@ bond BOND37 {
 }
 
 // LCMXO2-10000HC-FPBGA484 LCMXO2-10000HE-FPBGA484 LCMXO2-10000ZE-FPBGA484 LCMXO3L-9400C-CABGA484 LCMXO3L-9400E-CABGA484 LCMXO3LF-9400C-CABGA484 LCMXO3LF-9400E-CABGA484 LCMXO3LFP-9400HC-CABGA484 LAMXO3D-9400HE-CABGA484 LAMXO3D-9400ZC-CABGA484 LCMXO3D-9400HC-CABGA484 LCMXO3D-9400HE-CABGA484 LCMXO3D-9400ZE-CABGA484
-bond BOND38 {
+bond BOND36 {
 	kind single;
 	pin A1 = GND;
 	pin A2 = IOB_N8_1;
@@ -9080,6 +8733,353 @@ bond BOND38 {
 	pin AB20 = IOB_S43_0;
 	pin AB21 = IOB_S45_0;
 	pin AB22 = GND;
+}
+
+// LPTM21-FTBGA237
+bond BOND37 {
+	kind ASC;
+	pin A1 = GND;
+	pin A2 = NC;
+	pin A3 = IOB_N9_3;
+	pin A4 = IOB_N11_0;
+	pin A5 = VCCIO0;
+	pin A6 = GND;
+	pin A7 = IOB_N15_0;
+	pin A8 = NC;
+	pin A9 = NC;
+	pin A10 = NC;
+	pin A11 = ASC_HDRV;
+	pin A12 = ASC_LDRV;
+	pin A13 = GND;
+	pin A14 = ASC_GPIO1;
+	pin A15 = ASC_TRIM2;
+	pin A16 = ASC_VSSA;
+	pin B1 = IOB_N8_0;
+	pin B2 = IOB_N8_3;
+	pin B3 = IOB_N9_2;
+	pin B4 = IOB_N10_3;
+	pin B5 = IOB_N14_0;
+	pin B6 = IOB_N14_1;
+	pin B7 = IOB_N15_1;
+	pin B8 = NC;
+	pin B9 = NC;
+	pin B10 = IOB_E6_3;
+	pin B11 = IOB_E7_2_ASC_WDATA;
+	pin B12 = ASC_GPIO7;
+	pin B13 = ASC_GPIO5;
+	pin B14 = NC;
+	pin B15 = ASC_TRIM1;
+	pin B16 = ASC_VMON9;
+	pin C1 = IOB_N8_1;
+	pin C2 = IOB_N8_2;
+	pin C3 = NC;
+	pin C4 = IOB_N10_2;
+	pin C5 = IOB_N11_1;
+	pin C6 = IOB_N11_3;
+	pin C7 = IOB_N15_2;
+	pin C8 = IOB_N15_3;
+	pin C9 = IOB_N16_2;
+	pin C10 = IOB_E9_1;
+	pin C11 = IOB_E9_2;
+	pin C12 = ASC_GPIO6;
+	pin C13 = ASC_HVOUT2;
+	pin C14 = NC;
+	pin C15 = NC;
+	pin C16 = ASC_VMON8;
+	pin D1 = IOB_W9_2;
+	pin D2 = IOB_W9_1;
+	pin D3 = IOB_N9_0;
+	pin D4 = NC;
+	pin D5 = IOB_N10_0;
+	pin D6 = IOB_N11_2;
+	pin D7 = IOB_N14_2;
+	pin D8 = IOB_N16_0;
+	pin D9 = IOB_N16_3;
+	pin D10 = IOB_E9_0;
+	pin D11 = IOB_E9_3;
+	pin D12 = ASC_HVOUT1;
+	pin D13 = ASC_VDC;
+	pin D14 = NC;
+	pin D15 = NC;
+	pin D16 = NC;
+	pin E1 = IOB_W9_3;
+	pin E2 = IOB_W9_0;
+	pin E3 = GND;
+	pin E4 = IOB_N9_1;
+	pin E5 = NC;
+	pin E6 = IOB_N10_1;
+	pin E7 = IOB_N14_3;
+	pin E8 = IOB_N16_1;
+	pin E9 = IOB_E8_1;
+	pin E10 = IOB_E8_0;
+	pin E11 = IOB_E7_0;
+	pin E12 = NC;
+	pin E13 = ASC_GPIO3;
+	pin E14 = NC;
+	pin E15 = ASC_VMON6;
+	pin E16 = ASC_VMON7;
+	pin F1 = IOB_W8_2;
+	pin F2 = IOB_W8_0;
+	pin F3 = IOB_W8_1;
+	pin F4 = VCCIO0;
+	pin F5 = VCCIO0;
+	pin F6 = GND;
+	pin F7 = VCCIO0;
+	pin F8 = VCCIO0;
+	pin F10 = IOB_E7_1;
+	pin F11 = IOB_E6_1_ASC_WRCLK;
+	pin F12 = ASC_GPIO2;
+	pin F13 = ASC_RESET_B;
+	pin F14 = ASC_TRIM3;
+	pin F15 = NC;
+	pin F16 = NC;
+	pin G1 = IOB_W8_3;
+	pin G2 = IOB_W7_0;
+	pin G3 = IOB_W7_1;
+	pin G4 = NC;
+	pin G5 = VCCINT;
+	pin G6 = VCCINT;
+	pin G7 = VCCINT;
+	pin G8 = VCCIO1;
+	pin G11 = IOB_E6_0_ASC_RDAT;
+	pin G12 = ASC_GPIO4;
+	pin G14 = ASC_TRIM4;
+	pin G15 = ASC_VMON5;
+	pin G16 = ASC_VDDA;
+	pin H1 = NC;
+	pin H2 = IOB_W7_3;
+	pin H3 = IOB_W7_2;
+	pin H4 = NC;
+	pin H5 = GND;
+	pin H6 = GND;
+	pin H7 = GND;
+	pin H8 = VCCIO1;
+	pin H11 = GND;
+	pin H12 = ASC_VDDD;
+	pin H14 = ASC_VSSA;
+	pin H15 = NC;
+	pin H16 = ASC_VMON4;
+	pin J1 = GND;
+	pin J2 = IOB_W6_0;
+	pin J3 = IOB_W6_1;
+	pin J4 = VCCIO3;
+	pin J5 = GND;
+	pin J6 = GND;
+	pin J7 = GND;
+	pin J8 = VCCIO1;
+	pin J11 = GND;
+	pin J12 = ASC_VDDD;
+	pin J14 = ASC_VSSA;
+	pin J15 = NC;
+	pin J16 = ASC_VMON4GS;
+	pin K1 = IOB_W3_2;
+	pin K2 = IOB_W3_1;
+	pin K3 = IOB_W3_0;
+	pin K4 = VCCIO3;
+	pin K5 = VCCINT;
+	pin K6 = VCCINT;
+	pin K7 = VCCINT;
+	pin K8 = VCCIO1;
+	pin K11 = ASC_HVOUT3;
+	pin K12 = NC;
+	pin K14 = NC;
+	pin K15 = NC;
+	pin K16 = ASC_VMON3;
+	pin L1 = IOB_W3_3;
+	pin L2 = IOB_W2_1;
+	pin L3 = IOB_W2_0;
+	pin L4 = VCCIO2;
+	pin L5 = VCCIO2;
+	pin L6 = GND;
+	pin L7 = VCCIO2;
+	pin L8 = VCCIO2;
+	pin L10 = IOB_E2_0;
+	pin L11 = ASC_HVOUT4;
+	pin L12 = NC;
+	pin L14 = NC;
+	pin L15 = ASC_VMON2;
+	pin L16 = ASC_VMON3GS;
+	pin M1 = IOB_W1_0;
+	pin M2 = IOB_W1_3;
+	pin M3 = GND;
+	pin M4 = NC;
+	pin M5 = IOB_S3_3;
+	pin M6 = IOB_S8_3;
+	pin M7 = IOB_S14_3;
+	pin M8 = IOB_S19_1;
+	pin M9 = IOB_E2_2;
+	pin M10 = IOB_E2_3;
+	pin M11 = ASC_GPIO9;
+	pin M12 = NC;
+	pin M14 = NC;
+	pin M15 = ASC_VMON2GS;
+	pin M16 = NC;
+	pin N1 = IOB_W1_1;
+	pin N2 = IOB_W1_2;
+	pin N3 = NC;
+	pin N4 = NC;
+	pin N5 = IOB_S8_2;
+	pin N6 = IOB_S10_0;
+	pin N7 = IOB_S14_2;
+	pin N8 = IOB_S19_0;
+	pin N9 = IOB_E3_3;
+	pin N10 = IOB_E1_0;
+	pin N11 = ASC_GPIO10;
+	pin N12 = ASC_SDA;
+	pin N14 = NC;
+	pin N15 = ASC_TMON2N;
+	pin N16 = NC;
+	pin P1 = IOB_S3_1;
+	pin P2 = IOB_S3_2;
+	pin P3 = IOB_S5_0;
+	pin P4 = IOB_S8_0;
+	pin P5 = IOB_S10_3;
+	pin P6 = IOB_S10_1;
+	pin P7 = IOB_S17_2;
+	pin P8 = IOB_S17_3;
+	pin P9 = IOB_E1_2;
+	pin P10 = IOB_E1_1;
+	pin P11 = IOB_E6_2_ASC_ASCCLK;
+	pin P12 = ASC_SCL;
+	pin P14 = ASC_IMON1N;
+	pin P15 = ASC_TMON2P;
+	pin P16 = ASC_VMON1;
+	pin R1 = IOB_S3_0;
+	pin R2 = NC;
+	pin R3 = IOB_S5_2;
+	pin R4 = IOB_S8_1;
+	pin R5 = IOB_S14_0;
+	pin R6 = IOB_S14_1;
+	pin R7 = IOB_S17_1;
+	pin R8 = NC;
+	pin R9 = IOB_S19_3;
+	pin R10 = IOB_E1_3;
+	pin R11 = ASC_GPIO8;
+	pin R12 = NC;
+	pin R14 = ASC_IMON1P;
+	pin R15 = ASC_TMON1N;
+	pin R16 = ASC_VMON1GS;
+	pin T1 = GND;
+	pin T2 = IOB_S5_1;
+	pin T3 = IOB_S5_3;
+	pin T4 = IOB_S10_2;
+	pin T5 = VCCIO2;
+	pin T6 = GND;
+	pin T7 = IOB_S17_0;
+	pin T8 = NC;
+	pin T9 = IOB_S19_2;
+	pin T10 = IOB_E2_1;
+	pin T11 = NC;
+	pin T12 = GND;
+	pin T13 = ASC_HVIMONP;
+	pin T14 = ASC_HIMONN;
+	pin T15 = ASC_TMON1P;
+	pin T16 = ASC_VSSA;
+}
+
+// LPTM21L-CABGA100
+bond BOND38 {
+	kind ASC;
+	pin A1 = GND;
+	pin A2 = IOB_W8_2;
+	pin A3 = IOB_N9_2;
+	pin A4 = IOB_N10_2;
+	pin A5 = IOB_N11_0;
+	pin A6 = IOB_N14_3;
+	pin A7 = ASC_HVOUT2;
+	pin A8 = ASC_HVOUT1;
+	pin A9 = ASC_TRIM4;
+	pin A10 = ASC_VSSA;
+	pin B1 = IOB_W8_0;
+	pin B2 = IOB_W8_3;
+	pin B3 = IOB_N9_3;
+	pin B4 = IOB_N10_3;
+	pin B5 = IOB_N11_1;
+	pin B6 = IOB_N14_2;
+	pin B7 = ASC_GPIO1;
+	pin B8 = ASC_TRIM3;
+	pin B9 = ASC_VMON9;
+	pin B10 = ASC_VMON6;
+	pin C1 = IOB_W7_0_ASC_RESET_B;
+	pin C2 = IOB_W6_0;
+	pin C3 = IOB_N11_3_ASC_SDA;
+	pin C4 = IOB_N11_2_ASC_SCL;
+	pin C5 = IOB_N16_2;
+	pin C6 = IOB_N16_3;
+	pin C7 = ASC_GPIO2;
+	pin C8 = ASC_TRIM2;
+	pin C9 = ASC_VMON8;
+	pin C10 = ASC_VMON5;
+	pin D1 = IOB_W7_1;
+	pin D2 = VCCIO3;
+	pin D3 = IOB_W6_1;
+	pin D4 = IOB_N10_0;
+	pin D5 = VCCIO0;
+	pin D6 = ASC_GPIO3;
+	pin D7 = VCCINT;
+	pin D8 = ASC_TRIM1;
+	pin D9 = ASC_VMON7;
+	pin D10 = ASC_VMON4GS;
+	pin E1 = IOB_W7_2;
+	pin E2 = GND;
+	pin E3 = IOB_W3_0;
+	pin E4 = IOB_S14_1;
+	pin E5 = VCCIO0;
+	pin E6 = ASC_GPIO4;
+	pin E7 = GND;
+	pin E8 = ASC_VDDD;
+	pin E9 = ASC_VDDA;
+	pin E10 = ASC_VMON4;
+	pin F1 = IOB_W7_3;
+	pin F2 = VCCIO3;
+	pin F3 = IOB_S14_0;
+	pin F4 = VCCIO2;
+	pin F5 = ASC_GPIO6;
+	pin F6 = ASC_GPIO5;
+	pin F7 = GND;
+	pin F8 = ASC_VDDD;
+	pin F9 = ASC_VSSA;
+	pin F10 = ASC_TMON1N;
+	pin G1 = IOB_W2_0_ASC_ASCCLK;
+	pin G2 = IOB_W3_1_ASC_WRCLK;
+	pin G3 = IOB_S8_0;
+	pin G4 = GND;
+	pin G5 = ASC_HVOUT3;
+	pin G6 = ASC_GPIO7;
+	pin G7 = VCCINT;
+	pin G8 = ASC_VMON2GS;
+	pin G9 = ASC_HIMONN;
+	pin G10 = ASC_TMON1P;
+	pin H1 = IOB_W1_0_ASC_WDATA;
+	pin H2 = IOB_W3_2;
+	pin H3 = IOB_S8_1;
+	pin H4 = VCCIO2;
+	pin H5 = ASC_HVOUT4;
+	pin H6 = ASC_GPIO8;
+	pin H7 = ASC_GPIO10;
+	pin H8 = ASC_VMON2;
+	pin H9 = ASC_HVIMONP;
+	pin H10 = ASC_IMON1N;
+	pin J1 = IOB_W1_1_ASC_RDAT;
+	pin J2 = IOB_S3_2;
+	pin J3 = IOB_S5_2;
+	pin J4 = IOB_S19_0;
+	pin J5 = IOB_S19_2;
+	pin J6 = ASC_GPIO9;
+	pin J7 = ASC_VMON3;
+	pin J8 = ASC_VMON1GS;
+	pin J9 = ASC_TMON2N;
+	pin J10 = ASC_IMON1P;
+	pin K1 = GND;
+	pin K2 = IOB_S5_3;
+	pin K3 = IOB_S10_1;
+	pin K4 = IOB_S10_0;
+	pin K5 = IOB_S19_3;
+	pin K6 = ASC_I2C_ADDR;
+	pin K7 = ASC_VMON3GS;
+	pin K8 = ASC_VMON1;
+	pin K9 = ASC_TMON2P;
+	pin K10 = ASC_VSSA;
 }
 
 // LCMXO3L-1300E-CSFBGA121 LCMXO3L-640E-CSFBGA121 LCMXO3LF-1300E-CSFBGA121 LCMXO3LF-640E-CSFBGA121
@@ -12110,7 +12110,7 @@ bond BOND53 {
 	pin D6 = IOB_E17_0;
 	pin D7 = IOB_E17_2;
 	pin D8 = IOB_E17_3;
-	pin D9 = IOB_W12_1;
+	pin D9 = IOB_W12_1_PFR_IOB_N83_0;
 	pin D10 = PFR_IOB_N81_0;
 	pin D11 = PFR_VCCINT;
 	pin D12 = PFR_IOB_W45_0;
@@ -12310,7 +12310,6 @@ bond BOND53 {
 	pin T14 = PFR_IOB_S83_1;
 	pin T15 = PFR_IOB_S83_0;
 	pin T16 = GND;
-	pin FLASH_CSN = PFR_IOB_N83_0;
 	pfr IOB_E42_0 = IOB_N21_2;
 	pfr IOB_E47_1 = IOB_N14_2;
 	pfr IOB_E49_1 = IOB_N21_3;
@@ -12347,6 +12346,7 @@ bond BOND53 {
 	pfr IOB_N77_0 = IOB_W16_1;
 	pfr IOB_N77_1 = IOB_W13_0;
 	pfr IOB_N79_0 = IOB_W13_1;
+	pfr IOB_N83_0 = IOB_W12_1;
 	pfr JTAG_EN = IOB_W11_2;
 }
 
@@ -12520,7 +12520,7 @@ bond BOND54 {
 	pin H11 = IOB_N27_2;
 	pin H12 = IOB_N22_3;
 	pin H13 = IOB_N22_2;
-	pin H14 = IOB_W12_1;
+	pin H14 = IOB_W12_1_PFR_IOB_N83_0;
 	pin H15 = PFR_IOB_N79_1;
 	pin H16 = PFR_IOB_N75_1;
 	pin H17 = PFR_IOB_W51_1;
@@ -12837,7 +12837,6 @@ bond BOND54 {
 	pin AB20 = PFR_IOB_S83_1;
 	pin AB21 = PFR_IOB_S83_0;
 	pin AB22 = GND;
-	pin FLASH_CSN = PFR_IOB_N83_0;
 	pfr IOB_E42_0 = IOB_N21_2;
 	pfr IOB_E47_1 = IOB_N14_2;
 	pfr IOB_E49_1 = IOB_N21_3;
@@ -12874,6 +12873,7 @@ bond BOND54 {
 	pfr IOB_N77_0 = IOB_W16_1;
 	pfr IOB_N77_1 = IOB_W13_0;
 	pfr IOB_N79_0 = IOB_W13_1;
+	pfr IOB_N83_0 = IOB_W12_1;
 	pfr JTAG_EN = IOB_W11_2;
 }
 
@@ -13030,27 +13030,9 @@ device LCMXO2-640UHC {
 	combo TQFP144 6;
 }
 
-device LPTM21 {
-	chip CHIP2;
-	bond FTBGA237 = BOND14;
-	speed 1A;
-	speed 4;
-	combo FTBGA237 1A;
-	combo FTBGA237 4;
-}
-
-device LPTM21L {
-	chip CHIP2;
-	bond CABGA100 = BOND15;
-	speed 1A;
-	speed 4;
-	combo CABGA100 1A;
-	combo CABGA100 4;
-}
-
 device LCMXO2-1200UHC {
 	chip CHIP3;
-	bond FTBGA256 = BOND16;
+	bond FTBGA256 = BOND14;
 	speed 4;
 	speed 5;
 	speed 6;
@@ -13061,11 +13043,11 @@ device LCMXO2-1200UHC {
 
 device LCMXO2-2000HC {
 	chip CHIP3;
-	bond TQFP100 = BOND17;
-	bond TQFP144 = BOND18;
-	bond CSBGA132 = BOND19;
-	bond CABGA256 = BOND16;
-	bond FTBGA256 = BOND16;
+	bond TQFP100 = BOND15;
+	bond TQFP144 = BOND16;
+	bond CSBGA132 = BOND17;
+	bond CABGA256 = BOND14;
+	bond FTBGA256 = BOND14;
 	speed 4;
 	speed 5;
 	speed 6;
@@ -13088,12 +13070,12 @@ device LCMXO2-2000HC {
 
 device LCMXO2-2000ZE {
 	chip CHIP3;
-	bond WLCSP49 = BOND20;
-	bond TQFP100 = BOND17;
-	bond TQFP144 = BOND18;
-	bond CSBGA132 = BOND19;
-	bond CABGA256 = BOND16;
-	bond FTBGA256 = BOND16;
+	bond WLCSP49 = BOND18;
+	bond TQFP100 = BOND15;
+	bond TQFP144 = BOND16;
+	bond CSBGA132 = BOND17;
+	bond CABGA256 = BOND14;
+	bond FTBGA256 = BOND14;
 	speed 1;
 	speed 2;
 	speed 3;
@@ -13119,7 +13101,7 @@ device LCMXO2-2000ZE {
 
 device LCMXO2-2000UHC {
 	chip CHIP4;
-	bond FPBGA484 = BOND21;
+	bond FPBGA484 = BOND19;
 	speed 4;
 	speed 5;
 	speed 6;
@@ -13130,7 +13112,7 @@ device LCMXO2-2000UHC {
 
 device LCMXO2-2000UHE {
 	chip CHIP4;
-	bond FPBGA484 = BOND21;
+	bond FPBGA484 = BOND19;
 	speed 4;
 	speed 5;
 	speed 6;
@@ -13141,13 +13123,13 @@ device LCMXO2-2000UHE {
 
 device LCMXO2-4000HC {
 	chip CHIP4;
-	bond QFN84 = BOND22;
-	bond TQFP144 = BOND23;
-	bond CSBGA132 = BOND24;
-	bond CABGA256 = BOND25;
-	bond CABGA332 = BOND26;
-	bond FTBGA256 = BOND25;
-	bond FPBGA484 = BOND21;
+	bond QFN84 = BOND20;
+	bond TQFP144 = BOND21;
+	bond CSBGA132 = BOND22;
+	bond CABGA256 = BOND23;
+	bond CABGA332 = BOND24;
+	bond FTBGA256 = BOND23;
+	bond FPBGA484 = BOND19;
 	speed 4;
 	speed 5;
 	speed 6;
@@ -13176,13 +13158,13 @@ device LCMXO2-4000HC {
 
 device LCMXO2-4000HE {
 	chip CHIP4;
-	bond TQFP144 = BOND23;
-	bond CSBGA132 = BOND24;
-	bond CSBGA184 = BOND27;
-	bond CABGA256 = BOND25;
-	bond CABGA332 = BOND26;
-	bond FTBGA256 = BOND25;
-	bond FPBGA484 = BOND21;
+	bond TQFP144 = BOND21;
+	bond CSBGA132 = BOND22;
+	bond CSBGA184 = BOND25;
+	bond CABGA256 = BOND23;
+	bond CABGA332 = BOND24;
+	bond FTBGA256 = BOND23;
+	bond FPBGA484 = BOND19;
 	speed 4;
 	speed 5;
 	speed 6;
@@ -13211,14 +13193,14 @@ device LCMXO2-4000HE {
 
 device LCMXO2-4000ZE {
 	chip CHIP4;
-	bond WLCSP81 = BOND28;
-	bond QFN84 = BOND22;
-	bond TQFP144 = BOND23;
-	bond CSBGA132 = BOND24;
-	bond CABGA256 = BOND25;
-	bond CABGA332 = BOND26;
-	bond FTBGA256 = BOND25;
-	bond FPBGA484 = BOND21;
+	bond WLCSP81 = BOND26;
+	bond QFN84 = BOND20;
+	bond TQFP144 = BOND21;
+	bond CSBGA132 = BOND22;
+	bond CABGA256 = BOND23;
+	bond CABGA332 = BOND24;
+	bond FTBGA256 = BOND23;
+	bond FPBGA484 = BOND19;
 	speed 1;
 	speed 2;
 	speed 3;
@@ -13250,7 +13232,7 @@ device LCMXO2-4000ZE {
 
 device LCMXO2-4000UHC {
 	chip CHIP5;
-	bond CABGA400 = BOND29;
+	bond CABGA400 = BOND27;
 	speed 4;
 	speed 5;
 	speed 6;
@@ -13261,12 +13243,12 @@ device LCMXO2-4000UHC {
 
 device LCMXO2-7000HC {
 	chip CHIP5;
-	bond TQFP144 = BOND30;
-	bond CABGA256 = BOND31;
-	bond CABGA332 = BOND32;
-	bond CABGA400 = BOND29;
-	bond FTBGA256 = BOND31;
-	bond FPBGA484 = BOND33;
+	bond TQFP144 = BOND28;
+	bond CABGA256 = BOND29;
+	bond CABGA332 = BOND30;
+	bond CABGA400 = BOND27;
+	bond FTBGA256 = BOND29;
+	bond FPBGA484 = BOND31;
 	speed 4;
 	speed 5;
 	speed 6;
@@ -13292,11 +13274,11 @@ device LCMXO2-7000HC {
 
 device LCMXO2-7000HE {
 	chip CHIP5;
-	bond TQFP144 = BOND30;
-	bond CABGA256 = BOND31;
-	bond CABGA332 = BOND32;
-	bond FTBGA256 = BOND31;
-	bond FPBGA484 = BOND33;
+	bond TQFP144 = BOND28;
+	bond CABGA256 = BOND29;
+	bond CABGA332 = BOND30;
+	bond FTBGA256 = BOND29;
+	bond FPBGA484 = BOND31;
 	speed 4;
 	speed 5;
 	speed 6;
@@ -13319,11 +13301,11 @@ device LCMXO2-7000HE {
 
 device LCMXO2-7000ZE {
 	chip CHIP5;
-	bond TQFP144 = BOND30;
-	bond CABGA256 = BOND31;
-	bond CABGA332 = BOND32;
-	bond FTBGA256 = BOND31;
-	bond FPBGA484 = BOND33;
+	bond TQFP144 = BOND28;
+	bond CABGA256 = BOND29;
+	bond CABGA332 = BOND30;
+	bond FTBGA256 = BOND29;
+	bond FPBGA484 = BOND31;
 	speed 1;
 	speed 2;
 	speed 3;
@@ -13346,12 +13328,12 @@ device LCMXO2-7000ZE {
 
 device LCMXO2-10000HC {
 	chip CHIP6;
-	bond TQFP144 = BOND34;
-	bond CABGA256 = BOND35;
-	bond CABGA332 = BOND36;
-	bond CABGA400 = BOND37;
-	bond FTBGA256 = BOND35;
-	bond FPBGA484 = BOND38;
+	bond TQFP144 = BOND32;
+	bond CABGA256 = BOND33;
+	bond CABGA332 = BOND34;
+	bond CABGA400 = BOND35;
+	bond FTBGA256 = BOND33;
+	bond FPBGA484 = BOND36;
 	speed 4;
 	speed 5;
 	speed 6;
@@ -13377,12 +13359,12 @@ device LCMXO2-10000HC {
 
 device LCMXO2-10000HE {
 	chip CHIP6;
-	bond TQFP144 = BOND34;
-	bond CABGA256 = BOND35;
-	bond CABGA332 = BOND36;
-	bond CABGA400 = BOND37;
-	bond FTBGA256 = BOND35;
-	bond FPBGA484 = BOND38;
+	bond TQFP144 = BOND32;
+	bond CABGA256 = BOND33;
+	bond CABGA332 = BOND34;
+	bond CABGA400 = BOND35;
+	bond FTBGA256 = BOND33;
+	bond FPBGA484 = BOND36;
 	speed 4;
 	speed 5;
 	speed 6;
@@ -13408,12 +13390,12 @@ device LCMXO2-10000HE {
 
 device LCMXO2-10000ZE {
 	chip CHIP6;
-	bond TQFP144 = BOND34;
-	bond CABGA256 = BOND35;
-	bond CABGA332 = BOND36;
-	bond CABGA400 = BOND37;
-	bond FTBGA256 = BOND35;
-	bond FPBGA484 = BOND38;
+	bond TQFP144 = BOND32;
+	bond CABGA256 = BOND33;
+	bond CABGA332 = BOND34;
+	bond CABGA400 = BOND35;
+	bond FTBGA256 = BOND33;
+	bond FPBGA484 = BOND36;
 	speed 1;
 	speed 2;
 	speed 3;
@@ -13437,6 +13419,48 @@ device LCMXO2-10000ZE {
 	combo FPBGA484 3;
 }
 
+device LPTM21 {
+	chip CHIP2;
+	bond FTBGA237 = BOND37;
+	speed 1A;
+	speed 4;
+	combo FTBGA237 1A;
+	combo FTBGA237 4;
+}
+
+device LPTM21L {
+	chip CHIP2;
+	bond CABGA100 = BOND38;
+	speed 1A;
+	speed 4;
+	combo CABGA100 1A;
+	combo CABGA100 4;
+}
+
+device LAMXO3LF-1300C {
+	chip CHIP7;
+	bond TQFP100 = BOND11;
+	bond CSBGA132 = BOND12;
+	speed 5;
+	speed 6;
+	combo TQFP100 5;
+	combo TQFP100 6;
+	combo CSBGA132 5;
+	combo CSBGA132 6;
+}
+
+device LAMXO3LF-1300E {
+	chip CHIP7;
+	bond TQFP100 = BOND11;
+	bond CSBGA132 = BOND12;
+	speed 5;
+	speed 6;
+	combo TQFP100 5;
+	combo TQFP100 6;
+	combo CSBGA132 5;
+	combo CSBGA132 6;
+}
+
 device LCMXO3L-1300E {
 	chip CHIP7;
 	bond WLCSP36 = BOND13;
@@ -13458,30 +13482,54 @@ device LCMXO3L-640E {
 	combo CSFBGA121 6;
 }
 
+device LCMXO3LF-1300C {
+	chip CHIP7;
+	bond TQFP100 = BOND11;
+	bond CSBGA132 = BOND12;
+	speed 5;
+	speed 6;
+	combo TQFP100 5;
+	combo TQFP100 6;
+	combo CSBGA132 5;
+	combo CSBGA132 6;
+}
+
 device LCMXO3LF-1300E {
 	chip CHIP7;
 	bond WLCSP36 = BOND13;
+	bond TQFP100 = BOND11;
+	bond CSBGA132 = BOND12;
 	bond CSFBGA121 = BOND39;
 	speed 5;
 	speed 6;
 	combo WLCSP36 5;
 	combo WLCSP36 6;
+	combo TQFP100 5;
+	combo TQFP100 6;
+	combo CSBGA132 5;
+	combo CSBGA132 6;
 	combo CSFBGA121 5;
 	combo CSFBGA121 6;
 }
 
 device LCMXO3LF-640E {
 	chip CHIP7;
+	bond TQFP100 = BOND11;
+	bond CSBGA132 = BOND12;
 	bond CSFBGA121 = BOND39;
 	speed 5;
 	speed 6;
+	combo TQFP100 5;
+	combo TQFP100 6;
+	combo CSBGA132 5;
+	combo CSBGA132 6;
 	combo CSFBGA121 5;
 	combo CSFBGA121 6;
 }
 
 device LAMXO3LF-1300C {
 	chip CHIP8;
-	bond CABGA256 = BOND16;
+	bond CABGA256 = BOND14;
 	speed 5;
 	speed 6;
 	combo CABGA256 5;
@@ -13490,7 +13538,7 @@ device LAMXO3LF-1300C {
 
 device LAMXO3LF-1300E {
 	chip CHIP8;
-	bond CABGA256 = BOND16;
+	bond CABGA256 = BOND14;
 	bond CSFBGA121 = BOND41;
 	speed 5;
 	speed 6;
@@ -13502,25 +13550,37 @@ device LAMXO3LF-1300E {
 
 device LAMXO3LF-2100C {
 	chip CHIP8;
-	bond CABGA256 = BOND16;
+	bond TQFP100 = BOND15;
+	bond CSBGA132 = BOND17;
+	bond CABGA256 = BOND14;
 	speed 5;
 	speed 6;
+	combo TQFP100 5;
+	combo TQFP100 6;
+	combo CSBGA132 5;
+	combo CSBGA132 6;
 	combo CABGA256 5;
 	combo CABGA256 6;
 }
 
 device LAMXO3LF-2100E {
 	chip CHIP8;
-	bond CABGA256 = BOND16;
+	bond TQFP100 = BOND15;
+	bond CSBGA132 = BOND17;
+	bond CABGA256 = BOND14;
 	speed 5;
 	speed 6;
+	combo TQFP100 5;
+	combo TQFP100 6;
+	combo CSBGA132 5;
+	combo CSBGA132 6;
 	combo CABGA256 5;
 	combo CABGA256 6;
 }
 
 device LCMXO3L-1300C {
 	chip CHIP8;
-	bond CABGA256 = BOND16;
+	bond CABGA256 = BOND14;
 	speed 5;
 	speed 6;
 	combo CABGA256 5;
@@ -13538,7 +13598,7 @@ device LCMXO3L-1300E {
 
 device LCMXO3L-2100C {
 	chip CHIP8;
-	bond CABGA256 = BOND16;
+	bond CABGA256 = BOND14;
 	speed 5;
 	speed 6;
 	combo CABGA256 5;
@@ -13547,7 +13607,7 @@ device LCMXO3L-2100C {
 
 device LCMXO3L-2100E {
 	chip CHIP8;
-	bond WLCSP49 = BOND20;
+	bond WLCSP49 = BOND18;
 	bond CSFBGA121 = BOND41;
 	bond CSFBGA256 = BOND40;
 	speed 5;
@@ -13562,7 +13622,7 @@ device LCMXO3L-2100E {
 
 device LCMXO3LF-1300C {
 	chip CHIP8;
-	bond CABGA256 = BOND16;
+	bond CABGA256 = BOND14;
 	speed 5;
 	speed 6;
 	combo CABGA256 5;
@@ -13580,22 +13640,34 @@ device LCMXO3LF-1300E {
 
 device LCMXO3LF-2100C {
 	chip CHIP8;
-	bond CABGA256 = BOND16;
+	bond TQFP100 = BOND15;
+	bond CSBGA132 = BOND17;
+	bond CABGA256 = BOND14;
 	speed 5;
 	speed 6;
+	combo TQFP100 5;
+	combo TQFP100 6;
+	combo CSBGA132 5;
+	combo CSBGA132 6;
 	combo CABGA256 5;
 	combo CABGA256 6;
 }
 
 device LCMXO3LF-2100E {
 	chip CHIP8;
-	bond WLCSP49 = BOND20;
+	bond WLCSP49 = BOND18;
+	bond TQFP100 = BOND15;
+	bond CSBGA132 = BOND17;
 	bond CSFBGA121 = BOND41;
 	bond CSFBGA256 = BOND40;
 	speed 5;
 	speed 6;
 	combo WLCSP49 5;
 	combo WLCSP49 6;
+	combo TQFP100 5;
+	combo TQFP100 6;
+	combo CSBGA132 5;
+	combo CSBGA132 6;
 	combo CSFBGA121 5;
 	combo CSFBGA121 6;
 	combo CSFBGA256 5;
@@ -13625,10 +13697,13 @@ device LAMXO3LF-2100E {
 
 device LAMXO3LF-4300C {
 	chip CHIP9;
-	bond CABGA256 = BOND25;
+	bond CSBGA132 = BOND22;
+	bond CABGA256 = BOND23;
 	bond CABGA324 = BOND42;
 	speed 5;
 	speed 6;
+	combo CSBGA132 5;
+	combo CSBGA132 6;
 	combo CABGA256 5;
 	combo CABGA256 6;
 	combo CABGA324 5;
@@ -13637,11 +13712,14 @@ device LAMXO3LF-4300C {
 
 device LAMXO3LF-4300E {
 	chip CHIP9;
-	bond CABGA256 = BOND25;
+	bond CSBGA132 = BOND22;
+	bond CABGA256 = BOND23;
 	bond CSFBGA121 = BOND44;
 	bond CABGA324 = BOND42;
 	speed 5;
 	speed 6;
+	combo CSBGA132 5;
+	combo CSBGA132 6;
 	combo CABGA256 5;
 	combo CABGA256 6;
 	combo CSFBGA121 5;
@@ -13670,7 +13748,7 @@ device LCMXO3L-2100E {
 
 device LCMXO3L-4300C {
 	chip CHIP9;
-	bond CABGA256 = BOND25;
+	bond CABGA256 = BOND23;
 	bond CABGA324 = BOND42;
 	speed 5;
 	speed 6;
@@ -13682,7 +13760,7 @@ device LCMXO3L-4300C {
 
 device LCMXO3L-4300E {
 	chip CHIP9;
-	bond WLCSP81 = BOND28;
+	bond WLCSP81 = BOND26;
 	bond CSFBGA121 = BOND44;
 	bond CSFBGA256 = BOND45;
 	bond CSFBGA324 = BOND43;
@@ -13718,10 +13796,13 @@ device LCMXO3LF-2100E {
 
 device LCMXO3LF-4300C {
 	chip CHIP9;
-	bond CABGA256 = BOND25;
+	bond CSBGA132 = BOND22;
+	bond CABGA256 = BOND23;
 	bond CABGA324 = BOND42;
 	speed 5;
 	speed 6;
+	combo CSBGA132 5;
+	combo CSBGA132 6;
 	combo CABGA256 5;
 	combo CABGA256 6;
 	combo CABGA324 5;
@@ -13730,7 +13811,8 @@ device LCMXO3LF-4300C {
 
 device LCMXO3LF-4300E {
 	chip CHIP9;
-	bond WLCSP81 = BOND28;
+	bond WLCSP81 = BOND26;
+	bond CSBGA132 = BOND22;
 	bond CSFBGA121 = BOND44;
 	bond CSFBGA256 = BOND45;
 	bond CSFBGA324 = BOND43;
@@ -13738,6 +13820,8 @@ device LCMXO3LF-4300E {
 	speed 6;
 	combo WLCSP81 5;
 	combo WLCSP81 6;
+	combo CSBGA132 5;
+	combo CSBGA132 6;
 	combo CSFBGA121 5;
 	combo CSFBGA121 6;
 	combo CSFBGA256 5;
@@ -13748,7 +13832,7 @@ device LCMXO3LF-4300E {
 
 device LCMXO3L-4300C {
 	chip CHIP10;
-	bond CABGA400 = BOND29;
+	bond CABGA400 = BOND27;
 	speed 5;
 	speed 6;
 	combo CABGA400 5;
@@ -13757,8 +13841,8 @@ device LCMXO3L-4300C {
 
 device LCMXO3L-6900C {
 	chip CHIP10;
-	bond CABGA256 = BOND31;
-	bond CABGA400 = BOND29;
+	bond CABGA256 = BOND29;
+	bond CABGA400 = BOND27;
 	bond CABGA324 = BOND46;
 	speed 5;
 	speed 6;
@@ -13784,7 +13868,7 @@ device LCMXO3L-6900E {
 
 device LCMXO3LF-4300C {
 	chip CHIP10;
-	bond CABGA400 = BOND29;
+	bond CABGA400 = BOND27;
 	speed 5;
 	speed 6;
 	combo CABGA400 5;
@@ -13793,8 +13877,8 @@ device LCMXO3LF-4300C {
 
 device LCMXO3LF-6900C {
 	chip CHIP10;
-	bond CABGA256 = BOND31;
-	bond CABGA400 = BOND29;
+	bond CABGA256 = BOND29;
+	bond CABGA400 = BOND27;
 	bond CABGA324 = BOND46;
 	speed 5;
 	speed 6;
@@ -13820,9 +13904,9 @@ device LCMXO3LF-6900E {
 
 device LCMXO3L-9400C {
 	chip CHIP11;
-	bond CABGA256 = BOND35;
-	bond CABGA400 = BOND37;
-	bond CABGA484 = BOND38;
+	bond CABGA256 = BOND33;
+	bond CABGA400 = BOND35;
+	bond CABGA484 = BOND36;
 	speed 5;
 	speed 6;
 	combo CABGA256 5;
@@ -13835,10 +13919,10 @@ device LCMXO3L-9400C {
 
 device LCMXO3L-9400E {
 	chip CHIP11;
-	bond CABGA256 = BOND35;
-	bond CABGA400 = BOND37;
+	bond CABGA256 = BOND33;
+	bond CABGA400 = BOND35;
 	bond CSFBGA256 = BOND49;
-	bond CABGA484 = BOND38;
+	bond CABGA484 = BOND36;
 	speed 5;
 	speed 6;
 	combo CABGA256 5;
@@ -13853,9 +13937,9 @@ device LCMXO3L-9400E {
 
 device LCMXO3LF-9400C {
 	chip CHIP11;
-	bond CABGA256 = BOND35;
-	bond CABGA400 = BOND37;
-	bond CABGA484 = BOND38;
+	bond CABGA256 = BOND33;
+	bond CABGA400 = BOND35;
+	bond CABGA484 = BOND36;
 	speed 5;
 	speed 6;
 	combo CABGA256 5;
@@ -13868,10 +13952,10 @@ device LCMXO3LF-9400C {
 
 device LCMXO3LF-9400E {
 	chip CHIP11;
-	bond CABGA256 = BOND35;
-	bond CABGA400 = BOND37;
+	bond CABGA256 = BOND33;
+	bond CABGA400 = BOND35;
 	bond CSFBGA256 = BOND49;
-	bond CABGA484 = BOND38;
+	bond CABGA484 = BOND36;
 	speed 5;
 	speed 6;
 	combo CABGA256 5;
@@ -13886,7 +13970,7 @@ device LCMXO3LF-9400E {
 
 device LCMXO3LFP-4300HC {
 	chip CHIP12;
-	bond CABGA256 = BOND25;
+	bond CABGA256 = BOND23;
 	bond QFN72 = BOND50;
 	speed 5;
 	speed 6;
@@ -13898,7 +13982,7 @@ device LCMXO3LFP-4300HC {
 
 device LCMXO3LFP-6900HC {
 	chip CHIP13;
-	bond CABGA400 = BOND37;
+	bond CABGA400 = BOND35;
 	speed 5;
 	speed 6;
 	combo CABGA400 5;
@@ -13907,10 +13991,10 @@ device LCMXO3LFP-6900HC {
 
 device LCMXO3LFP-9400HC {
 	chip CHIP13;
-	bond CABGA256 = BOND35;
-	bond CABGA400 = BOND37;
+	bond CABGA256 = BOND33;
+	bond CABGA400 = BOND35;
 	bond QFN72 = BOND51;
-	bond CABGA484 = BOND38;
+	bond CABGA484 = BOND36;
 	speed 5;
 	speed 6;
 	combo CABGA256 5;
@@ -13925,7 +14009,7 @@ device LCMXO3LFP-9400HC {
 
 device LAMXO3D-4300HC {
 	chip CHIP14;
-	bond CABGA256 = BOND25;
+	bond CABGA256 = BOND23;
 	speed 5;
 	speed 6;
 	combo CABGA256 5;
@@ -13934,7 +14018,7 @@ device LAMXO3D-4300HC {
 
 device LAMXO3D-4300ZC {
 	chip CHIP14;
-	bond CABGA256 = BOND25;
+	bond CABGA256 = BOND23;
 	bond QFN72 = BOND50;
 	speed 2;
 	speed 3;
@@ -13946,7 +14030,7 @@ device LAMXO3D-4300ZC {
 
 device LCMXO3D-4300HC {
 	chip CHIP14;
-	bond CABGA256 = BOND25;
+	bond CABGA256 = BOND23;
 	bond QFN72 = BOND50;
 	speed 5;
 	speed 6;
@@ -13958,7 +14042,7 @@ device LCMXO3D-4300HC {
 
 device LCMXO3D-4300HE {
 	chip CHIP14;
-	bond CABGA256 = BOND25;
+	bond CABGA256 = BOND23;
 	speed 5;
 	speed 6;
 	combo CABGA256 5;
@@ -13967,7 +14051,7 @@ device LCMXO3D-4300HE {
 
 device LCMXO3D-4300ZC {
 	chip CHIP14;
-	bond CABGA256 = BOND25;
+	bond CABGA256 = BOND23;
 	bond QFN72 = BOND50;
 	speed 2;
 	speed 3;
@@ -13979,7 +14063,7 @@ device LCMXO3D-4300ZC {
 
 device LCMXO3D-4300ZE {
 	chip CHIP14;
-	bond CABGA256 = BOND25;
+	bond CABGA256 = BOND23;
 	speed 2;
 	speed 3;
 	combo CABGA256 2;
@@ -13988,8 +14072,8 @@ device LCMXO3D-4300ZE {
 
 device LAMXO3D-9400HE {
 	chip CHIP15;
-	bond CABGA256 = BOND35;
-	bond CABGA484 = BOND38;
+	bond CABGA256 = BOND33;
+	bond CABGA484 = BOND36;
 	speed 5;
 	speed 6;
 	combo CABGA256 5;
@@ -14000,8 +14084,8 @@ device LAMXO3D-9400HE {
 
 device LAMXO3D-9400ZC {
 	chip CHIP15;
-	bond CABGA256 = BOND35;
-	bond CABGA484 = BOND38;
+	bond CABGA256 = BOND33;
+	bond CABGA484 = BOND36;
 	speed 2;
 	speed 3;
 	combo CABGA256 2;
@@ -14012,10 +14096,10 @@ device LAMXO3D-9400ZC {
 
 device LCMXO3D-9400HC {
 	chip CHIP15;
-	bond CABGA256 = BOND35;
-	bond CABGA400 = BOND37;
+	bond CABGA256 = BOND33;
+	bond CABGA400 = BOND35;
 	bond QFN72 = BOND51;
-	bond CABGA484 = BOND38;
+	bond CABGA484 = BOND36;
 	speed 5;
 	speed 6;
 	combo CABGA256 5;
@@ -14031,7 +14115,7 @@ device LCMXO3D-9400HC {
 device LCMXO3D-9400HE {
 	chip CHIP15;
 	bond WLCSP69 = BOND52;
-	bond CABGA484 = BOND38;
+	bond CABGA484 = BOND36;
 	speed 5;
 	speed 6;
 	combo WLCSP69 5;
@@ -14042,8 +14126,8 @@ device LCMXO3D-9400HE {
 
 device LCMXO3D-9400ZC {
 	chip CHIP15;
-	bond CABGA256 = BOND35;
-	bond CABGA400 = BOND37;
+	bond CABGA256 = BOND33;
+	bond CABGA400 = BOND35;
 	bond QFN72 = BOND51;
 	speed 2;
 	speed 3;
@@ -14057,7 +14141,7 @@ device LCMXO3D-9400ZC {
 
 device LCMXO3D-9400ZE {
 	chip CHIP15;
-	bond CABGA484 = BOND38;
+	bond CABGA484 = BOND36;
 	speed 2;
 	speed 3;
 	combo CABGA484 2;

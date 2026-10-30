@@ -1,16 +1,19 @@
 use std::collections::{BTreeMap, BTreeSet, HashMap, btree_map};
 
 use prjcombine_ecp::{
-    chip::{Chip, ChipKind, IoGroupKind, NexusKind, PllLoc, PllPad, SpecialIoKey, SpecialLocKey},
+    chip::{
+        Chip, ChipKind, IoGroupKind, NexusKind, NexusLargePcsRev, PllLoc, PllPad, SpecialIoKey,
+        SpecialLocKey,
+    },
     defs::bslots,
 };
 use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
+    db::PinDir,
     dir::{Dir, DirH, DirV},
     grid::{BelCoord, ColId, ColIdExt, DieIdExt, RowIdExt},
 };
 use prjcombine_re_lattice_naming::WireName;
-use prjcombine_re_lattice_rawdump::PinDir;
 
 use crate::chip::{ChipBuilder, ChipExt};
 
@@ -20,18 +23,22 @@ impl ChipBuilder<'_> {
         let mut has_pcs = false;
         let mut has_lmid = false;
         let mut has_pcie = false;
-        for &wn in self.nodes.values() {
-            if self.naming.strings[wn.suffix] == "JCLKHSBYTE0_TMID_CORE_TMIDMUX" {
+        let mut has_lmmie = false;
+        for &wn in self.grid.nodes.values() {
+            if self.grid.strings[wn.suffix] == "JCLKHSBYTE0_TMID_CORE_TMIDMUX" {
                 has_mipi = true;
             }
-            if self.naming.strings[wn.suffix] == "JPCSCLKTX0_TMID_CORE_TMIDMUX" {
+            if self.grid.strings[wn.suffix] == "JPCSCLKTX0_TMID_CORE_TMIDMUX" {
                 has_pcs = true;
             }
-            if self.naming.strings[wn.suffix] == "JHPFE0_LMID_CORE_LMIDMUX" {
+            if self.grid.strings[wn.suffix] == "JHPFE0_LMID_CORE_LMIDMUX" {
                 has_lmid = true;
             }
-            if self.naming.strings[wn.suffix] == "JLMMIREADY_PCIE_CORE_PCIE0" {
+            if self.grid.strings[wn.suffix] == "JLMMIREADY_PCIE_CORE_PCIE0" {
                 has_pcie = true;
+            }
+            if self.grid.strings[wn.suffix] == "JLMMICLK_CONFIG_LMMIE_CORE_LMMI_MODEL" {
+                has_lmmie = true;
             }
         }
         self.chip.kind = ChipKind::Nexus(if has_mipi {
@@ -41,7 +48,11 @@ impl ChipBuilder<'_> {
                 NexusKind::SmallMipi
             }
         } else if has_pcs {
-            NexusKind::LargePcs
+            NexusKind::LargePcs(if has_lmmie {
+                NexusLargePcsRev::Jd5g
+            } else {
+                NexusLargePcsRev::Jd5d
+            })
         } else if !has_lmid {
             NexusKind::SmallHalfIo
         } else {
@@ -50,8 +61,8 @@ impl ChipBuilder<'_> {
     }
 
     pub(super) fn fill_clk_nexus(&mut self) {
-        for &wn in self.nodes.values() {
-            let suffix = self.naming.strings[wn.suffix].as_str();
+        for &wn in self.grid.nodes.values() {
+            let suffix = self.grid.strings[wn.suffix].as_str();
             if matches!(suffix, "JDCSOUT_DCS_DCSIP" | "JDCSOUT_DCS_DCSIP0") {
                 let cell = self.chip.xlat_rc_wire(wn).delta(1, 0);
                 self.chip.col_clk = cell.col;
@@ -63,14 +74,14 @@ impl ChipBuilder<'_> {
     }
 
     pub(super) fn fill_pclk_nexus(&mut self) {
-        let jclk0 = self.naming.strings.get("JCLK0").unwrap();
-        let hpbx0000 = self.naming.strings.get("HPBX0000").unwrap();
-        let vpsx0000 = self.naming.strings.get("VPSX0000").unwrap();
+        let jclk0 = self.grid.strings.get("JCLK0").unwrap();
+        let hpbx0000 = self.grid.strings.get("HPBX0000").unwrap();
+        let vpsx0000 = self.grid.strings.get("VPSX0000").unwrap();
         let mut clks: BTreeMap<u16, Vec<ColId>> = BTreeMap::new();
         let mut side_e = BTreeSet::new();
         for &(nf, nt) in self.grid.pips.keys() {
-            let wfn = self.nodes[nf];
-            let wtn = self.nodes[nt];
+            let wfn = self.grid.nodes[nf];
+            let wtn = self.grid.nodes[nt];
             if wfn.suffix == hpbx0000 && wtn.suffix == jclk0 {
                 let cell = self.chip.xlat_rc_wire(wtn);
                 if cell.row == self.chip.row_clk {
@@ -124,13 +135,13 @@ impl ChipBuilder<'_> {
         };
 
         for &(wf, wt) in self.grid.pips.keys() {
-            let wfn = self.nodes[wf];
-            let wtn = self.nodes[wt];
-            let suffix = self.naming.strings[wfn.suffix].as_str();
+            let wfn = self.grid.nodes[wf];
+            let wtn = self.grid.nodes[wt];
+            let suffix = self.grid.strings[wfn.suffix].as_str();
             match suffix {
                 "JCLKOUT_DLLDEL_CORE_I0" => {
                     let cell = self.chip.xlat_rc_wire(wfn);
-                    let key = match self.naming.strings[wtn.suffix].as_str() {
+                    let key = match self.grid.strings[wtn.suffix].as_str() {
                         "JPCLKT10_TMID_CORE_TMIDMUX" => xlat_clk(1, 0),
                         "JPCLKT12_TMID_CORE_TMIDMUX" => xlat_clk(1, 2),
                         "JPCLKT10_RMID_CORE_RMIDMUX" => xlat_clk(1, 0),
@@ -156,14 +167,14 @@ impl ChipBuilder<'_> {
                     self.chip.special_loc.insert(key, cell);
                 }
                 "JLMMIREADY_SGMIICDR_CORE" => {
-                    if self.naming.strings[wtn.suffix] == "JF3" {
+                    if self.grid.strings[wtn.suffix] == "JF3" {
                         let mut cell = self.chip.xlat_rc_wire(wfn);
                         match kind {
                             NexusKind::SmallMipi => {
                                 cell.col -= 1;
                             }
                             NexusKind::SmallMipiPcie
-                            | NexusKind::LargePcs
+                            | NexusKind::LargePcs(_)
                             | NexusKind::SmallDenseIo => {
                                 cell.row -= 1;
                             }
@@ -278,7 +289,7 @@ impl ChipBuilder<'_> {
                     Chip::DIE.cell(self.chip.col_w() + 1, self.chip.row_s()),
                 );
             }
-            NexusKind::LargePcs => {
+            NexusKind::LargePcs(_) => {
                 self.chip.special_loc.insert(
                     SpecialLocKey::Config,
                     Chip::DIE.cell(self.chip.col_w() + 132, self.chip.row_n()),
@@ -532,11 +543,11 @@ impl ChipBuilder<'_> {
             }
         }
         for &(wf, wt) in self.grid.pips.keys() {
-            let wfn = self.nodes[wf];
-            let wtn = self.nodes[wt];
-            if self.naming.strings[wtn.suffix] == "JTSDATA0_SIOLOGIC_CORE_IBASE_PIC_B" {
+            let wfn = self.grid.nodes[wf];
+            let wtn = self.grid.nodes[wt];
+            if self.grid.strings[wtn.suffix] == "JTSDATA0_SIOLOGIC_CORE_IBASE_PIC_B" {
                 let cell = self.chip.xlat_rc_wire(wtn);
-                let kind = match self.naming.strings[wfn.suffix].as_str() {
+                let kind = match self.grid.strings[wfn.suffix].as_str() {
                     "JCIBMUXOUTB4" => IoGroupKind::DoubleA,
                     "JCIBMUXOUTC0" => IoGroupKind::DoubleB,
                     "JCIBMUXOUTA0" => IoGroupKind::DoubleC,
@@ -556,30 +567,30 @@ impl ChipBuilder<'_> {
     }
 
     pub(super) fn gather_special_io_nexus(&mut self) -> Vec<(WireName, BelCoord, PinDir)> {
-        let jpaddia = self.naming.strings.get("JPADDI_SEIO33_CORE_IOA").unwrap();
-        let jpaddib = self.naming.strings.get("JPADDI_SEIO33_CORE_IOB").unwrap();
+        let jpaddia = self.grid.strings.get("JPADDI_SEIO33_CORE_IOA").unwrap();
+        let jpaddib = self.grid.strings.get("JPADDI_SEIO33_CORE_IOB").unwrap();
         let jpaddia_hp = self
-            .naming
+            .grid
             .strings
             .get("JPADDI_DIFFIO18_CORE_IOA")
-            .or(self.naming.strings.get("JPADDI_DIFFIO18A_CORE_IOA"))
+            .or(self.grid.strings.get("JPADDI_DIFFIO18A_CORE_IOA"))
             .unwrap();
         let jpaddib_hp = self
-            .naming
+            .grid
             .strings
             .get("JPADDI_SEIO18_CORE_IOB")
-            .or(self.naming.strings.get("JPADDI_SEIO18A_CORE_IOB"))
+            .or(self.grid.strings.get("JPADDI_SEIO18A_CORE_IOB"))
             .unwrap();
-        let jpaddoa = self.naming.strings.get("JPADDO_SEIO33_CORE_IOA").unwrap();
-        let jpaddob = self.naming.strings.get("JPADDO_SEIO33_CORE_IOB").unwrap();
+        let jpaddoa = self.grid.strings.get("JPADDO_SEIO33_CORE_IOA").unwrap();
+        let jpaddob = self.grid.strings.get("JPADDO_SEIO33_CORE_IOB").unwrap();
         let jinadca_hp = self
-            .naming
+            .grid
             .strings
             .get("JINADC_DIFFIO18_CORE_IOA")
-            .or(self.naming.strings.get("JINADC_DIFFIO18A_CORE_IOA"))
+            .or(self.grid.strings.get("JINADC_DIFFIO18A_CORE_IOA"))
             .unwrap();
         let mut pad_nodes = HashMap::new();
-        for (node, &wn) in self.nodes {
+        for (node, &wn) in &self.grid.nodes {
             let cell = self.chip.xlat_rc_wire(wn);
             let (bel, dir) = if wn.suffix == jpaddia || wn.suffix == jpaddia_hp {
                 (bslots::IO[0], PinDir::Input)
@@ -590,7 +601,7 @@ impl ChipBuilder<'_> {
             } else if wn.suffix == jpaddob {
                 (bslots::IO[1], PinDir::Output)
             } else if wn.suffix == jinadca_hp {
-                (bslots::IO[0], PinDir::Bidirectional)
+                (bslots::IO[0], PinDir::Bidir)
             } else {
                 continue;
             };
@@ -599,8 +610,8 @@ impl ChipBuilder<'_> {
         let mut result = vec![];
         for &(wf, wt) in self.grid.pips.keys() {
             if let Some(&io) = pad_nodes.get(&wf) {
-                let wn = self.nodes[wt];
-                let suffix = self.naming.strings[wn.suffix].as_str();
+                let wn = self.grid.nodes[wt];
+                let suffix = self.grid.strings[wn.suffix].as_str();
                 if matches!(
                     suffix,
                     "JDI_SIOLOGIC_CORE_IBASE_PIC_A"
@@ -617,8 +628,8 @@ impl ChipBuilder<'_> {
                 }
                 result.push((wn, io.0, io.1));
             } else if let Some(&io) = pad_nodes.get(&wt) {
-                let wn = self.nodes[wf];
-                let suffix = self.naming.strings[wn.suffix].as_str();
+                let wn = self.grid.nodes[wf];
+                let suffix = self.grid.strings[wn.suffix].as_str();
                 if matches!(
                     suffix,
                     "JDOUT_SIOLOGIC_CORE_IBASE_PIC_A"
@@ -640,17 +651,19 @@ impl ChipBuilder<'_> {
 
     fn xlat_nexus_clock(kind: NexusKind, bank: u32, idx: u8) -> (Dir, u8) {
         match kind {
-            NexusKind::SmallMipi | NexusKind::SmallMipiPcie | NexusKind::LargePcs => match bank {
-                0 => (Dir::N, idx),
-                1 => (Dir::E, 3 + idx),
-                2 => (Dir::E, idx),
-                3 => (Dir::S, idx),
-                4 => (Dir::S, 4 + idx),
-                5 => (Dir::S, 8 + idx),
-                6 => (Dir::W, idx),
-                7 => (Dir::W, 3 + idx),
-                _ => unreachable!(),
-            },
+            NexusKind::SmallMipi | NexusKind::SmallMipiPcie | NexusKind::LargePcs(_) => {
+                match bank {
+                    0 => (Dir::N, idx),
+                    1 => (Dir::E, 3 + idx),
+                    2 => (Dir::E, idx),
+                    3 => (Dir::S, idx),
+                    4 => (Dir::S, 4 + idx),
+                    5 => (Dir::S, 8 + idx),
+                    6 => (Dir::W, idx),
+                    7 => (Dir::W, 3 + idx),
+                    _ => unreachable!(),
+                }
+            }
             NexusKind::SmallHalfIo => match bank {
                 1 => (Dir::N, idx),
                 2 => (Dir::S, idx),
@@ -689,7 +702,7 @@ impl ChipBuilder<'_> {
             }
         }
         for (wn, io, dir) in self.gather_special_io_nexus() {
-            let suffix = self.naming.strings[wn.suffix].as_str();
+            let suffix = self.grid.strings[wn.suffix].as_str();
             let key = match suffix {
                 "JEXTPINTN_PMU_CORE" => SpecialIoKey::PmuWakeupN,
                 "JEXTCLK_PMU_CORE" | "JTCK_CONFIG_JTAG_CORE_CONFIG_JTAG" => SpecialIoKey::Cclk,
@@ -758,7 +771,7 @@ impl ChipBuilder<'_> {
                     let cdr = self.chip.special_loc[&SpecialLocKey::Cdr];
                     let cdr0 = match kind {
                         NexusKind::SmallMipi => cdr.delta(1, 0),
-                        NexusKind::SmallMipiPcie | NexusKind::LargePcs => cdr.delta(0, 2),
+                        NexusKind::SmallMipiPcie | NexusKind::LargePcs(_) => cdr.delta(0, 2),
                         NexusKind::SmallHalfIo => unreachable!(),
                         NexusKind::SmallDenseIo => cdr.delta(0, 3),
                     };

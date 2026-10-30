@@ -818,8 +818,157 @@ chip CHIP2 {
 	special_io DI = D0X14Y0.IO[0];
 }
 
-// LAE5U-12F-CABGA256 LFE5U-12F-CABGA256 LFE5U-25F-CABGA256
+// LAE5U-12F-TQFP144 LFE5U-12F-TQFP144 LFE5U-25F-TQFP144
 bond BOND0 {
+	kind single;
+	pin 1 = IOB_W42_2;
+	pin 2 = IOB_W42_3;
+	pin 3 = IOB_W42_1;
+	pin 4 = IOB_W39_0;
+	pin 5 = IOB_W39_2;
+	pin 6 = IOB_W39_1;
+	pin 7 = IOB_W39_3;
+	pin 8 = GND;
+	pin 9 = VCCIO7;
+	pin 10 = IOB_W33_0;
+	pin 11 = IOB_W33_2;
+	pin 12 = IOB_W33_1;
+	pin 13 = IOB_W33_3;
+	pin 14 = IOB_W24_3;
+	pin 15 = GND;
+	pin 16 = VCCIO6;
+	pin 17 = VCCAUX;
+	pin 18 = IOB_W15_1;
+	pin 19 = IOB_W12_1;
+	pin 20 = VCCINT;
+	pin 21 = GND;
+	pin 22 = IOB_W12_2;
+	pin 23 = IOB_W12_3;
+	pin 24 = IOB_W9_0;
+	pin 25 = IOB_W9_1;
+	pin 26 = IOB_W6_2;
+	pin 27 = IOB_W6_3;
+	pin 28 = IOB_W3_0;
+	pin 29 = VCCINT;
+	pin 30 = IOB_W3_1;
+	pin 31 = IOB_W3_2;
+	pin 32 = GND;
+	pin 33 = IOB_W3_3;
+	pin 34 = IOB_W0_0;
+	pin 35 = IOB_W0_1;
+	pin 36 = VCCIO6;
+	pin 37 = IOB_W0_2;
+	pin 38 = VCCINT;
+	pin 39 = IOB_S5_0;
+	pin 40 = IOB_S3_0;
+	pin 41 = IOB_S5_1;
+	pin 42 = GND;
+	pin 43 = VCCIO8;
+	pin 44 = IOB_S3_1;
+	pin 45 = IOB_S8_0;
+	pin 46 = IOB_S10_0;
+	pin 47 = IOB_S10_1;
+	pin 48 = IOB_S12_0;
+	pin 49 = IOB_S14_0;
+	pin 50 = IOB_S12_1;
+	pin 51 = IOB_S14_1;
+	pin 52 = IOB_S17_0;
+	pin 53 = VCCAUX;
+	pin 54 = CCLK;
+	pin 55 = INIT_B;
+	pin 56 = DONE;
+	pin 57 = PROG_B;
+	pin 58 = M2;
+	pin 59 = M1;
+	pin 60 = TDO;
+	pin 61 = TDI;
+	pin 62 = M0;
+	pin 63 = TCK;
+	pin 64 = TMS;
+	pin 65 = GND;
+	pin 66 = VCCINT;
+	pin 67 = IOB_E0_1;
+	pin 68 = IOB_E0_3;
+	pin 69 = IOB_E0_2;
+	pin 70 = VCCIO3;
+	pin 71 = IOB_E0_0;
+	pin 72 = IOB_E3_2;
+	pin 73 = IOB_E6_3;
+	pin 74 = IOB_E6_2;
+	pin 75 = GND;
+	pin 76 = IOB_E6_1;
+	pin 77 = IOB_E6_0;
+	pin 78 = IOB_E12_3;
+	pin 79 = IOB_E12_1;
+	pin 80 = IOB_E12_2;
+	pin 81 = IOB_E12_0;
+	pin 82 = IOB_E15_3;
+	pin 83 = VCCINT;
+	pin 84 = IOB_E15_2;
+	pin 85 = GND;
+	pin 86 = VCCIO3;
+	pin 87 = GND;
+	pin 88 = IOB_E24_3;
+	pin 89 = IOB_E24_1;
+	pin 90 = IOB_E24_2;
+	pin 91 = IOB_E24_0;
+	pin 92 = IOB_E27_3;
+	pin 93 = IOB_E27_1;
+	pin 94 = IOB_E27_2;
+	pin 95 = IOB_E27_0;
+	pin 96 = VCCAUX;
+	pin 97 = IOB_E33_1;
+	pin 98 = IOB_E33_2;
+	pin 99 = IOB_E33_0;
+	pin 100 = VCCIO2;
+	pin 101 = GND;
+	pin 102 = IOB_E39_3;
+	pin 103 = IOB_E39_1;
+	pin 104 = IOB_E39_2;
+	pin 105 = IOB_E39_0;
+	pin 106 = IOB_E45_3;
+	pin 107 = IOB_E45_2;
+	pin 108 = IOB_E45_1;
+	pin 109 = NC;
+	pin 110 = IOB_N66_0;
+	pin 111 = IOB_N61_1;
+	pin 112 = IOB_N61_0;
+	pin 113 = IOB_N59_1;
+	pin 114 = IOB_N59_0;
+	pin 115 = IOB_N57_1;
+	pin 116 = IOB_N57_0;
+	pin 117 = IOB_N55_1;
+	pin 118 = IOB_N55_0;
+	pin 119 = IOB_N52_1;
+	pin 120 = IOB_N52_0;
+	pin 121 = IOB_N50_0;
+	pin 122 = VCCIO1;
+	pin 123 = GND;
+	pin 124 = IOB_N41_1;
+	pin 125 = IOB_N41_0;
+	pin 126 = IOB_N39_1;
+	pin 127 = IOB_N39_0;
+	pin 128 = IOB_N28_0;
+	pin 129 = GND;
+	pin 130 = VCCINT;
+	pin 131 = GND;
+	pin 132 = VCCAUX;
+	pin 133 = IOB_N14_1;
+	pin 134 = IOB_N14_0;
+	pin 135 = IOB_N12_1;
+	pin 136 = IOB_N12_0;
+	pin 137 = VCCIO0;
+	pin 138 = GND;
+	pin 139 = IOB_N8_1;
+	pin 140 = IOB_N8_0;
+	pin 141 = IOB_N5_1;
+	pin 142 = IOB_N3_1;
+	pin 143 = IOB_N5_0;
+	pin 144 = NC;
+}
+
+// LAE5U-12F-CABGA256 LFE5U-12F-CABGA256 LFE5U-25F-CABGA256
+bond BOND1 {
 	kind single;
 	pin A1 = GND;
 	pin A2 = IOB_N3_0;
@@ -1080,7 +1229,7 @@ bond BOND0 {
 }
 
 // LAE5U-12F-CABGA381 LFE5U-12F-CABGA381 LFE5U-25F-CABGA381
-bond BOND1 {
+bond BOND2 {
 	kind single;
 	pin A2 = IOB_W33_0;
 	pin A3 = IOB_W42_2;
@@ -1466,7 +1615,7 @@ bond BOND1 {
 }
 
 // LAE5U-12F-CSFBGA285 LFE5U-12F-CSFBGA285 LFE5U-25F-CSFBGA285
-bond BOND2 {
+bond BOND3 {
 	kind single;
 	pin A2 = IOB_E27_2;
 	pin A3 = IOB_E27_0;
@@ -1753,155 +1902,6 @@ bond BOND2 {
 	pin V15 = M2;
 	pin V16 = INIT_B;
 	pin V17 = IOB_S14_1;
-}
-
-// LFE5U-12F-TQFP144 LFE5U-25F-TQFP144
-bond BOND3 {
-	kind single;
-	pin 1 = IOB_W42_2;
-	pin 2 = IOB_W42_3;
-	pin 3 = IOB_W42_1;
-	pin 4 = IOB_W39_0;
-	pin 5 = IOB_W39_2;
-	pin 6 = IOB_W39_1;
-	pin 7 = IOB_W39_3;
-	pin 8 = GND;
-	pin 9 = VCCIO7;
-	pin 10 = IOB_W33_0;
-	pin 11 = IOB_W33_2;
-	pin 12 = IOB_W33_1;
-	pin 13 = IOB_W33_3;
-	pin 14 = IOB_W24_3;
-	pin 15 = GND;
-	pin 16 = VCCIO6;
-	pin 17 = VCCAUX;
-	pin 18 = IOB_W15_1;
-	pin 19 = IOB_W12_1;
-	pin 20 = VCCINT;
-	pin 21 = GND;
-	pin 22 = IOB_W12_2;
-	pin 23 = IOB_W12_3;
-	pin 24 = IOB_W9_0;
-	pin 25 = IOB_W9_1;
-	pin 26 = IOB_W6_2;
-	pin 27 = IOB_W6_3;
-	pin 28 = IOB_W3_0;
-	pin 29 = VCCINT;
-	pin 30 = IOB_W3_1;
-	pin 31 = IOB_W3_2;
-	pin 32 = GND;
-	pin 33 = IOB_W3_3;
-	pin 34 = IOB_W0_0;
-	pin 35 = IOB_W0_1;
-	pin 36 = VCCIO6;
-	pin 37 = IOB_W0_2;
-	pin 38 = VCCINT;
-	pin 39 = IOB_S5_0;
-	pin 40 = IOB_S3_0;
-	pin 41 = IOB_S5_1;
-	pin 42 = GND;
-	pin 43 = VCCIO8;
-	pin 44 = IOB_S3_1;
-	pin 45 = IOB_S8_0;
-	pin 46 = IOB_S10_0;
-	pin 47 = IOB_S10_1;
-	pin 48 = IOB_S12_0;
-	pin 49 = IOB_S14_0;
-	pin 50 = IOB_S12_1;
-	pin 51 = IOB_S14_1;
-	pin 52 = IOB_S17_0;
-	pin 53 = VCCAUX;
-	pin 54 = CCLK;
-	pin 55 = INIT_B;
-	pin 56 = DONE;
-	pin 57 = PROG_B;
-	pin 58 = M2;
-	pin 59 = M1;
-	pin 60 = TDO;
-	pin 61 = TDI;
-	pin 62 = M0;
-	pin 63 = TCK;
-	pin 64 = TMS;
-	pin 65 = GND;
-	pin 66 = VCCINT;
-	pin 67 = IOB_E0_1;
-	pin 68 = IOB_E0_3;
-	pin 69 = IOB_E0_2;
-	pin 70 = VCCIO3;
-	pin 71 = IOB_E0_0;
-	pin 72 = IOB_E3_2;
-	pin 73 = IOB_E6_3;
-	pin 74 = IOB_E6_2;
-	pin 75 = GND;
-	pin 76 = IOB_E6_1;
-	pin 77 = IOB_E6_0;
-	pin 78 = IOB_E12_3;
-	pin 79 = IOB_E12_1;
-	pin 80 = IOB_E12_2;
-	pin 81 = IOB_E12_0;
-	pin 82 = IOB_E15_3;
-	pin 83 = VCCINT;
-	pin 84 = IOB_E15_2;
-	pin 85 = GND;
-	pin 86 = VCCIO3;
-	pin 87 = GND;
-	pin 88 = IOB_E24_3;
-	pin 89 = IOB_E24_1;
-	pin 90 = IOB_E24_2;
-	pin 91 = IOB_E24_0;
-	pin 92 = IOB_E27_3;
-	pin 93 = IOB_E27_1;
-	pin 94 = IOB_E27_2;
-	pin 95 = IOB_E27_0;
-	pin 96 = VCCAUX;
-	pin 97 = IOB_E33_1;
-	pin 98 = IOB_E33_2;
-	pin 99 = IOB_E33_0;
-	pin 100 = VCCIO2;
-	pin 101 = GND;
-	pin 102 = IOB_E39_3;
-	pin 103 = IOB_E39_1;
-	pin 104 = IOB_E39_2;
-	pin 105 = IOB_E39_0;
-	pin 106 = IOB_E45_3;
-	pin 107 = IOB_E45_2;
-	pin 108 = IOB_E45_1;
-	pin 109 = NC;
-	pin 110 = IOB_N66_0;
-	pin 111 = IOB_N61_1;
-	pin 112 = IOB_N61_0;
-	pin 113 = IOB_N59_1;
-	pin 114 = IOB_N59_0;
-	pin 115 = IOB_N57_1;
-	pin 116 = IOB_N57_0;
-	pin 117 = IOB_N55_1;
-	pin 118 = IOB_N55_0;
-	pin 119 = IOB_N52_1;
-	pin 120 = IOB_N52_0;
-	pin 121 = IOB_N50_0;
-	pin 122 = VCCIO1;
-	pin 123 = GND;
-	pin 124 = IOB_N41_1;
-	pin 125 = IOB_N41_0;
-	pin 126 = IOB_N39_1;
-	pin 127 = IOB_N39_0;
-	pin 128 = IOB_N28_0;
-	pin 129 = GND;
-	pin 130 = VCCINT;
-	pin 131 = GND;
-	pin 132 = VCCAUX;
-	pin 133 = IOB_N14_1;
-	pin 134 = IOB_N14_0;
-	pin 135 = IOB_N12_1;
-	pin 136 = IOB_N12_0;
-	pin 137 = VCCIO0;
-	pin 138 = GND;
-	pin 139 = IOB_N8_1;
-	pin 140 = IOB_N8_0;
-	pin 141 = IOB_N5_1;
-	pin 142 = IOB_N3_1;
-	pin 143 = IOB_N5_0;
-	pin 144 = NC;
 }
 
 // LFE5U-45F-TQFP144
@@ -9454,11 +9454,14 @@ bond BOND21 {
 
 device LAE5U-12F {
 	chip CHIP0;
-	bond CABGA256 = BOND0;
-	bond CABGA381 = BOND1;
-	bond CSFBGA285 = BOND2;
+	bond TQFP144 = BOND0;
+	bond CABGA256 = BOND1;
+	bond CABGA381 = BOND2;
+	bond CSFBGA285 = BOND3;
 	speed 6;
 	speed 7;
+	combo TQFP144 6;
+	combo TQFP144 7;
 	combo CABGA256 6;
 	combo CABGA256 7;
 	combo CABGA381 6;
@@ -9469,10 +9472,10 @@ device LAE5U-12F {
 
 device LFE5U-12F {
 	chip CHIP0;
-	bond TQFP144 = BOND3;
-	bond CABGA256 = BOND0;
-	bond CABGA381 = BOND1;
-	bond CSFBGA285 = BOND2;
+	bond TQFP144 = BOND0;
+	bond CABGA256 = BOND1;
+	bond CABGA381 = BOND2;
+	bond CSFBGA285 = BOND3;
 	speed 6;
 	speed 7;
 	speed 8;
@@ -9492,10 +9495,10 @@ device LFE5U-12F {
 
 device LFE5U-25F {
 	chip CHIP0;
-	bond TQFP144 = BOND3;
-	bond CABGA256 = BOND0;
-	bond CABGA381 = BOND1;
-	bond CSFBGA285 = BOND2;
+	bond TQFP144 = BOND0;
+	bond CABGA256 = BOND1;
+	bond CABGA381 = BOND2;
+	bond CSFBGA285 = BOND3;
 	speed 6;
 	speed 7;
 	speed 8;

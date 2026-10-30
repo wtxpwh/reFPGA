@@ -1,5 +1,5 @@
 use prjcombine_ecp::{
-    chip::{Chip, ChipKind, MachXo2Kind, NexusKind, SpecialIoKey, SpecialLocKey},
+    chip::{Chip, ChipKind, MachXo2Kind, NexusKind, NexusLargePcsRev, SpecialIoKey, SpecialLocKey},
     defs::{bcls, bslots, tcls, wires},
 };
 use prjcombine_interconnect::{
@@ -1163,18 +1163,19 @@ impl ChipContext<'_> {
                 let cell_pmu = tcrd.delta(dx_pmu, 0);
                 let cell_i2c = tcrd.delta(dx_i2c, 0);
                 let (_, c) = self.rc(cell);
-                let lmmi_kind = match kind {
-                    NexusKind::SmallMipi | NexusKind::SmallMipiPcie => "CONFIG_LMMI_CORE",
-                    NexusKind::LargePcs | NexusKind::SmallHalfIo => "CONFIG_LMMIA_CORE",
-                    NexusKind::SmallDenseIo => "CONFIG_LMMIB_CORE",
-                };
-                let lmmi_suffix = match kind {
+                let (lmmi_suffix, skip_lmmi_smclk) = match kind {
                     NexusKind::SmallMipi | NexusKind::SmallMipiPcie => {
-                        "CONFIG_LMMI_CORE_LMMI_MODEL"
+                        ("CONFIG_LMMI_CORE_LMMI_MODEL", false)
                     }
-                    NexusKind::LargePcs | NexusKind::SmallHalfIo => "CONFIG_LMMIA_CORE_LMMI_MODEL",
-                    NexusKind::SmallDenseIo => "CONFIG_LMMIB_CORE_LMMI_MODEL",
+                    NexusKind::LargePcs(NexusLargePcsRev::Jd5d) | NexusKind::SmallHalfIo => {
+                        ("CONFIG_LMMIA_CORE_LMMI_MODEL", false)
+                    }
+                    NexusKind::LargePcs(NexusLargePcsRev::Jd5g) => {
+                        ("CONFIG_LMMIE_CORE_LMMI_MODEL", true)
+                    }
+                    NexusKind::SmallDenseIo => ("CONFIG_LMMIB_CORE_LMMI_MODEL", true),
                 };
+                let lmmi_kind = lmmi_suffix.strip_suffix("_LMMI_MODEL").unwrap();
 
                 let wire_cfg_clk =
                     self.rc_io_wire(cell, "JCFG_CLK_CONFIG_CLKRST_CORE_CONFIG_CLKRST");
@@ -1279,7 +1280,7 @@ impl ChipContext<'_> {
                         .claim_pip_from("LMMICLK", wire_lmmi_clk)
                         .add_wire_rc_io("LMMIRESETN", format!("JLMMIRESETN_{lmmi_suffix}"))
                         .claim_pip_from("LMMIRESETN", wire_lmmi_rst);
-                    if kind != NexusKind::SmallDenseIo {
+                    if !skip_lmmi_smclk {
                         bel.add_wire_rc_io("SMCLK", format!("JSMCLK_{lmmi_suffix}"))
                             .claim_pip_from("SMCLK", wire_cfg_clk)
                             .add_wire_rc_io("RSTSMCLK", format!("JRSTSMCLK_{lmmi_suffix}"))

@@ -232,8 +232,8 @@ impl ChipContext<'_> {
                     continue;
                 }
                 let cell_e = cell_w.delta(1, 0);
-                let wire = self.rc_wire(cell_w, "HFOE0100");
-                self.add_bel_wire(cell_w.bel(bslots::INT), "HFOE1", wire);
+                let wire = self.rc_wire(cell_e, "HFIE0100");
+                self.add_bel_wire(cell_e.bel(bslots::INT), "HFIE1", wire);
                 // what.
                 let (hfie, hfoe) = if self.chip.cols_pclk[cell_w.col]
                     != self.chip.cols_pclk[cell_e.col]
@@ -244,12 +244,9 @@ impl ChipContext<'_> {
                     let hfie = self.rc_wire(cell_e, "HFIE0000");
                     self.claim_pip(hfie, hfoe);
                     (hfie, hfoe)
-                } else if self.chip.rows[cell_w.row].kind == RowKind::Plc {
+                } else {
                     let hfie = self.rc_wire(cell_e, "HFIE0000");
                     (hfie, hfie)
-                } else {
-                    let hfoe = self.rc_wire(cell_w, "HFOE0000");
-                    (hfoe, hfoe)
                 };
                 self.add_bel_wire(cell_w.bel(bslots::INT), "HFOE0", hfoe);
                 self.add_bel_wire_no_claim(cell_e.bel(bslots::INT), "HFIE0", hfie);

@@ -26,12 +26,12 @@ impl ChipBuilder<'_> {
 
     pub(super) fn fill_special_loc_machxo(&mut self) {
         let mut ebr_locs = BTreeSet::new();
-        for &wn in self.nodes.values() {
-            if self.naming.strings[wn.suffix].ends_with("_EBR") {
+        for &wn in self.grid.nodes.values() {
+            if self.grid.strings[wn.suffix].ends_with("_EBR") {
                 let cell = self.chip.xlat_rc_wire(wn).delta(0, -3);
                 ebr_locs.insert(cell);
             }
-            if self.naming.strings[wn.suffix].ends_with("_PLL") {
+            if self.grid.strings[wn.suffix].ends_with("_PLL") {
                 let cell = self.chip.xlat_rc_wire(wn);
                 let loc = SpecialLocKey::Pll(PllLoc::new(
                     cell.row.side_of(self.chip.row_clk) & DirH::W,
@@ -39,11 +39,11 @@ impl ChipBuilder<'_> {
                 ));
                 self.chip.special_loc.insert(loc, cell);
             }
-            if self.naming.strings[wn.suffix].ends_with("_OSC") {
+            if self.grid.strings[wn.suffix].ends_with("_OSC") {
                 let cell = self.chip.xlat_rc_wire(wn);
                 self.chip.special_loc.insert(SpecialLocKey::Osc, cell);
             }
-            if self.naming.strings[wn.suffix].ends_with("_JTAG") {
+            if self.grid.strings[wn.suffix].ends_with("_JTAG") {
                 let cell = self.chip.xlat_rc_wire(wn);
                 self.chip.special_loc.insert(SpecialLocKey::Config, cell);
             }
@@ -160,7 +160,7 @@ impl ChipBuilder<'_> {
 
     pub(super) fn fill_special_io_machxo(&mut self) {
         for (wn, io) in self.gather_special_io() {
-            let suffix = self.naming.strings[wn.suffix].as_str();
+            let suffix = self.grid.strings[wn.suffix].as_str();
             if let Some(key) = match suffix {
                 "JGCLK0" => Some(SpecialIoKey::Clock(Dir::N, 0)),
                 "JGCLK1" => Some(SpecialIoKey::Clock(Dir::N, 1)),
@@ -208,16 +208,16 @@ impl ChipBuilder<'_> {
             ['A', 'B', 'C', 'D', 'E', 'F']
                 .into_iter()
                 .enumerate()
-                .map(|(i, l)| (self.naming.strings.get(&format!("JDD2{l}")).unwrap(), i)),
+                .map(|(i, l)| (self.grid.strings.get(&format!("JDD2{l}")).unwrap(), i)),
         );
         for &(wf, wt) in self.grid.pips.keys() {
-            let wtn = self.nodes[wt];
+            let wtn = self.grid.nodes[wt];
             if let Some(&iob) = xlat.get(&wtn.suffix) {
                 let io_cell = self.chip.xlat_rc_wire(wtn);
                 let io = io_cell.bel(bslots::IO[iob]);
-                let wfn = self.nodes[wf];
+                let wfn = self.grid.nodes[wf];
                 let src_cell = self.chip.xlat_rc_wire(wfn);
-                let lut = self.naming.strings[wfn.suffix]
+                let lut = self.grid.strings[wfn.suffix]
                     .strip_prefix("JDD")
                     .unwrap()
                     .parse()

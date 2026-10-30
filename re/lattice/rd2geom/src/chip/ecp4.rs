@@ -15,8 +15,8 @@ use crate::chip::{ChipBuilder, ChipExt};
 
 impl ChipBuilder<'_> {
     pub(super) fn fill_clk_ecp4(&mut self) {
-        for &wn in self.nodes.values() {
-            if self.naming.strings[wn.suffix] == "DCS0" {
+        for &wn in self.grid.nodes.values() {
+            if self.grid.strings[wn.suffix] == "DCS0" {
                 let cell = self.chip.xlat_rc_wire(wn).delta(1, 0);
                 self.chip.col_clk = cell.col;
                 self.chip.row_clk = cell.row;
@@ -27,11 +27,11 @@ impl ChipBuilder<'_> {
     }
 
     pub(super) fn fill_pclk_ecp4(&mut self) {
-        let hpbx = self.naming.strings.get("HPBX0000").unwrap();
+        let hpbx = self.grid.strings.get("HPBX0000").unwrap();
         let mut clks: BTreeMap<WireName, Vec<RowId>> = BTreeMap::new();
         for &(nf, nt) in self.grid.pips.keys() {
-            let wfn = self.nodes[nf];
-            let wtn = self.nodes[nt];
+            let wfn = self.grid.nodes[nf];
+            let wtn = self.grid.nodes[nt];
             if wtn.suffix == hpbx && wtn.c == 1 {
                 let cell = self.chip.xlat_rc_wire(wtn);
                 clks.entry(wfn).or_default().push(cell.row);
@@ -191,12 +191,12 @@ impl ChipBuilder<'_> {
     }
 
     pub(super) fn fill_dqs_ecp4(&mut self) {
-        let dqsi = self.naming.strings.get("JDQSI_DQS").unwrap();
-        let paddi = self.naming.strings.get("JPADDI_PIO").unwrap();
-        let paddiea = self.naming.strings.get("JPADDIEA_PIO").unwrap();
+        let dqsi = self.grid.strings.get("JDQSI_DQS").unwrap();
+        let paddi = self.grid.strings.get("JPADDI_PIO").unwrap();
+        let paddiea = self.grid.strings.get("JPADDIEA_PIO").unwrap();
         for &(wf, wt) in self.grid.pips.keys() {
-            let wfn = self.nodes[wf];
-            let wtn = self.nodes[wt];
+            let wfn = self.grid.nodes[wf];
+            let wtn = self.grid.nodes[wt];
             if wtn.suffix == dqsi {
                 let cell = self.chip.xlat_rc_wire(wtn);
                 let is_ea = if wfn.suffix == paddi {
@@ -248,9 +248,9 @@ impl ChipBuilder<'_> {
             .values()
             .any(|cd| cd.bank.get(DirV::N) == Some(&0));
         for &(wf, wt) in self.grid.pips.keys() {
-            let wfn = self.nodes[wf];
-            let wtn = self.nodes[wt];
-            let wtns = self.naming.strings[wtn.suffix].as_str();
+            let wfn = self.grid.nodes[wf];
+            let wtn = self.grid.nodes[wt];
+            let wtns = self.grid.strings[wtn.suffix].as_str();
             if wtns.starts_with("JPGENI_BCPG") {
                 let cell_to = self.chip.xlat_rc_wire(wtn);
                 let cell_from = self.chip.xlat_rc_wire(wfn);
@@ -545,16 +545,16 @@ impl ChipBuilder<'_> {
             ("JURMPCLKCIB1", SpecialLocKey::PclkIn(Dir::N, 2)),
             ("JURMPCLKCIB3", SpecialLocKey::PclkIn(Dir::N, 3)),
         ] {
-            if let Some(s) = self.naming.strings.get(name) {
+            if let Some(s) = self.grid.strings.get(name) {
                 xlat.insert(s, key);
             }
         }
         for &(wf, wt) in self.grid.pips.keys() {
-            let wnt = self.nodes[wt];
+            let wnt = self.grid.nodes[wt];
             let Some(&key) = xlat.get(&wnt.suffix) else {
                 continue;
             };
-            let wnf = self.nodes[wf];
+            let wnf = self.grid.nodes[wf];
             let cell = self.chip.xlat_rc_wire(wnf);
             self.chip.special_loc.insert(key, cell);
         }

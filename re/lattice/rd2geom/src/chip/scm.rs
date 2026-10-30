@@ -5,18 +5,18 @@ use prjcombine_ecp::{
     defs::bslots,
 };
 use prjcombine_interconnect::{
+    db::PinDir,
     dir::{Dir, DirH, DirHV, DirV},
     grid::{BelCoord, ColId, DieIdExt},
 };
 use prjcombine_re_lattice_naming::WireName;
-use prjcombine_re_lattice_rawdump::PinDir;
 
 use crate::chip::{ChipBuilder, ChipExt};
 
 impl ChipBuilder<'_> {
     pub(super) fn fill_clk_scm(&mut self) {
-        for &wn in self.nodes.values() {
-            if self.naming.strings[wn.suffix] == "JCIBTESTB0_TESTCK" {
+        for &wn in self.grid.nodes.values() {
+            if self.grid.strings[wn.suffix] == "JCIBTESTB0_TESTCK" {
                 let cell = self.chip.xlat_rc_wire(wn).delta(1, 0);
                 self.chip.col_clk = cell.col;
                 self.chip.row_clk = cell.row;
@@ -27,13 +27,13 @@ impl ChipBuilder<'_> {
     }
 
     pub(super) fn fill_pclk_scm(&mut self) {
-        let hpbx0001 = self.naming.strings.get("HPBX0001").unwrap();
-        let vpsx0000 = self.naming.strings.get("VPSX0000").unwrap();
+        let hpbx0001 = self.grid.strings.get("HPBX0001").unwrap();
+        let vpsx0000 = self.grid.strings.get("VPSX0000").unwrap();
         let mut clks: BTreeMap<u16, Vec<ColId>> = BTreeMap::new();
         let mut pclk_drive = BTreeSet::new();
         for &(nf, nt) in self.grid.pips.keys() {
-            let wfn = self.nodes[nf];
-            let wtn = self.nodes[nt];
+            let wfn = self.grid.nodes[nf];
+            let wtn = self.grid.nodes[nt];
             if wfn.suffix == vpsx0000 {
                 let cell = self.chip.xlat_rc_wire(wfn);
                 pclk_drive.insert(cell.col + 1);
@@ -180,16 +180,16 @@ impl ChipBuilder<'_> {
     }
 
     fn gather_special_io_scm(&mut self) -> BTreeMap<WireName, (BelCoord, PinDir)> {
-        let jinddcka = self.naming.strings.get("JINDDCKA").unwrap();
-        let jinddckb = self.naming.strings.get("JINDDCKB").unwrap();
-        let jinddckc = self.naming.strings.get("JINDDCKC").unwrap();
-        let jinddckd = self.naming.strings.get("JINDDCKD").unwrap();
-        let jpaddoa = self.naming.strings.get("JPADDOA_PIO").unwrap();
-        let jpaddob = self.naming.strings.get("JPADDOB_PIO").unwrap();
-        let jpaddoc = self.naming.strings.get("JPADDOC_PIO").unwrap();
-        let jpaddod = self.naming.strings.get("JPADDOD_PIO").unwrap();
+        let jinddcka = self.grid.strings.get("JINDDCKA").unwrap();
+        let jinddckb = self.grid.strings.get("JINDDCKB").unwrap();
+        let jinddckc = self.grid.strings.get("JINDDCKC").unwrap();
+        let jinddckd = self.grid.strings.get("JINDDCKD").unwrap();
+        let jpaddoa = self.grid.strings.get("JPADDOA_PIO").unwrap();
+        let jpaddob = self.grid.strings.get("JPADDOB_PIO").unwrap();
+        let jpaddoc = self.grid.strings.get("JPADDOC_PIO").unwrap();
+        let jpaddod = self.grid.strings.get("JPADDOD_PIO").unwrap();
         let mut pad_nodes = HashMap::new();
-        for (node, &wn) in self.nodes {
+        for (node, &wn) in &self.grid.nodes {
             let mut cell = self.chip.xlat_rc_wire(wn);
             let (idx, dir) = if wn.suffix == jinddcka {
                 (0, PinDir::Input)
@@ -251,8 +251,8 @@ impl ChipBuilder<'_> {
         let mut result = BTreeMap::new();
         for &(wf, wt) in self.grid.pips.keys() {
             if let Some(&io) = pad_nodes.get(&wf) {
-                let wn = self.nodes[wt];
-                let suffix = self.naming.strings[wn.suffix].as_str();
+                let wn = self.grid.nodes[wt];
+                let suffix = self.grid.strings[wn.suffix].as_str();
                 if matches!(suffix, |"JQ0"| "JQ1"
                     | "JQ2"
                     | "JQ3"
@@ -267,8 +267,8 @@ impl ChipBuilder<'_> {
                 }
                 result.insert(wn, io);
             } else if let Some(&io) = pad_nodes.get(&wt) {
-                let wn = self.nodes[wf];
-                let suffix = self.naming.strings[wn.suffix].as_str();
+                let wn = self.grid.nodes[wf];
+                let suffix = self.grid.strings[wn.suffix].as_str();
                 if matches!(
                     suffix,
                     "JA0"
@@ -301,7 +301,7 @@ impl ChipBuilder<'_> {
     pub(super) fn fill_special_io_scm(&mut self) {
         for (wn, (io, _dir)) in self.gather_special_io_scm() {
             let cell = self.chip.xlat_rc_wire(wn);
-            let suffix = self.naming.strings[wn.suffix].as_str();
+            let suffix = self.grid.strings[wn.suffix].as_str();
             let key = if let Some(idx) = suffix.strip_prefix("JPIO_")
                 && let Ok(idx) = idx.parse()
             {

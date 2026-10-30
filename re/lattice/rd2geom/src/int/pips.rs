@@ -160,8 +160,8 @@ impl ChipContext<'_> {
             BTreeMap::new();
 
         for &(nf, nt) in self.grid.pips.keys() {
-            let wfn = self.nodes[nf];
-            let wtn = self.nodes[nt];
+            let wfn = self.grid.nodes[nf];
+            let wtn = self.grid.nodes[nt];
             if term_pips.remove(&(wtn, wfn)) {
                 continue;
             }

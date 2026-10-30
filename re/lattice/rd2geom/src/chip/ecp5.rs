@@ -14,12 +14,12 @@ use crate::chip::{ChipBuilder, ChipExt};
 
 impl ChipBuilder<'_> {
     pub(super) fn fill_pclk_ecp5(&mut self) {
-        let clk0 = self.naming.strings.get("CLK0").unwrap();
-        let jclk0 = self.naming.strings.get("JCLK0").unwrap();
-        let hpbx0200 = self.naming.strings.get("HPBX0200").unwrap();
+        let clk0 = self.grid.strings.get("CLK0").unwrap();
+        let jclk0 = self.grid.strings.get("JCLK0").unwrap();
+        let hpbx0200 = self.grid.strings.get("HPBX0200").unwrap();
         let mut drivers = BTreeMap::new();
         let vptx0200 = self
-            .naming
+            .grid
             .strings
             .get(if self.chip.kind == ChipKind::Crosslink {
                 "VPTX0000"
@@ -28,8 +28,8 @@ impl ChipBuilder<'_> {
             })
             .unwrap();
         for &(nf, nt) in self.grid.pips.keys() {
-            let wfn = self.nodes[nf];
-            let wtn = self.nodes[nt];
+            let wfn = self.grid.nodes[nf];
+            let wtn = self.grid.nodes[nt];
             if wtn.suffix == hpbx0200 {
                 let cell = self.chip.xlat_rc_wire(wtn);
                 if cell.row == self.chip.row_clk {
@@ -48,8 +48,8 @@ impl ChipBuilder<'_> {
         }
         let mut clks: BTreeMap<ColId, (Vec<ColId>, Vec<ColId>)> = BTreeMap::new();
         for &(nf, nt) in self.grid.pips.keys() {
-            let wfn = self.nodes[nf];
-            let wtn = self.nodes[nt];
+            let wfn = self.grid.nodes[nf];
+            let wtn = self.grid.nodes[nt];
             if wfn.suffix == hpbx0200 && (wtn.suffix == jclk0 || wtn.suffix == clk0) {
                 let cell = self.chip.xlat_rc_wire(wtn);
                 if cell.row == self.chip.row_clk {
@@ -82,8 +82,8 @@ impl ChipBuilder<'_> {
         );
 
         if self.chip.kind == ChipKind::Ecp5 {
-            let hprx0000 = self.naming.strings.get("HPRX0000").unwrap();
-            for &wn in self.nodes.values() {
+            let hprx0000 = self.grid.strings.get("HPRX0000").unwrap();
+            for &wn in self.grid.nodes.values() {
                 if wn.suffix != hprx0000 {
                     continue;
                 }
@@ -160,10 +160,9 @@ impl ChipBuilder<'_> {
 
     pub(super) fn fill_bc_ecp5(&mut self) {
         for &(wf, wt) in self.grid.pips.keys() {
-            let wfn = self.nodes[wf];
-            let wtn = self.nodes[wt];
-            if let Some(bank) =
-                self.naming.strings[wtn.suffix].strip_prefix("JPVT_SRC_IN0_BREFTEST")
+            let wfn = self.grid.nodes[wf];
+            let wtn = self.grid.nodes[wt];
+            if let Some(bank) = self.grid.strings[wtn.suffix].strip_prefix("JPVT_SRC_IN0_BREFTEST")
             {
                 let bank = bank.parse().unwrap();
                 let cell = self.chip.xlat_rc_wire(wfn);
@@ -332,16 +331,16 @@ impl ChipBuilder<'_> {
             ("JURMPCLKCIB1", SpecialLocKey::PclkIn(Dir::N, 6)),
             ("JURMPCLKCIB3", SpecialLocKey::PclkIn(Dir::N, 7)),
         ] {
-            if let Some(s) = self.naming.strings.get(name) {
+            if let Some(s) = self.grid.strings.get(name) {
                 xlat.insert(s, key);
             }
         }
         for &(wf, wt) in self.grid.pips.keys() {
-            let wnt = self.nodes[wt];
+            let wnt = self.grid.nodes[wt];
             let Some(&key) = xlat.get(&wnt.suffix) else {
                 continue;
             };
-            let wnf = self.nodes[wf];
+            let wnf = self.grid.nodes[wf];
             let cell = self.chip.xlat_rc_wire(wnf);
             self.chip.special_loc.insert(key, cell);
         }

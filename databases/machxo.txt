@@ -1895,354 +1895,8 @@ bond BOND6 {
 	pin P14 = IOB_S8_5;
 }
 
-// LPTM10-12107-TQFP128 LPTM10-1247-TQFP128
-bond BOND7 {
-	kind single;
-	pin 1 = VCCIO3;
-	pin 2 = OTHER;
-	pin 3 = IOB_W10_1;
-	pin 4 = OTHER;
-	pin 5 = OTHER;
-	pin 6 = IOB_W9_3;
-	pin 7 = OTHER;
-	pin 8 = IOB_W8_1;
-	pin 9 = GND;
-	pin 10 = OTHER;
-	pin 11 = OTHER;
-	pin 12 = OTHER;
-	pin 13 = GND;
-	pin 14 = OTHER;
-	pin 15 = OTHER;
-	pin 16 = OTHER;
-	pin 17 = VCCINT;
-	pin 18 = OTHER;
-	pin 19 = OTHER;
-	pin 20 = OTHER;
-	pin 21 = IOB_W3_0;
-	pin 22 = OTHER;
-	pin 23 = IOB_W3_2;
-	pin 24 = IOB_W2_0;
-	pin 25 = OTHER;
-	pin 26 = IOB_W2_2;
-	pin 27 = IOB_W1_0;
-	pin 28 = IOB_W1_2;
-	pin 29 = OTHER;
-	pin 30 = VCCIO3;
-	pin 31 = OTHER;
-	pin 32 = GND;
-	pin 33 = VCCIO2;
-	pin 34 = TMS;
-	pin 35 = OTHER;
-	pin 36 = OTHER;
-	pin 37 = TCK;
-	pin 38 = OTHER;
-	pin 39 = IOB_S2_1;
-	pin 40 = OTHER;
-	pin 41 = OTHER;
-	pin 42 = OTHER;
-	pin 43 = IOB_S3_0;
-	pin 44 = TDO;
-	pin 45 = OTHER;
-	pin 46 = TDI;
-	pin 47 = OTHER;
-	pin 48 = VCCINT;
-	pin 49 = OTHER;
-	pin 50 = VCCAUX;
-	pin 51 = IOB_S4_1;
-	pin 52 = OTHER;
-	pin 53 = IOB_S5_1;
-	pin 54 = GND;
-	pin 55 = OTHER;
-	pin 56 = IOB_S7_0;
-	pin 57 = GND;
-	pin 58 = OTHER;
-	pin 59 = OTHER;
-	pin 60 = IOB_S8_4;
-	pin 61 = OTHER;
-	pin 62 = VCCIO2;
-	pin 63 = OTHER;
-	pin 64 = GND;
-	pin 65 = OTHER;
-	pin 66 = VCCIO1;
-	pin 67 = OTHER;
-	pin 68 = OTHER;
-	pin 69 = OTHER;
-	pin 70 = OTHER;
-	pin 71 = OTHER;
-	pin 72 = OTHER;
-	pin 73 = GND;
-	pin 74 = OTHER;
-	pin 75 = OTHER;
-	pin 76 = OTHER;
-	pin 77 = OTHER;
-	pin 78 = GND;
-	pin 79 = OTHER;
-	pin 80 = OTHER;
-	pin 81 = OTHER;
-	pin 82 = VCCINT;
-	pin 83 = OTHER;
-	pin 84 = OTHER;
-	pin 85 = IOB_E8_1;
-	pin 86 = OTHER;
-	pin 87 = IOB_E9_3;
-	pin 88 = OTHER;
-	pin 89 = IOB_E10_3;
-	pin 90 = OTHER;
-	pin 91 = IOB_E10_1;
-	pin 92 = OTHER;
-	pin 93 = VCCIO1;
-	pin 94 = OTHER;
-	pin 95 = GND;
-	pin 96 = OTHER;
-	pin 97 = VCCIO0;
-	pin 98 = IOB_N8_4;
-	pin 99 = OTHER;
-	pin 100 = IOB_N8_2;
-	pin 101 = OTHER;
-	pin 102 = IOB_N8_0;
-	pin 103 = OTHER;
-	pin 104 = IOB_N7_2;
-	pin 105 = VCCIO0;
-	pin 106 = IOB_N6_4;
-	pin 107 = OTHER;
-	pin 108 = IOB_N6_0;
-	pin 109 = GND;
-	pin 110 = IOB_N5_1;
-	pin 111 = OTHER;
-	pin 112 = IOB_N4_1;
-	pin 113 = VCCAUX;
-	pin 114 = VCCINT;
-	pin 115 = IOB_N2_5;
-	pin 116 = OTHER;
-	pin 117 = OTHER;
-	pin 118 = OTHER;
-	pin 119 = IOB_N2_2;
-	pin 120 = OTHER;
-	pin 121 = IOB_N1_5;
-	pin 122 = OTHER;
-	pin 123 = IOB_N1_1;
-	pin 124 = OTHER;
-	pin 125 = VCCIO0;
-	pin 126 = OTHER;
-	pin 127 = GND;
-	pin 128 = OTHER;
-}
-
-// LPTM10-12107-FTBGA208 LPTM10-1247-FTBGA208
-bond BOND8 {
-	kind single;
-	pin A1 = GND;
-	pin A2 = IOB_N4_1;
-	pin A3 = IOB_N6_4;
-	pin A4 = GND;
-	pin A5 = IOB_E9_3;
-	pin A6 = VCCIO1;
-	pin A7 = IOB_E6_3;
-	pin A8 = GND;
-	pin A9 = IOB_E3_1;
-	pin A10 = OTHER;
-	pin A11 = OTHER;
-	pin A12 = OTHER;
-	pin A13 = GND;
-	pin A14 = OTHER;
-	pin A15 = OTHER;
-	pin A16 = GND;
-	pin B1 = IOB_N3_4;
-	pin B2 = IOB_N4_0;
-	pin B3 = IOB_N6_0;
-	pin B4 = IOB_N7_0;
-	pin B5 = IOB_E9_1;
-	pin B6 = IOB_E10_3;
-	pin B7 = IOB_E6_2;
-	pin B8 = IOB_E4_2;
-	pin B9 = IOB_E2_0;
-	pin B10 = OTHER;
-	pin B11 = OTHER;
-	pin B12 = OTHER;
-	pin B13 = GND;
-	pin B14 = OTHER;
-	pin B15 = OTHER;
-	pin B16 = OTHER;
-	pin C1 = VCCIO0;
-	pin C2 = IOB_N3_2;
-	pin C3 = IOB_N3_1;
-	pin C4 = IOB_N5_2;
-	pin C5 = IOB_N8_4;
-	pin C6 = IOB_E10_1;
-	pin C7 = IOB_E8_3;
-	pin C8 = IOB_E4_0;
-	pin C9 = IOB_E2_2;
-	pin C10 = OTHER;
-	pin C11 = OTHER;
-	pin C12 = OTHER;
-	pin C13 = GND;
-	pin C14 = OTHER;
-	pin C15 = OTHER;
-	pin C16 = OTHER;
-	pin D1 = IOB_N2_5;
-	pin D2 = IOB_N2_4;
-	pin D3 = IOB_N2_2;
-	pin D4 = IOB_N5_0;
-	pin D5 = IOB_N5_1;
-	pin D6 = IOB_N8_0;
-	pin D7 = IOB_E8_1;
-	pin D8 = IOB_E5_1;
-	pin D9 = IOB_E1_0;
-	pin D10 = IOB_E1_2;
-	pin D11 = OTHER;
-	pin D12 = OTHER;
-	pin D13 = GND;
-	pin D14 = OTHER;
-	pin D15 = OTHER;
-	pin D16 = OTHER;
-	pin E1 = IOB_N2_1;
-	pin E2 = IOB_N1_5;
-	pin E3 = IOB_N1_2;
-	pin E4 = IOB_N1_4;
-	pin E13 = OTHER;
-	pin E14 = OTHER;
-	pin E15 = OTHER;
-	pin E16 = OTHER;
-	pin F1 = IOB_W10_0;
-	pin F2 = IOB_W10_1;
-	pin F3 = IOB_W9_0;
-	pin F4 = IOB_N1_1;
-	pin F13 = OTHER;
-	pin F14 = OTHER;
-	pin F15 = OTHER;
-	pin F16 = OTHER;
-	pin G1 = IOB_W8_0;
-	pin G2 = IOB_W9_1;
-	pin G3 = IOB_W9_3;
-	pin G4 = IOB_W7_0;
-	pin G7 = VCCIO0;
-	pin G8 = GND;
-	pin G9 = GND;
-	pin G10 = VCCIO1;
-	pin G13 = OTHER;
-	pin G14 = OTHER;
-	pin G15 = OTHER;
-	pin G16 = OTHER;
-	pin H1 = GND;
-	pin H2 = IOB_W8_3;
-	pin H3 = IOB_W5_0;
-	pin H4 = IOB_W7_1;
-	pin H7 = VCCIO0;
-	pin H8 = VCCINT;
-	pin H9 = VCCINT;
-	pin H10 = VCCIO1;
-	pin H13 = OTHER;
-	pin H14 = OTHER;
-	pin H15 = OTHER;
-	pin H16 = OTHER;
-	pin J1 = IOB_W7_2;
-	pin J2 = IOB_W6_3;
-	pin J3 = IOB_W5_1;
-	pin J4 = IOB_W5_3;
-	pin J7 = GND;
-	pin J8 = GND;
-	pin J9 = GND;
-	pin J10 = GND;
-	pin J13 = OTHER;
-	pin J14 = OTHER;
-	pin J15 = OTHER;
-	pin J16 = OTHER;
-	pin K1 = IOB_W7_3;
-	pin K2 = IOB_W6_0;
-	pin K3 = IOB_W1_0;
-	pin K4 = TMS;
-	pin K7 = VCCIO3;
-	pin K8 = VCCIO3;
-	pin K9 = VCCIO2;
-	pin K10 = VCCIO2;
-	pin K13 = OTHER;
-	pin K14 = OTHER;
-	pin K15 = OTHER;
-	pin K16 = OTHER;
-	pin L1 = IOB_W4_0;
-	pin L2 = IOB_W4_3;
-	pin L3 = IOB_W1_1;
-	pin L4 = TCK;
-	pin L13 = OTHER;
-	pin L14 = OTHER;
-	pin L15 = OTHER;
-	pin L16 = OTHER;
-	pin M1 = IOB_W4_2;
-	pin M2 = IOB_W3_2;
-	pin M3 = IOB_W1_2;
-	pin M4 = TDO;
-	pin M13 = OTHER;
-	pin M14 = OTHER;
-	pin M15 = OTHER;
-	pin M16 = OTHER;
-	pin N1 = VCCIO3;
-	pin N2 = IOB_W3_3;
-	pin N3 = IOB_W1_3;
-	pin N4 = TDI;
-	pin N5 = VCCAUX;
-	pin N6 = IOB_S4_3;
-	pin N7 = IOB_S6_2;
-	pin N8 = IOB_S7_2;
-	pin N9 = IOB_S8_4;
-	pin N10 = IOB_S8_5;
-	pin N11 = OTHER;
-	pin N12 = OTHER;
-	pin N13 = OTHER;
-	pin N14 = OTHER;
-	pin N15 = OTHER;
-	pin N16 = OTHER;
-	pin P1 = IOB_W2_0;
-	pin P2 = IOB_W2_3;
-	pin P3 = IOB_S2_1;
-	pin P4 = IOB_S2_3;
-	pin P5 = IOB_S4_1;
-	pin P6 = IOB_S4_2;
-	pin P7 = IOB_S6_4;
-	pin P8 = IOB_S7_3;
-	pin P9 = IOB_S8_3;
-	pin P10 = OTHER;
-	pin P11 = OTHER;
-	pin P12 = OTHER;
-	pin P13 = OTHER;
-	pin P14 = OTHER;
-	pin P15 = OTHER;
-	pin P16 = OTHER;
-	pin R1 = IOB_W2_1;
-	pin R2 = IOB_S1_0;
-	pin R3 = IOB_S2_2;
-	pin R4 = IOB_S3_0;
-	pin R5 = IOB_S3_5;
-	pin R6 = IOB_S5_1;
-	pin R7 = IOB_S6_1;
-	pin R8 = IOB_S7_0;
-	pin R9 = IOB_S8_2;
-	pin R10 = OTHER;
-	pin R11 = OTHER;
-	pin R12 = OTHER;
-	pin R13 = OTHER;
-	pin R14 = OTHER;
-	pin R15 = OTHER;
-	pin R16 = OTHER;
-	pin T1 = GND;
-	pin T2 = IOB_S1_2;
-	pin T3 = IOB_S1_3;
-	pin T4 = GND;
-	pin T5 = IOB_S3_3;
-	pin T6 = IOB_S5_2;
-	pin T7 = IOB_S6_0;
-	pin T8 = VCCIO2;
-	pin T9 = IOB_S8_0;
-	pin T10 = OTHER;
-	pin T11 = OTHER;
-	pin T12 = OTHER;
-	pin T13 = OTHER;
-	pin T14 = OTHER;
-	pin T15 = OTHER;
-	pin T16 = GND;
-}
-
 // LAMXO1200E-TQFP100 LCMXO1200C-TQFP100 LCMXO1200E-TQFP100
-bond BOND9 {
+bond BOND7 {
 	kind single;
 	pin 1 = IOB_W15_0;
 	pin 2 = IOB_W15_1;
@@ -2347,7 +2001,7 @@ bond BOND9 {
 }
 
 // LAMXO1200E-TQFP144 LCMXO1200C-TQFP144 LCMXO1200E-TQFP144
-bond BOND10 {
+bond BOND8 {
 	kind single;
 	pin 1 = IOB_W15_0;
 	pin 2 = IOB_W15_1;
@@ -2496,7 +2150,7 @@ bond BOND10 {
 }
 
 // LAMXO1200E-FTBGA256 LCMXO1200C-CABGA256 LCMXO1200C-FTBGA256 LCMXO1200E-CABGA256 LCMXO1200E-FTBGA256
-bond BOND11 {
+bond BOND9 {
 	kind single;
 	pin A1 = GND;
 	pin A2 = IOB_N2_0;
@@ -2757,7 +2411,7 @@ bond BOND11 {
 }
 
 // LCMXO1200C-CSBGA132 LCMXO1200E-CSBGA132
-bond BOND12 {
+bond BOND10 {
 	kind single;
 	pin A1 = IOB_N1_0;
 	pin A2 = IOB_N1_1;
@@ -2894,7 +2548,7 @@ bond BOND12 {
 }
 
 // LAMXO2280E-TQFP100 LCMXO2280C-TQFP100 LCMXO2280E-TQFP100
-bond BOND13 {
+bond BOND11 {
 	kind single;
 	pin 1 = IOB_W19_0;
 	pin 2 = IOB_W19_1;
@@ -2999,7 +2653,7 @@ bond BOND13 {
 }
 
 // LAMXO2280E-TQFP144 LCMXO2280C-TQFP144 LCMXO2280E-TQFP144
-bond BOND14 {
+bond BOND12 {
 	kind single;
 	pin 1 = IOB_W19_0;
 	pin 2 = IOB_W19_1;
@@ -3148,7 +2802,7 @@ bond BOND14 {
 }
 
 // LAMXO2280E-FTBGA256 LCMXO2280C-CABGA256 LCMXO2280C-FTBGA256 LCMXO2280E-CABGA256 LCMXO2280E-FTBGA256
-bond BOND15 {
+bond BOND13 {
 	kind single;
 	pin A1 = GND;
 	pin A2 = IOB_N2_0;
@@ -3409,7 +3063,7 @@ bond BOND15 {
 }
 
 // LAMXO2280E-FTBGA324 LCMXO2280C-FTBGA324 LCMXO2280E-FTBGA324
-bond BOND16 {
+bond BOND14 {
 	kind single;
 	pin A1 = IOB_W17_0;
 	pin A2 = IOB_N1_1;
@@ -3738,7 +3392,7 @@ bond BOND16 {
 }
 
 // LCMXO2280C-CSBGA132 LCMXO2280E-CSBGA132
-bond BOND17 {
+bond BOND15 {
 	kind single;
 	pin A1 = IOB_N1_0;
 	pin A2 = IOB_N1_1;
@@ -3872,6 +3526,352 @@ bond BOND17 {
 	pin P12 = IOB_S14_1;
 	pin P13 = IOB_S15_2;
 	pin P14 = IOB_S15_3;
+}
+
+// LPTM10-12107-TQFP128 LPTM10-1247-TQFP128
+bond BOND16 {
+	kind single;
+	pin 1 = VCCIO3;
+	pin 2 = OTHER;
+	pin 3 = IOB_W10_1;
+	pin 4 = OTHER;
+	pin 5 = OTHER;
+	pin 6 = IOB_W9_3;
+	pin 7 = OTHER;
+	pin 8 = IOB_W8_1;
+	pin 9 = GND;
+	pin 10 = OTHER;
+	pin 11 = OTHER;
+	pin 12 = OTHER;
+	pin 13 = GND;
+	pin 14 = OTHER;
+	pin 15 = OTHER;
+	pin 16 = OTHER;
+	pin 17 = VCCINT;
+	pin 18 = OTHER;
+	pin 19 = OTHER;
+	pin 20 = OTHER;
+	pin 21 = IOB_W3_0;
+	pin 22 = OTHER;
+	pin 23 = IOB_W3_2;
+	pin 24 = IOB_W2_0;
+	pin 25 = OTHER;
+	pin 26 = IOB_W2_2;
+	pin 27 = IOB_W1_0;
+	pin 28 = IOB_W1_2;
+	pin 29 = OTHER;
+	pin 30 = VCCIO3;
+	pin 31 = OTHER;
+	pin 32 = GND;
+	pin 33 = VCCIO2;
+	pin 34 = TMS;
+	pin 35 = OTHER;
+	pin 36 = OTHER;
+	pin 37 = TCK;
+	pin 38 = OTHER;
+	pin 39 = IOB_S2_1;
+	pin 40 = OTHER;
+	pin 41 = OTHER;
+	pin 42 = OTHER;
+	pin 43 = IOB_S3_0;
+	pin 44 = TDO;
+	pin 45 = OTHER;
+	pin 46 = TDI;
+	pin 47 = OTHER;
+	pin 48 = VCCINT;
+	pin 49 = OTHER;
+	pin 50 = VCCAUX;
+	pin 51 = IOB_S4_1;
+	pin 52 = OTHER;
+	pin 53 = IOB_S5_1;
+	pin 54 = GND;
+	pin 55 = OTHER;
+	pin 56 = IOB_S7_0;
+	pin 57 = GND;
+	pin 58 = OTHER;
+	pin 59 = OTHER;
+	pin 60 = IOB_S8_4;
+	pin 61 = OTHER;
+	pin 62 = VCCIO2;
+	pin 63 = OTHER;
+	pin 64 = GND;
+	pin 65 = OTHER;
+	pin 66 = VCCIO1;
+	pin 67 = OTHER;
+	pin 68 = OTHER;
+	pin 69 = OTHER;
+	pin 70 = OTHER;
+	pin 71 = OTHER;
+	pin 72 = OTHER;
+	pin 73 = GND;
+	pin 74 = OTHER;
+	pin 75 = OTHER;
+	pin 76 = OTHER;
+	pin 77 = OTHER;
+	pin 78 = GND;
+	pin 79 = OTHER;
+	pin 80 = OTHER;
+	pin 81 = OTHER;
+	pin 82 = VCCINT;
+	pin 83 = OTHER;
+	pin 84 = OTHER;
+	pin 85 = IOB_E8_1;
+	pin 86 = OTHER;
+	pin 87 = IOB_E9_3;
+	pin 88 = OTHER;
+	pin 89 = IOB_E10_3;
+	pin 90 = OTHER;
+	pin 91 = IOB_E10_1;
+	pin 92 = OTHER;
+	pin 93 = VCCIO1;
+	pin 94 = OTHER;
+	pin 95 = GND;
+	pin 96 = OTHER;
+	pin 97 = VCCIO0;
+	pin 98 = IOB_N8_4;
+	pin 99 = OTHER;
+	pin 100 = IOB_N8_2;
+	pin 101 = OTHER;
+	pin 102 = IOB_N8_0;
+	pin 103 = OTHER;
+	pin 104 = IOB_N7_2;
+	pin 105 = VCCIO0;
+	pin 106 = IOB_N6_4;
+	pin 107 = OTHER;
+	pin 108 = IOB_N6_0;
+	pin 109 = GND;
+	pin 110 = IOB_N5_1;
+	pin 111 = OTHER;
+	pin 112 = IOB_N4_1;
+	pin 113 = VCCAUX;
+	pin 114 = VCCINT;
+	pin 115 = IOB_N2_5;
+	pin 116 = OTHER;
+	pin 117 = OTHER;
+	pin 118 = OTHER;
+	pin 119 = IOB_N2_2;
+	pin 120 = OTHER;
+	pin 121 = IOB_N1_5;
+	pin 122 = OTHER;
+	pin 123 = IOB_N1_1;
+	pin 124 = OTHER;
+	pin 125 = VCCIO0;
+	pin 126 = OTHER;
+	pin 127 = GND;
+	pin 128 = OTHER;
+}
+
+// LPTM10-12107-FTBGA208 LPTM10-1247-FTBGA208
+bond BOND17 {
+	kind single;
+	pin A1 = GND;
+	pin A2 = IOB_N4_1;
+	pin A3 = IOB_N6_4;
+	pin A4 = GND;
+	pin A5 = IOB_E9_3;
+	pin A6 = VCCIO1;
+	pin A7 = IOB_E6_3;
+	pin A8 = GND;
+	pin A9 = IOB_E3_1;
+	pin A10 = OTHER;
+	pin A11 = OTHER;
+	pin A12 = OTHER;
+	pin A13 = GND;
+	pin A14 = OTHER;
+	pin A15 = OTHER;
+	pin A16 = GND;
+	pin B1 = IOB_N3_4;
+	pin B2 = IOB_N4_0;
+	pin B3 = IOB_N6_0;
+	pin B4 = IOB_N7_0;
+	pin B5 = IOB_E9_1;
+	pin B6 = IOB_E10_3;
+	pin B7 = IOB_E6_2;
+	pin B8 = IOB_E4_2;
+	pin B9 = IOB_E2_0;
+	pin B10 = OTHER;
+	pin B11 = OTHER;
+	pin B12 = OTHER;
+	pin B13 = GND;
+	pin B14 = OTHER;
+	pin B15 = OTHER;
+	pin B16 = OTHER;
+	pin C1 = VCCIO0;
+	pin C2 = IOB_N3_2;
+	pin C3 = IOB_N3_1;
+	pin C4 = IOB_N5_2;
+	pin C5 = IOB_N8_4;
+	pin C6 = IOB_E10_1;
+	pin C7 = IOB_E8_3;
+	pin C8 = IOB_E4_0;
+	pin C9 = IOB_E2_2;
+	pin C10 = OTHER;
+	pin C11 = OTHER;
+	pin C12 = OTHER;
+	pin C13 = GND;
+	pin C14 = OTHER;
+	pin C15 = OTHER;
+	pin C16 = OTHER;
+	pin D1 = IOB_N2_5;
+	pin D2 = IOB_N2_4;
+	pin D3 = IOB_N2_2;
+	pin D4 = IOB_N5_0;
+	pin D5 = IOB_N5_1;
+	pin D6 = IOB_N8_0;
+	pin D7 = IOB_E8_1;
+	pin D8 = IOB_E5_1;
+	pin D9 = IOB_E1_0;
+	pin D10 = IOB_E1_2;
+	pin D11 = OTHER;
+	pin D12 = OTHER;
+	pin D13 = GND;
+	pin D14 = OTHER;
+	pin D15 = OTHER;
+	pin D16 = OTHER;
+	pin E1 = IOB_N2_1;
+	pin E2 = IOB_N1_5;
+	pin E3 = IOB_N1_2;
+	pin E4 = IOB_N1_4;
+	pin E13 = OTHER;
+	pin E14 = OTHER;
+	pin E15 = OTHER;
+	pin E16 = OTHER;
+	pin F1 = IOB_W10_0;
+	pin F2 = IOB_W10_1;
+	pin F3 = IOB_W9_0;
+	pin F4 = IOB_N1_1;
+	pin F13 = OTHER;
+	pin F14 = OTHER;
+	pin F15 = OTHER;
+	pin F16 = OTHER;
+	pin G1 = IOB_W8_0;
+	pin G2 = IOB_W9_1;
+	pin G3 = IOB_W9_3;
+	pin G4 = IOB_W7_0;
+	pin G7 = VCCIO0;
+	pin G8 = GND;
+	pin G9 = GND;
+	pin G10 = VCCIO1;
+	pin G13 = OTHER;
+	pin G14 = OTHER;
+	pin G15 = OTHER;
+	pin G16 = OTHER;
+	pin H1 = GND;
+	pin H2 = IOB_W8_3;
+	pin H3 = IOB_W5_0;
+	pin H4 = IOB_W7_1;
+	pin H7 = VCCIO0;
+	pin H8 = VCCINT;
+	pin H9 = VCCINT;
+	pin H10 = VCCIO1;
+	pin H13 = OTHER;
+	pin H14 = OTHER;
+	pin H15 = OTHER;
+	pin H16 = OTHER;
+	pin J1 = IOB_W7_2;
+	pin J2 = IOB_W6_3;
+	pin J3 = IOB_W5_1;
+	pin J4 = IOB_W5_3;
+	pin J7 = GND;
+	pin J8 = GND;
+	pin J9 = GND;
+	pin J10 = GND;
+	pin J13 = OTHER;
+	pin J14 = OTHER;
+	pin J15 = OTHER;
+	pin J16 = OTHER;
+	pin K1 = IOB_W7_3;
+	pin K2 = IOB_W6_0;
+	pin K3 = IOB_W1_0;
+	pin K4 = TMS;
+	pin K7 = VCCIO3;
+	pin K8 = VCCIO3;
+	pin K9 = VCCIO2;
+	pin K10 = VCCIO2;
+	pin K13 = OTHER;
+	pin K14 = OTHER;
+	pin K15 = OTHER;
+	pin K16 = OTHER;
+	pin L1 = IOB_W4_0;
+	pin L2 = IOB_W4_3;
+	pin L3 = IOB_W1_1;
+	pin L4 = TCK;
+	pin L13 = OTHER;
+	pin L14 = OTHER;
+	pin L15 = OTHER;
+	pin L16 = OTHER;
+	pin M1 = IOB_W4_2;
+	pin M2 = IOB_W3_2;
+	pin M3 = IOB_W1_2;
+	pin M4 = TDO;
+	pin M13 = OTHER;
+	pin M14 = OTHER;
+	pin M15 = OTHER;
+	pin M16 = OTHER;
+	pin N1 = VCCIO3;
+	pin N2 = IOB_W3_3;
+	pin N3 = IOB_W1_3;
+	pin N4 = TDI;
+	pin N5 = VCCAUX;
+	pin N6 = IOB_S4_3;
+	pin N7 = IOB_S6_2;
+	pin N8 = IOB_S7_2;
+	pin N9 = IOB_S8_4;
+	pin N10 = IOB_S8_5;
+	pin N11 = OTHER;
+	pin N12 = OTHER;
+	pin N13 = OTHER;
+	pin N14 = OTHER;
+	pin N15 = OTHER;
+	pin N16 = OTHER;
+	pin P1 = IOB_W2_0;
+	pin P2 = IOB_W2_3;
+	pin P3 = IOB_S2_1;
+	pin P4 = IOB_S2_3;
+	pin P5 = IOB_S4_1;
+	pin P6 = IOB_S4_2;
+	pin P7 = IOB_S6_4;
+	pin P8 = IOB_S7_3;
+	pin P9 = IOB_S8_3;
+	pin P10 = OTHER;
+	pin P11 = OTHER;
+	pin P12 = OTHER;
+	pin P13 = OTHER;
+	pin P14 = OTHER;
+	pin P15 = OTHER;
+	pin P16 = OTHER;
+	pin R1 = IOB_W2_1;
+	pin R2 = IOB_S1_0;
+	pin R3 = IOB_S2_2;
+	pin R4 = IOB_S3_0;
+	pin R5 = IOB_S3_5;
+	pin R6 = IOB_S5_1;
+	pin R7 = IOB_S6_1;
+	pin R8 = IOB_S7_0;
+	pin R9 = IOB_S8_2;
+	pin R10 = OTHER;
+	pin R11 = OTHER;
+	pin R12 = OTHER;
+	pin R13 = OTHER;
+	pin R14 = OTHER;
+	pin R15 = OTHER;
+	pin R16 = OTHER;
+	pin T1 = GND;
+	pin T2 = IOB_S1_2;
+	pin T3 = IOB_S1_3;
+	pin T4 = GND;
+	pin T5 = IOB_S3_3;
+	pin T6 = IOB_S5_2;
+	pin T7 = IOB_S6_0;
+	pin T8 = VCCIO2;
+	pin T9 = IOB_S8_0;
+	pin T10 = OTHER;
+	pin T11 = OTHER;
+	pin T12 = OTHER;
+	pin T13 = OTHER;
+	pin T14 = OTHER;
+	pin T15 = OTHER;
+	pin T16 = GND;
 }
 
 device LAMXO256C {
@@ -4026,29 +4026,11 @@ device LCMXO640E {
 	combo FTBGA256 5;
 }
 
-device LPTM10-12107 {
-	chip CHIP1;
-	bond TQFP128 = BOND7;
-	bond FTBGA208 = BOND8;
-	speed 3;
-	combo TQFP128 3;
-	combo FTBGA208 3;
-}
-
-device LPTM10-1247 {
-	chip CHIP1;
-	bond TQFP128 = BOND7;
-	bond FTBGA208 = BOND8;
-	speed 3;
-	combo TQFP128 3;
-	combo FTBGA208 3;
-}
-
 device LAMXO1200E {
 	chip CHIP2;
-	bond TQFP100 = BOND9;
-	bond TQFP144 = BOND10;
-	bond FTBGA256 = BOND11;
+	bond TQFP100 = BOND7;
+	bond TQFP144 = BOND8;
+	bond FTBGA256 = BOND9;
 	speed 3;
 	speed 4;
 	speed 5;
@@ -4065,11 +4047,11 @@ device LAMXO1200E {
 
 device LCMXO1200C {
 	chip CHIP2;
-	bond TQFP100 = BOND9;
-	bond TQFP144 = BOND10;
-	bond CSBGA132 = BOND12;
-	bond CABGA256 = BOND11;
-	bond FTBGA256 = BOND11;
+	bond TQFP100 = BOND7;
+	bond TQFP144 = BOND8;
+	bond CSBGA132 = BOND10;
+	bond CABGA256 = BOND9;
+	bond FTBGA256 = BOND9;
 	speed 3;
 	speed 4;
 	speed 5;
@@ -4092,11 +4074,11 @@ device LCMXO1200C {
 
 device LCMXO1200E {
 	chip CHIP2;
-	bond TQFP100 = BOND9;
-	bond TQFP144 = BOND10;
-	bond CSBGA132 = BOND12;
-	bond CABGA256 = BOND11;
-	bond FTBGA256 = BOND11;
+	bond TQFP100 = BOND7;
+	bond TQFP144 = BOND8;
+	bond CSBGA132 = BOND10;
+	bond CABGA256 = BOND9;
+	bond FTBGA256 = BOND9;
 	speed 3;
 	speed 4;
 	speed 5;
@@ -4119,10 +4101,10 @@ device LCMXO1200E {
 
 device LAMXO2280E {
 	chip CHIP3;
-	bond TQFP100 = BOND13;
-	bond TQFP144 = BOND14;
-	bond FTBGA256 = BOND15;
-	bond FTBGA324 = BOND16;
+	bond TQFP100 = BOND11;
+	bond TQFP144 = BOND12;
+	bond FTBGA256 = BOND13;
+	bond FTBGA324 = BOND14;
 	speed 3;
 	speed 4;
 	speed 5;
@@ -4142,12 +4124,12 @@ device LAMXO2280E {
 
 device LCMXO2280C {
 	chip CHIP3;
-	bond TQFP100 = BOND13;
-	bond TQFP144 = BOND14;
-	bond CSBGA132 = BOND17;
-	bond CABGA256 = BOND15;
-	bond FTBGA256 = BOND15;
-	bond FTBGA324 = BOND16;
+	bond TQFP100 = BOND11;
+	bond TQFP144 = BOND12;
+	bond CSBGA132 = BOND15;
+	bond CABGA256 = BOND13;
+	bond FTBGA256 = BOND13;
+	bond FTBGA324 = BOND14;
 	speed 3;
 	speed 4;
 	speed 5;
@@ -4173,12 +4155,12 @@ device LCMXO2280C {
 
 device LCMXO2280E {
 	chip CHIP3;
-	bond TQFP100 = BOND13;
-	bond TQFP144 = BOND14;
-	bond CSBGA132 = BOND17;
-	bond CABGA256 = BOND15;
-	bond FTBGA256 = BOND15;
-	bond FTBGA324 = BOND16;
+	bond TQFP100 = BOND11;
+	bond TQFP144 = BOND12;
+	bond CSBGA132 = BOND15;
+	bond CABGA256 = BOND13;
+	bond FTBGA256 = BOND13;
+	bond FTBGA324 = BOND14;
 	speed 3;
 	speed 4;
 	speed 5;
@@ -4200,6 +4182,24 @@ device LCMXO2280E {
 	combo FTBGA324 3;
 	combo FTBGA324 4;
 	combo FTBGA324 5;
+}
+
+device LPTM10-12107 {
+	chip CHIP1;
+	bond TQFP128 = BOND16;
+	bond FTBGA208 = BOND17;
+	speed 3;
+	combo TQFP128 3;
+	combo FTBGA208 3;
+}
+
+device LPTM10-1247 {
+	chip CHIP1;
+	bond TQFP128 = BOND16;
+	bond FTBGA208 = BOND17;
+	speed 3;
+	combo TQFP128 3;
+	combo FTBGA208 3;
 }
 
 intdb {

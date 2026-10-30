@@ -10,8 +10,8 @@ use prjcombine_interconnect::{
     dir::{Dir, DirH, DirV},
     grid::{BelCoord, CellCoord, ColId, DieIdExt, RowId},
 };
-use prjcombine_re_lattice_naming::{ChipNaming, WireName};
-use prjcombine_re_lattice_rawdump::{Grid, NodeId};
+use prjcombine_re_lattice_naming::WireName;
+use prjcombine_re_lattice_rawdump::Grid;
 use prjcombine_types::enumerable::EnumMap;
 
 mod crosslink;
@@ -70,15 +70,13 @@ struct ChipBuilder<'a> {
     name: &'a str,
     chip: Chip,
     grid: &'a Grid,
-    naming: &'a ChipNaming,
-    nodes: &'a EntityVec<NodeId, WireName>,
     intdb: &'a IntDb,
 }
 
 impl ChipBuilder<'_> {
     fn fill_ebr_dsp_rows(&mut self) {
-        for wn in self.nodes.values() {
-            let suffix = self.naming.strings[wn.suffix].as_str();
+        for wn in self.grid.nodes.values() {
+            let suffix = self.grid.strings[wn.suffix].as_str();
             if (suffix.ends_with("EBR") || suffix.ends_with("EBR_CORE"))
                 && self.chip.kind != ChipKind::MachXo
             {
@@ -203,18 +201,18 @@ impl ChipBuilder<'_> {
     }
 
     fn gather_special_io(&mut self) -> BTreeMap<WireName, BelCoord> {
-        let jpaddia_pio = self.naming.strings.get("JPADDIA_PIO");
-        let jpaddib_pio = self.naming.strings.get("JPADDIB_PIO");
-        let jpaddic_pio = self.naming.strings.get("JPADDIC_PIO");
-        let jpaddid_pio = self.naming.strings.get("JPADDID_PIO");
-        let jpaddie_pio = self.naming.strings.get("JPADDIE_PIO");
-        let jpaddif_pio = self.naming.strings.get("JPADDIF_PIO");
-        let jpaddiea_pio = self.naming.strings.get("JPADDIEA_PIO");
-        let jpaddieb_pio = self.naming.strings.get("JPADDIEB_PIO");
-        let jpaddiec_pio = self.naming.strings.get("JPADDIEC_PIO");
-        let jpaddied_pio = self.naming.strings.get("JPADDIED_PIO");
+        let jpaddia_pio = self.grid.strings.get("JPADDIA_PIO");
+        let jpaddib_pio = self.grid.strings.get("JPADDIB_PIO");
+        let jpaddic_pio = self.grid.strings.get("JPADDIC_PIO");
+        let jpaddid_pio = self.grid.strings.get("JPADDID_PIO");
+        let jpaddie_pio = self.grid.strings.get("JPADDIE_PIO");
+        let jpaddif_pio = self.grid.strings.get("JPADDIF_PIO");
+        let jpaddiea_pio = self.grid.strings.get("JPADDIEA_PIO");
+        let jpaddieb_pio = self.grid.strings.get("JPADDIEB_PIO");
+        let jpaddiec_pio = self.grid.strings.get("JPADDIEC_PIO");
+        let jpaddied_pio = self.grid.strings.get("JPADDIED_PIO");
         let mut pad_nodes = HashMap::new();
-        for (node, &wn) in self.nodes {
+        for (node, &wn) in &self.grid.nodes {
             let mut cell = self.chip.xlat_rc_wire(wn);
             let (mut idx, e) = if Some(wn.suffix) == jpaddia_pio {
                 (0, false)
@@ -280,8 +278,8 @@ impl ChipBuilder<'_> {
             let Some(&io) = pad_nodes.get(&wf) else {
                 continue;
             };
-            let wn = self.nodes[wt];
-            let suffix = self.naming.strings[wn.suffix].as_str();
+            let wn = self.grid.nodes[wt];
+            let suffix = self.grid.strings[wn.suffix].as_str();
             if matches!(
                 suffix,
                 "JPADDIA"
@@ -321,11 +319,11 @@ impl ChipBuilder<'_> {
     }
 }
 
-fn init_chip(kind: ChipKind, naming: &ChipNaming, nodes: &EntityVec<NodeId, WireName>) -> Chip {
-    let ja0 = naming.strings.get("JA0").unwrap();
+fn init_chip(kind: ChipKind, grid: &Grid) -> Chip {
+    let ja0 = grid.strings.get("JA0").unwrap();
     let mut max_r = 0;
     let mut max_c = 0;
-    for wn in nodes.values() {
+    for wn in grid.nodes.values() {
         if wn.suffix == ja0 {
             max_r = max_r.max(wn.r);
             max_c = max_c.max(wn.c);
@@ -359,21 +357,12 @@ fn init_chip(kind: ChipKind, naming: &ChipNaming, nodes: &EntityVec<NodeId, Wire
     }
 }
 
-pub fn make_chip(
-    name: &str,
-    grid: &Grid,
-    kind: ChipKind,
-    naming: &ChipNaming,
-    nodes: &EntityVec<NodeId, WireName>,
-    intdb: &IntDb,
-) -> Chip {
-    let chip = init_chip(kind, naming, nodes);
+pub fn make_chip(name: &str, grid: &Grid, kind: ChipKind, intdb: &IntDb) -> Chip {
+    let chip = init_chip(kind, grid);
     let mut builder = ChipBuilder {
         name,
         chip,
         grid,
-        naming,
-        nodes,
         intdb,
     };
     builder.fill_ebr_dsp_rows();

@@ -2,11 +2,10 @@ use prjcombine_ecp::{
     chip::{IoKind, SpecialLocKey},
     defs::{bcls, bslots, tcls, wires},
 };
-use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
     db::{CellSlotIdExt, WireSlotIdExt},
     dir::Dir,
-    grid::{BelCoord, CellCoord, ColId},
+    grid::{BelCoord, CellCoord},
 };
 
 use crate::{ChipContext, RcMode};
@@ -35,14 +34,13 @@ impl ChipContext<'_> {
             } else {
                 (cell_loc, false)
             };
-            for (bel, name, pin_out, pin_in, pname_in, name_fake) in [
+            for (bel, name, pin_out, pin_in, pname_in) in [
                 (
                     bslots::BCINRD,
                     "BCINRD",
                     "INRDENO",
                     bcls::BCINRD::INRDENI,
                     "INRDENI",
-                    "INRD",
                 ),
                 (
                     bslots::BCLVDSO,
@@ -50,7 +48,6 @@ impl ChipContext<'_> {
                     "LVDSENO",
                     bcls::BCLVDSO::LVDSENI,
                     "LVDSENI",
-                    "LVDS",
                 ),
             ] {
                 let bcrd = cell_loc.bel(bel);
@@ -73,14 +70,6 @@ impl ChipContext<'_> {
                     .input_xlat(pin_in, wire_in)
                     .add_wire(pin_out, wire_out)
                     .add_wire(format!("{pin_out}_OUT"), wire_out_out);
-
-                if bank == 2 {
-                    // uh. what. what the fuck.
-                    let wire_fake = bel
-                        .ctx
-                        .rc_io_wire(cell.with_col(ColId::from_idx(13)), name_fake);
-                    bel.add_wire(format!("{pin_out}_FAKE"), wire_fake);
-                }
             }
         }
     }
@@ -342,22 +331,15 @@ impl ChipContext<'_> {
             bel.input_xlat_rc_io(bcls::IO::ECLK, format!("ECLK{abcd}_IOLOGIC"));
         }
 
-        for (pin, bslot_rc, pin_src, pin_fake) in [
-            ("INRD", bslots::BCINRD, "INRDENO_OUT", "INRDENO_FAKE"),
-            ("LVDS", bslots::BCLVDSO, "LVDSENO_OUT", "LVDSENO_FAKE"),
+        for (pin, bslot_rc, pin_src) in [
+            ("INRD", bslots::BCINRD, "INRDENO_OUT"),
+            ("LVDS", bslots::BCLVDSO, "LVDSENO_OUT"),
         ] {
             let wire = bel.add_wire_rc_io_get(pin, format!("{pin}{abcd}_PIO"));
             if kind == IoKind::Io {
                 let cell_rc = bel.ctx.chip.special_loc[&SpecialLocKey::Bc(bank)];
                 let bcrd_rc = cell_rc.bel(bslot_rc);
-                let wire_src = bel.ctx.naming.bel_wire(
-                    bcrd_rc,
-                    if bank == 2 && cell.col.to_idx() >= 11 {
-                        pin_fake
-                    } else {
-                        pin_src
-                    },
-                );
+                let wire_src = bel.ctx.naming.bel_wire(bcrd_rc, pin_src);
                 bel.ctx.claim_pip(wire, wire_src);
             }
         }

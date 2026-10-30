@@ -1,12 +1,13 @@
 use bincode::{Decode, Encode, impl_borrow_decode};
 use ndarray::Array2;
-use prjcombine_entity::{EntityMap, EntitySet, EntityVec, entity_id_u32};
-use std::collections::HashMap;
+use prjcombine_entity::{EntitySet, EntityVec, entity_id_u32};
+use prjcombine_re_lattice_naming::{StringId, WireName};
+use std::collections::BTreeMap;
 use std::error::Error;
 use std::fs::File;
 use std::path::Path;
 
-entity_id_u32!(pub NodeId, Node, "NODE");
+entity_id_u32!(pub NodeId, NodeTag tag, "NODE");
 entity_id_u32!(pub GridId, Grid, "GRID");
 entity_id_u32!(pub BufferId, BufferTag tag, "BUF");
 
@@ -19,10 +20,11 @@ pub struct Db {
 
 #[derive(Clone, Eq, PartialEq, Debug)]
 pub struct Grid {
+    pub nph: String,
     pub tiles: Array2<Tile>,
-    pub nodes: EntityMap<NodeId, String, Node>,
-    pub bufs: EntitySet<BufferId, String>,
-    pub pips: HashMap<(NodeId, NodeId), Pip>,
+    pub strings: EntitySet<StringId, String>,
+    pub nodes: EntitySet<NodeId, WireName>,
+    pub pips: BTreeMap<(NodeId, NodeId), Pip>,
 }
 
 impl Encode for Grid {
@@ -30,14 +32,15 @@ impl Encode for Grid {
         &self,
         encoder: &mut E,
     ) -> Result<(), bincode::error::EncodeError> {
+        self.nph.encode(encoder)?;
         let (w, h) = self.tiles.dim();
         w.encode(encoder)?;
         h.encode(encoder)?;
         for tile in &self.tiles {
             tile.encode(encoder)?;
         }
+        self.strings.encode(encoder)?;
         self.nodes.encode(encoder)?;
-        self.bufs.encode(encoder)?;
         self.pips.encode(encoder)?;
         Ok(())
     }
@@ -47,6 +50,7 @@ impl<Context> Decode<Context> for Grid {
     fn decode<D: bincode::de::Decoder<Context = Context>>(
         decoder: &mut D,
     ) -> Result<Self, bincode::error::DecodeError> {
+        let nph = Decode::decode(decoder)?;
         let w = usize::decode(decoder)?;
         let h = usize::decode(decoder)?;
         let mut v = Vec::with_capacity(w * h);
@@ -54,13 +58,14 @@ impl<Context> Decode<Context> for Grid {
             v.push(Tile::decode(decoder)?);
         }
         let tiles = Array2::from_shape_vec((w, h), v).unwrap();
+        let strings = Decode::decode(decoder)?;
         let nodes = Decode::decode(decoder)?;
-        let bufs = Decode::decode(decoder)?;
         let pips = Decode::decode(decoder)?;
         Ok(Grid {
+            nph,
             tiles,
+            strings,
             nodes,
-            bufs,
             pips,
         })
     }
@@ -68,24 +73,9 @@ impl<Context> Decode<Context> for Grid {
 
 impl_borrow_decode!(Grid);
 
-#[derive(Copy, Clone, Eq, PartialEq, Hash, Ord, PartialOrd, Debug, Encode, Decode)]
-pub enum PinDir {
-    Input,
-    Output,
-    Bidirectional,
-}
-
-#[derive(Clone, Eq, PartialEq, Debug, Encode, Decode)]
-pub struct Node {
-    pub aliases: Vec<String>,
-    pub typ: Option<u8>,
-    pub pin: Option<(String, String, PinDir)>,
-}
-
 #[derive(Clone, Eq, PartialEq, Debug, Encode, Decode)]
 pub struct Pip {
-    pub is_j: bool,
-    pub buf: Option<BufferId>,
+    pub is_pseudo: bool,
 }
 
 #[derive(Clone, Eq, PartialEq, Debug, Encode, Decode)]

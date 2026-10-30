@@ -1,14 +1,15 @@
 #![allow(clippy::type_complexity)]
 
 use clap::Parser;
-use prjcombine_entity::{EntityMap, EntitySet, EntityVec};
+use prjcombine_entity::{EntitySet, EntityVec};
+use prjcombine_re_lattice_dump::parse_name;
 use prjcombine_re_lattice_dump::parse_tiles;
-use prjcombine_re_lattice_rawdump::{Db, Grid, Node, Part, Pip, Site};
+use prjcombine_re_lattice_rawdump::{Db, Grid, Part, Pip, Site};
 use prjcombine_re_toolchain::Toolchain;
 use rayon::ThreadPoolBuilder;
 use rayon::prelude::*;
 use regex::Regex;
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 use std::error::Error;
 use std::fs::File;
 use std::fs::create_dir_all;
@@ -379,6 +380,10 @@ fn dump_pre(
     static PIP_RE: OnceLock<Regex> = OnceLock::new();
     let site_re = SITE_RE.get_or_init(|| Regex::new(r"Site=([A-Za-z0-9_]+) type=XXX$").unwrap());
     let pip_re = PIP_RE.get_or_init(|| Regex::new(r"from ([A-Z0-9_]+) to ([A-Z0-9_]+)$").unwrap());
+    static DEV_RE: OnceLock<Regex> = OnceLock::new();
+    let dev_re = DEV_RE.get_or_init(|| {
+        Regex::new(r"Loading device for application Bitgen from file '([a-z0-9]+).nph' in").unwrap()
+    });
 
     let mut speeds = vec![];
     let mut grid = None;
@@ -443,6 +448,16 @@ design top
             let _ = std::io::stderr().write_all(&status.stderr);
             panic!("non-zero bitgen exit status");
         }
+        let stdout = std::str::from_utf8(&status.stdout).unwrap();
+        let mut nph = None;
+        for line in stdout.lines() {
+            if let Some(cap) = dev_re.captures(line) {
+                nph = Some(cap[1].to_string());
+            }
+        }
+        let Some(nph) = nph else {
+            panic!("FAILED TO OBTAIN NPH: {stdout}");
+        };
         let mut cmd = tc.command("bstool").unwrap();
         cmd.current_dir(dir.path().as_os_str());
         cmd.stdin(Stdio::null());
@@ -479,20 +494,15 @@ basciCmdListNode 1 nodes.out *
             let _ = std::io::stderr().write_all(&status.stderr);
             panic!("non-zero ispTcl exit status");
         }
-        let mut nodes = EntityMap::new();
+        let mut strings = EntitySet::new();
+        let mut nodes = EntitySet::new();
         let mut cur_sites = Vec::new();
-        let mut pips = HashMap::new();
+        let mut pips = BTreeMap::new();
         let file = File::open(dir.path().join("nodes.out")).unwrap();
         for line in BufReader::new(file).lines() {
             let line = line.unwrap();
-            nodes.insert(
-                line,
-                Node {
-                    aliases: vec![],
-                    typ: None,
-                    pin: None,
-                },
-            );
+            let name = parse_name(&mut strings, &line);
+            nodes.insert(name);
         }
         let file = File::open(dir.path().join("ispTcl.log")).unwrap();
         for line in BufReader::new(file).lines() {
@@ -534,12 +544,11 @@ basciCmdListNode 1 nodes.out *
             for line in BufReader::new(file).lines() {
                 let line = line.unwrap();
                 if let Some(cap) = pip_re.captures(&line) {
+                    let n1 = parse_name(&mut strings, &cap[1]);
+                    let n2 = parse_name(&mut strings, &cap[2]);
                     pips.insert(
-                        (nodes.get(&cap[1]).unwrap().0, nodes.get(&cap[2]).unwrap().0),
-                        Pip {
-                            is_j: false,
-                            buf: None,
-                        },
+                        (nodes.get(&n1).unwrap(), nodes.get(&n2).unwrap()),
+                        Pip { is_pseudo: false },
                     );
                 } else if line.starts_with("from ") {
                     panic!("regex failed: {line:?}");
@@ -548,10 +557,11 @@ basciCmdListNode 1 nodes.out *
         }
 
         grid = Some(Grid {
+            nph,
             tiles,
+            strings,
             nodes,
             pips,
-            bufs: EntitySet::new(),
         });
         sites = Some(cur_sites);
     }

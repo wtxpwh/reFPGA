@@ -62,7 +62,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         if !gids[gid] {
             continue;
         }
-        println!("GRID {gid}", gid = gid.to_idx());
+        println!("GRID {gid} NPH {nph}", nph = grid.nph);
         if args.tiles {
             for ((r, c), tile) in grid.tiles.indexed_iter() {
                 println!(
@@ -87,32 +87,19 @@ fn main() -> Result<(), Box<dyn Error>> {
             }
         }
         if args.nodes {
-            for (_, nn, node) in &grid.nodes {
-                print!("\tNODE {nn}");
-                if let Some(typ) = node.typ {
-                    print!(" TYPE {typ}");
-                }
-                println!();
-                for alias in &node.aliases {
-                    println!("\t\tALIAS {alias}");
-                }
-                if let Some((ref site, ref pin, dir)) = node.pin {
-                    println!("\t\tPIN {site} {pin} {dir:?}");
-                }
+            for (_, nn) in &grid.nodes {
+                println!("\tNODE {nn}", nn = nn.to_string_inner(&grid.strings));
             }
         }
         if args.pips {
             for (&(wf, wt), pip) in grid.pips.iter().sorted_by_key(|&(&k, _)| k) {
                 print!(
                     "\tPIP {wt} <- {wf}",
-                    wt = grid.nodes.key(wt),
-                    wf = grid.nodes.key(wf)
+                    wt = grid.nodes[wt].to_string_inner(&grid.strings),
+                    wf = grid.nodes[wf].to_string_inner(&grid.strings)
                 );
-                if pip.is_j {
-                    print!(" IS_J");
-                }
-                if let Some(buf) = pip.buf {
-                    print!(" BUF {buf}", buf = grid.bufs[buf]);
+                if pip.is_pseudo {
+                    print!(" IS_PSEUDO");
                 }
                 println!();
             }

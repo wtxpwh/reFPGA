@@ -91,7 +91,7 @@ impl ChipContext<'_> {
                 || (edge == Dir::S
                     && matches!(
                         kind,
-                        NexusKind::LargePcs | NexusKind::SmallHalfIo | NexusKind::SmallDenseIo
+                        NexusKind::LargePcs(_) | NexusKind::SmallHalfIo | NexusKind::SmallDenseIo
                     )) {
                 RcMode::Base
             } else {
@@ -99,7 +99,7 @@ impl ChipContext<'_> {
             };
             let num_cib_we = match kind {
                 NexusKind::SmallMipi | NexusKind::SmallMipiPcie => 10,
-                NexusKind::LargePcs | NexusKind::SmallDenseIo => 9,
+                NexusKind::LargePcs(_) | NexusKind::SmallDenseIo => 9,
                 NexusKind::SmallHalfIo => 0,
             };
             let (lrbt, dcc_in, ci_mid, num_dcc, num_cib) = match edge {
@@ -212,7 +212,7 @@ impl ChipContext<'_> {
                                 .input_xlat_rc_mode(format!("JL{lrbt}CLKOS4_{suffix}"), mode)
                                 .input_xlat_rc_mode(format!("JL{lrbt}CLKOS5_{suffix}"), mode);
                             if (edge == DirH::W && kind != NexusKind::SmallMipi)
-                                || (edge == DirH::E && kind == NexusKind::LargePcs)
+                                || (edge == DirH::E && matches!(kind, NexusKind::LargePcs(_)))
                             {
                                 ex.input_xlat_rc_mode(format!("JU{lrbt}CLKOP_{suffix}"), mode)
                                     .input_xlat_rc_mode(format!("JU{lrbt}CLKOS_{suffix}"), mode)
@@ -284,7 +284,7 @@ impl ChipContext<'_> {
                         match kind {
                             NexusKind::SmallMipi
                             | NexusKind::SmallMipiPcie
-                            | NexusKind::LargePcs => {
+                            | NexusKind::LargePcs(_) => {
                                 ex.input_xlat_rc_mode_nudge(
                                     format!("JPCLKT30_{suffix}"),
                                     mode,
@@ -494,7 +494,7 @@ impl ChipContext<'_> {
                                     );
                                 }
                             }
-                            NexusKind::LargePcs => {
+                            NexusKind::LargePcs(_) => {
                                 let io = defs::nexus::tcls::CLK_N_JD5D::IO;
                                 ex.input_xlat_rc_mode(format!("JULCLKOP_{suffix}"), mode)
                                     .input_xlat_rc_mode(format!("JULCLKOS_{suffix}"), mode)
@@ -560,7 +560,7 @@ impl ChipContext<'_> {
                 }
                 if edge == Dir::N
                     || (edge == Dir::E
-                        && matches!(kind, NexusKind::LargePcs | NexusKind::SmallDenseIo))
+                        && matches!(kind, NexusKind::LargePcs(_) | NexusKind::SmallDenseIo))
                 {
                     ex.input_xlat_rc_mode(format!("JOSCHF_{suffix}"), mode)
                         .input_xlat_rc_mode(format!("JOSCLF_{suffix}"), mode);

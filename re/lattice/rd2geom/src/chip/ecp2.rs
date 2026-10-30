@@ -14,13 +14,13 @@ use crate::chip::{ChipBuilder, ChipExt};
 
 impl ChipBuilder<'_> {
     pub(super) fn fill_pclk_ecp2(&mut self) {
-        let clk0 = self.naming.strings.get("CLK0").unwrap();
-        let jclk0 = self.naming.strings.get("JCLK0").unwrap();
-        let hpbx0000 = self.naming.strings.get("HPBX0000").unwrap();
+        let clk0 = self.grid.strings.get("CLK0").unwrap();
+        let jclk0 = self.grid.strings.get("JCLK0").unwrap();
+        let hpbx0000 = self.grid.strings.get("HPBX0000").unwrap();
         let mut clks: BTreeMap<u16, Vec<ColId>> = BTreeMap::new();
         for &(nf, nt) in self.grid.pips.keys() {
-            let wfn = self.nodes[nf];
-            let wtn = self.nodes[nt];
+            let wfn = self.grid.nodes[nf];
+            let wtn = self.grid.nodes[nt];
             if wfn.suffix == hpbx0000 && (wtn.suffix == jclk0 || wtn.suffix == clk0) {
                 let cell = self.chip.xlat_rc_wire(wtn);
                 if cell.row == self.chip.row_clk {
@@ -47,11 +47,11 @@ impl ChipBuilder<'_> {
     }
 
     pub(super) fn fill_sclk_ecp2(&mut self) {
-        let hsbx0000 = self.naming.strings.get("HSBX0000").unwrap();
+        let hsbx0000 = self.grid.strings.get("HSBX0000").unwrap();
         let mut clks: BTreeMap<RowId, Vec<RowId>> = BTreeMap::new();
         for &(nf, nt) in self.grid.pips.keys() {
-            let wfn = self.nodes[nf];
-            let wtn = self.nodes[nt];
+            let wfn = self.grid.nodes[nf];
+            let wtn = self.grid.nodes[nt];
             if wtn.suffix == hsbx0000 {
                 let cell_t = self.chip.xlat_rc_wire(wtn);
                 let cell_f = self.chip.xlat_rc_wire(wfn);
@@ -74,8 +74,8 @@ impl ChipBuilder<'_> {
             next = row_start + rows.len();
         }
 
-        let hssx_l2r = self.naming.strings.get("HSSX0000_L2R").unwrap();
-        for &wn in self.nodes.values() {
+        let hssx_l2r = self.grid.strings.get("HSSX0000_L2R").unwrap();
+        for &wn in self.grid.nodes.values() {
             if wn.suffix == hssx_l2r {
                 let cell = self.chip.xlat_rc_wire(wn);
                 self.chip.columns[cell.col + 1].sclk_break = true;
@@ -84,11 +84,11 @@ impl ChipBuilder<'_> {
     }
 
     pub(super) fn fill_eclk_tap_ecp2(&mut self) {
-        let jf6 = self.naming.strings.get("JF6").unwrap();
+        let jf6 = self.grid.strings.get("JF6").unwrap();
         for &(nf, nt) in self.grid.pips.keys() {
-            let wfn = self.nodes[nf];
-            let wtn = self.nodes[nt];
-            if wtn.suffix == jf6 && self.naming.strings[wfn.suffix].contains("FRC") {
+            let wfn = self.grid.nodes[nf];
+            let wtn = self.grid.nodes[nt];
+            if wtn.suffix == jf6 && self.grid.strings[wfn.suffix].contains("FRC") {
                 let cell = self.chip.xlat_rc_wire(wtn);
                 if cell.row == self.chip.row_s() {
                     self.chip.columns[cell.col].eclk_tap[DirV::S] = true;
@@ -245,8 +245,8 @@ impl ChipBuilder<'_> {
     }
 
     pub(super) fn fill_pll_xp2(&mut self) {
-        for &wn in self.nodes.values() {
-            if self.naming.strings[wn.suffix].ends_with("_PLL") {
+        for &wn in self.grid.nodes.values() {
+            if self.grid.strings[wn.suffix].ends_with("_PLL") {
                 let cell = self.chip.xlat_rc_wire(wn);
                 let v = cell.row.side_of(self.chip.row_clk);
                 let h = cell.col.side_of(self.chip.col_clk);
@@ -257,8 +257,8 @@ impl ChipBuilder<'_> {
     }
 
     pub(super) fn fill_serdes_ecp2m(&mut self) {
-        let name = self.naming.strings.get("JFF_TX_D_0_0_PCS").unwrap();
-        for &wn in self.nodes.values() {
+        let name = self.grid.strings.get("JFF_TX_D_0_0_PCS").unwrap();
+        for &wn in self.grid.nodes.values() {
             if wn.suffix == name {
                 let mut cell = self.chip.xlat_rc_wire(wn);
                 if cell.col < self.chip.col_clk {
@@ -289,7 +289,7 @@ impl ChipBuilder<'_> {
                 .map(|(loc, bcrd)| (bcrd.cell, loc)),
         );
         for (wn, io) in self.gather_special_io() {
-            let suffix = self.naming.strings[wn.suffix].as_str();
+            let suffix = self.grid.strings[wn.suffix].as_str();
             if let Some((edge, i)) = match suffix {
                 "JLPIO0" => Some((Dir::W, 0)),
                 "JRPIO0" => Some((Dir::E, 0)),
@@ -378,16 +378,16 @@ impl ChipBuilder<'_> {
             ("JCIBT2", SpecialLocKey::SclkIn(Dir::N, 2)),
             ("JCIBT3", SpecialLocKey::SclkIn(Dir::N, 3)),
         ] {
-            if let Some(s) = self.naming.strings.get(name) {
+            if let Some(s) = self.grid.strings.get(name) {
                 xlat.insert(s, key);
             }
         }
         for &(wf, wt) in self.grid.pips.keys() {
-            let wnt = self.nodes[wt];
+            let wnt = self.grid.nodes[wt];
             let Some(&key) = xlat.get(&wnt.suffix) else {
                 continue;
             };
-            let wnf = self.nodes[wf];
+            let wnf = self.grid.nodes[wf];
             let cell = self.chip.xlat_rc_wire(wnf);
             self.chip.special_loc.insert(key, cell);
         }

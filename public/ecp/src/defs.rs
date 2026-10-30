@@ -1115,6 +1115,7 @@ target_defs! {
             input DFACQRST, DCALIRST;
             output SRXD[10];
             output CDRLOL;
+            output COUNTERO[8];
 
             input LMMICLK, LMMIRESETN;
             input LMMIREQUEST, LMMIWRRDN;
@@ -4347,11 +4348,11 @@ target_defs! {
             }
 
             bel_slot CDR[2]: CDR;
-            tile_class CDR_S, CDR_W_JE5D30, CDR_W_JD5F {
-                if tile_class CDR_W_JD5F {
-                    cell CELL[4];
-                } else {
+            tile_class CDR_S, CDR_W_JE5D30, CDR_W_JD5D, CDR_W_JD5F {
+                if tile_class CDR_S {
                     cell CELL[3];
+                } else {
+                    cell CELL[4];
                 }
                 cell PLL;
                 bel CDR[0];

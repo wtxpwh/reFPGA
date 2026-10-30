@@ -14,8 +14,8 @@ use crate::chip::{ChipBuilder, ChipExt};
 
 impl ChipBuilder<'_> {
     pub(super) fn fill_clk_ecp(&mut self) {
-        for &wn in self.nodes.values() {
-            if self.naming.strings[wn.suffix] == "LLDCSOUT0_DCS" {
+        for &wn in self.grid.nodes.values() {
+            if self.grid.strings[wn.suffix] == "LLDCSOUT0_DCS" {
                 let cell = self.chip.xlat_rc_wire(wn).delta(1, 0);
                 self.chip.col_clk = cell.col;
                 self.chip.row_clk = cell.row;
@@ -26,8 +26,8 @@ impl ChipBuilder<'_> {
     }
 
     pub(super) fn fill_config_loc_ecp(&mut self) {
-        for &wn in self.nodes.values() {
-            if self.naming.strings[wn.suffix].ends_with("_START") {
+        for &wn in self.grid.nodes.values() {
+            if self.grid.strings[wn.suffix].ends_with("_START") {
                 let cell = self.chip.xlat_rc_wire(wn);
                 self.chip.special_loc.insert(SpecialLocKey::Config, cell);
             }
@@ -183,7 +183,7 @@ impl ChipBuilder<'_> {
 
     pub(super) fn fill_special_io_ecp(&mut self) {
         for (wn, io) in self.gather_special_io() {
-            let suffix = self.naming.strings[wn.suffix].as_str();
+            let suffix = self.grid.strings[wn.suffix].as_str();
             if let Some(edge) = match suffix {
                 "JLPIO" => Some(Dir::W),
                 "JRPIO" => Some(Dir::E),
@@ -246,16 +246,16 @@ impl ChipBuilder<'_> {
             ("JCIBT2", SpecialLocKey::SclkIn(Dir::N, 2)),
             ("JCIBT3", SpecialLocKey::SclkIn(Dir::N, 3)),
         ] {
-            if let Some(s) = self.naming.strings.get(name) {
+            if let Some(s) = self.grid.strings.get(name) {
                 xlat.insert(s, key);
             }
         }
         for &(wf, wt) in self.grid.pips.keys() {
-            let wnt = self.nodes[wt];
+            let wnt = self.grid.nodes[wt];
             let Some(&key) = xlat.get(&wnt.suffix) else {
                 continue;
             };
-            let wnf = self.nodes[wf];
+            let wnf = self.grid.nodes[wf];
             let cell = self.chip.xlat_rc_wire(wnf);
             self.chip.special_loc.insert(key, cell);
         }

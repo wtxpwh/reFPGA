@@ -7,7 +7,7 @@ use std::{
 use clap::Parser;
 use itertools::Itertools;
 use prjcombine_ecp::{
-    bond::{AdcPad, BondPad, CfgPad, MipiPad, SerdesPad},
+    bond::{AdcPad, Bond, BondPad, CfgPad, MipiPad, PfrPad, SerdesPad},
     chip::{Chip, ChipKind, Ecp3Kind, MachXo2Kind, NexusKind, SpecialIoKey},
     db::Device,
     expanded::ExpandedDevice,
@@ -15,12 +15,12 @@ use prjcombine_ecp::{
 use prjcombine_entity::{EntityId, EntityVec};
 use prjcombine_interconnect::{
     db::{BelInfo, BelSlotId, IntDb, TileClassId, TileWireCoord},
-    grid::{BelCoord, CellCoord, WireCoord},
+    grid::{BelCoord, CellCoord, EdgeIoCoord, WireCoord},
 };
 use prjcombine_re_lattice_naming::{ChipNaming, Database, WireName};
-use prjcombine_re_lattice_rawdump::{Grid, GridId, NodeId};
+use prjcombine_re_lattice_rawdump::{Grid, Part};
 use prjcombine_types::db::DeviceCombo;
-use rayon::iter::{IntoParallelIterator, ParallelIterator};
+use rayon::prelude::*;
 
 use crate::{
     chip::{ChipExt, make_chip},
@@ -54,13 +54,12 @@ enum RcMode {
 }
 
 struct ChipContext<'dev> {
-    name: &'dev str,
+    name: String,
     grid: &'dev Grid,
     chip: &'dev Chip,
     intdb: &'dev IntDb,
     edev: &'dev ExpandedDevice<'dev>,
     naming: ChipNaming,
-    nodes: EntityVec<NodeId, WireName>,
     has_v01b: BTreeSet<CellCoord>,
     int_wires: BTreeMap<WireName, Vec<WireCoord>>,
     io_int_wires: BTreeMap<WireName, Vec<WireCoord>>,
@@ -364,6 +363,7 @@ impl<'dev> ChipContext<'dev> {
                 "CONFIG_LMMI_CORE_LMMI_MODEL",
                 "CONFIG_LMMIA_CORE_LMMI_MODEL",
                 "CONFIG_LMMIB_CORE_LMMI_MODEL",
+                "CONFIG_LMMIE_CORE_LMMI_MODEL",
                 "OSC_CORE",
                 "PMU_CORE",
                 "I2CFIFO_CORE",
@@ -427,38 +427,33 @@ impl<'dev> ChipContext<'dev> {
     }
 }
 
-struct ChipResult {
+struct ChipResult<'a> {
     chip: Chip,
     naming: ChipNaming,
+    nph: &'a str,
+    parts: Vec<&'a Part>,
     bels: BTreeMap<(TileClassId, BelSlotId), BelInfo>,
     switchboxes: BTreeMap<(TileClassId, BelSlotId), SwitchBoxData>,
     dummy_sites: BTreeSet<String>,
 }
 
-fn init_nodes(grid: &Grid) -> (ChipNaming, EntityVec<NodeId, WireName>) {
-    let mut naming = ChipNaming::default();
-    let mut nodes = EntityVec::new();
-    for (id, name, _) in &grid.nodes {
-        let (rc, suffix) = name.split_once('_').unwrap();
-        let rc = rc.strip_prefix('R').unwrap();
-        let (r, c) = rc.split_once('C').unwrap();
-        let r = r.parse().unwrap();
-        let c = c.parse().unwrap();
-        let suffix = naming.strings.get_or_insert(suffix);
-        let nid = nodes.push(WireName { r, c, suffix });
-        assert_eq!(nid, id);
+fn init_naming(grid: &Grid) -> ChipNaming {
+    ChipNaming {
+        strings: grid.strings.clone(),
+        interconnect: Default::default(),
+        bels: Default::default(),
     }
-    // let mut all_names = Vec::from_iter(naming.strings.values());
-    // all_names.sort();
-    // for s in all_names {
-    //     println!("\t{s}");
-    // }
-    (naming, nodes)
 }
 
-fn process_chip(name: &str, grid: &Grid, kind: ChipKind, intdb: &IntDb) -> ChipResult {
-    let (naming, nodes) = init_nodes(grid);
-    let chip = make_chip(name, grid, kind, &naming, &nodes, intdb);
+fn process_chip<'a>(
+    grid: &'a Grid,
+    parts: Vec<&'a Part>,
+    kind: ChipKind,
+    intdb: &IntDb,
+) -> ChipResult<'a> {
+    let name = format!("{}-{}", parts[0].name, parts[0].package);
+    let chip = make_chip(&name, grid, kind, intdb);
+    let naming = init_naming(grid);
     // chip.dump(&mut std::io::stdout(), intdb);
     let edev = chip.expand_grid(intdb);
     let mut ctx = ChipContext {
@@ -468,7 +463,6 @@ fn process_chip(name: &str, grid: &Grid, kind: ChipKind, intdb: &IntDb) -> ChipR
         intdb,
         edev: &edev,
         naming,
-        nodes,
         has_v01b: Default::default(),
         int_wires: Default::default(),
         io_int_wires: Default::default(),
@@ -507,7 +501,7 @@ fn process_chip(name: &str, grid: &Grid, kind: ChipKind, intdb: &IntDb) -> ChipR
     ctx.process_clk();
     ctx.print_unclaimed();
     ctx.flush_switchboxes();
-    println!("{name}: DONE");
+    println!("{name}: DONE", name = ctx.name);
     let naming = ctx.naming;
     let bels = ctx.bels;
     let dummy_sites = ctx.dummy_sites;
@@ -515,6 +509,8 @@ fn process_chip(name: &str, grid: &Grid, kind: ChipKind, intdb: &IntDb) -> ChipR
     ChipResult {
         chip,
         naming,
+        nph: &grid.nph,
+        parts,
         bels,
         dummy_sites,
         switchboxes,
@@ -528,15 +524,196 @@ fn process_chip(name: &str, grid: &Grid, kind: ChipKind, intdb: &IntDb) -> ChipR
 )]
 struct Args {
     dst: PathBuf,
-    rawdump: PathBuf,
-    datadir: PathBuf,
+    rawdump: Vec<PathBuf>,
+    #[arg(long)]
+    datadir: Vec<PathBuf>,
+}
+
+fn expected_sites(
+    chip: &Chip,
+    naming: &ChipNaming,
+    dummy_sites: &BTreeSet<String>,
+    part: &Part,
+    bond: &Bond,
+) -> BTreeSet<String> {
+    let mut expected_sites = BTreeSet::from_iter(
+        naming
+            .bels
+            .values()
+            .flat_map(|bnaming| bnaming.names.iter())
+            .map(|&x| naming.strings[x].clone()),
+    );
+    for site in dummy_sites {
+        expected_sites.insert(site.clone());
+    }
+    let has_jtag_pin_bels = matches!(chip.kind, ChipKind::Scm | ChipKind::Ecp3(_));
+    for (pin, &pad) in &bond.pins {
+        match pad {
+            BondPad::Io(io)
+            | BondPad::IoAsc(io, _)
+            | BondPad::IoPfr(io, _)
+            | BondPad::IoCdone(io) => {
+                let bcrd = chip.get_io_loc(io);
+                if chip.kind == ChipKind::MachXo && bcrd == chip.special_io[&SpecialIoKey::SleepN] {
+                    continue;
+                }
+                let Some(bnaming) = naming.bels.get(&bcrd) else {
+                    continue;
+                };
+                let name = &naming.strings[bnaming.names[0]];
+                assert!(expected_sites.remove(name));
+                if let BondPad::IoPfr(_, PfrPad::Io(EdgeIoCoord::N(col, iob))) = pad {
+                    let pin = match (col.to_idx(), iob.to_idx()) {
+                        (75, 0) => "NXBOOTMCLK",
+                        (77, 1) => "NXBOOTMOSI",
+                        (79, 0) => "NXBOOTMISO",
+                        (83, 0) => "FLASHCSN",
+                        _ => panic!("ummm PFR {pad}?"),
+                    };
+                    expected_sites.insert(pin.to_string());
+                } else {
+                    expected_sites.insert(pin.clone());
+                }
+            }
+            BondPad::Serdes(edge, col, spad) => {
+                if matches!(chip.kind, ChipKind::Scm | ChipKind::Ecp4) {
+                    // apparently nothing?
+                } else if chip.kind == ChipKind::Ecp5 {
+                    let bcrd = chip.bel_serdes(edge, col);
+                    let Some(bnaming) = naming.bels.get(&bcrd) else {
+                        continue;
+                    };
+                    let idx = match spad {
+                        SerdesPad::ClkP => 2,
+                        SerdesPad::ClkN => 3,
+                        SerdesPad::InP(0) => 4,
+                        SerdesPad::InN(0) => 5,
+                        SerdesPad::InP(1) => 6,
+                        SerdesPad::InN(1) => 7,
+                        SerdesPad::OutP(0) => 8,
+                        SerdesPad::OutN(0) => 9,
+                        SerdesPad::OutP(1) => 10,
+                        SerdesPad::OutN(1) => 11,
+                        _ => continue,
+                    };
+                    let name = &naming.strings[bnaming.names[idx]];
+                    assert!(expected_sites.remove(name));
+                    expected_sites.insert(pin.clone());
+                } else {
+                    let bcrd = chip.bel_serdes(edge, col);
+                    let Some(bnaming) = naming.bels.get(&bcrd) else {
+                        continue;
+                    };
+                    let idx = match spad {
+                        SerdesPad::ClkP => 1,
+                        SerdesPad::ClkN => 2,
+                        SerdesPad::InP(0) => 3,
+                        SerdesPad::InN(0) => 4,
+                        SerdesPad::InP(1) => 5,
+                        SerdesPad::InN(1) => 6,
+                        SerdesPad::InP(2) => 7,
+                        SerdesPad::InN(2) => 8,
+                        SerdesPad::InP(3) => 9,
+                        SerdesPad::InN(3) => 10,
+                        SerdesPad::OutP(0) => 11,
+                        SerdesPad::OutN(0) => 12,
+                        SerdesPad::OutP(1) => 13,
+                        SerdesPad::OutN(1) => 14,
+                        SerdesPad::OutP(2) => 15,
+                        SerdesPad::OutN(2) => 16,
+                        SerdesPad::OutP(3) => 17,
+                        SerdesPad::OutN(3) => 18,
+                        _ => continue,
+                    };
+                    let name = &naming.strings[bnaming.names[idx]];
+                    assert!(expected_sites.remove(name));
+                    expected_sites.insert(pin.clone());
+                }
+            }
+            BondPad::Mipi(col, mpad) => {
+                let bcrd = chip.bel_mipi(col);
+                let Some(bnaming) = naming.bels.get(&bcrd) else {
+                    continue;
+                };
+                let idx = match mpad {
+                    MipiPad::ClkP => 2,
+                    MipiPad::ClkN => 3,
+                    MipiPad::DataP(0) => 4,
+                    MipiPad::DataN(0) => 5,
+                    MipiPad::DataP(1) => 6,
+                    MipiPad::DataN(1) => 7,
+                    MipiPad::DataP(2) => 8,
+                    MipiPad::DataN(2) => 9,
+                    MipiPad::DataP(3) => 10,
+                    MipiPad::DataN(3) => 11,
+                    _ => continue,
+                };
+                let name = &naming.strings[bnaming.names[idx]];
+                assert!(expected_sites.remove(name));
+                expected_sites.insert(pin.clone());
+            }
+            BondPad::Cfg(CfgPad::Tck) if has_jtag_pin_bels => {
+                assert!(expected_sites.remove("TCK"));
+                expected_sites.insert(pin.clone());
+            }
+            BondPad::Cfg(CfgPad::Tms) if has_jtag_pin_bels => {
+                assert!(expected_sites.remove("TMS"));
+                expected_sites.insert(pin.clone());
+            }
+            BondPad::Cfg(CfgPad::Tdi) if has_jtag_pin_bels => {
+                assert!(expected_sites.remove("TDI"));
+                expected_sites.insert(pin.clone());
+            }
+            BondPad::Cfg(CfgPad::Tdo) if has_jtag_pin_bels => {
+                assert!(expected_sites.remove("TDO"));
+                expected_sites.insert(pin.clone());
+            }
+            BondPad::Cfg(CfgPad::Cclk) if chip.kind == ChipKind::Scm => {
+                assert!(expected_sites.remove("CCLK"));
+                expected_sites.insert(pin.clone());
+            }
+            BondPad::Cfg(CfgPad::RdCfgB) if chip.kind == ChipKind::Scm => {
+                assert!(expected_sites.remove("RDCFGN"));
+                expected_sites.insert(pin.clone());
+            }
+            BondPad::Cfg(CfgPad::ResetB) if chip.kind == ChipKind::Scm => {
+                assert!(expected_sites.remove("RESETN"));
+                expected_sites.insert(pin.clone());
+            }
+            BondPad::Cfg(CfgPad::MpiIrqB) if chip.kind == ChipKind::Scm => {
+                assert!(expected_sites.remove("MPIIRQN"));
+                expected_sites.insert(pin.clone());
+            }
+            BondPad::Adc(AdcPad::D(pol, i)) => {
+                assert!(expected_sites.remove(&format!("ADC_D{pol}{i}")));
+                expected_sites.insert(pin.clone());
+            }
+            _ => (),
+        }
+    }
+    if part.name == "LFMNX-50" {
+        expected_sites.remove("NXBOOT_MCSN");
+        expected_sites.insert("NXBOOTMCSN".into());
+        expected_sites.remove("NX_JTAGEN");
+        expected_sites.insert("NXJTAGEN".into());
+        expected_sites.remove("NX_PROGRAMN");
+        expected_sites.insert("NXPROGRAMN".into());
+    }
+    expected_sites
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
     let args = Args::parse();
-    let rawdb = prjcombine_re_lattice_rawdump::Db::from_file(args.rawdump)?;
+    let rawdb: Vec<_> = args
+        .rawdump
+        .par_iter()
+        .map(|fname| prjcombine_re_lattice_rawdump::Db::from_file(fname).unwrap())
+        .collect();
     println!("processing start...");
-    let kind = match rawdb.family.as_str() {
+    for db in &rawdb {
+        assert_eq!(db.family, rawdb[0].family);
+    }
+    let kind = match rawdb[0].family.as_str() {
         "scm" => ChipKind::Scm,
         "ecp" => ChipKind::Ecp,
         "xp" => ChipKind::Xp,
@@ -549,8 +726,8 @@ fn main() -> Result<(), Box<dyn Error>> {
         "ecp4" => ChipKind::Ecp4,
         "ecp5" => ChipKind::Ecp5,
         "crosslink" => ChipKind::Crosslink,
-        "nx" => ChipKind::Nexus(NexusKind::SmallHalfIo),
-        _ => panic!("unknown family {}", rawdb.family),
+        "nexus" => ChipKind::Nexus(NexusKind::SmallHalfIo),
+        _ => panic!("unknown family {}", rawdb[0].family),
     };
     let mut int = bincode::decode_from_slice(
         match kind {
@@ -575,15 +752,16 @@ fn main() -> Result<(), Box<dyn Error>> {
     let mut devices = vec![];
     let mut chips = EntityVec::new();
     let mut bonds = EntityVec::new();
-    let pgrids: Vec<_> = Vec::from_iter(rawdb.grids.iter())
-        .into_par_iter()
-        .map(|(gid, grid)| {
-            let part = rawdb.parts.iter().find(|part| part.grid == gid).unwrap();
-            let name = format!("{}-{}", part.name, part.package);
-            process_chip(&name, grid, kind, &int)
+    let pgrids: Vec<_> = rawdb
+        .par_iter()
+        .flat_map(|rawdb| {
+            Vec::from_iter(rawdb.grids.iter().map(|(gid, grid)| {
+                let parts = Vec::from_iter(rawdb.parts.iter().filter(|p| p.grid == gid));
+                (grid, parts)
+            }))
         })
+        .map(|(grid, parts)| process_chip(grid, parts, kind, &int))
         .collect();
-    let pgrids = EntityVec::<GridId, _>::from_iter(pgrids);
     let mut missing_bels = BTreeSet::new();
     for (tcid, tcls) in &int.tile_classes {
         for (bid, bel) in &tcls.bels {
@@ -601,7 +779,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         }
     }
     let mut switchboxes = BTreeMap::new();
-    for (gid, cres) in pgrids {
+    for cres in pgrids {
         let mut chip = cres.chip;
         let naming = cres.naming;
         let mut cur_devs: BTreeMap<String, Device> = BTreeMap::new();
@@ -636,174 +814,21 @@ fn main() -> Result<(), Box<dyn Error>> {
                 );
             }
         }
-        for part in &rawdb.parts {
-            if part.grid != gid {
-                continue;
-            }
+        for part in cres.parts {
             let pname = format!("{}-{}", part.name, part.package);
-            let bres = process_bond(&args.datadir, part, &chip, &naming);
-            let mut expected_sites = BTreeSet::from_iter(
-                naming
-                    .bels
-                    .values()
-                    .flat_map(|bnaming| bnaming.names.iter())
-                    .map(|&x| naming.strings[x].clone()),
-            );
-            for site in &cres.dummy_sites {
-                expected_sites.insert(site.clone());
-            }
-            let has_jtag_pin_bels = matches!(chip.kind, ChipKind::Scm | ChipKind::Ecp3(_));
-            for (pin, &pad) in &bres.bond.pins {
-                match pad {
-                    BondPad::Io(io)
-                    | BondPad::IoAsc(io, _)
-                    | BondPad::IoPfr(io, _)
-                    | BondPad::IoCdone(io) => {
-                        let bcrd = chip.get_io_loc(io);
-                        if chip.kind == ChipKind::MachXo
-                            && bcrd == chip.special_io[&SpecialIoKey::SleepN]
-                        {
-                            continue;
-                        }
-                        let Some(bnaming) = naming.bels.get(&bcrd) else {
-                            continue;
-                        };
-                        let name = &naming.strings[bnaming.names[0]];
-                        assert!(expected_sites.remove(name));
-                        expected_sites.insert(pin.clone());
+            let bres = process_bond(&args.datadir, part, &chip, cres.nph);
+            let mut expected_sites =
+                expected_sites(&chip, &naming, &cres.dummy_sites, &part, &bres.bond);
+            if !part.sites.is_empty() {
+                for site in &part.sites {
+                    let name = &site.name;
+                    if !expected_sites.remove(name) {
+                        println!("{pname}: missing site {name}");
                     }
-                    BondPad::Serdes(edge, col, spad) => {
-                        if matches!(chip.kind, ChipKind::Scm | ChipKind::Ecp4) {
-                            // apparently nothing?
-                        } else if chip.kind == ChipKind::Ecp5 {
-                            let bcrd = chip.bel_serdes(edge, col);
-                            let Some(bnaming) = naming.bels.get(&bcrd) else {
-                                continue;
-                            };
-                            let idx = match spad {
-                                SerdesPad::ClkP => 2,
-                                SerdesPad::ClkN => 3,
-                                SerdesPad::InP(0) => 4,
-                                SerdesPad::InN(0) => 5,
-                                SerdesPad::InP(1) => 6,
-                                SerdesPad::InN(1) => 7,
-                                SerdesPad::OutP(0) => 8,
-                                SerdesPad::OutN(0) => 9,
-                                SerdesPad::OutP(1) => 10,
-                                SerdesPad::OutN(1) => 11,
-                                _ => continue,
-                            };
-                            let name = &naming.strings[bnaming.names[idx]];
-                            assert!(expected_sites.remove(name));
-                            expected_sites.insert(pin.clone());
-                        } else {
-                            let bcrd = chip.bel_serdes(edge, col);
-                            let Some(bnaming) = naming.bels.get(&bcrd) else {
-                                continue;
-                            };
-                            let idx = match spad {
-                                SerdesPad::ClkP => 1,
-                                SerdesPad::ClkN => 2,
-                                SerdesPad::InP(0) => 3,
-                                SerdesPad::InN(0) => 4,
-                                SerdesPad::InP(1) => 5,
-                                SerdesPad::InN(1) => 6,
-                                SerdesPad::InP(2) => 7,
-                                SerdesPad::InN(2) => 8,
-                                SerdesPad::InP(3) => 9,
-                                SerdesPad::InN(3) => 10,
-                                SerdesPad::OutP(0) => 11,
-                                SerdesPad::OutN(0) => 12,
-                                SerdesPad::OutP(1) => 13,
-                                SerdesPad::OutN(1) => 14,
-                                SerdesPad::OutP(2) => 15,
-                                SerdesPad::OutN(2) => 16,
-                                SerdesPad::OutP(3) => 17,
-                                SerdesPad::OutN(3) => 18,
-                                _ => continue,
-                            };
-                            let name = &naming.strings[bnaming.names[idx]];
-                            assert!(expected_sites.remove(name));
-                            expected_sites.insert(pin.clone());
-                        }
-                    }
-                    BondPad::Mipi(col, mpad) => {
-                        let bcrd = chip.bel_mipi(col);
-                        let Some(bnaming) = naming.bels.get(&bcrd) else {
-                            continue;
-                        };
-                        let idx = match mpad {
-                            MipiPad::ClkP => 2,
-                            MipiPad::ClkN => 3,
-                            MipiPad::DataP(0) => 4,
-                            MipiPad::DataN(0) => 5,
-                            MipiPad::DataP(1) => 6,
-                            MipiPad::DataN(1) => 7,
-                            MipiPad::DataP(2) => 8,
-                            MipiPad::DataN(2) => 9,
-                            MipiPad::DataP(3) => 10,
-                            MipiPad::DataN(3) => 11,
-                            _ => continue,
-                        };
-                        let name = &naming.strings[bnaming.names[idx]];
-                        assert!(expected_sites.remove(name));
-                        expected_sites.insert(pin.clone());
-                    }
-                    BondPad::Cfg(CfgPad::Tck) if has_jtag_pin_bels => {
-                        assert!(expected_sites.remove("TCK"));
-                        expected_sites.insert(pin.clone());
-                    }
-                    BondPad::Cfg(CfgPad::Tms) if has_jtag_pin_bels => {
-                        assert!(expected_sites.remove("TMS"));
-                        expected_sites.insert(pin.clone());
-                    }
-                    BondPad::Cfg(CfgPad::Tdi) if has_jtag_pin_bels => {
-                        assert!(expected_sites.remove("TDI"));
-                        expected_sites.insert(pin.clone());
-                    }
-                    BondPad::Cfg(CfgPad::Tdo) if has_jtag_pin_bels => {
-                        assert!(expected_sites.remove("TDO"));
-                        expected_sites.insert(pin.clone());
-                    }
-                    BondPad::Cfg(CfgPad::Cclk) if chip.kind == ChipKind::Scm => {
-                        assert!(expected_sites.remove("CCLK"));
-                        expected_sites.insert(pin.clone());
-                    }
-                    BondPad::Cfg(CfgPad::RdCfgB) if chip.kind == ChipKind::Scm => {
-                        assert!(expected_sites.remove("RDCFGN"));
-                        expected_sites.insert(pin.clone());
-                    }
-                    BondPad::Cfg(CfgPad::ResetB) if chip.kind == ChipKind::Scm => {
-                        assert!(expected_sites.remove("RESETN"));
-                        expected_sites.insert(pin.clone());
-                    }
-                    BondPad::Cfg(CfgPad::MpiIrqB) if chip.kind == ChipKind::Scm => {
-                        assert!(expected_sites.remove("MPIIRQN"));
-                        expected_sites.insert(pin.clone());
-                    }
-                    BondPad::Adc(AdcPad::D(pol, i)) => {
-                        assert!(expected_sites.remove(&format!("ADC_D{pol}{i}")));
-                        expected_sites.insert(pin.clone());
-                    }
-                    _ => (),
                 }
-            }
-            if part.name == "LFMNX-50" && part.package == "FBG484" {
-                expected_sites.remove("NXBOOT_MCSN");
-                expected_sites.insert("NXBOOTMCSN".into());
-                expected_sites.remove("NX_JTAGEN");
-                expected_sites.insert("NXJTAGEN".into());
-                expected_sites.remove("NX_PROGRAMN");
-                expected_sites.insert("NXPROGRAMN".into());
-            }
-            for site in &part.sites {
-                let name = &site.name;
-                if !expected_sites.remove(name) {
-                    println!("{pname}: missing site {name}");
+                for name in expected_sites {
+                    println!("{pname}: UHHHH site {name} doesn't exist");
                 }
-            }
-            for name in expected_sites {
-                println!("{pname}: UHHHH site {name} doesn't exist");
             }
             let bond_id = 'bond: {
                 for (bid, bond) in &bonds {

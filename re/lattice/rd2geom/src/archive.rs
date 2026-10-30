@@ -61,14 +61,18 @@ impl<'a> Reader<'a> {
         res
     }
 
-    pub fn get_nlstring(&mut self) -> String {
+    pub fn get_nlstring_raw(&mut self) -> Vec<u8> {
         let mut epos = self.pos;
         while self.data[epos] != b'\n' {
             epos += 1;
         }
-        let res = String::from_utf8(self.data[self.pos..epos].to_vec()).unwrap();
+        let res = self.data[self.pos..epos].to_vec();
         self.pos = epos + 1;
         res
+    }
+
+    pub fn get_nlstring(&mut self) -> String {
+        String::from_utf8(self.get_nlstring_raw()).unwrap()
     }
 }
 
@@ -156,7 +160,7 @@ pub fn parse_pkg(archive: &Archive) -> PkgData {
     let _ver = reader.get_nlstring();
     let num_lines = reader.get_u32();
     for _ in 0..num_lines {
-        let _line = reader.get_nlstring();
+        let _line = reader.get_nlstring_raw();
     }
     let num_pkgs = reader.get_u32();
     let mut pkgs = BTreeSet::new();
