@@ -1,8 +1,8 @@
 use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
+    coord::{BelCoord, ColId, DieIdExt, RowId},
     db::PinDir,
     dir::DirV,
-    grid::{BelCoord, ColId, DieIdExt, RowId},
 };
 use prjcombine_re_xilinx_rdverify::Verifier;
 use prjcombine_versal::{
@@ -432,9 +432,7 @@ pub fn verify_psxc(edev: &ExpandedDevice, vrf: &mut Verifier, bcrd: BelCoord) {
 pub fn verify_psxt(edev: &ExpandedDevice, vrf: &mut Verifier, bcrd: BelCoord) {
     let naming = vrf.ngrid.get_bel_naming(bcrd);
     let mut bel = vrf.verify_bel(bcrd).kind("PS11_B");
-    let gt = bcrd
-        .delta(0, Chip::ROWS_PER_REG as i32 * 3)
-        .bel(bslots::GTYP);
+    let gt = bcrd.delta(0, Chip::ROWS_PER_REG * 3).bel(bslots::GTYP);
 
     for (pn, pin) in &naming.pins {
         let &(_, dir) = pin.orig_pin.as_ref().unwrap();

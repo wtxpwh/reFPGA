@@ -2,12 +2,12 @@ use std::collections::{BTreeMap, HashMap, HashSet};
 
 use prjcombine_entity::{EntityBundleIndices, EntityBundleItemIndex, EntityId, EntityRangeVec};
 use prjcombine_interconnect::{
+    coord::{ColId, DieIdExt, RowId, WireCoord},
     db::{
         BelAttributeType, BelInfo, BelInput, BelKind, SwitchBoxItem, TileClassId, TileWireCoord,
         WireSlotId, WireSlotIdExt,
     },
     dir::{Dir, DirH, DirV},
-    grid::{ColId, DieIdExt, RowId, WireCoord},
 };
 use prjcombine_re_collector::diff::DiffKey;
 use prjcombine_re_harvester::Sample;

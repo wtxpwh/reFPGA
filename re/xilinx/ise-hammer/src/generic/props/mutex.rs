@@ -1,4 +1,4 @@
-use prjcombine_interconnect::{db::TileWireCoord, grid::TileCoord};
+use prjcombine_interconnect::{coord::TileCoord, db::TileWireCoord};
 use prjcombine_re_fpga_hammer::FuzzerProp;
 use prjcombine_re_hammer::Fuzzer;
 

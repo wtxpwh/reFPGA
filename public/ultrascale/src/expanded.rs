@@ -1,7 +1,8 @@
 use bimap::BiHashMap;
 use bincode::{Decode, Encode};
 use prjcombine_entity::{EntityId, EntityPartVec, EntityVec};
-use prjcombine_interconnect::grid::{CellCoord, ColId, DieId, ExpandedGrid, RowId, TileIobId};
+use prjcombine_interconnect::coord::{CellCoord, ColId, DieId, RowId, TileIobId};
+use prjcombine_interconnect::grid::ExpandedGrid;
 use std::collections::BTreeSet;
 
 use crate::chip::{

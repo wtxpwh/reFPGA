@@ -1,11 +1,9 @@
 use prjcombine_entity::{EntityIdArith, EntityPartVec, EntityVec};
 use prjcombine_interconnect::{
+    coord::{CellCoord, ColId, ColIdExt, DieId, DieIdExt, Rect, RowId, RowIdExt, WireCoord},
     db::IntDb,
     dir::DirV,
-    grid::{
-        CellCoord, ColId, ColIdExt, DieId, DieIdExt, Rect, RowId, RowIdExt, WireCoord,
-        builder::GridBuilder,
-    },
+    grid::builder::GridBuilder,
 };
 
 use crate::{
@@ -179,11 +177,11 @@ impl Expander<'_, '_> {
             let mut prev = self.chip.columns.ids().start();
             for (col, cd) in &self.chip.columns {
                 if cd.sclk_break {
-                    regions.push(prev.range(col));
+                    regions.push(prev.range_until(col));
                     prev = col;
                 }
             }
-            regions.push(prev.range(self.chip.columns.ids().end()));
+            regions.push(prev.range_until(self.chip.columns.ids().end()));
         }
         for (row, rd) in &self.chip.rows {
             let is_sclk_row = if self.chip.kind.has_distributed_sclk_ecp3() {
@@ -336,7 +334,9 @@ impl Chip {
             ChipKind::Ecp2 | ChipKind::Ecp2M => {
                 expander.fill_config_ecp2();
                 expander.fill_pll_ecp2();
-                expander.fill_serdes_ecp2();
+                if self.kind == ChipKind::Ecp2M {
+                    expander.fill_serdes_ecp2();
+                }
                 expander.fill_plc();
                 expander.fill_ebr_ecp();
                 expander.fill_dsp_ecp();

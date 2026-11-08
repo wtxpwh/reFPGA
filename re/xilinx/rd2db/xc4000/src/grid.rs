@@ -1,4 +1,4 @@
-use prjcombine_interconnect::grid::DieIdExt;
+use prjcombine_interconnect::coord::DieIdExt;
 use prjcombine_re_xilinx_rawdump::{Part, TkSiteSlot};
 use prjcombine_xc2000::{
     chip::{Chip, ChipKind, SharedCfgPad},

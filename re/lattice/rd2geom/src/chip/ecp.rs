@@ -5,8 +5,8 @@ use prjcombine_ecp::{
     defs::bslots,
 };
 use prjcombine_interconnect::{
+    coord::{ColIdExt, DieIdExt},
     dir::{Dir, DirH, DirHV, DirV},
-    grid::{ColIdExt, DieIdExt},
 };
 use prjcombine_types::enumerable::EnumMap;
 

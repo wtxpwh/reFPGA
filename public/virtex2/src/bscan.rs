@@ -2,8 +2,8 @@ use std::collections::BTreeMap;
 
 use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
+    coord::{BelPadCoord, DieId, DieIdExt},
     dir::{DirH, DirHV, DirV},
-    grid::{BelPadCoord, DieId, DieIdExt},
 };
 use prjcombine_types::bscan::{BScanBuilder, BScanPad};
 

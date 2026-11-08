@@ -1,4 +1,4 @@
-use prjcombine_interconnect::grid::BelPadCoord;
+use prjcombine_interconnect::coord::BelPadCoord;
 use prjcombine_re_xilinx_naming_xc2000::ExpandedNamedDevice;
 use prjcombine_re_xilinx_rawdump::PkgPin;
 use prjcombine_xc2000::{

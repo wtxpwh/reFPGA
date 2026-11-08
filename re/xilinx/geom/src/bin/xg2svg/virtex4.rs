@@ -1,5 +1,5 @@
 use prjcombine_entity::{EntityId, EntityVec};
-use prjcombine_interconnect::grid::{ColId, DieId, DieIdExt};
+use prjcombine_interconnect::coord::{ColId, DieId, DieIdExt};
 use prjcombine_virtex4::chip::{CfgRowKind, ChipKind, ColumnKind, GtKind, RegId};
 use prjcombine_virtex4::expanded::ExpandedDevice;
 

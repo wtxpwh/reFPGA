@@ -1,5 +1,5 @@
 use prjcombine_entity::EntityId;
-use prjcombine_interconnect::{db::BelAttributeEnum, grid::DieId};
+use prjcombine_interconnect::{coord::DieId, db::BelAttributeEnum};
 use prjcombine_re_collector::diff::{OcdMode, xlat_bit_wide, xlat_bit_wide_bi};
 use prjcombine_re_hammer::Session;
 use prjcombine_re_xilinx_geom::ExpandedDevice;

@@ -1,8 +1,10 @@
 use prjcombine_entity::{EntityId, EntityIdArith, EntityRange, EntityVec};
+use prjcombine_interconnect::coord::{
+    BelCoord, CellCoord, ColId, DieId, DieIdExt, RowId, RowIdExt,
+};
 use prjcombine_interconnect::db::{ConnectorClassId, IntDb};
 use prjcombine_interconnect::dir::{DirH, DirV};
 use prjcombine_interconnect::grid::builder::GridBuilder;
-use prjcombine_interconnect::grid::{BelCoord, CellCoord, ColId, DieId, DieIdExt, RowId, RowIdExt};
 use std::collections::{BTreeSet, HashMap};
 
 use crate::chip::{
@@ -646,7 +648,7 @@ impl Expander<'_> {
                 if col == chip.col_w() {
                     is_no_loc = false;
                 } else {
-                    for col in self.die[die].cols_vnoc.last().unwrap().range(col) {
+                    for col in self.die[die].cols_vnoc.last().unwrap().range_until(col) {
                         if chip.columns[col].kind == ColumnKind::Bram(BramKind::SplitterPd) {
                             is_no_loc = false;
                         }
@@ -875,7 +877,7 @@ impl Expander<'_> {
                     self.fill_ps9(die);
                     if self.chips[die].regs == 2 {
                         self.egrid.add_tile(
-                            cell.delta(0, Chip::ROWS_PER_REG as i32 * 2 - 1),
+                            cell.delta(0, Chip::ROWS_PER_REG * 2 - 1),
                             tcls::XRAM_NC,
                             &[],
                         );
@@ -883,7 +885,7 @@ impl Expander<'_> {
                 }
                 PsKind::Ps9Cpm4 => {
                     self.fill_ps9(die);
-                    let cpm_cell = cell.delta(0, Chip::ROWS_PER_REG as i32 * 2);
+                    let cpm_cell = cell.delta(0, Chip::ROWS_PER_REG * 2);
                     let mut cells = cpm_cell.cells_n(Chip::ROWS_PER_REG);
                     let cell_ext = die.cell(
                         self.chips[die].cols_hard[0].col,
@@ -900,21 +902,21 @@ impl Expander<'_> {
                 }
                 PsKind::Ps9Cpm5 => {
                     self.fill_ps9(die);
-                    let cpm_cell = cell.delta(0, Chip::ROWS_PER_REG as i32 * 2);
+                    let cpm_cell = cell.delta(0, Chip::ROWS_PER_REG * 2);
                     self.egrid
                         .add_tile_n(cpm_cell, tcls::CPM5, Chip::ROWS_PER_REG * 4);
                     for i in 0..4 {
-                        let gt_cell = cpm_cell.delta(0, Chip::ROWS_PER_REG as i32 * i);
+                        let gt_cell = cpm_cell.delta(0, Chip::ROWS_PER_REG * i);
                         self.egrid.add_tile(gt_cell, tcls::GTYP_PS, &[]);
                     }
                 }
                 PsKind::Ps9Cpm6 => {
                     self.fill_ps9(die);
-                    let cpm_cell = cell.delta(0, Chip::ROWS_PER_REG as i32 * 2);
+                    let cpm_cell = cell.delta(0, Chip::ROWS_PER_REG * 2);
                     self.egrid
                         .add_tile_n(cpm_cell, tcls::CPM6, Chip::ROWS_PER_REG * 4);
                     for i in 0..4 {
-                        let gt_cell = cpm_cell.delta(0, Chip::ROWS_PER_REG as i32 * i);
+                        let gt_cell = cpm_cell.delta(0, Chip::ROWS_PER_REG * i);
                         self.egrid.add_tile(gt_cell, tcls::GTM2_PS, &[]);
                         if matches!(i, 1 | 3) {
                             self.egrid
@@ -926,11 +928,11 @@ impl Expander<'_> {
                     let mut tcells = cell.cells_n(Chip::ROWS_PER_REG * 5);
                     tcells.push(cell_hsr);
                     self.egrid.add_tile(cell, tcls::PSXL, &tcells);
-                    let cpm_cell = cell.delta(0, Chip::ROWS_PER_REG as i32 * 5);
+                    let cpm_cell = cell.delta(0, Chip::ROWS_PER_REG * 5);
                     self.egrid
                         .add_tile_n(cpm_cell, tcls::CPM5N, Chip::ROWS_PER_REG * 4);
                     for i in 0..4 {
-                        let gt_cell = cpm_cell.delta(0, Chip::ROWS_PER_REG as i32 * i);
+                        let gt_cell = cpm_cell.delta(0, Chip::ROWS_PER_REG * i);
                         self.egrid.add_tile(gt_cell, tcls::GTYP_PS, &[]);
                     }
                 }
@@ -939,14 +941,14 @@ impl Expander<'_> {
                     tcells.push(cell_hsr);
                     self.egrid.add_tile(cell, tcls::PSXC, &tcells);
                     if self.chips[die].regs == 4 {
-                        let mmi_cell = cell.delta(0, Chip::ROWS_PER_REG as i32 * 4 - 1);
+                        let mmi_cell = cell.delta(0, Chip::ROWS_PER_REG * 4 - 1);
                         self.egrid.add_tile(mmi_cell, tcls::MMI_NC, &[]);
                         self.egrid.add_tile(mmi_cell, tcls::GTYP_PS, &[]);
                     } else {
-                        let mmi_cell = cell.delta(0, Chip::ROWS_PER_REG as i32 * 4);
+                        let mmi_cell = cell.delta(0, Chip::ROWS_PER_REG * 4);
                         self.egrid.add_tile_n(mmi_cell, tcls::MMI, 96);
                         self.egrid.add_tile(
-                            mmi_cell.delta(0, Chip::ROWS_PER_REG as i32),
+                            mmi_cell.delta(0, Chip::ROWS_PER_REG),
                             tcls::GTYP_PS,
                             &[],
                         );
@@ -956,11 +958,8 @@ impl Expander<'_> {
                     let mut tcells = cell.cells_n(Chip::ROWS_PER_REG * 4);
                     tcells.push(cell_hsr);
                     self.egrid.add_tile(cell, tcls::PSXT, &tcells);
-                    self.egrid.add_tile(
-                        cell.delta(0, Chip::ROWS_PER_REG as i32 * 3),
-                        tcls::GTYP_PS,
-                        &[],
-                    );
+                    self.egrid
+                        .add_tile(cell.delta(0, Chip::ROWS_PER_REG * 3), tcls::GTYP_PS, &[]);
                 }
             }
         }
@@ -1090,7 +1089,7 @@ impl Expander<'_> {
             }
 
             for (i, col_bli) in rd.xpio_bli.into_iter().enumerate() {
-                let cell_io = cell.delta(i as i32, 0);
+                let cell_io = cell.delta(i, 0);
                 if let Some(col_bli) = col_bli {
                     let bli = die.cell(col_bli, row_bli);
                     self.egrid
@@ -2588,7 +2587,7 @@ impl Expander<'_> {
                         if let Some(prev) = prev {
                             self.noc.connect(prev[j], nps.noc_port(0));
                         }
-                        let cell_nmu = cell.delta(j as i32, 0);
+                        let cell_nmu = cell.delta(j, 0);
                         self.noc.connect(
                             nps.noc_port(1),
                             cell_nmu.bel(bslots::NOC_NMU_HBM2E[0]).noc_port(0),
@@ -2603,7 +2602,7 @@ impl Expander<'_> {
                             .connect(nps.noc_port(4), cell.bel(bslots::HNOC_NPS4[1]).noc_port(j));
                     }
                     for j in 0..2 {
-                        let mc = cell.delta(j as i32 * 2, 0).bel(bslots::HBM_CHNL);
+                        let mc = cell.delta(j * 2, 0).bel(bslots::HBM_CHNL);
                         for k in 0..4 {
                             let nps = cell.bel(bslots::HNOC_NPS4[k % 2]);
                             self.noc
@@ -2976,7 +2975,7 @@ impl Expander<'_> {
         self.egrid
             .add_tile(cell.delta(3, 0), tcls::HNOC_SSIT_PS9_BD, &[]);
         let bels_nps: [_; 8] =
-            core::array::from_fn(|i| cell.delta(i as i32 / 2, 0).bel(bslots::HNOC_NPS[i % 2]));
+            core::array::from_fn(|i| cell.delta(i / 2, 0).bel(bslots::HNOC_NPS[i % 2]));
         for i in 0..6 {
             self.noc
                 .connect(bels_nps[i].noc_port(2), bels_nps[i + 2].noc_port(0));
@@ -3256,7 +3255,7 @@ impl Expander<'_> {
                 if !chip.is_reg_half(reg) {
                     for cell in self.egrid.row(die, row) {
                         self.egrid.fill_conn_pair(
-                            cell.delta(0, -(Chip::ROWS_PER_REG as i32)),
+                            cell.step(DirV::S, Chip::ROWS_PER_REG),
                             cell,
                             ccls::CLK_HALF_N,
                             ccls::CLK_HALF_S,

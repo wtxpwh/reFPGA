@@ -2,9 +2,9 @@ use std::collections::BTreeMap;
 
 use prjcombine_entity::{EntityId, EntityPartVec};
 use prjcombine_interconnect::{
+    coord::{ColId, DieIdExt, RowId, WireCoord},
     db::{BelInfo, IntDb, PinDir, SwitchBoxItem},
     dir::Dir,
-    grid::{ColId, DieIdExt, RowId, WireCoord},
 };
 use prjcombine_re_toolchain::Toolchain;
 use prjcombine_siliconblue::{

@@ -1,7 +1,7 @@
 use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
+    coord::{DieId, TileCoord},
     db::{BelAttributeEnum, BelInfo, WireSlotIdExt},
-    grid::{DieId, TileCoord},
 };
 use prjcombine_re_collector::diff::{OcdMode, xlat_enum_raw};
 use prjcombine_re_hammer::Session;

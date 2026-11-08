@@ -1,7 +1,8 @@
 use prjcombine_entity::{EntityPartVec, EntityVec};
 use prjcombine_interconnect::{
+    coord::{BelCoord, CellCoord, ColId, Rect, RowId, RowIdExt},
     dir::{Dir, DirV},
-    grid::{BelCoord, CellCoord, ColId, ExpandedGrid, Rect, RowId, RowIdExt},
+    grid::ExpandedGrid,
 };
 
 use crate::{

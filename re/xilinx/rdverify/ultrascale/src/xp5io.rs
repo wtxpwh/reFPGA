@@ -1,4 +1,4 @@
-use prjcombine_interconnect::{db::PinDir, grid::BelCoord};
+use prjcombine_interconnect::{coord::BelCoord, db::PinDir};
 use prjcombine_re_xilinx_naming_ultrascale::ExpandedNamedDevice;
 use prjcombine_re_xilinx_rdverify::Verifier;
 use prjcombine_ultrascale::defs::{bcls, bslots};

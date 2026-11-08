@@ -5,6 +5,7 @@ use prjcombine_entity::{EntityId, EntityPartVec, EntityVec};
 
 use crate::{
     db::{CellSlotId, ConnectorClassId, IntDb, IntDbIndex, TileClassId},
+    dir::{DirH, DirV},
     grid::{
         Cell, CellCoord, ColId, Connector, DieId, DieIdExt, ExpandedDie, ExpandedGrid, RowId, Tile,
     },
@@ -175,7 +176,7 @@ impl<'db> GridBuilder<'db> {
         num_w: usize,
         num: usize,
     ) -> &mut Tile {
-        self.add_tile(cell, tcid, &cell.delta(-(num_w as i32), 0).cells_e(num))
+        self.add_tile(cell, tcid, &cell.step(DirH::W, num_w).cells_e(num))
     }
 
     pub fn add_tile_sn(
@@ -185,7 +186,7 @@ impl<'db> GridBuilder<'db> {
         num_s: usize,
         num: usize,
     ) -> &mut Tile {
-        self.add_tile(cell, tcid, &cell.delta(0, -(num_s as i32)).cells_n(num))
+        self.add_tile(cell, tcid, &cell.step(DirV::S, num_s).cells_n(num))
     }
 
     pub fn fill_conn_pair(

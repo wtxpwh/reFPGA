@@ -1,6 +1,6 @@
 use prjcombine_interconnect::{
+    coord::{DieIdExt, RowIdExt},
     dir::{Dir, DirH, DirHV, DirV},
-    grid::{DieIdExt, RowIdExt},
 };
 
 use crate::{
@@ -253,7 +253,7 @@ impl Expander<'_, '_> {
             }
             if edge == DirV::S {
                 let serdes =
-                    Vec::from_iter(self.egrid.row(self.die, self.chip.row_s()).filter(|&cell| {
+                    Vec::from_iter(self.egrid.row(self.die, self.chip.row_s()).into_iter().filter(|&cell| {
                         self.chip.columns[cell.col].io[DirV::S] == IoGroupKind::Serdes
                     }));
                 tcells.extend([

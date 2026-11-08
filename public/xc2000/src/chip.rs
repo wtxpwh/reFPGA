@@ -4,9 +4,9 @@ use bincode::{Decode, Encode};
 use itertools::Itertools;
 use prjcombine_entity::{EntityId, EntityRange};
 use prjcombine_interconnect::{
+    coord::{BelCoord, BelPadCoord, ColId, ColIdExt, DieId, DieIdExt, RowId, RowIdExt, TileCoord},
     db::IntDb,
     dir::{DirH, DirHV, DirV},
-    grid::{BelCoord, BelPadCoord, ColId, ColIdExt, DieId, DieIdExt, RowId, RowIdExt, TileCoord},
 };
 
 use crate::{xc2000, xc3000, xc4000, xc5200};

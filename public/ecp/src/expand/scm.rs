@@ -1,7 +1,7 @@
-use prjcombine_entity::EntityId;
+use prjcombine_entity::{EntityId, EntityIdArith};
 use prjcombine_interconnect::{
+    coord::{ColIdExt, DieIdExt},
     dir::{Dir, DirH, DirHV, DirV},
-    grid::{ColIdExt, DieIdExt},
 };
 
 use crate::{
@@ -19,7 +19,7 @@ impl Expander<'_, '_> {
         for dx in 0..12 {
             self.egrid.add_tile_single(cell.delta(dx, 0), tcls::INT_EBR);
         }
-        self.bel_holes.push(cell.rect(12, 1));
+        self.bel_holes.push(cell.rect_dir_inclusive(Dir::E, 12));
     }
 
     pub(super) fn fill_pll_scm(&mut self) {
@@ -117,16 +117,15 @@ impl Expander<'_, '_> {
             }
         }
         let row = self.chip.row_serdes(DirV::N);
-        self.bel_holes.push(
-            self.die
-                .cell(self.chip.col_w(), row)
-                .rect((col_end_w - self.chip.col_w()) as usize, 13),
-        );
-        self.bel_holes.push(
-            self.die
-                .cell(col_end_e, row)
-                .rect((self.chip.col_e() - col_end_e) as usize + 1, 13),
-        );
+        for cols in [
+            self.chip.columns.ids().start().range_until(col_end_w),
+            col_end_e.range_until(self.chip.columns.ids().end()),
+        ] {
+            self.bel_holes.push(
+                self.die
+                    .rect(cols, row.range_until(self.chip.rows.ids().end())),
+            );
+        }
         for cell in self.egrid.row(self.die, row) {
             if cell.col < col_end_w || cell.col >= col_end_e {
                 self.egrid.add_tile_single(cell, tcls::INT_EBR);
@@ -253,7 +252,7 @@ impl Expander<'_, '_> {
 
     pub(super) fn fill_io_scm(&mut self) {
         let mut prev = None;
-        for cell in self.egrid.column(self.die, self.chip.col_w()).rev() {
+        for cell in self.egrid.column(self.die, self.chip.col_w()).into_iter().rev() {
             if self.is_in_bel_hole(cell) {
                 continue;
             }

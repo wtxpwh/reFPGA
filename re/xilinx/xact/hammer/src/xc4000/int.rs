@@ -2,8 +2,8 @@ use std::collections::{BTreeMap, HashSet, btree_map};
 
 use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
+    coord::{BelCoord, TileCoord, WireCoord},
     db::{BelInfo, SwitchBoxItem, TileClassId, TileWireCoord, WireSlotIdExt},
-    grid::{BelCoord, TileCoord, WireCoord},
 };
 use prjcombine_re_collector::diff::{
     Diff, DiffKey, OcdMode, xlat_bit, xlat_enum_attr, xlat_enum_raw,
@@ -614,7 +614,7 @@ impl<'b> FuzzerProp<'b, XactBackend<'b>> for IntPip {
     fn apply<'a>(
         &self,
         backend: &XactBackend<'a>,
-        tcrd: prjcombine_interconnect::grid::TileCoord,
+        tcrd: prjcombine_interconnect::coord::TileCoord,
         fuzzer: Fuzzer<XactBackend<'a>>,
     ) -> Option<(Fuzzer<XactBackend<'a>>, bool)> {
         let rwt = backend.edev.resolve_tile_wire(tcrd, self.wire_to).unwrap();
@@ -668,7 +668,7 @@ impl<'b> FuzzerProp<'b, XactBackend<'b>> for ClbSpecialMux {
     fn apply<'a>(
         &self,
         backend: &XactBackend<'a>,
-        mut tcrd: prjcombine_interconnect::grid::TileCoord,
+        mut tcrd: prjcombine_interconnect::coord::TileCoord,
         mut fuzzer: Fuzzer<XactBackend<'a>>,
     ) -> Option<(Fuzzer<XactBackend<'a>>, bool)> {
         let imux = backend.edev.tile_wire(tcrd, self.wire);

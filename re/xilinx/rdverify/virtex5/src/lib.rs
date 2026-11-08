@@ -1,9 +1,9 @@
 use indicatif::ProgressBar;
 use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
+    coord::{BelCoord, DieId, DieIdExt, RowId},
     db::WireSlotIdExt,
     dir::Dir,
-    grid::{BelCoord, DieId, DieIdExt, RowId},
 };
 use prjcombine_re_xilinx_naming::db::RawTileId;
 use prjcombine_re_xilinx_naming_virtex4::ExpandedNamedDevice;

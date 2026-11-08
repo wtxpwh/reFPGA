@@ -1,5 +1,5 @@
 use prjcombine_entity::{EntityId, EntityVec};
-use prjcombine_interconnect::{dir::DirH, grid::ColId};
+use prjcombine_interconnect::{coord::ColId, dir::DirH};
 use prjcombine_re_xilinx_rawdump::Part;
 use prjcombine_types::enumerable::EnumMap;
 use prjcombine_virtex4::chip::{

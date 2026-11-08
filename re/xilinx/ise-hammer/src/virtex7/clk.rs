@@ -2,9 +2,9 @@ use std::collections::BTreeSet;
 
 use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
+    coord::{RowId, TileCoord},
     db::{TileClassId, WireSlotIdExt},
     dir::{DirH, DirV},
-    grid::{RowId, TileCoord},
 };
 use prjcombine_re_collector::diff::{Diff, DiffKey, OcdMode, xlat_bit, xlat_enum_raw};
 use prjcombine_re_fpga_hammer::FuzzerProp;

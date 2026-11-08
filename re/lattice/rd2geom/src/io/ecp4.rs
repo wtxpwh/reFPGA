@@ -4,9 +4,9 @@ use prjcombine_ecp::{
 };
 use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
+    coord::{BelCoord, CellCoord, DieIdExt},
     db::{CellSlotId, CellSlotIdExt, WireSlotIdExt},
     dir::{Dir, DirHV},
-    grid::{BelCoord, CellCoord, DieIdExt},
 };
 
 use crate::{ChipContext, RcMode};

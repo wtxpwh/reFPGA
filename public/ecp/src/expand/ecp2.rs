@@ -1,7 +1,7 @@
 use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
+    coord::DieIdExt,
     dir::{Dir, DirH, DirHV, DirV},
-    grid::DieIdExt,
 };
 
 use crate::{
@@ -13,7 +13,7 @@ use crate::{
 impl Expander<'_, '_> {
     pub(super) fn fill_config_ecp2(&mut self) {
         let cell = self.chip.special_loc[&SpecialLocKey::Config];
-        self.bel_holes.push(cell.rect(6, 1));
+        self.bel_holes.push(cell.rect_dir_inclusive(Dir::E, 6));
         self.egrid.add_tile(
             cell,
             tcls::CONFIG,
@@ -36,14 +36,7 @@ impl Expander<'_, '_> {
         for (loc, bcrd) in self.chip.plls() {
             let cell = bcrd.cell;
             if loc.quad.v == DirV::S && loc.idx == 0 {
-                match loc.quad.h {
-                    DirH::W => {
-                        self.bel_holes.push(cell.rect(7, 1));
-                    }
-                    DirH::E => {
-                        self.bel_holes.push(cell.delta(-6, 0).rect(7, 1));
-                    }
-                }
+                self.bel_holes.push(cell.rect_dir_inclusive(!loc.quad.h, 7));
                 self.egrid.add_tile(
                     cell,
                     match loc.quad.h {
@@ -64,7 +57,7 @@ impl Expander<'_, '_> {
                     ],
                 );
             } else {
-                self.bel_holes.push(cell.rect(1, 1));
+                self.bel_holes.push(cell.rect_single());
                 let tcells = [
                     cell,
                     cell.delta(0, 1),
@@ -105,40 +98,25 @@ impl Expander<'_, '_> {
     }
 
     pub(super) fn fill_serdes_ecp2(&mut self) {
-        for cell in self.egrid.row(self.die, self.chip.row_s()) {
-            if self.chip.columns[cell.col].io[DirV::S] == IoGroupKind::Serdes {
-                if cell.col < self.chip.col_clk {
-                    self.bel_holes.push(cell.delta(-1, 0).rect(28, 8));
-                    self.egrid
-                        .add_tile_single(cell.delta(-1, 7), tcls::INT_IO_S);
-                } else {
-                    self.bel_holes.push(cell.rect(28, 8));
-                    self.egrid
-                        .add_tile_single(cell.delta(27, 7), tcls::INT_IO_S);
+        for (edge, tcid, tcid_int) in [
+            (DirV::S, tcls::SERDES_S, tcls::INT_IO_S),
+            (DirV::N, tcls::SERDES_N, tcls::INT_SERDES_N),
+        ] {
+            for cell in self.egrid.row(self.die, self.chip.row_serdes(edge)) {
+                if self.chip.columns[cell.col].io[edge] == IoGroupKind::Serdes {
+                    let rect = cell.rect_dir_inclusive(edge, 8).enlarge_to(Dir::E, 27);
+                    if cell.col < self.chip.col_clk {
+                        self.bel_holes.push(rect.enlarge_by(Dir::W, 1));
+                        self.egrid.add_tile_single(cell.delta(-1, 0), tcid_int);
+                    } else {
+                        self.bel_holes.push(rect.enlarge_by(Dir::E, 1));
+                        self.egrid.add_tile_single(cell.delta(27, 0), tcid_int);
+                    }
+                    for dx in 0..27 {
+                        self.egrid.add_tile_single(cell.delta(dx, 0), tcid_int);
+                    }
+                    self.egrid.add_tile_e(cell, tcid, 27);
                 }
-                for dx in 0..27 {
-                    self.egrid
-                        .add_tile_single(cell.delta(dx, 7), tcls::INT_IO_S);
-                }
-                self.egrid.add_tile_e(cell.delta(0, 7), tcls::SERDES_S, 27);
-            }
-        }
-        for cell in self.egrid.row(self.die, self.chip.row_n()) {
-            if self.chip.columns[cell.col].io[DirV::N] == IoGroupKind::Serdes {
-                if cell.col < self.chip.col_clk {
-                    self.bel_holes.push(cell.delta(-1, -7).rect(28, 8));
-                    self.egrid
-                        .add_tile_single(cell.delta(-1, -7), tcls::INT_SERDES_N);
-                } else {
-                    self.bel_holes.push(cell.delta(0, -7).rect(28, 8));
-                    self.egrid
-                        .add_tile_single(cell.delta(27, -7), tcls::INT_SERDES_N);
-                }
-                for dx in 0..27 {
-                    self.egrid
-                        .add_tile_single(cell.delta(dx, -7), tcls::INT_SERDES_N);
-                }
-                self.egrid.add_tile_e(cell.delta(0, -7), tcls::SERDES_N, 27);
             }
         }
     }

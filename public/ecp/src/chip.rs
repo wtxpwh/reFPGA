@@ -3,12 +3,12 @@ use std::{collections::BTreeMap, fmt::Display};
 use bincode::{Decode, Encode};
 use prjcombine_entity::{EntityId, EntityRangeVec, EntityVec};
 use prjcombine_interconnect::{
-    db::IntDb,
-    dir::{Dir, DirH, DirHV, DirV},
-    grid::{
+    coord::{
         BelCoord, CellCoord, ColId, ColIdExt, DieId, DieIdExt, EdgeIoCoord, RowId, RowIdExt,
         TileIobId,
     },
+    db::IntDb,
+    dir::{Dir, DirH, DirHV, DirV},
 };
 use prjcombine_types::enumerable::{EnumMap, EnumPartMap};
 

@@ -6,11 +6,11 @@ use prjcombine_ecp::{
 };
 use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
+    coord::CellCoord,
     db::{
         BelInfo, ConnectorWire, Mux, PermaBuf, ProgBuf, ProgDelay, SwitchBox, SwitchBoxItem,
         TileClassId, WireKind, WireSlotId, WireSlotIdExt,
     },
-    grid::CellCoord,
 };
 use prjcombine_re_lattice_naming::WireName;
 use prjcombine_types::bitrect::PolTileBit;

@@ -1,7 +1,7 @@
 use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
+    coord::{ColId, ColIdExt, DieIdExt, RowIdExt},
     dir::{Dir, DirH, DirHV, DirV},
-    grid::{ColId, ColIdExt, DieIdExt, RowIdExt},
 };
 
 use crate::{

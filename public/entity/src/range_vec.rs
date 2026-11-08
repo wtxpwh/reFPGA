@@ -74,16 +74,14 @@ impl<I: EntityIdArith, V> EntityRangeVec<I, V> {
     }
 
     pub fn push(&mut self, num: usize, val: V) -> EntityRange<I> {
-        let start = self.items.next_id();
-        let end = start + num;
-        let range = start.range(end);
+        let range = self.items.next_id().range_up(num);
         if num != 0 {
             let rid = self.ranges.push((range, val));
             for _ in 0..num {
                 self.items.push(rid);
             }
         }
-        assert_eq!(self.items.next_id(), end);
+        assert_eq!(self.items.next_id(), range.end());
         range
     }
 }

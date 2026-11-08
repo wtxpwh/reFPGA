@@ -2,8 +2,8 @@ use std::fmt::Write;
 
 use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
+    coord::{CellCoord, ColId, RowId},
     dir::{DirH, DirV},
-    grid::{CellCoord, ColId, RowId},
 };
 use prjcombine_re_xilinx_naming::{
     db::{NamingDb, RawTileId},

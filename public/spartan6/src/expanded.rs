@@ -1,7 +1,8 @@
 use prjcombine_entity::{EntityPartVec, EntityVec};
 use prjcombine_interconnect::{
+    coord::{BelCoord, CellCoord, ColId, Rect, RowId, TileCoord},
     dir::Dir,
-    grid::{BelCoord, CellCoord, ColId, ExpandedGrid, Rect, RowId, TileCoord},
+    grid::ExpandedGrid,
 };
 use prjcombine_types::{bitrect::BitRectId, enumerable::EnumMap};
 use std::collections::{BTreeSet, HashMap};

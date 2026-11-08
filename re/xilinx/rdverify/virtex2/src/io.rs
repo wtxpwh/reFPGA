@@ -1,6 +1,6 @@
 use prjcombine_entity::EntityId;
+use prjcombine_interconnect::coord::BelCoord;
 use prjcombine_interconnect::dir::DirH;
-use prjcombine_interconnect::grid::BelCoord;
 use prjcombine_re_xilinx_naming::db::RawTileId;
 use prjcombine_re_xilinx_naming_virtex2::ExpandedNamedDevice;
 use prjcombine_re_xilinx_rdverify::Verifier;

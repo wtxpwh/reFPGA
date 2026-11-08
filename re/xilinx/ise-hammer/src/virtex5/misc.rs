@@ -1,7 +1,7 @@
 use prjcombine_entity::{EntityId, EntityVec};
 use prjcombine_interconnect::{
+    coord::{DieId, TileCoord},
     db::BelAttributeEnum,
-    grid::{DieId, TileCoord},
 };
 use prjcombine_re_collector::diff::{DiffKey, OcdMode, SpecialId};
 use prjcombine_re_fpga_hammer::{FuzzerFeature, FuzzerProp};

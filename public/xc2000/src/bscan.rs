@@ -1,8 +1,8 @@
 use std::collections::BTreeMap;
 
 use prjcombine_interconnect::{
+    coord::BelPadCoord,
     dir::{DirH, DirV},
-    grid::BelPadCoord,
 };
 use prjcombine_types::bscan::{BScanBuilder, BScanPad};
 

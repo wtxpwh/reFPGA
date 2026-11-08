@@ -1,8 +1,8 @@
 use indicatif::ProgressBar;
 use prjcombine_interconnect::{
+    coord::BelCoord,
     db::{BelInfo, SwitchBoxItem, WireSlotIdExt},
     dir::{DirH, DirHV, DirV},
-    grid::BelCoord,
 };
 use prjcombine_re_xilinx_naming_spartan6::ExpandedNamedDevice;
 use prjcombine_re_xilinx_rawdump::Part;

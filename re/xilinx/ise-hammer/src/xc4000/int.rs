@@ -2,9 +2,9 @@ use std::collections::{BTreeMap, btree_map};
 
 use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
+    coord::{TileCoord, WireCoord},
     db::{BelInfo, BelSlotId, CellSlotId, SwitchBoxItem, TileWireCoord, WireSlotIdExt},
     dir::{DirH, DirV},
-    grid::{TileCoord, WireCoord},
 };
 use prjcombine_re_collector::diff::{
     Diff, DiffKey, OcdMode, xlat_bit, xlat_enum_attr, xlat_enum_raw,

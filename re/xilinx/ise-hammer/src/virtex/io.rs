@@ -2,9 +2,9 @@ use std::collections::{HashMap, HashSet};
 
 use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
+    coord::{DieId, DieIdExt, TileCoord},
     db::{BelSlotId, TableRowId, TileClassId},
     dir::Dir,
-    grid::{DieId, DieIdExt, TileCoord},
 };
 use prjcombine_re_collector::diff::{
     Diff, OcdMode, xlat_bit, xlat_bit_wide_bi, xlat_enum_attr, xlat_enum_raw,

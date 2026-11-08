@@ -1,8 +1,8 @@
 use prjcombine_entity::{EntityId, EntityPartVec, EntityVec};
+use prjcombine_interconnect::coord::{CellCoord, ColId, ColIdExt, DieId, DieIdExt, Rect, RowIdExt};
 use prjcombine_interconnect::db::IntDb;
 use prjcombine_interconnect::dir::{Dir, DirH, DirHV, DirV};
 use prjcombine_interconnect::grid::builder::GridBuilder;
-use prjcombine_interconnect::grid::{CellCoord, ColId, ColIdExt, DieId, DieIdExt, Rect, RowIdExt};
 use prjcombine_types::enumerable::EnumMap;
 use std::collections::{BTreeSet, HashMap};
 
@@ -120,7 +120,7 @@ impl Expander<'_, '_> {
     }
 
     fn fill_io_e(&mut self) {
-        for cell in self.egrid.column(self.die, self.chip.col_e()).rev() {
+        for cell in self.egrid.column(self.die, self.chip.col_e()).into_iter().rev() {
             if self.chip.rows[cell.row].io[DirH::E] {
                 self.fill_ioi(cell);
                 self.egrid.add_tile_single(cell, defs::tcls::IOB);
@@ -737,7 +737,7 @@ impl Expander<'_, '_> {
                 self.iob_frame_len += 128;
             }
         }
-        for cell in self.egrid.row(self.die, self.chip.row_n()).rev() {
+        for cell in self.egrid.row(self.die, self.chip.row_n()).into_iter().rev() {
             if self.chip.columns[cell.col].kind == ColumnKind::CleClk {
                 self.reg_frame[Dir::N] = self.iob_frame_len;
                 self.iob_frame_len += 384;
@@ -757,7 +757,7 @@ impl Expander<'_, '_> {
                 self.iob_frame_len += 128;
             }
         }
-        for cell in self.egrid.column(self.die, self.chip.col_w()).rev() {
+        for cell in self.egrid.column(self.die, self.chip.col_w()).into_iter().rev() {
             if self.chip.rows[cell.row].io[DirH::W] {
                 self.iob_frame.insert(cell, self.iob_frame_len);
                 self.iob_frame_len += 128;

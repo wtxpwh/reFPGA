@@ -1,5 +1,9 @@
 use prjcombine_entity::EntityId;
-use prjcombine_interconnect::{db::CellSlotId, dir::DirH, grid::BelCoord};
+use prjcombine_interconnect::{
+    coord::BelCoord,
+    db::CellSlotId,
+    dir::{Dir, DirH},
+};
 use prjcombine_re_xilinx_naming_versal::ExpandedNamedDevice;
 use prjcombine_re_xilinx_rdverify::Verifier;
 use prjcombine_versal::{
@@ -13,7 +17,7 @@ pub fn verify_x5io_octad(edev: &ExpandedDevice, vrf: &mut Verifier, bcrd: BelCoo
     let is_nc = edev[tcrd].class == tcls::X5IO_NC;
 
     let idx = bcrd.col.to_idx() % 4;
-    let cell_bank = bcrd.cell.delta(-(idx as i32), 0);
+    let cell_bank = bcrd.cell.step(Dir::W, idx);
 
     let scan = cell_bank.bel(bslots::X5IO_SCAN);
     let phio_cmu = cell_bank.bel(bslots::X5PHIO_CMU);

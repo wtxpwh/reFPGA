@@ -1,5 +1,5 @@
 use indicatif::ProgressBar;
-use prjcombine_interconnect::{db::WireSlotIdExt, grid::BelCoord};
+use prjcombine_interconnect::{coord::BelCoord, db::WireSlotIdExt};
 use prjcombine_re_xilinx_naming_xc2000::ExpandedNamedDevice;
 use prjcombine_re_xilinx_rawdump::Part;
 use prjcombine_re_xilinx_rdverify::{SitePin, SitePinDir, Verifier};

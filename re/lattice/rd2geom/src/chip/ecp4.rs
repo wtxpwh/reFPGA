@@ -6,8 +6,8 @@ use prjcombine_ecp::{
 };
 use prjcombine_entity::{EntityId, EntityIdArith};
 use prjcombine_interconnect::{
+    coord::{ColId, DieIdExt, RowId},
     dir::{Dir, DirH, DirHV, DirV},
-    grid::{ColId, DieIdExt, RowId},
 };
 use prjcombine_re_lattice_naming::WireName;
 
@@ -159,7 +159,7 @@ impl ChipBuilder<'_> {
         assert_eq!(skip_e, 0);
 
         let mut bank = 2;
-        for col in (self.chip.col_clk + 1usize).range(self.chip.col_e()) {
+        for col in (self.chip.col_clk + 1usize).range_until(self.chip.col_e()) {
             if self.chip.columns[col].io[DirV::N] == IoGroupKind::None {
                 bank = 3;
             } else {
@@ -167,7 +167,12 @@ impl ChipBuilder<'_> {
             }
         }
         let mut bank = 1;
-        for col in self.chip.col_w().range(self.chip.col_clk - 1usize).rev() {
+        for col in self
+            .chip
+            .col_w()
+            .range_until(self.chip.col_clk - 1usize)
+            .rev()
+        {
             if self.chip.columns[col].io[DirV::N] == IoGroupKind::None {
                 bank = 0;
             } else {

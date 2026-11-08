@@ -6,9 +6,9 @@ use prjcombine_ecp::{
 };
 use prjcombine_entity::EntityVec;
 use prjcombine_interconnect::{
+    coord::DieIdExt,
     db::{BelInfo, ConnectorWire, Mux, SwitchBox, SwitchBoxItem, TileWireCoord, WireSlotIdExt},
     dir::DirH,
-    grid::DieIdExt,
 };
 
 use crate::{ChipContext, chip::ChipExt};

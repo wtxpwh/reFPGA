@@ -4,8 +4,8 @@ use bincode::{Decode, Encode};
 use prjcombine_ecp::{bond::Bond, chip::Chip, db::Device};
 use prjcombine_entity::{EntitySet, EntityVec, entity_id_u32};
 use prjcombine_interconnect::{
+    coord::{BelCoord, WireCoord},
     db::{IntDb, TileWireCoord},
-    grid::{BelCoord, WireCoord},
 };
 use prjcombine_types::db::{BondId, ChipId};
 

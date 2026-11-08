@@ -1,7 +1,7 @@
 use prjcombine_entity::{EntityId, EntityVec};
 use prjcombine_interconnect::{
+    coord::{ColId, DieId, RowId},
     dir::DirH,
-    grid::{ColId, DieId, RowId},
 };
 use prjcombine_re_xilinx_rawdump::{Coord, Part};
 use prjcombine_virtex4::chip::{

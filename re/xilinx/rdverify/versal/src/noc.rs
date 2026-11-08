@@ -1,5 +1,5 @@
 use prjcombine_entity::EntityId;
-use prjcombine_interconnect::{db::BelInfo, grid::BelCoord};
+use prjcombine_interconnect::{coord::BelCoord, db::BelInfo};
 use prjcombine_re_xilinx_rdverify::Verifier;
 use prjcombine_versal::{
     defs::{bcls, bslots, tcls},

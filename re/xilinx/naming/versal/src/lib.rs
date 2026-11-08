@@ -4,9 +4,9 @@ use bincode::{Decode, Encode};
 use itertools::Itertools;
 use prjcombine_entity::{EntityId, EntityPartVec, EntityVec};
 use prjcombine_interconnect::{
+    coord::{BelCoord, CellCoord, ColId, DieId, RowId, TileCoord},
     db::{IntDb, TileClass, TileClassId},
     dir::{DirH, DirV},
-    grid::{BelCoord, CellCoord, ColId, DieId, RowId, TileCoord},
 };
 use prjcombine_re_xilinx_naming::{db::NamingDb, grid::ExpandedGridNaming};
 use prjcombine_versal::{

@@ -1,7 +1,7 @@
 #![allow(clippy::too_many_arguments)]
 
 use prjcombine_entity::EntityVec;
-use prjcombine_interconnect::grid::{ColId, RowId};
+use prjcombine_interconnect::coord::{ColId, RowId};
 use prjcombine_re_xilinx_rawdump::{Coord, Part};
 use std::collections::BTreeSet;
 

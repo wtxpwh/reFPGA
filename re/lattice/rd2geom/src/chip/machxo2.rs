@@ -9,9 +9,9 @@ use prjcombine_ecp::{
 };
 use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
+    coord::{BelCoord, ColId, ColIdExt, DieIdExt, RowId},
     db::PinDir,
     dir::{Dir, DirH, DirV},
-    grid::{BelCoord, ColId, ColIdExt, DieIdExt, RowId},
 };
 use prjcombine_re_lattice_naming::WireName;
 

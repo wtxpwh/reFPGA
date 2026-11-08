@@ -2,8 +2,8 @@ use std::collections::{BTreeMap, BTreeSet};
 
 use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
+    coord::{BelPadCoord, ColId, DieId, DieIdExt, RowId},
     db::{BelInfo, IntDb, SwitchBoxItem, WireKind, WireSlotIdExt},
-    grid::{BelPadCoord, ColId, DieId, DieIdExt, RowId},
 };
 use prjcombine_re_xilinx_xact_data::die::Die;
 use prjcombine_re_xilinx_xact_naming::db::{NamingDb, TileNaming};

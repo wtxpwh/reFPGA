@@ -2,8 +2,8 @@ use bincode::{Decode, Encode};
 use itertools::Itertools;
 use prjcombine_entity::{EntityId, EntityRange, EntityVec, entity_id_u8};
 use prjcombine_interconnect::{
+    coord::{ColId, DieId, RowId, TileIobId},
     dir::DirH,
-    grid::{ColId, DieId, RowId, TileIobId},
 };
 use std::collections::BTreeSet;
 

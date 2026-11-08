@@ -47,4 +47,3 @@ impl enumerable::Enumerable for Polarity {
         }
     }
 }
-

@@ -3,8 +3,9 @@ use std::collections::{BTreeMap, BTreeSet, HashMap, btree_map};
 
 use prjcombine_entity::{EntityId, EntityVec};
 use prjcombine_interconnect::{
+    coord::{ColId, DieId, DieIdExt, RowId, TileCoord},
     db::{TileClassId, TileSlotId},
-    grid::{ColId, DieId, DieIdExt, ExpandedGrid, RowId, TileCoord},
+    grid::ExpandedGrid,
 };
 use prjcombine_re_hammer::{Backend, BatchValue, Fuzzer, FuzzerGen, FuzzerId};
 use prjcombine_types::bitrect::{BitRect, BitRectId, TileBit};

@@ -1,7 +1,7 @@
 use indicatif::ProgressBar;
 use prjcombine_entity::EntityId;
+use prjcombine_interconnect::coord::{BelCoord, DieId, DieIdExt, RowId, TileIobId};
 use prjcombine_interconnect::db::{BelInfo, PinDir, SwitchBoxItem};
-use prjcombine_interconnect::grid::{BelCoord, DieId, DieIdExt, RowId, TileIobId};
 use prjcombine_re_xilinx_naming_ultrascale::ExpandedNamedDevice;
 use prjcombine_re_xilinx_rawdump::Part;
 use prjcombine_re_xilinx_rdverify::Verifier;

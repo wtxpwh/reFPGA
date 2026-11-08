@@ -2,8 +2,8 @@ use std::collections::{BTreeMap, BTreeSet, HashMap};
 
 use prjcombine_entity::{EntityId, EntityVec};
 use prjcombine_interconnect::{
+    coord::{BelPadCoord, ColId, RowId},
     dir::{DirH, DirV},
-    grid::{BelPadCoord, ColId, RowId},
 };
 use prjcombine_re_xilinx_rawdump::{Coord, Part, TkSiteSlot};
 use prjcombine_spartan6::{

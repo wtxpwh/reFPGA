@@ -1,7 +1,7 @@
 use prjcombine_interconnect::{
+    coord::TileCoord,
     db::{BelAttributeEnum, BelInfo, BelInputId, BelSlotId},
     dir::{DirH, DirHV},
-    grid::TileCoord,
 };
 use prjcombine_re_collector::diff::{xlat_bit, xlat_bit_wide_bi};
 use prjcombine_re_fpga_hammer::FuzzerProp;

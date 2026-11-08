@@ -2,9 +2,9 @@ use std::collections::BTreeSet;
 
 use indicatif::ProgressBar;
 use prjcombine_interconnect::{
+    coord::BelCoord,
     db::{BelInfo, SwitchBoxItem, WireSlotIdExt},
     dir::DirHV,
-    grid::BelCoord,
 };
 use prjcombine_re_xilinx_naming_xc2000::ExpandedNamedDevice;
 use prjcombine_re_xilinx_rawdump::Part;

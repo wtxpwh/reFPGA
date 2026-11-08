@@ -1,10 +1,10 @@
 use bincode::{Decode, Encode};
 use prjcombine_entity::{EntityId, EntityRange, EntityRangeVec, EntityVec};
-use prjcombine_interconnect::db::{BelSlotId, CellSlotId, IntDb};
-use prjcombine_interconnect::dir::{Dir, DirH, DirHV, DirV};
-use prjcombine_interconnect::grid::{
+use prjcombine_interconnect::coord::{
     BelCoord, BelPadCoord, CellCoord, ColId, DieId, DieIdExt, RowId, TileCoord,
 };
+use prjcombine_interconnect::db::{BelSlotId, CellSlotId, IntDb};
+use prjcombine_interconnect::dir::{Dir, DirH, DirHV, DirV};
 use prjcombine_types::Polarity;
 use prjcombine_types::enumerable::EnumMap;
 use std::collections::BTreeMap;

@@ -2,8 +2,8 @@ use std::collections::BTreeMap;
 
 use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
+    coord::ColIdExt,
     dir::{Dir, DirH, DirHV, DirV},
-    grid::ColIdExt,
 };
 
 use crate::{

@@ -1,7 +1,7 @@
 use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
+    coord::{CellCoord, DieId, DieIdExt, TileCoord},
     db::{BelAttributeEnum, TableRowId},
-    grid::{CellCoord, DieId, DieIdExt, TileCoord},
 };
 use prjcombine_re_collector::diff::{
     Diff, DiffKey, SpecialId, extract_bitvec_val, extract_bitvec_val_part, xlat_bit, xlat_bit_wide,

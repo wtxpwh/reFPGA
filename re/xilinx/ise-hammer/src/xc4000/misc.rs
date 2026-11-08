@@ -1,5 +1,5 @@
 use prjcombine_entity::{EntityId, EntityVec};
-use prjcombine_interconnect::{db::BelSlotId, dir::DirHV, grid::TileCoord};
+use prjcombine_interconnect::{coord::TileCoord, db::BelSlotId, dir::DirHV};
 use prjcombine_re_collector::diff::{DiffKey, xlat_bit};
 use prjcombine_re_fpga_hammer::{FuzzerFeature, FuzzerProp};
 use prjcombine_re_hammer::{Fuzzer, Session};

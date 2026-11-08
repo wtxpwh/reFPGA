@@ -6,9 +6,9 @@ use prjcombine_ecp::{
 };
 use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
+    coord::{BelCoord, CellCoord},
     db::WireSlotIdExt,
     dir::{Dir, DirH, DirV},
-    grid::{BelCoord, CellCoord},
 };
 
 use crate::ChipContext;
@@ -451,6 +451,7 @@ impl ChipContext<'_> {
                 1,
                 self.edev
                     .column(Chip::DIE, self.chip.col_w())
+                    .into_iter()
                     .find(|cell| self.chip.rows[cell.row].io[DirH::W] == IoGroupKind::Double)
                     .unwrap(),
             ),
@@ -459,6 +460,7 @@ impl ChipContext<'_> {
                 1,
                 self.edev
                     .column(Chip::DIE, self.chip.col_e())
+                    .into_iter()
                     .find(|cell| self.chip.rows[cell.row].io[DirH::E] == IoGroupKind::Double)
                     .unwrap(),
             ),
@@ -467,6 +469,7 @@ impl ChipContext<'_> {
                 2,
                 self.edev
                     .row(Chip::DIE, self.chip.row_s())
+                    .into_iter()
                     .find(|cell| self.chip.columns[cell.col].io[DirV::S] == IoGroupKind::Double)
                     .unwrap(),
             ),
@@ -475,6 +478,7 @@ impl ChipContext<'_> {
                 2,
                 self.edev
                     .row(Chip::DIE, self.chip.row_n())
+                    .into_iter()
                     .find(|cell| self.chip.columns[cell.col].io[DirV::N] == IoGroupKind::Double)
                     .unwrap(),
             ),

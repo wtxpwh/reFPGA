@@ -3,8 +3,8 @@ use std::collections::HashMap;
 use indicatif::ProgressBar;
 use prjcombine_entity::{EntityBundleItemIndex, EntityId};
 use prjcombine_interconnect::{
+    coord::BelCoord,
     db::{BelInfo, SwitchBoxItem, WireSlotIdExt},
-    grid::BelCoord,
 };
 use prjcombine_re_xilinx_naming::db::RawTileId;
 use prjcombine_re_xilinx_naming_virtex2::ExpandedNamedDevice;

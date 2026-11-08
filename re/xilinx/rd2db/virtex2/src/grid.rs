@@ -2,8 +2,8 @@ use std::collections::{BTreeMap, BTreeSet, HashMap};
 
 use prjcombine_entity::{EntityIdArith, EntityRange, EntityRangeVec, EntityVec};
 use prjcombine_interconnect::{
+    coord::{ColId, DieIdExt, RowId},
     dir::{DirH, DirV},
-    grid::{ColId, DieIdExt, RowId},
 };
 use prjcombine_re_xilinx_rawdump::{Coord, Part, TkSiteSlot};
 use prjcombine_types::{Polarity, enumerable::EnumMap};
@@ -341,7 +341,7 @@ fn get_rows_ram(rd: &Part, int: &IntGrid, kind: ChipKind) -> Option<EntityRange<
     if kind == ChipKind::Spartan3E {
         let b: RowId = int.lookup_row(find_row(rd, &["COB_TERM_B"]).unwrap()) + 1;
         let t = int.lookup_row(find_row(rd, &["COB_TERM_T"]).unwrap());
-        Some(b.range(t))
+        Some(b.range_until(t))
     } else {
         None
     }
@@ -366,7 +366,7 @@ fn get_rows_hclk(rd: &Part, int: &IntGrid) -> EntityRangeVec<RowId, RowId> {
     assert_eq!(rows_hclk.len(), rows_brk_d.len());
     let mut res = EntityRangeVec::new();
     for ((row_w, row_e), row_m) in rows_brk_d.into_iter().zip(rows_brk).zip(rows_hclk) {
-        let rows = row_w.range(row_e);
+        let rows = row_w.range_until(row_e);
         assert_eq!(rows, res.push(rows.len(), row_m));
     }
     res

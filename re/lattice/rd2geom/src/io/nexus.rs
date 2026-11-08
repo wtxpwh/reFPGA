@@ -5,9 +5,9 @@ use prjcombine_ecp::{
     defs::{bcls, bslots, nexus::tcls::CLK_S_JE5D15, tcls, tslots, wires},
 };
 use prjcombine_interconnect::{
+    coord::{BelCoord, CellCoord, DieIdExt},
     db::{CellSlotIdExt, WireSlotIdExt},
     dir::{Dir, DirH, DirHV, DirV},
-    grid::{BelCoord, CellCoord, DieIdExt},
 };
 use prjcombine_re_lattice_naming::WireName;
 

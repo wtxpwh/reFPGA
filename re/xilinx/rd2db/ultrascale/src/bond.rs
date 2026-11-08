@@ -1,5 +1,5 @@
 use prjcombine_entity::EntityId;
-use prjcombine_interconnect::grid::TileIobId;
+use prjcombine_interconnect::coord::TileIobId;
 use prjcombine_re_xilinx_naming_ultrascale::ExpandedNamedDevice;
 use prjcombine_re_xilinx_rawdump::{Part, PkgPin};
 use prjcombine_ultrascale::bond::{

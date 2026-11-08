@@ -3,8 +3,8 @@ use std::collections::BTreeMap;
 use bincode::{Decode, Encode};
 use itertools::Itertools;
 use prjcombine_interconnect::{
+    coord::{ColId, EdgeIoCoord},
     dir::{DirH, DirHV, DirV},
-    grid::{ColId, EdgeIoCoord},
 };
 use prjcombine_types::Polarity;
 

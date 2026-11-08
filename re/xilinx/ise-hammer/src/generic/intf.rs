@@ -2,8 +2,8 @@ use std::collections::{HashMap, HashSet};
 
 use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
+    coord::TileCoord,
     db::{BelInfo, TileWireCoord, WireSlotId, WireSlotIdExt},
-    grid::TileCoord,
 };
 use prjcombine_re_collector::diff::{Diff, OcdMode, xlat_enum_raw};
 use prjcombine_re_fpga_hammer::FuzzerProp;

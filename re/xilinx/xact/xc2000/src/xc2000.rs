@@ -1,5 +1,5 @@
 use prjcombine_entity::{EntityId, EntityVec};
-use prjcombine_interconnect::grid::DieId;
+use prjcombine_interconnect::coord::DieId;
 use prjcombine_re_xilinx_xact_naming::{db::NamingDb, grid::ExpandedGridNaming};
 use prjcombine_xc2000::{expanded::ExpandedDevice, xc2000 as defs, xc2000::tcls};
 

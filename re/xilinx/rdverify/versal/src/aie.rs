@@ -1,5 +1,5 @@
 use prjcombine_entity::EntityId;
-use prjcombine_interconnect::grid::BelCoord;
+use prjcombine_interconnect::coord::BelCoord;
 use prjcombine_re_xilinx_naming_versal::ExpandedNamedDevice;
 use prjcombine_re_xilinx_rdverify::Verifier;
 use prjcombine_versal::{

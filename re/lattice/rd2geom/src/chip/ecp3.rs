@@ -8,8 +8,8 @@ use prjcombine_ecp::{
 };
 use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
+    coord::{ColIdExt, DieIdExt, RowId, RowIdExt},
     dir::{Dir, DirH, DirHV, DirV},
-    grid::{ColIdExt, DieIdExt, RowId, RowIdExt},
 };
 use prjcombine_re_lattice_naming::WireName;
 

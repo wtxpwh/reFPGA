@@ -1,9 +1,9 @@
 use prjcombine_entity::{EntityId, EntityPartVec, EntityVec};
-use prjcombine_interconnect::db::IntDb;
-use prjcombine_interconnect::grid::builder::GridBuilder;
-use prjcombine_interconnect::grid::{
+use prjcombine_interconnect::coord::{
     BelCoord, CellCoord, ColId, ColIdExt, DieId, DieIdExt, Rect, RowId, RowIdExt, TileIobId,
 };
+use prjcombine_interconnect::db::IntDb;
+use prjcombine_interconnect::grid::builder::GridBuilder;
 use std::collections::{BTreeSet, HashSet};
 
 use crate::bond::SharedCfgPad;

@@ -3,9 +3,9 @@ use prjcombine_ecp::{
     defs::{self, bcls, bslots, cslots, tcls, tslots},
 };
 use prjcombine_interconnect::{
+    coord::DieIdExt,
     db::{Bel, WireSlotIdExt},
     dir::DirV,
-    grid::DieIdExt,
 };
 
 use super::ChipContext;

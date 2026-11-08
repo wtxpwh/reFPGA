@@ -1,4 +1,4 @@
-use prjcombine_interconnect::{db::BelAttributeType, dir::DirH, grid::TileCoord};
+use prjcombine_interconnect::{coord::TileCoord, db::BelAttributeType, dir::DirH};
 use prjcombine_re_collector::diff::xlat_bit;
 use prjcombine_re_hammer::Session;
 use prjcombine_re_xilinx_geom::ExpandedDevice;

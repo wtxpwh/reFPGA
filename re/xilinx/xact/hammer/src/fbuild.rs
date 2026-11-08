@@ -1,9 +1,9 @@
 use prjcombine_interconnect::{
+    coord::TileCoord,
     db::{
         BelAttributeId, BelAttributeType, BelBidirId, BelInputId, BelKind, BelSlotId, EnumValueId,
         TileClassId,
     },
-    grid::TileCoord,
 };
 use prjcombine_re_collector::diff::{DiffKey, SpecialId};
 use prjcombine_re_fpga_hammer::{FpgaFuzzerGen, FuzzerProp};

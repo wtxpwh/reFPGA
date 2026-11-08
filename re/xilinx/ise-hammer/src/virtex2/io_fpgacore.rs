@@ -1,4 +1,4 @@
-use prjcombine_interconnect::{db::BelSlotId, dir::Dir, grid::TileCoord};
+use prjcombine_interconnect::{coord::TileCoord, db::BelSlotId, dir::Dir};
 use prjcombine_re_collector::diff::{Diff, DiffKey, xlat_bit, xlat_bit_bi, xlat_bit_wide};
 use prjcombine_re_fpga_hammer::{FuzzerFeature, FuzzerProp};
 use prjcombine_re_hammer::{Fuzzer, Session};

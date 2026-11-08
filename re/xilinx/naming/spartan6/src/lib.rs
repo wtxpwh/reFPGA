@@ -1,7 +1,7 @@
 use prjcombine_entity::{EntityId, EntityVec};
 use prjcombine_interconnect::{
+    coord::{BelCoord, CellCoord, ColId, RowId},
     dir::{DirHV, DirV},
-    grid::{BelCoord, CellCoord, ColId, RowId},
 };
 use prjcombine_re_xilinx_naming::{
     db::NamingDb,
@@ -328,7 +328,9 @@ pub fn name_device<'a>(edev: &'a ExpandedDevice<'a>, ndb: &'a NamingDb) -> Expan
                 let name = format!("INT{bram}_X{x}Y{y}");
                 let mut naming = if is_brk { "INT_BRK" } else { "INT" };
                 for &hole in &edev.site_holes {
-                    if hole.contains(cell) && col == hole.col_e - 1 && hole.col_w != hole.col_e - 1
+                    if hole.contains(cell)
+                        && col == hole.cols.last().unwrap()
+                        && hole.cols.len() != 1
                     {
                         let is_brk = y.is_multiple_of(16) && y != 0;
                         naming = if is_brk { "INT_TERM_BRK" } else { "INT_TERM" };
@@ -396,13 +398,13 @@ pub fn name_device<'a>(edev: &'a ExpandedDevice<'a>, ndb: &'a NamingDb) -> Expan
                     naming = "INTF_REGC";
                 }
                 for &hole in &edev.site_holes {
-                    if hole.contains(cell) && hole.col_w != hole.col_e - 1 {
+                    if hole.contains(cell) && hole.cols.len() != 1 {
                         let ry = namer.rylut[row];
-                        if col == hole.col_w {
+                        if col == hole.cols.first().unwrap() {
                             let rx = namer.rxlut[col] + 1;
                             name = format!("INT_INTERFACE_RTERM_X{rx}Y{ry}");
                             naming = "INTF_RTERM";
-                        } else if col == hole.col_e - 1 {
+                        } else if col == hole.cols.last().unwrap() {
                             let rx = namer.rxlut[col] - 1;
                             name = format!("INT_INTERFACE_LTERM_X{rx}Y{ry}");
                             naming = "INTF_LTERM";

@@ -1,6 +1,6 @@
 use prjcombine_interconnect::{
+    coord::TileCoord,
     db::{BelInfo, SwitchBoxItem},
-    grid::TileCoord,
 };
 use prjcombine_re_collector::diff::{Diff, DiffKey, xlat_bit, xlat_enum_attr};
 use prjcombine_re_fpga_hammer::{FuzzerFeature, FuzzerProp};

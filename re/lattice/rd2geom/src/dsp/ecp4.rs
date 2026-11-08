@@ -26,7 +26,7 @@ impl ChipContext<'_> {
                         format!("ALU54_R{r}C{c}", c = c + 3),
                     ],
                 );
-                let cell_base = tcrd.cell.delta((idx as i32) * 4, 0);
+                let cell_base = tcrd.cell.delta(idx * 4, 0);
                 let cell_mult = [cell_base, cell_base.delta(1, 0)];
                 let cell_alu24 = cell_base.delta(2, 0);
                 let cell_alu54 = cell_base.delta(3, 0);

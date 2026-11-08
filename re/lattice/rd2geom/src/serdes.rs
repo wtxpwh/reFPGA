@@ -3,9 +3,9 @@ use prjcombine_ecp::{
     defs::{self, bcls, bslots, tcls, wires},
 };
 use prjcombine_interconnect::{
+    coord::{ColIdExt, RowIdExt},
     db::{CellSlotIdExt, WireSlotIdExt},
     dir::{DirH, DirHV, DirV},
-    grid::{ColIdExt, RowIdExt},
 };
 
 use crate::ChipContext;

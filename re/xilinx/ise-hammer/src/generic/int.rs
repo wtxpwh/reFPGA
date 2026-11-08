@@ -1,10 +1,11 @@
 use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
+    coord::TileCoord,
     db::{
         BelInfo, BelInput, BelSlotId, ProgDelay, SwitchBoxItem, TileClassId, TileWireCoord,
         WireSlotId, WireSlotIdExt,
     },
-    grid::TileCoord,
+    dir::DirV,
 };
 use prjcombine_re_collector::diff::{Diff, DiffKey, OcdMode, xlat_enum_raw};
 use prjcombine_re_fpga_hammer::FuzzerProp;
@@ -111,7 +112,7 @@ impl<'b> FuzzerProp<'b, IseBackend<'b>> for WireIntDstFilter {
                 if backend.edev.db[tile.class].name.starts_with("INT_BRAM") {
                     let mut tgt = None;
                     for i in 0..4 {
-                        let bram_tcrd = tcrd.delta(0, -(i as i32)).tile(tslots_v2::BEL);
+                        let bram_tcrd = tcrd.step(DirV::S, i).tile(tslots_v2::BEL);
                         if edev.has_bel(bram_tcrd.bel(bslots_v2::BRAM))
                             || edev.has_bel(bram_tcrd.bel(bslots_v2::DSP))
                         {

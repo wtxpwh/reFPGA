@@ -9,9 +9,9 @@ use prjcombine_ecp::{
 };
 use prjcombine_entity::{EntityId, EntityIdArith};
 use prjcombine_interconnect::{
+    coord::{BelCoord, CellCoord, ColIdExt, DieIdExt, RowIdExt, RowRangeExt, WireCoord},
     db::{BelInput, CellSlotId, TileWireCoord, WireKind},
     dir::{Dir, DirV},
-    grid::{BelCoord, CellCoord, ColIdExt, DieIdExt, WireCoord},
 };
 use prjcombine_re_lattice_naming::WireName;
 
@@ -225,7 +225,7 @@ impl ChipContext<'_> {
                     }
                     cell_start
                         .col
-                        .range(cell_end.col + 1)
+                        .range_until_inclusive(cell_end.col)
                         .map(|col| cell.with_col(col).wire(wire))
                         .collect()
                 }
@@ -248,7 +248,7 @@ impl ChipContext<'_> {
                     }
                     cell_start
                         .col
-                        .range(cell_end.col + 1)
+                        .range_until_inclusive(cell_end.col)
                         .map(|col| cell.with_col(col).wire(wire))
                         .collect()
                 }
@@ -570,11 +570,13 @@ impl ChipContext<'_> {
             };
             let cell = self.chip.xlat_rc_wire(wn);
             let side = cell.col.side_of(self.chip.col_clk);
-            if matches!(self.chip.kind, ChipKind::Ecp3(_)) && cell.row <= self.chip.row_s() + 9 {
+            if matches!(self.chip.kind, ChipKind::Ecp3(_))
+                && cell.row <= self.chip.row_serdes(DirV::S)
+            {
                 Vec::from_iter(
                     self.chip
                         .row_s()
-                        .range(self.chip.row_s() + 10)
+                        .range_up(10)
                         .into_iter()
                         .flat_map(|row| self.edev.row(cell.die, row))
                         .filter(|cell| cell.col.side_of(self.chip.col_clk) == side)
@@ -584,6 +586,7 @@ impl ChipContext<'_> {
                 Vec::from_iter(
                     self.edev
                         .row(cell.die, cell.row)
+                        .into_iter()
                         .filter(|cell| cell.col.side_of(self.chip.col_clk) == side)
                         .map(|cell| cell.wire(w)),
                 )
@@ -595,11 +598,8 @@ impl ChipContext<'_> {
                 unreachable!()
             };
             let rows = if kind.is_large() {
-                if cell.row < self.chip.row_clk {
-                    self.chip.rows.ids().start().range(self.chip.row_clk)
-                } else {
-                    self.chip.row_clk.range(self.chip.rows.ids().end())
-                }
+                self.chip.rows.ids().split_at(self.chip.row_clk)
+                    [cell.row.side_of(self.chip.row_clk)]
             } else {
                 self.chip.rows.ids()
             };

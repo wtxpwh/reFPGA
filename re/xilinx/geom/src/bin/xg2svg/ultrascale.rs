@@ -1,5 +1,5 @@
 use prjcombine_entity::{EntityId, EntityVec};
-use prjcombine_interconnect::grid::{ColId, DieId, RowId};
+use prjcombine_interconnect::coord::{ColId, DieId, RowId};
 use prjcombine_ultrascale::chip::{Chip, CleMKind, ColumnKind, HardRowKind, IoRowKind};
 use prjcombine_ultrascale::expanded::ExpandedDevice;
 

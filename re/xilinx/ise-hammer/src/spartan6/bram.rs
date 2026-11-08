@@ -1,5 +1,5 @@
 use prjcombine_entity::EntityId;
-use prjcombine_interconnect::{db::BelAttributeType, grid::TileCoord};
+use prjcombine_interconnect::{coord::TileCoord, db::BelAttributeType};
 use prjcombine_re_collector::diff::{
     DiffKey, SpecialId, xlat_bit, xlat_bit_bi, xlat_bit_wide, xlat_bitvec, xlat_enum_attr,
 };

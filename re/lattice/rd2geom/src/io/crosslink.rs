@@ -3,9 +3,9 @@ use prjcombine_ecp::{
     defs::{bcls, bslots, tcls, wires},
 };
 use prjcombine_interconnect::{
+    coord::{BelCoord, CellCoord},
     db::{CellSlotIdExt, WireSlotIdExt},
     dir::Dir,
-    grid::{BelCoord, CellCoord},
 };
 
 use crate::{ChipContext, RcMode};
@@ -371,7 +371,7 @@ impl ChipContext<'_> {
 
     pub(super) fn process_clkdiv_crosslink(&mut self) {
         let cell_tile = self.chip.clk_emid(Dir::S);
-        let cell = cell_tile.delta(-1, 0);
+        let cell = cell_tile.step(Dir::W, 1);
         for i in 0..4 {
             let bcrd = cell_tile.bel(bslots::CLKDIV[i]);
 

@@ -2,7 +2,7 @@ use std::collections::HashSet;
 
 use indicatif::ProgressBar;
 use prjcombine_entity::EntityId;
-use prjcombine_interconnect::grid::{DieId, DieIdExt};
+use prjcombine_interconnect::coord::{DieId, DieIdExt};
 use prjcombine_re_xilinx_geom::{Bond, Chip, DeviceNaming, DisabledPart, Interposer};
 use prjcombine_re_xilinx_naming_virtex4::name_device;
 use prjcombine_re_xilinx_rawdump::{Part, Source};

@@ -1,8 +1,8 @@
 use prjcombine_entity::EntityPartVec;
 use prjcombine_interconnect::{
+    coord::TileCoord,
     db::BelAttributeEnum,
     dir::{DirH, DirHV, DirV},
-    grid::TileCoord,
 };
 use prjcombine_re_collector::diff::{
     Diff, DiffKey, extract_bitvec_val, extract_bitvec_val_part, xlat_bit, xlat_bit_bi,

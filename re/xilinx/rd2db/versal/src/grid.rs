@@ -1,8 +1,8 @@
 use prjcombine_entity::{EntityId, EntityVec};
 use prjcombine_interconnect::{
+    coord::{ColId, DieId, DieIdExt, RowId, TileCoord},
     db::BelSlotId,
     dir::{Dir, DirH, DirV},
-    grid::{ColId, DieId, DieIdExt, RowId, TileCoord},
 };
 use prjcombine_re_xilinx_naming_versal::DeviceNaming;
 use prjcombine_re_xilinx_rawdump::{Coord, NodeOrWire, Part, Tile, TkSiteSlot};

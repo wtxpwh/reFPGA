@@ -2,8 +2,8 @@ use std::{cmp::Ordering, collections::HashSet};
 
 use prjcombine_entity::{EntityId, EntityPartVec, EntityVec};
 use prjcombine_interconnect::{
+    coord::{CellCoord, ColId, DieIdExt, RowId},
     dir::DirV,
-    grid::{CellCoord, ColId, DieIdExt, RowId},
 };
 use prjcombine_re_xilinx_naming::{
     db::NamingDb,

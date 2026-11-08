@@ -6,9 +6,9 @@ use prjcombine_ecp::{
 };
 use prjcombine_entity::{EntityId, EntityRangeVec, EntityVec};
 use prjcombine_interconnect::{
+    coord::{BelCoord, CellCoord, ColId, DieIdExt, RowId},
     db::IntDb,
     dir::{Dir, DirH, DirV},
-    grid::{BelCoord, CellCoord, ColId, DieIdExt, RowId},
 };
 use prjcombine_re_lattice_naming::WireName;
 use prjcombine_re_lattice_rawdump::Grid;

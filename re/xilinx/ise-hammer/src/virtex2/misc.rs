@@ -1,7 +1,7 @@
 use std::collections::HashSet;
 
 use prjcombine_entity::{EntityId, EntityVec};
-use prjcombine_interconnect::{db::BelAttributeId, dir::DirHV, grid::TileCoord};
+use prjcombine_interconnect::{coord::TileCoord, db::BelAttributeId, dir::DirHV};
 use prjcombine_re_collector::diff::{
     Diff, DiffKey, OcdMode, extract_bitvec_val, extract_bitvec_val_part, xlat_bit, xlat_bit_bi,
     xlat_bit_wide, xlat_bit_wide_bi, xlat_enum_attr,

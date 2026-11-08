@@ -1,7 +1,7 @@
 use prjcombine_interconnect::{
+    coord::BelCoord,
     db::WireSlotIdExt,
     dir::{Dir, DirV},
-    grid::BelCoord,
 };
 use prjcombine_re_xilinx_naming_virtex2::ExpandedNamedDevice;
 use prjcombine_re_xilinx_rdverify::{RawWireCoord, Verifier};

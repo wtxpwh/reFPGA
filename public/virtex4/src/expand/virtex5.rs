@@ -1,10 +1,10 @@
 use assert_matches::assert_matches;
 use prjcombine_entity::{EntityId, EntityPartVec, EntityVec};
-use prjcombine_interconnect::db::{IntDb, TileClassId};
-use prjcombine_interconnect::grid::builder::GridBuilder;
-use prjcombine_interconnect::grid::{
+use prjcombine_interconnect::coord::{
     BelCoord, CellCoord, ColId, ColIdExt, DieId, DieIdExt, Rect, RowId, TileIobId,
 };
+use prjcombine_interconnect::db::{IntDb, TileClassId};
+use prjcombine_interconnect::grid::builder::GridBuilder;
 use std::collections::BTreeSet;
 
 use crate::bond::SharedCfgPad;

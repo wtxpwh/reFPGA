@@ -5,9 +5,9 @@ use prjcombine_ecp::{
     defs::bslots,
 };
 use prjcombine_interconnect::{
+    coord::{BelCoord, ColId, DieIdExt},
     db::PinDir,
     dir::{Dir, DirH, DirHV, DirV},
-    grid::{BelCoord, ColId, DieIdExt},
 };
 use prjcombine_re_lattice_naming::WireName;
 

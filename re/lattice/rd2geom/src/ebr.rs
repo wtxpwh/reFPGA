@@ -338,7 +338,7 @@ impl ChipContext<'_> {
         for &tcrd in &self.edev.tile_index[tcid] {
             for i in 0..4 {
                 let bcrd = tcrd.bel(bslots::EBR[i]);
-                let cell = tcrd.delta(2 * (i as i32), 0);
+                let cell = tcrd.delta(2 * i, 0);
                 self.extract_bel_cell(bcrd, cell)
                     .name_rc("EBR")
                     .suffix("EBR");

@@ -2,9 +2,9 @@ use std::collections::{BTreeMap, HashMap, HashSet};
 
 use prjcombine_entity::{EntityId, EntityRangeVec};
 use prjcombine_interconnect::{
+    coord::{BelCoord, CellCoord, RowId},
     db::PinDir,
     dir::{Dir, DirH, DirV},
-    grid::{BelCoord, CellCoord, RowId},
 };
 use prjcombine_siliconblue::{
     chip::{ChipKind, SpecialIoKey, SpecialTileKey},

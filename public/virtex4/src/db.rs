@@ -4,8 +4,8 @@ use bincode::{Decode, Encode};
 use itertools::Itertools;
 use prjcombine_entity::{EntityMap, EntityPartVec, EntityVec};
 use prjcombine_interconnect::{
+    coord::DieId,
     db::{DeviceDataId, IntDb, TableValue},
-    grid::DieId,
 };
 use prjcombine_types::db::{
     BondId, ChipId, DevBondId, DevSpeedId, DeviceCombo, DumpFlags, InterposerId,

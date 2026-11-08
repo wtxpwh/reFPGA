@@ -2,9 +2,9 @@ use std::collections::{BTreeMap, HashMap, HashSet};
 
 use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
+    coord::{BelCoord, DieIdExt},
     db::{BelInfo, SwitchBoxItem},
     dir::{Dir, DirV},
-    grid::{BelCoord, DieIdExt},
 };
 use prjcombine_re_collector::{
     bitdata::CollectorData,

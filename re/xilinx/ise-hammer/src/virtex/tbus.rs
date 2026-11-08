@@ -1,4 +1,4 @@
-use prjcombine_interconnect::grid::TileCoord;
+use prjcombine_interconnect::coord::TileCoord;
 use prjcombine_re_hammer::Session;
 use prjcombine_re_xilinx_geom::ExpandedDevice;
 use prjcombine_virtex::defs::{

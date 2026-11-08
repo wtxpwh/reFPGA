@@ -1,7 +1,7 @@
 use prjcombine_interconnect::{
+    coord::{BelCoord, DieIdExt},
     db::PinDir,
     dir::DirV,
-    grid::{BelCoord, DieIdExt},
 };
 use prjcombine_re_xilinx_naming_versal::ExpandedNamedDevice;
 use prjcombine_re_xilinx_rdverify::Verifier;
@@ -384,7 +384,7 @@ pub fn verify_gt(edev: &ExpandedDevice, vrf: &mut Verifier, bcrd: BelCoord) {
                     if let Some(obel) = obel_n {
                         bel.verify_net(&[bel.wire_far(opin), bel.bel_wire_far(obel, ipin)]);
                     } else {
-                        let obel = bcrd.delta(0, Chip::ROWS_PER_REG as i32).bel(bslots::HNICX);
+                        let obel = bcrd.delta(0, Chip::ROWS_PER_REG).bel(bslots::HNICX);
                         let hpin = &format!("ANLT_FEC_STATUS_P{i}_{j}_");
                         bel.verify_net(&[bel.wire_far(opin), bel.bel_wire_far(obel, hpin)]);
                     }
@@ -418,7 +418,7 @@ pub fn verify_gt(edev: &ExpandedDevice, vrf: &mut Verifier, bcrd: BelCoord) {
                     if let Some(obel) = obel_n {
                         bel.verify_net(&[bel.wire_far(ipin), bel.bel_wire_far(obel, opin)]);
                     } else {
-                        let obel = bcrd.delta(0, Chip::ROWS_PER_REG as i32).bel(bslots::HNICX);
+                        let obel = bcrd.delta(0, Chip::ROWS_PER_REG).bel(bslots::HNICX);
                         bel.verify_net(&[bel.wire_far(ipin), bel.bel_wire_far(obel, &hpin)]);
                     }
                 }
@@ -440,7 +440,7 @@ pub fn verify_gt(edev: &ExpandedDevice, vrf: &mut Verifier, bcrd: BelCoord) {
                             bel.verify_net(&[bel.wire_far(ipin), bel.bel_wire_far(obel, opin)]);
                         } else {
                             let hpin = &format!("STAT_RSFEC_RX{i}_{hname}_{j}_");
-                            let obel = bcrd.delta(0, Chip::ROWS_PER_REG as i32).bel(bslots::HNICX);
+                            let obel = bcrd.delta(0, Chip::ROWS_PER_REG).bel(bslots::HNICX);
                             bel.verify_net(&[bel.wire_far(ipin), bel.bel_wire_far(obel, hpin)]);
                         }
                     }
@@ -453,7 +453,7 @@ pub fn verify_gt(edev: &ExpandedDevice, vrf: &mut Verifier, bcrd: BelCoord) {
                         bel.verify_net(&[bel.wire_far(ipin), bel.bel_wire_far(obel, opin)]);
                     } else {
                         let hpin = &format!("RX_PCS_BS_STATS_C{i}_FEC_LANE_LOCK_{j}_");
-                        let obel = bcrd.delta(0, Chip::ROWS_PER_REG as i32).bel(bslots::HNICX);
+                        let obel = bcrd.delta(0, Chip::ROWS_PER_REG).bel(bslots::HNICX);
                         bel.verify_net(&[bel.wire_far(ipin), bel.bel_wire_far(obel, hpin)]);
                     }
                 }
@@ -477,7 +477,7 @@ pub fn verify_gt(edev: &ExpandedDevice, vrf: &mut Verifier, bcrd: BelCoord) {
                             bel.claim_net(&[bel.wire_far(pin)]);
                         }
                     } else {
-                        let obel = bcrd.delta(0, Chip::ROWS_PER_REG as i32).bel(bslots::HNICX);
+                        let obel = bcrd.delta(0, Chip::ROWS_PER_REG).bel(bslots::HNICX);
                         bel.verify_net(&[bel.wire_far(pin), bel.bel_wire_far(obel, hpin)]);
                     }
 
@@ -496,7 +496,7 @@ pub fn verify_gt(edev: &ExpandedDevice, vrf: &mut Verifier, bcrd: BelCoord) {
                             bel.claim_net(&[bel.wire_far(pin)]);
                         }
                     } else {
-                        let obel = bcrd.delta(0, Chip::ROWS_PER_REG as i32).bel(bslots::HNICX);
+                        let obel = bcrd.delta(0, Chip::ROWS_PER_REG).bel(bslots::HNICX);
                         bel.verify_net(&[bel.wire_far(pin), bel.bel_wire_far(obel, hpin)]);
                     }
                 }
@@ -517,7 +517,7 @@ pub fn verify_gt(edev: &ExpandedDevice, vrf: &mut Verifier, bcrd: BelCoord) {
                     }
                 } else {
                     let hpin = &format!("RX_SERDES_RESET_{i}_");
-                    let obel = bcrd.delta(0, Chip::ROWS_PER_REG as i32).bel(bslots::HNICX);
+                    let obel = bcrd.delta(0, Chip::ROWS_PER_REG).bel(bslots::HNICX);
                     bel.verify_net(&[bel.wire_far(opin), bel.bel_wire_far(obel, hpin)]);
                 }
 
@@ -530,7 +530,7 @@ pub fn verify_gt(edev: &ExpandedDevice, vrf: &mut Verifier, bcrd: BelCoord) {
                         bel.verify_net(&[bel.wire_far(opin), bel.bel_wire_far(obel, ipin)]);
                     } else {
                         let hpin = &format!("TX_SERDES_RESET_{i}_");
-                        let obel = bcrd.delta(0, Chip::ROWS_PER_REG as i32).bel(bslots::HNICX);
+                        let obel = bcrd.delta(0, Chip::ROWS_PER_REG).bel(bslots::HNICX);
                         bel.verify_net(&[bel.wire_far(opin), bel.bel_wire_far(obel, hpin)]);
                     }
                 }
@@ -544,7 +544,7 @@ pub fn verify_gt(edev: &ExpandedDevice, vrf: &mut Verifier, bcrd: BelCoord) {
                     let hpin = &format!("{hname}_{j}_");
                     bel = bel.extra_out_far(pin);
                     if obel_n.is_none() {
-                        let obel = bcrd.delta(0, Chip::ROWS_PER_REG as i32).bel(bslots::HNICX);
+                        let obel = bcrd.delta(0, Chip::ROWS_PER_REG).bel(bslots::HNICX);
                         bel.verify_net(&[bel.wire_far(pin), bel.bel_wire_far(obel, hpin)]);
                     } else {
                         bel.claim_net(&[bel.wire_far(pin)]);

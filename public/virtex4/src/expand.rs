@@ -1,8 +1,8 @@
 use crate::chip::{Chip, ChipKind, DisabledPart, Interposer};
 use crate::expanded::ExpandedDevice;
 use prjcombine_entity::EntityVec;
+use prjcombine_interconnect::coord::DieId;
 use prjcombine_interconnect::db::IntDb;
-use prjcombine_interconnect::grid::DieId;
 use std::collections::BTreeSet;
 
 mod virtex4;

@@ -1,8 +1,8 @@
 use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
+    coord::{BelCoord, ColId, DieIdExt, RowId},
     db::PinDir,
     dir::DirV,
-    grid::{BelCoord, ColId, DieIdExt, RowId},
 };
 use prjcombine_re_xilinx_rdverify::Verifier;
 use prjcombine_versal::{
@@ -104,10 +104,7 @@ pub fn verify_cpm4(vrf: &mut Verifier, bcrd: BelCoord) {
 }
 
 fn xlat_cpm5_gt_pin(bcrd: BelCoord, pin: &str) -> Option<(BelCoord, String)> {
-    let gtyp = |quad| {
-        bcrd.delta(0, (Chip::ROWS_PER_REG * quad) as i32)
-            .bel(bslots::GTYP)
-    };
+    let gtyp = |quad| bcrd.delta(0, Chip::ROWS_PER_REG * quad).bel(bslots::GTYP);
     let (pin, idx) = if let Some(pre) = pin.strip_suffix('_') {
         let (pin, idx) = pre.rsplit_once('_').unwrap();
         let idx: usize = idx.parse().unwrap();
@@ -999,7 +996,7 @@ pub fn verify_mmi(edev: &ExpandedDevice, vrf: &mut Verifier, bcrd: BelCoord) {
     let naming = vrf.ngrid.get_bel_naming(bcrd);
     let has_int = edev[edev.bel_tile(bcrd)].class != tcls::MMI_NC;
     let gt = if has_int {
-        bcrd.delta(0, Chip::ROWS_PER_REG as i32)
+        bcrd.delta(0, Chip::ROWS_PER_REG)
     } else {
         bcrd.cell
     }

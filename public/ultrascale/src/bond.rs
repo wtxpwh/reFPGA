@@ -1,6 +1,6 @@
 use bincode::{Decode, Encode};
 use itertools::Itertools;
-use prjcombine_interconnect::grid::{DieId, TileIobId};
+use prjcombine_interconnect::coord::{DieId, TileIobId};
 use std::collections::BTreeMap;
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Encode, Decode)]

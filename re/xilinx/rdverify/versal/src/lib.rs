@@ -1,9 +1,9 @@
 use indicatif::ProgressBar;
 use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
+    coord::{BelCoord, ColId, DieIdExt},
     db::{BelInfo, PinDir, SwitchBoxItem},
     dir::DirV,
-    grid::{BelCoord, ColId, DieIdExt},
 };
 use prjcombine_re_xilinx_naming_versal::ExpandedNamedDevice;
 use prjcombine_re_xilinx_rawdump::Part;

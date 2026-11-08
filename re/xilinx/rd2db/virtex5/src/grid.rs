@@ -1,5 +1,5 @@
 use prjcombine_entity::{EntityId, EntityVec};
-use prjcombine_interconnect::grid::{ColId, RowId};
+use prjcombine_interconnect::coord::{ColId, RowId};
 use prjcombine_re_xilinx_rawdump::Part;
 use prjcombine_virtex4::chip::{Chip, ChipKind, ColumnKind, GtColumn, GtKind, HardColumn, RegId};
 use std::collections::BTreeSet;

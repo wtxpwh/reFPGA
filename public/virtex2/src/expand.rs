@@ -1,8 +1,8 @@
-use prjcombine_entity::{EntityId, EntityPartVec, EntityVec};
+use prjcombine_entity::{EntityId, EntityIdArith, EntityPartVec, EntityVec};
+use prjcombine_interconnect::coord::{CellCoord, ColId, ColIdExt, DieId, DieIdExt, Rect, RowIdExt};
 use prjcombine_interconnect::db::IntDb;
-use prjcombine_interconnect::dir::DirHV;
+use prjcombine_interconnect::dir::{Dir, DirHV};
 use prjcombine_interconnect::grid::builder::GridBuilder;
-use prjcombine_interconnect::grid::{CellCoord, ColId, ColIdExt, DieId, DieIdExt, Rect, RowIdExt};
 
 use crate::bitstream::FrameAddr;
 use crate::chip::{Chip, ChipKind, ColumnIoKind, ColumnKind, DcmPairKind};
@@ -334,10 +334,8 @@ impl Expander<'_, '_> {
             if let Some(rows_ram) = self.chip.rows_ram {
                 self.holes.push(Rect {
                     die: self.die,
-                    col_w: col,
-                    col_e: col + 4,
-                    row_s: rows_ram.start() - 1,
-                    row_n: rows_ram.end() + 1,
+                    cols: col.range_up(4),
+                    rows: (rows_ram.start() - 1usize).range_until(rows_ram.end() + 1),
                 });
                 for d in 1..4 {
                     self.egrid.fill_conn_pair(
@@ -589,11 +587,11 @@ impl Expander<'_, '_> {
             let cell_s = self.die.cell(col, self.chip.row_s());
             let cell_n = self.die.cell(col, self.chip.row_n());
             if self.chip.kind == ChipKind::Virtex2PX {
-                self.holes.push(cell_s.rect(1, 9));
-                self.holes.push(cell_n.delta(0, -8).rect(1, 9));
+                self.holes.push(cell_s.rect_dir_inclusive(Dir::N, 9));
+                self.holes.push(cell_n.rect_dir_inclusive(Dir::S, 9));
             } else {
-                self.holes.push(cell_s.rect(1, 5));
-                self.holes.push(cell_n.delta(0, -4).rect(1, 5));
+                self.holes.push(cell_s.rect_dir_inclusive(Dir::N, 5));
+                self.holes.push(cell_n.rect_dir_inclusive(Dir::S, 5));
             }
             self.egrid.add_tile_single(cell_s, tcls::INT_GT_CLKPAD);
             self.egrid.add_tile_single(cell_n, tcls::INT_GT_CLKPAD);

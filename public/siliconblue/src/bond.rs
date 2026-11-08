@@ -2,7 +2,7 @@ use std::collections::BTreeMap;
 
 use bincode::{Decode, Encode};
 use itertools::Itertools;
-use prjcombine_interconnect::{db::IntDb, grid::BelPadCoord};
+use prjcombine_interconnect::{coord::BelPadCoord, db::IntDb};
 
 use crate::defs;
 

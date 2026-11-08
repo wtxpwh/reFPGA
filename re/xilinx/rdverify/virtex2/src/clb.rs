@@ -1,4 +1,4 @@
-use prjcombine_interconnect::grid::BelCoord;
+use prjcombine_interconnect::coord::BelCoord;
 use prjcombine_re_xilinx_naming_virtex2::ExpandedNamedDevice;
 use prjcombine_re_xilinx_rdverify::Verifier;
 use prjcombine_virtex2::{chip::ColumnKind, defs::bslots};

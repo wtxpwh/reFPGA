@@ -1,8 +1,9 @@
 use prjcombine_entity::{EntityId, EntityPartVec, EntityVec};
 use prjcombine_interconnect::{
+    coord::{ColId, DieIdExt, RowId},
     db::{IntDb, TileClassId},
     dir::{DirH, DirHV, DirV},
-    grid::{ColId, DieIdExt, RowId, builder::GridBuilder},
+    grid::builder::GridBuilder,
 };
 
 use crate::{

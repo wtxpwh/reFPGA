@@ -1,5 +1,5 @@
 use prjcombine_entity::{EntityId, EntityVec};
-use prjcombine_interconnect::{db::WireSlotIdExt, dir::DirH, grid::TileCoord};
+use prjcombine_interconnect::{coord::TileCoord, db::WireSlotIdExt, dir::DirH};
 use prjcombine_re_collector::diff::{
     Diff, DiffKey, OcdMode, extract_bitvec_val_part, xlat_bit, xlat_enum_raw,
 };

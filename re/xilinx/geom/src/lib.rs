@@ -1,7 +1,8 @@
 use bincode::{Decode, Encode};
 use prjcombine_entity::{EntityVec, entity_id_u16};
+use prjcombine_interconnect::coord::{DieId, TileCoord};
 use prjcombine_interconnect::db::IntDb;
-use prjcombine_interconnect::grid::{DieId, ExpandedGrid, TileCoord};
+use prjcombine_interconnect::grid::ExpandedGrid;
 use prjcombine_re_xilinx_naming::db::NamingDb;
 use prjcombine_re_xilinx_naming::grid::ExpandedGridNaming;
 use prjcombine_types::bitrect::{BitRectId, RectBitId, RectFrameId};

@@ -1,8 +1,8 @@
 use prjcombine_entity::{EntityId, EntityPartVec, EntityVec};
 use prjcombine_interconnect::{
+    coord::{CellCoord, DieIdExt},
     db::CellSlotId,
     dir::DirH,
-    grid::{CellCoord, DieIdExt},
 };
 use prjcombine_re_xilinx_naming::{
     db::NamingDb,

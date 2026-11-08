@@ -8,7 +8,7 @@ impl ChipContext<'_> {
             for &tcrd in &self.edev.tile_index[tcid] {
                 for idx in 0..2 {
                     let bcrd = tcrd.bel(bslots::DSP[idx]);
-                    let cell = tcrd.delta(idx as i32 * 4, 0);
+                    let cell = tcrd.delta(idx * 4, 0);
                     let (r, c) = self.rc(tcrd.cell);
                     let c = c + (idx as u16) * 4;
                     let c1 = c + 1;
@@ -57,7 +57,7 @@ impl ChipContext<'_> {
                     let mut bel = self.extract_bel(bcrd);
                     bel.names(names);
                     for i in 0..2 {
-                        let cur_cell = cell.delta(i as i32 + 1, 0);
+                        let cur_cell = cell.delta(i + 1, 0);
                         bel.cell = cur_cell;
                         let ii = idx * 2 + i;
                         for (j, hl) in ['L', 'H'].into_iter().enumerate() {

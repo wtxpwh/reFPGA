@@ -1,7 +1,7 @@
 use prjcombine_entity::EntityPartVec;
 use prjcombine_interconnect::{
+    coord::TileCoord,
     db::{BelAttributeEnum, BelAttributeType, BelInputId, WireSlotIdExt},
-    grid::TileCoord,
 };
 use prjcombine_re_collector::diff::{Diff, OcdMode, xlat_bit, xlat_enum_attr};
 use prjcombine_re_fpga_hammer::FuzzerProp;

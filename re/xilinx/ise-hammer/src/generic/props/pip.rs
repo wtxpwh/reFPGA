@@ -2,8 +2,8 @@ use core::fmt::Debug;
 
 use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
+    coord::TileCoord,
     db::{BelSlotId, TileWireCoord, WireSlotId, WireSlotIdExt},
-    grid::TileCoord,
 };
 use prjcombine_re_fpga_hammer::FuzzerProp;
 use prjcombine_re_hammer::Fuzzer;

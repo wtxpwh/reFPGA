@@ -9,13 +9,14 @@ use prjcombine_entity::{
     EntityVec, entity_id_u32,
 };
 use prjcombine_interconnect::{
+    coord::{BelCoord, CellCoord, TileCoord, WireCoord},
     db::{
         BelBidirId, BelInfo, BelInputId, BelKind, BelOutputId, BelSlotId, BiPass, IntDb, Mux, Pass,
         PermaBuf, PolTileWireCoord, ProgBuf, SwitchBoxItem, TileClassId, TileSlotId, TileWireCoord,
         WireSlotId,
     },
     dir::Dir,
-    grid::{BelCoord, CellCoord, ExpandedGrid, TileCoord, WireCoord},
+    grid::ExpandedGrid,
 };
 use prjcombine_re_xilinx_xact_data::die::{BoxId, Die, PrimId};
 use prjcombine_re_xilinx_xact_naming::{

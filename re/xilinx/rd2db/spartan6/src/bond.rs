@@ -1,6 +1,6 @@
 use std::collections::{BTreeMap, BTreeSet, HashMap};
 
-use prjcombine_interconnect::grid::{BelCoord, BelPadCoord};
+use prjcombine_interconnect::coord::{BelCoord, BelPadCoord};
 use prjcombine_re_xilinx_rawdump::PkgPin;
 use prjcombine_spartan6::{bond::Bond, defs::bcls};
 

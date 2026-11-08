@@ -2,9 +2,9 @@ use bincode::{Decode, Encode};
 use itertools::Itertools;
 use prjcombine_entity::{EntityId, EntityRange, EntityVec, entity_id_u8};
 use prjcombine_interconnect::{
+    coord::{BelCoord, BelPadCoord, ColId, DieId, DieIdExt, RowId, TileCoord},
     db::{BelSlotId, IntDb},
     dir::{Dir, DirH, DirHV, DirV},
-    grid::{BelCoord, BelPadCoord, ColId, DieId, DieIdExt, RowId, TileCoord},
 };
 use prjcombine_types::enumerable::EnumMap;
 use std::collections::BTreeMap;

@@ -4,11 +4,11 @@ use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet, btree_map, hash_map
 use itertools::Itertools;
 use prjcombine_entity::{EntityId, EntityPartVec, EntityVec, entity_id_u16};
 use prjcombine_interconnect::{
+    coord::{BelCoord, PolWireCoord, WireCoord},
     db::{
         BelAttributeEnum, BelAttributeId, BelInputId, BelSlotId, ConnectorSlotId, EnumValueId,
         PolTileWireCoord, TableRowId, TileClassId, TileWireCoord,
     },
-    grid::{BelCoord, PolWireCoord, WireCoord},
 };
 use prjcombine_types::{
     bitrect::{BitRectId, PolTileBit, TileBit},

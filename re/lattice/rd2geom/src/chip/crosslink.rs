@@ -4,8 +4,8 @@ use prjcombine_ecp::{
 };
 use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
+    coord::{ColId, DieIdExt},
     dir::{Dir, DirH, DirHV, DirV},
-    grid::{ColId, DieIdExt},
 };
 
 use crate::chip::{ChipBuilder, ChipExt};

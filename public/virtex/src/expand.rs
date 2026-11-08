@@ -1,8 +1,8 @@
 use prjcombine_entity::{EntityId, EntityPartVec, EntityVec};
+use prjcombine_interconnect::coord::{ColId, DieId, DieIdExt, WireCoord};
 use prjcombine_interconnect::db::IntDb;
 use prjcombine_interconnect::dir::{DirH, DirV};
 use prjcombine_interconnect::grid::builder::GridBuilder;
-use prjcombine_interconnect::grid::{ColId, DieId, DieIdExt, WireCoord};
 use std::collections::{BTreeSet, HashSet};
 
 use crate::bitstream::FrameAddr;

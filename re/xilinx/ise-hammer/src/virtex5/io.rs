@@ -2,8 +2,8 @@ use std::collections::BTreeSet;
 
 use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
+    coord::{DieId, DieIdExt, RowId, TileCoord, TileIobId},
     db::{BelAttributeEnum, EnumValueId, TableRowId, TileClassId, WireSlotIdExt},
-    grid::{DieId, DieIdExt, RowId, TileCoord, TileIobId},
 };
 use prjcombine_re_collector::diff::{
     Diff, DiffKey, OcdMode, SpecialId, extract_bitvec_val, extract_bitvec_val_part, xlat_bit,

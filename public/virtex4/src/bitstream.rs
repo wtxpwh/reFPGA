@@ -1,7 +1,7 @@
 use std::collections::{BTreeMap, HashMap};
 
 use prjcombine_entity::{EntityId, EntityVec};
-use prjcombine_interconnect::{dir::DirV, grid::DieId};
+use prjcombine_interconnect::{coord::DieId, dir::DirV};
 use prjcombine_types::{
     bitrect::{RectBitId, RectFrameId},
     bitvec::BitVec,

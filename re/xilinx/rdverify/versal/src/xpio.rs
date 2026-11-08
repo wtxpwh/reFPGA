@@ -1,5 +1,5 @@
 use prjcombine_entity::EntityId;
-use prjcombine_interconnect::grid::BelCoord;
+use prjcombine_interconnect::{coord::BelCoord, dir::Dir};
 use prjcombine_re_xilinx_rdverify::Verifier;
 use prjcombine_versal::{
     defs::{bslots, tcls},
@@ -326,7 +326,7 @@ pub fn verify_xpiologic(edev: &ExpandedDevice, vrf: &mut Verifier, bcrd: BelCoor
 pub fn verify_xphy(edev: &ExpandedDevice, vrf: &mut Verifier, bcrd: BelCoord) {
     let tcrd = edev.bel_tile(bcrd);
     let bidx = bcrd.col.to_idx() % 9;
-    let bank_cell = bcrd.delta(-(bidx as i32), 0);
+    let bank_cell = bcrd.step(Dir::W, bidx);
     let is_nc = edev[tcrd].class == tcls::XPIO_NC;
     let mut bel = vrf
         .verify_bel(bcrd)
@@ -586,7 +586,7 @@ pub fn verify_xphy(edev: &ExpandedDevice, vrf: &mut Verifier, bcrd: BelCoord) {
         ]);
     }
     let obidx = [2, 3, 5, 6, 7, 2, 3, 5, 6][bidx];
-    let obel = bank_cell.delta(obidx as i32, 0).bel(bslots::XPHY);
+    let obel = bank_cell.delta(obidx, 0).bel(bslots::XPHY);
     bel.verify_net(&[
         bel.wire_far("CLK_FROM_OTHER_XPHY"),
         bel.bel_wire_far(

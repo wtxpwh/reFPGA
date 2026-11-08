@@ -4,11 +4,11 @@ use prjcombine_ecp::{
     chip::{Chip, ChipKind, Ecp3Kind, RowKind},
     defs::{self, bcls, bslots, ecp3::tcls::CLK_ROOT, tcls, wires},
 };
-use prjcombine_entity::{EntityId, EntityIdArith};
+use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
+    coord::{ColId, ColIdExt, DieIdExt, RowIdExt, RowRangeExt},
     db::{CellSlotIdExt, WireSlotIdExt},
     dir::{DirH, DirHV, DirV},
-    grid::{ColId, ColIdExt, DieIdExt, RowIdExt},
 };
 use prjcombine_re_lattice_naming::WireName;
 
@@ -277,11 +277,12 @@ impl ChipContext<'_> {
                 let wire = self.naming.interconnect[&Chip::DIE.cell(col, row).wire(w)];
                 let wire = self.find_single_in(wire);
                 self.add_bel_wire(bcrd, format!("{name}_{hv}"), wire);
-                let (row_s, row_n) = match hv.v {
-                    DirV::S => (chip.row_s() + 9, chip.row_clk),
-                    DirV::N => (chip.row_clk, chip.row_n() + 1),
-                };
-                for row in row_s.range(row_n) {
+                let rows = chip
+                    .rows
+                    .ids()
+                    .with_row(DirV::S, chip.row_serdes(DirV::S))
+                    .split_at(chip.row_clk)[hv.v];
+                for row in rows {
                     let wire_int = self.naming.interconnect[&Chip::DIE.cell(col, row).wire(w)];
                     self.claim_pip(wire_int, wire);
                 }

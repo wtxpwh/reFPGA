@@ -3,7 +3,7 @@ use std::{collections::BTreeSet, error::Error, fs::File, path::Path};
 use bincode::{Decode, Encode};
 use itertools::Itertools;
 use prjcombine_entity::{EntityMap, EntityVec};
-use prjcombine_interconnect::{db::IntDb, grid::DieId};
+use prjcombine_interconnect::{coord::DieId, db::IntDb};
 use prjcombine_types::db::{
     BondId, ChipId, DevBondId, DevSpeedId, DeviceCombo, DumpFlags, InterposerId,
 };

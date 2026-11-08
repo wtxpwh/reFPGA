@@ -2,8 +2,8 @@ use std::collections::{BTreeMap, BTreeSet};
 
 use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
+    coord::{CellCoord, DieIdExt, EdgeIoCoord, TileIobId},
     dir::{DirH, DirV},
-    grid::{CellCoord, DieIdExt, EdgeIoCoord, TileIobId},
 };
 use prjcombine_types::bscan::{BScanBuilder, BScanPad};
 

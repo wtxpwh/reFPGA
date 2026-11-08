@@ -1,7 +1,7 @@
 use prjcombine_entity::{EntityId, EntityVec};
 use prjcombine_interconnect::{
+    coord::{CellCoord, ColId, DieId, RowId},
     dir::DirH,
-    grid::{CellCoord, ColId, DieId, RowId},
 };
 use prjcombine_re_xilinx_naming::{db::NamingDb, grid::ExpandedGridNaming};
 use prjcombine_virtex4::{

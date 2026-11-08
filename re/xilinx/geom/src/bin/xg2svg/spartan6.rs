@@ -1,6 +1,6 @@
 use prjcombine_entity::{EntityId, EntityVec};
+use prjcombine_interconnect::coord::{DieId, DieIdExt};
 use prjcombine_interconnect::dir::{DirH, DirV};
-use prjcombine_interconnect::grid::{DieId, DieIdExt};
 use prjcombine_spartan6::chip::{ColumnIoKind, ColumnKind, Gts};
 use prjcombine_spartan6::expanded::ExpandedDevice;
 

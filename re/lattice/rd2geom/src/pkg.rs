@@ -9,8 +9,8 @@ use prjcombine_ecp::{
 };
 use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
+    coord::{CellCoord, ColId, ColIdExt, DieIdExt, EdgeIoCoord, RowId, RowIdExt, TileIobId},
     dir::{Dir, DirH, DirHV, DirV},
-    grid::{CellCoord, ColId, ColIdExt, DieIdExt, EdgeIoCoord, RowId, RowIdExt, TileIobId},
 };
 use prjcombine_re_lattice_rawdump::Part;
 use prjcombine_types::{Polarity, bscan::BScanPad, enumerable::EnumMap};

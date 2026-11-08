@@ -5,8 +5,9 @@ use std::{
 
 use prjcombine_entity::{EntityPartVec, EntityVec};
 use prjcombine_interconnect::{
+    coord::{BelCoord, TileCoord},
     db::{BelSlotId, TileWireCoord},
-    grid::{BelCoord, ExpandedGrid, TileCoord},
+    grid::ExpandedGrid,
 };
 
 use crate::db::{IntPipNaming, NamingDb, TileNamingId, TileRawCellId};

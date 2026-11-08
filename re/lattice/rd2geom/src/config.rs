@@ -3,9 +3,9 @@ use prjcombine_ecp::{
     defs::{bcls, bslots, tcls, wires},
 };
 use prjcombine_interconnect::{
+    coord::DieIdExt,
     db::WireSlotIdExt,
     dir::{DirH, DirHV, DirV},
-    grid::DieIdExt,
 };
 use prjcombine_re_lattice_naming::WireName;
 

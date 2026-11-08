@@ -1,11 +1,11 @@
 use bimap::BiHashMap;
 use prjcombine_entity::{EntityId, EntityIdArith, EntityPartVec, EntityVec};
+use prjcombine_interconnect::coord::{
+    BelCoord, CellCoord, ColId, ColIdExt, DieId, DieIdExt, Rect, RowId, RowIdExt, TileIobId,
+};
 use prjcombine_interconnect::db::IntDb;
 use prjcombine_interconnect::dir::DirH;
 use prjcombine_interconnect::grid::builder::GridBuilder;
-use prjcombine_interconnect::grid::{
-    BelCoord, CellCoord, ColId, ColIdExt, DieId, DieIdExt, Rect, RowId, RowIdExt, TileIobId,
-};
 use std::collections::BTreeSet;
 
 use crate::bond::SharedCfgPad;
@@ -767,7 +767,7 @@ impl DieExpander<'_, '_, '_> {
             }
             // east side
             let mut prev = None;
-            for cell in self.egrid.row(self.die, row).rev() {
+            for cell in self.egrid.row(self.die, row).into_iter().rev() {
                 if let Some(tile) = self.egrid.get_tile(cell.tile(tslots::BEL))
                     && matches!(
                         tile.class,
@@ -1269,7 +1269,7 @@ pub fn expand_grid<'a>(
         let cell = die.cell(col_clk, RowId::from_idx(0));
         let mut tcells = vec![cell];
         for col in get_gtz_cols(chips[die], 46, 40) {
-            for row in RowId::from_idx(1).range(RowId::from_idx(50)) {
+            for row in RowId::from_idx(1).range_up(49) {
                 tcells.push(die.cell(col, row));
             }
         }
@@ -1282,7 +1282,7 @@ pub fn expand_grid<'a>(
         let cell = die.cell(col_clk, row_base + 49);
         let mut tcells = vec![cell];
         for col in get_gtz_cols(chips[die], 40, 46) {
-            for row in row_base.range(row_base + 49) {
+            for row in row_base.range_up(49) {
                 tcells.push(die.cell(col, row));
             }
         }

@@ -6,9 +6,9 @@ use prjcombine_ecp::{
 };
 use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
+    coord::{DieIdExt, WireCoord},
     db::{CellSlotId, CellSlotIdExt, WireSlotIdExt},
     dir::{Dir, DirH, DirHV, DirV},
-    grid::{DieIdExt, WireCoord},
 };
 use prjcombine_re_lattice_naming::WireName;
 

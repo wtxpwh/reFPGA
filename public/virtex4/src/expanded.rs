@@ -5,11 +5,12 @@ use crate::defs::{self, bslots, tslots};
 use arrayvec::ArrayVec;
 use bimap::BiHashMap;
 use prjcombine_entity::{EntityId, EntityPartVec, EntityVec};
+use prjcombine_interconnect::coord::{BelCoord, DieIdExt};
 use prjcombine_interconnect::dir::{Dir, DirV};
-use prjcombine_interconnect::grid::{BelCoord, DieIdExt};
 use prjcombine_interconnect::{
+    coord::{CellCoord, ColId, DieId, Rect, RowId, TileCoord, TileIobId},
     dir::DirH,
-    grid::{CellCoord, ColId, DieId, ExpandedGrid, Rect, RowId, TileCoord, TileIobId},
+    grid::ExpandedGrid,
 };
 use prjcombine_types::bitrect::BitRectId;
 use std::collections::BTreeSet;

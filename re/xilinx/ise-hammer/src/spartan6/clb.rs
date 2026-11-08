@@ -1,5 +1,5 @@
 use prjcombine_entity::EntityId;
-use prjcombine_interconnect::grid::TileCoord;
+use prjcombine_interconnect::coord::TileCoord;
 use prjcombine_re_collector::diff::OcdMode;
 use prjcombine_re_hammer::Session;
 use prjcombine_spartan6::defs::{bcls, bslots, enums, tcls, tslots};

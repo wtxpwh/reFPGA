@@ -2,10 +2,9 @@ use std::collections::{BTreeSet, HashMap, hash_map};
 
 use prjcombine_entity::{EntityId, EntityPartVec, EntityVec};
 use prjcombine_interconnect::{
+    coord::{BelCoord, ColId, ConnectorCoord, DieId, RowId, TileCoord, WireCoord},
     db::{BelSlotId, ConnectorWire, TileClass, TileClassId, WireKind},
-    grid::{
-        BelCoord, ColId, ConnectorCoord, DieId, ExpandedGrid, RowId, TileCoord, TilePip, WireCoord,
-    },
+    grid::{ExpandedGrid, TilePip},
 };
 
 use crate::db::{

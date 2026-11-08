@@ -1,9 +1,9 @@
 use prjcombine_entity::{EntityId, EntityPartVec, EntityVec};
-use prjcombine_interconnect::db::IntDb;
-use prjcombine_interconnect::grid::builder::GridBuilder;
-use prjcombine_interconnect::grid::{
+use prjcombine_interconnect::coord::{
     BelCoord, CellCoord, ColId, ColIdExt, DieId, DieIdExt, Rect, RowId, RowIdExt, TileIobId,
 };
+use prjcombine_interconnect::db::IntDb;
+use prjcombine_interconnect::grid::builder::GridBuilder;
 
 use crate::bond::SharedCfgPad;
 use crate::chip::{CfgRowKind, Chip, ColumnKind, DisabledPart};
@@ -195,7 +195,7 @@ impl Expander<'_, '_> {
 
         let mut prev = None;
         let mut prev_ccm = false;
-        for cell in self.egrid.column(self.die, self.col_cfg).rev() {
+        for cell in self.egrid.column(self.die, self.col_cfg).into_iter().rev() {
             if cell.row < self.chip.row_bufg() {
                 break;
             }

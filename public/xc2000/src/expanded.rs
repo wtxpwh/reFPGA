@@ -1,7 +1,8 @@
 use prjcombine_entity::{EntityPartVec, EntityVec};
 use prjcombine_interconnect::{
+    coord::{ColId, RowId, TileCoord},
     dir::{DirH, DirV},
-    grid::{ColId, ExpandedGrid, RowId, TileCoord},
+    grid::ExpandedGrid,
 };
 use prjcombine_types::bitrect::BitRectId;
 

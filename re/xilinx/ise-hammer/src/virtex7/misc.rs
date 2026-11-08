@@ -1,4 +1,4 @@
-use prjcombine_interconnect::{db::BelAttributeEnum, grid::TileCoord};
+use prjcombine_interconnect::{coord::TileCoord, db::BelAttributeEnum};
 use prjcombine_re_collector::diff::{
     OcdMode, extract_bitvec_val, xlat_bit, xlat_bit_wide, xlat_bit_wide_bi,
 };

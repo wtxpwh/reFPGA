@@ -3,8 +3,8 @@ use prjcombine_ecp::{
     defs::{bslots, wires},
 };
 use prjcombine_interconnect::{
+    coord::{BelCoord, WireCoord},
     dir::Dir,
-    grid::{BelCoord, WireCoord},
 };
 use prjcombine_re_lattice_naming::WireName;
 

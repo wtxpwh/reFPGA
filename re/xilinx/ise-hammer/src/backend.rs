@@ -1,8 +1,7 @@
 use prjcombine_entity::EntityVec;
+use prjcombine_interconnect::coord::{BelCoord, CellCoord, RowId, TileCoord, WireCoord};
 use prjcombine_interconnect::db::{BelInputId, TileWireCoord};
-use prjcombine_interconnect::grid::{
-    BelCoord, CellCoord, ExpandedGrid, RowId, TileCoord, WireCoord,
-};
+use prjcombine_interconnect::grid::ExpandedGrid;
 use prjcombine_re_collector::diff::SpecialId;
 use prjcombine_re_fpga_hammer::{FpgaBackend, FuzzerInfo, State};
 use prjcombine_re_hammer::{Backend, FuzzerId};

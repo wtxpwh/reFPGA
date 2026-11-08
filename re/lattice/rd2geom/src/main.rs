@@ -14,8 +14,8 @@ use prjcombine_ecp::{
 };
 use prjcombine_entity::{EntityId, EntityVec};
 use prjcombine_interconnect::{
+    coord::{BelCoord, CellCoord, EdgeIoCoord, WireCoord},
     db::{BelInfo, BelSlotId, IntDb, TileClassId, TileWireCoord},
-    grid::{BelCoord, CellCoord, EdgeIoCoord, WireCoord},
 };
 use prjcombine_re_lattice_naming::{ChipNaming, Database, WireName};
 use prjcombine_re_lattice_rawdump::{Grid, Part};

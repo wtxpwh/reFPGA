@@ -1,7 +1,7 @@
 use std::collections::{HashMap, hash_map};
 
 use prjcombine_entity::{EntityId, entity_id_u8};
-use prjcombine_interconnect::{db::IntDb, grid::BelCoord};
+use prjcombine_interconnect::{coord::BelCoord, db::IntDb};
 
 entity_id_u8!(pub NocPortId, NocPortTag tag, "P");
 

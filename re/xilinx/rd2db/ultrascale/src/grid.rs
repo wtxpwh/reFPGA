@@ -1,7 +1,7 @@
 use prjcombine_entity::{EntityId, EntityVec};
 use prjcombine_interconnect::{
+    coord::{ColId, DieId, RowId, TileIobId},
     dir::Dir,
-    grid::{ColId, DieId, RowId, TileIobId},
 };
 use prjcombine_re_xilinx_naming_ultrascale::DeviceNaming;
 use prjcombine_re_xilinx_rawdump::{Coord, NodeId, Part};

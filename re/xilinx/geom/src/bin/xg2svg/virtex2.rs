@@ -1,5 +1,5 @@
 use prjcombine_entity::{EntityIdArith, EntityVec};
-use prjcombine_interconnect::grid::{DieIdExt, RowId};
+use prjcombine_interconnect::coord::DieIdExt;
 use prjcombine_virtex2::chip::{Chip, ChipKind, ColumnIoKind, ColumnKind, DcmPairKind, RowIoKind};
 use prjcombine_virtex2::expanded::ExpandedDevice;
 
@@ -112,10 +112,10 @@ pub fn draw_device(name: &str, edev: ExpandedDevice) -> Drawer {
         if cd.kind != prjcombine_virtex2::chip::ColumnKind::Bram {
             continue;
         }
-        let rows = edev.chip.rows_ram.unwrap_or({
-            let row_b: RowId = edev.chip.row_s() + 1;
-            row_b.range(edev.chip.row_n())
-        });
+        let rows = edev
+            .chip
+            .rows_ram
+            .unwrap_or((edev.chip.row_s() + 1usize).range_until(edev.chip.row_n()));
         for row in rows.into_iter().step_by(4) {
             if edev.chip.kind != ChipKind::Spartan3E && edev.is_in_hole(Chip::DIE.cell(col, row)) {
                 continue;

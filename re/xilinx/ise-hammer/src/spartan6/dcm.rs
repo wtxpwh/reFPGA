@@ -1,7 +1,7 @@
 use prjcombine_entity::EntityPartVec;
 use prjcombine_interconnect::{
+    coord::TileCoord,
     db::{BelAttributeEnum, BelAttributeType, WireSlotIdExt},
-    grid::TileCoord,
 };
 use prjcombine_re_collector::diff::{
     Diff, DiffKey, OcdMode, SpecialId, xlat_bit, xlat_bitvec, xlat_enum_attr, xlat_enum_raw,

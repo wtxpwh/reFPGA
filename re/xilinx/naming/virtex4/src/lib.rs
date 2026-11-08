@@ -1,5 +1,5 @@
 use prjcombine_entity::EntityId;
-use prjcombine_interconnect::grid::{BelCoord, CellCoord, DieId, DieIdExt};
+use prjcombine_interconnect::coord::{BelCoord, CellCoord, DieId, DieIdExt};
 use prjcombine_re_xilinx_naming::{db::NamingDb, grid::ExpandedGridNaming};
 use prjcombine_virtex4::{
     bond::PsPad,

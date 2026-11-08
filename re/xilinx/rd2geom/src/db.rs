@@ -1,6 +1,6 @@
 use prjcombine_entity::{EntityMap, EntitySet, EntityVec};
+use prjcombine_interconnect::coord::DieId;
 use prjcombine_interconnect::db::IntDb;
-use prjcombine_interconnect::grid::DieId;
 use prjcombine_re_xilinx_geom::{
     Bond, Chip, Device, DeviceBond, DeviceCombo, DeviceNaming, DeviceNamingId, DisabledPart,
     GeomDb, Interposer,

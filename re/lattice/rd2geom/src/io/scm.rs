@@ -3,9 +3,9 @@ use prjcombine_ecp::{
     defs::{bcls, bslots, tcls, wires},
 };
 use prjcombine_interconnect::{
+    coord::{BelCoord, CellCoord},
     db::WireSlotIdExt,
     dir::{Dir, DirH, DirHV, DirV},
-    grid::{BelCoord, CellCoord},
 };
 
 use crate::{ChipContext, RcMode};
@@ -22,9 +22,9 @@ impl ChipContext<'_> {
                     IoGroupKind::Dozen => 2 - cidx,
                     _ => unreachable!(),
                 };
-                (bcrd.cell.delta(0, dy as i32), abcd)
+                (bcrd.cell.delta(0, dy), abcd)
             }
-            Dir::V(_) => (bcrd.cell.delta(cidx as i32, 0), abcd),
+            Dir::V(_) => (bcrd.cell.delta(cidx, 0), abcd),
         }
     }
 
@@ -596,10 +596,10 @@ impl ChipContext<'_> {
         let cell = match edge {
             Dir::H(edge) => match self.chip.rows[bcrd.row].io[edge] {
                 IoGroupKind::Quad => bcrd.cell,
-                IoGroupKind::Dozen => bcrd.cell.delta(0, 2 - idx as i32),
+                IoGroupKind::Dozen => bcrd.cell.delta(0, 2 - idx),
                 _ => unreachable!(),
             },
-            Dir::V(_) => bcrd.cell.delta(idx as i32, 0),
+            Dir::V(_) => bcrd.cell.delta(idx, 0),
         };
         let (r, c) = self.rc(cell);
         let name = match edge {

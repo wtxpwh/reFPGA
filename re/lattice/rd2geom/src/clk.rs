@@ -2,7 +2,7 @@ use prjcombine_ecp::{
     chip::{Chip, ChipKind, RowKind},
     defs::{bslots, tcls, wires},
 };
-use prjcombine_interconnect::{db::WireSlotIdExt, grid::DieIdExt};
+use prjcombine_interconnect::{coord::DieIdExt, db::WireSlotIdExt};
 
 use crate::ChipContext;
 

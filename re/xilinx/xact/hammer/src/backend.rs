@@ -7,7 +7,10 @@ use std::{
 };
 
 use prjcombine_entity::EntityVec;
-use prjcombine_interconnect::grid::{BelCoord, ExpandedGrid, TileCoord, WireCoord};
+use prjcombine_interconnect::{
+    coord::{BelCoord, TileCoord, WireCoord},
+    grid::ExpandedGrid,
+};
 use prjcombine_re_fpga_hammer::{FpgaBackend, FuzzerInfo, State};
 use prjcombine_re_hammer::{Backend, FuzzerId};
 use prjcombine_re_xilinx_xact_geom::Device;

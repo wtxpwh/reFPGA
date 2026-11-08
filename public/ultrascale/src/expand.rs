@@ -2,12 +2,12 @@
 
 use bimap::BiHashMap;
 use prjcombine_entity::{EntityId, EntityPartVec, EntityVec};
+use prjcombine_interconnect::coord::{
+    CellCoord, ColId, DieId, DieIdExt, RowId, RowIdExt, TileIobId,
+};
 use prjcombine_interconnect::db::IntDb;
 use prjcombine_interconnect::dir::DirH;
 use prjcombine_interconnect::grid::builder::GridBuilder;
-use prjcombine_interconnect::grid::{
-    CellCoord, ColId, DieId, DieIdExt, RowId, RowIdExt, TileIobId,
-};
 use std::collections::BTreeSet;
 
 use crate::chip::{
@@ -124,7 +124,6 @@ impl DieExpander<'_, '_, '_> {
                 }
             }
             for dy in 0..height {
-                let dy = dy as i32;
                 self.egrid.fill_conn_term(cell.delta(0, dy), ccls::TERM_W);
                 self.egrid.fill_conn_term(cell.delta(0, dy), ccls::TERM_LW);
                 self.egrid.add_tile_single(cell.delta(0, dy), tcls::INTF_IO);
@@ -468,7 +467,7 @@ impl DieExpander<'_, '_, '_> {
             }
             HardRowKind::HdioL => {
                 for (i, tcid) in [tcls::HDIOL_S, tcls::HDIOL_N].into_iter().enumerate() {
-                    let cell = cell.delta(0, (i * 30) as i32);
+                    let cell = cell.delta(0, i * 30);
                     self.egrid.add_tile_n(cell, tcid, 30);
                     for j in 0..42 {
                         self.io.push(IoCoord::HdioLc(HdioCoord {

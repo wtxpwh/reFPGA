@@ -6,11 +6,11 @@ use prjcombine_ecp::{
 };
 use prjcombine_entity::{EntityBundleIndices, EntityBundleItemIndex};
 use prjcombine_interconnect::{
+    coord::{BelCoord, CellCoord},
     db::{
         Bel, BelClassId, BelInfo, BelInput, BelInputId, BelOutputId, CellSlotId, IntDb, SwitchBox,
         TileWireCoord,
     },
-    grid::{BelCoord, CellCoord},
 };
 use prjcombine_re_lattice_naming::{BelNaming, WireName};
 

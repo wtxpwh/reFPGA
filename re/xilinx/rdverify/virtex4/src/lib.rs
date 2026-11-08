@@ -1,9 +1,9 @@
 use indicatif::ProgressBar;
 use prjcombine_entity::{EntityBundleItemIndex, EntityId, EntityIdArith};
 use prjcombine_interconnect::{
+    coord::BelCoord,
     db::{BelInfo, BelInputId, BelKind, SwitchBoxItem, WireSlotIdExt},
     dir::Dir,
-    grid::{BelCoord, RowId},
 };
 use prjcombine_re_xilinx_naming::db::RawTileId;
 use prjcombine_re_xilinx_naming_virtex4::ExpandedNamedDevice;
@@ -443,10 +443,9 @@ fn verify_ilogic(edev: &ExpandedDevice, vrf: &mut Verifier, bcrd: BelCoord) {
         let is_bufio = matches!(bcrd.row.to_idx() % 16, 7 | 8);
         let row_dcmiob = edev.row_dcmiob.unwrap();
         let row_iobdcm = edev.row_iobdcm.unwrap();
-        let row_iobdcm_m16: RowId = row_iobdcm - 16;
         let is_giob = bcrd.col == edev.col_cfg
-            && (row_dcmiob.range(row_dcmiob + 16).contains(bcrd.row)
-                || row_iobdcm_m16.range(row_iobdcm).contains(bcrd.row));
+            && (row_dcmiob.range_up(16).contains(bcrd.row)
+                || row_iobdcm.range_down(16).contains(bcrd.row));
         if is_giob || is_bufio {
             bel.claim_pip(bel.wire("CLKPAD"), bel.wire("O"));
         }

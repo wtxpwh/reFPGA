@@ -1,5 +1,5 @@
 use prjcombine_entity::EntityId;
-use prjcombine_interconnect::grid::CellCoord;
+use prjcombine_interconnect::coord::CellCoord;
 use prjcombine_re_xilinx_naming::{db::NamingDb, grid::ExpandedGridNaming};
 use prjcombine_xc2000::{
     expanded::ExpandedDevice,

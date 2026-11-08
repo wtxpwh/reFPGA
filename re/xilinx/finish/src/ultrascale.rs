@@ -5,7 +5,7 @@ use std::{
 
 use itertools::Itertools;
 use prjcombine_entity::{EntityMap, EntitySet, EntityVec};
-use prjcombine_interconnect::grid::DieId;
+use prjcombine_interconnect::coord::DieId;
 use prjcombine_re_collector::bitdata::CollectorData;
 use prjcombine_re_xilinx_geom::GeomDb;
 use prjcombine_types::db::DeviceCombo;

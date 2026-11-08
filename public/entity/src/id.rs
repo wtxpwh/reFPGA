@@ -38,8 +38,63 @@ pub trait EntityIdArith:
     + SubAssign<i32>
     + Sub<Self, Output = isize>
 {
-    fn range(self, other: Self) -> EntityRange<Self> {
+    fn range_until(self, other: Self) -> EntityRange<Self> {
         EntityRange::new(self.to_idx(), other.to_idx())
+    }
+
+    fn range_until_inclusive(self, other: Self) -> EntityRange<Self> {
+        self.range_until(other + 1)
+    }
+
+    fn range_around(self, down: usize, up: usize) -> EntityRange<Self> {
+        (self - down).range_until(self + up)
+    }
+
+    fn range_up(self, len: usize) -> EntityRange<Self> {
+        self.range_around(0, len)
+    }
+
+    fn range_down(self, len: usize) -> EntityRange<Self> {
+        self.range_around(len, 0)
+    }
+}
+
+pub trait EntityDelta: Copy {
+    fn add_to(self, index: usize) -> usize;
+    fn sub_from(self, index: usize) -> usize;
+}
+
+impl EntityDelta for usize {
+    fn add_to(self, index: usize) -> usize {
+        index + self
+    }
+
+    fn sub_from(self, index: usize) -> usize {
+        index - self
+    }
+}
+
+impl EntityDelta for isize {
+    fn add_to(self, index: usize) -> usize {
+        index.checked_add_signed(self).unwrap()
+    }
+
+    fn sub_from(self, index: usize) -> usize {
+        index.checked_sub_signed(self).unwrap()
+    }
+}
+
+impl EntityDelta for i32 {
+    fn add_to(self, index: usize) -> usize {
+        index
+            .checked_add_signed(isize::try_from(self).unwrap())
+            .unwrap()
+    }
+
+    fn sub_from(self, index: usize) -> usize {
+        index
+            .checked_sub_signed(isize::try_from(self).unwrap())
+            .unwrap()
     }
 }
 
@@ -188,84 +243,31 @@ macro_rules! make_id {
             }
         }
 
-        impl<Tag: EntityTagArith> core::ops::Add<usize> for $ty<Tag> {
+        impl<Tag: EntityTagArith, Delta: EntityDelta> core::ops::Add<Delta> for $ty<Tag> {
             type Output = Self;
-            fn add(self, x: usize) -> Self {
+            fn add(self, x: Delta) -> Self {
                 use $crate::EntityId;
-                Self::from_idx(self.to_idx() + x)
+                Self::from_idx(x.add_to(self.to_idx()))
             }
         }
 
-        impl<Tag: EntityTagArith> core::ops::AddAssign<usize> for $ty<Tag> {
-            fn add_assign(&mut self, x: usize) {
+        impl<Tag: EntityTagArith, Delta: EntityDelta> core::ops::AddAssign<Delta> for $ty<Tag> {
+            fn add_assign(&mut self, x: Delta) {
                 *self = *self + x;
             }
         }
 
-        impl<Tag: EntityTagArith> core::ops::Sub<usize> for $ty<Tag> {
+        impl<Tag: EntityTagArith, Delta: EntityDelta> core::ops::Sub<Delta> for $ty<Tag> {
             type Output = Self;
-            fn sub(self, x: usize) -> Self {
+            fn sub(self, x: Delta) -> Self {
                 use $crate::EntityId;
-                Self::from_idx(self.to_idx() - x)
+                Self::from_idx(x.sub_from(self.to_idx()))
             }
         }
 
-        impl<Tag: EntityTagArith> core::ops::SubAssign<usize> for $ty<Tag> {
-            fn sub_assign(&mut self, x: usize) {
+        impl<Tag: EntityTagArith, Delta: EntityDelta> core::ops::SubAssign<Delta> for $ty<Tag> {
+            fn sub_assign(&mut self, x: Delta) {
                 *self = *self - x;
-            }
-        }
-
-        impl<Tag: EntityTagArith> core::ops::Add<isize> for $ty<Tag> {
-            type Output = Self;
-            fn add(self, x: isize) -> Self {
-                use $crate::EntityId;
-                Self::from_idx(self.to_idx().checked_add_signed(x).unwrap())
-            }
-        }
-
-        impl<Tag: EntityTagArith> core::ops::AddAssign<isize> for $ty<Tag> {
-            fn add_assign(&mut self, x: isize) {
-                *self = *self + x;
-            }
-        }
-
-        impl<Tag: EntityTagArith> core::ops::Sub<isize> for $ty<Tag> {
-            type Output = Self;
-            fn sub(self, x: isize) -> Self {
-                self + (-x)
-            }
-        }
-
-        impl<Tag: EntityTagArith> core::ops::SubAssign<isize> for $ty<Tag> {
-            fn sub_assign(&mut self, x: isize) {
-                *self = *self - x;
-            }
-        }
-
-        impl<Tag: EntityTagArith> core::ops::Add<i32> for $ty<Tag> {
-            type Output = Self;
-            fn add(self, x: i32) -> Self {
-                self + (x as isize)
-            }
-        }
-
-        impl<Tag: EntityTagArith> core::ops::AddAssign<i32> for $ty<Tag> {
-            fn add_assign(&mut self, x: i32) {
-                *self = *self + (x as isize);
-            }
-        }
-
-        impl<Tag: EntityTagArith> core::ops::Sub<i32> for $ty<Tag> {
-            type Output = Self;
-            fn sub(self, x: i32) -> Self {
-                self - (x as isize)
-            }
-        }
-
-        impl<Tag: EntityTagArith> core::ops::SubAssign<i32> for $ty<Tag> {
-            fn sub_assign(&mut self, x: i32) {
-                *self = *self - (x as isize);
             }
         }
 
@@ -277,12 +279,7 @@ macro_rules! make_id {
             }
         }
 
-        impl<Tag: EntityTagArith> EntityIdArith for $ty<Tag> {
-            fn range(self, other: Self) -> $crate::id::EntityRange<Self> {
-                use $crate::EntityId;
-                $crate::id::EntityRange::new(self.to_idx(), other.to_idx())
-            }
-        }
+        impl<Tag: EntityTagArith> EntityIdArith for $ty<Tag> {}
     };
 }
 

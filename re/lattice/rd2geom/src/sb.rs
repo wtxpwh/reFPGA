@@ -5,11 +5,11 @@ use prjcombine_ecp::{
     defs::{bslots, wires},
 };
 use prjcombine_interconnect::{
+    coord::{BelCoord, CellCoord},
     db::{
         BelSlotId, CellSlotId, IntDb, Mux, PermaBuf, ProgBuf, SwitchBox, SwitchBoxItem,
         TileClassId, TileWireCoord,
     },
-    grid::{BelCoord, CellCoord},
 };
 use prjcombine_re_lattice_naming::WireName;
 use prjcombine_types::bitrect::PolTileBit;

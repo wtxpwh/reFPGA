@@ -1,6 +1,6 @@
 use indicatif::ProgressBar;
 use prjcombine_entity::EntityId;
-use prjcombine_interconnect::{db::WireSlotIdExt, grid::BelCoord};
+use prjcombine_interconnect::{coord::BelCoord, db::WireSlotIdExt};
 use prjcombine_re_xilinx_naming_virtex::ExpandedNamedDevice;
 use prjcombine_re_xilinx_rawdump::Part;
 use prjcombine_re_xilinx_rdverify::Verifier;

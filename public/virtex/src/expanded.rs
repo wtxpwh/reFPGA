@@ -1,7 +1,10 @@
 use std::collections::BTreeSet;
 
 use prjcombine_entity::{EntityId, EntityPartVec, EntityVec};
-use prjcombine_interconnect::grid::{ColId, ExpandedGrid, RowId, TileCoord};
+use prjcombine_interconnect::{
+    coord::{ColId, RowId, TileCoord},
+    grid::ExpandedGrid,
+};
 use prjcombine_types::bitrect::BitRectId;
 
 use crate::{

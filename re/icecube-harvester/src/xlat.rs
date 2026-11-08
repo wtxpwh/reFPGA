@@ -2,9 +2,9 @@ use std::collections::{HashMap, HashSet};
 
 use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
+    coord::{CellCoord, ColId, DieIdExt, RowId, WireCoord},
     db::{CellSlotId, WireSlotId},
     dir::Dir,
-    grid::{CellCoord, ColId, DieIdExt, RowId, WireCoord},
 };
 use prjcombine_siliconblue::{
     chip::{Chip, ChipKind, SpecialIoKey, SpecialTileKey},

@@ -1,7 +1,7 @@
 use prjcombine_entity::EntityVec;
 use prjcombine_interconnect::{
+    coord::TileCoord,
     db::{BelInfo, BelInput},
-    grid::TileCoord,
 };
 use prjcombine_re_fpga_hammer::FuzzerProp;
 use prjcombine_re_hammer::{Fuzzer, Session};

@@ -1,7 +1,7 @@
 use prjcombine_interconnect::{
+    coord::TileCoord,
     db::{BelAttributeType, BelInputId},
     dir::DirH,
-    grid::TileCoord,
 };
 use prjcombine_re_collector::diff::{
     OcdMode, extract_common_diff, xlat_bit, xlat_bitvec, xlat_enum_attr_ocd,

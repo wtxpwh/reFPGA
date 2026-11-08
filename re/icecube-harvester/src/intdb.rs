@@ -2,11 +2,11 @@ use std::collections::{BTreeMap, BTreeSet, HashMap, btree_map};
 
 use prjcombine_entity::{EntityBundleIndices, EntityVec};
 use prjcombine_interconnect::{
+    coord::{BelCoord, CellCoord},
     db::{
         BelInfo, BelInput, BelKind, BelSlotId, CellSlotId, IntDb, TileClass, TileClassId,
         TileWireCoord,
     },
-    grid::{BelCoord, CellCoord},
 };
 use prjcombine_siliconblue::chip::{SpecialIoKey, SpecialTile};
 

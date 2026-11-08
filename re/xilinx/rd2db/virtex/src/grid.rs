@@ -1,7 +1,7 @@
 use std::collections::{BTreeMap, BTreeSet, HashMap};
 
 use prjcombine_entity::{EntityIdArith, EntityRangeVec};
-use prjcombine_interconnect::grid::{ColId, DieIdExt};
+use prjcombine_interconnect::coord::{ColId, DieIdExt};
 use prjcombine_re_xilinx_rawdump::{Coord, Part, TkSiteSlot};
 use prjcombine_virtex::{
     chip::{Chip, ChipKind, DisabledPart, SharedCfgPad},
@@ -55,7 +55,7 @@ fn get_cols_clkv(rd: &Part, int: &IntGrid) -> EntityRangeVec<ColId, ColId> {
     assert_eq!(cols_clkv.len(), cols_brk_l.len());
     let mut res = EntityRangeVec::new();
     for ((col_w, col_e), col_m) in cols_brk_l.into_iter().zip(cols_brk).zip(cols_clkv) {
-        let cols = col_w.range(col_e);
+        let cols = col_w.range_until(col_e);
         assert_eq!(cols, res.push(cols.len(), col_m));
     }
     res

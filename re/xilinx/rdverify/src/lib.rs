@@ -1,11 +1,12 @@
 use indicatif::{ProgressBar, ProgressStyle};
 use prjcombine_entity::{EntityBitVec, EntityBundleItemIndex, EntityId, EntityPartVec};
+use prjcombine_interconnect::coord::{BelCoord, ConnectorCoord, TileCoord, WireCoord};
 use prjcombine_interconnect::db::{
     BelBidirId, BelInfo, BelInput, BelInputId, BelKind, BelOutputId, BelPinIndexing, BelSlotId,
     ConnectorWire, IntDb, PinDir, PolTileWireCoord, SwitchBoxItem, TileClassId, TileWireCoord,
     WireKind, WireSlotId,
 };
-use prjcombine_interconnect::grid::{BelCoord, ConnectorCoord, ExpandedGrid, TileCoord, WireCoord};
+use prjcombine_interconnect::grid::ExpandedGrid;
 use prjcombine_re_xilinx_naming::db::{
     BelNaming, ConnectorWireInFarNaming, ConnectorWireOutNaming, IntfWireInNaming, NamingDb,
     PipNaming, RawTileId,

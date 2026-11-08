@@ -16,12 +16,12 @@ use pkg::get_pkg_pins;
 use prims::{Primitive, get_prims};
 use prjcombine_entity::{EntityId, EntityRangeVec, EntityVec};
 use prjcombine_interconnect::{
+    coord::{BelCoord, CellCoord, ColId, DieId, DieIdExt, RowId, WireCoord},
     db::{
         BelAttribute, BelInfo, CellSlotId, IntDb, Mux, ProgBuf, ProgInv, SwitchBox, SwitchBoxItem,
         TileClass, TileClassId, TileWireCoord, WireSlotIdExt,
     },
     dir::{Dir, DirH, DirV},
-    grid::{BelCoord, CellCoord, ColId, DieId, DieIdExt, RowId, WireCoord},
 };
 use prjcombine_re_collector::diff::DiffKey;
 use prjcombine_re_harvester::Harvester;

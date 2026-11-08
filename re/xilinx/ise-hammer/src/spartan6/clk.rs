@@ -2,9 +2,9 @@ use std::collections::HashSet;
 
 use prjcombine_entity::EntityId;
 use prjcombine_interconnect::{
+    coord::TileCoord,
     db::{BelInfo, PolTileWireCoord, SwitchBoxItem, TileClassId, TileWireCoord, WireSlotIdExt},
     dir::DirV,
-    grid::TileCoord,
 };
 use prjcombine_re_collector::diff::{
     Diff, DiffKey, OcdMode, extract_bitvec_val_part, extract_common_diff, xlat_bit, xlat_bit_wide,
