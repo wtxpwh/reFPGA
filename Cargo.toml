@@ -215,6 +215,7 @@ needless_range_loop = "allow"
 nonminimal_bool = "allow"
 precedence = "allow"
 question_mark = "allow"
+new_instead_of_clear = "allow"
 
 [profile.dev]
 opt-level = 2

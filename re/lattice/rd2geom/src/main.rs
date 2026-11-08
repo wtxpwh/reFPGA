@@ -822,7 +822,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             let pname = format!("{}-{}", part.name, part.package);
             let bres = process_bond(&args.datadir, part, &chip, cres.nph);
             let mut expected_sites =
-                expected_sites(&chip, &naming, &cres.dummy_sites, &part, &bres.bond);
+                expected_sites(&chip, &naming, &cres.dummy_sites, part, &bres.bond);
             if !part.sites.is_empty() {
                 for site in &part.sites {
                     let name = &site.name;
