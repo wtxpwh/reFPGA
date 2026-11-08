@@ -48,7 +48,7 @@ pub trait ColRangeExt: Copy {
     fn with_col(self, side: DirH, col: ColId) -> Self;
 
     fn split_at(self, col: ColId) -> EnumMap<DirH, Self> {
-        EnumMap::from_fn(|side| self.with_col(!side, col))
+        EnumMap::from_fn(|side: DirH| self.with_col(!side, col))
     }
 }
 
@@ -96,7 +96,7 @@ pub trait RowRangeExt: Copy {
     fn with_row(self, side: DirV, row: RowId) -> Self;
 
     fn split_at(self, row: RowId) -> EnumMap<DirV, Self> {
-        EnumMap::from_fn(|side| self.with_row(!side, row))
+        EnumMap::from_fn(|side: DirV| self.with_row(!side, row))
     }
 }
 
